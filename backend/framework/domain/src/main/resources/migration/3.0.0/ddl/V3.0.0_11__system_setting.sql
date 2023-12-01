@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS auth_source
 
 
 CREATE INDEX idx_name ON auth_source (`name`);
-CREATE INDEX idx_create_time ON auth_source (`create_time`);
-CREATE INDEX idx_update_time ON auth_source (`update_time`);
+CREATE INDEX idx_create_time ON auth_source (`create_time` desc);
+CREATE INDEX idx_update_time ON auth_source (`update_time` desc);
 
 CREATE TABLE IF NOT EXISTS user_role
 (
@@ -39,10 +39,10 @@ CREATE TABLE IF NOT EXISTS user_role
 
 
 CREATE INDEX idx_group_name ON user_role (`name`);
-CREATE INDEX idx_create_time ON user_role (`create_time`);
+CREATE INDEX idx_create_time ON user_role (`create_time` desc);
 CREATE INDEX idx_create_user ON user_role (`create_user`);
 CREATE INDEX idx_scope_id ON user_role (`scope_id`);
-CREATE INDEX idx_update_time ON user_role (`update_time`);
+CREATE INDEX idx_update_time ON user_role (`update_time` desc);
 
 CREATE TABLE IF NOT EXISTS license
 (
@@ -132,8 +132,8 @@ CREATE TABLE IF NOT EXISTS schedule
 
 CREATE INDEX idx_resource_id ON schedule (`resource_id`);
 CREATE INDEX idx_create_user ON schedule (`create_user`);
-CREATE INDEX idx_create_time ON schedule (`create_time`);
-CREATE INDEX idx_update_time ON schedule (`update_time`);
+CREATE INDEX idx_create_time ON schedule (`create_time` desc);
+CREATE INDEX idx_update_time ON schedule (`update_time` desc);
 CREATE INDEX idx_project_id ON schedule (`project_id`);
 CREATE INDEX idx_enable ON schedule (`enable`);
 CREATE INDEX idx_name ON schedule (`name`);
@@ -197,8 +197,8 @@ CREATE INDEX idx_name ON test_resource_pool(`name`);
 CREATE INDEX idx_type ON test_resource_pool(`type`);
 CREATE INDEX idx_deleted ON test_resource_pool(`deleted`);
 CREATE INDEX idx_enable ON test_resource_pool(`enable`);
-CREATE INDEX idx_create_time ON test_resource_pool(`create_time`);
-CREATE INDEX idx_update_time ON test_resource_pool(`update_time`);
+CREATE INDEX idx_create_time ON test_resource_pool(`create_time` desc);
+CREATE INDEX idx_update_time ON test_resource_pool(`update_time` desc);
 CREATE INDEX idx_create_user ON test_resource_pool(`create_user`);
 CREATE INDEX idx_all_org ON test_resource_pool(`all_org`);
 
@@ -228,8 +228,8 @@ CREATE TABLE IF NOT EXISTS user
 
 CREATE INDEX idx_name ON user (`name`);
 CREATE UNIQUE INDEX idx_email ON user (`email`);
-CREATE INDEX idx_create_time ON user (`create_time`);
-CREATE INDEX idx_update_time ON user (`update_time`);
+CREATE INDEX idx_create_time ON user (`create_time` desc);
+CREATE INDEX idx_update_time ON user (`update_time` desc);
 CREATE INDEX idx_organization_id ON user (`last_organization_id`);
 CREATE INDEX idx_project_id ON user (`last_project_id`);
 CREATE INDEX idx_create_user ON user (`create_user`);
@@ -254,7 +254,7 @@ CREATE TABLE IF NOT EXISTS user_role_relation(
 CREATE INDEX idx_user_id ON user_role_relation(`user_id`);
 CREATE INDEX idx_group_id ON user_role_relation(`role_id`);
 CREATE INDEX idx_source_id ON user_role_relation(`source_id`);
-CREATE INDEX idx_create_time ON user_role_relation(`create_time`);
+CREATE INDEX idx_create_time ON user_role_relation(`create_time` desc);
 
 CREATE TABLE IF NOT EXISTS user_role_permission
 (
@@ -313,8 +313,8 @@ CREATE TABLE IF NOT EXISTS organization
 
 CREATE INDEX idx_name ON organization (`name`);
 CREATE INDEX idx_create_user ON organization (`create_user`);
-CREATE INDEX idx_create_time ON organization (`create_time`);
-CREATE INDEX idx_update_time ON organization (`update_time`);
+CREATE INDEX idx_create_time ON organization (`create_time` desc);
+CREATE INDEX idx_update_time ON organization (`update_time` desc);
 CREATE INDEX idx_deleted ON organization (`deleted`);
 CREATE INDEX idx_update_user ON organization(`update_user`);
 

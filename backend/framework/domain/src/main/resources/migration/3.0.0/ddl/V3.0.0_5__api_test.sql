@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS api_debug(
 CREATE INDEX idx_project_id ON api_debug(project_id);
 CREATE INDEX idx_module_id ON api_debug(module_id);
 CREATE INDEX idx_protocol ON api_debug(protocol);
-CREATE INDEX idx_create_time ON api_debug(create_time);
+CREATE INDEX idx_create_time ON api_debug(create_time desc);
 CREATE INDEX idx_create_user ON api_debug(create_user);
 CREATE INDEX idx_name ON api_debug(name);
 
@@ -95,7 +95,7 @@ CREATE INDEX idx_version_id ON api_definition(version_id);
 CREATE INDEX idx_status ON api_definition(status);
 CREATE INDEX idx_pos ON api_definition(pos);
 CREATE INDEX idx_protocol ON api_definition(protocol);
-CREATE INDEX idx_create_time ON api_definition(create_time);
+CREATE INDEX idx_create_time ON api_definition(create_time desc);
 CREATE INDEX idx_create_user ON api_definition(create_user);
 CREATE INDEX idx_name ON api_definition(name);
 
@@ -136,7 +136,7 @@ CREATE TABLE IF NOT EXISTS api_report(
 
 
 CREATE INDEX idx_integrated ON api_report(integrated);
-CREATE INDEX idx_update_time ON api_report(update_time);
+CREATE INDEX idx_update_time ON api_report(update_time desc);
 CREATE INDEX idx_project_id ON api_report(project_id);
 CREATE INDEX idx_resource_id ON api_report(resource_id);
 CREATE INDEX idx_status ON api_report(status);
@@ -211,8 +211,8 @@ CREATE INDEX idx_version_id ON api_scenario(version_id);
 CREATE INDEX idx_project_id ON api_scenario(project_id);
 CREATE INDEX idx_status ON api_scenario(status);
 CREATE INDEX idx_report_status ON api_scenario(last_report_status);
-CREATE INDEX idx_create_time ON api_scenario(create_time);
-CREATE INDEX idx_update_time ON api_scenario(update_time);
+CREATE INDEX idx_create_time ON api_scenario(create_time desc);
+CREATE INDEX idx_update_time ON api_scenario(update_time desc);
 CREATE INDEX idx_create_user ON api_scenario(create_user);
 CREATE INDEX idx_num ON api_scenario(num);
 CREATE INDEX idx_level ON api_scenario(level);
@@ -297,7 +297,7 @@ CREATE INDEX idx_scenario_id ON api_scenario_report(scenario_id);
 CREATE INDEX idx_trigger_mode ON api_scenario_report(trigger_mode);
 CREATE INDEX idx_run_mode ON api_scenario_report(run_mode);
 CREATE INDEX idx_status ON api_scenario_report(status);
-CREATE INDEX idx_update_time ON api_scenario_report(update_time);
+CREATE INDEX idx_update_time ON api_scenario_report(update_time desc);
 CREATE INDEX idx_create_user ON api_scenario_report(create_user);
 CREATE INDEX idx_name ON api_scenario_report(name);
 CREATE INDEX idx_pool_id ON api_scenario_report(pool_id);
@@ -387,8 +387,8 @@ CREATE INDEX idx_project_id ON api_test_case(project_id);
 CREATE INDEX idx_status ON api_test_case(status);
 CREATE INDEX idx_version_id ON api_test_case(version_id);
 CREATE INDEX idx_priority ON api_test_case(priority);
-CREATE INDEX idx_create_time ON api_test_case(create_time);
-CREATE INDEX idx_update_time ON api_test_case(update_time);
+CREATE INDEX idx_create_time ON api_test_case(create_time desc);
+CREATE INDEX idx_update_time ON api_test_case(update_time desc);
 CREATE INDEX idx_create_user ON api_test_case(create_user);
 CREATE INDEX idx_name ON api_test_case(name);
 CREATE INDEX idx_num ON api_test_case(num);

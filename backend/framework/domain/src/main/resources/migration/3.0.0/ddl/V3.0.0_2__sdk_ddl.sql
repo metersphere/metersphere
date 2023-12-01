@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS operation_log
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_general_ci COMMENT = '操作日志';
 
-CREATE INDEX idx_create_time ON operation_log(create_time);
+CREATE INDEX idx_create_time ON operation_log(create_time desc);
 CREATE INDEX idx_create_user ON operation_log(create_user);
 CREATE INDEX idx_method ON operation_log(method);
 CREATE INDEX idx_module ON operation_log(module);
@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS environment
 
 CREATE INDEX idx_project_id ON environment(project_id);
 CREATE INDEX idx_name ON environment(name);
-CREATE INDEX idx_create_time ON environment(create_time);
+CREATE INDEX idx_create_time ON environment(create_time desc);
 
 CREATE TABLE IF NOT EXISTS environment_blob(
  `id` VARCHAR(50) NOT NULL   COMMENT '环境ID' ,
@@ -81,8 +81,8 @@ CREATE TABLE IF NOT EXISTS environment_group(
 CREATE INDEX idx_name ON environment_group(name);
 CREATE INDEX idx_project_id ON environment_group(project_id);
 CREATE INDEX idx_create_user ON environment_group(create_user);
-CREATE INDEX idx_create_time ON environment_group(create_time);
-CREATE INDEX idx_update_time ON environment_group(update_time);
+CREATE INDEX idx_create_time ON environment_group(create_time desc);
+CREATE INDEX idx_update_time ON environment_group(update_time desc);
 
 CREATE TABLE IF NOT EXISTS environment_group_relation(
    `id` VARCHAR(50) NOT NULL   COMMENT '' ,
@@ -143,7 +143,7 @@ CREATE TABLE operation_history
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '变更记录';
 
-CREATE INDEX idx_create_time ON operation_history (`create_time`);
+CREATE INDEX idx_create_time ON operation_history (`create_time` desc);
 CREATE INDEX idx_create_user ON operation_history (`create_user`);
 CREATE INDEX idx_module ON operation_history (`module`);
 CREATE INDEX idx_project_id ON operation_history (`project_id`);
