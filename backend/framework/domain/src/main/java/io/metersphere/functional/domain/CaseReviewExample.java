@@ -1,5 +1,6 @@
 package io.metersphere.functional.domain;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -171,6 +172,66 @@ public class CaseReviewExample {
 
         public Criteria andIdNotBetween(String value1, String value2) {
             addCriterion("id not between", value1, value2, "id");
+            return (Criteria) this;
+        }
+
+        public Criteria andNumIsNull() {
+            addCriterion("num is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andNumIsNotNull() {
+            addCriterion("num is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andNumEqualTo(Long value) {
+            addCriterion("num =", value, "num");
+            return (Criteria) this;
+        }
+
+        public Criteria andNumNotEqualTo(Long value) {
+            addCriterion("num <>", value, "num");
+            return (Criteria) this;
+        }
+
+        public Criteria andNumGreaterThan(Long value) {
+            addCriterion("num >", value, "num");
+            return (Criteria) this;
+        }
+
+        public Criteria andNumGreaterThanOrEqualTo(Long value) {
+            addCriterion("num >=", value, "num");
+            return (Criteria) this;
+        }
+
+        public Criteria andNumLessThan(Long value) {
+            addCriterion("num <", value, "num");
+            return (Criteria) this;
+        }
+
+        public Criteria andNumLessThanOrEqualTo(Long value) {
+            addCriterion("num <=", value, "num");
+            return (Criteria) this;
+        }
+
+        public Criteria andNumIn(List<Long> values) {
+            addCriterion("num in", values, "num");
+            return (Criteria) this;
+        }
+
+        public Criteria andNumNotIn(List<Long> values) {
+            addCriterion("num not in", values, "num");
+            return (Criteria) this;
+        }
+
+        public Criteria andNumBetween(Long value1, Long value2) {
+            addCriterion("num between", value1, value2, "num");
+            return (Criteria) this;
+        }
+
+        public Criteria andNumNotBetween(Long value1, Long value2) {
+            addCriterion("num not between", value1, value2, "num");
             return (Criteria) this;
         }
 
@@ -701,6 +762,126 @@ public class CaseReviewExample {
 
         public Criteria andEndTimeNotBetween(Long value1, Long value2) {
             addCriterion("end_time not between", value1, value2, "endTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseCountIsNull() {
+            addCriterion("case_count is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseCountIsNotNull() {
+            addCriterion("case_count is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseCountEqualTo(Integer value) {
+            addCriterion("case_count =", value, "caseCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseCountNotEqualTo(Integer value) {
+            addCriterion("case_count <>", value, "caseCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseCountGreaterThan(Integer value) {
+            addCriterion("case_count >", value, "caseCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseCountGreaterThanOrEqualTo(Integer value) {
+            addCriterion("case_count >=", value, "caseCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseCountLessThan(Integer value) {
+            addCriterion("case_count <", value, "caseCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseCountLessThanOrEqualTo(Integer value) {
+            addCriterion("case_count <=", value, "caseCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseCountIn(List<Integer> values) {
+            addCriterion("case_count in", values, "caseCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseCountNotIn(List<Integer> values) {
+            addCriterion("case_count not in", values, "caseCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseCountBetween(Integer value1, Integer value2) {
+            addCriterion("case_count between", value1, value2, "caseCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseCountNotBetween(Integer value1, Integer value2) {
+            addCriterion("case_count not between", value1, value2, "caseCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassRateIsNull() {
+            addCriterion("pass_rate is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassRateIsNotNull() {
+            addCriterion("pass_rate is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassRateEqualTo(BigDecimal value) {
+            addCriterion("pass_rate =", value, "passRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassRateNotEqualTo(BigDecimal value) {
+            addCriterion("pass_rate <>", value, "passRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassRateGreaterThan(BigDecimal value) {
+            addCriterion("pass_rate >", value, "passRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassRateGreaterThanOrEqualTo(BigDecimal value) {
+            addCriterion("pass_rate >=", value, "passRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassRateLessThan(BigDecimal value) {
+            addCriterion("pass_rate <", value, "passRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassRateLessThanOrEqualTo(BigDecimal value) {
+            addCriterion("pass_rate <=", value, "passRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassRateIn(List<BigDecimal> values) {
+            addCriterion("pass_rate in", values, "passRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassRateNotIn(List<BigDecimal> values) {
+            addCriterion("pass_rate not in", values, "passRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassRateBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("pass_rate between", value1, value2, "passRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassRateNotBetween(BigDecimal value1, BigDecimal value2) {
+            addCriterion("pass_rate not between", value1, value2, "passRate");
             return (Criteria) this;
         }
 

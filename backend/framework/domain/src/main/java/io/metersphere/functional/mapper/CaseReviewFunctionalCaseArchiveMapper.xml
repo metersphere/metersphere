@@ -6,7 +6,7 @@
     <result column="case_id" jdbcType="VARCHAR" property="caseId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.functional.domain.CaseReviewFunctionalCaseArchive">
-    <result column="content" jdbcType="LONGVARCHAR" property="content" />
+    <result column="content" jdbcType="LONGVARBINARY" property="content" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -111,7 +111,7 @@
   <insert id="insert" parameterType="io.metersphere.functional.domain.CaseReviewFunctionalCaseArchive">
     insert into case_review_functional_case_archive (review_id, case_id, content
       )
-    values (#{reviewId,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR}
+    values (#{reviewId,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARBINARY}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.functional.domain.CaseReviewFunctionalCaseArchive">
@@ -135,7 +135,7 @@
         #{caseId,jdbcType=VARCHAR},
       </if>
       <if test="content != null">
-        #{content,jdbcType=LONGVARCHAR},
+        #{content,jdbcType=LONGVARBINARY},
       </if>
     </trim>
   </insert>
@@ -155,7 +155,7 @@
         case_id = #{record.caseId,jdbcType=VARCHAR},
       </if>
       <if test="record.content != null">
-        content = #{record.content,jdbcType=LONGVARCHAR},
+        content = #{record.content,jdbcType=LONGVARBINARY},
       </if>
     </set>
     <if test="_parameter != null">
@@ -166,7 +166,7 @@
     update case_review_functional_case_archive
     set review_id = #{record.reviewId,jdbcType=VARCHAR},
       case_id = #{record.caseId,jdbcType=VARCHAR},
-      content = #{record.content,jdbcType=LONGVARCHAR}
+      content = #{record.content,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -184,7 +184,7 @@
     (review_id, case_id, content)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.reviewId,jdbcType=VARCHAR}, #{item.caseId,jdbcType=VARCHAR}, #{item.content,jdbcType=LONGVARCHAR}
+      (#{item.reviewId,jdbcType=VARCHAR}, #{item.caseId,jdbcType=VARCHAR}, #{item.content,jdbcType=LONGVARBINARY}
         )
     </foreach>
   </insert>
@@ -205,7 +205,7 @@
           #{item.caseId,jdbcType=VARCHAR}
         </if>
         <if test="'content'.toString() == column.value">
-          #{item.content,jdbcType=LONGVARCHAR}
+          #{item.content,jdbcType=LONGVARBINARY}
         </if>
       </foreach>
       )

@@ -17,6 +17,7 @@ public enum OperationLogType {
     RECOVER,
     LOGOUT,
     DISASSOCIATE,
+    ASSOCIATE,
     ARCHIVED;
 
     public boolean contains(OperationLogType keyword) {
