@@ -29,4 +29,7 @@ public class CaseReviewDTO extends CaseReview {
 
     @Schema(description = "评审状态名称")
     private String statusName;
+
+    @Schema(description = "关注标识")
+    private Boolean followFlag;
 }

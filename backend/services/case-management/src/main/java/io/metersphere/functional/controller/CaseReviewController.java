@@ -13,6 +13,7 @@ import io.metersphere.functional.service.CaseReviewNoticeService;
 import io.metersphere.functional.service.CaseReviewService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.domain.User;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.notice.annotation.SendNotice;
@@ -88,6 +89,20 @@ public class CaseReviewController {
     public List<User> getReviewUserList(@PathVariable String projectId, @Schema(description = "查询关键字，根据邮箱和用户名查询")
                                   @RequestParam(value = "keyword", required = false) String keyword) {
         return caseReviewService.getReviewUserList(projectId, keyword);
+    }
+
+    @PostMapping("/edit/pos")
+    @Operation(summary = "用例管理-用例评审-拖拽排序")
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_UPDATE)
+    public void editPos(@Validated @RequestBody PosRequest request) {
+        caseReviewService.editPos(request);
+    }
+
+    @GetMapping("/detail/{id}")
+    @Operation(summary = "用例管理-用例评审-查看评审详情")
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ)
+    public CaseReviewDTO getCaseReviewDetail(@PathVariable String id) {
+        return caseReviewService.getCaseReviewDetail(id, SessionUtils.getUserId());
     }
 
 }
