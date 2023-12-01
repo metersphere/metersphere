@@ -223,12 +223,6 @@ public class ApiFileResourceService {
         return apiFileResourceMapper.selectByExample(example);
     }
 
-    public List<String> getFileIdsByResourceId(String resourceId) {
-        return getByResourceId(resourceId).stream()
-                .map(ApiFileResource::getFileId)
-                .toList();
-    }
-
     /**
      * 上传临时文件
      * system/temp/{fileId}/{fileName}

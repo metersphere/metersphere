@@ -16,7 +16,10 @@ import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.*;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.FileAssociationSourceUtil;
+import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.service.UserLoginService;
@@ -114,24 +117,9 @@ public class ApiDefinitionService {
     }
 
     public ApiDefinitionDTO get(String id, String userId){
-        ApiDefinitionDTO apiDefinitionDTO = new ApiDefinitionDTO();
         // 1. 避免重复查询数据库，将查询结果传递给get方法
         ApiDefinition apiDefinition = checkApiDefinition(id);
-        // 2. 使用Optional避免空指针异常
-        Optional<ApiDefinitionBlob> apiDefinitionBlobOptional = Optional.ofNullable(apiDefinitionBlobMapper.selectByPrimaryKey(id));
-        apiDefinitionBlobOptional.ifPresent(blob -> {
-            apiDefinitionDTO.setRequest(ApiDataUtils.parseObject(new String(blob.getRequest()), AbstractMsTestElement.class));
-            // blob.getResponse() 为 null 时不进行转换
-            if (blob.getResponse() != null) {
-                apiDefinitionDTO.setResponse(ApiDataUtils.parseArray(new String(blob.getResponse()), HttpResponse.class));
-            }
-        });
-        // 3. 使用Stream简化集合操作
-        ApiDefinitionFollowerExample example = new ApiDefinitionFollowerExample();
-        example.createCriteria().andApiDefinitionIdEqualTo(id).andUserIdEqualTo(userId);
-        apiDefinitionDTO.setFollow(apiDefinitionFollowerMapper.countByExample(example) > 0);
-        BeanUtils.copyBean(apiDefinitionDTO, apiDefinition);
-        return apiDefinitionDTO;
+        return getApiDefinitionInfo(id, userId, apiDefinition);
     }
 
     public ApiDefinition create(ApiDefinitionAddRequest request, String userId) {
@@ -652,4 +640,33 @@ public class ApiDefinitionService {
     public String uploadTempFile(MultipartFile file) {
         return apiFileResourceService.uploadTempFile(file);
     }
+
+    public ApiDefinitionDTO getInfo(String id, String userId){
+        ApiDefinitionDTO apiDefinitionDTO = new ApiDefinitionDTO();
+        ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(id);
+        if(apiDefinition != null){
+            apiDefinitionDTO = getApiDefinitionInfo(id, userId, apiDefinition);
+        }
+        return apiDefinitionDTO;
+    }
+
+    public ApiDefinitionDTO getApiDefinitionInfo(String id, String userId, ApiDefinition apiDefinition) {
+        ApiDefinitionDTO apiDefinitionDTO = new ApiDefinitionDTO();
+        // 2. 使用Optional避免空指针异常
+        Optional<ApiDefinitionBlob> apiDefinitionBlobOptional = Optional.ofNullable(apiDefinitionBlobMapper.selectByPrimaryKey(id));
+        apiDefinitionBlobOptional.ifPresent(blob -> {
+            apiDefinitionDTO.setRequest(ApiDataUtils.parseObject(new String(blob.getRequest()), AbstractMsTestElement.class));
+            // blob.getResponse() 为 null 时不进行转换
+            if (blob.getResponse() != null) {
+                apiDefinitionDTO.setResponse(ApiDataUtils.parseArray(new String(blob.getResponse()), HttpResponse.class));
+            }
+        });
+        // 3. 使用Stream简化集合操作
+        ApiDefinitionFollowerExample example = new ApiDefinitionFollowerExample();
+        example.createCriteria().andApiDefinitionIdEqualTo(id).andUserIdEqualTo(userId);
+        apiDefinitionDTO.setFollow(apiDefinitionFollowerMapper.countByExample(example) > 0);
+        BeanUtils.copyBean(apiDefinitionDTO, apiDefinition);
+        return apiDefinitionDTO;
+    }
+
 }
