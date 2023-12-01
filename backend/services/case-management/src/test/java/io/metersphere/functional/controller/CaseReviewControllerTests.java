@@ -5,10 +5,8 @@ import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.CaseReviewDTO;
 import io.metersphere.functional.mapper.*;
-import io.metersphere.functional.request.CaseReviewAssociateRequest;
-import io.metersphere.functional.request.CaseReviewFollowerRequest;
-import io.metersphere.functional.request.CaseReviewPageRequest;
-import io.metersphere.functional.request.CaseReviewRequest;
+import io.metersphere.functional.request.*;
+import io.metersphere.functional.result.CaseManagementResultCode;
 import io.metersphere.project.domain.Notification;
 import io.metersphere.project.domain.NotificationExample;
 import io.metersphere.project.mapper.NotificationMapper;
@@ -16,6 +14,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.User;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
@@ -50,9 +49,10 @@ public class CaseReviewControllerTests extends BaseTest {
     private static final String EDIT_CASE_REVIEW = "/case/review/edit";
     private static final String PAGE_CASE_REVIEW = "/case/review/page";
     private static final String ASSOCIATE_CASE_REVIEW = "/case/review/associate";
-
+    private static final String EDIT_POS_CASE_REVIEW_URL= "/case/review/edit/pos";
     private static final String FOLLOW_CASE_REVIEW = "/case/review/edit/follower";
     private static final String CASE_REVIEWER_LIST = "/case/review/user-option/";
+    private static final String DETAIL_CASE_REVIEW = "/case/review/detail/";
 
 
     @Resource
@@ -401,7 +401,48 @@ public class CaseReviewControllerTests extends BaseTest {
 
     }
 
+    @Test
+    @Order(13)
+    public void testPos() throws Exception {
+        List<CaseReview> caseReviews = getCaseReviews("创建评审更新1");
+        List<CaseReview> caseReviews2 = getCaseReviews("创建评审更新2");
+        Long pos = caseReviews.get(0).getPos();
+        Long pos2 = caseReviews2.get(0).getPos();
+        PosRequest posRequest = new PosRequest();
+        posRequest.setProjectId(projectId);
+        posRequest.setTargetId(caseReviews.get(0).getId());
+        posRequest.setMoveId(caseReviews2.get(0).getId());
+        posRequest.setMoveMode("AFTER");
+        this.requestPostWithOkAndReturn(EDIT_POS_CASE_REVIEW_URL, posRequest);
+        caseReviews = getCaseReviews("创建评审更新1");
+        caseReviews2 = getCaseReviews("创建评审更新2");
+        Long pos3 = caseReviews.get(0).getPos();
+        Long pos4 = caseReviews2.get(0).getPos();
+        Assertions.assertTrue(Objects.equals(pos, pos3));
+        Assertions.assertTrue(pos2>pos4);
+        posRequest.setMoveMode("BEFORE");
+        this.requestPostWithOkAndReturn(EDIT_POS_CASE_REVIEW_URL, posRequest);
+        caseReviews = getCaseReviews("创建评审更新1");
+        caseReviews2 = getCaseReviews("创建评审更新2");
+        Long pos5 = caseReviews.get(0).getPos();
+        Long pos6= caseReviews2.get(0).getPos();
+        Assertions.assertTrue(Objects.equals(pos5, pos3));
+        Assertions.assertTrue(pos6>pos4);
+    }
 
+    @Test
+    @Order(14)
+    public void testFunctionalCaseDetail() throws Exception {
+        List<CaseReview> caseReviews = getCaseReviews("创建评审更新1");
+        String id = caseReviews.get(0).getId();
+        assertErrorCode(this.requestGet(DETAIL_CASE_REVIEW + "ERROR_TEST_FUNCTIONAL_CASE_ID"), CaseManagementResultCode.CASE_REVIEW_NOT_FOUND);
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(DETAIL_CASE_REVIEW + id);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
 
     /**
      * 生成高级搜索参数

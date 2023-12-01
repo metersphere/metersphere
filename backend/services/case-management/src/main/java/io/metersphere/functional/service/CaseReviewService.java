@@ -14,11 +14,14 @@ import io.metersphere.functional.result.CaseManagementResultCode;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.User;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.mapper.ExtUserMapper;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
+import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -94,7 +97,8 @@ public class CaseReviewService {
      * @param reviewUserMap 评审和评审人的关系map
      */
     private static void buildCaseReviewDTO(CaseReviewDTO caseReviewDTO, Map<String, List<CaseReviewFunctionalCase>> reviewCaseMap, Map<String, List<CaseReviewUserDTO>> reviewUserMap) {
-        List<CaseReviewFunctionalCase> caseReviewFunctionalCaseList = reviewCaseMap.get(caseReviewDTO.getId());
+        String caseReviewId = caseReviewDTO.getId();
+        List<CaseReviewFunctionalCase> caseReviewFunctionalCaseList = reviewCaseMap.get(caseReviewId);
         if (CollectionUtils.isEmpty(caseReviewFunctionalCaseList)) {
             caseReviewDTO.setPassCount(0);
             caseReviewDTO.setUnPassCount(0);
@@ -105,16 +109,21 @@ public class CaseReviewService {
             buildAboutCaseCount(caseReviewDTO, caseReviewFunctionalCaseList);
         }
 
-        List<CaseReviewUserDTO> caseReviewUserDTOS = reviewUserMap.get(caseReviewDTO.getId());
-        List<String> userNames = caseReviewUserDTOS.stream().map(CaseReviewUserDTO::getUserName).toList();
-        caseReviewDTO.setReviewers(userNames);
+        buildReviewers(caseReviewDTO, reviewUserMap);
 
         caseReviewDTO.setStatusName(CaseReviewStatus.valueOf(caseReviewDTO.getStatus()).getName());
     }
 
+    private static void buildReviewers(CaseReviewDTO caseReviewDTO, Map<String, List<CaseReviewUserDTO>> reviewUserMap) {
+        List<CaseReviewUserDTO> caseReviewUserDTOS = reviewUserMap.get(caseReviewDTO.getId());
+        List<String> userNames = caseReviewUserDTOS.stream().map(CaseReviewUserDTO::getUserName).toList();
+        caseReviewDTO.setReviewers(userNames);
+    }
+
     /**
      * 构建用例相关的各种数量
-     * @param caseReviewDTO 用例评审
+     *
+     * @param caseReviewDTO                用例评审
      * @param caseReviewFunctionalCaseList 用例和评审相关联的集合
      */
     private static void buildAboutCaseCount(CaseReviewDTO caseReviewDTO, List<CaseReviewFunctionalCase> caseReviewFunctionalCaseList) {
@@ -402,8 +411,9 @@ public class CaseReviewService {
 
     /**
      * 关联用例
+     *
      * @param request 页面参数
-     * @param userId 当前操作人
+     * @param userId  当前操作人
      */
     public void associateCase(CaseReviewAssociateRequest request, String userId) {
         String caseReviewId = request.getReviewId();
@@ -429,12 +439,55 @@ public class CaseReviewService {
         CaseReview caseReview = new CaseReview();
         caseReview.setId(caseReviewId);
         //更新用例数量
-        caseReview.setCaseCount(caseReviewExist.getCaseCount()+caseRealIds.size());
+        caseReview.setCaseCount(caseReviewExist.getCaseCount() + caseRealIds.size());
         //通过率
         BigDecimal passCount = BigDecimal.valueOf(passList.size());
         BigDecimal totalCount = BigDecimal.valueOf(caseReview.getCaseCount());
-        BigDecimal passRate = passCount.divide(totalCount,2, RoundingMode.HALF_UP);
+        BigDecimal passRate = passCount.divide(totalCount, 2, RoundingMode.HALF_UP);
         caseReview.setPassRate(passRate);
         caseReviewMapper.updateByPrimaryKeySelective(caseReview);
+    }
+
+    /**
+     * 用例评审列表拖拽排序
+     * @param request request
+     */
+    public void editPos(PosRequest request) {
+        ServiceUtils.updatePosField(request,
+                CaseReview.class,
+                caseReviewMapper::selectByPrimaryKey,
+                extCaseReviewMapper::getPrePos,
+                extCaseReviewMapper::getLastPos,
+                caseReviewMapper::updateByPrimaryKeySelective);
+    }
+
+    /**
+     * 获取用例评审详情
+     * @param id 用例评审id
+     * @param userId 当前操作人
+     * @return CaseReviewDTO
+     */
+    public CaseReviewDTO getCaseReviewDetail(String id, String userId) {
+        CaseReview caseReview = checkCaseReview(id);
+        CaseReviewDTO caseReviewDTO = new CaseReviewDTO();
+        BeanUtils.copyBean(caseReviewDTO, caseReview);
+        Boolean isFollow = checkFollow(id, userId);
+        caseReviewDTO.setFollowFlag(isFollow);
+        Map<String, List<CaseReviewFunctionalCase>> reviewCaseMap = getReviewCaseMap(List.of(id));
+        Map<String, List<CaseReviewUserDTO>> reviewUserMap = getReviewUserMap(List.of(id));
+        buildCaseReviewDTO(caseReviewDTO, reviewCaseMap, reviewUserMap);
+        return caseReviewDTO;
+    }
+
+    /**
+     * 检查当前操作人是否关注该用例评审
+     * @param id  评审人名称
+     * @param userId 操作人
+     * @return Boolean
+     */
+    private Boolean checkFollow(String id, String userId) {
+        CaseReviewFollowerExample caseReviewFollowerExample = new CaseReviewFollowerExample();
+        caseReviewFollowerExample.createCriteria().andReviewIdEqualTo(id).andUserIdEqualTo(userId);
+        return caseReviewFollowerMapper.countByExample(caseReviewFollowerExample) > 0;
     }
 }
