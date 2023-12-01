@@ -18,4 +18,8 @@ public interface ExtCaseReviewMapper {
 
     List<CaseReviewDTO> list(@Param("request") CaseReviewPageRequest request);
 
+    Long getPrePos(@Param("projectId") String projectId, @Param("basePos") Long basePos);
+
+    Long getLastPos(@Param("projectId") String projectId, @Param("basePos") Long basePos);
+
 }
