@@ -1,6 +1,12 @@
 package io.metersphere.functional.controller;
 
+import com.alibaba.excel.util.StringUtils;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import io.metersphere.functional.dto.CaseReviewDTO;
+import io.metersphere.functional.request.CaseReviewAssociateRequest;
 import io.metersphere.functional.request.CaseReviewFollowerRequest;
+import io.metersphere.functional.request.CaseReviewPageRequest;
 import io.metersphere.functional.request.CaseReviewRequest;
 import io.metersphere.functional.service.CaseReviewLogService;
 import io.metersphere.functional.service.CaseReviewNoticeService;
@@ -11,6 +17,8 @@ import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.notice.annotation.SendNotice;
 import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.utils.PageUtils;
+import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,6 +40,15 @@ public class CaseReviewController {
     @Resource
     private CaseReviewService caseReviewService;
 
+    @PostMapping("/page")
+    @Operation(summary = "用例管理-功能用例-用例列表查询")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    public Pager<List<CaseReviewDTO>> getFunctionalCasePage(@Validated @RequestBody CaseReviewPageRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "pos desc");
+        return PageUtils.setPageInfo(page, caseReviewService.getCaseReviewPage(request));
+    }
+
     @PostMapping("/add")
     @Operation(summary = "用例管理-用例评审-创建用例评审")
     @Log(type = OperationLogType.ADD, expression = "#msClass.addCaseReviewLog(#request)", msClass = CaseReviewLogService.class)
@@ -39,6 +56,14 @@ public class CaseReviewController {
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_ADD)
     public void addCaseReview(@Validated @RequestBody CaseReviewRequest request) {
         caseReviewService.addCaseReview(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/associate")
+    @Operation(summary = "用例管理-用例评审-关联用例")
+    @Log(type = OperationLogType.ASSOCIATE, expression = "#msClass.associateCaseLog(#request)", msClass = CaseReviewLogService.class)
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_RELEVANCE)
+    public void associateCase(@Validated @RequestBody CaseReviewAssociateRequest request) {
+        caseReviewService.associateCase(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/edit")

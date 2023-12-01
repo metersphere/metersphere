@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.functional.mapper.ExtCaseReviewUserMapper">
+
+    <select id="getReviewUser" resultType="io.metersphere.functional.dto.CaseReviewUserDTO">
+        SELECT
+        cu.user_id ,cu.review_id, u.name as userName
+        FROM
+        case_review_user cu left join user u on cu.user_id = u.id
+        WHERE
+        cu.review_id in
+        <foreach collection="reviewIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+
+</mapper>

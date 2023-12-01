@@ -4,6 +4,7 @@ import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import lombok.Data;
@@ -14,6 +15,9 @@ public class CaseReview implements Serializable {
     @NotBlank(message = "{case_review.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{case_review.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
+
+    @Schema(description = "业务ID")
+    private Long num;
 
     @Schema(description = "名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{case_review.name.not_blank}", groups = {Created.class})
@@ -50,6 +54,14 @@ public class CaseReview implements Serializable {
     @Schema(description = "评审结束时间")
     private Long endTime;
 
+    @Schema(description = "用例数", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{case_review.case_count.not_blank}", groups = {Created.class})
+    private Integer caseCount;
+
+    @Schema(description = "通过率(保留两位小数)", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{case_review.pass_rate.not_blank}", groups = {Created.class})
+    private BigDecimal passRate;
+
     @Schema(description = "标签")
     private String tags;
 
@@ -72,6 +84,7 @@ public class CaseReview implements Serializable {
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
+        num("num", "num", "BIGINT", false),
         name("name", "name", "VARCHAR", true),
         moduleId("module_id", "moduleId", "VARCHAR", false),
         projectId("project_id", "projectId", "VARCHAR", false),
@@ -80,6 +93,8 @@ public class CaseReview implements Serializable {
         pos("pos", "pos", "BIGINT", false),
         startTime("start_time", "startTime", "BIGINT", false),
         endTime("end_time", "endTime", "BIGINT", false),
+        caseCount("case_count", "caseCount", "INTEGER", false),
+        passRate("pass_rate", "passRate", "DECIMAL", false),
         tags("tags", "tags", "VARCHAR", false),
         description("description", "description", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),

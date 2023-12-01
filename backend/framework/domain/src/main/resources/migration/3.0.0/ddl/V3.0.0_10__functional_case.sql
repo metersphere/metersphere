@@ -249,37 +249,43 @@ CREATE INDEX idx_case_id ON functional_case_history (case_id);
 
 CREATE TABLE IF NOT EXISTS case_review
 (
-    `id`               VARCHAR(50)  NOT NULL COMMENT 'ID',
-    `name`             VARCHAR(255) NOT NULL COMMENT '名称',
-    `module_id`        VARCHAR(50)  NOT NULL COMMENT '模块id',
-    `project_id`       VARCHAR(50)  NOT NULL COMMENT '项目ID',
-    `status`           VARCHAR(64)  NOT NULL DEFAULT 'PREPARE' COMMENT '评审状态：未开始/进行中/已完成/已结束/已归档',
-    `review_pass_rule` VARCHAR(64)  NOT NULL DEFAULT 'SINGLE' COMMENT '通过标准：单人通过/全部通过',
-    `pos` BIGINT NOT NULL  DEFAULT 0 COMMENT '自定义排序，间隔5000' ,
-    `start_time`       BIGINT COMMENT '评审开始时间',
-    `end_time`         BIGINT COMMENT '评审结束时间',
-    `tags`             VARCHAR(1000) COMMENT '标签',
-    `description`      VARCHAR(1000) COMMENT '描述',
-    `create_time`      BIGINT       NOT NULL COMMENT '创建时间',
-    `create_user`      VARCHAR(50)  NOT NULL COMMENT '创建人',
-    `update_time`      BIGINT       NOT NULL COMMENT '更新时间',
-    `update_user`      VARCHAR(50)  NOT NULL COMMENT '更新人',
-    PRIMARY KEY (id)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '用例评审';
+                                          `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
+                                          `num` BIGINT NOT NULL   COMMENT '业务ID' ,
+                                          `name` VARCHAR(255) NOT NULL   COMMENT '名称' ,
+                                          `module_id` VARCHAR(50) NOT NULL   COMMENT '模块id' ,
+                                          `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
+                                          `status` VARCHAR(64) NOT NULL  DEFAULT 'PREPARE' COMMENT '评审状态：未开始/进行中/已完成/已结束/已归档' ,
+                                          `review_pass_rule` VARCHAR(64) NOT NULL  DEFAULT 'SINGLE' COMMENT '通过标准：单人通过/全部通过' ,
+                                          `pos` BIGINT NOT NULL  DEFAULT 0 COMMENT '自定义排序，间隔5000' ,
+                                          `start_time` BIGINT    COMMENT '评审开始时间' ,
+                                          `end_time` BIGINT    COMMENT '评审结束时间' ,
+                                          `case_count` INT NOT NULL  DEFAULT 0 COMMENT '用例数' ,
+                                          `pass_rate` DECIMAL(5,2) NOT NULL  DEFAULT 0.00 COMMENT '通过率(保留两位小数)' ,
+                                          `tags` VARCHAR(1000)    COMMENT '标签' ,
+                                          `description` VARCHAR(1000)    COMMENT '描述' ,
+                                          `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+                                          `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+                                          `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
+                                          `update_user` VARCHAR(50) NOT NULL   COMMENT '更新人' ,
+                                          PRIMARY KEY (id)
+)  ENGINE = InnoDB
+   DEFAULT CHARSET = utf8mb4
+   COLLATE = utf8mb4_general_ci COMMENT = '用例评审';
 
 
-CREATE INDEX idx_create_user ON case_review (create_user);
-CREATE INDEX idx_project_id ON case_review (project_id);
-CREATE INDEX idx_name ON case_review (name);
-CREATE INDEX idx_status ON case_review (status);
-CREATE INDEX idx_review_pass_rule ON case_review (review_pass_rule);
-CREATE INDEX idx_create_time ON case_review (create_time desc);
-CREATE INDEX idx_update_time ON case_review (update_time desc);
-CREATE INDEX idx_update_user ON case_review (update_user);
-CREATE INDEX idx_module_id ON case_review (module_id);
+CREATE INDEX idx_create_user ON case_review(create_user);
+CREATE INDEX idx_project_id ON case_review(project_id);
+CREATE INDEX idx_name ON case_review(name);
+CREATE INDEX idx_status ON case_review(status);
+CREATE INDEX idx_review_pass_rule ON case_review(review_pass_rule);
+CREATE INDEX idx_create_time ON case_review(create_time desc);
+CREATE INDEX idx_update_time ON case_review(update_time desc);
+CREATE INDEX idx_update_user ON case_review(update_user);
+CREATE INDEX idx_module_id ON case_review(module_id);
 CREATE INDEX idx_pos ON case_review(pos);
+CREATE INDEX idx_case_count ON case_review(case_count);
+CREATE INDEX idx_pass_rate ON case_review(pass_rate);
+CREATE INDEX idx_num ON case_review(num);
 
 
 CREATE TABLE IF NOT EXISTS case_review_user
@@ -317,7 +323,7 @@ CREATE INDEX idx_pos ON case_review_functional_case(pos);
 CREATE TABLE IF NOT EXISTS case_review_functional_case_archive(
     `review_id` VARCHAR(50) NOT NULL COMMENT '用例评审ID',
     `case_id`   VARCHAR(50) NOT NULL COMMENT '功能用例ID',
-    `content`   LONGTEXT COMMENT '功能用例快照（JSON)'
+    `content` LONGBLOB    COMMENT '功能用例快照（JSON)'
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '用例评审归档表';
