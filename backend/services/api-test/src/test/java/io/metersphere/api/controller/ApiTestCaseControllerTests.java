@@ -5,7 +5,7 @@ import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiFileResourceService;
-import io.metersphere.api.util.ApiDataUtils;
+import io.metersphere.sdk.util.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.dto.filemanagement.FileInfo;
 import io.metersphere.project.dto.filemanagement.request.FileUploadRequest;

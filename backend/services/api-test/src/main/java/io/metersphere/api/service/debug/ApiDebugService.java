@@ -9,7 +9,7 @@ import io.metersphere.api.mapper.ApiDebugBlobMapper;
 import io.metersphere.api.mapper.ApiDebugMapper;
 import io.metersphere.api.mapper.ExtApiDebugMapper;
 import io.metersphere.api.service.ApiFileResourceService;
-import io.metersphere.api.util.ApiDataUtils;
+import io.metersphere.sdk.util.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
