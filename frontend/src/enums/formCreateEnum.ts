@@ -9,6 +9,8 @@ export enum FormCreateKeyEnum {
   CASE_MANAGEMENT_FIELD = 'caseManagementFields',
   // 自定义属性
   CASE_CUSTOM_ATTRS = 'caseCustomAttributes',
+  // 用例tab详情字段
+  CASE_CUSTOM_ATTRS_DETAIL = 'caseCustomAttributesDetail',
 }
 
 export default {};

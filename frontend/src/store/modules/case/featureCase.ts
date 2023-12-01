@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 
 import { getCaseModulesCounts, getRecycleModulesCounts } from '@/api/modules/case-management/featureCase';
 
-import type { CaseModuleQueryParams } from '@/models/caseManagement/featureCase';
+import type { CaseModuleQueryParams, TabItemType } from '@/models/caseManagement/featureCase';
 import { ModuleTreeNode } from '@/models/projectManagement/file';
 
 const useFeatureCaseStore = defineStore('featureCase', {
@@ -14,6 +14,7 @@ const useFeatureCaseStore = defineStore('featureCase', {
     modulesCount: Record<string, any>; // 用例树模块数量
     recycleModulesCount: Record<string, any>; // 回收站模块数量
     operatingState: boolean; // 操作状态
+    tabSettingList: TabItemType[]; // 详情tab
   } => ({
     moduleId: [],
     allModuleId: [],
@@ -21,6 +22,7 @@ const useFeatureCaseStore = defineStore('featureCase', {
     modulesCount: {},
     recycleModulesCount: {},
     operatingState: false,
+    tabSettingList: [],
   }),
   actions: {
     // 设置选择moduleId
@@ -37,6 +39,7 @@ const useFeatureCaseStore = defineStore('featureCase', {
     // 获取模块数量
     async getCaseModulesCountCount(params: CaseModuleQueryParams) {
       try {
+        this.modulesCount = {};
         this.modulesCount = await getCaseModulesCounts(params);
       } catch (error) {
         console.log(error);
@@ -45,6 +48,7 @@ const useFeatureCaseStore = defineStore('featureCase', {
     // 获取模块数量
     async getRecycleMModulesCountCount(params: CaseModuleQueryParams) {
       try {
+        this.recycleModulesCount = {};
         this.recycleModulesCount = await getRecycleModulesCounts(params);
       } catch (error) {
         console.log(error);
@@ -53,6 +57,14 @@ const useFeatureCaseStore = defineStore('featureCase', {
     // 设置是否是编辑或者新增成功状态
     setIsAlreadySuccess(state: boolean) {
       this.operatingState = state;
+    },
+    // 设置菜单
+    setTab(list: TabItemType[]) {
+      this.tabSettingList = list;
+    },
+    // 获取显示的tab
+    getTab() {
+      return this.tabSettingList.filter((item) => item.enable);
     },
   },
 });

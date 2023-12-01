@@ -94,10 +94,7 @@
               </div>
             </div>
           </div>
-          <a-empty class="mt-20">
-            暂无数据
-            <span class="cursor-pointer text-[rgb(var(--primary-5))]" @click="goPluginManagement">跳转至插件管理</span>
-          </a-empty>
+          <a-empty v-if="filterList.length < 1" class="mt-20"> </a-empty>
         </a-scrollbar>
       </div>
     </div>
