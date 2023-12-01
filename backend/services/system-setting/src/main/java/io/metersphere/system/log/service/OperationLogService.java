@@ -7,7 +7,7 @@ import io.metersphere.sdk.mapper.OperationLogBlobMapper;
 import io.metersphere.sdk.mapper.OperationLogMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.OperationLogHistory;
+import io.metersphere.system.domain.OperationHistory;
 import io.metersphere.system.domain.Organization;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.log.dto.LogDTO;
@@ -35,7 +35,7 @@ public class OperationLogService {
     @Resource
     private OperationLogMapper operationLogMapper;
     @Resource
-    private OperationLogHistoryMapper operationLogHistoryMapper;
+    private OperationHistoryMapper operationHistoryMapper;
     @Resource
     private OperationLogBlobMapper operationLogBlobMapper;
     @Resource
@@ -53,8 +53,8 @@ public class OperationLogService {
     @Resource
     private BaseOrganizationMapper baseOrganizationMapper;
 
-    private static OperationLogHistory getHistory(LogDTO log) {
-        OperationLogHistory history = new OperationLogHistory();
+    private static OperationHistory getHistory(LogDTO log) {
+        OperationHistory history = new OperationHistory();
         BeanUtils.copyBean(history, log);
         return history;
     }
@@ -82,7 +82,7 @@ public class OperationLogService {
         }
         log.setContent(subStrContent(log.getContent()));
         operationLogMapper.insert(log);
-        operationLogHistoryMapper.insert(getHistory(log));
+        operationHistoryMapper.insert(getHistory(log));
         operationLogBlobMapper.insert(getBlob(log));
     }
 
@@ -127,7 +127,7 @@ public class OperationLogService {
                 item.setCreateTime(currentTimeMillis);
                 // 限制长度
                 operationLogMapper.insert(item);
-                operationLogHistoryMapper.insert(getHistory(item));
+                operationHistoryMapper.insert(getHistory(item));
                 logBlobMapper.insert(getBlob(item));
             });
         }

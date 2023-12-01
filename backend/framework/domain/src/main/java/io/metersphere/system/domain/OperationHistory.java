@@ -9,14 +9,14 @@ import java.util.Arrays;
 import lombok.Data;
 
 @Data
-public class OperationLogHistory implements Serializable {
+public class OperationHistory implements Serializable {
     @Schema(description = "主键", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{operation_log_history.id.not_blank}", groups = {Updated.class})
+    @NotBlank(message = "{operation_history.id.not_blank}", groups = {Updated.class})
     private Long id;
 
     @Schema(description = "项目id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{operation_log_history.project_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{operation_log_history.project_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{operation_history.project_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{operation_history.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
     @Schema(description = "操作时间")
@@ -29,8 +29,8 @@ public class OperationLogHistory implements Serializable {
     private String sourceId;
 
     @Schema(description = "操作类型/add/update/delete", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{operation_log_history.type.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 20, message = "{operation_log_history.type.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{operation_history.type.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 20, message = "{operation_history.type.length_range}", groups = {Created.class, Updated.class})
     private String type;
 
     @Schema(description = "操作模块/api/case/scenario/ui")
