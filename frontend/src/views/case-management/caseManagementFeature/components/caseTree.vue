@@ -5,7 +5,7 @@
     allow-clear
     class="mb-[16px]"
   ></a-input-search>
-  <a-spin class="w-full" :style="{ height: `calc(100vh - 316px)` }" :loading="loading">
+  <a-spin class="w-full" :style="{ height: `calc(100vh - 346px)` }" :loading="loading">
     <MsTree
       v-model:focus-node-key="focusNodeKey"
       :selected-keys="props.selectedKeys"
@@ -328,7 +328,7 @@
 
   const virtualListProps = computed(() => {
     return {
-      height: 'calc(100vh - 360px)',
+      height: 'calc(100vh - 366px)',
     };
   });
 

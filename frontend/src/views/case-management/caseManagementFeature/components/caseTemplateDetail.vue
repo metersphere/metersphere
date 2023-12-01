@@ -45,70 +45,7 @@
           </div>
           <!-- 步骤描述 -->
           <div v-if="form.caseEditType === 'STEP'" class="w-full">
-            <MsBaseTable v-bind="propsRes" ref="stepTableRef" v-on="propsEvent">
-              <template #index="{ rowIndex }">
-                <div class="circle text-xs font-medium"> {{ rowIndex + 1 }}</div>
-              </template>
-              <template #caseStep="{ record }">
-                <a-textarea
-                  v-if="record.showStep"
-                  v-model="record.step"
-                  size="mini"
-                  :auto-size="true"
-                  class="w-max-[267px]"
-                  :placeholder="t('system.orgTemplate.stepTip')"
-                  @blur="blurHandler(record, 'step')"
-                />
-                <div
-                  v-else-if="record.step && !record.showStep"
-                  class="w-full cursor-pointer"
-                  @click="edit(record, 'step')"
-                  >{{ record.step }}</div
-                >
-                <div
-                  v-else-if="!record.caseStep && !record.showStep"
-                  class="placeholder w-full cursor-pointer text-[var(--color-text-brand)]"
-                  @click="edit(record, 'step')"
-                  >{{ t('system.orgTemplate.stepTip') }}</div
-                >
-              </template>
-              <template #expectedResult="{ record }">
-                <a-textarea
-                  v-if="record.showExpected"
-                  v-model="record.expected"
-                  size="mini"
-                  :auto-size="true"
-                  class="w-max-[267px]"
-                  :placeholder="t('system.orgTemplate.expectationTip')"
-                  @blur="blurHandler(record, 'expected')"
-                />
-                <div
-                  v-else-if="record.expected && !record.showExpected"
-                  class="w-full cursor-pointer"
-                  @click="edit(record, 'expected')"
-                  >{{ record.expected }}</div
-                >
-                <div
-                  v-else-if="!record.expected && !record.showExpected"
-                  class="placeholder w-full cursor-pointer text-[var(--color-text-brand)]"
-                  @click="edit(record, 'expected')"
-                  >{{ t('system.orgTemplate.expectationTip') }}</div
-                >
-              </template>
-              <template #operation="{ record }">
-                <MsTableMoreAction
-                  v-if="!record.internal"
-                  :list="moreActions"
-                  @select="(item:ActionsItem) => handleMoreActionSelect(item,record)"
-                />
-              </template>
-            </MsBaseTable>
-            <a-button class="mt-2 px-0" type="text" @click="addStep">
-              <template #icon>
-                <icon-plus class="text-[14px]" />
-              </template>
-              {{ t('system.orgTemplate.addStep') }}
-            </a-button>
+            <AddStep v-model:step-list="stepData" />
           </div>
           <!-- 文本描述 -->
           <MsRichText v-else v-model:modelValue="form.textDescription" />
@@ -233,7 +170,7 @@
     </div>
     <!-- 自定义字段结束 -->
   </div>
-  <div class=" ">
+  <div>
     <MsUpload
       v-model:file-list="fileList"
       accept="none"
@@ -260,14 +197,10 @@
   import MsFormCreate from '@/components/pure/ms-form-create/form-create.vue';
   import type { FormItem } from '@/components/pure/ms-form-create/types';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
-  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import { MsTableColumn } from '@/components/pure/ms-table/type';
-  import useTable from '@/components/pure/ms-table/useTable';
-  import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
-  import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsFileList from '@/components/pure/ms-upload/fileList.vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import type { MsFileItem } from '@/components/pure/ms-upload/types';
+  import AddStep from './addStep.vue';
   import AssociatedFileDrawer from './associatedFileDrawer.vue';
 
   import { getCaseDefaultFields, getCaseDetail } from '@/api/modules/case-management/featureCase';
@@ -281,8 +214,8 @@
   import type { AssociatedList, CreateCase, StepList } from '@/models/caseManagement/featureCase';
   import type { CustomField, DefinedFieldItem } from '@/models/setting/template';
   import { FormCreateKeyEnum } from '@/enums/formCreateEnum';
-  import { TableKeyEnum } from '@/enums/tableEnum';
 
+  import { convertToFile } from './utils';
   import {
     getCustomDetailFields,
     getTotalFieldOptionList,
@@ -300,75 +233,6 @@
 
   const emit = defineEmits(['update:formModeValue', 'changeFile']);
   const acceptType = ref('none'); // 模块-上传文件类型
-
-  const templateFieldColumns: MsTableColumn = [
-    {
-      title: 'system.orgTemplate.numberIndex',
-      dataIndex: 'index',
-      slotName: 'index',
-      width: 100,
-      showDrag: false,
-      showInTable: true,
-    },
-    {
-      title: 'system.orgTemplate.useCaseStep',
-      slotName: 'caseStep',
-      dataIndex: 'caseStep',
-      showDrag: true,
-      showInTable: true,
-    },
-    {
-      title: 'system.orgTemplate.expectedResult',
-      dataIndex: 'expectedResult',
-      slotName: 'expectedResult',
-      showDrag: true,
-      showInTable: true,
-    },
-    {
-      title: 'system.orgTemplate.operation',
-      slotName: 'operation',
-      fixed: 'right',
-      width: 200,
-      showInTable: true,
-      showDrag: false,
-    },
-  ];
-
-  const { propsRes, propsEvent, setProps } = useTable(undefined, {
-    tableKey: TableKeyEnum.CASE_MANAGEMENT_DETAIL_TABLE,
-    columns: templateFieldColumns,
-    scroll: { x: '800px' },
-    selectable: false,
-    noDisable: true,
-    size: 'default',
-    showSetting: false,
-    showPagination: false,
-    enableDrag: true,
-  });
-
-  const moreActions: ActionsItem[] = [
-    {
-      label: 'caseManagement.featureCase.copyStep',
-      eventTag: 'copyStep',
-    },
-    {
-      label: 'caseManagement.featureCase.InsertStepsBefore',
-      eventTag: 'InsertStepsBefore',
-    },
-    {
-      label: 'caseManagement.featureCase.afterInsertingSteps',
-      eventTag: 'afterInsertingSteps',
-    },
-    {
-      isDivider: true,
-    },
-    {
-      label: 'common.delete',
-      danger: true,
-      eventTag: 'delete',
-    },
-  ];
-
   const formRef = ref<FormInstance>();
   const caseFormRef = ref<FormInstance>();
 
@@ -440,91 +304,6 @@
     form.value.caseEditType = value as string;
   };
 
-  // 添加步骤
-  const addStep = () => {
-    stepData.value.push({
-      id: getGenerateId(),
-      step: '',
-      expected: '',
-      showStep: false,
-      showExpected: false,
-    });
-  };
-
-  // 复制步骤
-  function copyStep(record: StepList) {
-    stepData.value.push({
-      ...record,
-      id: getGenerateId(),
-    });
-  }
-
-  // 删除步骤
-  function deleteStep(record: StepList) {
-    stepData.value = stepData.value.filter((item: any) => item.id !== record.id);
-  }
-
-  // 步骤之前插入步骤
-  function insertStepsBefore(record: StepList) {
-    const index = stepData.value.map((item: any) => item.id).indexOf(record.id);
-    const insertItem = {
-      id: getGenerateId(),
-      step: '',
-      expected: '',
-      showStep: false,
-      showExpected: false,
-    };
-    stepData.value.splice(index, 0, insertItem);
-  }
-
-  // 步骤之后插入步骤
-  function afterInsertingSteps(record: StepList) {
-    const index = stepData.value.map((item: any) => item.id).indexOf(record.id);
-    const insertItem = {
-      id: getGenerateId(),
-      step: '',
-      expected: '',
-      showStep: false,
-      showExpected: false,
-    };
-    stepData.value.splice(index + 1, 0, insertItem);
-  }
-
-  // 编辑步骤
-  function edit(record: StepList, type: string) {
-    if (type === 'step') {
-      record.showStep = true;
-    } else {
-      record.showExpected = true;
-    }
-  }
-  // 失去焦点回调
-  function blurHandler(record: StepList, type: string) {
-    if (type === 'step') {
-      record.showStep = false;
-    } else {
-      record.showExpected = false;
-    }
-  }
-
-  // 更多操作
-  const handleMoreActionSelect = (item: ActionsItem, record: StepList) => {
-    switch (item.eventTag) {
-      case 'copyStep':
-        copyStep(record);
-        break;
-      case 'InsertStepsBefore':
-        insertStepsBefore(record);
-        break;
-      case 'afterInsertingSteps':
-        afterInsertingSteps(record);
-        break;
-      default:
-        deleteStep(record);
-        break;
-    }
-  };
-
   // 总自定义字段
   const totalTemplateField = ref<DefinedFieldItem[]>([]);
 
@@ -564,32 +343,12 @@
     return Promise.resolve(true);
   }
 
-  // 将文件信息转换为文件格式
-  function convertToFile(fileInfo: AssociatedList): MsFileItem {
-    const fileName = fileInfo.fileType ? `${fileInfo.name}.${fileInfo.fileType || ''}` : `${fileInfo.name}`;
-    const type = fileName.split('.')[1];
-    const file = new File([new Blob()], `${fileName}`, {
-      type: `application/${type}`,
-    });
-    Object.defineProperty(file, 'size', { value: fileInfo.size });
-    return {
-      enable: fileInfo.enable || false,
-      file,
-      name: fileName,
-      percent: 0,
-      status: 'done',
-      uid: fileInfo.id,
-      url: `http://172.16.200.18:8081/${fileInfo.filePath || ''}`,
-      local: fileInfo.local,
-    };
-  }
   // 处理关联文件
   function saveSelectAssociatedFile(fileData: AssociatedList[]) {
     const fileResultList = fileData.map((fileInfo) => convertToFile(fileInfo));
     fileList.value.push(...fileResultList);
   }
 
-  const title = ref('');
   const isEditOrCopy = computed(() => !!route.query.id);
   const attachmentsList = ref([]);
 
@@ -669,8 +428,6 @@
       .map((fileInfo: any) => {
         return convertToFile(fileInfo);
       });
-
-    // 处理删除本地文件id
   }
 
   // 处理详情
@@ -750,14 +507,6 @@
     showDrawer.value = true;
   }
 
-  watch(
-    () => stepData.value,
-    (val) => {
-      setProps({ data: val });
-    },
-    { deep: true }
-  );
-
   function handleChange(_fileList: MsFileItem[], fileItem: MsFileItem) {
     fileList.value = _fileList.map((e) => {
       return {
@@ -831,10 +580,6 @@
     },
     { deep: true }
   );
-
-  onMounted(() => {
-    setProps({ data: stepData.value });
-  });
 
   onBeforeUnmount(() => {
     formRules.value = [];

@@ -86,6 +86,7 @@
     isLimit: boolean; // 是否限制文件大小
     draggable: boolean; // 是否支持拖拽上传
     isAllScreen?: boolean; // 是否是全屏显示拖拽上传
+    cutHeight: number; // 被剪切高度
   }> & {
     accept: UploadType;
     fileList: MsFileItem[];
@@ -95,6 +96,7 @@
     showSubText: true,
     isLimit: true,
     isAllScreen: false,
+    cutHeight: 110,
   });
 
   const emit = defineEmits(['update:fileList', 'change']);
@@ -144,7 +146,7 @@
     (val) => {
       if (val) {
         total.value = '100vh';
-        other.value = '110px';
+        other.value = `${props.cutHeight}px`;
         showDropArea.value = false;
       } else {
         total.value = '154px';

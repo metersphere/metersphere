@@ -3,7 +3,7 @@
   <div class="page-header mb-4 h-[34px]">
     <div class="text-[var(--color-text-1)]"
       >{{ moduleNamePath }}
-      <span class="text-[var(--color-text-4)]"> ({{ props.modulesCount[props.activeFolder] }})</span></div
+      <span class="text-[var(--color-text-4)]"> ({{ props.modulesCount[props.activeFolder] || 0 }})</span></div
     >
     <div class="flex w-[80%] items-center justify-end">
       <a-select class="w-[240px]" :placeholder="t('caseManagement.featureCase.versionPlaceholder')">
@@ -57,8 +57,8 @@
     v-on="propsEvent"
     @batch-action="handleTableBatch"
   >
-    <template #name="{ record }">
-      <a-button type="text" class="px-0" @click="showCaseDetail(record.id)">{{ record.name }}</a-button>
+    <template #name="{ record, rowIndex }">
+      <a-button type="text" class="px-0" @click="showCaseDetail(record.id, rowIndex)">{{ record.name }}</a-button>
     </template>
     <template #reviewStatus="{ record }">
       <MsIcon
@@ -83,8 +83,10 @@
     </template>
     <template #operation="{ record }">
       <MsButton @click="operateCase(record, 'edit')">{{ t('common.edit') }}</MsButton>
+      <a-divider direction="vertical" :margin="8"></a-divider>
       <MsButton @click="operateCase(record, 'copy')">{{ t('caseManagement.featureCase.copy') }}</MsButton>
-      <MsButton class="!mr-0" @click="deleteCase(record)">{{ t('common.delete') }}</MsButton>
+      <a-divider direction="vertical" :margin="8"></a-divider>
+      <MsTableMoreAction :list="moreActions" @select="handleMoreActionSelect($event, record)" />
     </template>
   </ms-base-table>
   <!-- 用例表结束 -->
@@ -135,6 +137,14 @@
   </a-modal>
   <ExportExcelDrawer v-model:visible="showExportExcelVisible" />
   <BatchEditModal v-model:visible="showEditModel" :batch-params="batchParams" @success="successHandler" />
+  <CaseDetailDrawer
+    v-model:visible="showDetailDrawer"
+    :detail-id="activeDetailId"
+    :detail-index="activeCaseIndex"
+    :table-data="propsRes.data"
+    :page-change="propsEvent.pageChange"
+    :pagination="propsRes.msPagination!"
+  />
 </template>
 
 <script setup lang="ts">
@@ -149,9 +159,12 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
+  import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import FilterPanel from '@/components/business/ms-filter-panel/searchForm.vue';
   import BatchEditModal from './batchEditModal.vue';
+  import CaseDetailDrawer from './caseDetailDrawer.vue';
   import FeatureCaseTree from './caseTree.vue';
   import ExportExcelDrawer from './exportExcelDrawer.vue';
 
@@ -429,6 +442,10 @@
     ],
     moreAction: [
       {
+        label: 'featureTest.featureCase.addDemand',
+        eventTag: 'addDemand',
+      },
+      {
         label: 'caseManagement.featureCase.associatedDemand',
         eventTag: 'associatedDemand',
       },
@@ -495,7 +512,7 @@
       scroll: { x: 3200 },
       selectable: true,
       showSetting: true,
-      heightUsed: 340,
+      heightUsed: 374,
       enableDrag: true,
     },
     (record) => ({
@@ -592,6 +609,20 @@
       },
       hideCancel: false,
     });
+  }
+
+  const moreActions: ActionsItem[] = [
+    {
+      label: 'common.delete',
+      danger: true,
+      eventTag: 'delete',
+    },
+  ];
+
+  function handleMoreActionSelect(item: ActionsItem, record: CaseManagementTable) {
+    if (item.eventTag === 'delete') {
+      deleteCase(record);
+    }
   }
 
   const showExportExcelVisible = ref<boolean>(false);
@@ -714,20 +745,39 @@
     });
   }
 
+  // 添加需求
+  function addDemand() {}
+  // 关联需求
+  function handleAssociatedDemand() {}
+
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
     batchParams.value = params;
-    if (event.eventTag === 'exportExcel') {
-      handleShowExportExcel();
-    } else if (event.eventTag === 'batchEdit') {
-      batchEdit();
-    } else if (event.eventTag === 'delete') {
-      batchDelete();
-    } else if (event.eventTag === 'batchMoveTo') {
-      batchMoveOrCopy();
-      isMove.value = true;
-    } else if (event.eventTag === 'batchCopyTo') {
-      batchMoveOrCopy();
-      isMove.value = false;
+    switch (event.eventTag) {
+      case 'exportExcel':
+        handleShowExportExcel();
+        break;
+      case 'batchEdit':
+        batchEdit();
+        break;
+      case 'delete':
+        batchDelete();
+        break;
+      case 'batchMoveTo':
+        batchMoveOrCopy();
+        isMove.value = true;
+        break;
+      case 'batchCopyTo':
+        batchMoveOrCopy();
+        isMove.value = false;
+        break;
+      case 'addDemand':
+        addDemand();
+        break;
+      case 'associatedDemand':
+        handleAssociatedDemand();
+        break;
+      default:
+        break;
     }
   }
 
@@ -741,9 +791,15 @@
     emitTableParams();
     resetSelector();
   }
-
+  const showDetailDrawer = ref(false);
+  const activeDetailId = ref<string>('');
+  const activeCaseIndex = ref<number>(0);
   // 详情
-  function showCaseDetail(id: string) {}
+  function showCaseDetail(id: string, index: number) {
+    showDetailDrawer.value = true;
+    activeDetailId.value = id;
+    activeCaseIndex.value = index;
+  }
 
   watch(
     () => showType.value,

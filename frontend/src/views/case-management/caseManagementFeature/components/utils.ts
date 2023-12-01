@@ -1,5 +1,8 @@
+import type { MsFileItem } from '@/components/pure/ms-upload/types';
+
 import { useI18n } from '@/hooks/useI18n';
 
+import type { AssociatedList } from '@/models/caseManagement/featureCase';
 import { StatusType } from '@/enums/caseEnum';
 
 const { t } = useI18n();
@@ -88,6 +91,30 @@ export function getReviewStatusClass(status: keyof typeof StatusType) {
   if (blueColor.includes(status)) {
     return 'text-[rgb(var(--link-6))]';
   }
+}
+/** *
+ *
+ * @description 将文件信息转换为文件格式
+ * @param {stafileInfotus} 文件file
+ */
+
+export function convertToFile(fileInfo: AssociatedList): MsFileItem {
+  const fileName = fileInfo.fileType ? `${fileInfo.name}.${fileInfo.fileType || ''}` : `${fileInfo.name}`;
+  const type = fileName.split('.')[1];
+  const file = new File([new Blob()], `${fileName}`, {
+    type: `application/${type}`,
+  });
+  Object.defineProperty(file, 'size', { value: fileInfo.size });
+  return {
+    enable: fileInfo.enable || false,
+    file,
+    name: fileName,
+    percent: 0,
+    status: 'done',
+    uid: fileInfo.id,
+    url: `http://172.16.200.18:8081/${fileInfo.filePath || ''}`,
+    local: fileInfo.local,
+  };
 }
 
 export default {};

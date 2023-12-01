@@ -59,4 +59,29 @@ export const RecoverRecycleCaseListUrl = '/functional/case/trash/recover';
 // 删除回收站单个用例
 export const DeleteRecycleCaseListUrl = '/functional/case/trash/delete';
 
+// 关联需求
+
+// 已关联需求列表
+export const GetDemandListUrl = '/functional/case/demand/page';
+// 添加需求
+export const AddDemandUrl = '/functional/case/demand/add';
+// 更新需求
+export const UpdateDemandUrl = '/functional/case/demand/update';
+// 批量关联需求
+export const BatchAssociationDemandUrl = '/functional/case/demand/batch/relevance';
+// 取消关联
+export const CancelAssociationDemandUrl = '/functional/case/demand/cancel';
+
+// 附件管理
+// 上传文件并关联用例
+export const UploadOrAssociationFileUrl = '/attachment/upload/file';
+// 转存文件
+export const TransferFileUrl = '/attachment/transfer';
+// 预览文件
+export const PreviewFileUrl = '/attachment/preview';
+// 下载文件
+export const DownloadFileUrl = '/attachment/download';
+// 删除文件或取消关联用例文件
+export const deleteFileOrCancelAssociationUrl = '/attachment/delete/file';
+
 export default {};
