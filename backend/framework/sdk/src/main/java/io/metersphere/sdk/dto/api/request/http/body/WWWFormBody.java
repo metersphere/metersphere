@@ -1,6 +1,5 @@
 package io.metersphere.sdk.dto.api.request.http.body;
 
-import com.fasterxml.jackson.annotation.JsonTypeName;
 import lombok.Data;
 
 import java.util.List;
@@ -10,7 +9,6 @@ import java.util.List;
  * @CreateTime: 2023-11-06  16:59
  */
 @Data
-@JsonTypeName("WWW_FORM")
-public class WWWFormBody extends Body {
+public class WWWFormBody {
     private List<FormDataKV> fromValues;
 }

@@ -1,5 +1,4 @@
 package io.metersphere.api.controller;
-import io.metersphere.sdk.dto.api.request.http.body.Body;
 
 import io.metersphere.api.dto.definition.HttpResponse;
 import io.metersphere.sdk.util.ApiDataUtils;
@@ -37,7 +36,8 @@ public class MsHTTPElementTest {
 
         MsHTTPElement msHTTPElement = getMsHttpElement();
 
-        List bodies = new ArrayList<>();
+        Body body = new Body();
+        body.setBodyType(Body.BodyType.FORM_DATA.name());
 
         FormDataBody formDataBody = new FormDataBody();
         FormDataKV formDataKV = new FormDataKV();
@@ -52,38 +52,35 @@ public class MsHTTPElementTest {
         formDataKV.setValue("value");
         formDataKV.setKey("key");
         formDataBody.setFromValues(List.of(formDataKV));
-        bodies.add(formDataBody);
+        body.setFormDataBody(formDataBody);
 
         WWWFormBody wwwFormBody = new WWWFormBody();
         wwwFormBody.setFromValues(List.of(formDataKV));
-        bodies.add(wwwFormBody);
+        body.setWwwFormBody(wwwFormBody);
 
         JsonBody jsonBody = new JsonBody();
-        jsonBody.setValue("{}");
-        bodies.add(jsonBody);
+        jsonBody.setJsonSchema("{}");
+        body.setJsonBody(jsonBody);
 
-        bodies.add(new NoneBody());
+        body.setNoneBody(new NoneBody());
 
         RawBody rawBody = new RawBody();
         rawBody.setValue("A");
-        bodies.add(rawBody);
+        body.setRawBody(rawBody);
 
         XmlBody xmlBody = new XmlBody();
         xmlBody.setValue("<a/>");
-        bodies.add(xmlBody);
+        body.setXmlBody(xmlBody);
 
         BinaryBody binaryBody = new BinaryBody();
-        binaryBody.setFilePath("/test/a.png");
+        binaryBody.setFileId("sdfsf2222");
         binaryBody.setFileName("a.png");
-        bodies.add(binaryBody);
+        body.setBinaryBody(binaryBody);
 
-
-        for (Object body : bodies) {
-            msHTTPElement.setBody((Body) body);
-            String json = ApiDataUtils.toJSONString(msHTTPElement);
-            Assertions.assertNotNull(json);
-            Assertions.assertEquals(ApiDataUtils.parseObject(json, AbstractMsTestElement.class), msHTTPElement);
-        }
+        msHTTPElement.setBody(body);
+        String json = ApiDataUtils.toJSONString(msHTTPElement);
+        Assertions.assertNotNull(json);
+        Assertions.assertEquals(ApiDataUtils.parseObject(json, AbstractMsTestElement.class), msHTTPElement);
     }
 
     @Test
@@ -297,7 +294,9 @@ public class MsHTTPElementTest {
         formDataKV.setValue("value");
         formDataKV.setKey("key");
         formDataBody.setFromValues(List.of(formDataKV));
-        httpResponse.setBody(formDataBody);
+        Body body = new Body();
+        body.setBodyType(Body.BodyType.FORM_DATA.name());
+        httpResponse.setBody(body);
 
         httpResponses.add(httpResponse);
         return httpResponses;
