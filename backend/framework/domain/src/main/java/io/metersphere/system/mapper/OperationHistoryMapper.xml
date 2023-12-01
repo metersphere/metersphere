@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.system.mapper.OperationLogHistoryMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.system.domain.OperationLogHistory">
+<mapper namespace="io.metersphere.system.mapper.OperationHistoryMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.system.domain.OperationHistory">
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
@@ -71,13 +71,13 @@
   <sql id="Base_Column_List">
     id, project_id, create_time, create_user, source_id, `type`, `module`
   </sql>
-  <select id="selectByExample" parameterType="io.metersphere.system.domain.OperationLogHistoryExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="io.metersphere.system.domain.OperationHistoryExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from operation_log_history
+    from operation_history
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -88,29 +88,29 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from operation_log_history
+    from operation_history
     where id = #{id,jdbcType=BIGINT}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
-    delete from operation_log_history
+    delete from operation_history
     where id = #{id,jdbcType=BIGINT}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.system.domain.OperationLogHistoryExample">
-    delete from operation_log_history
+  <delete id="deleteByExample" parameterType="io.metersphere.system.domain.OperationHistoryExample">
+    delete from operation_history
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.system.domain.OperationLogHistory">
-    insert into operation_log_history (id, project_id, create_time, 
+  <insert id="insert" parameterType="io.metersphere.system.domain.OperationHistory">
+    insert into operation_history (id, project_id, create_time, 
       create_user, source_id, `type`, 
       `module`)
     values (#{id,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
       #{createUser,jdbcType=VARCHAR}, #{sourceId,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
       #{module,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.system.domain.OperationLogHistory">
-    insert into operation_log_history
+  <insert id="insertSelective" parameterType="io.metersphere.system.domain.OperationHistory">
+    insert into operation_history
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
@@ -158,14 +158,14 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.system.domain.OperationLogHistoryExample" resultType="java.lang.Long">
-    select count(*) from operation_log_history
+  <select id="countByExample" parameterType="io.metersphere.system.domain.OperationHistoryExample" resultType="java.lang.Long">
+    select count(*) from operation_history
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update operation_log_history
+    update operation_history
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=BIGINT},
@@ -194,7 +194,7 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update operation_log_history
+    update operation_history
     set id = #{record.id,jdbcType=BIGINT},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
@@ -206,8 +206,8 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.system.domain.OperationLogHistory">
-    update operation_log_history
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.system.domain.OperationHistory">
+    update operation_history
     <set>
       <if test="projectId != null">
         project_id = #{projectId,jdbcType=VARCHAR},
@@ -230,8 +230,8 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <update id="updateByPrimaryKey" parameterType="io.metersphere.system.domain.OperationLogHistory">
-    update operation_log_history
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.system.domain.OperationHistory">
+    update operation_history
     set project_id = #{projectId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
@@ -241,7 +241,7 @@
     where id = #{id,jdbcType=BIGINT}
   </update>
   <insert id="batchInsert" parameterType="map">
-    insert into operation_log_history
+    insert into operation_history
     (id, project_id, create_time, create_user, source_id, `type`, `module`)
     values
     <foreach collection="list" item="item" separator=",">
@@ -251,7 +251,7 @@
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
-    insert into operation_log_history (
+    insert into operation_history (
     <foreach collection="selective" item="column" separator=",">
       ${column.escapedColumnName}
     </foreach>

@@ -3,14 +3,14 @@ package io.metersphere.system.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OperationLogHistoryExample {
+public class OperationHistoryExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public OperationLogHistoryExample() {
+    public OperationHistoryExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 

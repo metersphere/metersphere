@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS worker_node
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_general_ci COMMENT = 'DB WorkerID Assigner for UID Generator';
 
-CREATE TABLE operation_log_history
+CREATE TABLE operation_history
 (
     `id` BIGINT NOT NULL AUTO_INCREMENT  COMMENT '主键' ,
     `project_id`  VARCHAR(50) NOT NULL DEFAULT 'NONE' COMMENT '项目id',
@@ -143,11 +143,11 @@ CREATE TABLE operation_log_history
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '变更记录';
 
-CREATE INDEX idx_create_time ON operation_log_history (`create_time`);
-CREATE INDEX idx_create_user ON operation_log_history (`create_user`);
-CREATE INDEX idx_module ON operation_log_history (`module`);
-CREATE INDEX idx_project_id ON operation_log_history (`project_id`);
-CREATE INDEX idx_type ON operation_log_history (`type`);
+CREATE INDEX idx_create_time ON operation_history (`create_time`);
+CREATE INDEX idx_create_user ON operation_history (`create_user`);
+CREATE INDEX idx_module ON operation_history (`module`);
+CREATE INDEX idx_project_id ON operation_history (`project_id`);
+CREATE INDEX idx_type ON operation_history (`type`);
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
