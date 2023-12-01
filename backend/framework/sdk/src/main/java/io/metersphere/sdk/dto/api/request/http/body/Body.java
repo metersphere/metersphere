@@ -1,7 +1,5 @@
 package io.metersphere.sdk.dto.api.request.http.body;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
 
 /**
@@ -9,15 +7,27 @@ import lombok.Data;
  * @CreateTime: 2023-11-06  16:59
  */
 @Data
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "bodyType")
-@JsonSubTypes({
-        @JsonSubTypes.Type(value = NoneBody.class),
-        @JsonSubTypes.Type(value = FormDataBody.class),
-        @JsonSubTypes.Type(value = WWWFormBody.class),
-        @JsonSubTypes.Type(value = JsonBody.class),
-        @JsonSubTypes.Type(value = XmlBody.class),
-        @JsonSubTypes.Type(value = RawBody.class),
-        @JsonSubTypes.Type(value = BinaryBody.class)
-})
-public abstract class Body {
+public class Body {
+    /**
+     * 当前选择的请求体类型
+     * @see BodyType
+     * 同时持久化多个类型的请求体
+     */
+    private String bodyType;
+    private NoneBody noneBody;
+    private FormDataBody formDataBody;
+    private WWWFormBody wwwFormBody;
+    private JsonBody jsonBody;
+    private XmlBody xmlBody;
+    private RawBody rawBody;
+    private BinaryBody binaryBody;
+
+    public enum BodyType {
+        BINARY,
+        FORM_DATA,
+        NONE,
+        RAW,
+        WWW_FORM,
+        XML
+    }
 }
