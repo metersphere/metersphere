@@ -131,6 +131,12 @@
         </foreach>
     </select>
 
+    <select id="getRelatedOrganizationIds" resultType="java.lang.String">
+        select distinct o.id
+        from user_role_relation urr join organization o on urr.organization_id = o.id
+        where user_id = #{userId}
+    </select>
+
     <sql id="queryWhereCondition">
         <where>
             <if test="request.keyword != null">
