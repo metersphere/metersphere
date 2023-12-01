@@ -1,7 +1,6 @@
 package io.metersphere.functional.service;
 
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
-import io.metersphere.functional.constants.HistoryLogEnum;
 import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.*;
 import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
@@ -19,7 +18,6 @@ import io.metersphere.sdk.constants.FunctionalCaseExecuteResult;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
@@ -102,17 +100,10 @@ public class FunctionalCaseService {
             functionalCaseAttachmentService.association(request.getRelateFileMetaIds(), caseId, userId, ADD_FUNCTIONAL_CASE_FILE_LOG_URL, request.getProjectId());
         }
 
-        saveHistory(Collections.singletonList(caseId), HistoryLogEnum.EDIT.name(), userId);
 
         return functionalCase;
     }
 
-    private void saveHistory(List<String> ids, String type, String userId) {
-        FunctionalCaseHistoryService functionalCaseHistoryService = CommonBeanFactory.getBean(FunctionalCaseHistoryService.class);
-        if (functionalCaseHistoryService != null) {
-            functionalCaseHistoryService.saveHistoryLog(ids, type, userId);
-        }
-    }
 
     /**
      * 添加功能用例
@@ -282,7 +273,6 @@ public class FunctionalCaseService {
             functionalCaseAttachmentService.association(request.getRelateFileMetaIds(), request.getId(), userId, UPDATE_FUNCTIONAL_CASE_FILE_LOG_URL, request.getProjectId());
         }
 
-        saveHistory(Collections.singletonList(request.getId()), HistoryLogEnum.EDIT.name(), userId);
 
         return functionalCase;
 
@@ -308,7 +298,7 @@ public class FunctionalCaseService {
         //更新附属表信息
         FunctionalCaseBlob functionalCaseBlob = new FunctionalCaseBlob();
         BeanUtils.copyBean(functionalCaseBlob, request);
-        functionalCaseBlobMapper.updateByPrimaryKeySelective(functionalCaseBlob);
+        functionalCaseBlobMapper.updateByPrimaryKeyWithBLOBs(functionalCaseBlob);
 
         //更新自定义字段
         Map<String, Object> customFields = request.getCustomFields();
@@ -565,7 +555,6 @@ public class FunctionalCaseService {
             handleTags(request, userId, ids);
             //自定义字段处理
             handleCustomFields(request, userId, ids);
-            saveHistory(ids, HistoryLogEnum.EDIT.name(), userId);
         }
 
     }

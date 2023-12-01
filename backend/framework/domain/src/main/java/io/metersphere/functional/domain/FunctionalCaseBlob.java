@@ -18,29 +18,29 @@ public class FunctionalCaseBlob implements Serializable {
     private String id;
 
     @Schema(description =  "用例步骤（JSON)，step_model 为 Step 时启用")
-    private String steps;
+    private byte[] steps;
 
     @Schema(description =  "步骤描述，step_model 为 Text 时启用")
-    private String textDescription;
+    private byte[] textDescription;
 
     @Schema(description =  "预期结果，step_model 为 Text  时启用")
-    private String expectedResult;
+    private byte[] expectedResult;
 
     @Schema(description =  "前置条件")
-    private String prerequisite;
+    private byte[] prerequisite;
 
     @Schema(description =  "备注")
-    private String description;
+    private byte[] description;
 
     private static final long serialVersionUID = 1L;
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
-        steps("steps", "steps", "LONGVARCHAR", false),
-        textDescription("text_description", "textDescription", "LONGVARCHAR", false),
-        expectedResult("expected_result", "expectedResult", "LONGVARCHAR", false),
-        prerequisite("prerequisite", "prerequisite", "LONGVARCHAR", false),
-        description("description", "description", "LONGVARCHAR", false);
+        steps("steps", "steps", "LONGVARBINARY", false),
+        textDescription("text_description", "textDescription", "LONGVARBINARY", false),
+        expectedResult("expected_result", "expectedResult", "LONGVARBINARY", false),
+        prerequisite("prerequisite", "prerequisite", "LONGVARBINARY", false),
+        description("description", "description", "LONGVARBINARY", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

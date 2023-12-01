@@ -1,7 +1,7 @@
 package io.metersphere.system.config.interceptor;
 
 import io.metersphere.functional.domain.CaseReviewFunctionalCaseArchive;
-import io.metersphere.functional.domain.FunctionalCaseHistory;
+import io.metersphere.functional.domain.FunctionalCaseBlob;
 import io.metersphere.sdk.util.CompressUtils;
 import io.metersphere.system.utils.MybatisInterceptorConfig;
 import org.springframework.context.annotation.Bean;
@@ -16,8 +16,12 @@ public class FunctionalCaseInterceptor {
     public List<MybatisInterceptorConfig> functionalCaseCompressConfigs() {
         List<MybatisInterceptorConfig> configList = new ArrayList<>();
 
-        configList.add(new MybatisInterceptorConfig(FunctionalCaseHistory.class, "content", CompressUtils.class, "zip", "unzip"));
         configList.add(new MybatisInterceptorConfig(CaseReviewFunctionalCaseArchive.class, "content", CompressUtils.class, "zip", "unzip"));
+        configList.add(new MybatisInterceptorConfig(FunctionalCaseBlob.class, "steps", CompressUtils.class, "zip", "unzip"));
+        configList.add(new MybatisInterceptorConfig(FunctionalCaseBlob.class, "textDescription", CompressUtils.class, "zip", "unzip"));
+        configList.add(new MybatisInterceptorConfig(FunctionalCaseBlob.class, "expectedResult", CompressUtils.class, "zip", "unzip"));
+        configList.add(new MybatisInterceptorConfig(FunctionalCaseBlob.class, "prerequisite", CompressUtils.class, "zip", "unzip"));
+        configList.add(new MybatisInterceptorConfig(FunctionalCaseBlob.class, "description", CompressUtils.class, "zip", "unzip"));
         return configList;
     }
 }
