@@ -2,7 +2,7 @@ package io.metersphere.api.controller;
 import io.metersphere.sdk.dto.api.request.http.body.Body;
 
 import io.metersphere.api.dto.definition.HttpResponse;
-import io.metersphere.api.util.ApiDataUtils;
+import io.metersphere.sdk.util.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.sdk.constants.MsAssertionCondition;
 import io.metersphere.sdk.dto.api.request.assertion.*;

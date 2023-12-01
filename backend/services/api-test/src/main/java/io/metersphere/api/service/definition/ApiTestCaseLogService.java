@@ -9,7 +9,7 @@ import io.metersphere.api.dto.definition.ApiTestCaseLogDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseUpdateRequest;
 import io.metersphere.api.mapper.ApiTestCaseBlobMapper;
 import io.metersphere.api.mapper.ApiTestCaseMapper;
-import io.metersphere.api.util.ApiDataUtils;
+import io.metersphere.sdk.util.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
