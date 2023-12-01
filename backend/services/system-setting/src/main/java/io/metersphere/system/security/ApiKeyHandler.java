@@ -5,6 +5,7 @@ import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.system.domain.UserKey;
 import io.metersphere.system.service.UserKeyService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class ApiKeyHandler {
@@ -34,6 +35,14 @@ public class ApiKeyHandler {
         UserKey userKey = CommonBeanFactory.getBean(UserKeyService.class).getUserKey(accessKey);
         if (userKey == null) {
             throw new RuntimeException("invalid accessKey");
+        }
+        if (BooleanUtils.isFalse(userKey.getEnable())) {
+            throw new RuntimeException("accessKey is disabled");
+        }
+        if (BooleanUtils.isFalse(userKey.getForever())) {
+            if (userKey.getExpireTime() == null || userKey.getExpireTime() < System.currentTimeMillis()) {
+                throw new RuntimeException("accessKey is expired");
+            }
         }
         String signatureDecrypt;
         try {
