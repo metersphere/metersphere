@@ -46,11 +46,11 @@ CREATE INDEX idx_pos ON functional_case(pos);
 CREATE TABLE IF NOT EXISTS functional_case_blob
 (
     `id`               VARCHAR(50) NOT NULL COMMENT '功能用例ID',
-    `steps`            LONGTEXT COMMENT '用例步骤（JSON)，step_model 为 Step 时启用',
-    `text_description` LONGTEXT COMMENT '文本描述，step_model 为 Text 时启用',
-    `expected_result`  LONGTEXT COMMENT '预期结果，step_model 为 Text  时启用',
-    `prerequisite`     LONGTEXT COMMENT '前置条件',
-    `description`      LONGTEXT COMMENT '备注',
+    `steps`            LONGBLOB COMMENT '用例步骤（JSON)，step_model 为 Step 时启用',
+    `text_description` LONGBLOB COMMENT '文本描述，step_model 为 Text 时启用',
+    `expected_result`  LONGBLOB COMMENT '预期结果，step_model 为 Text  时启用',
+    `prerequisite`     LONGBLOB COMMENT '前置条件',
+    `description`      LONGBLOB COMMENT '备注',
     PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
@@ -226,25 +226,6 @@ CREATE TABLE IF NOT EXISTS functional_case_custom_field
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '自定义字段功能用例关系';
-
-
-CREATE TABLE IF NOT EXISTS functional_case_history
-(
-    `id`          VARCHAR(50) NOT NULL COMMENT 'ID',
-    `case_id`     VARCHAR(50) NOT NULL COMMENT '用例ID',
-    `num`         INT         NOT NULL COMMENT '变更记录批次号',
-    `type`        VARCHAR(64) NOT NULL COMMENT '变更类型;IMPORT/EDIT/ROLLBACK',
-    `rollback_source_id` VARCHAR(50)    COMMENT '回退来源',
-    `content`     BLOB        NOT NULL COMMENT '修改内容',
-    `create_user` VARCHAR(50) NOT NULL COMMENT '操作人',
-    `create_time` BIGINT      NOT NULL COMMENT '操作时间',
-    PRIMARY KEY (id)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '用例变更记录';
-
-
-CREATE INDEX idx_case_id ON functional_case_history (case_id);
 
 
 CREATE TABLE IF NOT EXISTS case_review
