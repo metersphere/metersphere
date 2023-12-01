@@ -1,12 +1,13 @@
 package io.metersphere.functional.controller;
 
 import io.metersphere.functional.constants.CaseReviewPassRule;
+import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.domain.*;
-import io.metersphere.functional.mapper.CaseReviewFollowerMapper;
-import io.metersphere.functional.mapper.CaseReviewFunctionalCaseMapper;
-import io.metersphere.functional.mapper.CaseReviewMapper;
-import io.metersphere.functional.mapper.CaseReviewUserMapper;
+import io.metersphere.functional.dto.CaseReviewDTO;
+import io.metersphere.functional.mapper.*;
+import io.metersphere.functional.request.CaseReviewAssociateRequest;
 import io.metersphere.functional.request.CaseReviewFollowerRequest;
+import io.metersphere.functional.request.CaseReviewPageRequest;
 import io.metersphere.functional.request.CaseReviewRequest;
 import io.metersphere.project.domain.Notification;
 import io.metersphere.project.domain.NotificationExample;
@@ -16,7 +17,9 @@ import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -28,8 +31,8 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -45,6 +48,9 @@ public class CaseReviewControllerTests extends BaseTest {
 
     private static final String ADD_CASE_REVIEW = "/case/review/add";
     private static final String EDIT_CASE_REVIEW = "/case/review/edit";
+    private static final String PAGE_CASE_REVIEW = "/case/review/page";
+    private static final String ASSOCIATE_CASE_REVIEW = "/case/review/associate";
+
     private static final String FOLLOW_CASE_REVIEW = "/case/review/edit/follower";
     private static final String CASE_REVIEWER_LIST = "/case/review/user-option/";
 
@@ -58,6 +64,8 @@ public class CaseReviewControllerTests extends BaseTest {
     private CaseReviewUserMapper caseReviewUserMapper;
     @Resource
     private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
+    @Resource
+    private CaseReviewFunctionalCaseUserMapper caseReviewFunctionalCaseUserMapper;
     @Resource
     private NotificationMapper notificationMapper;
 
@@ -242,5 +250,166 @@ public class CaseReviewControllerTests extends BaseTest {
         Assertions.assertFalse(list.isEmpty());
     }
 
+    @Test
+    @Order(10)
+    public void associateCaseSuccess() throws Exception {
+        List<CaseReview> caseReviews = getCaseReviews("创建评审更新1");
+        Assertions.assertEquals(1, caseReviews.size());
+        String caseReviewId = caseReviews.get(0).getId();
+        CaseReviewAssociateRequest caseReviewAssociateRequest = new CaseReviewAssociateRequest();
+        caseReviewAssociateRequest.setProjectId(projectId);
+        caseReviewAssociateRequest.setReviewId(caseReviewId);
+        List<String>caseIds = new ArrayList<>();
+        caseIds.add("CASE_REVIEW_TEST_GYQ_ID2");
+        caseIds.add("CASE_REVIEW_TEST_GYQ_ID3");
+        caseIds.add("CASE_REVIEW_TEST_GYQ_ID4");
+        caseIds.add("CASE_REVIEW_TEST_GYQ_ID5");
+        caseIds.add("CASE_REVIEW_TEST_GYQ_ID6");
+        caseReviewAssociateRequest.setCaseIds(caseIds);
+        List<String>userIds = new ArrayList<>();
+        userIds.add("gyq_review_test");
+        userIds.add("gyq_review_test2");
+        caseReviewAssociateRequest.setReviewers(userIds);
+        this.requestPostWithOk(ASSOCIATE_CASE_REVIEW, caseReviewAssociateRequest);
+        CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
+        caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(caseReviewId);
+        List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
+        List<String> castIds = caseReviewFunctionalCases.stream().map(CaseReviewFunctionalCase::getCaseId).toList();
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(castIds));
+        CaseReviewFunctionalCaseUserExample caseReviewFunctionalCaseUserExample = new CaseReviewFunctionalCaseUserExample();
+        caseReviewFunctionalCaseUserExample.createCriteria().andReviewIdEqualTo(caseReviewId);
+        List<CaseReviewFunctionalCaseUser> caseReviewFunctionalCaseUsers = caseReviewFunctionalCaseUserMapper.selectByExample(caseReviewFunctionalCaseUserExample);
+        List<String> userIdList = caseReviewFunctionalCaseUsers.stream().map(CaseReviewFunctionalCaseUser::getUserId).toList();
+        Assertions.assertTrue(userIdList.contains("gyq_review_test"));
+        Assertions.assertTrue(userIdList.contains("gyq_review_test2"));
+    }
 
+    @Test
+    @Order(11)
+    public void associateCaseFalse() throws Exception {
+        CaseReviewAssociateRequest caseReviewAssociateRequest = new CaseReviewAssociateRequest();
+        caseReviewAssociateRequest.setProjectId(projectId);
+        caseReviewAssociateRequest.setReviewId("caseReviewIdXXXX");
+        List<String>caseIds = new ArrayList<>();
+        caseIds.add("CASE_REVIEW_TEST_GYQ_ID2");
+        caseReviewAssociateRequest.setCaseIds(caseIds);
+        List<String>userIds = new ArrayList<>();
+        userIds.add("gyq_review_test");
+        userIds.add("gyq_review_test2");
+        caseReviewAssociateRequest.setReviewers(userIds);
+        this.requestPost(ASSOCIATE_CASE_REVIEW, caseReviewAssociateRequest).andExpect(status().is5xxServerError());
+    }
+
+    @Test
+    @Order(12)
+    public void getPageSuccess() throws Exception {
+        List<CaseReview> caseReviews = getCaseReviews("创建评审更新1");
+        Assertions.assertEquals(1, caseReviews.size());
+        Map<String, Object> caseReviewCombine = buildRequestCombine();
+        CaseReviewPageRequest request = new CaseReviewPageRequest();
+        Map<String, List<String>> filters = new HashMap<>();
+        filters.put("status", Arrays.asList("PREPARED", "UNDERWAY","COMPLETED", "ARCHIVED"));
+        request.setFilter(filters);
+        request.setCombine(caseReviewCombine);
+        request.setProjectId(projectId);
+        request.setKeyword("评审更新");
+        request.setCurrent(1);
+        request.setPageSize(10);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(PAGE_CASE_REVIEW, request);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        // 返回值不为空
+        Assertions.assertNotNull(pageData);
+        // 返回值的页码和当前页码相同
+        Assertions.assertEquals(pageData.getCurrent(), request.getCurrent());
+        // 返回的数据量不超过规定要返回的数据量相同
+        Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= request.getPageSize());
+
+        CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
+        caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(caseReviews.get(0).getId());
+        List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
+        Map<String, CaseReviewFunctionalCase> caseReviewFunctionalCaseMap = caseReviewFunctionalCases.stream().collect(Collectors.toMap(CaseReviewFunctionalCase::getCaseId, t -> t));
+        caseReviewFunctionalCaseMap.forEach((k,v)->{
+            switch (k) {
+                case "CASE_REVIEW_TEST_GYQ_ID2" -> v.setStatus(FunctionalCaseReviewStatus.RE_REVIEWED.toString());
+                case "CASE_REVIEW_TEST_GYQ_ID3" -> v.setStatus(FunctionalCaseReviewStatus.UNDER_REVIEWED.toString());
+                case "CASE_REVIEW_TEST_GYQ_ID4" -> v.setStatus(FunctionalCaseReviewStatus.PASS.toString());
+                case "CASE_REVIEW_TEST_GYQ_ID5" -> v.setStatus(FunctionalCaseReviewStatus.UN_PASS.toString());
+                default -> v.setStatus(FunctionalCaseReviewStatus.UN_REVIEWED.toString());
+            }
+            caseReviewFunctionalCaseMapper.updateByPrimaryKeySelective(v);
+        });
+
+        request = new CaseReviewPageRequest();
+        filters = new HashMap<>();
+        filters.put("status", Arrays.asList("PREPARED", "UNDERWAY","COMPLETED", "ARCHIVED"));
+        request.setFilter(filters);
+        request.setCombine(caseReviewCombine);
+        request.setProjectId(projectId);
+        request.setKeyword("评审更新");
+        request.setCurrent(1);
+        request.setPageSize(10);
+        mvcResult = this.requestPostWithOkAndReturn(PAGE_CASE_REVIEW, request);
+        // 获取返回值
+        returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        // 返回值不为空
+        Assertions.assertNotNull(pageData);
+        // 返回值的页码和当前页码相同
+        Assertions.assertEquals(pageData.getCurrent(), request.getCurrent());
+        // 返回的数据量不超过规定要返回的数据量相同
+        Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= request.getPageSize());
+        List<CaseReviewDTO> caseReviewDTOS = JSON.parseArray(JSON.toJSONString(pageData.getList()), CaseReviewDTO.class);
+        List<CaseReviewDTO> caseReviewOne = caseReviewDTOS.stream().filter(t -> StringUtils.equals(t.getName(), "创建评审更新1")).toList();
+        Assertions.assertTrue(caseReviewOne.get(0).getPassCount()>0);
+        Assertions.assertTrue(caseReviewOne.get(0).getUnPassCount()>0);
+        Assertions.assertTrue(caseReviewOne.get(0).getUnderReviewedCount()>0);
+        Assertions.assertTrue(caseReviewOne.get(0).getReReviewedCount()>0);
+        Assertions.assertTrue(caseReviewOne.get(0).getReviewedCount()>0);
+
+        request = new CaseReviewPageRequest();
+        filters = new HashMap<>();
+        filters.put("status", Arrays.asList("UNDERWAY","COMPLETED", "ARCHIVED"));
+        request.setFilter(filters);
+        request.setCombine(caseReviewCombine);
+        request.setProjectId(projectId);
+        request.setKeyword("评审更新");
+        request.setCurrent(1);
+        request.setPageSize(10);
+        mvcResult = this.requestPostWithOkAndReturn(PAGE_CASE_REVIEW, request);
+        // 获取返回值
+        returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        // 返回值不为空
+        Assertions.assertNotNull(pageData);
+        // 返回值的页码和当前页码相同
+        Assertions.assertEquals(pageData.getCurrent(), request.getCurrent());
+        // 返回的数据量不超过规定要返回的数据量相同
+        Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= request.getPageSize());
+        caseReviewDTOS = JSON.parseArray(JSON.toJSONString(pageData.getList()), CaseReviewDTO.class);
+        Assertions.assertTrue(CollectionUtils.isEmpty(caseReviewDTOS));
+
+    }
+
+
+
+    /**
+     * 生成高级搜索参数
+     * @return combine param
+     */
+    private Map<String, Object> buildRequestCombine() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("reviewers", Map.of("operator", "in", "value", List.of("admin")));
+        return map;
+    }
 }

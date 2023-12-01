@@ -1,5 +1,6 @@
 package io.metersphere.system.config.interceptor;
 
+import io.metersphere.functional.domain.CaseReviewFunctionalCaseArchive;
 import io.metersphere.functional.domain.FunctionalCaseHistory;
 import io.metersphere.sdk.util.CompressUtils;
 import io.metersphere.system.utils.MybatisInterceptorConfig;
@@ -16,8 +17,7 @@ public class FunctionalCaseInterceptor {
         List<MybatisInterceptorConfig> configList = new ArrayList<>();
 
         configList.add(new MybatisInterceptorConfig(FunctionalCaseHistory.class, "content", CompressUtils.class, "zip", "unzip"));
-
-
+        configList.add(new MybatisInterceptorConfig(CaseReviewFunctionalCaseArchive.class, "content", CompressUtils.class, "zip", "unzip"));
         return configList;
     }
 }

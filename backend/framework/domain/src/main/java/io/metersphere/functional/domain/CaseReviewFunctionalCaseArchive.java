@@ -21,14 +21,14 @@ public class CaseReviewFunctionalCaseArchive implements Serializable {
     private String caseId;
 
     @Schema(description = "功能用例快照（JSON)")
-    private String content;
+    private byte[] content;
 
     private static final long serialVersionUID = 1L;
 
     public enum Column {
         reviewId("review_id", "reviewId", "VARCHAR", false),
         caseId("case_id", "caseId", "VARCHAR", false),
-        content("content", "content", "LONGVARCHAR", false);
+        content("content", "content", "LONGVARBINARY", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 
