@@ -3,6 +3,7 @@
 <mapper namespace="io.metersphere.functional.mapper.CaseReviewMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.functional.domain.CaseReview">
     <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="num" jdbcType="BIGINT" property="num" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="module_id" jdbcType="VARCHAR" property="moduleId" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
@@ -11,6 +12,8 @@
     <result column="pos" jdbcType="BIGINT" property="pos" />
     <result column="start_time" jdbcType="BIGINT" property="startTime" />
     <result column="end_time" jdbcType="BIGINT" property="endTime" />
+    <result column="case_count" jdbcType="INTEGER" property="caseCount" />
+    <result column="pass_rate" jdbcType="DECIMAL" property="passRate" />
     <result column="tags" jdbcType="VARCHAR" property="tags" />
     <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
@@ -77,8 +80,9 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, module_id, project_id, `status`, review_pass_rule, pos, start_time, end_time, 
-    tags, description, create_time, create_user, update_time, update_user
+    id, num, `name`, module_id, project_id, `status`, review_pass_rule, pos, start_time, 
+    end_time, case_count, pass_rate, tags, description, create_time, create_user, update_time, 
+    update_user
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.functional.domain.CaseReviewExample" resultMap="BaseResultMap">
     select
@@ -111,15 +115,17 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.functional.domain.CaseReview">
-    insert into case_review (id, `name`, module_id, 
-      project_id, `status`, review_pass_rule, 
-      pos, start_time, end_time, 
+    insert into case_review (id, num, `name`, 
+      module_id, project_id, `status`, 
+      review_pass_rule, pos, start_time, 
+      end_time, case_count, pass_rate, 
       tags, description, create_time, 
       create_user, update_time, update_user
       )
-    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR}, 
-      #{projectId,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{reviewPassRule,jdbcType=VARCHAR}, 
-      #{pos,jdbcType=BIGINT}, #{startTime,jdbcType=BIGINT}, #{endTime,jdbcType=BIGINT}, 
+    values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, 
+      #{moduleId,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
+      #{reviewPassRule,jdbcType=VARCHAR}, #{pos,jdbcType=BIGINT}, #{startTime,jdbcType=BIGINT}, 
+      #{endTime,jdbcType=BIGINT}, #{caseCount,jdbcType=INTEGER}, #{passRate,jdbcType=DECIMAL}, 
       #{tags,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
       #{createUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}
       )
@@ -129,6 +135,9 @@
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
+      </if>
+      <if test="num != null">
+        num,
       </if>
       <if test="name != null">
         `name`,
@@ -154,6 +163,12 @@
       <if test="endTime != null">
         end_time,
       </if>
+      <if test="caseCount != null">
+        case_count,
+      </if>
+      <if test="passRate != null">
+        pass_rate,
+      </if>
       <if test="tags != null">
         tags,
       </if>
@@ -176,6 +191,9 @@
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="num != null">
+        #{num,jdbcType=BIGINT},
       </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
@@ -200,6 +218,12 @@
       </if>
       <if test="endTime != null">
         #{endTime,jdbcType=BIGINT},
+      </if>
+      <if test="caseCount != null">
+        #{caseCount,jdbcType=INTEGER},
+      </if>
+      <if test="passRate != null">
+        #{passRate,jdbcType=DECIMAL},
       </if>
       <if test="tags != null">
         #{tags,jdbcType=VARCHAR},
@@ -233,6 +257,9 @@
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
+      <if test="record.num != null">
+        num = #{record.num,jdbcType=BIGINT},
+      </if>
       <if test="record.name != null">
         `name` = #{record.name,jdbcType=VARCHAR},
       </if>
@@ -256,6 +283,12 @@
       </if>
       <if test="record.endTime != null">
         end_time = #{record.endTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.caseCount != null">
+        case_count = #{record.caseCount,jdbcType=INTEGER},
+      </if>
+      <if test="record.passRate != null">
+        pass_rate = #{record.passRate,jdbcType=DECIMAL},
       </if>
       <if test="record.tags != null">
         tags = #{record.tags,jdbcType=VARCHAR},
@@ -283,6 +316,7 @@
   <update id="updateByExample" parameterType="map">
     update case_review
     set id = #{record.id,jdbcType=VARCHAR},
+      num = #{record.num,jdbcType=BIGINT},
       `name` = #{record.name,jdbcType=VARCHAR},
       module_id = #{record.moduleId,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
@@ -291,6 +325,8 @@
       pos = #{record.pos,jdbcType=BIGINT},
       start_time = #{record.startTime,jdbcType=BIGINT},
       end_time = #{record.endTime,jdbcType=BIGINT},
+      case_count = #{record.caseCount,jdbcType=INTEGER},
+      pass_rate = #{record.passRate,jdbcType=DECIMAL},
       tags = #{record.tags,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
@@ -304,6 +340,9 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.functional.domain.CaseReview">
     update case_review
     <set>
+      <if test="num != null">
+        num = #{num,jdbcType=BIGINT},
+      </if>
       <if test="name != null">
         `name` = #{name,jdbcType=VARCHAR},
       </if>
@@ -328,6 +367,12 @@
       <if test="endTime != null">
         end_time = #{endTime,jdbcType=BIGINT},
       </if>
+      <if test="caseCount != null">
+        case_count = #{caseCount,jdbcType=INTEGER},
+      </if>
+      <if test="passRate != null">
+        pass_rate = #{passRate,jdbcType=DECIMAL},
+      </if>
       <if test="tags != null">
         tags = #{tags,jdbcType=VARCHAR},
       </if>
@@ -351,7 +396,8 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.functional.domain.CaseReview">
     update case_review
-    set `name` = #{name,jdbcType=VARCHAR},
+    set num = #{num,jdbcType=BIGINT},
+      `name` = #{name,jdbcType=VARCHAR},
       module_id = #{moduleId,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
@@ -359,6 +405,8 @@
       pos = #{pos,jdbcType=BIGINT},
       start_time = #{startTime,jdbcType=BIGINT},
       end_time = #{endTime,jdbcType=BIGINT},
+      case_count = #{caseCount,jdbcType=INTEGER},
+      pass_rate = #{passRate,jdbcType=DECIMAL},
       tags = #{tags,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
@@ -369,14 +417,15 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into case_review
-    (id, `name`, module_id, project_id, `status`, review_pass_rule, pos, start_time, 
-      end_time, tags, description, create_time, create_user, update_time, update_user
-      )
+    (id, num, `name`, module_id, project_id, `status`, review_pass_rule, pos, start_time, 
+      end_time, case_count, pass_rate, tags, description, create_time, create_user, update_time, 
+      update_user)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.moduleId,jdbcType=VARCHAR}, 
-        #{item.projectId,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}, #{item.reviewPassRule,jdbcType=VARCHAR}, 
-        #{item.pos,jdbcType=BIGINT}, #{item.startTime,jdbcType=BIGINT}, #{item.endTime,jdbcType=BIGINT}, 
+      (#{item.id,jdbcType=VARCHAR}, #{item.num,jdbcType=BIGINT}, #{item.name,jdbcType=VARCHAR}, 
+        #{item.moduleId,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}, 
+        #{item.reviewPassRule,jdbcType=VARCHAR}, #{item.pos,jdbcType=BIGINT}, #{item.startTime,jdbcType=BIGINT}, 
+        #{item.endTime,jdbcType=BIGINT}, #{item.caseCount,jdbcType=INTEGER}, #{item.passRate,jdbcType=DECIMAL}, 
         #{item.tags,jdbcType=VARCHAR}, #{item.description,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
         #{item.createUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}
         )
@@ -394,6 +443,9 @@
       <foreach collection="selective" item="column" separator=",">
         <if test="'id'.toString() == column.value">
           #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'num'.toString() == column.value">
+          #{item.num,jdbcType=BIGINT}
         </if>
         <if test="'name'.toString() == column.value">
           #{item.name,jdbcType=VARCHAR}
@@ -418,6 +470,12 @@
         </if>
         <if test="'end_time'.toString() == column.value">
           #{item.endTime,jdbcType=BIGINT}
+        </if>
+        <if test="'case_count'.toString() == column.value">
+          #{item.caseCount,jdbcType=INTEGER}
+        </if>
+        <if test="'pass_rate'.toString() == column.value">
+          #{item.passRate,jdbcType=DECIMAL}
         </if>
         <if test="'tags'.toString() == column.value">
           #{item.tags,jdbcType=VARCHAR}

@@ -688,6 +688,7 @@ public class CaseReviewModuleControllerTests extends BaseTest {
         CaseReview caseReview = new CaseReview();
         caseReview.setId(IDGenerator.nextStr());
         caseReview.setName(name);
+        caseReview.setNum(1001L);
         caseReview.setModuleId(a1a1Node.getId());
         caseReview.setProjectId(project.getId());
         caseReview.setStatus(CaseReviewStatus.PREPARED.toString());
