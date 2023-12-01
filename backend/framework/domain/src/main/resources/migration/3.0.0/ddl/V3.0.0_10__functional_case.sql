@@ -35,9 +35,9 @@ CREATE INDEX idx_project_id_pos ON functional_case (project_id, pos);
 CREATE INDEX idx_public_case_pos ON functional_case (public_case, pos);
 CREATE INDEX idx_ref_id ON functional_case (ref_id);
 CREATE INDEX idx_version_id ON functional_case (version_id);
-CREATE INDEX idx_create_time ON functional_case (create_time);
-CREATE INDEX idx_delete_time ON functional_case (delete_time);
-CREATE INDEX idx_update_time ON functional_case (update_time);
+CREATE INDEX idx_create_time ON functional_case (create_time desc);
+CREATE INDEX idx_delete_time ON functional_case (delete_time desc);
+CREATE INDEX idx_update_time ON functional_case (update_time desc);
 CREATE INDEX idx_num ON functional_case (num);
 CREATE INDEX idx_project_id ON functional_case (project_id);
 CREATE INDEX idx_pos ON functional_case(pos);
@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS functional_case_comment
   COLLATE = utf8mb4_general_ci COMMENT = '功能用例评论';
 
 
-CREATE INDEX idx_create_time ON functional_case_comment (create_time);
+CREATE INDEX idx_create_time ON functional_case_comment (create_time desc);
 CREATE INDEX idx_case_id ON functional_case_comment (case_id);
 CREATE INDEX idx_status ON functional_case_comment (status);
 CREATE INDEX idx_type ON functional_case_comment (type);
@@ -106,8 +106,8 @@ CREATE INDEX idx_pos ON functional_case_module (pos);
 CREATE INDEX idx_parent_id ON functional_case_module (parent_id);
 CREATE INDEX idx_create_user ON functional_case_module (create_user);
 CREATE INDEX idx_update_user ON functional_case_module (update_user);
-CREATE INDEX idx_create_time ON functional_case_module (create_time);
-CREATE INDEX idx_update_time ON functional_case_module (update_time);
+CREATE INDEX idx_create_time ON functional_case_module (create_time desc);
+CREATE INDEX idx_update_time ON functional_case_module (update_time desc);
 
 
 CREATE TABLE IF NOT EXISTS functional_case_attachment
@@ -275,8 +275,8 @@ CREATE INDEX idx_project_id ON case_review (project_id);
 CREATE INDEX idx_name ON case_review (name);
 CREATE INDEX idx_status ON case_review (status);
 CREATE INDEX idx_review_pass_rule ON case_review (review_pass_rule);
-CREATE INDEX idx_create_time ON case_review (create_time);
-CREATE INDEX idx_update_time ON case_review (update_time);
+CREATE INDEX idx_create_time ON case_review (create_time desc);
+CREATE INDEX idx_update_time ON case_review (update_time desc);
 CREATE INDEX idx_update_user ON case_review (update_user);
 CREATE INDEX idx_module_id ON case_review (module_id);
 CREATE INDEX idx_pos ON case_review(pos);
@@ -397,8 +397,8 @@ CREATE INDEX idx_pos ON case_review_module (pos);
 CREATE INDEX idx_parent_id ON case_review_module (parent_id);
 CREATE INDEX idx_create_user ON case_review_module (create_user);
 CREATE INDEX idx_update_user ON case_review_module (update_user);
-CREATE INDEX idx_create_time ON case_review_module (create_time);
-CREATE INDEX idx_update_time ON case_review_module (update_time);
+CREATE INDEX idx_create_time ON case_review_module (create_time desc);
+CREATE INDEX idx_update_time ON case_review_module (update_time desc);
 
 
 -- set innodb lock wait timeout to default

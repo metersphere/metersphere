@@ -37,8 +37,8 @@ CREATE TABLE IF NOT EXISTS fake_error
 
 CREATE INDEX idx_project_id ON fake_error (project_id);
 CREATE INDEX project_id_status ON fake_error (project_id,expression);
-CREATE INDEX idx_create_time ON fake_error (create_time);
-CREATE INDEX idx_update_time ON fake_error (update_time);
+CREATE INDEX idx_create_time ON fake_error (create_time desc);
+CREATE INDEX idx_update_time ON fake_error (update_time desc);
 CREATE INDEX idx_create_user ON fake_error (create_user);
 CREATE INDEX idx_update_user ON fake_error (update_user);
 CREATE INDEX idx_name ON fake_error (name);
@@ -137,8 +137,8 @@ CREATE TABLE IF NOT EXISTS file_module
 
 CREATE INDEX idx_project_id ON file_module (project_id);
 CREATE INDEX idx_name ON file_module (name);
-CREATE INDEX idx_create_time ON file_module (create_time);
-CREATE INDEX idx_update_timed ON file_module (update_time);
+CREATE INDEX idx_create_time ON file_module (create_time desc);
+CREATE INDEX idx_update_timed ON file_module (update_time desc);
 CREATE INDEX idx_pos ON file_module (pos);
 CREATE INDEX idx_create_user ON file_module (create_user);
 
@@ -168,8 +168,8 @@ CREATE TABLE IF NOT EXISTS project
 
 CREATE INDEX idx_organization_id ON project (organization_id);
 CREATE INDEX idx_create_user ON project (create_user);
-CREATE INDEX idx_create_time ON project (create_time);
-CREATE INDEX idx_update_time ON project (update_time);
+CREATE INDEX idx_create_time ON project (create_time desc);
+CREATE INDEX idx_update_time ON project (update_time desc);
 CREATE INDEX idx_name ON project (name);
 CREATE INDEX idx_deleted ON project (deleted);
 CREATE INDEX idx_update_user ON project(update_user);
@@ -208,7 +208,7 @@ CREATE TABLE IF NOT EXISTS project_version
 
 CREATE INDEX idx_project_id ON project_version (project_id);
 CREATE INDEX idx_name ON project_version (name);
-CREATE INDEX idx_create_time ON project_version (create_time);
+CREATE INDEX idx_create_time ON project_version (create_time desc);
 CREATE INDEX idx_create_user ON project_version (create_user);
 CREATE INDEX idx_latest ON project_version (latest);
 
@@ -263,7 +263,7 @@ CREATE TABLE IF NOT EXISTS message_task(
 
 
 CREATE INDEX idx_project_id ON message_task(project_id);
-CREATE INDEX idx_create_time ON message_task(create_time);
+CREATE INDEX idx_create_time ON message_task(create_time desc);
 CREATE INDEX idx_test_id ON message_task(test_id);
 CREATE INDEX idx_receiver ON message_task(receiver);
 CREATE INDEX idx_task_type ON message_task(task_type);
@@ -303,7 +303,7 @@ CREATE TABLE IF NOT EXISTS notification(
 
 
 CREATE INDEX idx_receiver ON notification(receiver);
-CREATE INDEX idx_create_time ON notification(create_time);
+CREATE INDEX idx_create_time ON notification(create_time desc);
 CREATE INDEX idx_subject ON notification(subject);
 CREATE INDEX idx_resource_id ON notification(resource_id);
 CREATE INDEX idx_resource_type ON notification(resource_type);
