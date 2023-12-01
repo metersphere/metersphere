@@ -5,6 +5,7 @@
         <div class="flex gap-[12px]">
           <a-button type="primary" @click="handleCreate">{{ t('bugManagement.createBug') }} </a-button>
           <a-button type="outline" @click="handleSync">{{ t('bugManagement.syncBug') }} </a-button>
+          <a-button type="outline" @click="handleExport">{{ t('common.export') }} </a-button>
         </div>
       </template>
     </MsAdvanceFilter>
@@ -65,6 +66,7 @@
       <a-date-picker v-model="syncObject.time" show-time class="w-[304px]" />
     </div>
   </a-modal>
+  <MsExportDrawer v-model:visible="exportVisible" :all-data="exportOptionData" />
 </template>
 
 <script lang="ts" setup>
@@ -74,11 +76,13 @@
   import { FilterFormItem, FilterType } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
+  import MsExportDrawer from '@/components/pure/ms-export-drawer/index.vue';
+  import { MsExportDrawerMap } from '@/components/pure/ms-export-drawer/types';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
 
-  import { getBugList } from '@/api/modules/bug-management';
+  import { getBugList, getExportConfig } from '@/api/modules/bug-management';
   import { updateOrAddProjectUserGroup } from '@/api/modules/project-management/usergroup';
   import { useI18n } from '@/hooks/useI18n';
   import router from '@/router';
@@ -95,6 +99,8 @@
   const filterVisible = ref(false);
   const filterRowCount = ref(0);
   const syncVisible = ref(false);
+  const exportVisible = ref(false);
+  const exportOptionData = ref<MsExportDrawerMap>({});
   const syncObject = reactive({
     time: '',
     operator: '',
@@ -268,6 +274,10 @@
     console.log('create', record);
   };
 
+  const handleExport = () => {
+    exportVisible.value = true;
+  };
+
   const jumpToTestPlan = (record: BugListItem) => {
     router.push({
       name: 'testPlan',
@@ -278,8 +288,14 @@
     });
   };
 
+  const setExportOptionData = async () => {
+    const res = await getExportConfig(projectId.value);
+    exportOptionData.value = res;
+  };
+
   onMounted(() => {
     setLoadListParams({ projectId: projectId.value });
     fetchData();
+    setExportOptionData();
   });
 </script>

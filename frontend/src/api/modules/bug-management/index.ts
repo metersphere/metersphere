@@ -40,3 +40,7 @@ export function getTemplageOption(params: { projectId: string }) {
 export function getTemplateById(data: TableQueryParams) {
   return MSR.get({ url: bugURL.getTemplateUrl, data });
 }
+// 获取导出字段配置
+export function getExportConfig(projectId: string) {
+  return MSR.get({ url: `${bugURL.getExportConfigUrl}${projectId}` });
+}
