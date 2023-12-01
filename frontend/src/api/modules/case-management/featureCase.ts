@@ -12,8 +12,10 @@ import {
   CreateCaseUrl,
   DeleteCaseModuleTreeUrl,
   DeleteCaseUrl,
+  deleteFileOrCancelAssociationUrl,
   DeleteRecycleCaseListUrl,
   DetailCaseUrl,
+  DownloadFileUrl,
   FollowerCaseUrl,
   GetAssociatedFilePageUrl,
   GetCaseListUrl,
@@ -25,11 +27,14 @@ import {
   GetRecycleCaseModulesCountUrl,
   GetTrashCaseModuleTreeUrl,
   MoveCaseModuleTreeUrl,
+  PreviewFileUrl,
   RecoverRecycleCaseListUrl,
   RestoreCaseListUrl,
+  TransferFileUrl,
   UpdateCaseModuleTreeUrl,
   UpdateCaseUrl,
   UpdateDemandUrl,
+  UploadOrAssociationFileUrl,
 } from '@/api/requrls/case-management/featureCase';
 
 import type {
@@ -45,6 +50,7 @@ import type {
   DemandItem,
   ModulesTreeType,
   MoveModules,
+  OperationFile,
   UpdateModule,
 } from '@/models/caseManagement/featureCase';
 import type { CommonList, TableQueryParams } from '@/models/common';
@@ -183,6 +189,36 @@ export function batchAssociationDemand(data: CreateOrUpdateDemand) {
 // 取消关联
 export function cancelAssociationDemand(id: string) {
   return MSR.get({ url: `${CancelAssociationDemandUrl}/${id}` });
+}
+
+// 附件
+
+// 上传文件并关联用例
+export function uploadOrAssociationFile(data: Record<string, any>) {
+  return MSR.uploadFile(
+    { url: UploadOrAssociationFileUrl },
+    { request: data.request, fileList: data.fileList },
+    'file'
+  );
+}
+// 转存文件
+export function transferFile(data: OperationFile) {
+  return MSR.post({ url: TransferFileUrl, data });
+}
+
+// 预览文件
+export function previewFile(data: OperationFile) {
+  return MSR.post({ url: PreviewFileUrl, data });
+}
+
+// 下载文件
+export function downloadFile(data: OperationFile) {
+  return MSR.post({ url: DownloadFileUrl, data });
+}
+
+// 删除文件或取消关联用例文件
+export function deleteFileOrCancelAssociation(data: any) {
+  return MSR.post({ url: DownloadFileUrl, data });
 }
 
 export default {};

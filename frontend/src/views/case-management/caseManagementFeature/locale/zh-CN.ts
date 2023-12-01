@@ -121,7 +121,7 @@ export default {
   'caseManagement.featureCase.addDemand': '添加需求',
   'caseManagement.featureCase.updateDemand': '更新需求 ({name})',
   'caseManagement.featureCase.updateUser': '处理人',
-  'caseManagement.featureCase.showSetting': '显示设置',
+  'caseManagement.featureCase.displaySetting': '显示设置',
   'caseManagement.featureCase.tabShowSetting': 'tab 显示设置',
   'caseManagement.featureCase.closeModuleTab': '关闭： 在抽屉内不展示相关模块',
   'caseManagement.featureCase.enableModuleTab': '开启： 在抽屉内展示相关模块',

@@ -99,6 +99,7 @@ export function getReviewStatusClass(status: keyof typeof StatusType) {
  */
 
 export function convertToFile(fileInfo: AssociatedList): MsFileItem {
+  const gatewayAddress = `${window.location.protocol}//${window.location.hostname}:${window.location.port}`;
   const fileName = fileInfo.fileType ? `${fileInfo.name}.${fileInfo.fileType || ''}` : `${fileInfo.name}`;
   const type = fileName.split('.')[1];
   const file = new File([new Blob()], `${fileName}`, {
@@ -112,9 +113,8 @@ export function convertToFile(fileInfo: AssociatedList): MsFileItem {
     percent: 0,
     status: 'done',
     uid: fileInfo.id,
-    url: `http://172.16.200.18:8081/${fileInfo.filePath || ''}`,
+    url: `${gatewayAddress}/${fileInfo.filePath || ''}`,
     local: fileInfo.local,
   };
 }
-
 export default {};

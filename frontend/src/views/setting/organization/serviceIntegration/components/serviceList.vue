@@ -25,7 +25,7 @@
             <div v-for="item of filterList" :key="item.id" class="item">
               <div class="flex">
                 <span class="icon float-left mr-2 h-[40px] w-[40px] rounded">
-                  <img class="rounded" :src="`http://172.16.200.18:8081${item.logo}`" alt="log" />
+                  <img class="rounded" :src="`${gatewayAddress}${item.logo}`" alt="log" />
                 </span>
                 <div class="flex flex-col justify-start">
                   <p>
@@ -94,7 +94,7 @@
               </div>
             </div>
           </div>
-          <a-empty v-if="filterList.length < 1" class="mt-20"> </a-empty>
+          <a-empty v-if="filterList.length" class="mt-20"> </a-empty>
         </a-scrollbar>
       </div>
     </div>
@@ -135,6 +135,7 @@
   const filterList = ref<ServiceList>([]);
   const data = ref<ServiceList>([]);
   const loading = ref<boolean>(false);
+  const gatewayAddress = `${window.location.protocol}//${window.location.hostname}:${window.location.port}`;
 
   // 集成列表
   const loadList = async () => {

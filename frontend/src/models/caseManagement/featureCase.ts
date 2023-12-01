@@ -212,5 +212,12 @@ export interface CreateOrUpdateDemand {
   demandList?: DemandFormList[];
   [key: string]: any;
 }
+// 转存文件
+export interface OperationFile {
+  projectId: string;
+  caseId: string;
+  fileId: string; // 文件id
+  local: boolean; // 是否是本地
+}
 
 export type DemandList = DemandItem[];
