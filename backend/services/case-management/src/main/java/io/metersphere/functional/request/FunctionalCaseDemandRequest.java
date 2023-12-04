@@ -22,7 +22,7 @@ public class FunctionalCaseDemandRequest {
     @NotBlank(message = "{functional_case_demand.case_id.not_blank}")
     private String caseId;
 
-    @Schema(description = "需求所属平台(默认是LOCAL)")
+    @Schema(description = "需求所属平台(本地创建为系统平台名称)")
     @NotBlank(message = "{functional_case_demand.demand_platform.not_blank}")
     private String demandPlatform;
 

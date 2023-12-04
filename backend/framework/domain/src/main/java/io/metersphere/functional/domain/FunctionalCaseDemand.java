@@ -20,6 +20,11 @@ public class FunctionalCaseDemand implements Serializable {
     @Size(min = 1, max = 50, message = "{functional_case_demand.case_id.length_range}", groups = {Created.class, Updated.class})
     private String caseId;
 
+    @Schema(description = "父需求id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{functional_case_demand.parent.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{functional_case_demand.parent.length_range}", groups = {Created.class, Updated.class})
+    private String parent;
+
     @Schema(description = "需求ID")
     private String demandId;
 
@@ -53,6 +58,7 @@ public class FunctionalCaseDemand implements Serializable {
     public enum Column {
         id("id", "id", "VARCHAR", false),
         caseId("case_id", "caseId", "VARCHAR", false),
+        parent("parent", "parent", "VARCHAR", false),
         demandId("demand_id", "demandId", "VARCHAR", false),
         demandName("demand_name", "demandName", "VARCHAR", false),
         demandUrl("demand_url", "demandUrl", "VARCHAR", false),

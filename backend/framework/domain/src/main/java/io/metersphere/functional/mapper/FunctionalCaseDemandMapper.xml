@@ -4,6 +4,7 @@
   <resultMap id="BaseResultMap" type="io.metersphere.functional.domain.FunctionalCaseDemand">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="case_id" jdbcType="VARCHAR" property="caseId" />
+    <result column="parent" jdbcType="VARCHAR" property="parent" />
     <result column="demand_id" jdbcType="VARCHAR" property="demandId" />
     <result column="demand_name" jdbcType="VARCHAR" property="demandName" />
     <result column="demand_url" jdbcType="VARCHAR" property="demandUrl" />
@@ -72,8 +73,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, case_id, demand_id, demand_name, demand_url, demand_platform, create_time, update_time, 
-    create_user, update_user
+    id, case_id, parent, demand_id, demand_name, demand_url, demand_platform, create_time, 
+    update_time, create_user, update_user
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.functional.domain.FunctionalCaseDemandExample" resultMap="BaseResultMap">
     select
@@ -106,14 +107,14 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.functional.domain.FunctionalCaseDemand">
-    insert into functional_case_demand (id, case_id, demand_id, 
-      demand_name, demand_url, demand_platform, 
-      create_time, update_time, create_user, 
-      update_user)
-    values (#{id,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, #{demandId,jdbcType=VARCHAR}, 
-      #{demandName,jdbcType=VARCHAR}, #{demandUrl,jdbcType=VARCHAR}, #{demandPlatform,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
-      #{updateUser,jdbcType=VARCHAR})
+    insert into functional_case_demand (id, case_id, parent, 
+      demand_id, demand_name, demand_url, 
+      demand_platform, create_time, update_time, 
+      create_user, update_user)
+    values (#{id,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, #{parent,jdbcType=VARCHAR}, 
+      #{demandId,jdbcType=VARCHAR}, #{demandName,jdbcType=VARCHAR}, #{demandUrl,jdbcType=VARCHAR}, 
+      #{demandPlatform,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
+      #{createUser,jdbcType=VARCHAR}, #{updateUser,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.functional.domain.FunctionalCaseDemand">
     insert into functional_case_demand
@@ -123,6 +124,9 @@
       </if>
       <if test="caseId != null">
         case_id,
+      </if>
+      <if test="parent != null">
+        parent,
       </if>
       <if test="demandId != null">
         demand_id,
@@ -155,6 +159,9 @@
       </if>
       <if test="caseId != null">
         #{caseId,jdbcType=VARCHAR},
+      </if>
+      <if test="parent != null">
+        #{parent,jdbcType=VARCHAR},
       </if>
       <if test="demandId != null">
         #{demandId,jdbcType=VARCHAR},
@@ -197,6 +204,9 @@
       <if test="record.caseId != null">
         case_id = #{record.caseId,jdbcType=VARCHAR},
       </if>
+      <if test="record.parent != null">
+        parent = #{record.parent,jdbcType=VARCHAR},
+      </if>
       <if test="record.demandId != null">
         demand_id = #{record.demandId,jdbcType=VARCHAR},
       </if>
@@ -230,6 +240,7 @@
     update functional_case_demand
     set id = #{record.id,jdbcType=VARCHAR},
       case_id = #{record.caseId,jdbcType=VARCHAR},
+      parent = #{record.parent,jdbcType=VARCHAR},
       demand_id = #{record.demandId,jdbcType=VARCHAR},
       demand_name = #{record.demandName,jdbcType=VARCHAR},
       demand_url = #{record.demandUrl,jdbcType=VARCHAR},
@@ -247,6 +258,9 @@
     <set>
       <if test="caseId != null">
         case_id = #{caseId,jdbcType=VARCHAR},
+      </if>
+      <if test="parent != null">
+        parent = #{parent,jdbcType=VARCHAR},
       </if>
       <if test="demandId != null">
         demand_id = #{demandId,jdbcType=VARCHAR},
@@ -278,6 +292,7 @@
   <update id="updateByPrimaryKey" parameterType="io.metersphere.functional.domain.FunctionalCaseDemand">
     update functional_case_demand
     set case_id = #{caseId,jdbcType=VARCHAR},
+      parent = #{parent,jdbcType=VARCHAR},
       demand_id = #{demandId,jdbcType=VARCHAR},
       demand_name = #{demandName,jdbcType=VARCHAR},
       demand_url = #{demandUrl,jdbcType=VARCHAR},
@@ -290,14 +305,14 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into functional_case_demand
-    (id, case_id, demand_id, demand_name, demand_url, demand_platform, create_time, update_time, 
-      create_user, update_user)
+    (id, case_id, parent, demand_id, demand_name, demand_url, demand_platform, create_time, 
+      update_time, create_user, update_user)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.caseId,jdbcType=VARCHAR}, #{item.demandId,jdbcType=VARCHAR}, 
-        #{item.demandName,jdbcType=VARCHAR}, #{item.demandUrl,jdbcType=VARCHAR}, #{item.demandPlatform,jdbcType=VARCHAR}, 
-        #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, 
-        #{item.updateUser,jdbcType=VARCHAR})
+      (#{item.id,jdbcType=VARCHAR}, #{item.caseId,jdbcType=VARCHAR}, #{item.parent,jdbcType=VARCHAR}, 
+        #{item.demandId,jdbcType=VARCHAR}, #{item.demandName,jdbcType=VARCHAR}, #{item.demandUrl,jdbcType=VARCHAR}, 
+        #{item.demandPlatform,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, 
+        #{item.createUser,jdbcType=VARCHAR}, #{item.updateUser,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -315,6 +330,9 @@
         </if>
         <if test="'case_id'.toString() == column.value">
           #{item.caseId,jdbcType=VARCHAR}
+        </if>
+        <if test="'parent'.toString() == column.value">
+          #{item.parent,jdbcType=VARCHAR}
         </if>
         <if test="'demand_id'.toString() == column.value">
           #{item.demandId,jdbcType=VARCHAR}

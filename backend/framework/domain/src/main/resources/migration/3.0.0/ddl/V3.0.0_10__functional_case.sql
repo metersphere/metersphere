@@ -182,25 +182,25 @@ CREATE INDEX idx_source_id ON functional_case_test (source_id);
 
 CREATE TABLE IF NOT EXISTS functional_case_demand
 (
-    `id`              VARCHAR(50) NOT NULL COMMENT 'ID',
-    `case_id`         VARCHAR(50) NOT NULL COMMENT '功能用例ID',
-    `demand_id`       VARCHAR(50) COMMENT '需求ID',
-    `demand_name`     VARCHAR(64) NOT NULL COMMENT '需求标题',
-    `demand_url`      VARCHAR(255) COMMENT '需求地址',
-    `demand_platform` VARCHAR(64) NOT NULL DEFAULT 'LOCAL' COMMENT '需求所属平台',
-    `create_time`     BIGINT      NOT NULL COMMENT '创建时间',
-    `update_time`     BIGINT      NOT NULL COMMENT '更新时间',
-    `create_user`     VARCHAR(50) NOT NULL COMMENT '创建人',
-    `update_user`     VARCHAR(50) NOT NULL COMMENT '更新人',
-    PRIMARY KEY (id)
+                                                     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
+                                                     `case_id` VARCHAR(50) NOT NULL   COMMENT '功能用例ID' ,
+                                                     `parent` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '父需求id' ,
+                                                     `demand_id` VARCHAR(50)    COMMENT '需求ID' ,
+                                                     `demand_name` VARCHAR(64) NOT NULL  DEFAULT 'NONE' COMMENT '需求标题' ,
+                                                     `demand_url` VARCHAR(255)    COMMENT '需求地址' ,
+                                                     `demand_platform` VARCHAR(64) NOT NULL  DEFAULT 'LOCAL' COMMENT '需求所属平台' ,
+                                                     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+                                                     `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
+                                                     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+                                                     `update_user` VARCHAR(50) NOT NULL   COMMENT '更新人' ,
+                                                     PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '功能用例和需求的中间表';
+  COLLATE = utf8mb4_general_ci  COMMENT = '功能用例和需求的中间表';
 
 
-CREATE INDEX idx_case_id ON functional_case_demand (case_id);
-CREATE INDEX idx_demand_name ON functional_case_demand (demand_name);
-CREATE INDEX idx_demand_platform ON functional_case_demand (demand_platform);
+CREATE INDEX idx_case_id ON functional_case_demand(case_id);
+CREATE INDEX idx_demand_platform ON functional_case_demand(demand_platform);
 
 CREATE TABLE IF NOT EXISTS functional_minder_extra_node
 (

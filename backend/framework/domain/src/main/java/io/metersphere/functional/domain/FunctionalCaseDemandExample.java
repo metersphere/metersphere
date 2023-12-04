@@ -244,6 +244,76 @@ public class FunctionalCaseDemandExample {
             return (Criteria) this;
         }
 
+        public Criteria andParentIsNull() {
+            addCriterion("parent is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentIsNotNull() {
+            addCriterion("parent is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentEqualTo(String value) {
+            addCriterion("parent =", value, "parent");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentNotEqualTo(String value) {
+            addCriterion("parent <>", value, "parent");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentGreaterThan(String value) {
+            addCriterion("parent >", value, "parent");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentGreaterThanOrEqualTo(String value) {
+            addCriterion("parent >=", value, "parent");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentLessThan(String value) {
+            addCriterion("parent <", value, "parent");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentLessThanOrEqualTo(String value) {
+            addCriterion("parent <=", value, "parent");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentLike(String value) {
+            addCriterion("parent like", value, "parent");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentNotLike(String value) {
+            addCriterion("parent not like", value, "parent");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentIn(List<String> values) {
+            addCriterion("parent in", values, "parent");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentNotIn(List<String> values) {
+            addCriterion("parent not in", values, "parent");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentBetween(String value1, String value2) {
+            addCriterion("parent between", value1, value2, "parent");
+            return (Criteria) this;
+        }
+
+        public Criteria andParentNotBetween(String value1, String value2) {
+            addCriterion("parent not between", value1, value2, "parent");
+            return (Criteria) this;
+        }
+
         public Criteria andDemandIdIsNull() {
             addCriterion("demand_id is null");
             return (Criteria) this;
