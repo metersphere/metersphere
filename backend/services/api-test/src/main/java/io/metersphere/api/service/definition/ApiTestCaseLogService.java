@@ -9,11 +9,11 @@ import io.metersphere.api.dto.definition.ApiTestCaseLogDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseUpdateRequest;
 import io.metersphere.api.mapper.ApiTestCaseBlobMapper;
 import io.metersphere.api.mapper.ApiTestCaseMapper;
-import io.metersphere.sdk.util.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
+import io.metersphere.sdk.util.ApiDataUtils;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
@@ -112,7 +112,7 @@ public class ApiTestCaseLogService {
                 OperationLogType.RECOVER.name(),
                 OperationLogModule.API_DEFINITION_CASE,
                 apiTestCase.getName());
-
+        dto.setHistory(true);
         dto.setPath("/api/case/recover/" + id);
         dto.setMethod(HttpMethodConstants.GET.name());
         dto.setOriginalValue(JSON.toJSONBytes(apiTestCase));
@@ -169,6 +169,7 @@ public class ApiTestCaseLogService {
                 request.getName());
 
         dto.setPath("/api/case/update");
+        dto.setHistory(true);
         dto.setMethod(HttpMethodConstants.POST.name());
         ApiTestCaseLogDTO apiTestCaseDTO = new ApiTestCaseLogDTO();
         BeanUtils.copyBean(apiTestCaseDTO, apiTestCase);
@@ -191,6 +192,7 @@ public class ApiTestCaseLogService {
                 apiTestCase.getName());
 
         dto.setPath("/api/case/update");
+        dto.setHistory(true);
         dto.setMethod(HttpMethodConstants.POST.name());
         ApiTestCaseLogDTO apiTestCaseDTO = new ApiTestCaseLogDTO();
         BeanUtils.copyBean(apiTestCaseDTO, apiTestCase);
@@ -221,18 +223,18 @@ public class ApiTestCaseLogService {
     }
 
     public void batchToGcLog(List<ApiTestCase> apiTestCases, String operator, String projectId) {
-        saveBatchLog(projectId, apiTestCases, "/api/case/batch/move-gc", operator, OperationLogType.DELETE.name());
+        saveBatchLog(projectId, apiTestCases, "/api/case/batch/move-gc", operator, OperationLogType.DELETE.name(), false);
     }
 
     public void batchEditLog(List<ApiTestCase> apiTestCases, String operator, String projectId) {
-        saveBatchLog(projectId, apiTestCases, "/api/case/batch/edit", operator, OperationLogType.UPDATE.name());
+        saveBatchLog(projectId, apiTestCases, "/api/case/batch/edit", operator, OperationLogType.UPDATE.name(), true);
     }
 
     public void batchRecoverLog(List<ApiTestCase> apiTestCases, String operator, String projectId) {
-        saveBatchLog(projectId, apiTestCases, "/api/case/recover", operator, OperationLogType.RECOVER.name());
+        saveBatchLog(projectId, apiTestCases, "/api/case/recover", operator, OperationLogType.RECOVER.name(), true);
     }
 
-    private void saveBatchLog(String projectId, List<ApiTestCase> apiTestCases, String path, String operator, String operationType) {
+    private void saveBatchLog(String projectId, List<ApiTestCase> apiTestCases, String path, String operator, String operationType, boolean isHistory) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         //取出apiTestCases所有的id为新的list
         List<String> caseId = apiTestCases.stream().map(ApiTestCase::getId).distinct().toList();
@@ -265,6 +267,7 @@ public class ApiTestCaseLogService {
                             .createUser(operator)
                             .originalValue(JSON.toJSONBytes(apiTestCaseDTO))
                             .build().getLogDTO();
+            dto.setHistory(isHistory);
                     logs.add(dto);
                 }
         );

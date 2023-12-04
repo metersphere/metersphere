@@ -28,6 +28,7 @@ public class Body {
         NONE,
         RAW,
         WWW_FORM,
-        XML
+        XML,
+        JSON
     }
 }
