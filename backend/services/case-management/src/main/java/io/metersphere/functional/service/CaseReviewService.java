@@ -113,8 +113,6 @@ public class CaseReviewService {
         }
 
         buildReviewers(caseReviewDTO, reviewUserMap);
-
-        caseReviewDTO.setStatusName(CaseReviewStatus.valueOf(caseReviewDTO.getStatus()).getName());
     }
 
     private static void buildReviewers(CaseReviewDTO caseReviewDTO, Map<String, List<CaseReviewUserDTO>> reviewUserMap) {

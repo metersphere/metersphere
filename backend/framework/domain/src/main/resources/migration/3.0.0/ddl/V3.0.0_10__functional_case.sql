@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS functional_case
     `project_id`          VARCHAR(50)  NOT NULL COMMENT '项目ID',
     `template_id`         VARCHAR(50)  NOT NULL COMMENT '模板ID',
     `name`                VARCHAR(255) NOT NULL COMMENT '名称',
-    `review_status`       VARCHAR(64)  NOT NULL DEFAULT 'UN_REVIEWED' COMMENT '评审状态：未评审/评审中/通过/不通过/重新提审',
+    `review_status`       VARCHAR(64)  NOT NULL DEFAULT 'UN_REVIEWED' COMMENT '评审结果：未评审/评审中/通过/不通过/重新提审',
     `tags`                VARCHAR(1000) COMMENT '标签（JSON)',
     `case_edit_type`      VARCHAR(50)  NOT NULL DEFAULT 'STEP' COMMENT '编辑模式：步骤模式/文本模式',
     `pos`                 BIGINT       NOT NULL DEFAULT 0 COMMENT '自定义排序，间隔5000',
