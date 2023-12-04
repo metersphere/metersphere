@@ -1,6 +1,6 @@
 package io.metersphere.api.dto.definition;
 
-import io.metersphere.sdk.constants.ModuleConstants;
+import io.metersphere.api.enums.ProtocolType;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -31,7 +31,7 @@ public class ApiDefinitionDeleteRequest implements Serializable {
     @Schema(description = "接口协议", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_debug.protocol.not_blank}")
     @Size(min = 1, max = 20, message = "{api_debug.protocol.length_range}")
-    private String protocol = ModuleConstants.NODE_PROTOCOL_HTTP;
+    private String protocol = ProtocolType.HTTP.name();
 
     @Schema(description = "删除列表版本/删除全部版本")
     private Boolean deleteAll = false;

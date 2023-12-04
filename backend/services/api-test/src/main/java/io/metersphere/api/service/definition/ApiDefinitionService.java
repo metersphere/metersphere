@@ -6,6 +6,7 @@ import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.enums.ApiReportStatus;
+import io.metersphere.api.enums.ProtocolType;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.sdk.util.ApiDataUtils;
@@ -14,7 +15,6 @@ import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
-import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
@@ -175,7 +175,7 @@ public class ApiDefinitionService {
         ApiDefinition originApiDefinition = checkApiDefinition(request.getId());
         ApiDefinition apiDefinition = new ApiDefinition();
         BeanUtils.copyBean(apiDefinition, request);
-        if(request.getProtocol().equals(ModuleConstants.NODE_PROTOCOL_HTTP)){
+        if(request.getProtocol().equals(ProtocolType.HTTP.name())){
             checkUpdateExist(apiDefinition);
         }
         apiDefinition.setStatus(request.getStatus());
@@ -667,6 +667,10 @@ public class ApiDefinitionService {
         apiDefinitionDTO.setFollow(apiDefinitionFollowerMapper.countByExample(example) > 0);
         BeanUtils.copyBean(apiDefinitionDTO, apiDefinition);
         return apiDefinitionDTO;
+    }
+
+    public List<String> getProtocolTypes() {
+        return Arrays.stream(ProtocolType.values()).map(Enum::name).toList();
     }
 
 }

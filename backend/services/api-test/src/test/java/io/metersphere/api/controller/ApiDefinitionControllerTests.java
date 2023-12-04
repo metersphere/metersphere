@@ -4,6 +4,7 @@ import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.enums.ApiDefinitionStatus;
+import io.metersphere.api.enums.ProtocolType;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.sdk.util.ApiDataUtils;
@@ -37,6 +38,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 
@@ -67,6 +69,9 @@ public class ApiDefinitionControllerTests extends BaseTest {
     private static final String FOLLOW = BASE_PATH + "follow/";
     private static final String VERSION = BASE_PATH + "version/";
     private static final String UPLOAD_TEMP_FILE = BASE_PATH + "/upload/temp/file";
+    private static final String PROTOCOLS = BASE_PATH + "/protocols";
+
+
 
     private static final String DEFAULT_MODULE_ID = "10001";
     private static ApiDefinition apiDefinition;
@@ -964,6 +969,22 @@ public class ApiDefinitionControllerTests extends BaseTest {
         doApiDefinitionPage("FILTER", PAGE_DOC);
         doApiDefinitionPage("COMBINE", PAGE_DOC);
         doApiDefinitionPage("DELETED", PAGE_DOC);
+    }
+
+    @Test
+    @Order(17)
+    public void testProtocols() throws Exception {
+        // @@请求成功
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(PROTOCOLS);
+        ApiDataUtils.setResolver(MsHTTPElement.class);
+        List<String> data = ApiDataUtils.parseArray(JSON.toJSONString(parseResponse(mvcResult).get("data")), String.class);
+        // 校验数据是否正确
+        List<String> collect = Arrays.stream(ProtocolType.values()).map(Enum::name).toList();
+
+        Assertions.assertEquals(data, collect);
+
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_READ, PROTOCOLS);
     }
 
 }

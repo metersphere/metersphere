@@ -269,7 +269,6 @@ public class MsHTTPElementTest {
     public static List<HttpResponse> getMsHttpResponse() {
         List<HttpResponse> httpResponses = new ArrayList<>();
         HttpResponse httpResponse = new HttpResponse();
-        httpResponse.setId(1);
         httpResponse.setName("Response1");
         httpResponse.setStatusCode("200");
         httpResponse.setDefaultFlag(true);
