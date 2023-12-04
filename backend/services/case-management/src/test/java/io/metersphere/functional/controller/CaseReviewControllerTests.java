@@ -46,6 +46,8 @@ public class CaseReviewControllerTests extends BaseTest {
     private static final String projectId = "project-gyq-case-review-test";
 
     private static final String ADD_CASE_REVIEW = "/case/review/add";
+    private static final String COPY_CASE_REVIEW = "/case/review/copy";
+    private static final String BATCH_MOVE_CASE_REVIEW = "/case/review/batch/move";
     private static final String EDIT_CASE_REVIEW = "/case/review/edit";
     private static final String PAGE_CASE_REVIEW = "/case/review/page";
     private static final String ASSOCIATE_CASE_REVIEW = "/case/review/associate";
@@ -89,8 +91,14 @@ public class CaseReviewControllerTests extends BaseTest {
         NotificationExample notificationExample = new NotificationExample();
         notificationExample.createCriteria().andResourceTypeEqualTo(NoticeConstants.TaskType.CASE_REVIEW_TASK);
         List<Notification> notifications = notificationMapper.selectByExampleWithBLOBs(notificationExample);
-        System.out.println(JSON.toJSONString(notifications));
         Assertions.assertEquals(1, notifications.size());
+
+        caseReviewRequest = getCaseReviewAddRequest("创建评审1", CaseReviewPassRule.SINGLE.toString(), "CASE_REVIEW_TEST_GYQ_ID", false, true, null);
+        this.requestPostWithOk(COPY_CASE_REVIEW, caseReviewRequest);
+        caseReviews = getCaseReviews("创建评审1");
+        Assertions.assertEquals(2, caseReviews.size());
+        List<String> list = caseReviews.stream().map(CaseReview::getId).distinct().toList();
+        Assertions.assertEquals(2, list.size());
 
     }
 
@@ -298,6 +306,18 @@ public class CaseReviewControllerTests extends BaseTest {
         userIds.add("gyq_review_test2");
         caseReviewAssociateRequest.setReviewers(userIds);
         this.requestPost(ASSOCIATE_CASE_REVIEW, caseReviewAssociateRequest).andExpect(status().is5xxServerError());
+        List<CaseReview> caseReviews = getCaseReviews("创建评审更新1");
+        caseReviewAssociateRequest = new CaseReviewAssociateRequest();
+        caseReviewAssociateRequest.setProjectId(projectId);
+        caseReviewAssociateRequest.setReviewId(caseReviews.get(0).getId());
+        caseIds = new ArrayList<>();
+        caseIds.add("CASE_REVIEW_TEST_GYQ_XX");
+        caseReviewAssociateRequest.setCaseIds(caseIds);
+        userIds = new ArrayList<>();
+        userIds.add("gyq_review_test");
+        userIds.add("gyq_review_test2");
+        caseReviewAssociateRequest.setReviewers(userIds);
+        this.requestPostWithOk(ASSOCIATE_CASE_REVIEW, caseReviewAssociateRequest);
     }
 
     @Test
@@ -442,6 +462,35 @@ public class CaseReviewControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
+    }
+
+
+    @Test
+    @Order(15)
+    public void testBatchMove() throws Exception {
+        List<CaseReview> caseReviews = getCaseReviews("创建评审更新1");
+        String moduleId = caseReviews.get(0).getModuleId();
+        CaseReviewBatchRequest request = new CaseReviewBatchRequest();
+        request.setProjectId(projectId);
+        request.setModuleId("CASE_REVIEW_REAL_MODULE_ID2");
+        request.setSelectAll(false);
+        this.requestPostWithOkAndReturn(BATCH_MOVE_CASE_REVIEW, request);
+        request.setSelectAll(true);
+        this.requestPostWithOkAndReturn(BATCH_MOVE_CASE_REVIEW, request);
+        caseReviews = getCaseReviews("创建评审更新1");
+        String moduleIdNew = caseReviews.get(0).getModuleId();
+        Assertions.assertFalse(StringUtils.equals(moduleId, moduleIdNew));
+        request = new CaseReviewBatchRequest();
+        request.setProjectId(projectId);
+        request.setModuleId("CASE_REVIEW_REAL_MODULE_ID2");
+        request.setSelectAll(false);
+        request.setExcludeIds(List.of(caseReviews.get(0).getId()));
+        this.requestPostWithOkAndReturn(BATCH_MOVE_CASE_REVIEW, request);
+        caseReviews = getCaseReviews("创建评审更新1");
+        String moduleIdNewOne = caseReviews.get(0).getModuleId();
+        Assertions.assertTrue(StringUtils.equals(moduleIdNewOne, moduleIdNew));
+
+
     }
 
     /**

@@ -8,6 +8,7 @@ import io.metersphere.functional.dto.CaseReviewDTO;
 import io.metersphere.functional.dto.CaseReviewUserDTO;
 import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.request.CaseReviewAssociateRequest;
+import io.metersphere.functional.request.CaseReviewBatchRequest;
 import io.metersphere.functional.request.CaseReviewPageRequest;
 import io.metersphere.functional.request.CaseReviewRequest;
 import io.metersphere.functional.result.CaseManagementResultCode;
@@ -66,6 +67,8 @@ public class CaseReviewService {
     private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
     @Resource
     private ExtCaseReviewUserMapper extCaseReviewUserMapper;
+    @Resource
+    private FunctionalCaseMapper functionalCaseMapper;
 
 
     /**
@@ -418,6 +421,12 @@ public class CaseReviewService {
     public void associateCase(CaseReviewAssociateRequest request, String userId) {
         String caseReviewId = request.getReviewId();
         CaseReview caseReviewExist = checkCaseReview(caseReviewId);
+        FunctionalCaseExample functionalCaseExample = new FunctionalCaseExample();
+        functionalCaseExample.createCriteria().andIdIn(request.getCaseIds());
+        List<FunctionalCase> functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
+        if (CollectionUtils.isEmpty(functionalCases)) {
+            return;
+        }
         CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
         caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(caseReviewId);
         List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
@@ -450,6 +459,7 @@ public class CaseReviewService {
 
     /**
      * 用例评审列表拖拽排序
+     *
      * @param request request
      */
     public void editPos(PosRequest request) {
@@ -463,7 +473,8 @@ public class CaseReviewService {
 
     /**
      * 获取用例评审详情
-     * @param id 用例评审id
+     *
+     * @param id     用例评审id
      * @param userId 当前操作人
      * @return CaseReviewDTO
      */
@@ -481,7 +492,8 @@ public class CaseReviewService {
 
     /**
      * 检查当前操作人是否关注该用例评审
-     * @param id  评审人名称
+     *
+     * @param id     评审人名称
      * @param userId 操作人
      * @return Boolean
      */
@@ -489,5 +501,21 @@ public class CaseReviewService {
         CaseReviewFollowerExample caseReviewFollowerExample = new CaseReviewFollowerExample();
         caseReviewFollowerExample.createCriteria().andReviewIdEqualTo(id).andUserIdEqualTo(userId);
         return caseReviewFollowerMapper.countByExample(caseReviewFollowerExample) > 0;
+    }
+
+    public void batchMoveCaseReview(CaseReviewBatchRequest request, String userId) {
+        List<String> ids;
+        if (request.isSelectAll()) {
+            ids = extCaseReviewMapper.getIds(request, request.getProjectId());
+            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+                ids.removeAll(request.getExcludeIds());
+            }
+
+        } else {
+            ids = request.getSelectIds();
+        }
+        if (CollectionUtils.isNotEmpty(ids)) {
+            extCaseReviewMapper.batchMoveModule(request, ids, userId);
+        }
     }
 }

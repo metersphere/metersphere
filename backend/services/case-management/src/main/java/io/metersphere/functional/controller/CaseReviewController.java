@@ -4,10 +4,7 @@ import com.alibaba.excel.util.StringUtils;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.functional.dto.CaseReviewDTO;
-import io.metersphere.functional.request.CaseReviewAssociateRequest;
-import io.metersphere.functional.request.CaseReviewFollowerRequest;
-import io.metersphere.functional.request.CaseReviewPageRequest;
-import io.metersphere.functional.request.CaseReviewRequest;
+import io.metersphere.functional.request.*;
 import io.metersphere.functional.service.CaseReviewLogService;
 import io.metersphere.functional.service.CaseReviewNoticeService;
 import io.metersphere.functional.service.CaseReviewService;
@@ -59,12 +56,13 @@ public class CaseReviewController {
         caseReviewService.addCaseReview(request, SessionUtils.getUserId());
     }
 
-    @PostMapping("/associate")
-    @Operation(summary = "用例管理-用例评审-关联用例")
-    @Log(type = OperationLogType.ASSOCIATE, expression = "#msClass.associateCaseLog(#request)", msClass = CaseReviewLogService.class)
-    @RequiresPermissions(PermissionConstants.CASE_REVIEW_RELEVANCE)
-    public void associateCase(@Validated @RequestBody CaseReviewAssociateRequest request) {
-        caseReviewService.associateCase(request, SessionUtils.getUserId());
+    @PostMapping("/copy")
+    @Operation(summary = "用例管理-用例评审-复制用例评审")
+    @Log(type = OperationLogType.COPY, expression = "#msClass.copyCaseReviewLog(#request)", msClass = CaseReviewLogService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.CASE_REVIEW_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.getMainCaseReview(#request)", targetClass = CaseReviewNoticeService.class)
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_ADD)
+    public void copyCaseReview(@Validated @RequestBody CaseReviewRequest request) {
+        caseReviewService.addCaseReview(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/edit")
@@ -76,6 +74,14 @@ public class CaseReviewController {
         caseReviewService.editCaseReview(request, SessionUtils.getUserId());
     }
 
+    @GetMapping("/user-option/{projectId}")
+    @Operation(summary = "用例管理-用例评审-获取具有评审权限的用户")
+    @RequiresPermissions(value = {PermissionConstants.CASE_REVIEW_READ_ADD,PermissionConstants.CASE_REVIEW_READ_UPDATE}, logical = Logical.OR)
+    public List<User> getReviewUserList(@PathVariable String projectId, @Schema(description = "查询关键字，根据邮箱和用户名查询")
+    @RequestParam(value = "keyword", required = false) String keyword) {
+        return caseReviewService.getReviewUserList(projectId, keyword);
+    }
+
     @PostMapping("/edit/follower")
     @Operation(summary = "用例管理-用例评审-关注/取消关注用例")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_UPDATE)
@@ -83,12 +89,12 @@ public class CaseReviewController {
         caseReviewService.editFollower(request.getCaseReviewId(), SessionUtils.getUserId());
     }
 
-    @GetMapping("/user-option/{projectId}")
-    @Operation(summary = "用例管理-用例评审-获取具有评审权限的用户")
-    @RequiresPermissions(value = {PermissionConstants.CASE_REVIEW_READ_ADD,PermissionConstants.CASE_REVIEW_READ_UPDATE}, logical = Logical.OR)
-    public List<User> getReviewUserList(@PathVariable String projectId, @Schema(description = "查询关键字，根据邮箱和用户名查询")
-                                  @RequestParam(value = "keyword", required = false) String keyword) {
-        return caseReviewService.getReviewUserList(projectId, keyword);
+    @PostMapping("/associate")
+    @Operation(summary = "用例管理-用例评审-关联用例")
+    @Log(type = OperationLogType.ASSOCIATE, expression = "#msClass.associateCaseLog(#request)", msClass = CaseReviewLogService.class)
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_RELEVANCE)
+    public void associateCase(@Validated @RequestBody CaseReviewAssociateRequest request) {
+        caseReviewService.associateCase(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/edit/pos")
@@ -105,4 +111,10 @@ public class CaseReviewController {
         return caseReviewService.getCaseReviewDetail(id, SessionUtils.getUserId());
     }
 
+    @PostMapping("batch/move")
+    @Operation(summary = "用例管理-用例评审-复制用例评审")
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_UPDATE)
+    public void batchMoveCaseReview(@Validated @RequestBody CaseReviewBatchRequest request) {
+        caseReviewService.batchMoveCaseReview(request, SessionUtils.getUserId());
+    }
 }

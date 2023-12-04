@@ -45,6 +45,49 @@
         1 = 1
     </select>
 
+    <select id="getIds" resultType="java.lang.String">
+        SELECT
+        id
+        FROM
+        case_review
+        where case_review.project_id = #{request.projectId}
+        <choose>
+            <when test='request.condition.searchMode == "AND"'>
+                AND <include refid="queryWhereConditionByBaseQueryRequest"/>
+            </when>
+            <when test='request.condition.searchMode == "OR"'>
+                and (
+                <include refid="queryWhereConditionByBaseQueryRequest"/>
+                )
+            </when>
+        </choose>
+        1 = 1
+    </select>
+
+    <sql id="queryWhereConditionByBaseQueryRequest">
+        <if test="request.condition.keyword != null">
+            (
+            case_review.name like concat('%', #{request.keyword},'%')
+            or case_review.num like concat('%', #{request.keyword},'%')
+           )
+            <include refid="queryType">
+                <property name="searchMode" value="request.condition.searchMode"/>
+            </include>
+        </if>
+        <include refid="filters">
+            <property name="filter" value="request.condition.filter"/>
+        </include>
+        <if test="request.condition.combine != null">
+            <include refid="combine">
+                <property name="condition" value="request.condition.combine"/>
+                <property name="name" value="request.condition.name"/>
+                <property name="ObjectTags" value="request.condition.combine.tags"/>
+                <property name="ObjectReviewers" value="request.condition.combine.reviewers"/>
+                <property name="ObjectModuleIds" value="request.condition.combine.moduleIds"/>
+            </include>
+        </if>
+    </sql>
+
     <sql id="queryWhereCondition">
         <if test="request.moduleIds != null and request.moduleIds.size() > 0">
             case_review.module_id in
@@ -309,5 +352,16 @@
         </if>
         order by `pos` desc limit 1;
     </select>
+
+    <update id="batchMoveModule">
+        update case_review
+        set module_id = #{request.moduleId},
+        update_user = #{userId},
+        update_time = UNIX_TIMESTAMP()*1000
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
 
 </mapper>
