@@ -15,6 +15,9 @@ public class DemandDTO implements Serializable {
     @Schema(description = "需求ID")
     private String demandId;
 
+    @Schema(description = "需求ID")
+    private String parent;
+
     @Schema(description = "需求标题", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case_demand.demand_name.not_blank}")
     private String demandName;
