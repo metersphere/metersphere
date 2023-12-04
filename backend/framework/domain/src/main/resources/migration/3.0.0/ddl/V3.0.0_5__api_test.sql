@@ -99,17 +99,6 @@ CREATE INDEX idx_create_time ON api_definition(create_time desc);
 CREATE INDEX idx_create_user ON api_definition(create_user);
 CREATE INDEX idx_name ON api_definition(name);
 
-CREATE TABLE IF NOT EXISTS api_environment_config(
-  `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
-  `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
-  `update_time` BIGINT NOT NULL   COMMENT '修改时间' ,
-  `create_user` VARCHAR(50) NOT NULL   COMMENT '用户fk' ,
-  `environment_id` VARCHAR(50) NOT NULL   COMMENT '环境fk' ,
-  PRIMARY KEY (id)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '接口定义公共部分环境';
-
 CREATE TABLE IF NOT EXISTS api_report(
   `id` VARCHAR(50) NOT NULL   COMMENT '接口结果报告pk' ,
   `name` VARCHAR(200) NOT NULL   COMMENT '接口报告名称' ,

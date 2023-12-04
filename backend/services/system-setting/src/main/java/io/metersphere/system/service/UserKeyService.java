@@ -103,12 +103,7 @@ public class UserKeyService {
         userKeyExample.createCriteria().andAccessKeyEqualTo(accessKey).andEnableEqualTo(true);
         List<UserKey> userKeysList = userKeyMapper.selectByExample(userKeyExample);
         if (!CollectionUtils.isEmpty(userKeysList)) {
-            //校验是否过期
-            if (BooleanUtils.isTrue(userKeysList.get(0).getForever()) || userKeysList.get(0).getExpireTime() > System.currentTimeMillis()) {
-                return userKeysList.get(0);
-            } else {
-                throw new MSException(Translator.get("apikey_has_expired") + ": " + userKeysList.get(0).getAccessKey());
-            }
+            return userKeysList.get(0);
         }
         return null;
     }
