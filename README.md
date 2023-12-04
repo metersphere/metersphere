@@ -89,7 +89,7 @@ MeterSphere 按年发布 LTS（Long Term Support）版本。
 
 -   [BlazeMeter](https://www.blazemeter.com/)：感谢 BlazeMeter 提供的设计思路
 -   [JMeter](https://jmeter.apache.org/)：MeterSphere 使用了 JMeter 作为测试引擎
--   [Element](https://element.eleme.cn/#/)：感谢 Element 提供的优秀组件库
+-   [Arco Design](https://arco.design/vue)：感谢 Arco Design 提供的优秀组件库
 
 ## FOSSA Status
 
