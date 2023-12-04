@@ -1,18 +1,18 @@
 package io.metersphere.functional.service;
 
-import io.metersphere.functional.domain.FunctionalCase;
-import io.metersphere.functional.domain.FunctionalCaseDemand;
+import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.BaseFunctionalCaseBatchDTO;
-import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
-import io.metersphere.functional.mapper.FunctionalCaseDemandMapper;
-import io.metersphere.functional.mapper.FunctionalCaseMapper;
+import io.metersphere.functional.dto.FunctionalCaseHistoryLogDTO;
+import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.request.*;
+import io.metersphere.project.domain.FileAssociation;
+import io.metersphere.project.domain.FileAssociationExample;
+import io.metersphere.project.mapper.FileAssociationMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
-import io.metersphere.system.log.service.OperationLogService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -31,15 +31,20 @@ public class FunctionalCaseLogService {
 
     @Resource
     private FunctionalCaseMapper functionalCaseMapper;
-
-    @Resource
-    private OperationLogService operationLogService;
     @Resource
     private FunctionalCaseService functionalCaseService;
     @Resource
     private ExtFunctionalCaseMapper extFunctionalCaseMapper;
     @Resource
     private FunctionalCaseDemandMapper functionalCaseDemandMapper;
+    @Resource
+    private FunctionalCaseBlobMapper functionalCaseBlobMapper;
+    @Resource
+    private FunctionalCaseCustomFieldMapper functionalCaseCustomFieldMapper;
+    @Resource
+    private FunctionalCaseAttachmentMapper functionalCaseAttachmentMapper;
+    @Resource
+    private FileAssociationMapper fileAssociationMapper;
 
 
     //TODO 日志(需要修改)
@@ -60,10 +65,10 @@ public class FunctionalCaseLogService {
                 OperationLogType.ADD.name(),
                 OperationLogModule.FUNCTIONAL_CASE,
                 requests.getName());
-
+        dto.setHistory(true);
         dto.setPath("/functional/case/add");
         dto.setMethod(HttpMethodConstants.POST.name());
-        dto.setOriginalValue(JSON.toJSONBytes(requests));
+        dto.setModifiedValue(JSON.toJSONBytes(requests));
         return dto;
     }
 
@@ -76,7 +81,7 @@ public class FunctionalCaseLogService {
      * @return
      */
     public LogDTO updateFunctionalCaseLog(FunctionalCaseEditRequest requests, List<MultipartFile> files) {
-        //TODO 获取原值
+        FunctionalCaseHistoryLogDTO historyLogDTO = getOriginalValue(requests.getId());
         LogDTO dto = new LogDTO(
                 requests.getProjectId(),
                 null,
@@ -85,11 +90,35 @@ public class FunctionalCaseLogService {
                 OperationLogType.UPDATE.name(),
                 OperationLogModule.FUNCTIONAL_CASE,
                 requests.getName());
-
+        dto.setHistory(true);
         dto.setPath("/functional/case/update");
         dto.setMethod(HttpMethodConstants.POST.name());
         dto.setModifiedValue(JSON.toJSONBytes(requests));
+        dto.setOriginalValue(JSON.toJSONBytes(historyLogDTO));
         return dto;
+    }
+
+    private FunctionalCaseHistoryLogDTO getOriginalValue(String id) {
+        FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(id);
+        FunctionalCaseBlob functionalCaseBlob = functionalCaseBlobMapper.selectByPrimaryKey(id);
+
+        //自定义字段
+        FunctionalCaseCustomFieldExample fieldExample = new FunctionalCaseCustomFieldExample();
+        fieldExample.createCriteria().andCaseIdEqualTo(id);
+        List<FunctionalCaseCustomField> customFields = functionalCaseCustomFieldMapper.selectByExample(fieldExample);
+
+        //附件  本地 + 文件库
+        FunctionalCaseAttachmentExample attachmentExample = new FunctionalCaseAttachmentExample();
+        attachmentExample.createCriteria().andCaseIdEqualTo(id);
+        List<FunctionalCaseAttachment> caseAttachments = functionalCaseAttachmentMapper.selectByExample(attachmentExample);
+
+        FileAssociationExample example = new FileAssociationExample();
+        example.createCriteria().andSourceIdEqualTo(id);
+        List<FileAssociation> fileAssociationList = fileAssociationMapper.selectByExample(example);
+
+
+        FunctionalCaseHistoryLogDTO historyLogDTO = new FunctionalCaseHistoryLogDTO(functionalCase, functionalCaseBlob, customFields, caseAttachments, fileAssociationList);
+        return historyLogDTO;
     }
 
 
@@ -260,6 +289,7 @@ public class FunctionalCaseLogService {
         if (CollectionUtils.isNotEmpty(ids)) {
             List<FunctionalCase> functionalCases = extFunctionalCaseMapper.getLogInfo(ids, false);
             functionalCases.forEach(functionalCase -> {
+                FunctionalCaseHistoryLogDTO historyLogDTO = getOriginalValue(functionalCase.getId());
                 LogDTO dto = new LogDTO(
                         functionalCase.getProjectId(),
                         null,
@@ -268,10 +298,10 @@ public class FunctionalCaseLogService {
                         OperationLogType.DELETE.name(),
                         OperationLogModule.FUNCTIONAL_CASE,
                         functionalCase.getName());
-
+                dto.setHistory(true);
                 dto.setPath("/functional/case/batch/edit");
                 dto.setMethod(HttpMethodConstants.POST.name());
-                dto.setOriginalValue(JSON.toJSONBytes(functionalCase));
+                dto.setOriginalValue(JSON.toJSONBytes(historyLogDTO));
                 dtoList.add(dto);
             });
         }
