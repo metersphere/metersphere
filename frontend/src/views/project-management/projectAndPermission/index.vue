@@ -1,27 +1,12 @@
 <template>
   <div class="wrapper flex min-h-[500px]" :style="{ height: 'calc(100vh - 90px)' }">
-    <div class="left-menu-wrapper mr-[16px] w-[208px] min-w-[208px] bg-white p-[24px]">
-      <div class="left-content">
-        <div class="mb-2 font-medium">{{ t('project.permission.projectAndPermission') }}</div>
-        <div class="menu">
-          <div
-            v-for="(item, index) of menuList"
-            :key="item.key"
-            class="menu-item px-2"
-            :class="{
-              'text-[--color-text-4]': item.level === 1,
-              'is-active': item.name === currentKey && item.level !== 1,
-              'cursor-pointer': item.level !== 1,
-            }"
-            :style="{
-              'border-top': item.level === 1 && index !== 0 ? '1px solid var(--color-border-2)' : 'none',
-            }"
-          >
-            <div @click="toggleMenu(item.name)">{{ t(item.title) }}</div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <MsMenuPanel
+      :title="t('project.permission.projectAndPermission')"
+      :default-key="currentKey"
+      :menu-list="menuList"
+      class="mr-[16px] w-[208px] min-w-[208px] bg-white p-[24px]"
+      @toggle-menu="toggleMenu"
+    />
     <MsCard simple :other-width="290" :min-width="700" :loading="isLoading">
       <router-view></router-view>
     </MsCard>
@@ -36,6 +21,7 @@
   import { useRoute, useRouter } from 'vue-router';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
+  import MsMenuPanel from '@/components/pure/ms-menu-panel/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
@@ -48,43 +34,43 @@
   const menuList = ref([
     {
       key: 'project',
-      title: 'project.permission.project',
+      title: t('project.permission.project'),
       level: 1,
       name: '',
     },
     {
       key: 'projectBasicInfo',
-      title: 'project.permission.basicInfo',
+      title: t('project.permission.basicInfo'),
       level: 2,
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_BASIC_INFO,
     },
     {
       key: 'projectMenuManage',
-      title: 'project.permission.menuManagement',
+      title: t('project.permission.menuManagement'),
       level: 2,
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT,
     },
     {
       key: 'projectVersion',
-      title: 'project.permission.projectVersion',
+      title: t('project.permission.projectVersion'),
       level: 2,
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_VERSION,
     },
     {
       key: 'memberPermission',
-      title: 'project.permission.memberPermission',
+      title: t('project.permission.memberPermission'),
       level: 1,
       name: '',
     },
     {
       key: 'projectMember',
-      title: 'project.permission.member',
+      title: t('project.permission.member'),
       level: 2,
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_MEMBER,
     },
     {
       key: 'projectUserGroup',
-      title: 'project.permission.userGroup',
+      title: t('project.permission.userGroup'),
       level: 2,
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_USER_GROUP,
     },

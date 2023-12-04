@@ -7,8 +7,7 @@ export const passwordLengthRegex = /^.{8,32}$/;
 // 密码校验，必须包含数字和字母
 export const passwordWordRegex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z0-9!@#$%^&*]+$/;
 // Git地址校验
-export const gitRepositoryUrlRegex =
-  /^(?:(?:git:\/\/|https?:\/\/)(?:www\.)?)?(github\.com|gitee\.com)\/([^/]+)\/([^/]+)\.git$/;
+export const gitRepositoryUrlRegex = /\.git$/;
 
 /**
  * 校验邮箱

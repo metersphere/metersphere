@@ -22,6 +22,11 @@ export default mergeConfig(
           changeOrigin: true,
           rewrite: (path: string) => path.replace(/^\/front\/file/, ''),
         },
+        '/plugin/image': {
+          target: 'http://172.16.200.18:8081/',
+          changeOrigin: true,
+          rewrite: (path: string) => path.replace(/^\/front\/plugin\/image/, ''),
+        },
         '/base-display': {
           target: 'http://172.16.200.18:8081/',
           changeOrigin: true,

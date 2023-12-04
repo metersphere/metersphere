@@ -110,6 +110,8 @@ const useUserStore = defineStore('user', {
         }
         return true;
       } catch (err) {
+        // eslint-disable-next-line no-console
+        console.log(err);
         return false;
       }
     },

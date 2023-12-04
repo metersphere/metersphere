@@ -19,7 +19,7 @@
           @collapse="setCollapsed"
         >
           <div class="menu-wrapper">
-            <Menu />
+            <MsMenu />
           </div>
         </a-layout-sider>
         <a-drawer
@@ -31,7 +31,7 @@
           :closable="false"
           @cancel="drawerCancel"
         >
-          <Menu />
+          <MsMenu />
         </a-drawer>
         <a-layout class="layout-content" :style="paddingStyle">
           <a-spin :loading="appStore.loading" :tip="appStore.loadingTip">
@@ -60,9 +60,9 @@
   import { useRoute, useRouter } from 'vue-router';
 
   import Footer from '@/components/pure/footer/index.vue';
-  import Menu from '@/components/pure/menu/index.vue';
   import NavBar from '@/components/pure/navbar/index.vue';
   import MsBreadCrumb from '@/components/business/ms-breadcrumb/index.vue';
+  import MsMenu from '@/components/business/ms-menu/index.vue';
   import PageLayout from './page-layout.vue';
 
   import { GetTitleImgUrl } from '@/api/requrls/setting/config';

@@ -14,34 +14,7 @@
           <a-input v-model="form.name" :placeholder="t('invite.namePlaceholder')" allow-clear />
         </a-form-item>
         <a-form-item field="password" class="hidden-item">
-          <a-popover position="tl" trigger="focus" :title="t('invite.passwordTipTitle')">
-            <a-input-password
-              v-model="form.password"
-              :placeholder="t('invite.passwordPlaceholder')"
-              allow-clear
-              autocomplete="new-password"
-              @input="validatePsw"
-              @clear="validatePsw(form.password)"
-            />
-            <template #content>
-              <div class="check-list-item">
-                <template v-if="pswLengthValidateRes">
-                  <icon-check-circle-fill class="check-list-item--success" />{{ t('invite.passwordLengthRule') }}
-                </template>
-                <template v-else>
-                  <icon-close-circle-fill class="check-list-item--error" />{{ t('invite.passwordLengthRule') }}
-                </template>
-              </div>
-              <div class="check-list-item">
-                <template v-if="pswValidateRes">
-                  <icon-check-circle-fill class="check-list-item--success" />{{ t('invite.passwordWordRule') }}
-                </template>
-                <template v-else>
-                  <icon-close-circle-fill class="check-list-item--error" />{{ t('invite.passwordWordRule') }}
-                </template>
-              </div>
-            </template>
-          </a-popover>
+          <MsPasswordInput v-model:password="form.password" />
         </a-form-item>
         <a-form-item field="rePassword" class="hidden-item">
           <a-input-password
@@ -61,6 +34,8 @@
   import { ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { FormInstance, Message } from '@arco-design/web-vue';
+
+  import MsPasswordInput from '@/components/pure/ms-password-input/index.vue';
 
   import { registerByInvite } from '@/api/modules/setting/user';
   import { useI18n } from '@/hooks/useI18n';

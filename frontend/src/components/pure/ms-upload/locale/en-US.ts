@@ -9,6 +9,7 @@ export default {
   'ms.upload.uploadAt': 'Uploaded at',
   'ms.upload.fail': 'Failed',
   'ms.upload.delete': 'Delete',
+  'ms.upload.uploadSuccess': 'Upload successful',
   'ms.upload.uploadFail': 'Upload failed',
   'ms.upload.all': 'All',
   'ms.upload.uploading': 'Waiting/Uploading',

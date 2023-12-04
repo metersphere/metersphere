@@ -8,6 +8,7 @@ export default {
   'ms.upload.preview': '预览',
   'ms.upload.uploadAt': '上传于',
   'ms.upload.uploadFail': '上传失败',
+  'ms.upload.uploadSuccess': '上传成功',
   'ms.upload.delete': '删除',
   'ms.upload.all': '全部',
   'ms.upload.uploading': '等待/上传中',

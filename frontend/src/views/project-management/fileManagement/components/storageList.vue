@@ -309,7 +309,7 @@
     id: '',
     projectId: '',
     name: '',
-    platform: GitPlatformEnum.GITHUB,
+    platform: GitPlatformEnum.GITEA,
     url: '',
     token: '',
     userName: '',

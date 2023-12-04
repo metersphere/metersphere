@@ -99,6 +99,9 @@
 </template>
 
 <script setup lang="ts">
+  /**
+   * @description 功能测试-用例评审-评审详情
+   */
   import { useRoute, useRouter } from 'vue-router';
 
   import MsButton from '@/components/pure/ms-button/index.vue';

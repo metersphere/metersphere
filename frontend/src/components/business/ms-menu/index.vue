@@ -1,16 +1,21 @@
 <script lang="tsx">
   import { compile, computed, defineComponent, h, ref } from 'vue';
   import { RouteRecordRaw, useRoute, useRouter } from 'vue-router';
+  import { Message } from '@arco-design/web-vue';
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
+  import MsPersonInfoDrawer from '@/components/business/ms-personal-drawer/index.vue';
 
+  import { getOrgOptions, switchUserOrg } from '@/api/modules/system';
   import { useI18n } from '@/hooks/useI18n';
   import useUser from '@/hooks/useUser';
   import { BOTTOM_MENU_LIST } from '@/router/constants';
-  import { PERSONAL_ROUTE } from '@/router/routes/base';
   import { useAppStore, useUserStore } from '@/store';
   import { openWindow, regexUrl } from '@/utils';
   import { listenerRouteChange } from '@/utils/route-listener';
+
+  import { WorkbenchRouteEnum } from '@/enums/routeEnum';
 
   import useMenuTree from './use-menu-tree';
   import type { RouteMeta } from 'vue-router';
@@ -61,7 +66,6 @@
           });
         }
       };
-      const personalActiveMenus = ref(['']);
       /**
        * 查找激活的菜单项
        * @param target 目标菜单名
@@ -88,11 +92,6 @@
           if (isFind) return; // 节省性能
           backtrack(el, [el?.name as string]);
         });
-        personalActiveMenus.value = [''];
-        if (result.length === 0) {
-          backtrack(PERSONAL_ROUTE, [PERSONAL_ROUTE.name as string]);
-          personalActiveMenus.value = [...result];
-        }
         return result;
       };
       /**
@@ -114,17 +113,53 @@
       };
 
       const personalMenusVisible = ref(false);
+      const personalDrawerVisible = ref(false);
+      const switchOrgVisible = ref(false);
+      const orgKeyword = ref('');
+      const originOrgList = ref<{ id: string; name: string }[]>([]);
+      const orgList = computed(() => originOrgList.value.filter((e) => e.name.includes(orgKeyword.value)));
+
+      async function switchOrg(id: string) {
+        try {
+          Message.loading(t('personal.switchOrgLoading'));
+          await switchUserOrg(id, userStore.id || '');
+          Message.clear();
+          Message.success(t('personal.switchOrgSuccess'));
+          personalMenusVisible.value = false;
+          orgKeyword.value = '';
+          await router.replace({ name: WorkbenchRouteEnum.WORKBENCH });
+          userStore.isLogin();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
+      }
+
+      onBeforeMount(async () => {
+        try {
+          const res = await getOrgOptions();
+          originOrgList.value = res || [];
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
+      });
 
       const personalMenus = [
         {
           label: t('personal.info'),
           icon: <MsIcon type="icon-icon-contacts" class="text-[var(--color-text-4)]" />,
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          route: PERSONAL_ROUTE.children![0],
+          event: () => {
+            personalDrawerVisible.value = true;
+          },
         },
         {
           label: t('personal.switchOrg'),
           icon: <MsIcon type="icon-icon_switch_outlined1" class="text-[var(--color-text-4)]" />,
+          isTrigger: true,
+          event: () => {
+            switchOrgVisible.value = true;
+          },
         },
         {
           divider: <a-divider class="ms-dropdown-divider" />,
@@ -152,19 +187,65 @@
                     if (e.divider) {
                       return e.divider;
                     }
+                    if (e.isTrigger) {
+                      return (
+                        <a-dropdown
+                          trigger="click"
+                          position="right"
+                          v-slots={{
+                            content: () => (
+                              <>
+                                <a-input-search
+                                  v-model:model-value={orgKeyword.value}
+                                  placeholder={t('personal.searchOrgPlaceholder')}
+                                />
+                                <a-divider class="ms-dropdown-divider" />
+                                {orgList.value.map((item) => (
+                                  <a-doption
+                                    key={item.id}
+                                    value={item.id}
+                                    class={item.id === appStore.currentOrgId ? 'active-org' : ''}
+                                  >
+                                    {item.name}
+                                    {item.id === appStore.currentOrgId ? (
+                                      <MsTag
+                                        type="primary"
+                                        theme="light"
+                                        size="small"
+                                        class="ml-[4px] !bg-[rgb(var(--primary-9))] px-[4px]"
+                                      >
+                                        {t('personal.currentOrg')}
+                                      </MsTag>
+                                    ) : null}
+                                  </a-doption>
+                                ))}
+                              </>
+                            ),
+                          }}
+                          onSelect={(orgId: string) => {
+                            switchOrg(orgId);
+                          }}
+                        >
+                          <div
+                            class="arco-trigger-menu-item"
+                            onClick={() => {
+                              if (typeof e.event === 'function') {
+                                e.event();
+                              }
+                            }}
+                          >
+                            {e.icon}
+                            {e.label}
+                          </div>
+                        </a-dropdown>
+                      );
+                    }
                     return (
                       <div
-                        class={[
-                          'arco-trigger-menu-item',
-                          personalActiveMenus.value.includes(e.route?.name as string)
-                            ? 'arco-trigger-menu-selected'
-                            : '',
-                        ]}
+                        class="arco-trigger-menu-item"
                         onClick={() => {
                           if (typeof e.event === 'function') {
                             e.event();
-                          } else if (e.route) {
-                            goto(e.route);
                           }
                           personalMenusVisible.value = false;
                         }}
@@ -186,6 +267,16 @@
               <icon-caret-down class="!m-0" />
             </a-menu-item>
           </a-trigger>
+        );
+      };
+      const personalInfoDrawer = () => {
+        return (
+          <MsPersonInfoDrawer
+            visible={personalDrawerVisible.value}
+            onUpdate:visible={(e) => {
+              personalDrawerVisible.value = e;
+            }}
+          />
         );
       };
 
@@ -220,28 +311,31 @@
       };
 
       return () => (
-        <a-menu
-          mode={'vertical'}
-          v-model:collapsed={collapsed.value}
-          v-model:open-keys={openKeys.value}
-          show-collapse-button={appStore.device !== 'mobile'}
-          auto-open={false}
-          selected-keys={selectedKey.value}
-          auto-open-selected={true}
-          level-indent={34}
-          style="height: 100%;width:100%;"
-          onCollapse={setCollapse}
-          trigger-props={{
-            'show-arrow': false,
-            'popup-offset': -4,
-          }}
-          v-slots={{
-            'collapse-icon': () => (appStore.menuCollapse ? <icon-right /> : <icon-left />),
-          }}
-        >
-          {renderSubMenu()}
-          {personalInfoMenu()}
-        </a-menu>
+        <>
+          <a-menu
+            mode={'vertical'}
+            v-model:collapsed={collapsed.value}
+            v-model:open-keys={openKeys.value}
+            show-collapse-button={appStore.device !== 'mobile'}
+            auto-open={false}
+            selected-keys={selectedKey.value}
+            auto-open-selected={true}
+            level-indent={34}
+            style="height: 100%;width:100%;"
+            onCollapse={setCollapse}
+            trigger-props={{
+              'show-arrow': false,
+              'popup-offset': -4,
+            }}
+            v-slots={{
+              'collapse-icon': () => (appStore.menuCollapse ? <icon-right /> : <icon-left />),
+            }}
+          >
+            {renderSubMenu()}
+            {personalInfoMenu()}
+          </a-menu>
+          {personalInfoDrawer()}
+        </>
       );
     },
   });
@@ -339,5 +433,9 @@
         color: rgb(var(--primary-5));
       }
     }
+  }
+  .active-org {
+    color: rgb(var(--primary-5));
+    background-color: rgb(var(--primary-1));
   }
 </style>

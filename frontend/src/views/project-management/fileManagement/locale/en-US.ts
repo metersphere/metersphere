@@ -56,6 +56,7 @@ export default {
   'project.fileManagement.normalFileDesc': 'All file types',
   'project.fileManagement.jarFile': 'JAR files',
   'project.fileManagement.jarFileDesc': 'Files used for interface testing',
+  'project.fileManagement.uploadTipSingle': 'Interface test script execution needs to be enabled',
   'project.fileManagement.uploadTip':
     'Interface test script execution needs to be enabled, which can be enabled with one click; files can be opened individually',
   'project.fileManagement.fileTypeTip': 'Switch the file type and the selected/uploaded file list will be cleared.',

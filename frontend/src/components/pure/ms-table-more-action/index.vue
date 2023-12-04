@@ -6,7 +6,13 @@
     <template #content>
       <template v-for="item of props.list">
         <a-divider v-if="item.isDivider" :key="`${item.label}-divider`" margin="4px" />
-        <a-doption v-else :key="item.label" :class="item.danger ? 'error-6' : ''" :disabled="item.disabled">
+        <a-doption
+          v-else
+          :key="item.label"
+          :class="item.danger ? 'error-6' : ''"
+          :disabled="item.disabled"
+          :value="item.eventTag"
+        >
           <MsIcon v-if="item.icon" :type="item.icon" />
           {{ t(item.label || '') }}
         </a-doption>
@@ -32,7 +38,7 @@
   const emit = defineEmits(['select', 'close']);
 
   function selectHandler(value: SelectedValue) {
-    const item = props.list.find((e: ActionsItem) => t(e.label || '') === value);
+    const item = props.list.find((e: ActionsItem) => e.eventTag === value);
     emit('select', item);
   }
 

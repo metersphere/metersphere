@@ -74,4 +74,5 @@ export default {
   'common.fork': '关注',
   'common.more': '更多',
   'common.recycle': '回收站',
+  'common.new': '新增',
 };
