@@ -14,10 +14,13 @@ import io.metersphere.sdk.mapper.OperationLogMapper;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.domain.SystemParameter;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.mapper.SystemParameterMapper;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -43,6 +46,8 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
     private FunctionalCaseDemandMapper functionalCaseDemandMapper;
     @Resource
     private OperationLogMapper operationLogMapper;
+    @Resource
+    private SystemParameterMapper systemParameterMapper;
 
     private static final String URL_DEMAND_PAGE = "/functional/case/demand/page";
     private static final String URL_DEMAND_ADD = "/functional/case/demand/add";
@@ -57,7 +62,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
     public void addDemandSuccess() throws Exception {
         FunctionalCaseDemandRequest functionalCaseDemandRequest = new FunctionalCaseDemandRequest();
         functionalCaseDemandRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID");
-        functionalCaseDemandRequest.setDemandPlatform("LOCAL");
+        functionalCaseDemandRequest.setDemandPlatform("Metersphere");
         List<DemandDTO> demandList = new ArrayList<>();
         DemandDTO demandDTO = new DemandDTO();
         demandDTO.setDemandName("手动加入1");
@@ -71,7 +76,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
 
         functionalCaseDemandRequest = new FunctionalCaseDemandRequest();
         functionalCaseDemandRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID");
-        functionalCaseDemandRequest.setDemandPlatform("LOCAL");
+        functionalCaseDemandRequest.setDemandPlatform("Metersphere");
         demandList = new ArrayList<>();
         demandDTO = new DemandDTO();
         demandDTO.setDemandName("手动加入孩子");
@@ -89,7 +94,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
     public void addDemandEmpty() throws Exception {
         FunctionalCaseDemandRequest functionalCaseDemandRequest = new FunctionalCaseDemandRequest();
         functionalCaseDemandRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID2");
-        functionalCaseDemandRequest.setDemandPlatform("LOCAL");
+        functionalCaseDemandRequest.setDemandPlatform("Metersphere");
         List<DemandDTO> demandList = new ArrayList<>();
         functionalCaseDemandRequest.setDemandList(demandList);
         this.requestPostWithOkAndReturn(URL_DEMAND_ADD, functionalCaseDemandRequest);
@@ -100,7 +105,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
 
         functionalCaseDemandRequest = new FunctionalCaseDemandRequest();
         functionalCaseDemandRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID3");
-        functionalCaseDemandRequest.setDemandPlatform("LOCAL");
+        functionalCaseDemandRequest.setDemandPlatform("Metersphere");
         demandList = new ArrayList<>();
         DemandDTO demandDTO = new DemandDTO();
         demandDTO.setDemandName("手动加入3");
@@ -118,7 +123,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
     public void addDemandFalse() throws Exception {
         FunctionalCaseDemandRequest functionalCaseDemandRequest = new FunctionalCaseDemandRequest();
         functionalCaseDemandRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID2");
-        functionalCaseDemandRequest.setDemandPlatform("LOCAL");
+        functionalCaseDemandRequest.setDemandPlatform("Metersphere");
         List<DemandDTO> demandList = new ArrayList<>();
         DemandDTO demandDTO = new DemandDTO();
         demandDTO.setDemandId("111");
@@ -131,7 +136,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         Assertions.assertTrue(functionalCaseDemands.isEmpty());
 
         functionalCaseDemandRequest = new FunctionalCaseDemandRequest();
-        functionalCaseDemandRequest.setDemandPlatform("LOCAL");
+        functionalCaseDemandRequest.setDemandPlatform("Metersphere");
         demandList = new ArrayList<>();
         demandDTO = new DemandDTO();
         demandDTO.setDemandId("111");
@@ -143,13 +148,18 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
     @Test
     @Order(4)
     public void updateDemandSuccess() throws Exception {
+        SystemParameter systemParameter = new SystemParameter();
+        systemParameter.setParamKey("ui.platformName");
+        systemParameter.setParamValue("Metersphere");
+        systemParameter.setType("text");
+        systemParameterMapper.insertSelective(systemParameter);
         String id = getId("DEMAND_TEST_FUNCTIONAL_CASE_ID");
         FunctionalCaseDemandExample functionalCaseDemandExample;
         List<FunctionalCaseDemand> functionalCaseDemands;
         FunctionalCaseDemandRequest functionalCaseDemandRequest = new FunctionalCaseDemandRequest();
         functionalCaseDemandRequest.setId(id);
         functionalCaseDemandRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID");
-        functionalCaseDemandRequest.setDemandPlatform("LOCAL");
+        functionalCaseDemandRequest.setDemandPlatform("Metersphere");
         List<DemandDTO> demandList = new ArrayList<>();
         DemandDTO demandDTO = new DemandDTO();
         demandDTO.setDemandName("手动加入2");
@@ -171,7 +181,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         FunctionalCaseDemandRequest functionalCaseDemandRequest = new FunctionalCaseDemandRequest();
         functionalCaseDemandRequest.setId(id);
         functionalCaseDemandRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID");
-        functionalCaseDemandRequest.setDemandPlatform("LOCAL");
+        functionalCaseDemandRequest.setDemandPlatform("Metersphere");
         List<DemandDTO> demandList = new ArrayList<>();
         functionalCaseDemandRequest.setDemandList(demandList);
         this.requestPostWithOkAndReturn(URL_DEMAND_UPDATE, functionalCaseDemandRequest);
@@ -190,7 +200,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         FunctionalCaseDemandRequest functionalCaseDemandRequest = new FunctionalCaseDemandRequest();
         functionalCaseDemandRequest.setId(id);
         functionalCaseDemandRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID");
-        functionalCaseDemandRequest.setDemandPlatform("LOCAL");
+        functionalCaseDemandRequest.setDemandPlatform("Metersphere");
         List<DemandDTO> demandList = new ArrayList<>();
         DemandDTO demandDTO = new DemandDTO();
         demandDTO.setDemandId("111");
@@ -205,7 +215,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         functionalCaseDemandRequest = new FunctionalCaseDemandRequest();
         functionalCaseDemandRequest.setId("hehe");
         functionalCaseDemandRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID");
-        functionalCaseDemandRequest.setDemandPlatform("LOCAL");
+        functionalCaseDemandRequest.setDemandPlatform("Metersphere");
         demandList = new ArrayList<>();
         demandDTO = new DemandDTO();
         demandDTO.setDemandId("111");
@@ -216,7 +226,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
 
         functionalCaseDemandRequest = new FunctionalCaseDemandRequest();
         functionalCaseDemandRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID");
-        functionalCaseDemandRequest.setDemandPlatform("LOCAL");
+        functionalCaseDemandRequest.setDemandPlatform("Metersphere");
         demandList = new ArrayList<>();
         demandDTO = new DemandDTO();
         demandDTO.setDemandId("111");
@@ -236,26 +246,17 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
     @Test
     @Order(7)
     public void getDemandList() throws Exception {
-        QueryDemandListRequest queryDemandListRequest = new QueryDemandListRequest();
-        queryDemandListRequest.setCurrent(1);
-        queryDemandListRequest.setPageSize(5);
-        queryDemandListRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID");
+        QueryDemandListRequest queryDemandListRequest = getQueryDemandListRequest("DEMAND_TEST_FUNCTIONAL_CASE_ID");
         MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_DEMAND_PAGE, queryDemandListRequest);
         Pager<List<FunctionalDemandDTO>> tableData = JSON.parseObject(JSON.toJSONString(
                         JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
                 Pager.class);
         //返回值的页码和当前页码相同
         Assertions.assertEquals(tableData.getCurrent(), queryDemandListRequest.getCurrent());
-        List<FunctionalDemandDTO> list = JSON.parseArray(JSON.toJSONString(tableData.getList()), FunctionalDemandDTO.class);
-        for (FunctionalDemandDTO functionalDemandDTO : list) {
-            Assertions.assertTrue(CollectionUtils.isNotEmpty(functionalDemandDTO.getChildren()));
-        }
+
         //返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(tableData.getList())).size() <= queryDemandListRequest.getPageSize());
-        queryDemandListRequest = new QueryDemandListRequest();
-        queryDemandListRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID2");
-        queryDemandListRequest.setCurrent(1);
-        queryDemandListRequest.setPageSize(5);
+        queryDemandListRequest = getQueryDemandListRequest("DEMAND_TEST_FUNCTIONAL_CASE_ID2");
         mvcResult = this.requestPostWithOkAndReturn(URL_DEMAND_PAGE, queryDemandListRequest);
         tableData = JSON.parseObject(JSON.toJSONString(
                         JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
@@ -265,10 +266,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         //返回的数据量为空
         Assertions.assertTrue(CollectionUtils.isEmpty(tableData.getList()));
 
-        queryDemandListRequest = new QueryDemandListRequest();
-        queryDemandListRequest.setCurrent(1);
-        queryDemandListRequest.setPageSize(5);
-        queryDemandListRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID3");
+        queryDemandListRequest = getQueryDemandListRequest("DEMAND_TEST_FUNCTIONAL_CASE_ID3");
         mvcResult = this.requestPostWithOkAndReturn(URL_DEMAND_PAGE, queryDemandListRequest);
         tableData = JSON.parseObject(JSON.toJSONString(
                         JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
@@ -277,10 +275,15 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         Assertions.assertEquals(tableData.getCurrent(), queryDemandListRequest.getCurrent());
         //返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(tableData.getList())).size() <= queryDemandListRequest.getPageSize());
-        List<FunctionalDemandDTO> list1 = JSON.parseArray(JSON.toJSONString(tableData.getList()), FunctionalDemandDTO.class);
-        for (FunctionalDemandDTO functionalDemandDTO : list1) {
-            Assertions.assertTrue(CollectionUtils.isEmpty(functionalDemandDTO.getChildren()));
-        }
+    }
+
+    @NotNull
+    private static QueryDemandListRequest getQueryDemandListRequest(String caseId) {
+        QueryDemandListRequest queryDemandListRequest = new QueryDemandListRequest();
+        queryDemandListRequest.setCurrent(1);
+        queryDemandListRequest.setPageSize(5);
+        queryDemandListRequest.setCaseId(caseId);
+        return queryDemandListRequest;
     }
 
     @Test
@@ -314,11 +317,13 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         demandList.add(demandDTO);
         DemandDTO demandDTO2 = new DemandDTO();
         demandDTO2.setDemandId("100002");
+        demandDTO2.setParent("100001");
         demandDTO2.setDemandName("手动加入Tapd1");
         demandDTO2.setDemandUrl("https://www.tapd.cn/55049933/prong/stories/view/1155049933001012783");
         demandList.add(demandDTO2);
         DemandDTO demandDTO3 = new DemandDTO();
         demandDTO3.setDemandId("100003");
+        demandDTO3.setParent("100002");
         demandDTO3.setDemandName("手动加入Tapd2");
         demandList.add(demandDTO3);
         functionalCaseDemandRequest.setDemandList(demandList);
@@ -327,6 +332,17 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID2");
         List<FunctionalCaseDemand> functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
         Assertions.assertEquals(functionalCaseDemands.size(), demandList.size());
+
+        QueryDemandListRequest queryDemandListRequest = getQueryDemandListRequest("DEMAND_TEST_FUNCTIONAL_CASE_ID2");
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_DEMAND_PAGE, queryDemandListRequest);
+        Pager<List<FunctionalDemandDTO>> tableData = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Pager.class);
+        List<FunctionalDemandDTO> list1 = JSON.parseArray(JSON.toJSONString(tableData.getList()), FunctionalDemandDTO.class);
+        for (FunctionalDemandDTO functionalDemandDTO : list1) {
+            Assertions.assertTrue(CollectionUtils.isNotEmpty(functionalDemandDTO.getChildren()));
+        }
+        System.out.println(JSON.toJSONString(list1));
     }
 
     @Test
@@ -342,6 +358,29 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID2").andDemandPlatformEqualTo("ZanDao");
         List<FunctionalCaseDemand> functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
         Assertions.assertTrue(CollectionUtils.isEmpty(functionalCaseDemands));
+
+        functionalCaseDemandExample = new FunctionalCaseDemandExample();
+        functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID2").andDemandPlatformEqualTo("TAPD");
+        List<FunctionalCaseDemand> functionalCaseDemandOld = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
+
+
+        functionalCaseDemandRequest = new FunctionalCaseDemandRequest();
+        functionalCaseDemandRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID2");
+        functionalCaseDemandRequest.setDemandPlatform("TAPD");
+        demandList = new ArrayList<>();
+        DemandDTO demandDTO3 = new DemandDTO();
+        demandDTO3.setDemandId("100003");
+        demandDTO3.setParent("100002");
+        demandDTO3.setDemandName("手动加入Tapd2");
+        demandList.add(demandDTO3);
+        functionalCaseDemandRequest.setDemandList(demandList);
+        this.requestPostWithOkAndReturn(URL_DEMAND_BATCH_RELEVANCE, functionalCaseDemandRequest);
+
+        functionalCaseDemandExample = new FunctionalCaseDemandExample();
+        functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID2").andDemandPlatformEqualTo("TAPD");
+        List<FunctionalCaseDemand> functionalCaseDemandNew = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
+
+        Assertions.assertEquals(functionalCaseDemandOld.size(), functionalCaseDemandNew.size());
     }
 
     @Test
@@ -359,7 +398,6 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         demandDTO2.setDemandId("100006");
         demandList.add(demandDTO2);
         DemandDTO demandDTO3 = new DemandDTO();
-        demandDTO3.setDemandId("100007");
         demandDTO3.setDemandName("手动加入jira2");
         demandList.add(demandDTO3);
         functionalCaseDemandRequest.setDemandList(demandList);

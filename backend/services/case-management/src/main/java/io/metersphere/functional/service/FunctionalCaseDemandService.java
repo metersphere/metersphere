@@ -1,6 +1,7 @@
 package io.metersphere.functional.service;
 
 import io.metersphere.functional.domain.FunctionalCaseDemand;
+import io.metersphere.functional.domain.FunctionalCaseDemandExample;
 import io.metersphere.functional.dto.DemandDTO;
 import io.metersphere.functional.dto.FunctionalDemandDTO;
 import io.metersphere.functional.mapper.ExtFunctionalCaseDemandMapper;
@@ -10,6 +11,8 @@ import io.metersphere.functional.request.QueryDemandListRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.SystemParameter;
+import io.metersphere.system.mapper.SystemParameterMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -39,45 +42,59 @@ public class FunctionalCaseDemandService {
     private ExtFunctionalCaseDemandMapper extFunctionalCaseDemandMapper;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
+    @Resource
+    private SystemParameterMapper systemParameterMapper;
 
     /**
      * 获取需求列表
+     *
      * @param request QueryDemandListRequest
      * @return List<FunctionalCaseDemand>
      */
     public List<FunctionalDemandDTO> listFunctionalCaseDemands(QueryDemandListRequest request) {
-        List<FunctionalCaseDemand> functionalCaseDemands = extFunctionalCaseDemandMapper.selectGroupByKeyword(request.getKeyword(), request.getCaseId());
-        List<String> platforms = functionalCaseDemands.stream().map(FunctionalCaseDemand::getDemandPlatform).distinct().toList();
-        List<String> ids = functionalCaseDemands.stream().map(FunctionalCaseDemand::getId).distinct().toList();
-        List<FunctionalCaseDemand> functionalCaseDemandChildList = extFunctionalCaseDemandMapper.selectByKeyword(request.getKeyword(), request.getCaseId(), platforms, ids);
-        Map<String, List<FunctionalCaseDemand>> platformDemandMap = functionalCaseDemandChildList.stream().collect(Collectors.groupingBy(FunctionalCaseDemand::getDemandPlatform));
-        List<FunctionalDemandDTO> list = new ArrayList<>();
-        for (FunctionalCaseDemand functionalCaseDemand : functionalCaseDemands) {
-            FunctionalDemandDTO functionalDemandDTO = new FunctionalDemandDTO();
-            BeanUtils.copyBean(functionalDemandDTO,functionalCaseDemand);
-            List<FunctionalCaseDemand> childrenDemands= platformDemandMap.get(functionalCaseDemand.getDemandPlatform());
-            if (CollectionUtils.isNotEmpty(childrenDemands)) {
-                functionalDemandDTO.setChildren(childrenDemands);
-            } else {
-                functionalDemandDTO.setChildren(new ArrayList<>());
-            }
-            list.add(functionalDemandDTO);
+        List<FunctionalDemandDTO> parentDemands = extFunctionalCaseDemandMapper.selectGroupByKeyword(request.getKeyword(), request.getCaseId());
+        if (CollectionUtils.isEmpty(parentDemands)) {
+            return new ArrayList<>();
         }
-        return list;
+        List<String> ids = parentDemands.stream().map(FunctionalCaseDemand::getId).toList();
+        FunctionalCaseDemandExample functionalCaseDemandExample = new FunctionalCaseDemandExample();
+        functionalCaseDemandExample.createCriteria().andIdNotIn(ids);
+        Map<String, FunctionalDemandDTO> functionalCaseDemandMap = parentDemands.stream().filter(t -> StringUtils.isNotBlank(t.getDemandId())).collect(Collectors.toMap(FunctionalCaseDemand::getDemandId, t -> t));
+        List<FunctionalCaseDemand> functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
+        int lastSize = 0;
+        while (CollectionUtils.isNotEmpty(functionalCaseDemands) && functionalCaseDemands.size() != lastSize) {
+            lastSize = functionalCaseDemands.size();
+            List<FunctionalCaseDemand> notMatchedList = new ArrayList<>();
+            for (FunctionalCaseDemand demand : functionalCaseDemands) {
+                if (functionalCaseDemandMap.containsKey(demand.getParent())) {
+                    FunctionalDemandDTO functionalDemandDTO = new FunctionalDemandDTO();
+                    BeanUtils.copyBean(functionalDemandDTO, demand);
+                    functionalCaseDemandMap.get(demand.getParent()).addChild(functionalDemandDTO);
+                    functionalCaseDemandMap.put(demand.getDemandId(), functionalDemandDTO);
+                } else {
+                    notMatchedList.add(demand);
+                }
+            }
+            functionalCaseDemands = notMatchedList;
+        }
+        return parentDemands;
     }
 
     /**
      * 新增本地需求
+     *
      * @param request 页面参数
-     * @param userId 当前操作人
+     * @param userId  当前操作人
      */
     public void addDemand(FunctionalCaseDemandRequest request, String userId) {
         if (checkDemandList(request)) return;
-        FunctionalCaseDemand functionalCaseDemand = buildFunctionalCaseDemand(request, userId, request.getDemandList().get(0));
-        functionalCaseDemandMapper.insert(functionalCaseDemand);
+        FunctionalCaseDemand functionalCaseDemand = buildFunctionalCaseDemand(request, userId, request.getDemandList().get(0), new ArrayList<>());
+        if (functionalCaseDemand != null) {
+            functionalCaseDemandMapper.insertSelective(functionalCaseDemand);
+        }
     }
 
-    private static FunctionalCaseDemand buildFunctionalCaseDemand(FunctionalCaseDemandRequest request, String userId, DemandDTO demandDTO) {
+    private FunctionalCaseDemand buildFunctionalCaseDemand(FunctionalCaseDemandRequest request, String userId, DemandDTO demandDTO, List<String> existDemandIds) {
         FunctionalCaseDemand functionalCaseDemand = new FunctionalCaseDemand();
         functionalCaseDemand.setId(IDGenerator.nextStr());
         functionalCaseDemand.setCaseId(request.getCaseId());
@@ -86,6 +103,9 @@ public class FunctionalCaseDemandService {
         functionalCaseDemand.setCreateUser(userId);
         functionalCaseDemand.setUpdateTime(System.currentTimeMillis());
         functionalCaseDemand.setUpdateUser(userId);
+        if (existDemandIds.contains(demandDTO.getDemandId())) {
+            return null;
+        }
         dealWithDemand(demandDTO, functionalCaseDemand);
         return functionalCaseDemand;
     }
@@ -96,12 +116,33 @@ public class FunctionalCaseDemandService {
 
     /**
      * 处理单个需求
-     * @param demandDTO 需求参数
+     *
+     * @param demandDTO            需求参数
      * @param functionalCaseDemand functionalCaseDemand
      */
-    private static void dealWithDemand(DemandDTO demandDTO, FunctionalCaseDemand functionalCaseDemand) {
-        if (StringUtils.isNotBlank(demandDTO.getDemandId())) {
+    private void dealWithDemand(DemandDTO demandDTO, FunctionalCaseDemand functionalCaseDemand) {
+        SystemParameter systemParameter = systemParameterMapper.selectByPrimaryKey("ui.platformName");
+        String paramValue;
+        if (systemParameter == null || StringUtils.isBlank(systemParameter.getParamValue())) {
+            paramValue = "MeterSphere";
+        } else {
+            paramValue = systemParameter.getParamValue();
+        }
+        if (StringUtils.equalsIgnoreCase(functionalCaseDemand.getDemandPlatform(), paramValue)) {
+            if (StringUtils.isNotBlank(demandDTO.getDemandId())) {
+                functionalCaseDemand.setDemandId(demandDTO.getDemandId());
+            }
+            functionalCaseDemand.setParent("NONE");
+        } else {
+            if (StringUtils.isBlank(demandDTO.getDemandId())) {
+                throw new MSException(Translator.get("case.demand.id.not.exist"));
+            }
             functionalCaseDemand.setDemandId(demandDTO.getDemandId());
+            if (StringUtils.isBlank(demandDTO.getParent())) {
+                functionalCaseDemand.setParent("NONE");
+            } else {
+                functionalCaseDemand.setParent(demandDTO.getParent());
+            }
         }
         if (StringUtils.isBlank(demandDTO.getDemandName())) {
             throw new MSException(Translator.get("case.demand.name.not.exist"));
@@ -114,8 +155,9 @@ public class FunctionalCaseDemandService {
 
     /**
      * 更新本地需求
+     *
      * @param request 页面参数
-     * @param userId 当前操作人
+     * @param userId  当前操作人
      */
     public void updateDemand(FunctionalCaseDemandRequest request, String userId) {
         if (checkDemandList(request)) return;
@@ -133,6 +175,7 @@ public class FunctionalCaseDemandService {
 
     /**
      * 取消关联需求 就是将该需求关系删除
+     *
      * @param id 需求关系ID
      */
     public void deleteDemand(String id) {
@@ -141,16 +184,24 @@ public class FunctionalCaseDemandService {
 
     /**
      * 批量关联第三方需求 需要带有所属平台
+     *
      * @param request 页面参数
-     * @param userId 当前操作人
+     * @param userId  当前操作人
      */
     public void batchRelevance(FunctionalCaseDemandRequest request, String userId) {
         if (checkDemandList(request)) return;
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         FunctionalCaseDemandMapper functionalCaseDemandMapper = sqlSession.getMapper(FunctionalCaseDemandMapper.class);
+        List<String> demandIds = request.getDemandList().stream().map(DemandDTO::getDemandId).toList();
+        FunctionalCaseDemandExample functionalCaseDemandExample = new FunctionalCaseDemandExample();
+        functionalCaseDemandExample.createCriteria().andCaseIdEqualTo(request.getCaseId()).andDemandPlatformEqualTo(request.getDemandPlatform()).andDemandIdIn(demandIds);
+        List<FunctionalCaseDemand> existDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
+        List<String> existDemandIds = existDemands.stream().map(FunctionalCaseDemand::getDemandId).toList();
         for (DemandDTO demandDTO : request.getDemandList()) {
-            FunctionalCaseDemand functionalCaseDemand = buildFunctionalCaseDemand(request, userId, demandDTO);
-            functionalCaseDemandMapper.insert(functionalCaseDemand);
+            FunctionalCaseDemand functionalCaseDemand = buildFunctionalCaseDemand(request, userId, demandDTO, existDemandIds);
+            if (functionalCaseDemand != null) {
+                functionalCaseDemandMapper.insert(functionalCaseDemand);
+            }
         }
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);

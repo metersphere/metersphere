@@ -2,17 +2,17 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.functional.mapper.ExtFunctionalCaseDemandMapper">
 
-    <select id="selectGroupByKeyword" resultType="io.metersphere.functional.domain.FunctionalCaseDemand">
+    <select id="selectGroupByKeyword" resultType="io.metersphere.functional.dto.FunctionalDemandDTO">
         SELECT
         *
         FROM functional_case_demand
         WHERE functional_case_demand.case_id = #{caseId}
+          AND functional_case_demand.parent = 'NONE'
         <if test="keyword != null and keyword != ''">
             AND (
             functional_case_demand.demand_id = #{keyword} OR
             (functional_case_demand.demand_name LIKE CONCAT('%', #{keyword}, '%'))
             )
-
         </if>
         GROUP BY functional_case_demand.demand_platform
     </select>
