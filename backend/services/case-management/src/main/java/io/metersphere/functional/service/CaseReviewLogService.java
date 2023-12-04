@@ -56,6 +56,28 @@ public class CaseReviewLogService {
     }
 
     /**
+     * 复制用例评审 日志
+     *
+     * @param requests 页面参数
+     * @return LogDTO
+     */
+    public LogDTO copyCaseReviewLog(CaseReviewRequest requests) {
+        LogDTO dto = new LogDTO(
+                requests.getProjectId(),
+                null,
+                null,
+                null,
+                OperationLogType.COPY.name(),
+                OperationLogModule.CASE_REVIEW,
+                requests.getName());
+
+        dto.setPath("/case/review/copy");
+        dto.setMethod(HttpMethodConstants.POST.name());
+        dto.setOriginalValue(JSON.toJSONBytes(requests));
+        return dto;
+    }
+
+    /**
      * 更新用例评审 日志
      *
      * @param requests 页面参数
