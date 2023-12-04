@@ -309,7 +309,7 @@ export const downloadUrlFile = (url: string, fileName: string) => {
  */
 export const getHashParameters = (): Record<string, string> => {
   const query = window.location.hash.split('?')[1]; // 获取 URL 哈希参数部分
-  const paramsArray = query.split('&'); // 将哈希参数字符串分割成数组
+  const paramsArray = query?.split('&') || []; // 将哈希参数字符串分割成数组
   const params: Record<string, string> = {};
 
   // 遍历数组并解析参数

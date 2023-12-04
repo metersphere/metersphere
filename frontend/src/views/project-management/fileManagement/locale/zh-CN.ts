@@ -54,6 +54,7 @@ export default {
   'project.fileManagement.normalFileDesc': '所有文件类型',
   'project.fileManagement.jarFile': 'JAR 文件',
   'project.fileManagement.jarFileDesc': '用于接口测试的文件',
+  'project.fileManagement.uploadTipSingle': '接口测试脚本执行需开启',
   'project.fileManagement.uploadTip': '接口测试脚本执行需开启，可一键开启；可对文件单独开启',
   'project.fileManagement.fileTypeTip': '切换文件类型，已选/已上传文件列表会清空',
   'project.fileManagement.normalFileSubText': '支持任意文件类型，文件大小不超过 {size} MB',

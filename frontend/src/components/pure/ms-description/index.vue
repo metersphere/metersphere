@@ -21,43 +21,45 @@
       <div class="ms-description-item-value">
         <slot name="item-value" :item="item">
           <template v-if="item.isTag">
-            <MsTag
-              v-for="tag of Array.isArray(item.value) ? item.value : [item.value]"
-              :key="`${tag}`"
-              theme="outline"
-              color="var(--color-text-n8)"
-              class="mb-[8px] mr-[8px] font-normal !text-[var(--color-text-1)]"
-              :closable="item.closable"
-              @close="emit('tagClose', tag, item)"
-            >
-              {{ tag }}
-            </MsTag>
-            <span v-if="!item.showTagAdd" v-show="Array.isArray(item.value) && item.value.length === 0">-</span>
-            <div v-else>
-              <template v-if="showTagInput">
-                <a-input
-                  ref="inputRef"
-                  v-model.trim="addTagInput"
-                  size="mini"
-                  :error="!!tagInputError"
-                  @keyup.enter="handleAddTag(item)"
-                  @blur="handleAddTag(item)"
-                >
-                  <template #suffix>
-                    <icon-loading v-if="tagInputLoading" class="text-[rgb(var(--primary-5))]" />
-                  </template>
-                </a-input>
-                <span v-if="tagInputError" class="text-[12px] leading-[16px] text-[rgb(var(--danger-6))]">
-                  {{ t('ms.description.addTagRepeat') }}
-                </span>
-              </template>
-              <MsTag v-else type="primary" theme="outline" class="cursor-pointer" @click="handleEdit">
-                <template #icon>
-                  <MsIcon type="icon-icon_add_outlined" class="text-[rgb(var(--primary-5))]" />
-                </template>
-                {{ t('ms.description.addTag') }}
+            <slot name="tag" :item="item">
+              <MsTag
+                v-for="tag of Array.isArray(item.value) ? item.value : [item.value]"
+                :key="`${tag}`"
+                theme="outline"
+                color="var(--color-text-n8)"
+                :class="`mb-[8px] mr-[8px] font-normal !text-[var(--color-text-1)] ${item.tagClass || ''}`"
+                :closable="item.closable"
+                @close="emit('tagClose', tag, item)"
+              >
+                {{ tag }}
               </MsTag>
-            </div>
+              <span v-if="!item.showTagAdd" v-show="Array.isArray(item.value) && item.value.length === 0">-</span>
+              <div v-else>
+                <template v-if="showTagInput">
+                  <a-input
+                    ref="inputRef"
+                    v-model.trim="addTagInput"
+                    size="mini"
+                    :error="!!tagInputError"
+                    @keyup.enter="handleAddTag(item)"
+                    @blur="handleAddTag(item)"
+                  >
+                    <template #suffix>
+                      <icon-loading v-if="tagInputLoading" class="text-[rgb(var(--primary-5))]" />
+                    </template>
+                  </a-input>
+                  <span v-if="tagInputError" class="text-[12px] leading-[16px] text-[rgb(var(--danger-6))]">
+                    {{ t('ms.description.addTagRepeat') }}
+                  </span>
+                </template>
+                <MsTag v-else type="primary" theme="outline" class="cursor-pointer" @click="handleEdit">
+                  <template #icon>
+                    <MsIcon type="icon-icon_add_outlined" class="text-[rgb(var(--primary-5))]" />
+                  </template>
+                  {{ t('ms.description.addTag') }}
+                </MsTag>
+              </div>
+            </slot>
           </template>
           <MsButton v-else-if="item.isButton" type="text" @click="handleItemClick(item)">
             {{ item.value }}
@@ -108,6 +110,7 @@
     value: (string | number) | (string | number)[];
     key?: string;
     isTag?: boolean; // 是否标签
+    tagClass?: string; // 标签自定义类名
     closable?: boolean; // 标签是否可关闭
     showTagAdd?: boolean; // 是否显示添加标签
     isButton?: boolean;

@@ -14,7 +14,7 @@
   <MsList :data="filterFileList" :bordered="false" :split="false" item-border no-hover>
     <template #item="{ item }">
       <a-list-item
-        class="mb-[8px] rounded-[var(--border-radius-small)] border border-solid border-[var(--color-text-n8)] !p-[8px_12px]"
+        class="mb-[8px] w-full rounded-[var(--border-radius-small)] border border-solid border-[var(--color-text-n8)] !p-[8px_12px]"
       >
         <a-list-item-meta>
           <template #avatar>
@@ -25,11 +25,11 @@
                 :type="getFileIcon(item)"
                 size="24"
                 :class="getFileEnum(item.file?.type) === 'unknown' ? 'text-[var(--color-text-4)]' : ''"
-              ></MsIcon>
+              />
             </a-avatar>
           </template>
           <template #title>
-            <div class="font-normal">{{ item.file.name }}</div>
+            <div class="one-line-text max-w-[80%] font-normal">{{ item.file.name }}</div>
           </template>
           <template #description>
             <div v-if="item.status === UploadStatus.init" class="text-[12px] leading-[16px] text-[var(--color-text-4)]">
@@ -37,13 +37,17 @@
             </div>
             <div
               v-else-if="item.status === UploadStatus.done"
-              class="text-[12px] leading-[16px] text-[var(--color-text-4)]"
+              class="flex items-center gap-[8px] text-[12px] leading-[16px] text-[var(--color-text-4)]"
             >
               {{
                 `${formatFileSize(item.file.size)}  ${t('ms.upload.uploadAt')} ${dayjs(item.uploadedTime).format(
                   'YYYY-MM-DD HH:mm:ss'
                 )}`
               }}
+              <div class="flex items-center">
+                <MsIcon type="icon-icon_succeed_colorful" />
+                {{ t('ms.upload.uploadSuccess') }}
+              </div>
             </div>
             <a-progress
               v-else-if="item.status === UploadStatus.uploading"

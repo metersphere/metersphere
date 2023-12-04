@@ -1,7 +1,9 @@
 export enum GitPlatformEnum {
+  GITEA = 'Gitea',
   GITHUB = 'Github',
   GITLAB = 'Gitlab',
   GITEE = 'Gitee',
+  OTHER = 'Other',
 }
 export enum AuthScopeEnum {
   SYSTEM = 'SYSTEM',

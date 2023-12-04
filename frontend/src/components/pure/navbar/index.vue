@@ -13,7 +13,7 @@
         <a-divider direction="vertical" class="ml-0" />
         <a-select
           class="w-auto min-w-[150px] max-w-[200px] focus-within:!bg-[var(--color-text-n8)] hover:!bg-[var(--color-text-n8)]"
-          :default-value="appStore.getCurrentProjectId"
+          :default-value="appStore.currentProjectId"
           :bordered="false"
           allow-search
           @change="selectProject"
@@ -24,7 +24,7 @@
           <a-tooltip v-for="project of projectList" :key="project.id" :mouse-enter-delay="500" :content="project.name">
             <a-option
               :value="project.id"
-              :class="project.id === appStore.getCurrentProjectId ? 'arco-select-option-selected' : ''"
+              :class="project.id === appStore.currentProjectId ? 'arco-select-option-selected' : ''"
             >
               {{ project.name }}
             </a-option>
@@ -178,7 +178,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, onBeforeMount, Ref, ref } from 'vue';
+  import { computed, onBeforeMount, Ref, ref, watch } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
 
   // import useUser from '@/hooks/useUser';
@@ -213,7 +213,7 @@
 
   const projectList: Ref<ProjectListItem[]> = ref([]);
 
-  onBeforeMount(async () => {
+  async function initProjects() {
     try {
       const res = await getProjectList(appStore.getCurrentOrgId);
       projectList.value = res;
@@ -221,7 +221,18 @@
       // eslint-disable-next-line no-console
       console.log(error);
     }
+  }
+
+  onBeforeMount(() => {
+    initProjects();
   });
+
+  watch(
+    () => appStore.currentOrgId,
+    async () => {
+      initProjects();
+    }
+  );
 
   const showProjectSelect = computed(() => {
     const { getRouteLevelByKey } = usePathMap();

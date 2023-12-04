@@ -137,4 +137,7 @@
       background: none !important;
     }
   }
+  .arco-tag-size-small {
+    line-height: 16px;
+  }
 </style>

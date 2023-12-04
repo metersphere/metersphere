@@ -67,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, ref, watch } from 'vue';
+  import { computed, onBeforeMount, ref, watch } from 'vue';
   import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -311,6 +311,12 @@
       });
     }
   );
+
+  onBeforeMount(() => {
+    if (props.isModal) {
+      initModules();
+    }
+  });
 
   defineExpose({
     initModules,

@@ -44,6 +44,21 @@
         @batch-action="handleTableBatch"
       >
         <template #name="{ record, rowIndex }">
+          <MsTag
+            v-if="record.fileType.toLowerCase() === 'jar'"
+            theme="light"
+            type="success"
+            :self-style="
+              record.enable
+                ? {}
+                : {
+                    color: 'var(--color-text-4)',
+                    backgroundColor: 'var(--color-text-n9)',
+                  }
+            "
+          >
+            {{ t(record.enable ? 'common.enable' : 'common.disable') }}
+          </MsTag>
           <a-tooltip :content="record.name">
             <a-button type="text" class="px-0" @click="openFileDetail(record.id, rowIndex)">
               <div class="one-line-text max-w-[168px]">{{ record.name }}</div>
@@ -79,6 +94,7 @@
         :remote-params="{
           projectId: appStore.currentProjectId,
           moduleId: props.activeFolder,
+          moduleIds: isMyOrAllFolder ? [] : [props.activeFolder],
           fileType: tableFileType,
           combine,
           keyword,
@@ -255,7 +271,14 @@
     <template #title>
       <div class="flex items-center">
         {{ isBatchMove ? t('project.fileManagement.batchMoveTitle') : t('project.fileManagement.singleMoveTitle') }}
-        <div class="ml-[4px] text-[var(--color-text-4)]">
+        <div
+          class="one-line-text ml-[4px] max-w-[70%] text-[var(--color-text-4)]"
+          :title="
+            isBatchMove
+              ? t('project.fileManagement.batchMoveTitleSub', { count: tableSelected.length })
+              : `(${activeFile?.name})`
+          "
+        >
           {{
             isBatchMove
               ? t('project.fileManagement.batchMoveTitleSub', { count: tableSelected.length })
@@ -297,6 +320,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import MsFileList from '@/components/pure/ms-upload/fileList.vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import type { MsFileItem, UploadType } from '@/components/pure/ms-upload/types';
@@ -465,7 +489,7 @@
       title: 'project.fileManagement.name',
       slotName: 'name',
       dataIndex: 'name',
-      width: 200,
+      width: 270,
     },
     {
       title: 'project.fileManagement.type',
@@ -757,6 +781,7 @@
       combine.value.storage = 'minio';
     }
     let moduleIds: string[] = [props.activeFolder, ...props.offspringIds];
+
     if (isMyOrAllFolder.value) {
       moduleIds = [];
     }

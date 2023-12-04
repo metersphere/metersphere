@@ -15,7 +15,11 @@ export default {
   'invite.passwordLengthRule': 'The length is 8-32 digits',
   'invite.passwordWordRule': 'Must contain numbers and letters, Chinese or spaces are not allowed',
   'invite.success': 'Registered successfully',
-  'personal.info': 'Personal Info',
+  'personal.info': 'My Info',
   'personal.switchOrg': 'Switch Org',
+  'personal.searchOrgPlaceholder': 'Please enter organization name',
+  'personal.currentOrg': 'Current org',
+  'personal.switchOrgLoading': 'Switching org...',
+  'personal.switchOrgSuccess': 'Switching org successfully',
   'personal.exit': 'Log out',
 };

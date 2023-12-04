@@ -17,5 +17,9 @@ export default {
   'invite.success': '注册成功',
   'personal.info': '个人信息',
   'personal.switchOrg': '切换组织',
+  'personal.searchOrgPlaceholder': '请输入组织名称',
+  'personal.currentOrg': '当前组织',
+  'personal.switchOrgLoading': '切换组织中...',
+  'personal.switchOrgSuccess': '切换组织成功',
   'personal.exit': '退出系统',
 };

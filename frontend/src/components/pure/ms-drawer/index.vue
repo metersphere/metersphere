@@ -117,11 +117,6 @@
     }
   );
 
-  const contentExtraHeight = computed(() => {
-    // 默认有页脚、内边距时的额外高度146，内边距 30，页脚 60
-    return 146 - (props.noContentPadding ? 24 : 0) - (props.footer ? 0 : 60);
-  });
-
   const handleContinue = () => {
     emit('continue');
   };
@@ -178,6 +173,12 @@
   };
 </script>
 
+<style lang="less" scoped>
+  .arco-scrollbar {
+    @apply h-full;
+  }
+</style>
+
 <style lang="less">
   .arco-drawer {
     @apply bg-white;
@@ -228,8 +229,5 @@
     width: 8px;
     background-color: var(--color-neutral-3);
     cursor: col-resize;
-  }
-  .arco-scrollbar {
-    @apply h-full;
   }
 </style>

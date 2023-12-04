@@ -50,7 +50,7 @@
         </a-spin>
       </div>
       <div class="flex w-[calc(100%-293px)] flex-col p-[16px]">
-        <div class="flex items-center justify-between">
+        <div class="mb-[16px] flex items-center justify-between">
           <div class="flex items-center">
             <div class="mr-[4px] text-[var(--color-text-1)]">{{ activeFolderName }}</div>
             <div class="text-[var(--color-text-4)]">({{ activeFolderName }})</div>
