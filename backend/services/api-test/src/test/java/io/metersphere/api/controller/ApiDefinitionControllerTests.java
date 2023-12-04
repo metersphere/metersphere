@@ -7,7 +7,6 @@ import io.metersphere.api.enums.ApiDefinitionStatus;
 import io.metersphere.api.enums.ProtocolType;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiFileResourceService;
-import io.metersphere.sdk.util.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.dto.filemanagement.FileInfo;
 import io.metersphere.project.dto.filemanagement.request.FileUploadRequest;
@@ -38,7 +37,6 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 
