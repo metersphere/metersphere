@@ -440,7 +440,6 @@ public class ApiDefinitionService {
             List<String> refIds = extApiDefinitionMapper.getRefIds(ids, false);
             if(CollectionUtils.isNotEmpty(refIds)){
                 SubListUtils.dealForSubList(refIds, 2000, subRefIds -> {
-                extApiDefinitionMapper.batchDeleteByRefId(subRefIds, userId, projectId);
                     List<String> delApiIds = extApiDefinitionMapper.getIdsByRefId(subRefIds, false);
                     SubListUtils.dealForSubList(delApiIds, 2000, subList -> {
                         if(CollectionUtils.isNotEmpty(delApiIds)){
@@ -448,6 +447,7 @@ public class ApiDefinitionService {
                             deleteApiRelatedData(subList, userId, projectId);
                         }
                     });
+                    extApiDefinitionMapper.batchDeleteByRefId(subRefIds, userId, projectId);
                 });
             }
         } else {
@@ -478,7 +478,7 @@ public class ApiDefinitionService {
         apiDefinitionExample.setOrderByClause("update_time DESC");
         ApiDefinition apiDefinition = apiDefinitionMapper.selectByExample(apiDefinitionExample).stream().findFirst().orElse(null);
         if (apiDefinition == null) {
-            throw new MSException(ApiResultCode.API_DEFINITION_EXIST);
+            throw new MSException(ApiResultCode.API_DEFINITION_NOT_EXIST);
         }
         return apiDefinition;
     }
@@ -490,7 +490,6 @@ public class ApiDefinitionService {
 
     private void doDelete(List<String> ids, String userId, String projectId) {
         if(CollectionUtils.isNotEmpty(ids)){
-            extApiDefinitionMapper.batchDeleteById(ids, userId, projectId);
             // 需要判断是否存在多个版本问题
             ids.forEach(id -> {
                 ApiDefinition apiDefinition = checkApiDefinition(id);
@@ -504,6 +503,7 @@ public class ApiDefinitionService {
             });
             // 删除 case
             deleteApiRelatedData(ids, userId, projectId);
+            extApiDefinitionMapper.batchDeleteById(ids, userId, projectId);
         }
 
     }
@@ -603,7 +603,7 @@ public class ApiDefinitionService {
             apiDefinitionFollowerMapper.deleteByExample(apiDefinitionFollowerExample);
 
             // 删除接口关联数据
-            recycleDelApiRelatedData(ids, userId, projectId);
+            trashDelApiRelatedData(ids, userId, projectId);
 
             // 删除接口
             ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
@@ -612,7 +612,7 @@ public class ApiDefinitionService {
         }
     }
 
-    private void recycleDelApiRelatedData(List<String> apiIds, String userId, String projectId){
+    private void trashDelApiRelatedData(List<String> apiIds, String userId, String projectId){
         // 是否存在 case 删除 case
         List<ApiTestCase> caseLists = extApiTestCaseMapper.getCaseInfoByApiIds(apiIds, true);
         if(CollectionUtils.isNotEmpty(caseLists)) {
