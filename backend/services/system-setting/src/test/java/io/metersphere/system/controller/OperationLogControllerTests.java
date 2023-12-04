@@ -2,8 +2,11 @@ package io.metersphere.system.controller;
 
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.log.dto.LogDTO;
+import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.log.vo.OperationLogRequest;
 import io.metersphere.system.controller.param.OperationLogRequestDefinition;
+import jakarta.annotation.Resource;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -14,7 +17,9 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -34,6 +39,8 @@ public class OperationLogControllerTests extends BaseTest {
     public static final String ORGANIZATION = "ORGANIZATION";
     public static final String PROJECT = "PROJECT";
 
+    @Resource
+    private OperationLogService opreationLogService;
 
     /**
      * 系统级别 查询 用例
@@ -167,4 +174,17 @@ public class OperationLogControllerTests extends BaseTest {
     }
 
 
+    @Test
+    @Order(4)
+    public void testLog() throws Exception {
+        //增加覆蓋率
+        LogDTO logDTO = new LogDTO(DEFAULT_PROJECT_ID,DEFAULT_ORGANIZATION_ID,"test_source_id","admin",DEFAULT_ADD,"SYSTEM","測試");
+        logDTO.setHistory(true);
+        logDTO.setMethod("test");
+        opreationLogService.add(logDTO);
+
+        List<LogDTO> logDTOList = new ArrayList<>();
+        logDTOList.add(logDTO);
+        opreationLogService.batchAdd(logDTOList);
+    }
 }

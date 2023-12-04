@@ -82,7 +82,9 @@ public class OperationLogService {
         }
         log.setContent(subStrContent(log.getContent()));
         operationLogMapper.insert(log);
-        operationHistoryMapper.insert(getHistory(log));
+        if (log.getHistory()) {
+            operationHistoryMapper.insert(getHistory(log));
+        }
         operationLogBlobMapper.insert(getBlob(log));
     }
 
@@ -127,7 +129,9 @@ public class OperationLogService {
                 item.setCreateTime(currentTimeMillis);
                 // 限制长度
                 operationLogMapper.insert(item);
-                operationHistoryMapper.insert(getHistory(item));
+                if (item.getHistory()) {
+                    operationHistoryMapper.insert(getHistory(item));
+                }
                 logBlobMapper.insert(getBlob(item));
             });
         }
