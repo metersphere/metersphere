@@ -75,4 +75,5 @@ export default {
   'common.more': 'More',
   'common.recycle': 'Recycle Bin',
   'common.new': 'New',
+  'common.newSuccess': 'Added successfully',
 };
