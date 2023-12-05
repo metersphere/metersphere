@@ -32,6 +32,7 @@ export interface FormItemDefaultOptions {
 }
 
 export type FormRuleItem = FormRule & {
+  link: string;
   props: Record<string, any>;
 };
 // 表单配置项

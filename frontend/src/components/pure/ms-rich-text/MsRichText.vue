@@ -162,6 +162,7 @@
     position: relative;
     border: 1px solid var(--color-text-n8);
     :deep(.halo-rich-text-editor .ProseMirror) {
+      padding: 15px 3% !important;
       p:first-child {
         margin-top: 0;
       }

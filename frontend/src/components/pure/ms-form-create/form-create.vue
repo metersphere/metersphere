@@ -59,11 +59,11 @@
     // 获取当前列表里边所有包含cascade的item
     if (currentFormCreateRules) {
       const cascade = currentFormCreateRules
-        .map((item: FormRuleItem) => item.link)
+        .map((item: Record<string, any>) => item.link)
         .filter((item) => item)
         .flatMap((flatItem: any) => flatItem);
       // 给所有的link上边关联的某个item 进行绑定监视
-      return currentFormCreateRules.filter((item: FormRuleItem) => {
+      return currentFormCreateRules.filter((item: Record<string, any>) => {
         return cascade.indexOf(item.field) > -1;
       });
     }
