@@ -59,11 +59,11 @@
     // 获取当前列表里边所有包含cascade的item
     if (currentFormCreateRules) {
       const cascade = currentFormCreateRules
-        .map((item: FormRuleItem) => item.link)
-        .filter((item) => item)
+        .map((item: Record<string, any>) => item.link)
+        .filter((item: Record<string, any>) => item)
         .flatMap((flatItem: any) => flatItem);
       // 给所有的link上边关联的某个item 进行绑定监视
-      return currentFormCreateRules.filter((item: FormRuleItem) => {
+      return currentFormCreateRules.filter((item: Record<string, any>) => {
         return cascade.indexOf(item.field) > -1;
       });
     }
@@ -75,7 +75,7 @@
     const totalFormList = formCreateStore.formCreateRuleMap.get(props.formCreateKey);
     if (totalFormList) {
       const resultItem = totalFormList.find(
-        (item) => item.link && (item.link as string[]).indexOf(val.field as string) > -1
+        (item: Record<string, any>) => item.link && (item.link as string[]).indexOf(val.field as string) > -1
       );
       if (resultItem) formCreateStore.getOptions(val, props.formCreateKey, resultItem, formApi.value);
     }
@@ -86,7 +86,7 @@
     (val) => {
       // 监视当前改变请求获取当前方法下边的options 和获取多有的字段值
       if (val) {
-        val.forEach(async (item) => {
+        val.forEach(async (item: any) => {
           if (item.value) {
             await getOptionsRequest(item);
           }
@@ -100,7 +100,7 @@
   const formRules = ref<FormItem[]>([]);
   watch(
     () => props.formRule,
-    (val) => {
+    () => {
       formRules.value = props.formRule;
       formCreateStore.setInitFormCreate(props.formCreateKey, props.formRule);
       formCreateStore.initFormCreateFormRules(props.formCreateKey);
@@ -115,7 +115,7 @@
 
   watch(
     () => formData.value,
-    (val) => {
+    () => {
       formRuleList.value = formCreateStore.formCreateRuleMap.get(props.formCreateKey) as FormRuleItem[];
     }
   );
@@ -125,7 +125,7 @@
     () => {
       // 处理数据格式更新
       const result = formRuleList.value.map((item: any) => {
-        const type = props.formRule.find((it) => it.name === item.field)?.type;
+        const type = props.formRule.find((it: any) => it.name === item.field)?.type;
         const formItemRule = {
           name: item.field,
           type,
