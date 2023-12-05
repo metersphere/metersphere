@@ -5,6 +5,9 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.SystemParameter;
+import io.metersphere.system.job.CleanHistoryJob;
+import io.metersphere.system.job.CleanLogJob;
+import jakarta.annotation.Resource;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -12,6 +15,8 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -45,6 +50,14 @@ public class SystemParameterControllerTests extends BaseTest {
     public static final String BASE_URL = "http://www.baidu.com";
 
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
+
+    public static final String LOG_CONFIG_URL = "/system/parameter/edit/clean-config";
+    public static final String GET_LOG_CONFIG_URL = "/system/parameter/get/clean-config";
+
+    @Resource
+    private CleanHistoryJob cleanHistoryJob;
+    @Resource
+    private CleanLogJob cleanLogJob;
 
 
     @Test
@@ -185,4 +198,80 @@ public class SystemParameterControllerTests extends BaseTest {
                 .andExpect(resultMatcher)
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
+
+
+
+    @Test
+    @Order(6)
+    @Sql(scripts = {"/dml/init_operation_history_test.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
+    public void testCleanConfig() throws Exception {
+        //定时任务覆盖
+        cleanHistoryJob.cleanupLog();
+        cleanLogJob.cleanupLog();
+
+        this.requestGet(GET_LOG_CONFIG_URL);
+        List<SystemParameter> systemParameters = new ArrayList<>() {{
+            add(new SystemParameter() {{
+                setParamKey("cleanConfig.operation.log");
+                setParamValue("1D");
+                setType("text");
+            }});
+            add(new SystemParameter() {{
+                setParamKey("cleanConfig.operation.history");
+                setParamValue("10");
+                setType("text");
+            }});
+        }};
+        this.requestPost(LOG_CONFIG_URL, systemParameters);
+
+        List<SystemParameter> updateSystemParameters = new ArrayList<>() {{
+            add(new SystemParameter() {{
+                setParamKey("cleanConfig.operation.log");
+                setParamValue("2D");
+                setType("text");
+            }});
+            add(new SystemParameter() {{
+                setParamKey("cleanConfig.operation.history");
+                setParamValue("5");
+                setType("text");
+            }});
+        }};
+        this.requestPost(LOG_CONFIG_URL, updateSystemParameters);
+        this.requestGet(GET_LOG_CONFIG_URL);
+
+        cleanHistoryJob.cleanupLog();
+        cleanLogJob.cleanupLog();
+
+        //覆盖代码
+        List<SystemParameter> updateConfigMonth = new ArrayList<>() {{
+            add(new SystemParameter() {{
+                setParamKey("cleanConfig.operation.log");
+                setParamValue("2M");
+                setType("text");
+            }});
+            add(new SystemParameter() {{
+                setParamKey("cleanConfig.operation.history");
+                setParamValue("5");
+                setType("text");
+            }});
+        }};
+        this.requestPost(LOG_CONFIG_URL, updateConfigMonth);
+        cleanLogJob.cleanupLog();
+
+        List<SystemParameter> updateConfigYear = new ArrayList<>() {{
+            add(new SystemParameter() {{
+                setParamKey("cleanConfig.operation.log");
+                setParamValue("2Y");
+                setType("text");
+            }});
+            add(new SystemParameter() {{
+                setParamKey("cleanConfig.operation.history");
+                setParamValue("5");
+                setType("text");
+            }});
+        }};
+        this.requestPost(LOG_CONFIG_URL, updateConfigYear);
+        cleanLogJob.cleanupLog();
+    }
+
 }

@@ -9,7 +9,8 @@ public interface ParamConstants {
         MAIL("smtp"),
         BASE("base"),
         LDAP("ldap"),
-        REGISTRY("registry");
+        REGISTRY("registry"),
+        CLEAN_CONFIG("cleanConfig.operation");
 
         private String value;
 
@@ -65,4 +66,19 @@ public interface ParamConstants {
         }
     }
 
+    enum CleanConfig implements ParamConstants {
+        OPERATION_LOG("cleanConfig.operation.log"),
+        OPERATION_HISTORY("cleanConfig.operation.history");
+
+        private String value;
+
+        private CleanConfig(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String getValue() {
+            return value;
+        }
+    }
 }

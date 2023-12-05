@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.system.mapper.BaseOperationHistoryMapper">
+
+
+    <select id="selectSourceIds" resultType="java.lang.String">
+        select source_id from operation_history GROUP BY source_id
+    </select>
+
+
+    <select id="selectIdsBySourceId" resultType="java.lang.Long">
+        select id from operation_history where source_id = #{sourceId} ORDER BY create_time DESC LIMIT #{limit}
+    </select>
+
+    <delete id="deleteByIds">
+        DELETE FROM operation_history WHERE source_id = #{sourceId} and id not in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

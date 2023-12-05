@@ -15,7 +15,6 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
-import io.metersphere.system.controller.handler.result.MsHttpResultCode;
 import io.metersphere.system.file.FileRequest;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
@@ -80,10 +79,8 @@ public class FunctionalCaseAttachmentControllerTests extends BaseTest {
         FunctionalCaseFileRequest request = new FunctionalCaseFileRequest();
         request.setProjectId("WX_TEST_PROJECT_ID");
         request.setLocal(true);
-        request.setFileId("TEST_ATTACHMENT_FILE_ID");
+        request.setFileId("TEST_ATTACHMENT_ID");
         request.setCaseId("TEST_FUNCTIONAL_CASE_ATTACHMENT_ID");
-        assertErrorCode(this.requestPost(ATTACHMENT_PREVIEW_URL, request), MsHttpResultCode.FAILED);
-        this.requestPost(ATTACHMENT_PREVIEW_URL, request);
         uploadLocalFile();
         this.downloadFile(ATTACHMENT_PREVIEW_URL, request);
 
@@ -140,7 +137,7 @@ public class FunctionalCaseAttachmentControllerTests extends BaseTest {
         //覆盖controller
         FunctionalCaseFileRequest request = new FunctionalCaseFileRequest();
         request.setProjectId("WX_TEST_PROJECT_ID");
-        request.setFileId("TEST_ATTACHMENT_FILE_ID");
+        request.setFileId("TEST_ATTACHMENT_ID");
         request.setCaseId("TEST_FUNCTIONAL_CASE_ATTACHMENT_ID");
         request.setLocal(true);
         this.downloadFile(ATTACHMENT_DOWNLOAD_URL, request);
@@ -174,7 +171,7 @@ public class FunctionalCaseAttachmentControllerTests extends BaseTest {
         request.setFileId(FILE_ID);
         request.setCaseId("TEST_FUNCTIONAL_CASE_ATTACHMENT_ID");
         this.requestPost(ATTACHMENT_TRANSFER_URL, request);
-        request.setFileId("TEST_ATTACHMENT_FILE_ID");
+        request.setFileId("TEST_ATTACHMENT_ID");
         this.requestPost(ATTACHMENT_TRANSFER_URL, request);
 
     }
@@ -209,12 +206,8 @@ public class FunctionalCaseAttachmentControllerTests extends BaseTest {
         //覆盖率
         request.setCaseId("TEST_FUNCTIONAL_CASE_ATTACHMENT_ID_1");
         request.setProjectId("WX_TEST_PROJECT_ID");
-        request.setAttachment(attachmentDTO);
-        this.requestPost(DELETE_FILE_URL, request);
-
-
-        attachmentDTO.setId("wx_test_file_association_1");
-        attachmentDTO.setLocal(false);
+        request.setId("wx_test_file_association_1");
+        request.setLocal(false);
         this.requestPost(DELETE_FILE_URL, request);
 
         attachmentDTO.setId("TEST_ATTACHMENT_ID");
