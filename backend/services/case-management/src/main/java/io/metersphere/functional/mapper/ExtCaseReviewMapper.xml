@@ -65,6 +65,15 @@
     </select>
 
     <sql id="queryWhereConditionByBaseQueryRequest">
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            case_review.module_id in
+            <foreach collection="request.moduleIds" item="moduleId" separator="," open="(" close=")">
+                #{moduleId}
+            </foreach>
+            <include refid="queryType">
+                <property name="searchMode" value="request.condition.searchMode"/>
+            </include>
+        </if>
         <if test="request.condition.keyword != null">
             (
             case_review.name like concat('%', #{request.keyword},'%')
@@ -355,7 +364,7 @@
 
     <update id="batchMoveModule">
         update case_review
-        set module_id = #{request.moduleId},
+        set module_id = #{request.moveModuleId},
         update_user = #{userId},
         update_time = UNIX_TIMESTAMP()*1000
         where id in

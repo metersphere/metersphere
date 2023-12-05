@@ -472,7 +472,7 @@ public class CaseReviewControllerTests extends BaseTest {
         String moduleId = caseReviews.get(0).getModuleId();
         CaseReviewBatchRequest request = new CaseReviewBatchRequest();
         request.setProjectId(projectId);
-        request.setModuleId("CASE_REVIEW_REAL_MODULE_ID2");
+        request.setMoveModuleId("CASE_REVIEW_REAL_MODULE_ID2");
         request.setSelectAll(false);
         this.requestPostWithOkAndReturn(BATCH_MOVE_CASE_REVIEW, request);
         request.setSelectAll(true);
@@ -482,7 +482,7 @@ public class CaseReviewControllerTests extends BaseTest {
         Assertions.assertFalse(StringUtils.equals(moduleId, moduleIdNew));
         request = new CaseReviewBatchRequest();
         request.setProjectId(projectId);
-        request.setModuleId("CASE_REVIEW_REAL_MODULE_ID2");
+        request.setMoveModuleId("CASE_REVIEW_REAL_MODULE_ID2");
         request.setSelectAll(false);
         request.setExcludeIds(List.of(caseReviews.get(0).getId()));
         this.requestPostWithOkAndReturn(BATCH_MOVE_CASE_REVIEW, request);
