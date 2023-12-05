@@ -10,6 +10,7 @@ import io.metersphere.functional.result.CaseManagementResultCode;
 import io.metersphere.project.domain.Notification;
 import io.metersphere.project.domain.NotificationExample;
 import io.metersphere.project.mapper.NotificationMapper;
+import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
@@ -23,16 +24,19 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -55,6 +59,8 @@ public class CaseReviewControllerTests extends BaseTest {
     private static final String FOLLOW_CASE_REVIEW = "/case/review/edit/follower";
     private static final String CASE_REVIEWER_LIST = "/case/review/user-option/";
     private static final String DETAIL_CASE_REVIEW = "/case/review/detail/";
+    private static final String DELETE_CASE_REVIEW = "/case/review/delete/";
+
 
 
     @Resource
@@ -464,7 +470,6 @@ public class CaseReviewControllerTests extends BaseTest {
         Assertions.assertNotNull(resultHolder);
     }
 
-
     @Test
     @Order(15)
     public void testBatchMove() throws Exception {
@@ -489,8 +494,17 @@ public class CaseReviewControllerTests extends BaseTest {
         caseReviews = getCaseReviews("创建评审更新1");
         String moduleIdNewOne = caseReviews.get(0).getModuleId();
         Assertions.assertTrue(StringUtils.equals(moduleIdNewOne, moduleIdNew));
+    }
 
-
+    @Test
+    @Order(16)
+    public void testDelete() throws Exception {
+        List<CaseReview> caseReviews = getCaseReviews("创建评审更新2");
+        delCaseReview(caseReviews.get(0).getId());
+        NotificationExample notificationExample = new NotificationExample();
+        notificationExample.createCriteria().andResourceTypeEqualTo(NoticeConstants.TaskType.CASE_REVIEW_TASK).andResourceIdEqualTo(caseReviews.get(0).getId()).andOperationEqualTo("DELETE");
+        List<Notification> notifications = notificationMapper.selectByExampleWithBLOBs(notificationExample);
+        Assertions.assertEquals(1, notifications.size());
     }
 
     /**
@@ -502,5 +516,14 @@ public class CaseReviewControllerTests extends BaseTest {
         Map<String, Object> map = new HashMap<>();
         map.put("reviewers", Map.of("operator", "in", "value", List.of("admin")));
         return map;
+    }
+
+    private void delCaseReview(String reviewId) throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get(DELETE_CASE_REVIEW+reviewId+"/"+projectId).header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .header(SessionConstants.CURRENT_PROJECT, projectId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
     }
 }

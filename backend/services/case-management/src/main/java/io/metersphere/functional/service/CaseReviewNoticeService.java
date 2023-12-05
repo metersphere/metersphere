@@ -49,6 +49,10 @@ public class CaseReviewNoticeService {
         return caseReview;
     }
 
+    public CaseReview getMainCaseReview(String reviewId){
+        return caseReviewMapper.selectByPrimaryKey(reviewId);
+    }
+
     public Long getNextPos(String projectId) {
         Long pos = extCaseReviewMapper.getPos(projectId);
         return (pos == null ? 0 : pos) + 5000;

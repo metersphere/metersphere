@@ -64,7 +64,7 @@ public class CaseReviewModuleService extends ModuleTreeService {
         List<BaseTreeNode> fileModuleList = extCaseReviewModuleMapper.selectBaseByProjectId(projectId);
         return super.buildTreeAndCountResource(fileModuleList, true, Translator.get("default.module"));
     }
-    
+
     public void add(CaseReviewModuleCreateRequest request, String userId) {
         CaseReviewModule caseReviewModule = new CaseReviewModule();
         caseReviewModule.setId(IDGenerator.nextStr());
@@ -141,7 +141,7 @@ public class CaseReviewModuleService extends ModuleTreeService {
         operationLogService.batchAdd(dtoList);
     }
 
-    public List<CaseReview> deleteModuleByIds(List<String>deleteIds,  List<CaseReview>caseReviews, String projectId){
+    public List<CaseReview> deleteModuleByIds(List<String> deleteIds, List<CaseReview> caseReviews, String projectId) {
         if (CollectionUtils.isEmpty(deleteIds)) {
             return caseReviews;
         }
@@ -152,7 +152,7 @@ public class CaseReviewModuleService extends ModuleTreeService {
         if (CollectionUtils.isNotEmpty(caseReviewList)) {
             caseReviews.addAll(caseReviewList);
         }
-        deleteCaseReviewService.deleteCaseReviewResource(deleteIds, projectId);
+        deleteCaseReviewService.deleteCaseReviewResource(deleteIds, projectId, false);
         List<String> childrenIds = extCaseReviewModuleMapper.selectChildrenIdsByParentIds(deleteIds);
         if (CollectionUtils.isNotEmpty(childrenIds)) {
             deleteModuleByIds(childrenIds, caseReviews, projectId);
@@ -171,7 +171,6 @@ public class CaseReviewModuleService extends ModuleTreeService {
 
     /**
      * 查找当前项目下模块每个节点对应的资源统计
-     *
      */
     public Map<String, Long> getModuleCountMap(String projectId, List<ModuleCountDTO> moduleCountDTOList) {
 

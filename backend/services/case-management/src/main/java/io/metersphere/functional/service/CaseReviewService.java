@@ -69,6 +69,8 @@ public class CaseReviewService {
     private ExtCaseReviewUserMapper extCaseReviewUserMapper;
     @Resource
     private FunctionalCaseMapper functionalCaseMapper;
+    @Resource
+    private DeleteCaseReviewService deleteCaseReviewService;
 
 
     /**
@@ -515,5 +517,10 @@ public class CaseReviewService {
         if (CollectionUtils.isNotEmpty(ids)) {
             extCaseReviewMapper.batchMoveModule(request, ids, userId);
         }
+    }
+
+    public void deleteCaseReview(String reviewId, String projectId) {
+        deleteCaseReviewService.deleteCaseReviewResource(List.of(reviewId), projectId, false);
+
     }
 }

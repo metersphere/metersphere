@@ -92,6 +92,10 @@ Insert into message_task(id, event, receiver, project_robot_id, task_type, test_
 VALUES ('case-review_message3', 'DELETE', 'CREATE_USER', 'test_case_review_message_robot1', 'CASE_REVIEW_TASK', 'NONE', 'project-gyq-case-review-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.case_review_task_delete');
 INSERT INTO message_task_blob(id, template) VALUES ('case-review_message3', 'message.case_review_task_delete');
 
+Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES ('case-review_message7', 'DELETE', 'gyq_review_test2', 'test_case_review_message_robot1', 'CASE_REVIEW_TASK', 'NONE', 'project-gyq-case-review-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.case_review_task_delete');
+INSERT INTO message_task_blob(id, template) VALUES ('case-review_message7', 'message.case_review_task_delete');
+
 
 Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
 VALUES ('case-review_message4', 'REVIEW_COMPLETED', 'CREATE_USER', 'test_case_review_message_robot1', 'CASE_REVIEW_TASK', 'NONE', 'project-gyq-case-review-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.case_review_task_review_completed');

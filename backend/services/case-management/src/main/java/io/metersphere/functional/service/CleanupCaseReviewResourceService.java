@@ -30,7 +30,7 @@ public class CleanupCaseReviewResourceService implements CleanupProjectResourceS
         List<CaseReview> caseReviews = caseReviewMapper.selectByExample(caseReviewExample);
         List<String> ids = caseReviews.stream().map(CaseReview::getId).toList();
         if (CollectionUtils.isNotEmpty(ids)) {
-            deleteCaseReviewService.deleteCaseReviewResource(ids, projectId);
+            deleteCaseReviewService.deleteCaseReviewResource(ids, projectId, true);
         }
         //删除模块
         CaseReviewModuleExample caseReviewModuleExample = new CaseReviewModuleExample();
