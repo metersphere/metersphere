@@ -10,6 +10,9 @@
       </template>
     </MsAdvanceFilter>
     <MsBaseTable v-bind="propsRes" v-on="propsEvent">
+      <template #name="{ record, rowIndex }">
+        <a-button type="text" class="px-0" @click="handleShowDetail(record.id, rowIndex)">{{ record.name }}</a-button>
+      </template>
       <template #numberOfCase="{ record }">
         <span class="cursor-pointer text-[rgb(var(--primary-5))]" @click="jumpToTestPlan(record)">{{
           record.memberCount
@@ -67,6 +70,14 @@
     </div>
   </a-modal>
   <MsExportDrawer v-model:visible="exportVisible" :all-data="exportOptionData" />
+  <BugDetailDrawer
+    v-model:visible="detailVisible"
+    :detail-id="activeDetailId"
+    :detail-index="activeCaseIndex"
+    :table-data="propsRes.data"
+    :page-change="propsEvent.pageChange"
+    :pagination="propsRes.msPagination!"
+  />
 </template>
 
 <script lang="ts" setup>
@@ -81,6 +92,7 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import BugDetailDrawer from './components/bug-detail-drawer.vue';
 
   import { getBugList, getExportConfig } from '@/api/modules/bug-management';
   import { updateOrAddProjectUserGroup } from '@/api/modules/project-management/usergroup';
@@ -101,6 +113,10 @@
   const syncVisible = ref(false);
   const exportVisible = ref(false);
   const exportOptionData = ref<MsExportDrawerMap>({});
+  const detailVisible = ref(false);
+  const activeDetailId = ref<string>('');
+  const activeCaseIndex = ref<number>(0);
+
   const syncObject = reactive({
     time: '',
     operator: '',
@@ -257,6 +273,12 @@
   };
   const handleSync = () => {
     syncVisible.value = true;
+  };
+
+  const handleShowDetail = (id: string, rowIndex: number) => {
+    detailVisible.value = true;
+    activeDetailId.value = id;
+    activeCaseIndex.value = rowIndex;
   };
 
   const handleCopy = (record: BugListItem) => {

@@ -30,6 +30,7 @@
                     :key="item.key"
                     :value="item.key"
                     class="mt-[8px] w-[95px] pl-[0px]"
+                    :disabled="item.key === 'name'"
                   >
                     <a-tooltip :content="item.text">
                       <span class="one-line-text">{{ item.text }}</span>
@@ -77,10 +78,10 @@
             </a-checkbox-group>
           </div>
         </div>
-        <div class="w-[270px]">
-          <div class="optional-header">
+        <div>
+          <div class="optional-header min-w-[270px]">
             <div class="font-medium">{{ t('system.orgTemplate.selectedField') }}</div>
-            <MsButton @click="clearHandler">{{ t('system.orgTemplate.clear') }}</MsButton>
+            <MsButton @click="handleReset">{{ t('system.orgTemplate.clear') }}</MsButton>
           </div>
           <div class="p-[16px]">
             <VueDraggable v-model="selectedList" ghost-class="ghost">
@@ -94,6 +95,7 @@
                   <div class="one-line-text ml-2 w-[178px]">{{ element.text }}</div>
                 </a-tooltip>
                 <icon-close
+                  v-if="element.key !== 'name'"
                   :style="{ 'font-size': '14px' }"
                   class="cursor-pointer text-[var(--color-text-3)]"
                   @click="removeSelectedField(element.key)"
@@ -132,9 +134,14 @@
   interface MsExportDrawerProps {
     visible: boolean;
     allData: MsExportDrawerMap;
+    // 默认选中的字段 keys
+    defaultSelectedKeys?: string[];
   }
 
-  const props = defineProps<MsExportDrawerProps>();
+  const props = withDefaults(defineProps<MsExportDrawerProps>(), {
+    visible: false,
+    defaultSelectedKeys: () => ['name', 'id', 'title', 'status', 'handle_user', 'content'],
+  });
 
   const selectedList = ref<MsExportDrawerOption[]>([]); // 已选字段
   const selectedIds = ref<string[]>([]); // 已选字段id
@@ -199,13 +206,17 @@
     return [...systemList.value, ...customList.value, ...otherList.value];
   });
 
+  const handleReset = () => {
+    selectedList.value = allList.value.filter((item) => props.defaultSelectedKeys.includes(item.key));
+  };
+
   const handleDrawerConfirm = () => {
     emit('confirm', selectedList.value);
   };
 
   const handleDrawerCancel = () => {
     visible.value = false;
-    selectedList.value = [];
+    handleReset();
   };
 
   const isCheckedAll = computed(() => {
@@ -215,10 +226,6 @@
   const indeterminate = computed(() => {
     return selectedList.value.length > 0 && selectedList.value.length < allList.value.length;
   });
-
-  const clearHandler = () => {
-    selectedList.value = [];
-  };
 
   const handleChangeAll = (value: boolean | (string | number | boolean)[]) => {
     if (value) {
@@ -238,6 +245,10 @@
 
   watchEffect(() => {
     selectedIds.value = selectedList.value.map((item) => item.key);
+  });
+
+  watchEffect(() => {
+    handleReset();
   });
 </script>
 

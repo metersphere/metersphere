@@ -24,23 +24,30 @@
             <MsRichText v-model="form.content" />
           </a-form-item>
           <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('bugManagement.edit.file') }}</div>
-          <MsUpload
-            v-model:file-list="fileList"
-            :auto-upload="false"
-            multiple
-            draggable
-            accept="unknown"
-            is-limit
-            size-unit="MB"
-            :max-size="500"
-          >
+
+          <a-dropdown trigger="hover">
+            <template #content>
+              <MsUpload
+                v-model:file-list="fileList"
+                :auto-upload="false"
+                multiple
+                draggable
+                accept="unknown"
+                is-limit
+                size-unit="MB"
+                :max-size="500"
+              >
+                <a-doption>{{ t('bugManagement.edit.localUpload') }}</a-doption>
+              </MsUpload>
+              <a-doption @click="handleLineFile">{{ t('bugManagement.edit.linkFile') }}</a-doption>
+            </template>
             <a-button type="outline">
               <template #icon>
                 <icon-plus />
               </template>
               {{ t('bugManagement.edit.uploadFile') }}
             </a-button>
-          </MsUpload>
+          </a-dropdown>
           <div class="mb-[8px] mt-[2px] text-[var(--color-text-4)]">{{ t('bugManagement.edit.fileExtra') }}</div>
           <FileList
             :show-tab="false"
@@ -188,6 +195,8 @@
     fileList.value.push(fileItem);
     return Promise.resolve(fileItem);
   };
+
+  const handleLineFile = () => {};
 
   onBeforeMount(() => {
     getTemplateOptions();

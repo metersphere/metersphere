@@ -37,6 +37,17 @@ export default {
       statusIsRequired: '状态不能为空',
       severityPlaceholder: '请选择严重程度',
       uploadFile: '添加附件',
+      localUpload: '本地上传',
+      linkFile: '关联文件',
+      contentEdit: '内容编辑',
+      linkCase: '关联用例',
+    },
+    detail: {
+      apiCase: '接口用例',
+      scenarioCase: '场景用例',
+      uiCase: 'UI用例',
+      performanceCase: '性能用例',
+      searchCase: '通过名称搜索',
     },
   },
 };

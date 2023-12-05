@@ -27,7 +27,8 @@ export type AuthScopeType =
   | 'CASE_MANAGEMENT'
   | 'API_TEST'
   | 'UI_TEST'
-  | 'LOAD_TEST';
+  | 'LOAD_TEST'
+  | 'PERSONAL';
 
 export interface UserGroupItem {
   // 组ID
@@ -121,7 +122,7 @@ export interface AuthTableItem {
   isApiTest?: boolean;
   isUiTest?: boolean;
   isLoadTest?: boolean;
-
+  isPersonal?: boolean;
   indeterminate?: boolean;
 }
 export interface SavePermissions {
