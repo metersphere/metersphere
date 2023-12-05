@@ -69,16 +69,16 @@
     }
   });
   // 计算远程检索的表单项
-  const getOptionsRequest = debounce((val: any) => {
+  const getOptionsRequest = debounce((val: FormRuleItem) => {
     // 获取当前变化的一项 监视到被级联的表单项
     // 从所有的列表项里边获取所有的link到的那一项
     const totalFormList = formCreateStore.formCreateRuleMap.get(props.formCreateKey);
     if (totalFormList) {
       const resultItem = totalFormList.find(
-        (item: Record<string, any>) => item.link && (item.link as string[]).indexOf(val.field as string) > -1
+        (item: any) => item.link && (item.link as string[]).indexOf(val.field as string) > -1
       );
       if (resultItem) {
-        formCreateStore.getOptions(val, props.formCreateKey, resultItem as Rule, formApi.value);
+        formCreateStore.getOptions(val, props.formCreateKey, resultItem as FormRuleItem, formApi.value);
       }
     }
   }, 300);
