@@ -55,4 +55,14 @@
     </select>
 
 
+    <delete id="deleteByTime" parameterType="java.lang.Long">
+        DELETE FROM operation_log WHERE create_time <![CDATA[<]]> #{timestamp}
+    </delete>
+
+    <select id="selectIdByHistoryIds" resultType="java.lang.Long">
+        select id from operation_log where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

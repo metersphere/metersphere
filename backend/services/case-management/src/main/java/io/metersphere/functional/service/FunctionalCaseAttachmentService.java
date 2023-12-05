@@ -234,7 +234,7 @@ public class FunctionalCaseAttachmentService {
      */
     public ResponseEntity<byte[]> downloadPreviewImgById(FunctionalCaseFileRequest request) {
         FunctionalCaseAttachmentExample example = new FunctionalCaseAttachmentExample();
-        example.createCriteria().andFileIdEqualTo(request.getFileId()).andCaseIdEqualTo(request.getCaseId());
+        example.createCriteria().andIdEqualTo(request.getFileId()).andCaseIdEqualTo(request.getCaseId());
         List<FunctionalCaseAttachment> caseAttachments = functionalCaseAttachmentMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(caseAttachments)) {
             FunctionalCaseAttachment attachment = caseAttachments.get(0);
@@ -258,14 +258,14 @@ public class FunctionalCaseAttachmentService {
 
     public byte[] getFileByte(FunctionalCaseFileRequest request) {
         FunctionalCaseAttachmentExample example = new FunctionalCaseAttachmentExample();
-        example.createCriteria().andFileIdEqualTo(request.getFileId()).andCaseIdEqualTo(request.getCaseId());
+        example.createCriteria().andIdEqualTo(request.getFileId()).andCaseIdEqualTo(request.getCaseId());
         List<FunctionalCaseAttachment> caseAttachments = functionalCaseAttachmentMapper.selectByExample(example);
         byte[] bytes = null;
         if (CollectionUtils.isNotEmpty(caseAttachments)) {
             FunctionalCaseAttachment attachment = caseAttachments.get(0);
             FileRequest fileRequest = new FileRequest();
             fileRequest.setFileName(attachment.getFileName());
-            fileRequest.setFolder(DefaultRepositoryDir.getFunctionalCaseDir(request.getProjectId(), request.getCaseId()) + "/" + request.getFileId());
+            fileRequest.setFolder(DefaultRepositoryDir.getFunctionalCaseDir(request.getProjectId(), request.getCaseId()) + "/" + attachment.getFileId());
             fileRequest.setStorage(StorageType.MINIO.name());
             try {
                 bytes = fileService.download(fileRequest);
@@ -304,11 +304,10 @@ public class FunctionalCaseAttachmentService {
     }
 
     public void deleteFile(FunctionalCaseDeleteFileRequest request, String userId) {
-        if (BooleanUtils.isTrue(request.getAttachment().getLocal())) {
-            this.deleteCaseAttachment(Arrays.asList(request.getAttachment().getId()), request.getCaseId(), userId);
-        }
-        if (BooleanUtils.isFalse(request.getAttachment().getLocal())) {
-            this.unAssociation(Arrays.asList(request.getAttachment().getId()), DELETED_FILE, userId, request.getProjectId());
+        if (BooleanUtils.isTrue(request.getLocal())) {
+            this.deleteCaseAttachment(Arrays.asList(request.getId()), request.getCaseId(), userId);
+        } else {
+            this.unAssociation(Arrays.asList(request.getId()), DELETED_FILE, userId, request.getProjectId());
         }
     }
 }

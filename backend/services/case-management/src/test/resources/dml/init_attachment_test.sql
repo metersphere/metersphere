@@ -4,8 +4,8 @@ VALUES ('TEST_FUNCTIONAL_CASE_ATTACHMENT_ID', 1, 'TEST_MODULE_ID', 'WX_TEST_PROJ
 INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
 VALUES ('TEST_FUNCTIONAL_CASE_ATTACHMENT_ID_1', 2, 'TEST_MODULE_ID', 'WX_TEST_PROJECT_ID', '100001', '测试多版本', 'UN_REVIEWED', '["测试标签_1"]', 'STEP', 0, 'v1.0.0', 'TEST_REF_ID', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL);
 
-INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_FUNCTIONAL_CASE_ATTACHMENT_ID', 'STEP', '1111', NULL, NULL, 'TEST');
-INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_FUNCTIONAL_CASE_ATTACHMENT_ID_1', 'STEP', '1111', NULL, NULL, '1111');
+INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_FUNCTIONAL_CASE_ATTACHMENT_ID', 'STEP', '1111', '', '', 'TEST');
+INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_FUNCTIONAL_CASE_ATTACHMENT_ID_1', 'STEP', '1111', '', '', '1111');
 
 
 INSERT INTO functional_case_custom_field(case_id, field_id, value) VALUES ('TEST_FUNCTIONAL_CASE_ATTACHMENT_ID', '100548878725546079', '22');

@@ -11,5 +11,7 @@ public interface BaseOperationLogMapper {
 
     List<OperationLogResponse> list(@Param("request") OperationLogRequest request);
 
+    void deleteByTime(@Param("timestamp") long timestamp);
 
+    List<Long> selectIdByHistoryIds(@Param("ids") List<Long> ids);
 }

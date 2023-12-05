@@ -3,6 +3,7 @@ package io.metersphere.system.service;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.ParamConstants;
+import io.metersphere.system.dto.sdk.BaseCleanConfigDTO;
 import io.metersphere.system.dto.sdk.BaseSystemConfigDTO;
 import io.metersphere.system.dto.sdk.EMailInfoDto;
 import io.metersphere.system.log.dto.LogDTO;
@@ -227,7 +228,7 @@ public class SystemParameterService {
                 OperationLogConstants.SYSTEM,
                 OperationLogConstants.SYSTEM,
                 null,
-                OperationLogType.ADD.name(),
+                OperationLogType.UPDATE.name(),
                 OperationLogModule.SETTING_SYSTEM_PARAMETER_BASE_CONFIG,
                 "基础设置");
 
@@ -244,7 +245,7 @@ public class SystemParameterService {
                 OperationLogConstants.SYSTEM,
                 OperationLogConstants.SYSTEM,
                 null,
-                OperationLogType.ADD.name(),
+                OperationLogType.UPDATE.name(),
                 OperationLogModule.SETTING_SYSTEM_PARAMETER_BASE_CONFIG,
                 "基础设置");
 
@@ -269,5 +270,56 @@ public class SystemParameterService {
 
     public void saveBaseUrl(String baseUrl) {
         baseSystemParameterMapper.saveBaseUrl(baseUrl);
+    }
+
+
+
+    public void editLogConfig(List<SystemParameter> systemParameter) {
+        systemParameter.forEach(parameter ->{
+            SystemParameterExample example = new SystemParameterExample();
+            example.createCriteria().andParamKeyEqualTo(parameter.getParamKey());
+            if (systemParameterMapper.countByExample(example) > 0) {
+                systemParameterMapper.updateByPrimaryKey(parameter);
+            } else {
+                systemParameterMapper.insert(parameter);
+            }
+        });
+    }
+
+
+    public LogDTO cleanOperationConfigLog(List<SystemParameter> systemParameter) {
+        List<SystemParameter> originalValue = getOriginalValue(systemParameter);
+        LogDTO dto = new LogDTO(
+                OperationLogConstants.SYSTEM,
+                OperationLogConstants.SYSTEM,
+                OperationLogConstants.SYSTEM,
+                null,
+                OperationLogType.UPDATE.name(),
+                OperationLogModule.SETTING_SYSTEM_PARAMETER_BASE_CONFIG,
+                "基础设置");
+
+        dto.setPath("/system/parameter/edit/clean-config");
+        dto.setMethod(HttpMethodConstants.POST.name());
+        dto.setOriginalValue(JSON.toJSONBytes(originalValue));
+        return dto;
+    }
+
+    public BaseCleanConfigDTO getLogConfigInfo() {
+        List<SystemParameter> paramList = this.getParamList((ParamConstants.Classify.CLEAN_CONFIG.getValue()));
+        return transCleanConfigToDto(paramList);
+    }
+
+    private BaseCleanConfigDTO transCleanConfigToDto(List<SystemParameter> paramList) {
+        BaseCleanConfigDTO configDTO = new BaseCleanConfigDTO();
+        if (CollectionUtils.isNotEmpty(paramList)) {
+            paramList.forEach(param -> {
+                if (StringUtils.equals(param.getParamKey(), ParamConstants.CleanConfig.OPERATION_LOG.getValue())) {
+                    configDTO.setOperationLog(param.getParamValue());
+                } else if (StringUtils.equals(param.getParamKey(), ParamConstants.CleanConfig.OPERATION_HISTORY.getValue())) {
+                    configDTO.setOperationHistory(param.getParamValue());
+                }
+            });
+        }
+        return configDTO;
     }
 }

@@ -2,12 +2,13 @@ package io.metersphere.system.controller;
 
 
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.domain.SystemParameter;
+import io.metersphere.system.dto.sdk.BaseCleanConfigDTO;
 import io.metersphere.system.dto.sdk.BaseSystemConfigDTO;
 import io.metersphere.system.dto.sdk.EMailInfoDto;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.SystemParameterService;
-import io.metersphere.system.domain.SystemParameter;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -75,4 +76,19 @@ public class SystemParameterController {
         systemParameterService.saveBaseUrl(baseUrl);
     }
 
+
+    @PostMapping("/edit/clean-config")
+    @Operation(summary = "系统设置-系统-系统参数-内存清理-保存")
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.cleanOperationConfigLog(#systemParameter)", msClass = SystemParameterService.class)
+    public void editLogConfig(@RequestBody List<SystemParameter> systemParameter) {
+        systemParameterService.editLogConfig(systemParameter);
+    }
+
+
+    @GetMapping("/get/clean-config")
+    @Operation(summary = "系统设置-系统-系统参数-基本设置-内存清理-获取")
+    @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_BASE_READ)
+    public BaseCleanConfigDTO getLogConfigInfo() {
+        return systemParameterService.getLogConfigInfo();
+    }
 }
