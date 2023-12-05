@@ -47,6 +47,7 @@ export default {
       UI_TEST: 'UI测试',
       API_TEST: 'API测试',
       LOAD_TEST: '性能测试',
+      PERSONAL: '我的设置',
       isDeleteUserGroup: '是否删除: {name}?',
       beforeDeleteUserGroup: '删除后，该组织下的项目数据将一起删除，请谨慎操作！',
       confirmDelete: '确认删除',

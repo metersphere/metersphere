@@ -47,6 +47,7 @@ export default {
       UI_TEST: 'UI test',
       API_TEST: 'API test',
       LOAD_TEST: 'Performance test',
+      PERSONAL: 'Personal',
       isDeleteUserGroup: 'Delete or not: {name}?',
       beforeDeleteUserGroup:
         'After deletion, the project data under the organization will be deleted together. Please operate with caution!',

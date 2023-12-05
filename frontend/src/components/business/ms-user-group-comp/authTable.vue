@@ -132,6 +132,7 @@
   const uiTestSpan = ref(1);
   const apiTestSpan = ref(1);
   const loadTestSpan = ref(1);
+  const personalSpan = ref(1);
 
   // 表格的总全选
   const allChecked = ref(false);
@@ -203,6 +204,11 @@
           rowspan: loadTestSpan.value,
         };
       }
+      if (record.isPersonal) {
+        return {
+          rowspan: personalSpan.value,
+        };
+      }
     }
   };
 
@@ -235,7 +241,7 @@
         permissions: child?.permissions,
         indeterminate,
         perChecked,
-        ability: index === 0 ? t(`system.userGroup.${type}`) : undefined,
+        ability: index === 0 ? item.name : undefined,
         operationObject: t(child.name),
         isSystem: index === 0 && type === 'SYSTEM',
         isOrganization: index === 0 && type === 'ORGANIZATION',
@@ -247,6 +253,7 @@
         isUiTest: index === 0 && type === 'UI_TEST',
         isLoadTest: index === 0 && type === 'LOAD_TEST',
         isApiTest: index === 0 && type === 'API_TEST',
+        isPersonal: index === 0 && type === 'PERSONAL',
       });
     });
     return result;
@@ -255,26 +262,28 @@
   const transformData = (data: UserGroupAuthSetting[]) => {
     const result: AuthTableItem[] = [];
     data.forEach((item) => {
-      if (item.type === 'SYSTEM') {
+      if (item.id === 'SYSTEM') {
         systemSpan.value = item.children?.length || 0;
-      } else if (item.type === 'PROJECT') {
+      } else if (item.id === 'PROJECT') {
         projectSpan.value = item.children?.length || 0;
-      } else if (item.type === 'ORGANIZATION') {
+      } else if (item.id === 'ORGANIZATION') {
         organizationSpan.value = item.children?.length || 0;
-      } else if (item.type === 'WORKSTATION') {
+      } else if (item.id === 'WORKSTATION') {
         workstationSpan.value = item.children?.length || 0;
-      } else if (item.type === 'TEST_PLAN') {
+      } else if (item.id === 'TEST_PLAN') {
         testPlanSpan.value = item.children?.length || 0;
-      } else if (item.type === 'BUG_MANAGEMENT') {
+      } else if (item.id === 'BUG_MANAGEMENT') {
         bugManagementSpan.value = item.children?.length || 0;
-      } else if (item.type === 'CASE_MANAGEMENT') {
+      } else if (item.id === 'CASE_MANAGEMENT') {
         caseManagementSpan.value = item.children?.length || 0;
-      } else if (item.type === 'UI_TEST') {
+      } else if (item.id === 'UI_TEST') {
         uiTestSpan.value = item.children?.length || 0;
-      } else if (item.type === 'API_TEST') {
+      } else if (item.id === 'API_TEST') {
         apiTestSpan.value = item.children?.length || 0;
-      } else if (item.type === 'LOAD_TEST') {
+      } else if (item.id === 'LOAD_TEST') {
         loadTestSpan.value = item.children?.length || 0;
+      } else if (item.id === 'PERSONAL') {
+        personalSpan.value = item.children?.length || 0;
       }
       result.push(...makeData(item, item.id));
     });

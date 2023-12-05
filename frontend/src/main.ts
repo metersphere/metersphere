@@ -16,6 +16,7 @@ import store from './store';
 import ArcoVueIcon from '@arco-design/web-vue/es/icon';
 import '@/assets/style/global.less';
 import localforage from 'localforage';
+import VueDOMPurifyHTML from 'vue-dompurify-html';
 
 async function bootstrap() {
   const app = createApp(App);
@@ -26,6 +27,7 @@ async function bootstrap() {
   app.use(router);
   app.use(ArcoVue);
   app.use(ArcoVueIcon);
+  app.use(VueDOMPurifyHTML);
   app.component('SvgIcon', SvgIcon);
   app.component('MsIcon', MsIcon);
 
