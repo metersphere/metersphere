@@ -10,15 +10,21 @@ import lombok.Data;
 
 @Data
 public class UserExtend implements Serializable {
-    @Schema(description =  "用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "用户ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user_extend.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{user_extend.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(description =  "UI本地调试地址")
+    @Schema(description = "UI本地调试地址")
     private String seleniumServer;
 
-    @Schema(description =  "其他平台对接信息")
+    @Schema(description = "api本地调试地址")
+    private String apiServer;
+
+    @Schema(description = "头像")
+    private String avatar;
+
+    @Schema(description = "其他平台对接信息")
     private byte[] platformInfo;
 
     private static final long serialVersionUID = 1L;
@@ -26,6 +32,8 @@ public class UserExtend implements Serializable {
     public enum Column {
         id("id", "id", "VARCHAR", false),
         seleniumServer("selenium_server", "seleniumServer", "VARCHAR", false),
+        apiServer("api_server", "apiServer", "VARCHAR", false),
+        avatar("avatar", "avatar", "VARCHAR", false),
         platformInfo("platform_info", "platformInfo", "LONGVARBINARY", false);
 
         private static final String BEGINNING_DELIMITER = "`";

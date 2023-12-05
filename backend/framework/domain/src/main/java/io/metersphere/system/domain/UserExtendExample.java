@@ -243,6 +243,146 @@ public class UserExtendExample {
             addCriterion("selenium_server not between", value1, value2, "seleniumServer");
             return (Criteria) this;
         }
+
+        public Criteria andApiServerIsNull() {
+            addCriterion("api_server is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiServerIsNotNull() {
+            addCriterion("api_server is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiServerEqualTo(String value) {
+            addCriterion("api_server =", value, "apiServer");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiServerNotEqualTo(String value) {
+            addCriterion("api_server <>", value, "apiServer");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiServerGreaterThan(String value) {
+            addCriterion("api_server >", value, "apiServer");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiServerGreaterThanOrEqualTo(String value) {
+            addCriterion("api_server >=", value, "apiServer");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiServerLessThan(String value) {
+            addCriterion("api_server <", value, "apiServer");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiServerLessThanOrEqualTo(String value) {
+            addCriterion("api_server <=", value, "apiServer");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiServerLike(String value) {
+            addCriterion("api_server like", value, "apiServer");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiServerNotLike(String value) {
+            addCriterion("api_server not like", value, "apiServer");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiServerIn(List<String> values) {
+            addCriterion("api_server in", values, "apiServer");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiServerNotIn(List<String> values) {
+            addCriterion("api_server not in", values, "apiServer");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiServerBetween(String value1, String value2) {
+            addCriterion("api_server between", value1, value2, "apiServer");
+            return (Criteria) this;
+        }
+
+        public Criteria andApiServerNotBetween(String value1, String value2) {
+            addCriterion("api_server not between", value1, value2, "apiServer");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvatarIsNull() {
+            addCriterion("avatar is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvatarIsNotNull() {
+            addCriterion("avatar is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvatarEqualTo(String value) {
+            addCriterion("avatar =", value, "avatar");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvatarNotEqualTo(String value) {
+            addCriterion("avatar <>", value, "avatar");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvatarGreaterThan(String value) {
+            addCriterion("avatar >", value, "avatar");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvatarGreaterThanOrEqualTo(String value) {
+            addCriterion("avatar >=", value, "avatar");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvatarLessThan(String value) {
+            addCriterion("avatar <", value, "avatar");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvatarLessThanOrEqualTo(String value) {
+            addCriterion("avatar <=", value, "avatar");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvatarLike(String value) {
+            addCriterion("avatar like", value, "avatar");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvatarNotLike(String value) {
+            addCriterion("avatar not like", value, "avatar");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvatarIn(List<String> values) {
+            addCriterion("avatar in", values, "avatar");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvatarNotIn(List<String> values) {
+            addCriterion("avatar not in", values, "avatar");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvatarBetween(String value1, String value2) {
+            addCriterion("avatar between", value1, value2, "avatar");
+            return (Criteria) this;
+        }
+
+        public Criteria andAvatarNotBetween(String value1, String value2) {
+            addCriterion("avatar not between", value1, value2, "avatar");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

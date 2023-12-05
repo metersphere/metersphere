@@ -12,6 +12,8 @@ import io.metersphere.system.dto.excel.UserExcel;
 import io.metersphere.system.dto.excel.UserExcelRowDTO;
 import io.metersphere.system.dto.request.UserInviteRequest;
 import io.metersphere.system.dto.request.UserRegisterRequest;
+import io.metersphere.system.dto.request.user.PersonalUpdatePasswordRequest;
+import io.metersphere.system.dto.request.user.PersonalUpdateRequest;
 import io.metersphere.system.dto.request.user.UserChangeEnableRequest;
 import io.metersphere.system.dto.request.user.UserEditRequest;
 import io.metersphere.system.dto.response.UserImportResponse;
@@ -171,6 +173,23 @@ public class UserService {
         }
         return returnList;
     }
+
+    private void checkUserEmail(String id, String email) {
+        UserExample userExample = new UserExample();
+        userExample.createCriteria().andEmailEqualTo(email).andIdNotEqualTo(id);
+        if (userMapper.countByExample(userExample) > 0) {
+            throw new MSException(Translator.get("user_email_already_exists"));
+        }
+    }
+
+    private void checkOldPassword(String id, String password) {
+        UserExample userExample = new UserExample();
+        userExample.createCriteria().andPasswordEqualTo(password).andIdEqualTo(id);
+        if (userMapper.countByExample(userExample) != 1) {
+            throw new MSException(Translator.get("password_modification_failed"));
+        }
+    }
+
 
     public UserEditRequest updateUser(UserEditRequest userEditRequest, String operator) {
         //检查用户组合法性
@@ -494,5 +513,25 @@ public class UserService {
         //写入操作日志
         userLogService.addRegisterLog(user, userInvite);
         return user.getId();
+    }
+
+    public boolean updateAccount(PersonalUpdateRequest request, String operator) {
+        this.checkUserEmail(request.getId(), request.getEmail());
+        User editUser = new User();
+        editUser.setId(request.getId());
+        editUser.setName(request.getUsername());
+        editUser.setPhone(request.getPhone());
+        editUser.setEmail(request.getEmail());
+        editUser.setUpdateUser(operator);
+        editUser.setUpdateTime(System.currentTimeMillis());
+        return userMapper.updateByPrimaryKeySelective(editUser) > 0;
+    }
+
+    public boolean updatePassword(PersonalUpdatePasswordRequest request) {
+        this.checkOldPassword(request.getId(), request.getOldPassword());
+        User editUser = new User();
+        editUser.setId(request.getId());
+        editUser.setPassword(request.getNewPassword());
+        return userMapper.updateByPrimaryKeySelective(editUser) > 0;
     }
 }

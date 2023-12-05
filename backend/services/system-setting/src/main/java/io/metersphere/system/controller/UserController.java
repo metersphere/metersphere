@@ -6,13 +6,19 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.UserSource;
-import io.metersphere.system.utils.PageUtils;
-import io.metersphere.system.utils.Pager;
 import io.metersphere.system.domain.Organization;
 import io.metersphere.system.dto.UserBatchCreateDTO;
+import io.metersphere.system.dto.request.OrganizationMemberBatchRequest;
+import io.metersphere.system.dto.request.ProjectAddMemberBatchRequest;
 import io.metersphere.system.dto.request.UserInviteRequest;
 import io.metersphere.system.dto.request.UserRegisterRequest;
+import io.metersphere.system.dto.request.user.UserChangeEnableRequest;
+import io.metersphere.system.dto.request.user.UserEditRequest;
+import io.metersphere.system.dto.request.user.UserRoleBatchRelationRequest;
+import io.metersphere.system.dto.response.UserImportResponse;
 import io.metersphere.system.dto.response.UserInviteResponse;
+import io.metersphere.system.dto.response.UserSelectOption;
+import io.metersphere.system.dto.response.UserTableResponse;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.OptionDTO;
@@ -21,15 +27,9 @@ import io.metersphere.system.dto.table.TableBatchProcessResponse;
 import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.dto.request.OrganizationMemberBatchRequest;
-import io.metersphere.system.dto.request.ProjectAddMemberBatchRequest;
-import io.metersphere.system.dto.request.user.UserChangeEnableRequest;
-import io.metersphere.system.dto.request.user.UserEditRequest;
-import io.metersphere.system.dto.request.user.UserRoleBatchRelationRequest;
-import io.metersphere.system.dto.response.UserImportResponse;
-import io.metersphere.system.dto.response.UserSelectOption;
-import io.metersphere.system.dto.response.UserTableResponse;
 import io.metersphere.system.service.*;
+import io.metersphere.system.utils.PageUtils;
+import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.utils.TreeNodeParseUtils;
 import io.metersphere.validation.groups.Created;
@@ -186,14 +186,14 @@ public class UserController {
     }
 
     @PostMapping("/invite")
-    @Operation(summary = "系统设置-系统-用户-用户邀请")
+    @Operation(summary = "系统设置-系统-用户-邀请用户注册")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ADD)
     public UserInviteResponse invite(@Validated @RequestBody UserInviteRequest request) {
         return userService.saveInviteRecord(request, SessionUtils.getUser());
     }
 
     @PostMapping("/register-by-invite")
-    @Operation(summary = "系统设置-系统-用户-用户邀请")
+    @Operation(summary = "系统设置-系统-用户-用户接受注册邀请并创建账户")
     public String registerByInvite(@Validated @RequestBody UserRegisterRequest request) throws Exception {
         return userService.registerByInvite(request);
     }
