@@ -7,8 +7,9 @@ import { useI18n } from '@/hooks/useI18n';
 
 import { FormCreateKeyEnum } from '@/enums/formCreateEnum';
 
-const { t } = useI18n();
+import type { Rule } from '@form-create/arco-design';
 
+const { t } = useI18n();
 const useFormCreateStore = defineStore('form-create', {
   persist: false,
   state: (): {
@@ -101,19 +102,16 @@ const useFormCreateStore = defineStore('form-create', {
      * @param item: 当前对应关联项-请求改变options
      * @param formValueApi: 当前表单值实例可以获取表单的当前已经设置的值
      */
-    async getOptions(
-      val: FormRuleItem,
-      key: FormCreateKeyEnum[keyof FormCreateKeyEnum],
-      cascadeItem: FormRuleItem,
-      formValueApi: any
-    ) {
+    async getOptions(val: Rule, key: FormCreateKeyEnum[keyof FormCreateKeyEnum], cascadeItem: Rule, formValueApi: any) {
       const formValue = formValueApi.formData();
       // 设置自定义属性给到searchSelect
       const formCreateRuleArr = this.formCreateRuleMap.get(key);
-      const formCreateItem = formCreateRuleArr?.find((items: FormRuleItem) => cascadeItem.field === items.field);
-      if (formCreateItem) {
-        formCreateItem.props.keyword = val.value;
-        formCreateItem.props.formValue = formValue;
+      if (formCreateRuleArr) {
+        const formCreateItem = formCreateRuleArr.find((item) => cascadeItem.field === item.field);
+        if (formCreateItem && formCreateItem.props) {
+          formCreateItem.props.keyword = val.value;
+          formCreateItem.props.formValue = formValue;
+        }
       }
     },
   },

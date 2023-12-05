@@ -16,7 +16,7 @@
 
   import type { FormItem } from './types';
   import { FormRuleItem } from './types';
-  import formCreate from '@form-create/arco-design';
+  import formCreate, { Rule } from '@form-create/arco-design';
 
   const formCreateStore = useFormCreateStore();
 
@@ -49,7 +49,7 @@
     formCreateKey: FormCreateKeyEnum[keyof FormCreateKeyEnum]; // 唯一表单Key
   }>();
 
-  const emit = defineEmits(['update:form-rule']);
+  // const emit = defineEmits(['update:form-rule']);
 
   const formApi = ref<any>({});
 
@@ -59,25 +59,27 @@
     // 获取当前列表里边所有包含cascade的item
     if (currentFormCreateRules) {
       const cascade = currentFormCreateRules
-        .map((item: FormRuleItem) => item.link)
-        .filter((item) => item)
+        .map((item: Record<string, any>) => item.link)
+        .filter((item: Record<string, any>) => item)
         .flatMap((flatItem: any) => flatItem);
       // 给所有的link上边关联的某个item 进行绑定监视
-      return currentFormCreateRules.filter((item: FormRuleItem) => {
+      return currentFormCreateRules.filter((item: Record<string, any>) => {
         return cascade.indexOf(item.field) > -1;
       });
     }
   });
   // 计算远程检索的表单项
-  const getOptionsRequest = debounce((val: FormRuleItem) => {
+  const getOptionsRequest = debounce((val: Rule) => {
     // 获取当前变化的一项 监视到被级联的表单项
     // 从所有的列表项里边获取所有的link到的那一项
     const totalFormList = formCreateStore.formCreateRuleMap.get(props.formCreateKey);
     if (totalFormList) {
       const resultItem = totalFormList.find(
-        (item) => item.link && (item.link as string[]).indexOf(val.field as string) > -1
+        (item: any) => item.link && (item.link as string[]).indexOf(val.field as string) > -1
       );
-      if (resultItem) formCreateStore.getOptions(val, props.formCreateKey, resultItem, formApi.value);
+      if (resultItem) {
+        formCreateStore.getOptions(val, props.formCreateKey, resultItem as Rule, formApi.value);
+      }
     }
   }, 300);
 
@@ -86,7 +88,7 @@
     (val) => {
       // 监视当前改变请求获取当前方法下边的options 和获取多有的字段值
       if (val) {
-        val.forEach(async (item) => {
+        val.forEach(async (item: any) => {
           if (item.value) {
             await getOptionsRequest(item);
           }
@@ -100,7 +102,7 @@
   const formRules = ref<FormItem[]>([]);
   watch(
     () => props.formRule,
-    (val) => {
+    () => {
       formRules.value = props.formRule;
       formCreateStore.setInitFormCreate(props.formCreateKey, props.formRule);
       formCreateStore.initFormCreateFormRules(props.formCreateKey);
@@ -115,7 +117,7 @@
 
   watch(
     () => formData.value,
-    (val) => {
+    () => {
       formRuleList.value = formCreateStore.formCreateRuleMap.get(props.formCreateKey) as FormRuleItem[];
     }
   );
@@ -125,7 +127,7 @@
     () => {
       // 处理数据格式更新
       const result = formRuleList.value.map((item: any) => {
-        const type = props.formRule.find((it) => it.name === item.field)?.type;
+        const type = props.formRule.find((it: any) => it.name === item.field)?.type;
         const formItemRule = {
           name: item.field,
           type,
