@@ -71,7 +71,7 @@
   // 计算远程检索的表单项
   const getOptionsRequest = debounce((val: any) => {
     // 获取当前变化的一项 监视到被级联的表单项
-    // 从所有的列表项里边获取所有的link到的那一项
+    // 从所有的列表项里边获取所有的link到的那一项进行远程检索
     const totalFormList = formCreateStore.formCreateRuleMap.get(props.formCreateKey);
     if (totalFormList) {
       const resultItem = totalFormList.find(

@@ -7,6 +7,7 @@ import { useI18n } from '@/hooks/useI18n';
 
 import { FormCreateKeyEnum } from '@/enums/formCreateEnum';
 
+// 内置表单类
 import type { Rule } from '@form-create/arco-design';
 
 const { t } = useI18n();
