@@ -7,8 +7,9 @@ import { useI18n } from '@/hooks/useI18n';
 
 import { FormCreateKeyEnum } from '@/enums/formCreateEnum';
 
-const { t } = useI18n();
+import type { Rule } from '@form-create/arco-design';
 
+const { t } = useI18n();
 const useFormCreateStore = defineStore('form-create', {
   persist: false,
   state: (): {
@@ -104,16 +105,18 @@ const useFormCreateStore = defineStore('form-create', {
     async getOptions(
       val: FormRuleItem,
       key: FormCreateKeyEnum[keyof FormCreateKeyEnum],
-      cascadeItem: FormRuleItem,
+      cascadeItem: Rule,
       formValueApi: any
     ) {
       const formValue = formValueApi.formData();
       // 设置自定义属性给到searchSelect
-      const formCreateRuleArr = this.formCreateRuleMap.get(key);
-      const formCreateItem = formCreateRuleArr?.find((items: FormRuleItem) => cascadeItem.field === items.field);
-      if (formCreateItem) {
-        formCreateItem.props.keyword = val.value;
-        formCreateItem.props.formValue = formValue;
+      const formCreateRuleArr = this.formCreateRuleMap.get(key) as Rule[];
+      if (formCreateRuleArr) {
+        const formCreateItem = formCreateRuleArr.find((item: Rule) => cascadeItem.field === item.field);
+        if (formCreateItem && formCreateItem.props) {
+          formCreateItem.props.keyword = val.value;
+          formCreateItem.props.formValue = formValue;
+        }
       }
     },
   },
