@@ -97,6 +97,9 @@
         <table tableName="api_test_case"/>
         <table tableName="api_test_case_blob"/>
         <table tableName="api_test_case_follower"/>
+        <table tableName="api_definition_mock"/>
+        <table tableName="api_definition_mock_config"/>
+
 
     </context>
 </generatorConfiguration>

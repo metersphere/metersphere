@@ -10,13 +10,13 @@ import lombok.Data;
 
 @Data
 public class ApiDefinitionMockConfig implements Serializable {
-    @Schema(description = "接口mock pk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "mock pk", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_definition_mock_config.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{api_definition_mock_config.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(description = "请求内容")
-    private byte[] request;
+    @Schema(description = "匹配规则")
+    private byte[] matching;
 
     @Schema(description = "响应内容")
     private byte[] response;
@@ -25,7 +25,7 @@ public class ApiDefinitionMockConfig implements Serializable {
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
-        request("request", "request", "LONGVARBINARY", false),
+        matching("matching", "matching", "LONGVARBINARY", false),
         response("response", "response", "LONGVARBINARY", false);
 
         private static final String BEGINNING_DELIMITER = "`";
