@@ -50,14 +50,18 @@
     }
   );
 
+  const activeMenu = ref('baseInfo');
+
   watch(
     () => innerVisible.value,
     (val) => {
       emit('update:visible', val);
+      if (!val) {
+        activeMenu.value = 'baseInfo';
+      }
     }
   );
 
-  const activeMenu = ref('baseInfo');
   const menuList = ref([
     {
       name: 'personal',

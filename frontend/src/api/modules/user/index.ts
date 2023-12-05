@@ -1,7 +1,34 @@
 import MSR from '@/api/http/index';
-import { GetMenuListUrl, getPublicKeyUrl, isLoginUrl, LoginUrl, LogoutUrl } from '@/api/requrls/user';
+import {
+  AddAPIKEYUrl,
+  AddLocalConfigUrl,
+  DeleteAPIKEYUrl,
+  DisableAPIKEYUrl,
+  DisableLocalConfigUrl,
+  EnableAPIKEYUrl,
+  EnableLocalConfigUrl,
+  GetAPIKEYListUrl,
+  GetLocalConfigUrl,
+  GetMenuListUrl,
+  GetPublicKeyUrl,
+  isLoginUrl,
+  LoginUrl,
+  LogoutUrl,
+  UpdateAPIKEYUrl,
+  UpdateLocalConfigUrl,
+  ValidAPIKEYUrl,
+  ValidLocalConfigUrl,
+} from '@/api/requrls/user';
 
-import type { LoginData, LoginRes } from '@/models/user';
+import type {
+  AddLocalConfigParams,
+  APIKEY,
+  LocalConfig,
+  LoginData,
+  LoginRes,
+  UpdateAPIKEYParams,
+  UpdateLocalConfigParams,
+} from '@/models/user';
 
 import type { RouteRecordNormalized } from 'vue-router';
 
@@ -22,5 +49,70 @@ export function getMenuList() {
 }
 
 export function getPublicKeyRequest() {
-  return MSR.get<string>({ url: getPublicKeyUrl }, { ignoreCancelToken: true });
+  return MSR.get<string>({ url: GetPublicKeyUrl }, { ignoreCancelToken: true });
+}
+
+// 个人设置-更新本地执行
+export function updateLocalConfig(data: UpdateLocalConfigParams) {
+  return MSR.post({ url: UpdateLocalConfigUrl, data });
+}
+
+// 个人设置-添加本地执行
+export function addLocalConfig(data: AddLocalConfigParams) {
+  return MSR.post({ url: AddLocalConfigUrl, data });
+}
+
+// 个人设置-验证本地执行配置
+export function validLocalConfig(id: string) {
+  return MSR.get<boolean>({ url: ValidLocalConfigUrl, params: id });
+}
+
+// 个人设置-获取本地执行配置
+export function getLocalConfig() {
+  return MSR.get<LocalConfig[]>({ url: GetLocalConfigUrl });
+}
+
+// 个人设置-启用本地执行配置
+export function enableLocalConfig(id: string) {
+  return MSR.get({ url: EnableLocalConfigUrl, params: id });
+}
+
+// 个人设置-禁用本地执行配置
+export function disableLocalConfig(id: string) {
+  return MSR.get({ url: DisableLocalConfigUrl, params: id });
+}
+
+// 个人设置-修改 APIKEY
+export function updateAPIKEY(data: UpdateAPIKEYParams) {
+  return MSR.post({ url: UpdateAPIKEYUrl, data });
+}
+
+// 个人设置-验证 APIKEY
+export function validAPIKEY() {
+  return MSR.get({ url: ValidAPIKEYUrl });
+}
+
+// 个人设置-获取 APIKEY 列表
+export function getAPIKEYList() {
+  return MSR.get<APIKEY[]>({ url: GetAPIKEYListUrl });
+}
+
+// 个人设置-开启 APIKEY
+export function enableAPIKEY(id: string) {
+  return MSR.get({ url: EnableAPIKEYUrl, params: id });
+}
+
+// 个人设置-关闭 APIKEY
+export function disableAPIKEY(id: string) {
+  return MSR.get({ url: DisableAPIKEYUrl, params: id });
+}
+
+// 个人设置-删除 APIKEY
+export function deleteAPIKEY(id: string) {
+  return MSR.get({ url: DeleteAPIKEYUrl, params: id });
+}
+
+// 个人设置-生成 APIKEY
+export function addAPIKEY() {
+  return MSR.get({ url: AddAPIKEYUrl });
 }

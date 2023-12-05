@@ -59,11 +59,11 @@
     // 获取当前列表里边所有包含cascade的item
     if (currentFormCreateRules) {
       const cascade = currentFormCreateRules
-        .map((item: Record<string, any>) => item.link)
-        .filter((item: Record<string, any>) => item)
+        .map((item) => item.link)
+        .filter((item) => item)
         .flatMap((flatItem: any) => flatItem);
       // 给所有的link上边关联的某个item 进行绑定监视
-      return currentFormCreateRules.filter((item: Record<string, any>) => {
+      return currentFormCreateRules.filter((item) => {
         return cascade.indexOf(item.field) > -1;
       });
     }
@@ -88,9 +88,9 @@
     (val) => {
       // 监视当前改变请求获取当前方法下边的options 和获取多有的字段值
       if (val) {
-        val.forEach(async (item: any) => {
+        val.forEach((item) => {
           if (item.value) {
-            await getOptionsRequest(item);
+            getOptionsRequest(item as FormRuleItem);
           }
         });
       }

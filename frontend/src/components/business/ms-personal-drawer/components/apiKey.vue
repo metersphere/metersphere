@@ -10,7 +10,15 @@
       </a-tooltip>
     </div>
     <a-tooltip :content="t('ms.personal.maxTip')" position="right" :disabled="apiKeyList.length < 5">
-      <a-button type="outline" class="w-[60px]" :disabled="apiKeyList.length >= 5">{{ t('common.new') }}</a-button>
+      <a-button
+        type="outline"
+        class="w-[60px]"
+        :disabled="apiKeyList.length >= 5"
+        :loading="newLoading"
+        @click="newApiKey"
+      >
+        {{ t('common.new') }}
+      </a-button>
     </a-tooltip>
     <a-spin class="api-list-content" :loading="loading">
       <div v-for="item of apiKeyList" :key="item.id" class="api-item">
@@ -38,14 +46,16 @@
         </div>
         <div class="px-[16px]">
           <div class="api-item-label">{{ t('ms.personal.desc') }}</div>
-          <a-tooltip :content="item.desc">
-            <div class="api-item-value one-line-text">{{ item.desc }}</div>
+          <a-tooltip :content="item.description" :disabled="!item.description">
+            <div class="api-item-value one-line-text">{{ item.description || '-' }}</div>
           </a-tooltip>
           <div class="api-item-label">{{ t('ms.personal.createTime') }}</div>
-          <div class="api-item-value">{{ dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') }}</div>
+          <div class="api-item-value">
+            {{ dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') }}
+          </div>
           <div class="api-item-label">{{ t('ms.personal.expireTime') }}</div>
           <div class="api-item-value">
-            {{ dayjs(item.expireTime).format('YYYY-MM-DD HH:mm:ss') }}
+            {{ item.forever ? t('ms.personal.forever') : dayjs(item.expireTime).format('YYYY-MM-DD HH:mm:ss') }}
             <a-tooltip v-if="item.isExpire" :content="t('ms.personal.expiredTip')">
               <MsIcon type="icon-icon_warning_filled" class="ml-[4px] text-[rgb(var(--warning-6))]" />
             </a-tooltip>
@@ -61,7 +71,7 @@
             v-model:model-value="item.enable"
             size="small"
             :before-change="() => handleBeforeEnableChange(item)"
-          ></a-switch>
+          />
         </div>
       </div>
     </a-spin>
@@ -112,6 +122,7 @@
 </template>
 
 <script setup lang="ts">
+  import { onBeforeMount } from 'vue';
   import { useClipboard } from '@vueuse/core';
   import { FormInstance, Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
@@ -121,83 +132,66 @@
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
 
+  import {
+    addAPIKEY,
+    deleteAPIKEY,
+    disableAPIKEY,
+    enableAPIKEY,
+    getAPIKEYList,
+    updateAPIKEY,
+  } from '@/api/modules/user/index';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
+
+  import { APIKEY } from '@/models/user';
 
   const { copy } = useClipboard();
   const { t } = useI18n();
   const { openModal } = useModal();
 
-  interface ApiKeyItem {
-    id: string;
-    accessKey: string;
-    secretKey: string;
-    desc: string;
-    createTime: number;
-    expireTime: number;
-    enable: boolean;
-    desensitization: boolean;
+  const loading = ref(false);
+  interface APIKEYItem extends APIKEY {
     isExpire: boolean;
+    desensitization: boolean;
+  }
+  const apiKeyList = ref<APIKEYItem[]>([]);
+
+  async function initApiKeys() {
+    try {
+      loading.value = true;
+      const res = await getAPIKEYList();
+      apiKeyList.value = res.map((item) => ({
+        ...item,
+        isExpire: item.forever ? false : item.expireTime < Date.now(),
+        desensitization: true,
+      }));
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
   }
 
-  const loading = ref(false);
-  const apiKeyList = ref<ApiKeyItem[]>([
-    {
-      id: '238dy23d2',
-      accessKey: 'dueiouhwded',
-      secretKey: 'asdasdas',
-      desc: '92387yd9283d2',
-      createTime: 1629782400000,
-      expireTime: 1629982400000,
-      enable: true,
-      desensitization: true,
-      isExpire: false,
-    },
-    {
-      id: 'ih02i3d23',
-      accessKey: 'sdshsd',
-      secretKey: 'poj4f',
-      desc: '92387yd9283d2',
-      createTime: 1629782400000,
-      expireTime: 1629982400000,
-      enable: false,
-      desensitization: true,
-      isExpire: true,
-    },
-    {
-      id: '34hy34h3',
-      accessKey: 'sdshsd',
-      secretKey: 'poj4f',
-      desc: '92387yd9283d2',
-      createTime: 1629782400000,
-      expireTime: 1629982400000,
-      enable: false,
-      desensitization: true,
-      isExpire: true,
-    },
-    {
-      id: 'f23',
-      accessKey: 'sdshsd',
-      secretKey: 'poj4f',
-      desc: '92387yd9283d2',
-      createTime: 1629782400000,
-      expireTime: 1629982400000,
-      enable: false,
-      desensitization: true,
-      isExpire: true,
-    },
-    {
-      id: 'ih02i3ed23',
-      accessKey: 'sdshsd',
-      secretKey: 'poj4f',
-      desc: '92387yd9283d2',
-      createTime: 1629782400000,
-      expireTime: 1629982400000,
-      enable: false,
-      desensitization: true,
-      isExpire: true,
-    },
-  ]);
+  onBeforeMount(() => {
+    initApiKeys();
+  });
+
+  const newLoading = ref(false);
+  async function newApiKey() {
+    try {
+      newLoading.value = true;
+      await addAPIKEY();
+      Message.success(t('common.newSuccess'));
+      initApiKeys();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      newLoading.value = false;
+    }
+  }
+
   const actions: ActionsItem[] = [
     {
       label: t('ms.personal.validTime'),
@@ -218,11 +212,11 @@
     Message.success(t('ms.personal.copySuccess'));
   }
 
-  function desensitization(item: ApiKeyItem) {
+  function desensitization(item: APIKEYItem) {
     item.desensitization = !item.desensitization;
   }
 
-  async function handleBeforeEnableChange(item: ApiKeyItem) {
+  async function handleBeforeEnableChange(item: APIKEYItem) {
     if (item.enable) {
       openModal({
         type: 'error',
@@ -235,7 +229,9 @@
         },
         onBeforeOk: async () => {
           try {
+            await disableAPIKEY(item.id);
             Message.success(t('ms.personal.closeSuccess'));
+            item.enable = false;
           } catch (error) {
             // eslint-disable-next-line no-console
             console.log(error);
@@ -246,15 +242,17 @@
       return false;
     }
     try {
+      await enableAPIKEY(item.id);
       Message.success(t('ms.personal.openSuccess'));
       return true;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
       return false;
     }
   }
 
-  function deleteApiKey(item: ApiKeyItem) {
+  function deleteApiKey(item: APIKEYItem) {
     openModal({
       type: 'error',
       title: t('ms.personal.confirmDelete'),
@@ -266,7 +264,9 @@
       },
       onBeforeOk: async () => {
         try {
+          await deleteAPIKEY(item.id);
           Message.success(t('common.deleteSuccess'));
+          initApiKeys();
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -290,8 +290,15 @@
     timeFormRef.value?.validate(async (errors) => {
       if (!errors) {
         try {
+          await updateAPIKEY({
+            id: apiKeyList.value[0].id,
+            description: timeForm.value.desc,
+            expireTime: timeForm.value.activeTimeType === 'forever' ? 0 : dayjs(timeForm.value.time).valueOf(),
+            forever: timeForm.value.activeTimeType === 'forever',
+          });
           Message.success(t('common.updateSuccess'));
           done(true);
+          initApiKeys();
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -308,12 +315,12 @@
     timeForm.value = { ...defaultTimeForm };
   }
 
-  function handleMoreActionSelect(item: ActionsItem, apiKey: ApiKeyItem) {
+  function handleMoreActionSelect(item: ActionsItem, apiKey: APIKEYItem) {
     if (item.eventTag === 'time') {
       timeForm.value = {
-        activeTimeType: 'forever',
+        activeTimeType: apiKey.forever ? 'forever' : 'custom',
         time: apiKey.expireTime ? dayjs(apiKey.expireTime).format('YYYY-MM-DD HH:mm:ss') : '',
-        desc: apiKey.desc,
+        desc: apiKey.description,
       };
       timeModalVisible.value = true;
     } else if (item.eventTag === 'delete') {

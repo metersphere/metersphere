@@ -42,6 +42,13 @@
 
   const currentKey = ref(props.defaultKey);
 
+  watch(
+    () => props.defaultKey,
+    (val) => {
+      currentKey.value = val;
+    }
+  );
+
   const toggleMenu = (itemName: string) => {
     if (itemName) {
       currentKey.value = itemName;
