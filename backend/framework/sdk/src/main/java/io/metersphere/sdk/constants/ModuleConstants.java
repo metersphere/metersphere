@@ -9,6 +9,8 @@ public class ModuleConstants {
     public static final String NODE_TYPE_DEFAULT = "MODULE";
     //Git节点类型
     public static final String NODE_TYPE_GIT = "GIT";
+    //Gitea节点类型
+    public static final String NODE_TYPE_GITEA = "Gitea";
     //GitHub节点类型
     public static final String NODE_TYPE_GITHUB = "Github";
     //Gitee节点类型

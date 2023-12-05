@@ -47,11 +47,7 @@ public class FileRepositoryControllerTest extends BaseTest {
 
     private static ProjectDTO project;
 
-    private static final String GITEE_URL = "https://gitee.com/testformeterspere/gitee-test.git";
-    private static final String GITEE_USERNAME = "testformetersphere";
-    private static final String GITEE_TOKEN = "4548d369bb595738d726512742e4478f";
-
-    private static final String GITEA_USERNAME = "meterspherecodetest";
+    private static final String GITEA_URL = "https://gitea.com/meterspherecodetest/code-test.git";
     private static final String GITEA_TOKEN = "f5e34c45e998291909e0897a76a1f1ae42095e3f";
 
     private static final List<String> fileList = new ArrayList<>();
@@ -125,45 +121,29 @@ public class FileRepositoryControllerTest extends BaseTest {
     @Order(2)
     public void repositoryConnectTest() throws Exception {
         FileRepositoryConnectRequest connectRequest = new FileRepositoryConnectRequest();
-        connectRequest.setToken(GITEE_TOKEN);
-        connectRequest.setUrl(GITEE_URL);
-        connectRequest.setUserName(GITEE_USERNAME);
+        connectRequest.setToken(GITEA_TOKEN);
+        connectRequest.setUrl(GITEA_URL);
         this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_REPOSITORY_CONNECT, connectRequest);
 
         //参数测试：没有token
         connectRequest = new FileRepositoryConnectRequest();
-        connectRequest.setUrl(GITEE_URL);
-        connectRequest.setUserName(GITEE_USERNAME);
+        connectRequest.setUrl(GITEA_URL);
         this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_CONNECT, connectRequest).andExpect(status().isBadRequest());
 
         //参数测试：没有url
         connectRequest = new FileRepositoryConnectRequest();
-        connectRequest.setToken(GITEE_TOKEN);
-        connectRequest.setUserName(GITEE_USERNAME);
+        connectRequest.setToken(GITEA_TOKEN);
         this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_CONNECT, connectRequest).andExpect(status().isBadRequest());
 
         //错误测试：错误的url
         connectRequest = new FileRepositoryConnectRequest();
-        connectRequest.setToken(GITEE_TOKEN);
-        connectRequest.setUrl("https://gitee.com/testformeterspere-error/error-test.git");
-        connectRequest.setUserName(GITEE_USERNAME);
+        connectRequest.setToken(GITEA_TOKEN);
+        connectRequest.setUrl("https://gitea.com/" + IDGenerator.nextStr() + "/error-test.git");
         this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_CONNECT, connectRequest).andExpect(status().is5xxServerError());
         //错误测试：错误的token
         connectRequest = new FileRepositoryConnectRequest();
         connectRequest.setToken("error-token");
-        connectRequest.setUrl(GITEE_URL);
-        connectRequest.setUserName(GITEE_USERNAME);
-        this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_CONNECT, connectRequest).andExpect(status().is5xxServerError());
-        //错误测试：没有userName
-        connectRequest = new FileRepositoryConnectRequest();
-        connectRequest.setToken(GITEE_TOKEN);
-        connectRequest.setUrl(GITEE_URL);
-        this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_CONNECT, connectRequest).andExpect(status().is5xxServerError());
-        //错误测试：错误的userName
-        connectRequest = new FileRepositoryConnectRequest();
-        connectRequest.setToken(GITEE_TOKEN);
-        connectRequest.setUrl(GITEE_URL);
-        connectRequest.setUserName("errorUserName");
+        connectRequest.setUrl(GITEA_URL);
         this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_CONNECT, connectRequest).andExpect(status().is5xxServerError());
     }
 
@@ -172,11 +152,10 @@ public class FileRepositoryControllerTest extends BaseTest {
     public void moduleAddTest() throws Exception {
         FileRepositoryCreateRequest createRequest = new FileRepositoryCreateRequest();
         createRequest.setProjectId(project.getId());
-        createRequest.setPlatform(ModuleConstants.NODE_TYPE_GITEE);
-        createRequest.setUrl(GITEE_URL);
-        createRequest.setUserName(GITEE_USERNAME);
-        createRequest.setToken(GITEE_TOKEN);
-        createRequest.setName("Gitee存储库");
+        createRequest.setPlatform(ModuleConstants.NODE_TYPE_GITEA);
+        createRequest.setUrl(GITEA_URL);
+        createRequest.setToken(GITEA_TOKEN);
+        createRequest.setName("GITEA存储库");
         MvcResult result = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE, createRequest);
         String returnStr = result.getResponse().getContentAsString();
         ResultHolder rh = JSON.parseObject(returnStr, ResultHolder.class);
@@ -192,72 +171,79 @@ public class FileRepositoryControllerTest extends BaseTest {
         Assertions.assertEquals(response.getId(), repositoryId);
         Assertions.assertEquals(response.getName(), createRequest.getName());
         Assertions.assertEquals(response.getPlatform(), createRequest.getPlatform());
-        Assertions.assertEquals(response.getToken(), GITEE_TOKEN);
-        Assertions.assertEquals(response.getUrl(), GITEE_URL);
-        Assertions.assertEquals(response.getUserName(), GITEE_USERNAME);
+        Assertions.assertEquals(response.getToken(), GITEA_TOKEN);
+        Assertions.assertEquals(response.getUrl(), GITEA_URL);
+
+        //测试创建gitee的
+        String giteeUrl = "https://gitee.com/testformeterspere/gitee-test.git";
+        String giteeUserName = "testformetersphere";
+        String giteeToken = "4548d369bb595738d726512742e4478f";
+        createRequest = new FileRepositoryCreateRequest();
+        createRequest.setProjectId(project.getId());
+        createRequest.setPlatform(ModuleConstants.NODE_TYPE_GITEE);
+        createRequest.setUrl(giteeUrl);
+        createRequest.setUserName(giteeUserName);
+        createRequest.setToken(giteeToken);
+        createRequest.setName("GITEE存储库");
+        result = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE, createRequest);
+        returnStr = result.getResponse().getContentAsString();
+        rh = JSON.parseObject(returnStr, ResultHolder.class);
+        this.checkFileRepository(rh.getData().toString(), createRequest.getProjectId(), createRequest.getName(), createRequest.getPlatform(), createRequest.getUrl(), createRequest.getToken(), createRequest.getUserName());
+        this.checkLog(rh.getData().toString(), OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE);
 
         //参数测试： 没有url
         createRequest = new FileRepositoryCreateRequest();
         createRequest.setProjectId(project.getId());
-        createRequest.setPlatform(ModuleConstants.NODE_TYPE_GITEE);
-        createRequest.setUserName(GITEE_USERNAME);
-        createRequest.setToken(GITEE_TOKEN);
-        createRequest.setName("Gitee存储库");
+        createRequest.setPlatform(ModuleConstants.NODE_TYPE_GITEA);
+        createRequest.setToken(GITEA_TOKEN);
+        createRequest.setName("GITEA存储库");
         this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE, createRequest).andExpect(status().isBadRequest());
         //参数测试： 没有token
         createRequest = new FileRepositoryCreateRequest();
         createRequest.setProjectId(project.getId());
-        createRequest.setPlatform(ModuleConstants.NODE_TYPE_GITEE);
-        createRequest.setUrl(GITEE_URL);
-        createRequest.setUserName(GITEE_USERNAME);
-        createRequest.setName("Gitee存储库");
+        createRequest.setPlatform(ModuleConstants.NODE_TYPE_GITEA);
+        createRequest.setUrl(GITEA_URL);
+        createRequest.setName("GITEA存储库");
         this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE, createRequest).andExpect(status().isBadRequest());
         //参数测试： 没有projectId
         createRequest = new FileRepositoryCreateRequest();
-        createRequest.setPlatform(ModuleConstants.NODE_TYPE_GITEE);
-        createRequest.setUrl(GITEE_URL);
-        createRequest.setUserName(GITEE_USERNAME);
-        createRequest.setToken(GITEE_TOKEN);
-        createRequest.setName("Gitee存储库");
+        createRequest.setPlatform(ModuleConstants.NODE_TYPE_GITEA);
+        createRequest.setUrl(GITEA_URL);
+        createRequest.setToken(GITEA_TOKEN);
+        createRequest.setName("GITEA存储库");
         this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE, createRequest).andExpect(status().isBadRequest());
         //参数测试： 没有platform
         createRequest = new FileRepositoryCreateRequest();
         createRequest.setProjectId(project.getId());
-        createRequest.setUrl(GITEE_URL);
-        createRequest.setUserName(GITEE_USERNAME);
-        createRequest.setToken(GITEE_TOKEN);
-        createRequest.setName("Gitee存储库");
+        createRequest.setUrl(GITEA_URL);
+        createRequest.setToken(GITEA_TOKEN);
+        createRequest.setName("GITEA存储库");
         this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE, createRequest).andExpect(status().isBadRequest());
 
         //报错测试： 名称重复
         createRequest = new FileRepositoryCreateRequest();
         createRequest.setProjectId(project.getId());
-        createRequest.setPlatform(ModuleConstants.NODE_TYPE_GITEE);
-        createRequest.setUrl(GITEE_URL);
-        createRequest.setUserName(GITEE_USERNAME);
-        createRequest.setToken(GITEE_TOKEN);
-        createRequest.setName("Gitee存储库");
+        createRequest.setPlatform(ModuleConstants.NODE_TYPE_GITEA);
+        createRequest.setUrl(GITEA_URL);
+        createRequest.setToken(GITEA_TOKEN);
+        createRequest.setName("GITEA存储库");
         this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE, createRequest).andExpect(status().is5xxServerError());
         //报错测试： platform不合法
         createRequest = new FileRepositoryCreateRequest();
         createRequest.setProjectId(project.getId());
         createRequest.setPlatform(IDGenerator.nextStr());
-        createRequest.setUrl(GITEE_URL);
-        createRequest.setUserName(GITEE_USERNAME);
-        createRequest.setToken(GITEE_TOKEN);
-        createRequest.setName("Gitee存储库");
+        createRequest.setUrl(GITEA_URL);
+        createRequest.setToken(GITEA_TOKEN);
+        createRequest.setName("GITEA存储库");
         this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE, createRequest).andExpect(status().is5xxServerError());
-        //报错测试： 上述的gitee仓库，不填写用户名
+        //报错测试： gitee仓库，不填写用户名
         createRequest = new FileRepositoryCreateRequest();
         createRequest.setProjectId(project.getId());
         createRequest.setPlatform(ModuleConstants.NODE_TYPE_GITEE);
-        createRequest.setUrl(GITEE_URL);
-        createRequest.setToken(GITEE_TOKEN);
-        createRequest.setName("Gitee存储库");
+        createRequest.setUrl(giteeUrl);
+        createRequest.setToken(giteeToken);
+        createRequest.setName("Gitee无用户名存储库");
         this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE, createRequest).andExpect(status().is5xxServerError());
-
-        //测试整体过程中没有修改数据成功
-        this.checkFileRepository(repositoryId, createRequest.getProjectId(), createRequest.getName(), createRequest.getPlatform(), createRequest.getUrl(), createRequest.getToken(), createRequest.getUserName());
 
         //测试获取没有数据的详情
         this.requestGet(String.format(FileManagementRequestUtils.URL_FILE_REPOSITORY_INFO, IDGenerator.nextStr())).andExpect(status().is5xxServerError());
@@ -273,9 +259,9 @@ public class FileRepositoryControllerTest extends BaseTest {
         //修改文件名
         FileRepositoryUpdateRequest createRequest = new FileRepositoryUpdateRequest();
         createRequest.setId(repositoryId);
-        createRequest.setName("Gitee存储库改个名字");
+        createRequest.setName("GITEA存储库改个名字");
         this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_UPDATE, createRequest);
-        this.checkFileRepository(repositoryId, project.getId(), "Gitee存储库改个名字", ModuleConstants.NODE_TYPE_GITEE, GITEE_URL, GITEE_TOKEN, GITEE_USERNAME);
+        this.checkFileRepository(repositoryId, project.getId(), "GITEA存储库改个名字", ModuleConstants.NODE_TYPE_GITEA, GITEA_URL, GITEA_TOKEN, null);
         this.checkLog(repositoryId, OperationLogType.UPDATE, FileManagementRequestUtils.URL_FILE_REPOSITORY_UPDATE);
         //修改用户名
         FileModuleRepository updateModel = new FileModuleRepository();
@@ -285,9 +271,9 @@ public class FileRepositoryControllerTest extends BaseTest {
 
         createRequest = new FileRepositoryUpdateRequest();
         createRequest.setId(repositoryId);
-        createRequest.setUserName(GITEE_USERNAME);
+        createRequest.setUserName("GITEA-USERNAME");
         this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_UPDATE, createRequest);
-        this.checkFileRepository(repositoryId, project.getId(), "Gitee存储库改个名字", ModuleConstants.NODE_TYPE_GITEE, GITEE_URL, GITEE_TOKEN, GITEE_USERNAME);
+        this.checkFileRepository(repositoryId, project.getId(), "GITEA存储库改个名字", ModuleConstants.NODE_TYPE_GITEA, GITEA_URL, GITEA_TOKEN, "GITEA-USERNAME");
 
         //修改token
         updateModel = new FileModuleRepository();
@@ -296,24 +282,23 @@ public class FileRepositoryControllerTest extends BaseTest {
         fileModuleRepositoryMapper.updateByPrimaryKeySelective(updateModel);
         createRequest = new FileRepositoryUpdateRequest();
         createRequest.setId(repositoryId);
-        createRequest.setToken(GITEE_TOKEN);
+        createRequest.setToken(GITEA_TOKEN);
         this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_UPDATE, createRequest);
-        this.checkFileRepository(repositoryId, project.getId(), "Gitee存储库改个名字", ModuleConstants.NODE_TYPE_GITEE, GITEE_URL, GITEE_TOKEN, GITEE_USERNAME);
+        this.checkFileRepository(repositoryId, project.getId(), "GITEA存储库改个名字", ModuleConstants.NODE_TYPE_GITEA, GITEA_URL, GITEA_TOKEN, null);
 
         //没有修改的
         createRequest = new FileRepositoryUpdateRequest();
         createRequest.setId(repositoryId);
         this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_UPDATE, createRequest);
-        this.checkFileRepository(repositoryId, project.getId(), "Gitee存储库改个名字", ModuleConstants.NODE_TYPE_GITEE, GITEE_URL, GITEE_TOKEN, GITEE_USERNAME);
+        this.checkFileRepository(repositoryId, project.getId(), "GITEA存储库改个名字", ModuleConstants.NODE_TYPE_GITEA, GITEA_URL, GITEA_TOKEN, null);
 
         //全部改回来
         createRequest = new FileRepositoryUpdateRequest();
         createRequest.setId(repositoryId);
-        createRequest.setUserName(GITEE_USERNAME);
-        createRequest.setToken(GITEE_TOKEN);
-        createRequest.setName("Gitee存储库");
+        createRequest.setToken(GITEA_TOKEN);
+        createRequest.setName("GITEA存储库");
         this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_UPDATE, createRequest);
-        this.checkFileRepository(repositoryId, project.getId(), "Gitee存储库", ModuleConstants.NODE_TYPE_GITEE, GITEE_URL, GITEE_TOKEN, GITEE_USERNAME);
+        this.checkFileRepository(repositoryId, project.getId(), "GITEA存储库", ModuleConstants.NODE_TYPE_GITEA, GITEA_URL, GITEA_TOKEN, null);
 
         //文件id不存在
         createRequest = new FileRepositoryUpdateRequest();
@@ -333,9 +318,19 @@ public class FileRepositoryControllerTest extends BaseTest {
         this.checkRepositoryDeleted(repositoryId);
         checkLog(repositoryId, OperationLogType.DELETE, FileManagementRequestUtils.URL_MODULE_DELETE);
 
-
         //重新添加
-        this.moduleAddTest();
+        FileRepositoryCreateRequest createRequest = new FileRepositoryCreateRequest();
+        createRequest.setProjectId(project.getId());
+        createRequest.setPlatform(ModuleConstants.NODE_TYPE_GITEA);
+        createRequest.setUrl(GITEA_URL);
+        createRequest.setToken(GITEA_TOKEN);
+        createRequest.setName("GITEA存储库");
+        MvcResult result = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE, createRequest);
+        String returnStr = result.getResponse().getContentAsString();
+        ResultHolder rh = JSON.parseObject(returnStr, ResultHolder.class);
+        repositoryId = rh.getData().toString();
+        this.checkFileRepository(repositoryId, createRequest.getProjectId(), createRequest.getName(), createRequest.getPlatform(), createRequest.getUrl(), createRequest.getToken(), createRequest.getUserName());
+        this.checkLog(repositoryId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE);
 
     }
 
@@ -374,7 +369,7 @@ public class FileRepositoryControllerTest extends BaseTest {
             this.moduleAddTest();
         }
         //测试主分支的文件
-        String branch = "master";
+        String branch = "main";
         String filePath = "README.en.md";
         RepositoryFileAddRequest request = new RepositoryFileAddRequest();
         request.setBranch(branch);
@@ -389,7 +384,7 @@ public class FileRepositoryControllerTest extends BaseTest {
 
         //测试其他分支的多层目录的文件
         String otherBranch = "develop";
-        String folderFilePath1 = "test-folder/gitee/test.txt";
+        String folderFilePath1 = "test-folder/gitea/test.txt";
         request = new RepositoryFileAddRequest();
         request.setBranch(otherBranch);
         request.setFilePath(folderFilePath1);
