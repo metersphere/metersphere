@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author guoyuqi
@@ -15,7 +16,10 @@ public class CaseReviewBatchRequest extends TableBatchProcessDTO implements Seri
     @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String projectId;
 
-    @Schema(description = "模块ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    private String moduleId;
+    @Schema(description = "目标模块id", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String moveModuleId;
+
+    @Schema(description = "模块id")
+    private List<String> moduleIds;
 
 }
