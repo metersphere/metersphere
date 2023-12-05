@@ -166,6 +166,24 @@
             "id": "SYSTEM_LOG:READ"
           }
         ]
+      },
+      {
+        "id": "API_KEYS",
+        "name": "permission.api_keys",
+        "permissions": [
+          {
+            "id": "SYSTEM_PERSONAL_API_KEY_ADD:READ+ADD"
+          },
+          {
+            "id": "SYSTEM_PERSONAL_API_KEY_ADD:READ"
+          },
+          {
+            "id": "SYSTEM_PERSONAL_API_KEY_ADD:READ+UPDATE"
+          },
+          {
+            "id": "SYSTEM_PERSONAL_API_KEY_ADD:READ+DELETE"
+          }
+        ]
       }
     ]
   },
@@ -286,31 +304,6 @@
         "permissions": [
           {
             "id": "ORGANIZATION_LOG:READ"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "id": "PERSONAL",
-    "name": "permission.my_settings",
-    "type": "SYSTEM",
-    "children": [
-      {
-        "id": "API_KEYS",
-        "name": "permission.api_keys",
-        "permissions": [
-          {
-            "id": "SYSTEM_PERSONAL_API_KEY_ADD:READ+ADD"
-          },
-          {
-            "id": "SYSTEM_PERSONAL_API_KEY_ADD:READ"
-          },
-          {
-            "id": "SYSTEM_PERSONAL_API_KEY_ADD:READ+UPDATE"
-          },
-          {
-            "id": "SYSTEM_PERSONAL_API_KEY_ADD:READ+DELETE"
           }
         ]
       }
