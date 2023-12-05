@@ -267,4 +267,6 @@ public class PermissionConstants {
     public static final String SYSTEM_PERSONAL_API_KEY_DELETE = "SYSTEM_PERSONAL_API_KEY_DELETE:READ+DELETE";
     public static final String SYSTEM_PERSONAL_API_KEY_READ = "SYSTEM_PERSONAL_API_KEY_READ:READ";
     public static final String SYSTEM_PERSONAL_API_KEY_UPDATE = "SYSTEM_PERSONAL_API_KEY_UPDATE:READ+UPDATE";
+    public static final String SYSTEM_PERSONAL_READ = "SYSTEM_PERSONAL:READ";
+    public static final String SYSTEM_PERSONAL_READ_UPDATE = "SYSTEM_PERSONAL:READ+UPDATE";
 }

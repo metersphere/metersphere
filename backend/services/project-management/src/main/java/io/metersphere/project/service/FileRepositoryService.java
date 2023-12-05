@@ -51,7 +51,6 @@ public class FileRepositoryService extends FileModuleService {
 
     public String addRepository(FileRepositoryCreateRequest request, String operator) {
         this.connect(request.getUrl(), request.getToken(), request.getUserName());
-        this.checkPlatForm(request.getPlatform());
         //记录模块节点数据
         FileModule fileModule = new FileModule();
         fileModule.setId(IDGenerator.nextStr());
@@ -124,12 +123,6 @@ public class FileRepositoryService extends FileModuleService {
 
         //记录日志
         fileModuleLogService.saveUpdateRepositoryLog(oldLog, new FileRepositoryLog(fileModule, repository), operator);
-    }
-
-    private void checkPlatForm(String platform) {
-        if (!StringUtils.equalsAny(platform, ModuleConstants.NODE_TYPE_GITHUB, ModuleConstants.NODE_TYPE_GITEE, ModuleConstants.NODE_TYPE_GITLAB)) {
-            throw new MSException(Translator.get("file_repository.platform.error"));
-        }
     }
 
     public String addFile(RepositoryFileAddRequest request, String operator) {

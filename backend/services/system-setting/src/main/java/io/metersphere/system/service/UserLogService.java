@@ -5,21 +5,19 @@ import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.OperationLogConstants;
-import io.metersphere.system.log.dto.LogDTO;
-import io.metersphere.system.dto.table.TableBatchProcessDTO;
-import io.metersphere.system.dto.builder.LogDTOBuilder;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
+import io.metersphere.system.dto.builder.LogDTOBuilder;
+import io.metersphere.system.dto.request.user.*;
+import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.OrganizationMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
-import io.metersphere.system.dto.request.user.UserChangeEnableRequest;
-import io.metersphere.system.dto.request.user.UserEditRequest;
-import io.metersphere.system.dto.request.user.UserRoleBatchRelationRequest;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
@@ -85,6 +83,57 @@ public class UserLogService {
         }
         return null;
     }
+
+    public LogDTO updatePasswordLog(PersonalUpdatePasswordRequest request) {
+        User user = userMapper.selectByPrimaryKey(request.getId());
+        if (user != null) {
+            LogDTO dto = LogDTOBuilder.builder()
+                    .projectId(OperationLogConstants.SYSTEM)
+                    .organizationId(OperationLogConstants.SYSTEM)
+                    .type(OperationLogType.UPDATE.name())
+                    .module(OperationLogModule.PERSONAL_INFORMATION_PERSONAL_SETTINGS)
+                    .method(HttpMethodConstants.POST.name())
+                    .path("/personal/update-password")
+                    .sourceId(request.getId())
+                    .content(user.getName() + StringUtils.SPACE + Translator.get("personal.change.password"))
+                    .originalValue(JSON.toJSONBytes(user))
+                    .build().getLogDTO();
+            return dto;
+        }
+        return null;
+    }
+
+    public LogDTO updateAccountLog(PersonalUpdateRequest request) {
+        User user = userMapper.selectByPrimaryKey(request.getId());
+        StringBuilder content = new StringBuilder();
+        if (user != null) {
+            if (!StringUtils.equals(user.getName(), request.getUsername())) {
+                content.append(Translator.get("personal.user.name")).append(":").append(user.getName()).append("->").append(request.getUsername()).append(";");
+            }
+            if (!StringUtils.equals(user.getEmail(), request.getEmail())) {
+                content.append(Translator.get("personal.user.email")).append(":").append(user.getEmail()).append("->").append(request.getEmail()).append(";");
+            }
+            if (!StringUtils.equals(user.getPhone(), request.getPhone())) {
+                content.append(Translator.get("personal.user.phone")).append(":").append(user.getPhone()).append("->").append(request.getPhone()).append(";");
+            }
+
+
+            LogDTO dto = LogDTOBuilder.builder()
+                    .projectId(OperationLogConstants.SYSTEM)
+                    .organizationId(OperationLogConstants.SYSTEM)
+                    .type(OperationLogType.UPDATE.name())
+                    .module(OperationLogModule.PERSONAL_INFORMATION_PERSONAL_SETTINGS)
+                    .method(HttpMethodConstants.POST.name())
+                    .path("/personal/update-info")
+                    .sourceId(request.getId())
+                    .content(user.getName() + StringUtils.SPACE + Translator.get("personal.change.info") + ". " + content)
+                    .originalValue(JSON.toJSONBytes(user))
+                    .build().getLogDTO();
+            return dto;
+        }
+        return null;
+    }
+
 
     //批量开启和关闭
     public List<LogDTO> batchUpdateEnableLog(UserChangeEnableRequest request) {

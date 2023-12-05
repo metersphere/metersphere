@@ -4,6 +4,8 @@
   <resultMap id="BaseResultMap" type="io.metersphere.system.domain.UserExtend">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="selenium_server" jdbcType="VARCHAR" property="seleniumServer" />
+    <result column="api_server" jdbcType="VARCHAR" property="apiServer" />
+    <result column="avatar" jdbcType="VARCHAR" property="avatar" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.system.domain.UserExtend">
     <result column="platform_info" jdbcType="LONGVARBINARY" property="platformInfo" />
@@ -67,7 +69,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, selenium_server
+    id, selenium_server, api_server, avatar
   </sql>
   <sql id="Blob_Column_List">
     platform_info
@@ -121,10 +123,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.system.domain.UserExtend">
-    insert into user_extend (id, selenium_server, platform_info
-      )
-    values (#{id,jdbcType=VARCHAR}, #{seleniumServer,jdbcType=VARCHAR}, #{platformInfo,jdbcType=LONGVARBINARY}
-      )
+    insert into user_extend (id, selenium_server, api_server, 
+      avatar, platform_info)
+    values (#{id,jdbcType=VARCHAR}, #{seleniumServer,jdbcType=VARCHAR}, #{apiServer,jdbcType=VARCHAR}, 
+      #{avatar,jdbcType=VARCHAR}, #{platformInfo,jdbcType=LONGVARBINARY})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.UserExtend">
     insert into user_extend
@@ -134,6 +136,12 @@
       </if>
       <if test="seleniumServer != null">
         selenium_server,
+      </if>
+      <if test="apiServer != null">
+        api_server,
+      </if>
+      <if test="avatar != null">
+        avatar,
       </if>
       <if test="platformInfo != null">
         platform_info,
@@ -145,6 +153,12 @@
       </if>
       <if test="seleniumServer != null">
         #{seleniumServer,jdbcType=VARCHAR},
+      </if>
+      <if test="apiServer != null">
+        #{apiServer,jdbcType=VARCHAR},
+      </if>
+      <if test="avatar != null">
+        #{avatar,jdbcType=VARCHAR},
       </if>
       <if test="platformInfo != null">
         #{platformInfo,jdbcType=LONGVARBINARY},
@@ -166,6 +180,12 @@
       <if test="record.seleniumServer != null">
         selenium_server = #{record.seleniumServer,jdbcType=VARCHAR},
       </if>
+      <if test="record.apiServer != null">
+        api_server = #{record.apiServer,jdbcType=VARCHAR},
+      </if>
+      <if test="record.avatar != null">
+        avatar = #{record.avatar,jdbcType=VARCHAR},
+      </if>
       <if test="record.platformInfo != null">
         platform_info = #{record.platformInfo,jdbcType=LONGVARBINARY},
       </if>
@@ -178,6 +198,8 @@
     update user_extend
     set id = #{record.id,jdbcType=VARCHAR},
       selenium_server = #{record.seleniumServer,jdbcType=VARCHAR},
+      api_server = #{record.apiServer,jdbcType=VARCHAR},
+      avatar = #{record.avatar,jdbcType=VARCHAR},
       platform_info = #{record.platformInfo,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -186,7 +208,9 @@
   <update id="updateByExample" parameterType="map">
     update user_extend
     set id = #{record.id,jdbcType=VARCHAR},
-      selenium_server = #{record.seleniumServer,jdbcType=VARCHAR}
+      selenium_server = #{record.seleniumServer,jdbcType=VARCHAR},
+      api_server = #{record.apiServer,jdbcType=VARCHAR},
+      avatar = #{record.avatar,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -197,6 +221,12 @@
       <if test="seleniumServer != null">
         selenium_server = #{seleniumServer,jdbcType=VARCHAR},
       </if>
+      <if test="apiServer != null">
+        api_server = #{apiServer,jdbcType=VARCHAR},
+      </if>
+      <if test="avatar != null">
+        avatar = #{avatar,jdbcType=VARCHAR},
+      </if>
       <if test="platformInfo != null">
         platform_info = #{platformInfo,jdbcType=LONGVARBINARY},
       </if>
@@ -206,21 +236,25 @@
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.system.domain.UserExtend">
     update user_extend
     set selenium_server = #{seleniumServer,jdbcType=VARCHAR},
+      api_server = #{apiServer,jdbcType=VARCHAR},
+      avatar = #{avatar,jdbcType=VARCHAR},
       platform_info = #{platformInfo,jdbcType=LONGVARBINARY}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.system.domain.UserExtend">
     update user_extend
-    set selenium_server = #{seleniumServer,jdbcType=VARCHAR}
+    set selenium_server = #{seleniumServer,jdbcType=VARCHAR},
+      api_server = #{apiServer,jdbcType=VARCHAR},
+      avatar = #{avatar,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into user_extend
-    (id, selenium_server, platform_info)
+    (id, selenium_server, api_server, avatar, platform_info)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.seleniumServer,jdbcType=VARCHAR}, #{item.platformInfo,jdbcType=LONGVARBINARY}
-        )
+      (#{item.id,jdbcType=VARCHAR}, #{item.seleniumServer,jdbcType=VARCHAR}, #{item.apiServer,jdbcType=VARCHAR}, 
+        #{item.avatar,jdbcType=VARCHAR}, #{item.platformInfo,jdbcType=LONGVARBINARY})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -238,6 +272,12 @@
         </if>
         <if test="'selenium_server'.toString() == column.value">
           #{item.seleniumServer,jdbcType=VARCHAR}
+        </if>
+        <if test="'api_server'.toString() == column.value">
+          #{item.apiServer,jdbcType=VARCHAR}
+        </if>
+        <if test="'avatar'.toString() == column.value">
+          #{item.avatar,jdbcType=VARCHAR}
         </if>
         <if test="'platform_info'.toString() == column.value">
           #{item.platformInfo,jdbcType=LONGVARBINARY}
