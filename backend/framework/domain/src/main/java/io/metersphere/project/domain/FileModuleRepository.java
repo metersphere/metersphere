@@ -1,12 +1,15 @@
 package io.metersphere.project.domain;
 
-import io.metersphere.validation.groups.*;
+import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import lombok.Data;
 
 @Data
 public class FileModuleRepository implements Serializable {
@@ -15,7 +18,7 @@ public class FileModuleRepository implements Serializable {
     @Size(min = 1, max = 50, message = "{file_module_repository.file_module_id.length_range}", groups = {Created.class, Updated.class})
     private String fileModuleId;
 
-    @Schema(description = "所属平台;GitHub/Gitlab/Gitee", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "所属平台", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{file_module_repository.platform.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 10, message = "{file_module_repository.platform.length_range}", groups = {Created.class, Updated.class})
     private String platform;

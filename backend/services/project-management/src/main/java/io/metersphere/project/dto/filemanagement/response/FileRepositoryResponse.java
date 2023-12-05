@@ -20,7 +20,7 @@ public class FileRepositoryResponse {
     @Schema(description = "存储库地址")
     private String url;
 
-    @Schema(description = "所属平台;GitHub/Gitlab/Gitee")
+    @Schema(description = "所属平台")
     private String platform;
 
     @Schema(description = "用户名;platform为Gitee时必填")
