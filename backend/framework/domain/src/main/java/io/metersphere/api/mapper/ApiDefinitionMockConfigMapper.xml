@@ -5,7 +5,7 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.api.domain.ApiDefinitionMockConfig">
-    <result column="request" jdbcType="LONGVARBINARY" property="request" />
+    <result column="matching" jdbcType="LONGVARBINARY" property="matching" />
     <result column="response" jdbcType="LONGVARBINARY" property="response" />
   </resultMap>
   <sql id="Example_Where_Clause">
@@ -70,7 +70,7 @@
     id
   </sql>
   <sql id="Blob_Column_List">
-    request, response
+    matching, response
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.api.domain.ApiDefinitionMockConfigExample" resultMap="ResultMapWithBLOBs">
     select
@@ -121,9 +121,9 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.api.domain.ApiDefinitionMockConfig">
-    insert into api_definition_mock_config (id, request, response
+    insert into api_definition_mock_config (id, matching, response
       )
-    values (#{id,jdbcType=VARCHAR}, #{request,jdbcType=LONGVARBINARY}, #{response,jdbcType=LONGVARBINARY}
+    values (#{id,jdbcType=VARCHAR}, #{matching,jdbcType=LONGVARBINARY}, #{response,jdbcType=LONGVARBINARY}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiDefinitionMockConfig">
@@ -132,8 +132,8 @@
       <if test="id != null">
         id,
       </if>
-      <if test="request != null">
-        request,
+      <if test="matching != null">
+        matching,
       </if>
       <if test="response != null">
         response,
@@ -143,8 +143,8 @@
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
       </if>
-      <if test="request != null">
-        #{request,jdbcType=LONGVARBINARY},
+      <if test="matching != null">
+        #{matching,jdbcType=LONGVARBINARY},
       </if>
       <if test="response != null">
         #{response,jdbcType=LONGVARBINARY},
@@ -163,8 +163,8 @@
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
-      <if test="record.request != null">
-        request = #{record.request,jdbcType=LONGVARBINARY},
+      <if test="record.matching != null">
+        matching = #{record.matching,jdbcType=LONGVARBINARY},
       </if>
       <if test="record.response != null">
         response = #{record.response,jdbcType=LONGVARBINARY},
@@ -177,7 +177,7 @@
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update api_definition_mock_config
     set id = #{record.id,jdbcType=VARCHAR},
-      request = #{record.request,jdbcType=LONGVARBINARY},
+      matching = #{record.matching,jdbcType=LONGVARBINARY},
       response = #{record.response,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -193,8 +193,8 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.api.domain.ApiDefinitionMockConfig">
     update api_definition_mock_config
     <set>
-      <if test="request != null">
-        request = #{request,jdbcType=LONGVARBINARY},
+      <if test="matching != null">
+        matching = #{matching,jdbcType=LONGVARBINARY},
       </if>
       <if test="response != null">
         response = #{response,jdbcType=LONGVARBINARY},
@@ -204,16 +204,16 @@
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.api.domain.ApiDefinitionMockConfig">
     update api_definition_mock_config
-    set request = #{request,jdbcType=LONGVARBINARY},
+    set matching = #{matching,jdbcType=LONGVARBINARY},
       response = #{response,jdbcType=LONGVARBINARY}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_definition_mock_config
-    (id, request, response)
+    (id, matching, response)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.request,jdbcType=LONGVARBINARY}, #{item.response,jdbcType=LONGVARBINARY}
+      (#{item.id,jdbcType=VARCHAR}, #{item.matching,jdbcType=LONGVARBINARY}, #{item.response,jdbcType=LONGVARBINARY}
         )
     </foreach>
   </insert>
@@ -230,8 +230,8 @@
         <if test="'id'.toString() == column.value">
           #{item.id,jdbcType=VARCHAR}
         </if>
-        <if test="'request'.toString() == column.value">
-          #{item.request,jdbcType=LONGVARBINARY}
+        <if test="'matching'.toString() == column.value">
+          #{item.matching,jdbcType=LONGVARBINARY}
         </if>
         <if test="'response'.toString() == column.value">
           #{item.response,jdbcType=LONGVARBINARY}

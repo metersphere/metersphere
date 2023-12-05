@@ -391,35 +391,35 @@ CREATE TABLE IF NOT EXISTS api_test_case_follower(
   COLLATE = utf8mb4_general_ci COMMENT = '接口用例关注人';
 
 CREATE TABLE IF NOT EXISTS api_definition_mock(
-  `id` VARCHAR(50) NOT NULL   COMMENT 'mock pk' ,
-  `api_path` VARCHAR(500)    COMMENT '接口路径' ,
-  `api_method` VARCHAR(50)    COMMENT '接口类型' ,
-  `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
-  `update_time` BIGINT NOT NULL   COMMENT '修改时间' ,
-  `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
-  `name` VARCHAR(200) NOT NULL   COMMENT 'mock 名称' ,
-  `tags` VARCHAR(500)    COMMENT '自定义标签' ,
-  `enable` BIT(1) NOT NULL  DEFAULT 1 COMMENT '启用/禁用' ,
-  `expect_num` VARCHAR(50) NOT NULL   COMMENT 'mock编号' ,
-  `project_id` VARCHAR(50) NOT NULL   COMMENT '项目fk' ,
-  `api_definition_id` VARCHAR(50) NOT NULL   COMMENT '接口fk' ,
-  PRIMARY KEY (id)
-) ENGINE = InnoDB
+    `id` VARCHAR(50) NOT NULL   COMMENT 'mock pk' ,
+    `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+    `update_time` BIGINT NOT NULL   COMMENT '修改时间' ,
+    `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+    `name` VARCHAR(200) NOT NULL   COMMENT 'mock名称' ,
+    `tags` VARCHAR(500)    COMMENT '自定义标签' ,
+    `enable` BIT(1) NOT NULL  DEFAULT 1 COMMENT '启用/禁用' ,
+    `expect_num` VARCHAR(50) NOT NULL   COMMENT 'mock编号' ,
+    `project_id` VARCHAR(50) NOT NULL   COMMENT '项目fk' ,
+    `api_definition_id` VARCHAR(50) NOT NULL   COMMENT '接口fk' ,
+    PRIMARY KEY (id)
+)
+  ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = 'mock 配置-暂留';
+  COLLATE = utf8mb4_general_ci COMMENT = 'mock配置';
 
 
 CREATE INDEX idx_api_definition_id ON api_definition_mock(api_definition_id);
 CREATE INDEX idx_project_id ON api_definition_mock(project_id);
 
 CREATE TABLE IF NOT EXISTS api_definition_mock_config(
-  `id` VARCHAR(50) NOT NULL   COMMENT '接口mock pk' ,
-  `request` LONGBLOB    COMMENT '请求内容' ,
-  `response` LONGBLOB    COMMENT '响应内容' ,
-  PRIMARY KEY (id)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = 'mock期望值配置-暂留';
+    `id` VARCHAR(50) NOT NULL   COMMENT 'mock pk' ,
+    `matching` LONGBLOB    COMMENT '匹配规则' ,
+    `response` LONGBLOB    COMMENT '响应内容' ,
+    PRIMARY KEY (id)
+)  ENGINE = InnoDB
+   DEFAULT CHARSET = utf8mb4
+   COLLATE = utf8mb4_general_ci
+   COMMENT = 'mock期望值配置';
 
 CREATE TABLE IF NOT EXISTS api_definition_swagger(
   `id` VARCHAR(50) NOT NULL   COMMENT '主键' ,

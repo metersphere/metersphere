@@ -15,12 +15,6 @@ public class ApiDefinitionMock implements Serializable {
     @Size(min = 1, max = 50, message = "{api_definition_mock.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(description = "接口路径")
-    private String apiPath;
-
-    @Schema(description = "接口类型")
-    private String apiMethod;
-
     @Schema(description = "创建时间")
     private Long createTime;
 
@@ -30,7 +24,7 @@ public class ApiDefinitionMock implements Serializable {
     @Schema(description = "创建人")
     private String createUser;
 
-    @Schema(description = "mock 名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "mock名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_definition_mock.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 200, message = "{api_definition_mock.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
@@ -60,8 +54,6 @@ public class ApiDefinitionMock implements Serializable {
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
-        apiPath("api_path", "apiPath", "VARCHAR", false),
-        apiMethod("api_method", "apiMethod", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),
         updateTime("update_time", "updateTime", "BIGINT", false),
         createUser("create_user", "createUser", "VARCHAR", false),
