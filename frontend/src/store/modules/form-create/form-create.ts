@@ -110,7 +110,7 @@ const useFormCreateStore = defineStore('form-create', {
       const formValue = formValueApi.formData();
       // 设置自定义属性给到searchSelect
       const formCreateRuleArr = this.formCreateRuleMap.get(key);
-      const formCreateItem = formCreateRuleArr?.find((items: FormRuleItem) => cascadeItem.field === items.field);
+      const formCreateItem = formCreateRuleArr?.find((items: any) => cascadeItem.field === items.field);
       if (formCreateItem) {
         formCreateItem.props.keyword = val.value;
         formCreateItem.props.formValue = formValue;
