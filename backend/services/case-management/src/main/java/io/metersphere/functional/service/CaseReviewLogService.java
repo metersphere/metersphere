@@ -103,6 +103,32 @@ public class CaseReviewLogService {
         return dto;
     }
 
+    /**
+     * 删除用例 日志
+     *
+     * @param reviewId reviewId
+     * @return LogDTO
+     */
+    public LogDTO deleteFunctionalCaseLog(String reviewId) {
+        CaseReview caseReview = caseReviewMapper.selectByPrimaryKey(reviewId);
+        if (caseReview != null) {
+            LogDTO dto = new LogDTO(
+                    caseReview.getProjectId(),
+                    null,
+                    caseReview.getId(),
+                    null,
+                    OperationLogType.DELETE.name(),
+                    OperationLogModule.CASE_REVIEW,
+                    caseReview.getName());
+
+            dto.setPath("/case/review/delete");
+            dto.setMethod(HttpMethodConstants.DELETE.name());
+            dto.setOriginalValue(JSON.toJSONBytes(caseReview));
+            return dto;
+        }
+        return null;
+    }
+
     public List<LogDTO> associateCaseLog(CaseReviewAssociateRequest request){
         CaseReview caseReview = caseReviewMapper.selectByPrimaryKey(request.getReviewId());
         if (caseReview ==null) {

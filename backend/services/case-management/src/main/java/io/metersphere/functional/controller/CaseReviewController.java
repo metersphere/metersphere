@@ -112,9 +112,18 @@ public class CaseReviewController {
     }
 
     @PostMapping("batch/move")
-    @Operation(summary = "用例管理-用例评审-复制用例评审")
+    @Operation(summary = "用例管理-用例评审-批量移动用例评审")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_UPDATE)
     public void batchMoveCaseReview(@Validated @RequestBody CaseReviewBatchRequest request) {
         caseReviewService.batchMoveCaseReview(request, SessionUtils.getUserId());
+    }
+
+    @GetMapping("/delete/{reviewId}/{projectId}")
+    @Operation(summary = "用例管理-用例评审-删除用例评审")
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_DELETE)
+    @SendNotice(taskType = NoticeConstants.TaskType.CASE_REVIEW_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getMainCaseReview(#reviewId)", targetClass = CaseReviewNoticeService.class)
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteFunctionalCaseLog(#reviewId)", msClass = CaseReviewLogService.class)
+    public void deleteCaseReview(@PathVariable String reviewId, @PathVariable String projectId) {
+        caseReviewService.deleteCaseReview(reviewId, projectId);
     }
 }
