@@ -105,14 +105,14 @@ const useFormCreateStore = defineStore('form-create', {
     async getOptions(
       val: FormRuleItem,
       key: FormCreateKeyEnum[keyof FormCreateKeyEnum],
-      cascadeItem: Rule,
+      cascadeItem: FormRuleItem,
       formValueApi: any
     ) {
       const formValue = formValueApi.formData();
       // 设置自定义属性给到searchSelect
-      const formCreateRuleArr = this.formCreateRuleMap.get(key) as Rule[];
+      const formCreateRuleArr = this.formCreateRuleMap.get(key);
       if (formCreateRuleArr) {
-        const formCreateItem = formCreateRuleArr.find((item: Rule) => cascadeItem.field === item.field);
+        const formCreateItem = formCreateRuleArr.find((item: FormRuleItem) => cascadeItem.field === item.field);
         if (formCreateItem && formCreateItem.props) {
           formCreateItem.props.keyword = val.value;
           formCreateItem.props.formValue = formValue;
