@@ -51,6 +51,9 @@ public class FileRepositoryControllerTest extends BaseTest {
     private static final String GITEE_USERNAME = "testformetersphere";
     private static final String GITEE_TOKEN = "4548d369bb595738d726512742e4478f";
 
+    private static final String GITEA_USERNAME = "meterspherecodetest";
+    private static final String GITEA_TOKEN = "f5e34c45e998291909e0897a76a1f1ae42095e3f";
+
     private static final List<String> fileList = new ArrayList<>();
 
     private static String repositoryId;

@@ -39,6 +39,11 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_PERSONAL_API_KEY_ADD:READ+UPDATE');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_PERSONAL_API_KEY_ADD:READ+DELETE');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_PERSONAL_API_KEY_ADD:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id)
+VALUES (UUID_SHORT(), 'member', 'SYSTEM_PERSONAL:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id)
+VALUES (UUID_SHORT(), 'member', 'SYSTEM_PERSONAL:READ+UPDATE');
+
 -- 组织管理员权限
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'org_admin', 'ORGANIZATION_USER_ROLE:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'org_admin', 'ORGANIZATION_USER_ROLE:READ+ADD');

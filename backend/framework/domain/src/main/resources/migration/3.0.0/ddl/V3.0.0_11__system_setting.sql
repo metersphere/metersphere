@@ -318,15 +318,19 @@ CREATE INDEX idx_update_time ON organization (`update_time`);
 CREATE INDEX idx_deleted ON organization (`deleted`);
 CREATE INDEX idx_update_user ON organization(`update_user`);
 
-CREATE TABLE IF NOT EXISTS user_extend
+DROP TABLE IF EXISTS user_extend;
+CREATE TABLE user_extend
 (
     `id`              VARCHAR(50) NOT NULL COMMENT '用户ID',
     `platform_info`   BLOB COMMENT '其他平台对接信息',
     `selenium_server` VARCHAR(255) COMMENT 'UI本地调试地址',
+    `api_server`      VARCHAR(255) COMMENT 'api本地调试地址',
+    `avatar`          VARCHAR(255) COMMENT '头像',
     PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '用户扩展';
+
 
 
 CREATE TABLE IF NOT EXISTS test_resource_pool_organization

@@ -301,6 +301,12 @@
         "name": "permission.api_keys",
         "permissions": [
           {
+            "id": "SYSTEM_PERSONAL:READ"
+          },
+          {
+            "id": "SYSTEM_PERSONAL:READ+UPDATE"
+          },
+          {
             "id": "SYSTEM_PERSONAL_API_KEY_ADD:READ+ADD"
           },
           {
