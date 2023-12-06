@@ -3,8 +3,6 @@ package io.metersphere.api.dto.definition;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import java.util.List;
-
 /**
  * @author lan
  */
@@ -18,6 +16,6 @@ public class ApiDefinitionDocDTO{
     private String type;
 
     @Schema(description = "接口文档内容")
-    List<ApiDefinitionDTO> docList;
+    ApiDefinitionDTO docInfo;
 
 }

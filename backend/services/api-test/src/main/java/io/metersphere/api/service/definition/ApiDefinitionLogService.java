@@ -364,8 +364,8 @@ public class ApiDefinitionLogService {
         if(null != apiDefinition){
             // 2. 使用Optional避免空指针异常
             apiDefinitionService.handleBlob(id, apiDefinitionDTO);
+            BeanUtils.copyBean(apiDefinitionDTO, apiDefinition);
         }
-        BeanUtils.copyBean(apiDefinitionDTO, apiDefinition);
         return apiDefinitionDTO;
     }
 

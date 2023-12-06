@@ -3,9 +3,11 @@ package io.metersphere.api.controller;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.enums.ApiDefinitionDocType;
 import io.metersphere.api.enums.ApiDefinitionStatus;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiFileResourceService;
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.dto.filemanagement.FileInfo;
@@ -39,6 +41,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+import static io.metersphere.api.controller.result.ApiResultCode.API_DEFINITION_NOT_EXIST;
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 
 
@@ -681,7 +684,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1001");
         request.setApiId(apiDefinition.getId());
         request.setProjectId(DEFAULT_PROJECT_ID);
-        request.setType("API");
+        request.setType(ApiDefinitionDocType.API.name());
         // @@请求成功
         MvcResult mvcResult = this.requestPostWithOkAndReturn(DOC, request);
         ApiDataUtils.setResolver(MsHTTPElement.class);
@@ -695,11 +698,11 @@ public class ApiDefinitionControllerTests extends BaseTest {
             copyApiDefinitionDTO.setResponse(ApiDataUtils.parseArray(new String(apiDefinitionBlob.getResponse()), HttpResponse.class));
         }
         copyApiDefinitionDocDTO.setDocTitle(apiDefinition.getName());
-        copyApiDefinitionDocDTO.setType("API");
-        copyApiDefinitionDocDTO.setDocList(Collections.singletonList(copyApiDefinitionDTO));
+        copyApiDefinitionDocDTO.setType(ApiDefinitionDocType.API.name());
+        copyApiDefinitionDocDTO.setDocInfo(copyApiDefinitionDTO);
         Assertions.assertEquals(apiDefinitionDocDTO.getType(), copyApiDefinitionDocDTO.getType());
         Assertions.assertEquals(apiDefinitionDocDTO.getDocTitle(), copyApiDefinitionDocDTO.getDocTitle());
-        Assertions.assertEquals(apiDefinitionDocDTO.getDocList().size(), copyApiDefinitionDocDTO.getDocList().size());
+        Assertions.assertEquals(apiDefinitionDocDTO.getDocInfo().getId(), copyApiDefinitionDocDTO.getDocInfo().getId());
 
         request.setApiId("111");
         assertErrorCode(this.requestPost(DOC, request), ApiResultCode.API_DEFINITION_NOT_EXIST);
@@ -707,7 +710,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // @@模块查看文档
         request.setApiId(null);
         request.setProjectId(DEFAULT_PROJECT_ID);
-        request.setType("MODULE");
+        request.setType(ApiDefinitionDocType.MODULE.name());
         request.setModuleIds(List.of("10001"));
         MvcResult mvcResultModule = this.requestPostWithOkAndReturn(DOC, request);
         ApiDataUtils.setResolver(MsHTTPElement.class);
@@ -716,30 +719,29 @@ public class ApiDefinitionControllerTests extends BaseTest {
         ApiDefinitionDocDTO copyModuleApiDefinitionDocDTO = new ApiDefinitionDocDTO();
         List<ApiDefinitionDTO> list = extApiDefinitionMapper.listDoc(request);
         if(null != list){
-            list.forEach(item-> {
-                ApiDefinitionBlob moduleApiDefinitionBlob = apiDefinitionBlobMapper.selectByPrimaryKey(item.getId());
-                if(moduleApiDefinitionBlob != null){
-                    item.setRequest(ApiDataUtils.parseObject(new String(moduleApiDefinitionBlob.getRequest()), AbstractMsTestElement.class));
-                    item.setResponse(ApiDataUtils.parseArray(new String(moduleApiDefinitionBlob.getResponse()), HttpResponse.class));
-                }
-                ApiDefinitionModule apiDefinitionModule = apiDefinitionModuleMapper.selectByPrimaryKey(item.getModuleId());
-                if(StringUtils.isBlank(copyModuleApiDefinitionDocDTO.getDocTitle())){
-                    copyModuleApiDefinitionDocDTO.setDocTitle(apiDefinitionModule.getName());
-                }
-            });
+            ApiDefinitionDTO first = list.stream().findFirst().orElseThrow(() -> new MSException(API_DEFINITION_NOT_EXIST));
+            ApiDefinitionBlob moduleApiDefinitionBlob = apiDefinitionBlobMapper.selectByPrimaryKey(first.getId());
+            if(moduleApiDefinitionBlob != null){
+                first.setRequest(ApiDataUtils.parseObject(new String(moduleApiDefinitionBlob.getRequest()), AbstractMsTestElement.class));
+                first.setResponse(ApiDataUtils.parseArray(new String(moduleApiDefinitionBlob.getResponse()), HttpResponse.class));
+            }
+            ApiDefinitionModule apiDefinitionModule = apiDefinitionModuleMapper.selectByPrimaryKey(first.getModuleId());
+            if(StringUtils.isBlank(copyModuleApiDefinitionDocDTO.getDocTitle())){
+                copyModuleApiDefinitionDocDTO.setDocTitle(apiDefinitionModule.getName());
+            }
+            copyModuleApiDefinitionDocDTO.setDocInfo(first);
+            copyModuleApiDefinitionDocDTO.setType(ApiDefinitionDocType.MODULE.name());
         }
 
-        copyModuleApiDefinitionDocDTO.setType("MODULE");
-        copyModuleApiDefinitionDocDTO.setDocList(list);
         Assertions.assertEquals(moduleApiDefinitionDocDTO.getType(), copyModuleApiDefinitionDocDTO.getType());
         Assertions.assertEquals(moduleApiDefinitionDocDTO.getDocTitle(), copyModuleApiDefinitionDocDTO.getDocTitle());
-        Assertions.assertEquals(moduleApiDefinitionDocDTO.getDocList().size(), copyModuleApiDefinitionDocDTO.getDocList().size());
+        Assertions.assertEquals(moduleApiDefinitionDocDTO.getDocInfo().getId(), copyModuleApiDefinitionDocDTO.getDocInfo().getId());
 
         // @@查看全部文档
         request.setApiId(null);
         request.setModuleIds(null);
         request.setProjectId(DEFAULT_PROJECT_ID);
-        request.setType("ALL");
+        request.setType(ApiDefinitionDocType.ALL.name());
         MvcResult mvcResultAll = this.requestPostWithOkAndReturn(DOC, request);
         ApiDataUtils.setResolver(MsHTTPElement.class);
         ApiDefinitionDocDTO allApiDefinitionDocDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResultAll).get("data")), ApiDefinitionDocDTO.class);
@@ -747,22 +749,22 @@ public class ApiDefinitionControllerTests extends BaseTest {
         ApiDefinitionDocDTO copyAllApiDefinitionDocDTO = new ApiDefinitionDocDTO();
         List<ApiDefinitionDTO> allList = extApiDefinitionMapper.listDoc(request);
         if(null != allList){
-            allList.forEach(item-> {
-                ApiDefinitionBlob allApiDefinitionBlob = apiDefinitionBlobMapper.selectByPrimaryKey(item.getId());
-                if(allApiDefinitionBlob != null){
-                    item.setRequest(ApiDataUtils.parseObject(new String(allApiDefinitionBlob.getRequest()), AbstractMsTestElement.class));
-                    item.setResponse(ApiDataUtils.parseArray(new String(allApiDefinitionBlob.getResponse()), HttpResponse.class));
-                }
-                if(StringUtils.isBlank(copyAllApiDefinitionDocDTO.getDocTitle())){
-                    copyAllApiDefinitionDocDTO.setDocTitle(Translator.get(ALL_API));
-                }
-            });
+            ApiDefinitionDTO info = allList.stream().findFirst().orElseThrow(() -> new MSException(API_DEFINITION_NOT_EXIST));
+            ApiDefinitionBlob allApiDefinitionBlob = apiDefinitionBlobMapper.selectByPrimaryKey(info.getId());
+            if(allApiDefinitionBlob != null){
+                info.setRequest(ApiDataUtils.parseObject(new String(allApiDefinitionBlob.getRequest()), AbstractMsTestElement.class));
+                info.setResponse(ApiDataUtils.parseArray(new String(allApiDefinitionBlob.getResponse()), HttpResponse.class));
+            }
+            if(StringUtils.isBlank(copyAllApiDefinitionDocDTO.getDocTitle())){
+                copyAllApiDefinitionDocDTO.setDocTitle(Translator.get(ALL_API));
+            }
+            copyAllApiDefinitionDocDTO.setType(ApiDefinitionDocType.ALL.name());
+            copyAllApiDefinitionDocDTO.setDocInfo(info);
         }
-        copyAllApiDefinitionDocDTO.setType("ALL");
-        copyAllApiDefinitionDocDTO.setDocList(allList);
+
         Assertions.assertEquals(allApiDefinitionDocDTO.getType(), copyAllApiDefinitionDocDTO.getType());
         Assertions.assertEquals(allApiDefinitionDocDTO.getDocTitle(), copyAllApiDefinitionDocDTO.getDocTitle());
-        Assertions.assertEquals(allApiDefinitionDocDTO.getDocList().size(), copyAllApiDefinitionDocDTO.getDocList().size());
+        Assertions.assertEquals(allApiDefinitionDocDTO.getDocInfo().getId(), copyAllApiDefinitionDocDTO.getDocInfo().getId());
 
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_READ, DOC, request);
