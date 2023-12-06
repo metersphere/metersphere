@@ -16,3 +16,6 @@ export const EnableAPIKEYUrl = '/user/api/key/enable'; // 个人设置-开启 AP
 export const DisableAPIKEYUrl = '/user/api/key/disable'; // 个人设置-关闭 APIKEY
 export const DeleteAPIKEYUrl = '/user/api/key/delete'; // 个人设置-删除 APIKEY
 export const AddAPIKEYUrl = '/user/api/key/add'; // 个人设置-生成 APIKEY
+export const UpdatePswUrl = '/personal/update-password'; // 个人信息-修改密码
+export const UpdateInfoUrl = '/personal/update-info'; // 个人信息-修改信息
+export const GetInfoUrl = '/personal/get'; // 个人信息-获取信息

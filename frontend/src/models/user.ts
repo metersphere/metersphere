@@ -76,3 +76,71 @@ export interface APIKEY {
   expireTime: number;
   description: string;
 }
+// 更新密码入参
+export interface UpdatePswParams {
+  id: string;
+  oldPassword: string;
+  newPassword: string;
+}
+
+export interface Permission {
+  id: string;
+  roleId: string;
+  permissionId: string;
+}
+
+export interface Resource {
+  id: string;
+  name: string;
+  license: boolean;
+}
+export interface UserRolePermission {
+  resource: Resource;
+  permissions: Permission[];
+  type: string;
+  userRole: UserRole;
+  userRolePermissions: Permission[];
+}
+
+export interface UserRoleRelation {
+  id: string;
+  userId: string;
+  roleId: string;
+  sourceId: string;
+  organizationId: string;
+  createTime: number;
+  createUser: string;
+}
+// 个人信息
+export interface PersonalInfo {
+  id: string;
+  name: string;
+  email: string;
+  password: string;
+  enable: boolean;
+  createTime: number;
+  updateTime: number;
+  language: string;
+  lastOrganizationId: string;
+  phone: string;
+  source: string;
+  lastProjectId: string;
+  createUser: string;
+  updateUser: string;
+  deleted: boolean;
+  userRoles: UserRole[];
+  userRoleRelations: UserRoleRelation[];
+  userRolePermissions: UserRolePermission[];
+  platformInfo: string;
+  seleniumServer: string;
+  apiServer: string;
+  avatar: string;
+}
+
+export interface UpdateBaseInfo {
+  id: string;
+  username: string;
+  phone: string;
+  email: string;
+  avatar: string;
+}

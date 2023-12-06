@@ -1,110 +1,109 @@
-// import MSR from '@/api/http/index';
+import MSR from '@/api/http/index';
+import {
+  AddReviewModuleUrl,
+  AddReviewUrl,
+  AssociateReviewUrl,
+  CopyReviewUrl,
+  DeleteReviewModuleUrl,
+  EditReviewUrl,
+  FollowReviewUrl,
+  GetReviewDetailUrl,
+  GetReviewListUrl,
+  GetReviewModulesUrl,
+  GetReviewUsersUrl,
+  MoveReviewModuleUrl,
+  MoveReviewUrl,
+  SortReviewUrl,
+  UpdateReviewModuleUrl,
+} from '@/api/requrls/case-management/caseReview';
 
-export const getCaseList = () => {
-  // return MSR.post<CommonList<FileItem>>({ url: FilePageUrl, data });
-  return Promise.resolve({
-    list: [
-      {
-        id: 'ded3d43',
-        name: '测试评审1',
-        creator: '张三',
-        reviewer: '李四',
-        module: '模块1',
-        status: 0, // 未开始、进行中、已完成、已归档
-        result: 0, // 通过、不通过、评审中
-        caseCount: 100,
-        passCount: 0,
-        failCount: 10,
-        reviewCount: 20,
-        reviewingCount: 25,
-        tags: ['标签1', '标签2'],
-        type: 'single',
-        desc: 'douifd9304',
-        cycle: [1700200794229, 1700200994229],
-      },
-      {
-        id: 'g545hj4',
-        name: '测试评审2',
-        creator: '张三',
-        reviewer: '李四',
-        module: '模块1',
-        status: 1, // 未开始、进行中、已完成、已归档
-        result: 1, // 通过、不通过、评审中
-        caseCount: 105,
-        passCount: 50,
-        failCount: 10,
-        reviewCount: 20,
-        reviewingCount: 25,
-        tags: ['标签1', '标签2'],
-        type: 'single',
-        desc: 'douifd9304',
-        cycle: [1700200794229, 1700200994229],
-      },
-      {
-        id: 'hj65b54',
-        name: '测试评审3',
-        creator: '张三',
-        reviewer: '李四',
-        module: '模块1',
-        status: 2, // 未开始、进行中、已完成、已归档
-        result: 2, // 通过、不通过、评审中
-        caseCount: 125,
-        passCount: 70,
-        failCount: 10,
-        reviewCount: 20,
-        reviewingCount: 25,
-        passRate: '80%',
-        tags: ['标签1', '标签2'],
-        type: 'single',
-        desc: 'douifd9304',
-        cycle: [1700200794229, 1700200994229],
-      },
-      {
-        id: 'wefwefw',
-        name: '测试评审4',
-        creator: '张三',
-        reviewer: '李四',
-        module: '模块1',
-        status: 3, // 未开始、进行中、已完成、已归档
-        result: 3, // 通过、不通过、评审中
-        caseCount: 130,
-        passCount: 70,
-        failCount: 10,
-        reviewCount: 0,
-        reviewingCount: 50,
-        passRate: '80%',
-        tags: ['标签1', '标签2'],
-        type: 'single',
-        desc: 'douifd9304',
-        cycle: [1700200794229, 1700200994229],
-      },
-      {
-        id: 'g4ggtrgrtg',
-        name: '测试评审5',
-        creator: '张三',
-        reviewer: '李四',
-        module: '模块1',
-        status: 3, // 未开始、进行中、已完成、已归档
-        result: 4, // 通过、不通过、评审中
-        caseCount: 130,
-        passCount: 70,
-        failCount: 10,
-        reviewCount: 0,
-        reviewingCount: 50,
-        passRate: '80%',
-        tags: ['标签1', '标签2'],
-        type: 'single',
-        desc: 'douifd9304',
-        cycle: [1700200794229, 1700200994229],
-      },
-    ],
-    current: 1,
-    pageSize: 10,
-    total: 2,
-  });
+import {
+  AssociateReviewCaseParams,
+  BatchMoveReviewParams,
+  FollowReviewParams,
+  Review,
+  ReviewItem,
+  ReviewListQueryParams,
+  ReviewModule,
+  ReviewModuleItem,
+  ReviewUserItem,
+  SortReviewParams,
+  UpdateReviewModuleParams,
+  UpdateReviewParams,
+} from '@/models/caseManagement/caseReview';
+import { CommonList, MoveModules } from '@/models/common';
+
+// 新增评审模块
+export const addReviewModule = (data: ReviewModule) => {
+  return MSR.post({ url: AddReviewModuleUrl, data });
 };
 
-export const getCaseDetail = () => {
-  // return MSR.post<CommonList<FileItem>>({ url: FilePageUrl, data });
-  return new Promise((resolve) => {});
+// 更新评审模块
+export const updateReviewModule = (data: UpdateReviewModuleParams) => {
+  return MSR.post({ url: UpdateReviewModuleUrl, data });
+};
+
+// 移动评审模块
+export const moveReviewModule = (data: MoveModules) => {
+  return MSR.post({ url: MoveReviewModuleUrl, data });
+};
+
+// 获取评审模块树
+export const getReviewModules = (projectId: string) => {
+  return MSR.get<ReviewModuleItem[]>({ url: GetReviewModulesUrl, params: projectId });
+};
+
+// 删除评审模块
+export const deleteReviewModule = (id: string) => {
+  return MSR.get({ url: DeleteReviewModuleUrl, params: id });
+};
+
+// 新增评审
+export const addReview = (data: Review) => {
+  return MSR.post({ url: AddReviewUrl, data });
+};
+
+// 关联用例
+export const associateReviewCase = (data: AssociateReviewCaseParams) => {
+  return MSR.post({ url: AssociateReviewUrl, data });
+};
+
+// 复制评审
+export const copyReview = (data: Review) => {
+  return MSR.post({ url: CopyReviewUrl, data });
+};
+
+// 编辑评审
+export const editReview = (data: UpdateReviewParams) => {
+  return MSR.post({ url: EditReviewUrl, data });
+};
+
+// 关注/取消关注评审
+export const followReview = (data: FollowReviewParams) => {
+  return MSR.post({ url: FollowReviewUrl, data });
+};
+
+// 移动评审
+export const moveReview = (data: BatchMoveReviewParams) => {
+  return MSR.post({ url: MoveReviewUrl, data });
+};
+
+// 评审拖拽排序
+export const sortReview = (data: SortReviewParams) => {
+  return MSR.post({ url: SortReviewUrl, data });
+};
+
+// 获取评审列表
+export const getReviewList = (data: ReviewListQueryParams) => {
+  return MSR.post<CommonList<ReviewItem>>({ url: GetReviewListUrl, data });
+};
+
+// 获取评审详情
+export const getReviewDetail = (id: string) => {
+  return MSR.get<ReviewItem>({ url: GetReviewDetailUrl, params: id });
+};
+
+// 获取评审人员列表
+export const getReviewUsers = (projectId: string, keyword: string) => {
+  return MSR.get<ReviewUserItem[]>({ url: `${GetReviewUsersUrl}/${projectId}`, params: { keyword } });
 };

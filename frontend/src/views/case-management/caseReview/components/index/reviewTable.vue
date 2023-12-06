@@ -1,26 +1,20 @@
 <template>
   <div class="px-[24px] py-[16px]">
-    <div class="mb-[16px] flex items-center justify-between">
-      <div class="flex items-center">
-        <div class="mr-[4px] text-[var(--color-text-1)]">全部评审</div>
-        <div class="text-[var(--color-text-4)]">(2)</div>
-      </div>
-      <div class="flex items-center gap-[8px]">
-        <a-input-search
-          v-model="keyword"
-          :placeholder="t('caseManagement.caseReview.searchPlaceholder')"
-          allow-clear
-          @press-enter="searchReview"
-          @search="searchReview"
-        />
-        <a-button type="outline" class="arco-btn-outline--secondary px-[8px]">
-          <MsIcon type="icon-icon-filter" class="mr-[4px] text-[var(--color-text-4)]" />
-          <div class="text-[var(--color-text-4)]">{{ t('common.filter') }}</div>
-        </a-button>
-        <a-button type="outline" class="arco-btn-outline--secondary p-[10px]">
-          <icon-refresh class="text-[var(--color-text-4)]" />
-        </a-button>
-      </div>
+    <div class="mb-[16px]">
+      <MsAdvanceFilter
+        v-model:keyword="keyword"
+        :filter-config-list="filterConfigList"
+        :row-count="filterRowCount"
+        :search-placeholder="t('caseManagement.caseReview.searchPlaceholder')"
+        @keyword-search="searchReview"
+      >
+        <template #left>
+          <div class="flex items-center">
+            <div class="mr-[4px] text-[var(--color-text-1)]">{{ t('caseManagement.caseReview.allReviews') }}</div>
+            <div class="text-[var(--color-text-4)]">({{ propsRes.msPagination?.total }})</div>
+          </div>
+        </template>
+      </MsAdvanceFilter>
     </div>
     <ms-base-table
       v-bind="propsRes"
@@ -187,12 +181,14 @@
 </template>
 
 <script setup lang="ts">
+  import { onBeforeMount } from 'vue';
   import { useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
+  import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
+  import { FilterFormItem, FilterType } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
@@ -202,18 +198,22 @@
   import statusTag from '../statusTag.vue';
   import ModuleTree from './moduleTree.vue';
 
-  import { getCaseList } from '@/api/modules/case-management/caseReview';
+  import { getReviewList, getReviewUsers } from '@/api/modules/case-management/caseReview';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
+  import useAppStore from '@/store/modules/app';
 
+  import type { ModuleTreeNode } from '@/models/projectManagement/file';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const props = defineProps<{
     activeFolder: string | number;
+    moduleTree: ModuleTreeNode[];
   }>();
 
+  const appStore = useAppStore();
   const router = useRouter();
   const { t } = useI18n();
   const { openModal } = useModal();
@@ -248,6 +248,131 @@
     single: 'caseManagement.caseReview.single',
     multi: 'caseManagement.caseReview.multi',
   };
+
+  const filterRowCount = ref(0);
+  const filterConfigList = ref<FilterFormItem[]>([]);
+
+  onBeforeMount(async () => {
+    try {
+      const res = await getReviewUsers(appStore.currentProjectId, keyword.value);
+      const userOptions = res.map((e) => ({ label: e.name, value: e.id }));
+      filterConfigList.value = [
+        {
+          title: 'ID',
+          dataIndex: 'ID',
+          type: FilterType.INPUT,
+        },
+        {
+          title: 'caseManagement.caseReview.name',
+          dataIndex: 'name',
+          type: FilterType.INPUT,
+        },
+        {
+          title: 'caseManagement.caseReview.caseCount',
+          dataIndex: 'caseCount',
+          type: FilterType.NUMBER,
+        },
+        {
+          title: 'caseManagement.caseReview.status',
+          dataIndex: 'status',
+          type: FilterType.SELECT,
+          selectProps: {
+            mode: 'static',
+            options: [
+              {
+                label: t(statusMap[0].label),
+                value: 'PREPARED',
+              },
+              {
+                label: t(statusMap[1].label),
+                value: 'UNDERWAY',
+              },
+              {
+                label: t(statusMap[2].label),
+                value: 'COMPLETED',
+              },
+              {
+                label: t(statusMap[3].label),
+                value: 'ARCHIVED',
+              },
+            ],
+          },
+        },
+        {
+          title: 'caseManagement.caseReview.passRate',
+          dataIndex: 'passRate',
+          type: FilterType.NUMBER,
+        },
+        {
+          title: 'caseManagement.caseReview.type',
+          dataIndex: 'type',
+          type: FilterType.SELECT,
+          selectProps: {
+            mode: 'static',
+            options: [
+              {
+                label: t('caseManagement.caseReview.single'),
+                value: 'SINGLE',
+              },
+              {
+                label: t('caseManagement.caseReview.multi'),
+                value: 'MULTIPLE',
+              },
+            ],
+          },
+        },
+        {
+          title: 'caseManagement.caseReview.reviewer',
+          dataIndex: 'reviewer',
+          type: FilterType.SELECT,
+          selectProps: {
+            mode: 'static',
+            options: userOptions,
+          },
+        },
+        {
+          title: 'caseManagement.caseReview.creator',
+          dataIndex: 'creator',
+          type: FilterType.SELECT,
+          selectProps: {
+            mode: 'static',
+            options: userOptions,
+          },
+        },
+        {
+          title: 'caseManagement.caseReview.module',
+          dataIndex: 'module',
+          type: FilterType.TREE_SELECT,
+          treeSelectData: props.moduleTree,
+          treeSelectProps: {
+            fieldNames: {
+              title: 'name',
+              key: 'id',
+              children: 'children',
+            },
+          },
+        },
+        {
+          title: 'caseManagement.caseReview.tag',
+          dataIndex: 'tags',
+          type: FilterType.TAGS_INPUT,
+        },
+        {
+          title: 'caseManagement.caseReview.desc',
+          dataIndex: 'desc',
+          type: FilterType.INPUT,
+        },
+        {
+          title: 'caseManagement.caseReview.cycle',
+          dataIndex: 'cycle',
+          type: FilterType.DATE_PICKER,
+        },
+      ];
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  });
 
   const columns: MsTableColumn = [
     {
@@ -335,7 +460,7 @@
   const tableStore = useTableStore();
   tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_REVIEW, columns, 'drawer');
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
-    getCaseList,
+    getReviewList,
     {
       tableKey: TableKeyEnum.CASE_MANAGEMENT_REVIEW,
       showSetting: true,
@@ -365,12 +490,13 @@
   function searchReview() {
     setLoadListParams({
       keyword: keyword.value,
+      projectId: appStore.currentProjectId,
     });
     loadList();
   }
 
   onBeforeMount(() => {
-    loadList();
+    searchReview();
   });
 
   const tableSelected = ref<(string | number)[]>([]);

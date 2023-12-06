@@ -12,11 +12,11 @@
       <MsSplitBox>
         <template #left>
           <div class="px-[24px] py-[16px]">
-            <ModuleTree ref="folderTreeRef" @folder-node-select="handleFolderNodeSelect" />
+            <ModuleTree ref="folderTreeRef" @folder-node-select="handleFolderNodeSelect" @init="initModuleTree" />
           </div>
         </template>
         <template #right>
-          <ReviewTable :active-folder="activeFolderId" />
+          <ReviewTable :active-folder="activeFolderId" :module-tree="moduleTree" />
         </template>
       </MsSplitBox>
     </div>
@@ -36,6 +36,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
+  import type { ModuleTreeNode } from '@/models/projectManagement/file';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   const router = useRouter();
@@ -51,6 +52,11 @@
 
   const folderTreeRef = ref<InstanceType<typeof ModuleTree>>();
   const activeFolderId = ref<string | number>('all');
+  const moduleTree = ref<ModuleTreeNode[]>([]);
+
+  function initModuleTree(tree: ModuleTreeNode[]) {
+    moduleTree.value = unref(tree);
+  }
 
   function handleFolderNodeSelect(ids: (string | number)[]) {
     [activeFolderId.value] = ids;

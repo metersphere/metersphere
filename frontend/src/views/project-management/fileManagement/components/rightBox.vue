@@ -539,7 +539,7 @@
   ];
   const tableStore = useTableStore();
   tableStore.initColumn(TableKeyEnum.FILE_MANAGEMENT_FILE, columns, 'drawer');
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, resetPagination } = useTable(
     getFileList,
     {
       tableKey: TableKeyEnum.FILE_MANAGEMENT_FILE,
@@ -842,6 +842,7 @@
     () => props.activeFolder,
     () => {
       keyword.value = '';
+      resetPagination();
       searchList();
       resetSelector();
     },

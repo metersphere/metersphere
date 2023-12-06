@@ -21,12 +21,6 @@ export interface UpdateModule {
   id: string;
   name: string;
 }
-// 移动模块树
-export interface MoveModules {
-  dragNodeId: string; // 被拖拽的节点
-  dropNodeId: string; // 放入的节点
-  dropPosition: number; // 放入的位置（取值：-1，,0，,1。 -1：dropNodeId节点之前。 0:dropNodeId节点内。 1：dropNodeId节点后）
-}
 
 export interface customFieldsItem {
   caseId?: string; // 用例id

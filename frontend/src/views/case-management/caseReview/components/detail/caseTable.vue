@@ -229,7 +229,7 @@
   import MsSelect from '@/components/business/ms-select';
   import AssociateDrawer from '../create/associateDrawer.vue';
 
-  import { getCaseList } from '@/api/modules/case-management/caseReview';
+  import { getReviewList } from '@/api/modules/case-management/caseReview';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
@@ -332,7 +332,7 @@
   ];
   const tableStore = useTableStore();
   tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_REVIEW_CASE, columns, 'drawer');
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getCaseList, {
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getReviewList, {
     scroll: { x: '100%' },
     tableKey: TableKeyEnum.CASE_MANAGEMENT_REVIEW_CASE,
     showSetting: true,

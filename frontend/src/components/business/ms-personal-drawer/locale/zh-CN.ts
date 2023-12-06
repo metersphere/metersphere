@@ -25,6 +25,7 @@ export default {
   'ms.personal.currentPsw': '当前密码',
   'ms.personal.newPsw': '新密码',
   'ms.personal.changePswTip': '修改密码后，需要使用新的邮箱登录系统',
+  'ms.personal.updatePswSuccess': '密码修改成功，将在 {count} 秒后自动退出，请使用新密码登录',
   'ms.personal.apiKeyTip': '新增后，可访问 MeterSphere',
   'ms.personal.expireTime': '过期时间',
   'ms.personal.expired': '已到期',
@@ -77,4 +78,5 @@ export default {
   'ms.personal.zendaoTip': '该信息为通过禅道提交缺陷的的用户名、密码，若未填写，则使用组织配置的默认信息',
   'ms.personal.azureTip': '该信息为通过Azure Devops提交缺陷的用户令牌信息，若未填写，则使用组织配置的默认信息',
   'ms.personal.azurePlaceholder': '请输入 Personal Access Tokens',
+  'ms.personal.nodata': '暂无数据，请 ',
 };

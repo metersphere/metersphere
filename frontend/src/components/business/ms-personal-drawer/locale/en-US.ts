@@ -26,6 +26,8 @@ export default {
   'ms.personal.currentPsw': 'Current Password',
   'ms.personal.newPsw': 'New Password',
   'ms.personal.changePswTip': 'After changing the password, you need to use the new email to log in to the system',
+  'ms.personal.updatePswSuccess':
+    'The password has been modified successfully and will automatically log out in {count} seconds. Please log in with the new password.',
   'ms.personal.apiKeyTip': 'After adding, you can access MeterSphere',
   'ms.personal.expireTime': 'Expiration',
   'ms.personal.expired': 'Expired',
@@ -84,4 +86,5 @@ export default {
   'ms.personal.azureTip':
     'This information is the user token information for submitting defects through Azure Devops. If not filled in, the default information configured by the organization will be used.',
   'ms.personal.azurePlaceholder': 'Please enter Personal Access Tokens',
+  'ms.personal.nodata': 'No data yet, please ',
 };
