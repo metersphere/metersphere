@@ -29,7 +29,9 @@
             </a-avatar>
           </template>
           <template #title>
-            <div class="one-line-text max-w-[80%] font-normal">{{ item.file.name }}</div>
+            <a-tooltip :content="item.file.name">
+              <div class="one-line-text max-w-[80%] font-normal">{{ item.file.name }}</div>
+            </a-tooltip>
           </template>
           <template #description>
             <div v-if="item.status === UploadStatus.init" class="text-[12px] leading-[16px] text-[var(--color-text-4)]">
@@ -82,7 +84,7 @@
               {{ t('ms.upload.reUpload') }}
             </MsButton>
             <MsButton type="button" status="danger" class="!mr-[4px]" @click="deleteFile(item)">
-              {{ t('ms.upload.delete') }}
+              {{ t(item.deleteContent) || t('ms.upload.delete') }}
             </MsButton>
             <slot name="actions" :item="item"></slot>
           </div>

@@ -92,7 +92,6 @@
                   :auto-upload="false"
                   :show-file-list="false"
                   :before-upload="beforeUpload"
-                  @change="handleChange"
                 >
                   <template #upload-button>
                     <a-button type="text" class="!text-[var(--color-text-1)]">
@@ -116,23 +115,42 @@
     </a-form>
     <!-- 文件列表开始 -->
     <div class="w-[90%]">
-      <MsFileList ref="fileListRef" v-model:file-list="fileList" mode="static">
+      <MsFileList
+        ref="fileListRef"
+        v-model:file-list="fileList"
+        :show-tab="false"
+        :request-params="{
+          caseId: detailForm.id,
+          projectId: currentProjectId,
+        }"
+        :upload-func="uploadOrAssociationFile"
+        :handle-delete="deleteFileHandler"
+      >
         <template #actions="{ item }">
           <!-- 本地文件 -->
           <div v-if="item.local || item.status === 'init'" class="flex flex-nowrap">
-            <MsButton type="button" status="danger" class="!mr-[4px]" @click="transferFile(item)">
+            <MsButton type="button" status="primary" class="!mr-[4px]" @click="transferFile(item)">
               {{ t('caseManagement.featureCase.storage') }}
             </MsButton>
-            <MsButton type="button" status="primary" class="!mr-[4px]" @click="downloadFile(item)">
+            <MsButton
+              v-if="item.status === 'done'"
+              type="button"
+              status="primary"
+              class="!mr-[4px]"
+              @click="downloadFile(item)"
+            >
               {{ t('caseManagement.featureCase.download') }}
             </MsButton>
           </div>
           <!-- 关联文件 -->
           <div v-else class="flex flex-nowrap">
-            <MsButton type="button" status="primary" class="!mr-[4px]" @click="cancelAssociated(item)">
-              {{ t('caseManagement.featureCase.cancelLink') }}
-            </MsButton>
-            <MsButton type="button" status="primary" class="!mr-[4px]" @click="downloadFile(item)">
+            <MsButton
+              v-if="item.status === 'done'"
+              type="button"
+              status="primary"
+              class="!mr-[4px]"
+              @click="downloadFile(item)"
+            >
               {{ t('caseManagement.featureCase.download') }}
             </MsButton>
           </div>
@@ -140,20 +158,6 @@
       </MsFileList>
     </div>
   </div>
-  <MsUpload
-    v-model:file-list="fileList"
-    accept="none"
-    :auto-upload="false"
-    :sub-text="acceptType === 'jar' ? '' : t('project.fileManagement.normalFileSubText', { size: 50 })"
-    multiple
-    draggable
-    size-unit="MB"
-    :max-size="50"
-    :is-all-screen="true"
-    class="mb-[16px]"
-    :cut-height="50"
-    @change="handleChange"
-  />
 </template>
 
 <script setup lang="ts">
@@ -163,21 +167,26 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import MsFileList from '@/components/pure/ms-upload/fileList.vue';
-  import MsUpload from '@/components/pure/ms-upload/index.vue';
   import type { MsFileItem } from '@/components/pure/ms-upload/types';
-  import AddStep from './addStep.vue';
+  import AddStep from '../addStep.vue';
 
-  import { updateCaseRequest } from '@/api/modules/case-management/featureCase';
+  import {
+    deleteFileOrCancelAssociation,
+    downloadFileRequest,
+    transferFileRequest,
+    updateCaseRequest,
+    uploadOrAssociationFile,
+  } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import useFormCreateStore from '@/store/modules/form-create/form-create';
-  import { getGenerateId } from '@/utils';
+  import { downloadByteFile, getGenerateId } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
 
   import type { StepList } from '@/models/caseManagement/featureCase';
   import { FormCreateKeyEnum } from '@/enums/formCreateEnum';
 
-  import { convertToFile } from './utils';
+  import { convertToFile } from '../utils';
   import debounce from 'lodash-es/debounce';
 
   const formCreateStore = useFormCreateStore();
@@ -254,30 +263,10 @@
   const fileList = ref<MsFileItem[]>([]);
   const acceptType = ref('none'); // 模块-上传文件类型
 
-  function beforeUpload() {
-    return Promise.resolve(true);
-  }
-
-  function handleChange(_fileList: MsFileItem[], fileItem: MsFileItem) {
-    fileList.value = _fileList.map((e) => {
-      return {
-        ...e,
-        enable: true, // 是否启用
-        local: true, // 是否本地文件
-      };
-    });
-  }
-
   const showDrawer = ref<boolean>(false);
   function associatedFile() {
     showDrawer.value = true;
   }
-  // 转存
-  function transferFile(item: any) {}
-  // 下载
-  function downloadFile(item: any) {}
-  // 取消关联
-  function cancelAssociated(item: any) {}
 
   const attachmentsList = ref([]);
 
@@ -319,13 +308,22 @@
 
   // 取消关联文件id
   const unLinkFilesIds = computed(() => {
-    return associateFileIds.value.filter((id: string) => !currentAlreadyAssociateFileList.value.includes(id));
+    const deleteAssociateFileIds = fileList.value
+      .filter(
+        (item: any) =>
+          !currentAlreadyAssociateFileList.value.includes(item.uid) && associateFileIds.value.includes(item.uid)
+      )
+      .map((item) => item.uid);
+    return associateFileIds.value.filter(
+      (id: string) => !currentAlreadyAssociateFileList.value.includes(id) && !deleteAssociateFileIds.includes(id)
+    );
   });
 
   const formRuleList = computed(() =>
     formCreateStore.formCreateRuleMap.get(FormCreateKeyEnum.CASE_CUSTOM_ATTRS_DETAIL)
   );
 
+  // 处理编辑详情参数
   function getParams() {
     const steps = stepData.value.map((item, index) => {
       return {
@@ -347,7 +345,7 @@
         deleteFileMetaIds: deleteFileMetaIds.value,
         unLinkFilesIds: unLinkFilesIds.value,
         newAssociateFileListIds: newAssociateFileListIds.value,
-        tags: JSON.parse(detailForm.value.tags),
+        tags: detailForm.value.tags.length ? JSON.parse(detailForm.value.tags) : detailForm.value.tags,
         customFields: customFieldsMaps,
       },
       fileList: fileList.value.filter((item: any) => item.status === 'init'), // 总文件列表
@@ -379,6 +377,73 @@
     isEditPreposition.value = false;
   }
 
+  const fileListRef = ref<InstanceType<typeof MsFileList>>();
+  async function startUpload() {
+    await fileListRef.value?.startUpload();
+    emit('updateSuccess');
+  }
+
+  function beforeUpload(file: File) {
+    const _maxSize = 50 * 1024 * 1024;
+    if (file.size > _maxSize) {
+      Message.warning(t('ms.upload.overSize'));
+      return Promise.resolve(false);
+    }
+    return Promise.resolve(true);
+  }
+
+  // 删除本地文件
+  async function deleteFileHandler(item: MsFileItem) {
+    try {
+      const params = {
+        id: item.uid,
+        local: item.local,
+        caseId: detailForm.value.id,
+        projectId: currentProjectId.value,
+      };
+      await deleteFileOrCancelAssociation(params);
+      Message.success(
+        item.local ? t('caseManagement.featureCase.deleteSuccess') : t('caseManagement.featureCase.cancelLinkSuccess')
+      );
+      emit('updateSuccess');
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  // 转存
+  async function transferFile(item: MsFileItem) {
+    try {
+      const prams = {
+        projectId: currentProjectId.value,
+        caseId: detailForm.value.id,
+        fileId: item.uid,
+        local: true,
+      };
+      await transferFileRequest(prams);
+      Message.success(t('caseManagement.featureCase.transferFileSuccess'));
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  // 下载文件
+  async function downloadFile(item: MsFileItem) {
+    try {
+      const prams = {
+        projectId: currentProjectId.value,
+        caseId: detailForm.value.id,
+        fileId: item.uid,
+        local: true,
+      };
+      const res = await downloadFileRequest(prams);
+      downloadByteFile(res, `${item.name}`);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  // 获取详情
   function getDetails() {
     const { steps, attachments } = detailForm.value;
     if (steps) {
@@ -436,6 +501,20 @@
       }
     },
     { deep: true }
+  );
+
+  // 文件列表单个上传
+  watch(
+    () => fileList.value,
+    (val) => {
+      if (val) {
+        if (val.filter((item) => item.status === 'init').length) {
+          setTimeout(() => {
+            startUpload();
+          }, 30);
+        }
+      }
+    }
   );
 </script>
 

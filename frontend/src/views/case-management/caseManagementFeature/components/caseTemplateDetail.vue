@@ -45,7 +45,7 @@
           </div>
           <!-- 步骤描述 -->
           <div v-if="form.caseEditType === 'STEP'" class="w-full">
-            <AddStep v-model:step-list="stepData" />
+            <AddStep v-model:step-list="stepData" :is-disabled="true" />
           </div>
           <!-- 文本描述 -->
           <MsRichText v-else v-model:modelValue="form.textDescription" />
@@ -103,19 +103,34 @@
           <template #actions="{ item }">
             <!-- 本地文件 -->
             <div v-if="item.local || item.status === 'init'" class="flex flex-nowrap">
-              <MsButton type="button" status="danger" class="!mr-[4px]" @click="transferFile(item)">
+              <MsButton
+                v-if="item.status !== 'init'"
+                type="button"
+                status="primary"
+                class="!mr-[4px]"
+                @click="transferFile(item)"
+              >
                 {{ t('caseManagement.featureCase.storage') }}
               </MsButton>
-              <MsButton type="button" status="primary" class="!mr-[4px]" @click="downloadFile(item)">
+              <MsButton
+                v-if="item.status !== 'init'"
+                type="button"
+                status="primary"
+                class="!mr-[4px]"
+                @click="downloadFile(item)"
+              >
                 {{ t('caseManagement.featureCase.download') }}
               </MsButton>
             </div>
             <!-- 关联文件 -->
             <div v-else class="flex flex-nowrap">
-              <MsButton type="button" status="primary" class="!mr-[4px]" @click="cancelAssociated(item)">
-                {{ t('caseManagement.featureCase.cancelLink') }}
-              </MsButton>
-              <MsButton type="button" status="primary" class="!mr-[4px]" @click="downloadFile(item)">
+              <MsButton
+                v-if="route.query.id"
+                type="button"
+                status="primary"
+                class="!mr-[4px]"
+                @click="downloadFile(item)"
+              >
                 {{ t('caseManagement.featureCase.download') }}
               </MsButton>
             </div>
@@ -191,7 +206,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useRoute } from 'vue-router';
-  import { FormInstance } from '@arco-design/web-vue';
+  import { FormInstance, Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsFormCreate from '@/components/pure/ms-form-create/form-create.vue';
@@ -339,7 +354,12 @@
 
   const fileList = ref<MsFileItem[]>([]);
 
-  function beforeUpload() {
+  function beforeUpload(file: File) {
+    const _maxSize = 50 * 1024 * 1024;
+    if (file.size > _maxSize) {
+      Message.warning(t('ms.upload.overSize'));
+      return Promise.resolve(false);
+    }
     return Promise.resolve(true);
   }
 
@@ -388,9 +408,17 @@
       .map((item: any) => item.id);
   });
 
-  // 取消关联文件id
+  // 取消关联文件id TODO
   const unLinkFilesIds = computed(() => {
-    return associateFileIds.value.filter((id: string) => !currentAlreadyAssociateFileList.value.includes(id));
+    const deleteAssociateFileIds = fileList.value
+      .filter(
+        (item: any) =>
+          !currentAlreadyAssociateFileList.value.includes(item.uid) && associateFileIds.value.includes(item.uid)
+      )
+      .map((item) => item.uid);
+    return associateFileIds.value.filter(
+      (id: string) => !currentAlreadyAssociateFileList.value.includes(id) && !deleteAssociateFileIds.includes(id)
+    );
   });
 
   // 处理详情字段

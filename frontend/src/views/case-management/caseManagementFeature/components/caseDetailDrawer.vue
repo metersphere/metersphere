@@ -13,6 +13,9 @@
     :page-change="props.pageChange"
     @loaded="loadedCase"
   >
+    <template #titleLeft>
+      <div class="flex items-center"><caseLevel :case-level="(caseLevels as CaseLevel)" /></div>
+    </template>
     <template #titleRight="{ loading }">
       <div class="rightButtons flex items-center">
         <MsButton
@@ -85,33 +88,33 @@
           <template #left>
             <div class="leftWrapper h-full">
               <div class="header h-[50px]">
-                <a-tabs @change="changeTabs">
-                  <a-tab-pane key="detail">
-                    <template #title> {{ t('caseManagement.featureCase.detail') }}</template>
-                    <TabDetail v-if="activeTab === 'detail'" :form="detailInfo" @update-success="updateSuccess" />
-                  </a-tab-pane>
-                  <a-tab-pane v-for="tab of tabSetting" :key="tab.key">
-                    <template #title>
-                      <div class="flex items-center">
-                        <span>{{ t(tab.title) }}</span>
-                        <a-badge
-                          class="ml-1"
-                          :class="activeTab === tab.key ? 'active' : ''"
-                          :count="1000"
-                          :max-count="99"
-                        />
-                      </div>
-                    </template>
-                    <Demand v-if="activeTab === 'requirement'" :case-id="props.detailId" />
-                  </a-tab-pane>
-                  <a-tab-pane key="setting">
-                    <template #title>
-                      <span @click="showMenuSetting">{{
-                        t('caseManagement.featureCase.detailDisplaySetting')
-                      }}</span></template
-                    >
-                  </a-tab-pane>
-                </a-tabs>
+                <a-menu mode="horizontal" :default-selected-keys="[activeTab]" @menu-item-click="clickMenu">
+                  <a-menu-item key="detail">{{ t('caseManagement.featureCase.detail') }} </a-menu-item>
+                  <a-menu-item v-for="tab of tabSetting" :key="tab.key">
+                    <div class="flex items-center">
+                      <span>{{ t(tab.title) }}</span>
+                      <a-badge
+                        class="ml-1"
+                        :class="activeTab === tab.key ? 'active' : ''"
+                        :count="1000"
+                        :max-count="99"
+                      /> </div
+                  ></a-menu-item>
+                  <a-menu-item key="setting">
+                    <span @click="showMenuSetting">{{
+                      t('caseManagement.featureCase.detailDisplaySetting')
+                    }}</span></a-menu-item
+                  >
+                </a-menu>
+                <div class="mt-4">
+                  <TabDetail v-if="activeTab === 'detail'" :form="detailInfo" @update-success="updateSuccess" />
+                  <TabDemand v-else-if="activeTab === 'requirement'" :case-id="props.detailId" />
+                  <TabDefect v-else-if="activeTab === 'bug'" />
+                  <TabDependency v-else-if="activeTab === 'dependency'" />
+                  <TabCaseReview v-else-if="activeTab === 'caseReview'" />
+                  <TabTestPlan v-else-if="activeTab === 'testPlan'" />
+                  <TabChangeHistory v-else-if="activeTab === 'changeHistory'" />
+                </div>
               </div>
             </div>
           </template>
@@ -161,10 +164,17 @@
   import type { FormItem } from '@/components/pure/ms-form-create/types';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import type { MsPaginationI } from '@/components/pure/ms-table/type';
+  import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
+  import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import MsDetailDrawer from '@/components/business/ms-detail-drawer/index.vue';
-  import Demand from './demand.vue';
-  import SettingDrawer from './settingDrawer.vue';
-  import TabDetail from './tabDetail.vue';
+  import SettingDrawer from './tabContent/settingDrawer.vue';
+  import TabDefect from './tabContent/tabBug/tabDefect.vue';
+  import TabCaseReview from './tabContent/tabCaseReview.vue';
+  import TabChangeHistory from './tabContent/tabChangeHistory.vue';
+  import TabDemand from './tabContent/tabDemand/demand.vue';
+  import TabDependency from './tabContent/tabDependency/tabDependency.vue';
+  import TabDetail from './tabContent/tabDetail.vue';
+  import TabTestPlan from './tabContent/tabTestPlan.vue';
 
   import { deleteCaseRequest, followerCaseRequest, getCaseDetail } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
@@ -216,23 +226,28 @@
 
   const tabSetting = ref<TabItemType[]>([...tabSettingList.value]);
   const activeTab = ref<string | number>('detail');
-  function changeTabs(key: string | number) {
+  function clickMenu(key: string | number) {
     activeTab.value = key;
     switch (activeTab.value) {
       case 'setting':
         showMenuSetting();
         break;
       default:
+        showSettingDrawer.value = false;
         break;
     }
   }
 
   const detailInfo = ref<Record<string, any>>({});
   const customFields = ref<CustomAttributes[]>([]);
-
+  const caseLevels = ref(0);
   function loadedCase(detail: CaseManagementTable) {
     detailInfo.value = { ...detail };
     customFields.value = detailInfo.value.customFields;
+    const caseLevelsValue = customFields.value.find((item) => item.fieldName === '用例等级')?.defaultValue;
+    if (caseLevelsValue) {
+      caseLevels.value = JSON.parse(caseLevelsValue).replaceAll('P', '') * 1;
+    }
   }
 
   const moduleName = computed(() => {
@@ -361,6 +376,16 @@
     }) as FormItem[];
   }
 
+  // const caseLevels = computed(() => {
+  //   let level = 0;
+  //   customFields.value.forEach((item) => {
+  //     if (item.fieldName === '用例等级') {
+  //       level = JSON.parse(item.defaultValue);
+  //     }
+  //   });
+  //   return level as CaseLevel;
+  // });
+
   watch(
     () => customFields.value,
     () => {
@@ -393,6 +418,15 @@
 </script>
 
 <style scoped lang="less">
+  :deep(.arco-menu-light) {
+    height: 50px;
+    background: none !important;
+    .arco-menu-inner {
+      overflow: hidden;
+      padding: 14px 2px;
+      height: 50px;
+    }
+  }
   .leftWrapper {
     .header {
       padding: 0 16px;

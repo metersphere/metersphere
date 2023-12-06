@@ -126,8 +126,6 @@
   const activeCaseType = ref<'folder' | 'module'>('folder'); // 激活用例类型
   const rootModulesName = ref<string[]>([]); // 根模块名称列表
 
-  const publicCaseCount = ref<number>(0); // 公共用例数量
-
   // 全部展开或折叠
   const expandHandler = () => {
     isExpandAll.value = !isExpandAll.value;

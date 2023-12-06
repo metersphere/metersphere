@@ -14,7 +14,9 @@
             {{ props.title }}
           </div>
         </a-tooltip>
-
+        <div class="ml-4 flex items-center">
+          <slot name="titleLeft" :loading="loading" :detail="detail"></slot>
+        </div>
         <MsPrevNextButton
           ref="prevNextButtonRef"
           v-model:loading="loading"

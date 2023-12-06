@@ -1,0 +1,447 @@
+<template>
+  <MsDrawer v-model:visible="innerVisible" :title="title" :width="1200" :footer="false" no-content-padding>
+    <div class="flex h-full">
+      <div class="w-[292px] border-r border-[var(--color-text-n8)] p-[16px]">
+        <a-input
+          v-model:model-value="moduleKeyword"
+          :placeholder="t('caseManagement.featureCase.searchTip')"
+          allow-clear
+          class="mb-[16px]"
+        />
+        <div class="folder">
+          <div :class="getFolderClass('all')" @click="setActiveFolder('all')">
+            <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
+            <div class="folder-name">{{ t('caseManagement.featureCase.allCase') }}</div>
+            <div class="folder-count">({{ allFileCount }})</div>
+          </div>
+        </div>
+        <a-divider class="my-[8px]" />
+        <a-spin class="w-full" :loading="moduleLoading">
+          <MsTree
+            v-model:selected-keys="selectedModuleKeys"
+            :data="folderTree"
+            :keyword="moduleKeyword"
+            :empty-text="t('caseManagement.featureCase.caseEmptyRecycle')"
+            :virtual-list-props="virtualListProps"
+            :field-names="{
+              title: 'name',
+              key: 'id',
+              children: 'children',
+              count: 'count',
+            }"
+            block-node
+            title-tooltip-position="left"
+            @select="folderNodeSelect"
+          >
+            <template #title="nodeData">
+              <div class="inline-flex w-full">
+                <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
+                <div class="ml-[4px] text-[var(--color-text-4)]">({{ nodeData.count || 0 }})</div>
+              </div>
+            </template>
+          </MsTree>
+        </a-spin>
+      </div>
+      <div class="flex w-[calc(100%-293px)] flex-col p-[16px]">
+        <div class="mb-[16px] flex items-center justify-between">
+          <div class="flex items-center">
+            <div class="mr-[4px] text-[var(--color-text-1)]">{{ activeFolderName }}</div>
+            <div class="text-[var(--color-text-4)]">({{ activeFolderName }})</div>
+          </div>
+          <div class="flex items-center gap-[8px]">
+            <a-select
+              v-model:model-value="version"
+              :options="versionOptions"
+              :placeholder="t('ms.case.associate.versionPlaceholder')"
+              class="w-[200px]"
+              allow-clear
+            />
+            <a-input-search
+              v-model="keyword"
+              :placeholder="t('ms.case.associate.searchPlaceholder')"
+              allow-clear
+              class="w-[200px]"
+              @press-enter="searchCase"
+              @search="searchCase"
+            />
+            <a-button type="outline" class="arco-btn-outline--secondary px-[8px]">
+              <MsIcon type="icon-icon-filter" class="mr-[4px] text-[var(--color-text-4)]" />
+              <div class="text-[var(--color-text-4)]">{{ t('common.filter') }}</div>
+            </a-button>
+          </div>
+        </div>
+        <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
+          <template #caseLevel="{ record }">
+            <caseLevel :case-level="record.caseLevel" />
+          </template>
+        </ms-base-table>
+        <div class="footer">
+          <div class="flex flex-1 items-center">
+            <slot name="footerLeft"></slot>
+          </div>
+          <div class="flex items-center">
+            <slot name="footerRight">
+              <a-button type="secondary" :disabled="loading" class="mr-[12px]" @click="cancel">{{
+                t('common.cancel')
+              }}</a-button>
+              <a-button type="primary" :loading="loading" @click="handleConfirm">
+                {{ t('common.add') }}
+              </a-button>
+            </slot>
+          </div>
+        </div>
+      </div>
+    </div>
+  </MsDrawer>
+</template>
+
+<script setup lang="ts">
+  import { ref } from 'vue';
+  import { Message } from '@arco-design/web-vue';
+
+  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+  import { MsTableColumn } from '@/components/pure/ms-table/type';
+  import useTable from '@/components/pure/ms-table/useTable';
+  import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
+  import MsTree from '@/components/business/ms-tree/index.vue';
+  import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
+
+  import { getModules } from '@/api/modules/project-management/fileManagement';
+  import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
+  import { mapTree } from '@/utils';
+
+  import { ModuleTreeNode } from '@/models/projectManagement/file';
+
+  const appStore = useAppStore();
+
+  const { t } = useI18n();
+  const props = defineProps<{
+    visible: boolean;
+    showType: 'preposition' | 'postPosition';
+  }>();
+
+  const emit = defineEmits<{
+    (e: 'update:visible', val: boolean): void;
+    (e: 'update:project', val: string): void;
+    (e: 'init', val: string[]): void;
+    (e: 'folderNodeSelect', ids: (string | number)[], springIds: string[]): void;
+    (e: 'success', val: string[]): void;
+    (e: 'close'): void;
+  }>();
+
+  const innerVisible = computed({
+    get() {
+      return props.visible;
+    },
+    set(value) {
+      emit('update:visible', value);
+    },
+  });
+
+  const selectedModuleKeys = ref<string[]>([]);
+
+  const title = computed(() => {
+    return props.showType === 'preposition' ? '添加前置用例' : '添加后置用例';
+  });
+
+  const folderTree = ref<ModuleTreeNode[]>([]);
+  const moduleLoading = ref(false);
+
+  const moduleKeyword = ref('');
+
+  const virtualListProps = computed(() => {
+    return {
+      height: 'calc(100vh - 251px)',
+    };
+  });
+
+  const activeFolder = ref('all');
+  const activeFolderName = ref(t('ms.case.associate.allCase'));
+  /**
+   * 处理文件夹树节点选中事件
+   */
+  function folderNodeSelect(_selectedKeys: (string | number)[], node: MsTreeNodeData) {
+    selectedModuleKeys.value = _selectedKeys as string[];
+    activeFolder.value = node.id;
+    activeFolderName.value = node.name;
+    const offspringIds: string[] = [];
+    mapTree(node.children || [], (e) => {
+      offspringIds.push(e.id);
+      return e;
+    });
+
+    emit('folderNodeSelect', _selectedKeys, offspringIds);
+  }
+  const allFileCount = ref(0);
+
+  function getFolderClass(id: string) {
+    return activeFolder.value === id ? 'folder-text folder-text--active' : 'folder-text';
+  }
+
+  function setActiveFolder(id: string) {
+    activeFolder.value = id;
+    activeFolderName.value = t('ms.case.associate.allCase');
+    selectedModuleKeys.value = [];
+    emit('folderNodeSelect', [id], []);
+  }
+  const keyword = ref('');
+  const version = ref('');
+  const versionOptions = ref([
+    {
+      label: '全部',
+      value: 'all',
+    },
+    {
+      label: '版本1',
+      value: '1',
+    },
+    {
+      label: '版本2',
+      value: '2',
+    },
+  ]);
+
+  const columns: MsTableColumn = [
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      sortIndex: 1,
+      showTooltip: true,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+      },
+      width: 90,
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnName',
+      dataIndex: 'name',
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+      },
+      showTooltip: true,
+      width: 200,
+    },
+    {
+      title: 'ms.case.associate.caseLevel',
+      dataIndex: 'caseLevel',
+      slotName: 'caseLevel',
+      width: 90,
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnVersion',
+      slotName: 'version',
+      width: 80,
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnTag',
+      dataIndex: 'tags',
+      isTag: true,
+    },
+  ];
+
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(
+    () =>
+      Promise.resolve({
+        list: [
+          {
+            id: 'ded3d43',
+            name: '测试评审1',
+            creator: '张三',
+            reviewer: '李四',
+            module: '模块1',
+            caseLevel: 0, // 未开始、进行中、已完成、已归档
+            caseCount: 100,
+            passCount: 0,
+            failCount: 10,
+            reviewCount: 20,
+            reviewingCount: 25,
+            tags: ['标签1', '标签2'],
+            type: 'single',
+            desc: 'douifd9304',
+            cycle: [1700200794229, 1700200994229],
+          },
+          {
+            id: 'g545hj4',
+            name: '测试评审2',
+            creator: '张三',
+            reviewer: '李四',
+            module: '模块1',
+            caseLevel: 1, // 未开始、进行中、已完成、已归档
+            caseCount: 105,
+            passCount: 50,
+            failCount: 10,
+            reviewCount: 20,
+            reviewingCount: 25,
+            tags: ['标签1', '标签2'],
+            type: 'single',
+            desc: 'douifd9304',
+            cycle: [1700200794229, 1700200994229],
+          },
+          {
+            id: 'hj65b54',
+            name: '测试评审3',
+            creator: '张三',
+            reviewer: '李四',
+            module: '模块1',
+            caseLevel: 2, // 未开始、进行中、已完成、已归档
+            caseCount: 125,
+            passCount: 70,
+            failCount: 10,
+            reviewCount: 20,
+            reviewingCount: 25,
+            passRate: '80%',
+            tags: ['标签1', '标签2'],
+            type: 'single',
+            desc: 'douifd9304',
+            cycle: [1700200794229, 1700200994229],
+          },
+          {
+            id: 'wefwefw',
+            name: '测试评审4',
+            creator: '张三',
+            reviewer: '李四',
+            module: '模块1',
+            caseLevel: 3, // 未开始、进行中、已完成、已归档
+            caseCount: 130,
+            passCount: 70,
+            failCount: 10,
+            reviewCount: 0,
+            reviewingCount: 50,
+            passRate: '80%',
+            tags: ['标签1', '标签2'],
+            type: 'single',
+            desc: 'douifd9304',
+            cycle: [1700200794229, 1700200994229],
+          },
+        ],
+        current: 1,
+        pageSize: 10,
+        total: 2,
+      }),
+    {
+      columns,
+      scroll: {
+        x: '100%',
+      },
+      showSetting: false,
+      selectable: true,
+      showSelectAll: true,
+    },
+    (item) => {
+      return {
+        ...item,
+        tags: item.tags?.map((e: string) => ({ id: e, name: e })) || [],
+      };
+    }
+  );
+
+  const loading = ref(false);
+
+  async function handleConfirm() {
+    try {
+      loading.value = true;
+      Message.success(t('ms.case.associate.associateSuccess'));
+      innerVisible.value = false;
+      emit('success', Array.from(propsRes.value.selectedKeys));
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  function cancel() {
+    innerVisible.value = false;
+    emit('close');
+  }
+  /**
+   * 初始化模块树
+   * @param isSetDefaultKey 是否设置第一个节点为选中节点
+   */
+  async function initModules(isSetDefaultKey = false) {
+    try {
+      moduleLoading.value = true;
+      const res = await getModules(appStore.currentProjectId);
+      folderTree.value = res;
+      if (isSetDefaultKey) {
+        selectedModuleKeys.value = [folderTree.value[0].id];
+        activeFolderName.value = folderTree.value[0].name;
+        const offspringIds: string[] = [];
+        mapTree(folderTree.value[0].children || [], (e) => {
+          offspringIds.push(e.id);
+          return e;
+        });
+
+        emit('folderNodeSelect', selectedModuleKeys.value, offspringIds);
+      }
+      emit(
+        'init',
+        folderTree.value.map((e) => e.name)
+      );
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      moduleLoading.value = false;
+    }
+  }
+
+  function searchCase() {
+    setLoadListParams({
+      version: version.value,
+      keyword: keyword.value,
+    });
+    loadList();
+  }
+
+  onBeforeMount(() => {
+    searchCase();
+  });
+
+  defineExpose({
+    initModules,
+  });
+</script>
+
+<style lang="less" scoped>
+  .folder {
+    @apply flex cursor-pointer items-center justify-between;
+
+    padding: 8px 4px;
+    border-radius: var(--border-radius-small);
+    &:hover {
+      background-color: rgb(var(--primary-1));
+    }
+    .folder-text {
+      @apply flex cursor-pointer items-center;
+      .folder-icon {
+        margin-right: 4px;
+        color: var(--color-text-4);
+      }
+      .folder-name {
+        color: var(--color-text-1);
+      }
+      .folder-count {
+        margin-left: 4px;
+        color: var(--color-text-4);
+      }
+    }
+    .folder-text--active {
+      .folder-icon,
+      .folder-name,
+      .folder-count {
+        color: rgb(var(--primary-5));
+      }
+    }
+  }
+  .footer {
+    @apply flex items-center justify-between;
+
+    margin: auto -16px -16px;
+    padding: 12px 16px;
+    box-shadow: 0 -1px 4px 0 rgb(31 35 41 / 10%);
+  }
+</style>

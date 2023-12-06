@@ -3,13 +3,13 @@
     <div class="h-full">
       <div class="mt-8 text-center">
         <div class="flex justify-center"><svg-icon :width="'60px'" :height="'60px'" :name="'success'" /></div>
-        <div class="mb-2 mt-6 text-[20px] font-medium"> {{ t('caseManagement.featureCase.editSuccess') }} </div>
+        <div class="mb-2 mt-6 text-[20px] font-medium"> {{ t('caseManagement.featureCase.addSuccess') }} </div>
         <div
           ><span class="mr-1 text-[rgb(var(--primary-5))]">{{ countDown }}</span
           ><span class="text-[var(--color-text-4)]">{{ t('caseManagement.featureCase.countDownTip') }}</span></div
         >
         <div class="my-6">
-          <a-button type="primary"> {{ t('caseManagement.featureCase.caseDetail') }} </a-button>
+          <a-button type="primary" @click="goDetail"> {{ t('caseManagement.featureCase.caseDetail') }} </a-button>
           <a-button class="mx-3" type="outline" @click="continueCreate">
             {{ t('caseManagement.featureCase.addContinueCreate') }}
           </a-button>
@@ -53,7 +53,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { useRouter } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsCardList from '@/components/business/ms-card-list/index.vue';
@@ -69,6 +69,7 @@
   const { addVisited } = useVisit(visitedKey);
 
   const router = useRouter();
+  const route = useRoute();
   const cardList = ref([
     {
       key: 'testPlanTemplate',
@@ -113,6 +114,13 @@
   function continueCreate() {
     router.push({
       name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
+    });
+  }
+
+  function goDetail() {
+    router.push({
+      name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE,
+      query: route.query,
     });
   }
 

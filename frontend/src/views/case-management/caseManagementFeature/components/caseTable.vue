@@ -35,7 +35,6 @@
       </a-radio-group>
     </div>
   </div>
-  <FilterPanel v-show="isExpandFilter"></FilterPanel>
   <!-- 脑图开始 -->
   <MinderEditor
     v-if="showType === 'xMind'"
@@ -149,7 +148,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { useRouter } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
 
   import MinderEditor from '@/components/pure/minder-editor/minderEditor.vue';
@@ -162,7 +161,6 @@
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
-  import FilterPanel from '@/components/business/ms-filter-panel/searchForm.vue';
   import BatchEditModal from './batchEditModal.vue';
   import CaseDetailDrawer from './caseDetailDrawer.vue';
   import FeatureCaseTree from './caseTree.vue';
@@ -194,6 +192,7 @@
   const { openModal } = useModal();
   const { t } = useI18n();
   const router = useRouter();
+  const route = useRoute();
   const appStore = useAppStore();
   const featureCaseStore = useFeatureCaseStore();
   const tableStore = useTableStore();
@@ -442,7 +441,7 @@
     ],
     moreAction: [
       {
-        label: 'featureTest.featureCase.addDemand',
+        label: 'caseManagement.featureCase.addDemand',
         eventTag: 'addDemand',
       },
       {
@@ -720,7 +719,9 @@
   async function batchDelete() {
     openModal({
       type: 'error',
-      title: t('caseManagement.featureCase.batchDelete', { number: (selectData.value || []).length }),
+      title: t('caseManagement.featureCase.batchDelete', {
+        number: batchParams.value.currentSelectCount,
+      }),
       content: t('caseManagement.featureCase.beforeDeleteCase'),
       okText: t('common.confirmDelete'),
       cancelText: t('common.cancel'),
@@ -794,12 +795,20 @@
   const showDetailDrawer = ref(false);
   const activeDetailId = ref<string>('');
   const activeCaseIndex = ref<number>(0);
+
   // 详情
   function showCaseDetail(id: string, index: number) {
     showDetailDrawer.value = true;
     activeDetailId.value = id;
     activeCaseIndex.value = index;
   }
+
+  // 地址栏携带 id，自动打开资源池详情抽屉
+  onMounted(() => {
+    if (route.query.id) {
+      showCaseDetail(route.query.id as string, 0);
+    }
+  });
 
   watch(
     () => showType.value,

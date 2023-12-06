@@ -115,6 +115,8 @@ export function convertToFile(fileInfo: AssociatedList): MsFileItem {
     uid: fileInfo.id,
     url: `${gatewayAddress}/${fileInfo.filePath || ''}`,
     local: fileInfo.local,
+    deleteContent: fileInfo.local ? '' : 'caseManagement.featureCase.cancelLink',
   };
 }
+
 export default {};
