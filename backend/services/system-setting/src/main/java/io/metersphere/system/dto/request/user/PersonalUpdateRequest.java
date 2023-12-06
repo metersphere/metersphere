@@ -13,6 +13,9 @@ public class PersonalUpdateRequest {
     @NotBlank(message = "{user.id.not_blank}")
     private String id;
 
+    @Schema(description = "头像", requiredMode = Schema.RequiredMode.REQUIRED)
+    private String avatar;
+
     @Schema(description = "用户名", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{user.id.not_blank}")
     private String username;

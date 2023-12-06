@@ -44,4 +44,13 @@ INSERT INTO project (id, num, organization_id, name, description, create_user, u
     ('tianyang-projectId-50', 12151, 'tianyang-organization-5', 'tianyang-projectId-50', '系统默认创建的项目', 'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000);
 INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time) VALUES
     ('tianyang-projectId-60', 12152, 'tianyang-organization-6', 'tianyang-projectId-60', '系统默认创建的项目', 'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000);
+INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time)
+VALUES ('tianyang-projectId-61', 12153, 'tianyang-organization-6', 'tianyang-projectId-60', '系统默认创建的项目',
+        'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000);
+INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time)
+VALUES ('tianyang-projectId-62', 12154, 'tianyang-organization-6', 'tianyang-projectId-60', '系统默认创建的项目',
+        'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000);
+INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time)
+VALUES ('tianyang-projectId-63', 12155, 'tianyang-organization-6', 'tianyang-projectId-60', '系统默认创建的项目',
+        'admin', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000);
 

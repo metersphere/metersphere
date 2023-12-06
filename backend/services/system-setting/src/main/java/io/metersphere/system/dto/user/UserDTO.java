@@ -21,12 +21,6 @@ public class UserDTO extends User {
     @Schema(description =  "其他平台对接信息", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private byte[] platformInfo;
 
-    @Schema(description = "UI本地调试地址")
-    private String seleniumServer;
-
-    @Schema(description = "API本地调试地址")
-    private String apiServer;
-
     @Schema(description = "头像")
     private String avatar;
 }

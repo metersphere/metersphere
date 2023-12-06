@@ -5,6 +5,7 @@ import io.metersphere.functional.request.FunctionalCaseAssociationFileRequest;
 import io.metersphere.functional.request.FunctionalCaseDeleteFileRequest;
 import io.metersphere.functional.request.FunctionalCaseFileRequest;
 import io.metersphere.functional.service.FunctionalCaseAttachmentService;
+import io.metersphere.project.dto.filemanagement.FileAssociationDTO;
 import io.metersphere.project.dto.filemanagement.FileLogRecord;
 import io.metersphere.project.dto.filemanagement.request.FileMetadataTableRequest;
 import io.metersphere.project.dto.filemanagement.response.FileInformationResponse;
@@ -118,7 +119,8 @@ public class FunctionalCaseAttachmentController {
 
         String fileId = null;
         try {
-            fileId = fileAssociationService.transferAndAssociation(attachment.getFileName(), fileByte, attachment.getCaseId(), FileAssociationSourceUtil.SOURCE_TYPE_FUNCTIONAL_CASE, fileLogRecord);
+            FileAssociationDTO fileAssociationDTO = new FileAssociationDTO(attachment.getFileName(), fileByte, attachment.getCaseId(), FileAssociationSourceUtil.SOURCE_TYPE_FUNCTIONAL_CASE, fileLogRecord);
+            fileId = fileAssociationService.transferAndAssociation(fileAssociationDTO);
             functionalCaseAttachmentService.deleteCaseAttachment(Arrays.asList(request.getFileId()), request.getCaseId(), request.getProjectId());
         } catch (Exception e) {
             throw new MSException(Translator.get("file.transfer.error"));

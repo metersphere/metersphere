@@ -24,13 +24,11 @@ import io.metersphere.system.dto.sdk.ExcelParseDTO;
 import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.dto.table.TableBatchProcessResponse;
+import io.metersphere.system.dto.user.PersonalDTO;
 import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.log.service.OperationLogService;
-import io.metersphere.system.mapper.BaseUserMapper;
-import io.metersphere.system.mapper.ExtUserMapper;
-import io.metersphere.system.mapper.SystemParameterMapper;
-import io.metersphere.system.mapper.UserMapper;
+import io.metersphere.system.mapper.*;
 import io.metersphere.system.notice.sender.impl.MailNoticeSender;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.UserImportEventListener;
@@ -66,6 +64,8 @@ public class UserService {
     private BaseUserMapper baseUserMapper;
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private UserExtendMapper userExtendMapper;
     @Resource
     private ExtUserMapper extUserMapper;
     @Resource
@@ -140,7 +140,6 @@ public class UserService {
         return userCreateDTO;
     }
 
-
     public UserDTO getUserDTOByKeyword(String email) {
         UserDTO userDTO = baseUserMapper.selectDTOByKeyword(email);
         if (userDTO != null) {
@@ -152,6 +151,16 @@ public class UserService {
             );
         }
         return userDTO;
+    }
+
+    public PersonalDTO getPersonalById(String id) {
+        UserDTO userDTO = baseUserMapper.selectDTOByKeyword(id);
+        PersonalDTO personalDTO = new PersonalDTO();
+        if (userDTO != null) {
+            BeanUtils.copyBean(personalDTO, userDTO);
+            personalDTO.setOrganizationProjectMap(userRoleRelationService.selectOrganizationProjectByUserId(userDTO.getId()));
+        }
+        return personalDTO;
     }
 
     public List<UserTableResponse> list(BasePageRequest request) {
@@ -524,6 +533,20 @@ public class UserService {
         editUser.setEmail(request.getEmail());
         editUser.setUpdateUser(operator);
         editUser.setUpdateTime(System.currentTimeMillis());
+
+        if (StringUtils.isNotEmpty(request.getAvatar())) {
+            UserExtend userExtend = userExtendMapper.selectByPrimaryKey(request.getId());
+            if (userExtend == null) {
+                userExtend = new UserExtend();
+                userExtend.setId(request.getId());
+                userExtend.setAvatar(request.getAvatar());
+                userExtendMapper.insert(userExtend);
+            } else {
+                userExtend.setAvatar(request.getAvatar());
+                userExtendMapper.updateByPrimaryKey(userExtend);
+            }
+        }
+
         return userMapper.updateByPrimaryKeySelective(editUser) > 0;
     }
 

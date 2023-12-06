@@ -1,6 +1,7 @@
 package io.metersphere.project.controller.filemanagement;
 
 import io.metersphere.project.domain.*;
+import io.metersphere.project.dto.filemanagement.FileAssociationDTO;
 import io.metersphere.project.dto.filemanagement.FileLogRecord;
 import io.metersphere.project.dto.filemanagement.request.*;
 import io.metersphere.project.dto.filemanagement.response.FileAssociationResponse;
@@ -15,7 +16,10 @@ import io.metersphere.project.service.FileService;
 import io.metersphere.project.utils.FileManagementBaseUtils;
 import io.metersphere.project.utils.FileManagementRequestUtils;
 import io.metersphere.project.utils.FileMetadataUtils;
-import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.constants.ModuleConstants;
+import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.constants.SessionConstants;
+import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.TempFileUtils;
@@ -1591,31 +1595,31 @@ public class FileManagementControllerTests extends BaseTest {
                 .build();
         //关联正常文件
         String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/file_upload.JPG")).getPath();
-        String fileID = fileAssociationService.transferAndAssociation("testTransferFile.jpg", TempFileUtils.getFile(filePath), "sty-file-association-bug-id-4", FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileLogRecord);
+        String fileID = fileAssociationService.transferAndAssociation(new FileAssociationDTO("testTransferFile.jpg", TempFileUtils.getFile(filePath), "sty-file-association-bug-id-4", FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileLogRecord));
         FileMetadataExample example = new FileMetadataExample();
         example.createCriteria().andIdEqualTo(fileID).andNameEqualTo("testTransferFile").andTypeEqualTo("JPG");
         Assertions.assertEquals(fileMetadataMapper.countByExample(example), 1);
         //重复转存检查文件名是否加1
-        fileID = fileAssociationService.transferAndAssociation("testTransferFile.jpg", TempFileUtils.getFile(filePath), "sty-file-association-bug-id-4", FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileLogRecord);
+        fileID = fileAssociationService.transferAndAssociation(new FileAssociationDTO("testTransferFile.jpg", TempFileUtils.getFile(filePath), "sty-file-association-bug-id-4", FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileLogRecord));
         example.clear();
         example.createCriteria().andIdEqualTo(fileID).andNameEqualTo("testTransferFile(1)").andTypeEqualTo("JPG");
 
         Assertions.assertEquals(fileMetadataMapper.countByExample(example), 1);
         //重复转存检查文件名是否加1
-        fileID = fileAssociationService.transferAndAssociation("testTransferFile.jpg", TempFileUtils.getFile(filePath), "sty-file-association-bug-id-4", FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileLogRecord);
+        fileID = fileAssociationService.transferAndAssociation(new FileAssociationDTO("testTransferFile.jpg", TempFileUtils.getFile(filePath), "sty-file-association-bug-id-4", FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileLogRecord));
         example.clear();
         example.createCriteria().andIdEqualTo(fileID).andNameEqualTo("testTransferFile(2)").andTypeEqualTo("JPG");
 
         Assertions.assertEquals(fileMetadataMapper.countByExample(example), 1);
         //测试没有后缀的文件名
-        fileID = fileAssociationService.transferAndAssociation("testTransfer", TempFileUtils.getFile(filePath), "sty-file-association-bug-id-4", FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileLogRecord);
+        fileID = fileAssociationService.transferAndAssociation(new FileAssociationDTO("testTransfer", TempFileUtils.getFile(filePath), "sty-file-association-bug-id-4", FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileLogRecord));
         example.clear();
         example.createCriteria().andIdEqualTo(fileID).andNameEqualTo("testTransfer");
         Assertions.assertEquals(fileMetadataMapper.countByExample(example), 1);
         //资源不存在
         boolean error = false;
         try {
-            fileAssociationService.transferAndAssociation("testTransferFile.jpg", TempFileUtils.getFile(filePath), IDGenerator.nextStr(), FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileLogRecord);
+            fileAssociationService.transferAndAssociation(new FileAssociationDTO("testTransferFile.jpg", TempFileUtils.getFile(filePath), IDGenerator.nextStr(), FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileLogRecord));
         } catch (Exception e) {
             error = true;
         }
@@ -1623,7 +1627,7 @@ public class FileManagementControllerTests extends BaseTest {
         //文件名称不合法
         error = false;
         try {
-            fileAssociationService.transferAndAssociation("testTransfer/File.jpg", TempFileUtils.getFile(filePath), IDGenerator.nextStr(), FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileLogRecord);
+            fileAssociationService.transferAndAssociation(new FileAssociationDTO("testTransfer/File.jpg", TempFileUtils.getFile(filePath), IDGenerator.nextStr(), FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileLogRecord));
         } catch (Exception e) {
             error = true;
         }

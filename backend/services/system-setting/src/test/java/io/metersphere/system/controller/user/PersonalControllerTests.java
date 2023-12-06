@@ -6,9 +6,11 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.UserExample;
+import io.metersphere.system.domain.UserExtendExample;
 import io.metersphere.system.dto.request.user.PersonalUpdatePasswordRequest;
 import io.metersphere.system.dto.request.user.PersonalUpdateRequest;
 import io.metersphere.system.dto.user.UserDTO;
+import io.metersphere.system.mapper.UserExtendMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.user.PersonalRequestUtils;
@@ -49,6 +51,8 @@ public class PersonalControllerTests extends BaseTest {
         return JSON.parseObject(JSON.toJSONString(resultHolder.getData()), UserDTO.class);
     }
 
+    @Resource
+    private UserExtendMapper userExtendMapper;
     @Test
     @Order(1)
     void testPersonalUpdateInfo() throws Exception {
@@ -60,6 +64,27 @@ public class PersonalControllerTests extends BaseTest {
         this.requestPostWithOk(PersonalRequestUtils.URL_PERSONAL_UPDATE_INFO, request);
         UserDTO userDTO = this.selectUserDTO(loginUser);
         this.checkUserInformation(userDTO, request);
+
+        //修改头像
+        UserExtendExample example = new UserExtendExample();
+        example.createCriteria().andIdEqualTo(loginUser);
+        Assertions.assertEquals(userExtendMapper.countByExample(example), 0);
+
+        request = new PersonalUpdateRequest();
+        request.setId(loginUser);
+        request.setEmail("admin_update@metersphere.io");
+        request.setUsername("admin_update");
+        request.setPhone("1111111111");
+        request.setAvatar(IDGenerator.nextStr());
+        this.requestPostWithOk(PersonalRequestUtils.URL_PERSONAL_UPDATE_INFO, request);
+        userDTO = this.selectUserDTO(loginUser);
+        Assertions.assertEquals(userDTO.getAvatar(), request.getAvatar());
+        //多次修改头像
+        Assertions.assertEquals(userExtendMapper.countByExample(example), 1L);
+        request.setAvatar(IDGenerator.nextStr());
+        this.requestPostWithOk(PersonalRequestUtils.URL_PERSONAL_UPDATE_INFO, request);
+        userDTO = this.selectUserDTO(loginUser);
+        Assertions.assertEquals(userDTO.getAvatar(), request.getAvatar());
 
         //修改回去
         request = new PersonalUpdateRequest();

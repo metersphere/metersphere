@@ -214,12 +214,11 @@ public class FileMetadataService {
      * @return
      * @throws Exception
      */
-    public String transferFile(String fileName, String projectId, String operator, byte[] fileBytes) throws Exception {
+    public String transferFile(String fileName, String projectId, String moduleId, String operator, byte[] fileBytes) throws Exception {
         if (StringUtils.isBlank(fileName)) {
             throw new MSException(Translator.get("file.name.cannot.be.empty"));
         }
         fileName = this.genTransferFileName(StringUtils.trim(fileName), projectId);
-        String moduleId = ModuleConstants.NODE_TYPE_DEFAULT;
 
         FileMetadata fileMetadata = this.genFileMetadata(fileName, StorageType.MINIO.name(), fileBytes.length, false, projectId, moduleId, operator);
 
