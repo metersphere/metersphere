@@ -247,7 +247,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         }
         Assertions.assertEquals(apiDefinitionDTO, copyApiDefinitionDTO);
 
-        assertErrorCode(this.requestGet(GET + "111"), ApiResultCode.API_DEFINITION_NOT_EXIST);
+        assertErrorCode(this.requestGet(GET + "111"), API_DEFINITION_NOT_EXIST);
 
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_READ, GET + apiDefinition.getId());
@@ -329,7 +329,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // 校验数据是否存在
         request.setId("111");
         request.setName("test123");
-        assertErrorCode(this.requestPost(UPDATE, request), ApiResultCode.API_DEFINITION_NOT_EXIST);
+        assertErrorCode(this.requestPost(UPDATE, request), API_DEFINITION_NOT_EXIST);
 
         // 校验项目是否存在
         request.setProjectId("111");
@@ -499,7 +499,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // @@校验日志
         checkLog(resultData.getId(), OperationLogType.UPDATE);
         request.setId("121");
-        assertErrorCode(this.requestPost(COPY, request), ApiResultCode.API_DEFINITION_NOT_EXIST);
+        assertErrorCode(this.requestPost(COPY, request), API_DEFINITION_NOT_EXIST);
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_UPDATE, COPY, request);
     }
@@ -548,7 +548,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         Assertions.assertTrue(CollectionUtils.isNotEmpty(followers));
         // @@校验日志
         checkLog(apiDefinition.getId(), OperationLogType.UPDATE);
-        assertErrorCode(this.requestGet(FOLLOW + "111"), ApiResultCode.API_DEFINITION_NOT_EXIST);
+        assertErrorCode(this.requestGet(FOLLOW + "111"), API_DEFINITION_NOT_EXIST);
 
         // @@取消关注
         // @@请求成功
@@ -559,7 +559,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         Assertions.assertTrue(CollectionUtils.isEmpty(unFollowers));
         // @@校验日志
         checkLog(apiDefinition.getId(), OperationLogType.UPDATE);
-        assertErrorCode(this.requestGet(FOLLOW + "111"), ApiResultCode.API_DEFINITION_NOT_EXIST);
+        assertErrorCode(this.requestGet(FOLLOW + "111"), API_DEFINITION_NOT_EXIST);
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_UPDATE, FOLLOW + apiDefinition.getId());
     }
@@ -575,7 +575,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // 校验数据是否正确
         List<ApiDefinitionVersionDTO> copyApiDefinitionVersionDTO = extApiDefinitionMapper.getApiDefinitionByRefId(apiDefinition.getRefId());
         Assertions.assertEquals(apiDefinitionVersionDTO, copyApiDefinitionVersionDTO);
-        assertErrorCode(this.requestGet(VERSION + "111"), ApiResultCode.API_DEFINITION_NOT_EXIST);
+        assertErrorCode(this.requestGet(VERSION + "111"), API_DEFINITION_NOT_EXIST);
 
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_READ, VERSION + apiDefinition.getId());
@@ -705,7 +705,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         Assertions.assertEquals(apiDefinitionDocDTO.getDocInfo().getId(), copyApiDefinitionDocDTO.getDocInfo().getId());
 
         request.setApiId("111");
-        assertErrorCode(this.requestPost(DOC, request), ApiResultCode.API_DEFINITION_NOT_EXIST);
+        assertErrorCode(this.requestPost(DOC, request), API_DEFINITION_NOT_EXIST);
 
         // @@模块查看文档
         request.setApiId(null);
@@ -839,7 +839,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         checkLog(apiDefinitionDeleteRequest.getId(), OperationLogType.DELETE);
         apiDefinitionDeleteRequest.setId("121");
         apiDefinitionDeleteRequest.setDeleteAll(false);
-        assertErrorCode(this.requestPost(DELETE, apiDefinitionDeleteRequest), ApiResultCode.API_DEFINITION_NOT_EXIST);
+        assertErrorCode(this.requestPost(DELETE, apiDefinitionDeleteRequest), API_DEFINITION_NOT_EXIST);
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_DELETE, DELETE, apiDefinitionDeleteRequest);
     }
@@ -862,7 +862,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setSelectIds(List.of("1002"));
         request.setDeleteAll(false);
         request.setSelectAll(false);
-        assertErrorCode(this.requestPost(BATCH_DELETE, request), ApiResultCode.API_DEFINITION_NOT_EXIST);
+        assertErrorCode(this.requestPost(BATCH_DELETE, request), API_DEFINITION_NOT_EXIST);
         // 删除全部 条件为关键字为st-6的数据
         request.setDeleteAll(true);
         request.setExcludeIds(List.of("1005"));
@@ -916,7 +916,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // @恢复一条数据
         apiDefinitionDeleteRequest.setId("111");
         // @@请求成功
-        assertErrorCode(this.requestPost(RESTORE, apiDefinitionDeleteRequest), ApiResultCode.API_DEFINITION_NOT_EXIST);
+        assertErrorCode(this.requestPost(RESTORE, apiDefinitionDeleteRequest), API_DEFINITION_NOT_EXIST);
 
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_UPDATE, RESTORE, apiDefinitionDeleteRequest);
