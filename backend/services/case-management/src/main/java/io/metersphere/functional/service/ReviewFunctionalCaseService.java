@@ -4,6 +4,7 @@ import io.metersphere.functional.constants.CaseReviewPassRule;
 import io.metersphere.functional.constants.CaseReviewStatus;
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.domain.*;
+import io.metersphere.functional.dto.CaseReviewHistoryDTO;
 import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.request.ReviewFunctionalCaseRequest;
 import io.metersphere.sdk.exception.MSException;
@@ -22,6 +23,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -45,6 +47,9 @@ public class ReviewFunctionalCaseService {
     private NoticeSendService noticeSendService;
     @Resource
     private FunctionalCaseMapper functionalCaseMapper;
+    @Resource
+    private ExtCaseReviewHistoryMapper extCaseReviewHistoryMapper;
+
 
 
     /**
@@ -211,5 +216,13 @@ public class ReviewFunctionalCaseService {
         caseReviewHistory.setCreateUser(userId);
         caseReviewHistory.setCreateTime(System.currentTimeMillis());
         return caseReviewHistory;
+    }
+
+    public List<CaseReviewHistoryDTO> getCaseReviewHistoryList(String reviewId, String caseId) {
+        List<CaseReviewHistoryDTO> list = extCaseReviewHistoryMapper.list(caseId, reviewId);
+        for (CaseReviewHistoryDTO caseReviewHistoryDTO : list) {
+            caseReviewHistoryDTO.setContentText(new String(caseReviewHistoryDTO.getContent(),StandardCharsets.UTF_8));
+        }
+        return list;
     }
 }

@@ -4,6 +4,7 @@ import io.metersphere.functional.constants.CaseReviewPassRule;
 import io.metersphere.functional.constants.CaseReviewStatus;
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.domain.*;
+import io.metersphere.functional.dto.CaseReviewHistoryDTO;
 import io.metersphere.functional.mapper.CaseReviewFunctionalCaseMapper;
 import io.metersphere.functional.mapper.CaseReviewHistoryMapper;
 import io.metersphere.functional.mapper.CaseReviewMapper;
@@ -12,19 +13,27 @@ import io.metersphere.functional.request.ReviewFunctionalCaseRequest;
 import io.metersphere.project.domain.Notification;
 import io.metersphere.project.domain.NotificationExample;
 import io.metersphere.project.mapper.NotificationMapper;
+import io.metersphere.sdk.constants.SessionConstants;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -36,6 +45,7 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
 
     private static final String SAVE_REVIEW = "/review/functional/case/save";
     private static final String ADD_CASE_REVIEW = "/case/review/add";
+    private static final String REVIEW_LIST = "/review/functional/case/get/list/";
 
     @Resource
     private CaseReviewMapper caseReviewMapper;
@@ -212,6 +222,29 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         reviewFunctionalCaseRequest.setNotifier("default-project-member-user-gyq-2");
         reviewFunctionalCaseRequest.setReviewPassRule(CaseReviewPassRule.SINGLE.toString());
         this.requestPost(SAVE_REVIEW, reviewFunctionalCaseRequest).andExpect(status().is5xxServerError());
+
+    }
+
+    @Test
+    @Order(4)
+    public void getListSuccess() throws Exception {
+        List<CaseReview> caseReviews = getCaseReviews("创建用例评审1");
+        String reviewId = caseReviews.get(0).getId();
+        List<CaseReviewHistoryDTO> gyqReviewCaseTest = getCaseReviewHistoryList("gyqReviewCaseTest", reviewId);
+        System.out.println(JSON.toJSONString(gyqReviewCaseTest));
+    }
+
+
+    public List<CaseReviewHistoryDTO> getCaseReviewHistoryList(String caseId,String reviewId) throws Exception {
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(REVIEW_LIST +"/"+reviewId +"/"+ caseId).header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .header(SessionConstants.CURRENT_PROJECT, projectId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        return JSON.parseArray(JSON.toJSONString(resultHolder.getData()), CaseReviewHistoryDTO.class);
 
     }
 
