@@ -62,6 +62,7 @@
 
   const isContinueFlag = ref(false);
   const isShowTip = ref<boolean>(true);
+  const createSuccessId = ref<string>('');
 
   async function save() {
     try {
@@ -70,15 +71,20 @@
         await updateCaseRequest(caseDetailInfo.value);
         Message.success(t('caseManagement.featureCase.editSuccess'));
       } else {
-        await createCaseRequest(caseDetailInfo.value);
+        const res = await createCaseRequest(caseDetailInfo.value);
+        createSuccessId.value = res.data.id;
         Message.success(route.params.mode === 'copy' ? t('ms.description.copySuccess') : t('common.addSuccess'));
       }
       router.push({ name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE, query: { ...route.query } });
       featureCaseStore.setIsAlreadySuccess(true);
       isShowTip.value = !getIsVisited();
-      if (isShowTip.value) {
+      if (isShowTip.value && !route.query.id) {
         router.push({
           name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_CREATE_SUCCESS,
+          query: {
+            id: createSuccessId.value,
+            ...route.query,
+          },
         });
       }
     } catch (error) {
@@ -119,7 +125,6 @@
       title.value = t('caseManagement.featureCase.creatingCase');
     }
     const gatewayAddress = `${window.location.protocol}//${window.location.hostname}:${window.location.port}`;
-    console.log(gatewayAddress);
   });
 </script>
 

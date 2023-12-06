@@ -110,7 +110,7 @@ export function createCaseRequest(data: Record<string, any>) {
 }
 // 编辑用例
 export function updateCaseRequest(data: Record<string, any>) {
-  return MSR.uploadFile({ url: UpdateCaseUrl }, { request: data.request, fileList: data.fileList }, '', true);
+  return MSR.uploadFile({ url: UpdateCaseUrl }, data, '', true);
 }
 // 用例详情
 export function getCaseDetail(id: string) {
@@ -195,14 +195,10 @@ export function cancelAssociationDemand(id: string) {
 
 // 上传文件并关联用例
 export function uploadOrAssociationFile(data: Record<string, any>) {
-  return MSR.uploadFile(
-    { url: UploadOrAssociationFileUrl },
-    { request: data.request, fileList: data.fileList },
-    'file'
-  );
+  return MSR.uploadFile({ url: UploadOrAssociationFileUrl }, { request: data.request, fileList: [data.file] });
 }
 // 转存文件
-export function transferFile(data: OperationFile) {
+export function transferFileRequest(data: OperationFile) {
   return MSR.post({ url: TransferFileUrl, data });
 }
 
@@ -212,13 +208,13 @@ export function previewFile(data: OperationFile) {
 }
 
 // 下载文件
-export function downloadFile(data: OperationFile) {
-  return MSR.post({ url: DownloadFileUrl, data });
+export function downloadFileRequest(data: OperationFile) {
+  return MSR.post({ url: DownloadFileUrl, data, responseType: 'blob' }, { isTransformResponse: false });
 }
 
 // 删除文件或取消关联用例文件
-export function deleteFileOrCancelAssociation(data: any) {
-  return MSR.post({ url: DownloadFileUrl, data });
+export function deleteFileOrCancelAssociation(data: OperationFile) {
+  return MSR.post({ url: deleteFileOrCancelAssociationUrl, data });
 }
 
 export default {};

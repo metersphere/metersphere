@@ -57,8 +57,11 @@
 
   import { addDemandRequest, updateDemand } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore } from '@/store';
 
   import type { CreateOrUpdateDemand, DemandFormList, DemandItem } from '@/models/caseManagement/featureCase';
+
+  const appStore = useAppStore();
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -71,11 +74,11 @@
     (e: 'update:visible', v: boolean): void;
     (e: 'success'): void;
   }>();
-
+  const pageConfig = computed(() => appStore.pageConfig);
   const form = ref<CreateOrUpdateDemand>({
     id: '',
     caseId: props.caseId,
-    demandPlatform: 'LOCAL',
+    demandPlatform: pageConfig.value.platformName,
   });
 
   const updateName = ref<string>('');

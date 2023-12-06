@@ -1,6 +1,6 @@
 import { FieldRule } from '@arco-design/web-vue';
 
-import type { Rule } from '@form-create/arco-design';
+import { Rule } from '@form-create/arco-design';
 
 export type FormItemType =
   | 'INPUT'
@@ -33,13 +33,12 @@ export interface FormItemDefaultOptions {
 export interface PropsRecord {
   [key: string]: any;
 }
+
 // 内置formCreateRule所有配置的项
-export type FormRuleItem = any;
-// TODO
-// export type FormRuleItem = Rule & {
-//   props: Record<string, any>;
-//   [key: string]: any;
-// };
+export type FormRuleItem = Rule & {
+  props: Record<string, any>;
+  [key: string]: any;
+};
 // 表单配置项
 export interface FormItem {
   type: FormItemType;

@@ -214,9 +214,10 @@ export interface CreateOrUpdateDemand {
 }
 // 转存文件
 export interface OperationFile {
+  id?: string;
   projectId: string;
   caseId: string;
-  fileId: string; // 文件id
+  fileId?: string; // 文件id
   local: boolean; // 是否是本地
 }
 
