@@ -77,8 +77,16 @@
                 :disabled="!item.dataIndex"
                 :max-length="60"
               />
+              <MsTagsInput
+                v-else-if="item.type === FilterType.TAGS_INPUT"
+                v-model:model-value="item.value"
+                :disabled="!item.dataIndex"
+                allow-clear
+                unique-value
+                retain-input-value
+              />
               <a-input-number
-                v-if="item.type === FilterType.NUMBER"
+                v-else-if="item.type === FilterType.NUMBER"
                 v-model:model-value="item.value"
                 class="w-full"
                 allow-clear
@@ -95,7 +103,14 @@
                 :disabled="!item.dataIndex"
                 :options="item.selectProps?.options || []"
                 v-bind="item.selectProps"
-              ></MsSelect>
+              />
+              <a-tree-select
+                v-else-if="item.type === FilterType.TREE_SELECT"
+                v-model:model-value="item.value"
+                :data="item.treeSelectData"
+                :disabled="!item.dataIndex"
+                v-bind="(item.treeSelectProps as any)"
+              />
               <a-date-picker
                 v-else-if="item.type === FilterType.DATE_PICKER && item.operator !== 'between'"
                 v-model:model-value="item.value"
@@ -111,6 +126,13 @@
                 show-time
                 format="YYYY-MM-DD HH:mm"
                 :disabled="!item.dataIndex"
+              />
+              <MsCascader
+                v-else-if="item.type === FilterType.CASCADER"
+                v-model:model-value="item.value"
+                :options="item.cascaderOptions || []"
+                :disabled="!item.dataIndex"
+                v-bind="item.cascaderProps"
               />
             </a-form-item>
           </div>
@@ -143,6 +165,8 @@
 <script lang="ts" setup>
   import { FormInstance } from '@arco-design/web-vue';
 
+  import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
+  import MsCascader from '@/components/business/ms-cascader/index.vue';
   import MsSelect from '@/components/business/ms-select';
 
   import { useI18n } from '@/hooks/useI18n';
@@ -166,10 +190,10 @@
     (e: 'update:rowCount', value: number): void; // 用于展示 MsBaseTable 的总行数
   }>();
 
-  const isMutipleSelect = (dataIndex: string) => {
+  const isMultipleSelect = (dataIndex: string) => {
     const tmpObj = props.configList.find((item) => item.dataIndex === dataIndex);
     if (tmpObj) {
-      return tmpObj.selectProps?.multiple;
+      return tmpObj.selectProps?.multiple || tmpObj.type === FilterType.TAGS_INPUT;
     }
     return false;
   };
@@ -184,7 +208,7 @@
         result = OPERATOR_MAP.date;
         break;
       case FilterType.SELECT:
-        result = isMutipleSelect(dataIndex) ? OPERATOR_MAP.array : OPERATOR_MAP.string;
+        result = isMultipleSelect(dataIndex) ? OPERATOR_MAP.array : OPERATOR_MAP.string;
         break;
       default:
         result = OPERATOR_MAP.string;
@@ -281,11 +305,8 @@
     if (!tmpObj) {
       return;
     }
-    const { type, backendType } = tmpObj;
-    formModel.list[idx].operator = '';
-    formModel.list[idx].backendType = backendType;
-    formModel.list[idx].type = type;
-    formModel.list[idx].value = isMutipleSelect(dataIndex as string) ? [] : '';
+    formModel.list[idx] = { ...tmpObj };
+    formModel.list[idx].value = isMultipleSelect(dataIndex as string) ? [] : '';
 
     emit('dataIndexChange', dataIndex as string);
   };
@@ -294,7 +315,7 @@
     if (v === 'between') {
       formModel.list[idx].value = [];
     } else {
-      formModel.list[idx].value = isMutipleSelect(dataIndex) ? [] : '';
+      formModel.list[idx].value = isMultipleSelect(dataIndex) ? [] : '';
     }
   };
 

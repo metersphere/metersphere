@@ -8,6 +8,7 @@ import {
   EnableAPIKEYUrl,
   EnableLocalConfigUrl,
   GetAPIKEYListUrl,
+  GetInfoUrl,
   GetLocalConfigUrl,
   GetMenuListUrl,
   GetPublicKeyUrl,
@@ -15,7 +16,9 @@ import {
   LoginUrl,
   LogoutUrl,
   UpdateAPIKEYUrl,
+  UpdateInfoUrl,
   UpdateLocalConfigUrl,
+  UpdatePswUrl,
   ValidAPIKEYUrl,
   ValidLocalConfigUrl,
 } from '@/api/requrls/user';
@@ -26,8 +29,11 @@ import type {
   LocalConfig,
   LoginData,
   LoginRes,
+  PersonalInfo,
   UpdateAPIKEYParams,
+  UpdateBaseInfo,
   UpdateLocalConfigParams,
+  UpdatePswParams,
 } from '@/models/user';
 
 import type { RouteRecordNormalized } from 'vue-router';
@@ -115,4 +121,19 @@ export function deleteAPIKEY(id: string) {
 // 个人设置-生成 APIKEY
 export function addAPIKEY() {
   return MSR.get({ url: AddAPIKEYUrl });
+}
+
+// 个人信息-获取基本信息
+export function getBaseInfo(id: string) {
+  return MSR.get<PersonalInfo>({ url: GetInfoUrl, params: id });
+}
+
+// 个人信息-修改基本信息
+export function updateBaseInfo(data: UpdateBaseInfo) {
+  return MSR.post({ url: UpdateInfoUrl, data });
+}
+
+// 个人信息-修改密码
+export function updatePsw(data: UpdatePswParams) {
+  return MSR.post({ url: UpdatePswUrl, data });
 }

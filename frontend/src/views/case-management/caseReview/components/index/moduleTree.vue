@@ -104,7 +104,7 @@
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import popConfirm from './popConfirm.vue';
 
-  import { deleteModule, getModules, moveModule } from '@/api/modules/project-management/fileManagement';
+  import { deleteReviewModule, getReviewModules, moveReviewModule } from '@/api/modules/case-management/caseReview';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
@@ -191,7 +191,7 @@
   async function initModules(isSetDefaultKey = false) {
     try {
       loading.value = true;
-      const res = await getModules(appStore.currentProjectId);
+      const res = await getReviewModules(appStore.currentProjectId);
       folderTree.value = mapTree<ModuleTreeNode>(res, (e) => {
         return {
           ...e,
@@ -210,10 +210,7 @@
 
         emit('folderNodeSelect', selectedKeys.value, offspringIds);
       }
-      emit(
-        'init',
-        folderTree.value.map((e) => e.name)
-      );
+      emit('init', folderTree.value);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -238,7 +235,7 @@
       maskClosable: false,
       onBeforeOk: async () => {
         try {
-          await deleteModule(node.id);
+          await deleteReviewModule(node.id);
           Message.success(t('caseManagement.caseReview.deleteSuccess'));
           initModules(selectedKeys.value[0] === node.id);
         } catch (error) {
@@ -306,7 +303,7 @@
   ) {
     try {
       loading.value = true;
-      await moveModule({
+      await moveReviewModule({
         dragNodeId: dragNode.id as string,
         dropNodeId: dropNode.id || '',
         dropPosition,

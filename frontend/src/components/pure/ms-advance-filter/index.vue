@@ -3,13 +3,13 @@
     <slot name="left"></slot>
     <div class="flex flex-row gap-[8px]">
       <a-input-search
-        v-model="keyword"
+        v-model="innerKeyword"
         size="small"
-        :placeholder="t('system.user.searchUser')"
+        :placeholder="props.searchPlaceholder"
         class="w-[240px]"
         allow-clear
-        @press-enter="emit('keywordSearch', keyword)"
-        @search="emit('keywordSearch', keyword)"
+        @press-enter="emit('keywordSearch', innerKeyword)"
+        @search="emit('keywordSearch', innerKeyword)"
       ></a-input-search>
       <MsTag
         :type="visible ? 'primary' : 'default'"
@@ -45,6 +45,8 @@
 </template>
 
 <script setup lang="ts">
+  import { useVModel } from '@vueuse/core';
+
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsTag from '../ms-tag/ms-tag.vue';
   import FilterForm from './FilterForm.vue';
@@ -53,22 +55,27 @@
 
   import { FilterFormItem, FilterResult } from './type';
 
-  const { t } = useI18n();
-  const keyword = ref('');
   const props = defineProps<{
     rowCount: number;
     filterConfigList: FilterFormItem[];
+    searchPlaceholder?: string;
+    keyword?: string;
   }>();
-  const visible = ref(false);
-  const filterCount = ref(0);
+
   const emit = defineEmits<{
-    (e: 'keywordSearch', value: string): void; // keyword 搜索
+    (e: 'update:keyword', value: string): void;
+    (e: 'keywordSearch', value: string | undefined): void; // innerKeyword 搜索
     (e: 'advSearch', value: FilterResult): void; // 高级搜索
     (e: 'dataIndexChange', value: string): void; // 高级搜索选项变更
   }>();
 
+  const { t } = useI18n();
+  const innerKeyword = useVModel(props, 'keyword', emit);
+  const visible = ref(false);
+  const filterCount = ref(0);
+
   const handleResetSearch = () => {
-    keyword.value = '';
+    innerKeyword.value = '';
     emit('keywordSearch', '');
   };
 

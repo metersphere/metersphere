@@ -42,3 +42,10 @@ export interface BatchApiParams {
   selectAll: boolean; // 是否跨页全选，即选择当前筛选条件下的全部表格数据
   condition: Record<string, any>; // 当前表格查询的筛选条件
 }
+
+// 移动模块树
+export interface MoveModules {
+  dragNodeId: string; // 被拖拽的节点
+  dropNodeId: string; // 放入的节点
+  dropPosition: number; // 放入的位置（取值：-1，,0，,1。 -1：dropNodeId节点之前。 0:dropNodeId节点内。 1：dropNodeId节点后）
+}

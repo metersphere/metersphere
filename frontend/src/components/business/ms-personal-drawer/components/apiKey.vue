@@ -74,6 +74,10 @@
           />
         </div>
       </div>
+      <div v-if="apiKeyList.length === 0" class="col-span-2 flex w-full items-center justify-center p-[44px]">
+        {{ t('ms.personal.nodata') }}
+        <MsButton type="text" class="ml-[8px]" @click="newApiKey">{{ t('common.new') }}</MsButton>
+      </div>
     </a-spin>
   </div>
   <a-modal
@@ -127,6 +131,7 @@
   import { FormInstance, Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
@@ -331,7 +336,7 @@
 
 <style lang="less" scoped>
   .api-list-content {
-    @apply grid flex-1 overflow-auto;
+    @apply grid overflow-auto;
     .ms-scroll-bar();
 
     gap: 16px;

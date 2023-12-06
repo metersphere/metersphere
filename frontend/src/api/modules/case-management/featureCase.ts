@@ -49,11 +49,10 @@ import type {
   DeleteCaseType,
   DemandItem,
   ModulesTreeType,
-  MoveModules,
   OperationFile,
   UpdateModule,
 } from '@/models/caseManagement/featureCase';
-import type { CommonList, TableQueryParams } from '@/models/common';
+import type { CommonList, MoveModules, TableQueryParams } from '@/models/common';
 // 获取模块树
 export function getCaseModuleTree(projectId: string) {
   return MSR.get<ModulesTreeType[]>({ url: `${GetCaseModuleTreeUrl}/${projectId}` });

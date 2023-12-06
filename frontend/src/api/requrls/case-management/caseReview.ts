@@ -1,0 +1,15 @@
+export const GetReviewListUrl = '/case/review/page'; // 获取评审列表
+export const EditReviewUrl = '/case/review/edit'; // 编辑评审
+export const SortReviewUrl = '/case/review/edit/pos'; // 评审拖拽排序
+export const FollowReviewUrl = '/case/review/edit/follower'; // 关注/取消关注评审
+export const CopyReviewUrl = '/case/review/copy'; // 复制评审
+export const MoveReviewUrl = '/case/review/batch/move'; // 移动评审
+export const AssociateReviewUrl = '/case/review/associate'; // 关联用例
+export const AddReviewUrl = '/case/review/add'; // 新增评审
+export const GetReviewUsersUrl = '/case/review/user-option'; // 获取评审人员列表
+export const GetReviewDetailUrl = '/case/review/detail'; // 获取评审详情
+export const UpdateReviewModuleUrl = '/case/review/module/update'; // 更新评审模块
+export const MoveReviewModuleUrl = '/case/review/module/move'; // 移动评审模块
+export const AddReviewModuleUrl = '/case/review/module/add'; // 新增评审模块
+export const GetReviewModulesUrl = '/case/review/module/tree'; // 获取评审模块树
+export const DeleteReviewModuleUrl = '/case/review/module/delete'; // 删除评审模块

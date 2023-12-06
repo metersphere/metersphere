@@ -81,25 +81,24 @@
 
   export type CascaderModelValue = string | number | Record<string, any> | (string | number | Record<string, any>)[];
 
-  const props = withDefaults(
-    defineProps<{
-      modelValue: CascaderModelValue;
-      options: CascaderOption[];
-      mode?: 'MS' | 'native'; // MS的多选、原生;这里的多选指的是出了一级以外的多选，一级是顶级分类选项只能单选。原生模式使用 arco-design 的 cascader 组件，只加了getOptionComputedStyle
-      prefix?: string; // 输入框前缀
-      levelTop?: string[]; // 顶级选项，多选时则必传
-      level?: string; // 顶级选项，该级别为单选选项
-      multiple?: boolean; // 是否多选
-      strictly?: boolean; // 是否严格模式
-      virtualListProps?: VirtualListProps; // 传入开启虚拟滚动
-      panelWidth?: number; // 下拉框宽度，默认为 150px
-      placeholder?: string;
-      loading?: boolean;
-    }>(),
-    {
-      mode: 'MS',
-    }
-  );
+  export interface MsCascaderProps {
+    modelValue: CascaderModelValue;
+    options: CascaderOption[];
+    mode?: 'MS' | 'native'; // MS的多选、原生;这里的多选指的是出了一级以外的多选，一级是顶级分类选项只能单选。原生模式使用 arco-design 的 cascader 组件，只加了getOptionComputedStyle
+    prefix?: string; // 输入框前缀
+    levelTop?: string[]; // 顶级选项，多选时则必传
+    level?: string; // 顶级选项，该级别为单选选项
+    multiple?: boolean; // 是否多选
+    strictly?: boolean; // 是否严格模式
+    virtualListProps?: VirtualListProps; // 传入开启虚拟滚动
+    panelWidth?: number; // 下拉框宽度，默认为 150px
+    placeholder?: string;
+    loading?: boolean;
+  }
+
+  const props = withDefaults(defineProps<MsCascaderProps>(), {
+    mode: 'MS',
+  });
   const emit = defineEmits(['update:modelValue', 'update:level']);
 
   const innerValue = ref<CascaderModelValue>([]);
