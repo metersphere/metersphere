@@ -76,4 +76,5 @@ export default {
   'common.recycle': '回收站',
   'common.new': '新增',
   'common.newSuccess': '新增成功',
+  'common.publish': '发布',
 };

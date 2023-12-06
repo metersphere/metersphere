@@ -76,4 +76,5 @@ export default {
   'common.recycle': 'Recycle Bin',
   'common.new': 'New',
   'common.newSuccess': 'Added successfully',
+  'common.publish': 'Publish',
 };
