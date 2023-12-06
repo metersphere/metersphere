@@ -1,6 +1,5 @@
 package io.metersphere.api.dto.definition;
 
-import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.dto.api.request.http.Header;
 import io.metersphere.sdk.dto.api.request.http.body.Body;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,12 +19,6 @@ public class HttpResponse implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
-
-    @Schema(description = "响应编号")
-    private Integer id;
-
-    @Schema(description = "响应类型")
-    private String type = ModuleConstants.NODE_PROTOCOL_HTTP;
 
     @Schema(description = "响应名称")
     private String name;

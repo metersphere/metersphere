@@ -21,9 +21,23 @@
         api_definition.deleted, project_version.name as version_name
         from api_definition
         LEFT JOIN project_version ON project_version.id = api_definition.version_id
-        where deleted = #{request.deleted}
+        where api_definition.deleted = #{request.deleted}
         <include refid="queryWhereCondition"/>
 
+    </select>
+
+    <select id="listDoc" resultType="io.metersphere.api.dto.definition.ApiDefinitionDTO">
+        select
+        api_definition.id, api_definition.`name`, api_definition.protocol, api_definition.`method`,
+        api_definition.`path`, api_definition.`status`, api_definition.num, api_definition.tags, api_definition.pos,
+        api_definition.project_id, api_definition.module_id, api_definition.latest, api_definition.version_id,
+        api_definition.ref_id, api_definition.description, api_definition.create_time, api_definition.create_user,
+        api_definition.update_time, api_definition.update_user, api_definition.delete_user, api_definition.delete_time,
+        api_definition.deleted, project_version.name as version_name
+        from api_definition
+        LEFT JOIN project_version ON project_version.id = api_definition.version_id
+        where api_definition.deleted = #{request.deleted}
+        <include refid="queryDocWhereCondition"/>
     </select>
 
     <select id="selectApiCaseByIdsAndStatusIsNotTrash"
@@ -220,6 +234,32 @@
         </include>
     </sql>
 
+    <sql id="queryDocWhereCondition">
+        <if test="request.keyword != null and request.keyword != ''">
+            and (
+            api_definition.num like concat('%', #{request.keyword},'%')
+            or api_definition.name like concat('%', #{request.keyword},'%')
+            or api_definition.tags like JSON_CONTAINS(tags, concat('["',#{request.keyword},'"]'))
+            )
+        </if>
+        <if test="request.projectId != null and request.projectId != ''">
+            and api_definition.project_id = #{request.projectId}
+        </if>
+        <if test="request.protocol != null and request.protocol != ''">
+            AND api_definition.protocol = #{request.protocol}
+        </if>
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            and api_definition.module_id in
+            <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                #{nodeId}
+            </foreach>
+        </if>
+
+        <include refid="queryDocVersionCondition">
+            <property name="versionTable" value="api_definition"/>
+        </include>
+    </sql>
+
     <sql id="filters">
         <if test="${filter} != null and ${filter}.size() > 0">
             <foreach collection="${filter}.entrySet()" index="key" item="values">
@@ -321,6 +361,14 @@
             and ${versionTable}.ref_id = #{request.refId}
         </if>
         <if test="request.versionId == null and request.refId == null and request.id == null">
+            AND ${versionTable}.latest = 1
+        </if>
+    </sql>
+    <sql id="queryDocVersionCondition">
+        <if test="request.versionId != null and request.versionId != ''">
+            and ${versionTable}.version_id = #{request.versionId}
+        </if>
+        <if test="request.versionId == null and request.apiId == null">
             AND ${versionTable}.latest = 1
         </if>
     </sql>

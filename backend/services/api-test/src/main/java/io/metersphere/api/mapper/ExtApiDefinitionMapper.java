@@ -12,6 +12,8 @@ public interface ExtApiDefinitionMapper {
 
     List<ApiDefinitionDTO> list(@Param("request") ApiDefinitionPageRequest request);
 
+    List<ApiDefinitionDTO> listDoc(@Param("request") ApiDefinitionDocRequest request);
+
     List<ApiCaseComputeDTO> selectApiCaseByIdsAndStatusIsNotTrash(@Param("ids") List<String> ids, @Param("projectId") String projectId);
 
     Long getPos(@Param("projectId") String projectId);

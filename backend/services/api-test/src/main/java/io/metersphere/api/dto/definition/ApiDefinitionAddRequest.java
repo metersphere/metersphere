@@ -80,4 +80,8 @@ public class ApiDefinitionAddRequest implements Serializable {
      */
     @Schema(description = "关联文件ID")
     private List<String> linkFileIds;
+
+    public void setPath(String path) {
+        this.path = (path != null) ? path.trim() : null;
+    }
 }
