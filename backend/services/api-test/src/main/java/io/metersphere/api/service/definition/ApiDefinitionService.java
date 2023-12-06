@@ -5,6 +5,7 @@ import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.enums.ApiDefinitionDocType;
 import io.metersphere.api.enums.ApiReportStatus;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiFileResourceService;
@@ -671,29 +672,30 @@ public class ApiDefinitionService {
         ApiDefinitionDocDTO apiDefinitionDocDTO = new ApiDefinitionDocDTO();
         apiDefinitionDocDTO.setType(request.getType());
         // @@TODO 下载所有/一个模块接口文档时，不做分页数据量大的时候会不会有性能问题
-        if ("ALL".equals(request.getType()) || "MODULE".equals(request.getType())) {
+        if (ApiDefinitionDocType.ALL.name().equals(request.getType()) || ApiDefinitionDocType.MODULE.name().equals(request.getType())) {
             List<ApiDefinitionDTO> list = extApiDefinitionMapper.listDoc(request);
-            if(null != list){
-                list.forEach(item-> handleBlob(item.getId(), item));
-                apiDefinitionDocDTO.setDocTitle("ALL".equals(request.getType()) ? Translator.get(ALL_API) : getModuleTitle(list));
-                apiDefinitionDocDTO.setDocList(list);
+            if (!list.isEmpty()) {
+                ApiDefinitionDTO first = list.get(0);
+                handleBlob(first.getId(), first);
+                if(ApiDefinitionDocType.ALL.name().equals(request.getType())){
+                    apiDefinitionDocDTO.setDocTitle(Translator.get(ALL_API));
+                } else {
+                    ApiDefinitionModule apiDefinitionModule = apiDefinitionModuleMapper.selectByPrimaryKey(first.getModuleId());
+                    if (StringUtils.isNotBlank(apiDefinitionModule.getName())) {
+                        apiDefinitionDocDTO.setDocTitle(apiDefinitionModule.getName());
+                    } else {
+                        throw new MSException(API_DEFINITION_MODULE_NOT_EXIST);
+                    }
+                }
+                apiDefinitionDocDTO.setDocInfo(first);
             }
-        } else if ("API".equals(request.getType())) {
+        } else if (ApiDefinitionDocType.API.name().equals(request.getType())) {
             ApiDefinitionDTO apiDefinitionDTO = get(request.getApiId(), userId);
             apiDefinitionDocDTO.setDocTitle(apiDefinitionDTO.getName());
-            apiDefinitionDocDTO.setDocList(Collections.singletonList(apiDefinitionDTO));
+            apiDefinitionDocDTO.setDocInfo(apiDefinitionDTO);
         }
 
         return apiDefinitionDocDTO;
     }
 
-    private String getModuleTitle(List<ApiDefinitionDTO> list) {
-        ApiDefinitionDTO first = list.stream().findFirst().orElseThrow(() -> new MSException(API_DEFINITION_NOT_EXIST));
-        ApiDefinitionModule apiDefinitionModule = apiDefinitionModuleMapper.selectByPrimaryKey(first.getModuleId());
-        if (StringUtils.isNotBlank(apiDefinitionModule.getName())) {
-            return apiDefinitionModule.getName();
-        } else {
-            throw new MSException(API_DEFINITION_MODULE_NOT_EXIST);
-        }
-    }
 }
