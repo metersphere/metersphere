@@ -39,7 +39,7 @@
               </a-select>
             </a-form-item>
           </div>
-          <div class="flex-1 grow-0">
+          <div class="grow-0">
             <a-form-item
               :field="`list[${idx}].operator`"
               hide-asterisk
