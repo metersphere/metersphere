@@ -25,7 +25,9 @@ public class CaseReviewHistory implements Serializable {
     @Size(min = 1, max = 50, message = "{case_review_history.case_id.length_range}", groups = {Created.class, Updated.class})
     private String caseId;
 
-    @Schema(description = "评审结果：通过/不通过")
+    @Schema(description = "评审结果：通过/不通过/建议", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{case_review_history.status.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 64, message = "{case_review_history.status.length_range}", groups = {Created.class, Updated.class})
     private String status;
 
     @Schema(description = "通知人")
@@ -37,8 +39,7 @@ public class CaseReviewHistory implements Serializable {
     @Schema(description = "操作时间")
     private Long createTime;
 
-    @Schema(description = "评审意见", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{case_review_history.content.not_blank}", groups = {Created.class})
+    @Schema(description = "评审意见")
     private byte[] content;
 
     private static final long serialVersionUID = 1L;
