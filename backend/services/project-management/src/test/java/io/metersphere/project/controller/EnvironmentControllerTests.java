@@ -923,7 +923,7 @@ public class EnvironmentControllerTests extends BaseTest {
     @Test
     @Order(11)
     public void testList() throws Exception {
-        EnvironmentDTO environmentDTO = new EnvironmentDTO();
+        EnvironmentFilterRequest environmentDTO = new EnvironmentFilterRequest();
         environmentDTO.setProjectId(DEFAULT_PROJECT_ID);
         MvcResult mvcResult = this.responsePost(list, environmentDTO);
         List<Environment> response = parseObjectFromMvcResult(mvcResult, List.class);

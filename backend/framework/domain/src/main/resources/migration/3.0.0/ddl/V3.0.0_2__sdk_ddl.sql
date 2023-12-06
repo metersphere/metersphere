@@ -49,8 +49,11 @@ CREATE TABLE IF NOT EXISTS environment
     `create_time` BIGINT       NOT NULL COMMENT '创建时间',
     `update_time` BIGINT       NOT NULL COMMENT '更新时间',
     `mock`        BIT          NOT NULL DEFAULT 0 COMMENT '是否是mock环境',
+    `description` VARCHAR(255)    COMMENT '描述' ,
     PRIMARY KEY (id)
-) COMMENT = '环境';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '环境';
 
 CREATE INDEX idx_project_id ON environment(project_id);
 CREATE INDEX idx_name ON environment(name);

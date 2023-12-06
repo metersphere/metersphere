@@ -10,6 +10,7 @@
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="mock" jdbcType="BIT" property="mock" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -70,7 +71,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, project_id, create_user, update_user, create_time, update_time, mock
+    id, `name`, project_id, create_user, update_user, create_time, update_time, mock, 
+    description
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.sdk.domain.EnvironmentExample" resultMap="BaseResultMap">
     select
@@ -105,10 +107,12 @@
   <insert id="insert" parameterType="io.metersphere.sdk.domain.Environment">
     insert into environment (id, `name`, project_id, 
       create_user, update_user, create_time, 
-      update_time, mock)
+      update_time, mock, description
+      )
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
       #{createUser,jdbcType=VARCHAR}, #{updateUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{mock,jdbcType=BIT})
+      #{updateTime,jdbcType=BIGINT}, #{mock,jdbcType=BIT}, #{description,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.sdk.domain.Environment">
     insert into environment
@@ -137,6 +141,9 @@
       <if test="mock != null">
         mock,
       </if>
+      <if test="description != null">
+        description,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -162,6 +169,9 @@
       </if>
       <if test="mock != null">
         #{mock,jdbcType=BIT},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -198,6 +208,9 @@
       <if test="record.mock != null">
         mock = #{record.mock,jdbcType=BIT},
       </if>
+      <if test="record.description != null">
+        description = #{record.description,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -212,7 +225,8 @@
       update_user = #{record.updateUser,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      mock = #{record.mock,jdbcType=BIT}
+      mock = #{record.mock,jdbcType=BIT},
+      description = #{record.description,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -241,6 +255,9 @@
       <if test="mock != null">
         mock = #{mock,jdbcType=BIT},
       </if>
+      <if test="description != null">
+        description = #{description,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -252,18 +269,20 @@
       update_user = #{updateUser,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      mock = #{mock,jdbcType=BIT}
+      mock = #{mock,jdbcType=BIT},
+      description = #{description,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into environment
-    (id, `name`, project_id, create_user, update_user, create_time, update_time, mock
-      )
+    (id, `name`, project_id, create_user, update_user, create_time, update_time, mock, 
+      description)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, 
         #{item.createUser,jdbcType=VARCHAR}, #{item.updateUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
-        #{item.updateTime,jdbcType=BIGINT}, #{item.mock,jdbcType=BIT})
+        #{item.updateTime,jdbcType=BIGINT}, #{item.mock,jdbcType=BIT}, #{item.description,jdbcType=VARCHAR}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -299,6 +318,9 @@
         </if>
         <if test="'mock'.toString() == column.value">
           #{item.mock,jdbcType=BIT}
+        </if>
+        <if test="'description'.toString() == column.value">
+          #{item.description,jdbcType=VARCHAR}
         </if>
       </foreach>
       )

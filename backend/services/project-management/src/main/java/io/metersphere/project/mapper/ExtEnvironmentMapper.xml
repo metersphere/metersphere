@@ -21,4 +21,18 @@
         </if>
             ORDER BY update_time DESC
     </select>
+    <select id="groupList" resultType="io.metersphere.sdk.domain.EnvironmentGroup">
+        SELECT
+        *
+        FROM environment_group
+        WHERE environment_group.project_id = #{projectId}
+        <if test="keyword != null and keyword != ''">
+            AND (
+            id = #{keyword} OR
+            (name LIKE CONCAT('%', #{keyword}, '%'))
+            )
+
+        </if>
+        ORDER BY update_time DESC
+    </select>
 </mapper>

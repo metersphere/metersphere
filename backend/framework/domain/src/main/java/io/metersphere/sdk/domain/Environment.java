@@ -41,6 +41,9 @@ public class Environment implements Serializable {
     @NotNull(message = "{environment.mock.not_blank}", groups = {Created.class})
     private Boolean mock;
 
+    @Schema(description = "描述")
+    private String description;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -51,7 +54,8 @@ public class Environment implements Serializable {
         updateUser("update_user", "updateUser", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),
         updateTime("update_time", "updateTime", "BIGINT", false),
-        mock("mock", "mock", "BIT", false);
+        mock("mock", "mock", "BIT", false),
+        description("description", "description", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

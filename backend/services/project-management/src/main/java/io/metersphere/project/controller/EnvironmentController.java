@@ -1,7 +1,7 @@
 package io.metersphere.project.controller;
 
-import io.metersphere.project.dto.environment.EnvironmentDTO;
 import io.metersphere.project.dto.environment.EnvironmentExportDTO;
+import io.metersphere.project.dto.environment.EnvironmentFilterRequest;
 import io.metersphere.project.dto.environment.EnvironmentRequest;
 import io.metersphere.project.dto.environment.datasource.DataSource;
 import io.metersphere.project.dto.environment.ssl.KeyStoreEntry;
@@ -11,9 +11,9 @@ import io.metersphere.project.service.EnvironmentService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.system.dto.sdk.OptionDTO;
-import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,7 +24,6 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 
 import java.util.List;
 
@@ -41,7 +40,7 @@ public class EnvironmentController {
     @PostMapping("/list")
     @Operation(summary = "项目管理-环境-环境目录-列表")
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ)
-    public List<Environment> list(@Validated @RequestBody EnvironmentDTO request) {
+    public List<Environment> list(@Validated @RequestBody EnvironmentFilterRequest request) {
         return environmentService.list(request);
     }
 
