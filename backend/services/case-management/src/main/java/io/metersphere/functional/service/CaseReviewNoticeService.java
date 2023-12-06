@@ -6,7 +6,6 @@ import io.metersphere.functional.mapper.CaseReviewMapper;
 import io.metersphere.functional.mapper.ExtCaseReviewMapper;
 import io.metersphere.functional.request.CaseReviewRequest;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -37,7 +36,7 @@ public class CaseReviewNoticeService {
             caseReview.setReviewPassRule(request.getReviewPassRule());
             caseReview.setPos(getNextPos(request.getProjectId()));
             caseReview.setCreateTime(System.currentTimeMillis());
-            caseReview.setCreateUser(SessionUtils.getUserId());
+            caseReview.setCreateUser(null);
         }
         if (CollectionUtils.isNotEmpty(request.getTags())) {
             caseReview.setTags(JSON.toJSONString(request.getTags()));
@@ -45,7 +44,7 @@ public class CaseReviewNoticeService {
         caseReview.setStartTime(request.getStartTime());
         caseReview.setEndTime(request.getEndTime());
         caseReview.setUpdateTime(System.currentTimeMillis());
-        caseReview.setUpdateUser(SessionUtils.getUserId());
+        caseReview.setUpdateUser(null);
         return caseReview;
     }
 
