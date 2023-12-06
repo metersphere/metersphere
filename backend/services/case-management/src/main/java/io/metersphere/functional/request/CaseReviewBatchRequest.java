@@ -4,6 +4,7 @@ import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 
@@ -12,6 +13,9 @@ import java.util.List;
  */
 @Data
 public class CaseReviewBatchRequest extends TableBatchProcessDTO implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String projectId;

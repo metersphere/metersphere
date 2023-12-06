@@ -110,6 +110,8 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                     String createUser = (String) paramMap.get("createUser");
                     if (StringUtils.isNotBlank(createUser)) {
                         toUsers.add(new Receiver(createUser, NotificationConstants.Type.SYSTEM_NOTICE.name()));
+                    } else {
+                        toUsers.add(new Receiver((String) paramMap.get(NoticeConstants.RelatedUser.OPERATOR), NotificationConstants.Type.SYSTEM_NOTICE.name()));
                     }
                 }
                 case NoticeConstants.RelatedUser.OPERATOR -> {

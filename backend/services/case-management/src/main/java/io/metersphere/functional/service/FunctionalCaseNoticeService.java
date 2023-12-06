@@ -16,7 +16,6 @@ import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.mapper.ExtOrganizationCustomFieldMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
-import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -129,12 +128,11 @@ public class FunctionalCaseNoticeService {
     }
 
     public FunctionalCaseDTO getMainFunctionalCaseDTO(String name, String caseEditType, String projectId, Map<String, Object> customFields) {
-        String userId = SessionUtils.getUserId();
         FunctionalCaseDTO functionalCaseDTO = new FunctionalCaseDTO();
         functionalCaseDTO.setName(name);
         functionalCaseDTO.setProjectId(projectId);
         functionalCaseDTO.setCaseEditType(caseEditType);
-        functionalCaseDTO.setCreateUser(userId);
+        functionalCaseDTO.setCreateUser(null);
         List<OptionDTO> fields = new ArrayList<>();
         if (MapUtils.isNotEmpty(customFields)) {
             customFields.keySet().forEach(key -> {
@@ -179,7 +177,6 @@ public class FunctionalCaseNoticeService {
         if (CollectionUtils.isNotEmpty(ids)) {
             Map<String, FunctionalCase> functionalCaseMap = functionalCaseService.copyBaseInfo(projectId, ids);
             Map<String, List<FunctionalCaseCustomField>> customFieldMap = functionalCaseCustomFieldService.getCustomFieldMapByCaseIds(ids);
-            String userId = SessionUtils.getUserId();
             AtomicReference<List<OptionDTO>> optionDTOS = new AtomicReference<>(new ArrayList<>());
             ids.forEach(id -> {
                 FunctionalCase functionalCase = functionalCaseMap.get(id);
@@ -192,7 +189,7 @@ public class FunctionalCaseNoticeService {
                 functionalCaseDTO.setName(functionalCase.getName());
                 functionalCaseDTO.setProjectId(functionalCase.getProjectId());
                 functionalCaseDTO.setCaseEditType(functionalCase.getCaseEditType());
-                functionalCaseDTO.setCreateUser(userId);
+                functionalCaseDTO.setCreateUser(null);
                 functionalCaseDTO.setFields(optionDTOS.get());
                 dtoList.add(functionalCaseDTO);
             });

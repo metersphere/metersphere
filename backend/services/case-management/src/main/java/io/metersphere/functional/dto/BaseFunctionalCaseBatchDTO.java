@@ -4,6 +4,7 @@ import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 
@@ -12,6 +13,8 @@ import java.util.List;
  */
 @Data
 public class BaseFunctionalCaseBatchDTO extends TableBatchProcessDTO implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Schema(description = "模块id")
     private List<String> moduleIds;

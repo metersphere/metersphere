@@ -16,7 +16,7 @@ public class CaseReviewRequest implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "用例id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "用例评审id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case.id.not_blank}", groups = {Updated.class})
     private String id;
 
