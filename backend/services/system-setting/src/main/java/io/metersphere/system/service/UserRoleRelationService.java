@@ -1,20 +1,22 @@
 package io.metersphere.system.service;
 
+import io.metersphere.project.domain.Project;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.UserRoleEnum;
 import io.metersphere.sdk.constants.UserRoleScope;
-import io.metersphere.system.log.dto.LogDTO;
-import io.metersphere.system.log.constants.OperationLogModule;
-import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.log.service.OperationLogService;
-import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.*;
+import io.metersphere.system.dto.response.UserTableResponse;
+import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.log.dto.LogDTO;
+import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.ExtUserRoleRelationMapper;
 import io.metersphere.system.mapper.OrganizationMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
-import io.metersphere.system.dto.response.UserTableResponse;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -27,10 +29,7 @@ import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -48,6 +47,8 @@ public class UserRoleRelationService {
     private OrganizationMapper organizationMapper;
     @Resource
     private OperationLogService operationLogService;
+    @Resource
+    private ProjectMapper projectMapper;
 
     //批量添加用户记录日志
     public List<LogDTO> getBatchLogs(@Valid @NotEmpty List<String> userRoleId,
@@ -127,6 +128,29 @@ public class UserRoleRelationService {
             userRoleRelationSaveList.add(userRoleRelation);
         }
         userRoleRelationMapper.batchInsert(userRoleRelationSaveList);
+    }
+
+    public Map<Organization, List<Project>> selectOrganizationProjectByUserId(String userId) {
+        Map<Organization, List<Project>> returnMap = new LinkedHashMap<>();
+        UserRoleRelationExample example = new UserRoleRelationExample();
+        example.createCriteria().andUserIdEqualTo(userId);
+        List<UserRoleRelation> userRoleRelationList = userRoleRelationMapper.selectByExample(example);
+        for (UserRoleRelation userRoleRelation : userRoleRelationList) {
+            Organization organization = organizationMapper.selectByPrimaryKey(userRoleRelation.getOrganizationId());
+            if (organization != null) {
+                Project project = projectMapper.selectByPrimaryKey(userRoleRelation.getSourceId());
+                if (project != null) {
+                    if (returnMap.containsKey(organization)) {
+                        if (!returnMap.get(organization).contains(project)) {
+                            returnMap.get(organization).add(project);
+                        }
+                    } else {
+                        returnMap.put(organization, new ArrayList<>(Arrays.asList(project)));
+                    }
+                }
+            }
+        }
+        return returnMap;
     }
 
     public Map<String, UserTableResponse> selectGlobalUserRoleAndOrganization(@Valid @NotEmpty List<String> userIdList) {

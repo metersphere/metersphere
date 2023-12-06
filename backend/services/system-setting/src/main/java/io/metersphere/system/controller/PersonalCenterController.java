@@ -4,7 +4,7 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.system.dto.request.user.PersonalUpdatePasswordRequest;
 import io.metersphere.system.dto.request.user.PersonalUpdateRequest;
-import io.metersphere.system.dto.user.UserDTO;
+import io.metersphere.system.dto.user.PersonalDTO;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.UserLogService;
@@ -29,9 +29,9 @@ public class PersonalCenterController {
     @GetMapping("/get/{id}")
     @Operation(summary = "个人中心-获取信息")
     @RequiresPermissions(PermissionConstants.SYSTEM_PERSONAL_READ)
-    public UserDTO getInformation(@PathVariable String id) {
+    public PersonalDTO getInformation(@PathVariable String id) {
         this.checkPermission(id);
-        return userService.getUserDTOByKeyword(id);
+        return userService.getPersonalById(id);
     }
 
     @PostMapping("/update-info")

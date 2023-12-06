@@ -892,6 +892,11 @@ public class UserControllerTests extends BaseTest {
         for (String userID : request.getSelectIds()) {
             this.checkLog(userID, OperationLogType.UPDATE, UserRequestUtils.URL_ADD_PROJECT_MEMBER);
         }
+        //获取用户信息
+        for (String userID : request.getSelectIds()) {
+            userService.getPersonalById(userID);
+        }
+
         //检查用户表格不会加载出来非全局用户组
         this.testPageSuccess();
     }
@@ -928,6 +933,11 @@ public class UserControllerTests extends BaseTest {
         //检查日志
         for (String userID : request.getSelectIds()) {
             this.checkLog(userID, OperationLogType.UPDATE, UserRequestUtils.URL_ADD_ORGANIZATION_MEMBER);
+        }
+
+        //获取用户信息
+        for (String userID : request.getSelectIds()) {
+            userService.getPersonalById(userID);
         }
         //检查用户表格加载组织
         this.testPageSuccess();

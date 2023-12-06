@@ -3,6 +3,7 @@ package io.metersphere.project.service;
 import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.domain.FileAssociationExample;
 import io.metersphere.project.domain.FileMetadata;
+import io.metersphere.project.dto.filemanagement.FileAssociationDTO;
 import io.metersphere.project.dto.filemanagement.FileAssociationSource;
 import io.metersphere.project.dto.filemanagement.FileInfo;
 import io.metersphere.project.dto.filemanagement.FileLogRecord;
@@ -307,22 +308,22 @@ public class FileAssociationService {
 
     /**
      * 转存并关联文件
-     * @param fileName      文件名称（含后缀）
-     * @param fileBytes     文件字节流
-     * @param sourceId      要关联的资源ID
-     * @param sourceType    要关联的资源名称
-     * @param fileLogRecord 日志记录相关
      * @return
      * @throws Exception
      */
-    public String transferAndAssociation(String fileName,byte[] fileBytes,String sourceId,String sourceType, @Validated  FileLogRecord fileLogRecord) throws Exception {
-        FileAssociationSource source = extFileAssociationMapper.selectNameBySourceTableAndId(FileAssociationSourceUtil.getQuerySql(sourceType),sourceId);
+    public String transferAndAssociation(@Validated FileAssociationDTO fileAssociationDTO) throws Exception {
+        FileAssociationSource source = extFileAssociationMapper.selectNameBySourceTableAndId(FileAssociationSourceUtil.getQuerySql(fileAssociationDTO.getSourceType()), fileAssociationDTO.getSourceId());
         this.validateSourceName(source);
-        String fileId = fileMetadataService.transferFile(fileName, fileLogRecord.getProjectId(), fileLogRecord.getOperator(),fileBytes);
+        String fileId = fileMetadataService.transferFile(
+                fileAssociationDTO.getFileName(),
+                fileAssociationDTO.getFileLogRecord().getProjectId(),
+                fileAssociationDTO.getModuleId(),
+                fileAssociationDTO.getFileLogRecord().getOperator(),
+                fileAssociationDTO.getFileBytes());
         List<String> accociationList = new ArrayList<>();
         accociationList.add(fileId);
-        this.association(sourceId, sourceType, accociationList, fileLogRecord);
-        fileAssociationLogService.saveTransferAssociationLog(sourceId,fileName,source.getSourceName(),fileLogRecord);
+        this.association(fileAssociationDTO.getSourceId(), fileAssociationDTO.getSourceType(), accociationList, fileAssociationDTO.getFileLogRecord());
+        fileAssociationLogService.saveTransferAssociationLog(fileAssociationDTO.getSourceId(), fileAssociationDTO.getFileName(), source.getSourceName(), fileAssociationDTO.getFileLogRecord());
         return fileId;
     }
 
@@ -331,7 +332,6 @@ public class FileAssociationService {
              throw new MSException(Translator.get("file.association.source.not.exist"));
         }
     }
-
 
     /**
      * 获取文件列表接口
