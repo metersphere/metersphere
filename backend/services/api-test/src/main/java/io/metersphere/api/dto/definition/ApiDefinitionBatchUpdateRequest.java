@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serial;
 import java.util.LinkedHashSet;
 
 /**
@@ -15,6 +16,7 @@ import java.util.LinkedHashSet;
 @EqualsAndHashCode(callSuper = false)
 public class ApiDefinitionBatchUpdateRequest extends ApiDefinitionBatchRequest {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "所需更新的字段名", requiredMode = Schema.RequiredMode.REQUIRED)

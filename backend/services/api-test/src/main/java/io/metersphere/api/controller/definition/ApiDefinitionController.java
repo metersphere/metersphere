@@ -13,6 +13,7 @@ import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotBlank;
 import org.apache.commons.lang3.StringUtils;
@@ -30,6 +31,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping(value = "/api/definition")
+@Tag(name = "接口测试-接口管理-接口定义")
 public class ApiDefinitionController {
     @Resource
     private ApiDefinitionService apiDefinitionService;
@@ -167,6 +169,13 @@ public class ApiDefinitionController {
     @RequiresPermissions(logical = Logical.OR, value = {PermissionConstants.PROJECT_API_DEFINITION_ADD, PermissionConstants.PROJECT_API_DEFINITION_UPDATE})
     public String uploadTempFile(@RequestParam("file") MultipartFile file) {
         return apiDefinitionService.uploadTempFile(file);
+    }
+
+    @PostMapping("/doc")
+    @Operation(summary = "接口测试-接口管理-接口文档列表")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    public ApiDefinitionDocDTO getDocInfo(@Validated @RequestBody ApiDefinitionDocRequest request) {
+        return apiDefinitionService.getDocInfo(request, SessionUtils.getUserId());
     }
 
 }

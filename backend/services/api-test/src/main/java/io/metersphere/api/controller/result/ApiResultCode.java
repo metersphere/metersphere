@@ -9,7 +9,8 @@ public enum ApiResultCode implements IResultCode {
 
     API_DEBUG_EXIST(104001, "api_debug_exist"),
     API_DEFINITION_EXIST(104002, "api_definition_exist"),
-    API_DEFINITION_NOT_EXIST(104003, "resource_not_exist");
+    API_DEFINITION_NOT_EXIST(104003, "resource_not_exist"),
+    API_DEFINITION_MODULE_NOT_EXIST(10404, "resource_not_exist");
 
 
     private final int code;

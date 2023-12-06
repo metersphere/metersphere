@@ -8,7 +8,7 @@ import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.enums.ApiReportStatus;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiFileResourceService;
-import io.metersphere.sdk.util.ApiDataUtils;
+import io.metersphere.sdk.util.*;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.service.ProjectService;
@@ -16,10 +16,6 @@ import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.FileAssociationSourceUtil;
-import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.service.UserLoginService;
@@ -41,11 +37,15 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static io.metersphere.api.controller.result.ApiResultCode.*;
+
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ApiDefinitionService {
 
     public static final Long ORDER_STEP = 5000L;
+
+    private static final String ALL_API = "api_definition_module.api.all";
 
     @Resource
     private ApiDefinitionMapper apiDefinitionMapper;
@@ -77,6 +77,9 @@ public class ApiDefinitionService {
 
     @Resource
     private ApiFileResourceService apiFileResourceService;
+
+    @Resource
+    private ApiDefinitionModuleMapper apiDefinitionModuleMapper;
 
     public List<ApiDefinitionDTO> getApiDefinitionPage(ApiDefinitionPageRequest request){
         List<ApiDefinitionDTO> list = extApiDefinitionMapper.list(request);
@@ -440,7 +443,6 @@ public class ApiDefinitionService {
             List<String> refIds = extApiDefinitionMapper.getRefIds(ids, false);
             if(CollectionUtils.isNotEmpty(refIds)){
                 SubListUtils.dealForSubList(refIds, 2000, subRefIds -> {
-                extApiDefinitionMapper.batchDeleteByRefId(subRefIds, userId, projectId);
                     List<String> delApiIds = extApiDefinitionMapper.getIdsByRefId(subRefIds, false);
                     SubListUtils.dealForSubList(delApiIds, 2000, subList -> {
                         if(CollectionUtils.isNotEmpty(delApiIds)){
@@ -448,6 +450,7 @@ public class ApiDefinitionService {
                             deleteApiRelatedData(subList, userId, projectId);
                         }
                     });
+                    extApiDefinitionMapper.batchDeleteByRefId(subRefIds, userId, projectId);
                 });
             }
         } else {
@@ -478,7 +481,7 @@ public class ApiDefinitionService {
         apiDefinitionExample.setOrderByClause("update_time DESC");
         ApiDefinition apiDefinition = apiDefinitionMapper.selectByExample(apiDefinitionExample).stream().findFirst().orElse(null);
         if (apiDefinition == null) {
-            throw new MSException(ApiResultCode.API_DEFINITION_EXIST);
+            throw new MSException(ApiResultCode.API_DEFINITION_NOT_EXIST);
         }
         return apiDefinition;
     }
@@ -490,7 +493,6 @@ public class ApiDefinitionService {
 
     private void doDelete(List<String> ids, String userId, String projectId) {
         if(CollectionUtils.isNotEmpty(ids)){
-            extApiDefinitionMapper.batchDeleteById(ids, userId, projectId);
             // 需要判断是否存在多个版本问题
             ids.forEach(id -> {
                 ApiDefinition apiDefinition = checkApiDefinition(id);
@@ -504,6 +506,7 @@ public class ApiDefinitionService {
             });
             // 删除 case
             deleteApiRelatedData(ids, userId, projectId);
+            extApiDefinitionMapper.batchDeleteById(ids, userId, projectId);
         }
 
     }
@@ -603,7 +606,7 @@ public class ApiDefinitionService {
             apiDefinitionFollowerMapper.deleteByExample(apiDefinitionFollowerExample);
 
             // 删除接口关联数据
-            recycleDelApiRelatedData(ids, userId, projectId);
+            trashDelApiRelatedData(ids, userId, projectId);
 
             // 删除接口
             ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
@@ -612,7 +615,7 @@ public class ApiDefinitionService {
         }
     }
 
-    private void recycleDelApiRelatedData(List<String> apiIds, String userId, String projectId){
+    private void trashDelApiRelatedData(List<String> apiIds, String userId, String projectId){
         // 是否存在 case 删除 case
         List<ApiTestCase> caseLists = extApiTestCaseMapper.getCaseInfoByApiIds(apiIds, true);
         if(CollectionUtils.isNotEmpty(caseLists)) {
@@ -641,26 +644,10 @@ public class ApiDefinitionService {
         return apiFileResourceService.uploadTempFile(file);
     }
 
-    public ApiDefinitionDTO getInfo(String id, String userId){
-        ApiDefinitionDTO apiDefinitionDTO = new ApiDefinitionDTO();
-        ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(id);
-        if(apiDefinition != null){
-            apiDefinitionDTO = getApiDefinitionInfo(id, userId, apiDefinition);
-        }
-        return apiDefinitionDTO;
-    }
-
     public ApiDefinitionDTO getApiDefinitionInfo(String id, String userId, ApiDefinition apiDefinition) {
         ApiDefinitionDTO apiDefinitionDTO = new ApiDefinitionDTO();
         // 2. 使用Optional避免空指针异常
-        Optional<ApiDefinitionBlob> apiDefinitionBlobOptional = Optional.ofNullable(apiDefinitionBlobMapper.selectByPrimaryKey(id));
-        apiDefinitionBlobOptional.ifPresent(blob -> {
-            apiDefinitionDTO.setRequest(ApiDataUtils.parseObject(new String(blob.getRequest()), AbstractMsTestElement.class));
-            // blob.getResponse() 为 null 时不进行转换
-            if (blob.getResponse() != null) {
-                apiDefinitionDTO.setResponse(ApiDataUtils.parseArray(new String(blob.getResponse()), HttpResponse.class));
-            }
-        });
+        handleBlob(id, apiDefinitionDTO);
         // 3. 使用Stream简化集合操作
         ApiDefinitionFollowerExample example = new ApiDefinitionFollowerExample();
         example.createCriteria().andApiDefinitionIdEqualTo(id).andUserIdEqualTo(userId);
@@ -669,4 +656,44 @@ public class ApiDefinitionService {
         return apiDefinitionDTO;
     }
 
+    public void handleBlob(String id, ApiDefinitionDTO apiDefinitionDTO) {
+        Optional<ApiDefinitionBlob> apiDefinitionBlobOptional = Optional.ofNullable(apiDefinitionBlobMapper.selectByPrimaryKey(id));
+        apiDefinitionBlobOptional.ifPresent(blob -> {
+            apiDefinitionDTO.setRequest(ApiDataUtils.parseObject(new String(blob.getRequest()), AbstractMsTestElement.class));
+            // blob.getResponse() 为 null 时不进行转换
+            if (blob.getResponse() != null) {
+                apiDefinitionDTO.setResponse(ApiDataUtils.parseArray(new String(blob.getResponse()), HttpResponse.class));
+            }
+        });
+    }
+
+    public ApiDefinitionDocDTO getDocInfo(ApiDefinitionDocRequest request, String userId) {
+        ApiDefinitionDocDTO apiDefinitionDocDTO = new ApiDefinitionDocDTO();
+        apiDefinitionDocDTO.setType(request.getType());
+        // @@TODO 下载所有/一个模块接口文档时，不做分页数据量大的时候会不会有性能问题
+        if ("ALL".equals(request.getType()) || "MODULE".equals(request.getType())) {
+            List<ApiDefinitionDTO> list = extApiDefinitionMapper.listDoc(request);
+            if(null != list){
+                list.forEach(item-> handleBlob(item.getId(), item));
+                apiDefinitionDocDTO.setDocTitle("ALL".equals(request.getType()) ? Translator.get(ALL_API) : getModuleTitle(list));
+                apiDefinitionDocDTO.setDocList(list);
+            }
+        } else if ("API".equals(request.getType())) {
+            ApiDefinitionDTO apiDefinitionDTO = get(request.getApiId(), userId);
+            apiDefinitionDocDTO.setDocTitle(apiDefinitionDTO.getName());
+            apiDefinitionDocDTO.setDocList(Collections.singletonList(apiDefinitionDTO));
+        }
+
+        return apiDefinitionDocDTO;
+    }
+
+    private String getModuleTitle(List<ApiDefinitionDTO> list) {
+        ApiDefinitionDTO first = list.stream().findFirst().orElseThrow(() -> new MSException(API_DEFINITION_NOT_EXIST));
+        ApiDefinitionModule apiDefinitionModule = apiDefinitionModuleMapper.selectByPrimaryKey(first.getModuleId());
+        if (StringUtils.isNotBlank(apiDefinitionModule.getName())) {
+            return apiDefinitionModule.getName();
+        } else {
+            throw new MSException(API_DEFINITION_MODULE_NOT_EXIST);
+        }
+    }
 }
