@@ -5,6 +5,7 @@ import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.dto.definition.ApiTestCaseBatchRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.definition.ApiTestCasePageRequest;
+import io.metersphere.api.dto.definition.CasePassDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -33,4 +34,6 @@ public interface ExtApiTestCaseMapper {
     Long getPrePos(@Param("projectId") String projectId, @Param("basePos") Long basePos);
 
     Long getLastPos(@Param("projectId") String projectId, @Param("basePos") Long basePos);
+
+    List<CasePassDTO> findPassRateByIds(@Param("ids") List<String> ids);
 }

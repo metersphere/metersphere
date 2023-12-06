@@ -81,6 +81,9 @@ public class ApiTestCaseDTO {
     @Schema(description = "标签")
     private List<String> tags = new ArrayList<>();
 
+    @Schema(description = "用例通过率")
+    private String passRate;
+
     @Schema(description = "请求内容")
     private AbstractMsTestElement request;
 

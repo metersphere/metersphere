@@ -3,8 +3,8 @@ package io.metersphere.project.service;
 
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.environment.EnvironmentConfig;
-import io.metersphere.project.dto.environment.EnvironmentDTO;
 import io.metersphere.project.dto.environment.EnvironmentExportDTO;
+import io.metersphere.project.dto.environment.EnvironmentFilterRequest;
 import io.metersphere.project.dto.environment.EnvironmentRequest;
 import io.metersphere.project.dto.environment.datasource.DataSource;
 import io.metersphere.project.mapper.ExtEnvironmentMapper;
@@ -106,7 +106,7 @@ public class EnvironmentService {
 
     }
 
-    public List<Environment> list(EnvironmentDTO request) {
+    public List<Environment> list(EnvironmentFilterRequest request) {
         return extEnvironmentMapper.selectByKeyword(request.getKeyword(), false, request.getProjectId());
     }
 
@@ -121,6 +121,7 @@ public class EnvironmentService {
         environment.setUpdateUser(userId);
         environment.setUpdateTime(System.currentTimeMillis());
         environment.setMock(false);
+        environment.setDescription(request.getDescription());
         environmentMapper.insert(environment);
         request.setId(environment.getId());
         EnvironmentBlob environmentBlob = new EnvironmentBlob();

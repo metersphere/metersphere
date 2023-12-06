@@ -31,5 +31,7 @@ public class EnvironmentRequest implements Serializable {
     private EnvironmentConfig config;
     @Schema(description = "是否是mock环境")
     private Boolean mock;
+    @Schema(description = "描述")
+    private String description;
 
 }

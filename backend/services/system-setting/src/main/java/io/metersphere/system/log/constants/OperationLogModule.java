@@ -88,6 +88,8 @@ public class OperationLogModule {
     public static final String PROJECT_MANAGEMENT_PERMISSION_USER_ROLE = "PROJECT_USER_GROUP";
     // 项目管理-环境
     public static final String PROJECT_MANAGEMENT_ENVIRONMENT = "PROJECT_MANAGEMENT_ENVIRONMENT";
+    // 项目管理-环境组
+    public static final String PROJECT_MANAGEMENT_ENVIRONMENT_GROUP = "PROJECT_MANAGEMENT_ENVIRONMENT_GROUP";
     // 项目管理-版本管理
     public static final String PROJECT_MANAGEMENT_PERMISSION_VERSION = "PROJECT_MANAGEMENT_PERMISSION_VERSION";
     //项目管理-消息设置

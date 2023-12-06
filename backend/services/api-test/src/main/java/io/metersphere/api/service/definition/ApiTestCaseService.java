@@ -6,7 +6,6 @@ import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiFileResourceService;
-import io.metersphere.sdk.util.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
@@ -278,7 +277,11 @@ public class ApiTestCaseService {
             environmentExample.createCriteria().andIdIn(envIds);
             List<Environment> environments = environmentMapper.selectByExample(environmentExample);
             Map<String, String> envMap = environments.stream().collect(Collectors.toMap(Environment::getId, Environment::getName));
+            List<String> ids = apiCaseLists.stream().map(ApiTestCaseDTO::getId).collect(Collectors.toList());
+            List<CasePassDTO> passRateList = extApiTestCaseMapper.findPassRateByIds(ids);
+            Map<String, String> passRates = passRateList.stream().collect(Collectors.toMap(CasePassDTO::getId, CasePassDTO::getValue));
             apiCaseLists.forEach(apiCase -> {
+                apiCase.setPassRate(passRates.get(apiCase.getId()));
                 apiCase.setCreateName(userMap.get(apiCase.getCreateUser()));
                 apiCase.setUpdateName(userMap.get(apiCase.getUpdateUser()));
                 apiCase.setDeleteName(userMap.get(apiCase.getDeleteUser()));

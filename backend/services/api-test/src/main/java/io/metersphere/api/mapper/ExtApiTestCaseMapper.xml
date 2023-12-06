@@ -94,6 +94,29 @@
         order by `pos` desc limit 1;
     </select>
 
+    <select id="findPassRateByIds" resultType="io.metersphere.api.dto.definition.CasePassDTO">
+        SELECT
+        t2.resource_id as id,
+        CONCAT(
+        FORMAT(
+        SUM(
+        IF
+        ( t2.`status` = 'success', 1, 0 ))/ COUNT( t2.id )* 100,
+        2
+        ),
+        '%'
+        ) value
+        FROM
+        api_report t2
+        WHERE
+        t2.resource_id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        GROUP BY
+        t2.resource_id
+    </select>
+
     <sql id="queryWhereConditionByBatch">
         <if test="request.protocol != null and request.protocol!=''">
             and a.protocol = #{request.protocol}
