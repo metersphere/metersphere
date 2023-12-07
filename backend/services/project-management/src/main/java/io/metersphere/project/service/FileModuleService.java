@@ -73,6 +73,7 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
         fileModule.setCreateUser(operator);
         fileModule.setUpdateUser(operator);
         fileModule.setModuleType(ModuleConstants.NODE_TYPE_DEFAULT);
+
         fileModuleMapper.insert(fileModule);
 
         //记录日志
