@@ -27,4 +27,7 @@ public class FunctionalCaseFileRequest implements Serializable {
     @Schema(description = "是否本地",requiredMode = Schema.RequiredMode.REQUIRED)
     private Boolean local;
 
+    @Schema(description = "转存的模块id",requiredMode = Schema.RequiredMode.REQUIRED)
+    private String moduleId;
+
 }

@@ -6,4 +6,10 @@
         select id from project_version where project_id = #{projectId} and status = 'open' and latest = TRUE LIMIT 1
     </select>
 
+    <select id="getVersionByIds" resultType="io.metersphere.project.domain.ProjectVersion">
+        select id, name from project_version where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>
