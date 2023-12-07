@@ -52,7 +52,7 @@
       />
     </a-form-item>
     <a-form-item>
-      <a-button type="primary" class="mr-[14px]" :loading="updateLoading" @click="updateBaseInfo">
+      <a-button type="primary" class="mr-[14px]" :loading="updateLoading" @click="editBaseInfo">
         {{ t('common.update') }}
       </a-button>
       <a-button type="secondary" :disabled="updateLoading" @click="cancelEdit">{{ t('common.cancel') }}</a-button>
@@ -89,11 +89,11 @@
           class="check-icon"
         />
       </div>
-      <div v-for="(avatar, index) of avatarList" :key="avatar" class="avatar" @click="changeAvatar(index)">
+      <div v-for="(avatar, index) of avatarList" :key="avatar" class="avatar" @click="changeAvatar(avatar)">
         <MsAvatar :avatar="avatar" class="mb-[4px]" />
         <div class="text-[12px] text-[var(--color-text-1)]">{{ t('ms.personal.avatar', { index: index }) }}</div>
         <MsIcon
-          v-if="activeAvatar === index"
+          v-if="activeAvatar === avatar"
           type="icon-icon_succeed_filled"
           :style="{ color: 'rgb(var(--success-6))' }"
           class="check-icon"
@@ -126,6 +126,7 @@
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
 
+  import { getBaseInfo, updateBaseInfo } from '@/api/modules/user';
   import { useI18n } from '@/hooks/useI18n';
   import useUserStore from '@/store/modules/user/index';
   import { validateEmail, validatePhone } from '@/utils/validate';
@@ -136,6 +137,7 @@
 
   const { t } = useI18n();
 
+  const loading = ref(false);
   const isEdit = ref(false);
   const descriptions = ref<Description[]>([
     {
@@ -162,6 +164,19 @@
     phone: userStore.phone,
   });
   const baseInfoFormRef = ref<FormInstance>();
+  const orgList = ref([]);
+
+  onBeforeMount(async () => {
+    try {
+      loading.value = true;
+      const res = await getBaseInfo(userStore.id || '');
+      console.log(res);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  });
+
   const updateLoading = ref(false);
 
   function cancelEdit() {
@@ -194,12 +209,20 @@
     }
   }
 
-  function updateBaseInfo() {
+  function editBaseInfo() {
     baseInfoFormRef.value?.validate(async (errors) => {
       if (!errors) {
         try {
           updateLoading.value = true;
+          await updateBaseInfo({
+            id: userStore.id || '',
+            username: baseInfoForm.value.name || '',
+            email: baseInfoForm.value.email || '',
+            phone: baseInfoForm.value.phone || '',
+            avatar: userStore.avatar || '',
+          });
           Message.success(t('common.updateSuccess'));
+          await userStore.isLogin();
           isEdit.value = false;
         } catch (error) {
           // eslint-disable-next-line no-console
@@ -212,25 +235,8 @@
   }
 
   const avatarModalVisible = ref(false);
-
-  async function handleChangeAvatarConfirm(done: (closed: boolean) => void) {
-    try {
-      // if (replaceVersion.value !== '') {
-      //   await useLatestVersion(replaceVersion.value);
-      // }
-      // await toggleVersionStatus(activeRecord.value.id);
-      Message.success(t('common.updateSuccess'));
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-      done(false);
-    } finally {
-      done(true);
-    }
-  }
-
   const activeAvatarType = ref<'builtIn' | 'word'>('builtIn');
-  const activeAvatar = ref<string | number>('default');
+  const activeAvatar = ref('default');
   const avatarList = ref<string[]>([]);
   let i = 1;
   while (i <= 46) {
@@ -238,8 +244,28 @@
     i++;
   }
 
-  function changeAvatar(avatar: string | number) {
+  function changeAvatar(avatar: string) {
     activeAvatar.value = avatar;
+  }
+
+  async function handleChangeAvatarConfirm(done: (closed: boolean) => void) {
+    try {
+      await updateBaseInfo({
+        id: userStore.id || '',
+        username: baseInfoForm.value.name || '',
+        email: baseInfoForm.value.email || '',
+        phone: baseInfoForm.value.phone || '',
+        avatar: activeAvatar.value,
+      });
+      Message.success(t('common.updateSuccess'));
+      await userStore.isLogin();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      done(false);
+    } finally {
+      done(true);
+    }
   }
 </script>
 

@@ -37,9 +37,15 @@
   import MsPasswordInput from '@/components/pure/ms-password-input/index.vue';
   import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
 
+  import { updatePsw } from '@/api/modules/user';
   import { useI18n } from '@/hooks/useI18n';
+  import useUser from '@/hooks/useUser';
+  import useUserStore from '@/store/modules/user';
+  import { encrypted } from '@/utils';
   import { validatePasswordLength, validateWordPassword } from '@/utils/validate';
 
+  const userStore = useUserStore();
+  const { logout } = useUser();
   const { t } = useI18n();
 
   const form = ref({
@@ -80,12 +86,26 @@
     ],
   };
 
+  const counting = ref(3);
+
   function changePsw() {
     formRef.value?.validate(async (errors) => {
       if (!errors) {
         try {
           loading.value = true;
-          Message.success(t('common.updateSuccess'));
+          await updatePsw({
+            id: userStore.id || '',
+            newPassword: encrypted(form.value.newPsw) || '',
+            oldPassword: encrypted(form.value.password) || '',
+          });
+          Message.success({
+            content: t('ms.personal.updatePswSuccess', { count: counting.value }),
+            duration: 4000,
+          });
+          setInterval(() => counting.value--, 1000);
+          setTimeout(() => {
+            logout();
+          }, 3000);
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);

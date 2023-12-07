@@ -4,6 +4,9 @@
       <a-button type="primary" @click="handleAddClick">{{ t('project.fileManagement.addFile') }}</a-button>
       <div class="header-right">
         <a-select v-model="tableFileType" class="w-[240px]" :loading="fileTypeLoading" @change="searchList">
+          <template #prefix>
+            {{ t('project.fileManagement.type') }}
+          </template>
           <a-option key="" value="">{{ t('common.all') }}</a-option>
           <a-option v-for="item of tableFileTypeOptions" :key="item" :value="item">
             {{ item }}
