@@ -1,7 +1,8 @@
 package io.metersphere.project.controller;
 
-import io.metersphere.project.dto.environment.EnvironmentExportDTO;
+import io.metersphere.project.dto.environment.EnvironmentExportRequest;
 import io.metersphere.project.dto.environment.EnvironmentFilterRequest;
+import io.metersphere.project.dto.environment.EnvironmentImportRequest;
 import io.metersphere.project.dto.environment.EnvironmentRequest;
 import io.metersphere.project.dto.environment.datasource.DataSource;
 import io.metersphere.project.dto.environment.ssl.KeyStoreEntry;
@@ -11,6 +12,7 @@ import io.metersphere.project.service.EnvironmentService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.utils.SessionUtils;
@@ -21,6 +23,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -95,15 +98,15 @@ public class EnvironmentController {
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ_IMPORT)
     @Operation(summary = "项目管理-环境-环境目录-导入")
-    public void create(@RequestPart(value = "file") MultipartFile file) {
-        environmentService.create(file, SessionUtils.getUserId(), SessionUtils.getCurrentProjectId());
+    public void create(@RequestPart(value = "request") EnvironmentImportRequest request, @RequestPart(value = "file") MultipartFile file) {
+        environmentService.create(request, file, SessionUtils.getUserId(), SessionUtils.getCurrentProjectId());
     }
 
     @PostMapping("/export")
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ_EXPORT)
     @Operation(summary = "项目管理-环境-环境目录-导出")
-    public String export(@Validated @RequestBody EnvironmentExportDTO request) {
-        return environmentService.export(request);
+    public ResponseEntity<byte[]> export(@Validated @RequestBody EnvironmentExportRequest request) {
+        return environmentService.exportZip(request);
     }
 
     @PostMapping(value = "/get/entry")
@@ -111,5 +114,13 @@ public class EnvironmentController {
     public List<KeyStoreEntry> getEntry(@RequestPart("request") String password, @RequestPart(value = "file") MultipartFile sslFiles) {
         return commandService.getEntry(password, sslFiles);
     }
+
+    @PostMapping("/edit/pos")
+    @Operation(summary = "项目管理-环境-环境目录-修改排序")
+    @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ_UPDATE)
+    public void editPos(@Validated @RequestBody PosRequest request) {
+        environmentService.editPos(request);
+    }
+
 
 }

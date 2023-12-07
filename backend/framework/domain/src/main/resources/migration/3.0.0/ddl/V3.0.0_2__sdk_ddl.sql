@@ -50,6 +50,7 @@ CREATE TABLE IF NOT EXISTS environment
     `update_time` BIGINT       NOT NULL COMMENT '更新时间',
     `mock`        BIT          NOT NULL DEFAULT 0 COMMENT '是否是mock环境',
     `description` VARCHAR(255)    COMMENT '描述' ,
+    `pos` BIGINT NOT NULL   COMMENT '排序' ,
     PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
@@ -76,6 +77,7 @@ CREATE TABLE IF NOT EXISTS environment_group(
   `update_user` VARCHAR(50) NOT NULL   COMMENT '修改人' ,
   `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
   `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
+  `pos` BIGINT NOT NULL   COMMENT '排序' ,
   PRIMARY KEY (id)
 ) ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4

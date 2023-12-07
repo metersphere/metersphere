@@ -10,6 +10,7 @@
     <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="pos" jdbcType="BIGINT" property="pos" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -70,7 +71,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, project_id, description, create_user, update_user, create_time, update_time
+    id, `name`, project_id, description, create_user, update_user, create_time, update_time, 
+    pos
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.sdk.domain.EnvironmentGroupExample" resultMap="BaseResultMap">
     select
@@ -105,10 +107,12 @@
   <insert id="insert" parameterType="io.metersphere.sdk.domain.EnvironmentGroup">
     insert into environment_group (id, `name`, project_id, 
       description, create_user, update_user, 
-      create_time, update_time)
+      create_time, update_time, pos
+      )
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{updateUser,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT})
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{pos,jdbcType=BIGINT}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.sdk.domain.EnvironmentGroup">
     insert into environment_group
@@ -137,6 +141,9 @@
       <if test="updateTime != null">
         update_time,
       </if>
+      <if test="pos != null">
+        pos,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -162,6 +169,9 @@
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="pos != null">
+        #{pos,jdbcType=BIGINT},
       </if>
     </trim>
   </insert>
@@ -198,6 +208,9 @@
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
+      <if test="record.pos != null">
+        pos = #{record.pos,jdbcType=BIGINT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -212,7 +225,8 @@
       create_user = #{record.createUser,jdbcType=VARCHAR},
       update_user = #{record.updateUser,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT}
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      pos = #{record.pos,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -241,6 +255,9 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
+      <if test="pos != null">
+        pos = #{pos,jdbcType=BIGINT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -252,18 +269,20 @@
       create_user = #{createUser,jdbcType=VARCHAR},
       update_user = #{updateUser,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT}
+      update_time = #{updateTime,jdbcType=BIGINT},
+      pos = #{pos,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into environment_group
-    (id, `name`, project_id, description, create_user, update_user, create_time, update_time
-      )
+    (id, `name`, project_id, description, create_user, update_user, create_time, update_time, 
+      pos)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, 
         #{item.description,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, #{item.updateUser,jdbcType=VARCHAR}, 
-        #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT})
+        #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, #{item.pos,jdbcType=BIGINT}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -299,6 +318,9 @@
         </if>
         <if test="'update_time'.toString() == column.value">
           #{item.updateTime,jdbcType=BIGINT}
+        </if>
+        <if test="'pos'.toString() == column.value">
+          #{item.pos,jdbcType=BIGINT}
         </if>
       </foreach>
       )

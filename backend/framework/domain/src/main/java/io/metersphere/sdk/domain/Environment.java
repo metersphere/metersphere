@@ -44,6 +44,10 @@ public class Environment implements Serializable {
     @Schema(description = "描述")
     private String description;
 
+    @Schema(description = "排序", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{environment.pos.not_blank}", groups = {Created.class})
+    private Long pos;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -55,7 +59,8 @@ public class Environment implements Serializable {
         createTime("create_time", "createTime", "BIGINT", false),
         updateTime("update_time", "updateTime", "BIGINT", false),
         mock("mock", "mock", "BIT", false),
-        description("description", "description", "VARCHAR", false);
+        description("description", "description", "VARCHAR", false),
+        pos("pos", "pos", "BIGINT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

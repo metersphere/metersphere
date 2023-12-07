@@ -15,6 +15,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogType;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
@@ -48,6 +49,7 @@ public class EnvironmentGroupControllerTests extends BaseTest {
     private static final String delete = prefix + "/delete/";
     private static final String list = prefix + "/list";
     private static final String getProject = prefix + "/get-project";
+    private static final String POS_URL = prefix + "/edit/pos";
     private static final ResultMatcher BAD_REQUEST_MATCHER = status().isBadRequest();
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
     private static String GROUP_ID;
@@ -295,6 +297,23 @@ public class EnvironmentGroupControllerTests extends BaseTest {
         requestPostPermissionTest(PermissionConstants.PROJECT_ENVIRONMENT_READ, list, environmentDTO);
     }
 
+    @Test
+    @Order(10)
+    public void testPos() throws Exception {
+        PosRequest posRequest = new PosRequest();
+        posRequest.setProjectId(DEFAULT_PROJECT_ID);
+        posRequest.setTargetId(getEnvironmentGroup());
+        EnvironmentGroupExample example = new EnvironmentGroupExample();
+        example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("校验权限");
+        List<EnvironmentGroup> environments = environmentGroupMapper.selectByExample(example);
+        posRequest.setMoveId(environments.get(0).getId());
+        posRequest.setMoveMode("AFTER");
+        this.requestPostWithOkAndReturn(POS_URL, posRequest);
+
+        posRequest.setMoveMode("BEFORE");
+        this.requestPostWithOkAndReturn(POS_URL, posRequest);
+
+    }
     @Test
     @Order(12)
     public void testDeleteSuccess() throws Exception {

@@ -31,6 +31,7 @@ public class CreateEnvironmentResourceService implements CreateProjectResourceSe
             environment.setCreateUser(project.getCreateUser());
             environment.setName(MOCK_EVN_NAME);
             environment.setMock(true);
+            environment.setPos(5000L);
             environment.setProjectId(projectId);
             environment.setCreateTime(System.currentTimeMillis());
             environment.setUpdateUser(project.getCreateUser());

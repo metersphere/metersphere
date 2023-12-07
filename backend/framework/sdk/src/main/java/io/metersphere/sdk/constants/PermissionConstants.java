@@ -263,10 +263,10 @@ public class PermissionConstants {
     /*------ end: API_MANAGEMENT ------*/
     //个人中心
     /*------ start: PERSONAL_CENTER ------*/
-    public static final String SYSTEM_PERSONAL_API_KEY_ADD = "SYSTEM_PERSONAL_API_KEY_ADD:READ+ADD";
-    public static final String SYSTEM_PERSONAL_API_KEY_DELETE = "SYSTEM_PERSONAL_API_KEY_DELETE:READ+DELETE";
-    public static final String SYSTEM_PERSONAL_API_KEY_READ = "SYSTEM_PERSONAL_API_KEY_READ:READ";
-    public static final String SYSTEM_PERSONAL_API_KEY_UPDATE = "SYSTEM_PERSONAL_API_KEY_UPDATE:READ+UPDATE";
+    public static final String SYSTEM_PERSONAL_API_KEY_ADD = "SYSTEM_PERSONAL_API_KEYD:READ+ADD";
+    public static final String SYSTEM_PERSONAL_API_KEY_DELETE = "SYSTEM_PERSONAL_API_KEY:READ+DELETE";
+    public static final String SYSTEM_PERSONAL_API_KEY_READ = "SYSTEM_PERSONAL_API_KEY:READ";
+    public static final String SYSTEM_PERSONAL_API_KEY_UPDATE = "SYSTEM_PERSONAL_API_KEY:READ+UPDATE";
     public static final String SYSTEM_PERSONAL_READ = "SYSTEM_PERSONAL:READ";
     public static final String SYSTEM_PERSONAL_READ_UPDATE = "SYSTEM_PERSONAL:READ+UPDATE";
 }

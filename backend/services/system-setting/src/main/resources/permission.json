@@ -297,26 +297,32 @@
     "type": "SYSTEM",
     "children": [
       {
-        "id": "API_KEYS",
-        "name": "permission.api_keys",
+        "id": "PERSONAL_INFO",
+        "name": "my_settings_personal_info",
         "permissions": [
           {
             "id": "SYSTEM_PERSONAL:READ"
           },
           {
             "id": "SYSTEM_PERSONAL:READ+UPDATE"
+          }
+        ]
+      },
+      {
+        "id": "API_KEYS",
+        "name": "permission.api_keys",
+        "permissions": [
+          {
+            "id": "SYSTEM_PERSONAL_API_KEY:READ+ADD"
           },
           {
-            "id": "SYSTEM_PERSONAL_API_KEY_ADD:READ+ADD"
+            "id": "SYSTEM_PERSONAL_API_KEY:READ"
           },
           {
-            "id": "SYSTEM_PERSONAL_API_KEY_ADD:READ"
+            "id": "SYSTEM_PERSONAL_API_KEY:READ+UPDATE"
           },
           {
-            "id": "SYSTEM_PERSONAL_API_KEY_ADD:READ+UPDATE"
-          },
-          {
-            "id": "SYSTEM_PERSONAL_API_KEY_ADD:READ+DELETE"
+            "id": "SYSTEM_PERSONAL_API_KEY:READ+DELETE"
           }
         ]
       }

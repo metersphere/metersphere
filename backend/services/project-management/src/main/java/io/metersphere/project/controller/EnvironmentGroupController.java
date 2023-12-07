@@ -9,6 +9,7 @@ import io.metersphere.project.service.EnvironmentGroupService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.domain.EnvironmentGroup;
 import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.utils.SessionUtils;
@@ -73,4 +74,12 @@ public class EnvironmentGroupController {
     public List<OptionDTO> getProject() {
         return environmentGroupService.getProject(SessionUtils.getUserId());
     }
+
+    @PostMapping("/edit/pos")
+    @Operation(summary = "项目管理-环境-环境组-修改排序")
+    @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ_UPDATE)
+    public void editPos(@Validated @RequestBody PosRequest request) {
+        environmentGroupService.editPos(request);
+    }
+
 }
