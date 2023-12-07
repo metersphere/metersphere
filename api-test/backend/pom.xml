@@ -70,6 +70,7 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                    <loaderImplementation>CLASSIC</loaderImplementation>
                 </configuration>
             </plugin>
             <plugin>
