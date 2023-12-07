@@ -4,7 +4,6 @@ import io.metersphere.commons.utils.FilterChainUtils;
 import io.metersphere.security.ApiKeyHandler;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springdoc.core.properties.SwaggerUiConfigProperties;
 import org.springframework.core.Ordered;
