@@ -123,6 +123,7 @@
         try {
           Message.loading(t('personal.switchOrgLoading'));
           await switchUserOrg(id, userStore.id || '');
+          switchOrgVisible.value = false;
           Message.clear();
           Message.success(t('personal.switchOrgSuccess'));
           personalMenusVisible.value = false;
@@ -145,6 +146,7 @@
         }
       });
 
+      const isActiveSwitchOrg = ref(false);
       const personalMenus = [
         {
           label: t('personal.info'),
@@ -155,10 +157,16 @@
         },
         {
           label: t('personal.switchOrg'),
-          icon: <MsIcon type="icon-icon_switch_outlined1" class="text-[var(--color-text-4)]" />,
+          icon: () => (
+            <MsIcon
+              type="icon-icon_switch_outlined1"
+              class={isActiveSwitchOrg.value ? 'text-[rgb(var(--primary-5))]' : 'text-[var(--color-text-4)]'}
+            />
+          ),
           isTrigger: true,
           event: () => {
             switchOrgVisible.value = true;
+            isActiveSwitchOrg.value = true;
           },
         },
         {
@@ -171,6 +179,14 @@
         },
       ];
 
+      watch(
+        () => personalMenusVisible.value,
+        (val) => {
+          if (!val) {
+            isActiveSwitchOrg.value = false;
+          }
+        }
+      );
       const personalInfoMenu = () => {
         return (
           <a-trigger
@@ -189,55 +205,67 @@
                     }
                     if (e.isTrigger) {
                       return (
-                        <a-dropdown
+                        <a-trigger
+                          v-model:popup-visible={switchOrgVisible.value}
                           trigger="click"
+                          unmount-on-close={false}
+                          popup-offset={14}
                           position="right"
+                          class={['arco-trigger-menu switch-org-dropdown', switchOrgVisible.value ? 'block' : 'hidden']}
                           v-slots={{
                             content: () => (
-                              <>
+                              <div class="arco-trigger-menu-inner">
                                 <a-input-search
                                   v-model:model-value={orgKeyword.value}
                                   placeholder={t('personal.searchOrgPlaceholder')}
                                 />
-                                <a-divider class="ms-dropdown-divider" />
-                                {orgList.value.map((item) => (
-                                  <a-doption
-                                    key={item.id}
-                                    value={item.id}
-                                    class={item.id === appStore.currentOrgId ? 'active-org' : ''}
-                                  >
-                                    {item.name}
-                                    {item.id === appStore.currentOrgId ? (
-                                      <MsTag
-                                        type="primary"
-                                        theme="light"
-                                        size="small"
-                                        class="ml-[4px] !bg-[rgb(var(--primary-9))] px-[4px]"
-                                      >
-                                        {t('personal.currentOrg')}
-                                      </MsTag>
-                                    ) : null}
-                                  </a-doption>
-                                ))}
-                              </>
+                                <a-divider margin="4px" />
+                                <div class="switch-org-dropdown-list">
+                                  {orgList.value.map((item) => (
+                                    <div
+                                      key={item.id}
+                                      class={[
+                                        'arco-trigger-menu-item !w-[calc(100%-12px)]',
+                                        item.id === appStore.currentOrgId ? 'active-org' : '',
+                                      ]}
+                                      onClick={() => {
+                                        switchOrg(item.id);
+                                      }}
+                                    >
+                                      <a-tooltip content={item.name}>
+                                        <div class="one-line-text max-w-[220px]">{item.name}</div>
+                                      </a-tooltip>
+                                      {item.id === appStore.currentOrgId ? (
+                                        <MsTag
+                                          type="primary"
+                                          theme="light"
+                                          size="small"
+                                          class="ml-[4px] !bg-[rgb(var(--primary-9))] px-[4px]"
+                                        >
+                                          {t('personal.currentOrg')}
+                                        </MsTag>
+                                      ) : null}
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
                             ),
-                          }}
-                          onSelect={(orgId: string) => {
-                            switchOrg(orgId);
                           }}
                         >
                           <div
-                            class="arco-trigger-menu-item"
+                            class={
+                              isActiveSwitchOrg.value ? 'active-org arco-trigger-menu-item' : 'arco-trigger-menu-item'
+                            }
                             onClick={() => {
                               if (typeof e.event === 'function') {
                                 e.event();
                               }
                             }}
                           >
-                            {e.icon}
+                            {e.icon()}
                             {e.label}
                           </div>
-                        </a-dropdown>
+                        </a-trigger>
                       );
                     }
                     return (
@@ -431,6 +459,20 @@
       box-shadow: 0 0 7px rgb(15 0 78 / 9%);
       .arco-icon {
         color: rgb(var(--primary-5));
+      }
+    }
+  }
+  .switch-org-dropdown {
+    @apply absolute max-h-none;
+
+    width: 300px;
+    .arco-trigger-popup-wrapper {
+      @apply max-h-full;
+      .switch-org-dropdown-list {
+        @apply overflow-y-auto;
+        .ms-scroll-bar();
+
+        max-height: 200px;
       }
     }
   }

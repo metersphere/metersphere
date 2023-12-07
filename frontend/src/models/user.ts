@@ -112,6 +112,25 @@ export interface UserRoleRelation {
   createUser: string;
 }
 // 个人信息
+export interface PersonalOrganization {
+  id: string;
+  num: number;
+  organizationId: string;
+  name: string;
+  description: string;
+  createTime: number;
+  updateTime: number;
+  updateUser: string;
+  createUser: string;
+  deleteTime: number;
+  deleted: boolean;
+  deleteUser: string;
+  enable: boolean;
+  moduleSetting: string;
+}
+export interface OrganizationProjectMap {
+  [key: string]: PersonalOrganization[];
+}
 export interface PersonalInfo {
   id: string;
   name: string;
@@ -128,15 +147,9 @@ export interface PersonalInfo {
   createUser: string;
   updateUser: string;
   deleted: boolean;
-  userRoles: UserRole[];
-  userRoleRelations: UserRoleRelation[];
-  userRolePermissions: UserRolePermission[];
-  platformInfo: string;
-  seleniumServer: string;
-  apiServer: string;
   avatar: string;
+  organizationProjectMap: OrganizationProjectMap;
 }
-
 export interface UpdateBaseInfo {
   id: string;
   username: string;
