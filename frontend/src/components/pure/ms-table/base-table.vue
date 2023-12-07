@@ -403,11 +403,15 @@
 
   // 排序change事件
   const handleSortChange = (dataIndex: string, direction: string) => {
+    let firstIndex = 0;
+    if (attrs.selectable) {
+      firstIndex = 1;
+    }
     const regex = /^__arco_data_index_(\d+)$/;
     const match = dataIndex.match(regex);
     const lastDigit = match && Number(match[1]);
-    if (lastDigit && !Number.isNaN(lastDigit)) {
-      dataIndex = currentColumns.value[lastDigit].dataIndex as string;
+    if (lastDigit !== null && !Number.isNaN(lastDigit)) {
+      dataIndex = currentColumns.value[lastDigit - firstIndex].dataIndex as string;
     }
     let sortOrder = '';
     if (direction === 'ascend') {

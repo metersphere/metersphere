@@ -1,6 +1,6 @@
 <template>
   <MsCard simple>
-    <MsAdvanceFilter :filter-config-list="filterConfigList" :row-count="filterRowCount">
+    <MsAdvanceFilter :filter-config-list="filterConfigList" :row-count="filterRowCount" @keyword-search="fetchData">
       <template #left>
         <div class="flex gap-[12px]">
           <a-button type="primary" @click="handleCreate">{{ t('bugManagement.createBug') }} </a-button>
@@ -13,6 +13,14 @@
       <template #name="{ record, rowIndex }">
         <a-button type="text" class="px-0" @click="handleShowDetail(record.id, rowIndex)">{{ record.name }}</a-button>
       </template>
+      <!-- 严重程度 -->
+      <template #severity="{ record }">
+        <MsEditComp mode="select" :options="severityOption" :default-value="record.severity" />
+      </template>
+      <!-- 状态 -->
+      <template #status="{ record }">
+        <MsEditComp mode="select" :options="statusOption" :default-value="record.status" />
+      </template>
       <template #numberOfCase="{ record }">
         <span class="cursor-pointer text-[rgb(var(--primary-5))]" @click="jumpToTestPlan(record)">{{
           record.memberCount
@@ -24,7 +32,7 @@
           <a-divider direction="vertical" />
           <MsButton class="!mr-0" @click="handleEdit(record)">{{ t('common.edit') }}</MsButton>
           <a-divider direction="vertical" />
-          <MsButton class="!mr-0" status="danger" @click="handleDelete(record)">{{ t('common.delete') }}</MsButton>
+          <MsTableMoreAction :list="moreActionList" trigger="click" @select="handleMoreActionSelect($event, record)" />
         </div>
       </template>
       <template #empty> </template>
@@ -92,6 +100,9 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
+  import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import MsEditComp from '@/components/business/ms-edit-comp';
   import BugDetailDrawer from './components/bug-detail-drawer.vue';
 
   import { getBugList, getExportConfig } from '@/api/modules/bug-management';
@@ -170,13 +181,16 @@
     },
     {
       title: 'bugManagement.severity',
-      slotName: 'memberCount',
+      slotName: 'severity',
+      width: 139,
       showDrag: true,
       dataIndex: 'severity',
     },
     {
       title: 'bugManagement.status',
       dataIndex: 'status',
+      width: 139,
+      slotName: 'status',
       showDrag: true,
     },
     {
@@ -228,7 +242,7 @@
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 230,
+      width: 140,
     },
   ];
   await tableStore.initColumn(TableKeyEnum.BUG_MANAGEMENT, columns, 'drawer');
@@ -243,11 +257,11 @@
     }
   };
 
-  const { propsRes, propsEvent, loadList, setKeyword, setLoadListParams, setProps } = useTable(
+  const { propsRes, propsEvent, setKeyword, setLoadListParams, setProps } = useTable(
     getBugList,
     {
       tableKey: TableKeyEnum.BUG_MANAGEMENT,
-      selectable: false,
+      selectable: true,
       noDisable: false,
       showJumpMethod: true,
       showSetting: true,
@@ -261,9 +275,61 @@
     setProps({ heightUsed: heightUsed.value });
   });
 
+  const data: BugListItem[] = [
+    {
+      id: '1',
+      deleted: false,
+      num: '1',
+      name: 'Bug 1',
+      severity: 'High',
+      status: 'Open',
+      handleUser: 'John Doe',
+      relationCaseCount: 3,
+      platform: 'Windows',
+      tag: ['Critical'],
+      createUser: 'Alice',
+      updateUser: 'Bob',
+      createTime: '2023-12-07T10:00:00Z',
+      updateTime: '2023-12-07T11:30:00Z',
+    },
+    {
+      id: '2',
+      deleted: false,
+      num: '2',
+      name: 'Bug 2',
+      severity: 'Medium',
+      status: 'In Progress',
+      handleUser: 'Jane Smith',
+      relationCaseCount: 1,
+      platform: 'Linux',
+      tag: ['Critical'],
+      createUser: 'Eve',
+      updateUser: 'Charlie',
+      createTime: '2023-12-06T09:15:00Z',
+      updateTime: '2023-12-06T15:45:00Z',
+    },
+    {
+      id: '3',
+      deleted: false,
+      num: '3',
+      name: 'Bug 3',
+      severity: 'Low',
+      status: 'Resolved',
+      handleUser: 'Alex Johnson',
+      relationCaseCount: 2,
+      platform: 'Mac',
+      tag: ['Critical'],
+      createUser: 'David',
+      updateUser: 'Frank',
+      createTime: '2023-12-05T14:20:00Z',
+      updateTime: '2023-12-06T10:10:00Z',
+    },
+    // Add more data as needed
+  ];
+
   const fetchData = async (v = '') => {
     setKeyword(v);
-    await loadList();
+    setProps({ data });
   };
 
   const handleCreate = () => {
@@ -315,9 +381,68 @@
     exportOptionData.value = res;
   };
 
+  const moreActionList: ActionsItem[] = [
+    {
+      label: t('common.delete'),
+      danger: true,
+      eventTag: 'delete',
+    },
+  ];
+
+  function handleMoreActionSelect(item: ActionsItem, record: BugListItem) {
+    if (item.eventTag === 'delete') {
+      handleDelete(record);
+    }
+  }
+
+  const severityOption = [
+    {
+      label: t('bugManagement.severityO.fatal'),
+      value: 'High',
+    },
+    {
+      label: t('bugManagement.severityO.serious'),
+      value: 'Medium',
+    },
+    {
+      label: t('bugManagement.severityO.general'),
+      value: 'Low',
+    },
+    {
+      label: t('bugManagement.severityO.reminder'),
+      value: 'Info',
+    },
+  ];
+
+  const statusOption = [
+    {
+      label: t('bugManagement.statusO.create'),
+      value: 'Create',
+    },
+    {
+      label: t('bugManagement.statusO.processing'),
+      value: 'Processing',
+    },
+    {
+      label: t('bugManagement.statusO.resolved'),
+      value: 'Resolved',
+    },
+    {
+      label: t('bugManagement.statusO.closed'),
+      value: 'Closed',
+    },
+    { label: t('bugManagement.statusO.refused'), value: 'Refused' },
+  ];
+
   onMounted(() => {
     setLoadListParams({ projectId: projectId.value });
     fetchData();
     setExportOptionData();
   });
 </script>
+
+<style lang="less" scoped>
+  :deep(.arco-divider-vertical) {
+    margin: 0 8px;
+  }
+</style>
