@@ -227,7 +227,7 @@ public class EnvironmentService {
                 }
             }
         }
-        return FileDownloadUtils.listBytesToZip(files);
+        return FileDownloadUtils.listFileBytesToZip(files);
     }
 
     public List<EnvironmentRequest> exportEnv(EnvironmentExportRequest environmentExportRequest) {

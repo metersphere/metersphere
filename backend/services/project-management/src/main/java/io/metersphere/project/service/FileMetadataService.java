@@ -44,7 +44,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.*;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -235,7 +239,7 @@ public class FileMetadataService {
         return fileMetadata.getId();
     }
 
-    private String genTransferFileName(String fullFileName, String projectId) {
+    public String genTransferFileName(String fullFileName, String projectId) {
         if (StringUtils.containsAny(fullFileName, "/")) {
             throw new MSException(Translator.get("file.name.error"));
         }
@@ -291,6 +295,20 @@ public class FileMetadataService {
         uploadFileRequest.setFolder(this.generateMinIOFilePath(fileMetadata.getProjectId()));
         uploadFileRequest.setStorage(StorageType.MINIO.name());
         return fileService.upload(file, uploadFileRequest);
+    }
+
+    public File getTmpFile(FileMetadata fileMetadata) {
+        File file = null;
+        if (TempFileUtils.isImgTmpFileExists(fileMetadata.getId())) {
+            file = new File(TempFileUtils.getTmpFilePath(fileMetadata.getId()));
+        } else {
+            try {
+                String filePath = TempFileUtils.createFile(TempFileUtils.getTmpFilePath(fileMetadata.getId()), this.getFile(fileMetadata));
+                file = new File(filePath);
+            } catch (Exception ignore) {
+            }
+        }
+        return file;
     }
 
     public byte[] getFileByte(FileMetadata fileMetadata) {
@@ -400,12 +418,9 @@ public class FileMetadataService {
     }
 
     public byte[] batchDownload(List<FileMetadata> fileMetadataList) {
-        Map<String, byte[]> files = new LinkedHashMap<>();
-        fileMetadataList.forEach(fileMetadata -> {
-            byte[] bytes = this.getFileByte(fileMetadata);
-            files.put(this.getFileName(fileMetadata.getName(), fileMetadata.getType()), bytes);
-        });
-        return FileDownloadUtils.listBytesToZip(files);
+        Map<String, File> fileMap = new HashMap<>();
+        fileMetadataList.forEach(fileMetadata -> fileMap.put(this.getFileName(fileMetadata.getName(), fileMetadata.getType()), this.getTmpFile(fileMetadata)));
+        return FileDownloadUtils.listBytesToZip(fileMap);
     }
 
     //检查下载的文件的大小

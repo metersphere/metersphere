@@ -11,6 +11,7 @@ import io.metersphere.project.mapper.FileAssociationMapper;
 import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.mapper.FileModuleMapper;
 import io.metersphere.project.service.FileAssociationService;
+import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.project.service.FileModuleService;
 import io.metersphere.project.service.FileService;
 import io.metersphere.project.utils.FileManagementBaseUtils;
@@ -89,6 +90,8 @@ public class FileManagementControllerTests extends BaseTest {
     private FileModuleMapper fileModuleMapper;
     @Resource
     private FileMetadataMapper fileMetadataMapper;
+    @Resource
+    private FileMetadataService fileMetadataService;
     @Resource
     private CommonProjectService commonProjectService;
 
@@ -856,6 +859,11 @@ public class FileManagementControllerTests extends BaseTest {
         batchProcessDTO = new FileBatchProcessRequest();
         batchProcessDTO.setSelectAll(true);
         batchProcessDTO.setProjectId(project.getId());
+        mvcResult = this.requestPostDownloadFile(FileManagementRequestUtils.URL_FILE_BATCH_DOWNLOAD, null, batchProcessDTO);
+        fileBytes = mvcResult.getResponse().getContentAsByteArray();
+        Assertions.assertTrue(fileBytes.length > 0);
+
+        //重新下载全部文件
         mvcResult = this.requestPostDownloadFile(FileManagementRequestUtils.URL_FILE_BATCH_DOWNLOAD, null, batchProcessDTO);
         fileBytes = mvcResult.getResponse().getContentAsByteArray();
         Assertions.assertTrue(fileBytes.length > 0);
@@ -1628,6 +1636,23 @@ public class FileManagementControllerTests extends BaseTest {
         error = false;
         try {
             fileAssociationService.transferAndAssociation(new FileAssociationDTO("testTransfer/File.jpg", TempFileUtils.getFile(filePath), IDGenerator.nextStr(), FileAssociationSourceUtil.SOURCE_TYPE_BUG, fileLogRecord));
+        } catch (Exception e) {
+            error = true;
+        }
+        Assertions.assertTrue(error);
+
+        //文件名称非法
+        error = false;
+        try {
+            fileMetadataService.transferFile("", null, null, null, null);
+        } catch (Exception e) {
+            error = true;
+        }
+        Assertions.assertTrue(error);
+
+        error = false;
+        try {
+            fileMetadataService.genTransferFileName("testTransfer/File.jpg", null);
         } catch (Exception e) {
             error = true;
         }
