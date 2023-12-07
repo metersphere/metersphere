@@ -11,10 +11,12 @@ import io.metersphere.project.dto.filemanagement.request.FileMetadataTableReques
 import io.metersphere.project.dto.filemanagement.response.FileInformationResponse;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileMetadataService;
+import io.metersphere.project.service.FileModuleService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
@@ -46,6 +48,8 @@ public class FunctionalCaseAttachmentController {
 
     @Resource
     private FileAssociationService fileAssociationService;
+    @Resource
+    private FileModuleService fileModuleService;
 
 
     @PostMapping("/page")
@@ -120,6 +124,7 @@ public class FunctionalCaseAttachmentController {
         String fileId = null;
         try {
             FileAssociationDTO fileAssociationDTO = new FileAssociationDTO(attachment.getFileName(), fileByte, attachment.getCaseId(), FileAssociationSourceUtil.SOURCE_TYPE_FUNCTIONAL_CASE, fileLogRecord);
+            fileAssociationDTO.setModuleId(request.getModuleId());
             fileId = fileAssociationService.transferAndAssociation(fileAssociationDTO);
             functionalCaseAttachmentService.deleteCaseAttachment(Arrays.asList(request.getFileId()), request.getCaseId(), request.getProjectId());
         } catch (Exception e) {
@@ -145,5 +150,14 @@ public class FunctionalCaseAttachmentController {
         String userId = SessionUtils.getUserId();
         functionalCaseAttachmentService.deleteFile(request, userId);
     }
+
+
+    @GetMapping("/options/{projectId}")
+    @Operation(summary = "用例管理-功能用例-附件-转存目录下拉框")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    public List<BaseTreeNode> options(@PathVariable String projectId) {
+        return fileModuleService.getTree(projectId);
+    }
+
 
 }

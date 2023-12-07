@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.functional.mapper.ExtCaseReviewFunctionalCaseUserMapper">
+
+    <select id="selectReviewers" resultType="io.metersphere.functional.dto.ReviewsDTO">
+        SELECT
+            case_id,
+            GROUP_CONCAT( user_id ),
+            GROUP_CONCAT( `user`.NAME )
+        FROM
+            case_review_functional_case_user crfcu
+                LEFT JOIN `user` ON crfcu.user_id = `user`.id
+        WHERE
+            crfcu.review_id = #{reviewId}
+          AND crfcu.case_id IN
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        GROUP BY
+            crfcu.case_id
+    </select>
+
+</mapper>

@@ -14,7 +14,7 @@ import org.springframework.test.context.jdbc.SqlConfig;
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
-public class CleanupFunctionalCaseResourceTest {
+public class CleanupFunctionalCaseResourceTests {
 
     @Resource
     private CleanupFunctionalCaseResourceService cleanupFunctionalCaseResourceService;

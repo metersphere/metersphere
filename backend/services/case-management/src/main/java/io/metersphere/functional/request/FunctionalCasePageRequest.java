@@ -41,4 +41,7 @@ public class FunctionalCasePageRequest extends BasePageRequest implements Serial
     @Schema(description = "关联缺陷")
     private AssociationDTO associationBug;
 
+    @Schema(description = "排除ids")
+    private List<String> excludeIds;
+
 }

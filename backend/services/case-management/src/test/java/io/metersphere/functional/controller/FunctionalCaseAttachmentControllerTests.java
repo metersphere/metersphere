@@ -55,6 +55,7 @@ public class FunctionalCaseAttachmentControllerTests extends BaseTest {
     public static final String ATTACHMENT_TRANSFER_URL = "/attachment/transfer";
     public static final String UPLOAD_FILE_URL = "/attachment/upload/file";
     public static final String DELETE_FILE_URL = "/attachment/delete/file";
+    public static final String OPTIONS_URL = "/attachment/options/";
 
 
     @Test
@@ -215,5 +216,12 @@ public class FunctionalCaseAttachmentControllerTests extends BaseTest {
         this.requestPost(DELETE_FILE_URL, request);
     }
 
+
+    @Test
+    @Order(9)
+    public void testOptions() throws Exception {
+        //覆盖controller方法
+        this.requestGet(OPTIONS_URL + DEFAULT_PROJECT_ID);
+    }
 
 }

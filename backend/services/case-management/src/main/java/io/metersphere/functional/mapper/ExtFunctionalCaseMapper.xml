@@ -95,7 +95,12 @@
                 )
             </when>
         </choose>
-
+        <if test="request.excludeIds != null and request.excludeIds.size() > 0">
+            AND functional_case.id not in
+            <foreach collection="request.excludeIds" item="excludeId" separator="," open="(" close=")">
+                #{excludeId}
+            </foreach>
+        </if>
     </select>
 
     <update id="recoverCase">
