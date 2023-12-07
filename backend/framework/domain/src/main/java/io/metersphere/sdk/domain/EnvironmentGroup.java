@@ -40,6 +40,10 @@ public class EnvironmentGroup implements Serializable {
     @Schema(description = "更新时间")
     private Long updateTime;
 
+    @Schema(description = "自定义排序", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{environment_group.pos.not_blank}", groups = {Created.class})
+    private Long pos;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -50,7 +54,8 @@ public class EnvironmentGroup implements Serializable {
         createUser("create_user", "createUser", "VARCHAR", false),
         updateUser("update_user", "updateUser", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),
-        updateTime("update_time", "updateTime", "BIGINT", false);
+        updateTime("update_time", "updateTime", "BIGINT", false),
+        pos("pos", "pos", "BIGINT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

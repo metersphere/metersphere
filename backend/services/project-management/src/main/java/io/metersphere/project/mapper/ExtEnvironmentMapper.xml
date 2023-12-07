@@ -35,4 +35,49 @@
         </if>
         ORDER BY update_time DESC
     </select>
+    <select id="getPos" resultType="java.lang.Long">
+        SELECT pos
+        FROM environment
+        WHERE project_id = #{projectId}
+        ORDER BY pos DESC
+        LIMIT 1;
+    </select>
+
+    <select id="getPrePos" resultType="java.lang.Long">
+        select `pos` from environment where project_id = #{projectId}
+        <if test="basePos != null">
+            and `pos` &lt; #{basePos}
+        </if>
+        order by `pos` desc limit 1;
+    </select>
+
+
+    <select id="getLastPos" resultType="java.lang.Long">
+        select `pos` from environment where project_id = #{projectId}
+        <if test="basePos != null">
+            and `pos` &gt; #{basePos}
+        </if>
+        order by `pos` desc limit 1;
+    </select>
+    <select id="getGroupPos" resultType="java.lang.Long">
+        SELECT pos
+        FROM environment_group
+        WHERE project_id = #{projectId}
+        ORDER BY pos DESC
+        LIMIT 1;
+    </select>
+    <select id="getGroupPrePos" resultType="java.lang.Long">
+        select `pos` from environment_group where project_id = #{projectId}
+        <if test="basePos != null">
+            and `pos` &gt; #{basePos}
+        </if>
+        order by `pos` desc limit 1;
+    </select>
+    <select id="getGroupLastPos" resultType="java.lang.Long">
+        select `pos` from environment_group where project_id = #{projectId}
+        <if test="basePos != null">
+            and `pos` &gt; #{basePos}
+        </if>
+        order by `pos` desc limit 1;
+    </select>
 </mapper>

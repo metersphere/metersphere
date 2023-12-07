@@ -35,10 +35,10 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_PARAMETER_SETTING_AUTH:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_AUTH:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_LOG:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_PERSONAL_API_KEY_ADD:READ+ADD');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_PERSONAL_API_KEY_ADD:READ+UPDATE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_PERSONAL_API_KEY_ADD:READ+DELETE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_PERSONAL_API_KEY_ADD:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_PERSONAL_API_KEY:READ+ADD');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_PERSONAL_API_KEY:READ+UPDATE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_PERSONAL_API_KEY:READ+DELETE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_PERSONAL_API_KEY:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id)
 VALUES (UUID_SHORT(), 'member', 'SYSTEM_PERSONAL:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id)
@@ -732,6 +732,6 @@ VALUES (UUID_SHORT(), '100001100001', 'CRON', '0 0 2 * * ?', 'io.metersphere.pro
 INSERT INTO project_application (`project_id`, `type`, `type_value`) VALUES ('100001100001', 'VERSION_ENABLE', 'FALSE');
 
 -- 初始化默认项目mock环境
-INSERT INTO environment (`id`, `project_id`, `name`, `create_user`, `create_time`, `update_user`, `update_time`, `mock`) VALUES (UUID_SHORT(), '100001100001', 'Mock环境', 'admin', unix_timestamp() * 1000, 'admin', unix_timestamp() * 1000, true);
+INSERT INTO environment (`id`, `project_id`, `name`, `create_user`, `create_time`, `update_user`, `update_time`, `mock`,`pos`) VALUES (UUID_SHORT(), '100001100001', 'Mock环境', 'admin', unix_timestamp() * 1000, 'admin', unix_timestamp() * 1000, true, 5000);
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

@@ -21,16 +21,20 @@ import io.metersphere.project.dto.environment.variables.CommonVariables;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
+import io.metersphere.sdk.constants.VariableTypeConstants;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentBlob;
 import io.metersphere.sdk.domain.EnvironmentExample;
+import io.metersphere.sdk.domain.ProjectParametersExample;
 import io.metersphere.sdk.mapper.EnvironmentBlobMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
+import io.metersphere.sdk.mapper.ProjectParametersMapper;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.file.FileRequest;
 import io.metersphere.system.file.MinioRepository;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -80,6 +84,7 @@ public class EnvironmentControllerTests extends BaseTest {
     private static final String getEnTry = prefix + "/get/entry";
     private static final String importEnv = prefix + "/import";
     private static final String exportEnv = prefix + "/export";
+    private static final String POS_URL = prefix + "/edit/pos";
 
     private static final String validate = prefix + "/database/validate";
     private static final String getOptions = prefix + "/database/driver-options/";
@@ -92,6 +97,8 @@ public class EnvironmentControllerTests extends BaseTest {
     private EnvironmentMapper environmentMapper;
     @Resource
     private EnvironmentBlobMapper environmentBlobMapper;
+    @Resource
+    private ProjectParametersMapper projectParametersMapper;
     @Value("${spring.datasource.url}")
     private String dburl;
     @Value("${spring.datasource.username}")
@@ -709,6 +716,7 @@ public class EnvironmentControllerTests extends BaseTest {
         environment.setUpdateTime(System.currentTimeMillis());
         environment.setCreateUser("createUser");
         environment.setMock(false);
+        environment.setPos(1000L);
         environment.setCreateTime(System.currentTimeMillis());
         environmentMapper.insert(environment);
         EnvironmentBlob environmentBlob = new EnvironmentBlob();
@@ -885,6 +893,24 @@ public class EnvironmentControllerTests extends BaseTest {
 
     @Test
     @Order(10)
+    public void testPos() throws Exception {
+        PosRequest posRequest = new PosRequest();
+        posRequest.setProjectId(DEFAULT_PROJECT_ID);
+        posRequest.setTargetId("environmentId1");
+        EnvironmentExample example = new EnvironmentExample();
+        example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andMockEqualTo(true);
+        List<Environment> environments = environmentMapper.selectByExample(example);
+        posRequest.setMoveId(environments.get(0).getId());
+        posRequest.setMoveMode("AFTER");
+        this.requestPostWithOkAndReturn(POS_URL, posRequest);
+
+        posRequest.setMoveMode("BEFORE");
+        this.requestPostWithOkAndReturn(POS_URL, posRequest);
+
+    }
+
+    @Test
+    @Order(11)
     public void testDeleteSuccess() throws Exception {
         //校验参数
         EnvironmentExample example = new EnvironmentExample();
@@ -921,7 +947,7 @@ public class EnvironmentControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(11)
+    @Order(12)
     public void testList() throws Exception {
         EnvironmentFilterRequest environmentDTO = new EnvironmentFilterRequest();
         environmentDTO.setProjectId(DEFAULT_PROJECT_ID);
@@ -947,7 +973,7 @@ public class EnvironmentControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(12)
+    @Order(13)
     public void testGetEntry() throws Exception {
         String password = "123456";
         FileInputStream inputStream = new FileInputStream(new File(
@@ -985,35 +1011,83 @@ public class EnvironmentControllerTests extends BaseTest {
 
     }
 
-    @Test
-    @Order(13)
-    public void testExport() throws Exception {
-        //指定id
-        EnvironmentExportDTO environmentExportDTO = new EnvironmentExportDTO();
-        environmentExportDTO.setProjectId(DEFAULT_PROJECT_ID);
-        environmentExportDTO.setSelectIds(List.of("environmentId1"));
+    private List<CommonVariables> getEnvVariables(int length) {
+        List<CommonVariables> commonVariables = new ArrayList<>();
+        for (int i = 0; i < length; i++) {
+            CommonVariables envVariable = new CommonVariables();
+            envVariable.setName("name" + i);
+            envVariable.setValue("value" + i);
+            envVariable.setDescription("desc" + i);
+            envVariable.setType(VariableTypeConstants.CONSTANT.name());
+            commonVariables.add(envVariable);
+        }
+        return commonVariables;
+    }
 
-        MvcResult mvcResult = this.responsePost(exportEnv, environmentExportDTO);
-        String response = parseObjectFromMvcResult(mvcResult, String.class);
-        //判断response只有一条数据
-        Assertions.assertNotNull(response);
-        List<EnvironmentRequest> environments = JSON.parseArray(response, EnvironmentRequest.class);
-        Assertions.assertEquals(1, environments.size());
-        //全选
-        environmentExportDTO.setSelectIds(List.of("environmentId1"));
-        environmentExportDTO.setSelectAll(true);
-        environmentExportDTO.setExcludeIds(List.of("environmentId1"));
-        mvcResult = this.responsePost(exportEnv, environmentExportDTO);
-        response = parseObjectFromMvcResult(mvcResult, String.class);
-        Assertions.assertNotNull(response);
-
-        environmentExportDTO.setProjectId(DEFAULT_PROJECT_ID);
-        //校验权限
-        requestPostPermissionTest(PermissionConstants.PROJECT_ENVIRONMENT_READ_EXPORT, exportEnv, environmentExportDTO);
+    //根据需要多长的list 生成不同的List<KeyValue> headers
+    private List<KeyValue> getHeaders(int length) {
+        List<KeyValue> headers = new ArrayList<>();
+        for (int i = 0; i < length; i++) {
+            KeyValue header = new KeyValue();
+            header.setName("key" + i);
+            header.setValue("value" + i);
+            headers.add(header);
+        }
+        return headers;
     }
 
     @Test
     @Order(14)
+    public void testExport() throws Exception {
+        //指定id
+        EnvironmentExportRequest environmentExportRequest = new EnvironmentExportRequest();
+        environmentExportRequest.setProjectId(DEFAULT_PROJECT_ID);
+        environmentExportRequest.setEnvironment(true);
+        environmentExportRequest.setSelectIds(List.of("environmentId1"));
+        MvcResult mvcResult = this.requestPostDownloadFile(exportEnv, null, environmentExportRequest);
+        byte[] fileBytes = mvcResult.getResponse().getContentAsByteArray();
+        Assertions.assertNotNull(fileBytes);
+
+        ProjectParametersExample projectParametersExample = new ProjectParametersExample();
+        projectParametersExample.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID);
+        if (projectParametersMapper.countByExample(projectParametersExample) == 0) {
+            //全局参数
+            GlobalParamsRequest request = new GlobalParamsRequest();
+            request.setProjectId(DEFAULT_PROJECT_ID);
+            GlobalParams globalParams = new GlobalParams();
+            globalParams.setHeaders(getHeaders(1));
+            globalParams.setCommonVariables(getEnvVariables(1));
+            request.setGlobalParams(globalParams);
+            this.responsePost("/project/global/params/add", request);
+        }
+        //全选
+        environmentExportRequest.setGlobalParam(true);
+        environmentExportRequest.setSelectIds(List.of("environmentId1"));
+        environmentExportRequest.setSelectAll(true);
+        environmentExportRequest.setExcludeIds(List.of("environmentId1"));
+        MvcResult mvcResult1 = this.requestPostDownloadFile(exportEnv, null, environmentExportRequest);
+        byte[] fileBytes1 = mvcResult1.getResponse().getContentAsByteArray();
+        Assertions.assertNotNull(fileBytes1);
+        projectParametersMapper.deleteByExample(projectParametersExample);
+        environmentExportRequest.setSelectIds(List.of("不存在blob"));
+        environmentExportRequest.setSelectAll(false);
+        environmentExportRequest.setEnvironment(true);
+        mockMvc.perform(getPostRequestBuilder(exportEnv, environmentExportRequest))
+                .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
+                .andExpect(ERROR_REQUEST_MATCHER);
+
+    }
+
+    protected MvcResult requestPostDownloadFile(String url, MediaType contentType, Object param) throws Exception {
+        if (contentType == null) {
+            contentType = MediaType.APPLICATION_OCTET_STREAM;
+        }
+        return mockMvc.perform(getPostRequestBuilder(url, param))
+                .andExpect(content().contentType(contentType))
+                .andExpect(status().isOk()).andReturn();
+    }
+    @Test
+    @Order(15)
     public void testImport() throws Exception {
         //校验参数
         FileInputStream inputStream = new FileInputStream(new File(
@@ -1021,10 +1095,70 @@ public class EnvironmentControllerTests extends BaseTest {
                         .getPath()));
         MockMultipartFile file = new MockMultipartFile("file", "huanj.json", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+        EnvironmentImportRequest request = new EnvironmentImportRequest();
+        request.setCover(true);
         paramMap.add("file", List.of(file));
+        paramMap.add("request", JSON.toJSONString(request));
         requestMultipartWithOk(importEnv, paramMap, DEFAULT_PROJECT_ID);
-        //校验权限
-        requestMultipartPermissionTest(PermissionConstants.PROJECT_ENVIRONMENT_READ_IMPORT, importEnv, paramMap);
 
+        requestMultipartWithOk(importEnv, paramMap, DEFAULT_PROJECT_ID);
+        request.setCover(false);
+        paramMap.clear();
+        paramMap.add("file", List.of(file));
+        paramMap.add("request", JSON.toJSONString(request));
+        requestMultipartWithOk(importEnv, paramMap, DEFAULT_PROJECT_ID);
+
+        //上传全局参数
+        ProjectParametersExample projectParametersExample = new ProjectParametersExample();
+        projectParametersExample.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID);
+        if (projectParametersMapper.countByExample(projectParametersExample) == 0) {
+            //全局参数
+            GlobalParamsRequest globalParamsRequest = new GlobalParamsRequest();
+            globalParamsRequest.setProjectId(DEFAULT_PROJECT_ID);
+            GlobalParams globalParams = new GlobalParams();
+            globalParams.setHeaders(getHeaders(1));
+            globalParams.setCommonVariables(getEnvVariables(1));
+            globalParamsRequest.setGlobalParams(globalParams);
+            this.responsePost("/project/global/params/add", globalParamsRequest);
+        }
+
+        inputStream = new FileInputStream(new File(
+                this.getClass().getClassLoader().getResource("file/globalParam.json")
+                        .getPath()));
+        file = new MockMultipartFile("file", "globalParam.json", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+        paramMap = new LinkedMultiValueMap<>();
+        request = new EnvironmentImportRequest();
+        request.setCover(true);
+        paramMap.add("file", List.of(file));
+        paramMap.add("request", JSON.toJSONString(request));
+
+        requestMultipartWithOk(importEnv, paramMap, DEFAULT_PROJECT_ID);
+        request.setCover(false);
+        paramMap.clear();
+        paramMap.add("file", List.of(file));
+        paramMap.add("request", JSON.toJSONString(request));
+        requestMultipartWithOk(importEnv, paramMap, DEFAULT_PROJECT_ID);
+        projectParametersMapper.deleteByExample(projectParametersExample);
+
+        inputStream = new FileInputStream(new File(
+                this.getClass().getClassLoader().getResource("file/txtFile.txt")
+                        .getPath()));
+        file = new MockMultipartFile("file", "txtFile.txt", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+        paramMap = new LinkedMultiValueMap<>();
+        request = new EnvironmentImportRequest();
+        request.setCover(true);
+        paramMap.add("file", List.of(file));
+        paramMap.add("request", JSON.toJSONString(request));
+        MockMultipartHttpServletRequestBuilder requestBuilder = getMultipartRequestBuilderWithParam(importEnv, paramMap);
+        MockHttpServletRequestBuilder header = requestBuilder
+                .header(SessionConstants.HEADER_TOKEN, sessionId)
+                .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                .header(HttpHeaders.ACCEPT_LANGUAGE, "zh-CN")
+                .header(SessionConstants.CURRENT_PROJECT, DEFAULT_PROJECT_ID);
+        mockMvc.perform(header)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(ERROR_REQUEST_MATCHER);
     }
+
+
 }

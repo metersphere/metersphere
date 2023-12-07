@@ -20,9 +20,11 @@ import io.metersphere.system.domain.Organization;
 import io.metersphere.system.domain.OrganizationExample;
 import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.mapper.OrganizationMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -64,6 +66,8 @@ public class EnvironmentGroupService {
     @Resource
     private OrganizationMapper organizationMapper;
 
+    public static final Long ORDER_STEP = 5000L;
+
     public EnvironmentGroup add(EnvironmentGroupRequest request, String userId) {
         EnvironmentGroup environmentGroup = new EnvironmentGroup();
         BeanUtils.copyProperties(request, environmentGroup);
@@ -75,11 +79,17 @@ public class EnvironmentGroupService {
         environmentGroup.setUpdateTime(System.currentTimeMillis());
         environmentGroup.setCreateUser(userId);
         environmentGroup.setUpdateUser(userId);
+        environmentGroup.setPos(getNextOrder(request.getProjectId()));
         environmentGroupMapper.insertSelective(environmentGroup);
         request.setId(environmentGroup.getId());
         this.insertGroupProject(request);
 
         return environmentGroup;
+    }
+
+    public Long getNextOrder(String projectId) {
+        Long pos = extEnvironmentMapper.getGroupPos(projectId);
+        return (pos == null ? 0 : pos) + ORDER_STEP;
     }
 
     private void insertGroupProject(EnvironmentGroupRequest request) {
@@ -230,5 +240,14 @@ public class EnvironmentGroupService {
             result.add(dto);
         });
         return result;
+    }
+
+    public void editPos(PosRequest request) {
+        ServiceUtils.updatePosField(request,
+                EnvironmentGroup.class,
+                environmentGroupMapper::selectByPrimaryKey,
+                extEnvironmentMapper::getGroupPrePos,
+                extEnvironmentMapper::getGroupLastPos,
+                environmentGroupMapper::updateByPrimaryKeySelective);
     }
 }
