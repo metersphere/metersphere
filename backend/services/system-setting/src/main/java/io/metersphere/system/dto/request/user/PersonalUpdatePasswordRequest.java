@@ -1,5 +1,7 @@
 package io.metersphere.system.dto.request.user;
 
+import io.metersphere.sdk.util.RsaKey;
+import io.metersphere.sdk.util.RsaUtils;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -19,4 +21,21 @@ public class PersonalUpdatePasswordRequest {
     @NotBlank(message = "{user.password.not.blank}")
     private String newPassword;
 
+    public String getOldPassword() {
+        try {
+            RsaKey rsaKey = RsaUtils.getRsaKey();
+            return RsaUtils.privateDecrypt(oldPassword, rsaKey.getPrivateKey());
+        } catch (Exception e) {
+            return oldPassword;
+        }
+    }
+
+    public String getNewPassword() {
+        try {
+            RsaKey rsaKey = RsaUtils.getRsaKey();
+            return RsaUtils.privateDecrypt(newPassword, rsaKey.getPrivateKey());
+        } catch (Exception e) {
+            return newPassword;
+        }
+    }
 }

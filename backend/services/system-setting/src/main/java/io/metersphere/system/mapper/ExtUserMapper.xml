@@ -70,5 +70,15 @@
         GROUP BY urr.user_id
         limit 100
     </select>
-
+    <select id="countByIdAndPassword" resultType="java.lang.Long">
+        SELECT count(id)
+        FROM user
+        WHERE id = #{userId}
+          AND password = MD5(#{password})
+    </select>
+    <update id="updatePasswordByUserId">
+        UPDATE user
+        SET password = MD5(#{password})
+        WHERE id = #{userId}
+    </update>
 </mapper>

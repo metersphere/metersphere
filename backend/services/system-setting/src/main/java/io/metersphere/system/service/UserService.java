@@ -158,7 +158,7 @@ public class UserService {
         PersonalDTO personalDTO = new PersonalDTO();
         if (userDTO != null) {
             BeanUtils.copyBean(personalDTO, userDTO);
-            personalDTO.setOrganizationProjectMap(userRoleRelationService.selectOrganizationProjectByUserId(userDTO.getId()));
+            personalDTO.setOrgProjectList(userRoleRelationService.selectOrganizationProjectByUserId(userDTO.getId()));
         }
         return personalDTO;
     }
@@ -183,7 +183,7 @@ public class UserService {
         return returnList;
     }
 
-    private void checkUserEmail(String id, String email) {
+    public void checkUserEmail(String id, String email) {
         UserExample userExample = new UserExample();
         userExample.createCriteria().andEmailEqualTo(email).andIdNotEqualTo(id);
         if (userMapper.countByExample(userExample) > 0) {
@@ -192,9 +192,7 @@ public class UserService {
     }
 
     private void checkOldPassword(String id, String password) {
-        UserExample userExample = new UserExample();
-        userExample.createCriteria().andPasswordEqualTo(password).andIdEqualTo(id);
-        if (userMapper.countByExample(userExample) != 1) {
+        if (extUserMapper.countByIdAndPassword(id, password) != 1) {
             throw new MSException(Translator.get("password_modification_failed"));
         }
     }
@@ -552,9 +550,6 @@ public class UserService {
 
     public boolean updatePassword(PersonalUpdatePasswordRequest request) {
         this.checkOldPassword(request.getId(), request.getOldPassword());
-        User editUser = new User();
-        editUser.setId(request.getId());
-        editUser.setPassword(request.getNewPassword());
-        return userMapper.updateByPrimaryKeySelective(editUser) > 0;
+        return extUserMapper.updatePasswordByUserId(request.getId(), request.getNewPassword()) > 0;
     }
 }

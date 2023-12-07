@@ -3,6 +3,8 @@ package io.metersphere.system.controller.user;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.util.CodingUtils;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.RsaKey;
+import io.metersphere.sdk.util.RsaUtils;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.UserExample;
@@ -10,8 +12,10 @@ import io.metersphere.system.domain.UserExtendExample;
 import io.metersphere.system.dto.request.user.PersonalUpdatePasswordRequest;
 import io.metersphere.system.dto.request.user.PersonalUpdateRequest;
 import io.metersphere.system.dto.user.UserDTO;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.UserExtendMapper;
 import io.metersphere.system.mapper.UserMapper;
+import io.metersphere.system.service.UserService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.user.PersonalRequestUtils;
 import jakarta.annotation.Resource;
@@ -32,6 +36,8 @@ public class PersonalControllerTests extends BaseTest {
 
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private UserService userService;
 
     @Test
     @Order(0)
@@ -56,6 +62,9 @@ public class PersonalControllerTests extends BaseTest {
     @Test
     @Order(1)
     void testPersonalUpdateInfo() throws Exception {
+        //方法测试
+        userService.checkUserEmail(IDGenerator.nextStr(), "admin_update@metersphere.io");
+
         PersonalUpdateRequest request = new PersonalUpdateRequest();
         request.setId(loginUser);
         request.setEmail("admin_update@metersphere.io");
@@ -64,6 +73,14 @@ public class PersonalControllerTests extends BaseTest {
         this.requestPostWithOk(PersonalRequestUtils.URL_PERSONAL_UPDATE_INFO, request);
         UserDTO userDTO = this.selectUserDTO(loginUser);
         this.checkUserInformation(userDTO, request);
+
+        boolean methodCheck = false;
+        try {
+            userService.checkUserEmail(IDGenerator.nextStr(), "admin_update@metersphere.io");
+        } catch (Exception e) {
+            methodCheck = true;
+        }
+        Assertions.assertTrue(methodCheck);
 
         //修改头像
         UserExtendExample example = new UserExtendExample();
@@ -136,6 +153,7 @@ public class PersonalControllerTests extends BaseTest {
         request.setUsername("'Administrator'");
         request.setPhone("12345678901");
         this.requestPostPermissionTest(PermissionConstants.SYSTEM_PERSONAL_READ_UPDATE, PersonalRequestUtils.URL_PERSONAL_UPDATE_INFO, request);
+        this.checkLog(loginUser, OperationLogType.UPDATE, PersonalRequestUtils.URL_PERSONAL_UPDATE_INFO);
     }
 
     private void checkUserInformation(UserDTO userDTO, PersonalUpdateRequest request) {
@@ -156,10 +174,12 @@ public class PersonalControllerTests extends BaseTest {
     @Test
     @Order(2)
     void testPersonalUpdatePassword() throws Exception {
+        RsaKey rsaKey = RsaUtils.getRsaKey();
+
         PersonalUpdatePasswordRequest request = new PersonalUpdatePasswordRequest();
         request.setId(loginUser);
-        request.setOldPassword(CodingUtils.md5("metersphere"));
-        request.setNewPassword(CodingUtils.md5("metersphere222"));
+        request.setOldPassword(RsaUtils.publicEncrypt("metersphere", rsaKey.getPublicKey()));
+        request.setNewPassword(RsaUtils.publicEncrypt("metersphere222", rsaKey.getPublicKey()));
         this.requestPostWithOk(PersonalRequestUtils.URL_PERSONAL_UPDATE_PASSWORD, request);
 
         UserExample example = new UserExample();
@@ -169,8 +189,8 @@ public class PersonalControllerTests extends BaseTest {
         //修改回去
         request = new PersonalUpdatePasswordRequest();
         request.setId(loginUser);
-        request.setOldPassword(CodingUtils.md5("metersphere222"));
-        request.setNewPassword(CodingUtils.md5("metersphere"));
+        request.setOldPassword(RsaUtils.publicEncrypt("metersphere222", rsaKey.getPublicKey()));
+        request.setNewPassword(RsaUtils.publicEncrypt("metersphere", rsaKey.getPublicKey()));
         this.requestPostWithOk(PersonalRequestUtils.URL_PERSONAL_UPDATE_PASSWORD, request);
         example.clear();
         example.createCriteria().andIdEqualTo(loginUser).andPasswordEqualTo(CodingUtils.md5("metersphere"));
@@ -179,44 +199,46 @@ public class PersonalControllerTests extends BaseTest {
         //密码错误
         request = new PersonalUpdatePasswordRequest();
         request.setId(loginUser);
-        request.setOldPassword(CodingUtils.md5("metersphere222"));
-        request.setNewPassword(CodingUtils.md5("metersphere"));
+        request.setOldPassword(RsaUtils.publicEncrypt("metersphere222", rsaKey.getPublicKey()));
+        request.setNewPassword(RsaUtils.publicEncrypt("metersphere", rsaKey.getPublicKey()));
         this.requestPost(PersonalRequestUtils.URL_PERSONAL_UPDATE_PASSWORD, request).andExpect(status().is5xxServerError());
 
         //参数校验
         request = new PersonalUpdatePasswordRequest();
-        request.setOldPassword(CodingUtils.md5("metersphere222"));
-        request.setNewPassword(CodingUtils.md5("metersphere"));
+        request.setOldPassword(RsaUtils.publicEncrypt("metersphere222", rsaKey.getPublicKey()));
+        request.setNewPassword(RsaUtils.publicEncrypt("metersphere", rsaKey.getPublicKey()));
         this.requestPost(PersonalRequestUtils.URL_PERSONAL_UPDATE_PASSWORD, request).andExpect(status().isBadRequest());
 
         request = new PersonalUpdatePasswordRequest();
         request.setId(loginUser);
-        request.setNewPassword(CodingUtils.md5("metersphere"));
+        request.setNewPassword(RsaUtils.publicEncrypt("metersphere", rsaKey.getPublicKey()));
         this.requestPost(PersonalRequestUtils.URL_PERSONAL_UPDATE_PASSWORD, request).andExpect(status().isBadRequest());
 
         request = new PersonalUpdatePasswordRequest();
         request.setId(loginUser);
-        request.setOldPassword(CodingUtils.md5("metersphere222"));
+        request.setOldPassword(RsaUtils.publicEncrypt("metersphere222", rsaKey.getPublicKey()));
         this.requestPost(PersonalRequestUtils.URL_PERSONAL_UPDATE_PASSWORD, request).andExpect(status().isBadRequest());
 
         //修改非当前人
         request = new PersonalUpdatePasswordRequest();
         request.setId(IDGenerator.nextStr());
-        request.setOldPassword(CodingUtils.md5("metersphere"));
+        request.setOldPassword(RsaUtils.publicEncrypt("metersphere", rsaKey.getPublicKey()));
         request.setNewPassword(CodingUtils.md5("metersphere333"));
         this.requestPost(PersonalRequestUtils.URL_PERSONAL_UPDATE_PASSWORD, request).andExpect(status().is5xxServerError());
 
         //权限校验
         request = new PersonalUpdatePasswordRequest();
         request.setId(loginUser);
-        request.setOldPassword(CodingUtils.md5("metersphere222"));
-        request.setNewPassword(CodingUtils.md5("metersphere"));
+        request.setOldPassword(RsaUtils.publicEncrypt("metersphere222", rsaKey.getPublicKey()));
+        request.setNewPassword(RsaUtils.publicEncrypt("metersphere", rsaKey.getPublicKey()));
         this.requestPostPermissionTest(PermissionConstants.SYSTEM_PERSONAL_READ_UPDATE, PersonalRequestUtils.URL_PERSONAL_UPDATE_PASSWORD, request);
 
         //最后检查密码是否回归原密码
         example.clear();
         example.createCriteria().andIdEqualTo(loginUser).andPasswordEqualTo(CodingUtils.md5("metersphere"));
         Assertions.assertEquals(userMapper.countByExample(example), 1);
+
+        this.checkLog(loginUser, OperationLogType.UPDATE, PersonalRequestUtils.URL_PERSONAL_UPDATE_PASSWORD);
     }
 
 }
