@@ -49,5 +49,18 @@ export default {
       performanceCase: '性能用例',
       searchCase: '通过名称搜索',
     },
+    severityO: {
+      fatal: '致命',
+      serious: '严重',
+      general: '一般',
+      reminder: '提醒',
+    },
+    statusO: {
+      create: '新建',
+      processing: '处理中',
+      resolved: '已解决',
+      closed: '已关闭',
+      refused: '已拒绝',
+    },
   },
 };

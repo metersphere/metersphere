@@ -78,7 +78,7 @@
           <template #left>
             <div class="leftWrapper h-full">
               <div class="header h-[50px]">
-                <a-tabs>
+                <a-tabs v-model:active-key="activeTab">
                   <a-tab-pane key="detail">
                     <BugDetailTab :detail-info="detailInfo" />
                   </a-tab-pane>
@@ -87,9 +87,6 @@
                   </a-tab-pane>
                   <a-tab-pane key="comment">
                     <BugCommentTab :detail-info="detailInfo" />
-                  </a-tab-pane>
-                  <a-tab-pane key="history">
-                    <BugHistoryTab :detail-info="detailInfo" />
                   </a-tab-pane>
                 </a-tabs>
               </div>
@@ -126,7 +123,6 @@
       </div>
     </template>
   </MsDetailDrawer>
-  <SettingDrawer v-model:visible="showSettingDrawer" />
 </template>
 
 <script setup lang="ts">
@@ -142,6 +138,8 @@
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import type { MsPaginationI } from '@/components/pure/ms-table/type';
   import MsDetailDrawer from '@/components/business/ms-detail-drawer/index.vue';
+  import BugCaseTab from './bugCaseTab.vue';
+  import BugCommentTab from './bugCommentTab.vue';
   import BugDetailTab from './bugDetailTab.vue';
 
   import { deleteCaseRequest, followerCaseRequest, getCaseDetail } from '@/api/modules/case-management/featureCase';
@@ -183,27 +181,12 @@
 
   const showDrawerVisible = ref<boolean>(false);
 
-  const showSettingDrawer = ref<boolean>(false);
-  function showMenuSetting() {
-    showSettingDrawer.value = true;
-  }
-
   const tabSettingList = computed(() => {
     return featureCaseStore.tabSettingList;
   });
 
   const tabSetting = ref<TabItemType[]>([...tabSettingList.value]);
   const activeTab = ref<string | number>('detail');
-  function changeTabs(key: string | number) {
-    activeTab.value = key;
-    switch (activeTab.value) {
-      case 'setting':
-        showMenuSetting();
-        break;
-      default:
-        break;
-    }
-  }
 
   const detailInfo = ref<Record<string, any>>({});
   const customFields = ref<CustomAttributes[]>([]);
@@ -238,7 +221,9 @@
 
   const shareLoading = ref<boolean>(false);
 
-  function shareHandler() {}
+  function shareHandler() {
+    Message.info(t('caseManagement.featureCase.share'));
+  }
 
   const followLoading = ref<boolean>(false);
   // 关注
@@ -253,6 +238,7 @@
           : t('caseManagement.featureCase.followSuccess')
       );
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       followLoading.value = false;
@@ -283,6 +269,7 @@
           updateSuccess();
           detailDrawerRef.value?.openPrevDetail();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       },

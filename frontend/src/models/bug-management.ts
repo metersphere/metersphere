@@ -7,11 +7,11 @@ export interface BugListItem {
   handleUser: string; // 缺陷处理人
   relationCaseCount: number; // 关联用例数
   platform: string; // 所属平台
-  tag: string; // 缺陷标签
+  tag: string[]; // 缺陷标签
   createUser: string; // 创建人
   updateUser: string; // 更新人
   createTime: string; // 创建时间
   updateTime: string; // 更新时间
-  deleted: string; // 删除标志
+  deleted: boolean; // 删除标志
 }
 export default {};

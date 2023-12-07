@@ -359,6 +359,7 @@
     {
       title: 'caseManagement.featureCase.tableColumnModule',
       slotName: 'moduleId',
+      dataIndex: 'moduleId',
       showInTable: true,
       width: 300,
       showDrag: true,

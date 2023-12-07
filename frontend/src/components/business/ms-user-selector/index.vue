@@ -63,6 +63,7 @@
 
   const emit = defineEmits<{
     (e: 'update:modelValue', value: string[]): void;
+    (e: 'select', value: string[]): void;
   }>();
   const { t } = useI18n();
 
@@ -133,6 +134,10 @@
     const { valueKey } = props;
     emit(
       'update:modelValue',
+      tmpArr.map((item) => item[valueKey])
+    );
+    emit(
+      'select',
       tmpArr.map((item) => item[valueKey])
     );
   };
