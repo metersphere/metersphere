@@ -86,10 +86,17 @@
     :page-change="propsEvent.pageChange"
     :pagination="propsRes.msPagination!"
   />
+  <DeleteModal
+    :id="currentDeleteObj.name"
+    v-model:visible="deleteVisible"
+    :name="currentDeleteObj.name"
+    :remote-func="deleteSingleBug"
+    @submit="handleSingleDelete"
+  />
 </template>
 
 <script lang="ts" setup>
-  import { Message } from '@arco-design/web-vue';
+  import { Message, TableData } from '@arco-design/web-vue';
 
   import { MsAdvanceFilter, timeSelectOptions } from '@/components/pure/ms-advance-filter';
   import { FilterFormItem, FilterType } from '@/components/pure/ms-advance-filter/type';
@@ -104,8 +111,9 @@
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsEditComp from '@/components/business/ms-edit-comp';
   import BugDetailDrawer from './components/bug-detail-drawer.vue';
+  import DeleteModal from './components/deleteModal.vue';
 
-  import { getBugList, getExportConfig } from '@/api/modules/bug-management';
+  import { deleteSingleBug, getBugList, getExportConfig } from '@/api/modules/bug-management';
   import { updateOrAddProjectUserGroup } from '@/api/modules/project-management/usergroup';
   import { useI18n } from '@/hooks/useI18n';
   import router from '@/router';
@@ -127,6 +135,8 @@
   const detailVisible = ref(false);
   const activeDetailId = ref<string>('');
   const activeCaseIndex = ref<number>(0);
+  const currentDeleteObj = reactive<{ id: string; name: string }>({ id: '', name: '' });
+  const deleteVisible = ref(false);
 
   const syncObject = reactive({
     time: '',
@@ -332,6 +342,18 @@
     setProps({ data });
   };
 
+  const handleSingleDelete = (record?: TableData) => {
+    if (record) {
+      currentDeleteObj.id = record.id;
+      currentDeleteObj.name = record.name;
+      deleteVisible.value = true;
+    } else {
+      fetchData();
+      currentDeleteObj.id = '';
+      currentDeleteObj.name = '';
+    }
+  };
+
   const handleCreate = () => {
     router.push({
       name: 'bugManagementBugEdit',
@@ -391,7 +413,7 @@
 
   function handleMoreActionSelect(item: ActionsItem, record: BugListItem) {
     if (item.eventTag === 'delete') {
-      handleDelete(record);
+      handleSingleDelete(record);
     }
   }
 

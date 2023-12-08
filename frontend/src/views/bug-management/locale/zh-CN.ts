@@ -22,6 +22,12 @@ export default {
     syncBugTipRowTwo: '新增缺陷和更新已有的缺陷？',
     bugAutoSync: '系统 {name} 自动同步',
     syncTime: '同步时间',
+    deleteLabel: '删除后，MeterSphere 创建的缺陷进入回收站；第三方平台同步的缺陷将不做回收',
+    nameIsIncorrect: '缺陷名称不正确',
+    selectedCount: '(已选 {count} 条缺陷)',
+    batchEdit: '批量编辑',
+    selectProps: '选择属性',
+    batchUpdate: '批量更新为',
     edit: {
       defaultSystemTemplate: '默认为系统模板',
       content: '缺陷内容',

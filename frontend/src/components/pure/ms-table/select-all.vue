@@ -7,8 +7,10 @@
       :indeterminate="indeterminate"
       @change="handleCheckChange"
     />
-    <a-dropdown v-if="showSelectAll" :disable="props.disabled" position="bl" @select="handleSelect">
-      <MsIcon type="icon-icon_down_outlined" class="dropdown-icon" />
+    <a-dropdown v-if="props.showSelectAll" :disable="props.disabled" position="bl" @select="handleSelect">
+      <div>
+        <MsIcon type="icon-icon_down_outlined" class="dropdown-icon" />
+      </div>
       <template #content>
         <a-doption :value="SelectAllEnum.CURRENT">{{ t('msTable.current') }}</a-doption>
         <a-doption :value="SelectAllEnum.ALL">{{ t('msTable.all') }}</a-doption>
