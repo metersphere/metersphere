@@ -166,6 +166,15 @@
                  INNER JOIN user createUser ON f.create_user = createUser.id
         WHERE f.id = #{id}
     </select>
+    <select id="countRepositoryFileByFileNameAndBranch" resultType="java.lang.Long">
+        SELECT count(f.id)
+        FROM file_metadata f
+                 INNER JOIN file_metadata_repository fgit ON f.id = fgit.file_metadata_id
+        WHERE f.path = #{filePath}
+          AND f.module_id = #{moduleId}
+          AND fgit.branch = #{branch}
+          AND f.project_id = #{projectId}
+    </select>
 
 
 </mapper>

@@ -66,16 +66,14 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
         fileModule.setName(request.getName().trim());
         fileModule.setParentId(request.getParentId());
         fileModule.setProjectId(request.getProjectId());
+        fileModule.setModuleType(ModuleConstants.NODE_TYPE_DEFAULT);
         this.checkDataValidity(fileModule);
         fileModule.setCreateTime(System.currentTimeMillis());
         fileModule.setUpdateTime(fileModule.getCreateTime());
         fileModule.setPos(this.countPos(request.getParentId(), ModuleConstants.NODE_TYPE_DEFAULT));
         fileModule.setCreateUser(operator);
         fileModule.setUpdateUser(operator);
-        fileModule.setModuleType(ModuleConstants.NODE_TYPE_DEFAULT);
-
         fileModuleMapper.insert(fileModule);
-
         //记录日志
         fileModuleLogService.saveAddLog(fileModule, operator);
         return fileModule.getId();
@@ -102,17 +100,16 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
                 throw new MSException(Translator.get("parent.node.not_blank"));
             }
             example.clear();
-
             if (StringUtils.isNotBlank(fileModule.getProjectId())) {
                 //检查项目ID是否和父节点ID一致
-                example.createCriteria().andProjectIdEqualTo(fileModule.getProjectId()).andIdEqualTo(fileModule.getParentId());
+                example.createCriteria().andProjectIdEqualTo(fileModule.getProjectId()).andModuleTypeEqualTo(fileModule.getModuleType()).andIdEqualTo(fileModule.getParentId());
                 if (fileModuleMapper.countByExample(example) == 0) {
                     throw new MSException(Translator.get("project.cannot.match.parent"));
                 }
                 example.clear();
             }
         }
-        example.createCriteria().andParentIdEqualTo(fileModule.getParentId()).andNameEqualTo(fileModule.getName()).andIdNotEqualTo(fileModule.getId());
+        example.createCriteria().andParentIdEqualTo(fileModule.getParentId()).andNameEqualTo(fileModule.getName()).andModuleTypeEqualTo(fileModule.getModuleType()).andIdNotEqualTo(fileModule.getId());
         if (fileModuleMapper.countByExample(example) > 0) {
             throw new MSException(Translator.get("node.name.repeat"));
         }
@@ -128,6 +125,7 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
         updateModule.setId(request.getId());
         updateModule.setName(request.getName().trim());
         updateModule.setParentId(module.getParentId());
+        updateModule.setModuleType(module.getModuleType());
         this.checkDataValidity(updateModule);
         updateModule.setUpdateTime(System.currentTimeMillis());
         updateModule.setUpdateUser(userId);
