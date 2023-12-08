@@ -140,20 +140,6 @@
             <version>${springdoc-openapi-ui.version}</version>
         </dependency>
 
-        <!-- start http2 配置-->
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-alpn-server</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-alpn-conscrypt-server</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty.http2</groupId>
-            <artifactId>http2-server</artifactId>
-        </dependency>
-        <!-- end http2 配置-->
         <!--   jgit     -->
         <dependency>
             <groupId>org.eclipse.jgit</groupId>
