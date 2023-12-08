@@ -1,8 +1,10 @@
 package io.metersphere.functional.controller;
 
+import io.metersphere.functional.request.BaseReviewCaseBatchRequest;
 import io.metersphere.functional.request.FunctionalCasePageRequest;
 import io.metersphere.functional.request.ReviewFunctionalCasePageRequest;
 import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.dto.sdk.BaseCondition;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -12,10 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -26,6 +25,7 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
     public static final String FUNCTIONAL_CASE_LIST_URL = "/functional/case/page";
 
     public static final String REVIEW_CASE_PAGE = "/case/review/detail/page";
+    public static final String BATCH_DELETE_URL = "/case/review/detail/batch/disassociate";
 
     @Test
     @Order(1)
@@ -77,6 +77,32 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
             put("createTime", "desc");
         }});
         this.requestPostWithOkAndReturn(REVIEW_CASE_PAGE, request);
+    }
+
+
+    @Test
+    @Order(4)
+    public void testBatchDisassociate() throws Exception {
+        BaseReviewCaseBatchRequest request = new BaseReviewCaseBatchRequest();
+        request.setReviewId("wx_review_id_1");
+        request.setSelectAll(false);
+        this.requestPostWithOkAndReturn(BATCH_DELETE_URL, request);
+        request.setSelectIds(Arrays.asList("wx_test_2"));
+        this.requestPostWithOkAndReturn(BATCH_DELETE_URL, request);
+        request.setSelectIds(new ArrayList<>());
+        request.setSelectAll(true);
+        Map<String, Object> map = new HashMap<>();
+        map.put("customs", Arrays.asList(new LinkedHashMap() {{
+            put("id", "TEST_FIELD_ID");
+            put("operator", "in");
+            put("value", "222");
+            put("type", "List");
+        }}));
+        BaseCondition baseCondition = new BaseCondition();
+        baseCondition.setCombine(map);
+        request.setCondition(baseCondition);
+        this.requestPostWithOkAndReturn(BATCH_DELETE_URL, request);
+
     }
 
 }

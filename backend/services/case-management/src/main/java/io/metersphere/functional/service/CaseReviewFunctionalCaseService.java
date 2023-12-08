@@ -1,11 +1,14 @@
 package io.metersphere.functional.service;
 
 
+import io.metersphere.functional.domain.CaseReviewFunctionalCaseExample;
 import io.metersphere.functional.dto.ReviewFunctionalCaseDTO;
 import io.metersphere.functional.dto.ReviewsDTO;
+import io.metersphere.functional.mapper.CaseReviewFunctionalCaseMapper;
 import io.metersphere.functional.mapper.ExtCaseReviewFunctionalCaseMapper;
 import io.metersphere.functional.mapper.ExtCaseReviewFunctionalCaseUserMapper;
 import io.metersphere.functional.mapper.ExtFunctionalCaseModuleMapper;
+import io.metersphere.functional.request.BaseReviewCaseBatchRequest;
 import io.metersphere.functional.request.ReviewFunctionalCasePageRequest;
 import io.metersphere.project.domain.ProjectVersion;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
@@ -38,6 +41,8 @@ public class CaseReviewFunctionalCaseService {
     private ExtBaseProjectVersionMapper extBaseProjectVersionMapper;
     @Resource
     private ExtCaseReviewFunctionalCaseUserMapper extCaseReviewFunctionalCaseUserMapper;
+    @Resource
+    private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
 
     /**
      * 通过评审id获取关联的用例id集合
@@ -84,5 +89,31 @@ public class CaseReviewFunctionalCaseService {
             });
         }
         return list;
+    }
+
+    /**
+     * 批量删除
+     *
+     * @param request request
+     */
+    public void disassociate(BaseReviewCaseBatchRequest request) {
+        List<String> ids = doSelectIds(request);
+        if (CollectionUtils.isNotEmpty(ids)) {
+            CaseReviewFunctionalCaseExample example = new CaseReviewFunctionalCaseExample();
+            example.createCriteria().andIdIn(ids);
+            caseReviewFunctionalCaseMapper.deleteByExample(example);
+        }
+    }
+
+    public List<String> doSelectIds(BaseReviewCaseBatchRequest request) {
+        if (request.isSelectAll()) {
+            List<String> ids = extCaseReviewFunctionalCaseMapper.getIds(request, request.getUserId(), false);
+            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+                ids.removeAll(request.getExcludeIds());
+            }
+            return ids;
+        } else {
+            return request.getSelectIds();
+        }
     }
 }

@@ -5,8 +5,12 @@ import com.alibaba.excel.util.StringUtils;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.functional.dto.ReviewFunctionalCaseDTO;
+import io.metersphere.functional.request.BaseReviewCaseBatchRequest;
 import io.metersphere.functional.request.ReviewFunctionalCasePageRequest;
 import io.metersphere.functional.service.CaseReviewFunctionalCaseService;
+import io.metersphere.functional.service.CaseReviewLogService;
+import io.metersphere.system.log.annotation.Log;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
@@ -47,4 +51,13 @@ public class CaseReviewFunctionalCaseController {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
         return PageUtils.setPageInfo(page, caseReviewFunctionalCaseService.page(request, false, userId));
     }
+
+
+    @PostMapping("/batch/disassociate")
+    @Operation(summary = "用例管理-功能用例-评审列表-评审详情-列表-批量取消关联用例")
+    @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.batchDisassociateCaseLog(#request)", msClass = CaseReviewLogService.class)
+    public void batchDisassociate(@Validated @RequestBody BaseReviewCaseBatchRequest request) {
+        caseReviewFunctionalCaseService.disassociate(request);
+    }
+
 }

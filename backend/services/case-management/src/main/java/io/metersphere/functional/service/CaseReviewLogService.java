@@ -1,10 +1,13 @@
 package io.metersphere.functional.service;
 
 import io.metersphere.functional.domain.CaseReview;
+import io.metersphere.functional.domain.CaseReviewFunctionalCase;
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.domain.FunctionalCaseExample;
+import io.metersphere.functional.mapper.CaseReviewFunctionalCaseMapper;
 import io.metersphere.functional.mapper.CaseReviewMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
+import io.metersphere.functional.request.BaseReviewCaseBatchRequest;
 import io.metersphere.functional.request.CaseReviewAssociateRequest;
 import io.metersphere.functional.request.CaseReviewRequest;
 import io.metersphere.sdk.constants.HttpMethodConstants;
@@ -32,6 +35,12 @@ public class CaseReviewLogService {
 
     @Resource
     private FunctionalCaseMapper functionalCaseMapper;
+
+    @Resource
+    private CaseReviewFunctionalCaseService caseReviewFunctionalCaseService;
+
+    @Resource
+    private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
 
     /**
      * 新增用例评审 日志
@@ -85,7 +94,7 @@ public class CaseReviewLogService {
      */
     public LogDTO updateCaseReviewLog(CaseReviewRequest requests) {
         CaseReview caseReview = caseReviewMapper.selectByPrimaryKey(requests.getId());
-        if (caseReview ==null) {
+        if (caseReview == null) {
             return null;
         }
         LogDTO dto = new LogDTO(
@@ -129,9 +138,9 @@ public class CaseReviewLogService {
         return null;
     }
 
-    public List<LogDTO> associateCaseLog(CaseReviewAssociateRequest request){
+    public List<LogDTO> associateCaseLog(CaseReviewAssociateRequest request) {
         CaseReview caseReview = caseReviewMapper.selectByPrimaryKey(request.getReviewId());
-        if (caseReview ==null) {
+        if (caseReview == null) {
             return null;
         }
         List<LogDTO> dtoList = new ArrayList<>();
@@ -159,4 +168,32 @@ public class CaseReviewLogService {
 
         return dtoList;
     }
+
+
+    public List<LogDTO> batchDisassociateCaseLog(BaseReviewCaseBatchRequest request) {
+        List<String> ids = caseReviewFunctionalCaseService.doSelectIds(request);
+        List<LogDTO> dtoList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(ids)) {
+            ids.forEach(id -> {
+                CaseReviewFunctionalCase caseReviewFunctionalCase = caseReviewFunctionalCaseMapper.selectByPrimaryKey(id);
+                FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(caseReviewFunctionalCase.getCaseId());
+                if (caseReviewFunctionalCase != null) {
+                    LogDTO dto = new LogDTO(
+                            null,
+                            null,
+                            caseReviewFunctionalCase.getId(),
+                            null,
+                            OperationLogType.DISASSOCIATE.name(),
+                            OperationLogModule.CASE_REVIEW,
+                            functionalCase.getName());
+                    dto.setPath("/case/review/batch/disassociate");
+                    dto.setMethod(HttpMethodConstants.POST.name());
+                    dto.setOriginalValue(JSON.toJSONBytes(functionalCase));
+                    dtoList.add(dto);
+                }
+            });
+        }
+        return dtoList;
+    }
+
 }
