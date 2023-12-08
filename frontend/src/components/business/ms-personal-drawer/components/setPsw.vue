@@ -100,10 +100,17 @@
           });
           Message.success({
             content: t('ms.personal.updatePswSuccess', { count: counting.value }),
-            duration: 4000,
+            duration: 1000,
           });
-          setInterval(() => counting.value--, 1000);
+          const timer = setInterval(() => {
+            counting.value--;
+            Message.success({
+              content: t('ms.personal.updatePswSuccess', { count: counting.value }),
+              duration: 1000,
+            });
+          }, 1000);
           setTimeout(() => {
+            clearInterval(timer);
             logout();
           }, 3000);
         } catch (error) {

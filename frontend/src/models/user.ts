@@ -128,8 +128,14 @@ export interface PersonalOrganization {
   enable: boolean;
   moduleSetting: string;
 }
-export interface OrganizationProjectMap {
-  [key: string]: PersonalOrganization[];
+export interface PersonalProject {
+  projectId: string;
+  projectName: string;
+}
+export interface OrganizationProjectListItem {
+  orgId: string;
+  orgName: string;
+  projectList: PersonalProject[];
 }
 export interface PersonalInfo {
   id: string;
@@ -148,7 +154,7 @@ export interface PersonalInfo {
   updateUser: string;
   deleted: boolean;
   avatar: string;
-  organizationProjectMap: OrganizationProjectMap;
+  orgProjectList: OrganizationProjectListItem[];
 }
 export interface UpdateBaseInfo {
   id: string;

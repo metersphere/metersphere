@@ -51,12 +51,7 @@
   import { ref, watch } from 'vue';
   import { Message } from '@arco-design/web-vue';
 
-  import {
-    addModule,
-    updateFile,
-    updateModule,
-    updateRepository,
-  } from '@/api/modules/project-management/fileManagement';
+  import { addReviewModule, updateReviewModule } from '@/api/modules/case-management/caseReview';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
@@ -121,13 +116,14 @@
   );
 
   function beforeConfirm(done?: (closed: boolean) => void) {
+    if (loading.value) return;
     formRef.value?.validate(async (errors) => {
       if (!errors) {
         try {
           loading.value = true;
           if (props.mode === 'add') {
             // 添加根级模块
-            await addModule({
+            await addReviewModule({
               projectId: appStore.currentProjectId,
               parentId: props.parentId || '',
               name: form.value.field,
@@ -136,31 +132,7 @@
             emit('addFinish', form.value.field);
           } else if (props.mode === 'rename') {
             // 模块重命名
-            await updateModule({
-              id: props.nodeId || '',
-              name: form.value.field,
-            });
-            Message.success(t('project.fileManagement.renameSuccess'));
-            emit('renameFinish', form.value.field);
-          } else if (props.mode === 'fileRename') {
-            // 文件重命名
-            await updateFile({
-              id: props.nodeId || '',
-              name: form.value.field,
-            });
-            Message.success(t('project.fileManagement.renameSuccess'));
-            emit('renameFinish', form.value.field);
-          } else if (props.mode === 'fileUpdateDesc') {
-            // 更新文件描述
-            await updateFile({
-              id: props.nodeId || '',
-              description: form.value.field,
-            });
-            Message.success(t('project.fileManagement.updateDescSuccess'));
-            emit('updateDescFinish', form.value.field);
-          } else if (props.mode === 'repositoryRename') {
-            // 模块重命名
-            await updateRepository({
+            await updateReviewModule({
               id: props.nodeId || '',
               name: form.value.field,
             });

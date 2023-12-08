@@ -121,6 +121,7 @@
   );
 
   function beforeConfirm(done?: (closed: boolean) => void) {
+    if (loading.value) return;
     formRef.value?.validate(async (errors) => {
       if (!errors) {
         try {

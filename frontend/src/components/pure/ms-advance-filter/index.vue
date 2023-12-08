@@ -2,6 +2,7 @@
   <div class="flex flex-row justify-between">
     <slot name="left"></slot>
     <div class="flex flex-row gap-[8px]">
+      <slot name="right"></slot>
       <a-input-search
         v-model="innerKeyword"
         size="small"
@@ -26,7 +27,6 @@
           </span>
         </span>
       </MsTag>
-      <slot name="right"></slot>
       <MsTag no-margin size="large" class="cursor-pointer" theme="outline" @click="handleResetSearch">
         <MsIcon class="text-[var(color-text-4)]" :size="16" type="icon-icon_reset_outlined" />
       </MsTag>

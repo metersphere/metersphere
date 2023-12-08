@@ -145,3 +145,8 @@ export interface LDAPConfig extends LDAPConnectConfig {
   ldapUserOu: string;
   ldapUserMapping: string;
 }
+// 内存清理配置
+export interface CleanupConfig {
+  operationLog: string;
+  operationHistory: string;
+}

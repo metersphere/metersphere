@@ -5,7 +5,7 @@
       v-bind="props"
       ref="treeRef"
       v-model:expanded-keys="expandedKeys"
-      :selected-keys="selectedKeys"
+      v-model:selected-keys="innerSelectedKeys"
       :data="treeData"
       class="ms-tree"
       @drop="onDrop"
@@ -355,17 +355,17 @@
     }
   );
 
-  const selectedKeys = ref(props.selectedKeys || []);
+  const innerSelectedKeys = ref(props.selectedKeys || []);
 
   watch(
     () => props.selectedKeys,
     (val) => {
-      selectedKeys.value = val || [];
+      innerSelectedKeys.value = val || [];
     }
   );
 
   watch(
-    () => selectedKeys.value,
+    () => innerSelectedKeys.value,
     (val) => {
       emit('update:selectedKeys', val);
     }

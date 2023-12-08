@@ -27,7 +27,7 @@
           :detail-id="props.detailId"
           :detail-index="props.detailIndex"
           :table-data="props.tableData"
-          @loaded="(e) => emit('loaded', e)"
+          @loaded="handleDetailLoaded"
         />
         <div class="ml-auto flex items-center">
           <slot name="titleRight" :loading="loading" :detail="detail"></slot>
@@ -88,6 +88,11 @@
 
   function openNextDetail() {
     prevNextButtonRef.value?.openNextDetail();
+  }
+
+  function handleDetailLoaded(val: any) {
+    detail.value = val;
+    emit('loaded', val);
   }
 
   watch(

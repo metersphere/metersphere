@@ -85,6 +85,7 @@
           :search-keys="['label']"
           allow-search
           multiple
+          :loading="reviewerLoading"
         />
       </a-form-item>
       <a-form-item field="tags" :label="t('caseManagement.caseReview.tag')">
@@ -138,80 +139,38 @@
       </div>
     </template>
   </MsCard>
-  <MsCaseAssociate
+  <AssociateDrawer
     v-model:visible="caseAssociateVisible"
     v-model:project="caseAssociateProject"
-    :ok-button-disabled="associateForm.reviewers.length === 0"
     @success="writeAssociateCases"
-  >
-    <template #footerLeft>
-      <a-form ref="associateFormRef" :model="associateForm">
-        <a-form-item
-          field="reviewers"
-          :rules="[{ required: true, message: t('caseManagement.caseReview.reviewerRequired') }]"
-          class="mb-0"
-        >
-          <template #label>
-            <div class="inline-flex items-center">
-              {{ t('caseManagement.caseReview.reviewer') }}
-              <a-tooltip position="right">
-                <template #content>
-                  <div>{{ t('caseManagement.caseReview.switchProject') }}</div>
-                  <div>{{ t('caseManagement.caseReview.resetReviews') }}</div>
-                  <div>
-                    {{ t('caseManagement.caseReview.reviewsTip') }}
-                    <span class="cursor-pointer text-[rgb(var(--primary-4))]" @click="goProjectManagement">
-                      {{ t('menu.projectManagement') }}
-                    </span>
-                    {{ t('caseManagement.caseReview.reviewsTip2') }}
-                  </div>
-                </template>
-                <icon-question-circle
-                  class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
-                  size="16"
-                />
-              </a-tooltip>
-            </div>
-          </template>
-          <MsSelect
-            v-model:modelValue="associateForm.reviewers"
-            mode="static"
-            :placeholder="t('caseManagement.caseReview.reviewerPlaceholder')"
-            :options="reviewersOptions"
-            :search-keys="['label']"
-            allow-search
-            allow-clear
-            multiple
-            class="w-[300px]"
-          >
-          </MsSelect>
-        </a-form-item>
-      </a-form>
-    </template>
-  </MsCaseAssociate>
+  />
 </template>
 
 <script setup lang="ts">
   /**
    * @description 功能测试-用例评审-创建评审
    */
+  import { onBeforeMount } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
-  import { Message } from '@arco-design/web-vue';
+  import { Message, SelectOptionData } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
-  import MsCaseAssociate from '@/components/business/ms-case-associate/index.vue';
   import MsSelect from '@/components/business/ms-select';
+  import AssociateDrawer from './components/create/associateDrawer.vue';
 
+  import { getReviewUsers } from '@/api/modules/case-management/caseReview';
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
 
-  import { CaseManagementRouteEnum, ProjectManagementRouteEnum } from '@/enums/routeEnum';
+  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   import type { FormInstance } from '@arco-design/web-vue';
 
   const route = useRoute();
   const router = useRouter();
+  const appStore = useAppStore();
   const { t } = useI18n();
 
   const isEdit = ref(!!route.query.id);
@@ -239,20 +198,21 @@
       value: '2',
     },
   ]);
-  const reviewersOptions = ref([
-    {
-      label: '张三',
-      value: '1',
-    },
-    {
-      label: '李四',
-      value: '2',
-    },
-    {
-      label: '王五',
-      value: '3',
-    },
-  ]);
+  const reviewersOptions = ref<SelectOptionData[]>([]);
+  const reviewerLoading = ref(false);
+
+  async function initReviewers() {
+    try {
+      reviewerLoading.value = true;
+      const res = await getReviewUsers(appStore.currentProjectId, '');
+      reviewersOptions.value = res.map((e) => ({ label: e.name, value: e.id }));
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      reviewerLoading.value = false;
+    }
+  }
 
   const selectedAssociateCases = ref<string[]>([]);
 
@@ -299,18 +259,10 @@
 
   const caseAssociateVisible = ref<boolean>(false);
   const caseAssociateProject = ref('');
-  const associateForm = ref({
-    reviewers: [],
-  });
-  const associateFormRef = ref<FormInstance>();
 
-  function goProjectManagement() {
-    window.open(
-      `${window.location.origin}#${
-        router.resolve({ name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_USER_GROUP }).fullPath
-      }`
-    );
-  }
+  onBeforeMount(() => {
+    initReviewers();
+  });
 </script>
 
 <style lang="less" scoped>

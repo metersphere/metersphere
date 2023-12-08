@@ -45,6 +45,7 @@ export interface MsSearchSelectSlots {
   header?: (() => JSX.Element) | Slot<any>;
   default?: () => JSX.Element[];
   footer?: Slot<any>;
+  empty?: Slot<any>;
 }
 
 export default defineComponent(
@@ -282,6 +283,9 @@ export default defineComponent(
       }
       if (slots.footer) {
         _slots.footer = slots.footer;
+      }
+      if (slots.empty) {
+        _slots.empty = slots.empty;
       }
 
       return _slots;

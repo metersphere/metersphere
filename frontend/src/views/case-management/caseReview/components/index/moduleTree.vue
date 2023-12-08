@@ -18,7 +18,7 @@
             <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
           </MsButton>
         </a-tooltip>
-        <popConfirm mode="add" :all-names="rootModulesName" parent-id="none" @add-finish="initModules">
+        <popConfirm mode="add" :all-names="rootModulesName" parent-id="NONE" @add-finish="initModules">
           <MsButton type="icon" class="!mr-0 p-[2px]">
             <MsIcon
               type="icon-icon_create_planarity"
@@ -33,7 +33,7 @@
     <a-spin class="min-h-[400px] w-full" :loading="loading">
       <MsTree
         v-model:focus-node-key="focusNodeKey"
-        :selected-keys="selectedKeys"
+        v-model:selected-keys="selectedKeys"
         :data="folderTree"
         :keyword="moduleKeyword"
         :node-more-actions="folderMoreActions"
@@ -83,7 +83,7 @@
             :field-config="{ field: renameFolderTitle }"
             :all-names="(nodeData.children || []).map((e: ModuleTreeNode) => e.name || '')"
             @close="resetFocusNodeKey"
-            @rename-finish="(val) => (nodeData.name = val)"
+            @rename-finish="initModules"
           >
             <span :id="`renameSpan${nodeData.id}`" class="relative"></span>
           </popConfirm>
@@ -139,6 +139,7 @@
   const allFileCount = ref(0);
   const isExpandAll = ref(props.isExpandAll);
   const rootModulesName = ref<string[]>([]); // 根模块名称列表
+  const selectedKeys = ref<string[]>([]);
 
   watch(
     () => props.isExpandAll,
@@ -157,6 +158,9 @@
 
   function setActiveFolder(id: string) {
     activeFolder.value = id;
+    if (id === 'all') {
+      selectedKeys.value = [];
+    }
     emit('folderNodeSelect', [id], []);
   }
 
@@ -181,8 +185,6 @@
     },
   ];
   const renamePopVisible = ref(false);
-
-  const selectedKeys = ref<string[]>([]);
 
   /**
    * 初始化模块树
@@ -264,7 +266,7 @@
       offspringIds.push(e.id);
       return e;
     });
-
+    setActiveFolder(node.id);
     emit('folderNodeSelect', _selectedKeys, offspringIds);
   }
 

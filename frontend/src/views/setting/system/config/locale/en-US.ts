@@ -207,4 +207,16 @@ export default {
   'system.config.auth.testLoginPasswordNotNull': 'LDAP login password cannot be empty',
   'system.config.auth.testLoginSuccess': 'LDAP login successful',
   'system.config.auth.testLoginCancel': 'Cancel',
+  'system.config.memoryCleanup': 'Memory cleanup',
+  'system.config.memoryCleanup.log': 'Log',
+  'system.config.memoryCleanup.history': 'Change history',
+  'system.config.memoryCleanup.keepTime': 'Retention time',
+  'system.config.memoryCleanup.keepTimeTip': 'The system will perform cleanup at 00:00 every day',
+  'system.config.memoryCleanup.day': 'Day',
+  'system.config.memoryCleanup.month': 'Month',
+  'system.config.memoryCleanup.year': 'Year',
+  'system.config.memoryCleanup.setSuccess': 'Setup successful',
+  'system.config.memoryCleanup.saveCount': 'Reserved quantity',
+  'system.config.memoryCleanup.saveCountTip':
+    'It is effective for all projects in the system. Use case change history that exceeds the settings will be cleared and will take effect immediately after the update.',
 };

@@ -5,10 +5,12 @@ import {
   GetAuthDetailUrl,
   GetAuthListUrl,
   GetBaseInfoUrl,
+  GetCleanConfigUrl,
   GetEmailInfoUrl,
   GetPageConfigUrl,
   SaveBaseInfoUrl,
   SaveBaseUrlUrl,
+  SaveCleanConfigUrl,
   SaveEmailInfoUrl,
   SavePageConfigUrl,
   TestEmailUrl,
@@ -23,6 +25,7 @@ import type {
   AuthItem,
   AuthParams,
   BaseConfig,
+  CleanupConfig,
   EmailConfig,
   LDAPConfig,
   LDAPConnectConfig,
@@ -111,4 +114,14 @@ export function testLdapConnect(data: LDAPConnectConfig) {
 // 测试ldap登录
 export function testLdapLogin(data: LDAPConfig) {
   return MSR.post({ url: TestLdapLoginUrl, data });
+}
+
+// 保存内存清理配置
+export function saveCleanupConfig(data: SaveInfoParams) {
+  return MSR.post({ url: SaveCleanConfigUrl, data });
+}
+
+// 保存内存清理配置
+export function getCleanupConfig() {
+  return MSR.get<CleanupConfig>({ url: GetCleanConfigUrl });
 }
