@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.1.5</version>
+        <version>3.2.0</version>
         <relativePath/>
     </parent>
 
@@ -29,9 +29,9 @@
         <pagehelper.version>6.0.0</pagehelper.version>
         <metersphere-jmeter-functions.version>3.0</metersphere-jmeter-functions.version>
         <quartz-starter.version>1.0.7</quartz-starter.version>
-        <redisson-starter.version>3.23.5</redisson-starter.version>
+        <redisson-starter.version>3.25.0</redisson-starter.version>
         <guice.version>5.1.0</guice.version>
-        <mybatis-starter.version>3.0.2</mybatis-starter.version>
+        <mybatis-starter.version>3.0.3</mybatis-starter.version>
         <reflections.version>0.10.2</reflections.version>
         <bcprov-jdk15on.version>1.70</bcprov-jdk15on.version>
         <commons-io.version>2.13.0</commons-io.version>
@@ -54,7 +54,7 @@
         <flatten.version>1.2.7</flatten.version>
         <jmeter.version>5.6.2</jmeter.version>
         <codehaus-groovy.version>3.0.11</codehaus-groovy.version>
-        <graalpy-scriptengine.version>1.0.0</graalpy-scriptengine.version>
+        <metersphere-scriptengine.version>1.0.0</metersphere-scriptengine.version>
         <docker-java.version>3.2.14</docker-java.version>
         <selenium.version>4.14.0</selenium.version>
         <jmeter-plugins-webdriver.version>4.14.0</jmeter-plugins-webdriver.version>
@@ -74,7 +74,7 @@
         <jgit.version>6.6.0.202305301015-r</jgit.version>
         <curator.version>5.4.0</curator.version>
         <graalvmjs.version>22.3.1</graalvmjs.version>
-        <embedded.version>3.0.6</embedded.version>
+        <embedded.version>3.1.0</embedded.version>
         <otp-java.version>2.0.1</otp-java.version>
         <mockserver-client-java.version>5.15.0</mockserver-client-java.version>
         <httpclient.version>4.5.14</httpclient.version>
