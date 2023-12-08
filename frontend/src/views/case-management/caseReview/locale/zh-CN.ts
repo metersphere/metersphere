@@ -119,4 +119,7 @@ export default {
   'caseManagement.caseReview.submitReview': '提交评审',
   'caseManagement.caseReview.reviewHistory': '评审历史',
   'caseManagement.caseReview.noMatchReviewer': '无匹配处理人，可在 ',
+  'caseManagement.caseReview.crateCase': '创建用例',
+  'caseManagement.caseReview.demandCases': '需求关联列表',
+  'caseManagement.caseReview.demandSearchPlaceholder': '通过名称搜索',
 };

@@ -158,9 +158,6 @@
   :deep(.arco-split-trigger-icon) {
     font-size: 14px;
   }
-  .ms-split-box--top {
-    height: calc(v-bind(innerSize) - 4px);
-  }
   .ms-split-box--bottom {
     @apply h-full;
   }

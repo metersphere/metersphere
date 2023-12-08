@@ -110,9 +110,7 @@
     </div>
     <div v-show="activeAvatarType === 'word'" class="mb-[8px] flex flex-wrap gap-[24px] pt-[14px]">
       <div class="avatar" @click="changeAvatar('word')">
-        <MsAvatar avatar="word" class="mb-[4px]">
-          {{ userStore.name?.substring(0, 4) }}
-        </MsAvatar>
+        <MsAvatar avatar="word" class="mb-[4px]" />
         <div class="text-[12px] text-[var(--color-text-1)]">{{ t('ms.personal.wordAvatar') }}</div>
         <MsIcon
           v-if="activeAvatar === 'word'"
@@ -157,6 +155,8 @@
   });
   const baseInfoFormRef = ref<FormInstance>();
   const orgList = ref<OrganizationProjectListItem[]>([]);
+  const activeAvatarType = ref<'builtIn' | 'word'>('builtIn');
+  const activeAvatar = ref('default');
 
   function initBaseInfo() {
     descriptions.value = [
@@ -186,6 +186,8 @@
       loading.value = true;
       const res = await getBaseInfo(userStore.id || '');
       orgList.value = res.orgProjectList;
+      activeAvatar.value = res.avatar;
+      activeAvatarType.value = res.avatar === 'word' ? 'word' : 'builtIn';
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -251,8 +253,6 @@
   }
 
   const avatarModalVisible = ref(false);
-  const activeAvatarType = ref<'builtIn' | 'word'>('builtIn');
-  const activeAvatar = ref('default');
   const avatarList = ref<string[]>([]);
   let i = 1;
   while (i <= 46) {

@@ -3,6 +3,7 @@
   import { RouteRecordRaw, useRoute, useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
 
+  import MsAvatar from '@/components/pure/ms-avatar/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import MsPersonInfoDrawer from '@/components/business/ms-personal-drawer/index.vue';
@@ -288,8 +289,8 @@
             }}
           >
             <a-menu-item class="flex items-center justify-between" key="personalInfo">
-              <div class="hover:!bg-transparent">
-                <MsIcon type="icon-icon_that_person" />
+              <div class="flex items-center gap-[8px] hover:!bg-transparent">
+                <MsAvatar avatar={userStore.avatar} size={20} />
                 {userStore.name}
               </div>
               <icon-caret-down class="!m-0" />

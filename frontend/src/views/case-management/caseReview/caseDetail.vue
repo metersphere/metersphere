@@ -19,7 +19,7 @@
     </template>
     <div class="h-full px-[24px]">
       <a-divider class="my-0" />
-      <div class="flex h-[calc(100%-1px)]">
+      <div class="flex h-[calc(100%-1px)] w-full">
         <div class="h-full w-[356px] border-r border-[var(--color-text-n8)] pr-[16px] pt-[16px]">
           <div class="mb-[16px] flex">
             <a-input
@@ -54,7 +54,7 @@
           </div>
           <MsPagination :total="total" :page-size="pageSize" :current="pageCurrent" size="mini" simple />
         </div>
-        <div class="relative flex flex-1 flex-col">
+        <div class="relative flex w-[calc(100%-356px)] flex-col">
           <div class="pl-[16px] pt-[16px]">
             <div class="rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[16px]">
               <div class="mb-[12px] flex items-center justify-between">
@@ -104,16 +104,31 @@
               </div>
             </div>
             <a-tabs v-model:active-key="showTab" class="no-content">
-              <a-tab-pane v-for="item of tabList" :key="item.key" :title="item.title" />
+              <a-tab-pane :key="tabList[0].key" :title="tabList[0].title" />
+              <a-tab-pane :key="tabList[1].key" :title="tabList[1].title" />
+              <a-tab-pane :key="tabList[2].key">
+                <template #title>
+                  <div class="flex items-center">
+                    {{ tabList[2].title }}
+                    <div
+                      :class="`ml-[4px] rounded-full ${
+                        showTab === tabList[2].key ? 'bg-[rgb(var(--primary-5))]' : 'bg-[var(--color-text-brand)]'
+                      } px-[4px] text-[12px] text-white`"
+                    >
+                      {{ caseDetail.demandCount > 99 ? '99+' : caseDetail.demandCount }}
+                    </div>
+                  </div>
+                </template>
+              </a-tab-pane>
             </a-tabs>
           </div>
           <a-divider class="my-0" />
           <div class="content-center">
             <MsDescription v-if="showTab === 'baseInfo'" :descriptions="descriptions" label-width="90px" />
-            <div v-if="showTab === 'detail'" class="h-full">
+            <div v-else-if="showTab === 'detail'" class="h-full">
               <MsSplitBox :size="0.8" direction="vertical" min="0" :max="0.99">
                 <template #top>
-                  <div> toptop </div>
+                  <caseTabDetail :form="{}" :allow-edit="false" />
                 </template>
                 <template #bottom>
                   <div class="flex h-full flex-col overflow-hidden">
@@ -152,6 +167,20 @@
                   </div>
                 </template>
               </MsSplitBox>
+            </div>
+            <div v-else>
+              <div class="flex items-center justify-between">
+                {{ t('caseManagement.caseReview.demandCases') }}
+                <a-input-search
+                  v-model="demandKeyword"
+                  :placeholder="t('caseManagement.caseReview.demandSearchPlaceholder')"
+                  allow-clear
+                  class="w-[300px]"
+                  @press-enter="searchDemand"
+                  @search="searchDemand"
+                />
+              </div>
+              <caseTabDemand ref="caseDemandRef" :fun-params="{ caseId: route.query.id, keyword: demandKeyword }" />
             </div>
           </div>
           <div class="content-footer">
@@ -232,6 +261,7 @@
   /**
    * @description 功能测试-用例评审-用例详情
    */
+  import { useRoute } from 'vue-router';
   import { FormInstance } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
@@ -242,13 +272,18 @@
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
+  import caseTabDemand from '../caseManagementFeature/components/tabContent/tabDemand/associatedDemandTable.vue';
+  import caseTabDetail from '../caseManagementFeature/components/tabContent/tabDetail.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
+  const route = useRoute();
   const { t } = useI18n();
 
   const reviewName = ref('打算肯定还是觉得还是觉得还是计划的');
-  const caseDetail = ref({});
+  const caseDetail = ref({
+    demandCount: 999,
+  });
   const onlyMine = ref(false);
   const keyword = ref('');
 
@@ -415,6 +450,12 @@
     reason: '',
   });
   const dialogFormRef = ref<FormInstance>();
+  const demandKeyword = ref('');
+  const caseDemandRef = ref<InstanceType<typeof caseTabDemand>>();
+
+  function searchDemand() {
+    caseDemandRef.value?.initData();
+  }
 </script>
 
 <style lang="less" scoped>

@@ -86,8 +86,8 @@
       <template v-if="keyword.trim() === ''" #empty>
         <div class="flex items-center justify-center p-[8px] text-[var(--color-text-4)]">
           {{ t('caseManagement.caseReview.tableNoData') }}
-          <MsButton class="ml-[8px]" @click="handleAddClick">
-            {{ t('caseManagement.caseReview.create') }}
+          <MsButton class="ml-[8px]" @click="createCase">
+            {{ t('caseManagement.caseReview.crateCase') }}
           </MsButton>
         </div>
       </template>
@@ -586,10 +586,6 @@
     }
   }
 
-  function handleAddClick() {
-    console.log('handleAddClick');
-  }
-
   function openDetail(id: string) {
     router.push({
       name: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW_DETAIL_CASE_DETAIL,
@@ -606,7 +602,7 @@
 
   function createCase() {
     router.push({
-      name: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW_CREATE,
+      name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
       query: {
         reviewId: route.query.id,
       },
