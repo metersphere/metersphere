@@ -33,6 +33,7 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -359,28 +360,24 @@ public class FunctionalCaseService {
             List<String> refId = extFunctionalCaseMapper.getRefIds(ids, false);
             extFunctionalCaseMapper.batchDelete(refId, userId);
         } else {
-            //列表删除 需要判断是否存在多个版本问题
-            ids.forEach(id -> {
-                List<FunctionalCaseVersionDTO> versionDTOList = getFunctionalCaseVersion(id);
-                if (versionDTOList.size() > 1) {
-                    String projectId = versionDTOList.get(0).getProjectId();
-                    deleteFunctionalCaseService.deleteFunctionalCaseResource(Collections.singletonList(id), projectId);
-                } else {
-                    //只有一个版本 直接放入回收站
-                    doDelete(id, userId);
-                }
-            });
+            doDelete(ids, userId);
         }
     }
 
 
-    private void doDelete(String id, String userId) {
-        FunctionalCase functionalCase = new FunctionalCase();
-        functionalCase.setDeleted(true);
-        functionalCase.setId(id);
-        functionalCase.setDeleteUser(userId);
-        functionalCase.setDeleteTime(System.currentTimeMillis());
-        functionalCaseMapper.updateByPrimaryKeySelective(functionalCase);
+    private void doDelete(List<String> ids, String userId) {
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        FunctionalCaseMapper caseMapper = sqlSession.getMapper(FunctionalCaseMapper.class);
+        ids.forEach(id -> {
+            FunctionalCase functionalCase = new FunctionalCase();
+            functionalCase.setDeleted(true);
+            functionalCase.setId(id);
+            functionalCase.setDeleteUser(userId);
+            functionalCase.setDeleteTime(System.currentTimeMillis());
+            caseMapper.updateByPrimaryKeySelective(functionalCase);
+        });
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 
 
@@ -463,6 +460,7 @@ public class FunctionalCaseService {
      * @param request request
      * @param userId  userId
      */
+    @Async
     public void batchCopyFunctionalCase(FunctionalCaseBatchMoveRequest request, String userId) {
         List<String> ids = doSelectIds(request, request.getProjectId());
         if (CollectionUtils.isNotEmpty(ids)) {

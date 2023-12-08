@@ -58,7 +58,7 @@ public class FunctionalCaseTrashService {
         extFunctionalCaseMapper.recoverCase(ids,userId,System.currentTimeMillis());
     }
 
-    @Async
+
     public void delCustomFields(List<String> ids) {
         doDeleteCustomFields(ids);
     }
@@ -83,7 +83,7 @@ public class FunctionalCaseTrashService {
         }
     }
 
-    @Async
+
     public void delCustomFieldsByRefIds(List<String> refIds) {
         FunctionalCaseExample functionalCaseExample = new FunctionalCaseExample();
         functionalCaseExample.createCriteria().andRefIdIn(refIds);

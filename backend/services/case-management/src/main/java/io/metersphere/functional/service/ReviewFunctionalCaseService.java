@@ -85,7 +85,7 @@ public class ReviewFunctionalCaseService {
         }
     }
 
-    @Async
+
     public void sendNotice(List<String> relatedUsers, String userId,ReviewFunctionalCaseRequest request, String task, String event) {
         CaseReview caseReview = caseReviewMapper.selectByPrimaryKey(request.getReviewId());
         FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(request.getCaseId());
