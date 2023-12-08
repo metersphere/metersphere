@@ -489,15 +489,26 @@ public class ApiDefinitionControllerTests extends BaseTest {
     @Order(5)
     public void copy() throws Exception {
         LogUtils.info("copy api test");
-        ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1001");
         ApiDefinitionCopyRequest request = new ApiDefinitionCopyRequest();
         request.setId(apiDefinition.getId());
         MvcResult mvcResult = this.requestPostWithOkAndReturn(COPY, request);
         ApiDefinition resultData = getResultData(mvcResult, ApiDefinition.class);
         // @数据验证
+        List<ApiFileResource> sourceFiles = apiFileResourceService.getByResourceId(apiDefinition.getId());
+        List<ApiFileResource> copyFiles = apiFileResourceService.getByResourceId(resultData.getId());
+        if(!sourceFiles.isEmpty() && !copyFiles.isEmpty()){
+            Assertions.assertEquals(sourceFiles.size(), copyFiles.size());
+        }
         Assertions.assertTrue(resultData.getName().contains("copy_"));
         // @@校验日志
         checkLog(resultData.getId(), OperationLogType.UPDATE);
+
+        request.setId("1001");
+        MvcResult mvcResultCopy = this.requestPostWithOkAndReturn(COPY, request);
+        ApiDefinition resultDataCopy = getResultData(mvcResultCopy, ApiDefinition.class);
+        // @数据验证
+        Assertions.assertTrue(resultDataCopy.getName().contains("copy_"));
+
         request.setId("121");
         assertErrorCode(this.requestPost(COPY, request), API_DEFINITION_NOT_EXIST);
         // @@校验权限

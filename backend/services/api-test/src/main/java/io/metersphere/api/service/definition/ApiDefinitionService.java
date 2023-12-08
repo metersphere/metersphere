@@ -249,7 +249,10 @@ public class ApiDefinitionService {
             apiDefinitionBlob.setResponse(copyApiDefinitionBlob.getResponse());
             apiDefinitionBlobMapper.insertSelective(apiDefinitionBlob);
         }
-        // TODO 复制的时候文件需要复制一份 仅复制接口内容， 不包含用例、mock信息
+
+        String sourceDir = DefaultRepositoryDir.getApiDefinitionDir(apiDefinition.getProjectId(), request.getId());
+        String targetDir = DefaultRepositoryDir.getApiDefinitionDir(apiDefinition.getProjectId(), apiDefinition.getId());
+        apiFileResourceService.copyFileByResourceId(request.getId(), sourceDir, apiDefinition.getId(), targetDir);
 
         return apiDefinition;
     }
@@ -671,7 +674,7 @@ public class ApiDefinitionService {
     public ApiDefinitionDocDTO getDocInfo(ApiDefinitionDocRequest request, String userId) {
         ApiDefinitionDocDTO apiDefinitionDocDTO = new ApiDefinitionDocDTO();
         apiDefinitionDocDTO.setType(request.getType());
-        // @@TODO 下载所有/一个模块接口文档时，不做分页数据量大的时候会不会有性能问题
+        // 下载所有/一个模块接口文档时，不做分页数据量大的时候会不会有性能问题，单独做接口
         if (ApiDefinitionDocType.ALL.name().equals(request.getType()) || ApiDefinitionDocType.MODULE.name().equals(request.getType())) {
             List<ApiDefinitionDTO> list = extApiDefinitionMapper.listDoc(request);
             if (!list.isEmpty()) {
