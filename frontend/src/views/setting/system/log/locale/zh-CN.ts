@@ -30,6 +30,7 @@ export default {
   'system.log.operateType.recover': '恢复',
   'system.log.operateType.logout': '登出',
   'system.log.operateType.disassociate': '取消关联',
+  'system.log.operateType.associate': '关联',
   'system.log.operateType.archived': '归档',
   'system.log.log': '操作日志',
   'system.log.time': '操作时间',

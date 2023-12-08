@@ -401,6 +401,10 @@
       value: 'LOGOUT',
     },
     {
+      label: 'system.log.operateType.associate',
+      value: 'ASSOCIATE',
+    },
+    {
       label: 'system.log.operateType.disassociate',
       value: 'DISASSOCIATE',
     },

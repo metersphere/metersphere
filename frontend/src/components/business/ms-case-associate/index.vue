@@ -19,7 +19,7 @@
           <div :class="getFolderClass('all')" @click="setActiveFolder('all')">
             <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
             <div class="folder-name">{{ t('caseManagement.caseReview.allReviews') }}</div>
-            <div class="folder-count">({{ allFileCount }})</div>
+            <div class="folder-count">({{ allCaseCount }})</div>
           </div>
         </div>
         <a-divider class="my-[8px]" />
@@ -50,12 +50,23 @@
         </a-spin>
       </div>
       <div class="flex w-[calc(100%-293px)] flex-col p-[16px]">
-        <div class="mb-[16px] flex items-center justify-between">
-          <div class="flex items-center">
-            <div class="mr-[4px] text-[var(--color-text-1)]">{{ activeFolderName }}</div>
-            <div class="text-[var(--color-text-4)]">({{ activeFolderName }})</div>
-          </div>
-          <div class="flex items-center gap-[8px]">
+        <MsAdvanceFilter
+          v-model:keyword="keyword"
+          :filter-config-list="filterConfigList"
+          :row-count="filterRowCount"
+          :search-placeholder="t('caseManagement.caseReview.searchPlaceholder')"
+          @keyword-search="searchCase"
+          @adv-search="searchCase"
+        >
+          <template #left>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="mr-[4px] text-[var(--color-text-1)]">{{ activeFolderName }}</div>
+                <div class="text-[var(--color-text-4)]">({{ propsRes.msPagination?.total }})</div>
+              </div>
+            </div>
+          </template>
+          <template #right>
             <a-select
               v-model:model-value="version"
               :options="versionOptions"
@@ -63,21 +74,9 @@
               class="w-[200px]"
               allow-clear
             />
-            <a-input-search
-              v-model="keyword"
-              :placeholder="t('ms.case.associate.searchPlaceholder')"
-              allow-clear
-              class="w-[200px]"
-              @press-enter="searchCase"
-              @search="searchCase"
-            />
-            <a-button type="outline" class="arco-btn-outline--secondary px-[8px]">
-              <MsIcon type="icon-icon-filter" class="mr-[4px] text-[var(--color-text-4)]" />
-              <div class="text-[var(--color-text-4)]">{{ t('common.filter') }}</div>
-            </a-button>
-          </div>
-        </div>
-        <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
+          </template>
+        </MsAdvanceFilter>
+        <ms-base-table v-bind="propsRes" no-disable class="mt-[16px]" v-on="propsEvent">
           <template #caseLevel="{ record }">
             <caseLevel :case-level="record.caseLevel" />
           </template>
@@ -88,9 +87,9 @@
           </div>
           <div class="flex items-center">
             <slot name="footerRight">
-              <a-button type="secondary" :disabled="loading" class="mr-[12px]" @click="cancel">{{
-                t('common.cancel')
-              }}</a-button>
+              <a-button type="secondary" :disabled="loading" class="mr-[12px]" @click="cancel">
+                {{ t('common.cancel') }}
+              </a-button>
               <a-button
                 type="primary"
                 :loading="loading"
@@ -111,6 +110,8 @@
   import { computed, onBeforeMount, ref, watch } from 'vue';
   import { Message } from '@arco-design/web-vue';
 
+  import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
+  import { FilterFormItem } from '@/components/pure/ms-advance-filter/type';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -121,7 +122,6 @@
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import caseLevel from './caseLevel.vue';
 
-  import { getModules } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import { mapTree } from '@/utils';
@@ -131,8 +131,10 @@
   const props = defineProps<{
     visible: boolean;
     project: string;
+    getModulesFunc: (params: any) => Promise<ModuleTreeNode[]>;
     modulesCount?: Record<string, number>; // 模块数量统计对象
     okButtonDisabled?: boolean; // 确认按钮是否禁用
+    selectedKeys?: string[]; // 已选中的用例id
   }>();
   const emit = defineEmits<{
     (e: 'update:visible', val: boolean): void;
@@ -187,7 +189,9 @@
 
   const activeFolder = ref('all');
   const activeFolderName = ref(t('ms.case.associate.allCase'));
-  const allFileCount = ref(0);
+  const allCaseCount = ref(0);
+  const filterRowCount = ref(0);
+  const filterConfigList = ref<FilterFormItem[]>([]);
 
   function getFolderClass(id: string) {
     return activeFolder.value === id ? 'folder-text folder-text--active' : 'folder-text';
@@ -213,7 +217,7 @@
   async function initModules(isSetDefaultKey = false) {
     try {
       moduleLoading.value = true;
-      const res = await getModules(appStore.currentProjectId);
+      const res = await props.getModulesFunc(appStore.currentProjectId);
       folderTree.value = res;
       if (isSetDefaultKey) {
         selectedModuleKeys.value = [folderTree.value[0].id];
@@ -259,7 +263,7 @@
   });
 
   /**
-   * 初始化模块文件数量
+   * 初始化模块资源数量
    */
   watch(
     () => props.modulesCount,
@@ -327,7 +331,7 @@
       isTag: true,
     },
   ];
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
     () =>
       Promise.resolve({
         list: [
@@ -443,6 +447,7 @@
       Message.success(t('ms.case.associate.associateSuccess'));
       innerVisible.value = false;
       emit('success', Array.from(propsRes.value.selectedKeys));
+      resetSelector();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -453,6 +458,7 @@
 
   function cancel() {
     innerVisible.value = false;
+    resetSelector();
     emit('close');
   }
 

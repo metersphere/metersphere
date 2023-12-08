@@ -57,7 +57,7 @@
           :field-config="{ field: renameFolderTitle }"
           :all-names="(nodeData.children || []).map((e: ModuleTreeNode) => e.name || '')"
           @close="resetFocusNodeKey"
-          @rename-finish="(val) => (nodeData.name = val)"
+          @rename-finish="() => initModules()"
         >
           <span :id="`renameSpan${nodeData.id}`" class="relative"></span>
         </popConfirm>

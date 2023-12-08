@@ -16,7 +16,7 @@
           </div>
         </template>
         <template #right>
-          <ReviewTable :active-folder="activeFolderId" :module-tree="moduleTree" />
+          <ReviewTable :active-folder="activeFolderId" :module-tree="moduleTree" @go-create="goCreateReview" />
         </template>
       </MsSplitBox>
     </div>

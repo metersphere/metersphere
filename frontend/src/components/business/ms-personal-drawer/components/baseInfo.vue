@@ -60,9 +60,17 @@
   </a-form>
   <MsDescription v-else :descriptions="descriptions">
     <template #tag>
-      <MsTag> 组织 1 </MsTag>
-      <br />
-      <MsTag size="small" class="mt-[8px] !bg-[rgb(var(--primary-1))] !text-[rgb(var(--primary-5))]"> 项目 1 </MsTag>
+      <div v-for="org of orgList" :key="org.orgId" class="mb-[16px]">
+        <MsTag class="h-[26px]"> {{ org.orgName }} </MsTag>
+        <br />
+        <MsTag
+          v-for="project of org.projectList"
+          :key="project.projectId"
+          class="!mr-[8px] mt-[8px] !bg-[rgb(var(--primary-1))] !text-[rgb(var(--primary-5))]"
+        >
+          {{ project.projectName }}
+        </MsTag>
+      </div>
     </template>
   </MsDescription>
   <a-modal
@@ -131,6 +139,8 @@
   import useUserStore from '@/store/modules/user/index';
   import { validateEmail, validatePhone } from '@/utils/validate';
 
+  import { OrganizationProjectListItem } from '@/models/user';
+
   import type { FormInstance } from '@arco-design/web-vue';
 
   const userStore = useUserStore();
@@ -139,38 +149,43 @@
 
   const loading = ref(false);
   const isEdit = ref(false);
-  const descriptions = ref<Description[]>([
-    {
-      label: t('ms.personal.name'),
-      value: userStore.name || '',
-    },
-    {
-      label: t('ms.personal.email'),
-      value: userStore.email || '',
-    },
-    {
-      label: t('ms.personal.phone'),
-      value: userStore.phone || '',
-    },
-    {
-      label: t('ms.personal.org'),
-      value: [],
-      isTag: true,
-    },
-  ]);
+  const descriptions = ref<Description[]>([]);
   const baseInfoForm = ref({
     name: userStore.name,
     email: userStore.email,
     phone: userStore.phone,
   });
   const baseInfoFormRef = ref<FormInstance>();
-  const orgList = ref([]);
+  const orgList = ref<OrganizationProjectListItem[]>([]);
+
+  function initBaseInfo() {
+    descriptions.value = [
+      {
+        label: t('ms.personal.name'),
+        value: userStore.name || '',
+      },
+      {
+        label: t('ms.personal.email'),
+        value: userStore.email || '',
+      },
+      {
+        label: t('ms.personal.phone'),
+        value: userStore.phone || '',
+      },
+      {
+        label: t('ms.personal.org'),
+        value: [],
+        isTag: true,
+      },
+    ];
+  }
 
   onBeforeMount(async () => {
+    initBaseInfo();
     try {
       loading.value = true;
       const res = await getBaseInfo(userStore.id || '');
-      console.log(res);
+      orgList.value = res.orgProjectList;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -223,6 +238,7 @@
           });
           Message.success(t('common.updateSuccess'));
           await userStore.isLogin();
+          initBaseInfo();
           isEdit.value = false;
         } catch (error) {
           // eslint-disable-next-line no-console

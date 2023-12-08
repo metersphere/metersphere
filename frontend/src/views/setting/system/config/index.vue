@@ -3,6 +3,7 @@
   <baseConfig v-show="activeTab === 'baseConfig'" />
   <pageConfig v-if="isInitPageConfig" v-show="activeTab === 'pageConfig'" />
   <authConfig v-if="isInitAuthConfig" v-show="activeTab === 'authConfig'" ref="authConfigRef" />
+  <memoryCleanup v-if="isInitMemoryCleanup" v-show="activeTab === 'memoryCleanup'" />
 </template>
 
 <script setup lang="ts">
@@ -15,6 +16,7 @@
   import MsTabCard from '@/components/pure/ms-tab-card/index.vue';
   import authConfig, { AuthConfigInstance } from './components/authConfig.vue';
   import baseConfig from './components/baseConfig.vue';
+  import memoryCleanup from './components/memoryCleanup.vue';
   import pageConfig from './components/pageConfig.vue';
 
   import { useI18n } from '@/hooks/useI18n';
@@ -25,11 +27,13 @@
   const activeTab = ref((route.query.tab as string) || 'baseConfig');
   const isInitPageConfig = ref(activeTab.value === 'pageConfig');
   const isInitAuthConfig = ref(activeTab.value === 'authConfig');
+  const isInitMemoryCleanup = ref(activeTab.value === 'memoryCleanup');
   const authConfigRef = ref<AuthConfigInstance | null>();
   const tabList = [
     { key: 'baseConfig', title: t('system.config.baseConfig') },
     { key: 'pageConfig', title: t('system.config.pageConfig') },
     { key: 'authConfig', title: t('system.config.authConfig') },
+    { key: 'memoryCleanup', title: t('system.config.memoryCleanup') },
   ];
 
   watch(
@@ -39,6 +43,8 @@
         isInitPageConfig.value = true;
       } else if (val === 'authConfig' && !isInitAuthConfig.value) {
         isInitAuthConfig.value = true;
+      } else if (val === 'memoryCleanup' && !isInitMemoryCleanup.value) {
+        isInitMemoryCleanup.value = true;
       }
     },
     {

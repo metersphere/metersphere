@@ -3,8 +3,8 @@
     v-model:visible="innerVisible"
     v-model:project="innerProject"
     :ok-button-disabled="associateForm.reviewers.length === 0"
+    :get-modules-func="getCaseModuleTree"
     @success="writeAssociateCases"
-    @close="emit('close')"
   >
     <template #footerLeft>
       <a-form ref="associateFormRef" :model="associateForm">
@@ -45,7 +45,17 @@
             allow-clear
             multiple
             class="w-[300px]"
+            :loading="reviewerLoading"
           >
+            <template #empty>
+              <div class="p-[3px_8px] text-[var(--color-text-4)]">
+                {{ t('caseManagement.caseReview.noMatchReviewer') }}
+                <span class="cursor-pointer text-[rgb(var(--primary-5))]" @click="goProjectManagement">
+                  {{ t('menu.projectManagement') }}
+                </span>
+                <span v-if="currentLocale === 'zh-CN'" class="ml-[4px]">{{ t('common.setting') }}</span>
+              </div>
+            </template>
           </MsSelect>
         </a-form-item>
       </a-form>
@@ -55,12 +65,16 @@
 
 <script setup lang="ts">
   import { useRouter } from 'vue-router';
-  import { FormInstance } from '@arco-design/web-vue';
+  import { FormInstance, SelectOptionData } from '@arco-design/web-vue';
 
   import MsCaseAssociate from '@/components/business/ms-case-associate/index.vue';
   import MsSelect from '@/components/business/ms-select';
 
+  import { getReviewUsers } from '@/api/modules/case-management/caseReview';
+  import { getCaseModuleTree } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
+  import useLocale from '@/locale/useLocale';
+  import useAppStore from '@/store/modules/app';
 
   import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
 
@@ -76,6 +90,8 @@
   }>();
 
   const router = useRouter();
+  const appStore = useAppStore();
+  const { currentLocale } = useLocale();
   const { t } = useI18n();
 
   const innerVisible = ref(false);
@@ -125,24 +141,29 @@
     );
   }
 
-  const reviewersOptions = ref([
-    {
-      label: '张三',
-      value: '1',
-    },
-    {
-      label: '李四',
-      value: '2',
-    },
-    {
-      label: '王五',
-      value: '3',
-    },
-  ]);
+  const reviewersOptions = ref<SelectOptionData[]>([]);
+  const reviewerLoading = ref(false);
+
+  async function initReviewers() {
+    try {
+      reviewerLoading.value = true;
+      const res = await getReviewUsers(appStore.currentProjectId, '');
+      reviewersOptions.value = res.map((e) => ({ label: e.name, value: e.id }));
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      reviewerLoading.value = false;
+    }
+  }
 
   function writeAssociateCases(ids: string[]) {
     emit('success', ids);
   }
+
+  onBeforeMount(() => {
+    initReviewers();
+  });
 </script>
 
 <style lang="less" scoped></style>

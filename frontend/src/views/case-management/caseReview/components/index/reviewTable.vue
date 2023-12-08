@@ -7,6 +7,7 @@
         :row-count="filterRowCount"
         :search-placeholder="t('caseManagement.caseReview.searchPlaceholder')"
         @keyword-search="searchReview"
+        @adv-search="searchReview"
       >
         <template #left>
           <div class="flex items-center">
@@ -92,7 +93,7 @@
       <template v-if="keyword.trim() === ''" #empty>
         <div class="flex items-center justify-center p-[8px] text-[var(--color-text-4)]">
           {{ t('caseManagement.caseReview.tableNoData') }}
-          <MsButton class="ml-[8px]" @click="handleAddClick">
+          <MsButton class="ml-[8px]" @click="() => emit('goCreate')">
             {{ t('caseManagement.caseReview.create') }}
           </MsButton>
         </div>
@@ -211,6 +212,10 @@
   const props = defineProps<{
     activeFolder: string | number;
     moduleTree: ModuleTreeNode[];
+  }>();
+
+  const emit = defineEmits<{
+    (e: 'goCreate'): void;
   }>();
 
   const appStore = useAppStore();
@@ -491,6 +496,7 @@
     setLoadListParams({
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
+      moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder],
     });
     loadList();
   }
@@ -527,7 +533,7 @@
   }
 
   /**
-   * 拦截切换最新版确认
+   * 删除确认
    * @param done 关闭弹窗
    */
   async function handleDeleteConfirm(done: (closed: boolean) => void) {
@@ -679,9 +685,12 @@
     }
   }
 
-  function handleAddClick() {
-    console.log('handleAddClick');
-  }
+  watch(
+    () => props.activeFolder,
+    () => {
+      searchReview();
+    }
+  );
 
   function openDetail(id: string) {
     router.push({

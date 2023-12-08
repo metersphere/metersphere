@@ -118,4 +118,5 @@ export default {
   'caseManagement.caseReview.suggestionTip': '不作为评审结果',
   'caseManagement.caseReview.submitReview': '提交评审',
   'caseManagement.caseReview.reviewHistory': '评审历史',
+  'caseManagement.caseReview.noMatchReviewer': '无匹配处理人，可在 ',
 };
