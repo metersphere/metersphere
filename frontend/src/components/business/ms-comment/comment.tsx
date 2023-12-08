@@ -1,5 +1,5 @@
+import Item from './comment-item.vue';
 import CommentInput from './input.vue';
-import Item from './item.vue';
 
 import { useI18n } from '@/hooks/useI18n';
 import useModal from '@/hooks/useModal';
