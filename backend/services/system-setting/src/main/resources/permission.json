@@ -298,7 +298,7 @@
     "children": [
       {
         "id": "PERSONAL_INFO",
-        "name": "my_settings_personal_info",
+        "name": "permission.my_settings_personal_info",
         "permissions": [
           {
             "id": "SYSTEM_PERSONAL:READ"

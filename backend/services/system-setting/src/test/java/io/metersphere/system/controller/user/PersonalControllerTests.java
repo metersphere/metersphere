@@ -91,7 +91,6 @@ public class PersonalControllerTests extends BaseTest {
         request.setId(loginUser);
         request.setEmail("admin_update@metersphere.io");
         request.setUsername("admin_update");
-        request.setPhone("1111111111");
         request.setAvatar(IDGenerator.nextStr());
         this.requestPostWithOk(PersonalRequestUtils.URL_PERSONAL_UPDATE_INFO, request);
         userDTO = this.selectUserDTO(loginUser);
@@ -108,7 +107,7 @@ public class PersonalControllerTests extends BaseTest {
         request.setId(loginUser);
         request.setEmail("admin@metersphere.io");
         request.setUsername("'Administrator'");
-        request.setPhone("12345678901");
+        request.setPhone("");
         this.requestPostWithOk(PersonalRequestUtils.URL_PERSONAL_UPDATE_INFO, request);
         userDTO = this.selectUserDTO(loginUser);
         this.checkUserInformation(userDTO, request);
@@ -122,12 +121,6 @@ public class PersonalControllerTests extends BaseTest {
         this.requestPost(PersonalRequestUtils.URL_PERSONAL_UPDATE_INFO, request).andExpect(status().is5xxServerError());
 
         //参数校验
-        request = new PersonalUpdateRequest();
-        request.setId(loginUser);
-        request.setEmail("admin@metersphere.io");
-        request.setUsername("'Administrator'");
-        this.requestPost(PersonalRequestUtils.URL_PERSONAL_UPDATE_INFO, request).andExpect(status().isBadRequest());
-
         request = new PersonalUpdateRequest();
         request.setId(loginUser);
         request.setEmail("admin@metersphere.io");

@@ -21,7 +21,6 @@ public class PersonalUpdateRequest {
     private String username;
 
     @Schema(description = "手机号", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{user.email.not_blank}")
     private String phone;
 
     @Schema(description = "邮箱", requiredMode = Schema.RequiredMode.REQUIRED)

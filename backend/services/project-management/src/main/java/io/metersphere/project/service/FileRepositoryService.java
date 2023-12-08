@@ -9,6 +9,7 @@ import io.metersphere.project.dto.filemanagement.request.FileRepositoryCreateReq
 import io.metersphere.project.dto.filemanagement.request.FileRepositoryUpdateRequest;
 import io.metersphere.project.dto.filemanagement.request.RepositoryFileAddRequest;
 import io.metersphere.project.dto.filemanagement.response.FileRepositoryResponse;
+import io.metersphere.project.mapper.ExtFileMetadataMapper;
 import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.mapper.FileMetadataRepositoryMapper;
 import io.metersphere.project.mapper.FileModuleRepositoryMapper;
@@ -40,6 +41,8 @@ public class FileRepositoryService extends FileModuleService {
     @Resource
     private FileMetadataMapper fileMetadataMapper;
     @Resource
+    private ExtFileMetadataMapper extFileMetadataMapper;
+    @Resource
     private FileModuleRepositoryMapper fileModuleRepositoryMapper;
     @Resource
     private FileMetadataRepositoryMapper fileMetadataRepositoryMapper;
@@ -57,13 +60,13 @@ public class FileRepositoryService extends FileModuleService {
         fileModule.setName(request.getName().trim());
         fileModule.setParentId(ModuleConstants.ROOT_NODE_PARENT_ID);
         fileModule.setProjectId(request.getProjectId());
+        fileModule.setModuleType(ModuleConstants.NODE_TYPE_GIT);
         super.checkDataValidity(fileModule);
         fileModule.setCreateTime(System.currentTimeMillis());
         fileModule.setUpdateTime(fileModule.getCreateTime());
         fileModule.setPos(this.countPos(ModuleConstants.ROOT_NODE_PARENT_ID, ModuleConstants.NODE_TYPE_GIT));
         fileModule.setCreateUser(operator);
         fileModule.setUpdateUser(operator);
-        fileModule.setModuleType(ModuleConstants.NODE_TYPE_GIT);
         fileModuleMapper.insert(fileModule);
 
         //记录模块仓库数据
@@ -139,6 +142,13 @@ public class FileRepositoryService extends FileModuleService {
         }
         FileMetadata fileMetadata = fileMetadataService.genFileMetadata(request.getFilePath(), StorageType.GIT.name(), fileAttachInfo.getSize(), request.isEnable(),
                 fileModule.getProjectId(), fileModule.getId(), operator);
+
+        //判断文件是否存在: 同一存储库下文件路径和分支不能重复
+        if (extFileMetadataMapper.countRepositoryFileByFileNameAndBranch(
+                fileModule.getProjectId(), fileModule.getId(), request.getFilePath(), request.getBranch()) > 0) {
+            throw new MSException(Translator.get("file.name.exist") + ":" + fileMetadata.getName());
+        }
+
         fileMetadata.setFileVersion(fileAttachInfo.getCommitId());
         fileMetadataMapper.insert(fileMetadata);
 

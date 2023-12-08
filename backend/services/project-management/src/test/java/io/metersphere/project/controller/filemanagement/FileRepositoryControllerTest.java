@@ -156,6 +156,7 @@ public class FileRepositoryControllerTest extends BaseTest {
         createRequest.setUrl(GITEA_URL);
         createRequest.setToken(GITEA_TOKEN);
         createRequest.setName("GITEA存储库");
+
         MvcResult result = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE, createRequest);
         String returnStr = result.getResponse().getContentAsString();
         ResultHolder rh = JSON.parseObject(returnStr, ResultHolder.class);
@@ -382,8 +383,19 @@ public class FileRepositoryControllerTest extends BaseTest {
         getFileMessage(fileId);
         fileList.add(fileId);
 
-        //测试其他分支的多层目录的文件
+        //测试其他分支的README.en.md
         String otherBranch = "develop";
+        request = new RepositoryFileAddRequest();
+        request.setBranch(otherBranch);
+        request.setFilePath(filePath);
+        request.setModuleId(repositoryId);
+        result = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request);
+        fileId = JSON.parseObject(result.getResponse().getContentAsString(), ResultHolder.class).getData().toString();
+        this.checkRepositoryFile(fileId, request);
+        getFileMessage(fileId);
+        fileList.add(fileId);
+
+        //测试其他分支的多层目录的文件
         String folderFilePath1 = "test-folder/gitea/test.txt";
         request = new RepositoryFileAddRequest();
         request.setBranch(otherBranch);

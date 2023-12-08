@@ -160,14 +160,7 @@ public class FileMetadataService {
         }
         //检查处理后的用户名合法性
         if (StringUtils.equals(storage, StorageType.MINIO.name())) {
-            this.checkMinIOFileName(null, fileMetadata.getName(), projectId);
-        } else {
-            //Git： 存储库下的文件路径不能重复
-            FileMetadataExample example = new FileMetadataExample();
-            example.createCriteria().andPathEqualTo(filePath).andProjectIdEqualTo(projectId).andStorageEqualTo(StorageType.GIT.name()).andModuleIdEqualTo(moduleId);
-            if (fileMetadataMapper.countByExample(example) > 0) {
-                throw new MSException(Translator.get("file.name.exist") + ":" + fileMetadata.getName());
-            }
+            this.checkMinIOFileName(null, fileMetadata.getName(), fileMetadata.getType(), projectId);
         }
 
         fileMetadata.setId(IDGenerator.nextStr());
@@ -272,15 +265,15 @@ public class FileMetadataService {
         return fileName;
     }
 
-    private void checkMinIOFileName(String id, String fileName, String projectId) {
+    private void checkMinIOFileName(String id, String fileName, String type, String projectId) {
         if (StringUtils.isBlank(fileName)) {
             throw new MSException(Translator.get("file.name.cannot.be.empty"));
         }
         FileMetadataExample example = new FileMetadataExample();
         if (StringUtils.isBlank(id)) {
-            example.createCriteria().andNameEqualTo(fileName).andProjectIdEqualTo(projectId).andStorageEqualTo(StorageType.MINIO.name());
+            example.createCriteria().andNameEqualTo(fileName).andTypeEqualTo(type).andProjectIdEqualTo(projectId).andStorageEqualTo(StorageType.MINIO.name());
         } else {
-            example.createCriteria().andNameEqualTo(fileName).andProjectIdEqualTo(projectId).andIdNotEqualTo(id).andStorageEqualTo(StorageType.MINIO.name());
+            example.createCriteria().andNameEqualTo(fileName).andTypeEqualTo(type).andProjectIdEqualTo(projectId).andIdNotEqualTo(id).andStorageEqualTo(StorageType.MINIO.name());
         }
         if (fileMetadataMapper.countByExample(example) > 0) {
             throw new MSException(Translator.get("file.name.exist") + ":" + fileName);
@@ -375,7 +368,7 @@ public class FileMetadataService {
             updateExample.setDescription(request.getDescription());
             updateExample.setModuleId(request.getModuleId());
             if (StringUtils.isNotBlank(request.getName())) {
-                this.checkMinIOFileName(request.getId(), request.getName(), fileMetadata.getProjectId());
+                this.checkMinIOFileName(request.getId(), request.getName(), fileMetadata.getType(), fileMetadata.getProjectId());
                 updateExample.setName(request.getName());
             }
             if (request.getTags() != null) {
