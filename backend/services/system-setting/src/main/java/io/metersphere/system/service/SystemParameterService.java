@@ -46,6 +46,9 @@ public class SystemParameterService {
     @Resource
     BaseSystemParameterMapper baseSystemParameterMapper;
 
+    private static final String DEFAULT_LOG_TIME = "6D";
+    private static final String DEFAULT_HISTORY_TIME = "10";
+
     public void saveBaseInfo(List<SystemParameter> parameters) {
         SystemParameterExample example = new SystemParameterExample();
         parameters.forEach(param -> {
@@ -273,9 +276,8 @@ public class SystemParameterService {
     }
 
 
-
     public void editLogConfig(List<SystemParameter> systemParameter) {
-        systemParameter.forEach(parameter ->{
+        systemParameter.forEach(parameter -> {
             SystemParameterExample example = new SystemParameterExample();
             example.createCriteria().andParamKeyEqualTo(parameter.getParamKey());
             if (systemParameterMapper.countByExample(example) > 0) {
@@ -314,9 +316,9 @@ public class SystemParameterService {
         if (CollectionUtils.isNotEmpty(paramList)) {
             paramList.forEach(param -> {
                 if (StringUtils.equals(param.getParamKey(), ParamConstants.CleanConfig.OPERATION_LOG.getValue())) {
-                    configDTO.setOperationLog(param.getParamValue());
+                    configDTO.setOperationLog(StringUtils.defaultIfBlank(param.getParamValue(), DEFAULT_LOG_TIME));
                 } else if (StringUtils.equals(param.getParamKey(), ParamConstants.CleanConfig.OPERATION_HISTORY.getValue())) {
-                    configDTO.setOperationHistory(param.getParamValue());
+                    configDTO.setOperationHistory(StringUtils.defaultIfBlank(param.getParamValue(), DEFAULT_HISTORY_TIME));
                 }
             });
         }

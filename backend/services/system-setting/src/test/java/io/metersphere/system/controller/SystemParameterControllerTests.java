@@ -97,7 +97,7 @@ public class SystemParameterControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     public void testGetEmailInfo() throws Exception {
         this.requestGet(EMAIL_INFO_URL);
         requestGetPermissionTest(PermissionConstants.SYSTEM_PARAMETER_SETTING_BASE_READ, EMAIL_INFO_URL);
@@ -105,7 +105,7 @@ public class SystemParameterControllerTests extends BaseTest {
 
 
     @Test
-    @Order(4)
+    @Order(3)
     public void testEditEmailInfo() throws Exception {
 
         List<SystemParameter> systemParameters = new ArrayList<>() {{

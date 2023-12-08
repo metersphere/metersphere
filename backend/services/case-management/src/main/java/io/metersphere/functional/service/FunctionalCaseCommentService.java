@@ -151,7 +151,7 @@ public class FunctionalCaseCommentService {
         }
     }
 
-    @Async
+
     public void sendNotice(FunctionalCaseCommentRequest functionalCaseCommentRequest, String userId, FunctionalCaseDTO functionalCaseDTO) {
         Map<String, String> defaultTemplateMap = MessageTemplateUtils.getDefaultTemplateMap();
         String template = defaultTemplateMap.get(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK + "_" + functionalCaseCommentRequest.getEvent());
