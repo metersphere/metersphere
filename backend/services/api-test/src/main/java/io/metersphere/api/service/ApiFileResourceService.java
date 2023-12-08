@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -241,5 +242,38 @@ public class ApiFileResourceService {
             throw new MSException(Translator.get("file_upload_fail"));
         }
         return fileId;
+    }
+
+    public void copyFileByResourceId(String sourceId, String sourceFolder, String targetId, String targetFolder) {
+        List<ApiFileResource> files = getByResourceId(sourceId);
+        if(!files.isEmpty()){
+            FileRepository defaultRepository = FileCenter.getDefaultRepository();
+            List<ApiFileResource> apiFileResources = new ArrayList<>();
+            files.forEach(item->{
+                try {
+                    // 按ID建文件夹，避免文件名重复
+                    FileCopyRequest fileCopyRequest = new FileCopyRequest();
+                    fileCopyRequest.setCopyFolder(sourceFolder + "/" + item.getFileId());
+                    fileCopyRequest.setCopyfileName(item.getFileName());
+                    fileCopyRequest.setFileName(item.getFileName());
+                    fileCopyRequest.setFolder(targetFolder + "/" + item.getFileId());
+                    // 将文件从临时目录复制到资源目录
+                    defaultRepository.copyFile(fileCopyRequest);
+                    ApiFileResource apiFileResource = new ApiFileResource();
+                    apiFileResource.setFileId(item.getFileId());
+                    apiFileResource.setResourceId(targetId);
+                    apiFileResource.setResourceType(item.getResourceType());
+                    apiFileResource.setProjectId(item.getProjectId());
+                    apiFileResource.setCreateTime(System.currentTimeMillis());
+                    apiFileResource.setFileName(item.getFileName());
+                    apiFileResources.add(apiFileResource);
+                } catch (Exception e) {
+                    LogUtils.error(e);
+                    throw new MSException(Translator.get("file_copy_fail"));
+                }
+            });
+
+            apiFileResourceMapper.batchInsert(apiFileResources);
+        }
     }
 }
