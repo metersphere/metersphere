@@ -2,10 +2,7 @@
   <MsCard simple>
     <MsAdvanceFilter :filter-config-list="filterConfigList" :row-count="filterRowCount">
       <template #left>
-        <div class="flex gap-[12px]">
-          <a-button type="primary" @click="handleCreate">{{ t('bugManagement.createBug') }} </a-button>
-          <a-button type="primary" @click="handleSync">{{ t('bugManagement.syncBug') }} </a-button>
-        </div>
+        <div></div>
       </template>
     </MsAdvanceFilter>
     <MsBaseTable v-bind="propsRes" v-on="propsEvent">
@@ -19,8 +16,6 @@
           <MsButton class="!mr-0" @click="handleCopy(record)">{{ t('common.copy') }}</MsButton>
           <a-divider direction="vertical" />
           <MsButton class="!mr-0" @click="handleEdit(record)">{{ t('common.edit') }}</MsButton>
-          <a-divider direction="vertical" />
-          <MsButton class="!mr-0" status="danger" @click="handleDelete(record)">{{ t('common.delete') }}</MsButton>
         </div>
       </template>
       <template #empty> </template>

@@ -25,8 +25,8 @@ export function createBug(data: TableQueryParams) {
   return MSR.post({ url: bugURL.postCreateBugUrl, data });
 }
 
-export function deleteBug(data: TableQueryParams) {
-  return MSR.get({ url: bugURL.getDeleteBugUrl, data });
+export function deleteSingleBug(data: TableQueryParams) {
+  return MSR.get({ url: `${bugURL.getDeleteBugUrl}${data.id}` });
 }
 
 export function deleteBatchBug(data: TableQueryParams) {

@@ -27,6 +27,8 @@ export default {
   'common.updateSuccess': '更新成功',
   'common.updateFailed': '更新失败',
   'common.deleteConfirm': '确认删除？',
+  'common.deleteConfirmTitle': '确认删除 {name} 吗',
+  'common.deleteConfirmContent': '删除后，MeterSphere 创建的缺陷进入回收站；第三方平台同步的缺陷将不做回收',
   'common.deleteSuccess': '删除成功',
   'common.deleteFailed': '删除失败',
   'common.addSuccess': '添加成功',
