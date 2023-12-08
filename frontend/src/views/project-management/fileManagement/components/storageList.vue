@@ -239,6 +239,19 @@
     }
   );
 
+  /**
+   * 初始化模块文件数量
+   */
+  watch(
+    () => props.modulesCount,
+    (obj) => {
+      storageList.value = originStorageList.value.map((e) => ({
+        ...e,
+        count: obj?.[e.id] || 0,
+      }));
+    }
+  );
+
   const focusItemKey = ref('');
 
   function setActiveFolder(id: string) {

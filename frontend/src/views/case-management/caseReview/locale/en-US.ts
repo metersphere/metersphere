@@ -129,4 +129,5 @@ export default {
   'caseManagement.caseReview.submitReview': 'Submit review',
   'caseManagement.caseReview.reviewHistory': 'Review history',
   'caseManagement.caseReview.noMatchReviewer': 'No matching handler, can be set in {menu}',
+  'caseManagement.caseReview.crateCase': 'Create case',
 };

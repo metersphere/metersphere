@@ -229,7 +229,13 @@
    * 右侧表格数据刷新后，若当前展示的是模块，则刷新模块树的统计数量
    */
   function handleModuleTableInit(params: FileListQueryParams) {
-    initModulesCount(params);
+    initModulesCount({
+      ...params,
+      combine: {
+        ...params.combine,
+        storage: showType.value === 'Module' ? 'minio' : 'git', // 这里因为存在切换我的、全部文件夹时，激活的是存储库列表，所以还要区分一下当前展示的类型是啥
+      },
+    });
     tableFilterParams.value = { ...params };
   }
 </script>
