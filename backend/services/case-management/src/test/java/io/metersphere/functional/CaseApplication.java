@@ -1,4 +1,5 @@
-package io.metersphere.system;
+package io.metersphere.functional;
+
 
 import io.metersphere.system.config.MinioProperties;
 import org.springframework.boot.SpringApplication;
@@ -19,10 +20,10 @@ import org.springframework.context.annotation.ComponentScan;
         MinioProperties.class
 })
 @ServletComponentScan
-@ComponentScan(basePackages = {"io.metersphere.sdk", "io.metersphere.system"})
-public class Application {
+@ComponentScan(basePackages = {"io.metersphere.sdk", "io.metersphere.system", "io.metersphere.project", "io.metersphere.functional"})
+public class CaseApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+        SpringApplication.run(CaseApplication.class, args);
     }
 }
