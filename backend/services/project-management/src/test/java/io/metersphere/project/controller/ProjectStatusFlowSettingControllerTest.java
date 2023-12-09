@@ -319,7 +319,7 @@ public class ProjectStatusFlowSettingControllerTest extends BaseTest {
         assertErrorCode(this.requestPost(STATUS_SORT, statusIds, "111", TemplateScene.BUG.name()), NOT_FOUND);
 
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.PROJECT_TEMPLATE_UPDATE, STATUS_SORT, List.of(), DEFAULT_PROJECT_ID, TemplateScene.BUG.name());
+        requestPostPermissionTest(PermissionConstants.PROJECT_TEMPLATE_UPDATE, STATUS_SORT, List.of("111"), DEFAULT_PROJECT_ID, TemplateScene.BUG.name());
     }
 
     private void changeOrgTemplateEnable(boolean enable) {
