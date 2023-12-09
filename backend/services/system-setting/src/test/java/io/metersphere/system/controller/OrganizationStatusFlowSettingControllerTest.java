@@ -506,7 +506,7 @@ public class OrganizationStatusFlowSettingControllerTest extends BaseTest {
         assertErrorCode(this.requestPost(STATUS_SORT, statusIds, "111", TemplateScene.BUG.name()), NOT_FOUND);
 
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE, STATUS_SORT, List.of(), DEFAULT_ORGANIZATION_ID, TemplateScene.BUG.name());
+        requestPostPermissionTest(PermissionConstants.ORGANIZATION_TEMPLATE_UPDATE, STATUS_SORT, List.of("111"), DEFAULT_ORGANIZATION_ID, TemplateScene.BUG.name());
     }
 
     private void assertSortStatusItem() {
