@@ -489,6 +489,7 @@ public class SystemProjectControllerTests extends BaseTest {
             copyStatusItem.setScopeId(projectId);
             copyStatusItem.setScopeType(TemplateScopeType.PROJECT.name());
             copyStatusItem.setRefId(orgStatusItem.getId());
+            copyStatusItem.setPos(projectStatusItem.getPos());
             Assertions.assertEquals(copyStatusItem, projectStatusItem);
         });
 
