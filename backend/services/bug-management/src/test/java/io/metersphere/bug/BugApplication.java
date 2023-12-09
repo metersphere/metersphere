@@ -20,8 +20,8 @@ import org.springframework.context.annotation.ComponentScan;
 })
 @ServletComponentScan
 @ComponentScan(basePackages = {"io.metersphere.sdk", "io.metersphere.system", "io.metersphere.project", "io.metersphere.bug"})
-public class Application {
+public class BugApplication {
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+        SpringApplication.run(BugApplication.class, args);
     }
 }
