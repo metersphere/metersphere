@@ -44,7 +44,7 @@ public class LoginControllerTests extends BaseTest {
     @Sql(scripts = {"/dml/init_user_login_test.sql"},
             config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED),
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    public void login() throws Exception {
+    public void testLogin() throws Exception {
         // 系统管理员
         AddProjectRequest project = new AddProjectRequest();
         project.setOrganizationId(DEFAULT_ORGANIZATION_ID);
