@@ -1601,6 +1601,7 @@ const message = {
       unplanned_scenario: "未规划场景",
       scenario_name: "场景名称",
       case_level: "用例等级",
+      module: "所属模块",
       tag: "标签",
       creator: "创建人",
       update_time: "最后更新时间",

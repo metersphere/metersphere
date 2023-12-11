@@ -1600,6 +1600,7 @@ const message = {
       unplanned_scenario: "未規劃場景",
       scenario_name: "場景名稱",
       case_level: "用例等級",
+      module: "所屬模塊",
       tag: "標簽",
       creator: "創建人",
       update_time: "最後更新時間",
