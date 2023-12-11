@@ -128,7 +128,7 @@
             <div v-else-if="showTab === 'detail'" class="h-full">
               <MsSplitBox :size="0.8" direction="vertical" min="0" :max="0.99">
                 <template #top>
-                  <caseTabDetail :form="{}" :allow-edit="false" />
+                  <caseTabDetail :form="detailForm" :allow-edit="false" />
                 </template>
                 <template #bottom>
                   <div class="flex h-full flex-col overflow-hidden">
@@ -180,7 +180,10 @@
                   @search="searchDemand"
                 />
               </div>
-              <caseTabDemand ref="caseDemandRef" :fun-params="{ caseId: route.query.id, keyword: demandKeyword }" />
+              <caseTabDemand
+                ref="caseDemandRef"
+                :fun-params="{ caseId: route.query.id as string, keyword: demandKeyword }"
+              />
             </div>
           </div>
           <div class="content-footer">
@@ -277,6 +280,8 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
+  import type { CreateCase } from '@/models/caseManagement/featureCase';
+
   const route = useRoute();
   const { t } = useI18n();
 
@@ -318,6 +323,25 @@
     { label: resultMap[2].label, value: 'fail' },
     { label: resultMap[3].label, value: 'reReview' },
   ]);
+
+  const initDetail: CreateCase = {
+    projectId: '',
+    templateId: '',
+    name: '',
+    prerequisite: '', // prerequisite
+    caseEditType: '', // 编辑模式：步骤模式/文本模式
+    steps: '',
+    textDescription: '',
+    expectedResult: '', // 预期结果
+    description: '',
+    publicCase: false, // 是否公共用例
+    moduleId: '',
+    versionId: '',
+    tags: [],
+    customFields: [], // 自定义字段集合
+    relateFileMetaIds: [], // 关联文件ID集合
+  };
+  const detailForm = ref<CreateCase>({ ...initDetail });
 
   const caseList = ref([
     {

@@ -43,7 +43,7 @@
     </div>
     <template #footer>
       <a-button type="secondary" @click="handleCancel">{{ t('common.cancel') }}</a-button>
-      <a-button type="secondary" @click="handleOK(true)">{{ t('ms.dialog.saveContinue') }}</a-button>
+      <a-button v-if="!form.id" type="secondary" @click="handleOK(true)">{{ t('ms.dialog.saveContinue') }}</a-button>
       <a-button class="ml-[12px]" type="primary" :loading="confirmLoading" @click="handleOK(false)">
         {{ updateName ? t('common.update') : t('common.create') }}
       </a-button>
@@ -107,6 +107,7 @@
   function handleCancel() {
     demandFormRef.value?.resetFields();
     showModal.value = false;
+    resetForm();
   }
 
   function handleOK(isContinue: boolean) {

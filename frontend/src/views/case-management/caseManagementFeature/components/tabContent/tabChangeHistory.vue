@@ -76,6 +76,7 @@
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
+  import MsRemoveButton from '@/components/business/ms-remove-button/MsRemoveButton.vue';
 
   import { getRecycleListRequest } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';

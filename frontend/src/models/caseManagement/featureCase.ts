@@ -159,7 +159,7 @@ export interface CreateCase {
   moduleId: string;
   versionId: string;
   tags: any;
-  customFields: Record<string, any>; // 自定义字段集合
+  customFields: CustomAttributes[] | Record<string, any>; // 自定义字段集合
   relateFileMetaIds: string[]; // 关联文件ID集合
   [key: string]: any;
 }
