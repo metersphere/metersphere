@@ -107,12 +107,19 @@
                   >
                 </a-menu>
                 <div class="mt-4">
-                  <TabDetail v-if="activeTab === 'detail'" :form="detailInfo" @update-success="updateSuccess" />
+                  <TabDetail
+                    v-if="activeTab === 'detail'"
+                    :form="detailInfo"
+                    :allow-edit="true"
+                    @update-success="updateSuccess"
+                  />
                   <TabDemand v-else-if="activeTab === 'requirement'" :case-id="props.detailId" />
+                  <TabCaseTable v-else-if="activeTab === 'case'" />
                   <TabDefect v-else-if="activeTab === 'bug'" />
                   <TabDependency v-else-if="activeTab === 'dependency'" />
                   <TabCaseReview v-else-if="activeTab === 'caseReview'" />
                   <TabTestPlan v-else-if="activeTab === 'testPlan'" />
+                  <TabComment v-else-if="activeTab === 'comments'" />
                   <TabChangeHistory v-else-if="activeTab === 'changeHistory'" />
                 </div>
               </div>
@@ -169,8 +176,10 @@
   import MsDetailDrawer from '@/components/business/ms-detail-drawer/index.vue';
   import SettingDrawer from './tabContent/settingDrawer.vue';
   import TabDefect from './tabContent/tabBug/tabDefect.vue';
+  import TabCaseTable from './tabContent/tabCase/tabCaseTable.vue';
   import TabCaseReview from './tabContent/tabCaseReview.vue';
   import TabChangeHistory from './tabContent/tabChangeHistory.vue';
+  import TabComment from './tabContent/tabComment/tabCommentIndex.vue';
   import TabDemand from './tabContent/tabDemand/demand.vue';
   import TabDependency from './tabContent/tabDependency/tabDependency.vue';
   import TabDetail from './tabContent/tabDetail.vue';
@@ -184,7 +193,12 @@
   import useUserStore from '@/store/modules/user';
   import { characterLimit, findNodeByKey } from '@/utils';
 
-  import type { CaseManagementTable, CustomAttributes, TabItemType } from '@/models/caseManagement/featureCase';
+  import type {
+    CaseManagementTable,
+    CreateCase,
+    CustomAttributes,
+    TabItemType,
+  } from '@/models/caseManagement/featureCase';
   import { FormCreateKeyEnum } from '@/enums/formCreateEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
@@ -237,13 +251,30 @@
         break;
     }
   }
+  const initDetail: CreateCase = {
+    projectId: '',
+    templateId: '',
+    name: '',
+    prerequisite: '', // prerequisite
+    caseEditType: '', // 编辑模式：步骤模式/文本模式
+    steps: '',
+    textDescription: '',
+    expectedResult: '', // 预期结果
+    description: '',
+    publicCase: false, // 是否公共用例
+    moduleId: '',
+    versionId: '',
+    tags: [],
+    customFields: [], // 自定义字段集合
+    relateFileMetaIds: [], // 关联文件ID集合
+  };
 
-  const detailInfo = ref<Record<string, any>>({});
+  const detailInfo = ref<CreateCase>({ ...initDetail });
   const customFields = ref<CustomAttributes[]>([]);
   const caseLevels = ref(0);
-  function loadedCase(detail: CaseManagementTable) {
+  function loadedCase(detail: CreateCase) {
     detailInfo.value = { ...detail };
-    customFields.value = detailInfo.value.customFields;
+    customFields.value = detailInfo.value.customFields as CustomAttributes[];
     const caseLevelsValue = customFields.value.find((item) => item.fieldName === '用例等级')?.defaultValue;
     if (caseLevelsValue) {
       caseLevels.value = JSON.parse(caseLevelsValue).replaceAll('P', '') * 1;

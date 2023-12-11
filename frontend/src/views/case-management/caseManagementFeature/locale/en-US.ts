@@ -191,4 +191,12 @@ export default {
   'caseManagement.featureCase.saveAsVersionTip': `After saving, add a use case with the current serial number content to the selected version`,
   'caseManagement.featureCase.testPlanList': 'Test plan list',
   'caseManagement.featureCase.reviewResult': 'review Result',
+  'caseManagement.featureCase.platformDemandState': 'Status',
+  'caseManagement.featureCase.platformDemandHandler': 'handler',
+  'caseManagement.featureCase.createAndLink': 'Create & Associate',
+  'caseManagement.featureCase.commentList': 'Comment list',
+  'caseManagement.featureCase.caseComment': 'Use case comment',
+  'caseManagement.featureCase.reviewComment': 'Review Comments',
+  'caseManagement.featureCase.executiveReview': 'Executive review',
+  'caseManagement.featureCase.linkCase': 'Associated case',
 };

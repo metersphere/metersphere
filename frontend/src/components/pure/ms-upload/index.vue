@@ -139,7 +139,7 @@
 
   const total = ref(''); // 总高度
   const other = ref(''); // 被减去高度
-  const showDropArea = ref(false);
+  const showDropArea = ref(!props.isAllScreen);
 
   watch(
     () => props.isAllScreen,
@@ -209,8 +209,10 @@
   }
 
   onMounted(() => {
-    disableDefaultEvents();
-    init();
+    if (props.isAllScreen) {
+      disableDefaultEvents();
+      init();
+    }
   });
 
   onBeforeUnmount(() => {

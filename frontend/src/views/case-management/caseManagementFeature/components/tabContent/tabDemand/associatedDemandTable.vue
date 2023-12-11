@@ -1,21 +1,16 @@
 <template>
   <ms-base-table ref="tableRef" v-bind="propsRes" v-on="propsEvent">
-    <template #demandId="{ record }">
-      <span class="ml-2"> {{ record.demandId }}</span>
-    </template>
     <template #demandName="{ record }">
       <span class="ml-1" :class="[props.highlightName ? 'text-[rgb(var(--primary-5))]' : '']">
         {{ record.demandName }}
-        <span v-if="record.children && (record.children || []).length"
-          >（{{ (record.children || []).length }}）</span
-        ></span
+        <span>({{ (record.children || []).length || 0 }})</span></span
       >
     </template>
     <template #operation="{ record }">
-      <MsButton v-if="record.demandPlatform === 'LOCAL'" @click="emit('update', record)">{{
+      <MsButton v-if="record.demandPlatform !== pageConfig.platformName" @click="emit('update', record)">{{
         t('caseManagement.featureCase.cancelAssociation')
       }}</MsButton>
-      <MsButton v-if="record.children && (record.children || []).length" @click="emit('update', record)">{{
+      <MsButton v-if="record.demandPlatform === pageConfig.platformName" @click="emit('update', record)">{{
         t('common.edit')
       }}</MsButton>
     </template>
@@ -32,15 +27,22 @@
 
   import { getDemandList } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore } from '@/store';
 
   import type { DemandItem } from '@/models/caseManagement/featureCase';
   import { TableKeyEnum } from '@/enums/tableEnum';
+
+  const appStore = useAppStore();
+  const pageConfig = computed(() => appStore.pageConfig);
 
   const { t } = useI18n();
 
   const props = withDefaults(
     defineProps<{
-      funParams: Record<string, any>; // 列表查询参数
+      funParams: {
+        caseId: string;
+        keyword: string;
+      }; // 列表查询参数
       isShowOperation?: boolean; // 是否显示操作列
       highlightName?: boolean; // 是否高亮名称
     }>(),
@@ -54,17 +56,18 @@
     (e: 'update', record: DemandItem): void;
   }>();
 
-  const expandedKeys = ref<string[]>([]);
   const columns: MsTableColumn = [
     {
       title: 'caseManagement.featureCase.tableColumnID',
       slotName: 'demandId',
+      dataIndex: 'demandId',
       showInTable: true,
       width: 200,
     },
     {
       title: 'caseManagement.featureCase.tableColumnName',
       slotName: 'demandName',
+      dataIndex: 'demandName',
       width: 300,
     },
     {
@@ -98,7 +101,7 @@
   const initData = async () => {
     const { keyword, caseId } = props.funParams;
     setLoadListParams({ keyword, caseId });
-    await loadList();
+    loadList();
   };
 
   onMounted(() => {

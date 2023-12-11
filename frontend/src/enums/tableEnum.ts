@@ -43,6 +43,8 @@ export enum TableKeyEnum {
   CASE_MANAGEMENT_TAB_REVIEW = 'caseManagementTabCaseReview',
   CASE_MANAGEMENT_TAB_TEST_PLAN = 'caseManagementTabTestPlan',
   CASE_MANAGEMENT_TAB_CHANGE_HISTORY = 'caseManagementTabChangeHistory',
+  CASE_MANAGEMENT_TAB_CASE_TABLE = 'caseManagementTabCaseTable',
+  CASE_MANAGEMENT_TAB_DEMAND_PLATFORM = 'caseManagementTabDemandPlatformTable',
 }
 
 // 具有特殊功能的列

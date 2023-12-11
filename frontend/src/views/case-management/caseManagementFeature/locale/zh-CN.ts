@@ -188,4 +188,13 @@ export default {
   'caseManagement.featureCase.saveAsVersionTip': '另存后，选择的版本内，增加一条当前序号内容的用例',
   'caseManagement.featureCase.testPlanList': '测试计划列表',
   'caseManagement.featureCase.reviewResult': '评审结果',
+  'caseManagement.featureCase.allFiles': '全部文件',
+  'caseManagement.featureCase.platformDemandState': '状态',
+  'caseManagement.featureCase.platformDemandHandler': '处理人',
+  'caseManagement.featureCase.createAndLink': '创建并关联',
+  'caseManagement.featureCase.commentList': '评论列表',
+  'caseManagement.featureCase.caseComment': '用例评论',
+  'caseManagement.featureCase.reviewComment': '评审评论',
+  'caseManagement.featureCase.executiveReview': '执行评论',
+  'caseManagement.featureCase.linkCase': '关联用例',
 };

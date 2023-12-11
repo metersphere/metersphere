@@ -45,7 +45,7 @@
         </div>
         <!-- 步骤描述 -->
         <div v-if="detailForm.caseEditType === 'STEP'" class="w-full">
-          <AddStep v-model:step-list="stepData" :is-disabled="isEditPreposition" />
+          <AddStep v-model:step-list="stepData" :is-disabled="!isEditPreposition" />
         </div>
         <!-- 文本描述 -->
         <MsRichText
@@ -77,8 +77,11 @@
           {{ t('common.save') }}
         </a-button></div
       >
-      <a-form-item field="attachment" :label="t('caseManagement.featureCase.attachment')">
-        <div class="flex flex-col">
+      <a-form-item
+        field="attachment"
+        :label="props.allowEdit ? t('caseManagement.featureCase.attachment') : '附件列表'"
+      >
+        <div v-if="props.allowEdit" class="flex flex-col">
           <div class="mb-1">
             <a-dropdown position="tr" trigger="hover">
               <a-button type="outline">
@@ -125,38 +128,48 @@
         }"
         :upload-func="uploadOrAssociationFile"
         :handle-delete="deleteFileHandler"
+        :show-delete="props.allowEdit"
       >
         <template #actions="{ item }">
-          <!-- 本地文件 -->
-          <div v-if="item.local || item.status === 'init'" class="flex flex-nowrap">
-            <MsButton type="button" status="primary" class="!mr-[4px]" @click="transferFile(item)">
-              {{ t('caseManagement.featureCase.storage') }}
-            </MsButton>
-            <MsButton
-              v-if="item.status === 'done'"
-              type="button"
-              status="primary"
-              class="!mr-[4px]"
-              @click="downloadFile(item)"
-            >
-              {{ t('caseManagement.featureCase.download') }}
-            </MsButton>
-          </div>
-          <!-- 关联文件 -->
-          <div v-else class="flex flex-nowrap">
-            <MsButton
-              v-if="item.status === 'done'"
-              type="button"
-              status="primary"
-              class="!mr-[4px]"
-              @click="downloadFile(item)"
-            >
-              {{ t('caseManagement.featureCase.download') }}
-            </MsButton>
+          <div v-if="props.allowEdit">
+            <!-- 本地文件 -->
+            <div v-if="item.local || item.status === 'init'" class="flex flex-nowrap">
+              <MsButton type="button" status="primary" class="!mr-[4px]" @click="transferFile(item)">
+                {{ t('caseManagement.featureCase.storage') }}
+              </MsButton>
+              <MsButton
+                v-if="item.status === 'done'"
+                type="button"
+                status="primary"
+                class="!mr-[4px]"
+                @click="downloadFile(item)"
+              >
+                {{ t('caseManagement.featureCase.download') }}
+              </MsButton>
+            </div>
+            <!-- 关联文件 -->
+            <div v-else class="flex flex-nowrap">
+              <MsButton
+                v-if="item.status === 'done'"
+                type="button"
+                status="primary"
+                class="!mr-[4px]"
+                @click="downloadFile(item)"
+              >
+                {{ t('caseManagement.featureCase.download') }}
+              </MsButton>
+            </div>
           </div>
         </template>
       </MsFileList>
     </div>
+    <LinkFileDrawer
+      v-model:visible="showDrawer"
+      :get-tree-request="getModules"
+      :get-count-request="getModulesCount"
+      :get-list-request="getAssociatedFileListUrl"
+      @save="saveSelectAssociatedFile"
+    />
   </div>
 </template>
 
@@ -169,21 +182,24 @@
   import MsFileList from '@/components/pure/ms-upload/fileList.vue';
   import type { MsFileItem } from '@/components/pure/ms-upload/types';
   import AddStep from '../addStep.vue';
+  import LinkFileDrawer from '../linkFile/associatedFileDrawer.vue';
 
   import {
     deleteFileOrCancelAssociation,
     downloadFileRequest,
+    getAssociatedFileListUrl,
     transferFileRequest,
     updateCaseRequest,
     uploadOrAssociationFile,
   } from '@/api/modules/case-management/featureCase';
+  import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import useFormCreateStore from '@/store/modules/form-create/form-create';
   import { downloadByteFile, getGenerateId } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
 
-  import type { StepList } from '@/models/caseManagement/featureCase';
+  import type { AssociatedList, CreateCase, StepList } from '@/models/caseManagement/featureCase';
   import { FormCreateKeyEnum } from '@/enums/formCreateEnum';
 
   import { convertToFile } from '../utils';
@@ -200,7 +216,7 @@
 
   const props = withDefaults(
     defineProps<{
-      form: Record<string, any>;
+      form: CreateCase;
       allowEdit?: boolean; // 是否允许编辑
     }>(),
     {
@@ -516,6 +532,12 @@
       }
     }
   );
+
+  // 处理关联文件
+  function saveSelectAssociatedFile(fileData: AssociatedList[]) {
+    const fileResultList = fileData.map((fileInfo) => convertToFile(fileInfo));
+    fileList.value.push(...fileResultList);
+  }
 </script>
 
 <style scoped lang="less">

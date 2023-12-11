@@ -83,7 +83,7 @@
             >
               {{ t('ms.upload.reUpload') }}
             </MsButton>
-            <MsButton type="button" status="danger" class="!mr-[4px]" @click="deleteFile(item)">
+            <MsButton v-if="props.showDelete" type="button" status="danger" class="!mr-[4px]" @click="deleteFile(item)">
               {{ t(item.deleteContent) || t('ms.upload.delete') }}
             </MsButton>
             <slot name="actions" :item="item"></slot>
@@ -128,10 +128,12 @@
       showTab?: boolean; // 是否显示tab
       handleDelete?: (item: MsFileItem) => void;
       handleReupload?: (item: MsFileItem) => void;
+      showDelete?: boolean; // 是否展示删除按钮
     }>(),
     {
       mode: 'remote',
       showTab: true,
+      showDelete: true,
     }
   );
   const emit = defineEmits<{

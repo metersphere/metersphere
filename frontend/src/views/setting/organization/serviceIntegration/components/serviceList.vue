@@ -94,7 +94,7 @@
               </div>
             </div>
           </div>
-          <a-empty v-if="filterList.length" class="mt-20"> </a-empty>
+          <a-empty v-if="!filterList.length" class="mt-20"> </a-empty>
         </a-scrollbar>
       </div>
     </div>
@@ -216,12 +216,7 @@
       loading.value = false;
     }
   };
-  // 跳转到插件管理
-  function goPluginManagement() {
-    router.push({
-      name: SettingRouteEnum.SETTING_SYSTEM_PLUGIN_MANAGEMENT,
-    });
-  }
+
   onBeforeMount(() => {
     loadList();
   });
