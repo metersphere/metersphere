@@ -127,10 +127,6 @@
   onMounted(() => {
     resetSelector();
   });
-
-  onMounted(() => {
-    resetSelector();
-  });
 </script>
 
 <style scoped></style>

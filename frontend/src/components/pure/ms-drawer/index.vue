@@ -24,7 +24,7 @@
               props.titleTag
             }}</a-tag></div
           >
-          <div class="flex"> <slot name="tbutton"></slot></div>
+          <slot name="tbutton"></slot>
         </div>
       </slot>
     </template>

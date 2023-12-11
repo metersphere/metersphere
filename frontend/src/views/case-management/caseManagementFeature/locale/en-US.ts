@@ -199,4 +199,8 @@ export default {
   'caseManagement.featureCase.reviewComment': 'Review Comments',
   'caseManagement.featureCase.executiveReview': 'Executive review',
   'caseManagement.featureCase.linkCase': 'Associated case',
+  'caseManagement.featureCase.apiCase': 'API Case',
+  'caseManagement.featureCase.sceneCase': 'Scene Case',
+  'caseManagement.featureCase.uiCase': 'UI Case',
+  'caseManagement.featureCase.propertyCase': 'Property Case',
 };

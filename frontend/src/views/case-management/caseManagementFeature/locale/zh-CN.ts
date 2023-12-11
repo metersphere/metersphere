@@ -197,4 +197,8 @@ export default {
   'caseManagement.featureCase.reviewComment': '评审评论',
   'caseManagement.featureCase.executiveReview': '执行评论',
   'caseManagement.featureCase.linkCase': '关联用例',
+  'caseManagement.featureCase.apiCase': '接口用例',
+  'caseManagement.featureCase.sceneCase': '场景用例',
+  'caseManagement.featureCase.uiCase': 'UI用例',
+  'caseManagement.featureCase.propertyCase': '性能用例',
 };

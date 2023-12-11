@@ -199,7 +199,7 @@
   import { downloadByteFile, getGenerateId } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
 
-  import type { AssociatedList, CreateCase, StepList } from '@/models/caseManagement/featureCase';
+  import type { AssociatedList, CreateOrUpdateCase, DetailCase, StepList } from '@/models/caseManagement/featureCase';
   import { FormCreateKeyEnum } from '@/enums/formCreateEnum';
 
   import { convertToFile } from '../utils';
@@ -216,7 +216,7 @@
 
   const props = withDefaults(
     defineProps<{
-      form: CreateCase;
+      form: DetailCase;
       allowEdit?: boolean; // 是否允许编辑
     }>(),
     {

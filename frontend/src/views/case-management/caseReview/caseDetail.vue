@@ -280,7 +280,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import type { CreateCase } from '@/models/caseManagement/featureCase';
+  import type { DetailCase } from '@/models/caseManagement/featureCase';
 
   const route = useRoute();
   const { t } = useI18n();
@@ -324,7 +324,8 @@
     { label: resultMap[3].label, value: 'reReview' },
   ]);
 
-  const initDetail: CreateCase = {
+  const initDetail: DetailCase = {
+    id: '',
     projectId: '',
     templateId: '',
     name: '',
@@ -341,7 +342,7 @@
     customFields: [], // 自定义字段集合
     relateFileMetaIds: [], // 关联文件ID集合
   };
-  const detailForm = ref<CreateCase>({ ...initDetail });
+  const detailForm = ref<DetailCase>({ ...initDetail });
 
   const caseList = ref([
     {
