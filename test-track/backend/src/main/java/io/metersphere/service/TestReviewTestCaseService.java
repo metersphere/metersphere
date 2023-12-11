@@ -725,6 +725,9 @@ public class TestReviewTestCaseService {
             if (order.getName().equals("update_time")) {
                 order.setPrefix("tcrtc");
             }
+            if (order.getName().equals("create_time")) {
+                order.setPrefix("tcrtc");
+            }
         });
         request.setOrders(orders);
         return extTestReviewCaseMapper.listForMinder(request);
