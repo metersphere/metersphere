@@ -28,6 +28,7 @@
         <guava.version>32.0.1-jre</guava.version>
         <pagehelper.version>6.0.0</pagehelper.version>
         <metersphere-jmeter-functions.version>3.0</metersphere-jmeter-functions.version>
+        <metersphere-jmeter-assertions.version>1.0.0</metersphere-jmeter-assertions.version>
         <quartz-starter.version>1.0.7</quartz-starter.version>
         <redisson-starter.version>3.25.0</redisson-starter.version>
         <guice.version>5.1.0</guice.version>
