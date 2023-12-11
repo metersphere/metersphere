@@ -45,7 +45,7 @@
           </div>
           <!-- 步骤描述 -->
           <div v-if="form.caseEditType === 'STEP'" class="w-full">
-            <AddStep v-model:step-list="stepData" :is-disabled="true" />
+            <AddStep v-model:step-list="stepData" :is-disabled="false" />
           </div>
           <!-- 文本描述 -->
           <MsRichText v-else v-model:modelValue="form.textDescription" />
@@ -200,7 +200,13 @@
       @change="handleChange"
     />
   </div>
-  <AssociatedFileDrawer v-model:visible="showDrawer" @save="saveSelectAssociatedFile" />
+  <LinkFileDrawer
+    v-model:visible="showDrawer"
+    :get-tree-request="getModules"
+    :get-count-request="getModulesCount"
+    :get-list-request="getAssociatedFileListUrl"
+    @save="saveSelectAssociatedFile"
+  />
 </template>
 
 <script setup lang="ts">
@@ -216,9 +222,14 @@
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import type { MsFileItem } from '@/components/pure/ms-upload/types';
   import AddStep from './addStep.vue';
-  import AssociatedFileDrawer from './associatedFileDrawer.vue';
+  import LinkFileDrawer from './linkFile/associatedFileDrawer.vue';
 
-  import { getCaseDefaultFields, getCaseDetail } from '@/api/modules/case-management/featureCase';
+  import {
+    getAssociatedFileListUrl,
+    getCaseDefaultFields,
+    getCaseDetail,
+  } from '@/api/modules/case-management/featureCase';
+  import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { getProjectFieldList } from '@/api/modules/setting/template';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';

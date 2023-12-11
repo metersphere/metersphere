@@ -16,10 +16,15 @@
   >
     <template #title>
       <slot name="title">
-        <div class="flex w-full justify-between">
-          {{ props.title }}
-          <a-tag v-if="titleTag" :color="props.titleTagColor" class="ml-[8px] mr-auto">{{ props.titleTag }}</a-tag>
-          <slot name="tbutton"></slot>
+        <div class="flex w-full items-center justify-between">
+          <div class="flex items-center">
+            {{ props.title }}
+            <slot name="headerLeft"></slot>
+            <a-tag v-if="titleTag" :color="props.titleTagColor" class="ml-[8px] mr-auto">{{
+              props.titleTag
+            }}</a-tag></div
+          >
+          <div class="flex"> <slot name="tbutton"></slot></div>
         </div>
       </slot>
     </template>

@@ -6,9 +6,25 @@
     :footer="false"
     no-content-padding
   >
+    <template #headerLeft>
+      <div class="float-left">
+        <a-select
+          v-model="caseType"
+          class="ml-2 max-w-[100px]"
+          :placeholder="t('caseManagement.featureCase.PleaseSelect')"
+        >
+          <a-option v-for="item of actionType" :key="item.value" :value="item.value">{{ item.name }}</a-option>
+        </a-select>
+      </div>
+    </template>
     <div class="flex h-full">
       <div class="w-[292px] border-r border-[var(--color-text-n8)] p-[16px]">
-        <MsProjectSelect v-model:project="innerProject" class="mb-[16px]" />
+        <div class="flex items-center justify-between">
+          <MsProjectSelect v-model:project="innerProject" class="mb-[16px]" />
+          <a-select v-if="caseType === 'API'" v-model="protocolType" class="mb-[16px] ml-2 max-w-[90px]">
+            <a-option v-for="item of protocolOptions" :key="item" :value="item">{{ item }}</a-option>
+          </a-select>
+        </div>
         <a-input
           v-model:model-value="moduleKeyword"
           :placeholder="t('caseManagement.caseReview.folderSearchPlaceholder')"
@@ -156,6 +172,30 @@
 
   const innerVisible = ref(props.visible);
   const innerProject = ref(props.project);
+
+  // 协议类型
+  const protocolType = ref('HTTP');
+  const caseType = ref('API');
+
+  const protocolOptions = ref(['DUBBO', 'HTTP', 'TCP', 'SQL']);
+  const actionType = ref([
+    {
+      value: 'API',
+      name: '接口用例',
+    },
+    {
+      value: 'SCENE',
+      name: '接口用例',
+    },
+    {
+      value: 'UI',
+      name: 'UI用例',
+    },
+    {
+      value: 'PERFORMANCE',
+      name: '性能用例',
+    },
+  ]);
 
   watch(
     () => props.visible,

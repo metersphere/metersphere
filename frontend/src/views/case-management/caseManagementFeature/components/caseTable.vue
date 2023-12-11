@@ -804,7 +804,7 @@
     activeCaseIndex.value = index;
   }
 
-  // 地址栏携带 id，自动打开资源池详情抽屉
+  // 地址栏携带 id，自动打开用例详情抽屉
   onMounted(() => {
     if (route.query.id) {
       showCaseDetail(route.query.id as string, 0);

@@ -54,7 +54,7 @@
       />
     </template>
   </MsBaseTable>
-  <a-button class="mt-2 px-0" type="text" :disabled="!props.isDisabled" @click="addStep">
+  <a-button v-if="!props.isDisabled" class="mt-2 px-0" type="text" @click="addStep">
     <template #icon>
       <icon-plus class="text-[14px]" />
     </template>
@@ -181,6 +181,7 @@
   // 删除步骤
   function deleteStep(record: StepList) {
     stepData.value = stepData.value.filter((item: any) => item.id !== record.id);
+    setProps({ data: stepData.value });
   }
 
   // 步骤之前插入步骤
@@ -240,7 +241,7 @@
 
   // 编辑步骤
   function edit(record: StepList, type: string) {
-    if (!props.isDisabled) return;
+    if (props.isDisabled) return;
     if (type === 'step') {
       record.showStep = true;
     } else {
@@ -250,7 +251,7 @@
 
   // 失去焦点回调
   function blurHandler(record: StepList, type: string) {
-    if (!props.isDisabled) return;
+    if (props.isDisabled) return;
     if (type === 'step') {
       record.showStep = false;
     } else {
@@ -260,9 +261,7 @@
   const tableRef = ref<InstanceType<typeof MsBaseTable> | null>(null);
 
   watchEffect(() => {
-    stepData.value = props.stepList;
-    setProps({ data: stepData.value });
-    if (!props.isDisabled) {
+    if (props.isDisabled) {
       tableRef.value?.initColumn(templateFieldColumns.value.slice(0, templateFieldColumns.value.length - 1));
     } else {
       tableRef.value?.initColumn(templateFieldColumns.value);
@@ -273,8 +272,16 @@
     () => stepData.value,
     (val) => {
       emit('update:stepList', val);
+      setProps({ data: stepData.value });
     },
     { deep: true }
+  );
+
+  watch(
+    () => props.stepList,
+    () => {
+      stepData.value = props.stepList;
+    }
   );
 
   onMounted(() => {

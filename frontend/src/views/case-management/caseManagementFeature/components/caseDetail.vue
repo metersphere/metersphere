@@ -7,14 +7,21 @@
     @save="saveHandler"
     @save-and-continue="saveHandler(true)"
   >
-    <template #headerRight>
-      <a-select class="w-[240px]" :placeholder="t('caseManagement.featureCase.versionPlaceholder')">
-        <a-option v-for="template of versionOptions" :key="template.id" :value="template.id">{{
-          template.name
-        }}</a-option>
-      </a-select>
-    </template>
     <CaseTemplateDetail ref="caseModuleDetailRef" v-model:form-mode-value="caseDetailInfo" />
+    <template #footerRight>
+      <div class="flex justify-end gap-[16px]">
+        <a-button type="secondary" @click="cancelHandler">{{ t('mscard.defaultCancelText') }}</a-button>
+        <a-button v-if="!isFormReviewCase" type="secondary" @click="saveHandler(true)">
+          {{ t('mscard.defaultSaveAndContinueText') }}
+        </a-button>
+        <a-button v-if="!isFormReviewCase" type="primary" @click="saveHandler(false)">
+          {{ t(isEdit ? 'mscard.defaultUpdate' : 'mscard.defaultConfirm') }}
+        </a-button>
+        <a-button v-if="isFormReviewCase" type="primary" @click="saveHandler(false, true)">
+          {{ t('caseManagement.featureCase.createAndLink') }}
+        </a-button>
+      </div>
+    </template>
   </MsCard>
 </template>
 
@@ -49,22 +56,16 @@
     fileList: [],
   });
 
-  const versionOptions = ref([
-    {
-      id: '1001',
-      name: '模板01',
-    },
-  ]);
-
   const title = ref('');
   const loading = ref(false);
   const isEdit = computed(() => !!route.query.id);
+  const isFormReviewCase = computed(() => route.query.reviewId);
 
   const isContinueFlag = ref(false);
   const isShowTip = ref<boolean>(true);
   const createSuccessId = ref<string>('');
 
-  async function save() {
+  async function save(isReview: boolean) {
     try {
       loading.value = true;
       if (route.params.mode === 'edit') {
@@ -72,10 +73,26 @@
         Message.success(t('caseManagement.featureCase.editSuccess'));
       } else {
         const res = await createCaseRequest(caseDetailInfo.value);
+        if (isReview) {
+          // TODO
+          // 创建并关联接口
+        }
         createSuccessId.value = res.data.id;
         Message.success(route.params.mode === 'copy' ? t('ms.description.copySuccess') : t('common.addSuccess'));
       }
-      router.push({ name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE, query: { ...route.query } });
+      if (isReview) {
+        router.push({
+          name: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW_DETAIL,
+          query: {
+            id: route.query.reviewId,
+            organizationId: route.query.organizationId,
+            projectId: route.query.projectId,
+          },
+        });
+      } else {
+        router.push({ name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE, query: { ...route.query } });
+      }
+
       featureCaseStore.setIsAlreadySuccess(true);
       isShowTip.value = !getIsVisited();
       if (isShowTip.value && !route.query.id) {
@@ -97,7 +114,7 @@
   const caseModuleDetailRef = ref();
 
   // 保存
-  function saveHandler(isContinue = false) {
+  function saveHandler(isContinue = false, isReview = false) {
     const { caseFormRef, formRef, fApi } = caseModuleDetailRef.value;
     isContinueFlag.value = isContinue;
     caseFormRef?.validate().then((res: any) => {
@@ -106,7 +123,7 @@
           if (valid === true) {
             formRef?.validate().then((result: any) => {
               if (!result) {
-                return save();
+                return save(isReview);
               }
             });
           }
@@ -114,6 +131,9 @@
       }
       return scrollIntoView(document.querySelector('.arco-form-item-message'), { block: 'center' });
     });
+  }
+  function cancelHandler() {
+    router.back();
   }
 
   watchEffect(() => {
@@ -124,7 +144,6 @@
     } else {
       title.value = t('caseManagement.featureCase.creatingCase');
     }
-    const gatewayAddress = `${window.location.protocol}//${window.location.hostname}:${window.location.port}`;
   });
 </script>
 
