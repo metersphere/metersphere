@@ -84,6 +84,17 @@
           sortable />
 
         <ms-table-column
+            prop="nodePath"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="$t('api_test.automation.module')"
+            min-width="150px">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.modulePath }}</span>
+          </template>
+        </ms-table-column>
+
+        <ms-table-column
           :field="item"
           :fields-width="fieldsWidth"
           :filters="scenarioFilters.LEVEL_FILTERS"

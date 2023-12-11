@@ -1652,6 +1652,7 @@ const message = {
       unplanned_scenario: "Unplanned Scenario",
       scenario_name: "Scenario Name",
       case_level: "Case Level",
+      module: "Module",
       tag: "Tag",
       creator: "Creator",
       update_time: "Update Time",
