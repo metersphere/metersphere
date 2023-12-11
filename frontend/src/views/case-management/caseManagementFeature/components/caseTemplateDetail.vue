@@ -237,7 +237,13 @@
   import useFormCreateStore from '@/store/modules/form-create/form-create';
   import { getGenerateId } from '@/utils';
 
-  import type { AssociatedList, CreateCase, StepList } from '@/models/caseManagement/featureCase';
+  import type {
+    AssociatedList,
+    AttachFileInfo,
+    CreateOrUpdateCase,
+    DetailCase,
+    StepList,
+  } from '@/models/caseManagement/featureCase';
   import type { CustomField, DefinedFieldItem } from '@/models/setting/template';
   import { FormCreateKeyEnum } from '@/enums/formCreateEnum';
 
@@ -280,7 +286,8 @@
   const modelId = computed(() => featureCaseStore.moduleId[0]);
   const caseTree = computed(() => featureCaseStore.caseTree);
 
-  const initForm: CreateCase = {
+  const initForm: DetailCase = {
+    id: '',
     projectId: currentProjectId.value,
     templateId: '',
     name: '',
@@ -298,7 +305,7 @@
     relateFileMetaIds: [],
   };
 
-  const form = ref<CreateCase>({ ...initForm });
+  const form = ref<DetailCase | CreateOrUpdateCase>({ ...initForm });
 
   watch(
     () => stepData.value,
@@ -381,7 +388,7 @@
   }
 
   const isEditOrCopy = computed(() => !!route.query.id);
-  const attachmentsList = ref([]);
+  const attachmentsList = ref<AttachFileInfo[]>([]);
 
   // 后台传过来的local文件的item列表
   const oldLocalFileList = computed(() => {
@@ -433,12 +440,12 @@
   });
 
   // 处理详情字段
-  function getDetailData(detailResult: CreateCase) {
+  function getDetailData(detailResult: DetailCase) {
     const { customFields, attachments, steps, tags } = detailResult;
     form.value = {
       ...detailResult,
       name: route.params.mode === 'copy' ? `${detailResult.name}_copy` : detailResult.name,
-      tags: JSON.parse(tags as string),
+      tags: JSON.parse(tags),
     };
     // 处理自定义字段
     selectData.value = getCustomDetailFields(
@@ -454,19 +461,21 @@
         };
       });
     }
-    attachmentsList.value = attachments;
+    if (attachments) {
+      attachmentsList.value = attachments;
 
-    // 处理文件列表
-    fileList.value = attachments
-      .map((fileInfo: any) => {
-        return {
-          ...fileInfo,
-          name: fileInfo.fileName,
-        };
-      })
-      .map((fileInfo: any) => {
-        return convertToFile(fileInfo);
-      });
+      // 处理文件列表
+      fileList.value = attachments
+        .map((fileInfo: any) => {
+          return {
+            ...fileInfo,
+            name: fileInfo.fileName,
+          };
+        })
+        .map((fileInfo: any) => {
+          return convertToFile(fileInfo);
+        });
+    }
   }
 
   // 处理详情
@@ -474,7 +483,7 @@
     try {
       isLoading.value = true;
       await getAllCaseFields();
-      const detailResult = await getCaseDetail(route.query.id as string);
+      const detailResult: DetailCase = await getCaseDetail(route.query.id as string);
       getDetailData(detailResult);
     } catch (error) {
       console.log(error);
@@ -605,7 +614,7 @@
       formRuleList.value?.forEach((item) => {
         customFieldsMaps[item.field as string] = item.value;
       });
-      form.value.customFields = customFieldsMaps as Record<string, any>;
+      form.value.customFields = customFieldsMaps;
     },
     { deep: true }
   );

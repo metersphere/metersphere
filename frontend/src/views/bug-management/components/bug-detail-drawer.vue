@@ -193,7 +193,7 @@
 
   function loadedCase(detail: CaseManagementTable) {
     detailInfo.value = { ...detail };
-    customFields.value = detailInfo.value.customFields as CustomAttributes[];
+    customFields.value = detailInfo.value.customFields;
   }
 
   const moduleName = computed(() => {

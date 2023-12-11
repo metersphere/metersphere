@@ -1,5 +1,9 @@
+import { TagData } from '@arco-design/web-vue';
+
 import { TableQueryParams } from '@/models/common';
 import { StatusType } from '@/enums/caseEnum';
+
+import { RawCommands } from '@halo-dev/richtext-editor';
 
 export interface ModulesTreeType {
   id: string;
@@ -28,6 +32,23 @@ export interface customFieldsItem {
   value: string;
 }
 
+export interface OptionsFieldId {
+  fieldId: string;
+  value: string;
+  text: string;
+  internal: boolean; // 是否是内置
+}
+
+export interface CustomAttributes {
+  fieldId: string;
+  fieldName: string;
+  required: boolean;
+  apiFieldId: null | undefined | 'string'; // 三方API
+  defaultValue: string;
+  type: string;
+  options: OptionsFieldId[];
+}
+
 // 功能用例表
 export interface CaseManagementTable {
   id: string;
@@ -39,20 +60,23 @@ export interface CaseManagementTable {
   reviewStatus: StatusType[keyof StatusType]; // 评审状态：未评审/评审中/通过/不通过/重新提审
   tags: any; // 标签（JSON)
   caseEditType: string; // 编辑模式：步骤模式/文本模式
+  prerequisite: string; // 前置条件
   pos: number; // 自定义排序，间隔5000
   versionId: string; // 版本ID
   refId: string; // 指向初始版本ID
   lastExecuteResult: string; // 最近的执行结果：未执行/通过/失败/阻塞/跳过
-  deleted: true; // 是否在回收站：0-否，1-是
-  publicCase: true; // 是否是公共用例：0-否，1-是
-  latest: true; // 是否为最新版本：0-否，1-是
+  deleted: boolean; // 是否在回收站：0-否，1-是
+  publicCase: boolean; // 是否是公共用例：0-否，1-是
+  latest: boolean; // 是否为最新版本：0-否，1-是
   createUser: string;
   updateUser: string;
   deleteUser: string;
   createTime: string;
   updateTime: string;
   deleteTime: string;
-  customFields: customFieldsItem[]; // 自定义字段集合
+  steps: string;
+  customFields: CustomAttributes[]; // 自定义字段集合
+  [key: string]: any;
 }
 
 // 选择类型步骤和预期结果列表
@@ -107,22 +131,6 @@ export interface BatchDeleteType {
   projectId: string;
 }
 
-export interface OptionsFieldId {
-  fieldId: string;
-  value: string;
-  text: string;
-  internal: boolean; // 是否是内置
-}
-export interface CustomAttributes {
-  fieldId: string;
-  fieldName: string;
-  required: boolean;
-  apiFieldId: null | undefined | 'string'; // 三方API
-  defaultValue: string;
-  type: string;
-  options: OptionsFieldId[];
-}
-
 // 批量编辑
 export interface BatchEditCaseType {
   selectIds: string[];
@@ -145,7 +153,9 @@ export interface BatchMoveOrCopyType {
   condition: Record<string, any>;
 }
 
-export interface CreateCase {
+// 创建或者更新
+export interface CreateOrUpdateCase {
+  id?: string;
   projectId: string;
   templateId: string;
   name: string;
@@ -158,9 +168,48 @@ export interface CreateCase {
   publicCase: boolean; // 是否公共用例
   moduleId: string;
   versionId: string;
+  tags: string[];
+  customFields: Record<string, any>; // 自定义字段集合
+  relateFileMetaIds?: string[]; // 关联文件ID集合
+  deleteFileMetaIds?: string[]; //  删除本地上传的文件id
+  unLinkFilesIds?: string[]; //  	取消关联的文件id
+  [key: string]: any;
+}
+export interface AttachFileInfo {
+  id: string;
+  fileId: string;
+  fileName: string;
+  size: number;
+  local: boolean;
+  createUser: string;
+  createTime: number;
+  [key: string]: any;
+}
+
+// 详情
+export interface DetailCase {
+  id: string;
+  num?: number;
+  moduleId: string;
+  moduleName?: string;
+  projectId: string;
+  templateId?: string;
+  name: string;
+  reviewStatus?: string;
   tags: any;
-  customFields: CustomAttributes[] | Record<string, any>; // 自定义字段集合
-  relateFileMetaIds: string[]; // 关联文件ID集合
+  caseEditType: string;
+  versionId?: string;
+  publicCase: boolean;
+  latest?: boolean;
+  createUser?: string;
+  steps: string;
+  textDescription: string;
+  expectedResult: string;
+  prerequisite: string;
+  description: string;
+  customFields: CustomAttributes[];
+  attachments?: AttachFileInfo[];
+  followFlag?: boolean;
   [key: string]: any;
 }
 

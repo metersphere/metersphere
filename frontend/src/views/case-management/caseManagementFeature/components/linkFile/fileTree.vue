@@ -5,7 +5,7 @@
     allow-clear
     class="mb-[16px]"
   ></a-input>
-  <a-spin class="min-h-[300px] w-full" :loading="loading">
+  <a-spin class="min-h-[400px] w-full" :loading="loading">
     <MsTree
       v-model:focus-node-key="focusNodeKey"
       :selected-keys="props.selectedKeys"
@@ -59,7 +59,6 @@
   const props = defineProps<{
     isExpandAll: boolean;
     selectedKeys?: Array<string | number>; // 选中的节点 key
-    isModal?: boolean; // 是否是弹窗模式
     modulesCount?: Record<string, number>; // 模块数量统计对象
     showType?: string; // 显示类型
     getTreeRequest: (params: any) => Promise<ModuleTreeNode[]>; // 获取模块树接口
@@ -76,7 +75,7 @@
 
   const virtualListProps = computed(() => {
     return {
-      height: 'calc(100vh - 350px)',
+      height: 'calc(100vh - 296px)',
     };
   });
 

@@ -195,8 +195,9 @@
 
   import type {
     CaseManagementTable,
-    CreateCase,
+    CreateOrUpdateCase,
     CustomAttributes,
+    DetailCase,
     TabItemType,
   } from '@/models/caseManagement/featureCase';
   import { FormCreateKeyEnum } from '@/enums/formCreateEnum';
@@ -251,7 +252,8 @@
         break;
     }
   }
-  const initDetail: CreateCase = {
+  const initDetail: DetailCase = {
+    id: '',
     projectId: '',
     templateId: '',
     name: '',
@@ -269,12 +271,12 @@
     relateFileMetaIds: [], // 关联文件ID集合
   };
 
-  const detailInfo = ref<CreateCase>({ ...initDetail });
+  const detailInfo = ref<DetailCase>({ ...initDetail });
   const customFields = ref<CustomAttributes[]>([]);
   const caseLevels = ref(0);
-  function loadedCase(detail: CreateCase) {
+  function loadedCase(detail: DetailCase) {
     detailInfo.value = { ...detail };
-    customFields.value = detailInfo.value.customFields as CustomAttributes[];
+    customFields.value = detailInfo.value.customFields;
     const caseLevelsValue = customFields.value.find((item) => item.fieldName === '用例等级')?.defaultValue;
     if (caseLevelsValue) {
       caseLevels.value = JSON.parse(caseLevelsValue).replaceAll('P', '') * 1;
@@ -313,13 +315,15 @@
   async function followHandler() {
     followLoading.value = true;
     try {
-      await followerCaseRequest({ userId: userId.value as string, functionalCaseId: detailInfo.value.id });
-      updateSuccess();
-      Message.success(
-        detailInfo.value.followFlag
-          ? t('caseManagement.featureCase.cancelFollowSuccess')
-          : t('caseManagement.featureCase.followSuccess')
-      );
+      if (detailInfo.value.id) {
+        await followerCaseRequest({ userId: userId.value as string, functionalCaseId: detailInfo.value.id });
+        updateSuccess();
+        Message.success(
+          detailInfo.value.followFlag
+            ? t('caseManagement.featureCase.cancelFollowSuccess')
+            : t('caseManagement.featureCase.followSuccess')
+        );
+      }
     } catch (error) {
       console.log(error);
     } finally {

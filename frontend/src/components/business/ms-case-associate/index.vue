@@ -181,19 +181,19 @@
   const actionType = ref([
     {
       value: 'API',
-      name: '接口用例',
+      name: t('caseManagement.featureCase.apiCase'),
     },
     {
       value: 'SCENE',
-      name: '接口用例',
+      name: t('caseManagement.featureCase.sceneCase'),
     },
     {
       value: 'UI',
-      name: 'UI用例',
+      name: t('caseManagement.featureCase.uiCase'),
     },
     {
       value: 'PERFORMANCE',
-      name: '性能用例',
+      name: t('caseManagement.featureCase.propertyCase'),
     },
   ]);
 
