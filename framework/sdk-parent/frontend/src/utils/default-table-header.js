@@ -123,6 +123,7 @@ export let CUSTOM_TABLE_HEADER = {
   UI_CUSTOM_COMMAND: [
     { id: "num", key: "1", label: "ID" },
     { id: "name", key: "2", label: "ui.command_name_label" },
+    { id: 'nodePath', key: '9', label: 'api_test.automation.module', defaultHide: true},
     { id: "tags", key: "5", label: "commons.tag" },
     { id: "creatorName", key: "d", label: "api_test.automation.creator" },
     {
