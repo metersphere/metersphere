@@ -9,22 +9,22 @@ INSERT INTO template (id, name, remark, internal, update_time, create_time, crea
 VALUES ('test_template_case_review_gyq_id', 'functional_case_review_gyq', '', b'0', 1696992836000, 1696992836000, 'admin', 'PROJECT', 'project-gyq-case-review-test', b'0', NULL, 'FUNCTIONAL');
 
 INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
-VALUES ('CASE_REVIEW_TEST_GYQ_ID', 1, 'CASE_REVIEW_TEST_MODULE_ID', 'project-gyq-case-review-test', '100001', '关联需求测试1', 'UN_REVIEWED', NULL, 'STEP', 0, 'v1.0.0', 'CASE_REVIEW_TEST_GYQ_ID', 'UN_EXECUTED', true, b'0', b'0', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
+VALUES ('CASE_REVIEW_TEST_GYQ_ID', 1, 'CASE_REVIEW_TEST_MODULE_ID', 'project-gyq-case-review-test', '100001', '关联需求测试1', 'UN_REVIEWED', NULL, 'STEP', 0, 'v1.0.0', 'CASE_REVIEW_TEST_GYQ_ID', 'UN_EXECUTED', false, b'0', b'1', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
 
 INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
-VALUES ('CASE_REVIEW_TEST_GYQ_ID2', 1, 'CASE_REVIEW_TEST_MODULE_ID', 'project-gyq-case-review-test', '100001', '关联需求测试2', 'UN_REVIEWED', NULL, 'STEP', 0, 'v1.0.0', 'CASE_REVIEW_TEST_GYQ_ID2', 'UN_EXECUTED', true, b'0', b'0', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
+VALUES ('CASE_REVIEW_TEST_GYQ_ID2', 1, 'CASE_REVIEW_TEST_MODULE_ID', 'project-gyq-case-review-test', '100001', '关联需求测试2', 'UN_REVIEWED', NULL, 'STEP', 0, 'v1.0.0', 'CASE_REVIEW_TEST_GYQ_ID2', 'UN_EXECUTED', false, b'0', b'1', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
 
 INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
-VALUES ('CASE_REVIEW_TEST_GYQ_ID3', 1, 'CASE_REVIEW_TEST_MODULE_ID', 'project-gyq-case-review-test', '100001', '关联需求测试3', 'UN_REVIEWED', NULL, 'STEP', 0, 'v1.0.0', 'CASE_REVIEW_TEST_GYQ_ID3', 'UN_EXECUTED', true, b'0', b'0', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
+VALUES ('CASE_REVIEW_TEST_GYQ_ID3', 1, 'CASE_REVIEW_TEST_MODULE_ID', 'project-gyq-case-review-test', '100001', '关联需求测试3', 'UN_REVIEWED', NULL, 'STEP', 0, 'v1.0.0', 'CASE_REVIEW_TEST_GYQ_ID3', 'UN_EXECUTED', false, b'0', b'1', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
 
 INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
-VALUES ('CASE_REVIEW_TEST_GYQ_ID4', 1, 'CASE_REVIEW_TEST_MODULE_ID', 'project-gyq-case-review-test', '100001', '关联需求测试4', 'UN_REVIEWED', NULL, 'STEP', 0, 'v1.0.0', 'CASE_REVIEW_TEST_GYQ_ID4', 'UN_EXECUTED', true, b'0', b'0', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
+VALUES ('CASE_REVIEW_TEST_GYQ_ID4', 1, 'CASE_REVIEW_TEST_MODULE_ID', 'project-gyq-case-review-test', '100001', '关联需求测试4', 'UN_REVIEWED', NULL, 'STEP', 0, 'v1.0.0', 'CASE_REVIEW_TEST_GYQ_ID4', 'UN_EXECUTED', false, b'0', b'1', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
 
 INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
-VALUES ('CASE_REVIEW_TEST_GYQ_ID5', 1, 'CASE_REVIEW_TEST_MODULE_ID', 'project-gyq-case-review-test', '100001', '关联需求测试5', 'UN_REVIEWED', NULL, 'STEP', 0, 'v1.0.0', 'CASE_REVIEW_TEST_GYQ_ID5', 'UN_EXECUTED', true, b'0', b'0', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
+VALUES ('CASE_REVIEW_TEST_GYQ_ID5', 1, 'CASE_REVIEW_TEST_MODULE_ID', 'project-gyq-case-review-test', '100001', '关联需求测试5', 'UN_REVIEWED', NULL, 'STEP', 0, 'v1.0.0', 'CASE_REVIEW_TEST_GYQ_ID5', 'UN_EXECUTED', false, b'0', b'1', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
 
 INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
-VALUES ('CASE_REVIEW_TEST_GYQ_ID6', 1, 'CASE_REVIEW_TEST_MODULE_ID', 'project-gyq-case-review-test', '100001', '关联需求测试6', 'UN_REVIEWED', NULL, 'STEP', 0, 'v1.0.0', 'CASE_REVIEW_TEST_GYQ_ID6', 'UN_EXECUTED', true, b'0', b'0', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
+VALUES ('CASE_REVIEW_TEST_GYQ_ID6', 1, 'CASE_REVIEW_TEST_MODULE_ID', 'project-gyq-case-review-test', '100001', '关联需求测试6', 'UN_REVIEWED', NULL, 'STEP', 0, 'v1.0.0', 'CASE_REVIEW_TEST_GYQ_ID6', 'UN_EXECUTED', false, b'0', b'1', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
 
 INSERT INTO functional_case_custom_field(case_id, field_id, value) VALUES ('CASE_REVIEW_TEST_GYQ_ID', 'gyq_custom_id_review1', '22');
 INSERT INTO functional_case_custom_field(case_id, field_id, value) VALUES ('CASE_REVIEW_TEST_GYQ_ID', 'gyq_custom_id_review2', '33');

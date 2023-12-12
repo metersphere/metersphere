@@ -4,9 +4,12 @@ import io.metersphere.functional.domain.CaseReview;
 import io.metersphere.functional.domain.CaseReviewFunctionalCase;
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.domain.FunctionalCaseExample;
+import io.metersphere.functional.dto.BaseFunctionalCaseBatchDTO;
 import io.metersphere.functional.mapper.CaseReviewFunctionalCaseMapper;
 import io.metersphere.functional.mapper.CaseReviewMapper;
+import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
+import io.metersphere.functional.request.BaseAssociateCaseRequest;
 import io.metersphere.functional.request.BaseReviewCaseBatchRequest;
 import io.metersphere.functional.request.CaseReviewAssociateRequest;
 import io.metersphere.functional.request.CaseReviewRequest;
@@ -41,6 +44,8 @@ public class CaseReviewLogService {
 
     @Resource
     private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
+    @Resource
+    private ExtFunctionalCaseMapper extFunctionalCaseMapper;
 
     /**
      * 新增用例评审 日志
@@ -144,7 +149,11 @@ public class CaseReviewLogService {
             return null;
         }
         List<LogDTO> dtoList = new ArrayList<>();
-        List<String> caseIds = request.getCaseIds();
+        BaseAssociateCaseRequest baseAssociateCaseRequest = request.getBaseAssociateCaseRequest();
+        List<String> caseIds = doSelectIds(baseAssociateCaseRequest, baseAssociateCaseRequest.getProjectId());
+        if (CollectionUtils.isEmpty(caseIds)) {
+            return null;
+        }
         FunctionalCaseExample functionalCaseExample = new FunctionalCaseExample();
         functionalCaseExample.createCriteria().andIdIn(caseIds);
         List<FunctionalCase> functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
@@ -219,6 +228,19 @@ public class CaseReviewLogService {
             });
         }
         return dtoList;
+    }
+
+    public <T> List<String> doSelectIds(T dto, String projectId) {
+        BaseFunctionalCaseBatchDTO request = (BaseFunctionalCaseBatchDTO) dto;
+        if (request.isSelectAll()) {
+            List<String> ids = extFunctionalCaseMapper.getIds(request, projectId, false);
+            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+                ids.removeAll(request.getExcludeIds());
+            }
+            return ids;
+        } else {
+            return request.getSelectIds();
+        }
     }
 
 }

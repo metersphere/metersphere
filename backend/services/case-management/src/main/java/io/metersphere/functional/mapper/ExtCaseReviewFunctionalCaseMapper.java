@@ -24,6 +24,7 @@ public interface ExtCaseReviewFunctionalCaseMapper {
 
     List<ReviewFunctionalCaseDTO> page(@Param("request") ReviewFunctionalCasePageRequest request, @Param("deleted") boolean deleted, @Param("userId") String userId, @Param("sort") String sort);
 
+    Long getPos(@Param("reviewId") String reviewId);
 
     List<String> getIds(@Param("request") BaseReviewCaseBatchRequest request, @Param("userId") String userId, @Param("deleted") boolean deleted);
 }

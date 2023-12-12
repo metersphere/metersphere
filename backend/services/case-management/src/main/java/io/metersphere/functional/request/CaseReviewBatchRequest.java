@@ -26,4 +26,10 @@ public class CaseReviewBatchRequest extends TableBatchProcessDTO implements Seri
     @Schema(description = "模块id")
     private List<String> moduleIds;
 
+    @Schema(description = "我评审的")
+    private String reviewByMe;
+
+    @Schema(description = "我创建的")
+    private String createByMe;
+
 }

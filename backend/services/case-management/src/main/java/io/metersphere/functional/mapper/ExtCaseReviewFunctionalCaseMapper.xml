@@ -274,4 +274,16 @@
         1=1
     </sql>
 
+    <select id="getPos" resultType="java.lang.Long">
+        SELECT
+            pos
+        FROM
+            case_review_functional_case
+        WHERE
+            review_id = #{reviewId}
+        ORDER BY
+            pos DESC
+            LIMIT 1;
+    </select>
+
 </mapper>
