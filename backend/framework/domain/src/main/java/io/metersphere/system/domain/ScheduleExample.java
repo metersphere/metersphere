@@ -983,6 +983,66 @@ public class ScheduleExample {
             addCriterion("config not between", value1, value2, "config");
             return (Criteria) this;
         }
+
+        public Criteria andNextTriggerTimeIsNull() {
+            addCriterion("next_trigger_time is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andNextTriggerTimeIsNotNull() {
+            addCriterion("next_trigger_time is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andNextTriggerTimeEqualTo(Long value) {
+            addCriterion("next_trigger_time =", value, "nextTriggerTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andNextTriggerTimeNotEqualTo(Long value) {
+            addCriterion("next_trigger_time <>", value, "nextTriggerTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andNextTriggerTimeGreaterThan(Long value) {
+            addCriterion("next_trigger_time >", value, "nextTriggerTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andNextTriggerTimeGreaterThanOrEqualTo(Long value) {
+            addCriterion("next_trigger_time >=", value, "nextTriggerTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andNextTriggerTimeLessThan(Long value) {
+            addCriterion("next_trigger_time <", value, "nextTriggerTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andNextTriggerTimeLessThanOrEqualTo(Long value) {
+            addCriterion("next_trigger_time <=", value, "nextTriggerTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andNextTriggerTimeIn(List<Long> values) {
+            addCriterion("next_trigger_time in", values, "nextTriggerTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andNextTriggerTimeNotIn(List<Long> values) {
+            addCriterion("next_trigger_time not in", values, "nextTriggerTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andNextTriggerTimeBetween(Long value1, Long value2) {
+            addCriterion("next_trigger_time between", value1, value2, "nextTriggerTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andNextTriggerTimeNotBetween(Long value1, Long value2) {
+            addCriterion("next_trigger_time not between", value1, value2, "nextTriggerTime");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

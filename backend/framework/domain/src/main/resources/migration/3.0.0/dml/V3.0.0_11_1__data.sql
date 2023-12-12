@@ -605,7 +605,7 @@ INSERT INTO message_task_blob(id, template) VALUES (@bug_comment_reply_id, 'mess
 
 
 -- 初始化定时任务数据
-INSERT INTO schedule(`id`, `key`, `type`, `value`, `job`, `enable`, `resource_id`, `create_user`, `create_time`, `update_time`, `project_id`, `name`, `config`) VALUES (UUID_SHORT(), '100001100001', 'CRON', '0 0 2 * * ?', 'io.metersphere.project.job.CleanUpReportJob', true, '100001100001', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000, '100001100001', 'Clean Report Job', NULL);
+INSERT INTO schedule(`id`, `key`, `type`, `value`, `job`, `enable`, `resource_id`, `create_user`, `create_time`, `update_time`, `project_id`, `name`, `config`, `next_trigger_time`) VALUES (UUID_SHORT(), '100001100001', 'CRON', '0 0 2 * * ?', 'io.metersphere.project.job.CleanUpReportJob', true, '100001100001', 'admin', unix_timestamp() * 1000, unix_timestamp() * 1000, '100001100001', 'Clean Report Job', NULL, NULL);
 
 -- 初始化默认项目版本配置项
 INSERT INTO project_application (`project_id`, `type`, `type_value`) VALUES ('100001100001', 'VERSION_ENABLE', 'FALSE');

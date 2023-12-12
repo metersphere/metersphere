@@ -57,6 +57,9 @@ public class Schedule implements Serializable {
     @Schema(description =  "配置")
     private String config;
 
+    @Schema(description =  "下次调度时间")
+    private Long nextTriggerTime;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -72,7 +75,8 @@ public class Schedule implements Serializable {
         updateTime("update_time", "updateTime", "BIGINT", false),
         projectId("project_id", "projectId", "VARCHAR", false),
         name("name", "name", "VARCHAR", true),
-        config("config", "config", "VARCHAR", false);
+        config("config", "config", "VARCHAR", false),
+        nextTriggerTime("next_trigger_time", "nextTriggerTime", "BIGINT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

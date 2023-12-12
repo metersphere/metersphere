@@ -124,6 +124,7 @@ CREATE TABLE IF NOT EXISTS schedule
     `project_id`  VARCHAR(50) COMMENT '项目ID',
     `name`        VARCHAR(100) COMMENT '名称',
     `config`      VARCHAR(1000) COMMENT '配置',
+    `next_trigger_time`  BIGINT COMMENT '下次调度时间',
     PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4

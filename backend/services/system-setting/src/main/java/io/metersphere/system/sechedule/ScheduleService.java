@@ -1,20 +1,24 @@
 package io.metersphere.system.sechedule;
 
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.domain.ScheduleExample;
 import io.metersphere.system.mapper.ScheduleMapper;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.quartz.CronExpression;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
 import org.quartz.TriggerKey;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import io.metersphere.system.uid.IDGenerator;
 
 @Transactional(rollbackFor = Exception.class)
 public class ScheduleService {
@@ -28,7 +32,19 @@ public class ScheduleService {
         schedule.setId(IDGenerator.nextStr());
         schedule.setCreateTime(System.currentTimeMillis());
         schedule.setUpdateTime(System.currentTimeMillis());
+        schedule.setNextTriggerTime(getNextTriggerTime(schedule.getValue()));
         scheduleMapper.insert(schedule);
+    }
+
+    private Long getNextTriggerTime(String expression) {
+        try {
+            CronExpression cronExpression = new CronExpression(expression);
+            Date nextValidTimeAfter = cronExpression.getNextValidTimeAfter(new Date(System.currentTimeMillis()));
+            Long nextTriggerTime = nextValidTimeAfter == null ? null : nextValidTimeAfter.getTime();
+            return nextTriggerTime;
+        } catch (ParseException e) {
+            throw new MSException(Translator.get("cron_expression_is_invalid"));
+        }
     }
 
 
@@ -38,6 +54,7 @@ public class ScheduleService {
 
     public int editSchedule(Schedule schedule) {
         schedule.setUpdateTime(System.currentTimeMillis());
+        schedule.setNextTriggerTime(getNextTriggerTime(schedule.getValue()));
         return scheduleMapper.updateByPrimaryKeySelective(schedule);
     }
 

@@ -15,6 +15,7 @@
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="config" jdbcType="VARCHAR" property="config" />
+    <result column="next_trigger_time" jdbcType="BIGINT" property="nextTriggerTime" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -76,7 +77,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, `key`, `type`, `value`, job, `enable`, resource_id, create_user, create_time, 
-    update_time, project_id, `name`, config
+    update_time, project_id, `name`, config, next_trigger_time
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.ScheduleExample" resultMap="BaseResultMap">
     select
@@ -112,13 +113,13 @@
     insert into schedule (id, `key`, `type`, 
       `value`, job, `enable`, resource_id, 
       create_user, create_time, update_time, 
-      project_id, `name`, config
-      )
+      project_id, `name`, config, 
+      next_trigger_time)
     values (#{id,jdbcType=VARCHAR}, #{key,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
       #{value,jdbcType=VARCHAR}, #{job,jdbcType=VARCHAR}, #{enable,jdbcType=BIT}, #{resourceId,jdbcType=VARCHAR}, 
       #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{config,jdbcType=VARCHAR}
-      )
+      #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{config,jdbcType=VARCHAR}, 
+      #{nextTriggerTime,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.Schedule">
     insert into schedule
@@ -162,6 +163,9 @@
       <if test="config != null">
         config,
       </if>
+      <if test="nextTriggerTime != null">
+        next_trigger_time,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -202,6 +206,9 @@
       </if>
       <if test="config != null">
         #{config,jdbcType=VARCHAR},
+      </if>
+      <if test="nextTriggerTime != null">
+        #{nextTriggerTime,jdbcType=BIGINT},
       </if>
     </trim>
   </insert>
@@ -253,6 +260,9 @@
       <if test="record.config != null">
         config = #{record.config,jdbcType=VARCHAR},
       </if>
+      <if test="record.nextTriggerTime != null">
+        next_trigger_time = #{record.nextTriggerTime,jdbcType=BIGINT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -272,7 +282,8 @@
       update_time = #{record.updateTime,jdbcType=BIGINT},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
-      config = #{record.config,jdbcType=VARCHAR}
+      config = #{record.config,jdbcType=VARCHAR},
+      next_trigger_time = #{record.nextTriggerTime,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -316,6 +327,9 @@
       <if test="config != null">
         config = #{config,jdbcType=VARCHAR},
       </if>
+      <if test="nextTriggerTime != null">
+        next_trigger_time = #{nextTriggerTime,jdbcType=BIGINT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -332,20 +346,21 @@
       update_time = #{updateTime,jdbcType=BIGINT},
       project_id = #{projectId,jdbcType=VARCHAR},
       `name` = #{name,jdbcType=VARCHAR},
-      config = #{config,jdbcType=VARCHAR}
+      config = #{config,jdbcType=VARCHAR},
+      next_trigger_time = #{nextTriggerTime,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into schedule
     (id, `key`, `type`, `value`, job, `enable`, resource_id, create_user, create_time, 
-      update_time, project_id, `name`, config)
+      update_time, project_id, `name`, config, next_trigger_time)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.key,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, 
         #{item.value,jdbcType=VARCHAR}, #{item.job,jdbcType=VARCHAR}, #{item.enable,jdbcType=BIT}, 
         #{item.resourceId,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
         #{item.updateTime,jdbcType=BIGINT}, #{item.projectId,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, 
-        #{item.config,jdbcType=VARCHAR})
+        #{item.config,jdbcType=VARCHAR}, #{item.nextTriggerTime,jdbcType=BIGINT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -396,6 +411,9 @@
         </if>
         <if test="'config'.toString() == column.value">
           #{item.config,jdbcType=VARCHAR}
+        </if>
+        <if test="'next_trigger_time'.toString() == column.value">
+          #{item.nextTriggerTime,jdbcType=BIGINT}
         </if>
       </foreach>
       )
