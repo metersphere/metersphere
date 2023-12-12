@@ -1,7 +1,7 @@
 package io.metersphere.bug.controller;
 
-import io.metersphere.bug.dto.BugRelateCaseDTO;
 import io.metersphere.bug.dto.request.BugRelatedCasePageRequest;
+import io.metersphere.bug.dto.response.BugRelateCaseDTO;
 import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;

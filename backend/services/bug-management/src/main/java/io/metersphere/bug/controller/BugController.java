@@ -3,9 +3,10 @@ package io.metersphere.bug.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.bug.constants.BugExportColumns;
-import io.metersphere.bug.dto.BugDTO;
 import io.metersphere.bug.dto.request.*;
+import io.metersphere.bug.dto.response.BugDTO;
 import io.metersphere.bug.service.BugService;
+import io.metersphere.bug.service.BugSyncService;
 import io.metersphere.project.dto.ProjectTemplateOptionDTO;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -39,6 +40,8 @@ public class BugController {
     @Resource
     private BugService bugService;
     @Resource
+    private BugSyncService bugSyncService;
+    @Resource
     private ProjectTemplateService projectTemplateService;
 
     @PostMapping("/page")
@@ -56,7 +59,7 @@ public class BugController {
     @RequiresPermissions(PermissionConstants.BUG_ADD)
     public void add(@Validated({Created.class}) @RequestPart(value = "request") BugEditRequest request,
                     @RequestPart(value = "file", required = false) List<MultipartFile> files) {
-        bugService.add(request, files, SessionUtils.getUserId());
+        bugService.addOrUpdate(request, files, SessionUtils.getUserId(), false);
     }
 
     @PostMapping("/update")
@@ -64,7 +67,7 @@ public class BugController {
     @RequiresPermissions(PermissionConstants.BUG_UPDATE)
     public void update(@Validated({Updated.class}) @RequestPart(value = "request") BugEditRequest request,
                        @RequestPart(value = "file", required = false) List<MultipartFile> files) {
-        bugService.update(request, files, SessionUtils.getUserId());
+        bugService.addOrUpdate(request, files, SessionUtils.getUserId(), true);
     }
 
     @GetMapping("/delete/{id}")
@@ -81,11 +84,11 @@ public class BugController {
         return projectTemplateService.getOption(projectId, TemplateScene.BUG.name());
     }
 
-    @GetMapping("/template/{id}")
-    @Operation(summary = "缺陷管理-获取模板内容")
+    @PostMapping("/template/detail")
+    @Operation(summary = "缺陷管理-获取模板详情内容")
     @RequiresPermissions(PermissionConstants.BUG_READ)
-    public TemplateDTO getTemplateField(@PathVariable String id, @RequestParam(value = "projectId") String projectId) {
-        return bugService.getTemplate(id, projectId);
+    public TemplateDTO getTemplateDetail(@RequestBody BugTemplateRequest request) {
+        return bugService.getTemplate(request.getId(), request.getProjectId(), request.getFromStatusId(), request.getPlatformBugKey());
     }
 
     @PostMapping("/batch-delete")
@@ -114,6 +117,20 @@ public class BugController {
     @RequiresPermissions(PermissionConstants.BUG_UPDATE)
     public void unfollow(@PathVariable String id) {
         bugService.unfollow(id, SessionUtils.getUserId());
+    }
+
+    @GetMapping("/sync/{projectId}")
+    @Operation(summary = "缺陷管理-同步缺陷(开源)")
+    @RequiresPermissions(PermissionConstants.BUG_UPDATE)
+    public void sync(@PathVariable String projectId) {
+        bugSyncService.syncBugs(projectId);
+    }
+
+    @PostMapping("/sync/all")
+    @Operation(summary = "缺陷管理-同步缺陷(全量)")
+    @RequiresPermissions(PermissionConstants.BUG_UPDATE)
+    public void syncAll(@RequestBody BugSyncRequest request) {
+        bugSyncService.syncAllBugs(request);
     }
 
     @GetMapping("/export/columns/{projectId}")

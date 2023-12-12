@@ -16,8 +16,8 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
-import io.metersphere.system.mapper.CustomFieldOptionMapper;
 import io.metersphere.system.dto.sdk.request.TemplateUpdateRequest;
+import io.metersphere.system.mapper.CustomFieldOptionMapper;
 import io.metersphere.system.service.BaseTemplateService;
 import io.metersphere.system.service.PlatformPluginService;
 import io.metersphere.system.service.PluginLoadService;
@@ -227,13 +227,13 @@ public class ProjectTemplateService extends BaseTemplateService {
      * @return
      */
     public Template getPluginBugTemplate(String projectId) {
-        ServiceIntegration serviceIntegration = getServiceIntegration(projectId);
+        ServiceIntegration serviceIntegration = projectApplicationService.getPlatformServiceIntegrationWithSyncOrDemand(projectId, true);
         if (serviceIntegration == null) {
             return null;
         }
         Platform platform = platformPluginService.getPlatform(serviceIntegration.getPluginId(),
                 serviceIntegration.getOrganizationId(), new String(serviceIntegration.getConfiguration()));
-        if (platform != null && platform.isThirdPartTemplateSupport()) {
+        if (platform != null && platform.isSupportDefaultTemplate()) {
             return getPluginBugTemplate(projectId, serviceIntegration.getPluginId()); // 该插件支持第三方平台模板
         }
         return null;
@@ -252,37 +252,6 @@ public class ProjectTemplateService extends BaseTemplateService {
         template.setInternal(false);
         template.setRemark(((MsPlugin) pluginWrapper.getPlugin()).getName() + Translator.get("plugin_bug_template_remark"));
         return template;
-    }
-
-    /**
-     * 如果项目下配置了第三方平台信息
-     * 获取对应的服务集成信息
-     *
-     * @param projectId
-     * @return
-     */
-    public ServiceIntegration getServiceIntegration(String projectId) {
-        // 判断项目是否开启集成缺陷
-        ProjectApplication syncEnableConfig = projectApplicationService.getByType(projectId, ProjectApplicationType.BUG_SYNC_CONFIG.SYNC_ENABLE.name());
-        boolean isSyncEnable = syncEnableConfig != null && Boolean.parseBoolean(syncEnableConfig.getTypeValue());
-        if (!isSyncEnable) {
-            return null;
-        }
-        ProjectDTO project = projectService.getProjectById(projectId);
-        // 查询组织下有权限的插件
-        Set<String> orgPluginIds = platformPluginService.getOrgEnabledPlatformPlugins(project.getOrganizationId())
-                .stream()
-                .map(Plugin::getId)
-                .collect(Collectors.toSet());
-        // 查询服务集成中启用并且支持第三方模板的插件
-        return serviceIntegrationService.getServiceIntegrationByOrgId(project.getOrganizationId())
-                .stream()
-                .filter(serviceIntegration -> {
-                    return serviceIntegration.getEnable()    // 服务集成开启
-                            && orgPluginIds.contains(serviceIntegration.getPluginId());  // 该服务集成对应的插件有权限
-                })
-                .findFirst()
-                .orElse(null);
     }
 
     /**

@@ -2,9 +2,9 @@ package io.metersphere.plugin.platform.spi;
 
 import io.metersphere.plugin.platform.utils.EnvProxySelector;
 import io.metersphere.plugin.platform.utils.PluginCodingUtils;
-import io.metersphere.plugin.sdk.util.PluginUtils;
 import io.metersphere.plugin.sdk.util.MSPluginException;
 import io.metersphere.plugin.sdk.util.PluginLogUtils;
+import io.metersphere.plugin.sdk.util.PluginUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
@@ -24,7 +24,7 @@ import javax.net.ssl.SSLContext;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.cert.X509Certificate;
-import java.util.Arrays;
+import java.util.List;
 
 public abstract class BaseClient {
 
@@ -86,11 +86,11 @@ public abstract class BaseClient {
         return response.getBody();
     }
 
-    protected Object getResultForList(Class clazz, ResponseEntity<String> response) {
-        return Arrays.asList(PluginUtils.parseArray(getResult(response), clazz).toArray());
+    protected <T> List<T> getResultForList(Class<T> clazz, ResponseEntity<String> response) {
+        return PluginUtils.parseArray(getResult(response), clazz);
     }
 
-    protected Object getResultForObject(Class clazz, ResponseEntity<String> response) {
+    protected <T> T getResultForObject(Class<T> clazz, ResponseEntity<String> response) {
         return PluginUtils.parseObject(getResult(response), clazz);
     }
 

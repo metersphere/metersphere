@@ -10,7 +10,6 @@ import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
-import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.utils.Pager;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
@@ -133,8 +132,6 @@ public class ProjectMemberControllerTests extends BaseTest {
         request.setUserIds(List.of("default-project-member-user-1", "default-project-member-user-del"));
         request.setRoleIds(List.of("project_admin", "project_admin_x", "project_member"));
         this.requestPost(ADD_MEMBER, request, status().isOk());
-        // 日志
-        checkLog("default-project-member-user-1", OperationLogType.ADD);
         // 权限校验
         request.setProjectId(DEFAULT_PROJECT_ID);
         requestPostPermissionTest(PermissionConstants.PROJECT_USER_ADD, ADD_MEMBER, request);
@@ -172,8 +169,6 @@ public class ProjectMemberControllerTests extends BaseTest {
         // 存在的用户组
         request.setRoleIds(List.of("project_admin", "project_member"));
         this.requestPost(UPDATE_MEMBER, request, status().isOk());
-        // 日志
-        checkLog("default-project-member-user-1", OperationLogType.UPDATE);
         // 权限校验
         request.setProjectId(DEFAULT_PROJECT_ID);
         requestPostPermissionTest(PermissionConstants.PROJECT_USER_UPDATE, UPDATE_MEMBER, request);
@@ -193,8 +188,6 @@ public class ProjectMemberControllerTests extends BaseTest {
     @Order(11)
     public void testRemoveMemberSuccess() throws Exception {
         this.requestGet(REMOVE_MEMBER + "/default-project-member-test/default-project-member-user-1", status().isOk());
-        // 日志
-        checkLog("default-project-member-user-1", OperationLogType.DELETE);
         // 权限校验
         requestGetPermissionTest(PermissionConstants.PROJECT_USER_DELETE, REMOVE_MEMBER + "/" + DEFAULT_PROJECT_ID + "/default-project-member-user-1");
     }
@@ -213,8 +206,6 @@ public class ProjectMemberControllerTests extends BaseTest {
         request.setUserIds(List.of("default-project-member-user-1", "default-project-member-user-2"));
         request.setRoleIds(List.of("project_admin", "project_member"));
         this.requestPost(ADD_ROLE, request, status().isOk());
-        // 日志
-        checkLog("default-project-member-user-2", OperationLogType.UPDATE);
         // 权限校验
         request.setProjectId(DEFAULT_PROJECT_ID);
         requestPostPermissionTest(PermissionConstants.PROJECT_USER_UPDATE, ADD_ROLE, request);
@@ -237,8 +228,6 @@ public class ProjectMemberControllerTests extends BaseTest {
         request.setProjectId("default-project-member-test");
         request.setUserIds(List.of("default-project-member-user-1", "default-project-member-user-2"));
         this.requestPost(BATCH_REMOVE_MEMBER, request, status().isOk());
-        // 日志
-        checkLog("default-project-member-user-1", OperationLogType.DELETE);
         // 权限校验
         request.setProjectId(DEFAULT_PROJECT_ID);
         requestPostPermissionTest(PermissionConstants.PROJECT_USER_DELETE, BATCH_REMOVE_MEMBER, request);

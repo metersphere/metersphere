@@ -1,8 +1,8 @@
 package io.metersphere.bug.controller;
 
 import io.metersphere.bug.domain.BugComment;
-import io.metersphere.bug.dto.BugCommentDTO;
 import io.metersphere.bug.dto.request.BugCommentEditRequest;
+import io.metersphere.bug.dto.response.BugCommentDTO;
 import io.metersphere.bug.mapper.BugCommentMapper;
 import io.metersphere.project.domain.Notification;
 import io.metersphere.project.domain.NotificationExample;

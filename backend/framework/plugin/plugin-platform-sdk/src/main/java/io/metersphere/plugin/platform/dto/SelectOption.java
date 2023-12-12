@@ -1,17 +1,15 @@
 package io.metersphere.plugin.platform.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 
-@Getter
-@Setter
+@Data
 @EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
 public class SelectOption {
-    public SelectOption(String text, String value) {
-        this.text = text;
-        this.value = value;
-    }
 
     private String text;
     private String value;

@@ -1,9 +1,9 @@
 package io.metersphere.bug.service;
 
 import io.metersphere.bug.domain.Bug;
-import io.metersphere.bug.dto.BugCommentNoticeDTO;
-import io.metersphere.bug.dto.BugCustomFieldDTO;
 import io.metersphere.bug.dto.request.BugCommentEditRequest;
+import io.metersphere.bug.dto.response.BugCommentNoticeDTO;
+import io.metersphere.bug.dto.response.BugCustomFieldDTO;
 import io.metersphere.bug.mapper.BugMapper;
 import io.metersphere.bug.mapper.ExtBugCustomFieldMapper;
 import io.metersphere.sdk.util.BeanUtils;
@@ -82,7 +82,7 @@ public class BugCommentNoticeService {
      * @param bugCommentNoticeDTO 缺陷通知参数
      */
     private void setCustomField(BugCommentNoticeDTO bugCommentNoticeDTO) {
-        List<BugCustomFieldDTO> bugCustomFields = extBugCustomFieldMapper.getBugCustomFields(List.of(bugCommentNoticeDTO.getId()), bugCommentNoticeDTO.getProjectId());
+        List<BugCustomFieldDTO> bugCustomFields = extBugCustomFieldMapper.getBugExistCustomFields(List.of(bugCommentNoticeDTO.getId()), bugCommentNoticeDTO.getProjectId());
         if (CollectionUtils.isNotEmpty(bugCustomFields)) {
             List<OptionDTO> fields = bugCustomFields.stream().map(field -> new OptionDTO(field.getName(), field.getValue())).toList();
             bugCommentNoticeDTO.setFields(fields);

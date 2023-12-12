@@ -14,6 +14,7 @@ import java.util.List;
 public class TableBatchProcessDTO {
     @Schema(description = "不处理的ID")
     List<String> excludeIds;
+
     @Schema(description = "选择的ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @Valid
     private List<
