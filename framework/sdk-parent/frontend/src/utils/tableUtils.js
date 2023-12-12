@@ -304,6 +304,36 @@ export function getCustomTableHeader(key, customFields) {
   return getCustomTableHeaderByFiledSetting(key, fieldSetting);
 }
 
+
+export function getCustomTableHeaderByDefault(key, customFields) {
+  let fieldSetting = getAllFieldWithCustomFieldsByDefault(key, customFields);
+  return getCustomTableHeaderByFiledSetting(key, fieldSetting);
+}
+
+export function getAllFieldWithCustomFieldsByDefault(key, customFields) {
+  let fieldSetting = [...CUSTOM_TABLE_HEADER[key]];
+  // 如果没有 license, 排除 xpack
+  if (!hasLicense()) {
+    fieldSetting = fieldSetting.filter((v) => !v.xpack);
+  }
+  fieldSetting = fieldSetting.filter((v) => !v.defaultHide);
+  fieldSetting = JSON.parse(JSON.stringify(fieldSetting));
+  translateLabel(fieldSetting);
+  if (customFields) {
+    customFields.forEach((item) => {
+      let field = {
+        id: item.name,
+        key: item.key,
+        label: item.name,
+        isCustom: true,
+      };
+      fieldSetting.push(field);
+    });
+  }
+  return fieldSetting;
+}
+
+
 /**
  * 获取 localStorage 的值，过滤
  * @param key
