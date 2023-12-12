@@ -1,8 +1,8 @@
 package io.metersphere.bug.mapper;
 
-import io.metersphere.bug.dto.BugRelateCaseCountDTO;
-import io.metersphere.bug.dto.BugRelateCaseDTO;
 import io.metersphere.bug.dto.request.BugRelatedCasePageRequest;
+import io.metersphere.bug.dto.response.BugRelateCaseCountDTO;
+import io.metersphere.bug.dto.response.BugRelateCaseDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

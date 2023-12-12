@@ -1,13 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.bug.mapper.ExtBugMapper">
-    <select id="list" resultType="io.metersphere.bug.dto.BugDTO">
+    <select id="list" resultType="io.metersphere.bug.dto.response.BugDTO">
         select b.id, b.num, b.title, b.handle_user, b.create_user, b.create_time, b.update_time, b.delete_time, b.delete_user,
                b.project_id, b.template_id, b.platform, b.status, bc.description from bug b left join bug_content bc on b.id = bc.bug_id
         <include refid="queryWhereCondition"/>
     </select>
 
-    <select id="listByIds" resultType="io.metersphere.bug.dto.BugDTO">
+    <select id="getIdsByPageRequest" resultType="java.lang.String">
+        select b.id from bug b left join bug_content bc on b.id = bc.bug_id
+        <include refid="queryWhereCondition"/>
+    </select>
+
+    <select id="listByIds" resultType="io.metersphere.bug.dto.response.BugDTO">
         select b.id,
         b.num,
         b.title,
@@ -33,7 +38,7 @@
         select max(num) from bug where project_id = #{projectId}
     </select>
 
-    <select id="getBugTagList" resultType="io.metersphere.bug.dto.BugTagEditDTO">
+    <select id="getBugTagList" resultType="io.metersphere.bug.dto.response.BugTagEditDTO">
         select id as bugId, tag from bug where id in
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
@@ -43,10 +48,6 @@
     <update id="batchUpdate" parameterType="io.metersphere.bug.dto.request.BugBatchUpdateRequest">
         update bug
         <set>
-            <if test="request.handleUser != null and request.handleUser != ''">
-                handle_user = #{request.handleUser},
-                handle_users = handle_users + concat(',', #{request.handleUser}),
-            </if>
             <if test="request.tag != null and request.tag != ''">
                 tag = #{request.tag},
             </if>

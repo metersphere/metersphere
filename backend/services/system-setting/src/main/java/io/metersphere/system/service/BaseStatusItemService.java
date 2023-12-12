@@ -170,6 +170,12 @@ public class BaseStatusItemService {
         return statusItemMapper.selectByExample(example);
     }
 
+    public List<StatusItem> getToStatusItemByScopeIdAndScene(String scopeId, String scene, List<String> toIds) {
+        StatusItemExample example = new StatusItemExample();
+        example.createCriteria().andScopeIdEqualTo(scopeId).andSceneEqualTo(scene).andIdIn(toIds);
+        return statusItemMapper.selectByExample(example);
+    }
+
     public List<StatusItem> getByRefId(String refId) {
         StatusItemExample example = new StatusItemExample();
         example.createCriteria().andRefIdEqualTo(refId);

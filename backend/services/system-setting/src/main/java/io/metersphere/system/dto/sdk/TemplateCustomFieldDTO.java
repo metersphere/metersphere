@@ -24,10 +24,18 @@ public class TemplateCustomFieldDTO {
     @Schema(title = "默认值")
     private Object defaultValue;
 
-    @Schema(title = "选项值")
-    private List<CustomFieldOption> options;
-
     @Schema(title = "字段类型")
     private String type;
 
+    @Schema(title = "选项值")
+    private List<CustomFieldOption> options;
+
+    @Schema(title = "平台选项值")
+    private String platformOptionJson;
+
+    @Schema(title = "是否支持搜索")
+    private Boolean supportSearch;
+
+    @Schema(title = "搜索调用方法")
+    private String optionMethod;
 }

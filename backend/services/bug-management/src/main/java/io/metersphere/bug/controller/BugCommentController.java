@@ -1,8 +1,8 @@
 package io.metersphere.bug.controller;
 
 import io.metersphere.bug.domain.BugComment;
-import io.metersphere.bug.dto.BugCommentDTO;
 import io.metersphere.bug.dto.request.BugCommentEditRequest;
+import io.metersphere.bug.dto.response.BugCommentDTO;
 import io.metersphere.bug.service.BugCommentService;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.tags.Tag;

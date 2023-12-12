@@ -246,8 +246,8 @@ public class UserLoginService {
                         Project project = projectList.get(0);
                         user.setLastProjectId(project.getId());
                         updateUser(user);
-                        return true;
                     }
+                    return true;
                 }
             }
             //项目和组织都没有权限

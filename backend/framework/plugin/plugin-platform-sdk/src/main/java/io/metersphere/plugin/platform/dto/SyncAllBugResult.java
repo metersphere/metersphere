@@ -1,5 +1,6 @@
 package io.metersphere.plugin.platform.dto;
 
+import io.metersphere.plugin.platform.dto.reponse.MsSyncBugDTO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,7 +12,7 @@ import java.util.Map;
 @Setter
 @Getter
 public class SyncAllBugResult extends SyncBugResult {
-    private List<MsBugDTO> updateBugs = new ArrayList<>();
+    private List<MsSyncBugDTO> updateBugs = new ArrayList<>();
     private Map<String, List<PlatformAttachment>> attachmentMap = new HashMap<>();
     /**
      * 保存当前查询到的缺陷的平台ID

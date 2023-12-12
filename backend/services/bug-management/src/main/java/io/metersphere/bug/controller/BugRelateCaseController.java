@@ -2,8 +2,8 @@ package io.metersphere.bug.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.bug.dto.BugRelateCaseDTO;
 import io.metersphere.bug.dto.request.BugRelatedCasePageRequest;
+import io.metersphere.bug.dto.response.BugRelateCaseDTO;
 import io.metersphere.bug.service.BugRelateCaseService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.utils.PageUtils;
