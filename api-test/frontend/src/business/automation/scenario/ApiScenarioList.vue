@@ -442,7 +442,7 @@ import { API_SCENARIO_CONFIGS } from 'metersphere-frontend/src/components/search
 import { API_SCENARIO_LIST } from 'metersphere-frontend/src/utils/constants';
 import {
   buildBatchParam,
-  getCustomTableHeader,
+  getCustomTableHeaderByDefault,
   getCustomTableWidth,
   getLastTableSortField,
   getSelectDataCounts,
@@ -558,7 +558,7 @@ export default {
       result: false,
       tableHeaderKey: 'API_SCENARIO',
       type: API_SCENARIO_LIST,
-      fields: getCustomTableHeader('API_SCENARIO', undefined),
+      fields: getCustomTableHeaderByDefault('API_SCENARIO', undefined),
       fieldsWidth: getCustomTableWidth('API_SCENARIO'),
       screenHeight: 'calc(100vh - 200px)', //屏幕高度,
       condition: {
