@@ -127,6 +127,9 @@ public class CaseReviewControllerTests extends BaseTest {
         caseReviewRequest.setName(name);
         caseReviewRequest.setModuleId("CASE_REVIEW_REAL_MODULE_ID");
         caseReviewRequest.setReviewPassRule(reviewPassRule);
+        BaseAssociateCaseRequest baseAssociateCaseRequest = new BaseAssociateCaseRequest();
+        baseAssociateCaseRequest.setProjectId(projectId);
+        baseAssociateCaseRequest.setSelectAll(false);
         List<String> reviewers = new ArrayList<>();
         reviewers.add("admin");
         if (reviewer) {
@@ -135,13 +138,14 @@ public class CaseReviewControllerTests extends BaseTest {
         if (StringUtils.isNotBlank(caseId)) {
             List<String> caseIds = new ArrayList<>();
             caseIds.add(caseId);
-            caseReviewRequest.setCaseIds(caseIds);
+            baseAssociateCaseRequest.setSelectIds(caseIds);
         }
         if (tag) {
             List<String> tags = new ArrayList<>();
             tags.add("11");
             caseReviewRequest.setTags(tags);
         }
+        caseReviewRequest.setBaseAssociateCaseRequest(baseAssociateCaseRequest);
         return caseReviewRequest;
     }
 
@@ -276,13 +280,11 @@ public class CaseReviewControllerTests extends BaseTest {
         CaseReviewAssociateRequest caseReviewAssociateRequest = new CaseReviewAssociateRequest();
         caseReviewAssociateRequest.setProjectId(projectId);
         caseReviewAssociateRequest.setReviewId(caseReviewId);
-        List<String> caseIds = new ArrayList<>();
-        caseIds.add("CASE_REVIEW_TEST_GYQ_ID2");
-        caseIds.add("CASE_REVIEW_TEST_GYQ_ID3");
-        caseIds.add("CASE_REVIEW_TEST_GYQ_ID4");
-        caseIds.add("CASE_REVIEW_TEST_GYQ_ID5");
-        caseIds.add("CASE_REVIEW_TEST_GYQ_ID6");
-        caseReviewAssociateRequest.setCaseIds(caseIds);
+        BaseAssociateCaseRequest baseAssociateCaseRequest = new BaseAssociateCaseRequest();
+        baseAssociateCaseRequest.setProjectId(projectId);
+        baseAssociateCaseRequest.setSelectAll(true);
+        baseAssociateCaseRequest.setExcludeIds(List.of("CASE_REVIEW_TEST_GYQ_ID"));
+        caseReviewAssociateRequest.setBaseAssociateCaseRequest(baseAssociateCaseRequest);
         List<String> userIds = new ArrayList<>();
         userIds.add("gyq_review_test");
         userIds.add("gyq_review_test2");
@@ -307,9 +309,10 @@ public class CaseReviewControllerTests extends BaseTest {
         CaseReviewAssociateRequest caseReviewAssociateRequest = new CaseReviewAssociateRequest();
         caseReviewAssociateRequest.setProjectId(projectId);
         caseReviewAssociateRequest.setReviewId("caseReviewIdXXXX");
-        List<String> caseIds = new ArrayList<>();
-        caseIds.add("CASE_REVIEW_TEST_GYQ_ID2");
-        caseReviewAssociateRequest.setCaseIds(caseIds);
+        BaseAssociateCaseRequest baseAssociateCaseRequest = new BaseAssociateCaseRequest();
+        baseAssociateCaseRequest.setProjectId(projectId);
+        baseAssociateCaseRequest.setSelectAll(true);
+        caseReviewAssociateRequest.setBaseAssociateCaseRequest(baseAssociateCaseRequest);
         List<String> userIds = new ArrayList<>();
         userIds.add("gyq_review_test");
         userIds.add("gyq_review_test2");
@@ -319,9 +322,25 @@ public class CaseReviewControllerTests extends BaseTest {
         caseReviewAssociateRequest = new CaseReviewAssociateRequest();
         caseReviewAssociateRequest.setProjectId(projectId);
         caseReviewAssociateRequest.setReviewId(caseReviews.get(0).getId());
-        caseIds = new ArrayList<>();
-        caseIds.add("CASE_REVIEW_TEST_GYQ_XX");
-        caseReviewAssociateRequest.setCaseIds(caseIds);
+        baseAssociateCaseRequest = new BaseAssociateCaseRequest();
+        baseAssociateCaseRequest.setProjectId(projectId);
+        baseAssociateCaseRequest.setSelectAll(false);
+        baseAssociateCaseRequest.setSelectIds(List.of("CASE_REVIEW_TEST_GYQ_XX"));
+        caseReviewAssociateRequest.setBaseAssociateCaseRequest(baseAssociateCaseRequest);
+        userIds = new ArrayList<>();
+        userIds.add("gyq_review_test");
+        userIds.add("gyq_review_test2");
+        caseReviewAssociateRequest.setReviewers(userIds);
+        this.requestPostWithOk(ASSOCIATE_CASE_REVIEW, caseReviewAssociateRequest);
+
+        caseReviewAssociateRequest = new CaseReviewAssociateRequest();
+        caseReviewAssociateRequest.setProjectId(projectId);
+        caseReviewAssociateRequest.setReviewId(caseReviews.get(0).getId());
+        baseAssociateCaseRequest = new BaseAssociateCaseRequest();
+        baseAssociateCaseRequest.setProjectId("project-gyq-case-review-testYY");
+        baseAssociateCaseRequest.setSelectAll(true);
+        baseAssociateCaseRequest.setSelectIds(List.of("CASE_REVIEW_TEST_GYQ_XX"));
+        caseReviewAssociateRequest.setBaseAssociateCaseRequest(baseAssociateCaseRequest);
         userIds = new ArrayList<>();
         userIds.add("gyq_review_test");
         userIds.add("gyq_review_test2");
@@ -509,15 +528,15 @@ public class CaseReviewControllerTests extends BaseTest {
         request.setSelectAll(false);
         this.requestPostWithOkAndReturn(BATCH_MOVE_CASE_REVIEW, request);
         request.setSelectAll(true);
+        request.setExcludeIds(List.of(caseReviews.get(0).getId()));
         this.requestPostWithOkAndReturn(BATCH_MOVE_CASE_REVIEW, request);
         caseReviews = getCaseReviews("创建评审更新1");
         String moduleIdNew = caseReviews.get(0).getModuleId();
-        Assertions.assertFalse(StringUtils.equals(moduleId, moduleIdNew));
+        Assertions.assertTrue(StringUtils.equals(moduleId, moduleIdNew));
         request = new CaseReviewBatchRequest();
         request.setProjectId(projectId);
         request.setMoveModuleId("CASE_REVIEW_REAL_MODULE_ID2");
         request.setSelectAll(false);
-        request.setExcludeIds(List.of(caseReviews.get(0).getId()));
         this.requestPostWithOkAndReturn(BATCH_MOVE_CASE_REVIEW, request);
         caseReviews = getCaseReviews("创建评审更新1");
         String moduleIdNewOne = caseReviews.get(0).getModuleId();
@@ -533,6 +552,8 @@ public class CaseReviewControllerTests extends BaseTest {
         notificationExample.createCriteria().andResourceTypeEqualTo(NoticeConstants.TaskType.CASE_REVIEW_TASK).andResourceIdEqualTo(caseReviews.get(0).getId()).andOperationEqualTo("DELETE");
         List<Notification> notifications = notificationMapper.selectByExampleWithBLOBs(notificationExample);
         Assertions.assertEquals(1, notifications.size());
+
+        delCaseReview("caseReviewIdX");
     }
 
 
@@ -563,9 +584,11 @@ public class CaseReviewControllerTests extends BaseTest {
         CaseReviewAssociateRequest caseReviewAssociateRequest = new CaseReviewAssociateRequest();
         caseReviewAssociateRequest.setProjectId(projectId);
         caseReviewAssociateRequest.setReviewId(caseReviewId);
-        List<String> caseIds = new ArrayList<>();
-        caseIds.add("CASE_REVIEW_TEST_GYQ_ID2");
-        caseReviewAssociateRequest.setCaseIds(caseIds);
+        BaseAssociateCaseRequest baseAssociateCaseRequest = new BaseAssociateCaseRequest();
+        baseAssociateCaseRequest.setProjectId(projectId);
+        baseAssociateCaseRequest.setSelectAll(false);
+        baseAssociateCaseRequest.setSelectIds(List.of("CASE_REVIEW_TEST_GYQ_ID2"));
+        caseReviewAssociateRequest.setBaseAssociateCaseRequest(baseAssociateCaseRequest);
         List<String> userIds = new ArrayList<>();
         userIds.add("gyq_review_test");
         userIds.add("gyq_review_test2");
