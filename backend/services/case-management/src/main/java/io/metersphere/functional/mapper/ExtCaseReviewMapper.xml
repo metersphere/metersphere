@@ -83,6 +83,21 @@
                 <property name="searchMode" value="request.condition.searchMode"/>
             </include>
         </if>
+        <if test="request.createByMe != null">
+            case_review.create_user = #{request.createByMe}
+            <include refid="queryType">
+                <property name="searchMode" value="request.searchMode"/>
+            </include>
+        </if>
+        <if test="request.reviewByMe != null">
+            case_review.id  in
+            (
+            select case_review_user.review_id from case_review_user where case_review_user.user_id = #{request.reviewByMe}
+            )
+            <include refid="queryType">
+                <property name="searchMode" value="request.searchMode"/>
+            </include>
+        </if>
         <include refid="filters">
             <property name="filter" value="request.condition.filter"/>
         </include>

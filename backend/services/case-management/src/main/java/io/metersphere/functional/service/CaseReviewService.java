@@ -4,13 +4,11 @@ package io.metersphere.functional.service;
 import io.metersphere.functional.constants.CaseReviewStatus;
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.domain.*;
+import io.metersphere.functional.dto.BaseFunctionalCaseBatchDTO;
 import io.metersphere.functional.dto.CaseReviewDTO;
 import io.metersphere.functional.dto.CaseReviewUserDTO;
 import io.metersphere.functional.mapper.*;
-import io.metersphere.functional.request.CaseReviewAssociateRequest;
-import io.metersphere.functional.request.CaseReviewBatchRequest;
-import io.metersphere.functional.request.CaseReviewPageRequest;
-import io.metersphere.functional.request.CaseReviewRequest;
+import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.CaseManagementResultCode;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.sdk.constants.ApplicationNumScope;
@@ -76,6 +74,8 @@ public class CaseReviewService {
     private CaseReviewFunctionalCaseUserMapper caseReviewFunctionalCaseUserMapper;
     @Resource
     private CaseReviewModuleService caseReviewModuleService;
+    @Resource
+    private ExtFunctionalCaseMapper extFunctionalCaseMapper;
 
 
     private static final String CASE_MODULE_COUNT_ALL = "all";
@@ -200,7 +200,9 @@ public class CaseReviewService {
      */
     public void addCaseReview(CaseReviewRequest request, String userId) {
         String caseReviewId = IDGenerator.nextStr();
-        addCaseReview(request, userId, caseReviewId);
+        BaseAssociateCaseRequest baseAssociateCaseRequest = request.getBaseAssociateCaseRequest();
+        List<String> caseIds = doSelectIds(baseAssociateCaseRequest, baseAssociateCaseRequest.getProjectId());
+        addCaseReview(request, userId, caseReviewId, caseIds);
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         CaseReviewUserMapper mapper = sqlSession.getMapper(CaseReviewUserMapper.class);
         CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper = sqlSession.getMapper(CaseReviewFunctionalCaseMapper.class);
@@ -209,9 +211,9 @@ public class CaseReviewService {
             //保存和评审人的关系
             addCaseReviewUser(request, caseReviewId, mapper);
             //保存和用例的关系
-            addCaseReviewFunctionalCase(request.getCaseIds(), request.getProjectId(), userId, caseReviewId, caseReviewFunctionalCaseMapper);
+            addCaseReviewFunctionalCase(caseIds, request.getProjectId(), userId, caseReviewId, caseReviewFunctionalCaseMapper);
             //保存用例和用例评审人的关系
-            addCaseReviewFunctionalCaseUser(request.getCaseIds(), request.getReviewers(), caseReviewId, caseReviewFunctionalCaseUserMapper);
+            addCaseReviewFunctionalCaseUser(caseIds, request.getReviewers(), caseReviewId, caseReviewFunctionalCaseUserMapper);
             sqlSession.flushStatements();
         } finally {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
@@ -316,7 +318,7 @@ public class CaseReviewService {
      * @param userId       当前操作人
      * @param caseReviewId 用例评审id
      */
-    private void addCaseReview(CaseReviewRequest request, String userId, String caseReviewId) {
+    private void addCaseReview(CaseReviewRequest request, String userId, String caseReviewId, List<String> caseIds) {
         CaseReview caseReview = new CaseReview();
         caseReview.setId(caseReviewId);
         caseReview.setNum(getNextNum(request.getProjectId()));
@@ -330,10 +332,10 @@ public class CaseReviewService {
             caseReview.setTags(JSON.toJSONString(request.getTags()));
         }
         caseReview.setPassRate(BigDecimal.valueOf(0.00));
-        if (CollectionUtils.isEmpty(request.getCaseIds())) {
+        if (CollectionUtils.isEmpty(caseIds)) {
             caseReview.setCaseCount(0);
         } else {
-            caseReview.setCaseCount(request.getCaseIds().size());
+            caseReview.setCaseCount(caseIds.size());
         }
         caseReview.setStartTime(request.getStartTime());
         caseReview.setEndTime(request.getEndTime());
@@ -350,8 +352,6 @@ public class CaseReviewService {
      * @param caseReviewId 用例评审id
      */
     private CaseReview checkCaseReview(String caseReviewId) {
-        CaseReviewExample caseReviewExample = new CaseReviewExample();
-        caseReviewExample.createCriteria().andIdEqualTo(caseReviewId);
         CaseReview caseReview = caseReviewMapper.selectByPrimaryKey(caseReviewId);
         if (caseReview == null) {
             throw new MSException(CaseManagementResultCode.CASE_REVIEW_NOT_FOUND);
@@ -428,8 +428,10 @@ public class CaseReviewService {
     public void associateCase(CaseReviewAssociateRequest request, String userId) {
         String caseReviewId = request.getReviewId();
         CaseReview caseReviewExist = checkCaseReview(caseReviewId);
+        BaseAssociateCaseRequest baseAssociateCaseRequest = request.getBaseAssociateCaseRequest();
+        List<String> caseIds = doSelectIds(baseAssociateCaseRequest, baseAssociateCaseRequest.getProjectId());
         FunctionalCaseExample functionalCaseExample = new FunctionalCaseExample();
-        functionalCaseExample.createCriteria().andIdIn(request.getCaseIds());
+        functionalCaseExample.createCriteria().andIdIn(caseIds);
         List<FunctionalCase> functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
         if (CollectionUtils.isEmpty(functionalCases)) {
             return;
@@ -438,7 +440,7 @@ public class CaseReviewService {
         caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(caseReviewId);
         List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
         List<String> castIds = caseReviewFunctionalCases.stream().map(CaseReviewFunctionalCase::getCaseId).toList();
-        List<String> caseRealIds = request.getCaseIds().stream().filter(t -> !castIds.contains(t)).toList();
+        List<String> caseRealIds = caseIds.stream().filter(t -> !castIds.contains(t)).toList();
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper = sqlSession.getMapper(CaseReviewFunctionalCaseMapper.class);
         CaseReviewFunctionalCaseUserMapper caseReviewFunctionalCaseUserMapper = sqlSession.getMapper(CaseReviewFunctionalCaseUserMapper.class);
@@ -462,6 +464,19 @@ public class CaseReviewService {
         BigDecimal passRate = passCount.divide(totalCount, 2, RoundingMode.HALF_UP);
         caseReview.setPassRate(passRate);
         caseReviewMapper.updateByPrimaryKeySelective(caseReview);
+    }
+
+    public <T> List<String> doSelectIds(T dto, String projectId) {
+        BaseFunctionalCaseBatchDTO request = (BaseFunctionalCaseBatchDTO) dto;
+        if (request.isSelectAll()) {
+            List<String> ids = extFunctionalCaseMapper.getIds(request, projectId, false);
+            if (org.apache.commons.collections.CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+                ids.removeAll(request.getExcludeIds());
+            }
+            return ids;
+        } else {
+            return request.getSelectIds();
+        }
     }
 
     /**

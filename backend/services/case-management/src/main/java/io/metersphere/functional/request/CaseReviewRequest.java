@@ -28,7 +28,7 @@ public class CaseReviewRequest implements Serializable {
     @NotBlank(message = "{case_review.name.not_blank}")
     private String name;
 
-    @Schema(description = "模块id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "用例评审的模块id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{case_review.module_id.not_blank}")
     private String moduleId;
 
@@ -52,6 +52,6 @@ public class CaseReviewRequest implements Serializable {
     @NotEmpty(message = "{case_review.reviewers.not_empty}")
     private List<String> reviewers;
 
-    @Schema(description = "关联的用例id", requiredMode = Schema.RequiredMode.REQUIRED)
-    private List<String> caseIds;
+    @Schema(description = "查询功能用例的条件")
+    private BaseAssociateCaseRequest baseAssociateCaseRequest;
 }
