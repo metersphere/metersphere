@@ -164,9 +164,34 @@ public class CaseReviewLogService {
             dto.setPath("/case/review/associate");
             dto.setMethod(HttpMethodConstants.POST.name());
             dto.setOriginalValue(JSON.toJSONBytes(functionalCase));
+            dtoList.add(dto);
         }
 
         return dtoList;
+    }
+
+    public LogDTO disAssociateCaseLog(String reviewId, String caseId) {
+        CaseReview caseReview = caseReviewMapper.selectByPrimaryKey(reviewId);
+        if (caseReview == null) {
+            return null;
+        }
+        FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(caseId);
+        if (functionalCase == null) {
+            return null;
+        }
+        LogDTO dto = new LogDTO(
+                caseReview.getProjectId(),
+                null,
+                caseReview.getId(),
+                null,
+                OperationLogType.DISASSOCIATE.name(),
+                OperationLogModule.CASE_REVIEW,
+                functionalCase.getName());
+
+        dto.setPath("/case/review/disassociate");
+        dto.setMethod(HttpMethodConstants.GET.name());
+        dto.setOriginalValue(JSON.toJSONBytes(functionalCase));
+        return dto;
     }
 
 

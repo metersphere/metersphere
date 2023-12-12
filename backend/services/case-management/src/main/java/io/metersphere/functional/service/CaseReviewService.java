@@ -12,6 +12,7 @@ import io.metersphere.functional.request.CaseReviewBatchRequest;
 import io.metersphere.functional.request.CaseReviewPageRequest;
 import io.metersphere.functional.request.CaseReviewRequest;
 import io.metersphere.functional.result.CaseManagementResultCode;
+import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.exception.MSException;
@@ -71,7 +72,13 @@ public class CaseReviewService {
     private FunctionalCaseMapper functionalCaseMapper;
     @Resource
     private DeleteCaseReviewService deleteCaseReviewService;
+    @Resource
+    private CaseReviewFunctionalCaseUserMapper caseReviewFunctionalCaseUserMapper;
+    @Resource
+    private CaseReviewModuleService caseReviewModuleService;
 
+
+    private static final String CASE_MODULE_COUNT_ALL = "all";
 
     /**
      * 获取用例评审列表
@@ -522,5 +529,46 @@ public class CaseReviewService {
     public void deleteCaseReview(String reviewId, String projectId) {
         deleteCaseReviewService.deleteCaseReviewResource(List.of(reviewId), projectId, false);
 
+    }
+
+    public void disassociate(String reviewId, String caseId) {
+        //1.刪除评审与功能用例关联关系
+        CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
+        caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo(caseId);
+        caseReviewFunctionalCaseMapper.deleteByExample(caseReviewFunctionalCaseExample);
+        //2.删除用例和用例评审人的关系
+        CaseReviewFunctionalCaseUserExample caseReviewFunctionalCaseUserExample = new CaseReviewFunctionalCaseUserExample();
+        caseReviewFunctionalCaseUserExample.createCriteria().andCaseIdEqualTo(caseId).andReviewIdEqualTo(reviewId);
+        caseReviewFunctionalCaseUserMapper.deleteByExample(caseReviewFunctionalCaseUserExample);
+
+        caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
+        caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(reviewId);
+        List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
+        List<CaseReviewFunctionalCase> passList = caseReviewFunctionalCases.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getStatus(), FunctionalCaseReviewStatus.PASS.toString())).toList();
+        CaseReview caseReview = new CaseReview();
+        caseReview.setId(reviewId);
+        //更新用例数量
+        caseReview.setCaseCount(caseReviewFunctionalCases.size());
+        //通过率
+        BigDecimal passCount = BigDecimal.valueOf(passList.size());
+        BigDecimal totalCount = BigDecimal.valueOf(caseReview.getCaseCount());
+        BigDecimal passRate;
+        if (totalCount.compareTo(BigDecimal.ZERO)==0) {
+            passRate = BigDecimal.ZERO;
+        } else {
+            passRate = passCount.divide(totalCount, 2, RoundingMode.HALF_UP);
+        }
+        caseReview.setPassRate(passRate);
+        caseReviewMapper.updateByPrimaryKeySelective(caseReview);
+    }
+
+    public Map<String, Long> moduleCount(CaseReviewPageRequest request) {
+        //查出每个模块节点下的资源数量。 不需要按照模块进行筛选
+        List<ModuleCountDTO> moduleCountDTOList = extCaseReviewMapper.countModuleIdByKeywordAndFileType(request);
+        Map<String, Long> moduleCountMap = caseReviewModuleService.getModuleCountMap(request.getProjectId(), moduleCountDTOList);
+        //查出全部用例数量
+        long allCount = extCaseReviewMapper.caseCount(request);
+        moduleCountMap.put(CASE_MODULE_COUNT_ALL, allCount);
+        return moduleCountMap;
     }
 }
