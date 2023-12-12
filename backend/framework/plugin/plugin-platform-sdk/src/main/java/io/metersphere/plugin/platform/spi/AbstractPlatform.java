@@ -1,10 +1,10 @@
 package io.metersphere.plugin.platform.spi;
 
-import io.metersphere.plugin.platform.dto.PlatformRequest;
-import io.metersphere.plugin.platform.dto.PluginOptionsRequest;
 import io.metersphere.plugin.platform.dto.SelectOption;
-import io.metersphere.plugin.sdk.util.PluginUtils;
+import io.metersphere.plugin.platform.dto.request.PlatformRequest;
+import io.metersphere.plugin.platform.dto.request.PluginOptionsRequest;
 import io.metersphere.plugin.sdk.util.MSPluginException;
+import io.metersphere.plugin.sdk.util.PluginUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.InvocationTargetException;

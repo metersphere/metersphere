@@ -8,6 +8,7 @@ public abstract class AbstractPlatformPlugin extends AbstractMsPlugin {
     private static final String DEFAULT_ACCOUNT_SCRIPT_ID = "account";
     private static final String PROJECT_BUG_SCRIPT_ID = "project_bug";
     private static final String PROJECT_DEMAND_SCRIPT_ID = "project_demand";
+    private static final String PROJECT_BUG_TEMPLATE_INJECT_FIELD = "inject_field";
 
     /**
      * 返回插件的描述信息
@@ -51,5 +52,9 @@ public abstract class AbstractPlatformPlugin extends AbstractMsPlugin {
 
     public String getProjectDemandScriptId() {
         return PROJECT_DEMAND_SCRIPT_ID;
+    }
+
+    public String getProjectBugTemplateInjectField() {
+        return PROJECT_BUG_TEMPLATE_INJECT_FIELD;
     }
 }

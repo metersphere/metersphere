@@ -4,15 +4,13 @@ import io.metersphere.plugin.platform.spi.AbstractPlatformPlugin;
 import io.metersphere.plugin.platform.spi.Platform;
 import io.metersphere.plugin.sdk.spi.MsPlugin;
 import io.metersphere.project.domain.FakeErrorExample;
+import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.domain.ProjectApplicationExample;
 import io.metersphere.project.dto.ModuleDTO;
 import io.metersphere.project.job.BugSyncJob;
 import io.metersphere.project.job.CleanUpReportJob;
-import io.metersphere.project.mapper.ExtProjectMapper;
-import io.metersphere.project.mapper.ExtProjectUserRoleMapper;
-import io.metersphere.project.mapper.FakeErrorMapper;
-import io.metersphere.project.mapper.ProjectApplicationMapper;
+import io.metersphere.project.mapper.*;
 import io.metersphere.project.request.ProjectApplicationRequest;
 import io.metersphere.project.utils.ModuleSortUtils;
 import io.metersphere.sdk.constants.OperationLogConstants;
@@ -20,6 +18,7 @@ import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.constants.ScheduleType;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
@@ -77,6 +76,8 @@ public class ProjectApplicationService {
 
     @Resource
     private ServiceIntegrationService serviceIntegrationService;
+    @Resource
+    private ProjectMapper projectMapper;
 
     /**
      * 更新配置信息
@@ -550,7 +551,7 @@ public class ProjectApplicationService {
         example.createCriteria().andProjectIdEqualTo(projectId).andTypeLike(ProjectApplicationType.BUG.BUG_SYNC.name() + "_" + ProjectApplicationType.PLATFORM_BUG_CONFIG.BUG_PLATFORM_CONFIG.name());
         List<ProjectApplication> list = projectApplicationMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(list)) {
-            return list.get(0).getTypeValue();
+            return list.get(0).getTypeValue().replaceAll("\\\\", "");
         }
         return null;
     }
@@ -567,7 +568,7 @@ public class ProjectApplicationService {
         example.createCriteria().andProjectIdEqualTo(projectId).andTypeLike(ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "_" + ProjectApplicationType.PLATFORM_DEMAND_CONFIG.DEMAND_PLATFORM_CONFIG.name());
         List<ProjectApplication> list = projectApplicationMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(list)) {
-            return list.get(0).getTypeValue();
+            return list.get(0).getTypeValue().replaceAll("\\\\", "");
         }
         return null;
     }
@@ -591,10 +592,126 @@ public class ProjectApplicationService {
         List<ProjectApplication> list = projectApplicationMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(list)) {
             PluginWrapper pluginWrapper = pluginLoadService.getPluginWrapper(list.get(0).getTypeValue());
+            if (pluginWrapper == null) {
+                // 插件未找到
+                return "Local";
+            }
             MsPlugin plugin = (MsPlugin) pluginWrapper.getPlugin();
+            if (plugin == null) {
+                // 插件未找到
+                return "Local";
+            }
             return plugin.getName();
         } else {
-            return "local";
+            return "Local";
         }
+    }
+
+    /**
+     * 过滤掉非Local平台的项目
+     * @param projectIds 项目ID集合
+     * @return 非Local平台的项目
+     */
+    public List<String> filterNoLocalPlatform(List<String> projectIds) {
+        ProjectApplicationExample example = new ProjectApplicationExample();
+        example.createCriteria().andProjectIdIn(projectIds).andTypeEqualTo(ProjectApplicationType.BUG.BUG_SYNC.name() + "_PLATFORM_KEY");
+        List<ProjectApplication> allProjectPlatformKeys = projectApplicationMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(allProjectPlatformKeys)) {
+            for (ProjectApplication projectApplication : allProjectPlatformKeys) {
+                PluginWrapper pluginWrapper = pluginLoadService.getPluginWrapper(projectApplication.getTypeValue());
+                if (pluginWrapper == null) {
+                    // 插件未找到 (Local)
+                    projectIds.remove(projectApplication.getProjectId());
+                    continue;
+                }
+                MsPlugin plugin = (MsPlugin) pluginWrapper.getPlugin();
+                if (plugin == null) {
+                    // 插件未找到 (Local)
+                    projectIds.remove(projectApplication.getProjectId());
+                    continue;
+                }
+                if (StringUtils.equals("Local", plugin.getName())) {
+                    // 本地平台
+                    projectIds.remove(projectApplication.getProjectId());
+                }
+            }
+            return projectIds;
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * 获取项目同步机制
+     *
+     * @param projectId 项目ID
+     * @return 项目所属平台
+     */
+    public boolean isPlatformSyncMethodByIncrement(String projectId) {
+        ProjectApplicationExample example = new ProjectApplicationExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andTypeEqualTo(ProjectApplicationType.BUG.BUG_SYNC.name() + "_MECHANISM");
+        List<ProjectApplication> list = projectApplicationMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(list)) {
+            return StringUtils.equals(list.get(0).getTypeValue(), "increment");
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * 查询插件具体的服务集成信息(缺陷PLATFORM_KEY, 需求PLATFORM_KEY)
+     * @param projectId 项目ID
+     * @param isSync 是否缺陷同步配置
+     * @return 插件服务集成信息
+     */
+    public ServiceIntegration getPlatformServiceIntegrationWithSyncOrDemand(String projectId, boolean isSync) {
+        // 是否开启项目配置第三方平台
+        ProjectApplication platformEnableConfig;
+        ProjectApplication platformKeyConfig;
+        if (isSync) {
+            platformEnableConfig = getByType(projectId, ProjectApplicationType.BUG.BUG_SYNC.name() + "_" + ProjectApplicationType.BUG_SYNC_CONFIG.SYNC_ENABLE.name());
+            platformKeyConfig = getByType(projectId, ProjectApplicationType.BUG.BUG_SYNC.name() + "_PLATFORM_KEY");
+        } else {
+            platformEnableConfig = getByType(projectId, ProjectApplicationType.CASE_RELATED_CONFIG.CASE_ENABLE.name());
+            platformKeyConfig = getByType(projectId, ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "_PLATFORM_KEY");
+        }
+
+        boolean isEnable = platformEnableConfig != null && Boolean.parseBoolean(platformEnableConfig.getTypeValue()) && platformKeyConfig != null;
+        if (!isEnable) {
+            return null;
+        }
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        // 查询组织下有权限的插件
+        Set<String> orgPluginIds = platformPluginService.getOrgEnabledPlatformPlugins(project.getOrganizationId())
+                .stream()
+                .map(Plugin::getId)
+                .collect(Collectors.toSet());
+        // 查询服务集成中启用并且支持第三方模板的插件
+        return serviceIntegrationService.getServiceIntegrationByOrgId(project.getOrganizationId())
+                .stream()
+                .filter(serviceIntegration -> {
+                    return serviceIntegration.getEnable()    // 服务集成开启
+                            && orgPluginIds.contains(serviceIntegration.getPluginId())
+                            && StringUtils.equals(serviceIntegration.getPluginId(), platformKeyConfig.getTypeValue());  // 该服务集成对应的插件有权限
+                })
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * 获取项目同步配置或需求配置的所属平台
+     * @param projectId 项目ID
+     * @param isSync 是否同步
+     * @return 平台
+     */
+    public Platform getPlatform(String projectId, boolean isSync) {
+        // 第三方平台状态流
+        ServiceIntegration serviceIntegration = getPlatformServiceIntegrationWithSyncOrDemand(projectId, isSync);
+        if (serviceIntegration == null) {
+            // 项目未配置第三方平台
+            throw new MSException(Translator.get("third_party_not_config"));
+        }
+        return platformPluginService.getPlatform(serviceIntegration.getPluginId(), serviceIntegration.getOrganizationId(),
+                new String(serviceIntegration.getConfiguration()));
     }
 }

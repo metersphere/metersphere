@@ -1,7 +1,9 @@
 package io.metersphere.bug.dto;
 
 import io.metersphere.bug.domain.BugContent;
-import io.metersphere.bug.dto.request.BugExportColumn;
+import io.metersphere.bug.dto.response.BugCommentDTO;
+import io.metersphere.bug.dto.response.BugCustomFieldDTO;
+import io.metersphere.bug.dto.response.BugDTO;
 import io.metersphere.sdk.util.DateUtils;
 import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;

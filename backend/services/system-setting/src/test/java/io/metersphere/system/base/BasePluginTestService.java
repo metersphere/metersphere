@@ -7,9 +7,9 @@ import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.domain.ServiceIntegration;
-import io.metersphere.system.mapper.PluginMapper;
 import io.metersphere.system.dto.request.PluginUpdateRequest;
 import io.metersphere.system.dto.request.ServiceIntegrationUpdateRequest;
+import io.metersphere.system.mapper.PluginMapper;
 import io.metersphere.system.service.PluginService;
 import io.metersphere.system.service.ServiceIntegrationService;
 import jakarta.annotation.Resource;
@@ -118,7 +118,7 @@ public class BasePluginTestService {
     public void enableProjectBugConfig(String defaultProjectId) {
         ProjectApplication projectApplication = new ProjectApplication();
         projectApplication.setProjectId(defaultProjectId);
-        projectApplication.setType(ProjectApplicationType.BUG_SYNC_CONFIG.SYNC_ENABLE.name());
+        projectApplication.setType(ProjectApplicationType.BUG.BUG_SYNC.name() + "_" + ProjectApplicationType.BUG_SYNC_CONFIG.SYNC_ENABLE.name());
         projectApplication.setTypeValue(BooleanUtils.toStringTrueFalse(true));
         createOrUpdateConfig(projectApplication);
     }

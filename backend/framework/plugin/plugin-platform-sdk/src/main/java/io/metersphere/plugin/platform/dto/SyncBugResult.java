@@ -1,18 +1,30 @@
 package io.metersphere.plugin.platform.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import io.metersphere.plugin.platform.dto.reponse.PlatformBugDTO;
+import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Setter
-@Getter
+@Data
 public class SyncBugResult {
-    private List<MsBugDTO> updateBug= new ArrayList<>();
-    private List<MsBugDTO> addBug = new ArrayList<>();
-    private Map<String, List<PlatformAttachment>> attachmentMap = new HashMap<>();
+    /**
+     * 同步新增的缺陷
+     */
+    private List<PlatformBugDTO> addBug = new ArrayList<>();
+    /**
+     * 同步更新的缺陷
+     */
+    private List<PlatformBugDTO> updateBug = new ArrayList<>();
+    /**
+     * 同步失败需删除的ID
+     */
     private List<String> deleteBugIds = new ArrayList<>();
+
+    /**
+     * 需同步的平台附件集合(统一处理) {key: bugId, value: attachmentList}
+     */
+    private Map<String, List<PlatformAttachment>> attachmentMap = new HashMap<>();
 }

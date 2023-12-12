@@ -1,6 +1,6 @@
 package io.metersphere.bug.constants;
 
-import io.metersphere.bug.dto.BugCustomFieldDTO;
+import io.metersphere.bug.dto.response.BugCustomFieldDTO;
 import io.metersphere.sdk.util.Translator;
 import lombok.Data;
 

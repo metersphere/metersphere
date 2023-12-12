@@ -1,5 +1,6 @@
 package io.metersphere.system.service;
 
+import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.sdk.constants.BugStatusDefinitionType;
 import io.metersphere.sdk.constants.DefaultBugStatusItem;
 import io.metersphere.sdk.constants.TemplateScene;
@@ -18,6 +19,7 @@ import io.metersphere.system.dto.sdk.request.StatusItemAddRequest;
 import io.metersphere.system.mapper.StatusDefinitionMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -256,5 +258,38 @@ public class BaseStatusFlowSettingService {
             baseStatusItemService.update(statusItem);
         }
         return statusItems;
+    }
+
+    /**
+     * 获取状态流转选项
+     * @return 状态选项集合
+     */
+    public List<SelectOption> getStatusTransitions(String scopeId, String scene, String targetStatusId) {
+        if (StringUtils.isBlank(targetStatusId)) {
+            // 创建时, 获取开始状态的选项值即可
+            List<StatusItem> statusItems = baseStatusItemService.getByScopeIdAndScene(scopeId, scene);
+            statusItems = baseStatusItemService.translateInternalStatusItem(statusItems);
+            List<String> statusIds = statusItems.stream().map(StatusItem::getId).toList();
+            if (CollectionUtils.isEmpty(statusIds)) {
+                return List.of();
+            }
+            StatusDefinitionExample example = new StatusDefinitionExample();
+            example.createCriteria().andStatusIdIn(statusIds).andDefinitionIdEqualTo(BugStatusDefinitionType.START.name());
+            List<StatusDefinition> statusDefinitions = statusDefinitionMapper.selectByExample(example);
+            List<String> startIds = statusDefinitions.stream().map(StatusDefinition::getStatusId).toList();
+            return statusItems.stream().filter(item -> startIds.contains(item.getId()))
+                    .map(item -> new SelectOption(item.getName(), item.getId())).toList();
+        } else {
+            //修改时, 获取当前状态的流转选项值即可
+            List<StatusFlow> nextStatusFlows = baseStatusFlowService.getNextStatusFlows(targetStatusId);
+            if (CollectionUtils.isEmpty(nextStatusFlows)) {
+                // 当前状态选项值没有下一步流转选项值, 返回空集合
+                return List.of();
+            }
+            List<String> toIds = nextStatusFlows.stream().map(StatusFlow::getToId).toList();
+            List<StatusItem> statusItems = baseStatusItemService.getToStatusItemByScopeIdAndScene(scopeId, scene, toIds);
+            statusItems = baseStatusItemService.translateInternalStatusItem(statusItems);
+            return statusItems.stream().map(item -> new SelectOption(item.getName(), item.getId())).toList();
+        }
     }
 }

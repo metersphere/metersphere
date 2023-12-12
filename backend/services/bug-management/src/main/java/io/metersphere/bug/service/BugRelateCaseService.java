@@ -1,8 +1,8 @@
 package io.metersphere.bug.service;
 
 import io.metersphere.bug.domain.BugRelationCase;
-import io.metersphere.bug.dto.BugRelateCaseDTO;
 import io.metersphere.bug.dto.request.BugRelatedCasePageRequest;
+import io.metersphere.bug.dto.response.BugRelateCaseDTO;
 import io.metersphere.bug.mapper.BugRelationCaseMapper;
 import io.metersphere.bug.mapper.ExtBugRelateCaseMapper;
 import io.metersphere.project.domain.Project;
