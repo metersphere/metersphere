@@ -268,8 +268,8 @@
     </build>
     <distributionManagement>
         <repository>
-            <id>fit2cloud-public</id>
-            <url>https://repository.fit2cloud.com/content/repositories/fit2cloud-public</url>
+            <id>metersphere-public</id>
+            <url>https://repository.fit2cloud.com/repository/metersphere/</url>
         </repository>
     </distributionManagement>
     <repositories>
@@ -278,8 +278,8 @@
             <url>https://repo.maven.apache.org/maven2</url>
         </repository>
         <repository>
-            <id>fit2cloud-public</id>
-            <url>https://repository.fit2cloud.com/repository/public/</url>
+            <id>metersphere-public</id>
+            <url>https://repository.fit2cloud.com/repository/metersphere/</url>
         </repository>
     </repositories>
     <pluginRepositories>
@@ -288,8 +288,8 @@
             <url>https://repo.maven.apache.org/maven2</url>
         </pluginRepository>
         <pluginRepository>
-            <id>fit2cloud-public</id>
-            <url>https://repository.fit2cloud.com/repository/public/</url>
+            <id>metersphere-public</id>
+            <url>https://repository.fit2cloud.com/repository/metersphere/</url>
         </pluginRepository>
     </pluginRepositories>
 </project>
