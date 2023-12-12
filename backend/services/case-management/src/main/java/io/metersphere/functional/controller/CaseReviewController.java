@@ -29,6 +29,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Tag(name = "用例管理-用例评审")
 @RestController
@@ -39,12 +40,19 @@ public class CaseReviewController {
     private CaseReviewService caseReviewService;
 
     @PostMapping("/page")
-    @Operation(summary = "用例管理-功能用例-用例列表查询")
-    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    @Operation(summary = "用例管理-用例评审-用例列表查询")
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ)
     public Pager<List<CaseReviewDTO>> getFunctionalCasePage(@Validated @RequestBody CaseReviewPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "pos desc");
         return PageUtils.setPageInfo(page, caseReviewService.getCaseReviewPage(request));
+    }
+
+    @PostMapping("/module/count")
+    @Operation(summary = "用例管理-用例评审-表格分页查询文件")
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ)
+    public Map<String, Long> moduleCount(@Validated @RequestBody CaseReviewPageRequest request) {
+        return caseReviewService.moduleCount(request);
     }
 
     @PostMapping("/add")
@@ -95,6 +103,14 @@ public class CaseReviewController {
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_RELEVANCE)
     public void associateCase(@Validated @RequestBody CaseReviewAssociateRequest request) {
         caseReviewService.associateCase(request, SessionUtils.getUserId());
+    }
+
+    @GetMapping("disassociate/{reviewId}/{caseId}")
+    @Operation(summary = "用例管理-用例评审-取消关联用例")
+    @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.disAssociateCaseLog(#reviewId, #caseId)", msClass = CaseReviewLogService.class)
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_RELEVANCE)
+    public void disassociate(@PathVariable String reviewId, @PathVariable String caseId) {
+        caseReviewService.disassociate(reviewId, caseId);
     }
 
     @PostMapping("/edit/pos")

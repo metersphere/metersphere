@@ -116,6 +116,21 @@
                 <property name="searchMode" value="request.searchMode"/>
             </include>
         </if>
+        <if test="request.createByMe != null">
+            case_review.create_user = #{request.createByMe}
+            <include refid="queryType">
+                <property name="searchMode" value="request.searchMode"/>
+            </include>
+        </if>
+        <if test="request.reviewByMe != null">
+            case_review.id  in
+            (
+            select case_review_user.review_id from case_review_user where case_review_user.user_id = #{request.reviewByMe}
+            )
+            <include refid="queryType">
+                <property name="searchMode" value="request.searchMode"/>
+            </include>
+        </if>
         <include refid="filters">
             <property name="filter" value="request.filter"/>
         </include>
@@ -372,5 +387,41 @@
             #{id}
         </foreach>
     </update>
+
+    <select id="countModuleIdByKeywordAndFileType"  resultType="io.metersphere.project.dto.ModuleCountDTO">
+        SELECT module_id AS moduleId, count(id) AS dataCount
+        FROM case_review
+        WHERE project_id = #{request.projectId}
+        <choose>
+            <when test='request.searchMode == "AND"'>
+                AND <include refid="queryWhereCondition"/>
+            </when>
+            <when test='request.searchMode == "OR"'>
+                AND (
+                <include refid="queryWhereCondition"/>
+                )
+            </when>
+        </choose>
+        1 = 1
+        GROUP BY moduleId
+    </select>
+
+    <select id="caseCount"
+            resultType="java.lang.Long">
+        SELECT count(id)
+        FROM case_review
+        WHERE  project_id = #{request.projectId}
+        <choose>
+            <when test='request.searchMode == "AND"'>
+                AND <include refid="queryWhereCondition"/>
+            </when>
+            <when test='request.searchMode == "OR"'>
+                and (
+                <include refid="queryWhereCondition"/>
+                )
+            </when>
+        </choose>
+        1 = 1
+    </select>
 
 </mapper>

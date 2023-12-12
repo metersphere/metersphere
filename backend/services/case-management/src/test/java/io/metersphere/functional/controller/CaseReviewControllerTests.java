@@ -32,6 +32,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -54,7 +55,9 @@ public class CaseReviewControllerTests extends BaseTest {
     private static final String BATCH_MOVE_CASE_REVIEW = "/case/review/batch/move";
     private static final String EDIT_CASE_REVIEW = "/case/review/edit";
     private static final String PAGE_CASE_REVIEW = "/case/review/page";
+    private static final String MODULE_COUNT_CASE_REVIEW = "/case/review/module/count";
     private static final String ASSOCIATE_CASE_REVIEW = "/case/review/associate";
+    private static final String DISASSOCIATE_CASE_REVIEW = "/case/review/disassociate/";
     private static final String EDIT_POS_CASE_REVIEW_URL = "/case/review/edit/pos";
     private static final String FOLLOW_CASE_REVIEW = "/case/review/edit/follower";
     private static final String CASE_REVIEWER_LIST = "/case/review/user-option/";
@@ -339,9 +342,19 @@ public class CaseReviewControllerTests extends BaseTest {
         request.setCombine(caseReviewCombine);
         request.setProjectId(projectId);
         request.setKeyword("评审更新");
+        request.setReviewByMe("admin");
         request.setCurrent(1);
         request.setPageSize(10);
         MvcResult mvcResult = this.requestPostWithOkAndReturn(PAGE_CASE_REVIEW, request);
+        Pager<List<CaseReviewDTO>> tableData = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Pager.class);
+
+        MvcResult moduleCountMvcResult = this.requestPostWithOkAndReturn(MODULE_COUNT_CASE_REVIEW, request);
+        Map<String, Integer> moduleCount = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(moduleCountMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Map.class);
+
         // 获取返回值
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
@@ -354,6 +367,21 @@ public class CaseReviewControllerTests extends BaseTest {
         Assertions.assertEquals(pageData.getCurrent(), request.getCurrent());
         // 返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= request.getPageSize());
+
+        //如果没有数据，则返回的模块节点也不应该有数据
+        boolean moduleHaveResource = false;
+        for (int countByModuleId : moduleCount.values()) {
+            if (countByModuleId > 0) {
+                moduleHaveResource = true;
+                break;
+            }
+        }
+        Assertions.assertEquals(request.getPageSize(), tableData.getPageSize());
+        if (tableData.getTotal() > 0) {
+            Assertions.assertTrue(moduleHaveResource);
+        }
+
+        Assertions.assertTrue(moduleCount.containsKey("all"));
 
         CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
         caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(caseReviews.get(0).getId());
@@ -505,6 +533,75 @@ public class CaseReviewControllerTests extends BaseTest {
         notificationExample.createCriteria().andResourceTypeEqualTo(NoticeConstants.TaskType.CASE_REVIEW_TASK).andResourceIdEqualTo(caseReviews.get(0).getId()).andOperationEqualTo("DELETE");
         List<Notification> notifications = notificationMapper.selectByExampleWithBLOBs(notificationExample);
         Assertions.assertEquals(1, notifications.size());
+    }
+
+
+    @Test
+    @Order(17)
+    public void testDisassociate() throws Exception {
+        List<CaseReview> caseReviews = getCaseReviews("创建评审更新1");
+        Assertions.assertEquals(1, caseReviews.size());
+        String caseReviewId = caseReviews.get(0).getId();
+        CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
+        caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(caseReviewId).andCaseIdEqualTo("CASE_REVIEW_TEST_GYQ_ID6");
+        List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
+        Assertions.assertEquals(1, caseReviewFunctionalCases.size());
+        mockMvc.perform(MockMvcRequestBuilders.get(DISASSOCIATE_CASE_REVIEW+caseReviewId+"/CASE_REVIEW_TEST_GYQ_ID6").header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .header(SessionConstants.CURRENT_PROJECT, projectId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
+        caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(caseReviewId).andCaseIdEqualTo("CASE_REVIEW_TEST_GYQ_ID6");
+        caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
+        Assertions.assertEquals(0, caseReviewFunctionalCases.size());
+
+        caseReviews = getCaseReviews("创建评审3");
+        Assertions.assertEquals(1, caseReviews.size());
+        caseReviewId = caseReviews.get(0).getId();
+        CaseReviewAssociateRequest caseReviewAssociateRequest = new CaseReviewAssociateRequest();
+        caseReviewAssociateRequest.setProjectId(projectId);
+        caseReviewAssociateRequest.setReviewId(caseReviewId);
+        List<String> caseIds = new ArrayList<>();
+        caseIds.add("CASE_REVIEW_TEST_GYQ_ID2");
+        caseReviewAssociateRequest.setCaseIds(caseIds);
+        List<String> userIds = new ArrayList<>();
+        userIds.add("gyq_review_test");
+        userIds.add("gyq_review_test2");
+        caseReviewAssociateRequest.setReviewers(userIds);
+        this.requestPostWithOk(ASSOCIATE_CASE_REVIEW, caseReviewAssociateRequest);
+
+        mockMvc.perform(MockMvcRequestBuilders.get(DISASSOCIATE_CASE_REVIEW+caseReviewId+"/CASE_REVIEW_TEST_GYQ_ID2").header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .header(SessionConstants.CURRENT_PROJECT, projectId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        CaseReview caseReview = caseReviewMapper.selectByPrimaryKey(caseReviewId);
+        Assertions.assertEquals(0, caseReview.getPassRate().compareTo(BigDecimal.ZERO));
+
+    }
+
+    @Test
+    @Order(18)
+    public void testDisassociateFalse() throws Exception {
+        List<CaseReview> caseReviews = getCaseReviews("创建评审更新1");
+        mockMvc.perform(MockMvcRequestBuilders.get(DISASSOCIATE_CASE_REVIEW+"caseReviewIdX"+"/CASE_REVIEW_TEST_GYQ_ID6").header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .header(SessionConstants.CURRENT_PROJECT, projectId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+
+        String caseReviewId = caseReviews.get(0).getId();
+        mockMvc.perform(MockMvcRequestBuilders.get(DISASSOCIATE_CASE_REVIEW+caseReviewId+"/CASE_REVIEW_TEST_GYQ_IDXX").header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .header(SessionConstants.CURRENT_PROJECT, projectId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+
     }
 
     /**
