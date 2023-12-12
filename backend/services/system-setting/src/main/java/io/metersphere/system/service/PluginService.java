@@ -2,8 +2,8 @@ package io.metersphere.system.service;
 
 
 import io.metersphere.plugin.api.spi.AbstractApiPlugin;
-import io.metersphere.plugin.platform.dto.PluginOptionsRequest;
 import io.metersphere.plugin.platform.dto.SelectOption;
+import io.metersphere.plugin.platform.dto.request.PluginOptionsRequest;
 import io.metersphere.plugin.platform.spi.AbstractPlatformPlugin;
 import io.metersphere.plugin.platform.spi.Platform;
 import io.metersphere.plugin.sdk.spi.MsPlugin;

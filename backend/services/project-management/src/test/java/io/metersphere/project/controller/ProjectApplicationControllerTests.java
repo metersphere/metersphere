@@ -7,11 +7,15 @@ import io.metersphere.project.request.ProjectApplicationRequest;
 import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.Plugin;
+import io.metersphere.system.domain.ServiceIntegration;
 import io.metersphere.system.dto.request.PluginUpdateRequest;
 import io.metersphere.system.dto.request.ServiceIntegrationUpdateRequest;
+import io.metersphere.system.mapper.ServiceIntegrationMapper;
+import io.metersphere.system.service.PluginLoadService;
 import io.metersphere.system.service.PluginService;
 import jakarta.annotation.Resource;
 import lombok.Getter;
@@ -30,7 +34,10 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
@@ -46,7 +53,11 @@ public class ProjectApplicationControllerTests extends BaseTest {
     private static Plugin plugin;
     @Resource
     private PluginService pluginService;
+    @Resource
+    private PluginLoadService pluginLoadService;
 
+    @Resource
+    private ServiceIntegrationMapper serviceIntegrationMapper;
     @Resource
     private ProjectApplicationService projectApplicationService;
 
@@ -704,4 +715,53 @@ public class ProjectApplicationControllerTests extends BaseTest {
         projectApplicationService.getPlatformName(PROJECT_ID);
     }
 
+
+    @Test
+    @Order(99)
+    void coverPlatformTest() {
+        // 没有配置平台的项目
+        try {
+            projectApplicationService.getPlatform("default-project-for-application-not-exist", true);
+        } catch (Exception e) {
+            Assertions.assertEquals(e.getMessage(), Translator.get("third_party_not_config"));
+        }
+
+        try {
+            // 获取需求配置
+            projectApplicationService.getPlatform("default-project-for-application", false);
+        } catch (Exception e) {
+            Assertions.assertEquals(e.getMessage(), Translator.get("third_party_not_config"));
+        }
+
+        ServiceIntegration record = new ServiceIntegration();
+        try {
+            // 关闭集成
+            record.setId("621103810617345");
+            record.setEnable(false);
+            serviceIntegrationMapper.updateByPrimaryKeySelective(record);
+            projectApplicationService.getPlatform("default-project-for-application", true);
+        } catch (Exception e) {
+            Assertions.assertEquals(e.getMessage(), Translator.get("third_party_not_config"));
+        }
+
+        try {
+            // 集成Tapd
+            record.setEnable(true);
+            record.setPluginId("Tapd");
+            serviceIntegrationMapper.updateByPrimaryKeySelective(record);
+            projectApplicationService.getPlatform("default-project-for-application", true);
+        } catch (Exception e) {
+            Assertions.assertEquals(e.getMessage(), Translator.get("third_party_not_config"));
+        }
+
+        // 获取缺陷同步配置平台
+        projectApplicationService.getPlatform("default-project-for-application", true);
+        // 获取同步机制
+        Assertions.assertTrue(projectApplicationService.isPlatformSyncMethodByIncrement("default-project-for-application"));
+        Assertions.assertFalse(projectApplicationService.isPlatformSyncMethodByIncrement("default-project-for-application-not-exist"));
+
+        // 过滤Local平台项目
+        projectApplicationService.filterNoLocalPlatform(new ArrayList<>(List.of("default-project-for-application")));
+        projectApplicationService.filterNoLocalPlatform(new ArrayList<>(List.of("default-project-for-application-not-exist")));
+    }
 }

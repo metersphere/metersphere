@@ -1,15 +1,14 @@
 package io.metersphere.project.service;
 
 import io.metersphere.sdk.constants.TemplateScopeType;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.system.domain.StatusItem;
+import io.metersphere.system.dto.StatusItemDTO;
 import io.metersphere.system.dto.sdk.request.StatusDefinitionUpdateRequest;
 import io.metersphere.system.dto.sdk.request.StatusFlowUpdateRequest;
 import io.metersphere.system.dto.sdk.request.StatusItemAddRequest;
 import io.metersphere.system.dto.sdk.request.StatusItemUpdateRequest;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.system.domain.StatusItem;
-import io.metersphere.system.dto.StatusItemDTO;
 import io.metersphere.system.service.BaseStatusFlowSettingService;
-import io.metersphere.system.service.OrganizationService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -104,6 +103,7 @@ public class ProjectStatusFlowSettingService extends BaseStatusFlowSettingServic
      * 更新状态流配置
      * @param request
      */
+    @Override
     public void updateStatusFlow(StatusFlowUpdateRequest request) {
         StatusItem fromStatusItem = baseStatusItemService.getWithCheck(request.getFromId());
         StatusItem toStatusItem = baseStatusItemService.getWithCheck(request.getToId());

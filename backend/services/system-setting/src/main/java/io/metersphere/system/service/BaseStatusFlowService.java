@@ -91,4 +91,10 @@ public class BaseStatusFlowService {
                 .andToIdIn(subProjectToIds);
         statusFlowMapper.deleteByExample(example);
     }
+
+    public List<StatusFlow> getNextStatusFlows(String statusId) {
+        StatusFlowExample example = new StatusFlowExample();
+        example.createCriteria().andFromIdEqualTo(statusId);
+        return statusFlowMapper.selectByExample(example);
+    }
 }

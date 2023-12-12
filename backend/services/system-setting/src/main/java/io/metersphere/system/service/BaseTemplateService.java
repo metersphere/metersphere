@@ -129,7 +129,7 @@ public class BaseTemplateService {
                     }
                     templateCustomFieldDTO.setDefaultValue(defaultValue);
                     return templateCustomFieldDTO;
-                }).toList();
+                }).collect(Collectors.toList());
 
         List<String> ids = fieldDTOS.stream().map(TemplateCustomFieldDTO::getFieldId).toList();
         List<CustomFieldOption> fieldOptions = baseCustomFieldOptionService.getByFieldIds(ids);

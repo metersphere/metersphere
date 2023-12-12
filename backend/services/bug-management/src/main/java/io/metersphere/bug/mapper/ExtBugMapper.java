@@ -1,9 +1,9 @@
 package io.metersphere.bug.mapper;
 
-import io.metersphere.bug.dto.BugDTO;
-import io.metersphere.bug.dto.BugTagEditDTO;
 import io.metersphere.bug.dto.request.BugBatchUpdateRequest;
 import io.metersphere.bug.dto.request.BugPageRequest;
+import io.metersphere.bug.dto.response.BugDTO;
+import io.metersphere.bug.dto.response.BugTagEditDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -18,7 +18,22 @@ public interface ExtBugMapper {
      */
     List<BugDTO> list(@Param("request") BugPageRequest request);
 
+    /**
+     * 缺陷列表查询
+     *
+     * @param request 请求查询参数
+     * @return 缺陷列表
+     */
+    List<String> getIdsByPageRequest(@Param("request") BugPageRequest request);
+
+    /**
+     * 根据ID列表查询缺陷
+     *
+     * @param ids 缺陷ID集合
+     * @return 缺陷列表
+     */
     List<BugDTO> listByIds(@Param("ids") List<String> ids);
+
     /**
      * 获取缺陷业务ID
      *

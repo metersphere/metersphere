@@ -1,7 +1,7 @@
 package io.metersphere.bug.utils;
 
-import io.metersphere.bug.dto.BugDTO;
-import io.metersphere.bug.dto.request.BugExportColumn;
+import io.metersphere.bug.dto.BugExportColumn;
+import io.metersphere.bug.dto.response.BugDTO;
 import io.metersphere.sdk.util.CompressUtils;
 import org.apache.commons.io.FileUtils;
 
