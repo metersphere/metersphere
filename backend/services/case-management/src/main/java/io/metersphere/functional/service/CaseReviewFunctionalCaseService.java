@@ -1,6 +1,8 @@
 package io.metersphere.functional.service;
 
 
+import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
+import io.metersphere.functional.domain.CaseReviewFunctionalCase;
 import io.metersphere.functional.domain.CaseReviewFunctionalCaseExample;
 import io.metersphere.functional.dto.ReviewFunctionalCaseDTO;
 import io.metersphere.functional.dto.ReviewsDTO;
@@ -13,6 +15,7 @@ import io.metersphere.functional.request.ReviewFunctionalCasePageRequest;
 import io.metersphere.project.domain.ProjectVersion;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -43,6 +46,8 @@ public class CaseReviewFunctionalCaseService {
     private ExtCaseReviewFunctionalCaseUserMapper extCaseReviewFunctionalCaseUserMapper;
     @Resource
     private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
+    @Resource
+    private CaseReviewService caseReviewService;
 
     /**
      * 通过评审id获取关联的用例id集合
@@ -115,5 +120,27 @@ public class CaseReviewFunctionalCaseService {
         } else {
             return request.getSelectIds();
         }
+    }
+
+
+    /**
+     * 评审详情页面 创建用例并关联
+     *
+     * @param caseId
+     * @param userId
+     * @param reviewId
+     */
+    public void addCaseReviewFunctionalCase(String caseId, String userId, String reviewId) {
+        CaseReviewFunctionalCase reviewFunctionalCase = new CaseReviewFunctionalCase();
+        reviewFunctionalCase.setId(IDGenerator.nextStr());
+        reviewFunctionalCase.setCaseId(caseId);
+        reviewFunctionalCase.setReviewId(reviewId);
+        reviewFunctionalCase.setStatus(FunctionalCaseReviewStatus.UN_REVIEWED.toString());
+        reviewFunctionalCase.setCreateUser(userId);
+        reviewFunctionalCase.setCreateTime(System.currentTimeMillis());
+        reviewFunctionalCase.setUpdateTime(System.currentTimeMillis());
+        reviewFunctionalCase.setPos(caseReviewService.getCaseFunctionalCaseNextPos(reviewId));
+        caseReviewFunctionalCaseMapper.insertSelective(reviewFunctionalCase);
+
     }
 }

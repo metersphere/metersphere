@@ -72,7 +72,7 @@ public class FunctionalCaseService {
     private FunctionalCaseFollowerMapper functionalCaseFollowerMapper;
 
     @Resource
-    private DeleteFunctionalCaseService deleteFunctionalCaseService;
+    private CaseReviewService caseReviewService;
 
     @Resource
     SqlSessionFactory sqlSessionFactory;
@@ -82,6 +82,9 @@ public class FunctionalCaseService {
 
     @Resource
     private FunctionalCaseModuleService functionalCaseModuleService;
+
+    @Resource
+    private CaseReviewFunctionalCaseService caseReviewFunctionalCaseService;
 
     private static final String CASE_MODULE_COUNT_ALL = "all";
 
@@ -102,8 +105,22 @@ public class FunctionalCaseService {
             functionalCaseAttachmentService.association(request.getRelateFileMetaIds(), caseId, userId, ADD_FUNCTIONAL_CASE_FILE_LOG_URL, request.getProjectId());
         }
 
+        addCaseReviewCase(request.getReviewId(), caseId, userId);
 
         return functionalCase;
+    }
+
+
+    /**
+     * 添加用例评审和用例关联关系
+     *
+     * @param reviewId reviewId
+     */
+    private void addCaseReviewCase(String reviewId, String caseId, String userId) {
+        if (StringUtils.isNotBlank(reviewId)) {
+            caseReviewService.checkCaseReview(reviewId);
+            caseReviewFunctionalCaseService.addCaseReviewFunctionalCase(caseId, userId, reviewId);
+        }
     }
 
 
