@@ -22,6 +22,7 @@ import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.request.ResetOrderRequest;
+import io.metersphere.security.CheckOwner;
 import io.metersphere.service.ext.ExtApiTaskService;
 import io.metersphere.service.scenario.ApiScenarioService;
 import io.metersphere.task.dto.TaskRequestDTO;
@@ -131,6 +132,7 @@ public class ApiScenarioController {
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiScenarioService.class)
     @RequiresPermissions(value = {PermissionConstants.PROJECT_API_SCENARIO_READ_EDIT, PermissionConstants.PROJECT_API_SCENARIO_READ_COPY}, logical = Logical.OR)
     @SendNotice(taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK, event = NoticeConstants.Event.UPDATE, subject = "接口自动化通知")
+    @CheckOwner(resourceId = "#request.id", resourceType = "api_scenario")
     public ApiScenario update(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "bodyFiles", required = false) List<MultipartFile> bodyFiles, @RequestPart(value = "scenarioFiles", required = false) List<MultipartFile> scenarioFiles) {
         return apiAutomationService.update(request, bodyFiles, scenarioFiles);
     }
@@ -144,6 +146,7 @@ public class ApiScenarioController {
     @GetMapping("/delete/{id}")
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = ApiScenarioService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_DELETE)
+    @CheckOwner(resourceId = "#id", resourceType = "api_scenario")
     public void delete(@PathVariable String id) {
         apiAutomationService.delete(id);
     }
@@ -152,6 +155,7 @@ public class ApiScenarioController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_DELETE)
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#ids)", msClass = ApiScenarioService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getScenarioCaseByIds(#ids)", targetClass = ApiScenarioService.class, subject = "接口自动化通知")
+    @CheckOwner(resourceId = "#ids", resourceType = "api_scenario")
     public void deleteBatch(@RequestBody List<String> ids) {
         apiAutomationService.deleteBatch(ids);
     }
@@ -166,6 +170,7 @@ public class ApiScenarioController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_DELETE)
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#ids)", msClass = ApiScenarioService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK, target = "#targetClass.getScenarioCaseByIds(#ids)", targetClass = ApiScenarioService.class, event = NoticeConstants.Event.DELETE, subject = "接口自动化通知")
+    @CheckOwner(resourceId = "#ids", resourceType = "api_scenario")
     public void removeToGc(@RequestBody List<String> ids) {
         apiAutomationService.removeToGc(ids);
     }
@@ -192,6 +197,7 @@ public class ApiScenarioController {
 
     @GetMapping("/scenario-details/{id}")
     @RequiresPermissions(value ={PermissionConstants.PROJECT_API_SCENARIO_READ, PermissionConstants.PROJECT_API_DEFINITION_READ_EDIT_CASE}, logical = Logical.OR)
+    @CheckOwner(resourceId = "#id", resourceType = "api_scenario")
     public ApiScenarioDTO getScenarioDefinition(@PathVariable String id) {
         return apiAutomationService.getNewApiScenario(id);
     }
