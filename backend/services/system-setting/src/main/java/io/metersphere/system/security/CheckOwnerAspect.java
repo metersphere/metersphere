@@ -22,6 +22,7 @@ import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 
 @Aspect
@@ -68,7 +69,12 @@ public class CheckOwnerAspect {
         Expression titleExp = parser.parseExpression(resourceId);
         Object v = titleExp.getValue(context, Object.class);
         if (v instanceof String id) {
-            if (!extCheckOwnerMapper.checkoutOwner(resourceType, SessionUtils.getCurrentProjectId(), id)) {
+            if (!extCheckOwnerMapper.checkoutOwner(resourceType, SessionUtils.getCurrentProjectId(), List.of(id))) {
+                throw new MSException(Translator.get("check_owner_case"));
+            }
+        }
+        if (v instanceof List ids) {
+            if (!extCheckOwnerMapper.checkoutOwner(resourceType, SessionUtils.getCurrentProjectId(), ids)) {
                 throw new MSException(Translator.get("check_owner_case"));
             }
         }
