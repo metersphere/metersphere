@@ -10,11 +10,13 @@ import io.metersphere.jmeter.utils.ScriptEngineUtils;
 import io.metersphere.parse.EngineSourceParser;
 import io.metersphere.parse.EngineSourceParserFactory;
 import io.metersphere.service.BaseTestResourcePoolService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.Node;
+import org.dom4j.tree.BaseElement;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -41,11 +43,24 @@ public class JmeterDocumentParser implements EngineSourceParser {
     private final static String HTTP_SAMPLER_PROXY = "HTTPSamplerProxy";
     private final static String CSV_DATA_SET = "CSVDataSet";
     private final static String THREAD_GROUP_AUTO_STOP = "io.metersphere.jmeter.reporters.ThreadGroupAutoStop";
+    private final static List<String> SCRIPTS = new ArrayList<>() {{
+        add("JSR223PreProcessor");
+        add("JSR223PostProcessor");
+        add("JSR223Sampler");
+        add("JSR223Assertion");
+        add("JSR223Timer");
+        add("JSR223Listener");
+    }};
     private EngineContext context;
+    private boolean cacheScript = false;
 
     @Override
     public byte[] parse(EngineContext context, InputStream source) throws Exception {
         this.context = context;
+        Object cacheScriptObj = context.getProperty("cacheScript");
+        if (cacheScriptObj != null) {
+            cacheScript = BooleanUtils.toBoolean(cacheScriptObj.toString());
+        }
 
         Document document = EngineSourceParserFactory.getDocument(source);
 
@@ -56,7 +71,6 @@ public class JmeterDocumentParser implements EngineSourceParser {
             // jmeterTestPlan的子元素肯定是<hashTree></hashTree>
             parseHashTree(ele);
         }
-
         return EngineSourceParserFactory.getBytes(document);
     }
 
@@ -110,12 +124,31 @@ public class JmeterDocumentParser implements EngineSourceParser {
                 } else if (ele.getName().endsWith(RESULT_COLLECTOR)) {
                     // 处理结果收集器，性能测试不需要这些
                     processResultCollector(ele);
+                } else if (CollectionUtils.containsAny(SCRIPTS, ele.getName())) {
+                    this.elementCacheScript(ele);
                 }
 
             }
         }
     }
 
+    private void elementCacheScript(Element element) {
+        List<Element> childNodes = element.elements();
+        Element cacheKeyNode = null;
+        for (Element item : childNodes) {
+            if (nodeNameEquals(item, STRING_PROP) && StringUtils.equalsIgnoreCase(item.attributeValue("name"), "cacheKey")) {
+                cacheKeyNode = item;
+                break;
+            }
+        }
+        if (cacheKeyNode == null) {
+            cacheKeyNode = new BaseElement(STRING_PROP);
+            cacheKeyNode.addAttribute("name", "cacheKey");
+            element.add(cacheKeyNode);
+        }
+        cacheKeyNode.setText(cacheScript ? "true" : "false");
+
+    }
     private void processThreadType(Element ele) {
         Object threadType = context.getProperty("threadType");
         if (threadType instanceof List) {
@@ -238,20 +271,101 @@ public class JmeterDocumentParser implements EngineSourceParser {
 
     private void processCsvDataSet(Element element) {
         List<Element> childNodes = element.elements();
+        String fileName = null;
         for (Element item : childNodes) {
             if (nodeNameEquals(item, STRING_PROP)) {
-                String filenameTag = item.attributeValue("name");
-                if (StringUtils.equals(filenameTag, "filename")) {
-                    // 截取文件名
-                    handleFilename(item);
-                    // 切割CSV文件
-                    splitCsvFile(item);
+                if (StringUtils.equals(item.attributeValue("name"), "filename")) {
+                    fileName = item.getText();
+                    String separator = "/";
+                    if (!StringUtils.contains(fileName, "/")) {
+                        separator = "\\";
+                    }
+                    fileName = fileName.substring(fileName.lastIndexOf(separator) + 1);
                     break;
                 }
             }
         }
+
+        Element recycleNode = null;
+        Element stopThreadNode = null;
+        Element shareModeNode = null;
+
+        for (Element item : childNodes) {
+            String filenameTag = item.attributeValue("name");
+            if (nodeNameEquals(item, STRING_PROP)) {
+                if (StringUtils.equals(filenameTag, "filename")) {
+                    // 截取文件名
+                    handleFilename(item);
+                    splitCsvFile(item);
+                    // 切割CSV文件
+                } else if (StringUtils.equalsIgnoreCase(filenameTag, "shareMode")) {
+                    shareModeNode = item;
+                }
+            } else if (nodeNameEquals(item, BOOL_PROP)) {
+                if (StringUtils.equalsIgnoreCase(filenameTag, "recycle")) {
+                    recycleNode = item;
+                } else if (StringUtils.equalsIgnoreCase(filenameTag, "stopThread")) {
+                    stopThreadNode = item;
+                }
+            }
+        }
+
+        if (stopThreadNode == null) {
+            stopThreadNode = new BaseElement(BOOL_PROP);
+            stopThreadNode.addAttribute("name", "stopThread");
+            element.add(stopThreadNode);
+        }
+        if (recycleNode == null) {
+            recycleNode = new BaseElement(BOOL_PROP);
+            recycleNode.addAttribute("name", "recycle");
+            element.add(recycleNode);
+        }
+        if (shareModeNode == null) {
+            shareModeNode = new BaseElement(STRING_PROP);
+            shareModeNode.addAttribute("name", "shareMode");
+            element.add(shareModeNode);
+        }
+
+        setShareMode(shareModeNode, fileName);
+        setRecycle(recycleNode, fileName);
+        setStopThread(stopThreadNode, fileName);
     }
 
+    private void setShareMode(Node item, String fileName) {
+        Object csvConfig = context.getProperty("csvConfig");
+        if (csvConfig == null) {
+            return;
+        }
+        Object config = ((Map) csvConfig).get(fileName);
+        if (config != null) {
+            String shareMode = String.valueOf(((Map) (config)).get("shareMode"));
+            item.setText(shareMode);
+        }
+    }
+
+    private void setRecycle(Node item, String fileName) {
+        Object csvConfig = context.getProperty("csvConfig");
+        if (csvConfig == null) {
+            return;
+        }
+        Object config = ((Map) csvConfig).get(fileName);
+        if (config != null) {
+            Boolean recycle = (Boolean) ((Map) (config)).get("recycle");
+            item.setText(String.valueOf(BooleanUtils.toBoolean(recycle)));
+        }
+    }
+
+    private void setStopThread(Node item, String fileName) {
+        Object csvConfig = context.getProperty("csvConfig");
+        if (csvConfig == null) {
+            return;
+        }
+        Object config = ((Map) csvConfig).get(fileName);
+        if (config != null) {
+            Boolean recycle = (Boolean) ((Map) (config)).get("stopThread");
+            item.setText(String.valueOf(BooleanUtils.toBoolean(recycle)));
+        }
+    }
     private void splitCsvFile(Node item) {
         String filename = item.getText();
         filename = StringUtils.removeStart(filename, "/test/");

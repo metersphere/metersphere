@@ -2,7 +2,7 @@
   <div>
     <!--  基本配置  -->
     <el-row>
-      <el-col :span="6">
+      <el-col :span="5">
         <el-form :inline="true" :disabled="isReadOnly">
           <el-form-item>
             <div>{{ $t('load_test.connect_timeout') }}</div>
@@ -18,7 +18,7 @@
           </el-form-item>
         </el-form>
       </el-col>
-      <el-col :span="6">
+      <el-col :span="5">
         <el-form :inline="true" :disabled="isReadOnly">
           <el-form-item>
             <div>{{ $t('load_test.response_timeout') }}</div>
@@ -34,7 +34,7 @@
           </el-form-item>
         </el-form>
       </el-col>
-      <el-col :span="6">
+      <el-col :span="5">
         <el-form :inline="true" :disabled="isReadOnly">
           <el-form-item>
             <div>
@@ -64,7 +64,7 @@
           </el-form-item>
         </el-form>
       </el-col>
-      <el-col :span="6">
+      <el-col :span="5">
         <el-form :inline="true" :disabled="isReadOnly">
           <el-form-item>
             <div>{{ $t('load_test.custom_http_code') }}</div>
@@ -74,6 +74,13 @@
               size="mini" v-model="statusCodeStr"
               :placeholder="$t('load_test.separated_by_commas')"
               @input="checkStatusCode"></el-input>
+          </el-form-item>
+        </el-form>
+      </el-col>
+      <el-col :span="4">
+        <el-form :disabled="isReadOnly" :inline="true">
+          <el-form-item :label="$t('performance_test.cache_script')">
+            <el-checkbox v-model="cacheScript"/>
           </el-form-item>
         </el-form>
       </el-col>
@@ -175,6 +182,30 @@
           <el-table-column align="center" prop="csvHasHeader" :label="$t('load_test.csv_has_header')">
             <template v-slot:default="{row}">
               <el-switch :disabled="isReadOnly || !row.csvSplit" v-model="row.csvHasHeader"/>
+            </template>
+          </el-table-column>
+
+          <el-table-column :label="$t('load_test.csv_file_end_recycle')" align="center" prop="recycle">
+            <template v-slot:default="{row}">
+              <el-switch v-model="row.recycle" :disabled="isReadOnly"/>
+            </template>
+          </el-table-column>
+          <el-table-column :label="$t('load_test.csv_file_end_stop_thread')" align="center" prop="stopThread">
+            <template v-slot:default="{row}">
+              <el-switch v-model="row.stopThread" :disabled="isReadOnly"/>
+            </template>
+          </el-table-column>
+
+          <el-table-column :label="$t('load_test.thread_share')" align="center" prop="shareMode">
+            <template v-slot:default="{row}">
+              <el-select v-model="row.shareMode" :disabled="isReadOnly">
+                <el-option key="shareMode.all" :label="$t('load_test.csv_file_end_stop_thread_option.all')"
+                           value="shareMode.all"></el-option>
+                <el-option key="shareMode.group" :label="$t('load_test.csv_file_end_stop_thread_option.group')"
+                           value="shareMode.group"></el-option>
+                <el-option key="shareMode.thread" :label="$t('load_test.csv_file_end_stop_thread_option.thread')"
+                           value="shareMode.thread"></el-option>
+              </el-select>
             </template>
           </el-table-column>
         </el-table>
@@ -481,6 +512,7 @@ export default {
       csvFiles: [],
       csvConfig: [],
       statusCodeStr: '',
+      cacheScript: false,
       granularity: undefined,
       granularityData: [
         {start: 0, end: 100, granularity: 1},
@@ -523,7 +555,11 @@ export default {
       }
     },
     csvFiles() {
-      this.refreshCsv();
+      if (this.testId) {
+        this.getAdvancedConfig();
+      } else if (this.reportId) {
+        this.getAdvancedConfig('report');
+      }
     }
   },
   methods: {
@@ -538,6 +574,7 @@ export default {
           this.domains = data.domains || [];
           this.params = data.params || [];
           this.granularity = data.granularity;
+          this.cacheScript = data.cacheScript;
           this.monitorParams = data.monitorParams || [];
           this.properties = data.properties || [];
           this.systemProperties = data.systemProperties || [];
@@ -548,8 +585,23 @@ export default {
     refreshCsv() {
       if (this.csvConfig && this.csvFiles) {
         this.csvFiles.forEach(f => {
-          f.csvSplit = this.csvConfig[f.name]?.csvSplit;
+          f.csvSplit = this.csvConfig[f.name]?.csvSplit
           f.csvHasHeader = this.csvConfig[f.name]?.csvHasHeader;
+          f.recycle = this.csvConfig[f.name]?.recycle;
+          f.stopThread = this.csvConfig[f.name]?.stopThread;
+          f.shareMode = this.csvConfig[f.name]?.shareMode;
+          if (f.csvHasHeader === undefined) {
+            f.csvHasHeader = true;
+          }
+          if (f.stopThread === undefined) {
+            f.stopThread = false;
+          }
+          if (f.recycle === undefined) {
+            f.recycle = true;
+          }
+          if (f.shareMode === undefined) {
+            f.shareMode = "shareMode.thread";
+          }
         });
       }
     },
@@ -661,11 +713,18 @@ export default {
         properties: this.properties,
         systemProperties: this.systemProperties,
         csvConfig: this.csvFiles.reduce((result, curr) => {
-          result[curr.name] = {csvHasHeader: curr.csvHasHeader, csvSplit: curr.csvSplit};
+          result[curr.name] = {
+            csvHasHeader: curr.csvHasHeader,
+            csvSplit: curr.csvSplit,
+            recycle: curr.recycle,
+            stopThread: curr.stopThread,
+            shareMode: curr.shareMode
+          };
           return result;
         }, {}),
         domains: this.domains,
         granularity: this.granularity,
+        cacheScript: this.cacheScript,
         monitorParams: this.monitorParams
       };
     },

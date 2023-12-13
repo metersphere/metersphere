@@ -63,7 +63,7 @@ export default {
       });
       let csvFiles = [];
       for (const f of csvSet) {
-        csvFiles.push({ name: f, csvSplit: false, csvHasHeader: true });
+        csvFiles.push({ name: f, csvSplit: false, csvHasHeader: true, recycle: true, stopThread: false, shareMode: "shareMode.thread" });
       }
       if (this.$refs.advancedConfig) {
         this.$refs.advancedConfig.csvFiles = csvFiles;
