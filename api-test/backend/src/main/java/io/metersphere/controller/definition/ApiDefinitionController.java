@@ -31,6 +31,7 @@ import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.request.ResetOrderRequest;
+import io.metersphere.security.CheckOwner;
 import io.metersphere.service.definition.ApiDefinitionService;
 import io.metersphere.service.definition.FunctionRunService;
 import jakarta.annotation.Resource;
@@ -113,6 +114,7 @@ public class ApiDefinitionController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_EDIT_API)
     @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiDefinitionService.class)
     // @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.UPDATE, subject = "接口定义通知")
+    @CheckOwner(resourceId = "#request.id", resourceType = "api_definition")
     public ApiDefinitionResult update(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
         return apiDefinitionService.update(request, bodyFiles);
     }
@@ -120,6 +122,7 @@ public class ApiDefinitionController {
     @GetMapping("/delete/{id}")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_DELETE_API)
     @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = ApiDefinitionService.class)
+    @CheckOwner(resourceId = "#id", resourceType = "api_definition")
     public void delete(@PathVariable String id) {
         apiDefinitionService.delete(id);
     }
@@ -127,6 +130,7 @@ public class ApiDefinitionController {
     @PostMapping("/del-ids")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_DELETE_API)
     @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiDefinitionService.class)
+    @CheckOwner(resourceId = "#ids", resourceType = "api_definition")
     public void deleteBatch(@RequestBody List<String> ids) {
         apiDefinitionService.deleteBatch(ids);
     }
@@ -149,6 +153,7 @@ public class ApiDefinitionController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_DELETE_API)
     @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#ids)", msClass = ApiDefinitionService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, target = "#targetClass.getBLOBs(#ids)", targetClass = ApiDefinitionService.class, event = NoticeConstants.Event.DELETE, subject = "接口定义通知")
+    @CheckOwner(resourceId = "#ids", resourceType = "api_definition")
     public void removeToGc(@RequestBody List<String> ids) {
         apiDefinitionService.removeToGc(ids);
     }

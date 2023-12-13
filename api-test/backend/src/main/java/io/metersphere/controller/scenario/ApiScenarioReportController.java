@@ -18,6 +18,7 @@ import io.metersphere.dto.PlanReportCaseDTO;
 import io.metersphere.dto.RequestResult;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.notice.annotation.SendNotice;
+import io.metersphere.service.ApiCheckPermissionService;
 import io.metersphere.service.ShareInfoService;
 import io.metersphere.service.scenario.ApiScenarioReportService;
 import jakarta.annotation.Resource;
@@ -35,6 +36,8 @@ public class ApiScenarioReportController {
     private ApiScenarioReportService apiReportService;
     @Resource
     private ShareInfoService shareInfoService;
+    @Resource
+    private ApiCheckPermissionService apiCheckPermissionService;
 
     @GetMapping("/get/{reportId}")
     public ApiScenarioReportResult get(@PathVariable String reportId) {
@@ -76,6 +79,7 @@ public class ApiScenarioReportController {
     @SendNotice(taskType = NoticeConstants.TaskType.API_REPORT_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.get(#request.id, false)", targetClass = ApiScenarioReportService.class,
             subject = "接口报告通知")
     public void delete(@RequestBody DeleteAPIReportRequest request) {
+        apiCheckPermissionService.checkReportOwner(request.getId(), PermissionConstants.PROJECT_API_REPORT_READ_DELETE);
         apiReportService.delete(request);
     }
 

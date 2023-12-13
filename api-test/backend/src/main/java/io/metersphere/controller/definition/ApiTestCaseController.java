@@ -18,6 +18,7 @@ import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.request.ResetOrderRequest;
+import io.metersphere.security.CheckOwner;
 import io.metersphere.service.definition.ApiDefinitionExecResultService;
 import io.metersphere.service.definition.ApiTestCaseService;
 import io.metersphere.service.scenario.ApiScenarioService;
@@ -126,6 +127,7 @@ public class ApiTestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_EDIT_CASE)
     @MsAuditLog(module = OperLogModule.API_DEFINITION_CASE, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request)", title = "#request.name", content = "#msClass.getLogDetails(#request)", msClass = ApiTestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_UPDATE, subject = "接口用例通知")
+    @CheckOwner(resourceId = "#request.id", resourceType = "api_test_case")
     public ApiTestCase update(@RequestPart("request") SaveApiTestCaseRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
         return apiTestCaseService.update(request, bodyFiles);
     }
@@ -140,6 +142,7 @@ public class ApiTestCaseController {
     @GetMapping("/delete/{id}")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_DELETE_CASE)
     @MsAuditLog(module = OperLogModule.API_DEFINITION_CASE, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = ApiTestCaseService.class)
+    @CheckOwner(resourceId = "#id", resourceType = "api_test_case")
     public void delete(@PathVariable String id) {
         apiTestCaseService.delete(id);
     }
@@ -148,6 +151,7 @@ public class ApiTestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_DELETE_CASE)
     @MsAuditLog(module = OperLogModule.API_DEFINITION_CASE, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = ApiTestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_DELETE, target = "#targetClass.get(#id)", targetClass = ApiTestCaseService.class, subject = "接口用例通知")
+    @CheckOwner(resourceId = "#id", resourceType = "api_test_case")
     public void deleteToGc(@PathVariable String id) {
         apiTestCaseService.deleteToGc(id);
     }
@@ -188,6 +192,7 @@ public class ApiTestCaseController {
     @PostMapping("/del-ids")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_DELETE_CASE)
     @MsAuditLog(module = OperLogModule.API_DEFINITION_CASE, type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#ids)", msClass = ApiTestCaseService.class)
+    @CheckOwner(resourceId = "#ids", resourceType = "api_test_case")
     public void deleteBatch(@RequestBody List<String> ids) {
         apiTestCaseService.deleteBatch(ids);
     }
