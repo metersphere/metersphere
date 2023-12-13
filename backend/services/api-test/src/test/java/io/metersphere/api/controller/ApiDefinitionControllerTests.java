@@ -5,7 +5,7 @@ import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
-import io.metersphere.api.enums.ApiDefinitionDocType;
+import io.metersphere.api.constants.ApiDefinitionDocType;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.utils.ApiDataUtils;
@@ -28,8 +28,8 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
-import org.junit.platform.commons.util.StringUtils;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -40,6 +40,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.metersphere.api.controller.result.ApiResultCode.API_DEFINITION_NOT_EXIST;
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
@@ -100,6 +101,9 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
     @Resource
     private ApiDefinitionModuleMapper apiDefinitionModuleMapper;
+
+    @Resource
+    private ExtApiDefinitionCustomFieldMapper extApiDefinitionCustomFieldMapper;
 
     @Resource
     private FileMetadataService fileMetadataService;
@@ -197,7 +201,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // 创建并返回一个 ApiDefinitionAddRequest 对象，用于测试
         String defaultVersion = extBaseProjectVersionMapper.getDefaultVersion(DEFAULT_PROJECT_ID);
         ApiDefinitionAddRequest request = new ApiDefinitionAddRequest();
-        request.setName("接口定义");
+        request.setName("接口定义test");
         request.setProtocol("HTTP");
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setMethod("POST");
@@ -207,6 +211,11 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setVersionId(defaultVersion);
         request.setDescription("描述内容");
         request.setTags(new LinkedHashSet<>(List.of("tag1", "tag2")));
+        Map<String, String> customFieldMap = new HashMap<>();
+        customFieldMap.put("custom-field", "oasis");
+        customFieldMap.put("test_field", JSON.toJSONString(List.of("test")));
+
+        request.setCustomFields(customFieldMap);
         return request;
     }
 
@@ -241,6 +250,12 @@ public class ApiDefinitionControllerTests extends BaseTest {
         example.createCriteria().andApiDefinitionIdEqualTo(apiDefinition.getId()).andUserIdEqualTo("admin");
         List<ApiDefinitionFollower> followers = apiDefinitionFollowerMapper.selectByExample(example);
         copyApiDefinitionDTO.setFollow(CollectionUtils.isNotEmpty(followers));
+
+        List<ApiDefinitionCustomFieldDTO> customFields = extApiDefinitionCustomFieldMapper.getApiCustomFields(Collections.singletonList(apiDefinition.getId()), apiDefinition.getProjectId());
+        if(!customFields.isEmpty()) {
+            Map<String, List<ApiDefinitionCustomFieldDTO>> customFieldMap = customFields.stream().collect(Collectors.groupingBy(ApiDefinitionCustomFieldDTO::getApiId));
+            copyApiDefinitionDTO.setCustomFields(customFieldMap.get(apiDefinition.getId()));
+        }
         if(apiDefinitionBlob != null){
             copyApiDefinitionDTO.setRequest(ApiDataUtils.parseObject(new String(apiDefinitionBlob.getRequest()), AbstractMsTestElement.class));
             copyApiDefinitionDTO.setResponse(ApiDataUtils.parseArray(new String(apiDefinitionBlob.getResponse()), HttpResponse.class));
@@ -268,6 +283,11 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setMethod("POST");
         request.setModuleId("default1");
         request.setTags(new LinkedHashSet<>(List.of("tag1", "tag2-update")));
+        Map<String, String> customFieldMap = new HashMap<>();
+        customFieldMap.put("custom-field", "oasis-update");
+        customFieldMap.put("test_field", JSON.toJSONString(List.of("test-update")));
+
+        request.setCustomFields(customFieldMap);
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
         request.setRequest(ApiDataUtils.toJSONString(msHttpElement));
         List<HttpResponse> msHttpResponse = MsHTTPElementTest.getMsHttpResponse();
@@ -424,6 +444,18 @@ public class ApiDefinitionControllerTests extends BaseTest {
         apiDefinitionBatchUpdateRequest.setAppend(false);
         this.requestPostWithOk(BATCH_UPDATE, apiDefinitionBatchUpdateRequest);
         assertBatchUpdateApiDefinition(apiDefinitionBatchUpdateRequest, List.of("1003","1004"));
+        // 自定义字段追加
+        apiDefinitionBatchUpdateRequest.setType("customs");
+        apiDefinitionBatchUpdateRequest.setSelectIds(List.of("1002","1003","1004"));
+        ApiDefinitionCustomFieldDTO field = new ApiDefinitionCustomFieldDTO();
+        field.setId("test_field");
+        field.setValue(JSON.toJSONString(List.of("test1-batch")));
+        apiDefinitionBatchUpdateRequest.setCustomField(field);
+        apiDefinitionBatchUpdateRequest.setAppend(true);
+        this.requestPostWithOk(BATCH_UPDATE, apiDefinitionBatchUpdateRequest);
+        // 自定义字段覆盖
+        apiDefinitionBatchUpdateRequest.setAppend(false);
+        this.requestPostWithOk(BATCH_UPDATE, apiDefinitionBatchUpdateRequest);
         // 修改协议类型
         apiDefinitionBatchUpdateRequest.setType("method");
         apiDefinitionBatchUpdateRequest.setMethod("batch-method");
@@ -662,13 +694,30 @@ public class ApiDefinitionControllerTests extends BaseTest {
         filters.put("status", Arrays.asList("Underway", "Completed"));
         filters.put("method", List.of("GET"));
         filters.put("version_id", List.of("1005704995741369851"));
+        filters.put("custom_multiple_custom-field", List.of("oasis"));
         request.setFilter(filters);
     }
 
     private void configureCombineSearch(ApiDefinitionPageRequest request) {
         Map<String, Object> map = new HashMap<>();
-        map.put("name", Map.of("operator", "like", "value", "test-1"));
+        map.put("name", Map.of("operator", "like", "value", "test"));
         map.put("method", Map.of("operator", "in", "value", Arrays.asList("GET", "POST")));
+        map.put("createUser", Map.of("operator", "current user", "value", StringUtils.EMPTY));
+        List<Map<String, Object>> customs = new ArrayList<>();
+        Map<String, Object> custom = new HashMap<>();
+        custom.put("id", "test_field");
+        custom.put("operator", "in");
+        custom.put("type", "multipleSelect");
+        custom.put("value",  JSON.toJSONString(List.of("test", "default")));
+        customs.add(custom);
+        Map<String, Object> currentUserCustom = new HashMap<>();
+        currentUserCustom.put("id", "test_field");
+        currentUserCustom.put("operator", "current user");
+        currentUserCustom.put("type", "multipleMember");
+        currentUserCustom.put("value", "current user");
+        customs.add(currentUserCustom);
+        map.put("customs", customs);
+
         request.setCombine(map);
     }
 
@@ -969,7 +1018,6 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // @@校验日志
         checkLog("1002", OperationLogType.UPDATE);
         checkLog("1004", OperationLogType.UPDATE);
-        checkLog("1005", OperationLogType.UPDATE);
 
         // 恢复全部 条件为关键字为st-6的数据
         request.setSelectAll(true);

@@ -45,4 +45,7 @@ public class ApiDefinitionDTO extends ApiDefinition{
     @Schema(description = "是否关注")
     private Boolean follow;
 
+    @Schema(description = "自定义字段集合")
+    private List<ApiDefinitionCustomFieldDTO> customFields;
+
 }

@@ -57,8 +57,6 @@ public class ApiDefinitionController {
     @PostMapping(value = "/batch-update")
     @Operation(summary = "接口测试-接口管理-批量更新接口定义")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_UPDATE)
-    // 添加修改Log示例
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchUpdateLog(#request)", msClass = ApiDefinitionLogService.class)
     public void batchUpdate(@Validated @RequestBody ApiDefinitionBatchUpdateRequest request) {
         apiDefinitionService.batchUpdate(request, SessionUtils.getUserId());
     }
@@ -73,7 +71,6 @@ public class ApiDefinitionController {
     @PostMapping(value = "/batch-del")
     @Operation(summary = "接口测试-接口管理-批量删除接口定义到回收站")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DELETE)
-    @Log(type = OperationLogType.DELETE, expression = "#msClass.batchDelLog(#request)", msClass = ApiDefinitionLogService.class)
     public void batchDelete(@Validated @RequestBody ApiDefinitionBatchRequest request) {
         apiDefinitionService.batchDelete(request, SessionUtils.getUserId());
     }
@@ -89,7 +86,6 @@ public class ApiDefinitionController {
     @PostMapping("/batch-move")
     @Operation(summary = "接口测试-接口管理-批量移动接口定义")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_UPDATE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchMoveLog(#request)", msClass = ApiDefinitionLogService.class)
     public void batchMove(@Validated @RequestBody ApiDefinitionBatchMoveRequest request) {
         apiDefinitionService.batchMove(request, SessionUtils.getUserId());
     }
@@ -122,7 +118,7 @@ public class ApiDefinitionController {
     public Pager<List<ApiDefinitionDTO>> getPage(@Validated @RequestBody ApiDefinitionPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
-        return PageUtils.setPageInfo(page, apiDefinitionService.getApiDefinitionPage(request));
+        return PageUtils.setPageInfo(page, apiDefinitionService.getApiDefinitionPage(request, SessionUtils.getUserId()));
     }
 
     @PostMapping(value = "/restore")
@@ -142,7 +138,6 @@ public class ApiDefinitionController {
     @PostMapping(value = "/batch-restore")
     @Operation(summary = "接口测试-接口管理-批量从回收站恢复接口定义")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_UPDATE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchRestoreLog(#request)", msClass = ApiDefinitionLogService.class)
     public void batchRestore(@Validated @RequestBody ApiDefinitionBatchRequest request) {
         apiDefinitionService.batchRestore(request, SessionUtils.getUserId());
     }
@@ -150,7 +145,6 @@ public class ApiDefinitionController {
     @PostMapping(value = "/batch-trash-del")
     @Operation(summary = "接口测试-接口管理-批量从回收站删除接口定义")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DELETE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchTrashDelLog(#request)", msClass = ApiDefinitionLogService.class)
     public void batchTrashDel(@Validated @RequestBody ApiDefinitionBatchRequest request) {
         apiDefinitionService.batchTrashDel(request, SessionUtils.getUserId());
     }
@@ -161,7 +155,7 @@ public class ApiDefinitionController {
     public Pager<List<ApiDefinitionDTO>> getDocPage(@Validated @RequestBody ApiDefinitionPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
-        return PageUtils.setPageInfo(page, apiDefinitionService.getDocPage(request));
+        return PageUtils.setPageInfo(page, apiDefinitionService.getDocPage(request, SessionUtils.getUserId()));
     }
 
     @PostMapping("/upload/temp/file")

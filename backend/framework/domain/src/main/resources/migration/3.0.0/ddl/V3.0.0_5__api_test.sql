@@ -506,7 +506,20 @@ CREATE TABLE IF NOT EXISTS api_file_resource(
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
     `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
     PRIMARY KEY (resource_id,file_id)
-)  COMMENT = '接口和所需文件资源的关联表';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '接口和所需文件资源的关联表';
+
+
+CREATE TABLE IF NOT EXISTS api_definition_custom_field(
+    `api_id` VARCHAR(50) NOT NULL   COMMENT '接口ID' ,
+    `field_id` VARCHAR(50) NOT NULL   COMMENT '字段ID' ,
+    `value` VARCHAR(1000)    COMMENT '字段值' ,
+    PRIMARY KEY (api_id,field_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '自定义字段接口定义关系';
+
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

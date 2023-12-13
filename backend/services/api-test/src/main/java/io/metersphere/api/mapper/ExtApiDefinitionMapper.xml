@@ -281,6 +281,20 @@
                             and api_definition.version_id in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
+                        <when test="key.startsWith('custom_single')">
+                            and api_definition.id in (
+                            select api_id from api_definition_custom_field where concat('custom_single_', field_id) = #{key}
+                            and trim(both '"' from `value`) in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                            )
+                        </when>
+                        <when test="key.startsWith('custom_multiple')">
+                            and api_definition.id in (
+                            select api_id from api_definition_custom_field where concat('custom_multiple_', field_id) = #{key}
+                            and
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterMultipleWrapper"/>
+                            )
+                        </when>
                     </choose>
                 </if>
             </foreach>
@@ -350,6 +364,44 @@
             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                 <property name="object" value="${condition}.tags"/>
             </include>
+        </if>
+
+        <if test="${condition}.customs != null and ${condition}.customs.size() > 0">
+            <foreach collection="${condition}.customs" item="custom" separator="" open="" close="">
+                <if test="custom.value != ''">
+                    <if test='custom.operator == "not like" or custom.operator == "not in"'>
+                        and api_definition.id not in (
+                    </if>
+                    <if test='custom.operator != "not like" and custom.operator != "not in"'>
+                        and api_definition.id in (
+                    </if>
+                    select api_id from api_definition_custom_field where field_id = #{custom.id}
+                    <choose>
+                        <when test="custom.type == 'richText' or custom.type == 'textarea' or custom.operator == 'current user'">
+                            and `value`
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="object" value="custom"/>
+                            </include>
+                        </when>
+                        <when test="custom.type == 'multipleMember' or custom.type == 'checkbox' or custom.type == 'multipleSelect'">
+                            and ${custom.value}
+                        </when>
+                        <when test="custom.type == 'date' or custom.type == 'datetime'">
+                            and left(replace(unix_timestamp(trim(both '"' from `value`)), '.', ''), 13)
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="object" value="custom"/>
+                            </include>
+                        </when>
+                        <otherwise>
+                            and trim(both '"' from `value`)
+                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                <property name="object" value="custom"/>
+                            </include>
+                        </otherwise>
+                    </choose>
+                    )
+                </if>
+            </foreach>
         </if>
     </sql>
 
