@@ -36,6 +36,9 @@ public class ApiDefinitionBatchUpdateRequest extends ApiDefinitionBatchRequest {
     @Schema(description = "标签")
     private LinkedHashSet<@NotBlank String> tags;
 
+    @Schema(description = "自定义字段")
+    private ApiDefinitionCustomFieldDTO customField;
+
     @Schema(description = "是否追加", requiredMode = Schema.RequiredMode.REQUIRED)
     private boolean append = false;
 

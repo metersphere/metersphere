@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.api.mapper.ExtApiDefinitionCustomFieldMapper">
+    <select id="getApiCustomFields" resultType="io.metersphere.api.dto.definition.ApiDefinitionCustomFieldDTO">
+        select cf.*, adcf.value, adcf.api_id from api_definition_custom_field adcf join custom_field cf on adcf.field_id = cf.id
+        where cf.scene = 'API' and cf.scope_type = 'PROJECT' and scope_id = #{projectId}
+        and api_id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+</mapper>

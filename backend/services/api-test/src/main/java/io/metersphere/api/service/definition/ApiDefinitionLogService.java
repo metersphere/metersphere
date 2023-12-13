@@ -1,10 +1,13 @@
 package io.metersphere.api.service.definition;
 
 import io.metersphere.api.domain.ApiDefinition;
+import io.metersphere.api.domain.ApiDefinitionBlob;
 import io.metersphere.api.domain.ApiDefinitionExample;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.mapper.ApiDefinitionBlobMapper;
 import io.metersphere.api.mapper.ApiDefinitionMapper;
+import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
@@ -14,6 +17,7 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
+import io.metersphere.system.log.service.OperationLogService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -21,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -30,13 +35,14 @@ public class ApiDefinitionLogService {
     private ApiDefinitionMapper apiDefinitionMapper;
 
     @Resource
+    private ApiDefinitionBlobMapper apiDefinitionBlobMapper;
+
+    @Resource
     private ProjectMapper projectMapper;
 
     @Resource
-    private ApiDefinitionService apiDefinitionService;
+    private OperationLogService operationLogService;
 
-    @Resource
-    private ApiDefinitionBlobMapper apiDefinitionBlobMapper;
 
     /**
      * 添加接口日志
@@ -118,31 +124,8 @@ public class ApiDefinitionLogService {
      *
      * @return
      */
-    public List<LogDTO> batchDelLog(ApiDefinitionBatchRequest request) {
-        List<String> ids = apiDefinitionService.getBatchApiIds(request, request.getProjectId(), request.getProtocol(), false);
-        List<LogDTO> dtoList = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(ids)) {
-            ApiDefinitionExample example = new ApiDefinitionExample();
-            example.createCriteria().andIdIn(ids).andDeletedEqualTo(false);
-            List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
-            apiDefinitions.forEach(item -> {
-                LogDTO dto = new LogDTO(
-                        item.getProjectId(),
-                        "",
-                        item.getId(),
-                        item.getCreateUser(),
-                        OperationLogType.DELETE.name(),
-                        OperationLogModule.API_DEFINITION,
-                        item.getName());
-                dto.setHistory(true);
-                dto.setPath("/api/definition/batch-delete");
-                dto.setMethod(HttpMethodConstants.POST.name());
-                dto.setOriginalValue(JSON.toJSONBytes(item));
-                dtoList.add(dto);
-            });
-        }
-
-        return dtoList;
+    public void batchDelLog(List<String> ids, String userId, String projectId) {
+        saveBatchLog(projectId, ids, "/api/definition/batch-delete", userId, OperationLogType.DELETE.name(), true);
     }
 
     /**
@@ -150,30 +133,8 @@ public class ApiDefinitionLogService {
      *
      * @return
      */
-    public List<LogDTO> batchUpdateLog(ApiDefinitionBatchUpdateRequest request) {
-        List<String> ids = apiDefinitionService.getBatchApiIds(request, request.getProjectId(), request.getProtocol(), false);
-        List<LogDTO> dtoList = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(ids)) {
-            ApiDefinitionExample example = new ApiDefinitionExample();
-            example.createCriteria().andIdIn(ids);
-            List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
-            apiDefinitions.forEach(item -> {
-                LogDTO dto = new LogDTO(
-                        item.getProjectId(),
-                        "",
-                        item.getId(),
-                        item.getCreateUser(),
-                        OperationLogType.UPDATE.name(),
-                        OperationLogModule.API_DEFINITION,
-                        item.getName());
-                dto.setHistory(true);
-                dto.setPath("/api/definition/batch-update");
-                dto.setMethod(HttpMethodConstants.POST.name());
-                dto.setOriginalValue(JSON.toJSONBytes(item));
-                dtoList.add(dto);
-            });
-        }
-        return dtoList;
+    public void batchUpdateLog(List<String> ids, String userId, String projectId) {
+        saveBatchLog(projectId, ids, "/api/definition/batch-update", userId, OperationLogType.UPDATE.name(), true);
     }
 
     public LogDTO copyLog(ApiDefinitionCopyRequest request) {
@@ -196,30 +157,8 @@ public class ApiDefinitionLogService {
         return null;
     }
 
-    public List<LogDTO> batchMoveLog(ApiDefinitionBatchMoveRequest request) {
-        List<String> ids = apiDefinitionService.getBatchApiIds(request, request.getProjectId(), request.getProtocol(), false);
-        List<LogDTO> dtoList = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(ids)) {
-            ApiDefinitionExample example = new ApiDefinitionExample();
-            example.createCriteria().andIdIn(ids);
-            List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
-            apiDefinitions.forEach(item -> {
-                LogDTO dto = new LogDTO(
-                    item.getProjectId(),
-                    "",
-                    item.getId(),
-                    item.getCreateUser(),
-                    OperationLogType.UPDATE.name(),
-                    OperationLogModule.API_DEFINITION,
-                    item.getName());
-                dto.setHistory(true);
-                dto.setPath("/api/definition/batch-move");
-                dto.setMethod(HttpMethodConstants.POST.name());
-                dto.setOriginalValue(JSON.toJSONBytes(item));
-                dtoList.add(dto);
-            });
-        }
-        return dtoList;
+    public void batchMoveLog(List<String> ids, String userId, String projectId) {
+        saveBatchLog(projectId, ids, "/api/definition/batch-move", userId, OperationLogType.UPDATE.name(), true);
     }
 
     public LogDTO followLog(String id) {
@@ -276,31 +215,8 @@ public class ApiDefinitionLogService {
      *
      * @return
      */
-    public List<LogDTO> batchRestoreLog(ApiDefinitionBatchRequest request) {
-        List<String> ids = apiDefinitionService.getBatchApiIds(request, request.getProjectId(), request.getProtocol(), false);
-        List<LogDTO> dtoList = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(ids)) {
-            ApiDefinitionExample example = new ApiDefinitionExample();
-            example.createCriteria().andIdIn(ids).andDeletedEqualTo(false);
-            List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
-            apiDefinitions.forEach(item -> {
-                LogDTO dto = new LogDTO(
-                        item.getProjectId(),
-                        "",
-                        item.getId(),
-                        item.getCreateUser(),
-                        OperationLogType.UPDATE.name(),
-                        OperationLogModule.API_DEFINITION,
-                        item.getName());
-                dto.setHistory(true);
-                dto.setPath("/api/definition/batch-restore");
-                dto.setMethod(HttpMethodConstants.POST.name());
-                dto.setOriginalValue(JSON.toJSONBytes(item));
-                dtoList.add(dto);
-            });
-        }
-
-        return dtoList;
+    public void batchRestoreLog(List<String> ids, String userId, String projectId) {
+        saveBatchLog(projectId, ids, "/api/definition/batch-restore", userId, OperationLogType.UPDATE.name(), true);
     }
 
 
@@ -331,31 +247,8 @@ public class ApiDefinitionLogService {
     /**
      * 删除回收站接口定义接口日志
      */
-    public List<LogDTO> batchTrashDelLog(ApiDefinitionBatchRequest request) {
-        List<String> ids = apiDefinitionService.getBatchApiIds(request, request.getProjectId(), request.getProtocol(), false);
-        List<LogDTO> dtoList = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(ids)) {
-            ApiDefinitionExample example = new ApiDefinitionExample();
-            example.createCriteria().andIdIn(ids).andDeletedEqualTo(true);
-            List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
-            apiDefinitions.forEach(item -> {
-                LogDTO dto = new LogDTO(
-                        item.getProjectId(),
-                        "",
-                        item.getId(),
-                        item.getCreateUser(),
-                        OperationLogType.DELETE.name(),
-                        OperationLogModule.API_DEFINITION,
-                        item.getName());
-
-                dto.setPath("/api/definition/batch-trash-del");
-                dto.setMethod(HttpMethodConstants.POST.name());
-                dto.setOriginalValue(JSON.toJSONBytes(item));
-                dtoList.add(dto);
-            });
-        }
-
-        return dtoList;
+    public void batchTrashDelLog(List<String> ids, String userId, String projectId) {
+        saveBatchLog(projectId, ids, "/api/definition/batch-trash-del", userId, OperationLogType.DELETE.name(), true);
     }
 
     private ApiDefinitionDTO getOriginalValue(String id){
@@ -363,12 +256,52 @@ public class ApiDefinitionLogService {
         ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(id);
         if(null != apiDefinition){
             // 2. 使用Optional避免空指针异常
-            apiDefinitionService.handleBlob(id, apiDefinitionDTO);
+            handleBlob(id, apiDefinitionDTO);
             BeanUtils.copyBean(apiDefinitionDTO, apiDefinition);
         }
         return apiDefinitionDTO;
     }
 
+    public void handleBlob(String id, ApiDefinitionDTO apiDefinitionDTO) {
+        Optional<ApiDefinitionBlob> apiDefinitionBlobOptional = Optional.ofNullable(apiDefinitionBlobMapper.selectByPrimaryKey(id));
+        apiDefinitionBlobOptional.ifPresent(blob -> {
+            apiDefinitionDTO.setRequest(ApiDataUtils.parseObject(new String(blob.getRequest()), AbstractMsTestElement.class));
+            // blob.getResponse() 为 null 时不进行转换
+            if (blob.getResponse() != null) {
+                apiDefinitionDTO.setResponse(ApiDataUtils.parseArray(new String(blob.getResponse()), HttpResponse.class));
+            }
+        });
+    }
+
+    private void saveBatchLog(String projectId, List<String> ids, String path, String userId, String operationType, boolean isHistory) {
+        List<LogDTO> dtoList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(ids)) {
+            Project project = projectMapper.selectByPrimaryKey(projectId);
+            ApiDefinitionExample example = new ApiDefinitionExample();
+            example.createCriteria().andIdIn(ids);
+            List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
+            apiDefinitions.forEach(item -> {
+                ApiDefinitionDTO apiDefinitionDTO = new ApiDefinitionDTO();
+                handleBlob(item.getId(), apiDefinitionDTO);
+                BeanUtils.copyBean(apiDefinitionDTO, item);
+                LogDTO dto = new LogDTO(
+                        project.getId(),
+                        project.getOrganizationId(),
+                        item.getId(),
+                        userId,
+                        operationType,
+                        OperationLogModule.API_DEFINITION,
+                        item.getName());
+
+                dto.setHistory(isHistory);
+                dto.setPath(path);
+                dto.setMethod(HttpMethodConstants.POST.name());
+                dto.setOriginalValue(JSON.toJSONBytes(apiDefinitionDTO));
+                dtoList.add(dto);
+            });
+            operationLogService.batchAdd(dtoList);
+        }
+    }
 
 
 }

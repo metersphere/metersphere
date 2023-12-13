@@ -99,6 +99,7 @@
         <table tableName="api_test_case_follower"/>
         <table tableName="api_definition_mock"/>
         <table tableName="api_definition_mock_config"/>
+        <table tableName="api_definition_custom_field"/>
 
 
     </context>
