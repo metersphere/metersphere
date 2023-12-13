@@ -213,7 +213,7 @@ public class CaseReviewService {
             //保存和评审人的关系
             addCaseReviewUser(request, caseReviewId, mapper);
             //保存和用例的关系
-            addCaseReviewFunctionalCase(caseIds, request.getProjectId(), userId, caseReviewId, caseReviewFunctionalCaseMapper);
+            addCaseReviewFunctionalCase(caseIds, userId, caseReviewId, caseReviewFunctionalCaseMapper);
             //保存用例和用例评审人的关系
             addCaseReviewFunctionalCaseUser(caseIds, request.getReviewers(), caseReviewId, caseReviewFunctionalCaseUserMapper);
             sqlSession.flushStatements();
@@ -353,7 +353,7 @@ public class CaseReviewService {
      *
      * @param caseReviewId 用例评审id
      */
-    private CaseReview checkCaseReview(String caseReviewId) {
+    public CaseReview checkCaseReview(String caseReviewId) {
         CaseReview caseReview = caseReviewMapper.selectByPrimaryKey(caseReviewId);
         if (caseReview == null) {
             throw new MSException(CaseManagementResultCode.CASE_REVIEW_NOT_FOUND);
@@ -391,13 +391,13 @@ public class CaseReviewService {
      * 保存用例评审和功能用例的关系
      *
      * @param caseIds                        功能用例Ids
-     * @param projectId                      项目ID
      * @param userId                         当前操作人
      * @param caseReviewId                   用例评审id
      * @param caseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper
      */
-    private void addCaseReviewFunctionalCase(List<String> caseIds, String projectId, String userId, String caseReviewId, CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper) {
+    private void addCaseReviewFunctionalCase(List<String> caseIds, String userId, String caseReviewId, CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper) {
         if (CollectionUtils.isNotEmpty(caseIds)) {
+            Long nextPos = getCaseFunctionalCaseNextPos(caseReviewId);
             caseIds.forEach(caseId -> {
                 CaseReviewFunctionalCase caseReviewFunctionalCase = new CaseReviewFunctionalCase();
                 caseReviewFunctionalCase.setReviewId(caseReviewId);
@@ -407,7 +407,7 @@ public class CaseReviewService {
                 caseReviewFunctionalCase.setCreateTime(System.currentTimeMillis());
                 caseReviewFunctionalCase.setUpdateTime(System.currentTimeMillis());
                 caseReviewFunctionalCase.setId(IDGenerator.nextStr());
-                caseReviewFunctionalCase.setPos(getCaseFunctionalCaseNextPos(caseReviewId));
+                caseReviewFunctionalCase.setPos(nextPos + POS_STEP);
                 caseReviewFunctionalCaseMapper.insert(caseReviewFunctionalCase);
             });
         }
@@ -460,7 +460,7 @@ public class CaseReviewService {
         CaseReviewFunctionalCaseUserMapper caseReviewFunctionalCaseUserMapper = sqlSession.getMapper(CaseReviewFunctionalCaseUserMapper.class);
         try {
             //保存和用例的关系
-            addCaseReviewFunctionalCase(caseRealIds, request.getProjectId(), userId, caseReviewId, caseReviewFunctionalCaseMapper);
+            addCaseReviewFunctionalCase(caseRealIds, userId, caseReviewId, caseReviewFunctionalCaseMapper);
             //保存用例和用例评审人的关系
             addCaseReviewFunctionalCaseUser(caseRealIds, request.getReviewers(), caseReviewId, caseReviewFunctionalCaseUserMapper);
             sqlSession.flushStatements();
@@ -582,7 +582,7 @@ public class CaseReviewService {
         BigDecimal passCount = BigDecimal.valueOf(passList.size());
         BigDecimal totalCount = BigDecimal.valueOf(caseReview.getCaseCount());
         BigDecimal passRate;
-        if (totalCount.compareTo(BigDecimal.ZERO)==0) {
+        if (totalCount.compareTo(BigDecimal.ZERO) == 0) {
             passRate = BigDecimal.ZERO;
         } else {
             passRate = passCount.divide(totalCount, 2, RoundingMode.HALF_UP);

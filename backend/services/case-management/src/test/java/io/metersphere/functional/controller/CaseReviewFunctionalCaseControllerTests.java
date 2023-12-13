@@ -1,19 +1,23 @@
 package io.metersphere.functional.controller;
 
 import io.metersphere.functional.request.BaseReviewCaseBatchRequest;
+import io.metersphere.functional.request.FunctionalCaseAddRequest;
 import io.metersphere.functional.request.FunctionalCasePageRequest;
 import io.metersphere.functional.request.ReviewFunctionalCasePageRequest;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.BaseCondition;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.util.LinkedMultiValueMap;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -26,6 +30,7 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
 
     public static final String REVIEW_CASE_PAGE = "/case/review/detail/page";
     public static final String BATCH_DELETE_URL = "/case/review/detail/batch/disassociate";
+    public static final String FUNCTIONAL_CASE_ADD_URL = "/functional/case/add";
 
     @Test
     @Order(1)
@@ -103,6 +108,36 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         request.setCondition(baseCondition);
         this.requestPostWithOkAndReturn(BATCH_DELETE_URL, request);
 
+    }
+
+
+    @Test
+    @Order(5)
+    public void testCaseReviewAddCase() throws Exception {
+        //新增
+        FunctionalCaseAddRequest request = creatFunctionalCase();
+        LinkedMultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+        List<MockMultipartFile> files = new ArrayList<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("files", files);
+        MvcResult mvcResult = this.requestMultipartWithOkAndReturn(FUNCTIONAL_CASE_ADD_URL, paramMap);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+    }
+
+
+    private FunctionalCaseAddRequest creatFunctionalCase() {
+        FunctionalCaseAddRequest functionalCaseAddRequest = new FunctionalCaseAddRequest();
+        functionalCaseAddRequest.setProjectId(DEFAULT_PROJECT_ID);
+        functionalCaseAddRequest.setTemplateId("default_template_id");
+        functionalCaseAddRequest.setName("测试评审详情创建用例");
+        functionalCaseAddRequest.setCaseEditType("STEP");
+        functionalCaseAddRequest.setModuleId("TEST_MODULE_ID");
+        functionalCaseAddRequest.setReviewId("wx_review_id_1");
+        return functionalCaseAddRequest;
     }
 
 }

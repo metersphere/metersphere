@@ -71,5 +71,8 @@ public class FunctionalCaseAddRequest implements Serializable {
     @Schema(description = "关联文件ID集合")
     private List<String> relateFileMetaIds;
 
+    @Schema(description = "评审id")
+    private String reviewId;
+
 
 }
