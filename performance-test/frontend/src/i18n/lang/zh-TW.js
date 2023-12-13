@@ -15,6 +15,7 @@ const message = {
     error_samples: '錯誤請求',
     all_samples: '所有請求',
     response_3_samples: '默认抽样前3个请求的响应数据',
+    cache_script: '緩存編譯腳本',
   }
 }
 

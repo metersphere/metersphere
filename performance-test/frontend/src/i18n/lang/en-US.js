@@ -15,6 +15,7 @@ const message = {
     error_samples: 'Error samples',
     all_samples: 'All samples',
     response_3_samples: 'The first three pieces of data',
+    cache_script: 'Cache script',
   }
 }
 export default {

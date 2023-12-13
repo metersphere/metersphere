@@ -162,7 +162,14 @@ export default {
       });
       let csvFiles = [];
       for (const f of csvSet) {
-        csvFiles.push({name: f, csvSplit: false, csvHasHeader: true});
+        csvFiles.push({
+          name: f,
+          csvSplit: false,
+          csvHasHeader: true,
+          recycle: true,
+          stopThread: false,
+          shareMode: "shareMode.thread"
+        });
       }
 
       this.$set(handler, "threadGroups", threadGroups);
@@ -196,7 +203,14 @@ export default {
       });
       let csvFiles = [];
       for (const f of csvSet) {
-        csvFiles.push({name: f, csvSplit: false, csvHasHeader: true});
+        csvFiles.push({
+          name: f,
+          csvSplit: false,
+          csvHasHeader: true,
+          recycle: true,
+          stopThread: false,
+          shareMode: "shareMode.thread"
+        });
       }
 
       this.$set(handler, "threadGroups", threadGroups);

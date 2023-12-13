@@ -175,6 +175,30 @@
               <el-switch :disabled="readOnly || !row.csvSplit" v-model="row.csvHasHeader"/>
             </template>
           </el-table-column>
+
+          <el-table-column :label="$t('load_test.csv_file_end_recycle')" align="center" prop="recycle">
+            <template v-slot:default="{row}">
+              <el-switch v-model="row.recycle" :disabled="isReadOnly"/>
+            </template>
+          </el-table-column>
+          <el-table-column :label="$t('load_test.csv_file_end_stop_thread')" align="center" prop="stopThread">
+            <template v-slot:default="{row}">
+              <el-switch v-model="row.stopThread" :disabled="isReadOnly"/>
+            </template>
+          </el-table-column>
+
+          <el-table-column :label="$t('load_test.thread_share')" align="center" prop="shareMode">
+            <template v-slot:default="{row}">
+              <el-select v-model="row.shareMode" :disabled="isReadOnly">
+                <el-option key="shareMode.all" :label="$t('load_test.csv_file_end_stop_thread_option.all')"
+                           value="shareMode.all"></el-option>
+                <el-option key="shareMode.group" :label="$t('load_test.csv_file_end_stop_thread_option.group')"
+                           value="shareMode.group"></el-option>
+                <el-option key="shareMode.thread" :label="$t('load_test.csv_file_end_stop_thread_option.thread')"
+                           value="shareMode.thread"></el-option>
+              </el-select>
+            </template>
+          </el-table-column>
         </el-table>
       </el-col>
     </el-row>
@@ -439,6 +463,21 @@ export default {
         this.csvFiles.forEach(f => {
           f.csvSplit = this.csvConfig[f.name]?.csvSplit;
           f.csvHasHeader = this.csvConfig[f.name]?.csvHasHeader;
+          f.recycle = this.csvConfig[f.name]?.recycle;
+          f.stopThread = this.csvConfig[f.name]?.stopThread;
+          f.shareMode = this.csvConfig[f.name]?.shareMode;
+          if (f.csvHasHeader === undefined) {
+            f.csvHasHeader = true;
+          }
+          if (f.stopThread === undefined) {
+            f.stopThread = false;
+          }
+          if (f.recycle === undefined) {
+            f.recycle = true;
+          }
+          if (f.shareMode === undefined) {
+            f.shareMode = "shareMode.thread";
+          }
         });
       }
     }
@@ -561,7 +600,13 @@ export default {
         params: this.params,
         properties: this.properties,
         csvConfig: this.csvFiles.reduce((result, curr) => {
-          result[curr.name] = {csvHasHeader: curr.csvHasHeader, csvSplit: curr.csvSplit};
+          result[curr.name] = {
+            csvHasHeader: curr.csvHasHeader,
+            csvSplit: curr.csvSplit,
+            recycle: curr.recycle,
+            stopThread: curr.stopThread,
+            shareMode: curr.shareMode
+          };
           return result;
         }, {}),
         domains: this.domains,
