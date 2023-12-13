@@ -16,6 +16,7 @@ import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.request.DeleteReportRequest;
 import io.metersphere.request.RenameReportRequest;
 import io.metersphere.request.ReportRequest;
+import io.metersphere.security.CheckOwner;
 import io.metersphere.service.PerformanceReportService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
@@ -52,6 +53,7 @@ public class PerformanceReportController {
     @MsAuditLog(module = OperLogModule.PERFORMANCE_TEST_REPORT, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#reportId)", msClass = PerformanceReportService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.PERFORMANCE_REPORT_TASK, event = NoticeConstants.Event.DELETE,
             target = "#targetClass.getReport(#reportId)", targetClass = PerformanceReportService.class, subject = "性能测试报告通知")
+    @CheckOwner(resourceId = "#reportId", resourceType = "load_test_report")
     public void deleteReport(@PathVariable String reportId) {
         performanceReportService.deleteReport(reportId);
     }

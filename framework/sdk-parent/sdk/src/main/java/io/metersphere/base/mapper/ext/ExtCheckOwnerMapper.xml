@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.base.mapper.ext.ExtCheckOwnerMapper">
     <select id="checkoutOwner" resultType="boolean">
-        SELECT count(id) = #{ids.size()}
+        SELECT count(id) = ${ids.size()}
         FROM ${table}
         WHERE project_id = #{projectId}
         and id in
