@@ -20,7 +20,7 @@ import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.request.*;
-import io.metersphere.service.BaseCheckPermissionService;
+import io.metersphere.security.CheckOwner;
 import io.metersphere.service.PerformanceTestService;
 import io.metersphere.task.dto.TaskRequestDTO;
 import jakarta.annotation.Resource;
@@ -46,8 +46,6 @@ public class PerformanceTestController {
     @Resource
     private ConsulService consulService;
     @Resource
-    private BaseCheckPermissionService baseCheckPermissionService;
-    @Resource
     private ApiPerformanceService apiPerformanceService;
 
     @PostMapping("recent/{count}")
@@ -67,7 +65,6 @@ public class PerformanceTestController {
     @GetMapping("/list/{projectId}")
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
     public List<LoadTest> list(@PathVariable String projectId) {
-        // checkPermissionService.checkProjectOwner(projectId);
         return performanceTestService.getLoadTestByProjectId(projectId);
     }
 
@@ -83,7 +80,6 @@ public class PerformanceTestController {
 
     @GetMapping("/state/get/{testId}")
     public LoadTest listByTestId(@PathVariable String testId) {
-        // // checkPermissionService.checkPerformanceTestOwner(testId);
         return performanceTestService.getLoadTestBytestId(testId);
     }
 
@@ -112,6 +108,7 @@ public class PerformanceTestController {
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_EDIT)
     @CacheNode // 把监控节点缓存起来
     @SendNotice(taskType = NoticeConstants.TaskType.PERFORMANCE_TEST_TASK, event = NoticeConstants.Event.UPDATE, subject = "性能测试通知")
+    @CheckOwner(resourceId = "#request.getId()", resourceType = "load_test")
     public LoadTest edit(
             @RequestPart("request") EditTestPlanRequest request,
             @RequestPart(value = "file", required = false) List<MultipartFile> files
@@ -133,7 +130,6 @@ public class PerformanceTestController {
     @GetMapping("/get/{testId}")
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
     public LoadTestDTO get(@PathVariable String testId) {
-        // // checkPermissionService.checkPerformanceTestOwner(testId);
         LoadTestDTO loadTestDTO = performanceTestService.get(testId);
         loadTestDTO.setIsNeedUpdate(apiPerformanceService.isNeedUpdate(loadTestDTO.getId()));
         return loadTestDTO;
@@ -142,21 +138,18 @@ public class PerformanceTestController {
     @GetMapping("/get-advanced-config/{testId}")
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
     public String getAdvancedConfiguration(@PathVariable String testId) {
-        // // checkPermissionService.checkPerformanceTestOwner(testId);
         return performanceTestService.getAdvancedConfiguration(testId);
     }
 
     @GetMapping("/get-load-config/{testId}")
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
     public String getLoadConfiguration(@PathVariable String testId) {
-        // // checkPermissionService.checkPerformanceTestOwner(testId);
         return performanceTestService.getLoadConfiguration(testId);
     }
 
     @GetMapping("/get-jmx-content/{testId}")
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
     public List<LoadTestExportJmx> getJmxContent(@PathVariable String testId) {
-        // // checkPermissionService.checkPerformanceTestOwner(testId);
         return performanceTestService.getJmxContent(testId);
     }
 
@@ -170,7 +163,6 @@ public class PerformanceTestController {
     public Pager<List<FileMetadata>> getProjectFiles(@PathVariable String projectId, @PathVariable String loadType,
                                                      @PathVariable int goPage, @PathVariable int pageSize,
                                                      @RequestBody QueryProjectFileRequest request) {
-        //        // checkPermissionService.checkProjectOwner(projectId);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, performanceTestService.getProjectFiles(projectId, loadType, request));
     }
@@ -181,8 +173,8 @@ public class PerformanceTestController {
     @CacheNode // 把监控节点缓存起来
     @SendNotice(taskType = NoticeConstants.TaskType.PERFORMANCE_TEST_TASK, event = NoticeConstants.Event.DELETE,
             target = "#targetClass.get(#request.id)", targetClass = PerformanceTestService.class, subject = "性能测试通知")
+    @CheckOwner(resourceId = "#request.getId()", resourceType = "load_test")
     public void delete(@RequestBody DeleteTestPlanRequest request) {
-        // // checkPermissionService.checkPerformanceTestOwner(request.getId());
         performanceTestService.delete(request);
     }
 
@@ -190,6 +182,7 @@ public class PerformanceTestController {
     @CacheNode
     @MsAuditLog(module = OperLogModule.PERFORMANCE_TEST, type = OperLogConstants.DELETE, beforeEvent = "#msClass.deleteBatchLog(#request)", msClass = PerformanceTestService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_DELETE)
+    @CheckOwner(resourceId = "#request.getIds()", resourceType = "load_test")
     public void deleteBatch(@RequestBody DeletePerformanceRequest request) {
         performanceTestService.deleteBatch(request);
     }
@@ -197,6 +190,7 @@ public class PerformanceTestController {
     @PostMapping("/run")
     @MsAuditLog(module = OperLogModule.PERFORMANCE_TEST, type = OperLogConstants.EXECUTE, beforeEvent = "#msClass.getRunLogDetails(#request.id)", msClass = PerformanceTestService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_RUN)
+    @CheckOwner(resourceId = "#request.getId()", resourceType = "load_test")
     public String run(@RequestBody RunTestPlanRequest request) {
         return performanceTestService.run(request);
     }
@@ -209,7 +203,6 @@ public class PerformanceTestController {
 
     @GetMapping("/file/metadata/{testId}")
     public List<FileMetadata> getFileMetadata(@PathVariable String testId) {
-        // // checkPermissionService.checkPerformanceTestOwner(testId);
         return performanceTestService.getFileMetadataByTestId(testId);
     }
 
