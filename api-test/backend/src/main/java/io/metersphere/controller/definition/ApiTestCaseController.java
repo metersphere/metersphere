@@ -18,6 +18,7 @@ import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.request.ResetOrderRequest;
+import io.metersphere.service.definition.ApiCheckPermissionService;
 import io.metersphere.service.definition.ApiDefinitionExecResultService;
 import io.metersphere.service.definition.ApiTestCaseService;
 import io.metersphere.service.scenario.ApiScenarioService;
@@ -44,6 +45,8 @@ public class ApiTestCaseController {
     private ApiDefinitionExecResultService apiDefinitionExecResultService;
     @Resource
     private ApiScenarioService apiScenarioService;
+    @Resource
+    private ApiCheckPermissionService apiCheckPermissionService;
 
     @PostMapping("/list")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
@@ -127,6 +130,7 @@ public class ApiTestCaseController {
     @MsAuditLog(module = OperLogModule.API_DEFINITION_CASE, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request)", title = "#request.name", content = "#msClass.getLogDetails(#request)", msClass = ApiTestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_UPDATE, subject = "接口用例通知")
     public ApiTestCase update(@RequestPart("request") SaveApiTestCaseRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
+        apiCheckPermissionService.checkApiCaseOwner(request.getId(), PermissionConstants.PROJECT_API_DEFINITION_READ_EDIT_CASE);
         return apiTestCaseService.update(request, bodyFiles);
     }
 
@@ -141,6 +145,7 @@ public class ApiTestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_DELETE_CASE)
     @MsAuditLog(module = OperLogModule.API_DEFINITION_CASE, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = ApiTestCaseService.class)
     public void delete(@PathVariable String id) {
+        apiCheckPermissionService.checkApiCaseOwner(id, PermissionConstants.PROJECT_API_DEFINITION_READ_DELETE_CASE);
         apiTestCaseService.delete(id);
     }
 
@@ -149,6 +154,7 @@ public class ApiTestCaseController {
     @MsAuditLog(module = OperLogModule.API_DEFINITION_CASE, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = ApiTestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_DELETE, target = "#targetClass.get(#id)", targetClass = ApiTestCaseService.class, subject = "接口用例通知")
     public void deleteToGc(@PathVariable String id) {
+        apiCheckPermissionService.checkApiCaseOwner(id, PermissionConstants.PROJECT_API_DEFINITION_READ_DELETE_CASE);
         apiTestCaseService.deleteToGc(id);
     }
 

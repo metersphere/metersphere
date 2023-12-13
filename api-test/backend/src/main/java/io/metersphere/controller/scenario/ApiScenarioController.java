@@ -22,6 +22,7 @@ import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.request.ResetOrderRequest;
+import io.metersphere.service.definition.ApiCheckPermissionService;
 import io.metersphere.service.ext.ExtApiTaskService;
 import io.metersphere.service.scenario.ApiScenarioService;
 import io.metersphere.task.dto.TaskRequestDTO;
@@ -48,6 +49,8 @@ public class ApiScenarioController {
     private ApiScenarioService apiAutomationService;
     @Resource
     private ExtApiTaskService apiTaskService;
+    @Resource
+    private ApiCheckPermissionService apiCheckPermissionService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
@@ -145,6 +148,7 @@ public class ApiScenarioController {
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = ApiScenarioService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_DELETE)
     public void delete(@PathVariable String id) {
+        apiCheckPermissionService.checkApiScenarioOwner(id,PermissionConstants.PROJECT_API_SCENARIO_READ_DELETE);
         apiAutomationService.delete(id);
     }
 
@@ -167,6 +171,7 @@ public class ApiScenarioController {
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#ids)", msClass = ApiScenarioService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK, target = "#targetClass.getScenarioCaseByIds(#ids)", targetClass = ApiScenarioService.class, event = NoticeConstants.Event.DELETE, subject = "接口自动化通知")
     public void removeToGc(@RequestBody List<String> ids) {
+        apiCheckPermissionService.checkApiScenarioOwner(ids.get(0),PermissionConstants.PROJECT_API_SCENARIO_READ_DELETE);
         apiAutomationService.removeToGc(ids);
     }
 

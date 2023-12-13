@@ -1357,4 +1357,5 @@
         FROM api_definition_exec_result t2
         WHERE t2.resource_id = #{0}
     </select>
+
 </mapper>

@@ -31,6 +31,7 @@ import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.request.ResetOrderRequest;
+import io.metersphere.service.definition.ApiCheckPermissionService;
 import io.metersphere.service.definition.ApiDefinitionService;
 import io.metersphere.service.definition.FunctionRunService;
 import jakarta.annotation.Resource;
@@ -52,6 +53,8 @@ public class ApiDefinitionController {
     private BaseEnvironmentService apiTestEnvironmentService;
     @Resource
     private FunctionRunService functionRunService;
+    @Resource
+    private ApiCheckPermissionService apiCheckPermissionService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
@@ -114,6 +117,7 @@ public class ApiDefinitionController {
     @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.id)", title = "#request.name", content = "#msClass.getLogDetails(#request.id)", msClass = ApiDefinitionService.class)
     // @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.UPDATE, subject = "接口定义通知")
     public ApiDefinitionResult update(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> bodyFiles) {
+        apiCheckPermissionService.checkApiOwner(request.getId(), PermissionConstants.PROJECT_API_DEFINITION_READ_EDIT_API);
         return apiDefinitionService.update(request, bodyFiles);
     }
 
@@ -121,6 +125,7 @@ public class ApiDefinitionController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_DELETE_API)
     @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.DELETE, beforeEvent = "#msClass.getLogDetails(#id)", msClass = ApiDefinitionService.class)
     public void delete(@PathVariable String id) {
+        apiCheckPermissionService.checkApiOwner(id, PermissionConstants.PROJECT_API_DEFINITION_READ_DELETE_API);
         apiDefinitionService.delete(id);
     }
 
@@ -150,6 +155,7 @@ public class ApiDefinitionController {
     @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.GC, beforeEvent = "#msClass.getLogDetails(#ids)", msClass = ApiDefinitionService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, target = "#targetClass.getBLOBs(#ids)", targetClass = ApiDefinitionService.class, event = NoticeConstants.Event.DELETE, subject = "接口定义通知")
     public void removeToGc(@RequestBody List<String> ids) {
+        apiCheckPermissionService.checkApiOwner(ids.get(0), PermissionConstants.PROJECT_API_DEFINITION_READ_DELETE_API);
         apiDefinitionService.removeToGc(ids);
     }
 
