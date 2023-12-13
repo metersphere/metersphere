@@ -256,60 +256,15 @@ export default {
     };
   },
   created() {
-    this.request.protocol = this.request.protocol === 'ESB' ? 'TCP' : this.request.protocol;
-    // 历史数据兼容
-    if (!this.request.requestResult) {
-      this.request.requestResult = [{ responseResult: {} }];
-    } else if (
-      this.request.requestResult &&
-      Object.prototype.toString.call(this.request.requestResult) !== '[object Array]'
-    ) {
-      let obj = JSON.parse(JSON.stringify(this.request.requestResult));
-      this.request.requestResult = [obj];
-    }
-    // 跨项目关联，如果没有ID，则赋值本项目ID
-    if (!this.request.projectId) {
-      this.request.projectId = getCurrentProjectID();
-    }
-    this.request.customizeReq = this.isCustomizeReq;
-    if (this.request.customizeReq) {
-      if (this.node.parent && this.node.parent.data && this.node.parent.data.length > 1) {
-        this.request.projectId = getCurrentProjectID();
-      } else {
-        this.request.projectId =
-          this.node.parent.data instanceof Array ? this.node.parent.data[0].projectId : this.node.parent.data.projectId;
-      }
-    }
-    if (this.currentScenario) {
-      this.request.currentScenarioId = this.currentScenario.id;
-    }
-    // 传递场景ID
-    if (this.request.hashTree) {
-      this.setOwnEnvironment(this.request.hashTree);
-    }
-    if (this.request.id && this.request.referenced === 'REF') {
-      this.request.disabled = true;
-      this.request.root = this.node.parent.parent ? false : true;
-      this.request.showExtend =
-        this.node.parent && this.node.parent.data && this.node.parent.data.disabled ? false : true;
-    }
-    this.isShowNum = this.request.num ? true : false;
-    if (this.request.protocol === 'HTTP') {
-      // 历史数据 auth 处理
-      if (this.request.hashTree) {
-        for (let index in this.request.hashTree) {
-          if (this.request.hashTree[index].type == 'AuthManager') {
-            this.request.authManager = this.request.hashTree[index];
-            this.request.hashTree.splice(index, 1);
-          }
-        }
-      }
-    }
-    if (this.request.requestResult && this.request.requestResult.length > 0) {
-      this.response = this.request.requestResult[0];
-    }
+    this.init();
   },
   watch: {
+    request: {
+      handler() {
+        this.init();
+      },
+      deep: true,
+    },
     message() {
       this.forStatus();
       this.reload();
@@ -374,6 +329,62 @@ export default {
     },
   },
   methods: {
+    init() {
+      this.request.protocol = this.request.protocol === 'ESB' ? 'TCP' : this.request.protocol;
+      // 历史数据兼容
+      if (!this.request.requestResult) {
+        this.request.requestResult = [{ responseResult: {} }];
+      } else if (
+        this.request.requestResult &&
+        Object.prototype.toString.call(this.request.requestResult) !== '[object Array]'
+      ) {
+        let obj = JSON.parse(JSON.stringify(this.request.requestResult));
+        this.request.requestResult = [obj];
+      }
+      // 跨项目关联，如果没有ID，则赋值本项目ID
+      if (!this.request.projectId) {
+        this.request.projectId = getCurrentProjectID();
+      }
+      this.request.customizeReq = this.isCustomizeReq;
+      if (this.request.customizeReq) {
+        if (this.node.parent && this.node.parent.data && this.node.parent.data.length > 1) {
+          this.request.projectId = getCurrentProjectID();
+        } else {
+          this.request.projectId =
+            this.node.parent.data instanceof Array
+              ? this.node.parent.data[0].projectId
+              : this.node.parent.data.projectId;
+        }
+      }
+      if (this.currentScenario) {
+        this.request.currentScenarioId = this.currentScenario.id;
+      }
+      // 传递场景ID
+      if (this.request.hashTree) {
+        this.setOwnEnvironment(this.request.hashTree);
+      }
+      if (this.request.id && this.request.referenced === 'REF') {
+        this.request.disabled = true;
+        this.request.root = this.node.parent.parent ? false : true;
+        this.request.showExtend =
+          this.node.parent && this.node.parent.data && this.node.parent.data.disabled ? false : true;
+      }
+      this.isShowNum = this.request.num ? true : false;
+      if (this.request.protocol === 'HTTP') {
+        // 历史数据 auth 处理
+        if (this.request.hashTree) {
+          for (let index in this.request.hashTree) {
+            if (this.request.hashTree[index].type == 'AuthManager') {
+              this.request.authManager = this.request.hashTree[index];
+              this.request.hashTree.splice(index, 1);
+            }
+          }
+        }
+      }
+      if (this.request.requestResult && this.request.requestResult.length > 0) {
+        this.response = this.request.requestResult[0];
+      }
+    },
     setOwnEnvironment(scenarioDefinition) {
       for (let i in scenarioDefinition) {
         let typeArray = ['JDBCPostProcessor', 'JDBCSampler', 'JDBCPreProcessor'];
