@@ -5,6 +5,7 @@ import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.checkerframework.checker.units.qual.A;
 
 import java.util.List;
 
@@ -44,5 +45,8 @@ public class ApiDefinitionDTO extends ApiDefinition{
 
     @Schema(description = "是否关注")
     private Boolean follow;
+
+    @Schema(description = "自定义字段集合")
+    private List<ApiDefinitionCustomFieldDTO> customFields;
 
 }

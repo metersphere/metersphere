@@ -10,6 +10,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author lan
@@ -80,6 +81,9 @@ public class ApiDefinitionAddRequest implements Serializable {
      */
     @Schema(description = "关联文件ID")
     private List<String> linkFileIds;
+
+    @Schema(description = "自定义字段集合")
+    private Map<String, String> customFields;
 
     public void setPath(String path) {
         this.path = (path != null) ? path.trim() : null;

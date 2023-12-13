@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.definition;
 
+import io.metersphere.system.dto.sdk.CustomFieldDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -35,6 +36,9 @@ public class ApiDefinitionBatchUpdateRequest extends ApiDefinitionBatchRequest {
 
     @Schema(description = "标签")
     private LinkedHashSet<@NotBlank String> tags;
+
+    @Schema(description = "自定义字段")
+    private ApiDefinitionCustomFieldDTO customField;
 
     @Schema(description = "是否追加", requiredMode = Schema.RequiredMode.REQUIRED)
     private boolean append = false;

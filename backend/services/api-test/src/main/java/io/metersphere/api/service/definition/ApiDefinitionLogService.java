@@ -35,8 +35,6 @@ public class ApiDefinitionLogService {
     @Resource
     private ApiDefinitionService apiDefinitionService;
 
-    @Resource
-    private ApiDefinitionBlobMapper apiDefinitionBlobMapper;
 
     /**
      * 添加接口日志

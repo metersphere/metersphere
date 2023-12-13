@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.api.mapper.ApiDefinitionCustomFieldMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiDefinitionCustomField">
+    <id column="api_id" jdbcType="VARCHAR" property="apiId" />
+    <id column="field_id" jdbcType="VARCHAR" property="fieldId" />
+    <result column="value" jdbcType="VARCHAR" property="value" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    api_id, field_id, `value`
+  </sql>
+  <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiDefinitionCustomFieldExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from api_definition_custom_field
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from api_definition_custom_field
+    where api_id = #{apiId,jdbcType=VARCHAR}
+      and field_id = #{fieldId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from api_definition_custom_field
+    where api_id = #{apiId,jdbcType=VARCHAR}
+      and field_id = #{fieldId,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.api.domain.ApiDefinitionCustomFieldExample">
+    delete from api_definition_custom_field
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.api.domain.ApiDefinitionCustomField">
+    insert into api_definition_custom_field (api_id, field_id, `value`
+      )
+    values (#{apiId,jdbcType=VARCHAR}, #{fieldId,jdbcType=VARCHAR}, #{value,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiDefinitionCustomField">
+    insert into api_definition_custom_field
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="apiId != null">
+        api_id,
+      </if>
+      <if test="fieldId != null">
+        field_id,
+      </if>
+      <if test="value != null">
+        `value`,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="apiId != null">
+        #{apiId,jdbcType=VARCHAR},
+      </if>
+      <if test="fieldId != null">
+        #{fieldId,jdbcType=VARCHAR},
+      </if>
+      <if test="value != null">
+        #{value,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.api.domain.ApiDefinitionCustomFieldExample" resultType="java.lang.Long">
+    select count(*) from api_definition_custom_field
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update api_definition_custom_field
+    <set>
+      <if test="record.apiId != null">
+        api_id = #{record.apiId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.fieldId != null">
+        field_id = #{record.fieldId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.value != null">
+        `value` = #{record.value,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update api_definition_custom_field
+    set api_id = #{record.apiId,jdbcType=VARCHAR},
+      field_id = #{record.fieldId,jdbcType=VARCHAR},
+      `value` = #{record.value,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.api.domain.ApiDefinitionCustomField">
+    update api_definition_custom_field
+    <set>
+      <if test="value != null">
+        `value` = #{value,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where api_id = #{apiId,jdbcType=VARCHAR}
+      and field_id = #{fieldId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiDefinitionCustomField">
+    update api_definition_custom_field
+    set `value` = #{value,jdbcType=VARCHAR}
+    where api_id = #{apiId,jdbcType=VARCHAR}
+      and field_id = #{fieldId,jdbcType=VARCHAR}
+  </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into api_definition_custom_field
+    (api_id, field_id, `value`)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.apiId,jdbcType=VARCHAR}, #{item.fieldId,jdbcType=VARCHAR}, #{item.value,jdbcType=VARCHAR}
+        )
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into api_definition_custom_field (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'api_id'.toString() == column.value">
+          #{item.apiId,jdbcType=VARCHAR}
+        </if>
+        <if test="'field_id'.toString() == column.value">
+          #{item.fieldId,jdbcType=VARCHAR}
+        </if>
+        <if test="'value'.toString() == column.value">
+          #{item.value,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
+</mapper>

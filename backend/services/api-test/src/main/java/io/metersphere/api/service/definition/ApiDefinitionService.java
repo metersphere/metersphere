@@ -9,7 +9,6 @@ import io.metersphere.api.enums.ApiDefinitionDocType;
 import io.metersphere.api.enums.ApiReportStatus;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiFileResourceService;
-import io.metersphere.sdk.util.*;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.service.ProjectService;
@@ -17,13 +16,16 @@ import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.*;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
+import io.metersphere.system.utils.CustomFieldUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -38,7 +40,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.metersphere.api.controller.result.ApiResultCode.*;
+import static io.metersphere.api.controller.result.ApiResultCode.API_DEFINITION_MODULE_NOT_EXIST;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -82,7 +84,14 @@ public class ApiDefinitionService {
     @Resource
     private ApiDefinitionModuleMapper apiDefinitionModuleMapper;
 
+    @Resource
+    private ApiDefinitionCustomFieldMapper apiDefinitionCustomFieldMapper;
+
+    @Resource
+    private ExtApiDefinitionCustomFieldMapper extApiDefinitionCustomFieldMapper;
+
     public List<ApiDefinitionDTO> getApiDefinitionPage(ApiDefinitionPageRequest request){
+        CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(request);
         List<ApiDefinitionDTO> list = extApiDefinitionMapper.list(request);
         if (!CollectionUtils.isEmpty(list)) {
             processApiDefinitions(list, request.getProjectId());
@@ -91,6 +100,7 @@ public class ApiDefinitionService {
     }
 
     public List<ApiDefinitionDTO> getDocPage(ApiDefinitionPageRequest request){
+        CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(request);
         List<ApiDefinitionDTO> list = extApiDefinitionMapper.list(request);
         if (!CollectionUtils.isEmpty(list)) {
             processApiDefinitionsDoc(list);
@@ -158,6 +168,14 @@ public class ApiDefinitionService {
         resourceUpdateRequest.setLinkFileIds(request.getLinkFileIds());
         apiFileResourceService.addFileResource(resourceUpdateRequest);
 
+        //保存自定义字段
+        Map<String, String> customFields = request.getCustomFields();
+        if (MapUtils.isNotEmpty(customFields)) {
+            List<ApiDefinitionCustomField> list = new ArrayList<>();
+            customFields.keySet().forEach(key -> createNewCustomField(apiDefinition.getId(), key, customFields.get(key), list));
+            batchInsertCustomFields(list);
+        }
+
         return apiDefinition;
     }
 
@@ -196,6 +214,9 @@ public class ApiDefinitionService {
         apiDefinitionBlob.setResponse(request.getResponse().getBytes());
         apiDefinitionBlobMapper.updateByPrimaryKeySelective(apiDefinitionBlob);
 
+        // 自定义字段
+        handleUpdateCustomFields(request, false);
+
         // 处理文件
         ApiFileResourceUpdateRequest resourceUpdateRequest = getApiFileResourceUpdateRequest(originApiDefinition.getId(), originApiDefinition.getProjectId(), userId);
         resourceUpdateRequest.setUploadFileIds(request.getUploadFileIds());
@@ -213,7 +234,18 @@ public class ApiDefinitionService {
         if (CollectionUtils.isNotEmpty(ids)) {
             if (request.getType().equals("tags")) {
                 handleTags(request, userId, ids);
-            } else {
+            } else if(request.getType().equals("customs")){
+                // 自定义字段处理
+                ApiDefinitionCustomFieldDTO customField = request.getCustomField();
+                Map<String, String> customFieldMap = Collections.singletonMap(customField.getId(), customField.getValue());
+                ApiDefinitionUpdateRequest apiDefinitionUpdateRequest = new ApiDefinitionUpdateRequest();
+                BeanUtils.copyBean(apiDefinitionUpdateRequest, request);
+                apiDefinitionUpdateRequest.setCustomFields(customFieldMap);
+                ids.forEach(id -> {
+                    apiDefinitionUpdateRequest.setId(id);
+                    handleUpdateCustomFields(apiDefinitionUpdateRequest,  request.isAppend());
+                });
+            }else {
                 ApiDefinition apiDefinition = new ApiDefinition();
                 BeanUtils.copyBean(apiDefinition, request);
                 apiDefinition.setUpdateUser(userId);
@@ -222,6 +254,69 @@ public class ApiDefinitionService {
                 apiDefinitionExample.createCriteria().andIdIn(ids);
                 apiDefinitionMapper.updateByExampleSelective(apiDefinition, apiDefinitionExample);
             }
+        }
+    }
+
+
+    private void handleUpdateCustomFields(ApiDefinitionUpdateRequest request, boolean append) {
+        Map<String, String> customFields = request.getCustomFields();
+        if (MapUtils.isNotEmpty(customFields)) {
+            List<ApiDefinitionCustomField> addFields = new ArrayList<>();
+            List<ApiDefinitionCustomField> updateFields = new ArrayList<>();
+            List<ApiDefinitionCustomFieldDTO> originalFields = extApiDefinitionCustomFieldMapper.getApiCustomFields(List.of(request.getId()), request.getProjectId());
+            Map<String, String> originalFieldMap = originalFields.stream().collect(Collectors.toMap(ApiDefinitionCustomFieldDTO::getId, ApiDefinitionCustomFieldDTO::getValue));
+            customFields.keySet().forEach(fieldId -> {
+                if (!originalFieldMap.containsKey(fieldId)) {
+                    // New custom field relationship
+                    createNewCustomField(request.getId(), fieldId, customFields.get(fieldId), addFields);
+                } else {
+                    // Existing custom field relationship
+                    updateExistingCustomField(request.getId(), fieldId, append, customFields.get(fieldId), updateFields, originalFieldMap);
+                }
+            });
+
+            batchInsertCustomFields(addFields);
+            batchUpdateCustomFields(updateFields);
+        }
+    }
+
+    private void createNewCustomField(String apiId, String fieldId, String value, List<ApiDefinitionCustomField> addFields) {
+        ApiDefinitionCustomField apiDefinitionCustomField = new ApiDefinitionCustomField();
+        apiDefinitionCustomField.setApiId(apiId);
+        apiDefinitionCustomField.setFieldId(fieldId);
+        apiDefinitionCustomField.setValue(value);
+        addFields.add(apiDefinitionCustomField);
+    }
+
+    private void updateExistingCustomField(String apiId, String fieldId, boolean append, Object value, List<ApiDefinitionCustomField> updateFields, Map<String, String> originalFieldMap) {
+        ApiDefinitionCustomField apiDefinitionCustomField = new ApiDefinitionCustomField();
+        apiDefinitionCustomField.setApiId(apiId);
+        apiDefinitionCustomField.setFieldId(fieldId);
+        if (append) {
+            apiDefinitionCustomField.setValue(CustomFieldUtils.appendToMultipleCustomField(originalFieldMap.get(fieldId), JSON.toJSONString(value)));
+        } else {
+            apiDefinitionCustomField.setValue(JSON.toJSONString(value));
+        }
+        updateFields.add(apiDefinitionCustomField);
+    }
+
+    private void batchInsertCustomFields(List<ApiDefinitionCustomField> addFields) {
+        if (CollectionUtils.isNotEmpty(addFields)) {
+            apiDefinitionCustomFieldMapper.batchInsert(addFields);
+        }
+    }
+
+    private void batchUpdateCustomFields(List<ApiDefinitionCustomField> updateFields) {
+        if (CollectionUtils.isNotEmpty(updateFields)) {
+            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+            ApiDefinitionCustomFieldMapper apiCustomFieldMapper = sqlSession.getMapper(ApiDefinitionCustomFieldMapper.class);
+            for (ApiDefinitionCustomField apiDefinitionCustomField : updateFields) {
+                ApiDefinitionCustomFieldExample apiDefinitionCustomFieldExample = new ApiDefinitionCustomFieldExample();
+                apiDefinitionCustomFieldExample.createCriteria().andApiIdEqualTo(apiDefinitionCustomField.getApiId()).andFieldIdEqualTo(apiDefinitionCustomField.getFieldId());
+                apiCustomFieldMapper.updateByExample(apiDefinitionCustomField, apiDefinitionCustomFieldExample);
+            }
+            sqlSession.flushStatements();
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
     }
 
@@ -286,11 +381,17 @@ public class ApiDefinitionService {
         List<ApiCaseComputeDTO> apiCaseComputeList = extApiDefinitionMapper.selectApiCaseByIdsAndStatusIsNotTrash(apiDefinitionIds, projectId);
         Map<String, ApiCaseComputeDTO> resultMap = apiCaseComputeList.stream().collect(Collectors.toMap(ApiCaseComputeDTO::getApiDefinitionId, Function.identity()));
 
+        List<ApiDefinitionCustomFieldDTO> customFields = extApiDefinitionCustomFieldMapper.getApiCustomFields(apiDefinitionIds, projectId);
+        Map<String, List<ApiDefinitionCustomFieldDTO>> customFieldMap = customFields.stream().collect(Collectors.groupingBy(ApiDefinitionCustomFieldDTO::getApiId));
+
         list.forEach(item -> {
             // Convert User IDs to Names
             item.setCreateUserName(userMap.get(item.getCreateUser()));
             item.setDeleteUserName(userMap.get(item.getDeleteUser()));
             item.setUpdateUserName(userMap.get(item.getUpdateUser()));
+
+            // Custom Fields
+            item.setCustomFields(customFieldMap.get(item.getId()));
 
             // Calculate API Case Metrics
             ApiCaseComputeDTO apiCaseComputeDTO = resultMap.get(item.getId());
@@ -634,6 +735,8 @@ public class ApiDefinitionService {
     public <T> List<String> getBatchApiIds(T dto, String projectId, String protocol, boolean deleted) {
         TableBatchProcessDTO request = (TableBatchProcessDTO) dto;
         if (request.isSelectAll()) {
+            // 全选
+            CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(request.getCondition());
             List<String> ids = extApiDefinitionMapper.getIds(request, projectId, protocol, deleted);
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 ids.removeAll(request.getExcludeIds());
@@ -652,6 +755,8 @@ public class ApiDefinitionService {
         ApiDefinitionDTO apiDefinitionDTO = new ApiDefinitionDTO();
         // 2. 使用Optional避免空指针异常
         handleBlob(id, apiDefinitionDTO);
+        // 3. 查询自定义字段
+        handleCustomFields(id, apiDefinition.getProjectId(), apiDefinitionDTO);
         // 3. 使用Stream简化集合操作
         ApiDefinitionFollowerExample example = new ApiDefinitionFollowerExample();
         example.createCriteria().andApiDefinitionIdEqualTo(id).andUserIdEqualTo(userId);
@@ -669,6 +774,12 @@ public class ApiDefinitionService {
                 apiDefinitionDTO.setResponse(ApiDataUtils.parseArray(new String(blob.getResponse()), HttpResponse.class));
             }
         });
+    }
+
+    public void handleCustomFields(String id, String projectId, ApiDefinitionDTO apiDefinitionDTO) {
+        List<ApiDefinitionCustomFieldDTO> customFields = extApiDefinitionCustomFieldMapper.getApiCustomFields(Collections.singletonList(id), projectId);
+        Map<String, List<ApiDefinitionCustomFieldDTO>> customFieldMap = customFields.stream().collect(Collectors.groupingBy(ApiDefinitionCustomFieldDTO::getApiId));
+        apiDefinitionDTO.setCustomFields(customFieldMap.get(id));
     }
 
     public ApiDefinitionDocDTO getDocInfo(ApiDefinitionDocRequest request, String userId) {
