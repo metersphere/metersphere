@@ -28,6 +28,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.TestMethodOrder;
+import org.mockserver.client.MockServerClient;
+import org.mockserver.model.Header;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
@@ -54,6 +56,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import static org.mockserver.model.HttpRequest.request;
+import static org.mockserver.model.HttpResponse.response;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -73,6 +77,8 @@ public abstract class BaseTest {
     private UserRolePermissionMapper userRolePermissionMapper;
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private MockServerClient mockServerClient;
 
     protected static final String DEFAULT_LIST = "list";
     protected static final String DEFAULT_GET = "get/{0}";
@@ -231,6 +237,44 @@ public abstract class BaseTest {
                 .andReturn();
     }
 
+    /**
+     * 设置 mock get 接口
+     * @param path
+     * @param mockBody
+     */
+    protected void mockGet(String path, String mockBody) {
+        mockServerClient
+                .when(
+                        request()
+                                .withMethod("GET")
+                                .withPath(path))
+                .respond(
+                        response()
+                                .withStatusCode(200)
+                                .withHeaders(new Header("Content-Type", "application/json; charset=utf-8"))
+                                .withBody(mockBody)
+                );
+    }
+
+    /**
+     * 设置 mock post 接口
+     * @param path
+     * @param mockBody
+     */
+    protected void mockPost(String path, String mockBody) {
+        mockServerClient
+                .when(
+                        request()
+                                .withMethod("POST")
+                                .withPath(path))
+                .respond(
+                        response()
+                                .withStatusCode(200)
+                                .withHeaders(new Header("Content-Type", "application/json; charset=utf-8"))
+                                .withBody(mockBody)
+                );
+    }
+
     private MockHttpServletRequestBuilder getPermissionMultipartRequestBuilder(String roleId, String url,
                                                                                MultiValueMap<String, Object> paramMap,
                                                                                Object[] uriVariables) {
@@ -240,8 +284,8 @@ public abstract class BaseTest {
     }
 
     private MockHttpServletRequestBuilder getPermissionUploadRequestBuilder(String roleId, String url,
-                                                                               MockMultipartFile file,
-                                                                               Object[] uriVariables) {
+                                                                            MockMultipartFile file,
+                                                                            Object[] uriVariables) {
         AuthInfo authInfo = getPermissionAuthInfo(roleId);
         MockMultipartHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.multipart(getBasePath() + url, uriVariables).file(file);
         return setRequestBuilderHeader(requestBuilder, authInfo);
@@ -694,4 +738,5 @@ public abstract class BaseTest {
             return csrfToken;
         }
     }
+
 }

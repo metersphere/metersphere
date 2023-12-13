@@ -1,21 +1,21 @@
 package io.metersphere.api.controller;
 
 import io.metersphere.api.dto.definition.HttpResponse;
-import io.metersphere.sdk.util.ApiDataUtils;
+import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.sdk.constants.MsAssertionCondition;
-import io.metersphere.sdk.dto.api.request.assertion.*;
-import io.metersphere.sdk.dto.api.request.assertion.body.*;
-import io.metersphere.sdk.dto.api.request.http.*;
-import io.metersphere.sdk.dto.api.request.http.auth.BasicAuth;
-import io.metersphere.sdk.dto.api.request.http.auth.DigestAuth;
-import io.metersphere.sdk.dto.api.request.http.auth.HTTPAuth;
-import io.metersphere.sdk.dto.api.request.http.auth.NoAuth;
-import io.metersphere.sdk.dto.api.request.http.body.*;
-import io.metersphere.sdk.dto.api.request.processors.*;
-import io.metersphere.sdk.dto.api.request.processors.extract.JSONPathExtract;
-import io.metersphere.sdk.dto.api.request.processors.extract.RegexExtract;
-import io.metersphere.sdk.dto.api.request.processors.extract.XPathExtract;
+import io.metersphere.api.dto.request.assertion.*;
+import io.metersphere.api.dto.request.assertion.body.*;
+import io.metersphere.api.dto.request.http.*;
+import io.metersphere.api.dto.request.http.auth.BasicAuth;
+import io.metersphere.api.dto.request.http.auth.DigestAuth;
+import io.metersphere.api.dto.request.http.auth.HTTPAuth;
+import io.metersphere.api.dto.request.http.auth.NoAuth;
+import io.metersphere.api.dto.request.http.body.*;
+import io.metersphere.api.dto.request.processors.*;
+import io.metersphere.api.dto.request.processors.extract.JSONPathExtract;
+import io.metersphere.api.dto.request.processors.extract.RegexExtract;
+import io.metersphere.api.dto.request.processors.extract.XPathExtract;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

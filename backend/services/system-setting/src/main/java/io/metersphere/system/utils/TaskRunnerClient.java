@@ -2,6 +2,7 @@ package io.metersphere.system.utils;
 
 import com.bastiaanjansen.otp.TOTPGenerator;
 import io.metersphere.sdk.constants.MsHttpHeaders;
+import io.metersphere.sdk.dto.api.task.TaskRequest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.controller.handler.result.MsHttpResultCode;
 import jakarta.annotation.Resource;
@@ -19,6 +20,9 @@ import java.util.concurrent.TimeUnit;
 public class TaskRunnerClient {
     private static TOTPGenerator totpGenerator;
 
+    private static final String API_DEBUG = "/api/debug";
+    private static final String HTTP_BATH = "http://%s:%s";
+
     private static final RestTemplate restTemplateWithTimeOut = new RestTemplate();
     private static final int retryCount = 3;
 
@@ -29,30 +33,36 @@ public class TaskRunnerClient {
         restTemplateWithTimeOut.setRequestFactory(httpRequestFactory);
     }
 
+    public static void debugApi(String endpoint, TaskRequest taskRequest) throws Exception {
+        post(endpoint + API_DEBUG, taskRequest);
+    }
 
-    public static ResultHolder get(String url) throws Exception {
+    public static String getEndpoint(String ip, String port) {
+        return String.format(HTTP_BATH, ip, port);
+    }
+
+    public static ResultHolder get(String url,  Object... uriVariables) throws Exception {
         // 定义action
         Action action = (u, body) -> {
             String token = totpGenerator.now();
             HttpHeaders headers = new HttpHeaders();
             headers.add(MsHttpHeaders.OTP_TOKEN, token);
             HttpEntity<String> httpEntity = new HttpEntity<>(headers);
-            ResponseEntity<ResultHolder> entity = restTemplateWithTimeOut.exchange(u, HttpMethod.GET, httpEntity, ResultHolder.class);
+            ResponseEntity<ResultHolder> entity = restTemplateWithTimeOut.exchange(u, HttpMethod.GET, httpEntity, ResultHolder.class, uriVariables);
             return entity.getBody();
         };
 
         return retry(url, null, action);
     }
 
-    public static ResultHolder post(String url, Object requestBody) throws Exception {
+    public static ResultHolder post(String url, Object requestBody, Object... uriVariables) throws Exception {
         // 定义action
         Action action = (u, b) -> {
             String token = totpGenerator.now();
             HttpHeaders headers = new HttpHeaders();
             headers.add(MsHttpHeaders.OTP_TOKEN, token);
             HttpEntity<Object> httpEntity = new HttpEntity<>(b, headers);
-            ResponseEntity<ResultHolder> entity = restTemplateWithTimeOut.exchange(u, HttpMethod.POST, httpEntity, ResultHolder.class);
-            restTemplateWithTimeOut.postForEntity(url, httpEntity, ResultHolder.class);
+            ResponseEntity<ResultHolder> entity = restTemplateWithTimeOut.exchange(u, HttpMethod.POST, httpEntity, ResultHolder.class, uriVariables);
             return entity.getBody();
         };
 

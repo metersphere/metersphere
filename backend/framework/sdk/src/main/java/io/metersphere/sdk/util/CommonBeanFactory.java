@@ -6,11 +6,13 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.function.Function;
 
+@Component
 public class CommonBeanFactory implements ApplicationContextAware {
     private static ApplicationContext context;
 

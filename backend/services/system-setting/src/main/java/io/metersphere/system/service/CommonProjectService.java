@@ -70,6 +70,8 @@ public class CommonProjectService {
     private TestResourcePoolOrganizationMapper testResourcePoolOrganizationMapper;
     @Resource
     private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
+    @Resource
+    private TestResourcePoolService testResourcePoolService;
 
     @Autowired
     public CommonProjectService(ProjectServiceInvoker serviceInvoker) {
@@ -642,5 +644,23 @@ public class CommonProjectService {
         project.setUpdateUser(userId);
         project.setUpdateTime(System.currentTimeMillis());
         projectMapper.updateByPrimaryKeySelective(project);
+    }
+
+    /**
+     * 校验该项目是否有权限使用该资源池
+     * @param resourcePool
+     * @return
+     */
+    public boolean validateProjectResourcePool(TestResourcePool resourcePool, String projectId) {
+        ProjectTestResourcePoolExample example = new ProjectTestResourcePoolExample();
+        example.createCriteria()
+                .andProjectIdEqualTo(projectId)
+                .andTestResourcePoolIdEqualTo(resourcePool.getId());
+        if (projectTestResourcePoolMapper.countByExample(example) < 1) {
+            return false;
+        }
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        // 校验组织是否有权限
+        return testResourcePoolService.validateOrgResourcePool(resourcePool, project.getOrganizationId());
     }
 }

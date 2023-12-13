@@ -1,6 +1,5 @@
 package io.metersphere.system.config;
 
-import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.Translator;
 import jakarta.validation.Validator;
 import org.hibernate.validator.HibernateValidator;
@@ -38,11 +37,4 @@ public class I18nConfig {
     public Validator validator(LocalValidatorFactoryBean localValidatorFactoryBean) {
         return localValidatorFactoryBean.getValidator();
     }
-
-    @Bean
-    @ConditionalOnMissingBean
-    public CommonBeanFactory commonBeanFactory() {
-        return new CommonBeanFactory();
-    }
-
 }

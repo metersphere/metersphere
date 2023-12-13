@@ -1,12 +1,12 @@
 package io.metersphere.api.controller;
 
 import com.fasterxml.jackson.databind.jsontype.NamedType;
-import io.metersphere.sdk.util.ApiDataUtils;
+import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.dto.TestElementDTO;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.plugin.api.spi.MsTestElement;
-import io.metersphere.sdk.dto.api.request.http.MsHTTPElement;
-import io.metersphere.sdk.dto.api.request.logic.controller.MsLoopController;
+import io.metersphere.api.dto.request.http.MsHTTPElement;
+import io.metersphere.api.dto.request.controller.MsLoopController;
 import io.metersphere.system.base.BaseApiPluginTestService;
 import io.metersphere.system.service.PluginLoadService;
 import jakarta.annotation.Resource;

@@ -3,7 +3,6 @@ package io.metersphere.system.service;
 import io.metersphere.plugin.api.spi.AbstractProtocolPlugin;
 import io.metersphere.plugin.api.spi.MsTestElement;
 import io.metersphere.sdk.constants.PluginScenarioType;
-import io.metersphere.sdk.dto.api.request.http.MsHTTPElement;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.dto.ProtocolDTO;
@@ -27,7 +26,6 @@ public class ApiPluginService {
     private PluginLoadService pluginLoadService;
     @Resource
     private BasePluginService basePluginService;
-    private static final String HTTP_PROTOCOL = "HTTP";
 
     /**
      * 获取协议插件的的协议列表
@@ -66,11 +64,6 @@ public class ApiPluginService {
                 LogUtils.error(e);
             }
         });
-        // 将 http 协议放最前面
-        ProtocolDTO protocolDTO = new ProtocolDTO();
-        protocolDTO.setProtocol(HTTP_PROTOCOL);
-        protocolDTO.setPolymorphicName(MsHTTPElement.class.getSimpleName());
-        protocols.addFirst(protocolDTO);
         return protocols;
     }
 }
