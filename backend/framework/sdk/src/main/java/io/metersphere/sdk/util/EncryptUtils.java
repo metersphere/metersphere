@@ -9,14 +9,14 @@ public class EncryptUtils extends CodingUtils {
     private static final String iv = "1234567890123456";
 
 
-    public static Object aesEncrypt(Object o) {
+    public static String aesEncrypt(Object o) {
         if (o == null) {
             return null;
         }
         return aesEncrypt(o.toString(), secretKey, iv);
     }
 
-    public static Object aesDecrypt(Object o) {
+    public static String aesDecrypt(Object o) {
         if (o == null) {
             return null;
         }
@@ -33,7 +33,7 @@ public class EncryptUtils extends CodingUtils {
                 .collect(Collectors.toList());
     }
 
-    public static Object md5Encrypt(Object o) {
+    public static String md5Encrypt(Object o) {
         if (o == null) {
             return null;
         }

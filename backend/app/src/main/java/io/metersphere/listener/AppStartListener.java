@@ -2,9 +2,9 @@ package io.metersphere.listener;
 
 import io.metersphere.api.event.ApiEventSource;
 import io.metersphere.plan.listener.ExecEventListener;
-import io.metersphere.system.service.PluginLoadService;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.system.service.PluginLoadService;
 import jakarta.annotation.Resource;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;

@@ -8,10 +8,12 @@ import io.metersphere.api.dto.debug.*;
 import io.metersphere.api.mapper.ApiDebugBlobMapper;
 import io.metersphere.api.mapper.ApiDebugMapper;
 import io.metersphere.api.mapper.ExtApiDebugMapper;
+import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.ApiFileResourceService;
-import io.metersphere.sdk.util.ApiDataUtils;
+import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.service.ProjectService;
+import io.metersphere.sdk.constants.ApiExecuteRunMode;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
@@ -45,6 +47,8 @@ public class ApiDebugService {
     private ExtApiDebugMapper extApiDebugMapper;
     @Resource
     private ApiFileResourceService apiFileResourceService;
+    @Resource
+    private ApiExecuteService apiExecuteService;
 
     public List<ApiDebugSimpleDTO> list(String protocol, String userId) {
         return extApiDebugMapper.list(protocol, userId);
@@ -162,4 +166,21 @@ public class ApiDebugService {
     public String uploadTempFile(MultipartFile file) {
         return apiFileResourceService.uploadTempFile(file);
     }
+
+    public String debug(ApiDebugRunRequest request) {
+        String id = request.getId();
+        ApiDebug apiDebug = checkResourceExist(id);
+
+        ApiResourceRunRequest runRequest = BeanUtils.copyBean(new ApiResourceRunRequest(), request);
+        runRequest.setProjectId(apiDebug.getProjectId());
+        runRequest.setTestId(id);
+        runRequest.setReportId(id);
+        runRequest.setResourceType(ApiResourceType.API_DEBUG.name());
+        runRequest.setRunMode(ApiExecuteRunMode.DEBUG.name());
+
+        apiExecuteService.debug(runRequest);
+
+        return runRequest.getReportId();
+    }
+
 }

@@ -1,7 +1,7 @@
 package io.metersphere.api.dto.definition;
 
-import io.metersphere.sdk.dto.api.request.http.Header;
-import io.metersphere.sdk.dto.api.request.http.body.Body;
+import io.metersphere.api.dto.request.http.Header;
+import io.metersphere.api.dto.request.http.body.Body;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 

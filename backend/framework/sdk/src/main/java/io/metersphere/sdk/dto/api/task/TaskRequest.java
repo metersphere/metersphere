@@ -1,15 +1,10 @@
 package io.metersphere.sdk.dto.api.task;
 
-import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.RsaUtils;
 import lombok.Data;
-import org.apache.commons.collections4.MapUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.security.NoSuchAlgorithmException;
-import java.util.Map;
+import java.util.List;
 
 /**
  * 任务请求参数数据
@@ -24,27 +19,28 @@ public class TaskRequest implements Serializable {
     private String kafkaConfig;
     private String minioConfig;
     private String poolId;
+    /**
+     * 是否需要实时接收单个步骤的结果
+     */
+    private Boolean realTime;
+
+    /**
+     * 执行的资源ID
+     */
+    private String testId;
+    /**
+     * 点击调试时，尚未保存的文件ID列表
+     */
+    private List<String> tempFileIds;
+    /**
+     * 执行模式
+     */
+    private String runMode;
+    /**
+     * 资源类型
+     */
+    private String resourceType;
+
 
     // TODO 其它执行参数
-
-    // 默认声明对象时获取配置参数
-    public void setKafkaConfig(Map<String, String> kafkaConfig) {
-        if (MapUtils.isNotEmpty(kafkaConfig)) {
-            try {
-                this.kafkaConfig = RsaUtils.publicEncrypt(JSON.toJSONString(kafkaConfig), this.getReportId());
-            } catch (NoSuchAlgorithmException e) {
-                throw new MSException(e);
-            }
-        }
-    }
-
-    public void setMinioConfig(Map<String, String> minioConfig) {
-        if (MapUtils.isNotEmpty(minioConfig)) {
-            try {
-                this.minioConfig = RsaUtils.publicEncrypt(JSON.toJSONString(minioConfig), this.getReportId());
-            } catch (NoSuchAlgorithmException e) {
-                throw new MSException(e);
-            }
-        }
-    }
 }

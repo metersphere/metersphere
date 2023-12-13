@@ -22,6 +22,7 @@ import io.metersphere.system.mapper.TestResourcePoolOrganizationMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -197,6 +198,12 @@ public class TestResourcePoolService {
         }
     }
 
+    public TestResourceDTO getTestResourceDTO(String resourcePoolId) {
+        TestResourcePoolBlob testResourcePoolBlob = testResourcePoolBlobMapper.selectByPrimaryKey(resourcePoolId);
+        String testResourceDTOStr = new String(testResourcePoolBlob.getConfiguration());
+        return JSON.parseObject(testResourceDTOStr, TestResourceDTO.class);
+    }
+
     public TestResourcePoolReturnDTO getTestResourcePoolDetail(String testResourcePoolId) {
         TestResourcePoolReturnDTO testResourcePoolReturnDTO = new TestResourcePoolReturnDTO();
         TestResourcePool testResourcePool = testResourcePoolMapper.selectByPrimaryKey(testResourcePoolId);
@@ -237,6 +244,10 @@ public class TestResourcePoolService {
         return testResourcePoolReturnDTO;
     }
 
+    public TestResourcePool getTestResourcePool(String testResourcePoolId) {
+        return testResourcePoolMapper.selectByPrimaryKey(testResourcePoolId);
+    }
+
     public LogDTO updateLog(String resourcePoolId) {
         TestResourcePool pool = testResourcePoolMapper.selectByPrimaryKey(resourcePoolId);
         if (pool != null) {
@@ -257,5 +268,24 @@ public class TestResourcePoolService {
         return null;
     }
 
+    /**
+     * 校验该组织是否有权限使用该资源池
+     * @param resourcePool
+     * @param orgId
+     * @return
+     */
+    public boolean validateOrgResourcePool(TestResourcePool resourcePool, String orgId) {
+        if (BooleanUtils.isTrue(resourcePool.getAllOrg())) {
+            return true;
+        }
+        TestResourcePoolOrganizationExample example = new TestResourcePoolOrganizationExample();
+        example.createCriteria()
+                .andTestResourcePoolIdEqualTo(resourcePool.getId())
+                .andOrgIdEqualTo(orgId);
+        if (testResourcePoolOrganizationMapper.countByExample(example) < 1) {
+            return false;
+        }
+        return true;
+    }
 
 }

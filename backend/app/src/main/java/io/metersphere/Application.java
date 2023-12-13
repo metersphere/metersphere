@@ -1,5 +1,6 @@
 package io.metersphere;
 
+import io.metersphere.api.config.JmeterProperties;
 import io.metersphere.system.config.MinioProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -21,7 +22,8 @@ import org.springframework.context.annotation.PropertySource;
 }, encoding = "UTF-8", ignoreResourceNotFound = true)
 @ServletComponentScan
 @EnableConfigurationProperties({
-        MinioProperties.class
+        MinioProperties.class,
+        JmeterProperties.class
 })
 public class Application {
     public static void main(String[] args) {

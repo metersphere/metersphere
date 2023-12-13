@@ -1,10 +1,7 @@
 package io.metersphere.api.controller.debug;
 
 import io.metersphere.api.domain.ApiDebug;
-import io.metersphere.api.dto.debug.ApiDebugAddRequest;
-import io.metersphere.api.dto.debug.ApiDebugDTO;
-import io.metersphere.api.dto.debug.ApiDebugSimpleDTO;
-import io.metersphere.api.dto.debug.ApiDebugUpdateRequest;
+import io.metersphere.api.dto.debug.*;
 import io.metersphere.api.service.debug.ApiDebugLogService;
 import io.metersphere.api.service.debug.ApiDebugService;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -77,5 +74,12 @@ public class ApiDebugController {
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = ApiDebugLogService.class)
     public void delete(@PathVariable String id) {
         apiDebugService.delete(id, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/debug")
+    @Operation(summary = "运行接口调试")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_EXECUTE)
+    public String debug(@Validated @RequestBody ApiDebugRunRequest request) {
+        return apiDebugService.debug(request);
     }
 }

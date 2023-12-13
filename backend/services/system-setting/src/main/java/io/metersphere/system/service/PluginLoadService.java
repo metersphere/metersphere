@@ -203,12 +203,12 @@ public class PluginLoadService {
      * 卸载插件
      */
     public void unloadPlugin(String pluginId) {
-        if (msPluginManager.getPlugin(pluginId) != null) {
+        if (hasPlugin(pluginId)) {
             msPluginManager.deletePlugin(pluginId);
         }
     }
 
-    public boolean hasPlugin(String pluginId) {
+    public synchronized boolean hasPlugin(String pluginId) {
         return msPluginManager.getPlugin(pluginId) != null;
     }
 

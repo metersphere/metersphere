@@ -47,6 +47,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.apache.jmeter</groupId>
+            <artifactId>ApacheJMeter_http</artifactId>
+            <version>${jmeter.version}</version>
+        </dependency>
         <!-- swagger 解析 -->
         <dependency>
             <groupId>io.swagger.parser.v3</groupId>

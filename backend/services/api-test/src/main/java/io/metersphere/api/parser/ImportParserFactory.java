@@ -1,6 +1,6 @@
 package io.metersphere.api.parser;
 
-import io.metersphere.api.enums.ApiImportPlatform;
+import io.metersphere.api.constants.ApiImportPlatform;
 import io.metersphere.api.parser.api.PostmanParser;
 import io.metersphere.api.parser.api.Swagger3Parser;
 import org.apache.commons.lang3.StringUtils;

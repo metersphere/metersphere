@@ -1,14 +1,15 @@
 package io.metersphere.api.controller;
 
+import io.metersphere.api.constants.ApiDefinitionStatus;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.enums.ApiDefinitionDocType;
-import io.metersphere.api.enums.ApiDefinitionStatus;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiFileResourceService;
+import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.dto.filemanagement.FileInfo;
 import io.metersphere.project.dto.filemanagement.request.FileUploadRequest;
@@ -17,7 +18,6 @@ import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.dto.api.request.http.MsHTTPElement;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;

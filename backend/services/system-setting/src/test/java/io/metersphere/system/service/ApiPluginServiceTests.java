@@ -1,6 +1,5 @@
 package io.metersphere.system.service;
 
-import io.metersphere.sdk.dto.api.request.http.MsHTTPElement;
 import io.metersphere.system.base.BaseApiPluginTestService;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.dto.ProtocolDTO;
@@ -35,13 +34,9 @@ public class ApiPluginServiceTests extends BaseTest {
         // 校验数据是否正确
         List<ProtocolDTO> protocols = apiPluginService.getProtocols(this.DEFAULT_ORGANIZATION_ID);
         List expected = new ArrayList<ProtocolDTO>();
-        ProtocolDTO httpProtocol = new ProtocolDTO();
-        httpProtocol.setProtocol("HTTP");
-        httpProtocol.setPolymorphicName(MsHTTPElement.class.getSimpleName());
         ProtocolDTO jdbcProtocol = new ProtocolDTO();
         jdbcProtocol.setProtocol("JDBC");
         jdbcProtocol.setPolymorphicName("MsJDBCElement");
-        expected.add(httpProtocol);
         expected.add(jdbcProtocol);
         Assertions.assertEquals(protocols, expected);
     }
