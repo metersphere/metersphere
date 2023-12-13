@@ -7,6 +7,7 @@ import io.metersphere.project.service.FileManagementService;
 import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.StorageType;
+import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -64,19 +65,20 @@ public class FileManagementController {
     @Operation(summary = "项目管理-文件管理-上传文件")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_ADD)
     public String upload(@Validated @RequestPart("request") FileUploadRequest request, @RequestPart(value = "file", required = false) MultipartFile uploadFile) throws Exception {
-            return fileMetadataService.upload(request, SessionUtils.getUserId(), uploadFile);
+        return fileMetadataService.upload(request, SessionUtils.getUserId(), uploadFile);
     }
 
     @PostMapping("/re-upload")
     @Operation(summary = "项目管理-文件管理-重新上传文件")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_UPDATE)
     public String reUpload(@Validated @RequestPart("request") FileReUploadRequest request, @RequestPart(value = "file", required = false) MultipartFile uploadFile) throws Exception {
-            return fileMetadataService.reUpload(request, SessionUtils.getUserId(), uploadFile);
+        return fileMetadataService.reUpload(request, SessionUtils.getUserId(), uploadFile);
     }
 
     @GetMapping(value = "/download/{id}")
     @Operation(summary = "项目管理-文件管理-下载文件")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_DOWNLOAD)
+    @CheckOwner(resourceId = "#id", resourceType = "file_metadata")
     public ResponseEntity<byte[]> download(@PathVariable String id) throws Exception {
         return fileMetadataService.downloadById(id);
     }
