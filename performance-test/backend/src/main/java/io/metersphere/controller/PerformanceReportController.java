@@ -16,6 +16,7 @@ import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.request.DeleteReportRequest;
 import io.metersphere.request.RenameReportRequest;
 import io.metersphere.request.ReportRequest;
+import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.PerformanceReportService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,6 +32,8 @@ public class PerformanceReportController {
 
     @Resource
     private PerformanceReportService performanceReportService;
+    @Resource
+    private CheckPermissionService checkPermissionService;
 
     @PostMapping("/recent/{count}")
     @RequiresPermissions(value = {"PROJECT_PERFORMANCE_REPORT:READ", "PROJECT_PERFORMANCE_HOME:READ"}, logical = Logical.OR)
@@ -53,6 +56,7 @@ public class PerformanceReportController {
     @SendNotice(taskType = NoticeConstants.TaskType.PERFORMANCE_REPORT_TASK, event = NoticeConstants.Event.DELETE,
             target = "#targetClass.getReport(#reportId)", targetClass = PerformanceReportService.class, subject = "性能测试报告通知")
     public void deleteReport(@PathVariable String reportId) {
+        checkPermissionService.checkPerformanceReportOwner(reportId, PermissionConstants.PROJECT_PERFORMANCE_REPORT_READ_DELETE);
         performanceReportService.deleteReport(reportId);
     }
 

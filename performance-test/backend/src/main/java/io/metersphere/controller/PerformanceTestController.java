@@ -21,6 +21,7 @@ import io.metersphere.metadata.service.FileMetadataService;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.request.*;
 import io.metersphere.service.BaseCheckPermissionService;
+import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.PerformanceTestService;
 import io.metersphere.task.dto.TaskRequestDTO;
 import jakarta.annotation.Resource;
@@ -46,6 +47,8 @@ public class PerformanceTestController {
     @Resource
     private ConsulService consulService;
     @Resource
+    private CheckPermissionService checkPermissionService;
+    @Resource
     private BaseCheckPermissionService baseCheckPermissionService;
     @Resource
     private ApiPerformanceService apiPerformanceService;
@@ -67,7 +70,7 @@ public class PerformanceTestController {
     @GetMapping("/list/{projectId}")
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
     public List<LoadTest> list(@PathVariable String projectId) {
-        // checkPermissionService.checkProjectOwner(projectId);
+        baseCheckPermissionService.checkProjectOwner(projectId);
         return performanceTestService.getLoadTestByProjectId(projectId);
     }
 
@@ -83,7 +86,6 @@ public class PerformanceTestController {
 
     @GetMapping("/state/get/{testId}")
     public LoadTest listByTestId(@PathVariable String testId) {
-        // // checkPermissionService.checkPerformanceTestOwner(testId);
         return performanceTestService.getLoadTestBytestId(testId);
     }
 
@@ -116,6 +118,7 @@ public class PerformanceTestController {
             @RequestPart("request") EditTestPlanRequest request,
             @RequestPart(value = "file", required = false) List<MultipartFile> files
     ) {
+        checkPermissionService.checkPerformanceTestOwner(request.getId(), PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_EDIT);
         LoadTest loadTest = performanceTestService.edit(request, files);
         //检查并发送审核脚本的通知
         performanceTestService.checkAndSendReviewMessage(new ArrayList<>(request.getUpdatedFileList()), files, loadTest);
@@ -133,7 +136,7 @@ public class PerformanceTestController {
     @GetMapping("/get/{testId}")
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
     public LoadTestDTO get(@PathVariable String testId) {
-        // // checkPermissionService.checkPerformanceTestOwner(testId);
+        checkPermissionService.checkPerformanceTestOwner(testId, PermissionConstants.PROJECT_PERFORMANCE_TEST_READ);
         LoadTestDTO loadTestDTO = performanceTestService.get(testId);
         loadTestDTO.setIsNeedUpdate(apiPerformanceService.isNeedUpdate(loadTestDTO.getId()));
         return loadTestDTO;
@@ -142,21 +145,21 @@ public class PerformanceTestController {
     @GetMapping("/get-advanced-config/{testId}")
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
     public String getAdvancedConfiguration(@PathVariable String testId) {
-        // // checkPermissionService.checkPerformanceTestOwner(testId);
+        checkPermissionService.checkPerformanceTestOwner(testId, PermissionConstants.PROJECT_PERFORMANCE_TEST_READ);
         return performanceTestService.getAdvancedConfiguration(testId);
     }
 
     @GetMapping("/get-load-config/{testId}")
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
     public String getLoadConfiguration(@PathVariable String testId) {
-        // // checkPermissionService.checkPerformanceTestOwner(testId);
+        checkPermissionService.checkPerformanceTestOwner(testId, PermissionConstants.PROJECT_PERFORMANCE_TEST_READ);
         return performanceTestService.getLoadConfiguration(testId);
     }
 
     @GetMapping("/get-jmx-content/{testId}")
     @RequiresPermissions(PermissionConstants.PROJECT_PERFORMANCE_TEST_READ)
     public List<LoadTestExportJmx> getJmxContent(@PathVariable String testId) {
-        // // checkPermissionService.checkPerformanceTestOwner(testId);
+        checkPermissionService.checkPerformanceTestOwner(testId, PermissionConstants.PROJECT_PERFORMANCE_TEST_READ);
         return performanceTestService.getJmxContent(testId);
     }
 
@@ -170,7 +173,7 @@ public class PerformanceTestController {
     public Pager<List<FileMetadata>> getProjectFiles(@PathVariable String projectId, @PathVariable String loadType,
                                                      @PathVariable int goPage, @PathVariable int pageSize,
                                                      @RequestBody QueryProjectFileRequest request) {
-        //        // checkPermissionService.checkProjectOwner(projectId);
+        baseCheckPermissionService.checkProjectOwner(projectId);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, performanceTestService.getProjectFiles(projectId, loadType, request));
     }
@@ -182,7 +185,7 @@ public class PerformanceTestController {
     @SendNotice(taskType = NoticeConstants.TaskType.PERFORMANCE_TEST_TASK, event = NoticeConstants.Event.DELETE,
             target = "#targetClass.get(#request.id)", targetClass = PerformanceTestService.class, subject = "性能测试通知")
     public void delete(@RequestBody DeleteTestPlanRequest request) {
-        // // checkPermissionService.checkPerformanceTestOwner(request.getId());
+        checkPermissionService.checkPerformanceTestOwner(request.getId(), PermissionConstants.PROJECT_PERFORMANCE_TEST_READ_DELETE);
         performanceTestService.delete(request);
     }
 
@@ -209,7 +212,6 @@ public class PerformanceTestController {
 
     @GetMapping("/file/metadata/{testId}")
     public List<FileMetadata> getFileMetadata(@PathVariable String testId) {
-        // // checkPermissionService.checkPerformanceTestOwner(testId);
         return performanceTestService.getFileMetadataByTestId(testId);
     }
 
