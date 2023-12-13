@@ -281,6 +281,20 @@
                             and api_definition.version_id in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
+                        <when test="key.startsWith('custom_single')">
+                            and api_definition.id in (
+                            select api_id from api_definition_custom_field where concat('custom_single_', field_id) = #{key}
+                            and trim(both '"' from `value`) in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                            )
+                        </when>
+                        <when test="key.startsWith('custom_multiple')">
+                            and api_definition.id in (
+                            select api_id from api_definition_custom_field where concat('custom_multiple_', field_id) = #{key}
+                            and
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterMultipleWrapper"/>
+                            )
+                        </when>
                     </choose>
                 </if>
             </foreach>

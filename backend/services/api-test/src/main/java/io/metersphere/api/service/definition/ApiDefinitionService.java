@@ -243,7 +243,7 @@ public class ApiDefinitionService {
                 apiDefinitionUpdateRequest.setCustomFields(customFieldMap);
                 ids.forEach(id -> {
                     apiDefinitionUpdateRequest.setId(id);
-                    handleUpdateCustomFields(apiDefinitionUpdateRequest,  request.isAppend());
+                    handleUpdateCustomFields(apiDefinitionUpdateRequest, request.isAppend());
                 });
             }else {
                 ApiDefinition apiDefinition = new ApiDefinition();
@@ -288,14 +288,14 @@ public class ApiDefinitionService {
         addFields.add(apiDefinitionCustomField);
     }
 
-    private void updateExistingCustomField(String apiId, String fieldId, boolean append, Object value, List<ApiDefinitionCustomField> updateFields, Map<String, String> originalFieldMap) {
+    private void updateExistingCustomField(String apiId, String fieldId, boolean append, String value, List<ApiDefinitionCustomField> updateFields, Map<String, String> originalFieldMap) {
         ApiDefinitionCustomField apiDefinitionCustomField = new ApiDefinitionCustomField();
         apiDefinitionCustomField.setApiId(apiId);
         apiDefinitionCustomField.setFieldId(fieldId);
         if (append) {
-            apiDefinitionCustomField.setValue(CustomFieldUtils.appendToMultipleCustomField(originalFieldMap.get(fieldId), JSON.toJSONString(value)));
+            apiDefinitionCustomField.setValue(CustomFieldUtils.appendToMultipleCustomField(originalFieldMap.get(fieldId), value));
         } else {
-            apiDefinitionCustomField.setValue(JSON.toJSONString(value));
+            apiDefinitionCustomField.setValue(value);
         }
         updateFields.add(apiDefinitionCustomField);
     }

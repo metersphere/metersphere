@@ -693,6 +693,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         filters.put("status", Arrays.asList("Underway", "Completed"));
         filters.put("method", List.of("GET"));
         filters.put("version_id", List.of("1005704995741369851"));
+        filters.put("custom_multiple_custom-field", List.of("oasis"));
         request.setFilter(filters);
     }
 

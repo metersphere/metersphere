@@ -5,7 +5,6 @@ import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.checkerframework.checker.units.qual.A;
 
 import java.util.List;
 

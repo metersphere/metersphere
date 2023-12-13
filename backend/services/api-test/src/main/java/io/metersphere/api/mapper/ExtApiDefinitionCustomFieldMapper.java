@@ -1,6 +1,5 @@
 package io.metersphere.api.mapper;
 
-import io.metersphere.api.domain.ApiDefinitionCustomField;
 import io.metersphere.api.dto.definition.ApiDefinitionCustomFieldDTO;
 import org.apache.ibatis.annotations.Param;
 

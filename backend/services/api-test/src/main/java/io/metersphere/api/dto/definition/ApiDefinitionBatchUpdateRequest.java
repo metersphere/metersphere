@@ -1,6 +1,5 @@
 package io.metersphere.api.dto.definition;
 
-import io.metersphere.system.dto.sdk.CustomFieldDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

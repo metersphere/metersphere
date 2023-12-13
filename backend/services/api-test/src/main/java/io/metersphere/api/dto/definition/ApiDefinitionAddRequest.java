@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -86,6 +87,6 @@ public class ApiDefinitionAddRequest implements Serializable {
     private Map<String, String> customFields;
 
     public void setPath(String path) {
-        this.path = (path != null) ? path.trim() : null;
+        this.path = StringUtils.trim(path);
     }
 }
