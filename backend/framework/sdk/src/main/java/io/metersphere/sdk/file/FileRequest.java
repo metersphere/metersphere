@@ -1,7 +1,7 @@
-package io.metersphere.system.file;
+package io.metersphere.sdk.file;
 
-import io.metersphere.project.domain.FileMetadataRepository;
-import io.metersphere.project.domain.FileModuleRepository;
+import io.metersphere.sdk.dto.FileMetadataRepositoryDTO;
+import io.metersphere.sdk.dto.FileModuleRepositoryDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -19,7 +19,7 @@ public class FileRequest {
     //Git文件信息
     private GitFileRequest gitFileRequest;
 
-    public void setGitFileRequest(FileModuleRepository repository, FileMetadataRepository file) {
+    public void setGitFileRequest(FileModuleRepositoryDTO repository, FileMetadataRepositoryDTO file) {
         gitFileRequest = new GitFileRequest(repository.getUrl(), repository.getToken(), repository.getUserName(), file.getBranch(), file.getCommitId());
     }
 }

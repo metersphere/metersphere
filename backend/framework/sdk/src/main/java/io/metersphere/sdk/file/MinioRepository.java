@@ -1,10 +1,11 @@
-package io.metersphere.system.file;
+package io.metersphere.sdk.file;
 
+import io.metersphere.plugin.sdk.util.PluginUtils;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.system.config.MinioConfig;
+import io.metersphere.sdk.util.LogUtils;
 import io.minio.*;
 import io.minio.messages.Item;
-import jakarta.annotation.Resource;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,14 +16,57 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class MinioRepository implements FileRepository {
 
-    @Resource
     private MinioClient client;
     // 缓冲区大小
     private static final int BUFFER_SIZE = 8192;
+    public static final String BUCKET = "metersphere";
+    public static final String ENDPOINT = "endpoint";
+    public static final String ACCESS_KEY = "accessKey";
+    public static final String SECRET_KEY = "secretKey";
+
+    /**
+     * 初始化
+     */
+    public void init(MinioClient client) {
+        if (this.client == null) {
+            this.client = client;
+        }
+    }
+
+    /**
+     * 根据配置信息动态创建
+     */
+    public void init(Map<String, Object> minioConfig) {
+        if (minioConfig == null || minioConfig.isEmpty()) {
+            LogUtils.info("MinIO初始化失败，参数[minioConfig]为空");
+            return;
+        }
+
+        try {
+            Object serverUrl = minioConfig.get(ENDPOINT).toString();
+            if (ObjectUtils.isNotEmpty(serverUrl)) {
+                LogUtils.info("开始初始化MinIO插件。配置：", PluginUtils.toJSONString(minioConfig));
+                // 创建 MinioClient 客户端
+                client = MinioClient.builder()
+                        .endpoint(minioConfig.get(ENDPOINT).toString())
+                        .credentials(minioConfig.get(ACCESS_KEY).toString(), minioConfig.get(SECRET_KEY).toString())
+                        .build();
+                boolean exist = client.bucketExists(BucketExistsArgs.builder().bucket(BUCKET).build());
+                if (!exist) {
+                    client.makeBucket(MakeBucketArgs.builder().bucket(BUCKET).build());
+                }
+                LogUtils.info("初始化MinIO成功");
+            }
+        } catch (Exception e) {
+            LogUtils.error("MinIOClient初始化失败！", e);
+        }
+    }
+
 
     private String getPath(FileRequest request) {
         String folder = request.getFolder();
@@ -37,7 +81,7 @@ public class MinioRepository implements FileRepository {
         // 文件存储路径
         String filePath = getPath(request);
         client.putObject(PutObjectArgs.builder()
-                .bucket(MinioConfig.BUCKET)
+                .bucket(BUCKET)
                 .object(filePath)
                 .stream(file.getInputStream(), file.getSize(), -1) // 文件内容
                 .build());
@@ -49,7 +93,7 @@ public class MinioRepository implements FileRepository {
         String filePath = getPath(request);
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes)) {
             client.putObject(PutObjectArgs.builder()
-                    .bucket(MinioConfig.BUCKET)
+                    .bucket(BUCKET)
                     .object(filePath)
                     .stream(inputStream, bytes.length, -1)
                     .build());
@@ -66,19 +110,19 @@ public class MinioRepository implements FileRepository {
     public void delete(FileRequest request) throws Exception {
         String filePath = getPath(request);
         // 删除单个文件
-        removeObject(MinioConfig.BUCKET, filePath);
+        removeObject(BUCKET, filePath);
     }
 
     @Override
     public void deleteFolder(FileRequest request) throws Exception {
         String filePath = getPath(request);
         // 删除文件夹
-        removeObjects(MinioConfig.BUCKET, filePath);
+        removeObjects(BUCKET, filePath);
     }
 
     @Override
     public List<String> getFolderFileNames(FileRequest request) throws Exception {
-        return listObjects(MinioConfig.BUCKET, getPath(request));
+        return listObjects(BUCKET, getPath(request));
     }
 
     @Override
@@ -86,10 +130,10 @@ public class MinioRepository implements FileRepository {
         String sourcePath = StringUtils.join(request.getCopyFolder(), "/", request.getCopyfileName());
         String targetPath = getPath(request);
         client.copyObject(CopyObjectArgs.builder()
-                .bucket(MinioConfig.BUCKET)
+                .bucket(BUCKET)
                 .object(targetPath)
                 .source(CopySource.builder()
-                        .bucket(MinioConfig.BUCKET)
+                        .bucket(BUCKET)
                         .object(sourcePath)
                         .build())
                 .build());
@@ -142,7 +186,7 @@ public class MinioRepository implements FileRepository {
         // 下载对象到本地文件
         try (InputStream inputStream = client.getObject(
                 GetObjectArgs.builder()
-                        .bucket(MinioConfig.BUCKET)
+                        .bucket(BUCKET)
                         .object(fileName)
                         .build());
              BufferedOutputStream outputStream = new BufferedOutputStream(new FileOutputStream(fullPath))) {
@@ -158,7 +202,7 @@ public class MinioRepository implements FileRepository {
     public InputStream getFileAsStream(FileRequest request) throws Exception {
         String fileName = getPath(request);
         return client.getObject(GetObjectArgs.builder()
-                .bucket(MinioConfig.BUCKET) // 存储桶
+                .bucket(BUCKET) // 存储桶
                 .object(fileName) // 文件名
                 .build());
     }
