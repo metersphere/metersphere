@@ -380,6 +380,28 @@ export const CREATOR = {
   }
 }
 
+export const WS_CREATOR = {
+  key: "creator",
+  name: 'MsTableSearchSelect',
+  label: 'api_test.creator',
+  operator: {
+    options: [OPERATORS.IN, OPERATORS.NOT_IN, OPERATORS.CURRENT_USER],
+    change: function (component, value) { // 运算符change事件
+      if (value === OPERATORS.CURRENT_USER.value) {
+        component.value = value;
+      }
+    }
+  },
+  options: MS_USER_OPTIONS,
+  props: {
+    multiple: true
+  },
+  isShow: operator => {
+    return operator !== OPERATORS.CURRENT_USER.value;
+  }
+}
+
+
 // 创建人(仅当前项目)
 export const PROJECT_CREATOR = {
   key: "creator",
@@ -951,6 +973,8 @@ export const UI_CUSTOM_COMMAND_TRASH_MODULE_TREE = _getModuleTree({
 export const TEST_CONFIGS = [ID, NAME, UPDATE_TIME, CREATE_TIME, STATUS, CREATOR, FOLLOW_PEOPLE];
 
 export const PROJECT_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, CREATOR];
+
+export const PROJECT_MANAGE_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, WS_CREATOR];
 
 export const REPORT_SCENARIO_CONFIGS = [NAME, TEST_NAME, CREATE_TIME, STATUS, CREATOR, TRIGGER_MODE];
 
