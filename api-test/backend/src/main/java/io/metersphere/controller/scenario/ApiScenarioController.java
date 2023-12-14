@@ -197,7 +197,6 @@ public class ApiScenarioController {
 
     @GetMapping("/scenario-details/{id}")
     @RequiresPermissions(value ={PermissionConstants.PROJECT_API_SCENARIO_READ, PermissionConstants.PROJECT_API_DEFINITION_READ_EDIT_CASE}, logical = Logical.OR)
-    @CheckOwner(resourceId = "#id", resourceType = "api_scenario")
     public ApiScenarioDTO getScenarioDefinition(@PathVariable String id) {
         return apiAutomationService.getNewApiScenario(id);
     }
