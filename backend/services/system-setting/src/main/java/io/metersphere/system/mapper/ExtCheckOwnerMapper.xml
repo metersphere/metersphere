@@ -10,4 +10,14 @@
             #{id}
         </foreach>
     </select>
+
+    <select id="checkoutOrganizationOwner" resultType="boolean">
+        SELECT count(id) = ${ids.size()}
+        FROM ${table}
+        WHERE organization_id = #{organizationId}
+        and id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

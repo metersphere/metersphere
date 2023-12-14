@@ -31,7 +31,8 @@ public class CheckOwnerAspect {
 
     private ExpressionParser parser = new SpelExpressionParser();
     private StandardReflectionParameterNameDiscoverer discoverer = new StandardReflectionParameterNameDiscoverer();
-
+    // 组织归属的资源
+    private static final List<String> orgResources = List.of("organization_parameter", "plugin_organization", "project", "service_integration");
     @Resource
     private ExtCheckOwnerMapper extCheckOwnerMapper;
 
@@ -68,6 +69,14 @@ public class CheckOwnerAspect {
         String resourceType = checkOwner.resourceType();
         Expression titleExp = parser.parseExpression(resourceId);
         Object v = titleExp.getValue(context, Object.class);
+        if (orgResources.contains(resourceType)) {
+            handleOrganizationResource(v, resourceType);
+        } else {
+            handleProjectResource(v, resourceType);
+        }
+    }
+
+    private void handleProjectResource(Object v, String resourceType) {
         if (v instanceof String id) {
             if (!extCheckOwnerMapper.checkoutOwner(resourceType, SessionUtils.getCurrentProjectId(), List.of(id))) {
                 throw new MSException(Translator.get("check_owner_case"));
@@ -75,6 +84,19 @@ public class CheckOwnerAspect {
         }
         if (v instanceof List ids) {
             if (!extCheckOwnerMapper.checkoutOwner(resourceType, SessionUtils.getCurrentProjectId(), ids)) {
+                throw new MSException(Translator.get("check_owner_case"));
+            }
+        }
+    }
+
+    private void handleOrganizationResource(Object v, String resourceType) {
+        if (v instanceof String id) {
+            if (!extCheckOwnerMapper.checkoutOrganizationOwner(resourceType, SessionUtils.getCurrentOrganizationId(), List.of(id))) {
+                throw new MSException(Translator.get("check_owner_case"));
+            }
+        }
+        if (v instanceof List ids) {
+            if (!extCheckOwnerMapper.checkoutOrganizationOwner(resourceType, SessionUtils.getCurrentOrganizationId(), ids)) {
                 throw new MSException(Translator.get("check_owner_case"));
             }
         }
