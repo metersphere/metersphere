@@ -196,7 +196,7 @@ import MsTableOperatorButton from "metersphere-frontend/src/components/MsTableOp
 import {GROUP_PROJECT, PROJECT_ID} from "metersphere-frontend/src/utils/constants";
 import MsTableButton from "metersphere-frontend/src/components/MsTableButton";
 import {_filter, _sort} from "metersphere-frontend/src/utils/tableUtils";
-import {PROJECT_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
+import {PROJECT_MANAGE_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 import MsRolesTag from "metersphere-frontend/src/components/MsRolesTag";
 import MsInstructionsIcon from "metersphere-frontend/src/components/MsInstructionsIcon";
 import AddMember from "../../common/AddMember";
@@ -204,7 +204,7 @@ import {isSuperUser} from "metersphere-frontend/src/api/user.js";
 import {
   addProjectMember,
   delProjectMember,
-  getCurrentProjectUserList,
+  getWorkspaceMemberSpecial,
   getProjectMemberPages,
   updateCurrentUser
 } from "../../../api/user";
@@ -244,7 +244,7 @@ export default {
       memberTableLoading: false,
       btnTips: this.$t('project.create'),
       title: this.$t('project.create'),
-      condition: {components: PROJECT_CONFIGS},
+      condition: {components: PROJECT_MANAGE_CONFIGS},
       items: [],
       form: {},
       currentPage: 1,
@@ -337,7 +337,7 @@ export default {
       })
     },
     getMaintainerOptions() {
-      getCurrentProjectUserList().then(res => {
+      getWorkspaceMemberSpecial({name: '', workspaceId: getCurrentWorkspaceId()}).then(res => {
         this.userFilters = res.data.map(u => {
           return {text: u.name, value: u.id};
         });
