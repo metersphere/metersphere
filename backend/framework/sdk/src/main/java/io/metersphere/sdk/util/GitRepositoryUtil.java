@@ -1,8 +1,7 @@
-package io.metersphere.system.utils;
+package io.metersphere.sdk.util;
 
-import io.metersphere.sdk.util.LogUtils;
-import io.metersphere.system.dto.RepositoryQuery;
-import io.metersphere.system.dto.sdk.RemoteFileAttachInfo;
+import io.metersphere.sdk.dto.RemoteFileAttachInfo;
+import io.metersphere.sdk.dto.RepositoryQuery;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jgit.api.Git;

@@ -1,4 +1,4 @@
-package io.metersphere.system.file;
+package io.metersphere.sdk.file;
 
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.util.CommonBeanFactory;
@@ -7,15 +7,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class FileCenter {
+    private FileCenter() {
+    }
 
     public static FileRepository getRepository(StorageType storageType) {
-        Map<StorageType, FileRepository> repositoryMap = new HashMap<>() {{
-            put(StorageType.MINIO, CommonBeanFactory.getBean(MinioRepository.class));
-            put(StorageType.LOCAL, CommonBeanFactory.getBean(LocalFileRepository.class));
-            put(StorageType.GIT, CommonBeanFactory.getBean(GitRepository.class));
-        }};
-        FileRepository fileRepository = repositoryMap.get(storageType);
-        return fileRepository == null ? getDefaultRepository() : fileRepository;
+        return switch (storageType) {
+            case MINIO -> CommonBeanFactory.getBean(MinioRepository.class);
+            case LOCAL -> CommonBeanFactory.getBean(LocalFileRepository.class);
+            case GIT -> CommonBeanFactory.getBean(GitRepository.class);
+            default -> getDefaultRepository();
+        };
     }
 
     public static FileRepository getRepository(String storage) {

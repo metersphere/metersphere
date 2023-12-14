@@ -29,7 +29,7 @@ import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.AddProjectRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
-import io.metersphere.system.file.FileRequest;
+import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.CommonProjectService;

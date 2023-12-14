@@ -1,4 +1,4 @@
-package io.metersphere.system.file;
+package io.metersphere.sdk.file;
 
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.MsFileUtils;

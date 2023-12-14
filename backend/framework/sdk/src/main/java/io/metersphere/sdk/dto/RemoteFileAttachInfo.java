@@ -1,4 +1,4 @@
-package io.metersphere.system.dto.sdk;
+package io.metersphere.sdk.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;

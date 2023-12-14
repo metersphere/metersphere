@@ -2,10 +2,13 @@ package io.metersphere.system.base;
 
 import com.jayway.jsonpath.JsonPath;
 import io.metersphere.sdk.constants.SessionConstants;
+import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.domain.OperationLogExample;
 import io.metersphere.sdk.exception.IResultCode;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.file.FileCenter;
+import io.metersphere.sdk.file.MinioRepository;
 import io.metersphere.sdk.mapper.OperationLogMapper;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.param.InvalidateParamInfo;
@@ -20,6 +23,7 @@ import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
+import io.minio.MinioClient;
 import jakarta.annotation.Resource;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
@@ -79,6 +83,8 @@ public abstract class BaseTest {
     private UserMapper userMapper;
     @Resource
     private MockServerClient mockServerClient;
+    @Resource
+    private MinioClient client;
 
     protected static final String DEFAULT_LIST = "list";
     protected static final String DEFAULT_GET = "get/{0}";
@@ -103,6 +109,9 @@ public abstract class BaseTest {
             this.sessionId = this.adminAuthInfo.getSessionId();
             this.csrfToken = this.adminAuthInfo.getCsrfToken();
         }
+        // 初始化MinIO配置
+        ((MinioRepository) FileCenter.getRepository(StorageType.MINIO)).init(client);
+
         if (permissionAuthInfoMap.isEmpty()) {
             // 获取系统，组织，项目对应的权限测试用户的认证信息
             List<String> permissionUserNames = Arrays.asList(UserRoleType.SYSTEM.name(), UserRoleType.ORGANIZATION.name(), UserRoleType.PROJECT.name());
@@ -239,6 +248,7 @@ public abstract class BaseTest {
 
     /**
      * 设置 mock get 接口
+     *
      * @param path
      * @param mockBody
      */
@@ -258,6 +268,7 @@ public abstract class BaseTest {
 
     /**
      * 设置 mock post 接口
+     *
      * @param path
      * @param mockBody
      */

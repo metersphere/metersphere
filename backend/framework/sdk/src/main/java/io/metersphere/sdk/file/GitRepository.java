@@ -1,7 +1,7 @@
-package io.metersphere.system.file;
+package io.metersphere.sdk.file;
 
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.system.utils.GitRepositoryUtil;
+import io.metersphere.sdk.util.GitRepositoryUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 

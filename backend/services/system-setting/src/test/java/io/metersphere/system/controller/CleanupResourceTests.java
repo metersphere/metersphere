@@ -1,5 +1,6 @@
 package io.metersphere.system.controller;
 
+import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.invoker.ProjectServiceInvoker;
 import io.metersphere.system.mock.CleanupTestResourceService;
 import jakarta.annotation.Resource;
@@ -15,7 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
-public class CleanupResourceTests {
+public class CleanupResourceTests extends BaseTest {
     private final ProjectServiceInvoker serviceInvoker;
     @Resource
     private CleanupTestResourceService cleanupTestResourceService;

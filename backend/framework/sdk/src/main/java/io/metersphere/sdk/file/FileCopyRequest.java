@@ -1,4 +1,4 @@
-package io.metersphere.system.file;
+package io.metersphere.sdk.file;
 
 import lombok.Data;
 

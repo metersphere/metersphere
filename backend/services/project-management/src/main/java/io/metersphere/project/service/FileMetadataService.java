@@ -17,18 +17,16 @@ import io.metersphere.project.utils.FileMetadataUtils;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.StorageType;
+import io.metersphere.sdk.dto.FileMetadataRepositoryDTO;
+import io.metersphere.sdk.dto.FileModuleRepositoryDTO;
+import io.metersphere.sdk.dto.RemoteFileAttachInfo;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.CommonBeanFactory;
-import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.TempFileUtils;
-import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.dto.sdk.RemoteFileAttachInfo;
-import io.metersphere.system.file.FileRepository;
-import io.metersphere.system.file.FileRequest;
-import io.metersphere.system.file.MinioRepository;
+import io.metersphere.sdk.file.FileRepository;
+import io.metersphere.sdk.file.FileRequest;
+import io.metersphere.sdk.file.MinioRepository;
+import io.metersphere.sdk.util.*;
 import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.system.uid.IDGenerator;
-import io.metersphere.system.utils.GitRepositoryUtil;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
@@ -346,7 +344,12 @@ public class FileMetadataService {
         if (StringUtils.equals(fileMetadata.getStorage(), StorageType.GIT.name())) {
             FileModuleRepository fileModuleRepository = fileModuleRepositoryMapper.selectByPrimaryKey(fileMetadata.getModuleId());
             FileMetadataRepository fileMetadataRepository = fileMetadataRepositoryMapper.selectByPrimaryKey(fileMetadata.getId());
-            fileRequest.setGitFileRequest(fileModuleRepository, fileMetadataRepository);
+
+            FileModuleRepositoryDTO repositoryDTO = new FileModuleRepositoryDTO();
+            BeanUtils.copyBean(repositoryDTO, fileModuleRepository);
+            FileMetadataRepositoryDTO metadataRepositoryDTO = new FileMetadataRepositoryDTO();
+            BeanUtils.copyBean(metadataRepositoryDTO, fileMetadataRepository);
+            fileRequest.setGitFileRequest(repositoryDTO, metadataRepositoryDTO);
         }
 
         return fileService.download(fileRequest);
@@ -432,6 +435,7 @@ public class FileMetadataService {
             throw new MSException(Translator.get("file.size.is.too.large"));
         }
     }
+
     private static final String FILE_MODULE_COUNT_MY = "my";
 
     /**
