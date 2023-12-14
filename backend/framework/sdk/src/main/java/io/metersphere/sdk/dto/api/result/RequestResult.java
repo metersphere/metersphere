@@ -39,6 +39,7 @@ public class RequestResult {
     private String body;
 
     private String status;
+    private String method;
 
     private int totalAssertionCount = 0;
 
