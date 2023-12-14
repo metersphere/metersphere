@@ -19,7 +19,6 @@ import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,7 +50,6 @@ public class ReviewFunctionalCaseService {
     private ExtCaseReviewHistoryMapper extCaseReviewHistoryMapper;
 
 
-
     /**
      * 评审功能用例
      *
@@ -66,7 +64,7 @@ public class ReviewFunctionalCaseService {
         String functionalCaseStatus = getFunctionalCaseStatus(request);
         extCaseReviewFunctionalCaseMapper.updateStatus(request.getCaseId(), request.getReviewId(), functionalCaseStatus);
         //更新用例评审状态(判断所有用例是否结束，false：进行中，true：已完成)
-        boolean completed = updateCaseReviewStatus(request.getCaseId(), request.getReviewId());
+        boolean completed = updateCaseReviewStatus(request.getReviewId());
         //检查是否有@，发送@通知
         if (StringUtils.isNotBlank(request.getNotifier())) {
             List<String> relatedUsers = Arrays.asList(request.getNotifier().split(";"));
@@ -120,11 +118,10 @@ public class ReviewFunctionalCaseService {
     /**
      * 更新用例评审自身的状态
      *
-     * @param caseId   功能用例Id
      * @param reviewId 用例评审Id
      * @return completed
      */
-    private boolean updateCaseReviewStatus(String caseId, String reviewId) {
+    private boolean updateCaseReviewStatus(String reviewId) {
         boolean completed = false;
         List<String> statusList = new ArrayList<>();
         statusList.add(FunctionalCaseReviewStatus.UN_REVIEWED.toString());

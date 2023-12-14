@@ -1,6 +1,6 @@
-package io.metersphere.api.controller;
+package io.metersphere.functional.controller;
 
-import io.metersphere.api.event.ApiEventSource;
+import io.metersphere.functional.event.CaseEventSource;
 import io.metersphere.sdk.listener.Event;
 import io.metersphere.sdk.listener.EventListener;
 import io.metersphere.sdk.util.CommonBeanFactory;
@@ -24,18 +24,18 @@ public class EventSourceTests {
     @Order(0)
     public void eventSourceTest() throws Exception {
         // 注册所有监听源
-        LogUtils.info("初始化接口事件源");
-        ApiEventSource apiEventSource = CommonBeanFactory.getBean(ApiEventSource.class);
-        assert apiEventSource != null;
-        apiEventSource.addListener(new EventListener<Event>() {
+        LogUtils.info("初始化用例管理事件源");
+        CaseEventSource caseEventSource = CommonBeanFactory.getBean(CaseEventSource.class);
+        assert caseEventSource != null;
+        caseEventSource.addListener(new EventListener<Event>() {
             @Override
             public void onEvent(Event event) {
                 LogUtils.info("ExecEventListener: " + event.module() + "：" + event.message());
             }
         });
         // 触发事件
-        apiEventSource.fireEvent("API", "Event after removing the listener test.");
+        caseEventSource.fireEvent("CASE", "Event after removing the listener test.");
         // 触发事件待参数
-        apiEventSource.fireEvent("API", "Event after removing the listener test.",new HashMap<>());
+        caseEventSource.fireEvent("CASE", "Event after removing the listener test.",new HashMap<>());
     }
 }

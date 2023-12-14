@@ -96,6 +96,7 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         this.requestPostWithOkAndReturn(BATCH_DELETE_URL, request);
         request.setSelectIds(new ArrayList<>());
         request.setSelectAll(true);
+        request.setExcludeIds(Arrays.asList("TEST_FUNCTIONAL_CASE_ID_1"));
         Map<String, Object> map = new HashMap<>();
         map.put("customs", Arrays.asList(new LinkedHashMap() {{
             put("id", "TEST_FIELD_ID");

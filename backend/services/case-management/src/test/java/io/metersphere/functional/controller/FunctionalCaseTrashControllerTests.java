@@ -196,6 +196,8 @@ public class FunctionalCaseTrashControllerTests extends BaseTest {
         Assertions.assertNull(functionalCase4);
         FunctionalCaseComment functionalCaseComment = functionalCaseCommentMapper.selectByPrimaryKey("trash_comment_id");
         Assertions.assertNull(functionalCaseComment);
+        this.requestGetWithOk(URL_CASE_DELETE + "Trash_TEST_FUNCTIONAL_CASE_ID_GYQ");
+
 
     }
 
