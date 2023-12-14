@@ -21,6 +21,7 @@ import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.constants.StorageType;
+import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.TempFileUtils;
@@ -29,13 +30,14 @@ import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.AddProjectRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
-import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.CommonProjectService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.junit.jupiter.api.*;
@@ -94,6 +96,8 @@ public class FileManagementControllerTests extends BaseTest {
     private FileMetadataService fileMetadataService;
     @Resource
     private CommonProjectService commonProjectService;
+
+    List<CheckLogModel> checkLogModelList = new ArrayList<>();
 
     @BeforeEach
     public void initTestData() {
@@ -168,8 +172,9 @@ public class FileManagementControllerTests extends BaseTest {
             Assertions.assertNotNull(baseTreeNode.getParentId());
         }
         Assertions.assertNotNull(a1Node);
-        checkLog(a1Node.getId(), OperationLogType.ADD, FileManagementRequestUtils.URL_MODULE_ADD);
-
+        checkLogModelList.add(
+                new CheckLogModel(a1Node.getId(), OperationLogType.ADD, FileManagementRequestUtils.URL_MODULE_ADD)
+        );
         //测试a1无法获取存储库详情
         this.requestGet(String.format(FileManagementRequestUtils.URL_FILE_REPOSITORY_INFO, a1Node.getId())).andExpect(status().is5xxServerError());
 
@@ -206,8 +211,13 @@ public class FileManagementControllerTests extends BaseTest {
         }
         Assertions.assertNotNull(a2Node);
         Assertions.assertNotNull(a1b1Node);
-        checkLog(a2Node.getId(), OperationLogType.ADD, FileManagementRequestUtils.URL_MODULE_ADD);
-        checkLog(a1b1Node.getId(), OperationLogType.ADD, FileManagementRequestUtils.URL_MODULE_ADD);
+
+        checkLogModelList.add(
+                new CheckLogModel(a2Node.getId(), OperationLogType.ADD, FileManagementRequestUtils.URL_MODULE_ADD)
+        );
+        checkLogModelList.add(
+                new CheckLogModel(a1b1Node.getId(), OperationLogType.ADD, FileManagementRequestUtils.URL_MODULE_ADD)
+        );
 
         //a1节点下可以继续添加a1节点
         request = new FileModuleCreateRequest();
@@ -231,7 +241,9 @@ public class FileManagementControllerTests extends BaseTest {
             }
         }
         Assertions.assertNotNull(a1ChildNode);
-        checkLog(a1ChildNode.getId(), OperationLogType.ADD, FileManagementRequestUtils.URL_MODULE_ADD);
+        checkLogModelList.add(
+                new CheckLogModel(a1ChildNode.getId(), OperationLogType.ADD, FileManagementRequestUtils.URL_MODULE_ADD)
+        );
 
         //a1的子节点a1下继续创建节点a1-a1-c1
         request = new FileModuleCreateRequest();
@@ -258,8 +270,9 @@ public class FileManagementControllerTests extends BaseTest {
             }
         }
         Assertions.assertNotNull(a1a1c1Node);
-        checkLog(a1a1c1Node.getId(), OperationLogType.ADD, FileManagementRequestUtils.URL_MODULE_ADD);
-
+        checkLogModelList.add(
+                new CheckLogModel(a1a1c1Node.getId(), OperationLogType.ADD, FileManagementRequestUtils.URL_MODULE_ADD)
+        );
         //子节点a1-b1下继续创建节点a1-b1-c1
         request = new FileModuleCreateRequest();
         request.setProjectId(project.getId());
@@ -284,7 +297,9 @@ public class FileManagementControllerTests extends BaseTest {
         Assertions.assertNotNull(a1b1c1Node);
         preliminaryTreeNodes = treeNodes;
 
-        checkLog(a1b1c1Node.getId(), OperationLogType.ADD, FileManagementRequestUtils.URL_MODULE_ADD);
+        checkLogModelList.add(
+                new CheckLogModel(a1b1c1Node.getId(), OperationLogType.ADD, FileManagementRequestUtils.URL_MODULE_ADD)
+        );
     }
 
     @Test
@@ -367,7 +382,9 @@ public class FileManagementControllerTests extends BaseTest {
         this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_MODULE_UPDATE, updateRequest);
 
         preliminaryTreeNodes = this.getFileModuleTreeNode();
-        checkLog(a1Node.getId(), OperationLogType.UPDATE, FileManagementRequestUtils.URL_MODULE_UPDATE);
+        checkLogModelList.add(
+                new CheckLogModel(a1Node.getId(), OperationLogType.UPDATE, FileManagementRequestUtils.URL_MODULE_UPDATE)
+        );
     }
 
     @Test
@@ -411,7 +428,9 @@ public class FileManagementControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(fileUploadRequest));
         MvcResult mvcResult = this.requestMultipartWithOkAndReturn(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap);
         String returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
-        checkLog(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD);
+        checkLogModelList.add(
+                new CheckLogModel(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD)
+        );
         FILE_ID_PATH.put(returnId, filePath);
         picFileId = returnId;
         uploadedFileTypes.add("JPG");
@@ -431,7 +450,9 @@ public class FileManagementControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(fileUploadRequest));
         mvcResult = this.requestMultipartWithOkAndReturn(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap);
         returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
-        checkLog(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD);
+        checkLogModelList.add(
+                new CheckLogModel(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD)
+        );
         FILE_ID_PATH.put(returnId, filePath);
         jarFileId = returnId;
         uploadedFileTypes.add("jar");
@@ -445,7 +466,9 @@ public class FileManagementControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(fileUploadRequest));
         mvcResult = this.requestMultipartWithOkAndReturn(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap);
         returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
-        checkLog(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD);
+        checkLogModelList.add(
+                new CheckLogModel(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD)
+        );
         FILE_ID_PATH.put(returnId, filePath);
         fileUploadRequest.setEnable(false);
 
@@ -457,7 +480,9 @@ public class FileManagementControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(fileUploadRequest));
         mvcResult = this.requestMultipartWithOkAndReturn(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap);
         returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
-        checkLog(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD);
+        checkLogModelList.add(
+                new CheckLogModel(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD)
+        );
         FILE_ID_PATH.put(returnId, filePath);
 
         //svg文件，用于测试预览图下载
@@ -468,7 +493,9 @@ public class FileManagementControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(fileUploadRequest));
         mvcResult = this.requestMultipartWithOkAndReturn(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap);
         returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
-        checkLog(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD);
+        checkLogModelList.add(
+                new CheckLogModel(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD)
+        );
         FILE_ID_PATH.put(returnId, filePath);
         uploadedFileTypes.add("svg");
 
@@ -487,7 +514,9 @@ public class FileManagementControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(fileUploadRequest));
         mvcResult = this.requestMultipartWithOkAndReturn(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap);
         returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
-        checkLog(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD);
+        checkLogModelList.add(
+                new CheckLogModel(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD)
+        );
         FILE_ID_PATH.put(returnId, filePath);
         uploadedFileTypes.add(FileMetadataUtils.FILE_TYPE_EMPTY);
 
@@ -508,7 +537,9 @@ public class FileManagementControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(fileUploadRequest));
         mvcResult = this.requestMultipartWithOkAndReturn(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap);
         returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
-        checkLog(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD);
+        checkLogModelList.add(
+                new CheckLogModel(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD)
+        );
         FILE_ID_PATH.put(returnId, filePath);
         uploadedFileTypes.add("txt");
 
@@ -527,7 +558,9 @@ public class FileManagementControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(fileUploadRequest));
         mvcResult = this.requestMultipartWithOkAndReturn(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap);
         returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
-        checkLog(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD);
+        checkLogModelList.add(
+                new CheckLogModel(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD)
+        );
         FILE_ID_PATH.put(returnId, filePath);
 
         filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/noSuffixFile.unknown")).getPath();
@@ -537,7 +570,9 @@ public class FileManagementControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(fileUploadRequest));
         mvcResult = this.requestMultipartWithOkAndReturn(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap);
         returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
-        checkLog(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD);
+        checkLogModelList.add(
+                new CheckLogModel(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD)
+        );
         FILE_ID_PATH.put(returnId, filePath);
 
         //检查文件类型获取接口有没有获取到数据
@@ -664,7 +699,9 @@ public class FileManagementControllerTests extends BaseTest {
         //重新上传并修改文件版本
         MvcResult mvcResult = this.requestMultipartWithOkAndReturn(FileManagementRequestUtils.URL_FILE_RE_UPLOAD, paramMap);
         String reUploadId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
-        checkLog(reUploadId, OperationLogType.UPDATE, FileManagementRequestUtils.URL_FILE_RE_UPLOAD);
+        checkLogModelList.add(
+                new CheckLogModel(reUploadId, OperationLogType.UPDATE, FileManagementRequestUtils.URL_FILE_RE_UPLOAD)
+        );
         FILE_ID_PATH.put(reUploadId, filePath);
         FILE_VERSIONS_ID_MAP.put(reUploadId, reUploadFileId);
         fileAssociationNewFileId = reUploadId;
@@ -1032,7 +1069,9 @@ public class FileManagementControllerTests extends BaseTest {
         updateRequest.setModuleId(a1a1Node.getId());
         this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_UPDATE, updateRequest);
         this.checkFileInformation(updateFileId, oldFileMetadata, updateRequest);
-        checkLog(updateRequest.getId(), OperationLogType.UPDATE, FileManagementRequestUtils.URL_FILE_UPDATE);
+        checkLogModelList.add(
+                new CheckLogModel(updateRequest.getId(), OperationLogType.UPDATE, FileManagementRequestUtils.URL_FILE_UPDATE)
+        );
 
         //只改描述
         oldFileMetadata = fileMetadataMapper.selectByPrimaryKey(updateFileId);
@@ -1150,7 +1189,9 @@ public class FileManagementControllerTests extends BaseTest {
         //测试启用
         this.requestGetWithOk(String.format(FileManagementRequestUtils.URL_CHANGE_JAR_ENABLE, jarFileId, true));
         this.checkFileEnable(jarFileId, true);
-        this.checkLog(jarFileId, OperationLogType.UPDATE, "/project/file/jar-file-status");
+        checkLogModelList.add(
+                new CheckLogModel(jarFileId, OperationLogType.UPDATE, "/project/file/jar-file-status")
+        );
         //测试禁用
         this.requestGetWithOk(String.format(FileManagementRequestUtils.URL_CHANGE_JAR_ENABLE, jarFileId, false));
         this.checkFileEnable(jarFileId, false);
@@ -1285,7 +1326,9 @@ public class FileManagementControllerTests extends BaseTest {
             this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_DELETE, fileBatchProcessRequest);
 
             this.checkFileIsDeleted(fileMetadataId, refId);
-            checkLog(fileMetadataId, OperationLogType.DELETE, FileManagementRequestUtils.URL_FILE_DELETE);
+            checkLogModelList.add(
+                    new CheckLogModel(fileMetadataId, OperationLogType.DELETE, FileManagementRequestUtils.URL_FILE_DELETE)
+            );
         }
         FILE_VERSIONS_ID_MAP.clear();
 
@@ -2029,8 +2072,12 @@ public class FileManagementControllerTests extends BaseTest {
             this.checkModulePos(a2Node.getId(), a3Node.getId(), null, false);
         }
 
-        checkLog(a1Node.getId(), OperationLogType.UPDATE, FileManagementRequestUtils.URL_MODULE_MOVE);
-        checkLog(a3Node.getId(), OperationLogType.UPDATE, FileManagementRequestUtils.URL_MODULE_MOVE);
+        checkLogModelList.add(
+                new CheckLogModel(a1Node.getId(), OperationLogType.UPDATE, FileManagementRequestUtils.URL_MODULE_MOVE)
+        );
+        checkLogModelList.add(
+                new CheckLogModel(a3Node.getId(), OperationLogType.UPDATE, FileManagementRequestUtils.URL_MODULE_MOVE)
+        );
     }
 
     @Test
@@ -2049,7 +2096,9 @@ public class FileManagementControllerTests extends BaseTest {
         }});
         this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_BATCH_UPDATE, moveRequest);
         this.checkFileModule(picFileId, a1a1c1Node.getId());
-        checkLog(picFileId, OperationLogType.UPDATE, FileManagementRequestUtils.URL_FILE_BATCH_UPDATE);
+        checkLogModelList.add(
+                new CheckLogModel(picFileId, OperationLogType.UPDATE, FileManagementRequestUtils.URL_FILE_BATCH_UPDATE)
+        );
         //所有文件批量移动
         moveRequest = new FileBatchMoveRequest();
         moveRequest.setMoveModuleId(a1a1c1Node.getId());
@@ -2154,13 +2203,17 @@ public class FileManagementControllerTests extends BaseTest {
         BaseTreeNode a1b1Node = FileManagementBaseUtils.getNodeByName(this.getFileModuleTreeNode(), "a1-b1");
         this.requestGetWithOk(String.format(FileManagementRequestUtils.URL_MODULE_DELETE, a1b1Node.getId()));
         this.checkModuleIsEmpty(a1b1Node.getId());
-        checkLog(a1b1Node.getId(), OperationLogType.DELETE, FileManagementRequestUtils.URL_MODULE_DELETE);
+        checkLogModelList.add(
+                new CheckLogModel(a1b1Node.getId(), OperationLogType.DELETE, FileManagementRequestUtils.URL_MODULE_DELETE)
+        );
 
         // 删除有文件的节点 a1-a1      检查是否级联删除根节点
         BaseTreeNode a1a1Node = FileManagementBaseUtils.getNodeByName(this.getFileModuleTreeNode(), "a1-a1");
         this.requestGetWithOk(String.format(FileManagementRequestUtils.URL_MODULE_DELETE, a1a1Node.getId()));
         this.checkModuleIsEmpty(a1a1Node.getId());
-        checkLog(a1a1Node.getId(), OperationLogType.DELETE, FileManagementRequestUtils.URL_MODULE_DELETE);
+        checkLogModelList.add(
+                new CheckLogModel(a1a1Node.getId(), OperationLogType.DELETE, FileManagementRequestUtils.URL_MODULE_DELETE)
+        );
 
         //删除不存在的节点
         this.requestGetWithOk(String.format(FileManagementRequestUtils.URL_MODULE_DELETE, IDGenerator.nextNum()));
@@ -2358,4 +2411,25 @@ public class FileManagementControllerTests extends BaseTest {
         }
         Assertions.assertTrue(error);
     }
+
+    @Test
+    @Order(100)
+    public void testLog() throws Exception {
+        Thread.sleep(5000);
+        for (CheckLogModel checkLogModel : checkLogModelList) {
+            if (org.apache.commons.lang3.StringUtils.isEmpty(checkLogModel.getUrl())) {
+                this.checkLog(checkLogModel.getResourceId(), checkLogModel.getOperationType());
+            } else {
+                this.checkLog(checkLogModel.getResourceId(), checkLogModel.getOperationType(), checkLogModel.getUrl());
+            }
+        }
+    }
+}
+
+@Data
+@AllArgsConstructor
+class CheckLogModel {
+    private String resourceId;
+    private OperationLogType operationType;
+    private String url;
 }
