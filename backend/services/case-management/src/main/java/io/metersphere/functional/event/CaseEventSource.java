@@ -1,4 +1,4 @@
-package io.metersphere.api.event;
+package io.metersphere.functional.event;
 
 import io.metersphere.sdk.listener.Event;
 import io.metersphere.sdk.listener.EventListener;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import java.util.Map;
 
 @Component
-public class ApiEventSource implements EventSource {
+public class CaseEventSource implements EventSource {
     private EventListener<Event> listener;
 
     @Override
@@ -19,15 +19,14 @@ public class ApiEventSource implements EventSource {
 
     @Override
     public void fireEvent(String module, String message) {
-        Event event = new Event("API", message);
+        Event event = new Event("CASE", message);
         listener.onEvent(event);
     }
 
     @Override
     public void fireEvent(String module, String message, Map<String, Object> paramMap) {
-        Event event = new Event("API", message, paramMap);
+        Event event = new Event("CASE", message, paramMap);
         listener.onEvent(event);
         LogUtils.info("带有参数的监听事件");
     }
-
 }

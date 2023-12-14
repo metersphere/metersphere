@@ -1,6 +1,7 @@
 package io.metersphere.functional.service;
 
 
+import io.metersphere.functional.constants.CaseEvent;
 import io.metersphere.functional.constants.CaseReviewStatus;
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.domain.*;
@@ -10,6 +11,7 @@ import io.metersphere.functional.dto.CaseReviewUserDTO;
 import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.CaseManagementResultCode;
+import io.metersphere.functional.utils.CaseListenerUtils;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -33,8 +35,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -70,8 +72,6 @@ public class CaseReviewService {
     private FunctionalCaseMapper functionalCaseMapper;
     @Resource
     private DeleteCaseReviewService deleteCaseReviewService;
-    @Resource
-    private CaseReviewFunctionalCaseUserMapper caseReviewFunctionalCaseUserMapper;
     @Resource
     private ExtCaseReviewFunctionalCaseMapper extCaseReviewFunctionalCaseMapper;
     @Resource
@@ -187,9 +187,7 @@ public class CaseReviewService {
      * @return Map
      */
     private Map<String, List<CaseReviewFunctionalCase>> getReviewCaseMap(List<String> reviewIds) {
-        CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
-        caseReviewFunctionalCaseExample.createCriteria().andReviewIdIn(reviewIds);
-        List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
+        List<CaseReviewFunctionalCase> caseReviewFunctionalCases = extCaseReviewFunctionalCaseMapper.getList(null, reviewIds, false);
         return caseReviewFunctionalCases.stream().collect(Collectors.groupingBy(CaseReviewFunctionalCase::getReviewId));
     }
 
@@ -450,9 +448,7 @@ public class CaseReviewService {
         if (CollectionUtils.isEmpty(functionalCases)) {
             return;
         }
-        CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
-        caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(caseReviewId);
-        List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
+        List<CaseReviewFunctionalCase> caseReviewFunctionalCases = extCaseReviewFunctionalCaseMapper.getList(caseReviewId, null, false);
         List<String> castIds = caseReviewFunctionalCases.stream().map(CaseReviewFunctionalCase::getCaseId).toList();
         List<String> caseRealIds = caseIds.stream().filter(t -> !castIds.contains(t)).toList();
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
@@ -467,18 +463,19 @@ public class CaseReviewService {
         } finally {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
-        List<CaseReviewFunctionalCase> passList = caseReviewFunctionalCases.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getStatus(), FunctionalCaseReviewStatus.PASS.toString())).toList();
-        CaseReview caseReview = new CaseReview();
-        caseReview.setId(caseReviewId);
-        //更新用例数量
-        caseReview.setCaseCount(caseReviewExist.getCaseCount() + caseRealIds.size());
-        //通过率
-        BigDecimal passCount = BigDecimal.valueOf(passList.size());
-        BigDecimal totalCount = BigDecimal.valueOf(caseReview.getCaseCount());
-        BigDecimal passRate = passCount.divide(totalCount, 2, RoundingMode.HALF_UP);
-        caseReview.setPassRate(passRate);
-        caseReviewMapper.updateByPrimaryKeySelective(caseReview);
+        Map<String, Object> param = getParam(caseReviewFunctionalCases, caseReviewExist.getCaseCount() + caseRealIds.size(), caseReviewId);
+        CaseListenerUtils.addListener(param, CaseEvent.Event.ASSOCIATE);
     }
+
+    private Map<String, Object> getParam(List<CaseReviewFunctionalCase> caseReviewFunctionalCases, int caseReviewExist, String caseReviewId) {
+        List<CaseReviewFunctionalCase> passList = caseReviewFunctionalCases.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getStatus(), FunctionalCaseReviewStatus.PASS.toString())).toList();
+        Map<String, Object> param = new HashMap<>();
+        param.put(CaseEvent.Param.CASE_COUNT, caseReviewExist);
+        param.put(CaseEvent.Param.REVIEW_ID, caseReviewId);
+        param.put(CaseEvent.Param.PASS_COUNT, passList.size());
+        return param;
+    }
+
 
     public <T> List<String> doSelectIds(T dto, String projectId) {
         BaseFunctionalCaseBatchDTO request = (BaseFunctionalCaseBatchDTO) dto;
@@ -565,30 +562,11 @@ public class CaseReviewService {
         CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
         caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo(caseId);
         caseReviewFunctionalCaseMapper.deleteByExample(caseReviewFunctionalCaseExample);
-        //2.删除用例和用例评审人的关系
-        CaseReviewFunctionalCaseUserExample caseReviewFunctionalCaseUserExample = new CaseReviewFunctionalCaseUserExample();
-        caseReviewFunctionalCaseUserExample.createCriteria().andCaseIdEqualTo(caseId).andReviewIdEqualTo(reviewId);
-        caseReviewFunctionalCaseUserMapper.deleteByExample(caseReviewFunctionalCaseUserExample);
 
-        caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
-        caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(reviewId);
-        List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
-        List<CaseReviewFunctionalCase> passList = caseReviewFunctionalCases.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getStatus(), FunctionalCaseReviewStatus.PASS.toString())).toList();
-        CaseReview caseReview = new CaseReview();
-        caseReview.setId(reviewId);
-        //更新用例数量
-        caseReview.setCaseCount(caseReviewFunctionalCases.size());
-        //通过率
-        BigDecimal passCount = BigDecimal.valueOf(passList.size());
-        BigDecimal totalCount = BigDecimal.valueOf(caseReview.getCaseCount());
-        BigDecimal passRate;
-        if (totalCount.compareTo(BigDecimal.ZERO) == 0) {
-            passRate = BigDecimal.ZERO;
-        } else {
-            passRate = passCount.divide(totalCount, 2, RoundingMode.HALF_UP);
-        }
-        caseReview.setPassRate(passRate);
-        caseReviewMapper.updateByPrimaryKeySelective(caseReview);
+        List<CaseReviewFunctionalCase> caseReviewFunctionalCases = extCaseReviewFunctionalCaseMapper.getList(reviewId, null, false);
+        Map<String, Object> param = getParam(caseReviewFunctionalCases, caseReviewFunctionalCases.size(), reviewId);
+        param.put(CaseEvent.Param.CASE_IDS, List.of(caseId));
+        CaseListenerUtils.addListener(param, CaseEvent.Event.DISASSOCIATE);
     }
 
     public Map<String, Long> moduleCount(CaseReviewPageRequest request) {

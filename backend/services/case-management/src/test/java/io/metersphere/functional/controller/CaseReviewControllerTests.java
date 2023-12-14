@@ -301,6 +301,8 @@ public class CaseReviewControllerTests extends BaseTest {
         List<String> userIdList = caseReviewFunctionalCaseUsers.stream().map(CaseReviewFunctionalCaseUser::getUserId).toList();
         Assertions.assertTrue(userIdList.contains("gyq_review_test"));
         Assertions.assertTrue(userIdList.contains("gyq_review_test2"));
+        List<CaseReview> caseReviews2 = getCaseReviews("创建评审更新1");
+        Assertions.assertTrue( caseReviews.get(0).getCaseCount()<caseReviews2.get(0).getCaseCount());
     }
 
     @Test

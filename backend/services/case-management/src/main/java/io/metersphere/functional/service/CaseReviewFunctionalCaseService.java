@@ -1,6 +1,7 @@
 package io.metersphere.functional.service;
 
 
+import io.metersphere.functional.constants.CaseEvent;
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.domain.CaseReviewFunctionalCase;
 import io.metersphere.functional.domain.CaseReviewFunctionalCaseExample;
@@ -12,18 +13,18 @@ import io.metersphere.functional.mapper.ExtCaseReviewFunctionalCaseUserMapper;
 import io.metersphere.functional.mapper.ExtFunctionalCaseModuleMapper;
 import io.metersphere.functional.request.BaseReviewCaseBatchRequest;
 import io.metersphere.functional.request.ReviewFunctionalCasePageRequest;
+import io.metersphere.functional.utils.CaseListenerUtils;
 import io.metersphere.project.domain.ProjectVersion;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -89,8 +90,8 @@ public class CaseReviewFunctionalCaseService {
             list.forEach(item -> {
                 item.setModuleName(moduleMap.get(item.getModuleId()));
                 item.setVersionName(versionMap.get(item.getVersionId()));
-                item.setReviewers(Arrays.asList(userIdMap.get(item.getId())));
-                item.setReviewNames(Arrays.asList(userNameMap.get(item.getId())));
+                item.setReviewers(Collections.singletonList(userIdMap.get(item.getId())));
+                item.setReviewNames(Collections.singletonList(userNameMap.get(item.getId())));
             });
         }
         return list;
@@ -106,8 +107,21 @@ public class CaseReviewFunctionalCaseService {
         if (CollectionUtils.isNotEmpty(ids)) {
             CaseReviewFunctionalCaseExample example = new CaseReviewFunctionalCaseExample();
             example.createCriteria().andIdIn(ids);
+            Map<String, Object> param = getParam(request.getReviewId(), example, ids);
+            CaseListenerUtils.addListener(param, CaseEvent.Event.BATCH_DISASSOCIATE);
             caseReviewFunctionalCaseMapper.deleteByExample(example);
         }
+    }
+
+    private Map<String, Object> getParam(String reviewId, CaseReviewFunctionalCaseExample example, List<String> ids) {
+        List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(example);
+        List<String> caseIds = caseReviewFunctionalCases.stream().map(CaseReviewFunctionalCase::getCaseId).toList();
+        List<CaseReviewFunctionalCase> passList = caseReviewFunctionalCases.stream().filter(t -> !ids.contains(t.getId()) && StringUtils.equalsIgnoreCase(t.getStatus(), FunctionalCaseReviewStatus.PASS.toString())).toList();
+        Map<String, Object> param = new HashMap<>();
+        param.put(CaseEvent.Param.CASE_IDS,caseIds);
+        param.put(CaseEvent.Param.REVIEW_ID, reviewId);
+        param.put(CaseEvent.Param.PASS_COUNT,passList.size());
+        return param;
     }
 
     public List<String> doSelectIds(BaseReviewCaseBatchRequest request) {
@@ -126,9 +140,9 @@ public class CaseReviewFunctionalCaseService {
     /**
      * 评审详情页面 创建用例并关联
      *
-     * @param caseId
-     * @param userId
-     * @param reviewId
+     * @param caseId 功能用例ID
+     * @param userId 当前操作人
+     * @param reviewId 评审id
      */
     public void addCaseReviewFunctionalCase(String caseId, String userId, String reviewId) {
         CaseReviewFunctionalCase reviewFunctionalCase = new CaseReviewFunctionalCase();

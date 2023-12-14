@@ -12,6 +12,8 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.HashMap;
+
 
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -33,5 +35,7 @@ public class EventSourceTests {
         });
         // 触发事件
         apiEventSource.fireEvent("API", "Event after removing the listener test.");
+        // 触发事件待参数
+        apiEventSource.fireEvent("API", "Event after removing the listener test.",new HashMap<>());
     }
 }
