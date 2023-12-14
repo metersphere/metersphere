@@ -1,5 +1,6 @@
 package io.metersphere.functional.service;
 
+import io.metersphere.functional.constants.CaseEvent;
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.domain.FunctionalCaseCustomField;
 import io.metersphere.functional.domain.FunctionalCaseCustomFieldExample;
@@ -8,6 +9,7 @@ import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
 import io.metersphere.functional.mapper.FunctionalCaseCustomFieldMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.request.FunctionalCaseBatchRequest;
+import io.metersphere.functional.utils.CaseListenerUtils;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomField;
@@ -15,12 +17,13 @@ import io.metersphere.system.domain.CustomFieldExample;
 import io.metersphere.system.mapper.CustomFieldMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author guoyuqi
@@ -55,10 +58,15 @@ public class FunctionalCaseTrashService {
         List<String> ids = getIdsByRefId(functionalCase.getRefId());
         //检查自定义字段是否还存在，不存在，删除关联关系（与恢复流程没关系可异步执行）
         delCustomFields(ids);
+        Map<String, Object> param = new HashMap<>();
+        param.put(CaseEvent.Param.CASE_IDS,ids);
+        CaseListenerUtils.addListener(param, CaseEvent.Event.RECOVER_FUNCTIONAL_CASE);
         extFunctionalCaseMapper.recoverCase(ids,userId,System.currentTimeMillis());
     }
 
-
+    /**
+     * 检查自定义字段是否还存在，不存在，删除关联关系（与恢复流程没关系可异步执行）
+     */
     public void delCustomFields(List<String> ids) {
         doDeleteCustomFields(ids);
     }
@@ -102,6 +110,9 @@ public class FunctionalCaseTrashService {
            return;
         }
         List<String> ids = getIdsByRefId(functionalCase.getRefId());
+        Map<String, Object> param = new HashMap<>();
+        param.put(CaseEvent.Param.CASE_IDS,ids);
+        CaseListenerUtils.addListener(param, CaseEvent.Event.DELETE_TRASH_FUNCTIONAL_CASE);
         deleteFunctionalCaseService.deleteFunctionalCaseResource(ids, functionalCase.getProjectId());
     }
 
@@ -134,6 +145,13 @@ public class FunctionalCaseTrashService {
             refIds = functionalCases.stream().map(FunctionalCase::getRefId).distinct().toList();
         }
         if (CollectionUtils.isNotEmpty(refIds)) {
+            FunctionalCaseExample functionalCaseExample = new FunctionalCaseExample();
+            functionalCaseExample.createCriteria().andRefIdIn(refIds);
+            List<FunctionalCase> functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
+            List<String> ids = functionalCases.stream().map(FunctionalCase::getId).toList();
+            Map<String, Object> param = new HashMap<>();
+            param.put(CaseEvent.Param.CASE_IDS,ids);
+            CaseListenerUtils.addListener(param, CaseEvent.Event.RECOVER_FUNCTIONAL_CASE);
             extFunctionalCaseMapper.recoverCaseByRefIds(refIds, userId, System.currentTimeMillis());
             delCustomFieldsByRefIds(refIds);
         }
@@ -175,6 +193,9 @@ public class FunctionalCaseTrashService {
                 deleteByRefIds(request, refIds);
             }else {
                 //只删除当前选择的数据
+                Map<String, Object> param = new HashMap<>();
+                param.put(CaseEvent.Param.CASE_IDS,ids);
+                CaseListenerUtils.addListener(param, CaseEvent.Event.DELETE_TRASH_FUNCTIONAL_CASE);
                 deleteFunctionalCaseService.deleteFunctionalCaseResource(ids, request.getProjectId());
             }
         } else {
@@ -189,6 +210,9 @@ public class FunctionalCaseTrashService {
                 deleteByRefIds(request, refIds);
             } else {
                 //只删除当前选择的数据
+                Map<String, Object> param = new HashMap<>();
+                param.put(CaseEvent.Param.CASE_IDS,request.getSelectIds());
+                CaseListenerUtils.addListener(param, CaseEvent.Event.DELETE_TRASH_FUNCTIONAL_CASE);
                 deleteFunctionalCaseService.deleteFunctionalCaseResource(request.getSelectIds(), request.getProjectId());
             }
         }
@@ -199,6 +223,9 @@ public class FunctionalCaseTrashService {
         functionalCaseExample.createCriteria().andRefIdIn(refIds).andDeletedEqualTo(true);
         List<FunctionalCase> functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
         List<String> deleteIds = functionalCases.stream().map(FunctionalCase::getId).toList();
+        Map<String, Object> param = new HashMap<>();
+        param.put(CaseEvent.Param.CASE_IDS,deleteIds);
+        CaseListenerUtils.addListener(param, CaseEvent.Event.DELETE_TRASH_FUNCTIONAL_CASE);
         deleteFunctionalCaseService.deleteFunctionalCaseResource(deleteIds, request.getProjectId());
     }
 }

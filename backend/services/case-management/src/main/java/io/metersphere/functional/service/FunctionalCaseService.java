@@ -1,5 +1,6 @@
 package io.metersphere.functional.service;
 
+import io.metersphere.functional.constants.CaseEvent;
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.*;
@@ -9,6 +10,7 @@ import io.metersphere.functional.mapper.FunctionalCaseFollowerMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.CaseManagementResultCode;
+import io.metersphere.functional.utils.CaseListenerUtils;
 import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
@@ -372,13 +374,21 @@ public class FunctionalCaseService {
     }
 
     private void handDeleteFunctionalCase(List<String> ids, Boolean deleteAll, String userId) {
+        Map<String, Object> param = new HashMap<>();
         if (deleteAll) {
             //全部删除  进入回收站
             List<String> refId = extFunctionalCaseMapper.getRefIds(ids, false);
+            FunctionalCaseExample functionalCaseExample = new FunctionalCaseExample();
+            functionalCaseExample.createCriteria().andRefIdIn(refId);
+            List<FunctionalCase> functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
+            List<String> caseIds = functionalCases.stream().map(FunctionalCase::getId).toList();
+            param.put(CaseEvent.Param.CASE_IDS, caseIds);
             extFunctionalCaseMapper.batchDelete(refId, userId);
         } else {
+            param.put(CaseEvent.Param.CASE_IDS, ids);
             doDelete(ids, userId);
         }
+        CaseListenerUtils.addListener(param, CaseEvent.Event.DELETE_FUNCTIONAL_CASE);
     }
 
 

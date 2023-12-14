@@ -286,4 +286,23 @@
             LIMIT 1;
     </select>
 
+    <select id="getList" resultType="io.metersphere.functional.domain.CaseReviewFunctionalCase">
+        SELECT
+            *
+        FROM
+            case_review_functional_case crfc
+        LEFT JOIN functional_case fc ON crfc.case_id = fc.id
+        WHERE
+        fc.deleted = #{deleted}
+        <if test="reviewId != null and reviewId != ''">
+            and crfc.review_id = #{reviewId}
+        </if>
+        <if test="reviewIds != null and reviewIds.size() > 0">
+            and crfc.review_id in
+            <foreach collection="reviewIds" item="reviewId" separator="," open="(" close=")">
+                #{reviewId}
+            </foreach>
+        </if>
+    </select>
+
 </mapper>

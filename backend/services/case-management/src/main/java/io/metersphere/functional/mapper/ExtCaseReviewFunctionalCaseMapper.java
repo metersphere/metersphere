@@ -1,5 +1,6 @@
 package io.metersphere.functional.mapper;
 
+import io.metersphere.functional.domain.CaseReviewFunctionalCase;
 import io.metersphere.functional.dto.FunctionalCaseReviewDTO;
 import io.metersphere.functional.dto.ReviewFunctionalCaseDTO;
 import io.metersphere.functional.request.BaseReviewCaseBatchRequest;
@@ -27,4 +28,6 @@ public interface ExtCaseReviewFunctionalCaseMapper {
     Long getPos(@Param("reviewId") String reviewId);
 
     List<String> getIds(@Param("request") BaseReviewCaseBatchRequest request, @Param("userId") String userId, @Param("deleted") boolean deleted);
+
+    List<CaseReviewFunctionalCase> getList(@Param("reviewId") String reviewId, @Param("reviewIds") List<String> reviewIds, @Param("deleted") boolean deleted);
 }
