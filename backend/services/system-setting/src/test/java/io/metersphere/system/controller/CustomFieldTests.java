@@ -9,6 +9,7 @@ import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 /**
@@ -46,6 +47,8 @@ class CustomFieldTests extends BaseTest {
         currentUserCustom.put("type", "multipleMember");
         currentUserCustom.put("value", "current user");
         customs.add(currentUserCustom);
+        currentUserCustom.put("value", "");
+        customs.add(currentUserCustom);
         map.put("customs", customs);
 
         baseCondition.setFilter(filters);
@@ -63,7 +66,38 @@ class CustomFieldTests extends BaseTest {
         Assertions.assertNotNull(customMultipleValues);
         Assertions.assertEquals(1, customMultipleValues.size());
         Assertions.assertTrue(customMultipleValues.contains("[\"oasis\"]"));
+
+        // 验证 CombineField 方法
+        Map<String, Object> combineField = (Map<String, Object>) baseCondition.getCombine().get("createUser");
+        Assertions.assertNotNull(combineField);
+        Assertions.assertEquals(StringUtils.EMPTY, combineField.get("value"));
     }
+
+    @Test
+    void testHandleFilterCustomMultipleFieldsEmptyFilter() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        // 创建测试数据
+        BaseCondition baseCondition = new BaseCondition();
+
+        // 调用被测试方法
+        CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(baseCondition, "user123");
+
+        // 验证预期结果
+        Assertions.assertNull(baseCondition.getFilter());
+    }
+
+    @Test
+    void testHandleCombineFieldsEmptyCombine() {
+        // 创建测试数据
+        BaseCondition baseCondition = new BaseCondition();
+
+        // 调用被测试方法
+        CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(baseCondition, "user123");
+
+        // 验证预期结果
+        Assertions.assertNull(baseCondition.getCombine());
+    }
+
+
 
     @Test
     @Order(2)
