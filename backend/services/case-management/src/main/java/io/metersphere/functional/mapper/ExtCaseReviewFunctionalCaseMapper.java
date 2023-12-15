@@ -27,6 +27,10 @@ public interface ExtCaseReviewFunctionalCaseMapper {
 
     Long getPos(@Param("reviewId") String reviewId);
 
+    Long getPrePos(@Param("reviewId") String reviewId, @Param("basePos") Long basePos);
+
+    Long getLastPos(@Param("reviewId") String reviewId, @Param("basePos") Long basePos);
+
     List<String> getIds(@Param("request") BaseReviewCaseBatchRequest request, @Param("userId") String userId, @Param("deleted") boolean deleted);
 
     List<CaseReviewFunctionalCase> getList(@Param("reviewId") String reviewId, @Param("reviewIds") List<String> reviewIds, @Param("deleted") boolean deleted);
