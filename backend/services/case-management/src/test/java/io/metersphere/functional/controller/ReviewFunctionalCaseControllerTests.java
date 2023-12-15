@@ -231,6 +231,14 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
     public void getListSuccess() throws Exception {
         List<CaseReview> caseReviews = getCaseReviews("创建用例评审1");
         String reviewId = caseReviews.get(0).getId();
+        CaseReviewHistory caseReviewHistory = new CaseReviewHistory();
+        caseReviewHistory.setReviewId(reviewId);
+        caseReviewHistory.setCaseId("gyqReviewCaseTest");
+        caseReviewHistory.setCreateUser("system");
+        caseReviewHistory.setStatus(FunctionalCaseReviewStatus.RE_REVIEWED.toString());
+        caseReviewHistory.setId("test");
+        caseReviewHistory.setCreateTime(System.currentTimeMillis());
+        caseReviewHistoryMapper.insertSelective(caseReviewHistory);
         List<CaseReviewHistoryDTO> gyqReviewCaseTest = getCaseReviewHistoryList("gyqReviewCaseTest", reviewId);
         System.out.println(JSON.toJSONString(gyqReviewCaseTest));
     }
