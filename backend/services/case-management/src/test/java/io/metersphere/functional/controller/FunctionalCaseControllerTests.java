@@ -194,6 +194,17 @@ public class FunctionalCaseControllerTests extends BaseTest {
         ResultHolder updateResultHolder = JSON.parseObject(updateReturnData, ResultHolder.class);
         Assertions.assertNotNull(updateResultHolder);
 
+        FunctionalCaseEditRequest editRequest = new FunctionalCaseEditRequest();
+        editRequest.setProjectId("WX_PROJECT_ID");
+        editRequest.setModuleId("TEST_MODULE_ID");
+        editRequest.setId("WX_TEST_FUNCTIONAL_CASE_ID");
+        editRequest.setTemplateId("default_template_id");
+        editRequest.setName("测试更新评审状态");
+        editRequest.setCaseEditType("STEP");
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(editRequest));
+        paramMap.add("files", files);
+        this.requestMultipart(FUNCTIONAL_CASE_UPDATE_URL, paramMap);
     }
 
 
@@ -389,7 +400,6 @@ public class FunctionalCaseControllerTests extends BaseTest {
         request.setCustomField(caseCustomFieldDTO);
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_BATCH_EDIT_URL, request);
     }
-
 
 
     @Test

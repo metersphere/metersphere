@@ -271,6 +271,7 @@ public class FunctionalCaseService {
      */
     public FunctionalCase updateFunctionalCase(FunctionalCaseEditRequest request, List<MultipartFile> files, String userId) {
         FunctionalCase checked = checkFunctionalCase(request.getId());
+        FunctionalCaseBlob functionalCaseBlob = functionalCaseBlobMapper.selectByPrimaryKey(request.getId());
 
         //对于用例模块的变更，同一用例的其他版本用例也需要变更
         if (!StringUtils.equals(checked.getModuleId(), request.getModuleId())) {
@@ -300,9 +301,16 @@ public class FunctionalCaseService {
             functionalCaseAttachmentService.association(request.getRelateFileMetaIds(), request.getId(), userId, UPDATE_FUNCTIONAL_CASE_FILE_LOG_URL, request.getProjectId());
         }
 
+        //处理评审状态
+        handleReviewStatus(request, functionalCaseBlob, checked.getName());
+
 
         return functionalCase;
 
+    }
+
+    private void handleReviewStatus(FunctionalCaseEditRequest request, FunctionalCaseBlob blob, String name) {
+        caseReviewFunctionalCaseService.reReviewedCase(request, blob, name);
     }
 
 

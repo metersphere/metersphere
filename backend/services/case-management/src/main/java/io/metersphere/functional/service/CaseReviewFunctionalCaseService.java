@@ -2,25 +2,28 @@ package io.metersphere.functional.service;
 
 
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
-import io.metersphere.functional.domain.CaseReviewFunctionalCase;
-import io.metersphere.functional.domain.CaseReviewFunctionalCaseExample;
+import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.ReviewFunctionalCaseDTO;
 import io.metersphere.functional.dto.ReviewsDTO;
-import io.metersphere.functional.mapper.CaseReviewFunctionalCaseMapper;
-import io.metersphere.functional.mapper.ExtCaseReviewFunctionalCaseMapper;
-import io.metersphere.functional.mapper.ExtCaseReviewFunctionalCaseUserMapper;
-import io.metersphere.functional.mapper.ExtFunctionalCaseModuleMapper;
+import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.request.BaseReviewCaseBatchRequest;
+import io.metersphere.functional.request.FunctionalCaseEditRequest;
 import io.metersphere.functional.request.ReviewFunctionalCasePageRequest;
+import io.metersphere.project.domain.ProjectApplication;
+import io.metersphere.project.domain.ProjectApplicationExample;
 import io.metersphere.project.domain.ProjectVersion;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
+import io.metersphere.project.mapper.ProjectApplicationMapper;
+import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +51,12 @@ public class CaseReviewFunctionalCaseService {
     private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
     @Resource
     private CaseReviewService caseReviewService;
+    @Resource
+    private ProjectApplicationMapper projectApplicationMapper;
+    @Resource
+    private CaseReviewHistoryMapper caseReviewHistoryMapper;
+    @Resource
+    private FunctionalCaseMapper functionalCaseMapper;
 
     /**
      * 通过评审id获取关联的用例id集合
@@ -142,5 +151,63 @@ public class CaseReviewFunctionalCaseService {
         reviewFunctionalCase.setPos(caseReviewService.getCaseFunctionalCaseNextPos(reviewId));
         caseReviewFunctionalCaseMapper.insertSelective(reviewFunctionalCase);
 
+    }
+
+    /**
+     * 用例更新 更新状态为重新评审
+     *
+     * @param request
+     * @param blob
+     */
+    public void reReviewedCase(FunctionalCaseEditRequest request, FunctionalCaseBlob blob, String name) {
+        ProjectApplicationExample example = new ProjectApplicationExample();
+        example.createCriteria().andProjectIdEqualTo(request.getProjectId()).andTypeEqualTo(ProjectApplicationType.CASE.CASE_RE_REVIEW.name());
+        List<ProjectApplication> projectApplications = projectApplicationMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(projectApplications) && Boolean.valueOf(projectApplications.get(0).getTypeValue())) {
+            if (!StringUtils.equals(name, request.getName())
+                    || !StringUtils.equals(new String(blob.getSteps(), StandardCharsets.UTF_8), request.getSteps())
+                    || !StringUtils.equals(new String(blob.getTextDescription(), StandardCharsets.UTF_8), request.getTextDescription())
+                    || !StringUtils.equals(new String(blob.getExpectedResult(), StandardCharsets.UTF_8), request.getExpectedResult())) {
+                doHandleStatusAndHistory(request, blob, name);
+            }
+        }
+
+
+    }
+
+    private void doHandleStatusAndHistory(FunctionalCaseEditRequest request, FunctionalCaseBlob blob, String name) {
+        CaseReviewFunctionalCaseExample reviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
+        reviewFunctionalCaseExample.createCriteria().andCaseIdEqualTo(blob.getId());
+        List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(reviewFunctionalCaseExample);
+        if (CollectionUtils.isNotEmpty(caseReviewFunctionalCases)) {
+            caseReviewFunctionalCases.forEach(item -> {
+                updateReviewCaseAndCaseStatus(item);
+                insertHistory(item);
+            });
+        }
+
+
+    }
+
+    private void insertHistory(CaseReviewFunctionalCase item) {
+        CaseReviewHistory caseReviewHistory = new CaseReviewHistory();
+        caseReviewHistory.setId(IDGenerator.nextStr());
+        caseReviewHistory.setCaseId(item.getCaseId());
+        caseReviewHistory.setReviewId(item.getReviewId());
+        caseReviewHistory.setStatus(FunctionalCaseReviewStatus.RE_REVIEWED.name());
+        caseReviewHistory.setCreateUser("system");
+        caseReviewHistory.setCreateTime(System.currentTimeMillis());
+        caseReviewHistoryMapper.insertSelective(caseReviewHistory);
+    }
+
+    private void updateReviewCaseAndCaseStatus(CaseReviewFunctionalCase item) {
+        item.setStatus(FunctionalCaseReviewStatus.RE_REVIEWED.name());
+        item.setUpdateTime(System.currentTimeMillis());
+        caseReviewFunctionalCaseMapper.updateByPrimaryKeySelective(item);
+
+        FunctionalCase functionalCase = new FunctionalCase();
+        functionalCase.setId(item.getCaseId());
+        functionalCase.setReviewStatus(FunctionalCaseReviewStatus.RE_REVIEWED.name());
+        functionalCaseMapper.updateByPrimaryKeySelective(functionalCase);
     }
 }
