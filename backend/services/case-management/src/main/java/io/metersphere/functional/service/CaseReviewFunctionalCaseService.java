@@ -12,19 +12,24 @@ import io.metersphere.functional.mapper.ExtCaseReviewFunctionalCaseMapper;
 import io.metersphere.functional.mapper.ExtCaseReviewFunctionalCaseUserMapper;
 import io.metersphere.functional.mapper.ExtFunctionalCaseModuleMapper;
 import io.metersphere.functional.request.BaseReviewCaseBatchRequest;
+import io.metersphere.functional.request.CaseReviewFunctionalCasePosRequest;
 import io.metersphere.functional.request.ReviewFunctionalCasePageRequest;
 import io.metersphere.functional.utils.CaseListenerUtils;
 import io.metersphere.project.domain.ProjectVersion;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -156,5 +161,17 @@ public class CaseReviewFunctionalCaseService {
         reviewFunctionalCase.setPos(caseReviewService.getCaseFunctionalCaseNextPos(reviewId));
         caseReviewFunctionalCaseMapper.insertSelective(reviewFunctionalCase);
 
+    }
+
+    /**
+     * 拖拽关联用例的排序
+     */
+    public void editPos(CaseReviewFunctionalCasePosRequest request) {
+        ServiceUtils.updatePosField(request,
+                CaseReviewFunctionalCase.class,
+                caseReviewFunctionalCaseMapper::selectByPrimaryKey,
+                extCaseReviewFunctionalCaseMapper::getPrePos,
+                extCaseReviewFunctionalCaseMapper::getLastPos,
+                caseReviewFunctionalCaseMapper::updateByPrimaryKeySelective);
     }
 }
