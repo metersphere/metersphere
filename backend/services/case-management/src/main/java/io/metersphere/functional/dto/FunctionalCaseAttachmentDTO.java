@@ -15,11 +15,11 @@ public class FunctionalCaseAttachmentDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "ID")
+    @Schema(description = "文件ID")
     private String id;
 
-    @Schema(description = "文件ID")
-    private String fileId;
+    @Schema(description = "关联ID")
+    private String associationId;
 
     @Schema(description = "文件名称")
     private String fileName;

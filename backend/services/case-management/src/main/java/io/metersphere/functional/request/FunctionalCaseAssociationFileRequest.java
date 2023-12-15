@@ -1,6 +1,7 @@
 package io.metersphere.functional.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.io.Serial;
@@ -19,8 +20,10 @@ public class FunctionalCaseAssociationFileRequest implements Serializable {
     private List<String> fileIds;
 
     @Schema(description = "用例id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{functional_case_comment.case_id.not_blank}")
     private String caseId;
 
     @Schema(description = "项目id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{functional_case.project_id.not_blank}")
     private String projectId;
 }

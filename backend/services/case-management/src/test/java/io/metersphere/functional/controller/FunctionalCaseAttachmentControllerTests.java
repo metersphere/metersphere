@@ -1,9 +1,11 @@
 package io.metersphere.functional.controller;
 
 import io.metersphere.functional.dto.FunctionalCaseAttachmentDTO;
+import io.metersphere.functional.request.AttachmentTransferRequest;
 import io.metersphere.functional.request.FunctionalCaseAssociationFileRequest;
 import io.metersphere.functional.request.FunctionalCaseDeleteFileRequest;
 import io.metersphere.functional.request.FunctionalCaseFileRequest;
+import io.metersphere.functional.service.FunctionalCaseAttachmentService;
 import io.metersphere.functional.utils.FileBaseUtils;
 import io.metersphere.project.dto.filemanagement.request.FileMetadataTableRequest;
 import io.metersphere.project.dto.filemanagement.request.FileUploadRequest;
@@ -12,10 +14,10 @@ import io.metersphere.project.service.FileService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
-import io.metersphere.sdk.file.FileRequest;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -29,6 +31,7 @@ import org.springframework.util.LinkedMultiValueMap;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -46,6 +49,8 @@ public class FunctionalCaseAttachmentControllerTests extends BaseTest {
 
     @Resource
     private FileMetadataService fileMetadataService;
+    @Resource
+    private FunctionalCaseAttachmentService functionalCaseAttachmentService;
 
     public static final String ATTACHMENT_PAGE_URL = "/attachment/page";
     public static final String ATTACHMENT_PREVIEW_URL = "/attachment/preview";
@@ -80,7 +85,7 @@ public class FunctionalCaseAttachmentControllerTests extends BaseTest {
         FunctionalCaseFileRequest request = new FunctionalCaseFileRequest();
         request.setProjectId("WX_TEST_PROJECT_ID");
         request.setLocal(true);
-        request.setFileId("TEST_ATTACHMENT_ID");
+        request.setFileId("TEST_ATTACHMENT_FILE_ID");
         request.setCaseId("TEST_FUNCTIONAL_CASE_ATTACHMENT_ID");
         uploadLocalFile();
         this.downloadFile(ATTACHMENT_PREVIEW_URL, request);
@@ -138,7 +143,7 @@ public class FunctionalCaseAttachmentControllerTests extends BaseTest {
         //覆盖controller
         FunctionalCaseFileRequest request = new FunctionalCaseFileRequest();
         request.setProjectId("WX_TEST_PROJECT_ID");
-        request.setFileId("TEST_ATTACHMENT_ID");
+        request.setFileId("TEST_ATTACHMENT_FILE_ID");
         request.setCaseId("TEST_FUNCTIONAL_CASE_ATTACHMENT_ID");
         request.setLocal(true);
         this.downloadFile(ATTACHMENT_DOWNLOAD_URL, request);
@@ -166,14 +171,16 @@ public class FunctionalCaseAttachmentControllerTests extends BaseTest {
     @Order(6)
     public void testAttachmentTransfer() throws Exception {
         //覆盖controller
-        FunctionalCaseFileRequest request = new FunctionalCaseFileRequest();
+        AttachmentTransferRequest request = new AttachmentTransferRequest();
         request.setLocal(false);
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setFileId(FILE_ID);
         request.setCaseId("TEST_FUNCTIONAL_CASE_ATTACHMENT_ID");
+        request.setModuleId("root");
         this.requestPost(ATTACHMENT_TRANSFER_URL, request);
-        request.setFileId("TEST_ATTACHMENT_ID");
+        request.setFileId("TEST_ATTACHMENT_FILE_ID");
         this.requestPost(ATTACHMENT_TRANSFER_URL, request);
+        functionalCaseAttachmentService.deleteCaseAttachment(List.of("TEST_ATTACHMENT_FILE_ID"), "TEST_FUNCTIONAL_CASE_ATTACHMENT_ID", "WX_TEST_PROJECT_ID");
 
     }
 
@@ -211,7 +218,7 @@ public class FunctionalCaseAttachmentControllerTests extends BaseTest {
         request.setLocal(false);
         this.requestPost(DELETE_FILE_URL, request);
 
-        attachmentDTO.setId("TEST_ATTACHMENT_ID");
+        attachmentDTO.setId("TEST_ATTACHMENT_FILE_ID");
         attachmentDTO.setLocal(true);
         this.requestPost(DELETE_FILE_URL, request);
     }

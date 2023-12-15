@@ -18,9 +18,9 @@ import io.metersphere.project.service.FileService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
-import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
@@ -122,6 +122,8 @@ public class FunctionalCaseAttachmentService {
         List<FunctionalCaseAttachmentDTO> attachmentDTOs = new ArrayList<>(Lists.transform(caseAttachments, (functionalCaseAttachment) -> {
             FunctionalCaseAttachmentDTO attachmentDTO = new FunctionalCaseAttachmentDTO();
             BeanUtils.copyBean(attachmentDTO, functionalCaseAttachment);
+            attachmentDTO.setId(functionalCaseAttachment.getFileId());
+            attachmentDTO.setAssociationId(functionalCaseAttachment.getId());
             return attachmentDTO;
         }));
 
@@ -130,6 +132,8 @@ public class FunctionalCaseAttachmentService {
         List<FunctionalCaseAttachmentDTO> filesDTOs = new ArrayList<>(Lists.transform(files, (fileInfo) -> {
             FunctionalCaseAttachmentDTO attachmentDTO = new FunctionalCaseAttachmentDTO();
             BeanUtils.copyBean(attachmentDTO, fileInfo);
+            attachmentDTO.setId(fileInfo.getFileId());
+            attachmentDTO.setAssociationId(fileInfo.getId());
             return attachmentDTO;
         }));
         attachmentDTOs.addAll(filesDTOs);
@@ -145,7 +149,7 @@ public class FunctionalCaseAttachmentService {
      */
     public void deleteCaseAttachment(List<String> deleteFileMetaIds, String caseId, String projectId) {
         FunctionalCaseAttachmentExample example = new FunctionalCaseAttachmentExample();
-        example.createCriteria().andIdIn(deleteFileMetaIds).andCaseIdEqualTo(caseId).andLocalEqualTo(true);
+        example.createCriteria().andFileIdIn(deleteFileMetaIds).andCaseIdEqualTo(caseId).andLocalEqualTo(true);
         List<FunctionalCaseAttachment> delAttachment = functionalCaseAttachmentMapper.selectByExample(example);
         example.clear();
         example.createCriteria().andIdIn(deleteFileMetaIds);
@@ -217,13 +221,14 @@ public class FunctionalCaseAttachmentService {
     /**
      * 取消关联 删除文件库文件和用例关联关系
      *
+     * @param sourceId       sourceId
      * @param unLinkFilesIds unLinkFilesIds
      * @param logUrl         logUrl
      * @param userId         userId
      * @param projectId      projectId
      */
-    public void unAssociation(List<String> unLinkFilesIds, String logUrl, String userId, String projectId) {
-        fileAssociationService.deleteByIds(unLinkFilesIds, createFileLogRecord(logUrl, userId, projectId));
+    public void unAssociation(String sourceId, List<String> unLinkFilesIds, String logUrl, String userId, String projectId) {
+        fileAssociationService.deleteBySourceIdAndFileIds(sourceId, unLinkFilesIds, createFileLogRecord(logUrl, userId, projectId));
     }
 
 
@@ -234,7 +239,7 @@ public class FunctionalCaseAttachmentService {
      */
     public ResponseEntity<byte[]> downloadPreviewImgById(FunctionalCaseFileRequest request) {
         FunctionalCaseAttachmentExample example = new FunctionalCaseAttachmentExample();
-        example.createCriteria().andIdEqualTo(request.getFileId()).andCaseIdEqualTo(request.getCaseId());
+        example.createCriteria().andFileIdEqualTo(request.getFileId()).andCaseIdEqualTo(request.getCaseId());
         List<FunctionalCaseAttachment> caseAttachments = functionalCaseAttachmentMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(caseAttachments)) {
             FunctionalCaseAttachment attachment = caseAttachments.get(0);
@@ -258,7 +263,7 @@ public class FunctionalCaseAttachmentService {
 
     public byte[] getFileByte(FunctionalCaseFileRequest request) {
         FunctionalCaseAttachmentExample example = new FunctionalCaseAttachmentExample();
-        example.createCriteria().andIdEqualTo(request.getFileId()).andCaseIdEqualTo(request.getCaseId());
+        example.createCriteria().andFileIdEqualTo(request.getFileId()).andCaseIdEqualTo(request.getCaseId());
         List<FunctionalCaseAttachment> caseAttachments = functionalCaseAttachmentMapper.selectByExample(example);
         byte[] bytes = null;
         if (CollectionUtils.isNotEmpty(caseAttachments)) {
@@ -278,7 +283,7 @@ public class FunctionalCaseAttachmentService {
 
     public FunctionalCaseAttachment getAttachment(FunctionalCaseFileRequest request) {
         FunctionalCaseAttachmentExample example = new FunctionalCaseAttachmentExample();
-        example.createCriteria().andIdEqualTo(request.getFileId()).andCaseIdEqualTo(request.getCaseId());
+        example.createCriteria().andFileIdEqualTo(request.getFileId()).andCaseIdEqualTo(request.getCaseId());
         List<FunctionalCaseAttachment> caseAttachments = functionalCaseAttachmentMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(caseAttachments)) {
             return caseAttachments.get(0);
@@ -307,7 +312,7 @@ public class FunctionalCaseAttachmentService {
         if (BooleanUtils.isTrue(request.getLocal())) {
             this.deleteCaseAttachment(Arrays.asList(request.getId()), request.getCaseId(), userId);
         } else {
-            this.unAssociation(Arrays.asList(request.getId()), DELETED_FILE, userId, request.getProjectId());
+            this.unAssociation(request.getCaseId(), Arrays.asList(request.getId()), DELETED_FILE, userId, request.getProjectId());
         }
     }
 }

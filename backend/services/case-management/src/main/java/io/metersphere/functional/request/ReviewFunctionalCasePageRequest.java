@@ -2,6 +2,7 @@ package io.metersphere.functional.request;
 
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.io.Serial;
@@ -16,6 +17,7 @@ public class ReviewFunctionalCasePageRequest extends BasePageRequest implements 
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "评审id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{case_review_user.review_id.not_blank}")
     private String reviewId;
 
 
