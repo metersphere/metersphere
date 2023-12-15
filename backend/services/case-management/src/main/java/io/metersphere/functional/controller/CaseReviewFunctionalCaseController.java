@@ -6,9 +6,11 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.functional.dto.ReviewFunctionalCaseDTO;
 import io.metersphere.functional.request.BaseReviewCaseBatchRequest;
+import io.metersphere.functional.request.CaseReviewFunctionalCasePosRequest;
 import io.metersphere.functional.request.ReviewFunctionalCasePageRequest;
 import io.metersphere.functional.service.CaseReviewFunctionalCaseService;
 import io.metersphere.functional.service.CaseReviewLogService;
+import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.utils.PageUtils;
@@ -17,6 +19,7 @@ import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -58,6 +61,13 @@ public class CaseReviewFunctionalCaseController {
     @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.batchDisassociateCaseLog(#request)", msClass = CaseReviewLogService.class)
     public void batchDisassociate(@Validated @RequestBody BaseReviewCaseBatchRequest request) {
         caseReviewFunctionalCaseService.disassociate(request);
+    }
+
+    @PostMapping("/edit/pos")
+    @Operation(summary = "用例管理-功能用例-评审列表-评审详情-列表-拖拽排序")
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_UPDATE)
+    public void editPos(@Validated @RequestBody CaseReviewFunctionalCasePosRequest request) {
+        caseReviewFunctionalCaseService.editPos(request);
     }
 
 }

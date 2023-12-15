@@ -305,4 +305,21 @@
         </if>
     </select>
 
+    <select id="getPrePos" resultType="java.lang.Long">
+        select `pos` from case_review_functional_case where review_id = #{reviewId}
+        <if test="basePos != null">
+            and `pos` &lt; #{basePos}
+        </if>
+        order by `pos` desc limit 1;
+    </select>
+
+
+    <select id="getLastPos" resultType="java.lang.Long">
+        select `pos` from case_review_functional_case where review_id = #{reviewId}
+        <if test="basePos != null">
+            and `pos` &gt; #{basePos}
+        </if>
+        order by `pos` desc limit 1;
+    </select>
+
 </mapper>

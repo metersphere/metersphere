@@ -8,6 +8,7 @@ import io.metersphere.functional.dto.ReviewFunctionalCaseDTO;
 import io.metersphere.functional.dto.ReviewsDTO;
 import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.request.BaseReviewCaseBatchRequest;
+import io.metersphere.functional.request.CaseReviewFunctionalCasePosRequest;
 import io.metersphere.functional.request.FunctionalCaseEditRequest;
 import io.metersphere.functional.request.ReviewFunctionalCasePageRequest;
 import io.metersphere.functional.utils.CaseListenerUtils;
@@ -19,6 +20,7 @@ import io.metersphere.project.mapper.ProjectApplicationMapper;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +28,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -170,8 +175,6 @@ public class CaseReviewFunctionalCaseService {
     /**
      * 用例更新 更新状态为重新评审
      *
-     * @param request
-     * @param blob
      */
     public void reReviewedCase(FunctionalCaseEditRequest request, FunctionalCaseBlob blob, String name) {
         ProjectApplicationExample example = new ProjectApplicationExample();
@@ -223,5 +226,17 @@ public class CaseReviewFunctionalCaseService {
         functionalCase.setId(item.getCaseId());
         functionalCase.setReviewStatus(FunctionalCaseReviewStatus.RE_REVIEWED.name());
         functionalCaseMapper.updateByPrimaryKeySelective(functionalCase);
+    }
+
+    /**
+     * 拖拽关联用例的排序
+     */
+    public void editPos(CaseReviewFunctionalCasePosRequest request) {
+        ServiceUtils.updatePosField(request,
+                CaseReviewFunctionalCase.class,
+                caseReviewFunctionalCaseMapper::selectByPrimaryKey,
+                extCaseReviewFunctionalCaseMapper::getPrePos,
+                extCaseReviewFunctionalCaseMapper::getLastPos,
+                caseReviewFunctionalCaseMapper::updateByPrimaryKeySelective);
     }
 }

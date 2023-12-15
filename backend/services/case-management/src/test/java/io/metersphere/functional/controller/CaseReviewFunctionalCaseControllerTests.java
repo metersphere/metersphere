@@ -1,13 +1,14 @@
 package io.metersphere.functional.controller;
 
-import io.metersphere.functional.request.BaseReviewCaseBatchRequest;
-import io.metersphere.functional.request.FunctionalCaseAddRequest;
-import io.metersphere.functional.request.FunctionalCasePageRequest;
-import io.metersphere.functional.request.ReviewFunctionalCasePageRequest;
+import io.metersphere.functional.domain.CaseReviewFunctionalCase;
+import io.metersphere.functional.domain.CaseReviewFunctionalCaseExample;
+import io.metersphere.functional.mapper.CaseReviewFunctionalCaseMapper;
+import io.metersphere.functional.request.*;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.BaseCondition;
+import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -31,6 +32,11 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
     public static final String REVIEW_CASE_PAGE = "/case/review/detail/page";
     public static final String BATCH_DELETE_URL = "/case/review/detail/batch/disassociate";
     public static final String FUNCTIONAL_CASE_ADD_URL = "/functional/case/add";
+
+    public static final String REVIEW_FUNCTIONAL_CASE_POS = "/case/review/detail/edit/pos";
+
+    @Resource
+    private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
 
     @Test
     @Order(1)
@@ -127,6 +133,46 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
+    }
+
+    @Test
+    @Order(6)
+    public void testPos() throws Exception {
+        List<CaseReviewFunctionalCase> caseReviewList = getCaseReviewFunctionalCase("wx_review_id_1");
+        CaseReviewFunctionalCase caseReviews = caseReviewList.get(0);
+        CaseReviewFunctionalCase caseReviews2 = caseReviewList.get(1);
+        Long pos = caseReviews.getPos();
+        Long pos2 = caseReviews2.getPos();
+        CaseReviewFunctionalCasePosRequest posRequest = new CaseReviewFunctionalCasePosRequest();
+        posRequest.setProjectId("wx_test_project");
+        posRequest.setTargetId(caseReviews.getId());
+        posRequest.setMoveId(caseReviews2.getId());
+        posRequest.setMoveMode("AFTER");
+        posRequest.setReviewId("wx_review_id_1");
+        this.requestPostWithOkAndReturn(REVIEW_FUNCTIONAL_CASE_POS, posRequest);
+        caseReviewList = getCaseReviewFunctionalCase("wx_review_id_1");
+        caseReviews = caseReviewList.get(1);
+        caseReviews2 = caseReviewList.get(0);
+        Long pos3 = caseReviews.getPos();
+        Long pos4 = caseReviews2.getPos();
+        Assertions.assertTrue(Objects.equals(pos, pos3));
+        Assertions.assertTrue(pos2 > pos4);
+        posRequest.setMoveMode("BEFORE");
+        this.requestPostWithOkAndReturn(REVIEW_FUNCTIONAL_CASE_POS, posRequest);
+        caseReviewList = getCaseReviewFunctionalCase("wx_review_id_1");
+        caseReviews = caseReviewList.get(0);
+        caseReviews2 = caseReviewList.get(1);
+        Long pos5 = caseReviews.getPos();
+        Long pos6 = caseReviews2.getPos();
+        Assertions.assertTrue(Objects.equals(pos5, pos3));
+        Assertions.assertTrue(pos6 > pos4);
+    }
+
+    private List<CaseReviewFunctionalCase> getCaseReviewFunctionalCase(String reviewId) {
+        CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
+        caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(reviewId);
+        caseReviewFunctionalCaseExample.setOrderByClause("pos asc");
+        return caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
     }
 
 
