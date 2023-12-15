@@ -292,7 +292,7 @@ public class FunctionalCaseService {
 
         //处理取消关联文件id
         if (CollectionUtils.isNotEmpty(request.getUnLinkFilesIds())) {
-            functionalCaseAttachmentService.unAssociation(request.getUnLinkFilesIds(), UPDATE_FUNCTIONAL_CASE_FILE_LOG_URL, userId, request.getProjectId());
+            functionalCaseAttachmentService.unAssociation(request.getId(), request.getUnLinkFilesIds(), UPDATE_FUNCTIONAL_CASE_FILE_LOG_URL, userId, request.getProjectId());
         }
 
         //上传新文件

@@ -1,6 +1,7 @@
 package io.metersphere.functional.controller;
 
 import io.metersphere.functional.domain.FunctionalCaseAttachment;
+import io.metersphere.functional.request.AttachmentTransferRequest;
 import io.metersphere.functional.request.FunctionalCaseAssociationFileRequest;
 import io.metersphere.functional.request.FunctionalCaseDeleteFileRequest;
 import io.metersphere.functional.request.FunctionalCaseFileRequest;
@@ -112,7 +113,7 @@ public class FunctionalCaseAttachmentController {
     @PostMapping("/transfer")
     @Operation(summary = "用例管理-功能用例-附件-文件转存")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
-    public String transfer(@Validated @RequestBody FunctionalCaseFileRequest request) {
+    public String transfer(@Validated @RequestBody AttachmentTransferRequest request) {
         byte[] fileByte = functionalCaseAttachmentService.getFileByte(request);
         FunctionalCaseAttachment attachment = functionalCaseAttachmentService.getAttachment(request);
         FileLogRecord fileLogRecord = FileLogRecord.builder()
