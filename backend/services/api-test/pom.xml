@@ -52,6 +52,12 @@
             <artifactId>ApacheJMeter_http</artifactId>
             <version>${jmeter.version}</version>
         </dependency>
+        <!-- 自定义jmeter 断言插件 -->
+        <dependency>
+            <groupId>io.metersphere</groupId>
+            <artifactId>metersphere-jmeter-assertions</artifactId>
+            <version>${metersphere-jmeter-assertions.version}</version>
+        </dependency>
         <!-- swagger 解析 -->
         <dependency>
             <groupId>io.swagger.parser.v3</groupId>
