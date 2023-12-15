@@ -7,11 +7,11 @@
         class="pane"
       >
         <ms-sql-result-table
-          v-if="isSqlType && activeName === 'body'"
+          v-if="isSqlType && activeName === 'body'&& !responseResult.contentType"
           :body="responseResult.body"
         />
         <ms-code-edit
-          v-if="!isSqlType && isMsCodeEditShow && activeName === 'body'"
+          v-if="!isSqlType && isMsCodeEditShow && activeName === 'body'&& !isPicture"
           :mode="mode"
           :read-only="true"
           :modes="modes"
@@ -19,6 +19,11 @@
           height="250px"
           ref="codeEdit"
         />
+        <el-row v-if="isPicture && activeName === 'body'">
+          <el-col :span="24">
+            <el-image :src="srcUrl" fit="contain" style="width: 100%;height: 100%;"></el-image>
+          </el-col>
+        </el-row>
       </el-tab-pane>
 
       <el-tab-pane
@@ -137,12 +142,15 @@ export default {
       mode: "text",
       isMsCodeEditShow: true,
       reqMessages: "",
+      contentType: ['image/png', 'image/jpeg', 'image/gif', 'image/bmp', 'image/webp', 'image/svg+xml', 'image/apng', 'image/avif'],
+      srcUrl: '',
     };
   },
   watch: {
     response() {
       this.setBodyType();
       this.setReqMessage();
+      this.showPicture();
     },
     activeName: {
       handler() {
@@ -161,6 +169,13 @@ export default {
     sqlModeChange(mode) {
       this.mode = mode;
     },
+    showPicture() {
+      if (this.responseResult.contentType && this.contentType.includes(this.responseResult.contentType)) {
+        this.modes.push('picture')
+        this.srcUrl = 'data:' + this.responseResult.contentType + ';base64,' + this.responseResult.imageUrl;
+      }
+    },
+
     setBodyType() {
       if (
         this.response &&
@@ -184,6 +199,13 @@ export default {
       this.$nextTick(() => {
         this.isMsCodeEditShow = true;
       });
+    },
+    isPicture() {
+      return (
+        this.responseResult.contentType &&
+        this.contentType.includes(this.responseResult.contentType) &&
+        this.mode === 'picture'
+      );
     },
     setReqMessage() {
       if (this.response) {
@@ -234,6 +256,7 @@ export default {
   mounted() {
     this.setBodyType();
     this.setReqMessage();
+    this.showPicture();
   },
   computed: {
     isSqlType() {
