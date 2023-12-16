@@ -36,7 +36,7 @@
       :bordered="{ cell: true }"
       :hoverable="false"
       :pagination="false"
-      :scroll="{ x: '1400px' }"
+      :scroll="{ x: 'auto' }"
       :draggable="{ type: 'handle', width: 39 }"
       :loading="tableLoading"
       @change="handleChange"

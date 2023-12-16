@@ -2,7 +2,6 @@
   <div class="flex flex-row justify-between">
     <slot name="left"></slot>
     <div class="flex flex-row gap-[8px]">
-      <slot name="right"></slot>
       <a-input-search
         v-model="innerKeyword"
         size="small"
@@ -30,6 +29,7 @@
       <MsTag no-margin size="large" class="cursor-pointer" theme="outline" @click="handleResetSearch">
         <MsIcon class="text-[var(color-text-4)]" :size="16" type="icon-icon_reset_outlined" />
       </MsTag>
+      <slot name="right"></slot>
     </div>
   </div>
   <FilterForm
@@ -38,6 +38,7 @@
     :row-count="props.rowCount"
     :visible="visible"
     :config-list="props.filterConfigList"
+    :custom-list="props.customFieldsConfigList"
     class="mt-[8px]"
     @on-search="handleFilter"
     @data-index-change="dataIndexChange"
@@ -57,7 +58,8 @@
 
   const props = defineProps<{
     rowCount: number;
-    filterConfigList: FilterFormItem[];
+    filterConfigList: FilterFormItem[]; // 系统字段
+    customFieldsConfigList?: FilterFormItem[]; // 自定义字段
     searchPlaceholder?: string;
     keyword?: string;
   }>();

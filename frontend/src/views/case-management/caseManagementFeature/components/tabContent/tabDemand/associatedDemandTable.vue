@@ -14,6 +14,14 @@
         t('common.edit')
       }}</MsButton>
     </template>
+    <template v-if="(props.funParams.keyword || '').trim() === ''" #empty>
+      <div class="flex items-center justify-center">
+        {{ t('caseManagement.caseReview.tableNoData') }}
+        <MsButton class="ml-[8px]" @click="emit('create')">
+          {{ t('caseManagement.featureCase.addDemand') }}
+        </MsButton>
+      </div>
+    </template>
   </ms-base-table>
 </template>
 
@@ -54,6 +62,7 @@
 
   const emit = defineEmits<{
     (e: 'update', record: DemandItem): void;
+    (e: 'create'): void;
   }>();
 
   const columns: MsTableColumn = [

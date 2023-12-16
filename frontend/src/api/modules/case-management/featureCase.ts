@@ -10,8 +10,10 @@ import {
   CancelAssociationDemandUrl,
   CreateCaseModuleTreeUrl,
   CreateCaseUrl,
+  CreateCommentItemUrl,
   DeleteCaseModuleTreeUrl,
   DeleteCaseUrl,
+  DeleteCommentItemUrl,
   deleteFileOrCancelAssociationUrl,
   DeleteRecycleCaseListUrl,
   DetailCaseUrl,
@@ -21,10 +23,13 @@ import {
   GetCaseListUrl,
   GetCaseModulesCountUrl,
   GetCaseModuleTreeUrl,
+  GetCommentListUrl,
   GetDefaultTemplateFieldsUrl,
   GetDemandListUrl,
   GetRecycleCaseListUrl,
   GetRecycleCaseModulesCountUrl,
+  GetSearchCustomFieldsUrl,
+  getTransferTreeUrl,
   GetTrashCaseModuleTreeUrl,
   MoveCaseModuleTreeUrl,
   PreviewFileUrl,
@@ -33,6 +38,7 @@ import {
   TransferFileUrl,
   UpdateCaseModuleTreeUrl,
   UpdateCaseUrl,
+  UpdateCommentItemUrl,
   UpdateDemandUrl,
   UploadOrAssociationFileUrl,
 } from '@/api/requrls/case-management/featureCase';
@@ -44,6 +50,8 @@ import type {
   BatchMoveOrCopyType,
   CaseManagementTable,
   CaseModuleQueryParams,
+  CommentItem,
+  CreateOrUpdate,
   CreateOrUpdateDemand,
   CreateOrUpdateModule,
   DeleteCaseType,
@@ -200,6 +208,10 @@ export function uploadOrAssociationFile(data: Record<string, any>) {
 export function transferFileRequest(data: OperationFile) {
   return MSR.post({ url: TransferFileUrl, data });
 }
+// 获取文件转存目录
+export function getTransferFileTree(projectId: string) {
+  return MSR.get({ url: `${getTransferTreeUrl}/${projectId}` });
+}
 
 // 预览文件
 export function previewFile(data: OperationFile) {
@@ -214,6 +226,30 @@ export function downloadFileRequest(data: OperationFile) {
 // 删除文件或取消关联用例文件
 export function deleteFileOrCancelAssociation(data: OperationFile) {
   return MSR.post({ url: deleteFileOrCancelAssociationUrl, data });
+}
+// 高级搜索的自定义字段
+export function getCustomFieldsTable(projectId: string) {
+  return MSR.get({ url: `${GetSearchCustomFieldsUrl}/${projectId}` });
+}
+
+// 评论列表
+export function getCommentList(caseId: string) {
+  return MSR.get<CommentItem[]>({ url: `${GetCommentListUrl}/${caseId}` });
+}
+
+// 创建评论
+export function CreateCommentList(data: CreateOrUpdate) {
+  return MSR.post({ url: CreateCommentItemUrl, data });
+}
+
+// 创建评论
+export function UpdateCommentList(data: CreateOrUpdate) {
+  return MSR.post({ url: UpdateCommentItemUrl, data });
+}
+
+// 删除评论
+export function DeleteCommentList(commentId: string) {
+  return MSR.post({ url: `${DeleteCommentItemUrl}/${commentId}` });
 }
 
 export default {};

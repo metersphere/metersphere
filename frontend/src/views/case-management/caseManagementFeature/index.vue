@@ -4,8 +4,12 @@
       <a-button type="primary" @click="caseDetail">
         {{ t('caseManagement.featureCase.creatingCase') }}
       </a-button>
-      <a-button class="mx-3" type="outline"> {{ t('caseManagement.featureCase.importExcel') }} </a-button>
-      <a-button type="outline"> {{ t('caseManagement.featureCase.importXmind') }} </a-button>
+      <a-button class="mx-3" type="outline" @click="importCase('Excel')">
+        {{ t('caseManagement.featureCase.importExcel') }}
+      </a-button>
+      <a-button type="outline" @click="importCase('Xmind')">
+        {{ t('caseManagement.featureCase.importXmind') }}
+      </a-button>
     </div>
     <a-divider class="!my-0" />
     <div class="pageWrap">
@@ -84,12 +88,26 @@
               :active-folder-type="activeCaseType"
               :modules-count="modulesCount"
               @init="initModulesCount"
+              @import="importCase"
             ></CaseTable>
           </div>
         </template>
       </MsSplitBox>
     </div>
   </div>
+  <ExportExcelModal
+    v-model:visible="showExcelModal"
+    :validate-type="validateType"
+    @save="validateTemplate"
+    @close="showExcelModal = false"
+  />
+  <ValidateModal
+    v-model:visible="validateModal"
+    :validate-type="validateType"
+    @cancel="cancelValidate"
+    @check-finished="checkFinished"
+  />
+  <ValidateResult v-model:visible="validateResultModal" :validate-type="validateType" />
 </template>
 
 <script setup lang="ts">
@@ -105,6 +123,9 @@
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import CaseTable from './components/caseTable.vue';
   import FeatureCaseTree from './components/caseTree.vue';
+  import ExportExcelModal from './components/export/exportCaseModal.vue';
+  import ValidateModal from './components/export/validateModal.vue';
+  import ValidateResult from './components/export/validateResult.vue';
 
   import { createCaseModuleTree } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
@@ -114,6 +135,7 @@
   import type { CaseModuleQueryParams, CreateOrUpdateModule } from '@/models/caseManagement/featureCase';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
+  import type { FileItem } from '@arco-design/web-vue';
   import Message from '@arco-design/web-vue/es/message';
 
   const router = useRouter();
@@ -244,6 +266,33 @@
     }
     next();
   });
+
+  const showExcelModal = ref<boolean>(false);
+
+  const validateType = ref<'Excel' | 'Xmind'>('Excel');
+  // 导入excel
+  function importCase(type: 'Excel' | 'Xmind') {
+    validateType.value = type;
+    showExcelModal.value = true;
+  }
+
+  const validateModal = ref<boolean>(false);
+  const fileList = ref<FileItem[]>([]);
+  // 校验导入模版
+  function validateTemplate(files: FileItem[]) {
+    fileList.value = files;
+    validateModal.value = true;
+  }
+  // 校验结果弹窗
+  const validateResultModal = ref<boolean>(false);
+
+  function checkFinished() {
+    validateResultModal.value = true;
+  }
+
+  function cancelValidate() {
+    validateModal.value = false;
+  }
 
   onMounted(() => {
     if (featureCaseStore.operatingState) {

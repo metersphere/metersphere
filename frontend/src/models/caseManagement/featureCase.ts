@@ -1,9 +1,5 @@
-import { TagData } from '@arco-design/web-vue';
-
 import { TableQueryParams } from '@/models/common';
 import { StatusType } from '@/enums/caseEnum';
-
-import { RawCommands } from '@halo-dev/richtext-editor';
 
 export interface ModulesTreeType {
   id: string;
@@ -262,6 +258,38 @@ export interface OperationFile {
   caseId: string;
   fileId?: string; // 文件id
   local: boolean; // 是否是本地
+  moduleId?: string; // 文件转存模块id
+}
+
+// 评论列表项
+export interface CommentItem {
+  id: string;
+  caseId: string; // 功能用例ID
+  createUser: string; // 评论人
+  status: string; // 评审/测试计划执行状态:通过/不通过/重新提审/通过标准变更标记/强制通过标记/强制不通过标记/状态变更标记
+  type: string; // 评论类型：用例评论/测试计划用例评论/评审用例评论
+  parentId: string; // 父评论ID
+  resourceId: string; // 资源ID: 评审ID/测试计划ID
+  notifier: string; // 通知人
+  replyUser: string; // 回复人
+  createTime: string;
+  updateTime: string;
+  content: string; // 评论内容
+  userName: string; // 评论的人名
+  replyUserName: string; // 被回复的人名
+  replyUserLogo: string; // 被回复的人头像
+  userLogo: string; // 评论的人头像
+  replies: CommentItem[]; // 该条评论下的所有回复数据
+}
+// 创建或更新评论
+export interface CreateOrUpdate {
+  id?: string;
+  caseId: string;
+  notifier: string;
+  replyUser: string;
+  parentId: string;
+  content: string;
+  event: string; // 任务事件(仅评论: ’COMMENT‘; 评论并@: ’AT‘; 回复评论/回复并@: ’REPLAY‘;)
 }
 
 export type DemandList = DemandItem[];

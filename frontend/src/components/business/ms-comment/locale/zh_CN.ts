@@ -6,4 +6,5 @@ export default {
   'comment.delete': '删除',
   'comment.deleteConfirm': '确认删除该评论吗？',
   'comment.deleteContent': '删除后，评论无法回复，请谨慎操作',
+  'comment.enterPlaceHolderTip': '请输入评论，回车结束',
 };

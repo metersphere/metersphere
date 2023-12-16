@@ -109,6 +109,7 @@
                 <div class="mt-4">
                   <TabDetail
                     v-if="activeTab === 'detail'"
+                    ref="tabDetailRef"
                     :form="detailInfo"
                     :allow-edit="true"
                     @update-success="updateSuccess"
@@ -119,7 +120,7 @@
                   <TabDependency v-else-if="activeTab === 'dependency'" />
                   <TabCaseReview v-else-if="activeTab === 'caseReview'" />
                   <TabTestPlan v-else-if="activeTab === 'testPlan'" />
-                  <TabComment v-else-if="activeTab === 'comments'" />
+                  <TabComment v-else-if="activeTab === 'comments'" :case-id="props.detailId" />
                   <TabChangeHistory v-else-if="activeTab === 'changeHistory'" />
                 </div>
               </div>
@@ -130,7 +131,25 @@
               <div class="mb-4 font-medium">{{ t('caseManagement.featureCase.basicInfo') }}</div>
               <div class="baseItem">
                 <span class="label"> {{ t('caseManagement.featureCase.tableColumnModule') }}</span>
-                <span>{{ moduleName }}</span>
+                <span class="w-[calc(100%-36%)]">
+                  <a-tree-select
+                    v-model="detailInfo.moduleId"
+                    :data="featureCaseStore.caseTree"
+                    class="w-full"
+                    :allow-search="true"
+                    :field-names="{
+                      title: 'name',
+                      key: 'id',
+                      children: 'children',
+                    }"
+                    :tree-props="{
+                      virtualListProps: {
+                        height: 200,
+                      },
+                    }"
+                    @change="handleChangeModule"
+                  ></a-tree-select>
+                </span>
               </div>
               <!-- 自定义字段开始 -->
               <MsFormCreate
@@ -154,6 +173,7 @@
           </template>
         </MsSplitBox>
       </div>
+      <!-- <inputComment :content="content" is-show-avatar is-use-bottom @publish="publishHandler" /> -->
     </template>
   </MsDetailDrawer>
   <SettingDrawer v-model:visible="showSettingDrawer" />
@@ -173,6 +193,7 @@
   import type { MsPaginationI } from '@/components/pure/ms-table/type';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
+  import inputComment from '@/components/business/ms-comment/input.vue';
   import MsDetailDrawer from '@/components/business/ms-detail-drawer/index.vue';
   import SettingDrawer from './tabContent/settingDrawer.vue';
   import TabDefect from './tabContent/tabBug/tabDefect.vue';
@@ -202,6 +223,8 @@
   } from '@/models/caseManagement/featureCase';
   import { FormCreateKeyEnum } from '@/enums/formCreateEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
+
+  import { LabelValue } from '@arco-design/web-vue/es/tree-select/interface';
 
   const router = useRouter();
   const detailDrawerRef = ref<InstanceType<typeof MsDetailDrawer>>();
@@ -411,15 +434,11 @@
     }) as FormItem[];
   }
 
-  // const caseLevels = computed(() => {
-  //   let level = 0;
-  //   customFields.value.forEach((item) => {
-  //     if (item.fieldName === '用例等级') {
-  //       level = JSON.parse(item.defaultValue);
-  //     }
-  //   });
-  //   return level as CaseLevel;
-  // });
+  const tabDetailRef = ref();
+  function handleChangeModule(value: string | number | LabelValue | Array<string | number> | LabelValue[] | undefined) {
+    detailInfo.value.moduleId = value as string;
+    tabDetailRef.value.handleOK();
+  }
 
   watch(
     () => customFields.value,
@@ -450,6 +469,10 @@
     },
     { deep: true, immediate: true }
   );
+
+  const content = ref('');
+
+  function publishHandler() {}
 </script>
 
 <style scoped lang="less">

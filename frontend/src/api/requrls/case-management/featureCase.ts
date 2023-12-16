@@ -83,5 +83,16 @@ export const PreviewFileUrl = '/attachment/preview';
 export const DownloadFileUrl = '/attachment/download';
 // 删除文件或取消关联用例文件
 export const deleteFileOrCancelAssociationUrl = '/attachment/delete/file';
+// 获取转存目录
+export const getTransferTreeUrl = '/attachment/options';
+
+// 评论列表
+export const GetCommentListUrl = '/functional/case/comment/get/list';
+// 创建评论
+export const CreateCommentItemUrl = '/functional/case/comment/save';
+// 更新评论
+export const UpdateCommentItemUrl = '/functional/case/comment/update';
+// 删除评论
+export const DeleteCommentItemUrl = '/functional/case/comment/delete';
 
 export default {};

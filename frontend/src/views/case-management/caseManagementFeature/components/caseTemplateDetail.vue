@@ -108,10 +108,20 @@
                 type="button"
                 status="primary"
                 class="!mr-[4px]"
-                @click="transferFile(item)"
+                @click="transferFile"
               >
                 {{ t('caseManagement.featureCase.storage') }}
               </MsButton>
+              <TransferModal
+                v-model:visible="transferVisible"
+                :params="{
+                  projectId: currentProjectId,
+                  caseId:route.query.id as string,
+                  fileId:item.uid,
+                  local:true
+                }"
+                @success="getCaseInfo()"
+              />
               <MsButton
                 v-if="item.status !== 'init'"
                 type="button"
@@ -223,8 +233,11 @@
   import type { MsFileItem } from '@/components/pure/ms-upload/types';
   import AddStep from './addStep.vue';
   import LinkFileDrawer from './linkFile/associatedFileDrawer.vue';
+  import TransferModal from './tabContent/transferModal.vue';
 
   import {
+    deleteFileOrCancelAssociation,
+    downloadFileRequest,
     getAssociatedFileListUrl,
     getCaseDefaultFields,
     getCaseDetail,
@@ -235,7 +248,7 @@
   import useAppStore from '@/store/modules/app';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import useFormCreateStore from '@/store/modules/form-create/form-create';
-  import { getGenerateId } from '@/utils';
+  import { downloadByteFile, getGenerateId } from '@/utils';
 
   import type {
     AssociatedList,
@@ -634,12 +647,25 @@
     formRuleField.value = [];
   });
 
+  const transferVisible = ref<boolean>(false);
   // 转存
-  function transferFile(item: any) {}
+  function transferFile() {
+    transferVisible.value = true;
+  }
   // 下载
-  function downloadFile(item: any) {}
-  // 取消关联
-  function cancelAssociated(item: any) {}
+  async function downloadFile(item: MsFileItem) {
+    try {
+      const res = await downloadFileRequest({
+        projectId: currentProjectId.value,
+        caseId: route.query.id as string,
+        fileId: item.uid,
+        local: true,
+      });
+      downloadByteFile(res, `${item.name}`);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   defineExpose({
     caseFormRef,

@@ -39,6 +39,11 @@ export interface MsSearchSelectProps {
   optionLabelRender?: (item: SelectOptionData) => string; // 自定义 option 的 label 渲染，返回一个 html 字符串，默认使用 item.label
   optionTooltipContent?: (item: SelectOptionData) => string; // 自定义 option 的 tooltip 内容，返回一个字符串，默认使用 item.label
 }
+export interface RadioProps {
+  options: SelectOptionData[];
+  valueKey?: string; // 选项的 value 字段名，默认为 value
+  labelKey?: string; // 选项的 label 字段名，默认为 label
+}
 
 export interface MsSearchSelectSlots {
   prefix?: string;

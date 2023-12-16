@@ -4,4 +4,5 @@ export default {
   'comment.reply': 'Reply',
   'comment.delete': 'Delete',
   'comment.edit': 'Edit',
+  'comment.enterPlaceHolderTip': 'Please enter a comment and press enter to end',
 };

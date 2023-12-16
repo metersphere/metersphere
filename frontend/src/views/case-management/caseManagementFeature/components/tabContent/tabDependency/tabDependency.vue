@@ -30,10 +30,26 @@
       <template #operation="{ record }">
         <MsButton @click="cancelDependency(record)">{{ t('caseManagement.featureCase.cancelDependency') }}</MsButton>
       </template>
+      <template v-if="(keyword || '').trim() === ''" #empty>
+        <div class="flex items-center justify-center">
+          {{ t('caseManagement.caseReview.tableNoData') }}
+          <MsButton class="ml-[8px]" @click="addCase('preposition')">
+            {{ t('caseManagement.featureCase.addPresetCase') }}
+          </MsButton>
+        </div>
+      </template>
     </ms-base-table>
     <ms-base-table v-else v-bind="postPropsRes" v-on="postTableEvent">
       <template #operation="{ record }">
         <MsButton @click="cancelDependency(record)">{{ t('caseManagement.featureCase.cancelDependency') }}</MsButton>
+      </template>
+      <template v-if="(keyword || '').trim() === ''" #empty>
+        <div class="flex items-center justify-center">
+          {{ t('caseManagement.caseReview.tableNoData') }}
+          <MsButton class="ml-[8px]" @click="addCase('postPosition')">
+            {{ t('caseManagement.featureCase.addPostCase') }}
+          </MsButton>
+        </div>
       </template>
     </ms-base-table>
     <PreAndPostCaseDrawer ref="drawerRef" v-model:visible="showDrawer" :show-type="showType" />
