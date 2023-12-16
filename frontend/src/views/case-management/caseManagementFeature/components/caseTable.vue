@@ -1,56 +1,30 @@
 <!-- eslint-disable prefer-destructuring -->
 <template>
-  <div class="page-header mb-4 h-[34px]">
-    <div class="text-[var(--color-text-1)]"
-      >{{ moduleNamePath }}
-      <span class="text-[var(--color-text-4)]"> ({{ props.modulesCount[props.activeFolder] || 0 }})</span></div
-    >
-    <div class="flex w-[80%] items-center justify-end">
-      <a-select class="w-[240px]" :placeholder="t('caseManagement.featureCase.versionPlaceholder')">
-        <a-option v-for="version of versionOptions" :key="version.id" :value="version.id">{{ version.name }}</a-option>
-      </a-select>
-      <a-input-search
-        v-model:model-value="keyword"
-        :placeholder="t('caseManagement.featureCase.searchByNameAndId')"
-        allow-clear
-        class="mx-[8px] w-[240px]"
-        @search="searchList"
-        @press-enter="searchList"
-      ></a-input-search>
-      <MsTag
-        :type="isExpandFilter ? 'primary' : 'default'"
-        :theme="isExpandFilter ? 'lightOutLine' : 'outline'"
-        size="large"
-        class="-mt-[3px] min-w-[64px] cursor-pointer"
+  <!-- 用例表开始 -->
+  <MsAdvanceFilter
+    :filter-config-list="filterConfigList"
+    :custom-fields-config-list="searchCustomFields"
+    :row-count="filterRowCount"
+    @keyword-search="fetchData"
+  >
+    <template #left>
+      <div class="text-[var(--color-text-1)]"
+        >{{ moduleNamePath }}
+        <span class="text-[var(--color-text-4)]"> ({{ props.modulesCount[props.activeFolder] || 0 }})</span></div
       >
-        <span :class="!isExpandFilter ? 'text-[var(--color-text-4)]' : ''" @click="isExpandFilterHandler"
-          ><icon-filter class="mr-[4px]" :style="{ 'font-size': '16px' }" />{{
-            t('caseManagement.featureCase.filter')
-          }}</span
-        >
-      </MsTag>
-      <a-radio-group v-model:model-value="showType" type="button" class="file-show-type ml-[4px]">
+    </template>
+    <template #right>
+      <a-radio-group v-model:model-value="showType" type="button" class="file-show-type">
         <a-radio value="list" class="show-type-icon p-[2px]"><MsIcon type="icon-icon_view-list_outlined" /></a-radio>
         <a-radio value="xMind" class="show-type-icon p-[2px]"><MsIcon type="icon-icon_mindnote_outlined" /></a-radio>
       </a-radio-group>
-    </div>
-  </div>
-  <!-- 脑图开始 -->
-  <MinderEditor
-    v-if="showType === 'xMind'"
-    :import-json="importJson"
-    :tags="['模块', '用例', '前置条件', '备注', '步骤', '预期结果']"
-    tag-enable
-    sequence-enable
-    @node-click="handleNodeClick"
-  />
-  <MsDrawer v-model:visible="visible" :width="480" :mask="false">
-    {{ nodeData.text }}
-  </MsDrawer>
-  <!-- 脑图结束 -->
-  <!-- 用例表开始 -->
+    </template>
+  </MsAdvanceFilter>
   <ms-base-table
+    v-if="showType === 'list'"
     v-bind="propsRes"
+    ref="tableRef"
+    class="mt-4"
     :action-config="tableBatchActions"
     @selected-change="handleTableSelect"
     v-on="propsEvent"
@@ -76,10 +50,51 @@
       <span>{{ getStatusText(record.lastExecuteResult)?.statusType || '' }}</span>
     </template>
     <template #moduleId="{ record }">
-      <a-tooltip :content="getModules(record.moduleId)" position="top">
-        <span class="one-line-text inline-block">{{ getModules(record.moduleId) }}</span>
+      <a-tree-select
+        v-if="record.showModuleTree"
+        v-model="record.moduleId"
+        :data="caseTreeData"
+        :allow-search="true"
+        :field-names="{
+          title: 'name',
+          key: 'id',
+          children: 'children',
+        }"
+        :tree-props="{
+          virtualListProps: {
+            height: 200,
+          },
+        }"
+        @change="(value) => handleChangeModule(record, value)"
+      ></a-tree-select>
+      <a-tooltip v-else :content="getModules(record.moduleId)" position="top">
+        <span class="one-line-text inline-block" @click="record.showModuleTree = true">{{
+          getModules(record.moduleId)
+        }}</span>
       </a-tooltip>
     </template>
+    <!-- 渲染自定义字段开始 -->
+    <template v-for="item in customFieldsColumns" :key="item.slotName" #[item.slotName]="{ record }">
+      <div v-if="isCaseLevel(item.slotName as string).name === '用例等级'" class="flex items-center">
+        <span v-if="!record.visible" class="flex items-center" @click="record.visible = true"
+          ><caseLevel :case-level="getCaseLevel(record, item)"
+        /></span>
+        <TableFormChange
+          v-model:visible="record.visible"
+          :default-value="record[item.slotName]"
+          :data-rules="record[`rule-${item.slotName}`] || []"
+          @update-customs="updateHandler(record)"
+        />
+      </div>
+      <div v-if="isCaseLevel(item.slotName as string).name === '用例状态'" class="flex items-center">
+        <MsTag
+          :type="getCaseState(record[item.slotName as string]).type"
+          :theme="getCaseState(record[item.slotName as string]).theme"
+          >{{ record[item.slotName as string] }}</MsTag
+        >
+      </div>
+    </template>
+    <!-- 渲染自定义字段结束 -->
     <template #operation="{ record }">
       <MsButton @click="operateCase(record, 'edit')">{{ t('common.edit') }}</MsButton>
       <a-divider direction="vertical" :margin="8"></a-divider>
@@ -87,8 +102,37 @@
       <a-divider direction="vertical" :margin="8"></a-divider>
       <MsTableMoreAction :list="moreActions" @select="handleMoreActionSelect($event, record)" />
     </template>
+
+    <template v-if="(keyword || '').trim() === ''" #empty>
+      <div class="flex items-center justify-center p-[8px] text-[var(--color-text-4)]">
+        {{ t('caseManagement.caseReview.tableNoData') }}
+        <MsButton class="ml-[8px]" @click="createCase">
+          {{ t('caseManagement.featureCase.creatingCase') }}
+        </MsButton>
+        {{ t('caseManagement.featureCase.or') }}
+        <MsButton class="ml-[8px]" @click="emit('import', 'Excel')">
+          {{ t('caseManagement.featureCase.importExcel') }}
+        </MsButton>
+        <MsButton class="ml-[4px]" @click="emit('import', 'Xmind')">
+          {{ t('caseManagement.featureCase.importXmind') }}
+        </MsButton>
+      </div>
+    </template>
   </ms-base-table>
   <!-- 用例表结束 -->
+  <!-- 脑图开始 -->
+  <MinderEditor
+    v-else
+    :import-json="importJson"
+    :tags="['模块', '用例', '前置条件', '备注', '步骤', '预期结果']"
+    tag-enable
+    sequence-enable
+    @node-click="handleNodeClick"
+  />
+  <MsDrawer v-model:visible="visible" :width="480" :mask="false">
+    {{ nodeData.text }}
+  </MsDrawer>
+  <!-- 脑图结束 -->
   <a-modal
     v-model:visible="showBatchMoveDrawer"
     title-align="start"
@@ -152,27 +196,41 @@
   import { Message } from '@arco-design/web-vue';
 
   import MinderEditor from '@/components/pure/minder-editor/minderEditor.vue';
+  import { CustomTypeMaps, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
+  import { FilterFormItem, FilterType } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import { FieldTypeFormRules } from '@/components/pure/ms-form-create/form-create';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
+  import type {
+    BatchActionParams,
+    BatchActionQueryParams,
+    MsTableColumn,
+    MsTableColumnData,
+  } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import type { TagType, Theme } from '@/components/pure/ms-tag/ms-tag.vue';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
+  import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
+  import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import BatchEditModal from './batchEditModal.vue';
   import CaseDetailDrawer from './caseDetailDrawer.vue';
   import FeatureCaseTree from './caseTree.vue';
   import ExportExcelDrawer from './exportExcelDrawer.vue';
+  import TableFormChange from './tableFormChange.vue';
 
   import {
     batchCopyToModules,
     batchDeleteCase,
     batchMoveToModules,
     deleteCaseRequest,
+    getCaseDefaultFields,
     getCaseDetail,
     getCaseList,
+    getCustomFieldsTable,
     updateCaseRequest,
   } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
@@ -181,13 +239,17 @@
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { characterLimit, findNodeByKey, findNodePathByKey } from '@/utils';
 
-  import type { CaseManagementTable, CaseModuleQueryParams } from '@/models/caseManagement/featureCase';
+  import type {
+    CaseManagementTable,
+    CaseModuleQueryParams,
+    CustomAttributes,
+  } from '@/models/caseManagement/featureCase';
   import type { TableQueryParams } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
 
   import { getReviewStatusClass, getStatusText } from './utils';
-  import debounce from 'lodash-es/debounce';
+  import { LabelValue } from '@arco-design/web-vue/es/tree-select/interface';
 
   const { openModal } = useModal();
   const { t } = useI18n();
@@ -206,13 +268,13 @@
 
   const emit = defineEmits<{
     (e: 'init', params: CaseModuleQueryParams): void;
+    (e: 'import', type: 'Excel' | 'Xmind'): void;
   }>();
 
   const keyword = ref<string>();
+  const filterRowCount = ref(0);
 
   const showType = ref<string>('list');
-
-  const isExpandFilter = ref<boolean>(false);
 
   const versionOptions = ref([
     {
@@ -224,11 +286,6 @@
   const caseTreeData = computed(() => featureCaseStore.caseTree);
   const moduleId = computed(() => featureCaseStore.moduleId[0]);
   const currentProjectId = computed(() => appStore.currentProjectId);
-
-  // 是否展开||折叠高级筛选
-  const isExpandFilterHandler = () => {
-    isExpandFilter.value = !isExpandFilter.value;
-  };
 
   const visible = ref<boolean>(false);
   const nodeData = ref<any>({});
@@ -312,24 +369,6 @@
       },
       ellipsis: true,
       showDrag: false,
-    },
-    {
-      title: 'caseManagement.featureCase.tableColumnLevel',
-      dataIndex: 'level',
-      showInTable: true,
-      width: 200,
-      showTooltip: true,
-      ellipsis: true,
-      showDrag: true,
-    },
-    {
-      title: 'caseManagement.featureCase.tableColumnCaseState',
-      dataIndex: 'caseState',
-      showInTable: true,
-      width: 200,
-      showTooltip: true,
-      ellipsis: true,
-      showDrag: true,
     },
     {
       title: 'caseManagement.featureCase.tableColumnReviewResult',
@@ -467,22 +506,119 @@
       },
     ],
   };
-  /**
-   * 处理更新用例参数
-   * @param detailResult 详情字段
-   */
-  function getUpdateParams(detailResult: Record<string, any>, name: string) {
+
+  const filterConfigList = ref<FilterFormItem[]>([]);
+  const searchCustomFields = ref<FilterFormItem[]>([]);
+  async function initFilter() {
+    const result = await getCustomFieldsTable(currentProjectId.value);
+    filterConfigList.value = [
+      {
+        title: 'caseManagement.featureCase.tableColumnID',
+        dataIndex: 'id',
+        type: FilterType.INPUT,
+      },
+      {
+        title: 'caseManagement.featureCase.tableColumnName',
+        dataIndex: 'name',
+        type: FilterType.INPUT,
+      },
+      {
+        title: 'caseManagement.featureCase.tableColumnModule',
+        dataIndex: 'moduleId',
+        type: FilterType.TREE_SELECT,
+        treeSelectData: caseTreeData.value,
+        treeSelectProps: {
+          fieldNames: {
+            title: 'name',
+            key: 'id',
+            children: 'children',
+          },
+        },
+      },
+      {
+        title: 'caseManagement.featureCase.tableColumnVersion',
+        dataIndex: 'versionId',
+        type: FilterType.INPUT,
+      },
+      {
+        title: 'caseManagement.featureCase.tableColumnCreateUser',
+        dataIndex: 'createUser',
+        type: FilterType.SELECT,
+        selectProps: {
+          mode: 'static',
+          options: [],
+        },
+      },
+      {
+        title: 'caseManagement.featureCase.tableColumnCreateTime',
+        dataIndex: 'createTime',
+        type: FilterType.DATE_PICKER,
+      },
+      {
+        title: 'bugManagement.createTime',
+        dataIndex: 'createTime',
+        type: FilterType.DATE_PICKER,
+      },
+      {
+        title: 'caseManagement.featureCase.tableColumnUpdateUser',
+        dataIndex: 'updateUser',
+        type: FilterType.SELECT,
+        selectProps: {
+          mode: 'static',
+          options: [],
+        },
+      },
+      {
+        title: 'caseManagement.featureCase.tableColumnUpdateTime',
+        dataIndex: 'updateTime',
+        type: FilterType.DATE_PICKER,
+      },
+      {
+        title: 'caseManagement.featureCase.tableColumnTag',
+        dataIndex: 'tags',
+        type: FilterType.TAGS_INPUT,
+      },
+    ];
+    // 处理系统自定义字段
+    searchCustomFields.value = result.map((item: any) => {
+      const FilterTypeKey: keyof typeof FilterType = CustomTypeMaps[item.type].type;
+      const formType = FilterType[FilterTypeKey];
+      const formObject = item.type;
+      const { props: formProps } = formObject;
+      const currentItem: any = {
+        title: item.name,
+        dataIndex: item.id,
+        type: formType,
+      };
+
+      if (formObject.propsKey && formProps.options) {
+        formProps.options = item.options;
+        currentItem[formObject.propsKey] = {
+          ...formProps,
+        };
+      }
+      return currentItem;
+    });
+  }
+
+  function getCustomMaps(detailResult: CaseManagementTable) {
     const { customFields } = detailResult;
     const customFieldsMaps: Record<string, any> = {};
     customFields.forEach((item: any) => {
       customFieldsMaps[item.fieldId] = JSON.parse(item.defaultValue);
     });
-
+    return customFieldsMaps;
+  }
+  /**
+   * 处理更新用例参数
+   * @param detailResult 详情字段
+   */
+  function getUpdateParams(detailResult: CaseManagementTable, name: string) {
     return {
       request: {
         ...detailResult,
         name,
-        customFields: customFieldsMaps,
+        customFields: getCustomMaps(detailResult),
         tags: JSON.parse(detailResult.tags),
       },
       fileList: [],
@@ -504,26 +640,69 @@
       return Promise.resolve(false);
     }
   }
-
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setProps } = useTable(
+  const initDefaultFields = ref<CustomAttributes[]>([]);
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setKeyword } = useTable(
     getCaseList,
     {
       tableKey: TableKeyEnum.CASE_MANAGEMENT_TABLE,
-      scroll: { x: 3200 },
+      scroll: { x: 3400 },
       selectable: true,
       showSetting: true,
       heightUsed: 374,
       enableDrag: true,
     },
-    (record) => ({
-      ...record,
-      tags: (JSON.parse(record.tags) || []).map((item: string, i: number) => {
-        return {
-          id: `${record.id}-${i}`,
-          name: item,
+    (record) => {
+      const recordCustomFields = record.customFields;
+      const recordMap: Record<string, any> = {};
+      const recordMapRules: Record<string, any[]> = {};
+      recordCustomFields.forEach((it: any) => {
+        recordMap[it.fieldId] = JSON.parse(it.value);
+      });
+      initDefaultFields.value.forEach((item: any) => {
+        const currentFormRules = FieldTypeFormRules[item.type];
+        const options = item?.options;
+        const currentOptions = options?.map((optionsItem: any) => {
+          return {
+            label: optionsItem.text,
+            value: optionsItem.value,
+          };
+        });
+        const currentForm = {
+          ...currentFormRules,
+          field: item.fieldId, // 字段
+          title: item.fieldName, // label 表单标签
+          value: recordMap[item.fieldId], // 目前的值
+          effect: {
+            required: false, // 是否必填
+          },
+          options: [],
+          props: {
+            ...currentFormRules.props,
+            options: [],
+            modelValue: recordMap[item.fieldId],
+          },
+          emit: ['on-change'],
         };
-      }),
-    }),
+        if (currentOptions && currentOptions.length) {
+          currentForm.options = currentOptions;
+          currentForm.props.options = currentOptions;
+        }
+        recordMapRules[`rule-${item.fieldId}`] = [currentForm];
+      });
+      return {
+        ...record,
+        ...recordMap,
+        tags: (JSON.parse(record.tags) || []).map((item: string, i: number) => {
+          return {
+            id: `${record.id}-${i}`,
+            name: item,
+          };
+        }),
+        visible: false,
+        ...recordMapRules,
+        showModuleTree: false,
+      };
+    },
     updateCaseName
   );
 
@@ -631,8 +810,6 @@
   function handleShowExportExcel() {
     showExportExcelVisible.value = true;
   }
-
-  const selectData = ref<string[] | undefined>([]);
 
   const showEditModel = ref<boolean>(false);
   // 批量编辑
@@ -783,10 +960,18 @@
     }
   }
 
-  const searchList = debounce(() => {
+  // const searchList = debounce(() => {
+  //   getLoadListParams();
+  //   loadList();
+  // }, 100);
+
+  const fetchData = (keywordStr = '') => {
+    console.log(keywordStr);
+    setKeyword(keywordStr);
+    keyword.value = keywordStr;
     getLoadListParams();
     loadList();
-  }, 100);
+  };
 
   function successHandler() {
     loadList();
@@ -797,18 +982,148 @@
   const activeDetailId = ref<string>('');
   const activeCaseIndex = ref<number>(0);
 
-  // 详情
+  // 抽屉详情
   function showCaseDetail(id: string, index: number) {
     showDetailDrawer.value = true;
     activeDetailId.value = id;
     activeCaseIndex.value = index;
   }
 
-  // 地址栏携带 id，自动打开用例详情抽屉
-  onMounted(() => {
+  // 创建详情
+  function createCase() {
+    router.push({
+      name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
+    });
+  }
+
+  // 处理自定义字段列
+  const customFieldsColumns = ref<Record<string, any>[]>([]);
+  let fullColumns: MsTableColumn = []; // 全量列表
+  const tableRef = ref<InstanceType<typeof MsBaseTable> | null>(null);
+
+  // 处理自定义字段展示
+  async function getDefaultFields() {
+    const result = await getCaseDefaultFields(currentProjectId.value);
+    initDefaultFields.value = result.customFields;
+    customFieldsColumns.value = initDefaultFields.value.map((item: any) => {
+      return {
+        title: item.fieldName,
+        slotName: item.fieldId as string,
+        dataIndex: item.fieldId,
+        showTooltip: true,
+        showInTable: true,
+        showDrag: true,
+      };
+    });
+
+    fullColumns = [
+      ...columns.slice(0, columns.length - 1),
+      ...customFieldsColumns.value,
+      ...columns.slice(columns.length - 1, columns.length),
+    ];
+    tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_TABLE, fullColumns, 'drawer');
+    tableRef.value?.initColumn(fullColumns);
+  }
+
+  // 如果是用例等级
+  function isCaseLevel(slotFieldId: string) {
+    const currentItem = initDefaultFields.value.find((item: any) => item.fieldId === slotFieldId);
+    return {
+      name: currentItem?.fieldName,
+      type: currentItem?.type,
+      options: currentItem?.options,
+    };
+  }
+  // 获取更新自定义字段参数
+  function getCustomsParams(detailResult: CaseManagementTable, record: CaseManagementTable) {
+    const customFieldsList = Object.keys(record).filter((item) => item.includes('rule-'));
+    const customMaps: Record<string, any> = {};
+    customFieldsList.forEach((key) => {
+      record[key].forEach((it: any) => {
+        customMaps[it.field] = it.value;
+      });
+    });
+
+    return {
+      request: {
+        ...detailResult,
+        customFields: customMaps,
+        tags: JSON.parse(detailResult.tags),
+      },
+      fileList: [],
+    };
+  }
+
+  // 更新自定义字段
+  async function updateHandler(record: CaseManagementTable) {
+    try {
+      const detailResult = await getCaseDetail(record.id);
+      const params = await getCustomsParams(detailResult, record);
+      await updateCaseRequest(params);
+      Message.success(t('common.updateSuccess'));
+      initData();
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  // 如果是用例状态
+  function getCaseState(caseState: string | undefined): { type: TagType; theme: Theme } {
+    switch (caseState) {
+      case '已完成':
+        return {
+          type: 'success',
+          theme: 'default',
+        };
+      case '进行中':
+        return {
+          type: 'link',
+          theme: 'default',
+        };
+
+      default:
+        return {
+          type: 'default',
+          theme: 'default',
+        };
+    }
+  }
+
+  function getCaseLevel(record: CaseManagementTable, item: MsTableColumnData): CaseLevel {
+    return ((record[item.slotName as string] || '').replaceAll('P', '') * 1) as CaseLevel;
+  }
+
+  // 模块树改变回调
+  async function handleChangeModule(
+    record: CaseManagementTable,
+    value: string | number | LabelValue | Array<string | number> | LabelValue[] | undefined
+  ) {
+    try {
+      const detailResult = await getCaseDetail(record.id);
+      const params = {
+        request: {
+          ...detailResult,
+          moduleId: value,
+          customFields: getCustomMaps(detailResult),
+          tags: JSON.parse(detailResult.tags),
+        },
+        fileList: [],
+      };
+      await updateCaseRequest(params);
+      Message.success(t('common.updateSuccess'));
+      record.showModuleTree = false;
+      initData();
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  onBeforeMount(() => {
     if (route.query.id) {
       showCaseDetail(route.query.id as string, 0);
     }
+    getDefaultFields();
+    initFilter();
   });
 
   watch(
@@ -827,8 +1142,6 @@
     },
     { immediate: true }
   );
-
-  tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_TABLE, columns, 'drawer');
 </script>
 
 <style scoped lang="less">

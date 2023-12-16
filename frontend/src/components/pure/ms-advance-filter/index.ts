@@ -21,3 +21,102 @@ export const OPERATOR_MAP = {
 };
 
 export const timeSelectOptions = [GE, LE];
+
+export const CustomTypeMaps: Record<string, any> = {
+  INPUT: {
+    type: 'INPUT',
+  },
+  SELECT: {
+    type: 'SELECT',
+    propsKey: 'selectProps',
+    props: {
+      mode: 'static',
+      valueKey: 'value',
+      labelKey: 'text',
+      options: [],
+    },
+  },
+  MULTIPLE_SELECT: {
+    type: 'SELECT',
+    propsKey: 'selectProps',
+    props: {
+      mode: 'static',
+      multiple: true,
+      valueKey: 'value',
+      labelKey: 'text',
+      options: [],
+    },
+  },
+  RADIO: {
+    type: 'RADIO',
+    propsKey: 'radioProps',
+    props: {
+      options: [],
+      valueKey: 'value',
+      labelKey: 'text',
+    },
+  },
+  CHECKBOX: {
+    type: 'CHECKBOX',
+    propsKey: 'checkProps',
+    props: {
+      options: [],
+      valueKey: 'value',
+      labelKey: 'text',
+    },
+  },
+  MEMBER: {
+    type: 'SELECT',
+    propsKey: 'selectProps',
+    props: {
+      mode: 'remote',
+      valueKey: 'value',
+      labelKey: 'text',
+      remoteFunc: '',
+      remoteFieldsMap: {
+        id: 'value',
+        value: 'value',
+        label: 'text',
+      },
+    },
+  },
+  MULTIPLE_MEMBER: {
+    type: 'SELECT',
+    propsKey: 'selectProps',
+    props: {
+      mode: 'remote',
+      multiple: true,
+      valueKey: 'value',
+      labelKey: 'text',
+      remoteFunc: '',
+      remoteFieldsMap: {
+        id: 'value',
+        value: 'value',
+        label: 'text',
+      },
+    },
+  },
+  DATE: {
+    type: 'DATE_PICKER',
+  },
+  DATETIME: {
+    type: 'DATE_PICKER',
+    operator: 'between',
+  },
+  FLOAT: {
+    type: 'NUMBER',
+  },
+  INT: {
+    type: 'NUMBER',
+    propsKey: 'numberProps',
+    props: {
+      precision: 0,
+    },
+  },
+  TEXTAREA: {
+    type: 'TEXTAREA',
+  },
+  MULTIPLE_INPUT: {
+    type: 'TAGS_INPUT',
+  },
+};

@@ -23,6 +23,7 @@
       ref="demandRef"
       :fun-params="{ caseId: props.caseId, keyword }"
       @update="updateDemand"
+      @create="addDemand"
     ></AssociatedDemandTable>
     <AddDemandModal v-model:visible="showAddModel" :case-id="props.caseId" :form="modelForm" @success="searchList()" />
     <MsDrawer

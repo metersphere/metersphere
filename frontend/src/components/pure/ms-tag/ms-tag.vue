@@ -21,7 +21,7 @@
 <script setup lang="ts">
   import { computed, ref, useAttrs, watchEffect } from 'vue';
 
-  export type TagType = 'default' | 'primary' | 'danger' | 'warning' | 'success';
+  export type TagType = 'default' | 'primary' | 'danger' | 'warning' | 'success' | 'link';
   export type Size = 'small' | 'medium' | 'large';
   export type Theme = 'dark' | 'light' | 'outline' | 'lightOutLine' | 'default';
 

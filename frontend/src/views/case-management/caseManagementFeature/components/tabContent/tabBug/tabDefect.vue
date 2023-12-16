@@ -1,11 +1,19 @@
 <template>
   <div>
     <div class="flex items-center justify-between">
-      <div v-if="showType === 'link'">
-        <a-button class="mr-3" type="primary" @click="linkDefect">
-          {{ t('caseManagement.featureCase.linkDefect') }}
-        </a-button>
-        <a-button type="outline" @click="createDefect"> {{ t('caseManagement.featureCase.createDefect') }} </a-button>
+      <div v-if="showType === 'link'" class="flex">
+        <a-tooltip>
+          <template #content>
+            {{ t('caseManagement.featureCase.noAssociatedDefect') }}
+            <span class="text-[rgb(var(--primary-4))]" @click="createDefect">{{
+              t('caseManagement.featureCase.createDefect')
+            }}</span>
+          </template>
+          <a-button class="mr-3" type="primary" @click="linkDefect">
+            {{ t('caseManagement.featureCase.linkDefect') }}
+          </a-button>
+        </a-tooltip>
+        <a-button type="outline" @click="createDefect">{{ t('caseManagement.featureCase.createDefect') }} </a-button>
       </div>
       <div v-else class="font-medium">{{ t('caseManagement.featureCase.testPlanLinkList') }}</div>
       <div>
@@ -33,6 +41,18 @@
       <template #operation="{ record }">
         <MsButton @click="cancelLink(record)">{{ t('caseManagement.featureCase.cancelLink') }}</MsButton>
       </template>
+      <template v-if="(keyword || '').trim() === ''" #empty>
+        <div class="flex items-center justify-center">
+          {{ t('caseManagement.caseReview.tableNoData') }}
+          <MsButton class="ml-[8px]" @click="linkDefect">
+            {{ t('caseManagement.featureCase.linkDefect') }}
+          </MsButton>
+          {{ t('caseManagement.featureCase.or') }}
+          <MsButton class="ml-[8px]" @click="createDefect">
+            {{ t('caseManagement.featureCase.createDefect') }}
+          </MsButton>
+        </div>
+      </template>
     </ms-base-table>
     <ms-base-table v-else v-bind="testPlanPropsRes" v-on="testPlanTableEvent">
       <template #defectName="{ record }">
@@ -42,8 +62,15 @@
       <template #operation="{ record }">
         <MsButton @click="cancelLink(record)">{{ t('caseManagement.featureCase.cancelLink') }}</MsButton>
       </template>
+      <template v-if="(keyword || '').trim() === ''" #empty>
+        <div class="flex items-center justify-center">
+          {{ t('caseManagement.caseReview.tableNoData') }}
+          <MsButton class="ml-[8px]" @click="createDefect">
+            {{ t('caseManagement.featureCase.createDefect') }}
+          </MsButton>
+        </div>
+      </template>
     </ms-base-table>
-
     <AddDefectDrawer v-model:visible="showDrawer" />
     <LinkDefectDrawer v-model:visible="showLinkDrawer" />
   </div>

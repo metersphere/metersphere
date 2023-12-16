@@ -10,7 +10,7 @@ export default {
   'advanceFilter.operator.equal': '等于',
   'advanceFilter.operator.notEqual': '不等于',
   'advanceFilter.operator.between': '介于',
-  'advanceFilter.setFilterCondition': '设置过滤条件',
+  'advanceFilter.setFilterCondition': '设置筛选条件',
   'advanceFilter.accordBelow': '满足以下',
   'advanceFilter.all': '所有',
   'advanceFilter.any': '任意',

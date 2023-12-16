@@ -129,6 +129,7 @@
       handleDelete?: (item: MsFileItem) => void;
       handleReupload?: (item: MsFileItem) => void;
       showDelete?: boolean; // 是否展示删除按钮
+      handleView?: (item: MsFileItem) => void; // 是否自定义预览
     }>(),
     {
       mode: 'remote',
@@ -235,8 +236,12 @@
   });
 
   function handlePreview(item: MsFileItem) {
-    previewVisible.value = true;
-    previewCurrent.value = previewList.value.indexOf(item.url);
+    if (typeof props.handleView === 'function') {
+      props.handleView(item);
+    } else {
+      previewVisible.value = true;
+      previewCurrent.value = previewList.value.indexOf(item.url);
+    }
   }
 
   function deleteFile(item: MsFileItem) {

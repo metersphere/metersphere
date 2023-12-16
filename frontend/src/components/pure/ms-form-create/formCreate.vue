@@ -1,5 +1,5 @@
 <template>
-  <FormCreate v-model:api="formApi" :rule="rule" :option="option"></FormCreate>
+  <FormCreate v-model:api="formApi" :rule="formRules" :option="option"></FormCreate>
 </template>
 
 <script setup lang="ts">
@@ -22,9 +22,8 @@
     api: any; // 收集表单的值
   }>();
 
-  const emits = defineEmits<{
-    (e: 'update:api', val: any): void;
-  }>();
+  const emits = defineEmits(['update:api', 'update:rule']);
+
   const formApi = ref<any>({});
 
   watchEffect(() => {
@@ -46,6 +45,13 @@
     (val) => {
       formRules.value = val;
       formApi.value?.refresh();
+    }
+  );
+
+  watch(
+    () => formRules.value,
+    (val) => {
+      emits('update:rule', val);
     }
   );
 </script>

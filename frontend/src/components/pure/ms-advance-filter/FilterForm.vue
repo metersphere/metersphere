@@ -2,145 +2,185 @@
   <a-form ref="formRef" :model="formModel" layout="vertical">
     <div class="w-full overflow-y-auto bg-[var(--color-text-n9)] px-[12px] py-[12px]">
       <header class="flex flex-row items-center justify-between">
-        <div>{{ t('advanceFilter.setFilterCondition') }}</div>
+        <div class="text-[var(--color-text-2)]">{{ t('advanceFilter.setFilterCondition') }}</div>
         <div class="flex flex-row items-center text-[var(--color-text-2)]">
-          <div>{{ t('advanceFilter.accordBelow') }}</div>
+          <div class="text-[var(--color-text-2)]">{{ t('advanceFilter.accordBelow') }}</div>
           <div class="ml-[16px]">
             <a-select v-model:model-value="accordBelow" size="small">
               <a-option value="all">{{ t('advanceFilter.all') }}</a-option>
               <a-option value="any">{{ t('advanceFilter.any') }}</a-option>
             </a-select>
           </div>
-          <div class="ml-[8px]">{{ t('advanceFilter.condition') }}</div>
+          <div class="ml-[8px] text-[var(--color-text-2)]">{{ t('advanceFilter.condition') }}</div>
         </div>
       </header>
-      <article class="overflow-auto-y mt-[12px] flex max-h-[300px] flex-col gap-[8px]">
-        <section
-          v-for="(item, idx) in formModel.list"
-          :key="item.dataIndex || `filter_item_${idx}`"
-          class="flex flex-row items-center gap-[8px]"
-        >
-          <div class="flex-1 grow">
-            <a-form-item
-              :field="`list[${idx}].dataIndex`"
-              hide-asterisk
-              class="hidden-item"
-              :rules="[{ required: true, message: t('advanceFilter.plaseSelectFilterDataIndex') }]"
-            >
-              <a-select v-model="item.dataIndex" allow-search @change="(v) => dataIndexChange(v, idx)">
-                <a-option
-                  v-for="option in currentOptionArr"
-                  :key="option.dataIndex"
-                  :value="option.dataIndex"
-                  :disabled="option.disabled"
-                >
-                  {{ t(option.title as string) }}
-                </a-option>
-              </a-select>
-            </a-form-item>
-          </div>
-          <div class="grow-0">
-            <a-form-item
-              :field="`list[${idx}].operator`"
-              hide-asterisk
-              class="hidden-item"
-              :rules="[{ required: true, message: t('advanceFilter.plaseSelectOperator') }]"
-            >
-              <a-select
-                v-model="item.operator"
-                class="w-[120px]"
-                :disabled="!item.dataIndex"
-                @change="(v) => operationChange(v, item.dataIndex as string, idx)"
+      <a-scrollbar :style="{ 'max-height': '300px', 'overflow': 'auto' }">
+        <article class="mt-[12px] flex max-h-[300px] flex-col gap-[8px]">
+          <section
+            v-for="(item, idx) in formModel.list"
+            :key="item.dataIndex || `filter_item_${idx}`"
+            class="flex flex-row items-center gap-[8px]"
+          >
+            <div class="flex-1 grow">
+              <a-form-item
+                :field="`list[${idx}].dataIndex`"
+                hide-asterisk
+                class="hidden-item"
+                :rules="[{ required: true, message: t('advanceFilter.plaseSelectFilterDataIndex') }]"
               >
-                <a-option
-                  v-for="option in getOperationOption(item.type as FilterType, item.dataIndex as string)"
-                  :key="option.value"
-                  :value="option.value"
+                <a-select v-model="item.dataIndex" allow-search @change="(v) => dataIndexChange(v, idx)">
+                  <div v-for="(option, i) in currentOptionArr" :key="option.dataIndex">
+                    <a-option :value="option.dataIndex" :disabled="option.disabled">
+                      {{ t(option.title as string) }}
+                    </a-option>
+                    <a-divider
+                      v-if="
+                        props?.customList &&
+                        (props.customList || []).length &&
+                        (props.configList || []).length - 1 === i
+                      "
+                      class="!my-1"
+                    />
+                  </div>
+                </a-select>
+              </a-form-item>
+            </div>
+            <div class="grow-0">
+              <a-form-item
+                :field="`list[${idx}].operator`"
+                hide-asterisk
+                class="hidden-item"
+                :rules="[{ required: true, message: t('advanceFilter.plaseSelectOperator') }]"
+              >
+                <a-select
+                  v-model="item.operator"
+                  class="w-[120px]"
+                  :disabled="!item.dataIndex"
+                  @change="(v) => operationChange(v, item.dataIndex as string, idx)"
                 >
-                  {{ t(option.label as string) }}
-                </a-option>
-              </a-select>
-            </a-form-item>
-          </div>
-          <div class="flex-1 grow">
-            <a-form-item
-              :field="`list[${idx}].value`"
-              :rules="[{ required: true, message: t('advanceFilter.plaseInputFilterContent') }]"
-              hide-asterisk
-              class="hidden-item"
-            >
-              <a-input
-                v-if="item.type === FilterType.INPUT"
-                v-model:model-value="item.value"
-                class="w-full"
-                allow-clear
-                :disabled="!item.dataIndex"
-                :max-length="60"
-              />
-              <MsTagsInput
-                v-else-if="item.type === FilterType.TAGS_INPUT"
-                v-model:model-value="item.value"
-                :disabled="!item.dataIndex"
-                allow-clear
-                unique-value
-                retain-input-value
-              />
-              <a-input-number
-                v-else-if="item.type === FilterType.NUMBER"
-                v-model:model-value="item.value"
-                class="w-full"
-                allow-clear
-                :disabled="!item.dataIndex"
-                :max-length="60"
-              />
-              <MsSelect
-                v-else-if="item.type === FilterType.SELECT"
-                v-model:model-value="item.value"
-                class="w-full"
-                allow-clear
-                allow-search
-                :placeholder="t('common.pleaseSelect')"
-                :disabled="!item.dataIndex"
-                :options="item.selectProps?.options || []"
-                v-bind="item.selectProps"
-              />
-              <a-tree-select
-                v-else-if="item.type === FilterType.TREE_SELECT"
-                v-model:model-value="item.value"
-                :data="item.treeSelectData"
-                :disabled="!item.dataIndex"
-                v-bind="(item.treeSelectProps as any)"
-              />
-              <a-date-picker
-                v-else-if="item.type === FilterType.DATE_PICKER && item.operator !== 'between'"
-                v-model:model-value="item.value"
-                class="w-full"
-                show-time
-                format="YYYY-MM-DD hh:mm"
-                :disabled="!item.dataIndex"
-              />
-              <a-range-picker
-                v-else-if="item.type === FilterType.DATE_PICKER && item.operator === 'between'"
-                v-model:model-value="item.value"
-                class="w-full"
-                show-time
-                format="YYYY-MM-DD HH:mm"
-                :disabled="!item.dataIndex"
-              />
-              <MsCascader
-                v-else-if="item.type === FilterType.CASCADER"
-                v-model:model-value="item.value"
-                :options="item.cascaderOptions || []"
-                :disabled="!item.dataIndex"
-                v-bind="item.cascaderProps"
-              />
-            </a-form-item>
-          </div>
-          <div class="delete-btn" :class="{ 'delete-btn:disabled': idx === 0 }" @click="handleDeleteItem(idx)">
-            <icon-minus-circle />
-          </div>
-        </section>
-      </article>
+                  <a-option
+                    v-for="option in getOperationOption(item.type as FilterType, item.dataIndex as string)"
+                    :key="option.value"
+                    :value="option.value"
+                  >
+                    {{ t(option.label as string) }}
+                  </a-option>
+                </a-select>
+              </a-form-item>
+            </div>
+            <div class="flex-1 grow">
+              <a-form-item
+                :field="`list[${idx}].value`"
+                :rules="[{ required: true, message: t('advanceFilter.plaseInputFilterContent') }]"
+                hide-asterisk
+                class="hidden-item"
+              >
+                <a-input
+                  v-if="item.type === FilterType.INPUT"
+                  v-model:model-value="item.value"
+                  class="w-full"
+                  allow-clear
+                  :disabled="!item.dataIndex"
+                  :max-length="60"
+                />
+                <MsTagsInput
+                  v-else-if="item.type === FilterType.TAGS_INPUT"
+                  v-model:model-value="item.value"
+                  :disabled="!item.dataIndex"
+                  allow-clear
+                  unique-value
+                  retain-input-value
+                />
+                <a-input-number
+                  v-else-if="item.type === FilterType.NUMBER"
+                  v-model:model-value="item.value"
+                  class="w-full"
+                  allow-clear
+                  :disabled="!item.dataIndex"
+                  :max-length="60"
+                />
+                <MsSelect
+                  v-else-if="item.type === FilterType.SELECT"
+                  v-model:model-value="item.value"
+                  class="w-full"
+                  allow-clear
+                  allow-search
+                  :placeholder="t('common.pleaseSelect')"
+                  :disabled="!item.dataIndex"
+                  :options="item.selectProps?.options || []"
+                  v-bind="item.selectProps"
+                />
+                <a-tree-select
+                  v-else-if="item.type === FilterType.TREE_SELECT"
+                  v-model:model-value="item.value"
+                  :data="item.treeSelectData"
+                  :disabled="!item.dataIndex"
+                  v-bind="(item.treeSelectProps as any)"
+                />
+                <a-date-picker
+                  v-else-if="item.type === FilterType.DATE_PICKER && item.operator !== 'between'"
+                  v-model:model-value="item.value"
+                  class="w-full"
+                  show-time
+                  format="YYYY-MM-DD hh:mm"
+                  :disabled="!item.dataIndex"
+                />
+                <a-range-picker
+                  v-else-if="item.type === FilterType.DATE_PICKER && item.operator === 'between'"
+                  v-model:model-value="item.value"
+                  class="w-full"
+                  show-time
+                  format="YYYY-MM-DD HH:mm"
+                  :disabled="!item.dataIndex"
+                />
+                <MsCascader
+                  v-else-if="item.type === FilterType.CASCADER"
+                  v-model:model-value="item.value"
+                  :options="item.cascaderOptions || []"
+                  :disabled="!item.dataIndex"
+                  v-bind="item.cascaderProps"
+                />
+                <a-textarea
+                  v-else-if="item.type === FilterType.TEXTAREA"
+                  v-model:model-value="item.value"
+                  class="w-full"
+                  allow-clear
+                  :disabled="!item.dataIndex"
+                  :auto-size="{
+                    minRows: 1,
+                    maxRows: 1,
+                  }"
+                  show-word-limit
+                  :max-length="512"
+                />
+                <a-radio-group
+                  v-else-if="item.type === FilterType.RADIO"
+                  v-model:model-value="item.value"
+                  v-bind="(item.radioProps as any)"
+                >
+                  <a-radio
+                    v-for="it of item.radioProps?.options || []"
+                    :key="it[item.radioProps?.valueKey || 'value']"
+                    :value="it[item.radioProps?.valueKey || 'value']"
+                    >{{ it[item.radioProps?.labelKey || 'label'] }}</a-radio
+                  >
+                </a-radio-group>
+                <a-checkbox-group v-else-if="item.type === FilterType.CHECKBOX" v-model:model-value="item.value">
+                  <a-checkbox
+                    v-for="it of item.checkProps?.options || []"
+                    :key="it[item.checkProps?.valueKey || 'value']"
+                    :value="it[item.checkProps?.valueKey || 'value']"
+                    >{{ it[item.checkProps?.labelKey || 'label'] }}</a-checkbox
+                  >
+                </a-checkbox-group>
+              </a-form-item>
+            </div>
+            <div class="delete-btn" :class="{ 'delete-btn:disabled': idx === 0 }" @click="handleDeleteItem(idx)">
+              <icon-minus-circle />
+            </div>
+          </section>
+        </article>
+      </a-scrollbar>
       <footer
         class="mt-[12px] flex flex-row items-center justify-between"
         :class="{ '!justify-end': !showAddCondition }"
@@ -182,7 +222,13 @@
   const formModel = reactive<{ list: FilterFormItem[] }>({
     list: [],
   });
-  const props = defineProps<{ configList: FilterFormItem[]; visible: boolean; count: number; rowCount: number }>();
+  const props = defineProps<{
+    configList: FilterFormItem[]; // 系统字段
+    customList?: FilterFormItem[]; // 自定义字段
+    visible: boolean;
+    count: number;
+    rowCount: number;
+  }>();
   const emit = defineEmits<{
     (e: 'onSearch', value: FilterResult): void;
     (e: 'dataIndexChange', value: string): void;
@@ -191,7 +237,7 @@
   }>();
 
   const isMultipleSelect = (dataIndex: string) => {
-    const tmpObj = props.configList.find((item) => item.dataIndex === dataIndex);
+    const tmpObj = [...props.configList, ...(props.customList || [])].find((item) => item.dataIndex === dataIndex);
     if (tmpObj) {
       return tmpObj.selectProps?.multiple || tmpObj.type === FilterType.TAGS_INPUT;
     }
@@ -218,7 +264,7 @@
 
   // 获取当前可选的选项
   const getCurrentOptionArr = () => {
-    const arr1 = props.configList;
+    const arr1 = [...props.configList, ...(props?.customList || [])];
     const arr2 = formModel.list.map((item) => item.dataIndex);
     const intersection = arr1.map((item1) => ({
       ...item1,
@@ -291,7 +337,7 @@
   };
 
   const getAttributeByDataIndex = (dataIndex: string) => {
-    return props.configList.find((item) => item.dataIndex === dataIndex);
+    return [...props.configList, ...(props.customList || [])].find((item) => item.dataIndex === dataIndex);
   };
 
   /**
@@ -337,12 +383,13 @@
     padding: 8px;
     width: 32px;
     height: 32px;
+    border-radius: 4px;
     color: var(--color-text-4);
     cursor: pointer;
   }
   .delete-btn:hover {
     color: rgb(var(--primary-5));
-    background-color: rgb(var(--primary-2));
+    background-color: rgb(var(--primary-9));
   }
   .delete-btn:disabled {
     @apply cursor-not-allowed hover:bg-transparent hover:text-[var(--color-text-4)];
@@ -353,5 +400,8 @@
   :deep(.arco-form-item.arco-form-item-error, .arco-form-item.arco-form-item-has-help) {
     position: relative;
     top: 10px;
+  }
+  :deep(.arco-scrollbar-track-direction-vertical .arco-scrollbar-thumb-bar) {
+    margin-left: 8px;
   }
 </style>

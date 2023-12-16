@@ -129,14 +129,25 @@
         :upload-func="uploadOrAssociationFile"
         :handle-delete="deleteFileHandler"
         :show-delete="props.allowEdit"
+        :handle-view="handlePreview"
       >
         <template #actions="{ item }">
           <div v-if="props.allowEdit">
             <!-- 本地文件 -->
             <div v-if="item.local || item.status === 'init'" class="flex flex-nowrap">
-              <MsButton type="button" status="primary" class="!mr-[4px]" @click="transferFile(item)">
+              <MsButton type="button" status="primary" class="!mr-[4px]" @click="transferVisible = true">
                 {{ t('caseManagement.featureCase.storage') }}
               </MsButton>
+              <TransferModal
+                v-model:visible="transferVisible"
+                :params="{
+                  projectId: currentProjectId,
+                  caseId: detailForm.id,
+                  fileId: item.uid,
+                  local: true,
+                }"
+                @success="emit('updateSuccess')"
+              />
               <MsButton
                 v-if="item.status === 'done'"
                 type="button"
@@ -183,12 +194,13 @@
   import type { MsFileItem } from '@/components/pure/ms-upload/types';
   import AddStep from '../addStep.vue';
   import LinkFileDrawer from '../linkFile/associatedFileDrawer.vue';
+  import TransferModal from './transferModal.vue';
 
   import {
     deleteFileOrCancelAssociation,
     downloadFileRequest,
     getAssociatedFileListUrl,
-    transferFileRequest,
+    previewFile,
     updateCaseRequest,
     uploadOrAssociationFile,
   } from '@/api/modules/case-management/featureCase';
@@ -199,7 +211,7 @@
   import { downloadByteFile, getGenerateId } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
 
-  import type { AssociatedList, CreateOrUpdateCase, DetailCase, StepList } from '@/models/caseManagement/featureCase';
+  import type { AssociatedList, DetailCase, StepList } from '@/models/caseManagement/featureCase';
   import { FormCreateKeyEnum } from '@/enums/formCreateEnum';
 
   import { convertToFile } from '../utils';
@@ -426,22 +438,7 @@
       console.log(error);
     }
   }
-
-  // 转存
-  async function transferFile(item: MsFileItem) {
-    try {
-      const prams = {
-        projectId: currentProjectId.value,
-        caseId: detailForm.value.id,
-        fileId: item.uid,
-        local: true,
-      };
-      await transferFileRequest(prams);
-      Message.success(t('caseManagement.featureCase.transferFileSuccess'));
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  const transferVisible = ref<boolean>(false);
 
   // 下载文件
   async function downloadFile(item: MsFileItem) {
@@ -470,9 +467,9 @@
         };
       });
     }
-    attachmentsList.value = attachments;
+    attachmentsList.value = attachments || [];
     // 处理文件列表
-    fileList.value = attachments
+    fileList.value = (attachments || [])
       .map((fileInfo: any) => {
         return {
           ...fileInfo,
@@ -482,6 +479,16 @@
       .map((fileInfo: any) => {
         return convertToFile(fileInfo);
       });
+  }
+
+  // TOTO接口需要调整
+  async function handlePreview(item: MsFileItem) {
+    const res = await previewFile({
+      projectId: currentProjectId.value,
+      caseId: detailForm.value.id,
+      fileId: item.uid,
+      local: item.local,
+    });
   }
 
   watch(
@@ -538,6 +545,15 @@
     const fileResultList = fileData.map((fileInfo) => convertToFile(fileInfo));
     fileList.value.push(...fileResultList);
   }
+
+  onMounted(() => {
+    detailForm.value = { ...props.form };
+    getDetails();
+  });
+
+  defineExpose({
+    handleOK,
+  });
 </script>
 
 <style scoped lang="less">

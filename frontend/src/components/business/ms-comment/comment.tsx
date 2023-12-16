@@ -65,7 +65,14 @@ export default defineComponent({
     };
 
     const renderInput = (item: CommentItem) => {
-      return <CommentInput onPublish={(content: string) => handlePublish(content, item)} {...item} />;
+      return (
+        <CommentInput
+          isShowAvatar={false}
+          isUseBottom={false}
+          onPublish={(content: string) => handlePublish(content, item)}
+          {...item}
+        />
+      );
     };
 
     const renderChildrenList = (list?: CommentItem[]) => {

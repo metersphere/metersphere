@@ -1,5 +1,5 @@
 import { MsCascaderProps } from '@/components/business/ms-cascader/index.vue';
-import type { MsSearchSelectProps } from '@/components/business/ms-select';
+import type { MsSearchSelectProps, RadioProps } from '@/components/business/ms-select';
 
 import type { CascaderOption, TreeNodeData } from '@arco-design/web-vue';
 import type { TreeSelectProps } from '@arco-design/web-vue/es/tree-select/interface';
@@ -19,6 +19,10 @@ export enum FilterType {
   CASCADER = 'Cascader',
   TAGS_INPUT = 'TagsInput',
   TREE_SELECT = 'TreeSelect',
+  TEXTAREA = 'textArea',
+  RADIO = 'radio',
+  CHECKBOX = 'checkbox',
+  JIRAKEY = 'JIRAKEY',
 }
 
 export interface FilterFormItem {
@@ -33,6 +37,8 @@ export interface FilterFormItem {
   cascaderProps?: Partial<MsCascaderProps>; // cascader的props, 参考 MsCascader
   treeSelectData?: TreeNodeData[];
   treeSelectProps?: Partial<TreeSelectProps>;
+  radioProps?: Partial<RadioProps>;
+  checkProps?: Partial<RadioProps>;
 }
 
 export type AccordBelowType = 'all' | 'any';
