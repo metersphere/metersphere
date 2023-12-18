@@ -429,12 +429,13 @@ export default {
         name: '',
         projectId: row.id
       };
-      this.memberTableLoading = getProjectMemberPages(this.dialogCurrentPage, this.dialogPageSize, row.workspaceId, param).then(res => {
+      this.memberTableLoading = getProjectMemberPages(1, 10000, row.workspaceId, param).then(res => {
         let data = res.data;
         let {listObject, itemCount} = data;
-        this.memberLineData = listObject;
+        let allMemberLineData = listObject;
+        this.memberLineData = allMemberLineData.slice(0, this.dialogPageSize);
         this.dialogTotal = itemCount;
-        let memberArr = this.memberLineData.filter(item => item.id === getCurrentUserId());
+        let memberArr = allMemberLineData.filter(item => item.id === getCurrentUserId());
         if (memberArr.length === 0) {
           isSuperUser(getCurrentUserId()).then(r => {
             if (r && r.data) {

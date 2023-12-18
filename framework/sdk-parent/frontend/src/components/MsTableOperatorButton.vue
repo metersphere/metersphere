@@ -15,7 +15,7 @@
       </div>
     </el-button>
   </el-tooltip>
-  <el-button @click="exec" v-else-if="isTextButton"
+  <el-button @click.native.stop="exec" v-else-if="isTextButton"
              @keydown.enter.native.prevent
              type="text" class="text-btn"
              :disabled="isReadOnly"
