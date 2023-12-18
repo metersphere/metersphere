@@ -146,6 +146,12 @@
             </include>
             )
         </if>
+        <if test="${condition}.moduleIds != null">
+            and test_plan.node_id
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.moduleIds"/>
+            </include>
+        </if>
     </sql>
 
     <select id="list" resultType="io.metersphere.dto.TestPlanDTOWithMetric"
@@ -180,6 +186,18 @@
             </if>
             <if test="request.id != null">
                 AND test_plan.id = #{request.id}
+            </if>
+            <if test="request.nodeIds != null and request.nodeIds.size() > 0">
+                and test_plan.node_id in
+                <foreach collection="request.nodeIds" item="nodeId" separator="," open="(" close=")">
+                    #{nodeId}
+                </foreach>
+            </if>
+            <if test="request.unSelectIds != null and request.unSelectIds.size > 0">
+                and test_plan.id not in
+                <foreach collection="request.unSelectIds" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
             </if>
             <include refid="filter"/>
             <if test="(request.filters == null or request.filters.size() == 0) and request.byFilter != true ">
@@ -472,4 +490,12 @@
         WHERE test_plan_id = #{0}
           AND status = 'RUNNING'
     </select>
+
+    <update id="batchUpdateNode" parameterType="io.metersphere.plan.request.TestPlanBatchMoveRequest">
+        update test_plan set node_id = #{request.nodeId}, node_path = #{request.nodePath}
+        where id in
+        <foreach collection="request.ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
 </mapper>

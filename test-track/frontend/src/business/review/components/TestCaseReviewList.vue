@@ -7,19 +7,20 @@
     </template>
 
     <ms-table
+      v-loading="loading"
       operator-width="220px"
       row-key="id"
       :data="tableData"
       :condition="condition"
       :total="page.total"
       :page-size.sync="page.pageSize"
+      :batch-operators="batchOperators"
       :operators="operators"
       :fields.sync="fields"
       :screen-height="screenHeight"
       :remember-order="true"
       :field-key="tableHeaderKey"
-      :show-select-all="false"
-      :enable-selection="false"
+      ref="testCaseReviewTable"
       @order="initTableData"
       @filter="search"
       @handleRowClick="intoReview">
@@ -41,6 +42,17 @@
           :field="item"
           :label="$t('test_track.review.review_project')"
           min-width="120px"/>
+
+        <ms-table-column
+            prop="nodePath"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="$t('test_track.case.module')"
+            min-width="150px">
+          <template v-slot:default="scope">
+            <span>{{ nodePathMap.get(scope.row.nodeId) }}</span>
+          </template>
+        </ms-table-column>
 
         <ms-table-column
           prop="creatorName"
@@ -112,6 +124,7 @@
                          :total="page.total"/>
     <ms-delete-confirm :title="$t('test_track.review.delete')" @delete="_handleDelete" ref="deleteConfirm"/>
 
+    <review-or-plan-batch-move @refresh="refresh" @moveSave="moveSave" ref="testCaseReviewBatchMove"/>
   </el-card>
 </template>
 
@@ -145,17 +158,21 @@ import MsUpdateTimeColumn from "metersphere-frontend/src/components/table/MsUpda
 import MsTableFollowOperator from "metersphere-frontend/src/components/table/MsTableFollowOperator";
 import MsTagsColumn from "metersphere-frontend/src/components/table/MsTagsColumn";
 import {
+  batchMoveCaseReview,
   deleteTestCaseReview,
   editTestCaseReviewFollows,
   getTestCaseReviewFollow,
   getTestCaseReviewProject,
-  getTestCaseReviewReviewer,
   testReviewList
 } from "@/api/test-review";
+import {mapState} from "pinia";
+import {useStore} from "@/store";
+import ReviewOrPlanBatchMove from "@/business/case/components/ReviewOrPlanBatchMove.vue";
 
 export default {
   name: "TestCaseReviewList",
   components: {
+    ReviewOrPlanBatchMove,
     MsTagsColumn,
     MsTableFollowOperator,
     MsUpdateTimeColumn,
@@ -175,6 +192,7 @@ export default {
   },
   data() {
     return {
+      loading: false,
       page: getPageInfo(),
       type: TEST_CASE_REVIEW_LIST,
       headerItems: Test_Case_Review,
@@ -195,6 +213,13 @@ export default {
         {text: this.$t('test_track.plan.plan_status_completed'), value: 'Completed'},
         {text: this.$t('test_track.plan.plan_status_finished'), value: 'Finished'},
         {text: this.$t('test_track.plan.plan_status_archived'), value: 'Archived'}
+      ],
+      batchOperators: [
+        {
+          name: this.$t('test_track.case.batch_move_case'),
+          handleClick: this.handleBatchMove,
+          permissions: ['PROJECT_TRACK_REVIEW:READ+EDIT']
+        }
       ],
       operators: [
         {
@@ -226,12 +251,57 @@ export default {
     });
     this.initTableData();
   },
+  props: {
+    treeNodes: {
+      type: Array
+    },
+    currentNode: {
+      type: Object
+    },
+    currentSelectNodes: {
+      type: Array
+    }
+  },
   computed: {
     projectId() {
       return getCurrentProjectID();
     },
+    ...mapState(useStore, {
+      moduleOptions: 'testCaseReviewModuleOptions',
+    }),
+    nodePathMap() {
+      let map = new Map();
+      if (this.moduleOptions) {
+        this.moduleOptions.forEach((item) => {
+          map.set(item.id, item.path);
+        });
+      }
+      return map;
+    }
   },
   methods: {
+    refresh() {
+      this.$refs.testCaseReviewTable.clear();
+      this.$refs.testCaseReviewTable.isSelectDataAll(false);
+      this.initTableData(this.currentSelectNodes);
+    },
+    moveSave(param) {
+      param.condition = this.condition;
+      param.projectId = this.projectId;
+      batchMoveCaseReview(param).then(() => {
+        this.$refs.testCaseReviewBatchMove.btnDisable = false;
+        this.$success(this.$t('commons.save_success'), false);
+        this.$refs.testCaseReviewBatchMove.close();
+        this.refresh();
+      }).catch(() => {
+        this.$refs.testCaseReviewBatchMove.btnDisable = false;
+      });
+    },
+    handleBatchMove() {
+      let batchSelectCount = this.$refs.testCaseReviewTable.selectDataCounts;
+      let firstSelectRow = this.$refs.testCaseReviewTable.selectRows.values().next().value;
+      this.$refs.testCaseReviewBatchMove.open(firstSelectRow.name, this.treeNodes, this.$refs.testCaseReviewTable.selectIds, batchSelectCount, this.moduleOptions, '评审');
+    },
     currentUser: () => {
       return getCurrentUser();
     },
@@ -239,12 +309,20 @@ export default {
       const list = deepClone(this.tableLabel);
       this.$refs.headerCustom.open(list);
     },
-    initTableData() {
+    initTableData(nodeIds) {
+      this.loading = true;
+      this.condition.nodeIds = [];
       this.condition.workspaceId = getCurrentWorkspaceId();
       if (!this.projectId) {
         return;
       }
       this.condition.projectId = this.projectId;
+      if (nodeIds && Array.isArray(nodeIds) && nodeIds.length > 0) {
+        this.condition.nodeIds = nodeIds;
+      }
+      // 设置搜索条件, 用于刷新树
+      this.$emit('setCondition', this.condition);
+      this.$emit('refreshTree');
       testReviewList(this.page.currentPage, this.page.pageSize, this.condition)
         .then((response) => {
           let data = response.data;
@@ -261,6 +339,7 @@ export default {
             }
           });
           this.tableData = tableData;
+          this.loading = false;
           for (let i = 0; i < this.tableData.length; i++) {
             let param = {id: this.tableData[i].id};
             getTestCaseReviewProject(param)
@@ -299,7 +378,7 @@ export default {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
       }
-      this.$emit('openCaseReviewEditDialog');
+      this.$emit('openCaseReviewEditDialog', null, this.currentNode);
     },
     handleEdit(caseReview) {
       this.$emit('caseReviewEdit', caseReview);
@@ -311,14 +390,14 @@ export default {
       let reviewId = caseReview.id;
       deleteTestCaseReview(reviewId)
         .then(() => {
-          this.initTableData();
+          this.initTableData(this.currentSelectNodes);
           this.$success(this.$t('commons.delete_success'));
         })
     },
     search() {
       // 添加搜索条件时，当前页设置成第一页
       this.page.currentPage = 1;
-      this.initTableData();
+      this.initTableData(this.currentSelectNodes);
     },
     saveFollow(row) {
       let param = {};

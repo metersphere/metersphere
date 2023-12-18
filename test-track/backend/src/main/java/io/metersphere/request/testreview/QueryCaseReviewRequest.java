@@ -46,4 +46,10 @@ public class QueryCaseReviewRequest extends BaseQueryRequest {
     private String status;
 
     private Boolean isDel;
+
+    /**
+     * @since 2.10.10 添加模块树条件, 批量移动条件
+     */
+    private Boolean selectAll;
+    private List<String> unSelectIds;
 }

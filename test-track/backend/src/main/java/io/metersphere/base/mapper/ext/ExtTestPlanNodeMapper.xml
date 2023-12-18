@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtTestPlanNodeMapper">
+
+    <select id="getCountNodes" resultType="io.metersphere.dto.TestPlanNodeDTO">
+        select tpn.id, count(*) as caseNum
+        from test_plan
+        left join test_plan_node tpn on test_plan.node_id = tpn.id
+        left join project on tpn.project_id = project.id
+        <include refid="queryWhereCondition"/>
+        group by tpn.id
+    </select>
+
+    <select id="getNodeTreeByProjectId" resultType="io.metersphere.dto.TestPlanNodeDTO">
+        select
+            id, project_id, `name`, parent_id, `level`, create_time, update_time, pos, create_user
+        from test_plan_node tpn
+        where tpn.project_id = #{projectId}
+        order by pos
+    </select>
+
+    <select id="getNode" resultType="io.metersphere.dto.TestPlanNodeDTO">
+        select
+            id, project_id, `name`, parent_id, `level`, create_time, update_time, pos, create_user
+        from test_plan_node
+        where id = #{id}
+    </select>
+
+    <update id="updatePos">
+        update test_plan_node set pos = #{pos} where id = #{id}
+    </update>
+
+    <resultMap id="BaseResultMap" type="io.metersphere.plan.dto.TestPlanDTO"
+               extends="io.metersphere.base.mapper.TestPlanMapper.BaseResultMap">
+        <result column="project_name" property="projectName" jdbcType="VARCHAR"/>
+        <result column="user_name" property="userName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <sql id="condition">
+        <choose>
+            <when test='${object}.operator == "like"'>
+                like CONCAT('%', #{${object}.value},'%')
+            </when>
+            <when test='${object}.operator == "not like"'>
+                not like CONCAT('%', #{${object}.value},'%')
+            </when>
+            <when test='${object}.operator == "in"'>
+                in
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "not in"'>
+                not in
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "between"'>
+                between #{${object}.value[0]} and #{${object}.value[1]}
+            </when>
+            <when test='${object}.operator == "gt"'>
+                &gt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "lt"'>
+                &lt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "ge"'>
+                &gt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "le"'>
+                &lt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "current user"'>
+                = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}'
+            </when>
+            <otherwise>
+                = #{${object}.value}
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="combine">
+        <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
+            and test_plan.name
+            <include refid="condition">
+                <property name="object" value="${condition}.name"/>
+            </include>
+        </if>
+        <if test="${condition}.followPeople != null">
+            and test_plan.id in (
+            select test_plan_id from test_plan_follow where follow_id
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.followPeople"/>
+            </include>
+            )
+        </if>
+        <if test="${condition}.projectName != null">
+            and project.name
+            <include refid="condition">
+                <property name="object" value="${condition}.projectName"/>
+            </include>
+        </if>
+        <if test="${condition}.createTime != null">
+            and test_plan.create_time
+            <include refid="condition">
+                <property name="object" value="${condition}.createTime"/>
+            </include>
+        </if>
+        <if test="${condition}.actualStartTime != null">
+            and test_plan.actual_start_time
+            <include refid="condition">
+                <property name="object" value="${condition}.actualStartTime"/>
+            </include>
+        </if>
+        <if test="${condition}.actualEndTime != null">
+            and test_plan.actual_end_time
+            <include refid="condition">
+                <property name="object" value="${condition}.actualEndTime"/>
+            </include>
+        </if>
+        <if test="${condition}.planStartTime != null">
+            and test_plan.planned_start_time
+            <include refid="condition">
+                <property name="object" value="${condition}.planStartTime"/>
+            </include>
+        </if>
+        <if test="${condition}.planEndTime != null">
+            and test_plan.planned_end_time
+            <include refid="condition">
+                <property name="object" value="${condition}.planEndTime"/>
+            </include>
+        </if>
+        <if test="${condition}.status != null">
+            and test_plan.status
+            <include refid="condition">
+                <property name="object" value="${condition}.status"/>
+            </include>
+        </if>
+        <if test="${condition}.updateTime != null">
+            and test_plan.update_time
+            <include refid="condition">
+                <property name="object" value="${condition}.updateTime"/>
+            </include>
+        </if>
+        <if test="${condition}.stage != null">
+            and test_plan.stage
+            <include refid="condition">
+                <property name="object" value="${condition}.stage"/>
+            </include>
+        </if>
+        <if test="${condition}.creator != null">
+            and test_plan.creator
+            <include refid="condition">
+                <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+        <if test='${condition}.tags != null and ${objectKey}.operator == "not like"'>
+            and (test_plan.tags is null or test_plan.tags
+            <include refid="condition">
+                <property name="object" value="${condition}.tags"/>
+            </include>
+            )
+        </if>
+        <if test='${condition}.tags != null and ${objectKey}.operator == "like"'>
+            and test_plan.tags
+            <include refid="condition">
+                <property name="object" value="${condition}.tags"/>
+            </include>
+        </if>
+        <if test="${condition}.principal != null">
+            and test_plan.id in (SELECT test_plan_id FROM test_plan_principal WHERE principal_id
+            <include refid="condition">
+                <property name="object" value="${condition}.principal"/>
+            </include>
+            )
+        </if>
+    </sql>
+
+    <sql id="queryWhereCondition">
+        <where>
+            <if test="request.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                    <property name="objectKey" value="request.combine.tags"/>
+                </include>
+            </if>
+            <if test="request.name != null">
+                and test_plan.name like CONCAT('%', #{request.name},'%')
+            </if>
+            <if test="request.workspaceId != null">
+                AND test_plan.workspace_id = #{request.workspaceId}
+            </if>
+            <if test="request.projectId != null">
+                AND test_plan.project_id = #{request.projectId}
+            </if>
+            <if test="request.id != null">
+                AND test_plan.id = #{request.id}
+            </if>
+            <include refid="filter"/>
+            <if test="(request.filters == null or request.filters.size() == 0) and request.byFilter != true ">
+                and test_plan.status != 'Archived'
+            </if>
+        </where>
+    </sql>
+
+    <sql id="filter">
+        <if test="request.filters != null and request.filters.size() > 0">
+            <foreach collection="request.filters.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='status'">
+                            <choose>
+                                <when test="request.executorOrPrincipal != null">
+                                    and (( test_plan_principal.principal_id =
+                                    '${@io.metersphere.commons.utils.SessionUtils@getUserId()}' and
+                                    test_plan.status in
+                                    <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
+                                    )
+                                    or
+                                    (test_plan_test_case.executor =
+                                    '${@io.metersphere.commons.utils.SessionUtils@getUserId()}' and
+                                    test_plan_test_case.status in
+                                    <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
+                                    ))
+                                    and (test_plan.status is null or test_plan.status != 'Trash')
+                                    and (test_case.status is null or test_case.status != 'Trash')
+                                </when>
+                                <otherwise>
+                                    and test_plan.status in
+                                    <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
+                                </otherwise>
+                            </choose>
+                        </when>
+                        <otherwise>
+                            <choose>
+                                <when test="key=='stage'">
+                                    and test_plan.stage in
+                                    <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
+                                </when>
+                                <when test="key=='create_user'">
+                                    and test_plan.creator in
+                                    <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.filterInWrapper"/>
+                                </when>
+                                <when test="key=='schedule_status'">
+                                    and
+                                    <foreach collection="values" item="value" separator="or" open="(" close=")">
+                                        <if test="value == 'OPEN'">
+                                            schedule.`enable` = 1
+                                        </if>
+                                        <if test="value == 'SHUT'">
+                                            schedule.`enable` = 0
+                                        </if>
+                                        <if test="value == 'NOTSET' ">
+                                            schedule.id is null
+                                        </if>
+                                    </foreach>
+                                </when>
+                            </choose>
+                            and test_plan.status != 'Archived'
+                        </otherwise>
+                    </choose>
+                </if>
+                <if test="(values == null or values.size() == 0) and request.filters.get('status') == null">
+                    and test_plan.status != 'Archived'
+                </if>
+            </foreach>
+        </if>
+    </sql>
+</mapper>

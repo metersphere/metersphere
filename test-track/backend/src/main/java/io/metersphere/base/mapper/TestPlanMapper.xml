@@ -20,6 +20,8 @@
     <result column="execution_times" jdbcType="INTEGER" property="executionTimes" />
     <result column="automatic_status_update" jdbcType="BIT" property="automaticStatusUpdate" />
     <result column="repeat_case" jdbcType="BIT" property="repeatCase" />
+    <result column="node_id" jdbcType="VARCHAR" property="nodeId" />
+    <result column="node_path" jdbcType="VARCHAR" property="nodePath" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestPlanWithBLOBs">
     <result column="tags" jdbcType="LONGVARCHAR" property="tags" />
@@ -86,9 +88,9 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, workspace_id, report_id, `name`, description, `status`, stage, create_time, update_time,
-    planned_start_time, planned_end_time, actual_start_time, actual_end_time, creator,
-    project_id, execution_times, automatic_status_update, repeat_case
+    id, workspace_id, report_id, `name`, description, `status`, stage, create_time, update_time, 
+    planned_start_time, planned_end_time, actual_start_time, actual_end_time, creator, 
+    project_id, execution_times, automatic_status_update, repeat_case, node_id, node_path
   </sql>
   <sql id="Blob_Column_List">
     tags, report_summary, report_config, run_mode_config
@@ -124,7 +126,7 @@
     </if>
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
-    select
+    select 
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
@@ -142,22 +144,24 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestPlanWithBLOBs">
-    insert into test_plan (id, workspace_id, report_id,
-      `name`, description, `status`,
-      stage, create_time, update_time,
-      planned_start_time, planned_end_time, actual_start_time,
-      actual_end_time, creator, project_id,
-      execution_times, automatic_status_update, repeat_case,
-      tags, report_summary, report_config,
-      run_mode_config)
-    values (#{id,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR},
-      #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR},
-      #{stage,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT},
-      #{plannedStartTime,jdbcType=BIGINT}, #{plannedEndTime,jdbcType=BIGINT}, #{actualStartTime,jdbcType=BIGINT},
-      #{actualEndTime,jdbcType=BIGINT}, #{creator,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR},
-      #{executionTimes,jdbcType=INTEGER}, #{automaticStatusUpdate,jdbcType=BIT}, #{repeatCase,jdbcType=BIT},
-      #{tags,jdbcType=LONGVARCHAR}, #{reportSummary,jdbcType=LONGVARCHAR}, #{reportConfig,jdbcType=LONGVARCHAR},
-      #{runModeConfig,jdbcType=LONGVARCHAR})
+    insert into test_plan (id, workspace_id, report_id, 
+      `name`, description, `status`, 
+      stage, create_time, update_time, 
+      planned_start_time, planned_end_time, actual_start_time, 
+      actual_end_time, creator, project_id, 
+      execution_times, automatic_status_update, repeat_case, 
+      node_id, node_path, tags, 
+      report_summary, report_config, run_mode_config
+      )
+    values (#{id,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, 
+      #{name,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
+      #{stage,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
+      #{plannedStartTime,jdbcType=BIGINT}, #{plannedEndTime,jdbcType=BIGINT}, #{actualStartTime,jdbcType=BIGINT}, 
+      #{actualEndTime,jdbcType=BIGINT}, #{creator,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
+      #{executionTimes,jdbcType=INTEGER}, #{automaticStatusUpdate,jdbcType=BIT}, #{repeatCase,jdbcType=BIT}, 
+      #{nodeId,jdbcType=VARCHAR}, #{nodePath,jdbcType=VARCHAR}, #{tags,jdbcType=LONGVARCHAR}, 
+      #{reportSummary,jdbcType=LONGVARCHAR}, #{reportConfig,jdbcType=LONGVARCHAR}, #{runModeConfig,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestPlanWithBLOBs">
     insert into test_plan
@@ -215,6 +219,12 @@
       </if>
       <if test="repeatCase != null">
         repeat_case,
+      </if>
+      <if test="nodeId != null">
+        node_id,
+      </if>
+      <if test="nodePath != null">
+        node_path,
       </if>
       <if test="tags != null">
         tags,
@@ -283,6 +293,12 @@
       </if>
       <if test="repeatCase != null">
         #{repeatCase,jdbcType=BIT},
+      </if>
+      <if test="nodeId != null">
+        #{nodeId,jdbcType=VARCHAR},
+      </if>
+      <if test="nodePath != null">
+        #{nodePath,jdbcType=VARCHAR},
       </if>
       <if test="tags != null">
         #{tags,jdbcType=LONGVARCHAR},
@@ -361,6 +377,12 @@
       <if test="record.repeatCase != null">
         repeat_case = #{record.repeatCase,jdbcType=BIT},
       </if>
+      <if test="record.nodeId != null">
+        node_id = #{record.nodeId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.nodePath != null">
+        node_path = #{record.nodePath,jdbcType=VARCHAR},
+      </if>
       <if test="record.tags != null">
         tags = #{record.tags,jdbcType=LONGVARCHAR},
       </if>
@@ -398,6 +420,8 @@
       execution_times = #{record.executionTimes,jdbcType=INTEGER},
       automatic_status_update = #{record.automaticStatusUpdate,jdbcType=BIT},
       repeat_case = #{record.repeatCase,jdbcType=BIT},
+      node_id = #{record.nodeId,jdbcType=VARCHAR},
+      node_path = #{record.nodePath,jdbcType=VARCHAR},
       tags = #{record.tags,jdbcType=LONGVARCHAR},
       report_summary = #{record.reportSummary,jdbcType=LONGVARCHAR},
       report_config = #{record.reportConfig,jdbcType=LONGVARCHAR},
@@ -425,7 +449,9 @@
       project_id = #{record.projectId,jdbcType=VARCHAR},
       execution_times = #{record.executionTimes,jdbcType=INTEGER},
       automatic_status_update = #{record.automaticStatusUpdate,jdbcType=BIT},
-      repeat_case = #{record.repeatCase,jdbcType=BIT}
+      repeat_case = #{record.repeatCase,jdbcType=BIT},
+      node_id = #{record.nodeId,jdbcType=VARCHAR},
+      node_path = #{record.nodePath,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -484,6 +510,12 @@
       <if test="repeatCase != null">
         repeat_case = #{repeatCase,jdbcType=BIT},
       </if>
+      <if test="nodeId != null">
+        node_id = #{nodeId,jdbcType=VARCHAR},
+      </if>
+      <if test="nodePath != null">
+        node_path = #{nodePath,jdbcType=VARCHAR},
+      </if>
       <if test="tags != null">
         tags = #{tags,jdbcType=LONGVARCHAR},
       </if>
@@ -518,6 +550,8 @@
       execution_times = #{executionTimes,jdbcType=INTEGER},
       automatic_status_update = #{automaticStatusUpdate,jdbcType=BIT},
       repeat_case = #{repeatCase,jdbcType=BIT},
+      node_id = #{nodeId,jdbcType=VARCHAR},
+      node_path = #{nodePath,jdbcType=VARCHAR},
       tags = #{tags,jdbcType=LONGVARCHAR},
       report_summary = #{reportSummary,jdbcType=LONGVARCHAR},
       report_config = #{reportConfig,jdbcType=LONGVARCHAR},
@@ -542,7 +576,9 @@
       project_id = #{projectId,jdbcType=VARCHAR},
       execution_times = #{executionTimes,jdbcType=INTEGER},
       automatic_status_update = #{automaticStatusUpdate,jdbcType=BIT},
-      repeat_case = #{repeatCase,jdbcType=BIT}
+      repeat_case = #{repeatCase,jdbcType=BIT},
+      node_id = #{nodeId,jdbcType=VARCHAR},
+      node_path = #{nodePath,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

@@ -1,4 +1,4 @@
-import {post, get} from "metersphere-frontend/src/plugins/request";
+import {get, post} from "metersphere-frontend/src/plugins/request";
 import {buildPagePath} from "@/api/base-network";
 
 const BASE_URL = '/test/case/review/';
@@ -86,4 +86,8 @@ export function getTestCaseReviewsCasePage(currentPage, pageSize, param) {
 
 export function getRelateTest(type, testCaseId) {
   return get("/" + type + "/get/" + testCaseId);
+}
+
+export function batchMoveCaseReview(param) {
+  return post("/test/case/review/batch/move", param);
 }

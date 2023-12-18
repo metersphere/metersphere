@@ -9,7 +9,6 @@
                width="60%">
 
       <el-form :model="form" :rules="rules" ref="reviewForm">
-
         <el-row>
           <el-col :span="10">
             <el-form-item
@@ -21,8 +20,18 @@
             </el-form-item>
           </el-col>
           <el-col :span="12" :offset="1">
-            <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tag">
-              <ms-input-tag :currentScenario="form" ref="tag" v-if="isStepTableAlive"/>
+            <el-form-item prop="nodeId" :label="$t('test_track.case.module')" :label-width="formLabelWidth">
+              <ms-select-tree
+                  class="review-node-tree"
+                  :disabled="false"
+                  :data="treeNodes"
+                  :obj="moduleObj"
+                  :default-key="form.nodeId"
+                  @getValue="setModule"
+                  checkStrictly
+                  size="small"
+                  ref="moduleTree"
+              />
             </el-form-item>
           </el-col>
         </el-row>
@@ -48,8 +57,6 @@
               </div>
             </el-form-item>
           </el-col>
-          <el-col :span="12">
-          </el-col>
           <el-col :span="12" :offset="1">
             <el-form-item :label="$t('test_track.review.end_time')" :label-width="formLabelWidth" prop="endTime">
               <el-date-picker @change="endTimeChange" type="datetime" :placeholder="$t('commons.select_date')"
@@ -58,8 +65,8 @@
           </el-col>
         </el-row>
 
-        <el-row type="flex" justify="left" style="margin-top: 10px;">
-          <el-col :span="19">
+        <el-row style="margin-top: 10px;">
+          <el-col :span="10">
             <el-form-item :label="$t('review.review_pass_rule')" :label-width="formLabelWidth" prop="reviewPassRule">
               <el-select v-model="form.reviewPassRule" default-first-option>
                 <el-option
@@ -76,6 +83,12 @@
               <div v-if="isEdit" class="item-tip">
                 {{ $t('review.update_review_rule_tip') }}
               </div>
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="12" :offset="1">
+            <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tag">
+              <ms-input-tag :currentScenario="form" ref="tag" v-if="isStepTableAlive" class="review-tag"/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -126,14 +139,17 @@ import TestPlanStatusButton from "../../plan/common/TestPlanStatusButton";
 import {getCurrentProjectID} from "metersphere-frontend/src/utils/token";
 import {listenGoBack, removeGoBackListener} from "metersphere-frontend/src/utils"
 import MsInputTag from "metersphere-frontend/src/components/new-ui/MsInputTag";
+import MsSelectTree from "metersphere-frontend/src/components/select-tree/SelectTree";
 import i18n from "@/i18n";
 import {getMaintainer} from "@/api/project";
 import {saveOrUpdateTestCaseReview} from "@/api/test-review";
 import MsInstructionsIcon from "metersphere-frontend/src/components/MsInstructionsIcon";
+import {getTestCaseReviewNodes} from "@/api/test-case-review-node";
+import {buildTree} from "@/business/utils/sdk-utils";
 
 export default {
   name: "TestCaseReviewEdit",
-  components: {MsInputTag, TestPlanStatusButton, MsInstructionsIcon},
+  components: {MsInputTag, TestPlanStatusButton, MsInstructionsIcon, MsSelectTree},
   data() {
     return {
       isStepTableAlive: true,
@@ -147,7 +163,9 @@ export default {
         description: '',
         endTime: '',
         followIds: [],
-        reviewPassRule: 'SINGLE'
+        reviewPassRule: 'SINGLE',
+        nodeId: '',
+        nodePath: ''
       },
       dbProjectIds: [],
       rules: {
@@ -155,6 +173,7 @@ export default {
           {required: true, message: this.$t('test_track.review.input_review_name'), trigger: 'blur'},
           {max: 200, message: this.$t('test_track.length_less_than') + '200', trigger: 'blur'}
         ],
+        nodeId: [{required: true, message: this.$t("api_test.environment.module_warning"), trigger: "change"}],
         userIds: [{required: true, message: this.$t('test_track.review.input_reviewer'), trigger: 'change'}],
         stage: [{required: true, message: this.$t('test_track.plan.input_plan_stage'), trigger: 'change'}],
         description: [{max: 200, message: this.$t('test_track.length_less_than') + '200', trigger: 'blur'}],
@@ -164,6 +183,12 @@ export default {
       formLabelWidth: "110px",
       operationType: '',
       reviewerOptions: [],
+      treeNodes: null,
+      moduleObj: {
+        id: "id",
+        label: "name",
+      },
+      defaultNode: null
     };
   },
   computed: {
@@ -174,13 +199,63 @@ export default {
       return this.operationType === 'edit';
     }
   },
+  created() {
+    this.getNodeTrees();
+  },
   methods: {
+    getNodeTrees() {
+      getTestCaseReviewNodes(this.projectId, {})
+        .then(r => {
+          let treeNodes = r.data;
+          treeNodes.forEach(node => {
+            buildTree(node, {path: ''});
+          });
+          this.treeNodes = treeNodes;
+          this.setDefaultModule();
+        });
+    },
+    setDefaultModule() {
+      if (this.defaultNode == null) {
+        this.setUnplannedModule(this.treeNodes);
+      } else {
+        this.form.nodeId = this.defaultNode.data.id;
+        let node = this.findTreeNode(this.treeNodes);
+        if (node) {
+          this.form.nodePath = node.path;
+        } else {
+          // 如果模块已删除，设置为未规划模块
+          this.setUnplannedModule(this.treeNodes);
+        }
+      }
+    },
+    findTreeNode(nodeArray) {
+      for (let i = 0; i < nodeArray.length; i++) {
+        let node = nodeArray[i];
+        if (node.id === this.form.nodeId) {
+          return node;
+        } else {
+          if (node.children && node.children.length > 0) {
+            let findNode = this.findTreeNode(node.children);
+            if (findNode != null) {
+              return findNode;
+            }
+          }
+        }
+      }
+    },
+    setUnplannedModule(treeNodes) {
+      // 创建不带模块ID，设置成为规划模块
+      this.form.nodeId = treeNodes[0].id;
+      this.form.nodePath = treeNodes[0].path;
+    },
     reload() {
       this.isStepTableAlive = false;
       this.$nextTick(() => (this.isStepTableAlive = true));
     },
-    openCaseReviewEditDialog(caseReview) {
+    openCaseReviewEditDialog(caseReview, selectDefaultNode) {
       this.resetForm();
+      this.defaultNode = selectDefaultNode;
+      this.getNodeTrees();
       this.setReviewerOptions();
       this.operationType = 'save';
       if (caseReview) {
@@ -286,6 +361,8 @@ export default {
           this.form.projectIds = [];
           this.form.userIds = [];
           this.form.followIds = [];
+          this.form.nodeId = '';
+          this.form.nodePath = '';
           return true;
         });
       }
@@ -306,6 +383,12 @@ export default {
         return false;
       }
       return true;
+    },
+    setModule(id, data) {
+      if (data) {
+        this.form.nodeId = id;
+        this.form.nodePath = data.path;
+      }
     }
   }
 }
@@ -315,6 +398,20 @@ export default {
 .item-tip {
   font-size: 10px;
   color: #909399;
+}
+
+.review-tag {
+  height: 40px!important;
+}
+</style>
+
+<style>
+.review-node-tree input.el-input__inner {
+  min-height: 40px;
+}
+
+.review-tag input.tag-input.el-input {
+  margin-top: 9px;
 }
 </style>
 

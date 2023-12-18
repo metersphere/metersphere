@@ -5,6 +5,7 @@ import io.metersphere.dto.ParamsDTO;
 import io.metersphere.dto.TestPlanDTOWithMetric;
 import io.metersphere.plan.dto.TestPlanDTO;
 import io.metersphere.plan.request.QueryTestPlanRequest;
+import io.metersphere.plan.request.TestPlanBatchMoveRequest;
 import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Param;
 
@@ -57,4 +58,6 @@ public interface ExtTestPlanMapper {
     void updateStatusAndActStartTimeAndSetActEndTimeNullById(@Param("testPlanId") String testPlanId, @Param("actStartTime") long actStartTime, @Param("status") String status);
 
     long countExecutingReportCount(String testPlanId);
+
+    void batchUpdateNode(@Param("request") TestPlanBatchMoveRequest request);
 }

@@ -122,6 +122,7 @@ export default {
     batch_update_to: "批量更新爲",
     select_catalog: "請選擇用例目錄",
     batch_move_to: '將"{0}"等{1}個用例 移動到',
+    resource_batch_move_to: '將"{0}"等{1}條{2} 移動到',
     batch_copy_to: '將"{0}"等{1}個用例 複製到',
     updated_attr_value: "更新後屬性值為",
     batch_operate: "批量操作",

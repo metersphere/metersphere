@@ -13,6 +13,8 @@
     <result column="tags" jdbcType="VARCHAR" property="tags" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="review_pass_rule" jdbcType="VARCHAR" property="reviewPassRule" />
+    <result column="node_id" jdbcType="VARCHAR" property="nodeId" />
+    <result column="node_path" jdbcType="VARCHAR" property="nodePath" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestCaseReview">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
@@ -76,8 +78,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, creator, `status`, create_time, update_time, end_time, project_id, tags,
-    create_user, review_pass_rule
+    id, `name`, creator, `status`, create_time, update_time, end_time, project_id, tags, 
+    create_user, review_pass_rule, node_id, node_path
   </sql>
   <sql id="Blob_Column_List">
     description
@@ -113,7 +115,7 @@
     </if>
   </select>
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
-    select
+    select 
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
@@ -131,16 +133,16 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestCaseReview">
-    insert into test_case_review (id, `name`, creator,
-      `status`, create_time, update_time,
-      end_time, project_id, tags,
-      create_user, review_pass_rule, description
-      )
-    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR},
-      #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT},
-      #{endTime,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR},
-      #{createUser,jdbcType=VARCHAR}, #{reviewPassRule,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR}
-      )
+    insert into test_case_review (id, `name`, creator, 
+      `status`, create_time, update_time, 
+      end_time, project_id, tags, 
+      create_user, review_pass_rule, node_id, 
+      node_path, description)
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR}, 
+      #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
+      #{endTime,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, 
+      #{createUser,jdbcType=VARCHAR}, #{reviewPassRule,jdbcType=VARCHAR}, #{nodeId,jdbcType=VARCHAR}, 
+      #{nodePath,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseReview">
     insert into test_case_review
@@ -177,6 +179,12 @@
       </if>
       <if test="reviewPassRule != null">
         review_pass_rule,
+      </if>
+      <if test="nodeId != null">
+        node_id,
+      </if>
+      <if test="nodePath != null">
+        node_path,
       </if>
       <if test="description != null">
         description,
@@ -215,6 +223,12 @@
       </if>
       <if test="reviewPassRule != null">
         #{reviewPassRule,jdbcType=VARCHAR},
+      </if>
+      <if test="nodeId != null">
+        #{nodeId,jdbcType=VARCHAR},
+      </if>
+      <if test="nodePath != null">
+        #{nodePath,jdbcType=VARCHAR},
       </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
@@ -263,6 +277,12 @@
       <if test="record.reviewPassRule != null">
         review_pass_rule = #{record.reviewPassRule,jdbcType=VARCHAR},
       </if>
+      <if test="record.nodeId != null">
+        node_id = #{record.nodeId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.nodePath != null">
+        node_path = #{record.nodePath,jdbcType=VARCHAR},
+      </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
@@ -284,6 +304,8 @@
       tags = #{record.tags,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       review_pass_rule = #{record.reviewPassRule,jdbcType=VARCHAR},
+      node_id = #{record.nodeId,jdbcType=VARCHAR},
+      node_path = #{record.nodePath,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -301,7 +323,9 @@
       project_id = #{record.projectId,jdbcType=VARCHAR},
       tags = #{record.tags,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
-      review_pass_rule = #{record.reviewPassRule,jdbcType=VARCHAR}
+      review_pass_rule = #{record.reviewPassRule,jdbcType=VARCHAR},
+      node_id = #{record.nodeId,jdbcType=VARCHAR},
+      node_path = #{record.nodePath,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -339,6 +363,12 @@
       <if test="reviewPassRule != null">
         review_pass_rule = #{reviewPassRule,jdbcType=VARCHAR},
       </if>
+      <if test="nodeId != null">
+        node_id = #{nodeId,jdbcType=VARCHAR},
+      </if>
+      <if test="nodePath != null">
+        node_path = #{nodePath,jdbcType=VARCHAR},
+      </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
@@ -357,6 +387,8 @@
       tags = #{tags,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
       review_pass_rule = #{reviewPassRule,jdbcType=VARCHAR},
+      node_id = #{nodeId,jdbcType=VARCHAR},
+      node_path = #{nodePath,jdbcType=VARCHAR},
       description = #{description,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -371,7 +403,9 @@
       project_id = #{projectId,jdbcType=VARCHAR},
       tags = #{tags,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
-      review_pass_rule = #{reviewPassRule,jdbcType=VARCHAR}
+      review_pass_rule = #{reviewPassRule,jdbcType=VARCHAR},
+      node_id = #{nodeId,jdbcType=VARCHAR},
+      node_path = #{nodePath,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

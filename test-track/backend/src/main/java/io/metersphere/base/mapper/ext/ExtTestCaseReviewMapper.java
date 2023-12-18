@@ -2,10 +2,10 @@ package io.metersphere.base.mapper.ext;
 
 import io.metersphere.dto.TestCaseReviewDTO;
 import io.metersphere.dto.TestReviewDTOWithMetric;
-
-import org.apache.ibatis.annotations.Param;
-import io.metersphere.request.testreview.QueryTestReviewRequest;
 import io.metersphere.request.testreview.QueryCaseReviewRequest;
+import io.metersphere.request.testreview.QueryTestReviewRequest;
+import io.metersphere.request.testreview.ReviewBatchMoveRequest;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 import java.util.Set;
@@ -28,4 +28,6 @@ public interface ExtTestCaseReviewMapper {
     int checkIsHave(@Param("reviewId") String reviewId, @Param("projectIds") Set<String> projectIds);
 
     String selectStatusById(@Param("id") String id);
+
+    void batchUpdateNode(@Param("request") ReviewBatchMoveRequest request);
 }

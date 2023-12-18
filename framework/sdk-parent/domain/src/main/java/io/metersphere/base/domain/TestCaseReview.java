@@ -27,6 +27,10 @@ public class TestCaseReview implements Serializable {
 
     private String reviewPassRule;
 
+    private String nodeId;
+
+    private String nodePath;
+
     private String description;
 
     private static final long serialVersionUID = 1L;

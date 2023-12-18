@@ -5,12 +5,16 @@ import io.metersphere.request.OrderRequest;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serial;
 import java.util.List;
 import java.util.Map;
 
 @Getter
 @Setter
 public class QueryTestPlanRequest extends TestPlan {
+
+    @Serial
+    private static final long serialVersionUID = -9022330526265056106L;
 
     private boolean recent = false;
 
@@ -43,4 +47,11 @@ public class QueryTestPlanRequest extends TestPlan {
     private boolean byFilter;
 
     private List<String> filterStatus;
+
+    /**
+     * @since 2.10.10 添加模块树条件, 批量移动条件
+     */
+    private List<String> nodeIds;
+    private Boolean selectAll;
+    private List<String> unSelectIds;
 }

@@ -2,7 +2,6 @@ package io.metersphere.service;
 
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
-import io.metersphere.base.mapper.ext.BaseProjectMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseReviewMapper;
 import io.metersphere.base.mapper.ext.ExtTestReviewCaseMapper;
@@ -66,8 +65,6 @@ public class TestCaseReviewService {
     SqlSessionFactory sqlSessionFactory;
     @Resource
     ExtTestReviewCaseMapper extTestReviewCaseMapper;
-    @Resource
-    BaseProjectMapper baseProjectMapper;
     @Resource
     BaseUserService baseUserService;
     @Resource
@@ -405,6 +402,17 @@ public class TestCaseReviewService {
             testCaseReviewFollowMapper.deleteByExample(example);
         }
 
+    }
+
+    public void batchMove(ReviewBatchMoveRequest request) {
+        if (request.getCondition().getSelectAll()) {
+            // 全选则重新设置MoveIds
+            request.getCondition().setProjectId(request.getProjectId());
+            List<TestCaseReviewDTO> moveReviews = listCaseReview(request.getCondition());
+            List<String> ids = moveReviews.stream().map(TestCaseReviewDTO::getId).collect(Collectors.toList());
+            request.setIds(ids);
+        }
+        extTestCaseReviewMapper.batchUpdateNode(request);
     }
 
     private void checkCaseReviewExist(TestCaseReview testCaseReview) {

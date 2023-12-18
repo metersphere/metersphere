@@ -113,6 +113,7 @@ const message = {
       "The debugging history only shows the last five pieces of data",
     operating: "Operating",
     input_limit: "Within {0} and {1} characters",
+    module_name_limit: "The module name length does not exceed 100 characters",
     login: "Sign In",
     welcome: "One-stop open source continuous testing platform",
     theme_color: "Theme color",

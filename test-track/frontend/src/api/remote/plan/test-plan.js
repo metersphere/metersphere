@@ -399,3 +399,7 @@ export function reportSocket(reportId) {
 export function testPlanLoadCaseEditStatus(planId) {
   return post(BASE_URL + `edit/status/${planId}`, new Promise(() => {}));
 }
+
+export function testPlanBatchMove(param) {
+  return post(BASE_URL + `batch/move`, param, new Promise(() => {}));
+}

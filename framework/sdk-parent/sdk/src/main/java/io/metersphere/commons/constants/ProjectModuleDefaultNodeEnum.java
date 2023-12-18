@@ -26,7 +26,11 @@ public enum ProjectModuleDefaultNodeEnum {
     /**
      * UI元素库默认节点
      */
-    UI_ELEMENT_DEFAULT_NODE("未规划元素", "ui_element_module");
+    UI_ELEMENT_DEFAULT_NODE("未规划元素", "ui_element_module"),
+    /**
+     * 未规划模块(评审, 计划)
+     */
+    DEFAULT_NODE("未规划模块", "node");
 
     private String nodeName;
     private String tableName;
