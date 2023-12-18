@@ -39,6 +39,7 @@ public class RequestResult {
     private String body;
 
     private String status;
+
     private String method;
 
     private int totalAssertionCount = 0;
@@ -56,4 +57,5 @@ public class RequestResult {
     private String fakeErrorMessage;
     //  误报编码名称
     private String fakeErrorCode;
+
 }
