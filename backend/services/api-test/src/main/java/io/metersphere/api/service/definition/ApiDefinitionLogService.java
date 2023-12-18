@@ -125,7 +125,7 @@ public class ApiDefinitionLogService {
      * @return
      */
     public void batchDelLog(List<String> ids, String userId, String projectId) {
-        saveBatchLog(projectId, ids, "/api/definition/batch-delete", userId, OperationLogType.DELETE.name(), true);
+        saveBatchLog(projectId, ids, "/api/definition/batch-del", userId, OperationLogType.DELETE.name(), true);
     }
 
     /**
