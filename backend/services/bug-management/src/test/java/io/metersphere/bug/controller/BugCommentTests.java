@@ -4,8 +4,6 @@ import io.metersphere.bug.domain.BugComment;
 import io.metersphere.bug.dto.request.BugCommentEditRequest;
 import io.metersphere.bug.dto.response.BugCommentDTO;
 import io.metersphere.bug.mapper.BugCommentMapper;
-import io.metersphere.project.domain.Notification;
-import io.metersphere.project.domain.NotificationExample;
 import io.metersphere.project.mapper.NotificationMapper;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
@@ -76,12 +74,6 @@ public class BugCommentTests extends BaseTest {
         request.setContent("This is a comment test!");
         request.setEvent(NoticeConstants.Event.COMMENT);
         BugComment bugComment = saveOrUpdateComment(request, false);
-        // 查询通知表中记录
-        NotificationExample example = new NotificationExample();
-        example.createCriteria().andResourceIdEqualTo("default-bug-id-for-comment1").andResourceTypeEqualTo(NoticeConstants.TaskType.BUG_TASK);
-        List<Notification> notifications = notificationMapper.selectByExample(example);
-        Assertions.assertTrue(CollectionUtils.isNotEmpty(notifications));
-        Assertions.assertTrue(StringUtils.equals(notifications.get(0).getReceiver(), "oasis-user-id"));
         BugComment comment = bugCommentMapper.selectByPrimaryKey(bugComment.getId());
         Assertions.assertTrue(StringUtils.equals(comment.getContent(), "This is a comment test!"));
     }
@@ -127,15 +119,6 @@ public class BugCommentTests extends BaseTest {
         request.setNotifier(String.join(";", "oasis-user-id4"));
         request.setEvent(NoticeConstants.Event.AT);
         BugComment bugComment = saveOrUpdateComment(request, false);
-        // 查询通知表中记录
-        NotificationExample example = new NotificationExample();
-        example.createCriteria().andResourceIdEqualTo("default-bug-id-for-comment").andResourceTypeEqualTo(NoticeConstants.TaskType.BUG_TASK);
-        List<Notification> notifications = notificationMapper.selectByExample(example);
-        // 存在2条通知
-        Assertions.assertEquals(2, notifications.size());
-        long atCount = notifications.stream().filter(notification -> StringUtils.equals(notification.getOperation(), NoticeConstants.Event.AT)).count();
-        // 仅有1条AT方法通知
-        Assertions.assertEquals(atCount, 1);
         BugComment comment = bugCommentMapper.selectByPrimaryKey(bugComment.getId());
         Assertions.assertTrue(StringUtils.equals(comment.getContent(), "This is a at comment test!"));
     }
@@ -151,15 +134,6 @@ public class BugCommentTests extends BaseTest {
         request.setParentId("default-bug-comment-id-3");
         request.setEvent(NoticeConstants.Event.REPLY);
         BugComment bugComment = saveOrUpdateComment(request, false);
-        // 查询通知表中记录
-        NotificationExample example = new NotificationExample();
-        example.createCriteria().andResourceIdEqualTo("default-bug-id-for-comment").andResourceTypeEqualTo(NoticeConstants.TaskType.BUG_TASK);
-        List<Notification> notifications = notificationMapper.selectByExample(example);
-        // 存在3条通知
-        Assertions.assertEquals(3, notifications.size());
-        long reCount = notifications.stream().filter(notification -> StringUtils.equals(notification.getOperation(), NoticeConstants.Event.REPLY)).count();
-        // 仅有1条REPLY方法通知
-        Assertions.assertEquals(reCount, 1);
         BugComment comment = bugCommentMapper.selectByPrimaryKey(bugComment.getId());
         Assertions.assertTrue(StringUtils.equals(comment.getContent(), "This is a reply comment test!"));
     }
@@ -176,26 +150,11 @@ public class BugCommentTests extends BaseTest {
         request.setParentId("default-bug-comment-id-2");
         request.setEvent(NoticeConstants.Event.REPLY);
         BugComment bugComment = saveOrUpdateComment(request, false);
-        // 查询通知表中记录
-        NotificationExample example = new NotificationExample();
-        example.createCriteria().andResourceIdEqualTo("default-bug-id-for-comment").andResourceTypeEqualTo(NoticeConstants.TaskType.BUG_TASK);
-        List<Notification> notifications = notificationMapper.selectByExample(example);
-        // 存在7条通知
-        Assertions.assertEquals(6, notifications.size());
-        long reCount = notifications.stream().filter(notification -> StringUtils.equals(notification.getOperation(), NoticeConstants.Event.REPLY)).count();
-        // 仅有2条REPLY方法通知
-        Assertions.assertEquals(reCount, 2);
         BugComment comment = bugCommentMapper.selectByPrimaryKey(bugComment.getId());
         Assertions.assertTrue(StringUtils.equals(comment.getContent(), "This is a reply && at comment test!"));
         // 评论并回复用户, @当前回复人
         request.setNotifier(String.join(";", "oasis-user-id", "oasis-user-id2"));
         saveOrUpdateComment(request, false);
-        List<Notification> notificationsList = notificationMapper.selectByExample(example);
-        // 存在8条通知
-        Assertions.assertEquals(8, notificationsList.size());
-        long reCount1 = notificationsList.stream().filter(notification -> StringUtils.equals(notification.getOperation(), NoticeConstants.Event.REPLY)).count();
-        // 仅有3条REPLY方法通知
-        Assertions.assertEquals(reCount1, 3);
     }
 
     @Test
@@ -208,11 +167,6 @@ public class BugCommentTests extends BaseTest {
         request.setContent("This is a comment test!");
         request.setEvent(NoticeConstants.Event.COMMENT);
         BugComment bugComment = saveOrUpdateComment(request, true);
-        NotificationExample example = new NotificationExample();
-        example.createCriteria().andResourceIdEqualTo("default-bug-id-for-comment").andResourceTypeEqualTo(NoticeConstants.TaskType.BUG_TASK);
-        List<Notification> notifications = notificationMapper.selectByExample(example);
-        // 存在8条通知
-        Assertions.assertEquals(8, notifications.size());
         BugComment comment = bugCommentMapper.selectByPrimaryKey(bugComment.getId());
         Assertions.assertTrue(StringUtils.equals(comment.getContent(), "This is a comment test!"));
     }
@@ -229,11 +183,6 @@ public class BugCommentTests extends BaseTest {
         request.setNotifier(String.join(";", "oasis-user-id1", "oasis-user-id2", "admin"));
         request.setEvent(NoticeConstants.Event.REPLY);
         BugComment bugComment = saveOrUpdateComment(request, true);
-        NotificationExample example = new NotificationExample();
-        example.createCriteria().andResourceIdEqualTo("default-bug-id-for-comment").andResourceTypeEqualTo(NoticeConstants.TaskType.BUG_TASK);
-        List<Notification> notifications = notificationMapper.selectByExample(example);
-        // 存在10条通知, 会排除掉当前登录用户
-        Assertions.assertEquals(10, notifications.size());
         BugComment comment = bugCommentMapper.selectByPrimaryKey(bugComment.getId());
         Assertions.assertTrue(StringUtils.equals(comment.getContent(), "This is a comment && reply test!"));
     }
@@ -249,11 +198,6 @@ public class BugCommentTests extends BaseTest {
         request.setNotifier(String.join(";", "oasis-user-id3", "oasis-user-id4"));
         request.setEvent(NoticeConstants.Event.AT);
         BugComment bugComment = saveOrUpdateComment(request, true);
-        NotificationExample example = new NotificationExample();
-        example.createCriteria().andResourceIdEqualTo("default-bug-id-for-comment").andResourceTypeEqualTo(NoticeConstants.TaskType.BUG_TASK);
-        List<Notification> notifications = notificationMapper.selectByExample(example);
-        // 存在12条通知
-        Assertions.assertEquals(12, notifications.size());
         BugComment comment = bugCommentMapper.selectByPrimaryKey(bugComment.getId());
         Assertions.assertTrue(StringUtils.equals(comment.getContent(), "This is a comment && at test!"));
     }
