@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.List;
@@ -53,7 +52,10 @@ public class GitRepository implements FileRepository {
 
     @Override
     public InputStream getFileAsStream(FileRequest request) throws Exception {
-        return new ByteArrayInputStream(getFile(request));
+        GitFileRequest gitFileInfo = request.getGitFileRequest();
+        GitRepositoryUtil repositoryUtils = new GitRepositoryUtil(
+                gitFileInfo.getUrl(), gitFileInfo.getUserName(), gitFileInfo.getToken());
+        return repositoryUtils.getFileStream(gitFileInfo.getUrl(), gitFileInfo.getCommitId());
     }
 
     // 缓冲区大小

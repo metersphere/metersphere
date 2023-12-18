@@ -10,7 +10,7 @@ import java.io.*;
 
 public class TempFileUtils {
     private static final String TEMP_FILE_FOLDER = "/tmp/metersphere/file/";
-
+    private static final int CREATE_FILE_BYTES_MAX_LENGTH = 256;
     private TempFileUtils() {
     }
 
@@ -46,18 +46,6 @@ public class TempFileUtils {
         } catch (Exception ignore) {
 
         }
-    }
-
-
-    //压缩图片
-    public static String catchCompressImgIfNotExists(String fileId, byte[] fileBytes) {
-        try {
-            String previewPath = getPreviewImgFilePath(fileId);
-            compressPic(fileBytes, previewPath);
-            return previewPath;
-        } catch (Exception ignore) {
-        }
-        return null;
     }
 
     public static void compressPic(byte[] fileBytes, String compressPicAbsolutePath) throws Exception {
@@ -122,10 +110,11 @@ public class TempFileUtils {
         }
 
         try (InputStream in = new ByteArrayInputStream(fileBytes); OutputStream out = new FileOutputStream(file)) {
-            final int MAX = 4096;
-            byte[] buf = new byte[MAX];
-            for (int bytesRead = in.read(buf, 0, MAX); bytesRead != -1; bytesRead = in.read(buf, 0, MAX)) {
-                out.write(buf, 0, bytesRead);
+
+            byte[] buf = new byte[CREATE_FILE_BYTES_MAX_LENGTH];
+            int num;
+            while ((num = in.read(buf)) > 0) {
+                out.write(buf, 0, num);
             }
         } catch (IOException e) {
             LogUtils.error(e);
@@ -151,7 +140,7 @@ public class TempFileUtils {
         if (file.exists()) {
             try (FileInputStream fis = new FileInputStream(file);
                  ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-                byte[] b = new byte[1024];
+                byte[] b = new byte[CREATE_FILE_BYTES_MAX_LENGTH];
                 int n;
                 while ((n = fis.read(b)) != -1) {
                     bos.write(b, 0, n);

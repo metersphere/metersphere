@@ -11,6 +11,10 @@ public class FileService {
         return FileCenter.getRepository(request.getStorage()).saveFile(file, request);
     }
 
+    public String upload(byte[] file, FileRequest request) throws Exception {
+        return FileCenter.getRepository(request.getStorage()).saveFile(file, request);
+    }
+
     public byte[] download(FileRequest request) throws Exception {
         return FileCenter.getRepository(request.getStorage()).getFile(request);
     }

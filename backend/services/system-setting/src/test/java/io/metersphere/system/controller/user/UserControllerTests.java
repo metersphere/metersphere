@@ -102,7 +102,7 @@ public class UserControllerTests extends BaseTest {
 
     UserRequestUtils userRequestUtils = null;
 
-    List<CheckLogModel> checkLogModelList = new ArrayList<>();
+    private static final List<CheckLogModel> LOG_CHECK_LIST = new ArrayList<>();
 
     @Override
     @BeforeEach
@@ -340,7 +340,7 @@ public class UserControllerTests extends BaseTest {
         user.setName("TEST-UPDATE");
         userMaintainRequest = UserParamUtils.getUserUpdateDTO(user, USER_ROLE_LIST);
         response = userRequestUtils.parseObjectFromMvcResult(userRequestUtils.responsePost(UserRequestUtils.URL_USER_UPDATE, userMaintainRequest), UserEditRequest.class);
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(response.getId(), OperationLogType.UPDATE, UserRequestUtils.URL_USER_UPDATE)
         );
         checkDTO = this.getUserByEmail(user.getEmail());
@@ -349,7 +349,7 @@ public class UserControllerTests extends BaseTest {
         user.setEmail("songtianyang-test-email@12138.com");
         userMaintainRequest = UserParamUtils.getUserUpdateDTO(user, USER_ROLE_LIST);
         response = userRequestUtils.parseObjectFromMvcResult(userRequestUtils.responsePost(UserRequestUtils.URL_USER_UPDATE, userMaintainRequest), UserEditRequest.class);
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(response.getId(), OperationLogType.UPDATE, UserRequestUtils.URL_USER_UPDATE)
         );
         checkDTO = this.getUserByEmail(user.getEmail());
@@ -358,7 +358,7 @@ public class UserControllerTests extends BaseTest {
         user.setPhone("18511112222");
         userMaintainRequest = UserParamUtils.getUserUpdateDTO(user, USER_ROLE_LIST);
         response = userRequestUtils.parseObjectFromMvcResult(userRequestUtils.responsePost(UserRequestUtils.URL_USER_UPDATE, userMaintainRequest), UserEditRequest.class);
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(response.getId(), OperationLogType.UPDATE, UserRequestUtils.URL_USER_UPDATE)
         );
         checkDTO = this.getUserByEmail(user.getEmail());
@@ -369,14 +369,14 @@ public class UserControllerTests extends BaseTest {
         );
         response = userRequestUtils.parseObjectFromMvcResult(userRequestUtils.responsePost(UserRequestUtils.URL_USER_UPDATE, userMaintainRequest), UserEditRequest.class);
         checkDTO = this.getUserByEmail(user.getEmail());
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(response.getId(), OperationLogType.UPDATE, UserRequestUtils.URL_USER_UPDATE)
         );
         UserParamUtils.compareUserDTO(response, checkDTO);
         //更改用户组(把上面的情况添加别的权限)
         userMaintainRequest = UserParamUtils.getUserUpdateDTO(user, USER_ROLE_LIST);
         response = userRequestUtils.parseObjectFromMvcResult(userRequestUtils.responsePost(UserRequestUtils.URL_USER_UPDATE, userMaintainRequest), UserEditRequest.class);
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(response.getId(), OperationLogType.UPDATE, UserRequestUtils.URL_USER_UPDATE)
         );
         checkDTO = this.getUserByEmail(user.getEmail());
@@ -386,7 +386,7 @@ public class UserControllerTests extends BaseTest {
         BeanUtils.copyBean(user, USER_LIST.get(0));
         userMaintainRequest = UserParamUtils.getUserUpdateDTO(user, USER_ROLE_LIST);
         response = userRequestUtils.parseObjectFromMvcResult(userRequestUtils.responsePost(UserRequestUtils.URL_USER_UPDATE, userMaintainRequest), UserEditRequest.class);
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(response.getId(), OperationLogType.UPDATE, UserRequestUtils.URL_USER_UPDATE)
         );
         checkDTO = this.getUserByEmail(user.getEmail());
@@ -448,7 +448,7 @@ public class UserControllerTests extends BaseTest {
         userChangeEnableRequest.setEnable(false);
         this.requestPost(UserRequestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest, status().isOk());
         for (String item : userChangeEnableRequest.getSelectIds()) {
-            checkLogModelList.add(
+            LOG_CHECK_LIST.add(
                     new CheckLogModel(item, OperationLogType.UPDATE, UserRequestUtils.URL_USER_UPDATE_ENABLE)
             );
         }
@@ -460,7 +460,7 @@ public class UserControllerTests extends BaseTest {
         userChangeEnableRequest.setEnable(true);
         this.requestPost(UserRequestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest, status().isOk());
         for (String item : userChangeEnableRequest.getSelectIds()) {
-            checkLogModelList.add(
+            LOG_CHECK_LIST.add(
                     new CheckLogModel(item, OperationLogType.UPDATE, UserRequestUtils.URL_USER_UPDATE_ENABLE)
             );
         }
@@ -506,7 +506,7 @@ public class UserControllerTests extends BaseTest {
         UserParamUtils.checkImportResponse(response, importSuccessData, errorDataIndex);//检查返回值
         List<UserDTO> userDTOList = this.checkImportUserInDb(userImportReportDTOByFile);//检查数据已入库
         for (UserDTO item : userDTOList) {
-            checkLogModelList.add(
+            LOG_CHECK_LIST.add(
                     new CheckLogModel(item.getId(), OperationLogType.ADD, UserRequestUtils.URL_USER_IMPORT)
             );
         }
@@ -536,7 +536,7 @@ public class UserControllerTests extends BaseTest {
         UserParamUtils.checkImportResponse(response, importSuccessData, errorDataIndex);
         userDTOList = this.checkImportUserInDb(userImportReportDTOByFile);//检查数据已入库
         for (UserDTO item : userDTOList) {
-            checkLogModelList.add(
+            LOG_CHECK_LIST.add(
                     new CheckLogModel(item.getId(), OperationLogType.ADD, UserRequestUtils.URL_USER_IMPORT)
             );
         }
@@ -550,7 +550,7 @@ public class UserControllerTests extends BaseTest {
         UserParamUtils.checkImportResponse(response, importSuccessData, errorDataIndex);
         userDTOList = this.checkImportUserInDb(userImportReportDTOByFile);//检查数据已入库
         for (UserDTO item : userDTOList) {
-            checkLogModelList.add(
+            LOG_CHECK_LIST.add(
                     new CheckLogModel(item.getId(), OperationLogType.ADD, UserRequestUtils.URL_USER_IMPORT)
             );
         }
@@ -573,7 +573,7 @@ public class UserControllerTests extends BaseTest {
         UserParamUtils.checkImportResponse(response, importSuccessData, errorDataIndex);//检查返回值
         userDTOList = this.checkImportUserInDb(userImportReportDTOByFile);//检查数据已入库
         for (UserDTO item : userDTOList) {
-            checkLogModelList.add(
+            LOG_CHECK_LIST.add(
                     new CheckLogModel(item.getId(), OperationLogType.ADD, UserRequestUtils.URL_USER_IMPORT)
             );
         }
@@ -714,7 +714,7 @@ public class UserControllerTests extends BaseTest {
             UserExample userExample = new UserExample();
             userExample.createCriteria().andIdEqualTo("admin").andPasswordEqualTo(CodingUtils.md5("metersphere"));
             Assertions.assertEquals(1, userMapper.countByExample(userExample));
-            checkLogModelList.add(
+            LOG_CHECK_LIST.add(
                     new CheckLogModel("admin", OperationLogType.UPDATE, UserRequestUtils.URL_USER_RESET_PASSWORD)
             );
         }
@@ -737,7 +737,7 @@ public class UserControllerTests extends BaseTest {
                 UserExample userExample = new UserExample();
                 userExample.createCriteria().andIdEqualTo(checkUser.getId()).andPasswordEqualTo(CodingUtils.md5(checkUser.getEmail()));
                 Assertions.assertEquals(1, userMapper.countByExample(userExample));
-                checkLogModelList.add(
+                LOG_CHECK_LIST.add(
                         new CheckLogModel(checkUser.getId(), OperationLogType.UPDATE, UserRequestUtils.URL_USER_RESET_PASSWORD)
                 );
             }
@@ -763,7 +763,7 @@ public class UserControllerTests extends BaseTest {
                 UserExample userExample = new UserExample();
                 userExample.createCriteria().andIdEqualTo(checkUser.getId()).andPasswordEqualTo(CodingUtils.md5(checkUser.getEmail()));
                 Assertions.assertEquals(1, userMapper.countByExample(userExample));
-                checkLogModelList.add(
+                LOG_CHECK_LIST.add(
                         new CheckLogModel(checkUser.getId(), OperationLogType.UPDATE, UserRequestUtils.URL_USER_RESET_PASSWORD)
                 );
             }
@@ -790,7 +790,7 @@ public class UserControllerTests extends BaseTest {
         );
         //检查日志
         for (String userID : request.getSelectIds()) {
-            checkLogModelList.add(
+            LOG_CHECK_LIST.add(
                     new CheckLogModel(userID, OperationLogType.UPDATE, UserRequestUtils.URL_USER_ROLE_RELATION)
             );
         }
@@ -926,7 +926,7 @@ public class UserControllerTests extends BaseTest {
         }
         //检查日志
         for (String userID : request.getSelectIds()) {
-            checkLogModelList.add(
+            LOG_CHECK_LIST.add(
                     new CheckLogModel(userID, OperationLogType.UPDATE, UserRequestUtils.URL_ADD_PROJECT_MEMBER)
             );
         }
@@ -970,7 +970,7 @@ public class UserControllerTests extends BaseTest {
         }
         //检查日志
         for (String userID : request.getSelectIds()) {
-            checkLogModelList.add(
+            LOG_CHECK_LIST.add(
                     new CheckLogModel(userID, OperationLogType.UPDATE, UserRequestUtils.URL_ADD_ORGANIZATION_MEMBER)
             );
         }
@@ -1077,7 +1077,7 @@ public class UserControllerTests extends BaseTest {
             User user = userMapper.selectByPrimaryKey(deleteUser.getId());
             Assertions.assertTrue(user.getDeleted());
             //检查日志
-            checkLogModelList.add(
+            LOG_CHECK_LIST.add(
                     new CheckLogModel(deleteUser.getId(), OperationLogType.DELETE, UserRequestUtils.URL_USER_DELETE)
             );
             removeList.add(deleteUser);
@@ -1113,7 +1113,7 @@ public class UserControllerTests extends BaseTest {
     @Order(101)
     public void testLog() throws Exception {
         Thread.sleep(5000);
-        for (CheckLogModel checkLogModel : checkLogModelList) {
+        for (CheckLogModel checkLogModel : LOG_CHECK_LIST) {
             if (StringUtils.isEmpty(checkLogModel.getUrl())) {
                 this.checkLog(checkLogModel.getResourceId(), checkLogModel.getOperationType());
             } else {
@@ -1148,7 +1148,7 @@ public class UserControllerTests extends BaseTest {
     private void addUser2List(MvcResult mvcResult) throws Exception {
         UserBatchCreateDTO userMaintainRequest = userRequestUtils.parseObjectFromMvcResult(mvcResult, UserBatchCreateDTO.class);
         for (UserCreateInfo item : userMaintainRequest.getUserInfoList()) {
-            checkLogModelList.add(
+            LOG_CHECK_LIST.add(
                     new CheckLogModel(item.getId(), OperationLogType.ADD, null)
             );
         }
@@ -1188,7 +1188,7 @@ public class UserControllerTests extends BaseTest {
         UserInviteResponse response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), UserInviteResponse.class);
         Assertions.assertEquals(2, response.getInviteIds().size());
         //检查日志  此处日志的资源是邀请的用户，即admin
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel("admin", OperationLogType.ADD, UserRequestUtils.URL_INVITE)
         );
         INVITE_RECORD_ID_LIST.addAll(response.getInviteIds());
@@ -1263,7 +1263,7 @@ public class UserControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(resultHolderStr, ResultHolder.class);
 
         //检查日志  此处日志的资源是邀请的用户，即admin
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(resultHolder.getData().toString(), OperationLogType.ADD, UserRequestUtils.URL_INVITE_REGISTER)
         );
     }

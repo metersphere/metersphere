@@ -4,11 +4,17 @@ import io.metersphere.project.domain.*;
 import io.metersphere.project.dto.filemanagement.FileManagementQuery;
 import io.metersphere.project.dto.filemanagement.request.FileBatchProcessRequest;
 import io.metersphere.project.mapper.*;
+import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.ModuleConstants;
+import io.metersphere.sdk.constants.StorageType;
+import io.metersphere.sdk.dto.FileMetadataRepositoryDTO;
+import io.metersphere.sdk.dto.FileModuleRepositoryDTO;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.file.FileRequest;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.TempFileUtils;
-import io.metersphere.sdk.file.FileRequest;
+import io.metersphere.sdk.util.Translator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +31,8 @@ public class FileManagementService {
     private FileMetadataMapper fileMetadataMapper;
     @Resource
     private FileMetadataRepositoryMapper fileMetadataRepositoryMapper;
+    @Resource
+    private FileModuleRepositoryMapper fileModuleRepositoryMapper;
     @Resource
     private FileAssociationMapper fileAssociationMapper;
     @Resource
@@ -69,8 +77,12 @@ public class FileManagementService {
                 FileRequest fileRequest = new FileRequest();
                 fileRequest.setFileName(fileMetadata.getId());
                 fileRequest.setStorage(fileMetadata.getStorage());
+                fileRequest.setFolder(DefaultRepositoryDir.getFileManagementDir(fileMetadata.getProjectId()));
                 try {
                     //删除存储容器中的文件
+                    fileService.deleteFile(fileRequest);
+                    //删除缓存文件
+                    fileRequest.setFolder(DefaultRepositoryDir.getFileManagementPreviewDir(fileMetadata.getProjectId()));
                     fileService.deleteFile(fileRequest);
                     //删除临时文件
                     TempFileUtils.deleteTmpFile(fileMetadata.getId());
@@ -147,5 +159,56 @@ public class FileManagementService {
                 });
             }
         }
+    }
+
+    public byte[] getFile(FileMetadata fileMetadata) throws Exception {
+        if (fileMetadata == null) {
+            throw new MSException(Translator.get("file.not.exist"));
+        }
+
+        FileRequest fileRequest = new FileRequest();
+        fileRequest.setFileName(fileMetadata.getId());
+        fileRequest.setFolder(DefaultRepositoryDir.getFileManagementDir(fileMetadata.getProjectId()));
+        fileRequest.setStorage(fileMetadata.getStorage());
+        //获取git文件下载
+        if (StringUtils.equals(fileMetadata.getStorage(), StorageType.GIT.name())) {
+            FileModuleRepository fileModuleRepository = fileModuleRepositoryMapper.selectByPrimaryKey(fileMetadata.getModuleId());
+            FileMetadataRepository fileMetadataRepository = fileMetadataRepositoryMapper.selectByPrimaryKey(fileMetadata.getId());
+
+            FileModuleRepositoryDTO repositoryDTO = new FileModuleRepositoryDTO();
+            BeanUtils.copyBean(repositoryDTO, fileModuleRepository);
+            FileMetadataRepositoryDTO metadataRepositoryDTO = new FileMetadataRepositoryDTO();
+            BeanUtils.copyBean(metadataRepositoryDTO, fileMetadataRepository);
+            fileRequest.setGitFileRequest(repositoryDTO, metadataRepositoryDTO);
+        }
+
+        return fileService.download(fileRequest);
+    }
+
+
+    public byte[] getPreviewImg(FileMetadata fileMetadata) {
+        FileRequest previewRequest = new FileRequest();
+        previewRequest.setFileName(fileMetadata.getId());
+        previewRequest.setStorage(StorageType.MINIO.name());
+        previewRequest.setFolder(DefaultRepositoryDir.getFileManagementPreviewDir(fileMetadata.getProjectId()));
+        byte[] previewImg = null;
+        try {
+            previewImg = fileService.download(previewRequest);
+        } catch (Exception e) {
+            LogUtils.error("获取预览图失败", e);
+        }
+
+        if (previewImg == null || previewImg.length == 0) {
+            try {
+                byte[] fileBytes = this.getFile(fileMetadata);
+                TempFileUtils.compressPic(fileBytes, TempFileUtils.getPreviewImgFilePath(fileMetadata.getId()));
+                previewImg = TempFileUtils.getFile(TempFileUtils.getPreviewImgFilePath(fileMetadata.getId()));
+                fileService.upload(previewImg, previewRequest);
+                return previewImg;
+            } catch (Exception e) {
+                LogUtils.error("获取预览图失败", e);
+            }
+        }
+        return new byte[0];
     }
 }

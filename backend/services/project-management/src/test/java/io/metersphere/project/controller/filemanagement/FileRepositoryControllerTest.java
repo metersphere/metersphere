@@ -68,7 +68,7 @@ public class FileRepositoryControllerTest extends BaseTest {
     @Resource
     private CommonProjectService commonProjectService;
 
-    List<RepositoryCheckLogModel> checkLogModelList = new ArrayList<>();
+    private static List<RepositoryCheckLogModel> LOG_CHECK_LIST = new ArrayList<>();
 
     @BeforeEach
     public void initTestData() {
@@ -166,7 +166,7 @@ public class FileRepositoryControllerTest extends BaseTest {
         ResultHolder rh = JSON.parseObject(returnStr, ResultHolder.class);
         repositoryId = rh.getData().toString();
         this.checkFileRepository(repositoryId, createRequest.getProjectId(), createRequest.getName(), createRequest.getPlatform(), createRequest.getUrl(), createRequest.getToken(), createRequest.getUserName());
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new RepositoryCheckLogModel(repositoryId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE)
         );
 
@@ -196,7 +196,7 @@ public class FileRepositoryControllerTest extends BaseTest {
         returnStr = result.getResponse().getContentAsString();
         rh = JSON.parseObject(returnStr, ResultHolder.class);
         this.checkFileRepository(rh.getData().toString(), createRequest.getProjectId(), createRequest.getName(), createRequest.getPlatform(), createRequest.getUrl(), createRequest.getToken(), createRequest.getUserName());
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new RepositoryCheckLogModel(rh.getData().toString(), OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE)
         );
 
@@ -271,7 +271,7 @@ public class FileRepositoryControllerTest extends BaseTest {
         createRequest.setName("GITEA存储库改个名字");
         this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_UPDATE, createRequest);
         this.checkFileRepository(repositoryId, project.getId(), "GITEA存储库改个名字", ModuleConstants.NODE_TYPE_GITEA, GITEA_URL, GITEA_TOKEN, null);
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new RepositoryCheckLogModel(repositoryId, OperationLogType.UPDATE, FileManagementRequestUtils.URL_FILE_REPOSITORY_UPDATE)
         );
         //修改用户名
@@ -327,7 +327,7 @@ public class FileRepositoryControllerTest extends BaseTest {
 
         this.requestGetWithOk(String.format(FileManagementRequestUtils.URL_MODULE_DELETE, repositoryId));
         this.checkRepositoryDeleted(repositoryId);
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new RepositoryCheckLogModel(repositoryId, OperationLogType.DELETE, FileManagementRequestUtils.URL_MODULE_DELETE)
         );
 
@@ -343,7 +343,7 @@ public class FileRepositoryControllerTest extends BaseTest {
         ResultHolder rh = JSON.parseObject(returnStr, ResultHolder.class);
         repositoryId = rh.getData().toString();
         this.checkFileRepository(repositoryId, createRequest.getProjectId(), createRequest.getName(), createRequest.getPlatform(), createRequest.getUrl(), createRequest.getToken(), createRequest.getUserName());
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new RepositoryCheckLogModel(repositoryId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE)
         );
 
@@ -393,7 +393,7 @@ public class FileRepositoryControllerTest extends BaseTest {
         MvcResult result = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD, request);
         String fileId = JSON.parseObject(result.getResponse().getContentAsString(), ResultHolder.class).getData().toString();
         this.checkRepositoryFile(fileId, request);
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new RepositoryCheckLogModel(fileId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD)
         );
         getFileMessage(fileId);
@@ -644,7 +644,7 @@ public class FileRepositoryControllerTest extends BaseTest {
         fileBatchProcessRequest.setSelectIds(fileList);
         this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_DELETE, fileBatchProcessRequest);
         for (String fileId : fileList) {
-            checkLogModelList.add(
+            LOG_CHECK_LIST.add(
                     new RepositoryCheckLogModel(fileId, OperationLogType.DELETE, FileManagementRequestUtils.URL_FILE_DELETE)
             );
             this.checkRepositoryFileDeleted(fileId);
@@ -655,7 +655,7 @@ public class FileRepositoryControllerTest extends BaseTest {
     @Order(100)
     public void testLog() throws Exception {
         Thread.sleep(5000);
-        for (RepositoryCheckLogModel checkLogModel : checkLogModelList) {
+        for (RepositoryCheckLogModel checkLogModel : LOG_CHECK_LIST) {
             if (org.apache.commons.lang3.StringUtils.isEmpty(checkLogModel.getUrl())) {
                 this.checkLog(checkLogModel.getResourceId(), checkLogModel.getOperationType());
             } else {

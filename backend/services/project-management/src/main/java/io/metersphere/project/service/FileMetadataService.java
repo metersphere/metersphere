@@ -17,8 +17,6 @@ import io.metersphere.project.utils.FileMetadataUtils;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.StorageType;
-import io.metersphere.sdk.dto.FileMetadataRepositoryDTO;
-import io.metersphere.sdk.dto.FileModuleRepositoryDTO;
 import io.metersphere.sdk.dto.RemoteFileAttachInfo;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileRepository;
@@ -30,6 +28,7 @@ import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -285,7 +284,15 @@ public class FileMetadataService {
         uploadFileRequest.setFileName(fileMetadata.getId());
         uploadFileRequest.setFolder(this.generateMinIOFilePath(fileMetadata.getProjectId()));
         uploadFileRequest.setStorage(StorageType.MINIO.name());
-        return fileService.upload(file, uploadFileRequest);
+        String filePath = fileService.upload(file, uploadFileRequest);
+
+        if (TempFileUtils.isImage(fileMetadata.getType())) {
+            TempFileUtils.compressPic(file.getBytes(), TempFileUtils.getPreviewImgFilePath(fileMetadata.getId()));
+            byte[] previewImg = TempFileUtils.getFile(TempFileUtils.getPreviewImgFilePath(fileMetadata.getId()));
+            uploadFileRequest.setFolder(DefaultRepositoryDir.getFileManagementPreviewDir(fileMetadata.getProjectId()));
+            fileService.upload(previewImg, uploadFileRequest);
+        }
+        return filePath;
     }
 
     public File getTmpFile(FileMetadata fileMetadata) {
@@ -294,7 +301,7 @@ public class FileMetadataService {
             file = new File(TempFileUtils.getTmpFilePath(fileMetadata.getId()));
         } else {
             try {
-                String filePath = TempFileUtils.createFile(TempFileUtils.getTmpFilePath(fileMetadata.getId()), this.getFile(fileMetadata));
+                String filePath = TempFileUtils.createFile(TempFileUtils.getTmpFilePath(fileMetadata.getId()), fileManagementService.getFile(fileMetadata));
                 file = new File(filePath);
             } catch (Exception ignore) {
             }
@@ -308,7 +315,7 @@ public class FileMetadataService {
             filePath = TempFileUtils.getTmpFilePath(fileMetadata.getId());
         } else {
             try {
-                filePath = TempFileUtils.createFile(TempFileUtils.getTmpFilePath(fileMetadata.getId()), this.getFile(fileMetadata));
+                filePath = TempFileUtils.createFile(TempFileUtils.getTmpFilePath(fileMetadata.getId()), fileManagementService.getFile(fileMetadata));
             } catch (Exception ignore) {
             }
         }
@@ -329,30 +336,6 @@ public class FileMetadataService {
             return fileName;
         }
         return fileName + "." + type;
-    }
-
-    private byte[] getFile(FileMetadata fileMetadata) throws Exception {
-        if (fileMetadata == null) {
-            throw new MSException(Translator.get("file.not.exist"));
-        }
-        FileRequest fileRequest = new FileRequest();
-        fileRequest.setFileName(fileMetadata.getId());
-        fileRequest.setFolder(this.generateMinIOFilePath(fileMetadata.getProjectId()));
-        fileRequest.setStorage(fileMetadata.getStorage());
-
-        //获取git文件下载
-        if (StringUtils.equals(fileMetadata.getStorage(), StorageType.GIT.name())) {
-            FileModuleRepository fileModuleRepository = fileModuleRepositoryMapper.selectByPrimaryKey(fileMetadata.getModuleId());
-            FileMetadataRepository fileMetadataRepository = fileMetadataRepositoryMapper.selectByPrimaryKey(fileMetadata.getId());
-
-            FileModuleRepositoryDTO repositoryDTO = new FileModuleRepositoryDTO();
-            BeanUtils.copyBean(repositoryDTO, fileModuleRepository);
-            FileMetadataRepositoryDTO metadataRepositoryDTO = new FileMetadataRepositoryDTO();
-            BeanUtils.copyBean(metadataRepositoryDTO, fileMetadataRepository);
-            fileRequest.setGitFileRequest(repositoryDTO, metadataRepositoryDTO);
-        }
-
-        return fileService.download(fileRequest);
     }
 
     public void update(FileUpdateRequest request, String operator) {
@@ -399,24 +382,16 @@ public class FileMetadataService {
         return PageUtils.setPageInfo(page, this.list(request));
     }
 
-    public ResponseEntity<byte[]> batchDownload(FileBatchProcessRequest request) {
+    public void batchDownload(FileBatchProcessRequest request, HttpServletResponse httpServletResponse) {
         List<FileMetadata> fileMetadataList = fileManagementService.getProcessList(request);
         this.checkDownloadSize(fileMetadataList);
-        try {
-            byte[] bytes = this.batchDownload(fileMetadataList);
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType("application/octet-stream"))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + "files.zip")
-                    .body(bytes);
-        } catch (Exception e) {
-            return ResponseEntity.status(509).body(e.getMessage().getBytes());
-        }
+        this.batchDownloadWithResponse(fileMetadataList, httpServletResponse);
     }
 
-    public byte[] batchDownload(List<FileMetadata> fileMetadataList) {
+    public void batchDownloadWithResponse(List<FileMetadata> fileMetadataList, HttpServletResponse response) {
         Map<String, File> fileMap = new HashMap<>();
         fileMetadataList.forEach(fileMetadata -> fileMap.put(this.getFileName(fileMetadata.getName(), fileMetadata.getType()), this.getTmpFile(fileMetadata)));
-        return FileDownloadUtils.listBytesToZip(fileMap);
+        FileDownloadUtils.zipFilesWithResponse(fileMap, response);
     }
 
     //检查下载的文件的大小
@@ -507,10 +482,13 @@ public class FileMetadataService {
                 //获取压缩过的图片
                 bytes = TempFileUtils.getFile(TempFileUtils.getPreviewImgFilePath(fileMetadata.getId()));
             } else {
+                /**
+                 * 从minio中获取临时文件
+                 * 如果minio不存在，压缩后上传到minio中，并缓存到文件目录中
+                 */
                 //压缩图片并保存在临时文件夹中
-                bytes = TempFileUtils.getFile(
-                        TempFileUtils.catchCompressImgIfNotExists(fileMetadata.getId(), this.getFile(fileMetadata))
-                );
+                bytes = fileManagementService.getPreviewImg(fileMetadata);
+                TempFileUtils.createFile(TempFileUtils.getPreviewImgFilePath(fileMetadata.getId()), bytes);
             }
         }
 

@@ -45,7 +45,7 @@ public class UserLogService {
     private UserRoleMapper userRoleMapper;
 
     //批量添加用户记录日志
-    public List<LogDTO> getBatchAddLogs(@Valid List<User> userList) {
+    public List<LogDTO> getBatchAddLogs(@Valid List<User> userList, String requestPath) {
         List<LogDTO> logs = new ArrayList<>();
         userList.forEach(user -> {
             LogDTO log = LogDTOBuilder.builder()
@@ -54,7 +54,7 @@ public class UserLogService {
                     .type(OperationLogType.ADD.name())
                     .module(OperationLogModule.SETTING_SYSTEM_USER_SINGLE)
                     .method(HttpMethodConstants.POST.name())
-                    .path("/system/user/addUser")
+                    .path(requestPath)
                     .sourceId(user.getId())
                     .content(user.getName() + "(" + user.getEmail() + ")")
                     .originalValue(JSON.toJSONBytes(user))

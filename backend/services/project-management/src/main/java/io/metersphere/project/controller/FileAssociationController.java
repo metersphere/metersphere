@@ -6,6 +6,7 @@ import io.metersphere.project.dto.filemanagement.response.FileAssociationRespons
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,6 +28,7 @@ public class FileAssociationController {
     @GetMapping("/list/{id}")
     @Operation(summary = "项目管理-文件管理-文件关联-文件资源关联列表")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ)
+    @CheckOwner(resourceId = "#id", resourceType = "file_metadata")
     public List<FileAssociationResponse> getAssociationList(@PathVariable String id) {
         return fileAssociationService.selectFileAllVersionAssociation(id);
     }
@@ -34,6 +36,7 @@ public class FileAssociationController {
     @GetMapping("/upgrade/{projectId}/{id}")
     @Operation(summary = "项目管理-文件管理-文件关联-更新资源关联的文件到最新版本")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_UPDATE)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public String upgrade(@PathVariable String projectId,@PathVariable String id) {
         FileLogRecord fileLogRecord = FileLogRecord.builder()
                 .logModule(OperationLogModule.PROJECT_FILE_MANAGEMENT)
@@ -47,6 +50,7 @@ public class FileAssociationController {
     @PostMapping("/delete")
     @Operation(summary = "项目管理-文件管理-文件关联-取消文件和资源的关联")
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public int delete(@RequestBody @Validated FileAssociationDeleteRequest request) {
         FileLogRecord fileLogRecord = FileLogRecord.builder()
                 .logModule(OperationLogModule.PROJECT_FILE_MANAGEMENT)
