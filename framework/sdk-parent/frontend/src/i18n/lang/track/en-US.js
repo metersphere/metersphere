@@ -139,6 +139,7 @@ export default {
     batch_update_to: "Batch update to",
     select_catalog: "Please select use case catalog",
     batch_move_to: 'Move "{0}" {1} of Cases to',
+    resource_batch_move_to: 'Move "{0}" {1} of {2} to',
     batch_copy_to: 'Copy "{0}" {1} of Cases to',
     updated_attr_value: "The updated attribute value",
     batch_operate: "Batch operation",

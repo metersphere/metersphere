@@ -12,19 +12,20 @@ import io.metersphere.commons.constants.PermissionConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.dto.TestCaseReviewDTO;
+import io.metersphere.dto.TestReviewDTOWithMetric;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.annotation.MsRequestLog;
 import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.request.testreview.*;
-import io.metersphere.service.*;
-import io.metersphere.dto.TestCaseReviewDTO;
-import io.metersphere.dto.TestReviewDTOWithMetric;
+import io.metersphere.service.TestCaseReviewService;
+import io.metersphere.service.TestReviewProjectService;
 import io.metersphere.service.wapper.CheckPermissionService;
+import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.annotation.Resource;
 import java.util.List;
 import java.util.UUID;
 
@@ -159,5 +160,11 @@ public class TestCaseReviewController {
     @MsRequestLog(module = OperLogModule.TRACK_TEST_CASE_REVIEW)
     public void editTestFollows(@RequestBody SaveTestCaseReviewRequest testCaseReview) {
         testCaseReviewService.editCaseRevieweFollow(testCaseReview);
+    }
+
+    @PostMapping("/batch/move")
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_PLAN_READ_EDIT})
+    public void batchMove(@RequestBody ReviewBatchMoveRequest request) {
+        testCaseReviewService.batchMove(request);
     }
 }

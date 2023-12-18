@@ -1,8 +1,7 @@
 package io.metersphere.base.domain;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 @Data
 public class TestPlan implements Serializable {
@@ -41,6 +40,10 @@ public class TestPlan implements Serializable {
     private Boolean automaticStatusUpdate;
 
     private Boolean repeatCase;
+
+    private String nodeId;
+
+    private String nodePath;
 
     private static final long serialVersionUID = 1L;
 }

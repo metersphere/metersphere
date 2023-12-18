@@ -23,9 +23,20 @@
                         :size="itemSize" maxlength="128" show-word-limit/>
             </el-form-item>
           </el-col>
+
           <el-col :span="12">
-            <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tag">
-              <ms-input-tag :currentScenario="form" ref="tag" :size="itemSize"/>
+            <el-form-item prop="nodeId" :label="$t('test_track.case.module')" :label-width="formLabelWidth">
+              <ms-select-tree
+                  class="plan-node-tree"
+                  :disabled="false"
+                  :data="treeNodes"
+                  :obj="moduleObj"
+                  :default-key="form.nodeId"
+                  checkStrictly
+                  @getValue="setModule"
+                  size="small"
+                  ref="moduleTree"
+              />
             </el-form-item>
           </el-col>
         </el-row>
@@ -81,6 +92,14 @@
           </el-col>
         </el-row>
         <!--end:xuxm增加自定义‘计划开始’，‘计划结束’时间字段-->
+
+        <el-row type="flex" :gutter="20">
+          <el-col :span="12">
+            <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tag">
+              <ms-input-tag :currentScenario="form" ref="tag" :size="itemSize"/>
+            </el-form-item>
+          </el-col>
+        </el-row>
 
         <el-row type="flex" :gutter="20">
           <el-col :span="12">
@@ -153,18 +172,19 @@
 </template>
 
 <script>
-
+import MsSelectTree from "metersphere-frontend/src/components/select-tree/SelectTree";
 import TestPlanStatusButton from "../common/TestPlanStatusButton";
-import {getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
+import {getCurrentProjectID, getCurrentWorkspaceId} from "metersphere-frontend/src/utils/token";
 import {listenGoBack, removeGoBackListener} from "metersphere-frontend/src/utils";
 import MsInputTag from "metersphere-frontend/src/components/MsInputTag";
 import MsInstructionsIcon from "metersphere-frontend/src/components/MsInstructionsIcon";
 import {getPlanStageOption, testPlanAdd, testPlanEdit} from "@/api/remote/plan/test-plan";
-import {getProjectMemberOption} from "@/business/utils/sdk-utils";
+import {buildTree, getProjectMemberOption} from "@/business/utils/sdk-utils";
+import {getTestPlanNodes} from "@/api/test-plan-node";
 
 export default {
   name: "TestPlanEdit",
-  components: {MsInstructionsIcon, TestPlanStatusButton, MsInputTag},
+  components: {MsInstructionsIcon, TestPlanStatusButton, MsInputTag, MsSelectTree},
   data() {
     return {
       isStepTableAlive: true,
@@ -181,13 +201,16 @@ export default {
         plannedEndTime: '',
         automaticStatusUpdate: false,
         repeatCase: false,
-        follows: []
+        follows: [],
+        nodeId: '',
+        nodePath: ''
       },
       rules: {
         name: [
           {required: true, message: this.$t('test_track.plan.input_plan_name'), trigger: 'blur'},
           {max: 128, message: this.$t('test_track.length_less_than') + '128', trigger: 'blur'}
         ],
+        nodeId: [{required: true, message: this.$t("api_test.environment.module_warning"), trigger: "change"}],
         principals: [{required: true, message: this.$t('test_track.plan.input_plan_principal'), trigger: 'change'}],
         stage: [{required: true, message: this.$t('test_track.plan.input_plan_stage'), trigger: 'change'}],
         description: [{max: 200, message: this.$t('test_track.length_less_than') + '200', trigger: 'blur'}]
@@ -195,7 +218,13 @@ export default {
       formLabelWidth: "100px",
       operationType: '',
       principalOptions: [],
-      stageOption: []
+      stageOption: [],
+      defaultNode: null,
+      treeNodes: null,
+      moduleObj: {
+        id: "id",
+        label: "name",
+      }
     };
   },
   created() {
@@ -205,14 +234,67 @@ export default {
         .then((r) => {
           this.stageOption = r.data;
         });
+    this.getNodeTrees();
+  },
+  computed: {
+    projectId() {
+      return getCurrentProjectID();
+    }
   },
   methods: {
+    getNodeTrees() {
+      getTestPlanNodes(this.projectId, {})
+          .then(r => {
+            let treeNodes = r.data;
+            treeNodes.forEach(node => {
+              buildTree(node, {path: ''});
+            });
+            this.treeNodes = treeNodes;
+            this.setDefaultModule();
+          });
+    },
+    setDefaultModule() {
+      if (this.defaultNode == null) {
+        this.setUnplannedModule(this.treeNodes);
+      } else {
+        this.form.nodeId = this.defaultNode.data.id;
+        let node = this.findTreeNode(this.treeNodes);
+        if (node) {
+          this.form.nodePath = node.path;
+        } else {
+          // 如果模块已删除，设置为未规划模块
+          this.setUnplannedModule(this.treeNodes);
+        }
+      }
+    },
+    findTreeNode(nodeArray) {
+      for (let i = 0; i < nodeArray.length; i++) {
+        let node = nodeArray[i];
+        if (node.id === this.form.nodeId) {
+          return node;
+        } else {
+          if (node.children && node.children.length > 0) {
+            let findNode = this.findTreeNode(node.children);
+            if (findNode != null) {
+              return findNode;
+            }
+          }
+        }
+      }
+    },
+    setUnplannedModule(treeNodes) {
+      // 创建不带模块ID，设置成为规划模块
+      this.form.nodeId = treeNodes[0].id;
+      this.form.nodePath = treeNodes[0].path;
+    },
     reload() {
       this.isStepTableAlive = false;
       this.$nextTick(() => (this.isStepTableAlive = true));
     },
-    openTestPlanEditDialog(testPlan) {
+    openTestPlanEditDialog(testPlan, selectDefaultNode) {
       this.resetForm();
+      this.defaultNode = selectDefaultNode;
+      this.getNodeTrees();
       this.setPrincipalOptions();
       this.operationType = 'add';
       if (testPlan) {
@@ -351,8 +433,16 @@ export default {
           this.form.status = null;
           this.form.plannedStartTime = null;
           this.form.plannedEndTime = null;
+          this.form.nodeId = '';
+          this.form.nodePath = '';
           return true;
         });
+      }
+    },
+    setModule(id, data) {
+      if (data) {
+        this.form.nodeId = id;
+        this.form.nodePath = data.path;
       }
     }
   }

@@ -112,6 +112,7 @@ const message = {
     prompt: "提示",
     operating: "操作",
     input_limit: "长度在 {0} 到 {1} 个字符",
+    module_name_limit: "模块长度不超过100个字符",
     login: "登录",
     welcome: "一站式开源持续测试平台",
     theme_color: "主题色",

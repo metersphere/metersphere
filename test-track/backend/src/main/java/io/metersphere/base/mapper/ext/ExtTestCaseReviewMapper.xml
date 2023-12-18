@@ -8,8 +8,8 @@
         test_case_review.tags,
         test_case_review.create_time, test_case_review.update_time, test_case_review.end_time,
         test_case_review.review_pass_rule,
-        test_case_review.description, user.name as creatorName, project.name as projectName, test_case_review.project_id
-
+        test_case_review.description, user.name as creatorName, project.name as projectName, test_case_review.project_id,
+        test_case_review.node_id, test_case_review.node_path
         from test_case_review
         join project on project.id = test_case_review.project_id
         left join user on test_case_review.creator = user.id
@@ -80,6 +80,12 @@
                 <property name="object" value="${condition}.creator"/>
             </include>
         </if>
+        <if test="${condition}.moduleIds != null">
+            and test_case_review.node_id
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.moduleIds"/>
+            </include>
+        </if>
     </sql>
 
     <sql id="queryWhereCondition">
@@ -102,6 +108,18 @@
             </if>
             <if test="request.projectId != null">
                 and test_case_review.project_id = #{request.projectId}
+            </if>
+            <if test="request.nodeIds != null and request.nodeIds.size() > 0">
+                and test_case_review.node_id in
+                <foreach collection="request.nodeIds" item="nodeId" separator="," open="(" close=")">
+                    #{nodeId}
+                </foreach>
+            </if>
+            <if test="request.unSelectIds != null and request.unSelectIds.size > 0">
+                and test_case_review.id not in
+                <foreach collection="request.unSelectIds" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
             </if>
             <include refid="filter"/>
         </where>
@@ -203,4 +221,12 @@
         WHERE
             id = #{id}
     </select>
+
+    <update id="batchUpdateNode" parameterType="io.metersphere.request.testreview.ReviewBatchMoveRequest">
+        update test_case_review set node_id = #{request.nodeId}, node_path = #{request.nodePath}
+        where id in
+        <foreach collection="request.ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
 </mapper>

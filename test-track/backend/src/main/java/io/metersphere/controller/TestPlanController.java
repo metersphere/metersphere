@@ -17,10 +17,7 @@ import io.metersphere.notice.annotation.SendNotice;
 import io.metersphere.plan.dto.TestCaseReportStatusResultDTO;
 import io.metersphere.plan.dto.TestPlanDTO;
 import io.metersphere.plan.dto.TestPlanReportDataStruct;
-import io.metersphere.plan.request.AddTestPlanRequest;
-import io.metersphere.plan.request.BatchOperateRequest;
-import io.metersphere.plan.request.QueryTestPlanRequest;
-import io.metersphere.plan.request.ScheduleInfoRequest;
+import io.metersphere.plan.request.*;
 import io.metersphere.plan.request.api.TestPlanRunRequest;
 import io.metersphere.plan.request.function.PlanCaseRelevanceRequest;
 import io.metersphere.plan.request.function.TestCaseRelevanceRequest;
@@ -448,5 +445,11 @@ public class TestPlanController {
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_PLAN_READ)
     public void resetStatus(@PathVariable String planId) {
         testPlanService.resetStatus(planId);
+    }
+
+    @PostMapping("/batch/move")
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_TRACK_PLAN_READ_EDIT})
+    public void batchMove(@RequestBody TestPlanBatchMoveRequest request) {
+        testPlanService.batchMove(request);
     }
 }

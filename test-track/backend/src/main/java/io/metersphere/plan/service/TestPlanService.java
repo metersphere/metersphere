@@ -26,10 +26,7 @@ import io.metersphere.plan.constant.ApiReportStatus;
 import io.metersphere.plan.dto.TestPlanDTO;
 import io.metersphere.plan.dto.*;
 import io.metersphere.plan.job.TestPlanTestJob;
-import io.metersphere.plan.request.AddTestPlanRequest;
-import io.metersphere.plan.request.BatchOperateRequest;
-import io.metersphere.plan.request.QueryTestPlanRequest;
-import io.metersphere.plan.request.ScheduleInfoRequest;
+import io.metersphere.plan.request.*;
 import io.metersphere.plan.request.api.ApiPlanReportRequest;
 import io.metersphere.plan.request.api.RunScenarioRequest;
 import io.metersphere.plan.request.api.SchedulePlanScenarioExecuteRequest;
@@ -2306,6 +2303,17 @@ public class TestPlanService {
             testPlan.setActualEndTime(null);
             testPlanMapper.updateByPrimaryKey(testPlan);
         }
+    }
+
+    public void batchMove(TestPlanBatchMoveRequest request) {
+        if (request.getCondition().getSelectAll()) {
+            // 全选则重新设置MoveIds
+            request.getCondition().setProjectId(request.getProjectId());
+            List<TestPlanDTOWithMetric> movePlans = listTestPlan(request.getCondition());
+            List<String> ids = movePlans.stream().map(TestPlanDTOWithMetric::getId).collect(Collectors.toList());
+            request.setIds(ids);
+        }
+        extTestPlanMapper.batchUpdateNode(request);
     }
 
     public void deleteTestPlanBatch(BatchOperateRequest request) {

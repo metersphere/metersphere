@@ -6,6 +6,8 @@ export default {
     testCaseSelectNodeIds: [],
     testCasePublicSelectNodeIds: [],
     testCaseModuleOptions: [],
+    testCaseReviewModuleOptions: [],
+    testPlanModuleOptions: [],
     testReviewSelectNode: {},
     testReviewSelectNodeIds: [],
     testPlanViewSelectNode: {},

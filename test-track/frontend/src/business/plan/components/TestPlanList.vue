@@ -209,6 +209,17 @@
         >
         </ms-table-column>
 
+        <ms-table-column
+            prop="nodePath"
+            :field="item"
+            :fields-width="fieldsWidth"
+            :label="$t('test_track.case.module')"
+            min-width="150px">
+          <template v-slot:default="scope">
+            <span>{{ nodePathMap.get(scope.row.nodeId) }}</span>
+          </template>
+        </ms-table-column>
+
         <ms-tags-column :field="item" :fields-width="fieldsWidth"/>
 
         <ms-table-column
@@ -462,6 +473,8 @@
         <ms-dialog-footer @cancel="closeExecute" @confirm="handleRunBatch"/>
       </template>
     </el-dialog>
+
+    <review-or-plan-batch-move @refresh="refresh" @moveSave="moveSave" ref="testReviewBatchMove"/>
   </el-card>
 </template>
 
@@ -496,6 +509,7 @@ import MsTaskCenter from "metersphere-frontend/src/components/task/TaskCenter";
 import {
   batchDeletePlan,
   getPlanStageOption,
+  testPlanBatchMove,
   testPlanCopy,
   testPlanDelete,
   testPlanEdit,
@@ -507,7 +521,7 @@ import {
   testPlanRun,
   testPlanRunBatch,
   testPlanRunSave,
-  testPlanUpdateScheduleEnable,
+  testPlanUpdateScheduleEnable
 } from "@/api/remote/plan/test-plan";
 import MsTableColumn from "metersphere-frontend/src/components/table/MsTableColumn";
 import MsTable from "metersphere-frontend/src/components/table/MsTable";
@@ -515,10 +529,14 @@ import MsTestPlanScheduleBatchSwitch from "@/business/plan/components/ScheduleBa
 import MsTagsColumn from "metersphere-frontend/src/components/table/MsTagsColumn";
 import {getProjectMemberUserFilter} from "@/api/user";
 import TestPlanReportReview from "@/business/report/components/TestPlanReportReview";
+import {mapState} from "pinia";
+import {useStore} from "@/store";
+import ReviewOrPlanBatchMove from "@/business/case/components/ReviewOrPlanBatchMove.vue";
 
 export default {
   name: "TestPlanList",
   components: {
+    ReviewOrPlanBatchMove,
     MsTagsColumn,
     TestPlanReportReview,
     MsTag,
@@ -607,6 +625,11 @@ export default {
           permissions: ["PROJECT_TRACK_PLAN:READ+SCHEDULE"],
         },
         {
+          name: this.$t('test_track.case.batch_move_case'),
+          handleClick: this.handleBatchMove,
+          permissions: ['PROJECT_TRACK_PLAN:READ+EDIT']
+        },
+        {
           name: this.$t("api_test.automation.batch_execute"),
           handleClick: this.handleBatchExecute,
           permissions: ["PROJECT_TRACK_PLAN:READ+SCHEDULE"],
@@ -674,7 +697,48 @@ export default {
     });
     this.initTableData();
   },
+  computed: {
+    ...mapState(useStore, {
+      moduleOptions: 'testPlanModuleOptions',
+    }),
+    nodePathMap() {
+      let map = new Map();
+      if (this.moduleOptions) {
+        this.moduleOptions.forEach((item) => {
+          map.set(item.id, item.path);
+        });
+      }
+      return map;
+    }
+  },
+  props: {
+    treeNodes: {
+      type: Array
+    },
+    currentNode: {
+      type: Object
+    },
+    currentSelectNodes: {
+      type: Array
+    }
+  },
   methods: {
+    moveSave(param) {
+      param.condition = this.condition;
+      param.projectId = this.projectId;
+      testPlanBatchMove(param)
+        .then(() => {
+          this.$refs.testReviewBatchMove.btnDisable = false;
+          this.$success(this.$t('commons.save_success'), false);
+          this.$refs.testReviewBatchMove.close();
+          this.refresh();
+        });
+    },
+    handleBatchMove() {
+      let batchSelectCount = this.$refs.testPlanLitTable.selectDataCounts;
+      let firstSelectRow = this.$refs.testPlanLitTable.selectRows.values().next().value;
+      this.$refs.testReviewBatchMove.open(firstSelectRow.name, this.treeNodes, this.$refs.testPlanLitTable.selectIds, batchSelectCount, this.moduleOptions, '计划');
+    },
     setAdvSearchStageOption() {
       let comp = this.condition.components.find((c) => c.key === "stage");
       if (comp) {
@@ -696,18 +760,25 @@ export default {
       this.currentPage = 1;
       this.initTableData();
     },
-    initTableData() {
+    initTableData(nodeIds) {
+      this.cardLoading = true;
+      this.condition.nodeIds = [];
       if (this.planId) {
         this.condition.planId = this.planId;
       }
       if (this.selectNodeIds && this.selectNodeIds.length > 0) {
         this.condition.nodeIds = this.selectNodeIds;
       }
+      if (nodeIds && Array.isArray(nodeIds) && nodeIds.length > 0) {
+        this.condition.nodeIds = nodeIds;
+      }
       if (!this.projectId) {
         return;
       }
       this.condition.projectId = getCurrentProjectID();
-      this.cardLoading = true;
+      // 设置搜索条件, 用于刷新树
+      this.$emit('setCondition', this.condition);
+      this.$emit('refreshTree');
       testPlanList(
           {pageNum: this.currentPage, pageSize: this.pageSize},
           this.condition
@@ -826,7 +897,7 @@ export default {
     refresh() {
       this.$refs.testPlanLitTable.clear();
       this.$refs.testPlanLitTable.isSelectDataAll(false);
-      this.initTableData();
+      this.initTableData(this.currentSelectNodes);
     },
     handleBatchDelete() {
       this.$confirm(
