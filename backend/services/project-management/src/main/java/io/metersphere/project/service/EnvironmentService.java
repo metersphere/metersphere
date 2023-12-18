@@ -114,7 +114,7 @@ public class EnvironmentService {
         return extEnvironmentMapper.selectByKeyword(request.getKeyword(), false, request.getProjectId());
     }
 
-    public EnvironmentRequest add(EnvironmentRequest request, String userId, List<MultipartFile> sslFiles) {
+    public Environment add(EnvironmentRequest request, String userId, List<MultipartFile> sslFiles) {
         Environment environment = new Environment();
         environment.setId(IDGenerator.nextStr());
         environment.setCreateUser(userId);
@@ -134,7 +134,7 @@ public class EnvironmentService {
         environmentBlob.setConfig(JSON.toJSONBytes(request.getConfig()));
         environmentBlobMapper.insert(environmentBlob);
         uploadFileToMinio(sslFiles, environment);
-        return request;
+        return environment;
     }
 
     private void uploadFileToMinio(List<MultipartFile> sslFiles, Environment environment) {
@@ -153,20 +153,20 @@ public class EnvironmentService {
         }
     }
 
-    public EnvironmentRequest get(String environmentId) {
-        EnvironmentRequest environmentRequest = new EnvironmentRequest();
+    public EnvironmentInfoDTO get(String environmentId) {
+        EnvironmentInfoDTO environmentInfoDTO = new EnvironmentInfoDTO();
         Environment environment = environmentMapper.selectByPrimaryKey(environmentId);
         if (environment == null) {
             return null;
         }
-        environmentRequest.setProjectId(environment.getProjectId());
-        environmentRequest.setName(environment.getName());
-        environmentRequest.setId(environment.getId());
+        environmentInfoDTO.setProjectId(environment.getProjectId());
+        environmentInfoDTO.setName(environment.getName());
+        environmentInfoDTO.setId(environment.getId());
         EnvironmentBlob environmentBlob = environmentBlobMapper.selectByPrimaryKey(environmentId);
         if (environmentBlob == null) {
-            environmentRequest.setConfig(new EnvironmentConfig());
+            environmentInfoDTO.setConfig(new EnvironmentConfig());
         } else {
-            environmentRequest.setConfig(JSON.parseObject(new String(environmentBlob.getConfig()), EnvironmentConfig.class));
+            environmentInfoDTO.setConfig(JSON.parseObject(new String(environmentBlob.getConfig()), EnvironmentConfig.class));
         }
         if (BooleanUtils.isTrue(environment.getMock())) {
             SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
@@ -175,11 +175,11 @@ public class EnvironmentService {
             String baseUrl = baseSystemConfigDTO.getUrl();
             if (StringUtils.isNotEmpty(baseUrl)) {
                 Project project = projectMapper.selectByPrimaryKey(environment.getProjectId());
-                environmentRequest.getConfig().getHttpConfig().get(0).setUrl(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, project.getNum()));
+                environmentInfoDTO.getConfig().getHttpConfig().get(0).setUrl(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, project.getNum()));
             }
         }
 
-        return environmentRequest;
+        return environmentInfoDTO;
     }
 
     public Long getNextOrder(String projectId) {
@@ -294,7 +294,7 @@ public class EnvironmentService {
         return null;
     }
 
-    public EnvironmentRequest update(EnvironmentRequest request, String userId, List<MultipartFile> sslFiles) {
+    public Environment update(EnvironmentRequest request, String userId, List<MultipartFile> sslFiles) {
         Environment environment = new Environment();
         environment.setId(request.getId());
         environment.setUpdateUser(userId);
@@ -308,7 +308,7 @@ public class EnvironmentService {
         environmentBlob.setConfig(JSON.toJSONBytes(request.getConfig()));
         environmentBlobMapper.updateByPrimaryKeySelective(environmentBlob);
         uploadFileToMinio(sslFiles, environment);
-        return request;
+        return environment;
     }
 
     public void create(EnvironmentImportRequest request, MultipartFile file, String userId, String currentProjectId) {

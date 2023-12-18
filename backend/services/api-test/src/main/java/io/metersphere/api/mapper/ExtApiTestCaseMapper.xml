@@ -5,7 +5,7 @@
     <update id="batchMoveGc">
         UPDATE api_test_case
         SET deleted = 1,
-        delete_time = UNIX_TIMESTAMP()*1000,
+        delete_time = #{deleteTime},
         delete_user = #{userId}
         WHERE id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">
@@ -38,7 +38,8 @@
         t1.num,
         t1.last_report_status,
         t1.last_report_id,
-        t1.environment_id
+        t1.environment_id,
+        a.module_id
         FROM
         api_test_case t1
         LEFT JOIN api_report t3 ON t1.last_report_id = t3.id
@@ -115,6 +116,30 @@
         </foreach>
         GROUP BY
         t2.resource_id
+    </select>
+    <select id="selectIdsByCaseIds" resultType="java.lang.String">
+        SELECT
+        t1.api_definition_id
+        FROM
+        api_test_case t1
+        WHERE
+        t1.deleted = 1
+        AND t1.id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+    <select id="getCaseIds" resultType="java.lang.String">
+        SELECT
+        t1.id
+        FROM
+        api_test_case t1
+        WHERE
+        t1.deleted = #{deleted}
+        AND t1.api_definition_id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
     </select>
 
     <sql id="queryWhereConditionByBatch">

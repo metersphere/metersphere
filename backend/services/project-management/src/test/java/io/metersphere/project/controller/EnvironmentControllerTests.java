@@ -370,7 +370,7 @@ public class EnvironmentControllerTests extends BaseTest {
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.add("request", JSON.toJSONString(request));
         MvcResult mvcResult = this.requestMultipartWithOkAndReturn(add, paramMap);
-        EnvironmentRequest response = parseObjectFromMvcResult(mvcResult, EnvironmentRequest.class);
+        Environment response = parseObjectFromMvcResult(mvcResult, Environment.class);
         Assertions.assertNotNull(response);
         Environment environment = environmentMapper.selectByPrimaryKey(response.getId());
         Assertions.assertNotNull(environment);
@@ -394,7 +394,7 @@ public class EnvironmentControllerTests extends BaseTest {
         request.setConfig(envConfig);
         paramMap.set("request", JSON.toJSONString(request));
         mvcResult = this.requestMultipartWithOkAndReturn(add, paramMap);
-        response = parseObjectFromMvcResult(mvcResult, EnvironmentRequest.class);
+        response = parseObjectFromMvcResult(mvcResult, Environment.class);
         Assertions.assertNotNull(response);
         environment = environmentMapper.selectByPrimaryKey(response.getId());
         Assertions.assertNotNull(environment);
@@ -419,7 +419,7 @@ public class EnvironmentControllerTests extends BaseTest {
         request.setConfig(envConfig);
         paramMap.set("request", JSON.toJSONString(request));
         mvcResult = this.requestMultipartWithOkAndReturn(add, paramMap);
-        response = parseObjectFromMvcResult(mvcResult, EnvironmentRequest.class);
+        response = parseObjectFromMvcResult(mvcResult, Environment.class);
         Assertions.assertNotNull(response);
         environment = environmentMapper.selectByPrimaryKey(response.getId());
         Assertions.assertNotNull(environment);
@@ -444,7 +444,7 @@ public class EnvironmentControllerTests extends BaseTest {
         request.setConfig(envConfig);
         paramMap.set("request", JSON.toJSONString(request));
         mvcResult = this.requestMultipartWithOkAndReturn(add, paramMap);
-        response = parseObjectFromMvcResult(mvcResult, EnvironmentRequest.class);
+        response = parseObjectFromMvcResult(mvcResult, Environment.class);
         Assertions.assertNotNull(response);
         environment = environmentMapper.selectByPrimaryKey(response.getId());
         Assertions.assertNotNull(environment);
@@ -469,7 +469,7 @@ public class EnvironmentControllerTests extends BaseTest {
         request.setConfig(envConfig);
         paramMap.set("request", JSON.toJSONString(request));
         mvcResult = this.requestMultipartWithOkAndReturn(add, paramMap);
-        response = parseObjectFromMvcResult(mvcResult, EnvironmentRequest.class);
+        response = parseObjectFromMvcResult(mvcResult, Environment.class);
         Assertions.assertNotNull(response);
         environment = environmentMapper.selectByPrimaryKey(response.getId());
         Assertions.assertNotNull(environment);
@@ -494,7 +494,7 @@ public class EnvironmentControllerTests extends BaseTest {
         request.setConfig(envConfig);
         paramMap.set("request", JSON.toJSONString(request));
         mvcResult = this.requestMultipartWithOkAndReturn(add, paramMap);
-        response = parseObjectFromMvcResult(mvcResult, EnvironmentRequest.class);
+        response = parseObjectFromMvcResult(mvcResult, Environment.class);
         Assertions.assertNotNull(response);
         environment = environmentMapper.selectByPrimaryKey(response.getId());
         Assertions.assertNotNull(environment);
@@ -519,7 +519,7 @@ public class EnvironmentControllerTests extends BaseTest {
         request.setConfig(envConfig);
         paramMap.set("request", JSON.toJSONString(request));
         mvcResult = this.requestMultipartWithOkAndReturn(add, paramMap);
-        response = parseObjectFromMvcResult(mvcResult, EnvironmentRequest.class);
+        response = parseObjectFromMvcResult(mvcResult, Environment.class);
         Assertions.assertNotNull(response);
         environment = environmentMapper.selectByPrimaryKey(response.getId());
         Assertions.assertNotNull(environment);
@@ -546,7 +546,7 @@ public class EnvironmentControllerTests extends BaseTest {
         request.setConfig(envConfig);
         paramMap.set("request", JSON.toJSONString(request));
         mvcResult = this.requestMultipartWithOkAndReturn(add, paramMap);
-        response = parseObjectFromMvcResult(mvcResult, EnvironmentRequest.class);
+        response = parseObjectFromMvcResult(mvcResult, Environment.class);
         Assertions.assertNotNull(response);
         environment = environmentMapper.selectByPrimaryKey(response.getId());
         Assertions.assertNotNull(environment);
@@ -571,7 +571,7 @@ public class EnvironmentControllerTests extends BaseTest {
         request.setConfig(envConfig);
         paramMap.set("request", JSON.toJSONString(request));
         mvcResult = this.requestMultipartWithOkAndReturn(add, paramMap);
-        response = parseObjectFromMvcResult(mvcResult, EnvironmentRequest.class);
+        response = parseObjectFromMvcResult(mvcResult, Environment.class);
         Assertions.assertNotNull(response);
         environment = environmentMapper.selectByPrimaryKey(response.getId());
         Assertions.assertNotNull(environment);
@@ -596,7 +596,7 @@ public class EnvironmentControllerTests extends BaseTest {
         request.setConfig(envConfig);
         paramMap.set("request", JSON.toJSONString(request));
         mvcResult = this.requestMultipartWithOkAndReturn(add, paramMap);
-        response = parseObjectFromMvcResult(mvcResult, EnvironmentRequest.class);
+        response = parseObjectFromMvcResult(mvcResult, Environment.class);
         Assertions.assertNotNull(response);
         environment = environmentMapper.selectByPrimaryKey(response.getId());
         Assertions.assertNotNull(environment);
@@ -622,7 +622,7 @@ public class EnvironmentControllerTests extends BaseTest {
         request.setConfig(envConfig);
         paramMap.set("request", JSON.toJSONString(request));
         mvcResult = this.requestMultipartWithOkAndReturn(add, paramMap);
-        response = parseObjectFromMvcResult(mvcResult, EnvironmentRequest.class);
+        response = parseObjectFromMvcResult(mvcResult, Environment.class);
         Assertions.assertNotNull(response);
         environment = environmentMapper.selectByPrimaryKey(response.getId());
         Assertions.assertEquals(response.getName(), environment.getName());
@@ -652,7 +652,7 @@ public class EnvironmentControllerTests extends BaseTest {
         paramMap.add("file", List.of(file, file11));
         paramMap.set("request", JSON.toJSONString(request));
         mvcResult = requestMultipartWithOk(add, paramMap, DEFAULT_PROJECT_ID);
-        response = parseObjectFromMvcResult(mvcResult, EnvironmentRequest.class);
+        response = parseObjectFromMvcResult(mvcResult, Environment.class);
         Assertions.assertNotNull(response);
         environment = environmentMapper.selectByPrimaryKey(response.getId());
         Assertions.assertEquals(response.getName(), environment.getName());
@@ -703,7 +703,7 @@ public class EnvironmentControllerTests extends BaseTest {
         List<Environment> environments = environmentMapper.selectByExample(example);
         String id = environments.get(0).getId();
         MvcResult mvcResult = this.responseGet(get + id);
-        EnvironmentRequest response = parseObjectFromMvcResult(mvcResult, EnvironmentRequest.class);
+        EnvironmentInfoDTO response = parseObjectFromMvcResult(mvcResult, EnvironmentInfoDTO.class);
         Assertions.assertNotNull(response);
         Assertions.assertEquals(id, response.getId());
         Assertions.assertEquals("name", response.getName());
@@ -724,7 +724,7 @@ public class EnvironmentControllerTests extends BaseTest {
         environmentBlob.setConfig(JSON.toJSONBytes(new EnvironmentConfig()));
         environmentBlobMapper.insert(environmentBlob);
         mvcResult = this.responseGet(get + "environmentId1");
-        response = parseObjectFromMvcResult(mvcResult, EnvironmentRequest.class);
+        response = parseObjectFromMvcResult(mvcResult, EnvironmentInfoDTO.class);
         Assertions.assertNotNull(response);
         Assertions.assertEquals("environmentId1", response.getId());
         //校验权限
@@ -817,7 +817,7 @@ public class EnvironmentControllerTests extends BaseTest {
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.set("request", JSON.toJSONString(request));
         MvcResult mvcResult = requestMultipartWithOkAndReturn(update, paramMap, ERROR_REQUEST_MATCHER);
-        EnvironmentRequest response = parseObjectFromMvcResult(mvcResult, EnvironmentRequest.class);
+        Environment response = parseObjectFromMvcResult(mvcResult, Environment.class);
         Assertions.assertNotNull(response);
         Environment environment = environmentMapper.selectByPrimaryKey(response.getId());
         Assertions.assertNotNull(environment);
@@ -838,7 +838,7 @@ public class EnvironmentControllerTests extends BaseTest {
         paramMap.add("file", List.of(file, file11));
         paramMap.set("request", JSON.toJSONString(request));
         mvcResult = requestMultipartWithOk(update, paramMap, DEFAULT_PROJECT_ID);
-        response = parseObjectFromMvcResult(mvcResult, EnvironmentRequest.class);
+        response = parseObjectFromMvcResult(mvcResult, Environment.class);
         Assertions.assertNotNull(response);
         environment = environmentMapper.selectByPrimaryKey(response.getId());
         Assertions.assertEquals(response.getName(), environment.getName());

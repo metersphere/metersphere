@@ -73,6 +73,8 @@ public class ApiTestCaseService {
     private SqlSessionFactory sqlSessionFactory;
     @Resource
     private ApiFileResourceService apiFileResourceService;
+    @Resource
+    private ApiDefinitionModuleMapper apiDefinitionModuleMapper;
 
     private void checkProjectExist(String projectId) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
@@ -196,14 +198,6 @@ public class ApiTestCaseService {
         apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
     }
 
-    private void checkApiExist(String id) {
-        ApiDefinitionExample example = new ApiDefinitionExample();
-        example.createCriteria().andIdEqualTo(id).andDeletedEqualTo(false);
-        if (apiDefinitionMapper.countByExample(example) == 0) {
-            throw new MSException(Translator.get("please_recover_the_interface_data_first"));
-        }
-    }
-
     public void follow(String id, String userId) {
         checkResourceExist(id);
         ApiTestCaseFollowerExample example = new ApiTestCaseFollowerExample();
@@ -281,11 +275,19 @@ public class ApiTestCaseService {
             List<String> ids = apiCaseLists.stream().map(ApiTestCaseDTO::getId).collect(Collectors.toList());
             List<CasePassDTO> passRateList = extApiTestCaseMapper.findPassRateByIds(ids);
             Map<String, String> passRates = passRateList.stream().collect(Collectors.toMap(CasePassDTO::getId, CasePassDTO::getValue));
+            //取模块id为新的set
+            List<String> moduleIds = apiCaseLists.stream().map(ApiTestCaseDTO::getModuleId).distinct().toList();
+            ApiDefinitionModuleExample moduleExample = new ApiDefinitionModuleExample();
+            moduleExample.createCriteria().andIdIn(moduleIds);
+            List<ApiDefinitionModule> modules = apiDefinitionModuleMapper.selectByExample(moduleExample);
+            //生成map key为id value为name
+            Map<String, String> moduleMap = modules.stream().collect(Collectors.toMap(ApiDefinitionModule::getId, ApiDefinitionModule::getName));
             apiCaseLists.forEach(apiCase -> {
                 apiCase.setPassRate(passRates.get(apiCase.getId()));
                 apiCase.setCreateName(userMap.get(apiCase.getCreateUser()));
                 apiCase.setUpdateName(userMap.get(apiCase.getUpdateUser()));
                 apiCase.setDeleteName(userMap.get(apiCase.getDeleteUser()));
+                apiCase.setModulePath(StringUtils.isNotBlank(moduleMap.get(apiCase.getModuleId())) ? moduleMap.get(apiCase.getModuleId()) : Translator.get("api_unplanned_request"));
                 if (StringUtils.isNotBlank(apiCase.getEnvironmentId())
                         && MapUtils.isNotEmpty(envMap)
                         && envMap.containsKey(apiCase.getEnvironmentId())) {
@@ -301,17 +303,18 @@ public class ApiTestCaseService {
     }
 
     public void batchRecover(List<ApiTestCase> apiTestCases, String userId, String projectId) {
-        apiTestCases.forEach(apiTestCase -> {
-            checkResourceExist(apiTestCase.getId());
-            checkApiExist(apiTestCase.getApiDefinitionId());
-            checkNameExist(apiTestCase);
-            apiTestCase.setDeleted(false);
-            apiTestCase.setDeleteUser(null);
-            apiTestCase.setDeleteTime(null);
-            apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
-        });
-        //记录恢复日志
-        apiTestCaseLogService.batchRecoverLog(apiTestCases, userId, projectId);
+        if (CollectionUtils.isNotEmpty(apiTestCases)) {
+            apiTestCases.forEach(apiTestCase -> {
+                checkResourceExist(apiTestCase.getId());
+                checkNameExist(apiTestCase);
+                apiTestCase.setDeleted(false);
+                apiTestCase.setDeleteUser(null);
+                apiTestCase.setDeleteTime(null);
+                apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCase);
+            });
+            //记录恢复日志
+            apiTestCaseLogService.batchRecoverLog(apiTestCases, userId, projectId);
+        }
     }
 
     public void delete(String id, String userId) {
@@ -375,11 +378,12 @@ public class ApiTestCaseService {
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
-        SubListUtils.dealForSubList(ids, 2000, subList -> batchMoveToGc(subList, userId, projectId, saveLog));
+        long deleteTime = System.currentTimeMillis();
+        SubListUtils.dealForSubList(ids, 2000, subList -> batchMoveToGc(subList, userId, projectId, saveLog, deleteTime));
     }
 
-    private void batchMoveToGc(List<String> ids, String userId, String projectId, boolean saveLog) {
-        extApiTestCaseMapper.batchMoveGc(ids, userId);
+    private void batchMoveToGc(List<String> ids, String userId, String projectId, boolean saveLog, long deleteTime) {
+        extApiTestCaseMapper.batchMoveGc(ids, userId, deleteTime);
         if (saveLog) {
             List<ApiTestCase> apiTestCases = extApiTestCaseMapper.getCaseInfoByIds(ids, true);
             apiTestCaseLogService.batchToGcLog(apiTestCases, userId, projectId);
@@ -485,4 +489,5 @@ public class ApiTestCaseService {
     public String uploadTempFile(MultipartFile file) {
         return apiFileResourceService.uploadTempFile(file);
     }
+
 }

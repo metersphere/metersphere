@@ -786,6 +786,7 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
     @Order(10)
     public void deleteModuleTestSuccess() throws Exception {
         this.preliminaryData();
+        this.getModuleTrashTreeNode();
 
         // 删除没有文件的节点a1-b1-c1  检查是否级联删除根节点
         BaseTreeNode a1b1Node = getNodeByName(this.getModuleTreeNode(), "a1-b1");

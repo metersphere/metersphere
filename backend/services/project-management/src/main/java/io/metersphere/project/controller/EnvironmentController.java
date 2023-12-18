@@ -1,9 +1,6 @@
 package io.metersphere.project.controller;
 
-import io.metersphere.project.dto.environment.EnvironmentExportRequest;
-import io.metersphere.project.dto.environment.EnvironmentFilterRequest;
-import io.metersphere.project.dto.environment.EnvironmentImportRequest;
-import io.metersphere.project.dto.environment.EnvironmentRequest;
+import io.metersphere.project.dto.environment.*;
 import io.metersphere.project.dto.environment.datasource.DataSource;
 import io.metersphere.project.dto.environment.ssl.KeyStoreEntry;
 import io.metersphere.project.service.CommandService;
@@ -50,7 +47,7 @@ public class EnvironmentController {
     @GetMapping("/get/{environmentId}")
     @Operation(summary = "项目管理-环境-环境目录-详情")
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ)
-    public EnvironmentRequest get(@PathVariable String environmentId) {
+    public EnvironmentInfoDTO get(@PathVariable String environmentId) {
         return environmentService.get(environmentId);
     }
 
@@ -59,7 +56,7 @@ public class EnvironmentController {
     @Operation(summary = "项目管理-环境-环境目录-新增")
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = EnvironmentLogService.class)
-    public EnvironmentRequest add(@Validated({Created.class}) @RequestPart(value = "request") EnvironmentRequest request,
+    public Environment add(@Validated({Created.class}) @RequestPart(value = "request") EnvironmentRequest request,
                                   @RequestPart(value = "file", required = false) List<MultipartFile> sslFiles) {
         return environmentService.add(request, SessionUtils.getUserId(), sslFiles);
     }
@@ -68,7 +65,7 @@ public class EnvironmentController {
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ_UPDATE)
     @Operation(summary = "项目管理-环境-环境目录-修改")
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = EnvironmentLogService.class)
-    public EnvironmentRequest update(@Validated({Updated.class}) @RequestPart("request") EnvironmentRequest request,
+    public Environment update(@Validated({Updated.class}) @RequestPart("request") EnvironmentRequest request,
                                      @RequestPart(value = "file", required = false) List<MultipartFile> sslFiles) {
         return environmentService.update(request, SessionUtils.getUserId(), sslFiles);
     }
