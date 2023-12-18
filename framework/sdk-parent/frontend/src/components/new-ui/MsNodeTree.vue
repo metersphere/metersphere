@@ -63,7 +63,7 @@
                         {{$t('test_track.module.rename')}}
                       </span>
                     </el-dropdown-item>
-                    <el-dropdown-item :disabled="!hasPermissions(deletePermission)" :divided="true">
+                    <el-dropdown-item v-show="hasPermissions(deletePermission)" :disabled="!hasPermissions(deletePermission)" :divided="true">
                       <span @click.stop="remove(node, data)" class="more-operate-btn" style="color: #F54A45;">
                         <svg-icon icon-class="icon_delete-trash_outlined_red" style="margin-right: 9px; margin-top: 1px; width: 1.1em; height: 1.1em"/>
                         {{$t('commons.delete')}}
@@ -81,7 +81,7 @@
                         {{$t('test_track.module.rename')}}
                       </span>
                     </el-dropdown-item>
-                    <el-dropdown-item :disabled="!hasPermissions(deletePermission)" :divided="true">
+                    <el-dropdown-item v-show="hasPermissions(deletePermission)" :disabled="!hasPermissions(deletePermission)" :divided="true">
                       <span @click.stop="remove(node, data)" class="more-operate-btn" style="color: #F54A45;">
                         <svg-icon icon-class="icon_delete-trash_outlined_red" style="margin-right: 9px; margin-top: 1px; width: 1.1em; height: 1.1em"/>
                         {{$t('commons.delete')}}
@@ -156,7 +156,7 @@
                     {{$t('test_track.module.rename')}}
                   </span>
                 </el-dropdown-item>
-                <el-dropdown-item :disabled="!hasPermissions(deletePermission)" :divided="true">
+                <el-dropdown-item v-show="hasPermissions(deletePermission)" :disabled="!hasPermissions(deletePermission)" :divided="true">
                   <span @click.stop="remove(node, data)" class="more-operate-btn" style="color: #F54A45;">
                     <svg-icon icon-class="icon_delete-trash_outlined_red" style="margin-right: 9px; margin-top: 1px; width: 1.1em; height: 1.1em"/>
                     {{$t('commons.delete')}}
@@ -174,7 +174,7 @@
                     {{$t('test_track.module.rename')}}
                   </span>
                 </el-dropdown-item>
-                <el-dropdown-item :disabled="!hasPermissions(deletePermission)" :divided="true">
+                <el-dropdown-item v-show="hasPermissions(deletePermission)" :disabled="!hasPermissions(deletePermission)" :divided="true">
                   <span @click.stop="remove(node, data)" class="more-operate-btn" style="color: #F54A45;">
                     <svg-icon icon-class="icon_delete-trash_outlined_red" style="margin-right: 9px; margin-top: 1px; width: 1.1em; height: 1.1em"/>
                     {{$t('commons.delete')}}
