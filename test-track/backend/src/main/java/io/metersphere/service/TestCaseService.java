@@ -1354,6 +1354,7 @@ public class TestCaseService {
                     testCase.setRefId(testCase.getId());
                     testCase.setVersionId(request.getVersionId());
                     testCase.setLatest(true);
+                    testCase.setType("functional");
                     mapper.insert(testCase);
                     nextOrder += ServiceUtils.ORDER_STEP;
                     batchInsertCustomFieldTestCase(testCaseCustomFieldMap, customFieldTestCaseMapper, testCase);
