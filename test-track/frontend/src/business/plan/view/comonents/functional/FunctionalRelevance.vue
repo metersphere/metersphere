@@ -287,6 +287,9 @@ export default {
         this.getTableData();
       }
     },
+    resetPageRefresh() {
+      this.pageRefresh = false;
+    },
     pageSizeChange() {
       this.getTestCases()
     },
