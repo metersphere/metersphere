@@ -146,6 +146,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                 ApiDefinitionWithBLOBs apiDefinition = buildApiDefinition(request.getId(), operation, pathName, method.name(), importRequest);
                 apiDefinition.setDescription(operation.getDescription());
                 parseParameters(operation, request);
+                parseParameters(path,request);
                 addBodyHeader(request);
                 if (StringUtils.isNotBlank(basePath)) {
                     String pathStr = (basePath + apiDefinition.getPath()).replaceAll("//", "/");
@@ -245,6 +246,25 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 //                case SwaggerParameterType.FILE:
 //                    parsePathParameters(parameter, request);
 //                    break;
+                }
+            }
+        }
+    }
+
+    private void parseParameters(Path path, MsHTTPSamplerProxy request) {
+        if (path.getParameters() == null) {
+            return;
+        }
+        List<Parameter> parameters = path.getParameters();
+        // 处理特殊格式  rest参数是和请求平级的情况
+
+        for (Parameter parameter : parameters) {
+            if (StringUtils.isNotBlank(parameter.getIn())) {
+                switch (parameter.getIn()) {
+                    case SwaggerParameterType.PATH -> parsePathParameters(parameter, request.getRest());
+                    case SwaggerParameterType.QUERY -> parseQueryParameters(parameter, request.getArguments());
+                    case SwaggerParameterType.HEADER -> parseHeaderParameters(parameter, request.getHeaders());
+                    case SwaggerParameterType.COOKIE -> parseCookieParameters(parameter, request.getHeaders());
                 }
             }
         }
