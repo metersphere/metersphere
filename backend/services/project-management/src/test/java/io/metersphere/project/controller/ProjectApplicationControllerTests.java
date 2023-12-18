@@ -3,6 +3,8 @@ package io.metersphere.project.controller;
 import io.metersphere.project.controller.param.ProjectApplicationDefinition;
 import io.metersphere.project.controller.param.ProjectApplicationRequestDefinition;
 import io.metersphere.project.domain.ProjectApplication;
+import io.metersphere.project.domain.ProjectApplicationExample;
+import io.metersphere.project.mapper.ProjectApplicationMapper;
 import io.metersphere.project.request.ProjectApplicationRequest;
 import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.sdk.constants.ProjectApplicationType;
@@ -15,7 +17,6 @@ import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.domain.ServiceIntegration;
 import io.metersphere.system.dto.request.ServiceIntegrationUpdateRequest;
 import io.metersphere.system.mapper.ServiceIntegrationMapper;
-import io.metersphere.system.service.PluginService;
 import jakarta.annotation.Resource;
 import lombok.Getter;
 import lombok.Setter;
@@ -47,14 +48,13 @@ public class ProjectApplicationControllerTests extends BaseTest {
 
     private static Plugin plugin;
     @Resource
-    private PluginService pluginService;
-    @Resource
     private BasePluginTestService basePluginTestService;
-
     @Resource
     private ServiceIntegrationMapper serviceIntegrationMapper;
     @Resource
     private ProjectApplicationService projectApplicationService;
+    @Resource
+    private ProjectApplicationMapper projectApplicationMapper;
 
     public static final String PROJECT_ID = "project_application_test_id";
     public static final String TIME_TYPE_VALUE = "3M";
@@ -685,12 +685,43 @@ public class ProjectApplicationControllerTests extends BaseTest {
 
 
     @Test
-    @Order(40)
-    public void testGetProjectDemandThirdPartConfig() throws Exception {
+    @Order(41)
+    public void testGetProjectDemandThirdPartConfig() {
         projectApplicationService.getProjectDemandThirdPartConfig(DEFAULT_PROJECT_ID);
         projectApplicationService.getProjectDemandThirdPartConfig(PROJECT_ID);
         projectApplicationService.getPlatformName(DEFAULT_PROJECT_ID);
         projectApplicationService.getPlatformName(PROJECT_ID);
+        ProjectApplicationExample example = new ProjectApplicationExample();
+        example.createCriteria().andProjectIdEqualTo("default-project-for-application").andTypeEqualTo("BUG_SYNC_SYNC_ENABLE");
+        ProjectApplication record = new ProjectApplication();
+        record.setProjectId("default-project-for-application-tmp");
+        projectApplicationMapper.updateByExampleSelective(record, example);
+        projectApplicationService.getPlatformName("default-project-for-application");
+        projectApplicationService.getPlatformServiceIntegrationWithSyncOrDemand("default-project-for-application", true);
+        ProjectApplicationExample example1 = new ProjectApplicationExample();
+        example1.createCriteria().andProjectIdEqualTo("default-project-for-application-tmp").andTypeEqualTo("BUG_SYNC_SYNC_ENABLE");
+        record.setProjectId("default-project-for-application");
+        record.setTypeValue("false");
+        projectApplicationMapper.updateByExampleSelective(record, example1);
+        projectApplicationService.getPlatformName("default-project-for-application");
+        projectApplicationService.getPlatformServiceIntegrationWithSyncOrDemand("default-project-for-application", true);
+        ProjectApplicationExample example2 = new ProjectApplicationExample();
+        example2.createCriteria().andProjectIdEqualTo("default-project-for-application").andTypeEqualTo("BUG_SYNC_SYNC_ENABLE");
+        record.setTypeValue("true");
+        projectApplicationMapper.updateByExampleSelective(record, example2);
+        projectApplicationService.getPlatformName("default-project-for-application");
+        projectApplicationService.getPlatformServiceIntegrationWithSyncOrDemand("default-project-for-application", true);
+        ProjectApplicationExample example3 = new ProjectApplicationExample();
+        example3.createCriteria().andProjectIdEqualTo("default-project-for-application").andTypeEqualTo("BUG_SYNC_PLATFORM_KEY");
+        record.setProjectId("default-project-for-application-tmp");
+        projectApplicationMapper.updateByExampleSelective(record, example3);
+        projectApplicationService.getPlatformName("default-project-for-application");
+        projectApplicationService.getPlatformServiceIntegrationWithSyncOrDemand("default-project-for-application", true);
+        ProjectApplicationExample example4 = new ProjectApplicationExample();
+        example4.createCriteria().andProjectIdEqualTo("default-project-for-application-tmp").andTypeEqualTo("BUG_SYNC_PLATFORM_KEY");
+        record.setProjectId("default-project-for-application");
+        record.setTypeValue("jira");
+        projectApplicationMapper.updateByExampleSelective(record, example4);
     }
 
 
