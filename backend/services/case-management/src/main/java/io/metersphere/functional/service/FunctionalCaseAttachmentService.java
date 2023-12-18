@@ -151,8 +151,6 @@ public class FunctionalCaseAttachmentService {
         FunctionalCaseAttachmentExample example = new FunctionalCaseAttachmentExample();
         example.createCriteria().andFileIdIn(deleteFileMetaIds).andCaseIdEqualTo(caseId).andLocalEqualTo(true);
         List<FunctionalCaseAttachment> delAttachment = functionalCaseAttachmentMapper.selectByExample(example);
-        example.clear();
-        example.createCriteria().andIdIn(deleteFileMetaIds);
         functionalCaseAttachmentMapper.deleteByExample(example);
         this.deleteMinioFile(delAttachment, projectId, caseId);
     }

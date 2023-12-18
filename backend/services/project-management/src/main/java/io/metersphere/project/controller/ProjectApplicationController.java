@@ -180,7 +180,7 @@ public class ProjectApplicationController {
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_CASE_READ)
     public Map<String, Object> getCase(@Validated @RequestBody ProjectApplicationRequest request) {
         List<String> types = Arrays.asList(ProjectApplicationType.CASE.values()).stream().map(ProjectApplicationType.CASE::name).collect(Collectors.toList());
-        types.add(ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + ProjectApplicationType.CASE_RELATED_CONFIG.CASE_ENABLE.name());
+        types.add(ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "_" + ProjectApplicationType.CASE_RELATED_CONFIG.CASE_ENABLE.name());
         return projectApplicationService.get(request, types);
     }
 
@@ -260,7 +260,7 @@ public class ProjectApplicationController {
     @Operation(summary = "缺陷管理-获取配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_BUG_READ)
     public Map<String, Object> getBug(@Validated @RequestBody ProjectApplicationRequest request) {
-        List<String> types = Arrays.asList(ProjectApplicationType.BUG.BUG_SYNC.name() + ProjectApplicationType.BUG_SYNC_CONFIG.SYNC_ENABLE.name());
+        List<String> types = Arrays.asList(ProjectApplicationType.BUG.BUG_SYNC.name() + "_" + ProjectApplicationType.BUG_SYNC_CONFIG.SYNC_ENABLE.name());
         return projectApplicationService.get(request, types);
     }
 
