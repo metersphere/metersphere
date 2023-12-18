@@ -4,12 +4,20 @@
       <template #left>
         <div class="flex gap-[12px]">
           <a-button type="primary" @click="handleCreate">{{ t('bugManagement.createBug') }} </a-button>
-          <a-button type="outline" @click="handleSync">{{ t('bugManagement.syncBug') }} </a-button>
+          <a-button :disabled="syncBugLoading" type="outline" @click="handleSync"
+            >{{ t('bugManagement.syncBug') }}
+          </a-button>
           <a-button type="outline" @click="handleExport">{{ t('common.export') }} </a-button>
         </div>
       </template>
     </MsAdvanceFilter>
-    <MsBaseTable v-bind="propsRes" v-on="propsEvent">
+    <MsBaseTable
+      class="mt-[16px]"
+      v-bind="propsRes"
+      :action-config="tableBatchActions"
+      v-on="propsEvent"
+      @batch-action="handleTableBatch"
+    >
       <template #name="{ record, rowIndex }">
         <a-button type="text" class="px-0" @click="handleShowDetail(record.id, rowIndex)">{{ record.name }}</a-button>
       </template>
@@ -77,7 +85,14 @@
       <a-date-picker v-model="syncObject.time" show-time class="w-[304px]" />
     </div>
   </a-modal>
-  <MsExportDrawer v-model:visible="exportVisible" :all-data="exportOptionData" />
+  <MsExportDrawer v-model:visible="exportVisible" :all-data="exportOptionData" @confirm="exportConfirm">
+    <template #title>
+      <span class="text-[var(--color-text-1)]">{{ t('bugManagement.exportBug') }}</span>
+      <span v-if="currentSelectParams.currentSelectCount" class="text-[var(--color-text-4)]"
+        >({{ t('bugManagement.exportBugCount', { count: currentSelectParams.currentSelectCount }) }})</span
+      >
+    </template>
+  </MsExportDrawer>
   <BugDetailDrawer
     v-model:visible="detailVisible"
     :detail-id="activeDetailId"
@@ -103,9 +118,9 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsExportDrawer from '@/components/pure/ms-export-drawer/index.vue';
-  import { MsExportDrawerMap } from '@/components/pure/ms-export-drawer/types';
+  import { MsExportDrawerMap, MsExportDrawerOption } from '@/components/pure/ms-export-drawer/types';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import { MsTableColumn } from '@/components/pure/ms-table/type';
+  import { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
@@ -113,14 +128,23 @@
   import BugDetailDrawer from './components/bug-detail-drawer.vue';
   import DeleteModal from './components/deleteModal.vue';
 
-  import { deleteSingleBug, getBugList, getExportConfig } from '@/api/modules/bug-management';
+  import {
+    deleteSingleBug,
+    exportBug,
+    getBugList,
+    getExportConfig,
+    syncBugOpenSource,
+  } from '@/api/modules/bug-management';
   import { updateOrAddProjectUserGroup } from '@/api/modules/project-management/usergroup';
   import { useI18n } from '@/hooks/useI18n';
   import router from '@/router';
   import { useAppStore, useTableStore } from '@/store';
+  import useLicenseStore from '@/store/modules/setting/license';
 
   import { BugListItem } from '@/models/bug-management';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
+
+  import { useRequest } from 'ahooks-vue';
 
   const { t } = useI18n();
 
@@ -137,6 +161,20 @@
   const activeCaseIndex = ref<number>(0);
   const currentDeleteObj = reactive<{ id: string; name: string }>({ id: '', name: '' });
   const deleteVisible = ref(false);
+  const keyword = ref('');
+  const licenseStore = useLicenseStore();
+  const isXpack = computed(() => licenseStore.hasLicense());
+  // 当前选择的条数
+  const currentSelectParams = ref<BatchActionQueryParams>({ selectAll: false, currentSelectCount: 0 });
+
+  const { loading: syncBugLoading, run: syncBugRun } = useRequest(
+    () => syncBugOpenSource({ projectId: projectId.value }),
+    {
+      pollingInterval: 1 * 1000,
+      pollingWhenHidden: true,
+      manual: true,
+    }
+  );
 
   const syncObject = reactive({
     time: '',
@@ -187,6 +225,7 @@
       title: 'bugManagement.bugName',
       editType: ColumnEditTypeEnum.INPUT,
       dataIndex: 'name',
+      slotName: 'name',
       showTooltip: true,
     },
     {
@@ -267,7 +306,7 @@
     }
   };
 
-  const { propsRes, propsEvent, setKeyword, setLoadListParams, setProps } = useTable(
+  const { propsRes, propsEvent, setKeyword, setLoadListParams, setProps, resetSelector } = useTable(
     getBugList,
     {
       tableKey: TableKeyEnum.BUG_MANAGEMENT,
@@ -280,6 +319,24 @@
     undefined,
     (record) => handleNameChange(record)
   );
+
+  const tableBatchActions = {
+    baseAction: [
+      {
+        label: 'common.export',
+        eventTag: 'export',
+      },
+      {
+        label: 'common.edit',
+        eventTag: 'edit',
+      },
+      {
+        label: 'common.delete',
+        eventTag: 'delete',
+        danger: true,
+      },
+    ],
+  };
 
   watchEffect(() => {
     setProps({ heightUsed: heightUsed.value });
@@ -339,7 +396,26 @@
 
   const fetchData = async (v = '') => {
     setKeyword(v);
+    keyword.value = v;
     setProps({ data });
+  };
+
+  const exportConfirm = async (option: MsExportDrawerOption[]) => {
+    try {
+      const { selectedIds, selectAll, excludeIds } = currentSelectParams.value;
+      await exportBug({
+        selectIds: selectedIds || [],
+        selectAll,
+        excludeIds,
+        condition: { keyword: keyword.value },
+        bugExportColumns: option.map((item) => item),
+      });
+      Message.success(t('common.exportSuccess'));
+      exportVisible.value = false;
+      resetSelector();
+    } catch (error) {
+      Message.error(t('common.exportFail'));
+    }
   };
 
   const handleSingleDelete = (record?: TableData) => {
@@ -360,7 +436,12 @@
     });
   };
   const handleSync = () => {
-    syncVisible.value = true;
+    if (isXpack.value) {
+      syncVisible.value = true;
+    } else {
+      // 直接开始轮询
+      syncBugRun();
+    }
   };
 
   const handleShowDetail = (id: string, rowIndex: number) => {
@@ -379,9 +460,14 @@
     console.log('create', record);
   };
 
-  const handleDelete = (record: BugListItem) => {
+  const handleBatchDelete = (params: BatchActionQueryParams) => {
     // eslint-disable-next-line no-console
-    console.log('create', record);
+    console.log('create', params);
+  };
+
+  const handleBatchEdit = (params: BatchActionQueryParams) => {
+    // eslint-disable-next-line no-console
+    console.log('create', params);
   };
 
   const handleExport = () => {
@@ -455,6 +541,23 @@
     },
     { label: t('bugManagement.statusO.refused'), value: 'Refused' },
   ];
+
+  function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
+    currentSelectParams.value = params;
+    switch (event.eventTag) {
+      case 'export':
+        handleExport();
+        break;
+      case 'delete':
+        handleBatchDelete(params);
+        break;
+      case 'edit':
+        handleBatchEdit(params);
+        break;
+      default:
+        break;
+    }
+  }
 
   onMounted(() => {
     setLoadListParams({ projectId: projectId.value });

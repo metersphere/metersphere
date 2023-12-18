@@ -275,6 +275,7 @@
       selectable: true,
       showSetting: true,
       showJumpMethod: true,
+      heightUsed: 288,
     },
     (record) => ({
       ...record,

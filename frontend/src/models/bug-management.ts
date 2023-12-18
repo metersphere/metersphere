@@ -1,3 +1,5 @@
+import { BatchApiParams } from './common';
+
 export interface BugListItem {
   id: string; // 缺陷id
   num: string; // 缺陷编号
@@ -14,4 +16,14 @@ export interface BugListItem {
   updateTime: string; // 更新时间
   deleted: boolean; // 删除标志
 }
+
+export interface BugExportColumn {
+  key: string; // 字段key
+  text?: string; // 字段名称
+  columnType?: string; // 字段类型
+}
+export interface BugExportParams extends BatchApiParams {
+  bugExportColumns: BugExportColumn[]; // 导出字段
+}
+
 export default {};

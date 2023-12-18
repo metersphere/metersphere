@@ -109,7 +109,7 @@
     selectable: false,
     noDisable: true,
     showSetting: false,
-    heightUsed: 280,
+    heightUsed: 288,
   });
 
   const fetchData = async () => {
