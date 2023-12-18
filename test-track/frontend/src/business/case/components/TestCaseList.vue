@@ -52,6 +52,7 @@
       @callBackSelect="callBackSelect"
       @callBackSelectAll="callBackSelectAll"
       @clearTableSelect="clearTableSelect"
+      @handleRowClick="handleEdit"
       ref="table">
 
       <ms-table-column
