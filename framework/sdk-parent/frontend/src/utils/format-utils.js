@@ -1,4 +1,9 @@
-export function formatJson (json) {
+export function formatJson(json) {
+  try {
+    JSON.parse(json);
+  } catch (e) {
+    return json;
+  }
   let i = 0,
     il = 0,
     tab = "    ",
@@ -10,133 +15,150 @@ export function formatJson (json) {
   for (i = 0, il = json.length; i < il; i += 1) {
     currentChar = json.charAt(i);
     switch (currentChar) {
-      case '{':
-        if (i != 0 && json.charAt(i - 1) === '$') {
+      case "{":
+        if (i != 0 && json.charAt(i - 1) === "$") {
           newJson += currentChar;
           flag = true;
         } else if (!inString) {
           newJson += currentChar + "\n" + repeat(tab, indentLevel + 1);
-          indentLevel += 1
+          indentLevel += 1;
         } else {
-          newJson += currentChar
+          newJson += currentChar;
         }
         break;
-      case '[':
+      case "[":
         if (!inString) {
           newJson += currentChar + "\n" + repeat(tab, indentLevel + 1);
-          indentLevel += 1
+          indentLevel += 1;
         } else {
-          newJson += currentChar
+          newJson += currentChar;
         }
         break;
-      case '}':
+      case "}":
         if (flag) {
           newJson += currentChar;
           flag = false;
         } else if (!inString) {
           indentLevel -= 1;
-          newJson += "\n" + repeat(tab, indentLevel) + currentChar
+          newJson += "\n" + repeat(tab, indentLevel) + currentChar;
         } else {
-          newJson += currentChar
+          newJson += currentChar;
         }
         break;
-      case ']':
+      case "]":
         if (!inString) {
           indentLevel -= 1;
-          newJson += "\n" + repeat(tab, indentLevel) + currentChar
+          newJson += "\n" + repeat(tab, indentLevel) + currentChar;
         } else {
-          newJson += currentChar
+          newJson += currentChar;
         }
         break;
-      case ',':
+      case ",":
         if (!inString) {
-          newJson += ",\n" + repeat(tab, indentLevel)
+          newJson += ",\n" + repeat(tab, indentLevel);
         } else {
-          newJson += currentChar
+          newJson += currentChar;
         }
         break;
-      case ':':
+      case ":":
         if (!inString) {
-          newJson += ": "
+          newJson += ": ";
         } else {
-          newJson += currentChar
+          newJson += currentChar;
         }
         break;
-      case ' ':
+      case " ":
       case "\n":
       case "\t":
         if (inString) {
-          newJson += currentChar
+          newJson += currentChar;
         }
         break;
       case '"':
-        if (i > 0 && json.charAt(i - 1) !== '\\') {
-          inString = !inString
+        if (i > 0 && json.charAt(i - 1) !== "\\") {
+          inString = !inString;
         }
         newJson += currentChar;
         break;
       default:
         newJson += currentChar;
-        break
+        break;
     }
   }
   return newJson;
 }
 
 function repeat(s, count) {
-  return new Array(count + 1).join(s)
+  return new Array(count + 1).join(s);
 }
-
-
 
 export function formatXml(text) {
   //去掉多余的空格
-  text = '\n' + text.replace(/(<\w+)(\s.*?>)/g, function ($0, name, props) {
-    return name + ' ' + props.replace(/\s+(\w+=)/g, " $1");
-  });
+  text =
+    "\n" +
+    text.replace(/(<\w+)(\s.*?>)/g, function ($0, name, props) {
+      return name + " " + props.replace(/\s+(\w+=)/g, " $1");
+    });
   //把注释编码
   text = text.replace(/<!--(.+?)-->/g, function ($0, text) {
-    var ret = '<!--' + escape(text) + '-->';
+    var ret = "<!--" + escape(text) + "-->";
     //alert(ret);
     return ret;
   });
   //调整格式
-  var rgx = /\n(<(([^\?]).+?)(?:\s|\s*?>|\s*?(\/)>)(?:.*?(?:(?:(\/)>)|(?:<(\/)\2>)))?)/mg;
+  var rgx =
+    /\n(<(([^\?]).+?)(?:\s|\s*?>|\s*?(\/)>)(?:.*?(?:(?:(\/)>)|(?:<(\/)\2>)))?)/gm;
   var nodeStack = [];
-  var output = text.replace(rgx, function ($0, all, name, isBegin, isCloseFull1, isCloseFull2, isFull1, isFull2) {
-    var isClosed = (isCloseFull1 == '/') || (isCloseFull2 == '/' ) || (isFull1 == '/') || (isFull2 == '/');
-    //alert([all,isClosed].join('='));
-    var prefix = '';
-    if (isBegin == '!') {
-      prefix = getPrefix(nodeStack.length);
-    }
-    else {
-      if (isBegin != '/') {
+  var output = text.replace(
+    rgx,
+    function (
+      $0,
+      all,
+      name,
+      isBegin,
+      isCloseFull1,
+      isCloseFull2,
+      isFull1,
+      isFull2
+    ) {
+      var isClosed =
+        isCloseFull1 == "/" ||
+        isCloseFull2 == "/" ||
+        isFull1 == "/" ||
+        isFull2 == "/";
+      //alert([all,isClosed].join('='));
+      var prefix = "";
+      if (isBegin == "!") {
         prefix = getPrefix(nodeStack.length);
-        if (!isClosed) {
-          nodeStack.push(name);
+      } else {
+        if (isBegin != "/") {
+          prefix = getPrefix(nodeStack.length);
+          if (!isClosed) {
+            nodeStack.push(name);
+          }
+        } else {
+          nodeStack.pop();
+          prefix = getPrefix(nodeStack.length);
         }
       }
-      else {
-        nodeStack.pop();
-        prefix = getPrefix(nodeStack.length);
-      }
+      var ret = "\n" + prefix + all;
+      return ret;
     }
-    var ret = '\n' + prefix + all;
-    return ret;
-  });
+  );
   var prefixSpace = -1;
   var outputText = output.substring(1);
   //把注释还原并解码，调格式
-  outputText = outputText.replace(/(\s*)<!--(.+?)-->/g, function ($0, prefix, text) {
-    if (prefix.charAt(0) == '\r')
-      prefix = prefix.substring(1);
-    text = unescape(text).replace(/\r/g, '\n');
-    var ret = '\n' + prefix + '<!--' + text.replace(/^\s*/mg, prefix) + '-->';
-    //alert(ret);
-    return ret;
-  });
-  return outputText.replace(/\s+$/g, '').replace(/\r/g, '\r\n');
+  outputText = outputText.replace(
+    /(\s*)<!--(.+?)-->/g,
+    function ($0, prefix, text) {
+      if (prefix.charAt(0) == "\r") prefix = prefix.substring(1);
+      text = unescape(text).replace(/\r/g, "\n");
+      var ret = "\n" + prefix + "<!--" + text.replace(/^\s*/gm, prefix) + "-->";
+      //alert(ret);
+      return ret;
+    }
+  );
+  return outputText.replace(/\s+$/g, "").replace(/\r/g, "\r\n");
 }
 
 /**
@@ -147,11 +169,12 @@ export function formatXml(text) {
  */
 export function formatTime(time, cFormat) {
   if (arguments.length === 0) return null;
-  if ((time + '').length === 10) {
+  if ((time + "").length === 10) {
     time = +time * 1000;
   }
-  let format = cFormat || '{y}-{m}-{d} {h}:{i}:{s}', date;
-  if (typeof time === 'object') {
+  let format = cFormat || "{y}-{m}-{d} {h}:{i}:{s}",
+    date;
+  if (typeof time === "object") {
     date = time;
   } else {
     date = new Date(time);
@@ -163,23 +186,24 @@ export function formatTime(time, cFormat) {
     h: date.getHours(),
     i: date.getMinutes(),
     s: date.getSeconds(),
-    a: date.getDay()
+    a: date.getDay(),
   };
   return format.replace(/{([ymdhisa])+}/g, (result, key) => {
     let value = formatObj[key];
-    if (key === 'a') return ['一', '二', '三', '四', '五', '六', '日'][value - 1];
+    if (key === "a")
+      return ["一", "二", "三", "四", "五", "六", "日"][value - 1];
     if (result.length > 0 && value < 10) {
-      value = '0' + value;
+      value = "0" + value;
     }
     return value || 0;
   });
 }
 
 function getPrefix(prefixIndex) {
-  var span = ' ';
+  var span = " ";
   var output = [];
   for (var i = 0; i < prefixIndex; ++i) {
     output.push(span);
   }
-  return output.join('');
+  return output.join("");
 }
