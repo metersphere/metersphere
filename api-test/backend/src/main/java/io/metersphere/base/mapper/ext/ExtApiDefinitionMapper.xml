@@ -597,19 +597,19 @@
                     </if>
                 </foreach>
             </if>
-            <if test="!request.repeatCase">
-                and exists (
+            and exists (
                 select id
                 from api_test_case c
-                where c.api_definition_id = api_definition.id
+                where c.api_definition_id = api_definition.id and c.status != 'Trash'
+                <if test="!request.repeatCase">
                 and not exists (
-                select id
-                from test_plan_api_case t
-                where t.api_case_id = c.id
-                and t.test_plan_id = #{request.planId}
+                    select id
+                    from test_plan_api_case t
+                    where t.api_case_id = c.id
+                    and t.test_plan_id = #{request.planId}
                 )
-                )
-            </if>
+                </if>
+            )
             <include refid="queryVersionCondition">
                 <property name="versionTable" value="api_definition"/>
             </include>
