@@ -198,7 +198,9 @@ public class TapdPlatform extends AbstractIssuePlatform {
         if (CollectionUtils.isEmpty(ids)) return;
         HashMap<String, List<CustomFieldResourceDTO>> customFieldMap = new HashMap<>();
 
-        Map<String, String> statusMap = tapdClient.getStatusMap(project.getTapdId());
+        if (StringUtils.isBlank(project.getTapdId())) {
+            MSException.throwException(Translator.get("tapd_id_blank_error"));
+        }
 
         int index = 0;
         int limit = 50;
