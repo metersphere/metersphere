@@ -47,6 +47,7 @@ public class DefaultRepositoryDir {
     private static final String PROJECT_ENV_SSL_DIR = PROJECT_DIR + "/environment/%s";
     private static final String PROJECT_FUNCTIONAL_CASE_DIR = PROJECT_DIR + "/functional-case/%s";
     private static final String PROJECT_FILE_MANAGEMENT_DIR = PROJECT_DIR + "/file-management";
+    private static final String PROJECT_FILE_MANAGEMENT_PREVIEW_DIR = PROJECT_DIR + "/file-management/preview";
     /**
      * 接口调试相关文件的存储目录
      * project/{projectId}/apiCase/{apiDebugId}
@@ -85,6 +86,10 @@ public class DefaultRepositoryDir {
 
     public static String getFileManagementDir(String projectId) {
         return String.format(PROJECT_FILE_MANAGEMENT_DIR, projectId);
+    }
+
+    public static String getFileManagementPreviewDir(String projectId) {
+        return String.format(PROJECT_FILE_MANAGEMENT_PREVIEW_DIR, projectId);
     }
 
     public static String getBugDir(String projectId, String bugId) {

@@ -17,10 +17,7 @@ import io.metersphere.project.service.FileService;
 import io.metersphere.project.utils.FileManagementBaseUtils;
 import io.metersphere.project.utils.FileManagementRequestUtils;
 import io.metersphere.project.utils.FileMetadataUtils;
-import io.metersphere.sdk.constants.ModuleConstants;
-import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.sdk.constants.StorageType;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
 import io.metersphere.sdk.util.JSON;
@@ -97,7 +94,7 @@ public class FileManagementControllerTests extends BaseTest {
     @Resource
     private CommonProjectService commonProjectService;
 
-    List<CheckLogModel> checkLogModelList = new ArrayList<>();
+    private static List<CheckLogModel> LOG_CHECK_LIST = new ArrayList<>();
 
     @BeforeEach
     public void initTestData() {
@@ -172,7 +169,7 @@ public class FileManagementControllerTests extends BaseTest {
             Assertions.assertNotNull(baseTreeNode.getParentId());
         }
         Assertions.assertNotNull(a1Node);
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(a1Node.getId(), OperationLogType.ADD, FileManagementRequestUtils.URL_MODULE_ADD)
         );
         //测试a1无法获取存储库详情
@@ -212,10 +209,10 @@ public class FileManagementControllerTests extends BaseTest {
         Assertions.assertNotNull(a2Node);
         Assertions.assertNotNull(a1b1Node);
 
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(a2Node.getId(), OperationLogType.ADD, FileManagementRequestUtils.URL_MODULE_ADD)
         );
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(a1b1Node.getId(), OperationLogType.ADD, FileManagementRequestUtils.URL_MODULE_ADD)
         );
 
@@ -241,7 +238,7 @@ public class FileManagementControllerTests extends BaseTest {
             }
         }
         Assertions.assertNotNull(a1ChildNode);
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(a1ChildNode.getId(), OperationLogType.ADD, FileManagementRequestUtils.URL_MODULE_ADD)
         );
 
@@ -270,7 +267,7 @@ public class FileManagementControllerTests extends BaseTest {
             }
         }
         Assertions.assertNotNull(a1a1c1Node);
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(a1a1c1Node.getId(), OperationLogType.ADD, FileManagementRequestUtils.URL_MODULE_ADD)
         );
         //子节点a1-b1下继续创建节点a1-b1-c1
@@ -297,7 +294,7 @@ public class FileManagementControllerTests extends BaseTest {
         Assertions.assertNotNull(a1b1c1Node);
         preliminaryTreeNodes = treeNodes;
 
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(a1b1c1Node.getId(), OperationLogType.ADD, FileManagementRequestUtils.URL_MODULE_ADD)
         );
     }
@@ -382,7 +379,7 @@ public class FileManagementControllerTests extends BaseTest {
         this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_MODULE_UPDATE, updateRequest);
 
         preliminaryTreeNodes = this.getFileModuleTreeNode();
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(a1Node.getId(), OperationLogType.UPDATE, FileManagementRequestUtils.URL_MODULE_UPDATE)
         );
     }
@@ -428,7 +425,7 @@ public class FileManagementControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(fileUploadRequest));
         MvcResult mvcResult = this.requestMultipartWithOkAndReturn(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap);
         String returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD)
         );
         FILE_ID_PATH.put(returnId, filePath);
@@ -450,7 +447,7 @@ public class FileManagementControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(fileUploadRequest));
         mvcResult = this.requestMultipartWithOkAndReturn(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap);
         returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD)
         );
         FILE_ID_PATH.put(returnId, filePath);
@@ -466,7 +463,7 @@ public class FileManagementControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(fileUploadRequest));
         mvcResult = this.requestMultipartWithOkAndReturn(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap);
         returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD)
         );
         FILE_ID_PATH.put(returnId, filePath);
@@ -480,7 +477,7 @@ public class FileManagementControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(fileUploadRequest));
         mvcResult = this.requestMultipartWithOkAndReturn(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap);
         returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD)
         );
         FILE_ID_PATH.put(returnId, filePath);
@@ -493,7 +490,7 @@ public class FileManagementControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(fileUploadRequest));
         mvcResult = this.requestMultipartWithOkAndReturn(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap);
         returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD)
         );
         FILE_ID_PATH.put(returnId, filePath);
@@ -514,7 +511,7 @@ public class FileManagementControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(fileUploadRequest));
         mvcResult = this.requestMultipartWithOkAndReturn(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap);
         returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD)
         );
         FILE_ID_PATH.put(returnId, filePath);
@@ -537,7 +534,7 @@ public class FileManagementControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(fileUploadRequest));
         mvcResult = this.requestMultipartWithOkAndReturn(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap);
         returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD)
         );
         FILE_ID_PATH.put(returnId, filePath);
@@ -558,7 +555,7 @@ public class FileManagementControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(fileUploadRequest));
         mvcResult = this.requestMultipartWithOkAndReturn(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap);
         returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD)
         );
         FILE_ID_PATH.put(returnId, filePath);
@@ -570,7 +567,7 @@ public class FileManagementControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(fileUploadRequest));
         mvcResult = this.requestMultipartWithOkAndReturn(FileManagementRequestUtils.URL_FILE_UPLOAD, paramMap);
         returnId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD)
         );
         FILE_ID_PATH.put(returnId, filePath);
@@ -699,7 +696,7 @@ public class FileManagementControllerTests extends BaseTest {
         //重新上传并修改文件版本
         MvcResult mvcResult = this.requestMultipartWithOkAndReturn(FileManagementRequestUtils.URL_FILE_RE_UPLOAD, paramMap);
         String reUploadId = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData().toString();
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(reUploadId, OperationLogType.UPDATE, FileManagementRequestUtils.URL_FILE_RE_UPLOAD)
         );
         FILE_ID_PATH.put(reUploadId, filePath);
@@ -888,7 +885,10 @@ public class FileManagementControllerTests extends BaseTest {
         batchProcessDTO.setSelectAll(false);
         batchProcessDTO.setProjectId(project.getId());
         batchProcessDTO.setSelectIds(new ArrayList<>(FILE_ID_PATH.keySet()));
-        MvcResult mvcResult = this.requestPostDownloadFile(FileManagementRequestUtils.URL_FILE_BATCH_DOWNLOAD, null, batchProcessDTO);
+
+        MediaType zipMediaType = MediaType.parseMediaType("application/zip;charset=UTF-8");
+
+        MvcResult mvcResult = this.requestPostDownloadFile(FileManagementRequestUtils.URL_FILE_BATCH_DOWNLOAD, zipMediaType, batchProcessDTO);
         byte[] fileBytes = mvcResult.getResponse().getContentAsByteArray();
         Assertions.assertTrue(fileBytes.length > 0);
 
@@ -896,12 +896,12 @@ public class FileManagementControllerTests extends BaseTest {
         batchProcessDTO = new FileBatchProcessRequest();
         batchProcessDTO.setSelectAll(true);
         batchProcessDTO.setProjectId(project.getId());
-        mvcResult = this.requestPostDownloadFile(FileManagementRequestUtils.URL_FILE_BATCH_DOWNLOAD, null, batchProcessDTO);
+        mvcResult = this.requestPostDownloadFile(FileManagementRequestUtils.URL_FILE_BATCH_DOWNLOAD, zipMediaType, batchProcessDTO);
         fileBytes = mvcResult.getResponse().getContentAsByteArray();
         Assertions.assertTrue(fileBytes.length > 0);
 
         //重新下载全部文件
-        mvcResult = this.requestPostDownloadFile(FileManagementRequestUtils.URL_FILE_BATCH_DOWNLOAD, null, batchProcessDTO);
+        mvcResult = this.requestPostDownloadFile(FileManagementRequestUtils.URL_FILE_BATCH_DOWNLOAD, zipMediaType, batchProcessDTO);
         fileBytes = mvcResult.getResponse().getContentAsByteArray();
         Assertions.assertTrue(fileBytes.length > 0);
 
@@ -1001,6 +1001,7 @@ public class FileManagementControllerTests extends BaseTest {
             }
         }
         //测试重复获取
+        FileInformationResponse testFileDTO = null;
         for (FileInformationResponse fileDTO : fileList) {
             MvcResult originalResult = this.requestGetDownloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_ORIGINAL, "admin", fileDTO.getId()), null);
             Assertions.assertTrue(originalResult.getResponse().getContentAsByteArray().length > 0);
@@ -1009,6 +1010,7 @@ public class FileManagementControllerTests extends BaseTest {
             if (StringUtils.equalsIgnoreCase(fileDTO.getFileType(), "svg")) {
                 compressedResult = this.requestGetDownloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_COMPRESSED, "admin", fileDTO.getId()), MediaType.valueOf("image/svg+xml"));
             } else {
+                testFileDTO = fileDTO;
                 compressedResult = this.requestGetDownloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_COMPRESSED, "admin", fileDTO.getId()), null);
             }
             byte[] fileBytes = compressedResult.getResponse().getContentAsByteArray();
@@ -1024,8 +1026,27 @@ public class FileManagementControllerTests extends BaseTest {
             }
         }
 
-        //权限测试
+        //临时文件以及Minio中不存在预览图
+        FileRequest fileRequest = new FileRequest();
+        fileRequest.setFileName(testFileDTO.getId());
+        fileRequest.setFolder(DefaultRepositoryDir.getFileManagementPreviewDir(testFileDTO.getProjectId()));
+        fileRequest.setStorage(testFileDTO.getStorage());
+        fileService.deleteFile(fileRequest);
+        TempFileUtils.deleteTmpFile(testFileDTO.getId());
 
+        MvcResult compressedResult = this.requestGetDownloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_COMPRESSED, "admin", testFileDTO.getId()), null);
+        byte[] fileBytes = compressedResult.getResponse().getContentAsByteArray();
+        Assertions.assertTrue(fileBytes.length > 0);
+
+        //minio里也没有
+        fileService.deleteFile(fileRequest);
+        fileRequest.setFolder(DefaultRepositoryDir.getFileManagementDir(testFileDTO.getProjectId()));
+        fileService.deleteFile(fileRequest);
+        TempFileUtils.deleteTmpFile(testFileDTO.getId());
+
+        compressedResult = this.requestGetDownloadFile(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_COMPRESSED, "admin", testFileDTO.getId()), null);
+        fileBytes = compressedResult.getResponse().getContentAsByteArray();
+        Assertions.assertEquals(fileBytes.length, 0);
 
         //文件不存在（原图、缩略图两个接口校验）
         mockMvc.perform(getRequestBuilder(String.format(FileManagementRequestUtils.URL_FILE_PREVIEW_COMPRESSED, "admin", IDGenerator.nextNum())))
@@ -1069,7 +1090,7 @@ public class FileManagementControllerTests extends BaseTest {
         updateRequest.setModuleId(a1a1Node.getId());
         this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_UPDATE, updateRequest);
         this.checkFileInformation(updateFileId, oldFileMetadata, updateRequest);
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(updateRequest.getId(), OperationLogType.UPDATE, FileManagementRequestUtils.URL_FILE_UPDATE)
         );
 
@@ -1189,7 +1210,7 @@ public class FileManagementControllerTests extends BaseTest {
         //测试启用
         this.requestGetWithOk(String.format(FileManagementRequestUtils.URL_CHANGE_JAR_ENABLE, jarFileId, true));
         this.checkFileEnable(jarFileId, true);
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(jarFileId, OperationLogType.UPDATE, "/project/file/jar-file-status")
         );
         //测试禁用
@@ -1326,7 +1347,7 @@ public class FileManagementControllerTests extends BaseTest {
             this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_DELETE, fileBatchProcessRequest);
 
             this.checkFileIsDeleted(fileMetadataId, refId);
-            checkLogModelList.add(
+            LOG_CHECK_LIST.add(
                     new CheckLogModel(fileMetadataId, OperationLogType.DELETE, FileManagementRequestUtils.URL_FILE_DELETE)
             );
         }
@@ -2072,10 +2093,10 @@ public class FileManagementControllerTests extends BaseTest {
             this.checkModulePos(a2Node.getId(), a3Node.getId(), null, false);
         }
 
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(a1Node.getId(), OperationLogType.UPDATE, FileManagementRequestUtils.URL_MODULE_MOVE)
         );
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(a3Node.getId(), OperationLogType.UPDATE, FileManagementRequestUtils.URL_MODULE_MOVE)
         );
     }
@@ -2096,7 +2117,7 @@ public class FileManagementControllerTests extends BaseTest {
         }});
         this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_BATCH_UPDATE, moveRequest);
         this.checkFileModule(picFileId, a1a1c1Node.getId());
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(picFileId, OperationLogType.UPDATE, FileManagementRequestUtils.URL_FILE_BATCH_UPDATE)
         );
         //所有文件批量移动
@@ -2203,7 +2224,7 @@ public class FileManagementControllerTests extends BaseTest {
         BaseTreeNode a1b1Node = FileManagementBaseUtils.getNodeByName(this.getFileModuleTreeNode(), "a1-b1");
         this.requestGetWithOk(String.format(FileManagementRequestUtils.URL_MODULE_DELETE, a1b1Node.getId()));
         this.checkModuleIsEmpty(a1b1Node.getId());
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(a1b1Node.getId(), OperationLogType.DELETE, FileManagementRequestUtils.URL_MODULE_DELETE)
         );
 
@@ -2211,7 +2232,7 @@ public class FileManagementControllerTests extends BaseTest {
         BaseTreeNode a1a1Node = FileManagementBaseUtils.getNodeByName(this.getFileModuleTreeNode(), "a1-a1");
         this.requestGetWithOk(String.format(FileManagementRequestUtils.URL_MODULE_DELETE, a1a1Node.getId()));
         this.checkModuleIsEmpty(a1a1Node.getId());
-        checkLogModelList.add(
+        LOG_CHECK_LIST.add(
                 new CheckLogModel(a1a1Node.getId(), OperationLogType.DELETE, FileManagementRequestUtils.URL_MODULE_DELETE)
         );
 
@@ -2416,7 +2437,7 @@ public class FileManagementControllerTests extends BaseTest {
     @Order(100)
     public void testLog() throws Exception {
         Thread.sleep(5000);
-        for (CheckLogModel checkLogModel : checkLogModelList) {
+        for (CheckLogModel checkLogModel : LOG_CHECK_LIST) {
             if (org.apache.commons.lang3.StringUtils.isEmpty(checkLogModel.getUrl())) {
                 this.checkLog(checkLogModel.getResourceId(), checkLogModel.getOperationType());
             } else {

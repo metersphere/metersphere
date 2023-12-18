@@ -20,6 +20,7 @@ import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.treewalk.TreeWalk;
 import org.eclipse.jgit.treewalk.filter.PathFilter;
 
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -56,6 +57,14 @@ public class GitRepositoryUtil {
         byte[] returnBytes = loader.getBytes();
         this.closeConnection(repo);
         return returnBytes;
+    }
+
+    public InputStream getFileStream(String filePath, String commitId) throws Exception {
+        InMemoryRepository repo = this.getGitRepositoryInMemory(repositoryUrl, userName, token);
+        ObjectId fileCommitObjectId = repo.resolve(commitId);
+        ObjectId objectId = this.getTreeWork(repo, fileCommitObjectId, filePath).getObjectId(0);
+        ObjectLoader loader = repo.open(objectId);
+        return loader.openStream();
     }
 
     public Map<String, byte[]> getFiles(List<RepositoryQuery> RepositoryQueryList) throws Exception {

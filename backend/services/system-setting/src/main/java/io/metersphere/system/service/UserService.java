@@ -113,10 +113,10 @@ public class UserService {
         this.validateUserInfo(userCreateDTO.getUserInfoList().stream().map(UserCreateInfo::getEmail).collect(Collectors.toList()));
         //检查用户权限的合法性
         globalUserRoleService.checkRoleIsGlobalAndHaveMember(userCreateDTO.getUserRoleIdList(), true);
-        return this.saveUserAndRole(userCreateDTO, source, operator);
+        return this.saveUserAndRole(userCreateDTO, source, operator, "/system/user/addUser");
     }
 
-    private UserBatchCreateDTO saveUserAndRole(UserBatchCreateDTO userCreateDTO, String source, String operator) {
+    private UserBatchCreateDTO saveUserAndRole(UserBatchCreateDTO userCreateDTO, String source, String operator, String requestPath) {
         long createTime = System.currentTimeMillis();
         List<User> saveUserList = new ArrayList<>();
         //添加用户
@@ -136,7 +136,7 @@ public class UserService {
         }
         userRoleRelationService.batchSave(userCreateDTO.getUserRoleIdList(), saveUserList);
         //写入操作日志
-        operationLogService.batchAdd(userLogService.getBatchAddLogs(saveUserList));
+        operationLogService.batchAdd(userLogService.getBatchAddLogs(saveUserList, requestPath));
         return userCreateDTO;
     }
 
@@ -299,7 +299,7 @@ public class UserService {
             userCreateInfoList.add(userCreateInfo);
         });
         userBatchCreateDTO.setUserInfoList(userCreateInfoList);
-        this.saveUserAndRole(userBatchCreateDTO, source, sessionId);
+        this.saveUserAndRole(userBatchCreateDTO, source, sessionId, "/system/user/import");
     }
 
 
