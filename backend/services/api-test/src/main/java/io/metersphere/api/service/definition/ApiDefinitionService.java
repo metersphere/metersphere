@@ -652,7 +652,7 @@ public class ApiDefinitionService {
         // 恢复接口到接口列表
         handleRestoreApiDefinition(Collections.singletonList(request.getId()), userId, request.getProjectId(), false);
     }
-    private void handleRestoreApiDefinition(List<String> ids, String userId, String projectId, boolean isBatch){
+    public void handleRestoreApiDefinition(List<String> ids, String userId, String projectId, boolean isBatch){
         if (CollectionUtils.isNotEmpty(ids)) {
             SubListUtils.dealForSubList(ids, 2000, subList -> doRestore(subList, userId, projectId, isBatch));
         }

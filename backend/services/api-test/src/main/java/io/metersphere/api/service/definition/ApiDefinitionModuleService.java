@@ -27,6 +27,7 @@ import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -81,7 +82,7 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
         this.checkDataValidity(module);
         module.setCreateTime(System.currentTimeMillis());
         module.setUpdateTime(module.getCreateTime());
-        module.setPos(this.countPos(request.getParentId()));
+        module.setPos(this.getNextOrder(request.getParentId()));
         module.setUpdateUser(operator);
         apiDefinitionModuleMapper.insert(module);
         //记录日志
@@ -89,7 +90,7 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
         return module.getId();
     }
 
-    private Long countPos(String parentId) {
+    public Long getNextOrder(String parentId) {
         Long maxPos = extApiDefinitionModuleMapper.getMaxPosByParentId(parentId);
         if (maxPos == null) {
             return LIMIT_POS;
@@ -255,4 +256,17 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
         return moduleCountMap;
     }
 
+    public List<BaseTreeNode> getTrashTree(ApiModuleRequest request, boolean deleted) {
+        ApiDefinitionExample example = new ApiDefinitionExample();
+        example.createCriteria().andProjectIdEqualTo(request.getProjectId()).andDeletedEqualTo(true).andProtocolEqualTo(request.getProtocol());
+        List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(apiDefinitions)) {
+            return new ArrayList<>();
+        }
+        List<String> moduleIds = apiDefinitions.stream().map(ApiDefinition::getModuleId).distinct().toList();
+        List<BaseTreeNode> baseTreeNodes = extApiDefinitionModuleMapper.selectBaseByIds(moduleIds);
+        super.buildTreeAndCountResource(baseTreeNodes, true, Translator.get(UNPLANNED_API));
+        List<ApiTreeNode> apiTreeNodeList = extApiDefinitionModuleMapper.selectApiDataByRequest(request, deleted);
+        return apiDebugModuleService.getBaseTreeNodes(apiTreeNodeList, baseTreeNodes);
+    }
 }

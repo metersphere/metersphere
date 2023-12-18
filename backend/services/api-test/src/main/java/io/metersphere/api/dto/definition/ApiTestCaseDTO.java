@@ -87,4 +87,10 @@ public class ApiTestCaseDTO {
     @Schema(description = "请求内容")
     private AbstractMsTestElement request;
 
+    @Schema(description = "所属模块")
+    private String modulePath;
+
+    @Schema(description = "模块id")
+    private String moduleId;
+
 }

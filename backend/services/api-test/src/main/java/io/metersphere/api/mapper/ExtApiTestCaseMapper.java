@@ -24,8 +24,7 @@ public interface ExtApiTestCaseMapper {
 
     List<String> getIds(@Param("request") ApiTestCaseBatchRequest request, @Param("deleted") boolean deleted);
 
-
-    void batchMoveGc(@Param("ids") List<String> ids, @Param("userId") String userId);
+    void batchMoveGc(@Param("ids") List<String> ids, @Param("userId") String userId, @Param("deleteTime") long deleteTime);
 
     List<ApiTestCase> getCaseInfoByApiIds(@Param("ids") List<String> apiIds, @Param("deleted") boolean deleted);
 
@@ -36,4 +35,8 @@ public interface ExtApiTestCaseMapper {
     Long getLastPos(@Param("projectId") String projectId, @Param("basePos") Long basePos);
 
     List<CasePassDTO> findPassRateByIds(@Param("ids") List<String> ids);
+
+    List<String> selectIdsByCaseIds(@Param("ids") List<String> ids);
+
+    List<String> getCaseIds(@Param("ids")List<String> ids, @Param("deleted")boolean deleted);
 }

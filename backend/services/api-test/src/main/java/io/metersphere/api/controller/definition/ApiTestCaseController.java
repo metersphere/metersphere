@@ -6,6 +6,7 @@ import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.service.definition.ApiTestCaseLogService;
 import io.metersphere.api.service.definition.ApiTestCaseNoticeService;
+import io.metersphere.api.service.definition.ApiTestCaseRecoverService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.request.PosRequest;
@@ -35,6 +36,8 @@ import java.util.List;
 public class ApiTestCaseController {
     @Resource
     private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private ApiTestCaseRecoverService apiTestCaseRecoverService;
 
     @PostMapping(value = "/add")
     @Operation(summary = "接口测试-接口管理-接口用例-新增")
@@ -118,21 +121,31 @@ public class ApiTestCaseController {
     }
 
     @PostMapping("/batch/delete")
+    @Operation(summary = "接口测试-接口管理-接口用例-批量删除")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE)
     public void deleteBatchByParam(@RequestBody ApiTestCaseBatchRequest request) {
         apiTestCaseService.batchDelete(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/batch/move-gc")
+    @Operation(summary = "接口测试-接口管理-接口用例-批量移动到回收站")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE)
     public void deleteToGcByParam(@RequestBody ApiTestCaseBatchRequest request) {
         apiTestCaseService.batchMoveGc(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/batch/edit")
+    @Operation(summary = "接口测试-接口管理-接口用例-批量编辑")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE)
     public void batchUpdate(@Validated @RequestBody ApiCaseBatchEditRequest request) {
         apiTestCaseService.batchEdit(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/batch/recover")
+    @Operation(summary = "接口测试-接口管理-接口用例-批量恢复")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_RECOVER)
+    public void batchRecover(@Validated @RequestBody ApiTestCaseBatchRequest request) {
+        apiTestCaseRecoverService.batchRecover(request, SessionUtils.getUserId());
     }
 
     @PostMapping(value = "/trash/page")

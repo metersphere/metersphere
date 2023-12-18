@@ -80,6 +80,6 @@ public class ApiDefinitionModuleController {
     @Operation(summary = "接口测试-接口管理-模块-查找模块")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
     public List<BaseTreeNode> getTrashTree(@RequestBody @Validated ApiModuleRequest request) {
-        return apiDefinitionModuleService.getTree(request, true);
+        return apiDefinitionModuleService.getTrashTree(request, true);
     }
 }

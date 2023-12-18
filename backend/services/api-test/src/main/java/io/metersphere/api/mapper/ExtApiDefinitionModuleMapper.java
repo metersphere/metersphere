@@ -32,4 +32,6 @@ public interface ExtApiDefinitionModuleMapper {
     List<ModuleCountDTO> countModuleIdByRequest(@Param("request") ApiModuleRequest request, @Param("deleted") boolean deleted);
 
     List<BaseTreeNode> selectNodeByIds(@Param("ids") List<String> ids);
+
+    List<BaseTreeNode> selectBaseByIds(@Param("ids") List<String> ids);
 }

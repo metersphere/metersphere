@@ -79,6 +79,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private static final String BATCH_EDIT = BASE_PATH + "batch/edit";
     private static final String BATCH_DELETE = BASE_PATH + "batch/delete";
     private static final String BATCH_MOVE_GC = BASE_PATH + "batch/move-gc";
+    private static final String BATCH_RECOVER = BASE_PATH + "batch/recover";
     private static final String POS_URL = BASE_PATH + "/edit/pos";
     private static final String UPLOAD_TEMP_FILE = BASE_PATH + "/upload/temp/file";
 
@@ -151,8 +152,8 @@ public class ApiTestCaseControllerTests extends BaseTest {
         apiDefinitionMapper.insertSelective(apiDefinition);
         ApiDefinitionBlob apiDefinitionBlob = new ApiDefinitionBlob();
         apiDefinitionBlob.setId(apiDefinition.getId());
-        apiDefinitionBlob.setRequest(new byte[0]);
-        apiDefinitionBlob.setResponse(new byte[0]);
+        MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
+        apiDefinitionBlob.setRequest(JSON.toJSONBytes(msHttpElement));
         apiDefinitionBlobMapper.insertSelective(apiDefinitionBlob);
         apiDefinition.setId("apiDefinitionId1");
         apiDefinition.setModuleId("moduleId1");
@@ -772,6 +773,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
 
         request.setSelectAll(true);
         request.setExcludeIds(new ArrayList<>());
+        request.setApiDefinitionId("apiDefinitionId");
         request.setModuleIds(List.of("case-moduleId"));
         responsePost(BATCH_MOVE_GC, request);
         ApiTestCaseExample example = new ApiTestCaseExample();
@@ -839,6 +841,42 @@ public class ApiTestCaseControllerTests extends BaseTest {
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ, TRASH_PAGE, pageRequest);
     }
 
+    @Test
+    @Order(14)
+    public void batchRecover() throws Exception {
+        // @@请求成功
+        ApiTestCaseBatchRequest request = new ApiTestCaseBatchRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setSelectAll(false);
+        request.setSelectIds(List.of(apiTestCase.getId()));
+        request.setExcludeIds(List.of(apiTestCase.getId()));
+        responsePost(BATCH_RECOVER, request);
+
+        ApiDefinition apiDefinition = new ApiDefinition();
+        apiDefinition.setId("apiDefinitionId");
+        apiDefinition.setDeleted(true);
+        apiDefinitionMapper.updateByPrimaryKeySelective(apiDefinition);
+        request.setSelectAll(true);
+        request.setSelectIds(List.of(apiTestCase.getId()));
+        request.setExcludeIds(List.of(apiTestCase.getId()));
+        request.setModuleIds(List.of("case-moduleId"));
+        responsePost(BATCH_RECOVER, request);
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andApiDefinitionIdEqualTo("apiDefinitionId").andDeletedEqualTo(false);
+        List<ApiTestCase> caseList = apiTestCaseMapper.selectByExample(example);
+        caseList.forEach(apiTestCase -> Assertions.assertFalse(apiTestCase.getDeleted()));
+
+        request.setSelectAll(true);
+        request.setExcludeIds(new ArrayList<>());
+        request.setModuleIds(List.of("case-moduleId"));
+        responsePost(BATCH_RECOVER, request);
+        //校验日志
+        checkLog(apiTestCase.getId(), OperationLogType.DELETE);
+        //校验权限
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_RECOVER, BATCH_RECOVER, request);
+        this.batchMoveGc();
+    }
+
 
     @Test
     @Order(20)
@@ -880,6 +918,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setSelectAll(true);
         request.setModuleIds(List.of("case-moduleId"));
+        request.setApiDefinitionId("apiDefinitionId");
         responsePost(BATCH_DELETE, request);
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andApiDefinitionIdEqualTo("apiDefinitionId");
