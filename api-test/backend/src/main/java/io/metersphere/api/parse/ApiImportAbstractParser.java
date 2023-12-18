@@ -7,14 +7,13 @@ import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.response.HttpResponse;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
-import io.metersphere.commons.constants.RequestTypeConstants;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
+import io.metersphere.commons.constants.RequestTypeConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.commons.utils.JSONUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -153,6 +152,7 @@ public abstract class ApiImportAbstractParser<T> implements ApiImportParser<T> {
         // 路径去掉域名/IP 地址，保留方法名称及参数
         request.setPath(formatPath(path));
         request.setMethod(method);
+        request.setUrl(path);
         request.setProtocol(RequestTypeConstants.HTTP);
         request.setId(UUID.randomUUID().toString());
         request.setHeaders(new ArrayList<>());
