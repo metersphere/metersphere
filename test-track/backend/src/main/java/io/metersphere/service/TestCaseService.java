@@ -432,6 +432,10 @@ public class TestCaseService {
         testCase.setUpdateTime(System.currentTimeMillis());
         TestCaseWithBLOBs originCase = testCaseMapper.selectByPrimaryKey(testCase.getId());
 
+        if (originCase == null || StringUtils.equalsIgnoreCase(originCase.getStatus(), CommonConstants.TrashStatus)) {
+            return null;
+        }
+
         if (handleDemand) {
             try {
                 // 同步缺陷与需求的关联关系
