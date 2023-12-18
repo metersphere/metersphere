@@ -1,7 +1,7 @@
 import MSR from '@/api/http/index';
 import * as bugURL from '@/api/requrls/bug-management';
 
-import { BugListItem } from '@/models/bug-management';
+import { BugExportParams, BugListItem } from '@/models/bug-management';
 import { CommonList, TableQueryParams, TemplateOption } from '@/models/common';
 
 /**
@@ -43,4 +43,14 @@ export function getTemplateById(data: TableQueryParams) {
 // 获取导出字段配置
 export function getExportConfig(projectId: string) {
   return MSR.get({ url: `${bugURL.getExportConfigUrl}${projectId}` });
+}
+
+// 同步缺陷
+export function syncBugOpenSource(params: { projectId: string }) {
+  return MSR.get({ url: bugURL.getSyncBugOpenSourceUrl, params });
+}
+
+// 导出缺陷
+export function exportBug(data: BugExportParams) {
+  return MSR.post({ url: bugURL.postExportBugUrl, data });
 }

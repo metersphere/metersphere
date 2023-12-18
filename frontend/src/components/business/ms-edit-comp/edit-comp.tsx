@@ -1,4 +1,5 @@
 import { PropType } from 'vue';
+import { onClickOutside } from '@vueuse/core';
 
 import { useI18n } from '@/hooks/useI18n';
 
@@ -46,6 +47,8 @@ export default defineComponent({
     const { mode, options, modelValue, defaultValue } = toRefs(props);
     const oldModelValue = ref(modelValue.value);
     const editStatus = ref<EditStatus>('null');
+    const selectRef = ref<HTMLElement | null>(null);
+    const chengeStatus = ref(false);
 
     const { t } = useI18n();
 
@@ -54,6 +57,7 @@ export default defineComponent({
         if (result) {
           defaultValue.value = v;
           Message.success(t('common.updateSuccess'));
+          chengeStatus.value = true;
         } else {
           Message.error(t('common.updateFail'));
           modelValue.value = oldModelValue.value;
@@ -69,11 +73,15 @@ export default defineComponent({
 
     const handleClick = () => {
       editStatus.value = 'active';
+      if (mode.value === 'select') {
+        selectRef.value?.focus();
+      }
     };
 
     const handleReset = () => {
       editStatus.value = 'null';
       modelValue.value = oldModelValue.value;
+      chengeStatus.value = false;
     };
 
     const handleBlur = () => {
@@ -109,12 +117,22 @@ export default defineComponent({
       );
     };
 
+    onClickOutside(selectRef, (event) => {
+      if (editStatus.value === 'active' && !chengeStatus.value) {
+        handleReset();
+      }
+    });
+
     const renderChild = () => {
       if (mode.value === 'input') {
         return <a-input modelValue={modelValue} onKeyDown={handleKeyDown} onBlur={handleBlur} />;
       }
       if (mode.value === 'select') {
-        return <a-select modelValue={modelValue} options={options.value} onSelect={handleChange} />;
+        return (
+          <div ref={selectRef}>
+            <a-select modelValue={modelValue} options={options.value} onSelect={handleChange} />
+          </div>
+        );
       }
       if (mode.value === 'tagInput') {
         return <a-input-tag modelValue={modelValue} onKeyDown={handleKeyDown} onBlur={handleBlur} />;

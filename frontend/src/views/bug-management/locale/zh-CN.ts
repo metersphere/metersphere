@@ -28,6 +28,8 @@ export default {
     batchEdit: '批量编辑',
     selectProps: '选择属性',
     batchUpdate: '批量更新为',
+    exportBug: '导出缺陷',
+    exportBugCount: '已选 {count} 条缺陷',
     edit: {
       defaultSystemTemplate: '默认为系统模板',
       content: '缺陷内容',
