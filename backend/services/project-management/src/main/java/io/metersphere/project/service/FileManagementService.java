@@ -4,11 +4,12 @@ import io.metersphere.project.domain.*;
 import io.metersphere.project.dto.filemanagement.FileManagementQuery;
 import io.metersphere.project.dto.filemanagement.request.FileBatchProcessRequest;
 import io.metersphere.project.mapper.*;
+import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.TempFileUtils;
-import io.metersphere.sdk.file.FileRequest;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -69,8 +70,12 @@ public class FileManagementService {
                 FileRequest fileRequest = new FileRequest();
                 fileRequest.setFileName(fileMetadata.getId());
                 fileRequest.setStorage(fileMetadata.getStorage());
+                fileRequest.setFolder(DefaultRepositoryDir.getFileManagementDir(fileMetadata.getProjectId()));
                 try {
                     //删除存储容器中的文件
+                    fileService.deleteFile(fileRequest);
+                    //删除缓存文件
+                    fileRequest.setFolder(DefaultRepositoryDir.getFileManagementPreviewDir(fileMetadata.getProjectId()));
                     fileService.deleteFile(fileRequest);
                     //删除临时文件
                     TempFileUtils.deleteTmpFile(fileMetadata.getId());
@@ -147,5 +152,34 @@ public class FileManagementService {
                 });
             }
         }
+    }
+
+    public byte[] getPreviewImg(FileMetadata fileMetadata) {
+        FileRequest fileRequest = new FileRequest();
+        fileRequest.setFileName(fileMetadata.getId());
+        fileRequest.setStorage(fileMetadata.getStorage());
+        fileRequest.setFolder(DefaultRepositoryDir.getFileManagementPreviewDir(fileMetadata.getProjectId()));
+        byte[] previewImg = null;
+        try {
+            previewImg = fileService.download(fileRequest);
+        } catch (Exception e) {
+            LogUtils.error("获取预览图失败", e);
+        }
+
+        if (previewImg == null) {
+            //如果预览图不存在，则生成预览图
+            fileRequest.setFolder(DefaultRepositoryDir.getFileManagementDir(fileMetadata.getProjectId()));
+            try {
+                byte[] fileBytes = fileService.download(fileRequest);
+                TempFileUtils.compressPic(fileBytes, TempFileUtils.getPreviewImgFilePath(fileMetadata.getId()));
+                previewImg = TempFileUtils.getFile(TempFileUtils.getPreviewImgFilePath(fileMetadata.getId()));
+                fileRequest.setFolder(DefaultRepositoryDir.getFileManagementPreviewDir(fileMetadata.getProjectId()));
+                fileService.upload(previewImg, fileRequest);
+                return previewImg;
+            } catch (Exception e) {
+                LogUtils.error("获取预览图失败", e);
+            }
+        }
+        return new byte[0];
     }
 }

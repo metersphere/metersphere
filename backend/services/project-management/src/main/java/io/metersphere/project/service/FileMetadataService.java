@@ -30,6 +30,7 @@ import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -285,7 +286,15 @@ public class FileMetadataService {
         uploadFileRequest.setFileName(fileMetadata.getId());
         uploadFileRequest.setFolder(this.generateMinIOFilePath(fileMetadata.getProjectId()));
         uploadFileRequest.setStorage(StorageType.MINIO.name());
-        return fileService.upload(file, uploadFileRequest);
+        String filePath = fileService.upload(file, uploadFileRequest);
+
+        if (TempFileUtils.isImage(fileMetadata.getType())) {
+            TempFileUtils.compressPic(file.getBytes(), TempFileUtils.getPreviewImgFilePath(fileMetadata.getId()));
+            byte[] previewImg = TempFileUtils.getFile(TempFileUtils.getPreviewImgFilePath(fileMetadata.getId()));
+            uploadFileRequest.setFolder(DefaultRepositoryDir.getFileManagementPreviewDir(fileMetadata.getProjectId()));
+            fileService.upload(previewImg, uploadFileRequest);
+        }
+        return filePath;
     }
 
     public File getTmpFile(FileMetadata fileMetadata) {
@@ -413,10 +422,22 @@ public class FileMetadataService {
         }
     }
 
+    public void batchDownload(FileBatchProcessRequest request, HttpServletResponse httpServletResponse) {
+        List<FileMetadata> fileMetadataList = fileManagementService.getProcessList(request);
+        this.checkDownloadSize(fileMetadataList);
+        this.batchDownloadWithResponse(fileMetadataList, httpServletResponse);
+    }
+
+    public void batchDownloadWithResponse(List<FileMetadata> fileMetadataList, HttpServletResponse response) {
+        Map<String, File> fileMap = new HashMap<>();
+        fileMetadataList.forEach(fileMetadata -> fileMap.put(this.getFileName(fileMetadata.getName(), fileMetadata.getType()), this.getTmpFile(fileMetadata)));
+        FileDownloadUtils.zipFilesWithResponse(fileMap, response);
+    }
+
     public byte[] batchDownload(List<FileMetadata> fileMetadataList) {
         Map<String, File> fileMap = new HashMap<>();
         fileMetadataList.forEach(fileMetadata -> fileMap.put(this.getFileName(fileMetadata.getName(), fileMetadata.getType()), this.getTmpFile(fileMetadata)));
-        return FileDownloadUtils.listBytesToZip(fileMap);
+        return FileDownloadUtils.zipFilesToByte(fileMap);
     }
 
     //检查下载的文件的大小
@@ -507,10 +528,13 @@ public class FileMetadataService {
                 //获取压缩过的图片
                 bytes = TempFileUtils.getFile(TempFileUtils.getPreviewImgFilePath(fileMetadata.getId()));
             } else {
+                /**
+                 * 从minio中获取临时文件
+                 * 如果minio不存在，压缩后上传到minio中，并缓存到文件目录中
+                 */
                 //压缩图片并保存在临时文件夹中
-                bytes = TempFileUtils.getFile(
-                        TempFileUtils.catchCompressImgIfNotExists(fileMetadata.getId(), this.getFile(fileMetadata))
-                );
+                bytes = fileManagementService.getPreviewImg(fileMetadata);
+                TempFileUtils.createFile(TempFileUtils.getPreviewImgFilePath(fileMetadata.getId()), bytes);
             }
         }
 
