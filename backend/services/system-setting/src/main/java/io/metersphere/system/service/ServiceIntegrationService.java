@@ -3,16 +3,16 @@ package io.metersphere.system.service;
 import io.metersphere.plugin.platform.spi.AbstractPlatformPlugin;
 import io.metersphere.plugin.platform.spi.Platform;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.system.utils.ServiceUtils;
 import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.domain.ServiceIntegration;
 import io.metersphere.system.domain.ServiceIntegrationExample;
 import io.metersphere.system.dto.ServiceIntegrationDTO;
-import io.metersphere.system.mapper.ServiceIntegrationMapper;
 import io.metersphere.system.dto.request.ServiceIntegrationUpdateRequest;
+import io.metersphere.system.mapper.ServiceIntegrationMapper;
+import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -92,8 +92,9 @@ public class ServiceIntegrationService {
     }
 
     public ServiceIntegration update(ServiceIntegrationUpdateRequest request) {
-        basePluginService.checkPluginEnableAndPermission(request.getPluginId(), request.getOrganizationId());
         checkResourceExist(request.getId());
+        ServiceIntegration originServiceIntegration = serviceIntegrationMapper.selectByPrimaryKey(request.getId());
+        basePluginService.checkPluginEnableAndPermission(originServiceIntegration.getPluginId(), originServiceIntegration.getOrganizationId());
         ServiceIntegration serviceIntegration = new ServiceIntegration();
         // 组织不能修改
         serviceIntegration.setOrganizationId(null);

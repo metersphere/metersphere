@@ -587,14 +587,13 @@ public class ProjectApplicationService {
      * @return 项目所属平台
      */
     public String getPlatformName(String projectId) {
-        ProjectApplicationExample example = new ProjectApplicationExample();
-        example.createCriteria().andProjectIdEqualTo(projectId).andTypeEqualTo(ProjectApplicationType.BUG.BUG_SYNC.name() + "_PLATFORM_KEY");
-        List<ProjectApplication> list = projectApplicationMapper.selectByExample(example);
-        if (CollectionUtils.isNotEmpty(list)) {
-            return getPluginName(list.get(0).getTypeValue());
-        } else {
+        ProjectApplication platformEnableConfig = getByType(projectId, ProjectApplicationType.BUG.BUG_SYNC.name() + "_" + ProjectApplicationType.BUG_SYNC_CONFIG.SYNC_ENABLE.name());
+        ProjectApplication platformKeyConfig = getByType(projectId, ProjectApplicationType.BUG.BUG_SYNC.name() + "_PLATFORM_KEY");
+        boolean isEnable = platformEnableConfig != null && Boolean.parseBoolean(platformEnableConfig.getTypeValue()) && platformKeyConfig != null;
+        if (!isEnable) {
             return "Local";
         }
+        return getPluginName(platformKeyConfig.getTypeValue());
     }
 
     /**
