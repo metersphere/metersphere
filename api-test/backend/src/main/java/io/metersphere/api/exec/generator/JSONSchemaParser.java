@@ -55,8 +55,6 @@ public class JSONSchemaParser {
         } else if (object.has(PropertyConstant.TYPE)
                 && !object.get(PropertyConstant.TYPE).getAsString().equals(PropertyConstant.OBJECT) && !(object instanceof JsonObject)) {
             analyzeProperty(rootObj, object.getAsString(), object, processMap);
-        } else if (object instanceof JsonObject){
-            analyzeProperty(rootObj, PropertyConstant.MS_OBJECT, object, processMap);
         }
     }
 
