@@ -307,7 +307,7 @@ export default {
         showUpdateRule: false,
         apiSyncCaseRequest: '',
         apiSyncConfig: {},
-        syncCase: true,
+        syncCase: false,
         sendNotice: true,
       },
       noShowSyncRuleRelation: false,
@@ -1114,7 +1114,7 @@ export default {
             this.apiSyncRuleRelation.scenarioCreator = true;
           }
           if (this.apiSyncRuleRelation.syncCase === null || this.apiSyncRuleRelation.syncCase === undefined) {
-            this.apiSyncRuleRelation.syncCase = true;
+            this.apiSyncRuleRelation.syncCase = false;
           }
           if (this.apiSyncRuleRelation.sendNotice === null || this.apiSyncRuleRelation.sendNotice === undefined) {
             this.apiSyncRuleRelation.sendNotice = true;
