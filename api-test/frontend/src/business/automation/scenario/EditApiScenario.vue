@@ -666,6 +666,8 @@ import { ENV_TYPE } from 'metersphere-frontend/src/utils/constants';
 import { mergeRequestDocumentData } from '@/business/definition/api-definition';
 import { useApiStore } from '@/store';
 import { getDefaultVersion, setLatestVersionById } from 'metersphere-frontend/src/api/version';
+import { getEnvironmentByProjectId } from 'metersphere-frontend/src/api/environment';
+import { parseEnvironment } from '@/business/environment/model/EnvironmentModel';
 
 const store = useApiStore();
 
@@ -895,7 +897,8 @@ export default {
     this.getPlugins().then(() => {
       this.initPlugins();
     });
-
+    this.result = getEnvironmentByProjectId(this.projectId).then((response) => {
+      this.environments = response.data;});
     this.getDefaultVersion();
   },
   mounted() {
@@ -2398,7 +2401,8 @@ export default {
       let currentEnvironment = {};
       this.environments.forEach((environment) => {
         // 找到原始环境和数据源名称
-        if (environment.id === request.environmentId && environment.id !== envId) {
+        if (environment.id === request.environmentId && environment.id === envId) {
+          parseEnvironment(environment);
           if (environment.config && environment.config.databaseConfigs) {
             environment.config.databaseConfigs.forEach((item) => {
               if (item.id === request.dataSourceId) {
