@@ -905,6 +905,12 @@ public class FileManagementControllerTests extends BaseTest {
         fileBytes = mvcResult.getResponse().getContentAsByteArray();
         Assertions.assertTrue(fileBytes.length > 0);
 
+        //删除存储的临时文件，再重新下载
+        FILE_ID_PATH.forEach((k, v) -> TempFileUtils.deleteTmpFile(k));
+        mvcResult = this.requestPostDownloadFile(FileManagementRequestUtils.URL_FILE_BATCH_DOWNLOAD, zipMediaType, batchProcessDTO);
+        fileBytes = mvcResult.getResponse().getContentAsByteArray();
+        Assertions.assertTrue(fileBytes.length > 0);
+
         //全部文件大小超过默认配置(600M)的限制  事先存储20个大小为50M的数据，过后删除
         for (int i = 0; i < 20; i++) {
             String id = "test_" + i;

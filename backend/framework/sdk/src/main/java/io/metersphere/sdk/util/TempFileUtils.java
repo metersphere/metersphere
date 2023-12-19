@@ -26,12 +26,6 @@ public class TempFileUtils {
         }
     }
 
-
-    //获取缩略图路径
-    public static String getPreviewImgFilePath(String fileId) {
-        return TEMP_FILE_FOLDER + "preview/" + fileId + ".jpg";
-    }
-
     //获取临时文件路径
     public static String getTmpFilePath(String fileId) {
         return TEMP_FILE_FOLDER + "tmp/" + fileId;
@@ -39,48 +33,44 @@ public class TempFileUtils {
 
     public static void deleteTmpFile(String fileId) {
         try {
-            File file = new File(getPreviewImgFilePath(fileId));
-            FileUtils.forceDelete(file);
-            file = new File(getTmpFilePath(fileId));
+            File file = new File(getTmpFilePath(fileId));
             FileUtils.forceDelete(file);
         } catch (Exception ignore) {
 
         }
     }
 
-    public static void compressPic(byte[] fileBytes, String compressPicAbsolutePath) throws Exception {
+    public static byte[] compressPic(byte[] fileBytes) throws IOException {
         // 读取原始图像
         BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(fileBytes));
-        if (originalImage == null) {
-            //如果将一个不是图片的文件强行转换为BufferedImage对象，那么得到的就是null
-            createFile(compressPicAbsolutePath, fileBytes);
-        } else {
-            File file = new File(compressPicAbsolutePath);
-            File dir = file.getParentFile();
-            if (!dir.exists()) {
-                dir.mkdirs();
-            }
-
+        if (originalImage != null) {
             int width = originalImage.getWidth();
             int height = originalImage.getHeight();
-            
+
             //计算压缩系数
             int compressFactor = getCompressFactor(width, height);
 
             // 指定预览图像的宽度和高度
             int previewWidth = width / compressFactor;
             int previewHeight = height / compressFactor;
-            // 创建一个缩小后的图像
-            BufferedImage previewImage = new BufferedImage(previewWidth, previewHeight, BufferedImage.TYPE_INT_RGB);
-            Graphics2D g2d = previewImage.createGraphics();
 
-            // 绘制缩小后的图像
-            g2d.drawImage(originalImage, 0, 0, previewWidth, previewHeight, null);
-            g2d.dispose();
-            ImageIO.setUseCache(false);
-            // 保存预览图像到文件
-            ImageIO.write(previewImage, "JPEG", new File(compressPicAbsolutePath));
+            try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+                // 创建一个缩小后的图像
+                BufferedImage previewImage = new BufferedImage(previewWidth, previewHeight, BufferedImage.TYPE_INT_RGB);
+                Graphics2D g2d = previewImage.createGraphics();
+
+                // 绘制缩小后的图像
+                g2d.drawImage(originalImage, 0, 0, previewWidth, previewHeight, null);
+                g2d.dispose();
+                ImageIO.setUseCache(false);
+
+                ImageIO.write(previewImage, "JPEG", outputStream);
+                return outputStream.toByteArray();
+            } catch (Exception e) {
+                LogUtils.error(e);
+            }
         }
+        return fileBytes;
     }
 
     private static int getCompressFactor(int width, int height) {
@@ -120,12 +110,6 @@ public class TempFileUtils {
             LogUtils.error(e);
         }
         return filePath;
-    }
-
-    //图片缩略图是否存在
-    public static boolean isImgPreviewFileExists(String fileId) {
-        File file = new File(getPreviewImgFilePath(fileId));
-        return file.exists();
     }
 
     //图片原图是否存在
