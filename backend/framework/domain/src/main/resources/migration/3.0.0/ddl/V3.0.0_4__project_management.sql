@@ -141,6 +141,7 @@ CREATE INDEX idx_create_time ON file_module (create_time desc);
 CREATE INDEX idx_update_timed ON file_module (update_time desc);
 CREATE INDEX idx_pos ON file_module (pos);
 CREATE INDEX idx_create_user ON file_module (create_user);
+CREATE UNIQUE INDEX uq_name_project_parent_type ON file_module (project_id, name, module_type, parent_id);
 
 
 CREATE TABLE IF NOT EXISTS project
