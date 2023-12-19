@@ -24,6 +24,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
+import io.metersphere.system.service.BaseCustomFieldService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.ServiceUtils;
@@ -87,6 +88,9 @@ public class FunctionalCaseService {
 
     @Resource
     private CaseReviewFunctionalCaseService caseReviewFunctionalCaseService;
+
+    @Resource
+    private BaseCustomFieldService baseCustomFieldService;
 
     private static final String CASE_MODULE_COUNT_ALL = "all";
 
@@ -440,13 +444,18 @@ public class FunctionalCaseService {
             return new ArrayList<>();
         }
         //处理自定义字段值
-        return handleCustomFieldsAnd(functionalCaseLists);
+        return handleCustomFields(functionalCaseLists);
     }
 
-    private List<FunctionalCasePageDTO> handleCustomFieldsAnd(List<FunctionalCasePageDTO> functionalCaseLists) {
+    private List<FunctionalCasePageDTO> handleCustomFields(List<FunctionalCasePageDTO> functionalCaseLists) {
         List<String> ids = functionalCaseLists.stream().map(FunctionalCasePageDTO::getId).collect(Collectors.toList());
-        List<FunctionalCaseCustomField> customFields = functionalCaseCustomFieldService.getCustomFieldByCaseIds(ids);
-        Map<String, List<FunctionalCaseCustomField>> collect = customFields.stream().collect(Collectors.groupingBy(FunctionalCaseCustomField::getCaseId));
+        List<FunctionalCaseCustomFieldDTO> customFields = functionalCaseCustomFieldService.getCustomFieldsByCaseIds(ids);
+        customFields.forEach(customField -> {
+            if (customField.getInternal()) {
+                customField.setName(baseCustomFieldService.translateInternalField(customField.getName()));
+            }
+        });
+        Map<String, List<FunctionalCaseCustomFieldDTO>> collect = customFields.stream().collect(Collectors.groupingBy(FunctionalCaseCustomFieldDTO::getCaseId));
         functionalCaseLists.forEach(functionalCasePageDTO -> {
             functionalCasePageDTO.setCustomFields(collect.get(functionalCasePageDTO.getId()));
         });

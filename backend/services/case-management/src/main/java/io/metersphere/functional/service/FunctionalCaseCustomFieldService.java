@@ -4,6 +4,7 @@ package io.metersphere.functional.service;
 import io.metersphere.functional.domain.FunctionalCaseCustomField;
 import io.metersphere.functional.domain.FunctionalCaseCustomFieldExample;
 import io.metersphere.functional.dto.CaseCustomFieldDTO;
+import io.metersphere.functional.dto.FunctionalCaseCustomFieldDTO;
 import io.metersphere.functional.mapper.ExtFunctionalCaseCustomFieldMapper;
 import io.metersphere.functional.mapper.FunctionalCaseCustomFieldMapper;
 import jakarta.annotation.Resource;
@@ -133,5 +134,9 @@ public class FunctionalCaseCustomFieldService {
         functionalCaseCustomField.setFieldId(customField.getFieldId());
         functionalCaseCustomField.setValue(customField.getValue());
         extFunctionalCaseCustomFieldMapper.batchUpdate(functionalCaseCustomField, ids);
+    }
+
+    public List<FunctionalCaseCustomFieldDTO> getCustomFieldsByCaseIds(List<String> ids) {
+        return extFunctionalCaseCustomFieldMapper.getCustomFieldsByCaseIds(ids);
     }
 }
