@@ -43,6 +43,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.metersphere.api.controller.result.ApiResultCode.API_DEFINITION_MODULE_NOT_EXIST;
 import static io.metersphere.api.controller.result.ApiResultCode.API_DEFINITION_NOT_EXIST;
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 
@@ -835,6 +836,18 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_READ, DOC, request);
+    }
+
+    @Test
+    @Order(11)
+    public void getDocModuleIsNull() throws Exception {
+        ApiDefinitionDocRequest request = new ApiDefinitionDocRequest();
+        // @@模块查看文档
+        request.setApiId(null);
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setType(ApiDefinitionDocType.MODULE.name());
+        request.setModuleIds(List.of("1001001"));
+        assertErrorCode(this.requestPost(DOC, request), API_DEFINITION_MODULE_NOT_EXIST);
     }
 
     @Test
