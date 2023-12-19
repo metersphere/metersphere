@@ -1629,10 +1629,11 @@ public class ApiScenarioService {
 
     private List<ApiScenarioWithBLOBs> getExportResult(ApiScenarioBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(), (query) -> extApiScenarioMapper.selectIdsByQuery(query));
-        ApiScenarioExample example = new ApiScenarioExample();
-        example.createCriteria().andIdIn(request.getIds());
-        List<ApiScenarioWithBLOBs> apiScenarioWithBLOBs = apiScenarioMapper.selectByExampleWithBLOBs(example);
-        return apiScenarioWithBLOBs;
+        List<ApiScenarioWithBLOBs> result = new ArrayList<>();
+        request.getIds().forEach( item-> {
+            result.add(this.getNewApiScenario(item));
+        });
+        return result;
     }
 
     public ApiScenrioExportResult export(ApiScenarioBatchRequest request) {
