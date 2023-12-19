@@ -50,6 +50,10 @@ INSERT INTO functional_case_attachment(id, case_id, file_id, file_name, size, lo
 INSERT INTO functional_case_module(id, project_id, name, parent_id, pos, create_time, update_time, create_user, update_user) VALUES ('TEST_MODULE_ID', '100001100001', '测试所属模块', 'NONE', 0, 1669174143999, 1669174143999, 'admin', 'admin');
 
 INSERT INTO custom_field(id, name, scene, type, remark, internal, scope_type, create_time, update_time, create_user, ref_id, enable_option_key, scope_id) VALUES ('custom_field_id_1', 'functional_priority', 'FUNCTIONAL', 'SELECT', '', b'1', 'ORGANIZATION', 1698983187000, 1698983187000, 'admin', NULL, b'0', '100001');
+INSERT INTO custom_field(id, name, scene, type, remark, internal, scope_type, create_time, update_time, create_user, ref_id, enable_option_key, scope_id) VALUES ('custom_field_id_2', '测试1', 'FUNCTIONAL', 'SELECT', '', b'0', 'ORGANIZATION', 1698983187000, 1698983187000, 'admin', NULL, b'0', '100001');
+INSERT INTO custom_field(id, name, scene, type, remark, internal, scope_type, create_time, update_time, create_user, ref_id, enable_option_key, scope_id) VALUES ('100548878725546079', '测试2', 'FUNCTIONAL', 'SELECT', '', b'0', 'ORGANIZATION', 1698983187000, 1698983187000, 'admin', NULL, b'0', '100001');
+INSERT INTO custom_field(id, name, scene, type, remark, internal, scope_type, create_time, update_time, create_user, ref_id, enable_option_key, scope_id) VALUES ('TEST_FIELD_ID', '测试3', 'FUNCTIONAL', 'SELECT', '', b'0', 'ORGANIZATION', 1698983187000, 1698983187000, 'admin', NULL, b'0', '100001');
+INSERT INTO custom_field(id, name, scene, type, remark, internal, scope_type, create_time, update_time, create_user, ref_id, enable_option_key, scope_id) VALUES ('TEST_FIELD_ID_1', '测试4', 'FUNCTIONAL', 'SELECT', '', b'0', 'ORGANIZATION', 1698983187000, 1698983187000, 'admin', NULL, b'0', '100001');
 
 
 INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)

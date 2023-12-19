@@ -19,4 +19,20 @@
         </foreach>
     </update>
 
+    <select id="getCustomFieldsByCaseIds" resultType="io.metersphere.functional.dto.FunctionalCaseCustomFieldDTO">
+        SELECT
+        fccf.case_id caseId,
+        fccf.field_id fieldId,
+        fccf.`value` value,
+        cf.NAME name,
+        cf.internal internal
+        FROM
+        functional_case_custom_field fccf
+        LEFT JOIN custom_field cf ON fccf.field_id = cf.id
+        where case_id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
 </mapper>
