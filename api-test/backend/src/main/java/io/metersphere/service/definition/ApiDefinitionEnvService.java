@@ -3,15 +3,13 @@ package io.metersphere.service.definition;
 import io.metersphere.api.dto.ApiReportEnvConfigDTO;
 import io.metersphere.api.dto.MsgDTO;
 import io.metersphere.api.dto.RequestResultExpandDTO;
-import io.metersphere.base.domain.ApiDefinitionEnv;
-import io.metersphere.base.domain.ApiDefinitionEnvExample;
-import io.metersphere.base.domain.ApiDefinitionExecResultWithBLOBs;
-import io.metersphere.base.domain.ApiTestEnvironmentExample;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionEnvMapper;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.dto.RequestResult;
+import io.metersphere.service.BaseTestResourcePoolService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -33,6 +31,8 @@ public class ApiDefinitionEnvService {
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
     @Resource
     private ApiDefinitionService apiDefinitionService;
+    @Resource
+    private BaseTestResourcePoolService baseTestResourcePoolService;
 
     public void insert(ApiDefinitionEnv env) {
         env.setId(UUID.randomUUID().toString());
@@ -93,12 +93,21 @@ public class ApiDefinitionEnvService {
         if (StringUtils.isNotBlank(dto.getToReport())) {
             ApiDefinitionExecResultWithBLOBs result = apiDefinitionExecResultMapper.selectByPrimaryKey(dto.getToReport());
             if (result != null && StringUtils.isNotEmpty(result.getEnvConfig())) {
-                ApiReportEnvConfigDTO envConfig = apiDefinitionService.getEnvNameByEnvConfig(result.getProjectId(), result.getEnvConfig());
-                if (envConfig != null) {
-                    Map map = JSON.parseObject(dto.getContent().substring(7), Map.class);
-                    map.put("envName", envConfig.getEnvName());
-                    map.put("poolName", envConfig.getResourcePoolName());
-                    dto.setContent("result_" + JSON.toJSONString(map));
+                if (StringUtils.equals("null",result.getEnvConfig())) {
+                    if (StringUtils.isNotBlank(result.getActuator())) {
+                        Map map = JSON.parseObject(dto.getContent().substring(7), Map.class);
+                        TestResourcePool resourcePool = baseTestResourcePoolService.getResourcePool(result.getActuator());
+                        map.put("poolName", resourcePool.getName());
+                        dto.setContent("result_" + JSON.toJSONString(map));
+                    }
+                } else {
+                    ApiReportEnvConfigDTO envConfig = apiDefinitionService.getEnvNameByEnvConfig(result.getProjectId(), result.getEnvConfig());
+                    if (envConfig != null) {
+                        Map map = JSON.parseObject(dto.getContent().substring(7), Map.class);
+                        map.put("envName", envConfig.getEnvName());
+                        map.put("poolName", envConfig.getResourcePoolName());
+                        dto.setContent("result_" + JSON.toJSONString(map));
+                    }
                 }
             }
         }
