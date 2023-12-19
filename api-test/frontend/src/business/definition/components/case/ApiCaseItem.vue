@@ -1,7 +1,7 @@
 <template>
   <el-card style="margin-top: 5px" @click.native="selectTestCase(apiCase, $event)" v-loading="saveLoading">
     <el-container>
-      <el-header style="margin-bottom: 20px">
+      <el-header style="margin-bottom: 20px; height: 65px">
         <div @click="active(apiCase)" v-if="type !== 'detail'" ref="elementHeader" class="case-header">
           <div v-loading="loading && !(apiCase.active || type === 'detail')">
             <span @click.stop>

@@ -914,7 +914,7 @@ export class JSR223Processor extends BaseConfig {
   constructor(options) {
     super();
     this.resourceId = uuid();
-    this.active = false;
+    this.active = true;
     this.type = 'JSR223Processor';
     this.label = '';
     this.script = undefined;

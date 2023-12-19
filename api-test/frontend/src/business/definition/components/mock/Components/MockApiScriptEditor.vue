@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-row type="flex">
-      <el-col :span="codeSpan" class="script-content">
+      <el-col :span="codeSpan">
         <ms-code-edit
           v-if="isCodeEditAlive"
           :mode="codeEditModeMap[jsr223Processor.scriptLanguage]"
@@ -315,12 +315,6 @@ export default {
 <style scoped>
 .ace_editor {
   border-radius: 5px;
-}
-
-.script-content {
-  /*height: calc(100vh - 570px);*/
-  height: 185px;
-  min-height: 170px;
 }
 
 .script-index {
