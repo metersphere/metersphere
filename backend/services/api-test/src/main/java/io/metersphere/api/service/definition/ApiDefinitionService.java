@@ -458,7 +458,7 @@ public class ApiDefinitionService {
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria()
                 .andPathEqualTo(apiDefinition.getPath()).andMethodEqualTo(apiDefinition.getMethod())
-                .andProtocolEqualTo(apiDefinition.getProtocol());
+                .andProtocolEqualTo(apiDefinition.getProtocol()).andVersionIdEqualTo(apiDefinition.getVersionId());
         if (CollectionUtils.isNotEmpty(apiDefinitionMapper.selectByExample(example))) {
             throw new MSException(ApiResultCode.API_DEFINITION_EXIST);
         }
@@ -469,7 +469,7 @@ public class ApiDefinitionService {
             ApiDefinitionExample example = new ApiDefinitionExample();
             example.createCriteria()
                     .andIdNotEqualTo(apiDefinition.getId()).andProtocolEqualTo(apiDefinition.getProtocol())
-                    .andPathEqualTo(apiDefinition.getPath()).andMethodEqualTo(apiDefinition.getMethod());
+                    .andPathEqualTo(apiDefinition.getPath()).andMethodEqualTo(apiDefinition.getMethod()).andVersionIdEqualTo(apiDefinition.getVersionId());
             if (apiDefinitionMapper.countByExample(example) > 0) {
                 throw new MSException(ApiResultCode.API_DEFINITION_EXIST);
             }
@@ -660,12 +660,13 @@ public class ApiDefinitionService {
 
     private void doRestore(List<String> apiIds, String userId, String projectId, boolean isBatch) {
         if (CollectionUtils.isNotEmpty(apiIds)) {
-            // 记录恢复数据之前的原数据，单条通过注解记录
+            // 记录恢复数据之前的原数据日志，单条通过注解记录日志
             if(isBatch){
                 apiDefinitionLogService.batchRestoreLog(apiIds, userId, projectId);
             }
             extApiDefinitionMapper.batchRestoreById(apiIds, userId, projectId);
 
+            List<String> updateApiIds = new ArrayList<>();
             apiIds.forEach(id -> {
                 // 恢复数据恢复最新标识
                 ApiDefinition apiDefinition = checkApiDefinition(id);
@@ -675,9 +676,33 @@ public class ApiDefinitionService {
                 if (CollectionUtils.isNotEmpty(apiDefinitionVersions) && apiDefinitionVersions.size() > 1) {
                     handleMultipleVersions(apiDefinition);
                 }
+
+                // 判断接口的模块 ID 是否存在，不存在修改模块 ID 为未规划模块 ID
+                if (!ModuleConstants.DEFAULT_NODE_ID.equals(apiDefinition.getModuleId()) &&
+                        moduleNeedsUpdate(apiDefinition.getModuleId())) {
+                    updateApiIds.add(apiDefinition.getId());
+                }
+
             });
+            // 模块已删除，修改为未规划模块 ID
+            handleModule(updateApiIds);
             // 恢复接口关联数据
             recoverApiRelatedData(apiIds, userId, projectId);
+        }
+    }
+
+    private boolean moduleNeedsUpdate(String moduleId) {
+        ApiDefinitionModule apiDefinitionModule = apiDefinitionModuleMapper.selectByPrimaryKey(moduleId);
+        return apiDefinitionModule == null || StringUtils.isBlank(apiDefinitionModule.getName());
+    }
+
+    private void handleModule(List<String> updateApiIds) {
+        if(!updateApiIds.isEmpty()){
+            ApiDefinition updateApiDefinition = new ApiDefinition();
+            updateApiDefinition.setModuleId(ModuleConstants.DEFAULT_NODE_ID);
+            ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
+            apiDefinitionExample.createCriteria().andIdIn(updateApiIds);
+            apiDefinitionMapper.updateByExampleSelective(updateApiDefinition, apiDefinitionExample);
         }
     }
 
@@ -816,7 +841,7 @@ public class ApiDefinitionService {
                     apiDefinitionDocDTO.setDocTitle(Translator.get(ALL_API));
                 } else {
                     ApiDefinitionModule apiDefinitionModule = apiDefinitionModuleMapper.selectByPrimaryKey(first.getModuleId());
-                    if (StringUtils.isNotBlank(apiDefinitionModule.getName())) {
+                    if (apiDefinitionModule != null && StringUtils.isNotBlank(apiDefinitionModule.getName())) {
                         apiDefinitionDocDTO.setDocTitle(apiDefinitionModule.getName());
                     } else {
                         throw new MSException(API_DEFINITION_MODULE_NOT_EXIST);

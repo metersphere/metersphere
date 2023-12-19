@@ -1,16 +1,15 @@
 package io.metersphere.api.controller;
 
+import io.metersphere.api.constants.ApiDefinitionDocType;
 import io.metersphere.api.constants.ApiDefinitionStatus;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
-import io.metersphere.api.constants.ApiDefinitionDocType;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.model.CheckLogModel;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.utils.ApiDataUtils;
-import io.metersphere.sdk.exception.MSException;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.dto.filemanagement.FileInfo;
 import io.metersphere.project.dto.filemanagement.request.FileUploadRequest;
@@ -19,12 +18,13 @@ import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.file.FileCenter;
+import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.BaseCondition;
-import io.metersphere.sdk.file.FileCenter;
-import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
@@ -365,6 +365,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // @@校验权限
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setName("permission-st-6");
+        request.setModuleId("module-st-6");
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_UPDATE, UPDATE, request);
     }
 
