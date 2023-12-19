@@ -287,8 +287,7 @@ public class FileMetadataService {
         String filePath = fileService.upload(file, uploadFileRequest);
 
         if (TempFileUtils.isImage(fileMetadata.getType())) {
-            TempFileUtils.compressPic(file.getBytes(), TempFileUtils.getPreviewImgFilePath(fileMetadata.getId()));
-            byte[] previewImg = TempFileUtils.getFile(TempFileUtils.getPreviewImgFilePath(fileMetadata.getId()));
+            byte[] previewImg = TempFileUtils.compressPic(file.getBytes());
             uploadFileRequest.setFolder(DefaultRepositoryDir.getFileManagementPreviewDir(fileMetadata.getProjectId()));
             fileService.upload(previewImg, uploadFileRequest);
         }
@@ -478,17 +477,12 @@ public class FileMetadataService {
                 //svg图片不压缩
                 contentType = MediaType.parseMediaType("image/svg+xml");
                 bytes = this.getFileByte(fileMetadata);
-            } else if (TempFileUtils.isImgPreviewFileExists(fileMetadata.getId())) {
-                //获取压缩过的图片
-                bytes = TempFileUtils.getFile(TempFileUtils.getPreviewImgFilePath(fileMetadata.getId()));
             } else {
                 /**
                  * 从minio中获取临时文件
                  * 如果minio不存在，压缩后上传到minio中，并缓存到文件目录中
                  */
-                //压缩图片并保存在临时文件夹中
                 bytes = fileManagementService.getPreviewImg(fileMetadata);
-                TempFileUtils.createFile(TempFileUtils.getPreviewImgFilePath(fileMetadata.getId()), bytes);
             }
         }
 

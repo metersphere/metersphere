@@ -78,14 +78,14 @@ public class FileManagementService {
                 fileRequest.setFileName(fileMetadata.getId());
                 fileRequest.setStorage(fileMetadata.getStorage());
                 fileRequest.setFolder(DefaultRepositoryDir.getFileManagementDir(fileMetadata.getProjectId()));
+                //删除临时文件
+                TempFileUtils.deleteTmpFile(fileMetadata.getId());
                 try {
                     //删除存储容器中的文件
                     fileService.deleteFile(fileRequest);
                     //删除缓存文件
                     fileRequest.setFolder(DefaultRepositoryDir.getFileManagementPreviewDir(fileMetadata.getProjectId()));
                     fileService.deleteFile(fileRequest);
-                    //删除临时文件
-                    TempFileUtils.deleteTmpFile(fileMetadata.getId());
                 } catch (Exception e) {
                     LogUtils.error("删除文件失败", e);
                 }
@@ -201,14 +201,13 @@ public class FileManagementService {
         if (previewImg == null || previewImg.length == 0) {
             try {
                 byte[] fileBytes = this.getFile(fileMetadata);
-                TempFileUtils.compressPic(fileBytes, TempFileUtils.getPreviewImgFilePath(fileMetadata.getId()));
-                previewImg = TempFileUtils.getFile(TempFileUtils.getPreviewImgFilePath(fileMetadata.getId()));
+                previewImg = TempFileUtils.compressPic(fileBytes);
                 fileService.upload(previewImg, previewRequest);
                 return previewImg;
             } catch (Exception e) {
                 LogUtils.error("获取预览图失败", e);
             }
         }
-        return new byte[0];
+        return previewImg;
     }
 }
