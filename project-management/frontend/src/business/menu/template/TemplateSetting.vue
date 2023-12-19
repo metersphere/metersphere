@@ -1,6 +1,6 @@
 <template>
   <el-card>
-    <el-tabs class="system-setting" v-model="activeName" @change="changeTab">
+    <el-tabs v-if="visible" class="system-setting" v-model="activeName" @change="changeTab">
       <el-tab-pane :label="$t('custom_field.name')" name="field" v-if="fieldEnable">
         <custom-field-list v-if="activeName === 'field'"/>
       </el-tab-pane>
@@ -33,11 +33,16 @@ export default {
       fieldEnable: false,
       caseTemplateEnable: false,
       issueTemplateEnable: false,
-      apiTemplateEnable: false
+      apiTemplateEnable: false,
+      visible: true
     };
   },
-  created() {
-    this.changeTab();
+  activated() {
+    this.visible = false;
+    this.$nextTick(() => {
+      this.visible = true;
+      this.changeTab();
+    });
   },
   methods: {
     hasPermissions,
