@@ -41,8 +41,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static io.metersphere.api.controller.result.ApiResultCode.API_DEFINITION_MODULE_NOT_EXIST;
-
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ApiDefinitionService {
@@ -50,6 +48,8 @@ public class ApiDefinitionService {
     public static final Long ORDER_STEP = 5000L;
 
     private static final String ALL_API = "api_definition_module.api.all";
+
+    private static final String UNPLANNED_API = "api_unplanned_request";
 
     @Resource
     private ApiDefinitionMapper apiDefinitionMapper;
@@ -844,7 +844,7 @@ public class ApiDefinitionService {
                     if (apiDefinitionModule != null && StringUtils.isNotBlank(apiDefinitionModule.getName())) {
                         apiDefinitionDocDTO.setDocTitle(apiDefinitionModule.getName());
                     } else {
-                        throw new MSException(API_DEFINITION_MODULE_NOT_EXIST);
+                        apiDefinitionDocDTO.setDocTitle(Translator.get(UNPLANNED_API));
                     }
                 }
                 apiDefinitionDocDTO.setDocInfo(first);
