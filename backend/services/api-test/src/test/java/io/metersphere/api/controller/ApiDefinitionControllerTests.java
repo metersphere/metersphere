@@ -24,6 +24,7 @@ import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.controller.handler.result.MsHttpResultCode;
 import io.metersphere.system.dto.sdk.BaseCondition;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.utils.Pager;
@@ -42,11 +43,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static io.metersphere.api.controller.result.ApiResultCode.API_DEFINITION_MODULE_NOT_EXIST;
-import static io.metersphere.api.controller.result.ApiResultCode.API_DEFINITION_NOT_EXIST;
-import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
-
 
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -79,6 +75,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
     private static final String DEFAULT_MODULE_ID = "10001";
 
     private static final String ALL_API = "api_definition_module.api.all";
+    private static final String UNPLANNED_API = "api_unplanned_request";
     private static ApiDefinition apiDefinition;
 
     @Resource
@@ -186,7 +183,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // 校验项目是否存在
         request.setProjectId("111");
         request.setName("test123");
-        assertErrorCode(this.requestPost(ADD, request), NOT_FOUND);
+        assertErrorCode(this.requestPost(ADD, request), MsHttpResultCode.NOT_FOUND);
 
         // @@校验日志
         checkLogModelList.add(new CheckLogModel(apiDefinition.getId(), OperationLogType.ADD, ADD));
@@ -265,7 +262,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         }
         Assertions.assertEquals(apiDefinitionDTO, copyApiDefinitionDTO);
 
-        assertErrorCode(this.requestGet(GET + "111"), API_DEFINITION_NOT_EXIST);
+        assertErrorCode(this.requestGet(GET + "111"), ApiResultCode.API_DEFINITION_NOT_EXIST);
 
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_READ, GET + apiDefinition.getId());
@@ -352,12 +349,12 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // 校验数据是否存在
         request.setId("111");
         request.setName("test123");
-        assertErrorCode(this.requestPost(UPDATE, request), API_DEFINITION_NOT_EXIST);
+        assertErrorCode(this.requestPost(UPDATE, request), ApiResultCode.API_DEFINITION_NOT_EXIST);
 
         // 校验项目是否存在
         request.setProjectId("111");
         request.setName("test123");
-        assertErrorCode(this.requestPost(UPDATE, request), NOT_FOUND);
+        assertErrorCode(this.requestPost(UPDATE, request), MsHttpResultCode.NOT_FOUND);
 
         // @@校验日志
         checkLogModelList.add(new CheckLogModel(apiDefinition.getId(), OperationLogType.UPDATE, UPDATE));
@@ -482,7 +479,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         apiDefinitionBatchUpdateRequest.setProjectId("111");
         apiDefinitionBatchUpdateRequest.setMethod("test123");
 
-        assertErrorCode(this.requestPost(BATCH_UPDATE, apiDefinitionBatchUpdateRequest), NOT_FOUND);
+        assertErrorCode(this.requestPost(BATCH_UPDATE, apiDefinitionBatchUpdateRequest), MsHttpResultCode.NOT_FOUND);
 
         // @@校验日志
         String[] ids = {"1001", "1002", "1003", "1004"};
@@ -546,7 +543,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         Assertions.assertTrue(resultDataCopy.getName().contains("copy_"));
 
         request.setId("121");
-        assertErrorCode(this.requestPost(COPY, request), API_DEFINITION_NOT_EXIST);
+        assertErrorCode(this.requestPost(COPY, request), ApiResultCode.API_DEFINITION_NOT_EXIST);
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_UPDATE, COPY, request);
     }
@@ -599,7 +596,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // @@校验日志
         checkLogModelList.add(new CheckLogModel(apiDefinition.getId(), OperationLogType.UPDATE, FOLLOW + apiDefinition.getId()));
 
-        assertErrorCode(this.requestGet(FOLLOW + "111"), API_DEFINITION_NOT_EXIST);
+        assertErrorCode(this.requestGet(FOLLOW + "111"), ApiResultCode.API_DEFINITION_NOT_EXIST);
 
         // @@取消关注
         // @@请求成功
@@ -610,7 +607,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         Assertions.assertTrue(CollectionUtils.isEmpty(unFollowers));
         // @@校验日志
         checkLogModelList.add(new CheckLogModel(apiDefinition.getId(), OperationLogType.UPDATE, FOLLOW + apiDefinition.getId()));
-        assertErrorCode(this.requestGet(FOLLOW + "111"), API_DEFINITION_NOT_EXIST);
+        assertErrorCode(this.requestGet(FOLLOW + "111"), ApiResultCode.API_DEFINITION_NOT_EXIST);
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_UPDATE, FOLLOW + apiDefinition.getId());
     }
@@ -626,7 +623,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // 校验数据是否正确
         List<ApiDefinitionVersionDTO> copyApiDefinitionVersionDTO = extApiDefinitionMapper.getApiDefinitionByRefId(apiDefinition.getRefId());
         Assertions.assertEquals(apiDefinitionVersionDTO, copyApiDefinitionVersionDTO);
-        assertErrorCode(this.requestGet(VERSION + "111"), API_DEFINITION_NOT_EXIST);
+        assertErrorCode(this.requestGet(VERSION + "111"), ApiResultCode.API_DEFINITION_NOT_EXIST);
 
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_READ, VERSION + apiDefinition.getId());
@@ -773,7 +770,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         Assertions.assertEquals(apiDefinitionDocDTO.getDocInfo().getId(), copyApiDefinitionDocDTO.getDocInfo().getId());
 
         request.setApiId("111");
-        assertErrorCode(this.requestPost(DOC, request), API_DEFINITION_NOT_EXIST);
+        assertErrorCode(this.requestPost(DOC, request), ApiResultCode.API_DEFINITION_NOT_EXIST);
 
         // @@模块查看文档
         request.setApiId(null);
@@ -787,15 +784,17 @@ public class ApiDefinitionControllerTests extends BaseTest {
         ApiDefinitionDocDTO copyModuleApiDefinitionDocDTO = new ApiDefinitionDocDTO();
         List<ApiDefinitionDTO> list = extApiDefinitionMapper.listDoc(request);
         if(null != list){
-            ApiDefinitionDTO first = list.stream().findFirst().orElseThrow(() -> new MSException(API_DEFINITION_NOT_EXIST));
+            ApiDefinitionDTO first = list.stream().findFirst().orElseThrow(() -> new MSException(ApiResultCode.API_DEFINITION_NOT_EXIST));
             ApiDefinitionBlob moduleApiDefinitionBlob = apiDefinitionBlobMapper.selectByPrimaryKey(first.getId());
             if(moduleApiDefinitionBlob != null){
                 first.setRequest(ApiDataUtils.parseObject(new String(moduleApiDefinitionBlob.getRequest()), AbstractMsTestElement.class));
                 first.setResponse(ApiDataUtils.parseArray(new String(moduleApiDefinitionBlob.getResponse()), HttpResponse.class));
             }
             ApiDefinitionModule apiDefinitionModule = apiDefinitionModuleMapper.selectByPrimaryKey(first.getModuleId());
-            if(StringUtils.isBlank(copyModuleApiDefinitionDocDTO.getDocTitle())){
+            if (apiDefinitionModule != null && StringUtils.isNotBlank(apiDefinitionModule.getName())) {
                 copyModuleApiDefinitionDocDTO.setDocTitle(apiDefinitionModule.getName());
+            } else {
+                copyModuleApiDefinitionDocDTO.setDocTitle(Translator.get(UNPLANNED_API));
             }
             copyModuleApiDefinitionDocDTO.setDocInfo(first);
             copyModuleApiDefinitionDocDTO.setType(ApiDefinitionDocType.MODULE.name());
@@ -817,7 +816,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         ApiDefinitionDocDTO copyAllApiDefinitionDocDTO = new ApiDefinitionDocDTO();
         List<ApiDefinitionDTO> allList = extApiDefinitionMapper.listDoc(request);
         if(null != allList){
-            ApiDefinitionDTO info = allList.stream().findFirst().orElseThrow(() -> new MSException(API_DEFINITION_NOT_EXIST));
+            ApiDefinitionDTO info = allList.stream().findFirst().orElseThrow(() -> new MSException(ApiResultCode.API_DEFINITION_NOT_EXIST));
             ApiDefinitionBlob allApiDefinitionBlob = apiDefinitionBlobMapper.selectByPrimaryKey(info.getId());
             if(allApiDefinitionBlob != null){
                 info.setRequest(ApiDataUtils.parseObject(new String(allApiDefinitionBlob.getRequest()), AbstractMsTestElement.class));
@@ -847,7 +846,32 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setType(ApiDefinitionDocType.MODULE.name());
         request.setModuleIds(List.of("1001001"));
-        assertErrorCode(this.requestPost(DOC, request), API_DEFINITION_MODULE_NOT_EXIST);
+        MvcResult mvcResultModule = this.requestPostWithOkAndReturn(DOC, request);
+        ApiDataUtils.setResolver(MsHTTPElement.class);
+        ApiDefinitionDocDTO moduleApiDefinitionDocDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResultModule).get("data")), ApiDefinitionDocDTO.class);
+        // 校验数据是否正确
+        ApiDefinitionDocDTO copyModuleApiDefinitionDocDTO = new ApiDefinitionDocDTO();
+        List<ApiDefinitionDTO> list = extApiDefinitionMapper.listDoc(request);
+        if(null != list){
+            ApiDefinitionDTO first = list.stream().findFirst().orElseThrow(() -> new MSException(ApiResultCode.API_DEFINITION_NOT_EXIST));
+            ApiDefinitionBlob moduleApiDefinitionBlob = apiDefinitionBlobMapper.selectByPrimaryKey(first.getId());
+            if(moduleApiDefinitionBlob != null){
+                first.setRequest(ApiDataUtils.parseObject(new String(moduleApiDefinitionBlob.getRequest()), AbstractMsTestElement.class));
+                first.setResponse(ApiDataUtils.parseArray(new String(moduleApiDefinitionBlob.getResponse()), HttpResponse.class));
+            }
+            ApiDefinitionModule apiDefinitionModule = apiDefinitionModuleMapper.selectByPrimaryKey(first.getModuleId());
+            if (apiDefinitionModule != null && StringUtils.isNotBlank(apiDefinitionModule.getName())) {
+                copyModuleApiDefinitionDocDTO.setDocTitle(apiDefinitionModule.getName());
+            } else {
+                copyModuleApiDefinitionDocDTO.setDocTitle(Translator.get(UNPLANNED_API));
+            }
+            copyModuleApiDefinitionDocDTO.setDocInfo(first);
+            copyModuleApiDefinitionDocDTO.setType(ApiDefinitionDocType.MODULE.name());
+        }
+
+        Assertions.assertEquals(moduleApiDefinitionDocDTO.getType(), copyModuleApiDefinitionDocDTO.getType());
+        Assertions.assertEquals(moduleApiDefinitionDocDTO.getDocTitle(), copyModuleApiDefinitionDocDTO.getDocTitle());
+        Assertions.assertEquals(moduleApiDefinitionDocDTO.getDocInfo().getId(), copyModuleApiDefinitionDocDTO.getDocInfo().getId());
     }
 
     @Test
@@ -918,7 +942,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         checkLogModelList.add(new CheckLogModel(apiDefinitionDeleteRequest.getId(), OperationLogType.DELETE, DELETE));
         apiDefinitionDeleteRequest.setId("121");
         apiDefinitionDeleteRequest.setDeleteAll(false);
-        assertErrorCode(this.requestPost(DELETE, apiDefinitionDeleteRequest), API_DEFINITION_NOT_EXIST);
+        assertErrorCode(this.requestPost(DELETE, apiDefinitionDeleteRequest), ApiResultCode.API_DEFINITION_NOT_EXIST);
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_DELETE, DELETE, apiDefinitionDeleteRequest);
     }
@@ -941,7 +965,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setSelectIds(List.of("1002"));
         request.setDeleteAll(false);
         request.setSelectAll(false);
-        assertErrorCode(this.requestPost(BATCH_DELETE, request), API_DEFINITION_NOT_EXIST);
+        assertErrorCode(this.requestPost(BATCH_DELETE, request), ApiResultCode.API_DEFINITION_NOT_EXIST);
         // 删除全部 条件为关键字为st-6的数据
         request.setDeleteAll(true);
         request.setExcludeIds(List.of("1005"));
@@ -995,7 +1019,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // @恢复一条数据
         apiDefinitionDeleteRequest.setId("111");
         // @@请求成功
-        assertErrorCode(this.requestPost(RESTORE, apiDefinitionDeleteRequest), API_DEFINITION_NOT_EXIST);
+        assertErrorCode(this.requestPost(RESTORE, apiDefinitionDeleteRequest), ApiResultCode.API_DEFINITION_NOT_EXIST);
 
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_UPDATE, RESTORE, apiDefinitionDeleteRequest);
