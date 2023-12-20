@@ -2971,11 +2971,6 @@ export default {
 }
 
 
-  :deep(.el-dropdown .el-button-group) {
-    display: flex;
-  }
-
-
 :deep(.ms-main-container) {
   padding: 5px 5px 5px 10px;
 }
