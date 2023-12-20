@@ -827,7 +827,7 @@ public class TestPlanApiCaseService {
         String reportName = apiCase.getName();
         ApiDefinitionExecResultWithBLOBs result = ApiDefinitionExecResultUtil.add(testId, ApiReportStatus.RUNNING.name(), reportId, Objects.requireNonNull(SessionUtils.getUser()).getId());
         result.setName(reportName);
-        result.setProjectId(apiCase.getProjectId());
+        result.setProjectId(SessionUtils.getCurrentProjectId());
         result.setTriggerMode(TriggerMode.MANUAL.name());
         RunModeConfigDTO runModeConfigDTO = new RunModeConfigDTO();
         jMeterService.verifyPool(result.getProjectId(), runModeConfigDTO);
