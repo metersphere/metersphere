@@ -309,9 +309,9 @@ public class UserControllerTests extends BaseTest {
         BasePageRequest basePageRequest = new BasePageRequest();
         basePageRequest.setPageSize(5);
         this.requestPost(UserRequestUtils.URL_USER_PAGE, basePageRequest, BAD_REQUEST_MATCHER);
-        //pageSize超过100
+        //pageSize超过501
         basePageRequest = UserParamUtils.getDefaultPageRequest();
-        basePageRequest.setPageSize(250);
+        basePageRequest.setPageSize(501);
         this.requestPost(UserRequestUtils.URL_USER_PAGE, basePageRequest, BAD_REQUEST_MATCHER);
         //当前页数不大于5
         basePageRequest = new BasePageRequest();

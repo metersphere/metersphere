@@ -540,10 +540,10 @@ public class OrganizationProjectControllerTests extends BaseTest {
         projectRequest.setCurrent(1);
         projectRequest.setOrganizationId("organizationId");
         this.requestPost(getProjectList, projectRequest, BAD_REQUEST_MATCHER);
-        //当前页数大于100
+        //当前页数大于500
         projectRequest = new OrganizationProjectRequest();
         projectRequest.setCurrent(1);
-        projectRequest.setPageSize(101);
+        projectRequest.setPageSize(501);
         projectRequest.setOrganizationId("organizationId");
         this.requestPost(getProjectList, projectRequest, BAD_REQUEST_MATCHER);
         //排序字段不合法
@@ -810,10 +810,10 @@ public class OrganizationProjectControllerTests extends BaseTest {
         memberRequest = new ProjectMemberRequest();
         memberRequest.setCurrent(1);
         this.requestPost(getProjectMemberList, memberRequest, BAD_REQUEST_MATCHER);
-        //当前页数大于100
+        //当前页数大于500
         memberRequest = new ProjectMemberRequest();
         memberRequest.setCurrent(1);
-        memberRequest.setPageSize(101);
+        memberRequest.setPageSize(501);
         this.requestPost(getProjectMemberList, memberRequest, BAD_REQUEST_MATCHER);
         //项目Id为空
         memberRequest = new ProjectMemberRequest();

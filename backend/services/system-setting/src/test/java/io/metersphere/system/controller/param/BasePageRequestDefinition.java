@@ -19,7 +19,7 @@ public class BasePageRequestDefinition {
     private int current;
 
     @Min(value = 5)
-    @Max(value = 100)
+    @Max(value = 500)
     private int pageSize;
 
     private Map<@Valid @Pattern(regexp = "^[A-Za-z]+$") String, @Valid @NotBlank String> sort;
