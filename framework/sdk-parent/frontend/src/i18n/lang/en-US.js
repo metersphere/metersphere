@@ -1933,6 +1933,8 @@ const message = {
         json_path_suggest: "JSONPath Assertion Suggest",
         json_path_clear: "Clear JSONPath Assertion",
         debug_first: "First, debug to get the response",
+        body_is_null:
+          "No response data detected, please run the interface and ensure response data is generated",
         suggest_tip: "Click the note to add the JSONPath assertion",
         regex_info:
           'Special characters "$ () * +. [] \\ ^ {} |" need to be escaped as "\\ "+"special characters", such as "\\$"',
