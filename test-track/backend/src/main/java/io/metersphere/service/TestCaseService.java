@@ -3112,6 +3112,7 @@ public class TestCaseService {
         setDefaultOrder(request);
         List<String> relationshipIds = relationshipEdgeService.getRelationshipIds(request.getId());
         request.setTestCaseContainIds(relationshipIds);
+        ServiceUtils.buildCombineTagsToSupportMultiple(request);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, extTestCaseMapper.getTestCase(request));
     }
