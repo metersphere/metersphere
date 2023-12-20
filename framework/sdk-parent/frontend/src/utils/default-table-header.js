@@ -77,7 +77,7 @@ export let CUSTOM_TABLE_HEADER = {
   API_SCENARIO: [
     { id: "num", key: "1", label: "ID" },
     { id: "name", key: "2", label: "api_report.scenario_name" },
-    { id: 'nodePath', key: '9', label: 'api_test.automation.module', defaultHide: true },
+    { id: 'nodePath', key: "9", label: 'api_test.automation.module', defaultHide: true },
     { id: "level", key: "3", label: "api_test.automation.case_level" },
     { id: "status", key: "4", label: "test_track.plan.plan_status" },
     { id: "tags", key: "5", label: "commons.tag" },
@@ -100,7 +100,7 @@ export let CUSTOM_TABLE_HEADER = {
   UI_SCENARIO: [
     { id: "num", key: "1", label: "ID" },
     { id: "name", key: "2", label: "api_report.scenario_name" },
-    { id: 'nodePath', key: '9', label: 'api_test.automation.module', defaultHide: true },
+    { id: 'nodePath', key: "9", label: 'api_test.automation.module', defaultHide: true },
     { id: "level", key: "3", label: "api_test.automation.case_level" },
     { id: "status", key: "4", label: "test_track.plan.plan_status" },
     { id: "tags", key: "5", label: "commons.tag" },
@@ -123,7 +123,7 @@ export let CUSTOM_TABLE_HEADER = {
   UI_CUSTOM_COMMAND: [
     { id: "num", key: "1", label: "ID" },
     { id: "name", key: "2", label: "ui.command_name_label" },
-    { id: 'nodePath', key: '9', label: 'api_test.automation.module', defaultHide: true},
+    { id: 'nodePath', key: "9", label: 'api_test.automation.module', defaultHide: true},
     { id: "tags", key: "5", label: "commons.tag" },
     { id: "creatorName", key: "d", label: "api_test.automation.creator" },
     {

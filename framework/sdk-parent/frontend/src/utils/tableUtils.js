@@ -311,26 +311,32 @@ export function getCustomTableHeaderByDefault(key, customFields) {
 }
 
 export function getAllFieldWithCustomFieldsByDefault(key, customFields) {
-  let fieldSetting = [...CUSTOM_TABLE_HEADER[key]];
-  // 如果没有 license, 排除 xpack
-  if (!hasLicense()) {
-    fieldSetting = fieldSetting.filter((v) => !v.xpack);
+  let fieldStr = localStorage.getItem(key);
+  if (fieldStr == null) {
+    let fieldSetting = [...CUSTOM_TABLE_HEADER[key]];
+    // 如果没有 license, 排除 xpack
+    if (!hasLicense()) {
+      fieldSetting = fieldSetting.filter((v) => !v.xpack);
+    }
+    fieldSetting = fieldSetting.filter((v) => !v.defaultHide);
+    fieldSetting = JSON.parse(JSON.stringify(fieldSetting));
+    translateLabel(fieldSetting);
+    if (customFields) {
+      customFields.forEach((item) => {
+        let field = {
+          id: item.name,
+          key: item.key,
+          label: item.name,
+          isCustom: true,
+        };
+        fieldSetting.push(field);
+      });
+    }
+    return fieldSetting;
+  } else {
+    return getAllFieldWithCustomFields(key, customFields)
   }
-  fieldSetting = fieldSetting.filter((v) => !v.defaultHide);
-  fieldSetting = JSON.parse(JSON.stringify(fieldSetting));
-  translateLabel(fieldSetting);
-  if (customFields) {
-    customFields.forEach((item) => {
-      let field = {
-        id: item.name,
-        key: item.key,
-        label: item.name,
-        isCustom: true,
-      };
-      fieldSetting.push(field);
-    });
-  }
-  return fieldSetting;
+
 }
 
 
