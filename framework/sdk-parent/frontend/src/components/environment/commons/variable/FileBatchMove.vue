@@ -80,7 +80,7 @@ export default {
       this.loading = true;
       this.result = getFileModules(getCurrentProjectID()).then(response => {
         if (response.data !== undefined && response.data != null) {
-          this.treeNodes = response.data;
+          this.treeNodes = response.data.filter(node => node['moduleType'] !== 'repository');
           this.treeNodes.forEach(node => {
             node.name = node.name === 'DEF_MODULE' ? this.$t('commons.module_title') : node.name
             buildTree(node, {path: ''});
