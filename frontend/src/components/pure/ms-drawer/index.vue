@@ -28,7 +28,7 @@
         </div>
       </slot>
     </template>
-    <div class="handle" @mousedown="startResize">
+    <div v-if="!props.disabledWidthDrag" class="handle" @mousedown="startResize">
       <icon-drag-dot-vertical class="absolute left-[-3px] top-[50%] w-[14px]" size="14" />
     </div>
     <a-scrollbar class="h-full overflow-y-auto">
@@ -73,7 +73,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, defineAsyncComponent, ref, watch } from 'vue';
+  import { defineAsyncComponent, ref, watch } from 'vue';
 
   import type { Description } from '@/components/pure/ms-description/index.vue';
 
@@ -100,6 +100,7 @@
     width: number;
     noContentPadding?: boolean; // 是否没有内容内边距
     popupContainer?: string;
+    disabledWidthDrag?: boolean; // 是否禁止拖拽宽度
   }
 
   const props = withDefaults(defineProps<DrawerProps>(), {
@@ -108,6 +109,7 @@
     showSkeleton: false,
     showContinue: false,
     popupContainer: 'body',
+    disabledWidthDrag: false,
   });
   const emit = defineEmits(['update:visible', 'confirm', 'cancel', 'continue']);
 

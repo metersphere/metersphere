@@ -6,7 +6,7 @@ import type { AppRouteRecordRaw } from '../types';
 const ApiTest: AppRouteRecordRaw = {
   path: '/api-test',
   name: ApiTestRouteEnum.API_TEST,
-  redirect: '/api-test/index',
+  redirect: '/api-test/debug',
   component: DEFAULT_LAYOUT,
   meta: {
     locale: 'menu.apiTest',
@@ -16,11 +16,13 @@ const ApiTest: AppRouteRecordRaw = {
   },
   children: [
     {
-      path: 'index',
-      name: 'apiTestIndex',
-      component: () => import('@/views/api-test/index.vue'),
+      path: 'debug',
+      name: ApiTestRouteEnum.API_TEST_DEBUG,
+      component: () => import('@/views/api-test/debug/index.vue'),
       meta: {
+        locale: 'menu.apiTest.debug',
         roles: ['*'],
+        isTopMenu: true,
       },
     },
   ],

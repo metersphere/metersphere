@@ -3,13 +3,26 @@
     v-model:size="innerSize"
     :min="props.min"
     :max="props.max"
-    :class="['h-full', isExpanded ? '' : 'expanded-panel', isExpandAnimating ? 'animating' : '']"
+    :class="[
+      'h-full',
+      isExpanded ? '' : 'expanded-panel',
+      isExpandAnimating ? 'animating' : '',
+      props.direction === 'vertical' ? 'ms-split-box--vertical' : '',
+    ]"
     :direction="props.direction"
+    :disabled="props.disabled || !isExpanded"
   >
     <template #first>
-      <div v-if="props.direction === 'horizontal'" class="ms-split-box ms-split-box--left">
-        <div v-if="props.expandDirection === 'right'" class="absolute right-0 flex h-full w-[16px] items-center">
-          <div class="expand-icon expand-icon--left" @click="changeLeftExpand">
+      <div
+        :class="`ms-split-box ${props.direction === 'horizontal' ? 'ms-split-box--left' : 'ms-split-box--top'} ${
+          props.disabled && props.direction === 'horizontal' ? 'border-r border-[var(--color-text-n8)]' : ''
+        }`"
+      >
+        <div
+          v-if="props.direction === 'horizontal' && props.expandDirection === 'right' && !props.disabled"
+          class="absolute right-0 h-full w-[16px]"
+        >
+          <div class="expand-icon expand-icon--left" @click="() => changeExpand()">
             <MsIcon
               :type="isExpanded ? 'icon-icon_up-left_outlined' : 'icon-icon_down-right_outlined'"
               class="text-[var(--color-text-brand)]"
@@ -17,41 +30,30 @@
             />
           </div>
         </div>
-        <slot name="left"></slot>
+        <slot name="first"></slot>
       </div>
-      <div v-else class="ms-split-box ms-split-box--top">
-        <slot name="top"></slot>
+    </template>
+    <template #resize-trigger>
+      <div :class="props.direction === 'horizontal' ? 'horizontal-expand-line' : 'vertical-expand-line'">
+        <div v-if="isExpanded" class="expand-color-line"></div>
       </div>
     </template>
     <template #second>
-      <template v-if="props.direction === 'horizontal'">
-        <div v-if="props.expandDirection === 'left'" class="absolute flex h-full w-[16px] items-center">
-          <div class="expand-icon" @click="changeLeftExpand">
-            <MsIcon
-              :type="isExpanded ? 'icon-icon_up-left_outlined' : 'icon-icon_down-right_outlined'"
-              class="text-[var(--color-text-brand)]"
-              size="12"
-            />
-          </div>
+      <div
+        v-if="props.direction === 'horizontal' && props.expandDirection === 'left' && !props.disabled"
+        class="absolute h-full w-[16px]"
+      >
+        <div class="expand-icon" @click="() => changeExpand()">
+          <MsIcon
+            :type="isExpanded ? 'icon-icon_up-left_outlined' : 'icon-icon_down-right_outlined'"
+            class="text-[var(--color-text-brand)]"
+            size="12"
+          />
         </div>
-        <div class="ms-split-box ms-split-box--right">
-          <slot name="right"></slot>
-        </div>
-      </template>
-      <template v-else>
-        <div class="absolute top-0 flex h-[16px] w-full items-center justify-center">
-          <div class="expand-icon expand-icon--vertical" @click="changeLeftExpand">
-            <MsIcon
-              :type="isExpanded ? 'icon-icon_up-left_outlined' : 'icon-icon_down-right_outlined'"
-              class="text-[var(--color-text-brand)]"
-              size="12"
-            />
-          </div>
-        </div>
-        <div class="ms-split-box ms-split-box--bottom">
-          <slot name="bottom"></slot>
-        </div>
-      </template>
+      </div>
+      <div :class="`ms-split-box ${props.direction === 'horizontal' ? 'ms-split-box--right' : 'ms-split-box--bottom'}`">
+        <slot name="second"></slot>
+      </div>
     </template>
   </a-split>
 </template>
@@ -68,6 +70,7 @@
       max?: number | string;
       direction?: 'horizontal' | 'vertical';
       expandDirection?: 'left' | 'right' | 'top'; // TODO: 未实现 bottom，有场景再补充。目前默认水平是 left，垂直是 top
+      disabled?: boolean; // 是否禁用
     }>(),
     {
       size: '300px',
@@ -81,6 +84,9 @@
   const emit = defineEmits(['update:size', 'expandChange']);
 
   const innerSize = ref(props.size || '300px');
+  const initialSize = props.size || '300px';
+  const isExpanded = ref(true);
+  const isExpandAnimating = ref(false); // 控制动画类
 
   watch(
     () => props.size,
@@ -98,32 +104,45 @@
     }
   );
 
-  const isExpanded = ref(true);
-  const isExpandAnimating = ref(false); // 控制动画类
-
-  function changeLeftExpand() {
+  function expand(size?: string | number) {
     isExpandAnimating.value = true;
-    isExpanded.value = !isExpanded.value;
-    if (isExpanded.value) {
-      innerSize.value = props.size || '300px'; // 按初始化的 size 展开，无论是水平还是垂直，都是宽度/高度
-      emit('expandChange', true);
-    } else {
-      innerSize.value = props.expandDirection === 'right' ? 1 : '0px'; // expandDirection为 right 时，收起即为把左侧容器宽度提到 100%
-      emit('expandChange', false);
-    }
+    isExpanded.value = true;
+    innerSize.value = size || initialSize || '300px'; // 按初始化的 size 展开，无论是水平还是垂直，都是宽度/高度
+    emit('expandChange', true);
     // 动画结束，去掉动画类
     setTimeout(() => {
       isExpandAnimating.value = false;
     }, 300);
   }
+
+  function collapse(size?: string | number) {
+    isExpandAnimating.value = true;
+    isExpanded.value = false;
+    innerSize.value = props.expandDirection === 'right' ? 1 : size || '0px'; // expandDirection为 right 时，收起即为把左侧容器宽度提到 100%
+    emit('expandChange', false);
+    // 动画结束，去掉动画类
+    setTimeout(() => {
+      isExpandAnimating.value = false;
+    }, 300);
+  }
+
+  function changeExpand() {
+    if (isExpanded.value) {
+      collapse();
+    } else {
+      expand();
+    }
+  }
+
+  defineExpose({
+    expand,
+    collapse,
+  });
 </script>
 
 <style lang="less" scoped>
   /* stylelint-disable value-keyword-case */
   .expanded-panel {
-    :deep(.arco-split-trigger) {
-      @apply hidden;
-    }
     :deep(.arco-split-pane) {
       @apply relative overflow-hidden;
     }
@@ -146,8 +165,10 @@
     width: calc(v-bind(innerSize) - 4px);
   }
   .expand-icon {
-    @apply z-10 flex cursor-pointer justify-center;
+    @apply relative z-20 flex cursor-pointer justify-center;
 
+    top: 25%;
+    transform: translateY(50%);
     padding: 12px 2px;
     border-radius: 0 var(--border-radius-small) var(--border-radius-small) 0;
     background-color: var(--color-text-n8);
@@ -158,15 +179,50 @@
   :deep(.arco-split-trigger-icon) {
     font-size: 14px;
   }
-  .ms-split-box--bottom {
-    @apply h-full;
-  }
-  .expand-icon--vertical {
-    @apply rotate-90;
-  }
   .expand-icon--left {
     @apply rotate-180;
 
     border-radius: 0 var(--border-radius-small) var(--border-radius-small) 0;
+  }
+  .horizontal-expand-line {
+    padding: 0 1px;
+    height: 100%;
+    .expand-color-line {
+      width: 1px;
+      height: 100%;
+      background-color: var(--color-text-n8);
+    }
+    &:hover,
+    &:active {
+      background-color: rgb(var(--primary-5));
+      .expand-color-line {
+        background-color: transparent;
+      }
+    }
+  }
+  .ms-split-box--vertical {
+    .ms-split-box--bottom {
+      @apply h-full bg-white;
+    }
+    .vertical-expand-line {
+      @apply relative z-10 flex items-center justify-center bg-transparent;
+      &::before {
+        @apply absolute w-full;
+
+        margin-bottom: -4px;
+        height: 4px;
+        box-shadow: 0 -1px 4px 0 rgb(31 35 41 / 10%), 0 -1px 4px 0 rgb(255 255 255), 0 -1px 4px 0 rgb(255 255 255),
+          0 -1px 4px 0 rgb(255 255 255);
+        content: '';
+      }
+      // .expand-icon--vertical {
+      //   width: 20px;
+      //   height: 0;
+      //   margin-top: 4px;
+      //   background-color: transparent;
+      //   border-radius: 2px;
+      //   background-color: var(--color-text-n8);
+      // }
+    }
   }
 </style>

@@ -86,12 +86,12 @@
   </MsCard>
   <MsCard class="mt-[16px]" :special-height="180" simple has-breadcrumb no-content-padding>
     <MsSplitBox>
-      <template #left>
+      <template #first>
         <div class="p-[24px]">
           <CaseTree ref="folderTreeRef" @folder-node-select="handleFolderNodeSelect" />
         </div>
       </template>
-      <template #right>
+      <template #second>
         <CaseTable :active-folder="activeFolderId"></CaseTable>
       </template>
     </MsSplitBox>

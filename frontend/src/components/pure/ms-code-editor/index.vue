@@ -4,7 +4,7 @@
       <slot name="title">
         <span class="font-medium">{{ title }}</span>
       </slot>
-      <div class="w-[96px] cursor-pointer text-right !text-[var(--color-text-4)]" @click="toggle">
+      <div v-if="showFullScreen" class="w-[96px] cursor-pointer text-right !text-[var(--color-text-4)]" @click="toggle">
         <MsIcon v-if="isFullscreen" type="icon-icon_minify_outlined" />
         <MsIcon v-else type="icon-icon_magnify_outlined" />
         {{ t('msCodeEditor.fullScreen') }}

@@ -203,7 +203,7 @@
 }
 
 /** 容器内部上下阴影类 **/
-.ms-container--shadow() {
+.ms-container--shadow-y() {
   @apply relative;
   &::before {
     position: absolute;
@@ -232,5 +232,41 @@
   }
   &-shadow-bottom::after {
     box-shadow: inset 0 -10px 6px -10px rgb(0 0 0 / 15%);
+  }
+}
+
+/** 输入框组合-选择器后缀样式类 **/
+.ms-input-group--append() {
+  :deep(.arco-input-append) {
+    @apply border-none;
+  }
+  :deep(.select-input-append) {
+    @apply z-10;
+
+    margin-left: -16px !important;
+    border-radius: 0 4px 4px 0 !important;
+    background-color: var(--color-text-n8) !important;
+    &:hover {
+      border-color: rgb(var(--primary-5)) !important;
+      background-color: var(--color-text-n8) !important;
+    }
+  }
+}
+
+/** 输入框组合-选择器前缀样式类 **/
+.ms-input-group--prepend() {
+  :deep(.arco-input-prepend) {
+    @apply border-none;
+  }
+  :deep(.select-input-prepend) {
+    @apply z-10;
+
+    margin-right: -16px !important;
+    border-radius: 4px 0 0 4px !important;
+    background-color: var(--color-text-n8) !important;
+    &:hover {
+      border-color: rgb(var(--primary-5)) !important;
+      background-color: var(--color-text-n8) !important;
+    }
   }
 }

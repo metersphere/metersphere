@@ -83,4 +83,8 @@ export const editorProps = {
   title: {
     type: String as PropType<string>,
   },
+  showFullScreen: {
+    type: Boolean as PropType<boolean>,
+    default: true,
+  },
 };

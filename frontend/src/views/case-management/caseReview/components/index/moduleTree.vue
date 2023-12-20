@@ -115,7 +115,6 @@
   const props = defineProps<{
     isModal?: boolean; // 是否是弹窗模式
     modulesCount?: Record<string, number>; // 模块数量统计对象
-    showType?: string; // 显示类型
     isExpandAll?: boolean; // 是否展开所有节点
   }>();
   const emit = defineEmits(['init', 'folderNodeSelect']);

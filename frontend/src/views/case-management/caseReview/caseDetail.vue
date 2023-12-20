@@ -39,7 +39,7 @@
             >
               <div class="mb-[4px] flex items-center justify-between">
                 <div>{{ item.id }}</div>
-                <div class="flex items-center gap-[4px]">
+                <div class="flex items-center gap-[4px] leading-[22px]">
                   <MsIcon
                     :type="resultMap[item.result as ResultMap].icon"
                     :style="{color: resultMap[item.result as ResultMap].color}"
@@ -127,10 +127,10 @@
             <MsDescription v-if="showTab === 'baseInfo'" :descriptions="descriptions" label-width="90px" />
             <div v-else-if="showTab === 'detail'" class="h-full">
               <MsSplitBox :size="0.8" direction="vertical" min="0" :max="0.99">
-                <template #top>
+                <template #first>
                   <caseTabDetail :form="detailForm" :allow-edit="false" />
                 </template>
-                <template #bottom>
+                <template #second>
                   <div class="flex h-full flex-col overflow-hidden">
                     <div class="mb-[8px] font-medium text-[var(--color-text-1)]">
                       {{ t('caseManagement.caseReview.reviewHistory') }}

@@ -24,6 +24,7 @@ export default {
     'menu.bugManagement': 'Bug',
     'menu.caseManagement': 'Case Management',
     'menu.apiTest': 'API Test',
+    'menu.apiTest.debug': 'API debug',
     'menu.uiTest': 'UI Test',
     'menu.performanceTest': 'Performance Test',
     'menu.projectManagement': 'Project',

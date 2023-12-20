@@ -169,7 +169,7 @@
 
 <style lang="less" scoped>
   .ms-list {
-    .ms-container--shadow();
+    .ms-container--shadow-y();
     :deep(.arco-list) {
       @apply rounded-none;
       .ms-list-item {

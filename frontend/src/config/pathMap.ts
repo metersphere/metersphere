@@ -28,6 +28,23 @@ export interface PathMapItem {
  */
 export const pathMap: PathMapItem[] = [
   {
+    key: 'API_TEST', // 接口测试
+    locale: 'menu.apiTest',
+    route: RouteEnum.API_TEST,
+    permission: [],
+    level: MENU_LEVEL[2],
+    children: [
+      {
+        key: 'API_TEST_DEBUG', // 接口测试
+        locale: 'menu.apiTest.debug',
+        route: RouteEnum.API_TEST_DEBUG,
+        permission: [],
+        level: MENU_LEVEL[2],
+        children: [],
+      },
+    ],
+  },
+  {
     key: 'CASE_MANAGEMENT', // 功能测试
     locale: 'menu.caseManagement',
     route: RouteEnum.CASE_MANAGEMENT,
@@ -41,13 +58,6 @@ export const pathMap: PathMapItem[] = [
         permission: [],
         level: MENU_LEVEL[2],
       },
-      // {
-      //   key: 'CASE_MANAGEMENT_CASE_DETAIL', // 功能测试-功能用例-创建用例
-      //   locale: 'menu.caseManagement.featureCaseDetail',
-      //   route: RouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
-      //   permission: [],
-      //   level: MENU_LEVEL[2],
-      // },
       {
         key: 'CASE_MANAGEMENT_REVIEW', // 功能测试-功能用例-用例评审
         locale: 'menu.caseManagement.caseManagementReview',
@@ -55,6 +65,27 @@ export const pathMap: PathMapItem[] = [
         permission: [],
         level: MENU_LEVEL[2],
         children: [
+          {
+            key: 'CASE_MANAGEMENT_CASE_DETAIL', // 功能测试-功能用例详情
+            locale: 'menu.caseManagement.featureCaseDetail',
+            route: RouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
+            permission: [],
+            level: MENU_LEVEL[2],
+          },
+          {
+            key: 'CASE_MANAGEMENT_CASE_CREATE_SUCCESS', // 功能测试-功能用例创建成功页面
+            locale: 'menu.caseManagement.featureCaseCreateSuccess',
+            route: RouteEnum.CASE_MANAGEMENT_CASE_CREATE_SUCCESS,
+            permission: [],
+            level: MENU_LEVEL[2],
+          },
+          {
+            key: 'CASE_MANAGEMENT_CASE_RECYCLE', // 功能测试-功能用例-回收站
+            locale: 'menu.caseManagement.featureCaseRecycle',
+            route: RouteEnum.CASE_MANAGEMENT_CASE_RECYCLE,
+            permission: [],
+            level: MENU_LEVEL[2],
+          },
           {
             key: 'CASE_MANAGEMENT_REVIEW_CREATE', // 功能测试-功能用例-创建评审
             locale: 'menu.caseManagement.caseManagementReviewCreate',
@@ -387,43 +418,6 @@ export const pathMap: PathMapItem[] = [
         key: 'PROJECT_MANAGEMENT_LOG', // 项目管理-日志
         locale: 'menu.projectManagement.log',
         route: RouteEnum.PROJECT_MANAGEMENT_LOG,
-        permission: [],
-        level: MENU_LEVEL[2],
-      },
-    ],
-  },
-  {
-    key: 'CASE_MANAGEMENT', // 功能测试
-    locale: 'menu.caseManagement',
-    route: RouteEnum.CASE_MANAGEMENT,
-    permission: [],
-    level: MENU_LEVEL[2],
-    children: [
-      {
-        key: 'CASE_MANAGEMENT_CASE', // 功能测试-功能用例
-        locale: 'menu.caseManagement.featureCase',
-        route: RouteEnum.CASE_MANAGEMENT_CASE,
-        permission: [],
-        level: MENU_LEVEL[2],
-      },
-      {
-        key: 'CASE_MANAGEMENT_CASE_DETAIL', // 功能测试-功能用例详情
-        locale: 'menu.caseManagement.featureCaseDetail',
-        route: RouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
-        permission: [],
-        level: MENU_LEVEL[2],
-      },
-      {
-        key: 'CASE_MANAGEMENT_CASE_CREATE_SUCCESS', // 功能测试-功能用例创建成功页面
-        locale: 'menu.caseManagement.featureCaseCreateSuccess',
-        route: RouteEnum.CASE_MANAGEMENT_CASE_CREATE_SUCCESS,
-        permission: [],
-        level: MENU_LEVEL[2],
-      },
-      {
-        key: 'CASE_MANAGEMENT_CASE_RECYCLE', // 功能测试-功能用例-回收站
-        locale: 'menu.caseManagement.featureCaseRecycle',
-        route: RouteEnum.CASE_MANAGEMENT_CASE_RECYCLE,
         permission: [],
         level: MENU_LEVEL[2],
       },

@@ -1,7 +1,7 @@
 @font-face {
   font-family: iconfont; /* Project id 3462279 */
-  src: url('iconfont.woff2?t=1700812414583') format('woff2'), url('iconfont.woff?t=1700812414583') format('woff'),
-    url('iconfont.ttf?t=1700812414583') format('truetype'), url('iconfont.svg?t=1700812414583#iconfont') format('svg');
+  src: url('iconfont.woff2?t=1702433539155') format('woff2'), url('iconfont.woff?t=1702433539155') format('woff'),
+    url('iconfont.ttf?t=1702433539155') format('truetype'), url('iconfont.svg?t=1702433539155#iconfont') format('svg');
 }
 .iconfont {
   font-size: 16px;
@@ -9,6 +9,27 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+.icon-icon_keyboard::before {
+  content: '\e796';
+}
+.icon-icon_split-turn-down-left::before {
+  content: '\e795';
+}
+.icon-icon_checkbox1::before {
+  content: '\e794';
+}
+.icon-icon_flashlamp::before {
+  content: '\e793';
+}
+.icon-icon_clear::before {
+  content: '\e792';
+}
+.icon-icon_expand-text-input::before {
+  content: '\e791';
+}
+.icon-icon_mock::before {
+  content: '\e790';
 }
 .icon-icon_text-wrap-overflow::before {
   content: '\e78f';

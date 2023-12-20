@@ -1,9 +1,10 @@
 <template>
   <div
     :class="`ms-button ms-button-${props.type} ms-button--${props.status} ${
-      props.disabled || props.loading ? `ms-button--${props.status}--disabled` : ''
+      props.disabled || props.loading ? `ms-button--disabled ms-button--${props.status}--disabled` : ''
     }`"
-    @click="clickHandler"
+    :disabled="props.disabled"
+    @click.stop="clickHandler"
   >
     <slot></slot>
     <icon-loading v-if="props.loading" />
@@ -91,5 +92,11 @@
       color: rgb(var(--danger-6));
       background-color: rgb(var(--danger-1));
     }
+  }
+  .ms-button--disabled {
+    @apply cursor-not-allowed;
+  }
+  .ms-button--secondary--disabled {
+    color: var(--color-text-brand);
   }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <MsSplitBox>
-      <template #left>
+      <template #first>
         <div class="p-[24px]">
           <div class="folder" @click="setActiveFolder('my')">
             <div :class="getFolderClass('my')">
@@ -74,7 +74,7 @@
           </div>
         </div>
       </template>
-      <template #right>
+      <template #second>
         <rightBox
           :active-folder="activeFolder"
           :active-folder-type="activeFolderType"

@@ -357,7 +357,7 @@ export default function useTableProps<T>(
         resetSelector();
       } else {
         resetSelector(false);
-        data.forEach((item) => {
+        data.forEach((item: Record<string, any>) => {
           if (item[rowKey] && !selectedKeys.has(item[rowKey])) {
             selectedKeys.add(item[rowKey]);
           }
@@ -386,22 +386,24 @@ export default function useTableProps<T>(
   });
 
   watchEffect(() => {
-    const { heightUsed, showPagination, selectedKeys, msPagination } = propsRes.value;
-    let hasFooterAction = false;
-    if (showPagination) {
-      const { pageSize, total } = msPagination as Pagination;
-      /*
-       * 是否有底部操作栏 包括 批量操作 和 分页器
-       * 1. 有分页器，且总条数大于每页条数
-       * 2. 有选中项
-       */
-      hasFooterAction = total > pageSize || selectedKeys.size > 0;
-    }
+    if (props?.heightUsed) {
+      const { heightUsed, showPagination, selectedKeys, msPagination } = propsRes.value;
+      let hasFooterAction = false;
+      if (showPagination) {
+        const { pageSize, total } = msPagination as Pagination;
+        /*
+         * 是否有底部操作栏 包括 批量操作 和 分页器
+         * 1. 有分页器，且总条数大于每页条数
+         * 2. 有选中项
+         */
+        hasFooterAction = total > pageSize || selectedKeys.size > 0;
+      }
 
-    const currentY =
-      appStore.innerHeight - (heightUsed || defaultHeightUsed) + (hasFooterAction ? 0 : footerActionWrapHeight);
-    propsRes.value.showFooterActionWrap = hasFooterAction;
-    propsRes.value.scroll = { ...propsRes.value.scroll, y: currentY };
+      const currentY =
+        appStore.innerHeight - (heightUsed || defaultHeightUsed) + (hasFooterAction ? 0 : footerActionWrapHeight);
+      propsRes.value.showFooterActionWrap = hasFooterAction;
+      propsRes.value.scroll = { ...propsRes.value.scroll, y: currentY };
+    }
   });
 
   return {
