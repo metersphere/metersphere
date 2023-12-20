@@ -302,7 +302,6 @@ export default {
     },
     cancel() {
       this.handleClose();
-      this.$emit("refresh");
     },
     saveCase(command) {
       let param = {};
