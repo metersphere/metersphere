@@ -150,6 +150,9 @@ public class UserDataListener extends EasyExcelListener<UserExcelData> {
     private String checkWorkSpace(String userRoleInExcel, String workspaceInfoInExcel) {
         String result = null;
         if (StringUtils.equalsIgnoreCase(Translator.get("options_yes"), userRoleInExcel)) {
+            if(StringUtils.isBlank(workspaceInfoInExcel)){
+                return result;
+            }
             String[] workspaceArr = workspaceInfoInExcel.split(StringUtils.LF);
             for (String workspace :
                     workspaceArr) {
@@ -175,6 +178,9 @@ public class UserDataListener extends EasyExcelListener<UserExcelData> {
     private String checkProject(String userGroupInExcel, String projectInfoInExcel) {
         String result = null;
         if (StringUtils.equalsAnyIgnoreCase(Translator.get("options_yes"), userGroupInExcel)) {
+            if(StringUtils.isBlank(projectInfoInExcel)){
+                return result;
+            }
             String[] projectNameArr = projectInfoInExcel.split(StringUtils.LF);
             for (String projectName : projectNameArr) {
                 if (!projectNameMap.containsKey(projectName)) {
@@ -200,6 +206,9 @@ public class UserDataListener extends EasyExcelListener<UserExcelData> {
     private List<String> getIdByExcelInfoAndIdDic(String userRoleInExcel, String nameStringInExce, Map<String, String> idDic) {
         List<String> resultList = new ArrayList<>();
         if (StringUtils.equalsIgnoreCase(Translator.get("options_yes"), userRoleInExcel)) {
+            if(StringUtils.isBlank(nameStringInExce)){
+                return resultList;
+            }
             String[] nameArr = nameStringInExce.split(StringUtils.LF);
             for (String name : nameArr) {
                 if (idDic.containsKey(name)) {
