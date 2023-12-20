@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    :title="this.$t('test_track.case.select_catalog')"
+    :title="this.$t('test_track.case.dump_module')"
     :visible.sync="dialogVisible"
     :before-close="close"
     :destroy-on-close="true"
@@ -40,10 +40,10 @@
 </template>
 
 <script>
-import { getFileModules } from 'metersphere-frontend/src/api/file-metadata';
+import {getFileModules} from 'metersphere-frontend/src/api/file-metadata';
 import MsDialogFooter from 'metersphere-frontend/src/components/MsDialogFooter';
-import { buildTree } from 'metersphere-frontend/src/model/NodeTree';
-import { getCurrentProjectID } from 'metersphere-frontend/src/utils/token';
+import {buildTree} from 'metersphere-frontend/src/model/NodeTree';
+import {getCurrentProjectID} from 'metersphere-frontend/src/utils/token';
 
 export default {
   name: 'MsFileBatchMove',
@@ -82,7 +82,7 @@ export default {
       this.loading = true;
       this.result = getFileModules(getCurrentProjectID()).then((response) => {
         if (response.data != undefined && response.data != null) {
-          this.treeNodes = response.data;
+          this.treeNodes = response.data.filter(node => node['moduleType'] !== 'repository');
           this.treeNodes.forEach((node) => {
             node.name = node.name === 'DEF_MODULE' ? this.$t('commons.module_title') : node.name;
             buildTree(node, { path: '' });
