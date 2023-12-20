@@ -19,7 +19,7 @@ public class BasePageRequest extends BaseCondition {
     private int current;
 
     @Min(value = 5, message = "每页显示条数必须不小于5")
-    @Max(value = 100, message = "每页显示条数不能大于100")
+    @Max(value = 500, message = "每页显示条数不能大于500")
     @Schema(description =  "每页显示条数")
     private int pageSize;
 
