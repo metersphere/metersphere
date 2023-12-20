@@ -287,6 +287,7 @@ public class FileMetadataService {
         String filePath = fileService.upload(file, uploadFileRequest);
 
         if (TempFileUtils.isImage(fileMetadata.getType())) {
+            //图片文件自动生成预览图
             byte[] previewImg = TempFileUtils.compressPic(file.getBytes());
             uploadFileRequest.setFolder(DefaultRepositoryDir.getFileManagementPreviewDir(fileMetadata.getProjectId()));
             fileService.upload(previewImg, uploadFileRequest);

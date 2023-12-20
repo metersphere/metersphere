@@ -63,7 +63,6 @@ public class TempFileUtils {
                 g2d.drawImage(originalImage, 0, 0, previewWidth, previewHeight, null);
                 g2d.dispose();
                 ImageIO.setUseCache(false);
-
                 ImageIO.write(previewImage, "JPEG", outputStream);
                 return outputStream.toByteArray();
             } catch (Exception e) {
