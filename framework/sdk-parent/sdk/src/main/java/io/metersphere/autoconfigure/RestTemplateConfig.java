@@ -1,8 +1,10 @@
 package io.metersphere.autoconfigure;
 
 
+import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.utils.LoggerUtil;
 import org.apache.hc.client5.http.ConnectTimeoutException;
@@ -81,6 +83,8 @@ public class RestTemplateConfig {
     @Bean
     public ObjectMapper objectMapper() {
         ObjectMapper mapper = new ObjectMapper();
+        mapper.getFactory()
+                .setStreamReadConstraints(StreamReadConstraints.builder().maxStringLength(JSON.DEFAULT_MAX_STRING_LEN).build());
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         return mapper;
     }
