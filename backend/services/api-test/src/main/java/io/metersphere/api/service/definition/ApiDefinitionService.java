@@ -676,8 +676,9 @@ public class ApiDefinitionService {
                 handleMultipleVersions(apiDefinition);
             }
 
+            ApiDefinitionModule apiDefinitionModule = apiDefinitionModuleMapper.selectByPrimaryKey(apiDefinition.getModuleId());
             // 判断接口的模块 ID 是否存在，不存在修改模块 ID 为未规划模块 ID
-            if (!ModuleConstants.DEFAULT_NODE_ID.equals(apiDefinition.getModuleId()) && moduleNeedsUpdate(apiDefinition.getModuleId()) == null) {
+            if (!ModuleConstants.DEFAULT_NODE_ID.equals(apiDefinition.getModuleId()) && apiDefinitionModule == null) {
                 updateApiIds.add(apiDefinition.getId());
             }
 
@@ -686,12 +687,6 @@ public class ApiDefinitionService {
         handleModule(updateApiIds);
         // 恢复接口关联数据
         recoverApiRelatedData(apiIds, userId, projectId);
-    }
-
-    private ApiDefinitionModule moduleNeedsUpdate(String moduleId) {
-        ApiDefinitionModule apiDefinitionModule;
-        apiDefinitionModule = apiDefinitionModuleMapper.selectByPrimaryKey(moduleId);
-        return apiDefinitionModule;
     }
 
     private void handleModule(List<String> updateApiIds) {
@@ -838,7 +833,7 @@ public class ApiDefinitionService {
                 if(ApiDefinitionDocType.ALL.name().equals(request.getType())){
                     apiDefinitionDocDTO.setDocTitle(Translator.get(ALL_API));
                 } else {
-                    ApiDefinitionModule apiDefinitionModule = moduleNeedsUpdate(first.getModuleId());
+                    ApiDefinitionModule apiDefinitionModule = apiDefinitionModuleMapper.selectByPrimaryKey(first.getModuleId());
                     if (apiDefinitionModule != null) {
                         apiDefinitionDocDTO.setDocTitle(apiDefinitionModule.getName());
                     } else {
