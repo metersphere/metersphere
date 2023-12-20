@@ -1849,17 +1849,18 @@ export default {
         this.debugLoading = false;
         return;
       }
-      let enableArray;
-      for (let i = 0; i < this.scenarioDefinition.length; i++) {
-        if (this.scenarioDefinition[i].enable) {
-          enableArray = this.scenarioDefinition[i];
-          break;
+      if (runScenario && !runScenario.stepScenario) {
+        let enableArray = 0;
+        for (let i = 0; i < this.scenarioDefinition.length; i++) {
+          if (!this.scenarioDefinition[i].enable) {
+            enableArray ++;
+          }
         }
-      }
-      if (!enableArray) {
-        this.$warning(this.$t('api_test.definition.request.debug_warning'));
-        this.debugLoading = false;
-        return;
+        if (enableArray > 0 && enableArray === this.scenarioDefinition.length) {
+          this.$warning(this.$t('api_test.definition.request.debug_warning'));
+          this.debugLoading = false;
+          return;
+        }
       }
 
       this.stopDebug = '';
