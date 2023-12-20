@@ -106,10 +106,9 @@
               </span>
 
               <span v-else-if="item.id === 'caseCount'">
-                 <router-link
-                   :to="scope.row.caseCount > 0 ? {name: 'testCase', params: { projectId: 'all', ids: scope.row.caseIds }} : {}">
-                   {{ scope.row.caseCount }}
-                 </router-link>
+                 <el-link type="primary" class="member-size" @click="handleEdit(scope.row)">
+                  {{ scope.row.caseCount }}
+                </el-link>
               </span>
 
               <!-- 自定义字段 -->
