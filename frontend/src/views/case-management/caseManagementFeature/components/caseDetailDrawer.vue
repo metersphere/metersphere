@@ -14,7 +14,7 @@
     @loaded="loadedCase"
   >
     <template #titleLeft>
-      <div class="flex items-center"><caseLevel :case-level="(caseLevels as CaseLevel)" /></div>
+      <div class="flex items-center"><caseLevel :case-level="caseLevels" /></div>
     </template>
     <template #titleRight="{ loading }">
       <div class="rightButtons flex items-center">
@@ -118,7 +118,7 @@
                   <TabCaseTable v-else-if="activeTab === 'case'" />
                   <TabDefect v-else-if="activeTab === 'bug'" />
                   <TabDependency v-else-if="activeTab === 'dependency'" />
-                  <TabCaseReview v-else-if="activeTab === 'caseReview'" />
+                  <TabCaseReview v-else-if="activeTab === 'caseReview'" :case-id="props.detailId" />
                   <TabTestPlan v-else-if="activeTab === 'testPlan'" />
                   <TabComment v-else-if="activeTab === 'comments'" :case-id="props.detailId" />
                   <TabChangeHistory v-else-if="activeTab === 'changeHistory'" />
@@ -296,13 +296,13 @@
 
   const detailInfo = ref<DetailCase>({ ...initDetail });
   const customFields = ref<CustomAttributes[]>([]);
-  const caseLevels = ref(0);
+  const caseLevels = ref<CaseLevel>(0);
   function loadedCase(detail: DetailCase) {
     detailInfo.value = { ...detail };
     customFields.value = detailInfo.value.customFields;
     const caseLevelsValue = customFields.value.find((item) => item.fieldName === '用例等级')?.defaultValue;
     if (caseLevelsValue) {
-      caseLevels.value = JSON.parse(caseLevelsValue).replaceAll('P', '') * 1;
+      caseLevels.value = (JSON.parse(caseLevelsValue).replaceAll('P', '') * 1) as CaseLevel;
     }
   }
 

@@ -7,6 +7,8 @@
         :placeholder="t('caseManagement.featureCase.searchByNameAndId')"
         allow-clear
         class="mx-[8px] w-[240px]"
+        @search="searchList"
+        @press-enter="searchList"
       ></a-input-search>
     </div>
     <ms-base-table v-bind="propsRes" v-on="propsEvent">
@@ -28,12 +30,18 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import statusTag from '@/views/case-management/caseReview/components/statusTag.vue';
 
-  import { getRecycleListRequest } from '@/api/modules/case-management/featureCase';
+  import { getDetailCaseReviewPage } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
 
   import { TableKeyEnum } from '@/enums/tableEnum';
 
+  import debounce from 'lodash-es/debounce';
+
   const { t } = useI18n();
+
+  const props = defineProps<{
+    caseId: string; // 用例id
+  }>();
 
   const keyword = ref<string>('');
 
@@ -74,12 +82,25 @@
     },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getRecycleListRequest, {
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getDetailCaseReviewPage, {
     columns,
     tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_REVIEW,
     scroll: { x: '100%' },
     heightUsed: 340,
     enableDrag: true,
+  });
+
+  function initData() {
+    setLoadListParams({ keyword: keyword.value, caseId: props.caseId });
+    loadList();
+  }
+
+  const searchList = debounce(() => {
+    initData();
+  }, 100);
+
+  onBeforeMount(() => {
+    initData();
   });
 </script>
 

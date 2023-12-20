@@ -29,9 +29,12 @@
             </a-avatar>
           </template>
           <template #title>
-            <a-tooltip :content="item.file.name">
-              <div class="one-line-text max-w-[80%] font-normal">{{ item.file.name }}</div>
-            </a-tooltip>
+            <div class="flex items-center">
+              <a-tooltip :content="item.file.name">
+                <div class="one-line-text max-w-[80%] font-normal">{{ item.file.name }}</div>
+              </a-tooltip>
+              <slot name="title" :item="item"></slot>
+            </div>
           </template>
           <template #description>
             <div v-if="item.status === UploadStatus.init" class="text-[12px] leading-[16px] text-[var(--color-text-4)]">
@@ -83,7 +86,13 @@
             >
               {{ t('ms.upload.reUpload') }}
             </MsButton>
-            <MsButton v-if="props.showDelete" type="button" status="danger" class="!mr-[4px]" @click="deleteFile(item)">
+            <MsButton
+              v-if="props.showDelete"
+              type="button"
+              :status="item.deleteContent ? 'primary' : 'danger'"
+              class="!mr-[4px]"
+              @click="deleteFile(item)"
+            >
               {{ t(item.deleteContent) || t('ms.upload.delete') }}
             </MsButton>
             <slot name="actions" :item="item"></slot>

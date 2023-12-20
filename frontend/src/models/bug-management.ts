@@ -26,4 +26,11 @@ export interface BugExportParams extends BatchApiParams {
   bugExportColumns: BugExportColumn[]; // 导出字段
 }
 
+// 获取默认模版缺陷
+export interface DefaultTemplate {
+  id: string;
+  projectId: string;
+  fromStatusId?: string;
+  platformBugKey?: string;
+}
 export default {};

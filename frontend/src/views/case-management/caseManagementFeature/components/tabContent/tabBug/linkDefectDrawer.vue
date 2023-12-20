@@ -135,7 +135,7 @@
   }
 
   onMounted(() => {
-    getFetch();
+    // getFetch();
   });
 </script>
 

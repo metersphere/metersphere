@@ -8,6 +8,7 @@ import {
   BatchEditCaseUrl,
   BatchMoveCaseUrl,
   CancelAssociationDemandUrl,
+  checkFileIsUpdateUrl,
   CreateCaseModuleTreeUrl,
   CreateCaseUrl,
   CreateCommentItemUrl,
@@ -26,6 +27,8 @@ import {
   GetCommentListUrl,
   GetDefaultTemplateFieldsUrl,
   GetDemandListUrl,
+  GetDetailCaseReviewUrl,
+  GetFileIsUpdateUrl,
   GetRecycleCaseListUrl,
   GetRecycleCaseModulesCountUrl,
   GetSearchCustomFieldsUrl,
@@ -215,12 +218,21 @@ export function getTransferFileTree(projectId: string) {
 
 // 预览文件
 export function previewFile(data: OperationFile) {
-  return MSR.post({ url: PreviewFileUrl, data });
+  return MSR.post({ url: PreviewFileUrl, data, responseType: 'blob' }, { isTransformResponse: false });
 }
 
 // 下载文件
 export function downloadFileRequest(data: OperationFile) {
   return MSR.post({ url: DownloadFileUrl, data, responseType: 'blob' }, { isTransformResponse: false });
+}
+// 检查文件是否更新
+export function checkFileIsUpdateRequest(data: string[]) {
+  return MSR.post({ url: checkFileIsUpdateUrl, data });
+}
+
+// 更新文件
+export function updateFile(projectId: string, id: string) {
+  return MSR.get({ url: `${GetFileIsUpdateUrl}/${projectId}/${id}` });
 }
 
 // 删除文件或取消关联用例文件
@@ -250,6 +262,11 @@ export function UpdateCommentList(data: CreateOrUpdate) {
 // 删除评论
 export function DeleteCommentList(commentId: string) {
   return MSR.post({ url: `${DeleteCommentItemUrl}/${commentId}` });
+}
+
+// 评审
+export function getDetailCaseReviewPage(data: TableQueryParams) {
+  return MSR.post<CommonList<CaseManagementTable>>({ url: GetDetailCaseReviewUrl, data });
 }
 
 export default {};

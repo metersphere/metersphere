@@ -2,9 +2,15 @@
   <MsCaseAssociate
     v-model:visible="innerVisible"
     v-model:project="innerProject"
+    v-model:currentSelectCase="currentSelectCase"
     :ok-button-disabled="associateForm.reviewers.length === 0"
     :get-modules-func="getCaseModuleTree"
-    @success="writeAssociateCases"
+    :modules-count="modulesCount"
+    :get-table-func="getCaseList"
+    :associated-ids="associatedIds"
+    :confirm-loading="confirmLoading"
+    @init="getModuleCount"
+    @save="saveHandler"
   >
     <template #footerLeft>
       <a-form ref="associateFormRef" :model="associateForm">
@@ -71,11 +77,13 @@
   import MsSelect from '@/components/business/ms-select';
 
   import { getReviewUsers } from '@/api/modules/case-management/caseReview';
-  import { getCaseModuleTree } from '@/api/modules/case-management/featureCase';
+  import { getCaseList, getCaseModulesCounts, getCaseModuleTree } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useLocale from '@/locale/useLocale';
   import useAppStore from '@/store/modules/app';
 
+  import type { CaseModuleQueryParams } from '@/models/caseManagement/featureCase';
+  import type { TableQueryParams } from '@/models/common';
   import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
 
   const props = defineProps<{
@@ -88,7 +96,6 @@
     (e: 'success', val: string[]): void;
     (e: 'close'): void;
   }>();
-
   const router = useRouter();
   const appStore = useAppStore();
   const { currentLocale } = useLocale();
@@ -157,9 +164,21 @@
     }
   }
 
-  function writeAssociateCases(ids: string[]) {
-    emit('success', ids);
+  const currentSelectCase = ref<string | number | Record<string, any> | undefined>('');
+  const modulesCount = ref<Record<string, any>>({});
+
+  async function getModuleCount(params: CaseModuleQueryParams) {
+    try {
+      modulesCount.value = await getCaseModulesCounts(params);
+    } catch (error) {
+      console.log(error);
+    }
   }
+
+  const associatedIds = ref<string[]>([]);
+  const confirmLoading = ref<boolean>(false);
+
+  function saveHandler(params: TableQueryParams) {}
 
   onBeforeMount(() => {
     initReviewers();

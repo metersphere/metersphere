@@ -1,7 +1,7 @@
 import MSR from '@/api/http/index';
 import * as bugURL from '@/api/requrls/bug-management';
 
-import { BugExportParams, BugListItem } from '@/models/bug-management';
+import { BugExportParams, BugListItem, DefaultTemplate } from '@/models/bug-management';
 import { CommonList, TableQueryParams, TemplateOption } from '@/models/common';
 
 /**
@@ -22,7 +22,7 @@ export function updateBatchBug(data: TableQueryParams) {
 }
 
 export function createBug(data: TableQueryParams) {
-  return MSR.post({ url: bugURL.postCreateBugUrl, data });
+  return MSR.uploadFile({ url: bugURL.postCreateBugUrl }, { request: data.request, fileList: data.fileList }, '');
 }
 
 export function deleteSingleBug(data: TableQueryParams) {
@@ -43,6 +43,10 @@ export function getTemplateById(data: TableQueryParams) {
 // 获取导出字段配置
 export function getExportConfig(projectId: string) {
   return MSR.get({ url: `${bugURL.getExportConfigUrl}${projectId}` });
+}
+// 获取模版详情
+export function getTemplateDetailInfo(data: DefaultTemplate) {
+  return MSR.post({ url: `${bugURL.getTemplateDetailUrl}`, data });
 }
 
 // 同步缺陷

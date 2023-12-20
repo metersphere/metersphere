@@ -12,7 +12,7 @@
     :disabled="props.disabled"
     :class="getAllScreenClass"
     :style="{
-      width: props.isAllScreen ? `calc(100% - ${menuWidth}px - 16px)` : '100%',
+      width: props.isAllScreen ? `calc(100% - ${menuWidth}px - 16px)` : '',
     }"
     @change="handleChange"
     @before-upload="beforeUpload"

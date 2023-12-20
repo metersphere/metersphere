@@ -8,72 +8,38 @@
     :width="800"
     unmount-on-close
     :show-continue="true"
+    @continue="handleDrawerConfirm(true)"
     @confirm="handleDrawerConfirm"
     @cancel="handleDrawerCancel"
   >
     <a-form ref="formRef" :model="form" layout="vertical">
       <a-form-item
-        field="name"
+        field="title"
         :label="t('bugManagement.bugName')"
         :rules="[{ required: true, message: t('bugManagement.edit.nameIsRequired') }]"
         :placeholder="t('bugManagement.edit.pleaseInputBugName')"
       >
-        <a-input v-model="form.name" :max-length="255" show-word-limit />
+        <a-input v-model="form.title" :max-length="255" show-word-limit />
       </a-form-item>
       <a-form-item :label="t('bugManagement.edit.content')">
-        <MsRichText v-model="form.content" />
+        <MsRichText v-model="form.description" />
       </a-form-item>
-      <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('bugManagement.edit.file') }}</div>
-      <div>
-        <a-dropdown trigger="hover">
-          <template #content>
-            <MsUpload
-              v-model:file-list="fileList"
-              :auto-upload="false"
-              multiple
-              draggable
-              accept="unknown"
-              is-limit
-              size-unit="MB"
-              :max-size="500"
-            >
-              <a-doption>{{ t('bugManagement.edit.localUpload') }}</a-doption>
-            </MsUpload>
-            <a-doption>{{ t('bugManagement.edit.linkFile') }}</a-doption>
-          </template>
-          <a-button type="outline">
-            <template #icon>
-              <icon-plus />
-            </template>
-            {{ t('bugManagement.edit.uploadFile') }}
-          </a-button>
-        </a-dropdown>
-      </div>
-      <div class="mb-[8px] mt-[2px] text-[var(--color-text-4)]">{{ t('bugManagement.edit.fileExtra') }}</div>
-      <FileList
-        :show-tab="false"
-        :file-list="fileList"
-        :upload-func="uploadFile"
-        @delete-file="deleteFile"
-        @reupload="reupload"
-        @handle-preview="handlePreview"
-      >
-      </FileList>
     </a-form>
   </MsDrawer>
 </template>
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { FileItem } from '@arco-design/web-vue';
+  import { FormInstance, Message, ValidatedError } from '@arco-design/web-vue';
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
-  import FileList from '@/components/pure/ms-upload/fileList.vue';
-  import MsUpload from '@/components/pure/ms-upload/index.vue';
 
+  import { createBug, getTemplageOption, getTemplateDetailInfo } from '@/api/modules/bug-management/index';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
+
+  import { TemplateOption } from '@/models/common';
 
   const appStore = useAppStore();
 
@@ -83,54 +49,20 @@
 
   const emit = defineEmits(['update:visible']);
 
-  const fileList = ref<FileItem[]>([]);
-
   const { t } = useI18n();
 
-  const form = ref({
-    name: '',
-    content: '',
+  const templateOptions = ref<TemplateOption[]>([]);
+
+  // TODO缺陷类型
+  const initForm: any = {
+    title: '',
     templateId: '',
-    handleMan: [],
-    status: '',
-    severity: '',
-    tag: [],
-  });
-
-  // 上传文件
-  const uploadFile = (file: File) => {
-    const fileItem: FileItem = {
-      uid: `${Date.now()}`,
-      name: file.name,
-      status: 'init',
-      file,
-    };
-    fileList.value.push(fileItem);
-    return Promise.resolve(fileItem);
+    projectId: appStore.currentProjectId,
+    description: '',
+    customFields: [],
   };
 
-  // 删除文件
-  const deleteFile = (item: FileItem) => {
-    fileList.value = fileList.value.filter((e) => e.uid !== item.uid);
-  };
-
-  const reupload = (item: FileItem) => {
-    fileList.value = fileList.value.map((e) => {
-      if (e.uid === item.uid) {
-        return {
-          ...e,
-          status: 'init',
-        };
-      }
-      return e;
-    });
-  };
-
-  // 预览文件
-  const handlePreview = (item: FileItem) => {
-    const { url } = item;
-    window.open(url);
-  };
+  const form = ref({ ...initForm });
 
   const showDrawer = computed({
     get() {
@@ -141,10 +73,49 @@
     },
   });
 
+  const formRef = ref<FormInstance | null>(null);
+  const templateCustomFields = ref([]);
+  function handleDrawerCancel() {
+    formRef.value?.resetFields();
+    form.value = { ...initForm };
+    showDrawer.value = false;
+  }
+
   const drawerLoading = ref<boolean>(false);
 
-  function handleDrawerConfirm() {}
-  function handleDrawerCancel() {}
+  function handleDrawerConfirm(isContinue: boolean) {
+    formRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
+      if (!errors) {
+        drawerLoading.value = true;
+        try {
+          await createBug({ request: { ...form.value, customFields: templateCustomFields.value }, fileList: [] });
+          Message.success(t('caseManagement.featureCase.quicklyCreateDefectSuccess'));
+          if (!isContinue) {
+            handleDrawerCancel();
+          }
+          form.value = { ...initForm };
+        } catch (error) {
+          console.log(error);
+        } finally {
+          drawerLoading.value = false;
+        }
+      }
+    });
+  }
+
+  onBeforeMount(async () => {
+    templateOptions.value = await getTemplageOption({ projectId: appStore.currentProjectId });
+    form.value.templateId = templateOptions.value.find((item) => item.enableDefault)?.id as string;
+    const result = await getTemplateDetailInfo({ id: form.value.templateId, projectId: appStore.currentProjectId });
+    templateCustomFields.value = result.customFields.map((item: any) => {
+      return {
+        id: item.fieldId,
+        name: item.fieldName,
+        type: item.type,
+        value: item.defaultValue || '',
+      };
+    });
+  });
 </script>
 
 <style scoped></style>

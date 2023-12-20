@@ -102,21 +102,23 @@ export function convertToFile(fileInfo: AssociatedList): MsFileItem {
   const gatewayAddress = `${window.location.protocol}//${window.location.hostname}:${window.location.port}`;
   const fileName = fileInfo.fileType ? `${fileInfo.name}.${fileInfo.fileType || ''}` : `${fileInfo.name}`;
   const type = fileName.split('.')[1];
-  const isImage = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'svg'].some((ext) => ext === type.toLowerCase());
   const file = new File([new Blob()], `${fileName}`, {
-    type: isImage ? `image/${type}` : `application/${type}`,
+    type: `application/${type}`,
   });
   Object.defineProperty(file, 'size', { value: fileInfo.size });
+  const { id, local, isUpdateFlag, associateId } = fileInfo;
   return {
     enable: fileInfo.enable || false,
     file,
     name: fileName,
     percent: 0,
     status: 'done',
-    uid: fileInfo.id,
+    uid: id,
     url: `${gatewayAddress}/${fileInfo.filePath || ''}`,
-    local: fileInfo.local,
-    deleteContent: fileInfo.local ? '' : 'caseManagement.featureCase.cancelLink',
+    local,
+    deleteContent: local ? '' : 'caseManagement.featureCase.cancelLink',
+    isUpdateFlag,
+    associateId,
   };
 }
 

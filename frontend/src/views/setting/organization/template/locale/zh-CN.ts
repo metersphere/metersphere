@@ -133,7 +133,7 @@ export default {
   'system.orgTemplate.startState': '开始状态',
   'system.orgTemplate.endState': '结束状态',
   'system.orgTemplate.iconTip': '图标可调整状态顺序',
-  'system.orgTemplate.anyStateToAll': '任何状态可转换到改状态',
+  'system.orgTemplate.anyStateToAll': '任何状态可转换到该状态',
   'system.orgTemplate.enableAnyStateToAll': '开启',
   'system.orgTemplate.enableNotAnyStateToAll': '未开启',
   'system.orgTemplate.createFlowStep': '创建流转步骤',
