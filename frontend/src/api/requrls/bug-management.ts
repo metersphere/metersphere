@@ -7,5 +7,6 @@ export const postBatchDeleteBugUrl = '/bug/batch-delete';
 export const getTemplateUrl = '/bug/template';
 export const getTemplageOption = '/bug/template/option';
 export const getExportConfigUrl = '/bug/export/columns/';
+export const getTemplateDetailUrl = '/bug/template/detail';
 export const getSyncBugOpenSourceUrl = '/bug/sync/';
 export const postExportBugUrl = '/bug/export';

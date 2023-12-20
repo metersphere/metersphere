@@ -108,12 +108,22 @@
                 type="button"
                 status="primary"
                 class="!mr-[4px]"
+                @click="handlePreview(item)"
+              >
+                {{ t('ms.upload.preview') }}
+              </MsButton>
+              <MsButton
+                v-if="item.status !== 'init'"
+                type="button"
+                status="primary"
+                class="!mr-[4px]"
                 @click="transferFile"
               >
                 {{ t('caseManagement.featureCase.storage') }}
               </MsButton>
               <TransferModal
                 v-model:visible="transferVisible"
+                :request-fun="transferFileRequest"
                 :params="{
                   projectId: currentProjectId,
                   caseId:route.query.id as string,
@@ -135,6 +145,15 @@
             <!-- 关联文件 -->
             <div v-else class="flex flex-nowrap">
               <MsButton
+                v-if="item.status !== 'init'"
+                type="button"
+                status="primary"
+                class="!mr-[4px]"
+                @click="handlePreview(item)"
+              >
+                {{ t('ms.upload.preview') }}
+              </MsButton>
+              <MsButton
                 v-if="route.query.id"
                 type="button"
                 status="primary"
@@ -143,7 +162,20 @@
               >
                 {{ t('caseManagement.featureCase.download') }}
               </MsButton>
+              <MsButton
+                v-if="route.query.id && item.isUpdateFlag"
+                type="button"
+                status="primary"
+                @click="handleUpdateFile(item)"
+              >
+                {{ t('common.update') }}
+              </MsButton>
             </div>
+          </template>
+          <template #title="{ item }">
+            <span v-if="item.isUpdateFlag" class="ml-4 flex items-center font-normal text-[rgb(var(--warning-6))]"
+              ><icon-exclamation-circle-fill /> <span>{{ t('caseManagement.featureCase.fileIsUpdated') }}</span>
+            </span>
           </template>
         </MsFileList>
       </div>
@@ -217,6 +249,7 @@
     :get-list-request="getAssociatedFileListUrl"
     @save="saveSelectAssociatedFile"
   />
+  <a-image-preview v-model:visible="previewVisible" :src="imageUrl" />
 </template>
 
 <script setup lang="ts">
@@ -236,11 +269,14 @@
   import TransferModal from './tabContent/transferModal.vue';
 
   import {
-    deleteFileOrCancelAssociation,
+    checkFileIsUpdateRequest,
     downloadFileRequest,
     getAssociatedFileListUrl,
     getCaseDefaultFields,
     getCaseDetail,
+    previewFile,
+    transferFileRequest,
+    updateFile,
   } from '@/api/modules/case-management/featureCase';
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { getProjectFieldList } from '@/api/modules/setting/template';
@@ -452,6 +488,32 @@
     );
   });
 
+  const imageUrl = ref('');
+  const previewVisible = ref<boolean>(false);
+
+  // 预览图片
+  async function handlePreview(item: MsFileItem) {
+    try {
+      previewVisible.value = true;
+      if (item.status !== 'init') {
+        const res = await previewFile({
+          projectId: currentProjectId.value,
+          caseId: route.query.id as string,
+          fileId: item.uid,
+          local: item.local,
+        });
+        const blob = new Blob([res], { type: 'image/jpeg' });
+        imageUrl.value = URL.createObjectURL(blob);
+      } else {
+        imageUrl.value = item.url as string;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const checkUpdateFileIds = ref<string[]>([]);
+
   // 处理详情字段
   function getDetailData(detailResult: DetailCase) {
     const { customFields, attachments, steps, tags } = detailResult;
@@ -476,13 +538,13 @@
     }
     if (attachments) {
       attachmentsList.value = attachments;
-
       // 处理文件列表
       fileList.value = attachments
         .map((fileInfo: any) => {
           return {
             ...fileInfo,
             name: fileInfo.fileName,
+            isUpdateFlag: checkUpdateFileIds.value.includes(fileInfo.id),
           };
         })
         .map((fileInfo: any) => {
@@ -497,6 +559,11 @@
       isLoading.value = true;
       await getAllCaseFields();
       const detailResult: DetailCase = await getCaseDetail(route.query.id as string);
+      const fileIds = (detailResult.attachments || []).map((item: any) => item.id);
+      if (fileIds.length) {
+        checkUpdateFileIds.value = await checkFileIsUpdateRequest(fileIds);
+      }
+
       getDetailData(detailResult);
     } catch (error) {
       console.log(error);
@@ -662,6 +729,16 @@
         local: true,
       });
       downloadByteFile(res, `${item.name}`);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  // 更新文件
+  async function handleUpdateFile(item: MsFileItem) {
+    try {
+      await updateFile(currentProjectId.value, item.associationId);
+      Message.success(t('common.updateSuccess'));
     } catch (error) {
       console.log(error);
     }

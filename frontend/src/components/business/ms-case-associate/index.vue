@@ -9,11 +9,14 @@
     <template #headerLeft>
       <div class="float-left">
         <a-select
+          v-if="props?.moduleOptions"
           v-model="caseType"
           class="ml-2 max-w-[100px]"
           :placeholder="t('caseManagement.featureCase.PleaseSelect')"
         >
-          <a-option v-for="item of actionType" :key="item.value" :value="item.value">{{ item.name }}</a-option>
+          <a-option v-for="item of props?.moduleOptions" :key="item.value" :value="item.value">{{
+            t(item.label)
+          }}</a-option>
         </a-select>
       </div>
     </template>
@@ -21,7 +24,7 @@
       <div class="w-[292px] border-r border-[var(--color-text-n8)] p-[16px]">
         <div class="flex items-center justify-between">
           <MsProjectSelect v-model:project="innerProject" class="mb-[16px]" />
-          <a-select v-if="caseType === 'API'" v-model="protocolType" class="mb-[16px] ml-2 max-w-[90px]">
+          <a-select v-if="caseType === 'API_CASE'" v-model="protocolType" class="mb-[16px] ml-2 max-w-[90px]">
             <a-option v-for="item of protocolOptions" :key="item" :value="item">{{ item }}</a-option>
           </a-select>
         </div>
@@ -34,8 +37,8 @@
         <div class="folder">
           <div :class="getFolderClass('all')" @click="setActiveFolder('all')">
             <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
-            <div class="folder-name">{{ t('caseManagement.caseReview.allReviews') }}</div>
-            <div class="folder-count">({{ allCaseCount }})</div>
+            <div class="folder-name">{{ t('caseManagement.featureCase.allCase') }}</div>
+            <div class="folder-count">({{ props.modulesCount['all'] }})</div>
           </div>
         </div>
         <a-divider class="my-[8px]" />
@@ -69,6 +72,7 @@
         <MsAdvanceFilter
           v-model:keyword="keyword"
           :filter-config-list="filterConfigList"
+          :custom-fields-config-list="searchCustomFields"
           :row-count="filterRowCount"
           :search-placeholder="t('caseManagement.caseReview.searchPlaceholder')"
           @keyword-search="searchCase"
@@ -94,7 +98,7 @@
         </MsAdvanceFilter>
         <ms-base-table v-bind="propsRes" no-disable class="mt-[16px]" v-on="propsEvent">
           <template #caseLevel="{ record }">
-            <caseLevel :case-level="record.caseLevel" />
+            <caseLevel :case-level="(getCaseLevel(record) as CaseLevel)" />
           </template>
         </ms-base-table>
         <div class="footer">
@@ -103,13 +107,13 @@
           </div>
           <div class="flex items-center">
             <slot name="footerRight">
-              <a-button type="secondary" :disabled="loading" class="mr-[12px]" @click="cancel">
+              <a-button type="secondary" :disabled="props.confirmLoading" class="mr-[12px]" @click="cancel">
                 {{ t('common.cancel') }}
               </a-button>
               <a-button
                 type="primary"
-                :loading="loading"
-                :disabled="propsRes.selectedKeys.size === 0 || props.okButtonDisabled"
+                :loading="props.confirmLoading"
+                :disabled="propsRes.selectedKeys.size === 0"
                 @click="handleConfirm"
               >
                 {{ t('ms.case.associate.associate') }}
@@ -123,11 +127,10 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, onBeforeMount, ref, watch } from 'vue';
-  import { Message } from '@arco-design/web-vue';
+  import { computed, ref, watch } from 'vue';
 
-  import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
-  import { FilterFormItem } from '@/components/pure/ms-advance-filter/type';
+  import { CustomTypeMaps, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
+  import { FilterFormItem, FilterType } from '@/components/pure/ms-advance-filter/type';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -138,31 +141,42 @@
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import caseLevel from './caseLevel.vue';
 
+  import { getCustomFieldsTable } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import { mapTree } from '@/utils';
 
+  import type { CaseManagementTable, CaseModuleQueryParams } from '@/models/caseManagement/featureCase';
+  import type { CommonList, TableQueryParams } from '@/models/common';
   import { ModuleTreeNode } from '@/models/projectManagement/file';
+
+  import type { CaseLevel } from './types';
+
+  const appStore = useAppStore();
+  const { t } = useI18n();
 
   const props = defineProps<{
     visible: boolean;
     project: string;
-    getModulesFunc: (params: any) => Promise<ModuleTreeNode[]>;
-    modulesCount?: Record<string, number>; // 模块数量统计对象
+    getModulesFunc: (projectId: string) => Promise<ModuleTreeNode[]>; // 获取模块树请求
+    getTableFunc: (params: TableQueryParams) => Promise<CommonList<CaseManagementTable>>; // 获取表
+    tableParams?: TableQueryParams; // 查询表格的额外的参数
+    modulesCount: Record<string, number>; // 模块数量统计对象
     okButtonDisabled?: boolean; // 确认按钮是否禁用
-    selectedKeys?: string[]; // 已选中的用例id
+    currentSelectCase: string | number | Record<string, any> | undefined; // 当前选中的用例类型
+    moduleOptions?: { label: string; value: string }[]; // 功能模块对应用例下拉
+    confirmLoading: boolean;
+    associatedIds: string[]; // 已关联用例id集合用于去重已关联
   }>();
+
   const emit = defineEmits<{
     (e: 'update:visible', val: boolean): void;
     (e: 'update:project', val: string): void;
-    (e: 'init', val: string[]): void;
-    (e: 'folderNodeSelect', ids: (string | number)[], springIds: string[]): void;
-    (e: 'success', val: string[]): void;
+    (e: 'update:currentSelectCase', val: string | number | Record<string, any> | undefined): void;
+    (e: 'init', val: CaseModuleQueryParams): void; // 初始化模块数量
     (e: 'close'): void;
+    (e: 'save', params: TableQueryParams): void; // 保存对外传递关联table 相关参数
   }>();
-
-  const appStore = useAppStore();
-  const { t } = useI18n();
 
   const virtualListProps = computed(() => {
     return {
@@ -170,68 +184,9 @@
     };
   });
 
-  const innerVisible = ref(props.visible);
-  const innerProject = ref(props.project);
-
-  // 协议类型
-  const protocolType = ref('HTTP');
-  const caseType = ref('API');
-
-  const protocolOptions = ref(['DUBBO', 'HTTP', 'TCP', 'SQL']);
-  const actionType = ref([
-    {
-      value: 'API',
-      name: t('caseManagement.featureCase.apiCase'),
-    },
-    {
-      value: 'SCENE',
-      name: t('caseManagement.featureCase.sceneCase'),
-    },
-    {
-      value: 'UI',
-      name: t('caseManagement.featureCase.uiCase'),
-    },
-    {
-      value: 'PERFORMANCE',
-      name: t('caseManagement.featureCase.propertyCase'),
-    },
-  ]);
-
-  watch(
-    () => props.visible,
-    (val) => {
-      innerVisible.value = val;
-    }
-  );
-
-  watch(
-    () => innerVisible.value,
-    (val) => {
-      if (!val) {
-        emit('update:visible', false);
-      }
-    }
-  );
-
-  watch(
-    () => props.project,
-    (val) => {
-      innerProject.value = val;
-    }
-  );
-
-  watch(
-    () => innerProject.value,
-    (val) => {
-      emit('update:project', val);
-    }
-  );
-
   const activeFolder = ref('all');
   const activeFolderName = ref(t('ms.case.associate.allCase'));
-  const allCaseCount = ref(0);
   const filterRowCount = ref(0);
-  const filterConfigList = ref<FilterFormItem[]>([]);
 
   function getFolderClass(id: string) {
     return activeFolder.value === id ? 'folder-text folder-text--active' : 'folder-text';
@@ -247,8 +202,13 @@
     activeFolder.value = id;
     activeFolderName.value = t('ms.case.associate.allCase');
     selectedModuleKeys.value = [];
-    emit('folderNodeSelect', [id], []);
   }
+
+  const innerVisible = ref(props.visible);
+  const innerProject = ref(props.project);
+
+  const protocolType = ref('HTTP'); // 协议类型
+  const protocolOptions = ref(['HTTP']);
 
   /**
    * 初始化模块树
@@ -257,8 +217,16 @@
   async function initModules(isSetDefaultKey = false) {
     try {
       moduleLoading.value = true;
-      const res = await props.getModulesFunc(appStore.currentProjectId);
-      folderTree.value = res;
+      const res = await props.getModulesFunc(innerProject.value);
+      folderTree.value = mapTree<ModuleTreeNode>(res, (e) => {
+        return {
+          ...e,
+          hideMoreAction: e.id === 'root',
+          draggable: false,
+          disabled: false,
+          count: props.modulesCount?.[e.id] || 0,
+        };
+      });
       if (isSetDefaultKey) {
         selectedModuleKeys.value = [folderTree.value[0].id];
         activeFolderName.value = folderTree.value[0].name;
@@ -267,13 +235,7 @@
           offspringIds.push(e.id);
           return e;
         });
-
-        emit('folderNodeSelect', selectedModuleKeys.value, offspringIds);
       }
-      emit(
-        'init',
-        folderTree.value.map((e) => e.name)
-      );
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -283,39 +245,30 @@
   }
 
   /**
-   * 处理文件夹树节点选中事件
+   * 处理模块树节点选中事件
    */
+  const offspringIds = ref<string[]>([]);
+
   function folderNodeSelect(_selectedKeys: (string | number)[], node: MsTreeNodeData) {
     selectedModuleKeys.value = _selectedKeys as string[];
     activeFolder.value = node.id;
     activeFolderName.value = node.name;
-    const offspringIds: string[] = [];
+    offspringIds.value = [];
     mapTree(node.children || [], (e) => {
-      offspringIds.push(e.id);
+      offspringIds.value.push(e.id);
       return e;
     });
-
-    emit('folderNodeSelect', _selectedKeys, offspringIds);
   }
 
-  onBeforeMount(() => {
-    initModules();
+  // 选中用例类型
+  const caseType = computed({
+    get() {
+      return props.currentSelectCase;
+    },
+    set(val) {
+      emit('update:currentSelectCase', val);
+    },
   });
-
-  /**
-   * 初始化模块资源数量
-   */
-  watch(
-    () => props.modulesCount,
-    (obj) => {
-      folderTree.value = mapTree<ModuleTreeNode>(folderTree.value, (node) => {
-        return {
-          ...node,
-          count: obj?.[node.id] || 0,
-        };
-      });
-    }
-  );
 
   const keyword = ref('');
   const version = ref('');
@@ -343,7 +296,7 @@
       sortable: {
         sortDirections: ['ascend', 'descend'],
       },
-      width: 90,
+      width: 200,
     },
     {
       title: 'ms.case.associate.caseName',
@@ -352,7 +305,7 @@
         sortDirections: ['ascend', 'descend'],
       },
       showTooltip: true,
-      width: 200,
+      width: 300,
     },
     {
       title: 'ms.case.associate.caseLevel',
@@ -363,137 +316,207 @@
     {
       title: 'ms.case.associate.version',
       slotName: 'version',
-      width: 80,
+      width: 200,
     },
     {
       title: 'ms.case.associate.tags',
       dataIndex: 'tags',
       isTag: true,
     },
+    {
+      title: 'caseManagement.featureCase.tableColumnCreateUser',
+      slotName: 'createUser',
+      dataIndex: 'createUser',
+      showInTable: true,
+      width: 300,
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnCreateTime',
+      slotName: 'createTime',
+      dataIndex: 'createTime',
+      showInTable: true,
+      width: 300,
+    },
   ];
+
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
-    () =>
-      Promise.resolve({
-        list: [
-          {
-            id: 'ded3d43',
-            name: '测试评审1',
-            creator: '张三',
-            reviewer: '李四',
-            module: '模块1',
-            caseLevel: 0, // 未开始、进行中、已完成、已归档
-            caseCount: 100,
-            passCount: 0,
-            failCount: 10,
-            reviewCount: 20,
-            reviewingCount: 25,
-            tags: ['标签1', '标签2'],
-            type: 'single',
-            desc: 'douifd9304',
-            cycle: [1700200794229, 1700200994229],
-          },
-          {
-            id: 'g545hj4',
-            name: '测试评审2',
-            creator: '张三',
-            reviewer: '李四',
-            module: '模块1',
-            caseLevel: 1, // 未开始、进行中、已完成、已归档
-            caseCount: 105,
-            passCount: 50,
-            failCount: 10,
-            reviewCount: 20,
-            reviewingCount: 25,
-            tags: ['标签1', '标签2'],
-            type: 'single',
-            desc: 'douifd9304',
-            cycle: [1700200794229, 1700200994229],
-          },
-          {
-            id: 'hj65b54',
-            name: '测试评审3',
-            creator: '张三',
-            reviewer: '李四',
-            module: '模块1',
-            caseLevel: 2, // 未开始、进行中、已完成、已归档
-            caseCount: 125,
-            passCount: 70,
-            failCount: 10,
-            reviewCount: 20,
-            reviewingCount: 25,
-            passRate: '80%',
-            tags: ['标签1', '标签2'],
-            type: 'single',
-            desc: 'douifd9304',
-            cycle: [1700200794229, 1700200994229],
-          },
-          {
-            id: 'wefwefw',
-            name: '测试评审4',
-            creator: '张三',
-            reviewer: '李四',
-            module: '模块1',
-            caseLevel: 3, // 未开始、进行中、已完成、已归档
-            caseCount: 130,
-            passCount: 70,
-            failCount: 10,
-            reviewCount: 0,
-            reviewingCount: 50,
-            passRate: '80%',
-            tags: ['标签1', '标签2'],
-            type: 'single',
-            desc: 'douifd9304',
-            cycle: [1700200794229, 1700200994229],
-          },
-        ],
-        current: 1,
-        pageSize: 10,
-        total: 2,
-      }),
+    props.getTableFunc,
     {
       columns,
-      scroll: {
-        x: '100%',
-      },
       showSetting: false,
       selectable: true,
       showSelectAll: true,
     },
-    (item) => {
+    (record) => {
       return {
-        ...item,
-        tags: item.tags?.map((e: string) => ({ id: e, name: e })) || [],
+        ...record,
+        tags: (JSON.parse(record.tags) || []).map((item: string, i: number) => {
+          return {
+            id: `${record.id}-${i}`,
+            name: item,
+          };
+        }),
       };
     }
   );
 
-  function searchCase() {
-    setLoadListParams({
-      version: version.value,
-      keyword: keyword.value,
-    });
-    loadList();
-  }
-
-  onBeforeMount(() => {
-    searchCase();
+  const searchParams = ref<TableQueryParams>({
+    moduleIds: [],
+    version: version.value,
   });
 
-  const loading = ref(false);
-
-  async function handleConfirm() {
-    try {
-      loading.value = true;
-      Message.success(t('ms.case.associate.associateSuccess'));
-      innerVisible.value = false;
-      emit('success', Array.from(propsRes.value.selectedKeys));
-      resetSelector();
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    } finally {
-      loading.value = false;
+  function getLoadListParams() {
+    if (activeFolder.value === 'all') {
+      searchParams.value.moduleIds = [];
+    } else {
+      searchParams.value.moduleIds = [activeFolder.value, ...offspringIds.value];
     }
+    setLoadListParams({
+      ...searchParams.value,
+      ...props.tableParams,
+      keyword: keyword.value,
+      projectId: innerProject.value,
+      excludeIds: [...props.associatedIds],
+    });
+  }
+
+  const combine = ref<Record<string, any>>({});
+  const searchCustomFields = ref<FilterFormItem[]>([]);
+  const filterConfigList = ref<FilterFormItem[]>([]);
+
+  async function initFilter() {
+    const result = await getCustomFieldsTable(appStore.currentProjectId);
+    filterConfigList.value = [
+      {
+        title: 'caseManagement.featureCase.tableColumnID',
+        dataIndex: 'id',
+        type: FilterType.INPUT,
+      },
+      {
+        title: 'caseManagement.featureCase.tableColumnName',
+        dataIndex: 'name',
+        type: FilterType.INPUT,
+      },
+      {
+        title: 'caseManagement.featureCase.tableColumnModule',
+        dataIndex: 'moduleId',
+        type: FilterType.TREE_SELECT,
+        treeSelectData: folderTree.value,
+        treeSelectProps: {
+          fieldNames: {
+            title: 'name',
+            key: 'id',
+            children: 'children',
+          },
+        },
+      },
+      {
+        title: 'caseManagement.featureCase.tableColumnVersion',
+        dataIndex: 'versionId',
+        type: FilterType.INPUT,
+      },
+      {
+        title: 'caseManagement.featureCase.tableColumnCreateUser',
+        dataIndex: 'createUser',
+        type: FilterType.SELECT,
+        selectProps: {
+          mode: 'static',
+          options: [],
+        },
+      },
+      {
+        title: 'caseManagement.featureCase.tableColumnCreateTime',
+        dataIndex: 'createTime',
+        type: FilterType.DATE_PICKER,
+      },
+      {
+        title: 'bugManagement.createTime',
+        dataIndex: 'createTime',
+        type: FilterType.DATE_PICKER,
+      },
+      {
+        title: 'caseManagement.featureCase.tableColumnUpdateUser',
+        dataIndex: 'updateUser',
+        type: FilterType.SELECT,
+        selectProps: {
+          mode: 'static',
+          options: [],
+        },
+      },
+      {
+        title: 'caseManagement.featureCase.tableColumnUpdateTime',
+        dataIndex: 'updateTime',
+        type: FilterType.DATE_PICKER,
+      },
+      {
+        title: 'caseManagement.featureCase.tableColumnTag',
+        dataIndex: 'tags',
+        type: FilterType.TAGS_INPUT,
+      },
+    ];
+    // 处理系统自定义字段
+    searchCustomFields.value = result.map((item: any) => {
+      const FilterTypeKey: keyof typeof FilterType = CustomTypeMaps[item.type].type;
+      const formType = FilterType[FilterTypeKey];
+      const formObject = CustomTypeMaps[item.type];
+      const { props: formProps } = formObject;
+      const currentItem: any = {
+        title: item.name,
+        dataIndex: item.id,
+        type: formType,
+      };
+
+      if (formObject.propsKey && formProps.options) {
+        formProps.options = item.options;
+        currentItem[formObject.propsKey] = {
+          ...formProps,
+        };
+      }
+      return currentItem;
+    });
+  }
+
+  // 初始化模块数量
+  function initModuleCount() {
+    emit('init', {
+      keyword: keyword.value,
+      moduleIds: [],
+      projectId: innerProject.value,
+      current: propsRes.value.msPagination?.current,
+      pageSize: propsRes.value.msPagination?.pageSize,
+      combine: combine.value,
+    });
+  }
+
+  function searchCase() {
+    getLoadListParams();
+    loadList();
+    initModuleCount();
+  }
+
+  // 保存参数
+  function handleConfirm() {
+    const { excludeKeys, selectedKeys, selectorStatus } = propsRes.value;
+    const { versionId, moduleIds } = searchParams.value;
+    const params = {
+      excludeIds: [...excludeKeys],
+      selectIds: selectorStatus === 'all' ? [] : [...selectedKeys],
+      selectAll: selectorStatus === 'all',
+      moduleIds,
+      versionId,
+      refId: '',
+      projectId: innerProject.value,
+    };
+    emit('save', params);
+  }
+
+  // 用例等级
+  function getCaseLevel(record: CaseManagementTable) {
+    const caseLevelRes = record.customFields.find((item: any) => item.name === '用例等级');
+    if (caseLevelRes) {
+      return JSON.parse(caseLevelRes.value).replaceAll('P', '') * 1;
+    }
+    return 0;
   }
 
   function cancel() {
@@ -501,6 +524,82 @@
     resetSelector();
     emit('close');
   }
+
+  watch(
+    () => props.visible,
+    (val) => {
+      innerVisible.value = val;
+      if (val) {
+        searchCase();
+        initFilter();
+      }
+    }
+  );
+
+  watch(
+    () => innerVisible.value,
+    (val) => {
+      if (!val) {
+        emit('update:visible', false);
+      }
+    }
+  );
+
+  // 用例类型改变
+  watch(
+    () => caseType.value,
+    (val) => {
+      if (val) {
+        initModules(true);
+        searchCase();
+      }
+    }
+  );
+
+  watch(
+    () => props.project,
+    (val) => {
+      if (val) {
+        innerProject.value = val;
+      }
+    }
+  );
+
+  watch(
+    () => innerProject.value,
+    (val) => {
+      emit('update:project', val);
+      resetSelector();
+      initModules(true);
+      searchCase();
+    }
+  );
+
+  watch(
+    () => activeFolder.value,
+    () => {
+      searchCase();
+    }
+  );
+
+  /**
+   * 初始化模块数量
+   */
+  watch(
+    () => props.modulesCount,
+    (obj) => {
+      folderTree.value = mapTree<ModuleTreeNode>(folderTree.value, (node) => {
+        return {
+          ...node,
+          count: obj?.[node.id] || 0,
+        };
+      });
+    }
+  );
+
+  onBeforeMount(() => {
+    innerProject.value = appStore.currentProjectId;
+  });
 
   defineExpose({
     initModules,

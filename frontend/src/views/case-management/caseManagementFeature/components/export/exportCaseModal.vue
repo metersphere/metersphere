@@ -27,7 +27,7 @@
       </a-alert>
       <MsUpload
         v-model:file-list="fileList"
-        class="mb-6"
+        class="mb-6 w-full"
         :accept="props.validateType === 'Excel' ? 'excel' : 'xmind'"
         :max-size="100"
         size-unit="MB"

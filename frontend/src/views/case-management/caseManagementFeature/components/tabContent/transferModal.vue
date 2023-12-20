@@ -1,6 +1,6 @@
 <template>
   <a-modal v-model:visible="transferVisible" title-align="start" class="ms-modal-upload ms-modal-small">
-    <template #title> 请选择转存目录 </template>
+    <template #title> {{ t('caseManagement.featureCase.selectTransferDirectory') }} </template>
     <a-tree-select
       v-model="transferId"
       :data="transCategory"
@@ -31,7 +31,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
 
-  import { getTransferFileTree, transferFileRequest } from '@/api/modules/case-management/featureCase';
+  import { getTransferFileTree } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
@@ -45,6 +45,7 @@
   const props = defineProps<{
     visible: boolean;
     params: OperationFile; // 转存文件参数
+    requestFun: (params: OperationFile) => Promise<any>;
   }>();
 
   const emit = defineEmits<{
@@ -77,7 +78,7 @@
   async function handleBeforeOk() {
     loading.value = true;
     try {
-      await transferFileRequest({ ...requestParams.value, moduleId: transferId.value });
+      await props.requestFun({ ...requestParams.value, moduleId: transferId.value });
       Message.success(t('caseManagement.featureCase.transferFileSuccess'));
       handleCancel();
       emit('success');

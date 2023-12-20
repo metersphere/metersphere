@@ -7,6 +7,7 @@ import {
   DeleteReviewModuleUrl,
   EditReviewUrl,
   FollowReviewUrl,
+  GetAssociatedIdsUrl,
   GetReviewDetailUrl,
   GetReviewListUrl,
   GetReviewModulesUrl,
@@ -106,4 +107,9 @@ export const getReviewDetail = (id: string) => {
 // 获取评审人员列表
 export const getReviewUsers = (projectId: string, keyword: string) => {
   return MSR.get<ReviewUserItem[]>({ url: `${GetReviewUsersUrl}/${projectId}`, params: { keyword } });
+};
+
+// 获取评审人员列表
+export const getAssociatedIds = (reviewId: string) => {
+  return MSR.get<string[]>({ url: `${GetAssociatedIdsUrl}/${reviewId}` });
 };

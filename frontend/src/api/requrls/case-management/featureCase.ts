@@ -85,6 +85,10 @@ export const DownloadFileUrl = '/attachment/download';
 export const deleteFileOrCancelAssociationUrl = '/attachment/delete/file';
 // 获取转存目录
 export const getTransferTreeUrl = '/attachment/options';
+// 附件是否更新
+export const GetFileIsUpdateUrl = '/attachment/update';
+// 检查文件是否更新
+export const checkFileIsUpdateUrl = '/attachment/check-update';
 
 // 评论列表
 export const GetCommentListUrl = '/functional/case/comment/get/list';
@@ -94,5 +98,7 @@ export const CreateCommentItemUrl = '/functional/case/comment/save';
 export const UpdateCommentItemUrl = '/functional/case/comment/update';
 // 删除评论
 export const DeleteCommentItemUrl = '/functional/case/comment/delete';
+// 获取详情用例评审
+export const GetDetailCaseReviewUrl = '/functional/case/review/page';
 
 export default {};

@@ -13,3 +13,4 @@ export const MoveReviewModuleUrl = '/case/review/module/move'; // 移动评审�
 export const AddReviewModuleUrl = '/case/review/module/add'; // 新增评审模块
 export const GetReviewModulesUrl = '/case/review/module/tree'; // 获取评审模块树
 export const DeleteReviewModuleUrl = '/case/review/module/delete'; // 删除评审模块
+export const GetAssociatedIdsUrl = '/case/review/detail/get-ids'; // 获取已关联用例id集合

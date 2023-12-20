@@ -71,7 +71,7 @@ export interface CaseManagementTable {
   updateTime: string;
   deleteTime: string;
   steps: string;
-  customFields: CustomAttributes[]; // 自定义字段集合
+  customFields: customFieldsItem[]; // 自定义字段集合
   [key: string]: any;
 }
 

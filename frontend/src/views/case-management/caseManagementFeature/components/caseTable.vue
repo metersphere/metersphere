@@ -76,9 +76,9 @@
     <!-- 渲染自定义字段开始 -->
     <template v-for="item in customFieldsColumns" :key="item.slotName" #[item.slotName]="{ record }">
       <div v-if="isCaseLevel(item.slotName as string).name === '用例等级'" class="flex items-center">
-        <span v-if="!record.visible" class="flex items-center" @click="record.visible = true"
-          ><caseLevel :case-level="getCaseLevel(record, item)"
-        /></span>
+        <span v-if="!record.visible" class="flex items-center" @click="record.visible = true">
+          <caseLevel :case-level="getCaseLevel(record, item)" />
+        </span>
         <TableFormChange
           v-model:visible="record.visible"
           :default-value="record[item.slotName]"
@@ -583,7 +583,7 @@
     searchCustomFields.value = result.map((item: any) => {
       const FilterTypeKey: keyof typeof FilterType = CustomTypeMaps[item.type].type;
       const formType = FilterType[FilterTypeKey];
-      const formObject = item.type;
+      const formObject = CustomTypeMaps[item.type];
       const { props: formProps } = formObject;
       const currentItem: any = {
         title: item.name,
@@ -960,13 +960,7 @@
     }
   }
 
-  // const searchList = debounce(() => {
-  //   getLoadListParams();
-  //   loadList();
-  // }, 100);
-
   const fetchData = (keywordStr = '') => {
-    console.log(keywordStr);
     setKeyword(keywordStr);
     keyword.value = keywordStr;
     getLoadListParams();
@@ -1090,7 +1084,7 @@
   }
 
   function getCaseLevel(record: CaseManagementTable, item: MsTableColumnData): CaseLevel {
-    return ((record[item.slotName as string] || '').replaceAll('P', '') * 1) as CaseLevel;
+    return (record[item.slotName as string].replaceAll('P', '') * 1) as CaseLevel;
   }
 
   // 模块树改变回调

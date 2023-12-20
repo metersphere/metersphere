@@ -34,9 +34,16 @@
       </div>
     </div>
     <ms-base-table v-if="showType === 'link'" ref="tableRef" v-bind="linkPropsRes" v-on="linkTableEvent">
-      <template #defectName="{ record }">
-        <span class="one-line-text max-w[300px]"> {{ record.name }}</span
-        ><span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
+      <template #title="{ record }">
+        <span class="one-line-text max-w[300px]"> {{ record.title }}</span>
+        <a-popover title="" position="right">
+          <span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
+          <template #content>
+            <div class="min-w-[300px] text-[14px] text-[var(--color-text-1)]">
+              {{ record.title }}
+            </div>
+          </template>
+        </a-popover>
       </template>
       <template #operation="{ record }">
         <MsButton @click="cancelLink(record)">{{ t('caseManagement.featureCase.cancelLink') }}</MsButton>
@@ -56,7 +63,7 @@
     </ms-base-table>
     <ms-base-table v-else v-bind="testPlanPropsRes" v-on="testPlanTableEvent">
       <template #defectName="{ record }">
-        <span class="one-line-text max-w[300px]"> {{ record.name }}</span
+        <span class="one-line-text max-w[300px]"> {{ record.title }}</span
         ><span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
       </template>
       <template #operation="{ record }">
@@ -90,11 +97,13 @@
   import AddDefectDrawer from './addDefectDrawer.vue';
   import LinkDefectDrawer from './linkDefectDrawer.vue';
 
-  import { getRecycleListRequest } from '@/api/modules/case-management/featureCase';
+  import { getBugList } from '@/api/modules/bug-management/index';
   import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore } from '@/store';
 
   import { TableKeyEnum } from '@/enums/tableEnum';
 
+  const appStore = useAppStore();
   const { t } = useI18n();
 
   const showType = ref('link');
@@ -113,10 +122,10 @@
     },
     {
       title: 'caseManagement.featureCase.defectName',
-      slotName: 'defectName',
-      dataIndex: 'defectName',
+      slotName: 'title',
+      dataIndex: 'title',
       showInTable: true,
-      showTooltip: true,
+      showTooltip: false,
       width: 300,
       ellipsis: true,
       showDrag: false,
@@ -142,15 +151,6 @@
       showDrag: false,
     },
     {
-      title: 'caseManagement.featureCase.tableColumnLevel',
-      dataIndex: 'level',
-      showInTable: true,
-      width: 200,
-      showTooltip: true,
-      ellipsis: true,
-      showDrag: true,
-    },
-    {
       title: 'caseManagement.featureCase.tableColumnActions',
       slotName: 'operation',
       dataIndex: 'operation',
@@ -165,7 +165,7 @@
     propsEvent: linkTableEvent,
     loadList: loadLinkList,
     setLoadListParams: setLinkListParams,
-  } = useTable(getRecycleListRequest, {
+  } = useTable(getBugList, {
     columns,
     tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_DEFECT,
     scroll: { x: '100%' },
@@ -194,7 +194,7 @@
       showDrag: false,
     },
     {
-      title: 'caseManagement.featureCase.testPlan',
+      title: 'caseManagement.featureCase.planName',
       slotName: 'testPlan',
       dataIndex: 'testPlan',
       showInTable: true,
@@ -229,7 +229,7 @@
     propsEvent: testPlanTableEvent,
     loadList: testPlanLinkList,
     setLoadListParams: setTestPlanListParams,
-  } = useTable(getRecycleListRequest, {
+  } = useTable(getBugList, {
     columns: testPlanColumns,
     tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_DEFECT_TEST_PLAN,
     scroll: { x: '100%' },
@@ -239,10 +239,10 @@
 
   function getFetch() {
     if (showType.value === 'link') {
-      setLinkListParams({ keyword: keyword.value });
+      setLinkListParams({ keyword: keyword.value, projectId: appStore.currentProjectId });
       loadLinkList();
     } else {
-      setTestPlanListParams({ keyword: keyword.value });
+      setTestPlanListParams({ keyword: keyword.value, projectId: appStore.currentProjectId });
       testPlanLinkList();
     }
   }
@@ -259,6 +259,7 @@
   function linkDefect() {
     showLinkDrawer.value = true;
   }
+
   watch(
     () => showType.value,
     (val) => {
