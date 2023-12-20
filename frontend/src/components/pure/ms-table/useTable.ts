@@ -54,6 +54,7 @@ export default function useTableProps<T>(
     selectedKeys: new Set<string>(), // 选中的key
     excludeKeys: new Set<string>(), // 排除的key
     selectorStatus: SelectAllEnum.NONE, // 选择器状态
+    showSelectorAll: true, // 是否显示全选
     /** end */
     enableDrag: false, // 是否可拖拽
     showSetting: false, // 是否展示列选择器
@@ -379,6 +380,11 @@ export default function useTableProps<T>(
         if (excludeKeys.has(key)) {
           excludeKeys.delete(key);
         }
+      }
+      if (selectedKeys.size === 0 && propsRes.value.selectorStatus === SelectAllEnum.CURRENT) {
+        propsRes.value.selectorStatus = SelectAllEnum.NONE;
+      } else if (selectedKeys.size > 0 && propsRes.value.selectorStatus === SelectAllEnum.NONE) {
+        propsRes.value.selectorStatus = SelectAllEnum.CURRENT;
       }
       propsRes.value.selectedKeys = selectedKeys;
       propsRes.value.excludeKeys = excludeKeys;

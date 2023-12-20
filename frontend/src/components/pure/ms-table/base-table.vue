@@ -22,7 +22,7 @@
             <SelectALL
               :total="selectTotal"
               :current="selectCurrent"
-              :show-select-all="(attrs.showPagination as boolean)"
+              :show-select-all="(attrs.showPagination as boolean) && props.showSelectorAll"
               :disabled="(attrs.data as []).length === 0"
               @change="handleSelectAllChange"
             />
@@ -255,6 +255,7 @@
     expandedKeys?: string[];
     rowClass?: string | any[] | Record<string, any> | ((record: TableData, rowIndex: number) => any);
     spanAll?: boolean;
+    showSelectorAll?: boolean;
   }>();
   const emit = defineEmits<{
     (e: 'batchAction', value: BatchActionParams, queryParams: BatchActionQueryParams): void;
