@@ -200,8 +200,7 @@ public class FileManagementService {
 
         if (previewImg == null || previewImg.length == 0) {
             try {
-                byte[] fileBytes = this.getFile(fileMetadata);
-                previewImg = TempFileUtils.compressPic(fileBytes);
+                previewImg = this.compressPicWithFileMetadata(fileMetadata);
                 fileService.upload(previewImg, previewRequest);
                 return previewImg;
             } catch (Exception e) {
@@ -209,5 +208,11 @@ public class FileManagementService {
             }
         }
         return previewImg;
+    }
+
+    //获取文件并压缩的方法需要上锁，防止并发超过一定数量时内存溢出
+    private synchronized byte[] compressPicWithFileMetadata(FileMetadata fileMetadata) throws Exception {
+        byte[] fileBytes = this.getFile(fileMetadata);
+        return TempFileUtils.compressPic(fileBytes);
     }
 }
