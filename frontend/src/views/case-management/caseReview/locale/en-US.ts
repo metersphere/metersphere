@@ -1,6 +1,6 @@
 export default {
   'caseManagement.caseReview.create': 'Create review',
-  'caseManagement.caseReview.waitMyReview': 'Awaiting my review',
+  'caseManagement.caseReview.waitMyReview': 'I reviewed',
   'caseManagement.caseReview.myCreate': 'I created',
   'caseManagement.caseReview.searchPlaceholder': 'Search by ID or name',
   'caseManagement.caseReview.archive': 'Archive',
@@ -130,4 +130,6 @@ export default {
   'caseManagement.caseReview.reviewHistory': 'Review history',
   'caseManagement.caseReview.noMatchReviewer': 'No matching handler, can be set in {menu}',
   'caseManagement.caseReview.crateCase': 'Create case',
+  'caseManagement.caseReview.demandCases': 'Requirements association list',
+  'caseManagement.caseReview.demandSearchPlaceholder': 'Search by name',
 };

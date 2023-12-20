@@ -312,7 +312,7 @@
 <style lang="less" scoped>
   .field-out-container {
     @apply h-full;
-    .ms-container--shadow();
+    .ms-container--shadow-y();
 
     border-radius: var(--border-radius-small);
     background-color: var(--color-text-n9);

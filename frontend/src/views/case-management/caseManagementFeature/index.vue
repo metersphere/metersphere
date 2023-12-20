@@ -14,7 +14,7 @@
     <a-divider class="!my-0" />
     <div class="pageWrap">
       <MsSplitBox>
-        <template #left>
+        <template #first>
           <div class="p-[24px] pb-0">
             <div class="feature-case h-[100%]">
               <div class="case h-[38px]">
@@ -80,7 +80,7 @@
             </div>
           </div>
         </template>
-        <template #right>
+        <template #second>
           <div class="p-[24px]">
             <CaseTable
               :active-folder="activeFolder"

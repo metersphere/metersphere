@@ -23,6 +23,7 @@ export default {
     'menu.bugManagement': '缺陷管理',
     'menu.caseManagement': '功能测试',
     'menu.apiTest': '接口测试',
+    'menu.apiTest.debug': '接口调试',
     'menu.uiTest': 'UI测试',
     'menu.workstation': '工作台',
     'menu.loadTest': '性能测试',

@@ -514,7 +514,7 @@
     @apply relative;
 
     background-color: var(--color-text-n9);
-    .ms-container--shadow();
+    .ms-container--shadow-y();
     .robot-list {
       @apply grid  max-h-full overflow-y-auto;
       .ms-scroll-bar();

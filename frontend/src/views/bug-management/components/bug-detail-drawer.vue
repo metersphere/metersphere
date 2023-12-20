@@ -75,7 +75,7 @@
     <template #default>
       <div ref="wrapperRef" class="h-full bg-white">
         <MsSplitBox ref="wrapperRef" expand-direction="right" :max="0.7" :min="0.7" :size="900">
-          <template #left>
+          <template #first>
             <div class="leftWrapper h-full">
               <div class="header h-[50px]">
                 <a-tabs v-model:active-key="activeTab">
@@ -92,7 +92,7 @@
               </div>
             </div>
           </template>
-          <template #right>
+          <template #second>
             <div class="rightWrapper p-[24px]">
               <div class="mb-4 font-medium">{{ t('caseManagement.featureCase.basicInfo') }}</div>
               <div class="baseItem">

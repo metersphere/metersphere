@@ -6,6 +6,55 @@
   "description": "DE、MS项目icon管理",
   "glyphs": [
     {
+      "icon_id": "38499852",
+      "name": "icon_keyboard",
+      "font_class": "icon_keyboard",
+      "unicode": "e796",
+      "unicode_decimal": 59286
+    },
+    {
+      "icon_id": "38496991",
+      "name": "icon_split-turn-down-left",
+      "font_class": "icon_split-turn-down-left",
+      "unicode": "e795",
+      "unicode_decimal": 59285
+    },
+    {
+      "icon_id": "38462218",
+      "name": "icon_checkbox",
+      "font_class": "icon_checkbox1",
+      "unicode": "e794",
+      "unicode_decimal": 59284
+    },
+    {
+      "icon_id": "38454074",
+      "name": "icon_flashlamp",
+      "font_class": "icon_flashlamp",
+      "unicode": "e793",
+      "unicode_decimal": 59283
+    },
+    {
+      "icon_id": "38353463",
+      "name": "icon_clear",
+      "font_class": "icon_clear",
+      "unicode": "e792",
+      "unicode_decimal": 59282
+    },
+    {
+      "icon_id": "38293413",
+      "name": "icon_expand-text-input",
+      "font_class": "icon_expand-text-input",
+      "unicode": "e791",
+      "unicode_decimal": 59281
+    },
+    {
+      "icon_id": "38293039",
+      "name": "icon_mock",
+      "font_class": "icon_mock",
+      "unicode": "e790",
+      "unicode_decimal": 59280
+    },
+    {
       "icon_id": "38195845",
       "name": "icon_text-wrap-overflow",
       "font_class": "icon_text-wrap-overflow",

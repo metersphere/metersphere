@@ -1,6 +1,6 @@
 export default {
   'caseManagement.caseReview.create': '创建评审',
-  'caseManagement.caseReview.waitMyReview': '待我评审',
+  'caseManagement.caseReview.waitMyReview': '我评审的',
   'caseManagement.caseReview.myCreate': '我创建的',
   'caseManagement.caseReview.searchPlaceholder': '通过 ID 或名称搜索',
   'caseManagement.caseReview.archive': '归档',

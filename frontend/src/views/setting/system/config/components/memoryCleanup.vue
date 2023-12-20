@@ -27,7 +27,7 @@
           <a-select
             v-model:model-value="activeTime"
             :options="timeOptions"
-            class="time-input-append"
+            class="select-input-append"
             :loading="saveLoading"
             @change="() => saveConfig()"
           />
@@ -124,18 +124,5 @@
 </script>
 
 <style lang="less" scoped>
-  :deep(.arco-input-append) {
-    @apply border-none;
-  }
-  :deep(.time-input-append) {
-    @apply z-10;
-
-    margin-left: -16px !important;
-    border-radius: 0 4px 4px 0 !important;
-    background-color: var(--color-text-n8) !important;
-    &:hover {
-      border-color: rgb(var(--primary-5)) !important;
-      background-color: var(--color-text-n8) !important;
-    }
-  }
+  .ms-input-group--append();
 </style>

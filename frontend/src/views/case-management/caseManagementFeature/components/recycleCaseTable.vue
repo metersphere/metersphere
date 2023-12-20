@@ -1,7 +1,7 @@
 <template>
   <div class="pageWrap">
     <MsSplitBox>
-      <template #left>
+      <template #first>
         <div class="p-[24px]">
           <a-input-search
             v-model:model-value="groupKeyword"
@@ -60,7 +60,7 @@
           </div>
         </div>
       </template>
-      <template #right>
+      <template #second>
         <div class="p-[24px]">
           <div class="page-header mb-4 h-[34px]">
             <div class="text-[var(--color-text-1)]"

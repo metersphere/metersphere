@@ -1,10 +1,10 @@
 <template>
   <div class="card">
     <MsSplitBox v-model:width="leftWidth" @expand-change="handleCollapse">
-      <template #left>
+      <template #first>
         <UserGroupLeft ref="ugLeftRef" @handle-select="handleSelect" @add-user-success="handleAddMember" />
       </template>
-      <template #right>
+      <template #second>
         <div class="p-[24px]">
           <div class="flex flex-row items-center justify-between">
             <a-tooltip :content="currentUserGroupItem.name">

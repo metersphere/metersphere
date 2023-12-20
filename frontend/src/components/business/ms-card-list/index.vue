@@ -245,7 +245,7 @@
 <style lang="less" scoped>
   .ms-card-list-container {
     @apply h-full overflow-hidden;
-    .ms-container--shadow();
+    .ms-container--shadow-y();
     .ms-card-list {
       @apply grid max-h-full overflow-auto;
 

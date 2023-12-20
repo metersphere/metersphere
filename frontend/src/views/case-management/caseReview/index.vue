@@ -4,18 +4,18 @@
       <a-button type="primary" @click="goCreateReview">{{ t('caseManagement.caseReview.create') }}</a-button>
       <a-radio-group v-model:model-value="showType" type="button" class="file-show-type" @change="changeShowType">
         <a-radio value="all">{{ t('common.all') }}</a-radio>
-        <a-radio value="wait">{{ t('caseManagement.caseReview.waitMyReview') }}</a-radio>
-        <a-radio value="create">{{ t('caseManagement.caseReview.myCreate') }}</a-radio>
+        <a-radio value="reviewByMe">{{ t('caseManagement.caseReview.waitMyReview') }}</a-radio>
+        <a-radio value="createByMe">{{ t('caseManagement.caseReview.myCreate') }}</a-radio>
       </a-radio-group>
     </div>
     <div class="relative h-[calc(100%-73px)]">
       <MsSplitBox>
-        <template #left>
+        <template #first>
           <div class="px-[24px] py-[16px]">
             <ModuleTree ref="folderTreeRef" @folder-node-select="handleFolderNodeSelect" @init="initModuleTree" />
           </div>
         </template>
-        <template #right>
+        <template #second>
           <ReviewTable :active-folder="activeFolderId" :module-tree="moduleTree" @go-create="goCreateReview" />
         </template>
       </MsSplitBox>
@@ -42,7 +42,7 @@
   const router = useRouter();
   const { t } = useI18n();
 
-  type ShowType = 'all' | 'wait' | 'create';
+  type ShowType = 'all' | 'reviewByMe' | 'createByMe';
 
   const showType = ref<ShowType>('all');
 

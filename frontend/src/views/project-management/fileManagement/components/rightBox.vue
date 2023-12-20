@@ -1255,7 +1255,7 @@
   .card-list {
     @apply grid flex-1 overflow-auto;
     .ms-scroll-bar();
-    .ms-container--shadow();
+    .ms-container--shadow-y();
 
     gap: 24px;
     grid-template-columns: repeat(auto-fill, minmax(102px, 1fr));

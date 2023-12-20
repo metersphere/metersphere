@@ -374,7 +374,7 @@
 
 <style lang="less">
   .ms-tree-container {
-    .ms-container--shadow();
+    .ms-container--shadow-y();
     .ms-tree {
       .ms-scroll-bar();
       .arco-tree-node {
@@ -485,6 +485,9 @@
           }
         }
       }
+    }
+    .arco-tree-node-disabled-selectable {
+      @apply !cursor-default;
     }
   }
 </style>
