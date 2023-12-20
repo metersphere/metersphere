@@ -1859,6 +1859,7 @@ const message = {
         json_path_suggest: "推薦JSONPath斷言",
         json_path_clear: "清空JSONPath斷言",
         debug_first: "請先執行調試獲取響應結果",
+        body_is_null: "未檢測到響應數據，請運行介面並確保產生了響應數據",
         ignore_status: "忽略狀態",
         add: "添加",
         script_name: "腳本名稱",

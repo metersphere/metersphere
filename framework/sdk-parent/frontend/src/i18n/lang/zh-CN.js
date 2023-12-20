@@ -1860,6 +1860,7 @@ const message = {
         json_path_suggest: "推荐JSONPath断言",
         json_path_clear: "清空JSONPath断言",
         debug_first: "请先执行调试获取响应结果",
+        body_is_null: "未检测到响应数据，请运行接口并确保产生了响应数据",
         ignore_status: "忽略状态",
         add: "添加",
         script_name: "脚本名称",

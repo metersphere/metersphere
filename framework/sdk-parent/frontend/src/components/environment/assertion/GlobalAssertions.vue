@@ -169,8 +169,12 @@ export default {
     suggestJsonOpen() {
       this.$emit('suggestClick');
       this.$nextTick(() => {
-        if (!this.response || !this.response.responseResult || !this.response.responseResult.body) {
+        if (!this.response || !this.response.responseResult) {
           this.$message(this.$t('api_test.request.assertions.debug_first'));
+          return;
+        }
+        if (!this.response.responseResult.body) {
+          this.$message(this.$t('api_test.request.assertions.body_is_null'));
           return;
         }
         this.$refs.jsonpathSuggest.open(this.response.responseResult.body);
