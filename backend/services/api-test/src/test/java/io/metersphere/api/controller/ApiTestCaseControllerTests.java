@@ -3,6 +3,7 @@ package io.metersphere.api.controller;
 import io.metersphere.api.controller.param.ApiTestCaseAddRequestDefinition;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.utils.ApiDataUtils;
@@ -17,18 +18,16 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
-import io.metersphere.api.dto.request.http.MsHTTPElement;
+import io.metersphere.sdk.file.FileCenter;
+import io.metersphere.sdk.file.FileRequest;
+import io.metersphere.sdk.file.MinioRepository;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
-import io.metersphere.sdk.util.FileAssociationSourceUtil;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.request.PosRequest;
-import io.metersphere.sdk.file.FileCenter;
-import io.metersphere.sdk.file.FileRequest;
-import io.metersphere.sdk.file.MinioRepository;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.Pager;
@@ -240,7 +239,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
      */
     private static void assertLinkFile(String id, List<String> fileIds) {
         FileAssociationService fileAssociationService = CommonBeanFactory.getBean(FileAssociationService.class);
-        List<String> linkFileIds = fileAssociationService.getFiles(id, FileAssociationSourceUtil.SOURCE_TYPE_API_TEST_CASE)
+        List<String> linkFileIds = fileAssociationService.getFiles(id)
                 .stream()
                 .map(FileInfo::getFileId)
                 .toList();

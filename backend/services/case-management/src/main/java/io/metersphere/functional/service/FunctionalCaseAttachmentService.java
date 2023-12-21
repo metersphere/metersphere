@@ -128,7 +128,7 @@ public class FunctionalCaseAttachmentService {
         }));
 
         //获取关联的附件信息
-        List<FileInfo> files = fileAssociationService.getFiles(functionalCaseDetailDTO.getId(), FileAssociationSourceUtil.SOURCE_TYPE_FUNCTIONAL_CASE);
+        List<FileInfo> files = fileAssociationService.getFiles(functionalCaseDetailDTO.getId());
         List<FunctionalCaseAttachmentDTO> filesDTOs = new ArrayList<>(Lists.transform(files, (fileInfo) -> {
             FunctionalCaseAttachmentDTO attachmentDTO = new FunctionalCaseAttachmentDTO();
             BeanUtils.copyBean(attachmentDTO, fileInfo);

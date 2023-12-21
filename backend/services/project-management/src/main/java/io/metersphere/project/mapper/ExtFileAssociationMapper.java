@@ -15,7 +15,7 @@ public interface ExtFileAssociationMapper {
     FileAssociationSource selectNameBySourceTableAndId(@Param("querySql") String querySql, @Param("sourceId") String sourceId);
     List<FileAssociationSource> selectAssociationSourceBySourceTableAndIdList(@Param("querySql") String querySql, @Param("idList") List<String> sourceIdList);
 
-    List<FileInfo> selectAssociationFileInfo(@Param("sourceId") String sourceId, @Param("sourceType") String sourceType);
+    List<FileInfo> selectAssociationFileInfo(@Param("sourceId") String sourceId);
 
     List<FileAssociation> selectFileIdsBySourceId(@Param("sourceIds")List<String> sourceIds, @Param("sourceType")String sourceType);
 }

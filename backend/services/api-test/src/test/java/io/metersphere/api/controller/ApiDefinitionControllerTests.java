@@ -415,7 +415,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
      */
     private static void assertLinkFile(String id, List<String> fileIds) {
         FileAssociationService fileAssociationService = CommonBeanFactory.getBean(FileAssociationService.class);
-        List<String> linkFileIds = fileAssociationService.getFiles(id, FileAssociationSourceUtil.SOURCE_TYPE_API_DEFINITION)
+        List<String> linkFileIds = fileAssociationService.getFiles(id)
                 .stream()
                 .map(FileInfo::getFileId)
                 .toList();

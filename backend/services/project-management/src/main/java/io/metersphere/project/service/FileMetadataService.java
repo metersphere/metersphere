@@ -669,4 +669,10 @@ public class FileMetadataService {
     private String generateMinIOFilePath(String projectId) {
         return DefaultRepositoryDir.getFileManagementDir(projectId);
     }
+
+    public List<FileMetadata> getByFileIds(List<String> tempFileIds) {
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andIdIn(tempFileIds);
+        return fileMetadataMapper.selectByExample(example);
+    }
 }

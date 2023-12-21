@@ -113,10 +113,12 @@ public class ApiDebugService {
         apiDebugMapper.updateByPrimaryKeySelective(apiDebug);
         // todo 校验 moduleId
 
-        ApiDebugBlob apiDebugBlob = new ApiDebugBlob();
-        apiDebugBlob.setId(request.getId());
-        apiDebugBlob.setRequest(request.getRequest().getBytes());
-        apiDebugBlobMapper.updateByPrimaryKeySelective(apiDebugBlob);
+        if (StringUtils.isNotBlank(request.getRequest())) {
+            ApiDebugBlob apiDebugBlob = new ApiDebugBlob();
+            apiDebugBlob.setId(request.getId());
+            apiDebugBlob.setRequest(request.getRequest().getBytes());
+            apiDebugBlobMapper.updateByPrimaryKeySelective(apiDebugBlob);
+        }
 
         ApiFileResourceUpdateRequest resourceUpdateRequest = getApiFileResourceUpdateRequest(originApiDebug.getId(), originApiDebug.getProjectId(), updateUser);
         resourceUpdateRequest.setUploadFileIds(request.getUploadFileIds());
@@ -159,6 +161,7 @@ public class ApiDebugService {
             throw new MSException(API_DEBUG_EXIST);
         }
     }
+
     private ApiDebug checkResourceExist(String id) {
         return ServiceUtils.checkResourceExist(apiDebugMapper.selectByPrimaryKey(id), "permission.system_api_debug.name");
     }

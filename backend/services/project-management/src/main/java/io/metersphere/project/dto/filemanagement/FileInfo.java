@@ -36,4 +36,15 @@ public class FileInfo implements Serializable {
     @Schema(description =  "创建时间")
     private Long createTime;
 
+    @Schema(description = "文件存储方式")
+    private String storage;
+
+    @Schema(description = "项目ID")
+    private String projectId;
+
+    @Schema(description = "模块ID")
+    private String moduleId;
+
+    @Schema(description = "文件资源ID")
+    private String metadataId;
 }

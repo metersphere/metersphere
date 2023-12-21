@@ -25,7 +25,7 @@ public class CommandService {
 
     public static String createFile(MultipartFile bodyFile) {
         MsFileUtils.validateFileName(bodyFile.getOriginalFilename());
-        String dir = LocalRepositoryDir.getBodyEnvironmentTmpDir();
+        String dir = LocalRepositoryDir.getSystemTempDir();
         File fileDir = new File(dir);
         if (!fileDir.exists()) {
             fileDir.mkdirs();

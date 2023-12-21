@@ -28,7 +28,6 @@ public class JmeterTestElementParser implements TestElementParser {
 
     private Boolean onSampleError;
     private String name;
-    private Boolean enable = true;
     private ParameterConfig config;
     private boolean displayJMeterProperties = false;
 
@@ -36,13 +35,18 @@ public class JmeterTestElementParser implements TestElementParser {
 
     private boolean displaySystemProperties = false;
 
+    /**
+     * 解析生成 jmx 脚本
+     * @param msTestElement
+     * @param config
+     * @return
+     */
     @Override
     public String parse(AbstractMsTestElement msTestElement, ParameterConfig config) {
         this.config = config;
         HashTree hashTree = new ListedHashTree();
         TestPlan testPlan = getPlan();
         name = msTestElement.getName();
-        enable = msTestElement.getEnable();
         final HashTree testPlanTree = hashTree.add(testPlan);
         final HashTree groupTree = testPlanTree.add(getThreadGroup());
         // 添加 debugSampler
@@ -82,11 +86,11 @@ public class JmeterTestElementParser implements TestElementParser {
         loopController.setName("LoopController");
         loopController.setProperty(TestElement.TEST_CLASS, LoopController.class.getName());
         loopController.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("LoopControlPanel"));
-        loopController.setEnabled(this.enable);
+        loopController.setEnabled(true);
         loopController.setLoops(1);
 
         ThreadGroup threadGroup = new ThreadGroup();
-        threadGroup.setEnabled(this.enable);
+        threadGroup.setEnabled(true);
         threadGroup.setName(config.getReportId());
         threadGroup.setProperty(TestElement.TEST_CLASS, ThreadGroup.class.getName());
         threadGroup.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ThreadGroupGui"));

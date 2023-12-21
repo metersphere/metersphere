@@ -172,19 +172,27 @@ public class FileManagementService {
         fileRequest.setStorage(fileMetadata.getStorage());
         //获取git文件下载
         if (StringUtils.equals(fileMetadata.getStorage(), StorageType.GIT.name())) {
-            FileModuleRepository fileModuleRepository = fileModuleRepositoryMapper.selectByPrimaryKey(fileMetadata.getModuleId());
-            FileMetadataRepository fileMetadataRepository = fileMetadataRepositoryMapper.selectByPrimaryKey(fileMetadata.getId());
-
-            FileModuleRepositoryDTO repositoryDTO = new FileModuleRepositoryDTO();
-            BeanUtils.copyBean(repositoryDTO, fileModuleRepository);
-            FileMetadataRepositoryDTO metadataRepositoryDTO = new FileMetadataRepositoryDTO();
-            BeanUtils.copyBean(metadataRepositoryDTO, fileMetadataRepository);
+            FileModuleRepositoryDTO repositoryDTO = getFileModuleRepositoryDTO(fileMetadata.getModuleId());
+            FileMetadataRepositoryDTO metadataRepositoryDTO = getFileMetadataRepositoryDTO(fileMetadata.getId());
             fileRequest.setGitFileRequest(repositoryDTO, metadataRepositoryDTO);
         }
 
         return fileService.download(fileRequest);
     }
 
+    public FileMetadataRepositoryDTO getFileMetadataRepositoryDTO(String fileMetadataId) {
+        FileMetadataRepository fileMetadataRepository = fileMetadataRepositoryMapper.selectByPrimaryKey(fileMetadataId);
+        FileMetadataRepositoryDTO metadataRepositoryDTO = new FileMetadataRepositoryDTO();
+        BeanUtils.copyBean(metadataRepositoryDTO, fileMetadataRepository);
+        return metadataRepositoryDTO;
+    }
+
+    public FileModuleRepositoryDTO getFileModuleRepositoryDTO(String moduleId) {
+        FileModuleRepository fileModuleRepository = fileModuleRepositoryMapper.selectByPrimaryKey(moduleId);
+        FileModuleRepositoryDTO repositoryDTO = new FileModuleRepositoryDTO();
+        BeanUtils.copyBean(repositoryDTO, fileModuleRepository);
+        return repositoryDTO;
+    }
 
     public byte[] getPreviewImg(FileMetadata fileMetadata) {
         FileRequest previewRequest = new FileRequest();

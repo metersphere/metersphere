@@ -29,14 +29,29 @@ public class LocalRepositoryDir {
      * 插件存储目录
      */
     private static final String SYSTEM_PLUGIN_DIR = SYSTEM_ROOT_DIR + "/plugin";
-    private static final String SYSTEM_BODY_ENVIRONMENT_TEM_DIR = SYSTEM_ROOT_DIR + "/body/environment/tmp";
+    /**
+     * 系统临时文件的存放目录
+     * system/temp
+     * 会定时清理
+     */
+    private static final String SYSTEM_TEMP_DIR = SYSTEM_ROOT_DIR + "/temp";
+    /**
+     * 系统缓存文件存放目录
+     * 目前仅执行机缓存执行文件使用到
+     * system/cache
+     */
+    private static final String SYSTEM_CACHE_DIR = SYSTEM_ROOT_DIR + "/cache";
     /*------ end: 系统下资源目录 --------*/
 
     public static String getPluginDir() {
         return SYSTEM_PLUGIN_DIR;
     }
 
-    public static String getBodyEnvironmentTmpDir() {
-        return SYSTEM_BODY_ENVIRONMENT_TEM_DIR;
+    public static String getSystemTempDir() {
+        return SYSTEM_TEMP_DIR;
+    }
+
+    public static String getSystemCacheDir() {
+        return SYSTEM_CACHE_DIR;
     }
 }
