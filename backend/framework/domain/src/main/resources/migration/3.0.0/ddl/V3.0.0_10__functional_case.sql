@@ -108,7 +108,7 @@ CREATE INDEX idx_create_user ON functional_case_module (create_user);
 CREATE INDEX idx_update_user ON functional_case_module (update_user);
 CREATE INDEX idx_create_time ON functional_case_module (create_time desc);
 CREATE INDEX idx_update_time ON functional_case_module (update_time desc);
-
+CREATE UNIQUE INDEX uq_name_project_parent ON functional_case_module(project_id,name,parent_id);
 
 CREATE TABLE IF NOT EXISTS functional_case_attachment
 (
@@ -349,6 +349,7 @@ CREATE TABLE IF NOT EXISTS case_review_history
     `case_id`     VARCHAR(50) NOT NULL COMMENT '用例ID',
     `content`     LONGBLOB COMMENT '评审意见',
     `status`      VARCHAR(64) NOT NULL COMMENT '评审结果：通过/不通过/建议',
+    `deleted` BIT(1) NOT NULL  DEFAULT 0 COMMENT '是否是取消关联或评审被删除的：0-否，1-是' ,
     `notifier`    VARCHAR(1000) COMMENT '通知人',
     `create_user` VARCHAR(50) NOT NULL COMMENT '操作人',
     `create_time` BIGINT      NOT NULL COMMENT '操作时间',
@@ -362,6 +363,7 @@ CREATE INDEX idx_case_id ON case_review_history (case_id);
 CREATE INDEX idx_review_id ON case_review_history (review_id);
 CREATE INDEX idx_review_id_case_id ON case_review_history (review_id, case_id);
 CREATE INDEX idx_status ON case_review_history (status);
+CREATE INDEX idx_deleted ON case_review_history(deleted);
 
 
 CREATE TABLE IF NOT EXISTS case_review_module
@@ -389,6 +391,7 @@ CREATE INDEX idx_create_user ON case_review_module (create_user);
 CREATE INDEX idx_update_user ON case_review_module (update_user);
 CREATE INDEX idx_create_time ON case_review_module (create_time desc);
 CREATE INDEX idx_update_time ON case_review_module (update_time desc);
+CREATE UNIQUE INDEX uq_name_project_parent ON case_review_module(name,project_id,parent_id);
 
 
 -- set innodb lock wait timeout to default
