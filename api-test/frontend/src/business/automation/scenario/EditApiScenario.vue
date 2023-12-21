@@ -495,8 +495,9 @@
             v-if="type !== 'detail'"
             :visible.sync="customizeVisible"
             :destroy-on-close="true"
-            direction="ltr"
+            direction="rtl"
             :withHeader="false"
+            :z-index="400"
             :title="$t('api_test.automation.customize_req')"
             style="overflow: auto"
             :modal="false"
@@ -898,7 +899,8 @@ export default {
       this.initPlugins();
     });
     this.result = getEnvironmentByProjectId(this.projectId).then((response) => {
-      this.environments = response.data;});
+      this.environments = response.data;
+    });
     this.getDefaultVersion();
   },
   mounted() {
@@ -1853,7 +1855,7 @@ export default {
         let enableArray = 0;
         for (let i = 0; i < this.scenarioDefinition.length; i++) {
           if (!this.scenarioDefinition[i].enable) {
-            enableArray ++;
+            enableArray++;
           }
         }
         if (enableArray > 0 && enableArray === this.scenarioDefinition.length) {
@@ -2970,7 +2972,6 @@ export default {
   padding: 0px;
   vertical-align: center;
 }
-
 
 :deep(.ms-main-container) {
   padding: 5px 5px 5px 10px;
