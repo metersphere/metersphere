@@ -38,21 +38,13 @@ public class ApiCheckPermissionService {
             }
             MSException.throwException(Translator.get("check_owner_report"));
         }
-        if (scenarioReport != null) {
-            if (!projectIds.contains(scenarioReport.getProjectId())) {
-                MSException.throwException(Translator.get("check_owner_report"));
-            }
-            if (SessionUtils.hasPermission(null, scenarioReport.getProjectId(), permissionId)) {
-                MSException.throwException(Translator.get("check_owner_report"));
-            }
+        if (scenarioReport != null && (!projectIds.contains(scenarioReport.getProjectId()) ||
+                !SessionUtils.hasPermission(null, scenarioReport.getProjectId(), permissionId))) {
+            MSException.throwException(Translator.get("check_owner_report"));
         }
-        if (apiReport != null) {
-            if (!projectIds.contains(apiReport.getProjectId())) {
-                MSException.throwException(Translator.get("check_owner_report"));
-            }
-            if (SessionUtils.hasPermission(null, apiReport.getProjectId(), permissionId)) {
-                MSException.throwException(Translator.get("check_owner_report"));
-            }
+        if (apiReport != null && (!projectIds.contains(apiReport.getProjectId()) ||
+                !SessionUtils.hasPermission(null, apiReport.getProjectId(), permissionId))) {
+            MSException.throwException(Translator.get("check_owner_report"));
         }
     }
 
