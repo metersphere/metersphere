@@ -417,7 +417,7 @@
       </template>
     </ms-table>
     <ms-table-pagination
-        :change="initTableData"
+        :change="pageSearch"
         :current-page.sync="currentPage"
         :page-size.sync="pageSize"
         :total="total"
@@ -759,6 +759,9 @@ export default {
       // 添加搜索条件时，当前页设置成第一页
       this.currentPage = 1;
       this.initTableData();
+    },
+    pageSearch() {
+      this.initTableData(this.currentSelectNodes);
     },
     initTableData(nodeIds) {
       this.cardLoading = true;

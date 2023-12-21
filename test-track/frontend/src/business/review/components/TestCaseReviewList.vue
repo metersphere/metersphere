@@ -120,7 +120,7 @@
 
     </ms-table>
 
-    <ms-table-pagination :change="initTableData" :current-page.sync="page.currentPage" :page-size.sync="page.pageSize"
+    <ms-table-pagination :change="pageSearch" :current-page.sync="page.currentPage" :page-size.sync="page.pageSize"
                          :total="page.total"/>
     <ms-delete-confirm :title="$t('test_track.review.delete')" @delete="_handleDelete" ref="deleteConfirm"/>
 
@@ -397,6 +397,9 @@ export default {
     search() {
       // 添加搜索条件时，当前页设置成第一页
       this.page.currentPage = 1;
+      this.initTableData(this.currentSelectNodes);
+    },
+    pageSearch() {
       this.initTableData(this.currentSelectNodes);
     },
     saveFollow(row) {

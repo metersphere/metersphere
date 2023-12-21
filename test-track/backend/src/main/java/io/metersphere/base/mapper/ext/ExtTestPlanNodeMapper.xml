@@ -7,6 +7,7 @@
         from test_plan
         left join test_plan_node tpn on test_plan.node_id = tpn.id
         left join project on tpn.project_id = project.id
+        left join schedule ON schedule.resource_id = test_plan.id
         <include refid="queryWhereCondition"/>
         group by tpn.id
     </select>
