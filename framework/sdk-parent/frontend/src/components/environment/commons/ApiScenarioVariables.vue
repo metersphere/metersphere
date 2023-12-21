@@ -110,7 +110,7 @@
               maxlength="200"
               :placeholder="$t('api_test.variable_name')"
               show-word-limit
-              @change="change"
+              @change="change(scope.row)"
             />
           </template>
         </ms-table-column>
@@ -365,7 +365,7 @@ export default {
       });
     },
     // 变量名 change
-    change: function () {
+    change: function (row) {
       let isNeedCreate = true;
       let removeIndex = -1;
       let repeatKey = "";
@@ -377,6 +377,9 @@ export default {
           repeatKey = item.name;
         } else {
           itemNames.add(item.name);
+          if(row && item.id === row.id) {
+            item.name = row.name;
+          }
         }
 
         // 检查空行
@@ -410,7 +413,7 @@ export default {
             scope: "api",
           })
         );
-        this.currentPage = Math.ceil(this.allData.length / this.pageSize);
+        this.currentPage = Math.ceil(this.items.length / this.pageSize);
       }
 
       // 重置并过滤数据
@@ -437,33 +440,33 @@ export default {
         data.type = "STRING";
       }
       this.items.forEach((item) => {
-        if (item.name === data.name) {
+        if (item.id === data.id) {
           item.scope = value;
           item.type = data.type;
           item.value = data.value;
         }
       });
     },
-    changeVariableVal(data) {
+    changeVariableVal(row) {
       this.items.forEach((item) => {
-        if (item.name === data.name) {
-          item.value = data.value;
+        if (item.id === row.id) {
+          item.value = row.value;
         }
       });
     },
     // 备注修改
-    descriptionChange(data) {
+    descriptionChange(row) {
       this.items.forEach((item) => {
-        if (item.name === data.name) {
-          item.description = data.description;
+        if (item.id === row.id) {
+          item.description = row.description;
         }
       });
     },
     // 启用禁用
-    enableChange(data) {
+    enableChange(row) {
       this.items.forEach((item) => {
-        if (item.name === data.name) {
-          item.enable = data.enable;
+        if (item.id === row.id) {
+          item.enable = row.enable;
         }
       });
     },
