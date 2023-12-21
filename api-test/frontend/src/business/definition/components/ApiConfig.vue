@@ -57,20 +57,20 @@
 </template>
 
 <script>
-import { updateDefinition } from '@/api/definition';
-import { getMaintainer } from '@/api/project';
+import {updateDefinition} from '@/api/definition';
+import {getMaintainer} from '@/api/project';
 import MsEditCompleteHttpApi from './complete/EditCompleteHTTPApi';
 import MsEditCompleteTcpApi from './complete/EditCompleteTCPApi';
 import MsEditCompleteDubboApi from './complete/EditCompleteDubboApi';
 import MsEditCompleteSqlApi from './complete/EditCompleteSQLApi';
 
-import { Body } from '../model/ApiTestModel';
-import { getUUID } from 'metersphere-frontend/src/utils';
-import { handleCtrlSEvent } from '@/api/base-network';
-import { createComponent, Request } from './jmeter/components';
+import {Body} from '../model/ApiTestModel';
+import {getUUID} from 'metersphere-frontend/src/utils';
+import {handleCtrlSEvent} from '@/api/base-network';
+import {createComponent, Request} from './jmeter/components';
 import Sampler from './jmeter/components/sampler/sampler';
-import { TYPE_TO_C } from '@/business/automation/scenario/Setting';
-import { useApiStore } from '@/store';
+import {TYPE_TO_C} from '@/business/automation/scenario/Setting';
+import {useApiStore} from '@/store';
 
 const store = useApiStore();
 export default {
@@ -334,6 +334,8 @@ export default {
       this.sort(this.request.hashTree);
     },
     setParameter(data) {
+      // 去除Path结尾空格
+      data.path = data.path.trimEnd();
       data.name = this.currentApi.name;
       data.moduleId = this.currentApi.moduleId;
       data.modulePath = this.currentApi.modulePath;
@@ -431,6 +433,7 @@ export default {
     setParameters(data) {
       data.projectId = this.projectId;
       this.request.name = this.currentApi.name;
+      this.request.path = this.currentApi.path.trimEnd();
       data.protocol = this.currentProtocol;
       data.request = this.request;
       data.request.name = data.name;
