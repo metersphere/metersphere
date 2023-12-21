@@ -1,10 +1,8 @@
 package io.metersphere.functional.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,47 +10,40 @@ import lombok.Data;
 
 @Data
 public class FunctionalCaseComment implements Serializable {
-    @Schema(description =  "ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case_comment.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{functional_case_comment.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(description =  "功能用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "功能用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case_comment.case_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{functional_case_comment.case_id.length_range}", groups = {Created.class, Updated.class})
     private String caseId;
 
-    @Schema(description =  "评论人")
+    @Schema(description = "评论人")
     private String createUser;
 
-    @Schema(description =  "评审/测试计划执行状态:通过/不通过/重新提审/通过标准变更标记/强制通过标记/强制不通过标记/状态变更标记")
-    private String status;
-
-    @Schema(description =  "评论类型：用例评论/测试计划用例评论/评审用例评论", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{functional_case_comment.type.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 64, message = "{functional_case_comment.type.length_range}", groups = {Created.class, Updated.class})
-    private String type;
-
-    @Schema(description =  "父评论ID")
+    @Schema(description = "父评论ID")
     private String parentId;
 
-    @Schema(description =  "资源ID: 评审ID/测试计划ID")
+    @Schema(description = "资源ID: 评审ID/测试计划ID")
     private String resourceId;
 
-    @Schema(description =  "通知人")
+    @Schema(description = "通知人")
     private String notifier;
 
-    @Schema(description =  "回复人")
+    @Schema(description = "回复人")
     private String replyUser;
 
-    @Schema(description =  "创建时间")
+    @Schema(description = "创建时间")
     private Long createTime;
 
-    @Schema(description =  "更新时间")
+    @Schema(description = "更新时间")
     private Long updateTime;
 
-    @Schema(description =  "内容", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "内容", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case_comment.content.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 65535, message = "{functional_case_comment.content.length_range}", groups = {Created.class, Updated.class})
     private String content;
 
     private static final long serialVersionUID = 1L;
@@ -61,8 +52,6 @@ public class FunctionalCaseComment implements Serializable {
         id("id", "id", "VARCHAR", false),
         caseId("case_id", "caseId", "VARCHAR", false),
         createUser("create_user", "createUser", "VARCHAR", false),
-        status("status", "status", "VARCHAR", true),
-        type("type", "type", "VARCHAR", true),
         parentId("parent_id", "parentId", "VARCHAR", false),
         resourceId("resource_id", "resourceId", "VARCHAR", false),
         notifier("notifier", "notifier", "VARCHAR", false),

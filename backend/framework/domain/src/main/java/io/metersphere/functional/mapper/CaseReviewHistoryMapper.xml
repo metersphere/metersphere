@@ -6,6 +6,7 @@
     <result column="review_id" jdbcType="VARCHAR" property="reviewId" />
     <result column="case_id" jdbcType="VARCHAR" property="caseId" />
     <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="deleted" jdbcType="BIT" property="deleted" />
     <result column="notifier" jdbcType="VARCHAR" property="notifier" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
@@ -72,7 +73,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, review_id, case_id, `status`, notifier, create_user, create_time
+    id, review_id, case_id, `status`, deleted, notifier, create_user, create_time
   </sql>
   <sql id="Blob_Column_List">
     content
@@ -127,11 +128,13 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.functional.domain.CaseReviewHistory">
     insert into case_review_history (id, review_id, case_id, 
-      `status`, notifier, create_user, 
-      create_time, content)
+      `status`, deleted, notifier, 
+      create_user, create_time, content
+      )
     values (#{id,jdbcType=VARCHAR}, #{reviewId,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, 
-      #{status,jdbcType=VARCHAR}, #{notifier,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{content,jdbcType=LONGVARBINARY})
+      #{status,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT}, #{notifier,jdbcType=VARCHAR}, 
+      #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{content,jdbcType=LONGVARBINARY}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.functional.domain.CaseReviewHistory">
     insert into case_review_history
@@ -147,6 +150,9 @@
       </if>
       <if test="status != null">
         `status`,
+      </if>
+      <if test="deleted != null">
+        deleted,
       </if>
       <if test="notifier != null">
         notifier,
@@ -173,6 +179,9 @@
       </if>
       <if test="status != null">
         #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="deleted != null">
+        #{deleted,jdbcType=BIT},
       </if>
       <if test="notifier != null">
         #{notifier,jdbcType=VARCHAR},
@@ -209,6 +218,9 @@
       <if test="record.status != null">
         `status` = #{record.status,jdbcType=VARCHAR},
       </if>
+      <if test="record.deleted != null">
+        deleted = #{record.deleted,jdbcType=BIT},
+      </if>
       <if test="record.notifier != null">
         notifier = #{record.notifier,jdbcType=VARCHAR},
       </if>
@@ -232,6 +244,7 @@
       review_id = #{record.reviewId,jdbcType=VARCHAR},
       case_id = #{record.caseId,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
+      deleted = #{record.deleted,jdbcType=BIT},
       notifier = #{record.notifier,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
@@ -246,6 +259,7 @@
       review_id = #{record.reviewId,jdbcType=VARCHAR},
       case_id = #{record.caseId,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
+      deleted = #{record.deleted,jdbcType=BIT},
       notifier = #{record.notifier,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT}
@@ -264,6 +278,9 @@
       </if>
       <if test="status != null">
         `status` = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="deleted != null">
+        deleted = #{deleted,jdbcType=BIT},
       </if>
       <if test="notifier != null">
         notifier = #{notifier,jdbcType=VARCHAR},
@@ -285,6 +302,7 @@
     set review_id = #{reviewId,jdbcType=VARCHAR},
       case_id = #{caseId,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
+      deleted = #{deleted,jdbcType=BIT},
       notifier = #{notifier,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
@@ -296,6 +314,7 @@
     set review_id = #{reviewId,jdbcType=VARCHAR},
       case_id = #{caseId,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
+      deleted = #{deleted,jdbcType=BIT},
       notifier = #{notifier,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT}
@@ -303,12 +322,14 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into case_review_history
-    (id, review_id, case_id, `status`, notifier, create_user, create_time, content)
+    (id, review_id, case_id, `status`, deleted, notifier, create_user, create_time, content
+      )
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.reviewId,jdbcType=VARCHAR}, #{item.caseId,jdbcType=VARCHAR}, 
-        #{item.status,jdbcType=VARCHAR}, #{item.notifier,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, 
-        #{item.createTime,jdbcType=BIGINT}, #{item.content,jdbcType=LONGVARBINARY})
+        #{item.status,jdbcType=VARCHAR}, #{item.deleted,jdbcType=BIT}, #{item.notifier,jdbcType=VARCHAR}, 
+        #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.content,jdbcType=LONGVARBINARY}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -332,6 +353,9 @@
         </if>
         <if test="'status'.toString() == column.value">
           #{item.status,jdbcType=VARCHAR}
+        </if>
+        <if test="'deleted'.toString() == column.value">
+          #{item.deleted,jdbcType=BIT}
         </if>
         <if test="'notifier'.toString() == column.value">
           #{item.notifier,jdbcType=VARCHAR}

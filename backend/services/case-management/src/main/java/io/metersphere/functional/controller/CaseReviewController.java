@@ -110,7 +110,7 @@ public class CaseReviewController {
     @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.disAssociateCaseLog(#reviewId, #caseId)", msClass = CaseReviewLogService.class)
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_RELEVANCE)
     public void disassociate(@PathVariable String reviewId, @PathVariable String caseId) {
-        caseReviewService.disassociate(reviewId, caseId);
+        caseReviewService.disassociate(reviewId, caseId, SessionUtils.getUserId());
     }
 
     @PostMapping("/edit/pos")

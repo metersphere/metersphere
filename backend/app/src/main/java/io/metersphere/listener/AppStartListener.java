@@ -1,8 +1,6 @@
 package io.metersphere.listener;
 
 import io.metersphere.api.event.ApiEventSource;
-import io.metersphere.functional.event.CaseEventSource;
-import io.metersphere.functional.listener.CaseEventListener;
 import io.metersphere.plan.listener.ExecEventListener;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.file.FileCenter;
@@ -34,7 +32,6 @@ public class AppStartListener implements ApplicationRunner {
         LogUtils.info("初始化接口事件源");
         ApiEventSource apiEventSource = CommonBeanFactory.getBean(ApiEventSource.class);
         LogUtils.info("初始化用例管理事件源");
-        CaseEventSource caseEventSource = CommonBeanFactory.getBean(CaseEventSource.class);
         LogUtils.info("初始化性能测试事件源");
         //LoadEventSource loadEventSource = CommonBeanFactory.getBean(LoadEventSource.class);
         //todo: 注册其他事件源
@@ -44,14 +41,11 @@ public class AppStartListener implements ApplicationRunner {
         apiEventSource.addListener(listener);
 
         //todo: 注册其他监听器
-        CaseEventListener caseEventListener = CommonBeanFactory.getBean(CaseEventListener.class);
-        caseEventSource.addListener(caseEventListener);
         //loadEventSource.addListener(listener);
 
         // 触发事件
         apiEventSource.fireEvent("API", "Event after removing the listener test.");
         //loadEventSource.fireEvent("LOAD","Event after removing the listener.");
-        caseEventSource.fireEvent("CASE", "Event after removing the listener test.");
         // 加载插件
         pluginLoadService.loadPlugins();
     }
