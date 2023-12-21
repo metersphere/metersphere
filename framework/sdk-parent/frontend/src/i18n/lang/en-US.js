@@ -391,7 +391,8 @@ const message = {
     monitor: "Monitor",
     all_label: {
       case: "All Case",
-      review: "all",
+      review: "All Review",
+      plan: "All Plan"
     },
     image: "Image",
     tag: "Tag",

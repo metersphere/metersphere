@@ -6,6 +6,7 @@
       :tree-nodes="treeNodes"
       :type="'edit'"
       :name-limit="100"
+      :all-label="$t('commons.all_label.plan')"
       :delete-permission="['PROJECT_TRACK_PLAN:READ+DELETE']"
       :add-permission="['PROJECT_TRACK_PLAN:READ+CREATE']"
       :update-permission="['PROJECT_TRACK_PLAN:READ+EDIT']"
