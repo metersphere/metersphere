@@ -116,4 +116,8 @@ export default {
   margin-left: -4px;
   margin-top: 18px;
 }
+
+.plan-aside .node-tree {
+  height: 100%;
+}
 </style>
