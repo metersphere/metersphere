@@ -211,7 +211,9 @@ export default {
             buildTree(node, {path: ''});
           });
           this.treeNodes = treeNodes;
-          this.setDefaultModule();
+          if (this.operationType === 'save') {
+            this.setDefaultModule();
+          }
         });
     },
     setDefaultModule() {
