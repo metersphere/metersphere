@@ -250,7 +250,9 @@ export default {
               buildTree(node, {path: ''});
             });
             this.treeNodes = treeNodes;
-            this.setDefaultModule();
+            if (this.operationType === 'add') {
+              this.setDefaultModule();
+            }
           });
     },
     setDefaultModule() {
