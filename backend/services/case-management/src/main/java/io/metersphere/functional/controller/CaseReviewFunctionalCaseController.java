@@ -7,6 +7,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.functional.dto.ReviewFunctionalCaseDTO;
 import io.metersphere.functional.request.BaseReviewCaseBatchRequest;
 import io.metersphere.functional.request.CaseReviewFunctionalCasePosRequest;
+import io.metersphere.functional.request.BatchReviewFunctionalCaseRequest;
 import io.metersphere.functional.request.ReviewFunctionalCasePageRequest;
 import io.metersphere.functional.service.CaseReviewFunctionalCaseService;
 import io.metersphere.functional.service.CaseReviewLogService;
@@ -60,7 +61,7 @@ public class CaseReviewFunctionalCaseController {
     @Operation(summary = "用例管理-功能用例-评审列表-评审详情-列表-批量取消关联用例")
     @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.batchDisassociateCaseLog(#request)", msClass = CaseReviewLogService.class)
     public void batchDisassociate(@Validated @RequestBody BaseReviewCaseBatchRequest request) {
-        caseReviewFunctionalCaseService.disassociate(request);
+        caseReviewFunctionalCaseService.disassociate(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/edit/pos")
@@ -68,6 +69,13 @@ public class CaseReviewFunctionalCaseController {
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_UPDATE)
     public void editPos(@Validated @RequestBody CaseReviewFunctionalCasePosRequest request) {
         caseReviewFunctionalCaseService.editPos(request);
+    }
+
+    @PostMapping("/batch/review")
+    @Operation(summary = "用例管理-功能用例-评审列表-评审详情-列表-批量评审")
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_REVIEW)
+    public void batchReview(@Validated @RequestBody BatchReviewFunctionalCaseRequest request) {
+        caseReviewFunctionalCaseService.batchReview(request, SessionUtils.getUserId());
     }
 
 }

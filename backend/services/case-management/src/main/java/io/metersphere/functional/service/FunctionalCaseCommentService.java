@@ -4,7 +4,6 @@ package io.metersphere.functional.service;
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.domain.FunctionalCaseComment;
 import io.metersphere.functional.domain.FunctionalCaseCommentExample;
-import io.metersphere.functional.constants.CommentEnum;
 import io.metersphere.functional.dto.FunctionalCaseCommentDTO;
 import io.metersphere.functional.dto.FunctionalCaseDTO;
 import io.metersphere.functional.mapper.FunctionalCaseCommentMapper;
@@ -24,7 +23,6 @@ import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -87,7 +85,6 @@ public class FunctionalCaseCommentService {
         functionalCaseComment.setCreateUser(userId);
         functionalCaseComment.setCreateTime(System.currentTimeMillis());
         functionalCaseComment.setUpdateTime(System.currentTimeMillis());
-        functionalCaseComment.setType(CommentEnum.CASE.toString());
         return functionalCaseComment;
     }
 
@@ -327,7 +324,6 @@ public class FunctionalCaseCommentService {
         functionalCaseComment.setCreateUser(null);
         functionalCaseComment.setCreateTime(null);
         functionalCaseComment.setUpdateTime(System.currentTimeMillis());
-        functionalCaseComment.setType(CommentEnum.CASE.toString());
         return functionalCaseComment;
     }
 }

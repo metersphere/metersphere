@@ -30,6 +30,10 @@ public class CaseReviewHistory implements Serializable {
     @Size(min = 1, max = 64, message = "{case_review_history.status.length_range}", groups = {Created.class, Updated.class})
     private String status;
 
+    @Schema(description = "是否是取消关联或评审被删除的：0-否，1-是", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{case_review_history.deleted.not_blank}", groups = {Created.class})
+    private Boolean deleted;
+
     @Schema(description = "通知人")
     private String notifier;
 
@@ -49,6 +53,7 @@ public class CaseReviewHistory implements Serializable {
         reviewId("review_id", "reviewId", "VARCHAR", false),
         caseId("case_id", "caseId", "VARCHAR", false),
         status("status", "status", "VARCHAR", true),
+        deleted("deleted", "deleted", "BIT", false),
         notifier("notifier", "notifier", "VARCHAR", false),
         createUser("create_user", "createUser", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),

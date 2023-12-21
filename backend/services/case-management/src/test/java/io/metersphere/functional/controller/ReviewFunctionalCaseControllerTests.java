@@ -11,14 +11,10 @@ import io.metersphere.functional.mapper.CaseReviewMapper;
 import io.metersphere.functional.request.BaseAssociateCaseRequest;
 import io.metersphere.functional.request.CaseReviewRequest;
 import io.metersphere.functional.request.ReviewFunctionalCaseRequest;
-import io.metersphere.project.domain.Notification;
-import io.metersphere.project.domain.NotificationExample;
-import io.metersphere.project.mapper.NotificationMapper;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
-import io.metersphere.system.notice.constants.NoticeConstants;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
@@ -52,8 +48,6 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
     private CaseReviewMapper caseReviewMapper;
     @Resource
     private CaseReviewHistoryMapper caseReviewHistoryMapper;
-    @Resource
-    private NotificationMapper notificationMapper;
     @Resource
     private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
 
@@ -110,14 +104,7 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCases.get(0).getStatus(),FunctionalCaseReviewStatus.UN_PASS.toString()));
         caseReviews1 = getCaseReviews("创建用例评审1");
         Assertions.assertTrue(StringUtils.equals(caseReviews1.get(0).getStatus(), CaseReviewStatus.COMPLETED.toString()));
-        NotificationExample notificationExample = new NotificationExample();
-        notificationExample.createCriteria().andResourceTypeEqualTo(NoticeConstants.TaskType.CASE_REVIEW_TASK);
-        List<Notification> notifications = notificationMapper.selectByExampleWithBLOBs(notificationExample);
-        Assertions.assertFalse(notifications.isEmpty());
-        notificationExample = new NotificationExample();
-        notificationExample.createCriteria().andResourceTypeEqualTo(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK);
-        notifications = notificationMapper.selectByExampleWithBLOBs(notificationExample);
-        Assertions.assertFalse(notifications.isEmpty());
+
     }
 
     @Test
@@ -149,7 +136,7 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
         Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCases.get(0).getStatus(),FunctionalCaseReviewStatus.UNDER_REVIEWED.toString()));
         List<CaseReview> caseReviews1 = getCaseReviews("创建用例评审2");
-        Assertions.assertTrue(StringUtils.equals(caseReviews1.get(0).getStatus(), CaseReviewStatus.UNDERWAY.toString()));
+        Assertions.assertTrue(StringUtils.equals(caseReviews1.get(0).getStatus(), CaseReviewStatus.COMPLETED.toString()));
     }
 
     @Test

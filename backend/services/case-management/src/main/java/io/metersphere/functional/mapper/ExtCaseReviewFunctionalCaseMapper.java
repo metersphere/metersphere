@@ -21,6 +21,8 @@ public interface ExtCaseReviewFunctionalCaseMapper {
 
     Long getUnCompletedCaseCount(@Param("reviewId") String reviewId, @Param("statusList") List<String> statusList);
 
+    Long getUnCompletedCaseCountExcludes(@Param("reviewId") String reviewId, @Param("statusList") List<String> statusList, @Param("ids") List<String> ids);
+
     List<String> getCaseIdsByReviewId(@Param("reviewId") String reviewId);
 
     List<ReviewFunctionalCaseDTO> page(@Param("request") ReviewFunctionalCasePageRequest request, @Param("deleted") boolean deleted, @Param("userId") String userId, @Param("sort") String sort);
@@ -33,5 +35,13 @@ public interface ExtCaseReviewFunctionalCaseMapper {
 
     List<String> getIds(@Param("request") BaseReviewCaseBatchRequest request, @Param("userId") String userId, @Param("deleted") boolean deleted);
 
+    List<CaseReviewFunctionalCase> getListByRequest(@Param("request") BaseReviewCaseBatchRequest request, @Param("userId") String userId, @Param("deleted") boolean deleted);
+
     List<CaseReviewFunctionalCase> getList(@Param("reviewId") String reviewId, @Param("reviewIds") List<String> reviewIds, @Param("deleted") boolean deleted);
+
+    List<CaseReviewFunctionalCase> getListIncludes(@Param("reviewId") String reviewId, @Param("caseIds") List<String> caseIds, @Param("deleted") boolean deleted);
+
+    List<CaseReviewFunctionalCase> getListExcludes(@Param("reviewIds")List<String> reviewIds, @Param("caseIds") List<String> caseIds, @Param("deleted") boolean deleted);
+
+
 }

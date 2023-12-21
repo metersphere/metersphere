@@ -25,6 +25,8 @@ public class DeleteFunctionalCaseService {
     private FunctionalCaseMapper functionalCaseMapper;
     @Resource
     private FunctionalCaseCommentMapper functionalCaseCommentMapper;
+    @Resource
+    private CaseReviewHistoryMapper caseReviewHistoryMapper;
 
 
     public void deleteFunctionalCaseResource(List<String> ids, String projectId) {
@@ -49,7 +51,10 @@ public class DeleteFunctionalCaseService {
         FunctionalCaseExample caseExample = new FunctionalCaseExample();
         caseExample.createCriteria().andIdIn(ids).andProjectIdEqualTo(projectId);
         functionalCaseMapper.deleteByExample(caseExample);
-
+        //删除评审历史
+        CaseReviewHistoryExample caseReviewHistoryExample = new CaseReviewHistoryExample();
+        caseReviewHistoryExample.createCriteria().andCaseIdIn(ids);
+        caseReviewHistoryMapper.deleteByExample(caseReviewHistoryExample);
 
     }
 }

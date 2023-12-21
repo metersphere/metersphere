@@ -41,7 +41,7 @@ INSERT INTO functional_case_module(id, project_id, name, parent_id, pos, create_
 
 INSERT INTO case_review_module(id, project_id, name, parent_id, pos, create_time, update_time, create_user, update_user)
 VALUES ('CASE_REVIEW_REAL_MODULE_ID', 'project-gyq-case-review-test', '用例评审所属模块', 'NONE', 0, 1669174143999, 1669174143999, 'admin', 'admin'),
-       ('CASE_REVIEW_REAL_MODULE_ID2', 'project-gyq-case-review-test', '用例评审所属模块', 'NONE', 0, 1669174143999, 1669174143999, 'admin', 'admin');
+       ('CASE_REVIEW_REAL_MODULE_ID2', 'project-gyq-case-review-test', '用例评审所属模块1', 'NONE', 0, 1669174143999, 1669174143999, 'admin', 'admin');
 
 
 INSERT INTO user(id, name, email, password, create_time, update_time, language, last_organization_id, phone, source,

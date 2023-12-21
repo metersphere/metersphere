@@ -17,6 +17,7 @@
         <module>plugin</module>
         <module>domain</module>
         <module>sdk</module>
+        <module>provider</module>
     </modules>
 
 </project>

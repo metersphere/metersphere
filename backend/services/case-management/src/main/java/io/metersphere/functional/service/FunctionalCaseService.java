@@ -10,11 +10,11 @@ import io.metersphere.functional.mapper.FunctionalCaseFollowerMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.CaseManagementResultCode;
-import io.metersphere.functional.utils.CaseListenerUtils;
 import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.service.ProjectTemplateService;
+import io.metersphere.provider.BaseCaseProvider;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.FunctionalCaseExecuteResult;
 import io.metersphere.sdk.constants.TemplateScene;
@@ -91,6 +91,9 @@ public class FunctionalCaseService {
 
     @Resource
     private BaseCustomFieldService baseCustomFieldService;
+
+    @Resource
+    private BaseCaseProvider provider;
 
     private static final String CASE_MODULE_COUNT_ALL = "all";
 
@@ -401,7 +404,9 @@ public class FunctionalCaseService {
             param.put(CaseEvent.Param.CASE_IDS, ids);
             doDelete(ids, userId);
         }
-        CaseListenerUtils.addListener(param, CaseEvent.Event.DELETE_FUNCTIONAL_CASE);
+        param.put(CaseEvent.Param.USER_ID, userId);
+        param.put(CaseEvent.Param.EVENT_NAME,CaseEvent.Event.DELETE_FUNCTIONAL_CASE);
+        provider.updateCaseReview(param);
     }
 
 
