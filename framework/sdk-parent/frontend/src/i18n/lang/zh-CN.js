@@ -385,6 +385,7 @@ const message = {
     all_label: {
       case: "全部用例",
       review: "全部评审",
+      plan: "全部计划"
     },
     image: "镜像",
     tag: "标签",
