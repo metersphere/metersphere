@@ -11,8 +11,8 @@ import io.metersphere.functional.dto.CaseReviewUserDTO;
 import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.CaseManagementResultCode;
-import io.metersphere.functional.utils.CaseListenerUtils;
 import io.metersphere.project.dto.ModuleCountDTO;
+import io.metersphere.provider.BaseCaseProvider;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.exception.MSException;
@@ -26,7 +26,6 @@ import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -78,6 +77,8 @@ public class CaseReviewService {
     private CaseReviewModuleService caseReviewModuleService;
     @Resource
     private ExtFunctionalCaseMapper extFunctionalCaseMapper;
+    @Resource
+    private BaseCaseProvider provider;
 
 
     private static final String CASE_MODULE_COUNT_ALL = "all";
@@ -436,7 +437,7 @@ public class CaseReviewService {
      */
     public void associateCase(CaseReviewAssociateRequest request, String userId) {
         String caseReviewId = request.getReviewId();
-        CaseReview caseReviewExist = checkCaseReview(caseReviewId);
+        checkCaseReview(caseReviewId);
         BaseAssociateCaseRequest baseAssociateCaseRequest = request.getBaseAssociateCaseRequest();
         List<String> caseIds = doSelectIds(baseAssociateCaseRequest, baseAssociateCaseRequest.getProjectId());
         if (CollectionUtils.isEmpty(caseIds)) {
@@ -463,19 +464,14 @@ public class CaseReviewService {
         } finally {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
-        Map<String, Object> param = getParam(caseReviewFunctionalCases, caseReviewExist.getCaseCount() + caseRealIds.size(), caseReviewId);
-        CaseListenerUtils.addListener(param, CaseEvent.Event.ASSOCIATE);
-    }
-
-    private Map<String, Object> getParam(List<CaseReviewFunctionalCase> caseReviewFunctionalCases, int caseReviewExist, String caseReviewId) {
-        List<CaseReviewFunctionalCase> passList = caseReviewFunctionalCases.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getStatus(), FunctionalCaseReviewStatus.PASS.toString())).toList();
         Map<String, Object> param = new HashMap<>();
-        param.put(CaseEvent.Param.CASE_COUNT, caseReviewExist);
+        param.put(CaseEvent.Param.USER_ID, userId);
         param.put(CaseEvent.Param.REVIEW_ID, caseReviewId);
-        param.put(CaseEvent.Param.PASS_COUNT, passList.size());
-        return param;
+        param.put(CaseEvent.Param.CASE_IDS,castIds);
+        param.put(CaseEvent.Param.CASE_COUNT,caseRealIds.size());
+        param.put(CaseEvent.Param.EVENT_NAME,CaseEvent.Event.ASSOCIATE);
+        provider.updateCaseReview(param);
     }
-
 
     public <T> List<String> doSelectIds(T dto, String projectId) {
         BaseFunctionalCaseBatchDTO request = (BaseFunctionalCaseBatchDTO) dto;
@@ -557,16 +553,18 @@ public class CaseReviewService {
 
     }
 
-    public void disassociate(String reviewId, String caseId) {
+    public void disassociate(String reviewId, String caseId, String userId) {
         //1.刪除评审与功能用例关联关系
         CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
         caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo(caseId);
         caseReviewFunctionalCaseMapper.deleteByExample(caseReviewFunctionalCaseExample);
 
-        List<CaseReviewFunctionalCase> caseReviewFunctionalCases = extCaseReviewFunctionalCaseMapper.getList(reviewId, null, false);
-        Map<String, Object> param = getParam(caseReviewFunctionalCases, caseReviewFunctionalCases.size(), reviewId);
+        Map<String, Object> param = new HashMap<>();
+        param.put(CaseEvent.Param.REVIEW_ID, reviewId);
         param.put(CaseEvent.Param.CASE_IDS, List.of(caseId));
-        CaseListenerUtils.addListener(param, CaseEvent.Event.DISASSOCIATE);
+        param.put(CaseEvent.Param.USER_ID, userId);
+        param.put(CaseEvent.Param.EVENT_NAME,CaseEvent.Event.DISASSOCIATE);
+        provider.updateCaseReview(param);
     }
 
     public Map<String, Long> moduleCount(CaseReviewPageRequest request) {

@@ -85,7 +85,7 @@ VALUES('gyq_custom_id1', 'functional_priority', 'FUNCTIONAL', 'SELECT', '', 1, '
 INSERT INTO custom_field(id, name, scene, `type`, remark, internal, scope_type, create_time, update_time, create_user, scope_id)
 VALUES('gyq_custom_id2', 'level', 'FUNCTIONAL', 'SELECT', '', 1, 'ORGANIZATION', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'test_template_case_trash_id');
 
-INSERT INTO functional_case_comment(id, case_id, create_user, status, parent_id, resource_id, notifier, content, reply_user, create_time, update_time)
-VALUES ('trash_comment_id', 'Trash_TEST_FUNCTIONAL_CASE_ID', 'gyq', null, null, null, 'gyq','你好', null, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000);
+INSERT INTO functional_case_comment(id, case_id, create_user, parent_id, resource_id, notifier, content, reply_user, create_time, update_time)
+VALUES ('trash_comment_id', 'Trash_TEST_FUNCTIONAL_CASE_ID', 'gyq', null, null, 'gyq','你好', null, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000);
 
 INSERT INTO functional_case_module(id, project_id, name, parent_id, pos, create_time, update_time, create_user, update_user) VALUES ('Trash_TEST_MOUDLE_ID', '100001100001', '测试回收站所属模块', 'NONE', 0, 1669174143999, 1669174143999, 'admin', 'admin');

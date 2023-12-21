@@ -1,5 +1,7 @@
 package io.metersphere.functional.controller;
 
+import io.metersphere.functional.constants.CaseReviewPassRule;
+import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.domain.CaseReviewFunctionalCase;
 import io.metersphere.functional.domain.CaseReviewFunctionalCaseExample;
 import io.metersphere.functional.mapper.CaseReviewFunctionalCaseMapper;
@@ -9,6 +11,7 @@ import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.BaseCondition;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,6 +23,8 @@ import org.springframework.util.LinkedMultiValueMap;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -34,6 +39,8 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
     public static final String FUNCTIONAL_CASE_ADD_URL = "/functional/case/add";
 
     public static final String REVIEW_FUNCTIONAL_CASE_POS = "/case/review/detail/edit/pos";
+
+    public static final String REVIEW_FUNCTIONAL_CASE_BATCH_REVIEW = "/case/review/detail/batch/review";
 
     @Resource
     private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
@@ -167,6 +174,65 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         Assertions.assertTrue(Objects.equals(pos5, pos3));
         Assertions.assertTrue(pos6 > pos4);
     }
+
+
+    @Test
+    @Order(7)
+    public void testBatchReview() throws Exception {
+        BatchReviewFunctionalCaseRequest request = new BatchReviewFunctionalCaseRequest();
+        request.setReviewId("wx_review_id_1");
+        request.setReviewPassRule(CaseReviewPassRule.MULTIPLE.toString());
+        request.setStatus(FunctionalCaseReviewStatus.RE_REVIEWED.toString());
+        request.setSelectAll(true);
+        request.setContent("测试批量评审通过");
+        this.requestPostWithOk(REVIEW_FUNCTIONAL_CASE_BATCH_REVIEW, request);
+
+        request = new BatchReviewFunctionalCaseRequest();
+        request.setReviewId("wx_review_id_1");
+        request.setReviewPassRule(CaseReviewPassRule.SINGLE.toString());
+        request.setStatus(FunctionalCaseReviewStatus.UN_PASS.toString());
+        request.setSelectAll(true);
+        List<String>excludeIds = new ArrayList<>();
+        excludeIds.add("gyq_test_4");
+        request.setExcludeIds(excludeIds);
+        request.setContent("测试批量评审不通过");
+        this.requestPostWithOk(REVIEW_FUNCTIONAL_CASE_BATCH_REVIEW, request);
+        CaseReviewFunctionalCase caseReviewFunctionalCase = caseReviewFunctionalCaseMapper.selectByPrimaryKey("gyq_test_4");
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCase.getStatus(),FunctionalCaseReviewStatus.UNDER_REVIEWED.toString()));
+
+        request = new BatchReviewFunctionalCaseRequest();
+        request.setReviewId("wx_review_id_1");
+        request.setReviewPassRule(CaseReviewPassRule.SINGLE.toString());
+        request.setStatus(FunctionalCaseReviewStatus.PASS.toString());
+        request.setSelectAll(false);
+        List<String>ids = new ArrayList<>();
+        ids.add("gyq_test_3");
+        request.setSelectIds(ids);
+        this.requestPostWithOk(REVIEW_FUNCTIONAL_CASE_BATCH_REVIEW, request);
+        caseReviewFunctionalCase = caseReviewFunctionalCaseMapper.selectByPrimaryKey("gyq_test_3");
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCase.getStatus(),FunctionalCaseReviewStatus.PASS.toString()));
+
+        request = new BatchReviewFunctionalCaseRequest();
+        request.setReviewId("wx_review_id_1");
+        request.setReviewPassRule(CaseReviewPassRule.MULTIPLE.toString());
+        request.setStatus(FunctionalCaseReviewStatus.PASS.toString());
+        request.setSelectAll(true);
+        request.setNotifier("gyq;admin");
+        request.setContent("测试批量评审通过");
+        this.requestPostWithOk(REVIEW_FUNCTIONAL_CASE_BATCH_REVIEW, request);
+    }
+
+    @Test
+    @Order(8)
+    public void testBatchReviewFalse() throws Exception {
+        BatchReviewFunctionalCaseRequest request = new BatchReviewFunctionalCaseRequest();
+        request.setReviewId("wx_review_id_1");
+        request.setReviewPassRule(CaseReviewPassRule.SINGLE.toString());
+        request.setStatus(FunctionalCaseReviewStatus.UN_PASS.toString());
+        request.setSelectAll(true);
+        this.requestPost(REVIEW_FUNCTIONAL_CASE_BATCH_REVIEW, request).andExpect(status().is5xxServerError());
+    }
+
 
     private List<CaseReviewFunctionalCase> getCaseReviewFunctionalCase(String reviewId) {
         CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();

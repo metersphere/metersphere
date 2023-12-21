@@ -5,8 +5,6 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="case_id" jdbcType="VARCHAR" property="caseId" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
-    <result column="status" jdbcType="VARCHAR" property="status" />
-    <result column="type" jdbcType="VARCHAR" property="type" />
     <result column="parent_id" jdbcType="VARCHAR" property="parentId" />
     <result column="resource_id" jdbcType="VARCHAR" property="resourceId" />
     <result column="notifier" jdbcType="VARCHAR" property="notifier" />
@@ -76,8 +74,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, case_id, create_user, `status`, `type`, parent_id, resource_id, notifier, reply_user, 
-    create_time, update_time
+    id, case_id, create_user, parent_id, resource_id, notifier, reply_user, create_time, 
+    update_time
   </sql>
   <sql id="Blob_Column_List">
     content
@@ -132,15 +130,13 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.functional.domain.FunctionalCaseComment">
     insert into functional_case_comment (id, case_id, create_user, 
-      `status`, `type`, parent_id, 
-      resource_id, notifier, reply_user, 
-      create_time, update_time, content
-      )
+      parent_id, resource_id, notifier, 
+      reply_user, create_time, update_time, 
+      content)
     values (#{id,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
-      #{status,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{parentId,jdbcType=VARCHAR}, 
-      #{resourceId,jdbcType=VARCHAR}, #{notifier,jdbcType=VARCHAR}, #{replyUser,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{content,jdbcType=LONGVARCHAR}
-      )
+      #{parentId,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, #{notifier,jdbcType=VARCHAR}, 
+      #{replyUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
+      #{content,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.functional.domain.FunctionalCaseComment">
     insert into functional_case_comment
@@ -153,12 +149,6 @@
       </if>
       <if test="createUser != null">
         create_user,
-      </if>
-      <if test="status != null">
-        `status`,
-      </if>
-      <if test="type != null">
-        `type`,
       </if>
       <if test="parentId != null">
         parent_id,
@@ -191,12 +181,6 @@
       </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
-      </if>
-      <if test="status != null">
-        #{status,jdbcType=VARCHAR},
-      </if>
-      <if test="type != null">
-        #{type,jdbcType=VARCHAR},
       </if>
       <if test="parentId != null">
         #{parentId,jdbcType=VARCHAR},
@@ -239,12 +223,6 @@
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
-      <if test="record.status != null">
-        `status` = #{record.status,jdbcType=VARCHAR},
-      </if>
-      <if test="record.type != null">
-        `type` = #{record.type,jdbcType=VARCHAR},
-      </if>
       <if test="record.parentId != null">
         parent_id = #{record.parentId,jdbcType=VARCHAR},
       </if>
@@ -276,8 +254,6 @@
     set id = #{record.id,jdbcType=VARCHAR},
       case_id = #{record.caseId,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
-      `status` = #{record.status,jdbcType=VARCHAR},
-      `type` = #{record.type,jdbcType=VARCHAR},
       parent_id = #{record.parentId,jdbcType=VARCHAR},
       resource_id = #{record.resourceId,jdbcType=VARCHAR},
       notifier = #{record.notifier,jdbcType=VARCHAR},
@@ -294,8 +270,6 @@
     set id = #{record.id,jdbcType=VARCHAR},
       case_id = #{record.caseId,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
-      `status` = #{record.status,jdbcType=VARCHAR},
-      `type` = #{record.type,jdbcType=VARCHAR},
       parent_id = #{record.parentId,jdbcType=VARCHAR},
       resource_id = #{record.resourceId,jdbcType=VARCHAR},
       notifier = #{record.notifier,jdbcType=VARCHAR},
@@ -314,12 +288,6 @@
       </if>
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
-      </if>
-      <if test="status != null">
-        `status` = #{status,jdbcType=VARCHAR},
-      </if>
-      <if test="type != null">
-        `type` = #{type,jdbcType=VARCHAR},
       </if>
       <if test="parentId != null">
         parent_id = #{parentId,jdbcType=VARCHAR},
@@ -349,8 +317,6 @@
     update functional_case_comment
     set case_id = #{caseId,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
-      `status` = #{status,jdbcType=VARCHAR},
-      `type` = #{type,jdbcType=VARCHAR},
       parent_id = #{parentId,jdbcType=VARCHAR},
       resource_id = #{resourceId,jdbcType=VARCHAR},
       notifier = #{notifier,jdbcType=VARCHAR},
@@ -364,8 +330,6 @@
     update functional_case_comment
     set case_id = #{caseId,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
-      `status` = #{status,jdbcType=VARCHAR},
-      `type` = #{type,jdbcType=VARCHAR},
       parent_id = #{parentId,jdbcType=VARCHAR},
       resource_id = #{resourceId,jdbcType=VARCHAR},
       notifier = #{notifier,jdbcType=VARCHAR},
@@ -376,15 +340,14 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into functional_case_comment
-    (id, case_id, create_user, `status`, `type`, parent_id, resource_id, notifier, reply_user, 
-      create_time, update_time, content)
+    (id, case_id, create_user, parent_id, resource_id, notifier, reply_user, create_time, 
+      update_time, content)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.caseId,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, 
-        #{item.status,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, #{item.parentId,jdbcType=VARCHAR}, 
-        #{item.resourceId,jdbcType=VARCHAR}, #{item.notifier,jdbcType=VARCHAR}, #{item.replyUser,jdbcType=VARCHAR}, 
-        #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, #{item.content,jdbcType=LONGVARCHAR}
-        )
+        #{item.parentId,jdbcType=VARCHAR}, #{item.resourceId,jdbcType=VARCHAR}, #{item.notifier,jdbcType=VARCHAR}, 
+        #{item.replyUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, 
+        #{item.content,jdbcType=LONGVARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -405,12 +368,6 @@
         </if>
         <if test="'create_user'.toString() == column.value">
           #{item.createUser,jdbcType=VARCHAR}
-        </if>
-        <if test="'status'.toString() == column.value">
-          #{item.status,jdbcType=VARCHAR}
-        </if>
-        <if test="'type'.toString() == column.value">
-          #{item.type,jdbcType=VARCHAR}
         </if>
         <if test="'parent_id'.toString() == column.value">
           #{item.parentId,jdbcType=VARCHAR}

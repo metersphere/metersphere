@@ -5,19 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class ReviewFunctionalCaseRequest {
-
-    @Schema(description = "项目Id")
-    @NotBlank(message = "{case_review.project_id.not_blank}")
-    private String projectId;
-
-    @Schema(description = "用例评审Id")
-    @NotBlank(message = "{case_review.review_id.not_blank}")
-    private String reviewId;
-
-    @Schema(description = "功能用例id")
-    @NotBlank(message = "{functional_case.case_id.not_blank}")
-    private String caseId;
+public class BatchReviewFunctionalCaseRequest extends BaseReviewCaseBatchRequest{
 
     @Schema(description = "评审规则")
     @NotBlank(message = "{case_review.review_pass_rule.not_blank}")
@@ -32,4 +20,5 @@ public class ReviewFunctionalCaseRequest {
 
     @Schema(description =  "评论@的人的Id, 多个以';'隔开")
     private String  notifier;
+
 }

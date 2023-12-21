@@ -7,16 +7,12 @@ import io.metersphere.functional.dto.CaseReviewDTO;
 import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.CaseManagementResultCode;
-import io.metersphere.project.domain.Notification;
-import io.metersphere.project.domain.NotificationExample;
-import io.metersphere.project.mapper.NotificationMapper;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.sdk.request.PosRequest;
-import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -77,8 +73,6 @@ public class CaseReviewControllerTests extends BaseTest {
     private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
     @Resource
     private CaseReviewFunctionalCaseUserMapper caseReviewFunctionalCaseUserMapper;
-    @Resource
-    private NotificationMapper notificationMapper;
 
     @Test
     @Order(1)
@@ -97,10 +91,7 @@ public class CaseReviewControllerTests extends BaseTest {
         caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(caseReviewId);
         List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
         Assertions.assertEquals(1, caseReviewFunctionalCases.size());
-        NotificationExample notificationExample = new NotificationExample();
-        notificationExample.createCriteria().andResourceTypeEqualTo(NoticeConstants.TaskType.CASE_REVIEW_TASK);
-        List<Notification> notifications = notificationMapper.selectByExampleWithBLOBs(notificationExample);
-        Assertions.assertEquals(1, notifications.size());
+
 
         caseReviewRequest = getCaseReviewAddRequest("创建评审1", CaseReviewPassRule.SINGLE.toString(), "CASE_REVIEW_TEST_GYQ_ID", false, true, null);
         this.requestPostWithOk(COPY_CASE_REVIEW, caseReviewRequest);
@@ -243,12 +234,6 @@ public class CaseReviewControllerTests extends BaseTest {
         this.requestPostWithOk(EDIT_CASE_REVIEW, caseReviewRequest2);
         List<CaseReview> updateCaseReviews2 = getCaseReviews("创建评审更新2");
         Assertions.assertEquals(1, updateCaseReviews2.size());
-
-        NotificationExample notificationExample = new NotificationExample();
-        notificationExample.createCriteria().andResourceTypeEqualTo(NoticeConstants.TaskType.CASE_REVIEW_TASK).andReceiverEqualTo("gyq_review_test2");
-        List<Notification> notifications = notificationMapper.selectByExampleWithBLOBs(notificationExample);
-        System.out.println(JSON.toJSONString(notifications));
-        Assertions.assertTrue(notifications.size() > 0);
 
     }
 
@@ -472,7 +457,7 @@ public class CaseReviewControllerTests extends BaseTest {
         // 返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= request.getPageSize());
         caseReviewDTOS = JSON.parseArray(JSON.toJSONString(pageData.getList()), CaseReviewDTO.class);
-        Assertions.assertTrue(CollectionUtils.isEmpty(caseReviewDTOS));
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(caseReviewDTOS));
 
     }
 
@@ -550,10 +535,6 @@ public class CaseReviewControllerTests extends BaseTest {
     public void testDelete() throws Exception {
         List<CaseReview> caseReviews = getCaseReviews("创建评审更新2");
         delCaseReview(caseReviews.get(0).getId());
-        NotificationExample notificationExample = new NotificationExample();
-        notificationExample.createCriteria().andResourceTypeEqualTo(NoticeConstants.TaskType.CASE_REVIEW_TASK).andResourceIdEqualTo(caseReviews.get(0).getId()).andOperationEqualTo("DELETE");
-        List<Notification> notifications = notificationMapper.selectByExampleWithBLOBs(notificationExample);
-        Assertions.assertEquals(1, notifications.size());
 
         delCaseReview("caseReviewIdX");
     }

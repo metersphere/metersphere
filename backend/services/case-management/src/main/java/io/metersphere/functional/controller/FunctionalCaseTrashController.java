@@ -72,7 +72,7 @@ public class FunctionalCaseTrashController {
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteTrashCaseLog(#id)", msClass = FunctionalCaseLogService.class)
     public void deleteCase(@PathVariable String id) {
-        functionalCaseTrashService.deleteCase(id);
+        functionalCaseTrashService.deleteCase(id, SessionUtils.getUserId());
     }
 
     @PostMapping("/batch/delete")
@@ -80,7 +80,7 @@ public class FunctionalCaseTrashController {
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.batchDeleteTrashCaseLog(#request)", msClass = FunctionalCaseLogService.class)
     public void batchDeleteCase(@Validated @RequestBody FunctionalCaseBatchRequest request) {
-        functionalCaseTrashService.batchDeleteCase(request);
+        functionalCaseTrashService.batchDeleteCase(request, SessionUtils.getUserId());
     }
 
 }
