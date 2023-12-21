@@ -16,20 +16,23 @@ import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.annotation.MsRequestLog;
-import io.metersphere.request.member.*;
+import io.metersphere.request.member.AddMemberRequest;
+import io.metersphere.request.member.EditPassWordRequest;
+import io.metersphere.request.member.QueryMemberRequest;
+import io.metersphere.request.member.UserRequest;
 import io.metersphere.request.resourcepool.UserBatchProcessRequest;
 import io.metersphere.service.BaseCheckPermissionService;
 import io.metersphere.service.BaseUserService;
 import io.metersphere.service.UserService;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @RequestMapping("user")
@@ -93,7 +96,7 @@ public class UserController {
     }
 
     @PostMapping("/special/ws/member/list/all")
-    @RequiresPermissions(PermissionConstants.SYSTEM_WORKSPACE_READ)
+    @RequiresPermissions(value = {PermissionConstants.SYSTEM_WORKSPACE_READ, PermissionConstants.WORKSPACE_USER_READ}, logical = Logical.OR)
     public List<User> getMemberListByAdmin(@RequestBody QueryMemberRequest request) {
         return baseUserService.getMemberList(request);
     }
