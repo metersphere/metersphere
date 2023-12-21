@@ -7,6 +7,7 @@ import io.metersphere.api.domain.ApiFileResource;
 import io.metersphere.api.dto.debug.*;
 import io.metersphere.api.dto.request.MsScenario;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
+import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.api.mapper.ApiDebugBlobMapper;
 import io.metersphere.api.mapper.ApiDebugMapper;
 import io.metersphere.api.parser.ImportParserFactory;
@@ -29,9 +30,10 @@ import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.constants.ResourcePoolTypeEnum;
+import io.metersphere.sdk.file.FileCenter;
+import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
-import io.metersphere.sdk.util.FileAssociationSourceUtil;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
@@ -42,8 +44,6 @@ import io.metersphere.system.domain.TestResourcePoolOrganizationExample;
 import io.metersphere.system.dto.pool.TestResourceDTO;
 import io.metersphere.system.dto.pool.TestResourceNodeDTO;
 import io.metersphere.system.dto.pool.TestResourcePoolDTO;
-import io.metersphere.sdk.file.FileCenter;
-import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.TestResourcePoolBlobMapper;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
@@ -339,7 +339,7 @@ public class ApiDebugControllerTests extends BaseTest {
      */
     private static void assertLinkFile(String id, List<String> fileIds) {
         FileAssociationService fileAssociationService = CommonBeanFactory.getBean(FileAssociationService.class);
-        List<String> linkFileIds = fileAssociationService.getFiles(id, FileAssociationSourceUtil.SOURCE_TYPE_API_DEBUG)
+        List<String> linkFileIds = fileAssociationService.getFiles(id)
                 .stream()
                 .map(FileInfo::getFileId)
                 .toList();
@@ -406,6 +406,42 @@ public class ApiDebugControllerTests extends BaseTest {
 
         mockPost("/api/debug", "");
         // @@请求成功
+        this.requestPostWithOk(DEBUG, request);
+
+        // 测试 FORM_DATA
+        MockMultipartFile file = getMockMultipartFile();
+        String fileId = doUploadTempFile(file);
+        request.setTempFileIds(List.of(fileId, fileMetadataId));
+        msHTTPElement = MsHTTPElementTest.getMsHttpElement();
+        Body generalBody = MsHTTPElementTest.getGeneralBody();
+        generalBody.setBodyType(Body.BodyType.FORM_DATA.name());
+        msHTTPElement.setBody(generalBody);
+        request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
+        this.requestPostWithOk(DEBUG, request);
+
+        // 测试 WWW_FORM
+        generalBody.setBodyType(Body.BodyType.WWW_FORM.name());
+        request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
+        this.requestPostWithOk(DEBUG, request);
+
+        // 测试 BINARY
+        generalBody.setBodyType(Body.BodyType.BINARY.name());
+        request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
+        this.requestPostWithOk(DEBUG, request);
+
+        // 测试 JSON
+        generalBody.setBodyType(Body.BodyType.JSON.name());
+        request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
+        this.requestPostWithOk(DEBUG, request);
+
+        // 测试 XML
+        generalBody.setBodyType(Body.BodyType.XML.name());
+        request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
+        this.requestPostWithOk(DEBUG, request);
+
+        // 测试 XML
+        generalBody.setBodyType(Body.BodyType.RAW.name());
+        request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
         this.requestPostWithOk(DEBUG, request);
 
         // 增加覆盖率

@@ -50,7 +50,7 @@ public class DefaultRepositoryDir {
     private static final String PROJECT_FILE_MANAGEMENT_PREVIEW_DIR = PROJECT_DIR + "/file-management/preview";
     /**
      * 接口调试相关文件的存储目录
-     * project/{projectId}/apiCase/{apiDebugId}
+     * project/{projectId}/api-debug/{apiDebugId}
      */
     private static final String PROJECT_API_DEBUG_DIR = PROJECT_DIR + "/api-debug/%s";
     private static final String PROJECT_BUG_DIR = PROJECT_DIR + "/bug/%s";

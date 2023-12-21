@@ -8,7 +8,6 @@ import lombok.Data;
  */
 @Data
 public class BinaryBody {
-    private String fileId;
-    private String fileName;
+    private BodyFile bodyFile;
     private String description;
 }

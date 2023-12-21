@@ -19,8 +19,12 @@
         SELECT
             file_association.id AS id,
             file_association.file_id AS fileId,
-            CONCAT( file_metadata.`name`, '.', file_metadata.type ) AS fileName,
+            CONCAT( file_metadata.`name`, IF(LENGTH(file_metadata.type) = 0, '', '.'), file_metadata.type ) AS fileName,
             file_metadata.size AS size,
+            file_metadata.storage,
+            file_metadata.project_id,
+            file_metadata.module_id,
+            file_metadata.id as metadataId,
 	        'false' AS local,
 	        file_association.create_user AS createUser,
 	        file_association.create_time AS createTime
@@ -29,7 +33,6 @@
             LEFT JOIN file_metadata ON file_association.file_id = file_metadata.id
         WHERE
             file_association.source_id = #{sourceId}
-          AND file_association.source_type = #{sourceType}
     </select>
 
     <select id="selectFileIdsBySourceId" resultType="io.metersphere.project.domain.FileAssociation">

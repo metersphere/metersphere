@@ -337,11 +337,10 @@ public class FileAssociationService {
      * 获取文件列表接口
      *
      * @param sourceId
-     * @param sourceType
      * @return
      */
-    public List<FileInfo> getFiles(String sourceId, String sourceType) {
-        return extFileAssociationMapper.selectAssociationFileInfo(sourceId, sourceType);
+    public List<FileInfo> getFiles(String sourceId) {
+        return extFileAssociationMapper.selectAssociationFileInfo(sourceId);
     }
 
     public List<FileAssociation> getFileAssociations(List<String> sourceIds, String sourceType) {

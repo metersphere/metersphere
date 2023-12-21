@@ -11,7 +11,7 @@ public class JsonBody {
     /**
      * 是否启用 json-schema
      */
-    private Boolean enableJsonSchema;
+    private Boolean enableJsonSchema = false;
     /**
      * 没有启用 json-schema 时的 json 参数值
      */
