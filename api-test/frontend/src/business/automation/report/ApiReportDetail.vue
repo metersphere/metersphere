@@ -258,7 +258,7 @@ export default {
           return data;
         } else {
           if (status === 'FAKE_ERROR') {
-            if (data.errorCode && data.errorCode !== '' && data.value.status === 'FAKE_ERROR') {
+            if (data.errorCode && data.errorCode !== '' && data.value && data.value.status === 'FAKE_ERROR') {
               return data;
             }
           } else if (status === 'UN_EXECUTE') {

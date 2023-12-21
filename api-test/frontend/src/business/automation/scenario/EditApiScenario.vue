@@ -1204,7 +1204,9 @@ export default {
       }
     },
     evaluationParent(node, status) {
-      if (node.data.code === 'ERROR') {
+      node.data.testing = false;
+      node.data.debug = true;
+       if (node.data.code === 'ERROR') {
         return;
       }
       if (node.data.code === 'FAKE_ERROR') {
@@ -1217,8 +1219,6 @@ export default {
       if (status && status === 'ERROR') {
         node.data.code = 'ERROR';
       }
-      node.data.testing = false;
-      node.data.debug = true;
       if (node.parent && node.parent.data && node.parent.data.id) {
         this.evaluationParent(node.parent, status);
       }
