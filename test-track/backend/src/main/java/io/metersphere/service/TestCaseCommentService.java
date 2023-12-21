@@ -14,6 +14,7 @@ import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.constants.TestCaseCommentType;
 import io.metersphere.constants.TestCaseReviewCommentStatus;
+import io.metersphere.dto.TestCaseCommentDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.log.annotation.MsAuditLog;
 import io.metersphere.log.utils.ReflexObjectUtil;
@@ -21,15 +22,14 @@ import io.metersphere.log.vo.DetailColumn;
 import io.metersphere.log.vo.OperatingLogDetails;
 import io.metersphere.log.vo.track.TestCaseReviewReference;
 import io.metersphere.notice.annotation.SendNotice;
-import io.metersphere.dto.TestCaseCommentDTO;
 import io.metersphere.request.testreview.SaveCommentRequest;
 import io.metersphere.request.testreview.TestCaseReviewTestCaseEditRequest;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import jakarta.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -82,7 +82,7 @@ public class TestCaseCommentService {
     }
 
     public void saveReviewCommentWithoutNotification(TestCaseReviewTestCaseEditRequest request) {
-        // 不走String代理，不会发送通知
+        // 不走Spring代理，不会发送通知
         saveReviewComment(request);
     }
 
@@ -110,7 +110,7 @@ public class TestCaseCommentService {
     }
 
     public List<TestCaseCommentDTO> getCaseComments(String caseId) {
-        return this.getCaseComments(caseId, null);
+        return getCaseComments(caseId, null);
     }
 
     public void deleteCaseComment(String caseId) {

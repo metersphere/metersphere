@@ -496,7 +496,10 @@ public class TestReviewTestCaseService {
             testCaseReviewTestCase.setComment(request.getDescription());
             testCaseReviewTestCase.setCaseId(caseId);
             testCaseReviewTestCase.setReviewId(request.getReviewId());
-            testCaseCommentService.saveReviewComment(testCaseReviewTestCase);
+            if (StringUtils.isNotBlank(testCaseReviewTestCase.getComment())) {
+                // 批量编辑评论不为空, 保存并发送通知
+                testCaseCommentService.saveReviewComment(testCaseReviewTestCase);
+            }
         });
     }
 
