@@ -1064,7 +1064,10 @@ public class ApiDefinitionService {
             LogUtil.error("解析" + envConfig + "为RunModeConfigDTO时失败！", e);
         }
         if (StringUtils.isNotEmpty(projectId) && runModeConfigDTO != null && MapUtils.isNotEmpty(runModeConfigDTO.getEnvMap())) {
-            String envId = runModeConfigDTO.getEnvMap().get(projectId);
+            String envId = null;
+            for (String envItemId : runModeConfigDTO.getEnvMap().values()) {
+                envId = envItemId;
+            }
             apiReportEnvConfig.setEnvName(apiTestEnvironmentService.selectNameById(envId));
         }
         if (runModeConfigDTO != null && StringUtils.isNotBlank(runModeConfigDTO.getResourcePoolId())) {
@@ -2199,10 +2202,8 @@ public class ApiDefinitionService {
         Map<String, List<String>> returnMap = new HashMap<>();
         if (MapUtils.isNotEmpty(projectEnvConfigMap)) {
             for (Map.Entry<String, List<String>> entry : projectEnvConfigMap.entrySet()) {
-                String projectId = entry.getKey();
                 List<String> configList = entry.getValue();
-                Project project = baseProjectService.getProjectById(projectId);
-                List<String> envIdList = new ArrayList<>();
+
                 configList.forEach(envConfig -> {
                     RunModeConfigDTO runModeConfigDTO = null;
                     try {
@@ -2210,19 +2211,24 @@ public class ApiDefinitionService {
                     } catch (Exception e) {
                         LogUtil.error("解析" + envConfig + "为RunModeConfigDTO时失败！", e);
                     }
-
-                    if (StringUtils.isNotEmpty(projectId) && runModeConfigDTO != null && MapUtils.isNotEmpty(runModeConfigDTO.getEnvMap())) {
-                        String envId = runModeConfigDTO.getEnvMap().get(projectId);
-                        if (!envIdList.contains(envId)) {
-                            envIdList.add(envId);
-                        }
+                    if (runModeConfigDTO != null && MapUtils.isNotEmpty(runModeConfigDTO.getEnvMap())) {
+                        runModeConfigDTO.getEnvMap().forEach((k, v) -> {
+                            Project project = baseProjectService.getProjectById(k);
+                            String envName = apiTestEnvironmentService.selectNameById(v);
+                            String projectName = project == null ? null : project.getName();
+                            if (StringUtils.isNoneBlank(projectName, projectName)) {
+                                if (returnMap.containsKey(projectName) && !returnMap.get(projectName).contains(envName)) {
+                                    returnMap.get(projectName).add(envName);
+                                } else if (!returnMap.containsKey(projectName)) {
+                                    returnMap.put(projectName, new ArrayList<>() {{
+                                        this.add(envName);
+                                    }});
+                                }
+                            }
+                        });
                     }
+
                 });
-                String projectName = project == null ? null : project.getName();
-                if (StringUtils.isNotEmpty(projectName) && CollectionUtils.isNotEmpty(envIdList)) {
-                    List<String> envNameList = apiTestEnvironmentService.selectNameByIdList(envIdList);
-                    returnMap.put(projectName, envNameList);
-                }
             }
         }
         return returnMap;

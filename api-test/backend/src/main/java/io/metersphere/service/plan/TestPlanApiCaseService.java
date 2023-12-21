@@ -910,6 +910,8 @@ public class TestPlanApiCaseService {
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andIdIn(apiCaseIds);
         List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
-        return apiTestCases.stream().map(ApiTestCase::getProjectId).distinct().collect(Collectors.toList());
+        List<ApiTestCase> filtedList = apiTestCases.stream().filter(
+                apiTestCase -> apiTestCase.getStatus() == null || !CommonConstants.TRASH_STATUS.equals(apiTestCase.getStatus())).collect(Collectors.toList());
+        return filtedList.stream().map(ApiTestCase::getProjectId).distinct().collect(Collectors.toList());
     }
 }
