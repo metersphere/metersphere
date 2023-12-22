@@ -1206,6 +1206,9 @@ export default {
     evaluationParent(node, status) {
       node.data.testing = false;
       node.data.debug = true;
+      if (node.parent && node.parent.data && node.parent.data.id) {
+        this.evaluationParent(node.parent, status);
+      }
        if (node.data.code === 'ERROR') {
         return;
       }
@@ -1218,9 +1221,6 @@ export default {
       }
       if (status && status === 'ERROR') {
         node.data.code = 'ERROR';
-      }
-      if (node.parent && node.parent.data && node.parent.data.id) {
-        this.evaluationParent(node.parent, status);
       }
     },
     resultEvaluationChild(arr, resourceId, status) {
