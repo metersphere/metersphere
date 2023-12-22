@@ -23,6 +23,7 @@
             v-model="api.request.path"
             class="ms-htt-width"
             size="small"
+            @change="trimPath"
             :disabled="false" />
         </el-form-item>
 
@@ -872,6 +873,11 @@ export default {
         }
       }
     },
+    trimPath() {
+      if (this.api.request.path) {
+        this.api.request.path = this.api.request.path.trimEnd();
+      }
+    }
   },
 
   created() {

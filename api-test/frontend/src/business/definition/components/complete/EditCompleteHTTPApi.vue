@@ -463,7 +463,7 @@ export default {
       });
     },
     setParameter() {
-      this.request.path = this.httpForm.path;
+      this.request.path = this.httpForm.path.trimEnd();
       this.request.method = this.httpForm.method;
       if (this.httpForm && this.httpForm.request) {
         this.httpForm.request.useEnvironment = undefined;
@@ -782,6 +782,9 @@ export default {
       let url = this.getURL(this.addProtocol(this.httpForm.path));
       if (url) {
         this.httpForm.path = decodeURIComponent(this.httpForm.path.substr(0, this.httpForm.path.indexOf('?')));
+      }
+      if (this.httpForm.path) {
+        this.httpForm.path = this.httpForm.path.trimEnd();
       }
     },
     addProtocol(url) {
