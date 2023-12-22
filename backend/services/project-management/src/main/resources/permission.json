@@ -91,6 +91,15 @@
         "permissions": [
           {
             "id": "PROJECT_TEMPLATE:READ"
+          },
+          {
+            "id": "PROJECT_TEMPLATE:READ+ADD"
+          },
+          {
+            "id": "PROJECT_TEMPLATE:READ+UPDATE"
+          },
+          {
+            "id": "PROJECT_TEMPLATE:READ+DELETE"
           }
         ]
       },
