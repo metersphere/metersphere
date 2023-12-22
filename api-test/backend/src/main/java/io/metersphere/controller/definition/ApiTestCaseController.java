@@ -164,6 +164,7 @@ public class ApiTestCaseController {
 
     @PostMapping("/batch/edit")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_EDIT_CASE)
+    @CheckOwner(resourceId = "#request.ids", resourceType = "api_test_case")
     public void editApiBath(@RequestBody ApiCaseEditRequest request) {
         apiTestCaseService.editApiBath(request);
     }
@@ -172,6 +173,7 @@ public class ApiTestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_EDIT_CASE)
     @MsAuditLog(module = OperLogModule.API_DEFINITION_CASE, type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = ApiTestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_UPDATE, target = "#targetClass.getApiCaseByIds(#request.ids)", targetClass = ApiTestCaseService.class, subject = "接口用例通知")
+    @CheckOwner(resourceId = "#request.ids", resourceType = "api_test_case")
     public void editApiBathByParam(@RequestBody ApiTestBatchRequest request) {
         apiTestCaseService.editApiBathByParam(request);
     }
@@ -184,6 +186,7 @@ public class ApiTestCaseController {
 
     @PostMapping("/reduction")
     @MsAuditLog(module = OperLogModule.API_DEFINITION_CASE, type = OperLogConstants.RESTORE, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = ApiTestCaseService.class)
+    @CheckOwner(resourceId = "#request.ids", resourceType = "api_test_case")
     public List<String> reduction(@RequestBody ApiTestBatchRequest request) {
         List<String> cannotReductionTestCaseApiName = apiTestCaseService.reduction(request);
         return cannotReductionTestCaseApiName;
@@ -200,6 +203,7 @@ public class ApiTestCaseController {
     @PostMapping("/del-batch")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_DELETE_CASE)
     @MsAuditLog(module = OperLogModule.API_DEFINITION_CASE, type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiTestCaseService.class)
+    @CheckOwner(resourceId = "#request.ids", resourceType = "api_test_case")
     public void deleteBatchByParam(@RequestBody ApiTestBatchRequest request) {
         apiTestCaseService.deleteBatchByParam(request);
     }
@@ -208,6 +212,7 @@ public class ApiTestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_DELETE_CASE)
     @MsAuditLog(module = OperLogModule.API_DEFINITION_CASE, type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiTestCaseService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_DELETE, target = "#targetClass.getApiCaseByIds(#request.ids)", targetClass = ApiTestCaseService.class, subject = "接口用例通知")
+    @CheckOwner(resourceId = "#request.ids", resourceType = "api_test_case")
     public void deleteToGcByParam(@RequestBody ApiTestBatchRequest request) {
         apiTestCaseService.deleteToGcByParam(request);
     }

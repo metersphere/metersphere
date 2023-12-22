@@ -162,6 +162,7 @@ public class ApiScenarioController {
 
     @PostMapping("/del-batch")
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiScenarioService.class)
+    @CheckOwner(resourceId = "#request.ids", resourceType = "api_scenario")
     public void deleteBatchByCondition(@RequestBody ApiScenarioBatchRequest request) {
         apiAutomationService.deleteBatchByCondition(request);
     }
@@ -179,6 +180,7 @@ public class ApiScenarioController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_DELETE)
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.BATCH_GC, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiScenarioService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK, target = "#targetClass.getScenarioCaseByIds(#request.ids)", targetClass = ApiScenarioService.class, event = NoticeConstants.Event.DELETE, subject = "接口自动化通知")
+    @CheckOwner(resourceId = "#request.ids", resourceType = "api_scenario")
     public void removeToGcByBatch(@RequestBody ApiScenarioBatchRequest request) {
         apiAutomationService.removeToGcByBatch(request);
     }
@@ -191,6 +193,7 @@ public class ApiScenarioController {
 
     @PostMapping("/reduction")
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.RESTORE, beforeEvent = "#msClass.getLogDetails(#ids)", msClass = ApiScenarioService.class)
+    @CheckOwner(resourceId = "#ids", resourceType = "api_scenario")
     public void reduction(@RequestBody List<String> ids) {
         apiAutomationService.reduction(ids);
     }
@@ -283,6 +286,7 @@ public class ApiScenarioController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_EDIT)
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = ApiScenarioService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_AUTOMATION_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getScenarioCaseByIds(#request.ids)", targetClass = ApiScenarioService.class, subject = "接口自动化通知")
+    @CheckOwner(resourceId = "#request.ids", resourceType = "api_scenario")
     public void bathEdit(@RequestBody ApiScenarioBatchRequest request) {
         apiAutomationService.bathEdit(request);
     }
@@ -290,6 +294,7 @@ public class ApiScenarioController {
     @PostMapping("/batch/copy")
     @RequiresPermissions(value = {PermissionConstants.PROJECT_API_SCENARIO_READ_CREATE, PermissionConstants.PROJECT_API_SCENARIO_READ_BATCH_COPY}, logical = Logical.OR)
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.BATCH_ADD, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = ApiScenarioService.class)
+    @CheckOwner(resourceId = "#request.ids", resourceType = "api_scenario")
     public void batchCopy(@RequestBody ApiScenarioBatchRequest request) {
         apiAutomationService.batchCopy(request);
     }
@@ -297,6 +302,7 @@ public class ApiScenarioController {
     @PostMapping("/batch/update/env")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ_EDIT)
     @MsAuditLog(module = OperLogModule.API_AUTOMATION, type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request.ids)", content = "#msClass.getLogDetails(#request.ids)", msClass = ApiScenarioService.class)
+    @CheckOwner(resourceId = "#request.ids", resourceType = "api_scenario")
     public void batchUpdateEnv(@RequestBody ApiScenarioBatchRequest request) {
         apiAutomationService.batchUpdateEnv(request);
     }
