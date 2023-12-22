@@ -32,12 +32,6 @@ public class ApiCheckPermissionService {
         }
         ApiScenarioReportWithBLOBs scenarioReport = apiScenarioReportMapper.selectByPrimaryKey(reportId);
         ApiDefinitionExecResultWithBLOBs apiReport = apiDefinitionExecResultMapper.selectByPrimaryKey(reportId);
-        if (scenarioReport == null) {
-            if (apiReport == null) {
-                MSException.throwException(Translator.get("check_owner_report"));
-            }
-            MSException.throwException(Translator.get("check_owner_report"));
-        }
         if (scenarioReport != null && (!projectIds.contains(scenarioReport.getProjectId()) ||
                 !SessionUtils.hasPermission(null, scenarioReport.getProjectId(), permissionId))) {
             MSException.throwException(Translator.get("check_owner_report"));
