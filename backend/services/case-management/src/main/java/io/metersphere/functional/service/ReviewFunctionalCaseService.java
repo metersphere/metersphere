@@ -56,7 +56,7 @@ public class ReviewFunctionalCaseService {
         String caseId = request.getCaseId();
         CaseReviewHistory caseReviewHistory = buildReviewHistory(request, userId);
         CaseReviewHistoryExample caseReviewHistoryExample = new CaseReviewHistoryExample();
-        caseReviewHistoryExample.createCriteria().andCaseIdEqualTo(request.getCaseId()).andReviewIdEqualTo(request.getReviewId());
+        caseReviewHistoryExample.createCriteria().andCaseIdEqualTo(request.getCaseId()).andReviewIdEqualTo(request.getReviewId()).andDeletedEqualTo(false);
         List<CaseReviewHistory> caseReviewHistories = caseReviewHistoryMapper.selectByExample(caseReviewHistoryExample);
         Map<String, List<CaseReviewHistory>> hasReviewedUserMap = caseReviewHistories.stream().sorted(Comparator.comparingLong(CaseReviewHistory::getCreateTime).reversed()).collect(Collectors.groupingBy(CaseReviewHistory::getCreateUser, Collectors.toList()));
         if (hasReviewedUserMap.get(userId) ==null) {
@@ -77,7 +77,6 @@ public class ReviewFunctionalCaseService {
         //发送评审通过不通过通知（评审中不发）
         if (StringUtils.equalsIgnoreCase(request.getStatus(), FunctionalCaseReviewStatus.UN_PASS.toString())) {
             reviewSendNoticeService.sendNoticeCase(new ArrayList<>(), userId, caseId, NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, NoticeConstants.Event.REVIEW_FAIL, reviewId);
-
         }
         if (StringUtils.equalsIgnoreCase(request.getStatus(), FunctionalCaseReviewStatus.PASS.toString())) {
             reviewSendNoticeService.sendNoticeCase(new ArrayList<>(), userId, caseId, NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, NoticeConstants.Event.REVIEW_PASSED, reviewId);
@@ -107,24 +106,26 @@ public class ReviewFunctionalCaseService {
             CaseReviewFunctionalCaseUserExample caseReviewFunctionalCaseUserExample = new CaseReviewFunctionalCaseUserExample();
             caseReviewFunctionalCaseUserExample.createCriteria().andReviewIdEqualTo(request.getReviewId()).andCaseIdEqualTo(request.getCaseId());
             long reviewerNum = caseReviewFunctionalCaseUserMapper.countByExample(caseReviewFunctionalCaseUserExample);
-            if ((int) reviewerNum > hasReviewedUserMap.size()) {
+            AtomicInteger passCount = new AtomicInteger();
+            AtomicInteger unPassCount = new AtomicInteger();
+            hasReviewedUserMap.forEach((k, v) -> {
+                if (StringUtils.equalsIgnoreCase(v.get(0).getStatus(), FunctionalCaseReviewStatus.PASS.toString())) {
+                    passCount.set(passCount.get() + 1);
+                }
+                if (StringUtils.equalsIgnoreCase(v.get(0).getStatus(), FunctionalCaseReviewStatus.UN_PASS.toString())) {
+                    unPassCount.set(unPassCount.get() + 1);
+                }
+            });
+            if (unPassCount.get()>0) {
+                functionalCaseStatus = FunctionalCaseReviewStatus.UN_PASS.toString();
+            } else if ((int) reviewerNum > hasReviewedUserMap.size()) {
                 functionalCaseStatus = FunctionalCaseReviewStatus.UNDER_REVIEWED.toString();
             } else {
-                AtomicInteger passCount = new AtomicInteger();
-                hasReviewedUserMap.forEach((k, v) -> {
-                    if (StringUtils.equalsIgnoreCase(v.get(0).getStatus(), FunctionalCaseReviewStatus.PASS.toString())) {
-                        passCount.set(passCount.get() + 1);
-                    }
-                });
-                if (StringUtils.equalsIgnoreCase(request.getStatus(), FunctionalCaseReviewStatus.UN_PASS.toString())) {
-                    functionalCaseStatus = FunctionalCaseReviewStatus.UN_PASS.toString();
+                //检查是否全部是通过，全是才是PASS,否则是评审中
+                if (passCount.get() == hasReviewedUserMap.size()) {
+                    functionalCaseStatus = FunctionalCaseReviewStatus.PASS.toString();
                 } else {
-                    //检查是否全部是通过，全是才是PASS,否则是评审中
-                    if (passCount.get() == hasReviewedUserMap.size()) {
-                        functionalCaseStatus = FunctionalCaseReviewStatus.PASS.toString();
-                    } else {
-                        functionalCaseStatus = FunctionalCaseReviewStatus.UNDER_REVIEWED.toString();
-                    }
+                    functionalCaseStatus = FunctionalCaseReviewStatus.UNDER_REVIEWED.toString();
                 }
             }
         }

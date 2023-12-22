@@ -274,7 +274,7 @@ public class CaseReviewFunctionalCaseService {
         List<CaseReviewFunctionalCase> caseReviewFunctionalCaseList = doCaseReviewFunctionalCases(request);
         List<String> caseIds = caseReviewFunctionalCaseList.stream().map(CaseReviewFunctionalCase::getCaseId).toList();
         CaseReviewHistoryExample caseReviewHistoryExample = new CaseReviewHistoryExample();
-        caseReviewHistoryExample.createCriteria().andCaseIdIn(caseIds).andReviewIdEqualTo(reviewId);
+        caseReviewHistoryExample.createCriteria().andCaseIdIn(caseIds).andReviewIdEqualTo(reviewId).andDeletedEqualTo(false);
         List<CaseReviewHistory> caseReviewHistories = caseReviewHistoryMapper.selectByExample(caseReviewHistoryExample);
         Map<String, List<CaseReviewHistory>> caseHistoryMap = caseReviewHistories.stream().collect(Collectors.groupingBy(CaseReviewHistory::getCaseId, Collectors.toList()));
 
@@ -295,6 +295,8 @@ public class CaseReviewFunctionalCaseService {
                 List<CaseReviewHistory> histories = new ArrayList<>();
                 histories.add(caseReviewHistory);
                 caseHistoryMap.put(caseId, histories);
+            } else {
+                caseHistoryMap.get(caseId).add(caseReviewHistory);
             }
             //根据评审规则更新用例评审和功能用例关系表中的状态 1.单人评审直接更新评审结果 2.多人评审需要计算
             setStatus(request, caseReviewFunctionalCase, caseHistoryMap, reviewerMap);
@@ -334,24 +336,26 @@ public class CaseReviewFunctionalCaseService {
             List<CaseReviewHistory> caseReviewHistoriesExp = caseHistoryMap.get(caseReviewFunctionalCase.getCaseId());
             Map<String, List<CaseReviewHistory>> hasReviewedUserMap = caseReviewHistoriesExp.stream().sorted(Comparator.comparingLong(CaseReviewHistory::getCreateTime).reversed()).collect(Collectors.groupingBy(CaseReviewHistory::getCreateUser, Collectors.toList()));
             List<CaseReviewFunctionalCaseUser> caseReviewFunctionalCaseUsersExp = reviewerMap.get(caseReviewFunctionalCase.getCaseId());
-            if (caseReviewFunctionalCaseUsersExp != null && caseReviewFunctionalCaseUsersExp.size() > hasReviewedUserMap.size()) {
+            AtomicInteger passCount = new AtomicInteger();
+            AtomicInteger unPassCount = new AtomicInteger();
+            hasReviewedUserMap.forEach((k, v) -> {
+                if (StringUtils.equalsIgnoreCase(v.get(0).getStatus(), FunctionalCaseReviewStatus.PASS.toString())) {
+                    passCount.set(passCount.get() + 1);
+                }
+                if (StringUtils.equalsIgnoreCase(v.get(0).getStatus(), FunctionalCaseReviewStatus.UN_PASS.toString())) {
+                    unPassCount.set(unPassCount.get() + 1);
+                }
+            });
+            if (unPassCount.get() > 0) {
+                caseReviewFunctionalCase.setStatus(FunctionalCaseReviewStatus.UN_PASS.toString());
+            } else if (caseReviewFunctionalCaseUsersExp != null && caseReviewFunctionalCaseUsersExp.size() > hasReviewedUserMap.size()) {
                 caseReviewFunctionalCase.setStatus(FunctionalCaseReviewStatus.UNDER_REVIEWED.toString());
             } else {
-                AtomicInteger passCount = new AtomicInteger();
-                hasReviewedUserMap.forEach((k, v) -> {
-                    if (StringUtils.equalsIgnoreCase(v.get(0).getStatus(), FunctionalCaseReviewStatus.PASS.toString())) {
-                        passCount.set(passCount.get() + 1);
-                    }
-                });
-                if (StringUtils.equalsIgnoreCase(request.getStatus(), FunctionalCaseReviewStatus.UN_PASS.toString())) {
-                    caseReviewFunctionalCase.setStatus(FunctionalCaseReviewStatus.UN_PASS.toString());
+                //检查是否全部是通过，全是才是PASS,否则是评审中
+                if (passCount.get() == hasReviewedUserMap.size()) {
+                    caseReviewFunctionalCase.setStatus(FunctionalCaseReviewStatus.PASS.toString());
                 } else {
-                    //检查是否全部是通过，全是才是PASS,否则是评审中
-                    if (passCount.get() == hasReviewedUserMap.size()) {
-                        caseReviewFunctionalCase.setStatus(FunctionalCaseReviewStatus.PASS.toString());
-                    } else {
-                        caseReviewFunctionalCase.setStatus(FunctionalCaseReviewStatus.UNDER_REVIEWED.toString());
-                    }
+                    caseReviewFunctionalCase.setStatus(FunctionalCaseReviewStatus.UNDER_REVIEWED.toString());
                 }
             }
         }

@@ -18,8 +18,23 @@
         case_review_history ch
         left join user u on  ch.create_user = u.id
         left join user_extend ux on  ch.create_user = ux.id
-        where ch.case_id = #{caseId} and ch.review_id = #{reviewId}
+        where ch.case_id = #{caseId}
+        <if test="reviewId != null and reviewId != ''">
+            and ch.review_id = #{reviewId}
+        </if>
     </select>
+
+    <update id="updateDelete">
+        update case_review_history
+        set deleted = #{delete}
+        where review_id = #{reviewId}
+        <if test="caseIds != null and caseIds.size() > 0">
+            and case_id in
+            <foreach collection="caseIds" item="caseId" separator="," open="(" close=")">
+                #{caseId}
+            </foreach>
+        </if>
+    </update>
 
 
 
