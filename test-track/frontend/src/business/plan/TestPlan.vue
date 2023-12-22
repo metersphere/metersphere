@@ -1,6 +1,6 @@
 <template>
   <ms-container>
-    <ms-aside-container :enable-remember-width="true" max-width="600px" :enable-aside-hidden.sync="enableAsideHidden" class="plan-aside">
+    <ms-aside-container page-key="TEST_PLAN_LIST" max-width="600px" :enable-aside-hidden.sync="enableAsideHidden" class="plan-aside">
       <test-plan-node-tree ref="planNodeTree" :plan-condition="condition" @setTreeNodes="setTreeNodes"
                                   @nodeSelectEvent="handleCaseNodeSelect" @refreshTable="refreshTestPlanList"/>
     </ms-aside-container>
