@@ -224,6 +224,7 @@
     tableKey: TableKeyEnum.ORGANIZATION_MEMBER,
     scroll: { x: 1800 },
     selectable: true,
+    heightUsed: 288,
     showSetting: true,
     size: 'default',
   });

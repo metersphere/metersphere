@@ -1,6 +1,6 @@
 import { FieldRule } from '@arco-design/web-vue';
 
-import { Rule } from '@form-create/arco-design';
+import { FormRule, Rule } from '@form-create/arco-design';
 
 export type FormItemType =
   | 'INPUT'
@@ -19,6 +19,7 @@ export type FormItemType =
   | 'INT'
   | 'FLOAT'
   | 'NUMBER'
+  | 'PassWord'
   | undefined;
 
 // 表单选项
@@ -35,10 +36,25 @@ export interface PropsRecord {
 }
 
 // 内置formCreateRule所有配置的项
-export type FormRuleItem = Rule & {
+export interface FormRuleItem {
+  type: string; // 表单类型
+  field: string; // 字段
+  title: string; // label 表单标签
+  value: string | string[] | number | number[]; // 目前的值
+  effect: {
+    required: boolean; // 是否必填
+  };
+  // 级联关联到某一个form上 可能存在多个级联
+  options: {
+    label: string;
+    value: string;
+  }[];
+  link: string[];
+  // 梳理表单所需要属性
+  control: { value: string; rule: FormRuleItem[] };
   props: Record<string, any>;
   [key: string]: any;
-};
+}
 // 表单配置项
 export interface FormItem {
   type: FormItemType;
@@ -54,16 +70,27 @@ export interface FormItem {
   options?: FormItemDefaultOptions[];
   required: boolean;
   validate?: FieldRule[];
+  control?: {
+    value: string;
+    rule: FormItem[];
+  }[];
   // 表单联动配置
   couplingConfig?: {
     // 联动类型，visible：显示隐藏，disabled：禁用启用，filterOptions：过滤选项，disabledOptions：禁用选项，initOptions：初始化选项。都由联动的表单项触发
     type?: 'initOptions'; // 目前初始化选项
     cascade?: string; // 联动表单项名称
     matchRule?: 'same' | 'includes' | 'excludes' | RegExp; // 联动匹配规则，same：值相同，includes：值包含，excludes：值不包含， RegExp：自定义匹配正则表达式 // 场景 目前只考虑等于情况
+    [key: string]: any;
+  };
+  // 表单控制器
+  displayConditions?: {
+    field: string;
+    value: any;
   };
   // 表单布局
   wrap?: Record<string, any>;
   props?: Record<string, any>;
+  [key: string]: any;
 }
 
 interface FomItemSelect extends FormItemComplexCommonConfig {

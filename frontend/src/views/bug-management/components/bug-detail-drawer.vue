@@ -103,10 +103,11 @@
               <MsFormCreate
                 v-if="formRules.length"
                 ref="formCreateRef"
+                v-model:form-item="formItem"
+                v-model:api="fApi"
+                :form-rule="formRules"
                 class="w-full"
                 :option="options"
-                :form-rule="formRules"
-                :form-create-key="FormCreateKeyEnum.CASE_CUSTOM_ATTRS_DETAIL"
               />
               <!-- 自定义字段结束 -->
               <div class="baseItem">
@@ -133,8 +134,8 @@
   import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
-  import MsFormCreate from '@/components/pure/ms-form-create/form-create.vue';
-  import type { FormItem } from '@/components/pure/ms-form-create/types';
+  import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
+  import type { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import type { MsPaginationI } from '@/components/pure/ms-table/type';
   import MsDetailDrawer from '@/components/business/ms-detail-drawer/index.vue';
@@ -278,6 +279,7 @@
   }
 
   const formRules = ref<FormItem[]>([]);
+  const formItem = ref<FormRuleItem[]>([]);
 
   const isDisabled = ref<boolean>(false);
 
@@ -307,6 +309,7 @@
     },
   };
 
+  const fApi = ref(null);
   // 初始化表单
   function initForm() {
     formRules.value = customFields.value.map((item: any) => {

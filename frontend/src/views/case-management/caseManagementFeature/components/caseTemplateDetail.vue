@@ -216,8 +216,8 @@
             v-if="formRules.length"
             ref="formCreateRef"
             v-model:api="fApi"
+            v-model:form-item="formItem"
             :form-rule="formRules"
-            :form-create-key="FormCreateKeyEnum.CASE_MANAGEMENT_FIELD"
           />
           <a-form-item field="tags" :label="t('system.orgTemplate.tags')">
             <a-input-tag v-model="form.tags" :placeholder="t('formCreate.PleaseEnter')" allow-clear />
@@ -258,8 +258,8 @@
   import { FormInstance, Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
-  import MsFormCreate from '@/components/pure/ms-form-create/form-create.vue';
-  import type { FormItem } from '@/components/pure/ms-form-create/types';
+  import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
+  import type { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import MsFileList from '@/components/pure/ms-upload/fileList.vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
@@ -283,7 +283,6 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
-  import useFormCreateStore from '@/store/modules/form-create/form-create';
   import { downloadByteFile, getGenerateId } from '@/utils';
 
   import type {
@@ -294,7 +293,6 @@
     StepList,
   } from '@/models/caseManagement/featureCase';
   import type { CustomField, DefinedFieldItem } from '@/models/setting/template';
-  import { FormCreateKeyEnum } from '@/enums/formCreateEnum';
 
   import { convertToFile } from './utils';
   import {
@@ -305,7 +303,6 @@
   const { t } = useI18n();
   const route = useRoute();
   const appStore = useAppStore();
-  const formCreateStore = useFormCreateStore();
   const currentProjectId = computed(() => appStore.currentProjectId);
 
   const props = defineProps<{
@@ -648,8 +645,8 @@
   const rowLength = ref<number>(0);
   const formRuleField = ref<FormItem[][]>([]);
   const formRules = ref<FormItem[]>([]);
-  const fApi = ref<any>({});
-  const formRuleList = computed(() => formCreateStore.formCreateRuleMap.get(FormCreateKeyEnum.CASE_MANAGEMENT_FIELD));
+  const formItem = ref<FormRuleItem[]>([]);
+  const fApi = ref<any>(null);
 
   // 处理表单格式
   const getFormRules = () => {
@@ -688,13 +685,15 @@
 
   // 监视表单右侧自定义字段改变收集自定义字段参数
   watch(
-    () => formRuleList.value,
-    () => {
-      const customFieldsMaps: Record<string, any> = {};
-      formRuleList.value?.forEach((item) => {
-        customFieldsMaps[item.field as string] = item.value;
-      });
-      form.value.customFields = customFieldsMaps;
+    () => formItem.value,
+    (val) => {
+      if (val) {
+        const customFieldsMaps: Record<string, any> = {};
+        formItem.value?.forEach((item: any) => {
+          customFieldsMaps[item.field as string] = item.value;
+        });
+        form.value.customFields = customFieldsMaps;
+      }
     },
     { deep: true }
   );

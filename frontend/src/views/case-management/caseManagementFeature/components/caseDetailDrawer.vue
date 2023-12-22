@@ -83,10 +83,10 @@
       </div>
     </template>
     <template #default>
-      <div ref="wrapperRef" class="h-full bg-white">
+      <div ref="wrapperRef" class="wrapperRef bg-white">
         <MsSplitBox ref="wrapperRef" expand-direction="right" :max="0.7" :min="0.7" :size="900">
           <template #first>
-            <div class="leftWrapper h-full">
+            <div class="leftWrapper">
               <div class="header h-[50px]">
                 <a-menu mode="horizontal" :default-selected-keys="[activeTab]" @menu-item-click="clickMenu">
                   <a-menu-item key="detail">{{ t('caseManagement.featureCase.detail') }} </a-menu-item>
@@ -106,23 +106,24 @@
                     }}</span></a-menu-item
                   >
                 </a-menu>
-                <div class="mt-4">
-                  <TabDetail
-                    v-if="activeTab === 'detail'"
-                    ref="tabDetailRef"
-                    :form="detailInfo"
-                    :allow-edit="true"
-                    @update-success="updateSuccess"
-                  />
-                  <TabDemand v-else-if="activeTab === 'requirement'" :case-id="props.detailId" />
-                  <TabCaseTable v-else-if="activeTab === 'case'" />
-                  <TabDefect v-else-if="activeTab === 'bug'" />
-                  <TabDependency v-else-if="activeTab === 'dependency'" />
-                  <TabCaseReview v-else-if="activeTab === 'caseReview'" :case-id="props.detailId" />
-                  <TabTestPlan v-else-if="activeTab === 'testPlan'" />
-                  <TabComment v-else-if="activeTab === 'comments'" :case-id="props.detailId" />
-                  <TabChangeHistory v-else-if="activeTab === 'changeHistory'" />
-                </div>
+              </div>
+              <div class="leftContent mt-4 px-4">
+                <TabDetail
+                  v-if="activeTab === 'detail'"
+                  ref="tabDetailRef"
+                  :form="detailInfo"
+                  :allow-edit="true"
+                  :form-rules="formItem"
+                  @update-success="updateSuccess"
+                />
+                <TabDemand v-else-if="activeTab === 'requirement'" :case-id="props.detailId" />
+                <TabCaseTable v-else-if="activeTab === 'case'" />
+                <TabDefect v-else-if="activeTab === 'bug'" />
+                <TabDependency v-else-if="activeTab === 'dependency'" />
+                <TabCaseReview v-else-if="activeTab === 'caseReview'" :case-id="props.detailId" />
+                <TabTestPlan v-else-if="activeTab === 'testPlan'" />
+                <TabComment v-else-if="activeTab === 'comments'" :case-id="props.detailId" />
+                <TabChangeHistory v-else-if="activeTab === 'changeHistory'" />
               </div>
             </div>
           </template>
@@ -155,10 +156,11 @@
               <MsFormCreate
                 v-if="formRules.length"
                 ref="formCreateRef"
+                v-model:api="fApi"
+                v-model:form-item="formItem"
+                :form-rule="formRules"
                 class="w-full"
                 :option="options"
-                :form-rule="formRules"
-                :form-create-key="FormCreateKeyEnum.CASE_CUSTOM_ATTRS_DETAIL"
               />
               <!-- 自定义字段结束 -->
               <div class="baseItem">
@@ -173,7 +175,7 @@
           </template>
         </MsSplitBox>
       </div>
-      <!-- <inputComment :content="content" is-show-avatar is-use-bottom @publish="publishHandler" /> -->
+      <inputComment :content="content" is-show-avatar is-use-bottom @publish="publishHandler" />
     </template>
   </MsDetailDrawer>
   <SettingDrawer v-model:visible="showSettingDrawer" />
@@ -187,8 +189,8 @@
   import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
-  import MsFormCreate from '@/components/pure/ms-form-create/form-create.vue';
-  import type { FormItem } from '@/components/pure/ms-form-create/types';
+  import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
+  import type { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import type { MsPaginationI } from '@/components/pure/ms-table/type';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
@@ -206,7 +208,12 @@
   import TabDetail from './tabContent/tabDetail.vue';
   import TabTestPlan from './tabContent/tabTestPlan.vue';
 
-  import { deleteCaseRequest, followerCaseRequest, getCaseDetail } from '@/api/modules/case-management/featureCase';
+  import {
+    CreateCommentList,
+    deleteCaseRequest,
+    followerCaseRequest,
+    getCaseDetail,
+  } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore } from '@/store';
@@ -214,14 +221,7 @@
   import useUserStore from '@/store/modules/user';
   import { characterLimit, findNodeByKey } from '@/utils';
 
-  import type {
-    CaseManagementTable,
-    CreateOrUpdateCase,
-    CustomAttributes,
-    DetailCase,
-    TabItemType,
-  } from '@/models/caseManagement/featureCase';
-  import { FormCreateKeyEnum } from '@/enums/formCreateEnum';
+  import type { CustomAttributes, DetailCase, TabItemType } from '@/models/caseManagement/featureCase';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   import { LabelValue } from '@arco-design/web-vue/es/tree-select/interface';
@@ -386,6 +386,7 @@
   }
 
   const formRules = ref<FormItem[]>([]);
+  const formItem = ref<FormRuleItem[]>([]);
 
   const isDisabled = ref<boolean>(false);
 
@@ -415,6 +416,7 @@
     },
   };
 
+  const fApi = ref(null);
   // 初始化表单
   function initForm() {
     formRules.value = customFields.value.map((item: any) => {
@@ -472,10 +474,27 @@
 
   const content = ref('');
 
-  function publishHandler() {}
+  async function publishHandler(currentContent: string) {
+    try {
+      const params = {
+        caseId: detailInfo.value.id,
+        notifier: '',
+        replyUser: '',
+        parentId: '',
+        content: currentContent,
+        event: 'COMMENT', // 任务事件(仅评论: ’COMMENT‘; 评论并@: ’AT‘; 回复评论/回复并@: ’REPLAY‘;)
+      };
+      await CreateCommentList(params);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 </script>
 
 <style scoped lang="less">
+  .wrapperRef {
+    height: calc(100% - 78px);
+  }
   :deep(.arco-menu-light) {
     height: 50px;
     background: none !important;

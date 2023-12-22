@@ -30,8 +30,8 @@
       <MsFormCreate
         v-if="platformRules && platformRules.length"
         v-model:api="fApi"
+        v-model:form-item="platformItem"
         :form-rule="platformRules"
-        :form-create-key="FormCreateKeyEnum.PROJECT_DEFECT_SYNC_TEMPLATE"
       />
     </a-form>
     <template v-if="platformOption.length" #footerLeft>
@@ -63,8 +63,8 @@
   import { FormInstance, Message } from '@arco-design/web-vue';
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
-  import MsFormCreate from '@/components/pure/ms-form-create/form-create.vue';
-  import type { FormItem } from '@/components/pure/ms-form-create/types';
+  import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
+  import type { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
 
   import {
     getPlatformInfo,
@@ -76,7 +76,6 @@
 
   import { PoolOption, SelectValue } from '@/models/projectManagement/menuManagement';
   import { MenuEnum } from '@/enums/commonEnum';
-  import { FormCreateKeyEnum } from '@/enums/formCreateEnum';
 
   const { t } = useI18n();
   const props = defineProps<{
@@ -94,6 +93,7 @@
 
   const formRef = ref<FormInstance>();
   const platformRules = ref<FormItem[]>([]);
+  const platformItem = ref<FormRuleItem[]>([]);
 
   const form = reactive({
     PLATFORM_KEY: '',

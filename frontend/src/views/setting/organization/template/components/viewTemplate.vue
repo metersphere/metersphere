@@ -8,8 +8,9 @@
       <MsFormCreate
         v-if="formRules.length"
         ref="formCreateRef"
+        v-model:api="fApi"
+        v-model:form-item="formItem"
         :form-rule="formRules"
-        :form-create-key="FormCreateKeyEnum.ORGANIZE_TEMPLATE_PREVIEW_TEMPLATE"
       />
       <a-empty v-else />
     </div>
@@ -22,13 +23,12 @@
    */
   import { ref } from 'vue';
 
-  import MsFormCreate from '@/components/pure/ms-form-create/form-create.vue';
-  import type { FormItem } from '@/components/pure/ms-form-create/types';
+  import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
+  import type { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
   import CaseTemplateLeftContent from './caseTemplateLeftContent.vue';
   import DefectTemplateLeftContent from './defectTemplateLeftContent.vue';
 
   import type { DefinedFieldItem, SeneType } from '@/models/setting/template';
-  import { FormCreateKeyEnum } from '@/enums/formCreateEnum';
 
   const props = defineProps<{
     templateType: SeneType; // 模板场景
@@ -38,6 +38,8 @@
 
   const formRuleField = ref<FormItem[][]>([]);
   const formRules = ref<FormItem[]>([]);
+  const formItem = ref<FormRuleItem[]>([]);
+  const fApi = ref(null);
   const formCreateRef = ref();
 
   // 处理表单格式
