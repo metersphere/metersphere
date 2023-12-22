@@ -3,7 +3,7 @@
 <mapper namespace="io.metersphere.base.mapper.ext.ExtTestCaseReviewTestCaseMapper">
     <select id="getCaseStatusByReviewIds" resultType="io.metersphere.base.domain.TestCaseReviewTestCase">
         select tcrtc.id, tcrtc.status, tcrtc.review_id
-        from test_case_review_test_case tcrtc
+        from test_case_review_test_case tcrtc inner join test_case tc on tc.id = tcrtc.case_id
         where tcrtc.is_del = 0 and tcrtc.review_id in
         <foreach collection="reviewIds" item="reviewId" separator="," open="(" close=")">
             #{reviewId}
