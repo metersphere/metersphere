@@ -619,13 +619,15 @@ public class TestReviewTestCaseService {
 
                 // 添加一条评论历史
                 String status = getForceUpdateStatusCommentStatus(item.getStatus());
-                TestCaseReviewTestCaseEditRequest testCaseReviewTestCase = new TestCaseReviewTestCaseEditRequest();
-                testCaseReviewTestCase.setStatus(status);
-                testCaseReviewTestCase.setReviewer(SessionUtils.getUser().getId());
-                testCaseReviewTestCase.setUpdateTime(System.currentTimeMillis());
-                testCaseReviewTestCase.setCaseId(item.getCaseId());
-                testCaseReviewTestCase.setReviewId(reviewId);
-                testCaseCommentService.saveReviewComment(testCaseReviewTestCase);
+                if (StringUtils.isNotBlank(status)) {
+                    TestCaseReviewTestCaseEditRequest testCaseReviewTestCase = new TestCaseReviewTestCaseEditRequest();
+                    testCaseReviewTestCase.setStatus(status);
+                    testCaseReviewTestCase.setReviewer(SessionUtils.getUser().getId());
+                    testCaseReviewTestCase.setUpdateTime(System.currentTimeMillis());
+                    testCaseReviewTestCase.setCaseId(item.getCaseId());
+                    testCaseReviewTestCase.setReviewId(reviewId);
+                    testCaseCommentService.saveReviewComment(testCaseReviewTestCase);
+                }
             });
         }
     }
