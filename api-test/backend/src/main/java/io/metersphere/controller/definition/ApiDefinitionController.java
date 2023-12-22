@@ -138,6 +138,7 @@ public class ApiDefinitionController {
     @PostMapping("/del-batch")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_DELETE_API)
     @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.BATCH_DEL, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiDefinitionService.class)
+    @CheckOwner(resourceId = "#request.ids", resourceType = "api_definition")
     public void deleteBatchByParams(@RequestBody ApiBatchRequest request) {
         apiDefinitionService.deleteByParams(request);
     }
@@ -145,6 +146,7 @@ public class ApiDefinitionController {
     @PostMapping("/copy/by/version")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_EDIT_API)
     @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.UPDATE, beforeEvent = "#msClass.getLogDetails(#request.ids)", title = "#request.name", content = "#msClass.getLogDetails(#request.ids)", msClass = ApiDefinitionService.class)
+    @CheckOwner(resourceId = "#request.ids", resourceType = "api_definition")
     public void copyByVersion(@RequestBody BatchDataCopyRequest request) {
         apiDefinitionService.copyCaseOrMockByVersion(request);
     }
@@ -162,6 +164,7 @@ public class ApiDefinitionController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_DELETE_API)
     @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.BATCH_GC, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiDefinitionService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getBLOBs(#request.ids)", targetClass = ApiDefinitionService.class, subject = "接口定义通知")
+    @CheckOwner(resourceId = "#request.ids", resourceType = "api_definition")
     public void removeToGcByParams(@RequestBody ApiBatchRequest request) {
         apiDefinitionService.removeToGcByParams(request);
     }
@@ -275,6 +278,7 @@ public class ApiDefinitionController {
     @PostMapping("/batch/edit")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_EDIT_API)
     @MsRequestLog(module = OperLogModule.API_DEFINITION)
+    @CheckOwner(resourceId = "#request.ids", resourceType = "api_definition")
     public void editApiBath(@RequestBody ApiBatchRequest request) {
         apiDefinitionService.editApiBath(request);
     }
@@ -283,6 +287,7 @@ public class ApiDefinitionController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_EDIT_API)
     @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request)", content = "#msClass.getLogDetails(#request)", msClass = ApiDefinitionService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getBLOBs(#request.ids)", targetClass = ApiDefinitionService.class, subject = "接口定义通知")
+    @CheckOwner(resourceId = "#request.ids", resourceType = "api_definition")
     public void editByParams(@RequestBody ApiBatchRequest request) {
         apiDefinitionService.editApiByParam(request);
     }
@@ -290,6 +295,7 @@ public class ApiDefinitionController {
     @PostMapping("/copy-batch")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ_COPY_API)
     @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.BATCH_UPDATE, beforeEvent = "#msClass.getLogDetails(#request)", content = "#msClass.getLogDetails(#request)", msClass = ApiDefinitionService.class)
+    @CheckOwner(resourceId = "#request.ids", resourceType = "api_definition")
     public void batchCopy(@RequestBody ApiBatchRequest request) {
         apiDefinitionService.batchCopy(request);
     }
