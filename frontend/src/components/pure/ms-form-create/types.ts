@@ -93,6 +93,15 @@ export interface FormItem {
   [key: string]: any;
 }
 
+export type FormValueType =
+  | string
+  | number
+  | boolean
+  | string[]
+  | number[]
+  | Record<string, any>
+  | Record<string, any>[];
+
 interface FomItemSelect extends FormItemComplexCommonConfig {
   selectMultiple?: boolean; // 选择器是否多选
   selectMultipleLimit?: [number, number]; // 选择器多选时最少和最多可选项数，如：[1, 3]，表示最少选1项，最多选3项；[0, 3]表示最多选3项，可不选；[1, 0]表示最少选1项，不限制最大可选数

@@ -35,7 +35,12 @@ const useFormCreateStore = defineStore('form-create', {
           (formItemType: any) => item.type?.toUpperCase() === formItemType
         );
         if (currentTypeForm) {
-          fieldType = FieldTypeFormRules[currentTypeForm].type;
+          if (currentTypeForm === 'INPUT' && item.subDesc) {
+            // 如果是input类型并且有subDesc说明是JiraKey 类型
+            fieldType = 'JiraKey';
+          } else {
+            fieldType = FieldTypeFormRules[currentTypeForm].type;
+          }
           const options = item?.options;
           const currentOptions = options?.map((optionsItem) => {
             return {
@@ -55,6 +60,7 @@ const useFormCreateStore = defineStore('form-create', {
             options: !item.optionMethod ? currentOptions : [],
             link: item.couplingConfig?.cascade,
             rule: item.validate || [],
+            sourceType: item.type, // 原始表单类型
             // 梳理表单所需要属性
             props: {
               ...FieldTypeFormRules[currentTypeForm].props,

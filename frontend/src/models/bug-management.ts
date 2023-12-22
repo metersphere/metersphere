@@ -1,3 +1,5 @@
+import { FormItemType } from '@/components/pure/ms-form-create/types';
+
 import { BatchApiParams } from './common';
 
 export interface BugListItem {
@@ -25,12 +27,21 @@ export interface BugExportColumn {
 export interface BugExportParams extends BatchApiParams {
   bugExportColumns: BugExportColumn[]; // 导出字段
 }
-
-// 获取默认模版缺陷
-export interface DefaultTemplate {
+export interface BugEditCustomField {
+  type: FormItemType; // 表单项类型
+  fieldId: string;
+  fieldName: string;
+  value: string;
+  platformOptionJson?: string; // 选项的 Json
+  required: boolean;
+}
+export interface BugEditFormObject {
+  [key: string]: any;
+}
+export interface BugEditCustomFieldItem {
   id: string;
-  projectId: string;
-  fromStatusId?: string;
-  platformBugKey?: string;
+  name: string;
+  type: string;
+  value: string;
 }
 export default {};
