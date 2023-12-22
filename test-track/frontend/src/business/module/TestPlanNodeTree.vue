@@ -132,7 +132,7 @@ export default {
       this.$emit("nodeSelectEvent", node, node.data.id === 'root' ? [] : nodeIds, pNodes);
     },
     justSetCurrentKey() {
-      if (this.$refs.nodeTree) {
+      if (this.$refs.nodeTree && this.currentNode.data) {
         this.$refs.nodeTree.justSetCurrentKey(this.currentNode.data.id)
       }
     },
