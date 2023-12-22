@@ -124,7 +124,12 @@ public class ApiCaseExecuteService {
                 if (testCase == null) {
                     continue;
                 }
-                if (MapUtils.isEmpty(runModeConfigDTO.getEnvMap())) {
+                String envId = null;
+                if (MapUtils.isNotEmpty(runModeConfigDTO.getEnvMap())) {
+                    envId = runModeConfigDTO.getEnvMap().get(testCase.getProjectId());
+                }
+                if (StringUtils.isBlank(envId)) {
+                    //请求中没有指定用例所在项目的环境ID，则从用例中获取
                     if (StringUtils.isEmpty(testPlanApiCase.getEnvironmentId())) {
                         JSONObject jsonObject = new JSONObject(testCase.getRequest());
                         runModeConfigDTO.setEnvMap(this.getEnvMap(jsonObject, testCase.getProjectId()));
@@ -133,7 +138,13 @@ public class ApiCaseExecuteService {
                             this.put(testCase.getProjectId(), testPlanApiCase.getEnvironmentId());
                         }});
                     }
+                } else {
+                    String finalEnvId = envId;
+                    runModeConfigDTO.setEnvMap(new HashMap<>() {{
+                        this.put(testCase.getProjectId(), finalEnvId);
+                    }});
                 }
+
                 ApiDefinitionExecResultWithBLOBs report = ApiDefinitionExecResultUtil.addResult(request, runModeConfigDTO, testPlanApiCase, status, testCase, resourcePoolId);
                 executeQueue.put(testPlanApiCase.getId(), report);
                 responseDTOS.add(new MsExecResponseDTO(testPlanApiCase.getId(), report.getId(), request.getTriggerMode()));
