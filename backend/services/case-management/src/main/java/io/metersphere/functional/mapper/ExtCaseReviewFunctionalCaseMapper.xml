@@ -16,34 +16,6 @@
         </if>
     </select>
 
-    <select id="getUnCompletedCaseCount" resultType="java.lang.Long">
-        SELECT
-            count(1)
-        FROM
-        case_review_functional_case
-        where review_id = #{reviewId}
-        and status in
-        <foreach collection="statusList" item="status" open="(" separator="," close=")">
-            #{status}
-        </foreach>
-    </select>
-
-    <select id="getUnCompletedCaseCountExcludes" resultType="java.lang.Long">
-        SELECT
-        count(1)
-        FROM
-        case_review_functional_case
-        where review_id = #{reviewId}
-        and status in
-        <foreach collection="statusList" item="status" open="(" separator="," close=")">
-            #{status}
-        </foreach>
-        and id not in
-        <foreach collection="ids" item="id" open="(" separator="," close=")">
-            #{id}
-        </foreach>
-    </select>
-
     <update id="updateStatus">
         update case_review_functional_case
         set status = #{status},

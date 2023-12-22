@@ -4,7 +4,9 @@ import io.metersphere.functional.constants.CaseReviewPassRule;
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.domain.CaseReviewFunctionalCase;
 import io.metersphere.functional.domain.CaseReviewFunctionalCaseExample;
+import io.metersphere.functional.domain.CaseReviewFunctionalCaseUser;
 import io.metersphere.functional.mapper.CaseReviewFunctionalCaseMapper;
+import io.metersphere.functional.mapper.CaseReviewFunctionalCaseUserMapper;
 import io.metersphere.functional.request.*;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
@@ -44,6 +46,9 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
 
     @Resource
     private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
+
+    @Resource
+    private CaseReviewFunctionalCaseUserMapper caseReviewFunctionalCaseUserMapper;
 
     @Test
     @Order(1)
@@ -179,6 +184,14 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
     @Test
     @Order(7)
     public void testBatchReview() throws Exception {
+        List<CaseReviewFunctionalCase> caseReviewList = getCaseReviewFunctionalCase("wx_review_id_1");
+        List<CaseReviewFunctionalCase> list = caseReviewList.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getCreateUser(), "admin")).toList();
+        CaseReviewFunctionalCaseUser caseReviewFunctionalCaseUser = new CaseReviewFunctionalCaseUser();
+        caseReviewFunctionalCaseUser.setReviewId("wx_review_id_1");
+        caseReviewFunctionalCaseUser.setCaseId(list.get(0).getCaseId());
+        caseReviewFunctionalCaseUser.setUserId("admin");
+        caseReviewFunctionalCaseUserMapper.insertSelective(caseReviewFunctionalCaseUser);
+
         BatchReviewFunctionalCaseRequest request = new BatchReviewFunctionalCaseRequest();
         request.setReviewId("wx_review_id_1");
         request.setReviewPassRule(CaseReviewPassRule.MULTIPLE.toString());
@@ -189,7 +202,7 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
 
         request = new BatchReviewFunctionalCaseRequest();
         request.setReviewId("wx_review_id_1");
-        request.setReviewPassRule(CaseReviewPassRule.SINGLE.toString());
+        request.setReviewPassRule(CaseReviewPassRule.MULTIPLE.toString());
         request.setStatus(FunctionalCaseReviewStatus.UN_PASS.toString());
         request.setSelectAll(true);
         List<String>excludeIds = new ArrayList<>();
