@@ -79,6 +79,8 @@ public class CaseReviewService {
     private ExtFunctionalCaseMapper extFunctionalCaseMapper;
     @Resource
     private BaseCaseProvider provider;
+    @Resource
+    private ExtCaseReviewHistoryMapper extCaseReviewHistoryMapper;
 
 
     private static final String CASE_MODULE_COUNT_ALL = "all";
@@ -467,9 +469,9 @@ public class CaseReviewService {
         Map<String, Object> param = new HashMap<>();
         param.put(CaseEvent.Param.USER_ID, userId);
         param.put(CaseEvent.Param.REVIEW_ID, caseReviewId);
-        param.put(CaseEvent.Param.CASE_IDS,castIds);
-        param.put(CaseEvent.Param.CASE_COUNT,caseRealIds.size());
-        param.put(CaseEvent.Param.EVENT_NAME,CaseEvent.Event.ASSOCIATE);
+        param.put(CaseEvent.Param.CASE_IDS, castIds);
+        param.put(CaseEvent.Param.CASE_COUNT, caseRealIds.size());
+        param.put(CaseEvent.Param.EVENT_NAME, CaseEvent.Event.ASSOCIATE);
         provider.updateCaseReview(param);
     }
 
@@ -550,7 +552,8 @@ public class CaseReviewService {
 
     public void deleteCaseReview(String reviewId, String projectId) {
         deleteCaseReviewService.deleteCaseReviewResource(List.of(reviewId), projectId, false);
-
+        //将评审历史状态置为true
+        extCaseReviewHistoryMapper.updateDelete(new ArrayList<>(), reviewId, true);
     }
 
     public void disassociate(String reviewId, String caseId, String userId) {
@@ -563,7 +566,7 @@ public class CaseReviewService {
         param.put(CaseEvent.Param.REVIEW_ID, reviewId);
         param.put(CaseEvent.Param.CASE_IDS, List.of(caseId));
         param.put(CaseEvent.Param.USER_ID, userId);
-        param.put(CaseEvent.Param.EVENT_NAME,CaseEvent.Event.DISASSOCIATE);
+        param.put(CaseEvent.Param.EVENT_NAME, CaseEvent.Event.DISASSOCIATE);
         provider.updateCaseReview(param);
     }
 

@@ -223,7 +223,7 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         caseReviewHistory.setCaseId("gyqReviewCaseTest");
         caseReviewHistory.setCreateUser("system");
         caseReviewHistory.setStatus(FunctionalCaseReviewStatus.RE_REVIEWED.toString());
-        caseReviewHistory.setId("test");
+        caseReviewHistory.setId("testList");
         caseReviewHistory.setCreateTime(System.currentTimeMillis());
         caseReviewHistoryMapper.insertSelective(caseReviewHistory);
         List<CaseReviewHistoryDTO> gyqReviewCaseTest = getCaseReviewHistoryList("gyqReviewCaseTest", reviewId);
