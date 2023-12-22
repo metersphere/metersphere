@@ -162,7 +162,7 @@
     .ms-scroll-bar();
   }
   .ms-split-box--left {
-    width: calc(v-bind(innerSize) - 4px);
+    width: calc(v-bind(innerSize) - 2px);
   }
   .expand-icon {
     @apply relative z-20 flex cursor-pointer justify-center;
@@ -185,7 +185,7 @@
     border-radius: 0 var(--border-radius-small) var(--border-radius-small) 0;
   }
   .horizontal-expand-line {
-    padding: 0 1px;
+    padding-left: 2px;
     height: 100%;
     .expand-color-line {
       width: 1px;

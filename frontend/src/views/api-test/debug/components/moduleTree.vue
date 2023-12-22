@@ -1,12 +1,18 @@
 <template>
   <div>
     <div class="mb-[8px] flex items-center gap-[8px]">
-      <a-select v-model:model-value="moduleProtocol" :options="moduleProtocolOptions" class="w-[90px]"></a-select>
       <a-input
         v-model:model-value="moduleKeyword"
         :placeholder="t('caseManagement.caseReview.folderSearchPlaceholder')"
         allow-clear
       />
+      <a-dropdown @select="handleSelect">
+        <a-button type="primary">{{ t('ms.apiTestDebug.newApi') }}</a-button>
+        <template #content>
+          <a-doption value="newApi">{{ t('ms.apiTestDebug.newApi') }}</a-doption>
+          <a-doption value="import">{{ t('ms.apiTestDebug.importApi') }}</a-doption>
+        </template>
+      </a-dropdown>
     </div>
     <div v-if="!props.isModal" class="folder">
       <div class="folder-text">
@@ -118,11 +124,24 @@
     modulesCount?: Record<string, number>; // 模块数量统计对象
     isExpandAll?: boolean; // 是否展开所有节点
   }>();
-  const emit = defineEmits(['init', 'folderNodeSelect']);
+  const emit = defineEmits(['init', 'folderNodeSelect', 'newApi']);
 
   const appStore = useAppStore();
   const { t } = useI18n();
   const { openModal } = useModal();
+
+  function handleSelect(value: string | number | Record<string, any> | undefined) {
+    switch (value) {
+      case 'newApi':
+        emit('newApi');
+        break;
+      case 'import':
+        break;
+
+      default:
+        break;
+    }
+  }
 
   const virtualListProps = computed(() => {
     if (props.isModal) {
@@ -151,13 +170,6 @@
     isExpandAll.value = !isExpandAll.value;
   }
 
-  const moduleProtocol = ref('http');
-  const moduleProtocolOptions = ref([
-    {
-      label: 'HTTP',
-      value: 'http',
-    },
-  ]);
   const moduleKeyword = ref('');
   const folderTree = ref<ModuleTreeNode[]>([]);
   const focusNodeKey = ref<string | number>('');

@@ -332,6 +332,7 @@
       emit('dblclick');
     });
     const autoCompleteInput = (autoCompleteRef.value?.inputRef as any)?.$el.querySelector('.arco-input');
+    // 设置输入框聚焦状态，聚焦时不显示参数预览的 popover
     useEventListener(autoCompleteInput, 'focus', () => {
       isFocusAutoComplete.value = true;
       popoverVisible.value = false;
@@ -515,7 +516,7 @@
       if (currentParamsFuncInputGroup.value.length > 0 && !Number.isNaN(paramForm.value.funcParam1)) {
         // 如果添加的函数还有入参
         resultStr = `${resultStr}(${[paramForm.value.funcParam1, paramForm.value.funcParam2]
-          .filter((e) => !Number.isNaN(e))
+          .filter((e) => e !== '' && !Number.isNaN(e))
           .join(',')})`;
       }
     }
@@ -579,6 +580,10 @@
   .ms-params-input:not(.arco-input-focus) {
     border-color: transparent;
     &:not(:hover) {
+      .arco-input::placeholder {
+        @apply invisible;
+      }
+
       border-color: transparent;
     }
   }

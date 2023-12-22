@@ -8,7 +8,13 @@
         {{ props.desc }}
       </div>
     </template>
-    <a-input ref="inputRef" v-model:model-value="innerValue" class="param-input" @input="(val) => emit('input', val)" />
+    <a-input
+      ref="inputRef"
+      v-model:model-value="innerValue"
+      class="param-input"
+      @input="(val) => emit('input', val)"
+      @change="(val) => emit('change', val)"
+    />
   </a-popover>
 </template>
 
@@ -21,8 +27,9 @@
     desc: string;
   }>();
   const emit = defineEmits<{
-    (e: 'update:value', val: string): void;
+    (e: 'update:desc', val: string): void;
     (e: 'input', val: string): void;
+    (e: 'change', val: string): void;
     (e: 'dblclick'): void;
   }>();
 
