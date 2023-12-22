@@ -10,10 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 @Data
 public class KeyValueParam {
     /**
-     * 参数ID
-     */
-    private String id;
-    /**
      * 键
      */
     private String key;

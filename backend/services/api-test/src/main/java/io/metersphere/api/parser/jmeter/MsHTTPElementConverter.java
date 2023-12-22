@@ -9,6 +9,8 @@ import io.metersphere.api.parser.jmeter.body.MsFormDataBodyConverter;
 import io.metersphere.api.parser.jmeter.body.MsWWWFormBodyConverter;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractJmeterElementConverter;
+import io.metersphere.sdk.util.LogUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.save.SaveService;
@@ -28,6 +30,10 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
 
     @Override
     public void toHashTree(HashTree tree, MsHTTPElement msHTTPElement, ParameterConfig config) {
+        if (BooleanUtils.isFalse(msHTTPElement.getEnable())) {
+            LogUtils.info("MsHTTPElement is disabled");
+            return;
+        }
         this.config = config;
         HTTPSamplerProxy sampler = new HTTPSamplerProxy();
         sampler.setName(msHTTPElement.getName());

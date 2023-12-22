@@ -15,11 +15,25 @@ import java.util.LinkedList;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class AbstractMsTestElement implements MsTestElement {
 
-    // 组件标签名称
+    /**
+     * 步骤ID（唯一）
+     */
+    private String stepId;
+    /**
+     * 关联的资源ID（用例ID/接口ID/场景ID)等
+     */
+    private String resourceId;
+    /**
+     * 组件标签名称
+     */
     private String name;
-    // 是否启用
-    private Boolean enable = true;
 
-    // 子组件
+    /**
+     * 是否启用
+     */
+    private Boolean enable = true;
+    /**
+     * 子组件
+     */
     private LinkedList<AbstractMsTestElement> children;
 }
