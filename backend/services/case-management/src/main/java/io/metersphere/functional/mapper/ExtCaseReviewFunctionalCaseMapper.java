@@ -19,10 +19,6 @@ public interface ExtCaseReviewFunctionalCaseMapper {
 
     void updateStatus(@Param("caseId") String caseId, @Param("reviewId") String reviewId, @Param("status") String status);
 
-    Long getUnCompletedCaseCount(@Param("reviewId") String reviewId, @Param("statusList") List<String> statusList);
-
-    Long getUnCompletedCaseCountExcludes(@Param("reviewId") String reviewId, @Param("statusList") List<String> statusList, @Param("ids") List<String> ids);
-
     List<String> getCaseIdsByReviewId(@Param("reviewId") String reviewId);
 
     List<ReviewFunctionalCaseDTO> page(@Param("request") ReviewFunctionalCasePageRequest request, @Param("deleted") boolean deleted, @Param("userId") String userId, @Param("sort") String sort);

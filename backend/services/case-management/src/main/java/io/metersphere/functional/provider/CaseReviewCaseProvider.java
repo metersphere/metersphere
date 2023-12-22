@@ -4,10 +4,7 @@ import io.metersphere.functional.constants.CaseEvent;
 import io.metersphere.functional.constants.CaseReviewStatus;
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.domain.*;
-import io.metersphere.functional.mapper.CaseReviewFunctionalCaseMapper;
-import io.metersphere.functional.mapper.CaseReviewFunctionalCaseUserMapper;
-import io.metersphere.functional.mapper.CaseReviewMapper;
-import io.metersphere.functional.mapper.ExtCaseReviewFunctionalCaseMapper;
+import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.service.ReviewSendNoticeService;
 import io.metersphere.provider.BaseCaseProvider;
 import io.metersphere.sdk.util.JSON;
@@ -39,6 +36,8 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
     private ReviewSendNoticeService reviewSendNoticeService;
     @Resource
     private ExtCaseReviewFunctionalCaseMapper extCaseReviewFunctionalCaseMapper;
+    @Resource
+    private ExtCaseReviewHistoryMapper extCaseReviewHistoryMapper;
 
     @Async
     @Override
@@ -95,6 +94,8 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
         updateCaseReview(reviewId, caseReview.getCaseCount() - caseCount, passNumber, unCompletedCaseList.size(), paramMap.get(CaseEvent.Param.USER_ID).toString());
         //删除用例和用例评审人的关系
         deleteCaseReviewFunctionalCaseUser(paramMap);
+        //将评审历史状态置为true
+        extCaseReviewHistoryMapper.updateDelete(caseIdList,reviewId,true);
     }
 
     /**
@@ -116,6 +117,8 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
         updateCaseReview(reviewId, oldCaseCount - caseIdList.size(), passNumber, unCompletedCount, paramMap.get(CaseEvent.Param.USER_ID).toString());
         //删除用例和用例评审人的关系
         deleteCaseReviewFunctionalCaseUser(paramMap);
+        //将评审历史状态置为true
+        extCaseReviewHistoryMapper.updateDelete(caseIdList,reviewId,true);
     }
 
     /**
@@ -267,7 +270,7 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
     }
 
     /**
-     * 重新计算用例评审的通过率和用例数
+     * 重新计算用例评审的通过率和用例数以及评审状态
      */
     private void updateCaseReview(String reviewId, int caseCount, int passNumber, int unCompleteCount, String userId) {
         CaseReview caseReview = new CaseReview();
