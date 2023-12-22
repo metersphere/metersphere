@@ -222,6 +222,7 @@
   import { FormInstance, Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import type { FormRuleItem } from '@/components/pure/ms-form-create/types';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import MsFileList from '@/components/pure/ms-upload/fileList.vue';
   import type { MsFileItem } from '@/components/pure/ms-upload/types';
@@ -243,17 +244,13 @@
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
-  import useFormCreateStore from '@/store/modules/form-create/form-create';
   import { downloadByteFile, getGenerateId } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
 
   import type { AssociatedList, DetailCase, StepList } from '@/models/caseManagement/featureCase';
-  import { FormCreateKeyEnum } from '@/enums/formCreateEnum';
 
   import { convertToFile } from '../utils';
   import debounce from 'lodash-es/debounce';
-
-  const formCreateStore = useFormCreateStore();
 
   const caseFormRef = ref<FormInstance>();
 
@@ -266,6 +263,7 @@
     defineProps<{
       form: DetailCase;
       allowEdit?: boolean; // 是否允许编辑
+      formRules?: FormRuleItem[]; // 编辑表单
     }>(),
     {
       allowEdit: true, // 是否允许编辑
@@ -383,10 +381,6 @@
     );
   });
 
-  const formRuleList = computed(() =>
-    formCreateStore.formCreateRuleMap.get(FormCreateKeyEnum.CASE_CUSTOM_ATTRS_DETAIL)
-  );
-
   // 处理编辑详情参数
   function getParams() {
     const steps = stepData.value.map((item, index) => {
@@ -398,7 +392,7 @@
     });
 
     const customFieldsMaps: Record<string, any> = {};
-    formRuleList.value?.forEach((item: any) => {
+    props.formRules?.forEach((item: any) => {
       customFieldsMaps[item.field as string] = item.value;
     });
 
@@ -566,7 +560,7 @@
   // 单独更新字段
   const updateCustomFields = debounce(() => {
     const customFieldsMaps: Record<string, any> = {};
-    formRuleList.value?.forEach((item: any) => {
+    props.formRules?.forEach((item: any) => {
       customFieldsMaps[item.field as string] = item.value;
     });
     detailForm.value.customFields = customFieldsMaps as Record<string, any>;
@@ -574,14 +568,16 @@
 
   // 监视收集自定义字段参数
   watch(
-    () => formRuleList.value,
-    () => {
-      const customFieldsValues = props.form.customFields.map((item: any) => JSON.parse(item.defaultValue));
-      // 如果和起始值不一致更新某个字段
-      const isChange = formRuleList.value?.every((item: any) => customFieldsValues.includes(item.value));
-      if (!isChange) {
-        updateCustomFields();
-        handleOK();
+    () => props.formRules,
+    (val) => {
+      if (val) {
+        const customFieldsValues = props.form.customFields.map((item: any) => JSON.parse(item.defaultValue));
+        // 如果和起始值不一致更新某个字段
+        const isChange = val?.every((item: any) => customFieldsValues.includes(item.value));
+        if (!isChange) {
+          updateCustomFields();
+          handleOK();
+        }
       }
     },
     { deep: true }

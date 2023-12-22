@@ -54,9 +54,7 @@
   const params = ref<OptionsParams>();
   const pluginId = (sessionStorage.getItem('platformKey') as string) || 'jira';
   async function getLinksItem() {
-    const { formKey } = attrs;
-    const formRulesList = formCreateStore.formRuleMap.get(formKey as FormCreateKeyEnum[keyof FormCreateKeyEnum]);
-    if (formRulesList && props.optionMethod) {
+    if (props.optionMethod) {
       params.value = {
         pluginId,
         organizationId: organizationId.value,

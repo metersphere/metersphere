@@ -163,6 +163,17 @@ export const JIRAKEY = {
   },
 };
 
+export const PASSWORD = {
+  type: 'PassWord',
+  field: 'fieldName',
+  title: '',
+  value: '',
+  props: {
+    modelValue: '',
+    instructionsIcon: '',
+  },
+};
+
 export const FieldTypeFormRules: Record<string, FormRule> = {
   INPUT,
   SELECT,
@@ -178,4 +189,5 @@ export const FieldTypeFormRules: Record<string, FormRule> = {
   MULTIPLE_INPUT,
   TEXTAREA,
   JIRAKEY,
+  PASSWORD,
 };

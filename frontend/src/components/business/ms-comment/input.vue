@@ -13,7 +13,7 @@
         <MsRichText v-model="currentContent" class="w-full" />
         <div class="mt-4 flex flex-row justify-end gap-[12px]">
           <a-button @click="cancelClick">{{ t('common.cancel') }}</a-button>
-          <a-button type="primary" :disabled="!content" @click="publish">{{ t('common.publish') }}</a-button>
+          <a-button type="primary" :disabled="!currentContent" @click="publish">{{ t('common.publish') }}</a-button>
         </div>
       </div>
     </div>

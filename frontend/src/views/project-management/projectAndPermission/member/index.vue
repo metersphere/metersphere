@@ -198,6 +198,7 @@
     tableKey: TableKeyEnum.PROJECT_MEMBER,
     selectable: true,
     showSetting: true,
+    heightUsed: 288,
     columns,
     scroll: {
       x: 1200,

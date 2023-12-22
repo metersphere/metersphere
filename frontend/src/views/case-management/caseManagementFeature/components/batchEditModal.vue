@@ -42,13 +42,7 @@
           />
         </a-form-item>
 
-        <MsFormCreate
-          v-if="formRules.length && form.selectedAttrsId !== 'systemTags'"
-          ref="formCreateRef"
-          v-model:api="fApi"
-          :form-rule="formRules"
-          :form-create-key="FormCreateKeyEnum.CASE_CUSTOM_ATTRS"
-        />
+        <MsFormCreate ref="formCreateRef" v-model:api="fApi" v-model:form-item="formItem" :form-rule="formRules" />
       </a-form>
     </div>
   </MsDialog>
@@ -59,23 +53,20 @@
   import { FormInstance } from '@arco-design/web-vue';
 
   import MsDialog from '@/components/pure/ms-dialog/index.vue';
-  import MsFormCreate from '@/components/pure/ms-form-create/form-create.vue';
-  import type { FormItem } from '@/components/pure/ms-form-create/types';
+  import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
+  import type { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
   import type { BatchActionQueryParams } from '@/components/pure/ms-table/type';
 
   import { batchEditAttrs, getCaseDefaultFields } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
-  import useFormCreateStore from '@/store/modules/form-create/form-create';
 
   import type { BatchEditCaseType, CustomAttributes } from '@/models/caseManagement/featureCase';
-  import { FormCreateKeyEnum } from '@/enums/formCreateEnum';
 
   import Message from '@arco-design/web-vue/es/message';
 
   const isVisible = ref<boolean>(false);
   const appStore = useAppStore();
-  const formCreateStore = useFormCreateStore();
   const { t } = useI18n();
 
   const props = defineProps<{
@@ -127,34 +118,34 @@
   }
 
   const formRules = ref<FormItem[]>([{ ...initDefaultForm }]);
+
+  const formItem = ref<FormRuleItem[]>([]);
+
   const fApi = ref<any>({});
-  const formCreateValue = computed(() => formCreateStore.formCreateRuleMap.get(FormCreateKeyEnum.CASE_CUSTOM_ATTRS));
 
   const updateType = computed(() => {
     return totalAttrs.value.find((item: any) => item.fieldId === form.value.selectedAttrsId)?.type;
   });
-
   watch(
     () => updateType.value,
     (val) => {
       const currentAttrs = totalAttrs.value.filter((item: any) => item.fieldId === form.value.selectedAttrsId);
-      if (val) {
-        formRules.value = currentAttrs.map((item: CustomAttributes) => {
-          return {
-            type: val,
-            name: item.fieldId,
-            label: 'caseManagement.featureCase.batchUpdate',
-            value: item.defaultValue,
+      formRules.value = [];
+      formRules.value = currentAttrs.map((item: CustomAttributes) => {
+        return {
+          type: val,
+          name: item.fieldId,
+          label: 'caseManagement.featureCase.batchUpdate',
+          value: item.defaultValue,
+          options: item.options,
+          props: {
+            modelValue: item.defaultValue,
             options: item.options,
-            props: {
-              modelValue: item.defaultValue,
-              options: item.options,
-              disabled: !form.value.selectedAttrsId,
-            },
-            required: item.required,
-          };
-        }) as FormItem[];
-      }
+            disabled: !form.value.selectedAttrsId,
+          },
+          required: item.required,
+        };
+      }) as FormItem[];
     }
   );
 
@@ -173,7 +164,7 @@
             fieldId: '',
             value: '',
           };
-          formCreateValue.value?.forEach((item: any) => {
+          formItem.value?.forEach((item: any) => {
             customField.fieldId = item.field;
             customField.value = JSON.stringify(item.value);
           });
