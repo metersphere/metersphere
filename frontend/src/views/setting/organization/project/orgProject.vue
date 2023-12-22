@@ -181,6 +181,7 @@
       noDisable: false,
       size: 'default',
       showSetting: true,
+      heightUsed: 286,
     },
     undefined,
     (record) => handleNameChange(record)
