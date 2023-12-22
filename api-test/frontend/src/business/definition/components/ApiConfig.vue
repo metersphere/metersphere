@@ -334,8 +334,6 @@ export default {
       this.sort(this.request.hashTree);
     },
     setParameter(data) {
-      // 去除Path结尾空格
-      data.path = data.path.trimEnd();
       data.name = this.currentApi.name;
       data.moduleId = this.currentApi.moduleId;
       data.modulePath = this.currentApi.modulePath;
@@ -433,7 +431,6 @@ export default {
     setParameters(data) {
       data.projectId = this.projectId;
       this.request.name = this.currentApi.name;
-      this.request.path = data.path.trimEnd();
       data.protocol = this.currentProtocol;
       data.request = this.request;
       data.request.name = data.name;
