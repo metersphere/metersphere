@@ -433,7 +433,7 @@ export default {
     setParameters(data) {
       data.projectId = this.projectId;
       this.request.name = this.currentApi.name;
-      this.request.path = this.currentApi.path.trimEnd();
+      this.request.path = data.path.trimEnd();
       data.protocol = this.currentProtocol;
       data.request = this.request;
       data.request.name = data.name;
