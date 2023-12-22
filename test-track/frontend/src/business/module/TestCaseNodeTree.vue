@@ -247,7 +247,7 @@ export default {
       }
     },
     justSetCurrentKey() {
-      if (this.$refs.nodeTree) {
+      if (this.$refs.nodeTree && this.currentNode.data) {
         this.$refs.nodeTree.justSetCurrentKey(this.currentNode.data.id)
       }
     },
