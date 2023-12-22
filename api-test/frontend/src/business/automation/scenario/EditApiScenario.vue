@@ -1206,12 +1206,6 @@ export default {
     evaluationParent(node, status) {
       node.data.testing = false;
       node.data.debug = true;
-       if (node.data.code === 'ERROR') {
-        return;
-      }
-      if (node.data.code === 'FAKE_ERROR') {
-        return;
-      }
       node.data.code = status ? 'SUCCESS' : 'ERROR';
       if (status === 'FAKE_ERROR') {
         node.data.code = 'FAKE_ERROR';
