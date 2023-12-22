@@ -22,6 +22,7 @@
 </template>
 
 <script>
+import {TEST_REVIEW} from "metersphere-frontend/src/components/search/search-components";
 import TestCaseReviewNodeTree from "@/business/module/TestCaseReviewNodeTree";
 import TestCaseReviewList from "./components/TestCaseReviewList";
 import TestCaseReviewEdit from "./components/TestCaseReviewEdit";
@@ -88,7 +89,7 @@ export default {
       this.$refs.caseReviewEditDialog.openCaseReviewEditDialog(data, this.currentNode);
     },
     refreshCaseReviewList(nodeIds) {
-      this.$refs.caseReviewList.condition = {};
+      this.$refs.caseReviewList.condition = {components: TEST_REVIEW};
       this.$refs.caseReviewList.initTableData(nodeIds ? nodeIds : this.currentSelectNodes);
     },
     refreshTreeByCondition() {

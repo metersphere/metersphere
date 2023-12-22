@@ -22,6 +22,7 @@
 </template>
 
 <script>
+import {TEST_PLAN_CONFIGS} from "metersphere-frontend/src/components/search/search-components";
 import TestPlanNodeTree from "@/business/module/TestPlanNodeTree.vue";
 import TestPlanList from './components/TestPlanList';
 import TestPlanEdit from './components/TestPlanEdit';
@@ -84,7 +85,7 @@ export default {
       this.$refs.testPlanEditDialog.openTestPlanEditDialog(data, this.currentNode);
     },
     refreshTestPlanList(nodeIds) {
-      this.$refs.testPlanList.condition = {};
+      this.$refs.testPlanList.condition = {components: TEST_PLAN_CONFIGS};
       this.$refs.testPlanList.initTableData(nodeIds ? nodeIds : this.currentSelectNodes);
     },
     refreshTreeByCondition() {
