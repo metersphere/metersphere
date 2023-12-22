@@ -473,6 +473,7 @@ export default {
           }
           this.request.debug = true;
           this.request.active = true;
+          this.request.id = this.request.id + '_' + this.request.resourceId;
           this.loading = true;
           this.runData = [];
           if (selectEnvId) {
