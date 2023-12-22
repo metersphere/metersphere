@@ -1,6 +1,6 @@
 <template>
   <ms-container>
-    <ms-aside-container :enable-remember-width="true" max-width="600px" :enable-aside-hidden.sync="enableAsideHidden" class="review-aside">
+    <ms-aside-container page-key="TEST_REVIEW_LIST" max-width="600px" :enable-aside-hidden.sync="enableAsideHidden" class="review-aside">
       <test-case-review-node-tree ref="reviewNodeTree" :review-condition="condition" @setTreeNodes="setTreeNodes"
                                   @nodeSelectEvent="handleCaseNodeSelect" @refreshTable="refreshCaseReviewList"/>
     </ms-aside-container>
