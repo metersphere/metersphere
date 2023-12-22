@@ -85,7 +85,7 @@
               v-model="scope.row.scope"
               :placeholder="$t('commons.please_select')"
               size="mini"
-              @change="changeType($event, scope.row)"
+              @change="changeScope($event, scope.row)"
             >
               <el-option
                 v-for="item in scopeTypeFilters"
@@ -424,26 +424,41 @@ export default {
       // 触发变更事件
       this.$emit("change", this.items);
     },
-
+    // 接口/UI change
+    changeScope: function(value,row) {
+      if (value === "ui") {
+        row.type = "STRING";
+      } else {
+        row.type = "CONSTANT";
+      }
+      this.items.forEach((item) => {
+        if (item.id === row.id) {
+          item.scope = value;
+        }
+      });
+      this.changeType(row.type, row);
+    },
     changeType(value, data) {
-      data.value = "";
-      if (
-        !data.delimiter ||
+      data.value = ''
+      const notDelimiters = !data.delimiter ||
         (!data.files && data.files.length === 0) ||
         !data.quotedData
+      if (
+        notDelimiters
       ) {
         data.delimiter = ",";
         data.files = [];
         data.quotedData = "false";
       }
-      if (!data.scope || data.scope == "ui") {
-        data.type = "STRING";
-      }
       this.items.forEach((item) => {
         if (item.id === data.id) {
-          item.scope = value;
-          item.type = data.type;
+          item.type = value;
           item.value = data.value;
+          if(notDelimiters) {
+            item.delimiter = data.delimiter;
+            item.files = data.files;
+            item.quotedData = data.quotedData;
+          }
         }
       });
     },

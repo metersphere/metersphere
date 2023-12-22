@@ -1,49 +1,79 @@
 <template>
   <div>
-    <el-form :model="commonConfig" :rules="rules" ref="commonConfig" :disabled="isReadOnly" label-width="30px">
-      <ms-api-scenario-variables :show-copy="false" :items="commonConfig.variables" :is-read-only="isReadOnly" ref="apiScenario"/>
+    <el-form
+      :model="commonConfig"
+      :rules="rules"
+      ref="commonConfig"
+      :disabled="isReadOnly"
+      label-width="30px"
+    >
+      <ms-api-scenario-variables
+        :show-copy="false"
+        :items="commonConfig.variables"
+        :is-read-only="isReadOnly"
+        ref="apiScenario"
+      />
       <el-form-item>
-        <el-switch v-model="commonConfig.enableHost" active-text="Hosts"/>
-        <el-tooltip class="hostItem" effect="dark" :content="$t('api_test.home_page.host_config')" placement="right">
+        <el-switch v-model="commonConfig.enableHost" active-text="Hosts" />
+        <el-tooltip
+          class="hostItem"
+          effect="dark"
+          :content="$t('api_test.home_page.host_config')"
+          placement="right"
+        >
           <i class="el-icon-info"></i>
         </el-tooltip>
       </el-form-item>
       <el-form-item>
-        <span>{{ $t('api_test.environment.request_timeout') }}:</span>
-        <el-input-number style="margin-left: 20px" controls-position="right" size="small"
-                         v-model="commonConfig.requestTimeout"
-                         onKeypress="return (/[\d]/.test(String.fromCharCode(event.keyCode)))"
-                         :precision="0">
-          {{ $t('api_test.environment.globalVariable') }}
+        <span>{{ $t("api_test.environment.request_timeout") }}:</span>
+        <el-input-number
+          style="margin-left: 20px"
+          controls-position="right"
+          size="small"
+          v-model="commonConfig.requestTimeout"
+          onKeypress="return (/[\d]/.test(String.fromCharCode(event.keyCode)))"
+          :precision="0"
+        >
+          {{ $t("api_test.environment.globalVariable") }}
         </el-input-number>
-        <span style="margin-left: 30px">{{ $t('api_test.environment.response_timeout') }}:</span>
-        <el-input-number style="margin-left: 20px" controls-position="right" size="small"
-                         v-model="commonConfig.responseTimeout"
-                         onKeypress="return (/[\d]/.test(String.fromCharCode(event.keyCode)))"
-                         :precision="0">
-          {{ $t('api_test.environment.globalVariable') }}
+        <span style="margin-left: 30px"
+          >{{ $t("api_test.environment.response_timeout") }}:</span
+        >
+        <el-input-number
+          style="margin-left: 20px"
+          controls-position="right"
+          size="small"
+          v-model="commonConfig.responseTimeout"
+          onKeypress="return (/[\d]/.test(String.fromCharCode(event.keyCode)))"
+          :precision="0"
+        >
+          {{ $t("api_test.environment.globalVariable") }}
         </el-input-number>
       </el-form-item>
       <el-form-item>
-        <ms-api-host-table v-if="commonConfig.enableHost" :hostTable="commonConfig.hosts" ref="refHostTable"/>
+        <ms-api-host-table
+          v-if="commonConfig.enableHost"
+          :hostTable="commonConfig.hosts"
+          ref="refHostTable"
+        />
       </el-form-item>
     </el-form>
   </div>
 </template>
 
 <script>
-import {CommonConfig} from "../../model/EnvironmentModel";
+import { CommonConfig } from "../../model/EnvironmentModel";
 import MsApiScenarioVariables from "./commons/ApiScenarioVariables";
 import MsApiHostTable from "./commons/ApiHostTable";
 
 export default {
   name: "MsEnvironmentCommonConfig",
-  components: {MsApiHostTable, MsApiScenarioVariables},
+  components: { MsApiHostTable, MsApiScenarioVariables },
   props: {
     commonConfig: new CommonConfig(),
     isReadOnly: {
       type: Boolean,
-      default: false
+      default: false,
     },
   },
   data() {
@@ -53,37 +83,39 @@ export default {
   },
   created() {
     if (!this.commonConfig.requestTimeout) {
-      this.$set(this.commonConfig, 'requestTimeout', 60000);
+      this.$set(this.commonConfig, "requestTimeout", 60000);
     }
     if (!this.commonConfig.responseTimeout) {
-      this.$set(this.commonConfig, 'responseTimeout', 60000);
+      this.$set(this.commonConfig, "responseTimeout", 60000);
     }
   },
   watch: {
     commonConfig() {
       if (!this.commonConfig.requestTimeout) {
-        this.$set(this.commonConfig, 'requestTimeout', 60000);
+        this.$set(this.commonConfig, "requestTimeout", 60000);
       }
       if (!this.commonConfig.responseTimeout) {
-        this.$set(this.commonConfig, 'responseTimeout', 60000);
+        this.$set(this.commonConfig, "responseTimeout", 60000);
       }
-    }
+    },
   },
   methods: {
     mergeData() {
       if (this.$refs.apiScenario) {
-        this.commonConfig.variables = this.$refs['apiScenario'].allData;
+        this.commonConfig.variables = this.$refs["apiScenario"].allData;
       }
     },
     validate() {
       let isValidate = false;
-      this.$refs['commonConfig'].validate((valid) => {
+      this.$refs["commonConfig"].validate((valid) => {
         if (valid) {
           // 校验host列表
           let valHost = true;
           if (this.commonConfig.enableHost) {
             for (let i = 0; i < this.commonConfig.hosts.length; i++) {
-              valHost = this.$refs['refHostTable'].confirm(this.commonConfig.hosts[i]);
+              valHost = this.$refs["refHostTable"].confirm(
+                this.commonConfig.hosts[i]
+              );
             }
           }
           if (valHost) {
@@ -96,8 +128,8 @@ export default {
         }
       });
       return isValidate;
-    }
-  }
+    },
+  },
 };
 </script>
 
