@@ -140,6 +140,7 @@
           couplingConfig: {
             ...item.props.couplingConfig,
           },
+          sourceType: item.sourceType || '',
         };
         return formItemRule;
       });

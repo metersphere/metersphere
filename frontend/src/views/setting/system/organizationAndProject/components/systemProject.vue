@@ -161,6 +161,7 @@
     {
       tableKey: TableKeyEnum.SYSTEM_PROJECT,
       scroll: { x: '1600px' },
+      heightUsed: 286,
       selectable: false,
       noDisable: false,
       size: 'default',

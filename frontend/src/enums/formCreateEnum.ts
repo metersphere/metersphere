@@ -11,6 +11,8 @@ export enum FormCreateKeyEnum {
   CASE_CUSTOM_ATTRS = 'caseCustomAttributes',
   // 用例tab详情字段
   CASE_CUSTOM_ATTRS_DETAIL = 'caseCustomAttributesDetail',
+  // bug 详情
+  BUG_DETAIL = 'bugDetail',
 }
 
 export default {};
