@@ -4,6 +4,15 @@
       <slot name="title">
         <span class="font-medium">{{ title }}</span>
       </slot>
+      <div v-if="showThemeChange">
+        <a-select
+          v-model:model-value="currentTheme"
+          :options="themeOptions"
+          class="w-[100px]"
+          size="small"
+          @change="(val) => handleThemeChange(val as Theme)"
+        ></a-select>
+      </div>
       <div v-if="showFullScreen" class="w-[96px] cursor-pointer text-right !text-[var(--color-text-4)]" @click="toggle">
         <MsIcon v-if="isFullscreen" type="icon-icon_minify_outlined" />
         <MsIcon v-else type="icon-icon_magnify_outlined" />
@@ -22,7 +31,7 @@
 
   import './userWorker';
   import MsCodeEditorTheme from './themes';
-  import { CustomTheme, editorProps } from './types';
+  import { CustomTheme, editorProps, Theme } from './types';
   import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
   export default defineComponent({
@@ -34,12 +43,34 @@
       let editor: monaco.editor.IStandaloneCodeEditor;
       const codeEditBox = ref();
       const fullRef = ref<HTMLElement | null>();
+      const currentTheme = ref<Theme>(props.theme);
+      const themeOptions = [
+        { label: 'vs', value: 'vs' },
+        { label: 'vs-dark', value: 'vs-dark' },
+        { label: 'hc-black', value: 'hc-black' },
+      ].concat(
+        Object.keys(MsCodeEditorTheme).map((item) => ({
+          label: item,
+          value: item,
+        }))
+      );
+
+      watch(
+        () => props.theme,
+        (val) => {
+          currentTheme.value = val;
+        }
+      );
+
+      function handleThemeChange(val: Theme) {
+        monaco.editor.setTheme(val);
+      }
 
       const init = () => {
         // 注册自定义主题
-        if (MsCodeEditorTheme[props.theme as CustomTheme]) {
-          monaco.editor.defineTheme(props.theme, MsCodeEditorTheme[props.theme as CustomTheme]);
-        }
+        Object.keys(MsCodeEditorTheme).forEach((e) => {
+          monaco.editor.defineTheme(e, MsCodeEditorTheme[e as CustomTheme]);
+        });
         editor = monaco.editor.create(codeEditBox.value, {
           value: props.modelValue,
           automaticLayout: true,
@@ -90,12 +121,12 @@
         { deep: true }
       );
 
-      // watch(
-      //   () => props.language,
-      //   (newValue) => {
-      //     monaco.editor.setModelLanguage(editor.getModel()!, newValue);
-      //   }
-      // );
+      watch(
+        () => props.language,
+        (newValue) => {
+          monaco.editor.setModelLanguage(editor.getModel()!, newValue);
+        }
+      );
 
       onBeforeUnmount(() => {
         editor.dispose();
@@ -106,7 +137,7 @@
         setEditBoxBg();
       });
 
-      return { codeEditBox, fullRef, isFullscreen, toggle, t };
+      return { codeEditBox, fullRef, isFullscreen, currentTheme, themeOptions, toggle, t, handleThemeChange };
     },
   });
 </script>

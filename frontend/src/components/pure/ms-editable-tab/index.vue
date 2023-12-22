@@ -44,9 +44,20 @@
         <MsIcon type="icon-icon_right_outlined" />
       </MsButton>
     </a-tooltip>
-    <MsButton type="icon" status="secondary" class="tab-button !mr-[4px]" @click="addTab">
-      <MsIcon type="icon-icon_add_outlined" />
-    </MsButton>
+    <a-tooltip
+      :content="t('ms.editableTab.limitTip', { max: props.limit })"
+      :disabled="!props.limit || props.tabs.length >= props.limit"
+    >
+      <MsButton
+        type="icon"
+        status="secondary"
+        class="tab-button !mr-[4px]"
+        :disabled="!!props.limit && props.tabs.length >= props.limit"
+        @click="addTab"
+      >
+        <MsIcon type="icon-icon_add_outlined" />
+      </MsButton>
+    </a-tooltip>
     <MsMoreAction v-if="props.moreActionList" :list="props.moreActionList">
       <MsButton type="icon" status="secondary" class="tab-button">
         <MsIcon type="icon-icon_more_outlined" />
@@ -72,12 +83,13 @@
     tabs: TabItem[];
     activeTab: string | number;
     moreActionList?: ActionsItem[];
+    limit?: number; // 最多可打开的tab数量
   }>();
   const emit = defineEmits<{
     (e: 'update:activeTab', activeTab: string | number): void;
     (e: 'add'): void;
     (e: 'close', item: TabItem): void;
-    (e: 'click', item: TabItem): void;
+    (e: 'change', item: TabItem): void;
   }>();
 
   const { t } = useI18n();
@@ -119,6 +131,13 @@
     }
   };
 
+  watch(
+    () => props.activeTab,
+    (val) => {
+      emit('change', props.tabs.find((item) => item.id === val) as TabItem);
+    }
+  );
+
   watch(props.tabs, () => {
     nextTick(() => {
       scrollToActiveTab();
@@ -141,6 +160,7 @@
   }
 
   function handleTabClick(item: TabItem) {
+    emit('change', item);
     innerActiveTab.value = item.id;
     nextTick(() => {
       tabNav.value?.querySelector('.tab.active')?.scrollIntoView({ behavior: 'smooth', block: 'center' });

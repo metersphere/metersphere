@@ -6,28 +6,40 @@
       :more-action-list="moreActionList"
       @add="addDebugTab"
       @close="closeDebugTab"
-      @click="setActiveDebug"
+      @change="setActiveDebug"
     >
       <template #label="{ tab }">
         <apiMethodName :method="tab.method" class="mr-[4px]" />
         {{ tab.label }}
-        <div class="ml-[8px] h-[8px] w-[8px] rounded-full bg-[rgb(var(--primary-5))]"></div>
+        <div v-if="tab.unSave" class="ml-[8px] h-[8px] w-[8px] rounded-full bg-[rgb(var(--primary-5))]"></div>
       </template>
     </MsEditableTab>
   </div>
   <div class="px-[24px] pt-[16px]">
     <div class="mb-[4px] flex items-center justify-between">
-      <a-input-group class="flex-1">
-        <a-select v-model:model-value="activeDebug.method" class="w-[140px]">
-          <template #label="{ data }">
-            <apiMethodName :method="data.value" class="inline-block" />
-          </template>
-          <a-option v-for="method of RequestMethods" :key="method" :value="method">
-            <apiMethodName :method="method" />
-          </a-option>
-        </a-select>
-        <a-input v-model:model-value="debugUrl" :placeholder="t('ms.apiTestDebug.urlPlaceholder')" />
-      </a-input-group>
+      <div class="flex flex-1">
+        <a-select
+          v-model:model-value="activeDebug.moduleProtocol"
+          :options="moduleProtocolOptions"
+          class="mr-[4px] w-[90px]"
+          @change="handleActiveDebugChange"
+        />
+        <a-input-group class="flex-1">
+          <a-select v-model:model-value="activeDebug.method" class="w-[140px]" @change="handleActiveDebugChange">
+            <template #label="{ data }">
+              <apiMethodName :method="data.value" class="inline-block" />
+            </template>
+            <a-option v-for="method of RequestMethods" :key="method" :value="method">
+              <apiMethodName :method="method" />
+            </a-option>
+          </a-select>
+          <a-input
+            v-model:model-value="debugUrl"
+            :placeholder="t('ms.apiTestDebug.urlPlaceholder')"
+            @change="handleActiveDebugChange"
+          />
+        </a-input-group>
+      </div>
       <div class="ml-[16px]">
         <a-dropdown-button class="exec-btn">
           {{ t('ms.apiTestDebug.serverExec') }}
@@ -57,12 +69,25 @@
       @expand-change="handleExpandChange"
     >
       <template #first>
-        <div :class="`h-full min-w-[500px] px-[24px] pb-[16px] ${activeLayout === 'horizontal' ? ' pr-[16px]' : ''}`">
-          <a-tabs v-model:active-key="contentTab" class="no-content">
+        <div :class="`h-full min-w-[700px] px-[24px] pb-[16px] ${activeLayout === 'horizontal' ? ' pr-[16px]' : ''}`">
+          <a-tabs v-model:active-key="activeDebug.activeTab" class="no-content">
             <a-tab-pane v-for="item of contentTabList" :key="item.value" :title="item.label" />
           </a-tabs>
           <a-divider margin="0" class="!mb-[16px]"></a-divider>
-          <debugHeader :params="activeDebug.params" :layout="activeLayout" :second-box-height="secondBoxHeight" />
+          <debugHeader
+            v-if="activeDebug.activeTab === RequestComposition.HEADER"
+            v-model:params="activeDebug.headerParams"
+            :layout="activeLayout"
+            :second-box-height="secondBoxHeight"
+            @change="handleActiveDebugChange"
+          />
+          <debugBody
+            v-else-if="activeDebug.activeTab === RequestComposition.BODY"
+            v-model:params="activeDebug.bodyParams"
+            :layout="activeLayout"
+            :second-box-height="secondBoxHeight"
+            @change="handleActiveDebugChange"
+          />
         </div>
       </template>
       <template #second>
@@ -99,31 +124,45 @@
 </template>
 
 <script setup lang="ts">
-  import { debounce } from 'lodash-es';
+  import { cloneDeep, debounce } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import apiMethodName from '../../../components/apiMethodName.vue';
+  import debugBody, { BodyParams } from './body.vue';
   import debugHeader from './header.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import { registerCatchSaveShortcut, removeCatchSaveShortcut } from '@/utils/event';
 
-  import { RequestComposition, RequestMethods } from '@/enums/apiEnum';
+  import { RequestBodyFormat, RequestComposition, RequestMethods } from '@/enums/apiEnum';
 
   const { t } = useI18n();
 
   const initDefaultId = `debug-${Date.now()}`;
   const activeTab = ref<string | number>(initDefaultId);
+  const defaultBodyParams: BodyParams = {
+    format: RequestBodyFormat.NONE,
+    formData: [],
+    formUrlEncode: [],
+    json: '',
+    xml: '',
+    binary: '',
+    raw: '',
+  };
   const debugTabs = ref<TabItem[]>([
     {
       id: initDefaultId,
+      moduleProtocol: 'http',
+      activeTab: RequestComposition.HEADER,
       label: t('ms.apiTestDebug.newApi'),
       closable: true,
       method: RequestMethods.GET,
-      unSave: true,
-      params: [],
+      unSave: false,
+      headerParams: [],
+      bodyParams: cloneDeep(defaultBodyParams),
     },
   ]);
   const debugUrl = ref('');
@@ -133,15 +172,22 @@
     activeDebug.value = item;
   }
 
+  function handleActiveDebugChange() {
+    activeDebug.value.unSave = true;
+  }
+
   function addDebugTab() {
     const id = `debug-${Date.now()}`;
     debugTabs.value.push({
       id,
+      moduleProtocol: 'http',
+      activeTab: RequestComposition.HEADER,
       label: t('ms.apiTestDebug.newApi'),
       closable: true,
       method: RequestMethods.GET,
-      unSave: true,
-      params: [],
+      unSave: false,
+      headerParams: [],
+      bodyParams: cloneDeep(defaultBodyParams),
     });
     activeTab.value = id;
   }
@@ -165,7 +211,6 @@
     },
   ];
 
-  const contentTab = ref(RequestComposition.HEADER);
   const contentTabList = [
     {
       value: RequestComposition.HEADER,
@@ -205,6 +250,13 @@
     },
   ];
 
+  const moduleProtocolOptions = ref([
+    {
+      label: 'HTTP',
+      value: 'http',
+    },
+  ]);
+
   const splitBoxSize = ref<string | number>(0.6);
   const activeLayout = ref<'horizontal' | 'vertical'>('vertical');
   const splitContainerRef = ref<HTMLElement>();
@@ -241,6 +293,22 @@
     isExpanded.value = true;
     splitBoxSize.value = 0.6;
   }
+
+  function saveDebug() {
+    activeDebug.value.unSave = false;
+  }
+
+  onMounted(() => {
+    registerCatchSaveShortcut(saveDebug);
+  });
+
+  onBeforeUnmount(() => {
+    removeCatchSaveShortcut(saveDebug);
+  });
+
+  defineExpose({
+    addDebugTab,
+  });
 </script>
 
 <style lang="less" scoped>

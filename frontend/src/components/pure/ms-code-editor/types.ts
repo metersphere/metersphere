@@ -87,4 +87,8 @@ export const editorProps = {
     type: Boolean as PropType<boolean>,
     default: true,
   },
+  showThemeChange: {
+    type: Boolean as PropType<boolean>,
+    default: true,
+  },
 };

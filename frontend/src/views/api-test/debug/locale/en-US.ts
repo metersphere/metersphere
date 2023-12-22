@@ -1,6 +1,6 @@
 export default {
-  'ms.apiTestDebug.createDebug': 'New debug',
   'ms.apiTestDebug.newApi': 'New request',
+  'ms.apiTestDebug.importApi': 'Import request',
   'ms.apiTestDebug.urlPlaceholder': 'Please enter the full URL including http or https',
   'ms.apiTestDebug.serverExec': 'Server execution',
   'ms.apiTestDebug.localExec': 'Local execution',
