@@ -202,7 +202,7 @@ public class PluginLoadService {
     /**
      * 卸载插件
      */
-    public void unloadPlugin(String pluginId) {
+    public synchronized void unloadPlugin(String pluginId) {
         if (hasPlugin(pluginId)) {
             msPluginManager.deletePlugin(pluginId);
         }

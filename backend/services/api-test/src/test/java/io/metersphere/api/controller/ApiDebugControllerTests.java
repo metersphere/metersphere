@@ -416,6 +416,7 @@ public class ApiDebugControllerTests extends BaseTest {
         Body generalBody = MsHTTPElementTest.getGeneralBody();
         generalBody.setBodyType(Body.BodyType.FORM_DATA.name());
         msHTTPElement.setBody(generalBody);
+        msHTTPElement.setEnable(true);
         request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
         this.requestPostWithOk(DEBUG, request);
 
@@ -439,8 +440,16 @@ public class ApiDebugControllerTests extends BaseTest {
         request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
         this.requestPostWithOk(DEBUG, request);
 
-        // 测试 XML
+        // 测试 RAW
         generalBody.setBodyType(Body.BodyType.RAW.name());
+        request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
+        this.requestPostWithOk(DEBUG, request);
+
+        // 增加覆盖率
+        msHTTPElement.setMethod("GET");
+        request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
+        this.requestPostWithOk(DEBUG, request);
+        msHTTPElement.setEnable(false);
         request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
         this.requestPostWithOk(DEBUG, request);
 
