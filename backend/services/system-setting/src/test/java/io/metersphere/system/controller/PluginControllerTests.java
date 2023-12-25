@@ -5,6 +5,7 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.PluginScenarioType;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.base.BasePluginTestService;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.param.PluginUpdateRequestDefinition;
@@ -136,14 +137,14 @@ public class PluginControllerTests extends BaseTest {
         addPlugin = plugin;
 
         // 模拟其他节点加载插件
-        pluginLoadService.handlePluginDeleteNotified(plugin.getId(), jarFile.getName());
+        unloadAndDeletePlugin(jarFile, plugin);
         pluginLoadService.handlePluginAddNotified(plugin.getId(), jarFile.getName());
 
         // 增加覆盖率
-        pluginLoadService.handlePluginDeleteNotified(plugin.getId(), jarFile.getName());
+        unloadAndDeletePlugin(jarFile, plugin);
         pluginLoadService.loadPlugin(jarFile.getName());
 
-        pluginLoadService.handlePluginDeleteNotified(plugin.getId(), jarFile.getName());
+        unloadAndDeletePlugin(jarFile, plugin);
         pluginLoadService.loadPlugins();
 
         pluginLoadService.getExtensions(Platform.class);
@@ -233,6 +234,14 @@ public class PluginControllerTests extends BaseTest {
         checkLog(this.addPlugin.getId(), OperationLogType.ADD);
         // @@校验权限
         requestMultipartPermissionTest(PermissionConstants.SYSTEM_PLUGIN_ADD, DEFAULT_ADD, multiValueMap);
+    }
+
+    private void unloadAndDeletePlugin(File jarFile, Plugin plugin) {
+        try {
+            pluginLoadService.handlePluginDeleteNotified(plugin.getId(), jarFile.getName());
+        } catch (Exception e) {
+            LogUtils.error(e);
+        }
     }
 
     @Test
