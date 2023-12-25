@@ -4,6 +4,7 @@ import io.metersphere.functional.dto.CaseReviewHistoryDTO;
 import io.metersphere.functional.request.ReviewFunctionalCaseRequest;
 import io.metersphere.functional.service.ReviewFunctionalCaseService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,6 +26,7 @@ public class ReviewFunctionalCaseController {
     @PostMapping("/save")
     @Operation(summary = "用例管理-用例评审-评审功能用例-提交评审")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_REVIEW)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void saveReview(@Validated @RequestBody ReviewFunctionalCaseRequest request) {
         reviewFunctionalCaseService.saveReview(request, SessionUtils.getUserId());
     }

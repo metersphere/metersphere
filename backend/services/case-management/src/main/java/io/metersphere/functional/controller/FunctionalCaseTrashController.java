@@ -12,6 +12,7 @@ import io.metersphere.functional.service.FunctionalCaseTrashService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
@@ -38,6 +39,7 @@ public class FunctionalCaseTrashController {
     @PostMapping("/page")
     @Operation(summary = "用例管理-功能用例-回收站-用例列表查询")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<FunctionalCasePageDTO>> getFunctionalCasePage(@Validated @RequestBody FunctionalCasePageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
@@ -47,6 +49,7 @@ public class FunctionalCaseTrashController {
     @PostMapping("/module/count")
     @Operation(summary = "用例管理-功能用例-回收站-表格分页查询文件")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Map<String, Long> moduleCount(@Validated @RequestBody FunctionalCasePageRequest request) {
         return functionalCaseService.moduleCount(request, true);
     }
@@ -55,6 +58,7 @@ public class FunctionalCaseTrashController {
     @Operation(summary = "用例管理-功能用例-回收站-恢复用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_DELETE)
     @Log(type = OperationLogType.RECOVER, expression = "#msClass.recoverLog(#id)", msClass = FunctionalCaseLogService.class)
+    @CheckOwner(resourceId = "#id", resourceType = "functional_case")
     public void recoverCase(@PathVariable String id) {
         functionalCaseTrashService.recoverCase(id, SessionUtils.getUserId());
     }
@@ -62,6 +66,7 @@ public class FunctionalCaseTrashController {
     @PostMapping("/batch/recover")
     @Operation(summary = "用例管理-功能用例-回收站-批量恢复用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_DELETE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     @Log(type = OperationLogType.RECOVER, expression = "#msClass.batchRecoverLog(#request)", msClass = FunctionalCaseLogService.class)
     public void batchRecoverCase(@Validated @RequestBody FunctionalCaseBatchRequest request) {
         functionalCaseTrashService.batchRecoverCase(request, SessionUtils.getUserId());
@@ -71,6 +76,7 @@ public class FunctionalCaseTrashController {
     @Operation(summary = "用例管理-功能用例-回收站-彻底删除用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteTrashCaseLog(#id)", msClass = FunctionalCaseLogService.class)
+    @CheckOwner(resourceId = "#id", resourceType = "functional_case")
     public void deleteCase(@PathVariable String id) {
         functionalCaseTrashService.deleteCase(id, SessionUtils.getUserId());
     }
@@ -78,6 +84,7 @@ public class FunctionalCaseTrashController {
     @PostMapping("/batch/delete")
     @Operation(summary = "用例管理-功能用例-回收站-批量彻底删除用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_DELETE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     @Log(type = OperationLogType.DELETE, expression = "#msClass.batchDeleteTrashCaseLog(#request)", msClass = FunctionalCaseLogService.class)
     public void batchDeleteCase(@Validated @RequestBody FunctionalCaseBatchRequest request) {
         functionalCaseTrashService.batchDeleteCase(request, SessionUtils.getUserId());
