@@ -47,7 +47,7 @@ public abstract class AbstractJmeterElementConverter<T extends MsTestElement> {
         if (element != null && element.getChildren() != null) {
             element.getChildren().forEach(child ->
                 getConverterFunc.apply(child.getClass())
-                        .toHashTree(tree, element, config));
+                        .toHashTree(tree, child, config));
         }
     }
 }

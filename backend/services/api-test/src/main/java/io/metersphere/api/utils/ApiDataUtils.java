@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.type.CollectionType;
+import io.metersphere.api.dto.request.MsCommonElement;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.sdk.exception.MSException;
 
@@ -32,6 +33,7 @@ public class ApiDataUtils {
     static {
         // 默认内置的子组件
         namedTypes.add(new NamedType(MsHTTPElement.class, MsHTTPElement.class.getSimpleName()));
+        namedTypes.add(new NamedType(MsCommonElement.class, MsCommonElement.class.getSimpleName()));
 
         setObjectMapper(objectMapper);
         namedTypes.forEach(objectMapper::registerSubtypes);
