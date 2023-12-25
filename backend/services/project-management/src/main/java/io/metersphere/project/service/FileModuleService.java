@@ -114,7 +114,22 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
             throw new MSException(Translator.get("node.name.repeat"));
         }
         example.clear();
+
+        //非默认节点，检查该节点所在分支的总长度，确保不超过阈值
+        if (!StringUtils.equals(fileModule.getId(), ModuleConstants.DEFAULT_NODE_ID)) {
+            this.checkBranchModules(this.getRootNodeId(fileModule), extFileModuleMapper::selectChildrenIdsByParentIds);
+        }
     }
+
+    private String getRootNodeId(FileModule fileModule) {
+        if (StringUtils.equals(fileModule.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
+            return fileModule.getId();
+        } else {
+            FileModule parentModule = fileModuleMapper.selectByPrimaryKey(fileModule.getParentId());
+            return this.getRootNodeId(parentModule);
+        }
+    }
+
 
     public void update(FileModuleUpdateRequest request, String userId) {
         FileModule module = fileModuleMapper.selectByPrimaryKey(request.getId());

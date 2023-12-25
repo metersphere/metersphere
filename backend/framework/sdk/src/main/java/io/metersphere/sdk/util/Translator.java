@@ -25,4 +25,11 @@ public class Translator {
     public static String get(String key, String defaultMessage) {
         return messageSource.getMessage(key, null, defaultMessage, LocaleContextHolder.getLocale());
     }
+
+    /**
+     * 带参数
+     */
+    public static String getWithArgs(String key, Object... args) {
+        return messageSource.getMessage(key, args, "Not Support Key: " + key, LocaleContextHolder.getLocale());
+    }
 }

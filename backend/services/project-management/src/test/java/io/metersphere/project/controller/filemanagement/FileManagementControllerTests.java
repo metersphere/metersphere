@@ -297,6 +297,33 @@ public class FileManagementControllerTests extends BaseTest {
         LOG_CHECK_LIST.add(
                 new CheckLogModel(a1b1c1Node.getId(), OperationLogType.ADD, FileManagementRequestUtils.URL_MODULE_ADD)
         );
+
+
+        /**
+         测试能否正常做200个节点
+         */
+        String parentId = null;
+        for (int i = 0; i < 210; i++) {
+            FileModuleCreateRequest perfRequest = new FileModuleCreateRequest();
+            perfRequest.setProjectId(project.getId());
+            perfRequest.setName("500-test-root-" + i);
+            if (StringUtils.isNotEmpty(parentId)) {
+                perfRequest.setParentId(parentId);
+            }
+            if (i < 200) {
+                MvcResult result = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_MODULE_ADD, perfRequest);
+                ResultHolder holder = JSON.parseObject(result.getResponse().getContentAsString(), ResultHolder.class);
+                if (i % 50 == 0) {
+                    //到20换下一层级
+                    parentId = holder.getData().toString();
+                }
+            } else {
+                //测试超过500会报错
+                this.requestPost(FileManagementRequestUtils.URL_MODULE_ADD, perfRequest).andExpect(status().is5xxServerError());
+            }
+        }
+        treeNodes = this.getFileModuleTreeNode();
+        preliminaryTreeNodes = treeNodes;
     }
 
     @Test
