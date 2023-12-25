@@ -275,7 +275,7 @@ export default {
       testCaseCommentList(id)
         .then(res => {
           this.result.loading = false;
-          this.comments = res.data;
+          this.comments = res.data.filter(comment => comment.description);
         });
     },
     setRelationshipCount(count) {
