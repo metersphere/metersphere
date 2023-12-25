@@ -13,7 +13,7 @@
     @cancel="handleDrawerCancel"
   >
     <MsSplitBox>
-      <template #left>
+      <template #first>
         <div class="p-[16px] pt-0">
           <div class="folder">
             <div class="folder-text">
@@ -60,7 +60,7 @@
           </div>
         </div>
       </template>
-      <template #right>
+      <template #second>
         <LinkFileTable
           v-model:selectFile="selectFile"
           :active-folder="activeFolder"
@@ -71,6 +71,7 @@
           :storage-list="storageList"
           :show-type="showType"
           :get-list-request="props.getListRequest"
+          :get-list-fun-params="props.getListFunParams"
           @init="handleModuleTableInit"
         />
       </template>
@@ -101,6 +102,7 @@
     getTreeRequest: (params: any) => Promise<ModuleTreeNode[]>; // 获取左侧树请求
     getCountRequest: (params: any) => Promise<Record<string, any>>; // 获取左侧树模块数量请求
     getListRequest: (params: TableQueryParams) => Promise<CommonList<AssociatedList>>; // 获取表格请求
+    getListFunParams: TableQueryParams; // 关联表去重id
   }>();
 
   const emit = defineEmits<{
@@ -188,6 +190,7 @@
         ...tableFilterParams.value,
         combine: {
           ...tableFilterParams.value.combine,
+          // ...props.getListFunParams.combine,
           storage: 'git',
         },
       });
