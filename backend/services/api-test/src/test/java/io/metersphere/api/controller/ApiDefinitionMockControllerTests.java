@@ -16,7 +16,6 @@ import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.mapper.ApiDefinitionMapper;
 import io.metersphere.api.mapper.ApiDefinitionMockConfigMapper;
 import io.metersphere.api.mapper.ApiDefinitionMockMapper;
-import io.metersphere.api.mapper.ExtApiDefinitionMapper;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
@@ -234,15 +233,6 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setName("permission-st-6");
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_MOCK_ADD, ADD, request);
-    }
-
-    private ApiDefinitionMockAddRequest createApiDefinitionMockAddRequest() {
-        ApiDefinitionMockAddRequest request = new ApiDefinitionMockAddRequest();
-        request.setName("接口定义test");
-        request.setProjectId(DEFAULT_PROJECT_ID);
-        request.setTags(new LinkedHashSet<>(List.of("tag1", "tag2")));
-        request.setApiDefinitionId(DEFAULT_API_ID);
-        return request;
     }
 
     private ApiDefinitionMock assertAddApiDefinitionMock(Object request, MsHTTPElement msHttpElement, String id) {
