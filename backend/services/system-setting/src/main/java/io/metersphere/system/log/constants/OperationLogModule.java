@@ -19,6 +19,7 @@ public class OperationLogModule {
     public static final String API_AUTOMATION_SCHEDULE = "API_AUTOMATION_SCHEDULE";
     public static final String API_AUTOMATION_REPORT = "API_AUTOMATION_REPORT";
     public static final String API_DEFINITION = "API_DEFINITION";
+    public static final String API_DEFINITION_MOCK = "API_DEFINITION_MOCK";
     public static final String API_DEFINITION_CASE = "API_DEFINITION_CASE";
     public static final String TRACK_TEST_PLAN = "TRACK_TEST_PLAN";
     public static final String TRACK_TEST_PLAN_SCHEDULE = "TRACK_TEST_PLAN_SCHEDULE";
@@ -70,7 +71,7 @@ public class OperationLogModule {
     public static final String SETTING_ORGANIZATION_MEMBER = "SETTING_ORGANIZATION_MEMBER";
     public static final String SETTING_ORGANIZATION_SERVICE = "SETTING_ORGANIZATION_SERVICE";
     public static final String SETTING_ORGANIZATION_USER_ROLE = "SETTING_ORGANIZATION_USER_ROLE";
-    
+
     //系统设置-组织-项目
     public static final String SETTING_ORGANIZATION_PROJECT = "SETTING_ORGANIZATION_PROJECT";
     // 模板管理

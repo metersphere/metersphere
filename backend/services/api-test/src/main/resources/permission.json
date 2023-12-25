@@ -75,6 +75,27 @@
             "id": "PROJECT_API_DEFINITION_CASE:READ+EXECUTE"
           }
         ]
+      },
+      {
+        "id": "PROJECT_API_DEFINITION_MOCK",
+        "name": "permission.api_mock.name",
+        "permissions": [
+          {
+            "id": "PROJECT_API_DEFINITION_MOCK:READ"
+          },
+          {
+            "id": "PROJECT_API_DEFINITION_MOCK:READ+ADD"
+          },
+          {
+            "id": "PROJECT_API_DEFINITION_MOCK:READ+UPDATE"
+          },
+          {
+            "id": "PROJECT_API_DEFINITION_MOCK:READ+DELETE"
+          },
+          {
+            "id": "PROJECT_API_DEFINITION_MOCK:READ+EXECUTE"
+          }
+        ]
       }
     ]
   }

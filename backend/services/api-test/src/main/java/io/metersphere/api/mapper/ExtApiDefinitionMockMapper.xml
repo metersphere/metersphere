@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.api.mapper.ExtApiDefinitionMockMapper">
+
+    <select id="list" resultType="io.metersphere.api.dto.definition.ApiDefinitionMockDTO">
+        select
+        m.id, m.create_time, m.update_time, m.create_user, m.`name`, m.tags, m.`enable`, m.expect_num, m.project_id,
+        m.api_definition_id, u.name as create_user_name
+        from api_definition_mock m
+        left join `user` u on u.id = m.create_user
+        where m.api_definition_id = #{request.apiDefinitionId}
+        <include refid="queryWhereCondition"/>
+    </select>
+
+
+    <sql id="queryWhereCondition">
+        <if test="request.keyword != null and request.keyword != ''">
+            and (
+            m.expect_num like concat('%', #{request.keyword},'%')
+            or m.name like concat('%', #{request.keyword},'%')
+            or m.tags like JSON_CONTAINS(tags, concat('["',#{request.keyword},'"]'))
+            )
+        </if>
+        <if test="request.projectId != null and request.projectId != ''">
+            and m.project_id = #{request.projectId}
+        </if>
+
+        <include refid="filters">
+            <property name="filter" value="request.filter"/>
+        </include>
+
+        <if test="request.combine != null and request.combine != ''">
+            <include refid="combine">
+                <property name="condition" value="request.combine"/>
+                <property name="name" value="request.name"/>
+                <property name="ObjectTags" value="request.combine.tags"/>
+            </include>
+        </if>
+    </sql>
+
+
+    <sql id="filters">
+        <if test="${filter} != null and ${filter}.size() > 0">
+            <foreach collection="${filter}.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='enable'">
+                            and m.enable in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='api_method'">
+                            and m.api_method in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='api_path'">
+                            and m.api_path in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='create_user'">
+                            and m.create_user in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="combine">
+        <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
+            and m.name
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="object" value="${condition}.name"/>
+            </include>
+        </if>
+
+        <if test="${condition}.updateTime != null">
+            and m.update_time
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="object" value="${condition}.updateTime"/>
+            </include>
+        </if>
+
+        <if test="${condition}.createTime != null">
+            and m.create_time
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="object" value="${condition}.createTime"/>
+            </include>
+        </if>
+
+        <if test="${condition}.createUser != null">
+            and m.create_user
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="object" value="${condition}.createUser"/>
+            </include>
+        </if>
+
+        <if test="${condition}.enable != null">
+            and m.enable
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="object" value="${condition}.enable"/>
+            </include>
+        </if>
+
+        <if test="${condition}.apiPath != null">
+            and m.api_path
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="object" value="${condition}.apiPath"/>
+            </include>
+        </if>
+
+        <if test="${condition}.apiMethod != null">
+            and m.api_method
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="object" value="${condition}.apiMethod"/>
+            </include>
+        </if>
+
+        <if test='${condition}.tags != null and ${ObjectTags}.operator == "not like"'>
+            and (m.tags is null or m.tags
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="object" value="${condition}.tags"/>
+            </include>
+            )
+        </if>
+
+        <if test='${condition}.tags != null and ${ObjectTags}.operator == "like"'>
+            and m.tags
+            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                <property name="object" value="${condition}.tags"/>
+            </include>
+        </if>
+
+    </sql>
+
+</mapper>

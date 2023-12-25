@@ -12,7 +12,8 @@ public enum ApiResultCode implements IResultCode {
     API_DEFINITION_NOT_EXIST(104003, "resource_not_exist"),
     API_DEFINITION_MODULE_NOT_EXIST(10404, "resource_not_exist"),
     RESOURCE_POOL_EXECUTE_ERROR(104005, "resource_pool_execute_error"),
-    EXECUTE_RESOURCE_POOL_NOT_CONFIG(104006, "execute_resource_pool_not_config_error");
+    EXECUTE_RESOURCE_POOL_NOT_CONFIG(104006, "execute_resource_pool_not_config_error"),
+    API_DEFINITION_MOCK_EXIST(104007, "api_definition_mock_exist");
 
 
     private final int code;
