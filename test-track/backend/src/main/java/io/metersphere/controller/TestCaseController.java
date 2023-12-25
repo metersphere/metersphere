@@ -74,6 +74,10 @@ public class TestCaseController {
     @PostMapping("/public/list/{goPage}/{pageSize}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public Pager<List<TestCaseDTO>> publicList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
+        ProjectApplication projectApplication = projectApplicationService.getProjectApplication(SessionUtils.getCurrentProjectId(), ProjectApplicationType.CASE_CUSTOM_NUM.name());
+        if (projectApplication != null && StringUtils.isNotEmpty(projectApplication.getTypeValue()) && request.getCombine() != null) {
+            request.getCombine().put("caseCustomNum", projectApplication.getTypeValue());
+        }
         testCaseService.setPublicListRequestParam(request);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testCaseService.publicListTestCase(request));
@@ -149,6 +153,10 @@ public class TestCaseController {
     @PostMapping("/relationship/relate/{goPage}/{pageSize}")
     @RequiresPermissions(PermissionConstants.PROJECT_TRACK_CASE_READ)
     public Pager<List<TestCaseDTO>> getRelationshipRelateList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestCaseRequest request) {
+        ProjectApplication projectApplication = projectApplicationService.getProjectApplication(request.getProjectId(), ProjectApplicationType.CASE_CUSTOM_NUM.name());
+        if (projectApplication != null && StringUtils.isNotEmpty(projectApplication.getTypeValue()) && request.getCombine() != null) {
+            request.getCombine().put("caseCustomNum", projectApplication.getTypeValue());
+        }
         return testCaseService.getRelationshipRelateList(request, goPage, pageSize);
     }
 
