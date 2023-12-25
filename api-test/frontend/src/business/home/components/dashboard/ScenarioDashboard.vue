@@ -6,7 +6,7 @@
       </div>
       <div v-loading="loading" element-loading-background="#FFFFFF">
         <div
-          v-show="loadError"
+          v-if="loadError"
           style="
             width: 100%;
             height: 300px;
@@ -18,7 +18,7 @@
           <img style="height: 100px; width: 100px" src="/assets/module/figma/icon_load_error.svg" />
           <span class="addition-info-title" style="color: #646a73">{{ $t('home.dashboard.public.load_error') }}</span>
         </div>
-        <div v-show="!loadError">
+        <div v-if="!loadError">
           <div class="main-info">
             <el-row :gutter="16">
               <el-col :span="12">

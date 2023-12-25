@@ -10,13 +10,13 @@
     </div>
 
     <div style="margin-top: 16px" v-loading="loading" element-loading-background="#FFFFFF">
-      <div v-show="loadError"
+      <div v-if="loadError"
            style="width: 100%; height: 300px; display: flex; flex-direction: column; justify-content: center;align-items: center">
         <img style="height: 100px;width: 100px;"
              src="/assets/module/figma/icon_load_error.svg"/>
         <span class="addition-info-title" style="color: #646A73">{{ $t("home.dashboard.public.load_error") }}</span>
       </div>
-      <div v-show="!loadError">
+      <div v-if="!loadError">
         <el-table class="adjust-table table-content" :data="tableData" @row-click="intoPlan"
                   header-cell-class-name="home-table-cell" style="min-height: 228px">
           <el-table-column
