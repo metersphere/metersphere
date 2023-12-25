@@ -114,7 +114,26 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
             throw new MSException(Translator.get("node.name.repeat"));
         }
         example.clear();
+
+        /*
+            2023.12.21晚18.06分， 与罗老师沟通：
+            根节点下，不论多少层级，不论每层多少节点，总量不得超过500。
+            根节点的数量暂不做限制
+         */
+        if (!StringUtils.equals(fileModule.getId(), ModuleConstants.DEFAULT_NODE_ID)) {
+            this.checkBranchModules(this.getRootNodeId(fileModule), extFileModuleMapper::selectChildrenIdsByParentIds);
+        }
     }
+
+    private String getRootNodeId(FileModule fileModule) {
+        if (StringUtils.equals(fileModule.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
+            return fileModule.getId();
+        } else {
+            FileModule parentModule = fileModuleMapper.selectByPrimaryKey(fileModule.getParentId());
+            return this.getRootNodeId(parentModule);
+        }
+    }
+
 
     public void update(FileModuleUpdateRequest request, String userId) {
         FileModule module = fileModuleMapper.selectByPrimaryKey(request.getId());
