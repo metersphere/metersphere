@@ -116,15 +116,15 @@ import {
   _handleSelect,
   _handleSelectAll,
   _sort,
-  getSelectDataCounts,
-  setUnSelectIds,
-  toggleAllSelection,
   checkTableRowIsSelect,
+  clearShareDragParam,
   getCustomTableHeader,
+  getSelectDataCounts,
+  handleRowDrop,
   saveCustomTableWidth,
   saveLastTableSortField,
-  handleRowDrop,
-  clearShareDragParam,
+  setUnSelectIds,
+  toggleAllSelection,
 } from "../../utils/tableUtils";
 import MsTableHeaderSelectPopover from "./MsTableHeaderSelectPopover";
 import MsTablePagination from "../pagination/TablePagination";
@@ -134,8 +134,7 @@ import MsTableOperators from "../MsTableOperators";
 import HeaderLabelOperate from "../head/HeaderLabelOperate";
 import HeaderCustom from "../head/HeaderCustom";
 import MsCustomTableHeader from "../table/MsCustomTableHeader";
-import {lineToHump} from "../../utils";
-import {getUUID} from "../../utils";
+import {getUUID, lineToHump} from "../../utils";
 
 /**
  * 参考 ApiList
@@ -299,6 +298,7 @@ export default {
   },
   mounted() {
     this.setDefaultOrders();
+    this.preventSortableEventPropagation();
   },
   watch: {
     selectNodeIds() {
@@ -327,6 +327,12 @@ export default {
     }
   },
   methods: {
+    preventSortableEventPropagation() {
+      document.body.ondrop = function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    },
     // 批量操作提示, 第一次勾选提示, 之后不提示
     // 先添加 batch-popper 样式, 全选后再移除样式, 只保留可见框内第一条数据的提示
     removeBatchPopper() {
