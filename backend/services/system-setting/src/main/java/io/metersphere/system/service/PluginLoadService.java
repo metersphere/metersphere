@@ -70,6 +70,7 @@ public class PluginLoadService {
 
     /**
      * 从默认的对象存储下载插件到本地，再加载
+     *
      * @param fileName
      * @return
      * @throws Exception
@@ -78,15 +79,13 @@ public class PluginLoadService {
         MsFileUtils.validateFileName(fileName);
         String filePath = LocalRepositoryDir.getPluginDir() + "/" + fileName;
         File file = new File(filePath);
-        try {
-            if (!file.exists()) {
-                InputStream fileAsStream = FileCenter.getDefaultRepository()
-                        .getFileAsStream(getDefaultRepositoryFileRequest(fileName));
+        if (!file.exists()) {
+            try (InputStream fileAsStream = FileCenter.getDefaultRepository().getFileAsStream(getDefaultRepositoryFileRequest(fileName))) {
                 FileUtils.copyInputStreamToFile(fileAsStream, file);
+                msPluginManager.loadPlugin(Paths.get(filePath));
+            } catch (Exception e) {
+                LogUtils.error("从对象存储加载插件异常", e);
             }
-            msPluginManager.loadPlugin(Paths.get(filePath));
-        } catch (Exception e) {
-            LogUtils.error("从对象存储加载插件异常", e);
         }
     }
 
@@ -227,6 +226,7 @@ public class PluginLoadService {
 
     /**
      * 删除本地插件
+     *
      * @param fileName
      */
     public void deleteLocalPluginFile(String fileName) {
@@ -258,9 +258,10 @@ public class PluginLoadService {
 
     /**
      * 获取插件中的是实现类列表
+     *
      * @param clazz
-     * @return
      * @param <T>
+     * @return
      */
     public <T> List<T> getExtensions(Class<T> clazz) {
         return msPluginManager.getExtensions(clazz);
@@ -268,10 +269,11 @@ public class PluginLoadService {
 
     /**
      * 获取插件中的是实现类
+     *
      * @param clazz
      * @param pluginId
-     * @return
      * @param <T>
+     * @return
      */
     public <T> Class<? extends T> getExtensionsClass(Class<T> clazz, String pluginId) {
         List<Class<? extends T>> classes = msPluginManager.getExtensionClasses(clazz, pluginId);
