@@ -9,7 +9,7 @@
       element-loading-background="#FFFFFF"
     >
       <div
-        v-show="loadError"
+        v-if="loadError"
         style="
           width: 100%;
           height: 300px;
@@ -27,7 +27,7 @@
           $t("home.dashboard.public.load_error")
         }}</span>
       </div>
-      <div v-show="!loadError">
+      <div v-if="!loadError">
         <el-table
           :data="tableData"
           class="adjust-table table-content"
