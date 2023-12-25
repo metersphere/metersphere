@@ -211,6 +211,7 @@
       :get-tree-request="getModules"
       :get-count-request="getModulesCount"
       :get-list-request="getAssociatedFileListUrl"
+      :get-list-fun-params="getListFunParams"
       @save="saveSelectAssociatedFile"
     />
   </div>
@@ -226,8 +227,8 @@
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import MsFileList from '@/components/pure/ms-upload/fileList.vue';
   import type { MsFileItem } from '@/components/pure/ms-upload/types';
+  import LinkFileDrawer from '@/components/business/ms-link-file/associatedFileDrawer.vue';
   import AddStep from '../addStep.vue';
-  import LinkFileDrawer from '../linkFile/associatedFileDrawer.vue';
   import TransferModal from './transferModal.vue';
 
   import {
@@ -248,6 +249,7 @@
   import { scrollIntoView } from '@/utils/dom';
 
   import type { AssociatedList, DetailCase, StepList } from '@/models/caseManagement/featureCase';
+  import type { TableQueryParams } from '@/models/common';
 
   import { convertToFile } from '../utils';
   import debounce from 'lodash-es/debounce';
@@ -324,6 +326,11 @@
 
   const fileList = ref<MsFileItem[]>([]);
   const acceptType = ref('none'); // 模块-上传文件类型
+  const getListFunParams = ref<TableQueryParams>({
+    combine: {
+      hiddenIds: [],
+    },
+  });
 
   const showDrawer = ref<boolean>(false);
   function associatedFile() {

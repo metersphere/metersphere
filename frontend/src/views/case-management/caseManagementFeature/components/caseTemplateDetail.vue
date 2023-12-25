@@ -60,42 +60,7 @@
         <a-form-item field="remark" :label="t('caseManagement.featureCase.remark')">
           <MsRichText v-model:modelValue="form.description" />
         </a-form-item>
-        <a-form-item field="attachment" :label="t('caseManagement.featureCase.addAttachment')">
-          <div class="flex flex-col">
-            <div class="mb-1">
-              <a-dropdown position="tr" trigger="hover">
-                <a-button type="outline">
-                  <template #icon> <icon-plus class="text-[14px]" /> </template
-                  >{{ t('system.orgTemplate.addAttachment') }}</a-button
-                >
-                <template #content>
-                  <a-upload
-                    ref="uploadRef"
-                    v-model:file-list="fileList"
-                    :auto-upload="false"
-                    :show-file-list="false"
-                    :before-upload="beforeUpload"
-                    @change="handleChange"
-                  >
-                    <template #upload-button>
-                      <a-button type="text" class="!text-[var(--color-text-1)]">
-                        <icon-upload />{{ t('caseManagement.featureCase.uploadFile') }}</a-button
-                      >
-                    </template>
-                  </a-upload>
-                  <a-button type="text" class="!text-[var(--color-text-1)]" @click="associatedFile">
-                    <MsIcon type="icon-icon_link-copy_outlined" size="16" />{{
-                      t('caseManagement.featureCase.associatedFile')
-                    }}</a-button
-                  >
-                </template>
-              </a-dropdown>
-            </div>
-            <div class="!hover:bg-[rgb(var(--primary-1))] !text-[var(--color-text-4)]">{{
-              t('system.orgTemplate.addAttachmentTip')
-            }}</div>
-          </div>
-        </a-form-item>
+        <AddAttachment @change="handleChange" @link-file="associatedFile" @upload="beforeUpload" />
       </a-form>
       <!-- 文件列表开始 -->
       <div class="w-[90%]">
@@ -247,6 +212,7 @@
     :get-tree-request="getModules"
     :get-count-request="getModulesCount"
     :get-list-request="getAssociatedFileListUrl"
+    :get-list-fun-params="getListFunParams"
     @save="saveSelectAssociatedFile"
   />
   <a-image-preview v-model:visible="previewVisible" :src="imageUrl" />
@@ -264,8 +230,9 @@
   import MsFileList from '@/components/pure/ms-upload/fileList.vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import type { MsFileItem } from '@/components/pure/ms-upload/types';
+  import LinkFileDrawer from '@/components/business/ms-link-file/associatedFileDrawer.vue';
+  import AddAttachment from './addAttachment.vue';
   import AddStep from './addStep.vue';
-  import LinkFileDrawer from './linkFile/associatedFileDrawer.vue';
   import TransferModal from './tabContent/transferModal.vue';
 
   import {
@@ -292,6 +259,7 @@
     DetailCase,
     StepList,
   } from '@/models/caseManagement/featureCase';
+  import type { TableQueryParams } from '@/models/common';
   import type { CustomField, DefinedFieldItem } from '@/models/setting/template';
 
   import { convertToFile } from './utils';
@@ -584,6 +552,12 @@
     form.value.relateFileMetaIds = newAssociateFileListIds.value;
   }
 
+  const getListFunParams = ref<TableQueryParams>({
+    combine: {
+      hiddenIds: [],
+    },
+  });
+
   // 监视文件列表处理关联和本地文件
   watch(
     () => fileList.value,
@@ -591,6 +565,7 @@
       if (val) {
         form.value.relateFileMetaIds = fileList.value.filter((item) => !item.local).map((item) => item.uid);
         params.value.fileList = fileList.value.filter((item) => item.local && item.status === 'init');
+        getListFunParams.value.combine.hiddenIds = fileList.value.filter((item) => !item.local).map((item) => item.uid);
         if (isEditOrCopy.value) {
           getFilesParams();
         }

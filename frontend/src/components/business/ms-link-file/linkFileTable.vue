@@ -82,6 +82,7 @@
     getListRequest: (params: TableQueryParams) => Promise<CommonList<AssociatedList>>;
     showType: 'Module' | 'Storage'; // 展示类型
     storageList: Repository[]; // 存储库列表
+    getListFunParams: TableQueryParams; // 表格额外去重参数
   }>();
   const emit = defineEmits<{
     (e: 'init', params: FileListQueryParams): void;
@@ -185,7 +186,7 @@
       fileType: tableFileType.value,
       moduleIds,
       projectId: appStore.currentProjectId,
-      combine: combine.value,
+      combine: { ...combine.value, ...props.getListFunParams.combine },
     });
   }
 
