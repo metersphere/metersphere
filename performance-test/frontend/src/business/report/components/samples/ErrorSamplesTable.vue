@@ -108,7 +108,11 @@ export default {
           this.sampleRows[sampleName] = index;
         }
         this.tableData.forEach(item => {
-          item.percentOfErrors = (item.error / errorCount * 100).toFixed(2) + '%';
+          if (errorCount === 0) {
+            item.percentOfErrors = '0%';
+          } else {
+            item.percentOfErrors = (item.error / errorCount * 100).toFixed(2) + '%';
+          }
           item.percentOfSamples = (item.count / allSampleCount * 100).toFixed(2) + '%';
         });
       } else {
