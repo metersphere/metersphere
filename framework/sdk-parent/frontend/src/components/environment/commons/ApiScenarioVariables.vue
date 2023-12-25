@@ -123,7 +123,7 @@
           <template slot-scope="scope">
             <el-select
               v-model="scope.row.type"
-              v-if="!scope.row.scope || scope.row.scope == 'api'"
+              v-if="scope.row.scope == 'api'"
               :placeholder="$t('commons.please_select')"
               size="mini"
               @change="changeType($event, scope.row)"
@@ -141,6 +141,7 @@
               v-model="scope.row.type"
               :placeholder="$t('commons.please_select')"
               size="mini"
+              @change="changeUiType($event, scope.row)"
             >
               <el-option
                 v-for="item in uiTypeSelectOptions"
@@ -459,6 +460,15 @@ export default {
             item.files = data.files;
             item.quotedData = data.quotedData;
           }
+        }
+      });
+    },
+    changeUiType(value, data) {
+      data.value = ''
+      this.items.forEach((item) => {
+        if (item.id === data.id) {
+          item.type = value;
+          item.value = data.value;
         }
       });
     },

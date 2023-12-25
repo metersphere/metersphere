@@ -299,7 +299,6 @@ export default {
         this.visible = false;
       }
       this.$refs.environmentEdit.clearValidate();
-      this.currentEnvironment = null;
       removeGoBackListener(this.close);
       this.isCopy = false;
     },
