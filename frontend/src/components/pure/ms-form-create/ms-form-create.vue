@@ -3,6 +3,9 @@
 </template>
 
 <script setup lang="ts">
+  /**
+   * @description 用于自己扩展功能的form-create
+   */
   import { ref, watch } from 'vue';
 
   import { FieldTypeFormRules } from '@/components/pure/ms-form-create/form-create';
@@ -149,7 +152,12 @@
       (formItemType: any) => item.type?.toUpperCase() === formItemType
     );
     if (currentTypeForm) {
-      fieldType = FieldTypeFormRules[currentTypeForm].type;
+      if (currentTypeForm === 'INPUT' && item.subDesc) {
+        // 如果是input类型并且有subDesc说明是JiraKey 类型
+        fieldType = 'JiraKey';
+      } else {
+        fieldType = FieldTypeFormRules[currentTypeForm].type;
+      }
       const options = item?.options;
       const currentOptions = options?.map((optionsItem: any) => {
         return {
@@ -188,6 +196,7 @@
           'disabled': item?.props?.disabled,
           'type': item.control?.length && item.type === 'RADIO' ? 'button' : '',
         },
+        sourceType: item.type || '',
         control: [],
         update: item.update,
       };

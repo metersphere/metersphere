@@ -3,6 +3,9 @@
 </template>
 
 <script setup lang="ts">
+  /**
+   * @description 用于原生字段form-create
+   */
   import { ref, watch, watchEffect } from 'vue';
 
   import JiraKey from './comp/jiraKey.vue';
