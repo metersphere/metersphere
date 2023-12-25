@@ -227,6 +227,32 @@ public class FunctionalCaseModuleControllerTests extends BaseTest {
         Assertions.assertNotNull(a1b1c1Node);
         preliminaryTreeNodes = treeNodes;
 
+
+        /**
+         测试能否正常做200个节点
+         */
+        String parentId = null;
+        for (int i = 0; i < 210; i++) {
+            FunctionalCaseModuleCreateRequest perfRequest = new FunctionalCaseModuleCreateRequest();
+            perfRequest.setProjectId(project.getId());
+            perfRequest.setName("500-test-root-" + i);
+            if (StringUtils.isNotEmpty(parentId)) {
+                perfRequest.setParentId(parentId);
+            }
+            if (i < 200) {
+                MvcResult result = this.requestPostWithOkAndReturn(URL_MODULE_TREE_ADD, perfRequest);
+                ResultHolder holder = JSON.parseObject(result.getResponse().getContentAsString(), ResultHolder.class);
+                if (i % 50 == 0) {
+                    //到20换下一层级
+                    parentId = holder.getData().toString();
+                }
+            } else {
+                //测试超过500会报错
+                this.requestPost(URL_MODULE_TREE_ADD, perfRequest).andExpect(status().is5xxServerError());
+            }
+        }
+        treeNodes = this.getFunctionalCaseModuleTreeNode();
+        preliminaryTreeNodes = treeNodes;
     }
 
     @Test
@@ -658,7 +684,7 @@ public class FunctionalCaseModuleControllerTests extends BaseTest {
         // 删除没有用例的节点a1-b1-c1  检查是否级联删除根节点
         BaseTreeNode a1b1Node = getNodeByName(this.getFunctionalCaseModuleTreeNode(), "a1-b1");
         assert a1b1Node != null;
-        this.requestGetWithOk(URL_MODULE_TREE_DELETE+a1b1Node.getId());
+        this.requestGetWithOk(URL_MODULE_TREE_DELETE + a1b1Node.getId());
         this.checkModuleIsEmpty(a1b1Node.getId());
 
         // 删除有用例的节点 a1-a1      检查是否级联删除根节点
@@ -667,19 +693,19 @@ public class FunctionalCaseModuleControllerTests extends BaseTest {
         FunctionalCase name = createCase(a1a1Node, false, "name");
         FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(name.getId());
         Assertions.assertNotNull(functionalCase);
-        this.requestGetWithOk(URL_MODULE_TREE_DELETE+a1a1Node.getId());
+        this.requestGetWithOk(URL_MODULE_TREE_DELETE + a1a1Node.getId());
         this.checkModuleIsEmpty(a1a1Node.getId());
         FunctionalCase functionalCaseDel = functionalCaseMapper.selectByPrimaryKey(name.getId());
         Assertions.assertTrue(functionalCaseDel.getDeleted());
         Assertions.assertTrue(StringUtils.equals(functionalCaseDel.getModuleId(), "root"));
 
         //删除不存在的节点
-        this.requestGetWithOk(URL_MODULE_TREE_DELETE+IDGenerator.nextNum());
+        this.requestGetWithOk(URL_MODULE_TREE_DELETE + IDGenerator.nextNum());
         // 测试删除根节点
-        this.requestGetWithOk(URL_MODULE_TREE_DELETE+ModuleConstants.DEFAULT_NODE_ID);
+        this.requestGetWithOk(URL_MODULE_TREE_DELETE + ModuleConstants.DEFAULT_NODE_ID);
 
         //service层判断：测试删除空集合
-        functionalCaseModuleService.deleteModuleByIds(new ArrayList<>(),new ArrayList<>());
+        functionalCaseModuleService.deleteModuleByIds(new ArrayList<>(), new ArrayList<>());
 
         checkLog(functionalCase.getId(), OperationLogType.DELETE, URL_MODULE_TREE_DELETE);
 
@@ -712,12 +738,18 @@ public class FunctionalCaseModuleControllerTests extends BaseTest {
             Assertions.assertNotNull(baseTreeNode.getParentId());
         }
         Assertions.assertNotNull(a1Node);
-        createCase(a1Node, true ,"name1");
+        createCase(a1Node, true, "name1");
         MvcResult mvcResultTrash = this.requestGetAndReturn(URL_MODULE_TREE_TRASH + project.getId());
         String contentTrash = mvcResultTrash.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolderTrash = JSON.parseObject(contentTrash, ResultHolder.class);
         List<BaseTreeNode> baseTreeNodeTrashList = JSON.parseArray(JSON.toJSONString(resultHolderTrash.getData()), BaseTreeNode.class);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(baseTreeNodeTrashList));
+        // 没case
+        mvcResultTrash = this.requestGetAndReturn(URL_MODULE_TREE_TRASH + "projectIdX");
+        contentTrash = mvcResultTrash.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolderTrash = JSON.parseObject(contentTrash, ResultHolder.class);
+        baseTreeNodeTrashList = JSON.parseArray(JSON.toJSONString(resultHolderTrash.getData()), BaseTreeNode.class);
+        Assertions.assertTrue(CollectionUtils.isEmpty(baseTreeNodeTrashList));
     }
 
     private FunctionalCase createCase(BaseTreeNode a1a1Node, Boolean deleted, String name) {
@@ -752,7 +784,7 @@ public class FunctionalCaseModuleControllerTests extends BaseTest {
     }
 
     private List<BaseTreeNode> getFunctionalCaseModuleTreeNode() throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(URL_MODULE_TREE+"/"+project.getId()).header(SessionConstants.HEADER_TOKEN, sessionId)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(URL_MODULE_TREE + "/" + project.getId()).header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .header(SessionConstants.CURRENT_PROJECT, project.getId())
                         .contentType(MediaType.APPLICATION_JSON))

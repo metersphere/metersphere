@@ -37,8 +37,8 @@ public class FunctionalCaseModuleController {
     @Operation(summary = "用例管理-功能用例-模块-添加模块")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_ADD)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
-    public void add(@RequestBody @Validated FunctionalCaseModuleCreateRequest request) {
-        functionalCaseModuleService.add(request, SessionUtils.getUserId());
+    public String add(@RequestBody @Validated FunctionalCaseModuleCreateRequest request) {
+       return functionalCaseModuleService.add(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/update")

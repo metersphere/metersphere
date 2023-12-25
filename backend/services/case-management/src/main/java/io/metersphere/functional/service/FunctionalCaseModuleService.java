@@ -69,7 +69,7 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
         return super.buildTreeAndCountResource(fileModuleList, true, Translator.get("default.module"));
     }
     
-    public void add(FunctionalCaseModuleCreateRequest request, String userId) {
+    public String add(FunctionalCaseModuleCreateRequest request, String userId) {
         FunctionalCaseModule functionalCaseModule = new FunctionalCaseModule();
         functionalCaseModule.setId(IDGenerator.nextStr());
         functionalCaseModule.setName(request.getName());
@@ -82,6 +82,7 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
         functionalCaseModule.setCreateUser(userId);
         functionalCaseModule.setUpdateUser(userId);
         functionalCaseModuleMapper.insert(functionalCaseModule);
+        return functionalCaseModule.getId();
     }
 
     public void update(FunctionalCaseModuleUpdateRequest request, String userId) {
@@ -204,20 +205,32 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
             }
             example.clear();
 
-            if (StringUtils.isNotBlank(functionalCaseModule.getProjectId())) {
-                //检查项目ID是否和父节点ID一致
-                example.createCriteria().andProjectIdEqualTo(functionalCaseModule.getProjectId()).andIdEqualTo(functionalCaseModule.getParentId());
-                if (functionalCaseModuleMapper.countByExample(example) == 0) {
-                    throw new MSException(Translator.get("project.cannot.match.parent"));
-                }
-                example.clear();
+            //检查项目ID是否和父节点ID一致
+            example.createCriteria().andProjectIdEqualTo(functionalCaseModule.getProjectId()).andIdEqualTo(functionalCaseModule.getParentId());
+            if (functionalCaseModuleMapper.countByExample(example) == 0) {
+                throw new MSException(Translator.get("project.cannot.match.parent"));
             }
+            example.clear();
         }
         example.createCriteria().andParentIdEqualTo(functionalCaseModule.getParentId()).andNameEqualTo(functionalCaseModule.getName()).andIdNotEqualTo(functionalCaseModule.getId());
         if (functionalCaseModuleMapper.countByExample(example) > 0) {
             throw new MSException(Translator.get("node.name.repeat"));
         }
         example.clear();
+
+        //非默认节点，检查该节点所在分支的总长度，确保不超过阈值
+        if (!StringUtils.equals(functionalCaseModule.getId(), ModuleConstants.DEFAULT_NODE_ID)) {
+            this.checkBranchModules(this.getRootNodeId(functionalCaseModule), extFunctionalCaseModuleMapper::selectChildrenIdsByParentIds);
+        }
+    }
+
+    private String getRootNodeId(FunctionalCaseModule functionalCaseModule) {
+        if (StringUtils.equals(functionalCaseModule.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
+            return functionalCaseModule.getId();
+        } else {
+            FunctionalCaseModule parentModule = functionalCaseModuleMapper.selectByPrimaryKey(functionalCaseModule.getParentId());
+            return this.getRootNodeId(parentModule);
+        }
     }
 
     @Override
