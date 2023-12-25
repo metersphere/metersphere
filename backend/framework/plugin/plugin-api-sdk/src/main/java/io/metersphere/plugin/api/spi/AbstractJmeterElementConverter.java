@@ -2,6 +2,7 @@ package io.metersphere.plugin.api.spi;
 
 
 import io.metersphere.plugin.api.dto.ParameterConfig;
+import lombok.Setter;
 import org.apache.jorphan.collections.HashTree;
 
 import java.lang.reflect.ParameterizedType;
@@ -21,11 +22,8 @@ public abstract class AbstractJmeterElementConverter<T extends MsTestElement> {
      * 获取转换器的函数
      * 主应用在实例化转换器的时候会设置
      */
+    @Setter
     private Function<Class<? extends MsTestElement>, AbstractJmeterElementConverter> getConverterFunc;
-
-    public void setGetConverterFunc(Function<Class<? extends MsTestElement>, AbstractJmeterElementConverter> getConverterFunc) {
-        this.getConverterFunc = getConverterFunc;
-    }
 
     public AbstractJmeterElementConverter() {
         Type genericSuperclass = getClass().getGenericSuperclass();
@@ -46,8 +44,7 @@ public abstract class AbstractJmeterElementConverter<T extends MsTestElement> {
     public void parseChild(HashTree tree, AbstractMsTestElement element, ParameterConfig config) {
         if (element != null && element.getChildren() != null) {
             element.getChildren().forEach(child ->
-                getConverterFunc.apply(child.getClass())
-                        .toHashTree(tree, child, config));
+                    getConverterFunc.apply(child.getClass()).toHashTree(tree, child, config));
         }
     }
 }
