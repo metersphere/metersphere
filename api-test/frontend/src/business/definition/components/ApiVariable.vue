@@ -557,7 +557,7 @@ export default {
       if (!this.parameters[this.parameters.length - 1].min) {
         this.$set(this.parameters[this.parameters.length - 1], 'min', 0);
       }
-      if (!this.parameters[this.parameters.length - 1].value) {
+      if (!this.parameters[this.parameters.length - 1].value && this.parameters[this.parameters.length - 1].type !== 'file') {
         this.$set(this.parameters[this.parameters.length - 1], 'value', null);
       }
       if (!this.parameters[this.parameters.length - 1].uuid) {
@@ -566,7 +566,6 @@ export default {
       if (!this.parameters[this.parameters.length - 1].description) {
         this.$set(this.parameters[this.parameters.length - 1], 'description', null);
       }
-      this.$set(this.parameters[this.parameters.length - 1], 'files', null);
     }
     let savedApiParamsShowFields = getShowFields(this.storageKey);
     if (savedApiParamsShowFields) {
