@@ -149,10 +149,10 @@ public class CaseReviewFunctionalCaseService {
         List<CaseReviewFunctionalCase> unCompletedCaseList = caseReviewFunctionalCases.stream().filter(t -> !ids.contains(t.getId()) && statusList.contains(t.getStatus())).toList();
         List<String> list = caseReviewFunctionalCases.stream().filter(t -> ids.contains(t.getId())).map(CaseReviewFunctionalCase::getCaseId).toList();
         Map<String, Object> param = new HashMap<>();
-        param.put(CaseEvent.Param.CASE_IDS, list.size());
+        param.put(CaseEvent.Param.CASE_IDS, CollectionUtils.isNotEmpty(list) ? list : new ArrayList<>());
         param.put(CaseEvent.Param.REVIEW_ID, reviewId);
-        param.put(CaseEvent.Param.PASS_COUNT, passList.size());
-        param.put(CaseEvent.Param.UN_COMPLETED_COUNT, unCompletedCaseList.size());
+        param.put(CaseEvent.Param.PASS_COUNT, CollectionUtils.isNotEmpty(passList) ? passList.size() : 0);
+        param.put(CaseEvent.Param.UN_COMPLETED_COUNT, CollectionUtils.isNotEmpty(unCompletedCaseList) ? unCompletedCaseList.size() : 0);
         return param;
     }
 
@@ -287,6 +287,7 @@ public class CaseReviewFunctionalCaseService {
         CaseReviewHistoryMapper caseReviewHistoryMapper = sqlSession.getMapper(CaseReviewHistoryMapper.class);
         CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper = sqlSession.getMapper(CaseReviewFunctionalCaseMapper.class);
 
+        int passCount = 0;
         for (CaseReviewFunctionalCase caseReviewFunctionalCase : caseReviewFunctionalCaseList) {
             String caseId = caseReviewFunctionalCase.getCaseId();
             CaseReviewHistory caseReviewHistory = buildCaseReviewHistory(request, userId, caseId);
@@ -300,6 +301,9 @@ public class CaseReviewFunctionalCaseService {
             }
             //根据评审规则更新用例评审和功能用例关系表中的状态 1.单人评审直接更新评审结果 2.多人评审需要计算
             setStatus(request, caseReviewFunctionalCase, caseHistoryMap, reviewerMap);
+            if (StringUtils.equalsIgnoreCase(caseReviewFunctionalCase.getStatus(), FunctionalCaseReviewStatus.PASS.toString())) {
+                passCount += 1;
+            }
             caseReviewFunctionalCaseMapper.updateByPrimaryKeySelective(caseReviewFunctionalCase);
 
             //检查是否有@，发送@通知
@@ -319,7 +323,8 @@ public class CaseReviewFunctionalCaseService {
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
 
         Map<String, Object> param = new HashMap<>();
-        param.put(CaseEvent.Param.CASE_IDS, caseIds);
+        param.put(CaseEvent.Param.CASE_IDS, CollectionUtils.isNotEmpty(caseIds) ? caseIds : new ArrayList<>());
+        param.put(CaseEvent.Param.PASS_COUNT, passCount);
         param.put(CaseEvent.Param.REVIEW_ID, reviewId);
         param.put(CaseEvent.Param.STATUS, request.getStatus());
         param.put(CaseEvent.Param.USER_ID, userId);

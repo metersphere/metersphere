@@ -66,11 +66,23 @@ VALUES ('Trash_TEST_FUNCTIONAL_CASE_ID_g', 8, 'Trash_TEST_MOUDLE_ID_1', 'project
 INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
 VALUES ('Trash_TEST_FUNCTIONAL_CASE_ID_GYQ', 100, 'Trash_TEST_MOUDLE_ID', 'project-case-trash-test', '100001', '回收站测信', 'UN_REVIEWED', NULL, 'STEP', 0, 'v1.0.0', 'Trash_TEST_FUNCTIONAL_CASE_ID_GYQ', 'UN_EXECUTED', true, b'0', b'0', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
 
+INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
+VALUES ('unTrash_TEST_FUNCTIONAL_CASE_ID', 100, 'Trash_TEST_MOUDLE_ID', 'project-case-trash-test', '100001', '回收站测信', 'UN_REVIEWED', NULL, 'STEP', 0, 'v1.0.0', 'unTrash_TEST_FUNCTIONAL_CASE_ID', 'UN_EXECUTED', false, b'0', b'0', 'gyq', 'gyq', '', 1698058347559, 1698058347559, NULL);
+
 INSERT INTO case_review_functional_case(id, review_id, case_id, status, create_time, create_user, update_time, pos)
 VALUES ('Gyq_Review_Case_Id','Gyq_review_id', 'Trash_TEST_FUNCTIONAL_CASE_ID', 'PASS', 1698058347559, 'admin',1698058347559, 0);
 
+INSERT INTO case_review_functional_case(id, review_id, case_id, status, create_time, create_user, update_time, pos)
+VALUES ('Gyq_Review_Case_Id2','Gyq_review_id1', 'Trash_TEST_FUNCTIONAL_CASE_ID_1', 'PASS', 1698058347559, 'admin',1698058347559, 0);
+
+INSERT INTO case_review_functional_case(id, review_id, case_id, status, create_time, create_user, update_time, pos)
+VALUES ('Gyq_Review_Case_Id3','Gyq_review_id1', 'unTrash_TEST_FUNCTIONAL_CASE_ID', 'PASS', 1698058347559, 'admin',1698058347559, 0);
+
 INSERT INTO case_review(id, num, name, module_id, project_id, status, review_pass_rule, pos, start_time, end_time, case_count, pass_rate, tags, description, create_time, create_user, update_time, update_user)
 VALUES ('Gyq_review_id', 10001, '用例评审1', 'Trash_TEST_MOUDLE_ID_1', 'project-case-trash-test', 'COMPLETE' , 'SINGLE', 0, 1698058347559, 1698058347559, 1, 100.00, null, null, 1698058347559, 'admin', 1698058347559, 'admin');
+
+INSERT INTO case_review(id, num, name, module_id, project_id, status, review_pass_rule, pos, start_time, end_time, case_count, pass_rate, tags, description, create_time, create_user, update_time, update_user)
+VALUES ('Gyq_review_id1', 10001, '用例评审2', 'Trash_TEST_MOUDLE_ID_1', 'project-case-trash-test', 'COMPLETE' , 'SINGLE', 0, 1698058347559, 1698058347559, 1, 100.00, null, null, 1698058347559, 'admin', 1698058347559, 'admin');
 
 INSERT INTO functional_case_custom_field(case_id, field_id, value) VALUES ('Trash_TEST_FUNCTIONAL_CASE_ID', 'gyq_custom_id1', '22');
 INSERT INTO functional_case_custom_field(case_id, field_id, value) VALUES ('Trash_TEST_FUNCTIONAL_CASE_ID', 'gyq_custom_id2', '33');

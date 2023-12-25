@@ -320,13 +320,20 @@ public class NoticeMessageTaskService {
         checkProjectExist(projectId);
         //获取返回数据结构
         StringBuilder jsonStr = new StringBuilder();
-        InputStream inputStream = getClass().getResourceAsStream("/message_task.json");
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        String line;
-        while ((line = reader.readLine()) != null) {
-            jsonStr.append(line);
+        try{
+            InputStream inputStream = getClass().getResourceAsStream("/message_task.json");
+            assert inputStream != null;
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jsonStr.append(line);
+            }
+            reader.close();
+            inputStream.close();
+        } catch (IOException e){
+            throw new RuntimeException(e);
         }
-        reader.close();
+
         List<MessageTaskDTO> messageTaskDTOList = JSON.parseArray(jsonStr.toString(), MessageTaskDTO.class);
         //查询数据
         MessageTaskExample messageTaskExample = new MessageTaskExample();
