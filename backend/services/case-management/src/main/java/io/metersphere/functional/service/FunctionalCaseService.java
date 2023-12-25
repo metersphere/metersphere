@@ -398,10 +398,10 @@ public class FunctionalCaseService {
             functionalCaseExample.createCriteria().andRefIdIn(refId);
             List<FunctionalCase> functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
             List<String> caseIds = functionalCases.stream().map(FunctionalCase::getId).toList();
-            param.put(CaseEvent.Param.CASE_IDS, caseIds);
+            param.put(CaseEvent.Param.CASE_IDS, CollectionUtils.isNotEmpty(caseIds) ? caseIds : new ArrayList<>());
             extFunctionalCaseMapper.batchDelete(refId, userId);
         } else {
-            param.put(CaseEvent.Param.CASE_IDS, ids);
+            param.put(CaseEvent.Param.CASE_IDS, CollectionUtils.isNotEmpty(ids) ? ids : new ArrayList<>());
             doDelete(ids, userId);
         }
         param.put(CaseEvent.Param.USER_ID, userId);

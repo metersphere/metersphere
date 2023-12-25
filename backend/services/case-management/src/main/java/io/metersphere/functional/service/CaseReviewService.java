@@ -470,7 +470,7 @@ public class CaseReviewService {
         param.put(CaseEvent.Param.USER_ID, userId);
         param.put(CaseEvent.Param.REVIEW_ID, caseReviewId);
         param.put(CaseEvent.Param.CASE_IDS, castIds);
-        param.put(CaseEvent.Param.CASE_COUNT, caseRealIds.size());
+        param.put(CaseEvent.Param.CASE_COUNT, CollectionUtils.isNotEmpty(caseRealIds) ? caseRealIds.size() : 0);
         param.put(CaseEvent.Param.EVENT_NAME, CaseEvent.Event.ASSOCIATE);
         provider.updateCaseReview(param);
     }

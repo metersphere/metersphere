@@ -57,14 +57,16 @@ public class FunctionalCaseTrashService {
             throw new MSException(Translator.get("case_comment.case_is_null"));
         }
         List<String> ids = getIdsByRefId(functionalCase.getRefId());
-        //检查自定义字段是否还存在，不存在，删除关联关系（与恢复流程没关系可异步执行）
-        delCustomFields(ids);
-        Map<String, Object> param = new HashMap<>();
-        param.put(CaseEvent.Param.CASE_IDS,ids);
-        param.put(CaseEvent.Param.USER_ID,userId);
-        param.put(CaseEvent.Param.EVENT_NAME,CaseEvent.Event.RECOVER_FUNCTIONAL_CASE);
-        provider.updateCaseReview(param);
-        extFunctionalCaseMapper.recoverCase(ids,userId,System.currentTimeMillis());
+        if (CollectionUtils.isNotEmpty(ids)) {
+            //检查自定义字段是否还存在，不存在，删除关联关系（与恢复流程没关系可异步执行）
+            delCustomFields(ids);
+            Map<String, Object> param = new HashMap<>();
+            param.put(CaseEvent.Param.CASE_IDS,ids);
+            param.put(CaseEvent.Param.USER_ID,userId);
+            param.put(CaseEvent.Param.EVENT_NAME,CaseEvent.Event.RECOVER_FUNCTIONAL_CASE);
+            provider.updateCaseReview(param);
+            extFunctionalCaseMapper.recoverCase(ids,userId,System.currentTimeMillis());
+        }
     }
 
     /**
@@ -104,7 +106,7 @@ public class FunctionalCaseTrashService {
     }
 
     /**
-     * 从回收站彻底用例
+     * 从回收站彻底删除用例
      * @param id 用例ID
      */
     public void deleteCase(String id, String userId) {
@@ -113,12 +115,14 @@ public class FunctionalCaseTrashService {
            return;
         }
         List<String> ids = getIdsByRefId(functionalCase.getRefId());
-        deleteFunctionalCaseService.deleteFunctionalCaseResource(ids, functionalCase.getProjectId());
-        Map<String, Object> param = new HashMap<>();
-        param.put(CaseEvent.Param.CASE_IDS,ids);
-        param.put(CaseEvent.Param.USER_ID,userId);
-        param.put(CaseEvent.Param.EVENT_NAME,CaseEvent.Event.DELETE_TRASH_FUNCTIONAL_CASE);
-        provider.updateCaseReview(param);
+        if (CollectionUtils.isNotEmpty(ids)){
+            deleteFunctionalCaseService.deleteFunctionalCaseResource(ids, functionalCase.getProjectId());
+            Map<String, Object> param = new HashMap<>();
+            param.put(CaseEvent.Param.CASE_IDS,ids);
+            param.put(CaseEvent.Param.USER_ID,userId);
+            param.put(CaseEvent.Param.EVENT_NAME,CaseEvent.Event.DELETE_TRASH_FUNCTIONAL_CASE);
+            provider.updateCaseReview(param);
+        }
     }
 
     private List<String> getIdsByRefId(String refId) {
@@ -138,7 +142,7 @@ public class FunctionalCaseTrashService {
         if (request.isSelectAll()) {
             //回收站全部恢复
             List<String> ids = getIds(request);
-            if (ids == null) return;
+            if (CollectionUtils.isEmpty(ids)) return;
             refIds = extFunctionalCaseMapper.getRefIds(ids, true);
         } else {
             if (CollectionUtils.isEmpty(request.getSelectIds())) {
@@ -155,7 +159,7 @@ public class FunctionalCaseTrashService {
             List<FunctionalCase> functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
             List<String> ids = functionalCases.stream().map(FunctionalCase::getId).toList();
             Map<String, Object> param = new HashMap<>();
-            param.put(CaseEvent.Param.CASE_IDS,ids);
+            param.put(CaseEvent.Param.CASE_IDS,CollectionUtils.isNotEmpty(ids) ? ids : new ArrayList<>());
             param.put(CaseEvent.Param.USER_ID,userId);
             param.put(CaseEvent.Param.EVENT_NAME,CaseEvent.Event.RECOVER_FUNCTIONAL_CASE);
             provider.updateCaseReview(param);
@@ -193,7 +197,7 @@ public class FunctionalCaseTrashService {
         if (request.isSelectAll()) {
             //判断是否全部删除
             List<String> ids = getIds(request);
-            if (ids == null) return;
+            if (CollectionUtils.isEmpty(ids)) return;
             if (request.getDeleteAll()) {
                 //回收站全部版本全都删除
                 refIds = extFunctionalCaseMapper.getRefIds(ids, true);
@@ -237,7 +241,7 @@ public class FunctionalCaseTrashService {
         List<String> deleteIds = functionalCases.stream().map(FunctionalCase::getId).toList();
         deleteFunctionalCaseService.deleteFunctionalCaseResource(deleteIds, request.getProjectId());
         Map<String, Object> param = new HashMap<>();
-        param.put(CaseEvent.Param.CASE_IDS,deleteIds);
+        param.put(CaseEvent.Param.CASE_IDS,CollectionUtils.isNotEmpty(deleteIds) ? deleteIds : new ArrayList<>());
         param.put(CaseEvent.Param.USER_ID,userId);
         param.put(CaseEvent.Param.EVENT_NAME,CaseEvent.Event.DELETE_TRASH_FUNCTIONAL_CASE);
         provider.updateCaseReview(param);

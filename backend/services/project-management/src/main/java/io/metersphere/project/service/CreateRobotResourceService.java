@@ -78,15 +78,16 @@ public class CreateRobotResourceService implements CreateProjectResourceService 
 
     public void setMessageTask(String projectId, String defaultRobotId) {
         StringBuilder jsonStr = new StringBuilder();
-        InputStream inputStream = getClass().getResourceAsStream("/message_task.json");
-        assert inputStream != null;
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        String line;
         try {
+            InputStream inputStream = getClass().getResourceAsStream("/message_task.json");
+            assert inputStream != null;
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            String line;
             while ((line = reader.readLine()) != null) {
                 jsonStr.append(line);
             }
             reader.close();
+            inputStream.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

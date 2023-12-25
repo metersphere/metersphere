@@ -41,6 +41,9 @@ INSERT INTO project_robot(id, project_id, name, platform, webhook, type, app_key
                                                                                                                                                                               ('test_message_robot4', 'project-message-test-3', '测试机器人1', 'IN_SITE', 'NONE', null,  null, null, true, 'admin', unix_timestamp() * 1000,'admin',  unix_timestamp() * 1000, null),
                                                                                                                                                                               ('test_message_robot5', 'project-message-test', '测试机器人6', 'IN_SITE', 'NONE', null,  null, null, true, 'admin', unix_timestamp() * 1000,'admin',  unix_timestamp() * 1000, null);
 
+INSERT INTO custom_field(id, name, scene, `type`, remark, internal, scope_type, create_time, update_time, create_user, scope_id)
+VALUES('gyq_custom_id_message1', 'gyq_functional_priority', 'FUNCTIONAL', 'SELECT', '', 1, 'ORGANIZATION', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'project-message-test');
+
 
 
 
