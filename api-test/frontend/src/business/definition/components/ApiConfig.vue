@@ -377,6 +377,8 @@ export default {
         data.versionName = res.versionName;
         data.refId = res.refId;
         this.$emit('saveApi', data);
+      }, () => {
+        this.setProtocolBtn(false);
       });
       this.responseCount = 0;
       this.count = 0;
