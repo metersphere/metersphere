@@ -21,6 +21,7 @@ import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.notice.annotation.SendNotice;
 import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
@@ -56,6 +57,7 @@ public class FunctionalCaseController {
     @GetMapping("/default/template/field/{projectId}")
     @Operation(summary = "用例管理-功能用例-获取默认模板自定义字段")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_ADD)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public TemplateDTO getDefaultTemplateField(@PathVariable String projectId) {
         TemplateDTO defaultTemplateDTO = projectTemplateService.getDefaultTemplateDTO(projectId, TemplateScene.FUNCTIONAL.name());
         return defaultTemplateDTO;
@@ -67,6 +69,7 @@ public class FunctionalCaseController {
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addFunctionalCaseLog(#request, #files)", msClass = FunctionalCaseLogService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.getMainFunctionalCaseDTO(#request.name, #request.caseEditType, #request.projectId, #request.customFields)", targetClass = FunctionalCaseNoticeService.class)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public FunctionalCase addFunctionalCase(@Validated @RequestPart("request") FunctionalCaseAddRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         String userId = SessionUtils.getUserId();
         return functionalCaseService.addFunctionalCase(request, files, userId);
@@ -76,6 +79,7 @@ public class FunctionalCaseController {
     @GetMapping("/detail/{id}")
     @Operation(summary = "用例管理-功能用例-查看用例详情")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    @CheckOwner(resourceId = "#id", resourceType = "functional_case")
     public FunctionalCaseDetailDTO getFunctionalCaseDetail(@PathVariable String id) {
         String userId = SessionUtils.getUserId();
         return functionalCaseService.getFunctionalCaseDetail(id, userId);
@@ -87,6 +91,7 @@ public class FunctionalCaseController {
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateFunctionalCaseLog(#request, #files)", msClass = FunctionalCaseLogService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getMainFunctionalCaseDTO(#request.name, #request.caseEditType, #request.projectId, #request.customFields)", targetClass = FunctionalCaseNoticeService.class)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public FunctionalCase updateFunctionalCase(@Validated @RequestPart("request") FunctionalCaseEditRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         String userId = SessionUtils.getUserId();
         return functionalCaseService.updateFunctionalCase(request, files, userId);
@@ -105,6 +110,7 @@ public class FunctionalCaseController {
     @GetMapping("/version/{id}")
     @Operation(summary = "用例管理-功能用例-版本信息(用例是否存在多版本)")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    @CheckOwner(resourceId = "#id", resourceType = "functional_case")
     public List<FunctionalCaseVersionDTO> getVersion(@PathVariable @NotBlank(message = "{functional_case.id.not_blank}") String id) {
         return functionalCaseService.getFunctionalCaseVersion(id);
     }
@@ -115,6 +121,7 @@ public class FunctionalCaseController {
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteFunctionalCaseLog(#request)", msClass = FunctionalCaseLogService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getDeleteFunctionalCaseDTO(#request.id)", targetClass = FunctionalCaseNoticeService.class)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void deleteFunctionalCase(@Validated @RequestBody FunctionalCaseDeleteRequest request) {
         String userId = SessionUtils.getUserId();
         functionalCaseService.deleteFunctionalCase(request, userId);
@@ -124,6 +131,7 @@ public class FunctionalCaseController {
     @PostMapping("/page")
     @Operation(summary = "用例管理-功能用例-用例列表查询")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<FunctionalCasePageDTO>> getFunctionalCasePage(@Validated @RequestBody FunctionalCasePageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "pos desc");
@@ -133,6 +141,7 @@ public class FunctionalCaseController {
     @PostMapping("/module/count")
     @Operation(summary = "用例管理-功能用例-表格分页查询文件")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Map<String, Long> moduleCount(@Validated @RequestBody FunctionalCasePageRequest request) {
         return functionalCaseService.moduleCount(request, false);
     }
@@ -142,6 +151,7 @@ public class FunctionalCaseController {
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.batchDeleteFunctionalCaseLog(#request)", msClass = FunctionalCaseLogService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getBatchDeleteFunctionalCaseDTO(#request)", targetClass = FunctionalCaseNoticeService.class)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void batchDeleteFunctionalCaseToGc(@Validated @RequestBody FunctionalCaseBatchRequest request) {
         String userId = SessionUtils.getUserId();
         functionalCaseService.batchDeleteFunctionalCaseToGc(request, userId);
@@ -150,6 +160,7 @@ public class FunctionalCaseController {
     @GetMapping("/custom/field/{projectId}")
     @Operation(summary = "用例管理-功能用例-获取表头自定义字段(高级搜索中的自定义字段)")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<CustomFieldOptions> getTableCustomField(@PathVariable String projectId) {
         return projectTemplateService.getTableCustomField(projectId, TemplateScene.FUNCTIONAL.name());
     }
@@ -157,6 +168,7 @@ public class FunctionalCaseController {
     @PostMapping("/batch/move")
     @Operation(summary = "用例管理-功能用例-批量移动用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void batchMoveFunctionalCase(@Validated @RequestBody FunctionalCaseBatchMoveRequest request) {
         String userId = SessionUtils.getUserId();
         functionalCaseService.batchMoveFunctionalCase(request, userId);
@@ -166,6 +178,7 @@ public class FunctionalCaseController {
     @PostMapping("/batch/copy")
     @Operation(summary = "用例管理-功能用例-批量复制用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void batchCopyFunctionalCase(@Validated @RequestBody FunctionalCaseBatchMoveRequest request) {
         String userId = SessionUtils.getUserId();
         functionalCaseService.batchCopyFunctionalCase(request, userId);
@@ -177,6 +190,7 @@ public class FunctionalCaseController {
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.batchEditFunctionalCaseLog(#request)", msClass = FunctionalCaseLogService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getBatchEditFunctionalCaseDTO(#request)", targetClass = FunctionalCaseNoticeService.class)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void batchEditFunctionalCase(@Validated @RequestBody FunctionalCaseBatchEditRequest request) {
         String userId = SessionUtils.getUserId();
         functionalCaseService.batchEditFunctionalCase(request, userId);
@@ -186,6 +200,7 @@ public class FunctionalCaseController {
     @PostMapping("edit/pos")
     @Operation(summary = "用例管理-功能用例-拖拽排序")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void editPos(@Validated @RequestBody PosRequest request) {
         functionalCaseService.editPos(request);
     }

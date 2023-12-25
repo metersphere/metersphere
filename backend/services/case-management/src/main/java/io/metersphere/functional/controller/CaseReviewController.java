@@ -15,6 +15,7 @@ import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.notice.annotation.SendNotice;
 import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
@@ -42,6 +43,7 @@ public class CaseReviewController {
     @PostMapping("/page")
     @Operation(summary = "用例管理-用例评审-用例列表查询")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<CaseReviewDTO>> getFunctionalCasePage(@Validated @RequestBody CaseReviewPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "pos desc");
@@ -51,6 +53,7 @@ public class CaseReviewController {
     @PostMapping("/module/count")
     @Operation(summary = "用例管理-用例评审-表格分页查询文件")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Map<String, Long> moduleCount(@Validated @RequestBody CaseReviewPageRequest request) {
         return caseReviewService.moduleCount(request);
     }
@@ -60,6 +63,7 @@ public class CaseReviewController {
     @Log(type = OperationLogType.ADD, expression = "#msClass.addCaseReviewLog(#request)", msClass = CaseReviewLogService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.CASE_REVIEW_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.getMainCaseReview(#request)", targetClass = CaseReviewNoticeService.class)
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_ADD)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void addCaseReview(@Validated @RequestBody CaseReviewRequest request) {
         caseReviewService.addCaseReview(request, SessionUtils.getUserId());
     }
@@ -69,6 +73,7 @@ public class CaseReviewController {
     @Log(type = OperationLogType.COPY, expression = "#msClass.copyCaseReviewLog(#request)", msClass = CaseReviewLogService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.CASE_REVIEW_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.getMainCaseReview(#request)", targetClass = CaseReviewNoticeService.class)
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_ADD)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void copyCaseReview(@Validated @RequestBody CaseReviewRequest request) {
         caseReviewService.addCaseReview(request, SessionUtils.getUserId());
     }
@@ -78,6 +83,7 @@ public class CaseReviewController {
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateCaseReviewLog(#request)", msClass = CaseReviewLogService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.CASE_REVIEW_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getMainCaseReview(#request)", targetClass = CaseReviewNoticeService.class)
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void editCaseReview(@Validated({Updated.class}) @RequestBody CaseReviewRequest request) {
         caseReviewService.editCaseReview(request, SessionUtils.getUserId());
     }
@@ -85,6 +91,7 @@ public class CaseReviewController {
     @GetMapping("/user-option/{projectId}")
     @Operation(summary = "用例管理-用例评审-获取具有评审权限的用户")
     @RequiresPermissions(value = {PermissionConstants.CASE_REVIEW_READ_ADD,PermissionConstants.CASE_REVIEW_READ_UPDATE}, logical = Logical.OR)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<User> getReviewUserList(@PathVariable String projectId, @Schema(description = "查询关键字，根据邮箱和用户名查询")
     @RequestParam(value = "keyword", required = false) String keyword) {
         return caseReviewService.getReviewUserList(projectId, keyword);
@@ -93,6 +100,7 @@ public class CaseReviewController {
     @PostMapping("/edit/follower")
     @Operation(summary = "用例管理-用例评审-关注/取消关注用例")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.getCaseReviewId()", resourceType = "case_review")
     public void editFollower(@Validated @RequestBody CaseReviewFollowerRequest request) {
         caseReviewService.editFollower(request.getCaseReviewId(), SessionUtils.getUserId());
     }
@@ -101,6 +109,7 @@ public class CaseReviewController {
     @Operation(summary = "用例管理-用例评审-关联用例")
     @Log(type = OperationLogType.ASSOCIATE, expression = "#msClass.associateCaseLog(#request)", msClass = CaseReviewLogService.class)
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_RELEVANCE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void associateCase(@Validated @RequestBody CaseReviewAssociateRequest request) {
         caseReviewService.associateCase(request, SessionUtils.getUserId());
     }
@@ -109,6 +118,7 @@ public class CaseReviewController {
     @Operation(summary = "用例管理-用例评审-取消关联用例")
     @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.disAssociateCaseLog(#reviewId, #caseId)", msClass = CaseReviewLogService.class)
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_RELEVANCE)
+    @CheckOwner(resourceId = "#reviewId", resourceType = "case_review")
     public void disassociate(@PathVariable String reviewId, @PathVariable String caseId) {
         caseReviewService.disassociate(reviewId, caseId, SessionUtils.getUserId());
     }
@@ -116,6 +126,7 @@ public class CaseReviewController {
     @PostMapping("/edit/pos")
     @Operation(summary = "用例管理-用例评审-拖拽排序")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void editPos(@Validated @RequestBody PosRequest request) {
         caseReviewService.editPos(request);
     }
@@ -123,6 +134,7 @@ public class CaseReviewController {
     @GetMapping("/detail/{id}")
     @Operation(summary = "用例管理-用例评审-查看评审详情")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ)
+    @CheckOwner(resourceId = "#reviewId", resourceType = "case_review")
     public CaseReviewDTO getCaseReviewDetail(@PathVariable String id) {
         return caseReviewService.getCaseReviewDetail(id, SessionUtils.getUserId());
     }
@@ -130,6 +142,7 @@ public class CaseReviewController {
     @PostMapping("batch/move")
     @Operation(summary = "用例管理-用例评审-批量移动用例评审")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void batchMoveCaseReview(@Validated @RequestBody CaseReviewBatchRequest request) {
         caseReviewService.batchMoveCaseReview(request, SessionUtils.getUserId());
     }
@@ -139,6 +152,7 @@ public class CaseReviewController {
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_DELETE)
     @SendNotice(taskType = NoticeConstants.TaskType.CASE_REVIEW_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getMainCaseReview(#reviewId)", targetClass = CaseReviewNoticeService.class)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteFunctionalCaseLog(#reviewId)", msClass = CaseReviewLogService.class)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public void deleteCaseReview(@PathVariable String reviewId, @PathVariable String projectId) {
         caseReviewService.deleteCaseReview(reviewId, projectId);
     }

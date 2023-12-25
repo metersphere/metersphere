@@ -19,6 +19,7 @@ import io.metersphere.sdk.util.FileAssociationSourceUtil;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -56,6 +57,7 @@ public class FunctionalCaseAttachmentController {
     @PostMapping("/page")
     @Operation(summary = "用例管理-功能用例-附件-关联文件列表分页接口")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<FileInformationResponse>> page(@Validated @RequestBody FileMetadataTableRequest request) {
         return fileMetadataService.page(request);
     }
@@ -64,6 +66,7 @@ public class FunctionalCaseAttachmentController {
     @PostMapping("/preview")
     @Operation(summary = "用例管理-功能用例-附件-文件预览")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public ResponseEntity<byte[]> preview(@Validated @RequestBody FunctionalCaseFileRequest request) throws Exception {
         if (request.getLocal()) {
             //本地
@@ -78,6 +81,7 @@ public class FunctionalCaseAttachmentController {
     @PostMapping("/download")
     @Operation(summary = "用例管理-功能用例-附件-文件下载")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public ResponseEntity<byte[]> download(@Validated @RequestBody FunctionalCaseFileRequest request) throws Exception {
         if (request.getLocal()) {
             //本地
@@ -100,6 +104,7 @@ public class FunctionalCaseAttachmentController {
     @GetMapping("/update/{projectId}/{id}")
     @Operation(summary = "用例管理-功能用例-附件-更新文件")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public String update(@PathVariable String projectId, @PathVariable String id) {
         FileLogRecord fileLogRecord = FileLogRecord.builder()
                 .logModule(OperationLogModule.FUNCTIONAL_CASE)
@@ -113,6 +118,7 @@ public class FunctionalCaseAttachmentController {
     @PostMapping("/transfer")
     @Operation(summary = "用例管理-功能用例-附件-文件转存")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public String transfer(@Validated @RequestBody AttachmentTransferRequest request) {
         byte[] fileByte = functionalCaseAttachmentService.getFileByte(request);
         FunctionalCaseAttachment attachment = functionalCaseAttachmentService.getAttachment(request);
@@ -139,6 +145,7 @@ public class FunctionalCaseAttachmentController {
     @PostMapping("/upload/file")
     @Operation(summary = "用例管理-功能用例-上传文件并关联用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void uploadFile(@Validated @RequestPart("request") FunctionalCaseAssociationFileRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
         String userId = SessionUtils.getUserId();
         functionalCaseAttachmentService.uploadOrAssociationFile(request, file, userId);
@@ -147,6 +154,7 @@ public class FunctionalCaseAttachmentController {
     @PostMapping("/delete/file")
     @Operation(summary = "用例管理-功能用例-删除文件并取消关联用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void deleteFile(@Validated @RequestBody FunctionalCaseDeleteFileRequest request) {
         String userId = SessionUtils.getUserId();
         functionalCaseAttachmentService.deleteFile(request, userId);
@@ -156,6 +164,7 @@ public class FunctionalCaseAttachmentController {
     @GetMapping("/options/{projectId}")
     @Operation(summary = "用例管理-功能用例-附件-转存目录下拉框")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<BaseTreeNode> options(@PathVariable String projectId) {
         return fileModuleService.getTree(projectId);
     }

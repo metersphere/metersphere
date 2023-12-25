@@ -5,6 +5,7 @@ import io.metersphere.functional.dto.FunctionalCaseCommentDTO;
 import io.metersphere.functional.request.FunctionalCaseCommentRequest;
 import io.metersphere.functional.service.FunctionalCaseCommentService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
@@ -28,6 +29,7 @@ public class FunctionalCaseCommentController {
     @PostMapping("/save")
     @Operation(summary = "用例管理-功能用例-用例评论-创建评论")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_COMMENT)
+    @CheckOwner(resourceId = "#functionalCaseCommentRequest.getCaseId()", resourceType = "functional_case")
     public FunctionalCaseComment saveComment(@Validated({Created.class}) @RequestBody FunctionalCaseCommentRequest functionalCaseCommentRequest) {
         return functionalCaseCommentService.saveComment(functionalCaseCommentRequest, SessionUtils.getUserId());
     }
@@ -35,6 +37,7 @@ public class FunctionalCaseCommentController {
     @PostMapping("/update")
     @Operation(summary = "用例管理-功能用例-用例评论-修改评论")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_COMMENT)
+    @CheckOwner(resourceId = "#functionalCaseCommentRequest.getCaseId()", resourceType = "functional_case")
     public FunctionalCaseComment updateComment(@Validated({Updated.class}) @RequestBody FunctionalCaseCommentRequest functionalCaseCommentRequest) {
         return functionalCaseCommentService.updateComment(functionalCaseCommentRequest, SessionUtils.getUserId());
     }
@@ -49,6 +52,7 @@ public class FunctionalCaseCommentController {
     @GetMapping("/get/list/{caseId}")
     @Operation(summary = "用例管理-功能用例-用例评论-获取用例评论")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_COMMENT)
+    @CheckOwner(resourceId = "#caseId", resourceType = "functional_case")
     public List<FunctionalCaseCommentDTO> getCommentList(@PathVariable String caseId) {
        return functionalCaseCommentService.getCommentList(caseId);
     }
