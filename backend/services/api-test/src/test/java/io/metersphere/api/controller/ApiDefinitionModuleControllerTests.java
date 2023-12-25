@@ -325,6 +325,32 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setName("defaultProject");
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_ADD, URL_MODULE_ADD, request);
+
+        /**
+         测试能否正常做200个节点
+         */
+        String parentId = null;
+        for (int i = 0; i < 210; i++) {
+            ModuleCreateRequest perfRequest = new ModuleCreateRequest();
+            perfRequest.setProjectId(project.getId());
+            perfRequest.setName("500-test-root-" + i);
+            if (StringUtils.isNotEmpty(parentId)) {
+                perfRequest.setParentId(parentId);
+            }
+            if (i < 200) {
+                MvcResult result = this.requestPostWithOkAndReturn(URL_MODULE_ADD, perfRequest);
+                ResultHolder holder = JSON.parseObject(result.getResponse().getContentAsString(), ResultHolder.class);
+                if (i % 50 == 0) {
+                    //到20换下一层级
+                    parentId = holder.getData().toString();
+                }
+            } else {
+                //测试超过500会报错
+                this.requestPost(URL_MODULE_ADD, perfRequest).andExpect(status().is5xxServerError());
+            }
+        }
+        treeNodes = this.getModuleTreeNode();
+        preliminaryTreeNodes = treeNodes;
     }
 
     @Test

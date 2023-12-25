@@ -39,7 +39,6 @@ CREATE TABLE IF NOT EXISTS api_debug_blob(
 CREATE TABLE IF NOT EXISTS api_debug_module(
     `id` VARCHAR(50) NOT NULL   COMMENT '接口模块pk' ,
     `name` VARCHAR(255) NOT NULL   COMMENT '模块名称' ,
-    `protocol` VARCHAR(20) NOT NULL   COMMENT '协议' ,
     `parent_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '父级fk' ,
     `project_id` VARCHAR(50) NOT NULL   COMMENT '项目fk' ,
     `pos` BIGINT NOT NULL   COMMENT '排序' ,
@@ -53,9 +52,9 @@ CREATE TABLE IF NOT EXISTS api_debug_module(
   COLLATE = utf8mb4_general_ci COMMENT = '接口调试模块';
 
 CREATE INDEX idx_project_id ON api_debug_module(project_id);
-CREATE INDEX idx_protocol ON api_debug_module(protocol);
 CREATE INDEX idx_pos ON api_debug_module(pos);
 CREATE INDEX idx_create_user ON api_debug_module(create_user);
+CREATE UNIQUE INDEX uq_name_project_parent_type ON api_debug_module (project_id, name, parent_id);
 
 
 CREATE TABLE IF NOT EXISTS api_definition
@@ -142,7 +141,6 @@ CREATE TABLE IF NOT EXISTS api_definition_follower(
 CREATE TABLE IF NOT EXISTS api_definition_module(
   `id` VARCHAR(50) NOT NULL   COMMENT '接口模块pk' ,
   `name` VARCHAR(255) NOT NULL   COMMENT '模块名称' ,
-  `protocol` VARCHAR(20) NOT NULL   COMMENT '协议' ,
   `parent_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '父级fk' ,
   `project_id` VARCHAR(50) NOT NULL   COMMENT '项目fk' ,
   `pos` INT NOT NULL   COMMENT '排序' ,
@@ -157,8 +155,8 @@ CREATE TABLE IF NOT EXISTS api_definition_module(
 
 
 CREATE INDEX idx_project_id ON api_definition_module(project_id);
-CREATE INDEX idx_protocol ON api_definition_module(protocol);
 CREATE INDEX idx_pos ON api_definition_module(pos);
+CREATE UNIQUE INDEX uq_name_project_parent_type ON api_definition_module (project_id, name, parent_id);
 
 CREATE TABLE IF NOT EXISTS api_scenario(
     `id` VARCHAR(50) NOT NULL   COMMENT '' ,

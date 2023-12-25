@@ -26,9 +26,5 @@ public class ModuleCreateRequest {
     @NotEmpty(message = "{parent.node.not_blank}")
     private String parentId = ModuleConstants.ROOT_NODE_PARENT_ID;
 
-    @Schema(description = "协议", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_debug_module.protocol.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 20, message = "{api_debug.protocol.length_range}", groups = {Created.class, Updated.class})
-    private String protocol = ModuleConstants.NODE_PROTOCOL_HTTP;
 }
 

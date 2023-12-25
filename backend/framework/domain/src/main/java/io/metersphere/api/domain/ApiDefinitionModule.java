@@ -20,11 +20,6 @@ public class ApiDefinitionModule implements Serializable {
     @Size(min = 1, max = 255, message = "{api_definition_module.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(description = "协议", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition_module.protocol.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 20, message = "{api_definition_module.protocol.length_range}", groups = {Created.class, Updated.class})
-    private String protocol;
-
     @Schema(description = "父级fk", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_definition_module.parent_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{api_definition_module.parent_id.length_range}", groups = {Created.class, Updated.class})
@@ -56,7 +51,6 @@ public class ApiDefinitionModule implements Serializable {
     public enum Column {
         id("id", "id", "VARCHAR", false),
         name("name", "name", "VARCHAR", true),
-        protocol("protocol", "protocol", "VARCHAR", false),
         parentId("parent_id", "parentId", "VARCHAR", false),
         projectId("project_id", "projectId", "VARCHAR", false),
         pos("pos", "pos", "BIGINT", false),

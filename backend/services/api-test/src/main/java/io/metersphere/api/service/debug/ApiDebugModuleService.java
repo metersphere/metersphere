@@ -42,6 +42,7 @@ public class ApiDebugModuleService extends ModuleTreeService {
     private static final String UNPLANNED = "api_debug_module.unplanned_request";
     private static final String MODULE_NO_EXIST = "api_module.not.exist";
     private static final String METHOD = "method";
+    private static final String PROTOCOL = "protocol";
     private static final String DEBUG_MODULE_COUNT_ALL = "all";
     @Resource
     private ApiDebugModuleLogService apiDebugModuleLogService;
@@ -76,7 +77,11 @@ public class ApiDebugModuleService extends ModuleTreeService {
             baseTreeNode.setName(apiTreeNode.getName());
             baseTreeNode.setParentId(apiTreeNode.getParentId());
             baseTreeNode.setType(apiTreeNode.getType());
-            baseTreeNode.putAttachInfo(METHOD, apiTreeNode.getMethod());
+            if (StringUtils.equals(apiTreeNode.getProtocol(), ModuleConstants.NODE_PROTOCOL_HTTP)) {
+                baseTreeNode.putAttachInfo(METHOD, apiTreeNode.getMethod());
+            } else {
+                baseTreeNode.putAttachInfo(PROTOCOL, apiTreeNode.getProtocol());
+            }
             return baseTreeNode;
         }).toList();
         //apiTreeNodeList使用stream实现将parentId分组生成map
@@ -110,7 +115,6 @@ public class ApiDebugModuleService extends ModuleTreeService {
         apiDebugModule.setName(request.getName());
         apiDebugModule.setParentId(request.getParentId());
         apiDebugModule.setProjectId(request.getProjectId());
-        apiDebugModule.setProtocol(request.getProtocol());
         apiDebugModule.setCreateUser(operator);
         this.checkDataValidity(apiDebugModule);
         apiDebugModule.setCreateTime(System.currentTimeMillis());
@@ -140,8 +144,7 @@ public class ApiDebugModuleService extends ModuleTreeService {
         if (!StringUtils.equals(apiDebugModule.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
             //检查父ID是否存在  调试模块的逻辑是  同一个用户下的同级模块不能重名  每个协议是不同的模块
             example.createCriteria().andIdEqualTo(apiDebugModule.getParentId())
-                    .andCreateUserEqualTo(apiDebugModule.getCreateUser())
-                    .andProtocolEqualTo(apiDebugModule.getProtocol());
+                    .andCreateUserEqualTo(apiDebugModule.getCreateUser());
             if (apiDebugModuleMapper.countByExample(example) == 0) {
                 throw new MSException(Translator.get("parent.node.not_blank"));
             }
@@ -150,12 +153,24 @@ public class ApiDebugModuleService extends ModuleTreeService {
         example.createCriteria().andParentIdEqualTo(apiDebugModule.getParentId())
                 .andNameEqualTo(apiDebugModule.getName())
                 .andIdNotEqualTo(apiDebugModule.getId())
-                .andCreateUserEqualTo(apiDebugModule.getCreateUser())
-                .andProtocolEqualTo(apiDebugModule.getProtocol());
+                .andCreateUserEqualTo(apiDebugModule.getCreateUser());
         if (apiDebugModuleMapper.countByExample(example) > 0) {
             throw new MSException(Translator.get("node.name.repeat"));
         }
         example.clear();
+        //非默认节点，检查该节点所在分支的总长度，确保不超过阈值
+        if (!StringUtils.equals(apiDebugModule.getId(), ModuleConstants.DEFAULT_NODE_ID)) {
+            this.checkBranchModules(this.getRootNodeId(apiDebugModule), extApiDebugModuleMapper::selectChildrenIdsByParentIds);
+        }
+    }
+
+    private String getRootNodeId(ApiDebugModule module) {
+        if (StringUtils.equals(module.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
+            return module.getId();
+        } else {
+            ApiDebugModule parentModule = apiDebugModuleMapper.selectByPrimaryKey(module.getParentId());
+            return this.getRootNodeId(parentModule);
+        }
     }
 
     public void update(ModuleUpdateRequest request, String userId, String projectId) {
@@ -167,7 +182,6 @@ public class ApiDebugModuleService extends ModuleTreeService {
         updateModule.setId(request.getId());
         updateModule.setName(request.getName());
         updateModule.setParentId(module.getParentId());
-        updateModule.setProtocol(module.getProtocol());
         updateModule.setCreateUser(module.getCreateUser());
         this.checkDataValidity(updateModule);
         updateModule.setUpdateTime(System.currentTimeMillis());
