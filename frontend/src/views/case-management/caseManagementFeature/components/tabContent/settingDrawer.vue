@@ -49,7 +49,9 @@
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
 
+  import { postTabletList } from '@/api/modules/project-management/menuManagement';
   import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
 
   import type { TabItemType } from '@/models/caseManagement/featureCase';
@@ -58,6 +60,9 @@
 
   const featureCaseStore = useFeatureCaseStore();
 
+  const appStore = useAppStore();
+
+  const currentProjectId = computed(() => appStore.currentProjectId);
   const props = defineProps<{
     visible: boolean;
   }>();
@@ -69,20 +74,34 @@
   const showSettingVisible = ref<boolean>(false);
   const detailEnable = ref<boolean>(true);
 
+  const moduleTab = ref<Record<string, TabItemType[]>>({
+    bugManagement: [
+      {
+        key: 'requirement',
+        title: 'caseManagement.featureCase.requirement',
+        enable: true,
+      },
+      {
+        key: 'bug',
+        title: 'caseManagement.featureCase.bug',
+        enable: true,
+      },
+    ],
+    testPlan: [
+      {
+        key: 'testPlan',
+        title: 'caseManagement.featureCase.testPlan',
+        enable: true,
+      },
+    ],
+  });
+
+  const buggerTab: TabItemType[] = [];
+  const testPlanTab: TabItemType[] = [];
   const tabDefaultSettingList = ref<TabItemType[]>([
     {
       key: 'case',
       title: 'caseManagement.featureCase.case',
-      enable: true,
-    },
-    {
-      key: 'requirement',
-      title: 'caseManagement.featureCase.requirement',
-      enable: true,
-    },
-    {
-      key: 'bug',
-      title: 'caseManagement.featureCase.bug',
       enable: true,
     },
     {
@@ -96,11 +115,6 @@
       enable: true,
     },
     {
-      key: 'testPlan',
-      title: 'caseManagement.featureCase.testPlan',
-      enable: true,
-    },
-    {
       key: 'comments',
       title: 'caseManagement.featureCase.comments',
       enable: true,
@@ -111,10 +125,22 @@
       enable: true,
     },
   ]);
+  async function getTabModule() {
+    const result = await postTabletList({ projectId: currentProjectId.value });
+    const enableModuleArr = result.filter((item: any) => item.module === 'testPlan' || item.module === 'bugManagement');
+    enableModuleArr.forEach((item) => {
+      if (item.module === 'bugManagement') {
+        buggerTab.push(...moduleTab.value[item.module]);
+      } else if (item.module === 'testPlan') {
+        testPlanTab.push(...moduleTab.value[item.module]);
+      }
+    });
+    tabDefaultSettingList.value.splice(1, 0, buggerTab[0], buggerTab[1]);
+    tabDefaultSettingList.value.splice(-2, 0, testPlanTab[0]);
+    featureCaseStore.setTab(tabDefaultSettingList.value);
+  }
 
-  const tabList = computed(() => {
-    return featureCaseStore.tabSettingList;
-  });
+  const tabList = computed(() => featureCaseStore.tabSettingList);
 
   const tabSettingList = ref([...tabList.value]);
 
@@ -151,10 +177,8 @@
     }
   );
 
-  onMounted(() => {
-    if (tabList.value.length < 1) {
-      featureCaseStore.setTab(tabDefaultSettingList.value);
-    }
+  defineExpose({
+    getTabModule,
   });
 </script>
 

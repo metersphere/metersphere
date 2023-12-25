@@ -94,8 +94,9 @@
           <MsFormCreate
             v-if="formRules.length"
             ref="formCreateRef"
+            v-model:formItem="formItem"
+            v-model:api="fApi"
             :form-rule="formRules"
-            :form-create-key="FormCreateKeyEnum.BUG_DETAIL"
           />
           <a-form-item field="tag" :label="t('bugManagement.tag')">
             <a-input-tag
@@ -137,8 +138,8 @@
   import { FileItem, Message } from '@arco-design/web-vue';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
-  import MsFormCreate from '@/components/pure/ms-form-create/form-create.vue';
-  import { FormItem } from '@/components/pure/ms-form-create/types';
+  import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
+  import { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import FileList from '@/components/pure/ms-upload/fileList.vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
@@ -157,7 +158,6 @@
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
-  import useFormCreateStore from '@/store/modules/form-create/form-create';
   import { scrollIntoView } from '@/utils/dom';
 
   import { BugEditCustomField, BugEditCustomFieldItem, BugEditFormObject } from '@/models/bug-management';
@@ -175,7 +175,7 @@
   }
 
   const appStore = useAppStore();
-  const formCreateStore = useFormCreateStore();
+  // const formCreateStore = useFormCreateStore();
 
   const route = useRoute();
   const templateOption = ref<TemplateOption[]>([]);
@@ -191,6 +191,8 @@
 
   const fileList = ref<FileItem[]>([]);
   const formRules = ref<FormItem[]>([]);
+  const formItem = ref<FormRuleItem[]>([]);
+  const fApi = ref({});
   const associatedDrawer = ref(false);
   const loading = ref(false);
   const acceptType = ref('none'); // 模块-上传文件类型
@@ -324,9 +326,8 @@
             try {
               loading.value = true;
               const customFields: BugEditCustomFieldItem[] = [];
-              const formRuleList = formCreateStore.formCreateRuleMap.get(FormCreateKeyEnum.BUG_DETAIL);
-              if (formRuleList && formRuleList.length) {
-                formRuleList.forEach((item) => {
+              if (formItem.value && formItem.value.length) {
+                formItem.value.forEach((item: FormRuleItem) => {
                   customFields.push({
                     id: item.field as string,
                     name: item.title as string,

@@ -178,7 +178,7 @@
       <inputComment :content="content" is-show-avatar is-use-bottom @publish="publishHandler" />
     </template>
   </MsDetailDrawer>
-  <SettingDrawer v-model:visible="showSettingDrawer" />
+  <SettingDrawer ref="settingDrawerRef" v-model:visible="showSettingDrawer" />
 </template>
 
 <script setup lang="ts">
@@ -268,6 +268,7 @@
     activeTab.value = key;
     switch (activeTab.value) {
       case 'setting':
+        activeTab.value = 'detail';
         showMenuSetting();
         break;
       default:
@@ -449,11 +450,14 @@
     },
     { deep: true }
   );
-
+  const settingDrawerRef = ref();
   watch(
     () => props.visible,
     (val) => {
       showDrawerVisible.value = val;
+      if (val) {
+        settingDrawerRef.value.getTabModule();
+      }
     }
   );
 
@@ -500,7 +504,6 @@
     background: none !important;
     .arco-menu-inner {
       overflow: hidden;
-      padding: 14px 2px;
       height: 50px;
     }
   }

@@ -17,16 +17,13 @@
   import { getPluginOptions } from '@/api/modules/setting/pluginManger';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
-  import useFormCreateStore from '@/store/modules/form-create/form-create';
 
   import type { OptionsParams } from '@/models/setting/plugin';
-  import { FormCreateKeyEnum } from '@/enums/formCreateEnum';
 
   const appStore = useAppStore();
   const organizationId = computed(() => appStore.currentOrgId);
 
   const attrs = useAttrs();
-  const formCreateStore = useFormCreateStore();
 
   const { t } = useI18n();
   const props = withDefaults(
