@@ -60,16 +60,20 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
      * 1.关联用例（单独/批量）重新计算用例评审的通过率和用例数
      */
     private void updateCaseReviewByAssociate(Map<String, Object> paramMap) {
-        String reviewId = paramMap.get(CaseEvent.Param.REVIEW_ID).toString();
-        Object caseIds = paramMap.get(CaseEvent.Param.CASE_IDS);
-        List<String> caseIdList = JSON.parseArray(JSON.toJSONString(caseIds), String.class);
-        //获取关联前的caseIds
-        List<CaseReviewFunctionalCase> caseReviewFunctionalCases = extCaseReviewFunctionalCaseMapper.getListIncludes(reviewId, caseIdList, false);
-        List<CaseReviewFunctionalCase> passList = caseReviewFunctionalCases.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getStatus(), FunctionalCaseReviewStatus.PASS.toString())).toList();
-        int caseCount = Integer.parseInt(paramMap.get(CaseEvent.Param.CASE_COUNT).toString()) + caseReviewFunctionalCases.size();
-        int passNumber = passList.size();
-        List<CaseReviewFunctionalCase> unCompletedCaseList = getUnCompletedCaseList(caseReviewFunctionalCases, new ArrayList<>());
-        updateCaseReview(reviewId, caseCount, passNumber, unCompletedCaseList.size()+Integer.parseInt(paramMap.get(CaseEvent.Param.CASE_COUNT).toString()), paramMap.get(CaseEvent.Param.USER_ID).toString());
+        try {
+            String reviewId = paramMap.get(CaseEvent.Param.REVIEW_ID).toString();
+            Object caseIds = paramMap.get(CaseEvent.Param.CASE_IDS);
+            List<String> caseIdList = JSON.parseArray(JSON.toJSONString(caseIds), String.class);
+            //获取关联前的caseIds
+            List<CaseReviewFunctionalCase> caseReviewFunctionalCases = extCaseReviewFunctionalCaseMapper.getListIncludes(reviewId, caseIdList, false);
+            List<CaseReviewFunctionalCase> passList = caseReviewFunctionalCases.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getStatus(), FunctionalCaseReviewStatus.PASS.toString())).toList();
+            int caseCount = Integer.parseInt(paramMap.get(CaseEvent.Param.CASE_COUNT).toString()) + caseReviewFunctionalCases.size();
+            int passNumber = passList.size();
+            List<CaseReviewFunctionalCase> unCompletedCaseList = getUnCompletedCaseList(caseReviewFunctionalCases, new ArrayList<>());
+            updateCaseReview(reviewId, caseCount, passNumber, unCompletedCaseList.size() + Integer.parseInt(paramMap.get(CaseEvent.Param.CASE_COUNT).toString()), paramMap.get(CaseEvent.Param.USER_ID).toString());
+        } catch (Exception e) {
+            LogUtils.error(CaseEvent.Event.ASSOCIATE + "事件更新失败", e.getMessage());
+        }
     }
 
     /**
@@ -78,24 +82,28 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
      * 2.删除用例和用例评审人的关系
      */
     private void updateCaseReviewByDisAssociate(Map<String, Object> paramMap) {
-        String reviewId = paramMap.get(CaseEvent.Param.REVIEW_ID).toString();
-        CaseReview caseReview = caseReviewMapper.selectByPrimaryKey(reviewId);
-        if (caseReview == null) {
-            return;
+        try {
+            String reviewId = paramMap.get(CaseEvent.Param.REVIEW_ID).toString();
+            CaseReview caseReview = caseReviewMapper.selectByPrimaryKey(reviewId);
+            if (caseReview == null) {
+                return;
+            }
+            Object caseIds = paramMap.get(CaseEvent.Param.CASE_IDS);
+            List<String> caseIdList = JSON.parseArray(JSON.toJSONString(caseIds), String.class);
+            //获取与选中case无关的其他case
+            List<CaseReviewFunctionalCase> caseReviewFunctionalCases = extCaseReviewFunctionalCaseMapper.getListIncludes(reviewId, caseIdList, false);
+            List<CaseReviewFunctionalCase> passList = caseReviewFunctionalCases.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getStatus(), FunctionalCaseReviewStatus.PASS.toString())).toList();
+            int caseCount = caseReviewFunctionalCases.size() - caseIdList.size();
+            int passNumber = passList.size();
+            List<CaseReviewFunctionalCase> unCompletedCaseList = getUnCompletedCaseList(caseReviewFunctionalCases, new ArrayList<>());
+            updateCaseReview(reviewId, caseReview.getCaseCount() - caseCount, passNumber, unCompletedCaseList.size(), paramMap.get(CaseEvent.Param.USER_ID).toString());
+            //删除用例和用例评审人的关系
+            deleteCaseReviewFunctionalCaseUser(paramMap);
+            //将评审历史状态置为true
+            extCaseReviewHistoryMapper.updateDelete(caseIdList, reviewId, true);
+        } catch (Exception e) {
+            LogUtils.error(CaseEvent.Event.DISASSOCIATE + "事件更新失败", e.getMessage());
         }
-        Object caseIds = paramMap.get(CaseEvent.Param.CASE_IDS);
-        List<String> caseIdList = JSON.parseArray(JSON.toJSONString(caseIds), String.class);
-        //获取与选中case无关的其他case
-        List<CaseReviewFunctionalCase> caseReviewFunctionalCases = extCaseReviewFunctionalCaseMapper.getListIncludes(reviewId, caseIdList, false);
-        List<CaseReviewFunctionalCase> passList = caseReviewFunctionalCases.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getStatus(), FunctionalCaseReviewStatus.PASS.toString())).toList();
-        int caseCount = caseReviewFunctionalCases.size()- caseIdList.size();
-        int passNumber = passList.size();
-        List<CaseReviewFunctionalCase> unCompletedCaseList = getUnCompletedCaseList(caseReviewFunctionalCases, new ArrayList<>());
-        updateCaseReview(reviewId, caseReview.getCaseCount() - caseCount, passNumber, unCompletedCaseList.size(), paramMap.get(CaseEvent.Param.USER_ID).toString());
-        //删除用例和用例评审人的关系
-        deleteCaseReviewFunctionalCaseUser(paramMap);
-        //将评审历史状态置为true
-        extCaseReviewHistoryMapper.updateDelete(caseIdList,reviewId,true);
     }
 
     /**
@@ -104,78 +112,94 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
      * 2.删除用例和用例评审人的关系
      */
     private void updateCaseReviewByBatchDisassociate(Map<String, Object> paramMap) {
-        String reviewId = paramMap.get(CaseEvent.Param.REVIEW_ID).toString();
-        CaseReview caseReviewOld = caseReviewMapper.selectByPrimaryKey(reviewId);
-        Integer oldCaseCount = caseReviewOld.getCaseCount();
-        Object caseIds = paramMap.get(CaseEvent.Param.CASE_IDS);
-        List<String> caseIdList = JSON.parseArray(JSON.toJSONString(caseIds), String.class);
-        if (CollectionUtils.isEmpty(caseIdList)) {
-            return;
+        try {
+            String reviewId = paramMap.get(CaseEvent.Param.REVIEW_ID).toString();
+            CaseReview caseReviewOld = caseReviewMapper.selectByPrimaryKey(reviewId);
+            Integer oldCaseCount = caseReviewOld.getCaseCount();
+            Object caseIds = paramMap.get(CaseEvent.Param.CASE_IDS);
+            List<String> caseIdList = JSON.parseArray(JSON.toJSONString(caseIds), String.class);
+            if (CollectionUtils.isEmpty(caseIdList)) {
+                return;
+            }
+            int passNumber = Integer.parseInt(paramMap.get(CaseEvent.Param.PASS_COUNT).toString());
+            int unCompletedCount = Integer.parseInt(paramMap.get(CaseEvent.Param.UN_COMPLETED_COUNT).toString());
+            updateCaseReview(reviewId, oldCaseCount - caseIdList.size(), passNumber, unCompletedCount, paramMap.get(CaseEvent.Param.USER_ID).toString());
+            //删除用例和用例评审人的关系
+            deleteCaseReviewFunctionalCaseUser(paramMap);
+            //将评审历史状态置为true
+            extCaseReviewHistoryMapper.updateDelete(caseIdList, reviewId, true);
+        } catch (Exception e) {
+            LogUtils.error(CaseEvent.Event.BATCH_DISASSOCIATE + "事件更新失败", e.getMessage());
         }
-        int passNumber = Integer.parseInt(paramMap.get(CaseEvent.Param.PASS_COUNT).toString());
-        int unCompletedCount = Integer.parseInt(paramMap.get(CaseEvent.Param.UN_COMPLETED_COUNT).toString());
-        updateCaseReview(reviewId, oldCaseCount - caseIdList.size(), passNumber, unCompletedCount, paramMap.get(CaseEvent.Param.USER_ID).toString());
-        //删除用例和用例评审人的关系
-        deleteCaseReviewFunctionalCaseUser(paramMap);
-        //将评审历史状态置为true
-        extCaseReviewHistoryMapper.updateDelete(caseIdList,reviewId,true);
     }
 
     /**
      * 4.功能用例的删除/批量删除重新计算用例评审的通过率和用例数
      */
     private void updateCaseReviewByDeleteFunctionalCase(Map<String, Object> paramMap) {
-        Object caseIds = paramMap.get(CaseEvent.Param.CASE_IDS);
-        List<String> caseIdList = JSON.parseArray(JSON.toJSONString(caseIds), String.class);
-        startUpdateCaseReview(paramMap, caseIdList);
+        try {
+            Object caseIds = paramMap.get(CaseEvent.Param.CASE_IDS);
+            List<String> caseIdList = JSON.parseArray(JSON.toJSONString(caseIds), String.class);
+            startUpdateCaseReview(paramMap, caseIdList);
+        } catch (Exception e) {
+            LogUtils.error(CaseEvent.Event.DELETE_FUNCTIONAL_CASE + "事件更新失败", e.getMessage());
+        }
     }
 
     /**
      * 5.功能用例的回收站删除/批量删除重新计算用例评审的通过率和用例数
      */
     private void updateCaseReviewByDeleteTrashFunctionalCase(Map<String, Object> paramMap) {
-        Object caseIds = paramMap.get(CaseEvent.Param.CASE_IDS);
-        List<String> caseIdList = JSON.parseArray(JSON.toJSONString(caseIds), String.class);
-        if (startUpdateCaseReview(paramMap, caseIdList)) return;
-        CaseReviewFunctionalCaseUserExample caseReviewFunctionalCaseUserExample = new CaseReviewFunctionalCaseUserExample();
-        caseReviewFunctionalCaseUserExample.createCriteria().andCaseIdIn(caseIdList);
-        caseReviewFunctionalCaseUserMapper.deleteByExample(caseReviewFunctionalCaseUserExample);
-        //从回收站删除也删除关联关系
-        CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
-        caseReviewFunctionalCaseExample.createCriteria().andCaseIdIn(caseIdList);
-        caseReviewFunctionalCaseMapper.deleteByExample(caseReviewFunctionalCaseExample);
-
+        try {
+            Object caseIds = paramMap.get(CaseEvent.Param.CASE_IDS);
+            List<String> caseIdList = JSON.parseArray(JSON.toJSONString(caseIds), String.class);
+            if (startUpdateCaseReview(paramMap, caseIdList)) return;
+            CaseReviewFunctionalCaseUserExample caseReviewFunctionalCaseUserExample = new CaseReviewFunctionalCaseUserExample();
+            caseReviewFunctionalCaseUserExample.createCriteria().andCaseIdIn(caseIdList);
+            caseReviewFunctionalCaseUserMapper.deleteByExample(caseReviewFunctionalCaseUserExample);
+            //从回收站删除也删除关联关系
+            CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
+            caseReviewFunctionalCaseExample.createCriteria().andCaseIdIn(caseIdList);
+            caseReviewFunctionalCaseMapper.deleteByExample(caseReviewFunctionalCaseExample);
+        } catch (Exception e) {
+            LogUtils.error(CaseEvent.Event.DELETE_TRASH_FUNCTIONAL_CASE + "事件更新失败", e.getMessage());
+        }
     }
 
     /**
      * 6.功能用例的回收站恢复/批量恢复重新计算用例评审的通过率和用例数
      */
     private void updateCaseReviewByRecoverFunctionalCase(Map<String, Object> paramMap) {
-        Object caseIds = paramMap.get(CaseEvent.Param.CASE_IDS);
-        List<String> caseIdList = JSON.parseArray(JSON.toJSONString(caseIds), String.class);
-        CaseReviewFunctionalCaseExample functionalCaseExample = new CaseReviewFunctionalCaseExample();
-        functionalCaseExample.createCriteria().andCaseIdIn(caseIdList);
-        List<CaseReviewFunctionalCase> recoverCases = caseReviewFunctionalCaseMapper.selectByExample(functionalCaseExample);
-        if (CollectionUtils.isEmpty(recoverCases)) {
-            return;
+        try{
+            Object caseIds = paramMap.get(CaseEvent.Param.CASE_IDS);
+            List<String> caseIdList = JSON.parseArray(JSON.toJSONString(caseIds), String.class);
+            CaseReviewFunctionalCaseExample functionalCaseExample = new CaseReviewFunctionalCaseExample();
+            functionalCaseExample.createCriteria().andCaseIdIn(caseIdList);
+            List<CaseReviewFunctionalCase> recoverCases = caseReviewFunctionalCaseMapper.selectByExample(functionalCaseExample);
+            if (CollectionUtils.isEmpty(recoverCases)) {
+                return;
+            }
+            List<String> reviewIds = recoverCases.stream().map(CaseReviewFunctionalCase::getReviewId).distinct().toList();
+            List<CaseReviewFunctionalCase> caseReviewFunctionalCases = extCaseReviewFunctionalCaseMapper.getListExcludes(reviewIds, caseIdList, false);
+            Map<String, List<CaseReviewFunctionalCase>> recoverCaseMap = recoverCases.stream().collect(Collectors.groupingBy(CaseReviewFunctionalCase::getReviewId));
+            Map<String, List<CaseReviewFunctionalCase>> reviewIdMap = caseReviewFunctionalCases.stream().collect(Collectors.groupingBy(CaseReviewFunctionalCase::getReviewId));
+            CaseReviewExample caseReviewExample = new CaseReviewExample();
+            caseReviewExample.createCriteria().andIdIn(reviewIds);
+            List<CaseReview> caseReviews = caseReviewMapper.selectByExample(caseReviewExample);
+            Map<String, CaseReview> reviewMap = caseReviews.stream().collect(Collectors.toMap(CaseReview::getId, t -> t));
+            reviewIdMap.forEach((reviewId, caseReviewFunctionalCaseList) -> {
+                CaseReview caseReview = reviewMap.get(reviewId);
+                List<CaseReviewFunctionalCase> recoverCaseList = recoverCaseMap.get(reviewId);
+                caseReviewFunctionalCaseList.addAll(recoverCaseList);
+                List<String> ids = caseReviewFunctionalCaseList.stream().map(CaseReviewFunctionalCase::getId).toList();
+                List<CaseReviewFunctionalCase> unCompleteList = getUnCompletedCaseList(caseReviewFunctionalCaseList, ids);
+                List<CaseReviewFunctionalCase> passList = caseReviewFunctionalCaseList.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getStatus(), FunctionalCaseReviewStatus.PASS.toString())).toList();
+                updateCaseReview(reviewId, caseReview.getCaseCount() + caseReviewFunctionalCaseList.size(), passList.size(), unCompleteList.size(), paramMap.get(CaseEvent.Param.USER_ID).toString());
+            });
+        } catch (Exception e) {
+            LogUtils.error(CaseEvent.Event.RECOVER_FUNCTIONAL_CASE + "事件更新失败", e.getMessage());
         }
-        List<String> reviewIds = recoverCases.stream().map(CaseReviewFunctionalCase::getReviewId).distinct().toList();
-        List<CaseReviewFunctionalCase> caseReviewFunctionalCases = extCaseReviewFunctionalCaseMapper.getListExcludes(reviewIds, caseIdList, false);
-        Map<String, List<CaseReviewFunctionalCase>> recoverCaseMap = recoverCases.stream().collect(Collectors.groupingBy(CaseReviewFunctionalCase::getReviewId));
-        Map<String, List<CaseReviewFunctionalCase>> reviewIdMap = caseReviewFunctionalCases.stream().collect(Collectors.groupingBy(CaseReviewFunctionalCase::getReviewId));
-        CaseReviewExample caseReviewExample = new CaseReviewExample();
-        caseReviewExample.createCriteria().andIdIn(reviewIds);
-        List<CaseReview> caseReviews = caseReviewMapper.selectByExample(caseReviewExample);
-        Map<String, CaseReview> reviewMap = caseReviews.stream().collect(Collectors.toMap(CaseReview::getId, t -> t));
-        reviewIdMap.forEach((reviewId, caseReviewFunctionalCaseList) -> {
-            CaseReview caseReview = reviewMap.get(reviewId);
-            List<CaseReviewFunctionalCase> recoverCaseList = recoverCaseMap.get(reviewId);
-            caseReviewFunctionalCaseList.addAll(recoverCaseList);
-            List<String> ids = caseReviewFunctionalCaseList.stream().map(CaseReviewFunctionalCase::getId).toList();
-            List<CaseReviewFunctionalCase> unCompleteList = getUnCompletedCaseList(caseReviewFunctionalCaseList, ids);
-            List<CaseReviewFunctionalCase> passList = caseReviewFunctionalCaseList.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getStatus(), FunctionalCaseReviewStatus.PASS.toString())).toList();
-            updateCaseReview(reviewId, caseReview.getCaseCount() + caseReviewFunctionalCaseList.size(), passList.size(), unCompleteList.size(), paramMap.get(CaseEvent.Param.USER_ID).toString());
-        });
+
     }
 
 
@@ -183,45 +207,48 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
      * 7.评审用例/批量评审用例重新计算用例评审的通过率和用例评审状态和发送通知
      */
     private void updateCaseReviewByReviewFunctionalCase(Map<String, Object> paramMap) {
-        String reviewId = paramMap.get(CaseEvent.Param.REVIEW_ID).toString();
-        Object caseIds = paramMap.get(CaseEvent.Param.CASE_IDS);
-        List<String> caseIdList = JSON.parseArray(JSON.toJSONString(caseIds), String.class);
-        List<CaseReviewFunctionalCase> caseReviewFunctionalCases = extCaseReviewFunctionalCaseMapper.getListExcludes(List.of(reviewId), caseIdList, false);
-        List<CaseReviewFunctionalCase> unCompletedCaseList = getUnCompletedCaseList(caseReviewFunctionalCases, new ArrayList<>());
-        List<CaseReviewFunctionalCase> passList = caseReviewFunctionalCases.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getStatus(), FunctionalCaseReviewStatus.PASS.toString())).toList();
+        try{
+            String reviewId = paramMap.get(CaseEvent.Param.REVIEW_ID).toString();
+            Object caseIds = paramMap.get(CaseEvent.Param.CASE_IDS);
+            List<String> caseIdList = JSON.parseArray(JSON.toJSONString(caseIds), String.class);
+            List<CaseReviewFunctionalCase> caseReviewFunctionalCases = extCaseReviewFunctionalCaseMapper.getListExcludes(List.of(reviewId), caseIdList, false);
+            List<CaseReviewFunctionalCase> unCompletedCaseList = getUnCompletedCaseList(caseReviewFunctionalCases, new ArrayList<>());
+            List<CaseReviewFunctionalCase> passList = caseReviewFunctionalCases.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getStatus(), FunctionalCaseReviewStatus.PASS.toString())).toList();
 
-        CaseReview caseReview = caseReviewMapper.selectByPrimaryKey(reviewId);
-        boolean completed = false;
+            CaseReview caseReview = caseReviewMapper.selectByPrimaryKey(reviewId);
+            boolean completed = false;
 
-        String status = paramMap.get(CaseEvent.Param.STATUS).toString();
-        List<String> completedStatusList = new ArrayList<>();
-        completedStatusList.add(FunctionalCaseReviewStatus.PASS.toString());
-        completedStatusList.add(FunctionalCaseReviewStatus.UN_PASS.toString());
-        if (!completedStatusList.contains(status) || CollectionUtils.isNotEmpty(unCompletedCaseList)) {
-            caseReview.setStatus(CaseReviewStatus.UNDERWAY.toString());
-        } else {
-            completed = true;
-            caseReview.setStatus(CaseReviewStatus.COMPLETED.toString());
-        }
-        int passNumber = passList.size();
-        if (StringUtils.equalsIgnoreCase(status, FunctionalCaseReviewStatus.PASS.toString())) {
-            passNumber += caseIdList.size();
-        }
-        //通过率
-        BigDecimal passCount = BigDecimal.valueOf(passNumber);
-        BigDecimal totalCount = BigDecimal.valueOf(caseReview.getCaseCount());
-        if (totalCount.compareTo(BigDecimal.ZERO) == 0) {
-            caseReview.setPassRate(BigDecimal.ZERO);
-        } else {
-            BigDecimal passRate = passCount.divide(totalCount, 2, RoundingMode.HALF_UP);
-            caseReview.setPassRate(passRate);
-        }
-        caseReviewMapper.updateByPrimaryKeySelective(caseReview);
+            String status = paramMap.get(CaseEvent.Param.STATUS).toString();
+            List<String> completedStatusList = new ArrayList<>();
+            completedStatusList.add(FunctionalCaseReviewStatus.PASS.toString());
+            completedStatusList.add(FunctionalCaseReviewStatus.UN_PASS.toString());
+            if (!completedStatusList.contains(status) || CollectionUtils.isNotEmpty(unCompletedCaseList)) {
+                caseReview.setStatus(CaseReviewStatus.UNDERWAY.toString());
+            } else {
+                completed = true;
+                caseReview.setStatus(CaseReviewStatus.COMPLETED.toString());
+            }
+            int passNumber = passList.size();
 
-        if (completed) {
-            reviewSendNoticeService.sendNotice(new ArrayList<>(), paramMap.get(CaseEvent.Param.USER_ID).toString(), reviewId, NoticeConstants.TaskType.CASE_REVIEW_TASK, NoticeConstants.Event.REVIEW_COMPLETED);
-        }
+            int pass = Integer.parseInt(paramMap.get(CaseEvent.Param.PASS_COUNT).toString());
+            passNumber += pass;
+            //通过率
+            BigDecimal passCount = BigDecimal.valueOf(passNumber);
+            BigDecimal totalCount = BigDecimal.valueOf(caseReview.getCaseCount());
+            if (totalCount.compareTo(BigDecimal.ZERO) == 0) {
+                caseReview.setPassRate(BigDecimal.ZERO);
+            } else {
+                BigDecimal passRate = passCount.divide(totalCount, 2, RoundingMode.HALF_UP);
+                caseReview.setPassRate(passRate);
+            }
+            caseReviewMapper.updateByPrimaryKeySelective(caseReview);
 
+            if (completed) {
+                reviewSendNoticeService.sendNotice(new ArrayList<>(), paramMap.get(CaseEvent.Param.USER_ID).toString(), reviewId, NoticeConstants.TaskType.CASE_REVIEW_TASK, NoticeConstants.Event.REVIEW_COMPLETED);
+            }
+        } catch (Exception e) {
+            LogUtils.error(CaseEvent.Event.REVIEW_FUNCTIONAL_CASE + "事件更新失败", e.getMessage());
+        }
     }
 
     /**

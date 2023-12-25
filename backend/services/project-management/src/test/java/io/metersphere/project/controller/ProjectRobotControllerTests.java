@@ -516,18 +516,18 @@ public class ProjectRobotControllerTests extends BaseTest {
 
     public void setMessageTask(String projectId, String defaultRobotId) throws Exception {
         StringBuilder jsonStr = new StringBuilder();
-        InputStream inputStream = getClass().getResourceAsStream("/message_task.json");
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        String line;
         try {
+            InputStream inputStream = getClass().getResourceAsStream("/message_task.json");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            String line;
             while ((line = reader.readLine()) != null) {
                 jsonStr.append(line);
             }
             reader.close();
+            inputStream.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         MessageTaskMapper mapper = sqlSession.getMapper(MessageTaskMapper.class);
         MessageTaskBlobMapper blobMapper = sqlSession.getMapper(MessageTaskBlobMapper.class);
