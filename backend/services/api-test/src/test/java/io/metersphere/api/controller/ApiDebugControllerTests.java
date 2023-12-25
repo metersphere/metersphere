@@ -5,7 +5,9 @@ import io.metersphere.api.domain.ApiDebug;
 import io.metersphere.api.domain.ApiDebugBlob;
 import io.metersphere.api.domain.ApiFileResource;
 import io.metersphere.api.dto.debug.*;
+import io.metersphere.api.dto.request.MsCommonElement;
 import io.metersphere.api.dto.request.MsScenario;
+import io.metersphere.api.dto.request.assertion.MsAssertionConfig;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.api.mapper.ApiDebugBlobMapper;
@@ -61,6 +63,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import static io.metersphere.api.controller.result.ApiResultCode.API_DEBUG_EXIST;
@@ -408,15 +411,51 @@ public class ApiDebugControllerTests extends BaseTest {
         // @@请求成功
         this.requestPostWithOk(DEBUG, request);
 
-        // 测试 FORM_DATA
+        // 测试断言
+        MsAssertionConfig msAssertionConfig = new MsAssertionConfig();
+        msAssertionConfig.setEnableGlobal(false);
+        msAssertionConfig.setAssertions(MsHTTPElementTest.getGeneralAssertions());
+        MsCommonElement msCommonElement = new MsCommonElement();
+        msCommonElement.setAssertionConfig(msAssertionConfig);
+        LinkedList linkedList = new LinkedList();
+        linkedList.add(msCommonElement);
+        msHTTPElement = MsHTTPElementTest.getMsHttpElement();
+        msHTTPElement.setChildren(linkedList);
+        msHTTPElement.setEnable(true);
+        request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
+        this.requestPostWithOk(DEBUG, request);
+
+        // 测试请求体
         MockMultipartFile file = getMockMultipartFile();
         String fileId = doUploadTempFile(file);
         request.setTempFileIds(List.of(fileId, fileMetadataId));
-        msHTTPElement = MsHTTPElementTest.getMsHttpElement();
         Body generalBody = MsHTTPElementTest.getGeneralBody();
-        generalBody.setBodyType(Body.BodyType.FORM_DATA.name());
+        msHTTPElement = MsHTTPElementTest.getMsHttpElement();
         msHTTPElement.setBody(generalBody);
         msHTTPElement.setEnable(true);
+        testBodyParse(request, msHTTPElement, generalBody);
+
+        // 增加覆盖率
+        msHTTPElement.setMethod("GET");
+        request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
+        this.requestPostWithOk(DEBUG, request);
+        msHTTPElement.setEnable(false);
+        request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
+        this.requestPostWithOk(DEBUG, request);
+
+        // 增加覆盖率
+        new TestElementParserFactory();
+        new ImportParserFactory();
+        MsScenarioConverter msScenarioConverter = new MsScenarioConverter();
+        msScenarioConverter.toHashTree(new ListedHashTree(), new MsScenario(), new ParameterConfig());
+
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEBUG_EXECUTE, DEBUG, request);
+    }
+
+    private void testBodyParse(ApiDebugRunRequest request, MsHTTPElement msHTTPElement, Body generalBody) throws Exception {
+        // 测试 FORM_DATA
+        generalBody.setBodyType(Body.BodyType.FORM_DATA.name());
         request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
         this.requestPostWithOk(DEBUG, request);
 
@@ -444,23 +483,6 @@ public class ApiDebugControllerTests extends BaseTest {
         generalBody.setBodyType(Body.BodyType.RAW.name());
         request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
         this.requestPostWithOk(DEBUG, request);
-
-        // 增加覆盖率
-        msHTTPElement.setMethod("GET");
-        request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
-        this.requestPostWithOk(DEBUG, request);
-        msHTTPElement.setEnable(false);
-        request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
-        this.requestPostWithOk(DEBUG, request);
-
-        // 增加覆盖率
-        new TestElementParserFactory();
-        new ImportParserFactory();
-        MsScenarioConverter msScenarioConverter = new MsScenarioConverter();
-        msScenarioConverter.toHashTree(new ListedHashTree(), new MsScenario(), new ParameterConfig());
-
-        // @@校验权限
-        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEBUG_EXECUTE, DEBUG, request);
     }
 
     private TestResourcePool insertResourcePool() {

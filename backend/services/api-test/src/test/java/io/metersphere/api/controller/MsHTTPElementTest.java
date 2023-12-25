@@ -1,6 +1,7 @@
 package io.metersphere.api.controller;
 
 import io.metersphere.api.dto.definition.HttpResponse;
+import io.metersphere.api.dto.request.MsCommonElement;
 import io.metersphere.api.dto.request.assertion.*;
 import io.metersphere.api.dto.request.assertion.body.*;
 import io.metersphere.api.dto.request.http.*;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -172,8 +174,14 @@ public class MsHTTPElementTest {
         MsProcessorConfig msProcessorConfig = new MsProcessorConfig();
         msProcessorConfig.setProcessors(processors);
 
-        msHTTPElement.setPreProcessorConfig(msProcessorConfig);
-        msHTTPElement.setPostProcessorConfig(msProcessorConfig);
+        MsCommonElement msCommonElement = new MsCommonElement();
+        msCommonElement.setPreProcessorConfig(msProcessorConfig);
+        msCommonElement.setPostProcessorConfig(msProcessorConfig);
+
+        LinkedList linkedList = new LinkedList();
+        linkedList.add(msCommonElement);
+        msHTTPElement.setChildren(linkedList);
+
         String json = ApiDataUtils.toJSONString(msHTTPElement);
         Assertions.assertNotNull(json);
         Assertions.assertEquals(ApiDataUtils.parseObject(json, AbstractMsTestElement.class), msHTTPElement);
@@ -183,9 +191,26 @@ public class MsHTTPElementTest {
     public void msAssertionTest() {
 
         MsHTTPElement msHTTPElement = getMsHttpElement();
+        List<MsAssertion> assertions = getGeneralAssertions();
 
-        List assertions = new ArrayList<>();
+        MsAssertionConfig msAssertionConfig = new MsAssertionConfig();
+        msAssertionConfig.setEnableGlobal(false);
+        msAssertionConfig.setAssertions(assertions);
 
+        MsCommonElement msCommonElement = new MsCommonElement();
+        msCommonElement.setAssertionConfig(msAssertionConfig);
+
+        LinkedList linkedList = new LinkedList();
+        linkedList.add(msCommonElement);
+        msHTTPElement.setChildren(linkedList);
+
+        String json = ApiDataUtils.toJSONString(msHTTPElement);
+        Assertions.assertNotNull(json);
+        Assertions.assertEquals(ApiDataUtils.parseObject(json, AbstractMsTestElement.class), msHTTPElement);
+    }
+
+    public static List<MsAssertion> getGeneralAssertions() {
+        List<MsAssertion> assertions = new ArrayList<>();
         ResponseCodeAssertion responseCodeAssertion = new ResponseCodeAssertion();
         responseCodeAssertion.setCondition(MsAssertionCondition.EMPTY.name());
         responseCodeAssertion.setValue("value");
@@ -222,14 +247,7 @@ public class MsHTTPElementTest {
         scriptAssertion.setDescription("1111");
         scriptAssertion.setName("1111");
         assertions.add(scriptAssertion);
-
-        MsAssertionConfig msAssertionConfig = new MsAssertionConfig();
-        msAssertionConfig.setEnableGlobal(false);
-        msAssertionConfig.setAssertions(assertions);
-        msHTTPElement.setAssertionConfig(msAssertionConfig);
-        String json = ApiDataUtils.toJSONString(msHTTPElement);
-        Assertions.assertNotNull(json);
-        Assertions.assertEquals(ApiDataUtils.parseObject(json, AbstractMsTestElement.class), msHTTPElement);
+        return assertions;
     }
 
     public static MsHTTPElement getMsHttpElement() {
