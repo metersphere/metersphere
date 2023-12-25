@@ -29,17 +29,13 @@ public class JmeterTestElementParser implements TestElementParser {
     private Boolean onSampleError;
     private String name;
     private ParameterConfig config;
-    private boolean displayJMeterProperties = false;
-
-    private boolean displayJMeterVariables = true;
-
-    private boolean displaySystemProperties = false;
 
     /**
      * 解析生成 jmx 脚本
-     * @param msTestElement
-     * @param config
-     * @return
+     *
+     * @param msTestElement 组件
+     * @param config        参数配置
+     * @return jmx 脚本
      */
     @Override
     public String parse(AbstractMsTestElement msTestElement, ParameterConfig config) {
@@ -53,8 +49,7 @@ public class JmeterTestElementParser implements TestElementParser {
         groupTree.add(getDebugSampler());
 
         // 解析 msTestElement
-        JmeterElementConverterRegister.getConverter(msTestElement.getClass())
-                .toHashTree(groupTree, msTestElement, config);
+        JmeterElementConverterRegister.getConverter(msTestElement.getClass()).toHashTree(groupTree, msTestElement, config);
 
         return getJmx(hashTree);
     }
@@ -114,14 +109,17 @@ public class JmeterTestElementParser implements TestElementParser {
         debugSampler.setProperty(TestElement.TEST_CLASS, DebugSampler.class.getName());
         debugSampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
 
-        debugSampler.setDisplaySystemProperties(this.displaySystemProperties);
-        debugSampler.setDisplayJMeterVariables(this.displayJMeterVariables);
-        debugSampler.setDisplayJMeterProperties(this.displayJMeterProperties);
+        boolean displaySystemProperties = false;
+        debugSampler.setDisplaySystemProperties(displaySystemProperties);
+        boolean displayJMeterVariables = true;
+        debugSampler.setDisplayJMeterVariables(displayJMeterVariables);
+        boolean displayJMeterProperties = false;
+        debugSampler.setDisplayJMeterProperties(displayJMeterProperties);
 
         // 上面三行直接Set属性会导致DebugSampler构建时取不到值，可能是JMeter的Bug,需要SetProperty
-        debugSampler.setProperty("displayJMeterProperties", this.displayJMeterProperties);
-        debugSampler.setProperty("displayJMeterVariables", this.displayJMeterVariables);
-        debugSampler.setProperty("displaySystemProperties", this.displaySystemProperties);
+        debugSampler.setProperty("displayJMeterProperties", displayJMeterProperties);
+        debugSampler.setProperty("displayJMeterVariables", displayJMeterVariables);
+        debugSampler.setProperty("displaySystemProperties", displaySystemProperties);
         return debugSampler;
     }
 }
