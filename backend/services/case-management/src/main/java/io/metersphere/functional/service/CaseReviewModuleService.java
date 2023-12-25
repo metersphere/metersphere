@@ -65,7 +65,7 @@ public class CaseReviewModuleService extends ModuleTreeService {
         return super.buildTreeAndCountResource(fileModuleList, true, Translator.get("default.module"));
     }
 
-    public void add(CaseReviewModuleCreateRequest request, String userId) {
+    public String add(CaseReviewModuleCreateRequest request, String userId) {
         CaseReviewModule caseReviewModule = new CaseReviewModule();
         caseReviewModule.setId(IDGenerator.nextStr());
         caseReviewModule.setName(request.getName());
@@ -78,6 +78,7 @@ public class CaseReviewModuleService extends ModuleTreeService {
         caseReviewModule.setCreateUser(userId);
         caseReviewModule.setUpdateUser(userId);
         caseReviewModuleMapper.insert(caseReviewModule);
+        return caseReviewModule.getId();
     }
 
     public void update(CaseReviewModuleUpdateRequest request, String userId) {
@@ -199,20 +200,32 @@ public class CaseReviewModuleService extends ModuleTreeService {
             }
             example.clear();
 
-            if (StringUtils.isNotBlank(caseReviewModule.getProjectId())) {
-                //检查项目ID是否和父节点ID一致
-                example.createCriteria().andProjectIdEqualTo(caseReviewModule.getProjectId()).andIdEqualTo(caseReviewModule.getParentId());
-                if (caseReviewModuleMapper.countByExample(example) == 0) {
-                    throw new MSException(Translator.get("project.cannot.match.parent"));
-                }
-                example.clear();
+            //检查项目ID是否和父节点ID一致
+            example.createCriteria().andProjectIdEqualTo(caseReviewModule.getProjectId()).andIdEqualTo(caseReviewModule.getParentId());
+            if (caseReviewModuleMapper.countByExample(example) == 0) {
+                throw new MSException(Translator.get("project.cannot.match.parent"));
             }
+            example.clear();
         }
         example.createCriteria().andParentIdEqualTo(caseReviewModule.getParentId()).andNameEqualTo(caseReviewModule.getName()).andIdNotEqualTo(caseReviewModule.getId());
         if (caseReviewModuleMapper.countByExample(example) > 0) {
             throw new MSException(Translator.get("node.name.repeat"));
         }
         example.clear();
+
+        //非默认节点，检查该节点所在分支的总长度，确保不超过阈值
+        if (!StringUtils.equals(caseReviewModule.getId(), ModuleConstants.DEFAULT_NODE_ID)) {
+            this.checkBranchModules(this.getRootNodeId(caseReviewModule), extCaseReviewModuleMapper::selectChildrenIdsByParentIds);
+        }
+    }
+
+    private String getRootNodeId(CaseReviewModule caseReviewModule) {
+        if (StringUtils.equals(caseReviewModule.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
+            return caseReviewModule.getId();
+        } else {
+            CaseReviewModule parentModule = caseReviewModuleMapper.selectByPrimaryKey(caseReviewModule.getParentId());
+            return this.getRootNodeId(parentModule);
+        }
     }
 
     @Override

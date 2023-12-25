@@ -37,8 +37,8 @@ public class CaseReviewModuleController {
     @Operation(summary = "用例管理-用例评审-模块-添加模块")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_ADD)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
-    public void add(@RequestBody @Validated CaseReviewModuleCreateRequest request) {
-        caseReviewModuleService.add(request, SessionUtils.getUserId());
+    public String add(@RequestBody @Validated CaseReviewModuleCreateRequest request) {
+       return caseReviewModuleService.add(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/update")
