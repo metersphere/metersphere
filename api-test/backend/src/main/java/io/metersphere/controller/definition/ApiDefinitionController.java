@@ -171,6 +171,7 @@ public class ApiDefinitionController {
 
     @PostMapping("/reduction")
     @MsAuditLog(module = OperLogModule.API_DEFINITION, type = OperLogConstants.RESTORE, beforeEvent = "#msClass.getLogDetails(#request.ids)", msClass = ApiDefinitionService.class)
+    @CheckOwner(resourceId = "#request.ids", resourceType = "api_definition")
     public void reduction(@RequestBody ApiBatchRequest request) {
         apiDefinitionService.reduction(request);
     }
