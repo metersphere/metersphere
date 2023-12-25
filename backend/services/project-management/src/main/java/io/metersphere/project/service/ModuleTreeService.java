@@ -14,10 +14,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -25,11 +22,26 @@ public abstract class ModuleTreeService {
 
     protected static final long LIMIT_POS = 64;
 
+    //默认节点所在分支最大数量不超过200，  后续会根据需求排期进行调整
+    protected static final int MAX_BRANCHES_NODE_SIZE = 200;
+
     public BaseTreeNode getDefaultModule(String name) {
         //默认模块下不允许创建子模块。  它本身也就是叶子节点。
         return new BaseTreeNode(ModuleConstants.DEFAULT_NODE_ID, name, ModuleConstants.NODE_TYPE_DEFAULT, ModuleConstants.ROOT_NODE_PARENT_ID);
     }
 
+    public void checkBranchModules(String rootNodeId, Function<List<String>, List<String>> selectIdByParentIdFunc) {
+        long count = 1;
+        List<String> child = selectIdByParentIdFunc.apply(Collections.singletonList(rootNodeId));
+        while (CollectionUtils.isNotEmpty(child)) {
+            count += child.size();
+            if (count < MAX_BRANCHES_NODE_SIZE) {
+                child = selectIdByParentIdFunc.apply(child);
+            } else {
+                throw new MSException(Translator.getWithArgs("module.branches.size.limit", MAX_BRANCHES_NODE_SIZE));
+            }
+        }
+    }
 
     //构建树结构，并为每个节点计算资源数量
     public List<BaseTreeNode> buildTreeAndCountResource(List<BaseTreeNode> traverseList, @NotNull List<ModuleCountDTO> moduleCountDTOList, boolean haveVirtualRootNode, String virtualRootName) {
