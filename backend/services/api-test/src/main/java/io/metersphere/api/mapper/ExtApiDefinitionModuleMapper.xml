@@ -8,11 +8,6 @@
         <include refid="module_request"/>
         ORDER BY pos
     </select>
-    <select id="selectIdsByProjectId" resultType="java.lang.String">
-        SELECT id
-        FROM api_definition_module
-        WHERE project_id = #{0}
-    </select>
     <select id="selectChildrenIdsByParentIds" resultType="java.lang.String">
         SELECT id
         FROM api_definition_module
@@ -41,20 +36,13 @@
 
         ORDER BY pos ASC
     </select>
-    <select id="getLastModuleByParentId" resultType="io.metersphere.api.domain.ApiDebugModule">
-        SELECT *
-        FROM api_definition_module
-        WHERE parent_id = #{0}
-
-        ORDER BY pos DESC
-        LIMIT 1
-    </select>
     <select id="selectApiDataByRequest" resultType="io.metersphere.api.dto.debug.ApiTreeNode">
         SELECT id,
         NAME,
         module_id AS parentId,
         'API' AS type,
-        method
+        method,
+        protocol
         FROM api_definition
         <include refid="api_request"/>
         ORDER BY update_time DESC
@@ -171,9 +159,7 @@
                     #{item}
                 </foreach>
             </if>
-            <if test="request.protocol != null and request.protocol != ''">
-                AND m.protocol = #{request.protocol}
-            </if>
+
         </where>
     </sql>
 

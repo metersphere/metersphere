@@ -8,5 +8,7 @@ import lombok.Data;
 public class ApiTreeNode extends BaseTreeNode {
     @Schema(description = "方法")
     private String method;
+    @Schema(description = "协议")
+    private String protocol;
 
 }

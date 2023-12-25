@@ -128,6 +128,24 @@ public class ApiDebugModuleControllerTests extends BaseTest {
         apiDebugBlob.setResponse(new byte[0]);
         apiDebugBlobMapper.insertSelective(apiDebugBlob);
     }
+    public void initApiDebugTCPData(String moduleId) {
+        ApiDebug apiDebug = new ApiDebug();
+        apiDebug.setId(IDGenerator.nextStr());
+        apiDebug.setProjectId(project.getId());
+        apiDebug.setName(StringUtils.join("接口调试", apiDebug.getId()));
+        apiDebug.setModuleId(moduleId);
+        apiDebug.setProtocol("TCP");
+        apiDebug.setCreateTime(System.currentTimeMillis());
+        apiDebug.setUpdateTime(System.currentTimeMillis());
+        apiDebug.setCreateUser("admin");
+        apiDebug.setUpdateUser("admin");
+        apiDebugMapper.insertSelective(apiDebug);
+        ApiDebugBlob apiDebugBlob = new ApiDebugBlob();
+        apiDebugBlob.setId(apiDebug.getId());
+        apiDebugBlob.setRequest(new byte[0]);
+        apiDebugBlob.setResponse(new byte[0]);
+        apiDebugBlobMapper.insertSelective(apiDebugBlob);
+    }
 
     @Test
     @Order(2)
@@ -149,6 +167,7 @@ public class ApiDebugModuleControllerTests extends BaseTest {
         }
         Assertions.assertNotNull(a1Node);
         initApiDebugData(a1Node.getId());
+        initApiDebugTCPData(a1Node.getId());
         checkLog(a1Node.getId(), OperationLogType.ADD, URL_MODULE_ADD);
 
         //根目录下创建节点a2和a3，在a1下创建子节点a1-b1
@@ -186,7 +205,9 @@ public class ApiDebugModuleControllerTests extends BaseTest {
         Assertions.assertNotNull(a2Node);
         Assertions.assertNotNull(a1b1Node);
         initApiDebugData(a2Node.getId());
+        initApiDebugTCPData(a2Node.getId());
         initApiDebugData(a1b1Node.getId());
+        initApiDebugTCPData(a1b1Node.getId());
         checkLog(a2Node.getId(), OperationLogType.ADD, URL_MODULE_ADD);
         checkLog(a1b1Node.getId(), OperationLogType.ADD, URL_MODULE_ADD);
 
@@ -274,6 +295,32 @@ public class ApiDebugModuleControllerTests extends BaseTest {
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setName("defaultProject");
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEBUG_ADD, URL_MODULE_ADD, request);
+
+        /**
+         测试能否正常做200个节点
+         */
+        String parentId = null;
+        for (int i = 0; i < 210; i++) {
+            ModuleCreateRequest perfRequest = new ModuleCreateRequest();
+            perfRequest.setProjectId(project.getId());
+            perfRequest.setName("500-test-root-" + i);
+            if (StringUtils.isNotEmpty(parentId)) {
+                perfRequest.setParentId(parentId);
+            }
+            if (i < 200) {
+                MvcResult result = this.requestPostWithOkAndReturn(URL_MODULE_ADD, perfRequest);
+                ResultHolder holder = JSON.parseObject(result.getResponse().getContentAsString(), ResultHolder.class);
+                if (i % 50 == 0) {
+                    //到20换下一层级
+                    parentId = holder.getData().toString();
+                }
+            } else {
+                //测试超过500会报错
+                this.requestPost(URL_MODULE_ADD, perfRequest).andExpect(status().is5xxServerError());
+            }
+        }
+        treeNodes = this.getDebugModuleTreeNode();
+        preliminaryTreeNodes = treeNodes;
     }
 
     @Test
@@ -758,6 +805,7 @@ public class ApiDebugModuleControllerTests extends BaseTest {
         MvcResult result = this.requestGetWithOkAndReturn(String.format(URL_MODULE_TREE, ModuleConstants.NODE_PROTOCOL_HTTP));
         String returnData = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        this.requestGetWithOkAndReturn(String.format(URL_MODULE_TREE, "TCP"));
         return JSON.parseArray(JSON.toJSONString(resultHolder.getData()), BaseTreeNode.class);
     }
 

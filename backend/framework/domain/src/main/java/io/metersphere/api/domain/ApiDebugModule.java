@@ -1,16 +1,12 @@
 package io.metersphere.api.domain;
 
-import io.metersphere.validation.groups.Created;
-import io.metersphere.validation.groups.Updated;
+import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
-import lombok.Data;
-
+import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import lombok.Data;
 
 @Data
 public class ApiDebugModule implements Serializable {
@@ -23,11 +19,6 @@ public class ApiDebugModule implements Serializable {
     @NotBlank(message = "{api_debug_module.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{api_debug_module.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
-
-    @Schema(description = "协议", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_debug.protocol.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 20, message = "{api_debug.protocol.length_range}", groups = {Created.class, Updated.class})
-    private String protocol;
 
     @Schema(description = "父级fk", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_debug_module.parent_id.not_blank}", groups = {Created.class})
@@ -60,7 +51,6 @@ public class ApiDebugModule implements Serializable {
     public enum Column {
         id("id", "id", "VARCHAR", false),
         name("name", "name", "VARCHAR", true),
-        protocol("protocol", "protocol", "VARCHAR", false),
         parentId("parent_id", "parentId", "VARCHAR", false),
         projectId("project_id", "projectId", "VARCHAR", false),
         pos("pos", "pos", "BIGINT", false),

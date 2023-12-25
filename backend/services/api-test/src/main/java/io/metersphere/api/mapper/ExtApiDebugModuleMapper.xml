@@ -7,22 +7,14 @@
                parent_id AS parentId,
                'MODULE' AS type
         FROM api_debug_module
-        WHERE protocol = #{protocol}
-          AND create_user = #{userId}
+        WHERE create_user = #{userId}
         ORDER BY pos
     </select>
     <select id="selectIdAndParentIdByProtocolAndUserId" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
         SELECT id,
                parent_id AS parentId
         FROM api_debug_module
-        WHERE protocol = #{protocol}
-
-          AND create_user = #{userId}
-    </select>
-    <select id="selectIdsByProjectId" resultType="java.lang.String">
-        SELECT id
-        FROM api_debug_module
-        WHERE project_id = #{0}
+        WHERE create_user = #{userId}
     </select>
     <select id="selectChildrenIdsByParentIds" resultType="java.lang.String">
         SELECT id
@@ -52,24 +44,15 @@
 
         ORDER BY pos ASC
     </select>
-    <select id="getLastModuleByParentId" resultType="io.metersphere.api.domain.ApiDebugModule">
-        SELECT *
-        FROM api_debug_module
-        WHERE parent_id = #{0}
-
-        ORDER BY pos DESC
-        LIMIT 1
-    </select>
     <select id="selectApiDebugByProtocolAndUser" resultType="io.metersphere.api.dto.debug.ApiTreeNode">
         SELECT id,
                NAME,
                module_id AS parentId,
                'API' AS type,
-               method
+               method,
+                protocol
         FROM api_debug
-        WHERE protocol = #{protocol}
-
-          AND create_user = #{userId}
+        WHERE create_user = #{userId}
 
         ORDER BY update_time DESC
     </select>

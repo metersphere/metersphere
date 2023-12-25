@@ -4,7 +4,6 @@
   <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiDebugModule">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="protocol" jdbcType="VARCHAR" property="protocol" />
     <result column="parent_id" jdbcType="VARCHAR" property="parentId" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="pos" jdbcType="BIGINT" property="pos" />
@@ -72,8 +71,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, protocol, parent_id, project_id, pos, create_time, update_time, update_user, 
-    create_user
+    id, `name`, parent_id, project_id, pos, create_time, update_time, update_user, create_user
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiDebugModuleExample" resultMap="BaseResultMap">
     select
@@ -106,14 +104,14 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.api.domain.ApiDebugModule">
-    insert into api_debug_module (id, `name`, protocol, 
-      parent_id, project_id, pos, 
-      create_time, update_time, update_user, 
-      create_user)
-    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{protocol,jdbcType=VARCHAR}, 
-      #{parentId,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{pos,jdbcType=BIGINT}, 
-      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, 
-      #{createUser,jdbcType=VARCHAR})
+    insert into api_debug_module (id, `name`, parent_id, 
+      project_id, pos, create_time, 
+      update_time, update_user, create_user
+      )
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{parentId,jdbcType=VARCHAR}, 
+      #{projectId,jdbcType=VARCHAR}, #{pos,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, 
+      #{updateTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiDebugModule">
     insert into api_debug_module
@@ -123,9 +121,6 @@
       </if>
       <if test="name != null">
         `name`,
-      </if>
-      <if test="protocol != null">
-        protocol,
       </if>
       <if test="parentId != null">
         parent_id,
@@ -155,9 +150,6 @@
       </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
-      </if>
-      <if test="protocol != null">
-        #{protocol,jdbcType=VARCHAR},
       </if>
       <if test="parentId != null">
         #{parentId,jdbcType=VARCHAR},
@@ -197,9 +189,6 @@
       <if test="record.name != null">
         `name` = #{record.name,jdbcType=VARCHAR},
       </if>
-      <if test="record.protocol != null">
-        protocol = #{record.protocol,jdbcType=VARCHAR},
-      </if>
       <if test="record.parentId != null">
         parent_id = #{record.parentId,jdbcType=VARCHAR},
       </if>
@@ -230,7 +219,6 @@
     update api_debug_module
     set id = #{record.id,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
-      protocol = #{record.protocol,jdbcType=VARCHAR},
       parent_id = #{record.parentId,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       pos = #{record.pos,jdbcType=BIGINT},
@@ -247,9 +235,6 @@
     <set>
       <if test="name != null">
         `name` = #{name,jdbcType=VARCHAR},
-      </if>
-      <if test="protocol != null">
-        protocol = #{protocol,jdbcType=VARCHAR},
       </if>
       <if test="parentId != null">
         parent_id = #{parentId,jdbcType=VARCHAR},
@@ -278,7 +263,6 @@
   <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiDebugModule">
     update api_debug_module
     set `name` = #{name,jdbcType=VARCHAR},
-      protocol = #{protocol,jdbcType=VARCHAR},
       parent_id = #{parentId,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
       pos = #{pos,jdbcType=BIGINT},
@@ -290,14 +274,14 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_debug_module
-    (id, `name`, protocol, parent_id, project_id, pos, create_time, update_time, update_user, 
-      create_user)
+    (id, `name`, parent_id, project_id, pos, create_time, update_time, update_user, create_user
+      )
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.protocol,jdbcType=VARCHAR}, 
-        #{item.parentId,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.pos,jdbcType=BIGINT}, 
-        #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}, 
-        #{item.createUser,jdbcType=VARCHAR})
+      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.parentId,jdbcType=VARCHAR}, 
+        #{item.projectId,jdbcType=VARCHAR}, #{item.pos,jdbcType=BIGINT}, #{item.createTime,jdbcType=BIGINT}, 
+        #{item.updateTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -315,9 +299,6 @@
         </if>
         <if test="'name'.toString() == column.value">
           #{item.name,jdbcType=VARCHAR}
-        </if>
-        <if test="'protocol'.toString() == column.value">
-          #{item.protocol,jdbcType=VARCHAR}
         </if>
         <if test="'parent_id'.toString() == column.value">
           #{item.parentId,jdbcType=VARCHAR}

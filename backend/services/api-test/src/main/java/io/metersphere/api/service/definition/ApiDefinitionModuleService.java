@@ -77,7 +77,6 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
         module.setName(request.getName());
         module.setParentId(request.getParentId());
         module.setProjectId(request.getProjectId());
-        module.setProtocol(request.getProtocol());
         module.setCreateUser(operator);
         this.checkDataValidity(module);
         module.setCreateTime(System.currentTimeMillis());
@@ -107,7 +106,6 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
         if (!StringUtils.equals(module.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
             //检查父ID是否存在  接口模块的逻辑是  同一个协议下的  同一个项目的同层级节点下不能有相同的名称
             example.createCriteria().andIdEqualTo(module.getParentId())
-                    .andProtocolEqualTo(module.getProtocol())
                     .andProjectIdEqualTo(module.getProjectId());
             if (apiDefinitionModuleMapper.countByExample(example) == 0) {
                 throw new MSException(Translator.get("parent.node.not_blank"));
@@ -116,11 +114,25 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
         }
         example.createCriteria().andParentIdEqualTo(module.getParentId())
                 .andNameEqualTo(module.getName()).andIdNotEqualTo(module.getId())
-                .andProtocolEqualTo(module.getProtocol()).andProjectIdEqualTo(module.getProjectId());
+                .andProjectIdEqualTo(module.getProjectId());
         if (apiDefinitionModuleMapper.countByExample(example) > 0) {
             throw new MSException(Translator.get("node.name.repeat"));
         }
         example.clear();
+
+        //非默认节点，检查该节点所在分支的总长度，确保不超过阈值
+        if (!StringUtils.equals(module.getId(), ModuleConstants.DEFAULT_NODE_ID)) {
+            this.checkBranchModules(this.getRootNodeId(module), extApiDefinitionModuleMapper::selectChildrenIdsByParentIds);
+        }
+    }
+
+    private String getRootNodeId(ApiDefinitionModule module) {
+        if (StringUtils.equals(module.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
+            return module.getId();
+        } else {
+            ApiDefinitionModule parentModule = apiDefinitionModuleMapper.selectByPrimaryKey(module.getParentId());
+            return this.getRootNodeId(parentModule);
+        }
     }
 
     public void update(ModuleUpdateRequest request, String userId) {
@@ -133,7 +145,6 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
         updateModule.setName(request.getName());
         updateModule.setParentId(module.getParentId());
         updateModule.setProjectId(module.getProjectId());
-        updateModule.setProtocol(module.getProtocol());
         this.checkDataValidity(updateModule);
         updateModule.setUpdateTime(System.currentTimeMillis());
         updateModule.setUpdateUser(userId);
