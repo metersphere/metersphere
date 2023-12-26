@@ -6,6 +6,8 @@ import io.metersphere.api.dto.definition.ApiTestCaseBatchRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.definition.ApiTestCasePageRequest;
 import io.metersphere.api.dto.definition.CasePassDTO;
+import io.metersphere.dto.ApiTestCaseProviderDTO;
+import io.metersphere.request.ApiTestCasePageProviderRequest;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -39,4 +41,7 @@ public interface ExtApiTestCaseMapper {
     List<String> selectIdsByCaseIds(@Param("ids") List<String> ids);
 
     List<String> getCaseIds(@Param("ids")List<String> ids, @Param("deleted")boolean deleted);
+
+    List<ApiTestCaseProviderDTO> listByProviderRequest(@Param("table") String resourceType, @Param("sourceName") String sourceName, @Param("targetName") String targetName,@Param("request") ApiTestCasePageProviderRequest request, @Param("deleted") boolean deleted);
+
 }
