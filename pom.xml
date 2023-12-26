@@ -59,7 +59,7 @@
         <jmeter.version>5.5</jmeter.version>
         <codehaus-groovy.version>3.0.11</codehaus-groovy.version>
         <jython.version>2.7.0</jython.version>
-        <docker-java.version>3.2.14</docker-java.version>
+        <docker-java.version>3.3.4</docker-java.version>
         <selenium-htmlunit.version>4.10.0</selenium-htmlunit.version>
         <selenium.version>4.10.0</selenium.version>
         <jmeter-plugins-webdriver.version>4.10.0</jmeter-plugins-webdriver.version>
