@@ -497,7 +497,7 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
 
     private void configureFilterSearch(ApiDefinitionMockPageRequest request) {
         Map<String, List<String>> filters = new HashMap<>();
-        request.setSort(Map.of("updateTime", "asc"));
+        request.setSort(Map.of());
         filters.put("enable", List.of("1"));
         filters.put("tags", List.of("tag1"));
         request.setFilter(filters);
