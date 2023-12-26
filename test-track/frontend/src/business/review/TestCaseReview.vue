@@ -123,6 +123,10 @@ export default {
 }
 
 .review-aside .node-tree {
-  height: 100%;
+  height: calc(100vh - 125px)!important;
+}
+
+.review-aside .ms-aside-node-tree {
+  height: 100%!important;
 }
 </style>
