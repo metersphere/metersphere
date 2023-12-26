@@ -496,7 +496,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Test
     @Order(34)
     public void testBugConfig() throws Exception {
-        ProjectApplication request = creatRequest(ProjectApplicationType.BUG_SYNC_CONFIG.SYNC_ENABLE.name(), "true");
+        ProjectApplication request = creatRequest(ProjectApplicationType.BUG.BUG_SYNC.name() + "_" + ProjectApplicationType.BUG_SYNC_CONFIG.SYNC_ENABLE.name(), "true");
         this.requestPost(BUG_UPDATE_URL, request);
 
         Map<String, String> congifs = mockTestData();
@@ -516,7 +516,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
         congifs.remove("CRON_EXPRESSION");
         this.requestPostWithOkAndReturn(UPDATE_BUG_CONFIG_URL + "/default-project-2", congifs);
 
-        ProjectApplication afterRequest = creatRequest(ProjectApplicationType.BUG_SYNC_CONFIG.SYNC_ENABLE.name(), "true");
+        ProjectApplication afterRequest = creatRequest(ProjectApplicationType.BUG.BUG_SYNC.name() + "_" + ProjectApplicationType.BUG_SYNC_CONFIG.SYNC_ENABLE.name(), "true");
         this.requestPost(BUG_UPDATE_URL, afterRequest);
     }
 
@@ -575,7 +575,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
     @Test
     @Order(37)
     public void testCaseRelatedConfig() throws Exception {
-        ProjectApplication request = creatRequest(ProjectApplicationType.CASE_RELATED_CONFIG.CASE_ENABLE.name(), "true");
+        ProjectApplication request = creatRequest(ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "_" + ProjectApplicationType.CASE_RELATED_CONFIG.CASE_ENABLE.name(), "true");
         this.requestPost(CASE_UPDATE_URL, request);
         Map<String, String> configs = mockRelatedTestData();
         MvcResult mvcResult = this.requestPostWithOkAndReturn(UPDATE_CASE_RELATED_CONFIG_URL + "/project_application_test_id", configs);
@@ -593,7 +593,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
         ResultHolder updateResultHolder = JSON.parseObject(updateData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(updateResultHolder);
-        ProjectApplication afterRequest = creatRequest(ProjectApplicationType.CASE_RELATED_CONFIG.CASE_ENABLE.name(), "true");
+        ProjectApplication afterRequest = creatRequest(ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "_" + ProjectApplicationType.CASE_RELATED_CONFIG.CASE_ENABLE.name(), "true");
         this.requestPost(CASE_UPDATE_URL, afterRequest);
     }
 

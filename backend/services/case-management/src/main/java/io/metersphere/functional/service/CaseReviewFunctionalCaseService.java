@@ -387,4 +387,142 @@ public class CaseReviewFunctionalCaseService {
         caseReviewHistory.setCreateTime(System.currentTimeMillis());
         return caseReviewHistory;
     }
+
+
+    public void batchEditReviewUser(BatchEditReviewerRequest request, String userId) {
+        List<String> ids = doSelectIds(request);
+        if (CollectionUtils.isNotEmpty(ids)) {
+            String reviewPassRule = caseReviewService.getReviewPassRule(request.getReviewId());
+            //评审人处理
+            List<CaseReviewFunctionalCase> cases = extCaseReviewFunctionalCaseMapper.getCaseIdsByIds(ids);
+            handleReviewers(request, cases, reviewPassRule, userId);
+
+        }
+    }
+
+    private void handleReviewers(BatchEditReviewerRequest request, List<CaseReviewFunctionalCase> cases, String reviewPassRule, String userId) {
+        List<String> caseIds = cases.stream().map(CaseReviewFunctionalCase::getCaseId).toList();
+        CaseReviewFunctionalCaseUserExample example = new CaseReviewFunctionalCaseUserExample();
+        example.createCriteria().andCaseIdIn(caseIds).andReviewIdEqualTo(request.getReviewId());
+        List<CaseReviewFunctionalCaseUser> oldReviewUsers = caseReviewFunctionalCaseUserMapper.selectByExample(example);
+        Map<String, List<CaseReviewFunctionalCaseUser>> oldReviewUserMap = oldReviewUsers.stream().collect(Collectors.groupingBy(CaseReviewFunctionalCaseUser::getCaseId));
+
+        //处理评审人数据
+        handleReviewCaseUsers(request, caseIds, oldReviewUserMap);
+
+        if (CaseReviewPassRule.MULTIPLE.name().equals(reviewPassRule)) {
+            //如果是多人评审 需要重新评估用例评审状态
+            List<CaseReviewFunctionalCaseUser> newReviewers = caseReviewFunctionalCaseUserMapper.selectByExample(example);
+            Map<String, List<CaseReviewFunctionalCaseUser>> newReviewersMap = newReviewers.stream().collect(Collectors.groupingBy(CaseReviewFunctionalCaseUser::getCaseId));
+
+            CaseReviewHistoryExample caseReviewHistoryExample = new CaseReviewHistoryExample();
+            caseReviewHistoryExample.createCriteria().andCaseIdIn(caseIds).andReviewIdEqualTo(request.getReviewId()).andDeletedEqualTo(false);
+            List<CaseReviewHistory> caseReviewHistories = caseReviewHistoryMapper.selectByExample(caseReviewHistoryExample);
+            Map<String, List<CaseReviewHistory>> caseHistoryMap = caseReviewHistories.stream().collect(Collectors.groupingBy(CaseReviewHistory::getCaseId, Collectors.toList()));
+
+            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+            FunctionalCaseMapper functionalCaseMapper = sqlSession.getMapper(FunctionalCaseMapper.class);
+            CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper = sqlSession.getMapper(CaseReviewFunctionalCaseMapper.class);
+            cases.forEach(caseReview -> {
+                String status = multipleReview(caseReview, caseHistoryMap.get(caseReview.getCaseId()), newReviewersMap.get(caseReview.getCaseId()), oldReviewUserMap.get(caseReview.getCaseId()));
+                caseReview.setStatus(status);
+                caseReviewFunctionalCaseMapper.updateByPrimaryKeySelective(caseReview);
+                FunctionalCase functionalCase = new FunctionalCase();
+                functionalCase.setId(caseReview.getCaseId());
+                functionalCase.setReviewStatus(caseReview.getStatus());
+                functionalCaseMapper.updateByPrimaryKeySelective(functionalCase);
+            });
+            sqlSession.flushStatements();
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+
+            Map<String, Object> param = new HashMap<>();
+            List<CaseReviewFunctionalCase> list = extCaseReviewFunctionalCaseMapper.getList(request.getReviewId(), null, false);
+            List<CaseReviewFunctionalCase> passList = list.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getStatus(), FunctionalCaseReviewStatus.PASS.toString())).toList();
+            List<CaseReviewFunctionalCase> unCompletedCaseList = list.stream().filter(t -> StringUtils.equalsAnyIgnoreCase(t.getStatus(), FunctionalCaseReviewStatus.UN_REVIEWED.toString(), FunctionalCaseReviewStatus.UNDER_REVIEWED.toString(), FunctionalCaseReviewStatus.RE_REVIEWED.toString())).toList();
+            param.put(CaseEvent.Param.REVIEW_ID, request.getReviewId());
+            param.put(CaseEvent.Param.USER_ID, userId);
+            param.put(CaseEvent.Param.CASE_COUNT, list.size());
+            param.put(CaseEvent.Param.PASS_COUNT, passList.size());
+            param.put(CaseEvent.Param.UN_COMPLETED_COUNT, unCompletedCaseList.size());
+            param.put(CaseEvent.Param.EVENT_NAME, CaseEvent.Event.BATCH_UPDATE_REVIEWER);
+            provider.updateCaseReview(param);
+        }
+
+    }
+
+    private String multipleReview(CaseReviewFunctionalCase caseReviewFunctionalCase, List<CaseReviewHistory> reviewHistories, List<CaseReviewFunctionalCaseUser> newReviewers, List<CaseReviewFunctionalCaseUser> oldReviewers) {
+        if (CollectionUtils.isNotEmpty(reviewHistories)) {
+            List<String> historyUsers = reviewHistories.stream().map(CaseReviewHistory::getCreateUser).toList();
+            List<String> newUsers = newReviewers.stream().map(CaseReviewFunctionalCaseUser::getUserId).toList();
+            if (CollectionUtils.isEmpty(oldReviewers)) {
+                oldReviewers = new ArrayList<>();
+            }
+            List<String> oldUsers = oldReviewers.stream().map(CaseReviewFunctionalCaseUser::getUserId).toList();
+
+            if (CollectionUtils.isEqualCollection(newUsers, oldUsers)) {
+                return caseReviewFunctionalCase.getStatus();
+            }
+
+            Collection intersection = CollectionUtils.intersection(historyUsers, newUsers);
+            if (CollectionUtils.isNotEmpty(intersection)) {
+                //存在已经评审的人 状态列表
+                List<String> statusList = reviewHistories.stream().filter(item -> intersection.contains(item.getCreateUser())).map(CaseReviewHistory::getStatus).toList();
+                if (statusList.contains(FunctionalCaseReviewStatus.UN_PASS.name())) {
+                    return FunctionalCaseReviewStatus.UN_PASS.name();
+                }
+                long count = statusList.stream().filter(item -> StringUtils.equalsIgnoreCase(FunctionalCaseReviewStatus.PASS.name(), item)).count();
+                if (count == statusList.size() && newUsers.size() <= oldUsers.size()) {
+                    return FunctionalCaseReviewStatus.PASS.name();
+                } else {
+                    return FunctionalCaseReviewStatus.UNDER_REVIEWED.name();
+                }
+            } else {
+                return FunctionalCaseReviewStatus.UN_REVIEWED.name();
+            }
+        } else {
+            return FunctionalCaseReviewStatus.UN_REVIEWED.name();
+        }
+    }
+
+
+    private void handleReviewCaseUsers(BatchEditReviewerRequest request, List<String> caseIds, Map<String, List<CaseReviewFunctionalCaseUser>> listMap) {
+        if (request.isAppend()) {
+            //追加评审人
+            List<CaseReviewFunctionalCaseUser> list = new ArrayList<>();
+            caseIds.forEach(caseId -> {
+                //原评审人
+                List<CaseReviewFunctionalCaseUser> users = listMap.get(caseId);
+
+                //新评审人
+                List<String> reviewerIds = request.getReviewerId();
+                if (CollectionUtils.isNotEmpty(users)) {
+                    List<String> userIds = users.stream().map(CaseReviewFunctionalCaseUser::getUserId).toList();
+                    reviewerIds.removeAll(userIds);
+                }
+                reviewerIds.forEach(reviewer -> {
+                    CaseReviewFunctionalCaseUser caseUser = new CaseReviewFunctionalCaseUser();
+                    caseUser.setReviewId(request.getReviewId());
+                    caseUser.setCaseId(caseId);
+                    caseUser.setUserId(reviewer);
+                    list.add(caseUser);
+                });
+            });
+            caseReviewFunctionalCaseUserMapper.batchInsert(list);
+        } else {
+            //更新评审人
+            extCaseReviewFunctionalCaseUserMapper.deleteByCaseIds(caseIds, request.getReviewId());
+            List<String> reviewerIds = request.getReviewerId();
+            List<CaseReviewFunctionalCaseUser> list = new ArrayList<>();
+            caseIds.forEach(caseId -> {
+                reviewerIds.forEach(reviewer -> {
+                    CaseReviewFunctionalCaseUser caseUser = new CaseReviewFunctionalCaseUser();
+                    caseUser.setReviewId(request.getReviewId());
+                    caseUser.setCaseId(caseId);
+                    caseUser.setUserId(reviewer);
+                    list.add(caseUser);
+                });
+            });
+            caseReviewFunctionalCaseUserMapper.batchInsert(list);
+        }
+    }
 }

@@ -20,4 +20,12 @@
             crfcu.case_id
     </select>
 
+    <delete id="deleteByCaseIds">
+        DELETE FROM case_review_functional_case_user WHERE
+        review_id = #{reviewId} AND case_id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
 </mapper>

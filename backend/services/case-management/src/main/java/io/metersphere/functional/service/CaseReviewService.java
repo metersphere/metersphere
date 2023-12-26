@@ -579,4 +579,8 @@ public class CaseReviewService {
         moduleCountMap.put(CASE_MODULE_COUNT_ALL, allCount);
         return moduleCountMap;
     }
+
+    public String getReviewPassRule(String id) {
+       return extCaseReviewMapper.getReviewPassRule(id);
+    }
 }

@@ -10,6 +10,7 @@ public interface CaseEvent {
         String DELETE_TRASH_FUNCTIONAL_CASE = "deleteTrashFunctionalCase";
         String RECOVER_FUNCTIONAL_CASE = "recoverFunctionalCase";
         String REVIEW_FUNCTIONAL_CASE = "reviewFunctionalCase";
+        String BATCH_UPDATE_REVIEWER = "batchUpdateReviewer";
     }
 
     interface Param {
