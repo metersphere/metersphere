@@ -43,19 +43,19 @@ export function createBug(data: { request: BugEditFormObject; fileList: File[] }
 export function getBugDetail(id: string) {
   return MSR.get({ url: `${bugURL.getBugDetailUrl}${id}` });
 }
-
+/** 删除单个文件 */
 export function deleteSingleBug(data: TableQueryParams) {
   return MSR.get({ url: `${bugURL.getDeleteBugUrl}${data.id}` });
 }
-
+/** 批量删除文件 */
 export function deleteBatchBug(data: TableQueryParams) {
   return MSR.post({ url: bugURL.postBatchDeleteBugUrl, data });
 }
-
+/** 获取模板 Option */
 export function getTemplageOption(params: { projectId: string }) {
   return MSR.get<TemplateOption[]>({ url: bugURL.getTemplageOption, params });
 }
-
+/** 获取模板详情 */
 export function getTemplateById(data: TableQueryParams) {
   return MSR.post({ url: bugURL.getTemplateUrl, data });
 }
@@ -80,4 +80,12 @@ export function exportBug(data: BugExportParams) {
 // 获取关联文件列表
 export function getAssociatedFileList(data: TableQueryParams) {
   return MSR.post<CommonList<AssociatedList>>({ url: bugURL.postAssociatedFileListUrl, data });
+}
+
+// 关注/取消关注 缺陷
+export function followBug(id: string, isFollow: boolean) {
+  if (isFollow) {
+    return MSR.get({ url: `${bugURL.getUnFollowBugUrl}${id}` });
+  }
+  return MSR.get({ url: `${bugURL.getFollowBugUrl}${id}` });
 }

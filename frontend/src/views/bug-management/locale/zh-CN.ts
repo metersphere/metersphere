@@ -51,11 +51,17 @@ export default {
       linkCase: '关联用例',
     },
     detail: {
+      title: '【{id}】{name}',
       apiCase: '接口用例',
       scenarioCase: '场景用例',
       uiCase: 'UI用例',
       performanceCase: '性能用例',
       searchCase: '通过名称搜索',
+      creator: '创建人',
+      createTime: '创建时间',
+      basicInfo: '基本信息',
+      handleUser: '处理人',
+      tag: '标签',
     },
     severityO: {
       fatal: '致命',

@@ -19,7 +19,7 @@
       @batch-action="handleTableBatch"
     >
       <template #name="{ record, rowIndex }">
-        <a-button type="text" class="px-0" @click="handleShowDetail(record.id, rowIndex)">{{ record.name }}</a-button>
+        <a-button type="text" class="px-0" @click="handleShowDetail(record.id, rowIndex)">{{ record.title }}</a-button>
       </template>
       <!-- 严重程度 -->
       <template #severity="{ record }">
@@ -27,7 +27,7 @@
       </template>
       <!-- 状态 -->
       <template #status="{ record }">
-        <MsEditComp mode="select" :options="statusOption" :default-value="record.status" />
+        <MsEditComp mode="select" :options="statusOption" :default-value="record.statusName" />
       </template>
       <template #numberOfCase="{ record }">
         <span class="cursor-pointer text-[rgb(var(--primary-5))]" @click="jumpToTestPlan(record)">{{
@@ -142,6 +142,7 @@
   import useLicenseStore from '@/store/modules/setting/license';
 
   import { BugListItem } from '@/models/bug-management';
+  import { RouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
 
   import { useRequest } from 'ahooks-vue';
@@ -219,26 +220,26 @@
     {
       title: 'bugManagement.ID',
       dataIndex: 'num',
-      showTooltip: true,
+      width: 80,
     },
     {
       title: 'bugManagement.bugName',
       editType: ColumnEditTypeEnum.INPUT,
-      dataIndex: 'name',
+      dataIndex: 'title',
       slotName: 'name',
       showTooltip: true,
     },
     {
       title: 'bugManagement.severity',
       slotName: 'severity',
-      width: 139,
+      width: 102,
       showDrag: true,
       dataIndex: 'severity',
     },
     {
       title: 'bugManagement.status',
-      dataIndex: 'status',
-      width: 139,
+      dataIndex: 'statusName',
+      width: 84,
       slotName: 'status',
       showDrag: true,
     },
@@ -246,17 +247,19 @@
       title: 'bugManagement.handleMan',
       dataIndex: 'handleUser',
       showTooltip: true,
+      width: 75,
       showDrag: true,
     },
     {
       title: 'bugManagement.numberOfCase',
       dataIndex: 'relationCaseCount',
       slotName: 'numberOfCase',
+      width: 80,
       showDrag: true,
     },
     {
       title: 'bugManagement.belongPlatform',
-      width: 180,
+      width: 135,
       showDrag: true,
       dataIndex: 'platform',
     },
@@ -264,34 +267,41 @@
       title: 'bugManagement.tag',
       showDrag: true,
       isStringTag: true,
+      width: 200,
       dataIndex: 'tag',
     },
     {
       title: 'bugManagement.creator',
       dataIndex: 'createUser',
+      width: 112,
+      showTooltip: true,
       showDrag: true,
     },
     {
       title: 'bugManagement.updateUser',
       dataIndex: 'updateUser',
+      width: 112,
+      showTooltip: true,
       showDrag: true,
     },
     {
       title: 'bugManagement.createTime',
       dataIndex: 'createTime',
       showDrag: true,
+      width: 199,
     },
     {
       title: 'bugManagement.updateTime',
       dataIndex: 'updateTime',
       showDrag: true,
+      width: 199,
     },
     {
       title: 'common.operation',
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 140,
+      width: 158,
     },
   ];
   await tableStore.initColumn(TableKeyEnum.BUG_MANAGEMENT, columns, 'drawer');
@@ -306,7 +316,7 @@
     }
   };
 
-  const { propsRes, propsEvent, setKeyword, setLoadListParams, setProps, resetSelector } = useTable(
+  const { propsRes, propsEvent, setKeyword, setLoadListParams, setProps, resetSelector, loadList } = useTable(
     getBugList,
     {
       tableKey: TableKeyEnum.BUG_MANAGEMENT,
@@ -314,7 +324,7 @@
       noDisable: false,
       showJumpMethod: true,
       showSetting: true,
-      scroll: { x: '1769px' },
+      scroll: { x: '1800px' },
     },
     undefined,
     (record) => handleNameChange(record)
@@ -338,66 +348,10 @@
     ],
   };
 
-  watchEffect(() => {
-    setProps({ heightUsed: heightUsed.value });
-  });
-
-  const data: BugListItem[] = [
-    {
-      id: '1',
-      deleted: false,
-      num: '1',
-      name: 'Bug 1',
-      severity: 'High',
-      status: 'Open',
-      handleUser: 'John Doe',
-      relationCaseCount: 3,
-      platform: 'Windows',
-      tag: ['Critical'],
-      createUser: 'Alice',
-      updateUser: 'Bob',
-      createTime: '2023-12-07T10:00:00Z',
-      updateTime: '2023-12-07T11:30:00Z',
-    },
-    {
-      id: '2',
-      deleted: false,
-      num: '2',
-      name: 'Bug 2',
-      severity: 'Medium',
-      status: 'In Progress',
-      handleUser: 'Jane Smith',
-      relationCaseCount: 1,
-      platform: 'Linux',
-      tag: ['Critical'],
-      createUser: 'Eve',
-      updateUser: 'Charlie',
-      createTime: '2023-12-06T09:15:00Z',
-      updateTime: '2023-12-06T15:45:00Z',
-    },
-    {
-      id: '3',
-      deleted: false,
-      num: '3',
-      name: 'Bug 3',
-      severity: 'Low',
-      status: 'Resolved',
-      handleUser: 'Alex Johnson',
-      relationCaseCount: 2,
-      platform: 'Mac',
-      tag: ['Critical'],
-      createUser: 'David',
-      updateUser: 'Frank',
-      createTime: '2023-12-05T14:20:00Z',
-      updateTime: '2023-12-06T10:10:00Z',
-    },
-    // Add more data as needed
-  ];
-
   const fetchData = async (v = '') => {
     setKeyword(v);
     keyword.value = v;
-    setProps({ data });
+    await loadList();
   };
 
   const exportConfirm = async (option: MsExportDrawerOption[]) => {
@@ -432,7 +386,7 @@
 
   const handleCreate = () => {
     router.push({
-      name: 'bugManagementBugEdit',
+      name: RouteEnum.BUG_MANAGEMENT_DETAIL,
     });
   };
   const handleSync = () => {
@@ -558,6 +512,10 @@
         break;
     }
   }
+
+  watchEffect(() => {
+    setProps({ heightUsed: heightUsed.value });
+  });
 
   onMounted(() => {
     setLoadListParams({ projectId: projectId.value });

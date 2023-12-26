@@ -45,6 +45,36 @@ export const pathMap: PathMapItem[] = [
     ],
   },
   {
+    key: 'BUG_MANAGEMENT', // 缺陷管理
+    locale: 'menu.bugManagement',
+    route: RouteEnum.BUG_MANAGEMENT,
+    permission: [],
+    level: MENU_LEVEL[2],
+    children: [
+      {
+        key: 'BUG_MANAGEMENT_BUG_INDEX', // 缺陷管理-缺陷首页
+        locale: 'menu.bugManagement.bugDetail',
+        route: RouteEnum.BUG_MANAGEMENT_INDEX,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+      {
+        key: 'BUG_MANAGEMENT_BUG_DETAIL', // 缺陷管理-缺陷详情
+        locale: 'menu.bugManagement.bugDetail',
+        route: RouteEnum.BUG_MANAGEMENT_DETAIL,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+      {
+        key: 'BUG_MANAGEMENT_BUG_recycle', // 缺陷管理-回收站
+        locale: 'menu.bugManagement.bugRecycle',
+        route: RouteEnum.BUG_MANAGEMENT_RECYCLE,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+    ],
+  },
+  {
     key: 'CASE_MANAGEMENT', // 功能测试
     locale: 'menu.caseManagement',
     route: RouteEnum.CASE_MANAGEMENT,

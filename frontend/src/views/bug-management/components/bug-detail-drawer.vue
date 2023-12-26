@@ -4,14 +4,14 @@
     v-model:visible="showDrawerVisible"
     :width="1200"
     :footer="false"
-    :title="t('caseManagement.featureCase.caseDetailTitle', { id: detailInfo?.id, name: detailInfo?.name })"
+    :title="t('bugManagement.detail.title', { id: detailInfo?.id, name: detailInfo?.title })"
     :detail-id="props.detailId"
     :detail-index="props.detailIndex"
-    :get-detail-func="getCaseDetail"
+    :get-detail-func="getBugDetail"
     :pagination="props.pagination"
     :table-data="props.tableData"
     :page-change="props.pageChange"
-    @loaded="loadedCase"
+    @loaded="loadedBug"
   >
     <template #titleRight="{ loading }">
       <div class="rightButtons flex items-center">
@@ -21,7 +21,7 @@
           class="mr-4 !rounded-[var(--border-radius-small)]"
           :disabled="loading"
           :loading="editLoading"
-          @click="updateHandler('edit')"
+          @click="updateHandler"
         >
           <MsIcon type="icon-icon_edit_outlined" class="mr-1 font-[16px]" />
           {{ t('common.edit') }}
@@ -59,7 +59,7 @@
               <span> {{ t('caseManagement.featureCase.more') }}</span>
             </div>
             <template #content>
-              <a-doption class="error-6 text-[rgb(var(--danger-6))]" @click="deleteHandler()">
+              <a-doption class="error-6 text-[rgb(var(--danger-6))]" @click="deleteHandler">
                 <MsIcon type="icon-icon_delete-trash_outlined" class="font-[16px] text-[rgb(var(--danger-6))]" />
                 {{ t('common.delete') }}
               </a-doption>
@@ -86,7 +86,7 @@
                     <BugCaseTab :detail-info="detailInfo" />
                   </a-tab-pane>
                   <a-tab-pane key="comment">
-                    <BugCommentTab :detail-info="detailInfo" />
+                    <MsComment />
                   </a-tab-pane>
                 </a-tabs>
               </div>
@@ -94,10 +94,10 @@
           </template>
           <template #second>
             <div class="rightWrapper p-[24px]">
-              <div class="mb-4 font-medium">{{ t('caseManagement.featureCase.basicInfo') }}</div>
+              <div class="mb-4 font-medium">{{ t('bugManagement.detail.basicInfo') }}</div>
               <div class="baseItem">
-                <span class="label"> {{ t('caseManagement.featureCase.tableColumnModule') }}</span>
-                <span>{{ moduleName }}</span>
+                <span class="label"> {{ t('bugManagement.detail.handleUser') }}</span>
+                <MsUserSelector v-model:model-value="detailInfo.handleUser" />
               </div>
               <!-- 自定义字段开始 -->
               <MsFormCreate
@@ -111,11 +111,15 @@
               />
               <!-- 自定义字段结束 -->
               <div class="baseItem">
-                <span class="label"> {{ t('caseManagement.featureCase.tableColumnCreateUser') }}</span>
+                <span class="label"> {{ t('bugManagement.detail.tag') }}</span>
+                <a-input-tag v-model:model-value="detailInfo.tag" />
+              </div>
+              <div class="baseItem">
+                <span class="label"> {{ t('bugManagement.detail.creator') }}</span>
                 <span>{{ detailInfo?.createUser }}</span>
               </div>
               <div class="baseItem">
-                <span class="label"> {{ t('caseManagement.featureCase.tableColumnCreateTime') }}</span>
+                <span class="label"> {{ t('bugManagement.detail.createTime') }}</span>
                 <span>{{ dayjs(detailInfo?.createTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
               </div>
             </div>
@@ -136,14 +140,16 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
   import type { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import type { MsPaginationI } from '@/components/pure/ms-table/type';
+  import MsComment from '@/components/business/ms-comment';
   import MsDetailDrawer from '@/components/business/ms-detail-drawer/index.vue';
+  import { MsUserSelector } from '@/components/business/ms-user-selector';
   import BugCaseTab from './bugCaseTab.vue';
-  import BugCommentTab from './bugCommentTab.vue';
   import BugDetailTab from './bugDetailTab.vue';
 
-  import { deleteCaseRequest, followerCaseRequest, getCaseDetail } from '@/api/modules/case-management/featureCase';
+  import { deleteSingleBug, followBug, getBugDetail } from '@/api/modules/bug-management/index';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore } from '@/store';
@@ -152,8 +158,7 @@
   import { characterLimit, findNodeByKey } from '@/utils';
 
   import type { CaseManagementTable, CustomAttributes, TabItemType } from '@/models/caseManagement/featureCase';
-  import { FormCreateKeyEnum } from '@/enums/formCreateEnum';
-  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
+  import { RouteEnum } from '@/enums/routeEnum';
 
   const router = useRouter();
   const detailDrawerRef = ref<InstanceType<typeof MsDetailDrawer>>();
@@ -192,7 +197,7 @@
   const detailInfo = ref<Record<string, any>>({});
   const customFields = ref<CustomAttributes[]>([]);
 
-  function loadedCase(detail: CaseManagementTable) {
+  function loadedBug(detail: CaseManagementTable) {
     detailInfo.value = { ...detail };
     customFields.value = detailInfo.value.customFields;
   }
@@ -208,14 +213,11 @@
     detailDrawerRef.value?.initDetail();
   }
 
-  function updateHandler(type: string) {
+  function updateHandler() {
     router.push({
-      name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
+      name: RouteEnum.BUG_MANAGEMENT_DETAIL,
       query: {
         id: detailInfo.value.id,
-      },
-      params: {
-        mode: type,
       },
     });
   }
@@ -223,7 +225,7 @@
   const shareLoading = ref<boolean>(false);
 
   function shareHandler() {
-    Message.info(t('caseManagement.featureCase.share'));
+    Message.info(t('bugManagement.detail.shareTip'));
   }
 
   const followLoading = ref<boolean>(false);
@@ -231,7 +233,7 @@
   async function followHandler() {
     followLoading.value = true;
     try {
-      await followerCaseRequest({ userId: userId.value as string, functionalCaseId: detailInfo.value.id });
+      await followBug(detailInfo.value.id, detailInfo.value.followFlag);
       updateSuccess();
       Message.success(
         detailInfo.value.followFlag
@@ -265,7 +267,7 @@
             deleteAll: false,
             projectId: currentProjectId.value,
           };
-          await deleteCaseRequest(params);
+          await deleteSingleBug(params);
           Message.success(t('common.deleteSuccess'));
           updateSuccess();
           detailDrawerRef.value?.openPrevDetail();
