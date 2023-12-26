@@ -176,6 +176,12 @@
             </include>
             )
         </if>
+        <if test="${condition}.moduleIds != null">
+            and test_plan.node_id
+            <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.condition">
+                <property name="object" value="${condition}.moduleIds"/>
+            </include>
+        </if>
     </sql>
 
     <sql id="queryWhereCondition">
