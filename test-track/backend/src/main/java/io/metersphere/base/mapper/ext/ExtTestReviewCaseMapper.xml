@@ -393,10 +393,10 @@
         order by `order` desc limit 1;
     </select>
     <select id="getStatusMapByReviewId" resultType="io.metersphere.dto.CountMapDTO">
-        select status as `key`, count(*) as `value`
-        from test_case_review_test_case
-        where review_id = #{reviewId} and is_del = 0
-        group by status
+        select tcrtc.status as `key`, count(*) as `value`
+        from test_case_review_test_case tcrtc join test_case tc on tcrtc.case_id = tc.id
+        where tcrtc.review_id = #{reviewId} and tcrtc.is_del = 0
+        group by tcrtc.status
     </select>
     <select id="projectIdsByPlanId" resultType="java.lang.String">
         select distinct project_id
