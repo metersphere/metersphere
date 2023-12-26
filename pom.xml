@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.0</version>
+        <version>3.2.1</version>
         <relativePath/>
     </parent>
 
@@ -69,10 +69,10 @@
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <jmeter-plugins-dubbo.version>2.7.17</jmeter-plugins-dubbo.version>
         <hessian-lite.version>3.2.13</hessian-lite.version>
-        <avro.version>1.11.1</avro.version>
+        <avro.version>1.11.3</avro.version>
         <dec.version>0.1.2</dec.version>
         <dingtalk-sdk.version>2.0.0</dingtalk-sdk.version>
-        <org-json.version>20230227</org-json.version>
+        <org-json.version>20231013</org-json.version>
         <jmeter-plugins-dubbo.version>2.7.17</jmeter-plugins-dubbo.version>
         <nacos.version>1.4.6</nacos.version>
         <minio.version>8.5.3</minio.version>
