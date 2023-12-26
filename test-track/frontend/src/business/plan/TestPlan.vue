@@ -119,6 +119,10 @@ export default {
 }
 
 .plan-aside .node-tree {
-  height: 100%;
+  height: calc(100vh - 125px)!important;
+}
+
+.plan-aside .ms-aside-node-tree {
+  height: 100%!important;
 }
 </style>
