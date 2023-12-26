@@ -16,6 +16,13 @@
     <description>provider</description>
     <properties>
     </properties>
+    <dependencies>
+        <dependency>
+            <groupId>io.metersphere</groupId>
+            <artifactId>metersphere-system-setting</artifactId>
+            <version>${revision}</version>
+        </dependency>
+    </dependencies>
 
 
 </project>
