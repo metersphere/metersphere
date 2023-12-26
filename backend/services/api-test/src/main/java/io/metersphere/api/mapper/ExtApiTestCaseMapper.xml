@@ -142,6 +142,26 @@
         </foreach>
     </select>
 
+    <select id="listByProviderRequest" resultType="io.metersphere.dto.ApiTestCaseProviderDTO">
+        SELECT
+        t1.id,
+        t1.project_id,
+        t1.name,
+        t1.priority,
+        t1.tags,
+        v.name as versionName
+        FROM
+        api_test_case t1
+        LEFT JOIN project_version v ON t1.version_id = v.id
+        INNER JOIN api_definition a ON t1.api_definition_id = a.id
+        WHERE t1.deleted =#{deleted}
+        and t1.id not in
+        (
+        select associate.${targetName} from ${table} associate  where  associate.${sourceName} = #{request.sourceId}
+        )
+        <include refid="queryWhereCondition"/>
+    </select>
+
     <sql id="queryWhereConditionByBatch">
         <if test="request.protocol != null and request.protocol!=''">
             and a.protocol = #{request.protocol}
