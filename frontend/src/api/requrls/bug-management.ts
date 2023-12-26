@@ -12,3 +12,5 @@ export const getSyncBugOpenSourceUrl = '/bug/sync/';
 export const postExportBugUrl = '/bug/export';
 export const postAssociatedFileListUrl = '/bug/relate/case/page';
 export const getBugDetailUrl = '/bug/detail/';
+export const getFollowBugUrl = '/bug/follow/';
+export const getUnFollowBugUrl = '/bug/unfollow/';

@@ -129,6 +129,7 @@
     :get-tree-request="getModules"
     :get-count-request="getModulesCount"
     :get-list-request="getAssociatedFileList"
+    :get-list-fun-params="getListFunParams"
     @save="saveSelectAssociatedFile"
   />
 </template>
@@ -144,7 +145,7 @@
   import FileList from '@/components/pure/ms-upload/fileList.vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
-  import RelateFileDrawer from './components/relateFile/relateFileDrawer.vue';
+  import RelateFileDrawer from '@/components/business/ms-link-file/associatedFileDrawer.vue';
 
   // import { MsUserSelector } from '@/components/business/ms-user-selector';
   // import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
@@ -161,7 +162,8 @@
   import { scrollIntoView } from '@/utils/dom';
 
   import { BugEditCustomField, BugEditCustomFieldItem, BugEditFormObject } from '@/models/bug-management';
-  import { AssociatedList } from '@/models/caseManagement/featureCase';
+  import { AssociatedList, AttachFileInfo } from '@/models/caseManagement/featureCase';
+  import { TableQueryParams } from '@/models/common';
   import { SelectValue } from '@/models/projectManagement/menuManagement';
   import { FormCreateKeyEnum } from '@/enums/formCreateEnum';
 
@@ -186,10 +188,16 @@
     templateId: '',
     tag: [],
   });
+
+  const getListFunParams = ref<TableQueryParams>({
+    combine: {
+      hiddenIds: [],
+    },
+  });
   const formRef = ref();
   const formCreateRef = ref();
 
-  const fileList = ref<FileItem[]>([]);
+  const fileList = ref<MsFileItem[]>([]);
   const formRules = ref<FormItem[]>([]);
   const formItem = ref<FormRuleItem[]>([]);
   const fApi = ref({});
@@ -201,6 +209,57 @@
 
   const title = computed(() => {
     return isEdit.value ? t('bugManagement.editBug') : t('bugManagement.createBug');
+  });
+
+  const attachmentsList = ref<AttachFileInfo[]>([]);
+
+  // 已经关联过的id列表
+  const associateFileIds = computed(() => {
+    return attachmentsList.value.filter((item: any) => !item.local).map((item: any) => item.id);
+  });
+
+  // 当前新增传过来的关联list
+  const currentAlreadyAssociateFileList = computed(() => {
+    return fileList.value
+      .filter((item) => !item.local && !associateFileIds.value.includes(item.uid))
+      .map((item: any) => item.uid);
+  });
+
+  // 后台已保存本地文件的item列表
+  const currentOldLocalFileList = computed(() => {
+    return fileList.value.filter((item) => item.local && item.status !== 'init').map((item: any) => item.uid);
+  });
+
+  // 后台传过来的local文件的item列表
+  const oldLocalFileList = computed(() => {
+    return attachmentsList.value.filter((item) => item.local).map((item: any) => item.uid);
+  });
+
+  // 删除本地上传的文件id
+  const deleteFileMetaIds = computed(() => {
+    return oldLocalFileList.value
+      .filter((item: any) => !currentOldLocalFileList.value.includes(item.id))
+      .map((item: any) => item.id);
+  });
+
+  // 新增关联文件ID列表
+  const newAssociateFileListIds = computed(() => {
+    return fileList.value
+      .filter((item: any) => !item.local && !associateFileIds.value.includes(item.uid))
+      .map((item: any) => item.uid);
+  });
+
+  // 取消关联文件id TODO
+  const unLinkFilesIds = computed(() => {
+    const deleteAssociateFileIds = fileList.value
+      .filter(
+        (item: any) =>
+          !currentAlreadyAssociateFileList.value.includes(item.uid) && associateFileIds.value.includes(item.uid)
+      )
+      .map((item) => item.uid);
+    return associateFileIds.value.filter(
+      (id: string) => !currentAlreadyAssociateFileList.value.includes(id) && !deleteAssociateFileIds.includes(id)
+    );
   });
 
   // 处理表单格式
@@ -368,6 +427,27 @@
   const initDefaultFields = () => {
     getTemplateOptions();
   };
+
+  // 处理关联文件和已关联文件本地文件和已上传文本文件
+  function getFilesParams() {
+    form.value.deleteFileMetaIds = deleteFileMetaIds.value;
+    form.value.unLinkFilesIds = unLinkFilesIds.value;
+    form.value.relateFileMetaIds = newAssociateFileListIds.value;
+  }
+
+  // 监视文件列表处理关联和本地文件
+  watch(
+    () => fileList.value,
+    (val) => {
+      if (val) {
+        getListFunParams.value.combine.hiddenIds = fileList.value.filter((item) => !item.local).map((item) => item.uid);
+        if (isEdit.value) {
+          getFilesParams();
+        }
+      }
+    },
+    { deep: true }
+  );
 
   onBeforeMount(() => {
     if (isEdit.value) {

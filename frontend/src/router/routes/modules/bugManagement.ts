@@ -18,7 +18,7 @@ const BugManagement: AppRouteRecordRaw = {
     // 缺陷管理-首页
     {
       path: 'index',
-      name: 'bugManagementIndex',
+      name: BugManagementRouteEnum.BUG_MANAGEMENT_INDEX,
       component: () => import('@/views/bug-management/index.vue'),
       meta: {
         locale: 'bugManagement.index',
@@ -29,18 +29,18 @@ const BugManagement: AppRouteRecordRaw = {
     // 缺陷管理-编辑缺陷
     {
       path: 'edit',
-      name: 'bugManagementBugEdit',
+      name: BugManagementRouteEnum.BUG_MANAGEMENT_DETAIL,
       component: () => import('@/views/bug-management/edit.vue'),
       meta: {
         locale: 'bugManagement.editBug',
         roles: ['*'],
         breadcrumbs: [
           {
-            name: 'bugManagementIndex',
+            name: BugManagementRouteEnum.BUG_MANAGEMENT_INDEX,
             locale: 'bugManagement.index',
           },
           {
-            name: 'bugManagementBugEdit',
+            name: BugManagementRouteEnum.BUG_MANAGEMENT_DETAIL,
             locale: 'bugManagement.editBug',
             editLocale: 'menu.settings.organization.templateFieldSetting',
           },
@@ -50,7 +50,7 @@ const BugManagement: AppRouteRecordRaw = {
     // 回收站
     {
       path: 'recycle',
-      name: 'bugManagementRecycle',
+      name: BugManagementRouteEnum.BUG_MANAGEMENT_RECYCLE,
       component: () => import('@/views/bug-management/recycle.vue'),
       meta: {
         locale: 'bugManagement.recycle',
