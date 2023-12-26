@@ -16,6 +16,24 @@
     <description>provider</description>
     <properties>
     </properties>
+    <dependencies>
+        <dependency>
+            <groupId>io.metersphere</groupId>
+            <artifactId>metersphere-domain</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.metersphere</groupId>
+            <artifactId>metersphere-sdk</artifactId>
+            <version>${revision}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations-jakarta</artifactId>
+            <version>${swagger.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
 
 </project>
