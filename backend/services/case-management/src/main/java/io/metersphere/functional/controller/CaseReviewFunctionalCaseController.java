@@ -5,10 +5,7 @@ import com.alibaba.excel.util.StringUtils;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.functional.dto.ReviewFunctionalCaseDTO;
-import io.metersphere.functional.request.BaseReviewCaseBatchRequest;
-import io.metersphere.functional.request.CaseReviewFunctionalCasePosRequest;
-import io.metersphere.functional.request.BatchReviewFunctionalCaseRequest;
-import io.metersphere.functional.request.ReviewFunctionalCasePageRequest;
+import io.metersphere.functional.request.*;
 import io.metersphere.functional.service.CaseReviewFunctionalCaseService;
 import io.metersphere.functional.service.CaseReviewLogService;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -81,6 +78,13 @@ public class CaseReviewFunctionalCaseController {
     @CheckOwner(resourceId = "#request.getReviewId()", resourceType = "case_review")
     public void batchReview(@Validated @RequestBody BatchReviewFunctionalCaseRequest request) {
         caseReviewFunctionalCaseService.batchReview(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/batch/edit/reviewers")
+    @Operation(summary = "用例管理-功能用例-评审列表-评审详情-列表-批量修改评审人")
+    @CheckOwner(resourceId = "#request.getReviewId()", resourceType = "case_review")
+    public void batchEditReviewUser(@Validated @RequestBody BatchEditReviewerRequest request) {
+        caseReviewFunctionalCaseService.batchEditReviewUser(request, SessionUtils.getUserId());
     }
 
 }

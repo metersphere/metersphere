@@ -33,4 +33,5 @@ public interface ExtCaseReviewMapper {
     long caseCount(@Param("request") CaseReviewPageRequest request);
 
 
+    String getReviewPassRule(@Param("id") String id);
 }

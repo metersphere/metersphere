@@ -39,5 +39,5 @@ public interface ExtCaseReviewFunctionalCaseMapper {
 
     List<CaseReviewFunctionalCase> getListExcludes(@Param("reviewIds")List<String> reviewIds, @Param("caseIds") List<String> caseIds, @Param("deleted") boolean deleted);
 
-
+    List<CaseReviewFunctionalCase> getCaseIdsByIds(@Param("ids") List<String> ids);
 }

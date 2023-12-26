@@ -51,7 +51,27 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
             case CaseEvent.Event.DELETE_TRASH_FUNCTIONAL_CASE -> updateCaseReviewByDeleteTrashFunctionalCase(paramMap);
             case CaseEvent.Event.RECOVER_FUNCTIONAL_CASE -> updateCaseReviewByRecoverFunctionalCase(paramMap);
             case CaseEvent.Event.REVIEW_FUNCTIONAL_CASE -> updateCaseReviewByReviewFunctionalCase(paramMap);
+            case CaseEvent.Event.BATCH_UPDATE_REVIEWER -> updateCaseReviewByBatchUpdateReviewer(paramMap);
             default -> LogUtils.info("CaseProvider: " + event);
+        }
+
+    }
+
+
+    /**
+     * 批量修改评审人 重新计算通过率和用例数
+     *
+     * @param paramMap paramMap
+     */
+    private void updateCaseReviewByBatchUpdateReviewer(Map<String, Object> paramMap) {
+        try {
+            String reviewId = paramMap.get(CaseEvent.Param.REVIEW_ID).toString();
+            int caseCount = Integer.parseInt(paramMap.get(CaseEvent.Param.CASE_COUNT).toString());
+            int passCount = Integer.parseInt(paramMap.get(CaseEvent.Param.PASS_COUNT).toString());
+            int unCompletedCaseCount = Integer.parseInt(paramMap.get(CaseEvent.Param.UN_COMPLETED_COUNT).toString());
+            updateCaseReview(reviewId, caseCount, passCount, unCompletedCaseCount, paramMap.get(CaseEvent.Param.USER_ID).toString());
+        } catch (Exception e) {
+            LogUtils.error(CaseEvent.Event.BATCH_UPDATE_REVIEWER + "事件更新失败", e.getMessage());
         }
 
     }

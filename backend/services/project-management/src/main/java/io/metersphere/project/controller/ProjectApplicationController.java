@@ -8,10 +8,10 @@ import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.ApplicationScope;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.ProjectApplicationType;
-import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.User;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.utils.SessionUtils;
@@ -39,6 +39,8 @@ public class ProjectApplicationController {
 
     @Resource
     private ProjectService projectService;
+
+    private static final String UNDERLINE = "_";
 
     /**
      * ==========测试计划==========
@@ -165,7 +167,7 @@ public class ProjectApplicationController {
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_CASE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateCaseLog(#application)", msClass = ProjectApplicationService.class)
     public void updateCase(@Validated({Updated.class}) @RequestBody ProjectApplication application) {
-        if (ProjectApplicationType.CASE_RELATED_CONFIG.CASE_ENABLE.name().equals(application.getType())) {
+        if ((ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + UNDERLINE + ProjectApplicationType.CASE_RELATED_CONFIG.CASE_ENABLE.name()).equals(application.getType())) {
             String projectDemandThirdPartConfig = projectApplicationService.getProjectDemandThirdPartConfig(application.getProjectId());
             if (StringUtils.isBlank(projectDemandThirdPartConfig)) {
                 throw new MSException(Translator.get("third_part_config_is_null"));
@@ -247,7 +249,7 @@ public class ProjectApplicationController {
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_BUG_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateBugLog(#application)", msClass = ProjectApplicationService.class)
     public void updateBug(@Validated({Updated.class}) @RequestBody ProjectApplication application) {
-        if (ProjectApplicationType.BUG_SYNC_CONFIG.SYNC_ENABLE.name().equals(application.getType())) {
+        if ((ProjectApplicationType.BUG.BUG_SYNC.name() + UNDERLINE + ProjectApplicationType.BUG_SYNC_CONFIG.SYNC_ENABLE.name()).equals(application.getType())) {
             String projectBugThirdPartConfig = projectApplicationService.getProjectBugThirdPartConfig(application.getProjectId());
             if (StringUtils.isBlank(projectBugThirdPartConfig)) {
                 throw new MSException(Translator.get("third_part_config_is_null"));

@@ -439,4 +439,7 @@
         1 = 1
     </select>
 
+    <select id="getReviewPassRule" resultType="java.lang.String">
+        select review_pass_rule from case_review where id = #{id}
+    </select>
 </mapper>

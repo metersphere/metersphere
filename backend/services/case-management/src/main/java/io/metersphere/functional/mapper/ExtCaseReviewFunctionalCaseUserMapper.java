@@ -10,4 +10,6 @@ import java.util.List;
  */
 public interface ExtCaseReviewFunctionalCaseUserMapper {
     List<ReviewsDTO> selectReviewers(@Param("ids") List<String> ids, @Param("reviewId") String reviewId);
+
+    void deleteByCaseIds(@Param("ids") List<String> ids, @Param("reviewId") String reviewId);
 }

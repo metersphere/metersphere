@@ -379,4 +379,10 @@
         order by `pos` desc limit 1;
     </select>
 
+    <select id="getCaseIdsByIds" resultType="io.metersphere.functional.domain.CaseReviewFunctionalCase">
+        select id, case_id as caseId, status from case_review_functional_case where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

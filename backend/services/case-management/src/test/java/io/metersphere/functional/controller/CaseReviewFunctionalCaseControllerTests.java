@@ -41,6 +41,7 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
     public static final String FUNCTIONAL_CASE_ADD_URL = "/functional/case/add";
 
     public static final String REVIEW_FUNCTIONAL_CASE_POS = "/case/review/detail/edit/pos";
+    public static final String BATCH_EDIT_REVIEWERS = "/case/review/detail/batch/edit/reviewers";
 
     public static final String REVIEW_FUNCTIONAL_CASE_BATCH_REVIEW = "/case/review/detail/batch/review";
 
@@ -205,25 +206,25 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         request.setReviewPassRule(CaseReviewPassRule.MULTIPLE.toString());
         request.setStatus(FunctionalCaseReviewStatus.UN_PASS.toString());
         request.setSelectAll(true);
-        List<String>excludeIds = new ArrayList<>();
+        List<String> excludeIds = new ArrayList<>();
         excludeIds.add("gyq_test_4");
         request.setExcludeIds(excludeIds);
         request.setContent("测试批量评审不通过");
         this.requestPostWithOk(REVIEW_FUNCTIONAL_CASE_BATCH_REVIEW, request);
         CaseReviewFunctionalCase caseReviewFunctionalCase = caseReviewFunctionalCaseMapper.selectByPrimaryKey("gyq_test_4");
-        Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCase.getStatus(),FunctionalCaseReviewStatus.UNDER_REVIEWED.toString()));
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCase.getStatus(), FunctionalCaseReviewStatus.UNDER_REVIEWED.toString()));
 
         request = new BatchReviewFunctionalCaseRequest();
         request.setReviewId("wx_review_id_1");
         request.setReviewPassRule(CaseReviewPassRule.SINGLE.toString());
         request.setStatus(FunctionalCaseReviewStatus.PASS.toString());
         request.setSelectAll(false);
-        List<String>ids = new ArrayList<>();
+        List<String> ids = new ArrayList<>();
         ids.add("gyq_test_3");
         request.setSelectIds(ids);
         this.requestPostWithOk(REVIEW_FUNCTIONAL_CASE_BATCH_REVIEW, request);
         caseReviewFunctionalCase = caseReviewFunctionalCaseMapper.selectByPrimaryKey("gyq_test_3");
-        Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCase.getStatus(),FunctionalCaseReviewStatus.PASS.toString()));
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCase.getStatus(), FunctionalCaseReviewStatus.PASS.toString()));
 
         request = new BatchReviewFunctionalCaseRequest();
         request.setReviewId("wx_review_id_1");
@@ -266,4 +267,36 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         return functionalCaseAddRequest;
     }
 
+
+    @Test
+    @Order(9)
+    public void testBatchEditReviewers() throws Exception {
+        BatchEditReviewerRequest request = new BatchEditReviewerRequest();
+        //更新评审人
+        request.setAppend(false);
+        request.setReviewerId(List.of("wx1"));
+        request.setReviewId("wx_review_id_1");
+        //增加覆盖率
+        this.requestPost(BATCH_EDIT_REVIEWERS, request);
+
+        //测试选中id进行更新  单人评审情况下
+        request.setSelectIds(List.of("wx_test_3", "wx_test_4"));
+        this.requestPostWithOkAndReturn(BATCH_EDIT_REVIEWERS, request);
+        //多人评审情况下
+        request.setReviewId("wx_review_id_3");
+        request.setSelectIds(List.of("wx_test_5", "wx_test_6"));
+        this.requestPostWithOkAndReturn(BATCH_EDIT_REVIEWERS, request);
+        //多人 更新不变
+        request.setReviewId("wx_review_id_4");
+        request.setReviewerId(List.of("admin"));
+        request.setSelectIds(List.of("wx_test_8", "wx_test_9", "wx_test_10"));
+        this.requestPostWithOkAndReturn(BATCH_EDIT_REVIEWERS, request);
+
+        //追加评审人
+        request.setAppend(true);
+        request.setReviewId("wx_review_id_4");
+        request.setReviewerId(List.of("wx11"));
+        request.setSelectIds(List.of("wx_test_10"));
+        this.requestPostWithOkAndReturn(BATCH_EDIT_REVIEWERS, request);
+    }
 }
