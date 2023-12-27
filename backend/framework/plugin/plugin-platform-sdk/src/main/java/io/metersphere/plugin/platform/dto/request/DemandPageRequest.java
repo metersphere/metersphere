@@ -2,6 +2,8 @@ package io.metersphere.plugin.platform.dto.request;
 
 import lombok.Data;
 
+import java.util.Map;
+
 @Data
 public class DemandPageRequest {
 
@@ -14,6 +16,11 @@ public class DemandPageRequest {
      * 需求分页查询关键字
      */
     private String query;
+
+    /**
+     * 筛选条件
+     */
+    private Map<String, Object> filter;
 
     /**
      * 开始页码

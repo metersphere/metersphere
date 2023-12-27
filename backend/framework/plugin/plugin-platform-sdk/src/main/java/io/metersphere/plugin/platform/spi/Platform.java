@@ -2,7 +2,7 @@ package io.metersphere.plugin.platform.spi;
 
 import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.plugin.platform.dto.SyncBugResult;
-import io.metersphere.plugin.platform.dto.reponse.DemandDTO;
+import io.metersphere.plugin.platform.dto.reponse.DemandRelatePageResponse;
 import io.metersphere.plugin.platform.dto.reponse.PlatformBugUpdateDTO;
 import io.metersphere.plugin.platform.dto.reponse.PlatformCustomFieldItemDTO;
 import io.metersphere.plugin.platform.dto.request.*;
@@ -70,19 +70,11 @@ public interface Platform extends ExtensionPoint {
     List<SelectOption> getStatusTransitions(String projectConfig, String issueKey);
 
     /**
-     * 获取第三方平台需求
+     * 获取第三方平台关联需求列表
      * @param request 需求分页查询参数
      * @return 需求分页数据
      */
-    PluginPager<List<DemandDTO>> pageDemand(DemandPageRequest request);
-
-    /**
-     * 获取第三方平台已关联的需求集合
-     * @param request 查询请求参数
-     * @return 需求数据集合
-     */
-    List<DemandDTO> getDemands(DemandRelateQueryRequest request);
-
+    PluginPager<DemandRelatePageResponse> pageDemand(DemandPageRequest request);
 
     /**
      * 新增平台缺陷
@@ -131,6 +123,8 @@ public interface Platform extends ExtensionPoint {
 
     /**
      * 同步全量缺陷
+     *
+     * @param request 同步缺陷参数
      */
     void syncAllBugs(SyncAllBugRequest request);
 
