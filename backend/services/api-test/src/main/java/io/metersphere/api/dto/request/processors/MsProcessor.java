@@ -14,7 +14,6 @@ import lombok.Data;
         @JsonSubTypes.Type(value = ScriptProcessor.class),
         @JsonSubTypes.Type(value = SQLProcessor.class),
         @JsonSubTypes.Type(value = TimeWaitingProcessor.class),
-        @JsonSubTypes.Type(value = CommonScriptProcessor.class),
         @JsonSubTypes.Type(value = ExtractPostProcessor.class),
 })
 public abstract class MsProcessor {

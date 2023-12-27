@@ -8,6 +8,17 @@ import lombok.Data;
  */
 @Data
 @JsonTypeName("X_PATH")
-public class XPathExtract extends MsExtract {
+public class XPathExtract extends ResultMatchingExtract {
     private String responseFormat;
+
+    public enum ResponseFormat {
+        /**
+         * XML
+         */
+        XML,
+        /**
+         * HTML
+         */
+        HTML
+    }
 }
