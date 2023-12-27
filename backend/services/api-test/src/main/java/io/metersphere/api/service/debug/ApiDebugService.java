@@ -179,7 +179,7 @@ public class ApiDebugService {
         runRequest.setTestId(id);
         runRequest.setReportId(id);
         runRequest.setResourceType(ApiResourceType.API_DEBUG.name());
-        runRequest.setRunMode(ApiExecuteRunMode.DEBUG.name());
+        runRequest.setRunMode(ApiExecuteRunMode.BACKEND_DEBUG.name());
 
         apiExecuteService.debug(runRequest);
 

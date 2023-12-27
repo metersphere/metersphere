@@ -2,6 +2,7 @@ package io.metersphere.sdk.constants;
 
 /**
  * 接口执行时的资源类型
+ *
  * @Author: jianxing
  * @CreateTime: 2023-12-08  10:53
  */
@@ -11,9 +12,14 @@ public enum ApiExecuteRunMode {
      */
     RUN,
     /**
-     * 调试
+     * 前端调试
      */
-    DEBUG,
+    FRONTEND_DEBUG,
+    /**
+     * 后端调试
+     */
+    BACKEND_DEBUG,
+
     /**
      * jenkins 触发
      */
