@@ -648,22 +648,22 @@ public class ApiDefinitionService {
         apiDefinitionFollowerMapper.deleteByPrimaryKey(apiId, userId);
     }
 
-    public void restore(ApiDefinitionDeleteRequest request, String userId) {
+    public void recover(ApiDefinitionDeleteRequest request, String userId) {
         // 恢复接口到接口列表
-        handleRestoreApiDefinition(Collections.singletonList(request.getId()), userId, request.getProjectId(), false);
+        handleRecoverApiDefinition(Collections.singletonList(request.getId()), userId, request.getProjectId(), false);
     }
-    public void handleRestoreApiDefinition(List<String> ids, String userId, String projectId, boolean isBatch){
+    public void handleRecoverApiDefinition(List<String> ids, String userId, String projectId, boolean isBatch){
         if (CollectionUtils.isNotEmpty(ids)) {
-            SubListUtils.dealForSubList(ids, 2000, subList -> doRestore(subList, userId, projectId, isBatch));
+            SubListUtils.dealForSubList(ids, 2000, subList -> doRecover(subList, userId, projectId, isBatch));
         }
     }
 
-    private void doRestore(List<String> apiIds, String userId, String projectId, boolean isBatch) {
+    private void doRecover(List<String> apiIds, String userId, String projectId, boolean isBatch) {
         // 记录恢复数据之前的原数据日志，单条通过注解记录日志
         if(isBatch){
-            apiDefinitionLogService.batchRestoreLog(apiIds, userId, projectId);
+            apiDefinitionLogService.batchRecoverLog(apiIds, userId, projectId);
         }
-        extApiDefinitionMapper.batchRestoreById(apiIds, userId, projectId);
+        extApiDefinitionMapper.batchRecoverById(apiIds, userId, projectId);
 
         List<String> updateApiIds = new ArrayList<>();
         apiIds.forEach(id -> {
@@ -723,10 +723,10 @@ public class ApiDefinitionService {
         handleTrashDelApiDefinition(Collections.singletonList(request.getId()), userId, request.getProjectId(), false);
     }
 
-    public void batchRestore(ApiDefinitionBatchRequest request, String userId) {
+    public void batchRecover(ApiDefinitionBatchRequest request, String userId) {
         List<String> ids = getBatchApiIds(request, request.getProjectId(), request.getProtocol(), true, userId);
         if (CollectionUtils.isNotEmpty(ids)) {
-            handleRestoreApiDefinition(ids, userId, request.getProjectId(), true);
+            handleRecoverApiDefinition(ids, userId, request.getProjectId(), true);
         }
     }
 

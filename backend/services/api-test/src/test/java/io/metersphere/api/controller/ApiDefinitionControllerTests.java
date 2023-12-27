@@ -58,8 +58,8 @@ public class ApiDefinitionControllerTests extends BaseTest {
     private final static String COPY = BASE_PATH + "copy";
     private final static String BATCH_MOVE = BASE_PATH + "batch-move";
 
-    private final static String RESTORE = BASE_PATH + "restore";
-    private final static String BATCH_RESTORE = BASE_PATH + "batch-restore";
+    private final static String RESTORE = BASE_PATH + "recover";
+    private final static String BATCH_RESTORE = BASE_PATH + "batch-recover";
 
     private final static String TRASH_DEL = BASE_PATH + "trash-del";
     private final static String BATCH_TRASH_DEL = BASE_PATH + "batch-trash-del";
@@ -361,6 +361,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // @@异常参数校验
         createdGroupParamValidateTest(ApiDefinitionUpdateRequest.class, UPDATE);
         // @@校验权限
+        request.setId(apiDefinition.getId());
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setName("permission-st-6");
         request.setModuleId("module-st-6");
@@ -695,7 +696,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
     private void configureFilterSearch(ApiDefinitionPageRequest request) {
         Map<String, List<String>> filters = new HashMap<>();
-        request.setSort(Map.of("updateTime", "asc"));
+        request.setSort(Map.of());
         filters.put("status", Arrays.asList("Underway", "Completed"));
         filters.put("method", List.of("GET"));
         filters.put("version_id", List.of("1005704995741369851"));
@@ -944,6 +945,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         apiDefinitionDeleteRequest.setDeleteAll(false);
         assertErrorCode(this.requestPost(DELETE, apiDefinitionDeleteRequest), ApiResultCode.API_DEFINITION_NOT_EXIST);
         // @@校验权限
+        apiDefinitionDeleteRequest.setId(apiDefinition.getId());
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_DELETE, DELETE, apiDefinitionDeleteRequest);
     }
 
@@ -983,8 +985,8 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
     @Test
     @Order(14)
-    public void testRestore() throws Exception {
-        LogUtils.info("restore api test");
+    public void testRecover() throws Exception {
+        LogUtils.info("recover api test");
         apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1001");
         // @恢复一条数据
         ApiDefinitionDeleteRequest apiDefinitionDeleteRequest = new ApiDefinitionDeleteRequest();
@@ -992,7 +994,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         apiDefinitionDeleteRequest.setProjectId(DEFAULT_PROJECT_ID);
         // @@请求成功
         this.requestPostWithOkAndReturn(RESTORE, apiDefinitionDeleteRequest);
-        checkLogModelList.add(new CheckLogModel(apiDefinition.getId(), OperationLogType.UPDATE, RESTORE));
+        checkLogModelList.add(new CheckLogModel(apiDefinition.getId(), OperationLogType.RECOVER, RESTORE));
         ApiDefinition apiDefinitionInfo = apiDefinitionMapper.selectByPrimaryKey(apiDefinition.getId());
         Assertions.assertFalse(apiDefinitionInfo.getDeleted());
         Assertions.assertNull(apiDefinitionInfo.getDeleteUser());
@@ -1022,13 +1024,14 @@ public class ApiDefinitionControllerTests extends BaseTest {
         assertErrorCode(this.requestPost(RESTORE, apiDefinitionDeleteRequest), ApiResultCode.API_DEFINITION_NOT_EXIST);
 
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_UPDATE, RESTORE, apiDefinitionDeleteRequest);
+        apiDefinitionDeleteRequest.setId(apiDefinition.getId());
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_RECOVER, RESTORE, apiDefinitionDeleteRequest);
     }
 
     @Test
     @Order(15)
-    public void testBatchRestore() throws Exception {
-        LogUtils.info("batch restore api test");
+    public void testBatchRecover() throws Exception {
+        LogUtils.info("batch recover api test");
         ApiDefinitionBatchRequest request = new ApiDefinitionBatchRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);
         // 恢复选中
@@ -1067,10 +1070,10 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // @@校验日志
         String[] ids = {"1002", "1004", "1006"};
         for (String id : ids) {
-            checkLogModelList.add(new CheckLogModel(id, OperationLogType.UPDATE, BATCH_RESTORE));
+            checkLogModelList.add(new CheckLogModel(id, OperationLogType.RECOVER, BATCH_RESTORE));
         }
         // @@校验权限
-        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_UPDATE, BATCH_RESTORE, request);
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_RECOVER, BATCH_RESTORE, request);
     }
 
     @Test

@@ -35,7 +35,7 @@ public interface ExtApiDefinitionMapper {
 
     void batchDeleteById(@Param("ids") List<String> ids, @Param("userId") String userId, @Param("projectId") String projectId);
 
-    void batchRestoreById(@Param("ids") List<String> ids, @Param("userId") String userId, @Param("projectId") String projectId);
+    void batchRecoverById(@Param("ids") List<String> ids, @Param("userId") String userId, @Param("projectId") String projectId);
 
     void clearLatestVersion(@Param("refId") String refId, @Param("projectId") String projectId);
 

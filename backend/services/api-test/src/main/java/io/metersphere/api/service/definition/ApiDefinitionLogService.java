@@ -188,7 +188,7 @@ public class ApiDefinitionLogService {
      * @param request
      * @return
      */
-    public LogDTO restoreLog(ApiDefinitionDeleteRequest request) {
+    public LogDTO recoverLog(ApiDefinitionDeleteRequest request) {
         ApiDefinitionDTO apiDefinition = getOriginalValue(request.getId());
         if(apiDefinition.getId() != null){
             LogDTO dto = new LogDTO(
@@ -196,11 +196,11 @@ public class ApiDefinitionLogService {
                     null,
                     request.getId(),
                     null,
-                    OperationLogType.UPDATE.name(),
+                    OperationLogType.RECOVER.name(),
                     OperationLogModule.API_DEFINITION,
                     apiDefinition.getName());
             dto.setHistory(true);
-            dto.setPath("/api/definition/restore");
+            dto.setPath("/api/definition/recover");
             dto.setMethod(HttpMethodConstants.POST.name());
             dto.setOriginalValue(JSON.toJSONBytes(apiDefinition));
             return dto;
@@ -215,8 +215,8 @@ public class ApiDefinitionLogService {
      *
      * @return
      */
-    public void batchRestoreLog(List<String> ids, String userId, String projectId) {
-        saveBatchLog(projectId, ids, "/api/definition/batch-restore", userId, OperationLogType.UPDATE.name(), true);
+    public void batchRecoverLog(List<String> ids, String userId, String projectId) {
+        saveBatchLog(projectId, ids, "/api/definition/batch-recover", userId, OperationLogType.RECOVER.name(), true);
     }
 
 
