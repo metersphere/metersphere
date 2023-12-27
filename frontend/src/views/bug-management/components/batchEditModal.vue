@@ -9,20 +9,28 @@
     <template #title>
       <div class="flex flex-row items-center">
         <div class="ml-[8px]">{{ t('bugManagement.batchEdit') }}</div>
-        <div v-if="props.selectCount" class="ml-[8px] text-[var(--color-text-4)]">
-          {{ t('bugManagement.selectedCount', { count: props.selectCount }) }}
+        <div v-if="selectCount" class="ml-[8px] text-[var(--color-text-4)]">
+          {{ t('bugManagement.selectedCount', { count: selectCount }) }}
         </div>
       </div>
     </template>
     <div class="form">
       <a-form ref="formRef" class="rounded-[4px]" :model="form" layout="vertical">
         <a-form-item
-          field="name"
+          field="attribute"
           asterisk-position="end"
-          :label="t('bugManagement.deleteLabel')"
+          :label="t('bugManagement.batchUpdate.attribute')"
           :rules="[{ required: true }]"
         >
-          <a-input v-model:model-value="form.label" />
+          <a-select v-model:model-value="form.attribute" :options="[]" />
+        </a-form-item>
+        <a-form-item
+          field="value"
+          asterisk-position="end"
+          :label="t('bugManagement.batchUpdate.update')"
+          :rules="[{ required: true }]"
+        >
+          <a-select v-model:model-value="form.value" :disabled="!form.attribute" :options="[]" />
         </a-form-item>
       </a-form>
     </div>
@@ -30,7 +38,7 @@
       <a-button type="secondary" :loading="loading" @click="handleCancel">
         {{ t('common.cancel') }}
       </a-button>
-      <a-button type="primary" :loading="loading" :disabled="!form.label" @click="handleConfirm">
+      <a-button type="primary" :loading="loading" @click="handleConfirm">
         {{ t('common.update') }}
       </a-button>
     </template>
@@ -41,23 +49,20 @@
   import { computed, reactive, ref } from 'vue';
   import { type FormInstance, Message, type ValidatedError } from '@arco-design/web-vue';
 
-  import { FilterFormItem } from '@/components/pure/ms-advance-filter/type';
+  import { BatchActionQueryParams } from '@/components/pure/ms-table/type';
 
   import { useI18n } from '@/hooks/useI18n';
 
   const { t } = useI18n();
   const props = defineProps<{
     visible: boolean;
-    configList: FilterFormItem[];
-    selectCount: number;
-    remoteFunc(params: Record<string, any>): Promise<any>; // 远程模式下的请求函数，返回一个 Promise
+    selectParam: BatchActionQueryParams;
   }>();
-
   const emit = defineEmits<{
     (e: 'submit'): void;
     (e: 'update:visible', value: boolean): void;
   }>();
-
+  const selectCount = computed(() => props.selectParam.currentSelectCount);
   const currentVisible = computed({
     get() {
       return props.visible;
@@ -69,8 +74,8 @@
   const loading = ref(false);
 
   const form = reactive({
-    label: '',
-    value: '',
+    attribute: '',
+    value: [],
     append: false,
   });
 
@@ -78,7 +83,6 @@
 
   const handleCancel = () => {
     currentVisible.value = false;
-    form.label = '';
     loading.value = false;
   };
 

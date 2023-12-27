@@ -27,9 +27,11 @@ export default {
     selectedCount: '(已选 {count} 条缺陷)',
     batchEdit: '批量编辑',
     selectProps: '选择属性',
-    batchUpdate: '批量更新为',
     exportBug: '导出缺陷',
     exportBugCount: '已选 {count} 条缺陷',
+    deleteCount: '确认删除 {count} 个缺陷吗？',
+    deleteTipInternal: '删除后，{count} 条 MeterSphere 创建的缺陷进入回收站',
+    deleteTipExternal: '{count} 条第三方平台同步的缺陷将不做回收',
     edit: {
       defaultSystemTemplate: '默认为系统模板',
       content: '缺陷内容',
@@ -63,18 +65,10 @@ export default {
       handleUser: '处理人',
       tag: '标签',
     },
-    severityO: {
-      fatal: '致命',
-      serious: '严重',
-      general: '一般',
-      reminder: '提醒',
-    },
-    statusO: {
-      create: '新建',
-      processing: '处理中',
-      resolved: '已解决',
-      closed: '已关闭',
-      refused: '已拒绝',
+    batchUpdate: {
+      attribute: '选择属性',
+      update: '批量更新为',
+      updatePlaceholder: '请选择更新后的选项',
     },
   },
 };
