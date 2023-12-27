@@ -17,12 +17,6 @@ import java.util.Objects;
 public class ParserTests {
 
     @Test
-    @Order(1)
-    public void testImportParserSwagger() throws Exception {
-        Objects.requireNonNull(ImportParserFactory.getImportParser(ApiImportPlatform.Swagger3.name())).parse(null, null);
-    }
-
-    @Test
     @Order(2)
     public void testImportParserPostman() throws Exception {
         Objects.requireNonNull(ImportParserFactory.getImportParser(ApiImportPlatform.Postman.name())).parse(null, null);

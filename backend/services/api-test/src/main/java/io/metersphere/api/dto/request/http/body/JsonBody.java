@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.request.http.body;
 
+import io.metersphere.api.dto.schema.JsonSchemaItem;
 import lombok.Data;
 
 /**
@@ -20,5 +21,9 @@ public class JsonBody {
      * 启用 json-schema 时的参数对象
      * todo json-schema 编辑器待调研，暂时使用 Object 类型
      */
-    private Object jsonSchema;
+    private JsonSchemaItem jsonSchema;
+    /**
+     * 是否开启转换
+     */
+    private Boolean enable = false;
 }

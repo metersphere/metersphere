@@ -4,6 +4,8 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.definition.importdto.ApiDefinitionImport;
+import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.service.definition.ApiDefinitionLogService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -73,6 +75,7 @@ public class ApiDefinitionController {
     public void delete(@Validated @RequestBody ApiDefinitionDeleteRequest request) {
         apiDefinitionService.delete(request, SessionUtils.getUserId());
     }
+
     @PostMapping(value = "/batch-del")
     @Operation(summary = "接口测试-接口管理-批量删除接口定义到回收站")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DELETE)
@@ -141,6 +144,7 @@ public class ApiDefinitionController {
     public void recover(@Validated @RequestBody ApiDefinitionDeleteRequest request) {
         apiDefinitionService.recover(request, SessionUtils.getUserId());
     }
+
     @PostMapping(value = "/trash-del")
     @Operation(summary = "接口测试-接口管理-删除回收站接口定义")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DELETE)
@@ -149,6 +153,7 @@ public class ApiDefinitionController {
     public void trashDel(@Validated @RequestBody ApiDefinitionDeleteRequest request) {
         apiDefinitionService.trashDel(request, SessionUtils.getUserId());
     }
+
     @PostMapping(value = "/batch-recover")
     @Operation(summary = "接口测试-接口管理-批量从回收站恢复接口定义")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_RECOVER)
@@ -188,6 +193,13 @@ public class ApiDefinitionController {
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public ApiDefinitionDocDTO getDocInfo(@Validated @RequestBody ApiDefinitionDocRequest request) {
         return apiDefinitionService.getDocInfo(request);
+    }
+
+    @PostMapping(value = "/import", consumes = {"multipart/form-data"})
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_IMPORT)
+    @Operation(summary = "接口测试-接口管理-导入接口定义")
+    public ApiDefinitionImport testCaseImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request") ImportRequest request) {
+        return apiDefinitionService.apiTestImport(file, request);
     }
 
 }

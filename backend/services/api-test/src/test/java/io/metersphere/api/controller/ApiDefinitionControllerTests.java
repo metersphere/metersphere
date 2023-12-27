@@ -5,6 +5,7 @@ import io.metersphere.api.constants.ApiDefinitionStatus;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.model.CheckLogModel;
@@ -18,6 +19,7 @@ import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileCenter;
 import io.metersphere.sdk.file.FileRequest;
@@ -34,17 +36,30 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
 public class ApiDefinitionControllerTests extends BaseTest {
@@ -226,7 +241,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         BeanUtils.copyBean(copyApiDefinition, request);
         Assertions.assertEquals(apiDefinition, copyApiDefinition);
         ApiDataUtils.setResolver(MsHTTPElement.class);
-        if(apiDefinitionBlob != null){
+        if (apiDefinitionBlob != null) {
             Assertions.assertEquals(msHttpElement, ApiDataUtils.parseObject(new String(apiDefinitionBlob.getRequest()), AbstractMsTestElement.class));
         }
         return apiDefinition;
@@ -236,7 +251,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
     @Order(2)
     @Sql(scripts = {"/dml/init_api_definition.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void get() throws Exception {
-        if(apiDefinition == null){
+        if (apiDefinition == null) {
             apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1001");
         }
         // @@请求成功
@@ -252,11 +267,11 @@ public class ApiDefinitionControllerTests extends BaseTest {
         copyApiDefinitionDTO.setFollow(CollectionUtils.isNotEmpty(followers));
 
         List<ApiDefinitionCustomFieldDTO> customFields = extApiDefinitionCustomFieldMapper.getApiCustomFields(Collections.singletonList(apiDefinition.getId()), apiDefinition.getProjectId());
-        if(!customFields.isEmpty()) {
+        if (!customFields.isEmpty()) {
             Map<String, List<ApiDefinitionCustomFieldDTO>> customFieldMap = customFields.stream().collect(Collectors.groupingBy(ApiDefinitionCustomFieldDTO::getApiId));
             copyApiDefinitionDTO.setCustomFields(customFieldMap.get(apiDefinition.getId()));
         }
-        if(apiDefinitionBlob != null){
+        if (apiDefinitionBlob != null) {
             copyApiDefinitionDTO.setRequest(ApiDataUtils.parseObject(new String(apiDefinitionBlob.getRequest()), AbstractMsTestElement.class));
             copyApiDefinitionDTO.setResponse(ApiDataUtils.parseArray(new String(apiDefinitionBlob.getResponse()), HttpResponse.class));
         }
@@ -273,7 +288,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
     @Sql(scripts = {"/dml/init_api_definition.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void testUpdate() throws Exception {
         LogUtils.info("update api test");
-        if(apiDefinition == null){
+        if (apiDefinition == null) {
             apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1001");
         }
         ApiDefinitionUpdateRequest request = new ApiDefinitionUpdateRequest();
@@ -382,6 +397,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
     /**
      * 校验上传的文件
+     *
      * @param id
      * @param fileIds 全部的文件ID
      */
@@ -411,6 +427,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
     /**
      * 校验上传的文件
+     *
      * @param id
      * @param fileIds 全部的文件ID
      */
@@ -430,25 +447,25 @@ public class ApiDefinitionControllerTests extends BaseTest {
         LogUtils.info("batch update api test");
         ApiDefinitionBatchUpdateRequest apiDefinitionBatchUpdateRequest = new ApiDefinitionBatchUpdateRequest();
         apiDefinitionBatchUpdateRequest.setProjectId(DEFAULT_PROJECT_ID);
-        apiDefinitionBatchUpdateRequest.setSelectIds(List.of("1001","1002","1005"));
+        apiDefinitionBatchUpdateRequest.setSelectIds(List.of("1001", "1002", "1005"));
         apiDefinitionBatchUpdateRequest.setExcludeIds(List.of("1005"));
         apiDefinitionBatchUpdateRequest.setSelectAll(false);
         apiDefinitionBatchUpdateRequest.setType("tags");
         // 修改标签，追加
-        apiDefinitionBatchUpdateRequest.setSelectIds(List.of("1001","1002"));
-        apiDefinitionBatchUpdateRequest.setTags(new LinkedHashSet<>(List.of("tag-append","tag-append1")));
+        apiDefinitionBatchUpdateRequest.setSelectIds(List.of("1001", "1002"));
+        apiDefinitionBatchUpdateRequest.setTags(new LinkedHashSet<>(List.of("tag-append", "tag-append1")));
         apiDefinitionBatchUpdateRequest.setAppend(true);
         this.requestPostWithOk(BATCH_UPDATE, apiDefinitionBatchUpdateRequest);
-        assertBatchUpdateApiDefinition(apiDefinitionBatchUpdateRequest, List.of("1001","1002"));
+        assertBatchUpdateApiDefinition(apiDefinitionBatchUpdateRequest, List.of("1001", "1002"));
         // 修改标签，覆盖
-        apiDefinitionBatchUpdateRequest.setSelectIds(List.of("1003","1004"));
-        apiDefinitionBatchUpdateRequest.setTags(new LinkedHashSet<>(List.of("tag-append","tag-append1")));
+        apiDefinitionBatchUpdateRequest.setSelectIds(List.of("1003", "1004"));
+        apiDefinitionBatchUpdateRequest.setTags(new LinkedHashSet<>(List.of("tag-append", "tag-append1")));
         apiDefinitionBatchUpdateRequest.setAppend(false);
         this.requestPostWithOk(BATCH_UPDATE, apiDefinitionBatchUpdateRequest);
-        assertBatchUpdateApiDefinition(apiDefinitionBatchUpdateRequest, List.of("1003","1004"));
+        assertBatchUpdateApiDefinition(apiDefinitionBatchUpdateRequest, List.of("1003", "1004"));
         // 自定义字段追加
         apiDefinitionBatchUpdateRequest.setType("customs");
-        apiDefinitionBatchUpdateRequest.setSelectIds(List.of("1002","1003","1004"));
+        apiDefinitionBatchUpdateRequest.setSelectIds(List.of("1002", "1003", "1004"));
         ApiDefinitionCustomFieldDTO field = new ApiDefinitionCustomFieldDTO();
         field.setId("test_field");
         field.setValue(JSON.toJSONString(List.of("test1-batch")));
@@ -500,16 +517,16 @@ public class ApiDefinitionControllerTests extends BaseTest {
         apiDefinitionExample.createCriteria().andIdIn(ids);
         List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(apiDefinitionExample);
         apiDefinitions.forEach(item -> {
-            if(request.getStatus() != null){
+            if (request.getStatus() != null) {
                 Assertions.assertEquals(item.getStatus(), request.getStatus());
             }
-            if(request.getMethod() != null){
+            if (request.getMethod() != null) {
                 Assertions.assertEquals(item.getMethod(), request.getMethod());
             }
-            if(request.getVersionId() != null) {
+            if (request.getVersionId() != null) {
                 Assertions.assertEquals(item.getVersionId(), request.getVersionId());
             }
-            if(request.getTags() != null) {
+            if (request.getTags() != null) {
                 if (request.isAppend()) {
                     Assertions.assertTrue(JSON.parseArray(item.getTags(), String.class).containsAll(request.getTags()));
                 } else {
@@ -530,7 +547,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // @数据验证
         List<ApiFileResource> sourceFiles = apiFileResourceService.getByResourceId(apiDefinition.getId());
         List<ApiFileResource> copyFiles = apiFileResourceService.getByResourceId(resultData.getId());
-        if(!sourceFiles.isEmpty() && !copyFiles.isEmpty()){
+        if (!sourceFiles.isEmpty() && !copyFiles.isEmpty()) {
             Assertions.assertEquals(sourceFiles.size(), copyFiles.size());
         }
         Assertions.assertTrue(resultData.getName().contains("copy_"));
@@ -558,7 +575,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setProjectId(DEFAULT_PROJECT_ID);
 
         // 移动选中
-        request.setSelectIds(List.of("1001","1002","1005"));
+        request.setSelectIds(List.of("1001", "1002", "1005"));
         request.setExcludeIds(List.of("1005"));
         request.setDeleteAll(false);
         request.setSelectAll(false);
@@ -655,7 +672,8 @@ public class ApiDefinitionControllerTests extends BaseTest {
             case "FILTER" -> configureFilterSearch(request);
             case "COMBINE" -> configureCombineSearch(request);
             case "DELETED" -> configureDeleteSearch(request);
-            default -> {}
+            default -> {
+            }
         }
 
         MvcResult mvcResult = this.requestPostWithOkAndReturn(url, request);
@@ -714,7 +732,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         custom.put("id", "test_field");
         custom.put("operator", "in");
         custom.put("type", "multipleSelect");
-        custom.put("value",  JSON.toJSONString(List.of("test", "default")));
+        custom.put("value", JSON.toJSONString(List.of("test", "default")));
         customs.add(custom);
         Map<String, Object> currentUserCustom = new HashMap<>();
         currentUserCustom.put("id", "test_field");
@@ -759,7 +777,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         ApiDefinitionDocDTO copyApiDefinitionDocDTO = new ApiDefinitionDocDTO();
         ApiDefinitionDTO copyApiDefinitionDTO = BeanUtils.copyBean(new ApiDefinitionDTO(), apiDefinition);
         ApiDefinitionBlob apiDefinitionBlob = apiDefinitionBlobMapper.selectByPrimaryKey(apiDefinition.getId());
-        if(apiDefinitionBlob != null){
+        if (apiDefinitionBlob != null) {
             copyApiDefinitionDTO.setRequest(ApiDataUtils.parseObject(new String(apiDefinitionBlob.getRequest()), AbstractMsTestElement.class));
             copyApiDefinitionDTO.setResponse(ApiDataUtils.parseArray(new String(apiDefinitionBlob.getResponse()), HttpResponse.class));
         }
@@ -784,10 +802,10 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // 校验数据是否正确
         ApiDefinitionDocDTO copyModuleApiDefinitionDocDTO = new ApiDefinitionDocDTO();
         List<ApiDefinitionDTO> list = extApiDefinitionMapper.listDoc(request);
-        if(null != list){
+        if (null != list) {
             ApiDefinitionDTO first = list.stream().findFirst().orElseThrow(() -> new MSException(ApiResultCode.API_DEFINITION_NOT_EXIST));
             ApiDefinitionBlob moduleApiDefinitionBlob = apiDefinitionBlobMapper.selectByPrimaryKey(first.getId());
-            if(moduleApiDefinitionBlob != null){
+            if (moduleApiDefinitionBlob != null) {
                 first.setRequest(ApiDataUtils.parseObject(new String(moduleApiDefinitionBlob.getRequest()), AbstractMsTestElement.class));
                 first.setResponse(ApiDataUtils.parseArray(new String(moduleApiDefinitionBlob.getResponse()), HttpResponse.class));
             }
@@ -816,14 +834,14 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // 校验数据是否正确
         ApiDefinitionDocDTO copyAllApiDefinitionDocDTO = new ApiDefinitionDocDTO();
         List<ApiDefinitionDTO> allList = extApiDefinitionMapper.listDoc(request);
-        if(null != allList){
+        if (null != allList) {
             ApiDefinitionDTO info = allList.stream().findFirst().orElseThrow(() -> new MSException(ApiResultCode.API_DEFINITION_NOT_EXIST));
             ApiDefinitionBlob allApiDefinitionBlob = apiDefinitionBlobMapper.selectByPrimaryKey(info.getId());
-            if(allApiDefinitionBlob != null){
+            if (allApiDefinitionBlob != null) {
                 info.setRequest(ApiDataUtils.parseObject(new String(allApiDefinitionBlob.getRequest()), AbstractMsTestElement.class));
                 info.setResponse(ApiDataUtils.parseArray(new String(allApiDefinitionBlob.getResponse()), HttpResponse.class));
             }
-            if(StringUtils.isBlank(copyAllApiDefinitionDocDTO.getDocTitle())){
+            if (StringUtils.isBlank(copyAllApiDefinitionDocDTO.getDocTitle())) {
                 copyAllApiDefinitionDocDTO.setDocTitle(Translator.get(ALL_API));
             }
             copyAllApiDefinitionDocDTO.setType(ApiDefinitionDocType.ALL.name());
@@ -853,10 +871,10 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // 校验数据是否正确
         ApiDefinitionDocDTO copyModuleApiDefinitionDocDTO = new ApiDefinitionDocDTO();
         List<ApiDefinitionDTO> list = extApiDefinitionMapper.listDoc(request);
-        if(null != list){
+        if (null != list) {
             ApiDefinitionDTO first = list.stream().findFirst().orElseThrow(() -> new MSException(ApiResultCode.API_DEFINITION_NOT_EXIST));
             ApiDefinitionBlob moduleApiDefinitionBlob = apiDefinitionBlobMapper.selectByPrimaryKey(first.getId());
-            if(moduleApiDefinitionBlob != null){
+            if (moduleApiDefinitionBlob != null) {
                 first.setRequest(ApiDataUtils.parseObject(new String(moduleApiDefinitionBlob.getRequest()), AbstractMsTestElement.class));
                 first.setResponse(ApiDataUtils.parseArray(new String(moduleApiDefinitionBlob.getResponse()), HttpResponse.class));
             }
@@ -900,23 +918,23 @@ public class ApiDefinitionControllerTests extends BaseTest {
         ApiDefinition delApiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiDefinitionDeleteRequest.getId());
         MvcResult mvcResult = this.requestGetWithOk(VERSION + apiDefinitionDeleteRequest.getId()).andReturn();
         ApiDataUtils.setResolver(MsHTTPElement.class);
-        List<ApiDefinitionVersionDTO> apiDefinitionVersionDTO =  getResultDataArray(mvcResult, ApiDefinitionVersionDTO.class);
-        if(!apiDefinitionVersionDTO.isEmpty()){
+        List<ApiDefinitionVersionDTO> apiDefinitionVersionDTO = getResultDataArray(mvcResult, ApiDefinitionVersionDTO.class);
+        if (!apiDefinitionVersionDTO.isEmpty()) {
             this.requestPostWithOkAndReturn(DELETE, apiDefinitionDeleteRequest);
             // 效验数据
             // 删除的数据为最新版本需要更新最近一条数据为最新数据
-            if(delApiDefinition.getLatest()){
+            if (delApiDefinition.getLatest()) {
                 ApiDefinitionExample example = new ApiDefinitionExample();
                 example.createCriteria().andRefIdEqualTo(delApiDefinition.getRefId()).andDeletedEqualTo(false).andProjectIdEqualTo(delApiDefinition.getProjectId());
                 example.setOrderByClause("update_time DESC");
                 ApiDefinition updateApiDefinition = apiDefinitionMapper.selectByExample(example).stream().findFirst().orElse(null);
-                if(updateApiDefinition != null) {
+                if (updateApiDefinition != null) {
                     Assertions.assertTrue(updateApiDefinition.getLatest());
                     Assertions.assertFalse(updateApiDefinition.getDeleted());
                 }
             }
             ApiDefinition delApiDefinitionInfo = apiDefinitionMapper.selectByPrimaryKey(apiDefinitionDeleteRequest.getId());
-            if(delApiDefinitionInfo != null){
+            if (delApiDefinitionInfo != null) {
                 Assertions.assertTrue(delApiDefinitionInfo.getDeleted());
                 Assertions.assertEquals("admin", delApiDefinitionInfo.getDeleteUser());
                 Assertions.assertNotNull(delApiDefinitionInfo.getDeleteTime());
@@ -933,7 +951,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
         apiDefinitionExample.createCriteria().andIdIn(ids);
         List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(apiDefinitionExample);
-        if(CollectionUtils.isNotEmpty(apiDefinitions)){
+        if (CollectionUtils.isNotEmpty(apiDefinitions)) {
             apiDefinitions.forEach(item -> {
                 Assertions.assertTrue(item.getDeleted());
                 Assertions.assertEquals("admin", item.getDeleteUser());
@@ -1002,16 +1020,16 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
         // @查询恢复的数据版本是否为默认版本
         String defaultVersion = extBaseProjectVersionMapper.getDefaultVersion(apiDefinition.getProjectId());
-        if(defaultVersion.equals(apiDefinition.getVersionId())){
+        if (defaultVersion.equals(apiDefinition.getVersionId())) {
             // 需要处理此数据为最新标识
             // 此数据不为最新版本，验证是否更新为最新版本
-            if(!apiDefinition.getLatest()){
+            if (!apiDefinition.getLatest()) {
                 Assertions.assertTrue(apiDefinitionInfo.getLatest());
             }
         }
         // 效验 关联数据
         List<ApiTestCase> caseLists = extApiTestCaseMapper.getCaseInfoByApiIds(Collections.singletonList(apiDefinition.getId()), false);
-        if(!caseLists.isEmpty()) {
+        if (!caseLists.isEmpty()) {
             caseLists.forEach(item -> {
                 Assertions.assertNull(item.getDeleteUser());
                 Assertions.assertNull(item.getDeleteTime());
@@ -1035,7 +1053,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         ApiDefinitionBatchRequest request = new ApiDefinitionBatchRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);
         // 恢复选中
-        request.setSelectIds(List.of("1002","1004","1005"));
+        request.setSelectIds(List.of("1002", "1004", "1005"));
         request.setExcludeIds(List.of("1005"));
         request.setSelectAll(false);
         this.requestPostWithOk(BATCH_RESTORE, request);
@@ -1044,14 +1062,14 @@ public class ApiDefinitionControllerTests extends BaseTest {
         ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
         apiDefinitionExample.createCriteria().andIdIn(request.getSelectIds());
         List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(apiDefinitionExample);
-        if(!apiDefinitions.isEmpty()){
+        if (!apiDefinitions.isEmpty()) {
             apiDefinitions.forEach(item -> {
                 Assertions.assertFalse(item.getDeleted());
                 Assertions.assertNull(item.getDeleteUser());
                 Assertions.assertNull(item.getDeleteTime());
                 // 效验 关联数据
                 List<ApiTestCase> caseLists = extApiTestCaseMapper.getCaseInfoByApiIds(Collections.singletonList(item.getId()), false);
-                if(!caseLists.isEmpty()) {
+                if (!caseLists.isEmpty()) {
                     caseLists.forEach(test -> {
                         Assertions.assertNull(test.getDeleteUser());
                         Assertions.assertNull(test.getDeleteTime());
@@ -1081,7 +1099,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
     public void testTrashDel() throws Exception {
         LogUtils.info("trashDel api test");
         apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1001");
-        if(!apiDefinition.getDeleted()){
+        if (!apiDefinition.getDeleted()) {
             ApiDefinitionDeleteRequest apiDefinitionDeleteRequest = new ApiDefinitionDeleteRequest();
             apiDefinitionDeleteRequest.setId(apiDefinition.getId());
             apiDefinitionDeleteRequest.setProjectId(DEFAULT_PROJECT_ID);
@@ -1146,7 +1164,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
         // @@校验日志
         apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1006");
-        if(!apiDefinition.getDeleted()){
+        if (!apiDefinition.getDeleted()) {
             ApiDefinitionDeleteRequest apiDefinitionDeleteRequest = new ApiDefinitionDeleteRequest();
             apiDefinitionDeleteRequest.setId(apiDefinition.getId());
             apiDefinitionDeleteRequest.setProjectId(DEFAULT_PROJECT_ID);
@@ -1188,5 +1206,123 @@ public class ApiDefinitionControllerTests extends BaseTest {
         }
     }
 
+    @Test
+    @Order(102)
+    public void testImport() throws Exception {
+        LogUtils.info("import api test");
+        ApiDefinitionModule apiDefinitionModule = new ApiDefinitionModule();
+        apiDefinitionModule.setId("test-import");
+        apiDefinitionModule.setName("test-import");
+        apiDefinitionModule.setProjectId(DEFAULT_PROJECT_ID);
+        apiDefinitionModule.setCreateUser("admin");
+        apiDefinitionModule.setUpdateUser("admin");
+        apiDefinitionModule.setPos(1L);
+        apiDefinitionModule.setCreateTime(System.currentTimeMillis());
+        apiDefinitionModule.setUpdateTime(System.currentTimeMillis());
+        apiDefinitionModuleMapper.insertSelective(apiDefinitionModule);
+        ImportRequest request = new ImportRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setPlatform("Swagger3");
+        request.setCoverData(true);
+        request.setCoverModule(true);
+        request.setModuleId(apiDefinitionModule.getId());
+        request.setProtocol("HTTP");
+        request.setUserId("admin");
+        MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        FileInputStream inputStream = new FileInputStream(new File(
+                this.getClass().getClassLoader().getResource("file/openapi.json")
+                        .getPath()));
+
+        MockMultipartFile file = new MockMultipartFile("file", "openapi.json", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+        paramMap.add("file", file);
+        this.requestMultipartWithOkAndReturn("/api/definition/import", paramMap);
+        request.setCoverModule(false);
+        request.setCoverData(false);
+        this.requestMultipartWithOkAndReturn("/api/definition/import", paramMap);
+        paramMap.clear();
+        inputStream = new FileInputStream(new File(
+                this.getClass().getClassLoader().getResource("file/openapi1.json")
+                        .getPath()));
+        file = new MockMultipartFile("file", "openapi1.json", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+        paramMap.add("file", file);
+        request.setCoverModule(true);
+        request.setCoverData(true);
+        paramMap.add("request", JSON.toJSONString(request));
+        this.requestMultipartWithOkAndReturn("/api/definition/import", paramMap);
+        paramMap.clear();
+        inputStream = new FileInputStream(new File(
+                this.getClass().getClassLoader().getResource("file/openapi2.json")
+                        .getPath()));
+        file = new MockMultipartFile("file", "openapi2.json", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+        paramMap.add("file", file);
+        request.setCoverModule(false);
+        request.setCoverData(false);
+        paramMap.add("request", JSON.toJSONString(request));
+        this.requestMultipart("/api/definition/import", paramMap, status().is5xxServerError());
+
+        paramMap.clear();
+        inputStream = new FileInputStream(new File(
+                this.getClass().getClassLoader().getResource("file/openapi3.json")
+                        .getPath()));
+        file = new MockMultipartFile("file", "openapi3.json", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+        paramMap.add("file", file);
+        request.setCoverModule(false);
+        request.setCoverData(false);
+        paramMap.add("request", JSON.toJSONString(request));
+        this.requestMultipartWithOkAndReturn("/api/definition/import", paramMap);
+        paramMap.clear();
+
+        paramMap.add("file", file);
+        request.setCoverModule(false);
+        request.setCoverData(false);
+        request.setSwaggerUrl("http://localhost:8080/v2/api-docs");
+        paramMap.add("request", JSON.toJSONString(request));
+        this.requestMultipart("/api/definition/import", paramMap, status().is5xxServerError());
+
+    }
+
+    protected MvcResult requestMultipart(String url, MultiValueMap<String, Object> paramMap, ResultMatcher resultMatcher) throws Exception {
+        MockMultipartHttpServletRequestBuilder requestBuilder = getMultipartRequestBuilderWithParam(url, paramMap);
+        MockHttpServletRequestBuilder header = requestBuilder
+                .header(SessionConstants.HEADER_TOKEN, sessionId)
+                .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                .header(HttpHeaders.ACCEPT_LANGUAGE, "zh-CN");
+        return mockMvc.perform(header)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(resultMatcher).andReturn();
+    }
+
+    private MockMultipartHttpServletRequestBuilder getMultipartRequestBuilderWithParam(String url, MultiValueMap<String, Object> paramMap) {
+        MockMultipartHttpServletRequestBuilder requestBuilder =
+                MockMvcRequestBuilders.multipart(getBasePath() + url);
+        paramMap.forEach((key, value) -> {
+            List list = value;
+            for (Object o : list) {
+                if (o instanceof List fileList) {
+                    fileList.forEach(o1 -> {
+                        if (o1 instanceof MockMultipartFile mockMultipartFile) {
+                            try {
+                                MockMultipartFile mockMultipartFile1 = null;
+                                mockMultipartFile1 = new MockMultipartFile(key, mockMultipartFile.getOriginalFilename(),
+                                        MediaType.APPLICATION_OCTET_STREAM_VALUE, mockMultipartFile.getBytes());
+                                requestBuilder.file(mockMultipartFile1);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+
+                    });
+                } else {
+                    MockMultipartFile multipartFile = null;
+                    multipartFile = new MockMultipartFile(key, null,
+                            MediaType.APPLICATION_JSON_VALUE, o.toString().getBytes());
+                    requestBuilder.file(multipartFile);
+                }
+            }
+        });
+        return requestBuilder;
+
+    }
 
 }

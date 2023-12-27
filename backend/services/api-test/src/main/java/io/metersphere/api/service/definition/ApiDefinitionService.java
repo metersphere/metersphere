@@ -6,11 +6,17 @@ import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.definition.importdto.ApiDefinitionImport;
+import io.metersphere.api.dto.definition.importdto.ApiDefinitionImportDTO;
+import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.mapper.*;
+import io.metersphere.api.parser.ImportParser;
+import io.metersphere.api.parser.ImportParserFactory;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.constants.ApplicationNumScope;
@@ -93,11 +99,15 @@ public class ApiDefinitionService {
 
     @Resource
     private ApiDefinitionLogService apiDefinitionLogService;
+    @Resource
+    private ApiDefinitionImportUtilService apiDefinitionImportUtilService;
+    @Resource
+    private ProjectMapper projectMapper;
 
     @Resource
     private ApiDefinitionMockService apiDefinitionMockService;
 
-    public List<ApiDefinitionDTO> getApiDefinitionPage(ApiDefinitionPageRequest request, String userId){
+    public List<ApiDefinitionDTO> getApiDefinitionPage(ApiDefinitionPageRequest request, String userId) {
         CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(request, userId);
         List<ApiDefinitionDTO> list = extApiDefinitionMapper.list(request);
         if (!CollectionUtils.isEmpty(list)) {
@@ -106,7 +116,7 @@ public class ApiDefinitionService {
         return list;
     }
 
-    public List<ApiDefinitionDTO> getDocPage(ApiDefinitionPageRequest request, String userId){
+    public List<ApiDefinitionDTO> getDocPage(ApiDefinitionPageRequest request, String userId) {
         CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(request, userId);
         List<ApiDefinitionDTO> list = extApiDefinitionMapper.list(request);
         if (!CollectionUtils.isEmpty(list)) {
@@ -115,7 +125,7 @@ public class ApiDefinitionService {
         return list;
     }
 
-    private void processApiDefinitionsDoc(List<ApiDefinitionDTO> list){
+    private void processApiDefinitionsDoc(List<ApiDefinitionDTO> list) {
         Set<String> userIds = extractUserIds(list);
         Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userIds));
 
@@ -137,7 +147,7 @@ public class ApiDefinitionService {
         });
     }
 
-    public ApiDefinitionDTO get(String id, String userId){
+    public ApiDefinitionDTO get(String id, String userId) {
         // 1. 避免重复查询数据库，将查询结果传递给get方法
         ApiDefinition apiDefinition = checkApiDefinition(id);
         return getApiDefinitionInfo(id, userId, apiDefinition);
@@ -204,7 +214,7 @@ public class ApiDefinitionService {
         ApiDefinition originApiDefinition = checkApiDefinition(request.getId());
         ApiDefinition apiDefinition = new ApiDefinition();
         BeanUtils.copyBean(apiDefinition, request);
-        if(request.getProtocol().equals(ModuleConstants.NODE_PROTOCOL_HTTP)){
+        if (request.getProtocol().equals(ModuleConstants.NODE_PROTOCOL_HTTP)) {
             checkUpdateExist(apiDefinition);
         }
         apiDefinition.setStatus(request.getStatus());
@@ -243,7 +253,7 @@ public class ApiDefinitionService {
         if (CollectionUtils.isNotEmpty(ids)) {
             if (request.getType().equals("tags")) {
                 handleTags(request, userId, ids);
-            } else if(request.getType().equals("customs")){
+            } else if (request.getType().equals("customs")) {
                 // 自定义字段处理
                 ApiDefinitionCustomFieldDTO customField = request.getCustomField();
                 Map<String, String> customFieldMap = Collections.singletonMap(customField.getId(), customField.getValue());
@@ -254,7 +264,7 @@ public class ApiDefinitionService {
                     apiDefinitionUpdateRequest.setId(id);
                     handleUpdateCustomFields(apiDefinitionUpdateRequest, request.isAppend());
                 });
-            }else {
+            } else {
                 ApiDefinition apiDefinition = new ApiDefinition();
                 BeanUtils.copyBean(apiDefinition, request);
                 apiDefinition.setUpdateUser(userId);
@@ -347,7 +357,7 @@ public class ApiDefinitionService {
 
         ApiDefinitionBlob copyApiDefinitionBlob = getApiDefinitionBlob(request.getId());
         ApiDefinitionBlob apiDefinitionBlob = new ApiDefinitionBlob();
-        if(copyApiDefinitionBlob != null){
+        if (copyApiDefinitionBlob != null) {
             apiDefinitionBlob.setId(apiDefinition.getId());
             apiDefinitionBlob.setRequest(copyApiDefinitionBlob.getRequest());
             apiDefinitionBlob.setResponse(copyApiDefinitionBlob.getResponse());
@@ -363,7 +373,7 @@ public class ApiDefinitionService {
 
     public void delete(ApiDefinitionDeleteRequest request, String userId) {
         checkApiDefinition(request.getId());
-        handleDeleteApiDefinition(Collections.singletonList(request.getId()),request.getDeleteAll(), request.getProjectId(), userId, false);
+        handleDeleteApiDefinition(Collections.singletonList(request.getId()), request.getDeleteAll(), request.getProjectId(), userId, false);
     }
 
     public void batchDelete(ApiDefinitionBatchRequest request, String userId) {
@@ -548,7 +558,7 @@ public class ApiDefinitionService {
     }
 
     private String getCopyName(String name) {
-        String copyName = "copy_" + name ;
+        String copyName = "copy_" + name;
         if (copyName.length() > 255) {
             copyName = copyName.substring(0, 250) + copyName.substring(copyName.length() - 5);
         }
@@ -559,17 +569,17 @@ public class ApiDefinitionService {
         if (deleteAll) {
             //全部删除  进入回收站
             List<String> refIds = extApiDefinitionMapper.getRefIds(ids, false);
-            if(CollectionUtils.isNotEmpty(refIds)){
+            if (CollectionUtils.isNotEmpty(refIds)) {
                 SubListUtils.dealForSubList(refIds, 2000, subRefIds -> {
                     List<String> delApiIds = extApiDefinitionMapper.getIdsByRefId(subRefIds, false);
                     SubListUtils.dealForSubList(delApiIds, 2000, subList -> {
-                        if(CollectionUtils.isNotEmpty(delApiIds)){
+                        if (CollectionUtils.isNotEmpty(delApiIds)) {
                             // 删除接口相关数据到回收站
                             deleteApiRelatedData(subList, userId, projectId);
                         }
                     });
                     // 记录删除到回收站的日志, 单条注解记录
-                    if(isBatch){
+                    if (isBatch) {
                         apiDefinitionLogService.batchDelLog(delApiIds, userId, projectId);
                     }
                     extApiDefinitionMapper.batchDeleteByRefId(subRefIds, userId, projectId);
@@ -583,21 +593,21 @@ public class ApiDefinitionService {
         }
     }
 
-    private void deleteAfterAction(List<ApiDefinitionVersionDTO> apiDefinitionVersions){
-        apiDefinitionVersions.forEach(item->{
-            clearLatestVersion(item.getRefId(),item.getProjectId());
+    private void deleteAfterAction(List<ApiDefinitionVersionDTO> apiDefinitionVersions) {
+        apiDefinitionVersions.forEach(item -> {
+            clearLatestVersion(item.getRefId(), item.getProjectId());
             ApiDefinition latestData = getLatestData(item.getRefId(), item.getProjectId());
-            updateLatestVersion(latestData.getId(),latestData.getProjectId());
+            updateLatestVersion(latestData.getId(), latestData.getProjectId());
         });
     }
 
     // 清除多版本最新标识
-    private void clearLatestVersion(String refId, String projectId){
+    private void clearLatestVersion(String refId, String projectId) {
         extApiDefinitionMapper.clearLatestVersion(refId, projectId);
     }
 
     // 获取多版本最新一条数据
-    private ApiDefinition getLatestData(String refId, String projectId){
+    private ApiDefinition getLatestData(String refId, String projectId) {
         ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
         apiDefinitionExample.createCriteria().andRefIdEqualTo(refId).andDeletedEqualTo(false).andProjectIdEqualTo(projectId);
         apiDefinitionExample.setOrderByClause("update_time DESC");
@@ -609,17 +619,17 @@ public class ApiDefinitionService {
     }
 
     // 更新最新版本标识
-    private void updateLatestVersion(String id, String projectId){
+    private void updateLatestVersion(String id, String projectId) {
         extApiDefinitionMapper.updateLatestVersion(id, projectId);
     }
 
     private void doDelete(List<String> ids, String userId, String projectId, boolean isBatch) {
-        if(CollectionUtils.isNotEmpty(ids)){
+        if (CollectionUtils.isNotEmpty(ids)) {
             // 需要判断是否存在多个版本问题
             ids.forEach(id -> {
                 ApiDefinition apiDefinition = checkApiDefinition(id);
                 // 删除的数据是否为最新版本的数据，如果是则需要查询是否有多版本数据存在，需要去除当前删除的数据，更新剩余版本数据中最近的一条数据为最新的数据
-                if(apiDefinition.getLatest()){
+                if (apiDefinition.getLatest()) {
                     List<ApiDefinitionVersionDTO> apiDefinitionVersions = extApiDefinitionMapper.getApiDefinitionByRefId(apiDefinition.getRefId());
                     if (apiDefinitionVersions.size() > 1) {
                         deleteAfterAction(apiDefinitionVersions);
@@ -629,7 +639,7 @@ public class ApiDefinitionService {
             // 删除 case
             deleteApiRelatedData(ids, userId, projectId);
             // 记录删除到回收站的日志, 单条注解记录
-            if(isBatch){
+            if (isBatch) {
                 apiDefinitionLogService.batchDelLog(ids, userId, projectId);
             }
             // 删除接口到回收站
@@ -638,10 +648,10 @@ public class ApiDefinitionService {
 
     }
 
-    private void deleteApiRelatedData(List<String> apiIds, String userId, String projectId){
+    private void deleteApiRelatedData(List<String> apiIds, String userId, String projectId) {
         // 是否存在 case 删除 case
         List<ApiTestCase> caseLists = extApiTestCaseMapper.getCaseInfoByApiIds(apiIds, false);
-        if(CollectionUtils.isNotEmpty(caseLists)){
+        if (CollectionUtils.isNotEmpty(caseLists)) {
             List<String> caseIds = caseLists.stream().map(ApiTestCase::getId).distinct().toList();
             apiTestCaseService.batchDeleteToGc(caseIds, userId, projectId, true);
         }
@@ -655,7 +665,8 @@ public class ApiDefinitionService {
         // 恢复接口到接口列表
         handleRecoverApiDefinition(Collections.singletonList(request.getId()), userId, request.getProjectId(), false);
     }
-    public void handleRecoverApiDefinition(List<String> ids, String userId, String projectId, boolean isBatch){
+
+    public void handleRecoverApiDefinition(List<String> ids, String userId, String projectId, boolean isBatch) {
         if (CollectionUtils.isNotEmpty(ids)) {
             SubListUtils.dealForSubList(ids, 2000, subList -> doRecover(subList, userId, projectId, isBatch));
         }
@@ -663,7 +674,7 @@ public class ApiDefinitionService {
 
     private void doRecover(List<String> apiIds, String userId, String projectId, boolean isBatch) {
         // 记录恢复数据之前的原数据日志，单条通过注解记录日志
-        if(isBatch){
+        if (isBatch) {
             apiDefinitionLogService.batchRecoverLog(apiIds, userId, projectId);
         }
         extApiDefinitionMapper.batchRecoverById(apiIds, userId, projectId);
@@ -693,7 +704,7 @@ public class ApiDefinitionService {
     }
 
     private void handleModule(List<String> updateApiIds) {
-        if(!updateApiIds.isEmpty()){
+        if (!updateApiIds.isEmpty()) {
             ApiDefinition updateApiDefinition = new ApiDefinition();
             updateApiDefinition.setModuleId(ModuleConstants.DEFAULT_NODE_ID);
             ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
@@ -715,13 +726,14 @@ public class ApiDefinitionService {
         }
     }
 
-    private void recoverApiRelatedData(List<String> apiIds, String userId, String projectId){
+    private void recoverApiRelatedData(List<String> apiIds, String userId, String projectId) {
         // 是否存在 case 恢复 case
         List<ApiTestCase> caseLists = extApiTestCaseMapper.getCaseInfoByApiIds(apiIds, true);
-        if(CollectionUtils.isNotEmpty(caseLists)) {
+        if (CollectionUtils.isNotEmpty(caseLists)) {
             apiTestCaseService.batchRecover(caseLists, userId, projectId);
         }
     }
+
     public void trashDel(ApiDefinitionDeleteRequest request, String userId) {
         handleTrashDelApiDefinition(Collections.singletonList(request.getId()), userId, request.getProjectId(), false);
     }
@@ -740,14 +752,14 @@ public class ApiDefinitionService {
         }
     }
 
-    private void handleTrashDelApiDefinition(List<String> ids, String userId, String projectId, boolean isBatch){
+    private void handleTrashDelApiDefinition(List<String> ids, String userId, String projectId, boolean isBatch) {
         if (CollectionUtils.isNotEmpty(ids)) {
             SubListUtils.dealForSubList(ids, 2000, subList -> doTrashDel(subList, userId, projectId, isBatch));
         }
     }
 
-    private void doTrashDel(List<String> ids, String userId, String projectId, boolean isBatch){
-        if(CollectionUtils.isNotEmpty(ids)){
+    private void doTrashDel(List<String> ids, String userId, String projectId, boolean isBatch) {
+        if (CollectionUtils.isNotEmpty(ids)) {
             // 删除上传的文件
             ids.forEach(id -> {
                 String apiDefinitionDir = DefaultRepositoryDir.getApiDefinitionDir(projectId, id);
@@ -762,7 +774,7 @@ public class ApiDefinitionService {
             trashDelApiRelatedData(ids, userId, projectId);
 
             // 记录批量删除日志，单条删除通过注解记录
-            if(isBatch){
+            if (isBatch) {
                 apiDefinitionLogService.batchTrashDelLog(ids, userId, projectId);
             }
             // 删除接口
@@ -773,13 +785,14 @@ public class ApiDefinitionService {
         }
     }
 
-    private void trashDelApiRelatedData(List<String> apiIds, String userId, String projectId){
+    private void trashDelApiRelatedData(List<String> apiIds, String userId, String projectId) {
         // 是否存在 case 删除 case
         List<ApiTestCase> caseLists = extApiTestCaseMapper.getCaseInfoByApiIds(apiIds, true);
-        if(CollectionUtils.isNotEmpty(caseLists)) {
+        if (CollectionUtils.isNotEmpty(caseLists)) {
             List<String> caseIds = caseLists.stream().map(ApiTestCase::getId).distinct().toList();
             // case 批量删除回收站
             apiTestCaseService.deleteResourceByIds(caseIds, projectId, userId);
+
         }
         // 删除 mock
         apiDefinitionMockService.deleteByApiIds(apiIds, userId);
@@ -856,4 +869,45 @@ public class ApiDefinitionService {
         return apiDefinitionDocDTO;
     }
 
+    public ApiDefinitionImport apiTestImport(MultipartFile file, ImportRequest request) {
+        if (file != null) {
+            String originalFilename = file.getOriginalFilename();
+            if (StringUtils.isNotBlank(originalFilename)) {
+                String suffixName = originalFilename.substring(originalFilename.indexOf(".") + 1);
+                apiDefinitionImportUtilService.checkFileSuffixName(request, suffixName);
+            }
+        }
+        ImportParser<?> runService = ImportParserFactory.getImportParser(request.getPlatform());
+        ApiDefinitionImport apiImport = null;
+        if (StringUtils.equals(request.getType(), "SCHEDULE")) {
+            request.setProtocol("HTTP");
+        }
+        try {
+            apiImport = (ApiDefinitionImport) Objects.requireNonNull(runService).parse(file == null ? null : file.getInputStream(), request);
+            //TODO  处理mock数据
+            // 发送通知
+        } catch (Exception e) {
+            // TODO 发送通知
+            LogUtils.error(e.getMessage(), e);
+            throw new MSException(Translator.get("parse_data_error"));
+        }
+
+        try {
+            apiDefinitionImportUtilService.importApi(request, apiImport);
+            apiDefinitionMapper.selectByExample(new ApiDefinitionExample());
+            if (CollectionUtils.isNotEmpty(apiImport.getData())) {
+                List<String> names = apiImport.getData().stream().map(ApiDefinitionImportDTO::getName).collect(Collectors.toList());
+                request.setName(String.join(",", names));
+                List<String> ids = apiImport.getData().stream().map(ApiDefinitionImportDTO::getId).collect(Collectors.toList());
+                request.setId(JSON.toJSONString(ids));
+            }
+            // 发送通知
+            //apiDefinitionImportUtilService.sendImportNotice(request, apiImportSendNoticeDTOS, project);
+        } catch (Exception e) {
+            //apiDefinitionImportUtilService.sendFailMessage(request, project);
+            LogUtils.error(e);
+            throw new MSException(Translator.get("user_import_format_wrong"));
+        }
+        return apiImport;
+    }
 }

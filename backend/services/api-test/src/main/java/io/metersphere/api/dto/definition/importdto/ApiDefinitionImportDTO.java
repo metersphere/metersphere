@@ -1,4 +1,4 @@
-package io.metersphere.api.dto.importdto;
+package io.metersphere.api.dto.definition.importdto;
 
 import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.dto.definition.HttpResponse;

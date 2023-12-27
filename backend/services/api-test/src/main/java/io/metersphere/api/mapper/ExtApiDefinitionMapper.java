@@ -2,7 +2,7 @@ package io.metersphere.api.mapper;
 
 import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.dto.definition.*;
-import io.metersphere.api.dto.importdto.ApiDefinitionImportDTO;
+import io.metersphere.api.dto.definition.importdto.ApiDefinitionImportDTO;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import org.apache.ibatis.annotations.Param;
 

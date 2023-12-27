@@ -120,7 +120,7 @@ public class BaseUserRoleService {
             put("READ+RECOVER", "permission.recover");
             put("READ+EXPORT", "permission.export");
             put("READ+EXECUTE", "permission.execute");
-            put("READ+DEBUG", "permission.download");
+            put("READ+DEBUG", "permission.debug");
         }};
         return Translator.get(translationMap.get(permissionKey));
     }

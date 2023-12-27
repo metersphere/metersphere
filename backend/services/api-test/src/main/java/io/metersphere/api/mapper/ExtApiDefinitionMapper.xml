@@ -129,14 +129,14 @@
         </foreach>
         and deleted = #{deleted}
     </select>
-    <select id="importList" resultType="io.metersphere.api.dto.importdto.ApiDefinitionImportDTO">
+    <select id="importList" resultType="io.metersphere.api.dto.definition.importdto.ApiDefinitionImportDTO">
         select
         api_definition.id, api_definition.`name`, api_definition.protocol, api_definition.`method`,
         api_definition.`path`, api_definition.version_id,
-        api_definition.ref_id
+        api_definition.ref_id, api_definition.module_id
         from api_definition
         LEFT JOIN project_version ON project_version.id = api_definition.version_id
-        where api_definition.deleted = true
+        where api_definition.deleted = false
         <include refid="queryWhereCondition"/>
     </select>
     <select id="selectIdsByIdsAndDeleted" resultType="java.lang.String">
