@@ -3,6 +3,7 @@ package io.metersphere.api.dto.request.processors.extract;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 @Data
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "extractType")
@@ -13,19 +14,19 @@ import lombok.Data;
 })
 public abstract class MsExtract {
     /**
-     * 参数名
+     * 变量名
      */
-    private String paramName;
+    private String variableName;
     /**
      * 参数类型
      */
-    private String paramType;
-    /**
-     * 提取范围
-     */
-    private String extractScope;
+    private String variableType;
     /**
      * 表达式
      */
     private String expression;
+
+    public boolean isValid() {
+        return StringUtils.isNotBlank(variableName) && StringUtils.isNotBlank(expression);
+    }
 }

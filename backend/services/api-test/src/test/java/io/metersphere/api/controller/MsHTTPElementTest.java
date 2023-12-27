@@ -13,8 +13,12 @@ import io.metersphere.api.dto.request.http.body.*;
 import io.metersphere.api.dto.request.processors.*;
 import io.metersphere.api.dto.request.processors.extract.JSONPathExtract;
 import io.metersphere.api.dto.request.processors.extract.RegexExtract;
+import io.metersphere.api.dto.request.processors.extract.ResultMatchingExtract;
 import io.metersphere.api.dto.request.processors.extract.XPathExtract;
+import io.metersphere.api.parser.TestElementParser;
+import io.metersphere.api.parser.TestElementParserFactory;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.sdk.constants.MsAssertionCondition;
 import org.junit.jupiter.api.Assertions;
@@ -121,8 +125,7 @@ public class MsHTTPElementTest {
     }
 
     @Test
-    public void msProcessorTest() {
-
+    public void processorParseTest() {
         MsHTTPElement msHTTPElement = getMsHttpElement();
 
         List processors = new ArrayList<>();
@@ -130,9 +133,14 @@ public class MsHTTPElementTest {
         ScriptProcessor scriptProcessor = new ScriptProcessor();
         scriptProcessor.setEnable(true);
         scriptProcessor.setScript("script");
-        scriptProcessor.setScriptLanguage("js");
-        scriptProcessor.setJsrEnable(true);
+        scriptProcessor.setScriptLanguage(ScriptProcessor.ScriptLanguageType.JAVASCRIPT.getValue());
         processors.add(scriptProcessor);
+
+        ScriptProcessor beanShellScriptProcessor = new ScriptProcessor();
+        beanShellScriptProcessor.setEnable(true);
+        beanShellScriptProcessor.setScript("script");
+        beanShellScriptProcessor.setScriptLanguage(ScriptProcessor.ScriptLanguageType.BEANSHELL.getValue());
+        processors.add(beanShellScriptProcessor);
 
         SQLProcessor sqlProcessor = new SQLProcessor();
         sqlProcessor.setScript("script");
@@ -152,39 +160,68 @@ public class MsHTTPElementTest {
         timeWaitingProcessor.setEnable(true);
         processors.add(timeWaitingProcessor);
 
-        CommonScriptProcessor commonScriptProcessor = new CommonScriptProcessor();
-        commonScriptProcessor.setEnable(true);
-        commonScriptProcessor.setScriptId("11111");
-        KeyValueParam commonScriptParam = new KeyValueParam();
-        commonScriptParam.setKey("11");
-        commonScriptParam.setValue("11");
-        commonScriptProcessor.setParams(List.of(commonScriptParam));
-        processors.add(commonScriptProcessor);
+        List postProcessors = new ArrayList<>();
 
         ExtractPostProcessor extractPostProcessor = new ExtractPostProcessor();
         RegexExtract regexExtract = new RegexExtract();
-        regexExtract.setExpressionMatchingRule("");
+        regexExtract.setVariableName("test");
+        regexExtract.setExpressionMatchingRule("$1$");
+        regexExtract.setExpression("test");
+
+        RegexExtract regexExtract2 = new RegexExtract();
+        regexExtract2.setVariableName("test");
+        regexExtract2.setExpressionMatchingRule("$0$");
+        regexExtract2.setResultMatchingRule(ResultMatchingExtract.ResultMatchingRuleType.ALL.name());
+        regexExtract2.setExtractScope("unescaped");
+        regexExtract2.setExpression("test");
+
         JSONPathExtract jsonPathExtract = new JSONPathExtract();
-        jsonPathExtract.setExpression("");
+        jsonPathExtract.setExpression("test");
+        jsonPathExtract.setVariableName("test");
+        jsonPathExtract.setResultMatchingRule(ResultMatchingExtract.ResultMatchingRuleType.RANDOM.name());
+
         XPathExtract xPathExtract = new XPathExtract();
-        xPathExtract.setExpression("");
-        extractPostProcessor.setExtractors(List.of(regexExtract, jsonPathExtract, xPathExtract));
-        processors.add(extractPostProcessor);
+        xPathExtract.setExpression("test");
+        xPathExtract.setVariableName("test");
+        xPathExtract.setResultMatchingRule(ResultMatchingExtract.ResultMatchingRuleType.SPECIFIC.name());
+        xPathExtract.setResultMatchingRuleNum(2);
+
+        XPathExtract xPathExtract2 = new XPathExtract();
+        xPathExtract2.setExpression("test");
+        xPathExtract2.setVariableName("test");
+        xPathExtract2.setResultMatchingRule(ResultMatchingExtract.ResultMatchingRuleType.SPECIFIC.name());
+        xPathExtract2.setResultMatchingRuleNum(2);
+        xPathExtract2.setResponseFormat(XPathExtract.ResponseFormat.HTML.name());
+
+        extractPostProcessor.setExtractors(List.of(regexExtract, regexExtract2, jsonPathExtract, xPathExtract, xPathExtract2));
+        postProcessors.addAll(processors);
+        postProcessors.add(extractPostProcessor);
 
         MsProcessorConfig msProcessorConfig = new MsProcessorConfig();
         msProcessorConfig.setProcessors(processors);
 
+        MsProcessorConfig msPostProcessorConfig = new MsProcessorConfig();
+        msPostProcessorConfig.setProcessors(postProcessors);
+
         MsCommonElement msCommonElement = new MsCommonElement();
         msCommonElement.setPreProcessorConfig(msProcessorConfig);
-        msCommonElement.setPostProcessorConfig(msProcessorConfig);
+        msCommonElement.setPostProcessorConfig(msPostProcessorConfig);
 
         LinkedList linkedList = new LinkedList();
         linkedList.add(msCommonElement);
         msHTTPElement.setChildren(linkedList);
 
+        // 测试序列化
         String json = ApiDataUtils.toJSONString(msHTTPElement);
         Assertions.assertNotNull(json);
         Assertions.assertEquals(ApiDataUtils.parseObject(json, AbstractMsTestElement.class), msHTTPElement);
+
+        // 测试脚本解析
+        ParameterConfig parameterConfig = new ParameterConfig();
+        parameterConfig.setReportId("reportId");
+        TestElementParser defaultParser = TestElementParserFactory.getDefaultParser();
+        AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(json, AbstractMsTestElement.class);
+        defaultParser.parse(msTestElement, parameterConfig);
     }
 
     @Test
@@ -256,7 +293,7 @@ public class MsHTTPElementTest {
         msHTTPElement.setPath("/test");
         msHTTPElement.setMethod("GET");
         msHTTPElement.setName("name");
-        msHTTPElement.setEnable(false);
+        msHTTPElement.setEnable(true);
 
         Header header = new Header();
         header.setEnable(false);

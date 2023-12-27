@@ -307,6 +307,7 @@ public class PluginLoadService {
     public void handlePluginAddNotified(String pluginId, String fileName) {
         if (!hasPlugin(pluginId)) {
             loadPluginFromRepository(fileName);
+            msPluginManager.startPlugin(pluginId);
         }
     }
 
