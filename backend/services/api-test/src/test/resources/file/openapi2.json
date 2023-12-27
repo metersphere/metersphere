@@ -1,0 +1,772 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "合规问询",
+    "version": "1.0"
+  },
+  "paths": {
+    "/tasks/start/enquiry": {
+      "post": {
+        "summary": "开始问询",
+        "description": "**Request parameters**\n\n| 参数 | 必须 | 类型 | 说明 |\n|:---|:---|:---|:---|\n|customer_ids|是|list| 问询用户 customer_id 列表|\n|user_ids|是|list| 问询用户 user_ids 列表（会查询用户的Omnibus账户）|\n|name|是|String|问询名称|\n|type|是|String| 问询类型 CDD ST ONGOING TM|\n|reason|是|String| 问询原因（需要把用户勾选的原因拼起来）|\n|remark|是|String| 备注|\n|restrict|是|boolean| 是否清算 true:是|\n|content|是|json| 问询内容|\n|pre\\_answer_id|否|String| 上次问询answer_id|\n|pre_status|否|String| 上次问询结果，UNSUBMIT,SUCCESS,REJECTED|\n\n**Response fields**\n\n\n\n\n\n```json\n\n\n{\n  \"status\": \"ok\",\n  \"msg\": \"ok\",\n  \"timestamp\": 1606477343900\n}\n\n\n\n```\n",
+        "operationId": "post--tasks-start-enquiry",
+        "tags": [
+          "合规问询"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "customer_ids": {
+                    "type": "array",
+                    "x-stoplight": {
+                      "id": "kbjft55jellci"
+                    },
+                    "description": "问询客户Id列表，与user_ids二选一",
+                    "items": {
+                      "x-stoplight": {
+                        "id": "48rmyqxcgaenj"
+                      },
+                      "type": "string"
+                    }
+                  },
+                  "user_ids": {
+                    "type": "array",
+                    "x-stoplight": {
+                      "id": "k2vz6vj9bcb1i"
+                    },
+                    "description": "问询用户Id列表，与customer_ids二选一",
+                    "items": {
+                      "x-stoplight": {
+                        "id": "sv3rgfiwghwlz"
+                      },
+                      "type": "string"
+                    }
+                  },
+                  "name": {
+                    "type": "string",
+                    "x-stoplight": {
+                      "id": "k0e99u1kks179"
+                    },
+                    "description": "问询名称"
+                  },
+                  "pre_answer_id": {
+                    "type": "string",
+                    "x-stoplight": {
+                      "id": "7fg4vu00xa2xa"
+                    },
+                    "description": "前一个问询id"
+                  },
+                  "type": {
+                    "type": "string",
+                    "x-stoplight": {
+                      "id": "ejbuowi29ntqm"
+                    }
+                  },
+                  "reason": {
+                    "type": "string",
+                    "x-stoplight": {
+                      "id": "mykt2dh4d7c78"
+                    }
+                  },
+                  "pre_answer_status": {
+                    "type": "string",
+                    "x-stoplight": {
+                      "id": "nok8zrvkugh85"
+                    }
+                  },
+                  "content": {
+                    "type": "object",
+                    "x-stoplight": {
+                      "id": "pbk4zgl8aq3vk"
+                    },
+                    "description": "问询内容",
+                    "required": [
+                      "questions"
+                    ],
+                    "properties": {
+                      "questions": {
+                        "type": "array",
+                        "x-stoplight": {
+                          "id": "5a0g6bpavd3p9"
+                        },
+                        "items": {
+                          "x-stoplight": {
+                            "id": "tzanfcdtus3zk"
+                          },
+                          "type": "object",
+                          "properties": {
+                            "type": {
+                              "type": "string",
+                              "x-stoplight": {
+                                "id": "dadmpn80vj277"
+                              }
+                            },
+                            "title": {
+                              "type": "object",
+                              "x-stoplight": {
+                                "id": "vxxr5fco5x5qd"
+                              },
+                              "properties": {
+                                "en_US": {
+                                  "type": "string",
+                                  "x-stoplight": {
+                                    "id": "ynddq0wrd59yl"
+                                  }
+                                },
+                                "zh_TW": {
+                                  "type": "string",
+                                  "x-stoplight": {
+                                    "id": "gq1soegk1bv1z"
+                                  }
+                                },
+                                "zh_CN": {
+                                  "type": "string",
+                                  "x-stoplight": {
+                                    "id": "skxaai7a1tgbn"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "required": [
+                            "type",
+                            "title"
+                          ]
+                        }
+                      },
+                      "": {
+                        "type": "string",
+                        "x-stoplight": {
+                          "id": "lyxhp63oqftol"
+                        }
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "type",
+                  "reason",
+                  "content"
+                ]
+              }
+            }
+          },
+          "description": ""
+        },
+        "responses": {},
+        "security": [],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Authorization"
+          }
+        ]
+      }
+    },
+    "/tasks/count/enquire": {
+      "get": {
+        "summary": "任务计数",
+        "description": "**权限**  \npage:accounts:enquiry\n\n\n**Request parameters**\n\n| 参数 | 必须 | 类型 | 说明 |\n|:---|:---|:---|:---|\n|target|是|String| ACCOUNT|\n\n\n**Response fields**\n\n\n```json\n\n\n{\n  \"status\": \"ok\",\n  \"msg\": \"ok\",\n  \"data\": {\n    \"ENQUIRY_CDD\": 10,\n    \"ENQUIRY_ECDD\": 140,\n    \"ENQUIRY_TM\": 20,\n    \"ENQUIRY_ST\": 1,\n    \"MINE\": 11\n  },\n  \"timestamp\": 1620908408415\n}\n\n\n```\n",
+        "operationId": "get--tasks-count-enquire",
+        "tags": [
+          "合规问询"
+        ],
+        "requestBody": {},
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "x-stoplight": {
+                        "id": "8ef7olao3cjcr"
+                      }
+                    },
+                    "msg": {
+                      "type": "string",
+                      "x-stoplight": {
+                        "id": "cxmgh6dzrif3a"
+                      }
+                    },
+                    "data": {
+                      "type": "object",
+                      "x-stoplight": {
+                        "id": "809qtdhwnaaua"
+                      },
+                      "properties": {
+                        "ENQUIRY_CDD": {
+                          "type": "integer",
+                          "x-stoplight": {
+                            "id": "xmsl5222h8sro"
+                          }
+                        },
+                        "ENQUIRY_ECDD": {
+                          "type": "integer",
+                          "x-stoplight": {
+                            "id": "hgibemphi4r8j"
+                          }
+                        },
+                        "ENQUIRY_TM": {
+                          "type": "integer",
+                          "x-stoplight": {
+                            "id": "12ftglelyzcon"
+                          }
+                        },
+                        "ENQUIRY_ST": {
+                          "type": "integer",
+                          "x-stoplight": {
+                            "id": "3la5n5yagh6nq"
+                          }
+                        },
+                        "ENQUIRY_ONGOING": {
+                          "type": "integer",
+                          "x-stoplight": {
+                            "id": "tagt0zejkzmaa"
+                          }
+                        },
+                        "MINE": {
+                          "type": "integer",
+                          "x-stoplight": {
+                            "id": "3p2iub9ajdblw"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Authorization"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "target",
+            "description": "审核目标"
+          }
+        ]
+      }
+    },
+    "/tasks/{answerId}/approve/enquiry/offline": {
+      "post": {
+        "summary": "线下通过问询",
+        "description": "**Request parameters**\n\n| 参数 | 必须 | 类型 | 说明 |\n|:---|:---|:---|:---|\n|answerId|是|String| 问询id|\n|content|是|Object| 问询内容|\n\n\n\n```\n\n{\n    \"answerId\": 1,\n    \"content\": {\n        \"answers\": [\n            {\n                \"value\": \"第一个问题的回答\"\n            },\n            {\n                \"value\": [\"/file/1.jpg\", \"/file/2.jpg\"]\n            }\n        ]\n    }\n}\n```\n\n**Response fields**\n\n```json\n\n\n{\n  \"status\": \"ok\",\n  \"msg\": \"ok\",\n  \"timestamp\": 1606477343900\n}\n\n\n```\n",
+        "operationId": "post--tasks-{answerId}-approve-enquiry-offline",
+        "tags": [
+          "合规问询"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "answer_id": {
+                    "type": "string",
+                    "x-stoplight": {
+                      "id": "hdza6stym83jj"
+                    }
+                  },
+                  "content": {
+                    "type": "object",
+                    "x-stoplight": {
+                      "id": "308kahe1s8nk0"
+                    },
+                    "properties": {
+                      "answers": {
+                        "type": "array",
+                        "x-stoplight": {
+                          "id": "h309c4jqgkduz"
+                        },
+                        "items": {
+                          "x-stoplight": {
+                            "id": "h87o04ulbgs3e"
+                          },
+                          "type": "object",
+                          "properties": {
+                            "value": {
+                              "type": "string",
+                              "x-stoplight": {
+                                "id": "h0ehc5t1ckc87"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "description": ""
+        },
+        "responses": {},
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Authorization"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "answerId",
+          "in": "path",
+          "required": true,
+          "description": "问询ID"
+        }
+      ]
+    },
+    "/enquiry/list": {
+      "get": {
+        "summary": "问询历史记录列表",
+        "tags": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "itemCount": {
+                          "type": "number"
+                        },
+                        "items": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "customerId": {
+                                "type": "number"
+                              },
+                              "userId": {
+                                "type": "number"
+                              },
+                              "realName": {
+                                "type": "string"
+                              },
+                              "accountId": {
+                                "type": "string"
+                              },
+                              "accountType": {
+                                "type": "string"
+                              },
+                              "enquiryType": {
+                                "type": "string"
+                              },
+                              "answerId": {
+                                "type": "string"
+                              },
+                              "preAnswerId": {
+                                "type": "string"
+                              },
+                              "operator": {
+                                "type": "string"
+                              },
+                              "enquiryStartDate": {
+                                "type": "number"
+                              },
+                              "enquiryDeadline": {
+                                "type": "number"
+                              },
+                              "enquiryReplyDate": {
+                                "type": "number"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "msg": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "get-enquiry-list",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "UNSUBMIT",
+                "SUCCESS",
+                "REJECTED",
+                "PENDING"
+              ]
+            },
+            "in": "query",
+            "name": "enquiryStatus",
+            "description": "问询状态"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "CDD",
+                "ONGOING",
+                "TM",
+                "ST"
+              ]
+            },
+            "in": "query",
+            "name": "enquiryType",
+            "description": "问询类型"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "email",
+            "description": "邮箱"
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "userIds",
+            "description": "支持多个userid，逗号隔开"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "phone",
+            "description": "手机号"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "telCode",
+            "description": "区号"
+          },
+          {
+            "schema": {
+              "type": "number"
+            },
+            "in": "query",
+            "name": "customerId"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "accountId",
+            "description": "账号id"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "tag",
+            "description": "用户标签"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "OPENED",
+                "AUDITING"
+              ]
+            },
+            "in": "query",
+            "name": "accountStatus",
+            "description": "开户状态"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ENQUIRY_DATE",
+                "OPEN_DATE",
+                "APPLICATION_DATE",
+                "ENQUIRE_DEADLINE_DATE"
+              ]
+            },
+            "in": "query",
+            "name": "dateRangeType",
+            "description": "时间范围类型"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "dateStart",
+            "description": "开始时间"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "dateEnd",
+            "description": "结束时间"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "offset",
+            "description": "数据偏移量"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "limit",
+            "description": "每页数量"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ASCENDING",
+                "DESCENDING"
+              ]
+            },
+            "in": "query",
+            "name": "order",
+            "description": "排序类型"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "query",
+            "name": "realName",
+            "description": "姓名"
+          },
+          {
+            "$ref": "#/components/parameters/Authorization"
+          }
+        ]
+      }
+    },
+    "/tasks/{taskId}/enquiry": {
+      "get": {
+        "summary": "问询详情",
+        "description": "**Request parameters**\n\n| 参数 | 必须 | 类型 | 说明 |\n|:---|:---|:---|:---|\n|taskId|是|int| 任务ID|\n\n**Response fields**\n\n|  字段  | 类型 |  说明  |\n|:------|:-----|:------|\n| answerId | string | 答案ID |\n| realName | string | 姓名 |\n\n\n```json\n\n\n{\n  \"data\": {\n    \"accountInfo\": {\n      \"userInfo\": {\n        \"realName\": \"张三\"\n      }\n    },\n    \"enquiryInfo\": {\n      \"answerId\": \"123123\"\n    }\n  }\n}\n\n```\n",
+        "operationId": "get--tasks-{taskId}-enquiry",
+        "tags": [
+          "合规问询"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {}
+              }
+            }
+          }
+        },
+        "responses": {},
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Authorization"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "schema": {
+            "type": "integer"
+          },
+          "name": "taskId",
+          "in": "path",
+          "required": true,
+          "description": "任务ID"
+        }
+      ]
+    },
+    "/tasks/{taskId}/claim/enquiry": {
+      "post": {
+        "summary": "认领任务",
+        "description": "**权限**  \naccounts:enquiry:cdd  \naccounts:enquiry:st  \naccounts:enquiry:ecdd  \naccounts:enquiry:tm  \n\n\n**Response fields**\n\n\n```json\n\n\n{\n  \"status\": \"ok\",\n  \"msg\": \"ok\",\n  \"timestamp\": 1606477343900\n}\n\n\n```\n",
+        "operationId": "post--tasks-{taskId}-claim-enquiry",
+        "tags": [
+          "合规问询"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {},
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Authorization"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "taskId",
+          "in": "path",
+          "required": true,
+          "description": "任务ID"
+        }
+      ]
+    },
+    "/tasks/{taskId}/abort": {
+      "post": {
+        "summary": "放回任务",
+        "description": "**权限**  \naccounts:enquiry:cdd  \naccounts:enquiry:st  \naccounts:enquiry:ecdd  \naccounts:enquiry:tm  \n\n**Request parameters**\n\n| 参数 | 必须 | 类型 | 说明 |\n|:---|:---|:---|:---|\n|taskId|是|int| 任务ID|\n\n**Response fields**\n\n\n```json\n\n\n{\n  \"status\": \"ok\",\n  \"msg\": \"ok\",\n  \"timestamp\": 1606477343900\n}\n\n\n```",
+        "operationId": "post--tasks-{taskId}-abort",
+        "tags": [
+          "合规问询"
+        ],
+        "requestBody": {},
+        "responses": {},
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Authorization"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "taskId",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/tasks/{taskId}/approve/enquiry": {
+      "post": {
+        "summary": "问询通过",
+        "description": "**权限**  \naccounts:enquiry:cdd  \naccounts:enquiry:st  \naccounts:enquiry:ecdd  \naccounts:enquiry:tm  \n\n**Request parameters**\n\n| 参数 | 必须 | 类型 | 说明 |\n|:---|:---|:---|:---|\n|taskId|是|int| 任务ID|\n\n**Response fields**\n\n\n```json\n\n\n{\n  \"status\": \"ok\",\n  \"msg\": \"ok\",\n  \"timestamp\": 1606477343900\n}\n\n\n```",
+        "operationId": "post--tasks-{taskId}-approve-enquiry",
+        "tags": [
+          "合规问询"
+        ],
+        "requestBody": {},
+        "responses": {},
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Authorization"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "taskId",
+          "in": "path",
+          "required": true,
+          "description": "任务Id"
+        }
+      ]
+    },
+    "/tasks/{taskId}/reject/enquiry": {
+      "post": {
+        "summary": "问询打回",
+        "description": "**权限**  \naccounts:enquiry:cdd  \naccounts:enquiry:st  \naccounts:enquiry:ecdd  \naccounts:enquiry:tm  \n\n\n**Request parameters**\n\n| 参数 | 必须 | 类型 | 说明 |\n|:---|:---|:---|:---|\n|taskId|是|int| ID|\n|rejectReasons|是|String| 打回理由|\n|comments|否|String| 备注|\n\n**打回原因对应操作**\n\n|  原因短语  | 操作 | \n|:------|:-----|\n| REJECT\\_CUSTOMER | 再次询问/打回用户申请 |\n| REJECT\\_FIRST\\_REVIEW | 打回初审（限制用户未开户） |\n| REJECT\\_OPEN | 拒绝开户 |\n\n\n**Response fields**\n\n```json\n\n\n{\n  \"status\": \"ok\",\n  \"msg\": \"ok\",\n  \"timestamp\": 1606477343900\n}\n\n\n```\n",
+        "operationId": "post--tasks-{taskId}-reject-enquiry",
+        "tags": [
+          "合规问询"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rejectReasons": {
+                    "type": "string",
+                    "x-stoplight": {
+                      "id": "uqsyov82j5jks"
+                    }
+                  },
+                  "comments": {
+                    "type": "string",
+                    "x-stoplight": {
+                      "id": "rv9d5xuujthmm"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {},
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Authorization"
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "schema": {
+            "type": "string"
+          },
+          "name": "taskId",
+          "in": "path",
+          "required": true,
+          "description": "任务ID"
+        }
+      ]
+    }
+  },
+  "components": {
+    "securitySchemes": {},
+    "parameters": {
+      "Authorization": {
+        "name": "Authorization",
+        "in": "header",
+        "required": false,
+        "schema": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

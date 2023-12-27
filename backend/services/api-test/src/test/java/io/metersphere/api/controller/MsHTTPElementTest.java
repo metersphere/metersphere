@@ -15,6 +15,7 @@ import io.metersphere.api.dto.request.processors.extract.JSONPathExtract;
 import io.metersphere.api.dto.request.processors.extract.RegexExtract;
 import io.metersphere.api.dto.request.processors.extract.ResultMatchingExtract;
 import io.metersphere.api.dto.request.processors.extract.XPathExtract;
+import io.metersphere.api.dto.schema.JsonSchemaItem;
 import io.metersphere.api.parser.TestElementParser;
 import io.metersphere.api.parser.TestElementParserFactory;
 import io.metersphere.api.utils.ApiDataUtils;
@@ -76,7 +77,7 @@ public class MsHTTPElementTest {
         body.setWwwFormBody(wwwFormBody);
 
         JsonBody jsonBody = new JsonBody();
-        jsonBody.setJsonSchema("{}");
+        jsonBody.setJsonSchema(new JsonSchemaItem());
         jsonBody.setEnableJsonSchema(false);
         body.setJsonBody(jsonBody);
 

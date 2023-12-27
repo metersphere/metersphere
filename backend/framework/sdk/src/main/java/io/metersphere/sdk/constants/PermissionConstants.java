@@ -206,7 +206,6 @@ public class PermissionConstants {
     /*------ end: PROJECT_TEMPLATE ------*/
 
 
-
     /*------ start: FUNCTIONAL_CASE ------*/
     public static final String FUNCTIONAL_CASE_READ = "FUNCTIONAL_CASE:READ";
     public static final String FUNCTIONAL_CASE_READ_ADD = "FUNCTIONAL_CASE:READ+ADD";
@@ -278,12 +277,10 @@ public class PermissionConstants {
     public static final String PROJECT_API_SCENARIO_DEBUG = "PROJECT_API_SCENARIO:READ+DEBUG";
 
 
-
-
     /*------ end: API_MANAGEMENT ------*/
     //个人中心
     /*------ start: PERSONAL_CENTER ------*/
-    public static final String SYSTEM_PERSONAL_API_KEY_ADD = "SYSTEM_PERSONAL_API_KEYD:READ+ADD";
+    public static final String SYSTEM_PERSONAL_API_KEY_ADD = "SYSTEM_PERSONAL_API_KEY:READ+ADD";
     public static final String SYSTEM_PERSONAL_API_KEY_DELETE = "SYSTEM_PERSONAL_API_KEY:READ+DELETE";
     public static final String SYSTEM_PERSONAL_API_KEY_READ = "SYSTEM_PERSONAL_API_KEY:READ";
     public static final String SYSTEM_PERSONAL_API_KEY_UPDATE = "SYSTEM_PERSONAL_API_KEY:READ+UPDATE";
