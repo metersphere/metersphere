@@ -114,6 +114,12 @@ export default {
     },
     urlChange() {
       this.isUrl = false;
+      if (this.request.path) {
+        this.request.path = this.request.path.trimEnd();
+      }
+      if (this.request.url) {
+        this.request.url = this.request.url.trimEnd();
+      }
       if (this.request.isRefEnvironment) {
         this.pathChange();
       } else {
