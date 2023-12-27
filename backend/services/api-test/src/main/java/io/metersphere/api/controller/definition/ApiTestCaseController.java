@@ -14,6 +14,7 @@ import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.notice.annotation.SendNotice;
 import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
@@ -51,6 +52,7 @@ public class ApiTestCaseController {
     @GetMapping(value = "/get-detail/{id}")
     @Operation(summary = "接口测试-接口管理-接口用例-获取详情")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ)
+    @CheckOwner(resourceId = "#id", resourceType = "api_test_case")
     public ApiTestCaseDTO get(@PathVariable String id) {
         return apiTestCaseService.get(id, SessionUtils.getUserId());
     }
@@ -59,6 +61,7 @@ public class ApiTestCaseController {
     @Operation(summary = "接口测试-接口管理-接口用例-移动到回收站")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.moveToGcLog(#id)", msClass = ApiTestCaseLogService.class)
+    @CheckOwner(resourceId = "#id", resourceType = "api_test_case")
     public void deleteToGc(@PathVariable String id) {
         apiTestCaseService.deleteToGc(id, SessionUtils.getUserId());
     }
@@ -67,6 +70,7 @@ public class ApiTestCaseController {
     @Operation(summary = "接口测试-接口管理-接口用例-恢复")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_RECOVER)
     @Log(type = OperationLogType.RECOVER, expression = "#msClass.recoverLog(#id)", msClass = ApiTestCaseLogService.class)
+    @CheckOwner(resourceId = "#id", resourceType = "api_test_case")
     public void recover(@PathVariable String id) {
         apiTestCaseService.recover(id, SessionUtils.getUserId(), SessionUtils.getCurrentProjectId());
     }
@@ -75,6 +79,7 @@ public class ApiTestCaseController {
     @Operation(summary = "接口测试-接口管理-接口用例-关注")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.followLog(#id)", msClass = ApiTestCaseLogService.class)
+    @CheckOwner(resourceId = "#id", resourceType = "api_test_case")
     public void follow(@PathVariable String id) {
         apiTestCaseService.follow(id, SessionUtils.getUserId());
     }
@@ -83,6 +88,7 @@ public class ApiTestCaseController {
     @Operation(summary = "接口测试-接口管理-接口用例-取消关注")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.unfollowLog(#id)", msClass = ApiTestCaseLogService.class)
+    @CheckOwner(resourceId = "#id", resourceType = "api_test_case")
     public void unfollow(@PathVariable String id) {
         apiTestCaseService.unfollow(id, SessionUtils.getUserId());
     }
@@ -91,6 +97,7 @@ public class ApiTestCaseController {
     @Operation(summary = "接口测试-接口管理-接口用例-删除")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = ApiTestCaseLogService.class)
+    @CheckOwner(resourceId = "#id", resourceType = "api_test_case")
     public void delete(@PathVariable String id) {
         apiTestCaseService.delete(id, SessionUtils.getUserId());
     }
@@ -99,6 +106,7 @@ public class ApiTestCaseController {
     @Operation(summary = "接口测试-接口管理-接口用例-更新")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ApiTestCaseLogService.class)
+    @CheckOwner(resourceId = "#request.id", resourceType = "api_test_case")
     public ApiTestCase update(@Validated @RequestBody ApiTestCaseUpdateRequest request) {
         return apiTestCaseService.update(request, SessionUtils.getUserId());
     }
@@ -107,6 +115,7 @@ public class ApiTestCaseController {
     @Operation(summary = "接口测试-接口管理-接口用例-更新状态")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#id)", msClass = ApiTestCaseLogService.class)
+    @CheckOwner(resourceId = "#id", resourceType = "api_test_case")
     public void updateStatus(@PathVariable String id, @PathVariable String status) {
         apiTestCaseService.updateStatus(id, status, SessionUtils.getUserId());
     }
@@ -123,6 +132,7 @@ public class ApiTestCaseController {
     @PostMapping("/batch/delete")
     @Operation(summary = "接口测试-接口管理-接口用例-批量删除")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE)
+    @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_test_case")
     public void deleteBatchByParam(@RequestBody ApiTestCaseBatchRequest request) {
         apiTestCaseService.batchDelete(request, SessionUtils.getUserId());
     }
@@ -130,6 +140,7 @@ public class ApiTestCaseController {
     @PostMapping("/batch/move-gc")
     @Operation(summary = "接口测试-接口管理-接口用例-批量移动到回收站")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE)
+    @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_test_case")
     public void deleteToGcByParam(@RequestBody ApiTestCaseBatchRequest request) {
         apiTestCaseService.batchMoveGc(request, SessionUtils.getUserId());
     }
@@ -137,6 +148,7 @@ public class ApiTestCaseController {
     @PostMapping("/batch/edit")
     @Operation(summary = "接口测试-接口管理-接口用例-批量编辑")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE)
+    @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_test_case")
     public void batchUpdate(@Validated @RequestBody ApiCaseBatchEditRequest request) {
         apiTestCaseService.batchEdit(request, SessionUtils.getUserId());
     }
@@ -144,6 +156,7 @@ public class ApiTestCaseController {
     @PostMapping("/batch/recover")
     @Operation(summary = "接口测试-接口管理-接口用例-批量恢复")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_RECOVER)
+    @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_test_case")
     public void batchRecover(@Validated @RequestBody ApiTestCaseBatchRequest request) {
         apiTestCaseRecoverService.batchRecover(request, SessionUtils.getUserId());
     }

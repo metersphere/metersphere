@@ -8,15 +8,15 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.List;
 
-/**
- * @author lan
- */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class ApiTestCasePageRequest extends BasePageRequest {
+public class ApiTestCasePageRequest extends BasePageRequest implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "接口pk")

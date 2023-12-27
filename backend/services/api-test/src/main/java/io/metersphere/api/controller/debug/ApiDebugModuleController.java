@@ -43,7 +43,7 @@ public class ApiDebugModuleController {
     @PostMapping("/update")
     @Operation(summary = "接口测试-接口调试-模块-修改模块")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_UPDATE)
-    public boolean list(@RequestBody @Validated ModuleUpdateRequest request) {
+    public boolean update(@RequestBody @Validated ModuleUpdateRequest request) {
         apiDebugModuleService.update(request, SessionUtils.getUserId(), SessionUtils.getCurrentProjectId());
         return true;
     }

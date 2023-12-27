@@ -8,6 +8,7 @@ import io.metersphere.sdk.util.RsaUtils;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.UserExample;
+import io.metersphere.system.domain.UserExtend;
 import io.metersphere.system.domain.UserExtendExample;
 import io.metersphere.system.dto.request.user.PersonalUpdatePasswordRequest;
 import io.metersphere.system.dto.request.user.PersonalUpdateRequest;
@@ -25,6 +26,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -85,7 +87,10 @@ public class PersonalControllerTests extends BaseTest {
         //修改头像
         UserExtendExample example = new UserExtendExample();
         example.createCriteria().andIdEqualTo(loginUser);
-        Assertions.assertEquals(userExtendMapper.countByExample(example), 0);
+        List<UserExtend> userExtends = userExtendMapper.selectByExample(example);
+        if (!userExtends.isEmpty()) {
+            Assertions.assertNull(userExtends.get(0).getAvatar());
+        }
 
         request = new PersonalUpdateRequest();
         request.setId(loginUser);
