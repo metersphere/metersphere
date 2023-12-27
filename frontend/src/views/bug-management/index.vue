@@ -7,7 +7,6 @@
           <a-button :disabled="syncBugLoading" type="outline" @click="handleSync"
             >{{ t('bugManagement.syncBug') }}
           </a-button>
-          <a-button type="outline" @click="handleExport">{{ t('common.export') }} </a-button>
         </div>
       </template>
     </MsAdvanceFilter>
@@ -102,11 +101,16 @@
     :pagination="propsRes.msPagination!"
   />
   <DeleteModal
-    :id="currentDeleteObj.name"
+    :id="currentDeleteObj.id"
     v-model:visible="deleteVisible"
-    :name="currentDeleteObj.name"
+    :name="currentDeleteObj.title"
     :remote-func="deleteSingleBug"
     @submit="handleSingleDelete"
+  />
+  <BatchEditModal
+    v-model:visible="batchEditVisible"
+    :select-param="currentSelectParams"
+    :custom-fields="customFields"
   />
 </template>
 
@@ -125,10 +129,12 @@
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsEditComp from '@/components/business/ms-edit-comp';
+  import BatchEditModal from './components/batchEditModal.vue';
   import BugDetailDrawer from './components/bug-detail-drawer.vue';
   import DeleteModal from './components/deleteModal.vue';
 
   import {
+    deleteBatchBug,
     deleteSingleBug,
     exportBug,
     getBugList,
@@ -137,6 +143,7 @@
   } from '@/api/modules/bug-management';
   import { updateOrAddProjectUserGroup } from '@/api/modules/project-management/usergroup';
   import { useI18n } from '@/hooks/useI18n';
+  import useModal from '@/hooks/useModal';
   import router from '@/router';
   import { useAppStore, useTableStore } from '@/store';
   import useLicenseStore from '@/store/modules/setting/license';
@@ -160,11 +167,15 @@
   const detailVisible = ref(false);
   const activeDetailId = ref<string>('');
   const activeCaseIndex = ref<number>(0);
-  const currentDeleteObj = reactive<{ id: string; name: string }>({ id: '', name: '' });
+  const currentDeleteObj = reactive<{ id: string; title: string }>({ id: '', title: '' });
   const deleteVisible = ref(false);
+  const batchEditVisible = ref(true);
   const keyword = ref('');
   const licenseStore = useLicenseStore();
   const isXpack = computed(() => licenseStore.hasLicense());
+  const { openDeleteModal } = useModal();
+  // 自定义字段
+  const customFields = ref<MsTableColumn[]>([]);
   // 当前选择的条数
   const currentSelectParams = ref<BatchActionQueryParams>({ selectAll: false, currentSelectCount: 0 });
 
@@ -375,12 +386,12 @@
   const handleSingleDelete = (record?: TableData) => {
     if (record) {
       currentDeleteObj.id = record.id;
-      currentDeleteObj.name = record.name;
+      currentDeleteObj.title = record.title;
       deleteVisible.value = true;
     } else {
       fetchData();
       currentDeleteObj.id = '';
-      currentDeleteObj.name = '';
+      currentDeleteObj.title = '';
     }
   };
 
@@ -405,21 +416,62 @@
   };
 
   const handleCopy = (record: BugListItem) => {
-    // eslint-disable-next-line no-console
-    console.log('create', record);
+    router.push({
+      name: RouteEnum.BUG_MANAGEMENT_DETAIL,
+      query: {
+        id: record.id,
+        mode: 'copy',
+      },
+    });
   };
 
   const handleEdit = (record: BugListItem) => {
-    // eslint-disable-next-line no-console
-    console.log('create', record);
+    router.push({
+      name: RouteEnum.BUG_MANAGEMENT_DETAIL,
+      query: {
+        id: record.id,
+        mode: 'edit',
+      },
+    });
   };
 
   const handleBatchDelete = (params: BatchActionQueryParams) => {
-    // eslint-disable-next-line no-console
-    console.log('create', params);
+    // TODO: 等后端接口传给后端id，获取内部和第三方的数量
+    const internalCount = 2;
+    const externalCount = 0;
+    openDeleteModal({
+      title: t('bugManagement.deleteCount', { count: params.selectedIds?.length }),
+      content: `${internalCount ? t('bugManagement.deleteTipInternal', { count: internalCount }) : ''}${
+        internalCount ? ';' : ''
+      } ${
+        externalCount
+          ? t('bugManagement.deleteTipExternal', {
+              count: externalCount,
+            })
+          : ''
+      }`,
+      onBeforeOk: async () => {
+        try {
+          const { selectedIds, selectAll, excludeIds } = params;
+          await deleteBatchBug({
+            selectIds: selectedIds || [],
+            selectAll,
+            excludeIds,
+            condition: { keyword: keyword.value },
+            projectId: projectId.value,
+          });
+          Message.success(t('common.deleteSuccess'));
+          fetchData();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
+      },
+    });
   };
 
   const handleBatchEdit = (params: BatchActionQueryParams) => {
+    batchEditVisible.value = true;
     // eslint-disable-next-line no-console
     console.log('create', params);
   };
