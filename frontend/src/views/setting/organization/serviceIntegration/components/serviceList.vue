@@ -107,7 +107,7 @@
   import { useRouter } from 'vue-router';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
-  import ConfigModal from './conifgModal.vue';
+  import ConfigModal from './configModal.vue';
 
   import { addOrUpdate, getServiceList, getValidate, resetService } from '@/api/modules/setting/serviceIntegration';
   import { useI18n } from '@/hooks/useI18n';

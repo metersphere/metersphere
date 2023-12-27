@@ -5,10 +5,12 @@
     class="ms-modal-form ms-modal-medium"
     :ok-text="t('organization.member.Confirm')"
     :cancel-text="t('organization.member.Cancel')"
+    unmount-on-close
   >
     <template #title> {{ title }} </template>
-    <div>
-      <MsFormCreate v-model:api="fApi" :rule="formRules" :option="options" />
+    <div class="wrapper">
+      <MsFormCreate v-model:api="fApi" v-model:form-item="formItemList" :form-rule="formRules" :option="options">
+      </MsFormCreate>
     </div>
     <template #footer>
       <div class="flex justify-between">
@@ -40,7 +42,8 @@
   import { ref, watch, watchEffect } from 'vue';
   import { Message } from '@arco-design/web-vue';
 
-  import MsFormCreate from '@/components/pure/ms-form-create/formCreate.vue';
+  import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
+  import type { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
 
   import { addOrUpdate, configScript, postValidate } from '@/api/modules/setting/serviceIntegration';
   import { useI18n } from '@/hooks/useI18n';
@@ -48,8 +51,6 @@
   import { useAppStore } from '@/store';
 
   import type { AddOrUpdateServiceModel, ServiceItem } from '@/models/setting/serviceIntegration';
-
-  import { FormRule } from '@form-create/arco-design';
 
   const { t } = useI18n();
   const appStore = useAppStore();
@@ -83,7 +84,8 @@
       'validate-trigger': ['change'],
     },
   });
-  const formRules = ref<FormRule>();
+  const formRules = ref<FormItem[]>([]);
+  const formItemList = ref<FormRuleItem[]>([]);
   const title = ref<string>('');
   const formItem = ref<AddOrUpdateServiceModel>({});
   watchEffect(() => {
@@ -138,7 +140,7 @@
   };
   const saveHandler = () => {
     fApi.value?.validate((valid: any, fail: any) => {
-      if (valid) {
+      if (valid === true) {
         submit();
       } else {
         console.log(fail);
@@ -149,13 +151,15 @@
   // 获取配置脚本
   const getPluginScript = async (cuurentPluginId: string) => {
     try {
+      formRules.value = [];
+      formItemList.value = [];
       const result = await configScript(cuurentPluginId);
       formRules.value = [...result];
       if (type.value === 'edit') {
-        fApi.value.nextTick(() => {
-          fApi.value.setValue({ ...formItem.value.configuration });
-          fApi.value.refresh();
-        });
+        // fApi.value.nextTick(() => {
+        fApi.value.setValue({ ...formItem.value.configuration });
+        fApi.value.refresh();
+        // });
       }
     } catch (error) {
       console.log(error);

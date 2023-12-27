@@ -64,7 +64,7 @@ export interface FormItem {
   value: string | number | boolean | string[] | number[] | Record<string, any> | Record<string, any>[];
   subDesc?: string; // 表单项描述，在表单项下方显示
   inputSearch?: boolean; // 是否支持远程搜索
-  tooltip?: ''; // 表单后边的提示info
+  tooltip?: string; // 表单后边的提示info
   instructionsIcon?: ''; // 是否有图片在表单后边展示
   optionMethod?: string; // 请求检索的方法 两个参数 表单项的所有值
   options?: FormItemDefaultOptions[];
