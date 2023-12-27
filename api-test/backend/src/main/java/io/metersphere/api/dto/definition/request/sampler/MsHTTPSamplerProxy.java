@@ -36,6 +36,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
@@ -113,6 +114,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 return;
             }
             hashTree = this.getHashTree();
+        }
+        if (StringUtils.equalsAnyIgnoreCase(this.getReferenced(),
+                MsTestElementConstants.REF.name(), MsTestElementConstants.COPY.name())
+                || BooleanUtils.isTrue(this.isRefEnvironment)) {
+            this.setUrl(null);
         }
         HTTPSamplerProxy sampler = new HTTPSamplerProxy();
         sampler.setEnabled(this.isEnable());
@@ -397,17 +403,19 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     sampler.setProperty(HTTPSamplerBase.PATH, path);
                 }
             } else {
-                String envPath;
+                String envPath = this.path;
                 try {
-                    URL urlObject = new URL(url);
-                    if (url.contains("${")) {
-                        envPath = url;
-                    } else {
-                        sampler.setDomain(URLDecoder.decode(urlObject.getHost(), StandardCharsets.UTF_8));
-                        envPath = urlObject.getPath();
-                        sampler.setPort(urlObject.getPort());
+                    if (StringUtils.isNotBlank(url)) {
+                        URL urlObject = new URL(url);
+                        if (url.contains("${")) {
+                            envPath = url;
+                        } else {
+                            sampler.setDomain(URLDecoder.decode(urlObject.getHost(), StandardCharsets.UTF_8));
+                            envPath = urlObject.getPath();
+                            sampler.setPort(urlObject.getPort());
+                        }
+                        sampler.setProtocol(urlObject.getProtocol());
                     }
-                    sampler.setProtocol(urlObject.getProtocol());
                 } catch (Exception e) {
                     envPath = url == null ? "" : url;
                 }
