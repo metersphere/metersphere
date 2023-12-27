@@ -1,5 +1,5 @@
 <template>
-  <FormCreate v-model:api="fApi" :rule="formRuleList" :option="props.options || option"></FormCreate>
+  <FormCreate v-model:api="fApi" :rule="formRuleList" :option="props.options || option"> </FormCreate>
 </template>
 
 <script setup lang="ts">
@@ -180,7 +180,7 @@
         // 梳理表单所需要属性
         props: {
           ...FieldTypeFormRules[currentTypeForm].props,
-          'tooltip': item.tooltip,
+          // 'tooltip': item.tooltip,
           // 表单后边展示图片
           'instructionsIcon': item.instructionsIcon,
           // 下拉选项请求 必须是开启远程搜索才有该方法
@@ -194,11 +194,14 @@
           'modelValue': item.value,
           'options': currentOptions, // 当前已经存在的options
           'disabled': item?.props?.disabled,
-          'type': item.control?.length && item.type === 'RADIO' ? 'button' : '',
+          'type': item.control?.length && item.type === 'RADIO' ? 'button' : 'radio',
         },
         sourceType: item.type || '',
         control: [],
         update: item.update,
+        wrap: {
+          tooltip: item.tooltip,
+        },
       };
       // 如果不存在关联name删除link关联属性
       if (!ruleItem.link.filter((ink: string) => ink).length) {
@@ -207,6 +210,9 @@
       // 如果不是等于下拉多选或者单选等
       if (ruleItem.type !== 'SearchSelect') {
         delete ruleItem.props.inputSearch;
+      }
+      if (ruleItem.type !== 'RADIO') {
+        delete ruleItem.props.type;
       }
       let controlItem;
       if (item?.control) {
@@ -272,6 +278,12 @@
 
   defineExpose({
     formRuleList,
+  });
+
+  onUnmounted(() => {
+    formItems.value = [];
+    controlFormItemsMaps.value = {};
+    cascadeItemsMaps.value = {};
   });
 </script>
 
