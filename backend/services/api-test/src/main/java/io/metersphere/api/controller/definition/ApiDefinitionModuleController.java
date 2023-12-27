@@ -7,6 +7,7 @@ import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
+import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,6 +30,7 @@ public class ApiDefinitionModuleController {
     @PostMapping("/tree")
     @Operation(summary = "接口测试-接口管理-模块-查找模块")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public List<BaseTreeNode> getTree(@RequestBody @Validated ApiModuleRequest request) {
         return apiDefinitionModuleService.getTree(request, false);
     }
@@ -43,16 +45,18 @@ public class ApiDefinitionModuleController {
     @PostMapping("/update")
     @Operation(summary = "接口测试-接口管理-模块-修改模块")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_UPDATE)
-    public boolean list(@RequestBody @Validated ModuleUpdateRequest request) {
+    @CheckOwner(resourceId = "#request.id", resourceType = "api_definition_module")
+    public boolean update(@RequestBody @Validated ModuleUpdateRequest request) {
         apiDefinitionModuleService.update(request, SessionUtils.getUserId());
         return true;
     }
 
-    @GetMapping("/delete/{deleteId}")
+    @GetMapping("/delete/{id}")
     @Operation(summary = "接口测试-接口管理-模块-删除模块")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DELETE)
-    public void deleteNode(@PathVariable String deleteId) {
-        apiDefinitionModuleService.deleteModule(deleteId, SessionUtils.getUserId());
+    @CheckOwner(resourceId = "#=id", resourceType = "api_definition_module")
+    public void deleteNode(@PathVariable String id) {
+        apiDefinitionModuleService.deleteModule(id, SessionUtils.getUserId());
     }
 
     @PostMapping("/move")
@@ -65,6 +69,7 @@ public class ApiDefinitionModuleController {
     @PostMapping("/count")
     @Operation(summary = "接口测试-接口管理-模块-统计模块数量")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public Map<String, Long> moduleCount(@Validated @RequestBody ApiModuleRequest request) {
         return apiDefinitionModuleService.moduleCount(request, false);
     }
@@ -72,6 +77,7 @@ public class ApiDefinitionModuleController {
     @PostMapping("/trash/count")
     @Operation(summary = "接口测试-接口管理-模块-统计回收站模块数量")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public Map<String, Long> moduleCountTrash(@Validated @RequestBody ApiModuleRequest request) {
         return apiDefinitionModuleService.moduleCount(request, true);
     }
@@ -79,6 +85,7 @@ public class ApiDefinitionModuleController {
     @PostMapping("/trash/tree")
     @Operation(summary = "接口测试-接口管理-模块-查找模块")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public List<BaseTreeNode> getTrashTree(@RequestBody @Validated ApiModuleRequest request) {
         return apiDefinitionModuleService.getTrashTree(request, true);
     }

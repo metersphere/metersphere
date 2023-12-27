@@ -13,6 +13,7 @@ import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
@@ -45,11 +46,12 @@ public class EnvironmentController {
         return environmentService.list(request);
     }
 
-    @GetMapping("/get/{environmentId}")
+    @GetMapping("/get/{id}")
     @Operation(summary = "项目管理-环境-环境目录-详情")
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ)
-    public EnvironmentInfoDTO get(@PathVariable String environmentId) {
-        return environmentService.get(environmentId);
+    @CheckOwner(resourceId = "#id", resourceType = "environment")
+    public EnvironmentInfoDTO get(@PathVariable String id) {
+        return environmentService.get(id);
     }
 
 
@@ -66,6 +68,7 @@ public class EnvironmentController {
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ_UPDATE)
     @Operation(summary = "项目管理-环境-环境目录-修改")
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = EnvironmentLogService.class)
+    @CheckOwner(resourceId = "#request.id", resourceType = "environment")
     public Environment update(@Validated({Updated.class}) @RequestPart("request") EnvironmentRequest request,
                                      @RequestPart(value = "file", required = false) List<MultipartFile> sslFiles) {
         return environmentService.update(request, SessionUtils.getUserId(), sslFiles);
@@ -74,6 +77,7 @@ public class EnvironmentController {
     @GetMapping("/delete/{id}")
     @Operation(summary = "项目管理-环境-环境目录-删除")
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ_DELETE)
+    @CheckOwner(resourceId = "#id", resourceType = "environment")
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = EnvironmentLogService.class)
     public void delete(@PathVariable String id) {
         environmentService.delete(id);

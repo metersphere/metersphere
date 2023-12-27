@@ -6,6 +6,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.user.UserExtendDTO;
+import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.domain.User;
@@ -60,6 +61,7 @@ public class SystemProjectController {
     @Operation(summary = "系统设置-系统-组织与项目-项目-根据ID获取项目信息")
     @Parameter(name = "id", description = "项目id", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
+    @CheckOwner(resourceId = "#id", resourceType = "project")
     public ProjectDTO getProject(@PathVariable @NotBlank String id) {
         return systemProjectService.get(id);
     }
@@ -74,11 +76,12 @@ public class SystemProjectController {
     }
 
     @PostMapping("/update")
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#project)", msClass = SystemProjectLogService.class)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = SystemProjectLogService.class)
     @Operation(summary = "系统设置-系统-组织与项目-项目-编辑")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
-    public ProjectDTO updateProject(@RequestBody @Validated({Updated.class}) UpdateProjectRequest project) {
-        return systemProjectService.update(project, SessionUtils.getUserId());
+    @CheckOwner(resourceId = "#request.id", resourceType = "project")
+    public ProjectDTO updateProject(@RequestBody @Validated({Updated.class}) UpdateProjectRequest request) {
+        return systemProjectService.update(request, SessionUtils.getUserId());
     }
 
     @GetMapping("/delete/{id}")
@@ -86,6 +89,7 @@ public class SystemProjectController {
     @Operation(summary = "系统设置-系统-组织与项目-项目-删除")
     @Parameter(name = "id", description = "项目", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = SystemProjectLogService.class)
+    @CheckOwner(resourceId = "#id", resourceType = "project")
     public int deleteProject(@PathVariable String id) {
         return systemProjectService.delete(id, SessionUtils.getUserId());
     }
@@ -95,6 +99,7 @@ public class SystemProjectController {
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_RECOVER)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.recoverLog(#id)", msClass = SystemProjectLogService.class)
     @Parameter(name = "id", description = "项目", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
+    @CheckOwner(resourceId = "#id", resourceType = "project")
     public int revokeProject(@PathVariable String id) {
        return systemProjectService.revoke(id, SessionUtils.getUserId());
     }
@@ -104,6 +109,7 @@ public class SystemProjectController {
     @Parameter(name = "id", description = "项目ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#id)", msClass = SystemProjectLogService.class)
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
+    @CheckOwner(resourceId = "#id", resourceType = "project")
     public void enable(@PathVariable String id) {
         systemProjectService.enable(id, SessionUtils.getUserId());
     }
@@ -113,6 +119,7 @@ public class SystemProjectController {
     @Parameter(name = "id", description = "项目ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#id)", msClass = SystemProjectLogService.class)
+    @CheckOwner(resourceId = "#id", resourceType = "project")
     public void disable(@PathVariable String id) {
         systemProjectService.disable(id, SessionUtils.getUserId());
     }
@@ -120,6 +127,7 @@ public class SystemProjectController {
     @PostMapping("/member-list")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
     @Operation(summary = "系统设置-系统-组织与项目-项目-成员列表")
+    @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public Pager<List<UserExtendDTO>> getProjectMember(@Validated @RequestBody ProjectMemberRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
@@ -129,6 +137,7 @@ public class SystemProjectController {
     @PostMapping("/add-member")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_ADD)
     @Operation(summary = "系统设置-系统-组织与项目-项目-添加成员")
+    @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public void addProjectMember(@Validated @RequestBody ProjectAddMemberRequest request) {
         ProjectAddMemberBatchRequest batchRequest = new ProjectAddMemberBatchRequest();
         batchRequest.setProjectIds(List.of(request.getProjectId()));
@@ -142,6 +151,7 @@ public class SystemProjectController {
     @Parameter(name = "projectId", description = "项目id", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#projectId)", msClass = SystemProjectLogService.class)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public int removeProjectMember(@PathVariable String projectId, @PathVariable String userId) {
         return systemProjectService.removeProjectMember(projectId, userId, SessionUtils.getUserId());
     }
@@ -165,6 +175,7 @@ public class SystemProjectController {
     @Operation(summary = "系统设置-系统-组织与项目-项目-修改项目名称")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.renameLog(#request)", msClass = SystemProjectLogService.class)
+    @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public void rename(@RequestBody @Validated({Updated.class}) UpdateProjectNameRequest request) {
         systemProjectService.rename(request, SessionUtils.getUserId());
     }

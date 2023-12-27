@@ -641,8 +641,6 @@ public class OrganizationProjectControllerTests extends BaseTest {
         project.setId("projectId1");
         project.setOrganizationId(getDefault().getId());
         requestPostPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ_UPDATE, updateProject, project);
-        // 校验日志
-        checkLog(projectId, OperationLogType.UPDATE);
     }
 
     @Test

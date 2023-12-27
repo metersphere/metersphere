@@ -11,6 +11,7 @@ import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.dto.UpdateProjectRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,6 +33,7 @@ public class ProjectController {
     @GetMapping("/get/{id}")
     @Operation(summary = "项目管理-基本信息")
     @RequiresPermissions(PermissionConstants.PROJECT_BASE_INFO_READ)
+    @CheckOwner(resourceId = "#id", resourceType = "project")
     public ProjectDTO getProject(@PathVariable String id) {
         return projectService.getProjectById(id);
     }
@@ -54,6 +56,7 @@ public class ProjectController {
     @Operation(summary = "项目管理-更新项目")
     @RequiresPermissions(PermissionConstants.PROJECT_BASE_INFO_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ProjectLogService.class)
+    @CheckOwner(resourceId = "#request.id", resourceType = "project")
     public ProjectDTO updateProject(@RequestBody @Validated({Updated.class}) UpdateProjectRequest request) {
         return projectService.update(request, SessionUtils.getUserId());
     }

@@ -12,6 +12,7 @@ import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -41,6 +42,7 @@ public class EnvironmentGroupController {
     @GetMapping("/delete/{id}")
     @Operation(summary = "项目管理-环境组-删除")
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ_DELETE)
+    @CheckOwner(resourceId = "#id", resourceType = "environment_group")
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = EnvironmentGroupLogService.class)
     public void delete(@PathVariable String id) {
         environmentGroupService.delete(id);
@@ -49,6 +51,7 @@ public class EnvironmentGroupController {
     @PostMapping("/update")
     @Operation(summary = "项目管理-环境组-修改")
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.id", resourceType = "environment_group")
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = EnvironmentGroupLogService.class)
     public EnvironmentGroup update(@Validated @RequestBody EnvironmentGroupRequest request) {
         return environmentGroupService.update(request, SessionUtils.getUserId());
@@ -61,11 +64,12 @@ public class EnvironmentGroupController {
         return environmentGroupService.list(request);
     }
 
-    @GetMapping("/get/{groupId}")
+    @GetMapping("/get/{id}")
     @Operation(summary = "项目管理-环境组-详情")
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ)
-    public List<EnvironmentGroupInfo> get(@PathVariable String groupId) {
-        return environmentGroupService.get(groupId);
+    @CheckOwner(resourceId = "#id", resourceType = "environment_group")
+    public List<EnvironmentGroupInfo> get(@PathVariable String id) {
+        return environmentGroupService.get(id);
     }
 
     @GetMapping("/get-project")
