@@ -172,7 +172,7 @@
         and deleted = false and project_id = #{projectId}
     </update>
 
-    <update id="batchRestoreById">
+    <update id="batchRecoverById">
         update api_definition
         set deleted = 0,
         delete_user = null,

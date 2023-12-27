@@ -9,6 +9,7 @@ import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
@@ -41,6 +42,7 @@ public class ApiDefinitionController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_ADD)
     // 添加接口Log示例
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = ApiDefinitionLogService.class)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public ApiDefinition add(@Validated @RequestBody ApiDefinitionAddRequest request) {
         return apiDefinitionService.create(request, SessionUtils.getUserId());
     }
@@ -50,6 +52,7 @@ public class ApiDefinitionController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_UPDATE)
     // 添加修改Log示例
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ApiDefinitionLogService.class)
+    @CheckOwner(resourceId = "#request.getId()", resourceType = "api_definition")
     public ApiDefinition update(@Validated @RequestBody ApiDefinitionUpdateRequest request) {
         return apiDefinitionService.update(request, SessionUtils.getUserId());
     }
@@ -57,6 +60,7 @@ public class ApiDefinitionController {
     @PostMapping(value = "/batch-update")
     @Operation(summary = "接口测试-接口管理-批量更新接口定义")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_UPDATE)
+    @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_definition")
     public void batchUpdate(@Validated @RequestBody ApiDefinitionBatchUpdateRequest request) {
         apiDefinitionService.batchUpdate(request, SessionUtils.getUserId());
     }
@@ -65,12 +69,14 @@ public class ApiDefinitionController {
     @Operation(summary = "接口测试-接口管理-删除接口定义到回收站")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.delLog(#request)", msClass = ApiDefinitionLogService.class)
+    @CheckOwner(resourceId = "#request.getId()", resourceType = "api_definition")
     public void delete(@Validated @RequestBody ApiDefinitionDeleteRequest request) {
         apiDefinitionService.delete(request, SessionUtils.getUserId());
     }
     @PostMapping(value = "/batch-del")
     @Operation(summary = "接口测试-接口管理-批量删除接口定义到回收站")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DELETE)
+    @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_definition")
     public void batchDelete(@Validated @RequestBody ApiDefinitionBatchRequest request) {
         apiDefinitionService.batchDelete(request, SessionUtils.getUserId());
     }
@@ -79,6 +85,7 @@ public class ApiDefinitionController {
     @Operation(summary = "接口测试-接口管理-复制接口定义")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.copyLog(#request)", msClass = ApiDefinitionLogService.class)
+    @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_definition")
     public ApiDefinition copy(@Validated @RequestBody ApiDefinitionCopyRequest request) {
         return apiDefinitionService.copy(request, SessionUtils.getUserId());
     }
@@ -86,6 +93,7 @@ public class ApiDefinitionController {
     @PostMapping("/batch-move")
     @Operation(summary = "接口测试-接口管理-批量移动接口定义")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_UPDATE)
+    @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_definition")
     public void batchMove(@Validated @RequestBody ApiDefinitionBatchMoveRequest request) {
         apiDefinitionService.batchMove(request, SessionUtils.getUserId());
     }
@@ -93,6 +101,7 @@ public class ApiDefinitionController {
     @GetMapping("/version/{id}")
     @Operation(summary = "接口测试-接口管理-版本信息(接口是否存在多版本)")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @CheckOwner(resourceId = "#id", resourceType = "api_definition")
     public List<ApiDefinitionVersionDTO> getApiDefinitionVersion(@PathVariable @NotBlank(message = "{api_definition.id.not_blank}") String id) {
         return apiDefinitionService.getApiDefinitionVersion(id);
     }
@@ -100,6 +109,7 @@ public class ApiDefinitionController {
     @GetMapping(value = "/get-detail/{id}")
     @Operation(summary = "接口测试-接口管理-获取接口详情")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @CheckOwner(resourceId = "#id", resourceType = "api_definition")
     public ApiDefinitionDTO get(@PathVariable String id) {
         return apiDefinitionService.get(id, SessionUtils.getUserId());
     }
@@ -108,6 +118,7 @@ public class ApiDefinitionController {
     @Operation(summary = "接口测试-接口管理-关注/取消关注用例")
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.followLog(#id)", msClass = ApiDefinitionLogService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_UPDATE)
+    @CheckOwner(resourceId = "#id", resourceType = "api_definition")
     public void follow(@PathVariable String id) {
         apiDefinitionService.follow(id, SessionUtils.getUserId());
     }
@@ -115,36 +126,41 @@ public class ApiDefinitionController {
     @PostMapping("/page")
     @Operation(summary = "接口测试-接口管理-接口列表(deleted 状态为 1 时为回收站数据)")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<ApiDefinitionDTO>> getPage(@Validated @RequestBody ApiDefinitionPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
         return PageUtils.setPageInfo(page, apiDefinitionService.getApiDefinitionPage(request, SessionUtils.getUserId()));
     }
 
-    @PostMapping(value = "/restore")
+    @PostMapping(value = "/recover")
     @Operation(summary = "接口测试-接口管理-恢复回收站接口定义")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_UPDATE)
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.restoreLog(#request)", msClass = ApiDefinitionLogService.class)
-    public void restore(@Validated @RequestBody ApiDefinitionDeleteRequest request) {
-        apiDefinitionService.restore(request, SessionUtils.getUserId());
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_RECOVER)
+    @Log(type = OperationLogType.RECOVER, expression = "#msClass.recoverLog(#request)", msClass = ApiDefinitionLogService.class)
+    @CheckOwner(resourceId = "#request.getId()", resourceType = "api_definition")
+    public void recover(@Validated @RequestBody ApiDefinitionDeleteRequest request) {
+        apiDefinitionService.recover(request, SessionUtils.getUserId());
     }
     @PostMapping(value = "/trash-del")
     @Operation(summary = "接口测试-接口管理-删除回收站接口定义")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.trashDelLog(#request)", msClass = ApiDefinitionLogService.class)
+    @CheckOwner(resourceId = "#request.getId()", resourceType = "api_definition")
     public void trashDel(@Validated @RequestBody ApiDefinitionDeleteRequest request) {
         apiDefinitionService.trashDel(request, SessionUtils.getUserId());
     }
-    @PostMapping(value = "/batch-restore")
+    @PostMapping(value = "/batch-recover")
     @Operation(summary = "接口测试-接口管理-批量从回收站恢复接口定义")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_UPDATE)
-    public void batchRestore(@Validated @RequestBody ApiDefinitionBatchRequest request) {
-        apiDefinitionService.batchRestore(request, SessionUtils.getUserId());
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_RECOVER)
+    @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_definition")
+    public void batchRecover(@Validated @RequestBody ApiDefinitionBatchRequest request) {
+        apiDefinitionService.batchRecover(request, SessionUtils.getUserId());
     }
 
     @PostMapping(value = "/batch-trash-del")
     @Operation(summary = "接口测试-接口管理-批量从回收站删除接口定义")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DELETE)
+    @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_definition")
     public void batchTrashDel(@Validated @RequestBody ApiDefinitionBatchRequest request) {
         apiDefinitionService.batchTrashDel(request, SessionUtils.getUserId());
     }
@@ -152,6 +168,7 @@ public class ApiDefinitionController {
     @PostMapping("/page-doc")
     @Operation(summary = "接口测试-接口管理-接口文档列表")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<ApiDefinitionDTO>> getDocPage(@Validated @RequestBody ApiDefinitionPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
@@ -168,6 +185,7 @@ public class ApiDefinitionController {
     @PostMapping("/doc")
     @Operation(summary = "接口测试-接口管理-接口文档列表")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public ApiDefinitionDocDTO getDocInfo(@Validated @RequestBody ApiDefinitionDocRequest request) {
         return apiDefinitionService.getDocInfo(request, SessionUtils.getUserId());
     }

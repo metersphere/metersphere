@@ -37,7 +37,7 @@ public class ApiTestCaseRecoverService {
         List<String> definitionIds = extApiTestCaseMapper.selectIdsByCaseIds(ids);
         if (CollectionUtils.isNotEmpty(definitionIds)) {
             List<String> apiIds = extApiDefinitionMapper.selectIdsByIdsAndDeleted(definitionIds, true);
-            apiDefinitionService.handleRestoreApiDefinition(apiIds, userId, request.getProjectId(), true);
+            apiDefinitionService.handleRecoverApiDefinition(apiIds, userId, request.getProjectId(), true);
             definitionIds.removeAll(apiIds);
             if (CollectionUtils.isNotEmpty(definitionIds)) {
                 //接口被删的用例

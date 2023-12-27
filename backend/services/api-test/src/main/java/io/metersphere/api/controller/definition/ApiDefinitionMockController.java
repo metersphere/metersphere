@@ -10,6 +10,7 @@ import io.metersphere.api.service.definition.ApiDefinitionMockService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
@@ -40,6 +41,7 @@ public class ApiDefinitionMockController {
     @PostMapping("/page")
     @Operation(summary = "接口测试-接口管理-接口 Mock")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_MOCK_READ)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<ApiDefinitionMockDTO>> getPage(@Validated @RequestBody ApiDefinitionMockPageRequest request) {
         Page<Object> page = PageMethod.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
@@ -49,6 +51,7 @@ public class ApiDefinitionMockController {
     @PostMapping(value = "/detail")
     @Operation(summary = "接口测试-接口管理-获取 Mock 详情")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_MOCK_READ)
+    @CheckOwner(resourceId = "#request.getId()", resourceType = "api_definition_mock")
     public ApiDefinitionMockDTO detail(@Validated @RequestBody ApiDefinitionMockRequest request) {
         return apiDefinitionMockService.detail(request);
     }
@@ -57,6 +60,7 @@ public class ApiDefinitionMockController {
     @Operation(summary = "接口测试-接口管理-添加 Mock")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_MOCK_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = ApiDefinitionMockLogService.class)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public ApiDefinitionMock add(@Validated @RequestBody ApiDefinitionMockAddRequest request) {
         return apiDefinitionMockService.create(request, SessionUtils.getUserId());
     }
@@ -65,6 +69,7 @@ public class ApiDefinitionMockController {
     @Operation(summary = "接口测试-接口管理-更新 Mock")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_MOCK_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ApiDefinitionMockLogService.class)
+    @CheckOwner(resourceId = "#request.getId()", resourceType = "api_definition_mock")
     public ApiDefinitionMock update(@Validated @RequestBody ApiDefinitionMockUpdateRequest request) {
         return apiDefinitionMockService.update(request, SessionUtils.getUserId());
     }
@@ -73,6 +78,7 @@ public class ApiDefinitionMockController {
     @Operation(summary = "接口测试-接口管理-更新 Mock-更新状态")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_MOCK_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateEnableLog(#id)", msClass = ApiDefinitionMockLogService.class)
+    @CheckOwner(resourceId = "#id", resourceType = "api_definition_mock")
     public void updateEnable(@PathVariable String id) {
         apiDefinitionMockService.updateEnable(id);
     }
@@ -81,6 +87,7 @@ public class ApiDefinitionMockController {
     @Operation(summary = "接口测试-接口管理-删除 Mock")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_MOCK_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.delLog(#request)", msClass = ApiDefinitionMockLogService.class)
+    @CheckOwner(resourceId = "#request.getId()", resourceType = "api_definition_mock")
     public void delete(@Validated @RequestBody ApiDefinitionMockRequest request) {
         apiDefinitionMockService.delete(request, SessionUtils.getUserId());
     }
@@ -89,6 +96,7 @@ public class ApiDefinitionMockController {
     @Operation(summary = "接口测试-接口管理-复制 Mock")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_MOCK_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.copyLog(#request)", msClass = ApiDefinitionMockLogService.class)
+    @CheckOwner(resourceId = "#request.getId()", resourceType = "api_definition_mock")
     public ApiDefinitionMock copy(@Validated @RequestBody ApiDefinitionMockRequest request) {
         return apiDefinitionMockService.copy(request, SessionUtils.getUserId());
     }
