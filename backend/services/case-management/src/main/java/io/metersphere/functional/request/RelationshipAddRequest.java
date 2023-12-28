@@ -1,7 +1,7 @@
 package io.metersphere.functional.request;
 
 
-import io.metersphere.system.dto.table.TableBatchProcessDTO;
+import io.metersphere.functional.dto.BaseFunctionalCaseBatchDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -10,7 +10,7 @@ import lombok.Data;
  * @author wx
  */
 @Data
-public class RelationshipAddRequest extends TableBatchProcessDTO {
+public class RelationshipAddRequest extends BaseFunctionalCaseBatchDTO {
 
     @Schema(description = "用例id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case.id.not_blank}")
