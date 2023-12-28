@@ -16,5 +16,45 @@
         </foreach>
     </select>
 
-
+    <select id="list" parameterType="io.metersphere.functional.request.RelationshipRequest" resultType="io.metersphere.functional.dto.FunctionalCaseRelationshipDTO">
+        SELECT
+            fc.id id,
+            fc.NAME name,
+            fc.version_id versionId,
+            pv.`name` versionName,
+            u.`name` userName
+        FROM
+            functional_case_relationship_edge fcre
+                <if test="request.type != null and request.type != ''">
+                    <choose>
+                        <when test="request.type == 'PRE'">
+                            INNER JOIN functional_case fc ON fcre.target_id = fc.id
+                        </when>
+                        <when test="request.type == 'POST'">
+                            INNER JOIN functional_case fc ON fcre.source_id = fc.id
+                        </when>
+                    </choose>
+                </if>
+                INNER JOIN `user` u ON fc.create_user = u.id
+                INNER JOIN project_version pv ON pv.id = fc.version_id
+        WHERE
+        fc.deleted = false
+        <if test="request.type != null and request.type != ''">
+            <choose>
+                <when test="request.type == 'PRE'">
+                   AND fcre.source_id = #{request.id}
+                </when>
+                <when test="request.type == 'POST'">
+                   AND fcre.target_id = #{request.id}
+                </when>
+            </choose>
+        </if>
+        order by
+        <if test="sort != null and sort != ''">
+            fc.${sort}
+        </if>
+        <if test="sort == null or sort == ''">
+            fcre.create_time desc
+        </if>
+    </select>
 </mapper>
