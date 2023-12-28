@@ -147,6 +147,10 @@
         </foreach>
         and deleted = #{deleted}
     </select>
+    <select id="selectByProjectId" resultType="java.lang.String">
+        select id from api_definition
+        where project_id = #{projectId}
+    </select>
 
     <update id="batchDeleteByRefId">
         update api_definition

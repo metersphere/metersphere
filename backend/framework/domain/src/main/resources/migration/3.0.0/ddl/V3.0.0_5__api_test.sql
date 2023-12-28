@@ -161,7 +161,7 @@ CREATE UNIQUE INDEX uq_name_project_parent_type ON api_definition_module (projec
 CREATE TABLE IF NOT EXISTS api_scenario(
     `id` VARCHAR(50) NOT NULL   COMMENT '' ,
     `name` VARCHAR(255) NOT NULL   COMMENT '场景名称' ,
-    `level` VARCHAR(10) NOT NULL   COMMENT '场景级别/P0/P1等' ,
+    `priority` VARCHAR(10) NOT NULL   COMMENT '场景级别/P0/P1等' ,
     `status` VARCHAR(20) NOT NULL   COMMENT '场景状态/未规划/已完成 等' ,
     `principal` VARCHAR(50) NOT NULL   COMMENT '责任人/用户fk' ,
     `step_total` INT NOT NULL  DEFAULT 0 COMMENT '场景步骤总数' ,
@@ -176,7 +176,7 @@ CREATE TABLE IF NOT EXISTS api_scenario(
     `ref_id` VARCHAR(50)    COMMENT '引用资源fk' ,
     `latest` BIT(1)   DEFAULT 0 COMMENT '是否为最新版本 0:否，1:是' ,
     `project_id` VARCHAR(50) NOT NULL   COMMENT '项目fk' ,
-    `api_scenario_module_id` VARCHAR(50)    COMMENT '场景模块fk' ,
+    `module_id` VARCHAR(50)    COMMENT '场景模块fk' ,
     `description` VARCHAR(500)    COMMENT '描述信息' ,
     `tags` VARCHAR(1000)    COMMENT '标签' ,
     `grouped` BIT(1) NOT NULL  DEFAULT 0 COMMENT '是否为环境组' ,
@@ -192,7 +192,7 @@ CREATE TABLE IF NOT EXISTS api_scenario(
   COLLATE = utf8mb4_general_ci COMMENT = '场景';
 
 
-CREATE INDEX idx_api_scenario_module_id ON api_scenario(api_scenario_module_id);
+CREATE INDEX idx_module_id ON api_scenario(module_id);
 CREATE INDEX idx_ref_id ON api_scenario(ref_id);
 CREATE INDEX idx_version_id ON api_scenario(version_id);
 CREATE INDEX idx_project_id ON api_scenario(project_id);
@@ -202,7 +202,7 @@ CREATE INDEX idx_create_time ON api_scenario(create_time desc);
 CREATE INDEX idx_update_time ON api_scenario(update_time desc);
 CREATE INDEX idx_create_user ON api_scenario(create_user);
 CREATE INDEX idx_num ON api_scenario(num);
-CREATE INDEX idx_level ON api_scenario(level);
+CREATE INDEX idx_priority ON api_scenario(priority);
 CREATE INDEX idx_name ON api_scenario(name);
 
 CREATE TABLE IF NOT EXISTS api_scenario_follower(
@@ -219,8 +219,7 @@ CREATE INDEX uk_api_scenario_id_follow_id ON api_scenario_follower(api_scenario_
 CREATE TABLE IF NOT EXISTS api_scenario_module(
   `id` VARCHAR(50) NOT NULL   COMMENT '场景模块pk' ,
   `name` VARCHAR(255) NOT NULL   COMMENT '模块名称' ,
-  `level` INT NOT NULL  DEFAULT 1 COMMENT '模块级别' ,
-  `pos` INT NOT NULL   COMMENT '排序' ,
+  `pos` BIGINT NOT NULL   COMMENT '排序' ,
   `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
   `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
   `update_user` VARCHAR(50) NOT NULL   COMMENT '更新人' ,
@@ -234,6 +233,9 @@ CREATE TABLE IF NOT EXISTS api_scenario_module(
 
 
 CREATE INDEX idx_project_id ON api_scenario_module(project_id);
+CREATE INDEX idx_pos ON api_scenario_module(pos);
+CREATE UNIQUE INDEX uq_name_project_parent_type ON api_scenario_module (project_id, name, parent_id);
+
 
 CREATE TABLE IF NOT EXISTS api_scenario_reference(
   `id` VARCHAR(50) NOT NULL   COMMENT '引用关系pk' ,

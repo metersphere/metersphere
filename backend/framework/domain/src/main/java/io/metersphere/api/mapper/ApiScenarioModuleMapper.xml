@@ -4,8 +4,7 @@
   <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiScenarioModule">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="level" jdbcType="INTEGER" property="level" />
-    <result column="pos" jdbcType="INTEGER" property="pos" />
+    <result column="pos" jdbcType="BIGINT" property="pos" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
@@ -72,7 +71,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, `level`, pos, create_time, update_time, update_user, create_user, project_id, 
+    id, `name`, pos, create_time, update_time, update_user, create_user, project_id, 
     parent_id
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiScenarioModuleExample" resultMap="BaseResultMap">
@@ -106,14 +105,14 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.api.domain.ApiScenarioModule">
-    insert into api_scenario_module (id, `name`, `level`, 
-      pos, create_time, update_time, 
-      update_user, create_user, project_id, 
-      parent_id)
-    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{level,jdbcType=INTEGER}, 
-      #{pos,jdbcType=INTEGER}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{updateUser,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
-      #{parentId,jdbcType=VARCHAR})
+    insert into api_scenario_module (id, `name`, pos, 
+      create_time, update_time, update_user, 
+      create_user, project_id, parent_id
+      )
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{pos,jdbcType=BIGINT}, 
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, 
+      #{createUser,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{parentId,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiScenarioModule">
     insert into api_scenario_module
@@ -123,9 +122,6 @@
       </if>
       <if test="name != null">
         `name`,
-      </if>
-      <if test="level != null">
-        `level`,
       </if>
       <if test="pos != null">
         pos,
@@ -156,11 +152,8 @@
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
       </if>
-      <if test="level != null">
-        #{level,jdbcType=INTEGER},
-      </if>
       <if test="pos != null">
-        #{pos,jdbcType=INTEGER},
+        #{pos,jdbcType=BIGINT},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -197,11 +190,8 @@
       <if test="record.name != null">
         `name` = #{record.name,jdbcType=VARCHAR},
       </if>
-      <if test="record.level != null">
-        `level` = #{record.level,jdbcType=INTEGER},
-      </if>
       <if test="record.pos != null">
-        pos = #{record.pos,jdbcType=INTEGER},
+        pos = #{record.pos,jdbcType=BIGINT},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
@@ -230,8 +220,7 @@
     update api_scenario_module
     set id = #{record.id,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
-      `level` = #{record.level,jdbcType=INTEGER},
-      pos = #{record.pos,jdbcType=INTEGER},
+      pos = #{record.pos,jdbcType=BIGINT},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       update_user = #{record.updateUser,jdbcType=VARCHAR},
@@ -248,11 +237,8 @@
       <if test="name != null">
         `name` = #{name,jdbcType=VARCHAR},
       </if>
-      <if test="level != null">
-        `level` = #{level,jdbcType=INTEGER},
-      </if>
       <if test="pos != null">
-        pos = #{pos,jdbcType=INTEGER},
+        pos = #{pos,jdbcType=BIGINT},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -278,8 +264,7 @@
   <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiScenarioModule">
     update api_scenario_module
     set `name` = #{name,jdbcType=VARCHAR},
-      `level` = #{level,jdbcType=INTEGER},
-      pos = #{pos,jdbcType=INTEGER},
+      pos = #{pos,jdbcType=BIGINT},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       update_user = #{updateUser,jdbcType=VARCHAR},
@@ -290,14 +275,14 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_scenario_module
-    (id, `name`, `level`, pos, create_time, update_time, update_user, create_user, project_id, 
+    (id, `name`, pos, create_time, update_time, update_user, create_user, project_id, 
       parent_id)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.level,jdbcType=INTEGER}, 
-        #{item.pos,jdbcType=INTEGER}, #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, 
-        #{item.updateUser,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, 
-        #{item.parentId,jdbcType=VARCHAR})
+      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.pos,jdbcType=BIGINT}, 
+        #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}, 
+        #{item.createUser,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.parentId,jdbcType=VARCHAR}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -316,11 +301,8 @@
         <if test="'name'.toString() == column.value">
           #{item.name,jdbcType=VARCHAR}
         </if>
-        <if test="'level'.toString() == column.value">
-          #{item.level,jdbcType=INTEGER}
-        </if>
         <if test="'pos'.toString() == column.value">
-          #{item.pos,jdbcType=INTEGER}
+          #{item.pos,jdbcType=BIGINT}
         </if>
         <if test="'create_time'.toString() == column.value">
           #{item.createTime,jdbcType=BIGINT}

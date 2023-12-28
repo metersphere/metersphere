@@ -1,34 +1,37 @@
 package io.metersphere.api.controller;
 
-import io.metersphere.api.domain.*;
-import io.metersphere.api.dto.debug.ApiDebugRequest;
+import io.metersphere.api.domain.ApiScenario;
+import io.metersphere.api.domain.ApiScenarioExample;
+import io.metersphere.api.domain.ApiScenarioModule;
+import io.metersphere.api.domain.ApiScenarioModuleExample;
 import io.metersphere.api.dto.debug.ModuleCreateRequest;
 import io.metersphere.api.dto.debug.ModuleUpdateRequest;
-import io.metersphere.api.mapper.ApiDebugBlobMapper;
-import io.metersphere.api.mapper.ApiDebugMapper;
-import io.metersphere.api.mapper.ApiDebugModuleMapper;
-import io.metersphere.api.service.debug.ApiDebugModuleService;
+import io.metersphere.api.dto.definition.ApiScenarioModuleRequest;
+import io.metersphere.api.mapper.ApiScenarioMapper;
+import io.metersphere.api.mapper.ApiScenarioModuleMapper;
+import io.metersphere.api.service.scenario.ApiScenarioModuleService;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
+import io.metersphere.system.invoker.ProjectServiceInvoker;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -36,34 +39,39 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
-public class ApiDebugModuleControllerTests extends BaseTest {
+public class ApiScenarioModuleControllerTests extends BaseTest {
 
-    private static final String URL_MODULE_ADD = "/api/debug/module/add";
-    private static final String URL_MODULE_UPDATE = "/api/debug/module/update";
-    private static final String URL_MODULE_DELETE = "/api/debug/module/delete/%s";
-    private static final String URL_MODULE_TREE = "/api/debug/module/tree/%s";
-    private static final String URL_MODULE_MOVE = "/api/debug/module/move";
-    private static final String URL_FILE_MODULE_COUNT = "/api/debug/module/count";
+    private static final String URL_MODULE_ADD = "/api/scenario/module/add";
+    private static final String URL_MODULE_UPDATE = "/api/scenario/module/update";
+    private static final String URL_MODULE_DELETE = "/api/scenario/module/delete/%s";
+    private static final String URL_MODULE_TREE = "/api/scenario/module/tree";
+    private static final String URL_MODULE_MOVE = "/api/scenario/module/move";
+    private static final String URL_FILE_MODULE_COUNT = "/api/scenario/module/count";
+    private static final String URL_MODULE_TRASH_TREE = "/api/scenario/module/trash/tree";
+    private static final String URL_MODULE_TRASH_COUNT = "/api/scenario/module/trash/count";
     private static final ResultMatcher BAD_REQUEST_MATCHER = status().isBadRequest();
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
     private static Project project;
     private static List<BaseTreeNode> preliminaryTreeNodes = new ArrayList<>();
+    private final ProjectServiceInvoker serviceInvoker;
     @Resource
     private ProjectMapper projectMapper;
     @Resource
-    private ApiDebugModuleMapper apiDebugModuleMapper;
+    private ApiScenarioModuleMapper apiScenarioModuleMapper;
     @Resource
-    private ApiDebugMapper apiDebugMapper;
+    private ApiScenarioMapper apiScenarioMapper;
     @Resource
-    private ApiDebugBlobMapper apiDebugBlobMapper;
-    @Resource
-    private ApiDebugModuleService apiDebugModuleService;
+    private ApiScenarioModuleService apiScenarioModuleService;
+
+    @Autowired
+    public ApiScenarioModuleControllerTests(ProjectServiceInvoker serviceInvoker) {
+        this.serviceInvoker = serviceInvoker;
+    }
 
     public static BaseTreeNode getNodeByName(List<BaseTreeNode> preliminaryTreeNodes, String nodeName) {
         for (BaseTreeNode firstLevelNode : preliminaryTreeNodes) {
@@ -88,15 +96,16 @@ public class ApiDebugModuleControllerTests extends BaseTest {
         return null;
     }
 
-    @BeforeEach
+    @Test
+    @Order(1)
     public void initTestData() {
         if (project == null) {
             Project initProject = new Project();
             initProject.setId(IDGenerator.nextStr());
             initProject.setNum(null);
-            initProject.setOrganizationId("100001");
-            initProject.setName("接口调试的项目");
-            initProject.setDescription("接口调试的项目");
+            initProject.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+            initProject.setName("场景模块项目");
+            initProject.setDescription("场景模块项目");
             initProject.setCreateUser("admin");
             initProject.setUpdateUser("admin");
             initProject.setCreateTime(System.currentTimeMillis());
@@ -104,48 +113,31 @@ public class ApiDebugModuleControllerTests extends BaseTest {
             initProject.setEnable(true);
             initProject.setModuleSetting("[\"apiTest\",\"uiTest\"]");
             projectMapper.insertSelective(initProject);
+            serviceInvoker.invokeCreateServices(initProject.getId());
             project = projectMapper.selectByPrimaryKey(initProject.getId());
         }
     }
 
-    public void initApiDebugData(String moduleId) {
-        ApiDebug apiDebug = new ApiDebug();
-        apiDebug.setId(IDGenerator.nextStr());
-        apiDebug.setProjectId(project.getId());
-        apiDebug.setName(StringUtils.join("接口调试", apiDebug.getId()));
-        apiDebug.setModuleId(moduleId);
-        apiDebug.setProtocol("HTTP");
-        apiDebug.setMethod("GET");
-        apiDebug.setPath(StringUtils.join("api/debug/", apiDebug.getId()));
-        apiDebug.setCreateTime(System.currentTimeMillis());
-        apiDebug.setUpdateTime(System.currentTimeMillis());
-        apiDebug.setCreateUser("admin");
-        apiDebug.setUpdateUser("admin");
-        apiDebugMapper.insertSelective(apiDebug);
-        ApiDebugBlob apiDebugBlob = new ApiDebugBlob();
-        apiDebugBlob.setId(apiDebug.getId());
-        apiDebugBlob.setRequest(new byte[0]);
-        apiDebugBlob.setResponse(new byte[0]);
-        apiDebugBlobMapper.insertSelective(apiDebugBlob);
-    }
+    public void initScenarioData(String moduleId) {
+        ApiScenario scenario = new ApiScenario();
+        scenario.setId(IDGenerator.nextStr());
+        scenario.setProjectId(project.getId());
+        scenario.setName(StringUtils.join("接口场景", scenario.getId()));
+        scenario.setModuleId(moduleId);
+        scenario.setStatus("未规划");
+        scenario.setPriority("P1");
+        scenario.setPrincipal("admin");
+        scenario.setNum(NumGenerator.nextNum(project.getId(), ApplicationNumScope.API_SCENARIO));
+        scenario.setPos(0L);
+        scenario.setLatest(true);
+        scenario.setVersionId("1.0");
+        scenario.setRefId(scenario.getId());
+        scenario.setCreateTime(System.currentTimeMillis());
+        scenario.setUpdateTime(System.currentTimeMillis());
+        scenario.setCreateUser("admin");
+        scenario.setUpdateUser("admin");
+        apiScenarioMapper.insertSelective(scenario);
 
-    public void initApiDebugTCPData(String moduleId) {
-        ApiDebug apiDebug = new ApiDebug();
-        apiDebug.setId(IDGenerator.nextStr());
-        apiDebug.setProjectId(project.getId());
-        apiDebug.setName(StringUtils.join("接口调试", apiDebug.getId()));
-        apiDebug.setModuleId(moduleId);
-        apiDebug.setProtocol("TCP");
-        apiDebug.setCreateTime(System.currentTimeMillis());
-        apiDebug.setUpdateTime(System.currentTimeMillis());
-        apiDebug.setCreateUser("admin");
-        apiDebug.setUpdateUser("admin");
-        apiDebugMapper.insertSelective(apiDebug);
-        ApiDebugBlob apiDebugBlob = new ApiDebugBlob();
-        apiDebugBlob.setId(apiDebug.getId());
-        apiDebugBlob.setRequest(new byte[0]);
-        apiDebugBlob.setResponse(new byte[0]);
-        apiDebugBlobMapper.insertSelective(apiDebugBlob);
     }
 
     @Test
@@ -158,7 +150,7 @@ public class ApiDebugModuleControllerTests extends BaseTest {
         MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_MODULE_ADD, request);
         String returnId = mvcResult.getResponse().getContentAsString();
         Assertions.assertNotNull(returnId);
-        List<BaseTreeNode> treeNodes = this.getDebugModuleTreeNode();
+        List<BaseTreeNode> treeNodes = this.getModuleTreeNode();
         BaseTreeNode a1Node = null;
         for (BaseTreeNode baseTreeNode : treeNodes) {
             if (StringUtils.equals(baseTreeNode.getName(), request.getName())) {
@@ -167,8 +159,7 @@ public class ApiDebugModuleControllerTests extends BaseTest {
             Assertions.assertNotNull(baseTreeNode.getParentId());
         }
         Assertions.assertNotNull(a1Node);
-        initApiDebugData(a1Node.getId());
-        initApiDebugTCPData(a1Node.getId());
+        initScenarioData(a1Node.getId());
         checkLog(a1Node.getId(), OperationLogType.ADD, URL_MODULE_ADD);
 
         //根目录下创建节点a2和a3，在a1下创建子节点a1-b1
@@ -187,7 +178,7 @@ public class ApiDebugModuleControllerTests extends BaseTest {
         request.setParentId(a1Node.getId());
         this.requestPostWithOkAndReturn(URL_MODULE_ADD, request);
 
-        treeNodes = this.getDebugModuleTreeNode();
+        treeNodes = this.getModuleTreeNode();
         BaseTreeNode a1b1Node = null;
         BaseTreeNode a2Node = null;
         for (BaseTreeNode baseTreeNode : treeNodes) {
@@ -205,10 +196,8 @@ public class ApiDebugModuleControllerTests extends BaseTest {
         }
         Assertions.assertNotNull(a2Node);
         Assertions.assertNotNull(a1b1Node);
-        initApiDebugData(a2Node.getId());
-        initApiDebugTCPData(a2Node.getId());
-        initApiDebugData(a1b1Node.getId());
-        initApiDebugTCPData(a1b1Node.getId());
+        initScenarioData(a2Node.getId());
+        initScenarioData(a1b1Node.getId());
         checkLog(a2Node.getId(), OperationLogType.ADD, URL_MODULE_ADD);
         checkLog(a1b1Node.getId(), OperationLogType.ADD, URL_MODULE_ADD);
 
@@ -220,7 +209,7 @@ public class ApiDebugModuleControllerTests extends BaseTest {
         this.requestPostWithOkAndReturn(URL_MODULE_ADD, request);
 
         //继续创建a1下继续创建a1-a1-b1,
-        treeNodes = this.getDebugModuleTreeNode();
+        treeNodes = this.getModuleTreeNode();
         BaseTreeNode a1ChildNode = null;
         for (BaseTreeNode baseTreeNode : treeNodes) {
             Assertions.assertNotNull(baseTreeNode.getParentId());
@@ -234,7 +223,7 @@ public class ApiDebugModuleControllerTests extends BaseTest {
             }
         }
         Assertions.assertNotNull(a1ChildNode);
-        initApiDebugData(a1ChildNode.getId());
+        initScenarioData(a1ChildNode.getId());
         checkLog(a1ChildNode.getId(), OperationLogType.ADD, URL_MODULE_ADD);
 
         //a1的子节点a1下继续创建节点a1-a1-c1
@@ -243,7 +232,7 @@ public class ApiDebugModuleControllerTests extends BaseTest {
         request.setName("a1-a1-c1");
         request.setParentId(a1ChildNode.getId());
         this.requestPostWithOkAndReturn(URL_MODULE_ADD, request);
-        treeNodes = this.getDebugModuleTreeNode();
+        treeNodes = this.getModuleTreeNode();
         BaseTreeNode a1a1c1Node = null;
         for (BaseTreeNode baseTreeNode : treeNodes) {
             Assertions.assertNotNull(baseTreeNode.getParentId());
@@ -262,7 +251,7 @@ public class ApiDebugModuleControllerTests extends BaseTest {
             }
         }
         Assertions.assertNotNull(a1a1c1Node);
-        initApiDebugData(a1a1c1Node.getId());
+        initScenarioData(a1a1c1Node.getId());
         checkLog(a1a1c1Node.getId(), OperationLogType.ADD, URL_MODULE_ADD);
 
         //子节点a1-b1下继续创建节点a1-b1-c1
@@ -271,7 +260,7 @@ public class ApiDebugModuleControllerTests extends BaseTest {
         request.setName("a1-b1-c1");
         request.setParentId(a1b1Node.getId());
         this.requestPostWithOkAndReturn(URL_MODULE_ADD, request);
-        treeNodes = this.getDebugModuleTreeNode();
+        treeNodes = this.getModuleTreeNode();
         BaseTreeNode a1b1c1Node = null;
         for (BaseTreeNode baseTreeNode : treeNodes) {
             if (StringUtils.equals(baseTreeNode.getName(), "a1") && CollectionUtils.isNotEmpty(baseTreeNode.getChildren())) {
@@ -287,7 +276,7 @@ public class ApiDebugModuleControllerTests extends BaseTest {
             }
         }
         Assertions.assertNotNull(a1b1c1Node);
-        initApiDebugData(a1b1c1Node.getId());
+        initScenarioData(a1b1c1Node.getId());
         preliminaryTreeNodes = treeNodes;
 
         checkLog(a1b1c1Node.getId(), OperationLogType.ADD, URL_MODULE_ADD);
@@ -295,7 +284,7 @@ public class ApiDebugModuleControllerTests extends BaseTest {
         request = new ModuleCreateRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setName("defaultProject");
-        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEBUG_ADD, URL_MODULE_ADD, request);
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_ADD, URL_MODULE_ADD, request);
 
         /**
          测试能否正常做200个节点
@@ -320,7 +309,7 @@ public class ApiDebugModuleControllerTests extends BaseTest {
                 this.requestPost(URL_MODULE_ADD, perfRequest).andExpect(status().is5xxServerError());
             }
         }
-        treeNodes = this.getDebugModuleTreeNode();
+        treeNodes = this.getModuleTreeNode();
         preliminaryTreeNodes = treeNodes;
     }
 
@@ -369,6 +358,20 @@ public class ApiDebugModuleControllerTests extends BaseTest {
         request.setParentId(a1Node.getId());
         this.requestPost(URL_MODULE_ADD, request).andExpect(ERROR_REQUEST_MATCHER);
 
+        //子节点的项目ID和父节点的不匹配
+        request = new ModuleCreateRequest();
+        request.setProjectId(IDGenerator.nextStr());
+        request.setName("RandomUUID");
+        request.setParentId(a1Node.getId());
+        this.requestPost(URL_MODULE_ADD, request).andExpect(status().is5xxServerError());
+
+        //项目ID和父节点的不匹配
+        request = new ModuleCreateRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setName("RandomUUID");
+        request.setParentId(a1Node.getId());
+        this.requestPost(URL_MODULE_ADD, request).andExpect(status().is5xxServerError());
+
     }
 
     @Test
@@ -392,28 +395,20 @@ public class ApiDebugModuleControllerTests extends BaseTest {
         ModuleUpdateRequest updateRequest = new ModuleUpdateRequest();
         updateRequest.setId(a1Node.getId());
         updateRequest.setName("a1-a1");
-        //无法拿到当前用户的projectID 所以需要传入
-        mockMvc.perform(MockMvcRequestBuilders.post(URL_MODULE_UPDATE)
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
-                        .header(SessionConstants.CURRENT_PROJECT, project.getId())
-                        .content(JSON.toJSONString(updateRequest))
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        requestPost(URL_MODULE_UPDATE, updateRequest);
 
-        preliminaryTreeNodes = this.getDebugModuleTreeNode();
+        preliminaryTreeNodes = this.getModuleTreeNode();
         checkLog(a1Node.getId(), OperationLogType.UPDATE, URL_MODULE_UPDATE);
 
         //校验权限
-        ApiDebugModuleExample example = new ApiDebugModuleExample();
+        ApiScenarioModuleExample example = new ApiScenarioModuleExample();
         example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("defaultProject");
-        List<ApiDebugModule> apiDebugModules = apiDebugModuleMapper.selectByExample(example);
+        List<ApiScenarioModule> apiDebugModules = apiScenarioModuleMapper.selectByExample(example);
         assert CollectionUtils.isNotEmpty(apiDebugModules);
         updateRequest = new ModuleUpdateRequest();
         updateRequest.setId(apiDebugModules.get(0).getId());
         updateRequest.setName("default-update-Project");
-        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEBUG_UPDATE, URL_MODULE_UPDATE, updateRequest);
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_UPDATE, URL_MODULE_UPDATE, updateRequest);
     }
 
     @Test
@@ -564,10 +559,10 @@ public class ApiDebugModuleControllerTests extends BaseTest {
         //父节点内移动-a3移动到首位pos小于2，是否触发计算函数 （先手动更改a1的pos为2，然后移动a3到a1前面）
         {
             //更改pos
-            ApiDebugModule updateModule = new ApiDebugModule();
+            ApiScenarioModule updateModule = new ApiScenarioModule();
             updateModule.setId(a1Node.getId());
             updateModule.setPos(2L);
-            apiDebugModuleMapper.updateByPrimaryKeySelective(updateModule);
+            apiScenarioModuleMapper.updateByPrimaryKeySelective(updateModule);
 
             //开始移动
             request = new NodeMoveRequest();
@@ -589,13 +584,13 @@ public class ApiDebugModuleControllerTests extends BaseTest {
         //父节点内移动-移动到中位，前后节点pos差不大于2，是否触发计算函数（在上面的 a3-a1-a2的基础上， 先手动更改a1pos为3*64，a2的pos为3*64+2，然后移动a3到a1和a2中间）
         {
             //更改pos
-            ApiDebugModule updateModule = new ApiDebugModule();
+            ApiScenarioModule updateModule = new ApiScenarioModule();
             updateModule.setId(a1Node.getId());
             updateModule.setPos(3 * 64L);
-            apiDebugModuleMapper.updateByPrimaryKeySelective(updateModule);
+            apiScenarioModuleMapper.updateByPrimaryKeySelective(updateModule);
             updateModule.setId(a2Node.getId());
             updateModule.setPos(3 * 64 + 2L);
-            apiDebugModuleMapper.updateByPrimaryKeySelective(updateModule);
+            apiScenarioModuleMapper.updateByPrimaryKeySelective(updateModule);
 
             //开始移动
             request = new NodeMoveRequest();
@@ -616,10 +611,10 @@ public class ApiDebugModuleControllerTests extends BaseTest {
         //跨节点移动-移动到首位pos小于2，是否触发计算函数（先手动更改a1-b1的pos为2，然后移动a3到a1-b1前面，最后再移动回来）
         {
             //更改pos
-            ApiDebugModule updateModule = new ApiDebugModule();
+            ApiScenarioModule updateModule = new ApiScenarioModule();
             updateModule.setId(a1b1Node.getId());
             updateModule.setPos(2L);
-            apiDebugModuleMapper.updateByPrimaryKeySelective(updateModule);
+            apiScenarioModuleMapper.updateByPrimaryKeySelective(updateModule);
 
             //开始移动
             request = new NodeMoveRequest();
@@ -640,13 +635,13 @@ public class ApiDebugModuleControllerTests extends BaseTest {
         //跨节点移动-移动到中位，前后节点pos差不大于2，是否触发计算函数先手动更改a1-a1的pos为a1-b1+2，然后移动a3到a1-a1前面，最后再移动回来）
         {
             //更改pos
-            ApiDebugModule updateModule = new ApiDebugModule();
+            ApiScenarioModule updateModule = new ApiScenarioModule();
             updateModule.setId(a1b1Node.getId());
             updateModule.setPos(3 * 64L);
-            apiDebugModuleMapper.updateByPrimaryKeySelective(updateModule);
+            apiScenarioModuleMapper.updateByPrimaryKeySelective(updateModule);
             updateModule.setId(a1a1Node.getId());
             updateModule.setPos(3 * 64 + 2L);
-            apiDebugModuleMapper.updateByPrimaryKeySelective(updateModule);
+            apiScenarioModuleMapper.updateByPrimaryKeySelective(updateModule);
 
             //开始移动
             request = new NodeMoveRequest();
@@ -672,7 +667,7 @@ public class ApiDebugModuleControllerTests extends BaseTest {
             request.setDropNodeId(a2Node.getId());
             request.setDropPosition(0);
             this.requestPostWithOk(URL_MODULE_MOVE, request);
-            ApiDebugModule a3Module = apiDebugModuleMapper.selectByPrimaryKey(a3Node.getId());
+            ApiScenarioModule a3Module = apiScenarioModuleMapper.selectByPrimaryKey(a3Node.getId());
             Assertions.assertEquals(a3Module.getParentId(), a2Node.getId());
 
             //移动回去
@@ -686,7 +681,7 @@ public class ApiDebugModuleControllerTests extends BaseTest {
 
         checkLog(a1Node.getId(), OperationLogType.UPDATE, URL_MODULE_MOVE);
         checkLog(a3Node.getId(), OperationLogType.UPDATE, URL_MODULE_MOVE);
-        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEBUG_UPDATE, URL_MODULE_MOVE, request);
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_UPDATE, URL_MODULE_MOVE, request);
     }
 
     @Test
@@ -750,24 +745,16 @@ public class ApiDebugModuleControllerTests extends BaseTest {
     @Order(8)
     public void TestModuleCountSuccess() throws Exception {
         this.preliminaryData();
-        ApiDebugRequest request = new ApiDebugRequest() {{
-            this.setProtocol("HTTP");
+        ApiScenarioModuleRequest request = new ApiScenarioModuleRequest() {{
+            this.setProjectId(project.getId());
         }};
         MvcResult moduleCountMvcResult = this.requestPostWithOkAndReturn(URL_FILE_MODULE_COUNT, request);
         Map<String, Integer> moduleCountResult = JSON.parseObject(JSON.toJSONString(
                         JSON.parseObject(moduleCountMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
                 Map.class);
         Assertions.assertTrue(moduleCountResult.containsKey("all"));
-        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEBUG_READ, URL_FILE_MODULE_COUNT, request);
-
-    }
-
-    @Test
-    @Order(8)
-    public void TestModuleCountError() throws Exception {
-        ApiDebugRequest request = new ApiDebugRequest();
-        request.setProtocol(null);
-        this.requestPost(URL_FILE_MODULE_COUNT, request).andExpect(BAD_REQUEST_MATCHER);
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_READ, URL_FILE_MODULE_COUNT, request);
 
     }
 
@@ -775,16 +762,17 @@ public class ApiDebugModuleControllerTests extends BaseTest {
     @Order(10)
     public void deleteModuleTestSuccess() throws Exception {
         this.preliminaryData();
+        this.getModuleTrashTreeNode();
 
         // 删除没有文件的节点a1-b1-c1  检查是否级联删除根节点
-        BaseTreeNode a1b1Node = getNodeByName(this.getDebugModuleTreeNode(), "a1-b1");
+        BaseTreeNode a1b1Node = getNodeByName(this.getModuleTreeNode(), "a1-b1");
         assert a1b1Node != null;
         this.requestGetWithOk(String.format(URL_MODULE_DELETE, a1b1Node.getId()));
         this.checkModuleIsEmpty(a1b1Node.getId());
         checkLog(a1b1Node.getId(), OperationLogType.DELETE, URL_MODULE_DELETE);
 
         // 删除有文件的节点 a1-a1      检查是否级联删除根节点
-        BaseTreeNode a1a1Node = getNodeByName(this.getDebugModuleTreeNode(), "a1-a1");
+        BaseTreeNode a1a1Node = getNodeByName(this.getModuleTreeNode(), "a1-a1");
         assert a1a1Node != null;
         this.requestGetWithOk(String.format(URL_MODULE_DELETE, a1a1Node.getId()));
         this.checkModuleIsEmpty(a1a1Node.getId());
@@ -796,17 +784,45 @@ public class ApiDebugModuleControllerTests extends BaseTest {
         this.requestGet(String.format(URL_MODULE_DELETE, ModuleConstants.DEFAULT_NODE_ID)).andExpect(ERROR_REQUEST_MATCHER);
 
         //service层判断：测试删除空集合
-        apiDebugModuleService.deleteModule(new ArrayList<>(), "admin", DEFAULT_PROJECT_ID);
+        apiScenarioModuleService.deleteModule(new ArrayList<>(), "admin", DEFAULT_PROJECT_ID);
         //校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEBUG_DELETE, String.format(URL_MODULE_DELETE, IDGenerator.nextNum()));
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_DELETE, String.format(URL_MODULE_DELETE, IDGenerator.nextNum()));
 
     }
 
-    private List<BaseTreeNode> getDebugModuleTreeNode() throws Exception {
-        MvcResult result = this.requestGetWithOkAndReturn(String.format(URL_MODULE_TREE, ModuleConstants.NODE_PROTOCOL_HTTP));
+    @Test
+    @Order(11)
+    public void getModuleTrashTreeNode() throws Exception {
+        MvcResult result = this.requestPostWithOkAndReturn(URL_MODULE_TRASH_TREE, new ApiScenarioModuleRequest() {{
+            this.setProjectId(project.getId());
+        }});
         String returnData = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
-        this.requestGetWithOkAndReturn(String.format(URL_MODULE_TREE, "TCP"));
+        JSON.parseArray(JSON.toJSONString(resultHolder.getData()), BaseTreeNode.class);
+    }
+
+    @Test
+    @Order(12)
+    public void getModuleTrashTreeCount() throws Exception {
+        ApiScenarioModuleRequest request = new ApiScenarioModuleRequest() {{
+            this.setProjectId(project.getId());
+        }};
+        MvcResult moduleCountMvcResult = this.requestPostWithOkAndReturn(URL_MODULE_TRASH_COUNT, request);
+        Map<String, Integer> moduleCountResult = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(moduleCountMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Map.class);
+        Assertions.assertTrue(moduleCountResult.containsKey("all"));
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_READ, URL_MODULE_TRASH_COUNT, request);
+    }
+
+
+    private List<BaseTreeNode> getModuleTreeNode() throws Exception {
+        MvcResult result = this.requestPostWithOkAndReturn(URL_MODULE_TREE, new ApiScenarioModuleRequest() {{
+            this.setProjectId(project.getId());
+        }});
+        String returnData = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         return JSON.parseArray(JSON.toJSONString(resultHolder.getData()), BaseTreeNode.class);
     }
 
@@ -836,25 +852,25 @@ public class ApiDebugModuleControllerTests extends BaseTest {
     }
 
     private void checkModuleIsEmpty(String id) {
-        ApiDebugModuleExample example = new ApiDebugModuleExample();
+        ApiScenarioModuleExample example = new ApiScenarioModuleExample();
         example.createCriteria().andParentIdEqualTo(id);
-        Assertions.assertEquals(0, apiDebugModuleMapper.countByExample(example));
+        Assertions.assertEquals(0, apiScenarioModuleMapper.countByExample(example));
 
-        ApiDebugExample apiDebugExample = new ApiDebugExample();
-        example = new ApiDebugModuleExample();
+        ApiScenarioExample apiDebugExample = new ApiScenarioExample();
+        example = new ApiScenarioModuleExample();
         example.createCriteria().andIdEqualTo(id);
-        Assertions.assertEquals(0, apiDebugModuleMapper.countByExample(example));
-        apiDebugExample.createCriteria().andModuleIdEqualTo(id);
-        Assertions.assertEquals(0, apiDebugMapper.countByExample(apiDebugExample));
+        Assertions.assertEquals(0, apiScenarioModuleMapper.countByExample(example));
+        apiDebugExample.createCriteria().andModuleIdEqualTo(id).andDeletedEqualTo(false);
+        Assertions.assertEquals(0, apiScenarioMapper.countByExample(apiDebugExample));
     }
 
     private void checkModulePos(String firstNode, String secondNode, String thirdNode, boolean isRecalculate) {
-        ApiDebugModule firstModule = apiDebugModuleMapper.selectByPrimaryKey(firstNode);
-        ApiDebugModule secondModule = apiDebugModuleMapper.selectByPrimaryKey(secondNode);
-        ApiDebugModule thirdModule = null;
+        ApiScenarioModule firstModule = apiScenarioModuleMapper.selectByPrimaryKey(firstNode);
+        ApiScenarioModule secondModule = apiScenarioModuleMapper.selectByPrimaryKey(secondNode);
+        ApiScenarioModule thirdModule = null;
         Assertions.assertTrue(firstModule.getPos() < secondModule.getPos());
         if (StringUtils.isNotBlank(thirdNode)) {
-            thirdModule = apiDebugModuleMapper.selectByPrimaryKey(thirdNode);
+            thirdModule = apiScenarioModuleMapper.selectByPrimaryKey(thirdNode);
             Assertions.assertTrue(secondModule.getPos() < thirdModule.getPos());
         }
         if (isRecalculate) {

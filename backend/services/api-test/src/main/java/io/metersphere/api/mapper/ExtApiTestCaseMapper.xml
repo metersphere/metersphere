@@ -141,6 +141,17 @@
             #{id}
         </foreach>
     </select>
+    <select id="getIdsByApiIds" resultType="java.lang.String">
+        SELECT
+        t1.id
+        FROM
+        api_test_case t1
+        WHERE
+         t1.api_definition_id IN
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 
     <select id="listByProviderRequest" resultType="io.metersphere.dto.ApiTestCaseProviderDTO">
         SELECT

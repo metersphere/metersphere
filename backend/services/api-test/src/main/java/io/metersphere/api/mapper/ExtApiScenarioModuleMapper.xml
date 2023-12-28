@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.api.mapper.ExtApiDefinitionModuleMapper">
+<mapper namespace="io.metersphere.api.mapper.ExtApiScenarioModuleMapper">
     <select id="selectIdAndParentIdByRequest" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
         SELECT m.id,
         m.parent_id AS parentId
-        FROM api_definition_module m
+        FROM api_scenario_module m
         <include refid="module_request"/>
         ORDER BY pos
     </select>
     <select id="selectChildrenIdsByParentIds" resultType="java.lang.String">
         SELECT id
-        FROM api_definition_module
+        FROM api_scenario_module
         WHERE parent_id IN
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
@@ -18,46 +18,42 @@
     </select>
     <delete id="deleteByIds">
         DELETE
-        FROM api_definition_module
+        FROM api_scenario_module
         WHERE id IN
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
     </delete>
+    <update id="deleteScenarioToGc">
+        update api_scenario
+        set delete_user = #{userId},delete_time = #{time}, deleted = 1 , module_id = 'root'
+        where ref_id in
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+    </update>
     <select id="getMaxPosByParentId" resultType="java.lang.Long">
         SELECT max(pos)
-        FROM api_definition_module
+        FROM api_scenario_module
         WHERE parent_id = #{0}
     </select>
     <select id="selectChildrenIdsSortByPos" resultType="java.lang.String">
         SELECT id
-        FROM api_definition_module
+        FROM api_scenario_module
         WHERE parent_id = #{0}
 
         ORDER BY pos ASC
     </select>
-    <select id="selectApiDataByRequest" resultType="io.metersphere.api.dto.debug.ApiTreeNode">
-        SELECT id,
-        NAME,
-        module_id AS parentId,
-        'API' AS type,
-        method,
-        protocol
-        FROM api_definition
-        where api_definition.deleted = #{deleted}
-        <include refid="queryWhereCondition"/>
-        ORDER BY update_time DESC
-    </select>
     <select id="countModuleIdByRequest" resultType="io.metersphere.project.dto.ModuleCountDTO">
-        SELECT module_id AS moduleId, count(id) AS dataCount
-        FROM api_definition
-        where api_definition.deleted = #{deleted}
+        SELECT api_scenario.module_id AS moduleId, count(api_scenario.id) AS dataCount
+        FROM api_scenario
+        where api_scenario.deleted =#{deleted}
         <include refid="queryWhereCondition"/>
-        GROUP BY api_definition.module_id
+        GROUP BY api_scenario.module_id
     </select>
     <select id="selectBaseModuleById" resultType="io.metersphere.system.dto.sdk.BaseModule">
         SELECT id, name, pos, project_Id, parent_id
-        FROM api_definition_module
+        FROM api_scenario_module
         WHERE id = #{0}
     </select>
 
@@ -65,7 +61,7 @@
             parameterType="io.metersphere.project.dto.NodeSortQueryParam"
             resultType="io.metersphere.system.dto.sdk.BaseModule">
         SELECT id, name, pos, project_Id, parent_id
-        FROM api_definition_module
+        FROM api_scenario_module
         WHERE parent_id = #{parentId}
         <if test="operator == 'moreThan'">
             AND pos &gt; #{pos}
@@ -86,7 +82,7 @@
         m.pos,
         m.project_id,
         'MODULE' AS type
-        FROM api_definition_module m
+        FROM api_scenario_module m
         <include refid="module_request"/>
         ORDER BY pos
     </select>
@@ -97,7 +93,7 @@
         m.pos,
         m.project_id,
         'MODULE' AS type
-        FROM api_definition_module m
+        FROM api_scenario_module m
         WHERE m.id IN
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
@@ -108,7 +104,7 @@
 
     <select id="selectBaseByIds" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
         SELECT id, name, parent_id AS parentId, 'module' AS type
-        FROM api_definition_module
+        FROM api_scenario_module
         WHERE id IN
         <foreach collection="ids" item="id" open="(" separator="," close=")">
             #{id}
@@ -116,40 +112,19 @@
         ORDER BY pos
     </select>
 
-    <sql id="module_request">
-        <where>
-            <if test="request.projectId != null and request.projectId != ''">
-                AND m.project_id = #{request.projectId}
-            </if>
-            <if test="request.keyword != null and request.keyword != ''">
-                AND m.name like CONCAT('%', #{request.keyword},'%')
-            </if>
-            <if test="request.moduleIds != null and request.moduleIds.size() != 0">
-                AND m.id IN
-                <foreach collection="request.moduleIds" item="item" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
-            </if>
-
-        </where>
-    </sql>
-
     <sql id="queryWhereCondition">
         <if test="request.keyword != null and request.keyword != ''">
             and (
-            api_definition.num like concat('%', #{request.keyword},'%')
-            or api_definition.name like concat('%', #{request.keyword},'%')
-            or api_definition.tags like JSON_CONTAINS(tags, concat('["',#{request.keyword},'"]'))
+            api_scenario.num like concat('%', #{request.keyword},'%')
+            or api_scenario.name like concat('%', #{request.keyword},'%')
+            or api_scenario.tags like JSON_CONTAINS(tags, concat('["',#{request.keyword},'"]'))
             )
         </if>
         <if test="request.projectId != null and request.projectId != ''">
-            and api_definition.project_id = #{request.projectId}
-        </if>
-        <if test="request.protocol != null and request.protocol != ''">
-            AND api_definition.protocol = #{request.protocol}
+            and api_scenario.project_id = #{request.projectId}
         </if>
         <if test="request.moduleIds != null and request.moduleIds.size() > 0">
-            and api_definition.module_id in
+            and api_scenario.module_id in
             <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
                 #{nodeId}
             </foreach>
@@ -167,7 +142,7 @@
         </if>
 
         <include refid="queryVersionCondition">
-            <property name="versionTable" value="api_definition"/>
+            <property name="versionTable" value="api_scenario"/>
         </include>
     </sql>
 
@@ -184,56 +159,42 @@
     </sql>
     <sql id="combine">
         <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
-            and api_definition.name
+            and api_scenario.name
             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                 <property name="object" value="${condition}.name"/>
             </include>
         </if>
 
         <if test='${condition}.id != null'>
-            and api_definition.num
+            and api_scenario.num
             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                 <property name="object" value="${condition}.id"/>
             </include>
         </if>
 
         <if test="${condition}.updateTime != null">
-            and api_definition.update_time
+            and api_scenario.update_time
             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                 <property name="object" value="${condition}.updateTime"/>
             </include>
         </if>
 
         <if test="${condition}.createTime != null">
-            and api_definition.create_time
+            and api_scenario.create_time
             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                 <property name="object" value="${condition}.createTime"/>
             </include>
         </if>
 
         <if test="${condition}.status != null">
-            and api_definition.status
+            and api_scenario.status
             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                 <property name="object" value="${condition}.status"/>
             </include>
         </if>
 
-        <if test="${condition}.path != null">
-            and api_definition.path
-            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                <property name="object" value="${condition}.path"/>
-            </include>
-        </if>
-
-        <if test="${condition}.method != null">
-            and api_definition.method
-            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                <property name="object" value="${condition}.method"/>
-            </include>
-        </if>
-
         <if test='${condition}.tags != null and ${ObjectTags}.operator == "not like"'>
-            and (api_definition.tags is null or api_definition.tags
+            and (api_scenario.tags is null or api_scenario.tags
             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                 <property name="object" value="${condition}.tags"/>
             </include>
@@ -241,49 +202,13 @@
         </if>
 
         <if test='${condition}.tags != null and ${ObjectTags}.operator == "like"'>
-            and api_definition.tags
+            and api_scenario.tags
             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                 <property name="object" value="${condition}.tags"/>
             </include>
         </if>
 
-        <if test="${condition}.customs != null and ${condition}.customs.size() > 0">
-            <foreach collection="${condition}.customs" item="custom" separator="" open="" close="">
-                <if test="custom.value != ''">
-                    <if test='custom.operator == "not like" or custom.operator == "not in"'>
-                        and api_definition.id not in (
-                    </if>
-                    <if test='custom.operator != "not like" and custom.operator != "not in"'>
-                        and api_definition.id in (
-                    </if>
-                    select api_id from api_definition_custom_field where field_id = #{custom.id}
-                    <choose>
-                        <when test="custom.type == 'richText' or custom.type == 'textarea' or custom.operator == 'current user'">
-                            and `value`
-                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                                <property name="object" value="custom"/>
-                            </include>
-                        </when>
-                        <when test="custom.type == 'multipleMember' or custom.type == 'checkbox' or custom.type == 'multipleSelect'">
-                            and ${custom.value}
-                        </when>
-                        <when test="custom.type == 'date' or custom.type == 'datetime'">
-                            and left(replace(unix_timestamp(trim(both '"' from `value`)), '.', ''), 13)
-                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                                <property name="object" value="custom"/>
-                            </include>
-                        </when>
-                        <otherwise>
-                            and trim(both '"' from `value`)
-                            <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                                <property name="object" value="custom"/>
-                            </include>
-                        </otherwise>
-                    </choose>
-                    )
-                </if>
-            </foreach>
-        </if>
+
     </sql>
 
     <sql id="filters">
@@ -292,39 +217,52 @@
                 <if test="values != null and values.size() > 0">
                     <choose>
                         <when test="key=='status'">
-                            and api_definition.status in
-                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
-                        </when>
-                        <when test="key=='method'">
-                            and api_definition.method in
+                            and api_scenario.status in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                         <when test="key=='create_user'">
-                            and api_definition.create_user in
+                            and api_scenario.create_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                         <when test="key=='version_id'">
-                            and api_definition.version_id in
+                            and api_scenario.version_id in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
-                        <when test="key.startsWith('custom_single')">
-                            and api_definition.id in (
-                            select api_id from api_definition_custom_field where concat('custom_single_', field_id) = #{key}
-                            and trim(both '"' from `value`) in
+                        <when test="key=='level'">
+                            and api_scenario.level in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
-                            )
                         </when>
-                        <when test="key.startsWith('custom_multiple')">
-                            and api_definition.id in (
-                            select api_id from api_definition_custom_field where concat('custom_multiple_', field_id) = #{key}
-                            and
-                            <include refid="io.metersphere.system.mapper.BaseMapper.filterMultipleWrapper"/>
-                            )
+                        <when test="key=='principal'">
+                            and api_scenario.principal in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='update_user'">
+                            and api_scenario.update_user in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                     </choose>
                 </if>
             </foreach>
         </if>
+    </sql>
+
+
+    <sql id="module_request">
+        <where>
+            <if test="request.projectId != null and request.projectId != ''">
+                AND m.project_id = #{request.projectId}
+            </if>
+            <if test="request.keyword != null and request.keyword != ''">
+                AND m.name like CONCAT('%', #{request.keyword},'%')
+            </if>
+            <if test="request.moduleIds != null and request.moduleIds.size() != 0">
+                AND m.id IN
+                <foreach collection="request.moduleIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+
+        </where>
     </sql>
 
 </mapper>

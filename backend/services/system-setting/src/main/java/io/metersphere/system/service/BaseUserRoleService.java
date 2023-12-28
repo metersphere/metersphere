@@ -1,17 +1,17 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.UserRoleEnum;
-import io.metersphere.system.dto.permission.Permission;
-import io.metersphere.system.dto.permission.PermissionDefinitionItem;
-import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.system.config.PermissionCache;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.config.PermissionCache;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRoleExample;
 import io.metersphere.system.domain.UserRoleRelation;
+import io.metersphere.system.dto.permission.Permission;
+import io.metersphere.system.dto.permission.PermissionDefinitionItem;
+import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
 import io.metersphere.system.uid.IDGenerator;
@@ -120,6 +120,7 @@ public class BaseUserRoleService {
             put("READ+RECOVER", "permission.recover");
             put("READ+EXPORT", "permission.export");
             put("READ+EXECUTE", "permission.execute");
+            put("READ+DEBUG", "permission.download");
         }};
         return Translator.get(translationMap.get(permissionKey));
     }
@@ -260,6 +261,7 @@ public class BaseUserRoleService {
 
     /**
      * 校验同名用户组是否存在
+     *
      * @param userRole 用户组
      */
     public void checkNewRoleExist(UserRole userRole) {
@@ -278,6 +280,7 @@ public class BaseUserRoleService {
 
     /**
      * 校验用户与用户组是否存在
+     *
      * @param userId 用户ID
      * @param roleId 用户组ID
      */

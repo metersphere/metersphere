@@ -54,7 +54,7 @@ public class ApiDefinitionModuleController {
     @GetMapping("/delete/{id}")
     @Operation(summary = "接口测试-接口管理-模块-删除模块")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DELETE)
-    @CheckOwner(resourceId = "#=id", resourceType = "api_definition_module")
+    @CheckOwner(resourceId = "#id", resourceType = "api_definition_module")
     public void deleteNode(@PathVariable String id) {
         apiDefinitionModuleService.deleteModule(id, SessionUtils.getUserId());
     }

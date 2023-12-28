@@ -244,66 +244,6 @@ public class ApiScenarioModuleExample {
             return (Criteria) this;
         }
 
-        public Criteria andLevelIsNull() {
-            addCriterion("`level` is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andLevelIsNotNull() {
-            addCriterion("`level` is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andLevelEqualTo(Integer value) {
-            addCriterion("`level` =", value, "level");
-            return (Criteria) this;
-        }
-
-        public Criteria andLevelNotEqualTo(Integer value) {
-            addCriterion("`level` <>", value, "level");
-            return (Criteria) this;
-        }
-
-        public Criteria andLevelGreaterThan(Integer value) {
-            addCriterion("`level` >", value, "level");
-            return (Criteria) this;
-        }
-
-        public Criteria andLevelGreaterThanOrEqualTo(Integer value) {
-            addCriterion("`level` >=", value, "level");
-            return (Criteria) this;
-        }
-
-        public Criteria andLevelLessThan(Integer value) {
-            addCriterion("`level` <", value, "level");
-            return (Criteria) this;
-        }
-
-        public Criteria andLevelLessThanOrEqualTo(Integer value) {
-            addCriterion("`level` <=", value, "level");
-            return (Criteria) this;
-        }
-
-        public Criteria andLevelIn(List<Integer> values) {
-            addCriterion("`level` in", values, "level");
-            return (Criteria) this;
-        }
-
-        public Criteria andLevelNotIn(List<Integer> values) {
-            addCriterion("`level` not in", values, "level");
-            return (Criteria) this;
-        }
-
-        public Criteria andLevelBetween(Integer value1, Integer value2) {
-            addCriterion("`level` between", value1, value2, "level");
-            return (Criteria) this;
-        }
-
-        public Criteria andLevelNotBetween(Integer value1, Integer value2) {
-            addCriterion("`level` not between", value1, value2, "level");
-            return (Criteria) this;
-        }
-
         public Criteria andPosIsNull() {
             addCriterion("pos is null");
             return (Criteria) this;
@@ -314,52 +254,52 @@ public class ApiScenarioModuleExample {
             return (Criteria) this;
         }
 
-        public Criteria andPosEqualTo(Integer value) {
+        public Criteria andPosEqualTo(Long value) {
             addCriterion("pos =", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPosNotEqualTo(Integer value) {
+        public Criteria andPosNotEqualTo(Long value) {
             addCriterion("pos <>", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPosGreaterThan(Integer value) {
+        public Criteria andPosGreaterThan(Long value) {
             addCriterion("pos >", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPosGreaterThanOrEqualTo(Integer value) {
+        public Criteria andPosGreaterThanOrEqualTo(Long value) {
             addCriterion("pos >=", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPosLessThan(Integer value) {
+        public Criteria andPosLessThan(Long value) {
             addCriterion("pos <", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPosLessThanOrEqualTo(Integer value) {
+        public Criteria andPosLessThanOrEqualTo(Long value) {
             addCriterion("pos <=", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPosIn(List<Integer> values) {
+        public Criteria andPosIn(List<Long> values) {
             addCriterion("pos in", values, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPosNotIn(List<Integer> values) {
+        public Criteria andPosNotIn(List<Long> values) {
             addCriterion("pos not in", values, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPosBetween(Integer value1, Integer value2) {
+        public Criteria andPosBetween(Long value1, Long value2) {
             addCriterion("pos between", value1, value2, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPosNotBetween(Integer value1, Integer value2) {
+        public Criteria andPosNotBetween(Long value1, Long value2) {
             addCriterion("pos not between", value1, value2, "pos");
             return (Criteria) this;
         }

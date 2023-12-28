@@ -21,9 +21,9 @@ public class ApiScenario implements Serializable {
     private String name;
 
     @Schema(description = "场景级别/P0/P1等", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario.level.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 10, message = "{api_scenario.level.length_range}", groups = {Created.class, Updated.class})
-    private String level;
+    @NotBlank(message = "{api_scenario.priority.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 10, message = "{api_scenario.priority.length_range}", groups = {Created.class, Updated.class})
+    private String priority;
 
     @Schema(description = "场景状态/未规划/已完成 等", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_scenario.status.not_blank}", groups = {Created.class})
@@ -50,7 +50,7 @@ public class ApiScenario implements Serializable {
     private String lastReportId;
 
     @Schema(description = "编号")
-    private Integer num;
+    private Long num;
 
     @Schema(description = "自定义id")
     private String customNum;
@@ -78,7 +78,7 @@ public class ApiScenario implements Serializable {
     private String projectId;
 
     @Schema(description = "场景模块fk")
-    private String apiScenarioModuleId;
+    private String moduleId;
 
     @Schema(description = "描述信息")
     private String description;
@@ -113,14 +113,14 @@ public class ApiScenario implements Serializable {
     public enum Column {
         id("id", "id", "VARCHAR", false),
         name("name", "name", "VARCHAR", true),
-        level("level", "level", "VARCHAR", true),
+        priority("priority", "priority", "VARCHAR", false),
         status("status", "status", "VARCHAR", true),
         principal("principal", "principal", "VARCHAR", false),
         stepTotal("step_total", "stepTotal", "INTEGER", false),
         passRate("pass_rate", "passRate", "BIGINT", false),
         lastReportStatus("last_report_status", "lastReportStatus", "VARCHAR", false),
         lastReportId("last_report_id", "lastReportId", "VARCHAR", false),
-        num("num", "num", "INTEGER", false),
+        num("num", "num", "BIGINT", false),
         customNum("custom_num", "customNum", "VARCHAR", false),
         deleted("deleted", "deleted", "BIT", false),
         pos("pos", "pos", "BIGINT", false),
@@ -128,7 +128,7 @@ public class ApiScenario implements Serializable {
         refId("ref_id", "refId", "VARCHAR", false),
         latest("latest", "latest", "BIT", false),
         projectId("project_id", "projectId", "VARCHAR", false),
-        apiScenarioModuleId("api_scenario_module_id", "apiScenarioModuleId", "VARCHAR", false),
+        moduleId("module_id", "moduleId", "VARCHAR", false),
         description("description", "description", "VARCHAR", false),
         tags("tags", "tags", "VARCHAR", false),
         grouped("grouped", "grouped", "BIT", false),
