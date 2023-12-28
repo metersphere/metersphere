@@ -535,14 +535,16 @@ public class BugControllerTests extends BaseTest {
         request.setId("default-bug-template-not-exist");
         request.setProjectId("default-project-for-bug");
         this.requestPostWithOk(BUG_TEMPLATE_DETAIL, request);
-        // 关闭集成
+        // 关闭插件集成
         ServiceIntegration record = new ServiceIntegration();
         record.setId("621103810617344");
         record.setEnable(false);
         serviceIntegrationMapper.updateByPrimaryKeySelective(record);
-        this.requestPostWithOk(BUG_TEMPLATE_DETAIL, request);
+        this.requestPost(BUG_TEMPLATE_DETAIL, request, status().is5xxServerError());
+        // 开启插件集成
         record.setEnable(true);
         serviceIntegrationMapper.updateByPrimaryKeySelective(record);
+        this.requestPostWithOk(BUG_TEMPLATE_DETAIL, request);
         // 关闭同步
         ProjectApplicationExample example = new ProjectApplicationExample();
         example.createCriteria().andProjectIdEqualTo("default-project-for-bug").andTypeEqualTo("BUG_SYNC_PLATFORM_KEY");
@@ -580,6 +582,11 @@ public class BugControllerTests extends BaseTest {
         MultiValueMap<String, Object> addParam2 = getDefaultMultiPartParam(addRequest, null);
         this.requestMultipartWithOkAndReturn(BUG_ADD, addParam2);
         this.requestGetWithOk(BUG_SYNC + "/default-project-for-bug");
+
+        // 添加使用Jira默认模板的缺陷
+        addRequest.setTemplateId("jira");
+        MultiValueMap<String, Object> addParam3 = getDefaultMultiPartParam(addRequest, null);
+        this.requestMultipart(BUG_ADD, addParam3).andExpect(status().is5xxServerError());
 
         // 更新Jira缺陷
         BugEditRequest updateRequest = buildJiraBugRequest(true);
@@ -663,6 +670,27 @@ public class BugControllerTests extends BaseTest {
         removeApiFieldTmp();
         bugService.transferCustomToPlatformField("default-bug-template-id-not-exist", List.of(field), false);
         rollBackApiField();
+    }
+
+    @Test
+    @Order(99)
+    void coverZentaoBugTests() throws Exception {
+        // 上传禅道插件
+        addZentaoPlugin();
+        // 同步配置更改为禅道
+        ProjectApplicationExample example = new ProjectApplicationExample();
+        example.createCriteria().andProjectIdEqualTo("default-project-for-bug").andTypeEqualTo("BUG_SYNC_PLATFORM_KEY");
+        ProjectApplication record = new ProjectApplication();
+        record.setTypeValue("zentao");
+        projectApplicationMapper.updateByExampleSelective(record, example);
+        // 添加禅道缺陷
+        BugEditRequest addRequest = buildRequest(false);
+        String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/test.xlsx")).getPath();
+        File file = new File(filePath);
+        MultiValueMap<String, Object> addParam = getDefaultMultiPartParam(addRequest, file);
+        this.requestMultipart(BUG_ADD, addParam).andExpect(status().is5xxServerError());
+        // 获取禅道模板(删除默认项目模板)
+        bugService.attachTemplateStatusField(null, null, null, null);
     }
 
     /**
@@ -800,7 +828,23 @@ public class BugControllerTests extends BaseTest {
         File jiraTestFile = new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/metersphere-jira-test.jar")).getPath());
         FileInputStream inputStream = new FileInputStream(jiraTestFile);
         MockMultipartFile mockMultipartFile = new MockMultipartFile(jiraTestFile.getName(), jiraTestFile.getName(), "jar", inputStream);
-        request.setName("测试插件");
+        request.setName("测试插件-JIRA");
+        request.setGlobal(true);
+        request.setEnable(true);
+        request.setCreateUser(ADMIN.name());
+        pluginService.add(request, mockMultipartFile);
+    }
+
+    /**
+     * 添加Jira插件，供测试使用
+     * @throws Exception 异常
+     */
+    public void addZentaoPlugin() throws Exception {
+        PluginUpdateRequest request = new PluginUpdateRequest();
+        File jiraTestFile = new File(Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/metersphere-zentao-test.jar")).getPath());
+        FileInputStream inputStream = new FileInputStream(jiraTestFile);
+        MockMultipartFile mockMultipartFile = new MockMultipartFile(jiraTestFile.getName(), jiraTestFile.getName(), "jar", inputStream);
+        request.setName("测试插件-ZENTAO");
         request.setGlobal(true);
         request.setEnable(true);
         request.setCreateUser(ADMIN.name());
