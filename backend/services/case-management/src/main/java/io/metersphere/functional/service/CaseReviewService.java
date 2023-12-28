@@ -572,6 +572,7 @@ public class CaseReviewService {
 
     public Map<String, Long> moduleCount(CaseReviewPageRequest request) {
         //查出每个模块节点下的资源数量。 不需要按照模块进行筛选
+        request.setModuleIds(null);
         List<ModuleCountDTO> moduleCountDTOList = extCaseReviewMapper.countModuleIdByKeywordAndFileType(request);
         Map<String, Long> moduleCountMap = caseReviewModuleService.getModuleCountMap(request.getProjectId(), moduleCountDTOList);
         //查出全部用例数量

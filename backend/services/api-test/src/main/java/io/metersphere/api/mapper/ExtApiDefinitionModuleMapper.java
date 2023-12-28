@@ -4,6 +4,7 @@ import io.metersphere.api.dto.debug.ApiTreeNode;
 import io.metersphere.api.dto.definition.ApiModuleRequest;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.NodeSortQueryParam;
+import io.metersphere.request.ApiModuleProviderRequest;
 import io.metersphere.system.dto.sdk.BaseModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import org.apache.ibatis.annotations.Param;
@@ -34,4 +35,8 @@ public interface ExtApiDefinitionModuleMapper {
     List<BaseTreeNode> selectNodeByIds(@Param("ids") List<String> ids);
 
     List<BaseTreeNode> selectBaseByIds(@Param("ids") List<String> ids);
+
+    List<ModuleCountDTO> countModuleIdByProviderRequest(@Param("table") String resourceType, @Param("sourceName") String sourceName, @Param("apiCaseColumnName") String apiCaseColumnName,  @Param("request") ApiModuleProviderRequest request, @Param("deleted") boolean deleted);
+
+    List<BaseTreeNode> selectIdAndParentIdByProviderRequest(@Param("request") ApiModuleProviderRequest request);
 }

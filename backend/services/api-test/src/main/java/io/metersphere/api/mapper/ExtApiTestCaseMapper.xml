@@ -157,7 +157,7 @@
         WHERE t1.deleted =#{deleted}
         and t1.id not in
         (
-        select associate.${targetName} from ${table} associate  where  associate.${sourceName} = #{request.sourceId}
+        select associate.${apiCaseColumnName} from ${table} associate  where  associate.${sourceName} = #{request.sourceId}
         )
         <include refid="queryWhereCondition"/>
     </select>

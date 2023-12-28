@@ -2,6 +2,7 @@ package io.metersphere.api.controller;
 
 import io.metersphere.api.provider.AssociateApiProvider;
 import io.metersphere.dto.ApiTestCaseProviderDTO;
+import io.metersphere.request.ApiModuleProviderRequest;
 import io.metersphere.request.ApiTestCasePageProviderRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
@@ -17,6 +18,7 @@ import org.springframework.test.context.jdbc.SqlConfig;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -39,6 +41,19 @@ public class AssociateApiProviderTest extends BaseTest {
         }});
         List<ApiTestCaseProviderDTO> apiTestCaseList = provider.getApiTestCaseList("functional_case_test", "case_id", "source_id", request);
         String jsonString = JSON.toJSONString(apiTestCaseList);
+        System.out.println(jsonString);
+    }
+
+    @Test
+    @Order(2)
+    public void moduleCountSuccess() throws Exception {
+        ApiModuleProviderRequest request = new ApiModuleProviderRequest();
+        request.setSourceId("gyq_associate_case_id_1");
+        request.setProjectId("project-associate-case-test");
+        request.setKeyword("测试查询模块用");
+
+        Map<String, Long> stringLongMap = provider.moduleCount("functional_case_test", "case_id", "source_id", request, false);
+        String jsonString = JSON.toJSONString(stringLongMap);
         System.out.println(jsonString);
     }
 
