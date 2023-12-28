@@ -20,13 +20,9 @@ public class ApiScenarioModule implements Serializable {
     @Size(min = 1, max = 255, message = "{api_scenario_module.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(description = "模块级别", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{api_scenario_module.level.not_blank}", groups = {Created.class})
-    private Integer level;
-
     @Schema(description = "排序", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{api_scenario_module.pos.not_blank}", groups = {Created.class})
-    private Integer pos;
+    private Long pos;
 
     @Schema(description = "创建时间")
     private Long createTime;
@@ -55,8 +51,7 @@ public class ApiScenarioModule implements Serializable {
     public enum Column {
         id("id", "id", "VARCHAR", false),
         name("name", "name", "VARCHAR", true),
-        level("level", "level", "INTEGER", true),
-        pos("pos", "pos", "INTEGER", false),
+        pos("pos", "pos", "BIGINT", false),
         createTime("create_time", "createTime", "BIGINT", false),
         updateTime("update_time", "updateTime", "BIGINT", false),
         updateUser("update_user", "updateUser", "VARCHAR", false),

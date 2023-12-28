@@ -4,14 +4,14 @@
   <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiScenario">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="level" jdbcType="VARCHAR" property="level" />
+    <result column="priority" jdbcType="VARCHAR" property="priority" />
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="principal" jdbcType="VARCHAR" property="principal" />
     <result column="step_total" jdbcType="INTEGER" property="stepTotal" />
     <result column="pass_rate" jdbcType="BIGINT" property="passRate" />
     <result column="last_report_status" jdbcType="VARCHAR" property="lastReportStatus" />
     <result column="last_report_id" jdbcType="VARCHAR" property="lastReportId" />
-    <result column="num" jdbcType="INTEGER" property="num" />
+    <result column="num" jdbcType="BIGINT" property="num" />
     <result column="custom_num" jdbcType="VARCHAR" property="customNum" />
     <result column="deleted" jdbcType="BIT" property="deleted" />
     <result column="pos" jdbcType="BIGINT" property="pos" />
@@ -19,7 +19,7 @@
     <result column="ref_id" jdbcType="VARCHAR" property="refId" />
     <result column="latest" jdbcType="BIT" property="latest" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
-    <result column="api_scenario_module_id" jdbcType="VARCHAR" property="apiScenarioModuleId" />
+    <result column="module_id" jdbcType="VARCHAR" property="moduleId" />
     <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="tags" jdbcType="VARCHAR" property="tags" />
     <result column="grouped" jdbcType="BIT" property="grouped" />
@@ -89,10 +89,10 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, `level`, `status`, principal, step_total, pass_rate, last_report_status, 
+    id, `name`, priority, `status`, principal, step_total, pass_rate, last_report_status, 
     last_report_id, num, custom_num, deleted, pos, version_id, ref_id, latest, project_id, 
-    api_scenario_module_id, description, tags, grouped, create_user, create_time, delete_time, 
-    delete_user, update_user, update_time
+    module_id, description, tags, grouped, create_user, create_time, delete_time, delete_user, 
+    update_user, update_time
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiScenarioExample" resultMap="BaseResultMap">
     select
@@ -125,22 +125,22 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.api.domain.ApiScenario">
-    insert into api_scenario (id, `name`, `level`, 
+    insert into api_scenario (id, `name`, priority, 
       `status`, principal, step_total, 
       pass_rate, last_report_status, last_report_id, 
       num, custom_num, deleted, 
       pos, version_id, ref_id, 
-      latest, project_id, api_scenario_module_id, 
+      latest, project_id, module_id, 
       description, tags, grouped, 
       create_user, create_time, delete_time, 
       delete_user, update_user, update_time
       )
-    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{level,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{priority,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{principal,jdbcType=VARCHAR}, #{stepTotal,jdbcType=INTEGER}, 
       #{passRate,jdbcType=BIGINT}, #{lastReportStatus,jdbcType=VARCHAR}, #{lastReportId,jdbcType=VARCHAR}, 
-      #{num,jdbcType=INTEGER}, #{customNum,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT}, 
+      #{num,jdbcType=BIGINT}, #{customNum,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT}, 
       #{pos,jdbcType=BIGINT}, #{versionId,jdbcType=VARCHAR}, #{refId,jdbcType=VARCHAR}, 
-      #{latest,jdbcType=BIT}, #{projectId,jdbcType=VARCHAR}, #{apiScenarioModuleId,jdbcType=VARCHAR}, 
+      #{latest,jdbcType=BIT}, #{projectId,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, #{grouped,jdbcType=BIT}, 
       #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{deleteTime,jdbcType=BIGINT}, 
       #{deleteUser,jdbcType=VARCHAR}, #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}
@@ -155,8 +155,8 @@
       <if test="name != null">
         `name`,
       </if>
-      <if test="level != null">
-        `level`,
+      <if test="priority != null">
+        priority,
       </if>
       <if test="status != null">
         `status`,
@@ -200,8 +200,8 @@
       <if test="projectId != null">
         project_id,
       </if>
-      <if test="apiScenarioModuleId != null">
-        api_scenario_module_id,
+      <if test="moduleId != null">
+        module_id,
       </if>
       <if test="description != null">
         description,
@@ -238,8 +238,8 @@
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
       </if>
-      <if test="level != null">
-        #{level,jdbcType=VARCHAR},
+      <if test="priority != null">
+        #{priority,jdbcType=VARCHAR},
       </if>
       <if test="status != null">
         #{status,jdbcType=VARCHAR},
@@ -260,7 +260,7 @@
         #{lastReportId,jdbcType=VARCHAR},
       </if>
       <if test="num != null">
-        #{num,jdbcType=INTEGER},
+        #{num,jdbcType=BIGINT},
       </if>
       <if test="customNum != null">
         #{customNum,jdbcType=VARCHAR},
@@ -283,8 +283,8 @@
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
       </if>
-      <if test="apiScenarioModuleId != null">
-        #{apiScenarioModuleId,jdbcType=VARCHAR},
+      <if test="moduleId != null">
+        #{moduleId,jdbcType=VARCHAR},
       </if>
       <if test="description != null">
         #{description,jdbcType=VARCHAR},
@@ -330,8 +330,8 @@
       <if test="record.name != null">
         `name` = #{record.name,jdbcType=VARCHAR},
       </if>
-      <if test="record.level != null">
-        `level` = #{record.level,jdbcType=VARCHAR},
+      <if test="record.priority != null">
+        priority = #{record.priority,jdbcType=VARCHAR},
       </if>
       <if test="record.status != null">
         `status` = #{record.status,jdbcType=VARCHAR},
@@ -352,7 +352,7 @@
         last_report_id = #{record.lastReportId,jdbcType=VARCHAR},
       </if>
       <if test="record.num != null">
-        num = #{record.num,jdbcType=INTEGER},
+        num = #{record.num,jdbcType=BIGINT},
       </if>
       <if test="record.customNum != null">
         custom_num = #{record.customNum,jdbcType=VARCHAR},
@@ -375,8 +375,8 @@
       <if test="record.projectId != null">
         project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
-      <if test="record.apiScenarioModuleId != null">
-        api_scenario_module_id = #{record.apiScenarioModuleId,jdbcType=VARCHAR},
+      <if test="record.moduleId != null">
+        module_id = #{record.moduleId,jdbcType=VARCHAR},
       </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=VARCHAR},
@@ -414,14 +414,14 @@
     update api_scenario
     set id = #{record.id,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
-      `level` = #{record.level,jdbcType=VARCHAR},
+      priority = #{record.priority,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
       principal = #{record.principal,jdbcType=VARCHAR},
       step_total = #{record.stepTotal,jdbcType=INTEGER},
       pass_rate = #{record.passRate,jdbcType=BIGINT},
       last_report_status = #{record.lastReportStatus,jdbcType=VARCHAR},
       last_report_id = #{record.lastReportId,jdbcType=VARCHAR},
-      num = #{record.num,jdbcType=INTEGER},
+      num = #{record.num,jdbcType=BIGINT},
       custom_num = #{record.customNum,jdbcType=VARCHAR},
       deleted = #{record.deleted,jdbcType=BIT},
       pos = #{record.pos,jdbcType=BIGINT},
@@ -429,7 +429,7 @@
       ref_id = #{record.refId,jdbcType=VARCHAR},
       latest = #{record.latest,jdbcType=BIT},
       project_id = #{record.projectId,jdbcType=VARCHAR},
-      api_scenario_module_id = #{record.apiScenarioModuleId,jdbcType=VARCHAR},
+      module_id = #{record.moduleId,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
       tags = #{record.tags,jdbcType=VARCHAR},
       grouped = #{record.grouped,jdbcType=BIT},
@@ -449,8 +449,8 @@
       <if test="name != null">
         `name` = #{name,jdbcType=VARCHAR},
       </if>
-      <if test="level != null">
-        `level` = #{level,jdbcType=VARCHAR},
+      <if test="priority != null">
+        priority = #{priority,jdbcType=VARCHAR},
       </if>
       <if test="status != null">
         `status` = #{status,jdbcType=VARCHAR},
@@ -471,7 +471,7 @@
         last_report_id = #{lastReportId,jdbcType=VARCHAR},
       </if>
       <if test="num != null">
-        num = #{num,jdbcType=INTEGER},
+        num = #{num,jdbcType=BIGINT},
       </if>
       <if test="customNum != null">
         custom_num = #{customNum,jdbcType=VARCHAR},
@@ -494,8 +494,8 @@
       <if test="projectId != null">
         project_id = #{projectId,jdbcType=VARCHAR},
       </if>
-      <if test="apiScenarioModuleId != null">
-        api_scenario_module_id = #{apiScenarioModuleId,jdbcType=VARCHAR},
+      <if test="moduleId != null">
+        module_id = #{moduleId,jdbcType=VARCHAR},
       </if>
       <if test="description != null">
         description = #{description,jdbcType=VARCHAR},
@@ -530,14 +530,14 @@
   <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiScenario">
     update api_scenario
     set `name` = #{name,jdbcType=VARCHAR},
-      `level` = #{level,jdbcType=VARCHAR},
+      priority = #{priority,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
       principal = #{principal,jdbcType=VARCHAR},
       step_total = #{stepTotal,jdbcType=INTEGER},
       pass_rate = #{passRate,jdbcType=BIGINT},
       last_report_status = #{lastReportStatus,jdbcType=VARCHAR},
       last_report_id = #{lastReportId,jdbcType=VARCHAR},
-      num = #{num,jdbcType=INTEGER},
+      num = #{num,jdbcType=BIGINT},
       custom_num = #{customNum,jdbcType=VARCHAR},
       deleted = #{deleted,jdbcType=BIT},
       pos = #{pos,jdbcType=BIGINT},
@@ -545,7 +545,7 @@
       ref_id = #{refId,jdbcType=VARCHAR},
       latest = #{latest,jdbcType=BIT},
       project_id = #{projectId,jdbcType=VARCHAR},
-      api_scenario_module_id = #{apiScenarioModuleId,jdbcType=VARCHAR},
+      module_id = #{moduleId,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
       tags = #{tags,jdbcType=VARCHAR},
       grouped = #{grouped,jdbcType=BIT},
@@ -559,18 +559,18 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_scenario
-    (id, `name`, `level`, `status`, principal, step_total, pass_rate, last_report_status, 
+    (id, `name`, priority, `status`, principal, step_total, pass_rate, last_report_status, 
       last_report_id, num, custom_num, deleted, pos, version_id, ref_id, latest, project_id, 
-      api_scenario_module_id, description, tags, grouped, create_user, create_time, delete_time, 
-      delete_user, update_user, update_time)
+      module_id, description, tags, grouped, create_user, create_time, delete_time, delete_user, 
+      update_user, update_time)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.level,jdbcType=VARCHAR}, 
+      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.priority,jdbcType=VARCHAR}, 
         #{item.status,jdbcType=VARCHAR}, #{item.principal,jdbcType=VARCHAR}, #{item.stepTotal,jdbcType=INTEGER}, 
         #{item.passRate,jdbcType=BIGINT}, #{item.lastReportStatus,jdbcType=VARCHAR}, #{item.lastReportId,jdbcType=VARCHAR}, 
-        #{item.num,jdbcType=INTEGER}, #{item.customNum,jdbcType=VARCHAR}, #{item.deleted,jdbcType=BIT}, 
+        #{item.num,jdbcType=BIGINT}, #{item.customNum,jdbcType=VARCHAR}, #{item.deleted,jdbcType=BIT}, 
         #{item.pos,jdbcType=BIGINT}, #{item.versionId,jdbcType=VARCHAR}, #{item.refId,jdbcType=VARCHAR}, 
-        #{item.latest,jdbcType=BIT}, #{item.projectId,jdbcType=VARCHAR}, #{item.apiScenarioModuleId,jdbcType=VARCHAR}, 
+        #{item.latest,jdbcType=BIT}, #{item.projectId,jdbcType=VARCHAR}, #{item.moduleId,jdbcType=VARCHAR}, 
         #{item.description,jdbcType=VARCHAR}, #{item.tags,jdbcType=VARCHAR}, #{item.grouped,jdbcType=BIT}, 
         #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.deleteTime,jdbcType=BIGINT}, 
         #{item.deleteUser,jdbcType=VARCHAR}, #{item.updateUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}
@@ -593,8 +593,8 @@
         <if test="'name'.toString() == column.value">
           #{item.name,jdbcType=VARCHAR}
         </if>
-        <if test="'level'.toString() == column.value">
-          #{item.level,jdbcType=VARCHAR}
+        <if test="'priority'.toString() == column.value">
+          #{item.priority,jdbcType=VARCHAR}
         </if>
         <if test="'status'.toString() == column.value">
           #{item.status,jdbcType=VARCHAR}
@@ -615,7 +615,7 @@
           #{item.lastReportId,jdbcType=VARCHAR}
         </if>
         <if test="'num'.toString() == column.value">
-          #{item.num,jdbcType=INTEGER}
+          #{item.num,jdbcType=BIGINT}
         </if>
         <if test="'custom_num'.toString() == column.value">
           #{item.customNum,jdbcType=VARCHAR}
@@ -638,8 +638,8 @@
         <if test="'project_id'.toString() == column.value">
           #{item.projectId,jdbcType=VARCHAR}
         </if>
-        <if test="'api_scenario_module_id'.toString() == column.value">
-          #{item.apiScenarioModuleId,jdbcType=VARCHAR}
+        <if test="'module_id'.toString() == column.value">
+          #{item.moduleId,jdbcType=VARCHAR}
         </if>
         <if test="'description'.toString() == column.value">
           #{item.description,jdbcType=VARCHAR}

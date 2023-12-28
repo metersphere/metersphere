@@ -136,10 +136,7 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
     }
 
     public void update(ModuleUpdateRequest request, String userId) {
-        ApiDefinitionModule module = apiDefinitionModuleMapper.selectByPrimaryKey(request.getId());
-        if (module == null) {
-            throw new MSException(Translator.get(MODULE_NO_EXIST));
-        }
+        ApiDefinitionModule module = checkModuleExist(request.getId());
         ApiDefinitionModule updateModule = new ApiDefinitionModule();
         updateModule.setId(request.getId());
         updateModule.setName(request.getName());
@@ -153,12 +150,18 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
         apiDefinitionModuleLogService.saveUpdateLog(updateModule, userId);
     }
 
+    private ApiDefinitionModule checkModuleExist(String moduleId) {
+        ApiDefinitionModule module = apiDefinitionModuleMapper.selectByPrimaryKey(moduleId);
+        if (module == null) {
+            throw new MSException(Translator.get(MODULE_NO_EXIST));
+        }
+        return module;
+    }
+
 
     public void deleteModule(String deleteId, String currentUser) {
-        ApiDefinitionModule deleteModule = apiDefinitionModuleMapper.selectByPrimaryKey(deleteId);
-        if (deleteModule != null) {
-            deleteModule(List.of(deleteId), currentUser, deleteModule.getProjectId());
-        }
+        ApiDefinitionModule deleteModule = checkModuleExist(deleteId);
+        deleteModule(List.of(deleteId), currentUser, deleteModule.getProjectId());
     }
 
     public void deleteModule(List<String> deleteIds, String currentUser, String projectId) {
