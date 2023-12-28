@@ -81,4 +81,5 @@ export default {
   'common.new': '新增',
   'common.newSuccess': '新增成功',
   'common.publish': '发布',
+  'common.publishSuccessfully': '发布成功',
 };

@@ -79,4 +79,5 @@ export default {
   'common.new': 'New',
   'common.newSuccess': 'Added successfully',
   'common.publish': 'Publish',
+  'common.publishSuccessfully': 'Published successfully',
 };
