@@ -9,9 +9,9 @@ import java.util.Map;
 public class DemandRelatePageResponse {
 
     /**
-     * 自定义表头字段
+     * 自定义表头字段(支持过滤)
      */
-    private Map<String, String> customHeaderMap;
+    private List<PlatformCustomFieldItemDTO> customHeaders;
     /**
      * 需求列表数据
      */
