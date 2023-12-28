@@ -31,6 +31,7 @@ import {
   GetFileIsUpdateUrl,
   GetRecycleCaseListUrl,
   GetRecycleCaseModulesCountUrl,
+  GetReviewerListUrl,
   GetSearchCustomFieldsUrl,
   getTransferTreeUrl,
   GetTrashCaseModuleTreeUrl,
@@ -64,6 +65,7 @@ import type {
   UpdateModule,
 } from '@/models/caseManagement/featureCase';
 import type { CommonList, MoveModules, TableQueryParams } from '@/models/common';
+import type { UserListItem } from '@/models/setting/user';
 // 获取模块树
 export function getCaseModuleTree(projectId: string) {
   return MSR.get<ModulesTreeType[]>({ url: `${GetCaseModuleTreeUrl}/${projectId}` });
@@ -250,23 +252,28 @@ export function getCommentList(caseId: string) {
 }
 
 // 创建评论
-export function CreateCommentList(data: CreateOrUpdate) {
+export function createCommentList(data: CreateOrUpdate) {
   return MSR.post({ url: CreateCommentItemUrl, data });
 }
 
 // 创建评论
-export function UpdateCommentList(data: CreateOrUpdate) {
+export function updateCommentList(data: CreateOrUpdate) {
   return MSR.post({ url: UpdateCommentItemUrl, data });
 }
 
 // 删除评论
-export function DeleteCommentList(commentId: string) {
+export function deleteCommentList(commentId: string) {
   return MSR.post({ url: `${DeleteCommentItemUrl}/${commentId}` });
 }
 
 // 评审
 export function getDetailCaseReviewPage(data: TableQueryParams) {
   return MSR.post<CommonList<CaseManagementTable>>({ url: GetDetailCaseReviewUrl, data });
+}
+
+// 获取评审人列表
+export function getReviewerList(projectId: string, keyword: string) {
+  return MSR.get<UserListItem[]>({ url: `${GetReviewerListUrl}/${projectId}`, params: { keyword } });
 }
 
 export default {};

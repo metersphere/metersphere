@@ -209,7 +209,7 @@
   import TabTestPlan from './tabContent/tabTestPlan.vue';
 
   import {
-    CreateCommentList,
+    createCommentList,
     deleteCaseRequest,
     followerCaseRequest,
     getCaseDetail,
@@ -479,16 +479,23 @@
   const content = ref('');
 
   async function publishHandler(currentContent: string) {
+    const regex = /data-id="([^"]*)"/g;
+    const matchesNotifier = currentContent.match(regex);
+    let notifiers = '';
+    if (matchesNotifier?.length) {
+      notifiers = matchesNotifier.map((match) => match.replace('data-id="', '').replace('"', '')).join(';');
+    }
     try {
       const params = {
         caseId: detailInfo.value.id,
-        notifier: '',
+        notifier: notifiers,
         replyUser: '',
         parentId: '',
         content: currentContent,
-        event: 'COMMENT', // 任务事件(仅评论: ’COMMENT‘; 评论并@: ’AT‘; 回复评论/回复并@: ’REPLAY‘;)
+        event: notifiers ? 'AT' : 'COMMENT', // 任务事件(仅评论: ’COMMENT‘; 评论并@: ’AT‘; 回复评论/回复并@: ’REPLAY‘;)
       };
-      await CreateCommentList(params);
+      await createCommentList(params);
+      Message.success(t('common.publishSuccessfully'));
     } catch (error) {
       console.log(error);
     }

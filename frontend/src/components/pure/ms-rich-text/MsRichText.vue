@@ -15,6 +15,7 @@
   import useLocale from '@/locale/useLocale';
 
   import '@halo-dev/richtext-editor/dist/style.css';
+  import suggestion from './extensions/mention/suggestion';
   import {
     ExtensionAudio,
     ExtensionBlockquote,
@@ -58,6 +59,7 @@
     RichTextEditor,
     useEditor,
   } from '@halo-dev/richtext-editor';
+  import Mention from '@tiptap/extension-mention';
 
   const props = defineProps<{
     modelValue: string;
@@ -79,6 +81,7 @@
         class: 'dropcursor',
         color: 'skyblue',
       }),
+      ExtensionCommands,
       ExtensionGapcursor,
       ExtensionHardBreak,
       ExtensionHeading,
@@ -113,7 +116,6 @@
       ExtensionHighlight,
       ExtensionVideo,
       ExtensionAudio,
-      ExtensionCommands,
       ExtensionCodeBlock.configure({
         lowlight,
       }),
@@ -126,6 +128,12 @@
       ExtensionColumn,
       ExtensionNodeSelected,
       ExtensionTrailingNode,
+      Mention.configure({
+        HTMLAttributes: {
+          class: 'mention',
+        },
+        suggestion,
+      }),
     ],
     onUpdate: () => {
       content.value = `${editor.value?.getHTML()}`;
@@ -165,6 +173,28 @@
       p:first-child {
         margin-top: 0;
       }
+    }
+  }
+  :deep(.editor-header) {
+    svg {
+      color: var(--color-text-3) !important;
+    }
+  }
+  // 修改滚动条
+  :deep(.editor-header + div > div) {
+    &::-webkit-scrollbar {
+      width: 6px !important;
+      height: 4px !important;
+    }
+    &::-webkit-scrollbar-thumb {
+      border-radius: 8px !important;
+      background: var(--color-text-input-border) !important;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+      background: #a1a7b0 !important;
+    }
+    &&::-webkit-scrollbar-track {
+      @apply bg-white !important;
     }
   }
 </style>

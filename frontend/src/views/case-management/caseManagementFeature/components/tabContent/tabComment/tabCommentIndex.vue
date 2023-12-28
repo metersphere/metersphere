@@ -9,7 +9,15 @@
       </a-radio-group>
     </div>
   </div>
-  <!-- <MsComment :comment-list="commentList" /> -->
+  <div>
+    <!-- TODO -->
+    <!-- <MsComment
+      :current-user-id="currentUserId"
+      :comment-list="commentList"
+      @update-or-add="handleUpdateOrAdd"
+      @delete="handleDelete"
+    /> -->
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -34,9 +42,6 @@
 
   const commentList = ref<CommentItem[]>([]);
 
-  // 发布评论
-  function publishHandler() {}
-
   // 初始化评论列表
   async function initCommentList() {
     try {
@@ -45,6 +50,14 @@
       console.log(error);
     }
   }
+
+  const currentUserId = ref('');
+
+  // 添加或者更新评论
+  function handleUpdateOrAdd() {}
+
+  // 删除评论
+  function handleDelete() {}
 
   onBeforeMount(() => {
     initCommentList();

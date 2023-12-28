@@ -55,6 +55,22 @@ export default defineConfig({
         find: 'vue',
         replacement: 'vue/dist/vue.esm-bundler.js', // compile template
       },
+      {
+        find: '@tiptap/pm/state',
+        replacement: '@halo-dev/richtext-editor',
+      },
+      {
+        find: '@tiptap/pm/model',
+        replacement: '@halo-dev/richtext-editor',
+      },
+      {
+        find: '@tiptap/core',
+        replacement: '@halo-dev/richtext-editor',
+      },
+      {
+        find: '@tiptap/pm/view',
+        replacement: '@halo-dev/richtext-editor',
+      },
     ],
     extensions: ['.ts', '.js'],
   },
