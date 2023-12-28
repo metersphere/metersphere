@@ -43,5 +43,7 @@ public interface ExtApiDefinitionMapper {
 
     List<ApiDefinitionImportDTO> importList(@Param("request") ApiDefinitionPageRequest request);
 
-    List<String> selectIdsByIdsAndDeleted(@Param("ids")List<String> ids, @Param("deleted") boolean deleted);
+    List<String> selectIdsByIdsAndDeleted(@Param("ids") List<String> ids, @Param("deleted") boolean deleted);
+
+    List<String> selectByProjectId(@Param("projectId") String projectId);
 }

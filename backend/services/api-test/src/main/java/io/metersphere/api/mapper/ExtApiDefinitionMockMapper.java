@@ -10,4 +10,5 @@ public interface ExtApiDefinitionMockMapper {
 
     List<ApiDefinitionMockDTO> list(@Param("request") ApiDefinitionMockPageRequest request);
 
+    List<String> getIdsByApiIds(@Param("ids") List<String> ids);
 }

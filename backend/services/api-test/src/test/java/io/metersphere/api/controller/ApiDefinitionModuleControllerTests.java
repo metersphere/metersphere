@@ -5,6 +5,7 @@ import io.metersphere.api.dto.debug.ApiDebugRequest;
 import io.metersphere.api.dto.debug.ModuleCreateRequest;
 import io.metersphere.api.dto.debug.ModuleUpdateRequest;
 import io.metersphere.api.dto.definition.ApiModuleRequest;
+import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.project.domain.Project;
@@ -12,7 +13,6 @@ import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
@@ -829,9 +829,9 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
         checkLog(a1a1Node.getId(), OperationLogType.DELETE, URL_MODULE_DELETE);
 
         //删除不存在的节点
-        this.requestGetWithOk(String.format(URL_MODULE_DELETE, IDGenerator.nextNum()));
+        this.requestGet(String.format(URL_MODULE_DELETE, IDGenerator.nextNum())).andExpect(ERROR_REQUEST_MATCHER);
         // 测试删除根节点
-        this.requestGetWithOk(String.format(URL_MODULE_DELETE, ModuleConstants.DEFAULT_NODE_ID));
+        this.requestGet(String.format(URL_MODULE_DELETE, ModuleConstants.DEFAULT_NODE_ID)).andExpect(ERROR_REQUEST_MATCHER);
 
         //service层判断：测试删除空集合
         apiDefinitionModuleService.deleteModule(new ArrayList<>(), "admin", DEFAULT_PROJECT_ID);

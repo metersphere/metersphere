@@ -11,6 +11,15 @@
         where m.api_definition_id = #{request.apiDefinitionId}
         <include refid="queryWhereCondition"/>
     </select>
+    <select id="getIdsByApiIds" resultType="java.lang.String">
+        select
+        m.id
+        from api_definition_mock m
+        where m.api_definition_id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 
 
     <sql id="queryWhereCondition">

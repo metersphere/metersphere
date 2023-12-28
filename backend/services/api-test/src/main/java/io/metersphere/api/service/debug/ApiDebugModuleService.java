@@ -174,10 +174,7 @@ public class ApiDebugModuleService extends ModuleTreeService {
     }
 
     public void update(ModuleUpdateRequest request, String userId, String projectId) {
-        ApiDebugModule module = apiDebugModuleMapper.selectByPrimaryKey(request.getId());
-        if (module == null) {
-            throw new MSException(Translator.get(MODULE_NO_EXIST));
-        }
+        ApiDebugModule module = checkModuleExist(request.getId());
         ApiDebugModule updateModule = new ApiDebugModule();
         updateModule.setId(request.getId());
         updateModule.setName(request.getName());
@@ -192,9 +189,17 @@ public class ApiDebugModuleService extends ModuleTreeService {
         apiDebugModuleLogService.saveUpdateLog(updateModule, projectId, userId);
     }
 
+    public ApiDebugModule checkModuleExist(String moduleId) {
+        ApiDebugModule module = apiDebugModuleMapper.selectByPrimaryKey(moduleId);
+        if (module == null) {
+            throw new MSException(Translator.get(MODULE_NO_EXIST));
+        }
+        return module;
+    }
+
 
     public void deleteModule(String deleteId, String currentUser) {
-        ApiDebugModule deleteModule = apiDebugModuleMapper.selectByPrimaryKey(deleteId);
+        ApiDebugModule deleteModule = checkModuleExist(deleteId);
         if (deleteModule != null) {
             this.deleteModule(Collections.singletonList(deleteId), currentUser, deleteModule.getProjectId());
         }
