@@ -467,6 +467,11 @@ public class BugService {
         // 来自平台模板
         templateDTO.setPlatformDefault(false);
         String platformName = projectApplicationService.getPlatformName(projectId);
+        // TODO: 严重程度
+
+        // 状态字段
+        attachTemplateStatusField(templateDTO, projectId, fromStatusId, platformBugKey);
+
         // 处理人字段
         if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
             // 获取插件中自定义的注入字段(处理人)
@@ -489,7 +494,7 @@ public class BugService {
                 request.setOptionMethod(injectField.getOptionMethod());
                 request.setProjectConfig(projectApplicationService.getProjectBugThirdPartConfig(projectId));
                 templateCustomFieldDTO.setPlatformOptionJson(JSON.toJSONString(platform.getFormOptions(request)));
-                templateDTO.getCustomFields().addLast(templateCustomFieldDTO);
+                templateDTO.getCustomFields().addFirst(templateCustomFieldDTO);
             }
         } else {
             // Local(处理人)
@@ -508,11 +513,10 @@ public class BugService {
             handleUserField.setType(CustomFieldType.SELECT.getType());
             handleUserField.setPlatformOptionJson(JSON.toJSONString(projectMemberOptions));
             handleUserField.setRequired(true);
-            templateDTO.getCustomFields().addLast(handleUserField);
+            templateDTO.getCustomFields().addFirst(handleUserField);
         }
-        // TODO: 严重程度
-        // 状态字段
-        return attachTemplateStatusField(templateDTO, projectId, fromStatusId, platformBugKey);
+
+        return templateDTO;
     }
 
     /**
@@ -530,7 +534,7 @@ public class BugService {
         statusField.setType(CustomFieldType.SELECT.getType());
         statusField.setPlatformOptionJson(JSON.toJSONString(bugStatusService.getToStatusItemOption(projectId, fromStatusId, platformBugKey)));
         statusField.setRequired(true);
-        templateDTO.getCustomFields().addLast(statusField);
+        templateDTO.getCustomFields().addFirst(statusField);
         return templateDTO;
     }
 
@@ -857,7 +861,7 @@ public class BugService {
         */
        TemplateDTO pluginDefaultTemplate = getPluginBugDefaultTemplate(request.getProjectId(), false);
        // 参数模板为插件默认模板, 处理所有自定义字段, 无需过滤API映射
-       boolean noApiFilter = StringUtils.equals(pluginDefaultTemplate.getId(), request.getTemplateId());
+       boolean noApiFilter = pluginDefaultTemplate != null && StringUtils.equals(pluginDefaultTemplate.getId(), request.getTemplateId());
        platformRequest.setCustomFieldList(transferCustomToPlatformField(request.getTemplateId(), request.getCustomFields(), noApiFilter));
        // TITLE, DESCRIPTION 传到平台插件处理
        platformRequest.setTitle(request.getTitle());
@@ -971,6 +975,9 @@ public class BugService {
        ServiceIntegration serviceIntegration = projectApplicationService.getPlatformServiceIntegrationWithSyncOrDemand(projectId, true);
        TemplateDTO template = new TemplateDTO();
        Template pluginTemplate = projectTemplateService.getPluginBugTemplate(projectId);
+       if (pluginTemplate == null) {
+           return null;
+       }
        BeanUtils.copyBean(template, pluginTemplate);
        if (setPluginTemplateField) {
            Platform platform = platformPluginService.getPlatform(serviceIntegration.getPluginId(), serviceIntegration.getOrganizationId(),
