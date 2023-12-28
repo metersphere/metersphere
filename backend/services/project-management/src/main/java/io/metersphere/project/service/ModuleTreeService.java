@@ -234,7 +234,7 @@ public abstract class ModuleTreeService {
         return count;
     }
 
-    protected Map<String, Long> getIdCountMapByBreadth(List<BaseTreeNode> treeNodeList) {
+    public Map<String, Long> getIdCountMapByBreadth(List<BaseTreeNode> treeNodeList) {
         Map<String, Long> returnMap = new HashMap<>();
         List<BaseTreeNode> whileList = new ArrayList<>(treeNodeList);
         while (CollectionUtils.isNotEmpty(whileList)) {

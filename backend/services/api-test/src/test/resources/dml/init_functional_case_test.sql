@@ -16,9 +16,18 @@ INSERT INTO functional_case_blob(id, steps, text_description, expected_result, p
 INSERT INTO api_test_case(id, name, priority, num, tags, status, last_report_status, last_report_id, pos, project_id, api_definition_id, version_id, environment_id, create_time, create_user, update_time, update_user, delete_time, delete_user, deleted)
 VALUES ('gyq_associate_api_case_id_1','gyq_associate_api_case_id_1','P0',1001, null, 'Underway', null, null, 100, 'project-associate-case-test', 'gyq_associate_api_definition_id_1', 'gyq_associate_version_id', 'gyq_associate_env_id', 1698058347559, 'admin',1698058347559,'admin',null,null,false);
 
-INSERT INTO api_definition(id, name, protocol, method, path, status, num, tags, pos, project_id, module_id, latest, version_id, ref_id, description, create_time, create_user, update_time, update_user, delete_user, delete_time, deleted)
-VALUES ('gyq_associate_api_definition_id_1', 'gyq_associate_api_definition_id_1', 'HTTP', 'POST','api/test','test-api-status', 1000001, null, 1, '100001100001' , 'test_module', true, 'v1.10','aspect_gyq_api_one', null, UNIX_TIMESTAMP() * 1000,'admin', UNIX_TIMESTAMP() * 1000,'admin', null,null,false);
 
+
+INSERT INTO api_test_case(id, name, priority, num, tags, status, last_report_status, last_report_id, pos, project_id, api_definition_id, version_id, environment_id, create_time, create_user, update_time, update_user, delete_time, delete_user, deleted)
+VALUES ('gyq_associate_api_case_id_2','测试查询模块用','P0',1002, null, 'Underway', null, null, 200, 'project-associate-case-test', 'gyq_associate_api_definition_id_1', 'gyq_associate_version_id', 'gyq_associate_env_id', 1698058347559, 'admin',1698058347559,'admin',null,null,false);
+
+
+INSERT INTO api_definition(id, name, protocol, method, path, status, num, tags, pos, project_id, module_id, latest, version_id, ref_id, description, create_time, create_user, update_time, update_user, delete_user, delete_time, deleted)
+VALUES ('gyq_associate_api_definition_id_1', 'gyq_associate_api_definition_id_1', 'HTTP', 'POST','api/test','test-api-status', 1000001, null, 1, 'project-associate-case-test' , 'gyq_associate_test_module', true, 'v1.10','gyq_associate_api_definition_id_1', null, UNIX_TIMESTAMP() * 1000,'admin', UNIX_TIMESTAMP() * 1000,'admin', null,null,false);
+
+
+INSERT INTO api_definition_module(id, name,parent_id, project_id, pos, create_time, update_time, update_user, create_user)
+VALUES ('gyq_associate_test_module', 'gyq_associate_test_module', 'NONE', 'project-associate-case-test', 100, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin','admin');
 
 INSERT INTO project_version(id, project_id, name, description, status, latest, publish_time, start_time, end_time, create_time, create_user)
 values ('gyq_associate_version_id','project-associate-case-test','v1.0.0', null, 'open', 1, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin');

@@ -114,6 +114,58 @@
         ORDER BY pos
     </select>
 
+    <select id="countModuleIdByProviderRequest" resultType="io.metersphere.project.dto.ModuleCountDTO">
+        SELECT ad.module_id AS moduleId, count(ad.id) AS dataCount
+        FROM api_test_case atc inner join api_definition ad on atc.api_definition_id = ad.id
+        <include refid="api_case_module_request"/>
+        and atc.id not in
+        (
+        select associate.${apiCaseColumnName} from ${table} associate  where  associate.${sourceName} = #{request.sourceId}
+        )
+        GROUP BY ad.module_id
+    </select>
+
+    <select id="selectIdAndParentIdByProviderRequest" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
+        SELECT m.id,
+        m.parent_id AS parentId
+        FROM api_definition_module m
+        <include refid="provider_module_request"/>
+        ORDER BY pos
+    </select>
+
+
+    <sql id="api_case_module_request">
+        <where>
+            ad.deleted = #{deleted}
+            <if test="request.projectId != null and request.projectId != ''">
+                AND ad.project_id = #{request.projectId}
+            </if>
+            <if test="request.keyword != null and request.keyword != ''">
+                AND atc.name like CONCAT('%', #{request.keyword},'%')
+            </if>
+            <if test="request.moduleIds != null and request.moduleIds.size() != 0">
+                AND ad.module_id IN
+                <foreach collection="request.moduleIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="request.protocol != null and request.protocol != ''">
+                AND ad.protocol = #{request.protocol}
+            </if>
+            AND ad.latest = 1
+            <!--<if test="request.versionId != null and request.versionId != ''">
+                and api_definition.version_id = #{request.versionId}
+            </if>
+            <if test="request.refId != null and request.refId != ''">
+                and api_definition.ref_id = #{request.refId}
+            </if>
+            <if test="request.versionId == null and request.refId == null and request.id == null">
+                AND api_definition.latest = 1
+            </if>-->
+        </where>
+    </sql>
+
+
     <sql id="api_request">
         <where>
             api_definition.deleted = #{deleted}
@@ -152,6 +204,24 @@
             </if>
             <if test="request.keyword != null and request.keyword != ''">
                 AND m.name like CONCAT('%', #{request.keyword},'%')
+            </if>
+            <if test="request.moduleIds != null and request.moduleIds.size() != 0">
+                AND m.module_id IN
+                <foreach collection="request.moduleIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+
+        </where>
+    </sql>
+
+    <sql id="provider_module_request">
+        <where>
+            <if test="request.projectId != null and request.projectId != ''">
+                AND m.project_id = #{request.projectId}
+            </if>
+            <if test="request.moduleKeyword != null and request.moduleKeyword != ''">
+                AND m.name like CONCAT('%', #{request.moduleKeyword},'%')
             </if>
             <if test="request.moduleIds != null and request.moduleIds.size() != 0">
                 AND m.module_id IN
