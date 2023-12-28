@@ -9,9 +9,11 @@ package io.metersphere.functional.service;
 
 import io.metersphere.functional.domain.FunctionalCaseRelationshipEdge;
 import io.metersphere.functional.domain.FunctionalCaseRelationshipEdgeExample;
+import io.metersphere.functional.dto.FunctionalCaseRelationshipDTO;
 import io.metersphere.functional.mapper.ExtFunctionalCaseRelationshipEdgeMapper;
 import io.metersphere.functional.mapper.FunctionalCaseRelationshipEdgeMapper;
 import io.metersphere.functional.request.RelationshipAddRequest;
+import io.metersphere.functional.request.RelationshipRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.uid.IDGenerator;
@@ -218,5 +220,13 @@ public class FunctionalCaseRelationshipEdgeService {
         edge.setCreateTime(System.currentTimeMillis());
         edge.setUpdateTime(System.currentTimeMillis());
         return edge;
+    }
+
+    public List<FunctionalCaseRelationshipDTO> getFunctionalCasePage(RelationshipRequest request) {
+        List<FunctionalCaseRelationshipDTO> list = extFunctionalCaseRelationshipEdgeMapper.list(request, request.getSortString());
+        if (CollectionUtils.isEmpty(list)) {
+            return new ArrayList<>();
+        }
+        return list;
     }
 }

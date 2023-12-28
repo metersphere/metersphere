@@ -2,6 +2,7 @@ package io.metersphere.functional.controller;
 
 import io.metersphere.functional.request.RelationshipAddRequest;
 import io.metersphere.functional.request.RelationshipPageRequest;
+import io.metersphere.functional.request.RelationshipRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
@@ -24,6 +25,7 @@ public class FunctionalCaseRelationshipControllerTests extends BaseTest {
 
     public static final String RELATE_PAGE = "/functional/case/relationship/relate/page";
     public static final String ADD = "/functional/case/relationship/add";
+    public static final String PAGE = "/functional/case/relationship/page";
 
 
     @Test
@@ -84,5 +86,41 @@ public class FunctionalCaseRelationshipControllerTests extends BaseTest {
         // 返回请求正常
         Assertions.assertNotNull(postResultHolder);
 
+    }
+
+
+    @Test
+    @Order(3)
+    public void testRelationshipList() throws Exception {
+        //分页查询前置用例列表
+        RelationshipRequest request = new RelationshipRequest();
+        request.setId("wx_relationship_1");
+        request.setProjectId("wx_relationship");
+        request.setType("PRE");
+        request.setCurrent(1);
+        request.setPageSize(10);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(PAGE, request);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+
+
+        //分页查询后置用例列表
+        request.setId("wx_relationship_4");
+        request.setType("POST");
+        MvcResult postResult = this.requestPostWithOkAndReturn(PAGE, request);
+        // 获取返回值
+        String postReturnData = postResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder postResultHolder = JSON.parseObject(postReturnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(postResultHolder);
+
+
+        //增加覆盖率
+        request.setId("wx_relationship_1");
+        request.setType("POST");
+        this.requestPostWithOkAndReturn(PAGE, request);
     }
 }

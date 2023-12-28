@@ -35,3 +35,7 @@ VALUES ('wx_relationship_1', 'STEP', '1111', '', '', 'TEST'),
 INSERT INTO functional_case_relationship_edge(id, source_id, target_id, graph_id, create_user, update_time, create_time)
 VALUES ('relationship_1', 'wx_relationship_1', 'wx_relationship_2', '1', 'admin', 1698058347559, 1698058347559),
        ('relationship_3', 'wx_relationship_2', 'wx_relationship_3', '1', 'admin', 1698058347559, 1698058347559);
+
+
+INSERT INTO project_version(id, project_id, name, description, status, latest, publish_time, start_time, end_time, create_time, create_user)
+VALUES ('v1.0.0', 'wx_relationship', 'v1.0', NULL, 'open', b'1', 1698810592000, 1698810592000, 1698810592000, 1698810592000, 'admin');

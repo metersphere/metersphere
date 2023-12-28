@@ -4,8 +4,10 @@ import com.alibaba.excel.util.StringUtils;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.functional.dto.FunctionalCasePageDTO;
+import io.metersphere.functional.dto.FunctionalCaseRelationshipDTO;
 import io.metersphere.functional.request.RelationshipAddRequest;
 import io.metersphere.functional.request.RelationshipPageRequest;
+import io.metersphere.functional.request.RelationshipRequest;
 import io.metersphere.functional.service.FunctionalCaseRelationshipEdgeService;
 import io.metersphere.functional.service.FunctionalCaseService;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -55,7 +57,7 @@ public class FunctionalCaseRelationshipController {
     @PostMapping("/add")
     @Operation(summary = "用例管理-功能用例-用例详情-前后置关系-添加前后置关系")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
-    @CheckOwner(resourceId = "#request.getCaseId()", resourceType = "project")
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void add(@Validated @RequestBody RelationshipAddRequest request) {
         List<String> excludeIds = functionalCaseRelationshipEdgeService.getExcludeIds(request.getId());
         request.setExcludeIds(excludeIds);
@@ -63,5 +65,15 @@ public class FunctionalCaseRelationshipController {
         if (CollectionUtils.isNotEmpty(ids)) {
             functionalCaseRelationshipEdgeService.add(request, ids, SessionUtils.getUserId());
         }
+    }
+
+
+    @PostMapping("/page")
+    @Operation(summary = "用例管理-功能用例-用例详情-前后置关系-列表查询")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public Pager<List<FunctionalCaseRelationshipDTO>> getRelationshipCase(@Validated @RequestBody RelationshipRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
+        return PageUtils.setPageInfo(page, functionalCaseRelationshipEdgeService.getFunctionalCasePage(request));
     }
 }
