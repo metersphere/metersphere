@@ -163,6 +163,7 @@ CREATE TABLE IF NOT EXISTS functional_case_test
     `case_id`     VARCHAR(50) NOT NULL COMMENT '功能用例ID',
     `source_id`   VARCHAR(50) NOT NULL COMMENT '其他类型用例ID',
     `source_type` VARCHAR(64) NOT NULL COMMENT '用例类型：接口用例/场景用例/性能用例/UI用例',
+    `project_id` VARCHAR(50) NOT NULL   COMMENT '用例所属项目' ,
     `create_time` BIGINT      NOT NULL COMMENT '创建时间',
     `update_time` BIGINT      NOT NULL COMMENT '更新时间',
     `create_user` VARCHAR(50) NOT NULL COMMENT '创建人',
@@ -175,6 +176,8 @@ CREATE TABLE IF NOT EXISTS functional_case_test
 
 CREATE INDEX idx_case_id ON functional_case_test (case_id);
 CREATE INDEX idx_source_id ON functional_case_test (source_id);
+CREATE INDEX idx_source_type ON functional_case_test(source_type);
+CREATE INDEX idx_project_id ON functional_case_test(project_id);
 
 CREATE TABLE IF NOT EXISTS functional_case_demand
 (

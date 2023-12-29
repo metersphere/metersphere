@@ -6,8 +6,9 @@ import io.metersphere.api.dto.definition.ApiTestCaseBatchRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.definition.ApiTestCasePageRequest;
 import io.metersphere.api.dto.definition.CasePassDTO;
-import io.metersphere.dto.ApiTestCaseProviderDTO;
-import io.metersphere.request.ApiTestCasePageProviderRequest;
+import io.metersphere.dto.TestCaseProviderDTO;
+import io.metersphere.request.TestCasePageProviderRequest;
+import io.metersphere.request.AssociateOtherCaseRequest;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -44,6 +45,9 @@ public interface ExtApiTestCaseMapper {
 
     List<String> getIdsByApiIds(@Param("ids") List<String> ids);
 
-    List<ApiTestCaseProviderDTO> listByProviderRequest(@Param("table") String resourceType, @Param("sourceName") String sourceName, @Param("apiCaseColumnName") String apiCaseColumnName,@Param("request") ApiTestCasePageProviderRequest request, @Param("deleted") boolean deleted);
+    List<TestCaseProviderDTO> listByProviderRequest(@Param("table") String resourceType, @Param("sourceName") String sourceName, @Param("apiCaseColumnName") String apiCaseColumnName, @Param("request") TestCasePageProviderRequest request, @Param("deleted") boolean deleted);
+
+    List<String> getIdsByProvider(@Param("request") AssociateOtherCaseRequest request, @Param("deleted") boolean deleted);
+
 
 }
