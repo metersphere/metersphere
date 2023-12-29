@@ -19,7 +19,7 @@ import java.util.Map;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class ApiTestCasePageProviderRequest implements Serializable {
+public class TestCasePageProviderRequest implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -74,6 +74,10 @@ public class ApiTestCasePageProviderRequest implements Serializable {
 
     @Schema(description = "版本来源")
     private String refId;
+
+    @Schema(description = "关联用例的类型(API,SCENARIO,UI,PERFORMANCE)", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{associate_other_case_request.type.not_blank}")
+    private String sourceType;
 
 
     public String getSortString() {

@@ -153,7 +153,7 @@
         </foreach>
     </select>
 
-    <select id="listByProviderRequest" resultType="io.metersphere.dto.ApiTestCaseProviderDTO">
+    <select id="listByProviderRequest" resultType="io.metersphere.dto.TestCaseProviderDTO">
         SELECT
         t1.id,
         t1.project_id,
@@ -171,6 +171,17 @@
         select associate.${apiCaseColumnName} from ${table} associate  where  associate.${sourceName} = #{request.sourceId}
         )
         <include refid="queryWhereCondition"/>
+    </select>
+
+    <select id="getIdsByProvider" resultType="java.lang.String">
+        SELECT
+        t1.id
+        FROM
+        api_test_case t1
+        LEFT JOIN api_report t3 ON t1.last_report_id = t3.id
+        INNER JOIN api_definition a ON t1.api_definition_id = a.id
+        WHERE t1.deleted =#{deleted}
+        <include refid="queryWhereConditionByBatch"/>
     </select>
 
     <sql id="queryWhereConditionByBatch">

@@ -6,6 +6,7 @@
     <result column="case_id" jdbcType="VARCHAR" property="caseId" />
     <result column="source_id" jdbcType="VARCHAR" property="sourceId" />
     <result column="source_type" jdbcType="VARCHAR" property="sourceType" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
@@ -70,7 +71,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, case_id, source_id, source_type, create_time, update_time, create_user, update_user
+    id, case_id, source_id, source_type, project_id, create_time, update_time, create_user, 
+    update_user
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.functional.domain.FunctionalCaseTestExample" resultMap="BaseResultMap">
     select
@@ -104,11 +106,13 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.functional.domain.FunctionalCaseTest">
     insert into functional_case_test (id, case_id, source_id, 
-      source_type, create_time, update_time, 
-      create_user, update_user)
+      source_type, project_id, create_time, 
+      update_time, create_user, update_user
+      )
     values (#{id,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, #{sourceId,jdbcType=VARCHAR}, 
-      #{sourceType,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{createUser,jdbcType=VARCHAR}, #{updateUser,jdbcType=VARCHAR})
+      #{sourceType,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{updateUser,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.functional.domain.FunctionalCaseTest">
     insert into functional_case_test
@@ -124,6 +128,9 @@
       </if>
       <if test="sourceType != null">
         source_type,
+      </if>
+      <if test="projectId != null">
+        project_id,
       </if>
       <if test="createTime != null">
         create_time,
@@ -150,6 +157,9 @@
       </if>
       <if test="sourceType != null">
         #{sourceType,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -186,6 +196,9 @@
       <if test="record.sourceType != null">
         source_type = #{record.sourceType,jdbcType=VARCHAR},
       </if>
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
+      </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
@@ -209,6 +222,7 @@
       case_id = #{record.caseId,jdbcType=VARCHAR},
       source_id = #{record.sourceId,jdbcType=VARCHAR},
       source_type = #{record.sourceType,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
@@ -228,6 +242,9 @@
       </if>
       <if test="sourceType != null">
         source_type = #{sourceType,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -249,6 +266,7 @@
     set case_id = #{caseId,jdbcType=VARCHAR},
       source_id = #{sourceId,jdbcType=VARCHAR},
       source_type = #{sourceType,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
@@ -257,13 +275,14 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into functional_case_test
-    (id, case_id, source_id, source_type, create_time, update_time, create_user, update_user
-      )
+    (id, case_id, source_id, source_type, project_id, create_time, update_time, create_user, 
+      update_user)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.caseId,jdbcType=VARCHAR}, #{item.sourceId,jdbcType=VARCHAR}, 
-        #{item.sourceType,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, 
-        #{item.createUser,jdbcType=VARCHAR}, #{item.updateUser,jdbcType=VARCHAR})
+        #{item.sourceType,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
+        #{item.updateTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, #{item.updateUser,jdbcType=VARCHAR}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -287,6 +306,9 @@
         </if>
         <if test="'source_type'.toString() == column.value">
           #{item.sourceType,jdbcType=VARCHAR}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
         </if>
         <if test="'create_time'.toString() == column.value">
           #{item.createTime,jdbcType=BIGINT}
