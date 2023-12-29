@@ -2,10 +2,7 @@ package io.metersphere.api.service.definition;
 
 import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.controller.result.ApiResultCode;
-import io.metersphere.api.domain.ApiDefinition;
-import io.metersphere.api.domain.ApiDefinitionMock;
-import io.metersphere.api.domain.ApiDefinitionMockConfig;
-import io.metersphere.api.domain.ApiDefinitionMockExample;
+import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.definition.ApiDefinitionMockDTO;
 import io.metersphere.api.dto.definition.HttpResponse;
@@ -198,7 +195,7 @@ public class ApiDefinitionMockService {
     public void delete(ApiDefinitionMockRequest request, String userId) {
         checkApiDefinitionMock(request.getId());
         String apiDefinitionMockDir = DefaultRepositoryDir.getApiDefinitionDir(request.getProjectId(), request.getId());
-        apiFileResourceService.deleteByResourceId(apiDefinitionMockDir, request.getId(), request.getProjectId(), userId, OperationLogModule.API_DEFINITION);
+        apiFileResourceService.deleteByResourceId(apiDefinitionMockDir, request.getId(), request.getProjectId(), userId, OperationLogModule.API_DEFINITION_MOCK);
         apiDefinitionMockConfigMapper.deleteByPrimaryKey(request.getId());
         apiDefinitionMockMapper.deleteByPrimaryKey(request.getId());
     }
@@ -250,5 +247,27 @@ public class ApiDefinitionMockService {
 
     public String uploadTempFile(MultipartFile file) {
         return apiFileResourceService.uploadTempFile(file);
+    }
+
+    public void deleteByApiIds(List<String> apiIds, String userId) {
+        ApiDefinitionMockExample apiDefinitionMockExample = new ApiDefinitionMockExample();
+        apiDefinitionMockExample.createCriteria().andApiDefinitionIdIn(apiIds);
+
+        List<ApiDefinitionMock> apiDefinitionMocks = apiDefinitionMockMapper.selectByExample(apiDefinitionMockExample);
+
+        if(!apiDefinitionMocks.isEmpty()){
+            apiDefinitionMocks.forEach(item -> {
+                String apiDefinitionMockDir = DefaultRepositoryDir.getApiDefinitionDir(item.getProjectId(), item.getId());
+                apiFileResourceService.deleteByResourceId(apiDefinitionMockDir, item.getId(), item.getProjectId(), userId, OperationLogModule.API_DEFINITION_MOCK);
+            });
+
+            List<String> mockIds = apiDefinitionMocks.stream().map(ApiDefinitionMock::getId).toList();
+
+            ApiDefinitionMockConfigExample apiDefinitionMockConfigExample = new ApiDefinitionMockConfigExample();
+            apiDefinitionMockConfigExample.createCriteria().andIdIn(mockIds);
+            apiDefinitionMockConfigMapper.deleteByExample(apiDefinitionMockConfigExample);
+
+            apiDefinitionMockMapper.deleteByExample(apiDefinitionMockExample);
+        }
     }
 }

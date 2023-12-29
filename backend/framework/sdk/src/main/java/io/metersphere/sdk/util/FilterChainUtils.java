@@ -44,6 +44,7 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/anonymous/**", "anon");
 
         //分享相关接口
+        filterChainDefinitionMap.put("/api/share/doc/view/**", "anon");
 
         filterChainDefinitionMap.put("/system/theme", "anon");
         filterChainDefinitionMap.put("/system/parameter/save/base-url/**", "anon");

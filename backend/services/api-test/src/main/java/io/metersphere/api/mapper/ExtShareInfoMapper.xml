@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.api.mapper.ExtShareInfoMapper">
+
+    <select id="selectByShareTypeAndShareApiIdWithBLOBs" resultType="io.metersphere.sdk.domain.ShareInfo">
+        SELECT id,share_type,custom_data FROM share_info
+        <where>
+            share_type = #{shareType}
+            <if test="customData != null and customData != ''">
+                AND custom_data = #{customData}
+            </if>
+            <if test="lang != null and lang != ''">
+                AND lang = #{lang}
+            </if>
+        </where>
+    </select>
+
+</mapper>
