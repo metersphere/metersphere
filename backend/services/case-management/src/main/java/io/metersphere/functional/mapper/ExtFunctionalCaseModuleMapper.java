@@ -1,5 +1,6 @@
 package io.metersphere.functional.mapper;
 
+import io.metersphere.functional.request.CaseApiModuleRequest;
 import io.metersphere.project.dto.NodeSortQueryParam;
 import io.metersphere.system.dto.sdk.BaseModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
@@ -23,5 +24,8 @@ public interface ExtFunctionalCaseModuleMapper {
     BaseModule selectModuleByParentIdAndPosOperator(NodeSortQueryParam nodeSortQueryParam);
 
     List<BaseTreeNode> selectIdAndParentIdByProjectId(String projectId);
+
+    List<BaseTreeNode> selectApiCaseModuleByRequest(@Param("request") CaseApiModuleRequest request);
+
 
 }

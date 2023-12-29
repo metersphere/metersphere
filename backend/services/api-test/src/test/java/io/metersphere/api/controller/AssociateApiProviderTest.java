@@ -73,6 +73,13 @@ public class AssociateApiProviderTest extends BaseTest {
         request.setSelectIds(List.of("gyq_associate_api_case_id_1"));
         selectIds = provider.getSelectIds(request, false);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(selectIds));
+        request.setSourceType("API");
+        request.setSourceId("gyq_associate_case_id_1");
+        request.setSelectAll(true);
+        request.setProjectId("project-associate-case-test");
+        selectIds = provider.getSelectIds(request, false);
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(selectIds));
+
     }
 
 
