@@ -95,8 +95,8 @@
 
   // 处理控制器项
   function getControlFormItemsMaps() {
-    const parentControlsItems = [];
-    formItems.value.forEach((item: FormItem) => {
+    const parentControlsItems: FormItem[] = [];
+    formItems.value.forEach((item) => {
       if (!item.displayConditions) {
         parentControlsItems.push(item);
       } else {

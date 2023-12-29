@@ -47,7 +47,9 @@ export interface RadioProps {
 
 export interface MsSearchSelectSlots {
   prefix?: string;
+  // @ts-ignore
   header?: (() => JSX.Element) | Slot<any>;
+  // @ts-ignore
   default?: () => JSX.Element[];
   footer?: Slot<any>;
   empty?: Slot<any>;

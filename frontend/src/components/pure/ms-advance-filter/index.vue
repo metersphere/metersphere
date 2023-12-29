@@ -82,6 +82,7 @@
   };
 
   const handleFilter = (filter: FilterResult) => {
+    console.log('filter', filter);
     emit('advSearch', filter);
   };
 

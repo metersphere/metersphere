@@ -1,7 +1,5 @@
 import { FieldRule } from '@arco-design/web-vue';
 
-import { FormRule, Rule } from '@form-create/arco-design';
-
 export type FormItemType =
   | 'INPUT'
   | 'TEXTAREA'

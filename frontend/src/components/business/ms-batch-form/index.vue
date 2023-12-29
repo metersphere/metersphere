@@ -203,9 +203,9 @@
   watchEffect(() => {
     props.models.forEach((e) => {
       // 默认填充表单项
-      let value = null;
+      let value: string | number | boolean | string[] | number[] | undefined;
       if (e.type === 'inputNumber') {
-        value = null;
+        value = undefined;
       } else if (e.type === 'tagInput') {
         value = [];
       } else {

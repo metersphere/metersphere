@@ -480,8 +480,8 @@
       }
       return e;
     });
-    let projectIds = [];
-    let organizationIds = [];
+    let projectIds: any[] = [];
+    let organizationIds: any[] = [];
 
     if (!MENU_LEVEL.includes(level.value) && typeof operateRange.value[0] === 'object') {
       if (operateRange.value[0].level === MENU_LEVEL[1]) {

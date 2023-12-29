@@ -34,6 +34,7 @@ export interface BugEditCustomField {
   value: string;
   platformOptionJson?: string; // 选项的 Json
   required: boolean;
+  isMutiple?: boolean;
 }
 export interface BugEditFormObject {
   [key: string]: any;
@@ -43,5 +44,12 @@ export interface BugEditCustomFieldItem {
   name: string;
   type: string;
   value: string;
+}
+export type BugBatchUpdateFiledType = 'single_select' | 'multiple_select' | 'tag' | 'input' | 'user_selector' | 'date';
+export interface BugBatchUpdateFiledForm {
+  attribute: string;
+  value: string[];
+  append: boolean;
+  inputValue: string;
 }
 export default {};

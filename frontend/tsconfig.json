@@ -39,6 +39,7 @@
       // 路径映射
       "@/*": ["./src/*"],
       "#/*": ["types/*"]
-    }
+    },
+    "noImplicitAny": false,
   }
 }
