@@ -5,7 +5,6 @@ import lombok.Data;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 @Data
 public class TaskResult implements Serializable {
@@ -27,6 +26,19 @@ public class TaskResult implements Serializable {
     private String runningDebugSampler;
     private Boolean hasEnded;
     private boolean retryEnable;
-    private Map<String, Object> arbitraryData;
-    Map<String, List<MsRegexDTO>> fakeErrorMap;
+    private String projectId;
+    private String environmentId;
+    /**
+     * 执行过程状态
+     */
+    private ProcessResultDTO processResultDTO;
+    /**
+     * 资源类型
+     * ApiResourceType
+     */
+    private String resourceType;
+    /**
+     * 环境变量处理信息
+     */
+    List<String> environmentList;
 }

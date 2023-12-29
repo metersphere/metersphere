@@ -1,10 +1,12 @@
 package io.metersphere.sdk.dto.api.task;
 
+import io.metersphere.sdk.dto.api.result.MsRegexDTO;
 import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 任务请求参数数据
@@ -51,5 +53,10 @@ public class TaskRequest implements Serializable {
      * 执行时下载文件后，按原文件命名
      */
     private List<ApiExecuteFileInfo> refFiles;
+    /**
+     * 误报规则
+     */
+    Map<String, List<MsRegexDTO>> fakeErrorMap;
+
     // TODO 其它执行参数
 }
