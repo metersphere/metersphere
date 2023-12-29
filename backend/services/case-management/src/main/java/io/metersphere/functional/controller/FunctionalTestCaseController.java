@@ -3,12 +3,14 @@ package io.metersphere.functional.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.dto.TestCaseProviderDTO;
+import io.metersphere.functional.request.CaseApiModuleRequest;
 import io.metersphere.functional.request.FunctionalTestCaseDisassociateRequest;
 import io.metersphere.functional.service.FunctionalTestCaseService;
 import io.metersphere.request.ApiModuleProviderRequest;
-import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.request.AssociateOtherCaseRequest;
+import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -52,6 +54,14 @@ public class FunctionalTestCaseController {
     @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public Map<String, Long> moduleCount(@Validated @RequestBody ApiModuleProviderRequest request) {
         return functionalTestCaseService.moduleCount(request, false);
+    }
+
+    @PostMapping("/associate/api/module/tree")
+    @Operation(summary = "接口测试-接口管理-模块-查找模块")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
+    public List<BaseTreeNode> getTree(@RequestBody @Validated CaseApiModuleRequest request) {
+        return functionalTestCaseService.getTree(request);
     }
 
     @PostMapping("/associate/case")

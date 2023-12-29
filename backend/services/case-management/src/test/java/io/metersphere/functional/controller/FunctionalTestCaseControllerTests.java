@@ -1,9 +1,12 @@
 package io.metersphere.functional.controller;
 
+import io.metersphere.api.domain.ApiDefinitionModule;
+import io.metersphere.api.mapper.ApiDefinitionModuleMapper;
 import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.functional.constants.AssociateCaseType;
 import io.metersphere.functional.domain.FunctionalCaseTest;
 import io.metersphere.functional.mapper.FunctionalCaseTestMapper;
+import io.metersphere.functional.request.CaseApiModuleRequest;
 import io.metersphere.functional.request.FunctionalTestCaseDisassociateRequest;
 import io.metersphere.provider.BaseAssociateApiProvider;
 import io.metersphere.request.ApiModuleProviderRequest;
@@ -12,6 +15,7 @@ import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
@@ -38,6 +42,7 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
 
     private static final String URL_CASE_PAGE_DISASSOCIATE = "/functional/case/test/disassociate/case";
 
+    private static final String URL_CASE_MODULE_TREE = "/functional/case/test/associate/api/module/tree";
 
 
 
@@ -46,6 +51,10 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
 
     @Resource
     private FunctionalCaseTestMapper functionalCaseTestMapper;
+
+    @Resource
+    private ApiDefinitionModuleMapper apiDefinitionModuleMapper;
+
 
     @Test
     @Order(1)
@@ -119,9 +128,24 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
+        List<String>operations = new ArrayList<>();
+        operations.add("gyq_associate_case_id_1");
+        Mockito.when(provider.getSelectIds(request, false)).thenReturn(operations);
+        Assertions.assertNotNull(resultHolder);
         request.setSelectAll(false);
         request.setProjectId("project-associate-case-test");
-        request.setSelectIds(List.of("gyq_associate_api_case_id_1"));
+        request.setSelectIds(operations);
+        mvcResult = this.requestPostWithOkAndReturn(URL_CASE_PAGE_ASSOCIATE, request);
+        returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Assertions.assertNotNull(resultHolder);
+
+        request = new AssociateOtherCaseRequest();
+        request.setSourceType(AssociateCaseType.SCENARIO);
+        request.setSourceId("gyq_associate_case_id_1");
+        request.setSelectAll(true);
+        request.setProjectId("project-associate-case-test");
+        request.setExcludeIds(List.of("gyq_associate_api_case_id_2"));
         mvcResult = this.requestPostWithOkAndReturn(URL_CASE_PAGE_ASSOCIATE, request);
         returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         resultHolder = JSON.parseObject(returnData, ResultHolder.class);
@@ -163,6 +187,37 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
         returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
+    }
+
+    @Test
+    @Order(6)
+    public void getTreeSuccess() throws Exception {
+        ApiDefinitionModule apiDefinitionModule = new ApiDefinitionModule();
+        apiDefinitionModule.setId("case_module");
+        apiDefinitionModule.setPos(100L);
+        apiDefinitionModule.setName("api_case_module");
+        apiDefinitionModule.setParentId("NONE");
+        apiDefinitionModule.setProjectId("project-associate-case-test");
+        apiDefinitionModule.setCreateUser("admin");
+        apiDefinitionModule.setCreateTime(System.currentTimeMillis());
+        apiDefinitionModule.setUpdateUser("admin");
+        apiDefinitionModule.setUpdateTime(System.currentTimeMillis());
+        apiDefinitionModuleMapper.insert(apiDefinitionModule);
+        List<BaseTreeNode> moduleTreeNode = this.getModuleTreeNode();
+        Assertions.assertNotNull(moduleTreeNode);
+        System.out.println(JSON.toJSONString(moduleTreeNode));
+    }
+
+
+    private List<BaseTreeNode> getModuleTreeNode() throws Exception {
+        MvcResult result = this.requestPostWithOkAndReturn(URL_CASE_MODULE_TREE, new CaseApiModuleRequest() {{
+            this.setProtocol("HTTP");
+            this.setProjectId("project-associate-case-test");
+            this.setSourceType(AssociateCaseType.API);
+        }});
+        String returnData = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        return JSON.parseArray(JSON.toJSONString(resultHolder.getData()), BaseTreeNode.class);
     }
 
     private void addFunctionalCaseTest() {

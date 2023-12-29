@@ -61,4 +61,34 @@
         FROM functional_case_module
         WHERE project_id = #{0}
     </select>
+
+    <select id="selectApiCaseModuleByRequest" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
+        SELECT m.id,
+        m.parent_id AS parentId,
+        m.name,
+        m.pos,
+        m.project_id,
+        'MODULE' AS type
+        FROM api_definition_module m
+        <include refid="module_request"/>
+        ORDER BY pos
+    </select>
+
+    <sql id="module_request">
+        <where>
+            <if test="request.projectId != null and request.projectId != ''">
+                AND m.project_id = #{request.projectId}
+            </if>
+            <if test="request.keyword != null and request.keyword != ''">
+                AND m.name like CONCAT('%', #{request.keyword},'%')
+            </if>
+            <if test="request.moduleIds != null and request.moduleIds.size() != 0">
+                AND m.module_id IN
+                <foreach collection="request.moduleIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+
+        </where>
+    </sql>
 </mapper>

@@ -4,14 +4,18 @@ import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.functional.constants.AssociateCaseType;
 import io.metersphere.functional.domain.FunctionalCaseTest;
 import io.metersphere.functional.domain.FunctionalCaseTestExample;
+import io.metersphere.functional.mapper.ExtFunctionalCaseModuleMapper;
 import io.metersphere.functional.mapper.ExtFunctionalCaseTestMapper;
 import io.metersphere.functional.mapper.FunctionalCaseTestMapper;
+import io.metersphere.functional.request.CaseApiModuleRequest;
 import io.metersphere.functional.request.FunctionalTestCaseDisassociateRequest;
 import io.metersphere.provider.BaseAssociateApiProvider;
 import io.metersphere.request.ApiModuleProviderRequest;
-import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.request.AssociateOtherCaseRequest;
+import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -44,6 +48,15 @@ public class FunctionalTestCaseService {
 
     @Resource
     private FunctionalCaseTestMapper functionalCaseTestMapper;
+
+    @Resource
+    private FunctionalCaseModuleService functionalCaseModuleService;
+
+    @Resource
+    private ExtFunctionalCaseModuleMapper extFunctionalCaseModuleMapper;
+
+    private static final String UNPLANNED_API = "api_unplanned_request";
+
 
     /**
      * 获取功能用例未关联的接口用例列表
@@ -136,5 +149,10 @@ public class FunctionalTestCaseService {
         } else {
             return request.getSelectIds();
         }
+    }
+
+    public List<BaseTreeNode> getTree(CaseApiModuleRequest request) {
+        List<BaseTreeNode> fileModuleList = extFunctionalCaseModuleMapper.selectApiCaseModuleByRequest(request);
+        return functionalCaseModuleService.buildTreeAndCountResource(fileModuleList, true, Translator.get(UNPLANNED_API));
     }
 }
