@@ -7,8 +7,8 @@
           <div class="text-[var(--color-text-2)]">{{ t('advanceFilter.accordBelow') }}</div>
           <div class="ml-[16px]">
             <a-select v-model:model-value="accordBelow" size="small">
-              <a-option value="all">{{ t('advanceFilter.all') }}</a-option>
-              <a-option value="any">{{ t('advanceFilter.any') }}</a-option>
+              <a-option value="AND">{{ t('advanceFilter.all') }}</a-option>
+              <a-option value="OR">{{ t('advanceFilter.any') }}</a-option>
             </a-select>
           </div>
           <div class="ml-[8px] text-[var(--color-text-2)]">{{ t('advanceFilter.condition') }}</div>
@@ -212,12 +212,13 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import { SelectValue } from '@/models/projectManagement/menuManagement';
+  import { OptionsItem } from '@/models/setting/log';
 
   import { OPERATOR_MAP } from './index';
-  import { AccordBelowType, BackEndEnum, FilterFormItem, FilterResult, FilterType } from './type';
+  import { AccordBelowType, BackEndEnum, CombineItem, FilterFormItem, FilterResult, FilterType } from './type';
 
   const { t } = useI18n();
-  const accordBelow = ref<AccordBelowType>('all');
+  const accordBelow = ref<AccordBelowType>('AND');
   const formRef = ref<FormInstance | null>(null);
   const formModel = reactive<{ list: FilterFormItem[] }>({
     list: [],
@@ -245,7 +246,7 @@
   };
 
   const getOperationOption = (type: FilterType, dataIndex: string) => {
-    let result = [];
+    let result: { label: string; value: string }[] = [];
     switch (type) {
       case FilterType.NUMBER:
         result = OPERATOR_MAP.number;
@@ -322,15 +323,17 @@
   const handleFilter = () => {
     formRef.value?.validate((errors) => {
       if (!errors) {
-        const tmpObj: FilterResult = {};
+        const tmpObj: FilterResult = { accordBelow: 'AND', combine: {} };
+        const combine: CombineItem = {};
         formModel.list.forEach((item) => {
-          tmpObj[item.dataIndex as string] = {
+          combine[item.dataIndex as string] = {
             operator: item.operator,
             value: item.value,
             backendType: item.backendType,
           };
         });
         tmpObj.accordBelow = accordBelow.value;
+        tmpObj.combine = combine;
         emit('onSearch', tmpObj);
       }
     });

@@ -21,6 +21,7 @@ if (!('innerText' in document.createElement('a')) && 'getSelection' in window) {
       let i;
       if (selection) {
         for (i = 0; i < selection.rangeCount; i++) {
+          // @ts-ignore
           ranges[i] = selection.getRangeAt(i);
         }
 
@@ -52,7 +53,7 @@ function InputRuntime(this: any) {
   this.isGecko = window.kity.Browser.gecko;
 
   const updatePosition = (): void => {
-    let timer = null;
+    let timer: null | NodeJS.Timeout = null;
     const focusNode = this.minder.getSelectedNode();
     if (!focusNode) return;
 

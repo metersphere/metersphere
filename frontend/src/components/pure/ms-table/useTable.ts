@@ -9,7 +9,15 @@ import { useAppStore, useTableStore } from '@/store';
 import type { CommonList, TableQueryParams } from '@/models/common';
 import { SelectAllEnum } from '@/enums/tableEnum';
 
-import type { MsTableColumn, MsTableDataItem, MsTableErrorStatus, MsTableProps, SetPaginationPrams } from './type';
+import { FilterResult } from '../ms-advance-filter/type';
+import type {
+  CombineParams,
+  MsTableColumn,
+  MsTableDataItem,
+  MsTableErrorStatus,
+  MsTableProps,
+  SetPaginationPrams,
+} from './type';
 import type { TableData } from '@arco-design/web-vue';
 
 export interface Pagination {
@@ -84,6 +92,8 @@ export default function useTableProps<T>(
 
   // keyword
   const keyword = ref('');
+  // 高级筛选
+  const advanceFilter = reactive<FilterResult>({ accordBelow: 'AND', combine: {} });
 
   // 是否分页
   if (propsRes.value.showPagination) {
@@ -151,11 +161,16 @@ export default function useTableProps<T>(
   const setLoadListParams = (params?: object) => {
     loadListParams.value = params || {};
   };
-
+  // 设置keyword
   const setKeyword = (v: string) => {
     keyword.value = v;
   };
 
+  // 设置 advanceFilter
+  const setAdvanceFilter = (v: CombineParams) => {
+    advanceFilter.accordBelow = v.accordBelow;
+    advanceFilter.combine = v.combine;
+  };
   // 给表格设置选中项 - add rowKey to selectedKeys
   const setTableSelected = (key: string) => {
     const { selectedKeys } = propsRes.value;
@@ -184,6 +199,8 @@ export default function useTableProps<T>(
             sort: sortItem.value,
             filter: filterItem.value,
             keyword: keyword.value,
+            combine: advanceFilter.combine,
+            searchMode: advanceFilter.accordBelow,
             ...loadListParams.value,
           });
           const tmpArr = data.list;
@@ -421,6 +438,7 @@ export default function useTableProps<T>(
     setPagination,
     setLoadListParams,
     setKeyword,
+    setAdvanceFilter,
     resetPagination,
     getSelectedCount,
     resetSelector,

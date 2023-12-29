@@ -140,4 +140,9 @@ export interface BatchActionQueryParams {
   selectAll: boolean; // 是否跨页全选
   params?: TableQueryParams; // 查询参数
   currentSelectCount: number; // 当前选中的数量
+  condition?: any; // 查询条件
+}
+
+export interface CombineParams {
+  [key: string]: any;
 }

@@ -245,7 +245,7 @@
       },
     },
     (item) => {
-      const children = [];
+      const children: TableMessageChildrenItem[] = [];
       for (let i = 0; i < (item as unknown as MessageItem).messageTaskTypeDTOList.length; i++) {
         const child = (item as unknown as MessageItem).messageTaskTypeDTOList[i];
         for (let j = 0; j < child.messageTaskDetailDTOList.length; j++) {

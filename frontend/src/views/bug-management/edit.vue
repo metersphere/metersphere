@@ -165,7 +165,6 @@
   import { AssociatedList, AttachFileInfo } from '@/models/caseManagement/featureCase';
   import { TableQueryParams } from '@/models/common';
   import { SelectValue } from '@/models/projectManagement/menuManagement';
-  import { FormCreateKeyEnum } from '@/enums/formCreateEnum';
 
   import { convertToFile } from '../case-management/caseManagementFeature/components/utils';
 

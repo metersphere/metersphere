@@ -270,6 +270,7 @@ export default defineComponent({
     };
 
     const pageList = computed(() => {
+      // @ts-ignore
       const pageListArr: Array<JSX.Element | JSX.Element[]> = [];
 
       if (pages.value < props.baseSize + props.bufferSize * 2) {

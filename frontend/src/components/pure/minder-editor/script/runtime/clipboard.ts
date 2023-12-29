@@ -29,6 +29,7 @@ export default function ClipboardRuntime(this: any) {
   function encode(nodes: Array<INode>): string {
     const _nodes = [];
     for (let i = 0, l = nodes.length; i < l; i++) {
+      // @ts-ignore
       _nodes.push(minder.exportNode(nodes[i]));
     }
     return kmencode(Data.getRegisterProtocol('json').encode(_nodes));

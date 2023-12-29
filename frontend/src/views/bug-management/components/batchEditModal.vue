@@ -8,7 +8,7 @@
   >
     <template #title>
       <div class="flex flex-row items-center">
-        <div class="ml-[8px]">{{ t('bugManagement.batchEdit') }}</div>
+        <div>{{ t('bugManagement.batchEdit') }}</div>
         <div v-if="selectCount" class="ml-[8px] text-[var(--color-text-4)]">
           {{ t('bugManagement.selectedCount', { count: selectCount }) }}
         </div>
@@ -22,25 +22,99 @@
           :label="t('bugManagement.batchUpdate.attribute')"
           :rules="[{ required: true }]"
         >
-          <a-select v-model:model-value="form.attribute" :options="[]" />
+          <a-select v-model:model-value="form.attribute" @change="handleArrtibuteChange">
+            <a-optgroup :label="t('bugManagement.batchUpdate.systemFiled')">
+              <a-option
+                v-for="item in systemOptionList"
+                :key="item.value"
+                :disabled="form.attribute === 'status'"
+                :value="item.value"
+                >{{ item.label }}</a-option
+              >
+            </a-optgroup>
+            <a-optgroup :label="t('bugManagement.batchUpdate.customFiled')">
+              <a-option v-for="item in customOptionList" :key="item.value" :value="item.value">{{
+                item.label
+              }}</a-option>
+            </a-optgroup>
+          </a-select>
         </a-form-item>
         <a-form-item
+          v-if="['input', 'date', 'single_select'].includes(valueMode)"
+          field="inputValue"
+          asterisk-position="end"
+          :label="t('bugManagement.batchUpdate.update')"
+          :rules="[{ required: true }]"
+        >
+          <template v-if="valueMode === 'input'">
+            <a-input v-model:model-value="form.inputValue" :disabled="!form.attribute" />
+          </template>
+          <template v-else-if="valueMode === 'date'">
+            <a-date-picker v-model:model-value="form.inputValue" :disabled="!form.attribute" />
+          </template>
+          <template v-else-if="valueMode === 'single_select'">
+            <a-select v-model:model-value="form.inputValue" :disabled="!form.attribute">
+              <a-option v-for="item in customFiledOption" :key="item.value" :value="item.value">{{
+                item.text
+              }}</a-option>
+            </a-select>
+          </template>
+        </a-form-item>
+        <a-form-item
+          v-else
           field="value"
           asterisk-position="end"
           :label="t('bugManagement.batchUpdate.update')"
           :rules="[{ required: true }]"
         >
-          <a-select v-model:model-value="form.value" :disabled="!form.attribute" :options="[]" />
+          <template v-if="valueMode === 'tag'">
+            <a-input-tag v-model:model-value="form.value" :disabled="!form.attribute" />
+          </template>
+          <template v-else-if="valueMode === 'user_selector'">
+            <MsUserSelector
+              v-model:model-value="form.value"
+              :type="UserRequestTypeEnum.PROJECT_PERMISSION_MEMBER"
+              :load-option-params="{ projectId: appStore.currentProjectId }"
+              :disabled="!form.attribute"
+            />
+          </template>
+          <template v-else-if="valueMode === 'multiple_select'">
+            <a-select v-model:model-value="form.value" :disabled="!form.attribute" multiple>
+              <a-option v-for="item in customFiledOption" :key="item.value" :value="item.value">{{
+                item.text
+              }}</a-option>
+            </a-select>
+          </template>
         </a-form-item>
       </a-form>
     </div>
     <template #footer>
-      <a-button type="secondary" :loading="loading" @click="handleCancel">
-        {{ t('common.cancel') }}
-      </a-button>
-      <a-button type="primary" :loading="loading" @click="handleConfirm">
-        {{ t('common.update') }}
-      </a-button>
+      <div class="flex flex-row items-center justify-between">
+        <div>
+          <div v-if="showAppend" class="flex flex-row items-center gap-[4px]">
+            <a-switch v-model:model-value="form.append" size="small" />
+            <span class="text-[var(--color-text-1)]">{{ t('bugManagement.batchUpdate.update') }}</span>
+            <a-tooltip position="top">
+              <template #content>
+                <div>{{ t('bugManagement.batchUpdate.openAppend') }}</div>
+                <div>{{ t('bugManagement.batchUpdate.closeAppend') }}</div>
+              </template>
+              <MsIcon
+                type="icon-icon-maybe_outlined"
+                class="text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+              />
+            </a-tooltip>
+          </div>
+        </div>
+        <div class="flex flex-row gap-[8px]"
+          ><a-button type="secondary" :loading="loading" @click="handleCancel">
+            {{ t('common.cancel') }}
+          </a-button>
+          <a-button type="primary" :loading="loading" @click="handleConfirm">
+            {{ t('common.update') }}
+          </a-button></div
+        >
+      </div>
     </template>
   </a-modal>
 </template>
@@ -50,19 +124,45 @@
   import { type FormInstance, Message, type ValidatedError } from '@arco-design/web-vue';
 
   import { BatchActionQueryParams } from '@/components/pure/ms-table/type';
+  import { MsUserSelector } from '@/components/business/ms-user-selector';
+  import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
 
+  import { updateBatchBug } from '@/api/modules/bug-management';
   import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore } from '@/store';
+
+  import type { BugBatchUpdateFiledType } from '@/models/bug-management';
+  import { BugBatchUpdateFiledForm, BugEditCustomField } from '@/models/bug-management';
+  import { SelectValue } from '@/models/projectManagement/menuManagement';
 
   const { t } = useI18n();
   const props = defineProps<{
     visible: boolean;
     selectParam: BatchActionQueryParams;
+    customFields: BugEditCustomField[];
   }>();
   const emit = defineEmits<{
     (e: 'submit'): void;
     (e: 'update:visible', value: boolean): void;
   }>();
+  const appStore = useAppStore();
   const selectCount = computed(() => props.selectParam.currentSelectCount);
+  const systemOptionList = computed(() => [
+    {
+      label: t('bugManagement.batchUpdate.handleUser'),
+      value: 'handleUser',
+    },
+    {
+      label: t('bugManagement.batchUpdate.tag'),
+      value: 'tag',
+    },
+  ]);
+  const customOptionList = computed(() => {
+    return props.customFields.map((item) => ({
+      label: item.fieldName,
+      value: item.fieldId,
+    }));
+  });
   const currentVisible = computed({
     get() {
       return props.visible;
@@ -73,11 +173,18 @@
   });
   const loading = ref(false);
 
-  const form = reactive({
+  const form = reactive<BugBatchUpdateFiledForm>({
+    // 批量更新的属性
     attribute: '',
+    // 批量更新的值
     value: [],
     append: false,
+    inputValue: '',
   });
+
+  const valueMode = ref<BugBatchUpdateFiledType>('single_select');
+
+  const showAppend = ref(false);
 
   const formRef = ref<FormInstance>();
 
@@ -85,12 +192,52 @@
     currentVisible.value = false;
     loading.value = false;
   };
+  const customFiledOption = ref<{ text: string; value: string }[]>([]);
+
+  const handleArrtibuteChange = (value: SelectValue) => {
+    form.value = [];
+    form.inputValue = '';
+    if (value === 'tag') {
+      valueMode.value = 'tag';
+      showAppend.value = true;
+    } else if (value === 'handleUser') {
+      valueMode.value = 'user_selector';
+      showAppend.value = true;
+    } else {
+      // 自定义字段
+      const customField = props.customFields.find((item) => item.fieldId === value);
+      if (customField) {
+        if (customField.type?.toLowerCase() === 'input') {
+          showAppend.value = false;
+          valueMode.value = 'input';
+          form.inputValue = '';
+        } else {
+          // select
+          customFiledOption.value = JSON.parse(customField.platformOptionJson as string) || [];
+          const isMutiple = customField.type?.toLocaleLowerCase() === 'select' && customField.isMutiple;
+          showAppend.value = isMutiple || false;
+          valueMode.value = isMutiple ? 'multiple_select' : 'single_select';
+        }
+      }
+    }
+  };
 
   const handleConfirm = () => {
     formRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
       if (!errors) {
         try {
           loading.value = true;
+          const params = {
+            excludeIds: props.selectParam.excludeIds,
+            selectIds: props.selectParam.selectedIds,
+            selectAll: props.selectParam.selectAll,
+            // 查询条件
+            condition: props.selectParam.condition,
+            projectId: appStore.currentProjectId,
+            [form.attribute]: form.value || form.inputValue,
+            append: form.append,
+          };
+          await updateBatchBug(params);
           Message.success(t('common.deleteSuccess'));
           handleCancel();
           emit('submit');

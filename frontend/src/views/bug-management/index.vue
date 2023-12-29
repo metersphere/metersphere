@@ -1,6 +1,11 @@
 <template>
   <MsCard simple>
-    <MsAdvanceFilter :filter-config-list="filterConfigList" :row-count="filterRowCount" @keyword-search="fetchData">
+    <MsAdvanceFilter
+      :filter-config-list="filterConfigList"
+      :row-count="filterRowCount"
+      @keyword-search="fetchData"
+      @adv-search="handleAdvSearch"
+    >
       <template #left>
         <div class="flex gap-[12px]">
           <a-button type="primary" @click="handleCreate">{{ t('bugManagement.createBug') }} </a-button>
@@ -118,7 +123,7 @@
   import { Message, TableData } from '@arco-design/web-vue';
 
   import { MsAdvanceFilter, timeSelectOptions } from '@/components/pure/ms-advance-filter';
-  import { FilterFormItem, FilterType } from '@/components/pure/ms-advance-filter/type';
+  import { FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsExportDrawer from '@/components/pure/ms-export-drawer/index.vue';
@@ -148,7 +153,7 @@
   import { useAppStore, useTableStore } from '@/store';
   import useLicenseStore from '@/store/modules/setting/license';
 
-  import { BugListItem } from '@/models/bug-management';
+  import { BugEditCustomField, BugListItem } from '@/models/bug-management';
   import { RouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
 
@@ -169,13 +174,14 @@
   const activeCaseIndex = ref<number>(0);
   const currentDeleteObj = reactive<{ id: string; title: string }>({ id: '', title: '' });
   const deleteVisible = ref(false);
-  const batchEditVisible = ref(true);
+  const batchEditVisible = ref(false);
   const keyword = ref('');
+  const filterResult = ref<FilterResult>({ accordBelow: 'AND', combine: {} });
   const licenseStore = useLicenseStore();
   const isXpack = computed(() => licenseStore.hasLicense());
   const { openDeleteModal } = useModal();
   // 自定义字段
-  const customFields = ref<MsTableColumn[]>([]);
+  const customFields = ref<BugEditCustomField[]>([]);
   // 当前选择的条数
   const currentSelectParams = ref<BatchActionQueryParams>({ selectAll: false, currentSelectCount: 0 });
 
@@ -327,19 +333,20 @@
     }
   };
 
-  const { propsRes, propsEvent, setKeyword, setLoadListParams, setProps, resetSelector, loadList } = useTable(
-    getBugList,
-    {
-      tableKey: TableKeyEnum.BUG_MANAGEMENT,
-      selectable: true,
-      noDisable: false,
-      showJumpMethod: true,
-      showSetting: true,
-      scroll: { x: '1800px' },
-    },
-    undefined,
-    (record) => handleNameChange(record)
-  );
+  const { propsRes, propsEvent, setKeyword, setAdvanceFilter, setLoadListParams, setProps, resetSelector, loadList } =
+    useTable(
+      getBugList,
+      {
+        tableKey: TableKeyEnum.BUG_MANAGEMENT,
+        selectable: true,
+        noDisable: false,
+        showJumpMethod: true,
+        showSetting: true,
+        scroll: { x: '1800px' },
+      },
+      undefined,
+      (record) => handleNameChange(record)
+    );
 
   const tableBatchActions = {
     baseAction: [
@@ -363,6 +370,50 @@
     setKeyword(v);
     keyword.value = v;
     await loadList();
+    customFields.value = propsRes.value.customFields || [
+      {
+        fieldId: 'handleUser',
+        fieldName: '处理人',
+        required: true,
+        apiFieldId: null,
+        defaultValue: null,
+        type: 'select',
+        options: null,
+        platformOptionJson:
+          '[{"text":"副驾仙人","value":"728495172886530"},{"text":"社恐的程序员","value":"728495172886645"}]',
+        supportSearch: null,
+        optionMethod: null,
+        isMutiple: true,
+      },
+      {
+        fieldId: 'status',
+        fieldName: '状态',
+        required: true,
+        apiFieldId: null,
+        defaultValue: null,
+        type: 'select',
+        options: null,
+        platformOptionJson: '[{"text":"新建","value":"100555929702892317"}]',
+        supportSearch: null,
+        optionMethod: null,
+      },
+    ];
+  };
+
+  const handleAdvSearch = (filter: FilterResult) => {
+    filterResult.value = filter;
+    const { accordBelow, combine } = filter;
+    setAdvanceFilter(filter);
+    currentSelectParams.value = {
+      ...currentSelectParams.value,
+      condition: {
+        keyword: keyword.value,
+        searchMode: accordBelow,
+        filter: propsRes.value.filter,
+        combine,
+      },
+    };
+    fetchData();
   };
 
   const exportConfirm = async (option: MsExportDrawerOption[]) => {
@@ -472,8 +523,16 @@
 
   const handleBatchEdit = (params: BatchActionQueryParams) => {
     batchEditVisible.value = true;
-    // eslint-disable-next-line no-console
-    console.log('create', params);
+    const condition = {
+      keyword: keyword.value,
+      searchMode: filterResult.value.accordBelow,
+      filter: propsRes.value.filter,
+      combine: filterResult.value.combine,
+    };
+    currentSelectParams.value = {
+      ...params,
+      condition,
+    };
   };
 
   const handleExport = () => {

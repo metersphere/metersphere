@@ -394,7 +394,7 @@
   async function initFileTypes() {
     try {
       fileTypeLoading.value = true;
-      let res = null;
+      let res: string[] = [];
       if (fileType.value === 'storage') {
         res = await getRepositoryFileTypes(appStore.currentProjectId);
       } else {
