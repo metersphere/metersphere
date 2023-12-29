@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.functional.mapper.ExtFunctionalCaseTestMapper">
+
+    <select id="getIds" resultType="java.lang.String">
+        SELECT
+        id
+        FROM
+        functional_case_test
+        where functional_case_test.case_id = #{request.caseId}
+        <choose>
+            <when test='request.condition.searchMode == "AND"'>
+                AND <include refid="queryWhereConditionByBaseQueryRequest"/>
+            </when>
+            <when test='request.condition.searchMode == "OR"'>
+                and (
+                <include refid="queryWhereConditionByBaseQueryRequest"/>
+                )
+            </when>
+        </choose>
+        1 = 1
+    </select>
+
+    <sql id="queryWhereConditionByBaseQueryRequest">
+        <if test="request.condition.keyword != null and request.sourceType == 'API'">
+            functional_case_test.source_id not in
+            (
+            select api_test_case.id from api_test_case where api_test_case.name like concat('%', #{request.keyword},'%')
+            )
+            <include refid="queryType">
+                <property name="searchMode" value="request.condition.searchMode"/>
+            </include>
+        </if>
+        <if test="request.condition.keyword != null and request.sourceType == 'SCENARIO'">
+            functional_case_test.source_id not in
+            (
+            select api_scenario.id from api_scenario where api_scenario.name like concat('%', #{request.keyword},'%')
+            )
+            <include refid="queryType">
+                <property name="searchMode" value="request.condition.searchMode"/>
+            </include>
+        </if>
+        <include refid="filters">
+            <property name="filter" value="request.condition.filter"/>
+        </include>
+    </sql>
+
+    <sql id="queryType">
+        <choose>
+            <when test='${searchMode} == "AND"'>
+                AND
+            </when>
+            <when test='${searchMode} == "OR"'>
+                OR
+            </when>
+        </choose>
+    </sql>
+
+    <sql id="filters">
+        <if test="${filter} != null and ${filter}.size() > 0">
+            <foreach collection="${filter}.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='project_id'">
+                            functional_case_test.project_id in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                            <include refid="queryType">
+                                <property name="searchMode" value="request.searchMode"/>
+                            </include>
+                        </when>
+                        <when test="key=='source_type'">
+                            functional_case_test.source_type in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                            <include refid="queryType">
+                                <property name="searchMode" value="request.searchMode"/>
+                            </include>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+
+
+</mapper>

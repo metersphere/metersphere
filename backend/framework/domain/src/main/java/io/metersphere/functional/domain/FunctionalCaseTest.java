@@ -30,6 +30,11 @@ public class FunctionalCaseTest implements Serializable {
     @Size(min = 1, max = 64, message = "{functional_case_test.source_type.length_range}", groups = {Created.class, Updated.class})
     private String sourceType;
 
+    @Schema(description = "用例所属项目", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{functional_case_test.project_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{functional_case_test.project_id.length_range}", groups = {Created.class, Updated.class})
+    private String projectId;
+
     @Schema(description = "创建时间")
     private Long createTime;
 
@@ -49,6 +54,7 @@ public class FunctionalCaseTest implements Serializable {
         caseId("case_id", "caseId", "VARCHAR", false),
         sourceId("source_id", "sourceId", "VARCHAR", false),
         sourceType("source_type", "sourceType", "VARCHAR", false),
+        projectId("project_id", "projectId", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),
         updateTime("update_time", "updateTime", "BIGINT", false),
         createUser("create_user", "createUser", "VARCHAR", false),
