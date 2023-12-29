@@ -94,6 +94,9 @@ public class ApiDefinitionService {
     @Resource
     private ApiDefinitionLogService apiDefinitionLogService;
 
+    @Resource
+    private ApiDefinitionMockService apiDefinitionMockService;
+
     public List<ApiDefinitionDTO> getApiDefinitionPage(ApiDefinitionPageRequest request, String userId){
         CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(request, userId);
         List<ApiDefinitionDTO> list = extApiDefinitionMapper.list(request);
@@ -446,7 +449,7 @@ public class ApiDefinitionService {
      *
      * @param apiId 接口id
      */
-    private ApiDefinition checkApiDefinition(String apiId) {
+    public ApiDefinition checkApiDefinition(String apiId) {
         ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiId);
         if (apiDefinition == null) {
             throw new MSException(ApiResultCode.API_DEFINITION_NOT_EXIST);
@@ -777,8 +780,9 @@ public class ApiDefinitionService {
             List<String> caseIds = caseLists.stream().map(ApiTestCase::getId).distinct().toList();
             // case 批量删除回收站
             apiTestCaseService.deleteResourceByIds(caseIds, projectId, userId);
-
         }
+        // 删除 mock
+        apiDefinitionMockService.deleteByApiIds(apiIds, userId);
     }
 
     // 获取批量操作选中的ID
@@ -821,7 +825,7 @@ public class ApiDefinitionService {
         apiDefinitionDTO.setCustomFields(customFieldMap.get(id));
     }
 
-    public ApiDefinitionDocDTO getDocInfo(ApiDefinitionDocRequest request, String userId) {
+    public ApiDefinitionDocDTO getDocInfo(ApiDefinitionDocRequest request) {
         ApiDefinitionDocDTO apiDefinitionDocDTO = new ApiDefinitionDocDTO();
         apiDefinitionDocDTO.setType(request.getType());
         // 下载所有/一个模块接口文档时，不做分页数据量大的时候会不会有性能问题，单独做接口
@@ -830,20 +834,21 @@ public class ApiDefinitionService {
             if (!list.isEmpty()) {
                 ApiDefinitionDTO first = list.get(0);
                 apiDefinitionLogService.handleBlob(first.getId(), first);
-                if(ApiDefinitionDocType.ALL.name().equals(request.getType())){
-                    apiDefinitionDocDTO.setDocTitle(Translator.get(ALL_API));
+                String docTitle;
+                if (ApiDefinitionDocType.ALL.name().equals(request.getType())) {
+                    docTitle = Translator.get(ALL_API);
                 } else {
                     ApiDefinitionModule apiDefinitionModule = apiDefinitionModuleMapper.selectByPrimaryKey(first.getModuleId());
-                    if (apiDefinitionModule != null) {
-                        apiDefinitionDocDTO.setDocTitle(apiDefinitionModule.getName());
-                    } else {
-                        apiDefinitionDocDTO.setDocTitle(Translator.get(UNPLANNED_API));
-                    }
+                    docTitle = (apiDefinitionModule != null) ? apiDefinitionModule.getName() : Translator.get(UNPLANNED_API);
                 }
+                apiDefinitionDocDTO.setDocTitle(docTitle);
                 apiDefinitionDocDTO.setDocInfo(first);
             }
         } else if (ApiDefinitionDocType.API.name().equals(request.getType())) {
-            ApiDefinitionDTO apiDefinitionDTO = get(request.getApiId(), userId);
+            ApiDefinition apiDefinition = checkApiDefinition(request.getApiId());
+            ApiDefinitionDTO apiDefinitionDTO = new ApiDefinitionDTO();
+            BeanUtils.copyBean(apiDefinitionDTO, apiDefinition);
+            apiDefinitionLogService.handleBlob(apiDefinition.getId(), apiDefinitionDTO);
             apiDefinitionDocDTO.setDocTitle(apiDefinitionDTO.getName());
             apiDefinitionDocDTO.setDocInfo(apiDefinitionDTO);
         }

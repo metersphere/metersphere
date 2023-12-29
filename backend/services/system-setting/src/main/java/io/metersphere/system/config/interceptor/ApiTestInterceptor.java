@@ -18,6 +18,9 @@ public class ApiTestInterceptor {
         configList.add(new MybatisInterceptorConfig(ApiDefinitionBlob.class, "request", CompressUtils.class, "zip", "unzip"));
         configList.add(new MybatisInterceptorConfig(ApiDefinitionBlob.class, "response", CompressUtils.class, "zip", "unzip"));
         configList.add(new MybatisInterceptorConfig(ApiDefinitionBlob.class, "remark", CompressUtils.class, "zip", "unzip"));
+        // ApiDefinitionMockConfig
+        configList.add(new MybatisInterceptorConfig(ApiDefinitionMockConfig.class, "matching", CompressUtils.class, "zip", "unzip"));
+        configList.add(new MybatisInterceptorConfig(ApiDefinitionMockConfig.class, "response", CompressUtils.class, "zip", "unzip"));
         // ApiTestCaseBlob
         configList.add(new MybatisInterceptorConfig(ApiTestCaseBlob.class, "request", CompressUtils.class, "zip", "unzip"));
         // ApiReportBlob

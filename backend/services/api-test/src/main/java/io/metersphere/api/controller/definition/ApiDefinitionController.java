@@ -187,7 +187,7 @@ public class ApiDefinitionController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public ApiDefinitionDocDTO getDocInfo(@Validated @RequestBody ApiDefinitionDocRequest request) {
-        return apiDefinitionService.getDocInfo(request, SessionUtils.getUserId());
+        return apiDefinitionService.getDocInfo(request);
     }
 
 }

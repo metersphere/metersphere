@@ -57,3 +57,21 @@ DELETE FROM `template` WHERE `id` in ('api-template-id', 'default-api-template-i
 INSERT INTO template (id, name, remark, internal, update_time, create_time, create_user, scope_type, scope_id, enable_third_part, scene) VALUES
  ('api-template-id', 'api-template', '', 0, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'PROJECT', '100001100001', 0, 'API'),
  ('default-api-template-id', 'api-default-template', '', 0, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'PROJECT', '100001100001', 0, 'API');
+
+
+DELETE FROM `api_definition_mock` WHERE `id` in ('mock_1', 'mock_2', 'mock_3', 'mock_4','mock_5');
+INSERT INTO `api_definition_mock` VALUES
+                                      ('mock_1', 1641120000000, 1641120000000, 'user1', 'Mock 1', '[\"tag1\",\"tag2\"]', 1, 'EXPECT001', '100001100001', '1001'),
+                                      ('mock_2', 1641121000000, 1641121000000, 'user2', 'Mock 2', '[\"tag2\",\"tag3\"]', 1, 'EXPECT002', '100001100001', '1002'),
+                                      ('mock_3', 1641122000000, 1641122000000, 'user3', 'Mock 3', '[\"tag3\",\"tag4\"]', 1, 'EXPECT003', '100001100001', '1003'),
+                                      ('mock_4', 1641123000000, 1641123000000, 'user1', 'Mock 4', '[\"tag4\",\"tag5\"]', 1, 'EXPECT004', '100001100001', '1005'),
+                                      ('mock_5', 1641124000000, 1641124000000, 'user2', 'Mock 5', '[\"tag5\",\"tag1\"]', 1, 'EXPECT005', '100001100001', '1005');
+
+DELETE FROM `api_definition_mock_config` WHERE `id` in ('mock_1', 'mock_2', 'mock_3', 'mock_4','mock_5');
+INSERT INTO `api_definition_mock_config` VALUES
+                                             ('mock_1', '{"type": "exact", "value": "request_value"}', '{"status": 200, "body": {"message": "Mock Response 1"}}'),
+                                             ('mock_2', '{"type": "regex", "value": "\\d{3}"}', '{"status": 404, "body": {"error": "Not Found"}}'),
+                                             ('mock_3', '{"type": "contains", "value": "partial_value"}', '{"status": 500, "body": {"error": "Internal Server Error"}}'),
+                                             ('mock_4', '{"type": "exact", "value": "another_exact_value"}', '{"status": 200, "body": {"data": "Another Mock Response"}}'),
+                                             ('mock_5', '{"type": "jsonpath", "value": "$.items[0].name"}', '{"status": 200, "body": {"items": [{"name": "Item 1"}]}}');
+
