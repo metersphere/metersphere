@@ -3,10 +3,10 @@
 <mapper namespace="io.metersphere.api.mapper.ApiReportBlobMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiReportBlob">
     <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="environment_id" jdbcType="VARCHAR" property="environmentId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.api.domain.ApiReportBlob">
     <result column="content" jdbcType="LONGVARBINARY" property="content" />
-    <result column="config" jdbcType="LONGVARBINARY" property="config" />
     <result column="console" jdbcType="LONGVARBINARY" property="console" />
   </resultMap>
   <sql id="Example_Where_Clause">
@@ -68,10 +68,10 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id
+    id, environment_id
   </sql>
   <sql id="Blob_Column_List">
-    content, config, console
+    content, console
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.api.domain.ApiReportBlobExample" resultMap="ResultMapWithBLOBs">
     select
@@ -122,9 +122,9 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.api.domain.ApiReportBlob">
-    insert into api_report_blob (id, content, config, 
+    insert into api_report_blob (id, environment_id, content, 
       console)
-    values (#{id,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARBINARY}, #{config,jdbcType=LONGVARBINARY}, 
+    values (#{id,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARBINARY}, 
       #{console,jdbcType=LONGVARBINARY})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiReportBlob">
@@ -133,11 +133,11 @@
       <if test="id != null">
         id,
       </if>
+      <if test="environmentId != null">
+        environment_id,
+      </if>
       <if test="content != null">
         content,
-      </if>
-      <if test="config != null">
-        config,
       </if>
       <if test="console != null">
         console,
@@ -147,11 +147,11 @@
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
       </if>
+      <if test="environmentId != null">
+        #{environmentId,jdbcType=VARCHAR},
+      </if>
       <if test="content != null">
         #{content,jdbcType=LONGVARBINARY},
-      </if>
-      <if test="config != null">
-        #{config,jdbcType=LONGVARBINARY},
       </if>
       <if test="console != null">
         #{console,jdbcType=LONGVARBINARY},
@@ -170,11 +170,11 @@
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
+      <if test="record.environmentId != null">
+        environment_id = #{record.environmentId,jdbcType=VARCHAR},
+      </if>
       <if test="record.content != null">
         content = #{record.content,jdbcType=LONGVARBINARY},
-      </if>
-      <if test="record.config != null">
-        config = #{record.config,jdbcType=LONGVARBINARY},
       </if>
       <if test="record.console != null">
         console = #{record.console,jdbcType=LONGVARBINARY},
@@ -187,8 +187,8 @@
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update api_report_blob
     set id = #{record.id,jdbcType=VARCHAR},
+      environment_id = #{record.environmentId,jdbcType=VARCHAR},
       content = #{record.content,jdbcType=LONGVARBINARY},
-      config = #{record.config,jdbcType=LONGVARBINARY},
       console = #{record.console,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -196,7 +196,8 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update api_report_blob
-    set id = #{record.id,jdbcType=VARCHAR}
+    set id = #{record.id,jdbcType=VARCHAR},
+      environment_id = #{record.environmentId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -204,11 +205,11 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.api.domain.ApiReportBlob">
     update api_report_blob
     <set>
+      <if test="environmentId != null">
+        environment_id = #{environmentId,jdbcType=VARCHAR},
+      </if>
       <if test="content != null">
         content = #{content,jdbcType=LONGVARBINARY},
-      </if>
-      <if test="config != null">
-        config = #{config,jdbcType=LONGVARBINARY},
       </if>
       <if test="console != null">
         console = #{console,jdbcType=LONGVARBINARY},
@@ -218,17 +219,22 @@
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.api.domain.ApiReportBlob">
     update api_report_blob
-    set content = #{content,jdbcType=LONGVARBINARY},
-      config = #{config,jdbcType=LONGVARBINARY},
+    set environment_id = #{environmentId,jdbcType=VARCHAR},
+      content = #{content,jdbcType=LONGVARBINARY},
       console = #{console,jdbcType=LONGVARBINARY}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiReportBlob">
+    update api_report_blob
+    set environment_id = #{environmentId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_report_blob
-    (id, content, config, console)
+    (id, environment_id, content, console)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.content,jdbcType=LONGVARBINARY}, #{item.config,jdbcType=LONGVARBINARY}, 
+      (#{item.id,jdbcType=VARCHAR}, #{item.environmentId,jdbcType=VARCHAR}, #{item.content,jdbcType=LONGVARBINARY}, 
         #{item.console,jdbcType=LONGVARBINARY})
     </foreach>
   </insert>
@@ -245,11 +251,11 @@
         <if test="'id'.toString() == column.value">
           #{item.id,jdbcType=VARCHAR}
         </if>
+        <if test="'environment_id'.toString() == column.value">
+          #{item.environmentId,jdbcType=VARCHAR}
+        </if>
         <if test="'content'.toString() == column.value">
           #{item.content,jdbcType=LONGVARBINARY}
-        </if>
-        <if test="'config'.toString() == column.value">
-          #{item.config,jdbcType=LONGVARBINARY}
         </if>
         <if test="'console'.toString() == column.value">
           #{item.console,jdbcType=LONGVARBINARY}

@@ -450,7 +450,7 @@ CREATE TABLE IF NOT EXISTS api_definition_blob(
 CREATE TABLE IF NOT EXISTS api_report_blob(
   `id` VARCHAR(50) NOT NULL   COMMENT '接口报告fk' ,
   `content` LONGBLOB    COMMENT '结果内容详情' ,
-  `config` BLOB    COMMENT '执行环境配置' ,
+  `environment_id` VARCHAR(50)    COMMENT '执行环境配置' ,
   `console` BLOB    COMMENT '执行过程日志' ,
   PRIMARY KEY (id)
 )  ENGINE = InnoDB
