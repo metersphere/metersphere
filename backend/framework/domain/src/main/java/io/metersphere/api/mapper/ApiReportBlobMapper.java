@@ -32,6 +32,8 @@ public interface ApiReportBlobMapper {
 
     int updateByPrimaryKeyWithBLOBs(ApiReportBlob record);
 
+    int updateByPrimaryKey(ApiReportBlob record);
+
     int batchInsert(@Param("list") List<ApiReportBlob> list);
 
     int batchInsertSelective(@Param("list") List<ApiReportBlob> list, @Param("selective") ApiReportBlob.Column ... selective);

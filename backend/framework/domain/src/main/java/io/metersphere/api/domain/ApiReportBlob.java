@@ -15,11 +15,11 @@ public class ApiReportBlob implements Serializable {
     @Size(min = 1, max = 50, message = "{api_report_blob.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
+    @Schema(description = "执行环境配置")
+    private String environmentId;
+
     @Schema(description = "结果内容详情")
     private byte[] content;
-
-    @Schema(description = "执行环境配置")
-    private byte[] config;
 
     @Schema(description = "执行过程日志")
     private byte[] console;
@@ -28,8 +28,8 @@ public class ApiReportBlob implements Serializable {
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
+        environmentId("environment_id", "environmentId", "VARCHAR", false),
         content("content", "content", "LONGVARBINARY", false),
-        config("config", "config", "LONGVARBINARY", false),
         console("console", "console", "LONGVARBINARY", false);
 
         private static final String BEGINNING_DELIMITER = "`";
