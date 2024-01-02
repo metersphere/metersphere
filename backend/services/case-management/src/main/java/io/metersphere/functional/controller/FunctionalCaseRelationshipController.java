@@ -21,10 +21,7 @@ import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -75,5 +72,11 @@ public class FunctionalCaseRelationshipController {
     public Pager<List<FunctionalCaseRelationshipDTO>> getRelationshipCase(@Validated @RequestBody RelationshipRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
         return PageUtils.setPageInfo(page, functionalCaseRelationshipEdgeService.getFunctionalCasePage(request));
+    }
+
+
+    @GetMapping("/delete/{id}")
+    public void delete(@PathVariable("id") String id) {
+        functionalCaseRelationshipEdgeService.delete(id);
     }
 }

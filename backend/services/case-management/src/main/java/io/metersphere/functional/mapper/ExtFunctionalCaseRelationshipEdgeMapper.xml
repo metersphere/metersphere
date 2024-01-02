@@ -57,4 +57,23 @@
             fcre.create_time desc
         </if>
     </select>
+    
+    <select id="getGraphId" resultType="io.metersphere.system.dto.RelationshipEdgeDTO" parameterType="java.lang.String">
+        select source_id sourceId, target_id targetId, graph_id graphId from functional_case_relationship_edge where id = #{id}
+    </select>
+
+    <select id="getEdgeByGraphId" parameterType="java.lang.String" resultType="io.metersphere.system.dto.RelationshipEdgeDTO">
+        select source_id sourceId, target_id targetId from functional_case_relationship_edge where graph_id = #{graphId}
+    </select>
+
+    <update id="update">
+        update functional_case_relationship_edge set graph_id = #{graphId} where (source_id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        or target_id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>)
+    </update>
 </mapper>
