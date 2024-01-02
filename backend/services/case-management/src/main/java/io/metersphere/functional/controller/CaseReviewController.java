@@ -51,7 +51,7 @@ public class CaseReviewController {
     }
 
     @PostMapping("/module/count")
-    @Operation(summary = "用例管理-用例评审-表格分页查询文件")
+    @Operation(summary = "用例管理-用例评审-获取模块树统计数量")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Map<String, Long> moduleCount(@Validated @RequestBody CaseReviewPageRequest request) {
@@ -147,7 +147,7 @@ public class CaseReviewController {
         caseReviewService.batchMoveCaseReview(request, SessionUtils.getUserId());
     }
 
-    @GetMapping("/delete/{reviewId}/{projectId}")
+    @GetMapping("/delete/{projectId}/{reviewId}")
     @Operation(summary = "用例管理-用例评审-删除用例评审")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_DELETE)
     @SendNotice(taskType = NoticeConstants.TaskType.CASE_REVIEW_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getMainCaseReview(#reviewId)", targetClass = CaseReviewNoticeService.class)

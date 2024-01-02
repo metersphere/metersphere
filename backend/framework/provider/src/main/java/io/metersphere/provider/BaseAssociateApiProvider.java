@@ -1,9 +1,10 @@
 package io.metersphere.provider;
 
+import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.dto.TestCaseProviderDTO;
-import io.metersphere.request.ApiModuleProviderRequest;
-import io.metersphere.request.TestCasePageProviderRequest;
+import io.metersphere.request.AssociateCaseModuleProviderRequest;
 import io.metersphere.request.AssociateOtherCaseRequest;
+import io.metersphere.request.TestCasePageProviderRequest;
 
 import java.util.List;
 import java.util.Map;
@@ -30,14 +31,14 @@ public interface BaseAssociateApiProvider {
      * @param deleted 接口定义是否删除
      * @return 接口模块统计数量
      */
-    Map<String, Long> moduleCount(String sourceType, String sourceName, String apiCaseColumnName, ApiModuleProviderRequest request, boolean deleted);
+    Map<String, Long> moduleCount(String sourceType, String sourceName, String apiCaseColumnName, AssociateCaseModuleProviderRequest request, boolean deleted);
 
     /**
-     * 根据页面筛选条件获取批量操作的用例ids
+     * 根据页面筛选条件获取批量操作的用例
      *
      * @return 接口用例的ids
      */
-    List<String> getSelectIds(AssociateOtherCaseRequest request, Boolean deleted);
+    List<ApiTestCase> getSelectApiTestCases(AssociateOtherCaseRequest request, Boolean deleted);
 
 
 }

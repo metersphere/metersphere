@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 @Data
-public class FunctionalTestCaseDisassociateRequest extends BaseFunctionalCaseBatchDTO {
+public class DisassociateOtherCaseRequest extends BaseFunctionalCaseBatchDTO {
 
     @Schema(description = "功能用例选择的项目id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_test_case_disassociate_request.case_id.not_blank}")

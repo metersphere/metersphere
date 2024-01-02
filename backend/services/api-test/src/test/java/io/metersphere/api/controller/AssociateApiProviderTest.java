@@ -1,8 +1,9 @@
 package io.metersphere.api.controller;
 
+import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.provider.AssociateApiProvider;
 import io.metersphere.dto.TestCaseProviderDTO;
-import io.metersphere.request.ApiModuleProviderRequest;
+import io.metersphere.request.AssociateCaseModuleProviderRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.sdk.util.JSON;
@@ -47,7 +48,7 @@ public class AssociateApiProviderTest extends BaseTest {
     @Test
     @Order(2)
     public void moduleCountSuccess() throws Exception {
-        ApiModuleProviderRequest request = new ApiModuleProviderRequest();
+        AssociateCaseModuleProviderRequest request = new AssociateCaseModuleProviderRequest();
         request.setSourceId("gyq_associate_case_id_1");
         request.setProjectId("project-associate-case-test");
         request.setKeyword("测试查询模块用");
@@ -66,19 +67,19 @@ public class AssociateApiProviderTest extends BaseTest {
         request.setSelectAll(true);
         request.setProjectId("project-associate-case-test");
         request.setExcludeIds(List.of("gyq_associate_api_case_id_2"));
-        List<String> selectIds = provider.getSelectIds(request, false);
-        Assertions.assertTrue(CollectionUtils.isNotEmpty(selectIds));
+        List<ApiTestCase> apiTestCases = provider.getSelectApiTestCases(request, false);
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(apiTestCases));
         request.setSelectAll(false);
         request.setProjectId("project-associate-case-test");
         request.setSelectIds(List.of("gyq_associate_api_case_id_1"));
-        selectIds = provider.getSelectIds(request, false);
-        Assertions.assertTrue(CollectionUtils.isNotEmpty(selectIds));
+        apiTestCases = provider.getSelectApiTestCases(request, false);
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(apiTestCases));
         request.setSourceType("API");
         request.setSourceId("gyq_associate_case_id_1");
         request.setSelectAll(true);
         request.setProjectId("project-associate-case-test");
-        selectIds = provider.getSelectIds(request, false);
-        Assertions.assertTrue(CollectionUtils.isNotEmpty(selectIds));
+        apiTestCases = provider.getSelectApiTestCases(request, false);
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(apiTestCases));
 
     }
 

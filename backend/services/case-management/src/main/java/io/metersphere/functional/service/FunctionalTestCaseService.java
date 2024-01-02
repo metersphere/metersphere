@@ -1,16 +1,19 @@
 package io.metersphere.functional.service;
 
+import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.functional.constants.AssociateCaseType;
 import io.metersphere.functional.domain.FunctionalCaseTest;
 import io.metersphere.functional.domain.FunctionalCaseTestExample;
+import io.metersphere.functional.dto.FunctionalCaseTestDTO;
 import io.metersphere.functional.mapper.ExtFunctionalCaseModuleMapper;
 import io.metersphere.functional.mapper.ExtFunctionalCaseTestMapper;
 import io.metersphere.functional.mapper.FunctionalCaseTestMapper;
-import io.metersphere.functional.request.CaseApiModuleRequest;
-import io.metersphere.functional.request.FunctionalTestCaseDisassociateRequest;
+import io.metersphere.functional.request.AssociateCaseModuleRequest;
+import io.metersphere.functional.request.DisassociateOtherCaseRequest;
+import io.metersphere.functional.request.FunctionalCaseTestRequest;
 import io.metersphere.provider.BaseAssociateApiProvider;
-import io.metersphere.request.ApiModuleProviderRequest;
+import io.metersphere.request.AssociateCaseModuleProviderRequest;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.sdk.util.LogUtils;
@@ -75,7 +78,7 @@ public class FunctionalTestCaseService {
      * @param deleted 接口定义是否删除
      * @return 接口模块统计数量
      */
-    public Map<String, Long> moduleCount(ApiModuleProviderRequest request, boolean deleted) {
+    public Map<String, Long> moduleCount(AssociateCaseModuleProviderRequest request, boolean deleted) {
         return provider.moduleCount("functional_case_test", "case_id", "source_id", request, deleted);
 
     }
@@ -102,17 +105,18 @@ public class FunctionalTestCaseService {
     }
 
     private void associateApi(AssociateOtherCaseRequest request, boolean deleted, String userId) {
-        List<String> selectIds = provider.getSelectIds(request, deleted);
-        if (CollectionUtils.isEmpty(selectIds)) {
+        List<ApiTestCase> apiTestCases = provider.getSelectApiTestCases(request, deleted);
+        if (CollectionUtils.isEmpty(apiTestCases)) {
             return;
         }
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         FunctionalCaseTestMapper caseTestMapper = sqlSession.getMapper(FunctionalCaseTestMapper.class);
-        for (String selectId : selectIds) {
+        for (ApiTestCase apiTestCase : apiTestCases) {
             FunctionalCaseTest functionalCaseTest = new FunctionalCaseTest();
             functionalCaseTest.setCaseId(request.getSourceId());
             functionalCaseTest.setProjectId(request.getProjectId());
-            functionalCaseTest.setSourceId(selectId);
+            functionalCaseTest.setSourceId(apiTestCase.getId());
+            functionalCaseTest.setVersionId(apiTestCase.getVersionId());
             functionalCaseTest.setSourceType(request.getSourceType());
             functionalCaseTest.setId(IdGenerator.random().generateId());
             functionalCaseTest.setCreateUser(userId);
@@ -130,7 +134,7 @@ public class FunctionalTestCaseService {
      *
      * @param request request
      */
-    public void disassociateCase(FunctionalTestCaseDisassociateRequest request) {
+    public void disassociateCase(DisassociateOtherCaseRequest request) {
         List<String> functionalTestCaseIds = doSelectIds(request);
         FunctionalCaseTestExample functionalCaseTestExample = new FunctionalCaseTestExample();
         if (CollectionUtils.isNotEmpty(functionalTestCaseIds)) {
@@ -140,7 +144,7 @@ public class FunctionalTestCaseService {
     }
 
 
-    public List<String> doSelectIds(FunctionalTestCaseDisassociateRequest request) {
+    public List<String> doSelectIds(DisassociateOtherCaseRequest request) {
         if (request.isSelectAll()) {
             List<String> ids = extFunctionalCaseTestMapper.getIds(request);
             if (org.apache.commons.collections.CollectionUtils.isNotEmpty(request.getExcludeIds())) {
@@ -152,8 +156,12 @@ public class FunctionalTestCaseService {
         }
     }
 
-    public List<BaseTreeNode> getTree(CaseApiModuleRequest request) {
+    public List<BaseTreeNode> getTree(AssociateCaseModuleRequest request) {
         List<BaseTreeNode> fileModuleList = extFunctionalCaseModuleMapper.selectApiCaseModuleByRequest(request);
         return functionalCaseModuleService.buildTreeAndCountResource(fileModuleList, true, Translator.get(UNPLANNED_API));
+    }
+
+    public List<FunctionalCaseTestDTO> hasAssociatePage(FunctionalCaseTestRequest request) {
+       return extFunctionalCaseTestMapper.getList(request);
     }
 }
