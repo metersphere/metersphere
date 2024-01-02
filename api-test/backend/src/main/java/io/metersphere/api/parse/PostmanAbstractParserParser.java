@@ -128,7 +128,7 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
             String k = parseVariable(item.getKey());
             String v = parseVariable(item.getValue());
             String desc = parseVariable(item.getDescription());
-            KeyValue keyValue = new KeyValue(k, v, desc, item.getContentType());
+            KeyValue keyValue = new KeyValue(k, v, desc, item.getContentType(), item.isRequired());
             if (StringUtils.isNotBlank(item.getType()) && StringUtils.equals("file", item.getType())) {
                 keyValue.setType("file");
             }
