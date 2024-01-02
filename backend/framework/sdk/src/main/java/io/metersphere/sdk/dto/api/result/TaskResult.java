@@ -26,8 +26,14 @@ public class TaskResult implements Serializable {
     private String runningDebugSampler;
     private Boolean hasEnded;
     private boolean retryEnable;
+    /**
+     * 项目id
+     */
     private String projectId;
-    private String environmentId;
+    /**
+     * 执行环境id
+     */
+    private List<String> environmentIds;
     /**
      * 执行过程状态
      */

@@ -23,6 +23,7 @@ import io.metersphere.system.service.NoticeSendService;
 import io.metersphere.system.service.SystemParameterService;
 import jakarta.annotation.Resource;
 import org.apache.commons.beanutils.BeanMap;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -94,9 +95,13 @@ public class ApiReportSendNoticeService {
         Map<String, Object> paramMap = new HashMap(beanMap);
         paramMap.put("operator", user != null ? user.getName() : "");
         paramMap.put("status", noticeDTO.getReportStatus());
-        Environment environment = environmentMapper.selectByPrimaryKey(noticeDTO.getEnvironmentId());
-        if (environment != null) {
-            paramMap.put("environment", environment.getName());
+
+        // TODO 暂时取一个环境处理
+        if (CollectionUtils.isNotEmpty(noticeDTO.getEnvironmentIds())) {
+            Environment environment = environmentMapper.selectByPrimaryKey(noticeDTO.getEnvironmentIds().getFirst());
+            if (environment != null) {
+                paramMap.put("environment", environment.getName());
+            }
         } else {
             paramMap.put("environment", "未配置");
         }
