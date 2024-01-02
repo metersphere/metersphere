@@ -26,6 +26,7 @@ public class FunctionalCaseRelationshipControllerTests extends BaseTest {
     public static final String RELATE_PAGE = "/functional/case/relationship/relate/page";
     public static final String ADD = "/functional/case/relationship/add";
     public static final String PAGE = "/functional/case/relationship/page";
+    public static final String DELETE = "/functional/case/relationship/delete/";
 
 
     @Test
@@ -86,6 +87,12 @@ public class FunctionalCaseRelationshipControllerTests extends BaseTest {
         // 返回请求正常
         Assertions.assertNotNull(postResultHolder);
 
+
+        //增加覆盖率
+        request.setId("wx_relationship_1");
+        request.setType("POST");
+        request.setSelectIds(List.of("wx_relationship_6"));
+        this.requestPostWithOkAndReturn(ADD, request);
     }
 
 
@@ -122,5 +129,23 @@ public class FunctionalCaseRelationshipControllerTests extends BaseTest {
         request.setId("wx_relationship_1");
         request.setType("POST");
         this.requestPostWithOkAndReturn(PAGE, request);
+        request.setId("test1111");
+        request.setType("POST");
+        this.requestPostWithOkAndReturn(PAGE, request);
     }
+
+    @Test
+    @Order(4)
+    public void testDelete() throws Exception {
+        MvcResult postResult = this.requestGetWithOkAndReturn(DELETE + "relationship_1");
+        // 获取返回值
+        String postReturnData = postResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder postResultHolder = JSON.parseObject(postReturnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(postResultHolder);
+
+        //异常覆盖
+        assertErrorCode(this.requestGet(DELETE + "test"), MsHttpResultCode.FAILED);
+    }
+
 }
