@@ -12,6 +12,8 @@ import org.mockito.InjectMocks;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.ArrayList;
+
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
@@ -31,7 +33,7 @@ public class MessageListenerTest {
         api.setReportStatus("exampleReportStatus");
         api.setUserId("exampleUserId");
         api.setProjectId("exampleProjectId");
-        api.setEnvironmentId("exampleEnvironmentId");
+        api.setEnvironmentIds(new ArrayList<>(){{this.add("exampleEnvironmentId");}});
         api.setReportId("exampleReportId");
 
         ConsumerRecord<Object, String> record = new ConsumerRecord<>(KafkaTopicConstants.API_REPORT_TASK_TOPIC, 0, 0, "123", JSON.toJSONString(api));
@@ -47,7 +49,7 @@ public class MessageListenerTest {
         scenario.setReportStatus("exampleReportStatus");
         scenario.setUserId("exampleUserId");
         scenario.setProjectId("exampleProjectId");
-        scenario.setEnvironmentId("exampleEnvironmentId");
+        api.setEnvironmentIds(new ArrayList<>(){{this.add("exampleEnvironmentId");}});
         scenario.setReportId("exampleReportId");
 
         ConsumerRecord<Object, String> scenarioRecord = new ConsumerRecord<>(KafkaTopicConstants.API_REPORT_TASK_TOPIC, 0, 0, "123", JSON.toJSONString(scenario));
@@ -63,7 +65,7 @@ public class MessageListenerTest {
         testCase.setReportStatus("exampleReportStatus");
         testCase.setUserId("exampleUserId");
         testCase.setProjectId("exampleProjectId");
-        testCase.setEnvironmentId("exampleEnvironmentId");
+        api.setEnvironmentIds(new ArrayList<>(){{this.add("exampleEnvironmentId");}});
         testCase.setReportId("exampleReportId");
 
         ConsumerRecord<Object, String> testCaseRecord = new ConsumerRecord<>(KafkaTopicConstants.API_REPORT_TASK_TOPIC, 0, 0, "123", JSON.toJSONString(testCase));

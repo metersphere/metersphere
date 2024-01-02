@@ -58,5 +58,14 @@ public class TaskRequest implements Serializable {
      */
     Map<String, List<MsRegexDTO>> fakeErrorMap;
 
+    /**
+     * 项目id
+     */
+    private String projectId;
+    /**
+     * 执行环境id
+     */
+    private List<String> environmentIds;
+
     // TODO 其它执行参数
 }
