@@ -9,6 +9,7 @@ public class PostmanKeyValue {
     private String type;
     private String description;
     private String contentType;
+    private boolean required;
 
     public PostmanKeyValue() {
     }
