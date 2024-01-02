@@ -21,6 +21,41 @@
         1 = 1
     </select>
 
+    <select id="getList" parameterType="io.metersphere.functional.request.FunctionalCaseTestRequest" resultType="io.metersphere.functional.dto.FunctionalCaseTestDTO">
+        SELECT
+        fct.id,
+        fct.case_id,
+        fct.source_id,
+        fct.source_type,
+        fct.project_id,
+        fct.version_id,
+        fct.create_time,
+        p.name as projectName,
+        v.name as versionName,
+        NULLIF(atc.name, scenario.name) as sourceName,
+        NULLIF(atc.num, scenario.num) as sourceNum
+        FROM
+        functional_case_test fct
+        LEFT JOIN project p ON fct.project_id = p.id
+        LEFT JOIN project_version v ON fct.version_id = v.id
+        LEFT JOIN api_test_case atc ON fct.source_id = atc.id
+        LEFT JOIN api_scenario scenario ON fct.source_id = scenario.id
+        WHERE fct.case_id = #{request.sourceId}
+        <if test="request.sourceType != null and request.sourceType != ''">
+            AND fct.source_type = #{request.sourceType}
+        </if>
+        <if test="request.projectId != null and request.projectId != ''">
+            AND fct.project_id = #{request.projectId}
+        </if>
+        <if test="request.keyword != null and request.keyword != ''">
+            and (
+            atc.name like concat('%', #{request.keyword},'%')
+            or scenario.name like concat('%', #{request.keyword},'%')
+            )
+        </if>
+        order by fct.create_time desc
+    </select>
+
     <sql id="queryWhereConditionByBaseQueryRequest">
         <if test="request.condition.keyword != null and request.sourceType == 'API'">
             functional_case_test.source_id not in

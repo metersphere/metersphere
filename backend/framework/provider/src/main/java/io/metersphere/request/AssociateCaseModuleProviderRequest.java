@@ -9,7 +9,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class ApiModuleProviderRequest {
+public class AssociateCaseModuleProviderRequest {
 
     @Schema(description = "关联关系表里主ID eg:功能用例关联接口用例时为功能用例id")
     @NotBlank(message = "{api_definition.project_id.not_blank}")

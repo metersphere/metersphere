@@ -47,7 +47,7 @@ public interface ExtApiTestCaseMapper {
 
     List<TestCaseProviderDTO> listByProviderRequest(@Param("table") String resourceType, @Param("sourceName") String sourceName, @Param("apiCaseColumnName") String apiCaseColumnName, @Param("request") TestCasePageProviderRequest request, @Param("deleted") boolean deleted);
 
-    List<String> getIdsByProvider(@Param("request") AssociateOtherCaseRequest request, @Param("deleted") boolean deleted);
+    List<ApiTestCase> getTestCaseByProvider(@Param("request") AssociateOtherCaseRequest request, @Param("deleted") boolean deleted);
 
 
 }

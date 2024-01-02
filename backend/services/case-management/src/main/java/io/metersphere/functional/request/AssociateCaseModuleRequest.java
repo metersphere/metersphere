@@ -10,7 +10,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class CaseApiModuleRequest extends BaseCondition {
+public class AssociateCaseModuleRequest extends BaseCondition {
     @Schema(description = "模块ID(根据模块树查询时要把当前节点以及子节点都放在这里。)")
     private List<@NotBlank String> moduleIds;
 

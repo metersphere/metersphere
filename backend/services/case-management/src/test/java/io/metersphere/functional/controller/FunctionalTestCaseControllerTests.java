@@ -1,21 +1,25 @@
 package io.metersphere.functional.controller;
 
 import io.metersphere.api.domain.ApiDefinitionModule;
+import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.mapper.ApiDefinitionModuleMapper;
 import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.functional.constants.AssociateCaseType;
 import io.metersphere.functional.domain.FunctionalCaseTest;
+import io.metersphere.functional.dto.FunctionalCaseTestDTO;
 import io.metersphere.functional.mapper.FunctionalCaseTestMapper;
-import io.metersphere.functional.request.CaseApiModuleRequest;
-import io.metersphere.functional.request.FunctionalTestCaseDisassociateRequest;
+import io.metersphere.functional.request.AssociateCaseModuleRequest;
+import io.metersphere.functional.request.DisassociateOtherCaseRequest;
+import io.metersphere.functional.request.FunctionalCaseTestRequest;
 import io.metersphere.provider.BaseAssociateApiProvider;
-import io.metersphere.request.ApiModuleProviderRequest;
+import io.metersphere.request.AssociateCaseModuleProviderRequest;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
@@ -34,15 +38,18 @@ import java.util.List;
 public class FunctionalTestCaseControllerTests extends BaseTest {
 
 
-    private static final String URL_CASE_PAGE = "/functional/case/test/associate/api/page";
+    private static final String URL_CASE_PAGE = "/functional/case/test/associate/case/page";
 
-    private static final String URL_CASE_PAGE_MODULE_COUNT = "/functional/case/test/associate/api/module/count";
+    private static final String URL_CASE_PAGE_MODULE_COUNT = "/functional/case/test/associate/case/module/count";
 
     private static final String URL_CASE_PAGE_ASSOCIATE = "/functional/case/test/associate/case";
 
     private static final String URL_CASE_PAGE_DISASSOCIATE = "/functional/case/test/disassociate/case";
 
-    private static final String URL_CASE_MODULE_TREE = "/functional/case/test/associate/api/module/tree";
+    private static final String URL_CASE_MODULE_TREE = "/functional/case/test/associate/case/module/tree";
+
+    private static final String URL_HAS_CASE_PAGE = "/functional/case/test/has/associate/case/page";
+
 
 
 
@@ -105,7 +112,7 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
     @Test
     @Order(3)
     public void getModuleCountSuccess() throws Exception {
-        ApiModuleProviderRequest request = new ApiModuleProviderRequest();
+        AssociateCaseModuleProviderRequest request = new AssociateCaseModuleProviderRequest();
         request.setSourceId("gyq_associate_case_id_1");
         request.setProjectId("project_gyq_associate_test");
         request.setKeyword("测试查询模块用");
@@ -128,13 +135,16 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
-        List<String>operations = new ArrayList<>();
-        operations.add("gyq_associate_case_id_1");
-        Mockito.when(provider.getSelectIds(request, false)).thenReturn(operations);
+        List<ApiTestCase>operations = new ArrayList<>();
+        ApiTestCase apiTestCase = new ApiTestCase();
+        apiTestCase.setId("gyq_associate_case_id_1");
+        apiTestCase.setVersionId("11");
+        operations.add(apiTestCase);
+        Mockito.when(provider.getSelectApiTestCases(request, false)).thenReturn(operations);
         Assertions.assertNotNull(resultHolder);
         request.setSelectAll(false);
         request.setProjectId("project-associate-case-test");
-        request.setSelectIds(operations);
+        request.setSelectIds(List.of("gyq_associate_case_id_1"));
         mvcResult = this.requestPostWithOkAndReturn(URL_CASE_PAGE_ASSOCIATE, request);
         returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         resultHolder = JSON.parseObject(returnData, ResultHolder.class);
@@ -157,7 +167,7 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
     @Order(5)
     public void disassociateCaseSuccess() throws Exception {
         addFunctionalCaseTest();
-        FunctionalTestCaseDisassociateRequest request = new FunctionalTestCaseDisassociateRequest();
+        DisassociateOtherCaseRequest request = new DisassociateOtherCaseRequest();
         request.setSourceType(AssociateCaseType.API);
         request.setCaseId("gyq_associate_functional_case_id_1");
         request.setSelectAll(true);
@@ -168,7 +178,7 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
         Assertions.assertNotNull(resultHolder);
         FunctionalCaseTest functionalCaseTest = functionalCaseTestMapper.selectByPrimaryKey("functionalCaseTestHasId");
         Assertions.assertNull(functionalCaseTest);
-        request = new FunctionalTestCaseDisassociateRequest();
+        request = new DisassociateOtherCaseRequest();
         request.setSourceType(AssociateCaseType.API);
         request.setCaseId("gyq_associate_case_id_1");
         request.setSelectAll(true);
@@ -178,7 +188,7 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
         resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
 
-        request = new FunctionalTestCaseDisassociateRequest();
+        request = new DisassociateOtherCaseRequest();
         request.setSourceType(AssociateCaseType.API);
         request.setCaseId("gyq_associate_case_id_1");
         request.setSelectAll(false);
@@ -205,12 +215,28 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
         apiDefinitionModuleMapper.insert(apiDefinitionModule);
         List<BaseTreeNode> moduleTreeNode = this.getModuleTreeNode();
         Assertions.assertNotNull(moduleTreeNode);
-        System.out.println(JSON.toJSONString(moduleTreeNode));
     }
 
+    @Test
+    @Order(7)
+    public void getAssociateOtherCaseListSuccess() throws Exception {
+        addFunctionalCaseTest();
+        FunctionalCaseTestRequest request = new FunctionalCaseTestRequest();
+        request.setSourceType(AssociateCaseType.API);
+        request.setSourceId("gyq_associate_functional_case_id_1");
+        request.setCurrent(1);
+        request.setPageSize(10);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_HAS_CASE_PAGE, request);
+        String sortData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder sortHolder = JSON.parseObject(sortData, ResultHolder.class);
+        Pager<?> sortPageData = JSON.parseObject(JSON.toJSONString(sortHolder.getData()), Pager.class);
+        // 返回值中取出第一条ID最大的数据, 并判断是否是default-admin
+        List<FunctionalCaseTestDTO> functionalCaseTestDTOS = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), FunctionalCaseTestDTO.class);
+        Assertions.assertNotNull(functionalCaseTestDTOS);
+    }
 
     private List<BaseTreeNode> getModuleTreeNode() throws Exception {
-        MvcResult result = this.requestPostWithOkAndReturn(URL_CASE_MODULE_TREE, new CaseApiModuleRequest() {{
+        MvcResult result = this.requestPostWithOkAndReturn(URL_CASE_MODULE_TREE, new AssociateCaseModuleRequest() {{
             this.setProtocol("HTTP");
             this.setProjectId("project-associate-case-test");
             this.setSourceType(AssociateCaseType.API);
@@ -224,6 +250,7 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
         FunctionalCaseTest functionalCaseTest = new FunctionalCaseTest();
         functionalCaseTest.setId("functionalCaseTestHasId");
         functionalCaseTest.setCaseId("gyq_associate_functional_case_id_1");
+        functionalCaseTest.setVersionId("1.0");
         functionalCaseTest.setSourceId("gyq_api_case_id_1");
         functionalCaseTest.setSourceType(AssociateCaseType.API);
         functionalCaseTest.setProjectId("gyq-organization-associate-case-test");
@@ -233,6 +260,5 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
         functionalCaseTest.setUpdateTime(System.currentTimeMillis());
         functionalCaseTestMapper.insert(functionalCaseTest);
     }
-
 
 }

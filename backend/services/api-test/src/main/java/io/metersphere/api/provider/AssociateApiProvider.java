@@ -1,14 +1,17 @@
 package io.metersphere.api.provider;
 
+import io.metersphere.api.domain.ApiTestCase;
+import io.metersphere.api.domain.ApiTestCaseExample;
+import io.metersphere.api.mapper.ApiTestCaseMapper;
 import io.metersphere.api.mapper.ExtApiDefinitionModuleMapper;
 import io.metersphere.api.mapper.ExtApiTestCaseMapper;
 import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.provider.BaseAssociateApiProvider;
-import io.metersphere.request.ApiModuleProviderRequest;
-import io.metersphere.request.TestCasePageProviderRequest;
+import io.metersphere.request.AssociateCaseModuleProviderRequest;
 import io.metersphere.request.AssociateOtherCaseRequest;
+import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import jakarta.annotation.Resource;
@@ -30,6 +33,9 @@ public class AssociateApiProvider implements BaseAssociateApiProvider {
     @Resource
     private ApiDefinitionModuleService moduleTreeService;
 
+    @Resource
+    private ApiTestCaseMapper apiTestCaseMapper;
+
     private static final String DEBUG_MODULE_COUNT_ALL = "all";
     private static final String UNPLANNED_API = "api_unplanned_request";
 
@@ -39,7 +45,7 @@ public class AssociateApiProvider implements BaseAssociateApiProvider {
     }
 
     @Override
-    public Map<String, Long> moduleCount(String sourceType, String sourceName, String apiCaseColumnName, ApiModuleProviderRequest request, boolean deleted) {
+    public Map<String, Long> moduleCount(String sourceType, String sourceName, String apiCaseColumnName, AssociateCaseModuleProviderRequest request, boolean deleted) {
         request.setModuleIds(null);
         //查找根据moduleIds查找模块下的接口数量 查非delete状态的
         List<ModuleCountDTO> moduleCountDTOList = extApiDefinitionModuleMapper.countModuleIdByProviderRequest(sourceType, sourceName, apiCaseColumnName, request, deleted);
@@ -50,15 +56,17 @@ public class AssociateApiProvider implements BaseAssociateApiProvider {
     }
 
     @Override
-    public List<String> getSelectIds(AssociateOtherCaseRequest request, Boolean deleted) {
+    public List<ApiTestCase> getSelectApiTestCases(AssociateOtherCaseRequest request, Boolean deleted) {
         if (request.isSelectAll()) {
-            List<String> ids = extApiTestCaseMapper.getIdsByProvider(request, deleted);
+            List<ApiTestCase> cases = extApiTestCaseMapper.getTestCaseByProvider(request, deleted);
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
-                ids.removeAll(request.getExcludeIds());
+                cases = cases.stream().filter(t -> !request.getExcludeIds().contains(t.getId())).toList();
             }
-            return ids;
+            return cases;
         } else {
-            return request.getSelectIds();
+            ApiTestCaseExample apiTestCaseExample = new ApiTestCaseExample();
+            apiTestCaseExample.createCriteria().andIdIn(request.getSelectIds());
+            return apiTestCaseMapper.selectByExample(apiTestCaseExample);
         }
     }
 
@@ -73,13 +81,13 @@ public class AssociateApiProvider implements BaseAssociateApiProvider {
     /**
      * 查找当前项目下模块每个节点对应的资源统计
      */
-    public Map<String, Long> getModuleCountMap(ApiModuleProviderRequest request, List<ModuleCountDTO> moduleCountDTOList) {
+    public Map<String, Long> getModuleCountMap(AssociateCaseModuleProviderRequest request, List<ModuleCountDTO> moduleCountDTOList) {
         //构建模块树，并计算每个节点下的所有数量（包含子节点）
         List<BaseTreeNode> treeNodeList = this.getTreeOnlyIdsAndResourceCount(request, moduleCountDTOList);
         return moduleTreeService.getIdCountMapByBreadth(treeNodeList);
     }
 
-    public List<BaseTreeNode> getTreeOnlyIdsAndResourceCount(ApiModuleProviderRequest request, List<ModuleCountDTO> moduleCountDTOList) {
+    public List<BaseTreeNode> getTreeOnlyIdsAndResourceCount(AssociateCaseModuleProviderRequest request, List<ModuleCountDTO> moduleCountDTOList) {
         //节点内容只有Id和parentId
         List<BaseTreeNode> fileModuleList = extApiDefinitionModuleMapper.selectIdAndParentIdByProviderRequest(request);
         return moduleTreeService.buildTreeAndCountResource(fileModuleList, moduleCountDTOList, true, Translator.get(UNPLANNED_API));

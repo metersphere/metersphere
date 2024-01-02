@@ -173,9 +173,9 @@
         <include refid="queryWhereCondition"/>
     </select>
 
-    <select id="getIdsByProvider" resultType="java.lang.String">
+    <select id="getTestCaseByProvider" resultType="io.metersphere.api.domain.ApiTestCase">
         SELECT
-        t1.id
+        t1.id, t1.version_id
         FROM
         api_test_case t1
         LEFT JOIN api_report t3 ON t1.last_report_id = t3.id

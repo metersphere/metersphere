@@ -164,6 +164,7 @@ CREATE TABLE IF NOT EXISTS functional_case_test
     `source_id`   VARCHAR(50) NOT NULL COMMENT '其他类型用例ID',
     `source_type` VARCHAR(64) NOT NULL COMMENT '用例类型：接口用例/场景用例/性能用例/UI用例',
     `project_id` VARCHAR(50) NOT NULL   COMMENT '用例所属项目' ,
+    `version_id` VARCHAR(50) NOT NULL   COMMENT '用例的版本id' ,
     `create_time` BIGINT      NOT NULL COMMENT '创建时间',
     `update_time` BIGINT      NOT NULL COMMENT '更新时间',
     `create_user` VARCHAR(50) NOT NULL COMMENT '创建人',
