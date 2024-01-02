@@ -14,3 +14,7 @@ export const postAssociatedFileListUrl = '/bug/relate/case/page';
 export const getBugDetailUrl = '/bug/detail/';
 export const getFollowBugUrl = '/bug/follow/';
 export const getUnFollowBugUrl = '/bug/unfollow/';
+export const postUpdateCommentUrl = '/bug/comment/update';
+export const postCreateCommentUrl = '/bug/comment/add';
+export const getCommentListUrl = '/bug/comment/get/';
+export const getDeleteCommentUrl = '/bug/comment/delete/';

@@ -64,6 +64,9 @@ export default {
       basicInfo: '基本信息',
       handleUser: '处理人',
       tag: '标签',
+      detail: '详情',
+      case: '用例',
+      comment: '评论',
     },
     batchUpdate: {
       attribute: '选择属性',

@@ -78,15 +78,25 @@
           <template #first>
             <div class="leftWrapper h-full">
               <div class="header h-[50px]">
-                <a-tabs v-model:active-key="activeTab">
+                <a-tabs v-model:active-key="activeTab" lazy-load>
                   <a-tab-pane key="detail">
+                    <template #title>
+                      {{ t('bugManagement.detail.detail') }}
+                    </template>
                     <BugDetailTab :detail-info="detailInfo" />
                   </a-tab-pane>
                   <a-tab-pane key="case">
+                    <template #title>
+                      {{ t('bugManagement.detail.case') }}
+                      <a-badge class="relative top-1 ml-1" :count="1000" :max-count="99" />
+                    </template>
                     <BugCaseTab :detail-info="detailInfo" />
                   </a-tab-pane>
                   <a-tab-pane key="comment">
-                    <MsComment />
+                    <template #title>
+                      {{ t('bugManagement.detail.comment') }}
+                    </template>
+                    <CommentTab ref="commentRef" bug-id="1070838426116099" />
                   </a-tab-pane>
                 </a-tabs>
               </div>
@@ -126,6 +136,13 @@
           </template>
         </MsSplitBox>
       </div>
+      <CommentInput
+        v-if="activeTab === 'comment'"
+        :content="commentContent"
+        is-show-avatar
+        is-use-bottom
+        @publish="publishHandler"
+      />
     </template>
   </MsDetailDrawer>
 </template>
@@ -143,19 +160,20 @@
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import type { MsPaginationI } from '@/components/pure/ms-table/type';
-  import MsComment from '@/components/business/ms-comment';
+  import { CommentInput } from '@/components/business/ms-comment';
+  import { CommentParams } from '@/components/business/ms-comment/types';
   import MsDetailDrawer from '@/components/business/ms-detail-drawer/index.vue';
   import { MsUserSelector } from '@/components/business/ms-user-selector';
   import BugCaseTab from './bugCaseTab.vue';
   import BugDetailTab from './bugDetailTab.vue';
+  import CommentTab from './commentTab.vue';
 
-  import { deleteSingleBug, followBug, getBugDetail } from '@/api/modules/bug-management/index';
+  import { createOrUpdateComment, deleteSingleBug, followBug, getBugDetail } from '@/api/modules/bug-management/index';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
-  import useUserStore from '@/store/modules/user';
-  import { characterLimit, findNodeByKey } from '@/utils';
+  import { characterLimit } from '@/utils';
 
   import type { CaseManagementTable, CustomAttributes, TabItemType } from '@/models/caseManagement/featureCase';
   import { RouteEnum } from '@/enums/routeEnum';
@@ -165,7 +183,6 @@
   const wrapperRef = ref();
   const { isFullscreen, toggle } = useFullscreen(wrapperRef);
   const featureCaseStore = useFeatureCaseStore();
-  const userStore = useUserStore();
   const { t } = useI18n();
   const { openModal } = useModal();
 
@@ -180,8 +197,9 @@
 
   const emit = defineEmits(['update:visible']);
 
-  const userId = computed(() => userStore.userInfo.id);
   const appStore = useAppStore();
+  const commentContent = ref('');
+  const commentRef = ref();
 
   const currentProjectId = computed(() => appStore.currentProjectId);
 
@@ -200,12 +218,8 @@
   function loadedBug(detail: CaseManagementTable) {
     detailInfo.value = { ...detail };
     customFields.value = detailInfo.value.customFields;
+    detailInfo.value.id = '1070838426116099';
   }
-
-  const moduleName = computed(() => {
-    return findNodeByKey<Record<string, any>>(featureCaseStore.caseTree, detailInfo.value?.moduleId as string, 'id')
-      ?.name;
-  });
 
   const editLoading = ref<boolean>(false);
 
@@ -329,6 +343,32 @@
         },
       };
     }) as FormItem[];
+  }
+
+  async function publishHandler(currentContent: string) {
+    const regex = /data-id="([^"]*)"/g;
+    const matchesNotifier = currentContent.match(regex);
+    let notifiers = '';
+    if (matchesNotifier?.length) {
+      notifiers = matchesNotifier.map((match) => match.replace('data-id="', '').replace('"', '')).join(';');
+    }
+    try {
+      const params = {
+        // TODO 本地测试
+        bugId: detailInfo.value.id || '1070838426116099',
+        notifier: notifiers,
+        replyUser: '',
+        parentId: '',
+        content: currentContent,
+        event: notifiers ? 'AT' : 'COMMENT', // 任务事件(仅评论: ’COMMENT‘; 评论并@: ’AT‘; 回复评论/回复并@: ’REPLAY‘;)
+      };
+      await createOrUpdateComment(params as CommentParams);
+      Message.success(t('common.publishSuccessfully'));
+      commentRef.value?.initData(detailInfo.value.id || '1070838426116099');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
   }
 
   watch(

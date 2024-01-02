@@ -9,4 +9,5 @@ const MsComment = Object.assign(_Comment, {
 
 export type CommentInstance = InstanceType<typeof _Comment>;
 
+export { default as CommentInput } from './input.vue';
 export default MsComment;
