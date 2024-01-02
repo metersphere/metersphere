@@ -1,3 +1,5 @@
+// eslint-disable-next-line no-shadow
+
 import Item from './comment-item.vue';
 import CommentInput from './input.vue';
 
@@ -10,11 +12,6 @@ import message from '@arco-design/web-vue/es/message';
 export default defineComponent({
   name: 'MsComment',
   props: {
-    currentUserId: {
-      type: String,
-      default: '',
-    },
-
     commentList: {
       type: Array as PropType<CommentItem[]>,
       default: () => [],
@@ -22,12 +19,11 @@ export default defineComponent({
   },
   emits: {
     /* eslint-disable @typescript-eslint/no-unused-vars */
-    updateOrAdd: (value: CommentParams) => true, // 更新或者新增评论
-    delete: (value: string, cb: (result: boolean) => void) => true, // 删除评论
+    updateOrAdd: (value: CommentParams, cb: (result: boolean) => void) => true, // 更新或者新增评论
+    delete: (value: string) => true, // 删除评论
   },
   setup(props, { emit }) {
-    const { currentUserId } = toRefs(props);
-    const commentList = ref<CommentItem[]>([]);
+    const { commentList } = toRefs(props);
     const currentItem = reactive<{ id: string; parentId: string }>({ id: '', parentId: '' });
     const { t } = useI18n();
     const { openModal } = useModal();
@@ -38,27 +34,27 @@ export default defineComponent({
         content,
         event: 'REPLAY',
       };
-      emit('updateOrAdd', params);
+      emit('updateOrAdd', params, (result: boolean) => {
+        if (result) {
+          message.success(t('common.publishSuccess'));
+        } else {
+          message.error(t('common.publishFail'));
+        }
+      });
     };
 
     const handleDelete = (item: CommentItem) => {
       openModal({
         type: 'error',
-        title: t('comment.deleteConfirm'),
-        content: t('comment.deleteContent'),
-        okText: t('common.confirmClose'),
+        title: t('ms.comment.deleteConfirm'),
+        content: t('ms.comment.deleteContent'),
+        okText: t('common.confirmDelete'),
         cancelText: t('common.cancel'),
         okButtonProps: {
           status: 'danger',
         },
         onBeforeOk: async () => {
-          emit('delete', item.id, (result: boolean) => {
-            if (result) {
-              message.success(t('common.deleteSuccess'));
-            } else {
-              message.error(t('common.deleteFail'));
-            }
-          });
+          emit('delete', item.id);
         },
         hideCancel: false,
       });
@@ -81,7 +77,7 @@ export default defineComponent({
       }
       return list.map((item) => {
         return (
-          <div class="flex flex-col gap-[24px]">
+          <div class="flex flex-col">
             <Item
               onReply={() => {
                 currentItem.id = item.id;
@@ -93,7 +89,6 @@ export default defineComponent({
               }}
               onDelete={() => handleDelete(item)}
               mode={'child'}
-              currentUserId={currentUserId.value}
               element={item}
             />
             {item.id === currentItem.id && renderInput(item)}
@@ -105,13 +100,15 @@ export default defineComponent({
     const renderParentList = (list: CommentItem[]) => {
       return list.map((item) => {
         return (
-          <Item mode={'parent'} onDelete={() => handleDelete(item)} currentUserId={currentUserId.value} element={item}>
-            <div class="rounded border border-[var(--color-text-7)] p-[16px]">{renderChildrenList(item.children)}</div>
+          <Item mode={'parent'} onDelete={() => handleDelete(item)} element={item}>
+            <div class="rounded border border-[var(--color-text-7)] p-[16px]">
+              {renderChildrenList(item.childComments)}
+            </div>
           </Item>
         );
       });
     };
 
-    return () => <div class="ms-comment">{renderParentList(commentList.value)}</div>;
+    return () => <div class="ms-comment gap[24px] flex flex-col">{renderParentList(commentList.value)}</div>;
   },
 });

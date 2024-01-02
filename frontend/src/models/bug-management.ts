@@ -52,4 +52,14 @@ export interface BugBatchUpdateFiledForm {
   append: boolean;
   inputValue: string;
 }
+
+export interface CreateOrUpdateComment {
+  id?: string;
+  bugId: string;
+  notifier: string;
+  replyUser: string;
+  parentId: string;
+  content: string;
+  event: string; // 任务事件(仅评论: ’COMMENT‘; 评论并@: ’AT‘; 回复评论/回复并@: ’REPLAY‘;)
+}
 export default {};

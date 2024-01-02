@@ -11,6 +11,7 @@
   >
     <template #headerRight>
       <a-select
+        v-if="!isEdit"
         v-model="form.templateId"
         class="w-[240px]"
         :options="templateOption"

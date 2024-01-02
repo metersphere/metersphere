@@ -1,7 +1,9 @@
+import { CommentParams } from '@/components/business/ms-comment/types';
+
 import MSR from '@/api/http/index';
 import * as bugURL from '@/api/requrls/bug-management';
 
-import { BugEditFormObject, BugExportParams, BugListItem } from '@/models/bug-management';
+import { BugEditFormObject, BugExportParams, BugListItem, CreateOrUpdateComment } from '@/models/bug-management';
 import { AssociatedList } from '@/models/caseManagement/featureCase';
 import { CommonList, TableQueryParams, TemplateOption } from '@/models/common';
 
@@ -88,4 +90,20 @@ export function followBug(id: string, isFollow: boolean) {
     return MSR.get({ url: `${bugURL.getUnFollowBugUrl}${id}` });
   }
   return MSR.get({ url: `${bugURL.getFollowBugUrl}${id}` });
+}
+
+// 创建评论
+export function createOrUpdateComment(data: CommentParams) {
+  if (data.id) {
+    return MSR.post({ url: bugURL.postUpdateCommentUrl, data });
+  }
+  return MSR.post({ url: bugURL.postCreateCommentUrl, data });
+}
+// 获取评论列表
+export function getCommentList(bugId: string) {
+  return MSR.get({ url: `${bugURL.getCommentListUrl}${bugId}` });
+}
+// 删除评论
+export function deleteComment(commentId: string) {
+  return MSR.get({ url: `${bugURL.getDeleteCommentUrl}${commentId}` });
 }
