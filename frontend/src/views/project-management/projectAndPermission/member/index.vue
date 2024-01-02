@@ -74,7 +74,7 @@
     :user-group-options="userGroupOptions"
     @success="loadList()"
   />
-  <MSBatchModal
+  <MsBatchModal
     ref="batchModalRef"
     v-model:visible="batchVisible"
     :action="batchAction"
@@ -94,7 +94,7 @@
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
-  import MSBatchModal from '@/components/business/ms-batch-modal/index.vue';
+  import MsBatchModal from '@/components/business/ms-batch-modal/index.vue';
   import MsRemoveButton from '@/components/business/ms-remove-button/MsRemoveButton.vue';
   import AddMemberModal from './components/addMemberModal.vue';
 
@@ -123,7 +123,7 @@
   const { openModal } = useModal();
   const appStore = useAppStore();
   const tableStore = useTableStore();
-  const lastProjectId = computed(() => appStore.getCurrentProjectId);
+  const lastProjectId = computed(() => appStore.currentProjectId);
 
   const columns: MsTableColumn = [
     {
@@ -266,7 +266,7 @@
   const removeMember = async (record: ProjectMemberItem) => {
     deleteLoading.value = true;
     try {
-      if (lastProjectId && record.id) {
+      if (lastProjectId.value && record.id) {
         await removeProjectMember(lastProjectId.value, record.id);
         Message.success(t('project.member.deleteMemberSuccess'));
         loadList();
@@ -287,7 +287,7 @@
   // 添加到用户组
   const addUserGroup = async (target: string[]) => {
     const params = {
-      projectId: lastProjectId,
+      projectId: lastProjectId.value,
       userIds: selectData.value,
       roleIds: target,
     };
@@ -309,7 +309,7 @@
     if (event.eventTag === 'batchAddUserGroup') {
       batchVisible.value = true;
       batchAction.value = event.eventTag;
-      batchModalRef.value.getTreeList(getProjectUserGroup, lastProjectId);
+      batchModalRef.value.getTreeList(getProjectUserGroup, lastProjectId.value);
     }
   };
 

@@ -188,6 +188,7 @@
     :page-change="propsEvent.pageChange"
     :pagination="propsRes.msPagination!"
   />
+  <AddDemandModal v-model:visible="showDemandModel" :case-id="caseId" :form="modelForm" />
 </template>
 
 <script setup lang="ts">
@@ -220,6 +221,7 @@
   import CaseDetailDrawer from './caseDetailDrawer.vue';
   import FeatureCaseTree from './caseTree.vue';
   import ExportExcelDrawer from './exportExcelDrawer.vue';
+  import AddDemandModal from './tabContent/tabDemand/addDemandModal.vue';
   import TableFormChange from './tableFormChange.vue';
 
   import {
@@ -243,6 +245,7 @@
     CaseManagementTable,
     CaseModuleQueryParams,
     CustomAttributes,
+    DemandItem,
   } from '@/models/caseManagement/featureCase';
   import type { TableQueryParams } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
@@ -924,8 +927,25 @@
     });
   }
 
+  const showDemandModel = ref<boolean>(false);
+  const caseId = ref('');
+  const modelForm = ref<DemandItem>({
+    id: '',
+    caseId: '', // 功能用例ID
+    demandId: '', // 需求ID
+    demandName: '', // 需求标题
+    demandUrl: '', // 需求地址
+    demandPlatform: '', // 需求所属平台
+    createTime: '',
+    updateTime: '',
+    createUser: '',
+    updateUser: '',
+    children: [], // 平台下对应的需求
+  });
   // 添加需求
-  function addDemand() {}
+  function addDemand() {
+    showDemandModel.value = true;
+  }
   // 关联需求
   function handleAssociatedDemand() {}
 
@@ -991,7 +1011,7 @@
   }
 
   // 处理自定义字段列
-  const customFieldsColumns = ref<Record<string, any>[]>([]);
+  let customFieldsColumns: Record<string, any>[] = [];
   let fullColumns: MsTableColumn = []; // 全量列表
   const tableRef = ref<InstanceType<typeof MsBaseTable> | null>(null);
 
@@ -999,7 +1019,7 @@
   async function getDefaultFields() {
     const result = await getCaseDefaultFields(currentProjectId.value);
     initDefaultFields.value = result.customFields;
-    customFieldsColumns.value = initDefaultFields.value.map((item: any) => {
+    customFieldsColumns = initDefaultFields.value.map((item: any) => {
       return {
         title: item.fieldName,
         slotName: item.fieldId as string,
@@ -1012,7 +1032,7 @@
 
     fullColumns = [
       ...columns.slice(0, columns.length - 1),
-      ...customFieldsColumns.value,
+      ...customFieldsColumns,
       ...columns.slice(columns.length - 1, columns.length),
     ];
     tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_TABLE, fullColumns, 'drawer');

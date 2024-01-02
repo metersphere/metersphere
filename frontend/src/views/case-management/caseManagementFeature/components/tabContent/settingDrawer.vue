@@ -96,8 +96,8 @@
     ],
   });
 
-  const buggerTab: TabItemType[] = [];
-  const testPlanTab: TabItemType[] = [];
+  let buggerTab: TabItemType[] = [];
+  let testPlanTab: TabItemType[] = [];
   const tabDefaultSettingList = ref<TabItemType[]>([
     {
       key: 'case',
@@ -126,6 +126,8 @@
     },
   ]);
   async function getTabModule() {
+    buggerTab = [];
+    testPlanTab = [];
     const result = await postTabletList({ projectId: currentProjectId.value });
     const enableModuleArr = result.filter((item: any) => item.module === 'testPlan' || item.module === 'bugManagement');
     enableModuleArr.forEach((item) => {

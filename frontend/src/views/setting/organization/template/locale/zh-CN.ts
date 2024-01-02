@@ -61,8 +61,8 @@ export default {
   'system.orgTemplate.optionsPlaceholder': '请输入选项',
   'system.orgTemplate.optionsIdPlaceholder': '请输入选项ID',
   'system.orgTemplate.optionsIdTip': '选项ID不能为空',
-  'system.orgTemplate.updateTip': '确认更新 `{name}` 吗？',
-  'system.orgTemplate.updateDescription': '更新后，所使用该字段模版将一起修改',
+  'system.orgTemplate.updateTip': '确认更新 {name} 吗？',
+  'system.orgTemplate.updateDescription': '更新后，使用该字段的{type}将同步更新',
   'system.orgTemplate.confirm': '确定',
   'system.orgTemplate.columnTemplateName': '模版名称',
   'system.orgTemplate.copy': '复制',
@@ -161,4 +161,7 @@ export default {
   'system.orgTemplate.modules': '模块',
   'system.orgTemplate.tags': '标签',
   'system.orgTemplate.optionKeyValue': '选项KEY值',
+  'system.orgTemplate.templateCase': '用例',
+  'system.orgTemplate.templateApi': '接口',
+  'system.orgTemplate.templateBug': '缺陷',
 };
