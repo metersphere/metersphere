@@ -18,7 +18,7 @@
 
     <select id="list" parameterType="io.metersphere.functional.request.RelationshipRequest" resultType="io.metersphere.functional.dto.FunctionalCaseRelationshipDTO">
         SELECT
-            fc.id id,
+            fcre.id id,
             fc.NAME name,
             fc.version_id versionId,
             pv.`name` versionName,
