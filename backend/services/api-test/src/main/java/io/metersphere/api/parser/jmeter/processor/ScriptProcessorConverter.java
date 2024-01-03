@@ -16,7 +16,7 @@ public abstract class ScriptProcessorConverter extends MsProcessorConverter<Scri
 
     public static final String ENV_VARIABLE_EXPRESSION = "${__metersphere_env_id}";
     public static final String MS_RUNNING_ENV_PREFIX = "MS.ENV.";
-    protected void parse(TestElement testElement, ScriptProcessor scriptProcessor) {
+    public static void parse(TestElement testElement, ScriptProcessor scriptProcessor) {
         // 脚本安全校验
         ScriptFilter.verify(scriptProcessor.getScriptLanguage(), scriptProcessor.getName(), scriptProcessor.getScript());
 

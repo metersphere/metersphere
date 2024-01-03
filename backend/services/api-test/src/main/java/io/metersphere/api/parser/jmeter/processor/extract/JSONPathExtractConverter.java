@@ -25,6 +25,7 @@ public class JSONPathExtractConverter extends ExtractConverter<JSONPathExtract> 
         extractor.setJsonPathExpressions(msExtract.getExpression());
         // 处理匹配多条等匹配规则
         extractor.setMatchNumbers(parseResultMatchingRule(msExtract).toString());
+        extractor.setEnabled(msExtract.getEnable());
         hashTree.add(extractor);
     }
 }

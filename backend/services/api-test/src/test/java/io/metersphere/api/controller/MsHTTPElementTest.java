@@ -244,46 +244,88 @@ public class MsHTTPElementTest {
         String json = ApiDataUtils.toJSONString(msHTTPElement);
         Assertions.assertNotNull(json);
         Assertions.assertEquals(ApiDataUtils.parseObject(json, AbstractMsTestElement.class), msHTTPElement);
+
+        // 测试脚本解析
+        ParameterConfig parameterConfig = new ParameterConfig();
+        parameterConfig.setReportId("reportId");
+        TestElementParser defaultParser = TestElementParserFactory.getDefaultParser();
+        AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(json, AbstractMsTestElement.class);
+        defaultParser.parse(msTestElement, parameterConfig);
     }
 
     public static List<MsAssertion> getGeneralAssertions() {
         List<MsAssertion> assertions = new ArrayList<>();
-        ResponseCodeAssertion responseCodeAssertion = new ResponseCodeAssertion();
+        MsResponseCodeAssertion responseCodeAssertion = new MsResponseCodeAssertion();
         responseCodeAssertion.setCondition(MsAssertionCondition.EMPTY.name());
-        responseCodeAssertion.setValue("value");
+        responseCodeAssertion.setExpectedValue("value");
         responseCodeAssertion.setName("name");
         assertions.add(responseCodeAssertion);
 
-        ResponseHeaderAssertion responseHeaderAssertion = new ResponseHeaderAssertion();
-        ResponseHeaderAssertion.ResponseHeaderAssertionItem responseHeaderAssertionItem = new ResponseHeaderAssertion.ResponseHeaderAssertionItem();
+        MsResponseHeaderAssertion responseHeaderAssertion = new MsResponseHeaderAssertion();
+        MsResponseHeaderAssertion.ResponseHeaderAssertionItem responseHeaderAssertionItem = new MsResponseHeaderAssertion.ResponseHeaderAssertionItem();
         responseHeaderAssertionItem.setHeader("header");
-        responseHeaderAssertionItem.setValue("value");
+        responseHeaderAssertionItem.setExpectedValue("value");
         responseHeaderAssertionItem.setCondition(MsAssertionCondition.EMPTY.name());
         responseHeaderAssertion.setAssertions(List.of(responseHeaderAssertionItem));
         assertions.add(responseHeaderAssertion);
 
-        ResponseBodyAssertion responseBodyAssertion = new ResponseBodyAssertion();
-        responseBodyAssertion.setAssertionType(MsBodyAssertionType.JSON_PATH.name());
-        RegexAssertion regexAssertion = new RegexAssertion();
-        regexAssertion.setAssertions(List.of(new RegexAssertionItem()));
-        responseBodyAssertion.setRegexAssertion(regexAssertion);
-        responseBodyAssertion.setDocumentAssertion(new DocumentAssertion());
-        responseBodyAssertion.setJsonPathAssertion(new JSONPathAssertion());
-        responseBodyAssertion.setXpathAssertion(new XPathAssertion());
-        assertions.add(responseBodyAssertion);
+        MsResponseBodyAssertion regexResponseBodyAssertion = new MsResponseBodyAssertion();
+        regexResponseBodyAssertion.setAssertionBodyType(MsResponseBodyAssertion.MsBodyAssertionType.REGEX.name());
+        MsRegexAssertion regexAssertion = new MsRegexAssertion();
 
-        ResponseTimeAssertion responseTimeAssertion = new ResponseTimeAssertion();
-        responseTimeAssertion.setMaxResponseTime(1000L);
+        MsRegexAssertionItem msRegexAssertionItem = new MsRegexAssertionItem();
+        msRegexAssertionItem.setExpression("^test");
+        regexAssertion.setAssertions(List.of(msRegexAssertionItem));
+        regexResponseBodyAssertion.setRegexAssertion(regexAssertion);
+        assertions.add(regexResponseBodyAssertion);
+
+        MsResponseBodyAssertion documentResponseBodyAssertion = new MsResponseBodyAssertion();
+        documentResponseBodyAssertion.setAssertionBodyType(MsResponseBodyAssertion.MsBodyAssertionType.DOCUMENT.name());
+        MsDocumentAssertion msDocumentAssertion = new MsDocumentAssertion();
+        documentResponseBodyAssertion.setDocumentAssertion(msDocumentAssertion);
+        assertions.add(documentResponseBodyAssertion);
+
+        MsResponseBodyAssertion jsonPathResponseBodyAssertion = new MsResponseBodyAssertion();
+        jsonPathResponseBodyAssertion.setAssertionBodyType(MsResponseBodyAssertion.MsBodyAssertionType.JSON_PATH.name());
+        MsJSONPathAssertion msJSONPathAssertion = new MsJSONPathAssertion();
+        MsJSONPathAssertionItem msJSONPathAssertionItem = new MsJSONPathAssertionItem();
+        msJSONPathAssertionItem.setExpression("^test");
+        msJSONPathAssertionItem.setCondition(MsAssertionCondition.REGEX.name());
+        msJSONPathAssertionItem.setExpectedValue("expectedValue");
+        msJSONPathAssertion.setAssertions(List.of(msJSONPathAssertionItem));
+        jsonPathResponseBodyAssertion.setJsonPathAssertion(msJSONPathAssertion);
+        assertions.add(jsonPathResponseBodyAssertion);
+
+        MsResponseBodyAssertion xpathPathResponseBodyAssertion = new MsResponseBodyAssertion();
+        xpathPathResponseBodyAssertion.setAssertionBodyType(MsResponseBodyAssertion.MsBodyAssertionType.XPATH.name());
+        MsXPathAssertion xPathPathAssertion = new MsXPathAssertion();
+        xPathPathAssertion.setResponseFormat(MsXPathAssertion.ResponseFormat.XML.name());
+        MsXPathAssertionItem xPathAssertionItem = new MsXPathAssertionItem();
+        xPathAssertionItem.setExpression("^test");
+        xPathAssertionItem.setExpectedValue("expectedValue");
+        xPathPathAssertion.setAssertions(List.of(xPathAssertionItem));
+        xpathPathResponseBodyAssertion.setXpathAssertion(xPathPathAssertion);
+        assertions.add(xpathPathResponseBodyAssertion);
+
+        MsResponseTimeAssertion responseTimeAssertion = new MsResponseTimeAssertion();
+        responseTimeAssertion.setExpectedValue(1000L);
         responseTimeAssertion.setEnable(true);
         responseTimeAssertion.setName("aa");
         assertions.add(responseTimeAssertion);
 
-        ScriptAssertion scriptAssertion = new ScriptAssertion();
-        scriptAssertion.setCommonScriptId("1111");
-        scriptAssertion.setContent("1111");
-        scriptAssertion.setDescription("1111");
+        MsScriptAssertion scriptAssertion = new MsScriptAssertion();
+        scriptAssertion.setScriptId("1111");
+        scriptAssertion.setScript("1111");
         scriptAssertion.setName("1111");
         assertions.add(scriptAssertion);
+
+        MsVariableAssertion msVariableAssertion = new MsVariableAssertion();
+        MsVariableAssertion.VariableAssertionItem variableAssertionItem = new MsVariableAssertion.VariableAssertionItem();
+        variableAssertionItem.setCondition(MsAssertionCondition.GT.name());
+        variableAssertionItem.setExpectedValue("ev");
+        variableAssertionItem.setVariableName("vn");
+        msVariableAssertion.setVariableAssertionItems(List.of(variableAssertionItem));
+        assertions.add(msVariableAssertion);
         return assertions;
     }
 

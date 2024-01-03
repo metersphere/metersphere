@@ -24,6 +24,7 @@ public class RegexExtractConverter extends ExtractConverter<RegexExtract> {
         extractor.setRefName(msExtract.getVariableName());
         extractor.setRegex(msExtract.getExpression());
         extractor.setUseField(msExtract.getExtractScope());
+        extractor.setEnabled(msExtract.getEnable());
 
         // 处理匹配多条等匹配规则
         extractor.setMatchNumber(parseResultMatchingRule(msExtract));

@@ -7,6 +7,6 @@ package io.metersphere.api.parser.jmeter.constants;
 public class JmeterProperty {
     public static final String SCRIPT = "script";
     public static final String CACHE_KEY = "cacheKey";
-    public static final String BEAN_SAMPLER_QUERY = "BeanShellSampler.query";
     public static final String SCRIPT_LANGUAGE = "scriptLanguage";
+    public final static String ASS_OPTION = "ASS_OPTION";
 }

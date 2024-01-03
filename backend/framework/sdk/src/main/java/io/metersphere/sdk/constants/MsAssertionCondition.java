@@ -12,11 +12,11 @@ public enum MsAssertionCondition {
     /**
      * 包含
      */
-    INCLUDE,
+    CONTAINS,
     /**
      * 不包含
      */
-    NOT_INCLUDE,
+    NOT_CONTAINS,
     /**
      * 等于
      */

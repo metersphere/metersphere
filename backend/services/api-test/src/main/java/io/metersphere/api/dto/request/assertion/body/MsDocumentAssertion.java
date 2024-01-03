@@ -8,7 +8,7 @@ import lombok.Data;
  * @CreateTime: 2023-11-23  14:19
  */
 @Data
-public class DocumentAssertion extends BodyAssertionItem {
+public class MsDocumentAssertion extends MsBodyAssertionItem {
     /**
      * 跟随定义的apiId
      * 传空为不跟随接口定义
@@ -21,14 +21,20 @@ public class DocumentAssertion extends BodyAssertionItem {
      * 这里跟前端数据结构有差异
      * 后端从设计层面支持多种文档格式，前端只支持一种
      * 同时切换可以同时持久化两种格式
+     * @see DocumentType
      */
     private String documentType;
     /**
      * json格式的文档断言
      */
-    private DocumentAssertionElement jsonAssertion;
+    private MsDocumentAssertionElement jsonAssertion;
     /**
      * xml格式的文档断言
      */
-    private DocumentAssertionElement xmlAssertion;
+    private MsDocumentAssertionElement xmlAssertion;
+
+    public enum DocumentType {
+        JSON,
+        XML;
+    }
 }

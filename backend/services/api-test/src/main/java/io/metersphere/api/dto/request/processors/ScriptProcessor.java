@@ -25,7 +25,7 @@ public class ScriptProcessor extends MsProcessor {
     /**
      * 是否启用公共脚本
      */
-    private Boolean enableCommonScript;
+    private Boolean enableCommonScript = false;
     /**
      * 脚本ID
      */
