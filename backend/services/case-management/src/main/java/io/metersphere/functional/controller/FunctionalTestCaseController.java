@@ -7,12 +7,15 @@ import io.metersphere.functional.dto.FunctionalCaseTestDTO;
 import io.metersphere.functional.request.AssociateCaseModuleRequest;
 import io.metersphere.functional.request.DisassociateOtherCaseRequest;
 import io.metersphere.functional.request.FunctionalCaseTestRequest;
+import io.metersphere.functional.service.FunctionalCaseLogService;
 import io.metersphere.functional.service.FunctionalTestCaseService;
 import io.metersphere.request.AssociateCaseModuleProviderRequest;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.log.annotation.Log;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -76,6 +79,7 @@ public class FunctionalTestCaseController {
 
     @PostMapping("/disassociate/case")
     @Operation(summary = "用例管理-功能用例-关联其他用例-取消关联用例")
+    @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.disassociateCaseLog(#request)", msClass = FunctionalCaseLogService.class)
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
     @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public void disassociateCase(@Validated @RequestBody DisassociateOtherCaseRequest request) {
@@ -88,8 +92,7 @@ public class FunctionalTestCaseController {
     @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ_ADD, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<FunctionalCaseTestDTO>> getAssociateOtherCaseList(@Validated @RequestBody FunctionalCaseTestRequest request) {
-        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
         return PageUtils.setPageInfo(page, functionalTestCaseService.hasAssociatePage(request));
     }
 
