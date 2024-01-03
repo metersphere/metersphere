@@ -6,6 +6,7 @@ import io.metersphere.sdk.util.JSON;
 import jakarta.websocket.RemoteEndpoint;
 import jakarta.websocket.Session;
 import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.mockito.InjectMocks;
@@ -32,6 +33,7 @@ public class WebSocketHandlerTest {
     private WebSocketHandler webSocketHandler;
 
     @Test
+    @Order(1)
     void testOpenSession() throws IOException {
         // 模拟参数
         String reportId = "123";
@@ -46,6 +48,7 @@ public class WebSocketHandlerTest {
     }
 
     @Test
+    @Order(2)
     void testOnMessage() {
         // 模拟参数
         String reportId = "123";
@@ -60,6 +63,17 @@ public class WebSocketHandlerTest {
     }
 
     @Test
+    @Order(3)
+    void testOnHeartbeatCheck() throws IOException {
+        // 模拟参数
+        when(session.getAsyncRemote()).thenReturn(async);
+
+        // 调用被测试方法
+        webSocketHandler.heartbeatCheck();
+    }
+
+    @Test
+    @Order(4)
     void testOnClose() throws IOException {
         // 模拟参数
         String reportId = "123";
@@ -73,6 +87,7 @@ public class WebSocketHandlerTest {
     }
 
     @Test
+    @Order(5)
     void testOnError() throws IOException {
         // 模拟参数
         when(session.getAsyncRemote()).thenReturn(async);
