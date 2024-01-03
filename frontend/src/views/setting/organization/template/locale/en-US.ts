@@ -62,6 +62,8 @@ export default {
   'system.orgTemplate.optionsPlaceholder': 'Please enter options',
   'system.orgTemplate.optionsIdPlaceholder': 'Please enter options ID',
   'system.orgTemplate.optionsIdTip': 'The option ID cannot be empty',
+  'system.orgTemplate.updateTip': 'Are you sure to update {name}?',
+  'system.orgTemplate.updateDescription': 'After the update, use {type} will be an update of the field',
   'system.orgTemplate.columnTemplateName': 'Template name',
   'system.orgTemplate.copy': 'Copy',
   'system.orgTemplate.defaultValue': 'Default value',
@@ -170,4 +172,7 @@ export default {
   'system.orgTemplate.modules': 'module',
   'system.orgTemplate.tags': 'tags',
   'system.orgTemplate.optionKeyValue': 'Option KEY value',
+  'system.orgTemplate.templateCase': 'Case',
+  'system.orgTemplate.templateApi': 'Api',
+  'system.orgTemplate.templateBug': 'Bug',
 };

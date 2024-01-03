@@ -216,7 +216,7 @@
   });
 
   onBeforeUnmount(() => {
-    resizeObserver.value.disconnect();
+    if (props.isAllScreen) resizeObserver.value.disconnect();
   });
 </script>
 
