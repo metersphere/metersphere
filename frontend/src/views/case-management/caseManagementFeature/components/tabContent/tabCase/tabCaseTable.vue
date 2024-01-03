@@ -27,18 +27,21 @@
     </ms-base-table>
     <MsCaseAssociate
       v-model:visible="innerVisible"
-      v-model:project="innerProject"
+      v-model:project-id="innerProject"
       v-model:currentSelectCase="currentSelectCase"
       :ok-button-disabled="associateForm.reviewers.length === 0"
-      :get-modules-func="getCaseModuleTree"
-      :get-table-func="getCaseList"
+      :get-modules-func="getPublicLinkModuleTree"
+      :modules-params="modulesTreeParams"
+      :get-table-func="getPublicLinkCaseList"
+      :table-params="getTableParams"
       :modules-count="modulesCount"
       :module-options="caseTypeOptions"
       :confirm-loading="confirmLoading"
+      :case-id="props.caseId"
       :associated-ids="associatedIds"
       @close="emit('close')"
-      @init="getModuleCount"
       @save="saveHandler"
+      @init="getModuleCount"
     >
     </MsCaseAssociate>
   </div>
@@ -55,16 +58,15 @@
 
   import { getAssociatedIds } from '@/api/modules/case-management/caseReview';
   import {
-    getCaseList,
-    getCaseModulesCounts,
-    getCaseModuleTree,
+    getPublicLinkCaseList,
+    getPublicLinkCaseModulesCounts,
+    getPublicLinkModuleTree,
     getRecycleListRequest,
   } from '@/api/modules/case-management/featureCase';
   import { postTabletList } from '@/api/modules/project-management/menuManagement';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
 
-  import type { CaseModuleQueryParams } from '@/models/caseManagement/featureCase';
   import type { TableQueryParams } from '@/models/common';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
@@ -73,6 +75,10 @@
   const { t } = useI18n();
 
   const currentProjectId = computed(() => appStore.currentProjectId);
+
+  const props = defineProps<{
+    caseId: string; // 用例id
+  }>();
 
   const emit = defineEmits<{
     (e: 'update:visible', val: boolean): void;
@@ -152,7 +158,7 @@
   });
 
   const innerVisible = ref(false);
-  const innerProject = ref('');
+  const innerProject = ref(currentProjectId.value);
 
   const associateForm = ref({
     reviewers: [],
@@ -168,11 +174,30 @@
     // }
   }
 
-  const currentSelectCase = ref<string | number | Record<string, any> | undefined>('');
+  const currentSelectCase = ref<string>('');
+
+  const countParams = ref<TableQueryParams>({});
+
+  const modulesTreeParams = ref<TableQueryParams>({});
+
+  const getTableParams = ref<TableQueryParams>({});
+  function getParams() {
+    switch (currentSelectCase.value) {
+      case 'API':
+        modulesTreeParams.value = { protocol: 'HTTP' };
+        countParams.value = { sourceId: props.caseId, protocol: 'HTTP' };
+        getTableParams.value = { sourceId: props.caseId, protocol: 'HTTP' };
+        break;
+      default:
+        break;
+    }
+  }
+
   function handleSelect(value: string | number | Record<string, any> | undefined) {
-    currentSelectCase.value = value;
+    currentSelectCase.value = value as string;
     innerVisible.value = true;
     getLinkedIds();
+    // getParams();
   }
 
   function cancelLink(record: any) {}
@@ -181,9 +206,9 @@
 
   const modulesCount = ref<Record<string, any>>({});
 
-  async function getModuleCount(params: CaseModuleQueryParams) {
+  async function getModuleCount(params: TableQueryParams) {
     try {
-      modulesCount.value = await getCaseModulesCounts(params);
+      modulesCount.value = await getPublicLinkCaseModulesCounts(params);
     } catch (error) {
       console.log(error);
     }
@@ -191,40 +216,44 @@
 
   const confirmLoading = ref<boolean>(false);
 
-  function saveHandler(params: TableQueryParams) {}
+  function saveHandler(params: TableQueryParams) {
+    console.log(params);
+  }
 
   const moduleMaps: Record<string, { label: string; value: string }[]> = {
     apiTest: [
       {
-        value: 'API_CASE',
+        value: 'API',
         label: t('caseManagement.featureCase.apiCase'),
       },
       {
-        value: 'SCENE_CASE',
+        value: 'SCENARIO',
         label: t('caseManagement.featureCase.sceneCase'),
       },
     ],
     uiTest: [
       {
-        value: 'UI_CASE',
+        value: 'UI',
         label: t('caseManagement.featureCase.uiCase'),
       },
     ],
     loadTest: [
       {
-        value: 'LOAD_CASE',
+        value: 'PERFORMANCE',
         label: t('caseManagement.featureCase.propertyCase'),
       },
     ],
   };
 
-  onBeforeMount(async () => {
+  onMounted(async () => {
     const result = await postTabletList({ projectId: currentProjectId.value });
     const caseArr = result.filter((item) => Object.keys(moduleMaps).includes(item.module));
     caseArr.forEach((item: any) => {
       const currentModule = moduleMaps[item.module];
       caseTypeOptions.value.push(...currentModule);
     });
+    currentSelectCase.value = caseTypeOptions.value[0].value;
+    getParams();
   });
 </script>
 

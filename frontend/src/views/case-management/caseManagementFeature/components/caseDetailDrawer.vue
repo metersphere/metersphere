@@ -117,9 +117,9 @@
                   @update-success="updateSuccess"
                 />
                 <TabDemand v-else-if="activeTab === 'requirement'" :case-id="props.detailId" />
-                <TabCaseTable v-else-if="activeTab === 'case'" />
+                <TabCaseTable v-else-if="activeTab === 'case'" :case-id="props.detailId" />
                 <TabDefect v-else-if="activeTab === 'bug'" />
-                <TabDependency v-else-if="activeTab === 'dependency'" />
+                <TabDependency v-else-if="activeTab === 'dependency'" :case-id="props.detailId" />
                 <TabCaseReview v-else-if="activeTab === 'caseReview'" :case-id="props.detailId" />
                 <TabTestPlan v-else-if="activeTab === 'testPlan'" />
                 <TabComment v-else-if="activeTab === 'comments'" :case-id="props.detailId" />
@@ -248,6 +248,7 @@
 
   const userId = computed(() => userStore.userInfo.id);
   const appStore = useAppStore();
+  provide('caseId', props.detailId);
 
   const currentProjectId = computed(() => appStore.currentProjectId);
 

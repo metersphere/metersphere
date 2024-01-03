@@ -230,8 +230,8 @@
   import MsFileList from '@/components/pure/ms-upload/fileList.vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import type { MsFileItem } from '@/components/pure/ms-upload/types';
+  import AddAttachment from '@/components/business/ms-add-attachment/index.vue';
   import LinkFileDrawer from '@/components/business/ms-link-file/associatedFileDrawer.vue';
-  import AddAttachment from './addAttachment.vue';
   import AddStep from './addStep.vue';
   import TransferModal from './tabContent/transferModal.vue';
 

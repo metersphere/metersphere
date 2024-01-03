@@ -10,7 +10,7 @@
         </a-button>
       </div>
       <div>
-        <a-radio-group v-model:model-value="showType" type="button" class="file-show-type ml-[4px]">
+        <a-radio-group v-model="showType" type="button" class="file-show-type ml-[4px]">
           <a-radio value="preposition" class="show-type-icon p-[2px]">{{
             t('caseManagement.featureCase.preCase')
           }}</a-radio>
@@ -26,7 +26,7 @@
         ></a-input-search>
       </div>
     </div>
-    <ms-base-table v-if="showType === 'preposition'" ref="tableRef" v-bind="prePropsRes" v-on="preTableEvent">
+    <ms-base-table ref="tableRef" v-bind="propsRes" v-on="propsEvent">
       <template #operation="{ record }">
         <MsButton @click="cancelDependency(record)">{{ t('caseManagement.featureCase.cancelDependency') }}</MsButton>
       </template>
@@ -39,20 +39,7 @@
         </div>
       </template>
     </ms-base-table>
-    <ms-base-table v-else v-bind="postPropsRes" v-on="postTableEvent">
-      <template #operation="{ record }">
-        <MsButton @click="cancelDependency(record)">{{ t('caseManagement.featureCase.cancelDependency') }}</MsButton>
-      </template>
-      <template v-if="(keyword || '').trim() === ''" #empty>
-        <div class="flex items-center justify-center">
-          {{ t('caseManagement.caseReview.tableNoData') }}
-          <MsButton class="ml-[8px]" @click="addCase('postPosition')">
-            {{ t('caseManagement.featureCase.addPostCase') }}
-          </MsButton>
-        </div>
-      </template>
-    </ms-base-table>
-    <PreAndPostCaseDrawer ref="drawerRef" v-model:visible="showDrawer" :show-type="showType" />
+    <PreAndPostCaseDrawer ref="drawerRef" v-model:visible="showDrawer" :show-type="showType" :case-id="props.caseId" />
   </div>
 </template>
 
@@ -65,16 +52,21 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import PreAndPostCaseDrawer from './preAndPostCaseDrawer.vue';
 
-  import { getRecycleListRequest } from '@/api/modules/case-management/featureCase';
+  import { getDependOnCase } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore } from '@/store';
 
-  import { TableKeyEnum } from '@/enums/tableEnum';
+  const appStore = useAppStore();
 
   export type types = 'preposition' | 'postPosition';
+  const currentProjectId = computed(() => appStore.currentProjectId);
 
   const showType = ref<types>('preposition');
   const { t } = useI18n();
   const keyword = ref<string>('');
+  const props = defineProps<{
+    caseId: string;
+  }>();
 
   const columns: MsTableColumn = [
     {
@@ -84,7 +76,6 @@
       showInTable: true,
       showTooltip: true,
       ellipsis: true,
-      showDrag: false,
     },
     {
       title: 'caseManagement.featureCase.tableColumnName',
@@ -94,7 +85,6 @@
       showTooltip: true,
       width: 300,
       ellipsis: true,
-      showDrag: false,
     },
     {
       title: 'caseManagement.featureCase.tableColumnVersion',
@@ -104,7 +94,6 @@
       showTooltip: true,
       width: 300,
       ellipsis: true,
-      showDrag: false,
     },
     {
       title: 'caseManagement.featureCase.tableColumnCreateUser',
@@ -114,7 +103,6 @@
       showTooltip: true,
       width: 300,
       ellipsis: true,
-      showDrag: false,
     },
     {
       title: 'caseManagement.featureCase.tableColumnActions',
@@ -123,47 +111,29 @@
       fixed: 'right',
       width: 140,
       showInTable: true,
-      showDrag: false,
     },
   ];
 
-  const {
-    propsRes: prePropsRes,
-    propsEvent: preTableEvent,
-    loadList: loadPreList,
-    setLoadListParams: setPreListParams,
-  } = useTable(getRecycleListRequest, {
+  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getDependOnCase, {
     columns,
-    tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_DEPENDENCY_PRE_CASE,
     scroll: { x: '100%' },
     heightUsed: 340,
-    enableDrag: true,
-  });
-
-  const {
-    propsRes: postPropsRes,
-    propsEvent: postTableEvent,
-    loadList: loadPostList,
-    setLoadListParams: setPostListParams,
-  } = useTable(getRecycleListRequest, {
-    columns,
-    tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_DEPENDENCY_POST_CASE,
-    scroll: { x: '100%' },
-    heightUsed: 340,
+    selectable: false,
+    noDisable: true,
+    showSetting: false,
     enableDrag: true,
   });
 
   // 取消依赖
   function cancelDependency(record: any) {}
 
-  function getFetch() {
-    if (showType.value === 'preposition') {
-      setPreListParams({ keyword: keyword.value });
-      loadPreList();
-    } else {
-      setPostListParams({ keyword: keyword.value });
-      loadPostList();
-    }
+  function getParams() {
+    setLoadListParams({
+      projectId: currentProjectId.value,
+      keyword: keyword.value,
+      type: showType.value === 'preposition' ? 'PRE' : 'POST',
+      id: props.caseId,
+    });
   }
 
   const showDrawer = ref<boolean>(false);
@@ -176,12 +146,16 @@
 
   watch(
     () => showType.value,
-    (val) => {
-      if (val) {
-        getFetch();
-      }
+    () => {
+      getParams();
+      loadList();
     }
   );
+
+  onBeforeMount(() => {
+    getParams();
+    loadList();
+  });
 </script>
 
 <style scoped></style>

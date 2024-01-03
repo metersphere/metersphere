@@ -12,14 +12,15 @@
           <div :class="getFolderClass('all')" @click="setActiveFolder('all')">
             <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
             <div class="folder-name">{{ t('caseManagement.featureCase.allCase') }}</div>
-            <div class="folder-count">({{ allFileCount }})</div>
+            <div class="folder-count">({{ modulesCount['all'] }})</div>
           </div>
         </div>
         <a-divider class="my-[8px]" />
         <a-spin class="w-full" :loading="moduleLoading">
           <MsTree
-            v-model:selected-keys="selectedModuleKeys"
-            :data="folderTree"
+            v-model:focus-node-key="focusNodeKey"
+            :selected-keys="selectedNodeKeys"
+            :data="caseTree"
             :keyword="moduleKeyword"
             :empty-text="t('caseManagement.featureCase.caseEmptyRecycle')"
             :virtual-list-props="virtualListProps"
@@ -31,11 +32,15 @@
             }"
             block-node
             title-tooltip-position="left"
-            @select="folderNodeSelect"
+            @select="caseNodeSelect"
           >
             <template #title="nodeData">
               <div class="inline-flex w-full">
-                <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
+                <div
+                  class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]"
+                  @click="setFocusKey(nodeData)"
+                  >{{ nodeData.name }}</div
+                >
                 <div class="ml-[4px] text-[var(--color-text-4)]">({{ nodeData.count || 0 }})</div>
               </div>
             </template>
@@ -46,7 +51,7 @@
         <div class="mb-[16px] flex items-center justify-between">
           <div class="flex items-center">
             <div class="mr-[4px] text-[var(--color-text-1)]">{{ activeFolderName }}</div>
-            <div class="text-[var(--color-text-4)]">({{ activeFolderName }})</div>
+            <div class="text-[var(--color-text-4)]">({{ modulesCount[activeFolder] }})</div>
           </div>
           <div class="flex items-center gap-[8px]">
             <a-select
@@ -72,7 +77,7 @@
         </div>
         <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
           <template #caseLevel="{ record }">
-            <caseLevel :case-level="record.caseLevel" />
+            <caseLevel :case-level="(getCaseLevel(record) as CaseLevel)" />
           </template>
         </ms-base-table>
         <div class="footer">
@@ -84,7 +89,12 @@
               <a-button type="secondary" :disabled="loading" class="mr-[12px]" @click="cancel">{{
                 t('common.cancel')
               }}</a-button>
-              <a-button type="primary" :loading="loading" @click="handleConfirm">
+              <a-button
+                type="primary"
+                :loading="loading"
+                :disabled="propsRes.selectedKeys.size === 0"
+                @click="handleConfirm"
+              >
                 {{ t('common.add') }}
               </a-button>
             </slot>
@@ -104,29 +114,36 @@
   import { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
+  import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
 
-  import { getModules } from '@/api/modules/project-management/fileManagement';
+  import {
+    addPrepositionRelation,
+    getCaseModulesCounts,
+    getCaseModuleTree,
+    getPrepositionRelation,
+  } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import { mapTree } from '@/utils';
 
+  import type { CaseManagementTable, CaseModuleQueryParams } from '@/models/caseManagement/featureCase';
+  import type { TableQueryParams } from '@/models/common';
   import { ModuleTreeNode } from '@/models/projectManagement/file';
 
   const appStore = useAppStore();
+  const currentProjectId = computed(() => appStore.currentProjectId);
 
   const { t } = useI18n();
   const props = defineProps<{
     visible: boolean;
     showType: 'preposition' | 'postPosition';
+    caseId: string;
   }>();
 
   const emit = defineEmits<{
     (e: 'update:visible', val: boolean): void;
-    (e: 'update:project', val: string): void;
-    (e: 'init', val: string[]): void;
-    (e: 'folderNodeSelect', ids: (string | number)[], springIds: string[]): void;
     (e: 'success', val: string[]): void;
     (e: 'close'): void;
   }>();
@@ -140,13 +157,11 @@
     },
   });
 
-  const selectedModuleKeys = ref<string[]>([]);
-
   const title = computed(() => {
     return props.showType === 'preposition' ? '添加前置用例' : '添加后置用例';
   });
 
-  const folderTree = ref<ModuleTreeNode[]>([]);
+  const caseTree = ref<ModuleTreeNode[]>([]);
   const moduleLoading = ref(false);
 
   const moduleKeyword = ref('');
@@ -159,20 +174,30 @@
 
   const activeFolder = ref('all');
   const activeFolderName = ref(t('ms.case.associate.allCase'));
+  const offspringIds = ref<string[]>([]);
+  const modulesCount = ref<Record<string, any>>({});
+
+  // 选中节点
+  const selectedNodeKeys = computed({
+    get: () => [activeFolder.value],
+    set: (val) => val,
+  });
   /**
    * 处理文件夹树节点选中事件
    */
-  function folderNodeSelect(_selectedKeys: (string | number)[], node: MsTreeNodeData) {
-    selectedModuleKeys.value = _selectedKeys as string[];
+  const focusNodeKey = ref<string>('');
+
+  function caseNodeSelect(_selectedKeys: (string | number)[], node: MsTreeNodeData) {
+    [activeFolder.value] = _selectedKeys as string[];
     activeFolder.value = node.id;
     activeFolderName.value = node.name;
-    const offspringIds: string[] = [];
+    offspringIds.value = [];
     mapTree(node.children || [], (e) => {
-      offspringIds.push(e.id);
+      offspringIds.value.push(e.id);
       return e;
     });
 
-    emit('folderNodeSelect', _selectedKeys, offspringIds);
+    focusNodeKey.value = '';
   }
   const allFileCount = ref(0);
 
@@ -183,8 +208,6 @@
   function setActiveFolder(id: string) {
     activeFolder.value = id;
     activeFolderName.value = t('ms.case.associate.allCase');
-    selectedModuleKeys.value = [];
-    emit('folderNodeSelect', [id], []);
   }
   const keyword = ref('');
   const version = ref('');
@@ -212,7 +235,7 @@
       sortable: {
         sortDirections: ['ascend', 'descend'],
       },
-      width: 90,
+      width: 200,
     },
     {
       title: 'caseManagement.featureCase.tableColumnName',
@@ -221,7 +244,7 @@
         sortDirections: ['ascend', 'descend'],
       },
       showTooltip: true,
-      width: 200,
+      width: 300,
     },
     {
       title: 'ms.case.associate.caseLevel',
@@ -241,85 +264,8 @@
     },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(
-    () =>
-      Promise.resolve({
-        list: [
-          {
-            id: 'ded3d43',
-            name: '测试评审1',
-            creator: '张三',
-            reviewer: '李四',
-            module: '模块1',
-            caseLevel: 0, // 未开始、进行中、已完成、已归档
-            caseCount: 100,
-            passCount: 0,
-            failCount: 10,
-            reviewCount: 20,
-            reviewingCount: 25,
-            tags: ['标签1', '标签2'],
-            type: 'single',
-            desc: 'douifd9304',
-            cycle: [1700200794229, 1700200994229],
-          },
-          {
-            id: 'g545hj4',
-            name: '测试评审2',
-            creator: '张三',
-            reviewer: '李四',
-            module: '模块1',
-            caseLevel: 1, // 未开始、进行中、已完成、已归档
-            caseCount: 105,
-            passCount: 50,
-            failCount: 10,
-            reviewCount: 20,
-            reviewingCount: 25,
-            tags: ['标签1', '标签2'],
-            type: 'single',
-            desc: 'douifd9304',
-            cycle: [1700200794229, 1700200994229],
-          },
-          {
-            id: 'hj65b54',
-            name: '测试评审3',
-            creator: '张三',
-            reviewer: '李四',
-            module: '模块1',
-            caseLevel: 2, // 未开始、进行中、已完成、已归档
-            caseCount: 125,
-            passCount: 70,
-            failCount: 10,
-            reviewCount: 20,
-            reviewingCount: 25,
-            passRate: '80%',
-            tags: ['标签1', '标签2'],
-            type: 'single',
-            desc: 'douifd9304',
-            cycle: [1700200794229, 1700200994229],
-          },
-          {
-            id: 'wefwefw',
-            name: '测试评审4',
-            creator: '张三',
-            reviewer: '李四',
-            module: '模块1',
-            caseLevel: 3, // 未开始、进行中、已完成、已归档
-            caseCount: 130,
-            passCount: 70,
-            failCount: 10,
-            reviewCount: 0,
-            reviewingCount: 50,
-            passRate: '80%',
-            tags: ['标签1', '标签2'],
-            type: 'single',
-            desc: 'douifd9304',
-            cycle: [1700200794229, 1700200994229],
-          },
-        ],
-        current: 1,
-        pageSize: 10,
-        total: 2,
-      }),
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
+    getPrepositionRelation,
     {
       columns,
       scroll: {
@@ -329,29 +275,29 @@
       selectable: true,
       showSelectAll: true,
     },
-    (item) => {
+    (record) => {
       return {
-        ...item,
-        tags: item.tags?.map((e: string) => ({ id: e, name: e })) || [],
+        ...record,
+        tags: (JSON.parse(record.tags) || []).map((item: string, i: number) => {
+          return {
+            id: `${record.id}-${i}`,
+            name: item,
+          };
+        }),
       };
     }
   );
 
-  const loading = ref(false);
-
-  async function handleConfirm() {
-    try {
-      loading.value = true;
-      Message.success(t('ms.case.associate.associateSuccess'));
-      innerVisible.value = false;
-      emit('success', Array.from(propsRes.value.selectedKeys));
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    } finally {
-      loading.value = false;
+  // 用例等级
+  function getCaseLevel(record: CaseManagementTable) {
+    const caseLevelRes = record.customFields.find((item: any) => item.name === '用例等级');
+    if (caseLevelRes) {
+      return JSON.parse(caseLevelRes.value).replaceAll('P', '') * 1;
     }
+    return 0;
   }
+
+  const loading = ref(false);
 
   function cancel() {
     innerVisible.value = false;
@@ -361,26 +307,24 @@
    * 初始化模块树
    * @param isSetDefaultKey 是否设置第一个节点为选中节点
    */
+
+  const selectedKeysNode = ref<(string | number)[]>([]);
   async function initModules(isSetDefaultKey = false) {
     try {
       moduleLoading.value = true;
-      const res = await getModules(appStore.currentProjectId);
-      folderTree.value = res;
+      const res = await getCaseModuleTree({ projectId: appStore.currentProjectId });
+      caseTree.value = mapTree<ModuleTreeNode>(res, (e) => {
+        return {
+          ...e,
+          hideMoreAction: e.id === 'root',
+          draggable: false,
+          disabled: false,
+          count: modulesCount.value?.[e.id] || 0,
+        };
+      });
       if (isSetDefaultKey) {
-        selectedModuleKeys.value = [folderTree.value[0].id];
-        activeFolderName.value = folderTree.value[0].name;
-        const offspringIds: string[] = [];
-        mapTree(folderTree.value[0].children || [], (e) => {
-          offspringIds.push(e.id);
-          return e;
-        });
-
-        emit('folderNodeSelect', selectedModuleKeys.value, offspringIds);
+        selectedKeysNode.value = [caseTree.value[0].id];
       }
-      emit(
-        'init',
-        folderTree.value.map((e) => e.name)
-      );
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -388,17 +332,115 @@
       moduleLoading.value = false;
     }
   }
+  /**
+   * @param 获取回收站模块
+   */
 
-  function searchCase() {
-    setLoadListParams({
-      version: version.value,
-      keyword: keyword.value,
-    });
-    loadList();
+  // 回收站模块树count参数
+  const emitTableParams: CaseModuleQueryParams = {
+    keyword: keyword.value,
+    moduleIds: [],
+    projectId: currentProjectId.value,
+    current: propsRes.value.msPagination?.current,
+    pageSize: propsRes.value.msPagination?.pageSize,
+  };
+
+  async function getModulesCount() {
+    try {
+      modulesCount.value = await getCaseModulesCounts(emitTableParams);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
-  onBeforeMount(() => {
-    searchCase();
+  const searchParams = ref<TableQueryParams>({
+    projectId: currentProjectId.value,
+    moduleIds: [],
+  });
+
+  // 获取用例参数
+  function getLoadListParams() {
+    if (activeFolder.value === 'all') {
+      searchParams.value.moduleIds = [];
+    } else {
+      searchParams.value.moduleIds = [activeFolder.value, ...offspringIds.value];
+    }
+    setLoadListParams({
+      ...searchParams.value,
+      keyword: keyword.value,
+      id: props.caseId,
+      type: props.showType === 'preposition' ? 'PRE' : 'POST',
+    });
+  }
+
+  const setFocusKey = (node: MsTreeNodeData) => {
+    focusNodeKey.value = node.id || '';
+  };
+
+  function searchCase() {
+    getLoadListParams();
+    loadList();
+    getModulesCount();
+  }
+
+  async function handleConfirm() {
+    loading.value = true;
+    try {
+      const { excludeKeys, selectedKeys, selectorStatus } = propsRes.value;
+      const { versionId, moduleIds } = searchParams.value;
+      const params = {
+        id: props.caseId,
+        excludeIds: [...excludeKeys],
+        selectIds: selectorStatus === 'all' ? [] : [...selectedKeys],
+        selectAll: selectorStatus === 'all',
+        moduleIds,
+        versionId,
+        refId: '',
+        type: props.showType === 'preposition' ? 'PRE' : 'POST',
+        projectId: currentProjectId.value,
+      };
+      await addPrepositionRelation(params);
+      Message.success(t('common.addSuccess'));
+      innerVisible.value = false;
+      resetSelector();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  watch(
+    () => innerVisible.value,
+    (val) => {
+      if (val) {
+        searchCase();
+      }
+    }
+  );
+
+  watch(
+    () => modulesCount.value,
+    (obj) => {
+      caseTree.value = mapTree<ModuleTreeNode>(caseTree.value, (node) => {
+        return {
+          ...node,
+          count: obj?.[node.id] || 0,
+        };
+      });
+    }
+  );
+
+  watch(
+    () => activeFolder.value,
+    () => {
+      searchCase();
+    }
+  );
+
+  onMounted(() => {
+    resetSelector();
   });
 
   defineExpose({

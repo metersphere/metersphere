@@ -158,7 +158,7 @@
   async function initModules(isSetDefaultKey = false) {
     try {
       loading.value = true;
-      const res = await getCaseModuleTree(currentProjectId.value);
+      const res = await getCaseModuleTree({ projectId: currentProjectId.value });
       caseTree.value = mapTree<ModuleTreeNode>(res, (e) => {
         return {
           ...e,
