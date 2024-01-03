@@ -5,6 +5,7 @@
     :width="1200"
     :footer="false"
     no-content-padding
+    unmount-on-close
   >
     <template #headerLeft>
       <div class="float-left">
@@ -24,7 +25,7 @@
       <div class="w-[292px] border-r border-[var(--color-text-n8)] p-[16px]">
         <div class="flex items-center justify-between">
           <MsProjectSelect v-model:project="innerProject" class="mb-[16px]" />
-          <a-select v-if="caseType === 'API_CASE'" v-model="protocolType" class="mb-[16px] ml-2 max-w-[90px]">
+          <a-select v-if="caseType === 'API'" v-model="protocolType" class="mb-[16px] ml-2 max-w-[90px]">
             <a-option v-for="item of protocolOptions" :key="item" :value="item">{{ item }}</a-option>
           </a-select>
         </div>
@@ -38,7 +39,7 @@
           <div :class="getFolderClass('all')" @click="setActiveFolder('all')">
             <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
             <div class="folder-name">{{ t('caseManagement.featureCase.allCase') }}</div>
-            <div class="folder-count">({{ props.modulesCount['all'] }})</div>
+            <div class="folder-count">({{ modulesCount['all'] }})</div>
           </div>
         </div>
         <a-divider class="my-[8px]" />
@@ -47,7 +48,7 @@
             v-model:selected-keys="selectedModuleKeys"
             :data="folderTree"
             :keyword="moduleKeyword"
-            :empty-text="t('caseManagement.caseReview.noReviews')"
+            :empty-text="t('caseManagement.featureCase.caseEmptyRecycle')"
             :virtual-list-props="virtualListProps"
             :field-names="{
               title: 'name',
@@ -146,7 +147,7 @@
   import useAppStore from '@/store/modules/app';
   import { mapTree } from '@/utils';
 
-  import type { CaseManagementTable, CaseModuleQueryParams } from '@/models/caseManagement/featureCase';
+  import type { CaseManagementTable } from '@/models/caseManagement/featureCase';
   import type { CommonList, TableQueryParams } from '@/models/common';
   import { ModuleTreeNode } from '@/models/projectManagement/file';
 
@@ -157,11 +158,13 @@
 
   const props = defineProps<{
     visible: boolean;
-    project: string;
-    getModulesFunc: (projectId: string) => Promise<ModuleTreeNode[]>; // 获取模块树请求
-    getTableFunc: (params: TableQueryParams) => Promise<CommonList<CaseManagementTable>>; // 获取表
+    projectId: string; // 项目id
+    caseId?: string; // 用例id  用例评审那边不需要传递
+    getModulesFunc: (params: TableQueryParams) => Promise<ModuleTreeNode[]>; // 获取模块树请求
+    modulesParams?: Record<string, any>; // 获取模块树请求
+    getTableFunc: (params: TableQueryParams) => Promise<CommonList<CaseManagementTable>>; // 获取表请求函数
     tableParams?: TableQueryParams; // 查询表格的额外的参数
-    modulesCount: Record<string, number>; // 模块数量统计对象
+    modulesCount: Record<string, any>; // 模块数量统计对象
     okButtonDisabled?: boolean; // 确认按钮是否禁用
     currentSelectCase: string | number | Record<string, any> | undefined; // 当前选中的用例类型
     moduleOptions?: { label: string; value: string }[]; // 功能模块对应用例下拉
@@ -173,7 +176,7 @@
     (e: 'update:visible', val: boolean): void;
     (e: 'update:project', val: string): void;
     (e: 'update:currentSelectCase', val: string | number | Record<string, any> | undefined): void;
-    (e: 'init', val: CaseModuleQueryParams): void; // 初始化模块数量
+    (e: 'init', val: TableQueryParams): void; // 初始化模块数量
     (e: 'close'): void;
     (e: 'save', params: TableQueryParams): void; // 保存对外传递关联table 相关参数
   }>();
@@ -184,7 +187,7 @@
     };
   });
 
-  const activeFolder = ref('all');
+  const activeFolder = ref('');
   const activeFolderName = ref(t('ms.case.associate.allCase'));
   const filterRowCount = ref(0);
 
@@ -205,10 +208,20 @@
   }
 
   const innerVisible = ref(props.visible);
-  const innerProject = ref(props.project);
+  const innerProject = ref(props.projectId);
 
   const protocolType = ref('HTTP'); // 协议类型
   const protocolOptions = ref(['HTTP']);
+
+  // 选中用例类型
+  const caseType = computed({
+    get() {
+      return props.currentSelectCase;
+    },
+    set(val) {
+      emit('update:currentSelectCase', val);
+    },
+  });
 
   /**
    * 初始化模块树
@@ -217,7 +230,18 @@
   async function initModules(isSetDefaultKey = false) {
     try {
       moduleLoading.value = true;
-      const res = await props.getModulesFunc(innerProject.value);
+      let params = {
+        projectId: innerProject.value,
+        sourceType: props.moduleOptions && props.moduleOptions.length ? caseType.value : undefined,
+        sourceId: props.moduleOptions && props.moduleOptions.length ? props.caseId : undefined,
+      };
+      if (props.modulesParams) {
+        params = {
+          ...params,
+          ...props.modulesParams,
+        };
+      }
+      const res = await props.getModulesFunc(params);
       folderTree.value = mapTree<ModuleTreeNode>(res, (e) => {
         return {
           ...e,
@@ -259,16 +283,6 @@
       return e;
     });
   }
-
-  // 选中用例类型
-  const caseType = computed({
-    get() {
-      return props.currentSelectCase;
-    },
-    set(val) {
-      emit('update:currentSelectCase', val);
-    },
-  });
 
   const keyword = ref('');
   const version = ref('');
@@ -339,13 +353,16 @@
     },
   ];
 
+  const getTableList = computed(() => props.getTableFunc);
+
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
-    props.getTableFunc,
+    getTableList.value,
     {
       columns,
       showSetting: false,
       selectable: true,
       showSelectAll: true,
+      heightUsed: 310,
     },
     (record) => {
       return {
@@ -366,17 +383,21 @@
   });
 
   function getLoadListParams() {
-    if (activeFolder.value === 'all') {
+    if (activeFolder.value === 'all' || !activeFolder.value) {
       searchParams.value.moduleIds = [];
     } else {
       searchParams.value.moduleIds = [activeFolder.value, ...offspringIds.value];
+    }
+    if (props.moduleOptions && props.moduleOptions.length) {
+      searchParams.value.sourceType = caseType.value;
+      searchParams.value.sourceId = props.caseId;
     }
     setLoadListParams({
       ...searchParams.value,
       ...props.tableParams,
       keyword: keyword.value,
       projectId: innerProject.value,
-      excludeIds: [...props.associatedIds],
+      excludeIds: [...props.associatedIds], // 已经存在的关联的id列表
     });
   }
 
@@ -484,6 +505,7 @@
       projectId: innerProject.value,
       current: propsRes.value.msPagination?.current,
       pageSize: propsRes.value.msPagination?.pageSize,
+      sourceId: props.caseId,
       combine: combine.value,
     });
   }
@@ -505,8 +527,11 @@
       moduleIds,
       versionId,
       refId: '',
+      sourceType: caseType.value,
       projectId: innerProject.value,
+      sourceId: props.caseId,
     };
+
     emit('save', params);
   }
 
@@ -530,6 +555,7 @@
     (val) => {
       innerVisible.value = val;
       if (val) {
+        resetSelector();
         searchCase();
         initFilter();
       }
@@ -539,8 +565,9 @@
   watch(
     () => innerVisible.value,
     (val) => {
-      if (!val) {
-        emit('update:visible', false);
+      emit('update:visible', val);
+      if (val) {
+        initModules(true);
       }
     }
   );
@@ -550,6 +577,7 @@
     () => caseType.value,
     (val) => {
       if (val) {
+        emit('update:currentSelectCase', val);
         initModules(true);
         searchCase();
       }
@@ -557,7 +585,7 @@
   );
 
   watch(
-    () => props.project,
+    () => props.projectId,
     (val) => {
       if (val) {
         innerProject.value = val;
@@ -569,7 +597,6 @@
     () => innerProject.value,
     (val) => {
       emit('update:project', val);
-      resetSelector();
       initModules(true);
       searchCase();
     }
@@ -596,10 +623,6 @@
       });
     }
   );
-
-  onBeforeMount(() => {
-    innerProject.value = appStore.currentProjectId;
-  });
 
   defineExpose({
     initModules,

@@ -102,5 +102,15 @@ export const DeleteCommentItemUrl = '/functional/case/comment/delete';
 export const GetDetailCaseReviewUrl = '/functional/case/review/page';
 // 获取有权限的评审人
 export const GetReviewerListUrl = '/case/review/user-option';
-
-export default {};
+// 获取用例详情弹窗关联用例接口用例
+export const GetAssociationPublicCasePageUrl = '/functional/case/test/associate/case/page';
+// 获取接口测试接口模块数量
+export const GetAssociationPublicCaseModuleCountUrl = '/functional/case/test/associate/case/module/count';
+// 获取用例详情接口模块树
+export const GetAssociationPublicModuleTreeUrl = '/functional/case/test/associate/case/module/tree';
+// 获取前后置用例列表
+export const GetDependOnPageUrl = '/functional/case/relationship/page';
+// 用例管理-功能用例-用例详情-前后置关系
+export const GetDependOnRelationUrl = '/functional/case/relationship/relate/page';
+// 添加前后置关系
+export const AddDependOnRelationUrl = '/functional/case/relationship/add';

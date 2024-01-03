@@ -1,16 +1,18 @@
 <template>
   <MsCaseAssociate
     v-model:visible="innerVisible"
-    v-model:project="innerProject"
+    v-model:project-id="innerProject"
     v-model:currentSelectCase="currentSelectCase"
     :ok-button-disabled="associateForm.reviewers.length === 0"
     :get-modules-func="getCaseModuleTree"
-    :modules-count="modulesCount"
+    :modules-params="modulesTreeParams"
     :get-table-func="getCaseList"
-    :associated-ids="associatedIds"
+    :modules-count="modulesCount"
     :confirm-loading="confirmLoading"
-    @init="getModuleCount"
+    :associated-ids="associatedIds"
+    @close="emit('close')"
     @save="saveHandler"
+    @init="getModuleCount"
   >
     <template #footerLeft>
       <a-form ref="associateFormRef" :model="associateForm">
@@ -119,7 +121,7 @@
     }
   );
 
-  const innerProject = ref('');
+  const innerProject = ref(appStore.currentProjectId);
 
   watch(
     () => props.project,
@@ -166,8 +168,8 @@
 
   const currentSelectCase = ref<string | number | Record<string, any> | undefined>('');
   const modulesCount = ref<Record<string, any>>({});
-
-  async function getModuleCount(params: CaseModuleQueryParams) {
+  const modulesTreeParams = ref<TableQueryParams>({});
+  async function getModuleCount(params: TableQueryParams) {
     try {
       modulesCount.value = await getCaseModulesCounts(params);
     } catch (error) {

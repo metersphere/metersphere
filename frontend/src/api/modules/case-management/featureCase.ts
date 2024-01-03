@@ -1,6 +1,7 @@
 import MSR from '@/api/http/index';
 import {
   AddDemandUrl,
+  AddDependOnRelationUrl,
   BatchAssociationDemandUrl,
   BatchCopyCaseUrl,
   BatchDeleteCaseUrl,
@@ -21,12 +22,17 @@ import {
   DownloadFileUrl,
   FollowerCaseUrl,
   GetAssociatedFilePageUrl,
+  GetAssociationPublicCaseModuleCountUrl,
+  GetAssociationPublicCasePageUrl,
+  GetAssociationPublicModuleTreeUrl,
   GetCaseListUrl,
   GetCaseModulesCountUrl,
   GetCaseModuleTreeUrl,
   GetCommentListUrl,
   GetDefaultTemplateFieldsUrl,
   GetDemandListUrl,
+  GetDependOnPageUrl,
+  GetDependOnRelationUrl,
   GetDetailCaseReviewUrl,
   GetFileIsUpdateUrl,
   GetRecycleCaseListUrl,
@@ -67,8 +73,8 @@ import type {
 import type { CommonList, MoveModules, TableQueryParams } from '@/models/common';
 import type { UserListItem } from '@/models/setting/user';
 // 获取模块树
-export function getCaseModuleTree(projectId: string) {
-  return MSR.get<ModulesTreeType[]>({ url: `${GetCaseModuleTreeUrl}/${projectId}` });
+export function getCaseModuleTree(params: TableQueryParams) {
+  return MSR.get<ModulesTreeType[]>({ url: `${GetCaseModuleTreeUrl}/${params.projectId}` });
 }
 
 // 创建模块树
@@ -157,7 +163,7 @@ export function getRecycleModulesCounts(data: CaseModuleQueryParams) {
   return MSR.post({ url: GetRecycleCaseModulesCountUrl, data });
 }
 // 获取全部用例模块数量
-export function getCaseModulesCounts(data: CaseModuleQueryParams) {
+export function getCaseModulesCounts(data: TableQueryParams) {
   return MSR.post({ url: GetCaseModulesCountUrl, data });
 }
 // 批量恢复回收站用例表
@@ -276,4 +282,31 @@ export function getReviewerList(projectId: string, keyword: string) {
   return MSR.get<UserListItem[]>({ url: `${GetReviewerListUrl}/${projectId}`, params: { keyword } });
 }
 
+// 用例接口用例分页列表
+export function getPublicLinkCaseList(data: TableQueryParams) {
+  return MSR.post<CommonList<CaseManagementTable>>({ url: GetAssociationPublicCasePageUrl, data });
+}
+
+// 获取用例详情接口用例模块数量
+export function getPublicLinkCaseModulesCounts(data: TableQueryParams) {
+  return MSR.post({ url: GetAssociationPublicCaseModuleCountUrl, data });
+}
+
+// 获取关联用例接口模块树
+export function getPublicLinkModuleTree(data: TableQueryParams) {
+  return MSR.post<ModulesTreeType[]>({ url: `${GetAssociationPublicModuleTreeUrl}`, data });
+}
+
+// 获取前后置用例
+export function getDependOnCase(data: TableQueryParams) {
+  return MSR.post<CommonList<CaseManagementTable>>({ url: `${GetDependOnPageUrl}`, data });
+}
+// 用例管理-功能用例-用例详情-前后置关系
+export function getPrepositionRelation(data: TableQueryParams) {
+  return MSR.post<CommonList<CaseManagementTable>>({ url: `${GetDependOnRelationUrl}`, data });
+}
+// 添加前后置关系
+export function addPrepositionRelation(data: TableQueryParams) {
+  return MSR.post<ModulesTreeType[]>({ url: `${AddDependOnRelationUrl}`, data });
+}
 export default {};
