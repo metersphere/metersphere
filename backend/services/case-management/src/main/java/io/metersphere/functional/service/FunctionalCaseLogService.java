@@ -1,5 +1,6 @@
 package io.metersphere.functional.service;
 
+import io.metersphere.api.mapper.ApiTestCaseMapper;
 import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.BaseFunctionalCaseBatchDTO;
 import io.metersphere.functional.dto.FunctionalCaseHistoryLogDTO;
@@ -45,6 +46,9 @@ public class FunctionalCaseLogService {
     private FunctionalCaseAttachmentMapper functionalCaseAttachmentMapper;
     @Resource
     private FileAssociationMapper fileAssociationMapper;
+
+    @Resource
+    private ApiTestCaseMapper apiTestCaseMapper;
 
 
     //TODO 日志(需要修改)
@@ -277,6 +281,32 @@ public class FunctionalCaseLogService {
             dto.setPath("/functional/case/demand/cancel/");
             dto.setMethod(HttpMethodConstants.GET.name());
             dto.setOriginalValue(JSON.toJSONBytes(functionalCaseDemand));
+            return dto;
+        }
+        return null;
+    }
+
+    /**
+     * 取消关联
+     *
+     * @param request request
+     * @return 日志详情
+     */
+    public LogDTO disassociateCaseLog(DisassociateOtherCaseRequest request) {
+        FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(request.getCaseId());
+        if (functionalCase != null) {
+            LogDTO dto = new LogDTO(
+                    functionalCase.getProjectId(),
+                    null,
+                    functionalCase.getId(),
+                    functionalCase.getCreateUser(),
+                    OperationLogType.DISASSOCIATE.name(),
+                    OperationLogModule.FUNCTIONAL_CASE,
+                    functionalCase.getName());
+
+            dto.setPath("/functional/case/test/disassociate/case");
+            dto.setMethod(HttpMethodConstants.POST.name());
+            dto.setOriginalValue(JSON.toJSONBytes(functionalCase));
             return dto;
         }
         return null;

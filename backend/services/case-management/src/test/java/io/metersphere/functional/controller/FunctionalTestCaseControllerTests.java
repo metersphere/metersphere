@@ -5,8 +5,11 @@ import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.mapper.ApiDefinitionModuleMapper;
 import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.functional.constants.AssociateCaseType;
+import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
+import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.domain.FunctionalCaseTest;
 import io.metersphere.functional.dto.FunctionalCaseTestDTO;
+import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.mapper.FunctionalCaseTestMapper;
 import io.metersphere.functional.request.AssociateCaseModuleRequest;
 import io.metersphere.functional.request.DisassociateOtherCaseRequest;
@@ -15,6 +18,7 @@ import io.metersphere.provider.BaseAssociateApiProvider;
 import io.metersphere.request.AssociateCaseModuleProviderRequest;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
+import io.metersphere.sdk.constants.FunctionalCaseExecuteResult;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
@@ -58,6 +62,9 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
 
     @Resource
     private FunctionalCaseTestMapper functionalCaseTestMapper;
+
+    @Resource
+    private FunctionalCaseMapper functionalCaseMapper;
 
     @Resource
     private ApiDefinitionModuleMapper apiDefinitionModuleMapper;
@@ -166,6 +173,7 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
     @Test
     @Order(5)
     public void disassociateCaseSuccess() throws Exception {
+        addFunctionalCase();
         addFunctionalCaseTest();
         DisassociateOtherCaseRequest request = new DisassociateOtherCaseRequest();
         request.setSourceType(AssociateCaseType.API);
@@ -259,6 +267,30 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
         functionalCaseTest.setUpdateUser("admin");
         functionalCaseTest.setUpdateTime(System.currentTimeMillis());
         functionalCaseTestMapper.insert(functionalCaseTest);
+    }
+
+    private void addFunctionalCase() {
+        FunctionalCase functionalCase = new FunctionalCase();
+        functionalCase.setName("测试关联");
+        functionalCase.setNum(100001l);
+        functionalCase.setModuleId("module");
+        functionalCase.setProjectId("gyq-organization-associate-case-test");
+        functionalCase.setDeleted(false);
+        functionalCase.setTemplateId("default_template");
+        functionalCase.setId("gyq_associate_functional_case_id_1");
+        functionalCase.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.name());
+        functionalCase.setCaseEditType("Text");
+        functionalCase.setPos(500L);
+        functionalCase.setVersionId("12335");
+        functionalCase.setRefId(functionalCase.getId());
+        functionalCase.setLastExecuteResult(FunctionalCaseExecuteResult.UN_EXECUTED.name());
+        functionalCase.setPublicCase(false);
+        functionalCase.setLatest(true);
+        functionalCase.setCreateUser("gyq");
+        functionalCase.setCreateTime(System.currentTimeMillis());
+        functionalCase.setUpdateUser("gyq");
+        functionalCase.setUpdateTime(System.currentTimeMillis());
+        functionalCaseMapper.insertSelective(functionalCase);
     }
 
 }
