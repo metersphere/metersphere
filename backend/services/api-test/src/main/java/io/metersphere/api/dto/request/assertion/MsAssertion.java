@@ -10,11 +10,12 @@ import lombok.Data;
 @Data
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "assertionType")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = ResponseCodeAssertion.class),
-        @JsonSubTypes.Type(value = ResponseHeaderAssertion.class),
-        @JsonSubTypes.Type(value = ResponseBodyAssertion.class),
-        @JsonSubTypes.Type(value = ResponseTimeAssertion.class),
-        @JsonSubTypes.Type(value = ScriptAssertion.class),
+        @JsonSubTypes.Type(value = MsResponseCodeAssertion.class),
+        @JsonSubTypes.Type(value = MsResponseHeaderAssertion.class),
+        @JsonSubTypes.Type(value = MsResponseBodyAssertion.class),
+        @JsonSubTypes.Type(value = MsResponseTimeAssertion.class),
+        @JsonSubTypes.Type(value = MsScriptAssertion.class),
+        @JsonSubTypes.Type(value = MsVariableAssertion.class),
 })
 public abstract class MsAssertion {
     /**

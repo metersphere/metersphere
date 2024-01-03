@@ -1,0 +1,18 @@
+package io.metersphere.api.dto.request.assertion.body;
+
+import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
+
+/**
+ * 正则断言
+ * @Author: jianxing
+ * @CreateTime: 2023-11-23  14:03
+ */
+@Data
+public class MsRegexAssertionItem extends MsBodyAssertionItem {
+    private String expression;
+
+    public boolean isValid() {
+        return StringUtils.isNotBlank(expression);
+    }
+}

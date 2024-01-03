@@ -11,4 +11,9 @@ public class JmeterAlias {
     public static final String JSON_POST_PROCESSOR_GUI = "JSONPostProcessorGui";
     public static final String X_PATH_EXTRACTOR_GUI = "XPathExtractorGui";
     public static final String X_PATH2_EXTRACTOR_GUI = "XPath2ExtractorGui";
+    public static final String ASSERTION_GUI = "AssertionGui";
+    public static final String DURATION_ASSERTION_GUI = "DurationAssertionGui";
+    public static final String HTTP_TEST_SAMPLE_GUI = "HttpTestSampleGui";
+    public static final String XPATH_ASSERTION_GUI = "XPathAssertionGui";
+    public static final String X_PATH_2_ASSERTION_GUI = "XPath2AssertionGui";
 }

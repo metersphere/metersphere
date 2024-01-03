@@ -2,6 +2,8 @@ package io.metersphere.api.dto.request.assertion.body;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  *
  * JSONPath断言
@@ -9,9 +11,11 @@ import lombok.Data;
  * @CreateTime: 2023-11-23  14:04
  */
 @Data
-public class JSONPathAssertionItem extends BodyAssertionItem {
-    private String expression;
-    private String condition;
-    private String value;
+public class MsJSONPathAssertion {
+
+    /**
+     * 断言列表
+     */
+    private List<MsJSONPathAssertionItem> assertions;
 }
 

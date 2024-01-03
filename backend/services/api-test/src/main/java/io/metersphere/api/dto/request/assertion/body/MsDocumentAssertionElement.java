@@ -9,7 +9,7 @@ import java.util.List;
  * @CreateTime: 2023-11-23  11:43
  */
 @Data
-public class DocumentAssertionElement {
+public class MsDocumentAssertionElement {
     private String id;
     /**
      * 参数名
@@ -43,5 +43,5 @@ public class DocumentAssertionElement {
     /**
      * 子对象
      */
-    private List<DocumentAssertionElement> children;
+    private List<MsDocumentAssertionElement> children;
 }

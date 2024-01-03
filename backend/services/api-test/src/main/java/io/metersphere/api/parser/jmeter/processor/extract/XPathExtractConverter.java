@@ -35,6 +35,7 @@ public class XPathExtractConverter extends ExtractConverter<XPathExtract> {
         extractor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(X_PATH_EXTRACTOR_GUI));
         extractor.setRefName(msExtract.getVariableName());
         extractor.setXPathQuery(msExtract.getExpression());
+        extractor.setEnabled(msExtract.getEnable());
         // 处理匹配多条等匹配规则
         extractor.setMatchNumber(parseResultMatchingRule(msExtract));
         return extractor;
@@ -47,6 +48,7 @@ public class XPathExtractConverter extends ExtractConverter<XPathExtract> {
         extractor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(X_PATH2_EXTRACTOR_GUI));
         extractor.setRefName(msExtract.getVariableName());
         extractor.setXPathQuery(msExtract.getExpression());
+        extractor.setEnabled(msExtract.getEnable());
         // 处理匹配多条等匹配规则
         extractor.setMatchNumber(parseResultMatchingRule(msExtract));
         return extractor;

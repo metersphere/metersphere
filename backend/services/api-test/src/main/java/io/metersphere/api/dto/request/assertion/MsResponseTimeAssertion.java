@@ -10,10 +10,10 @@ import lombok.Data;
  */
 @Data
 @JsonTypeName("RESPONSE_TIME")
-public class ResponseTimeAssertion extends MsAssertion {
+public class MsResponseTimeAssertion extends MsAssertion {
     /**
      * 最大响应时间
      * 响应时间在xx毫秒内
      */
-   private Long maxResponseTime;
+   private Long expectedValue;
 }

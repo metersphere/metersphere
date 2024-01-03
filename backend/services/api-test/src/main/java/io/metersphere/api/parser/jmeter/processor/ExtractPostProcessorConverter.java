@@ -21,8 +21,11 @@ public class ExtractPostProcessorConverter extends MsProcessorConverter<ExtractP
         processor.getExtractors()
                 .stream()
                 .filter(MsExtract::isValid)
-                .forEach(extract ->
-                        ExtractConverterFactory.getConverter(extract.getClass())
-                                .parse(hashTree, extract, config));
+                .forEach(extract -> {
+                    // 单调提取器的 enable 跟随整体的 enable
+                    extract.setEnable(processor.getEnable());
+                    ExtractConverterFactory.getConverter(extract.getClass())
+                            .parse(hashTree, extract, config);
+                });
     }
 }

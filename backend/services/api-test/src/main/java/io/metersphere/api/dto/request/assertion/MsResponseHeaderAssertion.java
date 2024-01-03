@@ -6,25 +6,27 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * 变量断言
+ * 响应头断言
  * @Author: jianxing
  * @CreateTime: 2023-11-22  15:33
  */
 @Data
-@JsonTypeName("VARIABLE")
-public class VariableAssertion {
+@JsonTypeName("RESPONSE_HEADER")
+public class MsResponseHeaderAssertion extends MsAssertion {
 
-    private List<VariableAssertionItem> variableAssertionItem;
+    private List<ResponseHeaderAssertionItem> assertions;
+
+
     @Data
-    public static class VariableAssertionItem {
+    public static class ResponseHeaderAssertionItem {
         /**
          * 是否启用
          */
         private Boolean enable = true;
         /**
-         * 变量名
+         * 响应头
          */
-        private String name;
+        private String header;
         /**
          * 匹配条件
          * 值为 MsAssertionCondition
@@ -33,6 +35,6 @@ public class VariableAssertion {
         /**
          * 匹配值
          */
-        private String value;
+        private String expectedValue;
     }
 }

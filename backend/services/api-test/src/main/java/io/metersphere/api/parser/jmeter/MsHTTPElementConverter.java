@@ -18,6 +18,8 @@ import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 import org.springframework.http.HttpMethod;
 
+import static io.metersphere.api.parser.jmeter.constants.JmeterAlias.HTTP_TEST_SAMPLE_GUI;
+
 /**
  * @Author: jianxing
  * @CreateTime: 2023-10-27  10:07
@@ -38,7 +40,7 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
         HTTPSamplerProxy sampler = new HTTPSamplerProxy();
         sampler.setName(msHTTPElement.getName());
         sampler.setProperty(TestElement.TEST_CLASS, HTTPSamplerProxy.class.getName());
-        sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HttpTestSampleGui"));
+        sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(HTTP_TEST_SAMPLE_GUI));
 
         sampler.setMethod(msHTTPElement.getMethod());
         // todo 根据环境设置
@@ -60,8 +62,7 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
         Body body = msHTTPElement.getBody();
         // 请求体处理
         if (body != null) {
-            Class bodyClass = body.getBodyClassByType();
-            MsBodyConverter converter = MsBodyConverterFactory.getConverter(bodyClass);
+            MsBodyConverter converter = MsBodyConverterFactory.getConverter(body.getBodyClassByType());
 
             // 这里get请求，不处理 form-date 和 www-form-urlencoded 类型的参数
             // 否则会被 jmeter 作为 query 参数

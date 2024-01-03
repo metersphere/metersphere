@@ -2,10 +2,16 @@ package io.metersphere.api.parser.jmeter;
 
 
 import io.metersphere.api.dto.request.MsCommonElement;
+import io.metersphere.api.dto.request.assertion.MsAssertion;
+import io.metersphere.api.dto.request.assertion.MsAssertionConfig;
+import io.metersphere.api.dto.request.assertion.MsResponseCodeAssertion;
 import io.metersphere.api.dto.request.processors.MsProcessorConfig;
 import io.metersphere.api.parser.jmeter.processor.MsProcessorConverterFactory;
+import io.metersphere.api.parser.jmeter.processor.assertion.AssertionConverterFactory;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractJmeterElementConverter;
+import io.metersphere.sdk.constants.MsAssertionCondition;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
 
 /**
@@ -26,6 +32,29 @@ public class MsCommonElementConverter extends AbstractJmeterElementConverter<MsC
         handlePreProcessor(tree, element.getPreProcessorConfig(), config);
         // 解析后置处理器
         handlePostProcessor(tree, element.getPostProcessorConfig(), config);
+        // 处理断言
+        handleAssertion(tree, element.getAssertionConfig(), config);
+    }
+
+    private void handleAssertion(HashTree tree, MsAssertionConfig assertionConfig, ParameterConfig config) {
+        //        todo 开关默认开启，关闭则运行该接口时不执行全局前置
+        //        assertionConfig.getEnableGlobal();
+        if (assertionConfig == null || assertionConfig.getAssertions() == null) {
+            return;
+        }
+        boolean isIgnoreStatus = false;
+        for (MsAssertion assertion : assertionConfig.getAssertions()) {
+            if (assertion instanceof MsResponseCodeAssertion) {
+                MsResponseCodeAssertion responseCodeAssertion = (MsResponseCodeAssertion) assertion;
+                // 如果状态码断言添加了不校验状态码，则所有断言忽略状态码
+                if (StringUtils.equals(responseCodeAssertion.getCondition(), MsAssertionCondition.UNCHECK.name())) {
+                    isIgnoreStatus = true;
+                }
+            }
+        }
+        boolean finalIsIgnoreStatus = isIgnoreStatus;
+        assertionConfig.getAssertions()
+                .forEach(assertion -> AssertionConverterFactory.getConverter(assertion.getClass()).parse(tree, assertion, config, finalIsIgnoreStatus));
     }
 
     private void handlePreProcessor(HashTree tree, MsProcessorConfig preProcessorConfig, ParameterConfig config) {

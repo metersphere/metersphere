@@ -25,6 +25,10 @@ public abstract class MsExtract {
      * 表达式
      */
     private String expression;
+    /**
+     * 是否启用
+     */
+    private Boolean enable = true;
 
     public boolean isValid() {
         return StringUtils.isNotBlank(variableName) && StringUtils.isNotBlank(expression);
