@@ -37,7 +37,6 @@ export default {
 
     return {
       onStart: (props: Record<string, any>) => {
-        debugger;
         component = new VueRenderer(MentionList, {
           props,
           editor: props.editor,

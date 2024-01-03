@@ -48,7 +48,7 @@
           <MsPopConfirm
             type="error"
             :title="t('system.orgTemplate.updateTip', { name: characterLimit(record.name) })"
-            :sub-title-tip="t('system.orgTemplate.updateDescription')"
+            :sub-title-tip="t('system.orgTemplate.updateDescription', { type: templateType })"
             :ok-text="t('system.orgTemplate.confirm')"
             @confirm="handleOk(record)"
           >
@@ -161,6 +161,17 @@
 
   const currentOrd = computed(() => appStore.currentOrgId);
   const currentProjectId = computed(() => appStore.currentProjectId);
+
+  const templateType = computed(() => {
+    switch (route.query.type) {
+      case 'API':
+        return t('system.orgTemplate.templateApi');
+      case 'BUG':
+        return t('system.orgTemplate.templateBug');
+      default:
+        return t('system.orgTemplate.templateCase');
+    }
+  });
 
   const fieldColumns: MsTableColumn = [
     {

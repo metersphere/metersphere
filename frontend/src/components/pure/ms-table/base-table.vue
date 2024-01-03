@@ -176,6 +176,12 @@
       class="mt-[16px] flex h-[32px] flex-row flex-nowrap items-center"
       :class="{ 'justify-between': showBatchAction }"
     >
+      <span v-if="!props.actionConfig && selectCurrent > 0" class="title text-[var(--color-text-2)]"
+        >{{ t('msTable.batch.selected', { count: selectCurrent }) }}
+        <a-button class="clear-btn ml-[12px] px-2" type="text" @click="emit('clearSelector')">{{
+          t('msTable.batch.clear')
+        }}</a-button></span
+      >
       <div class="flex flex-grow">
         <batch-action
           v-if="showBatchAction"
