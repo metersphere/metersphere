@@ -28,6 +28,14 @@
             <artifactId>metersphere-project-management</artifactId>
             <version>${revision}</version>
         </dependency>
+        <dependency>
+            <groupId>io.metersphere</groupId>
+            <artifactId>metersphere-system-setting</artifactId>
+            <version>${revision}</version>
+            <classifier>tests</classifier>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 
@@ -40,7 +48,7 @@
                 <configuration>
                     <verbose>true</verbose>
                     <overwrite>true</overwrite>
-                    <configurationFile>src/main/resources/apiGeneratorConfig.xml</configurationFile>
+                    <configurationFile>src/main/resources/testPlanGeneratorConfig.xml</configurationFile>
                 </configuration>
                 <dependencies>
                     <dependency>

@@ -1,0 +1,28 @@
+package io.metersphere.plan.mapper;
+
+import io.metersphere.project.dto.NodeSortQueryParam;
+import io.metersphere.system.dto.sdk.BaseModule;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+public interface ExtTestPlanModuleMapper {
+    List<BaseTreeNode> selectBaseByProjectId(String projectId);
+
+    List<BaseTreeNode> selectIdAndParentIdByProjectId(String projectId);
+
+    Long getMaxPosByParentId(String parentId);
+
+    List<String> selectChildrenIdsByParentIds(@Param("ids") List<String> strings);
+
+    void deleteByIds(@Param("ids") List<String> deleteId);
+
+    BaseModule selectBaseModuleById(String dragNodeId);
+
+    BaseModule selectModuleByParentIdAndPosOperator(NodeSortQueryParam nodeSortQueryParam);
+
+    List<String> selectIdsByProjectId(String projectId);
+
+    List<String> selectChildrenIdsSortByPos(String parentId);
+}

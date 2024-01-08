@@ -289,4 +289,19 @@ public class PermissionConstants {
     public static final String SYSTEM_PERSONAL_API_KEY_UPDATE = "SYSTEM_PERSONAL_API_KEY:READ+UPDATE";
     public static final String SYSTEM_PERSONAL_READ = "SYSTEM_PERSONAL:READ";
     public static final String SYSTEM_PERSONAL_READ_UPDATE = "SYSTEM_PERSONAL:READ+UPDATE";
+    /*------ end: PERSONAL_CENTER ------*/
+
+    //测试计划
+    /*------ start: TEST_PLAN ------*/
+    public static final String TEST_PLAN_MODULE_READ = "PROJECT_TEST_PLAN_MODULE:READ";
+    public static final String TEST_PLAN_MODULE_READ_ADD = "PROJECT_TEST_PLAN_MODULE:READ+ADD";
+    public static final String TEST_PLAN_MODULE_READ_UPDATE = "PROJECT_TEST_PLAN_MODULE:READ+UPDATE";
+    public static final String TEST_PLAN_MODULE_READ_DELETE = "PROJECT_TEST_PLAN_MODULE:READ+DELETE";
+
+    public static final String TEST_PLAN_READ = "PROJECT_TEST_PLAN:READ";
+    public static final String TEST_PLAN_READ_ADD = "PROJECT_TEST_PLAN:READ+ADD";
+    public static final String TEST_PLAN_READ_UPDATE = "PROJECT_TEST_PLAN:READ+UPDATE";
+    public static final String TEST_PLAN_READ_DELETE = "PROJECT_TEST_PLAN:READ+DELETE";
+    public static final String TEST_PLAN_READ_EXECUTE = "PROJECT_TEST_PLAN:READ+EXECUTE";
+    /*------ end: TEST_PLAN ------*/
 }
