@@ -243,6 +243,7 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
         Assertions.assertNotNull(functionalCaseTestDTOS);
     }
 
+
     private List<BaseTreeNode> getModuleTreeNode() throws Exception {
         MvcResult result = this.requestPostWithOkAndReturn(URL_CASE_MODULE_TREE, new AssociateCaseModuleRequest() {{
             this.setProtocol("HTTP");
@@ -290,6 +291,10 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
         functionalCase.setCreateTime(System.currentTimeMillis());
         functionalCase.setUpdateUser("gyq");
         functionalCase.setUpdateTime(System.currentTimeMillis());
+        List<String>tags = new ArrayList<>();
+        tags.add("111");
+        tags.add("222");
+        functionalCase.setTags(tags);
         functionalCaseMapper.insertSelective(functionalCase);
     }
 

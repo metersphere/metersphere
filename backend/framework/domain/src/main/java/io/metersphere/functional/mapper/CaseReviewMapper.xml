@@ -14,7 +14,7 @@
     <result column="end_time" jdbcType="BIGINT" property="endTime" />
     <result column="case_count" jdbcType="INTEGER" property="caseCount" />
     <result column="pass_rate" jdbcType="DECIMAL" property="passRate" />
-    <result column="tags" jdbcType="VARCHAR" property="tags" />
+    <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
     <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
@@ -45,6 +45,25 @@
                 </when>
               </choose>
             </foreach>
+            <foreach collection="criteria.tagsCriteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler} and #{criterion.secondValue,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem,typeHandler=io.metersphere.handler.ListTypeHandler}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
           </trim>
         </if>
       </foreach>
@@ -70,6 +89,25 @@
                   and ${criterion.condition}
                   <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
                     #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+            <foreach collection="criteria.tagsCriteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler} and #{criterion.secondValue,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem,typeHandler=io.metersphere.handler.ListTypeHandler}
                   </foreach>
                 </when>
               </choose>
@@ -119,16 +157,16 @@
       module_id, project_id, `status`, 
       review_pass_rule, pos, start_time, 
       end_time, case_count, pass_rate, 
-      tags, description, create_time, 
-      create_user, update_time, update_user
-      )
+      tags, description, 
+      create_time, create_user, update_time, 
+      update_user)
     values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, 
       #{moduleId,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
       #{reviewPassRule,jdbcType=VARCHAR}, #{pos,jdbcType=BIGINT}, #{startTime,jdbcType=BIGINT}, 
       #{endTime,jdbcType=BIGINT}, #{caseCount,jdbcType=INTEGER}, #{passRate,jdbcType=DECIMAL}, 
-      #{tags,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{createUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}
-      )
+      #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, #{description,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, 
+      #{updateUser,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.functional.domain.CaseReview">
     insert into case_review
@@ -226,7 +264,7 @@
         #{passRate,jdbcType=DECIMAL},
       </if>
       <if test="tags != null">
-        #{tags,jdbcType=VARCHAR},
+        #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       </if>
       <if test="description != null">
         #{description,jdbcType=VARCHAR},
@@ -291,7 +329,7 @@
         pass_rate = #{record.passRate,jdbcType=DECIMAL},
       </if>
       <if test="record.tags != null">
-        tags = #{record.tags,jdbcType=VARCHAR},
+        tags = #{record.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=VARCHAR},
@@ -327,7 +365,7 @@
       end_time = #{record.endTime,jdbcType=BIGINT},
       case_count = #{record.caseCount,jdbcType=INTEGER},
       pass_rate = #{record.passRate,jdbcType=DECIMAL},
-      tags = #{record.tags,jdbcType=VARCHAR},
+      tags = #{record.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       description = #{record.description,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
@@ -374,7 +412,7 @@
         pass_rate = #{passRate,jdbcType=DECIMAL},
       </if>
       <if test="tags != null">
-        tags = #{tags,jdbcType=VARCHAR},
+        tags = #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       </if>
       <if test="description != null">
         description = #{description,jdbcType=VARCHAR},
@@ -407,7 +445,7 @@
       end_time = #{endTime,jdbcType=BIGINT},
       case_count = #{caseCount,jdbcType=INTEGER},
       pass_rate = #{passRate,jdbcType=DECIMAL},
-      tags = #{tags,jdbcType=VARCHAR},
+      tags = #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       description = #{description,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
@@ -426,9 +464,9 @@
         #{item.moduleId,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}, 
         #{item.reviewPassRule,jdbcType=VARCHAR}, #{item.pos,jdbcType=BIGINT}, #{item.startTime,jdbcType=BIGINT}, 
         #{item.endTime,jdbcType=BIGINT}, #{item.caseCount,jdbcType=INTEGER}, #{item.passRate,jdbcType=DECIMAL}, 
-        #{item.tags,jdbcType=VARCHAR}, #{item.description,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
-        #{item.createUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}
-        )
+        #{item.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
+        #{item.description,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, 
+        #{item.updateTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -478,7 +516,7 @@
           #{item.passRate,jdbcType=DECIMAL}
         </if>
         <if test="'tags'.toString() == column.value">
-          #{item.tags,jdbcType=VARCHAR}
+          #{item.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}
         </if>
         <if test="'description'.toString() == column.value">
           #{item.description,jdbcType=VARCHAR}

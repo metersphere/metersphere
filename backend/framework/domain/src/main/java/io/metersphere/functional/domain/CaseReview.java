@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import lombok.Data;
 
 @Data
@@ -63,7 +64,7 @@ public class CaseReview implements Serializable {
     private BigDecimal passRate;
 
     @Schema(description = "标签")
-    private String tags;
+    private java.util.List<String> tags;
 
     @Schema(description = "描述")
     private String description;
