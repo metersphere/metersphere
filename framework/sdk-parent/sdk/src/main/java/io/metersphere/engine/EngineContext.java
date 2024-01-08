@@ -1,5 +1,6 @@
 package io.metersphere.engine;
 
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,7 +15,7 @@ public class EngineContext {
     private Integer resourceIndex;
     private double[] ratios;
     private Map<String, Object> properties = new HashMap<>();
-    private Map<String, byte[]> testResourceFiles = new HashMap<>();
+    private Map<String, InputStream> testResourceFiles = new HashMap<>();
     private Map<String, Boolean> splitFlag = new HashMap<>();
     private boolean checkBackendListener;
 
@@ -103,11 +104,11 @@ public class EngineContext {
         this.ratios = ratios;
     }
 
-    public Map<String, byte[]> getTestResourceFiles() {
+    public Map<String, InputStream> getTestResourceFiles() {
         return testResourceFiles;
     }
 
-    public void setTestResourceFiles(Map<String, byte[]> testResourceFiles) {
+    public void setTestResourceFiles(Map<String, InputStream> testResourceFiles) {
         this.testResourceFiles = testResourceFiles;
     }
 

@@ -3,17 +3,14 @@ package io.metersphere.controller;
 
 import io.metersphere.commons.utils.WeakConcurrentHashMap;
 import io.metersphere.controller.handler.annotation.NoResultHolder;
-import io.metersphere.dto.ZipDTO;
 import io.metersphere.service.JmeterFileService;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.annotation.Resource;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,15 +42,11 @@ public class JmeterFileController {
     }
 
     @GetMapping("download")
-    public ResponseEntity<byte[]> downloadJmeterFiles(@RequestParam("ratio") String ratio,
-                                                      @RequestParam("reportId") String reportId,
-                                                      @RequestParam("resourceIndex") int resourceIndex) {
+    public void downloadJmeterFiles(@RequestParam("ratio") String ratio,
+                                    @RequestParam("reportId") String reportId,
+                                    @RequestParam("resourceIndex") int resourceIndex, HttpServletResponse response) {
         double[] ratios = Arrays.stream(ratio.split(",")).mapToDouble(Double::parseDouble).toArray();
-        ZipDTO zipDTO = jmeterFileService.downloadZip(reportId, ratios, resourceIndex);
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + zipDTO.getTestId() + ".zip\"")
-                .body(zipDTO.getContent());
+        jmeterFileService.downloadZip(reportId, ratios, resourceIndex, response);
     }
 
 }

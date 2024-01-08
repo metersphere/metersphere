@@ -3,6 +3,7 @@ package io.metersphere.parse.xml.reader;
 import io.metersphere.base.domain.TestResourcePool;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.IOUtils;
 import io.metersphere.config.KafkaProperties;
 import io.metersphere.engine.EngineContext;
 import io.metersphere.i18n.Translator;
@@ -18,6 +19,8 @@ import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.tree.BaseElement;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -75,7 +78,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
     }
 
 
-    private void parseHashTree(Element hashTree) {
+    private void parseHashTree(Element hashTree) throws IOException {
         if (invalid(hashTree)) {
             return;
         }
@@ -269,7 +272,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
         item.setText(filename);
     }
 
-    private void processCsvDataSet(Element element) {
+    private void processCsvDataSet(Element element) throws IOException {
         List<Element> childNodes = element.elements();
         String fileName = null;
         for (Element item : childNodes) {
@@ -366,7 +369,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
             item.setText(String.valueOf(BooleanUtils.toBoolean(recycle)));
         }
     }
-    private void splitCsvFile(Node item) {
+    private void splitCsvFile(Node item) throws IOException {
         String filename = item.getText();
         filename = StringUtils.removeStart(filename, "/test/");
         // 已经分割过的不再二次分割
@@ -379,11 +382,11 @@ public class JmeterDocumentParser implements EngineSourceParser {
         }
         double[] ratios = context.getRatios();
         int resourceIndex = context.getResourceIndex();
-        byte[] content = context.getTestResourceFiles().get(filename);
+        InputStream content = context.getTestResourceFiles().get(filename);
         if (content == null) {
             return;
         }
-        StringTokenizer tokenizer = new StringTokenizer(new String(content), StringUtils.LF);
+        StringTokenizer tokenizer = new StringTokenizer(IOUtils.toString(content, StandardCharsets.UTF_8), StringUtils.LF);
         if (!tokenizer.hasMoreTokens()) {
             return;
         }
@@ -436,7 +439,7 @@ public class JmeterDocumentParser implements EngineSourceParser {
             index++;
         }
         // 替换文件
-        context.getTestResourceFiles().put(filename, csv.toString().getBytes(StandardCharsets.UTF_8));
+        context.getTestResourceFiles().put(filename, new ByteArrayInputStream(csv.toString().getBytes(StandardCharsets.UTF_8)));
         context.getSplitFlag().put(filename, true);
     }
 

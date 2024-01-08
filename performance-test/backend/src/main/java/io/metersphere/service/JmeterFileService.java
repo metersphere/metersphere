@@ -5,15 +5,16 @@ import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.dto.ZipDTO;
 import io.metersphere.engine.EngineContext;
 import io.metersphere.engine.EngineFactory;
+import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.Resource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -29,7 +30,7 @@ public class JmeterFileService {
     @Resource
     private LoadTestReportMapper loadTestReportMapper;
 
-    public ZipDTO downloadZip(String reportId, double[] ratios, int resourceIndex) {
+    public void downloadZip(String reportId, double[] ratios, int resourceIndex, HttpServletResponse response) {
         try {
             LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(reportId);
             int wait = 0;
@@ -45,52 +46,47 @@ public class JmeterFileService {
                 MSException.throwException("测试报告不存在或还没产生");
             }
             EngineContext context = EngineFactory.createContext(loadTestReport, ratios, resourceIndex);
-            byte[] bytes = zipFilesToByteArray(context);
-            return new ZipDTO(loadTestReport.getTestId(), bytes);
+            zipFilesToByteArray(context, response);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(e);
         }
-        return null;
     }
 
-    private byte[] zipFilesToByteArray(EngineContext context) throws IOException {
+    private void zipFilesToByteArray(EngineContext context, HttpServletResponse response) throws IOException {
         String testId = context.getTestId();
         String fileName = testId + ".jmx";
 
-        Map<String, byte[]> files = new HashMap<>();
 
         //  每个测试生成一个文件夹
-        files.put(fileName, context.getContent());
         // 保存jmx
         LoadTestReportWithBLOBs record = new LoadTestReportWithBLOBs();
         record.setId(context.getReportId());
         record.setJmxContent(new String(context.getContent()));
         extLoadTestReportMapper.updateJmxContentIfAbsent(record);
-        // 保存 byte[]
-        Map<String, byte[]> jarFiles = context.getTestResourceFiles();
-        if (!MapUtils.isEmpty(jarFiles)) {
-            for (String k : jarFiles.keySet()) {
-                byte[] v = jarFiles.get(k);
-                files.put(k, v);
+        // 关联文件
+        Map<String, InputStream> testResourceFiles = context.getTestResourceFiles();
+        try (ZipOutputStream zos = new ZipOutputStream(response.getOutputStream())) {
+            // jmx 本身
+            zos.putNextEntry(new ZipEntry(fileName));
+            zos.write(context.getContent());
+            zos.closeEntry();
+            // 关联文件
+            if (!MapUtils.isEmpty(testResourceFiles)) {
+                for (String name : testResourceFiles.keySet()) {
+                    InputStream in = testResourceFiles.get(name);
+                    zos.putNextEntry(new ZipEntry(name));
+                    byte[] bytes = new byte[4096];
+                    int len;
+                    while ((len = in.read(bytes)) != -1) {
+                        zos.write(bytes, 0, len);
+                    }
+                    in.close();
+                    zos.closeEntry();
+                }
             }
+            response.setHeader("Content-Disposition", "attachment;filename=" + testId + ".zip");
+            response.flushBuffer();
         }
-
-        return listBytesToZip(files);
-    }
-
-
-    private byte[] listBytesToZip(Map<String, byte[]> mapReport) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ZipOutputStream zos = new ZipOutputStream(baos);
-        for (Map.Entry<String, byte[]> report : mapReport.entrySet()) {
-            ZipEntry entry = new ZipEntry(report.getKey());
-            entry.setSize(report.getValue().length);
-            zos.putNextEntry(entry);
-            zos.write(report.getValue());
-        }
-        zos.closeEntry();
-        zos.close();
-        return baos.toByteArray();
     }
 }

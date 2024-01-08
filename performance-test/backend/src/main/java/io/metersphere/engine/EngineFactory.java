@@ -172,16 +172,16 @@ public class EngineFactory {
         /*
         {"timeout":10,"statusCode":["302","301"],"params":[{"name":"param1","enable":true,"value":"0","edit":false}],"domains":[{"domain":"baidu.com","enable":true,"ip":"127.0.0.1","edit":false}]}
          */
-        Map<String, byte[]> testResourceFiles = new HashMap<>();
+        Map<String, InputStream> testResourceFiles = new HashMap<>();
         byte[] props = getJMeterProperties(loadTestReport, engineContext);
         byte[] sysProps = getSystemProperties(loadTestReport, engineContext);
         byte[] hosts = getDNSConfig(loadTestReport, engineContext);
         // JMeter Properties
-        testResourceFiles.put("ms.properties", props);
+        testResourceFiles.put("ms.properties", new ByteArrayInputStream(props));
         // System Properties
-        testResourceFiles.put("sys.properties", sysProps);
+        testResourceFiles.put("sys.properties", new ByteArrayInputStream(sysProps));
         // DNS
-        testResourceFiles.put("hosts", hosts);
+        testResourceFiles.put("hosts", new ByteArrayInputStream(hosts));
 
         final EngineSourceParser engineSourceParser = EngineSourceParserFactory.createEngineSourceParser(engineContext.getFileType());
 
@@ -191,8 +191,8 @@ public class EngineFactory {
 
         if (CollectionUtils.isNotEmpty(resourceFiles)) {
             resourceFiles.forEach(cf -> {
-                byte[] csvContent = fileMetadataService.loadFileAsBytes(cf.getId());
-                testResourceFiles.put(cf.getName(), csvContent);
+                InputStream in = fileMetadataService.getFileAsStream(cf.getId());
+                testResourceFiles.put(cf.getName(), in);
             });
         }
         engineContext.setTestResourceFiles(testResourceFiles);
