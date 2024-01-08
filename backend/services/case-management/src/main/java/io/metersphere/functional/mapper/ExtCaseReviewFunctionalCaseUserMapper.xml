@@ -4,9 +4,9 @@
 
     <select id="selectReviewers" resultType="io.metersphere.functional.dto.ReviewsDTO">
         SELECT
-            case_id,
-            GROUP_CONCAT( user_id ),
-            GROUP_CONCAT( `user`.NAME )
+            case_id caseId,
+            GROUP_CONCAT( user_id ) userIds,
+            GROUP_CONCAT( `user`.NAME ) userNames
         FROM
             case_review_functional_case_user crfcu
                 LEFT JOIN `user` ON crfcu.user_id = `user`.id

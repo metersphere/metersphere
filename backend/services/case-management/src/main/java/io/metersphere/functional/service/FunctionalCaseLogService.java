@@ -1,6 +1,10 @@
 package io.metersphere.functional.service;
 
 import io.metersphere.api.mapper.ApiTestCaseMapper;
+import io.metersphere.bug.domain.Bug;
+import io.metersphere.bug.domain.BugRelationCase;
+import io.metersphere.bug.mapper.BugMapper;
+import io.metersphere.bug.mapper.BugRelationCaseMapper;
 import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.BaseFunctionalCaseBatchDTO;
 import io.metersphere.functional.dto.FunctionalCaseHistoryLogDTO;
@@ -48,7 +52,9 @@ public class FunctionalCaseLogService {
     private FileAssociationMapper fileAssociationMapper;
 
     @Resource
-    private ApiTestCaseMapper apiTestCaseMapper;
+    private BugRelationCaseMapper bugRelationCaseMapper;
+    @Resource
+    private BugMapper bugMapper;
 
 
     //TODO 日志(需要修改)
@@ -373,5 +379,26 @@ public class FunctionalCaseLogService {
         } else {
             return request.getSelectIds();
         }
+    }
+
+    public LogDTO disassociateBugLog(String id) {
+        BugRelationCase bugRelationCase = bugRelationCaseMapper.selectByPrimaryKey(id);
+        if (bugRelationCase != null) {
+            Bug bug = bugMapper.selectByPrimaryKey(bugRelationCase.getBugId());
+            LogDTO dto = new LogDTO(
+                    null,
+                    null,
+                    bugRelationCase.getBugId(),
+                    null,
+                    OperationLogType.DISASSOCIATE.name(),
+                    OperationLogModule.FUNCTIONAL_CASE,
+                    bug.getTitle()+"缺陷");
+
+            dto.setPath("/functional/case/test/disassociate/bug/"+id);
+            dto.setMethod(HttpMethodConstants.GET.name());
+            dto.setOriginalValue(JSON.toJSONBytes(bugRelationCase));
+            return dto;
+        }
+        return null;
     }
 }

@@ -3,6 +3,8 @@ package io.metersphere.functional.controller;
 import io.metersphere.api.domain.ApiDefinitionModule;
 import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.mapper.ApiDefinitionModuleMapper;
+import io.metersphere.bug.mapper.BugRelationCaseMapper;
+import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.functional.constants.AssociateCaseType;
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
@@ -15,9 +17,8 @@ import io.metersphere.functional.request.AssociateCaseModuleRequest;
 import io.metersphere.functional.request.DisassociateOtherCaseRequest;
 import io.metersphere.functional.request.FunctionalCaseTestRequest;
 import io.metersphere.provider.BaseAssociateApiProvider;
-import io.metersphere.request.AssociateCaseModuleProviderRequest;
-import io.metersphere.request.AssociateOtherCaseRequest;
-import io.metersphere.request.TestCasePageProviderRequest;
+import io.metersphere.provider.BaseAssociateBugProvider;
+import io.metersphere.request.*;
 import io.metersphere.sdk.constants.FunctionalCaseExecuteResult;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
@@ -29,6 +30,8 @@ import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
@@ -54,7 +57,9 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
 
     private static final String URL_HAS_CASE_PAGE = "/functional/case/test/has/associate/case/page";
 
-
+    private static final String URL_BUG_PAGE = "/functional/case/test/associate/bug/page";
+    private static final String URL_ASSOCIATE_BUG = "/functional/case/test/associate/bug";
+    private static final String URL_DISASSOCIATE_BUG = "/functional/case/test/disassociate/bug/";
 
 
     @Resource
@@ -68,6 +73,10 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
 
     @Resource
     private ApiDefinitionModuleMapper apiDefinitionModuleMapper;
+    @Resource
+    BaseAssociateBugProvider baseAssociateBugProvider;
+    @Resource
+    private BugRelationCaseMapper bugRelationCaseMapper;
 
 
     @Test
@@ -142,7 +151,7 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         Assertions.assertNotNull(resultHolder);
-        List<ApiTestCase>operations = new ArrayList<>();
+        List<ApiTestCase> operations = new ArrayList<>();
         ApiTestCase apiTestCase = new ApiTestCase();
         apiTestCase.setId("gyq_associate_case_id_1");
         apiTestCase.setVersionId("11");
@@ -293,4 +302,55 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
         functionalCaseMapper.insertSelective(functionalCase);
     }
 
+
+    @Test
+    @Order(8)
+    public void getAssociateBugList() throws Exception {
+        BugPageProviderRequest request = new BugPageProviderRequest();
+        request.setSourceId("wx_associate_case_id_1");
+        request.setProjectId("project_wx_associate_test");
+        request.setCurrent(1);
+        request.setPageSize(10);
+        BugProviderDTO bugProviderDTO = new BugProviderDTO();
+        bugProviderDTO.setName("第二个");
+        List<BugProviderDTO> operations = new ArrayList<>();
+        operations.add(bugProviderDTO);
+        Mockito.when(baseAssociateBugProvider.getBugList("functional_case_test", "case_id", "bug_id", request)).thenReturn(operations);
+        this.requestPostWithOkAndReturn(URL_BUG_PAGE, request);
+
+        request.setSort(new HashMap<>() {{
+            put("createTime", "desc");
+        }});
+
+        List<BugProviderDTO> bugList = baseAssociateBugProvider.getBugList("functional_case_test", "case_id", "bug_id", request);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_BUG_PAGE, request);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        List<BugProviderDTO> bugProviderDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), BugProviderDTO.class);
+        Assertions.assertNotNull(bugProviderDTOS);
+        System.out.println(JSON.toJSONString(bugList));
+
+    }
+
+
+    @Test
+    @Order(9)
+    public void testAssociateBugs() throws Exception {
+        AssociateBugRequest request = new AssociateBugRequest();
+        request.setCaseId("test_1");
+        request.setProjectId("project_wx_associate_test");
+        List<String> ids = new ArrayList<>();
+        ids.add("bug_id_1");
+        Mockito.when(baseAssociateBugProvider.getSelectBugs(request, false)).thenReturn(ids);
+        this.requestPostWithOkAndReturn(URL_ASSOCIATE_BUG, request);
+    }
+
+    @Test
+    @Order(10)
+    @Sql(scripts = {"/dml/init_bug_relation_case.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
+    public void testDisassociateBug() throws Exception {
+        //增加日志覆盖率
+        this.requestGetWithOkAndReturn(URL_DISASSOCIATE_BUG + "TEST");
+        this.requestGetWithOkAndReturn(URL_DISASSOCIATE_BUG + "1234");
+    }
 }

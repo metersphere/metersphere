@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author wx
@@ -23,4 +24,7 @@ public class ReviewFunctionalCasePageRequest extends BasePageRequest implements 
 
     @Schema(description = "是否只看我的", requiredMode = Schema.RequiredMode.REQUIRED)
     private Boolean viewFlag;
+
+    @Schema(description = "模块id")
+    private List<String> moduleIds;
 }

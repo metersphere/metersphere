@@ -188,5 +188,52 @@
             </if>
         </if>
     </sql>
+
+    <select id="listByProviderRequest" resultType="io.metersphere.dto.BugProviderDTO">
+        SELECT
+            b.id id,
+            b.title title,
+            b.create_user createUser,
+            u.`name` name,
+            b.`status` status,
+            b.tag tag,
+            b.create_time createTime
+        FROM
+            bug b
+                LEFT JOIN `user` u ON b.create_user = u.id
+        WHERE
+            b.deleted = #{deleted}
+          AND b.id NOT IN
+            (
+            select associate.${bugColumnName} from ${table} associate  where  associate.${sourceName} = #{request.sourceId}
+            )
+        <include refid="queryWhereConditionByProvider"/>
+    </select>
+
+
+    <select id="getIdsByProvider" resultType="java.lang.String">
+        SELECT
+        b.id
+        FROM
+        bug b
+        WHERE b.deleted =#{deleted}
+        <include refid="queryWhereConditionByProvider"/>
+    </select>
+
+    <sql id="queryWhereConditionByProvider">
+        <if test="request.projectId != null">
+            and b.project_id = #{request.projectId}
+        </if>
+        <if test="request.keyword != null">
+            and (
+            b.title like concat('%', #{request.keyword},'%')
+            or b.num like concat('%', #{request.keyword},'%')
+            )
+        </if>
+        <include refid="filter"/>
+        <include refid="combine">
+            <property name="condition" value="request.combine"/>
+        </include>
+    </sql>
 </mapper>
 
