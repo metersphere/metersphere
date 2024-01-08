@@ -55,6 +55,7 @@ VALUES ('wx_test_1', 'wx_review_id_1', 'wx_case_id_1', 'PASS', 1698058347559,'ad
 INSERT INTO case_review_functional_case_user(case_id, review_id, user_id)
 VALUES ('wx_case_id_1', 'wx_review_id_1', 'admin'),
        ('wx_case_id_1', 'wx_review_id_1', 'gyq'),
+       ('wx_test_1', 'wx_review_id_1', 'admin'),
        ('gyq_case_id_3', 'wx_review_id_1', 'gyq2'),
        ('gyq_case_id_4', 'wx_review_id_1', 'gyq'),
        ('wx_case_id_3', 'wx_review_id_3', 'admin'),

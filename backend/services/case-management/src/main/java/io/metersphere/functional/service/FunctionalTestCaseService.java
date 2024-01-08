@@ -1,6 +1,8 @@
 package io.metersphere.functional.service;
 
 import io.metersphere.api.domain.ApiTestCase;
+import io.metersphere.bug.mapper.BugRelationCaseMapper;
+import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.functional.constants.AssociateCaseType;
 import io.metersphere.functional.domain.FunctionalCaseTest;
@@ -13,9 +15,8 @@ import io.metersphere.functional.request.AssociateCaseModuleRequest;
 import io.metersphere.functional.request.DisassociateOtherCaseRequest;
 import io.metersphere.functional.request.FunctionalCaseTestRequest;
 import io.metersphere.provider.BaseAssociateApiProvider;
-import io.metersphere.request.AssociateCaseModuleProviderRequest;
-import io.metersphere.request.AssociateOtherCaseRequest;
-import io.metersphere.request.TestCasePageProviderRequest;
+import io.metersphere.provider.BaseAssociateBugProvider;
+import io.metersphere.request.*;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
@@ -60,6 +61,10 @@ public class FunctionalTestCaseService {
 
     private static final String UNPLANNED_API = "api_unplanned_request";
 
+    @Resource
+    private BaseAssociateBugProvider baseAssociateBugProvider;
+    @Resource
+    private BugRelationCaseMapper bugRelationCaseMapper;
 
     /**
      * 获取功能用例未关联的接口用例列表
@@ -162,6 +167,36 @@ public class FunctionalTestCaseService {
     }
 
     public List<FunctionalCaseTestDTO> hasAssociatePage(FunctionalCaseTestRequest request) {
-       return extFunctionalCaseTestMapper.getList(request);
+        return extFunctionalCaseTestMapper.getList(request);
+    }
+
+
+    /**
+     * 获取功能用例未关联的缺陷列表
+     *
+     * @param request request
+     * @return
+     */
+    public List<BugProviderDTO> bugPage(BugPageProviderRequest request) {
+        return baseAssociateBugProvider.getBugList("bug_relation_case", "case_id", "bug_id", request);
+    }
+
+
+    /**
+     * 关联缺陷
+     *
+     * @param request request
+     * @param deleted 缺陷是否删除
+     * @param userId  用户id
+     */
+    public void associateBug(AssociateBugRequest request, boolean deleted, String userId) {
+        List<String> ids = baseAssociateBugProvider.getSelectBugs(request, deleted);
+        if (CollectionUtils.isNotEmpty(ids)) {
+            baseAssociateBugProvider.handleAssociateBug(ids, userId, request.getCaseId());
+        }
+    }
+
+    public void disassociateBug(String id) {
+        baseAssociateBugProvider.disassociateBug(id);
     }
 }

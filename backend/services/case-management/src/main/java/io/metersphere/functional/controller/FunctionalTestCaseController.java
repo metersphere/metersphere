@@ -2,6 +2,7 @@ package io.metersphere.functional.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.functional.dto.FunctionalCaseTestDTO;
 import io.metersphere.functional.request.AssociateCaseModuleRequest;
@@ -9,9 +10,7 @@ import io.metersphere.functional.request.DisassociateOtherCaseRequest;
 import io.metersphere.functional.request.FunctionalCaseTestRequest;
 import io.metersphere.functional.service.FunctionalCaseLogService;
 import io.metersphere.functional.service.FunctionalTestCaseService;
-import io.metersphere.request.AssociateCaseModuleProviderRequest;
-import io.metersphere.request.AssociateOtherCaseRequest;
-import io.metersphere.request.TestCasePageProviderRequest;
+import io.metersphere.request.*;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.log.annotation.Log;
@@ -27,10 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
@@ -74,7 +70,7 @@ public class FunctionalTestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
     @CheckOwner(resourceId = "#request.sourceId", resourceType = "functional_case")
     public void associateCase(@Validated @RequestBody AssociateOtherCaseRequest request) {
-         functionalTestCaseService.associateCase(request, false, SessionUtils.getUserId());
+        functionalTestCaseService.associateCase(request, false, SessionUtils.getUserId());
     }
 
     @PostMapping("/disassociate/case")
@@ -83,7 +79,7 @@ public class FunctionalTestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
     @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public void disassociateCase(@Validated @RequestBody DisassociateOtherCaseRequest request) {
-         functionalTestCaseService.disassociateCase(request);
+        functionalTestCaseService.disassociateCase(request);
     }
 
 
@@ -97,5 +93,31 @@ public class FunctionalTestCaseController {
     }
 
 
+    @PostMapping("/associate/bug/page")
+    @Operation(summary = "用例管理-功能用例-关联其他用例-获取缺陷列表")
+    @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ_ADD, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
+    @CheckOwner(resourceId = "#request.getProjectId", resourceType = "project")
+    public Pager<List<BugProviderDTO>> associateBugList(@Validated @RequestBody BugPageProviderRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+        return PageUtils.setPageInfo(page, functionalTestCaseService.bugPage(request));
+    }
+
+    @PostMapping("/associate/bug")
+    @Operation(summary = "用例管理-功能用例-关联其他用例-关联缺陷")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_ADD)
+    @CheckOwner(resourceId = "#request.caseId", resourceType = "functional_case")
+    public void associateBug(@Validated @RequestBody AssociateBugRequest request) {
+        functionalTestCaseService.associateBug(request, false, SessionUtils.getUserId());
+    }
+
+    @GetMapping("/disassociate/bug/{id}")
+    @Operation(summary = "用例管理-功能用例-关联其他用例-取消关联缺陷")
+    @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.disassociateBugLog(#id)", msClass = FunctionalCaseLogService.class)
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_ADD)
+    @CheckOwner(resourceId = "#id", resourceType = "functional_case")
+    public void disassociateBug(@PathVariable String id) {
+        functionalTestCaseService.disassociateBug(id);
+    }
 
 }

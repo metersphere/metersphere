@@ -69,6 +69,15 @@
 
 
     <sql id="queryWhereCondition">
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            functional_case.module_id in
+            <foreach collection="request.moduleIds" item="moduleId" separator="," open="(" close=")">
+                #{moduleId}
+            </foreach>
+            <include refid="queryType">
+                <property name="searchMode" value="request.searchMode"/>
+            </include>
+        </if>
         <if test="request.keyword != null">
             (
             functional_case.name like concat('%', #{request.keyword},'%')
