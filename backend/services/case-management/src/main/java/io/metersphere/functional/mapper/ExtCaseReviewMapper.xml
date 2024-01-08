@@ -28,9 +28,9 @@
 
     <select id="list" resultType="io.metersphere.functional.dto.CaseReviewDTO">
         SELECT
-         *
+        case_review.* , case_review_module.name as moduleName
         FROM
-        case_review
+        case_review left join case_review_module on  case_review.module_id = case_review_module.id
         where case_review.project_id = #{request.projectId}
         <choose>
             <when test='request.searchMode == "AND"'>

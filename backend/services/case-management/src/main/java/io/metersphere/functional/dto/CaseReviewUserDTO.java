@@ -9,4 +9,7 @@ public class CaseReviewUserDTO extends CaseReviewUser {
 
     @Schema(description = "用户名")
     private String userName;
+
+    @Schema(description = "头像")
+    private String avatar;
 }
