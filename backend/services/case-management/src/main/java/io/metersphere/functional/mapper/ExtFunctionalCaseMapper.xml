@@ -530,7 +530,7 @@
         update functional_case
         <set>
             <if test="functionalCase.tags != null and functionalCase.tags != ''">
-                tags = #{functionalCase.tags},
+                tags = #{functionalCase.tags,typeHandler=io.metersphere.handler.ListTypeHandler},
             </if>
             <if test="functionalCase.updateUser != null and functionalCase.updateUser != ''">
                 update_user = #{functionalCase.updateUser},

@@ -152,7 +152,7 @@ public class FunctionalCaseService {
         functionalCase.setCreateTime(System.currentTimeMillis());
         functionalCase.setUpdateTime(System.currentTimeMillis());
         functionalCase.setVersionId(StringUtils.defaultIfBlank(request.getVersionId(), extBaseProjectVersionMapper.getDefaultVersion(request.getProjectId())));
-        functionalCase.setTags(JSON.toJSONString(request.getTags()));
+        functionalCase.setTags(request.getTags());
         functionalCaseMapper.insertSelective(functionalCase);
         //附属表
         FunctionalCaseBlob functionalCaseBlob = new FunctionalCaseBlob();
@@ -643,13 +643,13 @@ public class FunctionalCaseService {
                 FunctionalCaseMapper caseMapper = sqlSession.getMapper(FunctionalCaseMapper.class);
                 ids.forEach(id -> {
                     FunctionalCase functionalCase = new FunctionalCase();
-                    if (StringUtils.isNotBlank(collect.get(id).getTags())) {
-                        List<String> tags = JSON.parseArray(collect.get(id).getTags(), String.class);
+                    if (CollectionUtils.isNotEmpty(collect.get(id).getTags())) {
+                        List<String> tags = collect.get(id).getTags();
                         tags.addAll(request.getTags());
                         List<String> newTags = tags.stream().distinct().collect(Collectors.toList());
-                        functionalCase.setTags(JSON.toJSONString(newTags));
+                        functionalCase.setTags(newTags);
                     } else {
-                        functionalCase.setTags(JSON.toJSONString(request.getTags()));
+                        functionalCase.setTags(request.getTags());
                     }
                     functionalCase.setId(id);
                     functionalCase.setUpdateTime(System.currentTimeMillis());
@@ -661,7 +661,7 @@ public class FunctionalCaseService {
             } else {
                 //替换标签
                 FunctionalCase functionalCase = new FunctionalCase();
-                functionalCase.setTags(JSON.toJSONString(request.getTags()));
+                functionalCase.setTags(request.getTags());
                 functionalCase.setProjectId(request.getProjectId());
                 functionalCase.setUpdateTime(System.currentTimeMillis());
                 functionalCase.setUpdateUser(userId);

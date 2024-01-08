@@ -17,7 +17,6 @@ import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.mapper.ExtUserMapper;
@@ -261,7 +260,7 @@ public class CaseReviewService {
         caseReview.setName(request.getName());
         caseReview.setModuleId(request.getModuleId());
         if (CollectionUtils.isNotEmpty(request.getTags())) {
-            caseReview.setTags(JSON.toJSONString(request.getTags()));
+            caseReview.setTags(request.getTags());
         }
         caseReview.setStartTime(request.getStartTime());
         caseReview.setEndTime(request.getEndTime());
@@ -333,7 +332,7 @@ public class CaseReviewService {
         caseReview.setReviewPassRule(request.getReviewPassRule());
         caseReview.setPos(getNextPos(request.getProjectId()));
         if (CollectionUtils.isNotEmpty(request.getTags())) {
-            caseReview.setTags(JSON.toJSONString(request.getTags()));
+            caseReview.setTags(request.getTags());
         }
         caseReview.setPassRate(BigDecimal.valueOf(0.00));
         if (CollectionUtils.isEmpty(caseIds)) {

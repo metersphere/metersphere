@@ -6,6 +6,7 @@ import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import lombok.Data;
 
 @Data
@@ -44,7 +45,7 @@ public class FunctionalCase implements Serializable {
     private String reviewStatus;
 
     @Schema(description = "标签（JSON)")
-    private String tags;
+    private java.util.List<String> tags;
 
     @Schema(description = "编辑模式：步骤模式/文本模式", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case.case_edit_type.not_blank}", groups = {Created.class})
