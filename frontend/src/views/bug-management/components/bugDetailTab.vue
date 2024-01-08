@@ -15,7 +15,7 @@
     <div class="mt-[8]" :class="{ 'max-h-[260px]': contentEditAble }">
       <MsRichText
         v-if="form.content"
-        v-model:model-value="form.content"
+        v-model:raw="form.content"
         :disabled="!contentEditAble"
         :placeholder="t('bugManagement.edit.contentPlaceholder')"
       />

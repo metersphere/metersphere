@@ -244,4 +244,6 @@ export default {
   'caseManagement.featureCase.fileIsUpdated': 'File is updated',
   'caseManagement.featureCase.selectTransferDirectory': 'Please select the transfer directory',
   'caseManagement.featureCase.quicklyCreateDefectSuccess': 'Quick bug creation success',
+  'caseManagement.featureCase.cancelDependencyTip': 'Confirm cancel dependencies?',
+  'caseManagement.featureCase.cancelDependencyContent': 'Cancel after impact test plan related statistics',
 };

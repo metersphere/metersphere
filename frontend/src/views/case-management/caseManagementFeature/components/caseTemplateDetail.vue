@@ -18,7 +18,7 @@
           ></a-input>
         </a-form-item>
         <a-form-item field="precondition" :label="t('system.orgTemplate.precondition')" asterisk-position="end">
-          <MsRichText v-model:model-value="form.prerequisite" />
+          <MsRichText v-model:raw="form.prerequisite" />
         </a-form-item>
         <a-form-item
           field="step"
@@ -48,17 +48,17 @@
             <AddStep v-model:step-list="stepData" :is-disabled="false" />
           </div>
           <!-- 文本描述 -->
-          <MsRichText v-else v-model:modelValue="form.textDescription" />
+          <MsRichText v-else v-model:raw="form.textDescription" />
         </a-form-item>
         <a-form-item
           v-if="form.caseEditType === 'TEXT'"
           field="remark"
           :label="t('caseManagement.featureCase.expectedResult')"
         >
-          <MsRichText v-model:modelValue="form.expectedResult" />
+          <MsRichText v-model:raw="form.expectedResult" />
         </a-form-item>
         <a-form-item field="remark" :label="t('caseManagement.featureCase.remark')">
-          <MsRichText v-model:modelValue="form.description" />
+          <MsRichText v-model:raw="form.description" />
         </a-form-item>
         <AddAttachment @change="handleChange" @link-file="associatedFile" @upload="beforeUpload" />
       </a-form>

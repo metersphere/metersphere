@@ -101,7 +101,7 @@
           asterisk-position="end"
           class="max-w-[732px]"
         >
-          <MsRichText v-model:model-value="defectForm.description" />
+          <MsRichText v-model:raw="defectForm.description" />
           <MsFormItemSub :text="t('system.orgTemplate.defectContentTip')" :show-fill-icon="false" />
         </a-form-item>
       </a-form>

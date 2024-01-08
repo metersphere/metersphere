@@ -33,6 +33,7 @@ export default {
     'menu.projectManagement.log': '日志',
     'menu.projectManagement.fileManagement': '文件管理',
     'menu.projectManagement.messageManagement': '消息管理',
+    'menu.projectManagement.commonScript': '公共脚本',
     'menu.projectManagement.messageManagementEdit': '更新模板',
     'menu.caseManagement.featureCase': '功能用例',
     'menu.caseManagement.featureCaseRecycle': '回收站',

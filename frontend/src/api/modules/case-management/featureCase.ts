@@ -9,6 +9,7 @@ import {
   BatchEditCaseUrl,
   BatchMoveCaseUrl,
   CancelAssociationDemandUrl,
+  cancelPreAndPostCaseUrl,
   checkFileIsUpdateUrl,
   CreateCaseModuleTreeUrl,
   CreateCaseUrl,
@@ -308,5 +309,9 @@ export function getPrepositionRelation(data: TableQueryParams) {
 // 添加前后置关系
 export function addPrepositionRelation(data: TableQueryParams) {
   return MSR.post<ModulesTreeType[]>({ url: `${AddDependOnRelationUrl}`, data });
+}
+// 取消依赖关系
+export function cancelPreOrPostCase(id: string) {
+  return MSR.get({ url: `${cancelPreAndPostCaseUrl}/${id}` });
 }
 export default {};

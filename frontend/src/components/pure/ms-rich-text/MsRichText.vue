@@ -2,7 +2,7 @@
   /**
    *
    * @name: MsRichText.vue
-   * @param {string} modelValue v-model绑定的值
+   * @param {string} raw v-model绑定的值
    * @return {string} 返回编辑器内容
    * @description: 富文本编辑器
    * @example:
@@ -12,11 +12,14 @@
    * import rehypeStringify from 'rehype-stringify';
    * return unified().use(rehypeParse).use(rehypeFormat).use(rehypeStringify).processSync(content.value);
    */
+  import { useDebounceFn, useLocalStorage } from '@vueuse/core';
+
   import useLocale from '@/locale/useLocale';
 
   import '@halo-dev/richtext-editor/dist/style.css';
   import suggestion from './extensions/mention/suggestion';
   import {
+    Editor,
     ExtensionAudio,
     ExtensionBlockquote,
     ExtensionBold,
@@ -57,19 +60,36 @@
     ExtensionVideo,
     lowlight,
     RichTextEditor,
-    useEditor,
   } from '@halo-dev/richtext-editor';
   import Mention from '@tiptap/extension-mention';
 
-  const props = defineProps<{
-    modelValue: string;
+  const props = withDefaults(
+    defineProps<{
+      raw?: string;
+      uploadImage?: (file: File) => Promise<any>;
+    }>(),
+    {
+      raw: '',
+      uploadImage: undefined,
+    }
+  );
+
+  const editor = shallowRef<Editor>();
+
+  const emit = defineEmits<{
+    (event: 'update:raw', value: string): void;
+    (event: 'update', value: string): void;
   }>();
-  const emit = defineEmits(['update:model-value']);
 
-  const content = ref('');
+  // debounce OnUpdate
+  const debounceOnUpdate = useDebounceFn(() => {
+    const html = `${editor.value?.getHTML()}`;
+    emit('update:raw', html);
+    emit('update', html);
+  }, 250);
 
-  const editor = useEditor({
-    content: content.value,
+  editor.value = new Editor({
+    content: props.raw,
     extensions: [
       ExtensionBlockquote,
       ExtensionBold,
@@ -92,6 +112,8 @@
       ExtensionStrike,
       ExtensionText,
       ExtensionImage.configure({
+        inline: true,
+        allowBase64: false,
         HTMLAttributes: {
           loading: 'lazy',
         },
@@ -132,31 +154,38 @@
         HTMLAttributes: {
           class: 'mention',
         },
+        // TODO第一版本先按照初始化评论的人 不加userMap
+        renderLabel({ options, node }) {
+          return `${options.suggestion.char}${node.attrs.label ?? node.attrs.id}`;
+          // return `${options.suggestion.char}${userMap[node.attrs.id]}`;
+        },
         suggestion,
       }),
     ],
+    autofocus: 'start',
     onUpdate: () => {
-      content.value = `${editor.value?.getHTML()}`;
+      debounceOnUpdate();
     },
   });
 
   const { currentLocale } = useLocale();
   const locale = computed(() => currentLocale.value as 'zh-CN' | 'en-US');
+
   watch(
-    () => props.modelValue,
-    (val) => {
-      if (val) {
-        content.value = val;
+    () => props.raw,
+    () => {
+      if (props.raw !== editor.value?.getHTML()) {
+        editor.value?.commands.setContent(props.raw);
       }
+    },
+    {
+      immediate: true,
     }
   );
 
-  watch(
-    () => content.value,
-    () => {
-      emit('update:model-value', `${editor.value?.getHTML()}`);
-    }
-  );
+  onBeforeUnmount(() => {
+    editor.value?.destroy();
+  });
 </script>
 
 <template>

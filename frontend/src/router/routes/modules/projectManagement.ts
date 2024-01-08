@@ -220,6 +220,17 @@ const ProjectManagement: AppRouteRecordRaw = {
         ],
       },
     },
+    // 公共脚本
+    {
+      path: 'commonScript',
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_COMMON_SCRIPT,
+      component: () => import('@/views/project-management/commonScript/index.vue'),
+      meta: {
+        locale: 'menu.projectManagement.commonScript',
+        roles: ['*'],
+        isTopMenu: true,
+      },
+    },
     // 项目日志
     {
       path: 'log',

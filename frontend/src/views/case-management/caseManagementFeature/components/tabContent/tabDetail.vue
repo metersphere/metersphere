@@ -15,8 +15,8 @@
             }}</a-button
           ></span
         >
-        <MsRichText v-if="isEditPreposition" v-model:model-value="detailForm.prerequisite" class="mt-2" />
-        <div v-else class="text-[var(--color-text-3)]" v-html="detailForm?.prerequisite || '-'"></div>
+        <MsRichText v-if="isEditPreposition" v-model:raw="detailForm.prerequisite" class="mt-2" />
+        <div v-else v-dompurify-html="detailForm?.prerequisite || '-'" class="text-[var(--color-text-3)]"></div>
       </a-form-item>
       <a-form-item
         field="step"
@@ -50,7 +50,7 @@
         <!-- 文本描述 -->
         <MsRichText
           v-if="detailForm.caseEditType === 'TEXT' && isEditPreposition"
-          v-model:modelValue="detailForm.textDescription"
+          v-model:raw="detailForm.textDescription"
         />
         <div v-if="detailForm.caseEditType === 'TEXT' && !isEditPreposition">{{
           detailForm.textDescription || '-'
@@ -63,13 +63,13 @@
       >
         <MsRichText
           v-if="detailForm.caseEditType === 'TEXT' && isEditPreposition"
-          v-model:modelValue="detailForm.expectedResult"
+          v-model:raw="detailForm.expectedResult"
         />
         <div v-else class="text-[var(--color-text-3)]" v-html="detailForm.description || '-'"></div>
       </a-form-item>
       <a-form-item field="remark" :label="t('caseManagement.featureCase.remark')">
-        <MsRichText v-if="isEditPreposition" v-model:modelValue="detailForm.description" />
-        <div v-else class="text-[var(--color-text-3)]" v-html="detailForm.description || '-'"></div>
+        <MsRichText v-if="isEditPreposition" v-model:raw="detailForm.description" />
+        <div v-else v-dompurify-html="detailForm.description || '-'" class="text-[var(--color-text-3)]"></div>
       </a-form-item>
       <div v-if="isEditPreposition" class="flex justify-end">
         <a-button type="secondary" @click="handleCancel">{{ t('common.cancel') }}</a-button>

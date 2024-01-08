@@ -32,7 +32,7 @@
             <a-input v-model="form.title" :max-length="255" show-word-limit />
           </a-form-item>
           <a-form-item field="description" :label="t('bugManagement.edit.content')">
-            <MsRichText v-model="form.description" />
+            <MsRichText v-model:raw="form.description" />
           </a-form-item>
           <a-form-item field="attachment" :label="t('bugManagement.edit.file')">
             <div class="flex flex-col">

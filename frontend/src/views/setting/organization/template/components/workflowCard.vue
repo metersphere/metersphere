@@ -281,7 +281,7 @@
   }
 </script>
 
-<style scoped lang="scss">
+<style scoped lang="less">
   .wrapper {
     width: 100%;
     min-width: 112px;

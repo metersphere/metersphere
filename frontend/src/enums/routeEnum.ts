@@ -30,6 +30,7 @@ export enum ProjectManagementRouteEnum {
   PROJECT_MANAGEMENT = 'projectManagement',
   PROJECT_MANAGEMENT_FILE_MANAGEMENT = 'projectManagementFileManageMent',
   PROJECT_MANAGEMENT_MESSAGE_MANAGEMENT = 'projectManagementMessageManagement',
+  PROJECT_MANAGEMENT_COMMON_SCRIPT = 'projectManagementCommonScript',
   PROJECT_MANAGEMENT_MESSAGE_MANAGEMENT_EDIT = 'projectManagementMessageManagementEdit',
   PROJECT_MANAGEMENT_LOG = 'projectManagementLog',
   PROJECT_MANAGEMENT_PERMISSION = 'projectManagementPermission',

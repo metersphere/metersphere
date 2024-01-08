@@ -17,7 +17,7 @@
       ></a-input>
     </a-form-item>
     <a-form-item field="precondition" :label="t('system.orgTemplate.defectContent')" asterisk-position="end">
-      <MsRichText v-model="viewForm.description" />
+      <MsRichText v-model:raw="viewForm.description" />
     </a-form-item>
     <a-form-item field="attachment" label="添加附件">
       <div class="flex flex-col">
