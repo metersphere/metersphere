@@ -1,0 +1,48 @@
+[
+  {
+    "id": "TEST_PLAN",
+    "name": "permission.test_plan.name",
+    "type": "TEST_PLAN",
+    "children": [
+      {
+        "id": "TEST_PLAN_MODULE",
+        "name": "permission.test_plan_module.name",
+        "permissions": [
+          {
+            "id": "PROJECT_TEST_PLAN_MODULE:READ"
+          },
+          {
+            "id": "PROJECT_TEST_PLAN_MODULE:READ+ADD"
+          },
+          {
+            "id": "PROJECT_TEST_PLAN_MODULE:READ+UPDATE"
+          },
+          {
+            "id": "PROJECT_TEST_PLAN_MODULE:READ+DELETE"
+          }
+        ]
+      },
+      {
+        "id": "TEST_PLAN",
+        "name": "permission.test_plan.name",
+        "permissions": [
+          {
+            "id": "PROJECT_TEST_PLAN:READ"
+          },
+          {
+            "id": "PROJECT_TEST_PLAN:READ+ADD"
+          },
+          {
+            "id": "PROJECT_TEST_PLAN:READ+UPDATE"
+          },
+          {
+            "id": "PROJECT_TEST_PLAN:READ+DELETE"
+          },
+          {
+            "id": "PROJECT_TEST_PLAN:READ+EXECUTE"
+          }
+        ]
+      }
+    ]
+  }
+]

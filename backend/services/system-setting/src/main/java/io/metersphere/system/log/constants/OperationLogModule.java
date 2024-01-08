@@ -21,14 +21,7 @@ public class OperationLogModule {
     public static final String API_DEFINITION = "API_DEFINITION";
     public static final String API_DEFINITION_MOCK = "API_DEFINITION_MOCK";
     public static final String API_DEFINITION_CASE = "API_DEFINITION_CASE";
-    public static final String TRACK_TEST_PLAN = "TRACK_TEST_PLAN";
-    public static final String TRACK_TEST_PLAN_SCHEDULE = "TRACK_TEST_PLAN_SCHEDULE";
-    public static final String TRACK_BUG = "TRACK_BUG";
-    public static final String TRACK_TEST_CASE_REVIEW = "TRACK_TEST_CASE_REVIEW";
-    public static final String TRACK_TEST_CASE = "TRACK_TEST_CASE";
-    public static final String TRACK_REPORT = "TRACK_REPORT";
     public static final String AUTH_TITLE = "AUTH_TITLE";
-    public static final String PROJECT_PROJECT_JAR = "PROJECT_PROJECT_JAR";
     public static final String PROJECT_ENVIRONMENT_SETTING = "PROJECT_ENVIRONMENT_SETTING";
     public static final String PROJECT_PROJECT_MANAGER = "PROJECT_PROJECT_MANAGER";
     public static final String PROJECT_FILE_MANAGEMENT = "PROJECT_MANAGEMENT_FILE_MANAGEMENT";
@@ -39,15 +32,9 @@ public class OperationLogModule {
     public static final String PERSONAL_INFORMATION_LOCAL_CONFIG = "PERSONAL_INFORMATION_LOCAL_CONFIG";
     public static final String GROUP_PERMISSION = "GROUP_PERMISSION";
     public static final String PERFORMANCE_TEST_REPORT = "PERFORMANCE_TEST_REPORT";
-    public static final String PERFORMANCE_TEST = "PERFORMANCE_TEST";
-    public static final String ERROR_REPORT_LIBRARY = "ERROR_REPORT_LIBRARY";
     public static final String SYSTEM_QUOTA_MANAGEMENT = "SYSTEM_QUOTA_MANAGEMENT";
     public static final String ENTERPRISE_TEST_REPORT = "ENTERPRISE_TEST_REPORT";
     public static final String SYSTEM_AUTHORIZATION_MANAGEMENT = "SYSTEM_AUTHORIZATION_MANAGEMENT";
-    public static final String UI_ELEMENT = "UI_ELEMENT";
-    public static final String UI_AUTOMATION = "UI_AUTOMATION";
-    public static final String UI_AUTOMATION_REPORT = "UI_AUTOMATION_REPORT";
-    public static final String UI_AUTOMATION_SCHEDULE = "UI_AUTOMATION_SCHEDULE";
     public static final String SYSTEM_PROJECT = "SYSTEM_PROJECT";
     public static final String SYSTEM_PROJECT_MEMBER = "SYSTEM_PROJECT_MEMBER";
     public static final String ORGANIZATION_PROJECT = "ORGANIZATION_PROJECT";
@@ -113,4 +100,7 @@ public class OperationLogModule {
     public static final String API_DEFINITION_ENVIRONMENT = "API_DEFINITION_ENVIRONMENT";
     // 缺陷管理
     public static final String BUG_MANAGEMENT = "BUG_MANAGEMENT";
+    //测试计划
+    public static final String TEST_PLAN = "TEST_PLAN";
+    public static final String TEST_PLAN_MODULE = "TEST_PLAN_MODULE";
 }
