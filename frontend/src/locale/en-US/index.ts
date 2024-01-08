@@ -30,6 +30,7 @@ export default {
     'menu.projectManagement': 'Project',
     'menu.projectManagement.fileManagement': 'File Management',
     'menu.projectManagement.messageManagement': 'Message Management',
+    'menu.projectManagement.commonScript': 'Common Script',
     'menu.projectManagement.messageManagementEdit': 'Update Template',
     'menu.caseManagement.featureCase': 'Feature Case',
     'menu.caseManagement.featureCaseRecycle': 'Recycle',

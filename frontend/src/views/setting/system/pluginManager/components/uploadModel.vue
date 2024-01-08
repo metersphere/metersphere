@@ -77,7 +77,6 @@
           <a-tooltip>
             <template #content>
               <div class="text-sm">{{ t('system.plugin.statusEnableTip') }}</div>
-              <div class="text-sm">{{ t('system.plugin.statusDisableTip') }}</div>
             </template>
             <div class="mx-1 flex h-[32px] items-center">
               <span class="mr-1">{{ t('system.plugin.pluginStatus') }}</span>

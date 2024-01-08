@@ -44,7 +44,7 @@
     const item = props.items[index];
 
     if (item) {
-      props.command({ id: `${item.name}(${item.email})` } as any);
+      props.command({ id: item.id, label: `${item.name}` } as any);
     }
   }
 
@@ -73,7 +73,7 @@
   function selectItem(index: any) {
     const item = props.items[index];
     if (item) {
-      props.command({ id: `${item.name}(${item.email})` } as any);
+      props.command({ id: item.id, label: `${item.name}` } as any);
     }
   }
 

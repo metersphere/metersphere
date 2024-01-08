@@ -114,3 +114,5 @@ export const GetDependOnPageUrl = '/functional/case/relationship/page';
 export const GetDependOnRelationUrl = '/functional/case/relationship/relate/page';
 // 添加前后置关系
 export const AddDependOnRelationUrl = '/functional/case/relationship/add';
+// 取消关联前后置关系
+export const cancelPreAndPostCaseUrl = '/functional/case/relationship/delete';

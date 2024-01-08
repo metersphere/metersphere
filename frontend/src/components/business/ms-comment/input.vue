@@ -10,7 +10,7 @@
     <div class="w-full items-center">
       <a-input v-if="!isActive" class="w-full" @click="isActive = true"></a-input>
       <div v-else class="flex flex-col justify-between">
-        <MsRichText v-model="currentContent" class="w-full" />
+        <MsRichText v-model:raw="currentContent" class="w-full" />
         <div class="mt-4 flex flex-row justify-end gap-[12px]">
           <a-button @click="cancelClick">{{ t('common.cancel') }}</a-button>
           <a-button type="primary" :disabled="!currentContent" @click="publish">{{ t('common.publish') }}</a-button>

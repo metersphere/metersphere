@@ -5,7 +5,8 @@ import useAppStore from '@/store/modules/app';
 
 import type { UserListItem } from '@/models/setting/user';
 
-import { VueRenderer } from '@halo-dev/richtext-editor';
+import { Extension, VueRenderer } from '@halo-dev/richtext-editor';
+import Suggestion from '@tiptap/suggestion';
 import type { Instance } from 'tippy.js';
 import tippy from 'tippy.js';
 

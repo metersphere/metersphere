@@ -23,6 +23,7 @@ export enum TableKeyEnum {
   ORGANIZATION_TEMPLATE_MANAGEMENT_STEP = 'organizationTemplateManagementStep',
   ORGANIZATION_PROJECT = 'organizationProject',
   ORGANIZATION_PROJECT_USER_DRAWER = 'organizationProjectUserDrawer',
+  ORGANIZATION_PROJECT_COMMON_SCRIPT = 'projectManagementCommonScript',
   FILE_MANAGEMENT_FILE = 'fileManagementFile',
   FILE_MANAGEMENT_CASE = 'fileManagementCase',
   FILE_MANAGEMENT_CASE_RECYCLE = 'fileManagementCaseRecycle',

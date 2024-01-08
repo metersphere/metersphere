@@ -5,10 +5,11 @@
     :sub-title-tip="props.subTitleTip"
     :loading="props.loading"
     :visible="currentVisible"
+    :ok-text="props.okText"
     @confirm="handleOk"
     @cancel="handleCancel"
   >
-    <MsButton @click="showPopover">{{ t('common.remove') }}</MsButton>
+    <MsButton @click="showPopover">{{ t(props.removeText) }}</MsButton>
   </MsPopconfirm>
 </template>
 
@@ -20,11 +21,18 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  const props = defineProps<{
-    title: string;
-    subTitleTip: string;
-    loading?: boolean;
-  }>();
+  const props = withDefaults(
+    defineProps<{
+      title: string;
+      subTitleTip: string;
+      loading?: boolean;
+      removeText?: string;
+      okText?: string;
+    }>(),
+    {
+      removeText: 'common.remove',
+    }
+  );
 
   const emit = defineEmits<{
     (e: 'ok'): void;

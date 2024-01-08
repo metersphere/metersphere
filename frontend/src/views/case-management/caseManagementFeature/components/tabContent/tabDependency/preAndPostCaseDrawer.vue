@@ -144,7 +144,7 @@
 
   const emit = defineEmits<{
     (e: 'update:visible', val: boolean): void;
-    (e: 'success', val: string[]): void;
+    (e: 'success'): void;
     (e: 'close'): void;
   }>();
 
@@ -273,6 +273,7 @@
       },
       showSetting: false,
       selectable: true,
+      heightUsed: 300,
       showSelectAll: true,
     },
     (record) => {
@@ -332,21 +333,16 @@
       moduleLoading.value = false;
     }
   }
-  /**
-   * @param 获取回收站模块
-   */
-
-  // 回收站模块树count参数
-  const emitTableParams: CaseModuleQueryParams = {
-    keyword: keyword.value,
-    moduleIds: [],
-    projectId: currentProjectId.value,
-    current: propsRes.value.msPagination?.current,
-    pageSize: propsRes.value.msPagination?.pageSize,
-  };
 
   async function getModulesCount() {
     try {
+      const emitTableParams: CaseModuleQueryParams = {
+        keyword: keyword.value,
+        moduleIds: [],
+        projectId: currentProjectId.value,
+        current: propsRes.value.msPagination?.current,
+        pageSize: propsRes.value.msPagination?.pageSize,
+      };
       modulesCount.value = await getCaseModulesCounts(emitTableParams);
     } catch (error) {
       console.log(error);
@@ -401,6 +397,7 @@
       };
       await addPrepositionRelation(params);
       Message.success(t('common.addSuccess'));
+      emit('success');
       innerVisible.value = false;
       resetSelector();
     } catch (error) {

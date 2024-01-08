@@ -17,7 +17,7 @@
       ></a-input>
     </a-form-item>
     <a-form-item field="precondition" :label="t('system.orgTemplate.precondition')" asterisk-position="end">
-      <MsRichText v-model="viewForm.precondition" />
+      <MsRichText v-model:raw="viewForm.precondition" />
     </a-form-item>
     <a-form-item field="step" :label="t('system.orgTemplate.stepDescription')" class="relative">
       <div class="absolute left-16 top-0">

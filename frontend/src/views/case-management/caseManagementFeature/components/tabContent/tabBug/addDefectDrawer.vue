@@ -22,7 +22,7 @@
         <a-input v-model="form.title" :max-length="255" show-word-limit />
       </a-form-item>
       <a-form-item :label="t('bugManagement.edit.content')">
-        <MsRichText v-model="form.description" />
+        <MsRichText v-model:raw="form.description" />
       </a-form-item>
     </a-form>
   </MsDrawer>

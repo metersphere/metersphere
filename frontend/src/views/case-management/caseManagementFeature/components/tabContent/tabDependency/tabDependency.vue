@@ -2,10 +2,10 @@
   <div>
     <div class="flex items-center justify-between">
       <div>
-        <a-button v-if="showType === 'preposition'" class="mr-3" type="primary" @click="addCase('preposition')">
+        <a-button v-if="showType === 'preposition'" class="mr-3" type="primary" @click="addCase">
           {{ t('caseManagement.featureCase.addPresetCase') }}
         </a-button>
-        <a-button v-else type="primary" @click="addCase('postPosition')">
+        <a-button v-else type="primary" @click="addCase">
           {{ t('caseManagement.featureCase.addPostCase') }}
         </a-button>
       </div>
@@ -28,33 +28,50 @@
     </div>
     <ms-base-table ref="tableRef" v-bind="propsRes" v-on="propsEvent">
       <template #operation="{ record }">
-        <MsButton @click="cancelDependency(record)">{{ t('caseManagement.featureCase.cancelDependency') }}</MsButton>
+        <MsRemoveButton
+          position="br"
+          ok-text="common.confirm"
+          remove-text="caseManagement.featureCase.cancelDependency"
+          :title="t('caseManagement.featureCase.cancelDependencyTip', { name: characterLimit(record.name) })"
+          :sub-title-tip="t('caseManagement.featureCase.cancelDependencyContent')"
+          :loading="cancelLoading"
+          @ok="cancelDependency(record)"
+        />
       </template>
       <template v-if="(keyword || '').trim() === ''" #empty>
         <div class="flex items-center justify-center">
           {{ t('caseManagement.caseReview.tableNoData') }}
-          <MsButton class="ml-[8px]" @click="addCase('preposition')">
+          <MsButton class="ml-[8px]" @click="addCase">
             {{ t('caseManagement.featureCase.addPresetCase') }}
           </MsButton>
         </div>
       </template>
     </ms-base-table>
-    <PreAndPostCaseDrawer ref="drawerRef" v-model:visible="showDrawer" :show-type="showType" :case-id="props.caseId" />
+    <PreAndPostCaseDrawer
+      ref="drawerRef"
+      v-model:visible="showDrawer"
+      :show-type="showType"
+      :case-id="props.caseId"
+      @success="successHandler"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import MsRemoveButton from '@/components/business/ms-remove-button/MsRemoveButton.vue';
   import PreAndPostCaseDrawer from './preAndPostCaseDrawer.vue';
 
-  import { getDependOnCase } from '@/api/modules/case-management/featureCase';
+  import { cancelPreOrPostCase, getDependOnCase } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
+  import { characterLimit } from '@/utils';
 
   const appStore = useAppStore();
 
@@ -88,8 +105,8 @@
     },
     {
       title: 'caseManagement.featureCase.tableColumnVersion',
-      slotName: 'defectState',
-      dataIndex: 'defectState',
+      slotName: 'versionName',
+      dataIndex: 'versionName',
       showInTable: true,
       showTooltip: true,
       width: 300,
@@ -97,8 +114,8 @@
     },
     {
       title: 'caseManagement.featureCase.tableColumnCreateUser',
-      slotName: 'createUser',
-      dataIndex: 'createUser',
+      slotName: 'userName',
+      dataIndex: 'userName',
       showInTable: true,
       showTooltip: true,
       width: 300,
@@ -124,8 +141,20 @@
     enableDrag: true,
   });
 
+  const cancelLoading = ref<boolean>(false);
   // 取消依赖
-  function cancelDependency(record: any) {}
+  async function cancelDependency(record: any) {
+    cancelLoading.value = true;
+    try {
+      await cancelPreOrPostCase(record.id);
+      Message.success(t('caseManagement.featureCase.cancelFollowSuccess'));
+      loadList();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      cancelLoading.value = false;
+    }
+  }
 
   function getParams() {
     setLoadListParams({
@@ -139,9 +168,13 @@
   const showDrawer = ref<boolean>(false);
   const drawerRef = ref();
   // 添加前后置用例
-  function addCase(type: string) {
+  function addCase() {
     showDrawer.value = true;
     drawerRef.value.initModules();
+  }
+
+  function successHandler() {
+    loadList();
   }
 
   watch(
