@@ -201,7 +201,7 @@ public class CaseReviewService {
      * @param request 页面参数
      * @param userId  当前操作人
      */
-    public void addCaseReview(CaseReviewRequest request, String userId) {
+    public String addCaseReview(CaseReviewRequest request, String userId) {
         String caseReviewId = IDGenerator.nextStr();
         BaseAssociateCaseRequest baseAssociateCaseRequest = request.getBaseAssociateCaseRequest();
         List<String> caseIds = doSelectIds(baseAssociateCaseRequest, baseAssociateCaseRequest.getProjectId());
@@ -221,6 +221,7 @@ public class CaseReviewService {
         } finally {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
+        return caseReviewId;
     }
 
     /**
