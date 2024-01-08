@@ -4,7 +4,7 @@
 
     <select id="list" resultType="io.metersphere.functional.dto.FunctionalCaseReviewDTO">
         SELECT
-            cr.num as reviewNum, cr.name as reviewName, cr.status as reviewStatus, cf.status, cf.update_time
+        cf.*, cr.num as reviewNum, cr.name as reviewName, cr.status as reviewStatus
         FROM
         case_review_functional_case cf left join case_review cr on  cf.review_id = cr.id
         where cf.case_id = #{request.caseId}

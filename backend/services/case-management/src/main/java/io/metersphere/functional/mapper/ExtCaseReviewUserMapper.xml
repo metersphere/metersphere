@@ -4,9 +4,10 @@
 
     <select id="getReviewUser" resultType="io.metersphere.functional.dto.CaseReviewUserDTO">
         SELECT
-        cu.user_id ,cu.review_id, u.name as userName
+        cu.user_id ,cu.review_id, u.name as userName, ue.avatar as avatar
         FROM
         case_review_user cu left join user u on cu.user_id = u.id
+        left join user_extend ue on cu.user_id = ue.id
         WHERE
         cu.review_id in
         <foreach collection="reviewIds" item="id" open="(" separator="," close=")">

@@ -97,9 +97,9 @@ public class CaseReviewService {
         }
         List<String> reviewIds = list.stream().map(CaseReview::getId).toList();
         Map<String, List<CaseReviewFunctionalCase>> reviewCaseMap = getReviewCaseMap(reviewIds);
-        Map<String, List<CaseReviewUserDTO>> reviewUserMap = getReviewUserMap(reviewIds);
+        List<CaseReviewUserDTO> reviewUsers = getReviewUsers(reviewIds);
         for (CaseReviewDTO caseReviewDTO : list) {
-            buildCaseReviewDTO(caseReviewDTO, reviewCaseMap, reviewUserMap);
+            buildCaseReviewDTO(caseReviewDTO, reviewCaseMap, reviewUsers);
         }
 
         return list;
@@ -110,9 +110,8 @@ public class CaseReviewService {
      *
      * @param caseReviewDTO caseReviewDTO
      * @param reviewCaseMap 用例和评审的关系map
-     * @param reviewUserMap 评审和评审人的关系map
      */
-    private static void buildCaseReviewDTO(CaseReviewDTO caseReviewDTO, Map<String, List<CaseReviewFunctionalCase>> reviewCaseMap, Map<String, List<CaseReviewUserDTO>> reviewUserMap) {
+    private static void buildCaseReviewDTO(CaseReviewDTO caseReviewDTO, Map<String, List<CaseReviewFunctionalCase>> reviewCaseMap, List<CaseReviewUserDTO> reviewUsers) {
         String caseReviewId = caseReviewDTO.getId();
         List<CaseReviewFunctionalCase> caseReviewFunctionalCaseList = reviewCaseMap.get(caseReviewId);
         if (CollectionUtils.isEmpty(caseReviewFunctionalCaseList)) {
@@ -124,15 +123,9 @@ public class CaseReviewService {
         } else {
             buildAboutCaseCount(caseReviewDTO, caseReviewFunctionalCaseList);
         }
-
-        buildReviewers(caseReviewDTO, reviewUserMap);
+        caseReviewDTO.setReviewers(reviewUsers);
     }
 
-    private static void buildReviewers(CaseReviewDTO caseReviewDTO, Map<String, List<CaseReviewUserDTO>> reviewUserMap) {
-        List<CaseReviewUserDTO> caseReviewUserDTOS = reviewUserMap.get(caseReviewDTO.getId());
-        List<String> userNames = caseReviewUserDTOS.stream().map(CaseReviewUserDTO::getUserName).toList();
-        caseReviewDTO.setReviewers(userNames);
-    }
 
     /**
      * 构建用例相关的各种数量
@@ -176,9 +169,8 @@ public class CaseReviewService {
      * @param reviewIds 评审ids
      * @return Map
      */
-    private Map<String, List<CaseReviewUserDTO>> getReviewUserMap(List<String> reviewIds) {
-        List<CaseReviewUserDTO> reviewUser = extCaseReviewUserMapper.getReviewUser(reviewIds);
-        return reviewUser.stream().collect(Collectors.groupingBy(CaseReviewUserDTO::getReviewId));
+    private List<CaseReviewUserDTO> getReviewUsers(List<String> reviewIds) {
+        return extCaseReviewUserMapper.getReviewUser(reviewIds);
     }
 
 
@@ -205,6 +197,11 @@ public class CaseReviewService {
         BaseAssociateCaseRequest baseAssociateCaseRequest = request.getBaseAssociateCaseRequest();
         List<String> caseIds = doSelectIds(baseAssociateCaseRequest, baseAssociateCaseRequest.getProjectId());
         addCaseReview(request, userId, caseReviewId, caseIds);
+        addAssociate(request, userId, caseReviewId, caseIds);
+        return caseReviewId;
+    }
+
+    private void addAssociate(CaseReviewRequest request, String userId, String caseReviewId, List<String> caseIds) {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         CaseReviewUserMapper mapper = sqlSession.getMapper(CaseReviewUserMapper.class);
         CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper = sqlSession.getMapper(CaseReviewFunctionalCaseMapper.class);
@@ -220,6 +217,16 @@ public class CaseReviewService {
         } finally {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
+    }
+
+    public String copyCaseReview(CaseReviewCopyRequest request, String userId) {
+        String caseReviewId = IDGenerator.nextStr();
+        CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
+        caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(request.getCopyId());
+        List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
+        List<String> caseIds = caseReviewFunctionalCases.stream().map(CaseReviewFunctionalCase::getCaseId).distinct().toList();
+        addCaseReview(request, userId, caseReviewId, caseIds);
+        addAssociate(request, userId, caseReviewId, caseIds);
         return caseReviewId;
     }
 
@@ -262,6 +269,7 @@ public class CaseReviewService {
         if (CollectionUtils.isNotEmpty(request.getTags())) {
             caseReview.setTags(request.getTags());
         }
+        caseReview.setDescription(request.getDescription());
         caseReview.setStartTime(request.getStartTime());
         caseReview.setEndTime(request.getEndTime());
         caseReview.setUpdateTime(System.currentTimeMillis());
@@ -340,6 +348,7 @@ public class CaseReviewService {
         } else {
             caseReview.setCaseCount(caseIds.size());
         }
+        caseReview.setDescription(request.getDescription());
         caseReview.setStartTime(request.getStartTime());
         caseReview.setEndTime(request.getEndTime());
         caseReview.setCreateTime(System.currentTimeMillis());
@@ -516,8 +525,8 @@ public class CaseReviewService {
         Boolean isFollow = checkFollow(id, userId);
         caseReviewDTO.setFollowFlag(isFollow);
         Map<String, List<CaseReviewFunctionalCase>> reviewCaseMap = getReviewCaseMap(List.of(id));
-        Map<String, List<CaseReviewUserDTO>> reviewUserMap = getReviewUserMap(List.of(id));
-        buildCaseReviewDTO(caseReviewDTO, reviewCaseMap, reviewUserMap);
+        List<CaseReviewUserDTO> reviewUsers = getReviewUsers(List.of(id));
+        buildCaseReviewDTO(caseReviewDTO, reviewCaseMap, reviewUsers);
         return caseReviewDTO;
     }
 
@@ -584,4 +593,6 @@ public class CaseReviewService {
     public String getReviewPassRule(String id) {
        return extCaseReviewMapper.getReviewPassRule(id);
     }
+
+    
 }

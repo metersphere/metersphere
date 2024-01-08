@@ -93,8 +93,9 @@ public class CaseReviewControllerTests extends BaseTest {
         Assertions.assertEquals(1, caseReviewFunctionalCases.size());
 
 
-        caseReviewRequest = getCaseReviewAddRequest("创建评审1", CaseReviewPassRule.SINGLE.toString(), "CASE_REVIEW_TEST_GYQ_ID", false, true, null);
-        this.requestPostWithOk(COPY_CASE_REVIEW, caseReviewRequest);
+        CaseReviewCopyRequest caseReviewCopyRequest = getCaseReviewAddRequest("创建评审1", CaseReviewPassRule.SINGLE.toString(), "CASE_REVIEW_TEST_GYQ_ID", false, true, null);
+        caseReviewCopyRequest.setCopyId(caseReviewId);
+        this.requestPostWithOk(COPY_CASE_REVIEW, caseReviewCopyRequest);
         caseReviews = getCaseReviews("创建评审1");
         Assertions.assertEquals(2, caseReviews.size());
         List<String> list = caseReviews.stream().map(CaseReview::getId).distinct().toList();
@@ -109,8 +110,8 @@ public class CaseReviewControllerTests extends BaseTest {
     }
 
     @NotNull
-    private static CaseReviewRequest getCaseReviewAddRequest(String name, String reviewPassRule, String caseId, boolean tag, boolean reviewer, String id) {
-        CaseReviewRequest caseReviewRequest = new CaseReviewRequest();
+    private static CaseReviewCopyRequest getCaseReviewAddRequest(String name, String reviewPassRule, String caseId, boolean tag, boolean reviewer, String id) {
+        CaseReviewCopyRequest caseReviewRequest = new CaseReviewCopyRequest();
         if (StringUtils.isNotBlank(id)) {
             caseReviewRequest.setId(id);
         }

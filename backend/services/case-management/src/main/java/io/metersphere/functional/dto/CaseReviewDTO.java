@@ -10,7 +10,7 @@ import java.util.List;
 public class CaseReviewDTO extends CaseReview {
 
     @Schema(description = "评审人")
-    private List<String> reviewers;
+    private List<CaseReviewUserDTO> reviewers;
 
     @Schema(description = "通过数")
     private int passCount;
@@ -29,4 +29,8 @@ public class CaseReviewDTO extends CaseReview {
 
     @Schema(description = "关注标识")
     private Boolean followFlag;
+
+    @Schema(description = "所属模块名称")
+    private String moduleName;
+
 }

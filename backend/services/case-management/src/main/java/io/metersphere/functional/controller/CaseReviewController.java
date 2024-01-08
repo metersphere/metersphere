@@ -74,8 +74,8 @@ public class CaseReviewController {
     @SendNotice(taskType = NoticeConstants.TaskType.CASE_REVIEW_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.getMainCaseReview(#request)", targetClass = CaseReviewNoticeService.class)
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_ADD)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
-    public void copyCaseReview(@Validated @RequestBody CaseReviewRequest request) {
-        caseReviewService.addCaseReview(request, SessionUtils.getUserId());
+    public String copyCaseReview(@Validated @RequestBody CaseReviewCopyRequest request) {
+        return caseReviewService.copyCaseReview(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/edit")
