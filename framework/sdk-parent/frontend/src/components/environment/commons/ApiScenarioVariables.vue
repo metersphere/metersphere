@@ -332,7 +332,9 @@ export default {
   watch: {
     items: {
       handler(v) {
-        this.initData(v);
+        if (!this.selectVariable) {
+          this.initData(v);
+        }
       },
       immediate: true,
       deep: true,
@@ -524,9 +526,8 @@ export default {
       cb(results);
     },
     sortParameters() {
-      let index = 1;
-      this.allData.forEach((item) => {
-        item.num = index;
+      this.allData.forEach((item,index) => {
+        item.num = index + 1;
         if (!item.type || item.type === "text") {
           item.type = "CONSTANT";
         }
@@ -540,7 +541,6 @@ export default {
         if (!item.scope) {
           this.$set(item, "scope", "api");
         }
-        index++;
       });
     },
     handleDeleteBatch() {
