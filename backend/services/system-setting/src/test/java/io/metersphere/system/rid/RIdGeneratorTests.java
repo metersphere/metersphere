@@ -26,11 +26,11 @@ public class RIdGeneratorTests {
         long start = System.currentTimeMillis();
         AtomicLong atomicLong = new AtomicLong(init);
         // 使用多线程执行
-        ExecutorService executorService = Executors.newFixedThreadPool(5);
+        ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
         for (int i = 0; i < capacity; i++) {
             executorService.submit(() -> {
                 long nextId = NumGenerator.nextNum(projectId, ApplicationNumScope.API_DEFINITION);
-                System.out.println(nextId);
+                System.out.println(Thread.currentThread() + " -> " + nextId);
                 synchronized (projectId) {
                     if (atomicLong.get() < nextId) {
                         atomicLong.set(nextId);
@@ -54,12 +54,12 @@ public class RIdGeneratorTests {
         long start = System.currentTimeMillis();
         AtomicLong atomicLong = new AtomicLong(init);
         // 使用多线程执行
-        ExecutorService executorService = Executors.newFixedThreadPool(5);
+        ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
         for (int i = 0; i < capacity; i++) {
             executorService.submit(() -> {
                 // 接口用例的前缀为: PROJECT_ID_API_DEFINITION 比较特殊
                 long nextId = NumGenerator.nextNum(projectId + "_" + apiNum, ApplicationNumScope.API_TEST_CASE);
-                System.out.println(nextId);
+                System.out.println(Thread.currentThread() + " -> " + nextId);
                 synchronized (projectId) {
                     if (atomicLong.get() < nextId) {
                         atomicLong.set(nextId);
