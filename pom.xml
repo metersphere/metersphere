@@ -67,7 +67,6 @@
         <dingtalk-sdk.version>2.0.0</dingtalk-sdk.version>
         <dingtalk-client.version>2.0.29</dingtalk-client.version>
         <minio.version>8.5.2</minio.version>
-        <hikaricp.version>5.0.1</hikaricp.version>
         <xmlgraphics-commons.version>2.7</xmlgraphics-commons.version>
         <commons-fileupload.version>1.5</commons-fileupload.version>
         <commons-collections4.version>4.4</commons-collections4.version>
