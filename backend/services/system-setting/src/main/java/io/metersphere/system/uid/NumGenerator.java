@@ -32,7 +32,7 @@ public class NumGenerator {
         // 每次都尝试初始化，容量为1，只有一个线程可以初始化成功
         if (scope.equals(ApplicationNumScope.API_TEST_CASE)) {
             // 二级的用例
-            idGenerator.tryInit(Long.parseLong(prefix.split("_")[1] + INIT), LIMIT);
+            idGenerator.tryInit(Long.parseLong(prefix.split("_")[1] + "001"), LIMIT);
         } else {
             idGenerator.tryInit(INIT, LIMIT);
         }

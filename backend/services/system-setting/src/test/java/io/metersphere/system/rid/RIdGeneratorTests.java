@@ -49,10 +49,9 @@ public class RIdGeneratorTests {
         String projectId = "100001";
 
         long capacity = 10; // 容量，代表每个项目最多可以生成多少个id
-        long init = 100001L; // 代表从1000001开始，项目的 num
         long apiNum = 100005;
         long start = System.currentTimeMillis();
-        AtomicLong atomicLong = new AtomicLong(init);
+        AtomicLong atomicLong = new AtomicLong(1);
         // 使用多线程执行
         ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor();
         for (int i = 0; i < capacity; i++) {
@@ -69,7 +68,7 @@ public class RIdGeneratorTests {
         }
         executorService.close();
         System.out.println("耗时: " + (System.currentTimeMillis() - start) + "ms");
-        Assertions.assertEquals(capacity + Long.parseLong(apiNum + "" + init), atomicLong.get() + 1);
+        Assertions.assertEquals(capacity + Long.parseLong(apiNum + "001"), atomicLong.get() + 1);
     }
 
     @Test
