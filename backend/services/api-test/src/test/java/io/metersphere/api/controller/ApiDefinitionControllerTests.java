@@ -23,12 +23,19 @@ import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileCenter;
 import io.metersphere.sdk.file.FileRequest;
+import io.metersphere.sdk.mapper.OperationLogBlobMapper;
+import io.metersphere.sdk.mapper.OperationLogMapper;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.controller.handler.result.MsHttpResultCode;
+import io.metersphere.system.domain.OperationHistory;
+import io.metersphere.system.domain.OperationHistoryExample;
+import io.metersphere.system.dto.request.OperationHistoryRequest;
+import io.metersphere.system.dto.request.OperationHistoryVersionRequest;
 import io.metersphere.system.dto.sdk.BaseCondition;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.mapper.OperationHistoryMapper;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -85,6 +92,9 @@ public class ApiDefinitionControllerTests extends BaseTest {
     private static final String GET = BASE_PATH + "get-detail/";
     private static final String FOLLOW = BASE_PATH + "follow/";
     private static final String VERSION = BASE_PATH + "version/";
+    private static final String OPERATION_HISTORY = BASE_PATH + "operation-history";
+    private static final String OPERATION_HISTORY_RECOVER = BASE_PATH + "operation-history/recover";
+    private static final String OPERATION_HISTORY_SAVE = BASE_PATH + "operation-history/save";
     private static final String UPLOAD_TEMP_FILE = BASE_PATH + "/upload/temp/file";
 
     private static final String DEFAULT_MODULE_ID = "10001";
@@ -118,6 +128,15 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
     @Resource
     private ExtApiDefinitionCustomFieldMapper extApiDefinitionCustomFieldMapper;
+
+    @Resource
+    private OperationHistoryMapper operationHistoryMapper;
+
+    @Resource
+    private OperationLogMapper operationLogMapper;
+
+    @Resource
+    private OperationLogBlobMapper operationLogBlobMapper;
 
     @Resource
     private FileMetadataService fileMetadataService;
@@ -895,6 +914,88 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
     @Test
     @Order(12)
+    public void testOperationHistoryList() throws Exception {
+        OperationHistoryRequest request = new OperationHistoryRequest();
+        apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1001");
+        request.setSourceId(apiDefinition.getId());
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setCurrent(1);
+        request.setPageSize(10);
+        request.setSort(Map.of("createTime", "asc"));
+
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(OPERATION_HISTORY, request);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        // 返回值不为空
+        Assertions.assertNotNull(pageData);
+        // 返回值的页码和当前页码相同
+        Assertions.assertEquals(pageData.getCurrent(), request.getCurrent());
+        // 返回的数据量不超过规定要返回的数据量相同
+        Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= request.getPageSize());
+        request.setSort(Map.of());
+        this.requestPost(OPERATION_HISTORY, request);
+
+    }
+
+    @Test
+    @Order(12)
+    public void testOperationHistorySave() throws Exception {
+        OperationHistoryVersionRequest operationHistoryVersionRequest = new OperationHistoryVersionRequest();
+        apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1002");
+        OperationHistoryExample operationHistoryExample = new OperationHistoryExample();
+        operationHistoryExample.createCriteria().andSourceIdEqualTo(apiDefinition.getId());
+        operationHistoryExample.setOrderByClause("id DESC");
+        OperationHistory operationHistory = operationHistoryMapper.selectByExample(operationHistoryExample).getFirst();
+        operationHistoryVersionRequest.setId(operationHistory.getId());
+        operationHistoryVersionRequest.setSourceId(apiDefinition.getId());
+        operationHistoryVersionRequest.setVersionId(apiDefinition.getVersionId());
+        this.requestPostWithOkAndReturn(OPERATION_HISTORY_SAVE, operationHistoryVersionRequest);
+        checkLogModelList.add(new CheckLogModel(apiDefinition.getId(), OperationLogType.UPDATE, OPERATION_HISTORY_SAVE));
+        OperationHistoryExample comparisonExample = new OperationHistoryExample();
+        comparisonExample.createCriteria().andSourceIdEqualTo(apiDefinition.getId()).andRefIdEqualTo(operationHistory.getId()).andTypeEqualTo(OperationLogType.UPDATE.name());
+        comparisonExample.setOrderByClause("id DESC");
+        OperationHistory comparison = operationHistoryMapper.selectByExample(operationHistoryExample).getFirst();
+        Assertions.assertNotNull(comparison);
+
+        operationHistoryVersionRequest.setId(operationHistory.getId());
+        operationHistoryVersionRequest.setSourceId("1002");
+        operationHistoryVersionRequest.setVersionId("1002002002");
+        this.requestPostWithOkAndReturn(OPERATION_HISTORY_SAVE, operationHistoryVersionRequest);
+        checkLogModelList.add(new CheckLogModel(apiDefinition.getId(), OperationLogType.UPDATE, OPERATION_HISTORY_SAVE));
+        OperationHistoryExample comparisonExampleNewVersion = new OperationHistoryExample();
+        comparisonExampleNewVersion.createCriteria().andSourceIdEqualTo(apiDefinition.getId()).andRefIdEqualTo(operationHistory.getId()).andTypeEqualTo(OperationLogType.UPDATE.name());
+        comparisonExampleNewVersion.setOrderByClause("id DESC");
+        OperationHistory comparisonNewVersion = operationHistoryMapper.selectByExample(operationHistoryExample).getFirst();
+        Assertions.assertNotNull(comparisonNewVersion);
+    }
+
+    @Test
+    @Order(13)
+    public void testOperationHistoryRecover() throws Exception {
+        OperationHistoryVersionRequest operationHistoryVersionRequest = new OperationHistoryVersionRequest();
+        apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1002");
+        OperationHistoryExample operationHistoryExample = new OperationHistoryExample();
+        operationHistoryExample.createCriteria().andSourceIdEqualTo(apiDefinition.getId());
+        operationHistoryExample.setOrderByClause("id DESC");
+        OperationHistory operationHistory = operationHistoryMapper.selectByExample(operationHistoryExample).getFirst();
+        operationHistoryVersionRequest.setId(operationHistory.getId());
+        operationHistoryVersionRequest.setSourceId(apiDefinition.getId());
+        operationHistoryVersionRequest.setVersionId(apiDefinition.getVersionId());
+        this.requestPostWithOkAndReturn(OPERATION_HISTORY_RECOVER, operationHistoryVersionRequest);
+        checkLogModelList.add(new CheckLogModel(apiDefinition.getId(), OperationLogType.RECOVER, OPERATION_HISTORY_RECOVER));
+        OperationHistoryExample comparisonExample = new OperationHistoryExample();
+        comparisonExample.createCriteria().andSourceIdEqualTo(apiDefinition.getId()).andRefIdEqualTo(operationHistory.getId()).andTypeEqualTo(OperationLogType.RECOVER.name());
+        comparisonExample.setOrderByClause("id DESC");
+        OperationHistory comparison = operationHistoryMapper.selectByExample(operationHistoryExample).getFirst();
+        Assertions.assertNotNull(comparison);
+    }
+
+    @Test
+    @Order(14)
     public void testDel() throws Exception {
         LogUtils.info("delete api test");
         apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1001");
@@ -968,7 +1069,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(13)
+    @Order(15)
     public void testBatchDel() throws Exception {
         LogUtils.info("batch delete api test");
         ApiDefinitionBatchRequest request = new ApiDefinitionBatchRequest();
@@ -1002,7 +1103,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
 
     @Test
-    @Order(14)
+    @Order(16)
     public void testRecover() throws Exception {
         LogUtils.info("recover api test");
         apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1001");
@@ -1047,7 +1148,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(15)
+    @Order(20)
     public void testBatchRecover() throws Exception {
         LogUtils.info("batch recover api test");
         ApiDefinitionBatchRequest request = new ApiDefinitionBatchRequest();
@@ -1095,7 +1196,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(16)
+    @Order(21)
     public void testTrashDel() throws Exception {
         LogUtils.info("trashDel api test");
         apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1001");
@@ -1137,7 +1238,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(17)
+    @Order(25)
     public void testBatchTrashDel() throws Exception {
         LogUtils.info("batch trash delete api test");
         ApiDefinitionBatchRequest request = new ApiDefinitionBatchRequest();

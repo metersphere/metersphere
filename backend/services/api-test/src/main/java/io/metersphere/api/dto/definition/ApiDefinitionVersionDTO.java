@@ -20,11 +20,14 @@ public class ApiDefinitionVersionDTO implements Serializable {
     @Schema(description = "接口ID")
     private String id;
 
-    @Schema(description = "名称")
+    @Schema(description = "接口名称")
     private String name;
 
     @Schema(description = "版本id")
     private String versionId;
+
+    @Schema(description = "版本name")
+    private String versionName;
 
     @Schema(description = "版本引用id")
     private String refId;

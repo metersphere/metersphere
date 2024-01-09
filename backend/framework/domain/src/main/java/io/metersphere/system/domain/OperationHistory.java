@@ -36,6 +36,9 @@ public class OperationHistory implements Serializable {
     @Schema(description = "操作模块/api/case/scenario/ui")
     private String module;
 
+    @Schema(description = "关联id（关联变更记录id来源）")
+    private Long refId;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -45,7 +48,8 @@ public class OperationHistory implements Serializable {
         createUser("create_user", "createUser", "VARCHAR", false),
         sourceId("source_id", "sourceId", "VARCHAR", false),
         type("type", "type", "VARCHAR", true),
-        module("module", "module", "VARCHAR", true);
+        module("module", "module", "VARCHAR", true),
+        refId("ref_id", "refId", "BIGINT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 
