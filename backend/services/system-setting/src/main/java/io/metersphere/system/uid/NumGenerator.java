@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class NumGenerator {
     private static final long INIT = 100001L; // 代表从100001开始，各种domain的 num
+    private static final long SUB_INIT = 101L; // 代表从101开始，二级各种domain的 num
     private static final long LIMIT = 1;
 
     private static Redisson redisson;
@@ -32,7 +33,7 @@ public class NumGenerator {
         // 每次都尝试初始化，容量为1，只有一个线程可以初始化成功
         if (scope.equals(ApplicationNumScope.API_TEST_CASE)) {
             // 二级的用例
-            idGenerator.tryInit(Long.parseLong(prefix.split("_")[1] + INIT), LIMIT);
+            idGenerator.tryInit(Long.parseLong(prefix.split("_")[1] + SUB_INIT), LIMIT);
         } else {
             idGenerator.tryInit(INIT, LIMIT);
         }
