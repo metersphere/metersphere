@@ -58,9 +58,10 @@
     </select>
 
 
-    <select id="getUserByPermission" resultType="io.metersphere.system.domain.User">
-        SELECT u.id, u.name, u.email
+    <select id="getUserByPermission" resultType="io.metersphere.functional.dto.UserDTO">
+        SELECT u.id as id, u.name as name, u.email as email, ue.avatar as avatar
         FROM user u
+        LEFT JOIN user_extend ue ON u.id = ue.id
         LEFT JOIN user_role_relation urr ON u.id = urr.user_id
         WHERE urr.role_id IN (SELECT urp.role_id FROM user_role_permission urp WHERE urp.permission_id = #{permission})
         AND urr.source_id = #{projectId}
