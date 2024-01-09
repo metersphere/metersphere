@@ -216,7 +216,7 @@
 
   const initData = async () => {
     setLoadListParams({ keyword: platformKeyword.value });
-    loadList();
+    // loadList();
   };
 
   const searchHandler = () => {
@@ -225,11 +225,8 @@
   };
 
   onMounted(() => {
-    initData();
-  });
-
-  onMounted(() => {
     resetSelector();
+    initData();
   });
 </script>
 

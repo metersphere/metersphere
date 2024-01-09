@@ -11,12 +11,7 @@
   </div>
   <div>
     <!-- TODO -->
-    <!-- <MsComment
-      :current-user-id="currentUserId"
-      :comment-list="commentList"
-      @update-or-add="handleUpdateOrAdd"
-      @delete="handleDelete"
-    /> -->
+    <MsComment :comment-list="commentList" @delete="handleDelete" @update-or-add="handleUpdate" />
   </div>
 </template>
 
@@ -24,11 +19,10 @@
   import { ref } from 'vue';
 
   import MsComment from '@/components/business/ms-comment/comment';
+  import { CommentItem, CommentParams } from '@/components/business/ms-comment/types';
 
   import { getCommentList } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
-
-  import type { CommentItem } from '@/models/caseManagement/featureCase';
 
   const { t } = useI18n();
 
@@ -58,6 +52,9 @@
 
   // 删除评论
   function handleDelete() {}
+
+  // 更新评论
+  function handleUpdate() {}
 
   onBeforeMount(() => {
     initCommentList();

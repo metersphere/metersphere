@@ -38,7 +38,6 @@
   import { useAppStore } from '@/store';
 
   import type { DemandItem } from '@/models/caseManagement/featureCase';
-  import { TableKeyEnum } from '@/enums/tableEnum';
 
   const appStore = useAppStore();
   const pageConfig = computed(() => appStore.pageConfig);
@@ -99,7 +98,6 @@
   ];
 
   const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getDemandList, {
-    tableKey: TableKeyEnum.CASE_MANAGEMENT_DEMAND,
     columns,
     rowKey: 'id',
     scroll: { x: '100%' },
@@ -120,6 +118,7 @@
   defineExpose({
     initData,
   });
+
   const tableRef = ref<InstanceType<typeof MsBaseTable> | null>(null);
 
   watch(

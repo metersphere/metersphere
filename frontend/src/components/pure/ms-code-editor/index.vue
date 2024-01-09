@@ -41,6 +41,7 @@
     setup(props, { emit }) {
       const { t } = useI18n();
       let editor: monaco.editor.IStandaloneCodeEditor;
+
       const codeEditBox = ref();
       const fullRef = ref<HTMLElement | null>();
       const currentTheme = ref<Theme>(props.theme);
@@ -83,8 +84,6 @@
           emit('update:modelValue', value);
           emit('change', value);
         });
-
-        emit('editorMounted', editor);
       };
 
       const setEditBoxBg = () => {
@@ -100,6 +99,26 @@
       };
 
       const { isFullscreen, toggle } = useFullscreen(fullRef);
+
+      // 插入内容
+      const insertContent = (text: string) => {
+        if (editor) {
+          const position = editor.getPosition();
+          if (position) {
+            editor.executeEdits('', [
+              {
+                range: new monaco.Range(position?.lineNumber, position?.column, position?.lineNumber, position?.column),
+                text,
+              },
+            ]);
+            editor.setPosition({
+              lineNumber: position?.lineNumber,
+              column: position.column + text.length,
+            });
+          }
+          editor.focus();
+        }
+      };
 
       watch(
         () => props.modelValue,
@@ -137,7 +156,17 @@
         setEditBoxBg();
       });
 
-      return { codeEditBox, fullRef, isFullscreen, currentTheme, themeOptions, toggle, t, handleThemeChange };
+      return {
+        codeEditBox,
+        fullRef,
+        isFullscreen,
+        currentTheme,
+        themeOptions,
+        toggle,
+        t,
+        handleThemeChange,
+        insertContent,
+      };
     },
   });
 </script>

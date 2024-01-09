@@ -116,3 +116,7 @@ export const GetDependOnRelationUrl = '/functional/case/relationship/relate/page
 export const AddDependOnRelationUrl = '/functional/case/relationship/add';
 // 取消关联前后置关系
 export const cancelPreAndPostCaseUrl = '/functional/case/relationship/delete';
+// 关联用例
+export const publicAssociatedCaseUrl = '/functional/case/test/associate/case';
+// 获取关联用例已关联列表
+export const GetAssociatedDrawerCaseUrl = '/functional/case/test/has/associate/case/page';

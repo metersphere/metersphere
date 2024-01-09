@@ -14,6 +14,8 @@
         :placeholder="t('caseManagement.featureCase.searchByNameAndId')"
         allow-clear
         class="mx-[8px] w-[240px]"
+        @search="searchCase"
+        @press-enter="searchCase"
       ></a-input-search>
     </div>
     <ms-base-table v-bind="propsRes" v-on="propsEvent">
@@ -56,12 +58,12 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsCaseAssociate from '@/components/business/ms-case-associate/index.vue';
 
-  import { getAssociatedIds } from '@/api/modules/case-management/caseReview';
   import {
+    associationPublicCase,
+    getAssociatedCasePage,
     getPublicLinkCaseList,
     getPublicLinkCaseModulesCounts,
     getPublicLinkModuleTree,
-    getRecycleListRequest,
   } from '@/api/modules/case-management/featureCase';
   import { postTabletList } from '@/api/modules/project-management/menuManagement';
   import { useI18n } from '@/hooks/useI18n';
@@ -69,6 +71,8 @@
 
   import type { TableQueryParams } from '@/models/common';
   import { TableKeyEnum } from '@/enums/tableEnum';
+
+  import Message from '@arco-design/web-vue/es/message';
 
   const appStore = useAppStore();
 
@@ -149,7 +153,7 @@
     },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getRecycleListRequest, {
+  const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(getAssociatedCasePage, {
     columns,
     tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_DEPENDENCY_PRE_CASE,
     scroll: { x: '100%' },
@@ -166,14 +170,6 @@
 
   const associatedIds = ref<string[]>([]);
 
-  async function getLinkedIds() {
-    // try {
-    //   associatedIds.value = await getAssociatedIds('1111');
-    // } catch (error) {
-    //   console.log(error);
-    // }
-  }
-
   const currentSelectCase = ref<string>('');
 
   const countParams = ref<TableQueryParams>({});
@@ -181,23 +177,10 @@
   const modulesTreeParams = ref<TableQueryParams>({});
 
   const getTableParams = ref<TableQueryParams>({});
-  function getParams() {
-    switch (currentSelectCase.value) {
-      case 'API':
-        modulesTreeParams.value = { protocol: 'HTTP' };
-        countParams.value = { sourceId: props.caseId, protocol: 'HTTP' };
-        getTableParams.value = { sourceId: props.caseId, protocol: 'HTTP' };
-        break;
-      default:
-        break;
-    }
-  }
 
   function handleSelect(value: string | number | Record<string, any> | undefined) {
     currentSelectCase.value = value as string;
     innerVisible.value = true;
-    getLinkedIds();
-    // getParams();
   }
 
   function cancelLink(record: any) {}
@@ -216,8 +199,17 @@
 
   const confirmLoading = ref<boolean>(false);
 
-  function saveHandler(params: TableQueryParams) {
-    console.log(params);
+  async function saveHandler(params: TableQueryParams) {
+    try {
+      confirmLoading.value = true;
+      await associationPublicCase(params);
+      Message.success(t('caseManagement.featureCase.AssociatedSuccess'));
+      innerVisible.value = false;
+    } catch (error) {
+      console.log(error);
+    } finally {
+      confirmLoading.value = false;
+    }
   }
 
   const moduleMaps: Record<string, { label: string; value: string }[]> = {
@@ -245,7 +237,7 @@
     ],
   };
 
-  onMounted(async () => {
+  async function getEnabledModules() {
     const result = await postTabletList({ projectId: currentProjectId.value });
     const caseArr = result.filter((item) => Object.keys(moduleMaps).includes(item.module));
     caseArr.forEach((item: any) => {
@@ -253,7 +245,26 @@
       caseTypeOptions.value.push(...currentModule);
     });
     currentSelectCase.value = caseTypeOptions.value[0].value;
-    getParams();
+  }
+
+  function getFetch() {
+    setLoadListParams({
+      keyword: keyword.value,
+      sourceId: props.caseId,
+      projectId: currentProjectId.value,
+      sourceType: currentSelectCase.value,
+    });
+    loadList();
+  }
+
+  async function searchCase() {
+    setKeyword(keyword.value);
+    await loadList();
+  }
+
+  onMounted(async () => {
+    getEnabledModules();
+    getFetch();
   });
 </script>
 
