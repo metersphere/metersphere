@@ -400,6 +400,7 @@ export default {
                 "api_test.environment.common_config"
             )}【${repeatKey}】${this.$t("load_test.param_is_duplicate")}`
         );
+        return;
       }
 
       // 移除多余的空行
@@ -419,11 +420,7 @@ export default {
         );
         this.currentPage = Math.ceil(this.items.length / this.pageSize);
       }
-
-      // 重置并过滤数据
-      this.allData = [];
-      this._filter();
-      this.queryPage();
+      this.filter();
 
       // 触发变更事件
       this.$emit("change", this.items);
@@ -699,7 +696,7 @@ export default {
           }
           this.allData = this.items;
         });
-        this.queryPage();
+        this.filter();
       }
       this.currentPage = Math.ceil(this.items.length / this.pageSize);
     },
