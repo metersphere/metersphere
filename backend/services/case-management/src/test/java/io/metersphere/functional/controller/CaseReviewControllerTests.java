@@ -586,7 +586,6 @@ public class CaseReviewControllerTests extends BaseTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
         CaseReview caseReview = caseReviewMapper.selectByPrimaryKey(caseReviewId);
         Assertions.assertEquals(0, caseReview.getPassRate().compareTo(BigDecimal.ZERO));
-
     }
 
     @Test
@@ -597,7 +596,7 @@ public class CaseReviewControllerTests extends BaseTest {
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .header(SessionConstants.CURRENT_PROJECT, projectId)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().is5xxServerError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
 
         String caseReviewId = caseReviews.get(0).getId();
@@ -605,7 +604,7 @@ public class CaseReviewControllerTests extends BaseTest {
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .header(SessionConstants.CURRENT_PROJECT, projectId)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().is5xxServerError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
 
     }

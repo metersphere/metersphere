@@ -557,6 +557,8 @@ public class CaseReviewService {
     }
 
     public void disassociate(String reviewId, String caseId, String userId) {
+        checkCaseReview(reviewId);
+        checkCase(caseId);
         //1.刪除评审与功能用例关联关系
         CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
         caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo(caseId);
@@ -568,6 +570,13 @@ public class CaseReviewService {
         param.put(CaseEvent.Param.USER_ID, userId);
         param.put(CaseEvent.Param.EVENT_NAME, CaseEvent.Event.DISASSOCIATE);
         provider.updateCaseReview(param);
+    }
+
+    private void checkCase(String caseId) {
+        FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(caseId);
+        if (functionalCase == null) {
+            throw new MSException(CaseManagementResultCode.FUNCTIONAL_CASE_NOT_FOUND);
+        }
     }
 
     public Map<String, Long> moduleCount(CaseReviewPageRequest request) {
