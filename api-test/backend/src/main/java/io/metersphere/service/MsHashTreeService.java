@@ -157,6 +157,9 @@ public class MsHashTreeService {
 
             List<JSONObject> pre = ElementUtil.mergeHashTree(groupMap.get(PRE), targetGroupMap.get(PRE));
             List<JSONObject> post = ElementUtil.mergeHashTree(groupMap.get(POST), targetGroupMap.get(POST));
+            //合并断言 历史原因数据结构不一致
+            groupMap.put(ASSERTIONS, mergeOrgAssertion(groupMap.get(ASSERTIONS)));
+            targetGroupMap.put(ASSERTIONS, mergeOrgAssertion(targetGroupMap.get(ASSERTIONS)));
             List<JSONObject> rules = mergeAssertions(groupMap.get(ASSERTIONS), targetGroupMap.get(ASSERTIONS));
             List<JSONObject> step = new LinkedList<>();
             if (CollectionUtils.isNotEmpty(pre)) {
@@ -174,6 +177,30 @@ public class MsHashTreeService {
         element.put(DISABLED, true);
         element.put(NAME, apiCase.getName());
     }
+
+    public List<JSONObject> mergeOrgAssertion(List<JSONObject> orgAssertions) {
+        if (CollectionUtils.isNotEmpty(orgAssertions) && orgAssertions.size() > 1) {
+            //根据不同的类型，把所有的数据都合并到第一个上
+            JSONObject jsonObject = orgAssertions.get(0);
+
+            for (int i = 1; i < orgAssertions.size(); i++) {
+                JSONObject jsonObject1 = orgAssertions.get(i);
+                //jsonPath
+                mergeArrayAssertions(jsonObject.optJSONArray(JSON_PATH), jsonObject1.optJSONArray(JSON_PATH));
+                mergeArrayAssertions(jsonObject.optJSONArray(JSR223), jsonObject1.optJSONArray(JSR223));
+                mergeArrayAssertions(jsonObject.optJSONArray(XPATH), jsonObject1.optJSONArray(XPATH));
+                mergeArrayAssertions(jsonObject.optJSONArray(REGEX), jsonObject1.optJSONArray(REGEX));
+            }
+        }
+        return List.of(orgAssertions.get(0));
+    }
+
+    public void mergeArrayAssertions(JSONArray org, JSONArray org1) {
+        if (!org1.isEmpty()) {
+            org.put(org1.getJSONObject(0));
+        }
+    }
+
 
     private JSONObject setRequest(JSONObject element, Map<String, ApiTestCaseInfo> caseMap,
                                   Map<String, ApiDefinitionResult> apiMap, ParameterConfig msParameter) {
