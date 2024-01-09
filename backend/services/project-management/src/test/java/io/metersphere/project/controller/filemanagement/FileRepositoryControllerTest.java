@@ -192,7 +192,23 @@ public class FileRepositoryControllerTest extends BaseTest {
         createRequest.setUserName(giteeUserName);
         createRequest.setToken(giteeToken);
         createRequest.setName("GITEE存储库");
-        result = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE, createRequest);
+
+        int tryCount = 0;
+        while (true) {
+            //github连接gitee有时会连不到，这里重试10次。
+            result = this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE, createRequest).andReturn();
+            if (result.getResponse().getStatus() == 200) {
+                break;
+            } else {
+                tryCount++;
+                if (tryCount > 10) {
+                    throw new Exception("无法创建gitee存储库");
+                } else {
+                    Thread.sleep(1000);
+                }
+            }
+        }
+
         returnStr = result.getResponse().getContentAsString();
         rh = JSON.parseObject(returnStr, ResultHolder.class);
         this.checkFileRepository(rh.getData().toString(), createRequest.getProjectId(), createRequest.getName(), createRequest.getPlatform(), createRequest.getUrl(), createRequest.getToken(), createRequest.getUserName());
