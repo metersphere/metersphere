@@ -12,7 +12,7 @@
     <result column="storage" jdbcType="VARCHAR" property="storage" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
-    <result column="tags" jdbcType="VARCHAR" property="tags" />
+    <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
     <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="module_id" jdbcType="VARCHAR" property="moduleId" />
     <result column="path" jdbcType="VARCHAR" property="path" />
@@ -45,6 +45,25 @@
                 </when>
               </choose>
             </foreach>
+            <foreach collection="criteria.tagsCriteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler} and #{criterion.secondValue,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem,typeHandler=io.metersphere.handler.ListTypeHandler}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
           </trim>
         </if>
       </foreach>
@@ -70,6 +89,25 @@
                   and ${criterion.condition}
                   <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
                     #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+            <foreach collection="criteria.tagsCriteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler} and #{criterion.secondValue,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem,typeHandler=io.metersphere.handler.ListTypeHandler}
                   </foreach>
                 </when>
               </choose>
@@ -117,16 +155,16 @@
     insert into file_metadata (id, `name`, `type`, 
       `size`, create_time, update_time, 
       project_id, `storage`, create_user, 
-      update_user, tags, description, 
-      module_id, `path`, latest, 
-      `enable`, ref_id, file_version
+      update_user, tags, 
+      description, module_id, `path`, 
+      latest, `enable`, ref_id, file_version
       )
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
       #{size,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{projectId,jdbcType=VARCHAR}, #{storage,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
-      #{updateUser,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
-      #{moduleId,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, #{latest,jdbcType=BIT}, 
-      #{enable,jdbcType=BIT}, #{refId,jdbcType=VARCHAR}, #{fileVersion,jdbcType=VARCHAR}
+      #{updateUser,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
+      #{description,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, 
+      #{latest,jdbcType=BIT}, #{enable,jdbcType=BIT}, #{refId,jdbcType=VARCHAR}, #{fileVersion,jdbcType=VARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.FileMetadata">
@@ -219,7 +257,7 @@
         #{updateUser,jdbcType=VARCHAR},
       </if>
       <if test="tags != null">
-        #{tags,jdbcType=VARCHAR},
+        #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       </if>
       <if test="description != null">
         #{description,jdbcType=VARCHAR},
@@ -284,7 +322,7 @@
         update_user = #{record.updateUser,jdbcType=VARCHAR},
       </if>
       <if test="record.tags != null">
-        tags = #{record.tags,jdbcType=VARCHAR},
+        tags = #{record.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=VARCHAR},
@@ -324,7 +362,7 @@
       `storage` = #{record.storage,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       update_user = #{record.updateUser,jdbcType=VARCHAR},
-      tags = #{record.tags,jdbcType=VARCHAR},
+      tags = #{record.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       description = #{record.description,jdbcType=VARCHAR},
       module_id = #{record.moduleId,jdbcType=VARCHAR},
       `path` = #{record.path,jdbcType=VARCHAR},
@@ -367,7 +405,7 @@
         update_user = #{updateUser,jdbcType=VARCHAR},
       </if>
       <if test="tags != null">
-        tags = #{tags,jdbcType=VARCHAR},
+        tags = #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       </if>
       <if test="description != null">
         description = #{description,jdbcType=VARCHAR},
@@ -404,7 +442,7 @@
       `storage` = #{storage,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
       update_user = #{updateUser,jdbcType=VARCHAR},
-      tags = #{tags,jdbcType=VARCHAR},
+      tags = #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       description = #{description,jdbcType=VARCHAR},
       module_id = #{moduleId,jdbcType=VARCHAR},
       `path` = #{path,jdbcType=VARCHAR},
@@ -424,10 +462,10 @@
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, 
         #{item.size,jdbcType=BIGINT}, #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, 
         #{item.projectId,jdbcType=VARCHAR}, #{item.storage,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, 
-        #{item.updateUser,jdbcType=VARCHAR}, #{item.tags,jdbcType=VARCHAR}, #{item.description,jdbcType=VARCHAR}, 
-        #{item.moduleId,jdbcType=VARCHAR}, #{item.path,jdbcType=VARCHAR}, #{item.latest,jdbcType=BIT}, 
-        #{item.enable,jdbcType=BIT}, #{item.refId,jdbcType=VARCHAR}, #{item.fileVersion,jdbcType=VARCHAR}
-        )
+        #{item.updateUser,jdbcType=VARCHAR}, #{item.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
+        #{item.description,jdbcType=VARCHAR}, #{item.moduleId,jdbcType=VARCHAR}, #{item.path,jdbcType=VARCHAR}, 
+        #{item.latest,jdbcType=BIT}, #{item.enable,jdbcType=BIT}, #{item.refId,jdbcType=VARCHAR}, 
+        #{item.fileVersion,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -471,7 +509,7 @@
           #{item.updateUser,jdbcType=VARCHAR}
         </if>
         <if test="'tags'.toString() == column.value">
-          #{item.tags,jdbcType=VARCHAR}
+          #{item.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}
         </if>
         <if test="'description'.toString() == column.value">
           #{item.description,jdbcType=VARCHAR}

@@ -22,7 +22,10 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileRepository;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.file.MinioRepository;
-import io.metersphere.sdk.util.*;
+import io.metersphere.sdk.util.CommonBeanFactory;
+import io.metersphere.sdk.util.GitRepositoryUtil;
+import io.metersphere.sdk.util.TempFileUtils;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.PageUtils;
@@ -358,7 +361,7 @@ public class FileMetadataService {
                 updateExample.setName(request.getName());
             }
             if (request.getTags() != null) {
-                updateExample.setTags(JSON.toJSONString(request.getTags()));
+                updateExample.setTags(request.getTags());
             } else {
                 updateExample.setTags(null);
             }
