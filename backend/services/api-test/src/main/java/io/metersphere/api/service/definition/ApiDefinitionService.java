@@ -22,10 +22,17 @@ import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.ModuleConstants;
+import io.metersphere.sdk.domain.OperationLogBlob;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.mapper.OperationLogBlobMapper;
 import io.metersphere.sdk.util.*;
+import io.metersphere.system.dto.OperationHistoryDTO;
+import io.metersphere.system.dto.request.OperationHistoryRequest;
+import io.metersphere.system.dto.request.OperationHistoryVersionRequest;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.service.OperationHistoryService;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
@@ -42,6 +49,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -106,6 +114,12 @@ public class ApiDefinitionService {
 
     @Resource
     private ApiDefinitionMockService apiDefinitionMockService;
+
+    @Resource
+    private OperationHistoryService operationHistoryService;
+
+    @Resource
+    private OperationLogBlobMapper operationLogBlobMapper;
 
     public List<ApiDefinitionDTO> getApiDefinitionPage(ApiDefinitionPageRequest request, String userId) {
         CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(request, userId);
@@ -909,5 +923,85 @@ public class ApiDefinitionService {
             throw new MSException(Translator.get("user_import_format_wrong"));
         }
         return apiImport;
+    }
+    public List<OperationHistoryDTO> list(OperationHistoryRequest request) {
+        List<OperationHistoryDTO> operationHistoryList = operationHistoryService.list(request);
+        if (CollectionUtils.isNotEmpty(operationHistoryList)) {
+            List<String> apiIds = operationHistoryList.stream()
+                    .map(OperationHistoryDTO::getSourceId).toList();
+
+            Map<String, String> apiMap = extApiDefinitionMapper.selectVersionOptionByIds(apiIds).stream()
+                    .collect(Collectors.toMap(OptionDTO::getId, OptionDTO::getName));
+
+            operationHistoryList.forEach(item -> item.setVersionName(apiMap.getOrDefault(item.getSourceId(), StringUtils.EMPTY)));
+        }
+
+        return operationHistoryList;
+    }
+
+    /**
+     * 是否存在所选版本的接口定义，不存在则创建,同时创建日志记录
+     */
+    public void saveOperationHistory(OperationHistoryVersionRequest request) {
+        ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
+        apiDefinitionExample.createCriteria().andRefIdEqualTo(request.getSourceId()).andVersionIdEqualTo(request.getVersionId());
+        List<ApiDefinition> matchingApiDefinitions = apiDefinitionMapper.selectByExample(apiDefinitionExample);
+        ApiDefinition apiDefinition = matchingApiDefinitions.stream().findFirst().orElseGet(ApiDefinition::new);
+        ApiDefinitionBlob copyApiDefinitionBlob = getApiDefinitionBlob(request.getSourceId());
+        if (apiDefinition.getId() == null) {
+            ApiDefinition copyApiDefinition = apiDefinitionMapper.selectByPrimaryKey(request.getSourceId());
+            BeanUtils.copyBean(apiDefinition, copyApiDefinition);
+            apiDefinition.setId(IDGenerator.nextStr());
+            apiDefinition.setRefId(request.getSourceId());
+            apiDefinition.setVersionId(request.getVersionId());
+            apiDefinition.setCreateTime(System.currentTimeMillis());
+            apiDefinition.setUpdateTime(System.currentTimeMillis());
+            apiDefinitionMapper.insertSelective(apiDefinition);
+
+            ApiDefinitionBlob apiDefinitionBlob = new ApiDefinitionBlob();
+            if(copyApiDefinitionBlob != null) {
+                apiDefinitionBlob.setId(apiDefinition.getId());
+                apiDefinitionBlob.setRequest(copyApiDefinitionBlob.getRequest());
+                apiDefinitionBlob.setResponse(copyApiDefinitionBlob.getResponse());
+                apiDefinitionBlobMapper.insertSelective(apiDefinitionBlob);
+            }
+        }
+        ApiDefinitionDTO apiDefinitionDTO = new ApiDefinitionDTO();
+        BeanUtils.copyBean(apiDefinitionDTO, apiDefinition);
+        Optional.ofNullable(copyApiDefinitionBlob)
+                .map(blob -> new String(blob.getRequest()))
+                .ifPresent(requestBlob -> apiDefinitionDTO.setRequest(ApiDataUtils.parseObject(requestBlob, AbstractMsTestElement.class)));
+
+        Optional.ofNullable(copyApiDefinitionBlob)
+                .map(blob -> new String(blob.getResponse()))
+                .ifPresent(responseBlob -> apiDefinitionDTO.setResponse(ApiDataUtils.parseArray(responseBlob, HttpResponse.class)));
+
+        Long logId = apiDefinitionLogService.saveOperationHistoryLog(apiDefinitionDTO, apiDefinition.getCreateUser(), apiDefinition.getProjectId());
+        operationHistoryService.associationRefId(request.getId(), logId);
+    }
+
+
+
+    public void recoverOperationHistory(OperationHistoryVersionRequest request) {
+        OperationLogBlob operationLogBlob = operationLogBlobMapper.selectByPrimaryKey(request.getId());
+        ApiDefinitionDTO apiDefinitionDTO = ApiDataUtils.parseObject(new String(operationLogBlob.getOriginalValue()), ApiDefinitionDTO.class);
+        Long logId = recoverApiDefinition(apiDefinitionDTO);
+        operationHistoryService.associationRefId(operationLogBlob.getId(), logId);
+    }
+
+    public Long recoverApiDefinition(ApiDefinitionDTO apiDefinitionDTO) {
+        ApiDefinition apiDefinition = new ApiDefinition();
+        BeanUtils.copyBean(apiDefinition, apiDefinitionDTO);
+        apiDefinition.setUpdateTime(System.currentTimeMillis());
+        apiDefinitionMapper.updateByPrimaryKeySelective(apiDefinition);
+
+        ApiDefinitionBlob apiDefinitionBlob = new ApiDefinitionBlob();
+        apiDefinitionBlob.setId(apiDefinition.getId());
+        apiDefinitionBlob.setRequest(ApiDataUtils.toJSONString(apiDefinitionDTO.getRequest()).getBytes(StandardCharsets.UTF_8));
+        apiDefinitionBlob.setResponse(ApiDataUtils.toJSONString(apiDefinitionDTO.getResponse()).getBytes(StandardCharsets.UTF_8));
+        apiDefinitionBlobMapper.updateByPrimaryKeySelective(apiDefinitionBlob);
+
+        // 记录操作日志
+        return apiDefinitionLogService.recoverOperationHistoryLog(apiDefinitionDTO, apiDefinition.getCreateUser(), apiDefinition.getProjectId());
     }
 }

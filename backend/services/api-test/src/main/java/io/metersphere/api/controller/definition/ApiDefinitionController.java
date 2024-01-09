@@ -9,6 +9,9 @@ import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.service.definition.ApiDefinitionLogService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.dto.OperationHistoryDTO;
+import io.metersphere.system.dto.request.OperationHistoryRequest;
+import io.metersphere.system.dto.request.OperationHistoryVersionRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOwner;
@@ -201,5 +204,32 @@ public class ApiDefinitionController {
     public ApiDefinitionImport testCaseImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request") ImportRequest request) {
         return apiDefinitionService.apiTestImport(file, request);
     }
+
+    @PostMapping("/operation-history")
+    @Operation(summary = "接口测试-接口管理-接口变更历史")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @CheckOwner(resourceId = "#request.getSourceId()", resourceType = "api_definition")
+    public Pager<List<OperationHistoryDTO>> operationHistoryList(@Validated @RequestBody OperationHistoryRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+        return PageUtils.setPageInfo(page, apiDefinitionService.list(request));
+    }
+
+    @PostMapping("/operation-history/recover")
+    @Operation(summary = "接口测试-接口管理-接口变更历史恢复")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_UPDATE)
+    @CheckOwner(resourceId = "#request.getId()", resourceType = "operation_history")
+    public void operationHistoryRecover(@Validated @RequestBody OperationHistoryVersionRequest request) {
+        apiDefinitionService.recoverOperationHistory(request);
+    }
+
+    @PostMapping("/operation-history/save")
+    @Operation(summary = "接口测试-接口管理-另存变更历史为指定版本")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_UPDATE)
+    @CheckOwner(resourceId = "#request.getId()", resourceType = "operation_history")
+    public void saveOperationHistory(@Validated @RequestBody OperationHistoryVersionRequest request) {
+        apiDefinitionService.saveOperationHistory(request);
+    }
+
 
 }

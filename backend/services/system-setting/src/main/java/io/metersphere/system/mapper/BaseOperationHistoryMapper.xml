@@ -18,4 +18,26 @@
             #{id}
         </foreach>
     </delete>
+
+    <select id="list" resultType="io.metersphere.system.dto.OperationHistoryDTO">
+        select id, project_id, create_time, create_user, source_id, `type`, `module`, ref_id
+        from operation_history
+        <where>
+            <if test="request.projectId != null and request.projectId != ''">
+                AND project_id = #{request.projectId,jdbcType=VARCHAR}
+            </if>
+            <if test="request.sourceId != null and request.sourceId != ''">
+                AND source_id = #{request.sourceId,jdbcType=VARCHAR}
+            </if>
+            <if test="request.createUser != null and request.createUser != ''">
+                AND create_user = #{request.createUser,jdbcType=VARCHAR}
+            </if>
+            <if test="request.type != null and request.type != ''">
+                AND `type` = #{request.type,jdbcType=VARCHAR}
+            </if>
+            <if test="request.module != null and request.module != ''">
+                AND `module` = #{request.module,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
 </mapper>

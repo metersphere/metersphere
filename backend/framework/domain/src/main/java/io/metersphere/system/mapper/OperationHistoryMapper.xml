@@ -9,6 +9,7 @@
     <result column="source_id" jdbcType="VARCHAR" property="sourceId" />
     <result column="type" jdbcType="VARCHAR" property="type" />
     <result column="module" jdbcType="VARCHAR" property="module" />
+    <result column="ref_id" jdbcType="BIGINT" property="refId" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -69,7 +70,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, create_time, create_user, source_id, `type`, `module`
+    id, project_id, create_time, create_user, source_id, `type`, `module`, ref_id
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.OperationHistoryExample" resultMap="BaseResultMap">
     select
@@ -104,10 +105,10 @@
   <insert id="insert" parameterType="io.metersphere.system.domain.OperationHistory">
     insert into operation_history (id, project_id, create_time, 
       create_user, source_id, `type`, 
-      `module`)
+      `module`, ref_id)
     values (#{id,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
       #{createUser,jdbcType=VARCHAR}, #{sourceId,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
-      #{module,jdbcType=VARCHAR})
+      #{module,jdbcType=VARCHAR}, #{refId,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.OperationHistory">
     insert into operation_history
@@ -133,6 +134,9 @@
       <if test="module != null">
         `module`,
       </if>
+      <if test="refId != null">
+        ref_id,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -155,6 +159,9 @@
       </if>
       <if test="module != null">
         #{module,jdbcType=VARCHAR},
+      </if>
+      <if test="refId != null">
+        #{refId,jdbcType=BIGINT},
       </if>
     </trim>
   </insert>
@@ -188,6 +195,9 @@
       <if test="record.module != null">
         `module` = #{record.module,jdbcType=VARCHAR},
       </if>
+      <if test="record.refId != null">
+        ref_id = #{record.refId,jdbcType=BIGINT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -201,7 +211,8 @@
       create_user = #{record.createUser,jdbcType=VARCHAR},
       source_id = #{record.sourceId,jdbcType=VARCHAR},
       `type` = #{record.type,jdbcType=VARCHAR},
-      `module` = #{record.module,jdbcType=VARCHAR}
+      `module` = #{record.module,jdbcType=VARCHAR},
+      ref_id = #{record.refId,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -227,6 +238,9 @@
       <if test="module != null">
         `module` = #{module,jdbcType=VARCHAR},
       </if>
+      <if test="refId != null">
+        ref_id = #{refId,jdbcType=BIGINT},
+      </if>
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
@@ -237,17 +251,18 @@
       create_user = #{createUser,jdbcType=VARCHAR},
       source_id = #{sourceId,jdbcType=VARCHAR},
       `type` = #{type,jdbcType=VARCHAR},
-      `module` = #{module,jdbcType=VARCHAR}
+      `module` = #{module,jdbcType=VARCHAR},
+      ref_id = #{refId,jdbcType=BIGINT}
     where id = #{id,jdbcType=BIGINT}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into operation_history
-    (id, project_id, create_time, create_user, source_id, `type`, `module`)
+    (id, project_id, create_time, create_user, source_id, `type`, `module`, ref_id)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=BIGINT}, #{item.projectId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
         #{item.createUser,jdbcType=VARCHAR}, #{item.sourceId,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, 
-        #{item.module,jdbcType=VARCHAR})
+        #{item.module,jdbcType=VARCHAR}, #{item.refId,jdbcType=BIGINT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -280,6 +295,9 @@
         </if>
         <if test="'module'.toString() == column.value">
           #{item.module,jdbcType=VARCHAR}
+        </if>
+        <if test="'ref_id'.toString() == column.value">
+          #{item.refId,jdbcType=BIGINT}
         </if>
       </foreach>
       )

@@ -118,13 +118,15 @@
     </select>
 
     <select id="getApiDefinitionByRefId" resultType="io.metersphere.api.dto.definition.ApiDefinitionVersionDTO">
-        SELECT id,
-               `name`,
-               version_id,
-               ref_id,
-               project_id
-        FROM api_definition
-        WHERE ref_id = #{refId}
+        SELECT api_definition.id,
+               api_definition.`name`,
+               api_definition.version_id,
+               api_definition.ref_id,
+               api_definition.project_id,
+               project_version.name as version_name
+        from api_definition
+         LEFT JOIN project_version ON project_version.id = api_definition.version_id
+        where api_definition.ref_id = #{refId}
     </select>
 
     <select id="getTagsByIds" resultMap="BaseResultMap">
@@ -470,4 +472,26 @@
         </include>
     </sql>
 
+    <select id="selectVersionOptionByIds" resultType="io.metersphere.system.dto.sdk.OptionDTO">
+        select
+            api_definition.id, project_version.name as name
+        from api_definition
+        LEFT JOIN project_version ON project_version.id = api_definition.version_id
+        where api_definition.ref_id in
+        <foreach collection="apiIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectApiDefinitionByVersion" resultType="io.metersphere.api.domain.ApiDefinition">
+        select
+            api_definition.id, api_definition.`name`, api_definition.protocol, api_definition.`method`,
+            api_definition.`path`, api_definition.`status`, api_definition.num, api_definition.tags, api_definition.pos,
+            api_definition.project_id, api_definition.module_id, api_definition.latest, api_definition.version_id,
+            api_definition.ref_id, api_definition.description, api_definition.create_time, api_definition.create_user,
+            api_definition.update_time, api_definition.update_user, api_definition.delete_user, api_definition.delete_time,
+            api_definition.deleted
+        from api_definition
+        where api_definition.ref_id = #{refId} and api_definition.version_id = #{versionId}
+    </select>
 </mapper>

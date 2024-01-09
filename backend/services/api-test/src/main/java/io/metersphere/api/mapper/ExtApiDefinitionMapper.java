@@ -3,6 +3,7 @@ package io.metersphere.api.mapper;
 import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.importdto.ApiDefinitionImportDTO;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import org.apache.ibatis.annotations.Param;
 
@@ -46,4 +47,8 @@ public interface ExtApiDefinitionMapper {
     List<String> selectIdsByIdsAndDeleted(@Param("ids") List<String> ids, @Param("deleted") boolean deleted);
 
     List<String> selectByProjectId(@Param("projectId") String projectId);
+
+    List<OptionDTO> selectVersionOptionByIds(@Param("apiIds") List<String> apiIds);
+
+    ApiDefinition selectApiDefinitionByVersion(@Param("refId") String refId, @Param("versionId") String versionId);
 }
