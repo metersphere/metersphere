@@ -536,13 +536,13 @@ public class CaseReviewFunctionalCaseService extends ModuleTreeService {
         return super.buildTreeAndCountResource(functionalModuleList, true, Translator.get("default.module"));
     }
 
-    public Map<String, Long> moduleCount(ReviewFunctionalCasePageRequest request, boolean deleted) {
+    public Map<String, Long> moduleCount(ReviewFunctionalCasePageRequest request, boolean deleted, String userId) {
         //查出每个模块节点下的资源数量。 不需要按照模块进行筛选
         request.setModuleIds(null);
-        List<ModuleCountDTO> moduleCountDTOList = extCaseReviewFunctionalCaseMapper.countModuleIdByRequest(request, deleted);
+        List<ModuleCountDTO> moduleCountDTOList = extCaseReviewFunctionalCaseMapper.countModuleIdByRequest(request, deleted, userId);
         Map<String, Long> moduleCountMap = getModuleCountMap(request.getProjectId(), request.getReviewId(), moduleCountDTOList);
         //查出全部用例数量
-        long allCount = extCaseReviewFunctionalCaseMapper.caseCount(request, deleted);
+        long allCount = extCaseReviewFunctionalCaseMapper.caseCount(request, deleted, userId);
         moduleCountMap.put(CASE_MODULE_COUNT_ALL, allCount);
         return moduleCountMap;
     }

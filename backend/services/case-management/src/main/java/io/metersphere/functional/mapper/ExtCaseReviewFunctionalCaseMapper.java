@@ -38,11 +38,11 @@ public interface ExtCaseReviewFunctionalCaseMapper {
 
     List<CaseReviewFunctionalCase> getListIncludes(@Param("reviewId") String reviewId, @Param("caseIds") List<String> caseIds, @Param("deleted") boolean deleted);
 
-    List<CaseReviewFunctionalCase> getListExcludes(@Param("reviewIds")List<String> reviewIds, @Param("caseIds") List<String> caseIds, @Param("deleted") boolean deleted);
+    List<CaseReviewFunctionalCase> getListExcludes(@Param("reviewIds") List<String> reviewIds, @Param("caseIds") List<String> caseIds, @Param("deleted") boolean deleted);
 
     List<CaseReviewFunctionalCase> getCaseIdsByIds(@Param("ids") List<String> ids);
 
-    List<ModuleCountDTO> countModuleIdByRequest(ReviewFunctionalCasePageRequest request, boolean deleted);
+    List<ModuleCountDTO> countModuleIdByRequest(@Param("request") ReviewFunctionalCasePageRequest request, @Param("deleted") boolean deleted, @Param("userId") String userId);
 
-    long caseCount(ReviewFunctionalCasePageRequest request, boolean deleted);
+    long caseCount(@Param("request") ReviewFunctionalCasePageRequest request, @Param("deleted") boolean deleted, @Param("userId") String userId);
 }
