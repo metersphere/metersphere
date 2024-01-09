@@ -241,6 +241,7 @@
                     <excludes>
                         <exclude>io/metersphere/*/mapper/**</exclude>
                         <exclude>io/metersphere/*/domain/**</exclude>
+                        <exclude>io/metersphere/handler/**</exclude>
                         <exclude>io/metersphere/**/dto/**</exclude>
                         <exclude>io/metersphere/**/config/**</exclude>
                         <exclude>io/metersphere/**/constants/**</exclude>
