@@ -9,8 +9,8 @@ import io.metersphere.functional.service.CaseReviewLogService;
 import io.metersphere.functional.service.CaseReviewNoticeService;
 import io.metersphere.functional.service.CaseReviewService;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.sdk.request.PosRequest;
+import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.notice.annotation.SendNotice;
@@ -51,7 +51,7 @@ public class CaseReviewController {
     }
 
     @PostMapping("/module/count")
-    @Operation(summary = "用例管理-用例评审-获取模块树统计数量")
+    @Operation(summary = "用例管理-用例评审-统计模块数量")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Map<String, Long> moduleCount(@Validated @RequestBody CaseReviewPageRequest request) {
@@ -92,7 +92,7 @@ public class CaseReviewController {
     @Operation(summary = "用例管理-用例评审-获取具有评审权限的用户")
     @RequiresPermissions(value = {PermissionConstants.CASE_REVIEW_READ_ADD,PermissionConstants.CASE_REVIEW_READ_UPDATE}, logical = Logical.OR)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
-    public List<User> getReviewUserList(@PathVariable String projectId, @Schema(description = "查询关键字，根据邮箱和用户名查询")
+    public List<UserDTO> getReviewUserList(@PathVariable String projectId, @Schema(description = "查询关键字，根据邮箱和用户名查询")
     @RequestParam(value = "keyword", required = false) String keyword) {
         return caseReviewService.getReviewUserList(projectId, keyword);
     }

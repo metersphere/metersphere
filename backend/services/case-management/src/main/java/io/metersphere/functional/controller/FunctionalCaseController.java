@@ -139,7 +139,7 @@ public class FunctionalCaseController {
     }
 
     @PostMapping("/module/count")
-    @Operation(summary = "用例管理-功能用例-表格分页查询文件")
+    @Operation(summary = "用例管理-功能用例-统计模块数量")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Map<String, Long> moduleCount(@Validated @RequestBody FunctionalCasePageRequest request) {

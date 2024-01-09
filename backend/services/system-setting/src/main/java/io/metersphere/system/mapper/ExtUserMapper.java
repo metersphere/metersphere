@@ -1,6 +1,7 @@
 package io.metersphere.system.mapper;
 
 import io.metersphere.system.domain.User;
+import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.dto.user.UserExtendDTO;
 import org.apache.ibatis.annotations.Param;
 
@@ -30,7 +31,7 @@ public interface ExtUserMapper {
      * @param permission 权限
      * @return 用户列表
      */
-    List<User>getUserByPermission(@Param("projectId") String projectId, @Param("keyword") String keyword,  @Param("permission") String permission);
+    List<UserDTO>getUserByPermission(@Param("projectId") String projectId, @Param("keyword") String keyword, @Param("permission") String permission);
 
     long countByIdAndPassword(@Param("userId") String id, @Param("password") String password);
 
