@@ -26,6 +26,12 @@ public interface Platform extends ExtensionPoint {
     void validateIntegrationConfig();
 
     /**
+     * 校验用户配置
+     * 个人中心-第三方平台点击时调用
+     */
+    void validateUserConfig(String userConfig);
+
+    /**
      * 校验项目配置
      * 项目设置成点击校验项目 key 时调用
      * @param projectConfig 项目配置
