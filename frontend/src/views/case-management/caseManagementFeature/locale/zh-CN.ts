@@ -235,10 +235,11 @@ export default {
   'caseManagement.featureCase.CheckFailure': '校验失败',
   'caseManagement.featureCase.CheckSuccess': '校验成功',
   'caseManagement.featureCase.tableNoData': '暂无数据',
-  'caseManagement.featureCase.noAssociated': '暂无可关联缺陷，请',
+  'caseManagement.featureCase.noAssociatedDefect': '暂无可关联缺陷，请',
   'caseManagement.featureCase.fileIsUpdated': '当前文件已更新',
   'caseManagement.featureCase.selectTransferDirectory': '请选择转存目录',
   'caseManagement.featureCase.quicklyCreateDefectSuccess': '快速创建缺陷成功',
   'caseManagement.featureCase.cancelDependencyTip': '确认取消依赖关系吗？',
   'caseManagement.featureCase.cancelDependencyContent': '取消后，影响测试计划相关统计',
+  'caseManagement.featureCase.AssociatedSuccess': '关联成功',
 };

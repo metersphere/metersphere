@@ -16,7 +16,7 @@
         <a-button type="outline" @click="createDefect">{{ t('caseManagement.featureCase.createDefect') }} </a-button>
       </div>
       <div v-else class="font-medium">{{ t('caseManagement.featureCase.testPlanLinkList') }}</div>
-      <div>
+      <div class="mb-4">
         <a-radio-group v-model:model-value="showType" type="button" class="file-show-type ml-[4px]">
           <a-radio value="link" class="show-type-icon p-[2px]">{{
             t('caseManagement.featureCase.directLink')
@@ -117,7 +117,6 @@
       width: 200,
       showInTable: true,
       showTooltip: true,
-      ellipsis: true,
       showDrag: false,
     },
     {
@@ -167,7 +166,6 @@
     setLoadListParams: setLinkListParams,
   } = useTable(getBugList, {
     columns,
-    tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_DEFECT,
     scroll: { x: '100%' },
     heightUsed: 340,
     enableDrag: true,
@@ -231,7 +229,6 @@
     setLoadListParams: setTestPlanListParams,
   } = useTable(getBugList, {
     columns: testPlanColumns,
-    tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_DEFECT_TEST_PLAN,
     scroll: { x: '100%' },
     heightUsed: 340,
     enableDrag: true,

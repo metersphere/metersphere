@@ -246,4 +246,5 @@ export default {
   'caseManagement.featureCase.quicklyCreateDefectSuccess': 'Quick bug creation success',
   'caseManagement.featureCase.cancelDependencyTip': 'Confirm cancel dependencies?',
   'caseManagement.featureCase.cancelDependencyContent': 'Cancel after impact test plan related statistics',
+  'caseManagement.featureCase.AssociatedSuccess': 'Associated with success',
 };

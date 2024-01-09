@@ -138,7 +138,7 @@
     selectable: false,
     noDisable: true,
     showSetting: false,
-    enableDrag: true,
+    enableDrag: false,
   });
 
   const cancelLoading = ref<boolean>(false);

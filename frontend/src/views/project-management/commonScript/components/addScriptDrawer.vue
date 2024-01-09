@@ -46,19 +46,7 @@
         </a-radio-group>
         <a-button type="outline">{{ t('project.commonScript.scriptTest') }}</a-button>
       </div>
-      <ScriptDefined v-if="scriptType === 'commonScript'" />
-      <div v-else>
-        <MsCodeEditor
-          v-model:model-value="executionResultValue"
-          title=""
-          width="100%"
-          height="calc(100vh - 155px)"
-          theme="MS-text"
-          :read-only="false"
-          :show-full-screen="false"
-          :show-theme-change="false"
-        />
-      </div>
+      <ScriptDefined :show-type="scriptType" />
     </a-form>
   </MsDrawer>
 </template>
@@ -66,7 +54,6 @@
 <script setup lang="ts">
   import { computed, ref } from 'vue';
 
-  import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
@@ -102,27 +89,27 @@
 
   const columns: MsTableColumn = [
     {
-      title: '参数名称',
+      title: 'project.commonScript.ParameterNames',
       slotName: 'name',
       dataIndex: 'name',
       showTooltip: true,
       showInTable: true,
     },
     {
-      title: '是否必填',
+      title: 'project.commonScript.isRequired',
       slotName: 'required',
       dataIndex: 'required',
       showInTable: true,
     },
     {
-      title: '参数值',
+      title: 'project.commonScript.ParameterValue',
       dataIndex: 'tags',
       slotName: 'tags',
       showTooltip: true,
       showInTable: true,
     },
     {
-      title: '描述',
+      title: 'project.commonScript.description',
       slotName: 'desc',
       dataIndex: 'desc',
       showTooltip: true,
@@ -153,8 +140,6 @@
   );
 
   const scriptType = ref<'commonScript' | 'executionResult'>('commonScript');
-
-  const executionResultValue = ref('');
 </script>
 
 <style scoped></style>

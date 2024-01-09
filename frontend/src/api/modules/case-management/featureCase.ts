@@ -1,3 +1,5 @@
+import { CommentItem } from '@/components/business/ms-comment/types';
+
 import MSR from '@/api/http/index';
 import {
   AddDemandUrl,
@@ -22,6 +24,7 @@ import {
   DetailCaseUrl,
   DownloadFileUrl,
   FollowerCaseUrl,
+  GetAssociatedDrawerCaseUrl,
   GetAssociatedFilePageUrl,
   GetAssociationPublicCaseModuleCountUrl,
   GetAssociationPublicCasePageUrl,
@@ -44,6 +47,7 @@ import {
   GetTrashCaseModuleTreeUrl,
   MoveCaseModuleTreeUrl,
   PreviewFileUrl,
+  publicAssociatedCaseUrl,
   RecoverRecycleCaseListUrl,
   RestoreCaseListUrl,
   TransferFileUrl,
@@ -61,7 +65,6 @@ import type {
   BatchMoveOrCopyType,
   CaseManagementTable,
   CaseModuleQueryParams,
-  CommentItem,
   CreateOrUpdate,
   CreateOrUpdateDemand,
   CreateOrUpdateModule,
@@ -297,6 +300,10 @@ export function getPublicLinkCaseModulesCounts(data: TableQueryParams) {
 export function getPublicLinkModuleTree(data: TableQueryParams) {
   return MSR.post<ModulesTreeType[]>({ url: `${GetAssociationPublicModuleTreeUrl}`, data });
 }
+// 关联用例
+export function associationPublicCase(data: TableQueryParams) {
+  return MSR.post<ModulesTreeType[]>({ url: `${publicAssociatedCaseUrl}`, data });
+}
 
 // 获取前后置用例
 export function getDependOnCase(data: TableQueryParams) {
@@ -313,5 +320,9 @@ export function addPrepositionRelation(data: TableQueryParams) {
 // 取消依赖关系
 export function cancelPreOrPostCase(id: string) {
   return MSR.get({ url: `${cancelPreAndPostCaseUrl}/${id}` });
+}
+// 获取抽屉详情已关联用例列表
+export function getAssociatedCasePage(data: TableQueryParams) {
+  return MSR.post<CommonList<CaseManagementTable>>({ url: `${GetAssociatedDrawerCaseUrl}`, data });
 }
 export default {};

@@ -12,7 +12,11 @@
     <ms-base-table v-bind="propsRes" v-on="propsEvent">
       <template #name="{ record }">
         <div class="flex items-center">
-          <div class="one-line-text max-w-[200px] text-[rgb(var(--primary-5))]">{{ record.name }}</div>
+          <div
+            class="one-line-text max-w-[200px] cursor-pointer text-[rgb(var(--primary-5))]"
+            @click="showDetail(record)"
+            >{{ record.name }}</div
+          >
           <a-popover :title="t('project.commonScript.publicScriptName')" position="right">
             <a-button type="text" class="ml-2 px-0">{{ t('project.commonScript.preview') }}</a-button>
             <template #content>
@@ -53,6 +57,7 @@
       </div>
     </template>
     <AddScriptDrawer v-model:visible="showScriptDrawer" />
+    <ScriptDetailDrawer v-model:visible="showDetailDrawer" />
   </MsCard>
 </template>
 
@@ -70,6 +75,7 @@
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import AddScriptDrawer from './components/addScriptDrawer.vue';
+  import ScriptDetailDrawer from './components/scriptDetailDrawer.vue';
 
   import { getDependOnCase } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
@@ -217,6 +223,12 @@
   tableStore.initColumn(TableKeyEnum.ORGANIZATION_PROJECT_COMMON_SCRIPT, columns, 'drawer');
 
   const showScriptDrawer = ref<boolean>(false);
+
+  const showDetailDrawer = ref<boolean>(false);
+  // 脚本详情
+  function showDetail(record: any) {
+    showDetailDrawer.value = true;
+  }
 
   function addCommonScript() {
     showScriptDrawer.value = true;

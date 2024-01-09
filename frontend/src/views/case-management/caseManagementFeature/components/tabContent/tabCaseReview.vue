@@ -12,11 +12,19 @@
       ></a-input-search>
     </div>
     <ms-base-table v-bind="propsRes" v-on="propsEvent">
-      <template #name="{ record }">
-        <a-button type="text" class="px-0">{{ record.name }}</a-button>
+      <template #reviewName="{ record }">
+        <a-button type="text" class="px-0">{{ record.reviewName }}</a-button>
+      </template>
+      <template #reviewStatus="{ record }">
+        <statusTag :status="record.reviewStatus" />
       </template>
       <template #status="{ record }">
-        <statusTag :status="record.status" />
+        <MsIcon
+          :type="getStatusText(record.status)?.iconType || ''"
+          class="mr-1"
+          :class="[getReviewStatusClass(record.status)]"
+        ></MsIcon>
+        <span>{{ getStatusText(record.status)?.statusType || '' }} </span>
       </template>
     </ms-base-table>
   </div>
@@ -35,6 +43,7 @@
 
   import { TableKeyEnum } from '@/enums/tableEnum';
 
+  import { getReviewStatusClass, getStatusText } from '../utils';
   import debounce from 'lodash-es/debounce';
 
   const { t } = useI18n();
@@ -48,36 +57,37 @@
   const columns: MsTableColumn = [
     {
       title: 'ID',
-      dataIndex: 'id',
+      dataIndex: 'reviewId',
       sortIndex: 1,
       showTooltip: true,
-      width: 90,
+      width: 300,
     },
     {
       title: 'caseManagement.caseReview.name',
-      slotName: 'name',
-      dataIndex: 'name',
+      slotName: 'reviewName',
+      dataIndex: 'reviewName',
       sortable: {
         sortDirections: ['ascend', 'descend'],
       },
-      width: 200,
+      showTooltip: true,
+      width: 300,
     },
     {
       title: 'caseManagement.caseReview.status',
-      dataIndex: 'status',
-      slotName: 'status',
+      dataIndex: 'reviewStatus',
+      slotName: 'reviewStatus',
       width: 150,
     },
     {
       title: 'caseManagement.featureCase.reviewResult',
-      slotName: 'reviewResult',
-      dataIndex: 'reviewResult',
+      slotName: 'status',
+      dataIndex: 'status',
       width: 200,
     },
     {
       title: 'caseManagement.featureCase.reviewTime',
-      slotName: 'reviewTime',
-      dataIndex: 'reviewTime',
+      slotName: 'updateTime',
+      dataIndex: 'updateTime',
       width: 200,
     },
   ];
@@ -99,6 +109,15 @@
     initData();
   }, 100);
 
+  function getReviewStatus(status: string) {
+    switch (status) {
+      case 'UN_REVIEWED':
+        break;
+
+      default:
+        break;
+    }
+  }
   onBeforeMount(() => {
     initData();
   });

@@ -43,8 +43,6 @@
   import { getDemandList } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
 
-  import { TableKeyEnum } from '@/enums/tableEnum';
-
   const { t } = useI18n();
 
   const columns: MsTableColumn = [
@@ -88,7 +86,6 @@
   ];
 
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getDemandList, {
-    tableKey: TableKeyEnum.CASE_MANAGEMENT_DEMAND,
     columns,
     rowKey: 'id',
     scroll: { x: '100%' },
