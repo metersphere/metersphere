@@ -4,9 +4,11 @@ package io.metersphere.bug.provider;
 import io.metersphere.bug.domain.BugRelationCase;
 import io.metersphere.bug.mapper.BugRelationCaseMapper;
 import io.metersphere.bug.mapper.ExtBugMapper;
+import io.metersphere.bug.mapper.ExtBugRelateCaseMapper;
 import io.metersphere.bug.service.BugRelateCaseService;
 import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.provider.BaseAssociateBugProvider;
+import io.metersphere.request.AssociateBugPageRequest;
 import io.metersphere.request.AssociateBugRequest;
 import io.metersphere.request.BugPageProviderRequest;
 import io.metersphere.system.uid.IDGenerator;
@@ -26,11 +28,14 @@ public class AssociateBugProvider implements BaseAssociateBugProvider {
     private BugRelationCaseMapper bugRelationCaseMapper;
     @Resource
     private BugRelateCaseService bugRelateCaseService;
+    @Resource
+    private ExtBugRelateCaseMapper extBugRelateCaseMapper;
 
 
     @Override
     public List<BugProviderDTO> getBugList(String sourceType, String sourceName, String bugColumnName, BugPageProviderRequest bugPageProviderRequest) {
         return extBugMapper.listByProviderRequest(sourceType, sourceName, bugColumnName, bugPageProviderRequest, false);
+        //TODO 需要转义状态和处理人属性
     }
 
     @Override
@@ -66,5 +71,11 @@ public class AssociateBugProvider implements BaseAssociateBugProvider {
     @Override
     public void disassociateBug(String id) {
         bugRelateCaseService.unRelate(id);
+    }
+
+    @Override
+    public List<BugProviderDTO> hasAssociateBugPage(AssociateBugPageRequest request) {
+        return extBugRelateCaseMapper.getAssociateBugs(request);
+        //TODO 需要转义状态和处理人属性
     }
 }

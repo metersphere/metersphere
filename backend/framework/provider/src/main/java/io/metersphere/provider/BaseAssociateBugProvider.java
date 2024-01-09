@@ -1,6 +1,7 @@
 package io.metersphere.provider;
 
 import io.metersphere.dto.BugProviderDTO;
+import io.metersphere.request.AssociateBugPageRequest;
 import io.metersphere.request.AssociateBugRequest;
 import io.metersphere.request.BugPageProviderRequest;
 
@@ -48,4 +49,12 @@ public interface BaseAssociateBugProvider {
      * @param id
      */
     void disassociateBug(String id);
+
+    /**
+     * 获取用例已关联缺陷列表
+     *
+     * @param request
+     * @return
+     */
+    List<BugProviderDTO> hasAssociateBugPage(AssociateBugPageRequest request);
 }

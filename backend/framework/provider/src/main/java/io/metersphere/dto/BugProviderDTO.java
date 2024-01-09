@@ -22,10 +22,10 @@ public class BugProviderDTO implements Serializable {
     private String name;
 
     @Schema(description = "处理人")
-    private String createUser;
+    private String handleUser;
 
     @Schema(description = "处理人姓名")
-    private String createUserName;
+    private String handleUserName;
 
     @Schema(description = "缺陷状态")
     private String status;

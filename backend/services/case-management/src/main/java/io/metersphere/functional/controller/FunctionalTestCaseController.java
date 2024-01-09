@@ -120,4 +120,14 @@ public class FunctionalTestCaseController {
         functionalTestCaseService.disassociateBug(id);
     }
 
+
+    @PostMapping("/has/associate/bug/page")
+    @Operation(summary = "用例管理-功能用例-关联其他用例-获取已关联的缺陷列表")
+    @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ_ADD, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public Pager<List<BugProviderDTO>> getAssociateBugList(@Validated @RequestBody AssociateBugPageRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+        return PageUtils.setPageInfo(page, functionalTestCaseService.hasAssociateBugPage(request));
+    }
 }

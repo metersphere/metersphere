@@ -60,6 +60,7 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
     private static final String URL_BUG_PAGE = "/functional/case/test/associate/bug/page";
     private static final String URL_ASSOCIATE_BUG = "/functional/case/test/associate/bug";
     private static final String URL_DISASSOCIATE_BUG = "/functional/case/test/disassociate/bug/";
+    private static final String URL_ASSOCIATE_BUG_PAGE = "/functional/case/test/has/associate/bug/page";
 
 
     @Resource
@@ -300,7 +301,7 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
         functionalCase.setCreateTime(System.currentTimeMillis());
         functionalCase.setUpdateUser("gyq");
         functionalCase.setUpdateTime(System.currentTimeMillis());
-        List<String>tags = new ArrayList<>();
+        List<String> tags = new ArrayList<>();
         tags.add("111");
         tags.add("222");
         functionalCase.setTags(tags);
@@ -357,5 +358,33 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
         //增加日志覆盖率
         this.requestGetWithOkAndReturn(URL_DISASSOCIATE_BUG + "TEST");
         this.requestGetWithOkAndReturn(URL_DISASSOCIATE_BUG + "1234");
+    }
+
+    @Test
+    @Order(11)
+    public void testAssociateBugPage() throws Exception {
+        AssociateBugPageRequest request = new AssociateBugPageRequest();
+        request.setCurrent(1);
+        request.setPageSize(10);
+        request.setCaseId("wx_2");
+        List<BugProviderDTO> list = new ArrayList<>();
+        BugProviderDTO bugProviderDTO = new BugProviderDTO();
+        bugProviderDTO.setId("123");
+        bugProviderDTO.setName("测试返回数据");
+        bugProviderDTO.setHandleUser("wx");
+        bugProviderDTO.setStatus("进行中");
+        bugProviderDTO.setHandleUserName("wx");
+        list.add(bugProviderDTO);
+        Mockito.when(baseAssociateBugProvider.hasAssociateBugPage(request)).thenReturn(list);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_ASSOCIATE_BUG_PAGE, request);
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        List<BugProviderDTO> bugProviderDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), BugProviderDTO.class);
+        Assertions.assertNotNull(bugProviderDTOS);
+
+        request.setSort(new HashMap<>() {{
+            put("createTime", "desc");
+        }});
+        this.requestPostWithOkAndReturn(URL_ASSOCIATE_BUG_PAGE, request);
     }
 }

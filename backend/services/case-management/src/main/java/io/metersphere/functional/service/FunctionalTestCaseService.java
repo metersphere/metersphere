@@ -199,4 +199,8 @@ public class FunctionalTestCaseService {
     public void disassociateBug(String id) {
         baseAssociateBugProvider.disassociateBug(id);
     }
+
+    public List<BugProviderDTO> hasAssociateBugPage(AssociateBugPageRequest request) {
+        return baseAssociateBugProvider.hasAssociateBugPage(request);
+    }
 }
