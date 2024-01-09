@@ -1,7 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.functional.mapper.ExtFunctionalCaseMapper">
-
+    <resultMap id="BaseResultMap" type="io.metersphere.functional.domain.FunctionalCase">
+        <id column="id" jdbcType="VARCHAR" property="id" />
+        <result column="num" jdbcType="BIGINT" property="num" />
+        <result column="module_id" jdbcType="VARCHAR" property="moduleId" />
+        <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+        <result column="template_id" jdbcType="VARCHAR" property="templateId" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="review_status" jdbcType="VARCHAR" property="reviewStatus" />
+        <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
+        <result column="case_edit_type" jdbcType="VARCHAR" property="caseEditType" />
+        <result column="pos" jdbcType="BIGINT" property="pos" />
+        <result column="version_id" jdbcType="VARCHAR" property="versionId" />
+        <result column="ref_id" jdbcType="VARCHAR" property="refId" />
+        <result column="last_execute_result" jdbcType="VARCHAR" property="lastExecuteResult" />
+        <result column="deleted" jdbcType="BIT" property="deleted" />
+        <result column="public_case" jdbcType="BIT" property="publicCase" />
+        <result column="latest" jdbcType="BIT" property="latest" />
+        <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
+        <result column="delete_user" jdbcType="VARCHAR" property="deleteUser" />
+        <result column="create_time" jdbcType="BIGINT" property="createTime" />
+        <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+        <result column="delete_time" jdbcType="BIGINT" property="deleteTime" />
+    </resultMap>
 
     <select id="getPos" resultType="java.lang.Long">
         SELECT
@@ -516,7 +539,7 @@
     </update>
 
 
-    <select id="getTagsByIds" resultType="io.metersphere.functional.domain.FunctionalCase">
+    <select id="getTagsByIds" resultMap="BaseResultMap">
         select id, tags from functional_case
         where id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">

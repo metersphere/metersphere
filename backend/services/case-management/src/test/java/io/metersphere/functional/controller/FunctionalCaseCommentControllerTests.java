@@ -19,6 +19,7 @@ import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -397,7 +398,17 @@ public class FunctionalCaseCommentControllerTests {
         String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         List<FunctionalCaseCommentDTO> list = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), FunctionalCaseCommentDTO.class);
-        System.out.println(JSON.toJSONString(list));
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(list));
+        mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(GET_URL + "xiaomeinvGTestTwo").header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .header(SessionConstants.CURRENT_PROJECT, projectId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        list = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), FunctionalCaseCommentDTO.class);
+        Assertions.assertTrue(CollectionUtils.isEmpty(list));
     }
 
     @Test

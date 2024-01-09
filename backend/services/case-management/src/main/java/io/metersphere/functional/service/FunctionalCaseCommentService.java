@@ -22,6 +22,7 @@ import io.metersphere.system.service.NoticeSendService;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.beanutils.BeanMap;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -221,6 +222,9 @@ public class FunctionalCaseCommentService {
         functionalCaseCommentExample.createCriteria().andCaseIdEqualTo(caseId);
         List<FunctionalCaseComment> functionalCaseComments = functionalCaseCommentMapper.selectByExampleWithBLOBs(functionalCaseCommentExample);
         List<String> userIds = getUserIds(functionalCaseComments);
+        if (CollectionUtils.isEmpty(userIds)) {
+            return new ArrayList<>();
+        }
         Map<String, User> userMap = getUserMap(userIds);
         return buildData(functionalCaseComments, userMap);
     }
