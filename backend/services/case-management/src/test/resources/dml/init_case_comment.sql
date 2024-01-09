@@ -72,6 +72,10 @@ INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, r
 VALUES ('xiaomeinvGTestOne', 1000001, 'test_guo', 'project-case-comment-test', 'test_guo', 'gyqTest1', 'UN_REVIEWED', null, 'text',
         10001, '111', 'xiaomeinvGTestOne', 'success', false, false, true, 'gyq', 'gyq', null, 1698058347559,
         1698058347559,
+        null),
+       ('xiaomeinvGTestTwo', 1000001, 'test_guo', 'project-case-comment-test', 'test_guo', 'gyqTest2', 'UN_REVIEWED', null, 'text',
+        10001, '111', 'xiaomeinvGTestTwo', 'success', false, false, true, 'gyq', 'gyq', null, 1698058347559,
+        1698058347559,
         null);
 
 INSERT INTO user(id, name, email, password, create_time, update_time, language, last_organization_id, phone, source,
