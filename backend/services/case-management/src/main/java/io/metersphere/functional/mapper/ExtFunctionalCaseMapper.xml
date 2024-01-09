@@ -26,6 +26,10 @@
         <result column="delete_time" jdbcType="BIGINT" property="deleteTime" />
     </resultMap>
 
+    <resultMap id="BaseResultMapDTO" type="io.metersphere.functional.dto.FunctionalCasePageDTO">
+        <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
+    </resultMap>
+
     <select id="getPos" resultType="java.lang.Long">
         SELECT
             pos
@@ -90,7 +94,7 @@
     </select>
 
 
-    <select id="list" resultType="io.metersphere.functional.dto.FunctionalCasePageDTO">
+    <select id="list" resultMap="BaseResultMapDTO">
         SELECT
             id,
             num,
@@ -570,7 +574,7 @@
         and project_id = #{functionalCase.projectId}
     </update>
 
-    <select id="countModuleIdByKeywordAndFileType"  resultType="io.metersphere.project.dto.ModuleCountDTO">
+    <select id="countModuleIdByRequest"  resultType="io.metersphere.project.dto.ModuleCountDTO">
         SELECT module_id AS moduleId, count(id) AS dataCount
         FROM functional_case
         WHERE deleted = #{deleted}

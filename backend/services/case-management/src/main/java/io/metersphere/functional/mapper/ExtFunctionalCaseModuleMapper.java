@@ -11,6 +11,8 @@ import java.util.List;
 public interface ExtFunctionalCaseModuleMapper {
     List<BaseTreeNode> selectBaseByProjectId(@Param("projectId")String projectId);
 
+    List<BaseTreeNode> selectBaseByProjectIdAndReviewId(@Param("projectId")String projectId, @Param("reviewId")String reviewId);
+
     List<BaseTreeNode> selectBaseByIds(@Param("ids") List<String> ids);
 
     List<String> selectChildrenIdsByParentIds(@Param("ids") List<String> deleteIds);
@@ -28,4 +30,5 @@ public interface ExtFunctionalCaseModuleMapper {
     List<BaseTreeNode> selectApiCaseModuleByRequest(@Param("request") AssociateCaseModuleRequest request);
 
 
+    List<BaseTreeNode> selectIdAndParentIdByProjectIdAndReviewId(@Param("projectId")String projectId, @Param("reviewId")String reviewId);
 }

@@ -12,7 +12,6 @@ import java.util.List;
 @Data
 public class FunctionalCasePageDTO extends FunctionalCase {
 
-
     @Schema(description = "自定义字段集合")
     private List<FunctionalCaseCustomFieldDTO> customFields;
 }

@@ -9,6 +9,7 @@ import io.metersphere.functional.request.*;
 import io.metersphere.functional.service.CaseReviewFunctionalCaseService;
 import io.metersphere.functional.service.CaseReviewLogService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOwner;
@@ -23,6 +24,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author wx
@@ -38,6 +40,7 @@ public class CaseReviewFunctionalCaseController {
 
     @GetMapping("/get-ids/{reviewId}")
     @Operation(summary = "用例管理-功能用例-评审列表-评审详情-获取已关联用例id集合(关联用例弹窗前调用)")
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_RELEVANCE)
     @CheckOwner(resourceId = "#reviewId", resourceType = "case_review")
     public List<String> getCaseIds(@PathVariable String reviewId) {
         return caseReviewFunctionalCaseService.getCaseIdsByReviewId(reviewId);
@@ -54,6 +57,27 @@ public class CaseReviewFunctionalCaseController {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
         return PageUtils.setPageInfo(page, caseReviewFunctionalCaseService.page(request, false, userId));
     }
+
+
+    @GetMapping("/tree/{projectId}/{reviewId}")
+    @Operation(summary = "用例管理-功能用例-评审列表-评审详情-已关联用例列表模块树")
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public List<BaseTreeNode> getTree(@PathVariable String projectId, @PathVariable String reviewId) {
+        return caseReviewFunctionalCaseService.getTree(projectId, reviewId);
+    }
+
+
+    @PostMapping("/module/count")
+    @Operation(summary = "用例管理-功能用例-评审列表-评审详情-已关联用例统计模块数量")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public Map<String, Long> moduleCount(@Validated @RequestBody ReviewFunctionalCasePageRequest request) {
+        return caseReviewFunctionalCaseService.moduleCount(request, false);
+    }
+
+
+
 
 
     @PostMapping("/batch/disassociate")

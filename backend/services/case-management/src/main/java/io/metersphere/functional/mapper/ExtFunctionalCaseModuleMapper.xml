@@ -7,6 +7,14 @@
         WHERE project_id = #{projectId}
         ORDER BY pos
     </select>
+    <select id="selectBaseByProjectIdAndReviewId" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
+        SELECT fcm.id, fcm.name, fcm.parent_id AS parentId, 'module' AS type
+        FROM functional_case_module fcm
+        WHERE fcm.project_id = #{projectId}
+        AND fcm.id IN
+        (SELECT fc.module_id FROM functional_case fc LEFT JOIN case_review_functional_case crfc ON crfc.case_id = fc.id WHERE crfc.review_id = #{reviewId} AND fc.deleted = false)
+        ORDER BY pos
+    </select>
     <select id="selectBaseByIds" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
         SELECT id, name, parent_id AS parentId, 'module' AS type
         FROM functional_case_module
@@ -72,6 +80,14 @@
         FROM api_definition_module m
         <include refid="module_request"/>
         ORDER BY pos
+    </select>
+
+    <select id="selectIdAndParentIdByProjectIdAndReviewId" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
+        SELECT fcm.id, fcm.parent_id AS parentId
+        FROM functional_case_module fcm
+        WHERE fcm.project_id = #{projectId}
+        AND fcm.id IN
+        (SELECT fc.module_id FROM functional_case fc LEFT JOIN case_review_functional_case crfc ON crfc.case_id = fc.id WHERE crfc.review_id = #{reviewId} AND fc.deleted = false)
     </select>
 
     <sql id="module_request">

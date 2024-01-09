@@ -50,7 +50,7 @@ public interface ExtFunctionalCaseMapper {
 
     void recoverCaseByRefIds(@Param("refIds") List<String> refIds, @Param("userId") String userId, @Param("time") long time);
 
-    List<ModuleCountDTO> countModuleIdByKeywordAndFileType(@Param("request") FunctionalCasePageRequest request, @Param("deleted") boolean deleted);
+    List<ModuleCountDTO> countModuleIdByRequest(@Param("request") FunctionalCasePageRequest request, @Param("deleted") boolean deleted);
 
     long caseCount(@Param("request") FunctionalCasePageRequest request, @Param("deleted") boolean deleted);
 
