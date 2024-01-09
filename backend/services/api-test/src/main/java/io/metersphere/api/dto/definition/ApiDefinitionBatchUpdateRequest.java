@@ -7,7 +7,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serial;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 /**
  * @author lan
@@ -41,5 +43,13 @@ public class ApiDefinitionBatchUpdateRequest extends ApiDefinitionBatchRequest {
 
     @Schema(description = "是否追加", requiredMode = Schema.RequiredMode.REQUIRED)
     private boolean append = false;
+
+    public List<String> getTags() {
+        if (tags == null) {
+            return new ArrayList<>(0);
+        } else {
+            return new ArrayList<>(tags);
+        }
+    }
 
 }

@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -69,5 +70,13 @@ public class ApiTestCaseUpdateRequest implements Serializable {
      */
     @Schema(description = "取消关联文件ID")
     private List<String> unLinkRefIds;
+
+    public List<String> getTags() {
+        if (tags == null) {
+            return new ArrayList<>(0);
+        } else {
+            return new ArrayList<>(tags);
+        }
+    }
 
 }

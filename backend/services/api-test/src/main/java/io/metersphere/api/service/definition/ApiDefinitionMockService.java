@@ -23,7 +23,6 @@ import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
-import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
@@ -79,7 +78,7 @@ public class ApiDefinitionMockService {
         apiDefinitionMockConfigOptional.ifPresent(config -> {
             apiDefinitionMockDTO.setMatching(ApiDataUtils.parseObject(new String(config.getMatching()), AbstractMsTestElement.class));
             apiDefinitionMockDTO.setResponse(ApiDataUtils.parseArray(new String(config.getResponse()), HttpResponse.class));
-       });
+        });
     }
 
     public void handleApiDefinition(String id, ApiDefinitionMockDTO apiDefinitionMockDTO) {
@@ -97,7 +96,7 @@ public class ApiDefinitionMockService {
      * @param id mock id
      */
     private ApiDefinitionMock checkApiDefinitionMock(String id) {
-        return ServiceUtils.checkResourceExist(apiDefinitionMockMapper.selectByPrimaryKey(id),"permission.api_mock.name");
+        return ServiceUtils.checkResourceExist(apiDefinitionMockMapper.selectByPrimaryKey(id), "permission.api_mock.name");
     }
 
     public ApiDefinitionMock create(ApiDefinitionMockAddRequest request, String userId) {
@@ -111,7 +110,7 @@ public class ApiDefinitionMockService {
         apiDefinitionMock.setUpdateTime(System.currentTimeMillis());
         apiDefinitionMock.setCreateUser(userId);
         if (CollectionUtils.isNotEmpty(request.getTags())) {
-            apiDefinitionMock.setTags(JSON.toJSONString(request.getTags()));
+            apiDefinitionMock.setTags(request.getTags());
         }
         apiDefinitionMock.setEnable(true);
         ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiDefinitionMock.getApiDefinitionId());
@@ -172,7 +171,7 @@ public class ApiDefinitionMockService {
         checkUpdateExist(apiDefinitionMock);
         apiDefinitionMock.setUpdateTime(System.currentTimeMillis());
         if (CollectionUtils.isNotEmpty(request.getTags())) {
-            apiDefinitionMock.setTags(JSON.toJSONString(request.getTags()));
+            apiDefinitionMock.setTags(request.getTags());
         }
         apiDefinitionMockMapper.updateByPrimaryKeySelective(apiDefinitionMock);
         ApiDefinitionMockConfig apiDefinitionMockConfig = new ApiDefinitionMockConfig();
@@ -229,7 +228,7 @@ public class ApiDefinitionMockService {
     }
 
     private String getCopyName(String name) {
-        String copyName = "copy_" + name ;
+        String copyName = "copy_" + name;
         if (copyName.length() > 200) {
             copyName = copyName.substring(0, 195) + copyName.substring(copyName.length() - 5);
         }
@@ -255,7 +254,7 @@ public class ApiDefinitionMockService {
 
         List<ApiDefinitionMock> apiDefinitionMocks = apiDefinitionMockMapper.selectByExample(apiDefinitionMockExample);
 
-        if(!apiDefinitionMocks.isEmpty()){
+        if (!apiDefinitionMocks.isEmpty()) {
             apiDefinitionMocks.forEach(item -> {
                 String apiDefinitionMockDir = DefaultRepositoryDir.getApiDefinitionDir(item.getProjectId(), item.getId());
                 apiFileResourceService.deleteByResourceId(apiDefinitionMockDir, item.getId(), item.getProjectId(), userId, OperationLogModule.API_DEFINITION_MOCK);

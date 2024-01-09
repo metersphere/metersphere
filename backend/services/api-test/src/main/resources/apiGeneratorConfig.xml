@@ -73,7 +73,6 @@
         <table tableName="api_debug"/>
         <table tableName="api_debug_blob"/>
         <table tableName="api_debug_module"/>
-        <table tableName="api_definition"/>
         <table tableName="api_definition_blob"/>
         <table tableName="api_definition_follower"/>
         <table tableName="api_definition_mock"/>
@@ -94,13 +93,19 @@
         <table tableName="api_scenario_report_log"/>
         <table tableName="api_scenario_report_structure"/>
         <table tableName="api_sync_config"/>
-        <table tableName="api_test_case"/>
         <table tableName="api_test_case_blob"/>
         <table tableName="api_test_case_follower"/>
-        <table tableName="api_definition_mock"/>
         <table tableName="api_definition_mock_config"/>
         <table tableName="api_definition_custom_field"/>
-
+        <table tableName="api_definition_mock">
+            <columnOverride column="tags" javaType="java.util.List&lt;String&gt;" jdbcType="VARCHAR" typeHandler="io.metersphere.handler.ListTypeHandler" />
+        </table>
+        <table tableName="api_definition">
+            <columnOverride column="tags" javaType="java.util.List&lt;String&gt;" jdbcType="VARCHAR" typeHandler="io.metersphere.handler.ListTypeHandler" />
+        </table>
+        <table tableName="api_test_case">
+            <columnOverride column="tags" javaType="java.util.List&lt;String&gt;" jdbcType="VARCHAR" typeHandler="io.metersphere.handler.ListTypeHandler" />
+        </table>
 
     </context>
 </generatorConfiguration>

@@ -4,7 +4,6 @@ import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -79,7 +78,7 @@ public class ApiTestCaseDTO {
     private String deleteName;
 
     @Schema(description = "标签")
-    private List<String> tags = new ArrayList<>();
+    private List<String> tags;
 
     @Schema(description = "用例通过率")
     private String passRate;

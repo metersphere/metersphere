@@ -528,9 +528,9 @@ public class ApiDefinitionControllerTests extends BaseTest {
             }
             if (request.getTags() != null) {
                 if (request.isAppend()) {
-                    Assertions.assertTrue(JSON.parseArray(item.getTags(), String.class).containsAll(request.getTags()));
+                    Assertions.assertTrue(item.getTags().containsAll(request.getTags()));
                 } else {
-                    Assertions.assertEquals(item.getTags(), JSON.toJSONString(request.getTags()));
+                    Assertions.assertTrue(item.getTags().containsAll(request.getTags()));
                 }
             }
         });

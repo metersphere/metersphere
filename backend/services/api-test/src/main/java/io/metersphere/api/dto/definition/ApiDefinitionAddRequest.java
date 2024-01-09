@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -23,11 +24,11 @@ public class ApiDefinitionAddRequest implements Serializable {
     private static final long serialVersionUID = 1L;
 
 
-    @Schema(description =  "接口名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "接口名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @Size(min = 1, max = 255, message = "{api_definition.name.length_range}")
     private String name;
 
-    @Schema(description =  "接口协议", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "接口协议", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_definition.protocol.not_blank}")
     @Size(min = 1, max = 20, message = "{api_definition.protocol.length_range}")
     private String protocol = ModuleConstants.NODE_PROTOCOL_HTTP;
@@ -88,5 +89,13 @@ public class ApiDefinitionAddRequest implements Serializable {
 
     public void setPath(String path) {
         this.path = StringUtils.trim(path);
+    }
+
+    public List<String> getTags() {
+        if (tags == null) {
+            return new ArrayList<>(0);
+        } else {
+            return new ArrayList<>(tags);
+        }
     }
 }

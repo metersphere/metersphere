@@ -1,12 +1,17 @@
 package io.metersphere.api.domain;
 
-import io.metersphere.validation.groups.*;
+import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import lombok.Data;
+import java.util.List;
 
 @Data
 public class ApiDefinition implements Serializable {
@@ -40,7 +45,7 @@ public class ApiDefinition implements Serializable {
     private Long num;
 
     @Schema(description = "标签")
-    private String tags;
+    private List<String> tags;
 
     @Schema(description = "自定义排序", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{api_definition.pos.not_blank}", groups = {Created.class})
@@ -164,7 +169,7 @@ public class ApiDefinition implements Serializable {
             return this.getEscapedColumnName() + " ASC";
         }
 
-        public static Column[] excludes(Column ... excludes) {
+        public static Column[] excludes(Column... excludes) {
             ArrayList<Column> columns = new ArrayList<>(Arrays.asList(Column.values()));
             if (excludes != null && excludes.length > 0) {
                 columns.removeAll(new ArrayList<>(Arrays.asList(excludes)));

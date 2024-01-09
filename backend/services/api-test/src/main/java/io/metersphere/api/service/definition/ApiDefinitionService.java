@@ -170,7 +170,7 @@ public class ApiDefinitionService {
         apiDefinition.setVersionId(StringUtils.defaultIfBlank(request.getVersionId(), extBaseProjectVersionMapper.getDefaultVersion(request.getProjectId())));
         apiDefinition.setRefId(apiDefinition.getId());
         if (CollectionUtils.isNotEmpty(request.getTags())) {
-            apiDefinition.setTags(JSON.toJSONString(request.getTags()));
+            apiDefinition.setTags(request.getTags());
         }
         apiDefinitionMapper.insertSelective(apiDefinition);
         ApiDefinitionBlob apiDefinitionBlob = new ApiDefinitionBlob();
@@ -222,7 +222,7 @@ public class ApiDefinitionService {
         apiDefinition.setUpdateTime(System.currentTimeMillis());
         apiDefinition.setVersionId(request.getVersionId());
         if (CollectionUtils.isNotEmpty(request.getTags())) {
-            apiDefinition.setTags(JSON.toJSONString(request.getTags()));
+            apiDefinition.setTags(request.getTags());
         }
         apiDefinitionMapper.updateByPrimaryKeySelective(apiDefinition);
         ApiDefinitionBlob apiDefinitionBlob = new ApiDefinitionBlob();
@@ -529,12 +529,12 @@ public class ApiDefinitionService {
                 ApiDefinitionMapper definitionMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
                 ids.forEach(id -> {
                     ApiDefinition apiDefinition = new ApiDefinition();
-                    if (StringUtils.isNotBlank(collect.get(id).getTags())) {
-                        LinkedHashSet<String> tags = new LinkedHashSet<>((JSON.parseArray(collect.get(id).getTags(), String.class)));
+                    if (CollectionUtils.isNotEmpty(collect.get(id).getTags())) {
+                        List<String> tags = collect.get(id).getTags();
                         tags.addAll(request.getTags());
-                        apiDefinition.setTags(JSON.toJSONString(tags));
+                        apiDefinition.setTags(tags);
                     } else {
-                        apiDefinition.setTags(JSON.toJSONString(request.getTags()));
+                        apiDefinition.setTags(request.getTags());
                     }
                     apiDefinition.setId(id);
                     apiDefinition.setUpdateTime(System.currentTimeMillis());
@@ -547,7 +547,7 @@ public class ApiDefinitionService {
         } else {
             //替换标签
             ApiDefinition apiDefinition = new ApiDefinition();
-            apiDefinition.setTags(JSON.toJSONString(request.getTags()));
+            apiDefinition.setTags(request.getTags());
             apiDefinition.setProjectId(request.getProjectId());
             apiDefinition.setUpdateTime(System.currentTimeMillis());
             apiDefinition.setUpdateUser(userId);

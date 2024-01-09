@@ -6,7 +6,7 @@
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="priority" jdbcType="VARCHAR" property="priority" />
     <result column="num" jdbcType="BIGINT" property="num" />
-    <result column="tags" jdbcType="VARCHAR" property="tags" />
+    <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="last_report_status" jdbcType="VARCHAR" property="lastReportStatus" />
     <result column="last_report_id" jdbcType="VARCHAR" property="lastReportId" />
@@ -47,6 +47,25 @@
                 </when>
               </choose>
             </foreach>
+            <foreach collection="criteria.tagsCriteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler} and #{criterion.secondValue,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem,typeHandler=io.metersphere.handler.ListTypeHandler}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
           </trim>
         </if>
       </foreach>
@@ -72,6 +91,25 @@
                   and ${criterion.condition}
                   <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
                     #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+            <foreach collection="criteria.tagsCriteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler} and #{criterion.secondValue,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem,typeHandler=io.metersphere.handler.ListTypeHandler}
                   </foreach>
                 </when>
               </choose>
@@ -118,19 +156,21 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.api.domain.ApiTestCase">
     insert into api_test_case (id, `name`, priority, 
-      num, tags, `status`, last_report_status, 
-      last_report_id, pos, project_id, 
-      api_definition_id, version_id, environment_id, 
-      create_time, create_user, update_time, 
-      update_user, delete_time, delete_user, 
-      deleted)
+      num, tags, 
+      `status`, last_report_status, last_report_id, 
+      pos, project_id, api_definition_id, 
+      version_id, environment_id, create_time, 
+      create_user, update_time, update_user, 
+      delete_time, delete_user, deleted
+      )
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{priority,jdbcType=VARCHAR}, 
-      #{num,jdbcType=BIGINT}, #{tags,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{lastReportStatus,jdbcType=VARCHAR}, 
-      #{lastReportId,jdbcType=VARCHAR}, #{pos,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}, 
-      #{apiDefinitionId,jdbcType=VARCHAR}, #{versionId,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, 
-      #{updateUser,jdbcType=VARCHAR}, #{deleteTime,jdbcType=BIGINT}, #{deleteUser,jdbcType=VARCHAR}, 
-      #{deleted,jdbcType=BIT})
+      #{num,jdbcType=BIGINT}, #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
+      #{status,jdbcType=VARCHAR}, #{lastReportStatus,jdbcType=VARCHAR}, #{lastReportId,jdbcType=VARCHAR}, 
+      #{pos,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}, #{apiDefinitionId,jdbcType=VARCHAR}, 
+      #{versionId,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{createUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, 
+      #{deleteTime,jdbcType=BIGINT}, #{deleteUser,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiTestCase">
     insert into api_test_case
@@ -210,7 +250,7 @@
         #{num,jdbcType=BIGINT},
       </if>
       <if test="tags != null">
-        #{tags,jdbcType=VARCHAR},
+        #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       </if>
       <if test="status != null">
         #{status,jdbcType=VARCHAR},
@@ -281,7 +321,7 @@
         num = #{record.num,jdbcType=BIGINT},
       </if>
       <if test="record.tags != null">
-        tags = #{record.tags,jdbcType=VARCHAR},
+        tags = #{record.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       </if>
       <if test="record.status != null">
         `status` = #{record.status,jdbcType=VARCHAR},
@@ -339,7 +379,7 @@
       `name` = #{record.name,jdbcType=VARCHAR},
       priority = #{record.priority,jdbcType=VARCHAR},
       num = #{record.num,jdbcType=BIGINT},
-      tags = #{record.tags,jdbcType=VARCHAR},
+      tags = #{record.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       `status` = #{record.status,jdbcType=VARCHAR},
       last_report_status = #{record.lastReportStatus,jdbcType=VARCHAR},
       last_report_id = #{record.lastReportId,jdbcType=VARCHAR},
@@ -372,7 +412,7 @@
         num = #{num,jdbcType=BIGINT},
       </if>
       <if test="tags != null">
-        tags = #{tags,jdbcType=VARCHAR},
+        tags = #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       </if>
       <if test="status != null">
         `status` = #{status,jdbcType=VARCHAR},
@@ -427,7 +467,7 @@
     set `name` = #{name,jdbcType=VARCHAR},
       priority = #{priority,jdbcType=VARCHAR},
       num = #{num,jdbcType=BIGINT},
-      tags = #{tags,jdbcType=VARCHAR},
+      tags = #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       `status` = #{status,jdbcType=VARCHAR},
       last_report_status = #{lastReportStatus,jdbcType=VARCHAR},
       last_report_id = #{lastReportId,jdbcType=VARCHAR},
@@ -453,8 +493,8 @@
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.priority,jdbcType=VARCHAR}, 
-        #{item.num,jdbcType=BIGINT}, #{item.tags,jdbcType=VARCHAR}, #{item.status,jdbcType=VARCHAR}, 
-        #{item.lastReportStatus,jdbcType=VARCHAR}, #{item.lastReportId,jdbcType=VARCHAR}, 
+        #{item.num,jdbcType=BIGINT}, #{item.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
+        #{item.status,jdbcType=VARCHAR}, #{item.lastReportStatus,jdbcType=VARCHAR}, #{item.lastReportId,jdbcType=VARCHAR}, 
         #{item.pos,jdbcType=BIGINT}, #{item.projectId,jdbcType=VARCHAR}, #{item.apiDefinitionId,jdbcType=VARCHAR}, 
         #{item.versionId,jdbcType=VARCHAR}, #{item.environmentId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
         #{item.createUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}, 
@@ -485,7 +525,7 @@
           #{item.num,jdbcType=BIGINT}
         </if>
         <if test="'tags'.toString() == column.value">
-          #{item.tags,jdbcType=VARCHAR}
+          #{item.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}
         </if>
         <if test="'status'.toString() == column.value">
           #{item.status,jdbcType=VARCHAR}

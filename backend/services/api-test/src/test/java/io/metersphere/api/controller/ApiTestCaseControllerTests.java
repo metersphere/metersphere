@@ -372,8 +372,8 @@ public class ApiTestCaseControllerTests extends BaseTest {
         // 校验数据是否正确
         ApiTestCase testCase = apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId());
         ApiTestCaseDTO copyApiDebugDTO = BeanUtils.copyBean(new ApiTestCaseDTO(), testCase);
-        if (StringUtils.isNotEmpty(testCase.getTags())) {
-            copyApiDebugDTO.setTags(JSON.parseArray(testCase.getTags(), String.class));
+        if (CollectionUtils.isNotEmpty(testCase.getTags())) {
+            copyApiDebugDTO.setTags(testCase.getTags());
         } else {
             copyApiDebugDTO.setTags(new ArrayList<>());
         }
@@ -679,7 +679,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setAppendTag(false);
         responsePost(BATCH_EDIT, request);
         apiTestCaseMapper.selectByExample(example).forEach(apiTestCase -> {
-            Assertions.assertEquals(apiTestCase.getTags(), "[\"tag1\"]");
+            Assertions.assertEquals(apiTestCase.getTags(), List.of("tag1"));
         });
         //标签为空  报错
         request.setTags(new LinkedHashSet<>());
@@ -858,6 +858,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setSelectAll(true);
         request.setSelectIds(List.of(apiTestCase.getId()));
         request.setExcludeIds(List.of(apiTestCase.getId()));
+        request.setApiDefinitionId("apiDefinitionId");
         request.setModuleIds(List.of("case-moduleId"));
         responsePost(BATCH_RECOVER, request);
         ApiTestCaseExample example = new ApiTestCaseExample();
@@ -873,7 +874,16 @@ public class ApiTestCaseControllerTests extends BaseTest {
         checkLog(apiTestCase.getId(), OperationLogType.DELETE);
         //校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_RECOVER, BATCH_RECOVER, request);
-        this.batchMoveGc();
+        ApiTestCaseBatchRequest gcRequest = new ApiTestCaseBatchRequest();
+        gcRequest.setProjectId(DEFAULT_PROJECT_ID);
+        gcRequest.setSelectAll(true);
+        gcRequest.setExcludeIds(new ArrayList<>());
+        gcRequest.setApiDefinitionId("apiDefinitionId");
+        responsePost(BATCH_MOVE_GC, gcRequest);
+        ApiTestCaseExample example1 = new ApiTestCaseExample();
+        example1.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andApiDefinitionIdEqualTo("apiDefinitionId").andDeletedEqualTo(true);
+        List<ApiTestCase> caseList1 = apiTestCaseMapper.selectByExample(example1);
+        caseList1.forEach(apiTestCase -> Assertions.assertTrue(apiTestCase.getDeleted()));
     }
 
 
@@ -916,7 +926,6 @@ public class ApiTestCaseControllerTests extends BaseTest {
         responsePost(BATCH_DELETE, request);
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setSelectAll(true);
-        request.setModuleIds(List.of("case-moduleId"));
         request.setApiDefinitionId("apiDefinitionId");
         responsePost(BATCH_DELETE, request);
         ApiTestCaseExample example = new ApiTestCaseExample();
