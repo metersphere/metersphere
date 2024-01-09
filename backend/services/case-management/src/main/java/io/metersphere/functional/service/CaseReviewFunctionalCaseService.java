@@ -99,23 +99,24 @@ public class CaseReviewFunctionalCaseService {
 
     private List<ReviewFunctionalCaseDTO> doHandleDTO(List<ReviewFunctionalCaseDTO> list, String reviewId) {
         if (CollectionUtils.isNotEmpty(list)) {
-            List<String> ids = list.stream().map(ReviewFunctionalCaseDTO::getId).toList();
-            List<BaseTreeNode> modules = extFunctionalCaseModuleMapper.selectBaseByIds(ids);
+            List<String> moduleIds = list.stream().map(ReviewFunctionalCaseDTO::getModuleId).toList();
+            List<BaseTreeNode> modules = extFunctionalCaseModuleMapper.selectBaseByIds(moduleIds);
             Map<String, String> moduleMap = modules.stream().collect(Collectors.toMap(BaseTreeNode::getId, BaseTreeNode::getName));
 
             List<String> versionIds = list.stream().map(ReviewFunctionalCaseDTO::getVersionId).toList();
             List<ProjectVersion> versions = extBaseProjectVersionMapper.getVersionByIds(versionIds);
             Map<String, String> versionMap = versions.stream().collect(Collectors.toMap(ProjectVersion::getId, ProjectVersion::getName));
 
-            List<ReviewsDTO> reviewers = extCaseReviewFunctionalCaseUserMapper.selectReviewers(ids, reviewId);
+            List<String> caseIds = list.stream().map(ReviewFunctionalCaseDTO::getCaseId).toList();
+            List<ReviewsDTO> reviewers = extCaseReviewFunctionalCaseUserMapper.selectReviewers(caseIds, reviewId);
             Map<String, String> userIdMap = reviewers.stream().collect(Collectors.toMap(ReviewsDTO::getCaseId, ReviewsDTO::getUserIds));
             Map<String, String> userNameMap = reviewers.stream().collect(Collectors.toMap(ReviewsDTO::getCaseId, ReviewsDTO::getUserNames));
 
             list.forEach(item -> {
                 item.setModuleName(moduleMap.get(item.getModuleId()));
                 item.setVersionName(versionMap.get(item.getVersionId()));
-                item.setReviewers(Collections.singletonList(userIdMap.get(item.getId())));
-                item.setReviewNames(Collections.singletonList(userNameMap.get(item.getId())));
+                item.setReviewers(Collections.singletonList(userIdMap.get(item.getCaseId())));
+                item.setReviewNames(Collections.singletonList(userNameMap.get(item.getCaseId())));
             });
         }
         return list;
