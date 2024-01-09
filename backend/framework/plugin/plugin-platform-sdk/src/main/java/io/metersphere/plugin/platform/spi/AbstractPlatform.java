@@ -17,6 +17,10 @@ public abstract class AbstractPlatform implements Platform {
         this.request = request;
     }
 
+    public <T> T getIntegrationConfig(Class<T> clazz) {
+        return getIntegrationConfig(request.getIntegrationConfig(), clazz);
+    }
+
     public <T> T getIntegrationConfig(String integrationConfig, Class<T> clazz) {
         if (StringUtils.isBlank(integrationConfig)) {
             throw new MSPluginException("服务集成配置为空");
