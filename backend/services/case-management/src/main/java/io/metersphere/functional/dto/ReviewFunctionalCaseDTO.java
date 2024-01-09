@@ -16,11 +16,14 @@ public class ReviewFunctionalCaseDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "用例id")
+    @Schema(description = "id")
     private String id;
 
     @Schema(description = "用例名称")
     private String name;
+
+    @Schema(description = "用例id")
+    private String caseId;
 
     @Schema(description = "版本id")
     private String versionId;

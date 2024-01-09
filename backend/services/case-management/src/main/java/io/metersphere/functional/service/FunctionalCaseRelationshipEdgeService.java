@@ -181,6 +181,7 @@ public class FunctionalCaseRelationshipEdgeService {
 
     public void delete(String id) {
         RelationshipEdgeUtils.updateGraphId(id, extFunctionalCaseRelationshipEdgeMapper::getGraphId, extFunctionalCaseRelationshipEdgeMapper::getEdgeByGraphId, extFunctionalCaseRelationshipEdgeMapper::update);
+        functionalCaseRelationshipEdgeMapper.deleteByPrimaryKey(id);
     }
 
 
