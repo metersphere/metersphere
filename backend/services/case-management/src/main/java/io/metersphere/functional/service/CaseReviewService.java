@@ -17,8 +17,8 @@ import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.sdk.request.PosRequest;
+import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.mapper.ExtUserMapper;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
@@ -317,7 +317,7 @@ public class CaseReviewService {
      * @param keyword   查询关键字，根据邮箱和用户名查询
      * @return List<User>
      */
-    public List<User> getReviewUserList(String projectId, String keyword) {
+    public List<UserDTO> getReviewUserList(String projectId, String keyword) {
         return extUserMapper.getUserByPermission(projectId, keyword, PermissionConstants.CASE_REVIEW_REVIEW);
 
     }
