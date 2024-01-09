@@ -16,6 +16,7 @@ public interface ExtBugRelateCaseMapper {
 
     /**
      * 统计缺陷关联的用例数量
+     *
      * @param bugIds 缺陷ID集合
      * @return 缺陷关联DTO
      */
@@ -23,10 +24,11 @@ public interface ExtBugRelateCaseMapper {
 
     /**
      * 缺陷关联用例列表查询
+     *
      * @param request 请求参数
      * @return 缺陷关联用例列表
      */
     List<BugRelateCaseDTO> list(@Param("request") BugRelatedCasePageRequest request);
 
-    List<BugProviderDTO> getAssociateBugs(@Param("request") AssociateBugPageRequest request);
+    List<BugProviderDTO> getAssociateBugs(@Param("request") AssociateBugPageRequest request, @Param("sort") String sort);
 }
