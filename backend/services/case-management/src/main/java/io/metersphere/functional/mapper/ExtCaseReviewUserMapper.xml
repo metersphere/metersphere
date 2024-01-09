@@ -13,6 +13,7 @@
         <foreach collection="reviewIds" item="id" open="(" separator="," close=")">
             #{id}
         </foreach>
+        group by  cu.user_id
     </select>
 
 

@@ -135,9 +135,25 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         Assertions.assertTrue(moduleCount.containsKey("all"));
     }
 
-
     @Test
     @Order(4)
+    public void emptyDataTest() throws Exception {
+        //空数据下，检查模块树
+        List<BaseTreeNode> treeNodes = this.getCaseReviewModuleTreeNode("wx_test_project","wx_review_id_1");
+        //检查有没有默认节点
+        boolean hasNode = false;
+        for (BaseTreeNode baseTreeNode : treeNodes) {
+            if (org.testcontainers.shaded.org.apache.commons.lang3.StringUtils.equals(baseTreeNode.getId(), ModuleConstants.DEFAULT_NODE_ID)) {
+                hasNode = true;
+            }
+            Assertions.assertNotNull(baseTreeNode.getParentId());
+        }
+        Assertions.assertTrue(hasNode);
+    }
+
+
+    @Test
+    @Order(5)
     public void testBatchDisassociate() throws Exception {
         BaseReviewCaseBatchRequest request = new BaseReviewCaseBatchRequest();
         request.setReviewId("wx_review_id_1");
@@ -164,7 +180,7 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
 
 
     @Test
-    @Order(5)
+    @Order(6)
     public void testCaseReviewAddCase() throws Exception {
         //新增
         FunctionalCaseAddRequest request = creatFunctionalCase();
@@ -181,7 +197,7 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(6)
+    @Order(7)
     public void testPos() throws Exception {
         List<CaseReviewFunctionalCase> caseReviewList = getCaseReviewFunctionalCase("wx_review_id_1");
         CaseReviewFunctionalCase caseReviews = caseReviewList.get(0);
@@ -215,7 +231,7 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
 
 
     @Test
-    @Order(7)
+    @Order(8)
     public void testBatchReview() throws Exception {
         List<CaseReviewFunctionalCase> caseReviewList = getCaseReviewFunctionalCase("wx_review_id_1");
         List<CaseReviewFunctionalCase> list = caseReviewList.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getCreateUser(), "admin")).toList();
@@ -269,7 +285,7 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(8)
+    @Order(9)
     public void testBatchReviewFalse() throws Exception {
         BatchReviewFunctionalCaseRequest request = new BatchReviewFunctionalCaseRequest();
         request.setReviewId("wx_review_id_1");
@@ -301,7 +317,7 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
 
 
     @Test
-    @Order(9)
+    @Order(10)
     public void testBatchEditReviewers() throws Exception {
         BatchEditReviewerRequest request = new BatchEditReviewerRequest();
         //更新评审人
@@ -330,23 +346,6 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         request.setReviewerId(List.of("wx11"));
         request.setSelectIds(List.of("wx_test_10"));
         this.requestPostWithOkAndReturn(BATCH_EDIT_REVIEWERS, request);
-    }
-
-
-    @Test
-    @Order(10)
-    public void emptyDataTest() throws Exception {
-        //空数据下，检查模块树
-        List<BaseTreeNode> treeNodes = this.getCaseReviewModuleTreeNode("wx_test_project","wx_review_id_1");
-        //检查有没有默认节点
-        boolean hasNode = false;
-        for (BaseTreeNode baseTreeNode : treeNodes) {
-            if (org.testcontainers.shaded.org.apache.commons.lang3.StringUtils.equals(baseTreeNode.getId(), ModuleConstants.DEFAULT_NODE_ID)) {
-                hasNode = true;
-            }
-            Assertions.assertNotNull(baseTreeNode.getParentId());
-        }
-        Assertions.assertTrue(hasNode);
     }
 
     private List<BaseTreeNode> getCaseReviewModuleTreeNode(String projectId, String reviewId) throws Exception {

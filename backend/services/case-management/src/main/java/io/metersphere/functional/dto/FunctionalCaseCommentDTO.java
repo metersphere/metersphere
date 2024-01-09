@@ -22,6 +22,6 @@ public class FunctionalCaseCommentDTO extends FunctionalCaseComment {
     private String userLogo;
 
     @Schema(description =  "该条评论下的所有回复数据")
-    private List<FunctionalCaseCommentDTO> replies;
+    private List<FunctionalCaseCommentDTO> childComments;
 
 }

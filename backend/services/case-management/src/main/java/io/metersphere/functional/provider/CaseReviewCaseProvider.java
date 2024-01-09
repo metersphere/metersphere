@@ -111,9 +111,9 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
             Object caseIds = paramMap.get(CaseEvent.Param.CASE_IDS);
             List<String> caseIdList = JSON.parseArray(JSON.toJSONString(caseIds), String.class);
             //获取与选中case无关的其他case
-            List<CaseReviewFunctionalCase> caseReviewFunctionalCases = extCaseReviewFunctionalCaseMapper.getListIncludes(reviewId, caseIdList, false);
+            List<CaseReviewFunctionalCase> caseReviewFunctionalCases = extCaseReviewFunctionalCaseMapper.getListExcludes(List.of(reviewId), caseIdList, false);
             List<CaseReviewFunctionalCase> passList = caseReviewFunctionalCases.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getStatus(), FunctionalCaseReviewStatus.PASS.toString())).toList();
-            int caseCount = caseReviewFunctionalCases.size() - caseIdList.size();
+            int caseCount = caseReviewFunctionalCases.size();
             int passNumber = passList.size();
             List<CaseReviewFunctionalCase> unCompletedCaseList = getUnCompletedCaseList(caseReviewFunctionalCases, new ArrayList<>());
             updateCaseReview(reviewId, caseReview.getCaseCount() - caseCount, passNumber, unCompletedCaseList.size(), paramMap.get(CaseEvent.Param.USER_ID).toString());

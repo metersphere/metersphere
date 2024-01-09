@@ -39,7 +39,7 @@ public class CaseReviewFunctionalCaseController {
 
 
     @GetMapping("/get-ids/{reviewId}")
-    @Operation(summary = "用例管理-功能用例-评审列表-评审详情-获取已关联用例id集合(关联用例弹窗前调用)")
+    @Operation(summary = "用例管理-用例评审-评审列表-评审详情-获取已关联用例id集合(关联用例弹窗前调用)")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_RELEVANCE)
     @CheckOwner(resourceId = "#reviewId", resourceType = "case_review")
     public List<String> getCaseIds(@PathVariable String reviewId) {
@@ -48,7 +48,7 @@ public class CaseReviewFunctionalCaseController {
 
 
     @PostMapping("/page")
-    @Operation(summary = "用例管理-功能用例-评审列表-评审详情-已关联用例列表")
+    @Operation(summary = "用例管理-用例评审-评审列表-评审详情-已关联用例列表")
     public Pager<List<ReviewFunctionalCaseDTO>> page(@Validated @RequestBody ReviewFunctionalCasePageRequest request) {
         String userId = StringUtils.EMPTY;
         if (request.getViewFlag()) {
@@ -60,7 +60,7 @@ public class CaseReviewFunctionalCaseController {
 
 
     @GetMapping("/tree/{projectId}/{reviewId}")
-    @Operation(summary = "用例管理-功能用例-评审列表-评审详情-已关联用例列表模块树")
+    @Operation(summary = "用例管理-用例评审-评审列表-评审详情-已关联用例列表模块树")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<BaseTreeNode> getTree(@PathVariable String projectId, @PathVariable String reviewId) {
@@ -69,19 +69,20 @@ public class CaseReviewFunctionalCaseController {
 
 
     @PostMapping("/module/count")
-    @Operation(summary = "用例管理-功能用例-评审列表-评审详情-已关联用例统计模块数量")
+    @Operation(summary = "用例管理-用例评审-评审列表-评审详情-已关联用例统计模块数量")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Map<String, Long> moduleCount(@Validated @RequestBody ReviewFunctionalCasePageRequest request) {
-        return caseReviewFunctionalCaseService.moduleCount(request, false);
+        String userId = StringUtils.EMPTY;
+        if (request.getViewFlag()) {
+            userId = SessionUtils.getUserId();
+        }
+        return caseReviewFunctionalCaseService.moduleCount(request, false, userId);
     }
 
 
-
-
-
     @PostMapping("/batch/disassociate")
-    @Operation(summary = "用例管理-功能用例-评审列表-评审详情-列表-批量取消关联用例")
+    @Operation(summary = "用例管理-用例评审-评审列表-评审详情-列表-批量取消关联用例")
     @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.batchDisassociateCaseLog(#request)", msClass = CaseReviewLogService.class)
     @CheckOwner(resourceId = "#request.getReviewId()", resourceType = "case_review")
     public void batchDisassociate(@Validated @RequestBody BaseReviewCaseBatchRequest request) {
@@ -89,7 +90,7 @@ public class CaseReviewFunctionalCaseController {
     }
 
     @PostMapping("/edit/pos")
-    @Operation(summary = "用例管理-功能用例-评审列表-评审详情-列表-拖拽排序")
+    @Operation(summary = "用例管理-用例评审-评审列表-评审详情-列表-拖拽排序")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void editPos(@Validated @RequestBody CaseReviewFunctionalCasePosRequest request) {
@@ -97,7 +98,7 @@ public class CaseReviewFunctionalCaseController {
     }
 
     @PostMapping("/batch/review")
-    @Operation(summary = "用例管理-功能用例-评审列表-评审详情-列表-批量评审")
+    @Operation(summary = "用例管理-用例评审-评审列表-评审详情-列表-批量评审")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_REVIEW)
     @CheckOwner(resourceId = "#request.getReviewId()", resourceType = "case_review")
     public void batchReview(@Validated @RequestBody BatchReviewFunctionalCaseRequest request) {
@@ -105,7 +106,7 @@ public class CaseReviewFunctionalCaseController {
     }
 
     @PostMapping("/batch/edit/reviewers")
-    @Operation(summary = "用例管理-功能用例-评审列表-评审详情-列表-批量修改评审人")
+    @Operation(summary = "用例管理-用例评审-评审列表-评审详情-列表-批量修改评审人")
     @CheckOwner(resourceId = "#request.getReviewId()", resourceType = "case_review")
     public void batchEditReviewUser(@Validated @RequestBody BatchEditReviewerRequest request) {
         caseReviewFunctionalCaseService.batchEditReviewUser(request, SessionUtils.getUserId());
