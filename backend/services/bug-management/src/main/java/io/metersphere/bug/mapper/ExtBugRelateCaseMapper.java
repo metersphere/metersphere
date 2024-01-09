@@ -3,6 +3,8 @@ package io.metersphere.bug.mapper;
 import io.metersphere.bug.dto.request.BugRelatedCasePageRequest;
 import io.metersphere.bug.dto.response.BugRelateCaseCountDTO;
 import io.metersphere.bug.dto.response.BugRelateCaseDTO;
+import io.metersphere.dto.BugProviderDTO;
+import io.metersphere.request.AssociateBugPageRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -25,4 +27,6 @@ public interface ExtBugRelateCaseMapper {
      * @return 缺陷关联用例列表
      */
     List<BugRelateCaseDTO> list(@Param("request") BugRelatedCasePageRequest request);
+
+    List<BugProviderDTO> getAssociateBugs(@Param("request") AssociateBugPageRequest request);
 }

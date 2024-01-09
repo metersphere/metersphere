@@ -585,6 +585,12 @@
                 )
             </when>
         </choose>
+        <if test="request.excludeIds != null and request.excludeIds.size() > 0">
+            AND id not in
+            <foreach collection="request.excludeIds" item="excludeId" separator="," open="(" close=")">
+                #{excludeId}
+            </foreach>
+        </if>
         GROUP BY module_id
     </select>
 

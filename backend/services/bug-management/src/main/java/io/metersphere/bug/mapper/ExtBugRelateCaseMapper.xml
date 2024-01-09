@@ -19,4 +19,27 @@
             and fc.name like concat('%', #{request.keyword}, '%')
         </if>
     </select>
+
+    <select id="getAssociateBugs" resultType="io.metersphere.dto.BugProviderDTO">
+        SELECT
+            brc.bug_id id,
+            b.title NAME,
+            b.handle_user handleUser,
+            b.`status`,
+            brc.test_plan_id
+        FROM
+            bug_relation_case brc
+                INNER JOIN bug b ON brc.bug_id = b.id
+        where b.deleted = false
+        <include refid="queryWhereConditionByProvider"/>
+    </select>
+
+    <sql id="queryWhereConditionByProvider">
+        <if test="request.caseId != null">
+            and brc.case_id = #{request.caseId}
+        </if>
+        <if test="request.keyword != null">
+            and b.title like concat('%', #{request.keyword},'%')
+        </if>
+    </sql>
 </mapper>

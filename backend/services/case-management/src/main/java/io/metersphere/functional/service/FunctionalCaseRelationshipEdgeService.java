@@ -47,6 +47,7 @@ public class FunctionalCaseRelationshipEdgeService {
         List<FunctionalCaseRelationshipEdge> relationshipEdges = getRelationshipEdges(id);
         List<String> ids = relationshipEdges.stream().map(FunctionalCaseRelationshipEdge::getTargetId).collect(Collectors.toList());
         ids.addAll(relationshipEdges.stream().map(FunctionalCaseRelationshipEdge::getSourceId).collect(Collectors.toList()));
+        ids.add(id);
         List<String> list = ids.stream().distinct().toList();
         return list;
     }

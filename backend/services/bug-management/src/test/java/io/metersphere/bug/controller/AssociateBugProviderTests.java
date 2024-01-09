@@ -2,6 +2,7 @@ package io.metersphere.bug.controller;
 
 import io.metersphere.bug.provider.AssociateBugProvider;
 import io.metersphere.dto.BugProviderDTO;
+import io.metersphere.request.AssociateBugPageRequest;
 import io.metersphere.request.AssociateBugRequest;
 import io.metersphere.request.BugPageProviderRequest;
 import io.metersphere.sdk.util.JSON;
@@ -75,5 +76,15 @@ public class AssociateBugProviderTests extends BaseTest {
     @Order(4)
     public void testDisassociateBug() throws Exception {
         associateBugProvider.disassociateBug("wx_test_id_1");
+    }
+
+    @Test
+    @Order(5)
+    public void testAssociateBugPage() throws Exception {
+        AssociateBugPageRequest request = new AssociateBugPageRequest();
+        request.setCurrent(1);
+        request.setPageSize(10);
+        request.setCaseId("123");
+        associateBugProvider.hasAssociateBugPage(request);
     }
 }

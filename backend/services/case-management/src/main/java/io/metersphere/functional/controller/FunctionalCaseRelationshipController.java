@@ -38,14 +38,19 @@ public class FunctionalCaseRelationshipController {
     @Resource
     private FunctionalCaseRelationshipEdgeService functionalCaseRelationshipEdgeService;
 
+    @GetMapping("/get-ids/{caseId}")
+    @Operation(summary = "用例管理-功能用例-评审列表-评审详情-获取已关联用例id集合(关联用例弹窗前调用)")
+    @CheckOwner(resourceId = "#reviewId", resourceType = "case_review")
+    public List<String> getCaseIds(@PathVariable String caseId) {
+        return functionalCaseRelationshipEdgeService.getExcludeIds(caseId);
+    }
+
 
     @PostMapping("/relate/page")
     @Operation(summary = "用例管理-功能用例-用例详情-前后置关系-弹窗获取用例列表")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<FunctionalCasePageDTO>> getFunctionalCasePage(@Validated @RequestBody RelationshipPageRequest request) {
-        List<String> excludeIds = functionalCaseRelationshipEdgeService.getExcludeIds(request.getId());
-        request.setExcludeIds(excludeIds);
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "pos desc");
         return PageUtils.setPageInfo(page, functionalCaseService.getFunctionalCasePage(request, false));

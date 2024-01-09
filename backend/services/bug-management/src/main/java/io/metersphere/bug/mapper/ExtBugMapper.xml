@@ -193,7 +193,7 @@
         SELECT
             b.id id,
             b.title title,
-            b.create_user createUser,
+            b.handle_user handleUser,
             u.`name` name,
             b.`status` status,
             b.tag tag,

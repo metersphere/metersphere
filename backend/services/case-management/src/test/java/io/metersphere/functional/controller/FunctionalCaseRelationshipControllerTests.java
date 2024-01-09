@@ -27,6 +27,7 @@ public class FunctionalCaseRelationshipControllerTests extends BaseTest {
     public static final String ADD = "/functional/case/relationship/add";
     public static final String PAGE = "/functional/case/relationship/page";
     public static final String DELETE = "/functional/case/relationship/delete/";
+    public static final String IDS = "/functional/case/relationship/get-ids/";
 
 
     @Test
@@ -93,6 +94,9 @@ public class FunctionalCaseRelationshipControllerTests extends BaseTest {
         request.setType("POST");
         request.setSelectIds(List.of("wx_relationship_6"));
         this.requestPostWithOkAndReturn(ADD, request);
+
+        request.setSelectIds(null);
+        this.requestPostWithOkAndReturn(ADD, request);
     }
 
 
@@ -148,4 +152,17 @@ public class FunctionalCaseRelationshipControllerTests extends BaseTest {
         assertErrorCode(this.requestGet(DELETE + "test"), MsHttpResultCode.FAILED);
     }
 
+    @Test
+    @Order(5)
+    public void testIds() throws Exception {
+        MvcResult postResult = this.requestGetWithOkAndReturn(IDS + "123");
+        // 获取返回值
+        String postReturnData = postResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder postResultHolder = JSON.parseObject(postReturnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(postResultHolder);
+
+        //异常覆盖
+        assertErrorCode(this.requestGet(DELETE + "test"), MsHttpResultCode.FAILED);
+    }
 }
