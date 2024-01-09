@@ -2,7 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.api.mapper.ExtApiDefinitionMapper">
 
+    <resultMap id="ApiDefinitionDTO" type="io.metersphere.api.dto.definition.ApiDefinitionDTO">
+        <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
+    </resultMap>
 
+    <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiDefinition">
+        <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
+    </resultMap>
     <update id="deleteApiToGc">
         update api_definition
         set delete_user = #{userId},delete_time = #{time}, deleted = 1 , module_id = 'root'
@@ -11,7 +17,7 @@
             #{v}
         </foreach>
     </update>
-    <select id="list" resultType="io.metersphere.api.dto.definition.ApiDefinitionDTO">
+    <select id="list" resultMap="ApiDefinitionDTO">
         select
         api_definition.id, api_definition.`name`, api_definition.protocol, api_definition.`method`,
         api_definition.`path`, api_definition.`status`, api_definition.num, api_definition.tags, api_definition.pos,
@@ -26,7 +32,7 @@
 
     </select>
 
-    <select id="listDoc" resultType="io.metersphere.api.dto.definition.ApiDefinitionDTO">
+    <select id="listDoc" resultMap="ApiDefinitionDTO">
         select
         api_definition.id, api_definition.`name`, api_definition.protocol, api_definition.`method`,
         api_definition.`path`, api_definition.`status`, api_definition.num, api_definition.tags, api_definition.pos,
@@ -121,7 +127,7 @@
         WHERE ref_id = #{refId}
     </select>
 
-    <select id="getTagsByIds" resultType="io.metersphere.api.domain.ApiDefinition">
+    <select id="getTagsByIds" resultMap="BaseResultMap">
         select id, tags from api_definition
         where id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">

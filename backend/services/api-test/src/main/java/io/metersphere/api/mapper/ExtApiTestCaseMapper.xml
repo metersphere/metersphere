@@ -2,6 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="io.metersphere.api.mapper.ExtApiTestCaseMapper">
+    <resultMap id="ApiTestCaseDTO" type="io.metersphere.api.dto.definition.ApiTestCaseDTO">
+        <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
+    </resultMap>
+
+    <resultMap id="TestCaseProviderDTO" type="io.metersphere.dto.TestCaseProviderDTO">
+        <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
+    </resultMap>
     <update id="batchMoveGc">
         UPDATE api_test_case
         SET deleted = 1,
@@ -21,7 +28,7 @@
         LIMIT 1;
 
     </select>
-    <select id="listByRequest" resultType="io.metersphere.api.dto.definition.ApiTestCaseDTO">
+    <select id="listByRequest" resultMap="ApiTestCaseDTO">
         SELECT
         t1.id,
         t1.project_id,
@@ -39,6 +46,7 @@
         t1.last_report_status,
         t1.last_report_id,
         t1.environment_id,
+        t1.tags,
         a.module_id
         FROM
         api_test_case t1
@@ -153,7 +161,7 @@
         </foreach>
     </select>
 
-    <select id="listByProviderRequest" resultType="io.metersphere.dto.TestCaseProviderDTO">
+    <select id="listByProviderRequest" resultMap="TestCaseProviderDTO">
         SELECT
         t1.id,
         t1.project_id,

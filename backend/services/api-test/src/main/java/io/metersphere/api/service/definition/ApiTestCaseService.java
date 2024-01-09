@@ -16,7 +16,10 @@ import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
-import io.metersphere.sdk.util.*;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.FileAssociationSourceUtil;
+import io.metersphere.sdk.util.SubListUtils;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.service.UserLoginService;
@@ -36,7 +39,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -143,7 +145,7 @@ public class ApiTestCaseService {
         testCase.setCreateTime(System.currentTimeMillis());
         testCase.setUpdateTime(System.currentTimeMillis());
         if (CollectionUtils.isNotEmpty(request.getTags())) {
-            testCase.setTags(JSON.toJSONString(request.getTags()));
+            testCase.setTags(request.getTags());
         }
         apiTestCaseMapper.insertSelective(testCase);
 
@@ -159,6 +161,7 @@ public class ApiTestCaseService {
         apiFileResourceService.addFileResource(resourceUpdateRequest);
         return testCase;
     }
+
     private ApiTestCase checkResourceExist(String id) {
         ApiTestCase testCase = apiTestCaseMapper.selectByPrimaryKey(id);
         if (testCase == null) {
@@ -172,8 +175,8 @@ public class ApiTestCaseService {
         ApiTestCase testCase = checkResourceExist(id);
         ApiTestCaseBlob testCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(id);
         BeanUtils.copyBean(apiTestCaseDTO, testCase);
-        if (StringUtils.isNotBlank(testCase.getTags())) {
-            apiTestCaseDTO.setTags(JSON.parseArray(testCase.getTags(), String.class));
+        if (CollectionUtils.isNotEmpty(testCase.getTags())) {
+            apiTestCaseDTO.setTags(testCase.getTags());
         } else {
             apiTestCaseDTO.setTags(new ArrayList<>());
         }
@@ -225,7 +228,7 @@ public class ApiTestCaseService {
         testCase.setUpdateUser(userId);
         testCase.setUpdateTime(System.currentTimeMillis());
         if (CollectionUtils.isNotEmpty(request.getTags())) {
-            testCase.setTags(JSON.toJSONString(request.getTags()));
+            testCase.setTags(request.getTags());
         } else {
             testCase.setTags(null);
         }
@@ -432,7 +435,7 @@ public class ApiTestCaseService {
     }
 
     private void batchUpdateTags(ApiTestCaseExample example, ApiTestCase updateCase,
-                                 LinkedHashSet<String> tags, boolean appendTag,
+                                 List<String> tags, boolean appendTag,
                                  SqlSession sqlSession, ApiTestCaseMapper mapper) {
         if (CollectionUtils.isEmpty(tags)) {
             throw new MSException(Translator.get("tags_is_null"));
@@ -441,12 +444,12 @@ public class ApiTestCaseService {
             List<ApiTestCase> caseList = apiTestCaseMapper.selectByExample(example);
             if (CollectionUtils.isNotEmpty(caseList)) {
                 caseList.forEach(apiTestCase -> {
-                    if (StringUtils.isNotBlank(apiTestCase.getTags())) {
-                        LinkedHashSet orgTags = ApiDataUtils.parseObject(apiTestCase.getTags(), LinkedHashSet.class);
+                    if (CollectionUtils.isNotEmpty(apiTestCase.getTags())) {
+                        List<String> orgTags = apiTestCase.getTags();
                         orgTags.addAll(tags);
-                        apiTestCase.setTags(JSON.toJSONString(orgTags));
+                        apiTestCase.setTags(orgTags);
                     } else {
-                        apiTestCase.setTags(JSON.toJSONString(tags));
+                        apiTestCase.setTags(tags);
                     }
                     mapper.updateByPrimaryKey(apiTestCase);
                 });
@@ -456,7 +459,7 @@ public class ApiTestCaseService {
                 }
             }
         } else {
-            updateCase.setTags(JSON.toJSONString(tags));
+            updateCase.setTags(tags);
             apiTestCaseMapper.updateByExampleSelective(updateCase, example);
         }
     }

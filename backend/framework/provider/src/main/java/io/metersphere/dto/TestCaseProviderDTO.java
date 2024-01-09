@@ -8,6 +8,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class TestCaseProviderDTO {
 
@@ -30,7 +32,7 @@ public class TestCaseProviderDTO {
     private Long num;
 
     @Schema(description = "标签")
-    private String tags;
+    private List<String> tags;
 
     @Schema(description = "自定义排序", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{api_test_case.pos.not_blank}", groups = {Created.class})

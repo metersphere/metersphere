@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -62,5 +63,13 @@ public class ApiTestCaseAddRequest implements Serializable {
      */
     @Schema(description = "关联文件ID")
     private List<String> linkFileIds;
+
+    public List<String> getTags() {
+        if (tags == null) {
+            return new ArrayList<>(0);
+        } else {
+            return new ArrayList<>(tags);
+        }
+    }
 
 }

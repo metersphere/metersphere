@@ -9,11 +9,11 @@ import io.metersphere.api.dto.definition.ApiTestCaseLogDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseUpdateRequest;
 import io.metersphere.api.mapper.ApiTestCaseBlobMapper;
 import io.metersphere.api.mapper.ApiTestCaseMapper;
+import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
-import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
@@ -112,7 +112,7 @@ public class ApiTestCaseLogService {
                 OperationLogType.RECOVER.name(),
                 OperationLogModule.API_DEFINITION_CASE,
                 apiTestCase.getName());
-        dto.setHistory(true);
+        dto.setHistory(false);
         dto.setPath("/api/case/recover/" + id);
         dto.setMethod(HttpMethodConstants.GET.name());
         dto.setOriginalValue(JSON.toJSONBytes(apiTestCase));
@@ -231,7 +231,7 @@ public class ApiTestCaseLogService {
     }
 
     public void batchRecoverLog(List<ApiTestCase> apiTestCases, String operator, String projectId) {
-        saveBatchLog(projectId, apiTestCases, "/api/case/recover", operator, OperationLogType.RECOVER.name(), true);
+        saveBatchLog(projectId, apiTestCases, "/api/case/recover", operator, OperationLogType.RECOVER.name(), false);
     }
 
     private void saveBatchLog(String projectId, List<ApiTestCase> apiTestCases, String path, String operator, String operationType, boolean isHistory) {
@@ -267,7 +267,7 @@ public class ApiTestCaseLogService {
                             .createUser(operator)
                             .originalValue(JSON.toJSONBytes(apiTestCaseDTO))
                             .build().getLogDTO();
-            dto.setHistory(isHistory);
+                    dto.setHistory(isHistory);
                     logs.add(dto);
                 }
         );

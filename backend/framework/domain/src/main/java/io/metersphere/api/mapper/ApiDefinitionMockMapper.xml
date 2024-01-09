@@ -7,7 +7,7 @@
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="tags" jdbcType="VARCHAR" property="tags" />
+    <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
     <result column="enable" jdbcType="BIT" property="enable" />
     <result column="expect_num" jdbcType="VARCHAR" property="expectNum" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
@@ -37,6 +37,25 @@
                 </when>
               </choose>
             </foreach>
+            <foreach collection="criteria.tagsCriteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler} and #{criterion.secondValue,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem,typeHandler=io.metersphere.handler.ListTypeHandler}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
           </trim>
         </if>
       </foreach>
@@ -62,6 +81,25 @@
                   and ${criterion.condition}
                   <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
                     #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+            <foreach collection="criteria.tagsCriteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler} and #{criterion.secondValue,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem,typeHandler=io.metersphere.handler.ListTypeHandler}
                   </foreach>
                 </when>
               </choose>
@@ -111,7 +149,7 @@
       `enable`, expect_num, project_id, 
       api_definition_id)
     values (#{id,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{createUser,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, 
+      #{createUser,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
       #{enable,jdbcType=BIT}, #{expectNum,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
       #{apiDefinitionId,jdbcType=VARCHAR})
   </insert>
@@ -166,7 +204,7 @@
         #{name,jdbcType=VARCHAR},
       </if>
       <if test="tags != null">
-        #{tags,jdbcType=VARCHAR},
+        #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       </if>
       <if test="enable != null">
         #{enable,jdbcType=BIT},
@@ -207,7 +245,7 @@
         `name` = #{record.name,jdbcType=VARCHAR},
       </if>
       <if test="record.tags != null">
-        tags = #{record.tags,jdbcType=VARCHAR},
+        tags = #{record.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       </if>
       <if test="record.enable != null">
         `enable` = #{record.enable,jdbcType=BIT},
@@ -233,7 +271,7 @@
       update_time = #{record.updateTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
-      tags = #{record.tags,jdbcType=VARCHAR},
+      tags = #{record.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       `enable` = #{record.enable,jdbcType=BIT},
       expect_num = #{record.expectNum,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
@@ -258,7 +296,7 @@
         `name` = #{name,jdbcType=VARCHAR},
       </if>
       <if test="tags != null">
-        tags = #{tags,jdbcType=VARCHAR},
+        tags = #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       </if>
       <if test="enable != null">
         `enable` = #{enable,jdbcType=BIT},
@@ -281,7 +319,7 @@
       update_time = #{updateTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
       `name` = #{name,jdbcType=VARCHAR},
-      tags = #{tags,jdbcType=VARCHAR},
+      tags = #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       `enable` = #{enable,jdbcType=BIT},
       expect_num = #{expectNum,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
@@ -295,7 +333,7 @@
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, 
-        #{item.createUser,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.tags,jdbcType=VARCHAR}, 
+        #{item.createUser,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
         #{item.enable,jdbcType=BIT}, #{item.expectNum,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, 
         #{item.apiDefinitionId,jdbcType=VARCHAR})
     </foreach>
@@ -326,7 +364,7 @@
           #{item.name,jdbcType=VARCHAR}
         </if>
         <if test="'tags'.toString() == column.value">
-          #{item.tags,jdbcType=VARCHAR}
+          #{item.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}
         </if>
         <if test="'enable'.toString() == column.value">
           #{item.enable,jdbcType=BIT}

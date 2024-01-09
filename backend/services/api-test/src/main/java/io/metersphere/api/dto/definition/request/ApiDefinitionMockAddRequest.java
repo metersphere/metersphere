@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -24,7 +25,7 @@ public class ApiDefinitionMockAddRequest implements Serializable {
     @Size(min = 1, max = 50, message = "{api_definition_mock.project_id.length_range}")
     private String projectId;
 
-    @Schema(description =  "接口 mock 名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "接口 mock 名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_definition_mock.name.not_blank}")
     @Size(min = 1, max = 255, message = "{api_definition_mock.name.length_range}")
     private String name;
@@ -57,5 +58,13 @@ public class ApiDefinitionMockAddRequest implements Serializable {
      */
     @Schema(description = "关联文件ID")
     private List<String> linkFileIds;
+
+    public List<String> getTags() {
+        if (tags == null) {
+            return new ArrayList<>(0);
+        } else {
+            return new ArrayList<>(tags);
+        }
+    }
 
 }

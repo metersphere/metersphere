@@ -6,7 +6,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -29,5 +31,13 @@ public class ApiCaseBatchEditRequest extends ApiTestCaseBatchRequest implements 
     private String status;
     @Schema(description = "用例等级")
     private String priority;
+
+    public List<String> getTags() {
+        if (tags == null) {
+            return new ArrayList<>(0);
+        } else {
+            return new ArrayList<>(tags);
+        }
+    }
 
 }
