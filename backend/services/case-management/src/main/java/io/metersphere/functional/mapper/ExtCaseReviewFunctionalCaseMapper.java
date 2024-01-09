@@ -6,6 +6,7 @@ import io.metersphere.functional.dto.ReviewFunctionalCaseDTO;
 import io.metersphere.functional.request.BaseReviewCaseBatchRequest;
 import io.metersphere.functional.request.FunctionalCaseReviewListRequest;
 import io.metersphere.functional.request.ReviewFunctionalCasePageRequest;
+import io.metersphere.project.dto.ModuleCountDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -40,4 +41,8 @@ public interface ExtCaseReviewFunctionalCaseMapper {
     List<CaseReviewFunctionalCase> getListExcludes(@Param("reviewIds")List<String> reviewIds, @Param("caseIds") List<String> caseIds, @Param("deleted") boolean deleted);
 
     List<CaseReviewFunctionalCase> getCaseIdsByIds(@Param("ids") List<String> ids);
+
+    List<ModuleCountDTO> countModuleIdByRequest(ReviewFunctionalCasePageRequest request, boolean deleted);
+
+    long caseCount(ReviewFunctionalCasePageRequest request, boolean deleted);
 }

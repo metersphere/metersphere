@@ -2,6 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.functional.mapper.ExtCaseReviewMapper">
 
+    <resultMap id="BaseResultMapDTO" type="io.metersphere.functional.dto.CaseReviewDTO">
+        <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
+    </resultMap>
+
     <select id="checkCaseByModuleIds" resultType="io.metersphere.functional.domain.CaseReview">
         SELECT
             id, name, module_id, create_user
@@ -265,7 +269,7 @@
                 </include>
             </if>
 
-            <if test="${condition}.createTime != null">
+            <if test="${condition}.endTime != null">
                 case_review.end_time
                 <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                     <property name="object" value="${condition}.endTime"/>

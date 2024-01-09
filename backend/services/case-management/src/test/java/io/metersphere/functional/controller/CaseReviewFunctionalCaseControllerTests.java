@@ -5,27 +5,35 @@ import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.domain.CaseReviewFunctionalCase;
 import io.metersphere.functional.domain.CaseReviewFunctionalCaseExample;
 import io.metersphere.functional.domain.CaseReviewFunctionalCaseUser;
+import io.metersphere.functional.dto.ReviewFunctionalCaseDTO;
 import io.metersphere.functional.mapper.CaseReviewFunctionalCaseMapper;
 import io.metersphere.functional.mapper.CaseReviewFunctionalCaseUserMapper;
 import io.metersphere.functional.request.*;
+import io.metersphere.sdk.constants.ModuleConstants;
+import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.BaseCondition;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -44,6 +52,9 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
     public static final String BATCH_EDIT_REVIEWERS = "/case/review/detail/batch/edit/reviewers";
 
     public static final String REVIEW_FUNCTIONAL_CASE_BATCH_REVIEW = "/case/review/detail/batch/review";
+    public static final String URL_MODULE_TREE = "/case/review/detail/tree/";
+
+    public static final String REVIEW_FUNCTIONAL_CASE_MODULE_COUNT= "/case/review/detail/module/count";
 
     @Resource
     private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
@@ -95,12 +106,33 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         }}));
         request.setCombine(map);
         request.setViewFlag(false);
+        request.setProjectId("wx_test_project");
         this.requestPostWithOkAndReturn(REVIEW_CASE_PAGE, request);
 
         request.setSort(new HashMap<>() {{
             put("createTime", "desc");
         }});
-        this.requestPostWithOkAndReturn(REVIEW_CASE_PAGE, request);
+        MvcResult mvcResultPage = this.requestPostWithOkAndReturn(REVIEW_CASE_PAGE, request);
+        Pager<List<ReviewFunctionalCaseDTO>> tableData = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Pager.class);
+        MvcResult moduleCountMvcResult = this.requestPostWithOkAndReturn(REVIEW_FUNCTIONAL_CASE_MODULE_COUNT, request);
+        Map<String, Integer> moduleCount = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(moduleCountMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Map.class);
+
+        //如果没有数据，则返回的模块节点也不应该有数据
+        boolean moduleHaveResource = false;
+        for (int countByModuleId : moduleCount.values()) {
+            if (countByModuleId > 0) {
+                moduleHaveResource = true;
+                break;
+            }
+        }
+        if (tableData.getTotal() > 0) {
+            Assertions.assertTrue(moduleHaveResource);
+        }
+        Assertions.assertTrue(moduleCount.containsKey("all"));
     }
 
 
@@ -298,5 +330,34 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         request.setReviewerId(List.of("wx11"));
         request.setSelectIds(List.of("wx_test_10"));
         this.requestPostWithOkAndReturn(BATCH_EDIT_REVIEWERS, request);
+    }
+
+
+    @Test
+    @Order(10)
+    public void emptyDataTest() throws Exception {
+        //空数据下，检查模块树
+        List<BaseTreeNode> treeNodes = this.getCaseReviewModuleTreeNode("wx_test_project","wx_review_id_1");
+        //检查有没有默认节点
+        boolean hasNode = false;
+        for (BaseTreeNode baseTreeNode : treeNodes) {
+            if (org.testcontainers.shaded.org.apache.commons.lang3.StringUtils.equals(baseTreeNode.getId(), ModuleConstants.DEFAULT_NODE_ID)) {
+                hasNode = true;
+            }
+            Assertions.assertNotNull(baseTreeNode.getParentId());
+        }
+        Assertions.assertTrue(hasNode);
+    }
+
+    private List<BaseTreeNode> getCaseReviewModuleTreeNode(String projectId, String reviewId) throws Exception {
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(URL_MODULE_TREE+"/"+projectId+"/"+reviewId).header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .header(SessionConstants.CURRENT_PROJECT, projectId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String returnData = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        return JSON.parseArray(JSON.toJSONString(resultHolder.getData()), BaseTreeNode.class);
     }
 }

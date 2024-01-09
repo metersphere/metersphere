@@ -65,8 +65,8 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
     private OperationLogService operationLogService;
 
     public List<BaseTreeNode> getTree(String projectId) {
-        List<BaseTreeNode> fileModuleList = extFunctionalCaseModuleMapper.selectBaseByProjectId(projectId);
-        return super.buildTreeAndCountResource(fileModuleList, true, Translator.get("default.module"));
+        List<BaseTreeNode> functionalModuleList = extFunctionalCaseModuleMapper.selectBaseByProjectId(projectId);
+        return super.buildTreeAndCountResource(functionalModuleList, true, Translator.get("default.module"));
     }
     
     public String add(FunctionalCaseModuleCreateRequest request, String userId) {
