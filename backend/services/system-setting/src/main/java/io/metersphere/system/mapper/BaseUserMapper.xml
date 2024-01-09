@@ -123,8 +123,7 @@
     </select>
 
     <select id="getCommentUserInfoByIds" resultType="io.metersphere.system.dto.CommentUserInfo">
-        <!-- avatar: 保留; 用户头像参数暂时为空, 后续调整为user_extend参数 -->
-        SELECT u.*, '' as avatar
+        SELECT u.*, ue.avatar as avatar
         FROM user u left join user_extend ue on u.id = ue.id
         WHERE u.id IN
         <foreach collection="ids" item="id" index="index"

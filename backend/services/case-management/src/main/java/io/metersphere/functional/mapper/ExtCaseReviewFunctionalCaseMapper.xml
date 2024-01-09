@@ -402,6 +402,9 @@
         WHERE crfc.review_id = #{request.reviewId}
         AND functional_case.deleted = #{deleted}
         AND functional_case.project_id = #{request.projectId}
+        <if test="userId != null and userId != ''">
+            AND crfc.case_id in (select case_id from case_review_functional_case_user crfcu where crfcu.review_id = #{request.reviewId} and crfcu.user_id = #{userId})
+        </if>
         <choose>
             <when test='request.searchMode == "AND"'>
                 AND <include refid="queryWhereCondition"/>
@@ -422,6 +425,9 @@
         WHERE crfc.review_id = #{request.reviewId}
         AND functional_case.deleted = #{deleted}
         AND functional_case.project_id = #{request.projectId}
+        <if test="userId != null and userId != ''">
+            AND crfc.case_id in (select case_id from case_review_functional_case_user crfcu where crfcu.review_id = #{request.reviewId} and crfcu.user_id = #{userId})
+        </if>
         <choose>
             <when test='request.searchMode == "AND"'>
                 AND <include refid="queryWhereCondition"/>

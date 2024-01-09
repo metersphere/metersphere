@@ -67,7 +67,9 @@ VALUES ('wx_case_id_1', 'wx_review_id_1', 'admin'),
 
 
 
-INSERT INTO functional_case_module(id, project_id, name, parent_id, pos, create_time, update_time, create_user, update_user) VALUES ('wx_module_1', 'wx_test_project', '测试所属模块', 'NONE', 0, 1669174143999, 1669174143999, 'admin', 'admin');
+INSERT INTO case_review_module(id, project_id, name, parent_id, pos, create_time, update_time, create_user, update_user) VALUES ('wx_module_1', 'wx_test_project', '测试所属模块', 'NONE', 0, 1669174143999, 1669174143999, 'admin', 'admin');
+
+INSERT INTO functional_case_module(id, project_id, name, parent_id, pos, create_time, update_time, create_user, update_user) VALUES ('TEST_MODULE_ID', 'wx_test_project', '测试所属模块', 'NONE', 0, 1669174143999, 1669174143999, 'admin', 'admin');
 
 
 INSERT INTO case_review_history(id, review_id, case_id, content, status, deleted, notifier, create_user, create_time)
