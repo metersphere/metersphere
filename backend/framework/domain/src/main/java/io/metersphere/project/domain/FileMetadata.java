@@ -6,6 +6,7 @@ import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import lombok.Data;
 
 @Data
@@ -50,7 +51,7 @@ public class FileMetadata implements Serializable {
     private String updateUser;
 
     @Schema(description = "标签")
-    private String tags;
+    private java.util.List<String> tags;
 
     @Schema(description = "描述")
     private String description;

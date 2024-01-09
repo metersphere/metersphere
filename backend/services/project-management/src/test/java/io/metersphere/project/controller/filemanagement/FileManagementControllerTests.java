@@ -2428,10 +2428,10 @@ public class FileManagementControllerTests extends BaseTest {
         }
 
         if (updateRequest.getTags() != null) {
-            Assertions.assertTrue(CollectionUtils.isEqualCollection(JSON.parseArray(fileMetadata.getTags(), String.class), updateRequest.getTags()));
+            Assertions.assertTrue(CollectionUtils.isEqualCollection(fileMetadata.getTags(), updateRequest.getTags()));
         } else {
-            List<String> fileTags = fileMetadata.getTags() == null ? new ArrayList<>() : JSON.parseArray(fileMetadata.getTags(), String.class);
-            List<String> oldTags = oldFileMetadata.getTags() == null ? new ArrayList<>() : JSON.parseArray(oldFileMetadata.getTags(), String.class);
+            List<String> fileTags = fileMetadata.getTags() == null ? new ArrayList<>() : fileMetadata.getTags();
+            List<String> oldTags = oldFileMetadata.getTags() == null ? new ArrayList<>() : oldFileMetadata.getTags();
             Assertions.assertTrue(CollectionUtils.isEqualCollection(fileTags, oldTags));
         }
     }

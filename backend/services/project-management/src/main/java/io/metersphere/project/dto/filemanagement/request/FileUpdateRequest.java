@@ -4,7 +4,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 @Data
 public class FileUpdateRequest {
@@ -29,4 +31,12 @@ public class FileUpdateRequest {
 
     @Schema(description = "开启/关闭(目前用于jar文件)")
     private Boolean enable;
+
+    public List<String> getTags() {
+        if (tags == null) {
+            return null;
+        } else {
+            return new ArrayList<>(tags);
+        }
+    }
 }

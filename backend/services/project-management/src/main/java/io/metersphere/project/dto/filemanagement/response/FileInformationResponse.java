@@ -2,11 +2,10 @@ package io.metersphere.project.dto.filemanagement.response;
 
 import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.domain.FileMetadataRepository;
-import io.metersphere.sdk.util.JSON;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,8 +85,8 @@ public class FileInformationResponse {
             this.description = fileMetadata.getDescription();
             this.moduleId = fileMetadata.getModuleId();
             this.size = fileMetadata.getSize();
-            if (StringUtils.isNotBlank(fileMetadata.getTags())) {
-                tags = JSON.parseArray(fileMetadata.getTags(), String.class);
+            if (CollectionUtils.isNotEmpty(fileMetadata.getTags())) {
+                tags = fileMetadata.getTags();
             }
             this.enable = fileMetadata.getEnable();
             this.createTime = fileMetadata.getCreateTime();
