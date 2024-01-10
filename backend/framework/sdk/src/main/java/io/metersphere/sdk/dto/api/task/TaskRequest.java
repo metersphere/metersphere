@@ -21,6 +21,7 @@ public class TaskRequest implements Serializable {
     private String kafkaConfig;
     private String minioConfig;
     private String poolId;
+    private String queueId;
     /**
      * 是否需要实时接收单个步骤的结果
      */
