@@ -437,7 +437,7 @@ public class CaseReviewControllerTests extends BaseTest {
 
         request = new CaseReviewPageRequest();
         filters = new HashMap<>();
-        filters.put("status", Arrays.asList("UNDERWAY", "COMPLETED", "ARCHIVED"));
+        filters.put("status", Arrays.asList("PREPARED", "COMPLETED", "ARCHIVED"));
         request.setFilter(filters);
         request.setCombine(caseReviewCombine);
         request.setProjectId(projectId);

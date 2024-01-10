@@ -136,30 +136,17 @@ public class CaseReviewFunctionalCaseService extends ModuleTreeService {
         if (CollectionUtils.isNotEmpty(ids)) {
             CaseReviewFunctionalCaseExample example = new CaseReviewFunctionalCaseExample();
             example.createCriteria().andIdIn(ids);
-            Map<String, Object> param = getParam(request.getReviewId(), ids);
-            param.put(CaseEvent.Param.USER_ID, userId);
-            param.put(CaseEvent.Param.EVENT_NAME, CaseEvent.Event.BATCH_DISASSOCIATE);
-            provider.updateCaseReview(param);
             caseReviewFunctionalCaseMapper.deleteByExample(example);
+            Map<String, Object> param = new HashMap<>();
+            param.put(CaseEvent.Param.REVIEW_ID, request.getReviewId());
+            param.put(CaseEvent.Param.CASE_IDS, ids);
+            param.put(CaseEvent.Param.USER_ID, userId);
+            param.put(CaseEvent.Param.EVENT_NAME, CaseEvent.Event.DISASSOCIATE);
+            provider.updateCaseReview(param);
         }
     }
 
-    private Map<String, Object> getParam(String reviewId, List<String> ids) {
-        List<CaseReviewFunctionalCase> caseReviewFunctionalCases = extCaseReviewFunctionalCaseMapper.getList(reviewId, null, false);
-        List<CaseReviewFunctionalCase> passList = caseReviewFunctionalCases.stream().filter(t -> !ids.contains(t.getId()) && StringUtils.equalsIgnoreCase(t.getStatus(), FunctionalCaseReviewStatus.PASS.toString())).toList();
-        List<String> statusList = new ArrayList<>();
-        statusList.add(FunctionalCaseReviewStatus.UN_REVIEWED.toString());
-        statusList.add(FunctionalCaseReviewStatus.UNDER_REVIEWED.toString());
-        statusList.add(FunctionalCaseReviewStatus.RE_REVIEWED.toString());
-        List<CaseReviewFunctionalCase> unCompletedCaseList = caseReviewFunctionalCases.stream().filter(t -> !ids.contains(t.getId()) && statusList.contains(t.getStatus())).toList();
-        List<String> list = caseReviewFunctionalCases.stream().filter(t -> ids.contains(t.getId())).map(CaseReviewFunctionalCase::getCaseId).toList();
-        Map<String, Object> param = new HashMap<>();
-        param.put(CaseEvent.Param.CASE_IDS, CollectionUtils.isNotEmpty(list) ? list : new ArrayList<>());
-        param.put(CaseEvent.Param.REVIEW_ID, reviewId);
-        param.put(CaseEvent.Param.PASS_COUNT, CollectionUtils.isNotEmpty(passList) ? passList.size() : 0);
-        param.put(CaseEvent.Param.UN_COMPLETED_COUNT, CollectionUtils.isNotEmpty(unCompletedCaseList) ? unCompletedCaseList.size() : 0);
-        return param;
-    }
+
 
     public List<String> doSelectIds(BaseReviewCaseBatchRequest request) {
         if (request.isSelectAll()) {
@@ -292,7 +279,6 @@ public class CaseReviewFunctionalCaseService extends ModuleTreeService {
         CaseReviewHistoryMapper caseReviewHistoryMapper = sqlSession.getMapper(CaseReviewHistoryMapper.class);
         CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper = sqlSession.getMapper(CaseReviewFunctionalCaseMapper.class);
 
-        int passCount = 0;
         for (CaseReviewFunctionalCase caseReviewFunctionalCase : caseReviewFunctionalCaseList) {
             String caseId = caseReviewFunctionalCase.getCaseId();
             CaseReviewHistory caseReviewHistory = buildCaseReviewHistory(request, userId, caseId);
@@ -306,9 +292,7 @@ public class CaseReviewFunctionalCaseService extends ModuleTreeService {
             }
             //根据评审规则更新用例评审和功能用例关系表中的状态 1.单人评审直接更新评审结果 2.多人评审需要计算
             setStatus(request, caseReviewFunctionalCase, caseHistoryMap, reviewerMap);
-            if (StringUtils.equalsIgnoreCase(caseReviewFunctionalCase.getStatus(), FunctionalCaseReviewStatus.PASS.toString())) {
-                passCount += 1;
-            }
+
             caseReviewFunctionalCaseMapper.updateByPrimaryKeySelective(caseReviewFunctionalCase);
 
             //检查是否有@，发送@通知
@@ -328,12 +312,17 @@ public class CaseReviewFunctionalCaseService extends ModuleTreeService {
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
 
         Map<String, Object> param = new HashMap<>();
+        Map<String, List<CaseReviewFunctionalCase>> collect = caseReviewFunctionalCaseList.stream().collect(Collectors.groupingBy(CaseReviewFunctionalCase::getStatus));
+        Map<String, Integer> countMap = new HashMap<>();
+        collect.forEach((k,v)->{
+            countMap.put(k,v.size());
+        });
         param.put(CaseEvent.Param.CASE_IDS, CollectionUtils.isNotEmpty(caseIds) ? caseIds : new ArrayList<>());
-        param.put(CaseEvent.Param.PASS_COUNT, passCount);
         param.put(CaseEvent.Param.REVIEW_ID, reviewId);
         param.put(CaseEvent.Param.STATUS, request.getStatus());
         param.put(CaseEvent.Param.USER_ID, userId);
         param.put(CaseEvent.Param.EVENT_NAME, CaseEvent.Event.REVIEW_FUNCTIONAL_CASE);
+        param.put(CaseEvent.Param.COUNT_MAP, countMap);
         provider.updateCaseReview(param);
     }
 
@@ -439,17 +428,17 @@ public class CaseReviewFunctionalCaseService extends ModuleTreeService {
             });
             sqlSession.flushStatements();
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-
+            Map<String, List<CaseReviewFunctionalCase>> collect = cases.stream().collect(Collectors.groupingBy(CaseReviewFunctionalCase::getStatus));
+            Map<String, Integer> countMap = new HashMap<>();
+            collect.forEach((k,v)->{
+                countMap.put(k,v.size());
+            });
             Map<String, Object> param = new HashMap<>();
-            List<CaseReviewFunctionalCase> list = extCaseReviewFunctionalCaseMapper.getList(request.getReviewId(), null, false);
-            List<CaseReviewFunctionalCase> passList = list.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getStatus(), FunctionalCaseReviewStatus.PASS.toString())).toList();
-            List<CaseReviewFunctionalCase> unCompletedCaseList = list.stream().filter(t -> StringUtils.equalsAnyIgnoreCase(t.getStatus(), FunctionalCaseReviewStatus.UN_REVIEWED.toString(), FunctionalCaseReviewStatus.UNDER_REVIEWED.toString(), FunctionalCaseReviewStatus.RE_REVIEWED.toString())).toList();
             param.put(CaseEvent.Param.REVIEW_ID, request.getReviewId());
             param.put(CaseEvent.Param.USER_ID, userId);
-            param.put(CaseEvent.Param.CASE_COUNT, list.size());
-            param.put(CaseEvent.Param.PASS_COUNT, passList.size());
-            param.put(CaseEvent.Param.UN_COMPLETED_COUNT, unCompletedCaseList.size());
-            param.put(CaseEvent.Param.EVENT_NAME, CaseEvent.Event.BATCH_UPDATE_REVIEWER);
+            param.put(CaseEvent.Param.CASE_IDS, caseIds);
+            param.put(CaseEvent.Param.COUNT_MAP, countMap);
+            param.put(CaseEvent.Param.EVENT_NAME, CaseEvent.Event.REVIEW_FUNCTIONAL_CASE);
             provider.updateCaseReview(param);
         }
 

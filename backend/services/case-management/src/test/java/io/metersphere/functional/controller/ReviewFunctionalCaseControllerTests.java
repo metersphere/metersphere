@@ -105,6 +105,26 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         caseReviews1 = getCaseReviews("创建用例评审1");
         Assertions.assertTrue(StringUtils.equals(caseReviews1.get(0).getStatus(), CaseReviewStatus.COMPLETED.toString()));
 
+        reviewFunctionalCaseRequest = new ReviewFunctionalCaseRequest();
+        reviewFunctionalCaseRequest.setReviewId(reviewId);
+        reviewFunctionalCaseRequest.setCaseId("gyqReviewCaseTestOne");
+        reviewFunctionalCaseRequest.setProjectId(projectId);
+        reviewFunctionalCaseRequest.setStatus(FunctionalCaseReviewStatus.RE_REVIEWED.toString());
+        reviewFunctionalCaseRequest.setContent("不通过");
+        reviewFunctionalCaseRequest.setNotifier("default-project-member-user-gyq-2;");
+        reviewFunctionalCaseRequest.setReviewPassRule(CaseReviewPassRule.SINGLE.toString());
+        this.requestPostWithOk(SAVE_REVIEW, reviewFunctionalCaseRequest);
+        caseReviewHistoryExample = new CaseReviewHistoryExample();
+        caseReviewHistoryExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo("gyqReviewCaseTestOne");
+        caseReviewHistories = caseReviewHistoryMapper.selectByExample(caseReviewHistoryExample);
+        Assertions.assertEquals(2, caseReviewHistories.size());
+        caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
+        caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo("gyqReviewCaseTestOne");
+        caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCases.get(0).getStatus(),FunctionalCaseReviewStatus.RE_REVIEWED.toString()));
+        caseReviews1 = getCaseReviews("创建用例评审1");
+        Assertions.assertTrue(StringUtils.equals(caseReviews1.get(0).getStatus(), CaseReviewStatus.UNDERWAY.toString()));
+
     }
 
     @Test
@@ -136,7 +156,7 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
         Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCases.get(0).getStatus(),FunctionalCaseReviewStatus.UNDER_REVIEWED.toString()));
         List<CaseReview> caseReviews1 = getCaseReviews("创建用例评审2");
-        Assertions.assertTrue(StringUtils.equals(caseReviews1.get(0).getStatus(), CaseReviewStatus.COMPLETED.toString()));
+        Assertions.assertTrue(StringUtils.equals(caseReviews1.get(0).getStatus(), CaseReviewStatus.UNDERWAY.toString()));
     }
 
     @Test
