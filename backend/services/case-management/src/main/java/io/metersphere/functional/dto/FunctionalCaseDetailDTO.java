@@ -42,7 +42,7 @@ public class FunctionalCaseDetailDTO implements Serializable {
     private String reviewStatus;
 
     @Schema(description =  "标签（JSON)")
-    private String tags;
+    private List<String> tags;
 
     @Schema(description = "编辑模式")
     private String caseEditType;
