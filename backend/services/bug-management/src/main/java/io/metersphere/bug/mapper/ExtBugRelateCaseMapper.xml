@@ -32,6 +32,13 @@
                 INNER JOIN bug b ON brc.bug_id = b.id
         where b.deleted = false
         <include refid="queryWhereConditionByProvider"/>
+        order by
+        <if test="sort != null and sort != ''">
+            brc.${sort}
+        </if>
+        <if test="sort == null or sort == ''">
+            brc.create_time desc
+        </if>
     </select>
 
     <sql id="queryWhereConditionByProvider">
