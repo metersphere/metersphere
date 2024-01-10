@@ -413,6 +413,31 @@ public class ElementUtil {
         }
     }
 
+
+    public static LinkedList<MsTestElement> mergeOrgAssertion(LinkedList<MsTestElement> orgAssertions) {
+        if (CollectionUtils.isNotEmpty(orgAssertions) && orgAssertions.size() > 1) {
+            //根据不同的类型，把所有的数据都合并到第一个上
+            MsAssertions target = (MsAssertions) orgAssertions.get(0);
+            for (int i = 1; i < orgAssertions.size(); i++) {
+                MsAssertions target1 = (MsAssertions) orgAssertions.get(i);
+                mergeArrayAssertions(target.getJsonPath(), target1.getJsonPath());
+                mergeArrayAssertions(target.getXpath2(), target1.getXpath2());
+                mergeArrayAssertions(target.getJsr223(), target1.getJsr223());
+                mergeArrayAssertions(target.getRegex(), target1.getRegex());
+            }
+            LinkedList<MsTestElement> msTestElements = new LinkedList<>();
+            msTestElements.add(target);
+            return msTestElements;
+        }
+        return orgAssertions;
+    }
+
+    public static void mergeArrayAssertions(List org, List org1) {
+        if (CollectionUtils.isNotEmpty(org1)) {
+            org.addAll(org1);
+        }
+    }
+
     public static void mergeHashTree(MsTestElement element, LinkedList<MsTestElement> targetHashTree) {
         try {
             Map<String, LinkedList<MsTestElement>> source = groupCase(element.getHashTree());
@@ -420,6 +445,8 @@ public class ElementUtil {
             List<MsTestElement> step = new LinkedList<>();
             List<MsTestElement> pre = ElementUtil.mergeCaseHashTree(source.get(PRE), target.get(PRE));
             List<MsTestElement> post = ElementUtil.mergeCaseHashTree(source.get(POST), target.get(POST));
+            source.put(ASSERTIONS, mergeOrgAssertion(source.get(ASSERTIONS)));
+            target.put(ASSERTIONS, mergeOrgAssertion(target.get(ASSERTIONS)));
             List<MsTestElement> rules = MsHashTreeService.mergeCaseAssertions(source.get(ASSERTIONS), target.get(ASSERTIONS));
             if (CollectionUtils.isNotEmpty(pre)) {
                 step.addAll(pre);
