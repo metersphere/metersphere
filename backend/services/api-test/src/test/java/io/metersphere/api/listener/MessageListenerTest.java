@@ -4,11 +4,11 @@ import io.metersphere.sdk.constants.ApiExecuteResourceType;
 import io.metersphere.sdk.constants.KafkaTopicConstants;
 import io.metersphere.sdk.dto.api.notice.ApiNoticeDTO;
 import io.metersphere.sdk.util.JSON;
+import jakarta.annotation.Resource;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.mockito.InjectMocks;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -19,7 +19,7 @@ import java.util.ArrayList;
 @AutoConfigureMockMvc
 public class MessageListenerTest {
 
-    @InjectMocks
+    @Resource
     private MessageListener messageListener;
 
     @Test

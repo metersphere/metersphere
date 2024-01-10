@@ -22,4 +22,5 @@ public class ApiNoticeDTO implements java.io.Serializable {
     private String projectId;
     private List<String> environmentIds;
     private String reportId;
+    private String queueId;
 }
