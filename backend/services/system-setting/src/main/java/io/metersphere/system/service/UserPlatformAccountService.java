@@ -15,7 +15,6 @@ import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.UserExtendMapper;
 import jakarta.annotation.Resource;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,9 +55,10 @@ public class UserPlatformAccountService {
         return pluginLoadService.getPluginScriptContent(pluginId, platformPlugin.getAccountScriptId());
     }
 
-    public void validate(String pluginId, Map<String, String> serviceIntegrationInfo) {
-        Platform platform = platformPluginService.getPlatform(pluginId, StringUtils.EMPTY, JSON.toJSONString(serviceIntegrationInfo));
-        platform.validateIntegrationConfig();
+    public void validate(String pluginId, String orgId, Map<String, String> userPlatformConfig) {
+        // 获取组织服务集成信息
+        Platform platform = platformPluginService.getPlatform(pluginId, orgId);
+        platform.validateUserConfig(JSON.toJSONString(userPlatformConfig));
     }
 
     public void save(Map<String, Object> platformInfo, String userId) {

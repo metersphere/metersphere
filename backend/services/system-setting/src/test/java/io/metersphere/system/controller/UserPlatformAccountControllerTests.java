@@ -34,7 +34,7 @@ public class UserPlatformAccountControllerTests extends BaseTest {
     private int mockServerHostPort;
     @Resource
     private MockServerClient mockServerClient;
-    private static final String VALIDATE_POST = "/user/platform/validate/{0}";
+    private static final String VALIDATE_POST = "/user/platform/validate/{0}/{1}";
     private static final String SAVE_POST = "/user/platform/save";
     public static <T> T parseObjectFromMvcResult(MvcResult mvcResult, Class<T> parseClass) {
         try {
@@ -78,7 +78,7 @@ public class UserPlatformAccountControllerTests extends BaseTest {
         integrationConfig.setAddress(String.format("http://%s:%s", mockServerHost, mockServerHostPort));
         Map<String, Object> integrationConfigMap = JSON.parseMap(JSON.toJSONString(integrationConfig));
         // @@请求成功
-        this.requestPostWithOk(VALIDATE_POST, integrationConfigMap, plugin.getId());
+        this.requestPostWithOk(VALIDATE_POST, integrationConfigMap, plugin.getId(), "100001");
     }
 
     @Test
