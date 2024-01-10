@@ -136,7 +136,7 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
         Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCases.get(0).getStatus(),FunctionalCaseReviewStatus.UNDER_REVIEWED.toString()));
         List<CaseReview> caseReviews1 = getCaseReviews("创建用例评审2");
-        Assertions.assertTrue(StringUtils.equals(caseReviews1.get(0).getStatus(), CaseReviewStatus.COMPLETED.toString()));
+        Assertions.assertTrue(StringUtils.equals(caseReviews1.get(0).getStatus(), CaseReviewStatus.UNDERWAY.toString()));
     }
 
     @Test

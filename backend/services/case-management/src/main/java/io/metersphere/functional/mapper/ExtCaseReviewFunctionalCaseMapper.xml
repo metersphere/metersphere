@@ -331,25 +331,6 @@
         </if>
     </select>
 
-    <select id="getListIncludes" resultType="io.metersphere.functional.domain.CaseReviewFunctionalCase">
-        SELECT
-        *
-        FROM
-        case_review_functional_case crfc
-        LEFT JOIN functional_case fc ON crfc.case_id = fc.id
-        WHERE
-        fc.deleted = #{deleted}
-        <if test="reviewId != null and reviewId != ''">
-            and crfc.review_id = #{reviewId}
-        </if>
-        <if test="caseIds != null and caseIds.size() > 0">
-            and fc.id in
-            <foreach collection="caseIds" item="id" separator="," open="(" close=")">
-                #{id}
-            </foreach>
-        </if>
-    </select>
-
     <select id="getListExcludes" resultType="io.metersphere.functional.domain.CaseReviewFunctionalCase">
         SELECT
         *
