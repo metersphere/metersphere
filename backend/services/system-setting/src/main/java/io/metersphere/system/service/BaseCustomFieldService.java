@@ -10,6 +10,7 @@ import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.CustomFieldExample;
 import io.metersphere.system.domain.CustomFieldOption;
 import io.metersphere.system.domain.TemplateCustomFieldExample;
+import io.metersphere.system.dto.request.DefaultBugCustomField;
 import io.metersphere.system.dto.request.DefaultFunctionalCustomField;
 import io.metersphere.system.dto.sdk.CustomFieldDTO;
 import io.metersphere.system.dto.sdk.request.CustomFieldOptionRequest;
@@ -289,5 +290,28 @@ public class BaseCustomFieldService {
             baseCustomFieldOptionService.addByFieldId(customField.getId(), defaultFunctionalCustomField.getOptions());
         }
        return customFields;
+    }
+
+    /**
+     * 初始化缺陷模板默认字段
+     * @param scopeType 模板范围
+     * @param scopeId 范围ID
+     * @return
+     */
+    public List<CustomField> initBugDefaultCustomField(TemplateScopeType scopeType, String scopeId) {
+        List<CustomField> customFields = new ArrayList<>();
+        for (DefaultBugCustomField defaultBugCustomField : DefaultBugCustomField.values()) {
+            CustomField customField = new CustomField();
+            customField.setName(defaultBugCustomField.getName());
+            customField.setScene(TemplateScene.BUG.name());
+            customField.setType(defaultBugCustomField.getType().name());
+            customField.setScopeType(scopeType.name());
+            customField.setScopeId(scopeId);
+            customField.setEnableOptionKey(false);
+            customFields.add(this.initDefaultCustomField(customField));
+            // 初始化选项
+            baseCustomFieldOptionService.addByFieldId(customField.getId(), defaultBugCustomField.getOptions());
+        }
+        return customFields;
     }
 }

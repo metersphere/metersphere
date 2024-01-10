@@ -64,19 +64,50 @@ public class BugExample {
     }
 
     protected abstract static class GeneratedCriteria {
+        protected List<Criterion> tagsCriteria;
+
+        protected List<Criterion> allCriteria;
+
         protected List<Criterion> criteria;
 
         protected GeneratedCriteria() {
             super();
             criteria = new ArrayList<Criterion>();
+            tagsCriteria = new ArrayList<Criterion>();
+        }
+
+        public List<Criterion> getTagsCriteria() {
+            return tagsCriteria;
+        }
+
+        protected void addTagsCriterion(String condition, Object value, String property) {
+            if (value == null) {
+                throw new RuntimeException("Value for " + property + " cannot be null");
+            }
+            tagsCriteria.add(new Criterion(condition, value, "io.metersphere.handler.ListTypeHandler"));
+            allCriteria = null;
+        }
+
+        protected void addTagsCriterion(String condition, List<String> value1, List<String> value2, String property) {
+            if (value1 == null || value2 == null) {
+                throw new RuntimeException("Between values for " + property + " cannot be null");
+            }
+            tagsCriteria.add(new Criterion(condition, value1, value2, "io.metersphere.handler.ListTypeHandler"));
+            allCriteria = null;
         }
 
         public boolean isValid() {
-            return criteria.size() > 0;
+            return criteria.size() > 0
+                || tagsCriteria.size() > 0;
         }
 
         public List<Criterion> getAllCriteria() {
-            return criteria;
+            if (allCriteria == null) {
+                allCriteria = new ArrayList<Criterion>();
+                allCriteria.addAll(criteria);
+                allCriteria.addAll(tagsCriteria);
+            }
+            return allCriteria;
         }
 
         public List<Criterion> getCriteria() {
@@ -88,6 +119,7 @@ public class BugExample {
                 throw new RuntimeException("Value for condition cannot be null");
             }
             criteria.add(new Criterion(condition));
+            allCriteria = null;
         }
 
         protected void addCriterion(String condition, Object value, String property) {
@@ -95,6 +127,7 @@ public class BugExample {
                 throw new RuntimeException("Value for " + property + " cannot be null");
             }
             criteria.add(new Criterion(condition, value));
+            allCriteria = null;
         }
 
         protected void addCriterion(String condition, Object value1, Object value2, String property) {
@@ -102,6 +135,7 @@ public class BugExample {
                 throw new RuntimeException("Between values for " + property + " cannot be null");
             }
             criteria.add(new Criterion(condition, value1, value2));
+            allCriteria = null;
         }
 
         public Criteria andIdIsNull() {
@@ -984,73 +1018,73 @@ public class BugExample {
             return (Criteria) this;
         }
 
-        public Criteria andTagIsNull() {
-            addCriterion("tag is null");
+        public Criteria andTagsIsNull() {
+            addCriterion("tags is null");
             return (Criteria) this;
         }
 
-        public Criteria andTagIsNotNull() {
-            addCriterion("tag is not null");
+        public Criteria andTagsIsNotNull() {
+            addCriterion("tags is not null");
             return (Criteria) this;
         }
 
-        public Criteria andTagEqualTo(String value) {
-            addCriterion("tag =", value, "tag");
+        public Criteria andTagsEqualTo(List<String> value) {
+            addTagsCriterion("tags =", value, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagNotEqualTo(String value) {
-            addCriterion("tag <>", value, "tag");
+        public Criteria andTagsNotEqualTo(List<String> value) {
+            addTagsCriterion("tags <>", value, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagGreaterThan(String value) {
-            addCriterion("tag >", value, "tag");
+        public Criteria andTagsGreaterThan(List<String> value) {
+            addTagsCriterion("tags >", value, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagGreaterThanOrEqualTo(String value) {
-            addCriterion("tag >=", value, "tag");
+        public Criteria andTagsGreaterThanOrEqualTo(List<String> value) {
+            addTagsCriterion("tags >=", value, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagLessThan(String value) {
-            addCriterion("tag <", value, "tag");
+        public Criteria andTagsLessThan(List<String> value) {
+            addTagsCriterion("tags <", value, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagLessThanOrEqualTo(String value) {
-            addCriterion("tag <=", value, "tag");
+        public Criteria andTagsLessThanOrEqualTo(List<String> value) {
+            addTagsCriterion("tags <=", value, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagLike(String value) {
-            addCriterion("tag like", value, "tag");
+        public Criteria andTagsLike(List<String> value) {
+            addTagsCriterion("tags like", value, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagNotLike(String value) {
-            addCriterion("tag not like", value, "tag");
+        public Criteria andTagsNotLike(List<String> value) {
+            addTagsCriterion("tags not like", value, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagIn(List<String> values) {
-            addCriterion("tag in", values, "tag");
+        public Criteria andTagsIn(List<List<String>> values) {
+            addTagsCriterion("tags in", values, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagNotIn(List<String> values) {
-            addCriterion("tag not in", values, "tag");
+        public Criteria andTagsNotIn(List<List<String>> values) {
+            addTagsCriterion("tags not in", values, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagBetween(String value1, String value2) {
-            addCriterion("tag between", value1, value2, "tag");
+        public Criteria andTagsBetween(List<String> value1, List<String> value2) {
+            addTagsCriterion("tags between", value1, value2, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagNotBetween(String value1, String value2) {
-            addCriterion("tag not between", value1, value2, "tag");
+        public Criteria andTagsNotBetween(List<String> value1, List<String> value2) {
+            addTagsCriterion("tags not between", value1, value2, "tags");
             return (Criteria) this;
         }
 

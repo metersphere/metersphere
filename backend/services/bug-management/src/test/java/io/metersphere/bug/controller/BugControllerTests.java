@@ -19,6 +19,7 @@ import io.metersphere.project.dto.ProjectTemplateOptionDTO;
 import io.metersphere.project.mapper.FileAssociationMapper;
 import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.mapper.ProjectApplicationMapper;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.service.FileService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -37,7 +38,6 @@ import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.mapper.ServiceIntegrationMapper;
 import io.metersphere.system.service.PluginService;
 import io.metersphere.system.uid.IDGenerator;
-import io.metersphere.system.utils.CustomFieldUtils;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
@@ -65,6 +65,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class BugControllerTests extends BaseTest {
 
+    public static final String BUG_HEADER_CUSTOM_FIELD = "/bug/header/custom-field";
+    public static final String BUG_HEADER_STATUS_OPTION = "/bug/header/status-option";
+    public static final String BUG_HEADER_HANDLER_OPTION = "/bug/header/handler-option";
     public static final String BUG_PAGE = "/bug/page";
     public static final String BUG_ADD = "/bug/add";
     public static final String BUG_UPDATE = "/bug/update";
@@ -77,6 +80,7 @@ public class BugControllerTests extends BaseTest {
     public static final String BUG_UN_FOLLOW = "/bug/unfollow";
     public static final String BUG_SYNC = "/bug/sync";
     public static final String BUG_SYNC_ALL = "/bug/sync/all";
+    public static final String BUG_SYNC_CHECK = "/bug/sync/check";
     public static final String BUG_EXPORT_COLUMNS = "/bug/export/columns/%s";
     public static final String BUG_EXPORT = "/bug/export";
 
@@ -101,6 +105,8 @@ public class BugControllerTests extends BaseTest {
     @Resource
     private BugService bugService;
     @Resource
+    private ProjectMapper projectMapper;
+    @Resource
     private ServiceIntegrationMapper serviceIntegrationMapper;
     @Resource
     private ProjectApplicationMapper projectApplicationMapper;
@@ -121,6 +127,10 @@ public class BugControllerTests extends BaseTest {
     @Test
     @Order(1)
     void testBugPageSuccess() throws Exception {
+        // 表头字段, 状态选项, 处理人选项
+        this.requestGetWithOk(BUG_HEADER_CUSTOM_FIELD + "/default-project-for-bug");
+        this.requestGetWithOk(BUG_HEADER_STATUS_OPTION + "/default-project-for-bug");
+        this.requestGetWithOk(BUG_HEADER_HANDLER_OPTION + "/default-project-for-bug");
         BugPageRequest bugRequest = new BugPageRequest();
         bugRequest.setCurrent(1);
         bugRequest.setPageSize(10);
@@ -186,45 +196,6 @@ public class BugControllerTests extends BaseTest {
         filter.put("custom_multiple_test_field", null);
         bugPageRequest.setFilter(filter);
         bugPageRequest.setCombine(null);
-        this.requestPostWithOkAndReturn(BUG_PAGE, bugPageRequest);
-        // cover combine
-        bugPageRequest.setFilter(null);
-        Map<String, Object> combine = new HashMap<>();
-        List<Map<String, Object>> customs = new ArrayList<>();
-        Map<String, Object> custom = new HashMap<>();
-        custom.put("id", "test_field");
-        custom.put("operator", "in");
-        custom.put("type", "multipleMember");
-        custom.put("value", StringUtils.EMPTY);
-        customs.add(custom);
-        Map<String, Object> currentUserCustom = new HashMap<>();
-        currentUserCustom.put("id", "test_field");
-        currentUserCustom.put("operator", "current user");
-        currentUserCustom.put("type", "multipleMember");
-        currentUserCustom.put("value", "current user");
-        customs.add(currentUserCustom);
-        combine.put("customs", customs);
-        bugPageRequest.setCombine(combine);
-        this.requestPostWithOkAndReturn(BUG_PAGE, bugPageRequest);
-        custom.put("id", "custom-field");
-        custom.put("operator", "like");
-        custom.put("type", "textarea");
-        custom.put("value", "oasis");
-        customs.clear();
-        customs.add(custom);
-        combine.put("customs", customs);
-        bugPageRequest.setCombine(combine);
-        this.requestPostWithOkAndReturn(BUG_PAGE, bugPageRequest);
-        // cover combine current user
-        custom.clear();
-        custom.put("operator", "current user");
-        custom.put("value", "current user");
-        combine.put("handleUser", custom);
-        currentUserCustom.clear();
-        currentUserCustom.put("operator", "in");
-        currentUserCustom.put("value", List.of("admin"));
-        combine.put("createUser", currentUserCustom);
-        bugPageRequest.setCombine(combine);
         this.requestPostWithOkAndReturn(BUG_PAGE, bugPageRequest);
     }
 
@@ -369,12 +340,12 @@ public class BugControllerTests extends BaseTest {
         request.setSelectAll(true);
         request.setSelectIds(List.of("test"));
         // TAG追加
-        request.setTag(JSON.toJSONString(List.of("TAG", "TEST_TAG")));
+        request.setTags(List.of("TAG", "TEST_TAG"));
         request.setAppend(true);
         this.requestPost(BUG_BATCH_UPDATE, request, status().isOk());
         // TAG覆盖
         request.setExcludeIds(List.of("default-bug-id-tapd1"));
-        request.setTag(JSON.toJSONString(List.of("A", "B")));
+        request.setTags(List.of("A", "B"));
         request.setAppend(false);
         this.requestPost(BUG_BATCH_UPDATE, request, status().isOk());
         // 勾选部分
@@ -391,7 +362,7 @@ public class BugControllerTests extends BaseTest {
         // 全选, 空数据
         request.setSelectAll(true);
         request.setSelectIds(List.of("test"));
-        request.setTag(JSON.toJSONString(List.of("TAG", "TEST_TAG")));
+        request.setTags(List.of("TAG", "TEST_TAG"));
         request.setAppend(true);
         this.requestPost(BUG_BATCH_UPDATE, request, status().is5xxServerError());
         // 取消全选, 空数据
@@ -510,12 +481,6 @@ public class BugControllerTests extends BaseTest {
 
     @Test
     @Order(95)
-    void coverUtilsTests() {
-        CustomFieldUtils.appendToMultipleCustomField(null, "test");
-    }
-
-    @Test
-    @Order(96)
     void coverPlatformTemplateTests() throws Exception{
         // 覆盖同步缺陷(Local)
         this.requestGetWithOk(BUG_SYNC + "/default-project-for-not-integration");
@@ -538,6 +503,8 @@ public class BugControllerTests extends BaseTest {
         record.setEnable(false);
         serviceIntegrationMapper.updateByPrimaryKeySelective(record);
         this.requestPost(BUG_TEMPLATE_DETAIL, request, status().is5xxServerError());
+        // 获取处理人选项(Local)
+        this.requestGetWithOk(BUG_HEADER_HANDLER_OPTION + "/default-project-for-bug");
         // 开启插件集成
         record.setEnable(true);
         serviceIntegrationMapper.updateByPrimaryKeySelective(record);
@@ -557,14 +524,12 @@ public class BugControllerTests extends BaseTest {
     @Test
     @Order(96)
     void coverPlatformBugSyncTests() throws Exception {
-        // 添加一条需要同步删除的缺陷
-        BugEditRequest deleteRequest = buildJiraBugRequest(false);
-        MultiValueMap<String, Object> deleteParam = getDefaultMultiPartParam(deleteRequest, null);
-        this.requestMultipartWithOkAndReturn(BUG_ADD, deleteParam);
-        Bug record = new Bug();
-        record.setId(getAddJiraBug().getId());
-        record.setPlatformBugId("Tapd-XXX");
-        bugMapper.updateByPrimaryKeySelective(record);
+        // 表头字段, 状态选项, 处理人选项 (非Local平台)
+        this.requestGetWithOk(BUG_HEADER_CUSTOM_FIELD + "/default-project-for-bug");
+        this.requestGetWithOk(BUG_HEADER_STATUS_OPTION + "/default-project-for-bug");
+        this.requestGetWithOk(BUG_HEADER_HANDLER_OPTION + "/default-project-for-bug");
+
+        // 同步删除缺陷(default-bug-id-jira-sync)
         this.requestGetWithOk(BUG_SYNC + "/default-project-for-bug");
 
         // 添加Jira缺陷
@@ -574,50 +539,51 @@ public class BugControllerTests extends BaseTest {
         MultiValueMap<String, Object> addParam = getDefaultMultiPartParam(addRequest, file);
         this.requestMultipartWithOkAndReturn(BUG_ADD, addParam);
 
-        // 添加没有附件的Jira缺陷
-        addRequest.setLinkFileIds(null);
-        MultiValueMap<String, Object> addParam2 = getDefaultMultiPartParam(addRequest, null);
-        this.requestMultipartWithOkAndReturn(BUG_ADD, addParam2);
-        this.requestGetWithOk(BUG_SYNC + "/default-project-for-bug");
-
-        // 添加使用Jira默认模板的缺陷
-        addRequest.setTemplateId("jira");
-        MultiValueMap<String, Object> addParam3 = getDefaultMultiPartParam(addRequest, null);
-        this.requestMultipart(BUG_ADD, addParam3).andExpect(status().is5xxServerError());
-
         // 更新Jira缺陷
         BugEditRequest updateRequest = buildJiraBugRequest(true);
         updateRequest.setUnLinkRefIds(List.of(getAddJiraAssociateFile().getId()));
         updateRequest.setDeleteLocalFileIds(List.of(getAddJiraLocalFile().getFileId()));
         MultiValueMap<String, Object> updateParma = getDefaultMultiPartParam(updateRequest, null);
         this.requestMultipartWithOkAndReturn(BUG_UPDATE, updateParma);
-
         // 删除Jira缺陷
         this.requestGet(BUG_DELETE + "/" + updateRequest.getId(), status().isOk());
+
+        // 添加使用Jira默认模板的缺陷
+        addRequest.setTemplateId("jira");
+        MultiValueMap<String, Object> addParam3 = getDefaultMultiPartParam(addRequest, null);
+        this.requestMultipart(BUG_ADD, addParam3).andExpect(status().is5xxServerError());
+
+        // 同步Jira存量缺陷(存量数据为空)
+        this.requestGetWithOk(BUG_SYNC + "/default-project-for-bug");
+
+        // 添加没有附件的Jira缺陷
+        addRequest.setLinkFileIds(null);
+        addRequest.setTemplateId("default-bug-template-id");
+        MultiValueMap<String, Object> addParam2 = getDefaultMultiPartParam(addRequest, null);
+        this.requestMultipartWithOkAndReturn(BUG_ADD, addParam2);
+        this.requestGetWithOk(BUG_SYNC + "/default-project-for-bug");
+        // 覆盖Redis-Key还未删除的情况
+        this.requestGetWithOk(BUG_SYNC_CHECK + "/default-project-for-bug");
+        this.requestGetWithOk(BUG_SYNC + "/default-project-for-bug");
 
         // 更新没有附件的缺陷
         BugEditRequest updateRequest2 = buildJiraBugRequest(true);
         updateRequest2.setLinkFileIds(List.of("default-bug-file-id-1"));
         MultiValueMap<String, Object> updateParam2 = getDefaultMultiPartParam(updateRequest2, file);
         this.requestMultipartWithOkAndReturn(BUG_UPDATE, updateParam2);
+        // 同步方法为异步, 所以换成手动调用
+        BugExample example = new BugExample();
+        example.createCriteria().andIdEqualTo(updateRequest2.getId());
+        List<Bug> remainBugs = bugMapper.selectByExample(example);
+        Project defaultProject = projectMapper.selectByPrimaryKey("default-project-for-bug");
         // 同步第一次
-        this.requestGetWithOk(BUG_SYNC + "/default-project-for-bug");
+        bugService.syncPlatformBugs(remainBugs, defaultProject);
         // 同步第二次
         renameLocalFile(updateRequest2.getId()); // 重命名后, 同步时会删除本地文件
-        this.requestGetWithOk(BUG_SYNC + "/default-project-for-bug");
+        bugService.syncPlatformBugs(remainBugs, defaultProject);
         // 同步第三次
         deleteLocalFile(updateRequest2.getId()); // 手动删除关联的文件, 重新同步时会下载平台附件
-        this.requestGetWithOk(BUG_SYNC + "/default-project-for-bug");
-
-        // 删除唯一条平台缺陷
-        BugBatchRequest batchRequest = new BugBatchRequest();
-        batchRequest.setProjectId("default-project-for-bug");
-        batchRequest.setSelectAll(true);
-        batchRequest.setSelectIds(List.of("test"));
-        batchRequest.setExcludeIds(List.of("default-bug-id-tapd1"));
-        this.requestPost(BUG_BATCH_DELETE, batchRequest, status().isOk());
-        // 同步Jira存量缺陷(存量数据为空)
-        this.requestGetWithOk(BUG_SYNC + "/default-project-for-bug");
+        bugService.syncPlatformBugs(remainBugs, defaultProject);
 
         // 集成配置为空
         addRequest.setProjectId("default-project-for-not-integration");
@@ -671,7 +637,7 @@ public class BugControllerTests extends BaseTest {
         BugExportRequest request = new BugExportRequest();
         request.setSelectAll(true);
         request.setExcludeIds(List.of("test-id"));
-        bugService.export(request, "admin");
+        bugService.export(request);
     }
 
     @Test
@@ -693,6 +659,21 @@ public class BugControllerTests extends BaseTest {
         this.requestMultipart(BUG_ADD, addParam).andExpect(status().is5xxServerError());
         // 获取禅道模板(删除默认项目模板)
         bugService.attachTemplateStatusField(null, null, null, null);
+        // 获取处理人选项
+        this.requestGetWithOk(BUG_HEADER_HANDLER_OPTION + "/default-project-for-bug");
+        // 批量删除
+        BugBatchRequest request = new BugBatchRequest();
+        request.setProjectId("default-project-for-bug");
+        request.setSelectAll(false);
+        request.setSelectIds(List.of("default-bug-id"));
+        this.requestPost(BUG_BATCH_DELETE, request, status().is5xxServerError());
+
+        // check一下同步状态
+        bugSyncExtraService.deleteSyncKey("default-project-for-bug");
+        bugSyncExtraService.setSyncErrorMsg("default-project-for-bug", "sync error!");
+        bugSyncService.checkSyncStatus("default-project-for-bug");
+        // 覆盖空Msg
+        bugSyncService.checkSyncStatus("default-project-for-bug");
     }
 
     /**
@@ -701,7 +682,7 @@ public class BugControllerTests extends BaseTest {
      */
     private Map<String, List<String>> buildRequestFilter() {
         Map<String, List<String>> filter = new HashMap<>();
-        filter.put("custom_multiple_test_field", List.of("default", "default1"));
+        filter.put("custom_multiple_test_field", List.of("default", "default-1"));
         return filter;
     }
 
@@ -715,8 +696,8 @@ public class BugControllerTests extends BaseTest {
         Map<String, Object> custom = new HashMap<>();
         custom.put("id", "test_field");
         custom.put("operator", "in");
-        custom.put("type", "multipleSelect");
-        custom.put("value", JSON.toJSONString(List.of("default", "default1")));
+        custom.put("type", "array");
+        custom.put("value", List.of("default", "default-1"));
         customs.add(custom);
         combine.put("customs", customs);
         return combine;
@@ -838,7 +819,7 @@ public class BugControllerTests extends BaseTest {
     }
 
     /**
-     * 添加Jira插件，供测试使用
+     * 添加禅道插件，供测试使用
      * @throws Exception 异常
      */
     public void addZentaoPlugin() throws Exception {

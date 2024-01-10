@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.bug.mapper.ExtBugMapper">
-    <select id="list" resultType="io.metersphere.bug.dto.response.BugDTO">
+    <resultMap id="BugDTO" type="io.metersphere.bug.dto.response.BugDTO">
+        <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
+    </resultMap>
+
+    <resultMap id="BugTagEditDTO" type="io.metersphere.bug.dto.response.BugTagEditDTO">
+        <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
+    </resultMap>
+
+    <resultMap id="BugProviderDTO" type="io.metersphere.dto.BugProviderDTO">
+        <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
+    </resultMap>
+
+    <select id="list" resultMap="BugDTO">
         select b.id, b.num, b.title, b.handle_user, b.create_user, b.create_time, b.update_time, b.delete_time, b.delete_user,
-               b.project_id, b.template_id, b.platform, b.status, bc.description from bug b left join bug_content bc on b.id = bc.bug_id
+               b.project_id, b.template_id, b.platform, b.status, b.tags, bc.description from bug b left join bug_content bc on b.id = bc.bug_id
         <include refid="queryWhereCondition"/>
     </select>
 
@@ -12,7 +24,7 @@
         <include refid="queryWhereCondition"/>
     </select>
 
-    <select id="listByIds" resultType="io.metersphere.bug.dto.response.BugDTO">
+    <select id="listByIds" resultMap="BugDTO">
         select b.id,
         b.num,
         b.title,
@@ -26,6 +38,7 @@
         b.template_id,
         b.platform,
         b.status,
+        b.tags,
         bc.description
         from bug b
         left join bug_content bc on b.id = bc.bug_id
@@ -34,12 +47,13 @@
             #{id}
         </foreach>
     </select>
+
     <select id="getMaxNum" resultType="java.lang.Long">
         select max(num) from bug where project_id = #{projectId}
     </select>
 
-    <select id="getBugTagList" resultType="io.metersphere.bug.dto.response.BugTagEditDTO">
-        select id as bugId, tag from bug where id in
+    <select id="getBugTagList" resultMap="BugTagEditDTO">
+        select id as bugId, tags from bug where id in
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
@@ -48,8 +62,14 @@
     <update id="batchUpdate" parameterType="io.metersphere.bug.dto.request.BugBatchUpdateRequest">
         update bug
         <set>
-            <if test="request.tag != null and request.tag != ''">
-                tag = #{request.tag},
+            <if test="request.tags != null and request.tags != ''">
+                tags = #{request.tags, typeHandler=io.metersphere.handler.ListTypeHandler},
+            </if>
+            <if test="request.updateUser != null and request.updateUser != ''">
+                update_user = #{updateUser},
+            </if>
+            <if test="request.updateTime != null">
+                update_time = #{updateTime},
             </if>
         </set>
         where id in
@@ -57,6 +77,34 @@
             #{id}
         </foreach>
     </update>
+
+    <select id="listByProviderRequest" resultMap="BugProviderDTO">
+        SELECT
+        b.id as id,
+        b.title name,
+        b.handle_user handleUser,
+        b.`status` as status,
+        b.tags as tag,
+        b.create_time createTime
+        FROM
+        bug b
+        WHERE
+        b.deleted = #{deleted}
+        AND b.id NOT IN
+        (
+        select associate.${bugColumnName} from ${table} associate  where  associate.${sourceName} = #{request.sourceId}
+        )
+        <include refid="queryWhereConditionByProvider"/>
+    </select>
+
+    <select id="getIdsByProvider" resultType="java.lang.String">
+        SELECT
+        b.id
+        FROM
+        bug b
+        WHERE b.deleted =#{deleted}
+        <include refid="queryWhereConditionByProvider"/>
+    </select>
 
     <sql id="queryWhereCondition">
         <where>
@@ -73,11 +121,14 @@
                 and (
                 b.title like concat('%', #{request.keyword},'%')
                 or b.num like concat('%', #{request.keyword},'%')
+                or b.tags like concat('%', #{request.keyword},'%')
                 )
             </if>
             <include refid="filter"/>
             <include refid="combine">
                 <property name="condition" value="request.combine"/>
+                <property name="searchMode" value="request.searchMode"/>
+                <property name="combineTag" value="request.combine.tag"/>
             </include>
         </where>
     </sql>
@@ -87,22 +138,27 @@
             <foreach collection="request.filter.entrySet()" index="key" item="values">
                 <if test="values != null and values.size() > 0">
                     <choose>
+                        <!-- 处理人 -->
                         <when test="key == 'handleUser'">
                             and b.handle_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
+                        <!-- 创建人 -->
                         <when test="key == 'createUser'">
                             and b.create_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
+                        <!-- 平台 -->
                         <when test="key == 'platform'">
                             and b.platform in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
+                        <!-- 状态 -->
                         <when test="key == 'status'">
                             and b.status in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
+                        <!-- 自定义单选字段 -->
                         <when test="key.startsWith('custom_single')">
                             and b.id in (
                             select bug_id from bug_custom_field where concat('custom_single_', field_id) = #{key}
@@ -110,7 +166,8 @@
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                             )
                         </when>
-                        <when test="key.startsWith('custom_multiple')">
+                        <!-- 自定义多选字段 -->
+                        <when test="key.startsWith('custom_multiple_321421')">
                             and b.id in (
                             select bug_id from bug_custom_field where concat('custom_multiple_', field_id) = #{key}
                             and
@@ -125,98 +182,181 @@
 
     <sql id="combine">
         <if test="request.combine != null">
-            <if test='${condition}.handleUser != null'>
-                and b.handle_user
-                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                    <property name="object" value="${condition}.handleUser"/>
+            and (
+                <!-- 任意/所有拼接 -->
+                <include refid="prefixMode">
+                    <property name="searchMode" value="${searchMode}"/>
                 </include>
-            </if>
-            <if test='${condition}.createUser != null'>
-                and b.create_user
-                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                    <property name="object" value="${condition}.createUser"/>
-                </include>
-            </if>
-            <if test='${condition}.platform != null'>
-                and b.platform
-                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                    <property name="object" value="${condition}.platform"/>
-                </include>
-            </if>
-            <if test='${condition}.status != null'>
-                and b.status
-                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                    <property name="object" value="${condition}.platform"/>
-                </include>
-            </if>
-            <if test="${condition}.customs != null and ${condition}.customs.size() > 0">
-                <foreach collection="${condition}.customs" item="custom" separator="" open="" close="">
-                    <if test="custom.value != ''">
-                        <if test='custom.operator == "not like" or custom.operator == "not in"'>
-                            and b.id not in (
+                <!-- ID -->
+                <if test='${condition}.num != null'>
+                    <include refid="queryType">
+                        <property name="searchMode" value="${searchMode}"/>
+                    </include>
+                    b.num
+                    <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                        <property name="object" value="${condition}.num"/>
+                    </include>
+                </if>
+                <!-- 名称 -->
+                <if test='${condition}.title != null'>
+                    <include refid="queryType">
+                        <property name="searchMode" value="${searchMode}"/>
+                    </include>
+                    b.title
+                    <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                        <property name="object" value="${condition}.title"/>
+                    </include>
+                </if>
+                <!-- 所属平台 -->
+                <if test='${condition}.platform != null'>
+                    <include refid="queryType">
+                        <property name="searchMode" value="${searchMode}"/>
+                    </include>
+                    b.platform
+                    <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                        <property name="object" value="${condition}.platform"/>
+                    </include>
+                </if>
+                <!-- 处理人 -->
+                <if test='${condition}.handleUser != null'>
+                    <include refid="queryType">
+                        <property name="searchMode" value="${searchMode}"/>
+                    </include>
+                    b.handle_user
+                    <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                        <property name="object" value="${condition}.handleUser"/>
+                    </include>
+                </if>
+                <!-- 状态 -->
+                <if test='${condition}.status != null'>
+                    <include refid="queryType">
+                        <property name="searchMode" value="${searchMode}"/>
+                    </include>
+                    b.status
+                    <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                        <property name="object" value="${condition}.status"/>
+                    </include>
+                </if>
+                <!-- 创建人 -->
+                <if test='${condition}.createUser != null'>
+                    <include refid="queryType">
+                        <property name="searchMode" value="${searchMode}"/>
+                    </include>
+                    b.create_user
+                    <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                        <property name="object" value="${condition}.createUser"/>
+                    </include>
+                </if>
+                <!-- 创建时间 -->
+                <if test='${condition}.createTime != null'>
+                    <include refid="queryType">
+                        <property name="searchMode" value="${searchMode}"/>
+                    </include>
+                    b.create_time
+                    <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                        <property name="object" value="${condition}.createTime"/>
+                    </include>
+                </if>
+                <!-- 标签 -->
+                <if test='${condition}.tags != null'>
+                    <include refid="queryTag">
+                        <property name="searchMode" value="${searchMode}"/>
+                        <property name="combineTag" value="${condition}.tags"/>
+                    </include>
+                </if>
+                <!-- 自定义字段 -->
+                <if test="${condition}.customs != null and ${condition}.customs.size() > 0">
+                    <foreach collection="${condition}.customs" item="custom" separator="" open="" close="">
+                        <if test="custom.value != ''">
+                            <include refid="queryType">
+                                <property name="searchMode" value="${searchMode}"/>
+                            </include>
+                            <if test='custom.operator == "not like" or custom.operator == "not in"'>
+                                b.id not in (
+                            </if>
+                            <if test='custom.operator != "not like" and custom.operator != "not in"'>
+                                b.id in (
+                            </if>
+                            select bug_id from bug_custom_field where field_id = #{custom.id} and
+                            <choose>
+                                <when test="custom.type == 'array'">
+                                    <foreach collection="custom.value" item="val" separator="or" open="(" close=")">
+                                        JSON_CONTAINS(`value`, JSON_ARRAY(#{val}))
+                                    </foreach>
+                                </when>
+                                <when test="custom.type == 'time'">
+                                    left(replace(unix_timestamp(trim(both '"' from `value`)), '.', ''), 13)
+                                    <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                        <property name="object" value="custom"/>
+                                    </include>
+                                </when>
+                                <otherwise>
+                                    trim(both '"' from `value`)
+                                    <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                                        <property name="object" value="custom"/>
+                                    </include>
+                                </otherwise>
+                            </choose>
+                            )
                         </if>
-                        <if test='custom.operator != "not like" and custom.operator != "not in"'>
-                            and b.id in (
-                        </if>
-                        select bug_id from bug_custom_field where field_id = #{custom.id}
-                        <choose>
-                            <when test="custom.type == 'richText' or custom.type == 'textarea' or custom.operator == 'current user'">
-                                and `value`
-                                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                                    <property name="object" value="custom"/>
-                                </include>
-                            </when>
-                            <when test="custom.type == 'multipleMember' or custom.type == 'checkbox' or custom.type == 'multipleSelect'">
-                                and ${custom.value}
-                            </when>
-                            <when test="custom.type == 'date' or custom.type == 'datetime'">
-                                and left(replace(unix_timestamp(trim(both '"' from `value`)), '.', ''), 13)
-                                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                                    <property name="object" value="custom"/>
-                                </include>
-                            </when>
-                            <otherwise>
-                                and trim(both '"' from `value`)
-                                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                                    <property name="object" value="custom"/>
-                                </include>
-                            </otherwise>
-                        </choose>
-                        )
-                    </if>
-                </foreach>
-            </if>
+                    </foreach>
+                </if>
+            )
         </if>
     </sql>
 
-    <select id="listByProviderRequest" resultType="io.metersphere.dto.BugProviderDTO">
-        SELECT
-            b.id id,
-            b.title name,
-            b.handle_user handleUser,
-            b.`status` status,
-            b.tag tag,
-            b.create_time createTime
-        FROM
-            bug b
-        WHERE
-            b.deleted = #{deleted}
-          AND b.id NOT IN
+    <sql id="prefixMode">
+        <choose>
+            <when test='${searchMode} == "AND"'>
+                1 = 1
+            </when>
+            <when test='${searchMode} == "OR"'>
+                1 = 2
+            </when>
+        </choose>
+    </sql>
+
+    <sql id="queryType">
+        <choose>
+            <when test='${searchMode} == "AND"'>
+                and
+            </when>
+            <when test='${searchMode} == "OR"'>
+                or
+            </when>
+        </choose>
+    </sql>
+
+    <sql id="queryTag">
+        <!-- 不包含 -->
+        <if test='${combineTag}.value.size() > 0 and ${combineTag}.operator == "not like"'>
+            <include refid="queryType">
+                <property name="searchMode" value="${searchMode}"/>
+            </include>
             (
-            select associate.${bugColumnName} from ${table} associate  where  associate.${sourceName} = #{request.sourceId}
+            b.tags is null or b.tags = '[]' or
+            <foreach collection="${combineTag}.value" item="tag" separator="and" open="(" close=")">
+                !JSON_CONTAINS(b.tags, JSON_ARRAY(#{tag}))
+            </foreach>
             )
-        <include refid="queryWhereConditionByProvider"/>
-    </select>
-
-
-    <select id="getIdsByProvider" resultType="java.lang.String">
-        SELECT
-        b.id
-        FROM
-        bug b
-        WHERE b.deleted =#{deleted}
-        <include refid="queryWhereConditionByProvider"/>
-    </select>
+        </if>
+        <!-- 包含 -->
+        <if test='${combineTag}.value.size() > 0 and ${combineTag}.operator == "like"'>
+            <include refid="queryType">
+                <property name="searchMode" value="${searchMode}"/>
+            </include>
+            <foreach collection="${combineTag}.value" item="tag" separator="or" open="(" close=")">
+                JSON_CONTAINS(b.tags, JSON_ARRAY(#{tag}))
+            </foreach>
+        </if>
+        <!-- 空 -->
+        <if test='${combineTag}.operator == "is null"'>
+            <include refid="queryType">
+                <property name="searchMode" value="${searchMode}"/>
+            </include>
+            (b.tags is null or b.tags = '[]')
+        </if>
+    </sql>
 
     <sql id="queryWhereConditionByProvider">
         <if test="request.projectId != null">

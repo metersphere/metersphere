@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.util.List;
+
 @Data
 @EqualsAndHashCode(callSuper = false)
 public class BugTagEditDTO {
@@ -12,5 +14,5 @@ public class BugTagEditDTO {
     private String bugId;
 
     @Schema(description = "标签值")
-    private String tag;
+    private List<String> tags;
 }

@@ -3,6 +3,7 @@ package io.metersphere.bug.service;
 import io.metersphere.bug.domain.BugLocalAttachment;
 import io.metersphere.bug.domain.BugLocalAttachmentExample;
 import io.metersphere.bug.dto.response.BugFileDTO;
+import io.metersphere.bug.enums.BugAttachmentSourceType;
 import io.metersphere.bug.mapper.BugLocalAttachmentMapper;
 import io.metersphere.plugin.platform.dto.PlatformAttachment;
 import io.metersphere.plugin.platform.dto.request.SyncAttachmentToPlatformRequest;
@@ -77,7 +78,7 @@ public class BugSyncExtraService {
      * @param projectId 项目ID
      */
     public void setSyncErrorMsg(String projectId, String errorMsg) {
-        stringRedisTemplate.opsForValue().set(SYNC_THIRD_PARTY_ISSUES_ERROR_KEY + ":" + projectId, errorMsg, 30L, TimeUnit.SECONDS);
+        stringRedisTemplate.opsForValue().set(SYNC_THIRD_PARTY_ISSUES_ERROR_KEY + ":" + projectId, errorMsg, 60L, TimeUnit.SECONDS);
     }
 
     /**
@@ -169,6 +170,7 @@ public class BugSyncExtraService {
                 localAttachment.setSize((long) bytes.length);
                 localAttachment.setCreateTime(System.currentTimeMillis());
                 localAttachment.setCreateUser("admin");
+                localAttachment.setSource(BugAttachmentSourceType.ATTACHMENT.name());
                 bugLocalAttachmentMapper.insert(localAttachment);
             });
         } catch (Exception e) {

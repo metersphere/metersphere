@@ -650,7 +650,7 @@ public class ProjectApplicationService {
             platformEnableConfig = getByType(projectId, ProjectApplicationType.BUG.BUG_SYNC.name() + "_" + ProjectApplicationType.BUG_SYNC_CONFIG.SYNC_ENABLE.name());
             platformKeyConfig = getByType(projectId, ProjectApplicationType.BUG.BUG_SYNC.name() + "_PLATFORM_KEY");
         } else {
-            platformEnableConfig = getByType(projectId, ProjectApplicationType.CASE_RELATED_CONFIG.CASE_ENABLE.name());
+            platformEnableConfig = getByType(projectId, ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "_" + ProjectApplicationType.CASE_RELATED_CONFIG.CASE_ENABLE.name());
             platformKeyConfig = getByType(projectId, ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "_PLATFORM_KEY");
         }
 

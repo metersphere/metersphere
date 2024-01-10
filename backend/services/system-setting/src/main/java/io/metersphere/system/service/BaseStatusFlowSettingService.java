@@ -261,7 +261,21 @@ public class BaseStatusFlowSettingService {
     }
 
     /**
+     * 获取所有状态选项
+     * @return 状态选项集合
+     */
+    public List<SelectOption> getAllStatusOption(String scopeId, String scene) {
+        // 获取所有状态选项值
+        List<StatusItem> statusItems = baseStatusItemService.getByScopeIdAndScene(scopeId, scene);
+        statusItems = baseStatusItemService.translateInternalStatusItem(statusItems);
+        return statusItems.stream().map(item -> new SelectOption(item.getName(), item.getId())).toList();
+    }
+
+    /**
      * 获取状态流转选项
+     * @param scopeId 项目或组织ID
+     * @param scene 场景
+     * @param targetStatusId 目标状态ID
      * @return 状态选项集合
      */
     public List<SelectOption> getStatusTransitions(String scopeId, String scene, String targetStatusId) {

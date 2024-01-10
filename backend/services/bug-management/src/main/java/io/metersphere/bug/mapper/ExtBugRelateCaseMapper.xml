@@ -1,6 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.bug.mapper.ExtBugRelateCaseMapper">
+    <select id="getRelateCaseModule" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
+        select
+        fcm.id,
+        fcm.parent_id as parentId,
+        fcm.name,
+        fcm.pos,
+        fcm.project_id
+        from functional_case_module fcm left join functional_case fc on fc.module_id = fcm.id
+        where fc.deleted = #{deleted}
+            and fc.project_id = #{request.projectId}
+            and fc.version_id = #{request.versionId}
+            and fc.id not in
+            (
+                select brc.case_id from bug_relation_case brc where brc.bug_id = #{request.sourceId} and brc.case_type = #{request.sourceType}
+            )
+        <include refid="queryModuleWhereCondition"/>
+        order by pos
+    </select>
+
+    <select id="countRelateCaseModuleTree" resultType="io.metersphere.project.dto.ModuleCountDTO">
+        select
+        fcm.id as moduleId,
+        count(fc.id) as dataCount
+        from functional_case_module fcm left join functional_case fc on fc.module_id = fcm.id
+        where fc.deleted = #{deleted}
+        and fc.project_id = #{request.projectId}
+        and fc.version_id = #{request.versionId}
+        and fc.id not in
+        (
+            select brc.case_id from bug_relation_case brc where brc.bug_id = #{request.sourceId} and brc.case_type = #{request.sourceType}
+        )
+        <include refid="queryModuleWhereCondition"/>
+        group by fcm.id
+    </select>
+
     <select id="countRelationCases" resultType="io.metersphere.bug.dto.response.BugRelateCaseCountDTO">
         select count(id) as relationCaseCount, bug_id as bugId from bug_relation_case brc
         where brc.bug_id in
@@ -22,9 +57,9 @@
 
     <select id="getAssociateBugs" resultType="io.metersphere.dto.BugProviderDTO">
         SELECT
-            brc.id id,
+            brc.id as id,
             brc.bug_id bugId,
-            b.title name,
+            b.title as name,
             b.handle_user handleUser,
             b.`status`,
             brc.test_plan_id testPlanId,
@@ -50,6 +85,21 @@
         </if>
         <if test="request.keyword != null">
             and b.title like concat('%', #{request.keyword},'%')
+        </if>
+    </sql>
+
+    <sql id="queryModuleWhereCondition">
+        <!-- 待补充关联Case弹窗中的高级搜索条件 -->
+        <if test="request.keyword != null and request.keyword != ''">
+            and (
+                fc.id like concat('%', #{request.keyword}, '%') or fc.name like concat('%', #{request.keyword}, '%')
+            )
+        </if>
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            and fcm.module_id in
+            <foreach collection="moduleIds" item="moduleId" open="(" separator="," close=")">
+                #{moduleId}
+            </foreach>
         </if>
     </sql>
 </mapper>

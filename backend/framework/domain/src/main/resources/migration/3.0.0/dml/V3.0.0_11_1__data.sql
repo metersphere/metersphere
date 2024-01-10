@@ -136,11 +136,10 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_APPLICATION_WORKSTATION:UPDATE');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_LOG:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_LOG:UPDATE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'BUG:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'BUG:READ+ADD');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'BUG:READ+UPDATE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'BUG:READ+DELETE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'BUG:READ+EXPORT');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_BUG:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_BUG:READ+ADD');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_BUG:READ+UPDATE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_BUG:READ+DELETE');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_BUG:READ+EXPORT');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_BASE_INFO:READ+UPDATE');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_API_DEBUG:READ');
@@ -256,10 +255,10 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_APPLICATION_WORKSTATION:UPDATE');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_LOG:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_LOG:UPDATE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'BUG:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'BUG:READ+ADD');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'BUG:READ+UPDATE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'BUG:READ+DELETE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_BUG:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_BUG:READ+ADD');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_BUG:READ+UPDATE');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_BUG:READ+DELETE');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_BUG:READ+EXPORT');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_BASE_INFO:READ+UPDATE');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_API_DEBUG:READ');
@@ -342,9 +341,20 @@ INSERT INTO custom_field_option (field_id,value,`text`,internal) VALUES ((select
 INSERT INTO custom_field_option (field_id,value,`text`,internal) VALUES ((select id from custom_field where name = 'functional_priority'), 'P2', 'P2', 1);
 INSERT INTO custom_field_option (field_id,value,`text`,internal) VALUES ((select id from custom_field where name = 'functional_priority'), 'P3', 'P3', 1);
 
--- 初始化组织功能用例模板
+-- 初始化组织缺陷严重程度
+INSERT INTO custom_field(id, name, scene, `type`, remark, internal, scope_type, create_time, update_time, create_user, scope_id) VALUES(UUID_SHORT(), 'bug_degree', 'BUG', 'SELECT', '', 1, 'ORGANIZATION', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', '100001');
+INSERT INTO custom_field_option (field_id,value,`text`,internal) VALUES ((select id from custom_field where name = 'bug_degree'), UUID_SHORT(), '提示', 1);
+INSERT INTO custom_field_option (field_id,value,`text`,internal) VALUES ((select id from custom_field where name = 'bug_degree'), UUID_SHORT(), '一般', 1);
+INSERT INTO custom_field_option (field_id,value,`text`,internal) VALUES ((select id from custom_field where name = 'bug_degree'), UUID_SHORT(), '严重', 1);
+INSERT INTO custom_field_option (field_id,value,`text`,internal) VALUES ((select id from custom_field where name = 'bug_degree'), UUID_SHORT(), '致命', 1);
+
+-- 初始化组织功能用例默认模板, 缺陷默认模板
 INSERT INTO template (id,name,remark,internal,update_time,create_time,create_user,scope_type,scope_id,enable_third_part, scene) VALUES (UUID_SHORT(), 'functional_default', '', 1, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'ORGANIZATION', '100001', 0, 'FUNCTIONAL');
+INSERT INTO template (id,name,remark,internal,update_time,create_time,create_user,scope_type,scope_id,enable_third_part,scene) VALUES (UUID_SHORT(), 'bug_default', '', 1, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'ORGANIZATION', '100001', 0, 'BUG');
+-- 初始化组织默认模板内置字段, 项目默认模板内置字段
 INSERT INTO template_custom_field(id, field_id, template_id, required, pos, system_field, api_field_id, default_value) VALUES(UUID_SHORT(), (select id from custom_field where name = 'functional_priority'), (select id from template where name = 'functional_default'), 1, 0, 0, NULL, NULL);
+INSERT INTO template_custom_field(id, field_id, template_id, required, pos, system_field, api_field_id, default_value) VALUES(UUID_SHORT(), (select id from custom_field where name = 'bug_degree'), (select id from template where name = 'bug_default'), 1, 0, 0, NULL, NULL);
+
 
 -- 初始化默认项目版本
 INSERT INTO project_version (id, project_id, name, description, status, latest, publish_time, start_time, end_time, create_time, create_user) VALUES (UUID_SHORT(), '100001100001', 'v1.0', NULL, 'open', 1, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin');
@@ -356,15 +366,20 @@ INSERT INTO custom_field_option (field_id,value,`text`,internal) VALUES ((select
 INSERT INTO custom_field_option (field_id,value,`text`,internal) VALUES ((select id from custom_field where name = 'functional_priority' and scope_id = '100001100001'), 'P2', 'P2', 1);
 INSERT INTO custom_field_option (field_id,value,`text`,internal) VALUES ((select id from custom_field where name = 'functional_priority' and scope_id = '100001100001'), 'P3', 'P3', 1);
 
--- 初始化项目功能用例模板
+-- 初始化项目缺陷严重程度
+INSERT INTO custom_field(id, name, scene, `type`, remark, internal, scope_type, create_time, update_time, create_user, scope_id, ref_id) VALUES(UUID_SHORT(), 'bug_degree', 'BUG', 'SELECT', '', 1, 'PROJECT', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', '100001100001', (SELECT id FROM (SELECT * FROM custom_field) t where name = 'bug_degree'));
+INSERT INTO custom_field_option (field_id,value,`text`,internal) VALUES ((select id from custom_field where name = 'bug_degree' and scope_id = '100001100001'), UUID_SHORT(), '提示', 1);
+INSERT INTO custom_field_option (field_id,value,`text`,internal) VALUES ((select id from custom_field where name = 'bug_degree' and scope_id = '100001100001'), UUID_SHORT(), '一般', 1);
+INSERT INTO custom_field_option (field_id,value,`text`,internal) VALUES ((select id from custom_field where name = 'bug_degree' and scope_id = '100001100001'), UUID_SHORT(), '严重', 1);
+INSERT INTO custom_field_option (field_id,value,`text`,internal) VALUES ((select id from custom_field where name = 'bug_degree' and scope_id = '100001100001'), UUID_SHORT(), '致命', 1);
+
+-- 初始化项目功能用例默认模板, 缺陷默认模板
 INSERT INTO template (id,name,remark,internal,update_time,create_time,create_user,scope_type,scope_id,enable_third_part, scene, ref_id) VALUES (UUID_SHORT(), 'functional_default', '', 1, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'PROJECT', '100001100001', 0, 'FUNCTIONAL', (SELECT id FROM (SELECT * FROM template) t where name = 'functional_default'));
-INSERT INTO template_custom_field(id, field_id, template_id, required, pos, system_field, api_field_id, default_value) VALUES(UUID_SHORT(), (select id from custom_field where name = 'functional_priority' and scope_id = '100001100001'), (select id from template where name = 'functional_default' and scope_id = '100001100001'), 1, 0, 0, NULL, null);
-
--- 初始化组织缺陷模板
-INSERT INTO template (id,name,remark,internal,update_time,create_time,create_user,scope_type,scope_id,enable_third_part,scene) VALUES (UUID_SHORT(), 'bug_default', '', 1, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'ORGANIZATION', '100001', 0, 'BUG');
-
--- 初始化项目缺陷模板
 INSERT INTO template (id,name,remark,internal,update_time,create_time,create_user,scope_type,scope_id,enable_third_part, scene, ref_id) VALUES (UUID_SHORT(), 'bug_default', '', 1, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'PROJECT', '100001100001', 0, 'BUG', (SELECT id FROM (SELECT * FROM template) t where name = 'bug_default'));
+-- 初始化项目默认模板内置字段, 项目默认模板内置字段
+INSERT INTO template_custom_field(id, field_id, template_id, required, pos, system_field, api_field_id, default_value) VALUES(UUID_SHORT(), (select id from custom_field where name = 'functional_priority' and scope_id = '100001100001'), (select id from template where name = 'functional_default' and scope_id = '100001100001'), 1, 0, 0, NULL, null);
+INSERT INTO template_custom_field(id, field_id, template_id, required, pos, system_field, api_field_id, default_value) VALUES(UUID_SHORT(), (select id from custom_field where name = 'bug_degree' and scope_id = '100001100001'), (select id from template where name = 'bug_default' and scope_id = '100001100001'), 1, 0, 0, NULL, null);
+
 
 -- 初始化组织接口模板
 INSERT INTO template (id,name,remark,internal,update_time,create_time,create_user,scope_type,scope_id,enable_third_part,scene) VALUES (UUID_SHORT(), 'api_default', '', 1, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'ORGANIZATION', '100001', 0, 'API');

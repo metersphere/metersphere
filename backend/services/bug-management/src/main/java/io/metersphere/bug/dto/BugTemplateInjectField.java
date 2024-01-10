@@ -6,6 +6,7 @@ import lombok.Data;
 public class BugTemplateInjectField {
     private String id;
     private String name;
+    private String key;
     private String type;
     private String defaultValue;
     private Boolean required;

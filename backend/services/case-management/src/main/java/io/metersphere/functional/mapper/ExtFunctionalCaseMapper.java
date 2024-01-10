@@ -1,5 +1,6 @@
 package io.metersphere.functional.mapper;
 
+import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.dto.BaseFunctionalCaseBatchDTO;
 import io.metersphere.functional.dto.FunctionalCasePageDTO;
@@ -7,6 +8,8 @@ import io.metersphere.functional.dto.FunctionalCaseVersionDTO;
 import io.metersphere.functional.request.FunctionalCaseBatchMoveRequest;
 import io.metersphere.functional.request.FunctionalCasePageRequest;
 import io.metersphere.project.dto.ModuleCountDTO;
+import io.metersphere.request.AssociateOtherCaseRequest;
+import io.metersphere.request.TestCasePageProviderRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -58,4 +61,19 @@ public interface ExtFunctionalCaseMapper {
 
     Long getLastPos(@Param("projectId") String projectId, @Param("basePos") Long basePos);
 
+    /**
+     * 获取缺陷未关联的功能用例列表
+     * @param request provider参数
+     * @param deleted 是否删除状态
+     * @return 通用的列表Case集合
+     */
+    List<TestCaseProviderDTO> listUnRelatedCaseWithBug(@Param("request") TestCasePageProviderRequest request, @Param("deleted") boolean deleted);
+
+    /**
+     * 根据关联条件获取关联的用例ID
+     * @param request 关联参数
+     * @param deleted 是否删除状态
+     * @return 关联的用例ID集合
+     */
+    List<String> getSelectIdsByAssociateParam(@Param("request")AssociateOtherCaseRequest request, @Param("deleted") boolean deleted);
 }
