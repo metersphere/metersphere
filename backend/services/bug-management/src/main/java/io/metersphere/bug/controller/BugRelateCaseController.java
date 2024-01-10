@@ -28,7 +28,7 @@ public class BugRelateCaseController {
 
     @PostMapping("/page")
     @Operation(description = "缺陷管理-关联用例-列表分页查询")
-    @RequiresPermissions(PermissionConstants.BUG_UPDATE)
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
     public Pager<List<BugRelateCaseDTO>> page(@Validated @RequestBody BugRelatedCasePageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
         return PageUtils.setPageInfo(page, bugRelateCaseService.page(request));
@@ -36,7 +36,7 @@ public class BugRelateCaseController {
 
     @GetMapping("/un-relate/{id}")
     @Operation(description = "缺陷管理-关联用例-取消关联用例")
-    @RequiresPermissions(PermissionConstants.BUG_UPDATE)
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
     public void unRelate(@PathVariable String id) {
         bugRelateCaseService.unRelate(id);
     }

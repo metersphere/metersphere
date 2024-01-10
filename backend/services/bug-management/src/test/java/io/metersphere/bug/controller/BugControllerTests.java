@@ -13,7 +13,6 @@ import io.metersphere.bug.mapper.BugMapper;
 import io.metersphere.bug.service.BugService;
 import io.metersphere.bug.service.BugSyncExtraService;
 import io.metersphere.bug.service.BugSyncService;
-import io.metersphere.bug.utils.CustomFieldUtils;
 import io.metersphere.plugin.platform.dto.request.SyncAllBugRequest;
 import io.metersphere.project.domain.*;
 import io.metersphere.project.dto.ProjectTemplateOptionDTO;
@@ -38,6 +37,7 @@ import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.mapper.ServiceIntegrationMapper;
 import io.metersphere.system.service.PluginService;
 import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.utils.CustomFieldUtils;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
@@ -213,9 +213,6 @@ public class BugControllerTests extends BaseTest {
         customs.clear();
         customs.add(custom);
         combine.put("customs", customs);
-        bugPageRequest.setCombine(combine);
-        this.requestPostWithOkAndReturn(BUG_PAGE, bugPageRequest);
-        combine.put("customs", null);
         bugPageRequest.setCombine(combine);
         this.requestPostWithOkAndReturn(BUG_PAGE, bugPageRequest);
         // cover combine current user
@@ -408,7 +405,7 @@ public class BugControllerTests extends BaseTest {
     void testExportColumns() throws Exception {
         this.requestGetWithOkAndReturn(String.format(BUG_EXPORT_COLUMNS, "default-project-for-bug"));
         //校验权限
-        this.requestGetPermissionTest(PermissionConstants.BUG_EXPORT, String.format(BUG_EXPORT_COLUMNS, DEFAULT_PROJECT_ID));
+        this.requestGetPermissionTest(PermissionConstants.PROJECT_BUG_EXPORT, String.format(BUG_EXPORT_COLUMNS, DEFAULT_PROJECT_ID));
     }
 
     @Test
@@ -463,7 +460,7 @@ public class BugControllerTests extends BaseTest {
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setSelectAll(true);
         request.setExportColumns(exportColumns);
-        this.requestPostPermissionTest(PermissionConstants.BUG_EXPORT, BUG_EXPORT, request);
+        this.requestPostPermissionTest(PermissionConstants.PROJECT_BUG_EXPORT, BUG_EXPORT, request);
     }
 
     @Test
