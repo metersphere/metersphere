@@ -238,11 +238,11 @@ public class PermissionConstants {
     /*------ end: API_DEBUG ------*/
 
     /*------ start: BUG ------*/
-    public static final String BUG_READ = "BUG:READ";
-    public static final String BUG_ADD = "BUG:READ+ADD";
-    public static final String BUG_UPDATE = "BUG:READ+UPDATE";
-    public static final String BUG_DELETE = "BUG:READ+DELETE";
-    public static final String BUG_EXPORT = "PROJECT_BUG:READ+EXPORT";
+    public static final String PROJECT_BUG_READ = "PROJECT_BUG:READ";
+    public static final String PROJECT_BUG_ADD = "PROJECT_BUG:READ+ADD";
+    public static final String PROJECT_BUG_UPDATE = "PROJECT_BUG:READ+UPDATE";
+    public static final String PROJECT_BUG_DELETE = "PROJECT_BUG:READ+DELETE";
+    public static final String PROJECT_BUG_EXPORT = "PROJECT_BUG:READ+EXPORT";
     /*------ end: BUG ------*/
     /*------ start: API_MANAGEMENT ------*/
     public static final String PROJECT_API_DEFINITION_READ = "PROJECT_API_DEFINITION:READ";

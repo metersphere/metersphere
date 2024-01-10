@@ -1,4 +1,4 @@
-package io.metersphere.bug;
+package io.metersphere.bug.job;
 
 import io.metersphere.bug.service.BugSyncService;
 import io.metersphere.bug.service.XpackBugService;
@@ -29,15 +29,21 @@ public class BugSyncJob extends BaseScheduleJob {
 
     @Override
     protected void businessExecute(JobExecutionContext context) {
-        LicenseDTO licenseDTO = licenseService.validate();
-        if (licenseDTO != null && licenseDTO.getLicense() != null
-                && StringUtils.equals(licenseDTO.getStatus(), "valid")) {
-            LogUtils.info("sync all bug");
-            xpackBugService.syncPlatformBugsBySchedule();
-        } else {
-            LogUtils.info("sync remain bug");
+        LogUtils.info("bug sync job start......");
+        if (licenseService == null) {
+            LogUtils.info("license is null, sync remain bug");
             bugSyncService.syncPlatformBugBySchedule();
+        } else {
+            LicenseDTO licenseDTO = licenseService.validate();
+            if (licenseDTO != null && licenseDTO.getLicense() != null
+                    && StringUtils.equals(licenseDTO.getStatus(), "valid")) {
+                LogUtils.info("license is valid, sync all bug");
+                xpackBugService.syncPlatformBugsBySchedule();
+            } else {
+                LogUtils.info("license is invalid, sync remain bug");
+                bugSyncService.syncPlatformBugBySchedule();
+            }
         }
-        LogUtils.info("sync bug end");
+        LogUtils.info("bug sync job end......");
     }
 }

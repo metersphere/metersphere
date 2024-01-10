@@ -11,7 +11,6 @@ import io.metersphere.bug.dto.response.BugTagEditDTO;
 import io.metersphere.bug.enums.BugPlatform;
 import io.metersphere.bug.enums.BugTemplateCustomField;
 import io.metersphere.bug.mapper.*;
-import io.metersphere.bug.utils.CustomFieldUtils;
 import io.metersphere.bug.utils.ExportUtils;
 import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.plugin.platform.dto.SyncBugResult;
@@ -43,12 +42,10 @@ import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.system.mapper.TemplateMapper;
-import io.metersphere.system.service.BaseTemplateCustomFieldService;
-import io.metersphere.system.service.BaseTemplateService;
-import io.metersphere.system.service.PlatformPluginService;
-import io.metersphere.system.service.PluginLoadService;
+import io.metersphere.system.service.*;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
+import io.metersphere.system.utils.CustomFieldUtils;
 import jakarta.annotation.Resource;
 import jodd.util.StringUtil;
 import org.apache.commons.collections4.CollectionUtils;
@@ -102,6 +99,8 @@ public class BugService {
     @Resource
     private PlatformPluginService platformPluginService;
     @Resource
+    private UserPlatformAccountService userPlatformAccountService;
+    @Resource
     private BugCustomFieldMapper bugCustomFieldMapper;
     @Resource
     private ExtBugCustomFieldMapper extBugCustomFieldMapper;
@@ -146,8 +145,8 @@ public class BugService {
      * @param request 列表请求参数
      * @return 缺陷列表
      */
-    public List<BugDTO> list(BugPageRequest request) {
-        CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(request);
+    public List<BugDTO> list(BugPageRequest request, String currentUser) {
+        CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(request, currentUser);
         List<BugDTO> bugs = extBugMapper.list(request);
         if (CollectionUtils.isEmpty(bugs)) {
             return new ArrayList<>();
@@ -164,7 +163,7 @@ public class BugService {
      * @param files 附件集合
      * @param currentUser 当前用户
      */
-    public void addOrUpdate(BugEditRequest request, List<MultipartFile> files, String currentUser, boolean isUpdate) {
+    public void addOrUpdate(BugEditRequest request, List<MultipartFile> files, String currentUser, String currentOrgId, boolean isUpdate) {
         /*
          *  缺陷创建或者修改逻辑:
          *  1. 判断所属项目是否关联第三方平台;
@@ -186,7 +185,7 @@ public class BugService {
            Platform platform = platformPluginService.getPlatform(serviceIntegration.getPluginId(), serviceIntegration.getOrganizationId(),
                    new String(serviceIntegration.getConfiguration()));
            PlatformBugUpdateRequest platformRequest = buildPlatformBugRequest(request);
-           platformRequest.setUserPlatformConfig(new String(serviceIntegration.getConfiguration()));
+           platformRequest.setUserPlatformConfig(JSON.toJSONString(userPlatformAccountService.get(currentUser, currentOrgId)));
            platformRequest.setProjectConfig(projectApplicationService.getProjectBugThirdPartConfig(request.getProjectId()));
            if (isUpdate) {
                Bug bug = bugMapper.selectByPrimaryKey(request.getId());
@@ -261,8 +260,8 @@ public class BugService {
      * 批量删除缺陷
      * @param request 请求参数
      */
-    public void batchDelete(BugBatchRequest request) {
-        List<String> batchIds = getBatchIdsByRequest(request);
+    public void batchDelete(BugBatchRequest request, String currentUser) {
+        List<String> batchIds = getBatchIdsByRequest(request, currentUser);
         batchIds.forEach(this::delete);
     }
 
@@ -270,8 +269,8 @@ public class BugService {
      * 批量编辑缺陷
      * @param request 请求参数
      */
-    public void batchUpdate(BugBatchUpdateRequest request) {
-        List<String> batchIds = getBatchIdsByRequest(request);
+    public void batchUpdate(BugBatchUpdateRequest request, String currentUser) {
+        List<String> batchIds = getBatchIdsByRequest(request, currentUser);
 
         // 目前只做标签的批量编辑
         if (request.isAppend()) {
@@ -1081,8 +1080,8 @@ public class BugService {
      * @return 导出对象
      * @throws Exception 异常
      */
-    public ResponseEntity<byte[]> export(BugExportRequest request) throws Exception {
-        List<BugDTO> bugs = this.getExportDataByBatchRequest(request);
+    public ResponseEntity<byte[]> export(BugExportRequest request, String currentUser) throws Exception {
+        List<BugDTO> bugs = this.getExportDataByBatchRequest(request, currentUser);
         if (CollectionUtils.isEmpty(bugs)) {
             throw new MSException(Translator.get("no_bug_select"));
         }
@@ -1110,13 +1109,13 @@ public class BugService {
      * @param request 批量操作参数
      * @return 缺陷集合
      */
-    private List<BugDTO> getExportDataByBatchRequest(BugBatchRequest request) {
+    private List<BugDTO> getExportDataByBatchRequest(BugBatchRequest request, String currentUser) {
         if (request.isSelectAll()) {
             // 全选{根据查询条件查询所有数据, 排除取消勾选的数据}
             BugPageRequest bugPageRequest = new BugPageRequest();
             BeanUtils.copyBean(bugPageRequest, request);
             bugPageRequest.setUseTrash(false);
-            CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(bugPageRequest);
+            CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(bugPageRequest, currentUser);
             List<BugDTO> allBugs = extBugMapper.list(bugPageRequest);
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 allBugs.removeIf(bug -> request.getExcludeIds().contains(bug.getId()));
@@ -1136,13 +1135,13 @@ public class BugService {
      * @param request 批量操作参数
      * @return 缺陷集合
      */
-    private List<String> getBatchIdsByRequest(BugBatchRequest request) {
+    private List<String> getBatchIdsByRequest(BugBatchRequest request, String currentUser) {
         if (request.isSelectAll()) {
             // 全选{根据查询条件查询所有数据, 排除取消勾选的数据}
             BugPageRequest bugPageRequest = new BugPageRequest();
             BeanUtils.copyBean(bugPageRequest, request);
             bugPageRequest.setUseTrash(false);
-            CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(bugPageRequest);
+            CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(bugPageRequest, currentUser);
             List<String> ids = extBugMapper.getIdsByPageRequest(bugPageRequest);
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 ids.removeIf(id -> request.getExcludeIds().contains(id));

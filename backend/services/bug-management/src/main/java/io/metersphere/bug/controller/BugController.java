@@ -46,105 +46,104 @@ public class BugController {
 
     @PostMapping("/page")
     @Operation(summary = "缺陷管理-获取缺陷列表")
-    @RequiresPermissions(PermissionConstants.BUG_READ)
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     public Pager<List<BugDTO>> page(@Validated @RequestBody BugPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
         request.setUseTrash(false);
-        return PageUtils.setPageInfo(page, bugService.list(request));
+        return PageUtils.setPageInfo(page, bugService.list(request, SessionUtils.getUserId()));
     }
 
     @PostMapping("/add")
     @Operation(summary = "缺陷管理-创建缺陷")
-    @RequiresPermissions(PermissionConstants.BUG_ADD)
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_ADD)
     public void add(@Validated({Created.class}) @RequestPart(value = "request") BugEditRequest request,
                     @RequestPart(value = "file", required = false) List<MultipartFile> files) {
-        bugService.addOrUpdate(request, files, SessionUtils.getUserId(), false);
+        bugService.addOrUpdate(request, files, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), false);
     }
 
     @PostMapping("/update")
     @Operation(summary = "缺陷管理-更新缺陷")
-    @RequiresPermissions(PermissionConstants.BUG_UPDATE)
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
     public void update(@Validated({Updated.class}) @RequestPart(value = "request") BugEditRequest request,
                        @RequestPart(value = "file", required = false) List<MultipartFile> files) {
-        bugService.addOrUpdate(request, files, SessionUtils.getUserId(), true);
+        bugService.addOrUpdate(request, files, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), true);
     }
 
     @GetMapping("/delete/{id}")
     @Operation(summary = "缺陷管理-删除缺陷")
-    @RequiresPermissions(PermissionConstants.BUG_DELETE)
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_DELETE)
     public void delete(@PathVariable String id) {
         bugService.delete(id);
     }
 
     @GetMapping("/template/option")
     @Operation(summary = "缺陷管理-获取当前项目缺陷模板选项")
-    @RequiresPermissions(PermissionConstants.BUG_READ)
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     public List<ProjectTemplateOptionDTO> getTemplateOption(@RequestParam(value = "projectId") String projectId) {
         return projectTemplateService.getOption(projectId, TemplateScene.BUG.name());
     }
 
     @PostMapping("/template/detail")
     @Operation(summary = "缺陷管理-获取模板详情内容")
-    @RequiresPermissions(PermissionConstants.BUG_READ)
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     public TemplateDTO getTemplateDetail(@RequestBody BugTemplateRequest request) {
         return bugService.getTemplate(request.getId(), request.getProjectId(), request.getFromStatusId(), request.getPlatformBugKey());
     }
 
     @PostMapping("/batch-delete")
     @Operation(summary = "缺陷管理-批量删除缺陷")
-    @RequiresPermissions(PermissionConstants.BUG_DELETE)
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_DELETE)
     public void batchDelete(@Validated @RequestBody BugBatchRequest request) {
-        bugService.batchDelete(request);
+        bugService.batchDelete(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/batch-update")
     @Operation(summary = "缺陷管理-批量编辑缺陷")
-    @RequiresPermissions(PermissionConstants.BUG_UPDATE)
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
     public void batchUpdate(@Validated @RequestBody BugBatchUpdateRequest request) {
-        bugService.batchUpdate(request);
+        bugService.batchUpdate(request, SessionUtils.getUserId());
     }
 
     @GetMapping("/follow/{id}")
     @Operation(summary = "缺陷管理-关注缺陷")
-    @RequiresPermissions(PermissionConstants.BUG_UPDATE)
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
     public void follow(@PathVariable String id) {
         bugService.follow(id, SessionUtils.getUserId());
     }
 
     @GetMapping("/unfollow/{id}")
     @Operation(summary = "缺陷管理-取消关注缺陷")
-    @RequiresPermissions(PermissionConstants.BUG_UPDATE)
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
     public void unfollow(@PathVariable String id) {
         bugService.unfollow(id, SessionUtils.getUserId());
     }
 
     @GetMapping("/sync/{projectId}")
     @Operation(summary = "缺陷管理-同步缺陷(开源)")
-    @RequiresPermissions(PermissionConstants.BUG_UPDATE)
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
     public void sync(@PathVariable String projectId) {
         bugSyncService.syncBugs(projectId);
     }
 
     @PostMapping("/sync/all")
     @Operation(summary = "缺陷管理-同步缺陷(全量)")
-    @RequiresPermissions(PermissionConstants.BUG_UPDATE)
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
     public void syncAll(@RequestBody BugSyncRequest request) {
         bugSyncService.syncAllBugs(request);
     }
 
     @GetMapping("/export/columns/{projectId}")
     @Operation(summary = "缺陷管理-获取导出字段配置")
-    @RequiresPermissions(PermissionConstants.BUG_EXPORT)
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_EXPORT)
     public BugExportColumns getExportColumns(@PathVariable String projectId) {
         return bugService.getExportColumns(projectId);
     }
 
     @PostMapping("/export")
     @Operation(summary = "缺陷管理-批量导出缺陷")
-    @RequiresPermissions(PermissionConstants.BUG_EXPORT)
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_EXPORT)
     public ResponseEntity<byte[]> export(@Validated @RequestBody BugExportRequest request) throws Exception {
-        return bugService.export(request);
+        return bugService.export(request, SessionUtils.getUserId());
     }
-
 }
