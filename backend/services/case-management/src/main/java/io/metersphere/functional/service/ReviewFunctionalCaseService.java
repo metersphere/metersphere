@@ -68,10 +68,6 @@ public class ReviewFunctionalCaseService {
         String functionalCaseStatus = getFunctionalCaseStatus(request, hasReviewedUserMap);
         extCaseReviewFunctionalCaseMapper.updateStatus(caseId, reviewId, functionalCaseStatus);
         caseReviewHistoryMapper.insert(caseReviewHistory);
-        int passCount = 0;
-        if (StringUtils.equalsIgnoreCase(FunctionalCaseReviewStatus.PASS.toString(),functionalCaseStatus)) {
-            passCount=1;
-        }
 
         //检查是否有@，发送@通知
         if (StringUtils.isNotBlank(request.getNotifier())) {
@@ -86,11 +82,13 @@ public class ReviewFunctionalCaseService {
             reviewSendNoticeService.sendNoticeCase(new ArrayList<>(), userId, caseId, NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, NoticeConstants.Event.REVIEW_PASSED, reviewId);
         }
         Map<String, Object> param = new HashMap<>();
+        Map<String, Integer> countMap = new HashMap<>();
+        countMap.put(functionalCaseStatus,1);
         param.put(CaseEvent.Param.CASE_IDS, List.of(caseId));
-        param.put(CaseEvent.Param.PASS_COUNT,passCount);
         param.put(CaseEvent.Param.REVIEW_ID, reviewId);
         param.put(CaseEvent.Param.STATUS, request.getStatus());
         param.put(CaseEvent.Param.USER_ID, userId);
+        param.put(CaseEvent.Param.COUNT_MAP,countMap);
         param.put(CaseEvent.Param.EVENT_NAME, CaseEvent.Event.REVIEW_FUNCTIONAL_CASE);
         provider.updateCaseReview(param);
 
