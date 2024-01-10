@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author wx
@@ -34,7 +35,7 @@ public class BugProviderDTO implements Serializable {
     private String status;
 
     @Schema(description = "标签")
-    private String tags;
+    private List<String> tags;
 
     @Schema(description = "创建时间")
     private Long createTime;

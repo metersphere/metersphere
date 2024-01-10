@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -114,6 +115,7 @@ public class BaseTemplateService {
         // 封装自定义字段信息
         List<TemplateCustomFieldDTO> fieldDTOS = templateCustomFields.stream()
                 .filter(i -> !BooleanUtils.isTrue(i.getSystemField()))
+                .sorted(Comparator.comparingInt(TemplateCustomField::getPos))
                 .map(i -> {
                     CustomField customField = fieldMap.get(i.getFieldId());
                     TemplateCustomFieldDTO templateCustomFieldDTO = new TemplateCustomFieldDTO();
@@ -348,7 +350,18 @@ public class BaseTemplateService {
      * @param scopeType
      */
     public void initBugDefaultTemplate(String scopeId, TemplateScopeType scopeType) {
-        this.initDefaultTemplate(scopeId, "bug_default", scopeType, TemplateScene.BUG);
+        // 初始化字段
+        List<CustomField> customFields = baseCustomFieldService.initBugDefaultCustomField(scopeType, scopeId);
+        // 初始化模板
+        Template template = this.initDefaultTemplate(scopeId, "bug_default", scopeType, TemplateScene.BUG);
+        // 初始化模板和字段的关联关系
+        List<TemplateCustomFieldRequest> templateCustomFieldRequests = customFields.stream().map(customField -> {
+            TemplateCustomFieldRequest templateCustomFieldRequest = new TemplateCustomFieldRequest();
+            templateCustomFieldRequest.setRequired(true);
+            templateCustomFieldRequest.setFieldId(customField.getId());
+            return templateCustomFieldRequest;
+        }).toList();
+        baseTemplateCustomFieldService.addCustomFieldByTemplateId(template.getId(), templateCustomFieldRequests);
     }
 
     public void initApiDefaultTemplate(String scopeId, TemplateScopeType scopeType) {

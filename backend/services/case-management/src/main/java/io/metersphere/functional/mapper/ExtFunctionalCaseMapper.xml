@@ -30,6 +30,10 @@
         <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
     </resultMap>
 
+    <resultMap id="TestCaseProviderDTO" type="io.metersphere.dto.TestCaseProviderDTO">
+        <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
+    </resultMap>
+
     <select id="getPos" resultType="java.lang.Long">
         SELECT
             pos
@@ -633,4 +637,69 @@
         </if>
         order by `pos` desc limit 1;
     </select>
+
+    <select id="listUnRelatedCaseWithBug" resultMap="TestCaseProviderDTO">
+        select
+        fc.id,
+        fc.num,
+        fc.name,
+        fc.project_id,
+        fc.tags,
+        pv.name as versionName
+        from functional_case fc left join project_version pv ON fc.version_id = pv.id
+            left join functional_case_module fcm on fcm.id = fc.module_id
+        where fc.deleted = #{deleted}
+            and fc.project_id = #{request.projectId}
+            and fc.version_id = #{request.versionId}
+            and fc.id not in
+            (
+                select brc.case_id from bug_relation_case brc where brc.bug_id = #{request.sourceId} and brc.case_type = #{request.sourceType}
+            )
+            <include refid="queryByTestCaseProviderParam"/>
+        order by fc.create_time desc
+    </select>
+
+    <select id="getSelectIdsByAssociateParam" resultType="java.lang.String">
+        select fc.id
+        from functional_case fc
+        left join functional_case_module fcm on fcm.id = fc.module_id
+        where fc.deleted = #{deleted}
+            and fc.project_id = #{request.projectId}
+            and fc.version_id = #{request.versionId}
+            and fc.id not in
+            (
+                select brc.case_id from bug_relation_case brc where brc.bug_id = #{request.sourceId} and brc.case_type = #{request.sourceType}
+            )
+        <include refid="queryByAssociateParam"/>
+    </select>
+
+    <sql id="queryByTestCaseProviderParam">
+        <!-- 待补充关联Case弹窗中的高级搜索条件 -->
+        <if test="request.keyword != null and request.keyword != ''">
+            and (
+            fc.id like concat('%', #{request.keyword}, '%') or fc.name like concat('%', #{request.keyword}, '%')
+            )
+        </if>
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            and fcm.module_id in
+            <foreach collection="moduleIds" item="moduleId" open="(" separator="," close=")">
+                #{moduleId}
+            </foreach>
+        </if>
+    </sql>
+
+    <sql id="queryByAssociateParam">
+        <!-- 待补充关联Case弹窗中的高级搜索条件 -->
+        <if test="request.condition.keyword != null and request.condition.keyword != ''">
+            and (
+            fc.id like concat('%', #{request.keyword}, '%') or fc.name like concat('%', #{request.keyword}, '%')
+            )
+        </if>
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            and fcm.module_id in
+            <foreach collection="moduleIds" item="moduleId" open="(" separator="," close=")">
+                #{moduleId}
+            </foreach>
+        </if>
+    </sql>
 </mapper>

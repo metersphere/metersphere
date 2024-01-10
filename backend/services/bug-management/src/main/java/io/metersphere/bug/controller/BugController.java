@@ -3,14 +3,18 @@ package io.metersphere.bug.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.bug.constants.BugExportColumns;
+import io.metersphere.bug.dto.BugSyncResult;
 import io.metersphere.bug.dto.request.*;
 import io.metersphere.bug.dto.response.BugDTO;
 import io.metersphere.bug.service.BugService;
+import io.metersphere.bug.service.BugStatusService;
 import io.metersphere.bug.service.BugSyncService;
+import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.project.dto.ProjectTemplateOptionDTO;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.TemplateScene;
+import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -42,7 +46,30 @@ public class BugController {
     @Resource
     private BugSyncService bugSyncService;
     @Resource
+    private BugStatusService bugStatusService;
+    @Resource
     private ProjectTemplateService projectTemplateService;
+
+    @GetMapping("/header/custom-field/{projectId}")
+    @Operation(summary = "缺陷管理-获取表头自定义字段")
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
+    public List<TemplateCustomFieldDTO> getHeaderFields(@PathVariable String projectId) {
+        return bugService.getHeaderCustomFields(projectId);
+    }
+
+    @GetMapping("/header/status-option/{projectId}")
+    @Operation(summary = "缺陷管理-获取表头状态选项")
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
+    public List<SelectOption> getHeaderStatusOption(@PathVariable String projectId) {
+        return bugStatusService.getHeaderStatusOption(projectId);
+    }
+
+    @GetMapping("/header/handler-option/{projectId}")
+    @Operation(summary = "缺陷管理-获取表头处理人选项")
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
+    public List<SelectOption> getHeaderHandleOption(@PathVariable String projectId) {
+        return bugService.getHeaderHandlerOption(projectId);
+    }
 
     @PostMapping("/page")
     @Operation(summary = "缺陷管理-获取缺陷列表")
@@ -51,7 +78,7 @@ public class BugController {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
         request.setUseTrash(false);
-        return PageUtils.setPageInfo(page, bugService.list(request, SessionUtils.getUserId()));
+        return PageUtils.setPageInfo(page, bugService.list(request));
     }
 
     @PostMapping("/add")
@@ -95,13 +122,15 @@ public class BugController {
     @Operation(summary = "缺陷管理-批量删除缺陷")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_DELETE)
     public void batchDelete(@Validated @RequestBody BugBatchRequest request) {
-        bugService.batchDelete(request, SessionUtils.getUserId());
+        request.setUseTrash(false);
+        bugService.batchDelete(request);
     }
 
     @PostMapping("/batch-update")
     @Operation(summary = "缺陷管理-批量编辑缺陷")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
     public void batchUpdate(@Validated @RequestBody BugBatchUpdateRequest request) {
+        request.setUseTrash(false);
         bugService.batchUpdate(request, SessionUtils.getUserId());
     }
 
@@ -133,6 +162,13 @@ public class BugController {
         bugSyncService.syncAllBugs(request);
     }
 
+    @GetMapping("/sync/check/{projectId}")
+    @Operation(summary = "缺陷管理-同步状态校验")
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
+    public BugSyncResult checkStatus(@PathVariable String projectId) {
+        return bugSyncService.checkSyncStatus(projectId);
+    }
+
     @GetMapping("/export/columns/{projectId}")
     @Operation(summary = "缺陷管理-获取导出字段配置")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_EXPORT)
@@ -144,6 +180,6 @@ public class BugController {
     @Operation(summary = "缺陷管理-批量导出缺陷")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_EXPORT)
     public ResponseEntity<byte[]> export(@Validated @RequestBody BugExportRequest request) throws Exception {
-        return bugService.export(request, SessionUtils.getUserId());
+        return bugService.export(request);
     }
 }

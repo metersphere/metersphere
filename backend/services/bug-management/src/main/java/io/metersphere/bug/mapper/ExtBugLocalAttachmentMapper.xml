@@ -5,7 +5,7 @@
         insert into bug_local_attachment values
         <foreach collection="list" item="attachment" separator=",">
             (#{attachment.id}, #{attachment.bugId}, #{attachment.fileId}, #{attachment.fileName},
-             #{attachment.size}, #{attachment.createUser}, #{attachment.createTime})
+             #{attachment.size}, #{attachment.source}, #{attachment.createUser}, #{attachment.createTime})
         </foreach>
     </insert>
 </mapper>

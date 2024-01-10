@@ -11,4 +11,7 @@ public class BugBatchRequest extends TableBatchProcessDTO {
 
     @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String projectId;
+
+    @Schema(description = "是否回收站")
+    private boolean useTrash;
 }

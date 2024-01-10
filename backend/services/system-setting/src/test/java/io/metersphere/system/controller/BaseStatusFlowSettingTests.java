@@ -26,5 +26,6 @@ public class BaseStatusFlowSettingTests {
         baseStatusFlowSettingService.getStatusTransitions("default-project-for-status", "BUG", null);
         baseStatusFlowSettingService.getStatusTransitions("default-project-for-status", "BUG", "1");
         baseStatusFlowSettingService.getStatusTransitions("default-project-for-status", "BUG", "2");
+        baseStatusFlowSettingService.getAllStatusOption("default-project-for-status", "BUG");
     }
 }

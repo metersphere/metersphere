@@ -2,6 +2,7 @@ package io.metersphere.bug.service;
 
 import io.metersphere.bug.domain.Bug;
 import io.metersphere.bug.domain.BugExample;
+import io.metersphere.bug.dto.BugSyncResult;
 import io.metersphere.bug.dto.request.BugSyncRequest;
 import io.metersphere.bug.enums.BugPlatform;
 import io.metersphere.bug.mapper.BugMapper;
@@ -105,6 +106,28 @@ public class BugSyncService {
             bugSyncExtraService.deleteSyncKey(projectId);
             throw new MSException(e);
         }
+    }
+
+    /**
+     * 校验同步状态
+     * @param projectId 项目ID
+     * @return 同步结果
+     */
+    public BugSyncResult checkSyncStatus(String projectId) {
+        BugSyncResult result = BugSyncResult.builder().complete(Boolean.FALSE).msg(StringUtils.EMPTY).build();
+        String syncValue = bugSyncExtraService.getSyncKey(projectId);
+        // redis-key 存在, 说明正在同步
+        if (StringUtils.isNotEmpty(syncValue)) {
+            return result;
+        }
+        // 否则, 项目同步已结束, 设置同步Msg
+        result.setComplete(Boolean.TRUE);
+        result.setMsg(bugSyncExtraService.getSyncErrorMsg(projectId));
+        if (StringUtils.isNotEmpty(result.getMsg())) {
+            // 清空同步异常信息
+            bugSyncExtraService.deleteSyncErrorMsg(projectId);
+        }
+        return result;
     }
 
     /**

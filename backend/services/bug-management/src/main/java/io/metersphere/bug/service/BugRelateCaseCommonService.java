@@ -1,6 +1,8 @@
 package io.metersphere.bug.service;
 
 import io.metersphere.bug.domain.BugRelationCase;
+import io.metersphere.bug.domain.BugRelationCaseExample;
+import io.metersphere.bug.dto.request.BugRelateCaseModuleRequest;
 import io.metersphere.bug.dto.request.BugRelatedCasePageRequest;
 import io.metersphere.bug.dto.response.BugRelateCaseDTO;
 import io.metersphere.bug.mapper.BugRelationCaseMapper;
@@ -9,16 +11,26 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.domain.ProjectVersion;
 import io.metersphere.project.domain.ProjectVersionExample;
+import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.mapper.ProjectVersionMapper;
+import io.metersphere.project.service.ModuleTreeService;
 import io.metersphere.project.service.PermissionCheckService;
+import io.metersphere.provider.BaseAssociateCaseProvider;
+import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.sdk.constants.CaseType;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,10 +41,12 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class BugRelateCaseService {
+public class BugRelateCaseCommonService extends ModuleTreeService {
 
     @Resource
     private ProjectMapper projectMapper;
+    @Resource
+    private SqlSessionFactory sqlSessionFactory;
     @Resource
     private ProjectVersionMapper projectVersionMapper;
     @Resource
@@ -41,6 +55,80 @@ public class BugRelateCaseService {
     private ExtBugRelateCaseMapper extBugRelateCaseMapper;
     @Resource
     private PermissionCheckService permissionCheckService;
+    @Resource
+    private BaseAssociateCaseProvider functionalCaseProvider;
+
+    /**
+     * 获取关联用例模块树(不包括数量)
+     * @param request 请求参数
+     * @return 模块树集合
+     */
+    public List<BaseTreeNode> getRelateCaseTree(BugRelateCaseModuleRequest request) {
+        // 目前只保留功能用例的左侧模块树方法调用, 后续其他用例根据RelateCaseType扩展
+        List<BaseTreeNode> relateCaseModules = extBugRelateCaseMapper.getRelateCaseModule(request, false);
+        // 构建模块树层级数量为通用逻辑
+        return super.buildTreeAndCountResource(relateCaseModules, true, Translator.get("api_unplanned_request"));
+    }
+
+    /**
+     * 获取关联用例模块树数量
+     * @param request 请求参数
+     * @return 模块树集合
+     */
+    public Map<String, Long> countTree(BugRelateCaseModuleRequest request) {
+        // 目前只保留功能用例的左侧模块树方法调用, 后续其他用例根据RelateCaseType扩展
+        List<ModuleCountDTO> moduleCounts = extBugRelateCaseMapper.countRelateCaseModuleTree(request, false);
+        List<BaseTreeNode> relateCaseModules = extBugRelateCaseMapper.getRelateCaseModule(request, false);
+        List<BaseTreeNode> relateCaseModuleWithCount = buildTreeAndCountResource(relateCaseModules, moduleCounts, true, Translator.get("api_unplanned_request"));
+        Map<String, Long> moduleCountMap = getIdCountMapByBreadth(relateCaseModuleWithCount);
+        long total = getAllCount(moduleCounts);
+        moduleCountMap.put("total", total);
+        return moduleCountMap;
+    }
+
+    /**
+     * 关联用例
+     * @param request 关联用例参数
+     * @param deleted 是否删除状态
+     * @param currentUser 当前用户
+     */
+    public void relateCase(AssociateOtherCaseRequest request, boolean deleted, String currentUser) {
+        // 目前只需根据关联条件获取功能用例ID, 后续扩展
+        List<String> relatedIds = functionalCaseProvider.getRelatedIdsByParam(request, deleted);
+        // 缺陷关联用例通用逻辑
+        if (CollectionUtils.isEmpty(relatedIds)) {
+            return;
+        }
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        BugRelationCaseMapper relationCaseMapper = sqlSession.getMapper(BugRelationCaseMapper.class);
+        // 根据用例ID筛选出已通过测试计划关联的用例
+        BugRelationCaseExample bugRelationCaseExample = new BugRelationCaseExample();
+        bugRelationCaseExample.createCriteria().andTestPlanCaseIdIn(relatedIds);
+        List<BugRelationCase> planRelatedCases = bugRelationCaseMapper.selectByExample(bugRelationCaseExample);
+        Map<String, String> planRelatedMap = planRelatedCases.stream().collect(Collectors.toMap(BugRelationCase::getTestPlanCaseId, BugRelationCase::getId));
+        relatedIds.forEach(relatedId -> {
+            if (planRelatedMap.containsKey(relatedId)) {
+                // 计划已关联
+                BugRelationCase record = new BugRelationCase();
+                record.setId(planRelatedMap.get(relatedId));
+                record.setCaseId(relatedId);
+                record.setUpdateTime(System.currentTimeMillis());
+                relationCaseMapper.updateByPrimaryKeySelective(record);
+            } else {
+                BugRelationCase record = new BugRelationCase();
+                record.setId(IDGenerator.nextStr());
+                record.setCaseId(relatedId);
+                record.setBugId(request.getSourceId());
+                record.setCaseType(request.getSourceType());
+                record.setCreateUser(currentUser);
+                record.setCreateTime(System.currentTimeMillis());
+                record.setUpdateTime(System.currentTimeMillis());
+                relationCaseMapper.insert(record);
+            }
+        });
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+    }
 
     /**
      * 分页查询关联用例列表
@@ -132,5 +220,15 @@ public class BugRelateCaseService {
         projectVersionExample.createCriteria().andIdIn(versionIds);
         List<ProjectVersion> projectVersions = projectVersionMapper.selectByExample(projectVersionExample);
         return projectVersions.stream().collect(Collectors.toMap(ProjectVersion::getId, ProjectVersion::getName));
+    }
+
+    @Override
+    public void updatePos(String id, long pos) {
+
+    }
+
+    @Override
+    public void refreshPos(String parentId) {
+
     }
 }

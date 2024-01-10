@@ -21,7 +21,7 @@ INSERT INTO project_application (project_id, type, type_value) VALUES
                                                                    ('default-project-for-application', 'BUG_SYNC_MECHANISM', 'increment'),
                                                                    ('default-project-for-application', 'BUG_SYNC_PLATFORM_KEY', 'jira'),
                                                                    ('default-project-for-application', 'BUG_SYNC_SYNC_ENABLE', 'true'),
-                                                                   ('default-project-for-application', 'CASE_ENABLE', 'false'),
+                                                                   ('default-project-for-application', 'CASE_RELATED_CASE_ENABLE', 'false'),
                                                                    ('default-project-for-application', 'CASE_RELATED_DEMAND_PLATFORM_CONFIG', '{"jiraKey":"TES","jiraDemandTypeId":"10007"}'),
                                                                    ('default-project-for-application', 'CASE_RELATED_PLATFORM_KEY', 'jira');
 

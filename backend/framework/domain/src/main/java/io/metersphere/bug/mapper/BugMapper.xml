@@ -15,7 +15,7 @@
     <result column="template_id" jdbcType="VARCHAR" property="templateId" />
     <result column="platform" jdbcType="VARCHAR" property="platform" />
     <result column="status" jdbcType="VARCHAR" property="status" />
-    <result column="tag" jdbcType="VARCHAR" property="tag" />
+    <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
     <result column="platform_bug_id" jdbcType="VARCHAR" property="platformBugId" />
     <result column="delete_user" jdbcType="VARCHAR" property="deleteUser" />
     <result column="delete_time" jdbcType="BIGINT" property="deleteTime" />
@@ -41,6 +41,25 @@
                   and ${criterion.condition}
                   <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
                     #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+            <foreach collection="criteria.tagsCriteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler} and #{criterion.secondValue,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem,typeHandler=io.metersphere.handler.ListTypeHandler}
                   </foreach>
                 </when>
               </choose>
@@ -74,6 +93,25 @@
                 </when>
               </choose>
             </foreach>
+            <foreach collection="criteria.tagsCriteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler} and #{criterion.secondValue,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem,typeHandler=io.metersphere.handler.ListTypeHandler}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
           </trim>
         </if>
       </foreach>
@@ -81,8 +119,8 @@
   </sql>
   <sql id="Base_Column_List">
     id, num, title, handle_users, handle_user, create_user, create_time, update_user, 
-    update_time, project_id, template_id, platform, `status`, tag, platform_bug_id, delete_user, 
-    delete_time, deleted
+    update_time, project_id, template_id, platform, `status`, tags, platform_bug_id, 
+    delete_user, delete_time, deleted
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.bug.domain.BugExample" resultMap="BaseResultMap">
     select
@@ -119,16 +157,16 @@
       handle_users, handle_user, create_user, 
       create_time, update_user, update_time, 
       project_id, template_id, platform, 
-      `status`, tag, platform_bug_id, 
-      delete_user, delete_time, deleted
-      )
+      `status`, tags, 
+      platform_bug_id, delete_user, delete_time, 
+      deleted)
     values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, 
       #{handleUsers,jdbcType=VARCHAR}, #{handleUser,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, 
       #{projectId,jdbcType=VARCHAR}, #{templateId,jdbcType=VARCHAR}, #{platform,jdbcType=VARCHAR}, 
-      #{status,jdbcType=VARCHAR}, #{tag,jdbcType=VARCHAR}, #{platformBugId,jdbcType=VARCHAR}, 
-      #{deleteUser,jdbcType=VARCHAR}, #{deleteTime,jdbcType=BIGINT}, #{deleted,jdbcType=BIT}
-      )
+      #{status,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
+      #{platformBugId,jdbcType=VARCHAR}, #{deleteUser,jdbcType=VARCHAR}, #{deleteTime,jdbcType=BIGINT}, 
+      #{deleted,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.bug.domain.Bug">
     insert into bug
@@ -172,8 +210,8 @@
       <if test="status != null">
         `status`,
       </if>
-      <if test="tag != null">
-        tag,
+      <if test="tags != null">
+        tags,
       </if>
       <if test="platformBugId != null">
         platform_bug_id,
@@ -228,8 +266,8 @@
       <if test="status != null">
         #{status,jdbcType=VARCHAR},
       </if>
-      <if test="tag != null">
-        #{tag,jdbcType=VARCHAR},
+      <if test="tags != null">
+        #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       </if>
       <if test="platformBugId != null">
         #{platformBugId,jdbcType=VARCHAR},
@@ -293,8 +331,8 @@
       <if test="record.status != null">
         `status` = #{record.status,jdbcType=VARCHAR},
       </if>
-      <if test="record.tag != null">
-        tag = #{record.tag,jdbcType=VARCHAR},
+      <if test="record.tags != null">
+        tags = #{record.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       </if>
       <if test="record.platformBugId != null">
         platform_bug_id = #{record.platformBugId,jdbcType=VARCHAR},
@@ -328,7 +366,7 @@
       template_id = #{record.templateId,jdbcType=VARCHAR},
       platform = #{record.platform,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
-      tag = #{record.tag,jdbcType=VARCHAR},
+      tags = #{record.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       platform_bug_id = #{record.platformBugId,jdbcType=VARCHAR},
       delete_user = #{record.deleteUser,jdbcType=VARCHAR},
       delete_time = #{record.deleteTime,jdbcType=BIGINT},
@@ -376,8 +414,8 @@
       <if test="status != null">
         `status` = #{status,jdbcType=VARCHAR},
       </if>
-      <if test="tag != null">
-        tag = #{tag,jdbcType=VARCHAR},
+      <if test="tags != null">
+        tags = #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       </if>
       <if test="platformBugId != null">
         platform_bug_id = #{platformBugId,jdbcType=VARCHAR},
@@ -408,7 +446,7 @@
       template_id = #{templateId,jdbcType=VARCHAR},
       platform = #{platform,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
-      tag = #{tag,jdbcType=VARCHAR},
+      tags = #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       platform_bug_id = #{platformBugId,jdbcType=VARCHAR},
       delete_user = #{deleteUser,jdbcType=VARCHAR},
       delete_time = #{deleteTime,jdbcType=BIGINT},
@@ -418,7 +456,7 @@
   <insert id="batchInsert" parameterType="map">
     insert into bug
     (id, num, title, handle_users, handle_user, create_user, create_time, update_user, 
-      update_time, project_id, template_id, platform, `status`, tag, platform_bug_id, 
+      update_time, project_id, template_id, platform, `status`, tags, platform_bug_id, 
       delete_user, delete_time, deleted)
     values
     <foreach collection="list" item="item" separator=",">
@@ -426,9 +464,9 @@
         #{item.handleUsers,jdbcType=VARCHAR}, #{item.handleUser,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, 
         #{item.createTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}, 
         #{item.projectId,jdbcType=VARCHAR}, #{item.templateId,jdbcType=VARCHAR}, #{item.platform,jdbcType=VARCHAR}, 
-        #{item.status,jdbcType=VARCHAR}, #{item.tag,jdbcType=VARCHAR}, #{item.platformBugId,jdbcType=VARCHAR}, 
-        #{item.deleteUser,jdbcType=VARCHAR}, #{item.deleteTime,jdbcType=BIGINT}, #{item.deleted,jdbcType=BIT}
-        )
+        #{item.status,jdbcType=VARCHAR}, #{item.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
+        #{item.platformBugId,jdbcType=VARCHAR}, #{item.deleteUser,jdbcType=VARCHAR}, #{item.deleteTime,jdbcType=BIGINT}, 
+        #{item.deleted,jdbcType=BIT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -480,8 +518,8 @@
         <if test="'status'.toString() == column.value">
           #{item.status,jdbcType=VARCHAR}
         </if>
-        <if test="'tag'.toString() == column.value">
-          #{item.tag,jdbcType=VARCHAR}
+        <if test="'tags'.toString() == column.value">
+          #{item.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}
         </if>
         <if test="'platform_bug_id'.toString() == column.value">
           #{item.platformBugId,jdbcType=VARCHAR}

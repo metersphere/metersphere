@@ -9,16 +9,16 @@
         "name": "permission.bug.name",
         "permissions": [
           {
-            "id": "BUG:READ"
+            "id": "PROJECT_BUG:READ"
           },
           {
-            "id": "BUG:READ+ADD"
+            "id": "PROJECT_BUG:READ+ADD"
           },
           {
-            "id": "BUG:READ+UPDATE"
+            "id": "PROJECT_BUG:READ+UPDATE"
           },
           {
-            "id": "BUG:READ+DELETE"
+            "id": "PROJECT_BUG:READ+DELETE"
           },
           {
             "id": "PROJECT_BUG:READ+EXPORT"
