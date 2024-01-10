@@ -7,6 +7,7 @@
     <result column="file_id" jdbcType="VARCHAR" property="fileId" />
     <result column="file_name" jdbcType="VARCHAR" property="fileName" />
     <result column="size" jdbcType="BIGINT" property="size" />
+    <result column="source" jdbcType="VARCHAR" property="source" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
   </resultMap>
@@ -69,7 +70,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, bug_id, file_id, file_name, `size`, create_user, create_time
+    id, bug_id, file_id, file_name, `size`, `source`, create_user, create_time
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.bug.domain.BugLocalAttachmentExample" resultMap="BaseResultMap">
     select
@@ -103,11 +104,11 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.bug.domain.BugLocalAttachment">
     insert into bug_local_attachment (id, bug_id, file_id, 
-      file_name, `size`, create_user, 
-      create_time)
+      file_name, `size`, `source`, 
+      create_user, create_time)
     values (#{id,jdbcType=VARCHAR}, #{bugId,jdbcType=VARCHAR}, #{fileId,jdbcType=VARCHAR}, 
-      #{fileName,jdbcType=VARCHAR}, #{size,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT})
+      #{fileName,jdbcType=VARCHAR}, #{size,jdbcType=BIGINT}, #{source,jdbcType=VARCHAR}, 
+      #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.bug.domain.BugLocalAttachment">
     insert into bug_local_attachment
@@ -126,6 +127,9 @@
       </if>
       <if test="size != null">
         `size`,
+      </if>
+      <if test="source != null">
+        `source`,
       </if>
       <if test="createUser != null">
         create_user,
@@ -149,6 +153,9 @@
       </if>
       <if test="size != null">
         #{size,jdbcType=BIGINT},
+      </if>
+      <if test="source != null">
+        #{source,jdbcType=VARCHAR},
       </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
@@ -182,6 +189,9 @@
       <if test="record.size != null">
         `size` = #{record.size,jdbcType=BIGINT},
       </if>
+      <if test="record.source != null">
+        `source` = #{record.source,jdbcType=VARCHAR},
+      </if>
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
@@ -200,6 +210,7 @@
       file_id = #{record.fileId,jdbcType=VARCHAR},
       file_name = #{record.fileName,jdbcType=VARCHAR},
       `size` = #{record.size,jdbcType=BIGINT},
+      `source` = #{record.source,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT}
     <if test="_parameter != null">
@@ -221,6 +232,9 @@
       <if test="size != null">
         `size` = #{size,jdbcType=BIGINT},
       </if>
+      <if test="source != null">
+        `source` = #{source,jdbcType=VARCHAR},
+      </if>
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
       </if>
@@ -236,18 +250,19 @@
       file_id = #{fileId,jdbcType=VARCHAR},
       file_name = #{fileName,jdbcType=VARCHAR},
       `size` = #{size,jdbcType=BIGINT},
+      `source` = #{source,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into bug_local_attachment
-    (id, bug_id, file_id, file_name, `size`, create_user, create_time)
+    (id, bug_id, file_id, file_name, `size`, `source`, create_user, create_time)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.bugId,jdbcType=VARCHAR}, #{item.fileId,jdbcType=VARCHAR}, 
-        #{item.fileName,jdbcType=VARCHAR}, #{item.size,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, 
-        #{item.createTime,jdbcType=BIGINT})
+        #{item.fileName,jdbcType=VARCHAR}, #{item.size,jdbcType=BIGINT}, #{item.source,jdbcType=VARCHAR}, 
+        #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -274,6 +289,9 @@
         </if>
         <if test="'size'.toString() == column.value">
           #{item.size,jdbcType=BIGINT}
+        </if>
+        <if test="'source'.toString() == column.value">
+          #{item.source,jdbcType=VARCHAR}
         </if>
         <if test="'create_user'.toString() == column.value">
           #{item.createUser,jdbcType=VARCHAR}

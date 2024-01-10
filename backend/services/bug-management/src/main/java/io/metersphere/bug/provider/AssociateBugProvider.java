@@ -5,7 +5,7 @@ import io.metersphere.bug.domain.BugRelationCase;
 import io.metersphere.bug.mapper.BugRelationCaseMapper;
 import io.metersphere.bug.mapper.ExtBugMapper;
 import io.metersphere.bug.mapper.ExtBugRelateCaseMapper;
-import io.metersphere.bug.service.BugRelateCaseService;
+import io.metersphere.bug.service.BugRelateCaseCommonService;
 import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.provider.BaseAssociateBugProvider;
 import io.metersphere.request.AssociateBugPageRequest;
@@ -29,7 +29,7 @@ public class AssociateBugProvider implements BaseAssociateBugProvider {
     @Resource
     private BugRelationCaseMapper bugRelationCaseMapper;
     @Resource
-    private BugRelateCaseService bugRelateCaseService;
+    private BugRelateCaseCommonService bugRelateCaseCommonService;
     @Resource
     private ExtBugRelateCaseMapper extBugRelateCaseMapper;
 
@@ -72,7 +72,7 @@ public class AssociateBugProvider implements BaseAssociateBugProvider {
 
     @Override
     public void disassociateBug(String id) {
-        bugRelateCaseService.unRelate(id);
+        bugRelateCaseCommonService.unRelate(id);
     }
 
     @Override

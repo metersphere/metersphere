@@ -37,7 +37,6 @@ import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.mapper.ServiceIntegrationMapper;
 import io.metersphere.system.service.PluginService;
 import io.metersphere.system.uid.IDGenerator;
-import io.metersphere.system.utils.CustomFieldUtils;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
@@ -65,6 +64,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class BugControllerTests extends BaseTest {
 
+    public static final String BUG_HEADER_CUSTOM_FIELD = "/bug/header/custom-field";
+    public static final String BUG_HEADER_STATUS_OPTION = "/bug/header/status-option";
+    public static final String BUG_HEADER_HANDLER_OPTION = "/bug/header/handler-option";
     public static final String BUG_PAGE = "/bug/page";
     public static final String BUG_ADD = "/bug/add";
     public static final String BUG_UPDATE = "/bug/update";
@@ -121,6 +123,10 @@ public class BugControllerTests extends BaseTest {
     @Test
     @Order(1)
     void testBugPageSuccess() throws Exception {
+        // 表头字段, 状态选项, 处理人选项
+        this.requestGetWithOk(BUG_HEADER_CUSTOM_FIELD + "/default-project-for-bug");
+        this.requestGetWithOk(BUG_HEADER_STATUS_OPTION + "/default-project-for-bug");
+        this.requestGetWithOk(BUG_HEADER_HANDLER_OPTION + "/default-project-for-bug");
         BugPageRequest bugRequest = new BugPageRequest();
         bugRequest.setCurrent(1);
         bugRequest.setPageSize(10);
@@ -186,45 +192,6 @@ public class BugControllerTests extends BaseTest {
         filter.put("custom_multiple_test_field", null);
         bugPageRequest.setFilter(filter);
         bugPageRequest.setCombine(null);
-        this.requestPostWithOkAndReturn(BUG_PAGE, bugPageRequest);
-        // cover combine
-        bugPageRequest.setFilter(null);
-        Map<String, Object> combine = new HashMap<>();
-        List<Map<String, Object>> customs = new ArrayList<>();
-        Map<String, Object> custom = new HashMap<>();
-        custom.put("id", "test_field");
-        custom.put("operator", "in");
-        custom.put("type", "multipleMember");
-        custom.put("value", StringUtils.EMPTY);
-        customs.add(custom);
-        Map<String, Object> currentUserCustom = new HashMap<>();
-        currentUserCustom.put("id", "test_field");
-        currentUserCustom.put("operator", "current user");
-        currentUserCustom.put("type", "multipleMember");
-        currentUserCustom.put("value", "current user");
-        customs.add(currentUserCustom);
-        combine.put("customs", customs);
-        bugPageRequest.setCombine(combine);
-        this.requestPostWithOkAndReturn(BUG_PAGE, bugPageRequest);
-        custom.put("id", "custom-field");
-        custom.put("operator", "like");
-        custom.put("type", "textarea");
-        custom.put("value", "oasis");
-        customs.clear();
-        customs.add(custom);
-        combine.put("customs", customs);
-        bugPageRequest.setCombine(combine);
-        this.requestPostWithOkAndReturn(BUG_PAGE, bugPageRequest);
-        // cover combine current user
-        custom.clear();
-        custom.put("operator", "current user");
-        custom.put("value", "current user");
-        combine.put("handleUser", custom);
-        currentUserCustom.clear();
-        currentUserCustom.put("operator", "in");
-        currentUserCustom.put("value", List.of("admin"));
-        combine.put("createUser", currentUserCustom);
-        bugPageRequest.setCombine(combine);
         this.requestPostWithOkAndReturn(BUG_PAGE, bugPageRequest);
     }
 
@@ -369,12 +336,12 @@ public class BugControllerTests extends BaseTest {
         request.setSelectAll(true);
         request.setSelectIds(List.of("test"));
         // TAG追加
-        request.setTag(JSON.toJSONString(List.of("TAG", "TEST_TAG")));
+        request.setTags(List.of("TAG", "TEST_TAG"));
         request.setAppend(true);
         this.requestPost(BUG_BATCH_UPDATE, request, status().isOk());
         // TAG覆盖
         request.setExcludeIds(List.of("default-bug-id-tapd1"));
-        request.setTag(JSON.toJSONString(List.of("A", "B")));
+        request.setTags(List.of("A", "B"));
         request.setAppend(false);
         this.requestPost(BUG_BATCH_UPDATE, request, status().isOk());
         // 勾选部分
@@ -391,7 +358,7 @@ public class BugControllerTests extends BaseTest {
         // 全选, 空数据
         request.setSelectAll(true);
         request.setSelectIds(List.of("test"));
-        request.setTag(JSON.toJSONString(List.of("TAG", "TEST_TAG")));
+        request.setTags(List.of("TAG", "TEST_TAG"));
         request.setAppend(true);
         this.requestPost(BUG_BATCH_UPDATE, request, status().is5xxServerError());
         // 取消全选, 空数据
@@ -510,12 +477,6 @@ public class BugControllerTests extends BaseTest {
 
     @Test
     @Order(95)
-    void coverUtilsTests() {
-        CustomFieldUtils.appendToMultipleCustomField(null, "test");
-    }
-
-    @Test
-    @Order(96)
     void coverPlatformTemplateTests() throws Exception{
         // 覆盖同步缺陷(Local)
         this.requestGetWithOk(BUG_SYNC + "/default-project-for-not-integration");
@@ -538,6 +499,8 @@ public class BugControllerTests extends BaseTest {
         record.setEnable(false);
         serviceIntegrationMapper.updateByPrimaryKeySelective(record);
         this.requestPost(BUG_TEMPLATE_DETAIL, request, status().is5xxServerError());
+        // 获取处理人选项(Local)
+        this.requestGetWithOk(BUG_HEADER_HANDLER_OPTION + "/default-project-for-bug");
         // 开启插件集成
         record.setEnable(true);
         serviceIntegrationMapper.updateByPrimaryKeySelective(record);
@@ -557,6 +520,11 @@ public class BugControllerTests extends BaseTest {
     @Test
     @Order(96)
     void coverPlatformBugSyncTests() throws Exception {
+        // 表头字段, 状态选项, 处理人选项 (非Local平台)
+        this.requestGetWithOk(BUG_HEADER_CUSTOM_FIELD + "/default-project-for-bug");
+        this.requestGetWithOk(BUG_HEADER_STATUS_OPTION + "/default-project-for-bug");
+        this.requestGetWithOk(BUG_HEADER_HANDLER_OPTION + "/default-project-for-bug");
+
         // 添加一条需要同步删除的缺陷
         BugEditRequest deleteRequest = buildJiraBugRequest(false);
         MultiValueMap<String, Object> deleteParam = getDefaultMultiPartParam(deleteRequest, null);
@@ -671,7 +639,7 @@ public class BugControllerTests extends BaseTest {
         BugExportRequest request = new BugExportRequest();
         request.setSelectAll(true);
         request.setExcludeIds(List.of("test-id"));
-        bugService.export(request, "admin");
+        bugService.export(request);
     }
 
     @Test
@@ -693,6 +661,8 @@ public class BugControllerTests extends BaseTest {
         this.requestMultipart(BUG_ADD, addParam).andExpect(status().is5xxServerError());
         // 获取禅道模板(删除默认项目模板)
         bugService.attachTemplateStatusField(null, null, null, null);
+        // 获取处理人选项
+        this.requestGetWithOk(BUG_HEADER_HANDLER_OPTION + "/default-project-for-bug");
     }
 
     /**
@@ -701,7 +671,7 @@ public class BugControllerTests extends BaseTest {
      */
     private Map<String, List<String>> buildRequestFilter() {
         Map<String, List<String>> filter = new HashMap<>();
-        filter.put("custom_multiple_test_field", List.of("default", "default1"));
+        filter.put("custom_multiple_test_field", List.of("default", "default-1"));
         return filter;
     }
 
@@ -715,8 +685,8 @@ public class BugControllerTests extends BaseTest {
         Map<String, Object> custom = new HashMap<>();
         custom.put("id", "test_field");
         custom.put("operator", "in");
-        custom.put("type", "multipleSelect");
-        custom.put("value", JSON.toJSONString(List.of("default", "default1")));
+        custom.put("type", "array");
+        custom.put("value", List.of("default", "default-1"));
         customs.add(custom);
         combine.put("customs", customs);
         return combine;
@@ -838,7 +808,7 @@ public class BugControllerTests extends BaseTest {
     }
 
     /**
-     * 添加Jira插件，供测试使用
+     * 添加禅道插件，供测试使用
      * @throws Exception 异常
      */
     public void addZentaoPlugin() throws Exception {

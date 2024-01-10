@@ -15,10 +15,7 @@ import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.*;
-import io.metersphere.system.dto.request.DefaultFunctionalCustomField;
-import io.metersphere.system.dto.request.ProjectAddMemberRequest;
-import io.metersphere.system.dto.request.ProjectMemberRequest;
-import io.metersphere.system.dto.request.ProjectRequest;
+import io.metersphere.system.dto.request.*;
 import io.metersphere.system.dto.sdk.request.CustomFieldOptionRequest;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.dto.sdk.request.TemplateCustomFieldRequest;
@@ -524,7 +521,7 @@ public class SystemProjectControllerTests extends BaseTest {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         // 校验是否初始化了项目字段
         List<CustomField> fields = baseCustomFieldService.getByScopeId(project.getId());
-        Assertions.assertEquals(fields.size(), DefaultFunctionalCustomField.values().length);
+        Assertions.assertEquals(fields.size(), DefaultFunctionalCustomField.values().length + DefaultBugCustomField.values().length);
         for (DefaultFunctionalCustomField value : DefaultFunctionalCustomField.values()) {
             CustomField customField = fields.stream()
                     .filter(field -> StringUtils.equals(field.getName(), value.getName()))

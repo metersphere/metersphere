@@ -8,6 +8,7 @@ import io.metersphere.bug.dto.response.BugCustomFieldDTO;
 import io.metersphere.bug.dto.response.BugDTO;
 import io.metersphere.bug.dto.response.BugRelateCaseCountDTO;
 import io.metersphere.bug.dto.response.BugTagEditDTO;
+import io.metersphere.bug.enums.BugAttachmentSourceType;
 import io.metersphere.bug.enums.BugPlatform;
 import io.metersphere.bug.enums.BugTemplateCustomField;
 import io.metersphere.bug.mapper.*;
@@ -45,10 +46,10 @@ import io.metersphere.system.mapper.TemplateMapper;
 import io.metersphere.system.service.*;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
-import io.metersphere.system.utils.CustomFieldUtils;
 import jakarta.annotation.Resource;
 import jodd.util.StringUtil;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -72,6 +73,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static io.metersphere.bug.enums.result.BugResultCode.BUG_NOT_EXIST;
+import static io.metersphere.bug.enums.result.BugResultCode.NOT_LOCAL_BUG_ERROR;
 
 /**
  * @author song-cc-rock
@@ -145,14 +147,13 @@ public class BugService {
      * @param request 列表请求参数
      * @return 缺陷列表
      */
-    public List<BugDTO> list(BugPageRequest request, String currentUser) {
-        CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(request, currentUser);
+    public List<BugDTO> list(BugPageRequest request) {
         List<BugDTO> bugs = extBugMapper.list(request);
         if (CollectionUtils.isEmpty(bugs)) {
             return new ArrayList<>();
         }
-        // 处理自定义字段及状态字段
-        List<BugDTO> bugList = handleCustomFieldsAndStatus(bugs, request.getProjectId());
+        // 处理自定义字段
+        List<BugDTO> bugList = handleCustomField(bugs, request.getProjectId());
         return buildExtraInfo(bugList);
     }
 
@@ -209,10 +210,7 @@ public class BugService {
      * @param id 缺陷ID
      */
     public void delete(String id) {
-        Bug bug = bugMapper.selectByPrimaryKey(id);
-        if (bug == null) {
-            throw new MSException(BUG_NOT_EXIST);
-        }
+        Bug bug = checkById(id);
         if (StringUtils.equals(bug.getPlatform(), BugPlatform.LOCAL.getName())) {
             Bug record = new Bug();
             record.setId(id);
@@ -227,6 +225,33 @@ public class BugService {
             clearAssociate(id, bug.getProjectId());
             bugMapper.deleteByPrimaryKey(id);
         }
+    }
+
+    /**
+     * 恢复缺陷
+     * @param id 缺陷ID
+     */
+    public void recover(String id) {
+        Bug bug = checkById(id);
+        if (!StringUtils.equals(bug.getPlatform(), BugPlatform.LOCAL.getName())) {
+            throw new MSException(NOT_LOCAL_BUG_ERROR);
+        }
+        Bug record = new Bug();
+        record.setId(id);
+        record.setDeleted(false);
+        bugMapper.updateByPrimaryKeySelective(record);
+    }
+
+    /**
+     * 彻底删除缺陷
+     * @param id 缺陷ID
+     */
+    public void deleteTrash(String id) {
+        Bug bug = checkById(id);
+        if (!StringUtils.equals(bug.getPlatform(), BugPlatform.LOCAL.getName())) {
+            throw new MSException(NOT_LOCAL_BUG_ERROR);
+        }
+        bugMapper.deleteByPrimaryKey(id);
     }
 
     /**
@@ -260,35 +285,58 @@ public class BugService {
      * 批量删除缺陷
      * @param request 请求参数
      */
-    public void batchDelete(BugBatchRequest request, String currentUser) {
-        List<String> batchIds = getBatchIdsByRequest(request, currentUser);
+    public void batchDelete(BugBatchRequest request) {
+        List<String> batchIds = getBatchIdsByRequest(request);
         batchIds.forEach(this::delete);
+    }
+
+    /**
+     * 批量恢复缺陷
+     * @param request 请求参数
+     */
+    public void batchRecover(BugBatchRequest request) {
+        List<String> batchIds = getBatchIdsByRequest(request);
+        batchIds.forEach(this::recover);
+    }
+
+    /**
+     * 批量彻底删除缺陷
+     * @param request 请求参数
+     */
+    public void batchDeleteTrash(BugBatchRequest request) {
+        List<String> batchIds = getBatchIdsByRequest(request);
+        batchIds.forEach(this::deleteTrash);
     }
 
     /**
      * 批量编辑缺陷
      * @param request 请求参数
+     * @param currentUser 当前用户
      */
     public void batchUpdate(BugBatchUpdateRequest request, String currentUser) {
-        List<String> batchIds = getBatchIdsByRequest(request, currentUser);
+        List<String> batchIds = getBatchIdsByRequest(request);
 
         // 目前只做标签的批量编辑
         if (request.isAppend()) {
             // 标签(追加)
             List<BugTagEditDTO> bugTagList = extBugMapper.getBugTagList(batchIds);
-            Map<String, String> bugTagMap = bugTagList.stream().collect(Collectors.toMap(BugTagEditDTO::getBugId, b -> Optional.ofNullable(b.getTag()).orElse(StringUtils.EMPTY)));
+            Map<String, List<String>> bugTagMap = bugTagList.stream().collect(Collectors.toMap(BugTagEditDTO::getBugId, BugTagEditDTO::getTags));
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
             BugMapper batchMapper = sqlSession.getMapper(BugMapper.class);
             bugTagMap.forEach((k, v) -> {
                 Bug record = new Bug();
                 record.setId(k);
-                record.setTag(CustomFieldUtils.appendToMultipleCustomField(v, request.getTag()));
+                record.setTags(ListUtils.union(v, request.getTags()));
+                record.setUpdateUser(currentUser);
+                record.setUpdateTime(System.currentTimeMillis());
                 batchMapper.updateByPrimaryKeySelective(record);
             });
             sqlSession.flushStatements();
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         } else  {
             // 标签(覆盖)
+            request.setUpdateUser(currentUser);
+            request.setUpdateTime(System.currentTimeMillis());
             extBugMapper.batchUpdate(request, batchIds);
         }
     }
@@ -477,17 +525,14 @@ public class BugService {
         // 状态字段
         attachTemplateStatusField(templateDTO, projectId, fromStatusId, platformBugKey);
 
-        // 处理人字段
+        // 内置字段(处理人字段)
         if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
             // 获取插件中自定义的注入字段(处理人)
             ServiceIntegration serviceIntegration = projectApplicationService.getPlatformServiceIntegrationWithSyncOrDemand(projectId, true);
             // 状态选项获取时, 获取平台校验了服务集成配置, 所以此处不需要再次校验
             Platform platform = platformPluginService.getPlatform(serviceIntegration.getPluginId(), serviceIntegration.getOrganizationId(),
                     new String(serviceIntegration.getConfiguration()));
-            AbstractPlatformPlugin platformPlugin = (AbstractPlatformPlugin) pluginLoadService.getMsPluginManager().getPlugin(serviceIntegration.getPluginId()).getPlugin();
-            Object scriptContent = pluginLoadService.getPluginScriptContent(serviceIntegration.getPluginId(), platformPlugin.getProjectBugTemplateInjectField());
-            String injectFields = JSON.toJSONString(((Map<?, ?>) scriptContent).get("injectFields"));
-            List<BugTemplateInjectField> injectFieldList = JSON.parseArray(injectFields, BugTemplateInjectField.class);
+            List<BugTemplateInjectField> injectFieldList = getPlatformInjectFields(projectId);
             for (BugTemplateInjectField injectField : injectFieldList) {
                 TemplateCustomFieldDTO templateCustomFieldDTO = new TemplateCustomFieldDTO();
                 BeanUtils.copyBean(templateCustomFieldDTO, injectField);
@@ -501,20 +546,11 @@ public class BugService {
             }
         } else {
             // Local(处理人)
-            ProjectMemberRequest request = new ProjectMemberRequest();
-            request.setProjectId(projectId);
-            List<ProjectUserDTO> projectMembers = projectMemberService.listMember(request);
-            List<SelectOption> projectMemberOptions = projectMembers.stream().map(user -> {
-                SelectOption option = new SelectOption();
-                option.setText(user.getName());
-                option.setValue(user.getId());
-                return option;
-            }).toList();
             TemplateCustomFieldDTO handleUserField = new TemplateCustomFieldDTO();
             handleUserField.setFieldId(BugTemplateCustomField.HANDLE_USER.getId());
             handleUserField.setFieldName(BugTemplateCustomField.HANDLE_USER.getName());
             handleUserField.setType(CustomFieldType.SELECT.getType());
-            handleUserField.setPlatformOptionJson(JSON.toJSONString(projectMemberOptions));
+            handleUserField.setPlatformOptionJson(JSON.toJSONString(getLocalHandlerOption(projectId)));
             handleUserField.setRequired(true);
             templateDTO.getCustomFields().addFirst(handleUserField);
         }
@@ -614,7 +650,9 @@ public class BugService {
         } else {
             Bug orignalBug = checkBugExist(request.getId());
             // 追加处理人
-            bug.setHandleUsers(orignalBug.getHandleUsers() + "," + bug.getHandleUser());
+            if (!StringUtils.equals(orignalBug.getHandleUser(), bug.getHandleUser())) {
+                bug.setHandleUsers(orignalBug.getHandleUsers() + "," + bug.getHandleUser());
+            }
             bug.setUpdateUser(currentUser);
             bug.setUpdateTime(System.currentTimeMillis());
             bugMapper.updateByPrimaryKeySelective(bug);
@@ -807,6 +845,7 @@ public class BugService {
                 bugAttachment.setFileId(IDGenerator.nextStr());
                 bugAttachment.setFileName(file.getOriginalFilename());
                 bugAttachment.setSize(file.getSize());
+                bugAttachment.setSource(BugAttachmentSourceType.ATTACHMENT.name());
                 bugAttachment.setCreateTime(System.currentTimeMillis());
                 bugAttachment.setCreateUser(currentUser);
                 addFiles.add(bugAttachment);
@@ -908,22 +947,21 @@ public class BugService {
         List<BugRelateCaseCountDTO> relationCaseCount = extBugRelateCaseMapper.countRelationCases(ids);
         Map<String, Integer> countMap = relationCaseCount.stream().collect(Collectors.toMap(BugRelateCaseCountDTO::getBugId, BugRelateCaseCountDTO::getRelationCaseCount));
         bugs.forEach(bug -> {
-            bug.setRelationCaseCount(countMap.get(bug.getId()));
+            bug.setRelationCaseCount(countMap.get(bug.getId()) == null ? 0 : countMap.get(bug.getId()));
             bug.setCreateUserName(userMap.get(bug.getCreateUser()));
-            bug.setUpdateUser(userMap.get(bug.getUpdateUser()));
-            bug.setDeleteUser(userMap.get(bug.getDeleteUser()));
-            bug.setHandleUserName(userMap.get(bug.getHandleUser()));
+            bug.setUpdateUserName(userMap.get(bug.getUpdateUser()));
+            bug.setDeleteUserName(userMap.get(bug.getDeleteUser()));
         });
         return bugs;
     }
 
     /**
-     * 处理自定义字段及状态字段
+     * 处理自定义字段
      *
      * @param bugs 缺陷集合
      * @return 缺陷DTO集合
      */
-    private List<BugDTO> handleCustomFieldsAndStatus(List<BugDTO> bugs, String projectId) {
+    private List<BugDTO> handleCustomField(List<BugDTO> bugs, String projectId) {
         List<String> ids = bugs.stream().map(BugDTO::getId).toList();
         List<BugCustomFieldDTO> customFields = extBugCustomFieldMapper.getBugAllCustomFields(ids, projectId);
         Map<String, List<BugCustomFieldDTO>> customFieldMap = customFields.stream().collect(Collectors.groupingBy(BugCustomFieldDTO::getBugId));
@@ -940,6 +978,7 @@ public class BugService {
      * @return 平台字段集合
      */
     public List<PlatformCustomFieldItemDTO> transferCustomToPlatformField(String templateId, List<BugCustomFieldDTO> customFields, boolean noApiFilter) {
+        List<BugCustomFieldDTO> platformCustomFields = new ArrayList<>(customFields);
         if (!noApiFilter) {
             // 过滤出API映射的字段
             List<TemplateCustomField> systemCustomsFields = baseTemplateCustomFieldService.getByTemplateId(templateId);
@@ -947,11 +986,11 @@ public class BugService {
             if (CollectionUtils.isNotEmpty(systemCustomsFields)) {
                 systemCustomFieldApiMap = systemCustomsFields.stream().collect(Collectors.toMap(TemplateCustomField::getFieldId, f -> Optional.ofNullable(f.getApiFieldId()).orElse(StringUtils.EMPTY)));
                 // 移除除状态, 处理人以外的所有非API映射的字段
-                customFields.removeIf(field -> systemCustomFieldApiMap.containsKey(field.getId()) && StringUtil.isBlank(systemCustomFieldApiMap.get(field.getId())));
+                platformCustomFields.removeIf(field -> systemCustomFieldApiMap.containsKey(field.getId()) && StringUtil.isBlank(systemCustomFieldApiMap.get(field.getId())));
             } else {
                 systemCustomFieldApiMap = new HashMap<>();
             }
-            return customFields.stream().map(field -> {
+            return platformCustomFields.stream().map(field -> {
                 PlatformCustomFieldItemDTO platformCustomFieldItem = new PlatformCustomFieldItemDTO();
                 platformCustomFieldItem.setName(field.getName());
                 platformCustomFieldItem.setCustomData(systemCustomFieldApiMap.containsKey(field.getId()) ? systemCustomFieldApiMap.get(field.getId()) : field.getId());
@@ -961,7 +1000,7 @@ public class BugService {
             }).collect(Collectors.toList());
         } else {
             // 平台默认模板, 处理所有自定义字段
-            return customFields.stream().map(field -> {
+            return platformCustomFields.stream().map(field -> {
                 PlatformCustomFieldItemDTO platformCustomFieldItem = new PlatformCustomFieldItemDTO();
                 platformCustomFieldItem.setName(field.getName());
                 platformCustomFieldItem.setCustomData(field.getId());
@@ -1080,8 +1119,8 @@ public class BugService {
      * @return 导出对象
      * @throws Exception 异常
      */
-    public ResponseEntity<byte[]> export(BugExportRequest request, String currentUser) throws Exception {
-        List<BugDTO> bugs = this.getExportDataByBatchRequest(request, currentUser);
+    public ResponseEntity<byte[]> export(BugExportRequest request) throws Exception {
+        List<BugDTO> bugs = this.getExportDataByBatchRequest(request);
         if (CollectionUtils.isEmpty(bugs)) {
             throw new MSException(Translator.get("no_bug_select"));
         }
@@ -1109,13 +1148,12 @@ public class BugService {
      * @param request 批量操作参数
      * @return 缺陷集合
      */
-    private List<BugDTO> getExportDataByBatchRequest(BugBatchRequest request, String currentUser) {
+    private List<BugDTO> getExportDataByBatchRequest(BugBatchRequest request) {
         if (request.isSelectAll()) {
             // 全选{根据查询条件查询所有数据, 排除取消勾选的数据}
             BugPageRequest bugPageRequest = new BugPageRequest();
             BeanUtils.copyBean(bugPageRequest, request);
             bugPageRequest.setUseTrash(false);
-            CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(bugPageRequest, currentUser);
             List<BugDTO> allBugs = extBugMapper.list(bugPageRequest);
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 allBugs.removeIf(bug -> request.getExcludeIds().contains(bug.getId()));
@@ -1135,13 +1173,11 @@ public class BugService {
      * @param request 批量操作参数
      * @return 缺陷集合
      */
-    private List<String> getBatchIdsByRequest(BugBatchRequest request, String currentUser) {
+    private List<String> getBatchIdsByRequest(BugBatchRequest request) {
         if (request.isSelectAll()) {
             // 全选{根据查询条件查询所有数据, 排除取消勾选的数据}
             BugPageRequest bugPageRequest = new BugPageRequest();
             BeanUtils.copyBean(bugPageRequest, request);
-            bugPageRequest.setUseTrash(false);
-            CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(bugPageRequest, currentUser);
             List<String> ids = extBugMapper.getIdsByPageRequest(bugPageRequest);
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 ids.removeIf(id -> request.getExcludeIds().contains(id));
@@ -1157,5 +1193,95 @@ public class BugService {
             }
             return request.getSelectIds();
         }
+    }
+
+    /**
+     * 获取表头处理人选项
+     * @param projectId 项目ID
+     * @return 处理人选项集合
+     */
+    public List<SelectOption> getHeaderHandlerOption(String projectId) {
+        String platformName = projectApplicationService.getPlatformName(projectId);
+        // 需要校验服务集成是否开启
+        ServiceIntegration serviceIntegration = projectApplicationService.getPlatformServiceIntegrationWithSyncOrDemand(projectId, true);
+        if (StringUtils.equals(platformName, BugPlatform.LOCAL.getName()) || serviceIntegration == null) {
+            // Local处理人
+            return getLocalHandlerOption(projectId);
+        } else {
+            // 第三方平台(Local处理人 && 平台处理人)
+            List<SelectOption> localHandlerOption = getLocalHandlerOption(projectId);
+            // 获取插件中自定义的注入字段(处理人)
+            Platform platform = platformPluginService.getPlatform(serviceIntegration.getPluginId(), serviceIntegration.getOrganizationId(),
+                    new String(serviceIntegration.getConfiguration()));
+            List<SelectOption> platformHandlerOption = new ArrayList<>();
+            List<BugTemplateInjectField> platformInjectFields = getPlatformInjectFields(projectId);
+            for (BugTemplateInjectField injectField : platformInjectFields) {
+                if (StringUtils.equals(injectField.getKey(), "assignee")) {
+                    GetOptionRequest request = new GetOptionRequest();
+                    request.setOptionMethod(injectField.getOptionMethod());
+                    request.setProjectConfig(projectApplicationService.getProjectBugThirdPartConfig(projectId));
+                    platformHandlerOption = platform.getFormOptions(request);
+                }
+            }
+            return ListUtils.union(localHandlerOption, platformHandlerOption);
+        }
+    }
+
+    /**
+     * 项目成员选项(处理人)
+     * @param projectId 项目ID
+     * @return 处理人选项集合
+     */
+    private List<SelectOption> getLocalHandlerOption(String projectId) {
+        ProjectMemberRequest request = new ProjectMemberRequest();
+        request.setProjectId(projectId);
+        List<ProjectUserDTO> projectMembers = projectMemberService.listMember(request);
+        return projectMembers.stream().map(user -> {
+            SelectOption option = new SelectOption();
+            option.setText(user.getName());
+            option.setValue(user.getId());
+            return option;
+        }).toList();
+    }
+
+    /**
+     * 获取平台注入的字段
+     * @param projectId 项目ID
+     * @return 注入的字段集合
+     */
+    private List<BugTemplateInjectField> getPlatformInjectFields(String projectId) {
+        // 获取插件中自定义的注入字段(处理人)
+        ServiceIntegration serviceIntegration = projectApplicationService.getPlatformServiceIntegrationWithSyncOrDemand(projectId, true);
+        AbstractPlatformPlugin platformPlugin = (AbstractPlatformPlugin) pluginLoadService.getMsPluginManager().getPlugin(serviceIntegration.getPluginId()).getPlugin();
+        Object scriptContent = pluginLoadService.getPluginScriptContent(serviceIntegration.getPluginId(), platformPlugin.getProjectBugTemplateInjectField());
+        String injectFields = JSON.toJSONString(((Map<?, ?>) scriptContent).get("injectFields"));
+        return JSON.parseArray(injectFields, BugTemplateInjectField.class);
+    }
+
+    /**
+     * 获取表头自定义字段
+     * @param projectId 项目ID
+     * @return 自定义字段集合
+     */
+    public List<TemplateCustomFieldDTO> getHeaderCustomFields(String projectId) {
+        List<TemplateCustomFieldDTO> headerCustomFields = new ArrayList<>();
+        // 本地模板
+        List<Template> templates = projectTemplateService.getTemplates(projectId, TemplateScene.BUG.name());
+        templates.forEach(template -> headerCustomFields.addAll(baseTemplateService.getTemplateDTO(template).getCustomFields()));
+        // 第三方平台模板
+        TemplateDTO pluginDefaultTemplate = getPluginBugDefaultTemplate(projectId, true);
+        if (pluginDefaultTemplate != null) {
+            headerCustomFields.addAll(pluginDefaultTemplate.getCustomFields());
+        }
+        // 重复的自定义字段去重
+        return headerCustomFields.stream().distinct().toList();
+    }
+
+    private Bug checkById(String bugId) {
+        Bug bug = bugMapper.selectByPrimaryKey(bugId);
+        if (bug == null) {
+            throw new MSException(BUG_NOT_EXIST);
+        }
+        return bug;
     }
 }

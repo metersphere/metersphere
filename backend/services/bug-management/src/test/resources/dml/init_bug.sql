@@ -9,7 +9,7 @@ INSERT INTO user_role_relation (id, user_id, role_id, source_id, organization_id
     (UUID(), 'admin', 'project_admin', 'default-project-for-bug', '100001', UNIX_TIMESTAMP() * 1000, 'admin');
 
 INSERT INTO bug (id, num, title, handle_users, handle_user, create_user, create_time,
-                 update_user, update_time, delete_user, delete_time, project_id, template_id, platform, status, tag, platform_bug_id, deleted) VALUES
+                 update_user, update_time, delete_user, delete_time, project_id, template_id, platform, status, tags, platform_bug_id, deleted) VALUES
     ('default-bug-id', 100000, 'default-bug', 'oasis', 'oasis', 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'default-project-for-bug', 'bug-template-id', 'Local', 'open', '["default-tag"]', null, 0),
     ('default-bug-id-tapd1', 100000, 'default-bug', 'oasis', 'oasis', 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'default-project-for-bug', 'default-bug-template-id', 'Tapd', 'open', '["default-tag"]', null, 0),
     ('default-bug-id-tapd2', 100000, 'default-bug', 'oasis', 'oasis', 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'default-project-for-bug-no-local', 'default-bug-template-id', 'Tapd', 'open', '["default-tag"]', null, 0),

@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS bug(
     `template_id` VARCHAR(50) NOT NULL   COMMENT '模板ID' ,
     `platform` VARCHAR(50) NOT NULL   COMMENT '缺陷平台' ,
     `status` VARCHAR(50) NOT NULL  DEFAULT '' COMMENT '状态' ,
-    `tag` VARCHAR(1000)    COMMENT '标签' ,
+    `tags` VARCHAR(1000)    COMMENT '标签' ,
     `platform_bug_id` VARCHAR(50)    COMMENT '第三方平台缺陷ID' ,
     `delete_user` VARCHAR(50) NOT NULL   COMMENT '删除人' ,
     `delete_time` BIGINT NOT NULL   COMMENT '删除时间' ,
@@ -54,15 +54,20 @@ CREATE TABLE IF NOT EXISTS bug_follower(
 CREATE INDEX idx_follow_id ON bug_follower(user_id);
 
 CREATE TABLE IF NOT EXISTS bug_local_attachment(
-   `id` VARCHAR(255) NOT NULL   COMMENT 'ID' ,
-   `bug_id` VARCHAR(50) NOT NULL   COMMENT '缺陷ID' ,
-   `file_id` VARCHAR(50) NOT NULL   COMMENT '文件ID' ,
-   `file_name` VARCHAR(255) NOT NULL   COMMENT '文件名称' ,
-   `size` BIGINT NOT NULL   COMMENT '文件大小' ,
-   `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
-   `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
-   PRIMARY KEY (id)
+    `id` VARCHAR(255) NOT NULL   COMMENT 'ID' ,
+    `bug_id` VARCHAR(50) NOT NULL   COMMENT '缺陷ID' ,
+    `file_id` VARCHAR(50) NOT NULL   COMMENT '文件ID' ,
+    `file_name` VARCHAR(255) NOT NULL   COMMENT '文件名称' ,
+    `size` BIGINT NOT NULL   COMMENT '文件大小' ,
+    `source` VARCHAR(255) NOT NULL  DEFAULT 'ATTACHMENT' COMMENT '文件来源' ,
+    `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+    `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+    PRIMARY KEY (id)
 )  COMMENT = '缺陷本地附件';
+
+CREATE INDEX idx_bug_id ON bug_local_attachment(bug_id);
+CREATE INDEX idx_file_id ON bug_local_attachment(file_id);
+CREATE INDEX idx_source ON bug_local_attachment(source);
 
 CREATE TABLE IF NOT EXISTS bug_comment(
     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,

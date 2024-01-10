@@ -38,6 +38,11 @@ public class BugLocalAttachment implements Serializable {
     @NotNull(message = "{bug_local_attachment.size.not_blank}", groups = {Created.class})
     private Long size;
 
+    @Schema(description = "文件来源", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{bug_local_attachment.source.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 255, message = "{bug_local_attachment.source.length_range}", groups = {Created.class, Updated.class})
+    private String source;
+
     @Schema(description = "创建人")
     private String createUser;
 
@@ -52,6 +57,7 @@ public class BugLocalAttachment implements Serializable {
         fileId("file_id", "fileId", "VARCHAR", false),
         fileName("file_name", "fileName", "VARCHAR", false),
         size("size", "size", "BIGINT", true),
+        source("source", "source", "VARCHAR", true),
         createUser("create_user", "createUser", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false);
 

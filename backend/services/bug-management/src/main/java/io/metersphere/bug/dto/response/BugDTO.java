@@ -27,9 +27,6 @@ public class BugDTO extends Bug {
     @Schema(description = "处理人名称")
     private String handleUserName;
 
-    @Schema(description = "状态名称")
-    private String statusName;
-
     @Schema(description = "关联用例数量")
     private Integer relationCaseCount;
 

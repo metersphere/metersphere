@@ -38,7 +38,7 @@ public class BugEditRequest {
     private String templateId;
 
     @Schema(description = "标签")
-    private String tag;
+    private List<String> tags;
 
     @Schema(description = "缺陷内容")
     private String description;

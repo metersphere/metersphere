@@ -68,7 +68,7 @@ public class Bug implements Serializable {
     private String status;
 
     @Schema(description = "标签")
-    private String tag;
+    private java.util.List<String> tags;
 
     @Schema(description = "第三方平台缺陷ID")
     private String platformBugId;
@@ -99,7 +99,7 @@ public class Bug implements Serializable {
         templateId("template_id", "templateId", "VARCHAR", false),
         platform("platform", "platform", "VARCHAR", false),
         status("status", "status", "VARCHAR", true),
-        tag("tag", "tag", "VARCHAR", false),
+        tags("tags", "tags", "VARCHAR", false),
         platformBugId("platform_bug_id", "platformBugId", "VARCHAR", false),
         deleteUser("delete_user", "deleteUser", "VARCHAR", false),
         deleteTime("delete_time", "deleteTime", "BIGINT", false),
