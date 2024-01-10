@@ -3,6 +3,7 @@ package io.metersphere.sdk.constants;
 public enum ApplicationNumScope {
     API_DEFINITION,
     API_TEST_CASE,
+    API_MOCK,
     API_SCENARIO,
 
     UI_SCENARIO,
