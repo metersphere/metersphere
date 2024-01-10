@@ -269,7 +269,7 @@ public class FunctionalCaseCommentService {
      */
     private Map<String, CommentUserInfo> getUserMap(List<String> userIds) {
         List<CommentUserInfo> commentUserInfos = baseUserMapper.getCommentUserInfoByIds(userIds);
-       return commentUserInfos.stream().collect(Collectors.toMap(User::getId, item -> item));
+        return commentUserInfos.stream().collect(Collectors.toMap(CommentUserInfo::getId, item -> item));
     }
 
     /**

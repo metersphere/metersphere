@@ -123,7 +123,7 @@
     </select>
 
     <select id="getCommentUserInfoByIds" resultType="io.metersphere.system.dto.CommentUserInfo">
-        SELECT u.*, ue.avatar as avatar
+        SELECT u.id, u.name, u.email, ue.avatar as avatar
         FROM user u left join user_extend ue on u.id = ue.id
         WHERE u.id IN
         <foreach collection="ids" item="id" index="index"
