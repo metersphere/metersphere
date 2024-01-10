@@ -242,13 +242,19 @@ public class FunctionalCaseCommentService {
         List<FunctionalCaseCommentDTO>list = new ArrayList<>();
         for (FunctionalCaseComment functionalCaseComment : functionalCaseComments) {
             FunctionalCaseCommentDTO functionalCaseCommentDTO = new FunctionalCaseCommentDTO();
+            List<CommentUserInfo>commentUserInfos = new ArrayList<>();
             BeanUtils.copyBean(functionalCaseCommentDTO,functionalCaseComment);
-            functionalCaseCommentDTO.setUserName(userMap.get(functionalCaseComment.getCreateUser()).getName());
-            functionalCaseCommentDTO.setUserLogo(userMap.get(functionalCaseComment.getCreateUser()).getAvatar());
+            CommentUserInfo createUserInfo = userMap.get(functionalCaseComment.getCreateUser());
+            commentUserInfos.add(createUserInfo);
             if (StringUtils.isNotBlank(functionalCaseComment.getReplyUser())) {
-                functionalCaseCommentDTO.setReplyUserName(userMap.get(functionalCaseComment.getReplyUser()).getName());
-                functionalCaseCommentDTO.setReplyUserLogo(userMap.get(functionalCaseComment.getReplyUser()).getAvatar());
+                CommentUserInfo replyUserInfo = userMap.get(functionalCaseComment.getReplyUser());
+                commentUserInfos.add(replyUserInfo);
             }
+            if (StringUtils.isNotBlank(functionalCaseComment.getNotifier())) {
+                List<String> notifiers = Arrays.asList(functionalCaseComment.getNotifier().split(";"));
+                notifiers.forEach(t-> commentUserInfos.add(userMap.get(functionalCaseComment.getReplyUser())));
+            }
+            functionalCaseCommentDTO.setCommentUserInfos(commentUserInfos);
             list.add(functionalCaseCommentDTO);
         }
 
