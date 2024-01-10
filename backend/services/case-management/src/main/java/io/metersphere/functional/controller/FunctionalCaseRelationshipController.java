@@ -39,7 +39,7 @@ public class FunctionalCaseRelationshipController {
     private FunctionalCaseRelationshipEdgeService functionalCaseRelationshipEdgeService;
 
     @GetMapping("/get-ids/{caseId}")
-    @Operation(summary = "用例管理-功能用例-评审列表-评审详情-获取已关联用例id集合(关联用例弹窗前调用)")
+    @Operation(summary = "用例管理-功能用例-用例详情-前后置关系-获取已关联用例id集合(关联用例弹窗前调用)")
     @CheckOwner(resourceId = "#reviewId", resourceType = "case_review")
     public List<String> getCaseIds(@PathVariable String caseId) {
         return functionalCaseRelationshipEdgeService.getExcludeIds(caseId);

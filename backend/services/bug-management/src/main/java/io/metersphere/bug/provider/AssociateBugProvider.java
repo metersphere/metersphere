@@ -75,7 +75,7 @@ public class AssociateBugProvider implements BaseAssociateBugProvider {
 
     @Override
     public List<BugProviderDTO> hasAssociateBugPage(AssociateBugPageRequest request) {
-        return extBugRelateCaseMapper.getAssociateBugs(request);
+        return extBugRelateCaseMapper.getAssociateBugs(request, request.getSortString());
         //TODO 需要转义状态和处理人属性
     }
 }

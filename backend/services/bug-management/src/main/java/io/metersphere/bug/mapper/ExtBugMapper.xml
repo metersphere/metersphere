@@ -192,15 +192,13 @@
     <select id="listByProviderRequest" resultType="io.metersphere.dto.BugProviderDTO">
         SELECT
             b.id id,
-            b.title title,
+            b.title name,
             b.handle_user handleUser,
-            u.`name` name,
             b.`status` status,
             b.tag tag,
             b.create_time createTime
         FROM
             bug b
-                LEFT JOIN `user` u ON b.create_user = u.id
         WHERE
             b.deleted = #{deleted}
           AND b.id NOT IN

@@ -105,8 +105,11 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
             put("type", "List");
         }}));
         request.setCombine(map);
-        request.setViewFlag(false);
+        request.setViewFlag(true);
         request.setProjectId("wx_test_project");
+        this.requestPostWithOkAndReturn(REVIEW_CASE_PAGE, request);
+        this.requestPostWithOkAndReturn(REVIEW_FUNCTIONAL_CASE_MODULE_COUNT, request);
+        request.setViewFlag(false);
         this.requestPostWithOkAndReturn(REVIEW_CASE_PAGE, request);
 
         request.setSort(new HashMap<>() {{
