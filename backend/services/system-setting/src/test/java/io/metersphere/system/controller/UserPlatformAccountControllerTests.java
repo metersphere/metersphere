@@ -5,6 +5,8 @@ import io.metersphere.system.base.BasePluginTestService;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.Plugin;
+import io.metersphere.system.domain.UserExtendExample;
+import io.metersphere.system.mapper.UserExtendMapper;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.mockserver.client.MockServerClient;
@@ -34,6 +36,8 @@ public class UserPlatformAccountControllerTests extends BaseTest {
     private int mockServerHostPort;
     @Resource
     private MockServerClient mockServerClient;
+    @Resource
+    private UserExtendMapper userExtendMapper;
     private static final String VALIDATE_POST = "/user/platform/validate/{0}/{1}";
     private static final String SAVE_POST = "/user/platform/save";
     public static <T> T parseObjectFromMvcResult(MvcResult mvcResult, Class<T> parseClass) {
@@ -84,27 +88,38 @@ public class UserPlatformAccountControllerTests extends BaseTest {
     @Test
     @Order(3)
     public void testSave() throws Exception {
-        this.requestGetAndReturn("/user/platform/get");
-        basePluginTestService.getJiraPlugin();
-        BasePluginTestService.JiraIntegrationConfig integrationConfig = new BasePluginTestService.JiraIntegrationConfig();
-        integrationConfig.setAddress(String.format("http://%s:%s", mockServerHost, mockServerHostPort));
-        Map<String, Object> jiraMap = new HashMap<>();
-        jiraMap.put("jira", integrationConfig);
-        // @@请求成功
-        this.requestPostWithOk(SAVE_POST, jiraMap);
-        this.requestPostWithOk(SAVE_POST, jiraMap);
+        // 未保存用户配置信息, 为空
+        MvcResult mvcResult = this.requestGetAndReturn("/user/platform/get/100001");
+        // noinspection unchecked
+        Map<String, Object> accountMap = parseObjectFromMvcResult(mvcResult, Map.class);
+        Assertions.assertNull(accountMap);
+        // @@请求成功 保存两次
+        this.requestPostWithOk(SAVE_POST, buildUserPlatformConfig());
+        this.requestPostWithOk(SAVE_POST, buildUserPlatformConfig());
     }
 
     @Test
     @Order(4)
     public void testGet() throws Exception {
-        MvcResult mvcResult = this.requestGetAndReturn("/user/platform/get");
+        MvcResult mvcResult = this.requestGetAndReturn("/user/platform/get/100001");
+        // noinspection unchecked
         Map<String, Object> accountMap = parseObjectFromMvcResult(mvcResult, Map.class);
         Assertions.assertNotNull(accountMap);
+        // 删除用户配置信息, 避免影响后续测试
+        UserExtendExample example = new UserExtendExample();
+        example.createCriteria().andIdEqualTo("admin");
+        userExtendMapper.deleteByExample(example);
     }
 
-
-
-
-
+    private Map<String, Object> buildUserPlatformConfig() {
+        Map<String, Object> platformInfo = new HashMap<>();
+        Map<String, Object> userPlatformConfig = new HashMap<>();
+        userPlatformConfig.put("authType", "test");
+        userPlatformConfig.put("jiraAccount", "test");
+        userPlatformConfig.put("jiraPassword", "test");
+        userPlatformConfig.put("zentaoAccount", "test");
+        userPlatformConfig.put("zentaoPassword", "test");
+        platformInfo.put("100001", userPlatformConfig);
+        return platformInfo;
+    }
 }

@@ -15,6 +15,7 @@ import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.UserExtendMapper;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,7 +70,10 @@ public class UserPlatformAccountService {
             userExtend.setPlatformInfo(JSON.toJSONBytes(platformInfo));
             userExtendMapper.insertSelective(userExtend);
         } else {
-            userExtend.setPlatformInfo(JSON.toJSONBytes(platformInfo));
+            // noinspection unchecked
+            Map<String, Object> originalUserPlatformInfo = JSON.parseMap(new String(userExtend.getPlatformInfo()));
+            originalUserPlatformInfo.putAll(platformInfo);
+            userExtend.setPlatformInfo(JSON.toJSONBytes(originalUserPlatformInfo));
             userExtendMapper.updateByPrimaryKeySelective(userExtend);
         }
         LogDTO dto = LogDTOBuilder.builder()
@@ -85,11 +89,21 @@ public class UserPlatformAccountService {
         operationLogService.add(dto);
     }
 
-    public Map<String, Object> get(String userId) {
+    /**
+     * 获取个人三方平台账号
+     * @param userId 用户ID
+     * @param orgId 组织ID
+     * @return 三方平台账号
+     */
+    public Map<String, Object> get(String userId, String orgId) {
         UserExtend userExtend = userExtendMapper.selectByPrimaryKey(userId);
-        if (userExtend == null || userExtend.getPlatformInfo() == null) {
-            return new HashMap<>();
+        if (userExtend == null || StringUtils.isBlank(new String(userExtend.getPlatformInfo()))) {
+            return null;
         }
-        return JSON.parseMap(new String(userExtend.getPlatformInfo()));
+        // noinspection unchecked
+        Map<String, Object> userPlatformInfo = JSON.parseMap(new String(userExtend.getPlatformInfo()));
+        // 获取组织用户集成信息
+        // noinspection unchecked
+        return (Map<String, Object>) userPlatformInfo.get(orgId);
     }
 }
