@@ -1,16 +1,16 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.system.service.*;
+import io.metersphere.system.service.UserPlatformAccountService;
 import io.metersphere.system.utils.SessionUtils;
-import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotEmpty;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import java.util.HashMap;
+
 import java.util.Map;
 
 @RestController
@@ -26,15 +26,18 @@ public class UserPlatformAccountController {
         return userPlatformAccountService.getAccountInfoList();
     }
 
-    @PostMapping("/validate/{pluginId}")
-    @Operation(summary = "系统设置-个人中心-校验服务集成信息")
-    public void validate(@PathVariable String pluginId,
-                         @Validated({Updated.class})
+    @PostMapping("/validate/{pluginId}/{orgId}")
+    @Operation(summary = "系统设置-个人中心-校验用户集成信息")
+    @Parameters({
+            @Parameter(name = "pluginId", description = "插件ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED)),
+            @Parameter(name = "orgId", description = "组织ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
+    })
+    public void validate(@PathVariable String pluginId, @PathVariable String orgId,
                          @RequestBody
                          @NotEmpty
-                         @Schema(description = "配置的表单键值对", requiredMode = Schema.RequiredMode.REQUIRED)
-                         HashMap<String, String> serviceIntegrationInfo) {
-        userPlatformAccountService.validate(pluginId, serviceIntegrationInfo);
+                         @Schema(description = "用户配置集成信息", requiredMode = Schema.RequiredMode.REQUIRED)
+                         Map<String, String> userPlatformConfig) {
+        userPlatformAccountService.validate(pluginId, orgId, userPlatformConfig);
     }
 
     @PostMapping("/save")
