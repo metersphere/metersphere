@@ -12,7 +12,6 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.CommentUserInfo;
-import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.uid.IDGenerator;
@@ -48,7 +47,7 @@ public class BugCommentService {
         BugCommentExample example = new BugCommentExample();
         example.createCriteria().andBugIdEqualTo(bugId);
         List<BugComment> bugComments = bugCommentMapper.selectByExample(example);
-        return this.generateCommentDTOs(bugComments);
+        return generateCommentDTOs(bugComments);
     }
 
     /**
@@ -67,10 +66,13 @@ public class BugCommentService {
         List<BugCommentDTO> bugCommentDTOList = bugComments.stream().map(bugComment -> {
             BugCommentDTO commentDTO = new BugCommentDTO();
             BeanUtils.copyBean(commentDTO, bugComment);
-            commentDTO.setReplyUserName(StringUtils.isNotEmpty(bugComment.getReplyUser()) ?
-                    userMap.get(bugComment.getReplyUser()).getName() : null);
-            commentDTO.setCommentUserInfo(userMap.get(bugComment.getCreateUser()));
-            commentDTO.setNotifierOption(getNotifyUserOption(bugComment.getNotifier(), userMap));
+            List<CommentUserInfo> commentUserInfos = new ArrayList<>();
+            commentUserInfos.add(userMap.get(bugComment.getCreateUser()));
+            if (StringUtils.isNotEmpty(bugComment.getReplyUser())) {
+                commentUserInfos.add(userMap.get(bugComment.getReplyUser()));
+            }
+            commentUserInfos.addAll(getNotifyUserInfo(bugComment.getNotifier(), userMap));
+            commentDTO.setCommentUserInfos(commentUserInfos);
             return commentDTO;
         }).toList();
 
@@ -284,17 +286,16 @@ public class BugCommentService {
      * @param userMap 用户信息Map
      * @return 通知人选项
      */
-    private List<OptionDTO> getNotifyUserOption(String notifier, Map<String, CommentUserInfo> userMap) {
+    private List<CommentUserInfo> getNotifyUserInfo(String notifier, Map<String, CommentUserInfo> userMap) {
+        List<CommentUserInfo> notifyUserInfos = new ArrayList<>();
         if (StringUtils.isBlank(notifier)) {
             return new ArrayList<>();
         }
-        List<String> notifyUserIds = Arrays.asList(notifier.split(";"));
-        return userMap.values().stream().filter(user -> notifyUserIds.contains(user.getId())).map(user -> {
-            OptionDTO optionDTO = new OptionDTO();
-            optionDTO.setId(user.getId());
-            optionDTO.setName(user.getName());
-            return optionDTO;
-        }).toList();
+        String[] notifyUserIds = notifier.split(";");
+        for (String notifyUserId : notifyUserIds) {
+            notifyUserInfos.add(userMap.get(notifyUserId));
+        }
+        return notifyUserInfos;
     }
 
     /**
