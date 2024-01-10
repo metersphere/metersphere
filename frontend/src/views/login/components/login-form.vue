@@ -94,13 +94,13 @@
   const loginConfig = useStorage('login-config', {
     rememberPassword: true,
     username: 'admin',
-    password: 'metersphere',
+    password: 'Calong@2015',
   });
 
   const userInfo = reactive({
     authenticate: 'LOCAL',
     username: 'admin',
-    password: 'metersphere',
+    password: 'Calong@2015',
   });
 
   const handleSubmit = async ({

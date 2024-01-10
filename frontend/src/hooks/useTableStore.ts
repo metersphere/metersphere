@@ -73,7 +73,7 @@ export default function useTableStore() {
     return columns;
   };
 
-  async function initColumn(tableKey: string, column: MsTableColumn, mode: TableOpenDetailMode) {
+  async function initColumn(tableKey: string, column: MsTableColumn, mode?: TableOpenDetailMode) {
     try {
       const selectorColumnMap = await getSelectorColumnMap();
       if (!selectorColumnMap[tableKey]) {
@@ -112,7 +112,7 @@ export default function useTableStore() {
       console.log(e);
     }
   }
-  async function setColumns(key: string, columns: MsTableColumn, mode: TableOpenDetailMode) {
+  async function setColumns(key: string, columns: MsTableColumn, mode?: TableOpenDetailMode) {
     try {
       columns.forEach((item, idx) => {
         if (item.showDrag) {

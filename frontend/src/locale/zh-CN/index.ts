@@ -35,6 +35,7 @@ export default {
     'menu.projectManagement.messageManagement': '消息管理',
     'menu.projectManagement.commonScript': '公共脚本',
     'menu.projectManagement.messageManagementEdit': '更新模板',
+    'menu.projectManagement.environmentManagement': '环境管理',
     'menu.caseManagement.featureCase': '功能用例',
     'menu.caseManagement.featureCaseRecycle': '回收站',
     'menu.caseManagement.featureCaseList': '用例列表',

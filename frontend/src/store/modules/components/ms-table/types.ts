@@ -4,7 +4,7 @@ export type TableOpenDetailMode = 'drawer' | 'new_window';
 
 export interface MsTableSelectorItem {
   // 详情打开模式
-  mode: TableOpenDetailMode;
+  mode?: TableOpenDetailMode;
   // 列配置
   column: MsTableColumn;
   // 列配置的备份，用于比较当前定义的列配置是否和备份的列配置相同

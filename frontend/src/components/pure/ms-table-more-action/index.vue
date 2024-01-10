@@ -1,7 +1,9 @@
 <template>
   <a-dropdown :trigger="props.trigger || 'hover'" @select="selectHandler" @popup-visible-change="visibleChange">
     <slot>
-      <MsButton><icon-more /></MsButton>
+      <MsButton type="text" size="mini" class="more-icon">
+        <MsIcon type="icon-icon_more_outlined" size="16" class="text-[var(--color-text-4)]" />
+      </MsButton>
     </slot>
     <template #content>
       <template v-for="item of props.list">
@@ -54,6 +56,16 @@
     color: rgb(var(--danger-6));
     &:hover {
       color: rgb(var(--danger-6));
+    }
+  }
+  .more-icon {
+    padding: 4px;
+    border-radius: var(--border-radius-mini);
+    &:hover {
+      background-color: rgb(var(--primary-9));
+      .arco-icon {
+        color: rgb(var(--primary-5));
+      }
     }
   }
 </style>

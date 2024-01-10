@@ -47,6 +47,8 @@ export interface MsTableColumnData extends TableColumnData {
   sortIndex?: number;
   // 筛选配置
   filterConfig?: MsTableColumnFilterConfig;
+  // 列选择的title
+  columnTitle?: string;
 }
 
 export type MsTableErrorStatus = boolean | 'error' | 'empty';

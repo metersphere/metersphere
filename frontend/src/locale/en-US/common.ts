@@ -80,4 +80,11 @@ export default {
   'common.newSuccess': 'Added successfully',
   'common.publish': 'Publish',
   'common.publishSuccessfully': 'Published successfully',
+  'common.string': 'String',
+  'common.number': 'Number',
+  'common.boolean': 'Boolean',
+  'common.array': 'Array',
+  'common.json': 'Object',
+  'common.integer': 'Integer',
+  'common.file': 'File',
 };

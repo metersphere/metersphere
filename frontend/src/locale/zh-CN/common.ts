@@ -82,4 +82,11 @@ export default {
   'common.newSuccess': '新增成功',
   'common.publish': '发布',
   'common.publishSuccessfully': '发布成功',
+  'common.string': '字符串',
+  'common.number': '数字',
+  'common.boolean': '布尔',
+  'common.array': '数组',
+  'common.json': '对象',
+  'common.integer': '整数',
+  'common.file': '文件',
 };

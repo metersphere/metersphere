@@ -451,6 +451,13 @@ export const pathMap: PathMapItem[] = [
         permission: [],
         level: MENU_LEVEL[2],
       },
+      {
+        key: 'PROJECT_MANAGEMENT_ENVIRONMENT', // 项目管理-环境管理
+        locale: 'menu.projectManagement.environmentManagement',
+        route: RouteEnum.PROJECT_MANAGEMENT_ENVIRONMENT_MANAGEMENT,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
     ],
   },
 ];
