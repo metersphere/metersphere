@@ -13,7 +13,6 @@ import io.metersphere.bug.mapper.BugMapper;
 import io.metersphere.bug.service.BugService;
 import io.metersphere.bug.service.BugSyncExtraService;
 import io.metersphere.bug.service.BugSyncService;
-import io.metersphere.bug.utils.CustomFieldUtils;
 import io.metersphere.plugin.platform.dto.request.SyncAllBugRequest;
 import io.metersphere.project.domain.*;
 import io.metersphere.project.dto.ProjectTemplateOptionDTO;
@@ -513,12 +512,6 @@ public class BugControllerTests extends BaseTest {
 
     @Test
     @Order(95)
-    void coverUtilsTests() {
-        CustomFieldUtils.appendToMultipleCustomField(null, "test");
-    }
-
-    @Test
-    @Order(96)
     void coverPlatformTemplateTests() throws Exception{
         // 覆盖同步缺陷(Local)
         this.requestGetWithOk(BUG_SYNC + "/default-project-for-not-integration");
@@ -659,7 +652,7 @@ public class BugControllerTests extends BaseTest {
 
     @Test
     @Order(98)
-    void coverBugTests() {
+    void coverBugTests() throws Exception {
         BugCustomFieldDTO field = new BugCustomFieldDTO();
         field.setId("test_field");
         field.setName("test");
@@ -670,6 +663,11 @@ public class BugControllerTests extends BaseTest {
         removeApiFieldTmp();
         bugService.transferCustomToPlatformField("default-bug-template-id-not-exist", List.of(field), false);
         rollBackApiField();
+        // 覆盖导出相关的代码
+        BugExportRequest request = new BugExportRequest();
+        request.setSelectAll(true);
+        request.setExcludeIds(List.of("test-id"));
+        bugService.export(request);
     }
 
     @Test

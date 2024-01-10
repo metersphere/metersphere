@@ -59,7 +59,7 @@ public class BugController {
     @RequiresPermissions(PermissionConstants.BUG_ADD)
     public void add(@Validated({Created.class}) @RequestPart(value = "request") BugEditRequest request,
                     @RequestPart(value = "file", required = false) List<MultipartFile> files) {
-        bugService.addOrUpdate(request, files, SessionUtils.getUserId(), false);
+        bugService.addOrUpdate(request, files, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), false);
     }
 
     @PostMapping("/update")
@@ -67,7 +67,7 @@ public class BugController {
     @RequiresPermissions(PermissionConstants.BUG_UPDATE)
     public void update(@Validated({Updated.class}) @RequestPart(value = "request") BugEditRequest request,
                        @RequestPart(value = "file", required = false) List<MultipartFile> files) {
-        bugService.addOrUpdate(request, files, SessionUtils.getUserId(), true);
+        bugService.addOrUpdate(request, files, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), true);
     }
 
     @GetMapping("/delete/{id}")

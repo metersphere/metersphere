@@ -46,11 +46,10 @@ public class UserPlatformAccountController {
         userPlatformAccountService.save(platformInfo, SessionUtils.getUserId());
     }
 
-    @GetMapping("/get")
+    @GetMapping("/get/{orgId}")
+    @Parameter(name = "orgId", description = "组织ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @Operation(summary = "系统设置-个人中心-获取个人三方平台账号")
-    public Map<String, Object> get() {
-        return userPlatformAccountService.get(SessionUtils.getUserId());
+    public Map<String, Object> get(@PathVariable String orgId) {
+        return userPlatformAccountService.get(SessionUtils.getUserId(), orgId);
     }
-
-
 }

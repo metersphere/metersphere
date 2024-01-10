@@ -43,10 +43,7 @@ import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.system.mapper.TemplateMapper;
-import io.metersphere.system.service.BaseTemplateCustomFieldService;
-import io.metersphere.system.service.BaseTemplateService;
-import io.metersphere.system.service.PlatformPluginService;
-import io.metersphere.system.service.PluginLoadService;
+import io.metersphere.system.service.*;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
@@ -101,6 +98,8 @@ public class BugService {
     private BaseTemplateCustomFieldService baseTemplateCustomFieldService;
     @Resource
     private PlatformPluginService platformPluginService;
+    @Resource
+    private UserPlatformAccountService userPlatformAccountService;
     @Resource
     private BugCustomFieldMapper bugCustomFieldMapper;
     @Resource
@@ -164,7 +163,7 @@ public class BugService {
      * @param files 附件集合
      * @param currentUser 当前用户
      */
-    public void addOrUpdate(BugEditRequest request, List<MultipartFile> files, String currentUser, boolean isUpdate) {
+    public void addOrUpdate(BugEditRequest request, List<MultipartFile> files, String currentUser, String currentOrgId, boolean isUpdate) {
         /*
          *  缺陷创建或者修改逻辑:
          *  1. 判断所属项目是否关联第三方平台;
@@ -186,7 +185,7 @@ public class BugService {
            Platform platform = platformPluginService.getPlatform(serviceIntegration.getPluginId(), serviceIntegration.getOrganizationId(),
                    new String(serviceIntegration.getConfiguration()));
            PlatformBugUpdateRequest platformRequest = buildPlatformBugRequest(request);
-           platformRequest.setUserPlatformConfig(new String(serviceIntegration.getConfiguration()));
+           platformRequest.setUserPlatformConfig(JSON.toJSONString(userPlatformAccountService.get(currentUser, currentOrgId)));
            platformRequest.setProjectConfig(projectApplicationService.getProjectBugThirdPartConfig(request.getProjectId()));
            if (isUpdate) {
                Bug bug = bugMapper.selectByPrimaryKey(request.getId());
