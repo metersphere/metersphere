@@ -46,6 +46,7 @@ export default {
     'menu.loadTest': 'Performance Test',
     'menu.projectManagement.projectPermission': 'Project Permission',
     'menu.projectManagement.log': 'Log',
+    'menu.projectManagement.environmentManagement': 'EnvironmentManagement',
     'menu.settings': 'Settings',
     'menu.settings.system': 'System',
     'menu.settings.system.usergroup': 'User Group',

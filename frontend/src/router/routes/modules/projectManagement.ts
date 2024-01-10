@@ -263,6 +263,17 @@ const ProjectManagement: AppRouteRecordRaw = {
         ],
       },
     },
+    // 环境管理
+    {
+      path: 'environmentManagement',
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_ENVIRONMENT_MANAGEMENT,
+      component: () => import('@/views/project-management/environmental/index.vue'),
+      meta: {
+        locale: 'menu.projectManagement.environmentManagement',
+        roles: ['*'],
+        isTopMenu: true,
+      },
+    },
   ],
 };
 

@@ -47,6 +47,7 @@ export enum TableKeyEnum {
   CASE_MANAGEMENT_TAB_CHANGE_HISTORY = 'caseManagementTabChangeHistory',
   CASE_MANAGEMENT_TAB_CASE_TABLE = 'caseManagementTabCaseTable',
   CASE_MANAGEMENT_TAB_DEMAND_PLATFORM = 'caseManagementTabDemandPlatformTable',
+  PROJECT_MANAGEMENT_ENV_ALL_PARAM = 'projectManagementEnvAllParam',
 }
 
 // 具有特殊功能的列

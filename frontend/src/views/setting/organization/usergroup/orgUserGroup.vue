@@ -145,7 +145,7 @@
   });
 </script>
 
-<style lang="scss" scoped>
+<style lang="less" scoped>
   .card {
     @apply overflow-hidden bg-white;
 

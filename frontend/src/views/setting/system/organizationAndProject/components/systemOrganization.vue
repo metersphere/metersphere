@@ -319,7 +319,7 @@
   await tableStore.initColumn(TableKeyEnum.SYSTEM_ORGANIZATION, organizationColumns, 'drawer');
 </script>
 
-<style lang="scss" scoped>
+<style lang="less" scoped>
   .primary-color {
     color: rgb(var(--primary-5));
     cursor: pointer;

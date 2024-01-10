@@ -1,20 +1,5 @@
 <template>
-  <MsBaseTable v-bind="propsRes" id="headerTable" :hoverable="false" v-on="propsEvent">
-    <template #encodeTitle>
-      <div class="flex items-center text-[var(--color-text-3)]">
-        {{ t('ms.apiTestDebug.encode') }}
-        <a-tooltip>
-          <icon-question-circle
-            class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
-            size="16"
-          />
-          <template #content>
-            <div>{{ t('ms.apiTestDebug.encodeTip1') }}</div>
-            <div>{{ t('ms.apiTestDebug.encodeTip2') }}</div>
-          </template>
-        </a-tooltip>
-      </div>
-    </template>
+  <MsBaseTable v-bind="propsRes" :hoverable="false" v-on="propsEvent">
     <template #name="{ record }">
       <a-popover position="tl" :disabled="!record.name || record.name.trim() === ''" class="ms-params-input-popover">
         <template #content>
@@ -34,24 +19,11 @@
       </a-popover>
     </template>
     <template #type="{ record }">
-      <a-tooltip :content="t(record.required ? 'ms.apiTestDebug.paramRequired' : 'ms.apiTestDebug.paramNotRequired')">
-        <MsButton
-          type="icon"
-          :class="[
-            record.required ? '!text-[rgb(var(--danger-5))]' : '!text-[var(--color-text-brand)]',
-            '!mr-[4px] !p-[4px]',
-          ]"
-          @click="record.required = !record.required"
-        >
-          <div>*</div>
-        </MsButton>
-      </a-tooltip>
-      <a-select
-        v-model:model-value="record.type"
-        :options="typeOptions"
-        class="param-input"
-        @change="(val) => handleTypeChange(val, record)"
-      ></a-select>
+      <a-select v-model:model-value="record.type" class="param-input" @change="(val) => handleTypeChange(val)">
+        <a-option v-for="element in typeOptions" :key="element.value" :value="element.value">{{
+          t(element.label)
+        }}</a-option>
+      </a-select>
     </template>
     <template #value="{ record }">
       <MsParamsInput
@@ -61,58 +33,16 @@
         @apply="handleParamSettingApply"
       />
     </template>
-    <template #lengthRange="{ record }">
-      <div class="flex items-center justify-between">
-        <a-input-number
-          v-model:model-value="record.min"
-          :placeholder="t('ms.apiTestDebug.paramMin')"
-          class="param-input"
-          @input="(val) => addTableLine(val)"
-        ></a-input-number>
-        <div class="mx-[4px]">～</div>
-        <a-input-number
-          v-model:model-value="record.max"
-          :placeholder="t('ms.apiTestDebug.paramMax')"
-          class="param-input"
-          @input="(val) => addTableLine(val)"
-        ></a-input-number>
-      </div>
-    </template>
     <template #desc="{ record }">
-      <paramDescInput
+      <ParamDescInput
         v-model:desc="record.desc"
         @input="addTableLine"
         @dblclick="quickInputDesc(record)"
         @change="handleDescChange"
       />
     </template>
-    <template #encode="{ record }">
-      <a-switch
-        v-model:model-value="record.encode"
-        size="small"
-        class="param-input-switch"
-        @change="(val) => addTableLine(val.toString())"
-      ></a-switch>
-    </template>
     <template #operation="{ record, rowIndex }">
-      <a-trigger
-        v-if="props.format && props.format !== RequestBodyFormat.X_WWW_FORM_URLENCODED"
-        trigger="click"
-        position="br"
-      >
-        <MsButton type="icon" class="mr-[8px]"><icon-more /></MsButton>
-        <template #content>
-          <div class="content-type-trigger-content">
-            <div class="mb-[8px] text-[var(--color-text-1)]">Content-Type</div>
-            <a-select
-              v-model:model-value="record.contentType"
-              :options="Object.values(RequestContentTypeEnum).map((e) => ({ label: e, value: e }))"
-              allow-create
-              @change="(val) => addTableLine(val as string)"
-            ></a-select>
-          </div>
-        </template>
-      </a-trigger>
+      <a-switch v-if="rowIndex" v-model:model-value="record.enable" size="small" />
       <icon-minus-circle
         v-if="paramsLength > 1 && rowIndex !== paramsLength - 1"
         class="cursor-pointer text-[var(--color-text-4)]"
@@ -120,8 +50,13 @@
         @click="deleteParam(rowIndex)"
       />
     </template>
-    <template #mustContain="{ record }">
-      <a-checkbox v-model:model-value="record.mustContain"></a-checkbox>
+    <template #tag="{ record }">
+      <ParamTagInput
+        v-model:model-value="record.tag"
+        @input="addTableLine"
+        @dblclick="quickInputDesc(record)"
+        @change="handleDescChange"
+      />
     </template>
   </MsBaseTable>
   <a-modal
@@ -173,37 +108,32 @@
   </a-modal>
 </template>
 
-<script setup lang="ts">
-  import MsButton from '@/components/pure/ms-button/index.vue';
+<script async setup lang="ts">
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsParamsInput from '@/components/business/ms-params-input/index.vue';
-  import paramDescInput from './paramDescInput.vue';
+  import ParamDescInput from './ParamDescInput.vue';
+  import ParamTagInput from './ParamTagInput.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import { useTableStore } from '@/store';
 
-  import { RequestBodyFormat, RequestContentTypeEnum } from '@/enums/apiEnum';
+  import { TableKeyEnum } from '@/enums/tableEnum';
 
   interface Param {
     id: number;
-    required: boolean;
     name: string;
     type: string;
     value: string;
-    min: number | undefined;
-    max: number | undefined;
-    contentType: RequestContentTypeEnum;
     desc: string;
-    encode: boolean;
-    [key: string]: any;
+    tag: string[];
+    enable: boolean;
   }
 
   const props = defineProps<{
-    params: any[];
-    columns: MsTableColumn;
-    format?: RequestBodyFormat;
+    params: Param[];
     scroll?: {
       x?: number | string;
       y?: number | string;
@@ -213,62 +143,109 @@
     heightUsed?: number;
   }>();
   const emit = defineEmits<{
-    (e: 'update:params', value: any[]): void;
-    (e: 'change', data: any[], isInit?: boolean): void;
+    (e: 'update:params', value: Param[]): void;
+    (e: 'change', data: Param[], isInit?: boolean): void;
   }>();
 
   const { t } = useI18n();
 
+  const columns: MsTableColumn = [
+    {
+      title: 'project.environmental.paramName',
+      dataIndex: 'name',
+      slotName: 'name',
+      showInTable: true,
+      showDrag: true,
+    },
+    {
+      title: 'project.environmental.paramType',
+      dataIndex: 'type',
+      slotName: 'type',
+      showInTable: true,
+      showDrag: true,
+    },
+    {
+      title: 'project.environmental.paramValue',
+      dataIndex: 'value',
+      slotName: 'value',
+      showInTable: true,
+      showDrag: true,
+    },
+    {
+      title: 'project.environmental.tag',
+      dataIndex: 'tag',
+      slotName: 'tag',
+      width: 200,
+      showInTable: true,
+      showDrag: true,
+    },
+    {
+      title: 'project.environmental.desc',
+      dataIndex: 'desc',
+      slotName: 'desc',
+      showInTable: true,
+      showDrag: true,
+    },
+    {
+      title: '',
+      columnTitle: 'common.operation',
+      slotName: 'operation',
+      width: 50,
+      showInTable: true,
+      showDrag: true,
+    },
+  ];
+
   const defaultParams: Omit<Param, 'id'> = {
-    required: false,
     name: '',
     type: 'string',
     value: '',
-    min: undefined,
-    max: undefined,
-    contentType: RequestContentTypeEnum.TEXT,
     desc: '',
-    encode: false,
+    tag: [],
+    enable: true,
   };
   const allType = [
     {
-      label: 'string',
+      label: 'common.string',
       value: 'string',
     },
     {
-      label: 'integer',
+      label: 'common.integer',
       value: 'integer',
     },
     {
-      label: 'number',
+      label: 'common.number',
       value: 'number',
     },
     {
-      label: 'array',
+      label: 'common.array',
       value: 'array',
     },
     {
-      label: 'json',
+      label: 'common.json',
       value: 'json',
     },
     {
-      label: 'file',
+      label: 'common.file',
       value: 'file',
     },
   ];
+
+  const tableStore = useTableStore();
+
   const typeOptions = computed(() => {
-    if (props.format === RequestBodyFormat.X_WWW_FORM_URLENCODED) {
-      return allType.filter((e) => e.value !== 'file' && e.value !== 'json');
-    }
     return allType;
   });
 
-  const { propsRes, propsEvent } = useTable(() => Promise.resolve([]), {
+  await tableStore.initColumn(TableKeyEnum.PROJECT_MANAGEMENT_ENV_ALL_PARAM, columns);
+
+  const { propsRes, propsEvent } = useTable<Param>(undefined, {
+    tableKey: TableKeyEnum.PROJECT_MANAGEMENT_ENV_ALL_PARAM,
     scroll: props.scroll,
     heightUsed: props.heightUsed,
-    columns: props.columns,
     selectable: true,
     draggable: { type: 'handle', width: 24 },
+    showSetting: true,
   });
 
   watch(
@@ -279,15 +256,12 @@
       } else {
         propsRes.value.data = props.params.concat({
           id: new Date().getTime(),
-          required: false,
           name: '',
           type: 'string',
           value: '',
-          min: undefined,
-          max: undefined,
-          contentType: RequestContentTypeEnum.TEXT,
           desc: '',
-          encode: false,
+          tag: [],
+          enable: true,
         });
         emit('change', propsRes.value.data, true);
       }
@@ -318,12 +292,17 @@
    */
   function addTableLine(val?: string | number, isForce?: boolean) {
     const lastData = propsRes.value.data[propsRes.value.data.length - 1];
-    const isNotChange = Object.keys(defaultParams).every((key) => lastData[key] === defaultParams[key as any]);
+    const isNotChange = Object.keys(defaultParams).every((key) => {
+      if (key === 'id') {
+        return true;
+      }
+      if (key === 'tag') {
+        return lastData[key].length === 0;
+      }
+      return lastData[key] === defaultParams[key as any];
+    });
     if (isForce || (val !== '' && val !== undefined && !isNotChange)) {
-      propsRes.value.data.push({
-        id: new Date().getTime(),
-        ...defaultParams,
-      } as any);
+      propsRes.value.data = [...propsRes.value.data, { id: new Date().getTime(), ...defaultParams }];
       emit('change', propsRes.value.data);
     }
   }
@@ -382,21 +361,16 @@
   }
 
   function handleTypeChange(
-    val: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[],
-    record: Param
+    val: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
   ) {
     addTableLine(val as string);
-    if (val === 'file') {
-      record.contentType = RequestContentTypeEnum.OCTET_STREAM;
-    } else if (val === 'json') {
-      record.contentType = RequestContentTypeEnum.JSON;
-    } else {
-      record.contentType = RequestContentTypeEnum.TEXT;
-    }
   }
 </script>
 
 <style lang="less" scoped>
+  :deep(.setting-icon) {
+    margin-left: 0 !important;
+  }
   :deep(.arco-table-th) {
     background-color: var(--color-text-n9);
   }

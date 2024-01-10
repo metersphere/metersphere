@@ -53,7 +53,7 @@
       </div>
       <div class="flex-col">
         <div v-for="item in nonSortColumn" :key="item.dataIndex" class="column-item">
-          <div>{{ t(item.title as string) }}</div>
+          <div>{{ t((item.title || item.columnTitle) as string) }}</div>
           <a-switch
             v-model="item.showInTable"
             size="small"
@@ -71,7 +71,7 @@
         <div v-for="element in couldSortColumn" :key="element.dataIndex" class="column-drag-item">
           <div class="flex w-[90%] items-center">
             <MsIcon type="icon-icon_drag" class="text-[16px] text-[var(--color-text-4)]" />
-            <span class="ml-[8px]">{{ t(element.title as string) }}</span>
+            <span class="ml-[8px]">{{ t((element.title || element.columnTitle) as string) }}</span>
           </div>
           <a-switch v-model="element.showInTable" size="small" @update="handleSwitchChange" />
         </div>
@@ -157,7 +157,9 @@
   onBeforeMount(() => {
     if (props.tableKey) {
       tableStore.getMode(props.tableKey).then((res) => {
-        currentMode.value = res;
+        if (res) {
+          currentMode.value = res;
+        }
       });
       tableStore.getPageSize(props.tableKey).then((res) => {
         pageSize.value = res;
