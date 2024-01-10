@@ -22,14 +22,17 @@
 
     <select id="getAssociateBugs" resultType="io.metersphere.dto.BugProviderDTO">
         SELECT
-            brc.bug_id id,
-            b.title NAME,
+            brc.id id,
+            brc.bug_id bugId,
+            b.title name,
             b.handle_user handleUser,
             b.`status`,
-            brc.test_plan_id
+            brc.test_plan_id testPlanId,
+            tp.name testPlanName
         FROM
             bug_relation_case brc
                 INNER JOIN bug b ON brc.bug_id = b.id
+        left join test_plan tp on brc.test_plan_id = tp.id
         where b.deleted = false
         <include refid="queryWhereConditionByProvider"/>
         order by

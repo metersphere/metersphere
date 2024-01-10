@@ -6,4 +6,7 @@ INSERT INTO bug (id, num, title, handle_users, handle_user, create_user, create_
 INSERT INTO bug_relation_case(id, case_id, bug_id, case_type, test_plan_id, test_plan_case_id, create_user, create_time, update_time)
 VALUES ('wx_test_id_1', 'wx_1', 'bug_id_1', 'FUNCTIONAL', null, null, 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000),
        ('wx_test_id_2', 'wx_2', 'bug_id_1', 'FUNCTIONAL', 'test-plan-id', 'bug_relate_case', 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000),
-       ('wx_test_id_3', 'wx_3', 'bug_id_2', 'FUNCTIONAL', 'test-plan-id', 'bug_relate_case-1', 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000);
+       ('wx_test_id_3', 'wx_3', 'bug_id_2', 'FUNCTIONAL', null, null, 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000);
+
+INSERT INTO `test_plan` (`id`,`project_id`,`parent_id`,`name`,`status`,`stage`,`create_time`,`create_user`)
+VALUES('test-plan-id','wx_test','3','cececec','3','4',UNIX_TIMESTAMP() * 1000,'admin');

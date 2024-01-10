@@ -11,9 +11,11 @@ import io.metersphere.provider.BaseAssociateBugProvider;
 import io.metersphere.request.AssociateBugPageRequest;
 import io.metersphere.request.AssociateBugRequest;
 import io.metersphere.request.BugPageProviderRequest;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -75,7 +77,15 @@ public class AssociateBugProvider implements BaseAssociateBugProvider {
 
     @Override
     public List<BugProviderDTO> hasAssociateBugPage(AssociateBugPageRequest request) {
-        return extBugRelateCaseMapper.getAssociateBugs(request, request.getSortString());
+        List<BugProviderDTO> associateBugs = extBugRelateCaseMapper.getAssociateBugs(request, request.getSortString());
         //TODO 需要转义状态和处理人属性
+        associateBugs.stream().forEach(item -> {
+            if (StringUtils.isNotBlank(item.getTestPlanName())) {
+                item.setSource(Translator.get("test_plan_relate"));
+            } else {
+                item.setSource(Translator.get("direct_related"));
+            }
+        });
+        return associateBugs;
     }
 }
