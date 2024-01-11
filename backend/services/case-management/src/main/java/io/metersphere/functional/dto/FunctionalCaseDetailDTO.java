@@ -50,6 +50,9 @@ public class FunctionalCaseDetailDTO implements Serializable {
     @Schema(description = "版本")
     private String versionId;
 
+    @Schema(description = "版本名称")
+    private String versionName;
+
     @Schema(description = "是否是公共用例库")
     private Boolean publicCase;
 
@@ -58,6 +61,9 @@ public class FunctionalCaseDetailDTO implements Serializable {
 
     @Schema(description =  "创建人")
     private String createUser;
+
+    @Schema(description =  "创建时间")
+    private Long createTime;
 
     @Schema(description =  "用例步骤（JSON)，step_model 为 Step 时启用")
     private String steps;
@@ -82,4 +88,7 @@ public class FunctionalCaseDetailDTO implements Serializable {
 
     @Schema(description = "关注标识")
     private Boolean followFlag;
+
+    @Schema(description = "用例等级")
+    private String functionalPriority;
 }

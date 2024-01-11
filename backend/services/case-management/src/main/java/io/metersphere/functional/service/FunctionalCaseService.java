@@ -11,6 +11,7 @@ import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.CaseManagementResultCode;
 import io.metersphere.project.domain.FileAssociation;
+import io.metersphere.project.domain.ProjectVersion;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.service.ProjectTemplateService;
@@ -21,6 +22,7 @@ import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
@@ -220,6 +222,11 @@ public class FunctionalCaseService {
         //获取附件信息
         functionalCaseAttachmentService.getAttachmentInfo(functionalCaseDetailDTO);
 
+        List<ProjectVersion> versions = extBaseProjectVersionMapper.getVersionByIds(List.of(functionalCaseDetailDTO.getVersionId()));
+        if (CollectionUtils.isNotEmpty(versions)) {
+            functionalCaseDetailDTO.setVersionName(versions.get(0).getName());
+        }
+
         return functionalCaseDetailDTO;
 
     }
@@ -262,8 +269,12 @@ public class FunctionalCaseService {
                 FunctionalCaseCustomField caseCustomField = functionalCaseCustomFieldService.getCustomField(item.getFieldId(), functionalCase.getId());
                 Optional.ofNullable(caseCustomField).ifPresentOrElse(customField -> {
                     item.setDefaultValue(customField.getValue());
+                    if (Translator.get("custom_field.functional_priority").equals(item.getFieldName())) {
+                        functionalCaseDetailDTO.setFunctionalPriority(customField.getValue());
+                    }
                 }, () -> {
                 });
+
             });
             functionalCaseDetailDTO.setCustomFields(customFields);
         }
@@ -405,7 +416,7 @@ public class FunctionalCaseService {
             doDelete(ids, userId);
         }
         param.put(CaseEvent.Param.USER_ID, userId);
-        param.put(CaseEvent.Param.EVENT_NAME,CaseEvent.Event.DELETE_FUNCTIONAL_CASE);
+        param.put(CaseEvent.Param.EVENT_NAME, CaseEvent.Event.DELETE_FUNCTIONAL_CASE);
         provider.updateCaseReview(param);
     }
 

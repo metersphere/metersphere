@@ -19,6 +19,9 @@ public class ReviewFunctionalCaseDTO implements Serializable {
     @Schema(description = "id")
     private String id;
 
+    @Schema(description = "业务id")
+    private String num;
+
     @Schema(description = "用例名称")
     private String name;
 
