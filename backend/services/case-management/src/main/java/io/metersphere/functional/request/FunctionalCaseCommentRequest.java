@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class FunctionalCaseCommentRequest {
 
@@ -33,5 +35,16 @@ public class FunctionalCaseCommentRequest {
     @Schema(description =  "任务事件(仅评论: ’COMMENT‘; 评论并@: ’AT‘; 回复评论/回复并@: ’REPLAY‘;)", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case_comment.event.not_blank}", groups = {Created.class})
     private String event;
+
+    @Schema(description = "项目Id")
+    @NotBlank(message = "{project.id.not_blank}")
+    private String projectId;
+
+    /**
+     * 新上传的文件ID
+     * 创建时先按ID创建目录，再把文件放入目录
+     */
+    @Schema(description = "新上传的文件ID")
+    private List<String> uploadFileIds;
 
 }

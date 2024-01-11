@@ -46,6 +46,7 @@ public class DefaultRepositoryDir {
     private static final String PROJECT_API_CASE_DIR = PROJECT_DIR + "/api-case/%s";
     private static final String PROJECT_ENV_SSL_DIR = PROJECT_DIR + "/environment/%s";
     private static final String PROJECT_FUNCTIONAL_CASE_DIR = PROJECT_DIR + "/functional-case/%s";
+    private static final String PROJECT_FUNCTIONAL_CASE_PREVIEW_DIR = PROJECT_DIR + "/functional-case/preview/%s";
     private static final String PROJECT_FILE_MANAGEMENT_DIR = PROJECT_DIR + "/file-management";
     private static final String PROJECT_FILE_MANAGEMENT_PREVIEW_DIR = PROJECT_DIR + "/file-management/preview";
     /**
@@ -82,6 +83,10 @@ public class DefaultRepositoryDir {
 
     public static String getFunctionalCaseDir(String projectId, String functionalCaseId) {
         return String.format(PROJECT_FUNCTIONAL_CASE_DIR, projectId, functionalCaseId);
+    }
+
+    public static String getFunctionalCasePreviewDir(String projectId, String functionalCaseId) {
+        return String.format(PROJECT_FUNCTIONAL_CASE_PREVIEW_DIR, projectId, functionalCaseId);
     }
 
     public static String getFileManagementDir(String projectId) {

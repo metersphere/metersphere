@@ -384,6 +384,76 @@ public class FunctionalCaseAttachmentExample {
             return (Criteria) this;
         }
 
+        public Criteria andFileSourceIsNull() {
+            addCriterion("file_source is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileSourceIsNotNull() {
+            addCriterion("file_source is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileSourceEqualTo(String value) {
+            addCriterion("file_source =", value, "fileSource");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileSourceNotEqualTo(String value) {
+            addCriterion("file_source <>", value, "fileSource");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileSourceGreaterThan(String value) {
+            addCriterion("file_source >", value, "fileSource");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileSourceGreaterThanOrEqualTo(String value) {
+            addCriterion("file_source >=", value, "fileSource");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileSourceLessThan(String value) {
+            addCriterion("file_source <", value, "fileSource");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileSourceLessThanOrEqualTo(String value) {
+            addCriterion("file_source <=", value, "fileSource");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileSourceLike(String value) {
+            addCriterion("file_source like", value, "fileSource");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileSourceNotLike(String value) {
+            addCriterion("file_source not like", value, "fileSource");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileSourceIn(List<String> values) {
+            addCriterion("file_source in", values, "fileSource");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileSourceNotIn(List<String> values) {
+            addCriterion("file_source not in", values, "fileSource");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileSourceBetween(String value1, String value2) {
+            addCriterion("file_source between", value1, value2, "fileSource");
+            return (Criteria) this;
+        }
+
+        public Criteria andFileSourceNotBetween(String value1, String value2) {
+            addCriterion("file_source not between", value1, value2, "fileSource");
+            return (Criteria) this;
+        }
+
         public Criteria andSizeIsNull() {
             addCriterion("`size` is null");
             return (Criteria) this;

@@ -95,4 +95,11 @@ public interface FileRepository {
      * @throws Exception
      */
     void copyFile(FileCopyRequest request) throws Exception;
+
+    /**
+     * 获取文件大小
+     * @param request
+     * @throws Exception
+     */
+    long getFileSize(FileRequest request) throws Exception;
 }

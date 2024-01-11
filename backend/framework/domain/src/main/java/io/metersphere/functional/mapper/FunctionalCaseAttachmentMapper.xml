@@ -6,6 +6,7 @@
     <result column="case_id" jdbcType="VARCHAR" property="caseId" />
     <result column="file_id" jdbcType="VARCHAR" property="fileId" />
     <result column="file_name" jdbcType="VARCHAR" property="fileName" />
+    <result column="file_source" jdbcType="VARCHAR" property="fileSource" />
     <result column="size" jdbcType="BIGINT" property="size" />
     <result column="local" jdbcType="BIT" property="local" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
@@ -70,7 +71,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, case_id, file_id, file_name, `size`, `local`, create_user, create_time
+    id, case_id, file_id, file_name, file_source, `size`, `local`, create_user, create_time
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.functional.domain.FunctionalCaseAttachmentExample" resultMap="BaseResultMap">
     select
@@ -104,11 +105,13 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.functional.domain.FunctionalCaseAttachment">
     insert into functional_case_attachment (id, case_id, file_id, 
-      file_name, `size`, `local`, create_user, 
-      create_time)
+      file_name, file_source, `size`, 
+      `local`, create_user, create_time
+      )
     values (#{id,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, #{fileId,jdbcType=VARCHAR}, 
-      #{fileName,jdbcType=VARCHAR}, #{size,jdbcType=BIGINT}, #{local,jdbcType=BIT}, #{createUser,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT})
+      #{fileName,jdbcType=VARCHAR}, #{fileSource,jdbcType=VARCHAR}, #{size,jdbcType=BIGINT}, 
+      #{local,jdbcType=BIT}, #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.functional.domain.FunctionalCaseAttachment">
     insert into functional_case_attachment
@@ -124,6 +127,9 @@
       </if>
       <if test="fileName != null">
         file_name,
+      </if>
+      <if test="fileSource != null">
+        file_source,
       </if>
       <if test="size != null">
         `size`,
@@ -150,6 +156,9 @@
       </if>
       <if test="fileName != null">
         #{fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="fileSource != null">
+        #{fileSource,jdbcType=VARCHAR},
       </if>
       <if test="size != null">
         #{size,jdbcType=BIGINT},
@@ -186,6 +195,9 @@
       <if test="record.fileName != null">
         file_name = #{record.fileName,jdbcType=VARCHAR},
       </if>
+      <if test="record.fileSource != null">
+        file_source = #{record.fileSource,jdbcType=VARCHAR},
+      </if>
       <if test="record.size != null">
         `size` = #{record.size,jdbcType=BIGINT},
       </if>
@@ -209,6 +221,7 @@
       case_id = #{record.caseId,jdbcType=VARCHAR},
       file_id = #{record.fileId,jdbcType=VARCHAR},
       file_name = #{record.fileName,jdbcType=VARCHAR},
+      file_source = #{record.fileSource,jdbcType=VARCHAR},
       `size` = #{record.size,jdbcType=BIGINT},
       `local` = #{record.local,jdbcType=BIT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
@@ -228,6 +241,9 @@
       </if>
       <if test="fileName != null">
         file_name = #{fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="fileSource != null">
+        file_source = #{fileSource,jdbcType=VARCHAR},
       </if>
       <if test="size != null">
         `size` = #{size,jdbcType=BIGINT},
@@ -249,6 +265,7 @@
     set case_id = #{caseId,jdbcType=VARCHAR},
       file_id = #{fileId,jdbcType=VARCHAR},
       file_name = #{fileName,jdbcType=VARCHAR},
+      file_source = #{fileSource,jdbcType=VARCHAR},
       `size` = #{size,jdbcType=BIGINT},
       `local` = #{local,jdbcType=BIT},
       create_user = #{createUser,jdbcType=VARCHAR},
@@ -257,12 +274,14 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into functional_case_attachment
-    (id, case_id, file_id, file_name, `size`, `local`, create_user, create_time)
+    (id, case_id, file_id, file_name, file_source, `size`, `local`, create_user, create_time
+      )
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.caseId,jdbcType=VARCHAR}, #{item.fileId,jdbcType=VARCHAR}, 
-        #{item.fileName,jdbcType=VARCHAR}, #{item.size,jdbcType=BIGINT}, #{item.local,jdbcType=BIT}, 
-        #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT})
+        #{item.fileName,jdbcType=VARCHAR}, #{item.fileSource,jdbcType=VARCHAR}, #{item.size,jdbcType=BIGINT}, 
+        #{item.local,jdbcType=BIT}, #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -286,6 +305,9 @@
         </if>
         <if test="'file_name'.toString() == column.value">
           #{item.fileName,jdbcType=VARCHAR}
+        </if>
+        <if test="'file_source'.toString() == column.value">
+          #{item.fileSource,jdbcType=VARCHAR}
         </if>
         <if test="'size'.toString() == column.value">
           #{item.size,jdbcType=BIGINT}

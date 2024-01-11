@@ -170,4 +170,11 @@ public class FunctionalCaseAttachmentController {
     }
 
 
+    @PostMapping("/upload/temp/file")
+    @Operation(summary = "用例管理-功能用例-上传副文本里所需的文件资源，并返回文件ID")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_COMMENT)
+    public String upload(@RequestParam("file") MultipartFile file) throws Exception {
+        return functionalCaseAttachmentService.uploadTemp(file);
+    }
+
 }
