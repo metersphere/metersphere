@@ -159,17 +159,15 @@ CREATE INDEX idx_pos ON api_definition_module(pos);
 CREATE UNIQUE INDEX uq_name_project_parent_type ON api_definition_module (project_id, name, parent_id);
 
 CREATE TABLE IF NOT EXISTS api_scenario(
-    `id` VARCHAR(50) NOT NULL   COMMENT '' ,
+    `id` VARCHAR(50) NOT NULL   COMMENT 'id' ,
     `name` VARCHAR(255) NOT NULL   COMMENT '场景名称' ,
     `priority` VARCHAR(10) NOT NULL   COMMENT '场景级别/P0/P1等' ,
     `status` VARCHAR(20) NOT NULL   COMMENT '场景状态/未规划/已完成 等' ,
-    `principal` VARCHAR(50) NOT NULL   COMMENT '责任人/用户fk' ,
     `step_total` INT NOT NULL  DEFAULT 0 COMMENT '场景步骤总数' ,
     `pass_rate` BIGINT NOT NULL  DEFAULT 0 COMMENT '通过率' ,
     `last_report_status` VARCHAR(50)    COMMENT '最后一次执行的结果状态' ,
     `last_report_id` VARCHAR(50)    COMMENT '最后一次执行的报告fk' ,
-    `num` INT    COMMENT '编号' ,
-    `custom_num` VARCHAR(50)    COMMENT '自定义id' ,
+    `num` BIGINT NOT NULL   COMMENT '编号' ,
     `deleted` BIT(1) NOT NULL  DEFAULT 0 COMMENT '删除状态' ,
     `pos` BIGINT NOT NULL   COMMENT '自定义排序' ,
     `version_id` VARCHAR(50)    COMMENT '版本fk' ,
@@ -186,8 +184,8 @@ CREATE TABLE IF NOT EXISTS api_scenario(
     `delete_user` VARCHAR(50)    COMMENT '删除人' ,
     `update_user` VARCHAR(50) NOT NULL   COMMENT '更新人' ,
     `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
-     PRIMARY KEY (id)
-) ENGINE = InnoDB
+    PRIMARY KEY (id)
+)  ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '场景';
 
@@ -204,6 +202,40 @@ CREATE INDEX idx_create_user ON api_scenario(create_user);
 CREATE INDEX idx_num ON api_scenario(num);
 CREATE INDEX idx_priority ON api_scenario(priority);
 CREATE INDEX idx_name ON api_scenario(name);
+
+CREATE TABLE IF NOT EXISTS api_scenario_step(
+    `id` VARCHAR(50) NOT NULL   COMMENT '步骤id' ,
+    `scenario_id` VARCHAR(50) NOT NULL   COMMENT '场景id' ,
+    `name` VARCHAR(255)    COMMENT '步骤名称' ,
+    `sort` BIGINT NOT NULL   COMMENT '序号' ,
+    `enable` BIT(1) NOT NULL  DEFAULT 1 COMMENT '启用/禁用' ,
+    `resource_id` BIGINT    COMMENT '资源id' ,
+    `resource_num` VARCHAR(50)    COMMENT '资源编号' ,
+    `step_type` VARCHAR(50)    COMMENT '步骤类型/API/CASE等' ,
+    `project_id` VARCHAR(50)    COMMENT '项目fk' ,
+    `parent_id` VARCHAR(50)   DEFAULT 'NONE' COMMENT '父级fk' ,
+    `version_id` VARCHAR(255)    COMMENT '版本号' ,
+    `source` VARCHAR(10)    COMMENT '引用/复制/自定义' ,
+    `config` VARCHAR(500)    COMMENT '循环等组件基础数据' ,
+    PRIMARY KEY (id)
+)  ENGINE = InnoDB
+   DEFAULT CHARSET = utf8mb4
+   COLLATE = utf8mb4_general_ci COMMENT = '场景步骤';
+
+CREATE INDEX idx_project_id ON api_scenario_step(project_id);
+CREATE INDEX idx_sort ON api_scenario_step(sort);
+CREATE INDEX idx_resource_id ON api_scenario_step(resource_id);
+CREATE INDEX idx_enable ON api_scenario_step(enable);
+CREATE INDEX idx_resource_num ON api_scenario_step(resource_num);
+
+CREATE TABLE IF NOT EXISTS api_scenario_step_blob(
+    `id` VARCHAR(50) NOT NULL   COMMENT '场景步骤id' ,
+    `content` LONGBLOB    COMMENT '场景步骤内容' ,
+    PRIMARY KEY (id)
+)  ENGINE = InnoDB
+   DEFAULT CHARSET = utf8mb4
+   COLLATE = utf8mb4_general_ci COMMENT = '场景步骤内容';
+
 
 CREATE TABLE IF NOT EXISTS api_scenario_follower(
   `api_scenario_id` VARCHAR(50) NOT NULL   COMMENT '场景fk' ,
@@ -235,26 +267,6 @@ CREATE TABLE IF NOT EXISTS api_scenario_module(
 CREATE INDEX idx_project_id ON api_scenario_module(project_id);
 CREATE INDEX idx_pos ON api_scenario_module(pos);
 CREATE UNIQUE INDEX uq_name_project_parent_type ON api_scenario_module (project_id, name, parent_id);
-
-
-CREATE TABLE IF NOT EXISTS api_scenario_reference(
-  `id` VARCHAR(50) NOT NULL   COMMENT '引用关系pk' ,
-  `api_scenario_id` VARCHAR(50) NOT NULL   COMMENT '场景fk' ,
-  `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
-  `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
-  `reference_id` VARCHAR(50) NOT NULL   COMMENT '引用步骤fk' ,
-  `reference_type` VARCHAR(20)    COMMENT '引用步骤类型/REF/COPY' ,
-  `data_type` VARCHAR(20)    COMMENT '步骤类型/CASE/API' ,
-  PRIMARY KEY (id)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '场景步骤引用CASE关系记录';
-
-
-CREATE INDEX idx_api_scenario_id ON api_scenario_reference(api_scenario_id);
-CREATE INDEX idx_reference_id ON api_scenario_reference(reference_id);
-CREATE INDEX idx_create_user ON api_scenario_reference(create_user);
-CREATE INDEX idx_reference_type ON api_scenario_reference(reference_type);
 
 CREATE TABLE IF NOT EXISTS api_scenario_report(
   `id` VARCHAR(50) NOT NULL   COMMENT '场景报告pk' ,
