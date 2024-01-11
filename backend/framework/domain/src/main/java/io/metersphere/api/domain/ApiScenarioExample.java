@@ -64,19 +64,50 @@ public class ApiScenarioExample {
     }
 
     protected abstract static class GeneratedCriteria {
+        protected List<Criterion> tagsCriteria;
+
+        protected List<Criterion> allCriteria;
+
         protected List<Criterion> criteria;
 
         protected GeneratedCriteria() {
             super();
             criteria = new ArrayList<Criterion>();
+            tagsCriteria = new ArrayList<Criterion>();
+        }
+
+        public List<Criterion> getTagsCriteria() {
+            return tagsCriteria;
+        }
+
+        protected void addTagsCriterion(String condition, Object value, String property) {
+            if (value == null) {
+                throw new RuntimeException("Value for " + property + " cannot be null");
+            }
+            tagsCriteria.add(new Criterion(condition, value, "io.metersphere.handler.ListTypeHandler"));
+            allCriteria = null;
+        }
+
+        protected void addTagsCriterion(String condition, List<String> value1, List<String> value2, String property) {
+            if (value1 == null || value2 == null) {
+                throw new RuntimeException("Between values for " + property + " cannot be null");
+            }
+            tagsCriteria.add(new Criterion(condition, value1, value2, "io.metersphere.handler.ListTypeHandler"));
+            allCriteria = null;
         }
 
         public boolean isValid() {
-            return criteria.size() > 0;
+            return criteria.size() > 0
+                || tagsCriteria.size() > 0;
         }
 
         public List<Criterion> getAllCriteria() {
-            return criteria;
+            if (allCriteria == null) {
+                allCriteria = new ArrayList<Criterion>();
+                allCriteria.addAll(criteria);
+                allCriteria.addAll(tagsCriteria);
+            }
+            return allCriteria;
         }
 
         public List<Criterion> getCriteria() {
@@ -88,6 +119,7 @@ public class ApiScenarioExample {
                 throw new RuntimeException("Value for condition cannot be null");
             }
             criteria.add(new Criterion(condition));
+            allCriteria = null;
         }
 
         protected void addCriterion(String condition, Object value, String property) {
@@ -95,6 +127,7 @@ public class ApiScenarioExample {
                 throw new RuntimeException("Value for " + property + " cannot be null");
             }
             criteria.add(new Criterion(condition, value));
+            allCriteria = null;
         }
 
         protected void addCriterion(String condition, Object value1, Object value2, String property) {
@@ -102,6 +135,7 @@ public class ApiScenarioExample {
                 throw new RuntimeException("Between values for " + property + " cannot be null");
             }
             criteria.add(new Criterion(condition, value1, value2));
+            allCriteria = null;
         }
 
         public Criteria andIdIsNull() {
@@ -381,76 +415,6 @@ public class ApiScenarioExample {
 
         public Criteria andStatusNotBetween(String value1, String value2) {
             addCriterion("`status` not between", value1, value2, "status");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrincipalIsNull() {
-            addCriterion("principal is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrincipalIsNotNull() {
-            addCriterion("principal is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrincipalEqualTo(String value) {
-            addCriterion("principal =", value, "principal");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrincipalNotEqualTo(String value) {
-            addCriterion("principal <>", value, "principal");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrincipalGreaterThan(String value) {
-            addCriterion("principal >", value, "principal");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrincipalGreaterThanOrEqualTo(String value) {
-            addCriterion("principal >=", value, "principal");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrincipalLessThan(String value) {
-            addCriterion("principal <", value, "principal");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrincipalLessThanOrEqualTo(String value) {
-            addCriterion("principal <=", value, "principal");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrincipalLike(String value) {
-            addCriterion("principal like", value, "principal");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrincipalNotLike(String value) {
-            addCriterion("principal not like", value, "principal");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrincipalIn(List<String> values) {
-            addCriterion("principal in", values, "principal");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrincipalNotIn(List<String> values) {
-            addCriterion("principal not in", values, "principal");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrincipalBetween(String value1, String value2) {
-            addCriterion("principal between", value1, value2, "principal");
-            return (Criteria) this;
-        }
-
-        public Criteria andPrincipalNotBetween(String value1, String value2) {
-            addCriterion("principal not between", value1, value2, "principal");
             return (Criteria) this;
         }
 
@@ -771,76 +735,6 @@ public class ApiScenarioExample {
 
         public Criteria andNumNotBetween(Long value1, Long value2) {
             addCriterion("num not between", value1, value2, "num");
-            return (Criteria) this;
-        }
-
-        public Criteria andCustomNumIsNull() {
-            addCriterion("custom_num is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andCustomNumIsNotNull() {
-            addCriterion("custom_num is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andCustomNumEqualTo(String value) {
-            addCriterion("custom_num =", value, "customNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andCustomNumNotEqualTo(String value) {
-            addCriterion("custom_num <>", value, "customNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andCustomNumGreaterThan(String value) {
-            addCriterion("custom_num >", value, "customNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andCustomNumGreaterThanOrEqualTo(String value) {
-            addCriterion("custom_num >=", value, "customNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andCustomNumLessThan(String value) {
-            addCriterion("custom_num <", value, "customNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andCustomNumLessThanOrEqualTo(String value) {
-            addCriterion("custom_num <=", value, "customNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andCustomNumLike(String value) {
-            addCriterion("custom_num like", value, "customNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andCustomNumNotLike(String value) {
-            addCriterion("custom_num not like", value, "customNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andCustomNumIn(List<String> values) {
-            addCriterion("custom_num in", values, "customNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andCustomNumNotIn(List<String> values) {
-            addCriterion("custom_num not in", values, "customNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andCustomNumBetween(String value1, String value2) {
-            addCriterion("custom_num between", value1, value2, "customNum");
-            return (Criteria) this;
-        }
-
-        public Criteria andCustomNumNotBetween(String value1, String value2) {
-            addCriterion("custom_num not between", value1, value2, "customNum");
             return (Criteria) this;
         }
 
@@ -1384,63 +1278,63 @@ public class ApiScenarioExample {
             return (Criteria) this;
         }
 
-        public Criteria andTagsEqualTo(String value) {
-            addCriterion("tags =", value, "tags");
+        public Criteria andTagsEqualTo(List<String> value) {
+            addTagsCriterion("tags =", value, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagsNotEqualTo(String value) {
-            addCriterion("tags <>", value, "tags");
+        public Criteria andTagsNotEqualTo(List<String> value) {
+            addTagsCriterion("tags <>", value, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagsGreaterThan(String value) {
-            addCriterion("tags >", value, "tags");
+        public Criteria andTagsGreaterThan(List<String> value) {
+            addTagsCriterion("tags >", value, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagsGreaterThanOrEqualTo(String value) {
-            addCriterion("tags >=", value, "tags");
+        public Criteria andTagsGreaterThanOrEqualTo(List<String> value) {
+            addTagsCriterion("tags >=", value, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagsLessThan(String value) {
-            addCriterion("tags <", value, "tags");
+        public Criteria andTagsLessThan(List<String> value) {
+            addTagsCriterion("tags <", value, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagsLessThanOrEqualTo(String value) {
-            addCriterion("tags <=", value, "tags");
+        public Criteria andTagsLessThanOrEqualTo(List<String> value) {
+            addTagsCriterion("tags <=", value, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagsLike(String value) {
-            addCriterion("tags like", value, "tags");
+        public Criteria andTagsLike(List<String> value) {
+            addTagsCriterion("tags like", value, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagsNotLike(String value) {
-            addCriterion("tags not like", value, "tags");
+        public Criteria andTagsNotLike(List<String> value) {
+            addTagsCriterion("tags not like", value, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagsIn(List<String> values) {
-            addCriterion("tags in", values, "tags");
+        public Criteria andTagsIn(List<List<String>> values) {
+            addTagsCriterion("tags in", values, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagsNotIn(List<String> values) {
-            addCriterion("tags not in", values, "tags");
+        public Criteria andTagsNotIn(List<List<String>> values) {
+            addTagsCriterion("tags not in", values, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagsBetween(String value1, String value2) {
-            addCriterion("tags between", value1, value2, "tags");
+        public Criteria andTagsBetween(List<String> value1, List<String> value2) {
+            addTagsCriterion("tags between", value1, value2, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagsNotBetween(String value1, String value2) {
-            addCriterion("tags not between", value1, value2, "tags");
+        public Criteria andTagsNotBetween(List<String> value1, List<String> value2) {
+            addTagsCriterion("tags not between", value1, value2, "tags");
             return (Criteria) this;
         }
 

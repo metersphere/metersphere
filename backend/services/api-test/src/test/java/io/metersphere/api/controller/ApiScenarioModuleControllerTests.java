@@ -126,7 +126,6 @@ public class ApiScenarioModuleControllerTests extends BaseTest {
         scenario.setModuleId(moduleId);
         scenario.setStatus("未规划");
         scenario.setPriority("P1");
-        scenario.setPrincipal("admin");
         scenario.setNum(NumGenerator.nextNum(project.getId(), ApplicationNumScope.API_SCENARIO));
         scenario.setPos(0L);
         scenario.setLatest(true);

@@ -82,12 +82,18 @@
         <table tableName="api_environment_config"/>
         <table tableName="api_report"/>
         <table tableName="api_report_blob"/>
+
         <table tableName="api_scenario"/>
-        <table tableName="api_scenario_blob"/>
+        <table tableName="api_scenario">
+            <columnOverride column="tags" javaType="java.util.List&lt;String&gt;" jdbcType="VARCHAR" typeHandler="io.metersphere.handler.ListTypeHandler" />
+        </table>
+
+        <table tableName="api_scenario_step"/>
+        <table tableName="api_scenario_step_blob"/>
+
         <table tableName="api_scenario_environment"/>
         <table tableName="api_scenario_follower"/>
         <table tableName="api_scenario_module"/>
-        <table tableName="api_scenario_reference"/>
         <table tableName="api_scenario_report"/>
         <table tableName="api_scenario_report_detail"/>
         <table tableName="api_scenario_report_log"/>

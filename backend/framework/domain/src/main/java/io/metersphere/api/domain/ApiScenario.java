@@ -6,11 +6,12 @@ import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import lombok.Data;
 
 @Data
 public class ApiScenario implements Serializable {
-    @Schema(description = "", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_scenario.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{api_scenario.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
@@ -30,11 +31,6 @@ public class ApiScenario implements Serializable {
     @Size(min = 1, max = 20, message = "{api_scenario.status.length_range}", groups = {Created.class, Updated.class})
     private String status;
 
-    @Schema(description = "责任人/用户fk", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario.principal.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{api_scenario.principal.length_range}", groups = {Created.class, Updated.class})
-    private String principal;
-
     @Schema(description = "场景步骤总数", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{api_scenario.step_total.not_blank}", groups = {Created.class})
     private Integer stepTotal;
@@ -51,9 +47,6 @@ public class ApiScenario implements Serializable {
 
     @Schema(description = "编号")
     private Long num;
-
-    @Schema(description = "自定义id")
-    private String customNum;
 
     @Schema(description = "删除状态", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{api_scenario.deleted.not_blank}", groups = {Created.class})
@@ -84,7 +77,7 @@ public class ApiScenario implements Serializable {
     private String description;
 
     @Schema(description = "标签")
-    private String tags;
+    private java.util.List<String> tags;
 
     @Schema(description = "是否为环境组", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{api_scenario.grouped.not_blank}", groups = {Created.class})
@@ -115,13 +108,11 @@ public class ApiScenario implements Serializable {
         name("name", "name", "VARCHAR", true),
         priority("priority", "priority", "VARCHAR", false),
         status("status", "status", "VARCHAR", true),
-        principal("principal", "principal", "VARCHAR", false),
         stepTotal("step_total", "stepTotal", "INTEGER", false),
         passRate("pass_rate", "passRate", "BIGINT", false),
         lastReportStatus("last_report_status", "lastReportStatus", "VARCHAR", false),
         lastReportId("last_report_id", "lastReportId", "VARCHAR", false),
         num("num", "num", "BIGINT", false),
-        customNum("custom_num", "customNum", "VARCHAR", false),
         deleted("deleted", "deleted", "BIT", false),
         pos("pos", "pos", "BIGINT", false),
         versionId("version_id", "versionId", "VARCHAR", false),

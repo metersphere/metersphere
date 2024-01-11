@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.api.mapper.ApiScenarioBlobMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiScenarioBlob">
+<mapper namespace="io.metersphere.api.mapper.ApiScenarioStepBlobMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiScenarioStepBlob">
     <id column="id" jdbcType="VARCHAR" property="id" />
   </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.api.domain.ApiScenarioBlob">
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.api.domain.ApiScenarioStepBlob">
     <result column="content" jdbcType="LONGVARBINARY" property="content" />
   </resultMap>
   <sql id="Example_Where_Clause">
@@ -71,7 +71,7 @@
   <sql id="Blob_Column_List">
     content
   </sql>
-  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.api.domain.ApiScenarioBlobExample" resultMap="ResultMapWithBLOBs">
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.api.domain.ApiScenarioStepBlobExample" resultMap="ResultMapWithBLOBs">
     select
     <if test="distinct">
       distinct
@@ -79,7 +79,7 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from api_scenario_blob
+    from api_scenario_step_blob
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -87,13 +87,13 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiScenarioBlobExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiScenarioStepBlobExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from api_scenario_blob
+    from api_scenario_step_blob
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -106,25 +106,25 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from api_scenario_blob
+    from api_scenario_step_blob
     where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from api_scenario_blob
+    delete from api_scenario_step_blob
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.api.domain.ApiScenarioBlobExample">
-    delete from api_scenario_blob
+  <delete id="deleteByExample" parameterType="io.metersphere.api.domain.ApiScenarioStepBlobExample">
+    delete from api_scenario_step_blob
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.api.domain.ApiScenarioBlob">
-    insert into api_scenario_blob (id, content)
+  <insert id="insert" parameterType="io.metersphere.api.domain.ApiScenarioStepBlob">
+    insert into api_scenario_step_blob (id, content)
     values (#{id,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARBINARY})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiScenarioBlob">
-    insert into api_scenario_blob
+  <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiScenarioStepBlob">
+    insert into api_scenario_step_blob
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
@@ -142,14 +142,14 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.api.domain.ApiScenarioBlobExample" resultType="java.lang.Long">
-    select count(*) from api_scenario_blob
+  <select id="countByExample" parameterType="io.metersphere.api.domain.ApiScenarioStepBlobExample" resultType="java.lang.Long">
+    select count(*) from api_scenario_step_blob
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update api_scenario_blob
+    update api_scenario_step_blob
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
@@ -163,7 +163,7 @@
     </if>
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
-    update api_scenario_blob
+    update api_scenario_step_blob
     set id = #{record.id,jdbcType=VARCHAR},
       content = #{record.content,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
@@ -171,14 +171,14 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update api_scenario_blob
+    update api_scenario_step_blob
     set id = #{record.id,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.api.domain.ApiScenarioBlob">
-    update api_scenario_blob
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.api.domain.ApiScenarioStepBlob">
+    update api_scenario_step_blob
     <set>
       <if test="content != null">
         content = #{content,jdbcType=LONGVARBINARY},
@@ -186,13 +186,13 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.api.domain.ApiScenarioBlob">
-    update api_scenario_blob
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.api.domain.ApiScenarioStepBlob">
+    update api_scenario_step_blob
     set content = #{content,jdbcType=LONGVARBINARY}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
-    insert into api_scenario_blob
+    insert into api_scenario_step_blob
     (id, content)
     values
     <foreach collection="list" item="item" separator=",">
@@ -200,7 +200,7 @@
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
-    insert into api_scenario_blob (
+    insert into api_scenario_step_blob (
     <foreach collection="selective" item="column" separator=",">
       ${column.escapedColumnName}
     </foreach>
