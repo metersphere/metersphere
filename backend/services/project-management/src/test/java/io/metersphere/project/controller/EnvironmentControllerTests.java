@@ -788,7 +788,7 @@ public class EnvironmentControllerTests extends BaseTest {
         // 测试500
         dataSource.setDriver("com.mysql.cj.jdbc.Driver");
         dataSource.setDbUrl("jdbc:mysql://");
-        this.requestPost(validate, dataSource, ERROR_REQUEST_MATCHER);
+        this.requestPost(validate + "500", dataSource, ERROR_REQUEST_MATCHER);
     }
 
     @Test

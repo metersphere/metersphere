@@ -3,10 +3,17 @@ SET SESSION innodb_lock_wait_timeout = 7200;
 
 CREATE TABLE IF NOT EXISTS custom_function
 (
-    `id`          VARCHAR(50)  NOT NULL COMMENT '',
+    `id`          VARCHAR(50)  NOT NULL COMMENT '主键ID',
+    `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
     `name`        VARCHAR(255) NOT NULL COMMENT '函数名',
     `tags`        VARCHAR(1000) COMMENT '标签',
     `description` VARCHAR(500) COMMENT '函数描述',
+    `type` VARCHAR(50) DEFAULT NULL COMMENT '脚本语言类型',
+    `status` VARCHAR(50)    COMMENT '脚本状态（进行中/已完成）' ,
+    `create_time` BIGINT    COMMENT '创建时间' ,
+    `update_time` BIGINT    COMMENT '更新时间' ,
+    `create_user` VARCHAR(50)    COMMENT '创建人' ,
+    `update_user` VARCHAR(50)    COMMENT '更新人' ,
     PRIMARY KEY (id)
 )  ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4

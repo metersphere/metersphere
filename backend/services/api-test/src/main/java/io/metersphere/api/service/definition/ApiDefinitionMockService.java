@@ -114,7 +114,7 @@ public class ApiDefinitionMockService {
         }
         apiDefinitionMock.setEnable(true);
         ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiDefinitionMock.getApiDefinitionId());
-        apiDefinitionMock.setExpectNum(String.valueOf(NumGenerator.nextNum(request.getProjectId() + "_" + apiDefinition.getNum(), ApplicationNumScope.API_TEST_CASE)));
+        apiDefinitionMock.setExpectNum(String.valueOf(NumGenerator.nextNum(request.getProjectId() + "_" + apiDefinition.getNum(), ApplicationNumScope.API_MOCK)));
 
         apiDefinitionMockMapper.insertSelective(apiDefinitionMock);
         ApiDefinitionMockConfig apiDefinitionMockConfig = new ApiDefinitionMockConfig();
@@ -208,7 +208,7 @@ public class ApiDefinitionMockService {
         apiDefinitionMock.setCreateUser(userId);
         apiDefinitionMock.setEnable(true);
         ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiDefinitionMock.getApiDefinitionId());
-        apiDefinitionMock.setExpectNum(String.valueOf(NumGenerator.nextNum(request.getProjectId() + "_" + apiDefinition.getNum(), ApplicationNumScope.API_TEST_CASE)));
+        apiDefinitionMock.setExpectNum(String.valueOf(NumGenerator.nextNum(request.getProjectId() + "_" + apiDefinition.getNum(), ApplicationNumScope.API_MOCK)));
         apiDefinitionMockMapper.insertSelective(apiDefinitionMock);
 
         Optional<ApiDefinitionMockConfig> apiDefinitionMockConfigOptional = Optional.ofNullable(apiDefinitionMockConfigMapper.selectByPrimaryKey(request.getId()));

@@ -198,6 +198,13 @@ public class PermissionConstants {
     public static final String PROJECT_CUSTOM_FIELD_DELETE = "PROJECT_CUSTOM_FIELD:READ+DELETE";
     /*------ end: PROJECT_CUSTOM_FIELD ------*/
 
+    /*------ start: PROJECT_CUSTOM_FUNCTION------*/
+    public static final String PROJECT_CUSTOM_FUNCTION_READ = "PROJECT_CUSTOM_FUNCTION:READ";
+    public static final String PROJECT_CUSTOM_FUNCTION_ADD = "PROJECT_CUSTOM_FUNCTION:READ+ADD";
+    public static final String PROJECT_CUSTOM_FUNCTION_UPDATE = "PROJECT_CUSTOM_FUNCTION:READ+UPDATE";
+    public static final String PROJECT_CUSTOM_FUNCTION_DELETE = "PROJECT_CUSTOM_FUNCTION:READ+DELETE";
+    /*------ end: PROJECT_CUSTOM_FUNCTION ------*/
+
     /*------ start: PROJECT_TEMPLATE ------*/
     public static final String PROJECT_TEMPLATE_READ = "PROJECT_TEMPLATE:READ";
     public static final String PROJECT_TEMPLATE_ADD = "PROJECT_TEMPLATE:READ+ADD";

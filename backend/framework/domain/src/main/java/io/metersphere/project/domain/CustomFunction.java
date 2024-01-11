@@ -6,33 +6,65 @@ import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
 import lombok.Data;
 
 @Data
 public class CustomFunction implements Serializable {
-    @Schema(description =  "", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "主键ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{custom_function.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{custom_function.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(description =  "函数名", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{custom_function.project_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{custom_function.project_id.length_range}", groups = {Created.class, Updated.class})
+    private String projectId;
+
+    @Schema(description = "函数名", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{custom_function.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{custom_function.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(description =  "标签")
-    private String tags;
+    @Schema(description = "标签")
+    private List<String> tags;
 
-    @Schema(description =  "函数描述")
+    @Schema(description = "函数描述")
     private String description;
+
+    @Schema(description = "脚本语言类型")
+    private String type;
+
+    @Schema(description = "脚本状态（进行中/已完成）")
+    private String status;
+
+    @Schema(description = "创建时间")
+    private Long createTime;
+
+    @Schema(description = "更新时间")
+    private Long updateTime;
+
+    @Schema(description = "创建人")
+    private String createUser;
+
+    @Schema(description = "更新人")
+    private String updateUser;
 
     private static final long serialVersionUID = 1L;
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
+        projectId("project_id", "projectId", "VARCHAR", false),
         name("name", "name", "VARCHAR", true),
         tags("tags", "tags", "VARCHAR", false),
-        description("description", "description", "VARCHAR", false);
+        description("description", "description", "VARCHAR", false),
+        type("type", "type", "VARCHAR", true),
+        status("status", "status", "VARCHAR", true),
+        createTime("create_time", "createTime", "BIGINT", false),
+        updateTime("update_time", "updateTime", "BIGINT", false),
+        createUser("create_user", "createUser", "VARCHAR", false),
+        updateUser("update_user", "updateUser", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

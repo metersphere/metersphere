@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.api.mapper.ExtApiDefinitionMockMapper">
+<mapper namespace="io.metersphere.project.mapper.ExtCustomFunctionMapper">
 
-    <resultMap id="ApiDefinitionMockDTO" type="io.metersphere.api.dto.definition.ApiDefinitionMockDTO">
+    <resultMap id="CustomFunctionDTO" type="io.metersphere.project.dto.customfunction.CustomFunctionDTO">
         <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
     </resultMap>
 
-    <select id="list" resultMap="ApiDefinitionMockDTO">
+    <select id="list" resultMap="CustomFunctionDTO">
         select
-        m.id, m.create_time, m.update_time, m.create_user, m.`name`, m.tags, m.`enable`, m.expect_num, m.project_id,
-        m.api_definition_id, u.name as create_user_name
-        from api_definition_mock m
-        left join `api_definition` d on d.id = m.api_definition_id
-        left join `user` u on u.id = m.create_user
-        where m.api_definition_id = #{request.apiDefinitionId}
+        c.id, c.`name`, c.project_id, c.tags, c.status, c.`type`, c.description, c.create_time, c.update_time, c.create_user, c.update_user, u.name as create_user_name
+        from custom_function c
+        left join `user` u on u.id = c.create_user
+        where c.project_id = #{request.projectId}
         <include refid="queryWhereCondition"/>
     </select>
+
     <select id="getIdsByApiIds" resultType="java.lang.String">
         select
         m.id
@@ -30,14 +29,17 @@
     <sql id="queryWhereCondition">
         <if test="request.keyword != null and request.keyword != ''">
             and (
-            m.expect_num like concat('%', #{request.keyword},'%')
-            or m.name like concat('%', #{request.keyword},'%')
-            or d.path like concat('%', #{request.keyword},'%')
-            or m.tags like JSON_CONTAINS(m.tags, concat('["',#{request.keyword},'"]'))
+            c.name like concat('%', #{request.keyword},'%')
+            or c.tags like JSON_CONTAINS(tags, concat('["',#{request.keyword},'"]'))
             )
         </if>
-        <if test="request.projectId != null and request.projectId != ''">
-            and m.project_id = #{request.projectId}
+
+        <if test="request.type != null and request.type != ''">
+            and c.type = #{request.type}
+        </if>
+
+        <if test="request.status != null and request.status != ''">
+            and c.status = #{request.status}
         </if>
 
         <include refid="filters">
@@ -59,12 +61,8 @@
             <foreach collection="${filter}.entrySet()" index="key" item="values">
                 <if test="values != null and values.size() > 0">
                     <choose>
-                        <when test="key=='enable'">
-                            and m.enable in
-                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
-                        </when>
-                        <when test="key=='create_user'">
-                            and m.create_user in
+                        <when test="key=='status'">
+                            and c.status in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                     </choose>
@@ -75,42 +73,42 @@
 
     <sql id="combine">
         <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
-            and m.name
+            and c.name
             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                 <property name="object" value="${condition}.name"/>
             </include>
         </if>
 
         <if test="${condition}.updateTime != null">
-            and m.update_time
+            and c.update_time
             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                 <property name="object" value="${condition}.updateTime"/>
             </include>
         </if>
 
         <if test="${condition}.createTime != null">
-            and m.create_time
+            and c.create_time
             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                 <property name="object" value="${condition}.createTime"/>
             </include>
         </if>
 
         <if test="${condition}.createUser != null">
-            and m.create_user
+            and c.create_user
             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                 <property name="object" value="${condition}.createUser"/>
             </include>
         </if>
 
         <if test="${condition}.enable != null">
-            and m.enable
+            and c.status
             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                <property name="object" value="${condition}.enable"/>
+                <property name="object" value="${condition}.status"/>
             </include>
         </if>
 
         <if test='${condition}.tags != null and ${ObjectTags}.operator == "not like"'>
-            and (m.tags is null or m.tags
+            and (c.tags is null or c.tags
             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                 <property name="object" value="${condition}.tags"/>
             </include>
@@ -118,7 +116,7 @@
         </if>
 
         <if test='${condition}.tags != null and ${ObjectTags}.operator == "like"'>
-            and m.tags
+            and c.tags
             <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                 <property name="object" value="${condition}.tags"/>
             </include>
