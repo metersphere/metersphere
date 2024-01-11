@@ -386,11 +386,6 @@ public class JmeterDocumentParser implements EngineSourceParser {
         if (content == null) {
             return;
         }
-        StringTokenizer tokenizer = new StringTokenizer(IOUtils.toString(content, StandardCharsets.UTF_8), StringUtils.LF);
-        if (!tokenizer.hasMoreTokens()) {
-            return;
-        }
-        StringBuilder csv = new StringBuilder();
         Object config = ((Map) csvConfig).get(filename);
         if (config == null) {
             return;
@@ -399,6 +394,11 @@ public class JmeterDocumentParser implements EngineSourceParser {
         if (!BooleanUtils.toBoolean(csvSplit)) {
             return;
         }
+        StringTokenizer tokenizer = new StringTokenizer(IOUtils.toString(content, StandardCharsets.UTF_8), StringUtils.LF);
+        if (!tokenizer.hasMoreTokens()) {
+            return;
+        }
+        StringBuilder csv = new StringBuilder();
         Boolean csvHasHeader = (Boolean) ((Map) (config)).get("csvHasHeader");
         if (BooleanUtils.toBoolean(csvHasHeader)) {
             String header = tokenizer.nextToken();
