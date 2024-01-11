@@ -11,7 +11,7 @@ INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, r
 VALUES ('TEST_FUNCTIONAL_CASE_ID_1', 2, 'TEST_MODULE_ID_GYQ', '100001100001', '100001', '测试多版本', 'UN_REVIEWED', '["测试标签_1"]', 'STEP', 5000, 'v1.0.0', 'TEST_REF_ID', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL);
 
 INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
-VALUES ('TEST_FUNCTIONAL_CASE_ID_2', 3, 'TEST_MODULE_ID_GYQ', '100001100001', '100001', 'copy_测试多版本', 'UN_REVIEWED', NULL, 'STEP', 15000, 'v2.0.0', 'TEST_REF_ID', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL);
+VALUES ('TEST_FUNCTIONAL_CASE_ID_2', 3, 'TEST_MODULE_ID_GYQ', '100001100001', '100001', 'copy_测试多版本', 'UN_REVIEWED', NULL, 'STEP', 15000, 'v2.0.1', 'TEST_REF_ID', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL);
 
 INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
 VALUES ('TEST_FUNCTIONAL_CASE_ID_3', 3, 'TEST_MODULE_ID_GYQ', '100001100001', '100001', 'copy_测试多版本', 'UN_REVIEWED', NULL, 'STEP', 25000, 'v3.0.0', 'TEST_REF_ID', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL);
@@ -69,4 +69,6 @@ INSERT INTO case_review_functional_case(id, review_id, case_id, status, create_t
 INSERT INTO case_review(id, num, name, module_id, project_id, status, review_pass_rule, pos, start_time, end_time, case_count, pass_rate, tags, description, create_time, create_user, update_time, update_user)
 VALUES ('wx_review_id',10006,'测试重新提审', 'test_module_one', 'TEST_MODULE_ID_GYQ', 'COMPLETED', 'SINGLE', 001, null, null, 1,100.00,null,null,1698058347559,'admin',1698058347559,'admin');
 
+INSERT INTO project_version(id, project_id, name, description, status, latest, publish_time, start_time, end_time, create_time, create_user)
+VALUES ('v2.0.1', 'wx_relationship', 'v1.0', NULL, 'open', b'1', 1698810592000, 1698810592000, 1698810592000, 1698810592000, 'admin');
 

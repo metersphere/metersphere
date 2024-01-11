@@ -37,7 +37,8 @@
         crfc.create_time as createTime,
         functional_case.version_id as versionId,
         functional_case.module_id as moduleId,
-        functional_case.name as name
+        functional_case.name as name,
+        functional_case.num as num
         FROM
         case_review_functional_case crfc
         LEFT JOIN functional_case ON crfc.case_id = functional_case.id
@@ -108,7 +109,7 @@
             <foreach collection="${filter}.entrySet()" index="key" item="values">
                 <if test="values != null and values.size() > 0">
                     <choose>
-                        <when test="key=='review_status'">
+                        <when test="key=='status'">
                             case_review_functional_case.review_status in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                             <include refid="queryType">

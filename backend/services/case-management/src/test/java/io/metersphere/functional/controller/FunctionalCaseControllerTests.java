@@ -1,21 +1,27 @@
 package io.metersphere.functional.controller;
 
 import io.metersphere.functional.domain.FunctionalCase;
+import io.metersphere.functional.domain.FunctionalCaseCustomField;
 import io.metersphere.functional.dto.CaseCustomFieldDTO;
 import io.metersphere.functional.dto.FunctionalCasePageDTO;
+import io.metersphere.functional.mapper.FunctionalCaseCustomFieldMapper;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.CaseManagementResultCode;
 import io.metersphere.functional.utils.FileBaseUtils;
 import io.metersphere.project.domain.Notification;
 import io.metersphere.project.domain.NotificationExample;
 import io.metersphere.project.mapper.NotificationMapper;
+import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.CustomFieldType;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.constants.TemplateScopeType;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.CustomField;
+import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
+import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
@@ -60,6 +66,10 @@ public class FunctionalCaseControllerTests extends BaseTest {
 
     @Resource
     private CustomFieldMapper customFieldMapper;
+    @Resource
+    private ProjectTemplateService projectTemplateService;
+    @Resource
+    private FunctionalCaseCustomFieldMapper functionalCaseCustomFieldMapper;
 
     @Test
     @Order(1)
@@ -132,6 +142,21 @@ public class FunctionalCaseControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
+        this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_DETAIL_URL + "TEST_FUNCTIONAL_CASE_ID_2");
+
+        //增加覆盖率
+        TemplateDTO templateDTO = projectTemplateService.getTemplateDTOById("21312", "100001100001", TemplateScene.FUNCTIONAL.name());
+        List<TemplateCustomFieldDTO> customFields = templateDTO.getCustomFields();
+        customFields.forEach(item ->{
+            if (Translator.get("custom_field.functional_priority").equals(item.getFieldName())) {
+                FunctionalCaseCustomField functionalCaseCustomField = new FunctionalCaseCustomField();
+                functionalCaseCustomField.setCaseId("TEST_FUNCTIONAL_CASE_ID_3");
+                functionalCaseCustomField.setFieldId(item.getFieldId());
+                functionalCaseCustomField.setValue("P3");
+                functionalCaseCustomFieldMapper.insertSelective(functionalCaseCustomField);
+            }
+        });
+        this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_DETAIL_URL + "TEST_FUNCTIONAL_CASE_ID_3");
     }
 
 
