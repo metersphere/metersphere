@@ -39,7 +39,12 @@
   // 初始化评论列表
   async function initCommentList() {
     try {
-      commentList.value = await getCommentList(props.caseId);
+      const result = await getCommentList(props.caseId);
+      commentList.value = result.map((item) => {
+        return {
+          ...item,
+        };
+      });
     } catch (error) {
       console.log(error);
     }

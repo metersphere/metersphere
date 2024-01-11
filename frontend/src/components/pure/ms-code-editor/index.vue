@@ -19,7 +19,10 @@
         {{ t('msCodeEditor.fullScreen') }}
       </div>
     </div>
-    <div ref="codeEditBox" :class="['ms-code-editor', isFullscreen ? 'ms-code-editor-full-screen' : '']"></div>
+    <div class="flex w-full flex-row">
+      <div ref="codeEditBox" :class="['ms-code-editor', isFullscreen ? 'ms-code-editor-full-screen' : '']"></div>
+      <slot name="rightBox"> </slot>
+    </div>
   </div>
 </template>
 
@@ -33,6 +36,8 @@
   import MsCodeEditorTheme from './themes';
   import { CustomTheme, editorProps, Theme } from './types';
   import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
+  import prettier from 'prettier';
+  import parserBabel from 'prettier/parser-babel';
 
   export default defineComponent({
     name: 'MonacoEditor',

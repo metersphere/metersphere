@@ -240,6 +240,8 @@ export default {
   'caseManagement.featureCase.selectTransferDirectory': '请选择转存目录',
   'caseManagement.featureCase.quicklyCreateDefectSuccess': '快速创建缺陷成功',
   'caseManagement.featureCase.cancelDependencyTip': '确认取消依赖关系吗？',
+  'caseManagement.featureCase.cancelAssociatedDefectTip': '确认取消 {name} 关联缺陷吗？',
   'caseManagement.featureCase.cancelDependencyContent': '取消后，影响测试计划相关统计',
-  'caseManagement.featureCase.AssociatedSuccess': '关联成功',
+  'caseManagement.featureCase.associatedSuccess': '关联成功',
+  'caseManagement.featureCase.defectSource': '缺陷来源',
 };

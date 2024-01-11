@@ -163,11 +163,13 @@
 
   // 禁用默认拖拽事件
   function disableDefaultEvents() {
-    const doc = document.documentElement;
-    doc.addEventListener('dragleave', (e) => e.preventDefault()); // 拖离
-    doc.addEventListener('drop', (e) => e.preventDefault()); // 拖后放
-    doc.addEventListener('dragenter', (e) => e.preventDefault()); // 拖进
-    doc.addEventListener('dragover', (e) => e.preventDefault()); // 结束拖拽
+    const doc = document.querySelector('body');
+    if (doc) {
+      doc.addEventListener('dragleave', (e) => e.preventDefault()); // 拖离
+      doc.addEventListener('drop', (e) => e.preventDefault()); // 拖后放
+      doc.addEventListener('dragenter', (e) => e.preventDefault()); // 拖进
+      doc.addEventListener('dragover', (e) => e.preventDefault()); // 结束拖拽
+    }
   }
 
   const menuWidth = ref<number>();
@@ -186,8 +188,12 @@
     resizeObserver.value.observe(targetElement.value);
     menuWidth.value = targetElement.value.getBoundingClientRect().width;
     if (ele) {
-      ele.addEventListener('dragenter', () => {
-        showDropArea.value = true;
+      ele.addEventListener('dragenter', (event) => {
+        const { dataTransfer } = event;
+        if (dataTransfer && dataTransfer.types.includes('Files')) {
+          // 处理拖拽的文件
+          showDropArea.value = true;
+        }
       });
       // 拖后放
       ele.addEventListener('dragleave', (e: any) => {

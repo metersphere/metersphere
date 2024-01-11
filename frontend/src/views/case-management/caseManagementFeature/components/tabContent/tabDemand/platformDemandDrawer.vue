@@ -5,7 +5,8 @@
     :title="t('caseManagement.featureCase.associatedFile')"
     :ok-text="t('caseManagement.featureCase.associated')"
     :ok-loading="drawerLoading"
-    :width="960"
+    :width="1200"
+    :mask-closable="false"
     unmount-on-close
     :show-continue="false"
     @confirm="handleDrawerConfirm"

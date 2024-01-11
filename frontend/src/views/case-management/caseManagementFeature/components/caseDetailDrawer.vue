@@ -11,6 +11,7 @@
     :pagination="props.pagination"
     :table-data="props.tableData"
     :page-change="props.pageChange"
+    :mask-closable="false"
     @loaded="loadedCase"
   >
     <template #titleLeft>
@@ -118,7 +119,7 @@
                 />
                 <TabDemand v-else-if="activeTab === 'requirement'" :case-id="props.detailId" />
                 <TabCaseTable v-else-if="activeTab === 'case'" :case-id="props.detailId" />
-                <TabDefect v-else-if="activeTab === 'bug'" />
+                <TabDefect v-else-if="activeTab === 'bug'" :case-id="props.detailId" />
                 <TabDependency v-else-if="activeTab === 'dependency'" :case-id="props.detailId" />
                 <TabCaseReview v-else-if="activeTab === 'caseReview'" :case-id="props.detailId" />
                 <TabTestPlan v-else-if="activeTab === 'testPlan'" />

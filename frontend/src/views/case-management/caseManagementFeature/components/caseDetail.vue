@@ -71,6 +71,10 @@
       if (route.params.mode === 'edit') {
         await updateCaseRequest(caseDetailInfo.value);
         Message.success(t('caseManagement.featureCase.editSuccess'));
+        router.push({
+          name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE,
+          query: { organizationId: route.query.organizationId, projectId: route.query.projectId },
+        });
       } else {
         const res = await createCaseRequest(caseDetailInfo.value);
         if (isReview) {
@@ -79,6 +83,17 @@
         }
         createSuccessId.value = res.data.id;
         Message.success(route.params.mode === 'copy' ? t('ms.description.copySuccess') : t('common.addSuccess'));
+        featureCaseStore.setIsAlreadySuccess(true);
+        isShowTip.value = !getIsVisited();
+        if (isShowTip.value && !route.query.id) {
+          router.push({
+            name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_CREATE_SUCCESS,
+            query: {
+              id: createSuccessId.value,
+              ...route.query,
+            },
+          });
+        }
       }
       if (isReview) {
         router.push({
@@ -87,20 +102,6 @@
             id: route.query.reviewId,
             organizationId: route.query.organizationId,
             projectId: route.query.projectId,
-          },
-        });
-      } else {
-        router.push({ name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE, query: { ...route.query } });
-      }
-
-      featureCaseStore.setIsAlreadySuccess(true);
-      isShowTip.value = !getIsVisited();
-      if (isShowTip.value && !route.query.id) {
-        router.push({
-          name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_CREATE_SUCCESS,
-          query: {
-            id: createSuccessId.value,
-            ...route.query,
           },
         });
       }

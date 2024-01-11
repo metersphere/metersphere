@@ -367,7 +367,7 @@
     (record) => {
       return {
         ...record,
-        tags: (JSON.parse(record.tags) || []).map((item: string, i: number) => {
+        tags: (record.tags || []).map((item: string, i: number) => {
           return {
             id: `${record.id}-${i}`,
             name: item,

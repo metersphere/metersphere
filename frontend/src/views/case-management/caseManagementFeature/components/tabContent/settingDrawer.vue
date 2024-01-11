@@ -137,9 +137,15 @@
         testPlanTab.push(...moduleTab.value[item.module]);
       }
     });
-    tabDefaultSettingList.value.splice(1, 0, buggerTab[0], buggerTab[1]);
-    tabDefaultSettingList.value.splice(-2, 0, testPlanTab[0]);
-    featureCaseStore.setTab(tabDefaultSettingList.value);
+    const newTabDefaultSettingList = [
+      tabDefaultSettingList.value[0],
+      ...buggerTab,
+      ...tabDefaultSettingList.value.slice(1, -2),
+      ...testPlanTab,
+      tabDefaultSettingList.value[tabDefaultSettingList.value.length - 2],
+      tabDefaultSettingList.value[tabDefaultSettingList.value.length - 1],
+    ];
+    featureCaseStore.setTab(newTabDefaultSettingList);
   }
 
   const tabList = computed(() => featureCaseStore.tabSettingList);

@@ -34,19 +34,19 @@
       </div>
     </div>
     <ms-base-table v-if="showType === 'link'" ref="tableRef" v-bind="linkPropsRes" v-on="linkTableEvent">
-      <template #title="{ record }">
-        <span class="one-line-text max-w[300px]"> {{ record.title }}</span>
+      <template #name="{ record }">
+        <span class="one-line-text max-w-[300px]"> {{ record.name }}</span>
         <a-popover title="" position="right">
           <span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
           <template #content>
-            <div class="min-w-[300px] text-[14px] text-[var(--color-text-1)]">
-              {{ record.title }}
+            <div class="max-w-[600px] text-[14px] text-[var(--color-text-1)]">
+              {{ record.name }}
             </div>
           </template>
         </a-popover>
       </template>
       <template #operation="{ record }">
-        <MsButton @click="cancelLink(record)">{{ t('caseManagement.featureCase.cancelLink') }}</MsButton>
+        <MsButton @click="cancelLink(record.id)">{{ t('caseManagement.featureCase.cancelLink') }}</MsButton>
       </template>
       <template v-if="(keyword || '').trim() === ''" #empty>
         <div class="flex items-center justify-center">
@@ -62,12 +62,19 @@
       </template>
     </ms-base-table>
     <ms-base-table v-else v-bind="testPlanPropsRes" v-on="testPlanTableEvent">
-      <template #defectName="{ record }">
-        <span class="one-line-text max-w[300px]"> {{ record.title }}</span
-        ><span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
+      <template #name="{ record }">
+        <span class="one-line-text max-w-[300px]"> {{ record.name }}</span>
+        <a-popover title="" position="right">
+          <span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
+          <template #content>
+            <div class="max-w-[600px] text-[14px] text-[var(--color-text-1)]">
+              {{ record.name }}
+            </div>
+          </template>
+        </a-popover>
       </template>
       <template #operation="{ record }">
-        <MsButton @click="cancelLink(record)">{{ t('caseManagement.featureCase.cancelLink') }}</MsButton>
+        <MsButton @click="cancelLink(record.id)">{{ t('caseManagement.featureCase.cancelLink') }}</MsButton>
       </template>
       <template v-if="(keyword || '').trim() === ''" #empty>
         <div class="flex items-center justify-center">
@@ -79,7 +86,12 @@
       </template>
     </ms-base-table>
     <AddDefectDrawer v-model:visible="showDrawer" />
-    <LinkDefectDrawer v-model:visible="showLinkDrawer" />
+    <LinkDefectDrawer
+      v-model:visible="showLinkDrawer"
+      :case-id="props.caseId"
+      :drawer-loading="drawerLoading"
+      @save="saveHandler"
+    />
   </div>
 </template>
 
@@ -94,17 +106,27 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import MsRemoveButton from '@/components/business/ms-remove-button/MsRemoveButton.vue';
   import AddDefectDrawer from './addDefectDrawer.vue';
   import LinkDefectDrawer from './linkDefectDrawer.vue';
 
-  import { getBugList } from '@/api/modules/bug-management/index';
+  import {
+    associatedDrawerDebug,
+    cancelAssociatedDebug,
+    getLinkedCaseBugList,
+  } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
+  import { characterLimit } from '@/utils';
 
-  import { TableKeyEnum } from '@/enums/tableEnum';
+  import type { TableQueryParams } from '@/models/common';
 
   const appStore = useAppStore();
   const { t } = useI18n();
+
+  const props = defineProps<{
+    caseId: string;
+  }>();
 
   const showType = ref('link');
 
@@ -121,8 +143,8 @@
     },
     {
       title: 'caseManagement.featureCase.defectName',
-      slotName: 'title',
-      dataIndex: 'title',
+      slotName: 'name',
+      dataIndex: 'name',
       showInTable: true,
       showTooltip: false,
       width: 300,
@@ -135,7 +157,7 @@
       dataIndex: 'defectState',
       showInTable: true,
       showTooltip: true,
-      width: 300,
+      width: 200,
       ellipsis: true,
       showDrag: false,
     },
@@ -146,6 +168,15 @@
       showInTable: true,
       showTooltip: true,
       width: 300,
+      ellipsis: true,
+    },
+    {
+      title: 'caseManagement.featureCase.defectSource',
+      slotName: 'defectState',
+      dataIndex: 'defectState',
+      showInTable: true,
+      showTooltip: true,
+      width: 200,
       ellipsis: true,
       showDrag: false,
     },
@@ -164,11 +195,11 @@
     propsEvent: linkTableEvent,
     loadList: loadLinkList,
     setLoadListParams: setLinkListParams,
-  } = useTable(getBugList, {
+  } = useTable(getLinkedCaseBugList, {
     columns,
-    scroll: { x: '100%' },
+    scroll: { x: 'auto' },
     heightUsed: 340,
-    enableDrag: true,
+    enableDrag: false,
   });
 
   const testPlanColumns: MsTableColumn = [
@@ -183,8 +214,8 @@
     },
     {
       title: 'caseManagement.featureCase.defectName',
-      slotName: 'defectName',
-      dataIndex: 'defectName',
+      slotName: 'name',
+      dataIndex: 'name',
       showInTable: true,
       showTooltip: true,
       width: 300,
@@ -211,15 +242,6 @@
       ellipsis: true,
       showDrag: false,
     },
-    {
-      title: 'caseManagement.featureCase.tableColumnActions',
-      slotName: 'operation',
-      dataIndex: 'operation',
-      fixed: 'right',
-      width: 140,
-      showInTable: true,
-      showDrag: false,
-    },
   ];
 
   const {
@@ -227,7 +249,7 @@
     propsEvent: testPlanTableEvent,
     loadList: testPlanLinkList,
     setLoadListParams: setTestPlanListParams,
-  } = useTable(getBugList, {
+  } = useTable(getLinkedCaseBugList, {
     columns: testPlanColumns,
     scroll: { x: '100%' },
     heightUsed: 340,
@@ -236,15 +258,28 @@
 
   function getFetch() {
     if (showType.value === 'link') {
-      setLinkListParams({ keyword: keyword.value, projectId: appStore.currentProjectId });
+      setLinkListParams({ keyword: keyword.value, projectId: appStore.currentProjectId, caseId: props.caseId });
       loadLinkList();
     } else {
-      setTestPlanListParams({ keyword: keyword.value, projectId: appStore.currentProjectId });
+      setTestPlanListParams({ keyword: keyword.value, projectId: appStore.currentProjectId, caseId: props.caseId });
       testPlanLinkList();
     }
   }
+  const cancelLoading = ref<boolean>(false);
   // 取消关联
-  function cancelLink(record: any) {}
+  async function cancelLink(id: string) {
+    cancelLoading.value = true;
+    try {
+      if (showType.value === 'link') {
+        await cancelAssociatedDebug(id);
+        Message.success(t('caseManagement.featureCase.cancelLinkSuccess'));
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      cancelLoading.value = false;
+    }
+  }
 
   const showDrawer = ref<boolean>(false);
   function createDefect() {
@@ -255,6 +290,21 @@
 
   function linkDefect() {
     showLinkDrawer.value = true;
+  }
+
+  const drawerLoading = ref<boolean>(false);
+  async function saveHandler(params: TableQueryParams) {
+    try {
+      drawerLoading.value = true;
+      await associatedDrawerDebug(params);
+      Message.success(t('caseManagement.featureCase.associatedSuccess'));
+      getFetch();
+      showLinkDrawer.value = false;
+    } catch (error) {
+      console.log(error);
+    } finally {
+      drawerLoading.value = false;
+    }
   }
 
   watch(

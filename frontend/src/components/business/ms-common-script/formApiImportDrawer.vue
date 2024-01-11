@@ -1,0 +1,344 @@
+<template>
+  <MsDrawer
+    v-model:visible="exportScriptDrawer"
+    :title="t('project.commonScript.insertCommonScript')"
+    :width="1200"
+    unmount-on-close
+    :show-continue="false"
+    :ok-loading="drawerLoading"
+    :ok-text="t('project.commonScript.apply')"
+    @confirm="handleDrawerConfirm"
+    @cancel="handleDrawerCancel"
+  >
+    <div class="flex h-full">
+      <div class="w-[292px] border-r border-[var(--color-text-n8)] p-[16px]">
+        <div class="flex items-center justify-between">
+          <MsProjectSelect v-model:project="innerProject" class="mb-[16px]" />
+          <a-select v-model="protocolType" class="mb-[16px] ml-2 max-w-[90px]">
+            <a-option v-for="item of protocolOptions" :key="item" :value="item">{{ item }}</a-option>
+          </a-select>
+        </div>
+        <a-input
+          v-model:model-value="moduleKeyword"
+          :placeholder="t('project.commonScript.folderSearchPlaceholder')"
+          allow-clear
+          class="mb-[16px]"
+        />
+        <div class="folder">
+          <div :class="getFolderClass('all')" @click="setActiveFolder('all')">
+            <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
+            <div class="folder-name">{{ t('project.commonScript.allApis') }}</div>
+            <div class="folder-count">({{ modulesCount['all'] || 0 }})</div>
+          </div>
+        </div>
+        <a-divider class="my-[8px]" />
+        <a-spin class="w-full" :loading="moduleLoading">
+          <MsTree
+            v-model:selected-keys="selectedModuleKeys"
+            :data="folderTree"
+            :keyword="moduleKeyword"
+            :empty-text="t('project.commonScript.noTreeData')"
+            :virtual-list-props="virtualListProps"
+            :field-names="{
+              title: 'name',
+              key: 'id',
+              children: 'children',
+              count: 'count',
+            }"
+            block-node
+            title-tooltip-position="left"
+            @select="folderNodeSelect"
+          >
+            <template #title="nodeData">
+              <div class="inline-flex w-full">
+                <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
+                <div class="ml-[4px] text-[var(--color-text-4)]">({{ nodeData.count || 0 }})</div>
+              </div>
+            </template>
+          </MsTree>
+        </a-spin>
+      </div>
+      <div class="flex w-[calc(100%-293px)] flex-col p-[16px]">
+        <MsAdvanceFilter
+          v-model:keyword="keyword"
+          :filter-config-list="filterConfigList"
+          :custom-fields-config-list="searchCustomFields"
+          :row-count="filterRowCount"
+          :search-placeholder="t('project.commonScript.searchPlaceholder')"
+          @keyword-search="searchCase"
+          @adv-search="searchCase"
+        >
+          <template #left>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <div class="mr-[4px] text-[var(--color-text-1)]">{{ activeFolderName }}</div>
+                <div class="text-[var(--color-text-4)]">({{ propsRes.msPagination?.total }})</div>
+              </div>
+            </div>
+          </template>
+        </MsAdvanceFilter>
+        <ms-base-table v-bind="propsRes" no-disable class="mt-[16px]" v-on="propsEvent">
+          <!-- <template #caseLevel="{ record }">
+            <caseLevel :case-level="(getCaseLevel(record) as CaseLevel)" />
+          </template> -->
+        </ms-base-table>
+      </div>
+    </div>
+  </MsDrawer>
+</template>
+
+<script setup lang="ts">
+  import { ref } from 'vue';
+
+  import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
+  import { FilterFormItem } from '@/components/pure/ms-advance-filter/type';
+  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+  import { MsTableColumn } from '@/components/pure/ms-table/type';
+  import useTable from '@/components/pure/ms-table/useTable';
+  import MsProjectSelect from '@/components/business/ms-project-select/index.vue';
+  import MsTree from '@/components/business/ms-tree/index.vue';
+  import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
+
+  import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
+  import { mapTree } from '@/utils';
+
+  import type { TableQueryParams } from '@/models/common';
+  import { ModuleTreeNode } from '@/models/projectManagement/file';
+
+  const { t } = useI18n();
+
+  const props = defineProps<{
+    visible: boolean;
+    projectId: string; // 项目id
+    confirmLoading: boolean;
+  }>();
+
+  const emit = defineEmits(['update:visible', 'save', 'close']);
+
+  const drawerLoading = ref<boolean>(false);
+
+  const exportScriptDrawer = computed({
+    get() {
+      return props.visible;
+    },
+    set(val) {
+      emit('update:visible', val);
+    },
+  });
+
+  const innerProject = ref(props.projectId);
+
+  const moduleKeyword = ref('');
+  const activeFolder = ref('');
+  function getFolderClass(id: string) {
+    return activeFolder.value === id ? 'folder-text folder-text--active' : 'folder-text';
+  }
+  const activeFolderName = ref(t('project.commonScript.allApis'));
+  const selectedModuleKeys = ref<string[]>([]);
+
+  function setActiveFolder(id: string) {
+    activeFolder.value = id;
+    activeFolderName.value = t('project.commonScript.allApis');
+    selectedModuleKeys.value = [];
+  }
+
+  const modulesCount = ref<Record<string, any>>({});
+  const moduleLoading = ref(false);
+  const folderTree = ref<ModuleTreeNode[]>([]);
+
+  const virtualListProps = computed(() => {
+    return {
+      height: 'calc(100vh - 251px)',
+    };
+  });
+
+  /**
+   * 处理模块树节点选中事件
+   */
+  const offspringIds = ref<string[]>([]);
+
+  function folderNodeSelect(_selectedKeys: (string | number)[], node: MsTreeNodeData) {
+    selectedModuleKeys.value = _selectedKeys as string[];
+    activeFolder.value = node.id;
+    activeFolderName.value = node.name;
+    offspringIds.value = [];
+    mapTree(node.children || [], (e) => {
+      offspringIds.value.push(e.id);
+      return e;
+    });
+  }
+
+  const keyword = ref('');
+  const filterConfigList = ref<FilterFormItem[]>([]);
+  const searchCustomFields = ref<FilterFormItem[]>([]);
+  const filterRowCount = ref(0);
+  const columns: MsTableColumn = [
+    {
+      title: 'ID',
+      dataIndex: 'id',
+      sortIndex: 1,
+      showTooltip: true,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+      },
+      width: 200,
+    },
+    {
+      title: 'project.commonScript.apiName',
+      dataIndex: 'apiName',
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+      },
+      showTooltip: true,
+      width: 300,
+    },
+    {
+      title: 'project.commonScript.requestType',
+      dataIndex: 'requestType',
+      slotName: 'requestType',
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+      },
+      width: 200,
+    },
+    {
+      title: 'project.commonScript.responsible',
+      slotName: 'responsible',
+      dataIndex: 'responsible',
+      width: 200,
+    },
+    {
+      title: 'project.commonScript.path',
+      slotName: 'path',
+      dataIndex: 'path',
+      width: 200,
+    },
+    {
+      title: 'ms.case.associate.tags',
+      dataIndex: 'tags',
+      slotName: 'tags',
+      isTag: true,
+    },
+    {
+      title: 'ms.case.associate.version',
+      slotName: 'version',
+      width: 200,
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnCreateUser',
+      slotName: 'createUser',
+      dataIndex: 'createUser',
+      showInTable: true,
+      width: 300,
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnCreateTime',
+      slotName: 'createTime',
+      dataIndex: 'createTime',
+      showInTable: true,
+      width: 300,
+    },
+  ];
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
+    () =>
+      Promise.resolve({
+        list: [],
+        current: 1,
+        pageSize: 10,
+        total: 2,
+      }),
+    {
+      scroll: { x: 'auto' },
+      columns,
+      showSetting: false,
+      selectable: true,
+      showSelectAll: true,
+      heightUsed: 310,
+    },
+    (record) => {
+      return {
+        ...record,
+        tags: (JSON.parse(record.tags) || []).map((item: string, i: number) => {
+          return {
+            id: `${record.id}-${i}`,
+            name: item,
+          };
+        }),
+      };
+    }
+  );
+
+  const protocolType = ref('HTTP'); // 协议类型
+  const protocolOptions = ref(['HTTP']);
+
+  function searchCase() {}
+
+  const searchParams = ref<TableQueryParams>({
+    moduleIds: [],
+  });
+  // 保存参数
+  function handleDrawerConfirm() {
+    const { excludeKeys, selectedKeys, selectorStatus } = propsRes.value;
+    const { versionId, moduleIds } = searchParams.value;
+    const params = {
+      excludeIds: [...excludeKeys],
+      selectIds: selectorStatus === 'all' ? [] : [...selectedKeys],
+      selectAll: selectorStatus === 'all',
+      moduleIds,
+      versionId,
+      refId: '',
+      projectId: innerProject.value,
+    };
+
+    emit('save', params);
+  }
+
+  function handleDrawerCancel() {
+    exportScriptDrawer.value = false;
+    resetSelector();
+    emit('close');
+  }
+</script>
+
+<style scoped lang="less">
+  .folder {
+    @apply flex cursor-pointer items-center justify-between;
+
+    padding: 8px 4px;
+    border-radius: var(--border-radius-small);
+    &:hover {
+      background-color: rgb(var(--primary-1));
+    }
+    .folder-text {
+      @apply flex cursor-pointer items-center;
+      .folder-icon {
+        margin-right: 4px;
+        color: var(--color-text-4);
+      }
+      .folder-name {
+        color: var(--color-text-1);
+      }
+      .folder-count {
+        margin-left: 4px;
+        color: var(--color-text-4);
+      }
+    }
+    .folder-text--active {
+      .folder-icon,
+      .folder-name,
+      .folder-count {
+        color: rgb(var(--primary-5));
+      }
+    }
+  }
+  .footer {
+    @apply flex items-center justify-between;
+
+    margin: auto -16px -16px;
+    padding: 12px 16px;
+    box-shadow: 0 -1px 4px 0 rgb(31 35 41 / 10%);
+  }
+</style>

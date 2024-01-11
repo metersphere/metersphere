@@ -37,7 +37,7 @@ const useFeatureCaseStore = defineStore('featureCase', {
       this.caseTree = tree;
     },
     // 获取模块数量
-    async getCaseModulesCountCount(params: CaseModuleQueryParams) {
+    async getCaseModulesCount(params: CaseModuleQueryParams) {
       try {
         this.modulesCount = {};
         this.modulesCount = await getCaseModulesCounts(params);
@@ -46,7 +46,7 @@ const useFeatureCaseStore = defineStore('featureCase', {
       }
     },
     // 获取模块数量
-    async getRecycleMModulesCountCount(params: CaseModuleQueryParams) {
+    async getRecycleModulesCount(params: CaseModuleQueryParams) {
       try {
         this.recycleModulesCount = {};
         this.recycleModulesCount = await getRecycleModulesCounts(params);

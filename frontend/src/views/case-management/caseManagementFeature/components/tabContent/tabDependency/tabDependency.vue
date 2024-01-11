@@ -42,7 +42,11 @@
         <div class="flex items-center justify-center">
           {{ t('caseManagement.caseReview.tableNoData') }}
           <MsButton class="ml-[8px]" @click="addCase">
-            {{ t('caseManagement.featureCase.addPresetCase') }}
+            {{
+              showType === 'preposition'
+                ? t('caseManagement.featureCase.addPresetCase')
+                : t('caseManagement.featureCase.addPostCase')
+            }}
           </MsButton>
         </div>
       </template>

@@ -56,7 +56,7 @@
         <MsButton class="ml-[8px]"> {{ t('project.commonScript.addPublicScript') }} </MsButton>
       </div>
     </template>
-    <AddScriptDrawer v-model:visible="showScriptDrawer" />
+    <AddScriptDrawer v-model:visible="showScriptDrawer" @save="saveHandler" />
     <ScriptDetailDrawer v-model:visible="showDetailDrawer" />
   </MsCard>
 </template>
@@ -74,7 +74,9 @@
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
-  import AddScriptDrawer from './components/addScriptDrawer.vue';
+  // import AddScriptDrawer from './components/addScriptDrawer.vue';
+  // import ScriptDetailDrawer from './components/scriptDetailDrawer.vue';
+  import AddScriptDrawer from '@/components/business/ms-common-script/ms-addScriptDrawer.vue';
   import ScriptDetailDrawer from './components/scriptDetailDrawer.vue';
 
   import { getDependOnCase } from '@/api/modules/case-management/featureCase';
@@ -229,6 +231,9 @@
   function showDetail(record: any) {
     showDetailDrawer.value = true;
   }
+
+  // 保存自定义代码片段应用
+  function saveHandler(isDraft: boolean) {}
 
   function addCommonScript() {
     showScriptDrawer.value = true;

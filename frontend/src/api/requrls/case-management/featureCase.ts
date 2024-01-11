@@ -120,3 +120,13 @@ export const cancelPreAndPostCaseUrl = '/functional/case/relationship/delete';
 export const publicAssociatedCaseUrl = '/functional/case/test/associate/case';
 // 获取关联用例已关联列表
 export const GetAssociatedDrawerCaseUrl = '/functional/case/test/has/associate/case/page';
+// 获取用例详情缺陷
+export const GetDebugDrawerPageUrl = '/functional/case/test/associate/bug/page';
+// 关联缺陷
+export const AssociatedDebuggerUrl = '/functional/case/test/associate/bug';
+// 取消关联缺陷
+export const CancelAssociatedDebuggerUrl = '/functional/case/test/disassociate/bug';
+// 获取详情已关联缺陷列表
+export const GetAssociatedDebuggerUrl = '/functional/case/test/has/associate/bug/page';
+// 获取前后置已关联用例ids
+export const GetAssociatedCaseIdsUrl = '/functional/case/relationship/get-ids';
