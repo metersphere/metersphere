@@ -11,7 +11,7 @@
 
 <script lang="ts" setup>
   import AllPrams from './allParams/index.vue';
-  import RequestHeader from './RequestHeader.vue';
+  import RequestHeader from './requestHeader/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 

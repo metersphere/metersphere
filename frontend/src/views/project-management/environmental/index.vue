@@ -119,7 +119,7 @@
   import MsMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import AllParamBox from './components/AllParamBox.vue';
-  import EnvParamBox from './components/EnvParamBox.vue';
+  import EnvParamBox from './components/envParams/EnvParamBox.vue';
   import RenamePop from './components/RenamePop.vue';
 
   import { useI18n } from '@/hooks/useI18n';

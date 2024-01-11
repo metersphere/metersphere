@@ -3,14 +3,19 @@
     <div class="font-medium">{{ t('ms.apiTestDebug.header') }}</div>
     <batchAddKeyVal :params="innerParams" @apply="handleBatchParamApply" />
   </div>
-  <paramTable v-model:params="innerParams" :columns="columns" @change="handleParamTableChange" />
+  <AllParamsTable
+    v-model:params="innerParams"
+    :show-setting="false"
+    :columns="columns"
+    @change="handleParamTableChange"
+  />
 </template>
 
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
 
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
-  import paramTable from '@/views/api-test/components/paramTable.vue';
+  import AllParamsTable from '../allParams/AllParamsTable.vue';
   import batchAddKeyVal from '@/views/api-test/debug/components/debug/batchAddKeyVal.vue';
 
   import { useI18n } from '@/hooks/useI18n';
