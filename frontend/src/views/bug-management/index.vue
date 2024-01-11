@@ -123,7 +123,7 @@
   import { Message, TableData } from '@arco-design/web-vue';
 
   import { MsAdvanceFilter, timeSelectOptions } from '@/components/pure/ms-advance-filter';
-  import { FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
+  import { BackEndEnum, FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsExportDrawer from '@/components/pure/ms-export-drawer/index.vue';
@@ -206,6 +206,7 @@
       title: 'bugManagement.ID',
       dataIndex: 'num',
       type: FilterType.INPUT,
+      backendType: BackEndEnum.NUMBER,
     },
     {
       title: 'bugManagement.bugName',
@@ -213,6 +214,16 @@
       type: FilterType.SELECT,
       selectProps: {
         mode: 'static',
+        options: [
+          {
+            label: 'title',
+            value: 'title',
+          },
+          {
+            label: 'name',
+            value: 'name',
+          },
+        ],
       },
     },
     {

@@ -48,6 +48,8 @@ export enum TableKeyEnum {
   CASE_MANAGEMENT_TAB_CASE_TABLE = 'caseManagementTabCaseTable',
   CASE_MANAGEMENT_TAB_DEMAND_PLATFORM = 'caseManagementTabDemandPlatformTable',
   PROJECT_MANAGEMENT_ENV_ALL_PARAM = 'projectManagementEnvAllParam',
+  PROJECT_MANAGEMENT_ENV_ENV_PARAM = 'projectManagementEnvEnvParam',
+  PROJECT_MANAGEMENT_ENV_ENV_HTTP = 'projectManagementEnvEnvHttp',
 }
 
 // 具有特殊功能的列

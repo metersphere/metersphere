@@ -205,6 +205,7 @@
       </div>
     </div>
     <ColumnSelector
+      v-if="props.showSetting"
       v-model:visible="columnSelectorVisible"
       :show-jump-method="(attrs.showJumpMethod as boolean)"
       :table-key="(attrs.tableKey as string)"

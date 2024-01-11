@@ -42,18 +42,20 @@
       />
     </template>
     <template #operation="{ record, rowIndex }">
-      <a-switch v-if="rowIndex" v-model:model-value="record.enable" size="small" />
-      <icon-minus-circle
-        v-if="paramsLength > 1 && rowIndex !== paramsLength - 1"
-        class="cursor-pointer text-[var(--color-text-4)]"
-        size="20"
-        @click="deleteParam(rowIndex)"
-      />
+      <div class="flex flex-row items-center gap-[16px]">
+        <a-switch v-if="rowIndex" v-model:model-value="record.enable" size="small" />
+        <icon-minus-circle
+          v-if="paramsLength > 1 && rowIndex !== paramsLength - 1"
+          class="cursor-pointer text-[var(--color-text-4)]"
+          size="20"
+          @click="deleteParam(rowIndex)"
+        />
+      </div>
     </template>
     <template #tag="{ record }">
       <ParamTagInput
         v-model:model-value="record.tag"
-        @input="addTableLine"
+        @input="(val) => addTableLine(val)"
         @dblclick="quickInputDesc(record)"
         @change="handleDescChange"
       />
@@ -111,7 +113,7 @@
 <script async setup lang="ts">
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import type { MsTableColumn } from '@/components/pure/ms-table/type';
+  import type { MsTableColumnData } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsParamsInput from '@/components/business/ms-params-input/index.vue';
   import ParamDescInput from './ParamDescInput.vue';
@@ -132,69 +134,36 @@
     enable: boolean;
   }
 
-  const props = defineProps<{
-    params: Param[];
-    scroll?: {
-      x?: number | string;
-      y?: number | string;
-      maxHeight?: number | string;
-      minWidth?: number | string;
-    };
-    heightUsed?: number;
-  }>();
+  const props = withDefaults(
+    defineProps<{
+      params: Param[];
+      scroll?: {
+        x?: number | string;
+        y?: number | string;
+        maxHeight?: number | string;
+        minWidth?: number | string;
+      };
+      disabled?: boolean; // 是否禁用
+      showSetting?: boolean; // 是否显示列设置
+      tableKey?: TableKeyEnum; // 表格key showSetting为true时必传
+      columns: MsTableColumnData[]; // 表格列配置 showSetting为false时必传
+      showSelectorAll?: boolean; // 是否显示全选
+      heightUsed?: number;
+    }>(),
+    {
+      disabled: false,
+      showSetting: false,
+      tableKey: undefined,
+      showSelectorAll: false,
+      heightUsed: 0,
+    }
+  );
   const emit = defineEmits<{
     (e: 'update:params', value: Param[]): void;
     (e: 'change', data: Param[], isInit?: boolean): void;
   }>();
 
   const { t } = useI18n();
-
-  const columns: MsTableColumn = [
-    {
-      title: 'project.environmental.paramName',
-      dataIndex: 'name',
-      slotName: 'name',
-      showInTable: true,
-      showDrag: true,
-    },
-    {
-      title: 'project.environmental.paramType',
-      dataIndex: 'type',
-      slotName: 'type',
-      showInTable: true,
-      showDrag: true,
-    },
-    {
-      title: 'project.environmental.paramValue',
-      dataIndex: 'value',
-      slotName: 'value',
-      showInTable: true,
-      showDrag: true,
-    },
-    {
-      title: 'project.environmental.tag',
-      dataIndex: 'tag',
-      slotName: 'tag',
-      width: 200,
-      showInTable: true,
-      showDrag: true,
-    },
-    {
-      title: 'project.environmental.desc',
-      dataIndex: 'desc',
-      slotName: 'desc',
-      showInTable: true,
-      showDrag: true,
-    },
-    {
-      title: '',
-      columnTitle: 'common.operation',
-      slotName: 'operation',
-      width: 50,
-      showInTable: true,
-      showDrag: true,
-    },
-  ];
 
   const defaultParams: Omit<Param, 'id'> = {
     name: '',
@@ -237,15 +206,20 @@
     return allType;
   });
 
-  await tableStore.initColumn(TableKeyEnum.PROJECT_MANAGEMENT_ENV_ALL_PARAM, columns);
+  if (props.showSetting && props.tableKey) {
+    await tableStore.initColumn(props.tableKey, props.columns);
+  }
 
   const { propsRes, propsEvent } = useTable<Param>(undefined, {
-    tableKey: TableKeyEnum.PROJECT_MANAGEMENT_ENV_ALL_PARAM,
+    tableKey: props.showSetting ? props.tableKey : undefined,
+    columns: props.columns,
     scroll: props.scroll,
     heightUsed: props.heightUsed,
     selectable: true,
     draggable: { type: 'handle', width: 24 },
-    showSetting: true,
+    showSetting: props.showSetting,
+    disabled: props.disabled,
+    showSelectorAll: props.showSelectorAll,
   });
 
   watch(

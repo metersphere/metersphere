@@ -30,6 +30,7 @@ export enum BackEndEnum {
   STRING = 'string',
   ARRAY = 'array',
   TIME = 'time',
+  NUMBER = 'number',
 }
 
 export enum FilterType {

@@ -16,20 +16,35 @@
     </a-input>
     <batchAddKeyVal :params="innerParams" @apply="handleBatchParamApply" />
   </div>
-  <AllParamsTable v-model:params="innerParams" @change="handleParamTableChange" />
+  <AllParamsTable
+    v-model:params="innerParams"
+    :table-key="props.tableKey"
+    :columns="columns"
+    show-setting
+    @change="handleParamTableChange"
+  />
 </template>
 
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
 
+  import { MsTableColumn } from '@/components/pure/ms-table/type';
   import AllParamsTable from './AllParamsTable.vue';
   import batchAddKeyVal from '@/views/api-test/debug/components/debug/batchAddKeyVal.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
-  const props = defineProps<{
-    params: any[];
-  }>();
+  import { TableKeyEnum } from '@/enums/tableEnum';
+
+  const props = withDefaults(
+    defineProps<{
+      params: any[];
+      tableKey: TableKeyEnum;
+    }>(),
+    {
+      tableKey: TableKeyEnum.PROJECT_MANAGEMENT_ENV_ALL_PARAM,
+    }
+  );
   const emit = defineEmits<{
     (e: 'update:params', value: any[]): void;
     (e: 'change'): void; //  数据发生变化
@@ -40,6 +55,53 @@
   const { t } = useI18n();
 
   const innerParams = useVModel(props, 'params', emit);
+
+  const columns: MsTableColumn = [
+    {
+      title: 'project.environmental.paramName',
+      dataIndex: 'name',
+      slotName: 'name',
+      showInTable: true,
+      showDrag: true,
+    },
+    {
+      title: 'project.environmental.paramType',
+      dataIndex: 'type',
+      slotName: 'type',
+      showInTable: true,
+      showDrag: true,
+    },
+    {
+      title: 'project.environmental.paramValue',
+      dataIndex: 'value',
+      slotName: 'value',
+      showInTable: true,
+      showDrag: true,
+    },
+    {
+      title: 'project.environmental.tag',
+      dataIndex: 'tag',
+      slotName: 'tag',
+      width: 200,
+      showInTable: true,
+      showDrag: true,
+    },
+    {
+      title: 'project.environmental.desc',
+      dataIndex: 'desc',
+      slotName: 'desc',
+      showInTable: true,
+      showDrag: true,
+    },
+    {
+      title: '',
+      columnTitle: 'common.operation',
+      slotName: 'operation',
+      width: 50,
+      showInTable: true,
+      showDrag: true,
+    },
+  ];
 
   /**
    * 批量参数代码转换为参数表格数据
