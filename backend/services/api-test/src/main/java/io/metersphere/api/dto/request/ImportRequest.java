@@ -1,18 +1,16 @@
 package io.metersphere.api.dto.request;
 
-import io.metersphere.api.dto.request.http.Header;
-import io.metersphere.api.dto.request.http.QueryParam;
-import io.metersphere.api.dto.request.http.auth.HTTPAuth;
+import io.metersphere.sdk.constants.ModuleConstants;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-
-import java.util.List;
 
 @Data
 public class ImportRequest {
     private String id;
     private String name;
+    @Schema(description = "导入的模块id")
     private String moduleId;
+    @Schema(description = "导入的项目id")
     private String projectId;
     @Schema(description = "导入的swagger地址")
     private String swaggerUrl;
@@ -21,25 +19,26 @@ public class ImportRequest {
     private String versionId; // 新导入选择的版本
     private String updateVersionId; // 覆盖导入已存在的接口选择的版本
     private String defaultVersion;
+    @Schema(description = "三方平台  暂定 Metersphere  Swagger3  Postman Har")
     private String platform;
-    //调用类型
+    @Schema(description = "导入的类型  暂定  API  Schedule")
     private String type;
     @Schema(description = "是否覆盖模块")
-    private Boolean coverModule;
+    private Boolean coverModule = false;
     @Schema(description = "是否同步导入用例")
-    private Boolean syncCase;
+    private Boolean syncCase = false;
     @Schema(description = "是否覆盖数据")
-    private Boolean coverData;
-    // 当前协议
-    private String protocol;
-    //上传文件来源，目前用于辨别是否是idea插件
-    private String origin;
-    @Schema(description = "swagger的请求头参数")
-    private List<Header> headers;
-    @Schema(description = "swagger的请求参数")
-    private List<QueryParam> arguments;
-    @Schema(description = "swagger的认证参数")
-    private HTTPAuth authManager;
+    private Boolean coverData = false;
+    @Schema(description = "协议")
+    private String protocol = ModuleConstants.NODE_PROTOCOL_HTTP;
+    @Schema(description = "是否开启Basic Auth认证")
+    private boolean authSwitch = false;
+    @Schema(description = "Basic Auth认证用户名")
+    private String authUsername;
+    @Schema(description = "Basic Auth认证密码")
+    private String authPassword;
     @Schema(description = "唯一标识  默认是Method & Path  后续估计会补充")
     private String uniquelyIdentifies = "Method & Path";
+    @Schema(description = "定时任务的资源id")
+    private String resourceId;
 }

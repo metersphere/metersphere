@@ -33,7 +33,6 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -77,42 +76,13 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
     private List<AuthorizationValue> setAuths(ImportRequest request) {
         List<AuthorizationValue> auths = new ArrayList<>();
         // TODO 如果有 BaseAuth 参数，base64 编码后转换成 headers
-
-        // 设置 headers
-        if (!CollectionUtils.isEmpty(request.getHeaders())) {
-            for (Header keyValue : request.getHeaders()) {
-                // 当有 key 时才进行设置
-                if (keyValue.getValue() != null) {
-                    AuthorizationValue authorizationValue = new AuthorizationValue();
-                    authorizationValue.setType("header");
-                    authorizationValue.setKeyName(keyValue.getKey());
-                    authorizationValue.setValue(String.valueOf(keyValue.getValue()));
-                    authorizationValue.setUrlMatcher((url) -> true);
-                    auths.add(authorizationValue);
-                }
-            }
-        }
-        // 设置 query 参数
-        if (!CollectionUtils.isEmpty(request.getArguments())) {
-            StringBuilder pathBuilder = new StringBuilder();
-            pathBuilder.append(request.getSwaggerUrl());
-            if (StringUtils.isNotBlank(request.getSwaggerUrl()) && !request.getSwaggerUrl().contains("?")) {
-                pathBuilder.append("?");
-            }
-            for (QueryParam keyValue : request.getArguments()) {
-                if (StringUtils.isNotBlank(keyValue.getKey())) {
-                    AuthorizationValue authorizationValue = new AuthorizationValue();
-                    authorizationValue.setType("query");
-                    authorizationValue.setKeyName(keyValue.getKey());
-                    try {
-                        authorizationValue.setValue(URLEncoder.encode(String.valueOf(keyValue.getValue()), StandardCharsets.UTF_8));
-                    } catch (Exception e) {
-                        LogUtils.info("swagger3 url encode error: " + e);
-                    }
-                    pathBuilder.append(keyValue.getKey()).append("=").append(authorizationValue.getValue()).append("&");
-                }
-            }
-            request.setSwaggerUrl(pathBuilder.substring(0, pathBuilder.length() - 1));
+        if (request.isAuthSwitch()) {
+            AuthorizationValue authorizationValue = new AuthorizationValue();
+            authorizationValue.setType("header");
+            authorizationValue.setKeyName("Authorization");
+            String authValue = "Basic " + Base64.getUrlEncoder().encodeToString((request.getAuthUsername() + ":" + request.getAuthPassword()).getBytes());
+            authorizationValue.setValue(authValue);
+            auths.add(authorizationValue);
         }
         return CollectionUtils.size(auths) == 0 ? null : auths;
     }

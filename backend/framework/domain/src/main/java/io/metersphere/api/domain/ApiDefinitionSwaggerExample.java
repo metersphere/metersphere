@@ -174,6 +174,76 @@ public class ApiDefinitionSwaggerExample {
             return (Criteria) this;
         }
 
+        public Criteria andNameIsNull() {
+            addCriterion("`name` is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andNameIsNotNull() {
+            addCriterion("`name` is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andNameEqualTo(String value) {
+            addCriterion("`name` =", value, "name");
+            return (Criteria) this;
+        }
+
+        public Criteria andNameNotEqualTo(String value) {
+            addCriterion("`name` <>", value, "name");
+            return (Criteria) this;
+        }
+
+        public Criteria andNameGreaterThan(String value) {
+            addCriterion("`name` >", value, "name");
+            return (Criteria) this;
+        }
+
+        public Criteria andNameGreaterThanOrEqualTo(String value) {
+            addCriterion("`name` >=", value, "name");
+            return (Criteria) this;
+        }
+
+        public Criteria andNameLessThan(String value) {
+            addCriterion("`name` <", value, "name");
+            return (Criteria) this;
+        }
+
+        public Criteria andNameLessThanOrEqualTo(String value) {
+            addCriterion("`name` <=", value, "name");
+            return (Criteria) this;
+        }
+
+        public Criteria andNameLike(String value) {
+            addCriterion("`name` like", value, "name");
+            return (Criteria) this;
+        }
+
+        public Criteria andNameNotLike(String value) {
+            addCriterion("`name` not like", value, "name");
+            return (Criteria) this;
+        }
+
+        public Criteria andNameIn(List<String> values) {
+            addCriterion("`name` in", values, "name");
+            return (Criteria) this;
+        }
+
+        public Criteria andNameNotIn(List<String> values) {
+            addCriterion("`name` not in", values, "name");
+            return (Criteria) this;
+        }
+
+        public Criteria andNameBetween(String value1, String value2) {
+            addCriterion("`name` between", value1, value2, "name");
+            return (Criteria) this;
+        }
+
+        public Criteria andNameNotBetween(String value1, String value2) {
+            addCriterion("`name` not between", value1, value2, "name");
+            return (Criteria) this;
+        }
+
         public Criteria andSwaggerUrlIsNull() {
             addCriterion("swagger_url is null");
             return (Criteria) this;
@@ -314,133 +384,193 @@ public class ApiDefinitionSwaggerExample {
             return (Criteria) this;
         }
 
-        public Criteria andModulePathIsNull() {
-            addCriterion("module_path is null");
+        public Criteria andConfigIsNull() {
+            addCriterion("config is null");
             return (Criteria) this;
         }
 
-        public Criteria andModulePathIsNotNull() {
-            addCriterion("module_path is not null");
+        public Criteria andConfigIsNotNull() {
+            addCriterion("config is not null");
             return (Criteria) this;
         }
 
-        public Criteria andModulePathEqualTo(String value) {
-            addCriterion("module_path =", value, "modulePath");
+        public Criteria andConfigEqualTo(String value) {
+            addCriterion("config =", value, "config");
             return (Criteria) this;
         }
 
-        public Criteria andModulePathNotEqualTo(String value) {
-            addCriterion("module_path <>", value, "modulePath");
+        public Criteria andConfigNotEqualTo(String value) {
+            addCriterion("config <>", value, "config");
             return (Criteria) this;
         }
 
-        public Criteria andModulePathGreaterThan(String value) {
-            addCriterion("module_path >", value, "modulePath");
+        public Criteria andConfigGreaterThan(String value) {
+            addCriterion("config >", value, "config");
             return (Criteria) this;
         }
 
-        public Criteria andModulePathGreaterThanOrEqualTo(String value) {
-            addCriterion("module_path >=", value, "modulePath");
+        public Criteria andConfigGreaterThanOrEqualTo(String value) {
+            addCriterion("config >=", value, "config");
             return (Criteria) this;
         }
 
-        public Criteria andModulePathLessThan(String value) {
-            addCriterion("module_path <", value, "modulePath");
+        public Criteria andConfigLessThan(String value) {
+            addCriterion("config <", value, "config");
             return (Criteria) this;
         }
 
-        public Criteria andModulePathLessThanOrEqualTo(String value) {
-            addCriterion("module_path <=", value, "modulePath");
+        public Criteria andConfigLessThanOrEqualTo(String value) {
+            addCriterion("config <=", value, "config");
             return (Criteria) this;
         }
 
-        public Criteria andModulePathLike(String value) {
-            addCriterion("module_path like", value, "modulePath");
+        public Criteria andConfigLike(String value) {
+            addCriterion("config like", value, "config");
             return (Criteria) this;
         }
 
-        public Criteria andModulePathNotLike(String value) {
-            addCriterion("module_path not like", value, "modulePath");
+        public Criteria andConfigNotLike(String value) {
+            addCriterion("config not like", value, "config");
             return (Criteria) this;
         }
 
-        public Criteria andModulePathIn(List<String> values) {
-            addCriterion("module_path in", values, "modulePath");
+        public Criteria andConfigIn(List<String> values) {
+            addCriterion("config in", values, "config");
             return (Criteria) this;
         }
 
-        public Criteria andModulePathNotIn(List<String> values) {
-            addCriterion("module_path not in", values, "modulePath");
+        public Criteria andConfigNotIn(List<String> values) {
+            addCriterion("config not in", values, "config");
             return (Criteria) this;
         }
 
-        public Criteria andModulePathBetween(String value1, String value2) {
-            addCriterion("module_path between", value1, value2, "modulePath");
+        public Criteria andConfigBetween(String value1, String value2) {
+            addCriterion("config between", value1, value2, "config");
             return (Criteria) this;
         }
 
-        public Criteria andModulePathNotBetween(String value1, String value2) {
-            addCriterion("module_path not between", value1, value2, "modulePath");
+        public Criteria andConfigNotBetween(String value1, String value2) {
+            addCriterion("config not between", value1, value2, "config");
             return (Criteria) this;
         }
 
-        public Criteria andModeIsNull() {
-            addCriterion("`mode` is null");
+        public Criteria andCoverDataIsNull() {
+            addCriterion("cover_data is null");
             return (Criteria) this;
         }
 
-        public Criteria andModeIsNotNull() {
-            addCriterion("`mode` is not null");
+        public Criteria andCoverDataIsNotNull() {
+            addCriterion("cover_data is not null");
             return (Criteria) this;
         }
 
-        public Criteria andModeEqualTo(Boolean value) {
-            addCriterion("`mode` =", value, "mode");
+        public Criteria andCoverDataEqualTo(Boolean value) {
+            addCriterion("cover_data =", value, "coverData");
             return (Criteria) this;
         }
 
-        public Criteria andModeNotEqualTo(Boolean value) {
-            addCriterion("`mode` <>", value, "mode");
+        public Criteria andCoverDataNotEqualTo(Boolean value) {
+            addCriterion("cover_data <>", value, "coverData");
             return (Criteria) this;
         }
 
-        public Criteria andModeGreaterThan(Boolean value) {
-            addCriterion("`mode` >", value, "mode");
+        public Criteria andCoverDataGreaterThan(Boolean value) {
+            addCriterion("cover_data >", value, "coverData");
             return (Criteria) this;
         }
 
-        public Criteria andModeGreaterThanOrEqualTo(Boolean value) {
-            addCriterion("`mode` >=", value, "mode");
+        public Criteria andCoverDataGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("cover_data >=", value, "coverData");
             return (Criteria) this;
         }
 
-        public Criteria andModeLessThan(Boolean value) {
-            addCriterion("`mode` <", value, "mode");
+        public Criteria andCoverDataLessThan(Boolean value) {
+            addCriterion("cover_data <", value, "coverData");
             return (Criteria) this;
         }
 
-        public Criteria andModeLessThanOrEqualTo(Boolean value) {
-            addCriterion("`mode` <=", value, "mode");
+        public Criteria andCoverDataLessThanOrEqualTo(Boolean value) {
+            addCriterion("cover_data <=", value, "coverData");
             return (Criteria) this;
         }
 
-        public Criteria andModeIn(List<Boolean> values) {
-            addCriterion("`mode` in", values, "mode");
+        public Criteria andCoverDataIn(List<Boolean> values) {
+            addCriterion("cover_data in", values, "coverData");
             return (Criteria) this;
         }
 
-        public Criteria andModeNotIn(List<Boolean> values) {
-            addCriterion("`mode` not in", values, "mode");
+        public Criteria andCoverDataNotIn(List<Boolean> values) {
+            addCriterion("cover_data not in", values, "coverData");
             return (Criteria) this;
         }
 
-        public Criteria andModeBetween(Boolean value1, Boolean value2) {
-            addCriterion("`mode` between", value1, value2, "mode");
+        public Criteria andCoverDataBetween(Boolean value1, Boolean value2) {
+            addCriterion("cover_data between", value1, value2, "coverData");
             return (Criteria) this;
         }
 
-        public Criteria andModeNotBetween(Boolean value1, Boolean value2) {
-            addCriterion("`mode` not between", value1, value2, "mode");
+        public Criteria andCoverDataNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("cover_data not between", value1, value2, "coverData");
+            return (Criteria) this;
+        }
+
+        public Criteria andCoverModuleIsNull() {
+            addCriterion("cover_module is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCoverModuleIsNotNull() {
+            addCriterion("cover_module is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCoverModuleEqualTo(Boolean value) {
+            addCriterion("cover_module =", value, "coverModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andCoverModuleNotEqualTo(Boolean value) {
+            addCriterion("cover_module <>", value, "coverModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andCoverModuleGreaterThan(Boolean value) {
+            addCriterion("cover_module >", value, "coverModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andCoverModuleGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("cover_module >=", value, "coverModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andCoverModuleLessThan(Boolean value) {
+            addCriterion("cover_module <", value, "coverModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andCoverModuleLessThanOrEqualTo(Boolean value) {
+            addCriterion("cover_module <=", value, "coverModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andCoverModuleIn(List<Boolean> values) {
+            addCriterion("cover_module in", values, "coverModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andCoverModuleNotIn(List<Boolean> values) {
+            addCriterion("cover_module not in", values, "coverModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andCoverModuleBetween(Boolean value1, Boolean value2) {
+            addCriterion("cover_module between", value1, value2, "coverModule");
+            return (Criteria) this;
+        }
+
+        public Criteria andCoverModuleNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("cover_module not between", value1, value2, "coverModule");
             return (Criteria) this;
         }
 

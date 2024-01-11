@@ -237,6 +237,7 @@
             and (
             t1.name like concat('%', #{request.keyword},'%')
             or t1.num like concat('%', #{request.keyword},'%')
+            or a.path like concat('%', #{request.keyword},'%')
             or t1.tags like JSON_CONTAINS(t1.tags, concat('["',#{request.keyword},'"]'))
             )
         </if>

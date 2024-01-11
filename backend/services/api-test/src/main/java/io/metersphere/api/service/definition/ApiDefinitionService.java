@@ -16,7 +16,6 @@ import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
-import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.constants.ApplicationNumScope;
@@ -109,8 +108,6 @@ public class ApiDefinitionService {
     private ApiDefinitionLogService apiDefinitionLogService;
     @Resource
     private ApiDefinitionImportUtilService apiDefinitionImportUtilService;
-    @Resource
-    private ProjectMapper projectMapper;
 
     @Resource
     private ApiDefinitionMockService apiDefinitionMockService;
@@ -883,13 +880,17 @@ public class ApiDefinitionService {
         return apiDefinitionDocDTO;
     }
 
-    public ApiDefinitionImport apiTestImport(MultipartFile file, ImportRequest request) {
+    public ApiDefinitionImport apiTestImport(MultipartFile file, ImportRequest request, String userId, String projectId) {
         if (file != null) {
             String originalFilename = file.getOriginalFilename();
             if (StringUtils.isNotBlank(originalFilename)) {
                 String suffixName = originalFilename.substring(originalFilename.indexOf(".") + 1);
                 apiDefinitionImportUtilService.checkFileSuffixName(request, suffixName);
             }
+        }
+        request.setUserId(userId);
+        if (StringUtils.isBlank(request.getProjectId())) {
+            request.setProjectId(projectId);
         }
         ImportParser<?> runService = ImportParserFactory.getImportParser(request.getPlatform());
         ApiDefinitionImport apiImport = null;
@@ -924,6 +925,7 @@ public class ApiDefinitionService {
         }
         return apiImport;
     }
+
     public List<OperationHistoryDTO> list(OperationHistoryRequest request) {
         List<OperationHistoryDTO> operationHistoryList = operationHistoryService.list(request);
         if (CollectionUtils.isNotEmpty(operationHistoryList)) {
@@ -959,7 +961,7 @@ public class ApiDefinitionService {
             apiDefinitionMapper.insertSelective(apiDefinition);
 
             ApiDefinitionBlob apiDefinitionBlob = new ApiDefinitionBlob();
-            if(copyApiDefinitionBlob != null) {
+            if (copyApiDefinitionBlob != null) {
                 apiDefinitionBlob.setId(apiDefinition.getId());
                 apiDefinitionBlob.setRequest(copyApiDefinitionBlob.getRequest());
                 apiDefinitionBlob.setResponse(copyApiDefinitionBlob.getResponse());
@@ -979,7 +981,6 @@ public class ApiDefinitionService {
         Long logId = apiDefinitionLogService.saveOperationHistoryLog(apiDefinitionDTO, apiDefinition.getCreateUser(), apiDefinition.getProjectId());
         operationHistoryService.associationRefId(request.getId(), logId);
     }
-
 
 
     public void recoverOperationHistory(OperationHistoryVersionRequest request) {

@@ -1,5 +1,6 @@
 package io.metersphere.api.service.definition;
 
+import io.metersphere.api.constants.ApiImportPlatform;
 import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.domain.ApiDefinitionBlob;
 import io.metersphere.api.domain.ApiDefinitionBlobExample;
@@ -86,17 +87,17 @@ public class ApiDefinitionImportUtilService {
 
     public void checkFileSuffixName(ImportRequest request, String suffixName) {
         if ("jmx".equalsIgnoreCase(suffixName)) {
-            if (!"JMeter".equalsIgnoreCase(request.getPlatform())) {
+            if (!ApiImportPlatform.Jmeter.name().equalsIgnoreCase(request.getPlatform())) {
                 throw new MSException(Translator.get("file_format_does_not_meet_requirements"));
             }
         }
         if ("har".equalsIgnoreCase(suffixName)) {
-            if (!"Har".equalsIgnoreCase(request.getPlatform())) {
+            if (!ApiImportPlatform.Har.name().equalsIgnoreCase(request.getPlatform())) {
                 throw new MSException(Translator.get("file_format_does_not_meet_requirements"));
             }
         }
         if ("json".equalsIgnoreCase(suffixName)) {
-            if ("Har".equalsIgnoreCase(request.getPlatform()) || "Jmeter".equalsIgnoreCase(request.getPlatform())) {
+            if (ApiImportPlatform.Har.name().equalsIgnoreCase(request.getPlatform()) || ApiImportPlatform.Jmeter.name().equalsIgnoreCase(request.getPlatform())) {
                 throw new MSException(Translator.get("file_format_does_not_meet_requirements"));
             }
         }
@@ -545,6 +546,7 @@ public class ApiDefinitionImportUtilService {
         if (jsonSchema == null && importJsonSchema == null) {
             return true;
         }
+        assert jsonSchema != null;
         if (!StringUtils.equals(jsonSchema.getType(), importJsonSchema.getType())) {
             return false;
         }

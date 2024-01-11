@@ -15,6 +15,11 @@ public class ApiDefinitionSwagger implements Serializable {
     @Size(min = 1, max = 50, message = "{api_definition_swagger.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
+    @Schema(description = "定时任务名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_definition_swagger.name.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 255, message = "{api_definition_swagger.name.length_range}", groups = {Created.class, Updated.class})
+    private String name;
+
     @Schema(description = "url地址", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_definition_swagger.swagger_url.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 500, message = "{api_definition_swagger.swagger_url.length_range}", groups = {Created.class, Updated.class})
@@ -23,32 +28,35 @@ public class ApiDefinitionSwagger implements Serializable {
     @Schema(description = "模块fk")
     private String moduleId;
 
-    @Schema(description = "模块路径")
-    private String modulePath;
+    @Schema(description = "鉴权配置信息")
+    private String config;
 
     @Schema(description = "导入模式/覆盖/不覆盖")
-    private Boolean mode;
+    private Boolean coverData;
 
-    @Schema(description = "项目fk")
+    @Schema(description = "是否覆盖模块")
+    private Boolean coverModule;
+
+    @Schema(description = "项目fk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_definition_swagger.project_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{api_definition_swagger.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
     @Schema(description = "导入版本")
     private String versionId;
 
-    @Schema(description = "鉴权配置信息")
-    private byte[] config;
-
     private static final long serialVersionUID = 1L;
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
+        name("name", "name", "VARCHAR", true),
         swaggerUrl("swagger_url", "swaggerUrl", "VARCHAR", false),
         moduleId("module_id", "moduleId", "VARCHAR", false),
-        modulePath("module_path", "modulePath", "VARCHAR", false),
-        mode("mode", "mode", "BIT", true),
+        config("config", "config", "VARCHAR", false),
+        coverData("cover_data", "coverData", "BIT", false),
+        coverModule("cover_module", "coverModule", "BIT", false),
         projectId("project_id", "projectId", "VARCHAR", false),
-        versionId("version_id", "versionId", "VARCHAR", false),
-        config("config", "config", "LONGVARBINARY", false);
+        versionId("version_id", "versionId", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 
