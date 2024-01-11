@@ -87,6 +87,7 @@ public class OperationLogModule {
     public static final String PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT = "PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT";
     public static final String PROJECT_TEMPLATE = "PROJECT_TEMPLATE";// 项目模板
     public static final String PROJECT_CUSTOM_FIELD = "PROJECT_CUSTOM_FIELD";// 项目字段
+    public static final String PROJECT_CUSTOM_FUNCTION = "PROJECT_CUSTOM_FUNCTION";// 项目公共脚本
 
     //用例
     public static final String FUNCTIONAL_CASE = "FUNCTIONAL_CASE";

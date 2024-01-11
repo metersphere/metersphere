@@ -14,7 +14,9 @@ public enum ProjectResultCode implements IResultCode {
     /**
      * 开启组织模板，操作项目模板时，会返回
      */
-    PROJECT_TEMPLATE_PERMISSION(102002, "project_template_permission_error");
+    PROJECT_TEMPLATE_PERMISSION(102002, "project_template_permission_error"),
+
+    CUSTOM_FUNCTION_ALREADY_EXIST(102003, "custom_function_already_exist");
 
     private final int code;
     private final String message;
