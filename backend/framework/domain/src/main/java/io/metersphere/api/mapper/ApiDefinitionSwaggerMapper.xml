@@ -3,15 +3,14 @@
 <mapper namespace="io.metersphere.api.mapper.ApiDefinitionSwaggerMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiDefinitionSwagger">
     <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="swagger_url" jdbcType="VARCHAR" property="swaggerUrl" />
     <result column="module_id" jdbcType="VARCHAR" property="moduleId" />
-    <result column="module_path" jdbcType="VARCHAR" property="modulePath" />
-    <result column="mode" jdbcType="BIT" property="mode" />
+    <result column="config" jdbcType="VARCHAR" property="config" />
+    <result column="cover_data" jdbcType="BIT" property="coverData" />
+    <result column="cover_module" jdbcType="BIT" property="coverModule" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="version_id" jdbcType="VARCHAR" property="versionId" />
-  </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.api.domain.ApiDefinitionSwagger">
-    <result column="config" jdbcType="LONGVARBINARY" property="config" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -72,27 +71,9 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, swagger_url, module_id, module_path, `mode`, project_id, version_id
+    id, `name`, swagger_url, module_id, config, cover_data, cover_module, project_id, 
+    version_id
   </sql>
-  <sql id="Blob_Column_List">
-    config
-  </sql>
-  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.api.domain.ApiDefinitionSwaggerExample" resultMap="ResultMapWithBLOBs">
-    select
-    <if test="distinct">
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
-    from api_definition_swagger
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null">
-      order by ${orderByClause}
-    </if>
-  </select>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiDefinitionSwaggerExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
@@ -107,11 +88,9 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
     from api_definition_swagger
     where id = #{id,jdbcType=VARCHAR}
   </select>
@@ -126,12 +105,14 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.api.domain.ApiDefinitionSwagger">
-    insert into api_definition_swagger (id, swagger_url, module_id, 
-      module_path, `mode`, project_id, 
-      version_id, config)
-    values (#{id,jdbcType=VARCHAR}, #{swaggerUrl,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR}, 
-      #{modulePath,jdbcType=VARCHAR}, #{mode,jdbcType=BIT}, #{projectId,jdbcType=VARCHAR}, 
-      #{versionId,jdbcType=VARCHAR}, #{config,jdbcType=LONGVARBINARY})
+    insert into api_definition_swagger (id, `name`, swagger_url, 
+      module_id, config, cover_data, 
+      cover_module, project_id, version_id
+      )
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{swaggerUrl,jdbcType=VARCHAR}, 
+      #{moduleId,jdbcType=VARCHAR}, #{config,jdbcType=VARCHAR}, #{coverData,jdbcType=BIT}, 
+      #{coverModule,jdbcType=BIT}, #{projectId,jdbcType=VARCHAR}, #{versionId,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiDefinitionSwagger">
     insert into api_definition_swagger
@@ -139,17 +120,23 @@
       <if test="id != null">
         id,
       </if>
+      <if test="name != null">
+        `name`,
+      </if>
       <if test="swaggerUrl != null">
         swagger_url,
       </if>
       <if test="moduleId != null">
         module_id,
       </if>
-      <if test="modulePath != null">
-        module_path,
+      <if test="config != null">
+        config,
       </if>
-      <if test="mode != null">
-        `mode`,
+      <if test="coverData != null">
+        cover_data,
+      </if>
+      <if test="coverModule != null">
+        cover_module,
       </if>
       <if test="projectId != null">
         project_id,
@@ -157,13 +144,13 @@
       <if test="versionId != null">
         version_id,
       </if>
-      <if test="config != null">
-        config,
-      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
       </if>
       <if test="swaggerUrl != null">
         #{swaggerUrl,jdbcType=VARCHAR},
@@ -171,20 +158,20 @@
       <if test="moduleId != null">
         #{moduleId,jdbcType=VARCHAR},
       </if>
-      <if test="modulePath != null">
-        #{modulePath,jdbcType=VARCHAR},
+      <if test="config != null">
+        #{config,jdbcType=VARCHAR},
       </if>
-      <if test="mode != null">
-        #{mode,jdbcType=BIT},
+      <if test="coverData != null">
+        #{coverData,jdbcType=BIT},
+      </if>
+      <if test="coverModule != null">
+        #{coverModule,jdbcType=BIT},
       </if>
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
       </if>
       <if test="versionId != null">
         #{versionId,jdbcType=VARCHAR},
-      </if>
-      <if test="config != null">
-        #{config,jdbcType=LONGVARBINARY},
       </if>
     </trim>
   </insert>
@@ -200,17 +187,23 @@
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
+      <if test="record.name != null">
+        `name` = #{record.name,jdbcType=VARCHAR},
+      </if>
       <if test="record.swaggerUrl != null">
         swagger_url = #{record.swaggerUrl,jdbcType=VARCHAR},
       </if>
       <if test="record.moduleId != null">
         module_id = #{record.moduleId,jdbcType=VARCHAR},
       </if>
-      <if test="record.modulePath != null">
-        module_path = #{record.modulePath,jdbcType=VARCHAR},
+      <if test="record.config != null">
+        config = #{record.config,jdbcType=VARCHAR},
       </if>
-      <if test="record.mode != null">
-        `mode` = #{record.mode,jdbcType=BIT},
+      <if test="record.coverData != null">
+        cover_data = #{record.coverData,jdbcType=BIT},
+      </if>
+      <if test="record.coverModule != null">
+        cover_module = #{record.coverModule,jdbcType=BIT},
       </if>
       <if test="record.projectId != null">
         project_id = #{record.projectId,jdbcType=VARCHAR},
@@ -218,24 +211,7 @@
       <if test="record.versionId != null">
         version_id = #{record.versionId,jdbcType=VARCHAR},
       </if>
-      <if test="record.config != null">
-        config = #{record.config,jdbcType=LONGVARBINARY},
-      </if>
     </set>
-    <if test="_parameter != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExampleWithBLOBs" parameterType="map">
-    update api_definition_swagger
-    set id = #{record.id,jdbcType=VARCHAR},
-      swagger_url = #{record.swaggerUrl,jdbcType=VARCHAR},
-      module_id = #{record.moduleId,jdbcType=VARCHAR},
-      module_path = #{record.modulePath,jdbcType=VARCHAR},
-      `mode` = #{record.mode,jdbcType=BIT},
-      project_id = #{record.projectId,jdbcType=VARCHAR},
-      version_id = #{record.versionId,jdbcType=VARCHAR},
-      config = #{record.config,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -243,10 +219,12 @@
   <update id="updateByExample" parameterType="map">
     update api_definition_swagger
     set id = #{record.id,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
       swagger_url = #{record.swaggerUrl,jdbcType=VARCHAR},
       module_id = #{record.moduleId,jdbcType=VARCHAR},
-      module_path = #{record.modulePath,jdbcType=VARCHAR},
-      `mode` = #{record.mode,jdbcType=BIT},
+      config = #{record.config,jdbcType=VARCHAR},
+      cover_data = #{record.coverData,jdbcType=BIT},
+      cover_module = #{record.coverModule,jdbcType=BIT},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       version_id = #{record.versionId,jdbcType=VARCHAR}
     <if test="_parameter != null">
@@ -256,17 +234,23 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.api.domain.ApiDefinitionSwagger">
     update api_definition_swagger
     <set>
+      <if test="name != null">
+        `name` = #{name,jdbcType=VARCHAR},
+      </if>
       <if test="swaggerUrl != null">
         swagger_url = #{swaggerUrl,jdbcType=VARCHAR},
       </if>
       <if test="moduleId != null">
         module_id = #{moduleId,jdbcType=VARCHAR},
       </if>
-      <if test="modulePath != null">
-        module_path = #{modulePath,jdbcType=VARCHAR},
+      <if test="config != null">
+        config = #{config,jdbcType=VARCHAR},
       </if>
-      <if test="mode != null">
-        `mode` = #{mode,jdbcType=BIT},
+      <if test="coverData != null">
+        cover_data = #{coverData,jdbcType=BIT},
+      </if>
+      <if test="coverModule != null">
+        cover_module = #{coverModule,jdbcType=BIT},
       </if>
       <if test="projectId != null">
         project_id = #{projectId,jdbcType=VARCHAR},
@@ -274,41 +258,31 @@
       <if test="versionId != null">
         version_id = #{versionId,jdbcType=VARCHAR},
       </if>
-      <if test="config != null">
-        config = #{config,jdbcType=LONGVARBINARY},
-      </if>
     </set>
-    where id = #{id,jdbcType=VARCHAR}
-  </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.api.domain.ApiDefinitionSwagger">
-    update api_definition_swagger
-    set swagger_url = #{swaggerUrl,jdbcType=VARCHAR},
-      module_id = #{moduleId,jdbcType=VARCHAR},
-      module_path = #{modulePath,jdbcType=VARCHAR},
-      `mode` = #{mode,jdbcType=BIT},
-      project_id = #{projectId,jdbcType=VARCHAR},
-      version_id = #{versionId,jdbcType=VARCHAR},
-      config = #{config,jdbcType=LONGVARBINARY}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiDefinitionSwagger">
     update api_definition_swagger
-    set swagger_url = #{swaggerUrl,jdbcType=VARCHAR},
+    set `name` = #{name,jdbcType=VARCHAR},
+      swagger_url = #{swaggerUrl,jdbcType=VARCHAR},
       module_id = #{moduleId,jdbcType=VARCHAR},
-      module_path = #{modulePath,jdbcType=VARCHAR},
-      `mode` = #{mode,jdbcType=BIT},
+      config = #{config,jdbcType=VARCHAR},
+      cover_data = #{coverData,jdbcType=BIT},
+      cover_module = #{coverModule,jdbcType=BIT},
       project_id = #{projectId,jdbcType=VARCHAR},
       version_id = #{versionId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_definition_swagger
-    (id, swagger_url, module_id, module_path, `mode`, project_id, version_id, config)
+    (id, `name`, swagger_url, module_id, config, cover_data, cover_module, project_id, 
+      version_id)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.swaggerUrl,jdbcType=VARCHAR}, #{item.moduleId,jdbcType=VARCHAR}, 
-        #{item.modulePath,jdbcType=VARCHAR}, #{item.mode,jdbcType=BIT}, #{item.projectId,jdbcType=VARCHAR}, 
-        #{item.versionId,jdbcType=VARCHAR}, #{item.config,jdbcType=LONGVARBINARY})
+      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.swaggerUrl,jdbcType=VARCHAR}, 
+        #{item.moduleId,jdbcType=VARCHAR}, #{item.config,jdbcType=VARCHAR}, #{item.coverData,jdbcType=BIT}, 
+        #{item.coverModule,jdbcType=BIT}, #{item.projectId,jdbcType=VARCHAR}, #{item.versionId,jdbcType=VARCHAR}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -324,26 +298,29 @@
         <if test="'id'.toString() == column.value">
           #{item.id,jdbcType=VARCHAR}
         </if>
+        <if test="'name'.toString() == column.value">
+          #{item.name,jdbcType=VARCHAR}
+        </if>
         <if test="'swagger_url'.toString() == column.value">
           #{item.swaggerUrl,jdbcType=VARCHAR}
         </if>
         <if test="'module_id'.toString() == column.value">
           #{item.moduleId,jdbcType=VARCHAR}
         </if>
-        <if test="'module_path'.toString() == column.value">
-          #{item.modulePath,jdbcType=VARCHAR}
+        <if test="'config'.toString() == column.value">
+          #{item.config,jdbcType=VARCHAR}
         </if>
-        <if test="'mode'.toString() == column.value">
-          #{item.mode,jdbcType=BIT}
+        <if test="'cover_data'.toString() == column.value">
+          #{item.coverData,jdbcType=BIT}
+        </if>
+        <if test="'cover_module'.toString() == column.value">
+          #{item.coverModule,jdbcType=BIT}
         </if>
         <if test="'project_id'.toString() == column.value">
           #{item.projectId,jdbcType=VARCHAR}
         </if>
         <if test="'version_id'.toString() == column.value">
           #{item.versionId,jdbcType=VARCHAR}
-        </if>
-        <if test="'config'.toString() == column.value">
-          #{item.config,jdbcType=LONGVARBINARY}
         </if>
       </foreach>
       )

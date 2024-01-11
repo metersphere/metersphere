@@ -434,15 +434,16 @@ CREATE TABLE IF NOT EXISTS api_definition_mock_config(
    COMMENT = 'mock期望值配置';
 
 CREATE TABLE IF NOT EXISTS api_definition_swagger(
-  `id` VARCHAR(50) NOT NULL   COMMENT '主键' ,
-  `swagger_url` VARCHAR(500) NOT NULL   COMMENT 'url地址' ,
-  `module_id` VARCHAR(50)    COMMENT '模块fk' ,
-  `module_path` VARCHAR(1000)    COMMENT '模块路径' ,
-  `config` BLOB    COMMENT '鉴权配置信息' ,
-  `mode` BIT(1)   DEFAULT 0 COMMENT '导入模式/覆盖/不覆盖' ,
-  `project_id` VARCHAR(50)    COMMENT '项目fk' ,
-  `version_id` VARCHAR(50)    COMMENT '导入版本' ,
-  PRIMARY KEY (id)
+    `id` VARCHAR(50) NOT NULL   COMMENT '主键' ,
+    `name` VARCHAR(255) NOT NULL   COMMENT '定时任务名称' ,
+    `swagger_url` VARCHAR(500) NOT NULL   COMMENT 'url地址' ,
+    `module_id` VARCHAR(50)    COMMENT '模块fk' ,
+    `config` VARCHAR(255)    COMMENT '鉴权配置信息' ,
+    `cover_data` BIT(1)   DEFAULT 0 COMMENT '导入模式/覆盖/不覆盖' ,
+    `cover_module` BIT(1)   DEFAULT 0 COMMENT '是否覆盖模块' ,
+    `project_id` VARCHAR(50) NOT NULL   COMMENT '项目fk' ,
+    `version_id` VARCHAR(50)    COMMENT '导入版本' ,
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '定时同步配置';

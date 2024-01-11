@@ -16,21 +16,15 @@ public interface ApiDefinitionSwaggerMapper {
 
     int insertSelective(ApiDefinitionSwagger record);
 
-    List<ApiDefinitionSwagger> selectByExampleWithBLOBs(ApiDefinitionSwaggerExample example);
-
     List<ApiDefinitionSwagger> selectByExample(ApiDefinitionSwaggerExample example);
 
     ApiDefinitionSwagger selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") ApiDefinitionSwagger record, @Param("example") ApiDefinitionSwaggerExample example);
 
-    int updateByExampleWithBLOBs(@Param("record") ApiDefinitionSwagger record, @Param("example") ApiDefinitionSwaggerExample example);
-
     int updateByExample(@Param("record") ApiDefinitionSwagger record, @Param("example") ApiDefinitionSwaggerExample example);
 
     int updateByPrimaryKeySelective(ApiDefinitionSwagger record);
-
-    int updateByPrimaryKeyWithBLOBs(ApiDefinitionSwagger record);
 
     int updateByPrimaryKey(ApiDefinitionSwagger record);
 

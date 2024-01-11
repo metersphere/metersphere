@@ -231,6 +231,7 @@
             and (
             api_definition.num like concat('%', #{request.keyword},'%')
             or api_definition.name like concat('%', #{request.keyword},'%')
+            or api_definition.path like concat('%', #{request.keyword},'%')
             or api_definition.tags like JSON_CONTAINS(tags, concat('["',#{request.keyword},'"]'))
             )
         </if>
