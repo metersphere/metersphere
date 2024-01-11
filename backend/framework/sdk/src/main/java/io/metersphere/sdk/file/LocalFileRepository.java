@@ -93,6 +93,12 @@ public class LocalFileRepository implements FileRepository {
         throw new MSException("Not support copy file");
     }
 
+    @Override
+    public long getFileSize(FileRequest request) throws Exception {
+        File file = new File(getFilePath(request));
+        return file.length();
+    }
+
     private String getFilePath(FileRequest request) {
         MsFileUtils.validateFileName(request.getFolder(), request.getFileName());
         return StringUtils.join(getFileDir(request), "/", request.getFileName());

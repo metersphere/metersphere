@@ -112,6 +112,7 @@ CREATE TABLE IF NOT EXISTS functional_case_attachment
     `case_id`     VARCHAR(50)  NOT NULL COMMENT '功能用例ID',
     `file_id`     VARCHAR(50)  NOT NULL COMMENT '文件的ID',
     `file_name`   VARCHAR(255) NOT NULL COMMENT '文件名称',
+    `file_source` VARCHAR(50) NOT NULL  DEFAULT 'ATTACHMENT' COMMENT '文件来源' ,
     `size`        BIGINT       NOT NULL COMMENT '文件大小',
     `local`       BIT(1)       NOT NULL COMMENT '是否本地',
     `create_user` VARCHAR(50)  NOT NULL COMMENT '创建人',
@@ -126,6 +127,7 @@ CREATE INDEX idx_case_id ON functional_case_attachment (case_id);
 CREATE INDEX idx_local ON functional_case_attachment (local);
 CREATE INDEX idx_file_id ON functional_case_attachment (file_id);
 CREATE INDEX idx_file_name ON functional_case_attachment (file_name);
+CREATE INDEX idx_file_source ON functional_case_attachment(file_source);
 
 
 CREATE TABLE IF NOT EXISTS functional_case_follower

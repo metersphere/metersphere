@@ -1,6 +1,9 @@
 package io.metersphere.functional.controller;
 
-import io.metersphere.functional.dto.FunctionalCaseAttachmentDTO;
+import io.metersphere.functional.constants.CaseFileSourceType;
+import io.metersphere.functional.domain.FunctionalCaseAttachment;
+import io.metersphere.functional.domain.FunctionalCaseAttachmentExample;
+import io.metersphere.functional.mapper.FunctionalCaseAttachmentMapper;
 import io.metersphere.functional.request.AttachmentTransferRequest;
 import io.metersphere.functional.request.FunctionalCaseAssociationFileRequest;
 import io.metersphere.functional.request.FunctionalCaseDeleteFileRequest;
@@ -19,6 +22,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,11 +32,10 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.util.LinkedMultiValueMap;
+import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -52,6 +55,9 @@ public class FunctionalCaseAttachmentControllerTests extends BaseTest {
     @Resource
     private FunctionalCaseAttachmentService functionalCaseAttachmentService;
 
+    @Resource
+    private FunctionalCaseAttachmentMapper functionalCaseAttachmentMapper;
+
     public static final String ATTACHMENT_PAGE_URL = "/attachment/page";
     public static final String ATTACHMENT_PREVIEW_URL = "/attachment/preview";
     public static final String ATTACHMENT_DOWNLOAD_URL = "/attachment/download";
@@ -61,6 +67,7 @@ public class FunctionalCaseAttachmentControllerTests extends BaseTest {
     public static final String UPLOAD_FILE_URL = "/attachment/upload/file";
     public static final String DELETE_FILE_URL = "/attachment/delete/file";
     public static final String OPTIONS_URL = "/attachment/options/";
+    public static final String UPLOAD_TEMP = "/attachment/upload/temp/file";
 
 
     @Test
@@ -210,7 +217,6 @@ public class FunctionalCaseAttachmentControllerTests extends BaseTest {
     @Order(8)
     public void testDeleteFile() throws Exception {
         FunctionalCaseDeleteFileRequest request = new FunctionalCaseDeleteFileRequest();
-        FunctionalCaseAttachmentDTO attachmentDTO = new FunctionalCaseAttachmentDTO();
         //覆盖率
         request.setCaseId("TEST_FUNCTIONAL_CASE_ATTACHMENT_ID_1");
         request.setProjectId("WX_TEST_PROJECT_ID");
@@ -218,8 +224,8 @@ public class FunctionalCaseAttachmentControllerTests extends BaseTest {
         request.setLocal(false);
         this.requestPost(DELETE_FILE_URL, request);
 
-        attachmentDTO.setId("TEST_ATTACHMENT_FILE_ID");
-        attachmentDTO.setLocal(true);
+        request.setId("TEST_ATTACHMENT_FILE_ID");
+        request.setLocal(true);
         this.requestPost(DELETE_FILE_URL, request);
     }
 
@@ -229,6 +235,61 @@ public class FunctionalCaseAttachmentControllerTests extends BaseTest {
     public void testOptions() throws Exception {
         //覆盖controller方法
         this.requestGet(OPTIONS_URL + DEFAULT_PROJECT_ID);
+    }
+
+    @Test
+    @Order(10)
+    public void testUploadTemp() throws Exception {
+        //覆盖controller方法
+        MockMultipartFile file = getMockMultipartFile();
+        String fileId = doUploadTempFile(file);
+        Assertions.assertTrue(StringUtils.isNotBlank(fileId));
+        file = getNoNameMockMultipartFile();
+        doUploadTempFileFalse(file);
+        functionalCaseAttachmentService.uploadMinioFile("TEST_FUNCTIONAL_CASE_ATTACHMENT_ID_1","WX_TEST_PROJECT_ID", List.of(fileId),"admin", CaseFileSourceType.CASE_COMMENT.toString());
+        FunctionalCaseAttachmentExample functionalCaseAttachmentExample = new FunctionalCaseAttachmentExample();
+        functionalCaseAttachmentExample.createCriteria().andCaseIdEqualTo("TEST_FUNCTIONAL_CASE_ATTACHMENT_ID_1").andFileIdEqualTo(fileId).andFileSourceEqualTo(CaseFileSourceType.CASE_COMMENT.toString());
+        List<FunctionalCaseAttachment> functionalCaseAttachments = functionalCaseAttachmentMapper.selectByExample(functionalCaseAttachmentExample);
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(functionalCaseAttachments));
+        functionalCaseAttachmentService.uploadMinioFile("TEST_FUNCTIONAL_CASE_ATTACHMENT_ID_1","WX_TEST_PROJECT_ID",new ArrayList<>(),"admin", CaseFileSourceType.CASE_COMMENT.toString());
+        String functionalCaseDir = DefaultRepositoryDir.getFunctionalCaseDir("WX_TEST_PROJECT_ID", "TEST_FUNCTIONAL_CASE_ATTACHMENT_ID_1");
+        functionalCaseAttachmentService.uploadFileResource(functionalCaseDir,new HashMap<>(),"WX_TEST_PROJECT_ID", "TEST_FUNCTIONAL_CASE_ATTACHMENT_ID_1");
+        Map<String, String> objectObjectHashMap = new HashMap<>();
+        objectObjectHashMap.put(fileId,null);
+        functionalCaseAttachmentService.uploadFileResource(functionalCaseDir,objectObjectHashMap,"WX_TEST_PROJECT_ID", "TEST_FUNCTIONAL_CASE_ATTACHMENT_ID_1");
+
+    }
+
+    private static MockMultipartFile getMockMultipartFile() {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "file_upload.JPG",
+                MediaType.APPLICATION_OCTET_STREAM_VALUE,
+                "Hello, World!".getBytes()
+        );
+        return file;
+    }
+
+
+    private static MockMultipartFile getNoNameMockMultipartFile() {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                null,
+                MediaType.APPLICATION_OCTET_STREAM_VALUE,
+                "Hello, World!".getBytes()
+        );
+        return file;
+    }
+
+    private String doUploadTempFile(MockMultipartFile file) throws Exception {
+        return JSON.parseObject(requestUploadFileWithOkAndReturn(UPLOAD_TEMP, file)
+                        .getResponse()
+                        .getContentAsString(), ResultHolder.class)
+                .getData().toString();
+    }
+
+    private void doUploadTempFileFalse(MockMultipartFile file) throws Exception {
+        this.requestUploadFile(UPLOAD_TEMP, file).andExpect(status().is5xxServerError());
     }
 
 }

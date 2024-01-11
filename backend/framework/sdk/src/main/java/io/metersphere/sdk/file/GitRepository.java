@@ -83,4 +83,9 @@ public class GitRepository implements FileRepository {
     public void copyFile(FileCopyRequest request) throws Exception {
         throw new MSException("Not support copy file");
     }
+
+    @Override
+    public long getFileSize(FileRequest request) throws Exception {
+        return 0;
+    }
 }

@@ -206,4 +206,14 @@ public class MinioRepository implements FileRepository {
                 .object(fileName) // 文件名
                 .build());
     }
+
+
+    @Override
+    public long getFileSize(FileRequest request) throws Exception {
+        String fileName = getPath(request);
+        return client.statObject(StatObjectArgs.builder()
+                .bucket(BUCKET) // 存储桶
+                .object(fileName) // 文件名
+                .build()).size();
+    }
 }

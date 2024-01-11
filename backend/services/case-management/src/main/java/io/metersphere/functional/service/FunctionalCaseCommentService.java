@@ -1,6 +1,7 @@
 package io.metersphere.functional.service;
 
 
+import io.metersphere.functional.constants.CaseFileSourceType;
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.domain.FunctionalCaseComment;
 import io.metersphere.functional.domain.FunctionalCaseCommentExample;
@@ -55,6 +56,11 @@ public class FunctionalCaseCommentService {
 
     @Resource
     private BaseUserMapper baseUserMapper;
+
+    @Resource
+    private FunctionalCaseAttachmentService functionalCaseAttachmentService;
+
+
 
     /**
      * 新增评论
@@ -112,6 +118,8 @@ public class FunctionalCaseCommentService {
         }
         functionalCaseCommentMapper.insert(functionalCaseComment);
         FunctionalCaseDTO functionalCaseDTO = functionalCaseNoticeService.getFunctionalCaseDTO(functionalCaseCommentRequest);
+        //保存文件
+        functionalCaseAttachmentService.uploadMinioFile(functionalCaseCommentRequest.getCaseId(),functionalCaseCommentRequest.getProjectId(),functionalCaseCommentRequest.getUploadFileIds(), userId, CaseFileSourceType.CASE_COMMENT.toString());
         //发送@ 通知人
         sendNotice(functionalCaseCommentRequest, userId, functionalCaseDTO);
         //发送系统设置的评论通知
@@ -135,6 +143,8 @@ public class FunctionalCaseCommentService {
         sendNotice(functionalCaseCommentRequest, userId, functionalCaseDTOReply);
         functionalCaseCommentRequest.setEvent(NoticeConstants.Event.AT);
         FunctionalCaseDTO functionalCaseDTO = functionalCaseNoticeService.getFunctionalCaseDTO(functionalCaseCommentRequest);
+        //保存文件
+        functionalCaseAttachmentService.uploadMinioFile(functionalCaseCommentRequest.getCaseId(),functionalCaseCommentRequest.getProjectId(),functionalCaseCommentRequest.getUploadFileIds(), userId, CaseFileSourceType.CASE_COMMENT.toString());
         //发通知
         sendNotice(functionalCaseCommentRequest, userId, functionalCaseDTO);
         return functionalCaseComment;
