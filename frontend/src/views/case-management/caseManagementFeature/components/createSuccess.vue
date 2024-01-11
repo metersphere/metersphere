@@ -118,6 +118,7 @@
   }
 
   function goDetail() {
+    clearInterval(timer.value);
     router.push({
       name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE,
       query: route.query,

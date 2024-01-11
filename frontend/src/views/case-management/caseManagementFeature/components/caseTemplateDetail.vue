@@ -18,7 +18,7 @@
           ></a-input>
         </a-form-item>
         <a-form-item field="precondition" :label="t('system.orgTemplate.precondition')" asterisk-position="end">
-          <MsRichText v-model:raw="form.prerequisite" />
+          <MsRichText v-model:raw="form.prerequisite" :upload-image="handleUploadImage" />
         </a-form-item>
         <a-form-item
           field="step"
@@ -170,6 +170,7 @@
                 key: 'id',
                 children: 'children',
               }"
+              :draggable="false"
               :tree-props="{
                 virtualListProps: {
                   height: 200,
@@ -244,13 +245,14 @@
     previewFile,
     transferFileRequest,
     updateFile,
+    uploadOrAssociationFile,
   } from '@/api/modules/case-management/featureCase';
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { getProjectFieldList } from '@/api/modules/setting/template';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
-  import { downloadByteFile, getGenerateId } from '@/utils';
+  import { downloadByteFile, getGenerateId, mapTree } from '@/utils';
 
   import type {
     AssociatedList,
@@ -260,6 +262,7 @@
     StepList,
   } from '@/models/caseManagement/featureCase';
   import type { TableQueryParams } from '@/models/common';
+  import { ModuleTreeNode } from '@/models/projectManagement/file';
   import type { CustomField, DefinedFieldItem } from '@/models/setting/template';
 
   import { convertToFile } from './utils';
@@ -298,7 +301,14 @@
 
   const featureCaseStore = useFeatureCaseStore();
   const modelId = computed(() => featureCaseStore.moduleId[0]);
-  const caseTree = computed(() => featureCaseStore.caseTree);
+  const caseTree = computed(() => {
+    return mapTree<ModuleTreeNode>(featureCaseStore.caseTree, (e) => {
+      return {
+        ...e,
+        draggable: false,
+      };
+    });
+  });
 
   const initForm: DetailCase = {
     id: '',
@@ -481,11 +491,10 @@
 
   // 处理详情字段
   function getDetailData(detailResult: DetailCase) {
-    const { customFields, attachments, steps, tags } = detailResult;
+    const { customFields, attachments, steps } = detailResult;
     form.value = {
       ...detailResult,
       name: route.params.mode === 'copy' ? `${detailResult.name}_copy` : detailResult.name,
-      tags: JSON.parse(tags),
     };
     // 处理自定义字段
     selectData.value = getCustomDetailFields(
@@ -716,6 +725,17 @@
     } catch (error) {
       console.log(error);
     }
+  }
+
+  async function handleUploadImage(file: File) {
+    const { data } = await uploadOrAssociationFile({
+      request: {
+        caseId: route.query.id,
+        projectId: currentProjectId.value,
+      },
+      fileList: [file],
+    });
+    return data;
   }
 
   defineExpose({

@@ -466,7 +466,7 @@
 
   // 获取回收站模块数量
   function initRecycleModulesCount() {
-    featureCaseStore.getRecycleMModulesCountCount(emitTableParams);
+    featureCaseStore.getRecycleModulesCount(emitTableParams);
   }
 
   const batchParams = ref<BatchActionQueryParams>({

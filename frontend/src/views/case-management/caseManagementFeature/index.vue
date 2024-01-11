@@ -245,8 +245,8 @@
    * 右侧表格数据刷新后，若当前展示的是模块，则刷新模块树的统计数量
    */
   function initModulesCount(params: CaseModuleQueryParams) {
-    featureCaseStore.getCaseModulesCountCount(params);
-    featureCaseStore.getRecycleMModulesCountCount(params);
+    featureCaseStore.getCaseModulesCount(params);
+    featureCaseStore.getRecycleModulesCount(params);
     tableFilterParams.value = { ...params };
   }
 

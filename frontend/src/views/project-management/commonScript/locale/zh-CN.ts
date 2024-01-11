@@ -38,6 +38,18 @@ export default {
   'project.commonScript.recover': '恢复',
   'project.commonScript.detail': '详情',
   'project.commonScript.changeHistory': '变更历史',
+  'project.commonScript.apply': '应用',
+  'project.commonScript.insertCommonScript': '插入公共脚本',
+  'project.commonScript.commonScriptList': '公共脚本列表',
+  'project.commonScript.folderSearchPlaceholder': '请输入模块名称',
+  'project.commonScript.allApis': '全部接口',
+  'project.commonScript.searchPlaceholder': '通过 ID 或名称搜索',
+  'project.commonScript.noTreeData': '暂无接口数据',
+  'project.commonScript.apiName': '接口名称',
+  'project.commonScript.requestType': '请求类型',
+  'project.commonScript.responsible': '责任人',
+  'project.commonScript.path': '路径',
+  'project.commonScript.saveAsDraft': '保存为草稿',
   'project': {
     code_segment: {
       importApiTest: '从API定义导入',

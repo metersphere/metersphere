@@ -4,12 +4,14 @@ import MSR from '@/api/http/index';
 import {
   AddDemandUrl,
   AddDependOnRelationUrl,
+  AssociatedDebuggerUrl,
   BatchAssociationDemandUrl,
   BatchCopyCaseUrl,
   BatchDeleteCaseUrl,
   BatchDeleteRecycleCaseListUrl,
   BatchEditCaseUrl,
   BatchMoveCaseUrl,
+  CancelAssociatedDebuggerUrl,
   CancelAssociationDemandUrl,
   cancelPreAndPostCaseUrl,
   checkFileIsUpdateUrl,
@@ -24,6 +26,8 @@ import {
   DetailCaseUrl,
   DownloadFileUrl,
   FollowerCaseUrl,
+  GetAssociatedCaseIdsUrl,
+  GetAssociatedDebuggerUrl,
   GetAssociatedDrawerCaseUrl,
   GetAssociatedFilePageUrl,
   GetAssociationPublicCaseModuleCountUrl,
@@ -33,6 +37,7 @@ import {
   GetCaseModulesCountUrl,
   GetCaseModuleTreeUrl,
   GetCommentListUrl,
+  GetDebugDrawerPageUrl,
   GetDefaultTemplateFieldsUrl,
   GetDemandListUrl,
   GetDependOnPageUrl,
@@ -58,6 +63,7 @@ import {
   UploadOrAssociationFileUrl,
 } from '@/api/requrls/case-management/featureCase';
 
+import type { BugListItem } from '@/models/bug-management';
 import type {
   AssociatedList,
   BatchDeleteType,
@@ -325,4 +331,28 @@ export function cancelPreOrPostCase(id: string) {
 export function getAssociatedCasePage(data: TableQueryParams) {
   return MSR.post<CommonList<CaseManagementTable>>({ url: `${GetAssociatedDrawerCaseUrl}`, data });
 }
+// 获取用例未关联抽屉缺陷列表
+export function getDrawerDebugPage(data: TableQueryParams) {
+  return MSR.post<CommonList<CaseManagementTable>>({ url: `${GetDebugDrawerPageUrl}`, data });
+}
+// 关联缺陷
+export function associatedDrawerDebug(data: TableQueryParams) {
+  return MSR.post<CommonList<CaseManagementTable>>({ url: `${AssociatedDebuggerUrl}`, data });
+}
+
+// 取消关联缺陷
+export function cancelAssociatedDebug(id: string) {
+  return MSR.get({ url: `${CancelAssociatedDebuggerUrl}/${id}` });
+}
+
+// 获取已关联缺陷列表
+export function getLinkedCaseBugList(data: TableQueryParams) {
+  return MSR.post<CommonList<BugListItem>>({ url: `${GetAssociatedDebuggerUrl}`, data });
+}
+
+// 获取已关联前后置用例ids
+export function getAssociatedCaseIds(caseId: string) {
+  return MSR.get<string[]>({ url: `${GetAssociatedCaseIdsUrl}/${caseId}` });
+}
+
 export default {};

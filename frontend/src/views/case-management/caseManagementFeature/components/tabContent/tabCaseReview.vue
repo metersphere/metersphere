@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex items-center justify-between">
+    <div class="mb-4 flex items-center justify-between">
       <div class="font-medium">{{ t('caseManagement.featureCase.caseReviewList') }}</div>
       <a-input-search
         v-model:model-value="keyword"

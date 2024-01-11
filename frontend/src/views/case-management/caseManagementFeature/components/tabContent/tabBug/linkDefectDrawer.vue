@@ -4,10 +4,12 @@
     :mask="false"
     :title="t('caseManagement.featureCase.linkDefect')"
     :ok-text="t('caseManagement.featureCase.associated')"
-    :ok-loading="drawerLoading"
-    :width="960"
+    :ok-disabled="propsRes.selectedKeys.size === 0"
+    :width="1200"
+    :mask-closable="false"
     unmount-on-close
     :show-continue="false"
+    :ok-loading="props.drawerLoading"
     @confirm="handleDrawerConfirm"
     @cancel="handleDrawerCancel"
   >
@@ -24,9 +26,16 @@
     </div>
     <div>
       <ms-base-table ref="tableRef" v-bind="propsRes" v-on="propsEvent">
-        <template #defectName="{ record }">
-          <span class="one-line-text max-w[300px]"> {{ record.name }}</span
-          ><span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
+        <template #name="{ record }">
+          <span class="one-line-text max-w-[300px]"> {{ record.name }}</span>
+          <a-popover title="" position="right">
+            <span class="ml-1 text-[rgb(var(--primary-5))]">{{ t('caseManagement.featureCase.preview') }}</span>
+            <template #content>
+              <div class="max-w-[600px] text-[14px] text-[var(--color-text-1)]">
+                {{ record.name }}
+              </div>
+            </template>
+          </a-popover>
         </template>
       </ms-base-table>
     </div>
@@ -41,18 +50,24 @@
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
 
-  import { getRecycleListRequest } from '@/api/modules/case-management/featureCase';
+  import { getDrawerDebugPage } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore } from '@/store';
 
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const { t } = useI18n();
+  const appStore = useAppStore();
+
+  const currentProjectId = computed(() => appStore.currentProjectId);
 
   const props = defineProps<{
     visible: boolean;
+    caseId: string;
+    drawerLoading: boolean;
   }>();
 
-  const emit = defineEmits(['update:visible']);
+  const emit = defineEmits(['update:visible', 'save']);
   const columns: MsTableColumn = [
     {
       title: 'caseManagement.featureCase.tableColumnID',
@@ -65,8 +80,8 @@
     },
     {
       title: 'caseManagement.featureCase.defectName',
-      slotName: 'defectName',
-      dataIndex: 'defectName',
+      slotName: 'name',
+      dataIndex: 'name',
       showInTable: true,
       showTooltip: true,
       width: 300,
@@ -75,8 +90,8 @@
     },
     {
       title: 'caseManagement.featureCase.updateUser',
-      slotName: 'name',
-      dataIndex: 'updateUser',
+      slotName: 'handleUserName',
+      dataIndex: 'handleUserName',
       showInTable: true,
       showTooltip: true,
       width: 300,
@@ -85,8 +100,8 @@
     },
     {
       title: 'caseManagement.featureCase.defectState',
-      slotName: 'defectState',
-      dataIndex: 'defectState',
+      slotName: 'status',
+      dataIndex: 'status',
       showInTable: true,
       showTooltip: true,
       width: 300,
@@ -94,29 +109,45 @@
       showDrag: false,
     },
     {
-      title: 'caseManagement.featureCase.IterationPlan',
-      dataIndex: 'level',
+      title: 'caseManagement.featureCase.defectSource',
+      slotName: 'defectSource',
+      dataIndex: 'defectSource',
       showInTable: true,
-      width: 200,
       showTooltip: true,
+      width: 200,
       ellipsis: true,
-      showDrag: true,
+      showDrag: false,
     },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams } = useTable(getRecycleListRequest, {
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getDrawerDebugPage, {
     columns,
     tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_DEFECT,
     selectable: true,
-    scroll: { x: 1000 },
+    scroll: { x: 'auto' },
     heightUsed: 340,
-    enableDrag: true,
+    enableDrag: false,
   });
 
-  const drawerLoading = ref<boolean>(false);
+  const keyword = ref<string>('');
 
-  function handleDrawerConfirm() {}
-  function handleDrawerCancel() {}
+  function handleDrawerConfirm() {
+    const { excludeKeys, selectedKeys, selectorStatus } = propsRes.value;
+    const params = {
+      excludeIds: [...excludeKeys],
+      selectIds: selectorStatus === 'all' ? [] : [...selectedKeys],
+      selectAll: selectorStatus === 'all',
+      projectId: currentProjectId.value,
+      keyword: keyword.value,
+      searchMode: 'AND',
+      combine: {},
+      caseId: props.caseId,
+    };
+    emit('save', params);
+  }
+  function handleDrawerCancel() {
+    resetSelector();
+  }
 
   const showDrawer = computed({
     get() {
@@ -127,16 +158,20 @@
     },
   });
 
-  const keyword = ref<string>('');
-
   function getFetch() {
-    setLoadListParams({ keyword: keyword.value });
+    setLoadListParams({ keyword: keyword.value, projectId: currentProjectId.value, sourceId: props.caseId });
     loadList();
   }
 
-  onMounted(() => {
-    // getFetch();
-  });
+  watch(
+    () => props.visible,
+    (val) => {
+      if (val) {
+        getFetch();
+        resetSelector();
+      }
+    }
+  );
 </script>
 
 <style scoped></style>

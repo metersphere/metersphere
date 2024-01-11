@@ -3,8 +3,14 @@
     v-model:visible="showScriptDrawer"
     :title="t('ms.case.associate.title')"
     :width="768"
-    :footer="false"
+    :footer="true"
     unmount-on-close
+    :show-continue="true"
+    save-continue-text="project.commonScript.saveAsDraft"
+    ok-text="project.commonScript.apply"
+    @continue="handleDrawerConfirm(true)"
+    @confirm="handleDrawerConfirm"
+    @cancel="handleDrawerCancel"
   >
     <a-form ref="formRef" :model="form" layout="vertical">
       <a-form-item
@@ -69,7 +75,7 @@
     visible: boolean;
   }>();
 
-  const emit = defineEmits(['update:visible']);
+  const emit = defineEmits(['update:visible', 'save', 'close']);
 
   const showScriptDrawer = computed({
     get() {
@@ -140,6 +146,14 @@
   );
 
   const scriptType = ref<'commonScript' | 'executionResult'>('commonScript');
+
+  function handleDrawerConfirm(isDraft = false) {
+    emit('save', isDraft);
+  }
+
+  function handleDrawerCancel() {
+    emit('close');
+  }
 </script>
 
 <style scoped></style>

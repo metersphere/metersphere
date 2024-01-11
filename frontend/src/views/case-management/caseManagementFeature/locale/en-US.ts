@@ -245,6 +245,8 @@ export default {
   'caseManagement.featureCase.selectTransferDirectory': 'Please select the transfer directory',
   'caseManagement.featureCase.quicklyCreateDefectSuccess': 'Quick bug creation success',
   'caseManagement.featureCase.cancelDependencyTip': 'Confirm cancel dependencies?',
+  'caseManagement.featureCase.cancelAssociatedDefectTip': 'Are you sure to cancel the {name} association bug?',
   'caseManagement.featureCase.cancelDependencyContent': 'Cancel after impact test plan related statistics',
-  'caseManagement.featureCase.AssociatedSuccess': 'Associated with success',
+  'caseManagement.featureCase.associatedSuccess': 'Associated with success',
+  'caseManagement.featureCase.defectSource': 'defect Source',
 };

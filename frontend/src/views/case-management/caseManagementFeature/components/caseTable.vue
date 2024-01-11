@@ -6,6 +6,7 @@
     :custom-fields-config-list="searchCustomFields"
     :row-count="filterRowCount"
     @keyword-search="fetchData"
+    @adv-search="handleAdvSearch"
   >
     <template #left>
       <div class="text-[var(--color-text-1)]"
@@ -198,7 +199,7 @@
 
   import MinderEditor from '@/components/pure/minder-editor/minderEditor.vue';
   import { CustomTypeMaps, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
-  import { FilterFormItem, FilterType } from '@/components/pure/ms-advance-filter/type';
+  import { FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import { FieldTypeFormRules } from '@/components/pure/ms-form-create/form-create';
@@ -558,11 +559,6 @@
         type: FilterType.DATE_PICKER,
       },
       {
-        title: 'bugManagement.createTime',
-        dataIndex: 'createTime',
-        type: FilterType.DATE_PICKER,
-      },
-      {
         title: 'caseManagement.featureCase.tableColumnUpdateUser',
         dataIndex: 'updateUser',
         type: FilterType.SELECT,
@@ -644,7 +640,7 @@
     }
   }
   const initDefaultFields = ref<CustomAttributes[]>([]);
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setKeyword } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setKeyword, setAdvanceFilter } = useTable(
     getCaseList,
     {
       tableKey: TableKeyEnum.CASE_MANAGEMENT_TABLE,
@@ -695,7 +691,7 @@
       return {
         ...record,
         ...recordMap,
-        tags: (JSON.parse(record.tags) || []).map((item: string, i: number) => {
+        tags: (record.tags || []).map((item: string, i: number) => {
           return {
             id: `${record.id}-${i}`,
             name: item,
@@ -1131,13 +1127,33 @@
       console.log(error);
     }
   }
+  const filterResult = ref<FilterResult>({ accordBelow: 'AND', combine: {} });
+  // 当前选择的条数
+  const currentSelectParams = ref<BatchActionQueryParams>({ selectAll: false, currentSelectCount: 0 });
+  // 高级检索
+  const handleAdvSearch = (filter: FilterResult) => {
+    filterResult.value = filter;
+    const { accordBelow, combine } = filter;
+    setAdvanceFilter(filter);
+    currentSelectParams.value = {
+      ...currentSelectParams.value,
+      condition: {
+        keyword: keyword.value,
+        searchMode: accordBelow,
+        filter: propsRes.value.filter,
+        combine,
+      },
+    };
+    initData();
+  };
 
-  onBeforeMount(() => {
+  onMounted(() => {
     if (route.query.id) {
       showCaseDetail(route.query.id as string, 0);
     }
     getDefaultFields();
     initFilter();
+    initData();
   });
 
   watch(
@@ -1153,8 +1169,7 @@
       keyword.value = '';
       initData();
       resetSelector();
-    },
-    { immediate: true }
+    }
   );
 </script>
 

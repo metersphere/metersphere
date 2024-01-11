@@ -1,5 +1,12 @@
 <template>
-  <MsDrawer v-model:visible="innerVisible" :title="title" :width="1200" :footer="false" no-content-padding>
+  <MsDrawer
+    v-model:visible="innerVisible"
+    :title="title"
+    :width="1200"
+    :footer="false"
+    no-content-padding
+    :mask-closable="false"
+  >
     <div class="flex h-full">
       <div class="w-[292px] border-r border-[var(--color-text-n8)] p-[16px]">
         <a-input
@@ -120,6 +127,7 @@
 
   import {
     addPrepositionRelation,
+    getAssociatedCaseIds,
     getCaseModulesCounts,
     getCaseModuleTree,
     getPrepositionRelation,
@@ -279,7 +287,7 @@
     (record) => {
       return {
         ...record,
-        tags: (JSON.parse(record.tags) || []).map((item: string, i: number) => {
+        tags: (record.tags || []).map((item: string, i: number) => {
           return {
             id: `${record.id}-${i}`,
             name: item,
@@ -352,6 +360,7 @@
   const searchParams = ref<TableQueryParams>({
     projectId: currentProjectId.value,
     moduleIds: [],
+    excludeIds: [],
   });
 
   // 获取用例参数
@@ -373,7 +382,17 @@
     focusNodeKey.value = node.id || '';
   };
 
-  function searchCase() {
+  async function getAssociatedIds() {
+    try {
+      const result = await getAssociatedCaseIds(props.caseId);
+      searchParams.value.excludeIds = result;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function searchCase() {
+    await getAssociatedIds();
     getLoadListParams();
     loadList();
     getModulesCount();
