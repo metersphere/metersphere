@@ -107,7 +107,7 @@ public class FileModuleLogService {
                 .method(HttpMethodConstants.GET.name())
                 .path("/project/file-module/delete/%s")
                 .sourceId(deleteModule.getId())
-                .content(deleteModule.getName() + " " + Translator.get("file.log.delete_module"))
+                .content(deleteModule.getName() + " " + Translator.get("log.delete_module"))
                 .originalValue(JSON.toJSONBytes(deleteModule))
                 .createUser(operator)
                 .build().getLogDTO();

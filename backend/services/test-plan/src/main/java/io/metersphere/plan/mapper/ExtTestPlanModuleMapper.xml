@@ -63,4 +63,9 @@
         WHERE parent_id = #{0}
         ORDER BY pos ASC
     </select>
+    <select id="selectNameById" resultType="java.lang.String">
+        SELECT name
+        FROM test_plan_module
+        WHERE id = #{0}
+    </select>
 </mapper>

@@ -1,5 +1,6 @@
 package io.metersphere.plan.service;
 
+import io.metersphere.plan.dto.request.TestPlanBatchProcessRequest;
 import io.metersphere.plan.dto.request.TestPlanModuleCreateRequest;
 import io.metersphere.plan.dto.request.TestPlanModuleUpdateRequest;
 import io.metersphere.plan.mapper.ExtTestPlanModuleMapper;
@@ -43,6 +44,8 @@ public class TestPlanModuleService extends ModuleTreeService implements CleanupP
     protected SqlSessionFactory sqlSessionFactory;
     @Resource
     private TestPlanModuleLogService testPlanModuleLogService;
+    @Resource
+    private TestPlanService testPlanService;
 
     public List<BaseTreeNode> getTree(String projectId) {
         List<BaseTreeNode> fileModuleList = extTestPlanModuleMapper.selectBaseByProjectId(projectId);
@@ -128,7 +131,7 @@ public class TestPlanModuleService extends ModuleTreeService implements CleanupP
     public void update(TestPlanModuleUpdateRequest request, String userId,String requestUrl,String requestMethod) {
         TestPlanModule module = testPlanModuleMapper.selectByPrimaryKey(request.getId());
         if (module == null) {
-            throw new MSException("file_module.not.exist");
+            throw new MSException("module.not.exist");
         }
         TestPlanModule updateModule = new TestPlanModule();
         updateModule.setId(request.getId());
@@ -144,25 +147,29 @@ public class TestPlanModuleService extends ModuleTreeService implements CleanupP
     }
 
 
-    public void deleteModule(String deleteId, String currentUser,String requestUrl,String requestMethod) {
+    public void deleteModule(String deleteId, String operator, String requestUrl, String requestMethod) {
         TestPlanModule deleteModule = testPlanModuleMapper.selectByPrimaryKey(deleteId);
         if (deleteModule != null) {
-            this.deleteModule(Collections.singletonList(deleteId));
+            this.deleteModule(Collections.singletonList(deleteId), operator, requestUrl, requestMethod);
             //记录日志
-            testPlanModuleLogService.saveDeleteLog(deleteModule, currentUser,requestUrl,requestMethod);
+            testPlanModuleLogService.saveDeleteLog(deleteModule, operator, requestUrl, requestMethod);
         }
     }
-    public void deleteModule(List<String> deleteIds) {
+
+    public void deleteModule(List<String> deleteIds, String operator, String requestUrl, String requestMethod) {
         if (CollectionUtils.isEmpty(deleteIds)) {
             return;
         }
         extTestPlanModuleMapper.deleteByIds(deleteIds);
 
-        //todo:删除测试计划
+        TestPlanBatchProcessRequest request = new TestPlanBatchProcessRequest();
+        request.setModuleIds(deleteIds);
+        request.setSelectAll(true);
+        testPlanService.delete(request, operator, requestUrl, requestMethod);
 
         List<String> childrenIds = extTestPlanModuleMapper.selectChildrenIdsByParentIds(deleteIds);
         if (CollectionUtils.isNotEmpty(childrenIds)) {
-            deleteModule(childrenIds);
+            deleteModule(childrenIds, operator, requestUrl, requestMethod);
         }
     }
 
@@ -227,7 +234,7 @@ public class TestPlanModuleService extends ModuleTreeService implements CleanupP
     public void deleteResources(String projectId) {
         List<String> fileModuleIdList = extTestPlanModuleMapper.selectIdsByProjectId(projectId);
         if (CollectionUtils.isNotEmpty(fileModuleIdList)) {
-            this.deleteModule(fileModuleIdList);
+            this.deleteModule(fileModuleIdList, "SCHEDULE", "none", "none");
         }
     }
 
@@ -247,4 +254,7 @@ public class TestPlanModuleService extends ModuleTreeService implements CleanupP
         }
     }
 
+    public String getNameById(String id) {
+        return extTestPlanModuleMapper.selectNameById(id);
+    }
 }

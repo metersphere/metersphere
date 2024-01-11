@@ -2,13 +2,70 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.plan.mapper.ExtTestPlanMapper">
 
-    <select id="selectByParentId" resultType="java.lang.String">
-        SELECT id FROM test_plan WHERE parent_id = #{parentId}
+    <select id="selectByGroupId" resultType="java.lang.String">
+        SELECT id FROM test_plan WHERE group_id = #{parentId}
     </select>
-    <select id="selectByParentIdList" resultType="java.lang.String">
-        SELECT id FROM test_plan WHERE parent_id IN
+    <select id="selectByGroupIdList" resultType="java.lang.String">
+        SELECT id FROM test_plan WHERE group_id IN
         <foreach collection="list" item="item" open="(" separator="," close=")">
             #{item}
         </foreach>
     </select>
+
+    <select id="selectByConditions"
+            parameterType="io.metersphere.plan.dto.TestPlanQueryConditions"
+            resultType="io.metersphere.plan.dto.response.TestPlanResponse">
+        SELECT
+        t.id,t.num,t.name,t.status,
+        createUser.name AS createUser,
+        t.create_time,
+        t.module_id,
+        t.type,
+        t.tags
+        FROM test_plan t
+        INNER JOIN user createUser ON t.create_user = createUser.id
+        <include refid="test_plan_page_request"/>
+    </select>
+    <select id="countModuleIdByKeywordAndFileType"
+            parameterType="io.metersphere.plan.dto.TestPlanQueryConditions"
+            resultType="io.metersphere.project.dto.ModuleCountDTO">
+        SELECT t.module_id AS moduleId, count(t.id) AS dataCount
+        FROM test_plan t
+        INNER JOIN user createUser ON t.create_user = createUser.id
+        <include refid="test_plan_page_request"/>
+        GROUP BY t.module_id
+    </select>
+    <select id="selectIdByConditions"
+            parameterType="io.metersphere.plan.dto.TestPlanQueryConditions"
+            resultType="java.lang.String">
+        SELECT
+        t.id
+        FROM test_plan t
+        INNER JOIN user createUser ON t.create_user = createUser.id
+        <include refid="test_plan_page_request"/>
+    </select>
+
+    <sql id="test_plan_page_request">
+        <where>
+            t.group_id = #{groupId}
+            <if test="projectId != null and projectId != ''">
+                AND t.project_id = #{projectId}
+            </if>
+            <if test="condition.keyword != null and condition.keyword != ''">
+                AND t.name like concat('%', #{condition.keyword}, '%')
+            </if>
+            <if test="moduleIds != null and moduleIds.size() != 0">
+                AND t.module_id IN
+                <foreach collection="moduleIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="hiddenIds != null and hiddenIds.size()>0">
+                AND t.id NOT IN
+                <foreach collection="hiddenIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </sql>
 </mapper>

@@ -33,4 +33,8 @@ public interface TestPlanConfigMapper {
     int updateByPrimaryKeyWithBLOBs(TestPlanConfig record);
 
     int updateByPrimaryKey(TestPlanConfig record);
+
+    int batchInsert(@Param("list") List<TestPlanConfig> list);
+
+    int batchInsertSelective(@Param("list") List<TestPlanConfig> list, @Param("selective") TestPlanConfig.Column ... selective);
 }
