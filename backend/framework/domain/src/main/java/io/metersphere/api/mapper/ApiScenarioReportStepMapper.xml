@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.api.mapper.ApiScenarioReportStepMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiScenarioReportStep">
+    <id column="report_id" jdbcType="VARCHAR" property="reportId" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="sort" jdbcType="BIGINT" property="sort" />
+    <result column="enable" jdbcType="BIT" property="enable" />
+    <result column="resource_id" jdbcType="BIGINT" property="resourceId" />
+    <result column="resource_num" jdbcType="VARCHAR" property="resourceNum" />
+    <result column="step_type" jdbcType="VARCHAR" property="stepType" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <result column="parent_id" jdbcType="VARCHAR" property="parentId" />
+    <result column="version_id" jdbcType="VARCHAR" property="versionId" />
+    <result column="source" jdbcType="VARCHAR" property="source" />
+    <result column="config" jdbcType="VARCHAR" property="config" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    report_id, `name`, sort, `enable`, resource_id, resource_num, step_type, project_id, 
+    parent_id, version_id, `source`, config
+  </sql>
+  <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiScenarioReportStepExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from api_scenario_report_step
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from api_scenario_report_step
+    where report_id = #{reportId,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from api_scenario_report_step
+    where report_id = #{reportId,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.api.domain.ApiScenarioReportStepExample">
+    delete from api_scenario_report_step
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.api.domain.ApiScenarioReportStep">
+    insert into api_scenario_report_step (report_id, `name`, sort, 
+      `enable`, resource_id, resource_num, 
+      step_type, project_id, parent_id, 
+      version_id, `source`, config
+      )
+    values (#{reportId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{sort,jdbcType=BIGINT}, 
+      #{enable,jdbcType=BIT}, #{resourceId,jdbcType=BIGINT}, #{resourceNum,jdbcType=VARCHAR}, 
+      #{stepType,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{parentId,jdbcType=VARCHAR}, 
+      #{versionId,jdbcType=VARCHAR}, #{source,jdbcType=VARCHAR}, #{config,jdbcType=VARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiScenarioReportStep">
+    insert into api_scenario_report_step
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="reportId != null">
+        report_id,
+      </if>
+      <if test="name != null">
+        `name`,
+      </if>
+      <if test="sort != null">
+        sort,
+      </if>
+      <if test="enable != null">
+        `enable`,
+      </if>
+      <if test="resourceId != null">
+        resource_id,
+      </if>
+      <if test="resourceNum != null">
+        resource_num,
+      </if>
+      <if test="stepType != null">
+        step_type,
+      </if>
+      <if test="projectId != null">
+        project_id,
+      </if>
+      <if test="parentId != null">
+        parent_id,
+      </if>
+      <if test="versionId != null">
+        version_id,
+      </if>
+      <if test="source != null">
+        `source`,
+      </if>
+      <if test="config != null">
+        config,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="reportId != null">
+        #{reportId,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="sort != null">
+        #{sort,jdbcType=BIGINT},
+      </if>
+      <if test="enable != null">
+        #{enable,jdbcType=BIT},
+      </if>
+      <if test="resourceId != null">
+        #{resourceId,jdbcType=BIGINT},
+      </if>
+      <if test="resourceNum != null">
+        #{resourceNum,jdbcType=VARCHAR},
+      </if>
+      <if test="stepType != null">
+        #{stepType,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null">
+        #{parentId,jdbcType=VARCHAR},
+      </if>
+      <if test="versionId != null">
+        #{versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="source != null">
+        #{source,jdbcType=VARCHAR},
+      </if>
+      <if test="config != null">
+        #{config,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.api.domain.ApiScenarioReportStepExample" resultType="java.lang.Long">
+    select count(*) from api_scenario_report_step
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update api_scenario_report_step
+    <set>
+      <if test="record.reportId != null">
+        report_id = #{record.reportId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.name != null">
+        `name` = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sort != null">
+        sort = #{record.sort,jdbcType=BIGINT},
+      </if>
+      <if test="record.enable != null">
+        `enable` = #{record.enable,jdbcType=BIT},
+      </if>
+      <if test="record.resourceId != null">
+        resource_id = #{record.resourceId,jdbcType=BIGINT},
+      </if>
+      <if test="record.resourceNum != null">
+        resource_num = #{record.resourceNum,jdbcType=VARCHAR},
+      </if>
+      <if test="record.stepType != null">
+        step_type = #{record.stepType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.parentId != null">
+        parent_id = #{record.parentId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.versionId != null">
+        version_id = #{record.versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.source != null">
+        `source` = #{record.source,jdbcType=VARCHAR},
+      </if>
+      <if test="record.config != null">
+        config = #{record.config,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update api_scenario_report_step
+    set report_id = #{record.reportId,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
+      sort = #{record.sort,jdbcType=BIGINT},
+      `enable` = #{record.enable,jdbcType=BIT},
+      resource_id = #{record.resourceId,jdbcType=BIGINT},
+      resource_num = #{record.resourceNum,jdbcType=VARCHAR},
+      step_type = #{record.stepType,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      parent_id = #{record.parentId,jdbcType=VARCHAR},
+      version_id = #{record.versionId,jdbcType=VARCHAR},
+      `source` = #{record.source,jdbcType=VARCHAR},
+      config = #{record.config,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.api.domain.ApiScenarioReportStep">
+    update api_scenario_report_step
+    <set>
+      <if test="name != null">
+        `name` = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="sort != null">
+        sort = #{sort,jdbcType=BIGINT},
+      </if>
+      <if test="enable != null">
+        `enable` = #{enable,jdbcType=BIT},
+      </if>
+      <if test="resourceId != null">
+        resource_id = #{resourceId,jdbcType=BIGINT},
+      </if>
+      <if test="resourceNum != null">
+        resource_num = #{resourceNum,jdbcType=VARCHAR},
+      </if>
+      <if test="stepType != null">
+        step_type = #{stepType,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="parentId != null">
+        parent_id = #{parentId,jdbcType=VARCHAR},
+      </if>
+      <if test="versionId != null">
+        version_id = #{versionId,jdbcType=VARCHAR},
+      </if>
+      <if test="source != null">
+        `source` = #{source,jdbcType=VARCHAR},
+      </if>
+      <if test="config != null">
+        config = #{config,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where report_id = #{reportId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiScenarioReportStep">
+    update api_scenario_report_step
+    set `name` = #{name,jdbcType=VARCHAR},
+      sort = #{sort,jdbcType=BIGINT},
+      `enable` = #{enable,jdbcType=BIT},
+      resource_id = #{resourceId,jdbcType=BIGINT},
+      resource_num = #{resourceNum,jdbcType=VARCHAR},
+      step_type = #{stepType,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=VARCHAR},
+      parent_id = #{parentId,jdbcType=VARCHAR},
+      version_id = #{versionId,jdbcType=VARCHAR},
+      `source` = #{source,jdbcType=VARCHAR},
+      config = #{config,jdbcType=VARCHAR}
+    where report_id = #{reportId,jdbcType=VARCHAR}
+  </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into api_scenario_report_step
+    (report_id, `name`, sort, `enable`, resource_id, resource_num, step_type, project_id, 
+      parent_id, version_id, `source`, config)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.reportId,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.sort,jdbcType=BIGINT}, 
+        #{item.enable,jdbcType=BIT}, #{item.resourceId,jdbcType=BIGINT}, #{item.resourceNum,jdbcType=VARCHAR}, 
+        #{item.stepType,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.parentId,jdbcType=VARCHAR}, 
+        #{item.versionId,jdbcType=VARCHAR}, #{item.source,jdbcType=VARCHAR}, #{item.config,jdbcType=VARCHAR}
+        )
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into api_scenario_report_step (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'report_id'.toString() == column.value">
+          #{item.reportId,jdbcType=VARCHAR}
+        </if>
+        <if test="'name'.toString() == column.value">
+          #{item.name,jdbcType=VARCHAR}
+        </if>
+        <if test="'sort'.toString() == column.value">
+          #{item.sort,jdbcType=BIGINT}
+        </if>
+        <if test="'enable'.toString() == column.value">
+          #{item.enable,jdbcType=BIT}
+        </if>
+        <if test="'resource_id'.toString() == column.value">
+          #{item.resourceId,jdbcType=BIGINT}
+        </if>
+        <if test="'resource_num'.toString() == column.value">
+          #{item.resourceNum,jdbcType=VARCHAR}
+        </if>
+        <if test="'step_type'.toString() == column.value">
+          #{item.stepType,jdbcType=VARCHAR}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
+        </if>
+        <if test="'parent_id'.toString() == column.value">
+          #{item.parentId,jdbcType=VARCHAR}
+        </if>
+        <if test="'version_id'.toString() == column.value">
+          #{item.versionId,jdbcType=VARCHAR}
+        </if>
+        <if test="'source'.toString() == column.value">
+          #{item.source,jdbcType=VARCHAR}
+        </if>
+        <if test="'config'.toString() == column.value">
+          #{item.config,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
+</mapper>

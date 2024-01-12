@@ -3,14 +3,14 @@ package io.metersphere.api.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ApiScenarioReportDetailExample {
+public class ApiReportDetailExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public ApiScenarioReportDetailExample() {
+    public ApiReportDetailExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 

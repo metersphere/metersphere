@@ -9,26 +9,29 @@ import java.util.Arrays;
 import lombok.Data;
 
 @Data
-public class ApiScenarioReportDetail implements Serializable {
-    @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report_detail.id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 50, message = "{api_scenario_report_detail.id.length_range}", groups = {Created.class, Updated.class})
+public class ApiReportDetail implements Serializable {
+    @Schema(description = "报告详情id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_report_detail.id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{api_report_detail.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(description = "报告fk", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report_detail.report_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{api_scenario_report_detail.report_id.length_range}", groups = {Created.class, Updated.class})
+    @Schema(description = "接口报告id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_report_detail.report_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{api_report_detail.report_id.length_range}", groups = {Created.class, Updated.class})
     private String reportId;
 
     @Schema(description = "场景中各个步骤请求唯一标识", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report_detail.resource_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{api_scenario_report_detail.resource_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{api_report_detail.resource_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{api_report_detail.resource_id.length_range}", groups = {Created.class, Updated.class})
     private String resourceId;
 
-    @Schema(description = "开始时间")
+    @Schema(description = "开始时间", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{api_report_detail.start_time.not_blank}", groups = {Created.class})
     private Long startTime;
 
-    @Schema(description = "结果状态")
+    @Schema(description = "结果状态", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_report_detail.status.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 20, message = "{api_report_detail.status.length_range}", groups = {Created.class, Updated.class})
     private String status;
 
     @Schema(description = "单个请求步骤时间")
@@ -55,7 +58,7 @@ public class ApiScenarioReportDetail implements Serializable {
     @Schema(description = "请求响应码")
     private String code;
 
-    @Schema(description = "执行结果")
+    @Schema(description = "结果内容详情")
     private byte[] content;
 
     private static final long serialVersionUID = 1L;

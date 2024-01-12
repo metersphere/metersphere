@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serial;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -20,7 +19,7 @@ public class ApiNoticeDTO implements java.io.Serializable {
     private String reportStatus;
     private String userId;
     private String projectId;
-    private List<String> environmentIds;
+    private String environmentId;
     private String reportId;
     private String queueId;
 }

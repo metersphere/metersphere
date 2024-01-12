@@ -704,126 +704,6 @@ public class ApiReportExample {
             return (Criteria) this;
         }
 
-        public Criteria andStartTimeIsNull() {
-            addCriterion("start_time is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andStartTimeIsNotNull() {
-            addCriterion("start_time is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andStartTimeEqualTo(Long value) {
-            addCriterion("start_time =", value, "startTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andStartTimeNotEqualTo(Long value) {
-            addCriterion("start_time <>", value, "startTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andStartTimeGreaterThan(Long value) {
-            addCriterion("start_time >", value, "startTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andStartTimeGreaterThanOrEqualTo(Long value) {
-            addCriterion("start_time >=", value, "startTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andStartTimeLessThan(Long value) {
-            addCriterion("start_time <", value, "startTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andStartTimeLessThanOrEqualTo(Long value) {
-            addCriterion("start_time <=", value, "startTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andStartTimeIn(List<Long> values) {
-            addCriterion("start_time in", values, "startTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andStartTimeNotIn(List<Long> values) {
-            addCriterion("start_time not in", values, "startTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andStartTimeBetween(Long value1, Long value2) {
-            addCriterion("start_time between", value1, value2, "startTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andStartTimeNotBetween(Long value1, Long value2) {
-            addCriterion("start_time not between", value1, value2, "startTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andEndTimeIsNull() {
-            addCriterion("end_time is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andEndTimeIsNotNull() {
-            addCriterion("end_time is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andEndTimeEqualTo(Long value) {
-            addCriterion("end_time =", value, "endTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andEndTimeNotEqualTo(Long value) {
-            addCriterion("end_time <>", value, "endTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andEndTimeGreaterThan(Long value) {
-            addCriterion("end_time >", value, "endTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andEndTimeGreaterThanOrEqualTo(Long value) {
-            addCriterion("end_time >=", value, "endTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andEndTimeLessThan(Long value) {
-            addCriterion("end_time <", value, "endTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andEndTimeLessThanOrEqualTo(Long value) {
-            addCriterion("end_time <=", value, "endTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andEndTimeIn(List<Long> values) {
-            addCriterion("end_time in", values, "endTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andEndTimeNotIn(List<Long> values) {
-            addCriterion("end_time not in", values, "endTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andEndTimeBetween(Long value1, Long value2) {
-            addCriterion("end_time between", value1, value2, "endTime");
-            return (Criteria) this;
-        }
-
-        public Criteria andEndTimeNotBetween(Long value1, Long value2) {
-            addCriterion("end_time not between", value1, value2, "endTime");
-            return (Criteria) this;
-        }
-
         public Criteria andRunModeIsNull() {
             addCriterion("run_mode is null");
             return (Criteria) this;
@@ -1174,76 +1054,6 @@ public class ApiReportExample {
             return (Criteria) this;
         }
 
-        public Criteria andIntegratedReportIdIsNull() {
-            addCriterion("integrated_report_id is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andIntegratedReportIdIsNotNull() {
-            addCriterion("integrated_report_id is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andIntegratedReportIdEqualTo(String value) {
-            addCriterion("integrated_report_id =", value, "integratedReportId");
-            return (Criteria) this;
-        }
-
-        public Criteria andIntegratedReportIdNotEqualTo(String value) {
-            addCriterion("integrated_report_id <>", value, "integratedReportId");
-            return (Criteria) this;
-        }
-
-        public Criteria andIntegratedReportIdGreaterThan(String value) {
-            addCriterion("integrated_report_id >", value, "integratedReportId");
-            return (Criteria) this;
-        }
-
-        public Criteria andIntegratedReportIdGreaterThanOrEqualTo(String value) {
-            addCriterion("integrated_report_id >=", value, "integratedReportId");
-            return (Criteria) this;
-        }
-
-        public Criteria andIntegratedReportIdLessThan(String value) {
-            addCriterion("integrated_report_id <", value, "integratedReportId");
-            return (Criteria) this;
-        }
-
-        public Criteria andIntegratedReportIdLessThanOrEqualTo(String value) {
-            addCriterion("integrated_report_id <=", value, "integratedReportId");
-            return (Criteria) this;
-        }
-
-        public Criteria andIntegratedReportIdLike(String value) {
-            addCriterion("integrated_report_id like", value, "integratedReportId");
-            return (Criteria) this;
-        }
-
-        public Criteria andIntegratedReportIdNotLike(String value) {
-            addCriterion("integrated_report_id not like", value, "integratedReportId");
-            return (Criteria) this;
-        }
-
-        public Criteria andIntegratedReportIdIn(List<String> values) {
-            addCriterion("integrated_report_id in", values, "integratedReportId");
-            return (Criteria) this;
-        }
-
-        public Criteria andIntegratedReportIdNotIn(List<String> values) {
-            addCriterion("integrated_report_id not in", values, "integratedReportId");
-            return (Criteria) this;
-        }
-
-        public Criteria andIntegratedReportIdBetween(String value1, String value2) {
-            addCriterion("integrated_report_id between", value1, value2, "integratedReportId");
-            return (Criteria) this;
-        }
-
-        public Criteria andIntegratedReportIdNotBetween(String value1, String value2) {
-            addCriterion("integrated_report_id not between", value1, value2, "integratedReportId");
-            return (Criteria) this;
-        }
-
         public Criteria andIntegratedIsNull() {
             addCriterion("integrated is null");
             return (Criteria) this;
@@ -1301,6 +1111,76 @@ public class ApiReportExample {
 
         public Criteria andIntegratedNotBetween(Boolean value1, Boolean value2) {
             addCriterion("integrated not between", value1, value2, "integrated");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdIsNull() {
+            addCriterion("environment_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdIsNotNull() {
+            addCriterion("environment_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdEqualTo(String value) {
+            addCriterion("environment_id =", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdNotEqualTo(String value) {
+            addCriterion("environment_id <>", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdGreaterThan(String value) {
+            addCriterion("environment_id >", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdGreaterThanOrEqualTo(String value) {
+            addCriterion("environment_id >=", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdLessThan(String value) {
+            addCriterion("environment_id <", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdLessThanOrEqualTo(String value) {
+            addCriterion("environment_id <=", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdLike(String value) {
+            addCriterion("environment_id like", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdNotLike(String value) {
+            addCriterion("environment_id not like", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdIn(List<String> values) {
+            addCriterion("environment_id in", values, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdNotIn(List<String> values) {
+            addCriterion("environment_id not in", values, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdBetween(String value1, String value2) {
+            addCriterion("environment_id between", value1, value2, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdNotBetween(String value1, String value2) {
+            addCriterion("environment_id not between", value1, value2, "environmentId");
             return (Criteria) this;
         }
     }

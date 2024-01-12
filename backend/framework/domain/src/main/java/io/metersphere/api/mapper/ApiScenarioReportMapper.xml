@@ -20,6 +20,7 @@
     <result column="integrated" jdbcType="BIT" property="integrated" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="scenario_id" jdbcType="VARCHAR" property="scenarioId" />
+    <result column="environment_id" jdbcType="VARCHAR" property="environmentId" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -82,7 +83,7 @@
   <sql id="Base_Column_List">
     id, `name`, create_time, create_user, delete_time, delete_user, deleted, update_user, 
     update_time, pass_rate, `status`, trigger_mode, run_mode, pool_id, version_id, integrated, 
-    project_id, scenario_id
+    project_id, scenario_id, environment_id
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiScenarioReportExample" resultMap="BaseResultMap">
     select
@@ -120,15 +121,15 @@
       deleted, update_user, update_time, 
       pass_rate, `status`, trigger_mode, 
       run_mode, pool_id, version_id, 
-      integrated, project_id, scenario_id
-      )
+      integrated, project_id, scenario_id, 
+      environment_id)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
       #{createUser,jdbcType=VARCHAR}, #{deleteTime,jdbcType=BIGINT}, #{deleteUser,jdbcType=VARCHAR}, 
       #{deleted,jdbcType=BIT}, #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, 
       #{passRate,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, 
       #{runMode,jdbcType=VARCHAR}, #{poolId,jdbcType=VARCHAR}, #{versionId,jdbcType=VARCHAR}, 
-      #{integrated,jdbcType=BIT}, #{projectId,jdbcType=VARCHAR}, #{scenarioId,jdbcType=VARCHAR}
-      )
+      #{integrated,jdbcType=BIT}, #{projectId,jdbcType=VARCHAR}, #{scenarioId,jdbcType=VARCHAR}, 
+      #{environmentId,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiScenarioReport">
     insert into api_scenario_report
@@ -187,6 +188,9 @@
       <if test="scenarioId != null">
         scenario_id,
       </if>
+      <if test="environmentId != null">
+        environment_id,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -242,6 +246,9 @@
       </if>
       <if test="scenarioId != null">
         #{scenarioId,jdbcType=VARCHAR},
+      </if>
+      <if test="environmentId != null">
+        #{environmentId,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -308,6 +315,9 @@
       <if test="record.scenarioId != null">
         scenario_id = #{record.scenarioId,jdbcType=VARCHAR},
       </if>
+      <if test="record.environmentId != null">
+        environment_id = #{record.environmentId,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -332,7 +342,8 @@
       version_id = #{record.versionId,jdbcType=VARCHAR},
       integrated = #{record.integrated,jdbcType=BIT},
       project_id = #{record.projectId,jdbcType=VARCHAR},
-      scenario_id = #{record.scenarioId,jdbcType=VARCHAR}
+      scenario_id = #{record.scenarioId,jdbcType=VARCHAR},
+      environment_id = #{record.environmentId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -391,6 +402,9 @@
       <if test="scenarioId != null">
         scenario_id = #{scenarioId,jdbcType=VARCHAR},
       </if>
+      <if test="environmentId != null">
+        environment_id = #{environmentId,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -412,14 +426,15 @@
       version_id = #{versionId,jdbcType=VARCHAR},
       integrated = #{integrated,jdbcType=BIT},
       project_id = #{projectId,jdbcType=VARCHAR},
-      scenario_id = #{scenarioId,jdbcType=VARCHAR}
+      scenario_id = #{scenarioId,jdbcType=VARCHAR},
+      environment_id = #{environmentId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_scenario_report
     (id, `name`, create_time, create_user, delete_time, delete_user, deleted, update_user, 
       update_time, pass_rate, `status`, trigger_mode, run_mode, pool_id, version_id, 
-      integrated, project_id, scenario_id)
+      integrated, project_id, scenario_id, environment_id)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
@@ -427,8 +442,8 @@
         #{item.deleted,jdbcType=BIT}, #{item.updateUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}, 
         #{item.passRate,jdbcType=BIGINT}, #{item.status,jdbcType=VARCHAR}, #{item.triggerMode,jdbcType=VARCHAR}, 
         #{item.runMode,jdbcType=VARCHAR}, #{item.poolId,jdbcType=VARCHAR}, #{item.versionId,jdbcType=VARCHAR}, 
-        #{item.integrated,jdbcType=BIT}, #{item.projectId,jdbcType=VARCHAR}, #{item.scenarioId,jdbcType=VARCHAR}
-        )
+        #{item.integrated,jdbcType=BIT}, #{item.projectId,jdbcType=VARCHAR}, #{item.scenarioId,jdbcType=VARCHAR}, 
+        #{item.environmentId,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -494,6 +509,9 @@
         </if>
         <if test="'scenario_id'.toString() == column.value">
           #{item.scenarioId,jdbcType=VARCHAR}
+        </if>
+        <if test="'environment_id'.toString() == column.value">
+          #{item.environmentId,jdbcType=VARCHAR}
         </if>
       </foreach>
       )

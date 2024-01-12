@@ -4,7 +4,6 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Map;
 
 @Data
 public class ExecutionQueue implements Serializable {
@@ -49,9 +48,9 @@ public class ExecutionQueue implements Serializable {
     private Long retryNumber;
 
     /**
-     * 环境，key= projectID，value=envID
+     * 环境Id
      */
-    private Map<String, String> envMap;
+    private String environmentId;
 
     @Serial
     private static final long serialVersionUID = 1L;
