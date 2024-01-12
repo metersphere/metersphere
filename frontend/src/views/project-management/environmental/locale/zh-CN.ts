@@ -74,4 +74,9 @@ export default {
   'project.environmental.host.hostNamePlaceholder': '请输入域名',
   'project.environmental.host.desc': '描述',
   'project.environmental.host.descPlaceholder': '请输入描述',
+  'project.environmental.group.desc': '描述',
+  'project.environmental.group.envGroup': '环境组',
+  'project.environmental.group.envGroupName': '环境组名称',
+  'project.environmental.group.envGroupNameIsRequire': '环境组名称不能为空',
+  'project.environmental.group.envGroupPlaceholder': '请输入环境组',
 };
