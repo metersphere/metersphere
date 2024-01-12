@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -20,7 +21,7 @@ public class TableBatchProcessDTO {
     private List<
             @NotBlank(message = "{id must not be blank}", groups = {Created.class, Updated.class})
                     String
-            > selectIds;
+            > selectIds = new ArrayList<>();
 
     @Schema(description = "是否选择所有数据")
     private boolean selectAll;

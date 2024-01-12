@@ -1,0 +1,21 @@
+package io.metersphere.sdk.constants;
+
+public class TestPlanConstants {
+    //测试计划类型-测试计划
+    public static final String TEST_PLAN_TYPE_PLAN = "TEST_PLAN";
+    //测试计划类型-测试计划组
+    public static final String TEST_PLAN_TYPE_GROUP = "GROUP";
+    //测试计划组默认ID
+    public static final String TEST_PLAN_DEFAULT_GROUP_ID = "none";
+
+    //测试计划状态-未开始
+    public static final String TEST_PLAN_STATIS_PREPARED = "PREPARED";
+
+    //测试计划状态-进行中
+    public static final String TEST_PLAN_STATIS_UNDERWAY = "UNDERWAY";
+    //测试计划状态-已完成
+    public static final String TEST_PLAN_STATIS_COMPLETED = "COMPLETED";
+    //测试计划状态-已归档
+    public static final String TEST_PLAN_STATIS_ARCHIVED = "ARCHIVED";
+
+}

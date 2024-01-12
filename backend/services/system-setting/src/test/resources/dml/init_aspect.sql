@@ -40,8 +40,12 @@ VALUES ('aspect_gyq_api_one', 'api_test','HTTP', 'POST','api/test','test-api-sta
 INSERT INTO api_scenario(id, name, priority, status, principal, last_report_status, last_report_id, num, custom_num, pos, version_id, ref_id, project_id, module_id, description, tags, create_user, create_time, delete_time, delete_user, update_user, update_time)
 VALUES ('aspect_gyq_api_scenario_one', 'api_scenario', 'p1', 'test-api-status', 'gyq', null, null,1000001, 1000001, 1,'v1.10', 'aspect_gyq_api_scenario_one','100001100001', 'test_module', null,null,'admin',  UNIX_TIMESTAMP() * 1000,null,null,'admin', UNIX_TIMESTAMP() * 1000);
 
-INSERT INTO test_plan(id, project_id, parent_id, name, status, stage, tags, create_time, create_user, update_time, update_user, planned_start_time, planned_end_time, actual_start_time, actual_end_time, description)
-VALUES ('aspect_gyq_test_plan_one','100001100001', 'NONE', 'test_plan', 'test-api-status', 'Smock', null, UNIX_TIMESTAMP() * 1000, 'admin',   UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 2000, UNIX_TIMESTAMP() * 3000 ,UNIX_TIMESTAMP() * 2000, UNIX_TIMESTAMP() * 3000,null);
+INSERT INTO test_plan(id, project_id, group_id, module_id, name, status, type, tags, create_time, create_user,
+                      update_time, update_user, planned_start_time, planned_end_time, actual_start_time,
+                      actual_end_time, description)
+VALUES ('aspect_gyq_test_plan_one', '100001100001', 'none', 'root', 'test_plan', 'PREPARED', 'TEST_PLAN', null,
+        UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 2000,
+        UNIX_TIMESTAMP() * 3000, UNIX_TIMESTAMP() * 2000, UNIX_TIMESTAMP() * 3000, null);
 
 INSERT INTO case_review(id, num, name, module_id, project_id, status, review_pass_rule, pos, start_time, end_time, tags, description, create_time, create_user, update_time, update_user)
 VALUES ('aspect_gyq_case_review_one','10001','case_review','module_id', '100001100001','PREPARED','SINGLE','0', null, null, null, null, UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin');
