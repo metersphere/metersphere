@@ -39,4 +39,5 @@ public interface ExtApiDefinitionModuleMapper {
     List<ModuleCountDTO> countModuleIdByProviderRequest(@Param("table") String resourceType, @Param("sourceName") String sourceName, @Param("apiCaseColumnName") String apiCaseColumnName, @Param("request") AssociateCaseModuleProviderRequest request, @Param("deleted") boolean deleted);
 
     List<BaseTreeNode> selectIdAndParentIdByProviderRequest(@Param("request") AssociateCaseModuleProviderRequest request);
+
 }

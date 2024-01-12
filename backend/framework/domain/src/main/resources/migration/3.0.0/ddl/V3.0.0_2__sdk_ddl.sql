@@ -103,7 +103,7 @@ CREATE INDEX idx_environment_group_id ON environment_group_relation(environment_
 CREATE INDEX idx_environment_id ON environment_group_relation(environment_id);
 CREATE INDEX idx_project_id ON environment_group_relation(project_id);
 
-CREATE TABLE IF NOT EXISTS project_parameters(
+CREATE TABLE IF NOT EXISTS project_parameter(
    `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
    `project_id` VARCHAR(50) NOT NULL   COMMENT '项目ID' ,
    `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
@@ -116,7 +116,7 @@ CREATE TABLE IF NOT EXISTS project_parameters(
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_general_ci COMMENT = '项目级参数';
 
-CREATE INDEX idx_project_id ON project_parameters(project_id);
+CREATE INDEX idx_project_id ON project_parameter(project_id);
 
 
 CREATE TABLE IF NOT EXISTS worker_node

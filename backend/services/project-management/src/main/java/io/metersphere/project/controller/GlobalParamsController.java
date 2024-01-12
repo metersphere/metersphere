@@ -5,7 +5,7 @@ import io.metersphere.project.dto.environment.GlobalParamsRequest;
 import io.metersphere.project.service.GlobalParamsLogService;
 import io.metersphere.project.service.GlobalParamsService;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.domain.ProjectParameters;
+import io.metersphere.sdk.domain.ProjectParameter;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.utils.SessionUtils;
@@ -32,7 +32,7 @@ public class GlobalParamsController {
     @Operation(summary = "项目管理-环境-全局参数-新增")
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = GlobalParamsLogService.class)
-    public ProjectParameters add(@Validated({Created.class}) @RequestBody GlobalParamsRequest request) {
+    public ProjectParameter add(@Validated({Created.class}) @RequestBody GlobalParamsRequest request) {
         return globalParamsService.add(request, SessionUtils.getUserId());
     }
 
@@ -40,7 +40,7 @@ public class GlobalParamsController {
     @Operation(summary = "项目管理-环境-全局参数-修改")
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = GlobalParamsLogService.class)
-    public ProjectParameters update(@Validated({Updated.class}) @RequestBody GlobalParamsRequest request) {
+    public ProjectParameter update(@Validated({Updated.class}) @RequestBody GlobalParamsRequest request) {
         return globalParamsService.update(request, SessionUtils.getUserId());
     }
 

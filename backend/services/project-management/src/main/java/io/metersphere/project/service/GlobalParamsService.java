@@ -5,10 +5,10 @@ import io.metersphere.project.dto.environment.GlobalParams;
 import io.metersphere.project.dto.environment.GlobalParamsDTO;
 import io.metersphere.project.dto.environment.GlobalParamsRequest;
 import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.sdk.domain.ProjectParameters;
-import io.metersphere.sdk.domain.ProjectParametersExample;
+import io.metersphere.sdk.domain.ProjectParameter;
+import io.metersphere.sdk.domain.ProjectParameterExample;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.mapper.ProjectParametersMapper;
+import io.metersphere.sdk.mapper.ProjectParameterMapper;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
@@ -32,57 +32,57 @@ import java.util.List;
 public class GlobalParamsService {
 
     @Resource
-    private ProjectParametersMapper projectParametersMapper;
+    private ProjectParameterMapper projectParameterMapper;
     @Resource
     private ProjectMapper projectMapper;
 
-    public ProjectParameters add(GlobalParamsRequest globalParamsRequest, String userId) {
-        ProjectParameters projectParameters = new ProjectParameters();
-        projectParameters.setProjectId(globalParamsRequest.getProjectId());
+    public ProjectParameter add(GlobalParamsRequest globalParamsRequest, String userId) {
+        ProjectParameter projectParameter = new ProjectParameter();
+        projectParameter.setProjectId(globalParamsRequest.getProjectId());
         checkExist(globalParamsRequest.getProjectId());
         checkProjectExist(globalParamsRequest.getProjectId());
-        projectParameters.setId(IDGenerator.nextStr());
-        projectParameters.setCreateUser(userId);
-        projectParameters.setUpdateUser(userId);
-        projectParameters.setCreateTime(System.currentTimeMillis());
-        projectParameters.setUpdateTime(System.currentTimeMillis());
-        projectParameters.setParameters(JSON.toJSONBytes(globalParamsRequest.getGlobalParams()));
-        projectParametersMapper.insert(projectParameters);
-        globalParamsRequest.setId(projectParameters.getId());
-        return projectParameters;
+        projectParameter.setId(IDGenerator.nextStr());
+        projectParameter.setCreateUser(userId);
+        projectParameter.setUpdateUser(userId);
+        projectParameter.setCreateTime(System.currentTimeMillis());
+        projectParameter.setUpdateTime(System.currentTimeMillis());
+        projectParameter.setParameters(JSON.toJSONBytes(globalParamsRequest.getGlobalParams()));
+        projectParameterMapper.insert(projectParameter);
+        globalParamsRequest.setId(projectParameter.getId());
+        return projectParameter;
     }
 
-    public ProjectParameters update(GlobalParamsRequest globalParamsRequest, String userId) {
-        ProjectParameters projectParameters = new ProjectParameters();
-        projectParameters.setProjectId(globalParamsRequest.getProjectId());
+    public ProjectParameter update(GlobalParamsRequest globalParamsRequest, String userId) {
+        ProjectParameter projectParameter = new ProjectParameter();
+        projectParameter.setProjectId(globalParamsRequest.getProjectId());
         checkDataExist(globalParamsRequest.getProjectId());
         checkProjectExist(globalParamsRequest.getProjectId());
-        projectParameters.setId(globalParamsRequest.getId());
-        projectParameters.setUpdateUser(userId);
-        projectParameters.setUpdateTime(System.currentTimeMillis());
-        projectParameters.setParameters(JSON.toJSONBytes(globalParamsRequest.getGlobalParams()));
-        projectParametersMapper.updateByPrimaryKeySelective(projectParameters);
-        return projectParameters;
+        projectParameter.setId(globalParamsRequest.getId());
+        projectParameter.setUpdateUser(userId);
+        projectParameter.setUpdateTime(System.currentTimeMillis());
+        projectParameter.setParameters(JSON.toJSONBytes(globalParamsRequest.getGlobalParams()));
+        projectParameterMapper.updateByPrimaryKeySelective(projectParameter);
+        return projectParameter;
     }
 
     private void checkDataExist(String projectId) {
-        ProjectParametersExample example = new ProjectParametersExample();
+        ProjectParameterExample example = new ProjectParameterExample();
         example.createCriteria().andProjectIdEqualTo(projectId);
-        List<ProjectParameters> projectParameters = projectParametersMapper.selectByExample(example);
-        if (projectParameters.isEmpty()) {
+        List<ProjectParameter> projectParameter = projectParameterMapper.selectByExample(example);
+        if (projectParameter.isEmpty()) {
             throw new MSException(Translator.get("global_parameters_is_not_exist"));
         }
     }
 
     public GlobalParamsDTO get(String projectId) {
-        ProjectParametersExample example = new ProjectParametersExample();
+        ProjectParameterExample example = new ProjectParameterExample();
         example.createCriteria().andProjectIdEqualTo(projectId);
-        List<ProjectParameters> projectParametersList = projectParametersMapper.selectByExampleWithBLOBs(example);
-        if (CollectionUtils.isNotEmpty(projectParametersList)) {
+        List<ProjectParameter> projectParameters = projectParameterMapper.selectByExampleWithBLOBs(example);
+        if (CollectionUtils.isNotEmpty(projectParameters)) {
             GlobalParamsDTO globalParamsDTO = new GlobalParamsDTO();
             globalParamsDTO.setProjectId(projectId);
-            globalParamsDTO.setId(projectParametersList.get(0).getId());
-            globalParamsDTO.setGlobalParams(JSON.parseObject(new String(projectParametersList.get(0).getParameters()), GlobalParams.class));
+            globalParamsDTO.setId(projectParameters.get(0).getId());
+            globalParamsDTO.setGlobalParams(JSON.parseObject(new String(projectParameters.get(0).getParameters()), GlobalParams.class));
             return globalParamsDTO;
         } else {
             return null;
@@ -91,9 +91,9 @@ public class GlobalParamsService {
     }
 
     private void checkExist(String projectId) {
-        ProjectParametersExample example = new ProjectParametersExample();
+        ProjectParameterExample example = new ProjectParameterExample();
         example.createCriteria().andProjectIdEqualTo(projectId);
-        List<ProjectParameters> projectParameters = projectParametersMapper.selectByExample(example);
+        List<ProjectParameter> projectParameters = projectParameterMapper.selectByExample(example);
         if (!projectParameters.isEmpty()) {
             throw new MSException(Translator.get("global_parameters_already_exist"));
         }
@@ -109,9 +109,9 @@ public class GlobalParamsService {
         try {
             Project project = projectMapper.selectByPrimaryKey(projectId);
             //查询全局参数
-            ProjectParametersExample projectParametersExample = new ProjectParametersExample();
-            projectParametersExample.createCriteria().andProjectIdEqualTo(projectId);
-            List<ProjectParameters> projectParameters = projectParametersMapper.selectByExampleWithBLOBs(projectParametersExample);
+            ProjectParameterExample projectParameterExample = new ProjectParameterExample();
+            projectParameterExample.createCriteria().andProjectIdEqualTo(projectId);
+            List<ProjectParameter> projectParameters = projectParameterMapper.selectByExampleWithBLOBs(projectParameterExample);
             byte[] bytes = new byte[0];
             if (CollectionUtils.isNotEmpty(projectParameters)) {
                 GlobalParamsDTO globalParamsDTO = new GlobalParamsDTO();
@@ -141,20 +141,20 @@ public class GlobalParamsService {
                 inputStream.close();
                 //参数是一个对象
                 GlobalParamsDTO globalParamsDTO = JSON.parseObject(content, GlobalParamsDTO.class);
-                ProjectParametersExample projectParametersExample = new ProjectParametersExample();
-                projectParametersExample.createCriteria().andProjectIdEqualTo(currentProjectId);
-                if (projectParametersMapper.countByExample(projectParametersExample) > 0) {
-                    projectParametersMapper.deleteByExample(projectParametersExample);
+                ProjectParameterExample projectParameterExample = new ProjectParameterExample();
+                projectParameterExample.createCriteria().andProjectIdEqualTo(currentProjectId);
+                if (projectParameterMapper.countByExample(projectParameterExample) > 0) {
+                    projectParameterMapper.deleteByExample(projectParameterExample);
                 }
-                ProjectParameters projectParameters = new ProjectParameters();
-                projectParameters.setId(IDGenerator.nextStr());
-                projectParameters.setProjectId(currentProjectId);
-                projectParameters.setCreateUser(userId);
-                projectParameters.setUpdateUser(userId);
-                projectParameters.setCreateTime(System.currentTimeMillis());
-                projectParameters.setUpdateTime(System.currentTimeMillis());
-                projectParameters.setParameters(JSON.toJSONBytes(globalParamsDTO.getGlobalParams()));
-                projectParametersMapper.insert(projectParameters);
+                ProjectParameter projectParameter = new ProjectParameter();
+                projectParameter.setId(IDGenerator.nextStr());
+                projectParameter.setProjectId(currentProjectId);
+                projectParameter.setCreateUser(userId);
+                projectParameter.setUpdateUser(userId);
+                projectParameter.setCreateTime(System.currentTimeMillis());
+                projectParameter.setUpdateTime(System.currentTimeMillis());
+                projectParameter.setParameters(JSON.toJSONBytes(globalParamsDTO.getGlobalParams()));
+                projectParameterMapper.insert(projectParameter);
             } catch (Exception e) {
                 LogUtils.error("获取文件输入流异常", e);
                 throw new RuntimeException("获取文件输入流异常", e);

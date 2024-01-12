@@ -17,7 +17,7 @@ public class CleanupEnvironmentResourceService implements CleanupProjectResource
     @Resource
     private EnvironmentBlobMapper environmentBlobMapper;
     @Resource
-    private ProjectParametersMapper projectParametersMapper;
+    private ProjectParameterMapper projectParametersMapper;
     @Resource
     private EnvironmentGroupMapper environmentGroupMapper;
     @Resource
@@ -29,7 +29,7 @@ public class CleanupEnvironmentResourceService implements CleanupProjectResource
         environmentExample.createCriteria().andProjectIdEqualTo(projectId);
         environmentMapper.deleteByExample(environmentExample);
         environmentBlobMapper.deleteByPrimaryKey(projectId);
-        ProjectParametersExample projectExample = new ProjectParametersExample();
+        ProjectParameterExample projectExample = new ProjectParameterExample();
         projectExample.createCriteria().andProjectIdEqualTo(projectId);
         projectParametersMapper.deleteByExample(projectExample);
         EnvironmentGroupExample environmentGroupExample = new EnvironmentGroupExample();

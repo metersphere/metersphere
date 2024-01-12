@@ -17,7 +17,6 @@ import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.file.MinioRepository;
 import io.metersphere.sdk.mapper.EnvironmentBlobMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
-import io.metersphere.sdk.mapper.ProjectParametersMapper;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
@@ -68,8 +67,6 @@ public class EnvironmentService {
     @Resource
     private ExtEnvironmentMapper extEnvironmentMapper;
     public static final Long ORDER_STEP = 5000L;
-    @Resource
-    private ProjectParametersMapper projectParametersMapper;
 
     private static final String USERNAME = "user";
     private static final String PASSWORD = "password";

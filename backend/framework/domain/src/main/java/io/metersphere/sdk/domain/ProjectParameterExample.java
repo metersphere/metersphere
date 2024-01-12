@@ -3,14 +3,14 @@ package io.metersphere.sdk.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProjectParametersExample {
+public class ProjectParameterExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public ProjectParametersExample() {
+    public ProjectParameterExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 

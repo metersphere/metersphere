@@ -27,7 +27,6 @@ import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.file.MinioRepository;
 import io.metersphere.sdk.mapper.EnvironmentBlobMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
-import io.metersphere.sdk.mapper.ProjectParametersMapper;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
@@ -96,8 +95,6 @@ public class EnvironmentControllerTests extends BaseTest {
     private EnvironmentMapper environmentMapper;
     @Resource
     private EnvironmentBlobMapper environmentBlobMapper;
-    @Resource
-    private ProjectParametersMapper projectParametersMapper;
     @Value("${spring.datasource.url}")
     private String dburl;
     @Value("${spring.datasource.username}")
