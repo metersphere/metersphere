@@ -481,7 +481,7 @@ public class FunctionalCaseAttachmentService {
                     //图片文件自动生成预览图
                     byte[] file = defaultRepository.getFile(fileCopyRequest);
                     byte[] previewImg = TempFileUtils.compressPic(file);
-                    fileCopyRequest.setFolder(DefaultRepositoryDir.getFunctionalCasePreviewDir(projectId,caseId));
+                    fileCopyRequest.setFolder(DefaultRepositoryDir.getFunctionalCasePreviewDir(projectId,caseId)+ "/" + fileId);
                     fileCopyRequest.setStorage(StorageType.MINIO.toString());
                     fileService.upload(previewImg, fileCopyRequest);
                 }
