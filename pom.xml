@@ -245,6 +245,7 @@
                         <exclude>io/metersphere/**/dto/**</exclude>
                         <exclude>io/metersphere/**/config/**</exclude>
                         <exclude>io/metersphere/**/constants/**</exclude>
+                        <exclude>io/metersphere/*/excel/**</exclude>
                         <exclude>io/metersphere/sdk/**</exclude>
                         <exclude>io/metersphere/provider/**</exclude>
                         <exclude>io/metersphere/plugin/**</exclude>

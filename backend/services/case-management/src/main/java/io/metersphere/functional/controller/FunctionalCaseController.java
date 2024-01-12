@@ -8,6 +8,7 @@ import io.metersphere.functional.dto.FunctionalCaseDetailDTO;
 import io.metersphere.functional.dto.FunctionalCasePageDTO;
 import io.metersphere.functional.dto.FunctionalCaseVersionDTO;
 import io.metersphere.functional.request.*;
+import io.metersphere.functional.service.FunctionalCaseFileService;
 import io.metersphere.functional.service.FunctionalCaseLogService;
 import io.metersphere.functional.service.FunctionalCaseNoticeService;
 import io.metersphere.functional.service.FunctionalCaseService;
@@ -15,8 +16,8 @@ import io.metersphere.project.dto.CustomFieldOptions;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.TemplateScene;
-import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.dto.sdk.TemplateDTO;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.notice.annotation.SendNotice;
@@ -28,6 +29,7 @@ import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotBlank;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
@@ -50,6 +52,8 @@ public class FunctionalCaseController {
 
     @Resource
     private ProjectTemplateService projectTemplateService;
+    @Resource
+    private FunctionalCaseFileService functionalCaseFileService;
 
     //TODO 获取模板列表(多模板功能暂时不做)
 
@@ -205,4 +209,12 @@ public class FunctionalCaseController {
         functionalCaseService.editPos(request);
     }
 
+
+    @GetMapping("/download/excel/template/{projectId}")
+    @Operation(summary = "用例管理-功能用例-excel导入-下载模板")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public void testCaseTemplateExport(@PathVariable String projectId, HttpServletResponse response) {
+        functionalCaseFileService.downloadExcelTemplate(projectId, response);
+    }
 }
