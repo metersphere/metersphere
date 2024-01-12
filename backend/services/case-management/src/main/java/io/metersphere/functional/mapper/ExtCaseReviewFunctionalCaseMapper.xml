@@ -61,7 +61,7 @@
         </choose>
         order by
         <if test="sort != null and sort != ''">
-            crfc.${sort}
+            functional_case.${sort}
         </if>
         <if test="sort == null or sort == ''">
             crfc.pos desc

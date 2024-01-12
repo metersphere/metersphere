@@ -21,7 +21,7 @@ public class FunctionalCaseDetailDTO implements Serializable {
     private String id;
 
     @Schema(description = "业务ID")
-    private Integer num;
+    private Long num;
 
     @Schema(description = "模块ID")
     private String moduleId;
@@ -91,4 +91,22 @@ public class FunctionalCaseDetailDTO implements Serializable {
 
     @Schema(description = "用例等级")
     private String functionalPriority;
+
+    @Schema(description = "需求数量")
+    private Integer demandCount;
+
+    @Schema(description = "用例数量")
+    private Integer caseCount;
+
+    @Schema(description = "缺陷数量")
+    private Integer bugCount;
+
+    @Schema(description = "依赖关系数量")
+    private Integer relateEdgeCount;
+
+    @Schema(description = "用例评审数量")
+    private Integer caseReviewCount;
+
+    @Schema(description = "测试计划数量")
+    private Integer testPlanCount;
 }
