@@ -37,7 +37,7 @@ public class FunctionalCaseReviewController {
     }
 
     @GetMapping("/comment/{caseId}")
-    @Operation(summary = "用例管理-功能用例-评审-评论")
+    @Operation(summary = "用例管理-功能用例-评审-获取评审评论历史")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
     @CheckOwner(resourceId = "#caseId", resourceType = "functional_case")
     public List<CaseReviewHistoryDTO> getCaseReviewHistory(@PathVariable String caseId) {

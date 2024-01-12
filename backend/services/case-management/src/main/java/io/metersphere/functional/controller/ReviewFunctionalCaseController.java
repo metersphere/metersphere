@@ -1,7 +1,10 @@
 package io.metersphere.functional.controller;
 
 import io.metersphere.functional.dto.CaseReviewHistoryDTO;
+import io.metersphere.functional.request.FunctionalCaseFileRequest;
+import io.metersphere.functional.request.FunctionalCaseSourceFileRequest;
 import io.metersphere.functional.request.ReviewFunctionalCaseRequest;
+import io.metersphere.functional.service.FunctionalCaseAttachmentService;
 import io.metersphere.functional.service.ReviewFunctionalCaseService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.security.CheckOwner;
@@ -10,8 +13,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -22,6 +27,9 @@ public class ReviewFunctionalCaseController {
 
     @Resource
     private ReviewFunctionalCaseService reviewFunctionalCaseService;
+
+    @Resource
+    private FunctionalCaseAttachmentService functionalCaseAttachmentService;
 
     @PostMapping("/save")
     @Operation(summary = "用例管理-用例评审-评审功能用例-提交评审")
@@ -38,5 +46,36 @@ public class ReviewFunctionalCaseController {
         return reviewFunctionalCaseService.getCaseReviewHistoryList(reviewId,  caseId);
     }
 
+    @PostMapping("/upload/temp/file")
+    @Operation(summary = "用例管理-用例评审-上传副文本里所需的文件资源，并返回文件ID")
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_REVIEW)
+    public String upload(@RequestParam("file") MultipartFile file) throws Exception {
+        return functionalCaseAttachmentService.uploadTemp(file);
+    }
+
+    @PostMapping("/preview")
+    @Operation(summary = "用例管理-用例评审-附件/副文本(原图/文件)-文件预览")
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_REVIEW)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public ResponseEntity<byte[]> preview(@Validated @RequestBody FunctionalCaseFileRequest request) throws Exception {
+        return functionalCaseAttachmentService.downloadPreviewImgById(request);
+
+    }
+
+    @PostMapping(value = "/preview/compressed")
+    @Operation(summary = "用例管理-功能用例-显示详情(副文本)图片缩略图")
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_REVIEW)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public ResponseEntity<byte[]> compressedImg(@Validated @RequestBody FunctionalCaseSourceFileRequest request) throws Exception {
+        return functionalCaseAttachmentService.downloadPreviewCompressedImg(request);
+    }
+
+    @PostMapping("/download")
+    @Operation(summary = "用例管理-功能用例-附件/副文本(原图/文件)-文件下载")
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_REVIEW)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public ResponseEntity<byte[]> download(@Validated @RequestBody FunctionalCaseFileRequest request) throws Exception {
+        return functionalCaseAttachmentService.downloadPreviewImgById(request);
+    }
 
 }

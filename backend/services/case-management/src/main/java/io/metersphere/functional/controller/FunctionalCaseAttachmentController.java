@@ -1,10 +1,7 @@
 package io.metersphere.functional.controller;
 
 import io.metersphere.functional.domain.FunctionalCaseAttachment;
-import io.metersphere.functional.request.AttachmentTransferRequest;
-import io.metersphere.functional.request.FunctionalCaseAssociationFileRequest;
-import io.metersphere.functional.request.FunctionalCaseDeleteFileRequest;
-import io.metersphere.functional.request.FunctionalCaseFileRequest;
+import io.metersphere.functional.request.*;
 import io.metersphere.functional.service.FunctionalCaseAttachmentService;
 import io.metersphere.project.dto.filemanagement.FileAssociationDTO;
 import io.metersphere.project.dto.filemanagement.FileLogRecord;
@@ -13,7 +10,6 @@ import io.metersphere.project.dto.filemanagement.response.FileInformationRespons
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.project.service.FileModuleService;
-import io.metersphere.project.service.PermissionCheckService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
@@ -26,6 +22,7 @@ import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -54,9 +51,6 @@ public class FunctionalCaseAttachmentController {
 
     @Resource
     private FileModuleService fileModuleService;
-
-    @Resource
-    private PermissionCheckService permissionCheckService;
 
 
     @PostMapping("/page")
@@ -87,7 +81,7 @@ public class FunctionalCaseAttachmentController {
     @Operation(summary = "用例管理-功能用例-显示详情(副文本)图片缩略图")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
-    public ResponseEntity<byte[]> compressedImg(@Validated @RequestBody FunctionalCaseFileRequest request) throws Exception {
+    public ResponseEntity<byte[]> compressedImg(@Validated @RequestBody FunctionalCaseSourceFileRequest request) throws Exception {
         return functionalCaseAttachmentService.downloadPreviewCompressedImg(request);
     }
 
@@ -186,7 +180,7 @@ public class FunctionalCaseAttachmentController {
 
     @PostMapping("/upload/temp/file")
     @Operation(summary = "用例管理-功能用例-上传副文本里所需的文件资源，并返回文件ID")
-    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_COMMENT)
+    @RequiresPermissions(logical = Logical.OR, value = {PermissionConstants.FUNCTIONAL_CASE_READ_ADD, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_COMMENT})
     public String upload(@RequestParam("file") MultipartFile file) throws Exception {
         return functionalCaseAttachmentService.uploadTemp(file);
     }

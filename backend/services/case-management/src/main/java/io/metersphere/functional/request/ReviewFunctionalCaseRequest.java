@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class ReviewFunctionalCaseRequest {
 
@@ -32,4 +34,7 @@ public class ReviewFunctionalCaseRequest {
 
     @Schema(description =  "评论@的人的Id, 多个以';'隔开")
     private String  notifier;
+
+    @Schema(description = "用例评审评论副文本的文件id集合")
+    private List<String> reviewCommentFileIds;
 }

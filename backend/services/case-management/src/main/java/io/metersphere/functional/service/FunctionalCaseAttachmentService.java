@@ -11,6 +11,7 @@ import io.metersphere.functional.mapper.FunctionalCaseAttachmentMapper;
 import io.metersphere.functional.request.FunctionalCaseAssociationFileRequest;
 import io.metersphere.functional.request.FunctionalCaseDeleteFileRequest;
 import io.metersphere.functional.request.FunctionalCaseFileRequest;
+import io.metersphere.functional.request.FunctionalCaseSourceFileRequest;
 import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.dto.filemanagement.FileInfo;
 import io.metersphere.project.dto.filemanagement.FileLogRecord;
@@ -286,9 +287,9 @@ public class FunctionalCaseAttachmentService {
      *
      * @param request request
      */
-    public ResponseEntity<byte[]> downloadPreviewCompressedImg(FunctionalCaseFileRequest request) {
+    public ResponseEntity<byte[]> downloadPreviewCompressedImg(FunctionalCaseSourceFileRequest request) {
         FunctionalCaseAttachmentExample example = new FunctionalCaseAttachmentExample();
-        example.createCriteria().andFileIdEqualTo(request.getFileId()).andCaseIdEqualTo(request.getCaseId()).andFileSourceEqualTo(CaseFileSourceType.CASE_DETAIL.toString());
+        example.createCriteria().andCaseIdEqualTo(request.getCaseId()).andFileSourceEqualTo(CaseFileSourceType.CASE_DETAIL.toString());
         List<FunctionalCaseAttachment> caseAttachments = functionalCaseAttachmentMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(caseAttachments)) {
             FunctionalCaseAttachment attachment = caseAttachments.get(0);

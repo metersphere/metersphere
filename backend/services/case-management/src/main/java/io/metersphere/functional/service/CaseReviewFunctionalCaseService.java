@@ -2,6 +2,7 @@ package io.metersphere.functional.service;
 
 
 import io.metersphere.functional.constants.CaseEvent;
+import io.metersphere.functional.constants.CaseFileSourceType;
 import io.metersphere.functional.constants.CaseReviewPassRule;
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.domain.*;
@@ -75,6 +76,8 @@ public class CaseReviewFunctionalCaseService extends ModuleTreeService {
     private BaseCaseProvider provider;
     @Resource
     private ReviewSendNoticeService reviewSendNoticeService;
+    @Resource
+    private FunctionalCaseAttachmentService functionalCaseAttachmentService;
 
 
     private static final String CASE_MODULE_COUNT_ALL = "all";
@@ -275,6 +278,11 @@ public class CaseReviewFunctionalCaseService extends ModuleTreeService {
         List<CaseReviewFunctionalCaseUser> caseReviewFunctionalCaseUsers = caseReviewFunctionalCaseUserMapper.selectByExample(caseReviewFunctionalCaseUserExample);
         Map<String, List<CaseReviewFunctionalCaseUser>> reviewerMap = caseReviewFunctionalCaseUsers.stream().collect(Collectors.groupingBy(CaseReviewFunctionalCaseUser::getCaseId, Collectors.toList()));
 
+        FunctionalCaseExample functionalCaseExample = new FunctionalCaseExample();
+        functionalCaseExample.createCriteria().andIdIn(caseIds);
+        List<FunctionalCase> functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
+        Map<String, String> caseProjectIdMap = functionalCases.stream().collect(Collectors.toMap(FunctionalCase::getId, FunctionalCase::getProjectId));
+
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         CaseReviewHistoryMapper caseReviewHistoryMapper = sqlSession.getMapper(CaseReviewHistoryMapper.class);
         CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper = sqlSession.getMapper(CaseReviewFunctionalCaseMapper.class);
@@ -307,6 +315,8 @@ public class CaseReviewFunctionalCaseService extends ModuleTreeService {
             if (StringUtils.equalsIgnoreCase(request.getStatus(), FunctionalCaseReviewStatus.PASS.toString())) {
                 reviewSendNoticeService.sendNoticeCase(new ArrayList<>(), userId, caseId, NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, NoticeConstants.Event.REVIEW_PASSED, reviewId);
             }
+
+            functionalCaseAttachmentService.uploadMinioFile(caseId,caseProjectIdMap.get(caseId),request.getReviewCommentFileIds(),userId, CaseFileSourceType.REVIEW_COMMENT.toString());
         }
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
