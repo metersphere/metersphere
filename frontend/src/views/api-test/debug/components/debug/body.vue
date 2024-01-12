@@ -1,6 +1,6 @@
 <template>
   <div class="mb-[8px] flex items-center justify-between">
-    <div class="font-medium">{{ t('ms.apiTestDebug.body') }}</div>
+    <div class="font-medium">{{ t('apiTestDebug.body') }}</div>
     <div class="flex items-center gap-[16px]">
       <batchAddKeyVal v-if="showParamTable" :params="currentTableParams" @apply="handleBatchParamApply" />
       <a-radio-group v-model:model-value="format" type="button" size="small" @change="formatChange">
@@ -12,7 +12,7 @@
     v-if="format === RequestBodyFormat.NONE"
     class="flex h-[100px] items-center justify-center rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] text-[var(--color-text-4)]"
   >
-    {{ t('ms.apiTestDebug.noneBody') }}
+    {{ t('apiTestDebug.noneBody') }}
   </div>
   <paramTable
     v-else-if="showParamTable"
@@ -23,6 +23,30 @@
     :height-used="heightUsed"
     @change="handleParamTableChange"
   />
+  <div v-else-if="format === RequestBodyFormat.BINARY">
+    <div class="mb-[16px] flex justify-between gap-[8px] bg-[var(--color-text-n9)] p-[12px]">
+      <a-input
+        v-model:model-value="innerParams.binaryDesc"
+        :placeholder="t('common.desc')"
+        :max-length="255"
+        show-word-limit
+      />
+    </div>
+    <div class="flex items-center">
+      <a-switch v-model:model-value="innerParams.binarySend" class="mr-[8px]" size="small"></a-switch>
+      <span>{{ t('apiTestDebug.sendAsMainText') }}</span>
+      <a-tooltip position="right">
+        <template #content>
+          <div>{{ t('apiTestDebug.sendAsMainTextTip1') }}</div>
+          <div>{{ t('apiTestDebug.sendAsMainTextTip2') }}</div>
+        </template>
+        <icon-question-circle
+          class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+          size="16"
+        />
+      </a-tooltip>
+    </div>
+  </div>
   <div v-else class="flex h-[calc(100%-100px)]">
     <MsCodeEditor
       v-model:model-value="currentBodyCode"
@@ -35,10 +59,10 @@
       <template #title>
         <div class="flex flex-col">
           <div class="text-[12px] leading-[16px] text-[var(--color-text-4)]">
-            {{ t('ms.apiTestDebug.batchAddParamsTip') }}
+            {{ t('apiTestDebug.batchAddParamsTip') }}
           </div>
           <div class="text-[12px] leading-[16px] text-[var(--color-text-4)]">
-            {{ t('ms.apiTestDebug.batchAddParamsTip2') }}
+            {{ t('apiTestDebug.batchAddParamsTip2') }}
           </div>
         </div>
       </template>
@@ -65,6 +89,8 @@
     json: string;
     xml: string;
     binary: string;
+    binaryDesc: string;
+    binarySend: boolean;
     raw: string;
   }
   const props = defineProps<{
@@ -83,35 +109,35 @@
 
   const columns: MsTableColumn = [
     {
-      title: 'ms.apiTestDebug.paramName',
+      title: 'apiTestDebug.paramName',
       dataIndex: 'name',
       slotName: 'name',
     },
     {
-      title: 'ms.apiTestDebug.paramType',
+      title: 'apiTestDebug.paramType',
       dataIndex: 'type',
       slotName: 'type',
       width: 120,
     },
     {
-      title: 'ms.apiTestDebug.paramValue',
+      title: 'apiTestDebug.paramValue',
       dataIndex: 'value',
       slotName: 'value',
       width: 240,
     },
     {
-      title: 'ms.apiTestDebug.paramLengthRange',
+      title: 'apiTestDebug.paramLengthRange',
       dataIndex: 'lengthRange',
       slotName: 'lengthRange',
       width: 200,
     },
     {
-      title: 'ms.apiTestDebug.desc',
+      title: 'apiTestDebug.desc',
       dataIndex: 'desc',
       slotName: 'desc',
     },
     {
-      title: 'ms.apiTestDebug.encode',
+      title: 'apiTestDebug.encode',
       dataIndex: 'encode',
       slotName: 'encode',
       titleSlotName: 'encodeTitle',
@@ -150,8 +176,10 @@
 
   const format = ref(RequestBodyFormat.NONE);
   const showParamTable = computed(() => {
+    // 仅当格式为FORM_DATA或X_WWW_FORM_URLENCODED时，显示参数表格
     return [RequestBodyFormat.FORM_DATA, RequestBodyFormat.X_WWW_FORM_URLENCODED].includes(format.value);
   });
+  // 当前显示的参数表格数据
   const currentTableParams = computed({
     get() {
       if (format.value === RequestBodyFormat.FORM_DATA) {
@@ -167,6 +195,7 @@
       }
     },
   });
+  // 当前显示的代码
   const currentBodyCode = computed({
     get() {
       if (format.value === RequestBodyFormat.JSON) {
@@ -187,6 +216,7 @@
       }
     },
   });
+  // 当前代码编辑器的语言
   const currentCodeLanguage = computed(() => {
     if (format.value === RequestBodyFormat.JSON) {
       return 'json';

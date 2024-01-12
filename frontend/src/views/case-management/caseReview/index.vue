@@ -2,7 +2,7 @@
   <MsCard simple no-content-padding>
     <div class="flex items-center justify-between border-b border-[var(--color-text-n8)] p-[24px_24px_16px_24px]">
       <a-button type="primary" @click="goCreateReview">{{ t('caseManagement.caseReview.create') }}</a-button>
-      <a-radio-group v-model:model-value="showType" type="button" class="file-show-type" @change="changeShowType">
+      <a-radio-group v-model:model-value="showType" type="button" class="file-show-type">
         <a-radio value="all">{{ t('common.all') }}</a-radio>
         <a-radio value="reviewByMe">{{ t('caseManagement.caseReview.waitMyReview') }}</a-radio>
         <a-radio value="createByMe">{{ t('caseManagement.caseReview.myCreate') }}</a-radio>
@@ -12,11 +12,24 @@
       <MsSplitBox>
         <template #first>
           <div class="px-[24px] py-[16px]">
-            <ModuleTree ref="folderTreeRef" @folder-node-select="handleFolderNodeSelect" @init="initModuleTree" />
+            <ModuleTree
+              ref="folderTreeRef"
+              :show-type="showType"
+              :modules-count="modulesCount"
+              @folder-node-select="handleFolderNodeSelect"
+              @init="initModuleTree"
+            />
           </div>
         </template>
         <template #second>
-          <ReviewTable :active-folder="activeFolderId" :module-tree="moduleTree" @go-create="goCreateReview" />
+          <ReviewTable
+            :active-folder="activeFolderId"
+            :module-tree="moduleTree"
+            :show-type="showType"
+            :offspring-ids="offspringIds"
+            @go-create="goCreateReview"
+            @init="initModuleCount"
+          />
         </template>
       </MsSplitBox>
     </div>
@@ -34,8 +47,10 @@
   import ModuleTree from './components/index/moduleTree.vue';
   import ReviewTable from './components/index/reviewTable.vue';
 
+  import { reviewModuleCount } from '@/api/modules/case-management/caseReview';
   import { useI18n } from '@/hooks/useI18n';
 
+  import { ReviewListQueryParams } from '@/models/caseManagement/caseReview';
   import type { ModuleTreeNode } from '@/models/projectManagement/file';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
@@ -46,20 +61,29 @@
 
   const showType = ref<ShowType>('all');
 
-  function changeShowType(val: string | number | boolean) {
-    console.log('changeShowType', val);
-  }
-
   const folderTreeRef = ref<InstanceType<typeof ModuleTree>>();
-  const activeFolderId = ref<string | number>('all');
+  const activeFolderId = ref<string>('all');
+  const offspringIds = ref<string[]>([]);
   const moduleTree = ref<ModuleTreeNode[]>([]);
+  const modulesCount = ref<Record<string, number>>({});
 
   function initModuleTree(tree: ModuleTreeNode[]) {
     moduleTree.value = unref(tree);
   }
 
-  function handleFolderNodeSelect(ids: (string | number)[]) {
+  function handleFolderNodeSelect(ids: string[], _offspringIds: string[]) {
     [activeFolderId.value] = ids;
+    offspringIds.value = [..._offspringIds];
+  }
+
+  async function initModuleCount(params: ReviewListQueryParams) {
+    try {
+      const res = await reviewModuleCount(params);
+      modulesCount.value = res;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
   }
 
   function goCreateReview() {

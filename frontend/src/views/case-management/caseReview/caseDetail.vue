@@ -1,16 +1,20 @@
 <template>
-  <MsCard :min-width="1100" has-breadcrumb hide-footer no-content-padding hide-divider>
+  <MsCard :loading="loading" :min-width="1100" has-breadcrumb hide-footer no-content-padding hide-divider>
     <template #headerLeft>
-      <a-tooltip :content="reviewName">
+      <a-tooltip :content="reviewDetail.name">
         <div class="one-line-text mr-[8px] max-w-[260px] font-medium text-[var(--color-text-000)]">
-          {{ reviewName }}
+          {{ reviewDetail.name }}
         </div>
       </a-tooltip>
       <div
         class="rounded-[0_999px_999px_0] border border-solid border-[text-[rgb(var(--primary-5))]] px-[8px] py-[2px] text-[12px] leading-[16px] text-[rgb(var(--primary-5))]"
       >
         <MsIcon type="icon-icon-contacts" size="13" />
-        {{ t('caseManagement.caseReview.single') }}
+        {{
+          reviewDetail.reviewPassRule === 'SINGLE'
+            ? t('caseManagement.caseReview.single')
+            : t('caseManagement.caseReview.multi')
+        }}
       </div>
       <div class="ml-[16px] flex items-center">
         <a-switch v-model:model-value="onlyMine" size="small" class="mr-[8px]" />
@@ -22,83 +26,108 @@
       <div class="flex h-[calc(100%-1px)] w-full">
         <div class="h-full w-[356px] border-r border-[var(--color-text-n8)] pr-[16px] pt-[16px]">
           <div class="mb-[16px] flex">
-            <a-input
+            <a-input-search
               v-model:model-value="keyword"
               :placeholder="t('caseManagement.caseReview.searchPlaceholder')"
               allow-clear
               class="mr-[8px] w-[240px]"
+              @search="loadCaseList"
+              @press-enter="loadCaseList"
             />
-            <a-select v-model:model-value="type" :options="typeOptions" class="w-[92px]"></a-select>
+            <a-select v-model:model-value="type" :options="typeOptions" class="w-[92px]" @change="loadCaseList">
+            </a-select>
           </div>
-          <div class="case-list">
-            <div
-              v-for="item of caseList"
-              :key="item.id"
-              :class="['case-item', activeCase.id === item.id ? 'case-item--active' : '']"
-              @click="changeActiveCase(item)"
-            >
-              <div class="mb-[4px] flex items-center justify-between">
-                <div>{{ item.id }}</div>
-                <div class="flex items-center gap-[4px] leading-[22px]">
-                  <MsIcon
-                    :type="resultMap[item.result as ResultMap].icon"
-                    :style="{color: resultMap[item.result as ResultMap].color}"
-                  />
-                  {{ t(resultMap[item.result as ResultMap].label) }}
+          <a-spin :loading="caseListLoading" class="w-full">
+            <div class="case-list">
+              <div
+                v-for="item of caseList"
+                :key="item.caseId"
+                :class="['case-item', caseDetail.id === item.caseId ? 'case-item--active' : '']"
+                @click="changeActiveCase(item)"
+              >
+                <div class="mb-[4px] flex items-center justify-between">
+                  <div>{{ item.num }}</div>
+                  <div class="flex items-center gap-[4px] leading-[22px]">
+                    <MsIcon
+                      :type="reviewResultMap[item.status]?.icon"
+                      :style="{ color: reviewResultMap[item.status]?.color }"
+                    />
+                    {{ t(reviewResultMap[item.status]?.label) }}
+                  </div>
                 </div>
+                <a-tooltip :content="item.name">
+                  <div class="one-line-text">{{ item.name }}</div>
+                </a-tooltip>
               </div>
-              <a-tooltip :content="item.name">
-                <div class="one-line-text">{{ item.name }}</div>
-              </a-tooltip>
+              <MsEmpty v-if="caseList.length === 0" />
             </div>
-          </div>
-          <MsPagination :total="total" :page-size="pageSize" :current="pageCurrent" size="mini" simple />
+            <MsPagination
+              v-model:page-size="pageNation.pageSize"
+              v-model:current="pageNation.current"
+              :total="pageNation.total"
+              size="mini"
+              simple
+              @change="loadCaseList"
+              @page-size-change="loadCaseList"
+            />
+          </a-spin>
         </div>
         <div class="relative flex w-[calc(100%-356px)] flex-col">
           <div class="pl-[16px] pt-[16px]">
             <div class="rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[16px]">
               <div class="mb-[12px] flex items-center justify-between">
-                <a-tooltip :content="activeCase.module">
-                  <div class="one-line-text cursor-pointer font-medium text-[rgb(var(--primary-5))]">
-                    【{{ activeCase.id }}】{{ activeCase.name }}
+                <a-tooltip :content="`【${caseDetail.num}】${caseDetail.name}`">
+                  <div
+                    class="one-line-text cursor-pointer font-medium text-[rgb(var(--primary-5))]"
+                    @click="goCaseDetail"
+                  >
+                    【{{ caseDetail.num }}】{{ caseDetail.name }}
                   </div>
                 </a-tooltip>
-                <a-button type="outline" size="mini" class="arco-btn-outline--secondary">
+                <a-button
+                  type="outline"
+                  size="mini"
+                  class="arco-btn-outline--secondary"
+                  @click="editCaseVisible = true"
+                >
                   {{ t('common.edit') }}
                 </a-button>
               </div>
               <div class="flex items-center">
                 <MsIcon type="icon-icon_folder_filled1" class="mr-[4px] text-[var(--color-text-4)]" />
-                <a-tooltip :content="activeCase.module">
+                <a-tooltip :content="caseDetail.moduleName || t('common.root')">
                   <div class="one-line-text mr-[8px] max-w-[260px] font-medium text-[var(--color-text-000)]">
-                    {{ activeCase.module }}
+                    {{ caseDetail.moduleName || t('common.root') }}
                   </div>
                 </a-tooltip>
                 <div class="case-detail-label">
                   {{ t('caseManagement.caseReview.caseLevel') }}
                 </div>
                 <div class="case-detail-value">
-                  <caseLevel :case-level="activeCase.level" />
+                  <caseLevel :case-level="caseDetailLevel" />
                 </div>
                 <div class="case-detail-label">
                   {{ t('caseManagement.caseReview.caseVersion') }}
                 </div>
                 <div class="case-detail-value">
                   <MsIcon type="icon-icon_version" size="13" class="mr-[4px]" />
-                  {{ activeCase.version }}
+                  {{ caseDetail.versionName }}
                 </div>
                 <div class="case-detail-label">
                   {{ t('caseManagement.caseReview.reviewResult') }}
                 </div>
                 <div class="case-detail-value">
-                  <div class="flex items-center gap-[4px]">
+                  <div
+                    v-if="reviewResultMap[activeCaseReviewStatus as ReviewResult]"
+                    class="flex items-center gap-[4px]"
+                  >
                     <MsIcon
-                      :type="resultMap[activeCase.result].icon"
+                      :type="reviewResultMap[activeCaseReviewStatus as ReviewResult].icon"
                       :style="{
-                        color: resultMap[activeCase.result].color,
+                        color: reviewResultMap[activeCaseReviewStatus as ReviewResult].color,
                       }"
                     />
-                    {{ t(resultMap[activeCase.result].label) }}
+                    {{ t(reviewResultMap[activeCaseReviewStatus as ReviewResult].label) }}
                   </div>
                 </div>
               </div>
@@ -128,41 +157,49 @@
             <div v-else-if="showTab === 'detail'" class="h-full">
               <MsSplitBox :size="0.8" direction="vertical" min="0" :max="0.99">
                 <template #first>
-                  <caseTabDetail :form="detailForm" :allow-edit="false" />
+                  <caseTabDetail :form="caseDetail" :allow-edit="false" />
                 </template>
                 <template #second>
                   <div class="flex h-full flex-col overflow-hidden">
-                    <div class="mb-[8px] font-medium text-[var(--color-text-1)]">
+                    <div class="my-[8px] font-medium text-[var(--color-text-1)]">
                       {{ t('caseManagement.caseReview.reviewHistory') }}
                     </div>
                     <div class="review-history-list">
-                      <div v-for="item of reviewHistoryList" :key="item.id" class="mb-[16px]">
-                        <div class="flex items-center">
-                          <a-avatar>A</a-avatar>
-                          <div class="ml-[8px] flex items-center">
-                            <div class="font-medium text-[var(--color-text-1)]">{{ item.reviewer }}</div>
-                            <a-divider direction="vertical" margin="8px"></a-divider>
-                            <div v-if="item.result === 1" class="flex items-center">
-                              <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--success-6))]" />
-                              {{ t('caseManagement.caseReview.pass') }}
-                            </div>
-                            <div v-else-if="item.result === 2" class="flex items-center">
-                              <MsIcon type="icon-icon_close_filled" class="mr-[4px] text-[rgb(var(--danger-6))]" />
-                              {{ t('caseManagement.caseReview.fail') }}
-                            </div>
-                            <div v-else-if="item.result === 3" class="flex items-center">
-                              <MsIcon type="icon-icon_warning_filled" class="mr-[4px] text-[rgb(var(--warning-6))]" />
-                              {{ t('caseManagement.caseReview.suggestion') }}
-                            </div>
-                            <div v-else-if="item.result === 4" class="flex items-center">
-                              <MsIcon type="icon-icon_resubmit_filled" class="mr-[4px] text-[rgb(var(--warning-6))]" />
-                              {{ t('caseManagement.caseReview.reReview') }}
+                      <a-spin :loading="reviewHistoryListLoading" class="h-full w-full">
+                        <div v-for="item of reviewHistoryList" :key="item.id" class="mb-[16px]">
+                          <div class="flex items-center">
+                            <MSAvatar :avatar="item.userLogo" />
+                            <div class="ml-[8px] flex items-center">
+                              <div class="font-medium text-[var(--color-text-1)]">{{ item.userName }}</div>
+                              <a-divider direction="vertical" margin="8px"></a-divider>
+                              <div v-if="item.status === 'PASS'" class="flex items-center">
+                                <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--success-6))]" />
+                                {{ t('caseManagement.caseReview.pass') }}
+                              </div>
+                              <div v-else-if="item.status === 'UN_PASS'" class="flex items-center">
+                                <MsIcon type="icon-icon_close_filled" class="mr-[4px] text-[rgb(var(--danger-6))]" />
+                                {{ t('caseManagement.caseReview.fail') }}
+                              </div>
+                              <div v-else-if="item.status === 'UNDER_REVIEWED'" class="flex items-center">
+                                <MsIcon type="icon-icon_warning_filled" class="mr-[4px] text-[rgb(var(--warning-6))]" />
+                                {{ t('caseManagement.caseReview.suggestion') }}
+                              </div>
+                              <div v-else-if="item.status === 'RE_REVIEWED'" class="flex items-center">
+                                <MsIcon
+                                  type="icon-icon_resubmit_filled"
+                                  class="mr-[4px] text-[rgb(var(--warning-6))]"
+                                />
+                                {{ t('caseManagement.caseReview.reReview') }}
+                              </div>
                             </div>
                           </div>
+                          <div class="ml-[48px] text-[var(--color-text-2)]" v-html="item.contentText"></div>
+                          <div class="ml-[48px] mt-[8px] text-[var(--color-text-4)]">
+                            {{ dayjs(item.createTime).format('YYYY-MM-DD HH:mm:ss') }}
+                          </div>
                         </div>
-                        <div class="ml-[48px] text-[var(--color-text-2)]">{{ item.reason }}</div>
-                        <div class="ml-[48px] mt-[8px] text-[var(--color-text-4)]">{{ item.time }}</div>
-                      </div>
+                        <MsEmpty v-if="reviewHistoryList.length === 0" />
+                      </a-spin>
                     </div>
                   </div>
                 </template>
@@ -182,7 +219,7 @@
               </div>
               <caseTabDemand
                 ref="caseDemandRef"
-                :fun-params="{ caseId: route.query.id as string, keyword: demandKeyword }"
+                :fun-params="{ caseId: route.query.caseId as string, keyword: demandKeyword }"
               />
             </div>
           </div>
@@ -207,19 +244,19 @@
             <a-form ref="dialogFormRef" :model="caseResultForm" layout="vertical">
               <a-form-item field="reason" :label="t('caseManagement.caseReview.reviewResult')" class="mb-[8px]">
                 <a-radio-group v-model:model-value="caseResultForm.result" @change="() => dialogFormRef?.resetFields()">
-                  <a-radio value="pass">
+                  <a-radio value="PASS">
                     <div class="inline-flex items-center">
                       <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--success-6))]" />
                       {{ t('caseManagement.caseReview.pass') }}
                     </div>
                   </a-radio>
-                  <a-radio value="fail">
+                  <a-radio value="UN_PASS">
                     <div class="inline-flex items-center">
                       <MsIcon type="icon-icon_close_filled" class="mr-[4px] text-[rgb(var(--danger-6))]" />
                       {{ t('caseManagement.caseReview.fail') }}
                     </div>
                   </a-radio>
-                  <a-radio value="suggestion">
+                  <a-radio value="UNDER_REVIEWED">
                     <div class="inline-flex items-center">
                       <MsIcon type="icon-icon_warning_filled" class="mr-[4px] text-[rgb(var(--warning-6))]" />
                       {{ t('caseManagement.caseReview.suggestion') }}
@@ -237,20 +274,17 @@
                 field="reason"
                 :label="t('caseManagement.caseReview.reason')"
                 :rules="
-                  caseResultForm.result === 'fail'
+                  caseResultForm.result === 'UN_PASS'
                     ? [{ required: true, message: t('caseManagement.caseReview.reasonRequired') }]
                     : []
                 "
                 asterisk-position="end"
                 class="mb-0"
               >
-                <a-input
-                  v-model:model-value="caseResultForm.reason"
-                  :placeholder="t('caseManagement.caseReview.reasonPlaceholder')"
-                />
+                <MsRichText v-model:modelValue="caseResultForm.reason" class="w-full" />
               </a-form-item>
             </a-form>
-            <a-button type="primary" class="mt-[16px]">
+            <a-button type="primary" class="mt-[16px]" :loading="submitReviewLoading" @click="submitReview">
               {{ t('caseManagement.caseReview.submitReview') }}
             </a-button>
           </div>
@@ -258,73 +292,136 @@
       </div>
     </div>
   </MsCard>
+  <MsDrawer
+    v-model:visible="editCaseVisible"
+    :title="t('caseManagement.caseReview.updateCase')"
+    :width="1200"
+    :ok-text="t('common.update')"
+    :ok-loading="updateCaseLoading"
+    @confirm="updateCase"
+  >
+    <caseTemplateDetail v-if="editCaseVisible" v-model:form-mode-value="editCaseForm" :case-id="activeCaseId" />
+  </MsDrawer>
 </template>
 
 <script setup lang="ts">
   /**
    * @description 功能测试-用例评审-用例详情
    */
-  import { useRoute } from 'vue-router';
-  import { FormInstance } from '@arco-design/web-vue';
+  import { useRoute, useRouter } from 'vue-router';
+  import { FormInstance, Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
+  import MSAvatar from '@/components/pure/ms-avatar/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
-  import MsDescription from '@/components/pure/ms-description/index.vue';
+  import MsDescription, { Description } from '@/components/pure/ms-description/index.vue';
+  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import MsEmpty from '@/components/pure/ms-empty/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsPagination from '@/components/pure/ms-pagination/index';
+  import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
+  import caseTemplateDetail from '../caseManagementFeature/components/caseTemplateDetail.vue';
   import caseTabDemand from '../caseManagementFeature/components/tabContent/tabDemand/associatedDemandTable.vue';
   import caseTabDetail from '../caseManagementFeature/components/tabContent/tabDetail.vue';
 
+  import {
+    getCaseReviewHistoryList,
+    getReviewDetail,
+    getReviewDetailCasePage,
+    saveCaseReviewResult,
+  } from '@/api/modules/case-management/caseReview';
+  import { getCaseDetail } from '@/api/modules/case-management/featureCase';
+  import { reviewDefaultDetail, reviewResultMap } from '@/config/apiTest';
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
 
+  import { ReviewCaseItem, ReviewHistoryItem, ReviewItem, ReviewResult } from '@/models/caseManagement/caseReview';
   import type { DetailCase } from '@/models/caseManagement/featureCase';
+  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   const route = useRoute();
+  const router = useRouter();
+  const appStore = useAppStore();
   const { t } = useI18n();
 
-  const reviewName = ref('打算肯定还是觉得还是觉得还是计划的');
-  const caseDetail = ref({
-    demandCount: 999,
-  });
-  const onlyMine = ref(false);
-  const keyword = ref('');
+  const reviewDetail = ref<ReviewItem>({ ...reviewDefaultDetail });
+  const loading = ref(false);
 
-  type ResultMap = 0 | 1 | 2 | 3;
-  const resultMap = {
-    0: {
-      label: t('caseManagement.caseReview.unReview'),
-      color: 'var(--color-text-input-border)',
-      icon: 'icon-icon_block_filled',
-    },
-    1: {
-      label: t('caseManagement.caseReview.reviewPass'),
-      color: 'rgb(var(--success-6))',
-      icon: 'icon-icon_succeed_filled',
-    },
-    2: {
-      label: t('caseManagement.caseReview.fail'),
-      color: 'rgb(var(--danger-6))',
-      icon: 'icon-icon_close_filled',
-    },
-    3: {
-      label: t('caseManagement.caseReview.reReview'),
-      color: 'rgb(var(--warning-6))',
-      icon: 'icon-icon_resubmit_filled',
-    },
-  } as const;
+  // 初始化评审详情
+  async function initDetail() {
+    try {
+      loading.value = true;
+      const res = await getReviewDetail(route.query.id as string);
+      reviewDetail.value = res;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
+  }
+
   const type = ref('');
   const typeOptions = ref([
-    { label: '全部', value: '' },
-    { label: resultMap[0].label, value: 'unReview' },
-    { label: resultMap[1].label, value: 'reviewPass' },
-    { label: resultMap[2].label, value: 'fail' },
-    { label: resultMap[3].label, value: 'reReview' },
+    { label: t('common.all'), value: '' },
+    { label: t(reviewResultMap.UN_REVIEWED.label), value: 'UN_REVIEWED' },
+    { label: t(reviewResultMap.PASS.label), value: 'PASS' },
+    { label: t(reviewResultMap.UN_PASS.label), value: 'UN_PASS' },
+    { label: t(reviewResultMap.RE_REVIEWED.label), value: 'RE_REVIEWED' },
   ]);
 
-  const initDetail: DetailCase = {
+  const onlyMine = ref(false);
+  const keyword = ref('');
+  const caseList = ref<ReviewCaseItem[]>([]);
+  const pageNation = ref({
+    total: 0,
+    pageSize: 10,
+    current: 1,
+  });
+  const otherListQueryParams = ref<Record<string, any>>({});
+  const caseListLoading = ref(false);
+
+  // 加载用例列表
+  async function loadCaseList() {
+    try {
+      caseListLoading.value = true;
+      const res = await getReviewDetailCasePage({
+        projectId: appStore.currentProjectId,
+        reviewId: route.query.id as string,
+        viewFlag: onlyMine.value,
+        keyword: keyword.value,
+        current: pageNation.value.current,
+        pageSize: pageNation.value.pageSize,
+        filter: type.value
+          ? {
+              status: [type.value],
+            }
+          : undefined,
+        ...otherListQueryParams.value,
+      });
+      caseList.value = res.list;
+      pageNation.value.total = res.total;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      caseListLoading.value = false;
+    }
+  }
+
+  watch(
+    () => onlyMine.value,
+    () => loadCaseList()
+  );
+
+  const activeCaseId = ref(route.query.caseId as string);
+  const activeCaseReviewStatus = computed(() => {
+    return caseList.value.find((e) => e.caseId === activeCaseId.value)?.status;
+  });
+  const defaultCaseDetail: DetailCase = {
     id: '',
     projectId: '',
     templateId: '',
@@ -341,60 +438,57 @@
     tags: [],
     customFields: [], // 自定义字段集合
     relateFileMetaIds: [], // 关联文件ID集合
+    reviewStatus: 'UN_REVIEWED',
+    functionalPriority: '',
   };
-  const detailForm = ref<DetailCase>({ ...initDetail });
-
-  const caseList = ref([
-    {
-      id: 'g4ggtrgrtg',
-      name: '打算肯定还是觉得还是觉得还是计划的',
-      module: '模块名称模块名称模块名称模块名称模块名称模块名称模块名称模块名称模块名称',
-      level: 0 as CaseLevel,
-      result: 0 as ResultMap,
-      version: '1.0.0',
-    },
-    {
-      id: 2,
-      name: '打算肯定还是觉得还是觉得还是计划的',
-      result: 1,
-      module: '模块名称模块名称模块名称模块名称模块名称模块名称模块名称模块名称模块名称',
-      level: 0 as CaseLevel,
-      version: '1.0.0',
-    },
-    {
-      id: 3,
-      name: '打算肯定还是觉得还是觉得还是计划的',
-      result: 2,
-      module: '模块名称模块名称模块名称模块名称模块名称模块名称模块名称模块名称模块名称',
-      level: 0 as CaseLevel,
-      version: '1.0.0',
-    },
-    {
-      id: 4,
-      name: '打算肯定还是觉得还是觉得还是计划的',
-      result: 3,
-      module: '模块名称模块名称模块名称模块名称模块名称模块名称模块名称模块名称模块名称',
-      level: 0 as CaseLevel,
-      version: '1.0.0',
-    },
-  ]);
-  const total = ref(10);
-  const pageSize = ref(10);
-  const pageCurrent = ref(1);
-  const activeCase = ref({
-    id: 'g4ggtrgrtg',
-    name: '打算肯定还是觉得还是觉得还是计划的打撒打扫打扫',
-    module: '模块名称模块名称模块名称模块名称模块名称模块名称模块名称模块名称模块名称',
-    level: 0 as CaseLevel,
-    result: 0 as ResultMap,
-    version: '1.0.0',
+  const caseDetail = ref<DetailCase>({ ...defaultCaseDetail });
+  const descriptions = ref<Description[]>([]);
+  const caseDetailLevel = computed<CaseLevel>(() => {
+    if (caseDetail.value.functionalPriority) {
+      return (Number(JSON.parse(caseDetail.value.functionalPriority).match(/\d+/g)[0]) as CaseLevel) || 0; // 匹配出用例等级的数字
+    }
+    return 0;
   });
 
-  function changeActiveCase(item: any) {
-    if (activeCase.value.id !== item.id) {
-      activeCase.value = item;
+  function changeActiveCase(item: ReviewCaseItem) {
+    if (activeCaseId.value !== item.caseId) {
+      activeCaseId.value = item.caseId;
     }
   }
+  // 加载用例详情
+  async function loadCaseDetail() {
+    try {
+      const res = await getCaseDetail(activeCaseId.value);
+      caseDetail.value = res;
+      descriptions.value = [
+        {
+          label: t('caseManagement.caseReview.belongModule'),
+          value: res.moduleName || t('common.root'),
+        },
+        // 解析用例模版的自定义字段
+        ...res.customFields.map((e) => {
+          const val =
+            typeof e.defaultValue === 'string' && e.defaultValue !== '' ? JSON.parse(e.defaultValue) : e.defaultValue;
+          return {
+            label: e.fieldName,
+            value: Array.isArray(val) ? val.join('、') : val,
+          };
+        }),
+        {
+          label: t('caseManagement.caseReview.creator'),
+          value: res.createUser || '',
+        },
+        {
+          label: t('caseManagement.caseReview.createTime'),
+          value: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+        },
+      ];
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
   const showTab = ref('detail');
   const tabList = ref([
     {
@@ -411,67 +505,36 @@
     },
   ]);
 
-  const descriptions = ref([
-    {
-      label: t('caseManagement.caseReview.belongModule'),
-      value: '模块模块',
-    },
-    {
-      label: t('caseManagement.caseReview.caseStatus'),
-      value: '未开始',
-    },
-    {
-      label: t('caseManagement.caseReview.responsiblePerson'),
-      value: '张三',
-    },
-    {
-      label: t('caseManagement.caseReview.creator'),
-      value: '李四',
-    },
-    {
-      label: t('caseManagement.caseReview.createTime'),
-      value: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-    },
-  ]);
+  const reviewHistoryListLoading = ref(false);
+  const reviewHistoryList = ref<ReviewHistoryItem[]>([]);
 
-  const reviewHistoryList = ref([
-    {
-      id: 1,
-      reviewer: '张三',
-      avatar: '',
-      result: 1,
-      reason: '',
-      time: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-    },
-    {
-      id: 2,
-      reviewer: '李四',
-      avatar: '',
-      result: 2,
-      reason: '不通过',
-      time: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-    },
-    {
-      id: 3,
-      reviewer: '王五',
-      avatar: '',
-      result: 3,
-      reason: '建议修改',
-      time: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-    },
-    {
-      id: 4,
-      reviewer: '李六',
-      avatar: '',
-      result: 4,
-      reason: '重新提',
-      time: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-    },
-  ]);
+  // 加载评审历史列表
+  async function initReviewHistoryList() {
+    try {
+      reviewHistoryListLoading.value = true;
+      const res = await getCaseReviewHistoryList(route.query.id as string, activeCaseId.value);
+      reviewHistoryList.value = res;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      reviewHistoryListLoading.value = false;
+    }
+  }
+
+  watch(
+    () => activeCaseId.value,
+    () => {
+      loadCaseDetail();
+      if (showTab.value === 'detail') {
+        initReviewHistoryList();
+      }
+    }
+  );
 
   const autoNext = ref(false);
   const caseResultForm = ref({
-    result: 'pass',
+    result: 'PASS' as ReviewResult,
     reason: '',
   });
   const dialogFormRef = ref<FormInstance>();
@@ -481,6 +544,110 @@
   function searchDemand() {
     caseDemandRef.value?.initData();
   }
+
+  function goCaseDetail() {
+    router.push({
+      name: CaseManagementRouteEnum.CASE_MANAGEMENT,
+      query: {
+        id: activeCaseId.value,
+      },
+    });
+  }
+
+  const submitReviewLoading = ref(false);
+  // 提交评审
+  function submitReview() {
+    dialogFormRef.value?.validate(async (errors) => {
+      if (!errors) {
+        try {
+          submitReviewLoading.value = true;
+          const params = {
+            projectId: appStore.currentProjectId,
+            caseId: activeCaseId.value,
+            reviewId: route.query.id as string,
+            status: caseResultForm.value.result,
+            reviewPassRule: reviewDetail.value.reviewPassRule,
+            content: caseResultForm.value.reason,
+            notifier: '', // TODO: 通知人
+          };
+          await saveCaseReviewResult(params);
+          Message.success(t('caseManagement.caseReview.reviewSuccess'));
+          caseResultForm.value = {
+            result: 'PASS' as ReviewResult,
+            reason: '',
+          };
+          if (autoNext.value) {
+            const index = caseList.value.findIndex((e) => e.caseId === activeCaseId.value);
+            if (index < caseList.value.length - 1) {
+              activeCaseId.value = caseList.value[index + 1].caseId;
+            }
+          }
+          loadCaseList();
+          loadCaseDetail();
+          initReviewHistoryList();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        } finally {
+          submitReviewLoading.value = false;
+        }
+      }
+    });
+  }
+
+  const editCaseVisible = ref(false);
+  const editCaseForm = ref<Record<string, any>>({});
+  const updateCaseLoading = ref(false);
+
+  async function updateCase() {
+    try {
+      updateCaseLoading.value = true;
+      // await updateCaseRequest();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      updateCaseLoading.value = false;
+    }
+  }
+
+  onBeforeMount(() => {
+    const lastPageParams = window.history.state.params ? JSON.parse(window.history.state.params) : null; // 获取上个页面带过来的表格查询参数
+    if (lastPageParams) {
+      const {
+        total,
+        pageSize,
+        current,
+        onlyMine: _onlyMine,
+        keyword: _keyword,
+        combine,
+        sort,
+        searchMode,
+        moduleIds,
+      } = lastPageParams;
+      pageNation.value = {
+        total,
+        pageSize,
+        current,
+      };
+      onlyMine.value = !!_onlyMine;
+      keyword.value = _keyword;
+      otherListQueryParams.value = {
+        combine,
+        sort,
+        searchMode,
+        moduleIds,
+      };
+    } else {
+      keyword.value = route.query.caseId as string;
+    }
+    initDetail();
+    loadCaseList();
+    loadCaseDetail();
+    if (showTab.value === 'detail') {
+      initReviewHistoryList();
+    }
+  });
 </script>
 
 <style lang="less" scoped>
@@ -493,8 +660,10 @@
     background: var(--color-text-n9);
     .case-item {
       @apply cursor-pointer;
+      &:not(:last-child) {
+        margin-bottom: 8px;
+      }
 
-      margin-bottom: 8px;
       padding: 16px;
       border-radius: var(--border-radius-small);
       background-color: white;

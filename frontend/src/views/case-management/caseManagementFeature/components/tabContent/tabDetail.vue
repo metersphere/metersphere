@@ -30,7 +30,7 @@
         <div class="absolute left-16 top-0 font-normal">
           <a-divider direction="vertical" />
           <a-dropdown :popup-max-height="false" @select="handleSelectType">
-            <span class="changeType text-[var(--color-text-3)]"
+            <span class="changeType cursor-pointer text-[var(--color-text-3)]"
               >{{ t('system.orgTemplate.changeType') }} <icon-down
             /></span>
             <template #content>
@@ -555,8 +555,8 @@
 
   watch(
     () => props.form,
-    () => {
-      detailForm.value = { ...props.form };
+    (val) => {
+      detailForm.value = { ...val };
       getDetails();
     },
     {

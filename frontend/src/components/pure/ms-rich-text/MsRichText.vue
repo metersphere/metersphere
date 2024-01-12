@@ -85,6 +85,7 @@
     defineProps<{
       raw?: string;
       uploadImage?: (file: File) => Promise<any>;
+      maxHeight?: string;
     }>(),
     {
       raw: '',
@@ -112,7 +113,6 @@
   const uploadQueue: queueAsPromised<Task> = fastq.promise(asyncWorker, 1);
 
   const { currentLocale } = useLocale();
-  const locale = computed(() => currentLocale.value as 'zh-CN' | 'en-US');
 
   watch(
     () => props.raw,
@@ -359,20 +359,30 @@
   onBeforeUnmount(() => {
     editor.value?.destroy();
   });
+
+  const contentStyles = computed(() => {
+    return {
+      maxHeight: props.maxHeight || '200px',
+      overflow: 'auto',
+    };
+  });
 </script>
 
 <template>
   <div class="rich-wrapper flex w-full">
     <AttachmentSelectorModal v-model:visible="attachmentSelectorModal" />
-    <RichTextEditor v-if="editor" :editor="editor" :locale="locale" />
+    <RichTextEditor v-if="editor" :editor="editor" :content-styles="contentStyles" :locale="currentLocale" />
   </div>
 </template>
 
 <style scoped lang="less">
   .rich-wrapper {
-    position: relative;
+    @apply relative overflow-hidden;
+
     border: 1px solid var(--color-text-n8);
+    border-radius: var(--border-radius-small);
     :deep(.halo-rich-text-editor .ProseMirror) {
+      padding: 16px 24px !important;
       p:first-child {
         margin-top: 0;
       }
@@ -383,21 +393,22 @@
       color: var(--color-text-3) !important;
     }
   }
-  // 修改滚动条
-  :deep(.editor-header + div > div) {
-    &::-webkit-scrollbar {
-      width: 6px !important;
-      height: 4px !important;
+  :deep(.editor-content) {
+    .ms-scroll-bar();
+  }
+</style>
+
+<style lang="less">
+  .v-popper__popper {
+    .v-popper__inner {
+      .drop-shadow {
+        .ms-scroll-bar();
+      }
     }
-    &::-webkit-scrollbar-thumb {
-      border-radius: 8px !important;
-      background: var(--color-text-input-border) !important;
-    }
-    &::-webkit-scrollbar-thumb:hover {
-      background: #a1a7b0 !important;
-    }
-    &&::-webkit-scrollbar-track {
-      @apply bg-white !important;
+  }
+  .tippy-box {
+    .command-items {
+      .ms-scroll-bar();
     }
   }
 </style>

@@ -11,7 +11,6 @@
             allow-clear
             class="mr-[8px] w-[240px]"
             :prefix="t('project.messageManagement.robot')"
-            value-key="id"
             :multiple="true"
             :has-all-select="true"
             :default-all-select="true"
@@ -77,6 +76,7 @@
               label: (val as Record<string, any>).name,
               value: val,
             })"
+            :object-value="true"
             @remove="changeMessageReceivers(false, record, dataIndex as string)"
             @popup-visible-change="changeMessageReceivers($event, record, dataIndex as string)"
           />
@@ -148,7 +148,7 @@
   const appStore = useAppStore();
   const { t } = useI18n();
 
-  const robotFilters = ref<RobotItem[]>([]);
+  const robotFilters = ref<string[]>([]);
   const robotOptions = ref<(SelectOptionData & RobotItem)[]>([]);
   const fullRef = ref<HTMLElement | null>();
 
@@ -193,7 +193,7 @@
     }
     const tempArr = [...staticColumns];
     for (let i = 0; i < robotFilters.value.length; i++) {
-      const robotId = robotFilters.value[i].id;
+      const robotId = robotFilters.value[i];
       tempArr.push({
         title: robotOptions.value.find((e) => e.id === robotId)?.label,
         dataIndex: robotId,
@@ -325,6 +325,7 @@
       .filter((e) => e.enable)
       .map((e) => ({
         label: e.name,
+        value: e.id,
         ...e,
       }));
   }

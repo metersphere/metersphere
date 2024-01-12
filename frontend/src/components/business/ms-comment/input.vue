@@ -22,6 +22,7 @@
 
 <script lang="ts" setup>
   import { ref } from 'vue';
+  import { useVModel } from '@vueuse/core';
 
   import MsAvatar from '@/components/pure/ms-avatar/index.vue';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
@@ -37,17 +38,12 @@
   }>();
 
   const emit = defineEmits<{
+    (event: 'update:content', value: string): void;
     (event: 'publish', value: string): void;
   }>();
 
   const isActive = ref(false);
-  const currentContent = ref('');
-
-  watchEffect(() => {
-    if (props.content) {
-      currentContent.value = props.content;
-    }
-  });
+  const currentContent = useVModel(props, 'content', emit);
 
   const publish = () => {
     emit('publish', currentContent.value);

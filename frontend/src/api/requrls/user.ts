@@ -19,3 +19,7 @@ export const AddAPIKEYUrl = '/user/api/key/add'; // 个人设置-生成 APIKEY
 export const UpdatePswUrl = '/personal/update-password'; // 个人信息-修改密码
 export const UpdateInfoUrl = '/personal/update-info'; // 个人信息-修改信息
 export const GetInfoUrl = '/personal/get'; // 个人信息-获取信息
+export const ValidatePlatformUrl = '/user/platform/validate'; // 个人信息-校验服务集成信息
+export const SavePlatformUrl = '/user/platform/save'; // 个人信息-保存三方平台账号信息
+export const GetPlatformUrl = '/user/platform/get'; // 个人信息-获取三方平台账号信息
+export const GetPlatformAccountUrl = '/user/platform/account/info'; // 个人信息-获取三方平台账号信息-插件信息

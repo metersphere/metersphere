@@ -91,9 +91,9 @@
                 :request-fun="transferFileRequest"
                 :params="{
                   projectId: currentProjectId,
-                  caseId:route.query.id as string,
-                  fileId:item.uid,
-                  local:true
+                  caseId: props.caseId,
+                  fileId: item.uid,
+                  local: true,
                 }"
                 @success="getCaseInfo()"
               />
@@ -119,7 +119,7 @@
                 {{ t('ms.upload.preview') }}
               </MsButton>
               <MsButton
-                v-if="route.query.id"
+                v-if="props.caseId"
                 type="button"
                 status="primary"
                 class="!mr-[4px]"
@@ -128,7 +128,7 @@
                 {{ t('caseManagement.featureCase.download') }}
               </MsButton>
               <MsButton
-                v-if="route.query.id && item.isUpdateFlag"
+                v-if="props.caseId && item.isUpdateFlag"
                 type="button"
                 status="primary"
                 @click="handleUpdateFile(item)"
@@ -278,6 +278,7 @@
 
   const props = defineProps<{
     formModeValue: Record<string, any>; // 表单值
+    caseId: string; // 用例id
   }>();
 
   const emit = defineEmits(['update:formModeValue', 'changeFile']);
@@ -327,6 +328,8 @@
     tags: [],
     customFields: [],
     relateFileMetaIds: [],
+    functionalPriority: '',
+    reviewStatus: 'UN_REVIEWED',
   };
 
   const form = ref<DetailCase | CreateOrUpdateCase>({ ...initForm });
@@ -411,7 +414,7 @@
     fileList.value.push(...fileResultList);
   }
 
-  const isEditOrCopy = computed(() => !!route.query.id);
+  const isEditOrCopy = computed(() => !!props.caseId);
   const attachmentsList = ref<AttachFileInfo[]>([]);
 
   // 后台传过来的local文件的item列表
@@ -473,14 +476,14 @@
       if (item.status !== 'init') {
         const res = await previewFile({
           projectId: currentProjectId.value,
-          caseId: route.query.id as string,
+          caseId: props.caseId,
           fileId: item.uid,
           local: item.local,
         });
         const blob = new Blob([res], { type: 'image/jpeg' });
         imageUrl.value = URL.createObjectURL(blob);
       } else {
-        imageUrl.value = item.url as string;
+        imageUrl.value = item.url || '';
       }
     } catch (error) {
       console.log(error);
@@ -532,7 +535,7 @@
     try {
       isLoading.value = true;
       await getAllCaseFields();
-      const detailResult: DetailCase = await getCaseDetail(route.query.id as string);
+      const detailResult: DetailCase = await getCaseDetail(props.caseId);
       const fileIds = (detailResult.attachments || []).map((item: any) => item.id);
       if (fileIds.length) {
         checkUpdateFileIds.value = await checkFileIsUpdateRequest(fileIds);
@@ -652,11 +655,11 @@
             type: item.type,
             name: item.id,
             label: item.name,
-            value: isEditOrCopy.value ? JSON.parse(rule.value) : rule.value,
+            value: rule.value,
             options: optionsItem,
             required: item.required,
             props: {
-              modelValue: isEditOrCopy.value ? JSON.parse(rule.value) : rule.value,
+              modelValue: rule.value,
               options: optionsItem,
             },
           };
@@ -707,7 +710,7 @@
     try {
       const res = await downloadFileRequest({
         projectId: currentProjectId.value,
-        caseId: route.query.id as string,
+        caseId: props.caseId,
         fileId: item.uid,
         local: true,
       });

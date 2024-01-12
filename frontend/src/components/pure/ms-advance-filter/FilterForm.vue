@@ -235,6 +235,7 @@
     (e: 'dataIndexChange', value: string): void;
     (e: 'update:count', value: number): void; // 用于展示 FilterIcon 的数量
     (e: 'update:rowCount', value: number): void; // 用于展示 MsBaseTable 的总行数
+    (e: 'reset'): void;
   }>();
 
   const isMultipleSelect = (dataIndex: string) => {
@@ -316,6 +317,7 @@
   const handleReset = () => {
     formRef.value?.resetFields();
     formModel.list = [getInitItem()];
+    emit('reset');
   };
   /**
    * @description 筛选

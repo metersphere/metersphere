@@ -35,25 +35,25 @@
           </a-select>
           <a-input
             v-model:model-value="debugUrl"
-            :placeholder="t('ms.apiTestDebug.urlPlaceholder')"
+            :placeholder="t('apiTestDebug.urlPlaceholder')"
             @change="handleActiveDebugChange"
           />
         </a-input-group>
       </div>
       <div class="ml-[16px]">
         <a-dropdown-button class="exec-btn">
-          {{ t('ms.apiTestDebug.serverExec') }}
+          {{ t('apiTestDebug.serverExec') }}
           <template #icon>
             <icon-down />
           </template>
           <template #content>
-            <a-doption>{{ t('ms.apiTestDebug.localExec') }}</a-doption>
+            <a-doption>{{ t('apiTestDebug.localExec') }}</a-doption>
           </template>
         </a-dropdown-button>
         <a-button type="secondary">
           <div class="flex items-center">
             {{ t('common.save') }}
-            <div class="text-[var(--color-text-4)]">(<icon-command size="14" /> + S)</div>
+            <div class="text-[var(--color-text-4)]">(<icon-command size="14" />+S)</div>
           </div>
         </a-button>
       </div>
@@ -88,6 +88,30 @@
             :second-box-height="secondBoxHeight"
             @change="handleActiveDebugChange"
           />
+          <debugQuery
+            v-else-if="activeDebug.activeTab === RequestComposition.QUERY"
+            v-model:params="activeDebug.queryParams"
+            :layout="activeLayout"
+            :second-box-height="secondBoxHeight"
+            @change="handleActiveDebugChange"
+          />
+          <debugRest
+            v-else-if="activeDebug.activeTab === RequestComposition.REST"
+            v-model:params="activeDebug.restParams"
+            :layout="activeLayout"
+            :second-box-height="secondBoxHeight"
+            @change="handleActiveDebugChange"
+          />
+          <debugAuth
+            v-else-if="activeDebug.activeTab === RequestComposition.AUTH"
+            v-model:params="activeDebug.authParams"
+            @change="handleActiveDebugChange"
+          />
+          <debugSetting
+            v-else-if="activeDebug.activeTab === RequestComposition.SETTING"
+            v-model:params="activeDebug.setting"
+            @change="handleActiveDebugChange"
+          />
         </div>
       </template>
       <template #second>
@@ -106,18 +130,19 @@
                 <icon-right :size="12" />
               </MsButton>
             </template>
-            <div class="ml-[4px] mr-[24px] font-medium">{{ t('ms.apiTestDebug.responseContent') }}</div>
+            <div class="ml-[4px] mr-[24px] font-medium">{{ t('apiTestDebug.responseContent') }}</div>
             <a-radio-group
               v-model:model-value="activeLayout"
               type="button"
               size="small"
               @change="handleActiveLayoutChange"
             >
-              <a-radio value="vertical">{{ t('ms.apiTestDebug.vertical') }}</a-radio>
-              <a-radio value="horizontal">{{ t('ms.apiTestDebug.horizontal') }}</a-radio>
+              <a-radio value="vertical">{{ t('apiTestDebug.vertical') }}</a-radio>
+              <a-radio value="horizontal">{{ t('apiTestDebug.horizontal') }}</a-radio>
             </a-radio-group>
           </div>
         </div>
+        <div class="p-[16px]"></div>
       </template>
     </MsSplitBox>
   </div>
@@ -131,8 +156,12 @@
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import apiMethodName from '../../../components/apiMethodName.vue';
+  import debugAuth from './auth.vue';
   import debugBody, { BodyParams } from './body.vue';
   import debugHeader from './header.vue';
+  import debugQuery from './query.vue';
+  import debugRest from './rest.vue';
+  import debugSetting from './setting.vue';
 
   import { useI18n } from '@/hooks/useI18n';
   import { registerCatchSaveShortcut, removeCatchSaveShortcut } from '@/utils/event';
@@ -150,6 +179,8 @@
     json: '',
     xml: '',
     binary: '',
+    binaryDesc: '',
+    binarySend: false,
     raw: '',
   };
   const debugTabs = ref<TabItem[]>([
@@ -157,12 +188,25 @@
       id: initDefaultId,
       moduleProtocol: 'http',
       activeTab: RequestComposition.HEADER,
-      label: t('ms.apiTestDebug.newApi'),
+      label: t('apiTestDebug.newApi'),
       closable: true,
       method: RequestMethods.GET,
       unSave: false,
       headerParams: [],
       bodyParams: cloneDeep(defaultBodyParams),
+      queryParams: [],
+      restParams: [],
+      authParams: {
+        authType: 'none',
+        account: '',
+        password: '',
+      },
+      setting: {
+        connectTimeout: 60000,
+        responseTimeout: 60000,
+        certificateAlias: '',
+        redirect: 'follow',
+      },
     },
   ]);
   const debugUrl = ref('');
@@ -182,22 +226,35 @@
       id,
       moduleProtocol: 'http',
       activeTab: RequestComposition.HEADER,
-      label: t('ms.apiTestDebug.newApi'),
+      label: t('apiTestDebug.newApi'),
       closable: true,
       method: RequestMethods.GET,
       unSave: false,
       headerParams: [],
       bodyParams: cloneDeep(defaultBodyParams),
+      queryParams: [],
+      restParams: [],
+      authParams: {
+        authType: 'none',
+        account: '',
+        password: '',
+      },
+      setting: {
+        connectTimeout: 60000,
+        responseTimeout: 60000,
+        certificateAlias: '',
+        redirect: 'follow',
+      },
     });
     activeTab.value = id;
   }
 
   function closeDebugTab(tab: TabItem) {
     const index = debugTabs.value.findIndex((item) => item.id === tab.id);
+    debugTabs.value.splice(index, 1);
     if (activeTab.value === tab.id) {
       activeTab.value = debugTabs.value[0]?.id || '';
     }
-    debugTabs.value.splice(index, 1);
   }
 
   const moreActionList = [
@@ -214,11 +271,11 @@
   const contentTabList = [
     {
       value: RequestComposition.HEADER,
-      label: t('ms.apiTestDebug.header'),
+      label: t('apiTestDebug.header'),
     },
     {
       value: RequestComposition.BODY,
-      label: t('ms.apiTestDebug.body'),
+      label: t('apiTestDebug.body'),
     },
     {
       value: RequestComposition.QUERY,
@@ -230,23 +287,23 @@
     },
     {
       value: RequestComposition.PREFIX,
-      label: t('ms.apiTestDebug.prefix'),
+      label: t('apiTestDebug.prefix'),
     },
     {
       value: RequestComposition.POST_CONDITION,
-      label: t('ms.apiTestDebug.postCondition'),
+      label: t('apiTestDebug.postCondition'),
     },
     {
       value: RequestComposition.ASSERTION,
-      label: t('ms.apiTestDebug.assertion'),
+      label: t('apiTestDebug.assertion'),
     },
     {
       value: RequestComposition.AUTH,
-      label: t('ms.apiTestDebug.auth'),
+      label: t('apiTestDebug.auth'),
     },
     {
       value: RequestComposition.SETTING,
-      label: t('ms.apiTestDebug.setting'),
+      label: t('apiTestDebug.setting'),
     },
   ];
 
@@ -292,6 +349,7 @@
   function handleActiveLayoutChange() {
     isExpanded.value = true;
     splitBoxSize.value = 0.6;
+    splitBoxRef.value?.expand(0.6);
   }
 
   function saveDebug() {

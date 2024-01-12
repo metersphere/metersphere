@@ -295,6 +295,8 @@
     tags: [],
     customFields: [], // 自定义字段集合
     relateFileMetaIds: [], // 关联文件ID集合
+    functionalPriority: '',
+    reviewStatus: 'UN_REVIEWED',
   };
 
   const detailInfo = ref<DetailCase>({ ...initDetail });

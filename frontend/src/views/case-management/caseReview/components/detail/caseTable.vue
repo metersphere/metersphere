@@ -1,33 +1,28 @@
 <template>
   <div class="px-[24px] py-[16px]">
-    <div class="mb-[16px] flex items-center justify-between">
-      <div class="flex items-center">
-        <a-button type="primary" class="mr-[12px]" @click="associateDrawerVisible = true">
-          {{ t('ms.case.associate.title') }}
-        </a-button>
-        <a-button type="outline" @click="createCase">{{ t('caseManagement.caseReview.createCase') }}</a-button>
-      </div>
-      <div class="flex w-[70%] items-center justify-end gap-[8px]">
-        <a-input-search
-          v-model="keyword"
-          :placeholder="t('caseManagement.caseReview.searchPlaceholder')"
-          allow-clear
-          class="w-[200px]"
-          @press-enter="searchReview"
-          @search="searchReview"
-        />
-        <a-button type="outline" class="arco-btn-outline--secondary px-[8px]">
-          <MsIcon type="icon-icon-filter" class="mr-[4px] text-[var(--color-text-4)]" />
-          <div class="text-[var(--color-text-4)]">{{ t('common.filter') }}</div>
-        </a-button>
-        <a-radio-group v-model:model-value="showType" type="button" class="case-show-type">
-          <a-radio value="list" class="show-type-icon p-[2px]"><MsIcon type="icon-icon_view-list_outlined" /></a-radio>
-          <a-radio value="mind" class="show-type-icon p-[2px]"><MsIcon type="icon-icon_mindnote_outlined" /></a-radio>
-        </a-radio-group>
-        <a-button type="outline" class="arco-btn-outline--secondary p-[10px]">
-          <icon-refresh class="text-[var(--color-text-4)]" />
-        </a-button>
-      </div>
+    <div class="mb-[16px] flex flex-wrap items-center justify-end">
+      <MsAdvanceFilter
+        v-model:keyword="keyword"
+        :filter-config-list="filterConfigList"
+        :row-count="filterRowCount"
+        :search-placeholder="t('caseManagement.caseReview.searchPlaceholder')"
+        @keyword-search="() => searchCase()"
+        @adv-search="searchCase"
+        @reset="searchCase"
+      >
+        <template #right>
+          <div class="flex items-center">
+            <a-radio-group v-model:model-value="showType" type="button" class="case-show-type">
+              <a-radio value="list" class="show-type-icon p-[2px]">
+                <MsIcon type="icon-icon_view-list_outlined" />
+              </a-radio>
+              <a-radio value="mind" class="show-type-icon p-[2px]">
+                <MsIcon type="icon-icon_mindnote_outlined" />
+              </a-radio>
+            </a-radio-group>
+          </div>
+        </template>
+      </MsAdvanceFilter>
     </div>
     <ms-base-table
       v-bind="propsRes"
@@ -51,20 +46,25 @@
       </template>
       <template #name="{ record }">
         <a-tooltip :content="record.name">
-          <a-button type="text" class="px-0" @click="openDetail(record.id)">
+          <a-button type="text" class="px-0" @click="review(record)">
             <div class="one-line-text max-w-[168px]">{{ record.name }}</div>
           </a-button>
         </a-tooltip>
       </template>
-      <template #result="{ record }">
+      <template #reviewNames="{ record }">
+        <a-tooltip :content="record.reviewNames.join('、')">
+          <div class="one-line-text">{{ record.reviewNames.join('、') }}</div>
+        </a-tooltip>
+      </template>
+      <template #status="{ record }">
         <div class="flex items-center gap-[4px]">
           <MsIcon
-            :type="resultMap[record.result as ResultMap].icon"
+            :type="reviewResultMap[record.status as ReviewResult].icon"
             :style="{
-              color: resultMap[record.result as ResultMap].color
+              color: reviewResultMap[record.status as ReviewResult].color
             }"
           />
-          {{ t(resultMap[record.result as ResultMap].label) }}
+          {{ t(reviewResultMap[record.status as ReviewResult].label) }}
         </div>
       </template>
       <template #action="{ record }">
@@ -76,7 +76,9 @@
           :title="t('caseManagement.caseReview.disassociateTip')"
           :sub-title-tip="t('caseManagement.caseReview.disassociateTipContent')"
           :ok-text="t('common.confirm')"
+          :loading="disassociateLoading"
           type="error"
+          @confirm="(val, done) => handleDisassociateReviewCase(record, done)"
         >
           <MsButton type="text" class="!mr-0">
             {{ t('caseManagement.caseReview.disassociate') }}
@@ -98,6 +100,7 @@
       class="p-[4px]"
       title-align="start"
       body-class="p-0"
+      :width="['review', 'reReview'].includes(dialogShowType) ? 680 : 480"
       :mask-closable="false"
       @close="handleDialogCancel"
     >
@@ -129,13 +132,13 @@
           class="mb-[16px]"
         >
           <a-radio-group v-model:model-value="dialogForm.result" @change="() => dialogFormRef?.resetFields()">
-            <a-radio value="pass">
+            <a-radio value="PASS">
               <div class="inline-flex items-center">
                 <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--success-6))]" />
                 {{ t('caseManagement.caseReview.pass') }}
               </div>
             </a-radio>
-            <a-radio value="fail">
+            <a-radio value="UN_PASS">
               <div class="inline-flex items-center">
                 <MsIcon type="icon-icon_close_filled" class="mr-[4px] text-[rgb(var(--danger-6))]" />
                 {{ t('caseManagement.caseReview.fail') }}
@@ -155,10 +158,11 @@
           asterisk-position="end"
           class="mb-0"
         >
-          <a-input
+          <!-- <a-input
             v-model:model-value="dialogForm.reason"
             :placeholder="t('caseManagement.caseReview.reasonPlaceholder')"
-          />
+          /> -->
+          <MsRichText v-model:modelValue="dialogForm.reason" class="w-full" />
         </a-form-item>
         <a-form-item
           v-if="dialogShowType === 'changeReviewer'"
@@ -171,6 +175,7 @@
           <MsSelect
             v-model:modelValue="dialogForm.reviewer"
             mode="static"
+            :loading="reviewerLoading"
             :placeholder="t('caseManagement.caseReview.reviewerPlaceholder')"
             :options="reviewersOptions"
             :search-keys="['label']"
@@ -195,94 +200,104 @@
               />
             </a-tooltip>
           </div>
-          <a-button type="secondary" @click="handleDialogCancel">{{ t('common.cancel') }}</a-button>
-          <a-button v-if="dialogShowType === 'review'" type="primary" class="ml-[12px]" @click="commitResult">
+          <a-button type="secondary" :disabled="dialogLoading" @click="handleDialogCancel">
+            {{ t('common.cancel') }}
+          </a-button>
+          <a-button
+            v-if="dialogShowType === 'review'"
+            type="primary"
+            class="ml-[12px]"
+            :loading="dialogLoading"
+            @click="commitResult"
+          >
             {{ t('caseManagement.caseReview.commitResult') }}
           </a-button>
-          <a-button v-if="dialogShowType === 'changeReviewer'" type="primary" class="ml-[12px]" @click="changeReviewer">
+          <a-button
+            v-if="dialogShowType === 'changeReviewer'"
+            type="primary"
+            class="ml-[12px]"
+            :loading="dialogLoading"
+            @click="changeReviewer"
+          >
             {{ t('common.update') }}
           </a-button>
-          <a-button v-if="dialogShowType === 'reReview'" type="primary" class="ml-[12px]" @click="reReview">
+          <a-button
+            v-if="dialogShowType === 'reReview'"
+            type="primary"
+            class="ml-[12px]"
+            :loading="dialogLoading"
+            @click="reReview"
+          >
             {{ t('caseManagement.caseReview.reReview') }}
           </a-button>
         </div>
       </template>
     </a-modal>
-    <AssociateDrawer
-      v-model:visible="associateDrawerVisible"
-      v-model:project="associateDrawerProject"
-      @success="writeAssociateCases"
-    />
   </div>
 </template>
 
 <script setup lang="ts">
   import { useRoute, useRouter } from 'vue-router';
-  import { FormInstance, Message } from '@arco-design/web-vue';
+  import { FormInstance, Message, SelectOptionData } from '@arco-design/web-vue';
 
+  import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
+  import { FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsPopconfirm from '@/components/pure/ms-popconfirm/index.vue';
+  import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsSelect from '@/components/business/ms-select';
-  import AssociateDrawer from '../create/associateDrawer.vue';
 
-  import { getReviewList } from '@/api/modules/case-management/caseReview';
+  import {
+    batchChangeReviewer,
+    batchDisassociateReviewCase,
+    batchReview,
+    disassociateReviewCase,
+    getReviewDetailCasePage,
+    getReviewUsers,
+  } from '@/api/modules/case-management/caseReview';
+  import { reviewResultMap, reviewStatusMap } from '@/config/apiTest';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
+  import useAppStore from '@/store/modules/app';
+  import useUserStore from '@/store/modules/user';
 
+  import { ReviewCaseItem, ReviewItem, ReviewPassRule, ReviewResult } from '@/models/caseManagement/caseReview';
+  import { BatchApiParams } from '@/models/common';
+  import type { ModuleTreeNode } from '@/models/projectManagement/file';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const props = defineProps<{
     activeFolder: string | number;
+    onlyMine: boolean;
+    reviewPassRule: ReviewPassRule; // 评审规则
+    offspringIds: string[]; // 当前选中节点的所有子节点id
+    moduleTree: ModuleTreeNode[];
   }>();
+  const emit = defineEmits(['init', 'refresh']);
 
   const router = useRouter();
   const route = useRoute();
 
+  const appStore = useAppStore();
+  const userStore = useUserStore();
   const { t } = useI18n();
   const { openModal } = useModal();
 
   const keyword = ref('');
   const showType = ref<'list' | 'mind'>('list');
-
-  type ResultMap = 0 | 1 | 2 | 3 | 4;
-  const resultMap = {
-    0: {
-      label: 'caseManagement.caseReview.unReview',
-      color: 'var(--color-text-input-border)',
-      icon: 'icon-icon_block_filled',
-    },
-    1: {
-      label: 'caseManagement.caseReview.reviewing',
-      color: 'rgb(var(--link-6))',
-      icon: 'icon-icon_testing',
-    },
-    2: {
-      label: 'caseManagement.caseReview.reviewPass',
-      color: 'rgb(var(--success-6))',
-      icon: 'icon-icon_succeed_filled',
-    },
-    3: {
-      label: 'caseManagement.caseReview.fail',
-      color: 'rgb(var(--danger-6))',
-      icon: 'icon-icon_close_filled',
-    },
-    4: {
-      label: 'caseManagement.caseReview.reReview',
-      color: 'rgb(var(--warning-6))',
-      icon: 'icon-icon_resubmit_filled',
-    },
-  } as const;
-
+  const filterRowCount = ref(0);
+  const filterConfigList = ref<FilterFormItem[]>([]);
+  const tableParams = ref<Record<string, any>>({});
   const columns: MsTableColumn = [
     {
       title: 'ID',
-      dataIndex: 'id',
+      dataIndex: 'num',
       sortIndex: 1,
       showTooltip: true,
       width: 100,
@@ -298,8 +313,8 @@
     },
     {
       title: 'caseManagement.caseReview.reviewer',
-      dataIndex: 'reviewer',
-      showTooltip: true,
+      dataIndex: 'reviewNames',
+      slotName: 'reviewNames',
       sortable: {
         sortDirections: ['ascend', 'descend'],
       },
@@ -307,14 +322,14 @@
     },
     {
       title: 'caseManagement.caseReview.reviewResult',
-      dataIndex: 'result',
-      slotName: 'result',
+      dataIndex: 'status',
+      slotName: 'status',
       titleSlotName: 'resultColumn',
       width: 110,
     },
     {
       title: 'caseManagement.caseReview.version',
-      dataIndex: 'version',
+      dataIndex: 'versionName',
       width: 90,
     },
     {
@@ -332,14 +347,17 @@
   ];
   const tableStore = useTableStore();
   tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_REVIEW_CASE, columns, 'drawer');
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getReviewList, {
-    scroll: { x: '100%' },
-    tableKey: TableKeyEnum.CASE_MANAGEMENT_REVIEW_CASE,
-    showSetting: true,
-    selectable: true,
-    showSelectAll: true,
-    draggable: { type: 'handle', width: 32 },
-  });
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, getTableQueryParams } = useTable(
+    getReviewDetailCasePage,
+    {
+      scroll: { x: '100%' },
+      tableKey: TableKeyEnum.CASE_MANAGEMENT_REVIEW_CASE,
+      showSetting: true,
+      selectable: true,
+      showSelectAll: true,
+      draggable: { type: 'handle', width: 32 },
+    }
+  );
   const batchActions = {
     baseAction: [
       {
@@ -361,23 +379,54 @@
     ],
   };
 
-  function searchReview() {
-    setLoadListParams({
+  function searchCase(filter?: FilterResult) {
+    tableParams.value = {
+      projectId: appStore.currentProjectId,
+      reviewId: route.query.id,
+      moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
       keyword: keyword.value,
-    });
+      viewFlag: props.onlyMine,
+      combine: filter
+        ? {
+            ...filter.combine,
+          }
+        : {},
+      current: propsRes.value.msPagination?.current,
+      pageSize: propsRes.value.msPagination?.pageSize,
+      total: propsRes.value.msPagination?.total,
+    };
+    setLoadListParams(tableParams.value);
     loadList();
+    emit('init', {
+      ...tableParams.value,
+      moduleIds: [],
+    });
   }
 
   onBeforeMount(() => {
-    loadList();
+    searchCase();
   });
 
+  watch(
+    () => props.onlyMine,
+    () => {
+      searchCase();
+    }
+  );
+
+  watch(
+    () => props.activeFolder,
+    () => {
+      searchCase();
+    }
+  );
+
   const tableSelected = ref<(string | number)[]>([]);
-  const batchParams = ref<BatchActionQueryParams>({
-    selectedIds: [],
+  const batchParams = ref<BatchApiParams>({
+    selectIds: [],
     selectAll: false,
-    excludeIds: [],
-    currentSelectCount: 0,
+    excludeIds: [] as string[],
+    condition: {},
   });
 
   /**
@@ -388,20 +437,16 @@
   }
 
   const dialogVisible = ref<boolean>(false);
-  const activeRecord = ref({
-    id: '',
-    name: '',
-    status: 0,
-  });
   const defaultDialogForm = {
-    result: 'pass',
+    result: 'PASS',
     reason: '',
-    reviewer: [],
+    reviewer: [] as string[],
     isAppend: false,
   };
   const dialogForm = ref({ ...defaultDialogForm });
   const dialogFormRef = ref<FormInstance>();
-  const dialogShowType = ref<'review' | 'changeReviewer' | 'reReview'>('review');
+  const dialogShowType = ref<'review' | 'changeReviewer' | 'reReview'>('review'); // 弹窗类型，review: 批量评审，changeReviewer: 批量更换评审人，reReview: 批量重新评审
+  const dialogLoading = ref(false);
   const dialogTitle = computed(() => {
     switch (dialogShowType.value) {
       case 'review':
@@ -414,20 +459,6 @@
         return '';
     }
   });
-  const reviewersOptions = ref([
-    {
-      label: '张三',
-      value: '1',
-    },
-    {
-      label: '李四',
-      value: '2',
-    },
-    {
-      label: '王五',
-      value: '3',
-    },
-  ]);
 
   function handleDialogCancel() {
     dialogVisible.value = false;
@@ -435,8 +466,30 @@
     dialogForm.value = { ...defaultDialogForm };
   }
 
+  const disassociateLoading = ref(false);
   /**
-   * 拦截切换最新版确认
+   * 解除关联
+   * @param record 关联用例项
+   * @param done 关闭弹窗
+   */
+  async function handleDisassociateReviewCase(record: ReviewCaseItem, done) {
+    try {
+      disassociateLoading.value = true;
+      await disassociateReviewCase(route.query.id as string, record.caseId);
+      emit('refresh');
+      done();
+      Message.success(t('caseManagement.caseReview.disassociateSuccess'));
+      loadList();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      disassociateLoading.value = false;
+    }
+  }
+
+  /**
+   * 删除拦截
    * @param done 关闭弹窗
    */
   async function handleDeleteConfirm(done: (closed: boolean) => void) {
@@ -456,7 +509,7 @@
     }
   }
 
-  function handleArchive(record: any) {
+  function handleArchive(record: ReviewItem) {
     openModal({
       type: 'warning',
       title: t('caseManagement.caseReview.archivedTitle', { name: record.name }),
@@ -482,16 +535,8 @@
     });
   }
 
-  const selectedModuleKeys = ref<(string | number)[]>([]);
-
-  /**
-   * 处理文件夹树节点选中事件
-   */
-  function folderNodeSelect(keys: (string | number)[]) {
-    selectedModuleKeys.value = keys;
-  }
-
-  function disassociate() {
+  // 批量解除关联用例拦截
+  function batchDisassociate() {
     openModal({
       type: 'warning',
       title: t('caseManagement.caseReview.disassociateConfirmTitle', { count: tableSelected.value.length }),
@@ -500,62 +545,136 @@
       cancelText: t('common.cancel'),
       onBeforeOk: async () => {
         try {
-          // await resetUserPassword({
-          //   selectIds,
-          //   selectAll: !!params?.selectAll,
-          //   excludeIds: params?.excludeIds || [],
-          //   condition: { keyword: keyword.value },
-          // });
+          dialogLoading.value = true;
+          await batchDisassociateReviewCase({
+            reviewId: route.query.id as string,
+            userId: props.onlyMine ? userStore.id || '' : '',
+            selectIds: batchParams.value.selectIds,
+            selectAll: batchParams.value.selectAll,
+            excludeIds: batchParams.value.excludeIds,
+            condition: batchParams.value.condition,
+          });
           Message.success(t('common.updateSuccess'));
           resetSelector();
+          loadList();
+          emit('refresh');
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
+        } finally {
+          dialogLoading.value = false;
         }
       },
       hideCancel: false,
     });
   }
 
-  function reReview() {
+  // 批量重新评审
+  async function reReview() {
     try {
+      dialogLoading.value = true;
+      await batchReview({
+        reviewId: route.query.id as string,
+        userId: props.onlyMine ? userStore.id || '' : '',
+        reviewPassRule: props.reviewPassRule,
+        status: 'RE_REVIEWED',
+        content: dialogForm.value.reason,
+        notifier: '', // TODO: 通知人
+        selectIds: batchParams.value.selectIds,
+        selectAll: batchParams.value.selectAll,
+        excludeIds: batchParams.value.excludeIds,
+        condition: batchParams.value.condition,
+      });
       Message.success(t('common.updateSuccess'));
       dialogVisible.value = false;
       resetSelector();
+      emit('refresh');
+      loadList();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      dialogLoading.value = false;
     }
   }
 
+  // 批量更换评审人
   function changeReviewer() {
     dialogFormRef.value?.validate(async (errors) => {
       if (!errors) {
         try {
+          dialogLoading.value = true;
+          await batchChangeReviewer({
+            reviewId: route.query.id as string,
+            userId: props.onlyMine ? userStore.id || '' : '',
+            reviewerId: dialogForm.value.reviewer,
+            append: dialogForm.value.isAppend, // 是否追加
+            selectIds: batchParams.value.selectIds,
+            selectAll: batchParams.value.selectAll,
+            excludeIds: batchParams.value.excludeIds,
+            condition: batchParams.value.condition,
+          });
           Message.success(t('common.updateSuccess'));
           dialogVisible.value = false;
           resetSelector();
+          loadList();
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
+        } finally {
+          dialogLoading.value = false;
         }
       }
     });
   }
 
+  // 提交评审结果
   function commitResult() {
     dialogFormRef.value?.validate(async (errors) => {
       if (!errors) {
         try {
+          dialogLoading.value = true;
+          await batchReview({
+            reviewId: route.query.id as string,
+            userId: props.onlyMine ? userStore.id || '' : '',
+            reviewPassRule: props.reviewPassRule,
+            status: dialogForm.value.result as ReviewResult,
+            content: dialogForm.value.reason,
+            notifier: '', // TODO: 通知人
+            selectIds: batchParams.value.selectIds,
+            selectAll: batchParams.value.selectAll,
+            excludeIds: batchParams.value.excludeIds,
+            condition: batchParams.value.condition,
+          });
           Message.success(t('common.updateSuccess'));
           dialogVisible.value = false;
           resetSelector();
+          emit('refresh');
+          loadList();
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
+        } finally {
+          dialogLoading.value = false;
         }
       }
     });
+  }
+
+  const reviewersOptions = ref<SelectOptionData[]>([]);
+  const reviewerLoading = ref(false);
+
+  async function initReviewers() {
+    try {
+      reviewerLoading.value = true;
+      const res = await getReviewUsers(appStore.currentProjectId, '');
+      reviewersOptions.value = res.map((e) => ({ label: e.name, value: e.id }));
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      reviewerLoading.value = false;
+    }
   }
 
   /**
@@ -564,18 +683,19 @@
    */
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
     tableSelected.value = params?.selectedIds || [];
-    batchParams.value = params;
+    batchParams.value = { ...params, selectIds: params?.selectedIds || [], condition: {} };
     switch (event.eventTag) {
       case 'review':
         dialogVisible.value = true;
         dialogShowType.value = 'review';
         break;
       case 'changeReviewer':
+        initReviewers();
         dialogVisible.value = true;
         dialogShowType.value = 'changeReviewer';
         break;
       case 'disassociate':
-        disassociate();
+        batchDisassociate();
         break;
       case 'reReview':
         dialogVisible.value = true;
@@ -586,18 +706,18 @@
     }
   }
 
-  function openDetail(id: string) {
+  // 去用例评审页面
+  function review(record: ReviewCaseItem) {
     router.push({
       name: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW_DETAIL_CASE_DETAIL,
       query: {
         ...route.query,
-        caseId: id,
+        caseId: record.caseId,
+      },
+      state: {
+        params: JSON.stringify(getTableQueryParams()),
       },
     });
-  }
-
-  function review(record: any) {
-    console.log('review');
   }
 
   function createCase() {
@@ -609,12 +729,130 @@
     });
   }
 
-  const associateDrawerVisible = ref(false);
-  const associateDrawerProject = ref('');
+  onBeforeMount(async () => {
+    await initReviewers();
+    filterConfigList.value = [
+      {
+        title: 'ID',
+        dataIndex: 'ID',
+        type: FilterType.INPUT,
+      },
+      {
+        title: 'caseManagement.caseReview.name',
+        dataIndex: 'name',
+        type: FilterType.INPUT,
+      },
+      {
+        title: 'caseManagement.caseReview.caseCount',
+        dataIndex: 'caseCount',
+        type: FilterType.NUMBER,
+      },
+      {
+        title: 'caseManagement.caseReview.status',
+        dataIndex: 'status',
+        type: FilterType.SELECT,
+        selectProps: {
+          mode: 'static',
+          options: [
+            {
+              label: t(reviewStatusMap.PREPARED.label),
+              value: 'PREPARED',
+            },
+            {
+              label: t(reviewStatusMap.UNDERWAY.label),
+              value: 'UNDERWAY',
+            },
+            {
+              label: t(reviewStatusMap.COMPLETED.label),
+              value: 'COMPLETED',
+            },
+            {
+              label: t(reviewStatusMap.ARCHIVED.label),
+              value: 'ARCHIVED',
+            },
+          ],
+        },
+      },
+      {
+        title: 'caseManagement.caseReview.passRate',
+        dataIndex: 'passRate',
+        type: FilterType.NUMBER,
+      },
+      {
+        title: 'caseManagement.caseReview.type',
+        dataIndex: 'reviewPassRule',
+        type: FilterType.SELECT,
+        selectProps: {
+          mode: 'static',
+          options: [
+            {
+              label: t('caseManagement.caseReview.single'),
+              value: 'SINGLE',
+            },
+            {
+              label: t('caseManagement.caseReview.multi'),
+              value: 'MULTIPLE',
+            },
+          ],
+        },
+      },
+      {
+        title: 'caseManagement.caseReview.reviewer',
+        dataIndex: 'reviewers',
+        type: FilterType.SELECT,
+        selectProps: {
+          mode: 'static',
+          options: reviewersOptions.value,
+        },
+      },
+      {
+        title: 'caseManagement.caseReview.creator',
+        dataIndex: 'createUser',
+        type: FilterType.SELECT,
+        selectProps: {
+          mode: 'static',
+          options: reviewersOptions.value,
+        },
+      },
+      {
+        title: 'caseManagement.caseReview.module',
+        dataIndex: 'module',
+        type: FilterType.TREE_SELECT,
+        treeSelectData: props.moduleTree,
+        treeSelectProps: {
+          fieldNames: {
+            title: 'name',
+            key: 'id',
+            children: 'children',
+          },
+        },
+      },
+      {
+        title: 'caseManagement.caseReview.tag',
+        dataIndex: 'tags',
+        type: FilterType.TAGS_INPUT,
+      },
+      {
+        title: 'caseManagement.caseReview.desc',
+        dataIndex: 'description',
+        type: FilterType.INPUT,
+      },
+      {
+        title: 'caseManagement.caseReview.startTime',
+        dataIndex: 'startTime',
+        type: FilterType.DATE_PICKER,
+      },
+      {
+        title: 'caseManagement.caseReview.endTime',
+        dataIndex: 'endTime',
+        type: FilterType.DATE_PICKER,
+      },
+    ];
+  });
 
-  function writeAssociateCases(ids: string[]) {
-    console.log('writeAssociateCases', ids);
-  }
+  defineExpose({
+    searchCase,
+  });
 </script>
 
 <style lang="less" scoped>

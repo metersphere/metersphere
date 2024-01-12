@@ -11,15 +11,19 @@ import {
   GetInfoUrl,
   GetLocalConfigUrl,
   GetMenuListUrl,
+  GetPlatformAccountUrl,
+  GetPlatformUrl,
   GetPublicKeyUrl,
   isLoginUrl,
   LoginUrl,
   LogoutUrl,
+  SavePlatformUrl,
   UpdateAPIKEYUrl,
   UpdateInfoUrl,
   UpdateLocalConfigUrl,
   UpdatePswUrl,
   ValidAPIKEYUrl,
+  ValidatePlatformUrl,
   ValidLocalConfigUrl,
 } from '@/api/requrls/user';
 
@@ -136,4 +140,24 @@ export function updateBaseInfo(data: UpdateBaseInfo) {
 // 个人信息-修改密码
 export function updatePsw(data: UpdatePswParams) {
   return MSR.post({ url: UpdatePswUrl, data });
+}
+
+// 个人信息-校验第三方平台账号信息
+export function validatePlatform(id: string, data: Record<string, any>) {
+  return MSR.post({ url: `${ValidatePlatformUrl}/${id}`, data });
+}
+
+// 个人信息-保存第三方平台账号信息
+export function savePlatform(data: UpdatePswParams) {
+  return MSR.post({ url: SavePlatformUrl, data });
+}
+
+// 个人信息-获取第三方平台账号信息
+export function getPlatform() {
+  return MSR.get({ url: GetPlatformUrl });
+}
+
+// 个人信息-获取第三方平台账号信息-插件信息
+export function getPlatformAccount() {
+  return MSR.get({ url: GetPlatformAccountUrl });
 }

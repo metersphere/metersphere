@@ -7,7 +7,11 @@
     @save="saveHandler"
     @save-and-continue="saveHandler(true)"
   >
-    <CaseTemplateDetail ref="caseModuleDetailRef" v-model:form-mode-value="caseDetailInfo" />
+    <CaseTemplateDetail
+      ref="caseModuleDetailRef"
+      v-model:form-mode-value="caseDetailInfo"
+      :case-id="(route.query.id as string)"
+    />
     <template #footerRight>
       <div class="flex justify-end gap-[16px]">
         <a-button type="secondary" @click="cancelHandler">{{ t('mscard.defaultCancelText') }}</a-button>
@@ -38,6 +42,7 @@
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { scrollIntoView } from '@/utils/dom';
 
+  import { CreateOrUpdateCase } from '@/models/caseManagement/featureCase';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   import Message from '@arco-design/web-vue/es/message';
@@ -51,8 +56,8 @@
   const visitedKey = 'doNotNextTipCreateCase';
   const { getIsVisited } = useVisit(visitedKey);
 
-  const caseDetailInfo = ref<Record<string, any>>({
-    request: {},
+  const caseDetailInfo = ref({
+    request: {} as CreateOrUpdateCase,
     fileList: [],
   });
 
@@ -76,11 +81,10 @@
           query: { organizationId: route.query.organizationId, projectId: route.query.projectId },
         });
       } else {
-        const res = await createCaseRequest(caseDetailInfo.value);
         if (isReview) {
-          // TODO
-          // 创建并关联接口
+          caseDetailInfo.value.request.reviewId = route.query.reviewId;
         }
+        const res = await createCaseRequest(caseDetailInfo.value);
         createSuccessId.value = res.data.id;
         Message.success(route.params.mode === 'copy' ? t('ms.description.copySuccess') : t('common.addSuccess'));
         featureCaseStore.setIsAlreadySuccess(true);
@@ -96,16 +100,24 @@
         }
       }
       if (isReview) {
+        router.back();
+        return;
+      }
+      router.push({ name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE, query: { ...route.query } });
+
+      featureCaseStore.setIsAlreadySuccess(true);
+      isShowTip.value = !getIsVisited();
+      if (isShowTip.value && !route.query.id) {
         router.push({
-          name: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW_DETAIL,
+          name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_CREATE_SUCCESS,
           query: {
-            id: route.query.reviewId,
-            organizationId: route.query.organizationId,
-            projectId: route.query.projectId,
+            id: createSuccessId.value,
+            ...route.query,
           },
         });
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       loading.value = false;

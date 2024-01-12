@@ -1,5 +1,5 @@
 <template>
-  <MsCard :min-width="1100" auto-height hide-footer no-bottom-radius no-content-padding hide-divider>
+  <MsCard :loading="loading" :min-width="1100" auto-height hide-footer no-bottom-radius no-content-padding hide-divider>
     <template #headerLeft>
       <a-tooltip :content="reviewDetail.name">
         <div class="one-line-text mr-[8px] max-w-[260px] font-medium text-[var(--color-text-000)]">
@@ -10,43 +10,39 @@
         class="rounded-[0_999px_999px_0] border border-solid border-[text-[rgb(var(--primary-5))]] px-[8px] py-[2px] text-[12px] leading-[16px] text-[rgb(var(--primary-5))]"
       >
         <MsIcon type="icon-icon-contacts" size="13" />
-        {{ t('caseManagement.caseReview.single') }}
+        {{
+          reviewDetail.reviewPassRule === 'SINGLE'
+            ? t('caseManagement.caseReview.single')
+            : t('caseManagement.caseReview.multi')
+        }}
       </div>
-      <statusTag :status="(reviewDetail.status as StatusMap)" class="mx-[16px]" />
-      <MsPrevNextButton
-        ref="prevNextButtonRef"
-        v-model:loading="loading"
-        :page-change="pageChange"
-        :pagination="pagination"
-        :get-detail-func="getDetailFunc"
-        :detail-id="route.query.id as string"
-        :detail-index="detailIndex"
-        :table-data="tableData"
-        @loaded="loaded"
-      />
+      <statusTag :status="(reviewDetail.status as ReviewStatus)" class="mx-[16px]" />
     </template>
     <template #headerRight>
       <div class="mr-[16px] flex items-center">
         <a-switch v-model:model-value="onlyMine" size="small" class="mr-[8px]" />
         {{ t('caseManagement.caseReview.onlyMine') }}
       </div>
-      <MsButton type="button" status="default">
+      <MsButton type="button" status="default" @click="associateDrawerVisible = true">
         <MsIcon type="icon-icon_link-record_outlined1" class="mr-[8px]" />
         {{ t('ms.case.associate.title') }}
       </MsButton>
-      <MsButton type="button" status="default">
+      <MsButton type="button" status="default" @click="editReview">
         <MsIcon type="icon-icon_edit_outlined" class="mr-[8px]" />
         {{ t('common.edit') }}
       </MsButton>
-      <MsButton type="button" status="default">
+      <MsButton type="button" status="default" @click="copyReview">
         <MsIcon type="icon-icon_copy_outlined" class="mr-[8px]" />
         {{ t('common.copy') }}
       </MsButton>
-      <MsButton type="button" status="default">
-        <MsIcon type="icon-icon_collection_outlined" class="mr-[8px]" />
-        {{ t('common.fork') }}
+      <MsButton type="button" status="default" :loading="followLoading" @click="toggleFollowReview">
+        <MsIcon
+          :type="reviewDetail.followFlag ? 'icon-icon_collect_filled' : 'icon-icon_collection_outlined'"
+          :class="`mr-[8px] ${reviewDetail.followFlag ? 'text-[rgb(var(--warning-6))]' : ''}`"
+        />
+        {{ t(reviewDetail.followFlag ? 'common.forked' : 'common.fork') }}
       </MsButton>
-      <MsTableMoreAction :list="moreAction">
+      <MsTableMoreAction :list="moreAction" @select="handleMoreSelect">
         <MsButton type="button" status="default">
           <MsIcon type="icon-icon_more_outlined" class="mr-[8px]" />
           {{ t('common.more') }}
@@ -58,19 +54,17 @@
         <div class="mb-[4px] flex items-center gap-[24px]">
           <div class="text-[var(--color-text-4)]">
             <span class="mr-[8px]">{{ t('caseManagement.caseReview.reviewedCase') }}</span>
-            <span v-if="reviewDetail.status === 0" class="text-[var(--color-text-1)]">-</span>
+            <span v-if="reviewDetail.status === 'PREPARED'" class="text-[var(--color-text-1)]">-</span>
             <span v-else>
-              <span class="text-[var(--color-text-1)]">{{ reviewDetail.reviewCount }}/</span
+              <span class="text-[var(--color-text-1)]"> {{ reviewDetail.reviewedCount }}/ </span
               >{{ reviewDetail.caseCount }}
             </span>
           </div>
           <div class="text-[var(--color-text-4)]">
             <span class="mr-[8px]">{{ t('caseManagement.caseReview.passRate') }}</span>
-            <span v-if="reviewDetail.status === 0" class="text-[var(--color-text-1)]">-</span>
+            <span v-if="reviewDetail.status === 'PREPARED'" class="text-[var(--color-text-1)]">-</span>
             <span v-else>
-              <span class="text-[var(--color-text-1)]">
-                {{ ((reviewDetail.reviewCount / reviewDetail.caseCount) * 100).toFixed(2) }}%
-              </span>
+              <span class="text-[var(--color-text-1)]"> {{ reviewDetail.passRate }}% </span>
             </span>
           </div>
         </div>
@@ -84,18 +78,39 @@
       </a-tabs>
     </div>
   </MsCard>
-  <MsCard class="mt-[16px]" :special-height="180" simple has-breadcrumb no-content-padding>
+  <MsCard :loading="loading" class="mt-[16px]" :special-height="180" simple has-breadcrumb no-content-padding>
     <MsSplitBox>
       <template #first>
         <div class="p-[24px]">
-          <CaseTree ref="folderTreeRef" @folder-node-select="handleFolderNodeSelect" />
+          <CaseTree
+            ref="folderTreeRef"
+            :modules-count="modulesCount"
+            :selected-keys="selectedKeys"
+            @folder-node-select="handleFolderNodeSelect"
+            @init="initModuleTree"
+          />
         </div>
       </template>
       <template #second>
-        <CaseTable :active-folder="activeFolderId"></CaseTable>
+        <CaseTable
+          ref="caseTableRef"
+          :active-folder="activeFolderId"
+          :only-mine="onlyMine"
+          :review-pass-rule="reviewDetail.reviewPassRule"
+          :offspring-ids="offspringIds"
+          :module-tree="moduleTree"
+          @init="initModulesCount"
+          @refresh="handleRefresh"
+        ></CaseTable>
       </template>
     </MsSplitBox>
   </MsCard>
+  <AssociateDrawer
+    v-model:visible="associateDrawerVisible"
+    v-model:project="associateDrawerProject"
+    @success="writeAssociateCases"
+  />
+  <deleteReviewModal v-model:visible="deleteModalVisible" :record="reviewDetail" @success="handleDeleteSuccess" />
 </template>
 
 <script setup lang="ts">
@@ -103,6 +118,7 @@
    * @description 功能测试-用例评审-评审详情
    */
   import { useRoute, useRouter } from 'vue-router';
+  import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
@@ -110,41 +126,163 @@
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
-  import MsPrevNextButton from '@/components/business/ms-prev-next-button/index.vue';
+  import AssociateDrawer from './components/create/associateDrawer.vue';
   import CaseTable from './components/detail/caseTable.vue';
   import CaseTree from './components/detail/caseTree.vue';
+  import deleteReviewModal from './components/index/deleteReviewModal.vue';
   import passRateLine from './components/passRateLine.vue';
-  import statusTag, { StatusMap } from './components/statusTag.vue';
+  import statusTag from './components/statusTag.vue';
 
+  import {
+    associateReviewCase,
+    followReview,
+    getReviewDetail,
+    getReviewDetailModuleCount,
+  } from '@/api/modules/case-management/caseReview';
+  import { reviewDefaultDetail } from '@/config/apiTest';
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
+  import useUserStore from '@/store/modules/user';
+
+  import type {
+    BaseAssociateCaseRequest,
+    ReviewDetailCaseListQueryParams,
+    ReviewItem,
+    ReviewStatus,
+  } from '@/models/caseManagement/caseReview';
+  import type { ModuleTreeNode } from '@/models/projectManagement/file';
+  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   const router = useRouter();
   const route = useRoute();
+  const userStore = useUserStore();
+  const appStore = useAppStore();
   const { t } = useI18n();
 
   const loading = ref(false);
-  const reviewDetail = ref({
-    name: '具体的用例评审的名称，最大宽度260px,超过展示省略号啦',
-    status: 2,
-    caseCount: 100,
-    passCount: 0,
-    failCount: 10,
-    reviewCount: 20,
-    reviewingCount: 25,
+  const reviewDetail = ref<ReviewItem>({
+    ...reviewDefaultDetail,
   });
 
+  async function initDetail() {
+    try {
+      loading.value = true;
+      const res = await getReviewDetail(route.query.id as string);
+      reviewDetail.value = res;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
+  }
+
   const onlyMine = ref(false);
-  const moreAction = ref<ActionsItem[]>([]);
-  const fullActions = [
+
+  const showTab = ref(0);
+  const tabList = ref([
     {
-      label: t('caseManagement.caseReview.archive'),
-      eventTag: 'archive',
-      icon: 'icon-icon-draft',
+      key: 0,
+      title: t('menu.caseManagement.featureCase'),
     },
+  ]);
+
+  const modulesCount = ref<Record<string, any>>({});
+
+  async function getModuleCount(params: ReviewDetailCaseListQueryParams) {
+    try {
+      modulesCount.value = await getReviewDetailModuleCount({
+        ...params,
+        viewFlag: onlyMine.value,
+        reviewId: route.query.id as string,
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  const folderTreeRef = ref<InstanceType<typeof CaseTree>>();
+  const activeFolderId = ref<string>('all');
+  const offspringIds = ref<string[]>([]);
+  const selectedKeys = computed({
+    get: () => [activeFolderId.value],
+    set: (val) => val,
+  });
+
+  function handleFolderNodeSelect(ids: string[], _offspringIds: string[]) {
+    [activeFolderId.value] = ids;
+    offspringIds.value = [..._offspringIds];
+  }
+
+  function initModulesCount(params: ReviewDetailCaseListQueryParams) {
+    getModuleCount(params);
+  }
+
+  const caseTableRef = ref<InstanceType<typeof CaseTable>>();
+  const associateDrawerVisible = ref(false);
+  const associateDrawerProject = ref('');
+
+  // 关联用例
+  async function writeAssociateCases(params: BaseAssociateCaseRequest & { reviewers: string[] }) {
+    try {
+      loading.value = true;
+      await associateReviewCase({
+        reviewId: route.query.id as string,
+        projectId: appStore.currentProjectId,
+        reviewers: params.reviewers,
+        baseAssociateCaseRequest: params,
+      });
+      Message.success(t('caseManagement.caseReview.associateSuccess'));
+      initDetail();
+      folderTreeRef.value?.initModules();
+      caseTableRef.value?.searchCase();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  function editReview() {
+    router.push({
+      name: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW_CREATE,
+      query: {
+        id: route.query.id,
+      },
+    });
+  }
+
+  function createCase() {
+    router.push({
+      name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
+      query: {
+        reviewId: route.query.id,
+      },
+    });
+  }
+
+  const deleteModalVisible = ref(false);
+  function handleDeleteSuccess() {
+    router.back();
+  }
+
+  const fullActions = [
+    // {
+    //   label: t('caseManagement.caseReview.archive'),
+    //   eventTag: 'archive',
+    //   icon: 'icon-icon-draft',
+    // },
+    // {
+    //   label: t('common.export'),
+    //   eventTag: 'export',
+    //   icon: 'icon-icon_upload_outlined',
+    // },
     {
-      label: t('common.export'),
-      eventTag: 'export',
-      icon: 'icon-icon_upload_outlined',
+      label: t('caseManagement.caseReview.quickCreate'),
+      eventTag: 'createCase',
+      icon: 'icon-icon_add_outlined-1',
     },
     {
       label: t('caseManagement.caseReview.createTestPlan'),
@@ -161,52 +299,72 @@
       danger: true,
     },
   ];
-
-  onBeforeMount(() => {
-    if (reviewDetail.value.status === 2) {
-      moreAction.value = [...fullActions];
-    } else if (reviewDetail.value.status === 3) {
-      moreAction.value = fullActions.filter((e) => e.eventTag === 'delete');
-    } else {
-      moreAction.value = fullActions.filter((e) => e.eventTag !== 'archive');
+  const moreAction = computed(() => {
+    if (reviewDetail.value.status === 'COMPLETED') {
+      return [...fullActions];
     }
+    if (reviewDetail.value.status === 'ARCHIVED') {
+      return fullActions.filter((e) => e.eventTag === 'delete');
+    }
+    return fullActions.filter((e) => e.eventTag !== 'archive');
   });
 
-  const showTab = ref(0);
-  const tabList = ref([
-    {
-      key: 0,
-      title: t('menu.caseManagement.featureCase'),
-    },
-  ]);
+  function handleMoreSelect(item: ActionsItem) {
+    switch (item.eventTag) {
+      case 'createCase':
+        createCase();
+        break;
+      case 'delete':
+        deleteModalVisible.value = true;
+        break;
+      default:
+        break;
+    }
+  }
 
-  const pagination = ref({
-    current: 1,
-    pageSize: 10,
-    total: 0,
+  const followLoading = ref(false);
+  async function toggleFollowReview() {
+    try {
+      followLoading.value = true;
+      await followReview({
+        userId: userStore.id || '',
+        caseReviewId: route.query.id as string,
+      });
+      Message.success(
+        reviewDetail.value.followFlag
+          ? t('caseManagement.caseReview.unFollowSuccess')
+          : t('caseManagement.caseReview.followSuccess')
+      );
+      reviewDetail.value.followFlag = !reviewDetail.value.followFlag;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      followLoading.value = false;
+    }
+  }
+
+  function copyReview() {
+    router.push({
+      name: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW_CREATE,
+      query: {
+        copyId: route.query.id,
+      },
+    });
+  }
+
+  function handleRefresh() {
+    initDetail();
+  }
+
+  const moduleTree = ref<ModuleTreeNode[]>([]);
+  function initModuleTree(tree: ModuleTreeNode[]) {
+    moduleTree.value = unref(tree);
+  }
+
+  onMounted(() => {
+    initDetail();
   });
-  const detailIndex = ref(0);
-  const tableData = ref([]);
-
-  async function getDetailFunc() {
-    console.log('getDetailFunc');
-  }
-
-  async function pageChange() {
-    console.log('page');
-  }
-
-  function loaded(e: any) {
-    loading.value = false;
-    reviewDetail.value = e;
-  }
-
-  const folderTreeRef = ref<InstanceType<typeof CaseTree>>();
-  const activeFolderId = ref<string | number>('all');
-
-  function handleFolderNodeSelect(ids: (string | number)[]) {
-    [activeFolderId.value] = ids;
-  }
 </script>
 
 <style lang="less" scoped>

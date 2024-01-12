@@ -150,6 +150,9 @@
   :deep(.arco-split-pane) {
     @apply relative overflow-hidden;
   }
+  // :deep(.arco-split-pane-second) {
+  //   @apply z-10;
+  // }
   .animating {
     :deep(.arco-split-pane) {
       @apply relative overflow-hidden;
@@ -207,12 +210,12 @@
     .vertical-expand-line {
       @apply relative z-10 flex items-center justify-center bg-transparent;
       &::before {
-        @apply absolute w-full;
+        @apply absolute w-full bg-transparent;
 
         margin-bottom: -4px;
         height: 4px;
-        box-shadow: 0 -1px 4px 0 rgb(31 35 41 / 10%), 0 -1px 4px 0 rgb(255 255 255), 0 -1px 4px 0 rgb(255 255 255),
-          0 -1px 4px 0 rgb(255 255 255);
+        box-shadow: 0 -2px 2px 0 rgb(31 35 41 / 10%), 0 -4px 4px 0 rgb(255 255 255), 0 -4px 4px 0 rgb(255 255 255),
+          0 -4px 4px 0 rgb(255 255 255);
         content: '';
       }
       // .expand-icon--vertical {

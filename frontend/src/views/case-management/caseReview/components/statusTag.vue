@@ -7,30 +7,30 @@
 <script setup lang="ts">
   import { useI18n } from '@/hooks/useI18n';
 
-  export type StatusMap = 0 | 1 | 2 | 3;
+  import type { ReviewStatus } from '@/models/caseManagement/caseReview';
 
   const props = defineProps<{
-    status: StatusMap;
+    status: ReviewStatus;
   }>();
   const { t } = useI18n();
 
   const statusMap = {
-    0: {
+    PREPARED: {
       label: 'caseManagement.caseReview.unStart',
       color: 'var(--color-text-n8)',
       class: '!text-[var(--color-text-1)]',
     },
-    1: {
+    UNDERWAY: {
       label: 'caseManagement.caseReview.going',
       color: 'rgb(var(--link-2))',
       class: '!text-[rgb(var(--link-6))]',
     },
-    2: {
+    COMPLETED: {
       label: 'caseManagement.caseReview.finished',
       color: 'rgb(var(--success-2))',
       class: '!text-[rgb(var(--success-6))]',
     },
-    3: {
+    ARCHIVED: {
       label: 'caseManagement.caseReview.archived',
       color: 'var(--color-text-n8)',
       class: '!text-[var(--color-text-4)]',

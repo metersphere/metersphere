@@ -6,8 +6,9 @@
         :filter-config-list="filterConfigList"
         :row-count="filterRowCount"
         :search-placeholder="t('caseManagement.caseReview.searchPlaceholder')"
-        @keyword-search="searchReview"
+        @keyword-search="() => searchReview()"
         @adv-search="searchReview"
+        @reset="searchReview"
       >
         <template #left>
           <div class="flex items-center">
@@ -29,23 +30,23 @@
       <!-- <template #status-filter>
         <a-checkbox-group>
           <a-checkbox :value="0">
-            <a-tag :color="statusMap[0].color" :class="statusMap[0].class">
-              {{ t(statusMap[0].label) }}
+            <a-tag :color="reviewStatusMap[0].color" :class="reviewStatusMap[0].class">
+              {{ t(reviewStatusMap[0].label) }}
             </a-tag>
           </a-checkbox>
           <a-checkbox :value="1">
-            <a-tag :color="statusMap[1].color" :class="statusMap[1].class">
-              {{ t(statusMap[1].label) }}
+            <a-tag :color="reviewStatusMap[1].color" :class="reviewStatusMap[1].class">
+              {{ t(reviewStatusMap[1].label) }}
             </a-tag>
           </a-checkbox>
           <a-checkbox :value="2">
-            <a-tag :color="statusMap[2].color" :class="statusMap[2].class">
-              {{ t(statusMap[2].label) }}
+            <a-tag :color="reviewStatusMap[2].color" :class="reviewStatusMap[2].class">
+              {{ t(reviewStatusMap[2].label) }}
             </a-tag>
           </a-checkbox>
           <a-checkbox :value="3">
-            <a-tag :color="statusMap[3].color" :class="statusMap[3].class">
-              {{ t(statusMap[3].label) }}
+            <a-tag :color="reviewStatusMap[3].color" :class="reviewStatusMap[3].class">
+              {{ t(reviewStatusMap[3].label) }}
             </a-tag>
           </a-checkbox>
         </a-checkbox-group>
@@ -71,16 +72,28 @@
       <template #status="{ record }">
         <statusTag :status="record.status" />
       </template>
+      <template #reviewPassRule="{ record }">
+        {{
+          record.reviewPassRule === 'SINGLE'
+            ? t('caseManagement.caseReview.single')
+            : t('caseManagement.caseReview.multi')
+        }}
+      </template>
+      <template #reviewers="{ record }">
+        <a-tooltip :content="record.reviewers.join('、')">
+          <div class="one-line-text">{{ record.reviewers.join('、') }}</div>
+        </a-tooltip>
+      </template>
       <template #passRate="{ record }">
         <div class="mr-[8px] w-[100px]">
           <passRateLine :review-detail="record" height="5px" />
         </div>
         <div class="text-[var(--color-text-1)]">
-          {{ `${(((record.passCount + record.failCount) / record.caseCount) * 100).toFixed(2)}%` }}
+          {{ `${record.passRate}%` }}
         </div>
       </template>
       <template #action="{ record }">
-        <MsButton type="text" class="!mr-0">
+        <MsButton type="text" class="!mr-0" @click="() => editReview(record)">
           {{ t('common.edit') }}
         </MsButton>
         <a-divider direction="vertical" :margin="8"></a-divider>
@@ -99,57 +112,7 @@
         </div>
       </template>
     </ms-base-table>
-    <a-modal
-      v-model:visible="dialogVisible"
-      :on-before-ok="handleDeleteConfirm"
-      class="p-[4px]"
-      title-align="start"
-      body-class="p-0"
-      :mask-closable="false"
-    >
-      <template #title>
-        <div class="flex items-center justify-start">
-          <icon-exclamation-circle-fill size="20" class="mr-[8px] text-[rgb(var(--danger-6))]" />
-          <div class="text-[var(--color-text-1)]">
-            {{ t('caseManagement.caseReview.deleteReviewTitle', { name: activeRecord.name }) }}
-          </div>
-        </div>
-      </template>
-      <div v-if="activeRecord.status === 2" class="mb-[10px]">
-        <div>{{ t('caseManagement.caseReview.deleteFinishedReviewContent1') }}</div>
-        <div>{{ t('caseManagement.caseReview.deleteFinishedReviewContent2') }}</div>
-      </div>
-      <div v-else class="mb-[10px]">
-        {{
-          activeRecord.status === 1
-            ? t('caseManagement.caseReview.deleteReviewingContent')
-            : t('caseManagement.caseReview.deleteReviewContent', {
-                status: t(statusMap[activeRecord.status as StatusMap].label),
-              })
-        }}
-      </div>
-      <a-input
-        v-model:model-value="confirmReviewName"
-        :placeholder="t('caseManagement.caseReview.deleteReviewPlaceholder')"
-      />
-      <template #footer>
-        <div class="flex items-center justify-end">
-          <a-button type="secondary" @click="handleDialogCancel">{{ t('common.cancel') }}</a-button>
-          <a-button
-            type="primary"
-            status="danger"
-            :disabled="confirmReviewName !== activeRecord.name"
-            class="ml-[12px]"
-            @click="handleDialogCancel"
-          >
-            {{ t('common.confirmDelete') }}
-          </a-button>
-          <a-button v-if="activeRecord.status === 2" type="primary" class="ml-[12px]" @click="handleDialogCancel">
-            {{ t('caseManagement.caseReview.archive') }}
-          </a-button>
-        </div>
-      </template>
-    </a-modal>
+    <deleteReviewModal v-model:visible="dialogVisible" :record="activeRecord" @success="loadList" />
     <a-modal
       v-model:visible="moveModalVisible"
       title-align="start"
@@ -188,7 +151,7 @@
   import dayjs from 'dayjs';
 
   import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
-  import { FilterFormItem, FilterType } from '@/components/pure/ms-advance-filter/type';
+  import { FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
@@ -197,62 +160,46 @@
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import passRateLine from '../passRateLine.vue';
   import statusTag from '../statusTag.vue';
+  import deleteReviewModal from './deleteReviewModal.vue';
   import ModuleTree from './moduleTree.vue';
 
   import { getReviewList, getReviewUsers } from '@/api/modules/case-management/caseReview';
+  import { reviewStatusMap } from '@/config/apiTest';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
+  import useUserStore from '@/store/modules/user';
 
+  import {
+    ReviewDetailReviewersItem,
+    ReviewItem,
+    ReviewListQueryParams,
+    ReviewStatus,
+  } from '@/models/caseManagement/caseReview';
   import type { ModuleTreeNode } from '@/models/projectManagement/file';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const props = defineProps<{
-    activeFolder: string | number;
+    activeFolder: string;
     moduleTree: ModuleTreeNode[];
+    showType: string;
+    offspringIds: string[];
   }>();
 
   const emit = defineEmits<{
     (e: 'goCreate'): void;
+    (e: 'init', params: ReviewListQueryParams): void;
   }>();
 
+  const userStore = useUserStore();
   const appStore = useAppStore();
   const router = useRouter();
   const { t } = useI18n();
   const { openModal } = useModal();
 
   const keyword = ref('');
-
-  type StatusMap = 0 | 1 | 2 | 3;
-  const statusMap = {
-    0: {
-      label: 'caseManagement.caseReview.unStart',
-      color: 'var(--color-text-n8)',
-      class: '!text-[var(--color-text-1)]',
-    },
-    1: {
-      label: 'caseManagement.caseReview.going',
-      color: 'rgb(var(--link-2))',
-      class: '!text-[rgb(var(--link-6))]',
-    },
-    2: {
-      label: 'caseManagement.caseReview.finished',
-      color: 'rgb(var(--success-2))',
-      class: '!text-[rgb(var(--success-6))]',
-    },
-    3: {
-      label: 'caseManagement.caseReview.archived',
-      color: 'var(--color-text-n8)',
-      class: '!text-[var(--color-text-4)]',
-    },
-  } as const;
-
-  const typeMap = {
-    single: 'caseManagement.caseReview.single',
-    multi: 'caseManagement.caseReview.multi',
-  };
 
   const filterRowCount = ref(0);
   const filterConfigList = ref<FilterFormItem[]>([]);
@@ -285,19 +232,19 @@
             mode: 'static',
             options: [
               {
-                label: t(statusMap[0].label),
+                label: t(reviewStatusMap.PREPARED.label),
                 value: 'PREPARED',
               },
               {
-                label: t(statusMap[1].label),
+                label: t(reviewStatusMap.UNDERWAY.label),
                 value: 'UNDERWAY',
               },
               {
-                label: t(statusMap[2].label),
+                label: t(reviewStatusMap.COMPLETED.label),
                 value: 'COMPLETED',
               },
               {
-                label: t(statusMap[3].label),
+                label: t(reviewStatusMap.ARCHIVED.label),
                 value: 'ARCHIVED',
               },
             ],
@@ -310,7 +257,7 @@
         },
         {
           title: 'caseManagement.caseReview.type',
-          dataIndex: 'type',
+          dataIndex: 'reviewPassRule',
           type: FilterType.SELECT,
           selectProps: {
             mode: 'static',
@@ -328,7 +275,7 @@
         },
         {
           title: 'caseManagement.caseReview.reviewer',
-          dataIndex: 'reviewer',
+          dataIndex: 'reviewers',
           type: FilterType.SELECT,
           selectProps: {
             mode: 'static',
@@ -337,7 +284,7 @@
         },
         {
           title: 'caseManagement.caseReview.creator',
-          dataIndex: 'creator',
+          dataIndex: 'createUser',
           type: FilterType.SELECT,
           selectProps: {
             mode: 'static',
@@ -364,12 +311,17 @@
         },
         {
           title: 'caseManagement.caseReview.desc',
-          dataIndex: 'desc',
+          dataIndex: 'description',
           type: FilterType.INPUT,
         },
         {
-          title: 'caseManagement.caseReview.cycle',
-          dataIndex: 'cycle',
+          title: 'caseManagement.caseReview.startTime',
+          dataIndex: 'startTime',
+          type: FilterType.DATE_PICKER,
+        },
+        {
+          title: 'caseManagement.caseReview.endTime',
+          dataIndex: 'endTime',
           type: FilterType.DATE_PICKER,
         },
       ];
@@ -382,10 +334,10 @@
   const columns: MsTableColumn = [
     {
       title: 'ID',
-      dataIndex: 'id',
+      dataIndex: 'num',
       sortIndex: 1,
       showTooltip: true,
-      width: 90,
+      width: 100,
     },
     {
       title: 'caseManagement.caseReview.name',
@@ -415,13 +367,14 @@
     },
     {
       title: 'caseManagement.caseReview.type',
-      dataIndex: 'type',
+      slotName: 'reviewPassRule',
+      dataIndex: 'reviewPassRule',
       width: 90,
     },
     {
       title: 'caseManagement.caseReview.reviewer',
-      dataIndex: 'reviewer',
-      showTooltip: true,
+      slotName: 'reviewers',
+      dataIndex: 'reviewers',
       sortable: {
         sortDirections: ['ascend', 'descend'],
       },
@@ -429,7 +382,7 @@
     },
     {
       title: 'caseManagement.caseReview.creator',
-      dataIndex: 'creator',
+      dataIndex: 'createUser',
       width: 90,
     },
     {
@@ -445,14 +398,14 @@
     },
     {
       title: 'caseManagement.caseReview.desc',
-      dataIndex: 'desc',
+      dataIndex: 'description',
       width: 150,
       showTooltip: true,
     },
     {
       title: 'caseManagement.caseReview.cycle',
       dataIndex: 'cycle',
-      width: 340,
+      width: 350,
     },
     {
       title: 'common.operation',
@@ -475,9 +428,9 @@
     (item) => {
       return {
         ...item,
-        type: t(typeMap[item.type as keyof typeof typeMap]),
-        tags: item.tags?.map((e: string) => ({ id: e, name: e })) || [],
-        cycle: `${dayjs(item.cycle[0]).format('YYYY-MM-DD HH:mm:ss')} - ${dayjs(item.cycle[1]).format(
+        tags: (item.tags || []).map((e: string) => ({ id: e, name: e })),
+        reviewers: item.reviewers.map((e: ReviewDetailReviewersItem) => e.userName),
+        cycle: `${dayjs(item.startTime).format('YYYY-MM-DD HH:mm:ss')} - ${dayjs(item.endTime).format(
           'YYYY-MM-DD HH:mm:ss'
         )}`,
       };
@@ -492,18 +445,42 @@
     ],
   };
 
-  function searchReview() {
-    setLoadListParams({
+  const tableQueryParams = ref<any>();
+  function searchReview(filter?: FilterResult) {
+    const params = {
       keyword: keyword.value,
       projectId: appStore.currentProjectId,
-      moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder],
-    });
+      moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
+      createByMe: props.showType === 'createByMe' ? userStore.id : undefined,
+      reviewByMe: props.showType === 'reviewByMe' ? userStore.id : undefined,
+      combine: filter
+        ? {
+            ...filter.combine,
+          }
+        : {},
+    };
+    setLoadListParams(params);
     loadList();
+    tableQueryParams.value = {
+      ...params,
+      current: propsRes.value.msPagination?.current,
+      pageSize: propsRes.value.msPagination?.pageSize,
+    };
+    emit('init', {
+      ...tableQueryParams.value,
+    });
   }
 
   onBeforeMount(() => {
     searchReview();
   });
+
+  watch(
+    () => props.showType,
+    () => {
+      searchReview();
+    }
+  );
 
   const tableSelected = ref<(string | number)[]>([]);
   const batchParams = ref<BatchActionQueryParams>({
@@ -524,35 +501,9 @@
   const activeRecord = ref({
     id: '',
     name: '',
-    status: 0,
+    status: 'PREPARED' as ReviewStatus,
   });
   const confirmReviewName = ref('');
-
-  function handleDialogCancel() {
-    dialogVisible.value = false;
-  }
-
-  /**
-   * 删除确认
-   * @param done 关闭弹窗
-   */
-  async function handleDeleteConfirm(done: (closed: boolean) => void) {
-    try {
-      // if (replaceVersion.value !== '') {
-      //   await useLatestVersion(replaceVersion.value);
-      // }
-      // await toggleVersionStatus(activeRecord.value.id);
-      // Message.success(t('caseManagement.caseReview.close', { name: activeRecord.value.name }));
-      loadList();
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-      done(false);
-    } finally {
-      done(true);
-    }
-  }
-
   /**
    * 根据评审状态获取更多按钮列表
    * @param status 评审状态
@@ -583,7 +534,16 @@
     ];
   }
 
-  function handleArchive(record: any) {
+  function editReview(record: ReviewItem) {
+    router.push({
+      name: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW_CREATE,
+      query: {
+        id: record.id,
+      },
+    });
+  }
+
+  function handleArchive(record: ReviewItem) {
     openModal({
       type: 'warning',
       title: t('caseManagement.caseReview.archivedTitle', { name: record.name }),
@@ -670,7 +630,7 @@
    * 处理表格更多按钮事件
    * @param item
    */
-  function handleMoreActionSelect(item: ActionsItem, record: any) {
+  function handleMoreActionSelect(item: ActionsItem, record: ReviewItem) {
     switch (item.eventTag) {
       case 'delete':
         activeRecord.value = record;

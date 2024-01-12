@@ -42,6 +42,7 @@
     class="mt-[8px]"
     @on-search="handleFilter"
     @data-index-change="dataIndexChange"
+    @reset="emit('reset')"
   />
 </template>
 
@@ -69,6 +70,7 @@
     (e: 'keywordSearch', value: string | undefined): void; // innerKeyword 搜索
     (e: 'advSearch', value: FilterResult): void; // 高级搜索
     (e: 'dataIndexChange', value: string): void; // 高级搜索选项变更
+    (e: 'reset'): void;
   }>();
 
   const { t } = useI18n();
@@ -82,7 +84,6 @@
   };
 
   const handleFilter = (filter: FilterResult) => {
-    console.log('filter', filter);
     emit('advSearch', filter);
   };
 

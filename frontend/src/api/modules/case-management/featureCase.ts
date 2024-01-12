@@ -76,6 +76,7 @@ import type {
   CreateOrUpdateModule,
   DeleteCaseType,
   DemandItem,
+  DetailCase,
   ModulesTreeType,
   OperationFile,
   UpdateModule,

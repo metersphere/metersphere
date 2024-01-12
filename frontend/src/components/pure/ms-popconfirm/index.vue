@@ -162,7 +162,7 @@
   const handleConfirm = async () => {
     await validateForm();
     if (props.isDelete) {
-      emits('confirm');
+      emits('confirm', undefined, handleCancel);
     } else {
       emits('confirm', form.value, handleCancel);
     }

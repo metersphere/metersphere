@@ -3,31 +3,52 @@ import {
   AddReviewModuleUrl,
   AddReviewUrl,
   AssociateReviewUrl,
+  BatchChangeReviewerUrl,
+  BatchDisassociateReviewCaseUrl,
+  BatchReviewUrl,
   CopyReviewUrl,
   DeleteReviewModuleUrl,
+  DeleteReviewUrl,
+  DisassociateReviewCaseUrl,
   EditReviewUrl,
   FollowReviewUrl,
   GetAssociatedIdsUrl,
+  GetCaseReviewHistoryListUrl,
+  GetReviewDetailCasePageUrl,
+  GetReviewDetailModuleCountUrl,
+  GetReviewDetailModuleTreeUrl,
   GetReviewDetailUrl,
   GetReviewListUrl,
   GetReviewModulesUrl,
   GetReviewUsersUrl,
   MoveReviewModuleUrl,
   MoveReviewUrl,
+  ReviewModuleCountUrl,
+  SaveCaseReviewResultUrl,
+  SortReviewDetailCaseUrl,
   SortReviewUrl,
   UpdateReviewModuleUrl,
 } from '@/api/requrls/case-management/caseReview';
 
 import {
   AssociateReviewCaseParams,
+  BatchCancelReviewCaseParams,
+  BatchChangeReviewerParams,
   BatchMoveReviewParams,
+  BatchReviewCaseParams,
+  CommitReviewResultParams,
+  CopyReviewParams,
   FollowReviewParams,
   Review,
+  ReviewCaseItem,
+  ReviewDetailCaseListQueryParams,
+  ReviewHistoryItem,
   ReviewItem,
   ReviewListQueryParams,
   ReviewModule,
   ReviewModuleItem,
   ReviewUserItem,
+  SortReviewCaseParams,
   SortReviewParams,
   UpdateReviewModuleParams,
   UpdateReviewParams,
@@ -59,6 +80,11 @@ export const deleteReviewModule = (id: string) => {
   return MSR.get({ url: DeleteReviewModuleUrl, params: id });
 };
 
+// 评审模块树-统计用例数量
+export const reviewModuleCount = (data: ReviewListQueryParams) => {
+  return MSR.post({ url: ReviewModuleCountUrl, data });
+};
+
 // 新增评审
 export const addReview = (data: Review) => {
   return MSR.post({ url: AddReviewUrl, data });
@@ -70,7 +96,7 @@ export const associateReviewCase = (data: AssociateReviewCaseParams) => {
 };
 
 // 复制评审
-export const copyReview = (data: Review) => {
+export const copyReview = (data: CopyReviewParams) => {
   return MSR.post({ url: CopyReviewUrl, data });
 };
 
@@ -109,7 +135,62 @@ export const getReviewUsers = (projectId: string, keyword: string) => {
   return MSR.get<ReviewUserItem[]>({ url: `${GetReviewUsersUrl}/${projectId}`, params: { keyword } });
 };
 
-// 获取评审人员列表
+// 取消关联用例
+export const disassociateReviewCase = (reviewId: string, caseId: string) => {
+  return MSR.get<ReviewUserItem[]>({ url: `${DisassociateReviewCaseUrl}/${reviewId}/${caseId}` });
+};
+
+// 删除评审
+export const deleteReview = (reviewId: string, projectId: string) => {
+  return MSR.get<ReviewUserItem[]>({ url: `${DeleteReviewUrl}/${projectId}/${reviewId}` });
+};
+
+// 评审详情-获取用例列表
+export const getReviewDetailCasePage = (data: ReviewDetailCaseListQueryParams) => {
+  return MSR.post<CommonList<ReviewCaseItem>>({ url: GetReviewDetailCasePageUrl, data });
+};
+
+// 评审详情-用例拖拽排序
+export const sortReviewDetailCase = (data: SortReviewCaseParams) => {
+  return MSR.post({ url: SortReviewDetailCaseUrl, data });
+};
+
+// 评审详情-批量评审
+export const batchReview = (data: BatchReviewCaseParams) => {
+  return MSR.post({ url: BatchReviewUrl, data });
+};
+
+// 评审详情-批量修改评审人
+export const batchChangeReviewer = (data: BatchChangeReviewerParams) => {
+  return MSR.post({ url: BatchChangeReviewerUrl, data });
+};
+
+// 评审详情-批量取消关联用例
+export const batchDisassociateReviewCase = (data: BatchCancelReviewCaseParams) => {
+  return MSR.post({ url: BatchDisassociateReviewCaseUrl, data });
+};
+
+// 获取关联用例 id集合
 export const getAssociatedIds = (reviewId: string) => {
   return MSR.get<string[]>({ url: `${GetAssociatedIdsUrl}/${reviewId}` });
+};
+
+// 评审详情-模块下用例数量统计
+export const getReviewDetailModuleCount = (data: ReviewDetailCaseListQueryParams) => {
+  return MSR.post({ url: GetReviewDetailModuleCountUrl, data });
+};
+
+// 评审详情-已关联用例模块树
+export const getReviewDetailModuleTree = (projectId: string, reviewId: string) => {
+  return MSR.get({ url: `${GetReviewDetailModuleTreeUrl}/${projectId}/${reviewId}` });
+};
+
+// 评审详情-获取用例评审历史
+export const getCaseReviewHistoryList = (reviewId: string, caseId: string) => {
+  return MSR.get<ReviewHistoryItem[]>({ url: `${GetCaseReviewHistoryListUrl}/${reviewId}/${caseId}` });
+};
+
+// 评审详情-提交用例评审结果
+export const saveCaseReviewResult = (data: CommitReviewResultParams) => {
+  return MSR.post({ url: SaveCaseReviewResultUrl, data });
 };
