@@ -9,28 +9,61 @@ import java.util.Arrays;
 import lombok.Data;
 
 @Data
-public class ApiReportBlob implements Serializable {
-    @Schema(description = "接口报告fk", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_report_blob.id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 50, message = "{api_report_blob.id.length_range}", groups = {Created.class, Updated.class})
-    private String id;
+public class ApiScenarioReportStep implements Serializable {
+    @Schema(description = "请求资源 id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_scenario_report_step.report_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{api_scenario_report_step.report_id.length_range}", groups = {Created.class, Updated.class})
+    private String reportId;
 
-    @Schema(description = "执行环境配置")
-    private String environmentId;
+    @Schema(description = "步骤名称")
+    private String name;
 
-    @Schema(description = "结果内容详情")
-    private byte[] content;
+    @Schema(description = "序号", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{api_scenario_report_step.sort.not_blank}", groups = {Created.class})
+    private Long sort;
 
-    @Schema(description = "执行过程日志")
-    private byte[] console;
+    @Schema(description = "启用/禁用")
+    private Boolean enable;
+
+    @Schema(description = "资源id")
+    private Long resourceId;
+
+    @Schema(description = "资源编号")
+    private String resourceNum;
+
+    @Schema(description = "步骤类型/API/CASE等")
+    private String stepType;
+
+    @Schema(description = "项目fk")
+    private String projectId;
+
+    @Schema(description = "父级fk")
+    private String parentId;
+
+    @Schema(description = "版本号")
+    private String versionId;
+
+    @Schema(description = "引用/复制/自定义")
+    private String source;
+
+    @Schema(description = "循环等组件基础数据")
+    private String config;
 
     private static final long serialVersionUID = 1L;
 
     public enum Column {
-        id("id", "id", "VARCHAR", false),
-        environmentId("environment_id", "environmentId", "VARCHAR", false),
-        content("content", "content", "LONGVARBINARY", false),
-        console("console", "console", "LONGVARBINARY", false);
+        reportId("report_id", "reportId", "VARCHAR", false),
+        name("name", "name", "VARCHAR", true),
+        sort("sort", "sort", "BIGINT", false),
+        enable("enable", "enable", "BIT", true),
+        resourceId("resource_id", "resourceId", "BIGINT", false),
+        resourceNum("resource_num", "resourceNum", "VARCHAR", false),
+        stepType("step_type", "stepType", "VARCHAR", false),
+        projectId("project_id", "projectId", "VARCHAR", false),
+        parentId("parent_id", "parentId", "VARCHAR", false),
+        versionId("version_id", "versionId", "VARCHAR", false),
+        source("source", "source", "VARCHAR", true),
+        config("config", "config", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

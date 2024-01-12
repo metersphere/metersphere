@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.api.mapper.ApiScenarioReportDetailMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiScenarioReportDetail">
+<mapper namespace="io.metersphere.api.mapper.ApiReportDetailMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiReportDetail">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="report_id" jdbcType="VARCHAR" property="reportId" />
     <result column="resource_id" jdbcType="VARCHAR" property="resourceId" />
@@ -16,7 +16,7 @@
     <result column="error_total" jdbcType="INTEGER" property="errorTotal" />
     <result column="code" jdbcType="VARCHAR" property="code" />
   </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.api.domain.ApiScenarioReportDetail">
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.api.domain.ApiReportDetail">
     <result column="content" jdbcType="LONGVARBINARY" property="content" />
   </resultMap>
   <sql id="Example_Where_Clause">
@@ -84,7 +84,7 @@
   <sql id="Blob_Column_List">
     content
   </sql>
-  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.api.domain.ApiScenarioReportDetailExample" resultMap="ResultMapWithBLOBs">
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.api.domain.ApiReportDetailExample" resultMap="ResultMapWithBLOBs">
     select
     <if test="distinct">
       distinct
@@ -92,7 +92,7 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from api_scenario_report_detail
+    from api_report_detail
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -100,13 +100,13 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiScenarioReportDetailExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiReportDetailExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from api_scenario_report_detail
+    from api_report_detail
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -119,21 +119,21 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from api_scenario_report_detail
+    from api_report_detail
     where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from api_scenario_report_detail
+    delete from api_report_detail
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.api.domain.ApiScenarioReportDetailExample">
-    delete from api_scenario_report_detail
+  <delete id="deleteByExample" parameterType="io.metersphere.api.domain.ApiReportDetailExample">
+    delete from api_report_detail
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.api.domain.ApiScenarioReportDetail">
-    insert into api_scenario_report_detail (id, report_id, resource_id, 
+  <insert id="insert" parameterType="io.metersphere.api.domain.ApiReportDetail">
+    insert into api_report_detail (id, report_id, resource_id, 
       start_time, `status`, request_time, 
       assertions_total, pass_assertions_total, fake_code, 
       request_name, project_id, error_total, 
@@ -144,8 +144,8 @@
       #{requestName,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{errorTotal,jdbcType=INTEGER}, 
       #{code,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARBINARY})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiScenarioReportDetail">
-    insert into api_scenario_report_detail
+  <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiReportDetail">
+    insert into api_report_detail
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
@@ -235,14 +235,14 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.api.domain.ApiScenarioReportDetailExample" resultType="java.lang.Long">
-    select count(*) from api_scenario_report_detail
+  <select id="countByExample" parameterType="io.metersphere.api.domain.ApiReportDetailExample" resultType="java.lang.Long">
+    select count(*) from api_report_detail
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update api_scenario_report_detail
+    update api_report_detail
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
@@ -292,7 +292,7 @@
     </if>
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
-    update api_scenario_report_detail
+    update api_report_detail
     set id = #{record.id,jdbcType=VARCHAR},
       report_id = #{record.reportId,jdbcType=VARCHAR},
       resource_id = #{record.resourceId,jdbcType=VARCHAR},
@@ -312,7 +312,7 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update api_scenario_report_detail
+    update api_report_detail
     set id = #{record.id,jdbcType=VARCHAR},
       report_id = #{record.reportId,jdbcType=VARCHAR},
       resource_id = #{record.resourceId,jdbcType=VARCHAR},
@@ -330,8 +330,8 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.api.domain.ApiScenarioReportDetail">
-    update api_scenario_report_detail
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.api.domain.ApiReportDetail">
+    update api_report_detail
     <set>
       <if test="reportId != null">
         report_id = #{reportId,jdbcType=VARCHAR},
@@ -375,8 +375,8 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.api.domain.ApiScenarioReportDetail">
-    update api_scenario_report_detail
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.api.domain.ApiReportDetail">
+    update api_report_detail
     set report_id = #{reportId,jdbcType=VARCHAR},
       resource_id = #{resourceId,jdbcType=VARCHAR},
       start_time = #{startTime,jdbcType=BIGINT},
@@ -392,8 +392,8 @@
       content = #{content,jdbcType=LONGVARBINARY}
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiScenarioReportDetail">
-    update api_scenario_report_detail
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiReportDetail">
+    update api_report_detail
     set report_id = #{reportId,jdbcType=VARCHAR},
       resource_id = #{resourceId,jdbcType=VARCHAR},
       start_time = #{startTime,jdbcType=BIGINT},
@@ -409,7 +409,7 @@
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
-    insert into api_scenario_report_detail
+    insert into api_report_detail
     (id, report_id, resource_id, start_time, `status`, request_time, assertions_total, 
       pass_assertions_total, fake_code, request_name, project_id, error_total, code, 
       content)
@@ -424,7 +424,7 @@
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
-    insert into api_scenario_report_detail (
+    insert into api_report_detail (
     <foreach collection="selective" item="column" separator=",">
       ${column.escapedColumnName}
     </foreach>

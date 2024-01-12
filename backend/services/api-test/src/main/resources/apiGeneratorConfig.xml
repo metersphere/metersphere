@@ -81,7 +81,8 @@
         <table tableName="api_definition_swagger"/>
         <table tableName="api_environment_config"/>
         <table tableName="api_report"/>
-        <table tableName="api_report_blob"/>
+        <table tableName="api_report_detail"/>
+        <table tableName="api_report_log"/>
 
         <table tableName="api_scenario"/>
         <table tableName="api_scenario">
@@ -97,7 +98,7 @@
         <table tableName="api_scenario_report"/>
         <table tableName="api_scenario_report_detail"/>
         <table tableName="api_scenario_report_log"/>
-        <table tableName="api_scenario_report_structure"/>
+        <table tableName="api_scenario_report_step"/>
         <table tableName="api_sync_config"/>
         <table tableName="api_test_case_blob"/>
         <table tableName="api_test_case_follower"/>

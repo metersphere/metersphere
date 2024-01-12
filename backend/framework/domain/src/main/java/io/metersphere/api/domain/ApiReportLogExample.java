@@ -3,14 +3,14 @@ package io.metersphere.api.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ApiReportBlobExample {
+public class ApiReportLogExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public ApiReportBlobExample() {
+    public ApiReportLogExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 
@@ -104,143 +104,73 @@ public class ApiReportBlobExample {
             criteria.add(new Criterion(condition, value1, value2));
         }
 
-        public Criteria andIdIsNull() {
-            addCriterion("id is null");
+        public Criteria andReportIdIsNull() {
+            addCriterion("report_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andIdIsNotNull() {
-            addCriterion("id is not null");
+        public Criteria andReportIdIsNotNull() {
+            addCriterion("report_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andIdEqualTo(String value) {
-            addCriterion("id =", value, "id");
+        public Criteria andReportIdEqualTo(String value) {
+            addCriterion("report_id =", value, "reportId");
             return (Criteria) this;
         }
 
-        public Criteria andIdNotEqualTo(String value) {
-            addCriterion("id <>", value, "id");
+        public Criteria andReportIdNotEqualTo(String value) {
+            addCriterion("report_id <>", value, "reportId");
             return (Criteria) this;
         }
 
-        public Criteria andIdGreaterThan(String value) {
-            addCriterion("id >", value, "id");
+        public Criteria andReportIdGreaterThan(String value) {
+            addCriterion("report_id >", value, "reportId");
             return (Criteria) this;
         }
 
-        public Criteria andIdGreaterThanOrEqualTo(String value) {
-            addCriterion("id >=", value, "id");
+        public Criteria andReportIdGreaterThanOrEqualTo(String value) {
+            addCriterion("report_id >=", value, "reportId");
             return (Criteria) this;
         }
 
-        public Criteria andIdLessThan(String value) {
-            addCriterion("id <", value, "id");
+        public Criteria andReportIdLessThan(String value) {
+            addCriterion("report_id <", value, "reportId");
             return (Criteria) this;
         }
 
-        public Criteria andIdLessThanOrEqualTo(String value) {
-            addCriterion("id <=", value, "id");
+        public Criteria andReportIdLessThanOrEqualTo(String value) {
+            addCriterion("report_id <=", value, "reportId");
             return (Criteria) this;
         }
 
-        public Criteria andIdLike(String value) {
-            addCriterion("id like", value, "id");
+        public Criteria andReportIdLike(String value) {
+            addCriterion("report_id like", value, "reportId");
             return (Criteria) this;
         }
 
-        public Criteria andIdNotLike(String value) {
-            addCriterion("id not like", value, "id");
+        public Criteria andReportIdNotLike(String value) {
+            addCriterion("report_id not like", value, "reportId");
             return (Criteria) this;
         }
 
-        public Criteria andIdIn(List<String> values) {
-            addCriterion("id in", values, "id");
+        public Criteria andReportIdIn(List<String> values) {
+            addCriterion("report_id in", values, "reportId");
             return (Criteria) this;
         }
 
-        public Criteria andIdNotIn(List<String> values) {
-            addCriterion("id not in", values, "id");
+        public Criteria andReportIdNotIn(List<String> values) {
+            addCriterion("report_id not in", values, "reportId");
             return (Criteria) this;
         }
 
-        public Criteria andIdBetween(String value1, String value2) {
-            addCriterion("id between", value1, value2, "id");
+        public Criteria andReportIdBetween(String value1, String value2) {
+            addCriterion("report_id between", value1, value2, "reportId");
             return (Criteria) this;
         }
 
-        public Criteria andIdNotBetween(String value1, String value2) {
-            addCriterion("id not between", value1, value2, "id");
-            return (Criteria) this;
-        }
-
-        public Criteria andEnvironmentIdIsNull() {
-            addCriterion("environment_id is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andEnvironmentIdIsNotNull() {
-            addCriterion("environment_id is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andEnvironmentIdEqualTo(String value) {
-            addCriterion("environment_id =", value, "environmentId");
-            return (Criteria) this;
-        }
-
-        public Criteria andEnvironmentIdNotEqualTo(String value) {
-            addCriterion("environment_id <>", value, "environmentId");
-            return (Criteria) this;
-        }
-
-        public Criteria andEnvironmentIdGreaterThan(String value) {
-            addCriterion("environment_id >", value, "environmentId");
-            return (Criteria) this;
-        }
-
-        public Criteria andEnvironmentIdGreaterThanOrEqualTo(String value) {
-            addCriterion("environment_id >=", value, "environmentId");
-            return (Criteria) this;
-        }
-
-        public Criteria andEnvironmentIdLessThan(String value) {
-            addCriterion("environment_id <", value, "environmentId");
-            return (Criteria) this;
-        }
-
-        public Criteria andEnvironmentIdLessThanOrEqualTo(String value) {
-            addCriterion("environment_id <=", value, "environmentId");
-            return (Criteria) this;
-        }
-
-        public Criteria andEnvironmentIdLike(String value) {
-            addCriterion("environment_id like", value, "environmentId");
-            return (Criteria) this;
-        }
-
-        public Criteria andEnvironmentIdNotLike(String value) {
-            addCriterion("environment_id not like", value, "environmentId");
-            return (Criteria) this;
-        }
-
-        public Criteria andEnvironmentIdIn(List<String> values) {
-            addCriterion("environment_id in", values, "environmentId");
-            return (Criteria) this;
-        }
-
-        public Criteria andEnvironmentIdNotIn(List<String> values) {
-            addCriterion("environment_id not in", values, "environmentId");
-            return (Criteria) this;
-        }
-
-        public Criteria andEnvironmentIdBetween(String value1, String value2) {
-            addCriterion("environment_id between", value1, value2, "environmentId");
-            return (Criteria) this;
-        }
-
-        public Criteria andEnvironmentIdNotBetween(String value1, String value2) {
-            addCriterion("environment_id not between", value1, value2, "environmentId");
+        public Criteria andReportIdNotBetween(String value1, String value2) {
+            addCriterion("report_id not between", value1, value2, "reportId");
             return (Criteria) this;
         }
     }

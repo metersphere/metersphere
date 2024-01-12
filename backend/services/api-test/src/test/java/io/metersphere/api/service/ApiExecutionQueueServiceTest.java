@@ -47,7 +47,6 @@ public class ApiExecutionQueueServiceTest {
         queue.setFailure(true);
         queue.setRetryEnable(true);
         queue.setRetryNumber(3L);
-        queue.setEnvMap(Map.of("projectID1", "envID1", "projectID2", "envID2"));
 
         ExecutionQueueDetail queueDetail1 = new ExecutionQueueDetail();
         queueDetail1.setResourceId("resourceId1");

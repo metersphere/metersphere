@@ -46,12 +46,6 @@ public class ApiReport implements Serializable {
     @Size(min = 1, max = 50, message = "{api_report.status.length_range}", groups = {Created.class, Updated.class})
     private String status;
 
-    @Schema(description = "接口开始执行时间")
-    private Long startTime;
-
-    @Schema(description = "接口执行结束时间")
-    private Long endTime;
-
     @Schema(description = "执行模块/API/CASE/API_PLAN", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_report.run_mode.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 20, message = "{api_report.run_mode.length_range}", groups = {Created.class, Updated.class})
@@ -75,14 +69,12 @@ public class ApiReport implements Serializable {
     @Size(min = 1, max = 50, message = "{api_report.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
-    @Schema(description = "集成报告id/api_scenario_report_id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_report.integrated_report_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{api_report.integrated_report_id.length_range}", groups = {Created.class, Updated.class})
-    private String integratedReportId;
-
     @Schema(description = "是否为集成报告，默认否", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{api_report.integrated.not_blank}", groups = {Created.class})
     private Boolean integrated;
+
+    @Schema(description = "环境id")
+    private String environmentId;
 
     private static final long serialVersionUID = 1L;
 
@@ -96,15 +88,13 @@ public class ApiReport implements Serializable {
         updateUser("update_user", "updateUser", "VARCHAR", false),
         deleted("deleted", "deleted", "BIT", false),
         status("status", "status", "VARCHAR", true),
-        startTime("start_time", "startTime", "BIGINT", false),
-        endTime("end_time", "endTime", "BIGINT", false),
         runMode("run_mode", "runMode", "VARCHAR", false),
         poolId("pool_id", "poolId", "VARCHAR", false),
         triggerMode("trigger_mode", "triggerMode", "VARCHAR", false),
         versionId("version_id", "versionId", "VARCHAR", false),
         projectId("project_id", "projectId", "VARCHAR", false),
-        integratedReportId("integrated_report_id", "integratedReportId", "VARCHAR", false),
-        integrated("integrated", "integrated", "BIT", false);
+        integrated("integrated", "integrated", "BIT", false),
+        environmentId("environment_id", "environmentId", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

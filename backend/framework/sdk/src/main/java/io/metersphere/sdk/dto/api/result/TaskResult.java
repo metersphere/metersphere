@@ -1,5 +1,6 @@
 package io.metersphere.sdk.dto.api.result;
 
+import io.metersphere.sdk.dto.api.CollectionReportDTO;
 import lombok.Data;
 
 import java.io.Serial;
@@ -31,10 +32,6 @@ public class TaskResult implements Serializable {
      */
     private String projectId;
     /**
-     * 执行环境id
-     */
-    private List<String> environmentIds;
-    /**
      * 执行过程状态
      */
     private ProcessResultDTO processResultDTO;
@@ -46,5 +43,10 @@ public class TaskResult implements Serializable {
     /**
      * 环境变量处理信息
      */
-    List<String> environmentList;
+    String environmentId;
+
+    /**
+     * 集合报告,空则是单报告
+     */
+    private CollectionReportDTO collectionReport;
 }

@@ -82,6 +82,9 @@ public class ApiScenarioReport implements Serializable {
     @Size(min = 1, max = 50, message = "{api_scenario_report.scenario_id.length_range}", groups = {Created.class, Updated.class})
     private String scenarioId;
 
+    @Schema(description = "环境")
+    private String environmentId;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -102,7 +105,8 @@ public class ApiScenarioReport implements Serializable {
         versionId("version_id", "versionId", "VARCHAR", false),
         integrated("integrated", "integrated", "BIT", false),
         projectId("project_id", "projectId", "VARCHAR", false),
-        scenarioId("scenario_id", "scenarioId", "VARCHAR", false);
+        scenarioId("scenario_id", "scenarioId", "VARCHAR", false),
+        environmentId("environment_id", "environmentId", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

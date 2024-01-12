@@ -1,5 +1,6 @@
 package io.metersphere.sdk.dto.api.task;
 
+import io.metersphere.sdk.dto.api.CollectionReportDTO;
 import io.metersphere.sdk.dto.api.result.MsRegexDTO;
 import lombok.Data;
 
@@ -66,7 +67,12 @@ public class TaskRequest implements Serializable {
     /**
      * 执行环境id
      */
-    private List<String> environmentIds;
+    private String environmentId;
+
+    /**
+     * 集合报告,空则是单报告
+     */
+    private CollectionReportDTO collectionReport;
 
     // TODO 其它执行参数
 }

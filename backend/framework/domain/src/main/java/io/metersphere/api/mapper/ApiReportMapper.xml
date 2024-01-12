@@ -11,15 +11,13 @@
     <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
     <result column="deleted" jdbcType="BIT" property="deleted" />
     <result column="status" jdbcType="VARCHAR" property="status" />
-    <result column="start_time" jdbcType="BIGINT" property="startTime" />
-    <result column="end_time" jdbcType="BIGINT" property="endTime" />
     <result column="run_mode" jdbcType="VARCHAR" property="runMode" />
     <result column="pool_id" jdbcType="VARCHAR" property="poolId" />
     <result column="trigger_mode" jdbcType="VARCHAR" property="triggerMode" />
     <result column="version_id" jdbcType="VARCHAR" property="versionId" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
-    <result column="integrated_report_id" jdbcType="VARCHAR" property="integratedReportId" />
     <result column="integrated" jdbcType="BIT" property="integrated" />
+    <result column="environment_id" jdbcType="VARCHAR" property="environmentId" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -81,8 +79,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, `name`, resource_id, create_time, update_time, create_user, update_user, deleted, 
-    `status`, start_time, end_time, run_mode, pool_id, trigger_mode, version_id, project_id, 
-    integrated_report_id, integrated
+    `status`, run_mode, pool_id, trigger_mode, version_id, project_id, integrated, environment_id
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiReportExample" resultMap="BaseResultMap">
     select
@@ -118,17 +115,15 @@
     insert into api_report (id, `name`, resource_id, 
       create_time, update_time, create_user, 
       update_user, deleted, `status`, 
-      start_time, end_time, run_mode, 
-      pool_id, trigger_mode, version_id, 
-      project_id, integrated_report_id, integrated
-      )
+      run_mode, pool_id, trigger_mode, 
+      version_id, project_id, integrated, 
+      environment_id)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
       #{updateUser,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT}, #{status,jdbcType=VARCHAR}, 
-      #{startTime,jdbcType=BIGINT}, #{endTime,jdbcType=BIGINT}, #{runMode,jdbcType=VARCHAR}, 
-      #{poolId,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, #{versionId,jdbcType=VARCHAR}, 
-      #{projectId,jdbcType=VARCHAR}, #{integratedReportId,jdbcType=VARCHAR}, #{integrated,jdbcType=BIT}
-      )
+      #{runMode,jdbcType=VARCHAR}, #{poolId,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, 
+      #{versionId,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{integrated,jdbcType=BIT}, 
+      #{environmentId,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiReport">
     insert into api_report
@@ -160,12 +155,6 @@
       <if test="status != null">
         `status`,
       </if>
-      <if test="startTime != null">
-        start_time,
-      </if>
-      <if test="endTime != null">
-        end_time,
-      </if>
       <if test="runMode != null">
         run_mode,
       </if>
@@ -181,11 +170,11 @@
       <if test="projectId != null">
         project_id,
       </if>
-      <if test="integratedReportId != null">
-        integrated_report_id,
-      </if>
       <if test="integrated != null">
         integrated,
+      </if>
+      <if test="environmentId != null">
+        environment_id,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -216,12 +205,6 @@
       <if test="status != null">
         #{status,jdbcType=VARCHAR},
       </if>
-      <if test="startTime != null">
-        #{startTime,jdbcType=BIGINT},
-      </if>
-      <if test="endTime != null">
-        #{endTime,jdbcType=BIGINT},
-      </if>
       <if test="runMode != null">
         #{runMode,jdbcType=VARCHAR},
       </if>
@@ -237,11 +220,11 @@
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
       </if>
-      <if test="integratedReportId != null">
-        #{integratedReportId,jdbcType=VARCHAR},
-      </if>
       <if test="integrated != null">
         #{integrated,jdbcType=BIT},
+      </if>
+      <if test="environmentId != null">
+        #{environmentId,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -281,12 +264,6 @@
       <if test="record.status != null">
         `status` = #{record.status,jdbcType=VARCHAR},
       </if>
-      <if test="record.startTime != null">
-        start_time = #{record.startTime,jdbcType=BIGINT},
-      </if>
-      <if test="record.endTime != null">
-        end_time = #{record.endTime,jdbcType=BIGINT},
-      </if>
       <if test="record.runMode != null">
         run_mode = #{record.runMode,jdbcType=VARCHAR},
       </if>
@@ -302,11 +279,11 @@
       <if test="record.projectId != null">
         project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
-      <if test="record.integratedReportId != null">
-        integrated_report_id = #{record.integratedReportId,jdbcType=VARCHAR},
-      </if>
       <if test="record.integrated != null">
         integrated = #{record.integrated,jdbcType=BIT},
+      </if>
+      <if test="record.environmentId != null">
+        environment_id = #{record.environmentId,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -324,15 +301,13 @@
       update_user = #{record.updateUser,jdbcType=VARCHAR},
       deleted = #{record.deleted,jdbcType=BIT},
       `status` = #{record.status,jdbcType=VARCHAR},
-      start_time = #{record.startTime,jdbcType=BIGINT},
-      end_time = #{record.endTime,jdbcType=BIGINT},
       run_mode = #{record.runMode,jdbcType=VARCHAR},
       pool_id = #{record.poolId,jdbcType=VARCHAR},
       trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
       version_id = #{record.versionId,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
-      integrated_report_id = #{record.integratedReportId,jdbcType=VARCHAR},
-      integrated = #{record.integrated,jdbcType=BIT}
+      integrated = #{record.integrated,jdbcType=BIT},
+      environment_id = #{record.environmentId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -364,12 +339,6 @@
       <if test="status != null">
         `status` = #{status,jdbcType=VARCHAR},
       </if>
-      <if test="startTime != null">
-        start_time = #{startTime,jdbcType=BIGINT},
-      </if>
-      <if test="endTime != null">
-        end_time = #{endTime,jdbcType=BIGINT},
-      </if>
       <if test="runMode != null">
         run_mode = #{runMode,jdbcType=VARCHAR},
       </if>
@@ -385,11 +354,11 @@
       <if test="projectId != null">
         project_id = #{projectId,jdbcType=VARCHAR},
       </if>
-      <if test="integratedReportId != null">
-        integrated_report_id = #{integratedReportId,jdbcType=VARCHAR},
-      </if>
       <if test="integrated != null">
         integrated = #{integrated,jdbcType=BIT},
+      </if>
+      <if test="environmentId != null">
+        environment_id = #{environmentId,jdbcType=VARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -404,31 +373,28 @@
       update_user = #{updateUser,jdbcType=VARCHAR},
       deleted = #{deleted,jdbcType=BIT},
       `status` = #{status,jdbcType=VARCHAR},
-      start_time = #{startTime,jdbcType=BIGINT},
-      end_time = #{endTime,jdbcType=BIGINT},
       run_mode = #{runMode,jdbcType=VARCHAR},
       pool_id = #{poolId,jdbcType=VARCHAR},
       trigger_mode = #{triggerMode,jdbcType=VARCHAR},
       version_id = #{versionId,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
-      integrated_report_id = #{integratedReportId,jdbcType=VARCHAR},
-      integrated = #{integrated,jdbcType=BIT}
+      integrated = #{integrated,jdbcType=BIT},
+      environment_id = #{environmentId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_report
     (id, `name`, resource_id, create_time, update_time, create_user, update_user, deleted, 
-      `status`, start_time, end_time, run_mode, pool_id, trigger_mode, version_id, project_id, 
-      integrated_report_id, integrated)
+      `status`, run_mode, pool_id, trigger_mode, version_id, project_id, integrated, 
+      environment_id)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.resourceId,jdbcType=VARCHAR}, 
         #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, 
         #{item.updateUser,jdbcType=VARCHAR}, #{item.deleted,jdbcType=BIT}, #{item.status,jdbcType=VARCHAR}, 
-        #{item.startTime,jdbcType=BIGINT}, #{item.endTime,jdbcType=BIGINT}, #{item.runMode,jdbcType=VARCHAR}, 
-        #{item.poolId,jdbcType=VARCHAR}, #{item.triggerMode,jdbcType=VARCHAR}, #{item.versionId,jdbcType=VARCHAR}, 
-        #{item.projectId,jdbcType=VARCHAR}, #{item.integratedReportId,jdbcType=VARCHAR}, 
-        #{item.integrated,jdbcType=BIT})
+        #{item.runMode,jdbcType=VARCHAR}, #{item.poolId,jdbcType=VARCHAR}, #{item.triggerMode,jdbcType=VARCHAR}, 
+        #{item.versionId,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, #{item.integrated,jdbcType=BIT}, 
+        #{item.environmentId,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -468,12 +434,6 @@
         <if test="'status'.toString() == column.value">
           #{item.status,jdbcType=VARCHAR}
         </if>
-        <if test="'start_time'.toString() == column.value">
-          #{item.startTime,jdbcType=BIGINT}
-        </if>
-        <if test="'end_time'.toString() == column.value">
-          #{item.endTime,jdbcType=BIGINT}
-        </if>
         <if test="'run_mode'.toString() == column.value">
           #{item.runMode,jdbcType=VARCHAR}
         </if>
@@ -489,11 +449,11 @@
         <if test="'project_id'.toString() == column.value">
           #{item.projectId,jdbcType=VARCHAR}
         </if>
-        <if test="'integrated_report_id'.toString() == column.value">
-          #{item.integratedReportId,jdbcType=VARCHAR}
-        </if>
         <if test="'integrated'.toString() == column.value">
           #{item.integrated,jdbcType=BIT}
+        </if>
+        <if test="'environment_id'.toString() == column.value">
+          #{item.environmentId,jdbcType=VARCHAR}
         </if>
       </foreach>
       )
