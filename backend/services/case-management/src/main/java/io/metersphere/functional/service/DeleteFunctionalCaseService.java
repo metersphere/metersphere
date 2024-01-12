@@ -2,6 +2,10 @@ package io.metersphere.functional.service;
 
 import io.metersphere.functional.domain.*;
 import io.metersphere.functional.mapper.*;
+import io.metersphere.sdk.constants.DefaultRepositoryDir;
+import io.metersphere.sdk.file.FileCenter;
+import io.metersphere.sdk.file.FileRequest;
+import io.metersphere.sdk.util.LogUtils;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +30,13 @@ public class DeleteFunctionalCaseService {
     @Resource
     private FunctionalCaseCommentMapper functionalCaseCommentMapper;
     @Resource
+    private FunctionalCaseDemandMapper functionalCaseDemandMapper;
+    @Resource
     private CaseReviewHistoryMapper caseReviewHistoryMapper;
+    @Resource
+    private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
+    @Resource
+    private FunctionalCaseAttachmentMapper functionalCaseAttachmentMapper;
 
 
     public void deleteFunctionalCaseResource(List<String> ids, String projectId) {
@@ -35,11 +45,36 @@ public class DeleteFunctionalCaseService {
         FunctionalCaseTestExample caseTestExample = new FunctionalCaseTestExample();
         caseTestExample.createCriteria().andCaseIdIn(ids);
         functionalCaseTestMapper.deleteByExample(caseTestExample);
+        //3.删除关联需求
+        FunctionalCaseDemandExample functionalCaseDemandExample = new FunctionalCaseDemandExample();
+        functionalCaseDemandExample.createCriteria().andCaseIdIn(ids);
+        functionalCaseDemandMapper.deleteByExample(functionalCaseDemandExample);
+        //5.删除关联评审
+        CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
+        caseReviewFunctionalCaseExample.createCriteria().andCaseIdIn(ids);
+        caseReviewFunctionalCaseMapper.deleteByExample(caseReviewFunctionalCaseExample);
+
         //8.评论
         FunctionalCaseCommentExample functionalCaseCommentExample = new FunctionalCaseCommentExample();
         functionalCaseCommentExample.createCriteria().andCaseIdIn(ids);
         functionalCaseCommentMapper.deleteByExample(functionalCaseCommentExample);
         //9.附件 todo 删除关联关系
+        FunctionalCaseAttachmentExample functionalCaseAttachmentExample = new FunctionalCaseAttachmentExample();
+        functionalCaseAttachmentExample.createCriteria().andCaseIdIn(ids);
+        functionalCaseAttachmentMapper.deleteByExample(functionalCaseAttachmentExample);
+        //删除文件
+        FileRequest request = new FileRequest();
+        // 删除文件所在目录
+        for (String id : ids) {
+            request.setFolder(DefaultRepositoryDir.getFunctionalCaseDir(projectId, id));
+            try {
+                FileCenter.getDefaultRepository().deleteFolder(request);
+                request.setFolder(DefaultRepositoryDir.getFunctionalCasePreviewDir(projectId, id));
+                FileCenter.getDefaultRepository().deleteFolder(request);
+            } catch (Exception e) {
+                LogUtils.error("彻底删除功能用例，文件删除失败",e);
+            }
+        }
         //10.自定义字段
         FunctionalCaseCustomFieldExample fieldExample = new FunctionalCaseCustomFieldExample();
         fieldExample.createCriteria().andCaseIdIn(ids);

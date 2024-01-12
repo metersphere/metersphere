@@ -16,7 +16,7 @@ public class FunctionalCaseEditRequest extends FunctionalCaseAddRequest {
     @NotBlank(message = "{functional_case.id.not_blank}")
     private String id;
 
-    @Schema(description = "删除本地上传的文件id")
+    @Schema(description = "删除本地上传(副文本里)的文件id")
     private List<String> deleteFileMetaIds;
 
     @Schema(description = "取消关联的文件id")

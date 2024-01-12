@@ -1,6 +1,7 @@
 package io.metersphere.functional.service;
 
 import io.metersphere.functional.constants.CaseEvent;
+import io.metersphere.functional.constants.CaseFileSourceType;
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.*;
@@ -110,6 +111,8 @@ public class FunctionalCaseService {
 
         //上传文件
         functionalCaseAttachmentService.uploadFile(request.getProjectId(), caseId, files, true, userId);
+
+        functionalCaseAttachmentService.uploadMinioFile(caseId,request.getProjectId(),request.getCaseDetailFileIds(),userId, CaseFileSourceType.CASE_DETAIL.toString());
 
         //关联附件
         if (CollectionUtils.isNotEmpty(request.getRelateFileMetaIds())) {
@@ -316,6 +319,9 @@ public class FunctionalCaseService {
         //上传新文件
         functionalCaseAttachmentService.uploadFile(request.getProjectId(), request.getId(), files, true, userId);
 
+        //上传副文本文件
+        functionalCaseAttachmentService.uploadMinioFile(request.getId(),request.getProjectId(),request.getCaseDetailFileIds(),userId,CaseFileSourceType.CASE_DETAIL.toString());
+
         //关联新附件
         if (CollectionUtils.isNotEmpty(request.getRelateFileMetaIds())) {
             functionalCaseAttachmentService.association(request.getRelateFileMetaIds(), request.getId(), userId, UPDATE_FUNCTIONAL_CASE_FILE_LOG_URL, request.getProjectId());
@@ -323,7 +329,6 @@ public class FunctionalCaseService {
 
         //处理评审状态
         handleReviewStatus(request, functionalCaseBlob, checked.getName());
-
 
         return functionalCase;
 

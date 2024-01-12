@@ -13,6 +13,7 @@ import io.metersphere.project.dto.filemanagement.response.FileInformationRespons
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.project.service.FileModuleService;
+import io.metersphere.project.service.PermissionCheckService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
@@ -50,8 +51,12 @@ public class FunctionalCaseAttachmentController {
 
     @Resource
     private FileAssociationService fileAssociationService;
+
     @Resource
     private FileModuleService fileModuleService;
+
+    @Resource
+    private PermissionCheckService permissionCheckService;
 
 
     @PostMapping("/page")
@@ -64,7 +69,7 @@ public class FunctionalCaseAttachmentController {
 
 
     @PostMapping("/preview")
-    @Operation(summary = "用例管理-功能用例-附件-文件预览")
+    @Operation(summary = "用例管理-功能用例-附件/副文本(原图/文件)-文件预览")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public ResponseEntity<byte[]> preview(@Validated @RequestBody FunctionalCaseFileRequest request) throws Exception {
@@ -78,8 +83,17 @@ public class FunctionalCaseAttachmentController {
     }
 
 
+    @PostMapping(value = "/preview/compressed")
+    @Operation(summary = "用例管理-功能用例-显示详情(副文本)图片缩略图")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public ResponseEntity<byte[]> compressedImg(@Validated @RequestBody FunctionalCaseFileRequest request) throws Exception {
+        return functionalCaseAttachmentService.downloadPreviewCompressedImg(request);
+    }
+
+
     @PostMapping("/download")
-    @Operation(summary = "用例管理-功能用例-附件-文件下载")
+    @Operation(summary = "用例管理-功能用例-附件/副文本(原图/文件)-文件下载")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public ResponseEntity<byte[]> download(@Validated @RequestBody FunctionalCaseFileRequest request) throws Exception {

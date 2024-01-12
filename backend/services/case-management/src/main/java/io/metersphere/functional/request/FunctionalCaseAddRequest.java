@@ -52,7 +52,6 @@ public class FunctionalCaseAddRequest implements Serializable {
     @Schema(description = "是否公共用例库")
     private String publicCase;
 
-
     @Schema(description = "模块id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{functional_case.module_id.not_blank}")
     private String moduleId;
@@ -63,13 +62,14 @@ public class FunctionalCaseAddRequest implements Serializable {
     @Schema(description = "标签")
     private List<String> tags;
 
-
     @Schema(description = "自定义字段集合")
     private Map<String, Object> customFields;
 
-
-    @Schema(description = "关联文件ID集合")
+    @Schema(description = "附件关联文件ID集合")
     private List<String> relateFileMetaIds;
+
+    @Schema(description = "攻能用例详情（前置条件/步骤描述/预期结果/备注）上传的文件id集合")
+    private List<String> caseDetailFileIds;
 
     @Schema(description = "评审id")
     private String reviewId;

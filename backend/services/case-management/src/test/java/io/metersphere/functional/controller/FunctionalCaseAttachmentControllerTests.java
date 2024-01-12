@@ -60,6 +60,7 @@ public class FunctionalCaseAttachmentControllerTests extends BaseTest {
 
     public static final String ATTACHMENT_PAGE_URL = "/attachment/page";
     public static final String ATTACHMENT_PREVIEW_URL = "/attachment/preview";
+    public static final String ATTACHMENT_PREVIEW_COMPRESSED_URL = "/attachment/preview/compressed";
     public static final String ATTACHMENT_DOWNLOAD_URL = "/attachment/download";
     public static final String ATTACHMENT_CHECK_UPDATE_URL = "/attachment/check-update";
     public static final String ATTACHMENT_UPDATE_URL = "/attachment/update/";
@@ -247,6 +248,13 @@ public class FunctionalCaseAttachmentControllerTests extends BaseTest {
         file = getNoNameMockMultipartFile();
         doUploadTempFileFalse(file);
         functionalCaseAttachmentService.uploadMinioFile("TEST_FUNCTIONAL_CASE_ATTACHMENT_ID_1","WX_TEST_PROJECT_ID", List.of(fileId),"admin", CaseFileSourceType.CASE_COMMENT.toString());
+        FunctionalCaseFileRequest request = new FunctionalCaseFileRequest();
+        request.setProjectId("WX_TEST_PROJECT_ID");
+        request.setLocal(true);
+        request.setFileId("fileId");
+        request.setCaseId("TEST_FUNCTIONAL_CASE_ATTACHMENT_ID_1");
+        MvcResult mvcResult = this.downloadFile(ATTACHMENT_PREVIEW_COMPRESSED_URL, request);
+        Assertions.assertNotNull(mvcResult);
         FunctionalCaseAttachmentExample functionalCaseAttachmentExample = new FunctionalCaseAttachmentExample();
         functionalCaseAttachmentExample.createCriteria().andCaseIdEqualTo("TEST_FUNCTIONAL_CASE_ATTACHMENT_ID_1").andFileIdEqualTo(fileId).andFileSourceEqualTo(CaseFileSourceType.CASE_COMMENT.toString());
         List<FunctionalCaseAttachment> functionalCaseAttachments = functionalCaseAttachmentMapper.selectByExample(functionalCaseAttachmentExample);
