@@ -1,13 +1,16 @@
 package io.metersphere.plan.domain;
 
-import io.metersphere.validation.groups.*;
+import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import lombok.Data;
 
 @Data
 public class TestPlan implements Serializable {
@@ -50,7 +53,7 @@ public class TestPlan implements Serializable {
     private String type;
 
     @Schema(description = "标签")
-    private java.util.List<String> tags;
+    private List<String> tags;
 
     @Schema(description = "创建时间")
     private Long createTime;

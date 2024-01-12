@@ -17,4 +17,9 @@ public class TestPlanTableRequest extends BasePageRequest {
     @Schema(description = "项目ID")
     @NotBlank(message = "{id must not be blank}")
     private String projectId;
+
+    public TestPlanTableRequest() {
+        this.setCurrent(1);
+        this.setPageSize(5);
+    }
 }

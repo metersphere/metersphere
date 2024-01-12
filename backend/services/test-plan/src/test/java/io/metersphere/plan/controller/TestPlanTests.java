@@ -544,7 +544,6 @@ public class TestPlanTests extends BaseTest {
         Map<String, Object> moduleCountMap = JSON.parseObject(JSON.toJSONString(JSON.parseObject(moduleCountReturnData, ResultHolder.class).getData()), Map.class);
         AtomicBoolean testPlanIsEmpty = new AtomicBoolean(true);
         for (Map.Entry<String, Object> entry : moduleCountMap.entrySet()) {
-            String k = entry.getKey();
             long value = Long.parseLong(String.valueOf(entry.getValue()));
             if (value > 0) {
                 testPlanIsEmpty.set(false);
