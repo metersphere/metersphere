@@ -1,14 +1,13 @@
 package io.metersphere.functional.service;
 
+import io.metersphere.bug.domain.BugRelationCaseExample;
+import io.metersphere.bug.mapper.BugRelationCaseMapper;
 import io.metersphere.functional.constants.CaseEvent;
 import io.metersphere.functional.constants.CaseFileSourceType;
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.*;
-import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
-import io.metersphere.functional.mapper.FunctionalCaseBlobMapper;
-import io.metersphere.functional.mapper.FunctionalCaseFollowerMapper;
-import io.metersphere.functional.mapper.FunctionalCaseMapper;
+import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.CaseManagementResultCode;
 import io.metersphere.project.domain.FileAssociation;
@@ -104,6 +103,18 @@ public class FunctionalCaseService {
     private static final String UPDATE_FUNCTIONAL_CASE_FILE_LOG_URL = "/functional/case/update";
     private static final String FUNCTIONAL_CASE_BATCH_COPY_FILE_LOG_URL = "/functional/case/batch/copy";
 
+    @Resource
+    private FunctionalCaseDemandMapper functionalCaseDemandMapper;
+    @Resource
+    private FunctionalCaseTestMapper functionalCaseTestMapper;
+    @Resource
+    private BugRelationCaseMapper bugRelationCaseMapper;
+    @Resource
+    private FunctionalCaseRelationshipEdgeMapper functionalCaseRelationshipEdgeMapper;
+    @Resource
+    private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
+
+
     public FunctionalCase addFunctionalCase(FunctionalCaseAddRequest request, List<MultipartFile> files, String userId) {
         String caseId = IDGenerator.nextStr();
         //添加功能用例
@@ -112,7 +123,7 @@ public class FunctionalCaseService {
         //上传文件
         functionalCaseAttachmentService.uploadFile(request.getProjectId(), caseId, files, true, userId);
 
-        functionalCaseAttachmentService.uploadMinioFile(caseId,request.getProjectId(),request.getCaseDetailFileIds(),userId, CaseFileSourceType.CASE_DETAIL.toString());
+        functionalCaseAttachmentService.uploadMinioFile(caseId, request.getProjectId(), request.getCaseDetailFileIds(), userId, CaseFileSourceType.CASE_DETAIL.toString());
 
         //关联附件
         if (CollectionUtils.isNotEmpty(request.getRelateFileMetaIds())) {
@@ -230,8 +241,40 @@ public class FunctionalCaseService {
             functionalCaseDetailDTO.setVersionName(versions.get(0).getName());
         }
 
+        //处理已关联需求数量/缺陷数量/用例数量
+        handleCount(functionalCaseDetailDTO);
+
         return functionalCaseDetailDTO;
 
+    }
+
+    private void handleCount(FunctionalCaseDetailDTO functionalCaseDetailDTO) {
+        //获取已关联需求数量
+        FunctionalCaseDemandExample functionalCaseDemandExample = new FunctionalCaseDemandExample();
+        functionalCaseDemandExample.createCriteria().andCaseIdEqualTo(functionalCaseDetailDTO.getId());
+        functionalCaseDetailDTO.setDemandCount((int) functionalCaseDemandMapper.countByExample(functionalCaseDemandExample));
+        //获取已关联用例数量
+        FunctionalCaseTestExample caseTestExample = new FunctionalCaseTestExample();
+        caseTestExample.createCriteria().andCaseIdEqualTo(functionalCaseDetailDTO.getId());
+        functionalCaseDetailDTO.setCaseCount((int) functionalCaseTestMapper.countByExample(caseTestExample));
+        //获取已关联缺陷数量
+        BugRelationCaseExample bugRelationCaseExample = new BugRelationCaseExample();
+        bugRelationCaseExample.createCriteria().andCaseIdEqualTo(functionalCaseDetailDTO.getId());
+        functionalCaseDetailDTO.setBugCount((int) bugRelationCaseMapper.countByExample(bugRelationCaseExample));
+        //获取已关联依赖关系数量
+        FunctionalCaseRelationshipEdgeExample relationshipEdgeExample = new FunctionalCaseRelationshipEdgeExample();
+        relationshipEdgeExample.createCriteria()
+                .andSourceIdEqualTo(functionalCaseDetailDTO.getId());
+        relationshipEdgeExample.or(
+                relationshipEdgeExample.createCriteria()
+                        .andTargetIdEqualTo(functionalCaseDetailDTO.getId())
+        );
+        functionalCaseDetailDTO.setRelateEdgeCount((int) functionalCaseRelationshipEdgeMapper.countByExample(relationshipEdgeExample));
+        //获取已关联用例评审数量
+        CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
+        caseReviewFunctionalCaseExample.createCriteria().andCaseIdEqualTo(functionalCaseDetailDTO.getId());
+        functionalCaseDetailDTO.setCaseReviewCount((int) caseReviewFunctionalCaseMapper.countByExample(caseReviewFunctionalCaseExample));
+        //TODO 获取已关联测试计划数量
     }
 
 
@@ -320,7 +363,7 @@ public class FunctionalCaseService {
         functionalCaseAttachmentService.uploadFile(request.getProjectId(), request.getId(), files, true, userId);
 
         //上传副文本文件
-        functionalCaseAttachmentService.uploadMinioFile(request.getId(),request.getProjectId(),request.getCaseDetailFileIds(),userId,CaseFileSourceType.CASE_DETAIL.toString());
+        functionalCaseAttachmentService.uploadMinioFile(request.getId(), request.getProjectId(), request.getCaseDetailFileIds(), userId, CaseFileSourceType.CASE_DETAIL.toString());
 
         //关联新附件
         if (CollectionUtils.isNotEmpty(request.getRelateFileMetaIds())) {
