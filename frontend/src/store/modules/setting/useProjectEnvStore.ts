@@ -9,13 +9,23 @@ const useProjectEnvStore = defineStore(
     const httpNoWarning = ref(true);
     const getCurrentId = computed(() => currentId.value);
     const getHttpNoWarning = computed(() => httpNoWarning.value);
+
+    const getDatabaseList = computed(() => [{ id: 1, name: 'test' }]);
     function setCurrentId(id: string | number) {
       currentId.value = id;
     }
     function setHttpNoWarning(noWarning: boolean) {
       httpNoWarning.value = noWarning;
     }
-    return { getCurrentId, currentId, httpNoWarning, setCurrentId, setHttpNoWarning, getHttpNoWarning };
+    return {
+      getCurrentId,
+      currentId,
+      httpNoWarning,
+      setCurrentId,
+      setHttpNoWarning,
+      getHttpNoWarning,
+      getDatabaseList,
+    };
   },
   {
     persist: {

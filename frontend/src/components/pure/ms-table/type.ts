@@ -49,6 +49,8 @@ export interface MsTableColumnData extends TableColumnData {
   filterConfig?: MsTableColumnFilterConfig;
   // 列选择的title
   columnTitle?: string;
+  // 是否是自定义字段
+  isCustomParam?: boolean;
 }
 
 export type MsTableErrorStatus = boolean | 'error' | 'empty';
