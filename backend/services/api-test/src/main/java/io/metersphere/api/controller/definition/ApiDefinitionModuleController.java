@@ -3,6 +3,8 @@ package io.metersphere.api.controller.definition;
 import io.metersphere.api.dto.debug.ModuleCreateRequest;
 import io.metersphere.api.dto.debug.ModuleUpdateRequest;
 import io.metersphere.api.dto.definition.ApiModuleRequest;
+import io.metersphere.api.dto.definition.EnvApiModuleRequest;
+import io.metersphere.api.dto.definition.EnvApiTreeDTO;
 import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
@@ -88,5 +90,11 @@ public class ApiDefinitionModuleController {
     @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public List<BaseTreeNode> getTrashTree(@RequestBody @Validated ApiModuleRequest request) {
         return apiDefinitionModuleService.getTrashTree(request, true);
+    }
+
+    @PostMapping("/env/tree")
+    @Operation(summary = "获取环境中的接口树和选中的模块")
+    public EnvApiTreeDTO envTree(@RequestBody @Validated EnvApiModuleRequest request) {
+        return apiDefinitionModuleService.envTree(request);
     }
 }

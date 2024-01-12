@@ -9,15 +9,15 @@ import java.util.Arrays;
 import lombok.Data;
 
 @Data
-public class ProjectParameters implements Serializable {
+public class ProjectParameter implements Serializable {
     @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{project_parameters.id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 50, message = "{project_parameters.id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{project_parameter.id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{project_parameter.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
     @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{project_parameters.project_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{project_parameters.project_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{project_parameter.project_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{project_parameter.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
     @Schema(description = "创建人")

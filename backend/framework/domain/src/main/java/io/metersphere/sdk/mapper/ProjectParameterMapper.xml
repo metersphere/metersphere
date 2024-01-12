@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.sdk.mapper.ProjectParametersMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.sdk.domain.ProjectParameters">
+<mapper namespace="io.metersphere.sdk.mapper.ProjectParameterMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.sdk.domain.ProjectParameter">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
@@ -9,7 +9,7 @@
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
   </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.sdk.domain.ProjectParameters">
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.sdk.domain.ProjectParameter">
     <result column="parameters" jdbcType="LONGVARBINARY" property="parameters" />
   </resultMap>
   <sql id="Example_Where_Clause">
@@ -76,7 +76,7 @@
   <sql id="Blob_Column_List">
     `parameters`
   </sql>
-  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.sdk.domain.ProjectParametersExample" resultMap="ResultMapWithBLOBs">
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.sdk.domain.ProjectParameterExample" resultMap="ResultMapWithBLOBs">
     select
     <if test="distinct">
       distinct
@@ -84,7 +84,7 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from project_parameters
+    from project_parameter
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -92,13 +92,13 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByExample" parameterType="io.metersphere.sdk.domain.ProjectParametersExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="io.metersphere.sdk.domain.ProjectParameterExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from project_parameters
+    from project_parameter
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -111,29 +111,29 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from project_parameters
+    from project_parameter
     where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from project_parameters
+    delete from project_parameter
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.sdk.domain.ProjectParametersExample">
-    delete from project_parameters
+  <delete id="deleteByExample" parameterType="io.metersphere.sdk.domain.ProjectParameterExample">
+    delete from project_parameter
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.sdk.domain.ProjectParameters">
-    insert into project_parameters (id, project_id, create_user, 
+  <insert id="insert" parameterType="io.metersphere.sdk.domain.ProjectParameter">
+    insert into project_parameter (id, project_id, create_user, 
       update_user, create_time, update_time, 
       `parameters`)
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
       #{updateUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{parameters,jdbcType=LONGVARBINARY})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.sdk.domain.ProjectParameters">
-    insert into project_parameters
+  <insert id="insertSelective" parameterType="io.metersphere.sdk.domain.ProjectParameter">
+    insert into project_parameter
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
@@ -181,14 +181,14 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.sdk.domain.ProjectParametersExample" resultType="java.lang.Long">
-    select count(*) from project_parameters
+  <select id="countByExample" parameterType="io.metersphere.sdk.domain.ProjectParameterExample" resultType="java.lang.Long">
+    select count(*) from project_parameter
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update project_parameters
+    update project_parameter
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
@@ -217,7 +217,7 @@
     </if>
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
-    update project_parameters
+    update project_parameter
     set id = #{record.id,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
@@ -230,7 +230,7 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update project_parameters
+    update project_parameter
     set id = #{record.id,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
@@ -241,8 +241,8 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.sdk.domain.ProjectParameters">
-    update project_parameters
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.sdk.domain.ProjectParameter">
+    update project_parameter
     <set>
       <if test="projectId != null">
         project_id = #{projectId,jdbcType=VARCHAR},
@@ -265,8 +265,8 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.sdk.domain.ProjectParameters">
-    update project_parameters
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.sdk.domain.ProjectParameter">
+    update project_parameter
     set project_id = #{projectId,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
       update_user = #{updateUser,jdbcType=VARCHAR},
@@ -275,8 +275,8 @@
       `parameters` = #{parameters,jdbcType=LONGVARBINARY}
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="io.metersphere.sdk.domain.ProjectParameters">
-    update project_parameters
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.sdk.domain.ProjectParameter">
+    update project_parameter
     set project_id = #{projectId,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
       update_user = #{updateUser,jdbcType=VARCHAR},
@@ -285,7 +285,7 @@
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
-    insert into project_parameters
+    insert into project_parameter
     (id, project_id, create_user, update_user, create_time, update_time, `parameters`
       )
     values
@@ -296,7 +296,7 @@
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
-    insert into project_parameters (
+    insert into project_parameter (
     <foreach collection="selective" item="column" separator=",">
       ${column.escapedColumnName}
     </foreach>

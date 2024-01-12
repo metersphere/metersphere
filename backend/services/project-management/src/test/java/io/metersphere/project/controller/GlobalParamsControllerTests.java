@@ -10,9 +10,9 @@ import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.constants.VariableTypeConstants;
-import io.metersphere.sdk.domain.ProjectParameters;
-import io.metersphere.sdk.domain.ProjectParametersExample;
-import io.metersphere.sdk.mapper.ProjectParametersMapper;
+import io.metersphere.sdk.domain.ProjectParameter;
+import io.metersphere.sdk.domain.ProjectParameterExample;
+import io.metersphere.sdk.mapper.ProjectParameterMapper;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
@@ -69,7 +69,7 @@ public class GlobalParamsControllerTests extends BaseTest {
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
 
     @Resource
-    private ProjectParametersMapper projectParametersMapper;
+    private ProjectParameterMapper projectParametersMapper;
     private final ProjectServiceInvoker serviceInvoker;
     @Resource
     private ProjectMapper projectMapper;
@@ -260,9 +260,9 @@ public class GlobalParamsControllerTests extends BaseTest {
         globalParams.setCommonVariables(getEnvVariables(1));
         request.setGlobalParams(globalParams);
         MvcResult mvcResult = this.responsePost(add, request);
-        ProjectParameters globalParamsRequest = parseObjectFromMvcResult(mvcResult, ProjectParameters.class);
+        ProjectParameter globalParamsRequest = parseObjectFromMvcResult(mvcResult, ProjectParameter.class);
         Assertions.assertNotNull(globalParamsRequest);
-        ProjectParameters projectParameters = projectParametersMapper.selectByPrimaryKey(globalParamsRequest.getId());
+        ProjectParameter projectParameters = projectParametersMapper.selectByPrimaryKey(globalParamsRequest.getId());
         Assertions.assertNotNull(projectParameters);
         Assertions.assertEquals("projectId1", projectParameters.getProjectId());
         Assertions.assertEquals(1, JSON.parseObject(new String(projectParameters.getParameters()), GlobalParams.class).getHeaders().size());
@@ -276,7 +276,7 @@ public class GlobalParamsControllerTests extends BaseTest {
         globalParams.setCommonVariables(new ArrayList<>());
         request.setGlobalParams(globalParams);
         mvcResult = this.responsePost(add, request);
-        globalParamsRequest = parseObjectFromMvcResult(mvcResult, ProjectParameters.class);
+        globalParamsRequest = parseObjectFromMvcResult(mvcResult, ProjectParameter.class);
         Assertions.assertNotNull(globalParamsRequest);
         projectParameters = projectParametersMapper.selectByPrimaryKey(globalParamsRequest.getId());
         Assertions.assertNotNull(projectParameters);
@@ -292,7 +292,7 @@ public class GlobalParamsControllerTests extends BaseTest {
         globalParams.setCommonVariables(getEnvVariables(1));
         request.setGlobalParams(globalParams);
         mvcResult = this.responsePost(add, request);
-        globalParamsRequest = parseObjectFromMvcResult(mvcResult, ProjectParameters.class);
+        globalParamsRequest = parseObjectFromMvcResult(mvcResult, ProjectParameter.class);
         Assertions.assertNotNull(globalParamsRequest);
         projectParameters = projectParametersMapper.selectByPrimaryKey(globalParamsRequest.getId());
         Assertions.assertNotNull(projectParameters);
@@ -308,7 +308,7 @@ public class GlobalParamsControllerTests extends BaseTest {
         globalParams.setCommonVariables(new ArrayList<>());
         request.setGlobalParams(globalParams);
         mvcResult = this.responsePost(add, request);
-        globalParamsRequest = parseObjectFromMvcResult(mvcResult, ProjectParameters.class);
+        globalParamsRequest = parseObjectFromMvcResult(mvcResult, ProjectParameter.class);
         Assertions.assertNotNull(globalParamsRequest);
         projectParameters = projectParametersMapper.selectByPrimaryKey(globalParamsRequest.getId());
         Assertions.assertNotNull(projectParameters);
@@ -320,7 +320,7 @@ public class GlobalParamsControllerTests extends BaseTest {
         request.setProjectId("projectId5");
         request.setGlobalParams(new GlobalParams());
         mvcResult = this.responsePost(add, request);
-        globalParamsRequest = parseObjectFromMvcResult(mvcResult, ProjectParameters.class);
+        globalParamsRequest = parseObjectFromMvcResult(mvcResult, ProjectParameter.class);
         Assertions.assertNotNull(globalParamsRequest);
         //校验日志
         checkLog(globalParamsRequest.getId(), OperationLogType.ADD);
@@ -363,9 +363,9 @@ public class GlobalParamsControllerTests extends BaseTest {
     @Order(3)
     public void testUpdateSuccess() throws Exception {
         //修改全局参数 有headers 有envVariables
-        ProjectParametersExample example = new ProjectParametersExample();
+        ProjectParameterExample example = new ProjectParameterExample();
         example.createCriteria().andProjectIdEqualTo("projectId1");
-        List<ProjectParameters> projectParametersList = projectParametersMapper.selectByExample(example);
+        List<ProjectParameter> projectParametersList = projectParametersMapper.selectByExample(example);
         GlobalParamsRequest request = new GlobalParamsRequest();
         request.setProjectId("projectId1");
         request.setId(projectParametersList.get(0).getId());
@@ -374,11 +374,11 @@ public class GlobalParamsControllerTests extends BaseTest {
         globalParams.setCommonVariables(getEnvVariables(2));
         request.setGlobalParams(globalParams);
         MvcResult mvcResult = this.responsePost(update, request);
-        ProjectParameters globalParamsRequest = parseObjectFromMvcResult(mvcResult, ProjectParameters.class);
+        ProjectParameter globalParamsRequest = parseObjectFromMvcResult(mvcResult, ProjectParameter.class);
         Assertions.assertNotNull(globalParamsRequest);
         //校验日志
         checkLog(globalParamsRequest.getId(), OperationLogType.UPDATE);
-        ProjectParameters projectParameters = projectParametersMapper.selectByPrimaryKey(globalParamsRequest.getId());
+        ProjectParameter projectParameters = projectParametersMapper.selectByPrimaryKey(globalParamsRequest.getId());
         Assertions.assertNotNull(projectParameters);
         Assertions.assertEquals("projectId1", projectParameters.getProjectId());
         Assertions.assertEquals(2, JSON.parseObject(new String(projectParameters.getParameters()), GlobalParams.class).getHeaders().size());
@@ -386,7 +386,7 @@ public class GlobalParamsControllerTests extends BaseTest {
 
         //校验权限
         request = new GlobalParamsRequest();
-        example = new ProjectParametersExample();
+        example = new ProjectParameterExample();
         example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID);
         projectParametersList = projectParametersMapper.selectByExample(example);
         request.setProjectId(DEFAULT_PROJECT_ID);
@@ -415,7 +415,7 @@ public class GlobalParamsControllerTests extends BaseTest {
         request.setProjectId("projectId1111");
         this.requestPost(update, request, ERROR_REQUEST_MATCHER);
 
-        ProjectParametersExample example = new ProjectParametersExample();
+        ProjectParameterExample example = new ProjectParameterExample();
         example.createCriteria().andProjectIdEqualTo("projectId2");
         projectParametersMapper.deleteByExample(example);
         // 修改全局参数 全局参数不存在

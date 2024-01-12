@@ -4,7 +4,10 @@ import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.debug.ApiDebugRequest;
 import io.metersphere.api.dto.debug.ModuleCreateRequest;
 import io.metersphere.api.dto.debug.ModuleUpdateRequest;
+import io.metersphere.api.dto.definition.ApiModuleDTO;
 import io.metersphere.api.dto.definition.ApiModuleRequest;
+import io.metersphere.api.dto.definition.EnvApiModuleRequest;
+import io.metersphere.api.dto.definition.EnvApiTreeDTO;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.definition.ApiDefinitionModuleService;
@@ -866,6 +869,53 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
         Assertions.assertTrue(moduleCountResult.containsKey("all"));
         request.setProjectId(DEFAULT_PROJECT_ID);
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_READ, URL_MODULE_TRASH_COUNT, request);
+    }
+
+    @Test
+    @Order(13)
+    public void getTree() throws Exception {
+        MvcResult result = this.requestPostWithOkAndReturn("/api/definition/module/env/tree", new EnvApiModuleRequest() {{
+            this.setProjectId(project.getId());
+        }});
+        String returnData = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        EnvApiTreeDTO envApiTreeDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), EnvApiTreeDTO.class);
+        List<BaseTreeNode> baseTreeNodes = envApiTreeDTO.getModuleTree();
+        List<ApiModuleDTO> apiModuleDTOS = new ArrayList<>();
+        BaseTreeNode a1a1Node = getNodeByName(baseTreeNodes, "500-test-root-20");
+        assert a1a1Node != null;
+        ApiModuleDTO apiModuleDTO = new ApiModuleDTO();
+        apiModuleDTO.setId(a1a1Node.getId());
+        apiModuleDTO.setStatus("None");
+        apiModuleDTOS.add(apiModuleDTO);
+        BaseTreeNode a40Node = getNodeByName(baseTreeNodes, "500-test-root-40");
+        assert a40Node != null;
+        apiModuleDTO = new ApiModuleDTO();
+        apiModuleDTO.setId(a40Node.getId());
+        apiModuleDTO.setStatus("All");
+        apiModuleDTOS.add(apiModuleDTO);
+        BaseTreeNode a50Node = getNodeByName(baseTreeNodes, "500-test-root-50");
+        assert a50Node != null;
+        apiModuleDTO = new ApiModuleDTO();
+        apiModuleDTO.setId(a50Node.getId());
+        apiModuleDTO.setStatus("Current");
+        apiModuleDTOS.add(apiModuleDTO);
+        BaseTreeNode a100Node = getNodeByName(baseTreeNodes, "500-test-root-100");
+        assert a100Node != null;
+        apiModuleDTO = new ApiModuleDTO();
+        apiModuleDTO.setId(a100Node.getId());
+        apiModuleDTO.setStatus("All");
+        apiModuleDTOS.add(apiModuleDTO);
+        result = this.requestPostWithOkAndReturn("/api/definition/module/env/tree", new EnvApiModuleRequest() {{
+            this.setProjectId(project.getId());
+            this.setSelectedModules(apiModuleDTOS);
+        }});
+        returnData = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        envApiTreeDTO = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), EnvApiTreeDTO.class);
+        envApiTreeDTO.getModuleTree();
+        envApiTreeDTO.getSelectedModules();
+
     }
 
 

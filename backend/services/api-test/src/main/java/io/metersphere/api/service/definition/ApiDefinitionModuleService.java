@@ -1,11 +1,15 @@
 package io.metersphere.api.service.definition;
 
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.constants.ModuleStatus;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.debug.ApiTreeNode;
 import io.metersphere.api.dto.debug.ModuleCreateRequest;
 import io.metersphere.api.dto.debug.ModuleUpdateRequest;
+import io.metersphere.api.dto.definition.ApiModuleDTO;
 import io.metersphere.api.dto.definition.ApiModuleRequest;
+import io.metersphere.api.dto.definition.EnvApiModuleRequest;
+import io.metersphere.api.dto.definition.EnvApiTreeDTO;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.debug.ApiDebugModuleService;
 import io.metersphere.project.dto.ModuleCountDTO;
@@ -30,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -283,4 +288,58 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
         List<ApiTreeNode> apiTreeNodeList = extApiDefinitionModuleMapper.selectApiDataByRequest(request, deleted);
         return apiDebugModuleService.getBaseTreeNodes(apiTreeNodeList, baseTreeNodes);
     }
+
+    public EnvApiTreeDTO envTree(EnvApiModuleRequest request) {
+        EnvApiTreeDTO envApiTreeDTO = new EnvApiTreeDTO();
+        ApiModuleRequest apiModuleRequest = new ApiModuleRequest();
+        apiModuleRequest.setProjectId(request.getProjectId());
+        apiModuleRequest.setProtocol(ModuleConstants.NODE_PROTOCOL_HTTP);
+        List<BaseTreeNode> fileModuleList = extApiDefinitionModuleMapper.selectBaseByRequest(apiModuleRequest);
+        List<BaseTreeNode> baseTreeNodes = super.buildTreeAndCountResource(fileModuleList, true, Translator.get(UNPLANNED_API));
+        envApiTreeDTO.setModuleTree(baseTreeNodes);
+        //根据选择的模块id 来补充选中的id
+        List<ApiModuleDTO> selectedModules = request.getSelectedModules();
+        List<ApiModuleDTO> currentModules = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(selectedModules)) {
+            //将选中的模块id转换为Map 方便后面的查询 key为id
+            Map<String, ApiModuleDTO> selectedModuleMap = selectedModules.stream().collect(Collectors.toMap(ApiModuleDTO::getId, apiModuleDTO -> apiModuleDTO));
+            getAllModuleIds(baseTreeNodes, currentModules, selectedModuleMap);
+        }
+        envApiTreeDTO.setSelectedModules(currentModules);
+        return envApiTreeDTO;
+    }
+
+    public void getAllModuleIds(List<BaseTreeNode> baseTreeNodes, List<ApiModuleDTO> currentModules, Map<String, ApiModuleDTO> selectedModuleMap) {
+        baseTreeNodes.forEach(baseTreeNode -> {
+            if (selectedModuleMap.containsKey(baseTreeNode.getId())) {
+                ApiModuleDTO apiModuleDTO = selectedModuleMap.get(baseTreeNode.getId());
+                if (StringUtils.equals(apiModuleDTO.getStatus(), ModuleStatus.All.name())) {
+                    currentModules.add(apiModuleDTO);
+                    if (CollectionUtils.isNotEmpty(baseTreeNode.getChildren())) {
+                        setChildren(baseTreeNode.getChildren(), currentModules);
+                    }
+                } else {
+                    currentModules.add(apiModuleDTO);
+                }
+            }
+            if (CollectionUtils.isNotEmpty(baseTreeNode.getChildren())) {
+                getAllModuleIds(baseTreeNode.getChildren(), currentModules, selectedModuleMap);
+            }
+        });
+    }
+
+    public void setChildren(List<BaseTreeNode> baseTreeNodes, List<ApiModuleDTO> currentModules) {
+        baseTreeNodes.forEach(baseTreeNode -> {
+            ApiModuleDTO children = new ApiModuleDTO();
+            children.setId(baseTreeNode.getId());
+            children.setStatus(ModuleStatus.All.name());
+            children.setDisabled(true);
+            currentModules.add(children);
+            if (CollectionUtils.isNotEmpty(baseTreeNode.getChildren())) {
+                setChildren(baseTreeNode.getChildren(), currentModules);
+            }
+        });
+    }
+
+
 }
