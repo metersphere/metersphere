@@ -30,9 +30,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -179,20 +177,31 @@ public class MsHashTreeService {
     }
 
     public List<JSONObject> mergeOrgAssertion(List<JSONObject> orgAssertions) {
-        if (CollectionUtils.isNotEmpty(orgAssertions) && orgAssertions.size() > 1) {
-            //根据不同的类型，把所有的数据都合并到第一个上
-            JSONObject jsonObject = orgAssertions.get(0);
+        try {
+            List<JSONObject> list = new ArrayList<>();
+            if (CollectionUtils.isNotEmpty(orgAssertions)) {
+                if (orgAssertions.size() > 1) {
+                    //根据不同的类型，把所有的数据都合并到第一个上
+                    JSONObject jsonObject = orgAssertions.get(0);
 
-            for (int i = 1; i < orgAssertions.size(); i++) {
-                JSONObject jsonObject1 = orgAssertions.get(i);
-                //jsonPath
-                mergeArrayAssertions(jsonObject.optJSONArray(JSON_PATH), jsonObject1.optJSONArray(JSON_PATH));
-                mergeArrayAssertions(jsonObject.optJSONArray(JSR223), jsonObject1.optJSONArray(JSR223));
-                mergeArrayAssertions(jsonObject.optJSONArray(XPATH), jsonObject1.optJSONArray(XPATH));
-                mergeArrayAssertions(jsonObject.optJSONArray(REGEX), jsonObject1.optJSONArray(REGEX));
+                    for (int i = 1; i < orgAssertions.size(); i++) {
+                        JSONObject object = orgAssertions.get(i);
+                        //jsonPath
+                        mergeArrayAssertions(jsonObject.optJSONArray(JSON_PATH), object.optJSONArray(JSON_PATH));
+                        mergeArrayAssertions(jsonObject.optJSONArray(JSR223), object.optJSONArray(JSR223));
+                        mergeArrayAssertions(jsonObject.optJSONArray(XPATH), object.optJSONArray(XPATH));
+                        mergeArrayAssertions(jsonObject.optJSONArray(REGEX), object.optJSONArray(REGEX));
+                    }
+                }
+
+                LogUtil.info("处理断言数据，只有一个，不需要合并");
+                list.add(orgAssertions.get(0));
+                return list;
             }
+        } catch (Exception e) {
+            LogUtil.error("mergeOrgAssertion error", e);
         }
-        return List.of(orgAssertions.get(0));
+        return new ArrayList<>();
     }
 
     public void mergeArrayAssertions(JSONArray org, JSONArray org1) {
@@ -504,4 +513,5 @@ public class MsHashTreeService {
             caseFormatting(array, caseMap, apiMap, msParameter);
         }
     }
+
 }
