@@ -27,4 +27,8 @@ public interface TestPlanMapper {
     int updateByPrimaryKeySelective(TestPlan record);
 
     int updateByPrimaryKey(TestPlan record);
+
+    int batchInsert(@Param("list") List<TestPlan> list);
+
+    int batchInsertSelective(@Param("list") List<TestPlan> list, @Param("selective") TestPlan.Column ... selective);
 }

@@ -73,7 +73,7 @@ public class TestPlanModuleLogService {
                 .method(requestMethod)
                 .path(requestUrl)
                 .sourceId(deleteModule.getId())
-                .content(deleteModule.getName() + " " + Translator.get("file.log.delete_module"))
+                .content(deleteModule.getName() + " " + Translator.get("log.delete_module"))
                 .originalValue(JSON.toJSONBytes(deleteModule))
                 .createUser(operator)
                 .build().getLogDTO();

@@ -1,39 +1,49 @@
 package io.metersphere.plan.service;
 
-import io.metersphere.plan.domain.*;
-import io.metersphere.plan.dto.TestPlanDTO;
+import io.metersphere.plan.domain.TestPlan;
+import io.metersphere.plan.domain.TestPlanConfig;
+import io.metersphere.plan.domain.TestPlanExample;
+import io.metersphere.plan.dto.TestPlanQueryConditions;
+import io.metersphere.plan.dto.request.TestPlanBatchProcessRequest;
+import io.metersphere.plan.dto.request.TestPlanCreateRequest;
+import io.metersphere.plan.dto.response.TestPlanResponse;
 import io.metersphere.plan.mapper.ExtTestPlanMapper;
 import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
+import io.metersphere.sdk.constants.ApplicationNumScope;
+import io.metersphere.sdk.constants.ModuleConstants;
+import io.metersphere.sdk.constants.TestPlanConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.TestPlanModuleExample;
+import io.metersphere.system.mapper.TestPlanModuleMapper;
 import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.validation.annotation.Validated;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class TestPlanService {
+    private static final long MAX_TEST_PLAN_SIZE = 999;
     @Resource
     private TestPlanMapper testPlanMapper;
     @Resource
     private ExtTestPlanMapper extTestPlanMapper;
     @Resource
     private TestPlanConfigMapper testPlanConfigMapper;
-
+    @Resource
+    private TestPlanLogService testPlanLogService;
+    @Resource
+    private TestPlanModuleMapper testPlanModuleMapper;
     @Resource
     private TestPlanConfigService testPlanConfigService;
-    @Resource
-    private TestPlanPrincipalService testPlanPrincipalService;
+    
     @Resource
     private TestPlanFollowerService testPlanFollowerService;
     @Resource
@@ -47,103 +57,134 @@ public class TestPlanService {
     @Resource
     private TestPlanFunctionCaseService testPlanFunctionCaseService;
 
-    public TestPlanDTO add(@NotNull TestPlanDTO testPlanCreateRequest) {
-        if (StringUtils.equals(testPlanCreateRequest.getParentId(), testPlanCreateRequest.getId())) {
-            throw new MSException("The parent test plan cannot be the same as the current test plan!");
+    public void checkModule(String moduleId) {
+        if (!StringUtils.equals(moduleId, ModuleConstants.DEFAULT_NODE_ID)) {
+            TestPlanModuleExample example = new TestPlanModuleExample();
+            example.createCriteria().andIdEqualTo(moduleId);
+            if (testPlanModuleMapper.countByExample(example) == 0) {
+                throw new MSException("module.not.exist");
+            }
         }
+    }
 
-        if (StringUtils.isBlank(testPlanCreateRequest.getId())) {
-            testPlanCreateRequest.setId(IDGenerator.nextStr());
-        }
-        testPlanCreateRequest.setCreateTime(System.currentTimeMillis());
-        testPlanCreateRequest.setUpdateTime(System.currentTimeMillis());
+    public String add(TestPlanCreateRequest testPlanCreateRequest, String operator, String requestUrl, String requestMethod) {
+        //检查模块的合法性
+        this.checkModule(testPlanCreateRequest.getModuleId());
 
-        TestPlan testPlan = new TestPlan();
-        BeanUtils.copyBean(testPlan, testPlanCreateRequest);
-        testPlanMapper.insert(testPlan);
+        TestPlan createTestPlan = new TestPlan();
+        BeanUtils.copyBean(createTestPlan, testPlanCreateRequest);
+        this.validateTestPlan(createTestPlan);
+
+        createTestPlan.setId(IDGenerator.nextStr());
+        long operateTime = System.currentTimeMillis();
+        createTestPlan.setNum(NumGenerator.nextNum(testPlanCreateRequest.getProjectId(), ApplicationNumScope.TEST_PLAN));
+        createTestPlan.setCreateUser(operator);
+        createTestPlan.setUpdateUser(operator);
+        createTestPlan.setCreateTime(operateTime);
+        createTestPlan.setUpdateTime(operateTime);
+        createTestPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_PREPARED);
+        createTestPlan.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
+        testPlanMapper.insert(createTestPlan);
 
         TestPlanConfig testPlanConfig = new TestPlanConfig();
-        testPlanConfig.setTestPlanId(testPlan.getId());
+        testPlanConfig.setTestPlanId(createTestPlan.getId());
         testPlanConfig.setAutomaticStatusUpdate(testPlanCreateRequest.isAutomaticStatusUpdate());
         testPlanConfig.setRepeatCase(testPlanCreateRequest.isRepeatCase());
         testPlanConfig.setPassThreshold(testPlanCreateRequest.getPassThreshold());
         testPlanConfigMapper.insert(testPlanConfig);
 
-        if (CollectionUtils.isNotEmpty(testPlanCreateRequest.getFollowers())) {
-            List<TestPlanFollower> testPlanFollowerList = new ArrayList<>();
-            for (String follower : testPlanCreateRequest.getFollowers()) {
-                TestPlanFollower testPlanFollower = new TestPlanFollower();
-                testPlanFollower.setTestPlanId(testPlan.getId());
-                testPlanFollower.setUserId(follower);
-                testPlanFollowerList.add(testPlanFollower);
-            }
-            testPlanFollowerService.batchSave(testPlanFollowerList);
-        }
+        testPlanLogService.saveAddLog(createTestPlan, operator, requestUrl, requestMethod);
 
-        if (CollectionUtils.isNotEmpty(testPlanCreateRequest.getPrincipals())) {
-            List<TestPlanPrincipal> testPlanPrincipalList = new ArrayList<>();
-            for (String principal : testPlanCreateRequest.getPrincipals()) {
-                TestPlanPrincipal testPlanPrincipal = new TestPlanPrincipal();
-                testPlanPrincipal.setTestPlanId(testPlan.getId());
-                testPlanPrincipal.setUserId(principal);
-                testPlanPrincipalList.add(testPlanPrincipal);
-            }
-            testPlanPrincipalService.batchSave(testPlanPrincipalList);
-        }
-        return testPlanCreateRequest;
+        return createTestPlan.getId();
     }
 
-    public void batchDelete(List<String> idList) {
+    private void validateTestPlan(TestPlan testPlan) {
+        if (StringUtils.isBlank(testPlan.getName())) {
+            throw new MSException(Translator.get("test_plan.name.not_blank"));
+        }
         TestPlanExample example = new TestPlanExample();
-        example.createCriteria().andIdIn(idList);
-        testPlanMapper.deleteByExample(example);
+        if (StringUtils.isBlank(testPlan.getId())) {
 
-        this.cascadeDelete(idList);
+            TestPlanExample.Criteria criteria = example.createCriteria();
+            //测试计划第一层的数据还不能超过1000个
+            criteria.andGroupIdEqualTo(TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID);
+            if (testPlanMapper.countByExample(example) >= MAX_TEST_PLAN_SIZE) {
+                throw new MSException(Translator.getWithArgs("test_plan.too_many", MAX_TEST_PLAN_SIZE));
+            }
+            example.clear();
+            example.createCriteria().andNameEqualTo(testPlan.getName()).andProjectIdEqualTo(testPlan.getProjectId());
+            if (testPlanMapper.countByExample(example) > 0) {
+                throw new MSException(Translator.get("test_plan.name.exist") + ":" + testPlan.getName());
+            }
+        } else {
+            example.createCriteria().andNameEqualTo(testPlan.getName()).andProjectIdEqualTo(testPlan.getProjectId()).andIdNotEqualTo(testPlan.getId());
+            if (testPlanMapper.countByExample(example) > 0) {
+                throw new MSException(Translator.get("test_plan.name.exist") + ":" + testPlan.getName());
+            }
+        }
     }
 
-    public void delete(@NotBlank String id) {
+    public void delete(String id, String operator, String requestUrl, String requestMethod) {
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(id);
+        testPlanMapper.deleteByPrimaryKey(id);
+        //级联删除
+        this.cascadeDeleteTestPlan(id);
         TestPlanExample example = new TestPlanExample();
-        example.createCriteria().andIdEqualTo(id);
-        testPlanMapper.deleteByExample(example);
-        this.cascadeDelete(id);
+        example.createCriteria().andGroupIdEqualTo(id);
+        List<TestPlan> testPlanItemList = testPlanMapper.selectByExample(example);
+        testPlanItemList.forEach(item -> this.cascadeDeleteTestPlan(item.getId()));
+        //记录日志
+        testPlanLogService.saveDeleteLog(testPlan, testPlanItemList, operator, requestUrl, requestMethod);
     }
 
-    public void deleteByParentId(String parentTestPlanId) {
-        List<String> childrenTestPlanIdList = extTestPlanMapper.selectByParentId(parentTestPlanId);
-        if (CollectionUtils.isNotEmpty(childrenTestPlanIdList)) {
-            this.batchDelete(childrenTestPlanIdList);
+    public void delete(TestPlanBatchProcessRequest request, String operator, String requestUrl, String requestMethod) {
+        List<String> deleteIdList = request.getSelectIds();
+        if (request.isSelectAll()) {
+            TestPlanQueryConditions testPlanQueryConditions = new TestPlanQueryConditions(request.getModuleIds(), request.getProjectId(), request.getCondition());
+            testPlanQueryConditions.setHiddenIds(request.getExcludeIds());
+            deleteIdList = extTestPlanMapper.selectIdByConditions(testPlanQueryConditions);
         }
+        deleteIdList.forEach(testPlanId -> {
+            this.delete(testPlanId, operator, requestUrl, requestMethod);
+        });
     }
 
-    @Validated
-    public void deleteBatchByParentId(List<String> parentTestPlanId) {
-        List<String> childrenTestPlanIdList = extTestPlanMapper.selectByParentIdList(parentTestPlanId);
-        if (CollectionUtils.isNotEmpty(childrenTestPlanIdList)) {
-            this.batchDelete(childrenTestPlanIdList);
-        }
-    }
-
-    private void cascadeDelete(String id) {
-        //删除子计划
-        this.deleteByParentId(id);
+    //删除测试计划以及其他的级联数据
+    private void cascadeDeleteTestPlan(String testPlanId) {
+        testPlanMapper.deleteByPrimaryKey(testPlanId);
         //删除当前计划对应的资源
-        this.testPlanConfigService.delete(id);
-        this.testPlanFunctionCaseService.deleteByTestPlanId(id);
-        this.testPlanApiCaseService.deleteByTestPlanId(id);
-        this.testPlanApiScenarioService.deleteByTestPlanId(id);
-        this.testPlanUiScenarioService.deleteByTestPlanId(id);
-        this.testPlanLoadCaseService.deleteByTestPlanId(id);
+        /*
+        todo
+            this.testPlanConfigService.delete(testPlanId);
+            this.testPlanFunctionCaseService.deleteByTestPlanId(testPlanId);
+            this.testPlanApiCaseService.deleteByTestPlanId(testPlanId);
+            this.testPlanApiScenarioService.deleteByTestPlanId(testPlanId);
+            this.testPlanUiScenarioService.deleteByTestPlanId(testPlanId);
+            this.testPlanLoadCaseService.deleteByTestPlanId(testPlanId);
+            删除计划的关注者
+            删除计划报告
+            删除计划定时任务
+         */
+
     }
 
-    private void cascadeDelete(List<String> idList) {
-        //删除子计划
-        this.deleteBatchByParentId(idList);
-        //删除当前计划对应的资源
-        this.testPlanConfigService.deleteBatch(idList);
-        this.testPlanFunctionCaseService.deleteBatchByTestPlanId(idList);
-        this.testPlanApiCaseService.deleteBatchByTestPlanId(idList);
-        this.testPlanApiScenarioService.deleteBatchByTestPlanId(idList);
-        this.testPlanUiScenarioService.deleteBatchByTestPlanId(idList);
-        this.testPlanLoadCaseService.deleteBatchByTestPlanId(idList);
+    public TestPlan getById(String id) {
+        return testPlanMapper.selectByPrimaryKey(id);
+    }
+
+
+    public TestPlanResponse getCount(String id) {
+        TestPlanResponse response = new TestPlanResponse();
+        response.setId(id);
+        /*
+        todo  统计：测试进度、通过率、用例数、Bug数量（这些比较慢的查询，是否需要另开接口查询)
+            Q:测试计划组需要查询这些数据吗？
+         */
+        response.setFunctionalCaseCount(0);
+        response.setApiCaseCount(0);
+        response.setApiScenarioCount(0);
+        response.setPassRate("3.14%");
+        response.setTestProgress("15.92%");
+        return response;
     }
 }
