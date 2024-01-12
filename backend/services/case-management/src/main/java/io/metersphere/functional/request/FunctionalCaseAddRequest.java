@@ -68,7 +68,7 @@ public class FunctionalCaseAddRequest implements Serializable {
     @Schema(description = "附件关联文件ID集合")
     private List<String> relateFileMetaIds;
 
-    @Schema(description = "攻能用例详情（前置条件/步骤描述/预期结果/备注）上传的文件id集合")
+    @Schema(description = "功能用例详情（前置条件/步骤描述/预期结果/备注）上传的文件id集合")
     private List<String> caseDetailFileIds;
 
     @Schema(description = "评审id")

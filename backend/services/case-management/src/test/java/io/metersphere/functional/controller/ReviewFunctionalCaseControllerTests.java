@@ -1,5 +1,6 @@
 package io.metersphere.functional.controller;
 
+import io.metersphere.functional.constants.CaseFileSourceType;
 import io.metersphere.functional.constants.CaseReviewPassRule;
 import io.metersphere.functional.constants.CaseReviewStatus;
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
@@ -8,27 +9,36 @@ import io.metersphere.functional.dto.CaseReviewHistoryDTO;
 import io.metersphere.functional.mapper.CaseReviewFunctionalCaseMapper;
 import io.metersphere.functional.mapper.CaseReviewHistoryMapper;
 import io.metersphere.functional.mapper.CaseReviewMapper;
-import io.metersphere.functional.request.BaseAssociateCaseRequest;
-import io.metersphere.functional.request.CaseReviewRequest;
-import io.metersphere.functional.request.ReviewFunctionalCaseRequest;
+import io.metersphere.functional.mapper.FunctionalCaseAttachmentMapper;
+import io.metersphere.functional.request.*;
+import io.metersphere.functional.service.FunctionalCaseAttachmentService;
+import io.metersphere.functional.utils.FileBaseUtils;
+import io.metersphere.project.dto.filemanagement.request.FileUploadRequest;
+import io.metersphere.project.service.FileMetadataService;
+import io.metersphere.project.service.FileService;
+import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.SessionConstants;
+import io.metersphere.sdk.constants.StorageType;
+import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -44,13 +54,26 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
     private static final String ADD_CASE_REVIEW = "/case/review/add";
     private static final String REVIEW_LIST = "/review/functional/case/get/list/";
 
+    public static final String ATTACHMENT_PREVIEW_COMPRESSED_URL = "/review/functional/case/preview/compressed";
+    public static final String ATTACHMENT_DOWNLOAD_URL = "/review/functional/case/download";
+    public static final String UPLOAD_TEMP = "/review/functional/case/upload/temp/file";
+    public static final String ATTACHMENT_PREVIEW_URL = "/review/functional/case/preview";
+
+
     @Resource
     private CaseReviewMapper caseReviewMapper;
     @Resource
     private CaseReviewHistoryMapper caseReviewHistoryMapper;
     @Resource
     private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
-
+    @Resource
+    private FileService fileService;
+    @Resource
+    private FileMetadataService fileMetadataService;
+    @Resource
+    private FunctionalCaseAttachmentService functionalCaseAttachmentService;
+    @Resource
+    private FunctionalCaseAttachmentMapper functionalCaseAttachmentMapper;
 
     @Test
     @Order(0)
@@ -250,6 +273,74 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         System.out.println(JSON.toJSONString(gyqReviewCaseTest));
     }
 
+    @Test
+    @Order(5)
+    public void testAttachmentPreview() throws Exception {
+        FunctionalCaseFileRequest request = new FunctionalCaseFileRequest();
+        request.setProjectId("project-review-case-test");
+        request.setLocal(true);
+        request.setFileId("TEST_REVIEW_COMMENT_FILE_ID");
+        request.setCaseId("gyqReviewCaseTest");
+        uploadLocalFile();
+        this.downloadFile(ATTACHMENT_PREVIEW_URL, request);
+
+        //覆盖controller
+        request.setLocal(false);
+        String fileId = uploadFile();
+        request.setFileId(fileId);
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        this.downloadFile(ATTACHMENT_PREVIEW_URL, request);
+
+        //增加覆盖率
+        request.setLocal(true);
+        request.setProjectId("123213");
+        request.setFileId("123123");
+        request.setCaseId("123123");
+        this.downloadFile(ATTACHMENT_PREVIEW_URL, request);
+    }
+
+    @Test
+    @Order(6)
+    public void testUploadTemp() throws Exception {
+        //覆盖controller方法
+        MockMultipartFile file = getMockMultipartFile();
+        String fileId = doUploadTempFile(file);
+        Assertions.assertTrue(StringUtils.isNotBlank(fileId));
+        file = getNoNameMockMultipartFile();
+        doUploadTempFileFalse(file);
+        functionalCaseAttachmentService.uploadMinioFile("gyqReviewCaseTest","project-review-case-test", List.of(fileId),"admin", CaseFileSourceType.REVIEW_COMMENT.toString());
+        FunctionalCaseSourceFileRequest request = new FunctionalCaseSourceFileRequest();
+        request.setProjectId("project-review-case-test");
+        request.setLocal(true);
+        request.setFileSource(CaseFileSourceType.REVIEW_COMMENT.toString());
+        request.setCaseId("gyqReviewCaseTest");
+        MvcResult mvcResult = this.downloadFile(ATTACHMENT_PREVIEW_COMPRESSED_URL, request);
+        Assertions.assertNotNull(mvcResult);
+        FunctionalCaseAttachmentExample functionalCaseAttachmentExample = new FunctionalCaseAttachmentExample();
+        functionalCaseAttachmentExample.createCriteria().andCaseIdEqualTo("gyqReviewCaseTest").andFileIdEqualTo(fileId).andFileSourceEqualTo(CaseFileSourceType.REVIEW_COMMENT.toString());
+        List<FunctionalCaseAttachment> functionalCaseAttachments = functionalCaseAttachmentMapper.selectByExample(functionalCaseAttachmentExample);
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(functionalCaseAttachments));
+        functionalCaseAttachmentService.uploadMinioFile("gyqReviewCaseTest","project-review-case-test",new ArrayList<>(),"admin", CaseFileSourceType.REVIEW_COMMENT.toString());
+        String functionalCaseDir = DefaultRepositoryDir.getFunctionalCaseDir("project-review-case-test", "gyqReviewCaseTest");
+        functionalCaseAttachmentService.uploadFileResource(functionalCaseDir,new HashMap<>(),"project-review-case-test", "gyqReviewCaseTest");
+        Map<String, String> objectObjectHashMap = new HashMap<>();
+        objectObjectHashMap.put(fileId,null);
+        functionalCaseAttachmentService.uploadFileResource(functionalCaseDir,objectObjectHashMap,"project-review-case-test", "gyqReviewCaseTest");
+
+    }
+
+    @Test
+    @Order(7)
+    public void testAttachmentDownload() throws Exception {
+        //覆盖controller
+        FunctionalCaseFileRequest request = new FunctionalCaseFileRequest();
+        request.setProjectId("project-review-case-test");
+        request.setFileId("TEST_REVIEW_COMMENT_FILE_ID");
+        request.setCaseId("gyqReviewCaseTest");
+        request.setLocal(true);
+        this.downloadFile(ATTACHMENT_DOWNLOAD_URL, request);
+    }
+
 
     public List<CaseReviewHistoryDTO> getCaseReviewHistoryList(String caseId,String reviewId) throws Exception {
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(REVIEW_LIST +"/"+reviewId +"/"+ caseId).header(SessionConstants.HEADER_TOKEN, sessionId)
@@ -289,5 +380,61 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         return caseReviewMapper.selectByExample(caseReviewExample);
     }
 
+    protected MvcResult downloadFile(String url, Object param, Object... uriVariables) throws Exception {
+        return mockMvc.perform(getPostRequestBuilder(url, param, uriVariables))
+                .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE))
+                .andExpect(status().isOk()).andReturn();
+    }
 
+    private void uploadLocalFile() {
+        String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/test.JPG")).getPath();
+        MockMultipartFile file = new MockMultipartFile("file", "file_re-upload.JPG", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileBaseUtils.getFileBytes(filePath));
+        FileRequest fileRequest = new FileRequest();
+        fileRequest.setFileName("测试评审");
+        fileRequest.setFolder(DefaultRepositoryDir.getFunctionalCaseDir("project-review-case-test", "gyqReviewCaseTest") + "/" + "TEST_REVIEW_COMMENT_FILE_ID");
+        fileRequest.setStorage(StorageType.MINIO.name());
+        try {
+            fileService.upload(file, fileRequest);
+        } catch (Exception e) {
+            throw new MSException("save file error");
+        }
+    }
+    private String uploadFile() throws Exception {
+        String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/test.JPG")).getPath();
+        MockMultipartFile file = new MockMultipartFile("file", "file_re-upload.JPG", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileBaseUtils.getFileBytes(filePath));
+        FileUploadRequest fileUploadRequest = new FileUploadRequest();
+        fileUploadRequest.setProjectId("project-review-case-test");
+        return fileMetadataService.upload(fileUploadRequest, "admin", file);
+    }
+
+    private static MockMultipartFile getMockMultipartFile() {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                "file_upload.JPG",
+                MediaType.APPLICATION_OCTET_STREAM_VALUE,
+                "Hello, World!".getBytes()
+        );
+        return file;
+    }
+
+    private String doUploadTempFile(MockMultipartFile file) throws Exception {
+        return JSON.parseObject(requestUploadFileWithOkAndReturn(UPLOAD_TEMP, file)
+                        .getResponse()
+                        .getContentAsString(), ResultHolder.class)
+                .getData().toString();
+    }
+
+    private void doUploadTempFileFalse(MockMultipartFile file) throws Exception {
+        this.requestUploadFile(UPLOAD_TEMP, file).andExpect(status().is5xxServerError());
+    }
+
+    private static MockMultipartFile getNoNameMockMultipartFile() {
+        MockMultipartFile file = new MockMultipartFile(
+                "file",
+                null,
+                MediaType.APPLICATION_OCTET_STREAM_VALUE,
+                "Hello, World!".getBytes()
+        );
+        return file;
+    }
 }

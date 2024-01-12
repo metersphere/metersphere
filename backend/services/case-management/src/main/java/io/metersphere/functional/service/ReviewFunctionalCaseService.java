@@ -1,6 +1,7 @@
 package io.metersphere.functional.service;
 
 import io.metersphere.functional.constants.CaseEvent;
+import io.metersphere.functional.constants.CaseFileSourceType;
 import io.metersphere.functional.constants.CaseReviewPassRule;
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.domain.CaseReviewFunctionalCaseUserExample;
@@ -43,6 +44,8 @@ public class ReviewFunctionalCaseService {
     private ReviewSendNoticeService reviewSendNoticeService;
     @Resource
     private BaseCaseProvider provider;
+    @Resource
+    private FunctionalCaseAttachmentService functionalCaseAttachmentService;
 
     /**
      * 评审功能用例
@@ -68,6 +71,9 @@ public class ReviewFunctionalCaseService {
         String functionalCaseStatus = getFunctionalCaseStatus(request, hasReviewedUserMap);
         extCaseReviewFunctionalCaseMapper.updateStatus(caseId, reviewId, functionalCaseStatus);
         caseReviewHistoryMapper.insert(caseReviewHistory);
+
+        //保存副文本评论附件
+        functionalCaseAttachmentService.uploadMinioFile(caseId,request.getProjectId(),request.getReviewCommentFileIds(),userId, CaseFileSourceType.REVIEW_COMMENT.toString());
 
         //检查是否有@，发送@通知
         if (StringUtils.isNotBlank(request.getNotifier())) {

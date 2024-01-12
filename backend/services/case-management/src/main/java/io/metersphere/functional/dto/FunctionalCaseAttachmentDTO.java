@@ -27,7 +27,7 @@ public class FunctionalCaseAttachmentDTO implements Serializable {
     @Schema(description = "文件大小")
     private Long size;
 
-    @Schema(description = "文件来源")
+    @Schema(description = "文件来源:附件(ATTACHMENT)/功能用例详情(CASE_DETAIL)/用例评论(CASE_COMMENT)/评审评论(REVIEW_COMMENT)")
     private String fileSource;
 
     @Schema(description = "是否本地")
