@@ -68,6 +68,7 @@
 
 <script setup lang="ts">
   import { computed, onBeforeMount, ref, watch } from 'vue';
+  import { useVModel } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -88,7 +89,7 @@
   const props = defineProps<{
     isExpandAll: boolean;
     activeFolder?: string; // 当前选中的文件夹，弹窗模式下需要使用
-    selectedKeys?: Array<string | number>; // 选中的节点 key
+    selectedKeys: Array<string | number>; // 选中的节点 key
     isModal?: boolean; // 是否是弹窗模式
     modulesCount?: Record<string, number>; // 模块数量统计对象
     showType?: string; // 显示类型
@@ -131,21 +132,7 @@
   ];
   const renamePopVisible = ref(false);
 
-  const selectedKeys = ref(props.selectedKeys || []);
-
-  watch(
-    () => props.selectedKeys,
-    (val) => {
-      selectedKeys.value = val || [];
-    }
-  );
-
-  watch(
-    () => selectedKeys.value,
-    (val) => {
-      emit('update:selectedKeys', val);
-    }
-  );
+  const selectedKeys = useVModel(props, 'selectedKeys', emit);
 
   /**
    * 初始化模块树

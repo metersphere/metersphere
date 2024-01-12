@@ -38,7 +38,7 @@ export default function useSelect(config: UseSelectOption) {
         let tagCount = 0;
         const values = Object.values(config.selectVal.value);
         for (let i = 0; i < values.length; i++) {
-          const tagWidth = values[i][config.labelKey || 'label'].length * 12; // 计算每个标签渲染出来的宽度，文字大小在12px时宽度也是 12px
+          const tagWidth = (values[i][config.labelKey || 'label']?.length || 0) * 12; // 计算每个标签渲染出来的宽度，文字大小在12px时宽度也是 12px
           if (lastWidth > tagWidth + 36) {
             tagCount += 1;
             lastWidth -= tagWidth + 36; // 36px是标签的边距、边框等宽度

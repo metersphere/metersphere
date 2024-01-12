@@ -60,7 +60,7 @@ async function changeLocale(locale: LocaleType) {
 
 export default function useLocale() {
   const { locale } = i18n.global;
-  const currentLocale = ref(locale);
+  const currentLocale = ref(locale as LocaleType);
 
   return {
     currentLocale,

@@ -74,6 +74,7 @@ export default {
   'common.expandAll': 'Expand all',
   'common.copy': 'Copy',
   'common.fork': 'Fork',
+  'common.forked': 'Forked',
   'common.more': 'More',
   'common.recycle': 'Recycle Bin',
   'common.new': 'New',
@@ -87,4 +88,6 @@ export default {
   'common.json': 'Object',
   'common.integer': 'Integer',
   'common.file': 'File',
+  'common.desc': 'Description',
+  'common.root': 'Default Module',
 };

@@ -65,7 +65,7 @@ export default {
   'caseManagement.caseReview.reviewNameRequired': 'Review name cannot be empty',
   'caseManagement.caseReview.descPlaceholder': 'Please describe this review',
   'caseManagement.caseReview.belongModule': 'Belonging module',
-  'caseManagement.caseReview.belongModulePlaceholder': 'Please select the module to which the use case belongs',
+  'caseManagement.caseReview.belongModulePlaceholder': 'Please select the module to which the review belongs',
   'caseManagement.caseReview.reviewerPlaceholder': 'Please select a reviewer',
   'caseManagement.caseReview.defaultReviewer': 'Default reviewer',
   'caseManagement.caseReview.defaultReviewerRequired': 'The default reviewer cannot be empty',

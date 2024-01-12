@@ -2,7 +2,7 @@
   <a-popover position="tl" :disabled="!props.desc || props.desc.trim() === ''" class="ms-params-input-popover">
     <template #content>
       <div class="param-popover-title">
-        {{ t('ms.apiTestDebug.desc') }}
+        {{ t('apiTestDebug.desc') }}
       </div>
       <div class="param-popover-value">
         {{ props.desc }}

@@ -10,7 +10,7 @@
       <div :class="getFolderClass('all')" @click="setActiveFolder('all')">
         <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
         <div class="folder-name">{{ t('caseManagement.caseReview.allCases') }}</div>
-        <div class="folder-count">({{ allFileCount }})</div>
+        <div class="folder-count">({{ allCount }})</div>
       </div>
     </div>
     <a-divider class="my-[8px]" />
@@ -47,12 +47,14 @@
 
 <script setup lang="ts">
   import { computed, onBeforeMount, ref, watch } from 'vue';
+  import { useRoute } from 'vue-router';
+  import { useVModel } from '@vueuse/core';
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
 
-  import { getModules } from '@/api/modules/project-management/fileManagement';
+  import { getReviewDetailModuleTree } from '@/api/modules/case-management/caseReview';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import { mapTree } from '@/utils';
@@ -63,9 +65,11 @@
     modulesCount?: Record<string, number>; // 模块数量统计对象
     showType?: string; // 显示类型
     isExpandAll?: boolean; // 是否展开所有节点
+    selectedKeys: string[]; // 选中的节点 key
   }>();
   const emit = defineEmits(['init', 'folderNodeSelect']);
 
+  const route = useRoute();
   const appStore = useAppStore();
   const { t } = useI18n();
 
@@ -76,7 +80,7 @@
   });
 
   const activeFolder = ref<string>('all');
-  const allFileCount = ref(0);
+  const allCount = ref(0);
   const isExpandAll = ref(props.isExpandAll);
 
   watch(
@@ -99,31 +103,22 @@
   const folderTree = ref<ModuleTreeNode[]>([]);
   const loading = ref(false);
 
-  const selectedKeys = ref<string[]>([]);
+  const selectedKeys = useVModel(props, 'selectedKeys', emit);
 
   /**
    * 初始化模块树
-   * @param isSetDefaultKey 是否设置第一个节点为选中节点
    */
-  async function initModules(isSetDefaultKey = false) {
+  async function initModules() {
     try {
       loading.value = true;
-      const res = await getModules(appStore.currentProjectId);
-      folderTree.value = res;
-      if (isSetDefaultKey) {
-        selectedKeys.value = [folderTree.value[0].id];
-        const offspringIds: string[] = [];
-        mapTree(folderTree.value[0].children || [], (e) => {
-          offspringIds.push(e.id);
-          return e;
-        });
-
-        emit('folderNodeSelect', selectedKeys.value, offspringIds);
-      }
-      emit(
-        'init',
-        folderTree.value.map((e) => e.name)
-      );
+      const res = await getReviewDetailModuleTree(appStore.currentProjectId, route.query.id as string);
+      folderTree.value = mapTree<ModuleTreeNode>(res, (node) => {
+        return {
+          ...node,
+          count: props.modulesCount?.[node.id] || 0,
+        };
+      });
+      emit('init', folderTree.value);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -141,7 +136,7 @@
       offspringIds.push(e.id);
       return e;
     });
-
+    activeFolder.value = node.id;
     emit('folderNodeSelect', _selectedKeys, offspringIds);
   }
 
@@ -161,6 +156,7 @@
           count: obj?.[node.id] || 0,
         };
       });
+      allCount.value = obj?.all || 0;
     }
   );
 

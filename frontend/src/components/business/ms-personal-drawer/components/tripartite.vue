@@ -4,163 +4,42 @@
       <div class="font-medium text-[var(--color-text-1)]">{{ t('ms.personal.tripartite') }}</div>
     </div>
     <div class="platform-card-container">
-      <div class="platform-card">
+      <div v-for="config of dynamicForm" :key="config.key" class="platform-card">
         <div class="mb-[16px] flex items-center">
-          <a-image src="/plugin/image/jira?imagePath=static/jira.jpg" width="24"></a-image>
-          <div class="ml-[8px] mr-[4px] font-medium text-[var(--color-text-1)]">JIRA</div>
-          <a-tooltip :content="t('ms.personal.jiraTip')" position="right">
+          <a-image :src="`/plugin/image/${config.key}?imagePath=static/${config.key}.jpg`" width="24"></a-image>
+          <div class="ml-[8px] mr-[4px] font-medium text-[var(--color-text-1)]">{{ config.key }}</div>
+          <a-tooltip v-if="config.tooltip" :content="config.tooltip" position="right">
             <icon-exclamation-circle
               class="mr-[8px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
               size="16"
             />
           </a-tooltip>
-          <MsTag theme="light" :type="tagMap[jiraConfig.status].type" size="small" class="px-[4px]">
-            {{ tagMap[jiraConfig.status].text }}
+          <MsTag theme="light" :type="tagMap[config.status].type" size="small" class="px-[4px]">
+            {{ tagMap[config.status].text }}
           </MsTag>
         </div>
-        <a-form ref="jiraFormRef" :model="jiraConfig">
-          <a-form-item :label="t('ms.personal.authType')">
-            <a-radio-group v-model:model-value="jiraConfig.authType">
-              <a-radio value="basic">Basic Auth</a-radio>
-              <a-radio value="token">Bearer Token</a-radio>
-            </a-radio-group>
-          </a-form-item>
-          <a-form-item :label="t('ms.personal.platformAccount')">
-            <a-input
-              v-model:model-value="jiraConfig.platformAccount"
-              :placeholder="t('ms.personal.platformAccountPlaceholder', { type: 'JIRA' })"
-              class="w-[312px]"
-              allow-clear
-              autocomplete="new-password"
-            ></a-input>
-          </a-form-item>
-          <a-form-item :label="t('ms.personal.platformPsw')">
-            <a-input-password
-              v-model:model-value="jiraConfig.platformPsw"
-              :placeholder="t('ms.personal.platformPswPlaceholder', { type: 'JIRA' })"
-              class="mr-[8px] w-[312px]"
-              allow-clear
-              autocomplete="new-password"
-            ></a-input-password>
-            <a-button type="outline" :disabled="jiraConfig.platformAccount === '' || jiraConfig.platformPsw === ''">
-              {{ t('ms.personal.valid') }}
-            </a-button>
-          </a-form-item>
-        </a-form>
-      </div>
-      <div class="platform-card">
-        <div class="mb-[16px] flex items-center">
-          <a-image src="/plugin/image/jira?imagePath=static/jira.jpg" width="24"></a-image>
-          <div class="ml-[8px] mr-[4px] font-medium text-[var(--color-text-1)]">
-            {{ t('ms.personal.zendao') }}
-          </div>
-          <a-tooltip :content="t('ms.personal.zendaoTip')" position="right">
-            <icon-exclamation-circle
-              class="mr-[8px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
-              size="16"
-            />
-          </a-tooltip>
-          <MsTag theme="light" :type="tagMap[zendaoConfig.status].type" size="small" class="px-[4px]">
-            {{ tagMap[zendaoConfig.status].text }}
-          </MsTag>
-        </div>
-        <a-form ref="zendaoFormRef" :model="zendaoConfig">
-          <a-form-item :label="t('ms.personal.platformAccount')">
-            <a-input
-              v-model:model-value="zendaoConfig.platformAccount"
-              :placeholder="t('ms.personal.platformAccountPlaceholder', { type: t('ms.personal.zendao') })"
-              class="w-[312px]"
-              allow-clear
-              autocomplete="new-password"
-            ></a-input>
-          </a-form-item>
-          <a-form-item :label="t('ms.personal.platformPsw')">
-            <a-input-password
-              v-model:model-value="zendaoConfig.platformPsw"
-              :placeholder="t('ms.personal.platformPswPlaceholder', { type: t('ms.personal.zendao') })"
-              class="mr-[8px] w-[312px]"
-              allow-clear
-              autocomplete="new-password"
-            ></a-input-password>
-            <a-button type="outline" :disabled="zendaoConfig.platformAccount === '' || zendaoConfig.platformPsw === ''">
-              {{ t('ms.personal.valid') }}
-            </a-button>
-          </a-form-item>
-        </a-form>
-      </div>
-      <div class="platform-card">
-        <div class="mb-[16px] flex items-center">
-          <a-image src="/plugin/image/jira?imagePath=static/jira.jpg" width="24"></a-image>
-          <div class="ml-[8px] mr-[4px] font-medium text-[var(--color-text-1)]"> Azure DeVops </div>
-          <a-tooltip :content="t('ms.personal.azureTip')" position="right">
-            <icon-exclamation-circle
-              class="mr-[8px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
-              size="16"
-            />
-          </a-tooltip>
-          <MsTag theme="light" :type="tagMap[azureConfig.status].type" size="small" class="px-[4px]">
-            {{ tagMap[azureConfig.status].text }}
-          </MsTag>
-        </div>
-        <a-form ref="zendaoFormRef" :model="azureConfig">
-          <a-form-item>
-            <template #label>
-              <div class="flex text-right leading-none"> Personal Access Tokens </div>
-            </template>
-            <a-input
-              v-model:model-value="azureConfig.token"
-              :placeholder="t('ms.personal.azurePlaceholder')"
-              class="mr-[8px] w-[312px]"
-              allow-clear
-              autocomplete="new-password"
-            ></a-input>
-            <a-button type="outline" :disabled="azureConfig.token === ''">
-              {{ t('ms.personal.valid') }}
-            </a-button>
-          </a-form-item>
-        </a-form>
-      </div>
-      <div class="platform-card">
-        <div class="mb-[16px] flex items-center">
-          <a-image src="/plugin/image/jira?imagePath=static/jira.jpg" width="24"></a-image>
-          <div class="ml-[8px] mr-[4px] font-medium text-[var(--color-text-1)]"> TAPD </div>
-          <a-popover position="right">
-            <template #content>
-              <div class="bg-[var(--color-text-n9)] p-[12px]">
-                <a-image src="/images/tapd-user.png" :width="385"></a-image>
-              </div>
-            </template>
-            <icon-exclamation-circle
-              class="mr-[8px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
-              size="16"
-            />
-          </a-popover>
-          <MsTag theme="light" :type="tagMap[tapdConfig.status].type" size="small" class="px-[4px]">
-            {{ tagMap[tapdConfig.status].text }}
-          </MsTag>
-        </div>
-        <a-form ref="zendaoFormRef" :model="tapdConfig">
-          <a-form-item :label="t('ms.personal.platformName')">
-            <a-input
-              v-model:model-value="tapdConfig.name"
-              :placeholder="t('ms.personal.platformNamePlaceholder')"
-              class="mr-[8px] w-[312px]"
-              allow-clear
-              autocomplete="new-password"
-            />
-            <a-button type="outline" :disabled="tapdConfig.name === ''">
-              {{ t('ms.personal.valid') }}
-            </a-button>
-          </a-form-item>
-        </a-form>
+        <MsFormCreate
+          v-model:api="config.formModel"
+          v-model:form-item="config.formItemList"
+          :form-rule="config.formRules"
+          :option="options"
+        >
+        </MsFormCreate>
+        <a-button type="outline" :loading="config.validateLoading" @click="validate(config)">
+          {{ t('ms.personal.valid') }}
+        </a-button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+  import { Message } from '@arco-design/web-vue';
+
+  import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
   import MsTag, { TagType } from '@/components/pure/ms-tag/ms-tag.vue';
 
+  import { getPlatform, getPlatformAccount, savePlatform, validatePlatform } from '@/api/modules/user/index';
   import { useI18n } from '@/hooks/useI18n';
 
   const { t } = useI18n();
@@ -185,33 +64,75 @@
     },
   };
 
-  const jiraConfig = ref({
-    status: 0 as Status,
-    authType: 'basic',
-    platformAccount: '',
-    platformPsw: '',
+  const dynamicForm = ref<any>({});
+  const options = ref({
+    resetBtn: false,
+    submitBtn: false,
+    on: false,
+    form: {
+      layout: 'vertical',
+      labelAlign: 'left',
+    },
+    row: {
+      gutter: 0,
+    },
+    wrap: {
+      'asterisk-position': 'end',
+      'validate-trigger': ['change'],
+    },
   });
 
-  const zendaoConfig = ref({
-    status: 0 as Status,
-    platformAccount: '',
-    platformPsw: '',
-  });
+  async function initPlatformAccountInfo() {
+    try {
+      const res = await getPlatformAccount();
+      Object.keys(res).forEach((key) => {
+        dynamicForm.value[key] = {
+          key,
+          status: 0,
+          formModel: {},
+          formRules: res[key].formItems,
+          formItemList: [],
+          tooltip: res[key].instructionsInfo,
+          validateLoading: false,
+        };
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
-  const azureConfig = ref({
-    status: 0 as Status,
-    token: '',
-  });
+  async function initPlatformInfo() {
+    try {
+      const res = await getPlatform();
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
-  const tapdConfig = ref({
-    status: 0 as Status,
-    name: '',
+  async function validate(config: any) {
+    try {
+      config.validateLoading = true;
+      await validatePlatform(config.key, config.formModel.form);
+      Message.success(t('ms.personal.validPass'));
+      config.status = 1;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      config.status = 2;
+    } finally {
+      config.validateLoading = false;
+    }
+  }
+
+  onBeforeMount(() => {
+    initPlatformAccountInfo();
+    initPlatformInfo();
   });
 </script>
 
 <style lang="less" scoped>
   .platform-card-container {
-    @apply flex flex-1 flex-wrap  overflow-auto;
+    @apply flex flex-wrap  overflow-auto;
     .ms-scroll-bar();
 
     padding: 16px;

@@ -2,15 +2,15 @@
   <MsBaseTable v-bind="propsRes" id="headerTable" :hoverable="false" v-on="propsEvent">
     <template #encodeTitle>
       <div class="flex items-center text-[var(--color-text-3)]">
-        {{ t('ms.apiTestDebug.encode') }}
+        {{ t('apiTestDebug.encode') }}
         <a-tooltip>
           <icon-question-circle
             class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
             size="16"
           />
           <template #content>
-            <div>{{ t('ms.apiTestDebug.encodeTip1') }}</div>
-            <div>{{ t('ms.apiTestDebug.encodeTip2') }}</div>
+            <div>{{ t('apiTestDebug.encodeTip1') }}</div>
+            <div>{{ t('apiTestDebug.encodeTip2') }}</div>
           </template>
         </a-tooltip>
       </div>
@@ -19,7 +19,7 @@
       <a-popover position="tl" :disabled="!record.name || record.name.trim() === ''" class="ms-params-input-popover">
         <template #content>
           <div class="param-popover-title">
-            {{ t('ms.apiTestDebug.paramName') }}
+            {{ t('apiTestDebug.paramName') }}
           </div>
           <div class="param-popover-value">
             {{ record.name }}
@@ -27,14 +27,14 @@
         </template>
         <a-input
           v-model:model-value="record.name"
-          :placeholder="t('ms.apiTestDebug.paramNamePlaceholder')"
+          :placeholder="t('apiTestDebug.paramNamePlaceholder')"
           class="param-input"
           @input="(val) => addTableLine(val)"
         />
       </a-popover>
     </template>
     <template #type="{ record }">
-      <a-tooltip :content="t(record.required ? 'ms.apiTestDebug.paramRequired' : 'ms.apiTestDebug.paramNotRequired')">
+      <a-tooltip :content="t(record.required ? 'apiTestDebug.paramRequired' : 'apiTestDebug.paramNotRequired')">
         <MsButton
           type="icon"
           :class="[
@@ -65,14 +65,14 @@
       <div class="flex items-center justify-between">
         <a-input-number
           v-model:model-value="record.min"
-          :placeholder="t('ms.apiTestDebug.paramMin')"
+          :placeholder="t('apiTestDebug.paramMin')"
           class="param-input"
           @input="(val) => addTableLine(val)"
         ></a-input-number>
         <div class="mx-[4px]">～</div>
         <a-input-number
           v-model:model-value="record.max"
-          :placeholder="t('ms.apiTestDebug.paramMax')"
+          :placeholder="t('apiTestDebug.paramMax')"
           class="param-input"
           @input="(val) => addTableLine(val)"
         ></a-input-number>
@@ -127,7 +127,7 @@
   <a-modal
     v-model:visible="showQuickInputParam"
     :title="t('ms.paramsInput.value')"
-    :ok-text="t('ms.apiTestDebug.apply')"
+    :ok-text="t('apiTestDebug.apply')"
     class="ms-modal-form"
     body-class="!p-0"
     :width="680"
@@ -145,7 +145,7 @@
       <template #title>
         <div class="flex justify-between">
           <div class="text-[var(--color-text-1)]">
-            {{ t('ms.apiTestDebug.quickInputParamsTip') }}
+            {{ t('apiTestDebug.quickInputParamsTip') }}
           </div>
         </div>
       </template>
@@ -153,7 +153,7 @@
   </a-modal>
   <a-modal
     v-model:visible="showQuickInputDesc"
-    :title="t('ms.apiTestDebug.desc')"
+    :title="t('apiTestDebug.desc')"
     :ok-text="t('common.save')"
     :ok-button-props="{ disabled: !quickInputDescValue || quickInputDescValue.trim() === '' }"
     class="ms-modal-form"
@@ -166,7 +166,7 @@
   >
     <a-textarea
       v-model:model-value="quickInputDescValue"
-      :placeholder="t('ms.apiTestDebug.descPlaceholder')"
+      :placeholder="t('apiTestDebug.descPlaceholder')"
       :max-length="255"
       show-word-limit
     ></a-textarea>
@@ -203,7 +203,7 @@
   const props = defineProps<{
     params: any[];
     columns: MsTableColumn;
-    format?: RequestBodyFormat;
+    format?: RequestBodyFormat | 'query' | 'rest';
     scroll?: {
       x?: number | string;
       y?: number | string;
@@ -257,7 +257,11 @@
     },
   ];
   const typeOptions = computed(() => {
-    if (props.format === RequestBodyFormat.X_WWW_FORM_URLENCODED) {
+    if (
+      props.format === RequestBodyFormat.X_WWW_FORM_URLENCODED ||
+      props.format === 'query' ||
+      props.format === 'rest'
+    ) {
       return allType.filter((e) => e.value !== 'file' && e.value !== 'json');
     }
     return allType;

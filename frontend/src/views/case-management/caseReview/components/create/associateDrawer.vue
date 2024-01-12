@@ -5,21 +5,18 @@
     v-model:currentSelectCase="currentSelectCase"
     :ok-button-disabled="associateForm.reviewers.length === 0"
     :get-modules-func="getCaseModuleTree"
-    :modules-params="modulesTreeParams"
     :get-table-func="getCaseList"
-    :modules-count="modulesCount"
     :confirm-loading="confirmLoading"
     :associated-ids="associatedIds"
     @close="emit('close')"
     @save="saveHandler"
-    @init="getModuleCount"
   >
     <template #footerLeft>
       <a-form ref="associateFormRef" :model="associateForm">
         <a-form-item
           field="reviewers"
           :rules="[{ required: true, message: t('caseManagement.caseReview.reviewerRequired') }]"
-          class="mb-0"
+          class="review-item mb-0"
         >
           <template #label>
             <div class="inline-flex items-center">
@@ -52,7 +49,7 @@
             allow-search
             allow-clear
             multiple
-            class="w-[300px]"
+            class="w-[290px]"
             :loading="reviewerLoading"
           >
             <template #empty>
@@ -73,19 +70,19 @@
 
 <script setup lang="ts">
   import { useRouter } from 'vue-router';
+  import { useVModel } from '@vueuse/core';
   import { FormInstance, SelectOptionData } from '@arco-design/web-vue';
 
   import MsCaseAssociate from '@/components/business/ms-case-associate/index.vue';
   import MsSelect from '@/components/business/ms-select';
 
   import { getReviewUsers } from '@/api/modules/case-management/caseReview';
-  import { getCaseList, getCaseModulesCounts, getCaseModuleTree } from '@/api/modules/case-management/featureCase';
+  import { getCaseList, getCaseModuleTree } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useLocale from '@/locale/useLocale';
   import useAppStore from '@/store/modules/app';
 
-  import type { CaseModuleQueryParams } from '@/models/caseManagement/featureCase';
-  import type { TableQueryParams } from '@/models/common';
+  import { BaseAssociateCaseRequest } from '@/models/caseManagement/caseReview';
   import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
 
   const props = defineProps<{
@@ -95,7 +92,7 @@
   const emit = defineEmits<{
     (e: 'update:visible', val: boolean): void;
     (e: 'update:project', val: string): void;
-    (e: 'success', val: string[]): void;
+    (e: 'success', val: BaseAssociateCaseRequest & { reviewers: string[] }): void;
     (e: 'close'): void;
   }>();
   const router = useRouter();
@@ -103,42 +100,11 @@
   const { currentLocale } = useLocale();
   const { t } = useI18n();
 
-  const innerVisible = ref(false);
-
-  watch(
-    () => props.visible,
-    (val) => {
-      innerVisible.value = val;
-    }
-  );
-
-  watch(
-    () => innerVisible.value,
-    (val) => {
-      if (!val) {
-        emit('update:visible', false);
-      }
-    }
-  );
-
-  const innerProject = ref(appStore.currentProjectId);
-
-  watch(
-    () => props.project,
-    (val) => {
-      innerProject.value = val;
-    }
-  );
-
-  watch(
-    () => innerProject.value,
-    (val) => {
-      emit('update:project', val);
-    }
-  );
+  const innerVisible = useVModel(props, 'visible', emit);
+  const innerProject = useVModel(props, 'project', emit);
 
   const associateForm = ref({
-    reviewers: [],
+    reviewers: [] as string[],
   });
   const associateFormRef = ref<FormInstance>();
 
@@ -167,24 +133,44 @@
   }
 
   const currentSelectCase = ref<string | number | Record<string, any> | undefined>('');
-  const modulesCount = ref<Record<string, any>>({});
-  const modulesTreeParams = ref<TableQueryParams>({});
-  async function getModuleCount(params: TableQueryParams) {
-    try {
-      modulesCount.value = await getCaseModulesCounts(params);
-    } catch (error) {
-      console.log(error);
-    }
-  }
 
   const associatedIds = ref<string[]>([]);
   const confirmLoading = ref<boolean>(false);
 
-  function saveHandler(params: TableQueryParams) {}
+  function saveHandler(params: BaseAssociateCaseRequest) {
+    associateFormRef.value?.validate(async (errors) => {
+      if (!errors) {
+        try {
+          confirmLoading.value = true;
+          associatedIds.value = [...params.selectIds];
+          emit('success', { ...params, reviewers: associateForm.value.reviewers });
+          innerVisible.value = false;
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        } finally {
+          confirmLoading.value = false;
+        }
+      }
+    });
+  }
 
-  onBeforeMount(() => {
-    initReviewers();
-  });
+  watch(
+    () => props.visible,
+    (val) => {
+      if (val) {
+        // 抽屉打开才加载数据
+        initReviewers();
+      }
+    }
+  );
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+  :deep(.review-item) {
+    .arco-form-item-label-col {
+      flex: none;
+      width: auto;
+    }
+  }
+</style>

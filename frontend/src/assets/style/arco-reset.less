@@ -407,7 +407,7 @@
     }
   }
 }
-.arco-radio-checked {
+.arco-radio-checked:not(.arco-radio-disabled) {
   .arco-radio-icon {
     @apply !bg-white;
 
@@ -422,6 +422,15 @@
       height: 10px;
       background-color: rgb(var(--primary-6)) !important;
       transform: scale(0.8) !important;
+    }
+  }
+}
+.arco-radio-checked.arco-radio-disabled {
+  .arco-radio-icon {
+    border: 1px solid var(--color-text-input-border);
+    background-color: var(--color-text-n8) !important;
+    &::after {
+      background-color: var(--color-text-4) !important;
     }
   }
 }

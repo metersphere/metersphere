@@ -281,10 +281,13 @@
     () => props.stepList,
     () => {
       stepData.value = props.stepList;
+    },
+    {
+      immediate: true,
     }
   );
 
-  onMounted(() => {
+  onBeforeMount(() => {
     setProps({ data: stepData.value });
   });
 </script>

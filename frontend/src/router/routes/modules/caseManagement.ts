@@ -88,6 +88,7 @@ const CaseManagement: AppRouteRecordRaw = {
         isTopMenu: true,
       },
     },
+    // 创建评审
     {
       path: 'caseManagementReviewCreate',
       name: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW_CREATE,
@@ -109,6 +110,7 @@ const CaseManagement: AppRouteRecordRaw = {
         ],
       },
     },
+    // 评审详情
     {
       path: 'caseManagementReviewDetail',
       name: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW_DETAIL,
@@ -128,6 +130,7 @@ const CaseManagement: AppRouteRecordRaw = {
         ],
       },
     },
+    // 评审详情-用例详情
     {
       path: 'caseManagementReviewDetailCaseDetail',
       name: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW_DETAIL_CASE_DETAIL,

@@ -12,7 +12,7 @@
       <template v-if="showProjectSelect">
         <a-divider direction="vertical" class="ml-0" />
         <a-select
-          class="w-auto min-w-[150px] max-w-[200px] focus-within:!bg-[var(--color-text-n8)] hover:!bg-[var(--color-text-n8)]"
+          class="w-[200px] focus-within:!bg-[var(--color-text-n8)] hover:!bg-[var(--color-text-n8)]"
           :default-value="appStore.currentProjectId"
           :bordered="false"
           allow-search

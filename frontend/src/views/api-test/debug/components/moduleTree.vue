@@ -7,10 +7,10 @@
         allow-clear
       />
       <a-dropdown @select="handleSelect">
-        <a-button type="primary">{{ t('ms.apiTestDebug.newApi') }}</a-button>
+        <a-button type="primary">{{ t('apiTestDebug.newApi') }}</a-button>
         <template #content>
-          <a-doption value="newApi">{{ t('ms.apiTestDebug.newApi') }}</a-doption>
-          <a-doption value="import">{{ t('ms.apiTestDebug.importApi') }}</a-doption>
+          <a-doption value="newApi">{{ t('apiTestDebug.newApi') }}</a-doption>
+          <a-doption value="import">{{ t('apiTestDebug.importApi') }}</a-doption>
         </template>
       </a-dropdown>
     </div>
@@ -46,7 +46,7 @@
         :node-more-actions="folderMoreActions"
         :default-expand-all="isExpandAll"
         :expand-all="isExpandAll"
-        :empty-text="t('ms.apiTestDebug.noMatchModule')"
+        :empty-text="t('apiTestDebug.noMatchModule')"
         :draggable="!props.isModal"
         :virtual-list-props="virtualListProps"
         :field-names="{

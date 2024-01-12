@@ -26,6 +26,7 @@ export interface MsSearchSelectProps {
   valueKey?: string; // 选项的 value 字段名，默认为 value
   labelKey?: string; // 选项的 label 字段名，默认为 label
   options: SelectOptionData[];
+  objectValue?: boolean; // 是否使用选项对象作为 value
   multiple?: boolean; // 是否多选
   atLeastOne?: boolean; // 是否至少选择一个，多选模式下有效
   remoteFieldsMap?: RemoteFieldsMap; // 远程模式下的结果 key 映射，例如 { value: 'id' }，表示远程请求时，会将返回结果的 id 赋值到 value 字段
@@ -217,7 +218,9 @@ export default defineComponent(
     function handleSelectAllChange(val: boolean) {
       isSelectAll.value = val;
       if (val) {
-        innerValue.value = [...filterOptions.value];
+        innerValue.value = props.objectValue
+          ? [...filterOptions.value]
+          : filterOptions.value.map((e) => e[props.valueKey || 'value']);
         emit('update:modelValue', innerValue.value);
       } else {
         innerValue.value = [];
@@ -256,7 +259,7 @@ export default defineComponent(
             <a-tooltip content={item.tooltipContent} mouse-enter-delay={500}>
               <a-option
                 key={item[props.valueKey || 'value']}
-                value={item}
+                value={props.objectValue ? item : item[props.valueKey || 'value']}
                 tag-props={
                   props.multiple && props.atLeastOne
                     ? { closable: Array.isArray(innerValue.value) && innerValue.value.length > 1 }
@@ -375,7 +378,7 @@ export default defineComponent(
                 class="one-line-text"
                 style={singleTagMaxWidth.value > 0 ? { maxWidth: `${singleTagMaxWidth.value}px` } : {}}
               >
-                {data.label}
+                {slots.label ? slots.label(data) : data.label}
               </div>
             </a-tooltip>
           ),
@@ -411,6 +414,7 @@ export default defineComponent(
       'fallbackOption',
       'labelKey',
       'atLeastOne',
+      'objectValue',
     ],
     emits: ['update:modelValue', 'remoteSearch', 'popupVisibleChange', 'update:loading', 'remove'],
   }

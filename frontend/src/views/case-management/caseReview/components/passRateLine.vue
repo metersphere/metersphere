@@ -1,26 +1,5 @@
 <template>
-  <MsColorLine
-    :color-data="[
-      {
-        percentage: (props.reviewDetail.passCount / props.reviewDetail.caseCount) * 100,
-        color: 'rgb(var(--success-6))',
-      },
-      {
-        percentage: (props.reviewDetail.failCount / props.reviewDetail.caseCount) * 100,
-        color: 'rgb(var(--danger-6))',
-      },
-      {
-        percentage: (props.reviewDetail.reviewCount / props.reviewDetail.caseCount) * 100,
-        color: 'rgb(var(--warning-6))',
-      },
-      {
-        percentage: (props.reviewDetail.reviewingCount / props.reviewDetail.caseCount) * 100,
-        color: 'rgb(var(--link-6))',
-      },
-    ]"
-    :height="props.height"
-    :radius="props.radius"
-  >
+  <MsColorLine :color-data="colorData" :height="props.height" :radius="props.radius">
     <template #popoverContent>
       <table>
         <tr>
@@ -28,15 +7,13 @@
           <td class="font-medium text-[var(--color-text-1)]">
             {{
               `${(
-                ((props.reviewDetail.passCount + props.reviewDetail.failCount) / props.reviewDetail.caseCount) *
+                ((props.reviewDetail.passCount + props.reviewDetail.unPassCount) / props.reviewDetail.caseCount) *
                 100
               ).toFixed(2)}%`
             }}
-            <span
-              >({{
-                `${props.reviewDetail.passCount + props.reviewDetail.failCount}/${props.reviewDetail.caseCount}`
-              }})</span
-            >
+            <span>
+              ({{ `${props.reviewDetail.passCount + props.reviewDetail.unPassCount}/${props.reviewDetail.caseCount}` }})
+            </span>
           </td>
         </tr>
         <tr>
@@ -54,7 +31,7 @@
             <div>{{ t('caseManagement.caseReview.fail') }}</div>
           </td>
           <td class="popover-value-td">
-            {{ props.reviewDetail.failCount }}
+            {{ props.reviewDetail.unPassCount }}
           </td>
         </tr>
         <tr>
@@ -63,7 +40,7 @@
             <div>{{ t('caseManagement.caseReview.reReview') }}</div>
           </td>
           <td class="popover-value-td">
-            {{ props.reviewDetail.reviewCount }}
+            {{ props.reviewDetail.reviewedCount }}
           </td>
         </tr>
         <tr>
@@ -72,7 +49,7 @@
             <div>{{ t('caseManagement.caseReview.reviewing') }}</div>
           </td>
           <td class="popover-value-td">
-            {{ props.reviewDetail.reviewingCount }}
+            {{ props.reviewDetail.underReviewedCount }}
           </td>
         </tr>
       </table>
@@ -88,9 +65,9 @@
   const props = defineProps<{
     reviewDetail: {
       passCount: number;
-      failCount: number;
-      reviewCount: number;
-      reviewingCount: number;
+      unPassCount: number;
+      reviewedCount: number;
+      underReviewedCount: number;
       caseCount: number;
       [key: string]: any;
     };
@@ -98,6 +75,41 @@
     radius?: string;
   }>();
   const { t } = useI18n();
+
+  const colorData = computed(() => {
+    if (
+      props.reviewDetail.status === 'PREPARED' ||
+      (props.reviewDetail.passCount === 0 &&
+        props.reviewDetail.unPassCount === 0 &&
+        props.reviewDetail.reviewedCount === 0 &&
+        props.reviewDetail.underReviewedCount === 0)
+    ) {
+      return [
+        {
+          percentage: 100,
+          color: 'var(--color-text-n8)',
+        },
+      ];
+    }
+    return [
+      {
+        percentage: (props.reviewDetail.passCount / props.reviewDetail.caseCount) * 100,
+        color: 'rgb(var(--success-6))',
+      },
+      {
+        percentage: (props.reviewDetail.unPassCount / props.reviewDetail.caseCount) * 100,
+        color: 'rgb(var(--danger-6))',
+      },
+      {
+        percentage: (props.reviewDetail.reviewedCount / props.reviewDetail.caseCount) * 100,
+        color: 'rgb(var(--warning-6))',
+      },
+      {
+        percentage: (props.reviewDetail.underReviewedCount / props.reviewDetail.caseCount) * 100,
+        color: 'rgb(var(--link-6))',
+      },
+    ];
+  });
 </script>
 
 <style lang="less" scoped>

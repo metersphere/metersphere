@@ -4,6 +4,9 @@
     type="icon-icon_that_person"
     :size="props.size"
     class="text-[var(--color-text-4)]"
+    :style="{
+      fontSize: `${props.size}px !important`,
+    }"
   />
   <a-avatar
     v-else-if="props.avatar === 'word'"

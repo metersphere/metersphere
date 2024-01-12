@@ -31,7 +31,7 @@ export interface AppRouteRecordRaw {
   component: Component | string;
   children?: AppRouteRecordRaw[];
   alias?: string | string[];
-  props?: Record<string, any>;
+  props?: Record<string, any> | boolean;
   beforeEnter?: NavigationGuard | NavigationGuard[];
   fullPath?: string;
 }

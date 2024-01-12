@@ -22,6 +22,17 @@ export interface ReviewModuleItem {
 }
 // 评审类型
 export type ReviewPassRule = 'SINGLE' | 'MULTIPLE';
+// 用例评审关联用例入参
+export interface BaseAssociateCaseRequest {
+  excludeIds: string[];
+  selectIds: string[];
+  selectAll: boolean;
+  condition: Record<string, any>;
+  moduleIds: string[];
+  versionId: string;
+  refId: string;
+  projectId: string;
+}
 // 评审
 export interface Review {
   projectId: string;
@@ -33,18 +44,22 @@ export interface Review {
   tags: string[];
   description: string;
   reviewers: string[]; // 评审人员
-  caseIds: string[]; // 关联用例
+  baseAssociateCaseRequest: BaseAssociateCaseRequest; // 关联用例
+}
+// 复制评审入参
+export interface CopyReviewParams extends Omit<Review, 'baseAssociateCaseRequest'> {
+  copyId: string;
 }
 // 更新评审入参
-export interface UpdateReviewParams extends Omit<Review, 'caseIds'> {
+export interface UpdateReviewParams extends Omit<Review, 'baseAssociateCaseRequest'> {
   id: string;
 }
 // 关联用例入参
 export interface AssociateReviewCaseParams {
   reviewId: string;
   projectId: string;
-  caseIds: string[];
   reviewers: string[];
+  baseAssociateCaseRequest: BaseAssociateCaseRequest;
 }
 // 关注/取消关注评审入参
 export interface FollowReviewParams {
@@ -66,12 +81,57 @@ export interface SortReviewParams {
   moveMode: ReviewMoveMode;
   moveId: string; // 被移动的评审id
 }
-// 文件列表查询参数
+// 评审状态, PREPARED: 待开始, UNDERWAY: 进行中, COMPLETED: 已完成, ARCHIVED: 已归档
+export type ReviewStatus = 'PREPARED' | 'UNDERWAY' | 'COMPLETED' | 'ARCHIVED';
+// 评审结果，UN_REVIEWED：未评审，UNDER_REVIEWED：评审中，PASS：通过，UN_PASS：未通过，RE_REVIEWED：重新提审
+export type ReviewResult = 'UN_REVIEWED' | 'UNDER_REVIEWED' | 'PASS' | 'UN_PASS' | 'RE_REVIEWED';
+// 评审列表查询参数
 export interface ReviewListQueryParams extends TableQueryParams {
   moduleIds: string[];
   projectId: string;
+  createByMe?: string;
+  reviewByMe?: string;
 }
-export type ReviewStatus = 'PREPARED' | 'UNDERWAY' | 'COMPLETED' | 'ARCHIVED'; // 评审状态, PREPARED: 待开始, UNDERWAY: 进行中, COMPLETED: 已完成, ARCHIVED: 已归档
+// 评审详情-用例列表查询参数
+export interface ReviewDetailCaseListQueryParams extends TableQueryParams {
+  viewFlag: boolean; // 是否只看我的
+  reviewId: string;
+}
+// 评审详情-用例拖拽排序入参
+export interface SortReviewCaseParams {
+  projectId: string;
+  targetId: string; // 目标用例id
+  moveMode: ReviewMoveMode;
+  moveId: string; // 被移动的用例id
+  reviewId: string; // 所属评审id
+}
+// 评审详情-批量评审用例
+export interface BatchReviewCaseParams extends BatchApiParams {
+  reviewId: string; // 评审id
+  userId: string; // 用户id, 用来判断是否只看我的
+  reviewPassRule: ReviewPassRule; // 评审规则
+  status: ReviewResult; // 评审结果
+  content: string; // 评论内容
+  notifier: string; // 评论@的人的Id, 多个以';'隔开
+}
+// 评审详情-批量修改评审人
+export interface BatchChangeReviewerParams extends BatchApiParams {
+  reviewId: string; // 评审id
+  userId: string; // 用户id, 用来判断是否只看我的
+  reviewerId: string[]; // 评审人员id
+  append: boolean; // 是否追加
+}
+// 评审详情-批量取消关联用例
+export interface BatchCancelReviewCaseParams extends BatchApiParams {
+  reviewId: string; // 评审id
+  userId: string; // 用户id, 用来判断是否只看我的
+}
+export interface ReviewDetailReviewersItem {
+  avatar: string;
+  reviewId: string;
+  userId: string;
+  userName: string;
+}
 // 评审列表项
 export interface ReviewItem {
   id: string;
@@ -86,13 +146,13 @@ export interface ReviewItem {
   endTime: number;
   caseCount: number;
   passRate: number;
-  tags: string;
+  tags: string[];
   description: string;
   createTime: number;
   createUser: string;
   updateTime: number;
   updateUser: string;
-  reviewers: string[];
+  reviewers: ReviewDetailReviewersItem[];
   passCount: number;
   unPassCount: number;
   reReviewedCount: number;
@@ -117,4 +177,44 @@ export interface ReviewUserItem {
   createUser: string;
   updateUser: string;
   deleted: boolean;
+  avatar: string;
+}
+// 评审详情-用例列表项
+export interface ReviewCaseItem {
+  id: string;
+  name: string;
+  num: string;
+  caseId: string;
+  versionId: string;
+  versionName: string;
+  reviewers: string[];
+  reviewNames: string[];
+  status: string;
+  moduleId: string;
+  moduleName: string;
+}
+// 评审详情-提交评审入参
+export interface CommitReviewResultParams {
+  projectId: string;
+  reviewId: string;
+  caseId: string;
+  reviewPassRule: ReviewPassRule;
+  status: ReviewResult;
+  content: string;
+  notifier: string;
+}
+// 评审详情-获取用例评审历史
+export interface ReviewHistoryItem {
+  id: string;
+  reviewId: string;
+  caseId: string;
+  status: ReviewResult;
+  deleted: boolean; // 是否是取消关联或评审被删除的：0-否，1-是
+  notifier: string;
+  createUser: string;
+  createTime: number;
+  content: string;
+  userLogo: string;
+  userName: string;
+  contentText: string;
 }

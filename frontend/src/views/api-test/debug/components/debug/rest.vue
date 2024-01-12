@@ -1,13 +1,22 @@
 <template>
   <div class="mb-[8px] flex items-center justify-between">
-    <div class="font-medium">{{ t('apiTestDebug.header') }}</div>
+    <div class="flex items-center gap-[4px]">
+      <div class="font-medium">Rest</div>
+      <a-tooltip :content="t('apiTestDebug.restTip', { id: '{id}' })" position="right">
+        <icon-question-circle
+          class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
+          size="16"
+        />
+      </a-tooltip>
+    </div>
     <batchAddKeyVal :params="innerParams" @apply="handleBatchParamApply" />
   </div>
   <paramTable
     v-model:params="innerParams"
     :columns="columns"
     :height-used="heightUsed"
-    :scroll="scroll"
+    :scroll="{ minWidth: 1160 }"
+    format="query"
     @change="handleParamTableChange"
   />
 </template>
@@ -42,9 +51,27 @@
       slotName: 'name',
     },
     {
+      title: 'apiTestDebug.paramType',
+      dataIndex: 'type',
+      slotName: 'type',
+      width: 120,
+    },
+    {
       title: 'apiTestDebug.paramValue',
       dataIndex: 'value',
       slotName: 'value',
+    },
+    {
+      title: 'apiTestDebug.paramLengthRange',
+      dataIndex: 'lengthRange',
+      slotName: 'lengthRange',
+      width: 200,
+    },
+    {
+      title: 'apiTestDebug.encode',
+      dataIndex: 'encode',
+      slotName: 'encode',
+      titleSlotName: 'encodeTitle',
     },
     {
       title: 'apiTestDebug.desc',
@@ -54,12 +81,12 @@
     {
       title: '',
       slotName: 'operation',
+      fixed: 'right',
       width: 50,
     },
   ];
 
   const heightUsed = ref<number | undefined>(undefined);
-  const scroll = computed(() => (props.layout === 'horizontal' ? { x: '700px' } : { x: '100%' }));
 
   watch(
     () => props.layout,

@@ -15,9 +15,9 @@
           class="ml-2 max-w-[100px]"
           :placeholder="t('caseManagement.featureCase.PleaseSelect')"
         >
-          <a-option v-for="item of props?.moduleOptions" :key="item.value" :value="item.value">{{
-            t(item.label)
-          }}</a-option>
+          <a-option v-for="item of props?.moduleOptions" :key="item.value" :value="item.value">
+            {{ t(item.label) }}
+          </a-option>
         </a-select>
       </div>
     </template>
@@ -142,7 +142,7 @@
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import caseLevel from './caseLevel.vue';
 
-  import { getCustomFieldsTable } from '@/api/modules/case-management/featureCase';
+  import { getCaseModulesCounts, getCustomFieldsTable } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import { mapTree } from '@/utils';
@@ -164,7 +164,6 @@
     modulesParams?: Record<string, any>; // 获取模块树请求
     getTableFunc: (params: TableQueryParams) => Promise<CommonList<CaseManagementTable>>; // 获取表请求函数
     tableParams?: TableQueryParams; // 查询表格的额外的参数
-    modulesCount: Record<string, any>; // 模块数量统计对象
     okButtonDisabled?: boolean; // 确认按钮是否禁用
     currentSelectCase: string | number | Record<string, any> | undefined; // 当前选中的用例类型
     moduleOptions?: { label: string; value: string }[]; // 功能模块对应用例下拉
@@ -178,7 +177,7 @@
     (e: 'update:currentSelectCase', val: string | number | Record<string, any> | undefined): void;
     (e: 'init', val: TableQueryParams): void; // 初始化模块数量
     (e: 'close'): void;
-    (e: 'save', params: TableQueryParams): void; // 保存对外传递关联table 相关参数
+    (e: 'save', params: any): void; // 保存对外传递关联table 相关参数
   }>();
 
   const virtualListProps = computed(() => {
@@ -212,6 +211,7 @@
 
   const protocolType = ref('HTTP'); // 协议类型
   const protocolOptions = ref(['HTTP']);
+  const modulesCount = ref<Record<string, any>>({});
 
   // 选中用例类型
   const caseType = computed({
@@ -248,7 +248,7 @@
           hideMoreAction: e.id === 'root',
           draggable: false,
           disabled: false,
-          count: props.modulesCount?.[e.id] || 0,
+          count: modulesCount.value[e.id] || 0,
         };
       });
       if (isSetDefaultKey) {
@@ -498,16 +498,22 @@
   }
 
   // 初始化模块数量
-  function initModuleCount() {
-    emit('init', {
-      keyword: keyword.value,
-      moduleIds: [],
-      projectId: innerProject.value,
-      current: propsRes.value.msPagination?.current,
-      pageSize: propsRes.value.msPagination?.pageSize,
-      sourceId: props.caseId,
-      combine: combine.value,
-    });
+  async function initModuleCount() {
+    try {
+      const params = {
+        keyword: keyword.value,
+        moduleIds: selectedModuleKeys.value,
+        projectId: innerProject.value,
+        current: propsRes.value.msPagination?.current,
+        pageSize: propsRes.value.msPagination?.pageSize,
+        combine: combine.value,
+      };
+      modulesCount.value = await getCaseModulesCounts(params);
+      emit('init', params);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
   }
 
   function searchCase() {
@@ -556,6 +562,7 @@
       innerVisible.value = val;
       if (val) {
         resetSelector();
+        initModules();
         searchCase();
         initFilter();
       }
@@ -567,7 +574,7 @@
     (val) => {
       emit('update:visible', val);
       if (val) {
-        initModules(true);
+        initModules();
       }
     }
   );
@@ -578,7 +585,7 @@
     (val) => {
       if (val) {
         emit('update:currentSelectCase', val);
-        initModules(true);
+        initModules();
         searchCase();
       }
     }
@@ -597,8 +604,12 @@
     () => innerProject.value,
     (val) => {
       emit('update:project', val);
-      initModules(true);
-      searchCase();
+      if (innerVisible.value) {
+        searchCase();
+        resetSelector();
+        initModules();
+        searchCase();
+      }
     }
   );
 
@@ -613,7 +624,7 @@
    * 初始化模块数量
    */
   watch(
-    () => props.modulesCount,
+    () => modulesCount.value,
     (obj) => {
       folderTree.value = mapTree<ModuleTreeNode>(folderTree.value, (node) => {
         return {

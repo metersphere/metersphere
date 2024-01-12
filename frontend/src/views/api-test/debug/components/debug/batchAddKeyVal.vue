@@ -1,12 +1,12 @@
 <template>
   <a-button type="outline" size="mini" @click="showBatchAddParamDrawer = true">
-    {{ t('ms.apiTestDebug.batchAdd') }}
+    {{ t('apiTestDebug.batchAdd') }}
   </a-button>
   <MsDrawer
     v-model:visible="showBatchAddParamDrawer"
     :title="t('common.batchAdd')"
     :width="680"
-    :ok-text="t('ms.apiTestDebug.apply')"
+    :ok-text="t('apiTestDebug.apply')"
     disabled-width-drag
     @confirm="applyBatchParams"
   >
@@ -22,10 +22,10 @@
         <template #title>
           <div class="flex flex-col">
             <div class="text-[12px] leading-[16px] text-[var(--color-text-4)]">
-              {{ t('ms.apiTestDebug.batchAddParamsTip') }}
+              {{ t('apiTestDebug.batchAddParamsTip') }}
             </div>
             <div class="text-[12px] leading-[16px] text-[var(--color-text-4)]">
-              {{ t('ms.apiTestDebug.batchAddParamsTip2') }}
+              {{ t('apiTestDebug.batchAddParamsTip2') }}
             </div>
           </div>
         </template>

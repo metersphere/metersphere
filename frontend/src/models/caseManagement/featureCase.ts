@@ -1,6 +1,8 @@
 import { TableQueryParams } from '@/models/common';
 import { StatusType } from '@/enums/caseEnum';
 
+import { ReviewResult } from './caseReview';
+
 export interface ModulesTreeType {
   id: string;
   name: string;
@@ -148,7 +150,7 @@ export interface BatchMoveOrCopyType {
   excludeIds: string[] | undefined;
   condition: Record<string, any>;
 }
-
+export type CaseEditType = 'STEP' | 'TEXT';
 // 创建或者更新
 export interface CreateOrUpdateCase {
   id?: string;
@@ -156,7 +158,7 @@ export interface CreateOrUpdateCase {
   templateId: string;
   name: string;
   prerequisite: string; // prerequisite
-  caseEditType: string; // 编辑模式：步骤模式/文本模式
+  caseEditType: CaseEditType; // 编辑模式：步骤模式/文本模式
   steps: string;
   textDescription: string;
   expectedResult: string; // 预期结果
@@ -191,8 +193,8 @@ export interface DetailCase {
   projectId: string;
   templateId?: string;
   name: string;
-  reviewStatus?: string;
-  tags: any;
+  reviewStatus: ReviewResult;
+  tags: string[];
   caseEditType: string;
   versionId?: string;
   publicCase: boolean;
@@ -206,6 +208,7 @@ export interface DetailCase {
   customFields: CustomAttributes[];
   attachments?: AttachFileInfo[];
   followFlag?: boolean;
+  functionalPriority: string;
   [key: string]: any;
 }
 

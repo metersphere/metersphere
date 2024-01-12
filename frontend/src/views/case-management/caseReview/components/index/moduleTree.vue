@@ -199,6 +199,7 @@
           hideMoreAction: e.id === 'root',
           draggable: e.id !== 'root' && !props.isModal,
           disabled: e.id === activeFolder.value && props.isModal,
+          count: props.modulesCount?.[e.id] || 0, // 避免模块数量先初始化完成了，数量没更新
         };
       });
       if (isSetDefaultKey) {
@@ -265,8 +266,8 @@
       offspringIds.push(e.id);
       return e;
     });
-    setActiveFolder(node.id);
-    emit('folderNodeSelect', _selectedKeys, offspringIds);
+    activeFolder.value = node.id;
+    emit('folderNodeSelect', [node.id], offspringIds);
   }
 
   /**
@@ -342,6 +343,7 @@
           count: obj?.[node.id] || 0,
         };
       });
+      allFileCount.value = obj?.all || 0;
     }
   );
 

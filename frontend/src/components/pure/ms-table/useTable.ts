@@ -94,6 +94,8 @@ export default function useTableProps<T>(
   const keyword = ref('');
   // 高级筛选
   const advanceFilter = reactive<FilterResult>({ accordBelow: 'AND', combine: {} });
+  // 表格请求参数集合
+  const tableQueryParams = ref<TableQueryParams>({});
 
   // 是否分页
   if (propsRes.value.showPagination) {
@@ -193,7 +195,7 @@ export default function useTableProps<T>(
       try {
         if (loadListFunc) {
           setLoading(true);
-          const data = await loadListFunc({
+          tableQueryParams.value = {
             current,
             pageSize: currentPageSize,
             sort: sortItem.value,
@@ -202,7 +204,8 @@ export default function useTableProps<T>(
             combine: advanceFilter.combine,
             searchMode: advanceFilter.accordBelow,
             ...loadListParams.value,
-          });
+          };
+          const data = await loadListFunc(tableQueryParams.value);
           const tmpArr = data.list;
           propsRes.value.data = tmpArr.map((item: MsTableDataItem<T>) => {
             if (item.updateTime) {
@@ -310,6 +313,11 @@ export default function useTableProps<T>(
       //   return msPagination.pageSize - excludeKeys.size;
       // }
     }
+  };
+
+  // 获取表格请求参数
+  const getTableQueryParams = () => {
+    return tableQueryParams.value;
   };
 
   // 事件触发组
@@ -442,5 +450,6 @@ export default function useTableProps<T>(
     resetPagination,
     getSelectedCount,
     resetSelector,
+    getTableQueryParams,
   };
 }
