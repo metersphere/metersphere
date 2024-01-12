@@ -1,5 +1,7 @@
 import { defineStore } from 'pinia';
 
+import { EnvGroupListItem } from '@/models/projectManagement/environmental';
+
 export const ALL_PARAM = 'allParam';
 
 const useProjectEnvStore = defineStore(
@@ -7,8 +9,11 @@ const useProjectEnvStore = defineStore(
   () => {
     const currentId = ref<string | number>(1);
     const httpNoWarning = ref(true);
+    const envGroupList = ref<EnvGroupListItem[]>([]);
+
     const getCurrentId = computed(() => currentId.value);
     const getHttpNoWarning = computed(() => httpNoWarning.value);
+    const getGroupLength = computed(() => 1);
 
     const getDatabaseList = computed(() => [{ id: 1, name: 'test' }]);
     function setCurrentId(id: string | number) {
@@ -25,6 +30,8 @@ const useProjectEnvStore = defineStore(
       setHttpNoWarning,
       getHttpNoWarning,
       getDatabaseList,
+      envGroupList,
+      getGroupLength,
     };
   },
   {

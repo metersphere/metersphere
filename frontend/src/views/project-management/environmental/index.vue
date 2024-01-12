@@ -7,50 +7,117 @@
             <a-radio value="PROJECT">{{ t('project.environmental.project') }}</a-radio>
             <a-radio value="PROJECT_GROUP">{{ t('project.environmental.projectGroup') }}</a-radio>
           </a-radio-group>
-          <a-input-search
-            :placeholder="t('project.environmental.searchHolder')"
-            allow-clear
-            @press-enter="enterData"
-            @search="searchData"
-          />
-          <!-- 全局参数-->
-          <div class="p-[8px] text-[var(--color-text-4)]">
-            {{ t('project.environmental.allParam') }}
-          </div>
-          <div
-            class="env-item justify-between font-medium text-[rgb(var(--primary-5))] hover:bg-[rgb(var(--primary-1))]"
-            :class="{ 'bg-[rgb(var(--primary-1))]': activeKey === ALL_PARAM }"
-            @click="handleListItemClick({ id: 'allParam', name: 'allParam' })"
-          >
-            {{ t('project.environmental.allParam') }}
-            <div class="node-extra">
-              <MsMoreAction
-                :list="allMoreAction"
-                @select="(value) => handleMoreAction(value, 'all', EnvAuthTypeEnum.GLOBAL)"
-              />
+          <template v-if="showType === 'PROJECT'">
+            <a-input-search
+              :placeholder="t('project.environmental.searchHolder')"
+              allow-clear
+              @press-enter="enterData"
+              @search="searchData"
+            />
+            <!-- 全局参数-->
+            <div class="p-[8px] text-[var(--color-text-4)]">
+              {{ t('project.environmental.allParam') }}
             </div>
-          </div>
-          <a-divider :margin="6" />
-          <!-- 环境-->
-          <div class="env-row p-[8px] hover:bg-[rgb(var(--primary-1))]">
-            <div class="text-[var(--color-text-4)]">{{ t('project.environmental.env') }}</div>
-            <div class="flex flex-row items-center">
-              <div class="env-row-extra">
+            <div
+              class="env-item justify-between font-medium text-[rgb(var(--primary-5))] hover:bg-[rgb(var(--primary-1))]"
+              :class="{ 'bg-[rgb(var(--primary-1))]': activeKey === ALL_PARAM }"
+              @click="handleListItemClick({ id: 'allParam', name: 'allParam' })"
+            >
+              {{ t('project.environmental.allParam') }}
+              <div class="node-extra">
                 <MsMoreAction
                   :list="allMoreAction"
-                  @select="(value) => handleMoreAction(value, 'all', EnvAuthTypeEnum.ENVIRONMENT)"
+                  @select="(value) => handleMoreAction(value, 'all', EnvAuthTypeEnum.GLOBAL)"
                 />
               </div>
-              <MsButton type="icon" class="!mr-0 p-[2px]">
-                <MsIcon
-                  type="icon-icon_create_planarity"
-                  size="18"
-                  class="text-[rgb(var(--primary-5))] hover:text-[rgb(var(--primary-4))]"
-                />
-              </MsButton>
             </div>
-          </div>
-          <div>
+            <a-divider :margin="6" />
+            <!-- 环境-->
+            <div class="env-row p-[8px] hover:bg-[rgb(var(--primary-1))]">
+              <div class="text-[var(--color-text-4)]">{{ t('project.environmental.env') }}</div>
+              <div class="flex flex-row items-center">
+                <div class="env-row-extra">
+                  <MsMoreAction
+                    :list="allMoreAction"
+                    @select="(value) => handleMoreAction(value, 'all', EnvAuthTypeEnum.ENVIRONMENT)"
+                  />
+                </div>
+                <MsButton type="icon" class="!mr-0 p-[2px]">
+                  <MsIcon
+                    type="icon-icon_create_planarity"
+                    size="18"
+                    class="text-[rgb(var(--primary-5))] hover:text-[rgb(var(--primary-4))]"
+                  />
+                </MsButton>
+              </div>
+            </div>
+            <div>
+              <!-- 环境list-->
+              <div v-if="envList.length">
+                <VueDraggable v-model="envList" ghost-class="ghost">
+                  <div
+                    v-for="element in envList"
+                    :key="element.id"
+                    class="env-item hover:bg-[rgb(var(--primary-1))]"
+                    @click="handleListItemClick(element)"
+                  >
+                    <RenamePop
+                      :list="envList"
+                      :type="(showType as EnvAuthScopeEnum)"
+                      v-bind="popVisible[element.id]"
+                      @cancel="handleRenameCancel(element)"
+                      @submit="handleRenameCancel(element, element.id)"
+                    >
+                      <div class="flex max-w-[100%] grow flex-row items-center justify-between">
+                        <a-tooltip :content="element.name">
+                          <div
+                            class="one-line-text"
+                            :class="{ 'font-medium text-[rgb(var(--primary-5))]': element.id === activeKey }"
+                            >{{ element.name }}</div
+                          >
+                        </a-tooltip>
+                        <div class="node-extra">
+                          <div class="flex flex-row items-center gap-[8px]">
+                            <MsButton type="icon" class="!mr-0 p-[2px]">
+                              <MsIcon
+                                type="icon-icon_drag"
+                                size="16"
+                                class="text-[rgb(var(--primary-5))] hover:text-[rgb(var(--primary-4))]"
+                              />
+                            </MsButton>
+                            <MsMoreAction
+                              :list="envMoreAction"
+                              @select="
+                                (value) => handleMoreAction(value, element.id, EnvAuthTypeEnum.ENVIRONMENT_PARAM)
+                              "
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </RenamePop>
+                  </div>
+                </VueDraggable>
+              </div>
+              <!-- 环境无数据 -->
+              <div v-else class="bg-[var(--color-text-n9)] p-[8px] text-[12px] text-[var(--color-text-4)]">
+                {{ t('project.environmental.envListIsNull') }}
+              </div>
+            </div>
+          </template>
+          <template v-else>
+            <!-- 环境组 -->
+            <div class="env-row mt-[8px] p-[8px]">
+              <div class="text-[var(--color-text-4)]">{{ t('project.environmental.group.envGroup') }}</div>
+              <div class="flex flex-row items-center">
+                <MsButton type="icon" class="!mr-0 p-[2px]">
+                  <MsIcon
+                    type="icon-icon_create_planarity"
+                    size="18"
+                    class="text-[rgb(var(--primary-5))] hover:text-[rgb(var(--primary-4))]"
+                  />
+                </MsButton>
+              </div>
+            </div>
             <!-- 环境list-->
             <div v-if="envList.length">
               <VueDraggable v-model="envList" ghost-class="ghost">
@@ -95,18 +162,20 @@
                 </div>
               </VueDraggable>
             </div>
-
+            <!-- 环境无数据 -->
             <div v-else class="bg-[var(--color-text-n9)] p-[8px] text-[12px] text-[var(--color-text-4)]">
               {{ t('project.environmental.envListIsNull') }}
             </div>
-          </div>
+          </template>
         </div>
       </template>
       <template #second>
         <!-- 全局参数 -->
-        <AllParamBox v-if="activeKey === ALL_PARAM" />
+        <AllParamBox v-if="showType === 'PROJECT' && activeKey === ALL_PARAM" />
         <!-- 环境变量 -->
-        <EnvParamBox v-else />
+        <EnvParamBox v-else-if="showType === 'PROJECT' && activeKey !== ALL_PARAM" />
+        <!-- 环境组 -->
+        <EnvGroupBox v-else-if="showType === 'PROJECT_GROUP'" />
       </template>
     </MsSplitBox>
   </div>
@@ -119,6 +188,7 @@
   import MsMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import AllParamBox from './components/AllParamBox.vue';
+  import EnvGroupBox from './components/envGroup/EnvGroupBox.vue';
   import EnvParamBox from './components/envParams/EnvParamBox.vue';
   import RenamePop from './components/RenamePop.vue';
 
@@ -189,6 +259,7 @@
       default:
         break;
     }
+    console.log(item, id, scopeType);
   };
 
   function changeShowType(value: string | number | boolean) {
