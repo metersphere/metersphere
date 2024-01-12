@@ -39,7 +39,7 @@
       </div>
     </template>
   </MsBaseTable>
-  <AddHttpDrawer v-model:visible="addVisible" :current-id="currentId" />
+  <AddHttpDrawer v-model:visible="addVisible" :current-id="currentId" @close="addVisible = false" />
 </template>
 
 <script lang="ts" async setup>
@@ -51,7 +51,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
-  import AddHttpDrawer from './AddHttpDrawer.vue';
+  import AddHttpDrawer from './popUp/AddHttpDrawer.vue';
 
   import { useI18n } from '@/hooks/useI18n';
   import { useTableStore } from '@/store';

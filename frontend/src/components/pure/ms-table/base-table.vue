@@ -71,7 +71,7 @@
                   class="ml-[4px]"
                   :options="item.filterConfig.options"
                   :multiple="(item.filterConfig.multiple as boolean)"
-                  @handle-confirm="(v) => handleFilterConfirm(v, item.dataIndex as string)"
+                  @handle-confirm="(v) => handleFilterConfirm(v, item.dataIndex as string, item.filterConfig?.multiple || false,item.isCustomParam || false)"
                 />
               </slot>
             </div>
@@ -274,7 +274,7 @@
     (e: 'sorterChange', value: { [key: string]: string }): void;
     (e: 'expand', record: TableData): void | Promise<any>;
     (e: 'clearSelector'): void;
-    (e: 'filterChange', dataIndex: string, value: (string | number)[]): void;
+    (e: 'filterChange', dataIndex: string, value: (string | number)[], multiple: boolean, isCustomParam: boolean): void;
   }>();
   const attrs = useAttrs();
   // 全选按钮-总条数
@@ -476,8 +476,13 @@
     columnSelectorVisible.value = true;
   };
 
-  const handleFilterConfirm = (value: (string | number)[], dataIndex: string) => {
-    emit('filterChange', dataIndex, value);
+  const handleFilterConfirm = (
+    value: (string | number)[],
+    dataIndex: string,
+    multiple: boolean,
+    isCustomParam: boolean
+  ) => {
+    emit('filterChange', dataIndex, value, multiple, isCustomParam);
   };
 
   onMounted(async () => {

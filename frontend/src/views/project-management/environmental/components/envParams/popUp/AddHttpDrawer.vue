@@ -86,6 +86,7 @@
         </a-input>
       </a-form-item>
     </a-form>
+    <RequestHeader :params="headerParams" />
   </MsDrawer>
 </template>
 
@@ -94,6 +95,7 @@
 
   import { OPERATOR_MAP } from '@/components/pure/ms-advance-filter/index';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import RequestHeader from '../../requestHeader/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
@@ -128,6 +130,7 @@
   const showApiModule = computed(() => form.enableCondition === 'module' && form.applyModule.includes('apiTest'));
   const showUIModule = computed(() => form.enableCondition === 'module' && form.applyModule.includes('uiTest'));
   const showPathInput = computed(() => form.enableCondition === 'path');
+  const headerParams = ref<[]>([]);
 
   const visible = defineModel('visible', { required: true, type: Boolean, default: false });
 

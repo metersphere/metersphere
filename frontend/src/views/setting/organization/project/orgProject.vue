@@ -108,6 +108,19 @@
       dataIndex: 'num',
       width: 100,
       showTooltip: true,
+      filterConfig: {
+        multiple: false,
+        options: [
+          {
+            label: t('common.all'),
+            value: 'all',
+          },
+          {
+            label: t('common.only'),
+            value: 'only',
+          },
+        ],
+      },
     },
     {
       title: 'system.organization.name',
@@ -115,6 +128,19 @@
       editType: ColumnEditTypeEnum.INPUT,
       dataIndex: 'name',
       showTooltip: true,
+      filterConfig: {
+        multiple: false,
+        options: [
+          {
+            label: t('common.all'),
+            value: 'all',
+          },
+          {
+            label: t('common.only'),
+            value: 'only',
+          },
+        ],
+      },
     },
     {
       title: 'system.organization.member',

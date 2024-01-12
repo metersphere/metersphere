@@ -329,9 +329,18 @@ export default function useTableProps<T>(
     },
 
     // 筛选触发
-    filterChange: (dataIndex: string, filteredValues: (string | number)[]) => {
+    filterChange: (
+      dataIndex: string,
+      filteredValues: (string | number)[],
+      multiple: boolean,
+      isCustomParma: boolean
+    ) => {
       if (filteredValues.length > 0) {
-        filterItem.value = { [dataIndex]: filteredValues };
+        if (isCustomParma) {
+          filterItem.value = { [`custom_${multiple ? 'multiple' : 'single'}_${dataIndex}`]: filteredValues };
+        } else {
+          filterItem.value = { [dataIndex]: filteredValues };
+        }
       } else {
         filterItem.value = {};
       }

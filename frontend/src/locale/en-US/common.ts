@@ -66,6 +66,7 @@ export default {
   'common.batchModify': 'Batch Edit',
   'common.batchAdd': 'Batch Add',
   'common.pleaseSelect': 'please choose',
+  'common.pleaseInput': 'Please input',
   'common.quickAddMember': 'Quickly add members',
   'common.filter': 'Filter',
   'common.export': 'Export',
