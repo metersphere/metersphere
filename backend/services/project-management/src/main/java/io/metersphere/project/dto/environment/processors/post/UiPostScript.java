@@ -1,14 +1,12 @@
-package io.metersphere.project.dto.environment.script.pre;
-
+package io.metersphere.project.dto.environment.processors.post;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-public class UiPreScript {
-
+public class UiPostScript {
     @Schema(description = "脚本执行顺序 true:先执行 false:后执行")
-    private Boolean preScriptExecBefore = true;
+    private Boolean postScriptExecBefore = true;
     @Schema(description = "脚本类型 true:同步 false:异步")
     private Boolean jsrType = true;
     @Schema(description = "设置变量 true:有返回值 false:无返回值")
@@ -17,5 +15,4 @@ public class UiPreScript {
     private String variableName;
     @Schema(description = "脚本内容")
     private Boolean value;
-
 }

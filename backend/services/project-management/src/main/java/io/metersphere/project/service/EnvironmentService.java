@@ -6,11 +6,15 @@ import io.metersphere.project.dto.environment.*;
 import io.metersphere.project.dto.environment.datasource.DataSource;
 import io.metersphere.project.mapper.ExtEnvironmentMapper;
 import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.project.utils.FileDownloadUtils;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.HttpMethodConstants;
-import io.metersphere.sdk.domain.*;
+import io.metersphere.sdk.domain.Environment;
+import io.metersphere.sdk.domain.EnvironmentBlob;
+import io.metersphere.sdk.domain.EnvironmentBlobExample;
+import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.file.FileRequest;
+import io.metersphere.sdk.file.MinioRepository;
 import io.metersphere.sdk.mapper.EnvironmentBlobMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.mapper.ProjectParametersMapper;
@@ -21,8 +25,7 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.BaseSystemConfigDTO;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
-import io.metersphere.sdk.file.FileRequest;
-import io.metersphere.sdk.file.MinioRepository;
+import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
@@ -187,51 +190,29 @@ public class EnvironmentService {
         return (pos == null ? 0 : pos) + ORDER_STEP;
     }
 
-    public ResponseEntity<byte[]> exportZip(EnvironmentExportRequest request) {
+    public ResponseEntity<byte[]> exportJson(TableBatchProcessDTO request, String projectId) {
         try {
-            byte[] bytes = this.download(request);
+            Project project = projectMapper.selectByPrimaryKey(projectId);
+            List<EnvironmentRequest> environmentList = this.exportEnv(request, projectId);
+            String fileName = null;
+            if (CollectionUtils.isNotEmpty(environmentList)) {
+                if (environmentList.size() == 1) {
+                    fileName = StringUtils.join(project.getName(), "_", environmentList.get(0).getName(), ".json");
+                } else {
+                    fileName = StringUtils.join(project.getName(), "_", Translator.get("env_info_all"));
+                }
+            }
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType("application/octet-stream"))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + "files.zip")
-                    .body(bytes);
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + fileName)
+                    .body(JSON.toJSONString(environmentList).getBytes());
         } catch (Exception e) {
             return ResponseEntity.status(509).body(e.getMessage().getBytes());
         }
     }
 
-    public byte[] download(EnvironmentExportRequest request) {
-        Map<String, byte[]> files = new LinkedHashMap<>();
-        Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
-        if (BooleanUtils.isTrue(request.getGlobalParam())) {
-            //查询全局参数
-            EnvironmentExportDTO environmentExportDTO = new EnvironmentExportDTO();
-            ProjectParametersExample projectParametersExample = new ProjectParametersExample();
-            projectParametersExample.createCriteria().andProjectIdEqualTo(request.getProjectId());
-            List<ProjectParameters> projectParameters = projectParametersMapper.selectByExampleWithBLOBs(projectParametersExample);
-            if (CollectionUtils.isNotEmpty(projectParameters)) {
-                environmentExportDTO.setGlobalParam(true);
-                environmentExportDTO.setData(new String(projectParameters.get(0).getParameters()));
-                files.put(StringUtils.join(project.getName(), "_", Translator.get("global_params")), JSON.toJSONString(environmentExportDTO).getBytes());
-            }
-        }
-        if (BooleanUtils.isTrue(request.getEnvironment())) {
-            EnvironmentExportDTO environmentExportDTO = new EnvironmentExportDTO();
-            List<EnvironmentRequest> environmentList = this.exportEnv(request);
-            if (CollectionUtils.isNotEmpty(environmentList)) {
-                environmentExportDTO.setEnvironment(true);
-                environmentExportDTO.setData(JSON.toJSONString(environmentList));
-                if (environmentList.size() == 1) {
-                    files.put(StringUtils.join(project.getName(), "_", environmentList.get(0).getName(), ".json"), JSON.toJSONString(environmentList.get(0)).getBytes());
-                } else {
-                    files.put(StringUtils.join(project.getName(), "_", Translator.get("env_info_all")), JSON.toJSONString(environmentExportDTO).getBytes());
-                }
-            }
-        }
-        return FileDownloadUtils.listFileBytesToZip(files);
-    }
-
-    public List<EnvironmentRequest> exportEnv(EnvironmentExportRequest environmentExportRequest) {
-        List<String> environmentIds = this.getEnvironmentIds(environmentExportRequest);
+    public List<EnvironmentRequest> exportEnv(TableBatchProcessDTO request, String projectId) {
+        List<String> environmentIds = this.getEnvironmentIds(request, projectId);
         // 查询环境
         EnvironmentExample environmentExample = new EnvironmentExample();
         environmentExample.createCriteria().andIdIn(environmentIds);
@@ -271,9 +252,9 @@ public class EnvironmentService {
         }
     }
 
-    private List<String> getEnvironmentIds(EnvironmentExportRequest request) {
+    private List<String> getEnvironmentIds(TableBatchProcessDTO request, String projectId) {
         if (request.isSelectAll()) {
-            List<Environment> environments = extEnvironmentMapper.selectByKeyword(request.getCondition().getKeyword(), true, request.getProjectId());
+            List<Environment> environments = extEnvironmentMapper.selectByKeyword(request.getCondition().getKeyword(), true, projectId);
             List<String> environmentIds = environments.stream().map(Environment::getId).collect(Collectors.toList());
             if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 environmentIds.removeAll(request.getExcludeIds());
@@ -318,82 +299,55 @@ public class EnvironmentService {
                 // 读取文件内容
                 String content = new String(inputStream.readAllBytes());
                 inputStream.close();
-                //参数是一个对象
-                EnvironmentExportDTO environmentExportDTO = JSON.parseObject(content, EnvironmentExportDTO.class);
-                if (environmentExportDTO != null) {
-                    if (BooleanUtils.isTrue(environmentExportDTO.getGlobalParam())) {
-                        String data = environmentExportDTO.getData();
-                        //解析出来的参数是一个对象
-                        if (BooleanUtils.isTrue(request.getCover())) {
-                            ProjectParametersExample projectParametersExample = new ProjectParametersExample();
-                            projectParametersExample.createCriteria().andProjectIdEqualTo(currentProjectId);
-                            if (projectParametersMapper.countByExample(projectParametersExample) > 0) {
-                                projectParametersMapper.deleteByExample(projectParametersExample);
-                            }
-                            ProjectParameters projectParameters = new ProjectParameters();
-                            projectParameters.setId(IDGenerator.nextStr());
-                            projectParameters.setProjectId(currentProjectId);
-                            projectParameters.setCreateUser(userId);
-                            projectParameters.setUpdateUser(userId);
-                            projectParameters.setCreateTime(System.currentTimeMillis());
-                            projectParameters.setUpdateTime(System.currentTimeMillis());
-                            projectParameters.setParameters(data.getBytes());
-                            projectParametersMapper.insert(projectParameters);
+                List<EnvironmentRequest> environmentRequests = JSON.parseArray(content, EnvironmentRequest.class);
+                if (CollectionUtils.isNotEmpty(environmentRequests)) {
+                    List<Environment> environments = new ArrayList<>();
+                    List<EnvironmentBlob> environmentBlobs = new ArrayList<>();
+                    List<LogDTO> logDos = new ArrayList<>();
+                    Project project = projectMapper.selectByPrimaryKey(currentProjectId);
+                    environmentRequests.forEach(environmentRequest -> {
+                        Environment environment = new Environment();
+                        environment.setId(IDGenerator.nextStr());
+                        environment.setCreateUser(userId);
+                        environment.setName(environmentRequest.getName());
+                        environment.setProjectId(currentProjectId);
+                        environment.setUpdateUser(userId);
+                        environment.setUpdateTime(System.currentTimeMillis());
+                        environment.setMock(false);
+                        environment.setPos(getNextOrder(currentProjectId));
+                        Environment exitsEnv = getExitsEnv(environment);
+                        if (exitsEnv != null && BooleanUtils.isTrue(request.getCover())) {
+                            environmentMapper.deleteByPrimaryKey(exitsEnv.getId());
+                            environmentBlobMapper.deleteByPrimaryKey(exitsEnv.getId());
+                        } else if (exitsEnv != null && BooleanUtils.isFalse(request.getCover())) {
+                            return;
                         }
-                    }
-                    if (BooleanUtils.isTrue(environmentExportDTO.getEnvironment())) {
-                        // 拿到的参数是一个list
-                        List<EnvironmentRequest> environmentRequests = JSON.parseArray(environmentExportDTO.getData(), EnvironmentRequest.class);
-                        if (CollectionUtils.isNotEmpty(environmentRequests)) {
-                            List<Environment> environments = new ArrayList<>();
-                            List<EnvironmentBlob> environmentBlobs = new ArrayList<>();
-                            List<LogDTO> logDos = new ArrayList<>();
-                            Project project = projectMapper.selectByPrimaryKey(currentProjectId);
-                            environmentRequests.forEach(environmentRequest -> {
-                                Environment environment = new Environment();
-                                environment.setId(IDGenerator.nextStr());
-                                environment.setCreateUser(userId);
-                                environment.setName(environmentRequest.getName());
-                                environment.setProjectId(currentProjectId);
-                                environment.setUpdateUser(userId);
-                                environment.setUpdateTime(System.currentTimeMillis());
-                                environment.setMock(false);
-                                environment.setPos(getNextOrder(currentProjectId));
-                                Environment exitsEnv = getExitsEnv(environment);
-                                if (exitsEnv != null && BooleanUtils.isTrue(request.getCover())) {
-                                    environmentMapper.deleteByPrimaryKey(exitsEnv.getId());
-                                    environmentBlobMapper.deleteByPrimaryKey(exitsEnv.getId());
-                                } else if (exitsEnv != null && BooleanUtils.isFalse(request.getCover())) {
-                                    return;
-                                }
-                                environment.setCreateTime(System.currentTimeMillis());
-                                environment.setProjectId(currentProjectId);
-                                environments.add(environment);
-                                EnvironmentBlob environmentBlob = new EnvironmentBlob();
-                                environmentBlob.setId(environment.getId());
-                                environmentBlob.setConfig(JSON.toJSONBytes(environmentRequest.getConfig()));
-                                environmentBlobs.add(environmentBlob);
-                                LogDTO logDTO = new LogDTO(
-                                        currentProjectId,
-                                        project.getOrganizationId(),
-                                        environment.getId(),
-                                        userId,
-                                        OperationLogType.ADD.name(),
-                                        OperationLogModule.PROJECT_ENVIRONMENT_SETTING,
-                                        environment.getName());
-                                logDTO.setMethod(HttpMethodConstants.POST.name());
-                                logDTO.setOriginalValue(JSON.toJSONBytes(environmentRequest.getConfig()));
-                                logDTO.setPath(PATH);
-                                logDos.add(logDTO);
-                            });
-                            if (CollectionUtils.isNotEmpty(environments)
-                                    && CollectionUtils.isNotEmpty(environmentBlobs)
-                                    && CollectionUtils.isNotEmpty(logDos)) {
-                                environmentMapper.batchInsert(environments);
-                                environmentBlobMapper.batchInsert(environmentBlobs);
-                                operationLogService.batchAdd(logDos);
-                            }
-                        }
+                        environment.setCreateTime(System.currentTimeMillis());
+                        environment.setProjectId(currentProjectId);
+                        environments.add(environment);
+                        EnvironmentBlob environmentBlob = new EnvironmentBlob();
+                        environmentBlob.setId(environment.getId());
+                        environmentBlob.setConfig(JSON.toJSONBytes(environmentRequest.getConfig()));
+                        environmentBlobs.add(environmentBlob);
+                        LogDTO logDTO = new LogDTO(
+                                currentProjectId,
+                                project.getOrganizationId(),
+                                environment.getId(),
+                                userId,
+                                OperationLogType.ADD.name(),
+                                OperationLogModule.PROJECT_ENVIRONMENT_SETTING,
+                                environment.getName());
+                        logDTO.setMethod(HttpMethodConstants.POST.name());
+                        logDTO.setOriginalValue(JSON.toJSONBytes(environmentRequest.getConfig()));
+                        logDTO.setPath(PATH);
+                        logDos.add(logDTO);
+                    });
+                    if (CollectionUtils.isNotEmpty(environments)
+                            && CollectionUtils.isNotEmpty(environmentBlobs)
+                            && CollectionUtils.isNotEmpty(logDos)) {
+                        environmentMapper.batchInsert(environments);
+                        environmentBlobMapper.batchInsert(environmentBlobs);
+                        operationLogService.batchAdd(logDos);
                     }
                 }
             } catch (Exception e) {

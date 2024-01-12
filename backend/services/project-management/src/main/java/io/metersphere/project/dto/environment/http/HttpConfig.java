@@ -2,6 +2,7 @@ package io.metersphere.project.dto.environment.http;
 
 
 import io.metersphere.project.dto.environment.KeyValue;
+import io.metersphere.project.dto.environment.KeyValueEnableParam;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -24,7 +25,7 @@ public class HttpConfig implements Serializable {
     @Schema(description = "启用条件为MODULE时，需要模块的id")
     private List<String> moduleIds;
     @Schema(description = "请求头")
-    private List<KeyValue> headers;
+    private List<KeyValueEnableParam> headers;
     @Schema(description = "浏览器 选项为chrome/firefox")
     private String browser;
     private String description;
@@ -33,7 +34,7 @@ public class HttpConfig implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public HttpConfig() {
-        this.headers = List.of(new KeyValue());
+        this.headers = List.of(new KeyValueEnableParam());
     }
 
 }

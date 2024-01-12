@@ -1,13 +1,13 @@
 package io.metersphere.project.dto.environment;
 
-import io.metersphere.project.dto.environment.assertions.EnvironmentAssertions;
+import io.metersphere.project.dto.environment.assertion.MsAssertionConfig;
 import io.metersphere.project.dto.environment.auth.AuthConfig;
 import io.metersphere.project.dto.environment.common.CommonParams;
 import io.metersphere.project.dto.environment.datasource.DataSource;
 import io.metersphere.project.dto.environment.host.HostConfig;
 import io.metersphere.project.dto.environment.http.HttpConfig;
-import io.metersphere.project.dto.environment.script.post.EnvironmentPostScript;
-import io.metersphere.project.dto.environment.script.pre.EnvironmentPreScript;
+import io.metersphere.project.dto.environment.processors.post.EnvironmentPostScript;
+import io.metersphere.project.dto.environment.processors.pre.EnvironmentPreScript;
 import io.metersphere.project.dto.environment.variables.CommonVariables;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
@@ -37,7 +37,7 @@ public class EnvironmentConfig implements Serializable {
     @Schema(description = "全局后置脚本")
     private EnvironmentPostScript postScript;
     @Schema(description = "全局断言")
-    private EnvironmentAssertions assertions;
+    private MsAssertionConfig assertions;
 
 
     public EnvironmentConfig() {
@@ -49,7 +49,7 @@ public class EnvironmentConfig implements Serializable {
         this.authConfig = new AuthConfig();
         this.preScript = new EnvironmentPreScript();
         this.postScript = new EnvironmentPostScript();
-        this.assertions = new EnvironmentAssertions();
+        this.assertions = new MsAssertionConfig();
     }
 
 }
