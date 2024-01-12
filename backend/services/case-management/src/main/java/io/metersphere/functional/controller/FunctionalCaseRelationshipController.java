@@ -40,7 +40,7 @@ public class FunctionalCaseRelationshipController {
 
     @GetMapping("/get-ids/{caseId}")
     @Operation(summary = "用例管理-功能用例-用例详情-前后置关系-获取已关联用例id集合(关联用例弹窗前调用)")
-    @CheckOwner(resourceId = "#reviewId", resourceType = "case_review")
+    @CheckOwner(resourceId = "#caseId", resourceType = "functional_case")
     public List<String> getCaseIds(@PathVariable String caseId) {
         return functionalCaseRelationshipEdgeService.getExcludeIds(caseId);
     }
