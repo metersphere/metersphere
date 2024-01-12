@@ -85,7 +85,7 @@ public class ApiScenarioModuleLogService {
                     .method(HttpMethodConstants.GET.name())
                     .path(DELETE + "/%s")
                     .sourceId(item.getId())
-                    .content(item.getName() + " " + Translator.get("file.log.delete_module"))
+                    .content(item.getName() + " " + Translator.get("log.delete_module"))
                     .createUser(operator)
                     .build().getLogDTO();
             dtoList.add(dto);

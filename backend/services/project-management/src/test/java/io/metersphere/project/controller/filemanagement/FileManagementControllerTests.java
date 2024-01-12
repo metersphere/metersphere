@@ -31,10 +31,9 @@ import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.CommonProjectService;
 import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.utils.CheckLogModel;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.junit.jupiter.api.*;
@@ -2478,12 +2477,4 @@ public class FileManagementControllerTests extends BaseTest {
             }
         }
     }
-}
-
-@Data
-@AllArgsConstructor
-class CheckLogModel {
-    private String resourceId;
-    private OperationLogType operationType;
-    private String url;
 }

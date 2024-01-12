@@ -71,7 +71,7 @@ public class MinioRepository implements FileRepository {
     private String getPath(FileRequest request) {
         String folder = request.getFolder();
         if (!StringUtils.startsWithAny(folder, "system", "project", "organization")) {
-            throw new MSException("file.folder.error");
+            throw new MSException("folder.error");
         }
         return StringUtils.join(folder, "/", request.getFileName());
     }

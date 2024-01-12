@@ -3,12 +3,14 @@
 <mapper namespace="io.metersphere.plan.mapper.TestPlanMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.plan.domain.TestPlan">
     <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="num" jdbcType="BIGINT" property="num" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
-    <result column="parent_id" jdbcType="VARCHAR" property="parentId" />
+    <result column="group_id" jdbcType="VARCHAR" property="groupId" />
+    <result column="module_id" jdbcType="VARCHAR" property="moduleId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="status" jdbcType="VARCHAR" property="status" />
-    <result column="stage" jdbcType="VARCHAR" property="stage" />
-    <result column="tags" jdbcType="VARCHAR" property="tags" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
@@ -43,6 +45,25 @@
                 </when>
               </choose>
             </foreach>
+            <foreach collection="criteria.tagsCriteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler} and #{criterion.secondValue,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem,typeHandler=io.metersphere.handler.ListTypeHandler}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
           </trim>
         </if>
       </foreach>
@@ -72,14 +93,33 @@
                 </when>
               </choose>
             </foreach>
+            <foreach collection="criteria.tagsCriteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler} and #{criterion.secondValue,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem,typeHandler=io.metersphere.handler.ListTypeHandler}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
           </trim>
         </if>
       </foreach>
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, parent_id, `name`, `status`, stage, tags, create_time, create_user, 
-    update_time, update_user, planned_start_time, planned_end_time, actual_start_time, 
+    id, num, project_id, group_id, module_id, `name`, `status`, `type`, tags, create_time, 
+    create_user, update_time, update_user, planned_start_time, planned_end_time, actual_start_time, 
     actual_end_time, description
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.plan.domain.TestPlanExample" resultMap="BaseResultMap">
@@ -113,18 +153,20 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.plan.domain.TestPlan">
-    insert into test_plan (id, project_id, parent_id, 
-      `name`, `status`, stage, 
-      tags, create_time, create_user, 
-      update_time, update_user, planned_start_time, 
-      planned_end_time, actual_start_time, actual_end_time, 
-      description)
-    values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{parentId,jdbcType=VARCHAR}, 
-      #{name,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{stage,jdbcType=VARCHAR}, 
-      #{tags,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
-      #{updateTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, #{plannedStartTime,jdbcType=BIGINT}, 
-      #{plannedEndTime,jdbcType=BIGINT}, #{actualStartTime,jdbcType=BIGINT}, #{actualEndTime,jdbcType=BIGINT}, 
-      #{description,jdbcType=VARCHAR})
+    insert into test_plan (id, num, project_id, 
+      group_id, module_id, `name`, 
+      `status`, `type`, tags, 
+      create_time, create_user, update_time, 
+      update_user, planned_start_time, planned_end_time, 
+      actual_start_time, actual_end_time, description
+      )
+    values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}, 
+      #{groupId,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{status,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
+      #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, 
+      #{updateUser,jdbcType=VARCHAR}, #{plannedStartTime,jdbcType=BIGINT}, #{plannedEndTime,jdbcType=BIGINT}, 
+      #{actualStartTime,jdbcType=BIGINT}, #{actualEndTime,jdbcType=BIGINT}, #{description,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlan">
     insert into test_plan
@@ -132,11 +174,17 @@
       <if test="id != null">
         id,
       </if>
+      <if test="num != null">
+        num,
+      </if>
       <if test="projectId != null">
         project_id,
       </if>
-      <if test="parentId != null">
-        parent_id,
+      <if test="groupId != null">
+        group_id,
+      </if>
+      <if test="moduleId != null">
+        module_id,
       </if>
       <if test="name != null">
         `name`,
@@ -144,8 +192,8 @@
       <if test="status != null">
         `status`,
       </if>
-      <if test="stage != null">
-        stage,
+      <if test="type != null">
+        `type`,
       </if>
       <if test="tags != null">
         tags,
@@ -182,11 +230,17 @@
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
       </if>
+      <if test="num != null">
+        #{num,jdbcType=BIGINT},
+      </if>
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
       </if>
-      <if test="parentId != null">
-        #{parentId,jdbcType=VARCHAR},
+      <if test="groupId != null">
+        #{groupId,jdbcType=VARCHAR},
+      </if>
+      <if test="moduleId != null">
+        #{moduleId,jdbcType=VARCHAR},
       </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
@@ -194,11 +248,11 @@
       <if test="status != null">
         #{status,jdbcType=VARCHAR},
       </if>
-      <if test="stage != null">
-        #{stage,jdbcType=VARCHAR},
+      <if test="type != null">
+        #{type,jdbcType=VARCHAR},
       </if>
       <if test="tags != null">
-        #{tags,jdbcType=VARCHAR},
+        #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -241,11 +295,17 @@
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
+      <if test="record.num != null">
+        num = #{record.num,jdbcType=BIGINT},
+      </if>
       <if test="record.projectId != null">
         project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
-      <if test="record.parentId != null">
-        parent_id = #{record.parentId,jdbcType=VARCHAR},
+      <if test="record.groupId != null">
+        group_id = #{record.groupId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.moduleId != null">
+        module_id = #{record.moduleId,jdbcType=VARCHAR},
       </if>
       <if test="record.name != null">
         `name` = #{record.name,jdbcType=VARCHAR},
@@ -253,11 +313,11 @@
       <if test="record.status != null">
         `status` = #{record.status,jdbcType=VARCHAR},
       </if>
-      <if test="record.stage != null">
-        stage = #{record.stage,jdbcType=VARCHAR},
+      <if test="record.type != null">
+        `type` = #{record.type,jdbcType=VARCHAR},
       </if>
       <if test="record.tags != null">
-        tags = #{record.tags,jdbcType=VARCHAR},
+        tags = #{record.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
@@ -294,12 +354,14 @@
   <update id="updateByExample" parameterType="map">
     update test_plan
     set id = #{record.id,jdbcType=VARCHAR},
+      num = #{record.num,jdbcType=BIGINT},
       project_id = #{record.projectId,jdbcType=VARCHAR},
-      parent_id = #{record.parentId,jdbcType=VARCHAR},
+      group_id = #{record.groupId,jdbcType=VARCHAR},
+      module_id = #{record.moduleId,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
-      stage = #{record.stage,jdbcType=VARCHAR},
-      tags = #{record.tags,jdbcType=VARCHAR},
+      `type` = #{record.type,jdbcType=VARCHAR},
+      tags = #{record.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       create_time = #{record.createTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       update_time = #{record.updateTime,jdbcType=BIGINT},
@@ -316,11 +378,17 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.plan.domain.TestPlan">
     update test_plan
     <set>
+      <if test="num != null">
+        num = #{num,jdbcType=BIGINT},
+      </if>
       <if test="projectId != null">
         project_id = #{projectId,jdbcType=VARCHAR},
       </if>
-      <if test="parentId != null">
-        parent_id = #{parentId,jdbcType=VARCHAR},
+      <if test="groupId != null">
+        group_id = #{groupId,jdbcType=VARCHAR},
+      </if>
+      <if test="moduleId != null">
+        module_id = #{moduleId,jdbcType=VARCHAR},
       </if>
       <if test="name != null">
         `name` = #{name,jdbcType=VARCHAR},
@@ -328,11 +396,11 @@
       <if test="status != null">
         `status` = #{status,jdbcType=VARCHAR},
       </if>
-      <if test="stage != null">
-        stage = #{stage,jdbcType=VARCHAR},
+      <if test="type != null">
+        `type` = #{type,jdbcType=VARCHAR},
       </if>
       <if test="tags != null">
-        tags = #{tags,jdbcType=VARCHAR},
+        tags = #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -366,12 +434,14 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.plan.domain.TestPlan">
     update test_plan
-    set project_id = #{projectId,jdbcType=VARCHAR},
-      parent_id = #{parentId,jdbcType=VARCHAR},
+    set num = #{num,jdbcType=BIGINT},
+      project_id = #{projectId,jdbcType=VARCHAR},
+      group_id = #{groupId,jdbcType=VARCHAR},
+      module_id = #{moduleId,jdbcType=VARCHAR},
       `name` = #{name,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
-      stage = #{stage,jdbcType=VARCHAR},
-      tags = #{tags,jdbcType=VARCHAR},
+      `type` = #{type,jdbcType=VARCHAR},
+      tags = #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       create_time = #{createTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
       update_time = #{updateTime,jdbcType=BIGINT},
@@ -383,4 +453,88 @@
       description = #{description,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into test_plan
+    (id, num, project_id, group_id, module_id, `name`, `status`, `type`, tags, create_time, 
+      create_user, update_time, update_user, planned_start_time, planned_end_time, actual_start_time, 
+      actual_end_time, description)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.num,jdbcType=BIGINT}, #{item.projectId,jdbcType=VARCHAR}, 
+        #{item.groupId,jdbcType=VARCHAR}, #{item.moduleId,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, 
+        #{item.status,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, #{item.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
+        #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}, 
+        #{item.updateUser,jdbcType=VARCHAR}, #{item.plannedStartTime,jdbcType=BIGINT}, 
+        #{item.plannedEndTime,jdbcType=BIGINT}, #{item.actualStartTime,jdbcType=BIGINT}, 
+        #{item.actualEndTime,jdbcType=BIGINT}, #{item.description,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into test_plan (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'num'.toString() == column.value">
+          #{item.num,jdbcType=BIGINT}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
+        </if>
+        <if test="'group_id'.toString() == column.value">
+          #{item.groupId,jdbcType=VARCHAR}
+        </if>
+        <if test="'module_id'.toString() == column.value">
+          #{item.moduleId,jdbcType=VARCHAR}
+        </if>
+        <if test="'name'.toString() == column.value">
+          #{item.name,jdbcType=VARCHAR}
+        </if>
+        <if test="'status'.toString() == column.value">
+          #{item.status,jdbcType=VARCHAR}
+        </if>
+        <if test="'type'.toString() == column.value">
+          #{item.type,jdbcType=VARCHAR}
+        </if>
+        <if test="'tags'.toString() == column.value">
+          #{item.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'update_time'.toString() == column.value">
+          #{item.updateTime,jdbcType=BIGINT}
+        </if>
+        <if test="'update_user'.toString() == column.value">
+          #{item.updateUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'planned_start_time'.toString() == column.value">
+          #{item.plannedStartTime,jdbcType=BIGINT}
+        </if>
+        <if test="'planned_end_time'.toString() == column.value">
+          #{item.plannedEndTime,jdbcType=BIGINT}
+        </if>
+        <if test="'actual_start_time'.toString() == column.value">
+          #{item.actualStartTime,jdbcType=BIGINT}
+        </if>
+        <if test="'actual_end_time'.toString() == column.value">
+          #{item.actualEndTime,jdbcType=BIGINT}
+        </if>
+        <if test="'description'.toString() == column.value">
+          #{item.description,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

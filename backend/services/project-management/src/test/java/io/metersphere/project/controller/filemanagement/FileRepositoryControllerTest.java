@@ -22,10 +22,9 @@ import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.CommonProjectService;
 import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.utils.CheckLogModel;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
-import lombok.AllArgsConstructor;
-import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -68,7 +67,7 @@ public class FileRepositoryControllerTest extends BaseTest {
     @Resource
     private CommonProjectService commonProjectService;
 
-    private static List<RepositoryCheckLogModel> LOG_CHECK_LIST = new ArrayList<>();
+    private static List<CheckLogModel> LOG_CHECK_LIST = new ArrayList<>();
 
     @BeforeEach
     public void initTestData() {
@@ -167,7 +166,7 @@ public class FileRepositoryControllerTest extends BaseTest {
         repositoryId = rh.getData().toString();
         this.checkFileRepository(repositoryId, createRequest.getProjectId(), createRequest.getName(), createRequest.getPlatform(), createRequest.getUrl(), createRequest.getToken(), createRequest.getUserName());
         LOG_CHECK_LIST.add(
-                new RepositoryCheckLogModel(repositoryId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE)
+                new CheckLogModel(repositoryId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE)
         );
 
         //测试获取详情
@@ -213,7 +212,7 @@ public class FileRepositoryControllerTest extends BaseTest {
         rh = JSON.parseObject(returnStr, ResultHolder.class);
         this.checkFileRepository(rh.getData().toString(), createRequest.getProjectId(), createRequest.getName(), createRequest.getPlatform(), createRequest.getUrl(), createRequest.getToken(), createRequest.getUserName());
         LOG_CHECK_LIST.add(
-                new RepositoryCheckLogModel(rh.getData().toString(), OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE)
+                new CheckLogModel(rh.getData().toString(), OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE)
         );
 
         //参数测试： 没有url
@@ -288,7 +287,7 @@ public class FileRepositoryControllerTest extends BaseTest {
         this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_UPDATE, createRequest);
         this.checkFileRepository(repositoryId, project.getId(), "GITEA存储库改个名字", ModuleConstants.NODE_TYPE_GITEA, GITEA_URL, GITEA_TOKEN, null);
         LOG_CHECK_LIST.add(
-                new RepositoryCheckLogModel(repositoryId, OperationLogType.UPDATE, FileManagementRequestUtils.URL_FILE_REPOSITORY_UPDATE)
+                new CheckLogModel(repositoryId, OperationLogType.UPDATE, FileManagementRequestUtils.URL_FILE_REPOSITORY_UPDATE)
         );
         //修改用户名
         FileModuleRepository updateModel = new FileModuleRepository();
@@ -344,7 +343,7 @@ public class FileRepositoryControllerTest extends BaseTest {
         this.requestGetWithOk(String.format(FileManagementRequestUtils.URL_MODULE_DELETE, repositoryId));
         this.checkRepositoryDeleted(repositoryId);
         LOG_CHECK_LIST.add(
-                new RepositoryCheckLogModel(repositoryId, OperationLogType.DELETE, FileManagementRequestUtils.URL_MODULE_DELETE)
+                new CheckLogModel(repositoryId, OperationLogType.DELETE, FileManagementRequestUtils.URL_MODULE_DELETE)
         );
 
         //重新添加
@@ -360,7 +359,7 @@ public class FileRepositoryControllerTest extends BaseTest {
         repositoryId = rh.getData().toString();
         this.checkFileRepository(repositoryId, createRequest.getProjectId(), createRequest.getName(), createRequest.getPlatform(), createRequest.getUrl(), createRequest.getToken(), createRequest.getUserName());
         LOG_CHECK_LIST.add(
-                new RepositoryCheckLogModel(repositoryId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE)
+                new CheckLogModel(repositoryId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE)
         );
 
     }
@@ -410,7 +409,7 @@ public class FileRepositoryControllerTest extends BaseTest {
         String fileId = JSON.parseObject(result.getResponse().getContentAsString(), ResultHolder.class).getData().toString();
         this.checkRepositoryFile(fileId, request);
         LOG_CHECK_LIST.add(
-                new RepositoryCheckLogModel(fileId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD)
+                new CheckLogModel(fileId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_REPOSITORY_FILE_ADD)
         );
         getFileMessage(fileId);
         fileList.add(fileId);
@@ -661,7 +660,7 @@ public class FileRepositoryControllerTest extends BaseTest {
         this.requestPostWithOk(FileManagementRequestUtils.URL_FILE_DELETE, fileBatchProcessRequest);
         for (String fileId : fileList) {
             LOG_CHECK_LIST.add(
-                    new RepositoryCheckLogModel(fileId, OperationLogType.DELETE, FileManagementRequestUtils.URL_FILE_DELETE)
+                    new CheckLogModel(fileId, OperationLogType.DELETE, FileManagementRequestUtils.URL_FILE_DELETE)
             );
             this.checkRepositoryFileDeleted(fileId);
         }
@@ -671,7 +670,7 @@ public class FileRepositoryControllerTest extends BaseTest {
     @Order(100)
     public void testLog() throws Exception {
         Thread.sleep(5000);
-        for (RepositoryCheckLogModel checkLogModel : LOG_CHECK_LIST) {
+        for (CheckLogModel checkLogModel : LOG_CHECK_LIST) {
             if (org.apache.commons.lang3.StringUtils.isEmpty(checkLogModel.getUrl())) {
                 this.checkLog(checkLogModel.getResourceId(), checkLogModel.getOperationType());
             } else {
@@ -717,12 +716,4 @@ public class FileRepositoryControllerTest extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         return JSON.parseArray(JSON.toJSONString(resultHolder.getData()), String.class);
     }
-}
-
-@Data
-@AllArgsConstructor
-class RepositoryCheckLogModel {
-    private String resourceId;
-    private OperationLogType operationType;
-    private String url;
 }

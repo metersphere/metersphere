@@ -280,8 +280,6 @@ public class FileMetadataService {
         }
     }
 
-    private static final String FILE_MODULE_COUNT_ALL = "all";
-
     private String uploadFile(FileMetadata fileMetadata, MultipartFile file) throws Exception {
         FileRequest uploadFileRequest = new FileRequest();
         uploadFileRequest.setFileName(fileMetadata.getId());
@@ -414,8 +412,6 @@ public class FileMetadataService {
         }
     }
 
-    private static final String FILE_MODULE_COUNT_MY = "my";
-
     /**
      * 重新上传
      */
@@ -466,8 +462,8 @@ public class FileMetadataService {
         long allCount = extFileMetadataMapper.fileCount(myFileCountDTO);
         myFileCountDTO.setOperator(operator);
         long myFileCount = extFileMetadataMapper.fileCount(myFileCountDTO);
-        moduleCountMap.put(FILE_MODULE_COUNT_MY, myFileCount);
-        moduleCountMap.put(FILE_MODULE_COUNT_ALL, allCount);
+        moduleCountMap.put(ModuleConstants.MODULE_COUNT_MY, myFileCount);
+        moduleCountMap.put(ModuleConstants.MODULE_COUNT_ALL, allCount);
         return moduleCountMap;
     }
 

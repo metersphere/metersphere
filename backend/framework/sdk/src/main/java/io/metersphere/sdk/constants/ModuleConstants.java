@@ -19,4 +19,9 @@ public class ModuleConstants {
     public static final String NODE_TYPE_GITLAB = "Gitlab";
 
     public static final String NODE_PROTOCOL_HTTP = "HTTP";
+
+    /* 模块数量统计相关key */
+    public static final String MODULE_COUNT_ALL = "all";
+    public static final String MODULE_COUNT_MY = "my";
+    /* 模块数量统计相关key end*/
 }
