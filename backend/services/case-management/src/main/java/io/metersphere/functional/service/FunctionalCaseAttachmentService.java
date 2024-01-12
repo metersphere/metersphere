@@ -177,6 +177,15 @@ public class FunctionalCaseAttachmentService {
                 fileRequest.setStorage(StorageType.MINIO.name());
                 try {
                     fileService.deleteFile(fileRequest);
+                    String fileType = StringUtils.substring(file.getFileName(), file.getFileName().lastIndexOf(".") + 1);
+                    if (TempFileUtils.isImage(fileType)) {
+                        //删除预览图
+                        fileRequest = new FileRequest();
+                        fileRequest.setFileName(file.getFileName());
+                        fileRequest.setFolder(DefaultRepositoryDir.getFunctionalCasePreviewDir(projectId, caseId) + "/" + file.getFileId());
+                        fileRequest.setStorage(StorageType.MINIO.name());
+                        fileService.deleteFile(fileRequest);
+                    }
                 } catch (Exception e) {
                     throw new MSException("delete file error");
                 }
@@ -256,6 +265,36 @@ public class FunctionalCaseAttachmentService {
             FileRequest fileRequest = new FileRequest();
             fileRequest.setFileName(attachment.getFileName());
             fileRequest.setFolder(DefaultRepositoryDir.getFunctionalCaseDir(request.getProjectId(), request.getCaseId()) + "/" + attachment.getFileId());
+            fileRequest.setStorage(StorageType.MINIO.name());
+            byte[] bytes = null;
+            try {
+                bytes = fileService.download(fileRequest);
+            } catch (Exception e) {
+                throw new MSException("get file error");
+            }
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType("application/octet-stream"))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + attachment.getFileName() + "\"")
+                    .body(bytes);
+        }
+        return ResponseEntity.ok().contentType(MediaType.parseMediaType("application/octet-stream")).body(null);
+    }
+
+
+    /**
+     * 预览压缩图片
+     *
+     * @param request request
+     */
+    public ResponseEntity<byte[]> downloadPreviewCompressedImg(FunctionalCaseFileRequest request) {
+        FunctionalCaseAttachmentExample example = new FunctionalCaseAttachmentExample();
+        example.createCriteria().andFileIdEqualTo(request.getFileId()).andCaseIdEqualTo(request.getCaseId()).andFileSourceEqualTo(CaseFileSourceType.CASE_DETAIL.toString());
+        List<FunctionalCaseAttachment> caseAttachments = functionalCaseAttachmentMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(caseAttachments)) {
+            FunctionalCaseAttachment attachment = caseAttachments.get(0);
+            FileRequest fileRequest = new FileRequest();
+            fileRequest.setFileName(attachment.getFileName());
+            fileRequest.setFolder(DefaultRepositoryDir.getFunctionalCasePreviewDir(request.getProjectId(), request.getCaseId()) + "/" + attachment.getFileId());
             fileRequest.setStorage(StorageType.MINIO.name());
             byte[] bytes = null;
             try {
