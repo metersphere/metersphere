@@ -13,6 +13,7 @@ import io.metersphere.project.domain.NotificationExample;
 import io.metersphere.project.mapper.NotificationMapper;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.CustomFieldType;
+import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.constants.TemplateScopeType;
 import io.metersphere.sdk.util.JSON;
@@ -35,10 +36,13 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -60,6 +64,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
     public static final String FUNCTIONAL_CASE_VERSION_URL = "/functional/case/version/";
     public static final String FUNCTIONAL_CASE_BATCH_EDIT_URL = "/functional/case/batch/edit";
     public static final String FUNCTIONAL_CASE_POS_URL = "/functional/case/edit/pos";
+    public static final String DOWNLOAD_EXCEL_TEMPLATE_URL = "/functional/case/download/excel/template/";
 
     @Resource
     private NotificationMapper notificationMapper;
@@ -147,7 +152,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
         //增加覆盖率
         TemplateDTO templateDTO = projectTemplateService.getTemplateDTOById("21312", "100001100001", TemplateScene.FUNCTIONAL.name());
         List<TemplateCustomFieldDTO> customFields = templateDTO.getCustomFields();
-        customFields.forEach(item ->{
+        customFields.forEach(item -> {
             if (Translator.get("custom_field.functional_priority").equals(item.getFieldName())) {
                 FunctionalCaseCustomField functionalCaseCustomField = new FunctionalCaseCustomField();
                 functionalCaseCustomField.setCaseId("TEST_FUNCTIONAL_CASE_ID_3");
@@ -440,7 +445,6 @@ public class FunctionalCaseControllerTests extends BaseTest {
     }
 
 
-
     @Test
     @Order(18)
     public void testPos() throws Exception {
@@ -454,5 +458,20 @@ public class FunctionalCaseControllerTests extends BaseTest {
         posRequest.setMoveMode("BEFORE");
         this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_POS_URL, posRequest);
 
+    }
+
+
+    @Test
+    @Order(19)
+    public void testDownloadExcelTemplate() throws Exception {
+        this.requestGetExcel(DOWNLOAD_EXCEL_TEMPLATE_URL + DEFAULT_PROJECT_ID);
+
+    }
+
+    private MvcResult requestGetExcel(String url) throws Exception {
+        return mockMvc.perform(MockMvcRequestBuilders.get(url)
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
+                .andExpect(status().isOk()).andReturn();
     }
 }
