@@ -2,8 +2,9 @@ package io.metersphere.project.controller;
 
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.environment.GlobalParams;
+import io.metersphere.project.dto.environment.GlobalParamsDTO;
 import io.metersphere.project.dto.environment.GlobalParamsRequest;
-import io.metersphere.project.dto.environment.KeyValue;
+import io.metersphere.project.dto.environment.KeyValueEnableParam;
 import io.metersphere.project.dto.environment.variables.CommonVariables;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -18,27 +19,41 @@ import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.invoker.ProjectServiceInvoker;
 import io.metersphere.system.log.constants.OperationLogType;
 import jakarta.annotation.Resource;
+import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class GlobalParamsControllerTests extends BaseTest {
@@ -48,6 +63,8 @@ public class GlobalParamsControllerTests extends BaseTest {
     private static final String add = prefix + "/add";
     private static final String get = prefix + "/get/";
     private static final String update = prefix + "/update";
+    private static final String export = prefix + "/export/%s";
+    private static final String importUrl = prefix + "/import";
     private static final ResultMatcher BAD_REQUEST_MATCHER = status().isBadRequest();
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
 
@@ -112,6 +129,7 @@ public class GlobalParamsControllerTests extends BaseTest {
             envVariable.setName("name" + i);
             envVariable.setValue("value" + i);
             envVariable.setDescription("desc" + i);
+            envVariable.setTags(List.of("tag" + i));
             envVariable.setType(VariableTypeConstants.CONSTANT.name());
             commonVariables.add(envVariable);
         }
@@ -119,11 +137,11 @@ public class GlobalParamsControllerTests extends BaseTest {
     }
 
     //根据需要多长的list 生成不同的List<KeyValue> headers
-    private List<KeyValue> getHeaders(int length) {
-        List<KeyValue> headers = new ArrayList<>();
+    private List<KeyValueEnableParam> getHeaders(int length) {
+        List<KeyValueEnableParam> headers = new ArrayList<>();
         for (int i = 0; i < length; i++) {
-            KeyValue header = new KeyValue();
-            header.setName("key" + i);
+            KeyValueEnableParam header = new KeyValueEnableParam();
+            header.setKey("key" + i);
             header.setValue("value" + i);
             headers.add(header);
         }
@@ -242,7 +260,7 @@ public class GlobalParamsControllerTests extends BaseTest {
         globalParams.setCommonVariables(getEnvVariables(1));
         request.setGlobalParams(globalParams);
         MvcResult mvcResult = this.responsePost(add, request);
-        GlobalParamsRequest globalParamsRequest = parseObjectFromMvcResult(mvcResult, GlobalParamsRequest.class);
+        ProjectParameters globalParamsRequest = parseObjectFromMvcResult(mvcResult, ProjectParameters.class);
         Assertions.assertNotNull(globalParamsRequest);
         ProjectParameters projectParameters = projectParametersMapper.selectByPrimaryKey(globalParamsRequest.getId());
         Assertions.assertNotNull(projectParameters);
@@ -258,7 +276,7 @@ public class GlobalParamsControllerTests extends BaseTest {
         globalParams.setCommonVariables(new ArrayList<>());
         request.setGlobalParams(globalParams);
         mvcResult = this.responsePost(add, request);
-        globalParamsRequest = parseObjectFromMvcResult(mvcResult, GlobalParamsRequest.class);
+        globalParamsRequest = parseObjectFromMvcResult(mvcResult, ProjectParameters.class);
         Assertions.assertNotNull(globalParamsRequest);
         projectParameters = projectParametersMapper.selectByPrimaryKey(globalParamsRequest.getId());
         Assertions.assertNotNull(projectParameters);
@@ -274,7 +292,7 @@ public class GlobalParamsControllerTests extends BaseTest {
         globalParams.setCommonVariables(getEnvVariables(1));
         request.setGlobalParams(globalParams);
         mvcResult = this.responsePost(add, request);
-        globalParamsRequest = parseObjectFromMvcResult(mvcResult, GlobalParamsRequest.class);
+        globalParamsRequest = parseObjectFromMvcResult(mvcResult, ProjectParameters.class);
         Assertions.assertNotNull(globalParamsRequest);
         projectParameters = projectParametersMapper.selectByPrimaryKey(globalParamsRequest.getId());
         Assertions.assertNotNull(projectParameters);
@@ -290,7 +308,7 @@ public class GlobalParamsControllerTests extends BaseTest {
         globalParams.setCommonVariables(new ArrayList<>());
         request.setGlobalParams(globalParams);
         mvcResult = this.responsePost(add, request);
-        globalParamsRequest = parseObjectFromMvcResult(mvcResult, GlobalParamsRequest.class);
+        globalParamsRequest = parseObjectFromMvcResult(mvcResult, ProjectParameters.class);
         Assertions.assertNotNull(globalParamsRequest);
         projectParameters = projectParametersMapper.selectByPrimaryKey(globalParamsRequest.getId());
         Assertions.assertNotNull(projectParameters);
@@ -302,7 +320,7 @@ public class GlobalParamsControllerTests extends BaseTest {
         request.setProjectId("projectId5");
         request.setGlobalParams(new GlobalParams());
         mvcResult = this.responsePost(add, request);
-        globalParamsRequest = parseObjectFromMvcResult(mvcResult, GlobalParamsRequest.class);
+        globalParamsRequest = parseObjectFromMvcResult(mvcResult, ProjectParameters.class);
         Assertions.assertNotNull(globalParamsRequest);
         //校验日志
         checkLog(globalParamsRequest.getId(), OperationLogType.ADD);
@@ -315,6 +333,10 @@ public class GlobalParamsControllerTests extends BaseTest {
         //校验权限
         request = new GlobalParamsRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);
+        GlobalParams globalParams1 = new GlobalParams();
+        globalParams1.setHeaders(getHeaders(2));
+        globalParams1.setCommonVariables(getEnvVariables(2));
+        request.setGlobalParams(globalParams1);
         //权限校验
         requestPostPermissionTest(PermissionConstants.PROJECT_ENVIRONMENT_READ_ADD, add, request);
     }
@@ -352,7 +374,7 @@ public class GlobalParamsControllerTests extends BaseTest {
         globalParams.setCommonVariables(getEnvVariables(2));
         request.setGlobalParams(globalParams);
         MvcResult mvcResult = this.responsePost(update, request);
-        GlobalParamsRequest globalParamsRequest = parseObjectFromMvcResult(mvcResult, GlobalParamsRequest.class);
+        ProjectParameters globalParamsRequest = parseObjectFromMvcResult(mvcResult, ProjectParameters.class);
         Assertions.assertNotNull(globalParamsRequest);
         //校验日志
         checkLog(globalParamsRequest.getId(), OperationLogType.UPDATE);
@@ -365,10 +387,14 @@ public class GlobalParamsControllerTests extends BaseTest {
         //校验权限
         request = new GlobalParamsRequest();
         example = new ProjectParametersExample();
-        example.createCriteria().andProjectIdEqualTo("100001100001");
+        example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID);
         projectParametersList = projectParametersMapper.selectByExample(example);
-        request.setProjectId("100001100001");
+        request.setProjectId(DEFAULT_PROJECT_ID);
         request.setId(projectParametersList.get(0).getId());
+        GlobalParams globalParams1 = new GlobalParams();
+        globalParams1.setHeaders(getHeaders(3));
+        globalParams1.setCommonVariables(getEnvVariables(4));
+        request.setGlobalParams(globalParams1);
         //权限校验
         requestPostPermissionTest(PermissionConstants.PROJECT_ENVIRONMENT_READ_UPDATE, update, request);
 
@@ -405,7 +431,7 @@ public class GlobalParamsControllerTests extends BaseTest {
     public void testGetSuccess() throws Exception {
         //获取全局参数
         MvcResult mvcResult = this.responseGet(get + "projectId1");
-        GlobalParamsRequest globalParamsRequest = parseObjectFromMvcResult(mvcResult, GlobalParamsRequest.class);
+        GlobalParamsDTO globalParamsRequest = parseObjectFromMvcResult(mvcResult, GlobalParamsDTO.class);
         Assertions.assertNotNull(globalParamsRequest);
         Assertions.assertEquals("projectId1", globalParamsRequest.getProjectId());
         Assertions.assertEquals(2, globalParamsRequest.getGlobalParams().getHeaders().size());
@@ -416,8 +442,160 @@ public class GlobalParamsControllerTests extends BaseTest {
 
         //获取全局参数 全局参数不存在
         mvcResult = this.responseGet(get + "projectId2");
-        globalParamsRequest = parseObjectFromMvcResult(mvcResult, GlobalParamsRequest.class);
+        globalParamsRequest = parseObjectFromMvcResult(mvcResult, GlobalParamsDTO.class);
         Assertions.assertNull(globalParamsRequest);
+    }
+
+    @Test
+    @Order(6)
+    public void testExportSuccess() throws Exception {
+        //导出全局参数
+        MvcResult mvcResult = this.requestGetDownloadFile(String.format(export, DEFAULT_PROJECT_ID), null);
+        byte[] fileBytes = mvcResult.getResponse().getContentAsByteArray();
+        Assertions.assertNotNull(fileBytes);
+        mockMvc.perform(getRequestBuilder(String.format(export, "321")))
+                .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
+                .andExpect(status().is5xxServerError());
+    }
+
+    @Test
+    @Order(7)
+    public void testImportSuccess() throws Exception {
+        //导入全局参数
+        InputStream inputStream = new FileInputStream(new File(
+                this.getClass().getClassLoader().getResource("file/globalParams.json")
+                        .getPath()));
+        MockMultipartFile file = new MockMultipartFile("file", "globalParams.json", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
+        MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("file", List.of(file));
+        requestMultipartWithOk(importUrl, paramMap);
+        paramMap.clear();
+        paramMap.add("file", List.of(new File(
+                this.getClass().getClassLoader().getResource("file/huanj.json")
+                        .getPath())));
+
+        this.requestMultipart(importUrl, paramMap, status().is5xxServerError());
+
+    }
+
+    protected MvcResult requestMultipart(String url, MultiValueMap<String, Object> paramMap, ResultMatcher resultMatcher) throws Exception {
+        MockMultipartHttpServletRequestBuilder requestBuilder = getMultipartRequestBuilderWithParam(url, paramMap);
+        MockHttpServletRequestBuilder header = requestBuilder
+                .header(SessionConstants.HEADER_TOKEN, sessionId)
+                .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                .header(org.springframework.http.HttpHeaders.ACCEPT_LANGUAGE, "zh-CN");
+        return mockMvc.perform(header)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(resultMatcher).andReturn();
+    }
+
+    private MockMultipartHttpServletRequestBuilder getMultipartRequestBuilderWithParam(String url, MultiValueMap<String, Object> paramMap) {
+        MockMultipartHttpServletRequestBuilder requestBuilder =
+                MockMvcRequestBuilders.multipart(getBasePath() + url);
+        paramMap.forEach((key, value) -> {
+            List list = value;
+            for (Object o : list) {
+                if (o instanceof List fileList) {
+                    fileList.forEach(o1 -> {
+                        if (o1 instanceof MockMultipartFile mockMultipartFile) {
+                            try {
+                                MockMultipartFile mockMultipartFile1 = null;
+                                mockMultipartFile1 = new MockMultipartFile(key, mockMultipartFile.getOriginalFilename(),
+                                        MediaType.APPLICATION_OCTET_STREAM_VALUE, mockMultipartFile.getBytes());
+                                requestBuilder.file(mockMultipartFile1);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+
+                    });
+                } else {
+                    MockMultipartFile multipartFile = null;
+                    multipartFile = new MockMultipartFile(key, null,
+                            MediaType.APPLICATION_JSON_VALUE, o.toString().getBytes());
+                    requestBuilder.file(multipartFile);
+                }
+            }
+        });
+        return requestBuilder;
+
+    }
+
+    protected ResultActions requestMultipartWithOk(String url, MultiValueMap<String, Object> paramMap, Object... uriVariables) throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = getMultipartRequestBuilder(url, paramMap, uriVariables);
+        return mockMvc.perform(requestBuilder)
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk());
+    }
+
+    private static MockMultipartFile getMockMultipartFile(String key, Object value) throws IOException {
+        MockMultipartFile multipartFile;
+        if (value instanceof File) {
+            File file = (File) value;
+            multipartFile = new MockMultipartFile(key, file.getName(),
+                    MediaType.APPLICATION_OCTET_STREAM_VALUE, Files.readAllBytes(file.toPath()));
+        } else if (value instanceof MockMultipartFile) {
+            multipartFile = (MockMultipartFile) value;
+            // 有些地方的参数 name 写的是文件名，这里统一处理成参数名 key
+            multipartFile = new MockMultipartFile(key, multipartFile.getOriginalFilename(),
+                    MediaType.APPLICATION_OCTET_STREAM_VALUE, multipartFile.getBytes());
+        } else {
+            multipartFile = new MockMultipartFile(key, key,
+                    MediaType.APPLICATION_JSON_VALUE, value.toString().getBytes());
+        }
+        return multipartFile;
+    }
+
+    private MockHttpServletRequestBuilder getMultipartRequestBuilder(String url,
+                                                                     MultiValueMap<String, Object> paramMap,
+                                                                     Object[] uriVariables) {
+        MockMultipartHttpServletRequestBuilder requestBuilder = getMultipartRequestBuilderWithParam(url, paramMap, uriVariables);
+        return requestBuilder
+                .header(SessionConstants.HEADER_TOKEN, sessionId)
+                .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                .header(SessionConstants.CURRENT_PROJECT, DEFAULT_PROJECT_ID)
+                .header(HttpHeaders.ACCEPT_LANGUAGE, "zh-CN");
+    }
+
+
+    private MockMultipartHttpServletRequestBuilder getMultipartRequestBuilderWithParam(String url, MultiValueMap<String, Object> paramMap, Object[] uriVariables) {
+        MockMultipartHttpServletRequestBuilder requestBuilder =
+                MockMvcRequestBuilders.multipart(getBasePath() + url, uriVariables);
+        paramMap.forEach((key, value) -> {
+            List list = value;
+            for (Object o : list) {
+                try {
+                    if (o == null) {
+                        continue;
+                    }
+                    MockMultipartFile multipartFile;
+                    if (o instanceof List) {
+                        List listObject = ((List) o);
+                        if (CollectionUtils.isEmpty(listObject)) {
+                            continue;
+                        }
+                        if (listObject.get(0) instanceof File || listObject.get(0) instanceof MockMultipartFile) {
+                            // 参数是多个文件时,设置多个文件
+                            for (Object subObject : ((List) o)) {
+                                multipartFile = getMockMultipartFile(key, subObject);
+                                requestBuilder.file(multipartFile);
+                            }
+                        } else {
+                            multipartFile = getMockMultipartFile(key, o);
+                            requestBuilder.file(multipartFile);
+                        }
+                    } else {
+                        multipartFile = getMockMultipartFile(key, o);
+                        requestBuilder.file(multipartFile);
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+
+            }
+        });
+        return requestBuilder;
     }
 
 

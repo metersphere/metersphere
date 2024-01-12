@@ -8,6 +8,7 @@ import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 public class CommonVariables implements Serializable {
@@ -25,6 +26,8 @@ public class CommonVariables implements Serializable {
     private Boolean enable = true;
     @Schema(description = "描述")
     private String description;
+    @Schema(description = "标签")
+    private List<String> tags;
 
 
     @JsonIgnore

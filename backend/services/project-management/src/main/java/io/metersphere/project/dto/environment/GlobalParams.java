@@ -12,7 +12,7 @@ import java.util.List;
 public class GlobalParams implements Serializable {
 
     @Schema(description = "请求头")
-    private List<KeyValue> headers;
+    private List<KeyValueEnableParam> headers;
     @Schema(description = "全局变量")
     private List<CommonVariables> commonVariables;
 

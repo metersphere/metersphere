@@ -107,9 +107,9 @@ public class EnvironmentGroupControllerTests extends BaseTest {
     private List<HttpConfig> createHttpConfig() {
         List<HttpConfig> httpConfigs = new ArrayList<>();
         HttpConfig httpConfig = new HttpConfig();
-        List<KeyValue> headers = new ArrayList<>();
-        KeyValue keyValue = new KeyValue();
-        keyValue.setName("key");
+        List<KeyValueEnableParam> headers = new ArrayList<>();
+        KeyValueEnableParam keyValue = new KeyValueEnableParam();
+        keyValue.setKey("key");
         keyValue.setValue("value");
         headers.add(keyValue);
         httpConfig.setHeaders(headers);
@@ -314,6 +314,7 @@ public class EnvironmentGroupControllerTests extends BaseTest {
         this.requestPostWithOkAndReturn(POS_URL, posRequest);
 
     }
+
     @Test
     @Order(12)
     public void testDeleteSuccess() throws Exception {

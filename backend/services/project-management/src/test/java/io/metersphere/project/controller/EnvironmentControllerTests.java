@@ -1,32 +1,30 @@
 package io.metersphere.project.controller;
 
 
-import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
 import io.metersphere.project.dto.environment.*;
-import io.metersphere.project.dto.environment.assertions.*;
+import io.metersphere.project.dto.environment.assertion.*;
+import io.metersphere.project.dto.environment.assertion.body.*;
 import io.metersphere.project.dto.environment.auth.AuthConfig;
 import io.metersphere.project.dto.environment.common.CommonParams;
 import io.metersphere.project.dto.environment.datasource.DataSource;
 import io.metersphere.project.dto.environment.host.Host;
 import io.metersphere.project.dto.environment.host.HostConfig;
 import io.metersphere.project.dto.environment.http.HttpConfig;
-import io.metersphere.project.dto.environment.script.ScriptContent;
-import io.metersphere.project.dto.environment.script.post.EnvironmentPostScript;
-import io.metersphere.project.dto.environment.script.post.UiPostScript;
-import io.metersphere.project.dto.environment.script.pre.EnvironmentPreScript;
-import io.metersphere.project.dto.environment.script.pre.UiPreScript;
+import io.metersphere.project.dto.environment.processors.*;
+import io.metersphere.project.dto.environment.processors.post.EnvironmentPostScript;
+import io.metersphere.project.dto.environment.processors.post.UiPostScript;
+import io.metersphere.project.dto.environment.processors.pre.EnvironmentPreScript;
+import io.metersphere.project.dto.environment.processors.pre.UiPreScript;
 import io.metersphere.project.dto.environment.ssl.KeyStoreConfig;
 import io.metersphere.project.dto.environment.ssl.KeyStoreEntry;
 import io.metersphere.project.dto.environment.ssl.KeyStoreFile;
 import io.metersphere.project.dto.environment.variables.CommonVariables;
-import io.metersphere.sdk.constants.DefaultRepositoryDir;
-import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.sdk.constants.VariableTypeConstants;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentBlob;
 import io.metersphere.sdk.domain.EnvironmentExample;
-import io.metersphere.sdk.domain.ProjectParametersExample;
+import io.metersphere.sdk.file.FileRequest;
+import io.metersphere.sdk.file.MinioRepository;
 import io.metersphere.sdk.mapper.EnvironmentBlobMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.mapper.ProjectParametersMapper;
@@ -36,8 +34,7 @@ import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
-import io.metersphere.sdk.file.FileRequest;
-import io.metersphere.sdk.file.MinioRepository;
+import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.log.constants.OperationLogType;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
@@ -61,6 +58,7 @@ import org.springframework.util.MultiValueMap;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -71,7 +69,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class EnvironmentControllerTests extends BaseTest {
@@ -214,9 +212,9 @@ public class EnvironmentControllerTests extends BaseTest {
     private List<HttpConfig> createHttpConfig() {
         List<HttpConfig> httpConfigs = new ArrayList<>();
         HttpConfig httpConfig = new HttpConfig();
-        List<KeyValue> headers = new ArrayList<>();
-        KeyValue keyValue = new KeyValue();
-        keyValue.setName("key");
+        List<KeyValueEnableParam> headers = new ArrayList<>();
+        KeyValueEnableParam keyValue = new KeyValueEnableParam();
+        keyValue.setKey("key");
         keyValue.setValue("value");
         headers.add(keyValue);
         httpConfig.setHeaders(headers);
@@ -307,20 +305,31 @@ public class EnvironmentControllerTests extends BaseTest {
         return keyStoreConfig;
     }
 
-    private ScriptContent.ApiScript createApiScript() {
-        ScriptContent.ApiScript apiScript = new ScriptContent.ApiScript();
-        ScriptContent scriptContent = new ScriptContent();
-        scriptContent.setScript("script");
-        apiScript.setEnvJSR223Script(scriptContent);
-        ScriptContent.ScenarioScript scenarioScript = new ScriptContent.ScenarioScript();
-        scenarioScript.setAssociateScenarioResults(true);
-        scenarioScript.setScript("scenarioPostScript");
-        apiScript.setScenarioJSR223Script(scenarioScript);
-        ScriptContent.StepScript stepPostScript = new ScriptContent.StepScript();
-        stepPostScript.setScriptExecBefore(true);
-        stepPostScript.setScriptContent(scriptContent);
-        stepPostScript.setFilterRequestScript(new ArrayList<>());
-        apiScript.setStepJSR223Script(List.of(stepPostScript));
+    private ApiScript createApiScript() {
+        ApiScript apiScript = new ApiScript();
+        ScriptProcessor scriptProcessor = new ScriptProcessor();
+        scriptProcessor.setScript("script");
+        scriptProcessor.setName("测试计划级别脚本");
+        SQLProcessor sqlProcessor = new SQLProcessor();
+        sqlProcessor.setEnvironmentId("environmentId");
+        sqlProcessor.setDataSourceId("dataSourceId");
+        sqlProcessor.setQueryTimeout(1000L);
+        apiScript.setPlanProcessors(List.of(scriptProcessor, sqlProcessor));
+        ScenarioScript scenarioScript = new ScenarioScript();
+        scenarioScript.setScript("script");
+        scenarioScript.setName("场景级别脚本");
+        apiScript.setScenarioProcessors(List.of(scenarioScript, sqlProcessor));
+        StepScript stepScript = new StepScript();
+        stepScript.setScript("script");
+        stepScript.setName("步骤级别前置脚本前");
+        stepScript.setScriptExecBefore(true);
+        stepScript.setFilterRequestScript(List.of("HTTP"));
+        StepScript stepScriptAfter = new StepScript();
+        stepScriptAfter.setScript("script");
+        stepScriptAfter.setName("步骤级别前置脚本后");
+        stepScriptAfter.setScriptExecBefore(false);
+        stepScriptAfter.setFilterRequestScript(List.of("HTTP"));
+        apiScript.setStepProcessors(List.of(stepScript, sqlProcessor, stepScriptAfter));
         return apiScript;
     }
 
@@ -343,17 +352,85 @@ public class EnvironmentControllerTests extends BaseTest {
         return uiPostScript;
     }
 
-    private EnvironmentAssertions createAssertions() {
-        EnvironmentAssertions assertions = new EnvironmentAssertions();
-        assertions.setApiTest(true);
-        List<EnvAssertionRegex> regex = new ArrayList<>();
-        assertions.setRegex(regex);
-        List<EnvAssertionJsonPath> jsonPath = new ArrayList<>();
-        assertions.setJsonPath(jsonPath);
-        List<EnvAssertionJSR223> jsr223 = new ArrayList<>();
-        assertions.setJsr223(jsr223);
-        List<EnvAssertionXPath> xpath = new ArrayList<>();
-        assertions.setXpath(xpath);
+    public static List<MsAssertion> getGeneralAssertions() {
+        List<MsAssertion> assertions = new ArrayList<>();
+        MsResponseCodeAssertion responseCodeAssertion = new MsResponseCodeAssertion();
+        responseCodeAssertion.setCondition(MsAssertionCondition.EMPTY.name());
+        responseCodeAssertion.setExpectedValue("value");
+        responseCodeAssertion.setName("name");
+        assertions.add(responseCodeAssertion);
+
+        MsResponseHeaderAssertion responseHeaderAssertion = new MsResponseHeaderAssertion();
+        MsResponseHeaderAssertion.ResponseHeaderAssertionItem responseHeaderAssertionItem = new MsResponseHeaderAssertion.ResponseHeaderAssertionItem();
+        responseHeaderAssertionItem.setHeader("header");
+        responseHeaderAssertionItem.setExpectedValue("value");
+        responseHeaderAssertionItem.setCondition(MsAssertionCondition.EMPTY.name());
+        responseHeaderAssertion.setAssertions(List.of(responseHeaderAssertionItem));
+        assertions.add(responseHeaderAssertion);
+
+        MsResponseBodyAssertion regexResponseBodyAssertion = new MsResponseBodyAssertion();
+        regexResponseBodyAssertion.setAssertionBodyType(MsResponseBodyAssertion.MsBodyAssertionType.REGEX.name());
+        MsRegexAssertion regexAssertion = new MsRegexAssertion();
+
+        MsRegexAssertionItem msRegexAssertionItem = new MsRegexAssertionItem();
+        msRegexAssertionItem.setExpression("^test");
+        regexAssertion.setAssertions(List.of(msRegexAssertionItem));
+        regexResponseBodyAssertion.setRegexAssertion(regexAssertion);
+        assertions.add(regexResponseBodyAssertion);
+
+        MsResponseBodyAssertion documentResponseBodyAssertion = new MsResponseBodyAssertion();
+        documentResponseBodyAssertion.setAssertionBodyType(MsResponseBodyAssertion.MsBodyAssertionType.DOCUMENT.name());
+        MsDocumentAssertion msDocumentAssertion = new MsDocumentAssertion();
+        documentResponseBodyAssertion.setDocumentAssertion(msDocumentAssertion);
+        assertions.add(documentResponseBodyAssertion);
+
+        MsResponseBodyAssertion jsonPathResponseBodyAssertion = new MsResponseBodyAssertion();
+        jsonPathResponseBodyAssertion.setAssertionBodyType(MsResponseBodyAssertion.MsBodyAssertionType.JSON_PATH.name());
+        MsJSONPathAssertion msJSONPathAssertion = new MsJSONPathAssertion();
+        MsJSONPathAssertionItem msJSONPathAssertionItem = new MsJSONPathAssertionItem();
+        msJSONPathAssertionItem.setExpression("^test");
+        msJSONPathAssertionItem.setCondition(MsAssertionCondition.REGEX.name());
+        msJSONPathAssertionItem.setExpectedValue("expectedValue");
+        msJSONPathAssertion.setAssertions(List.of(msJSONPathAssertionItem));
+        jsonPathResponseBodyAssertion.setJsonPathAssertion(msJSONPathAssertion);
+        assertions.add(jsonPathResponseBodyAssertion);
+
+        MsResponseBodyAssertion xpathPathResponseBodyAssertion = new MsResponseBodyAssertion();
+        xpathPathResponseBodyAssertion.setAssertionBodyType(MsResponseBodyAssertion.MsBodyAssertionType.XPATH.name());
+        MsXPathAssertion xPathPathAssertion = new MsXPathAssertion();
+        xPathPathAssertion.setResponseFormat(MsXPathAssertion.ResponseFormat.XML.name());
+        MsXPathAssertionItem xPathAssertionItem = new MsXPathAssertionItem();
+        xPathAssertionItem.setExpression("^test");
+        xPathAssertionItem.setExpectedValue("expectedValue");
+        xPathPathAssertion.setAssertions(List.of(xPathAssertionItem));
+        xpathPathResponseBodyAssertion.setXpathAssertion(xPathPathAssertion);
+        assertions.add(xpathPathResponseBodyAssertion);
+
+        MsResponseTimeAssertion responseTimeAssertion = new MsResponseTimeAssertion();
+        responseTimeAssertion.setExpectedValue(1000L);
+        responseTimeAssertion.setEnable(true);
+        responseTimeAssertion.setName("aa");
+        assertions.add(responseTimeAssertion);
+
+        MsScriptAssertion scriptAssertion = new MsScriptAssertion();
+        scriptAssertion.setScriptId("1111");
+        scriptAssertion.setScript("1111");
+        scriptAssertion.setName("1111");
+        assertions.add(scriptAssertion);
+
+        MsVariableAssertion msVariableAssertion = new MsVariableAssertion();
+        MsVariableAssertion.VariableAssertionItem variableAssertionItem = new MsVariableAssertion.VariableAssertionItem();
+        variableAssertionItem.setCondition(MsAssertionCondition.GT.name());
+        variableAssertionItem.setExpectedValue("ev");
+        variableAssertionItem.setVariableName("vn");
+        msVariableAssertion.setVariableAssertionItems(List.of(variableAssertionItem));
+        assertions.add(msVariableAssertion);
+        return assertions;
+    }
+
+    private MsAssertionConfig createAssertions() {
+        MsAssertionConfig assertions = new MsAssertionConfig();
+        assertions.setAssertions(getGeneralAssertions());
         return assertions;
     }
 
@@ -393,6 +470,7 @@ public class EnvironmentControllerTests extends BaseTest {
         envConfig.setCommonParams(createCommonParams());
         request.setName("commonParams");
         request.setConfig(envConfig);
+        paramMap.clear();
         paramMap.set("request", JSON.toJSONString(request));
         mvcResult = this.requestMultipartWithOkAndReturn(add, paramMap);
         response = parseObjectFromMvcResult(mvcResult, Environment.class);
@@ -418,6 +496,7 @@ public class EnvironmentControllerTests extends BaseTest {
         envConfig.setCommonVariables(createCommonVariables(1));
         request.setName("commonVariables");
         request.setConfig(envConfig);
+        paramMap.clear();
         paramMap.set("request", JSON.toJSONString(request));
         mvcResult = this.requestMultipartWithOkAndReturn(add, paramMap);
         response = parseObjectFromMvcResult(mvcResult, Environment.class);
@@ -443,6 +522,7 @@ public class EnvironmentControllerTests extends BaseTest {
         envConfig.setHttpConfig(createHttpConfig());
         request.setName("httpConfig");
         request.setConfig(envConfig);
+        paramMap.clear();
         paramMap.set("request", JSON.toJSONString(request));
         mvcResult = this.requestMultipartWithOkAndReturn(add, paramMap);
         response = parseObjectFromMvcResult(mvcResult, Environment.class);
@@ -468,6 +548,7 @@ public class EnvironmentControllerTests extends BaseTest {
         envConfig.setDataSources(createDataSources());
         request.setName("dataSources");
         request.setConfig(envConfig);
+        paramMap.clear();
         paramMap.set("request", JSON.toJSONString(request));
         mvcResult = this.requestMultipartWithOkAndReturn(add, paramMap);
         response = parseObjectFromMvcResult(mvcResult, Environment.class);
@@ -493,6 +574,7 @@ public class EnvironmentControllerTests extends BaseTest {
         envConfig.setHostConfig(crateHostConfig());
         request.setName("hostConfig");
         request.setConfig(envConfig);
+        paramMap.clear();
         paramMap.set("request", JSON.toJSONString(request));
         mvcResult = this.requestMultipartWithOkAndReturn(add, paramMap);
         response = parseObjectFromMvcResult(mvcResult, Environment.class);
@@ -518,6 +600,7 @@ public class EnvironmentControllerTests extends BaseTest {
         envConfig.setAuthConfig(createAuthConfig());
         request.setName("authConfig");
         request.setConfig(envConfig);
+        paramMap.clear();
         paramMap.set("request", JSON.toJSONString(request));
         mvcResult = this.requestMultipartWithOkAndReturn(add, paramMap);
         response = parseObjectFromMvcResult(mvcResult, Environment.class);
@@ -545,6 +628,7 @@ public class EnvironmentControllerTests extends BaseTest {
         envConfig.setAuthConfig(authConfig);
         request.setName("sslConfig");
         request.setConfig(envConfig);
+        paramMap.clear();
         paramMap.set("request", JSON.toJSONString(request));
         mvcResult = this.requestMultipartWithOkAndReturn(add, paramMap);
         response = parseObjectFromMvcResult(mvcResult, Environment.class);
@@ -570,6 +654,7 @@ public class EnvironmentControllerTests extends BaseTest {
         envConfig.setPreScript(createEnvironmentPreScript());
         request.setName("preScript");
         request.setConfig(envConfig);
+        paramMap.clear();
         paramMap.set("request", JSON.toJSONString(request));
         mvcResult = this.requestMultipartWithOkAndReturn(add, paramMap);
         response = parseObjectFromMvcResult(mvcResult, Environment.class);
@@ -595,6 +680,7 @@ public class EnvironmentControllerTests extends BaseTest {
         envConfig.setPostScript(createEnvironmentPostScript());
         request.setName("postScript");
         request.setConfig(envConfig);
+        paramMap.clear();
         paramMap.set("request", JSON.toJSONString(request));
         mvcResult = this.requestMultipartWithOkAndReturn(add, paramMap);
         response = parseObjectFromMvcResult(mvcResult, Environment.class);
@@ -621,6 +707,7 @@ public class EnvironmentControllerTests extends BaseTest {
         envConfig.setAssertions(createAssertions());
         request.setName("assertions");
         request.setConfig(envConfig);
+        paramMap.clear();
         paramMap.set("request", JSON.toJSONString(request));
         mvcResult = this.requestMultipartWithOkAndReturn(add, paramMap);
         response = parseObjectFromMvcResult(mvcResult, Environment.class);
@@ -788,7 +875,7 @@ public class EnvironmentControllerTests extends BaseTest {
         // 测试500
         dataSource.setDriver("com.mysql.cj.jdbc.Driver");
         dataSource.setDbUrl("jdbc:mysql://");
-        this.requestPost(validate + "500", dataSource, ERROR_REQUEST_MATCHER);
+        this.requestPost(validate, dataSource, ERROR_REQUEST_MATCHER);
     }
 
     @Test
@@ -903,10 +990,10 @@ public class EnvironmentControllerTests extends BaseTest {
         List<Environment> environments = environmentMapper.selectByExample(example);
         posRequest.setMoveId(environments.get(0).getId());
         posRequest.setMoveMode("AFTER");
-        this.requestPostWithOkAndReturn(POS_URL, posRequest);
+        this.requestPostWithOkAndReturn(POS_URL, posRequest, DEFAULT_PROJECT_ID);
 
         posRequest.setMoveMode("BEFORE");
-        this.requestPostWithOkAndReturn(POS_URL, posRequest);
+        this.requestPostWithOkAndReturn(POS_URL, posRequest, DEFAULT_PROJECT_ID);
 
     }
 
@@ -964,11 +1051,11 @@ public class EnvironmentControllerTests extends BaseTest {
         Assertions.assertEquals(1, response.size());
         environmentDTO.setProjectId(DEFAULT_PROJECT_ID);
         //校验权限
-        requestPostPermissionTest(PermissionConstants.PROJECT_ENVIRONMENT_READ, list , environmentDTO);
+        requestPostPermissionTest(PermissionConstants.PROJECT_ENVIRONMENT_READ, list, environmentDTO);
 
         //项目不存在 返回内容为[]
         environmentDTO.setProjectId("ceshi");
-        mvcResult = this.responsePost(list ,environmentDTO);
+        mvcResult = this.responsePost(list, environmentDTO);
         response = parseObjectFromMvcResult(mvcResult, List.class);
         Assertions.assertEquals(0, response.size());
     }
@@ -1041,52 +1128,50 @@ public class EnvironmentControllerTests extends BaseTest {
     @Order(14)
     public void testExport() throws Exception {
         //指定id
-        EnvironmentExportRequest environmentExportRequest = new EnvironmentExportRequest();
-        environmentExportRequest.setProjectId(DEFAULT_PROJECT_ID);
-        environmentExportRequest.setEnvironment(true);
-        environmentExportRequest.setSelectIds(List.of("environmentId1"));
-        MvcResult mvcResult = this.requestPostDownloadFile(exportEnv, null, environmentExportRequest);
+        TableBatchProcessDTO request = new TableBatchProcessDTO();
+        request.setSelectIds(List.of("environmentId1"));
+        MvcResult mvcResult = this.requestPostDownloadFile(exportEnv, null, request, DEFAULT_PROJECT_ID);
         byte[] fileBytes = mvcResult.getResponse().getContentAsByteArray();
         Assertions.assertNotNull(fileBytes);
 
-        ProjectParametersExample projectParametersExample = new ProjectParametersExample();
-        projectParametersExample.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID);
-        if (projectParametersMapper.countByExample(projectParametersExample) == 0) {
-            //全局参数
-            GlobalParamsRequest request = new GlobalParamsRequest();
-            request.setProjectId(DEFAULT_PROJECT_ID);
-            GlobalParams globalParams = new GlobalParams();
-            globalParams.setHeaders(getHeaders(1));
-            globalParams.setCommonVariables(getEnvVariables(1));
-            request.setGlobalParams(globalParams);
-            this.responsePost("/project/global/params/add", request);
-        }
-        //全选
-        environmentExportRequest.setGlobalParam(true);
-        environmentExportRequest.setSelectIds(List.of("environmentId1"));
-        environmentExportRequest.setSelectAll(true);
-        environmentExportRequest.setExcludeIds(List.of("environmentId1"));
-        MvcResult mvcResult1 = this.requestPostDownloadFile(exportEnv, null, environmentExportRequest);
+        request.setSelectIds(List.of("environmentId1"));
+        request.setSelectAll(true);
+        request.setExcludeIds(List.of("environmentId1"));
+        MvcResult mvcResult1 = this.requestPostDownloadFile(exportEnv, null, request, DEFAULT_PROJECT_ID);
         byte[] fileBytes1 = mvcResult1.getResponse().getContentAsByteArray();
+        File file = new File("test.json");
+        FileOutputStream fileOutputStream = new FileOutputStream(file);
+        fileOutputStream.write(fileBytes1);
+        fileOutputStream.close();
         Assertions.assertNotNull(fileBytes1);
-        projectParametersMapper.deleteByExample(projectParametersExample);
-        environmentExportRequest.setSelectIds(List.of("不存在blob"));
-        environmentExportRequest.setSelectAll(false);
-        environmentExportRequest.setEnvironment(true);
-        mockMvc.perform(getPostRequestBuilder(exportEnv, environmentExportRequest))
+        request.setSelectIds(List.of("不存在blob"));
+        request.setSelectAll(false);
+        mockMvc.perform(getPostRequestBuilder(exportEnv, request, DEFAULT_PROJECT_ID))
                 .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM))
                 .andExpect(ERROR_REQUEST_MATCHER);
 
     }
 
-    protected MvcResult requestPostDownloadFile(String url, MediaType contentType, Object param) throws Exception {
+    protected MvcResult requestPostDownloadFile(String url, MediaType contentType, Object param, String projectId) throws Exception {
         if (contentType == null) {
             contentType = MediaType.APPLICATION_OCTET_STREAM;
         }
-        return mockMvc.perform(getPostRequestBuilder(url, param))
+        return mockMvc.perform(getPostRequestBuilder(url, param, projectId))
                 .andExpect(content().contentType(contentType))
                 .andExpect(status().isOk()).andReturn();
     }
+
+    protected MockHttpServletRequestBuilder getPostRequestBuilder(String url, Object param, Object... uriVariables) {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post(getBasePath() + url);
+        return requestBuilder
+                .header(SessionConstants.HEADER_TOKEN, sessionId)
+                .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                .header(SessionConstants.CURRENT_PROJECT, uriVariables)
+                .header(org.apache.http.HttpHeaders.ACCEPT_LANGUAGE, "zh-CN")
+                .content(JSON.toJSONString(param))
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
     @Test
     @Order(15)
     public void testImport() throws Exception {
@@ -1108,38 +1193,6 @@ public class EnvironmentControllerTests extends BaseTest {
         paramMap.add("file", List.of(file));
         paramMap.add("request", JSON.toJSONString(request));
         requestMultipartWithOk(importEnv, paramMap, DEFAULT_PROJECT_ID);
-
-        //上传全局参数
-        ProjectParametersExample projectParametersExample = new ProjectParametersExample();
-        projectParametersExample.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID);
-        if (projectParametersMapper.countByExample(projectParametersExample) == 0) {
-            //全局参数
-            GlobalParamsRequest globalParamsRequest = new GlobalParamsRequest();
-            globalParamsRequest.setProjectId(DEFAULT_PROJECT_ID);
-            GlobalParams globalParams = new GlobalParams();
-            globalParams.setHeaders(getHeaders(1));
-            globalParams.setCommonVariables(getEnvVariables(1));
-            globalParamsRequest.setGlobalParams(globalParams);
-            this.responsePost("/project/global/params/add", globalParamsRequest);
-        }
-
-        inputStream = new FileInputStream(new File(
-                this.getClass().getClassLoader().getResource("file/globalParam.json")
-                        .getPath()));
-        file = new MockMultipartFile("file", "globalParam.json", MediaType.APPLICATION_OCTET_STREAM_VALUE, inputStream);
-        paramMap = new LinkedMultiValueMap<>();
-        request = new EnvironmentImportRequest();
-        request.setCover(true);
-        paramMap.add("file", List.of(file));
-        paramMap.add("request", JSON.toJSONString(request));
-
-        requestMultipartWithOk(importEnv, paramMap, DEFAULT_PROJECT_ID);
-        request.setCover(false);
-        paramMap.clear();
-        paramMap.add("file", List.of(file));
-        paramMap.add("request", JSON.toJSONString(request));
-        requestMultipartWithOk(importEnv, paramMap, DEFAULT_PROJECT_ID);
-        projectParametersMapper.deleteByExample(projectParametersExample);
 
         inputStream = new FileInputStream(new File(
                 this.getClass().getClassLoader().getResource("file/txtFile.txt")

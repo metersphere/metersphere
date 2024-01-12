@@ -1,7 +1,9 @@
 package io.metersphere.project.controller;
 
+import io.metersphere.project.dto.environment.EnvironmentFilterRequest;
+import io.metersphere.project.dto.environment.EnvironmentImportRequest;
 import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
-import io.metersphere.project.dto.environment.*;
+import io.metersphere.project.dto.environment.EnvironmentRequest;
 import io.metersphere.project.dto.environment.datasource.DataSource;
 import io.metersphere.project.dto.environment.ssl.KeyStoreEntry;
 import io.metersphere.project.service.CommandService;
@@ -11,6 +13,7 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
+import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOwner;
@@ -60,7 +63,7 @@ public class EnvironmentController {
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = EnvironmentLogService.class)
     public Environment add(@Validated({Created.class}) @RequestPart(value = "request") EnvironmentRequest request,
-                                  @RequestPart(value = "file", required = false) List<MultipartFile> sslFiles) {
+                           @RequestPart(value = "file", required = false) List<MultipartFile> sslFiles) {
         return environmentService.add(request, SessionUtils.getUserId(), sslFiles);
     }
 
@@ -70,7 +73,7 @@ public class EnvironmentController {
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = EnvironmentLogService.class)
     @CheckOwner(resourceId = "#request.id", resourceType = "environment")
     public Environment update(@Validated({Updated.class}) @RequestPart("request") EnvironmentRequest request,
-                                     @RequestPart(value = "file", required = false) List<MultipartFile> sslFiles) {
+                              @RequestPart(value = "file", required = false) List<MultipartFile> sslFiles) {
         return environmentService.update(request, SessionUtils.getUserId(), sslFiles);
     }
 
@@ -107,8 +110,8 @@ public class EnvironmentController {
     @PostMapping("/export")
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ_EXPORT)
     @Operation(summary = "项目管理-环境-环境目录-导出")
-    public ResponseEntity<byte[]> export(@Validated @RequestBody EnvironmentExportRequest request) {
-        return environmentService.exportZip(request);
+    public ResponseEntity<byte[]> export(@Validated @RequestBody TableBatchProcessDTO request) {
+        return environmentService.exportJson(request, SessionUtils.getCurrentProjectId());
     }
 
     @PostMapping(value = "/get/entry")
@@ -123,6 +126,5 @@ public class EnvironmentController {
     public void editPos(@Validated @RequestBody PosRequest request) {
         environmentService.editPos(request);
     }
-
 
 }
