@@ -27,6 +27,8 @@ public class ApiTestInterceptor {
         configList.add(new MybatisInterceptorConfig(ApiReportDetail.class, "content", CompressUtils.class, "zip", "unzip"));
         configList.add(new MybatisInterceptorConfig(ApiReportLog.class, "console", CompressUtils.class, "zip", "unzip"));
         // ApiScenarioBlob
+        configList.add(new MybatisInterceptorConfig(ApiScenarioBlob.class, "config", CompressUtils.class, "zip", "unzip"));
+        // ApiScenarioStepBlob
         configList.add(new MybatisInterceptorConfig(ApiScenarioStepBlob.class, "content", CompressUtils.class, "zip", "unzip"));
         // ApiScenarioReportBlob
         configList.add(new MybatisInterceptorConfig(ApiScenarioReportDetail.class, "content", CompressUtils.class, "zip", "unzip"));
