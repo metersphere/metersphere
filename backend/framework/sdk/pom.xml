@@ -91,10 +91,6 @@
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-rsocket</artifactId>
-        </dependency>
         <!--  end spring 相关     -->
 
         <!--  start apache commons 相关-->
@@ -147,41 +143,7 @@
             <version>${guava.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.commonmark</groupId>
-            <artifactId>commonmark</artifactId>
-            <version>${commonmark.version}</version>
-        </dependency>
 
-        <dependency>
-            <groupId>net.sourceforge.htmlcleaner</groupId>
-            <artifactId>htmlcleaner</artifactId>
-            <version>${htmlcleaner.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.java-websocket</groupId>
-            <artifactId>Java-WebSocket</artifactId>
-            <version>${java-websocket.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-utils</artifactId>
-            <version>${plexus.version}</version>
-        </dependency>
-
-        <!--随机数据生成API-->
-        <dependency>
-            <groupId>com.apifan.common</groupId>
-            <artifactId>common-random</artifactId>
-            <version>${common-random.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.github.mifmif</groupId>
-            <artifactId>generex</artifactId>
-            <version>${generex.version}</version>
-        </dependency>
         <!--java json schema json格式校验-->
         <dependency>
             <groupId>com.github.java-json-tools</groupId>
@@ -199,11 +161,6 @@
             </exclusions>
         </dependency>
 
-        <dependency>
-            <artifactId>xz</artifactId>
-            <groupId>org.tukaani</groupId>
-            <version>${xz.version}</version>
-        </dependency>
         <!--        minio -->
         <dependency>
             <groupId>io.minio</groupId>
