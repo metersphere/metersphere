@@ -1,12 +1,19 @@
 <template>
   <div class="container">
-    <el-table row-key="id" :data="testCases">
+    <el-input
+      v-model="keyword"
+      :placeholder="$t('test_track.report.search_placeholder')"
+      size="small"
+      prefix-icon="el-icon-search"
+      @keyup.enter.native="searchTestCase"
+    />
+    <el-table row-key="id" :data="currentPageTestCase" max-height="700">
       <el-table-column
         prop="num"
         :label="$t('commons.id')"
         show-overflow-tooltip
       >
-        <template v-slot:default="{ row }">
+        <template #default="{ row }">
           <span v-if="isTemplate || isShare">
             {{ row.isCustomNum ? row.customNum : row.num }}
           </span>
@@ -30,7 +37,7 @@
         column-key="priority"
         :label="$t('test_track.case.priority')"
       >
-        <template v-slot:default="scope">
+        <template #default="scope">
           <priority-table-item :value="scope.row.priority" ref="priority" />
         </template>
       </el-table-column>
@@ -59,7 +66,7 @@
         column-key="status"
         :label="$t('test_track.plan_view.execute_result')"
       >
-        <template v-slot:default="scope">
+        <template #default="scope">
           <status-table-item :value="scope.row.status" />
         </template>
       </el-table-column>
@@ -69,11 +76,24 @@
         :label="$t('commons.update_time')"
         show-overflow-tooltip
       >
-        <template v-slot:default="scope">
+        <template #default="scope">
           <span>{{ scope.row.updateTime | datetimeFormat }}</span>
         </template>
       </el-table-column>
     </el-table>
+    <div style="float: right; padding-top: 10px">
+      <el-pagination
+        :current-page.sync="currentPage"
+        :page-size="20"
+        layout="prev, pager, next"
+        :total="filterCases.length"
+        background
+        @current-change="handlePageChange"
+        @prev-click="handlePageChange"
+        @next-click="handlePageChange"
+      >
+      </el-pagination>
+    </div>
   </div>
 </template>
 
@@ -82,9 +102,8 @@ import PriorityTableItem from "../../../../../../common/tableItems/planview/Prio
 import TypeTableItem from "../../../../../../common/tableItems/planview/TypeTableItem";
 import MethodTableItem from "../../../../../../common/tableItems/planview/MethodTableItem";
 import StatusTableItem from "../../../../../../common/tableItems/planview/StatusTableItem";
-import {hasPermission} from "metersphere-frontend/src/utils/permission";
-import {getEditSimpleTestCase} from "@/api/testCase";
-import {openCaseEdit} from "@/business/case/test-case";
+import { getEditSimpleTestCase } from "@/api/testCase";
+import { openCaseEdit } from "@/business/case/test-case";
 
 export default {
   name: "FunctionalCases",
@@ -112,41 +131,40 @@ export default {
   },
   data() {
     return {
-      testCases: [],
+      keyword: "",
+      filterCases: [],
+      currentPage: 1,
+      currentPageTestCase: [],
     };
   },
-  mounted() {
-    this.getFunctionalTestCase();
-  },
   watch: {
-    testCases() {
-      if (this.testCases) {
-        this.$emit("setSize", this.testCases.length);
-      }
-    },
-    allTestCase() {
-      this.getFunctionalTestCase();
+    allTestCase(val) {
+      this.filterCases = val;
+      this.handlePageChange(this.currentPage);
     },
   },
   methods: {
-    getFunctionalTestCase() {
-      this.testCases = [];
-      if (this.filterStatus) {
-        this.allTestCase.forEach((item) => {
-          if (item.status === this.filterStatus) {
-            this.testCases.push(item);
-          }
-        });
-      } else {
-        this.testCases = this.allTestCase;
-      }
-    },
     redirectFunctionCaseEditPage(caseId, projectId) {
       getEditSimpleTestCase(caseId)
         .then((r) => {
-          openCaseEdit({caseId: caseId, projectId: projectId}, this);
+          openCaseEdit({ caseId: caseId, projectId: projectId }, this);
         })
         .catch(() => {});
+    },
+    searchTestCase() {
+      this.currentPage = 1;
+      this.filterCases = this.allTestCase.filter(
+        (e) =>
+          e.name.includes(this.keyword) || e.customNum.includes(this.keyword)
+      );
+      this.handlePageChange(this.currentPage);
+    },
+    handlePageChange(page) {
+      this.currentPage = page;
+      this.currentPageTestCase = this.filterCases.slice(
+        (page - 1) * 20,
+        page * 20
+      );
     },
   },
 };

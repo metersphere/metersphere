@@ -618,6 +618,7 @@ export default {
     issue_list: "缺陷列表",
     all_case: "所有用例",
     report_summary_length_tips: "报告总结不能超过60000个字符",
+    search_placeholder: "输入 ID 或名称搜索",
   },
   reporter: "报告人",
   lastmodify: "最后更改",

@@ -617,6 +617,7 @@ export default {
     issue_list: "缺陷列錶",
     all_case: "所有用例",
     report_summary_length_tips: "報告總結不能超過60000個字符",
+    search_placeholder: "輸入 ID 或名稱搜索",
   },
   reporter: "報告人",
   lastmodify: "最後更改",
