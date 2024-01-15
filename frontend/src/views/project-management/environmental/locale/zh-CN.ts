@@ -11,6 +11,7 @@ export default {
   'project.environmental.mustContain': '必含',
   'project.environmental.searchParamsHolder': '通过名称或标签搜索',
   'project.environmental.paramName': '参数名称',
+  'project.environmental.paramNamePlaceholder': '请输入参数名称',
   'project.environmental.paramType': '类型',
   'project.environmental.paramTypeTooltip': 'json：仅支持 UI 测试',
   'project.environmental.paramValue': '参数值',

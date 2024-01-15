@@ -22,28 +22,32 @@
 
 <script lang="ts" setup>
   import { ref } from 'vue';
-  import { useVModel } from '@vueuse/core';
 
   import MsAvatar from '@/components/pure/ms-avatar/index.vue';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
+  defineOptions({ name: 'MsCommentInput' });
+
   const { t } = useI18n();
 
+  // const currentContent = defineModel<string>('content', { required: true });
+
   const props = defineProps<{
-    content: string;
     isShowAvatar: boolean; // 是否显示评论人头像
     isUseBottom: boolean; // 是否被用于底部
+    defaultValue?: string; // 默认值
   }>();
 
+  const currentContent = ref(props.defaultValue || '');
+
   const emit = defineEmits<{
-    (event: 'update:content', value: string): void;
     (event: 'publish', value: string): void;
+    (event: 'cancel'): void;
   }>();
 
   const isActive = ref(false);
-  const currentContent = useVModel(props, 'content', emit);
 
   const publish = () => {
     emit('publish', currentContent.value);
@@ -53,6 +57,7 @@
   const cancelClick = () => {
     isActive.value = false;
     currentContent.value = '';
+    emit('cancel');
   };
 </script>
 

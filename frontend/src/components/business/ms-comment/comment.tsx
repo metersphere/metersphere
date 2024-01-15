@@ -16,6 +16,10 @@ export default defineComponent({
       type: Array as PropType<CommentItem[]>,
       default: () => [],
     },
+    disabled: {
+      type: Boolean as PropType<boolean>,
+      default: false,
+    },
   },
   emits: {
     /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -23,10 +27,18 @@ export default defineComponent({
     delete: (value: string) => true, // 删除评论
   },
   setup(props, { emit }) {
-    const { commentList } = toRefs(props);
-    const currentItem = reactive<{ id: string; parentId: string }>({ id: '', parentId: '' });
+    const { commentList, disabled } = toRefs(props);
+    const currentItem = reactive<{ id: string; parentId?: string }>({
+      id: '',
+      parentId: '',
+    });
     const { t } = useI18n();
     const { openModal } = useModal();
+
+    const resetCurrentItem = () => {
+      currentItem.id = '';
+      currentItem.parentId = '';
+    };
 
     const handlePublish = (content: string, item: CommentItem) => {
       const params: CommentParams = {
@@ -36,9 +48,10 @@ export default defineComponent({
       };
       emit('updateOrAdd', params, (result: boolean) => {
         if (result) {
-          message.success(t('common.publishSuccess'));
+          message.success(t('common.publishSuccessfully'));
+          resetCurrentItem();
         } else {
-          message.error(t('common.publishFail'));
+          message.error(t('common.publishFailed'));
         }
       });
     };
@@ -60,12 +73,30 @@ export default defineComponent({
       });
     };
 
+    const handleReply = (item: CommentItem) => {
+      if (item.childComments) {
+        // 父级评论
+        currentItem.id = item.id;
+      } else {
+        // 子级评论
+        currentItem.id = item.parentId || '';
+        currentItem.parentId = item.id;
+      }
+    };
+
+    const handelEdit = (item: CommentItem) => {
+      currentItem.id = item.id;
+      currentItem.parentId = item.parentId || '';
+    };
+
     const renderInput = (item: CommentItem) => {
       return (
         <CommentInput
           isShowAvatar={false}
           isUseBottom={false}
           onPublish={(content: string) => handlePublish(content, item)}
+          defaultValue={item.content || ''}
+          onCancel={() => resetCurrentItem()}
           {...item}
         />
       );
@@ -79,14 +110,8 @@ export default defineComponent({
         return (
           <div class="flex flex-col">
             <Item
-              onReply={() => {
-                currentItem.id = item.id;
-                currentItem.parentId = item.parentId || '';
-              }}
-              onEdit={() => {
-                currentItem.id = item.id;
-                currentItem.parentId = item.parentId || '';
-              }}
+              onReply={() => handleReply(item)}
+              onEdit={() => handelEdit(item)}
               onDelete={() => handleDelete(item)}
               mode={'child'}
               element={item}
@@ -100,11 +125,18 @@ export default defineComponent({
     const renderParentList = (list: CommentItem[]) => {
       return list.map((item) => {
         return (
-          <Item mode={'parent'} onDelete={() => handleDelete(item)} element={item}>
-            <div class="rounded border border-[var(--color-text-7)] p-[16px]">
-              {renderChildrenList(item.childComments)}
-            </div>
-          </Item>
+          <>
+            <Item
+              mode={'parent'}
+              onReply={() => handleReply(item)}
+              onEdit={() => handelEdit(item)}
+              onDelete={() => handleDelete(item)}
+              element={item}
+            >
+              <div class="rounded border border-[var(--color-text-7)] p-[16px]"></div>
+            </Item>
+            {item.id === currentItem.id && renderInput(item)}
+          </>
         );
       });
     };

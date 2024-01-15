@@ -26,7 +26,7 @@
             <MsIconfont type="icon-icon_edit_outlined" />
             <span>{{ t('ms.comment.edit') }}</span>
           </div>
-          <div v-if="hasEditAuth" class="comment-btn" @click="deleteClick">
+          <div class="comment-btn" @click="deleteClick">
             <MsIconfont type="icon-icon_delete-trash_outlined" />
             <span>{{ t('ms.comment.delete') }}</span>
           </div>
@@ -51,14 +51,19 @@
   const userStore = useUserStore();
   const { t } = useI18n();
 
+  defineOptions({ name: 'MsCommentItem' });
+
   const props = defineProps<{
     element: CommentItem; // 评论的具体内容
     mode: 'parent' | 'child'; // 父级评论还是子级评论
+    onReply?: () => void; // 回复
+    onEdit?: () => void; // 编辑
+    onDelete?: () => void; // 删除
   }>();
 
   // 是否拥有编辑｜删除权限
   const hasEditAuth = computed(() => {
-    return props.element.commentUserInfo.id === userStore.id;
+    return props.element.createUser === userStore.id;
   });
 
   const emit = defineEmits<{
