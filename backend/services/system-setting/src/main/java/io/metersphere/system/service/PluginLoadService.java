@@ -20,7 +20,7 @@ import io.metersphere.system.mapper.PluginScriptMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
-import org.codehaus.plexus.util.IOUtil;
+import org.apache.commons.io.IOUtils;
 import org.pf4j.PluginWrapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -170,7 +171,7 @@ public class PluginLoadService {
                     //获取到文件流
                     try (InputStream inputStream = msPluginManager.getPluginClassLoader(pluginId).getResourceAsStream(innerPath)) {
                         if (inputStream != null) {
-                            scripts.add(IOUtil.toString(inputStream));
+                            scripts.add(IOUtils.toString(inputStream, StandardCharsets.UTF_8));
                         }
                     }
                 }
