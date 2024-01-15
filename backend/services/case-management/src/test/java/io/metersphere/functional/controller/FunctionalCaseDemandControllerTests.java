@@ -6,22 +6,30 @@ import io.metersphere.functional.dto.DemandDTO;
 import io.metersphere.functional.dto.FunctionalDemandDTO;
 import io.metersphere.functional.mapper.FunctionalCaseDemandMapper;
 import io.metersphere.functional.request.FunctionalCaseDemandRequest;
+import io.metersphere.functional.request.FunctionalThirdDemandPageRequest;
 import io.metersphere.functional.request.QueryDemandListRequest;
+import io.metersphere.plugin.platform.dto.reponse.DemandRelatePageResponse;
+import io.metersphere.plugin.platform.utils.PluginPager;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.domain.OperationLog;
 import io.metersphere.sdk.domain.OperationLogExample;
 import io.metersphere.sdk.mapper.OperationLogMapper;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.base.BasePluginTestService;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.SystemParameter;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.mapper.ServiceIntegrationMapper;
 import io.metersphere.system.mapper.SystemParameterMapper;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
+import org.mockserver.client.MockServerClient;
+import org.mockserver.model.Header;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -35,6 +43,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.mockserver.model.HttpRequest.request;
+import static org.mockserver.model.HttpResponse.response;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -48,12 +58,25 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
     private OperationLogMapper operationLogMapper;
     @Resource
     private SystemParameterMapper systemParameterMapper;
+    @Resource
+    private ServiceIntegrationMapper serviceIntegrationMapper;
+    @Resource
+    private BasePluginTestService basePluginTestService;
+    @Resource
+    private MockServerClient mockServerClient;
+    @Value("${embedded.mockserver.host}")
+    private String mockServerHost;
+    @Value("${embedded.mockserver.port}")
+    private int mockServerHostPort;
+
+
 
     private static final String URL_DEMAND_PAGE = "/functional/case/demand/page";
     private static final String URL_DEMAND_ADD = "/functional/case/demand/add";
     private static final String URL_DEMAND_UPDATE = "/functional/case/demand/update";
     private static final String URL_DEMAND_CANCEL = "/functional/case/demand/cancel/";
     private static final String URL_DEMAND_BATCH_RELEVANCE = "/functional/case/demand/batch/relevance";
+    private static final String URL_DEMAND_PAGE_DEMAND = "/functional/case/demand/third/list/page";
 
 
     @Test
@@ -435,4 +458,36 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         Assertions.assertTrue(CollectionUtils.isEmpty(operationLogs));
 
     }
+
+    @Test
+    @Order(13)
+    public void pageDemandSuccess() throws Exception {
+        basePluginTestService.addJiraPlugin();
+        basePluginTestService.addServiceIntegration(DEFAULT_ORGANIZATION_ID);
+        mockServerClient
+                .when(
+                        request()
+                                .withMethod("GET")
+                                .withPath("/rest/api/2/search"))
+                .respond(
+                        response()
+                                .withStatusCode(200)
+                                .withHeaders(
+                                        new Header("Content-Type", "application/json; charset=utf-8"),
+                                        new Header("Cache-Control", "public, max-age=86400"))
+                                .withBody("{\"id\":\"123456\",\"name\":\"test\"}")
+
+                );
+        FunctionalThirdDemandPageRequest functionalThirdDemandPageRequest = new FunctionalThirdDemandPageRequest();
+        functionalThirdDemandPageRequest.setProjectId("gyq_project-case-demand-test");
+        functionalThirdDemandPageRequest.setPageSize(10);
+        functionalThirdDemandPageRequest.setStartPage(1);
+        MvcResult mvcResultDemand= this.requestPostWithOkAndReturn(URL_DEMAND_PAGE_DEMAND, functionalThirdDemandPageRequest);
+        PluginPager<DemandRelatePageResponse> tableData = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(mvcResultDemand.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                PluginPager.class);
+
+        System.out.println(JSON.toJSONString(tableData));
+    }
+
 }
