@@ -43,19 +43,19 @@
 </template>
 
 <script lang="ts" setup>
-  import AssertTab from './AssertTab.vue';
-  import DataBaseTab from './DatabaseTab.vue';
-  import DisplayTab from './DisplayTab.vue';
-  import EnvParamsTab from './EnvParamsTab.vue';
-  import HostTab from './HostTab.vue';
-  import HttpTab from './HttpTab.vue';
-  import PostTab from './PostTab.vue';
-  import PreTab from './PreTab.vue';
-  import TcpTab from './TcpTab.vue';
+  import AssertTab from './envParams/AssertTab.vue';
+  import DataBaseTab from './envParams/DatabaseTab.vue';
+  import DisplayTab from './envParams/DisplayTab.vue';
+  import EnvParamsTab from './envParams/EnvParamsTab.vue';
+  import HostTab from './envParams/HostTab.vue';
+  import HttpTab from './envParams/HttpTab.vue';
+  import PostTab from './envParams/PostTab.vue';
+  import PreTab from './envParams/PreTab.vue';
+  import TcpTab from './envParams/TcpTab.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
-  const activeKey = ref('http');
+  const activeKey = ref('assert');
   const envForm = ref();
   const canSave = ref(false);
   const { t } = useI18n();

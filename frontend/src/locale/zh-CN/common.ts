@@ -83,6 +83,7 @@ export default {
   'common.newSuccess': '新增成功',
   'common.publish': '发布',
   'common.publishSuccessfully': '发布成功',
+  'common.publishFailed': '发布失败',
   'common.string': '字符串',
   'common.number': '数字',
   'common.boolean': '布尔',

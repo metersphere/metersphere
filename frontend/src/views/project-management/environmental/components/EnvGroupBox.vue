@@ -49,7 +49,7 @@
 
 <script lang="ts" setup>
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
-  import AllParamsTable from '../allParams/AllParamsTable.vue';
+  import AllParamsTable from './allParams/AllParamsTable.vue';
 
   import { useI18n } from '@/hooks/useI18n';
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';

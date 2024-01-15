@@ -12,7 +12,7 @@
         </template>
         <a-input
           v-model:model-value="record.name"
-          :placeholder="t('ms.apiTestDebug.paramNamePlaceholder')"
+          :placeholder="t('project.environmental.paramNamePlaceholder')"
           class="param-input"
           @input="(val) => addTableLine(val)"
         />

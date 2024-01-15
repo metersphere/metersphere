@@ -82,6 +82,7 @@ export default {
   'common.newSuccess': 'Added successfully',
   'common.publish': 'Publish',
   'common.publishSuccessfully': 'Published successfully',
+  'common.publishFailed': 'Published failed',
   'common.string': 'String',
   'common.number': 'Number',
   'common.boolean': 'Boolean',
