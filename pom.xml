@@ -23,38 +23,37 @@
         <platform-plugin-sdk.version>1.5.0</platform-plugin-sdk.version>
         <shiro.version>1.13.0</shiro.version>
         <java-websocket.version>1.5.4</java-websocket.version>
-        <easyexcel.version>3.3.2</easyexcel.version>
+        <easyexcel.version>3.3.3</easyexcel.version>
         <dom4j.version>2.1.4</dom4j.version>
-        <guava.version>32.0.1-jre</guava.version>
+        <guava.version>33.0.0-jre</guava.version>
         <pagehelper.version>6.0.0</pagehelper.version>
         <metersphere-jmeter-functions.version>3.0</metersphere-jmeter-functions.version>
         <metersphere-jmeter-assertions.version>1.0.1</metersphere-jmeter-assertions.version>
         <quartz-starter.version>1.0.7</quartz-starter.version>
         <redisson-starter.version>3.25.2</redisson-starter.version>
-        <guice.version>5.1.0</guice.version>
         <mybatis-starter.version>3.0.3</mybatis-starter.version>
         <reflections.version>0.10.2</reflections.version>
         <bcprov-jdk15on.version>1.70</bcprov-jdk15on.version>
-        <commons-io.version>2.13.0</commons-io.version>
-        <commons-text.version>1.10.0</commons-text.version>
+        <commons-io.version>2.15.1</commons-io.version>
+        <commons-text.version>1.11.0</commons-text.version>
         <xstream.version>1.4.20</xstream.version>
         <xmlbeans.version>5.1.1</xmlbeans.version>
         <swagger-parser.version>2.1.19</swagger-parser.version>
         <swagger.version>2.2.20</swagger.version>
         <springdoc-openapi-ui.version>2.3.0</springdoc-openapi-ui.version>
         <commonmark.version>0.19.0</commonmark.version>
-        <commons-compress.version>1.21</commons-compress.version>
-        <htmlcleaner.version>2.26</htmlcleaner.version>
+        <commons-compress.version>1.25.0</commons-compress.version>
+        <htmlcleaner.version>2.29</htmlcleaner.version>
         <xmindjbehaveplugin.version>0.8</xmindjbehaveplugin.version>
         <metersphere-plugin-core.version>2.0</metersphere-plugin-core.version>
-        <plexus.version>3.0.24</plexus.version>
-        <common-random.version>1.0.14</common-random.version>
+        <plexus.version>4.0.0</plexus.version>
+        <common-random.version>1.0.21</common-random.version>
         <generex.version>1.0.2</generex.version>
         <json-schema-validator.version>2.2.14</json-schema-validator.version>
         <xz.version>1.9</xz.version>
-        <flatten.version>1.2.7</flatten.version>
+        <flatten.version>1.6.0</flatten.version>
         <jmeter.version>5.6.3</jmeter.version>
-        <codehaus-groovy.version>3.0.11</codehaus-groovy.version>
+        <codehaus-groovy.version>3.0.20</codehaus-groovy.version>
         <metersphere-scriptengine.version>1.0.0</metersphere-scriptengine.version>
         <docker-java.version>3.3.4</docker-java.version>
         <selenium.version>4.16.1</selenium.version>
@@ -62,22 +61,17 @@
         <opentelemetry.version>1.28.0</opentelemetry.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <hessian-lite.version>3.2.13</hessian-lite.version>
-        <avro.version>1.11.1</avro.version>
         <dec.version>0.1.2</dec.version>
         <dingtalk-sdk.version>2.0.0</dingtalk-sdk.version>
         <dingtalk-client.version>2.0.29</dingtalk-client.version>
-        <minio.version>8.5.2</minio.version>
-        <xmlgraphics-commons.version>2.7</xmlgraphics-commons.version>
-        <commons-fileupload.version>1.5</commons-fileupload.version>
+        <minio.version>8.5.7</minio.version>
         <commons-collections4.version>4.4</commons-collections4.version>
         <kubernetes-client.version>6.8.0</kubernetes-client.version>
-        <jgit.version>6.6.0.202305301015-r</jgit.version>
-        <curator.version>5.4.0</curator.version>
-        <graalvmjs.version>22.3.1</graalvmjs.version>
+        <jgit.version>6.8.0.202311291450-r</jgit.version>
         <embedded.version>3.1.1</embedded.version>
         <otp-java.version>2.0.1</otp-java.version>
         <mockserver-client-java.version>5.15.0</mockserver-client-java.version>
-        <httpclient.version>4.5.14</httpclient.version>
+
         <!-- frontend -->
         <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
         <node.version>v20.8.1</node.version>
