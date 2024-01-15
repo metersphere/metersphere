@@ -88,6 +88,7 @@
         <table tableName="api_scenario">
             <columnOverride column="tags" javaType="java.util.List&lt;String&gt;" jdbcType="VARCHAR" typeHandler="io.metersphere.handler.ListTypeHandler" />
         </table>
+        <table tableName="api_scenario_blob"/>
 
         <table tableName="api_scenario_step"/>
         <table tableName="api_scenario_step_blob"/>

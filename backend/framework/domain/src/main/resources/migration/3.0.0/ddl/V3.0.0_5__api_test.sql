@@ -524,12 +524,12 @@ CREATE TABLE IF NOT EXISTS api_report_blob(
    COLLATE = utf8mb4_general_ci COMMENT = 'API/CASE执行结果详情';
 
 CREATE TABLE IF NOT EXISTS api_scenario_blob(
-  `id` VARCHAR(50) NOT NULL   COMMENT '场景pk' ,
-  `content` LONGBLOB    COMMENT '场景步骤内容' ,
+  `id` VARCHAR(50) NOT NULL  COMMENT '场景pk' ,
+  `config` LONGBLOB    COMMENT '场景配置信息' ,
   PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '场景步骤详情';
+  COLLATE = utf8mb4_general_ci COMMENT = '场景配置信息等详情';
 
 CREATE TABLE IF NOT EXISTS api_test_case_blob(
   `id` VARCHAR(50) NOT NULL   COMMENT '接口用例pk' ,
