@@ -7,7 +7,13 @@ import io.metersphere.functional.dto.FunctionalDemandDTO;
 import io.metersphere.functional.mapper.ExtFunctionalCaseDemandMapper;
 import io.metersphere.functional.mapper.FunctionalCaseDemandMapper;
 import io.metersphere.functional.request.FunctionalCaseDemandRequest;
+import io.metersphere.functional.request.FunctionalThirdDemandPageRequest;
 import io.metersphere.functional.request.QueryDemandListRequest;
+import io.metersphere.plugin.platform.dto.reponse.DemandRelatePageResponse;
+import io.metersphere.plugin.platform.dto.request.DemandPageRequest;
+import io.metersphere.plugin.platform.spi.Platform;
+import io.metersphere.plugin.platform.utils.PluginPager;
+import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
@@ -44,6 +50,8 @@ public class FunctionalCaseDemandService {
     private SqlSessionFactory sqlSessionFactory;
     @Resource
     private SystemParameterMapper systemParameterMapper;
+    @Resource
+    private ProjectApplicationService projectApplicationService;
 
     /**
      * 获取需求列表
@@ -205,5 +213,16 @@ public class FunctionalCaseDemandService {
         }
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+    }
+
+    public PluginPager<DemandRelatePageResponse> pageDemand(FunctionalThirdDemandPageRequest request) {
+        DemandPageRequest demandPageRequest = new DemandPageRequest();
+        demandPageRequest.setQuery(request.getQuery());
+        demandPageRequest.setFilter(request.getFilter());
+        demandPageRequest.setStartPage(request.getStartPage());
+        demandPageRequest.setPageSize(request.getPageSize());
+        demandPageRequest.setProjectConfig(projectApplicationService.getProjectDemandThirdPartConfig(request.getProjectId()));
+        Platform platform = projectApplicationService.getPlatform(request.getProjectId(), false);
+        return platform.pageDemand(demandPageRequest);
     }
 }
