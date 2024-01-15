@@ -1,6 +1,5 @@
 package io.metersphere.api.socket;
 
-import com.fit2cloud.quartz.anno.QuartzScheduled;
 import io.metersphere.sdk.constants.MsgType;
 import io.metersphere.sdk.dto.SocketMsgDTO;
 import io.metersphere.sdk.util.JSON;
@@ -9,6 +8,7 @@ import io.metersphere.sdk.util.WebSocketUtils;
 import jakarta.websocket.*;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -64,7 +64,7 @@ public class WebSocketHandler {
     /**
      * 每一分钟群发一次心跳检查
      */
-    @QuartzScheduled(cron = "0 0/1 * * * ?")
+    @Scheduled(fixedRate = 60000)
     public void heartbeatCheck() {
         WebSocketUtils.sendMessageAll(
                 new SocketMsgDTO(MsgType.HEARTBEAT.name(), MsgType.HEARTBEAT.name(), MsgType.HEARTBEAT.name(), "heartbeat check")

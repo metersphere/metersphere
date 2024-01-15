@@ -41,41 +41,60 @@ public class ReportStatusUtils {
      *
      * @param dto jmeter返回
      */
-    public static ProcessResultDTO getStatus(TaskResult dto, ProcessResultDTO resultVO) {
-        resultVO.computerTotal(dto.getRequestResults().size());
-        resultVO.computerSuccess(dto.getRequestResults().stream().filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ApiReportStatus.SUCCESS.name())).count());
-        if (StringUtils.equals(resultVO.getStatus(), ApiReportStatus.ERROR.name())) {
-            return resultVO;
+    public static ProcessResultDTO getStatus(TaskResult dto, ProcessResultDTO process) {
+        process.computerSuccess(dto.getRequestResults().stream()
+                .filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ApiReportStatus.SUCCESS.name())).count());
+
+        process.computerFakeError(dto.getRequestResults().stream()
+                .filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ApiReportStatus.FAKE_ERROR.name())).count());
+
+        process.computerError(dto.getRequestResults().stream()
+                .filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ApiReportStatus.ERROR.name())).count());
+
+        process.computerPending(dto.getRequestResults().stream()
+                .filter(requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ApiReportStatus.PENDING.name())).count());
+
+        // 断言计算
+        dto.getRequestResults().forEach(requestResult -> {
+            process.computerAssertion(requestResult.getAssertionTotal());
+            process.computerSuccessAssertion(requestResult.getPassAssertionsTotal());
+        });
+
+        // 各种通过率
+        process.computerRequestExecutionRate();
+        process.computerRequestPassRate();
+        process.computerAssertionPassRate();
+
+        if (StringUtils.equals(process.getStatus(), ApiReportStatus.ERROR.name())) {
+            return process;
         }
         if (ObjectUtils.isNotEmpty(dto.getProcessResultDTO())) {
             // 资源池执行整体传输失败，单条传输内容，获取资源池执行统计的状态
-            resultVO.setStatus(dto.getProcessResultDTO().getStatus());
+            process.setStatus(dto.getProcessResultDTO().getStatus());
         }
         // 过滤掉重试结果后进行统计
-        List<RequestResult> requestResults = filterRetryResults(dto.getRequestResults());
-        long errorSize = requestResults.stream().filter(requestResult ->
-                StringUtils.equalsIgnoreCase(requestResult.getStatus(), ApiReportStatus.ERROR.name())).count();
+        long errorSize = process.getErrorCount();
         // 误报
-        long errorReportResultSize = dto.getRequestResults().stream().filter(
-                requestResult -> StringUtils.equalsIgnoreCase(requestResult.getStatus(), ApiReportStatus.FAKE_ERROR.name())).count();
+        long errorReportResultSize = process.getFakeErrorCount();
         // 默认状态
-        String status = dto.getRequestResults().isEmpty() && StringUtils.isEmpty(resultVO.getStatus())
+        String status = dto.getRequestResults().isEmpty() && StringUtils.isEmpty(process.getStatus())
                 ? ApiReportStatus.PENDING.name()
-                : StringUtils.defaultIfEmpty(resultVO.getStatus(), ApiReportStatus.SUCCESS.name());
+                : StringUtils.defaultIfEmpty(process.getStatus(), ApiReportStatus.SUCCESS.name());
 
         if (errorSize > 0) {
             status = ApiReportStatus.ERROR.name();
         } else if (errorReportResultSize > 0) {
             status = ApiReportStatus.FAKE_ERROR.name();
         }
-        resultVO.setStatus(status);
-        return resultVO;
+        process.setStatus(status);
+        process.computerTotal();
+        return process;
     }
 
     public static ProcessResultDTO computedProcess(TaskResult dto) {
         ProcessResultDTO result = dto.getProcessResultDTO();
         result = getStatus(dto, result);
-        if (result.getScenarioTotal() > 0 && result.getScenarioTotal() == result.getScenarioSuccess()) {
+        if (result.getTotal() > 0 && result.getTotal() == result.getSuccessCount()) {
             result.setStatus(ApiReportStatus.SUCCESS.name());
         }
         return result;

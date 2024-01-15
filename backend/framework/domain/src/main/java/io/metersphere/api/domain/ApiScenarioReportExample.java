@@ -1734,63 +1734,63 @@ public class ApiScenarioReportExample {
             return (Criteria) this;
         }
 
-        public Criteria andPassAssertionsCountIsNull() {
-            addCriterion("pass_assertions_count is null");
+        public Criteria andAssertionSuccessCountIsNull() {
+            addCriterion("assertion_success_count is null");
             return (Criteria) this;
         }
 
-        public Criteria andPassAssertionsCountIsNotNull() {
-            addCriterion("pass_assertions_count is not null");
+        public Criteria andAssertionSuccessCountIsNotNull() {
+            addCriterion("assertion_success_count is not null");
             return (Criteria) this;
         }
 
-        public Criteria andPassAssertionsCountEqualTo(Long value) {
-            addCriterion("pass_assertions_count =", value, "passAssertionsCount");
+        public Criteria andAssertionSuccessCountEqualTo(Long value) {
+            addCriterion("assertion_success_count =", value, "assertionSuccessCount");
             return (Criteria) this;
         }
 
-        public Criteria andPassAssertionsCountNotEqualTo(Long value) {
-            addCriterion("pass_assertions_count <>", value, "passAssertionsCount");
+        public Criteria andAssertionSuccessCountNotEqualTo(Long value) {
+            addCriterion("assertion_success_count <>", value, "assertionSuccessCount");
             return (Criteria) this;
         }
 
-        public Criteria andPassAssertionsCountGreaterThan(Long value) {
-            addCriterion("pass_assertions_count >", value, "passAssertionsCount");
+        public Criteria andAssertionSuccessCountGreaterThan(Long value) {
+            addCriterion("assertion_success_count >", value, "assertionSuccessCount");
             return (Criteria) this;
         }
 
-        public Criteria andPassAssertionsCountGreaterThanOrEqualTo(Long value) {
-            addCriterion("pass_assertions_count >=", value, "passAssertionsCount");
+        public Criteria andAssertionSuccessCountGreaterThanOrEqualTo(Long value) {
+            addCriterion("assertion_success_count >=", value, "assertionSuccessCount");
             return (Criteria) this;
         }
 
-        public Criteria andPassAssertionsCountLessThan(Long value) {
-            addCriterion("pass_assertions_count <", value, "passAssertionsCount");
+        public Criteria andAssertionSuccessCountLessThan(Long value) {
+            addCriterion("assertion_success_count <", value, "assertionSuccessCount");
             return (Criteria) this;
         }
 
-        public Criteria andPassAssertionsCountLessThanOrEqualTo(Long value) {
-            addCriterion("pass_assertions_count <=", value, "passAssertionsCount");
+        public Criteria andAssertionSuccessCountLessThanOrEqualTo(Long value) {
+            addCriterion("assertion_success_count <=", value, "assertionSuccessCount");
             return (Criteria) this;
         }
 
-        public Criteria andPassAssertionsCountIn(List<Long> values) {
-            addCriterion("pass_assertions_count in", values, "passAssertionsCount");
+        public Criteria andAssertionSuccessCountIn(List<Long> values) {
+            addCriterion("assertion_success_count in", values, "assertionSuccessCount");
             return (Criteria) this;
         }
 
-        public Criteria andPassAssertionsCountNotIn(List<Long> values) {
-            addCriterion("pass_assertions_count not in", values, "passAssertionsCount");
+        public Criteria andAssertionSuccessCountNotIn(List<Long> values) {
+            addCriterion("assertion_success_count not in", values, "assertionSuccessCount");
             return (Criteria) this;
         }
 
-        public Criteria andPassAssertionsCountBetween(Long value1, Long value2) {
-            addCriterion("pass_assertions_count between", value1, value2, "passAssertionsCount");
+        public Criteria andAssertionSuccessCountBetween(Long value1, Long value2) {
+            addCriterion("assertion_success_count between", value1, value2, "assertionSuccessCount");
             return (Criteria) this;
         }
 
-        public Criteria andPassAssertionsCountNotBetween(Long value1, Long value2) {
-            addCriterion("pass_assertions_count not between", value1, value2, "passAssertionsCount");
+        public Criteria andAssertionSuccessCountNotBetween(Long value1, Long value2) {
+            addCriterion("assertion_success_count not between", value1, value2, "assertionSuccessCount");
             return (Criteria) this;
         }
 
@@ -1804,113 +1804,133 @@ public class ApiScenarioReportExample {
             return (Criteria) this;
         }
 
-        public Criteria andRequestExecutionRateEqualTo(Long value) {
+        public Criteria andRequestExecutionRateEqualTo(String value) {
             addCriterion("request_execution_rate =", value, "requestExecutionRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestExecutionRateNotEqualTo(Long value) {
+        public Criteria andRequestExecutionRateNotEqualTo(String value) {
             addCriterion("request_execution_rate <>", value, "requestExecutionRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestExecutionRateGreaterThan(Long value) {
+        public Criteria andRequestExecutionRateGreaterThan(String value) {
             addCriterion("request_execution_rate >", value, "requestExecutionRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestExecutionRateGreaterThanOrEqualTo(Long value) {
+        public Criteria andRequestExecutionRateGreaterThanOrEqualTo(String value) {
             addCriterion("request_execution_rate >=", value, "requestExecutionRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestExecutionRateLessThan(Long value) {
+        public Criteria andRequestExecutionRateLessThan(String value) {
             addCriterion("request_execution_rate <", value, "requestExecutionRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestExecutionRateLessThanOrEqualTo(Long value) {
+        public Criteria andRequestExecutionRateLessThanOrEqualTo(String value) {
             addCriterion("request_execution_rate <=", value, "requestExecutionRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestExecutionRateIn(List<Long> values) {
+        public Criteria andRequestExecutionRateLike(String value) {
+            addCriterion("request_execution_rate like", value, "requestExecutionRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestExecutionRateNotLike(String value) {
+            addCriterion("request_execution_rate not like", value, "requestExecutionRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestExecutionRateIn(List<String> values) {
             addCriterion("request_execution_rate in", values, "requestExecutionRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestExecutionRateNotIn(List<Long> values) {
+        public Criteria andRequestExecutionRateNotIn(List<String> values) {
             addCriterion("request_execution_rate not in", values, "requestExecutionRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestExecutionRateBetween(Long value1, Long value2) {
+        public Criteria andRequestExecutionRateBetween(String value1, String value2) {
             addCriterion("request_execution_rate between", value1, value2, "requestExecutionRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestExecutionRateNotBetween(Long value1, Long value2) {
+        public Criteria andRequestExecutionRateNotBetween(String value1, String value2) {
             addCriterion("request_execution_rate not between", value1, value2, "requestExecutionRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestApprovalRateIsNull() {
-            addCriterion("request_approval_rate is null");
+        public Criteria andRequestPassRateIsNull() {
+            addCriterion("request_pass_rate is null");
             return (Criteria) this;
         }
 
-        public Criteria andRequestApprovalRateIsNotNull() {
-            addCriterion("request_approval_rate is not null");
+        public Criteria andRequestPassRateIsNotNull() {
+            addCriterion("request_pass_rate is not null");
             return (Criteria) this;
         }
 
-        public Criteria andRequestApprovalRateEqualTo(Long value) {
-            addCriterion("request_approval_rate =", value, "requestApprovalRate");
+        public Criteria andRequestPassRateEqualTo(String value) {
+            addCriterion("request_pass_rate =", value, "requestPassRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestApprovalRateNotEqualTo(Long value) {
-            addCriterion("request_approval_rate <>", value, "requestApprovalRate");
+        public Criteria andRequestPassRateNotEqualTo(String value) {
+            addCriterion("request_pass_rate <>", value, "requestPassRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestApprovalRateGreaterThan(Long value) {
-            addCriterion("request_approval_rate >", value, "requestApprovalRate");
+        public Criteria andRequestPassRateGreaterThan(String value) {
+            addCriterion("request_pass_rate >", value, "requestPassRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestApprovalRateGreaterThanOrEqualTo(Long value) {
-            addCriterion("request_approval_rate >=", value, "requestApprovalRate");
+        public Criteria andRequestPassRateGreaterThanOrEqualTo(String value) {
+            addCriterion("request_pass_rate >=", value, "requestPassRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestApprovalRateLessThan(Long value) {
-            addCriterion("request_approval_rate <", value, "requestApprovalRate");
+        public Criteria andRequestPassRateLessThan(String value) {
+            addCriterion("request_pass_rate <", value, "requestPassRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestApprovalRateLessThanOrEqualTo(Long value) {
-            addCriterion("request_approval_rate <=", value, "requestApprovalRate");
+        public Criteria andRequestPassRateLessThanOrEqualTo(String value) {
+            addCriterion("request_pass_rate <=", value, "requestPassRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestApprovalRateIn(List<Long> values) {
-            addCriterion("request_approval_rate in", values, "requestApprovalRate");
+        public Criteria andRequestPassRateLike(String value) {
+            addCriterion("request_pass_rate like", value, "requestPassRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestApprovalRateNotIn(List<Long> values) {
-            addCriterion("request_approval_rate not in", values, "requestApprovalRate");
+        public Criteria andRequestPassRateNotLike(String value) {
+            addCriterion("request_pass_rate not like", value, "requestPassRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestApprovalRateBetween(Long value1, Long value2) {
-            addCriterion("request_approval_rate between", value1, value2, "requestApprovalRate");
+        public Criteria andRequestPassRateIn(List<String> values) {
+            addCriterion("request_pass_rate in", values, "requestPassRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestApprovalRateNotBetween(Long value1, Long value2) {
-            addCriterion("request_approval_rate not between", value1, value2, "requestApprovalRate");
+        public Criteria andRequestPassRateNotIn(List<String> values) {
+            addCriterion("request_pass_rate not in", values, "requestPassRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPassRateBetween(String value1, String value2) {
+            addCriterion("request_pass_rate between", value1, value2, "requestPassRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPassRateNotBetween(String value1, String value2) {
+            addCriterion("request_pass_rate not between", value1, value2, "requestPassRate");
             return (Criteria) this;
         }
 
@@ -1924,52 +1944,62 @@ public class ApiScenarioReportExample {
             return (Criteria) this;
         }
 
-        public Criteria andAssertionPassRateEqualTo(Long value) {
+        public Criteria andAssertionPassRateEqualTo(String value) {
             addCriterion("assertion_pass_rate =", value, "assertionPassRate");
             return (Criteria) this;
         }
 
-        public Criteria andAssertionPassRateNotEqualTo(Long value) {
+        public Criteria andAssertionPassRateNotEqualTo(String value) {
             addCriterion("assertion_pass_rate <>", value, "assertionPassRate");
             return (Criteria) this;
         }
 
-        public Criteria andAssertionPassRateGreaterThan(Long value) {
+        public Criteria andAssertionPassRateGreaterThan(String value) {
             addCriterion("assertion_pass_rate >", value, "assertionPassRate");
             return (Criteria) this;
         }
 
-        public Criteria andAssertionPassRateGreaterThanOrEqualTo(Long value) {
+        public Criteria andAssertionPassRateGreaterThanOrEqualTo(String value) {
             addCriterion("assertion_pass_rate >=", value, "assertionPassRate");
             return (Criteria) this;
         }
 
-        public Criteria andAssertionPassRateLessThan(Long value) {
+        public Criteria andAssertionPassRateLessThan(String value) {
             addCriterion("assertion_pass_rate <", value, "assertionPassRate");
             return (Criteria) this;
         }
 
-        public Criteria andAssertionPassRateLessThanOrEqualTo(Long value) {
+        public Criteria andAssertionPassRateLessThanOrEqualTo(String value) {
             addCriterion("assertion_pass_rate <=", value, "assertionPassRate");
             return (Criteria) this;
         }
 
-        public Criteria andAssertionPassRateIn(List<Long> values) {
+        public Criteria andAssertionPassRateLike(String value) {
+            addCriterion("assertion_pass_rate like", value, "assertionPassRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssertionPassRateNotLike(String value) {
+            addCriterion("assertion_pass_rate not like", value, "assertionPassRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssertionPassRateIn(List<String> values) {
             addCriterion("assertion_pass_rate in", values, "assertionPassRate");
             return (Criteria) this;
         }
 
-        public Criteria andAssertionPassRateNotIn(List<Long> values) {
+        public Criteria andAssertionPassRateNotIn(List<String> values) {
             addCriterion("assertion_pass_rate not in", values, "assertionPassRate");
             return (Criteria) this;
         }
 
-        public Criteria andAssertionPassRateBetween(Long value1, Long value2) {
+        public Criteria andAssertionPassRateBetween(String value1, String value2) {
             addCriterion("assertion_pass_rate between", value1, value2, "assertionPassRate");
             return (Criteria) this;
         }
 
-        public Criteria andAssertionPassRateNotBetween(Long value1, Long value2) {
+        public Criteria andAssertionPassRateNotBetween(String value1, String value2) {
             addCriterion("assertion_pass_rate not between", value1, value2, "assertionPassRate");
             return (Criteria) this;
         }

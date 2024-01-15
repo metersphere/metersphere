@@ -111,21 +111,24 @@ public class ApiScenarioReport implements Serializable {
     @NotNull(message = "{api_scenario_report.assertion_count.not_blank}", groups = {Created.class})
     private Long assertionCount;
 
-    @Schema(description = "失败断言数", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{api_scenario_report.pass_assertions_count.not_blank}", groups = {Created.class})
-    private Long passAssertionsCount;
+    @Schema(description = "通过断言数", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{api_scenario_report.assertion_success_count.not_blank}", groups = {Created.class})
+    private Long assertionSuccessCount;
 
     @Schema(description = "请求执行率", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{api_scenario_report.request_execution_rate.not_blank}", groups = {Created.class})
-    private Long requestExecutionRate;
+    @NotBlank(message = "{api_scenario_report.request_execution_rate.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 20, message = "{api_scenario_report.request_execution_rate.length_range}", groups = {Created.class, Updated.class})
+    private String requestExecutionRate;
 
     @Schema(description = "请求通过率", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{api_scenario_report.request_approval_rate.not_blank}", groups = {Created.class})
-    private Long requestApprovalRate;
+    @NotBlank(message = "{api_scenario_report.request_pass_rate.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 20, message = "{api_scenario_report.request_pass_rate.length_range}", groups = {Created.class, Updated.class})
+    private String requestPassRate;
 
     @Schema(description = "断言通过率", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{api_scenario_report.assertion_pass_rate.not_blank}", groups = {Created.class})
-    private Long assertionPassRate;
+    @NotBlank(message = "{api_scenario_report.assertion_pass_rate.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 20, message = "{api_scenario_report.assertion_pass_rate.length_range}", groups = {Created.class, Updated.class})
+    private String assertionPassRate;
 
     @Schema(description = "脚本标识")
     private String scriptIdentifier;
@@ -158,10 +161,10 @@ public class ApiScenarioReport implements Serializable {
         pendingCount("pending_count", "pendingCount", "BIGINT", false),
         successCount("success_count", "successCount", "BIGINT", false),
         assertionCount("assertion_count", "assertionCount", "BIGINT", false),
-        passAssertionsCount("pass_assertions_count", "passAssertionsCount", "BIGINT", false),
-        requestExecutionRate("request_execution_rate", "requestExecutionRate", "BIGINT", false),
-        requestApprovalRate("request_approval_rate", "requestApprovalRate", "BIGINT", false),
-        assertionPassRate("assertion_pass_rate", "assertionPassRate", "BIGINT", false),
+        assertionSuccessCount("assertion_success_count", "assertionSuccessCount", "BIGINT", false),
+        requestExecutionRate("request_execution_rate", "requestExecutionRate", "VARCHAR", false),
+        requestPassRate("request_pass_rate", "requestPassRate", "VARCHAR", false),
+        assertionPassRate("assertion_pass_rate", "assertionPassRate", "VARCHAR", false),
         scriptIdentifier("script_identifier", "scriptIdentifier", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
