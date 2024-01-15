@@ -598,6 +598,7 @@ public class ProjectApplicationService {
 
     /**
      * 过滤掉非Local平台的项目
+     *
      * @param projectIds 项目ID集合
      * @return 非Local平台的项目
      */
@@ -638,8 +639,9 @@ public class ProjectApplicationService {
 
     /**
      * 查询插件具体的服务集成信息(缺陷PLATFORM_KEY, 需求PLATFORM_KEY)
+     *
      * @param projectId 项目ID
-     * @param isSync 是否缺陷同步配置
+     * @param isSync    是否缺陷同步配置
      * @return 插件服务集成信息
      */
     public ServiceIntegration getPlatformServiceIntegrationWithSyncOrDemand(String projectId, boolean isSync) {
@@ -650,7 +652,7 @@ public class ProjectApplicationService {
             platformEnableConfig = getByType(projectId, ProjectApplicationType.BUG.BUG_SYNC.name() + "_" + ProjectApplicationType.BUG_SYNC_CONFIG.SYNC_ENABLE.name());
             platformKeyConfig = getByType(projectId, ProjectApplicationType.BUG.BUG_SYNC.name() + "_PLATFORM_KEY");
         } else {
-            platformEnableConfig = getByType(projectId, ProjectApplicationType.CASE_RELATED_CONFIG.CASE_ENABLE.name());
+            platformEnableConfig = getByType(projectId, ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "_" + ProjectApplicationType.CASE_RELATED_CONFIG.CASE_ENABLE.name());
             platformKeyConfig = getByType(projectId, ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "_PLATFORM_KEY");
         }
 
@@ -678,8 +680,9 @@ public class ProjectApplicationService {
 
     /**
      * 获取项目同步配置或需求配置的所属平台
+     *
      * @param projectId 项目ID
-     * @param isSync 是否同步
+     * @param isSync    是否同步
      * @return 平台
      */
     public Platform getPlatform(String projectId, boolean isSync) {

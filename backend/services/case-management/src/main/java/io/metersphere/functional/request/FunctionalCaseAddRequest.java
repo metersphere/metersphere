@@ -1,5 +1,6 @@
 package io.metersphere.functional.request;
 
+import io.metersphere.functional.dto.CaseCustomFieldDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -7,7 +8,6 @@ import lombok.Data;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author wx
@@ -63,7 +63,7 @@ public class FunctionalCaseAddRequest implements Serializable {
     private List<String> tags;
 
     @Schema(description = "自定义字段集合")
-    private Map<String, Object> customFields;
+    private List<CaseCustomFieldDTO> customFields;
 
     @Schema(description = "附件关联文件ID集合")
     private List<String> relateFileMetaIds;

@@ -21,7 +21,6 @@ import io.metersphere.sdk.constants.FunctionalCaseExecuteResult;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
@@ -32,7 +31,6 @@ import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -180,10 +178,10 @@ public class FunctionalCaseService {
         functionalCaseBlob.setDescription(StringUtils.defaultIfBlank(request.getDescription(), StringUtils.EMPTY).getBytes(StandardCharsets.UTF_8));
         functionalCaseBlobMapper.insertSelective(functionalCaseBlob);
         //保存自定义字段
-        Map<String, Object> customFields = request.getCustomFields();
-        if (MapUtils.isNotEmpty(customFields)) {
-            List<CaseCustomFieldDTO> list = getCustomFields(customFields);
-            functionalCaseCustomFieldService.saveCustomField(caseId, list);
+        List<CaseCustomFieldDTO> customFields = request.getCustomFields();
+        if (CollectionUtils.isNotEmpty(customFields)) {
+            customFields = customFields.stream().distinct().collect(Collectors.toList());
+            functionalCaseCustomFieldService.saveCustomField(caseId, customFields);
         }
         return functionalCase;
     }
@@ -193,7 +191,7 @@ public class FunctionalCaseService {
         customFields.keySet().forEach(key -> {
             CaseCustomFieldDTO caseCustomFieldDTO = new CaseCustomFieldDTO();
             caseCustomFieldDTO.setFieldId(key);
-            caseCustomFieldDTO.setValue(JSON.toJSONString(customFields.get(key)));
+            caseCustomFieldDTO.setValue(customFields.get(key).toString());
             list.add(caseCustomFieldDTO);
         });
         return list;
@@ -409,10 +407,10 @@ public class FunctionalCaseService {
         functionalCaseBlobMapper.updateByPrimaryKeyWithBLOBs(functionalCaseBlob);
 
         //更新自定义字段
-        Map<String, Object> customFields = request.getCustomFields();
-        if (MapUtils.isNotEmpty(customFields)) {
-            List<CaseCustomFieldDTO> list = getCustomFields(customFields);
-            functionalCaseCustomFieldService.updateCustomField(request.getId(), list);
+        List<CaseCustomFieldDTO> customFields = request.getCustomFields();
+        if (CollectionUtils.isNotEmpty(customFields)) {
+            customFields = customFields.stream().distinct().collect(Collectors.toList());
+            functionalCaseCustomFieldService.updateCustomField(request.getId(), customFields);
         }
     }
 
