@@ -53,6 +53,9 @@ public class ApiDebug implements Serializable {
     @Schema(description = "修改人")
     private String updateUser;
 
+    @Schema(description = "")
+    private Long pos;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -66,7 +69,8 @@ public class ApiDebug implements Serializable {
         createTime("create_time", "createTime", "BIGINT", false),
         createUser("create_user", "createUser", "VARCHAR", false),
         updateTime("update_time", "updateTime", "BIGINT", false),
-        updateUser("update_user", "updateUser", "VARCHAR", false);
+        updateUser("update_user", "updateUser", "VARCHAR", false),
+        pos("pos", "pos", "BIGINT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

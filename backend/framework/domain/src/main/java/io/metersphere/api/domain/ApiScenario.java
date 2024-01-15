@@ -56,13 +56,18 @@ public class ApiScenario implements Serializable {
     @NotNull(message = "{api_scenario.pos.not_blank}", groups = {Created.class})
     private Long pos;
 
-    @Schema(description = "版本fk")
+    @Schema(description = "版本fk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_scenario.version_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{api_scenario.version_id.length_range}", groups = {Created.class, Updated.class})
     private String versionId;
 
-    @Schema(description = "引用资源fk")
+    @Schema(description = "引用资源fk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_scenario.ref_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{api_scenario.ref_id.length_range}", groups = {Created.class, Updated.class})
     private String refId;
 
-    @Schema(description = "是否为最新版本 0:否，1:是")
+    @Schema(description = "是否为最新版本 0:否，1:是", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{api_scenario.latest.not_blank}", groups = {Created.class})
     private Boolean latest;
 
     @Schema(description = "项目fk", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -70,7 +75,9 @@ public class ApiScenario implements Serializable {
     @Size(min = 1, max = 50, message = "{api_scenario.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
-    @Schema(description = "场景模块fk")
+    @Schema(description = "场景模块fk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_scenario.module_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{api_scenario.module_id.length_range}", groups = {Created.class, Updated.class})
     private String moduleId;
 
     @Schema(description = "描述信息")

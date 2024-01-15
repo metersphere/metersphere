@@ -244,63 +244,73 @@ public class ApiScenarioReportExample {
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeIsNull() {
-            addCriterion("create_time is null");
+        public Criteria andScenarioIdIsNull() {
+            addCriterion("scenario_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeIsNotNull() {
-            addCriterion("create_time is not null");
+        public Criteria andScenarioIdIsNotNull() {
+            addCriterion("scenario_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeEqualTo(Long value) {
-            addCriterion("create_time =", value, "createTime");
+        public Criteria andScenarioIdEqualTo(String value) {
+            addCriterion("scenario_id =", value, "scenarioId");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeNotEqualTo(Long value) {
-            addCriterion("create_time <>", value, "createTime");
+        public Criteria andScenarioIdNotEqualTo(String value) {
+            addCriterion("scenario_id <>", value, "scenarioId");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeGreaterThan(Long value) {
-            addCriterion("create_time >", value, "createTime");
+        public Criteria andScenarioIdGreaterThan(String value) {
+            addCriterion("scenario_id >", value, "scenarioId");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeGreaterThanOrEqualTo(Long value) {
-            addCriterion("create_time >=", value, "createTime");
+        public Criteria andScenarioIdGreaterThanOrEqualTo(String value) {
+            addCriterion("scenario_id >=", value, "scenarioId");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeLessThan(Long value) {
-            addCriterion("create_time <", value, "createTime");
+        public Criteria andScenarioIdLessThan(String value) {
+            addCriterion("scenario_id <", value, "scenarioId");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeLessThanOrEqualTo(Long value) {
-            addCriterion("create_time <=", value, "createTime");
+        public Criteria andScenarioIdLessThanOrEqualTo(String value) {
+            addCriterion("scenario_id <=", value, "scenarioId");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeIn(List<Long> values) {
-            addCriterion("create_time in", values, "createTime");
+        public Criteria andScenarioIdLike(String value) {
+            addCriterion("scenario_id like", value, "scenarioId");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeNotIn(List<Long> values) {
-            addCriterion("create_time not in", values, "createTime");
+        public Criteria andScenarioIdNotLike(String value) {
+            addCriterion("scenario_id not like", value, "scenarioId");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeBetween(Long value1, Long value2) {
-            addCriterion("create_time between", value1, value2, "createTime");
+        public Criteria andScenarioIdIn(List<String> values) {
+            addCriterion("scenario_id in", values, "scenarioId");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeNotBetween(Long value1, Long value2) {
-            addCriterion("create_time not between", value1, value2, "createTime");
+        public Criteria andScenarioIdNotIn(List<String> values) {
+            addCriterion("scenario_id not in", values, "scenarioId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdBetween(String value1, String value2) {
+            addCriterion("scenario_id between", value1, value2, "scenarioId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdNotBetween(String value1, String value2) {
+            addCriterion("scenario_id not between", value1, value2, "scenarioId");
             return (Criteria) this;
         }
 
@@ -694,63 +704,183 @@ public class ApiScenarioReportExample {
             return (Criteria) this;
         }
 
-        public Criteria andPassRateIsNull() {
-            addCriterion("pass_rate is null");
+        public Criteria andStartTimeIsNull() {
+            addCriterion("start_time is null");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateIsNotNull() {
-            addCriterion("pass_rate is not null");
+        public Criteria andStartTimeIsNotNull() {
+            addCriterion("start_time is not null");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateEqualTo(Long value) {
-            addCriterion("pass_rate =", value, "passRate");
+        public Criteria andStartTimeEqualTo(Long value) {
+            addCriterion("start_time =", value, "startTime");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateNotEqualTo(Long value) {
-            addCriterion("pass_rate <>", value, "passRate");
+        public Criteria andStartTimeNotEqualTo(Long value) {
+            addCriterion("start_time <>", value, "startTime");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateGreaterThan(Long value) {
-            addCriterion("pass_rate >", value, "passRate");
+        public Criteria andStartTimeGreaterThan(Long value) {
+            addCriterion("start_time >", value, "startTime");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateGreaterThanOrEqualTo(Long value) {
-            addCriterion("pass_rate >=", value, "passRate");
+        public Criteria andStartTimeGreaterThanOrEqualTo(Long value) {
+            addCriterion("start_time >=", value, "startTime");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateLessThan(Long value) {
-            addCriterion("pass_rate <", value, "passRate");
+        public Criteria andStartTimeLessThan(Long value) {
+            addCriterion("start_time <", value, "startTime");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateLessThanOrEqualTo(Long value) {
-            addCriterion("pass_rate <=", value, "passRate");
+        public Criteria andStartTimeLessThanOrEqualTo(Long value) {
+            addCriterion("start_time <=", value, "startTime");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateIn(List<Long> values) {
-            addCriterion("pass_rate in", values, "passRate");
+        public Criteria andStartTimeIn(List<Long> values) {
+            addCriterion("start_time in", values, "startTime");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateNotIn(List<Long> values) {
-            addCriterion("pass_rate not in", values, "passRate");
+        public Criteria andStartTimeNotIn(List<Long> values) {
+            addCriterion("start_time not in", values, "startTime");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateBetween(Long value1, Long value2) {
-            addCriterion("pass_rate between", value1, value2, "passRate");
+        public Criteria andStartTimeBetween(Long value1, Long value2) {
+            addCriterion("start_time between", value1, value2, "startTime");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateNotBetween(Long value1, Long value2) {
-            addCriterion("pass_rate not between", value1, value2, "passRate");
+        public Criteria andStartTimeNotBetween(Long value1, Long value2) {
+            addCriterion("start_time not between", value1, value2, "startTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andEndTimeIsNull() {
+            addCriterion("end_time is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEndTimeIsNotNull() {
+            addCriterion("end_time is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEndTimeEqualTo(Long value) {
+            addCriterion("end_time =", value, "endTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andEndTimeNotEqualTo(Long value) {
+            addCriterion("end_time <>", value, "endTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andEndTimeGreaterThan(Long value) {
+            addCriterion("end_time >", value, "endTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andEndTimeGreaterThanOrEqualTo(Long value) {
+            addCriterion("end_time >=", value, "endTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andEndTimeLessThan(Long value) {
+            addCriterion("end_time <", value, "endTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andEndTimeLessThanOrEqualTo(Long value) {
+            addCriterion("end_time <=", value, "endTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andEndTimeIn(List<Long> values) {
+            addCriterion("end_time in", values, "endTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andEndTimeNotIn(List<Long> values) {
+            addCriterion("end_time not in", values, "endTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andEndTimeBetween(Long value1, Long value2) {
+            addCriterion("end_time between", value1, value2, "endTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andEndTimeNotBetween(Long value1, Long value2) {
+            addCriterion("end_time not between", value1, value2, "endTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestDurationIsNull() {
+            addCriterion("request_duration is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestDurationIsNotNull() {
+            addCriterion("request_duration is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestDurationEqualTo(Long value) {
+            addCriterion("request_duration =", value, "requestDuration");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestDurationNotEqualTo(Long value) {
+            addCriterion("request_duration <>", value, "requestDuration");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestDurationGreaterThan(Long value) {
+            addCriterion("request_duration >", value, "requestDuration");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestDurationGreaterThanOrEqualTo(Long value) {
+            addCriterion("request_duration >=", value, "requestDuration");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestDurationLessThan(Long value) {
+            addCriterion("request_duration <", value, "requestDuration");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestDurationLessThanOrEqualTo(Long value) {
+            addCriterion("request_duration <=", value, "requestDuration");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestDurationIn(List<Long> values) {
+            addCriterion("request_duration in", values, "requestDuration");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestDurationNotIn(List<Long> values) {
+            addCriterion("request_duration not in", values, "requestDuration");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestDurationBetween(Long value1, Long value2) {
+            addCriterion("request_duration between", value1, value2, "requestDuration");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestDurationNotBetween(Long value1, Long value2) {
+            addCriterion("request_duration not between", value1, value2, "requestDuration");
             return (Criteria) this;
         }
 
@@ -1234,76 +1364,6 @@ public class ApiScenarioReportExample {
             return (Criteria) this;
         }
 
-        public Criteria andScenarioIdIsNull() {
-            addCriterion("scenario_id is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andScenarioIdIsNotNull() {
-            addCriterion("scenario_id is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andScenarioIdEqualTo(String value) {
-            addCriterion("scenario_id =", value, "scenarioId");
-            return (Criteria) this;
-        }
-
-        public Criteria andScenarioIdNotEqualTo(String value) {
-            addCriterion("scenario_id <>", value, "scenarioId");
-            return (Criteria) this;
-        }
-
-        public Criteria andScenarioIdGreaterThan(String value) {
-            addCriterion("scenario_id >", value, "scenarioId");
-            return (Criteria) this;
-        }
-
-        public Criteria andScenarioIdGreaterThanOrEqualTo(String value) {
-            addCriterion("scenario_id >=", value, "scenarioId");
-            return (Criteria) this;
-        }
-
-        public Criteria andScenarioIdLessThan(String value) {
-            addCriterion("scenario_id <", value, "scenarioId");
-            return (Criteria) this;
-        }
-
-        public Criteria andScenarioIdLessThanOrEqualTo(String value) {
-            addCriterion("scenario_id <=", value, "scenarioId");
-            return (Criteria) this;
-        }
-
-        public Criteria andScenarioIdLike(String value) {
-            addCriterion("scenario_id like", value, "scenarioId");
-            return (Criteria) this;
-        }
-
-        public Criteria andScenarioIdNotLike(String value) {
-            addCriterion("scenario_id not like", value, "scenarioId");
-            return (Criteria) this;
-        }
-
-        public Criteria andScenarioIdIn(List<String> values) {
-            addCriterion("scenario_id in", values, "scenarioId");
-            return (Criteria) this;
-        }
-
-        public Criteria andScenarioIdNotIn(List<String> values) {
-            addCriterion("scenario_id not in", values, "scenarioId");
-            return (Criteria) this;
-        }
-
-        public Criteria andScenarioIdBetween(String value1, String value2) {
-            addCriterion("scenario_id between", value1, value2, "scenarioId");
-            return (Criteria) this;
-        }
-
-        public Criteria andScenarioIdNotBetween(String value1, String value2) {
-            addCriterion("scenario_id not between", value1, value2, "scenarioId");
-            return (Criteria) this;
-        }
-
         public Criteria andEnvironmentIdIsNull() {
             addCriterion("environment_id is null");
             return (Criteria) this;
@@ -1371,6 +1431,616 @@ public class ApiScenarioReportExample {
 
         public Criteria andEnvironmentIdNotBetween(String value1, String value2) {
             addCriterion("environment_id not between", value1, value2, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCountIsNull() {
+            addCriterion("error_count is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCountIsNotNull() {
+            addCriterion("error_count is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCountEqualTo(Long value) {
+            addCriterion("error_count =", value, "errorCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCountNotEqualTo(Long value) {
+            addCriterion("error_count <>", value, "errorCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCountGreaterThan(Long value) {
+            addCriterion("error_count >", value, "errorCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCountGreaterThanOrEqualTo(Long value) {
+            addCriterion("error_count >=", value, "errorCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCountLessThan(Long value) {
+            addCriterion("error_count <", value, "errorCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCountLessThanOrEqualTo(Long value) {
+            addCriterion("error_count <=", value, "errorCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCountIn(List<Long> values) {
+            addCriterion("error_count in", values, "errorCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCountNotIn(List<Long> values) {
+            addCriterion("error_count not in", values, "errorCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCountBetween(Long value1, Long value2) {
+            addCriterion("error_count between", value1, value2, "errorCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andErrorCountNotBetween(Long value1, Long value2) {
+            addCriterion("error_count not between", value1, value2, "errorCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFakeErrorCountIsNull() {
+            addCriterion("fake_error_count is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFakeErrorCountIsNotNull() {
+            addCriterion("fake_error_count is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andFakeErrorCountEqualTo(Long value) {
+            addCriterion("fake_error_count =", value, "fakeErrorCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFakeErrorCountNotEqualTo(Long value) {
+            addCriterion("fake_error_count <>", value, "fakeErrorCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFakeErrorCountGreaterThan(Long value) {
+            addCriterion("fake_error_count >", value, "fakeErrorCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFakeErrorCountGreaterThanOrEqualTo(Long value) {
+            addCriterion("fake_error_count >=", value, "fakeErrorCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFakeErrorCountLessThan(Long value) {
+            addCriterion("fake_error_count <", value, "fakeErrorCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFakeErrorCountLessThanOrEqualTo(Long value) {
+            addCriterion("fake_error_count <=", value, "fakeErrorCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFakeErrorCountIn(List<Long> values) {
+            addCriterion("fake_error_count in", values, "fakeErrorCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFakeErrorCountNotIn(List<Long> values) {
+            addCriterion("fake_error_count not in", values, "fakeErrorCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFakeErrorCountBetween(Long value1, Long value2) {
+            addCriterion("fake_error_count between", value1, value2, "fakeErrorCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andFakeErrorCountNotBetween(Long value1, Long value2) {
+            addCriterion("fake_error_count not between", value1, value2, "fakeErrorCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPendingCountIsNull() {
+            addCriterion("pending_count is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPendingCountIsNotNull() {
+            addCriterion("pending_count is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPendingCountEqualTo(Long value) {
+            addCriterion("pending_count =", value, "pendingCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPendingCountNotEqualTo(Long value) {
+            addCriterion("pending_count <>", value, "pendingCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPendingCountGreaterThan(Long value) {
+            addCriterion("pending_count >", value, "pendingCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPendingCountGreaterThanOrEqualTo(Long value) {
+            addCriterion("pending_count >=", value, "pendingCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPendingCountLessThan(Long value) {
+            addCriterion("pending_count <", value, "pendingCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPendingCountLessThanOrEqualTo(Long value) {
+            addCriterion("pending_count <=", value, "pendingCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPendingCountIn(List<Long> values) {
+            addCriterion("pending_count in", values, "pendingCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPendingCountNotIn(List<Long> values) {
+            addCriterion("pending_count not in", values, "pendingCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPendingCountBetween(Long value1, Long value2) {
+            addCriterion("pending_count between", value1, value2, "pendingCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPendingCountNotBetween(Long value1, Long value2) {
+            addCriterion("pending_count not between", value1, value2, "pendingCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andSuccessCountIsNull() {
+            addCriterion("success_count is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSuccessCountIsNotNull() {
+            addCriterion("success_count is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSuccessCountEqualTo(Long value) {
+            addCriterion("success_count =", value, "successCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andSuccessCountNotEqualTo(Long value) {
+            addCriterion("success_count <>", value, "successCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andSuccessCountGreaterThan(Long value) {
+            addCriterion("success_count >", value, "successCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andSuccessCountGreaterThanOrEqualTo(Long value) {
+            addCriterion("success_count >=", value, "successCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andSuccessCountLessThan(Long value) {
+            addCriterion("success_count <", value, "successCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andSuccessCountLessThanOrEqualTo(Long value) {
+            addCriterion("success_count <=", value, "successCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andSuccessCountIn(List<Long> values) {
+            addCriterion("success_count in", values, "successCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andSuccessCountNotIn(List<Long> values) {
+            addCriterion("success_count not in", values, "successCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andSuccessCountBetween(Long value1, Long value2) {
+            addCriterion("success_count between", value1, value2, "successCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andSuccessCountNotBetween(Long value1, Long value2) {
+            addCriterion("success_count not between", value1, value2, "successCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssertionCountIsNull() {
+            addCriterion("assertion_count is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssertionCountIsNotNull() {
+            addCriterion("assertion_count is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssertionCountEqualTo(Long value) {
+            addCriterion("assertion_count =", value, "assertionCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssertionCountNotEqualTo(Long value) {
+            addCriterion("assertion_count <>", value, "assertionCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssertionCountGreaterThan(Long value) {
+            addCriterion("assertion_count >", value, "assertionCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssertionCountGreaterThanOrEqualTo(Long value) {
+            addCriterion("assertion_count >=", value, "assertionCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssertionCountLessThan(Long value) {
+            addCriterion("assertion_count <", value, "assertionCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssertionCountLessThanOrEqualTo(Long value) {
+            addCriterion("assertion_count <=", value, "assertionCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssertionCountIn(List<Long> values) {
+            addCriterion("assertion_count in", values, "assertionCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssertionCountNotIn(List<Long> values) {
+            addCriterion("assertion_count not in", values, "assertionCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssertionCountBetween(Long value1, Long value2) {
+            addCriterion("assertion_count between", value1, value2, "assertionCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssertionCountNotBetween(Long value1, Long value2) {
+            addCriterion("assertion_count not between", value1, value2, "assertionCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassAssertionsCountIsNull() {
+            addCriterion("pass_assertions_count is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassAssertionsCountIsNotNull() {
+            addCriterion("pass_assertions_count is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassAssertionsCountEqualTo(Long value) {
+            addCriterion("pass_assertions_count =", value, "passAssertionsCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassAssertionsCountNotEqualTo(Long value) {
+            addCriterion("pass_assertions_count <>", value, "passAssertionsCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassAssertionsCountGreaterThan(Long value) {
+            addCriterion("pass_assertions_count >", value, "passAssertionsCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassAssertionsCountGreaterThanOrEqualTo(Long value) {
+            addCriterion("pass_assertions_count >=", value, "passAssertionsCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassAssertionsCountLessThan(Long value) {
+            addCriterion("pass_assertions_count <", value, "passAssertionsCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassAssertionsCountLessThanOrEqualTo(Long value) {
+            addCriterion("pass_assertions_count <=", value, "passAssertionsCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassAssertionsCountIn(List<Long> values) {
+            addCriterion("pass_assertions_count in", values, "passAssertionsCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassAssertionsCountNotIn(List<Long> values) {
+            addCriterion("pass_assertions_count not in", values, "passAssertionsCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassAssertionsCountBetween(Long value1, Long value2) {
+            addCriterion("pass_assertions_count between", value1, value2, "passAssertionsCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassAssertionsCountNotBetween(Long value1, Long value2) {
+            addCriterion("pass_assertions_count not between", value1, value2, "passAssertionsCount");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestExecutionRateIsNull() {
+            addCriterion("request_execution_rate is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestExecutionRateIsNotNull() {
+            addCriterion("request_execution_rate is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestExecutionRateEqualTo(Long value) {
+            addCriterion("request_execution_rate =", value, "requestExecutionRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestExecutionRateNotEqualTo(Long value) {
+            addCriterion("request_execution_rate <>", value, "requestExecutionRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestExecutionRateGreaterThan(Long value) {
+            addCriterion("request_execution_rate >", value, "requestExecutionRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestExecutionRateGreaterThanOrEqualTo(Long value) {
+            addCriterion("request_execution_rate >=", value, "requestExecutionRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestExecutionRateLessThan(Long value) {
+            addCriterion("request_execution_rate <", value, "requestExecutionRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestExecutionRateLessThanOrEqualTo(Long value) {
+            addCriterion("request_execution_rate <=", value, "requestExecutionRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestExecutionRateIn(List<Long> values) {
+            addCriterion("request_execution_rate in", values, "requestExecutionRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestExecutionRateNotIn(List<Long> values) {
+            addCriterion("request_execution_rate not in", values, "requestExecutionRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestExecutionRateBetween(Long value1, Long value2) {
+            addCriterion("request_execution_rate between", value1, value2, "requestExecutionRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestExecutionRateNotBetween(Long value1, Long value2) {
+            addCriterion("request_execution_rate not between", value1, value2, "requestExecutionRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestApprovalRateIsNull() {
+            addCriterion("request_approval_rate is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestApprovalRateIsNotNull() {
+            addCriterion("request_approval_rate is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestApprovalRateEqualTo(Long value) {
+            addCriterion("request_approval_rate =", value, "requestApprovalRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestApprovalRateNotEqualTo(Long value) {
+            addCriterion("request_approval_rate <>", value, "requestApprovalRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestApprovalRateGreaterThan(Long value) {
+            addCriterion("request_approval_rate >", value, "requestApprovalRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestApprovalRateGreaterThanOrEqualTo(Long value) {
+            addCriterion("request_approval_rate >=", value, "requestApprovalRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestApprovalRateLessThan(Long value) {
+            addCriterion("request_approval_rate <", value, "requestApprovalRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestApprovalRateLessThanOrEqualTo(Long value) {
+            addCriterion("request_approval_rate <=", value, "requestApprovalRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestApprovalRateIn(List<Long> values) {
+            addCriterion("request_approval_rate in", values, "requestApprovalRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestApprovalRateNotIn(List<Long> values) {
+            addCriterion("request_approval_rate not in", values, "requestApprovalRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestApprovalRateBetween(Long value1, Long value2) {
+            addCriterion("request_approval_rate between", value1, value2, "requestApprovalRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestApprovalRateNotBetween(Long value1, Long value2) {
+            addCriterion("request_approval_rate not between", value1, value2, "requestApprovalRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssertionPassRateIsNull() {
+            addCriterion("assertion_pass_rate is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssertionPassRateIsNotNull() {
+            addCriterion("assertion_pass_rate is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssertionPassRateEqualTo(Long value) {
+            addCriterion("assertion_pass_rate =", value, "assertionPassRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssertionPassRateNotEqualTo(Long value) {
+            addCriterion("assertion_pass_rate <>", value, "assertionPassRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssertionPassRateGreaterThan(Long value) {
+            addCriterion("assertion_pass_rate >", value, "assertionPassRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssertionPassRateGreaterThanOrEqualTo(Long value) {
+            addCriterion("assertion_pass_rate >=", value, "assertionPassRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssertionPassRateLessThan(Long value) {
+            addCriterion("assertion_pass_rate <", value, "assertionPassRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssertionPassRateLessThanOrEqualTo(Long value) {
+            addCriterion("assertion_pass_rate <=", value, "assertionPassRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssertionPassRateIn(List<Long> values) {
+            addCriterion("assertion_pass_rate in", values, "assertionPassRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssertionPassRateNotIn(List<Long> values) {
+            addCriterion("assertion_pass_rate not in", values, "assertionPassRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssertionPassRateBetween(Long value1, Long value2) {
+            addCriterion("assertion_pass_rate between", value1, value2, "assertionPassRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andAssertionPassRateNotBetween(Long value1, Long value2) {
+            addCriterion("assertion_pass_rate not between", value1, value2, "assertionPassRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andScriptIdentifierIsNull() {
+            addCriterion("script_identifier is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andScriptIdentifierIsNotNull() {
+            addCriterion("script_identifier is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andScriptIdentifierEqualTo(String value) {
+            addCriterion("script_identifier =", value, "scriptIdentifier");
+            return (Criteria) this;
+        }
+
+        public Criteria andScriptIdentifierNotEqualTo(String value) {
+            addCriterion("script_identifier <>", value, "scriptIdentifier");
+            return (Criteria) this;
+        }
+
+        public Criteria andScriptIdentifierGreaterThan(String value) {
+            addCriterion("script_identifier >", value, "scriptIdentifier");
+            return (Criteria) this;
+        }
+
+        public Criteria andScriptIdentifierGreaterThanOrEqualTo(String value) {
+            addCriterion("script_identifier >=", value, "scriptIdentifier");
+            return (Criteria) this;
+        }
+
+        public Criteria andScriptIdentifierLessThan(String value) {
+            addCriterion("script_identifier <", value, "scriptIdentifier");
+            return (Criteria) this;
+        }
+
+        public Criteria andScriptIdentifierLessThanOrEqualTo(String value) {
+            addCriterion("script_identifier <=", value, "scriptIdentifier");
+            return (Criteria) this;
+        }
+
+        public Criteria andScriptIdentifierLike(String value) {
+            addCriterion("script_identifier like", value, "scriptIdentifier");
+            return (Criteria) this;
+        }
+
+        public Criteria andScriptIdentifierNotLike(String value) {
+            addCriterion("script_identifier not like", value, "scriptIdentifier");
+            return (Criteria) this;
+        }
+
+        public Criteria andScriptIdentifierIn(List<String> values) {
+            addCriterion("script_identifier in", values, "scriptIdentifier");
+            return (Criteria) this;
+        }
+
+        public Criteria andScriptIdentifierNotIn(List<String> values) {
+            addCriterion("script_identifier not in", values, "scriptIdentifier");
+            return (Criteria) this;
+        }
+
+        public Criteria andScriptIdentifierBetween(String value1, String value2) {
+            addCriterion("script_identifier between", value1, value2, "scriptIdentifier");
+            return (Criteria) this;
+        }
+
+        public Criteria andScriptIdentifierNotBetween(String value1, String value2) {
+            addCriterion("script_identifier not between", value1, value2, "scriptIdentifier");
             return (Criteria) this;
         }
     }

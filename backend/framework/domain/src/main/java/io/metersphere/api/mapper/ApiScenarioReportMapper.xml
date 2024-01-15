@@ -4,14 +4,16 @@
   <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiScenarioReport">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="scenario_id" jdbcType="VARCHAR" property="scenarioId" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="delete_time" jdbcType="BIGINT" property="deleteTime" />
     <result column="delete_user" jdbcType="VARCHAR" property="deleteUser" />
     <result column="deleted" jdbcType="BIT" property="deleted" />
     <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
-    <result column="pass_rate" jdbcType="BIGINT" property="passRate" />
+    <result column="start_time" jdbcType="BIGINT" property="startTime" />
+    <result column="end_time" jdbcType="BIGINT" property="endTime" />
+    <result column="request_duration" jdbcType="BIGINT" property="requestDuration" />
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="trigger_mode" jdbcType="VARCHAR" property="triggerMode" />
     <result column="run_mode" jdbcType="VARCHAR" property="runMode" />
@@ -19,8 +21,17 @@
     <result column="version_id" jdbcType="VARCHAR" property="versionId" />
     <result column="integrated" jdbcType="BIT" property="integrated" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
-    <result column="scenario_id" jdbcType="VARCHAR" property="scenarioId" />
     <result column="environment_id" jdbcType="VARCHAR" property="environmentId" />
+    <result column="error_count" jdbcType="BIGINT" property="errorCount" />
+    <result column="fake_error_count" jdbcType="BIGINT" property="fakeErrorCount" />
+    <result column="pending_count" jdbcType="BIGINT" property="pendingCount" />
+    <result column="success_count" jdbcType="BIGINT" property="successCount" />
+    <result column="assertion_count" jdbcType="BIGINT" property="assertionCount" />
+    <result column="pass_assertions_count" jdbcType="BIGINT" property="passAssertionsCount" />
+    <result column="request_execution_rate" jdbcType="BIGINT" property="requestExecutionRate" />
+    <result column="request_approval_rate" jdbcType="BIGINT" property="requestApprovalRate" />
+    <result column="assertion_pass_rate" jdbcType="BIGINT" property="assertionPassRate" />
+    <result column="script_identifier" jdbcType="VARCHAR" property="scriptIdentifier" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -81,9 +92,11 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, create_time, create_user, delete_time, delete_user, deleted, update_user, 
-    update_time, pass_rate, `status`, trigger_mode, run_mode, pool_id, version_id, integrated, 
-    project_id, scenario_id, environment_id
+    id, `name`, scenario_id, create_user, delete_time, delete_user, deleted, update_user, 
+    update_time, start_time, end_time, request_duration, `status`, trigger_mode, run_mode, 
+    pool_id, version_id, integrated, project_id, environment_id, error_count, fake_error_count, 
+    pending_count, success_count, assertion_count, pass_assertions_count, request_execution_rate, 
+    request_approval_rate, assertion_pass_rate, script_identifier
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiScenarioReportExample" resultMap="BaseResultMap">
     select
@@ -116,20 +129,28 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.api.domain.ApiScenarioReport">
-    insert into api_scenario_report (id, `name`, create_time, 
+    insert into api_scenario_report (id, `name`, scenario_id, 
       create_user, delete_time, delete_user, 
       deleted, update_user, update_time, 
-      pass_rate, `status`, trigger_mode, 
-      run_mode, pool_id, version_id, 
-      integrated, project_id, scenario_id, 
-      environment_id)
-    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      start_time, end_time, request_duration, 
+      `status`, trigger_mode, run_mode, 
+      pool_id, version_id, integrated, 
+      project_id, environment_id, error_count, 
+      fake_error_count, pending_count, success_count, 
+      assertion_count, pass_assertions_count, request_execution_rate, 
+      request_approval_rate, assertion_pass_rate, script_identifier
+      )
+    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{scenarioId,jdbcType=VARCHAR}, 
       #{createUser,jdbcType=VARCHAR}, #{deleteTime,jdbcType=BIGINT}, #{deleteUser,jdbcType=VARCHAR}, 
       #{deleted,jdbcType=BIT}, #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, 
-      #{passRate,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, 
-      #{runMode,jdbcType=VARCHAR}, #{poolId,jdbcType=VARCHAR}, #{versionId,jdbcType=VARCHAR}, 
-      #{integrated,jdbcType=BIT}, #{projectId,jdbcType=VARCHAR}, #{scenarioId,jdbcType=VARCHAR}, 
-      #{environmentId,jdbcType=VARCHAR})
+      #{startTime,jdbcType=BIGINT}, #{endTime,jdbcType=BIGINT}, #{requestDuration,jdbcType=BIGINT}, 
+      #{status,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, #{runMode,jdbcType=VARCHAR}, 
+      #{poolId,jdbcType=VARCHAR}, #{versionId,jdbcType=VARCHAR}, #{integrated,jdbcType=BIT}, 
+      #{projectId,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, #{errorCount,jdbcType=BIGINT}, 
+      #{fakeErrorCount,jdbcType=BIGINT}, #{pendingCount,jdbcType=BIGINT}, #{successCount,jdbcType=BIGINT}, 
+      #{assertionCount,jdbcType=BIGINT}, #{passAssertionsCount,jdbcType=BIGINT}, #{requestExecutionRate,jdbcType=BIGINT}, 
+      #{requestApprovalRate,jdbcType=BIGINT}, #{assertionPassRate,jdbcType=BIGINT}, #{scriptIdentifier,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiScenarioReport">
     insert into api_scenario_report
@@ -140,8 +161,8 @@
       <if test="name != null">
         `name`,
       </if>
-      <if test="createTime != null">
-        create_time,
+      <if test="scenarioId != null">
+        scenario_id,
       </if>
       <if test="createUser != null">
         create_user,
@@ -161,8 +182,14 @@
       <if test="updateTime != null">
         update_time,
       </if>
-      <if test="passRate != null">
-        pass_rate,
+      <if test="startTime != null">
+        start_time,
+      </if>
+      <if test="endTime != null">
+        end_time,
+      </if>
+      <if test="requestDuration != null">
+        request_duration,
       </if>
       <if test="status != null">
         `status`,
@@ -185,11 +212,38 @@
       <if test="projectId != null">
         project_id,
       </if>
-      <if test="scenarioId != null">
-        scenario_id,
-      </if>
       <if test="environmentId != null">
         environment_id,
+      </if>
+      <if test="errorCount != null">
+        error_count,
+      </if>
+      <if test="fakeErrorCount != null">
+        fake_error_count,
+      </if>
+      <if test="pendingCount != null">
+        pending_count,
+      </if>
+      <if test="successCount != null">
+        success_count,
+      </if>
+      <if test="assertionCount != null">
+        assertion_count,
+      </if>
+      <if test="passAssertionsCount != null">
+        pass_assertions_count,
+      </if>
+      <if test="requestExecutionRate != null">
+        request_execution_rate,
+      </if>
+      <if test="requestApprovalRate != null">
+        request_approval_rate,
+      </if>
+      <if test="assertionPassRate != null">
+        assertion_pass_rate,
+      </if>
+      <if test="scriptIdentifier != null">
+        script_identifier,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -199,8 +253,8 @@
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
       </if>
-      <if test="createTime != null">
-        #{createTime,jdbcType=BIGINT},
+      <if test="scenarioId != null">
+        #{scenarioId,jdbcType=VARCHAR},
       </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
@@ -220,8 +274,14 @@
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="passRate != null">
-        #{passRate,jdbcType=BIGINT},
+      <if test="startTime != null">
+        #{startTime,jdbcType=BIGINT},
+      </if>
+      <if test="endTime != null">
+        #{endTime,jdbcType=BIGINT},
+      </if>
+      <if test="requestDuration != null">
+        #{requestDuration,jdbcType=BIGINT},
       </if>
       <if test="status != null">
         #{status,jdbcType=VARCHAR},
@@ -244,11 +304,38 @@
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
       </if>
-      <if test="scenarioId != null">
-        #{scenarioId,jdbcType=VARCHAR},
-      </if>
       <if test="environmentId != null">
         #{environmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="errorCount != null">
+        #{errorCount,jdbcType=BIGINT},
+      </if>
+      <if test="fakeErrorCount != null">
+        #{fakeErrorCount,jdbcType=BIGINT},
+      </if>
+      <if test="pendingCount != null">
+        #{pendingCount,jdbcType=BIGINT},
+      </if>
+      <if test="successCount != null">
+        #{successCount,jdbcType=BIGINT},
+      </if>
+      <if test="assertionCount != null">
+        #{assertionCount,jdbcType=BIGINT},
+      </if>
+      <if test="passAssertionsCount != null">
+        #{passAssertionsCount,jdbcType=BIGINT},
+      </if>
+      <if test="requestExecutionRate != null">
+        #{requestExecutionRate,jdbcType=BIGINT},
+      </if>
+      <if test="requestApprovalRate != null">
+        #{requestApprovalRate,jdbcType=BIGINT},
+      </if>
+      <if test="assertionPassRate != null">
+        #{assertionPassRate,jdbcType=BIGINT},
+      </if>
+      <if test="scriptIdentifier != null">
+        #{scriptIdentifier,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -267,8 +354,8 @@
       <if test="record.name != null">
         `name` = #{record.name,jdbcType=VARCHAR},
       </if>
-      <if test="record.createTime != null">
-        create_time = #{record.createTime,jdbcType=BIGINT},
+      <if test="record.scenarioId != null">
+        scenario_id = #{record.scenarioId,jdbcType=VARCHAR},
       </if>
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
@@ -288,8 +375,14 @@
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
-      <if test="record.passRate != null">
-        pass_rate = #{record.passRate,jdbcType=BIGINT},
+      <if test="record.startTime != null">
+        start_time = #{record.startTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.endTime != null">
+        end_time = #{record.endTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.requestDuration != null">
+        request_duration = #{record.requestDuration,jdbcType=BIGINT},
       </if>
       <if test="record.status != null">
         `status` = #{record.status,jdbcType=VARCHAR},
@@ -312,11 +405,38 @@
       <if test="record.projectId != null">
         project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
-      <if test="record.scenarioId != null">
-        scenario_id = #{record.scenarioId,jdbcType=VARCHAR},
-      </if>
       <if test="record.environmentId != null">
         environment_id = #{record.environmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.errorCount != null">
+        error_count = #{record.errorCount,jdbcType=BIGINT},
+      </if>
+      <if test="record.fakeErrorCount != null">
+        fake_error_count = #{record.fakeErrorCount,jdbcType=BIGINT},
+      </if>
+      <if test="record.pendingCount != null">
+        pending_count = #{record.pendingCount,jdbcType=BIGINT},
+      </if>
+      <if test="record.successCount != null">
+        success_count = #{record.successCount,jdbcType=BIGINT},
+      </if>
+      <if test="record.assertionCount != null">
+        assertion_count = #{record.assertionCount,jdbcType=BIGINT},
+      </if>
+      <if test="record.passAssertionsCount != null">
+        pass_assertions_count = #{record.passAssertionsCount,jdbcType=BIGINT},
+      </if>
+      <if test="record.requestExecutionRate != null">
+        request_execution_rate = #{record.requestExecutionRate,jdbcType=BIGINT},
+      </if>
+      <if test="record.requestApprovalRate != null">
+        request_approval_rate = #{record.requestApprovalRate,jdbcType=BIGINT},
+      </if>
+      <if test="record.assertionPassRate != null">
+        assertion_pass_rate = #{record.assertionPassRate,jdbcType=BIGINT},
+      </if>
+      <if test="record.scriptIdentifier != null">
+        script_identifier = #{record.scriptIdentifier,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -327,14 +447,16 @@
     update api_scenario_report
     set id = #{record.id,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
-      create_time = #{record.createTime,jdbcType=BIGINT},
+      scenario_id = #{record.scenarioId,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       delete_time = #{record.deleteTime,jdbcType=BIGINT},
       delete_user = #{record.deleteUser,jdbcType=VARCHAR},
       deleted = #{record.deleted,jdbcType=BIT},
       update_user = #{record.updateUser,jdbcType=VARCHAR},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      pass_rate = #{record.passRate,jdbcType=BIGINT},
+      start_time = #{record.startTime,jdbcType=BIGINT},
+      end_time = #{record.endTime,jdbcType=BIGINT},
+      request_duration = #{record.requestDuration,jdbcType=BIGINT},
       `status` = #{record.status,jdbcType=VARCHAR},
       trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
       run_mode = #{record.runMode,jdbcType=VARCHAR},
@@ -342,8 +464,17 @@
       version_id = #{record.versionId,jdbcType=VARCHAR},
       integrated = #{record.integrated,jdbcType=BIT},
       project_id = #{record.projectId,jdbcType=VARCHAR},
-      scenario_id = #{record.scenarioId,jdbcType=VARCHAR},
-      environment_id = #{record.environmentId,jdbcType=VARCHAR}
+      environment_id = #{record.environmentId,jdbcType=VARCHAR},
+      error_count = #{record.errorCount,jdbcType=BIGINT},
+      fake_error_count = #{record.fakeErrorCount,jdbcType=BIGINT},
+      pending_count = #{record.pendingCount,jdbcType=BIGINT},
+      success_count = #{record.successCount,jdbcType=BIGINT},
+      assertion_count = #{record.assertionCount,jdbcType=BIGINT},
+      pass_assertions_count = #{record.passAssertionsCount,jdbcType=BIGINT},
+      request_execution_rate = #{record.requestExecutionRate,jdbcType=BIGINT},
+      request_approval_rate = #{record.requestApprovalRate,jdbcType=BIGINT},
+      assertion_pass_rate = #{record.assertionPassRate,jdbcType=BIGINT},
+      script_identifier = #{record.scriptIdentifier,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -354,8 +485,8 @@
       <if test="name != null">
         `name` = #{name,jdbcType=VARCHAR},
       </if>
-      <if test="createTime != null">
-        create_time = #{createTime,jdbcType=BIGINT},
+      <if test="scenarioId != null">
+        scenario_id = #{scenarioId,jdbcType=VARCHAR},
       </if>
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
@@ -375,8 +506,14 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="passRate != null">
-        pass_rate = #{passRate,jdbcType=BIGINT},
+      <if test="startTime != null">
+        start_time = #{startTime,jdbcType=BIGINT},
+      </if>
+      <if test="endTime != null">
+        end_time = #{endTime,jdbcType=BIGINT},
+      </if>
+      <if test="requestDuration != null">
+        request_duration = #{requestDuration,jdbcType=BIGINT},
       </if>
       <if test="status != null">
         `status` = #{status,jdbcType=VARCHAR},
@@ -399,11 +536,38 @@
       <if test="projectId != null">
         project_id = #{projectId,jdbcType=VARCHAR},
       </if>
-      <if test="scenarioId != null">
-        scenario_id = #{scenarioId,jdbcType=VARCHAR},
-      </if>
       <if test="environmentId != null">
         environment_id = #{environmentId,jdbcType=VARCHAR},
+      </if>
+      <if test="errorCount != null">
+        error_count = #{errorCount,jdbcType=BIGINT},
+      </if>
+      <if test="fakeErrorCount != null">
+        fake_error_count = #{fakeErrorCount,jdbcType=BIGINT},
+      </if>
+      <if test="pendingCount != null">
+        pending_count = #{pendingCount,jdbcType=BIGINT},
+      </if>
+      <if test="successCount != null">
+        success_count = #{successCount,jdbcType=BIGINT},
+      </if>
+      <if test="assertionCount != null">
+        assertion_count = #{assertionCount,jdbcType=BIGINT},
+      </if>
+      <if test="passAssertionsCount != null">
+        pass_assertions_count = #{passAssertionsCount,jdbcType=BIGINT},
+      </if>
+      <if test="requestExecutionRate != null">
+        request_execution_rate = #{requestExecutionRate,jdbcType=BIGINT},
+      </if>
+      <if test="requestApprovalRate != null">
+        request_approval_rate = #{requestApprovalRate,jdbcType=BIGINT},
+      </if>
+      <if test="assertionPassRate != null">
+        assertion_pass_rate = #{assertionPassRate,jdbcType=BIGINT},
+      </if>
+      <if test="scriptIdentifier != null">
+        script_identifier = #{scriptIdentifier,jdbcType=VARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -411,14 +575,16 @@
   <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiScenarioReport">
     update api_scenario_report
     set `name` = #{name,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=BIGINT},
+      scenario_id = #{scenarioId,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
       delete_time = #{deleteTime,jdbcType=BIGINT},
       delete_user = #{deleteUser,jdbcType=VARCHAR},
       deleted = #{deleted,jdbcType=BIT},
       update_user = #{updateUser,jdbcType=VARCHAR},
       update_time = #{updateTime,jdbcType=BIGINT},
-      pass_rate = #{passRate,jdbcType=BIGINT},
+      start_time = #{startTime,jdbcType=BIGINT},
+      end_time = #{endTime,jdbcType=BIGINT},
+      request_duration = #{requestDuration,jdbcType=BIGINT},
       `status` = #{status,jdbcType=VARCHAR},
       trigger_mode = #{triggerMode,jdbcType=VARCHAR},
       run_mode = #{runMode,jdbcType=VARCHAR},
@@ -426,24 +592,40 @@
       version_id = #{versionId,jdbcType=VARCHAR},
       integrated = #{integrated,jdbcType=BIT},
       project_id = #{projectId,jdbcType=VARCHAR},
-      scenario_id = #{scenarioId,jdbcType=VARCHAR},
-      environment_id = #{environmentId,jdbcType=VARCHAR}
+      environment_id = #{environmentId,jdbcType=VARCHAR},
+      error_count = #{errorCount,jdbcType=BIGINT},
+      fake_error_count = #{fakeErrorCount,jdbcType=BIGINT},
+      pending_count = #{pendingCount,jdbcType=BIGINT},
+      success_count = #{successCount,jdbcType=BIGINT},
+      assertion_count = #{assertionCount,jdbcType=BIGINT},
+      pass_assertions_count = #{passAssertionsCount,jdbcType=BIGINT},
+      request_execution_rate = #{requestExecutionRate,jdbcType=BIGINT},
+      request_approval_rate = #{requestApprovalRate,jdbcType=BIGINT},
+      assertion_pass_rate = #{assertionPassRate,jdbcType=BIGINT},
+      script_identifier = #{scriptIdentifier,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_scenario_report
-    (id, `name`, create_time, create_user, delete_time, delete_user, deleted, update_user, 
-      update_time, pass_rate, `status`, trigger_mode, run_mode, pool_id, version_id, 
-      integrated, project_id, scenario_id, environment_id)
+    (id, `name`, scenario_id, create_user, delete_time, delete_user, deleted, update_user, 
+      update_time, start_time, end_time, request_duration, `status`, trigger_mode, run_mode, 
+      pool_id, version_id, integrated, project_id, environment_id, error_count, fake_error_count, 
+      pending_count, success_count, assertion_count, pass_assertions_count, request_execution_rate, 
+      request_approval_rate, assertion_pass_rate, script_identifier)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
+      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.scenarioId,jdbcType=VARCHAR}, 
         #{item.createUser,jdbcType=VARCHAR}, #{item.deleteTime,jdbcType=BIGINT}, #{item.deleteUser,jdbcType=VARCHAR}, 
         #{item.deleted,jdbcType=BIT}, #{item.updateUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}, 
-        #{item.passRate,jdbcType=BIGINT}, #{item.status,jdbcType=VARCHAR}, #{item.triggerMode,jdbcType=VARCHAR}, 
-        #{item.runMode,jdbcType=VARCHAR}, #{item.poolId,jdbcType=VARCHAR}, #{item.versionId,jdbcType=VARCHAR}, 
-        #{item.integrated,jdbcType=BIT}, #{item.projectId,jdbcType=VARCHAR}, #{item.scenarioId,jdbcType=VARCHAR}, 
-        #{item.environmentId,jdbcType=VARCHAR})
+        #{item.startTime,jdbcType=BIGINT}, #{item.endTime,jdbcType=BIGINT}, #{item.requestDuration,jdbcType=BIGINT}, 
+        #{item.status,jdbcType=VARCHAR}, #{item.triggerMode,jdbcType=VARCHAR}, #{item.runMode,jdbcType=VARCHAR}, 
+        #{item.poolId,jdbcType=VARCHAR}, #{item.versionId,jdbcType=VARCHAR}, #{item.integrated,jdbcType=BIT}, 
+        #{item.projectId,jdbcType=VARCHAR}, #{item.environmentId,jdbcType=VARCHAR}, #{item.errorCount,jdbcType=BIGINT}, 
+        #{item.fakeErrorCount,jdbcType=BIGINT}, #{item.pendingCount,jdbcType=BIGINT}, #{item.successCount,jdbcType=BIGINT}, 
+        #{item.assertionCount,jdbcType=BIGINT}, #{item.passAssertionsCount,jdbcType=BIGINT}, 
+        #{item.requestExecutionRate,jdbcType=BIGINT}, #{item.requestApprovalRate,jdbcType=BIGINT}, 
+        #{item.assertionPassRate,jdbcType=BIGINT}, #{item.scriptIdentifier,jdbcType=VARCHAR}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -462,8 +644,8 @@
         <if test="'name'.toString() == column.value">
           #{item.name,jdbcType=VARCHAR}
         </if>
-        <if test="'create_time'.toString() == column.value">
-          #{item.createTime,jdbcType=BIGINT}
+        <if test="'scenario_id'.toString() == column.value">
+          #{item.scenarioId,jdbcType=VARCHAR}
         </if>
         <if test="'create_user'.toString() == column.value">
           #{item.createUser,jdbcType=VARCHAR}
@@ -483,8 +665,14 @@
         <if test="'update_time'.toString() == column.value">
           #{item.updateTime,jdbcType=BIGINT}
         </if>
-        <if test="'pass_rate'.toString() == column.value">
-          #{item.passRate,jdbcType=BIGINT}
+        <if test="'start_time'.toString() == column.value">
+          #{item.startTime,jdbcType=BIGINT}
+        </if>
+        <if test="'end_time'.toString() == column.value">
+          #{item.endTime,jdbcType=BIGINT}
+        </if>
+        <if test="'request_duration'.toString() == column.value">
+          #{item.requestDuration,jdbcType=BIGINT}
         </if>
         <if test="'status'.toString() == column.value">
           #{item.status,jdbcType=VARCHAR}
@@ -507,11 +695,38 @@
         <if test="'project_id'.toString() == column.value">
           #{item.projectId,jdbcType=VARCHAR}
         </if>
-        <if test="'scenario_id'.toString() == column.value">
-          #{item.scenarioId,jdbcType=VARCHAR}
-        </if>
         <if test="'environment_id'.toString() == column.value">
           #{item.environmentId,jdbcType=VARCHAR}
+        </if>
+        <if test="'error_count'.toString() == column.value">
+          #{item.errorCount,jdbcType=BIGINT}
+        </if>
+        <if test="'fake_error_count'.toString() == column.value">
+          #{item.fakeErrorCount,jdbcType=BIGINT}
+        </if>
+        <if test="'pending_count'.toString() == column.value">
+          #{item.pendingCount,jdbcType=BIGINT}
+        </if>
+        <if test="'success_count'.toString() == column.value">
+          #{item.successCount,jdbcType=BIGINT}
+        </if>
+        <if test="'assertion_count'.toString() == column.value">
+          #{item.assertionCount,jdbcType=BIGINT}
+        </if>
+        <if test="'pass_assertions_count'.toString() == column.value">
+          #{item.passAssertionsCount,jdbcType=BIGINT}
+        </if>
+        <if test="'request_execution_rate'.toString() == column.value">
+          #{item.requestExecutionRate,jdbcType=BIGINT}
+        </if>
+        <if test="'request_approval_rate'.toString() == column.value">
+          #{item.requestApprovalRate,jdbcType=BIGINT}
+        </if>
+        <if test="'assertion_pass_rate'.toString() == column.value">
+          #{item.assertionPassRate,jdbcType=BIGINT}
+        </if>
+        <if test="'script_identifier'.toString() == column.value">
+          #{item.scriptIdentifier,jdbcType=VARCHAR}
         </if>
       </foreach>
       )

@@ -50,6 +50,8 @@ public class ApiDebugService {
     @Resource
     private ApiExecuteService apiExecuteService;
 
+    public static final Long ORDER_STEP = 5000L;
+
     public List<ApiDebugSimpleDTO> list(String protocol, String userId) {
         return extApiDebugMapper.list(protocol, userId);
     }
@@ -75,6 +77,8 @@ public class ApiDebugService {
         apiDebug.setCreateTime(System.currentTimeMillis());
         apiDebug.setUpdateTime(System.currentTimeMillis());
         apiDebug.setUpdateUser(apiDebug.getCreateUser());
+        apiDebug.setPos(getNextOrder(request.getProjectId()));
+
         apiDebugMapper.insert(apiDebug);
         // todo 校验 moduleId
         ApiDebugBlob apiDebugBlob = new ApiDebugBlob();
@@ -88,6 +92,11 @@ public class ApiDebugService {
         resourceUpdateRequest.setLinkFileIds(request.getLinkFileIds());
         apiFileResourceService.addFileResource(resourceUpdateRequest);
         return apiDebug;
+    }
+
+    private Long getNextOrder(String projectId) {
+        Long pos = extApiDebugMapper.getPos(projectId);
+        return (pos == null ? 0 : pos) + ORDER_STEP;
     }
 
     private static ApiFileResourceUpdateRequest getApiFileResourceUpdateRequest(String sourceId, String projectId, String operator) {

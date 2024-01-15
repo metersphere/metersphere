@@ -25,38 +25,30 @@ public class ApiReportDetail implements Serializable {
     @Size(min = 1, max = 50, message = "{api_report_detail.resource_id.length_range}", groups = {Created.class, Updated.class})
     private String resourceId;
 
-    @Schema(description = "开始时间", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{api_report_detail.start_time.not_blank}", groups = {Created.class})
-    private Long startTime;
-
     @Schema(description = "结果状态", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_report_detail.status.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 20, message = "{api_report_detail.status.length_range}", groups = {Created.class, Updated.class})
     private String status;
 
-    @Schema(description = "单个请求步骤时间")
-    private Long requestTime;
-
-    @Schema(description = "总断言数")
-    private Long assertionsTotal;
-
-    @Schema(description = "失败断言数")
-    private Long passAssertionsTotal;
-
-    @Schema(description = "误报编号")
+    @Schema(description = "误报编号/误报状态独有")
     private String fakeCode;
 
     @Schema(description = "请求名称")
     private String requestName;
 
-    @Schema(description = "项目fk")
-    private String projectId;
-
-    @Schema(description = "失败总数")
-    private Integer errorTotal;
+    @Schema(description = "请求耗时", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{api_report_detail.request_time.not_blank}", groups = {Created.class})
+    private Long requestTime;
 
     @Schema(description = "请求响应码")
     private String code;
+
+    @Schema(description = "响应内容大小", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{api_report_detail.response_size.not_blank}", groups = {Created.class})
+    private Long responseSize;
+
+    @Schema(description = "脚本标识")
+    private String scriptIdentifier;
 
     @Schema(description = "结果内容详情")
     private byte[] content;
@@ -67,16 +59,13 @@ public class ApiReportDetail implements Serializable {
         id("id", "id", "VARCHAR", false),
         reportId("report_id", "reportId", "VARCHAR", false),
         resourceId("resource_id", "resourceId", "VARCHAR", false),
-        startTime("start_time", "startTime", "BIGINT", false),
         status("status", "status", "VARCHAR", true),
-        requestTime("request_time", "requestTime", "BIGINT", false),
-        assertionsTotal("assertions_total", "assertionsTotal", "BIGINT", false),
-        passAssertionsTotal("pass_assertions_total", "passAssertionsTotal", "BIGINT", false),
         fakeCode("fake_code", "fakeCode", "VARCHAR", false),
         requestName("request_name", "requestName", "VARCHAR", false),
-        projectId("project_id", "projectId", "VARCHAR", false),
-        errorTotal("error_total", "errorTotal", "INTEGER", false),
+        requestTime("request_time", "requestTime", "BIGINT", false),
         code("code", "code", "VARCHAR", false),
+        responseSize("response_size", "responseSize", "BIGINT", false),
+        scriptIdentifier("script_identifier", "scriptIdentifier", "VARCHAR", false),
         content("content", "content", "LONGVARBINARY", false);
 
         private static final String BEGINNING_DELIMITER = "`";
