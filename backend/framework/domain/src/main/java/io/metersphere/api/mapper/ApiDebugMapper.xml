@@ -13,6 +13,7 @@
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
+    <result column="pos" jdbcType="BIGINT" property="pos" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -74,7 +75,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, `name`, protocol, `method`, `path`, project_id, module_id, create_time, create_user, 
-    update_time, update_user
+    update_time, update_user, pos
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiDebugExample" resultMap="BaseResultMap">
     select
@@ -110,11 +111,13 @@
     insert into api_debug (id, `name`, protocol, 
       `method`, `path`, project_id, 
       module_id, create_time, create_user, 
-      update_time, update_user)
+      update_time, update_user, pos
+      )
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{protocol,jdbcType=VARCHAR}, 
       #{method,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
       #{moduleId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
-      #{updateTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR})
+      #{updateTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, #{pos,jdbcType=BIGINT}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiDebug">
     insert into api_debug
@@ -152,6 +155,9 @@
       <if test="updateUser != null">
         update_user,
       </if>
+      <if test="pos != null">
+        pos,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -186,6 +192,9 @@
       </if>
       <if test="updateUser != null">
         #{updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="pos != null">
+        #{pos,jdbcType=BIGINT},
       </if>
     </trim>
   </insert>
@@ -231,6 +240,9 @@
       <if test="record.updateUser != null">
         update_user = #{record.updateUser,jdbcType=VARCHAR},
       </if>
+      <if test="record.pos != null">
+        pos = #{record.pos,jdbcType=BIGINT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -248,7 +260,8 @@
       create_time = #{record.createTime,jdbcType=BIGINT},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      update_user = #{record.updateUser,jdbcType=VARCHAR}
+      update_user = #{record.updateUser,jdbcType=VARCHAR},
+      pos = #{record.pos,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -286,6 +299,9 @@
       <if test="updateUser != null">
         update_user = #{updateUser,jdbcType=VARCHAR},
       </if>
+      <if test="pos != null">
+        pos = #{pos,jdbcType=BIGINT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -300,19 +316,21 @@
       create_time = #{createTime,jdbcType=BIGINT},
       create_user = #{createUser,jdbcType=VARCHAR},
       update_time = #{updateTime,jdbcType=BIGINT},
-      update_user = #{updateUser,jdbcType=VARCHAR}
+      update_user = #{updateUser,jdbcType=VARCHAR},
+      pos = #{pos,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_debug
     (id, `name`, protocol, `method`, `path`, project_id, module_id, create_time, create_user, 
-      update_time, update_user)
+      update_time, update_user, pos)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.protocol,jdbcType=VARCHAR}, 
         #{item.method,jdbcType=VARCHAR}, #{item.path,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, 
         #{item.moduleId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, 
-        #{item.updateTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR})
+        #{item.updateTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}, #{item.pos,jdbcType=BIGINT}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -357,6 +375,9 @@
         </if>
         <if test="'update_user'.toString() == column.value">
           #{item.updateUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'pos'.toString() == column.value">
+          #{item.pos,jdbcType=BIGINT}
         </if>
       </foreach>
       )

@@ -4,17 +4,14 @@
   <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiScenarioReportDetail">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="report_id" jdbcType="VARCHAR" property="reportId" />
-    <result column="resource_id" jdbcType="VARCHAR" property="resourceId" />
-    <result column="start_time" jdbcType="BIGINT" property="startTime" />
+    <result column="report_step_id" jdbcType="VARCHAR" property="reportStepId" />
     <result column="status" jdbcType="VARCHAR" property="status" />
-    <result column="request_time" jdbcType="BIGINT" property="requestTime" />
-    <result column="assertions_total" jdbcType="BIGINT" property="assertionsTotal" />
-    <result column="pass_assertions_total" jdbcType="BIGINT" property="passAssertionsTotal" />
     <result column="fake_code" jdbcType="VARCHAR" property="fakeCode" />
     <result column="request_name" jdbcType="VARCHAR" property="requestName" />
-    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
-    <result column="error_total" jdbcType="INTEGER" property="errorTotal" />
+    <result column="request_time" jdbcType="BIGINT" property="requestTime" />
     <result column="code" jdbcType="VARCHAR" property="code" />
+    <result column="response_size" jdbcType="BIGINT" property="responseSize" />
+    <result column="script_identifier" jdbcType="VARCHAR" property="scriptIdentifier" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.api.domain.ApiScenarioReportDetail">
     <result column="content" jdbcType="LONGVARBINARY" property="content" />
@@ -78,8 +75,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, report_id, resource_id, start_time, `status`, request_time, assertions_total, 
-    pass_assertions_total, fake_code, request_name, project_id, error_total, code
+    id, report_id, report_step_id, `status`, fake_code, request_name, request_time, code, 
+    response_size, script_identifier
   </sql>
   <sql id="Blob_Column_List">
     content
@@ -133,16 +130,14 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.api.domain.ApiScenarioReportDetail">
-    insert into api_scenario_report_detail (id, report_id, resource_id, 
-      start_time, `status`, request_time, 
-      assertions_total, pass_assertions_total, fake_code, 
-      request_name, project_id, error_total, 
-      code, content)
-    values (#{id,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, 
-      #{startTime,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, #{requestTime,jdbcType=BIGINT}, 
-      #{assertionsTotal,jdbcType=BIGINT}, #{passAssertionsTotal,jdbcType=BIGINT}, #{fakeCode,jdbcType=VARCHAR}, 
-      #{requestName,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{errorTotal,jdbcType=INTEGER}, 
-      #{code,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARBINARY})
+    insert into api_scenario_report_detail (id, report_id, report_step_id, 
+      `status`, fake_code, request_name, 
+      request_time, code, response_size, 
+      script_identifier, content)
+    values (#{id,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, #{reportStepId,jdbcType=VARCHAR}, 
+      #{status,jdbcType=VARCHAR}, #{fakeCode,jdbcType=VARCHAR}, #{requestName,jdbcType=VARCHAR}, 
+      #{requestTime,jdbcType=BIGINT}, #{code,jdbcType=VARCHAR}, #{responseSize,jdbcType=BIGINT}, 
+      #{scriptIdentifier,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARBINARY})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiScenarioReportDetail">
     insert into api_scenario_report_detail
@@ -153,23 +148,11 @@
       <if test="reportId != null">
         report_id,
       </if>
-      <if test="resourceId != null">
-        resource_id,
-      </if>
-      <if test="startTime != null">
-        start_time,
+      <if test="reportStepId != null">
+        report_step_id,
       </if>
       <if test="status != null">
         `status`,
-      </if>
-      <if test="requestTime != null">
-        request_time,
-      </if>
-      <if test="assertionsTotal != null">
-        assertions_total,
-      </if>
-      <if test="passAssertionsTotal != null">
-        pass_assertions_total,
       </if>
       <if test="fakeCode != null">
         fake_code,
@@ -177,14 +160,17 @@
       <if test="requestName != null">
         request_name,
       </if>
-      <if test="projectId != null">
-        project_id,
-      </if>
-      <if test="errorTotal != null">
-        error_total,
+      <if test="requestTime != null">
+        request_time,
       </if>
       <if test="code != null">
         code,
+      </if>
+      <if test="responseSize != null">
+        response_size,
+      </if>
+      <if test="scriptIdentifier != null">
+        script_identifier,
       </if>
       <if test="content != null">
         content,
@@ -197,23 +183,11 @@
       <if test="reportId != null">
         #{reportId,jdbcType=VARCHAR},
       </if>
-      <if test="resourceId != null">
-        #{resourceId,jdbcType=VARCHAR},
-      </if>
-      <if test="startTime != null">
-        #{startTime,jdbcType=BIGINT},
+      <if test="reportStepId != null">
+        #{reportStepId,jdbcType=VARCHAR},
       </if>
       <if test="status != null">
         #{status,jdbcType=VARCHAR},
-      </if>
-      <if test="requestTime != null">
-        #{requestTime,jdbcType=BIGINT},
-      </if>
-      <if test="assertionsTotal != null">
-        #{assertionsTotal,jdbcType=BIGINT},
-      </if>
-      <if test="passAssertionsTotal != null">
-        #{passAssertionsTotal,jdbcType=BIGINT},
       </if>
       <if test="fakeCode != null">
         #{fakeCode,jdbcType=VARCHAR},
@@ -221,14 +195,17 @@
       <if test="requestName != null">
         #{requestName,jdbcType=VARCHAR},
       </if>
-      <if test="projectId != null">
-        #{projectId,jdbcType=VARCHAR},
-      </if>
-      <if test="errorTotal != null">
-        #{errorTotal,jdbcType=INTEGER},
+      <if test="requestTime != null">
+        #{requestTime,jdbcType=BIGINT},
       </if>
       <if test="code != null">
         #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="responseSize != null">
+        #{responseSize,jdbcType=BIGINT},
+      </if>
+      <if test="scriptIdentifier != null">
+        #{scriptIdentifier,jdbcType=VARCHAR},
       </if>
       <if test="content != null">
         #{content,jdbcType=LONGVARBINARY},
@@ -250,23 +227,11 @@
       <if test="record.reportId != null">
         report_id = #{record.reportId,jdbcType=VARCHAR},
       </if>
-      <if test="record.resourceId != null">
-        resource_id = #{record.resourceId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.startTime != null">
-        start_time = #{record.startTime,jdbcType=BIGINT},
+      <if test="record.reportStepId != null">
+        report_step_id = #{record.reportStepId,jdbcType=VARCHAR},
       </if>
       <if test="record.status != null">
         `status` = #{record.status,jdbcType=VARCHAR},
-      </if>
-      <if test="record.requestTime != null">
-        request_time = #{record.requestTime,jdbcType=BIGINT},
-      </if>
-      <if test="record.assertionsTotal != null">
-        assertions_total = #{record.assertionsTotal,jdbcType=BIGINT},
-      </if>
-      <if test="record.passAssertionsTotal != null">
-        pass_assertions_total = #{record.passAssertionsTotal,jdbcType=BIGINT},
       </if>
       <if test="record.fakeCode != null">
         fake_code = #{record.fakeCode,jdbcType=VARCHAR},
@@ -274,14 +239,17 @@
       <if test="record.requestName != null">
         request_name = #{record.requestName,jdbcType=VARCHAR},
       </if>
-      <if test="record.projectId != null">
-        project_id = #{record.projectId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.errorTotal != null">
-        error_total = #{record.errorTotal,jdbcType=INTEGER},
+      <if test="record.requestTime != null">
+        request_time = #{record.requestTime,jdbcType=BIGINT},
       </if>
       <if test="record.code != null">
         code = #{record.code,jdbcType=VARCHAR},
+      </if>
+      <if test="record.responseSize != null">
+        response_size = #{record.responseSize,jdbcType=BIGINT},
+      </if>
+      <if test="record.scriptIdentifier != null">
+        script_identifier = #{record.scriptIdentifier,jdbcType=VARCHAR},
       </if>
       <if test="record.content != null">
         content = #{record.content,jdbcType=LONGVARBINARY},
@@ -295,17 +263,14 @@
     update api_scenario_report_detail
     set id = #{record.id,jdbcType=VARCHAR},
       report_id = #{record.reportId,jdbcType=VARCHAR},
-      resource_id = #{record.resourceId,jdbcType=VARCHAR},
-      start_time = #{record.startTime,jdbcType=BIGINT},
+      report_step_id = #{record.reportStepId,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
-      request_time = #{record.requestTime,jdbcType=BIGINT},
-      assertions_total = #{record.assertionsTotal,jdbcType=BIGINT},
-      pass_assertions_total = #{record.passAssertionsTotal,jdbcType=BIGINT},
       fake_code = #{record.fakeCode,jdbcType=VARCHAR},
       request_name = #{record.requestName,jdbcType=VARCHAR},
-      project_id = #{record.projectId,jdbcType=VARCHAR},
-      error_total = #{record.errorTotal,jdbcType=INTEGER},
+      request_time = #{record.requestTime,jdbcType=BIGINT},
       code = #{record.code,jdbcType=VARCHAR},
+      response_size = #{record.responseSize,jdbcType=BIGINT},
+      script_identifier = #{record.scriptIdentifier,jdbcType=VARCHAR},
       content = #{record.content,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -315,17 +280,14 @@
     update api_scenario_report_detail
     set id = #{record.id,jdbcType=VARCHAR},
       report_id = #{record.reportId,jdbcType=VARCHAR},
-      resource_id = #{record.resourceId,jdbcType=VARCHAR},
-      start_time = #{record.startTime,jdbcType=BIGINT},
+      report_step_id = #{record.reportStepId,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
-      request_time = #{record.requestTime,jdbcType=BIGINT},
-      assertions_total = #{record.assertionsTotal,jdbcType=BIGINT},
-      pass_assertions_total = #{record.passAssertionsTotal,jdbcType=BIGINT},
       fake_code = #{record.fakeCode,jdbcType=VARCHAR},
       request_name = #{record.requestName,jdbcType=VARCHAR},
-      project_id = #{record.projectId,jdbcType=VARCHAR},
-      error_total = #{record.errorTotal,jdbcType=INTEGER},
-      code = #{record.code,jdbcType=VARCHAR}
+      request_time = #{record.requestTime,jdbcType=BIGINT},
+      code = #{record.code,jdbcType=VARCHAR},
+      response_size = #{record.responseSize,jdbcType=BIGINT},
+      script_identifier = #{record.scriptIdentifier,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -336,23 +298,11 @@
       <if test="reportId != null">
         report_id = #{reportId,jdbcType=VARCHAR},
       </if>
-      <if test="resourceId != null">
-        resource_id = #{resourceId,jdbcType=VARCHAR},
-      </if>
-      <if test="startTime != null">
-        start_time = #{startTime,jdbcType=BIGINT},
+      <if test="reportStepId != null">
+        report_step_id = #{reportStepId,jdbcType=VARCHAR},
       </if>
       <if test="status != null">
         `status` = #{status,jdbcType=VARCHAR},
-      </if>
-      <if test="requestTime != null">
-        request_time = #{requestTime,jdbcType=BIGINT},
-      </if>
-      <if test="assertionsTotal != null">
-        assertions_total = #{assertionsTotal,jdbcType=BIGINT},
-      </if>
-      <if test="passAssertionsTotal != null">
-        pass_assertions_total = #{passAssertionsTotal,jdbcType=BIGINT},
       </if>
       <if test="fakeCode != null">
         fake_code = #{fakeCode,jdbcType=VARCHAR},
@@ -360,14 +310,17 @@
       <if test="requestName != null">
         request_name = #{requestName,jdbcType=VARCHAR},
       </if>
-      <if test="projectId != null">
-        project_id = #{projectId,jdbcType=VARCHAR},
-      </if>
-      <if test="errorTotal != null">
-        error_total = #{errorTotal,jdbcType=INTEGER},
+      <if test="requestTime != null">
+        request_time = #{requestTime,jdbcType=BIGINT},
       </if>
       <if test="code != null">
         code = #{code,jdbcType=VARCHAR},
+      </if>
+      <if test="responseSize != null">
+        response_size = #{responseSize,jdbcType=BIGINT},
+      </if>
+      <if test="scriptIdentifier != null">
+        script_identifier = #{scriptIdentifier,jdbcType=VARCHAR},
       </if>
       <if test="content != null">
         content = #{content,jdbcType=LONGVARBINARY},
@@ -378,48 +331,40 @@
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.api.domain.ApiScenarioReportDetail">
     update api_scenario_report_detail
     set report_id = #{reportId,jdbcType=VARCHAR},
-      resource_id = #{resourceId,jdbcType=VARCHAR},
-      start_time = #{startTime,jdbcType=BIGINT},
+      report_step_id = #{reportStepId,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
-      request_time = #{requestTime,jdbcType=BIGINT},
-      assertions_total = #{assertionsTotal,jdbcType=BIGINT},
-      pass_assertions_total = #{passAssertionsTotal,jdbcType=BIGINT},
       fake_code = #{fakeCode,jdbcType=VARCHAR},
       request_name = #{requestName,jdbcType=VARCHAR},
-      project_id = #{projectId,jdbcType=VARCHAR},
-      error_total = #{errorTotal,jdbcType=INTEGER},
+      request_time = #{requestTime,jdbcType=BIGINT},
       code = #{code,jdbcType=VARCHAR},
+      response_size = #{responseSize,jdbcType=BIGINT},
+      script_identifier = #{scriptIdentifier,jdbcType=VARCHAR},
       content = #{content,jdbcType=LONGVARBINARY}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiScenarioReportDetail">
     update api_scenario_report_detail
     set report_id = #{reportId,jdbcType=VARCHAR},
-      resource_id = #{resourceId,jdbcType=VARCHAR},
-      start_time = #{startTime,jdbcType=BIGINT},
+      report_step_id = #{reportStepId,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
-      request_time = #{requestTime,jdbcType=BIGINT},
-      assertions_total = #{assertionsTotal,jdbcType=BIGINT},
-      pass_assertions_total = #{passAssertionsTotal,jdbcType=BIGINT},
       fake_code = #{fakeCode,jdbcType=VARCHAR},
       request_name = #{requestName,jdbcType=VARCHAR},
-      project_id = #{projectId,jdbcType=VARCHAR},
-      error_total = #{errorTotal,jdbcType=INTEGER},
-      code = #{code,jdbcType=VARCHAR}
+      request_time = #{requestTime,jdbcType=BIGINT},
+      code = #{code,jdbcType=VARCHAR},
+      response_size = #{responseSize,jdbcType=BIGINT},
+      script_identifier = #{scriptIdentifier,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_scenario_report_detail
-    (id, report_id, resource_id, start_time, `status`, request_time, assertions_total, 
-      pass_assertions_total, fake_code, request_name, project_id, error_total, code, 
-      content)
+    (id, report_id, report_step_id, `status`, fake_code, request_name, request_time, 
+      code, response_size, script_identifier, content)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.reportId,jdbcType=VARCHAR}, #{item.resourceId,jdbcType=VARCHAR}, 
-        #{item.startTime,jdbcType=BIGINT}, #{item.status,jdbcType=VARCHAR}, #{item.requestTime,jdbcType=BIGINT}, 
-        #{item.assertionsTotal,jdbcType=BIGINT}, #{item.passAssertionsTotal,jdbcType=BIGINT}, 
-        #{item.fakeCode,jdbcType=VARCHAR}, #{item.requestName,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, 
-        #{item.errorTotal,jdbcType=INTEGER}, #{item.code,jdbcType=VARCHAR}, #{item.content,jdbcType=LONGVARBINARY}
+      (#{item.id,jdbcType=VARCHAR}, #{item.reportId,jdbcType=VARCHAR}, #{item.reportStepId,jdbcType=VARCHAR}, 
+        #{item.status,jdbcType=VARCHAR}, #{item.fakeCode,jdbcType=VARCHAR}, #{item.requestName,jdbcType=VARCHAR}, 
+        #{item.requestTime,jdbcType=BIGINT}, #{item.code,jdbcType=VARCHAR}, #{item.responseSize,jdbcType=BIGINT}, 
+        #{item.scriptIdentifier,jdbcType=VARCHAR}, #{item.content,jdbcType=LONGVARBINARY}
         )
     </foreach>
   </insert>
@@ -439,23 +384,11 @@
         <if test="'report_id'.toString() == column.value">
           #{item.reportId,jdbcType=VARCHAR}
         </if>
-        <if test="'resource_id'.toString() == column.value">
-          #{item.resourceId,jdbcType=VARCHAR}
-        </if>
-        <if test="'start_time'.toString() == column.value">
-          #{item.startTime,jdbcType=BIGINT}
+        <if test="'report_step_id'.toString() == column.value">
+          #{item.reportStepId,jdbcType=VARCHAR}
         </if>
         <if test="'status'.toString() == column.value">
           #{item.status,jdbcType=VARCHAR}
-        </if>
-        <if test="'request_time'.toString() == column.value">
-          #{item.requestTime,jdbcType=BIGINT}
-        </if>
-        <if test="'assertions_total'.toString() == column.value">
-          #{item.assertionsTotal,jdbcType=BIGINT}
-        </if>
-        <if test="'pass_assertions_total'.toString() == column.value">
-          #{item.passAssertionsTotal,jdbcType=BIGINT}
         </if>
         <if test="'fake_code'.toString() == column.value">
           #{item.fakeCode,jdbcType=VARCHAR}
@@ -463,14 +396,17 @@
         <if test="'request_name'.toString() == column.value">
           #{item.requestName,jdbcType=VARCHAR}
         </if>
-        <if test="'project_id'.toString() == column.value">
-          #{item.projectId,jdbcType=VARCHAR}
-        </if>
-        <if test="'error_total'.toString() == column.value">
-          #{item.errorTotal,jdbcType=INTEGER}
+        <if test="'request_time'.toString() == column.value">
+          #{item.requestTime,jdbcType=BIGINT}
         </if>
         <if test="'code'.toString() == column.value">
           #{item.code,jdbcType=VARCHAR}
+        </if>
+        <if test="'response_size'.toString() == column.value">
+          #{item.responseSize,jdbcType=BIGINT}
+        </if>
+        <if test="'script_identifier'.toString() == column.value">
+          #{item.scriptIdentifier,jdbcType=VARCHAR}
         </if>
         <if test="'content'.toString() == column.value">
           #{item.content,jdbcType=LONGVARBINARY}

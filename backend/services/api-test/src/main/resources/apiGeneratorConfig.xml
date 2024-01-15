@@ -79,7 +79,6 @@
         <table tableName="api_definition_mock_config"/>
         <table tableName="api_definition_module"/>
         <table tableName="api_definition_swagger"/>
-        <table tableName="api_environment_config"/>
         <table tableName="api_report"/>
         <table tableName="api_report_detail"/>
         <table tableName="api_report_log"/>

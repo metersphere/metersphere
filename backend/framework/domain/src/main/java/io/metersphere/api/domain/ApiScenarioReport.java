@@ -20,8 +20,10 @@ public class ApiScenarioReport implements Serializable {
     @Size(min = 1, max = 255, message = "{api_scenario_report.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(description = "创建时间")
-    private Long createTime;
+    @Schema(description = "场景fk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_scenario_report.scenario_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{api_scenario_report.scenario_id.length_range}", groups = {Created.class, Updated.class})
+    private String scenarioId;
 
     @Schema(description = "创建人")
     private String createUser;
@@ -42,8 +44,17 @@ public class ApiScenarioReport implements Serializable {
     @Schema(description = "更新时间")
     private Long updateTime;
 
-    @Schema(description = "通过率")
-    private Long passRate;
+    @Schema(description = "开始时间/同创建时间一致", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{api_scenario_report.start_time.not_blank}", groups = {Created.class})
+    private Long startTime;
+
+    @Schema(description = "结束时间/报告执行完成", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{api_scenario_report.end_time.not_blank}", groups = {Created.class})
+    private Long endTime;
+
+    @Schema(description = "请求总耗时", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{api_scenario_report.request_duration.not_blank}", groups = {Created.class})
+    private Long requestDuration;
 
     @Schema(description = "报告状态/SUCCESS/ERROR", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_scenario_report.status.not_blank}", groups = {Created.class})
@@ -77,27 +88,63 @@ public class ApiScenarioReport implements Serializable {
     @Size(min = 1, max = 50, message = "{api_scenario_report.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
 
-    @Schema(description = "场景fk", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report.scenario_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{api_scenario_report.scenario_id.length_range}", groups = {Created.class, Updated.class})
-    private String scenarioId;
-
     @Schema(description = "环境")
     private String environmentId;
+
+    @Schema(description = "失败数", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{api_scenario_report.error_count.not_blank}", groups = {Created.class})
+    private Long errorCount;
+
+    @Schema(description = "误报数", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{api_scenario_report.fake_error_count.not_blank}", groups = {Created.class})
+    private Long fakeErrorCount;
+
+    @Schema(description = "未执行数", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{api_scenario_report.pending_count.not_blank}", groups = {Created.class})
+    private Long pendingCount;
+
+    @Schema(description = "成功数", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{api_scenario_report.success_count.not_blank}", groups = {Created.class})
+    private Long successCount;
+
+    @Schema(description = "总断言数", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{api_scenario_report.assertion_count.not_blank}", groups = {Created.class})
+    private Long assertionCount;
+
+    @Schema(description = "失败断言数", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{api_scenario_report.pass_assertions_count.not_blank}", groups = {Created.class})
+    private Long passAssertionsCount;
+
+    @Schema(description = "请求执行率", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{api_scenario_report.request_execution_rate.not_blank}", groups = {Created.class})
+    private Long requestExecutionRate;
+
+    @Schema(description = "请求通过率", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{api_scenario_report.request_approval_rate.not_blank}", groups = {Created.class})
+    private Long requestApprovalRate;
+
+    @Schema(description = "断言通过率", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{api_scenario_report.assertion_pass_rate.not_blank}", groups = {Created.class})
+    private Long assertionPassRate;
+
+    @Schema(description = "脚本标识")
+    private String scriptIdentifier;
 
     private static final long serialVersionUID = 1L;
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
         name("name", "name", "VARCHAR", true),
-        createTime("create_time", "createTime", "BIGINT", false),
+        scenarioId("scenario_id", "scenarioId", "VARCHAR", false),
         createUser("create_user", "createUser", "VARCHAR", false),
         deleteTime("delete_time", "deleteTime", "BIGINT", false),
         deleteUser("delete_user", "deleteUser", "VARCHAR", false),
         deleted("deleted", "deleted", "BIT", false),
         updateUser("update_user", "updateUser", "VARCHAR", false),
         updateTime("update_time", "updateTime", "BIGINT", false),
-        passRate("pass_rate", "passRate", "BIGINT", false),
+        startTime("start_time", "startTime", "BIGINT", false),
+        endTime("end_time", "endTime", "BIGINT", false),
+        requestDuration("request_duration", "requestDuration", "BIGINT", false),
         status("status", "status", "VARCHAR", true),
         triggerMode("trigger_mode", "triggerMode", "VARCHAR", false),
         runMode("run_mode", "runMode", "VARCHAR", false),
@@ -105,8 +152,17 @@ public class ApiScenarioReport implements Serializable {
         versionId("version_id", "versionId", "VARCHAR", false),
         integrated("integrated", "integrated", "BIT", false),
         projectId("project_id", "projectId", "VARCHAR", false),
-        scenarioId("scenario_id", "scenarioId", "VARCHAR", false),
-        environmentId("environment_id", "environmentId", "VARCHAR", false);
+        environmentId("environment_id", "environmentId", "VARCHAR", false),
+        errorCount("error_count", "errorCount", "BIGINT", false),
+        fakeErrorCount("fake_error_count", "fakeErrorCount", "BIGINT", false),
+        pendingCount("pending_count", "pendingCount", "BIGINT", false),
+        successCount("success_count", "successCount", "BIGINT", false),
+        assertionCount("assertion_count", "assertionCount", "BIGINT", false),
+        passAssertionsCount("pass_assertions_count", "passAssertionsCount", "BIGINT", false),
+        requestExecutionRate("request_execution_rate", "requestExecutionRate", "BIGINT", false),
+        requestApprovalRate("request_approval_rate", "requestApprovalRate", "BIGINT", false),
+        assertionPassRate("assertion_pass_rate", "assertionPassRate", "BIGINT", false),
+        scriptIdentifier("script_identifier", "scriptIdentifier", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

@@ -9,4 +9,12 @@
         where protocol = #{protocol} and create_user = #{userId}
         ORDER BY pos
     </select>
+
+    <select id="getPos" resultType="java.lang.Long">
+        SELECT pos
+        FROM api_debug
+        WHERE create_user = #{userId}
+        ORDER BY pos DESC
+        LIMIT 1;
+    </select>
 </mapper>

@@ -14,4 +14,7 @@ import java.util.List;
 @Mapper
 public interface ExtApiDebugMapper {
     List<ApiDebugSimpleDTO> list(@Param("protocol") String protocol, @Param("userId") String userId);
+
+    Long getPos(@Param("userId") String userId);
+
 }
