@@ -102,7 +102,7 @@ public class ApiDefinitionMockController {
     }
 
     @PostMapping("/upload/temp/file")
-    @Operation(summary = "上传接口定义所需的文件资源，并返回文件ID")
+    @Operation(summary = "上传接口 Mock 所需的文件资源，并返回文件ID")
     @RequiresPermissions(logical = Logical.OR, value = {PermissionConstants.PROJECT_API_DEFINITION_MOCK_ADD, PermissionConstants.PROJECT_API_DEFINITION_MOCK_UPDATE})
     public String uploadTempFile(@RequestParam("file") MultipartFile file) {
         return apiDefinitionMockService.uploadTempFile(file);
