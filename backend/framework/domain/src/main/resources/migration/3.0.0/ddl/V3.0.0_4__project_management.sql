@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS custom_function
     `tags`        VARCHAR(1000) COMMENT '标签',
     `description` VARCHAR(500) COMMENT '函数描述',
     `type` VARCHAR(50) DEFAULT NULL COMMENT '脚本语言类型',
-    `status` VARCHAR(50)    COMMENT '脚本状态（进行中/已完成）' ,
+    `status` VARCHAR(50)    COMMENT '脚本状态（草稿/测试通过）' ,
     `create_time` BIGINT    COMMENT '创建时间' ,
     `update_time` BIGINT    COMMENT '更新时间' ,
     `create_user` VARCHAR(50)    COMMENT '创建人' ,

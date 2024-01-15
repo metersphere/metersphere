@@ -316,7 +316,7 @@ public class CustomFunctionControllerTests extends BaseTest {
 
 
     private void configureKeywordSearch(CustomFunctionPageRequest request) {
-        request.setKeyword("100");
+        request.setKeyword("test");
         request.setSort(Map.of("status", "asc"));
     }
 

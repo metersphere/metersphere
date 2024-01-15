@@ -7,6 +7,7 @@ import io.metersphere.project.dto.customfunction.CustomFunctionDTO;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionPageRequest;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionRequest;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionUpdateRequest;
+import io.metersphere.project.enums.CustomFunctionStatus;
 import io.metersphere.project.enums.result.ProjectResultCode;
 import io.metersphere.project.mapper.CustomFunctionBlobMapper;
 import io.metersphere.project.mapper.CustomFunctionMapper;
@@ -43,7 +44,15 @@ public class CustomFunctionService {
     ExtCustomFunctionMapper extCustomFunctionMapper;
 
     public List<CustomFunctionDTO> getPage(CustomFunctionPageRequest request) {
-        return extCustomFunctionMapper.list(request);
+        List<CustomFunctionDTO> list = extCustomFunctionMapper.list(request);
+        if (!CollectionUtils.isEmpty(list)) {
+            processCustomFunction(list);
+        }
+        return list;
+    }
+
+    private void processCustomFunction(List<CustomFunctionDTO> list) {
+        list.forEach(item -> handleCustomFunctionBlob(item.getId(), item));
     }
 
     public CustomFunctionDTO get(String id) {
@@ -57,10 +66,14 @@ public class CustomFunctionService {
     public void handleCustomFunctionBlob(String id, CustomFunctionDTO customFunctionDTO) {
         Optional<CustomFunctionBlob> customFunctionBlobOptional = Optional.ofNullable(customFunctionBlobMapper.selectByPrimaryKey(id));
         customFunctionBlobOptional.ifPresent(blob -> {
-            customFunctionDTO.setParams(new String(blob.getParams(), StandardCharsets.UTF_8));
-            customFunctionDTO.setScript(new String(blob.getScript(), StandardCharsets.UTF_8));
-            customFunctionDTO.setResult(new String(blob.getResult(), StandardCharsets.UTF_8));
+            customFunctionDTO.setParams(toStringOrDefault(blob.getParams()));
+            customFunctionDTO.setScript(toStringOrDefault(blob.getScript()));
+            customFunctionDTO.setResult(toStringOrDefault(blob.getResult()));
         });
+    }
+
+    private String toStringOrDefault(byte[] bytes) {
+        return (bytes != null) ? new String(bytes, StandardCharsets.UTF_8) : null;
     }
 
     public CustomFunction add(CustomFunctionRequest request, String userId) {
@@ -70,6 +83,7 @@ public class CustomFunctionService {
         BeanUtils.copyBean(customFunction, request);
         checkAddExist(customFunction);
         customFunction.setId(IDGenerator.nextStr());
+        customFunction.setStatus(request.getStatus() != null ? request.getStatus() : CustomFunctionStatus.DRAFT.toString());
         customFunction.setCreateTime(System.currentTimeMillis());
         customFunction.setUpdateTime(System.currentTimeMillis());
         customFunction.setCreateUser(userId);
@@ -78,17 +92,7 @@ public class CustomFunctionService {
             customFunction.setTags(request.getTags());
         }
         customFunctionMapper.insertSelective(customFunction);
-        CustomFunctionBlob customFunctionBlob = new CustomFunctionBlob();
-        customFunctionBlob.setId(customFunction.getId());
-        if(request.getParams() != null) {
-            customFunctionBlob.setParams(request.getParams().getBytes());
-        }
-        if(request.getScript() != null) {
-            customFunctionBlob.setScript(request.getScript().getBytes());
-        }
-        if(request.getResult() != null) {
-            customFunctionBlob.setResult(request.getResult().getBytes());
-        }
+        CustomFunctionBlob customFunctionBlob = createCustomFunctionBlob(customFunction, request.getParams(), request.getScript(), request.getResult());
         customFunctionBlobMapper.insertSelective(customFunctionBlob);
 
         return customFunction;
@@ -106,18 +110,17 @@ public class CustomFunctionService {
             customFunction.setTags(request.getTags());
         }
         customFunctionMapper.updateByPrimaryKeySelective(customFunction);
+        CustomFunctionBlob customFunctionBlob = createCustomFunctionBlob(customFunction, request.getParams(), request.getScript(), request.getResult());
+        customFunctionBlobMapper.updateByPrimaryKeySelective(customFunctionBlob);
+    }
+
+    private CustomFunctionBlob createCustomFunctionBlob(CustomFunction customFunction, String params, String script, String result) {
         CustomFunctionBlob customFunctionBlob = new CustomFunctionBlob();
         customFunctionBlob.setId(customFunction.getId());
-        if(request.getParams() != null) {
-            customFunctionBlob.setParams(request.getParams().getBytes());
-        }
-        if(request.getScript() != null) {
-            customFunctionBlob.setScript(request.getScript().getBytes());
-        }
-        if(request.getResult() != null) {
-            customFunctionBlob.setResult(request.getResult().getBytes());
-        }
-        customFunctionBlobMapper.updateByPrimaryKeySelective(customFunctionBlob);
+        customFunctionBlob.setParams(params != null ? params.getBytes() : null);
+        customFunctionBlob.setScript(script != null ? script.getBytes() : null);
+        customFunctionBlob.setResult(result != null ? result.getBytes() : null);
+        return customFunctionBlob;
     }
 
     public void updateStatus(CustomFunctionUpdateRequest request, String userId) {

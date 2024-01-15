@@ -35,7 +35,7 @@ public class CustomFunctionRequest implements Serializable {
     @Schema(description = "脚本语言类型")
     private String type;
 
-    @Schema(description = "脚本状态（进行中/已完成）")
+    @Schema(description = "脚本状态（草稿/测试通过）")
     private String status;
 
     @Schema(description =  "标签")
