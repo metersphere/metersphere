@@ -124,10 +124,10 @@ CREATE TABLE IF NOT EXISTS api_report(
     `pending_count` BIGINT NOT NULL  DEFAULT 0 COMMENT '未执行数' ,
     `success_count` BIGINT NOT NULL  DEFAULT 0 COMMENT '成功数' ,
     `assertion_count` BIGINT NOT NULL  DEFAULT 0 COMMENT '总断言数' ,
-    `pass_assertions_count` BIGINT NOT NULL  DEFAULT 0 COMMENT '失败断言数' ,
-    `request_execution_rate` BIGINT NOT NULL  DEFAULT 0 COMMENT '请求执行率' ,
-    `request_approval_rate` BIGINT NOT NULL  DEFAULT 0 COMMENT '请求通过率' ,
-    `assertion_pass_rate` BIGINT NOT NULL  DEFAULT 0 COMMENT '断言通过率' ,
+    `assertion_success_count` BIGINT NOT NULL  DEFAULT 0 COMMENT '通过断言数' ,
+    `request_execution_rate` VARCHAR(20) NOT NULL COMMENT '请求执行率' ,
+    `request_pass_rate` VARCHAR(20) NOT NULL COMMENT '请求通过率' ,
+    `assertion_pass_rate` VARCHAR(20) NOT NULL COMMENT '断言通过率' ,
     `script_identifier` VARCHAR(255)    COMMENT '脚本标识' ,
     PRIMARY KEY (id)
 )
@@ -338,10 +338,10 @@ CREATE TABLE IF NOT EXISTS api_scenario_report(
     `pending_count` BIGINT NOT NULL  DEFAULT 0 COMMENT '未执行数' ,
     `success_count` BIGINT NOT NULL  DEFAULT 0 COMMENT '成功数' ,
     `assertion_count` BIGINT NOT NULL  DEFAULT 0 COMMENT '总断言数' ,
-    `pass_assertions_count` BIGINT NOT NULL  DEFAULT 0 COMMENT '失败断言数' ,
-    `request_execution_rate` BIGINT NOT NULL  DEFAULT 0 COMMENT '请求执行率' ,
-    `request_approval_rate` BIGINT NOT NULL  DEFAULT 0 COMMENT '请求通过率' ,
-    `assertion_pass_rate` BIGINT NOT NULL  DEFAULT 0 COMMENT '断言通过率' ,
+    `assertion_success_count` BIGINT NOT NULL  DEFAULT 0 COMMENT '通过断言数' ,
+    `request_execution_rate` VARCHAR(20) NOT NULL  COMMENT '请求执行率' ,
+    `request_pass_rate` VARCHAR(20) NOT NULL  COMMENT '请求通过率' ,
+    `assertion_pass_rate` VARCHAR(20) NOT NULL  COMMENT '断言通过率' ,
     `script_identifier` VARCHAR(255)    COMMENT '脚本标识' ,
     PRIMARY KEY (id)
 )   ENGINE = InnoDB

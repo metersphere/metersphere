@@ -27,10 +27,10 @@
     <result column="pending_count" jdbcType="BIGINT" property="pendingCount" />
     <result column="success_count" jdbcType="BIGINT" property="successCount" />
     <result column="assertion_count" jdbcType="BIGINT" property="assertionCount" />
-    <result column="pass_assertions_count" jdbcType="BIGINT" property="passAssertionsCount" />
-    <result column="request_execution_rate" jdbcType="BIGINT" property="requestExecutionRate" />
-    <result column="request_approval_rate" jdbcType="BIGINT" property="requestApprovalRate" />
-    <result column="assertion_pass_rate" jdbcType="BIGINT" property="assertionPassRate" />
+    <result column="assertion_success_count" jdbcType="BIGINT" property="assertionSuccessCount" />
+    <result column="request_execution_rate" jdbcType="VARCHAR" property="requestExecutionRate" />
+    <result column="request_pass_rate" jdbcType="VARCHAR" property="requestPassRate" />
+    <result column="assertion_pass_rate" jdbcType="VARCHAR" property="assertionPassRate" />
     <result column="script_identifier" jdbcType="VARCHAR" property="scriptIdentifier" />
   </resultMap>
   <sql id="Example_Where_Clause">
@@ -95,8 +95,8 @@
     id, `name`, scenario_id, create_user, delete_time, delete_user, deleted, update_user, 
     update_time, start_time, end_time, request_duration, `status`, trigger_mode, run_mode, 
     pool_id, version_id, integrated, project_id, environment_id, error_count, fake_error_count, 
-    pending_count, success_count, assertion_count, pass_assertions_count, request_execution_rate, 
-    request_approval_rate, assertion_pass_rate, script_identifier
+    pending_count, success_count, assertion_count, assertion_success_count, request_execution_rate, 
+    request_pass_rate, assertion_pass_rate, script_identifier
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiScenarioReportExample" resultMap="BaseResultMap">
     select
@@ -137,8 +137,8 @@
       pool_id, version_id, integrated, 
       project_id, environment_id, error_count, 
       fake_error_count, pending_count, success_count, 
-      assertion_count, pass_assertions_count, request_execution_rate, 
-      request_approval_rate, assertion_pass_rate, script_identifier
+      assertion_count, assertion_success_count, request_execution_rate, 
+      request_pass_rate, assertion_pass_rate, script_identifier
       )
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{scenarioId,jdbcType=VARCHAR}, 
       #{createUser,jdbcType=VARCHAR}, #{deleteTime,jdbcType=BIGINT}, #{deleteUser,jdbcType=VARCHAR}, 
@@ -148,8 +148,8 @@
       #{poolId,jdbcType=VARCHAR}, #{versionId,jdbcType=VARCHAR}, #{integrated,jdbcType=BIT}, 
       #{projectId,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, #{errorCount,jdbcType=BIGINT}, 
       #{fakeErrorCount,jdbcType=BIGINT}, #{pendingCount,jdbcType=BIGINT}, #{successCount,jdbcType=BIGINT}, 
-      #{assertionCount,jdbcType=BIGINT}, #{passAssertionsCount,jdbcType=BIGINT}, #{requestExecutionRate,jdbcType=BIGINT}, 
-      #{requestApprovalRate,jdbcType=BIGINT}, #{assertionPassRate,jdbcType=BIGINT}, #{scriptIdentifier,jdbcType=VARCHAR}
+      #{assertionCount,jdbcType=BIGINT}, #{assertionSuccessCount,jdbcType=BIGINT}, #{requestExecutionRate,jdbcType=VARCHAR}, 
+      #{requestPassRate,jdbcType=VARCHAR}, #{assertionPassRate,jdbcType=VARCHAR}, #{scriptIdentifier,jdbcType=VARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiScenarioReport">
@@ -230,14 +230,14 @@
       <if test="assertionCount != null">
         assertion_count,
       </if>
-      <if test="passAssertionsCount != null">
-        pass_assertions_count,
+      <if test="assertionSuccessCount != null">
+        assertion_success_count,
       </if>
       <if test="requestExecutionRate != null">
         request_execution_rate,
       </if>
-      <if test="requestApprovalRate != null">
-        request_approval_rate,
+      <if test="requestPassRate != null">
+        request_pass_rate,
       </if>
       <if test="assertionPassRate != null">
         assertion_pass_rate,
@@ -322,17 +322,17 @@
       <if test="assertionCount != null">
         #{assertionCount,jdbcType=BIGINT},
       </if>
-      <if test="passAssertionsCount != null">
-        #{passAssertionsCount,jdbcType=BIGINT},
+      <if test="assertionSuccessCount != null">
+        #{assertionSuccessCount,jdbcType=BIGINT},
       </if>
       <if test="requestExecutionRate != null">
-        #{requestExecutionRate,jdbcType=BIGINT},
+        #{requestExecutionRate,jdbcType=VARCHAR},
       </if>
-      <if test="requestApprovalRate != null">
-        #{requestApprovalRate,jdbcType=BIGINT},
+      <if test="requestPassRate != null">
+        #{requestPassRate,jdbcType=VARCHAR},
       </if>
       <if test="assertionPassRate != null">
-        #{assertionPassRate,jdbcType=BIGINT},
+        #{assertionPassRate,jdbcType=VARCHAR},
       </if>
       <if test="scriptIdentifier != null">
         #{scriptIdentifier,jdbcType=VARCHAR},
@@ -423,17 +423,17 @@
       <if test="record.assertionCount != null">
         assertion_count = #{record.assertionCount,jdbcType=BIGINT},
       </if>
-      <if test="record.passAssertionsCount != null">
-        pass_assertions_count = #{record.passAssertionsCount,jdbcType=BIGINT},
+      <if test="record.assertionSuccessCount != null">
+        assertion_success_count = #{record.assertionSuccessCount,jdbcType=BIGINT},
       </if>
       <if test="record.requestExecutionRate != null">
-        request_execution_rate = #{record.requestExecutionRate,jdbcType=BIGINT},
+        request_execution_rate = #{record.requestExecutionRate,jdbcType=VARCHAR},
       </if>
-      <if test="record.requestApprovalRate != null">
-        request_approval_rate = #{record.requestApprovalRate,jdbcType=BIGINT},
+      <if test="record.requestPassRate != null">
+        request_pass_rate = #{record.requestPassRate,jdbcType=VARCHAR},
       </if>
       <if test="record.assertionPassRate != null">
-        assertion_pass_rate = #{record.assertionPassRate,jdbcType=BIGINT},
+        assertion_pass_rate = #{record.assertionPassRate,jdbcType=VARCHAR},
       </if>
       <if test="record.scriptIdentifier != null">
         script_identifier = #{record.scriptIdentifier,jdbcType=VARCHAR},
@@ -470,10 +470,10 @@
       pending_count = #{record.pendingCount,jdbcType=BIGINT},
       success_count = #{record.successCount,jdbcType=BIGINT},
       assertion_count = #{record.assertionCount,jdbcType=BIGINT},
-      pass_assertions_count = #{record.passAssertionsCount,jdbcType=BIGINT},
-      request_execution_rate = #{record.requestExecutionRate,jdbcType=BIGINT},
-      request_approval_rate = #{record.requestApprovalRate,jdbcType=BIGINT},
-      assertion_pass_rate = #{record.assertionPassRate,jdbcType=BIGINT},
+      assertion_success_count = #{record.assertionSuccessCount,jdbcType=BIGINT},
+      request_execution_rate = #{record.requestExecutionRate,jdbcType=VARCHAR},
+      request_pass_rate = #{record.requestPassRate,jdbcType=VARCHAR},
+      assertion_pass_rate = #{record.assertionPassRate,jdbcType=VARCHAR},
       script_identifier = #{record.scriptIdentifier,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -554,17 +554,17 @@
       <if test="assertionCount != null">
         assertion_count = #{assertionCount,jdbcType=BIGINT},
       </if>
-      <if test="passAssertionsCount != null">
-        pass_assertions_count = #{passAssertionsCount,jdbcType=BIGINT},
+      <if test="assertionSuccessCount != null">
+        assertion_success_count = #{assertionSuccessCount,jdbcType=BIGINT},
       </if>
       <if test="requestExecutionRate != null">
-        request_execution_rate = #{requestExecutionRate,jdbcType=BIGINT},
+        request_execution_rate = #{requestExecutionRate,jdbcType=VARCHAR},
       </if>
-      <if test="requestApprovalRate != null">
-        request_approval_rate = #{requestApprovalRate,jdbcType=BIGINT},
+      <if test="requestPassRate != null">
+        request_pass_rate = #{requestPassRate,jdbcType=VARCHAR},
       </if>
       <if test="assertionPassRate != null">
-        assertion_pass_rate = #{assertionPassRate,jdbcType=BIGINT},
+        assertion_pass_rate = #{assertionPassRate,jdbcType=VARCHAR},
       </if>
       <if test="scriptIdentifier != null">
         script_identifier = #{scriptIdentifier,jdbcType=VARCHAR},
@@ -598,10 +598,10 @@
       pending_count = #{pendingCount,jdbcType=BIGINT},
       success_count = #{successCount,jdbcType=BIGINT},
       assertion_count = #{assertionCount,jdbcType=BIGINT},
-      pass_assertions_count = #{passAssertionsCount,jdbcType=BIGINT},
-      request_execution_rate = #{requestExecutionRate,jdbcType=BIGINT},
-      request_approval_rate = #{requestApprovalRate,jdbcType=BIGINT},
-      assertion_pass_rate = #{assertionPassRate,jdbcType=BIGINT},
+      assertion_success_count = #{assertionSuccessCount,jdbcType=BIGINT},
+      request_execution_rate = #{requestExecutionRate,jdbcType=VARCHAR},
+      request_pass_rate = #{requestPassRate,jdbcType=VARCHAR},
+      assertion_pass_rate = #{assertionPassRate,jdbcType=VARCHAR},
       script_identifier = #{scriptIdentifier,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -610,8 +610,8 @@
     (id, `name`, scenario_id, create_user, delete_time, delete_user, deleted, update_user, 
       update_time, start_time, end_time, request_duration, `status`, trigger_mode, run_mode, 
       pool_id, version_id, integrated, project_id, environment_id, error_count, fake_error_count, 
-      pending_count, success_count, assertion_count, pass_assertions_count, request_execution_rate, 
-      request_approval_rate, assertion_pass_rate, script_identifier)
+      pending_count, success_count, assertion_count, assertion_success_count, request_execution_rate, 
+      request_pass_rate, assertion_pass_rate, script_identifier)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.scenarioId,jdbcType=VARCHAR}, 
@@ -622,9 +622,9 @@
         #{item.poolId,jdbcType=VARCHAR}, #{item.versionId,jdbcType=VARCHAR}, #{item.integrated,jdbcType=BIT}, 
         #{item.projectId,jdbcType=VARCHAR}, #{item.environmentId,jdbcType=VARCHAR}, #{item.errorCount,jdbcType=BIGINT}, 
         #{item.fakeErrorCount,jdbcType=BIGINT}, #{item.pendingCount,jdbcType=BIGINT}, #{item.successCount,jdbcType=BIGINT}, 
-        #{item.assertionCount,jdbcType=BIGINT}, #{item.passAssertionsCount,jdbcType=BIGINT}, 
-        #{item.requestExecutionRate,jdbcType=BIGINT}, #{item.requestApprovalRate,jdbcType=BIGINT}, 
-        #{item.assertionPassRate,jdbcType=BIGINT}, #{item.scriptIdentifier,jdbcType=VARCHAR}
+        #{item.assertionCount,jdbcType=BIGINT}, #{item.assertionSuccessCount,jdbcType=BIGINT}, 
+        #{item.requestExecutionRate,jdbcType=VARCHAR}, #{item.requestPassRate,jdbcType=VARCHAR}, 
+        #{item.assertionPassRate,jdbcType=VARCHAR}, #{item.scriptIdentifier,jdbcType=VARCHAR}
         )
     </foreach>
   </insert>
@@ -713,17 +713,17 @@
         <if test="'assertion_count'.toString() == column.value">
           #{item.assertionCount,jdbcType=BIGINT}
         </if>
-        <if test="'pass_assertions_count'.toString() == column.value">
-          #{item.passAssertionsCount,jdbcType=BIGINT}
+        <if test="'assertion_success_count'.toString() == column.value">
+          #{item.assertionSuccessCount,jdbcType=BIGINT}
         </if>
         <if test="'request_execution_rate'.toString() == column.value">
-          #{item.requestExecutionRate,jdbcType=BIGINT}
+          #{item.requestExecutionRate,jdbcType=VARCHAR}
         </if>
-        <if test="'request_approval_rate'.toString() == column.value">
-          #{item.requestApprovalRate,jdbcType=BIGINT}
+        <if test="'request_pass_rate'.toString() == column.value">
+          #{item.requestPassRate,jdbcType=VARCHAR}
         </if>
         <if test="'assertion_pass_rate'.toString() == column.value">
-          #{item.assertionPassRate,jdbcType=BIGINT}
+          #{item.assertionPassRate,jdbcType=VARCHAR}
         </if>
         <if test="'script_identifier'.toString() == column.value">
           #{item.scriptIdentifier,jdbcType=VARCHAR}
