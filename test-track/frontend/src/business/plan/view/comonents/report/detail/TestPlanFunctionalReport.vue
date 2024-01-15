@@ -1,13 +1,29 @@
 <template>
-  <test-plan-report-container id="functional" :title="$t('test_track.report.analysis_functional')">
+  <test-plan-report-container
+    id="functional"
+    :title="$t('test_track.report.analysis_functional')"
+    v-loading="loading"
+  >
     <el-tabs v-model="activeName" @tab-click="handleClick">
-      <el-tab-pane v-if="resultEnable" :label="$t('test_track.report.test_result')" name="first">
-        <functional-result :function-result="report.functionResult"/>
+      <el-tab-pane
+        v-if="resultEnable"
+        :label="$t('test_track.report.test_result')"
+        name="first"
+      >
+        <functional-result :function-result="report.functionResult" />
       </el-tab-pane>
-      <el-tab-pane v-if="issueEnable && (isTemplate || isShare || hasPermission('PROJECT_TRACK_ISSUE:READ'))"
-                   name="second">
-        <template v-slot:label>
-          <tab-pane-count :title="$t('test_track.report.issue_list')" :count="issueSize"/>
+      <el-tab-pane
+        v-if="
+          issueEnable &&
+          (isTemplate || isShare || hasPermission('PROJECT_TRACK_ISSUE:READ'))
+        "
+        name="second"
+      >
+        <template #label>
+          <tab-pane-count
+            :title="$t('test_track.report.issue_list')"
+            :count="issueSize"
+          />
         </template>
         <functional-issue-list
           :is-db="isDb"
@@ -16,11 +32,15 @@
           :is-template="isTemplate"
           :report="report"
           :plan-id="planId"
-          @setSize="setIssueSize"/>
+          @setSize="setIssueSize"
+        />
       </el-tab-pane>
       <el-tab-pane name="third" v-if="allEnable">
-        <template v-slot:label>
-          <tab-pane-count :title="$t('test_track.report.all_case')" :count="allSize"/>
+        <template #label>
+          <tab-pane-count
+            :title="$t('test_track.report.all_case')"
+            :count="allTestCase.length"
+          />
         </template>
         <functional-cases
           :is-db="isDb"
@@ -30,11 +50,14 @@
           :report="report"
           :plan-id="planId"
           :all-test-case="allTestCase"
-          @setSize="setAllSize"/>
+        />
       </el-tab-pane>
       <el-tab-pane v-if="failureEnable" name="fourth">
-        <template v-slot:label>
-          <tab-pane-count :title="$t('test_track.report.fail_case')" :count="failureSize"/>
+        <template #label>
+          <tab-pane-count
+            :title="$t('test_track.report.fail_case')"
+            :count="failureTestCase.length"
+          />
         </template>
         <functional-cases
           filter-status="Failure"
@@ -44,12 +67,15 @@
           :is-template="isTemplate"
           :report="report"
           :plan-id="planId"
-          :all-test-case="allTestCase"
-          @setSize="setFailureSize"/>
+          :all-test-case="failureTestCase"
+        />
       </el-tab-pane>
       <el-tab-pane v-if="blockingEnable" name="fifth">
-        <template v-slot:label>
-          <tab-pane-count :title="$t('test_track.plan_view.blocking') + $t('commons.track')" :count="blockingSize"/>
+        <template #label>
+          <tab-pane-count
+            :title="$t('test_track.plan_view.blocking') + $t('commons.track')"
+            :count="blockingTestCase.length"
+          />
         </template>
         <functional-cases
           filter-status="Blocking"
@@ -59,12 +85,15 @@
           :is-template="isTemplate"
           :report="report"
           :plan-id="planId"
-          :all-test-case="allTestCase"
-          @setSize="setBlockingSize"/>
+          :all-test-case="blockingTestCase"
+        />
       </el-tab-pane>
       <el-tab-pane v-if="skipEnable" name="sixth">
-        <template v-slot:label>
-          <tab-pane-count :title="$t('test_track.plan_view.skip') + $t('commons.track')" :count="skipSize"/>
+        <template #label>
+          <tab-pane-count
+            :title="$t('test_track.plan_view.skip') + $t('commons.track')"
+            :count="skipTestCase.length"
+          />
         </template>
         <functional-cases
           filter-status="Skip"
@@ -74,8 +103,8 @@
           :is-template="isTemplate"
           :report="report"
           :plan-id="planId"
-          :all-test-case="allTestCase"
-          @setSize="setSkipSize"/>
+          :all-test-case="skipTestCase"
+        />
       </el-tab-pane>
     </el-tabs>
   </test-plan-report-container>
@@ -88,56 +117,81 @@ import FunctionalCases from "@/business/plan/view/comonents/report/detail/compon
 import FunctionalIssueList from "@/business/plan/view/comonents/report/detail/component/FunctionalIssueList";
 import TestPlanReportContainer from "@/business/plan/view/comonents/report/detail/TestPlanReportContainer";
 import TabPaneCount from "@/business/plan/view/comonents/report/detail/component/TabPaneCount";
-import {hasPermission} from "metersphere-frontend/src/utils/permission";
-import {getPlanFunctionAllCase, getSharePlanFunctionAllCase} from "@/api/remote/plan/test-plan";
+import { hasPermission } from "metersphere-frontend/src/utils/permission";
+import {
+  getPlanFunctionAllCase,
+  getSharePlanFunctionAllCase,
+} from "@/api/remote/plan/test-plan";
 
 export default {
   name: "TestPlanFunctionalReport",
   components: {
     TabPaneCount,
-    TestPlanReportContainer, FunctionalIssueList, FunctionalCases, FunctionalResult, MsFormDivider
+    TestPlanReportContainer,
+    FunctionalIssueList,
+    FunctionalCases,
+    FunctionalResult,
+    MsFormDivider,
   },
   data() {
     return {
-      activeName: 'first',
-      failureSize: 0,
+      activeName: "first",
       issueSize: 0,
-      skipSize: 0,
-      blockingSize: 0,
-      allSize: 0,
-      allTestCase: []
+      allTestCase: [],
+      failureTestCase: [],
+      blockingTestCase: [],
+      skipTestCase: [],
+      loading: false,
     };
   },
   props: [
-    'report', 'planId', 'isTemplate', 'isShare', 'shareId', 'config', 'isDb'
+    "report",
+    "planId",
+    "isTemplate",
+    "isShare",
+    "shareId",
+    "config",
+    "isDb",
   ],
   computed: {
     resultEnable() {
-      let disable = this.report.config && this.report.config.functional.children.result.enable === false;
+      let disable =
+        this.report.config &&
+        this.report.config.functional.children.result.enable === false;
       return !disable;
     },
     issueEnable() {
-      let disable = this.report.config && this.report.config.functional.children.issue.enable === false;
+      let disable =
+        this.report.config &&
+        this.report.config.functional.children.issue.enable === false;
       return !disable;
     },
     allEnable() {
-      let disable = this.report.config && this.report.config.functional.children.all.enable === false;
+      let disable =
+        this.report.config &&
+        this.report.config.functional.children.all.enable === false;
       return !disable;
     },
     failureEnable() {
-      let disable = this.report.config && this.report.config.functional.children.failure.enable === false;
+      let disable =
+        this.report.config &&
+        this.report.config.functional.children.failure.enable === false;
       return !disable;
     },
     blockingEnable() {
-      let disable = this.report.config && this.report.config.functional.children.blocking.enable === false;
+      let disable =
+        this.report.config &&
+        this.report.config.functional.children.blocking.enable === false;
       return !disable;
     },
     skipEnable() {
-      let disable = this.report.config && this.report.config.functional.children.skip.enable === false;
+      let disable =
+        this.report.config &&
+        this.report.config.functional.children.skip.enable === false;
       return !disable;
     },
   },
-  mounted() {
+  created() {
     this.initActiveName();
     this.getAllFunctionalTestCase();
   },
@@ -154,62 +208,78 @@ export default {
     allEnable() {
       this.initActiveName();
     },
-    'report.config'() {
+    "report.config"() {
       this.getAllFunctionalTestCase();
-    }
+    },
   },
   methods: {
     initActiveName() {
       if (this.resultEnable) {
-        this.activeName = 'first';
+        this.activeName = "first";
       } else if (this.issueEnable) {
-        this.activeName = 'second';
+        this.activeName = "second";
       } else if (this.allEnable) {
-        this.activeName = 'third';
+        this.activeName = "third";
       } else if (this.failureEnable) {
-        this.activeName = 'fourth';
+        this.activeName = "fourth";
       } else if (this.blockingEnable) {
-        this.activeName = 'fifth';
+        this.activeName = "fifth";
       } else if (this.skipEnable) {
-        this.activeName = 'sixth';
+        this.activeName = "sixth";
       }
-    },
-    setFailureSize(size) {
-      this.failureSize = size;
-    },
-    setBlockingSize(size) {
-      this.blockingSize = size;
-    },
-    setSkipSize(size) {
-      this.skipSize = size;
     },
     setIssueSize(size) {
       this.issueSize = size;
     },
-    setAllSize(size) {
-      this.allSize = size;
-    },
-    handleClick(tab, event) {
-    },
+    handleClick(tab, event) {},
     hasPermission,
+    initAllTestCase(data) {
+      const _skipTestCase = [];
+      const _blockingTestCase = [];
+      const _failureTestCase = [];
+      for (let i = 0; i < data.length; i++) {
+        switch (data[i].status) {
+          case "Skip":
+            _skipTestCase.push(data[i]);
+            break;
+          case "Blocking":
+            _blockingTestCase.push(data[i]);
+            break;
+          case "failure":
+            _failureTestCase.push(data[i]);
+            break;
+          default:
+            break;
+        }
+      }
+      this.allTestCase = data;
+      this.skipTestCase = _skipTestCase;
+      this.blockingTestCase = _blockingTestCase;
+      this.failureTestCase = _failureTestCase;
+      this.loading = false;
+    },
     getAllFunctionalTestCase() {
       if (this.isTemplate || this.isDb) {
-        this.allTestCase = this.report.functionAllCases ? this.report.functionAllCases : [];
+        this.allTestCase = this.report.functionAllCases
+          ? this.report.functionAllCases
+          : [];
       } else if (this.isShare) {
+        this.loading = true;
         let param = this.getStatusList();
         if (param) {
-          getSharePlanFunctionAllCase(this.shareId, this.planId, param)
-            .then((r) => {
-              this.allTestCase = r.data;
-            });
+          getSharePlanFunctionAllCase(this.shareId, this.planId, param).then(
+            (r) => {
+              this.initAllTestCase(r.data);
+            }
+          );
         }
       } else {
+        this.loading = true;
         let param = this.getStatusList();
         if (param) {
-          getPlanFunctionAllCase(this.planId, param)
-            .then((r) => {
-              this.allTestCase = r.data;
-            });
+          getPlanFunctionAllCase(this.planId, param).then((r) => {
+            this.initAllTestCase(r.data);
+          });
         }
       }
     },
@@ -219,20 +289,18 @@ export default {
         return statusList;
       }
       if (this.failureEnable) {
-        statusList.push('Failure');
+        statusList.push("Failure");
       }
       if (this.blockingEnable) {
-        statusList.push('Blocking');
+        statusList.push("Blocking");
       }
       if (this.skipEnable) {
-        statusList.push('Skip');
+        statusList.push("Skip");
       }
       return statusList.length > 0 ? statusList : null;
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

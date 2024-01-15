@@ -653,6 +653,7 @@ export default {
     issue_list: "Issue List",
     all_case: "All Case",
     report_summary_length_tips: "Report summary cannot exceed 60000 words",
+    search_placeholder: "Enter ID or name search",
   },
   reporter: "Reporter",
   lastmodify: "Last Modify",
