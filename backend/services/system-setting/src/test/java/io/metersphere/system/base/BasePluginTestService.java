@@ -15,6 +15,7 @@ import io.metersphere.system.service.ServiceIntegrationService;
 import jakarta.annotation.Resource;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mock.web.MockMultipartFile;
@@ -60,10 +61,8 @@ public class BasePluginTestService {
             return jiraPlugin;
         }
         PluginUpdateRequest request = new PluginUpdateRequest();
-        File jarFile = new File(
-                this.getClass().getClassLoader().getResource("file/metersphere-jira-plugin-3.x.jar")
-                        .getPath()
-        );
+        FileUtils.copyInputStreamToFile(this.getClass().getClassLoader().getResource("file/metersphere-jira-plugin-3.x.jar").openStream(), new File(FileUtils.getTempDirectoryPath()+"/metersphere-jira-plugin-3.x.jar"));
+        File jarFile = new File(FileUtils.getTempDirectoryPath()+"/metersphere-jira-plugin-3.x.jar");
         FileInputStream inputStream = new FileInputStream(jarFile);
         MockMultipartFile mockMultipartFile = new MockMultipartFile(jarFile.getName(), jarFile.getName(), "jar", inputStream);
         request.setName("测试插件");

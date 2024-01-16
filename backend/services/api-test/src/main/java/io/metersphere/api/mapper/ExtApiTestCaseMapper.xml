@@ -181,6 +181,26 @@
         <include refid="queryWhereCondition"/>
     </select>
 
+    <select id="countModuleIdByProviderRequest" resultType="io.metersphere.project.dto.ModuleCountDTO">
+        SELECT a.module_id AS moduleId, count(t1.id) AS dataCount
+        FROM api_test_case t1 inner join api_definition a on t1.api_definition_id = a.id
+        WHERE t1.deleted =#{deleted}
+        and t1.id not in
+        (
+        select associate.${apiCaseColumnName} from ${table} associate  where  associate.${sourceName} = #{request.sourceId}
+        )
+        <include refid="queryWhereCondition"/>
+        GROUP BY a.module_id
+    </select>
+
+    <select id="selectIdAndParentIdByProjectId" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
+        SELECT a.id,
+        a.parent_id AS parentId
+        FROM  api_definition_module a
+        WHERE a.project_id = #{projectId}
+        ORDER BY pos
+    </select>
+
     <select id="getTestCaseByProvider" resultType="io.metersphere.api.domain.ApiTestCase">
         SELECT
         t1.id, t1.version_id

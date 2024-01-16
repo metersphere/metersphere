@@ -129,10 +129,12 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
     @Test
     @Order(3)
     public void getModuleCountSuccess() throws Exception {
-        AssociateCaseModuleProviderRequest request = new AssociateCaseModuleProviderRequest();
+        TestCasePageProviderRequest request = new TestCasePageProviderRequest();
+        request.setSourceType(AssociateCaseType.API);
         request.setSourceId("gyq_associate_case_id_1");
         request.setProjectId("project_gyq_associate_test");
-        request.setKeyword("测试查询模块用");
+        request.setCurrent(1);
+        request.setPageSize(10);
         MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_CASE_PAGE_MODULE_COUNT, request);
         String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
