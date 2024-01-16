@@ -53,12 +53,12 @@ public class FunctionalTestCaseController {
     @Operation(summary = "用例管理-功能用例-关联其他用例-统计需要关联用例模块数量")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
     @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
-    public Map<String, Long> moduleCount(@Validated @RequestBody AssociateCaseModuleProviderRequest request) {
+    public Map<String, Long> moduleCount(@Validated @RequestBody TestCasePageProviderRequest request) {
         return functionalTestCaseService.moduleCount(request, false);
     }
 
     @PostMapping("/associate/case/module/tree")
-    @Operation(summary = "用例管理-功能用例-关联其他用例-查找模块")
+    @Operation(summary = "用例管理-功能用例-关联其他用例-获取需要关联的用例模块树")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
     @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public List<BaseTreeNode> getTree(@RequestBody @Validated AssociateCaseModuleRequest request) {

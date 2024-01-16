@@ -3,9 +3,8 @@ package io.metersphere.api.controller;
 import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.provider.AssociateApiProvider;
 import io.metersphere.dto.TestCaseProviderDTO;
-import io.metersphere.request.AssociateCaseModuleProviderRequest;
-import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.request.AssociateOtherCaseRequest;
+import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import jakarta.annotation.Resource;
@@ -48,10 +47,15 @@ public class AssociateApiProviderTest extends BaseTest {
     @Test
     @Order(2)
     public void moduleCountSuccess() throws Exception {
-        AssociateCaseModuleProviderRequest request = new AssociateCaseModuleProviderRequest();
+        TestCasePageProviderRequest request = new TestCasePageProviderRequest();
+        request.setSourceType("API");
         request.setSourceId("gyq_associate_case_id_1");
         request.setProjectId("project-associate-case-test");
-        request.setKeyword("测试查询模块用");
+        request.setCurrent(1);
+        request.setPageSize(10);
+        request.setSort(new HashMap<>() {{
+            put("createTime", "desc");
+        }});
 
         Map<String, Long> stringLongMap = provider.moduleCount("functional_case_test", "case_id", "source_id", request, false);
         String jsonString = JSON.toJSONString(stringLongMap);
