@@ -63,7 +63,7 @@
         <hessian-lite.version>3.2.13</hessian-lite.version>
         <dec.version>0.1.2</dec.version>
         <dingtalk-sdk.version>2.0.0</dingtalk-sdk.version>
-        <dingtalk-client.version>2.0.29</dingtalk-client.version>
+        <dingtalk-client.version>2.0.77</dingtalk-client.version>
         <minio.version>8.5.7</minio.version>
         <commons-collections4.version>4.4</commons-collections4.version>
         <kubernetes-client.version>6.8.0</kubernetes-client.version>
