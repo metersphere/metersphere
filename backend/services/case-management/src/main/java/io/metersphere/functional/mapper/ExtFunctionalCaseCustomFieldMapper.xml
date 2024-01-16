@@ -23,9 +23,10 @@
         SELECT
         fccf.case_id caseId,
         fccf.field_id fieldId,
-        fccf.`value` value,
-        cf.NAME name,
-        cf.internal internal
+        fccf.`value` defaultValue,
+        cf.NAME fieldName,
+        cf.internal internal,
+        cf.type type
         FROM
         functional_case_custom_field fccf
         LEFT JOIN custom_field cf ON fccf.field_id = cf.id
