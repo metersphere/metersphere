@@ -13,7 +13,7 @@ import java.util.List;
 public class TestPlanBatchProcessRequest extends TableBatchProcessDTO {
 
     @Schema(description = "项目ID")
-    @NotBlank(message = "{id must not be blank}")
+    @NotBlank(message = "{project.id.not_blank}")
     private String projectId;
 
     @Schema(description = "模块ID")

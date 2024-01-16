@@ -33,4 +33,8 @@ public interface TestPlanApiCaseMapper {
     int updateByPrimaryKeyWithBLOBs(TestPlanApiCase record);
 
     int updateByPrimaryKey(TestPlanApiCase record);
+
+    int batchInsert(@Param("list") List<TestPlanApiCase> list);
+
+    int batchInsertSelective(@Param("list") List<TestPlanApiCase> list, @Param("selective") TestPlanApiCase.Column ... selective);
 }

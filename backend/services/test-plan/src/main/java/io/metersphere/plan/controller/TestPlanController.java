@@ -80,7 +80,7 @@ public class TestPlanController {
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_DELETE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void delete(@Validated @RequestBody TestPlanBatchProcessRequest request) throws Exception {
-        testPlanService.delete(request, SessionUtils.getUserId(), "/test-plan/batch-delete", HttpMethodConstants.POST.name());
+        testPlanService.batchDelete(request, SessionUtils.getUserId(), "/test-plan/batch-delete", HttpMethodConstants.POST.name());
     }
 
     /*

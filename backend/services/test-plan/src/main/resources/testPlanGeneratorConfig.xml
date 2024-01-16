@@ -72,10 +72,14 @@
 
         <!--要生成的数据库表 -->
         <!--        <table tableName="test_plan_module"/>-->
-        <table tableName="test_plan">
-            <columnOverride column="tags" javaType="java.util.List&lt;String&gt;" jdbcType="VARCHAR"
-                            typeHandler="io.metersphere.handler.ListTypeHandler"/>
-        </table>
+        <!--        <table tableName="test_plan">-->
+        <!--            <columnOverride column="tags" javaType="java.util.List&lt;String&gt;" jdbcType="VARCHAR"-->
+        <!--                            typeHandler="io.metersphere.handler.ListTypeHandler"/>-->
+        <!--        </table>-->
+
+        <table tableName="test_plan_functional_case"/>
+        <table tableName="test_plan_api_case"/>
+        <table tableName="test_plan_api_scenario"/>
         <!--        <table tableName="test_plan_config"/>-->
         <!--        要忽略的字段-->
         <!-- <table tableName="test_case">

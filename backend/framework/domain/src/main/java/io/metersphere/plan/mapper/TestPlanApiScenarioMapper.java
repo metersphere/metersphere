@@ -33,4 +33,8 @@ public interface TestPlanApiScenarioMapper {
     int updateByPrimaryKeyWithBLOBs(TestPlanApiScenario record);
 
     int updateByPrimaryKey(TestPlanApiScenario record);
+
+    int batchInsert(@Param("list") List<TestPlanApiScenario> list);
+
+    int batchInsertSelective(@Param("list") List<TestPlanApiScenario> list, @Param("selective") TestPlanApiScenario.Column ... selective);
 }

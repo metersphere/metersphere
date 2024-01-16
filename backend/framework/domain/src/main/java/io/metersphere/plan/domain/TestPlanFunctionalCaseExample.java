@@ -3,14 +3,14 @@ package io.metersphere.plan.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestPlanExecuteRecordExample {
+public class TestPlanFunctionalCaseExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public TestPlanExecuteRecordExample() {
+    public TestPlanFunctionalCaseExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 
@@ -244,213 +244,133 @@ public class TestPlanExecuteRecordExample {
             return (Criteria) this;
         }
 
-        public Criteria andNameIsNull() {
-            addCriterion("`name` is null");
+        public Criteria andFunctionalCaseIdIsNull() {
+            addCriterion("functional_case_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andNameIsNotNull() {
-            addCriterion("`name` is not null");
+        public Criteria andFunctionalCaseIdIsNotNull() {
+            addCriterion("functional_case_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andNameEqualTo(String value) {
-            addCriterion("`name` =", value, "name");
+        public Criteria andFunctionalCaseIdEqualTo(String value) {
+            addCriterion("functional_case_id =", value, "functionalCaseId");
             return (Criteria) this;
         }
 
-        public Criteria andNameNotEqualTo(String value) {
-            addCriterion("`name` <>", value, "name");
+        public Criteria andFunctionalCaseIdNotEqualTo(String value) {
+            addCriterion("functional_case_id <>", value, "functionalCaseId");
             return (Criteria) this;
         }
 
-        public Criteria andNameGreaterThan(String value) {
-            addCriterion("`name` >", value, "name");
+        public Criteria andFunctionalCaseIdGreaterThan(String value) {
+            addCriterion("functional_case_id >", value, "functionalCaseId");
             return (Criteria) this;
         }
 
-        public Criteria andNameGreaterThanOrEqualTo(String value) {
-            addCriterion("`name` >=", value, "name");
+        public Criteria andFunctionalCaseIdGreaterThanOrEqualTo(String value) {
+            addCriterion("functional_case_id >=", value, "functionalCaseId");
             return (Criteria) this;
         }
 
-        public Criteria andNameLessThan(String value) {
-            addCriterion("`name` <", value, "name");
+        public Criteria andFunctionalCaseIdLessThan(String value) {
+            addCriterion("functional_case_id <", value, "functionalCaseId");
             return (Criteria) this;
         }
 
-        public Criteria andNameLessThanOrEqualTo(String value) {
-            addCriterion("`name` <=", value, "name");
+        public Criteria andFunctionalCaseIdLessThanOrEqualTo(String value) {
+            addCriterion("functional_case_id <=", value, "functionalCaseId");
             return (Criteria) this;
         }
 
-        public Criteria andNameLike(String value) {
-            addCriterion("`name` like", value, "name");
+        public Criteria andFunctionalCaseIdLike(String value) {
+            addCriterion("functional_case_id like", value, "functionalCaseId");
             return (Criteria) this;
         }
 
-        public Criteria andNameNotLike(String value) {
-            addCriterion("`name` not like", value, "name");
+        public Criteria andFunctionalCaseIdNotLike(String value) {
+            addCriterion("functional_case_id not like", value, "functionalCaseId");
             return (Criteria) this;
         }
 
-        public Criteria andNameIn(List<String> values) {
-            addCriterion("`name` in", values, "name");
+        public Criteria andFunctionalCaseIdIn(List<String> values) {
+            addCriterion("functional_case_id in", values, "functionalCaseId");
             return (Criteria) this;
         }
 
-        public Criteria andNameNotIn(List<String> values) {
-            addCriterion("`name` not in", values, "name");
+        public Criteria andFunctionalCaseIdNotIn(List<String> values) {
+            addCriterion("functional_case_id not in", values, "functionalCaseId");
             return (Criteria) this;
         }
 
-        public Criteria andNameBetween(String value1, String value2) {
-            addCriterion("`name` between", value1, value2, "name");
+        public Criteria andFunctionalCaseIdBetween(String value1, String value2) {
+            addCriterion("functional_case_id between", value1, value2, "functionalCaseId");
             return (Criteria) this;
         }
 
-        public Criteria andNameNotBetween(String value1, String value2) {
-            addCriterion("`name` not between", value1, value2, "name");
+        public Criteria andFunctionalCaseIdNotBetween(String value1, String value2) {
+            addCriterion("functional_case_id not between", value1, value2, "functionalCaseId");
             return (Criteria) this;
         }
 
-        public Criteria andStatusIsNull() {
-            addCriterion("`status` is null");
+        public Criteria andCreateTimeIsNull() {
+            addCriterion("create_time is null");
             return (Criteria) this;
         }
 
-        public Criteria andStatusIsNotNull() {
-            addCriterion("`status` is not null");
+        public Criteria andCreateTimeIsNotNull() {
+            addCriterion("create_time is not null");
             return (Criteria) this;
         }
 
-        public Criteria andStatusEqualTo(String value) {
-            addCriterion("`status` =", value, "status");
+        public Criteria andCreateTimeEqualTo(Long value) {
+            addCriterion("create_time =", value, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andStatusNotEqualTo(String value) {
-            addCriterion("`status` <>", value, "status");
+        public Criteria andCreateTimeNotEqualTo(Long value) {
+            addCriterion("create_time <>", value, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andStatusGreaterThan(String value) {
-            addCriterion("`status` >", value, "status");
+        public Criteria andCreateTimeGreaterThan(Long value) {
+            addCriterion("create_time >", value, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andStatusGreaterThanOrEqualTo(String value) {
-            addCriterion("`status` >=", value, "status");
+        public Criteria andCreateTimeGreaterThanOrEqualTo(Long value) {
+            addCriterion("create_time >=", value, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andStatusLessThan(String value) {
-            addCriterion("`status` <", value, "status");
+        public Criteria andCreateTimeLessThan(Long value) {
+            addCriterion("create_time <", value, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andStatusLessThanOrEqualTo(String value) {
-            addCriterion("`status` <=", value, "status");
+        public Criteria andCreateTimeLessThanOrEqualTo(Long value) {
+            addCriterion("create_time <=", value, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andStatusLike(String value) {
-            addCriterion("`status` like", value, "status");
+        public Criteria andCreateTimeIn(List<Long> values) {
+            addCriterion("create_time in", values, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andStatusNotLike(String value) {
-            addCriterion("`status` not like", value, "status");
+        public Criteria andCreateTimeNotIn(List<Long> values) {
+            addCriterion("create_time not in", values, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andStatusIn(List<String> values) {
-            addCriterion("`status` in", values, "status");
+        public Criteria andCreateTimeBetween(Long value1, Long value2) {
+            addCriterion("create_time between", value1, value2, "createTime");
             return (Criteria) this;
         }
 
-        public Criteria andStatusNotIn(List<String> values) {
-            addCriterion("`status` not in", values, "status");
-            return (Criteria) this;
-        }
-
-        public Criteria andStatusBetween(String value1, String value2) {
-            addCriterion("`status` between", value1, value2, "status");
-            return (Criteria) this;
-        }
-
-        public Criteria andStatusNotBetween(String value1, String value2) {
-            addCriterion("`status` not between", value1, value2, "status");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeIsNull() {
-            addCriterion("trigger_mode is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeIsNotNull() {
-            addCriterion("trigger_mode is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeEqualTo(String value) {
-            addCriterion("trigger_mode =", value, "triggerMode");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeNotEqualTo(String value) {
-            addCriterion("trigger_mode <>", value, "triggerMode");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeGreaterThan(String value) {
-            addCriterion("trigger_mode >", value, "triggerMode");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeGreaterThanOrEqualTo(String value) {
-            addCriterion("trigger_mode >=", value, "triggerMode");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeLessThan(String value) {
-            addCriterion("trigger_mode <", value, "triggerMode");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeLessThanOrEqualTo(String value) {
-            addCriterion("trigger_mode <=", value, "triggerMode");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeLike(String value) {
-            addCriterion("trigger_mode like", value, "triggerMode");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeNotLike(String value) {
-            addCriterion("trigger_mode not like", value, "triggerMode");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeIn(List<String> values) {
-            addCriterion("trigger_mode in", values, "triggerMode");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeNotIn(List<String> values) {
-            addCriterion("trigger_mode not in", values, "triggerMode");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeBetween(String value1, String value2) {
-            addCriterion("trigger_mode between", value1, value2, "triggerMode");
-            return (Criteria) this;
-        }
-
-        public Criteria andTriggerModeNotBetween(String value1, String value2) {
-            addCriterion("trigger_mode not between", value1, value2, "triggerMode");
+        public Criteria andCreateTimeNotBetween(Long value1, Long value2) {
+            addCriterion("create_time not between", value1, value2, "createTime");
             return (Criteria) this;
         }
 
@@ -524,303 +444,263 @@ public class TestPlanExecuteRecordExample {
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeIsNull() {
-            addCriterion("create_time is null");
+        public Criteria andExecuteUserIsNull() {
+            addCriterion("execute_user is null");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeIsNotNull() {
-            addCriterion("create_time is not null");
+        public Criteria andExecuteUserIsNotNull() {
+            addCriterion("execute_user is not null");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeEqualTo(Long value) {
-            addCriterion("create_time =", value, "createTime");
+        public Criteria andExecuteUserEqualTo(String value) {
+            addCriterion("execute_user =", value, "executeUser");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeNotEqualTo(Long value) {
-            addCriterion("create_time <>", value, "createTime");
+        public Criteria andExecuteUserNotEqualTo(String value) {
+            addCriterion("execute_user <>", value, "executeUser");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeGreaterThan(Long value) {
-            addCriterion("create_time >", value, "createTime");
+        public Criteria andExecuteUserGreaterThan(String value) {
+            addCriterion("execute_user >", value, "executeUser");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeGreaterThanOrEqualTo(Long value) {
-            addCriterion("create_time >=", value, "createTime");
+        public Criteria andExecuteUserGreaterThanOrEqualTo(String value) {
+            addCriterion("execute_user >=", value, "executeUser");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeLessThan(Long value) {
-            addCriterion("create_time <", value, "createTime");
+        public Criteria andExecuteUserLessThan(String value) {
+            addCriterion("execute_user <", value, "executeUser");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeLessThanOrEqualTo(Long value) {
-            addCriterion("create_time <=", value, "createTime");
+        public Criteria andExecuteUserLessThanOrEqualTo(String value) {
+            addCriterion("execute_user <=", value, "executeUser");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeIn(List<Long> values) {
-            addCriterion("create_time in", values, "createTime");
+        public Criteria andExecuteUserLike(String value) {
+            addCriterion("execute_user like", value, "executeUser");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeNotIn(List<Long> values) {
-            addCriterion("create_time not in", values, "createTime");
+        public Criteria andExecuteUserNotLike(String value) {
+            addCriterion("execute_user not like", value, "executeUser");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeBetween(Long value1, Long value2) {
-            addCriterion("create_time between", value1, value2, "createTime");
+        public Criteria andExecuteUserIn(List<String> values) {
+            addCriterion("execute_user in", values, "executeUser");
             return (Criteria) this;
         }
 
-        public Criteria andCreateTimeNotBetween(Long value1, Long value2) {
-            addCriterion("create_time not between", value1, value2, "createTime");
+        public Criteria andExecuteUserNotIn(List<String> values) {
+            addCriterion("execute_user not in", values, "executeUser");
             return (Criteria) this;
         }
 
-        public Criteria andEndTimeIsNull() {
-            addCriterion("end_time is null");
+        public Criteria andExecuteUserBetween(String value1, String value2) {
+            addCriterion("execute_user between", value1, value2, "executeUser");
             return (Criteria) this;
         }
 
-        public Criteria andEndTimeIsNotNull() {
-            addCriterion("end_time is not null");
+        public Criteria andExecuteUserNotBetween(String value1, String value2) {
+            addCriterion("execute_user not between", value1, value2, "executeUser");
             return (Criteria) this;
         }
 
-        public Criteria andEndTimeEqualTo(Long value) {
-            addCriterion("end_time =", value, "endTime");
+        public Criteria andLastExecTimeIsNull() {
+            addCriterion("last_exec_time is null");
             return (Criteria) this;
         }
 
-        public Criteria andEndTimeNotEqualTo(Long value) {
-            addCriterion("end_time <>", value, "endTime");
+        public Criteria andLastExecTimeIsNotNull() {
+            addCriterion("last_exec_time is not null");
             return (Criteria) this;
         }
 
-        public Criteria andEndTimeGreaterThan(Long value) {
-            addCriterion("end_time >", value, "endTime");
+        public Criteria andLastExecTimeEqualTo(Long value) {
+            addCriterion("last_exec_time =", value, "lastExecTime");
             return (Criteria) this;
         }
 
-        public Criteria andEndTimeGreaterThanOrEqualTo(Long value) {
-            addCriterion("end_time >=", value, "endTime");
+        public Criteria andLastExecTimeNotEqualTo(Long value) {
+            addCriterion("last_exec_time <>", value, "lastExecTime");
             return (Criteria) this;
         }
 
-        public Criteria andEndTimeLessThan(Long value) {
-            addCriterion("end_time <", value, "endTime");
+        public Criteria andLastExecTimeGreaterThan(Long value) {
+            addCriterion("last_exec_time >", value, "lastExecTime");
             return (Criteria) this;
         }
 
-        public Criteria andEndTimeLessThanOrEqualTo(Long value) {
-            addCriterion("end_time <=", value, "endTime");
+        public Criteria andLastExecTimeGreaterThanOrEqualTo(Long value) {
+            addCriterion("last_exec_time >=", value, "lastExecTime");
             return (Criteria) this;
         }
 
-        public Criteria andEndTimeIn(List<Long> values) {
-            addCriterion("end_time in", values, "endTime");
+        public Criteria andLastExecTimeLessThan(Long value) {
+            addCriterion("last_exec_time <", value, "lastExecTime");
             return (Criteria) this;
         }
 
-        public Criteria andEndTimeNotIn(List<Long> values) {
-            addCriterion("end_time not in", values, "endTime");
+        public Criteria andLastExecTimeLessThanOrEqualTo(Long value) {
+            addCriterion("last_exec_time <=", value, "lastExecTime");
             return (Criteria) this;
         }
 
-        public Criteria andEndTimeBetween(Long value1, Long value2) {
-            addCriterion("end_time between", value1, value2, "endTime");
+        public Criteria andLastExecTimeIn(List<Long> values) {
+            addCriterion("last_exec_time in", values, "lastExecTime");
             return (Criteria) this;
         }
 
-        public Criteria andEndTimeNotBetween(Long value1, Long value2) {
-            addCriterion("end_time not between", value1, value2, "endTime");
+        public Criteria andLastExecTimeNotIn(List<Long> values) {
+            addCriterion("last_exec_time not in", values, "lastExecTime");
             return (Criteria) this;
         }
 
-        public Criteria andCaseCountIsNull() {
-            addCriterion("case_count is null");
+        public Criteria andLastExecTimeBetween(Long value1, Long value2) {
+            addCriterion("last_exec_time between", value1, value2, "lastExecTime");
             return (Criteria) this;
         }
 
-        public Criteria andCaseCountIsNotNull() {
-            addCriterion("case_count is not null");
+        public Criteria andLastExecTimeNotBetween(Long value1, Long value2) {
+            addCriterion("last_exec_time not between", value1, value2, "lastExecTime");
             return (Criteria) this;
         }
 
-        public Criteria andCaseCountEqualTo(Integer value) {
-            addCriterion("case_count =", value, "caseCount");
+        public Criteria andLastExecResultIsNull() {
+            addCriterion("last_exec_result is null");
             return (Criteria) this;
         }
 
-        public Criteria andCaseCountNotEqualTo(Integer value) {
-            addCriterion("case_count <>", value, "caseCount");
+        public Criteria andLastExecResultIsNotNull() {
+            addCriterion("last_exec_result is not null");
             return (Criteria) this;
         }
 
-        public Criteria andCaseCountGreaterThan(Integer value) {
-            addCriterion("case_count >", value, "caseCount");
+        public Criteria andLastExecResultEqualTo(String value) {
+            addCriterion("last_exec_result =", value, "lastExecResult");
             return (Criteria) this;
         }
 
-        public Criteria andCaseCountGreaterThanOrEqualTo(Integer value) {
-            addCriterion("case_count >=", value, "caseCount");
+        public Criteria andLastExecResultNotEqualTo(String value) {
+            addCriterion("last_exec_result <>", value, "lastExecResult");
             return (Criteria) this;
         }
 
-        public Criteria andCaseCountLessThan(Integer value) {
-            addCriterion("case_count <", value, "caseCount");
+        public Criteria andLastExecResultGreaterThan(String value) {
+            addCriterion("last_exec_result >", value, "lastExecResult");
             return (Criteria) this;
         }
 
-        public Criteria andCaseCountLessThanOrEqualTo(Integer value) {
-            addCriterion("case_count <=", value, "caseCount");
+        public Criteria andLastExecResultGreaterThanOrEqualTo(String value) {
+            addCriterion("last_exec_result >=", value, "lastExecResult");
             return (Criteria) this;
         }
 
-        public Criteria andCaseCountIn(List<Integer> values) {
-            addCriterion("case_count in", values, "caseCount");
+        public Criteria andLastExecResultLessThan(String value) {
+            addCriterion("last_exec_result <", value, "lastExecResult");
             return (Criteria) this;
         }
 
-        public Criteria andCaseCountNotIn(List<Integer> values) {
-            addCriterion("case_count not in", values, "caseCount");
+        public Criteria andLastExecResultLessThanOrEqualTo(String value) {
+            addCriterion("last_exec_result <=", value, "lastExecResult");
             return (Criteria) this;
         }
 
-        public Criteria andCaseCountBetween(Integer value1, Integer value2) {
-            addCriterion("case_count between", value1, value2, "caseCount");
+        public Criteria andLastExecResultLike(String value) {
+            addCriterion("last_exec_result like", value, "lastExecResult");
             return (Criteria) this;
         }
 
-        public Criteria andCaseCountNotBetween(Integer value1, Integer value2) {
-            addCriterion("case_count not between", value1, value2, "caseCount");
+        public Criteria andLastExecResultNotLike(String value) {
+            addCriterion("last_exec_result not like", value, "lastExecResult");
             return (Criteria) this;
         }
 
-        public Criteria andExecuteRateIsNull() {
-            addCriterion("execute_rate is null");
+        public Criteria andLastExecResultIn(List<String> values) {
+            addCriterion("last_exec_result in", values, "lastExecResult");
             return (Criteria) this;
         }
 
-        public Criteria andExecuteRateIsNotNull() {
-            addCriterion("execute_rate is not null");
+        public Criteria andLastExecResultNotIn(List<String> values) {
+            addCriterion("last_exec_result not in", values, "lastExecResult");
             return (Criteria) this;
         }
 
-        public Criteria andExecuteRateEqualTo(Double value) {
-            addCriterion("execute_rate =", value, "executeRate");
+        public Criteria andLastExecResultBetween(String value1, String value2) {
+            addCriterion("last_exec_result between", value1, value2, "lastExecResult");
             return (Criteria) this;
         }
 
-        public Criteria andExecuteRateNotEqualTo(Double value) {
-            addCriterion("execute_rate <>", value, "executeRate");
+        public Criteria andLastExecResultNotBetween(String value1, String value2) {
+            addCriterion("last_exec_result not between", value1, value2, "lastExecResult");
             return (Criteria) this;
         }
 
-        public Criteria andExecuteRateGreaterThan(Double value) {
-            addCriterion("execute_rate >", value, "executeRate");
+        public Criteria andPosIsNull() {
+            addCriterion("pos is null");
             return (Criteria) this;
         }
 
-        public Criteria andExecuteRateGreaterThanOrEqualTo(Double value) {
-            addCriterion("execute_rate >=", value, "executeRate");
+        public Criteria andPosIsNotNull() {
+            addCriterion("pos is not null");
             return (Criteria) this;
         }
 
-        public Criteria andExecuteRateLessThan(Double value) {
-            addCriterion("execute_rate <", value, "executeRate");
+        public Criteria andPosEqualTo(Long value) {
+            addCriterion("pos =", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andExecuteRateLessThanOrEqualTo(Double value) {
-            addCriterion("execute_rate <=", value, "executeRate");
+        public Criteria andPosNotEqualTo(Long value) {
+            addCriterion("pos <>", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andExecuteRateIn(List<Double> values) {
-            addCriterion("execute_rate in", values, "executeRate");
+        public Criteria andPosGreaterThan(Long value) {
+            addCriterion("pos >", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andExecuteRateNotIn(List<Double> values) {
-            addCriterion("execute_rate not in", values, "executeRate");
+        public Criteria andPosGreaterThanOrEqualTo(Long value) {
+            addCriterion("pos >=", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andExecuteRateBetween(Double value1, Double value2) {
-            addCriterion("execute_rate between", value1, value2, "executeRate");
+        public Criteria andPosLessThan(Long value) {
+            addCriterion("pos <", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andExecuteRateNotBetween(Double value1, Double value2) {
-            addCriterion("execute_rate not between", value1, value2, "executeRate");
+        public Criteria andPosLessThanOrEqualTo(Long value) {
+            addCriterion("pos <=", value, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateIsNull() {
-            addCriterion("pass_rate is null");
+        public Criteria andPosIn(List<Long> values) {
+            addCriterion("pos in", values, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateIsNotNull() {
-            addCriterion("pass_rate is not null");
+        public Criteria andPosNotIn(List<Long> values) {
+            addCriterion("pos not in", values, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateEqualTo(Double value) {
-            addCriterion("pass_rate =", value, "passRate");
+        public Criteria andPosBetween(Long value1, Long value2) {
+            addCriterion("pos between", value1, value2, "pos");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateNotEqualTo(Double value) {
-            addCriterion("pass_rate <>", value, "passRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassRateGreaterThan(Double value) {
-            addCriterion("pass_rate >", value, "passRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassRateGreaterThanOrEqualTo(Double value) {
-            addCriterion("pass_rate >=", value, "passRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassRateLessThan(Double value) {
-            addCriterion("pass_rate <", value, "passRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassRateLessThanOrEqualTo(Double value) {
-            addCriterion("pass_rate <=", value, "passRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassRateIn(List<Double> values) {
-            addCriterion("pass_rate in", values, "passRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassRateNotIn(List<Double> values) {
-            addCriterion("pass_rate not in", values, "passRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassRateBetween(Double value1, Double value2) {
-            addCriterion("pass_rate between", value1, value2, "passRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andPassRateNotBetween(Double value1, Double value2) {
-            addCriterion("pass_rate not between", value1, value2, "passRate");
+        public Criteria andPosNotBetween(Long value1, Long value2) {
+            addCriterion("pos not between", value1, value2, "pos");
             return (Criteria) this;
         }
     }
