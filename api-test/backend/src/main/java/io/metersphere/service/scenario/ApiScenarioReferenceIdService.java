@@ -61,7 +61,9 @@ public class ApiScenarioReferenceIdService {
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
             ApiScenarioReferenceIdMapper referenceIdMapper = sqlSession.getMapper(ApiScenarioReferenceIdMapper.class);
             for (ApiScenarioReferenceId apiScenarioReferenceId : list) {
-                referenceIdMapper.insert(apiScenarioReferenceId);
+                if (StringUtils.isNotBlank(apiScenarioReferenceId.getReferenceId()) && apiScenarioReferenceId.getReferenceId().length() < 200) {
+                    referenceIdMapper.insert(apiScenarioReferenceId);
+                }
             }
             sqlSession.flushStatements();
             if (sqlSession != null && sqlSessionFactory != null) {
