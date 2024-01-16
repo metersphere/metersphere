@@ -123,7 +123,7 @@
         </dependency>
         <!-- dingClient -->
         <dependency>
-            <groupId>com.aliyun</groupId>
+            <groupId>io.metersphere</groupId>
             <artifactId>dingtalk</artifactId>
             <version>${dingtalk-client.version}</version>
             <exclusions>
