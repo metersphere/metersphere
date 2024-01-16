@@ -1252,7 +1252,7 @@
     </select>
     <select id="selectRepeatByBLOBsSameUrl" resultType="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
         SELECT * from api_definition
-        <include refid="Same_Where_Clause"/>
+        <include refid="Same_Where_Clause_Same" />
         and status != 'TRASH'
         and project_id = #{projectId}
         <if test="moduleId != null">
@@ -1322,6 +1322,31 @@
                             </if>
                             <if test="blob.path">
                                 and api_definition.path = #{blob.path}
+                            </if>
+                        </trim>
+                    </foreach>
+                </trim>
+            </if>
+        </where>
+    </sql>
+
+    <sql id="Same_Where_Clause_Same">
+        <where>
+            <if test="blobs">
+                <trim prefix="(" prefixOverrides="and" suffix=")">
+                    <foreach collection="blobs" item="blob" separator="or">
+                        <trim prefix="(" prefixOverrides="and" suffix=")">
+                            <if test="blob.method">
+                                and api_definition.method = #{blob.method}
+                            </if>
+                            <if test="blob.path">
+                                and api_definition.path = #{blob.path}
+                            </if>
+                            <if test="blob.name">
+                                and api_definition.name = #{blob.name}
+                            </if>
+                            <if test="blob.modulePath">
+                                and api_definition.module_path = #{blob.modulePath}
                             </if>
                         </trim>
                     </foreach>
