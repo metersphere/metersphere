@@ -1,20 +1,20 @@
 package io.metersphere.plan.controller;
 
+import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.plan.domain.TestPlan;
-import io.metersphere.plan.dto.request.TestPlanBatchProcessRequest;
-import io.metersphere.plan.dto.request.TestPlanCreateRequest;
-import io.metersphere.plan.dto.request.TestPlanTableRequest;
+import io.metersphere.plan.domain.TestPlanFunctionalCase;
+import io.metersphere.plan.dto.request.*;
+import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
+import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
 import io.metersphere.plan.dto.response.TestPlanResponse;
 import io.metersphere.plan.service.TestPlanModuleService;
+import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.plan.service.TestPlanTestService;
 import io.metersphere.plan.utils.TestPlanUtils;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.filemanagement.request.FileModuleCreateRequest;
 import io.metersphere.project.dto.filemanagement.request.FileModuleUpdateRequest;
-import io.metersphere.sdk.constants.ModuleConstants;
-import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.sdk.constants.TestPlanConstants;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
@@ -32,6 +32,7 @@ import io.metersphere.system.utils.CheckLogModel;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -79,6 +80,8 @@ public class TestPlanTests extends BaseTest {
 
     private static final List<CheckLogModel> LOG_CHECK_LIST = new ArrayList<>();
 
+    private static final List<FunctionalCase> FUNCTIONAL_CASES = new ArrayList<>();
+
     //测试计划模块的url
     private static final String URL_GET_MODULE_TREE = "/test-plan/module/tree/%s";
     private static final String URL_GET_MODULE_DELETE = "/test-plan/module/delete/%s";
@@ -98,6 +101,10 @@ public class TestPlanTests extends BaseTest {
     private static String groupTestPlanId7 = null;
     private static String groupTestPlanId15 = null;
 
+    //普通测试计划
+    private static TestPlan simpleTestPlan;
+    //允许重复添加用例的测试计划
+    private static TestPlan repeatCaseTestPlan;
     @BeforeEach
     public void initTestData() {
         //文件管理专用项目
@@ -494,7 +501,8 @@ public class TestPlanTests extends BaseTest {
             testPlan_173的阈值是否不等于100、描述不会为空
          */
         testPlanTestService.checkTestPlanByAddTest();
-
+        simpleTestPlan = testPlanTestService.selectTestPlanByName("testPlan_13");
+        repeatCaseTestPlan = testPlanTestService.selectTestPlanByName("testPlan_123");
         //测试继续创建10个
         for (int i = 0; i < 10; i++) {
             request.setName("testPlan_1000_" + i);
@@ -664,6 +672,154 @@ public class TestPlanTests extends BaseTest {
             this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ, URL_POST_TEST_PLAN_MODULE_COUNT, testPlanTableRequest);
             this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ, URL_POST_TEST_PLAN_PAGE, testPlanTableRequest);
         }
+
+    }
+
+
+    private static final String URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION = "/test-plan/functional/case/association";
+    private static final String URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT = "/test-plan/functional/case/sort";
+
+    @Test
+    @Order(21)
+    public void testPlanAssociationFunctionCase() throws Exception {
+        if (ObjectUtils.anyNull(simpleTestPlan, repeatCaseTestPlan)) {
+            this.testPlanAddTest();
+        }
+        //创建20个功能测试用例
+        FUNCTIONAL_CASES.addAll(testPlanTestService.createFunctionCase(20, project.getId()));
+
+        //测试不开启用例重复的测试计划多次关联
+        TestPlanAssociationRequest request = new TestPlanAssociationRequest();
+        request.setTestPlanId(simpleTestPlan.getId());
+        request.setSelectIds(FUNCTIONAL_CASES.stream().map(FunctionalCase::getId).collect(Collectors.toList()));
+        MvcResult result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION, request);
+        ResultHolder resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        TestPlanAssociationResponse response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanAssociationResponse.class);
+        Assertions.assertEquals(response.getAssociationCount(), FUNCTIONAL_CASES.size());
+        Assertions.assertEquals(testPlanTestService.countResource(request.getTestPlanId(), TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE), FUNCTIONAL_CASES.size());
+
+        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION, request);
+        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanAssociationResponse.class);
+        Assertions.assertEquals(response.getAssociationCount(), 0);
+        Assertions.assertEquals(testPlanTestService.countResource(request.getTestPlanId(), TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE), FUNCTIONAL_CASES.size());
+
+        //测试开启用例重复的测试计划多次关联
+        request.setTestPlanId(repeatCaseTestPlan.getId());
+        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION, request);
+        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanAssociationResponse.class);
+        Assertions.assertEquals(response.getAssociationCount(), FUNCTIONAL_CASES.size());
+        Assertions.assertEquals(testPlanTestService.countResource(request.getTestPlanId(), TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE), FUNCTIONAL_CASES.size() * 1);
+
+        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION, request);
+        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanAssociationResponse.class);
+        Assertions.assertEquals(response.getAssociationCount(), FUNCTIONAL_CASES.size());
+        Assertions.assertEquals(testPlanTestService.countResource(request.getTestPlanId(), TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE), FUNCTIONAL_CASES.size() * 2);
+
+        //同时测试名称排序
+        request.setOrderColumn("name");
+        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION, request);
+        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanAssociationResponse.class);
+        Assertions.assertEquals(response.getAssociationCount(), FUNCTIONAL_CASES.size());
+        Assertions.assertEquals(testPlanTestService.countResource(request.getTestPlanId(), TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE), FUNCTIONAL_CASES.size() * 3);
+
+        request.setOrderByAsc(false);
+        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION, request);
+        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanAssociationResponse.class);
+        Assertions.assertEquals(response.getAssociationCount(), FUNCTIONAL_CASES.size());
+        Assertions.assertEquals(testPlanTestService.countResource(request.getTestPlanId(), TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE), FUNCTIONAL_CASES.size() * 4);
+
+        //反例 测试计划ID为空
+        request.setTestPlanId(null);
+        this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request).andExpect(status().isBadRequest());
+        //反例 测试计划不存在
+        //测试权限
+        request.setTestPlanId(IDGenerator.nextStr());
+        this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request).andExpect(status().is5xxServerError());
+
+        //测试权限
+        request.setTestPlanId(simpleTestPlan.getId());
+        this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_UPDATE, URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request);
+
+        LOG_CHECK_LIST.add(
+                new CheckLogModel(simpleTestPlan.getId(), OperationLogType.ADD, URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION)
+        );
+        LOG_CHECK_LIST.add(
+                new CheckLogModel(repeatCaseTestPlan.getId(), OperationLogType.ADD, URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION)
+        );
+    }
+
+    @Test
+    @Order(22)
+    public void testPlanFunctionCaseSort() throws Exception {
+        if (FUNCTIONAL_CASES.size() == 0) {
+            this.testPlanAssociationFunctionCase();
+        }
+        List<TestPlanFunctionalCase> funcList = testPlanTestService.selectTestPlanFunctionalCaseByTestPlanId(repeatCaseTestPlan.getId());
+        Assertions.assertTrue(funcList.size() >= FUNCTIONAL_CASES.size() * 4);
+        //将第80个移动到第一位之前
+        ResourceSortRequest request = new ResourceSortRequest();
+        request.setTestPlanId(repeatCaseTestPlan.getId());
+        request.setDragNodeId(funcList.get(79).getId());
+        request.setDropNodeId(funcList.get(0).getId());
+        request.setDropPosition(-1);
+
+        MvcResult result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request);
+        ResultHolder resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        TestPlanResourceSortResponse response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanResourceSortResponse.class);
+        Assertions.assertEquals(response.getSortNodeNum(), 1);
+        funcList = testPlanTestService.selectTestPlanFunctionalCaseByTestPlanId(repeatCaseTestPlan.getId());
+        Assertions.assertEquals(funcList.get(0).getId(), request.getDragNodeId());
+        Assertions.assertEquals(funcList.get(1).getId(), request.getDropNodeId());
+        LOG_CHECK_LIST.add(
+                new CheckLogModel(request.getDragNodeId(), OperationLogType.UPDATE, URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT)
+        );
+
+        //将这时的第80个放到第一位之后
+        request.setDragNodeId(funcList.get(79).getId());
+        request.setDropNodeId(funcList.get(0).getId());
+        request.setDropPosition(1);
+        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request);
+        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanResourceSortResponse.class);
+        Assertions.assertEquals(response.getSortNodeNum(), 1);
+        funcList = testPlanTestService.selectTestPlanFunctionalCaseByTestPlanId(repeatCaseTestPlan.getId());
+        Assertions.assertEquals(funcList.get(0).getId(), request.getDropNodeId());
+        Assertions.assertEquals(funcList.get(1).getId(), request.getDragNodeId());
+        LOG_CHECK_LIST.add(
+                new CheckLogModel(request.getDragNodeId(), OperationLogType.UPDATE, URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT)
+        );
+
+        //反例：测试计划为空
+        request.setTestPlanId(null);
+        this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request).andExpect(status().isBadRequest());
+        //反例： 测试计划不存在
+        request.setTestPlanId(IDGenerator.nextStr());
+        this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request).andExpect(status().is5xxServerError());
+        //反例：拖拽的节点不存在
+        request.setTestPlanId(repeatCaseTestPlan.getId());
+        request.setDragNodeId(null);
+        this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request).andExpect(status().is5xxServerError());
+        //反例：目标节点不存在
+        request.setDragNodeId(funcList.get(79).getId());
+        request.setDropNodeId(null);
+        this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request).andExpect(status().is5xxServerError());
+        //反例： 节点重复
+        request.setDropNodeId(request.getDragNodeId());
+        this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request).andExpect(status().is5xxServerError());
+        //反例： dropPosition取值范围不对
+        request.setDragNodeId(funcList.get(79).getId());
+        request.setDropNodeId(funcList.get(0).getId());
+        request.setDropPosition(0);
+        this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request).andExpect(status().is5xxServerError());
+
+        //测试权限
+        request.setDropPosition(1);
+        this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_UPDATE, URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request);
 
     }
 
@@ -1101,5 +1257,14 @@ public class TestPlanTests extends BaseTest {
                 this.checkLog(checkLogModel.getResourceId(), checkLogModel.getOperationType(), checkLogModel.getUrl());
             }
         }
+    }
+
+    @Resource
+    private TestPlanService testPlanService;
+
+    @Test
+    @Order(111)
+    public void serviceCheckTest() throws Exception {
+        testPlanService.checkModule(ModuleConstants.DEFAULT_NODE_ID);
     }
 }

@@ -165,7 +165,7 @@ public class TestPlanModuleService extends ModuleTreeService implements CleanupP
         TestPlanBatchProcessRequest request = new TestPlanBatchProcessRequest();
         request.setModuleIds(deleteIds);
         request.setSelectAll(true);
-        testPlanService.delete(request, operator, requestUrl, requestMethod);
+        testPlanService.batchDelete(request, operator, requestUrl, requestMethod);
 
         List<String> childrenIds = extTestPlanModuleMapper.selectChildrenIdsByParentIds(deleteIds);
         if (CollectionUtils.isNotEmpty(childrenIds)) {

@@ -12,11 +12,11 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import jakarta.annotation.Resource;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -65,7 +65,7 @@ public class TestPlanLogService {
         operationLogService.add(dto);
     }
 
-    public void saveDeleteLog(TestPlan deleteTestPlan, List<TestPlan> testPlanItemList, String operator, String requestUrl, String requestMethod) {
+    public void saveDeleteLog(TestPlan deleteTestPlan, String operator, String requestUrl, String requestMethod) {
         Project project = projectMapper.selectByPrimaryKey(deleteTestPlan.getProjectId());
         LogDTO dto = LogDTOBuilder.builder()
                 .projectId(deleteTestPlan.getProjectId())
@@ -75,22 +75,40 @@ public class TestPlanLogService {
                 .method(requestMethod)
                 .path(requestUrl)
                 .sourceId(deleteTestPlan.getId())
-                .content(this.generateTestPlanDeleteContent(deleteTestPlan, testPlanItemList))
+                .content(this.generateTestPlanDeleteContent(deleteTestPlan))
                 .originalValue(JSON.toJSONBytes(deleteTestPlan))
                 .createUser(operator)
                 .build().getLogDTO();
         operationLogService.add(dto);
     }
 
-    private String generateTestPlanDeleteContent(TestPlan deleteTestPlan, List<TestPlan> testPlanItemList) {
+    public void saveBatchDeleteLog(List<TestPlan> testPlanList, String operator, String requestUrl, String requestMethod) {
+        Project project = projectMapper.selectByPrimaryKey(testPlanList.get(0).getProjectId());
+        List<LogDTO> list = new ArrayList<>();
+        for (TestPlan testPlan : testPlanList) {
+            LogDTO dto = LogDTOBuilder.builder()
+                    .projectId(testPlan.getProjectId())
+                    .organizationId(project.getOrganizationId())
+                    .type(OperationLogType.DELETE.name())
+                    .module(logModule)
+                    .method(requestMethod)
+                    .path(requestUrl)
+                    .sourceId(testPlan.getId())
+                    .content(this.generateTestPlanDeleteContent(testPlan))
+                    .originalValue(JSON.toJSONBytes(testPlan))
+                    .createUser(operator)
+                    .build().getLogDTO();
+            list.add(dto);
+        }
+        operationLogService.batchAdd(list);
+    }
+
+    private String generateTestPlanDeleteContent(TestPlan deleteTestPlan) {
         StringBuilder content = new StringBuilder();
         if(StringUtils.equals(deleteTestPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)){
             content.append(Translator.get("log.delete.test_plan_group")).append(":").append(deleteTestPlan.getName()).append(StringUtils.SPACE);
-        }
-        if(CollectionUtils.isNotEmpty(testPlanItemList)){
-            List<String> testPlanNameList = testPlanItemList.stream().map(TestPlan::getName).toList();
-            String testPlanNamesString = StringUtils.join(testPlanNameList,",");
-            content.append(Translator.get("log.delete.test_plan")).append(":").append(testPlanNamesString).append(StringUtils.SPACE);
+        } else {
+            content.append(Translator.get("log.delete.test_plan")).append(":").append(deleteTestPlan.getName()).append(StringUtils.SPACE);
         }
         return content.toString();
     }

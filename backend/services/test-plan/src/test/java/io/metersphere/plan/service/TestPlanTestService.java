@@ -1,15 +1,20 @@
 package io.metersphere.plan.service;
 
-import io.metersphere.plan.domain.TestPlan;
-import io.metersphere.plan.domain.TestPlanConfig;
-import io.metersphere.plan.domain.TestPlanExample;
+import io.metersphere.functional.domain.FunctionalCase;
+import io.metersphere.functional.mapper.FunctionalCaseMapper;
+import io.metersphere.plan.domain.*;
 import io.metersphere.plan.mapper.TestPlanConfigMapper;
+import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
-import io.metersphere.sdk.constants.TestPlanConstants;
+import io.metersphere.sdk.constants.*;
+import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.stereotype.Service;
+import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -18,7 +23,17 @@ public class TestPlanTestService {
     private TestPlanMapper testPlanMapper;
     @Resource
     private TestPlanConfigMapper testPlanConfigMapper;
+    @Resource
+    private FunctionalCaseMapper functionalCaseMapper;
+    @Resource
+    private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
 
+    public TestPlan selectTestPlanByName(String name) {
+        TestPlanExample testPlanExample = new TestPlanExample();
+        testPlanExample.createCriteria().andNameEqualTo(name);
+        TestPlan testPlan = testPlanMapper.selectByExample(testPlanExample).get(0);
+        return testPlan;
+    }
     public void checkTestPlanByAddTest() {
         /*
         抽查：
@@ -27,9 +42,7 @@ public class TestPlanTestService {
             testPlan_123是否设置了重复添加用例和自动更新状态；
             testPlan_173的阈值是否不等于100、描述不会为空
          */
-        TestPlanExample testPlanExample = new TestPlanExample();
-        testPlanExample.createCriteria().andNameEqualTo("testPlan_13");
-        TestPlan testPlan = testPlanMapper.selectByExample(testPlanExample).get(0);
+        TestPlan testPlan = selectTestPlanByName("testPlan_13");
         TestPlanConfig testPlanConfig = testPlanConfigMapper.selectByPrimaryKey(testPlan.getId());
         Assertions.assertNull(testPlan.getPlannedStartTime());
         Assertions.assertNull(testPlan.getPlannedEndTime());
@@ -38,9 +51,7 @@ public class TestPlanTestService {
         Assertions.assertEquals(testPlanConfig.getAutomaticStatusUpdate(), false);
         Assertions.assertNull(testPlan.getDescription());
 
-        testPlanExample.clear();
-        testPlanExample.createCriteria().andNameEqualTo("testPlan_53");
-        testPlan = testPlanMapper.selectByExample(testPlanExample).get(0);
+        testPlan = selectTestPlanByName("testPlan_53");
         testPlanConfig = testPlanConfigMapper.selectByPrimaryKey(testPlan.getId());
         Assertions.assertNotNull(testPlan.getPlannedStartTime());
         Assertions.assertNotNull(testPlan.getPlannedEndTime());
@@ -49,9 +60,7 @@ public class TestPlanTestService {
         Assertions.assertEquals(testPlanConfig.getAutomaticStatusUpdate(), false);
         Assertions.assertNull(testPlan.getDescription());
 
-        testPlanExample.clear();
-        testPlanExample.createCriteria().andNameEqualTo("testPlan_123");
-        testPlan = testPlanMapper.selectByExample(testPlanExample).get(0);
+        testPlan = selectTestPlanByName("testPlan_123");
         testPlanConfig = testPlanConfigMapper.selectByPrimaryKey(testPlan.getId());
         Assertions.assertNull(testPlan.getPlannedStartTime());
         Assertions.assertNull(testPlan.getPlannedEndTime());
@@ -60,9 +69,7 @@ public class TestPlanTestService {
         Assertions.assertEquals(testPlanConfig.getAutomaticStatusUpdate(), true);
         Assertions.assertNull(testPlan.getDescription());
 
-        testPlanExample.clear();
-        testPlanExample.createCriteria().andNameEqualTo("testPlan_173");
-        testPlan = testPlanMapper.selectByExample(testPlanExample).get(0);
+        testPlan = selectTestPlanByName("testPlan_173");
         testPlanConfig = testPlanConfigMapper.selectByPrimaryKey(testPlan.getId());
         Assertions.assertNull(testPlan.getPlannedStartTime());
         Assertions.assertNull(testPlan.getPlannedEndTime());
@@ -96,5 +103,49 @@ public class TestPlanTestService {
         TestPlanExample testPlanExample = new TestPlanExample();
         testPlanExample.createCriteria().andModuleIdEqualTo(id);
         return testPlanMapper.countByExample(testPlanExample);
+    }
+
+    public List<FunctionalCase> createFunctionCase(int caseNums, String projectId) {
+        List<FunctionalCase> returnList = new ArrayList<>();
+        for (int i = 0; i < caseNums; i++) {
+            FunctionalCase functionalCase = new FunctionalCase();
+            functionalCase.setId(IDGenerator.nextStr());
+            functionalCase.setProjectId(projectId);
+            functionalCase.setNum(NumGenerator.nextNum(projectId, ApplicationNumScope.CASE_MANAGEMENT));
+            functionalCase.setModuleId(ModuleConstants.DEFAULT_NODE_ID);
+            functionalCase.setName("function_" + projectId + "_" + i);
+            functionalCase.setReviewStatus("UN_REVIEWED");
+            functionalCase.setPos((long) (i * 64));
+            functionalCase.setRefId(functionalCase.getId());
+            functionalCase.setLastExecuteResult(FunctionalCaseExecuteResult.UN_EXECUTED.name());
+            functionalCase.setLatest(true);
+            functionalCase.setCreateUser("admin");
+            functionalCase.setCreateTime(System.currentTimeMillis());
+            functionalCase.setUpdateTime(System.currentTimeMillis());
+            functionalCase.setVersionId("v6.6.6");
+            functionalCase.setTemplateId("none");
+            functionalCase.setCaseEditType("step");
+            functionalCase.setDeleted(false);
+            functionalCase.setPublicCase(false);
+            returnList.add(functionalCase);
+        }
+        functionalCaseMapper.batchInsert(returnList);
+        return returnList;
+    }
+
+    public long countResource(String id, String resourceFunctionalCase) {
+        if (StringUtils.equals(TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE, resourceFunctionalCase)) {
+            TestPlanFunctionalCaseExample example = new TestPlanFunctionalCaseExample();
+            example.createCriteria().andTestPlanIdEqualTo(id);
+            return testPlanFunctionalCaseMapper.countByExample(example);
+        }
+        return 0;
+    }
+
+    public List<TestPlanFunctionalCase> selectTestPlanFunctionalCaseByTestPlanId(String testPlanId) {
+        TestPlanFunctionalCaseExample example = new TestPlanFunctionalCaseExample();
+        example.createCriteria().andTestPlanIdEqualTo(testPlanId);
+        example.setOrderByClause(" pos asc ");
+        return testPlanFunctionalCaseMapper.selectByExample(example);
     }
 }

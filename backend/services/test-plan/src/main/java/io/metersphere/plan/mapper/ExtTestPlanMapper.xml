@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.plan.mapper.ExtTestPlanMapper">
+    <update id="updateDefaultGroupId">
+        UPDATE test_plan
+        SET group_id = 'none'
+        WHERE group_id IN
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
 
     <select id="selectByGroupId" resultType="java.lang.String">
         SELECT id FROM test_plan WHERE group_id = #{parentId}
@@ -43,6 +51,15 @@
         FROM test_plan t
         INNER JOIN user createUser ON t.create_user = createUser.id
         <include refid="test_plan_page_request"/>
+    </select>
+    <select id="selectBaseInfoByIds" resultType="io.metersphere.plan.domain.TestPlan">
+        SELECT
+        t.id,t.name,t.type,t.project_id
+        FROM test_plan t
+        WHERE t.id IN
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
     </select>
 
     <sql id="test_plan_page_request">

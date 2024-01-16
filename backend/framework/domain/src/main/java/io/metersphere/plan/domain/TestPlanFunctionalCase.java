@@ -9,28 +9,21 @@ import java.util.Arrays;
 import lombok.Data;
 
 @Data
-public class TestPlanApiScenario implements Serializable {
+public class TestPlanFunctionalCase implements Serializable {
     @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_plan_api_scenario.id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 50, message = "{test_plan_api_scenario.id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{test_plan_functional_case.id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{test_plan_functional_case.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
     @Schema(description = "测试计划ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_plan_api_scenario.test_plan_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{test_plan_api_scenario.test_plan_id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{test_plan_functional_case.test_plan_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{test_plan_functional_case.test_plan_id.length_range}", groups = {Created.class, Updated.class})
     private String testPlanId;
 
-    @Schema(description = "场景ID")
-    private String apiScenarioId;
-
-    @Schema(description = "最后执行结果")
-    private String lastExecResult;
-
-    @Schema(description = "最后执行报告")
-    private String lastExecReportId;
-
-    @Schema(description = "执行人")
-    private String executeUser;
+    @Schema(description = "功能用例ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{test_plan_functional_case.functional_case_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{test_plan_functional_case.functional_case_id.length_range}", groups = {Created.class, Updated.class})
+    private String functionalCaseId;
 
     @Schema(description = "创建时间")
     private Long createTime;
@@ -38,26 +31,31 @@ public class TestPlanApiScenario implements Serializable {
     @Schema(description = "创建人")
     private String createUser;
 
-    @Schema(description = "自定义排序，间隔5000", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{test_plan_api_scenario.pos.not_blank}", groups = {Created.class})
-    private Long pos;
+    @Schema(description = "执行人")
+    private String executeUser;
 
-    @Schema(description = "所属环境")
-    private String environmentId;
+    @Schema(description = "最后执行时间")
+    private Long lastExecTime;
+
+    @Schema(description = "最后执行结果")
+    private String lastExecResult;
+
+    @Schema(description = "自定义排序，间隔5000", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{test_plan_functional_case.pos.not_blank}", groups = {Created.class})
+    private Long pos;
 
     private static final long serialVersionUID = 1L;
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
         testPlanId("test_plan_id", "testPlanId", "VARCHAR", false),
-        apiScenarioId("api_scenario_id", "apiScenarioId", "VARCHAR", false),
-        lastExecResult("last_exec_result", "lastExecResult", "VARCHAR", false),
-        lastExecReportId("last_exec_report_id", "lastExecReportId", "VARCHAR", false),
-        executeUser("execute_user", "executeUser", "VARCHAR", false),
+        functionalCaseId("functional_case_id", "functionalCaseId", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),
         createUser("create_user", "createUser", "VARCHAR", false),
-        pos("pos", "pos", "BIGINT", false),
-        environmentId("environment_id", "environmentId", "LONGVARCHAR", false);
+        executeUser("execute_user", "executeUser", "VARCHAR", false),
+        lastExecTime("last_exec_time", "lastExecTime", "BIGINT", false),
+        lastExecResult("last_exec_result", "lastExecResult", "VARCHAR", false),
+        pos("pos", "pos", "BIGINT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

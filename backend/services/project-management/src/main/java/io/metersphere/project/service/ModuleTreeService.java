@@ -1,8 +1,10 @@
 package io.metersphere.project.service;
 
 import io.metersphere.project.dto.ModuleCountDTO;
+import io.metersphere.project.dto.ModuleSortCountResultDTO;
 import io.metersphere.project.dto.NodeSortDTO;
 import io.metersphere.project.dto.NodeSortQueryParam;
+import io.metersphere.project.utils.NodeSortUtils;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
@@ -20,7 +22,7 @@ import java.util.stream.Collectors;
 
 public abstract class ModuleTreeService {
 
-    protected static final long LIMIT_POS = 64;
+    protected static final long LIMIT_POS = NodeSortUtils.DEFAULT_NODE_INTERVAL_POS;
 
     //默认节点所在分支最大数量不超过200，  后续会根据需求排期进行调整
     protected static final int MAX_BRANCHES_NODE_SIZE = 200;
@@ -172,31 +174,12 @@ public abstract class ModuleTreeService {
         BaseModule previousNode = nodeMoveDTO.getPreviousNode();
         BaseModule nextNode = nodeMoveDTO.getNextNode();
 
-        if (previousNode == null && nextNode == null) {
-            // 没有相邻节点，pos为0
-            updatePos(nodeMoveDTO.getNode().getId(), 0);
-        } else {
-            boolean refreshPos = false;
-            long pos;
-            if (nextNode == null) {
-                pos = previousNode.getPos() + LIMIT_POS;
-            } else if (previousNode == null) {
-                pos = nextNode.getPos() / 2;
-                if (pos < 2) {
-                    refreshPos = true;
-                }
-            } else {
-                long quantityDifference = (nextNode.getPos() - previousNode.getPos()) / 2;
-                if (quantityDifference <= 2) {
-                    refreshPos = true;
-                }
-                pos = previousNode.getPos() + quantityDifference;
-            }
-
-            updatePos(nodeMoveDTO.getNode().getId(), pos);
-            if (refreshPos) {
-                refreshPos(nodeMoveDTO.getParent().getId());
-            }
+        ModuleSortCountResultDTO countResultDTO = NodeSortUtils.countModuleSort(
+                previousNode == null ? -1 : previousNode.getPos(),
+                nextNode == null ? -1 : nextNode.getPos());
+        updatePos(nodeMoveDTO.getNode().getId(), countResultDTO.getPos());
+        if (countResultDTO.isRefreshPos()) {
+            refreshPos(nodeMoveDTO.getParent().getId());
         }
     }
 

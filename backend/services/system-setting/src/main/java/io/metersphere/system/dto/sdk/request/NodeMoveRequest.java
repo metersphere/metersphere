@@ -14,7 +14,7 @@ public class NodeMoveRequest {
     @NotEmpty(message = "{node.not_blank}")
     private String dropNodeId;
 
-    @Schema(description = "放入的位置（取值：-1，,0，,1。  -1：dropNodeId节点之前。 0:dropNodeId节点内。 1：dropNodeId节点后）", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "放入的位置（取值：-1，,1。  -1：dropNodeId节点之前。 1：dropNodeId节点后）", requiredMode = Schema.RequiredMode.REQUIRED)
     private int dropPosition;
 }
 
