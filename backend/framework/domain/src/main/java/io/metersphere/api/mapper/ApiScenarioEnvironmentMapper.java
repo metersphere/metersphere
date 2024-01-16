@@ -10,7 +10,7 @@ public interface ApiScenarioEnvironmentMapper {
 
     int deleteByExample(ApiScenarioEnvironmentExample example);
 
-    int deleteByPrimaryKey(String id);
+    int deleteByPrimaryKey(String apiScenarioId);
 
     int insert(ApiScenarioEnvironment record);
 
@@ -18,7 +18,7 @@ public interface ApiScenarioEnvironmentMapper {
 
     List<ApiScenarioEnvironment> selectByExample(ApiScenarioEnvironmentExample example);
 
-    ApiScenarioEnvironment selectByPrimaryKey(String id);
+    ApiScenarioEnvironment selectByPrimaryKey(String apiScenarioId);
 
     int updateByExampleSelective(@Param("record") ApiScenarioEnvironment record, @Param("example") ApiScenarioEnvironmentExample example);
 

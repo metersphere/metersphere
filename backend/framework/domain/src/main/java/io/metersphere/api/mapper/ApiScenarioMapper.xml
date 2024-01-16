@@ -7,7 +7,8 @@
     <result column="priority" jdbcType="VARCHAR" property="priority" />
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="step_total" jdbcType="INTEGER" property="stepTotal" />
-    <result column="pass_rate" jdbcType="BIGINT" property="passRate" />
+    <result column="request_execution_rate" jdbcType="VARCHAR" property="requestExecutionRate" />
+    <result column="request_pass_rate" jdbcType="BIGINT" property="requestPassRate" />
     <result column="last_report_status" jdbcType="VARCHAR" property="lastReportStatus" />
     <result column="last_report_id" jdbcType="VARCHAR" property="lastReportId" />
     <result column="num" jdbcType="BIGINT" property="num" />
@@ -125,9 +126,10 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, priority, `status`, step_total, pass_rate, last_report_status, last_report_id, 
-    num, deleted, pos, version_id, ref_id, latest, project_id, module_id, description, 
-    tags, grouped, create_user, create_time, delete_time, delete_user, update_user, update_time
+    id, `name`, priority, `status`, step_total, request_execution_rate, request_pass_rate, 
+    last_report_status, last_report_id, num, deleted, pos, version_id, ref_id, latest, 
+    project_id, module_id, description, tags, grouped, create_user, create_time, delete_time, 
+    delete_user, update_user, update_time
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiScenarioExample" resultMap="BaseResultMap">
     select
@@ -161,18 +163,18 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.api.domain.ApiScenario">
     insert into api_scenario (id, `name`, priority, 
-      `status`, step_total, pass_rate, 
-      last_report_status, last_report_id, num, 
-      deleted, pos, version_id, 
+      `status`, step_total, request_execution_rate, 
+      request_pass_rate, last_report_status, last_report_id, 
+      num, deleted, pos, version_id, 
       ref_id, latest, project_id, 
       module_id, description, tags, 
       grouped, create_user, create_time, 
       delete_time, delete_user, update_user, 
       update_time)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{priority,jdbcType=VARCHAR}, 
-      #{status,jdbcType=VARCHAR}, #{stepTotal,jdbcType=INTEGER}, #{passRate,jdbcType=BIGINT}, 
-      #{lastReportStatus,jdbcType=VARCHAR}, #{lastReportId,jdbcType=VARCHAR}, #{num,jdbcType=BIGINT}, 
-      #{deleted,jdbcType=BIT}, #{pos,jdbcType=BIGINT}, #{versionId,jdbcType=VARCHAR}, 
+      #{status,jdbcType=VARCHAR}, #{stepTotal,jdbcType=INTEGER}, #{requestExecutionRate,jdbcType=VARCHAR}, 
+      #{requestPassRate,jdbcType=BIGINT}, #{lastReportStatus,jdbcType=VARCHAR}, #{lastReportId,jdbcType=VARCHAR}, 
+      #{num,jdbcType=BIGINT}, #{deleted,jdbcType=BIT}, #{pos,jdbcType=BIGINT}, #{versionId,jdbcType=VARCHAR}, 
       #{refId,jdbcType=VARCHAR}, #{latest,jdbcType=BIT}, #{projectId,jdbcType=VARCHAR}, 
       #{moduleId,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
       #{grouped,jdbcType=BIT}, #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
@@ -197,8 +199,11 @@
       <if test="stepTotal != null">
         step_total,
       </if>
-      <if test="passRate != null">
-        pass_rate,
+      <if test="requestExecutionRate != null">
+        request_execution_rate,
+      </if>
+      <if test="requestPassRate != null">
+        request_pass_rate,
       </if>
       <if test="lastReportStatus != null">
         last_report_status,
@@ -274,8 +279,11 @@
       <if test="stepTotal != null">
         #{stepTotal,jdbcType=INTEGER},
       </if>
-      <if test="passRate != null">
-        #{passRate,jdbcType=BIGINT},
+      <if test="requestExecutionRate != null">
+        #{requestExecutionRate,jdbcType=VARCHAR},
+      </if>
+      <if test="requestPassRate != null">
+        #{requestPassRate,jdbcType=BIGINT},
       </if>
       <if test="lastReportStatus != null">
         #{lastReportStatus,jdbcType=VARCHAR},
@@ -360,8 +368,11 @@
       <if test="record.stepTotal != null">
         step_total = #{record.stepTotal,jdbcType=INTEGER},
       </if>
-      <if test="record.passRate != null">
-        pass_rate = #{record.passRate,jdbcType=BIGINT},
+      <if test="record.requestExecutionRate != null">
+        request_execution_rate = #{record.requestExecutionRate,jdbcType=VARCHAR},
+      </if>
+      <if test="record.requestPassRate != null">
+        request_pass_rate = #{record.requestPassRate,jdbcType=BIGINT},
       </if>
       <if test="record.lastReportStatus != null">
         last_report_status = #{record.lastReportStatus,jdbcType=VARCHAR},
@@ -432,7 +443,8 @@
       priority = #{record.priority,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
       step_total = #{record.stepTotal,jdbcType=INTEGER},
-      pass_rate = #{record.passRate,jdbcType=BIGINT},
+      request_execution_rate = #{record.requestExecutionRate,jdbcType=VARCHAR},
+      request_pass_rate = #{record.requestPassRate,jdbcType=BIGINT},
       last_report_status = #{record.lastReportStatus,jdbcType=VARCHAR},
       last_report_id = #{record.lastReportId,jdbcType=VARCHAR},
       num = #{record.num,jdbcType=BIGINT},
@@ -471,8 +483,11 @@
       <if test="stepTotal != null">
         step_total = #{stepTotal,jdbcType=INTEGER},
       </if>
-      <if test="passRate != null">
-        pass_rate = #{passRate,jdbcType=BIGINT},
+      <if test="requestExecutionRate != null">
+        request_execution_rate = #{requestExecutionRate,jdbcType=VARCHAR},
+      </if>
+      <if test="requestPassRate != null">
+        request_pass_rate = #{requestPassRate,jdbcType=BIGINT},
       </if>
       <if test="lastReportStatus != null">
         last_report_status = #{lastReportStatus,jdbcType=VARCHAR},
@@ -540,7 +555,8 @@
       priority = #{priority,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
       step_total = #{stepTotal,jdbcType=INTEGER},
-      pass_rate = #{passRate,jdbcType=BIGINT},
+      request_execution_rate = #{requestExecutionRate,jdbcType=VARCHAR},
+      request_pass_rate = #{requestPassRate,jdbcType=BIGINT},
       last_report_status = #{lastReportStatus,jdbcType=VARCHAR},
       last_report_id = #{lastReportId,jdbcType=VARCHAR},
       num = #{num,jdbcType=BIGINT},
@@ -564,19 +580,19 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_scenario
-    (id, `name`, priority, `status`, step_total, pass_rate, last_report_status, last_report_id, 
-      num, deleted, pos, version_id, ref_id, latest, project_id, module_id, description, 
-      tags, grouped, create_user, create_time, delete_time, delete_user, update_user, 
-      update_time)
+    (id, `name`, priority, `status`, step_total, request_execution_rate, request_pass_rate, 
+      last_report_status, last_report_id, num, deleted, pos, version_id, ref_id, latest, 
+      project_id, module_id, description, tags, grouped, create_user, create_time, delete_time, 
+      delete_user, update_user, update_time)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.priority,jdbcType=VARCHAR}, 
-        #{item.status,jdbcType=VARCHAR}, #{item.stepTotal,jdbcType=INTEGER}, #{item.passRate,jdbcType=BIGINT}, 
-        #{item.lastReportStatus,jdbcType=VARCHAR}, #{item.lastReportId,jdbcType=VARCHAR}, 
-        #{item.num,jdbcType=BIGINT}, #{item.deleted,jdbcType=BIT}, #{item.pos,jdbcType=BIGINT}, 
-        #{item.versionId,jdbcType=VARCHAR}, #{item.refId,jdbcType=VARCHAR}, #{item.latest,jdbcType=BIT}, 
-        #{item.projectId,jdbcType=VARCHAR}, #{item.moduleId,jdbcType=VARCHAR}, #{item.description,jdbcType=VARCHAR}, 
-        #{item.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
+        #{item.status,jdbcType=VARCHAR}, #{item.stepTotal,jdbcType=INTEGER}, #{item.requestExecutionRate,jdbcType=VARCHAR}, 
+        #{item.requestPassRate,jdbcType=BIGINT}, #{item.lastReportStatus,jdbcType=VARCHAR}, 
+        #{item.lastReportId,jdbcType=VARCHAR}, #{item.num,jdbcType=BIGINT}, #{item.deleted,jdbcType=BIT}, 
+        #{item.pos,jdbcType=BIGINT}, #{item.versionId,jdbcType=VARCHAR}, #{item.refId,jdbcType=VARCHAR}, 
+        #{item.latest,jdbcType=BIT}, #{item.projectId,jdbcType=VARCHAR}, #{item.moduleId,jdbcType=VARCHAR}, 
+        #{item.description,jdbcType=VARCHAR}, #{item.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
         #{item.grouped,jdbcType=BIT}, #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
         #{item.deleteTime,jdbcType=BIGINT}, #{item.deleteUser,jdbcType=VARCHAR}, #{item.updateUser,jdbcType=VARCHAR}, 
         #{item.updateTime,jdbcType=BIGINT})
@@ -607,8 +623,11 @@
         <if test="'step_total'.toString() == column.value">
           #{item.stepTotal,jdbcType=INTEGER}
         </if>
-        <if test="'pass_rate'.toString() == column.value">
-          #{item.passRate,jdbcType=BIGINT}
+        <if test="'request_execution_rate'.toString() == column.value">
+          #{item.requestExecutionRate,jdbcType=VARCHAR}
+        </if>
+        <if test="'request_pass_rate'.toString() == column.value">
+          #{item.requestPassRate,jdbcType=BIGINT}
         </if>
         <if test="'last_report_status'.toString() == column.value">
           #{item.lastReportStatus,jdbcType=VARCHAR}

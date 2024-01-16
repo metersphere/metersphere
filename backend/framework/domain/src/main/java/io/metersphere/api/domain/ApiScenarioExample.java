@@ -478,63 +478,133 @@ public class ApiScenarioExample {
             return (Criteria) this;
         }
 
-        public Criteria andPassRateIsNull() {
-            addCriterion("pass_rate is null");
+        public Criteria andRequestExecutionRateIsNull() {
+            addCriterion("request_execution_rate is null");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateIsNotNull() {
-            addCriterion("pass_rate is not null");
+        public Criteria andRequestExecutionRateIsNotNull() {
+            addCriterion("request_execution_rate is not null");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateEqualTo(Long value) {
-            addCriterion("pass_rate =", value, "passRate");
+        public Criteria andRequestExecutionRateEqualTo(String value) {
+            addCriterion("request_execution_rate =", value, "requestExecutionRate");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateNotEqualTo(Long value) {
-            addCriterion("pass_rate <>", value, "passRate");
+        public Criteria andRequestExecutionRateNotEqualTo(String value) {
+            addCriterion("request_execution_rate <>", value, "requestExecutionRate");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateGreaterThan(Long value) {
-            addCriterion("pass_rate >", value, "passRate");
+        public Criteria andRequestExecutionRateGreaterThan(String value) {
+            addCriterion("request_execution_rate >", value, "requestExecutionRate");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateGreaterThanOrEqualTo(Long value) {
-            addCriterion("pass_rate >=", value, "passRate");
+        public Criteria andRequestExecutionRateGreaterThanOrEqualTo(String value) {
+            addCriterion("request_execution_rate >=", value, "requestExecutionRate");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateLessThan(Long value) {
-            addCriterion("pass_rate <", value, "passRate");
+        public Criteria andRequestExecutionRateLessThan(String value) {
+            addCriterion("request_execution_rate <", value, "requestExecutionRate");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateLessThanOrEqualTo(Long value) {
-            addCriterion("pass_rate <=", value, "passRate");
+        public Criteria andRequestExecutionRateLessThanOrEqualTo(String value) {
+            addCriterion("request_execution_rate <=", value, "requestExecutionRate");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateIn(List<Long> values) {
-            addCriterion("pass_rate in", values, "passRate");
+        public Criteria andRequestExecutionRateLike(String value) {
+            addCriterion("request_execution_rate like", value, "requestExecutionRate");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateNotIn(List<Long> values) {
-            addCriterion("pass_rate not in", values, "passRate");
+        public Criteria andRequestExecutionRateNotLike(String value) {
+            addCriterion("request_execution_rate not like", value, "requestExecutionRate");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateBetween(Long value1, Long value2) {
-            addCriterion("pass_rate between", value1, value2, "passRate");
+        public Criteria andRequestExecutionRateIn(List<String> values) {
+            addCriterion("request_execution_rate in", values, "requestExecutionRate");
             return (Criteria) this;
         }
 
-        public Criteria andPassRateNotBetween(Long value1, Long value2) {
-            addCriterion("pass_rate not between", value1, value2, "passRate");
+        public Criteria andRequestExecutionRateNotIn(List<String> values) {
+            addCriterion("request_execution_rate not in", values, "requestExecutionRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestExecutionRateBetween(String value1, String value2) {
+            addCriterion("request_execution_rate between", value1, value2, "requestExecutionRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestExecutionRateNotBetween(String value1, String value2) {
+            addCriterion("request_execution_rate not between", value1, value2, "requestExecutionRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPassRateIsNull() {
+            addCriterion("request_pass_rate is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPassRateIsNotNull() {
+            addCriterion("request_pass_rate is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPassRateEqualTo(Long value) {
+            addCriterion("request_pass_rate =", value, "requestPassRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPassRateNotEqualTo(Long value) {
+            addCriterion("request_pass_rate <>", value, "requestPassRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPassRateGreaterThan(Long value) {
+            addCriterion("request_pass_rate >", value, "requestPassRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPassRateGreaterThanOrEqualTo(Long value) {
+            addCriterion("request_pass_rate >=", value, "requestPassRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPassRateLessThan(Long value) {
+            addCriterion("request_pass_rate <", value, "requestPassRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPassRateLessThanOrEqualTo(Long value) {
+            addCriterion("request_pass_rate <=", value, "requestPassRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPassRateIn(List<Long> values) {
+            addCriterion("request_pass_rate in", values, "requestPassRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPassRateNotIn(List<Long> values) {
+            addCriterion("request_pass_rate not in", values, "requestPassRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPassRateBetween(Long value1, Long value2) {
+            addCriterion("request_pass_rate between", value1, value2, "requestPassRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPassRateNotBetween(Long value1, Long value2) {
+            addCriterion("request_pass_rate not between", value1, value2, "requestPassRate");
             return (Criteria) this;
         }
 

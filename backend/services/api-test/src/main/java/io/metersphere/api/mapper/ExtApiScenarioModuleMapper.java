@@ -1,6 +1,6 @@
 package io.metersphere.api.mapper;
 
-import io.metersphere.api.dto.definition.ApiScenarioModuleRequest;
+import io.metersphere.api.dto.scenario.ApiScenarioModuleRequest;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.NodeSortQueryParam;
 import io.metersphere.system.dto.sdk.BaseModule;

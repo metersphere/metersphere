@@ -387,7 +387,7 @@
                 AND m.name like CONCAT('%', #{request.keyword},'%')
             </if>
             <if test="request.moduleIds != null and request.moduleIds.size() != 0">
-                AND m.module_id IN
+                AND m.id IN
                 <foreach collection="request.moduleIds" item="item" open="(" separator="," close=")">
                     #{item}
                 </foreach>
@@ -405,7 +405,7 @@
                 AND m.name like CONCAT('%', #{request.moduleKeyword},'%')
             </if>
             <if test="request.moduleIds != null and request.moduleIds.size() != 0">
-                AND m.module_id IN
+                AND m.id IN
                 <foreach collection="request.moduleIds" item="item" open="(" separator="," close=")">
                     #{item}
                 </foreach>

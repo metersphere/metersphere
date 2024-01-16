@@ -41,6 +41,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -413,8 +414,7 @@ public class ApiTestCaseService {
         switch (request.getType()) {
             case PRIORITY -> batchUpdatePriority(example, updateCase, request.getPriority());
             case STATUS -> batchUpdateStatus(example, updateCase, request.getStatus());
-            case TAGS ->
-                    batchUpdateTags(example, updateCase, request.getTags(), request.isAppendTag(), sqlSession, mapper);
+            case TAGS -> batchUpdateTags(example, updateCase, request, ids, sqlSession, mapper);
             case ENVIRONMENT -> batchUpdateEnvironment(example, updateCase, request.getEnvId());
             default -> throw new MSException(Translator.get("batch_edit_type_error"));
         }
@@ -435,23 +435,27 @@ public class ApiTestCaseService {
     }
 
     private void batchUpdateTags(ApiTestCaseExample example, ApiTestCase updateCase,
-                                 List<String> tags, boolean appendTag,
+                                 ApiCaseBatchEditRequest request, List<String> ids,
                                  SqlSession sqlSession, ApiTestCaseMapper mapper) {
-        if (CollectionUtils.isEmpty(tags)) {
+        if (CollectionUtils.isEmpty(request.getTags())) {
             throw new MSException(Translator.get("tags_is_null"));
         }
-        if (appendTag) {
-            List<ApiTestCase> caseList = apiTestCaseMapper.selectByExample(example);
-            if (CollectionUtils.isNotEmpty(caseList)) {
-                caseList.forEach(apiTestCase -> {
-                    if (CollectionUtils.isNotEmpty(apiTestCase.getTags())) {
-                        List<String> orgTags = apiTestCase.getTags();
-                        orgTags.addAll(tags);
-                        apiTestCase.setTags(orgTags);
+        if (request.isAppendTag()) {
+            Map<String, ApiTestCase> caseMap = extApiTestCaseMapper.getTagsByIds(ids, false)
+                    .stream()
+                    .collect(Collectors.toMap(ApiTestCase::getId, Function.identity()));
+            if (MapUtils.isNotEmpty(caseMap)) {
+                caseMap.forEach((k, v) -> {
+                    if (CollectionUtils.isNotEmpty(v.getTags())) {
+                        List<String> orgTags = v.getTags();
+                        orgTags.addAll(request.getTags());
+                        v.setTags(orgTags.stream().distinct().toList());
                     } else {
-                        apiTestCase.setTags(tags);
+                        v.setTags(request.getTags());
                     }
-                    mapper.updateByPrimaryKey(apiTestCase);
+                    v.setUpdateTime(updateCase.getUpdateTime());
+                    v.setUpdateUser(updateCase.getUpdateUser());
+                    mapper.updateByPrimaryKeySelective(v);
                 });
                 sqlSession.flushStatements();
                 if (sqlSessionFactory != null) {
@@ -459,7 +463,7 @@ public class ApiTestCaseService {
                 }
             }
         } else {
-            updateCase.setTags(tags);
+            updateCase.setTags(request.getTags());
             apiTestCaseMapper.updateByExampleSelective(updateCase, example);
         }
     }
