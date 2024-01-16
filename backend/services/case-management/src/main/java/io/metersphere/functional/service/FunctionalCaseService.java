@@ -22,9 +22,11 @@ import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.domain.CustomFieldOption;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
+import io.metersphere.system.service.BaseCustomFieldOptionService;
 import io.metersphere.system.service.BaseCustomFieldService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
@@ -111,6 +113,8 @@ public class FunctionalCaseService {
     private FunctionalCaseRelationshipEdgeMapper functionalCaseRelationshipEdgeMapper;
     @Resource
     private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
+    @Resource
+    private BaseCustomFieldOptionService baseCustomFieldOptionService;
 
 
     public FunctionalCase addFunctionalCase(FunctionalCaseAddRequest request, List<MultipartFile> files, String userId) {
@@ -514,8 +518,14 @@ public class FunctionalCaseService {
         List<FunctionalCaseCustomFieldDTO> customFields = functionalCaseCustomFieldService.getCustomFieldsByCaseIds(ids);
         customFields.forEach(customField -> {
             if (customField.getInternal()) {
-                customField.setName(baseCustomFieldService.translateInternalField(customField.getName()));
+                customField.setFieldName(baseCustomFieldService.translateInternalField(customField.getFieldName()));
             }
+        });
+        List<String> fieldIds = customFields.stream().map(FunctionalCaseCustomFieldDTO::getFieldId).toList();
+        List<CustomFieldOption> fieldOptions = baseCustomFieldOptionService.getByFieldIds(fieldIds);
+        Map<String, List<CustomFieldOption>> customOptions = fieldOptions.stream().collect(Collectors.groupingBy(CustomFieldOption::getFieldId));
+        customFields.forEach(customField -> {
+            customField.setOptions(customOptions.get(customField.getFieldId()));
         });
         Map<String, List<FunctionalCaseCustomFieldDTO>> collect = customFields.stream().collect(Collectors.groupingBy(FunctionalCaseCustomFieldDTO::getCaseId));
         functionalCaseLists.forEach(functionalCasePageDTO -> {
