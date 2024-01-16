@@ -127,12 +127,7 @@
             <artifactId>dingtalk</artifactId>
             <version>${dingtalk-client.version}</version>
         </dependency>
-        <!-- xmind export-->
-        <dependency>
-            <groupId>com.github.eljah</groupId>
-            <artifactId>xmindjbehaveplugin</artifactId>
-            <version>${xmindjbehaveplugin.version}</version>
-        </dependency>
+
         <!-- openapi -->
         <dependency>
             <groupId>org.springdoc</groupId>
