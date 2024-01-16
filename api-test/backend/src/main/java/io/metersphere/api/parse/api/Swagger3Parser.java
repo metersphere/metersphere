@@ -16,6 +16,7 @@ import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.Project;
 import io.metersphere.commons.constants.PropertyConstant;
 import io.metersphere.commons.constants.RequestTypeConstants;
+import io.metersphere.commons.constants.SwaggerParameterType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.JSON;
 import io.metersphere.commons.utils.JSONUtil;
@@ -165,6 +166,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                     ApiDefinitionWithBLOBs apiDefinition = buildApiDefinition(request.getId(), operation, pathName, method, importRequest);
                     apiDefinition.setDescription(operation.getDescription());
                     parseParameters(operation, request);
+                    parseParameters(pathItem, request);
                     parseRequestBody(operation.getRequestBody(), request.getBody());
                     addBodyHeader(request);
                     if (request.getBody().getKvs().size() > 1 && request.getBody().getKvs().get(0).getName() == null) {
@@ -233,6 +235,25 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 parseCookieParameters(parameter, request.getHeaders());
             }
         });
+    }
+
+    private void parseParameters(PathItem path, MsHTTPSamplerProxy request) {
+        if (path.getParameters() == null) {
+            return;
+        }
+        List<Parameter> parameters = path.getParameters();
+        // 处理特殊格式  rest参数是和请求平级的情况
+
+        for (Parameter parameter : parameters) {
+            if (StringUtils.isNotBlank(parameter.getIn())) {
+                switch (parameter.getIn()) {
+                    case SwaggerParameterType.PATH -> parsePathParameters(parameter, request.getRest());
+                    case SwaggerParameterType.QUERY -> parseQueryParameters(parameter, request.getArguments());
+                    case SwaggerParameterType.HEADER -> parseHeaderParameters(parameter, request.getHeaders());
+                    case SwaggerParameterType.COOKIE -> parseCookieParameters(parameter, request.getHeaders());
+                }
+            }
+        }
     }
 
     private void parsePathParameters(Parameter parameter, List<KeyValue> rests) {
@@ -568,7 +589,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         }
         if (schema.getExample() != null) {
             item.getMock().put(PropertyConstant.MOCK, schema.getExample());
-        } else if (StringUtils.isNotBlank(item.getMock().get(PropertyConstant.MOCK).toString())){
+        } else if (StringUtils.isNotBlank(item.getMock().get(PropertyConstant.MOCK).toString())) {
             item.getMock().put(PropertyConstant.MOCK, item.getMock().get(PropertyConstant.MOCK));
         } else {
             item.getMock().put(PropertyConstant.MOCK, StringUtils.EMPTY);
@@ -1276,7 +1297,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 String xml = XMLUtil.delXmlHeader(xmlText);
                 int startIndex = xml.indexOf("<", 0);
                 int endIndex = xml.indexOf(">", 0);
-                if (endIndex > startIndex+ 1 ) {
+                if (endIndex > startIndex + 1) {
                     String substring = xml.substring(startIndex + 1, endIndex);
                     bodyInfo = buildRefSchema(substring);
                 }
