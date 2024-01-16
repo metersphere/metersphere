@@ -3,13 +3,13 @@ package io.metersphere.listener;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.RunInterface;
+import io.metersphere.plan.service.TestPlanReportService;
 import io.metersphere.service.*;
+import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
-
-import jakarta.annotation.Resource;
 
 @Component
 public class InitListener implements ApplicationRunner {
@@ -28,12 +28,14 @@ public class InitListener implements ApplicationRunner {
     private PlatformPluginService platformPluginService;
     @Resource
     private BaseScheduleService baseScheduleService;
+    @Resource
+    private TestPlanReportService testPlanReportService;
 
     @Override
     public void run(ApplicationArguments applicationArguments) throws Exception {
         this.initOnceOperate();
         platformPluginService.loadPlatFormPlugins();
-
+        testPlanReportService.deleteIllegalityResourceReport();
         baseScheduleService.startEnableSchedules(ScheduleGroup.ISSUE_SYNC);
         baseScheduleService.startEnableSchedules(ScheduleGroup.TEST_PLAN_TEST);
     }

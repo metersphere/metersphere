@@ -60,4 +60,10 @@ public interface ExtTestPlanMapper {
     long countExecutingReportCount(String testPlanId);
 
     void batchUpdateNode(@Param("request") TestPlanBatchMoveRequest request);
+
+    List<String> selectDeletedTestPlanReportIdsFromApiCaseReport();
+
+    List<String> selectDeletedTestPlanReportIdsFromApiScenarioReport();
+
+    List<String> selectDeletedTestPlanReportIdsFromUiReport();
 }

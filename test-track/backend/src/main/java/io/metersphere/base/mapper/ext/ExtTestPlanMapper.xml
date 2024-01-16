@@ -490,6 +490,21 @@
         WHERE test_plan_id = #{0}
           AND status = 'RUNNING'
     </select>
+    <select id="selectDeletedTestPlanReportIdsFromApiCaseReport" resultType="java.lang.String">
+        SELECT DISTINCT relevance_test_plan_report_id
+        FROM api_definition_exec_result
+        WHERE relevance_test_plan_report_id not in (select id FROM test_plan_report);
+    </select>
+    <select id="selectDeletedTestPlanReportIdsFromApiScenarioReport" resultType="java.lang.String">
+        SELECT DISTINCT relevance_test_plan_report_id
+        FROM api_scenario_report
+        WHERE relevance_test_plan_report_id not in (select id FROM test_plan_report);
+    </select>
+    <select id="selectDeletedTestPlanReportIdsFromUiReport" resultType="java.lang.String">
+        SELECT DISTINCT relevance_test_plan_report_id
+        FROM ui_scenario_report
+        WHERE relevance_test_plan_report_id not in (select id FROM test_plan_report);
+    </select>
 
     <update id="batchUpdateNode" parameterType="io.metersphere.plan.request.TestPlanBatchMoveRequest">
         update test_plan set node_id = #{request.nodeId}, node_path = #{request.nodePath}

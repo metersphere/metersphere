@@ -44,10 +44,7 @@ import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.session.ExecutorType;
-import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -957,93 +954,23 @@ public class TestPlanReportService {
     }
 
     private void deleteReportBatch(List<String> reportIds) {
-        int handleCount = 5000;
-        List<String> handleIdList;
-
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        TestPlanReportMapper planReportMapper = sqlSession.getMapper(TestPlanReportMapper.class);
-        TestPlanReportDataMapper planReportDataMapper = sqlSession.getMapper(TestPlanReportDataMapper.class);
-        TestPlanReportContentMapper planReportContentMapper = sqlSession.getMapper(TestPlanReportContentMapper.class);
-
-        try {
-            while (reportIds.size() > handleCount) {
-                handleIdList = new ArrayList<>(handleCount);
-                List<String> otherIdList = new ArrayList<>();
-                for (int index = 0; index < reportIds.size(); index++) {
-                    if (index < handleCount) {
-                        handleIdList.add(reportIds.get(index));
-                    } else {
-                        otherIdList.add(reportIds.get(index));
-                    }
-                }
-
-                TestPlanReportExample deleteReportExample = new TestPlanReportExample();
-                deleteReportExample.createCriteria().andIdIn(handleIdList);
-                planReportMapper.deleteByExample(deleteReportExample);
-
-                TestPlanReportDataExample example = new TestPlanReportDataExample();
-                example.createCriteria().andTestPlanReportIdIn(handleIdList);
-                planReportDataMapper.deleteByExample(example);
-
-                TestPlanReportContentExample contentExample = new TestPlanReportContentExample();
-                contentExample.createCriteria().andTestPlanReportIdIn(handleIdList);
-                planReportContentMapper.deleteByExample(contentExample);
-
-                //                //删除关联的接口用例报告
-                //                ApiDefinitionExecResultExample apiDefinitionExecResultExample = new ApiDefinitionExecResultExample();
-                //                apiDefinitionExecResultExample.createCriteria().andRelevanceTestPlanReportIdIn(handleIdList);
-                //                batchDefinitionExecResultMapper.deleteByExample(apiDefinitionExecResultExample);
-                //
-                //                //删除关联的场景和ui用例报告
-                //                ApiScenarioReportExample apiScenarioReportExample = new ApiScenarioReportExample();
-                //                apiScenarioReportExample.createCriteria().andRelevanceTestPlanReportIdIn(handleIdList);
-                //                batchScenarioReportMapper.deleteByExample(apiScenarioReportExample);
-                //
-                //                //删除关联的性能测试用例报告
-                //                LoadTestReportExample loadTestReportExample = new LoadTestReportExample();
-                //                loadTestReportExample.createCriteria().andRelevanceTestPlanReportIdIn(handleIdList);
-                //                batchLoadTestReportMapper.deleteByExample(loadTestReportExample);
-
-                sqlSession.flushStatements();
-
-                reportIds = otherIdList;
-            }
-
-            if (!reportIds.isEmpty()) {
-                TestPlanReportExample deleteReportExample = new TestPlanReportExample();
-                deleteReportExample.createCriteria().andIdIn(reportIds);
-                planReportMapper.deleteByExample(deleteReportExample);
+        if (!reportIds.isEmpty()) {
+            TestPlanReportExample deleteReportExample = new TestPlanReportExample();
+            deleteReportExample.createCriteria().andIdIn(reportIds);
+            testPlanReportMapper.deleteByExample(deleteReportExample);
 
 
-                TestPlanReportDataExample example = new TestPlanReportDataExample();
-                example.createCriteria().andTestPlanReportIdIn(reportIds);
-                planReportDataMapper.deleteByExample(example);
+            TestPlanReportDataExample example = new TestPlanReportDataExample();
+            example.createCriteria().andTestPlanReportIdIn(reportIds);
+            testPlanReportDataMapper.deleteByExample(example);
 
-                TestPlanReportContentExample contentExample = new TestPlanReportContentExample();
-                contentExample.createCriteria().andTestPlanReportIdIn(reportIds);
-                planReportContentMapper.deleteByExample(contentExample);
+            TestPlanReportContentExample contentExample = new TestPlanReportContentExample();
+            contentExample.createCriteria().andTestPlanReportIdIn(reportIds);
+            testPlanReportContentMapper.deleteByExample(contentExample);
 
-                //                //删除关联的接口用例报告
-                //                ApiDefinitionExecResultExample apiDefinitionExecResultExample = new ApiDefinitionExecResultExample();
-                //                apiDefinitionExecResultExample.createCriteria().andRelevanceTestPlanReportIdIn(reportIds);
-                //                batchDefinitionExecResultMapper.deleteByExample(apiDefinitionExecResultExample);
-                //
-                //                //删除关联的场景和ui用例报告
-                //                ApiScenarioReportExample apiScenarioReportExample = new ApiScenarioReportExample();
-                //                apiScenarioReportExample.createCriteria().andRelevanceTestPlanReportIdIn(reportIds);
-                //                batchScenarioReportMapper.deleteByExample(apiScenarioReportExample);
-                //
-                //                //删除关联的性能测试用例报告
-                //                LoadTestReportExample loadTestReportExample = new LoadTestReportExample();
-                //                loadTestReportExample.createCriteria().andRelevanceTestPlanReportIdIn(reportIds);
-                //                batchLoadTestReportMapper.deleteByExample(loadTestReportExample);
-
-                sqlSession.flushStatements();
-            }
-        } finally {
-            if (sqlSession != null && sqlSessionFactory != null) {
-                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-            }
+            this.deleteApiCaseReportByTestPlanExecute(reportIds);
+            this.deleteScenarioReportByTestPlanExecute(reportIds);
+            this.deleteUiReportByTestPlanExecute(reportIds);
         }
 
     }
@@ -1615,7 +1542,7 @@ public class TestPlanReportService {
             List<TestPlanReport> testPlanReports = testPlanReportMapper.selectByExample(example);
             List<String> ids = testPlanReports.stream().map(TestPlanReport::getId).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(ids)) {
-                deleteReportBatch(ids);
+                BatchProcessingUtil.consumerByStringList(ids, this::deleteReportBatch);
             }
         }
     }
@@ -1816,5 +1743,15 @@ public class TestPlanReportService {
 
     public String selectLastReportByTestPlanId(String testPlanId) {
         return extTestPlanReportMapper.selectLastReportByTestPlanId(testPlanId);
+    }
+
+    @Async
+    public void deleteIllegalityResourceReport() {
+        List<String> deletedTestPlanReportIds = new ArrayList<>();
+        deletedTestPlanReportIds.addAll(extTestPlanMapper.selectDeletedTestPlanReportIdsFromApiCaseReport());
+        deletedTestPlanReportIds.addAll(extTestPlanMapper.selectDeletedTestPlanReportIdsFromApiScenarioReport());
+        deletedTestPlanReportIds.addAll(extTestPlanMapper.selectDeletedTestPlanReportIdsFromUiReport());
+        deletedTestPlanReportIds = deletedTestPlanReportIds.stream().distinct().toList();
+        BatchProcessingUtil.consumerByStringList(deletedTestPlanReportIds, this::deleteReportBatch);
     }
 }
