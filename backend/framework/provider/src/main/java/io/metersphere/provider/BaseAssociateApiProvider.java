@@ -2,7 +2,6 @@ package io.metersphere.provider;
 
 import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.dto.TestCaseProviderDTO;
-import io.metersphere.request.AssociateCaseModuleProviderRequest;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
 
@@ -31,7 +30,7 @@ public interface BaseAssociateApiProvider {
      * @param deleted 接口定义是否删除
      * @return 接口模块统计数量
      */
-    Map<String, Long> moduleCount(String sourceType, String sourceName, String apiCaseColumnName, AssociateCaseModuleProviderRequest request, boolean deleted);
+    Map<String, Long> moduleCount(String sourceType, String sourceName, String apiCaseColumnName, TestCasePageProviderRequest request, boolean deleted);
 
     /**
      * 根据页面筛选条件获取批量操作的用例

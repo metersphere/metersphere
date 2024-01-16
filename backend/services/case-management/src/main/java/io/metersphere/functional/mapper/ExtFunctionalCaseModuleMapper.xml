@@ -82,6 +82,18 @@
         ORDER BY pos
     </select>
 
+    <select id="selectApiScenarioModuleByRequest" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
+        SELECT m.id,
+        m.parent_id AS parentId,
+        m.name,
+        m.pos,
+        m.project_id,
+        'MODULE' AS type
+        FROM api_scenario_module m
+        <include refid="module_request"/>
+        ORDER BY pos
+    </select>
+
     <select id="selectIdAndParentIdByProjectIdAndReviewId" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
         SELECT fcm.id, fcm.parent_id AS parentId
         FROM functional_case_module fcm

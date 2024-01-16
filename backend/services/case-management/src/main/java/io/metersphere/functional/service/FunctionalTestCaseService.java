@@ -1,7 +1,6 @@
 package io.metersphere.functional.service;
 
 import io.metersphere.api.domain.ApiTestCase;
-import io.metersphere.bug.mapper.BugRelationCaseMapper;
 import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.functional.constants.AssociateCaseType;
@@ -30,6 +29,7 @@ import org.redisson.api.IdGenerator;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -63,8 +63,7 @@ public class FunctionalTestCaseService {
 
     @Resource
     private BaseAssociateBugProvider baseAssociateBugProvider;
-    @Resource
-    private BugRelationCaseMapper bugRelationCaseMapper;
+
 
     /**
      * 获取功能用例未关联的接口用例列表
@@ -83,7 +82,7 @@ public class FunctionalTestCaseService {
      * @param deleted 接口定义是否删除
      * @return 接口模块统计数量
      */
-    public Map<String, Long> moduleCount(AssociateCaseModuleProviderRequest request, boolean deleted) {
+    public Map<String, Long> moduleCount(TestCasePageProviderRequest request, boolean deleted) {
         return provider.moduleCount("functional_case_test", "case_id", "source_id", request, deleted);
 
     }
@@ -162,7 +161,12 @@ public class FunctionalTestCaseService {
     }
 
     public List<BaseTreeNode> getTree(AssociateCaseModuleRequest request) {
-        List<BaseTreeNode> fileModuleList = extFunctionalCaseModuleMapper.selectApiCaseModuleByRequest(request);
+        List<BaseTreeNode> fileModuleList = new ArrayList<>();
+        switch (request.getSourceType()) {
+            case AssociateCaseType.API -> fileModuleList = extFunctionalCaseModuleMapper.selectApiCaseModuleByRequest(request);
+            case AssociateCaseType.SCENARIO -> fileModuleList = extFunctionalCaseModuleMapper.selectApiScenarioModuleByRequest(request);
+            default -> new ArrayList<>();
+        }
         return functionalCaseModuleService.buildTreeAndCountResource(fileModuleList, true, Translator.get(UNPLANNED_API));
     }
 

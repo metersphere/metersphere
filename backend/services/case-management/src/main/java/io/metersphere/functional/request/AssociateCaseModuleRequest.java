@@ -18,6 +18,7 @@ public class AssociateCaseModuleRequest extends BaseCondition {
     @NotBlank(message = "{api_definition_module.protocol.not_blank}")
     @Size(min = 1, max = 20, message = "{api_definition_module.protocol.length_range}")
     private String protocol = ModuleConstants.NODE_PROTOCOL_HTTP;
+
     @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_definition_module.project_id.not_blank}")
     @Size(min = 1, max = 50, message = "{api_definition_module.project_id.length_range}")
