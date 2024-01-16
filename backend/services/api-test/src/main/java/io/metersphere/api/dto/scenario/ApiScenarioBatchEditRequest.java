@@ -1,4 +1,4 @@
-package io.metersphere.api.dto.definition;
+package io.metersphere.api.dto.scenario;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -13,7 +13,7 @@ import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class ApiCaseBatchEditRequest extends ApiTestCaseBatchRequest implements Serializable {
+public class ApiScenarioBatchEditRequest extends ApiScenarioBatchRequest implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -29,6 +29,10 @@ public class ApiCaseBatchEditRequest extends ApiTestCaseBatchRequest implements 
     private boolean appendTag = false;
     @Schema(description = "环境id")
     private String envId;
+    @Schema(description = "使用环境组")
+    private boolean grouped = false;
+    @Schema(description = "环境组id")
+    private String groupId;
     @Schema(description = "用例状态")
     private String status;
     @Schema(description = "用例等级")

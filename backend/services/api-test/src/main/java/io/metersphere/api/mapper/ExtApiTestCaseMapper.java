@@ -7,8 +7,8 @@ import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.definition.ApiTestCasePageRequest;
 import io.metersphere.api.dto.definition.CasePassDTO;
 import io.metersphere.dto.TestCaseProviderDTO;
-import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.request.AssociateOtherCaseRequest;
+import io.metersphere.request.TestCasePageProviderRequest;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -49,5 +49,7 @@ public interface ExtApiTestCaseMapper {
 
     List<ApiTestCase> getTestCaseByProvider(@Param("request") AssociateOtherCaseRequest request, @Param("deleted") boolean deleted);
 
+
+    List<ApiTestCase> getTagsByIds(@Param("ids") List<String> ids, @Param("deleted") boolean deleted);
 
 }

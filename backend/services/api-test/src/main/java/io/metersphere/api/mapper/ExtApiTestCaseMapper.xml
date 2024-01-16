@@ -9,6 +9,10 @@
     <resultMap id="TestCaseProviderDTO" type="io.metersphere.dto.TestCaseProviderDTO">
         <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
     </resultMap>
+
+    <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiTestCase">
+        <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
+    </resultMap>
     <update id="batchMoveGc">
         UPDATE api_test_case
         SET deleted = 1,
@@ -190,6 +194,18 @@
         INNER JOIN api_definition a ON t1.api_definition_id = a.id
         WHERE t1.deleted =#{deleted}
         <include refid="queryWhereConditionByBatch"/>
+    </select>
+    <select id="getTagsByIds" resultMap="BaseResultMap">
+        SELECT
+        t1.id,
+        t1.tags
+        FROM
+        api_test_case t1
+        WHERE t1.deleted =#{deleted}
+        and t1.id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
     </select>
 
     <sql id="queryWhereConditionByBatch">

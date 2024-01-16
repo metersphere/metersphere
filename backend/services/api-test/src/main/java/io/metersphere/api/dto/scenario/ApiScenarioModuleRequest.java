@@ -1,4 +1,4 @@
-package io.metersphere.api.dto.definition;
+package io.metersphere.api.dto.scenario;
 
 import io.metersphere.system.dto.sdk.BaseCondition;
 import io.swagger.v3.oas.annotations.media.Schema;

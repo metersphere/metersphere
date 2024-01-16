@@ -6,7 +6,7 @@ import io.metersphere.api.domain.ApiScenarioModule;
 import io.metersphere.api.domain.ApiScenarioModuleExample;
 import io.metersphere.api.dto.debug.ModuleCreateRequest;
 import io.metersphere.api.dto.debug.ModuleUpdateRequest;
-import io.metersphere.api.dto.definition.ApiScenarioModuleRequest;
+import io.metersphere.api.dto.scenario.ApiScenarioModuleRequest;
 import io.metersphere.api.mapper.ApiScenarioMapper;
 import io.metersphere.api.mapper.ApiScenarioModuleMapper;
 import io.metersphere.api.service.scenario.ApiScenarioModuleService;

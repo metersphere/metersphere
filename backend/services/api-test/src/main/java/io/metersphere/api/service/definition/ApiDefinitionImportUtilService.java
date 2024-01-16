@@ -1,5 +1,6 @@
 package io.metersphere.api.service.definition;
 
+import io.metersphere.api.constants.ApiDefinitionStatus;
 import io.metersphere.api.constants.ApiImportPlatform;
 import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.domain.ApiDefinitionBlob;
@@ -327,7 +328,7 @@ public class ApiDefinitionImportUtilService {
             apiDefinition.setUpdateTime(System.currentTimeMillis());
             apiDefinition.setNum(NumGenerator.nextNum(request.getProjectId(), ApplicationNumScope.API_DEFINITION));
             apiDefinition.setLatest(true);
-            apiDefinition.setStatus("Underway");
+            apiDefinition.setStatus(ApiDefinitionStatus.UNDERWAY.name());
             apiDefinition.setRefId(apiDefinition.getId());
             apiDefinition.setVersionId(request.getVersionId());
             apiMapper.insertSelective(apiDefinition);

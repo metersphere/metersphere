@@ -2,9 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.api.mapper.ApiScenarioEnvironmentMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiScenarioEnvironment">
-    <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="api_scenario_id" jdbcType="VARCHAR" property="apiScenarioId" />
-    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <id column="api_scenario_id" jdbcType="VARCHAR" property="apiScenarioId" />
     <result column="environment_id" jdbcType="VARCHAR" property="environmentId" />
     <result column="environment_group_id" jdbcType="VARCHAR" property="environmentGroupId" />
   </resultMap>
@@ -67,7 +65,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, api_scenario_id, project_id, environment_id, environment_group_id
+    api_scenario_id, environment_id, environment_group_id
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiScenarioEnvironmentExample" resultMap="BaseResultMap">
     select
@@ -87,11 +85,11 @@
     select 
     <include refid="Base_Column_List" />
     from api_scenario_environment
-    where id = #{id,jdbcType=VARCHAR}
+    where api_scenario_id = #{apiScenarioId,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from api_scenario_environment
-    where id = #{id,jdbcType=VARCHAR}
+    where api_scenario_id = #{apiScenarioId,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.api.domain.ApiScenarioEnvironmentExample">
     delete from api_scenario_environment
@@ -100,22 +98,16 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.api.domain.ApiScenarioEnvironment">
-    insert into api_scenario_environment (id, api_scenario_id, project_id, 
-      environment_id, environment_group_id)
-    values (#{id,jdbcType=VARCHAR}, #{apiScenarioId,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
-      #{environmentId,jdbcType=VARCHAR}, #{environmentGroupId,jdbcType=VARCHAR})
+    insert into api_scenario_environment (api_scenario_id, environment_id, environment_group_id
+      )
+    values (#{apiScenarioId,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, #{environmentGroupId,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiScenarioEnvironment">
     insert into api_scenario_environment
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
-      </if>
       <if test="apiScenarioId != null">
         api_scenario_id,
-      </if>
-      <if test="projectId != null">
-        project_id,
       </if>
       <if test="environmentId != null">
         environment_id,
@@ -125,14 +117,8 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=VARCHAR},
-      </if>
       <if test="apiScenarioId != null">
         #{apiScenarioId,jdbcType=VARCHAR},
-      </if>
-      <if test="projectId != null">
-        #{projectId,jdbcType=VARCHAR},
       </if>
       <if test="environmentId != null">
         #{environmentId,jdbcType=VARCHAR},
@@ -151,14 +137,8 @@
   <update id="updateByExampleSelective" parameterType="map">
     update api_scenario_environment
     <set>
-      <if test="record.id != null">
-        id = #{record.id,jdbcType=VARCHAR},
-      </if>
       <if test="record.apiScenarioId != null">
         api_scenario_id = #{record.apiScenarioId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.projectId != null">
-        project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
       <if test="record.environmentId != null">
         environment_id = #{record.environmentId,jdbcType=VARCHAR},
@@ -173,9 +153,7 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update api_scenario_environment
-    set id = #{record.id,jdbcType=VARCHAR},
-      api_scenario_id = #{record.apiScenarioId,jdbcType=VARCHAR},
-      project_id = #{record.projectId,jdbcType=VARCHAR},
+    set api_scenario_id = #{record.apiScenarioId,jdbcType=VARCHAR},
       environment_id = #{record.environmentId,jdbcType=VARCHAR},
       environment_group_id = #{record.environmentGroupId,jdbcType=VARCHAR}
     <if test="_parameter != null">
@@ -185,12 +163,6 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.api.domain.ApiScenarioEnvironment">
     update api_scenario_environment
     <set>
-      <if test="apiScenarioId != null">
-        api_scenario_id = #{apiScenarioId,jdbcType=VARCHAR},
-      </if>
-      <if test="projectId != null">
-        project_id = #{projectId,jdbcType=VARCHAR},
-      </if>
       <if test="environmentId != null">
         environment_id = #{environmentId,jdbcType=VARCHAR},
       </if>
@@ -198,24 +170,21 @@
         environment_group_id = #{environmentGroupId,jdbcType=VARCHAR},
       </if>
     </set>
-    where id = #{id,jdbcType=VARCHAR}
+    where api_scenario_id = #{apiScenarioId,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiScenarioEnvironment">
     update api_scenario_environment
-    set api_scenario_id = #{apiScenarioId,jdbcType=VARCHAR},
-      project_id = #{projectId,jdbcType=VARCHAR},
-      environment_id = #{environmentId,jdbcType=VARCHAR},
+    set environment_id = #{environmentId,jdbcType=VARCHAR},
       environment_group_id = #{environmentGroupId,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=VARCHAR}
+    where api_scenario_id = #{apiScenarioId,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_scenario_environment
-    (id, api_scenario_id, project_id, environment_id, environment_group_id)
+    (api_scenario_id, environment_id, environment_group_id)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.apiScenarioId,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, 
-        #{item.environmentId,jdbcType=VARCHAR}, #{item.environmentGroupId,jdbcType=VARCHAR}
-        )
+      (#{item.apiScenarioId,jdbcType=VARCHAR}, #{item.environmentId,jdbcType=VARCHAR}, 
+        #{item.environmentGroupId,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -228,14 +197,8 @@
     <foreach collection="list" item="item" separator=",">
       (
       <foreach collection="selective" item="column" separator=",">
-        <if test="'id'.toString() == column.value">
-          #{item.id,jdbcType=VARCHAR}
-        </if>
         <if test="'api_scenario_id'.toString() == column.value">
           #{item.apiScenarioId,jdbcType=VARCHAR}
-        </if>
-        <if test="'project_id'.toString() == column.value">
-          #{item.projectId,jdbcType=VARCHAR}
         </if>
         <if test="'environment_id'.toString() == column.value">
           #{item.environmentId,jdbcType=VARCHAR}

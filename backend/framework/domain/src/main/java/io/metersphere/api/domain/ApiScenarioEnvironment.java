@@ -10,20 +10,10 @@ import lombok.Data;
 
 @Data
 public class ApiScenarioEnvironment implements Serializable {
-    @Schema(description = "场景环境pk", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_environment.id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 50, message = "{api_scenario_environment.id.length_range}", groups = {Created.class, Updated.class})
-    private String id;
-
     @Schema(description = "场景fk", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_scenario_environment.api_scenario_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{api_scenario_environment.api_scenario_id.length_range}", groups = {Created.class, Updated.class})
     private String apiScenarioId;
-
-    @Schema(description = "项目fk", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_environment.project_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{api_scenario_environment.project_id.length_range}", groups = {Created.class, Updated.class})
-    private String projectId;
 
     @Schema(description = "环境fk")
     private String environmentId;
@@ -34,9 +24,7 @@ public class ApiScenarioEnvironment implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public enum Column {
-        id("id", "id", "VARCHAR", false),
         apiScenarioId("api_scenario_id", "apiScenarioId", "VARCHAR", false),
-        projectId("project_id", "projectId", "VARCHAR", false),
         environmentId("environment_id", "environmentId", "VARCHAR", false),
         environmentGroupId("environment_group_id", "environmentGroupId", "VARCHAR", false);
 

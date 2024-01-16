@@ -209,7 +209,8 @@ CREATE TABLE IF NOT EXISTS api_scenario(
     `priority` VARCHAR(10) NOT NULL   COMMENT '场景级别/P0/P1等' ,
     `status` VARCHAR(20) NOT NULL   COMMENT '场景状态/未规划/已完成 等' ,
     `step_total` INT NOT NULL  DEFAULT 0 COMMENT '场景步骤总数' ,
-    `pass_rate` BIGINT NOT NULL  DEFAULT 0 COMMENT '通过率' ,
+    `request_execution_rate` VARCHAR(255) NOT NULL  DEFAULT '0.00' COMMENT '请求执行率' ,
+    `request_pass_rate` BIGINT NOT NULL  DEFAULT '0.00' COMMENT '通过率' ,
     `last_report_status` VARCHAR(50)    COMMENT '最后一次执行的结果状态' ,
     `last_report_id` VARCHAR(50)    COMMENT '最后一次执行的报告fk' ,
     `num` BIGINT NOT NULL   COMMENT '编号' ,
@@ -549,19 +550,15 @@ CREATE TABLE IF NOT EXISTS api_test_case_blob(
   COLLATE = utf8mb4_general_ci COMMENT = '接口用例详情';
 
 CREATE TABLE IF NOT EXISTS api_scenario_environment(
-  `id` VARCHAR(50) NOT NULL   COMMENT '场景环境pk' ,
-  `api_scenario_id` VARCHAR(50) NOT NULL   COMMENT '场景fk' ,
-  `project_id` VARCHAR(50) NOT NULL   COMMENT '项目fk' ,
-  `environment_id` VARCHAR(50)    COMMENT '环境fk' ,
-  `environment_group_id` VARCHAR(50)    COMMENT '环境组fk' ,
-  PRIMARY KEY (id)
+    `api_scenario_id` VARCHAR(50) NOT NULL   COMMENT '场景fk' ,
+    `environment_id` VARCHAR(50)    COMMENT '环境fk' ,
+    `environment_group_id` VARCHAR(50)    COMMENT '环境组fk' ,
+    PRIMARY KEY (api_scenario_id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '场景环境';
 
-
 CREATE INDEX idx_api_scenario_id ON api_scenario_environment(api_scenario_id);
-CREATE INDEX idx_project_id ON api_scenario_environment(project_id);
 CREATE INDEX idx_environment_id ON api_scenario_environment(environment_id);
 
 
