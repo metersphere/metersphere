@@ -126,6 +126,12 @@
             <groupId>com.aliyun</groupId>
             <artifactId>dingtalk</artifactId>
             <version>${dingtalk-client.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>bcprov-jdk15on</artifactId>
+                    <groupId>org.bouncycastle</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- openapi -->
