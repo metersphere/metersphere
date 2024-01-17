@@ -10,7 +10,7 @@ public interface ApiScenarioReportStepMapper {
 
     int deleteByExample(ApiScenarioReportStepExample example);
 
-    int deleteByPrimaryKey(String reportId);
+    int deleteByPrimaryKey(@Param("stepId") String stepId, @Param("reportId") String reportId);
 
     int insert(ApiScenarioReportStep record);
 
@@ -18,7 +18,7 @@ public interface ApiScenarioReportStepMapper {
 
     List<ApiScenarioReportStep> selectByExample(ApiScenarioReportStepExample example);
 
-    ApiScenarioReportStep selectByPrimaryKey(String reportId);
+    ApiScenarioReportStep selectByPrimaryKey(@Param("stepId") String stepId, @Param("reportId") String reportId);
 
     int updateByExampleSelective(@Param("record") ApiScenarioReportStep record, @Param("example") ApiScenarioReportStepExample example);
 

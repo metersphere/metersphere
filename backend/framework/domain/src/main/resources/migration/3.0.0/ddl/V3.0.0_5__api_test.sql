@@ -99,9 +99,9 @@ CREATE INDEX idx_create_user ON api_definition(create_user);
 CREATE INDEX idx_name ON api_definition(name);
 
 CREATE TABLE IF NOT EXISTS api_report(
-    `id` VARCHAR(50) NOT NULL   COMMENT '场景报告pk' ,
-    `name` VARCHAR(255) NOT NULL   COMMENT '报告名称' ,
-    `resource_id` VARCHAR(50) NOT NULL   COMMENT '场景资源fk/api_definition_id/api_test_case_id' ,
+    `id` VARCHAR(50) NOT NULL   COMMENT '接口报告pk' ,
+    `name` VARCHAR(255) NOT NULL   COMMENT '接口报告名称' ,
+    `resource_id` VARCHAR(50) NOT NULL   COMMENT '接口资源fk/api_definition_id/api_test_case_id' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
     `delete_time` BIGINT    COMMENT '删除时间' ,
     `delete_user` VARCHAR(50)    COMMENT '删除人' ,
@@ -109,8 +109,8 @@ CREATE TABLE IF NOT EXISTS api_report(
     `update_user` VARCHAR(50) NOT NULL   COMMENT '修改人' ,
     `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
     `start_time` BIGINT NOT NULL   COMMENT '开始时间/同创建时间一致' ,
-    `end_time` BIGINT NOT NULL   COMMENT '结束时间/报告执行完成' ,
-    `request_duration` BIGINT NOT NULL   COMMENT '请求总耗时' ,
+    `end_time` BIGINT    COMMENT '结束时间/报告执行完成' ,
+    `request_duration` BIGINT NOT NULL  DEFAULT 0 COMMENT '请求总耗时' ,
     `status` VARCHAR(20) NOT NULL  DEFAULT 'Pending' COMMENT '报告状态/SUCCESS/ERROR' ,
     `trigger_mode` VARCHAR(20) NOT NULL   COMMENT '触发方式' ,
     `run_mode` VARCHAR(20) NOT NULL   COMMENT '执行模式' ,
@@ -124,14 +124,14 @@ CREATE TABLE IF NOT EXISTS api_report(
     `pending_count` BIGINT NOT NULL  DEFAULT 0 COMMENT '未执行数' ,
     `success_count` BIGINT NOT NULL  DEFAULT 0 COMMENT '成功数' ,
     `assertion_count` BIGINT NOT NULL  DEFAULT 0 COMMENT '总断言数' ,
-    `assertion_success_count` BIGINT NOT NULL  DEFAULT 0 COMMENT '通过断言数' ,
-    `request_execution_rate` VARCHAR(20) NOT NULL COMMENT '请求执行率' ,
-    `request_pass_rate` VARCHAR(20) NOT NULL COMMENT '请求通过率' ,
-    `assertion_pass_rate` VARCHAR(20) NOT NULL COMMENT '断言通过率' ,
+    `assertion_success_count` BIGINT NOT NULL  DEFAULT 0 COMMENT '成功断言数' ,
+    `request_execution_rate` VARCHAR(20) NOT NULL  DEFAULT 'Calculating' COMMENT '请求执行率' ,
+    `request_pass_rate` VARCHAR(20) NOT NULL  DEFAULT 'Calculating' COMMENT '请求通过率' ,
+    `assertion_pass_rate` VARCHAR(20) NOT NULL  DEFAULT 'Calculating' COMMENT '断言通过率' ,
     `script_identifier` VARCHAR(255)    COMMENT '脚本标识' ,
     PRIMARY KEY (id)
 )
-  ENGINE = InnoDB
+    ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci  COMMENT = 'API/CASE执行结果';
 
@@ -144,6 +144,21 @@ CREATE INDEX idx_update_time ON api_report(update_time);
 CREATE INDEX idx_create_user ON api_report(create_user);
 CREATE INDEX idx_name ON api_report(name);
 CREATE INDEX idx_pool_id ON api_report(pool_id);
+
+CREATE TABLE IF NOT EXISTS api_report_step(
+    `step_id` BIGINT NOT NULL   COMMENT '步骤id' ,
+    `report_id` VARCHAR(50) NOT NULL   COMMENT '报告id' ,
+    `name` VARCHAR(255)    COMMENT '步骤名称' ,
+    `sort` BIGINT NOT NULL   COMMENT '序号' ,
+    `step_type` VARCHAR(50) NOT NULL   COMMENT '步骤类型/API/CASE等' ,
+    PRIMARY KEY (step_id,report_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = 'API报告步骤';
+
+CREATE INDEX idx_report_id ON api_report_step(report_id);
+CREATE INDEX idx_sort ON api_report_step(sort);
+CREATE INDEX idx_step_type ON api_report_step(step_type);
 
 CREATE TABLE IF NOT EXISTS api_report_detail(
     `id` VARCHAR(50) NOT NULL   COMMENT '报告详情id' ,
@@ -166,14 +181,15 @@ CREATE INDEX idx_report ON api_report_detail(report_id);
 CREATE INDEX idx_resource_id ON api_report_detail(resource_id);
 
 CREATE TABLE api_report_log(
+    `id` VARCHAR(50) NOT NULL   COMMENT '主键' ,
     `report_id` VARCHAR(50) NOT NULL   COMMENT '请求资源 id' ,
     `console` LONGBLOB    COMMENT '执行日志' ,
-    PRIMARY KEY (report_id)
-)
-    ENGINE = InnoDB
+    PRIMARY KEY (id)
+)   ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4
     COLLATE = utf8mb4_general_ci  COMMENT = '接口报告过程日志';
 
+CREATE INDEX idx_report_id ON api_report_log(report_id);
 
 CREATE TABLE IF NOT EXISTS api_definition_follower(
   `api_definition_id` VARCHAR(50) NOT NULL   COMMENT '接口fk' ,
@@ -209,8 +225,7 @@ CREATE TABLE IF NOT EXISTS api_scenario(
     `priority` VARCHAR(10) NOT NULL   COMMENT '场景级别/P0/P1等' ,
     `status` VARCHAR(20) NOT NULL   COMMENT '场景状态/未规划/已完成 等' ,
     `step_total` INT NOT NULL  DEFAULT 0 COMMENT '场景步骤总数' ,
-    `request_execution_rate` VARCHAR(20) NOT NULL  DEFAULT '0.00' COMMENT '请求执行率' ,
-    `request_pass_rate` VARCHAR(20) NOT NULL  DEFAULT '0.00'  COMMENT '通过率' ,
+    `request_pass_rate` VARCHAR(20) NOT NULL  DEFAULT 'Calculating' COMMENT '请求通过率' ,
     `last_report_status` VARCHAR(50)    COMMENT '最后一次执行的结果状态' ,
     `last_report_id` VARCHAR(50)    COMMENT '最后一次执行的报告fk' ,
     `num` BIGINT NOT NULL   COMMENT '编号' ,
@@ -223,7 +238,8 @@ CREATE TABLE IF NOT EXISTS api_scenario(
     `module_id` VARCHAR(50) NOT NULL   COMMENT '场景模块fk' ,
     `description` VARCHAR(500)    COMMENT '描述信息' ,
     `tags` VARCHAR(1000)    COMMENT '标签' ,
-    `grouped` BIT(1) NOT NULL  DEFAULT 0 COMMENT '是否为环境组' ,
+    `grouped` BIT(1)   DEFAULT 0 COMMENT '是否为环境组' ,
+    `environment_id` VARCHAR(50)    COMMENT '环境或者环境组ID' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
     `delete_time` BIGINT    COMMENT '删除时间' ,
@@ -313,7 +329,7 @@ CREATE INDEX idx_project_id ON api_scenario_module(project_id);
 CREATE INDEX idx_pos ON api_scenario_module(pos);
 CREATE UNIQUE INDEX uq_name_project_parent_type ON api_scenario_module (project_id, name, parent_id);
 
-CREATE TABLE IF NOT EXISTS api_scenario_report(
+CREATE TABLE IF NOT EXISTS  api_scenario_report(
     `id` VARCHAR(50) NOT NULL   COMMENT '场景报告pk' ,
     `name` VARCHAR(255) NOT NULL   COMMENT '报告名称' ,
     `scenario_id` VARCHAR(50) NOT NULL   COMMENT '场景fk' ,
@@ -324,8 +340,8 @@ CREATE TABLE IF NOT EXISTS api_scenario_report(
     `update_user` VARCHAR(50) NOT NULL   COMMENT '修改人' ,
     `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
     `start_time` BIGINT NOT NULL   COMMENT '开始时间/同创建时间一致' ,
-    `end_time` BIGINT NOT NULL   COMMENT '结束时间/报告执行完成' ,
-    `request_duration` BIGINT NOT NULL   COMMENT '请求总耗时' ,
+    `end_time` BIGINT    COMMENT '结束时间/报告执行完成' ,
+    `request_duration` BIGINT NOT NULL  DEFAULT 0 COMMENT '请求总耗时' ,
     `status` VARCHAR(20) NOT NULL  DEFAULT 'Pending' COMMENT '报告状态/SUCCESS/ERROR' ,
     `trigger_mode` VARCHAR(20) NOT NULL   COMMENT '触发方式' ,
     `run_mode` VARCHAR(20) NOT NULL   COMMENT '执行模式' ,
@@ -339,10 +355,10 @@ CREATE TABLE IF NOT EXISTS api_scenario_report(
     `pending_count` BIGINT NOT NULL  DEFAULT 0 COMMENT '未执行数' ,
     `success_count` BIGINT NOT NULL  DEFAULT 0 COMMENT '成功数' ,
     `assertion_count` BIGINT NOT NULL  DEFAULT 0 COMMENT '总断言数' ,
-    `assertion_success_count` BIGINT NOT NULL  DEFAULT 0 COMMENT '通过断言数' ,
-    `request_execution_rate` VARCHAR(20) NOT NULL  COMMENT '请求执行率' ,
-    `request_pass_rate` VARCHAR(20) NOT NULL  COMMENT '请求通过率' ,
-    `assertion_pass_rate` VARCHAR(20) NOT NULL  COMMENT '断言通过率' ,
+    `assertion_success_count` BIGINT NOT NULL  DEFAULT 0 COMMENT '成功断言数' ,
+    `request_execution_rate` VARCHAR(20) NOT NULL  DEFAULT 'Calculating' COMMENT '请求执行率' ,
+    `request_pass_rate` VARCHAR(20) NOT NULL  DEFAULT 'Calculating' COMMENT '请求通过率' ,
+    `assertion_pass_rate` VARCHAR(20) NOT NULL  DEFAULT 'Calculating' COMMENT '断言通过率' ,
     `script_identifier` VARCHAR(255)    COMMENT '脚本标识' ,
     PRIMARY KEY (id)
 )   ENGINE = InnoDB
@@ -362,13 +378,13 @@ CREATE INDEX idx_pool_id ON api_scenario_report(pool_id);
 CREATE TABLE IF NOT EXISTS api_scenario_report_detail(
     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
     `report_id` VARCHAR(50) NOT NULL   COMMENT '报告fk' ,
-    `report_step_id` VARCHAR(50) NOT NULL   COMMENT '场景中各个步骤请求唯一标识' ,
+    `step_id` VARCHAR(50) NOT NULL   COMMENT '场景中各个步骤请求唯一标识' ,
     `status` VARCHAR(20)    COMMENT '结果状态' ,
     `fake_code` VARCHAR(200)    COMMENT '误报编号/误报状态独有' ,
     `request_name` VARCHAR(500)    COMMENT '请求名称' ,
     `request_time` BIGINT NOT NULL   COMMENT '请求耗时' ,
     `code` VARCHAR(500)    COMMENT '请求响应码' ,
-    `response_size` BIGINT NOT NULL    COMMENT '响应内容大小' ,
+    `response_size` BIGINT NOT NULL  DEFAULT 0 COMMENT '响应内容大小' ,
     `script_identifier` VARCHAR(255)    COMMENT '脚本标识' ,
     `content` LONGBLOB    COMMENT '执行结果' ,
     PRIMARY KEY (id)
@@ -377,37 +393,33 @@ CREATE TABLE IF NOT EXISTS api_scenario_report_detail(
     COLLATE = utf8mb4_general_ci COMMENT = '场景报告步骤结果';
 
 CREATE INDEX idx_report_id ON api_scenario_report_detail(report_id);
-CREATE INDEX idx_resource_id ON api_scenario_report_detail(report_step_id);
+CREATE INDEX idx_resource_id ON api_scenario_report_detail(step_id);
 
 CREATE TABLE IF NOT EXISTS api_scenario_report_step(
+    `step_id` VARCHAR(50) NOT NULL   COMMENT '步骤id' ,
     `report_id` VARCHAR(50) NOT NULL   COMMENT '请求资源 id' ,
     `name` VARCHAR(255)    COMMENT '步骤名称' ,
     `sort` BIGINT NOT NULL   COMMENT '序号' ,
-    `enable` BIT(1) NOT NULL  DEFAULT 1 COMMENT '启用/禁用' ,
-    `resource_id` BIGINT    COMMENT '资源id' ,
-    `resource_num` VARCHAR(50)    COMMENT '资源编号' ,
-    `step_type` VARCHAR(50)    COMMENT '步骤类型/API/CASE等' ,
-    `project_id` VARCHAR(50)    COMMENT '项目fk' ,
-    `parent_id` VARCHAR(50)   DEFAULT 'NONE' COMMENT '父级fk' ,
-    `version_id` VARCHAR(50)    COMMENT '版本号' ,
-    `source` VARCHAR(10)    COMMENT '引用/复制/自定义' ,
-    `config` VARCHAR(500)    COMMENT '循环等组件基础数据' ,
-    PRIMARY KEY (report_id)
+    `step_type` VARCHAR(50) NOT NULL   COMMENT '步骤类型/API/CASE等' ,
+    `parent_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '父级fk' ,
+    PRIMARY KEY (step_id,report_id)
 )  ENGINE = InnoDB
    DEFAULT CHARSET = utf8mb4
    COLLATE = utf8mb4_general_ci COMMENT = '场景报告步骤';
 
 CREATE INDEX idx_sort ON api_scenario_report_step(sort);
-CREATE INDEX idx_enable ON api_scenario_report_step(enable);
 CREATE INDEX idx_parent_id ON api_scenario_report_step(parent_id);
 
 CREATE TABLE IF NOT EXISTS api_scenario_report_log(
+    `id` VARCHAR(50) NOT NULL   COMMENT '主键' ,
     `report_id` VARCHAR(50) NOT NULL   COMMENT '请求资源 id' ,
     `console` LONGBLOB    COMMENT '执行日志' ,
-    PRIMARY KEY (report_id)
+    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '场景报告过程日志';
+
+CREATE INDEX idx_report_id ON api_scenario_report_log(report_id);
 
 CREATE TABLE IF NOT EXISTS api_sync_config(
   `id` VARCHAR(50) NOT NULL   COMMENT '' ,

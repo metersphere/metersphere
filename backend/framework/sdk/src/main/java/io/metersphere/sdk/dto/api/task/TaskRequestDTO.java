@@ -1,6 +1,5 @@
 package io.metersphere.sdk.dto.api.task;
 
-import io.metersphere.sdk.dto.api.CollectionReportDTO;
 import io.metersphere.sdk.dto.api.result.MsRegexDTO;
 import lombok.Data;
 
@@ -13,7 +12,7 @@ import java.util.Map;
  * 任务请求参数数据
  */
 @Data
-public class TaskRequest implements Serializable {
+public class TaskRequestDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -21,7 +20,6 @@ public class TaskRequest implements Serializable {
     private String msUrl;
     private String kafkaConfig;
     private String minioConfig;
-    private String poolId;
     private String queueId;
     /**
      * 是否需要实时接收单个步骤的结果
@@ -31,11 +29,7 @@ public class TaskRequest implements Serializable {
     /**
      * 执行的资源ID
      */
-    private String testId;
-    /**
-     * 执行模式
-     */
-    private String runMode;
+    private String resourceId;
 
     /**
      * 触发方式
@@ -48,6 +42,7 @@ public class TaskRequest implements Serializable {
      * ApiResourceType
      */
     private String resourceType;
+
     /**
      * 点击调试时，尚未保存的本地上传的文件列表
      */
@@ -71,18 +66,14 @@ public class TaskRequest implements Serializable {
      * 项目id
      */
     private String projectId;
-    /**
-     * 执行环境id
-     */
-    private String environmentId;
 
     /**
-     * 集合报告,空则是单报告
+     * 运行配置
      */
-    private CollectionReportDTO collectionReport;
+    private ApiRunModeConfigDTO runModeConfig;
 
     /**
-     * 要执行的请求总量
+     * TODO 要执行的请求总量，用于计算执行各种指标
      */
     private Long requestCount;
 

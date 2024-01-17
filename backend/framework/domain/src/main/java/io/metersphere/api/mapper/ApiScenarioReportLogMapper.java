@@ -10,7 +10,7 @@ public interface ApiScenarioReportLogMapper {
 
     int deleteByExample(ApiScenarioReportLogExample example);
 
-    int deleteByPrimaryKey(String reportId);
+    int deleteByPrimaryKey(String id);
 
     int insert(ApiScenarioReportLog record);
 
@@ -20,7 +20,7 @@ public interface ApiScenarioReportLogMapper {
 
     List<ApiScenarioReportLog> selectByExample(ApiScenarioReportLogExample example);
 
-    ApiScenarioReportLog selectByPrimaryKey(String reportId);
+    ApiScenarioReportLog selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") ApiScenarioReportLog record, @Param("example") ApiScenarioReportLogExample example);
 
@@ -31,6 +31,8 @@ public interface ApiScenarioReportLogMapper {
     int updateByPrimaryKeySelective(ApiScenarioReportLog record);
 
     int updateByPrimaryKeyWithBLOBs(ApiScenarioReportLog record);
+
+    int updateByPrimaryKey(ApiScenarioReportLog record);
 
     int batchInsert(@Param("list") List<ApiScenarioReportLog> list);
 

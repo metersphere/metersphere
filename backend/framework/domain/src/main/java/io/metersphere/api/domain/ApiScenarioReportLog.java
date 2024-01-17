@@ -10,6 +10,11 @@ import lombok.Data;
 
 @Data
 public class ApiScenarioReportLog implements Serializable {
+    @Schema(description = "主键", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_scenario_report_log.id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{api_scenario_report_log.id.length_range}", groups = {Created.class, Updated.class})
+    private String id;
+
     @Schema(description = "请求资源 id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_scenario_report_log.report_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{api_scenario_report_log.report_id.length_range}", groups = {Created.class, Updated.class})
@@ -21,6 +26,7 @@ public class ApiScenarioReportLog implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public enum Column {
+        id("id", "id", "VARCHAR", false),
         reportId("report_id", "reportId", "VARCHAR", false),
         console("console", "console", "LONGVARBINARY", false);
 

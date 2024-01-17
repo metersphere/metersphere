@@ -3,7 +3,8 @@ package io.metersphere.api.controller;
 import io.metersphere.api.engine.ApiEngine;
 import io.metersphere.api.engine.EngineFactory;
 import io.metersphere.sdk.constants.ResourcePoolTypeEnum;
-import io.metersphere.sdk.dto.api.task.TaskRequest;
+import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
+import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
@@ -164,8 +165,10 @@ public class KubernetesEngineTests extends BaseTest {
     @Order(0)
     public void pluginSubTypeTest() throws Exception {
         String id = this.addPool(ResourcePoolTypeEnum.K8S.name());
-        TaskRequest request = new TaskRequest();
-        request.setPoolId(id);
+        TaskRequestDTO request = new TaskRequestDTO();
+        ApiRunModeConfigDTO runModeConfig = new ApiRunModeConfigDTO();
+        runModeConfig.setPoolId(id);
+        request.setRunModeConfig(runModeConfig);
 
         final ApiEngine engine = EngineFactory.createApiEngine(request);
         engine.start();

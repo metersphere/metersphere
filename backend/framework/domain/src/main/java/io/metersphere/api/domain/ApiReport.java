@@ -10,17 +10,17 @@ import lombok.Data;
 
 @Data
 public class ApiReport implements Serializable {
-    @Schema(description = "场景报告pk", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "接口报告pk", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_report.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{api_report.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(description = "报告名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "接口报告名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_report.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{api_report.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(description = "场景资源fk/api_definition_id/api_test_case_id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "接口资源fk/api_definition_id/api_test_case_id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_report.resource_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{api_report.resource_id.length_range}", groups = {Created.class, Updated.class})
     private String resourceId;
@@ -48,8 +48,7 @@ public class ApiReport implements Serializable {
     @NotNull(message = "{api_report.start_time.not_blank}", groups = {Created.class})
     private Long startTime;
 
-    @Schema(description = "结束时间/报告执行完成", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{api_report.end_time.not_blank}", groups = {Created.class})
+    @Schema(description = "结束时间/报告执行完成")
     private Long endTime;
 
     @Schema(description = "请求总耗时", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -111,7 +110,7 @@ public class ApiReport implements Serializable {
     @NotNull(message = "{api_report.assertion_count.not_blank}", groups = {Created.class})
     private Long assertionCount;
 
-    @Schema(description = "通过断言数", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "成功断言数", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{api_report.assertion_success_count.not_blank}", groups = {Created.class})
     private Long assertionSuccessCount;
 

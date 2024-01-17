@@ -2,7 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.api.mapper.ApiScenarioReportLogMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiScenarioReportLog">
-    <id column="report_id" jdbcType="VARCHAR" property="reportId" />
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="report_id" jdbcType="VARCHAR" property="reportId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.api.domain.ApiScenarioReportLog">
     <result column="console" jdbcType="LONGVARBINARY" property="console" />
@@ -66,7 +67,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    report_id
+    id, report_id
   </sql>
   <sql id="Blob_Column_List">
     console
@@ -107,11 +108,11 @@
     ,
     <include refid="Blob_Column_List" />
     from api_scenario_report_log
-    where report_id = #{reportId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from api_scenario_report_log
-    where report_id = #{reportId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.api.domain.ApiScenarioReportLogExample">
     delete from api_scenario_report_log
@@ -120,12 +121,17 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.api.domain.ApiScenarioReportLog">
-    insert into api_scenario_report_log (report_id, console)
-    values (#{reportId,jdbcType=VARCHAR}, #{console,jdbcType=LONGVARBINARY})
+    insert into api_scenario_report_log (id, report_id, console
+      )
+    values (#{id,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, #{console,jdbcType=LONGVARBINARY}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiScenarioReportLog">
     insert into api_scenario_report_log
     <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
       <if test="reportId != null">
         report_id,
       </if>
@@ -134,6 +140,9 @@
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
       <if test="reportId != null">
         #{reportId,jdbcType=VARCHAR},
       </if>
@@ -151,6 +160,9 @@
   <update id="updateByExampleSelective" parameterType="map">
     update api_scenario_report_log
     <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
       <if test="record.reportId != null">
         report_id = #{record.reportId,jdbcType=VARCHAR},
       </if>
@@ -164,7 +176,8 @@
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update api_scenario_report_log
-    set report_id = #{record.reportId,jdbcType=VARCHAR},
+    set id = #{record.id,jdbcType=VARCHAR},
+      report_id = #{record.reportId,jdbcType=VARCHAR},
       console = #{record.console,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -172,7 +185,8 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update api_scenario_report_log
-    set report_id = #{record.reportId,jdbcType=VARCHAR}
+    set id = #{record.id,jdbcType=VARCHAR},
+      report_id = #{record.reportId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -180,23 +194,33 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.api.domain.ApiScenarioReportLog">
     update api_scenario_report_log
     <set>
+      <if test="reportId != null">
+        report_id = #{reportId,jdbcType=VARCHAR},
+      </if>
       <if test="console != null">
         console = #{console,jdbcType=LONGVARBINARY},
       </if>
     </set>
-    where report_id = #{reportId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.api.domain.ApiScenarioReportLog">
     update api_scenario_report_log
-    set console = #{console,jdbcType=LONGVARBINARY}
-    where report_id = #{reportId,jdbcType=VARCHAR}
+    set report_id = #{reportId,jdbcType=VARCHAR},
+      console = #{console,jdbcType=LONGVARBINARY}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiScenarioReportLog">
+    update api_scenario_report_log
+    set report_id = #{reportId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_scenario_report_log
-    (report_id, console)
+    (id, report_id, console)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.reportId,jdbcType=VARCHAR}, #{item.console,jdbcType=LONGVARBINARY})
+      (#{item.id,jdbcType=VARCHAR}, #{item.reportId,jdbcType=VARCHAR}, #{item.console,jdbcType=LONGVARBINARY}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -209,6 +233,9 @@
     <foreach collection="list" item="item" separator=",">
       (
       <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
         <if test="'report_id'.toString() == column.value">
           #{item.reportId,jdbcType=VARCHAR}
         </if>
