@@ -7,10 +7,12 @@ import io.metersphere.functional.constants.AssociateCaseType;
 import io.metersphere.functional.domain.FunctionalCaseTest;
 import io.metersphere.functional.domain.FunctionalCaseTestExample;
 import io.metersphere.functional.dto.FunctionalCaseTestDTO;
+import io.metersphere.functional.dto.FunctionalCaseTestPlanDTO;
 import io.metersphere.functional.mapper.ExtFunctionalCaseModuleMapper;
 import io.metersphere.functional.mapper.ExtFunctionalCaseTestMapper;
 import io.metersphere.functional.mapper.FunctionalCaseTestMapper;
 import io.metersphere.functional.request.AssociateCaseModuleRequest;
+import io.metersphere.functional.request.AssociatePlanPageRequest;
 import io.metersphere.functional.request.DisassociateOtherCaseRequest;
 import io.metersphere.functional.request.FunctionalCaseTestRequest;
 import io.metersphere.provider.BaseAssociateApiProvider;
@@ -206,5 +208,14 @@ public class FunctionalTestCaseService {
 
     public List<BugProviderDTO> hasAssociateBugPage(AssociateBugPageRequest request) {
         return baseAssociateBugProvider.hasAssociateBugPage(request);
+    }
+
+    /**
+     * 查询已关联的测试计划列表
+     * @param request request
+     * @return List<FunctionalCaseTestPlanDTO>
+     */
+    public List<FunctionalCaseTestPlanDTO> hasAssociatePlanPage(AssociatePlanPageRequest request) {
+        return extFunctionalCaseTestMapper.getPlanList(request);
     }
 }

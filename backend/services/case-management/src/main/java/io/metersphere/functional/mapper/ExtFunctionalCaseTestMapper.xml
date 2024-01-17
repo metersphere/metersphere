@@ -56,6 +56,23 @@
         order by fct.create_time desc
     </select>
 
+    <select id="getPlanList" parameterType="io.metersphere.functional.request.AssociatePlanPageRequest" resultType="io.metersphere.functional.dto.FunctionalCaseTestPlanDTO">
+        SELECT
+        tpfc.*, tp.num as num, tp.status as planStatus, p.name as projectName
+        FROM
+        test_plan_functional_case tpfc
+        LEFT JOIN test_plan tp ON tpfc.test_plan_id = tp.id
+        LEFT JOIN project p ON tp.project_id = p.id
+        WHERE tpfc.functional_case_id = #{request.caseId}
+        <if test="request.keyword != null">
+            AND
+            (
+            tp.name LIKE concat('%', #{request.keyword},'%')
+            OR tp.num LIKE concat('%', #{request.keyword},'%')
+            )
+        </if>
+    </select>
+
     <sql id="queryWhereConditionByBaseQueryRequest">
         <if test="request.condition.keyword != null and request.sourceType == 'API'">
             functional_case_test.source_id not in

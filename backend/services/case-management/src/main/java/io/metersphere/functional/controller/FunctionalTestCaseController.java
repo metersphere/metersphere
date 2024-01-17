@@ -5,7 +5,9 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.functional.dto.FunctionalCaseTestDTO;
+import io.metersphere.functional.dto.FunctionalCaseTestPlanDTO;
 import io.metersphere.functional.request.AssociateCaseModuleRequest;
+import io.metersphere.functional.request.AssociatePlanPageRequest;
 import io.metersphere.functional.request.DisassociateOtherCaseRequest;
 import io.metersphere.functional.request.FunctionalCaseTestRequest;
 import io.metersphere.functional.service.FunctionalCaseLogService;
@@ -51,7 +53,7 @@ public class FunctionalTestCaseController {
 
     @PostMapping("/associate/case/module/count")
     @Operation(summary = "用例管理-功能用例-关联其他用例-统计需要关联用例模块数量")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ_ADD, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
     @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public Map<String, Long> moduleCount(@Validated @RequestBody TestCasePageProviderRequest request) {
         return functionalTestCaseService.moduleCount(request, false);
@@ -59,7 +61,7 @@ public class FunctionalTestCaseController {
 
     @PostMapping("/associate/case/module/tree")
     @Operation(summary = "用例管理-功能用例-关联其他用例-获取需要关联的用例模块树")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ_ADD, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
     @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public List<BaseTreeNode> getTree(@RequestBody @Validated AssociateCaseModuleRequest request) {
         return functionalTestCaseService.getTree(request);
@@ -67,7 +69,7 @@ public class FunctionalTestCaseController {
 
     @PostMapping("/associate/case")
     @Operation(summary = "用例管理-功能用例-关联其他用例-关联用例")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ_ADD, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
     @CheckOwner(resourceId = "#request.sourceId", resourceType = "functional_case")
     public void associateCase(@Validated @RequestBody AssociateOtherCaseRequest request) {
         functionalTestCaseService.associateCase(request, false, SessionUtils.getUserId());
@@ -76,7 +78,7 @@ public class FunctionalTestCaseController {
     @PostMapping("/disassociate/case")
     @Operation(summary = "用例管理-功能用例-关联其他用例-取消关联用例")
     @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.disassociateCaseLog(#request)", msClass = FunctionalCaseLogService.class)
-    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ_ADD, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
     @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public void disassociateCase(@Validated @RequestBody DisassociateOtherCaseRequest request) {
         functionalTestCaseService.disassociateCase(request);
@@ -128,5 +130,15 @@ public class FunctionalTestCaseController {
     public Pager<List<BugProviderDTO>> getAssociateBugList(@Validated @RequestBody AssociateBugPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
         return PageUtils.setPageInfo(page, functionalTestCaseService.hasAssociateBugPage(request));
+    }
+
+
+    @PostMapping("/has/associate/plan/page")
+    @Operation(summary = "用例管理-功能用例-关联其他用例-获取已关联的测试计划列表")
+    @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ_ADD, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
+    @CheckOwner(resourceId = "#request.caseId", resourceType = "functional_case")
+    public Pager<List<FunctionalCaseTestPlanDTO>> getAssociateOtherPlanList(@Validated @RequestBody AssociatePlanPageRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
+        return PageUtils.setPageInfo(page, functionalTestCaseService.hasAssociatePlanPage(request));
     }
 }

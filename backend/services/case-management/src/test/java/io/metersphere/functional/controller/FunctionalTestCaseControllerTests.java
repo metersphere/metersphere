@@ -3,7 +3,6 @@ package io.metersphere.functional.controller;
 import io.metersphere.api.domain.ApiDefinitionModule;
 import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.mapper.ApiDefinitionModuleMapper;
-import io.metersphere.bug.mapper.BugRelationCaseMapper;
 import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.functional.constants.AssociateCaseType;
@@ -11,11 +10,15 @@ import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.domain.FunctionalCaseTest;
 import io.metersphere.functional.dto.FunctionalCaseTestDTO;
+import io.metersphere.functional.dto.FunctionalCaseTestPlanDTO;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.functional.mapper.FunctionalCaseTestMapper;
 import io.metersphere.functional.request.AssociateCaseModuleRequest;
+import io.metersphere.functional.request.AssociatePlanPageRequest;
 import io.metersphere.functional.request.DisassociateOtherCaseRequest;
 import io.metersphere.functional.request.FunctionalCaseTestRequest;
+import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
+import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.provider.BaseAssociateApiProvider;
 import io.metersphere.provider.BaseAssociateBugProvider;
 import io.metersphere.request.*;
@@ -62,6 +65,9 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
     private static final String URL_DISASSOCIATE_BUG = "/functional/case/test/disassociate/bug/";
     private static final String URL_ASSOCIATE_BUG_PAGE = "/functional/case/test/has/associate/bug/page";
 
+    private static final String URL_ASSOCIATE_TEST_PLAN_PAGE = "/functional/case/test/has/associate/plan/page";
+
+
 
     @Resource
     BaseAssociateApiProvider provider;
@@ -76,12 +82,15 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
     private ApiDefinitionModuleMapper apiDefinitionModuleMapper;
     @Resource
     BaseAssociateBugProvider baseAssociateBugProvider;
-    @Resource
-    private BugRelationCaseMapper bugRelationCaseMapper;
+   @Resource
+    TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
+   @Resource
+    TestPlanMapper testPlanMapper;
 
 
     @Test
     @Order(1)
+    @Sql(scripts = {"/dml/init_test_plan_case.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void getPageSuccess() throws Exception {
         TestCasePageProviderRequest request = new TestCasePageProviderRequest();
         request.setSourceType(AssociateCaseType.API);
@@ -388,5 +397,22 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
             put("createTime", "desc");
         }});
         this.requestPostWithOkAndReturn(URL_ASSOCIATE_BUG_PAGE, request);
+    }
+
+    @Test
+    @Order(12)
+    public void testAssociatePlanPage() throws Exception {
+        AssociatePlanPageRequest request = new AssociatePlanPageRequest();
+        request.setCurrent(1);
+        request.setPageSize(10);
+        request.setCaseId("gyq_associate_function_case");
+        request.setKeyword("name");
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_ASSOCIATE_TEST_PLAN_PAGE, request);
+        Pager<List<FunctionalCaseTestPlanDTO>> tableData = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Pager.class);
+        Assertions.assertNotNull(tableData);
+        List<FunctionalCaseTestPlanDTO> list = tableData.getList();
+        Assertions.assertEquals(2, list.size());
     }
 }
