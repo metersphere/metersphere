@@ -1747,11 +1747,14 @@ public class TestPlanReportService {
 
     @Async
     public void deleteIllegalityResourceReport() {
+        LogUtil.info(" check illegality resource report start");
         List<String> deletedTestPlanReportIds = new ArrayList<>();
         deletedTestPlanReportIds.addAll(extTestPlanMapper.selectDeletedTestPlanReportIdsFromApiCaseReport());
         deletedTestPlanReportIds.addAll(extTestPlanMapper.selectDeletedTestPlanReportIdsFromApiScenarioReport());
         deletedTestPlanReportIds.addAll(extTestPlanMapper.selectDeletedTestPlanReportIdsFromUiReport());
-        deletedTestPlanReportIds = deletedTestPlanReportIds.stream().distinct().toList();
+        deletedTestPlanReportIds = new ArrayList<>(deletedTestPlanReportIds.stream().distinct().toList());
+        LogUtil.info(" check illegality resource report size: " + deletedTestPlanReportIds.size());
         BatchProcessingUtil.consumerByStringList(deletedTestPlanReportIds, this::deleteReportBatch);
+        LogUtil.info(" check illegality resource report over");
     }
 }
