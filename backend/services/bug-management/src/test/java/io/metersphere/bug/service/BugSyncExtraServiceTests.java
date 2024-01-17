@@ -1,0 +1,77 @@
+package io.metersphere.bug.service;
+
+import io.metersphere.bug.dto.response.BugFileDTO;
+import io.metersphere.plugin.platform.spi.Platform;
+import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.file.MinioRepository;
+import io.metersphere.system.base.BaseTest;
+import jakarta.annotation.Resource;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.mockito.Mockito;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
+
+import java.io.InputStream;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Consumer;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+public class BugSyncExtraServiceTests extends BaseTest {
+
+    @Resource
+    Platform platform;
+    @MockBean
+    MinioRepository minioMock;
+    @Resource
+    private BugSyncExtraService bugSyncExtraService;
+    @Resource
+    private BugAttachmentService bugAttachmentService;
+
+    @Test
+    @Order(1)
+    @Sql(scripts = {"/dml/init_bug_sync_extra.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
+    void test() throws Exception {
+        List<BugFileDTO> allBugFile = bugAttachmentService.getAllBugFiles("bug-for-sync-extra");
+        // Mock minio delete exception
+        Mockito.doThrow(new MSException("delete minio error!")).when(minioMock).delete(Mockito.any());
+        MSException deleteException = assertThrows(MSException.class, () ->
+                bugSyncExtraService.deleteSyncAttachmentFromMs(Set.of("sync-extra-file-associate-B", "sync-extra-file-local-B", "sync-extra-file-local-A.txt"),
+                        allBugFile, "bug-for-sync-extra", "project-for-sync-extra"));
+        assertEquals(deleteException.getMessage(), "delete minio error!");
+        // Reset minio mock
+        Mockito.reset(minioMock);
+        bugSyncExtraService.deleteSyncAttachmentFromMs(Set.of("sync-extra-file-associate-B", "sync-extra-file-local-B"),
+                allBugFile, "bug-for-sync-extra", "project-for-sync-extra");
+
+        // Mock null input stream and exception input stream
+        Mockito.doAnswer(invocation -> {
+            String fileKey = invocation.getArgument(0);
+            Consumer<InputStream> inputStreamHandler = invocation.getArgument(1);
+            if ("TEST-1".equals(fileKey)) {
+                inputStreamHandler.accept(null);
+            } else {
+                InputStream mockExceptionStream = Mockito.mock(InputStream.class);
+                Mockito.doThrow(new MSException("read bytes exception occurred!")).when(mockExceptionStream).readAllBytes();
+                inputStreamHandler.accept(mockExceptionStream);
+            }
+            return null;
+        }).when(platform).getAttachmentContent(Mockito.anyString(), Mockito.any());
+        // called twice for cover test
+        bugSyncExtraService.saveSyncAttachmentToMs(platform, "bug-for-sync-extra", "sync-extra-file-associate-B", "TEST-1", "project-for-sync-extra");
+        MSException msException = assertThrows(MSException.class, () ->
+                bugSyncExtraService.saveSyncAttachmentToMs(platform, "bug-for-sync-extra", "sync-extra-file-associate-B", "TEST-2", "project-for-sync-extra"));
+        assertEquals(msException.getMessage(), "read bytes exception occurred!");
+    }
+}

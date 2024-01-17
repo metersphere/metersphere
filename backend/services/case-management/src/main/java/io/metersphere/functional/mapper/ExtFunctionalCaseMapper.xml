@@ -656,7 +656,13 @@
                 select brc.case_id from bug_relation_case brc where brc.bug_id = #{request.sourceId} and brc.case_type = #{request.sourceType}
             )
             <include refid="queryByTestCaseProviderParam"/>
-        order by fc.create_time desc
+        order by
+            <if test="sort != null and sort != ''">
+                fc.${request.sort}
+            </if>
+            <if test="sort == null or sort == ''">
+                fc.create_time desc
+            </if>
     </select>
 
     <select id="getSelectIdsByAssociateParam" resultType="java.lang.String">
@@ -677,7 +683,7 @@
         <!-- 待补充关联Case弹窗中的高级搜索条件 -->
         <if test="request.keyword != null and request.keyword != ''">
             and (
-            fc.id like concat('%', #{request.keyword}, '%') or fc.name like concat('%', #{request.keyword}, '%')
+            fc.num like concat('%', #{request.keyword}, '%') or fc.name like concat('%', #{request.keyword}, '%')
             )
         </if>
         <if test="request.moduleIds != null and request.moduleIds.size() > 0">
@@ -692,12 +698,12 @@
         <!-- 待补充关联Case弹窗中的高级搜索条件 -->
         <if test="request.condition.keyword != null and request.condition.keyword != ''">
             and (
-            fc.id like concat('%', #{request.keyword}, '%') or fc.name like concat('%', #{request.keyword}, '%')
+            fc.num like concat('%', #{request.condition.keyword}, '%') or fc.name like concat('%', #{request.condition.keyword}, '%')
             )
         </if>
         <if test="request.moduleIds != null and request.moduleIds.size() > 0">
             and fcm.module_id in
-            <foreach collection="moduleIds" item="moduleId" open="(" separator="," close=")">
+            <foreach collection="request.moduleIds" item="moduleId" open="(" separator="," close=")">
                 #{moduleId}
             </foreach>
         </if>

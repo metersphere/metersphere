@@ -19,7 +19,7 @@ public class AssociateCaseProvider implements BaseAssociateCaseProvider {
 
     @Override
     public List<TestCaseProviderDTO> listUnRelatedTestCaseList(TestCasePageProviderRequest testCasePageProviderRequest) {
-        return extFunctionalCaseMapper.listUnRelatedCaseWithBug(testCasePageProviderRequest, false);
+        return extFunctionalCaseMapper.listUnRelatedCaseWithBug(testCasePageProviderRequest, false, testCasePageProviderRequest.getSortString());
     }
 
     @Override

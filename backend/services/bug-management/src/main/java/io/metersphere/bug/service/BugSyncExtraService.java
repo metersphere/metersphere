@@ -159,7 +159,7 @@ public class BugSyncExtraService {
                     bytes = in.readAllBytes();
                     FileCenter.getDefaultRepository().saveFile(bytes, buildBugFileRequest(projectId, bugId, fileName));
                 } catch (Exception e) {
-                    throw new MSException(e);
+                    throw new MSException(e.getMessage());
                 }
                 // save bug attachment relation
                 BugLocalAttachment localAttachment = new BugLocalAttachment();
@@ -174,7 +174,8 @@ public class BugSyncExtraService {
                 bugLocalAttachmentMapper.insert(localAttachment);
             });
         } catch (Exception e) {
-            LogUtils.error(e);
+            LogUtils.error(e.getMessage());
+            throw new MSException(e.getMessage());
         }
     }
 
@@ -185,7 +186,7 @@ public class BugSyncExtraService {
      * @param bugId 缺陷ID
      * @param projectId 项目ID
      */
-    private void deleteSyncAttachmentFromMs(Set<String> platformAttachmentSet, List<BugFileDTO> allMsAttachments, String bugId, String projectId) {
+    public void deleteSyncAttachmentFromMs(Set<String> platformAttachmentSet, List<BugFileDTO> allMsAttachments, String bugId, String projectId) {
         try {
             // 删除MS中不存在的平台附件
             if (!CollectionUtils.isEmpty(allMsAttachments)) {
@@ -213,7 +214,7 @@ public class BugSyncExtraService {
                             BugFileDTO bugFileDTO = localFileMap.get(deleteLocalId);
                             FileCenter.getDefaultRepository().delete(buildBugFileRequest(projectId, bugId, bugFileDTO.getFileName()));
                         } catch (Exception e) {
-                            throw new MSException(e);
+                            throw new MSException(e.getMessage());
                         }
                     });
                     BugLocalAttachmentExample example = new BugLocalAttachmentExample();
@@ -222,7 +223,8 @@ public class BugSyncExtraService {
                 }
             }
         } catch (Exception e) {
-            LogUtils.error(e);
+            LogUtils.error(e.getMessage());
+            throw new MSException(e.getMessage());
         }
     }
 
