@@ -1,5 +1,4 @@
-package io.metersphere.sdk.dto.api;
-
+package io.metersphere.sdk.dto.api.task;
 import lombok.Data;
 
 import java.io.Serial;

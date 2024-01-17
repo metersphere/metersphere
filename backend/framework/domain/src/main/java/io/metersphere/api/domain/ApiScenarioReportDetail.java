@@ -21,9 +21,9 @@ public class ApiScenarioReportDetail implements Serializable {
     private String reportId;
 
     @Schema(description = "场景中各个步骤请求唯一标识", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report_detail.report_step_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{api_scenario_report_detail.report_step_id.length_range}", groups = {Created.class, Updated.class})
-    private String reportStepId;
+    @NotBlank(message = "{api_scenario_report_detail.step_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{api_scenario_report_detail.step_id.length_range}", groups = {Created.class, Updated.class})
+    private String stepId;
 
     @Schema(description = "结果状态")
     private String status;
@@ -56,7 +56,7 @@ public class ApiScenarioReportDetail implements Serializable {
     public enum Column {
         id("id", "id", "VARCHAR", false),
         reportId("report_id", "reportId", "VARCHAR", false),
-        reportStepId("report_step_id", "reportStepId", "VARCHAR", false),
+        stepId("step_id", "stepId", "VARCHAR", false),
         status("status", "status", "VARCHAR", true),
         fakeCode("fake_code", "fakeCode", "VARCHAR", false),
         requestName("request_name", "requestName", "VARCHAR", false),

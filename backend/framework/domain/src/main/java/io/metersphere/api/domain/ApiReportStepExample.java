@@ -3,14 +3,14 @@ package io.metersphere.api.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ApiScenarioReportStepExample {
+public class ApiReportStepExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public ApiScenarioReportStepExample() {
+    public ApiReportStepExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 
@@ -114,62 +114,52 @@ public class ApiScenarioReportStepExample {
             return (Criteria) this;
         }
 
-        public Criteria andStepIdEqualTo(String value) {
+        public Criteria andStepIdEqualTo(Long value) {
             addCriterion("step_id =", value, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andStepIdNotEqualTo(String value) {
+        public Criteria andStepIdNotEqualTo(Long value) {
             addCriterion("step_id <>", value, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andStepIdGreaterThan(String value) {
+        public Criteria andStepIdGreaterThan(Long value) {
             addCriterion("step_id >", value, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andStepIdGreaterThanOrEqualTo(String value) {
+        public Criteria andStepIdGreaterThanOrEqualTo(Long value) {
             addCriterion("step_id >=", value, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andStepIdLessThan(String value) {
+        public Criteria andStepIdLessThan(Long value) {
             addCriterion("step_id <", value, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andStepIdLessThanOrEqualTo(String value) {
+        public Criteria andStepIdLessThanOrEqualTo(Long value) {
             addCriterion("step_id <=", value, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andStepIdLike(String value) {
-            addCriterion("step_id like", value, "stepId");
-            return (Criteria) this;
-        }
-
-        public Criteria andStepIdNotLike(String value) {
-            addCriterion("step_id not like", value, "stepId");
-            return (Criteria) this;
-        }
-
-        public Criteria andStepIdIn(List<String> values) {
+        public Criteria andStepIdIn(List<Long> values) {
             addCriterion("step_id in", values, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andStepIdNotIn(List<String> values) {
+        public Criteria andStepIdNotIn(List<Long> values) {
             addCriterion("step_id not in", values, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andStepIdBetween(String value1, String value2) {
+        public Criteria andStepIdBetween(Long value1, Long value2) {
             addCriterion("step_id between", value1, value2, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andStepIdNotBetween(String value1, String value2) {
+        public Criteria andStepIdNotBetween(Long value1, Long value2) {
             addCriterion("step_id not between", value1, value2, "stepId");
             return (Criteria) this;
         }
@@ -441,76 +431,6 @@ public class ApiScenarioReportStepExample {
 
         public Criteria andStepTypeNotBetween(String value1, String value2) {
             addCriterion("step_type not between", value1, value2, "stepType");
-            return (Criteria) this;
-        }
-
-        public Criteria andParentIdIsNull() {
-            addCriterion("parent_id is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andParentIdIsNotNull() {
-            addCriterion("parent_id is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andParentIdEqualTo(String value) {
-            addCriterion("parent_id =", value, "parentId");
-            return (Criteria) this;
-        }
-
-        public Criteria andParentIdNotEqualTo(String value) {
-            addCriterion("parent_id <>", value, "parentId");
-            return (Criteria) this;
-        }
-
-        public Criteria andParentIdGreaterThan(String value) {
-            addCriterion("parent_id >", value, "parentId");
-            return (Criteria) this;
-        }
-
-        public Criteria andParentIdGreaterThanOrEqualTo(String value) {
-            addCriterion("parent_id >=", value, "parentId");
-            return (Criteria) this;
-        }
-
-        public Criteria andParentIdLessThan(String value) {
-            addCriterion("parent_id <", value, "parentId");
-            return (Criteria) this;
-        }
-
-        public Criteria andParentIdLessThanOrEqualTo(String value) {
-            addCriterion("parent_id <=", value, "parentId");
-            return (Criteria) this;
-        }
-
-        public Criteria andParentIdLike(String value) {
-            addCriterion("parent_id like", value, "parentId");
-            return (Criteria) this;
-        }
-
-        public Criteria andParentIdNotLike(String value) {
-            addCriterion("parent_id not like", value, "parentId");
-            return (Criteria) this;
-        }
-
-        public Criteria andParentIdIn(List<String> values) {
-            addCriterion("parent_id in", values, "parentId");
-            return (Criteria) this;
-        }
-
-        public Criteria andParentIdNotIn(List<String> values) {
-            addCriterion("parent_id not in", values, "parentId");
-            return (Criteria) this;
-        }
-
-        public Criteria andParentIdBetween(String value1, String value2) {
-            addCriterion("parent_id between", value1, value2, "parentId");
-            return (Criteria) this;
-        }
-
-        public Criteria andParentIdNotBetween(String value1, String value2) {
-            addCriterion("parent_id not between", value1, value2, "parentId");
             return (Criteria) this;
         }
     }

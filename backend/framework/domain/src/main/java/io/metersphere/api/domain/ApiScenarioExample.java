@@ -478,76 +478,6 @@ public class ApiScenarioExample {
             return (Criteria) this;
         }
 
-        public Criteria andRequestExecutionRateIsNull() {
-            addCriterion("request_execution_rate is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andRequestExecutionRateIsNotNull() {
-            addCriterion("request_execution_rate is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andRequestExecutionRateEqualTo(String value) {
-            addCriterion("request_execution_rate =", value, "requestExecutionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andRequestExecutionRateNotEqualTo(String value) {
-            addCriterion("request_execution_rate <>", value, "requestExecutionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andRequestExecutionRateGreaterThan(String value) {
-            addCriterion("request_execution_rate >", value, "requestExecutionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andRequestExecutionRateGreaterThanOrEqualTo(String value) {
-            addCriterion("request_execution_rate >=", value, "requestExecutionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andRequestExecutionRateLessThan(String value) {
-            addCriterion("request_execution_rate <", value, "requestExecutionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andRequestExecutionRateLessThanOrEqualTo(String value) {
-            addCriterion("request_execution_rate <=", value, "requestExecutionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andRequestExecutionRateLike(String value) {
-            addCriterion("request_execution_rate like", value, "requestExecutionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andRequestExecutionRateNotLike(String value) {
-            addCriterion("request_execution_rate not like", value, "requestExecutionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andRequestExecutionRateIn(List<String> values) {
-            addCriterion("request_execution_rate in", values, "requestExecutionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andRequestExecutionRateNotIn(List<String> values) {
-            addCriterion("request_execution_rate not in", values, "requestExecutionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andRequestExecutionRateBetween(String value1, String value2) {
-            addCriterion("request_execution_rate between", value1, value2, "requestExecutionRate");
-            return (Criteria) this;
-        }
-
-        public Criteria andRequestExecutionRateNotBetween(String value1, String value2) {
-            addCriterion("request_execution_rate not between", value1, value2, "requestExecutionRate");
-            return (Criteria) this;
-        }
-
         public Criteria andRequestPassRateIsNull() {
             addCriterion("request_pass_rate is null");
             return (Criteria) this;
@@ -1475,6 +1405,76 @@ public class ApiScenarioExample {
 
         public Criteria andGroupedNotBetween(Boolean value1, Boolean value2) {
             addCriterion("grouped not between", value1, value2, "grouped");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdIsNull() {
+            addCriterion("environment_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdIsNotNull() {
+            addCriterion("environment_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdEqualTo(String value) {
+            addCriterion("environment_id =", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdNotEqualTo(String value) {
+            addCriterion("environment_id <>", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdGreaterThan(String value) {
+            addCriterion("environment_id >", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdGreaterThanOrEqualTo(String value) {
+            addCriterion("environment_id >=", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdLessThan(String value) {
+            addCriterion("environment_id <", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdLessThanOrEqualTo(String value) {
+            addCriterion("environment_id <=", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdLike(String value) {
+            addCriterion("environment_id like", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdNotLike(String value) {
+            addCriterion("environment_id not like", value, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdIn(List<String> values) {
+            addCriterion("environment_id in", values, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdNotIn(List<String> values) {
+            addCriterion("environment_id not in", values, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdBetween(String value1, String value2) {
+            addCriterion("environment_id between", value1, value2, "environmentId");
+            return (Criteria) this;
+        }
+
+        public Criteria andEnvironmentIdNotBetween(String value1, String value2) {
+            addCriterion("environment_id not between", value1, value2, "environmentId");
             return (Criteria) this;
         }
 

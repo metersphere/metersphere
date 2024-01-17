@@ -48,8 +48,7 @@ public class ApiScenarioReport implements Serializable {
     @NotNull(message = "{api_scenario_report.start_time.not_blank}", groups = {Created.class})
     private Long startTime;
 
-    @Schema(description = "结束时间/报告执行完成", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{api_scenario_report.end_time.not_blank}", groups = {Created.class})
+    @Schema(description = "结束时间/报告执行完成")
     private Long endTime;
 
     @Schema(description = "请求总耗时", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -111,7 +110,7 @@ public class ApiScenarioReport implements Serializable {
     @NotNull(message = "{api_scenario_report.assertion_count.not_blank}", groups = {Created.class})
     private Long assertionCount;
 
-    @Schema(description = "通过断言数", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "成功断言数", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{api_scenario_report.assertion_success_count.not_blank}", groups = {Created.class})
     private Long assertionSuccessCount;
 

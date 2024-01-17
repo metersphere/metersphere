@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.api.mapper.ApiReportLogMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiReportLog">
-    <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="report_id" jdbcType="VARCHAR" property="reportId" />
-  </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.api.domain.ApiReportLog">
-    <result column="console" jdbcType="LONGVARBINARY" property="console" />
+<mapper namespace="io.metersphere.api.mapper.ApiReportStepMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiReportStep">
+    <id column="step_id" jdbcType="BIGINT" property="stepId" />
+    <id column="report_id" jdbcType="VARCHAR" property="reportId" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="sort" jdbcType="BIGINT" property="sort" />
+    <result column="step_type" jdbcType="VARCHAR" property="stepType" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -67,20 +67,15 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, report_id
+    step_id, report_id, `name`, sort, step_type
   </sql>
-  <sql id="Blob_Column_List">
-    console
-  </sql>
-  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.api.domain.ApiReportLogExample" resultMap="ResultMapWithBLOBs">
+  <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiReportStepExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
-    from api_report_log
+    from api_report_step
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -88,143 +83,142 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiReportLogExample" resultMap="BaseResultMap">
-    select
-    <if test="distinct">
-      distinct
-    </if>
-    <include refid="Base_Column_List" />
-    from api_report_log
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause" />
-    </if>
-    <if test="orderByClause != null">
-      order by ${orderByClause}
-    </if>
-  </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+  <select id="selectByPrimaryKey" parameterType="map" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
-    from api_report_log
-    where id = #{id,jdbcType=VARCHAR}
+    from api_report_step
+    where step_id = #{stepId,jdbcType=BIGINT}
+      and report_id = #{reportId,jdbcType=VARCHAR}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from api_report_log
-    where id = #{id,jdbcType=VARCHAR}
+  <delete id="deleteByPrimaryKey" parameterType="map">
+    delete from api_report_step
+    where step_id = #{stepId,jdbcType=BIGINT}
+      and report_id = #{reportId,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.api.domain.ApiReportLogExample">
-    delete from api_report_log
+  <delete id="deleteByExample" parameterType="io.metersphere.api.domain.ApiReportStepExample">
+    delete from api_report_step
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.api.domain.ApiReportLog">
-    insert into api_report_log (id, report_id, console
-      )
-    values (#{id,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, #{console,jdbcType=LONGVARBINARY}
-      )
+  <insert id="insert" parameterType="io.metersphere.api.domain.ApiReportStep">
+    insert into api_report_step (step_id, report_id, `name`, 
+      sort, step_type)
+    values (#{stepId,jdbcType=BIGINT}, #{reportId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+      #{sort,jdbcType=BIGINT}, #{stepType,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiReportLog">
-    insert into api_report_log
+  <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiReportStep">
+    insert into api_report_step
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        id,
+      <if test="stepId != null">
+        step_id,
       </if>
       <if test="reportId != null">
         report_id,
       </if>
-      <if test="console != null">
-        console,
+      <if test="name != null">
+        `name`,
+      </if>
+      <if test="sort != null">
+        sort,
+      </if>
+      <if test="stepType != null">
+        step_type,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="id != null">
-        #{id,jdbcType=VARCHAR},
+      <if test="stepId != null">
+        #{stepId,jdbcType=BIGINT},
       </if>
       <if test="reportId != null">
         #{reportId,jdbcType=VARCHAR},
       </if>
-      <if test="console != null">
-        #{console,jdbcType=LONGVARBINARY},
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="sort != null">
+        #{sort,jdbcType=BIGINT},
+      </if>
+      <if test="stepType != null">
+        #{stepType,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.api.domain.ApiReportLogExample" resultType="java.lang.Long">
-    select count(*) from api_report_log
+  <select id="countByExample" parameterType="io.metersphere.api.domain.ApiReportStepExample" resultType="java.lang.Long">
+    select count(*) from api_report_step
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update api_report_log
+    update api_report_step
     <set>
-      <if test="record.id != null">
-        id = #{record.id,jdbcType=VARCHAR},
+      <if test="record.stepId != null">
+        step_id = #{record.stepId,jdbcType=BIGINT},
       </if>
       <if test="record.reportId != null">
         report_id = #{record.reportId,jdbcType=VARCHAR},
       </if>
-      <if test="record.console != null">
-        console = #{record.console,jdbcType=LONGVARBINARY},
+      <if test="record.name != null">
+        `name` = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.sort != null">
+        sort = #{record.sort,jdbcType=BIGINT},
+      </if>
+      <if test="record.stepType != null">
+        step_type = #{record.stepType,jdbcType=VARCHAR},
       </if>
     </set>
-    <if test="_parameter != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExampleWithBLOBs" parameterType="map">
-    update api_report_log
-    set id = #{record.id,jdbcType=VARCHAR},
-      report_id = #{record.reportId,jdbcType=VARCHAR},
-      console = #{record.console,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update api_report_log
-    set id = #{record.id,jdbcType=VARCHAR},
-      report_id = #{record.reportId,jdbcType=VARCHAR}
+    update api_report_step
+    set step_id = #{record.stepId,jdbcType=BIGINT},
+      report_id = #{record.reportId,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
+      sort = #{record.sort,jdbcType=BIGINT},
+      step_type = #{record.stepType,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.api.domain.ApiReportLog">
-    update api_report_log
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.api.domain.ApiReportStep">
+    update api_report_step
     <set>
-      <if test="reportId != null">
-        report_id = #{reportId,jdbcType=VARCHAR},
+      <if test="name != null">
+        `name` = #{name,jdbcType=VARCHAR},
       </if>
-      <if test="console != null">
-        console = #{console,jdbcType=LONGVARBINARY},
+      <if test="sort != null">
+        sort = #{sort,jdbcType=BIGINT},
+      </if>
+      <if test="stepType != null">
+        step_type = #{stepType,jdbcType=VARCHAR},
       </if>
     </set>
-    where id = #{id,jdbcType=VARCHAR}
+    where step_id = #{stepId,jdbcType=BIGINT}
+      and report_id = #{reportId,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.api.domain.ApiReportLog">
-    update api_report_log
-    set report_id = #{reportId,jdbcType=VARCHAR},
-      console = #{console,jdbcType=LONGVARBINARY}
-    where id = #{id,jdbcType=VARCHAR}
-  </update>
-  <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiReportLog">
-    update api_report_log
-    set report_id = #{reportId,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=VARCHAR}
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiReportStep">
+    update api_report_step
+    set `name` = #{name,jdbcType=VARCHAR},
+      sort = #{sort,jdbcType=BIGINT},
+      step_type = #{stepType,jdbcType=VARCHAR}
+    where step_id = #{stepId,jdbcType=BIGINT}
+      and report_id = #{reportId,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
-    insert into api_report_log
-    (id, report_id, console)
+    insert into api_report_step
+    (step_id, report_id, `name`, sort, step_type)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.reportId,jdbcType=VARCHAR}, #{item.console,jdbcType=LONGVARBINARY}
-        )
+      (#{item.stepId,jdbcType=BIGINT}, #{item.reportId,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, 
+        #{item.sort,jdbcType=BIGINT}, #{item.stepType,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
-    insert into api_report_log (
+    insert into api_report_step (
     <foreach collection="selective" item="column" separator=",">
       ${column.escapedColumnName}
     </foreach>
@@ -233,14 +227,20 @@
     <foreach collection="list" item="item" separator=",">
       (
       <foreach collection="selective" item="column" separator=",">
-        <if test="'id'.toString() == column.value">
-          #{item.id,jdbcType=VARCHAR}
+        <if test="'step_id'.toString() == column.value">
+          #{item.stepId,jdbcType=BIGINT}
         </if>
         <if test="'report_id'.toString() == column.value">
           #{item.reportId,jdbcType=VARCHAR}
         </if>
-        <if test="'console'.toString() == column.value">
-          #{item.console,jdbcType=LONGVARBINARY}
+        <if test="'name'.toString() == column.value">
+          #{item.name,jdbcType=VARCHAR}
+        </if>
+        <if test="'sort'.toString() == column.value">
+          #{item.sort,jdbcType=BIGINT}
+        </if>
+        <if test="'step_type'.toString() == column.value">
+          #{item.stepType,jdbcType=VARCHAR}
         </if>
       </foreach>
       )
