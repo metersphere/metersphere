@@ -7,6 +7,7 @@ import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.dto.FunctionalCaseDetailDTO;
 import io.metersphere.functional.dto.FunctionalCasePageDTO;
 import io.metersphere.functional.dto.FunctionalCaseVersionDTO;
+import io.metersphere.functional.dto.response.FunctionalCaseImportResponse;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.service.FunctionalCaseFileService;
 import io.metersphere.functional.service.FunctionalCaseLogService;
@@ -216,5 +217,14 @@ public class FunctionalCaseController {
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public void testCaseTemplateExport(@PathVariable String projectId, HttpServletResponse response) {
         functionalCaseFileService.downloadExcelTemplate(projectId, response);
+    }
+
+    @PostMapping("/pre-check/excel")
+    @Operation(summary = "用例管理-功能用例-excel导入检查")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public FunctionalCaseImportResponse preCheckExcel(@RequestPart("request") FunctionalCaseImportRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
+        String userId = SessionUtils.getUserId();
+        return functionalCaseFileService.preCheckExcel(request, userId, file);
     }
 }

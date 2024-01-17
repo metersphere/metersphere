@@ -16,8 +16,6 @@ import java.util.*;
 @Setter
 public class FunctionalCaseExcelData {
     @ExcelIgnore
-    private String id;
-    @ExcelIgnore
     private String num;
     @ExcelIgnore
     private String name;
@@ -40,6 +38,18 @@ public class FunctionalCaseExcelData {
     Map<String, Object> customData = new LinkedHashMap<>();
     @ExcelIgnore
     Map<String, String> otherFields;
+    @ExcelIgnore
+    Set<String> textFieldSet = new HashSet<>(1);
+    /**
+     * 合并文本描述
+     */
+    @ExcelIgnore
+    List<String> MergeTextDescription;
+    /**
+     * 合并步骤结果
+     */
+    @ExcelIgnore
+    List<String> mergeExpectedResult;
 
 
     public List<List<String>> getHead(List<TemplateCustomFieldDTO> customFields) {
