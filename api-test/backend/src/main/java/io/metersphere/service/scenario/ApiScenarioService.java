@@ -1703,7 +1703,11 @@ public class ApiScenarioService {
     }
 
     public ScenarioToPerformanceInfoDTO exportJmx(ApiScenarioBatchRequest request) {
-        List<ApiScenarioWithBLOBs> apiScenarioWithBLOBs = getExportResult(request);
+
+        ServiceUtils.getSelectAllIds(request, request.getCondition(), (query) -> extApiScenarioMapper.selectIdsByQuery(query));
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andIdIn(request.getIds());
+        List<ApiScenarioWithBLOBs> apiScenarioWithBLOBs = apiScenarioMapper.selectByExampleWithBLOBs(example);
         //检查运行环境
         checkExportEnv(apiScenarioWithBLOBs);
         // 生成jmx

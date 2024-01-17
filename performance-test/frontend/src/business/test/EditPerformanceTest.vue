@@ -679,7 +679,7 @@ export default {
           csvHasHeader: true,
           recycle: true,
           stopThread: false,
-          shareMode: "shareMode.thread"
+          shareMode: "shareMode.all"
         });
       }
 
