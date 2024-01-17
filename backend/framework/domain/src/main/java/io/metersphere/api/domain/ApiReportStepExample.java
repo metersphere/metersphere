@@ -114,52 +114,62 @@ public class ApiReportStepExample {
             return (Criteria) this;
         }
 
-        public Criteria andStepIdEqualTo(Long value) {
+        public Criteria andStepIdEqualTo(String value) {
             addCriterion("step_id =", value, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andStepIdNotEqualTo(Long value) {
+        public Criteria andStepIdNotEqualTo(String value) {
             addCriterion("step_id <>", value, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andStepIdGreaterThan(Long value) {
+        public Criteria andStepIdGreaterThan(String value) {
             addCriterion("step_id >", value, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andStepIdGreaterThanOrEqualTo(Long value) {
+        public Criteria andStepIdGreaterThanOrEqualTo(String value) {
             addCriterion("step_id >=", value, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andStepIdLessThan(Long value) {
+        public Criteria andStepIdLessThan(String value) {
             addCriterion("step_id <", value, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andStepIdLessThanOrEqualTo(Long value) {
+        public Criteria andStepIdLessThanOrEqualTo(String value) {
             addCriterion("step_id <=", value, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andStepIdIn(List<Long> values) {
+        public Criteria andStepIdLike(String value) {
+            addCriterion("step_id like", value, "stepId");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepIdNotLike(String value) {
+            addCriterion("step_id not like", value, "stepId");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepIdIn(List<String> values) {
             addCriterion("step_id in", values, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andStepIdNotIn(List<Long> values) {
+        public Criteria andStepIdNotIn(List<String> values) {
             addCriterion("step_id not in", values, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andStepIdBetween(Long value1, Long value2) {
+        public Criteria andStepIdBetween(String value1, String value2) {
             addCriterion("step_id between", value1, value2, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andStepIdNotBetween(Long value1, Long value2) {
+        public Criteria andStepIdNotBetween(String value1, String value2) {
             addCriterion("step_id not between", value1, value2, "stepId");
             return (Criteria) this;
         }

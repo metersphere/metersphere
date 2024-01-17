@@ -114,7 +114,7 @@ public class ApiScenarioService {
 
     private Set<String> extractUserIds(List<ApiScenarioDTO> list) {
         return list.stream()
-                .flatMap(apiDefinition -> Stream.of(apiDefinition.getUpdateUser(), apiDefinition.getDeleteUser(), apiDefinition.getCreateUser()))
+                .flatMap(apiScenario -> Stream.of(apiScenario.getUpdateUser(), apiScenario.getDeleteUser(), apiScenario.getCreateUser()))
                 .collect(Collectors.toSet());
     }
 

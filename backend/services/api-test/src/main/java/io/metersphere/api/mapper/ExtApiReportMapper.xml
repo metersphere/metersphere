@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.api.mapper.ExtApiReportMapper">
+
+    <select id="list" resultType="io.metersphere.api.domain.ApiReport">
+        select
+        api_report.id,
+        api_report.name,
+        api_report.integrated,
+        api_report.status,
+        api_report.start_time,
+        api_report.update_time,
+        api_report.create_user,
+        api_report.update_user,
+        api_report.trigger_mode
+        from api_report where api_report.project_id = #{projectId}
+        <if test="request.keyword != null and request.keyword != ''">
+            and (
+            api_report.name like concat('%', #{request.keyword},'%')
+            )
+        </if>
+        <include refid="filters">
+            <property name="filter" value="request.filter"/>
+        </include>
+    </select>
+
+
+    <sql id="filters">
+        <if test="${filter} != null and ${filter}.size() > 0">
+            <foreach collection="${filter}.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='integrated'">
+                            and api_report.integrated in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='status'">
+                            and api_report.status in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+
+</mapper>

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.api.mapper.ApiReportStepMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiReportStep">
-    <id column="step_id" jdbcType="BIGINT" property="stepId" />
+    <id column="step_id" jdbcType="VARCHAR" property="stepId" />
     <id column="report_id" jdbcType="VARCHAR" property="reportId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="sort" jdbcType="BIGINT" property="sort" />
@@ -87,12 +87,12 @@
     select 
     <include refid="Base_Column_List" />
     from api_report_step
-    where step_id = #{stepId,jdbcType=BIGINT}
+    where step_id = #{stepId,jdbcType=VARCHAR}
       and report_id = #{reportId,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="map">
     delete from api_report_step
-    where step_id = #{stepId,jdbcType=BIGINT}
+    where step_id = #{stepId,jdbcType=VARCHAR}
       and report_id = #{reportId,jdbcType=VARCHAR}
   </delete>
   <delete id="deleteByExample" parameterType="io.metersphere.api.domain.ApiReportStepExample">
@@ -104,7 +104,7 @@
   <insert id="insert" parameterType="io.metersphere.api.domain.ApiReportStep">
     insert into api_report_step (step_id, report_id, `name`, 
       sort, step_type)
-    values (#{stepId,jdbcType=BIGINT}, #{reportId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+    values (#{stepId,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{sort,jdbcType=BIGINT}, #{stepType,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiReportStep">
@@ -128,7 +128,7 @@
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="stepId != null">
-        #{stepId,jdbcType=BIGINT},
+        #{stepId,jdbcType=VARCHAR},
       </if>
       <if test="reportId != null">
         #{reportId,jdbcType=VARCHAR},
@@ -154,7 +154,7 @@
     update api_report_step
     <set>
       <if test="record.stepId != null">
-        step_id = #{record.stepId,jdbcType=BIGINT},
+        step_id = #{record.stepId,jdbcType=VARCHAR},
       </if>
       <if test="record.reportId != null">
         report_id = #{record.reportId,jdbcType=VARCHAR},
@@ -175,7 +175,7 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update api_report_step
-    set step_id = #{record.stepId,jdbcType=BIGINT},
+    set step_id = #{record.stepId,jdbcType=VARCHAR},
       report_id = #{record.reportId,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
       sort = #{record.sort,jdbcType=BIGINT},
@@ -197,7 +197,7 @@
         step_type = #{stepType,jdbcType=VARCHAR},
       </if>
     </set>
-    where step_id = #{stepId,jdbcType=BIGINT}
+    where step_id = #{stepId,jdbcType=VARCHAR}
       and report_id = #{reportId,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiReportStep">
@@ -205,7 +205,7 @@
     set `name` = #{name,jdbcType=VARCHAR},
       sort = #{sort,jdbcType=BIGINT},
       step_type = #{stepType,jdbcType=VARCHAR}
-    where step_id = #{stepId,jdbcType=BIGINT}
+    where step_id = #{stepId,jdbcType=VARCHAR}
       and report_id = #{reportId,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
@@ -213,7 +213,7 @@
     (step_id, report_id, `name`, sort, step_type)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.stepId,jdbcType=BIGINT}, #{item.reportId,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, 
+      (#{item.stepId,jdbcType=VARCHAR}, #{item.reportId,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, 
         #{item.sort,jdbcType=BIGINT}, #{item.stepType,jdbcType=VARCHAR})
     </foreach>
   </insert>
@@ -228,7 +228,7 @@
       (
       <foreach collection="selective" item="column" separator=",">
         <if test="'step_id'.toString() == column.value">
-          #{item.stepId,jdbcType=BIGINT}
+          #{item.stepId,jdbcType=VARCHAR}
         </if>
         <if test="'report_id'.toString() == column.value">
           #{item.reportId,jdbcType=VARCHAR}
