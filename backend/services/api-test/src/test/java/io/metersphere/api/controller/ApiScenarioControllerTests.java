@@ -4,7 +4,10 @@ import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.scenario.ApiScenarioBatchEditRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioPageRequest;
-import io.metersphere.api.mapper.*;
+import io.metersphere.api.mapper.ApiScenarioFollowerMapper;
+import io.metersphere.api.mapper.ApiScenarioMapper;
+import io.metersphere.api.mapper.ApiScenarioModuleMapper;
+import io.metersphere.api.mapper.ExtApiScenarioMapper;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
@@ -56,8 +59,6 @@ public class ApiScenarioControllerTests extends BaseTest {
     private ApiScenarioModuleMapper apiScenarioModuleMapper;
     @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
-    @Resource
-    private ApiScenarioEnvironmentMapper apiScenarioEnvironmentMapper;
     @Resource
     private EnvironmentMapper environmentMapper;
     @Resource
@@ -132,18 +133,15 @@ public class ApiScenarioControllerTests extends BaseTest {
             apiScenario.setUpdateTime(System.currentTimeMillis());
             apiScenario.setCreateUser("admin");
             apiScenario.setUpdateUser("admin");
-            ApiScenarioEnvironment apiScenarioEnvironment = new ApiScenarioEnvironment();
-            apiScenarioEnvironment.setApiScenarioId(apiScenario.getId());
             if (i % 2 == 0) {
                 apiScenario.setTags(new ArrayList<>(List.of("tag1", "tag2")));
                 apiScenario.setGrouped(true);
-                apiScenarioEnvironment.setEnvironmentGroupId("scenario-environment-group-id");
+                apiScenario.setEnvironmentId("scenario-environment-group-id");
             } else {
                 apiScenario.setGrouped(false);
-                apiScenarioEnvironment.setEnvironmentId(environments.get(0).getId());
+                apiScenario.setEnvironmentId(environments.get(0).getId());
             }
             apiScenarioMapper.insertSelective(apiScenario);
-            apiScenarioEnvironmentMapper.insertSelective(apiScenarioEnvironment);
         }
     }
 
@@ -176,9 +174,6 @@ public class ApiScenarioControllerTests extends BaseTest {
             apiScenario.setCreateUser("admin");
             apiScenario.setUpdateUser("admin");
             apiScenarioMapper.insertSelective(apiScenario);
-            ApiScenarioEnvironment apiScenarioEnvironment = new ApiScenarioEnvironment();
-            apiScenarioEnvironment.setApiScenarioId(apiScenario.getId());
-            apiScenarioEnvironmentMapper.insertSelective(apiScenarioEnvironment);
         }
     }
 
@@ -362,13 +357,9 @@ public class ApiScenarioControllerTests extends BaseTest {
         List<Environment> environments = environmentMapper.selectByExample(environmentExample);
         request.setEnvId(environments.get(0).getId());
         responsePost(BATCH_EDIT, request);
-        //取所有的ids
-        List<String> scenarioIds = apiScenarios.stream().map(ApiScenario::getId).toList();
         //判断数据的环境是不是environments.get(0).getId()
-        ApiScenarioEnvironmentExample apiScenarioEnvironmentExample = new ApiScenarioEnvironmentExample();
-        apiScenarioEnvironmentExample.createCriteria().andApiScenarioIdIn(scenarioIds);
-        List<ApiScenarioEnvironment> apiScenarioEnvironments = apiScenarioEnvironmentMapper.selectByExample(apiScenarioEnvironmentExample);
-        apiScenarioEnvironments.forEach(apiTestCase -> Assertions.assertEquals(apiTestCase.getEnvironmentId(), environments.get(0).getId()));
+        apiScenarios = apiScenarioMapper.selectByExample(example);
+        apiScenarios.forEach(apiTestCase -> Assertions.assertEquals(apiTestCase.getEnvironmentId(), environments.get(0).getId()));
 
         //环境数据为空
         request.setEnvId(null);
@@ -380,10 +371,12 @@ public class ApiScenarioControllerTests extends BaseTest {
         request.setGrouped(true);
         request.setGroupId("scenario-environment-group-id");
         responsePost(BATCH_EDIT, request);
-        apiScenarioEnvironments = apiScenarioEnvironmentMapper.selectByExample(apiScenarioEnvironmentExample);
-        apiScenarioEnvironments.forEach(apiTestCase -> Assertions.assertEquals(apiTestCase.getEnvironmentGroupId(), "scenario-environment-group-id"));
         apiScenarios = apiScenarioMapper.selectByExample(example);
-        apiScenarios.forEach(apiTestCase -> Assertions.assertEquals(apiTestCase.getGrouped(), true));
+        apiScenarios.forEach(apiTestCase -> {
+            Assertions.assertEquals(apiTestCase.getGrouped(), true);
+            Assertions.assertEquals(apiTestCase.getEnvironmentId(), "scenario-environment-group-id");
+        });
+
 
         //环境组数据为空
         request.setGroupId(null);

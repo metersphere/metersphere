@@ -13,7 +13,7 @@
         select
         api_scenario.id, api_scenario.`name`,api_scenario.priority,
         api_scenario.step_total,api_scenario.request_pass_rate,api_scenario.last_report_status,
-        api_scenario.request_execution_rate,
+        api_scenario.environment_id,
         api_scenario.last_report_id,api_scenario.grouped,
         api_scenario.`status`, api_scenario.num, api_scenario.tags, api_scenario.pos,
         api_scenario.project_id, api_scenario.module_id, api_scenario.latest, api_scenario.version_id,

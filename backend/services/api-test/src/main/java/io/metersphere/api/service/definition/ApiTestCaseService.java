@@ -370,6 +370,7 @@ public class ApiTestCaseService {
             }
             return ids;
         } else {
+            request.getSelectIds().removeAll(request.getExcludeIds());
             return request.getSelectIds();
         }
     }
