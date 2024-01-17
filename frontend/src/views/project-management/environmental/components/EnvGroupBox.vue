@@ -27,7 +27,7 @@
             <a-textarea v-model="form.description" auto-size class="w-[732px]" :placeholder="t('common.pleaseInput')" />
           </a-form-item>
         </a-form>
-        <AllParamsTable
+        <paramsTable
           v-model:params="innerParams"
           :show-setting="false"
           :columns="columns"
@@ -48,8 +48,7 @@
 </template>
 
 <script lang="ts" setup>
-  import type { MsTableColumn } from '@/components/pure/ms-table/type';
-  import AllParamsTable from './allParams/AllParamsTable.vue';
+  import paramsTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
   import { useI18n } from '@/hooks/useI18n';
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
@@ -60,7 +59,7 @@
     description: '',
   });
   const store = useProjectEnvStore();
-  const columns: MsTableColumn = [
+  const columns: ParamTableColumn[] = [
     {
       title: 'project.environmental.project',
       dataIndex: 'project',
