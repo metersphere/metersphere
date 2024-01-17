@@ -8,7 +8,7 @@
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="step_total" jdbcType="INTEGER" property="stepTotal" />
     <result column="request_execution_rate" jdbcType="VARCHAR" property="requestExecutionRate" />
-    <result column="request_pass_rate" jdbcType="BIGINT" property="requestPassRate" />
+    <result column="request_pass_rate" jdbcType="VARCHAR" property="requestPassRate" />
     <result column="last_report_status" jdbcType="VARCHAR" property="lastReportStatus" />
     <result column="last_report_id" jdbcType="VARCHAR" property="lastReportId" />
     <result column="num" jdbcType="BIGINT" property="num" />
@@ -173,7 +173,7 @@
       update_time)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{priority,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{stepTotal,jdbcType=INTEGER}, #{requestExecutionRate,jdbcType=VARCHAR}, 
-      #{requestPassRate,jdbcType=BIGINT}, #{lastReportStatus,jdbcType=VARCHAR}, #{lastReportId,jdbcType=VARCHAR}, 
+      #{requestPassRate,jdbcType=VARCHAR}, #{lastReportStatus,jdbcType=VARCHAR}, #{lastReportId,jdbcType=VARCHAR}, 
       #{num,jdbcType=BIGINT}, #{deleted,jdbcType=BIT}, #{pos,jdbcType=BIGINT}, #{versionId,jdbcType=VARCHAR}, 
       #{refId,jdbcType=VARCHAR}, #{latest,jdbcType=BIT}, #{projectId,jdbcType=VARCHAR}, 
       #{moduleId,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
@@ -283,7 +283,7 @@
         #{requestExecutionRate,jdbcType=VARCHAR},
       </if>
       <if test="requestPassRate != null">
-        #{requestPassRate,jdbcType=BIGINT},
+        #{requestPassRate,jdbcType=VARCHAR},
       </if>
       <if test="lastReportStatus != null">
         #{lastReportStatus,jdbcType=VARCHAR},
@@ -372,7 +372,7 @@
         request_execution_rate = #{record.requestExecutionRate,jdbcType=VARCHAR},
       </if>
       <if test="record.requestPassRate != null">
-        request_pass_rate = #{record.requestPassRate,jdbcType=BIGINT},
+        request_pass_rate = #{record.requestPassRate,jdbcType=VARCHAR},
       </if>
       <if test="record.lastReportStatus != null">
         last_report_status = #{record.lastReportStatus,jdbcType=VARCHAR},
@@ -444,7 +444,7 @@
       `status` = #{record.status,jdbcType=VARCHAR},
       step_total = #{record.stepTotal,jdbcType=INTEGER},
       request_execution_rate = #{record.requestExecutionRate,jdbcType=VARCHAR},
-      request_pass_rate = #{record.requestPassRate,jdbcType=BIGINT},
+      request_pass_rate = #{record.requestPassRate,jdbcType=VARCHAR},
       last_report_status = #{record.lastReportStatus,jdbcType=VARCHAR},
       last_report_id = #{record.lastReportId,jdbcType=VARCHAR},
       num = #{record.num,jdbcType=BIGINT},
@@ -487,7 +487,7 @@
         request_execution_rate = #{requestExecutionRate,jdbcType=VARCHAR},
       </if>
       <if test="requestPassRate != null">
-        request_pass_rate = #{requestPassRate,jdbcType=BIGINT},
+        request_pass_rate = #{requestPassRate,jdbcType=VARCHAR},
       </if>
       <if test="lastReportStatus != null">
         last_report_status = #{lastReportStatus,jdbcType=VARCHAR},
@@ -556,7 +556,7 @@
       `status` = #{status,jdbcType=VARCHAR},
       step_total = #{stepTotal,jdbcType=INTEGER},
       request_execution_rate = #{requestExecutionRate,jdbcType=VARCHAR},
-      request_pass_rate = #{requestPassRate,jdbcType=BIGINT},
+      request_pass_rate = #{requestPassRate,jdbcType=VARCHAR},
       last_report_status = #{lastReportStatus,jdbcType=VARCHAR},
       last_report_id = #{lastReportId,jdbcType=VARCHAR},
       num = #{num,jdbcType=BIGINT},
@@ -588,7 +588,7 @@
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.priority,jdbcType=VARCHAR}, 
         #{item.status,jdbcType=VARCHAR}, #{item.stepTotal,jdbcType=INTEGER}, #{item.requestExecutionRate,jdbcType=VARCHAR}, 
-        #{item.requestPassRate,jdbcType=BIGINT}, #{item.lastReportStatus,jdbcType=VARCHAR}, 
+        #{item.requestPassRate,jdbcType=VARCHAR}, #{item.lastReportStatus,jdbcType=VARCHAR}, 
         #{item.lastReportId,jdbcType=VARCHAR}, #{item.num,jdbcType=BIGINT}, #{item.deleted,jdbcType=BIT}, 
         #{item.pos,jdbcType=BIGINT}, #{item.versionId,jdbcType=VARCHAR}, #{item.refId,jdbcType=VARCHAR}, 
         #{item.latest,jdbcType=BIT}, #{item.projectId,jdbcType=VARCHAR}, #{item.moduleId,jdbcType=VARCHAR}, 
@@ -627,7 +627,7 @@
           #{item.requestExecutionRate,jdbcType=VARCHAR}
         </if>
         <if test="'request_pass_rate'.toString() == column.value">
-          #{item.requestPassRate,jdbcType=BIGINT}
+          #{item.requestPassRate,jdbcType=VARCHAR}
         </if>
         <if test="'last_report_status'.toString() == column.value">
           #{item.lastReportStatus,jdbcType=VARCHAR}

@@ -209,8 +209,8 @@ CREATE TABLE IF NOT EXISTS api_scenario(
     `priority` VARCHAR(10) NOT NULL   COMMENT '场景级别/P0/P1等' ,
     `status` VARCHAR(20) NOT NULL   COMMENT '场景状态/未规划/已完成 等' ,
     `step_total` INT NOT NULL  DEFAULT 0 COMMENT '场景步骤总数' ,
-    `request_execution_rate` VARCHAR(255) NOT NULL  DEFAULT '0.00' COMMENT '请求执行率' ,
-    `request_pass_rate` BIGINT NOT NULL  DEFAULT '0.00' COMMENT '通过率' ,
+    `request_execution_rate` VARCHAR(20) NOT NULL  DEFAULT '0.00' COMMENT '请求执行率' ,
+    `request_pass_rate` VARCHAR(20) NOT NULL  DEFAULT '0.00'  COMMENT '通过率' ,
     `last_report_status` VARCHAR(50)    COMMENT '最后一次执行的结果状态' ,
     `last_report_id` VARCHAR(50)    COMMENT '最后一次执行的报告fk' ,
     `num` BIGINT NOT NULL   COMMENT '编号' ,
@@ -507,6 +507,7 @@ CREATE TABLE IF NOT EXISTS api_definition_mock_config(
 
 CREATE TABLE IF NOT EXISTS api_definition_swagger(
     `id` VARCHAR(50) NOT NULL   COMMENT '主键' ,
+    `num` BIGINT NOT NULL   COMMENT '业务id' ,
     `name` VARCHAR(255) NOT NULL   COMMENT '定时任务名称' ,
     `swagger_url` VARCHAR(500) NOT NULL   COMMENT 'url地址' ,
     `module_id` VARCHAR(50)    COMMENT '模块fk' ,

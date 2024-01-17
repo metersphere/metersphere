@@ -4,6 +4,7 @@ import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.utils.ApiDataUtils;
@@ -351,7 +352,7 @@ public class ApiTestCaseService {
         //记录删除日志
         apiTestCaseLogService.deleteBatchLog(caseLists, userId, projectId);
         //TODO 需要删除测试计划与用例的中间表 功能用例的关联表等
-        //TODO 删除附件关系
+        //TODO 删除附件关系    不需要删除报告
         //extFileAssociationService.deleteByResourceIds(ids);
     }
 
@@ -497,4 +498,34 @@ public class ApiTestCaseService {
         return apiFileResourceService.uploadTempFile(file);
     }
 
+    public void updateByApiDefinitionId(List<String> ids, ApiDefinition apiDefinition) {
+        String method = apiDefinition.getMethod();
+        String path = apiDefinition.getPath();
+        if (StringUtils.isNotEmpty(method) || StringUtils.isNotEmpty(path)) {
+            ApiTestCaseExample apiTestCaseExample = new ApiTestCaseExample();
+            apiTestCaseExample.createCriteria().andApiDefinitionIdIn(ids);
+            List<ApiTestCase> caseLists = apiTestCaseMapper.selectByExample(apiTestCaseExample);
+            List<String> caseIds = caseLists.stream().map(ApiTestCase::getId).toList();
+            if (CollectionUtils.isEmpty(caseIds)) {
+                return;
+            }
+            ApiTestCaseBlobExample blobExample = new ApiTestCaseBlobExample();
+            blobExample.createCriteria().andIdIn(caseIds);
+            List<ApiTestCaseBlob> bloBs = apiTestCaseBlobMapper.selectByExampleWithBLOBs(blobExample);
+
+            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+            ApiTestCaseBlobMapper batchMapper = sqlSession.getMapper(ApiTestCaseBlobMapper.class);
+            bloBs.forEach(apiTestCase -> {
+                MsHTTPElement msHttpElement = ApiDataUtils.parseObject(new String(apiTestCase.getRequest()), MsHTTPElement.class);
+                msHttpElement.setMethod(method);
+                msHttpElement.setPath(path);
+                apiTestCase.setRequest(ApiDataUtils.toJSONString(msHttpElement).getBytes());
+                batchMapper.updateByPrimaryKeySelective(apiTestCase);
+            });
+            sqlSession.flushStatements();
+            if (sqlSessionFactory != null) {
+                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+            }
+        }
+    }
 }

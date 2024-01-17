@@ -227,6 +227,12 @@ public class ApiDefinitionService {
         BeanUtils.copyBean(apiDefinition, request);
         if (request.getProtocol().equals(ModuleConstants.NODE_PROTOCOL_HTTP)) {
             checkUpdateExist(apiDefinition);
+            //http协议的接口，如果修改了path和method，需要同步把case的path和method修改
+            if (!originApiDefinition.getPath().equals(apiDefinition.getPath()) || !originApiDefinition.getMethod().equals(apiDefinition.getMethod())) {
+                List<String> ids = new ArrayList<>();
+                ids.add(request.getId());
+                apiTestCaseService.updateByApiDefinitionId(ids, apiDefinition);
+            }
         }
         apiDefinition.setStatus(request.getStatus());
         apiDefinition.setUpdateUser(userId);

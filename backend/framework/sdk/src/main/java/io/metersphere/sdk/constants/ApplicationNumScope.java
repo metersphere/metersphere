@@ -5,6 +5,7 @@ public enum ApplicationNumScope {
     API_TEST_CASE,
     API_MOCK,
     API_SCENARIO,
+    API_IMPORT,
 
     UI_SCENARIO,
     UI_ELEMENT,

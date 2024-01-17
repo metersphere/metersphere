@@ -131,6 +131,10 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
     @Resource
     private OperationHistoryMapper operationHistoryMapper;
+    @Resource
+    private ApiTestCaseMapper apiTestCaseMapper;
+    @Resource
+    private ApiTestCaseBlobMapper apiTestCaseBlobMapper;
 
     @Resource
     private OperationLogMapper operationLogMapper;
@@ -392,6 +396,61 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
         // @@校验日志
         checkLogModelList.add(new CheckLogModel(apiDefinition.getId(), OperationLogType.UPDATE, UPDATE));
+
+        //校验修改path和method时，是否会影响用例
+        ApiDefinitionAddRequest addRequest = new ApiDefinitionAddRequest();
+        addRequest.setName("测试修改path和method");
+        addRequest.setProtocol("HTTP");
+        addRequest.setProjectId(DEFAULT_PROJECT_ID);
+        addRequest.setMethod("POST");
+        addRequest.setPath("/api/admin/posts");
+        addRequest.setStatus(ApiDefinitionStatus.PREPARE.getValue());
+        addRequest.setModuleId("default");
+        addRequest.setVersionId(DEFAULT_PROJECT_ID);
+        addRequest.setDescription("描述内容");
+        addRequest.setTags(new LinkedHashSet<>(List.of("tag1", "tag2")));
+        addRequest.setCustomFields(new HashMap<>());
+        addRequest.setRequest(ApiDataUtils.toJSONString(msHttpElement));
+        addRequest.setResponse(ApiDataUtils.toJSONString(msHttpResponse));
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(ADD, addRequest);
+        ApiDefinition apiDefinition = getResultData(mvcResult, ApiDefinition.class);
+        ApiDefinition apiPathAndMethod = apiDefinitionMapper.selectByPrimaryKey(apiDefinition.getId());
+        Assertions.assertEquals(addRequest.getPath(), apiPathAndMethod.getPath());
+        Assertions.assertEquals(addRequest.getMethod(), apiPathAndMethod.getMethod());
+        ApiDefinitionUpdateRequest updateRequest = new ApiDefinitionUpdateRequest();
+        BeanUtils.copyBean(updateRequest, apiPathAndMethod);
+        updateRequest.setPath("/api/test/path/method");
+        updateRequest.setRequest(ApiDataUtils.toJSONString(msHttpElement));
+        updateRequest.setResponse(ApiDataUtils.toJSONString(msHttpResponse));
+        updateRequest.setMethod("GET");
+        this.requestPostWithOk(UPDATE, updateRequest);
+        //增加用例
+        for (int i = 0; i < 3; i++) {
+            ApiTestCaseAddRequest testCaseAddRequest = new ApiTestCaseAddRequest();
+            testCaseAddRequest.setApiDefinitionId(apiPathAndMethod.getId());
+            testCaseAddRequest.setName("test-path" + i);
+            testCaseAddRequest.setProjectId(DEFAULT_PROJECT_ID);
+            testCaseAddRequest.setPriority("P0");
+            testCaseAddRequest.setStatus(ApiDefinitionStatus.PREPARE.getValue());
+            testCaseAddRequest.setTags(new LinkedHashSet<>(List.of("tag1", "tag2")));
+            testCaseAddRequest.setRequest(ApiDataUtils.toJSONString(msHttpElement));
+            this.requestPostWithOkAndReturn("/api/case/add", testCaseAddRequest);
+        }
+        updateRequest.setPath("/api/test/path/method/case");
+        this.requestPostWithOk(UPDATE, updateRequest);
+        //校验用例是否被修改
+        ApiTestCaseExample apiTestCaseExample = new ApiTestCaseExample();
+        apiTestCaseExample.createCriteria().andApiDefinitionIdEqualTo(apiPathAndMethod.getId());
+        List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(apiTestCaseExample);
+        List<String> caseIds = apiTestCases.stream().map(ApiTestCase::getId).toList();
+        ApiTestCaseBlobExample apiTestCaseBlobExample = new ApiTestCaseBlobExample();
+        apiTestCaseBlobExample.createCriteria().andIdIn(caseIds);
+        List<ApiTestCaseBlob> apiTestCaseBlobs = apiTestCaseBlobMapper.selectByExampleWithBLOBs(apiTestCaseBlobExample);
+        apiTestCaseBlobs.forEach(apiTestCaseBlob -> {
+            MsHTTPElement caseElement = ApiDataUtils.parseObject(new String(apiTestCaseBlob.getRequest()), MsHTTPElement.class);
+            Assertions.assertEquals(updateRequest.getPath(), caseElement.getPath());
+            Assertions.assertEquals(updateRequest.getMethod(), caseElement.getMethod());
+        });
         // @@异常参数校验
         createdGroupParamValidateTest(ApiDefinitionUpdateRequest.class, UPDATE);
         // @@校验权限
