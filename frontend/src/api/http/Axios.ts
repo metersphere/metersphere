@@ -43,7 +43,7 @@ export class MSAxios {
 
     const axiosCanceler = new AxiosCanceler();
 
-    // 请求拦截器
+    // TODO: 拦截配置升级了 请求拦截器
     this.axiosInstance.interceptors.request.use((config: CreateAxiosOptions) => {
       // 如果ignoreCancelToken为true，则不添加到pending中
       const ignoreCancelToken = config.requestOptions?.ignoreCancelToken;
@@ -56,7 +56,8 @@ export class MSAxios {
       if (requestInterceptors && isFunction(requestInterceptors)) {
         config = requestInterceptors(config, this.options);
       }
-      return config as InternalAxiosRequestConfig; // TODO: 拦截配置升级了，暂时 as 处理
+      // TODO: 拦截配置升级了，暂时 as 处理
+      return config as InternalAxiosRequestConfig;
     }, undefined);
 
     // 响应拦截器

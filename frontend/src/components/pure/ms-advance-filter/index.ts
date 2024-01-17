@@ -22,6 +22,18 @@ export const OPERATOR_MAP = {
 
 export const timeSelectOptions = [GE, LE];
 
+export const statusCodeOptions = [
+  { label: 'ms.assertion.noValidation', value: 'none' },
+  IN,
+  NOT_IN,
+  EQUAL,
+  NOT_EQUAL,
+  GT,
+  GE,
+  LT,
+  LE,
+];
+
 export const CustomTypeMaps: Record<string, any> = {
   INPUT: {
     type: 'INPUT',
