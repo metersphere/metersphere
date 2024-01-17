@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import { formatJson, formatXml } from 'metersphere-frontend/src/utils/format-utils';
+import {formatJson, formatXml} from 'metersphere-frontend/src/utils/format-utils';
 import toDiffableHtml from 'diffable-html';
 import editor from 'vue2-ace-editor';
 import 'brace/ext/language_tools'; //language extension prerequisite...
