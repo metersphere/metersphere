@@ -6,4 +6,7 @@ export default {
   'ms.assertion.responseTime': '响应时间',
   'ms.assertion.param': '变量',
   'ms.assertion.script': '脚本',
+  'ms.assertion.noValidation': '不校验',
+  'ms.assertion.matchCondition': '匹配条件',
+  'ms.assertion.matchValue': '匹配值',
 };

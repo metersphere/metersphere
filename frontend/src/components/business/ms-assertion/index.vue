@@ -11,7 +11,7 @@
         <a-doption v-for="item in assertOption" :key="item.value" :value="item.value">{{ item.label }}</a-doption>
       </template>
     </a-dropdown>
-    <div class="ms-assertion-body">
+    <div v-if="showBody" class="ms-assertion-body">
       <article class="ms-assertion-body-left">
         <div
           v-for="(item, index) in activeOption"
@@ -28,12 +28,22 @@
           </div>
         </div>
       </article>
-      <section class="ms-assertion-body-right"> </section>
+      <section class="ms-assertion-body-right">
+        <MsAssertionStatusCodeTab
+          v-if="activeKey === 'statusCode'"
+          v-model:selectValue="codeTabState.selectValue"
+          v-model:statusCode="codeTabState.statusCode"
+        />
+        <ResponseHeaderTab v-if="activeKey === 'responseHeader'" />
+      </section>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+  import ResponseHeaderTab from './comp/ResponseHeaderTab.vue';
+  import MsAssertionStatusCodeTab from './comp/StatusCodeTab.vue';
+
   import { useI18n } from '@/hooks/useI18n';
 
   defineOptions({
@@ -42,6 +52,11 @@
 
   const { t } = useI18n();
 
+  const codeTabState = reactive({
+    selectValue: '',
+    statusCode: 200,
+  });
+  // 源选项
   const assertOptionSource = [
     {
       label: t('ms.assertion.statusCode'),
@@ -68,23 +83,28 @@
       value: 'script',
     },
   ];
-
+  // 选中的选项
   const selectIds = ref<string[]>([]);
-
+  // Item点击的key
   const activeKey = ref<string>('');
 
+  // 未选中的选项
   const assertOption = computed(() => {
     return assertOptionSource.filter((item) => !selectIds.value.includes(item.value));
   });
-
+  // 选中的选项
   const activeOption = computed(() => {
     return assertOptionSource.filter((item) => selectIds.value.includes(item.value));
   });
-
+  // 是否显示主体
+  const showBody = computed(() => {
+    return selectIds.value.length > 0;
+  });
+  // dropdown选择
   const handleSelect = (value: string | number | Record<string, any> | undefined) => {
     selectIds.value.push(value as string);
   };
-
+  // item点击
   const handleItemClick = (item: { label: string; value: string }) => {
     activeKey.value = item.value;
   };
@@ -102,6 +122,7 @@
         display: flex;
         padding: 12px;
         width: 216px;
+        min-width: 216px;
         height: calc(100vh - 394px);
         background-color: var(--color-text-n9);
         flex-direction: column;
@@ -143,6 +164,7 @@
       &-right {
         display: flex;
         flex-grow: 1;
+        padding: 16px;
         border: 1px solid var(--color-text-n8);
         border-radius: 4px;
         background: var(--color-text-fff);
