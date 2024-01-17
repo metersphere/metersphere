@@ -2,7 +2,7 @@ package io.metersphere.system.utils;
 
 import com.bastiaanjansen.otp.TOTPGenerator;
 import io.metersphere.sdk.constants.MsHttpHeaders;
-import io.metersphere.sdk.dto.api.task.TaskRequest;
+import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.controller.handler.result.MsHttpResultCode;
 import jakarta.annotation.Resource;
@@ -33,7 +33,7 @@ public class TaskRunnerClient {
         restTemplateWithTimeOut.setRequestFactory(httpRequestFactory);
     }
 
-    public static void debugApi(String endpoint, TaskRequest taskRequest) throws Exception {
+    public static void debugApi(String endpoint, TaskRequestDTO taskRequest) throws Exception {
         post(endpoint + API_DEBUG, taskRequest);
     }
 

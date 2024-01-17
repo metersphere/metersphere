@@ -1,6 +1,6 @@
 package io.metersphere.api.engine;
 
-import io.metersphere.sdk.dto.api.task.TaskRequest;
+import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.util.LogUtils;
 import org.apache.commons.beanutils.ConstructorUtils;
 import org.apache.commons.collections4.CollectionUtils;
@@ -24,7 +24,7 @@ public class EngineFactory {
     }
 
 
-    public static ApiEngine createApiEngine(TaskRequest request)
+    public static ApiEngine createApiEngine(TaskRequestDTO request)
             throws InvocationTargetException, NoSuchMethodException, IllegalAccessException, InstantiationException {
         LogUtils.info("创建K8s client");
         return ConstructorUtils.invokeConstructor(apiEngine, request);
