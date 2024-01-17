@@ -6,7 +6,6 @@ import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.functional.dto.FunctionalCaseTestDTO;
 import io.metersphere.functional.dto.FunctionalCaseTestPlanDTO;
-import io.metersphere.functional.request.AssociateCaseModuleRequest;
 import io.metersphere.functional.request.AssociatePlanPageRequest;
 import io.metersphere.functional.request.DisassociateOtherCaseRequest;
 import io.metersphere.functional.request.FunctionalCaseTestRequest;

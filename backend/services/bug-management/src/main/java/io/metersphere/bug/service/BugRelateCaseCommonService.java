@@ -2,7 +2,6 @@ package io.metersphere.bug.service;
 
 import io.metersphere.bug.domain.BugRelationCase;
 import io.metersphere.bug.domain.BugRelationCaseExample;
-import io.metersphere.bug.dto.request.BugRelateCaseModuleRequest;
 import io.metersphere.bug.dto.request.BugRelatedCasePageRequest;
 import io.metersphere.bug.dto.response.BugRelateCaseDTO;
 import io.metersphere.bug.mapper.BugRelationCaseMapper;
@@ -17,10 +16,13 @@ import io.metersphere.project.mapper.ProjectVersionMapper;
 import io.metersphere.project.service.ModuleTreeService;
 import io.metersphere.project.service.PermissionCheckService;
 import io.metersphere.provider.BaseAssociateCaseProvider;
+import io.metersphere.request.AssociateCaseModuleRequest;
 import io.metersphere.request.AssociateOtherCaseRequest;
+import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.sdk.constants.CaseType;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.uid.IDGenerator;
@@ -63,7 +65,7 @@ public class BugRelateCaseCommonService extends ModuleTreeService {
      * @param request 请求参数
      * @return 模块树集合
      */
-    public List<BaseTreeNode> getRelateCaseTree(BugRelateCaseModuleRequest request) {
+    public List<BaseTreeNode> getRelateCaseTree(AssociateCaseModuleRequest request) {
         // 目前只保留功能用例的左侧模块树方法调用, 后续其他用例根据RelateCaseType扩展
         List<BaseTreeNode> relateCaseModules = extBugRelateCaseMapper.getRelateCaseModule(request, false);
         // 构建模块树层级数量为通用逻辑
@@ -75,10 +77,12 @@ public class BugRelateCaseCommonService extends ModuleTreeService {
      * @param request 请求参数
      * @return 模块树集合
      */
-    public Map<String, Long> countTree(BugRelateCaseModuleRequest request) {
+    public Map<String, Long> countTree(TestCasePageProviderRequest request) {
         // 目前只保留功能用例的左侧模块树方法调用, 后续其他用例根据RelateCaseType扩展
         List<ModuleCountDTO> moduleCounts = extBugRelateCaseMapper.countRelateCaseModuleTree(request, false);
-        List<BaseTreeNode> relateCaseModules = extBugRelateCaseMapper.getRelateCaseModule(request, false);
+        AssociateCaseModuleRequest moduleRequest = new AssociateCaseModuleRequest();
+        BeanUtils.copyBean(moduleRequest, request);
+        List<BaseTreeNode> relateCaseModules = extBugRelateCaseMapper.getRelateCaseModule(moduleRequest, false);
         List<BaseTreeNode> relateCaseModuleWithCount = buildTreeAndCountResource(relateCaseModules, moduleCounts, true, Translator.get("api_unplanned_request"));
         Map<String, Long> moduleCountMap = getIdCountMapByBreadth(relateCaseModuleWithCount);
         long total = getAllCount(moduleCounts);

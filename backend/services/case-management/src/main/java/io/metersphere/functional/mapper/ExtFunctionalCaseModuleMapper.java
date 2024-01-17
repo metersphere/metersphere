@@ -1,7 +1,7 @@
 package io.metersphere.functional.mapper;
 
-import io.metersphere.functional.request.AssociateCaseModuleRequest;
 import io.metersphere.project.dto.NodeSortQueryParam;
+import io.metersphere.request.AssociateCaseModuleRequest;
 import io.metersphere.system.dto.sdk.BaseModule;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import org.apache.ibatis.annotations.Param;

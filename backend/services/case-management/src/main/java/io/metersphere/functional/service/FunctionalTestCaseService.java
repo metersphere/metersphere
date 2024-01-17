@@ -12,7 +12,6 @@ import io.metersphere.functional.dto.FunctionalCaseTestPlanDTO;
 import io.metersphere.functional.mapper.ExtFunctionalCaseModuleMapper;
 import io.metersphere.functional.mapper.ExtFunctionalCaseTestMapper;
 import io.metersphere.functional.mapper.FunctionalCaseTestMapper;
-import io.metersphere.functional.request.AssociateCaseModuleRequest;
 import io.metersphere.functional.request.AssociatePlanPageRequest;
 import io.metersphere.functional.request.DisassociateOtherCaseRequest;
 import io.metersphere.functional.request.FunctionalCaseTestRequest;

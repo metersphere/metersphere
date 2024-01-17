@@ -4,7 +4,6 @@ import io.metersphere.bug.domain.BugComment;
 import io.metersphere.bug.dto.request.BugCommentEditRequest;
 import io.metersphere.bug.dto.response.BugCommentDTO;
 import io.metersphere.bug.mapper.BugCommentMapper;
-import io.metersphere.project.mapper.NotificationMapper;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
@@ -31,8 +30,6 @@ public class BugCommentTests extends BaseTest {
 
     @Resource
     private BugCommentMapper bugCommentMapper;
-    @Resource
-    private NotificationMapper notificationMapper;
 
     public static final String BUG_COMMENT_GET = "/bug/comment/get";
     public static final String BUG_COMMENT_ADD = "/bug/comment/add";

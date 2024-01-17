@@ -25,14 +25,14 @@
         fcm.id as moduleId,
         count(fc.id) as dataCount
         from functional_case_module fcm left join functional_case fc on fc.module_id = fcm.id
-        where fc.deleted = #{deleted}
-        and fc.project_id = #{request.projectId}
-        and fc.version_id = #{request.versionId}
-        and fc.id not in
-        (
-            select brc.case_id from bug_relation_case brc where brc.bug_id = #{request.sourceId} and brc.case_type = #{request.sourceType}
-        )
-        <include refid="queryModuleWhereCondition"/>
+            where fc.deleted = #{deleted}
+            and fc.project_id = #{request.projectId}
+            and fc.version_id = #{request.versionId}
+            and fc.id not in
+            (
+                select brc.case_id from bug_relation_case brc where brc.bug_id = #{request.sourceId} and brc.case_type = #{request.sourceType}
+            )
+            <include refid="queryModuleWhereCondition"/>
         group by fcm.id
     </select>
 
@@ -92,12 +92,12 @@
         <!-- 待补充关联Case弹窗中的高级搜索条件 -->
         <if test="request.keyword != null and request.keyword != ''">
             and (
-                fc.id like concat('%', #{request.keyword}, '%') or fc.name like concat('%', #{request.keyword}, '%')
+                fc.num like concat('%', #{request.keyword}, '%') or fc.name like concat('%', #{request.keyword}, '%')
             )
         </if>
         <if test="request.moduleIds != null and request.moduleIds.size() > 0">
             and fcm.module_id in
-            <foreach collection="moduleIds" item="moduleId" open="(" separator="," close=")">
+            <foreach collection="request.moduleIds" item="moduleId" open="(" separator="," close=")">
                 #{moduleId}
             </foreach>
         </if>

@@ -7,8 +7,3 @@ INSERT INTO bug_relation_case(id, case_id, bug_id, case_type, test_plan_id, test
 VALUES ('wx_test_id_1', 'wx_1', 'bug_id_1', 'FUNCTIONAL', null, null, 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000),
        ('wx_test_id_2', 'wx_2', 'bug_id_1', 'FUNCTIONAL', 'test-plan-id', 'bug_relate_case', 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000),
        ('wx_test_id_3', 'wx_3', 'bug_id_2', 'FUNCTIONAL', null, null, 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000);
-
-INSERT INTO `test_plan` (`id`, `project_id`, `group_id`, `module_id`, `type`, `name`, `status`, `create_time`,
-                         `create_user`)
-VALUES ('test-plan-id', 'wx_test', 'none', 'root', 'TEST_PLAN', 'cececec', 'PREPARED', UNIX_TIMESTAMP() * 1000,
-        'admin');

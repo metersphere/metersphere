@@ -24,6 +24,7 @@ import io.metersphere.project.service.FileService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.StorageType;
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
 import io.metersphere.sdk.util.JSON;
@@ -42,12 +43,14 @@ import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
+import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -58,6 +61,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -530,7 +535,9 @@ public class BugControllerTests extends BaseTest {
         this.requestGetWithOk(BUG_HEADER_HANDLER_OPTION + "/default-project-for-bug");
 
         // 同步删除缺陷(default-bug-id-jira-sync)
+        // 一条模板不存在的缺陷(手动删除default-bug-id-jira-sync-1, 影响后续测试)
         this.requestGetWithOk(BUG_SYNC + "/default-project-for-bug");
+        bugMapper.deleteByPrimaryKey("default-bug-id-jira-sync-1");
 
         // 添加Jira缺陷
         BugEditRequest addRequest = buildJiraBugRequest(false);
@@ -589,13 +596,6 @@ public class BugControllerTests extends BaseTest {
         addRequest.setProjectId("default-project-for-not-integration");
         MultiValueMap<String, Object> notIntegrationParam = getDefaultMultiPartParam(addRequest, file);
         this.requestMultipart(BUG_ADD, notIntegrationParam).andExpect(status().is5xxServerError());
-
-        // 同步全量缺陷
-        BugSyncRequest request = new BugSyncRequest();
-        request.setProjectId("default-project-for-bug");
-        request.setPre(true);
-        request.setCreateTime(1702021500000L);
-        this.requestPostWithOk(BUG_SYNC_ALL, request);
 
         // 执行同步全部
         Project project = new Project();
@@ -674,6 +674,22 @@ public class BugControllerTests extends BaseTest {
         bugSyncService.checkSyncStatus("default-project-for-bug");
         // 覆盖空Msg
         bugSyncService.checkSyncStatus("default-project-for-bug");
+
+        // 同步全量缺陷
+        BugSyncRequest syncRequest = new BugSyncRequest();
+        syncRequest.setProjectId("default-project-for-bug");
+        syncRequest.setPre(true);
+        syncRequest.setCreateTime(1702021500000L);
+        bugSyncExtraService.setSyncKey("default-project-for-bug");
+        this.requestPostWithOk(BUG_SYNC_ALL, request);
+        bugSyncExtraService.deleteSyncKey("default-project-for-bug");
+        Project project = projectMapper.selectByPrimaryKey("default-project-for-bug");
+        this.requestPostWithOk(BUG_SYNC_ALL, request);
+        BugService mockBugService = Mockito.mock(BugService.class);
+        Mockito.doThrow(new MSException("sync error!")).when(mockBugService).syncPlatformAllBugs(syncRequest, project);
+        ReflectionTestUtils.setField(bugSyncService, "bugService", mockBugService);
+        MSException msException = assertThrows(MSException.class, () -> bugSyncService.syncAllBugs(syncRequest));
+        assertEquals(msException.getMessage(), "sync error!");
     }
 
     /**
