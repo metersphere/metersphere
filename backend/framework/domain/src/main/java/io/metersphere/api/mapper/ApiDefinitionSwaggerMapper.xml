@@ -3,6 +3,7 @@
 <mapper namespace="io.metersphere.api.mapper.ApiDefinitionSwaggerMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiDefinitionSwagger">
     <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="num" jdbcType="BIGINT" property="num" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="swagger_url" jdbcType="VARCHAR" property="swaggerUrl" />
     <result column="module_id" jdbcType="VARCHAR" property="moduleId" />
@@ -71,7 +72,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, swagger_url, module_id, config, cover_data, cover_module, project_id, 
+    id, num, `name`, swagger_url, module_id, config, cover_data, cover_module, project_id, 
     version_id
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiDefinitionSwaggerExample" resultMap="BaseResultMap">
@@ -105,20 +106,23 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.api.domain.ApiDefinitionSwagger">
-    insert into api_definition_swagger (id, `name`, swagger_url, 
-      module_id, config, cover_data, 
-      cover_module, project_id, version_id
-      )
-    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{swaggerUrl,jdbcType=VARCHAR}, 
-      #{moduleId,jdbcType=VARCHAR}, #{config,jdbcType=VARCHAR}, #{coverData,jdbcType=BIT}, 
-      #{coverModule,jdbcType=BIT}, #{projectId,jdbcType=VARCHAR}, #{versionId,jdbcType=VARCHAR}
-      )
+    insert into api_definition_swagger (id, num, `name`, 
+      swagger_url, module_id, config, 
+      cover_data, cover_module, project_id, 
+      version_id)
+    values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=BIGINT}, #{name,jdbcType=VARCHAR}, 
+      #{swaggerUrl,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR}, #{config,jdbcType=VARCHAR}, 
+      #{coverData,jdbcType=BIT}, #{coverModule,jdbcType=BIT}, #{projectId,jdbcType=VARCHAR}, 
+      #{versionId,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiDefinitionSwagger">
     insert into api_definition_swagger
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
+      </if>
+      <if test="num != null">
+        num,
       </if>
       <if test="name != null">
         `name`,
@@ -148,6 +152,9 @@
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="num != null">
+        #{num,jdbcType=BIGINT},
       </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
@@ -187,6 +194,9 @@
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
+      <if test="record.num != null">
+        num = #{record.num,jdbcType=BIGINT},
+      </if>
       <if test="record.name != null">
         `name` = #{record.name,jdbcType=VARCHAR},
       </if>
@@ -219,6 +229,7 @@
   <update id="updateByExample" parameterType="map">
     update api_definition_swagger
     set id = #{record.id,jdbcType=VARCHAR},
+      num = #{record.num,jdbcType=BIGINT},
       `name` = #{record.name,jdbcType=VARCHAR},
       swagger_url = #{record.swaggerUrl,jdbcType=VARCHAR},
       module_id = #{record.moduleId,jdbcType=VARCHAR},
@@ -234,6 +245,9 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.api.domain.ApiDefinitionSwagger">
     update api_definition_swagger
     <set>
+      <if test="num != null">
+        num = #{num,jdbcType=BIGINT},
+      </if>
       <if test="name != null">
         `name` = #{name,jdbcType=VARCHAR},
       </if>
@@ -263,7 +277,8 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiDefinitionSwagger">
     update api_definition_swagger
-    set `name` = #{name,jdbcType=VARCHAR},
+    set num = #{num,jdbcType=BIGINT},
+      `name` = #{name,jdbcType=VARCHAR},
       swagger_url = #{swaggerUrl,jdbcType=VARCHAR},
       module_id = #{moduleId,jdbcType=VARCHAR},
       config = #{config,jdbcType=VARCHAR},
@@ -275,14 +290,14 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_definition_swagger
-    (id, `name`, swagger_url, module_id, config, cover_data, cover_module, project_id, 
+    (id, num, `name`, swagger_url, module_id, config, cover_data, cover_module, project_id, 
       version_id)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.swaggerUrl,jdbcType=VARCHAR}, 
-        #{item.moduleId,jdbcType=VARCHAR}, #{item.config,jdbcType=VARCHAR}, #{item.coverData,jdbcType=BIT}, 
-        #{item.coverModule,jdbcType=BIT}, #{item.projectId,jdbcType=VARCHAR}, #{item.versionId,jdbcType=VARCHAR}
-        )
+      (#{item.id,jdbcType=VARCHAR}, #{item.num,jdbcType=BIGINT}, #{item.name,jdbcType=VARCHAR}, 
+        #{item.swaggerUrl,jdbcType=VARCHAR}, #{item.moduleId,jdbcType=VARCHAR}, #{item.config,jdbcType=VARCHAR}, 
+        #{item.coverData,jdbcType=BIT}, #{item.coverModule,jdbcType=BIT}, #{item.projectId,jdbcType=VARCHAR}, 
+        #{item.versionId,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -297,6 +312,9 @@
       <foreach collection="selective" item="column" separator=",">
         <if test="'id'.toString() == column.value">
           #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'num'.toString() == column.value">
+          #{item.num,jdbcType=BIGINT}
         </if>
         <if test="'name'.toString() == column.value">
           #{item.name,jdbcType=VARCHAR}

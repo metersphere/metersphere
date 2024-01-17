@@ -15,6 +15,9 @@ public class ApiDefinitionSwagger implements Serializable {
     @Size(min = 1, max = 50, message = "{api_definition_swagger.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
+    @Schema(description = "业务id")
+    private Long num;
+
     @Schema(description = "定时任务名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_definition_swagger.name.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{api_definition_swagger.name.length_range}", groups = {Created.class, Updated.class})
@@ -49,6 +52,7 @@ public class ApiDefinitionSwagger implements Serializable {
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
+        num("num", "num", "BIGINT", false),
         name("name", "name", "VARCHAR", true),
         swaggerUrl("swagger_url", "swaggerUrl", "VARCHAR", false),
         moduleId("module_id", "moduleId", "VARCHAR", false),

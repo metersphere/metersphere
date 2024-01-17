@@ -9,6 +9,7 @@ import io.metersphere.api.mapper.ApiDefinitionSwaggerMapper;
 import io.metersphere.api.service.schedule.SwaggerUrlImportJob;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.ScheduleType;
 import io.metersphere.sdk.exception.MSException;
@@ -23,6 +24,7 @@ import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.ScheduleMapper;
 import io.metersphere.system.sechedule.ScheduleService;
 import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -51,6 +53,7 @@ public class ApiDefinitionScheduleService {
         ApiDefinitionSwagger apiSwagger = new ApiDefinitionSwagger();
         BeanUtils.copyBean(apiSwagger, request);
         apiSwagger.setId(IDGenerator.nextStr());
+        apiSwagger.setNum(NumGenerator.nextNum(request.getProjectId(), ApplicationNumScope.API_IMPORT));
         // 设置鉴权信息
         SwaggerBasicAuth basicAuth = new SwaggerBasicAuth();
         basicAuth.setUserName(request.getAuthUsername());
