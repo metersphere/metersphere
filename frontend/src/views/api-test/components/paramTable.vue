@@ -246,7 +246,7 @@
   </a-modal>
 </template>
 
-<script setup lang="ts">
+<script async setup lang="ts">
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -307,11 +307,13 @@
       tableKey?: TableKeyEnum; // 表格key showSetting为true时必传
       disabled?: boolean; // 是否禁用
       showSelectorAll?: boolean; // 是否显示全选
+      isSimpleSetting?: boolean; // 是否简单Column设置
     }>(),
     {
       selectable: true,
       showSetting: false,
       tableKey: undefined,
+      isSimpleSetting: true,
       defaultParamItem: () => ({
         required: false,
         name: '',
@@ -350,6 +352,7 @@
     showSetting: props.showSetting,
     disabled: props.disabled,
     showSelectorAll: props.showSelectorAll,
+    isSimpleSetting: props.isSimpleSetting,
   });
 
   watch(

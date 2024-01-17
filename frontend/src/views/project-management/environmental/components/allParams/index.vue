@@ -62,6 +62,7 @@
       slotName: 'name',
       showInTable: true,
       showDrag: true,
+      columnSelectorDisabled: true,
     },
     {
       title: 'project.environmental.paramType',
@@ -69,6 +70,7 @@
       slotName: 'type',
       showInTable: true,
       showDrag: true,
+      columnSelectorDisabled: true,
       typeOptions: [
         {
           label: t('common.string'),
@@ -104,6 +106,7 @@
       slotName: 'value',
       showInTable: true,
       showDrag: true,
+      columnSelectorDisabled: true,
     },
     {
       title: 'project.environmental.tag',
@@ -124,6 +127,7 @@
       title: '',
       columnTitle: 'common.operation',
       slotName: 'operation',
+      dataIndex: 'operation',
       width: 50,
       showInTable: true,
       showDrag: true,
