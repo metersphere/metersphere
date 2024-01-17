@@ -11,8 +11,9 @@ import lombok.Data;
 @Data
 public class ApiReportStep implements Serializable {
     @Schema(description = "步骤id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{api_report_step.step_id.not_blank}", groups = {Created.class})
-    private Long stepId;
+    @NotBlank(message = "{api_report_step.step_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{api_report_step.step_id.length_range}", groups = {Created.class, Updated.class})
+    private String stepId;
 
     @Schema(description = "报告id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_report_step.report_id.not_blank}", groups = {Created.class})
@@ -34,7 +35,7 @@ public class ApiReportStep implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public enum Column {
-        stepId("step_id", "stepId", "BIGINT", false),
+        stepId("step_id", "stepId", "VARCHAR", false),
         reportId("report_id", "reportId", "VARCHAR", false),
         name("name", "name", "VARCHAR", true),
         sort("sort", "sort", "BIGINT", false),

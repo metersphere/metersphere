@@ -50,7 +50,12 @@ public class ApiExecutionQueueService {
         }
 
         if (StringUtils.isNotBlank(queueDetail)) {
-            // 将节点重新放回列表尾部，实现轮询
+            Long size = size(queueId);
+            if (size == null || size == 0) {
+                // 最后一个节点清理队列
+                redisTemplate.delete(queueKey);
+                redisTemplate.delete(QUEUE_PREFIX + queueId);
+            }
             return JSON.parseObject(queueDetail, ExecutionQueueDetail.class);
         }
 

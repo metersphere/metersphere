@@ -146,7 +146,7 @@ CREATE INDEX idx_name ON api_report(name);
 CREATE INDEX idx_pool_id ON api_report(pool_id);
 
 CREATE TABLE IF NOT EXISTS api_report_step(
-    `step_id` BIGINT NOT NULL   COMMENT '步骤id' ,
+    `step_id` VARCHAR(50) NOT NULL   COMMENT '步骤id' ,
     `report_id` VARCHAR(50) NOT NULL   COMMENT '报告id' ,
     `name` VARCHAR(255)    COMMENT '步骤名称' ,
     `sort` BIGINT NOT NULL   COMMENT '序号' ,
