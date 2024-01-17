@@ -101,6 +101,7 @@ export interface MsTableProps<T> {
   expandedKeys?: string[]; // 显示的展开行、子树（受控模式）
   emptyDataShowLine?: boolean; // 空数据是否显示 "-"
   showJumpMethod?: boolean; // 是否展示跳转方法
+  isSimpleSetting?: boolean; // 是否是简单的设置
   [key: string]: any;
 }
 

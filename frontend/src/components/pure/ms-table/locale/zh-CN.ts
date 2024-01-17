@@ -18,7 +18,7 @@ export default {
       clear: '清空',
     },
     columnSetting: {
-      display: '表格显示设置',
+      display: '表头显示设置',
       mode: '模式设置',
       drawer: '抽屉',
       newWindow: '新窗口',

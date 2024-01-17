@@ -78,6 +78,7 @@ export default function useTableProps<T>(
     /** Column Selector */
     showJumpMethod: false, // 是否显示跳转方法
     showFooterActionWrap: false, // 是否显示底部操作区域
+    isSimpleSetting: false, // 是否是简易column设置
     ...props,
   };
 

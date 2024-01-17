@@ -55,7 +55,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  const activeKey = ref('assert');
+  const activeKey = ref('tcp');
   const envForm = ref();
   const canSave = ref(false);
   const { t } = useI18n();

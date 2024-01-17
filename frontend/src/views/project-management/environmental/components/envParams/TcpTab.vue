@@ -4,10 +4,6 @@
   </div>
 </template>
 
-<script lang="ts" setup>
-  import { useI18n } from '@/hooks/useI18n';
-
-  const { t } = useI18n();
-</script>
+<script lang="ts" setup></script>
 
 <style lang="less" scoped></style>

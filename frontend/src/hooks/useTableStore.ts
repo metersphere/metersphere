@@ -1,6 +1,7 @@
 import { filter, orderBy, sortBy } from 'lodash-es';
 import localforage from 'localforage';
 
+import { is } from '@/components/pure/minder-editor/script/tool/key';
 import { MsTableColumn, MsTableColumnData } from '@/components/pure/ms-table/type';
 
 import { useAppStore } from '@/store';
@@ -58,15 +59,12 @@ export default function useTableStore() {
       }
       if (item.dataIndex === SpecialColumnEnum.ID) {
         // dataIndex 为 id 的列默认不排序，且展示在列的最前面
-        item.showDrag = false;
         item.sortIndex = 0;
       } else if (item.dataIndex === SpecialColumnEnum.NAME) {
         // dataIndex 为 name 的列默认不排序，且展示在列的第二位
-        item.showDrag = false;
         item.sortIndex = 1;
       } else if (item.dataIndex === SpecialColumnEnum.OPERATION || item.dataIndex === SpecialColumnEnum.ACTION) {
         // dataIndex 为 operation 或 action  的列默认不排序，且展示在列的最后面
-        item.showDrag = false;
         item.sortIndex = state.operationBaseIndex;
       }
     });
@@ -112,7 +110,7 @@ export default function useTableStore() {
       console.log(e);
     }
   }
-  async function setColumns(key: string, columns: MsTableColumn, mode?: TableOpenDetailMode) {
+  async function setColumns(key: string, columns: MsTableColumn, mode?: TableOpenDetailMode, isSimple?: boolean) {
     try {
       columns.forEach((item, idx) => {
         if (item.showDrag) {
@@ -123,6 +121,12 @@ export default function useTableStore() {
       if (!selectorColumnMap) {
         return;
       }
+      if (isSimple) {
+        const oldColumns = selectorColumnMap[key].column;
+        const operationColumn = oldColumns.find((i) => i.dataIndex === SpecialColumnEnum.OPERATION);
+        if (operationColumn) columns.push(operationColumn);
+      }
+
       selectorColumnMap[key] = {
         mode,
         column: JSON.parse(JSON.stringify(columns)),
@@ -147,12 +151,15 @@ export default function useTableStore() {
     }
     return 'drawer';
   }
-  async function getColumns(key: string) {
+  async function getColumns(key: string, isSimple?: boolean) {
     const selectorColumnMap = await getSelectorColumnMap();
     if (selectorColumnMap[key]) {
       const tmpArr = selectorColumnMap[key].column;
       const { nonSortableColumns, couldSortableColumns } = tmpArr.reduce(
         (result: { nonSortableColumns: MsTableColumnData[]; couldSortableColumns: MsTableColumnData[] }, item) => {
+          if (isSimple && item.dataIndex === SpecialColumnEnum.OPERATION) {
+            return result;
+          }
           if (item.showDrag) {
             result.couldSortableColumns.push(item);
           } else {

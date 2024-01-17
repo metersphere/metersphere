@@ -58,14 +58,17 @@
               <slot :name="item.titleSlotName" :column-config="item">
                 <div class="text-[var(--color-text-3)]">{{ t(item.title as string) }}</div>
               </slot>
-              <icon-settings
+              <columnSelectorIcon
                 v-if="
                   props.showSetting &&
                   (item.slotName === SpecialColumnEnum.OPERATION || item.slotName === SpecialColumnEnum.ACTION)
                 "
-                class="setting-icon"
-                @click="handleShowSetting"
+                :table-key="(attrs.tableKey as string)"
+                :is-simple="(attrs.isSimpleSetting as boolean)"
+                @show-setting="handleShowSetting"
+                @init-data="handleInitColumn"
               />
+
               <slot v-else-if="item.filterConfig" :name="item.filterConfig.filterSlotName">
                 <DefaultFilter
                   class="ml-[4px]"
@@ -228,6 +231,7 @@
   import MsCheckbox from '../ms-checkbox/MsCheckbox.vue';
   import BatchAction from './batchAction.vue';
   import ColumnSelector from './columnSelector.vue';
+  import columnSelectorIcon from './columnSelectorIcon.vue';
   import DefaultFilter from './comp/defaultFilter.vue';
   import SelectALL from './select-all.vue';
 

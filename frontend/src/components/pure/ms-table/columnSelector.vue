@@ -68,13 +68,13 @@
           t('msTable.columnSetting.nonSort')
         }}</span></a-divider
       >
-      <VueDraggable v-model="couldSortColumn" ghost-class="ghost">
+      <VueDraggable v-model="couldSortColumn" handle=".sort-handle" ghost-class="ghost" @change="handleSwitchChange">
         <div v-for="element in couldSortColumn" :key="element.dataIndex" class="column-drag-item">
           <div class="flex w-[90%] items-center">
-            <MsIcon type="icon-icon_drag" class="text-[16px] text-[var(--color-text-4)]" />
+            <MsIcon type="icon-icon_drag" class="sort-handle cursor-move text-[16px] text-[var(--color-text-4)]" />
             <span class="ml-[8px]">{{ t((element.title || element.columnTitle) as string) }}</span>
           </div>
-          <a-switch v-model="element.showInTable" size="small" type="line" @update="handleSwitchChange" />
+          <a-switch v-model="element.showInTable" size="small" type="line" @change="handleSwitchChange" />
         </div>
       </VueDraggable>
     </div>
@@ -148,10 +148,6 @@
   };
 
   const handleSwitchChange = () => {
-    hasChange.value = true;
-  };
-
-  const handleDragChange = () => {
     hasChange.value = true;
   };
 
