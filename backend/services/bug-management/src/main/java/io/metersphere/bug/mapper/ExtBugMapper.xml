@@ -167,7 +167,7 @@
                             )
                         </when>
                         <!-- 自定义多选字段 -->
-                        <when test="key.startsWith('custom_multiple_321421')">
+                        <when test="key.startsWith('custom_multiple')">
                             and b.id in (
                             select bug_id from bug_custom_field where concat('custom_multiple_', field_id) = #{key}
                             and

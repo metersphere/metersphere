@@ -50,7 +50,7 @@
 
     <sql id="filterMultipleWrapper">
         <foreach collection="values" item="value" separator="or" open="(" close=")">
-            JSON_CONTAINS(value, #{value})
+            JSON_CONTAINS(`value`, JSON_ARRAY(#{value}))
         </foreach>
     </sql>
 </mapper>

@@ -65,9 +65,10 @@ public interface ExtFunctionalCaseMapper {
      * 获取缺陷未关联的功能用例列表
      * @param request provider参数
      * @param deleted 是否删除状态
+     * @param sort 排序
      * @return 通用的列表Case集合
      */
-    List<TestCaseProviderDTO> listUnRelatedCaseWithBug(@Param("request") TestCasePageProviderRequest request, @Param("deleted") boolean deleted);
+    List<TestCaseProviderDTO> listUnRelatedCaseWithBug(@Param("request") TestCasePageProviderRequest request, @Param("deleted") boolean deleted, @Param("sort") String sort);
 
     /**
      * 根据关联条件获取关联的用例ID

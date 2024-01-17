@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -32,7 +33,7 @@ public class BugTrashControllerTests extends BaseTest {
     @Test
     @Order(0)
     @Sql(scripts = {"/dml/init_bug_trash.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
-    void testTrashPage() throws Exception{
+    void testTrashPage() throws Exception {
         BugPageRequest bugRequest = new BugPageRequest();
         bugRequest.setCurrent(1);
         bugRequest.setPageSize(10);
@@ -50,6 +51,9 @@ public class BugTrashControllerTests extends BaseTest {
         Assertions.assertEquals(pageData.getCurrent(), bugRequest.getCurrent());
         // 返回的数据量不超过规定要返回的数据量相同
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= bugRequest.getPageSize());
+        // 排序
+        bugRequest.setSort(Map.of("status", "asc"));
+        this.requestPostWithOkAndReturn(BUG_TRASH_PAGE, bugRequest);
     }
 
     @Test

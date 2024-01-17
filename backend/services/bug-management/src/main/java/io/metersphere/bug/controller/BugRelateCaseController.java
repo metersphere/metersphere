@@ -2,12 +2,12 @@ package io.metersphere.bug.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.bug.dto.request.BugRelateCaseModuleRequest;
 import io.metersphere.bug.dto.request.BugRelatedCasePageRequest;
 import io.metersphere.bug.dto.response.BugRelateCaseDTO;
 import io.metersphere.bug.service.BugRelateCaseCommonService;
 import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.provider.BaseAssociateCaseProvider;
+import io.metersphere.request.AssociateCaseModuleRequest;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -41,24 +41,24 @@ public class BugRelateCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
     public Pager<List<TestCaseProviderDTO>> unRelatedPage(@Validated @RequestBody TestCasePageProviderRequest request) {
         // 目前只保留功能用例的Provider接口, 后续其他用例根据RelateCaseType扩展
-        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(), null);
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
         return PageUtils.setPageInfo(page, functionalCaseProvider.listUnRelatedTestCaseList(request));
-    }
-
-    @PostMapping("/un-relate/module/tree")
-    @Operation(summary = "缺陷管理-关联用例-未关联用例-模块树")
-    @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
-    @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
-    public List<BaseTreeNode> getTree(@RequestBody @Validated BugRelateCaseModuleRequest request) {
-        return bugRelateCaseCommonService.getRelateCaseTree(request);
     }
 
     @PostMapping("/un-relate/module/count")
     @Operation(summary = "缺陷管理-关联用例-未关联用例-模块树数量")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
     @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
-    public Map<String, Long> countTree(@RequestBody @Validated BugRelateCaseModuleRequest request) {
+    public Map<String, Long> countTree(@RequestBody @Validated TestCasePageProviderRequest request) {
         return bugRelateCaseCommonService.countTree(request);
+    }
+
+    @PostMapping("/un-relate/module/tree")
+    @Operation(summary = "缺陷管理-关联用例-未关联用例-模块树")
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
+    @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
+    public List<BaseTreeNode> getTree(@RequestBody @Validated AssociateCaseModuleRequest request) {
+        return bugRelateCaseCommonService.getRelateCaseTree(request);
     }
 
     @PostMapping("/relate")

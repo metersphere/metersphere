@@ -30,7 +30,7 @@ public class AssociateBugProviderTests extends BaseTest {
     @Test
     @Order(1)
     @Sql(scripts = {"/dml/init_bug_relation_case.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
-    public void getBugList() throws Exception {
+    public void getBugList() {
         BugPageProviderRequest request = new BugPageProviderRequest();
         request.setSourceId("wx_associate_case_id_1");
         request.setProjectId("project_wx_associate_test");
@@ -43,7 +43,7 @@ public class AssociateBugProviderTests extends BaseTest {
 
     @Test
     @Order(2)
-    public void getSelectBugs() throws Exception {
+    public void getSelectBugs() {
         AssociateBugRequest request = new AssociateBugRequest();
         request.setCaseId("wx_associate_case_id_1");
         request.setProjectId("project_wx_associate_test");
@@ -68,19 +68,19 @@ public class AssociateBugProviderTests extends BaseTest {
 
     @Test
     @Order(3)
-    public void testAssociateBug() throws Exception {
+    public void testAssociateBug() {
         associateBugProvider.handleAssociateBug(List.of("bug_id_1", "bug_id_2"), "wx", "wx_associate_case_id_1");
     }
 
     @Test
     @Order(4)
-    public void testDisassociateBug() throws Exception {
+    public void testDisassociateBug() {
         associateBugProvider.disassociateBug("wx_test_id_1");
     }
 
     @Test
     @Order(5)
-    public void testAssociateBugPage() throws Exception {
+    public void testAssociateBugPage(){
         AssociateBugPageRequest request = new AssociateBugPageRequest();
         request.setCurrent(1);
         request.setPageSize(10);

@@ -65,7 +65,7 @@ public class BugSyncService {
             }
         } catch (Exception e) {
             bugSyncExtraService.deleteSyncKey(request.getProjectId());
-            throw new MSException(e);
+            throw new MSException(e.getMessage());
         }
     }
 

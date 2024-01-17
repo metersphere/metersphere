@@ -1,6 +1,5 @@
 package io.metersphere.bug.controller;
 
-import io.metersphere.bug.dto.request.BugRelateCaseModuleRequest;
 import io.metersphere.bug.dto.request.BugRelatedCasePageRequest;
 import io.metersphere.bug.dto.response.BugRelateCaseDTO;
 import io.metersphere.bug.service.BugRelateCaseCommonService;
@@ -63,11 +62,13 @@ public class BugRelateCaseControllerTests extends BaseTest {
     @Test
     @Order(1)
     void testBugUnRelateCaseModule() throws Exception {
-        BugRelateCaseModuleRequest request = new BugRelateCaseModuleRequest();
+        TestCasePageProviderRequest request = new TestCasePageProviderRequest();
         request.setProjectId("default-project-for-bug");
         request.setVersionId("default_bug_version");
         request.setSourceId("default-relate-bug-id'");
         request.setSourceType("FUNCTIONAL");
+        request.setCurrent(1);
+        request.setPageSize(10);
         this.requestPostWithOk(BUG_CASE_UN_RELATE_MODULE_TREE, request);
         this.requestPostWithOk(BUG_CASE_UN_RELATE_MODULE_COUNT, request);
     }

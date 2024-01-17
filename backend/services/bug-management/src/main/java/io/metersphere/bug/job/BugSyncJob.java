@@ -16,10 +16,8 @@ import org.quartz.JobExecutionContext;
 public class BugSyncJob extends BaseScheduleJob {
 
     private final LicenseService licenseService;
-
-    private final XpackBugService xpackBugService;
-
     private final BugSyncService bugSyncService;
+    private final XpackBugService xpackBugService;
 
     public BugSyncJob() {
         licenseService = CommonBeanFactory.getBean(LicenseService.class);
