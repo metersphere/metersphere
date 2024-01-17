@@ -178,7 +178,7 @@ CREATE TABLE IF NOT EXISTS api_report_detail(
     COLLATE = utf8mb4_general_ci  COMMENT = 'API/CASE执行结果详情';
 
 CREATE INDEX idx_report ON api_report_detail(report_id);
-CREATE INDEX idx_resource_id ON api_report_detail(resource_id);
+CREATE INDEX idx_step_id ON api_report_detail(step_id);
 
 CREATE TABLE api_report_log(
     `id` VARCHAR(50) NOT NULL   COMMENT '主键' ,
@@ -561,19 +561,6 @@ CREATE TABLE IF NOT EXISTS api_test_case_blob(
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '接口用例详情';
-
-CREATE TABLE IF NOT EXISTS api_scenario_environment(
-    `api_scenario_id` VARCHAR(50) NOT NULL   COMMENT '场景fk' ,
-    `environment_id` VARCHAR(50)    COMMENT '环境fk' ,
-    `environment_group_id` VARCHAR(50)    COMMENT '环境组fk' ,
-    PRIMARY KEY (api_scenario_id)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '场景环境';
-
-CREATE INDEX idx_api_scenario_id ON api_scenario_environment(api_scenario_id);
-CREATE INDEX idx_environment_id ON api_scenario_environment(environment_id);
-
 
 CREATE TABLE IF NOT EXISTS api_file_resource(
     `resource_id` VARCHAR(50) NOT NULL   COMMENT '资源ID(接口用例等)' ,

@@ -5,7 +5,10 @@ import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.scenario.ApiScenarioBatchEditRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioPageRequest;
-import io.metersphere.api.mapper.*;
+import io.metersphere.api.mapper.ApiScenarioFollowerMapper;
+import io.metersphere.api.mapper.ApiScenarioMapper;
+import io.metersphere.api.mapper.ApiScenarioModuleMapper;
+import io.metersphere.api.mapper.ExtApiScenarioMapper;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.domain.EnvironmentGroup;
@@ -50,8 +53,6 @@ public class ApiScenarioService {
     @Resource
     private UserLoginService userLoginService;
     @Resource
-    private ApiScenarioEnvironmentMapper apiScenarioEnvironmentMapper;
-    @Resource
     private ApiScenarioModuleMapper apiScenarioModuleMapper;
     @Resource
     private EnvironmentMapper environmentMapper;
@@ -82,21 +83,13 @@ public class ApiScenarioService {
     private void processApiScenario(List<ApiScenarioDTO> scenarioLists) {
         Set<String> userIds = extractUserIds(scenarioLists);
         Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userIds));
-        //取出所有的apiId
-        List<String> scenarioIds = scenarioLists.stream().map(ApiScenarioDTO::getId).distinct().toList();
-        ApiScenarioEnvironmentExample scenarioEnvironmentExample = new ApiScenarioEnvironmentExample();
-        scenarioEnvironmentExample.createCriteria().andApiScenarioIdIn(scenarioIds);
-        List<ApiScenarioEnvironment> apiScenarioEnvironments = apiScenarioEnvironmentMapper.selectByExample(scenarioEnvironmentExample);
-        //生成map key为id value为ApiScenarioEnvironment
-        Map<String, ApiScenarioEnvironment> environmentMap = apiScenarioEnvironments.stream().collect(Collectors.toMap(ApiScenarioEnvironment::getApiScenarioId, item -> item));
-        List<String> envIds = apiScenarioEnvironments.stream().map(ApiScenarioEnvironment::getEnvironmentId).toList();
+        List<String> envIds = scenarioLists.stream().map(ApiScenarioDTO::getEnvironmentId).toList();
         EnvironmentExample environmentExample = new EnvironmentExample();
         environmentExample.createCriteria().andIdIn(envIds);
         List<Environment> environments = environmentMapper.selectByExample(environmentExample);
         Map<String, String> envMap = environments.stream().collect(Collectors.toMap(Environment::getId, Environment::getName));
-        List<String> envGroupIds = apiScenarioEnvironments.stream().map(ApiScenarioEnvironment::getEnvironmentGroupId).toList();
         EnvironmentGroupExample groupExample = new EnvironmentGroupExample();
-        groupExample.createCriteria().andIdIn(envGroupIds);
+        groupExample.createCriteria().andIdIn(envIds);
         List<EnvironmentGroup> environmentGroups = environmentGroupMapper.selectByExample(groupExample);
         Map<String, String> groupMap = environmentGroups.stream().collect(Collectors.toMap(EnvironmentGroup::getId, EnvironmentGroup::getName));
         //取模块id为新的set
@@ -111,14 +104,10 @@ public class ApiScenarioService {
             item.setDeleteUserName(userMap.get(item.getDeleteUser()));
             item.setUpdateUserName(userMap.get(item.getUpdateUser()));
             item.setModulePath(StringUtils.isNotBlank(moduleMap.get(item.getModuleId())) ? moduleMap.get(item.getModuleId()) : Translator.get("api_unplanned_scenario"));
-            if (!item.getGrouped() && environmentMap.containsKey(item.getId()) &&
-                    StringUtils.isNotBlank(environmentMap.get(item.getId()).getEnvironmentId()) &&
-                    envMap.containsKey(environmentMap.get(item.getId()).getEnvironmentId())) {
-                item.setEnvironmentName(environmentMap.get(item.getId()).getEnvironmentId());
-            } else if (item.getGrouped() && environmentMap.containsKey(item.getId()) &&
-                    StringUtils.isNotBlank(environmentMap.get(item.getId()).getEnvironmentGroupId()) &&
-                    groupMap.containsKey(environmentMap.get(item.getId()).getEnvironmentGroupId())) {
-                item.setEnvironmentName(groupMap.get(item.getId()));
+            if (!item.getGrouped() && envMap.containsKey(item.getEnvironmentId())) {
+                item.setEnvironmentName(envMap.get(item.getEnvironmentId()));
+            } else if (item.getGrouped() && groupMap.containsKey(item.getId())) {
+                item.setEnvironmentName(groupMap.get(item.getEnvironmentId()));
             }
         });
     }
@@ -150,7 +139,7 @@ public class ApiScenarioService {
             case PRIORITY -> batchUpdatePriority(example, updateScenario, request.getPriority());
             case STATUS -> batchUpdateStatus(example, updateScenario, request.getStatus());
             case TAGS -> batchUpdateTags(example, updateScenario, request, ids, sqlSession, mapper);
-            case ENVIRONMENT -> batchUpdateEnvironment(example, updateScenario, request, ids);
+            case ENVIRONMENT -> batchUpdateEnvironment(example, updateScenario, request);
             default -> throw new MSException(Translator.get("batch_edit_type_error"));
         }
         List<ApiScenario> scenarioInfoByIds = extApiScenarioMapper.getInfoByIds(ids, false);
@@ -158,8 +147,7 @@ public class ApiScenarioService {
     }
 
     private void batchUpdateEnvironment(ApiScenarioExample example, ApiScenario updateScenario,
-                                        ApiScenarioBatchEditRequest request,
-                                        List<String> ids) {
+                                        ApiScenarioBatchEditRequest request) {
         if (BooleanUtils.isFalse(request.isGrouped())) {
             if (StringUtils.isBlank(request.getEnvId())) {
                 throw new MSException(Translator.get("environment_id_is_null"));
@@ -169,11 +157,7 @@ public class ApiScenarioService {
                 throw new MSException(Translator.get("environment_is_not_exist"));
             }
             updateScenario.setGrouped(false);
-            ApiScenarioEnvironment apiScenarioEnvironment = new ApiScenarioEnvironment();
-            apiScenarioEnvironment.setEnvironmentId(request.getEnvId());
-            ApiScenarioEnvironmentExample environmentExample = new ApiScenarioEnvironmentExample();
-            environmentExample.createCriteria().andApiScenarioIdIn(ids);
-            apiScenarioEnvironmentMapper.updateByExampleSelective(apiScenarioEnvironment, environmentExample);
+            updateScenario.setEnvironmentId(request.getEnvId());
         } else {
             if (StringUtils.isBlank(request.getGroupId())) {
                 throw new MSException(Translator.get("environment_group_id_is_null"));
@@ -183,11 +167,7 @@ public class ApiScenarioService {
                 throw new MSException(Translator.get("environment_group_is_not_exist"));
             }
             updateScenario.setGrouped(true);
-            ApiScenarioEnvironment apiScenarioEnvironment = new ApiScenarioEnvironment();
-            apiScenarioEnvironment.setEnvironmentGroupId(request.getGroupId());
-            ApiScenarioEnvironmentExample environmentExample = new ApiScenarioEnvironmentExample();
-            environmentExample.createCriteria().andApiScenarioIdIn(ids);
-            apiScenarioEnvironmentMapper.updateByExampleSelective(apiScenarioEnvironment, environmentExample);
+            updateScenario.setEnvironmentId(request.getGroupId());
         }
         apiScenarioMapper.updateByExampleSelective(updateScenario, example);
 
