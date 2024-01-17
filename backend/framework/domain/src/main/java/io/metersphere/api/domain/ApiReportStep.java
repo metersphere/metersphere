@@ -9,43 +9,36 @@ import java.util.Arrays;
 import lombok.Data;
 
 @Data
-public class ApiScenarioReportStep implements Serializable {
+public class ApiReportStep implements Serializable {
     @Schema(description = "步骤id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report_step.step_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{api_scenario_report_step.step_id.length_range}", groups = {Created.class, Updated.class})
-    private String stepId;
+    @NotNull(message = "{api_report_step.step_id.not_blank}", groups = {Created.class})
+    private Long stepId;
 
-    @Schema(description = "请求资源 id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report_step.report_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{api_scenario_report_step.report_id.length_range}", groups = {Created.class, Updated.class})
+    @Schema(description = "报告id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_report_step.report_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{api_report_step.report_id.length_range}", groups = {Created.class, Updated.class})
     private String reportId;
 
     @Schema(description = "步骤名称")
     private String name;
 
     @Schema(description = "序号", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{api_scenario_report_step.sort.not_blank}", groups = {Created.class})
+    @NotNull(message = "{api_report_step.sort.not_blank}", groups = {Created.class})
     private Long sort;
 
     @Schema(description = "步骤类型/API/CASE等", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report_step.step_type.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{api_scenario_report_step.step_type.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{api_report_step.step_type.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{api_report_step.step_type.length_range}", groups = {Created.class, Updated.class})
     private String stepType;
-
-    @Schema(description = "父级fk", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report_step.parent_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{api_scenario_report_step.parent_id.length_range}", groups = {Created.class, Updated.class})
-    private String parentId;
 
     private static final long serialVersionUID = 1L;
 
     public enum Column {
-        stepId("step_id", "stepId", "VARCHAR", false),
+        stepId("step_id", "stepId", "BIGINT", false),
         reportId("report_id", "reportId", "VARCHAR", false),
         name("name", "name", "VARCHAR", true),
         sort("sort", "sort", "BIGINT", false),
-        stepType("step_type", "stepType", "VARCHAR", false),
-        parentId("parent_id", "parentId", "VARCHAR", false);
+        stepType("step_type", "stepType", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

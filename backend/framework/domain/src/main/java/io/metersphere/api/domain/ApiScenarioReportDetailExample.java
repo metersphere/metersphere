@@ -244,73 +244,73 @@ public class ApiScenarioReportDetailExample {
             return (Criteria) this;
         }
 
-        public Criteria andReportStepIdIsNull() {
-            addCriterion("report_step_id is null");
+        public Criteria andStepIdIsNull() {
+            addCriterion("step_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andReportStepIdIsNotNull() {
-            addCriterion("report_step_id is not null");
+        public Criteria andStepIdIsNotNull() {
+            addCriterion("step_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andReportStepIdEqualTo(String value) {
-            addCriterion("report_step_id =", value, "reportStepId");
+        public Criteria andStepIdEqualTo(String value) {
+            addCriterion("step_id =", value, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andReportStepIdNotEqualTo(String value) {
-            addCriterion("report_step_id <>", value, "reportStepId");
+        public Criteria andStepIdNotEqualTo(String value) {
+            addCriterion("step_id <>", value, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andReportStepIdGreaterThan(String value) {
-            addCriterion("report_step_id >", value, "reportStepId");
+        public Criteria andStepIdGreaterThan(String value) {
+            addCriterion("step_id >", value, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andReportStepIdGreaterThanOrEqualTo(String value) {
-            addCriterion("report_step_id >=", value, "reportStepId");
+        public Criteria andStepIdGreaterThanOrEqualTo(String value) {
+            addCriterion("step_id >=", value, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andReportStepIdLessThan(String value) {
-            addCriterion("report_step_id <", value, "reportStepId");
+        public Criteria andStepIdLessThan(String value) {
+            addCriterion("step_id <", value, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andReportStepIdLessThanOrEqualTo(String value) {
-            addCriterion("report_step_id <=", value, "reportStepId");
+        public Criteria andStepIdLessThanOrEqualTo(String value) {
+            addCriterion("step_id <=", value, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andReportStepIdLike(String value) {
-            addCriterion("report_step_id like", value, "reportStepId");
+        public Criteria andStepIdLike(String value) {
+            addCriterion("step_id like", value, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andReportStepIdNotLike(String value) {
-            addCriterion("report_step_id not like", value, "reportStepId");
+        public Criteria andStepIdNotLike(String value) {
+            addCriterion("step_id not like", value, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andReportStepIdIn(List<String> values) {
-            addCriterion("report_step_id in", values, "reportStepId");
+        public Criteria andStepIdIn(List<String> values) {
+            addCriterion("step_id in", values, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andReportStepIdNotIn(List<String> values) {
-            addCriterion("report_step_id not in", values, "reportStepId");
+        public Criteria andStepIdNotIn(List<String> values) {
+            addCriterion("step_id not in", values, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andReportStepIdBetween(String value1, String value2) {
-            addCriterion("report_step_id between", value1, value2, "reportStepId");
+        public Criteria andStepIdBetween(String value1, String value2) {
+            addCriterion("step_id between", value1, value2, "stepId");
             return (Criteria) this;
         }
 
-        public Criteria andReportStepIdNotBetween(String value1, String value2) {
-            addCriterion("report_step_id not between", value1, value2, "reportStepId");
+        public Criteria andStepIdNotBetween(String value1, String value2) {
+            addCriterion("step_id not between", value1, value2, "stepId");
             return (Criteria) this;
         }
 

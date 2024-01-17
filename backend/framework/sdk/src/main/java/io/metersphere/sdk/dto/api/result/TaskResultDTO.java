@@ -1,6 +1,6 @@
 package io.metersphere.sdk.dto.api.result;
 
-import io.metersphere.sdk.dto.api.task.TaskRequest;
+import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import lombok.Data;
 
 import java.io.Serial;
@@ -8,7 +8,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @Data
-public class TaskResult implements Serializable {
+public class TaskResultDTO implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -37,5 +37,5 @@ public class TaskResult implements Serializable {
     /**
      * 请求参数
      */
-    private TaskRequest request;
+    private TaskRequestDTO request;
 }

@@ -4,7 +4,7 @@
   <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiReportDetail">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="report_id" jdbcType="VARCHAR" property="reportId" />
-    <result column="resource_id" jdbcType="VARCHAR" property="resourceId" />
+    <result column="step_id" jdbcType="VARCHAR" property="stepId" />
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="fake_code" jdbcType="VARCHAR" property="fakeCode" />
     <result column="request_name" jdbcType="VARCHAR" property="requestName" />
@@ -75,8 +75,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, report_id, resource_id, `status`, fake_code, request_name, request_time, code, 
-    response_size, script_identifier
+    id, report_id, step_id, `status`, fake_code, request_name, request_time, code, response_size, 
+    script_identifier
   </sql>
   <sql id="Blob_Column_List">
     content
@@ -130,11 +130,11 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.api.domain.ApiReportDetail">
-    insert into api_report_detail (id, report_id, resource_id, 
+    insert into api_report_detail (id, report_id, step_id, 
       `status`, fake_code, request_name, 
       request_time, code, response_size, 
       script_identifier, content)
-    values (#{id,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, #{stepId,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{fakeCode,jdbcType=VARCHAR}, #{requestName,jdbcType=VARCHAR}, 
       #{requestTime,jdbcType=BIGINT}, #{code,jdbcType=VARCHAR}, #{responseSize,jdbcType=BIGINT}, 
       #{scriptIdentifier,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARBINARY})
@@ -148,8 +148,8 @@
       <if test="reportId != null">
         report_id,
       </if>
-      <if test="resourceId != null">
-        resource_id,
+      <if test="stepId != null">
+        step_id,
       </if>
       <if test="status != null">
         `status`,
@@ -183,8 +183,8 @@
       <if test="reportId != null">
         #{reportId,jdbcType=VARCHAR},
       </if>
-      <if test="resourceId != null">
-        #{resourceId,jdbcType=VARCHAR},
+      <if test="stepId != null">
+        #{stepId,jdbcType=VARCHAR},
       </if>
       <if test="status != null">
         #{status,jdbcType=VARCHAR},
@@ -227,8 +227,8 @@
       <if test="record.reportId != null">
         report_id = #{record.reportId,jdbcType=VARCHAR},
       </if>
-      <if test="record.resourceId != null">
-        resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      <if test="record.stepId != null">
+        step_id = #{record.stepId,jdbcType=VARCHAR},
       </if>
       <if test="record.status != null">
         `status` = #{record.status,jdbcType=VARCHAR},
@@ -263,7 +263,7 @@
     update api_report_detail
     set id = #{record.id,jdbcType=VARCHAR},
       report_id = #{record.reportId,jdbcType=VARCHAR},
-      resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      step_id = #{record.stepId,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
       fake_code = #{record.fakeCode,jdbcType=VARCHAR},
       request_name = #{record.requestName,jdbcType=VARCHAR},
@@ -280,7 +280,7 @@
     update api_report_detail
     set id = #{record.id,jdbcType=VARCHAR},
       report_id = #{record.reportId,jdbcType=VARCHAR},
-      resource_id = #{record.resourceId,jdbcType=VARCHAR},
+      step_id = #{record.stepId,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
       fake_code = #{record.fakeCode,jdbcType=VARCHAR},
       request_name = #{record.requestName,jdbcType=VARCHAR},
@@ -298,8 +298,8 @@
       <if test="reportId != null">
         report_id = #{reportId,jdbcType=VARCHAR},
       </if>
-      <if test="resourceId != null">
-        resource_id = #{resourceId,jdbcType=VARCHAR},
+      <if test="stepId != null">
+        step_id = #{stepId,jdbcType=VARCHAR},
       </if>
       <if test="status != null">
         `status` = #{status,jdbcType=VARCHAR},
@@ -331,7 +331,7 @@
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.api.domain.ApiReportDetail">
     update api_report_detail
     set report_id = #{reportId,jdbcType=VARCHAR},
-      resource_id = #{resourceId,jdbcType=VARCHAR},
+      step_id = #{stepId,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
       fake_code = #{fakeCode,jdbcType=VARCHAR},
       request_name = #{requestName,jdbcType=VARCHAR},
@@ -345,7 +345,7 @@
   <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiReportDetail">
     update api_report_detail
     set report_id = #{reportId,jdbcType=VARCHAR},
-      resource_id = #{resourceId,jdbcType=VARCHAR},
+      step_id = #{stepId,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
       fake_code = #{fakeCode,jdbcType=VARCHAR},
       request_name = #{requestName,jdbcType=VARCHAR},
@@ -357,11 +357,11 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_report_detail
-    (id, report_id, resource_id, `status`, fake_code, request_name, request_time, code, 
-      response_size, script_identifier, content)
+    (id, report_id, step_id, `status`, fake_code, request_name, request_time, code, response_size, 
+      script_identifier, content)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.reportId,jdbcType=VARCHAR}, #{item.resourceId,jdbcType=VARCHAR}, 
+      (#{item.id,jdbcType=VARCHAR}, #{item.reportId,jdbcType=VARCHAR}, #{item.stepId,jdbcType=VARCHAR}, 
         #{item.status,jdbcType=VARCHAR}, #{item.fakeCode,jdbcType=VARCHAR}, #{item.requestName,jdbcType=VARCHAR}, 
         #{item.requestTime,jdbcType=BIGINT}, #{item.code,jdbcType=VARCHAR}, #{item.responseSize,jdbcType=BIGINT}, 
         #{item.scriptIdentifier,jdbcType=VARCHAR}, #{item.content,jdbcType=LONGVARBINARY}
@@ -384,8 +384,8 @@
         <if test="'report_id'.toString() == column.value">
           #{item.reportId,jdbcType=VARCHAR}
         </if>
-        <if test="'resource_id'.toString() == column.value">
-          #{item.resourceId,jdbcType=VARCHAR}
+        <if test="'step_id'.toString() == column.value">
+          #{item.stepId,jdbcType=VARCHAR}
         </if>
         <if test="'status'.toString() == column.value">
           #{item.status,jdbcType=VARCHAR}

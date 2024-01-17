@@ -17,7 +17,7 @@ import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.dto.api.task.ApiExecuteFileInfo;
-import io.metersphere.sdk.dto.api.task.TaskRequest;
+import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.config.MinioProperties;
@@ -108,7 +108,7 @@ public class ApiExecuteService {
         String reportId = request.getReportId();
         String testId = request.getTestId();
 
-        TaskRequest taskRequest = new TaskRequest();
+        TaskRequestDTO taskRequest = new TaskRequestDTO();
         BeanUtils.copyBean(taskRequest, request);
         taskRequest.setKafkaConfig(EncryptUtils.aesEncrypt(JSON.toJSONString(KafkaConfig.getKafkaConfig())));
         taskRequest.setMinioConfig(EncryptUtils.aesEncrypt(JSON.toJSONString(getMinio())));
@@ -153,7 +153,7 @@ public class ApiExecuteService {
      * @param request
      * @param taskRequest
      */
-    private void setTaskFileParam(ApiResourceRunRequest request, TaskRequest taskRequest) {
+    private void setTaskFileParam(ApiResourceRunRequest request, TaskRequestDTO taskRequest) {
         // 查询通过本地上传的文件
         List<ApiExecuteFileInfo> localFiles = apiFileResourceService.getByResourceId(request.getId()).
                 stream()

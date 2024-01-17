@@ -20,10 +20,10 @@ public class ApiReportDetail implements Serializable {
     @Size(min = 1, max = 50, message = "{api_report_detail.report_id.length_range}", groups = {Created.class, Updated.class})
     private String reportId;
 
-    @Schema(description = "场景中各个步骤请求唯一标识", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_report_detail.resource_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{api_report_detail.resource_id.length_range}", groups = {Created.class, Updated.class})
-    private String resourceId;
+    @Schema(description = "各个步骤请求唯一标识", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_report_detail.step_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{api_report_detail.step_id.length_range}", groups = {Created.class, Updated.class})
+    private String stepId;
 
     @Schema(description = "结果状态", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_report_detail.status.not_blank}", groups = {Created.class})
@@ -58,7 +58,7 @@ public class ApiReportDetail implements Serializable {
     public enum Column {
         id("id", "id", "VARCHAR", false),
         reportId("report_id", "reportId", "VARCHAR", false),
-        resourceId("resource_id", "resourceId", "VARCHAR", false),
+        stepId("step_id", "stepId", "VARCHAR", false),
         status("status", "status", "VARCHAR", true),
         fakeCode("fake_code", "fakeCode", "VARCHAR", false),
         requestName("request_name", "requestName", "VARCHAR", false),
