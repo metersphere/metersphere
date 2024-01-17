@@ -7,7 +7,6 @@
     <result column="priority" jdbcType="VARCHAR" property="priority" />
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="step_total" jdbcType="INTEGER" property="stepTotal" />
-    <result column="request_execution_rate" jdbcType="VARCHAR" property="requestExecutionRate" />
     <result column="request_pass_rate" jdbcType="VARCHAR" property="requestPassRate" />
     <result column="last_report_status" jdbcType="VARCHAR" property="lastReportStatus" />
     <result column="last_report_id" jdbcType="VARCHAR" property="lastReportId" />
@@ -22,6 +21,7 @@
     <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
     <result column="grouped" jdbcType="BIT" property="grouped" />
+    <result column="environment_id" jdbcType="VARCHAR" property="environmentId" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="delete_time" jdbcType="BIGINT" property="deleteTime" />
@@ -126,9 +126,9 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, priority, `status`, step_total, request_execution_rate, request_pass_rate, 
-    last_report_status, last_report_id, num, deleted, pos, version_id, ref_id, latest, 
-    project_id, module_id, description, tags, grouped, create_user, create_time, delete_time, 
+    id, `name`, priority, `status`, step_total, request_pass_rate, last_report_status, 
+    last_report_id, num, deleted, pos, version_id, ref_id, latest, project_id, module_id, 
+    description, tags, grouped, environment_id, create_user, create_time, delete_time, 
     delete_user, update_user, update_time
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiScenarioExample" resultMap="BaseResultMap">
@@ -163,23 +163,23 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.api.domain.ApiScenario">
     insert into api_scenario (id, `name`, priority, 
-      `status`, step_total, request_execution_rate, 
-      request_pass_rate, last_report_status, last_report_id, 
-      num, deleted, pos, version_id, 
+      `status`, step_total, request_pass_rate, 
+      last_report_status, last_report_id, num, 
+      deleted, pos, version_id, 
       ref_id, latest, project_id, 
       module_id, description, tags, 
-      grouped, create_user, create_time, 
-      delete_time, delete_user, update_user, 
-      update_time)
+      grouped, environment_id, create_user, 
+      create_time, delete_time, delete_user, 
+      update_user, update_time)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{priority,jdbcType=VARCHAR}, 
-      #{status,jdbcType=VARCHAR}, #{stepTotal,jdbcType=INTEGER}, #{requestExecutionRate,jdbcType=VARCHAR}, 
-      #{requestPassRate,jdbcType=VARCHAR}, #{lastReportStatus,jdbcType=VARCHAR}, #{lastReportId,jdbcType=VARCHAR}, 
-      #{num,jdbcType=BIGINT}, #{deleted,jdbcType=BIT}, #{pos,jdbcType=BIGINT}, #{versionId,jdbcType=VARCHAR}, 
+      #{status,jdbcType=VARCHAR}, #{stepTotal,jdbcType=INTEGER}, #{requestPassRate,jdbcType=VARCHAR}, 
+      #{lastReportStatus,jdbcType=VARCHAR}, #{lastReportId,jdbcType=VARCHAR}, #{num,jdbcType=BIGINT}, 
+      #{deleted,jdbcType=BIT}, #{pos,jdbcType=BIGINT}, #{versionId,jdbcType=VARCHAR}, 
       #{refId,jdbcType=VARCHAR}, #{latest,jdbcType=BIT}, #{projectId,jdbcType=VARCHAR}, 
       #{moduleId,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
-      #{grouped,jdbcType=BIT}, #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{deleteTime,jdbcType=BIGINT}, #{deleteUser,jdbcType=VARCHAR}, #{updateUser,jdbcType=VARCHAR}, 
-      #{updateTime,jdbcType=BIGINT})
+      #{grouped,jdbcType=BIT}, #{environmentId,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{deleteTime,jdbcType=BIGINT}, #{deleteUser,jdbcType=VARCHAR}, 
+      #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiScenario">
     insert into api_scenario
@@ -198,9 +198,6 @@
       </if>
       <if test="stepTotal != null">
         step_total,
-      </if>
-      <if test="requestExecutionRate != null">
-        request_execution_rate,
       </if>
       <if test="requestPassRate != null">
         request_pass_rate,
@@ -244,6 +241,9 @@
       <if test="grouped != null">
         grouped,
       </if>
+      <if test="environmentId != null">
+        environment_id,
+      </if>
       <if test="createUser != null">
         create_user,
       </if>
@@ -278,9 +278,6 @@
       </if>
       <if test="stepTotal != null">
         #{stepTotal,jdbcType=INTEGER},
-      </if>
-      <if test="requestExecutionRate != null">
-        #{requestExecutionRate,jdbcType=VARCHAR},
       </if>
       <if test="requestPassRate != null">
         #{requestPassRate,jdbcType=VARCHAR},
@@ -323,6 +320,9 @@
       </if>
       <if test="grouped != null">
         #{grouped,jdbcType=BIT},
+      </if>
+      <if test="environmentId != null">
+        #{environmentId,jdbcType=VARCHAR},
       </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
@@ -368,9 +368,6 @@
       <if test="record.stepTotal != null">
         step_total = #{record.stepTotal,jdbcType=INTEGER},
       </if>
-      <if test="record.requestExecutionRate != null">
-        request_execution_rate = #{record.requestExecutionRate,jdbcType=VARCHAR},
-      </if>
       <if test="record.requestPassRate != null">
         request_pass_rate = #{record.requestPassRate,jdbcType=VARCHAR},
       </if>
@@ -413,6 +410,9 @@
       <if test="record.grouped != null">
         grouped = #{record.grouped,jdbcType=BIT},
       </if>
+      <if test="record.environmentId != null">
+        environment_id = #{record.environmentId,jdbcType=VARCHAR},
+      </if>
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
@@ -443,7 +443,6 @@
       priority = #{record.priority,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
       step_total = #{record.stepTotal,jdbcType=INTEGER},
-      request_execution_rate = #{record.requestExecutionRate,jdbcType=VARCHAR},
       request_pass_rate = #{record.requestPassRate,jdbcType=VARCHAR},
       last_report_status = #{record.lastReportStatus,jdbcType=VARCHAR},
       last_report_id = #{record.lastReportId,jdbcType=VARCHAR},
@@ -458,6 +457,7 @@
       description = #{record.description,jdbcType=VARCHAR},
       tags = #{record.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       grouped = #{record.grouped,jdbcType=BIT},
+      environment_id = #{record.environmentId,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       delete_time = #{record.deleteTime,jdbcType=BIGINT},
@@ -482,9 +482,6 @@
       </if>
       <if test="stepTotal != null">
         step_total = #{stepTotal,jdbcType=INTEGER},
-      </if>
-      <if test="requestExecutionRate != null">
-        request_execution_rate = #{requestExecutionRate,jdbcType=VARCHAR},
       </if>
       <if test="requestPassRate != null">
         request_pass_rate = #{requestPassRate,jdbcType=VARCHAR},
@@ -528,6 +525,9 @@
       <if test="grouped != null">
         grouped = #{grouped,jdbcType=BIT},
       </if>
+      <if test="environmentId != null">
+        environment_id = #{environmentId,jdbcType=VARCHAR},
+      </if>
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
       </if>
@@ -555,7 +555,6 @@
       priority = #{priority,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
       step_total = #{stepTotal,jdbcType=INTEGER},
-      request_execution_rate = #{requestExecutionRate,jdbcType=VARCHAR},
       request_pass_rate = #{requestPassRate,jdbcType=VARCHAR},
       last_report_status = #{lastReportStatus,jdbcType=VARCHAR},
       last_report_id = #{lastReportId,jdbcType=VARCHAR},
@@ -570,6 +569,7 @@
       description = #{description,jdbcType=VARCHAR},
       tags = #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       grouped = #{grouped,jdbcType=BIT},
+      environment_id = #{environmentId,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       delete_time = #{deleteTime,jdbcType=BIGINT},
@@ -580,22 +580,22 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_scenario
-    (id, `name`, priority, `status`, step_total, request_execution_rate, request_pass_rate, 
-      last_report_status, last_report_id, num, deleted, pos, version_id, ref_id, latest, 
-      project_id, module_id, description, tags, grouped, create_user, create_time, delete_time, 
+    (id, `name`, priority, `status`, step_total, request_pass_rate, last_report_status, 
+      last_report_id, num, deleted, pos, version_id, ref_id, latest, project_id, module_id, 
+      description, tags, grouped, environment_id, create_user, create_time, delete_time, 
       delete_user, update_user, update_time)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.priority,jdbcType=VARCHAR}, 
-        #{item.status,jdbcType=VARCHAR}, #{item.stepTotal,jdbcType=INTEGER}, #{item.requestExecutionRate,jdbcType=VARCHAR}, 
-        #{item.requestPassRate,jdbcType=VARCHAR}, #{item.lastReportStatus,jdbcType=VARCHAR}, 
-        #{item.lastReportId,jdbcType=VARCHAR}, #{item.num,jdbcType=BIGINT}, #{item.deleted,jdbcType=BIT}, 
-        #{item.pos,jdbcType=BIGINT}, #{item.versionId,jdbcType=VARCHAR}, #{item.refId,jdbcType=VARCHAR}, 
-        #{item.latest,jdbcType=BIT}, #{item.projectId,jdbcType=VARCHAR}, #{item.moduleId,jdbcType=VARCHAR}, 
-        #{item.description,jdbcType=VARCHAR}, #{item.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
-        #{item.grouped,jdbcType=BIT}, #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
-        #{item.deleteTime,jdbcType=BIGINT}, #{item.deleteUser,jdbcType=VARCHAR}, #{item.updateUser,jdbcType=VARCHAR}, 
-        #{item.updateTime,jdbcType=BIGINT})
+        #{item.status,jdbcType=VARCHAR}, #{item.stepTotal,jdbcType=INTEGER}, #{item.requestPassRate,jdbcType=VARCHAR}, 
+        #{item.lastReportStatus,jdbcType=VARCHAR}, #{item.lastReportId,jdbcType=VARCHAR}, 
+        #{item.num,jdbcType=BIGINT}, #{item.deleted,jdbcType=BIT}, #{item.pos,jdbcType=BIGINT}, 
+        #{item.versionId,jdbcType=VARCHAR}, #{item.refId,jdbcType=VARCHAR}, #{item.latest,jdbcType=BIT}, 
+        #{item.projectId,jdbcType=VARCHAR}, #{item.moduleId,jdbcType=VARCHAR}, #{item.description,jdbcType=VARCHAR}, 
+        #{item.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
+        #{item.grouped,jdbcType=BIT}, #{item.environmentId,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, 
+        #{item.createTime,jdbcType=BIGINT}, #{item.deleteTime,jdbcType=BIGINT}, #{item.deleteUser,jdbcType=VARCHAR}, 
+        #{item.updateUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -622,9 +622,6 @@
         </if>
         <if test="'step_total'.toString() == column.value">
           #{item.stepTotal,jdbcType=INTEGER}
-        </if>
-        <if test="'request_execution_rate'.toString() == column.value">
-          #{item.requestExecutionRate,jdbcType=VARCHAR}
         </if>
         <if test="'request_pass_rate'.toString() == column.value">
           #{item.requestPassRate,jdbcType=VARCHAR}
@@ -667,6 +664,9 @@
         </if>
         <if test="'grouped'.toString() == column.value">
           #{item.grouped,jdbcType=BIT}
+        </if>
+        <if test="'environment_id'.toString() == column.value">
+          #{item.environmentId,jdbcType=VARCHAR}
         </if>
         <if test="'create_user'.toString() == column.value">
           #{item.createUser,jdbcType=VARCHAR}

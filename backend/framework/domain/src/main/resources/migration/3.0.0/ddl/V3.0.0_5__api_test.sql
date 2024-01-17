@@ -99,9 +99,9 @@ CREATE INDEX idx_create_user ON api_definition(create_user);
 CREATE INDEX idx_name ON api_definition(name);
 
 CREATE TABLE IF NOT EXISTS api_report(
-    `id` VARCHAR(50) NOT NULL   COMMENT '场景报告pk' ,
+    `id` VARCHAR(50) NOT NULL   COMMENT '接口报告pk' ,
     `name` VARCHAR(255) NOT NULL   COMMENT '报告名称' ,
-    `resource_id` VARCHAR(50) NOT NULL   COMMENT '场景资源fk/api_definition_id/api_test_case_id' ,
+    `resource_id` VARCHAR(50) NOT NULL   COMMENT '接口资源fk/api_definition_id/api_test_case_id' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
     `delete_time` BIGINT    COMMENT '删除时间' ,
     `delete_user` VARCHAR(50)    COMMENT '删除人' ,
@@ -209,8 +209,7 @@ CREATE TABLE IF NOT EXISTS api_scenario(
     `priority` VARCHAR(10) NOT NULL   COMMENT '场景级别/P0/P1等' ,
     `status` VARCHAR(20) NOT NULL   COMMENT '场景状态/未规划/已完成 等' ,
     `step_total` INT NOT NULL  DEFAULT 0 COMMENT '场景步骤总数' ,
-    `request_execution_rate` VARCHAR(20) NOT NULL  DEFAULT '0.00' COMMENT '请求执行率' ,
-    `request_pass_rate` VARCHAR(20) NOT NULL  DEFAULT '0.00'  COMMENT '通过率' ,
+    `request_pass_rate` VARCHAR(20) NOT NULL  DEFAULT '0.00' COMMENT '请求通过率' ,
     `last_report_status` VARCHAR(50)    COMMENT '最后一次执行的结果状态' ,
     `last_report_id` VARCHAR(50)    COMMENT '最后一次执行的报告fk' ,
     `num` BIGINT NOT NULL   COMMENT '编号' ,
@@ -224,6 +223,7 @@ CREATE TABLE IF NOT EXISTS api_scenario(
     `description` VARCHAR(500)    COMMENT '描述信息' ,
     `tags` VARCHAR(1000)    COMMENT '标签' ,
     `grouped` BIT(1) NOT NULL  DEFAULT 0 COMMENT '是否为环境组' ,
+    `environment_id` VARCHAR(50)    COMMENT '环境或者环境组ID' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
     `delete_time` BIGINT    COMMENT '删除时间' ,
@@ -549,19 +549,6 @@ CREATE TABLE IF NOT EXISTS api_test_case_blob(
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '接口用例详情';
-
-CREATE TABLE IF NOT EXISTS api_scenario_environment(
-    `api_scenario_id` VARCHAR(50) NOT NULL   COMMENT '场景fk' ,
-    `environment_id` VARCHAR(50)    COMMENT '环境fk' ,
-    `environment_group_id` VARCHAR(50)    COMMENT '环境组fk' ,
-    PRIMARY KEY (api_scenario_id)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '场景环境';
-
-CREATE INDEX idx_api_scenario_id ON api_scenario_environment(api_scenario_id);
-CREATE INDEX idx_environment_id ON api_scenario_environment(environment_id);
-
 
 CREATE TABLE IF NOT EXISTS api_file_resource(
     `resource_id` VARCHAR(50) NOT NULL   COMMENT '资源ID(接口用例等)' ,

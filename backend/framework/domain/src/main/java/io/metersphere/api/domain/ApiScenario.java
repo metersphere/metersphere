@@ -1,13 +1,16 @@
 package io.metersphere.api.domain;
 
-import io.metersphere.validation.groups.*;
+import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import lombok.Data;
 
 @Data
 public class ApiScenario implements Serializable {
@@ -34,9 +37,6 @@ public class ApiScenario implements Serializable {
     @Schema(description = "场景步骤总数", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull(message = "{api_scenario.step_total.not_blank}", groups = {Created.class})
     private Integer stepTotal;
-
-    @Schema(description = "请求执行率")
-    private String requestExecutionRate;
 
     @Schema(description = "请求通过率", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_scenario.request_pass_rate.not_blank}", groups = {Created.class})
@@ -94,6 +94,9 @@ public class ApiScenario implements Serializable {
     @NotNull(message = "{api_scenario.grouped.not_blank}", groups = {Created.class})
     private Boolean grouped;
 
+    @Schema(description = "环境或者环境组ID")
+    private String environmentId;
+
     @Schema(description = "创建人")
     private String createUser;
 
@@ -120,7 +123,6 @@ public class ApiScenario implements Serializable {
         priority("priority", "priority", "VARCHAR", false),
         status("status", "status", "VARCHAR", true),
         stepTotal("step_total", "stepTotal", "INTEGER", false),
-        requestExecutionRate("request_execution_rate", "requestExecutionRate", "VARCHAR", false),
         requestPassRate("request_pass_rate", "requestPassRate", "VARCHAR", false),
         lastReportStatus("last_report_status", "lastReportStatus", "VARCHAR", false),
         lastReportId("last_report_id", "lastReportId", "VARCHAR", false),
@@ -135,6 +137,7 @@ public class ApiScenario implements Serializable {
         description("description", "description", "VARCHAR", false),
         tags("tags", "tags", "VARCHAR", false),
         grouped("grouped", "grouped", "BIT", false),
+        environmentId("environment_id", "environmentId", "VARCHAR", false),
         createUser("create_user", "createUser", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),
         deleteTime("delete_time", "deleteTime", "BIGINT", false),
@@ -185,7 +188,7 @@ public class ApiScenario implements Serializable {
             return this.getEscapedColumnName() + " ASC";
         }
 
-        public static Column[] excludes(Column ... excludes) {
+        public static Column[] excludes(Column... excludes) {
             ArrayList<Column> columns = new ArrayList<>(Arrays.asList(Column.values()));
             if (excludes != null && excludes.length > 0) {
                 columns.removeAll(new ArrayList<>(Arrays.asList(excludes)));
