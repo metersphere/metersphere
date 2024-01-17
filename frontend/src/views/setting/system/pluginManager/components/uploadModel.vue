@@ -73,7 +73,7 @@
     <template #footer>
       <div class="flex justify-between">
         <div class="flex flex-row items-center justify-center">
-          <a-switch v-model="form.enable" size="small" />
+          <a-switch v-model="form.enable" size="small" type="line" />
           <a-tooltip>
             <template #content>
               <div class="text-sm">{{ t('system.plugin.statusEnableTip') }}</div>

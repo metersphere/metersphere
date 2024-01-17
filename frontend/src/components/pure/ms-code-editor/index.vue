@@ -1,6 +1,6 @@
 <template>
-  <div ref="fullRef" class="rounded-[4px] bg-[var(--color-fill-1)] p-[12px]">
-    <div class="mb-[12px] flex justify-between pr-[12px]">
+  <div ref="fullRef" class="h-full rounded-[4px] bg-[var(--color-fill-1)] p-[12px]">
+    <div v-if="showTitleLine" class="mb-[12px] flex justify-between pr-[12px]">
       <slot name="title">
         <span class="font-medium">{{ title }}</span>
       </slot>
@@ -19,7 +19,8 @@
         {{ t('msCodeEditor.fullScreen') }}
       </div>
     </div>
-    <div class="flex w-full flex-row">
+    <!-- 这里的 32px 是顶部标题的 32px -->
+    <div :class="`flex ${showTitleLine ? 'h-[calc(100%-32px)]' : 'h-full'} w-full flex-row`">
       <div ref="codeEditBox" :class="['ms-code-editor', isFullscreen ? 'ms-code-editor-full-screen' : '']"></div>
       <slot name="rightBox"> </slot>
     </div>
@@ -27,7 +28,7 @@
 </template>
 
 <script lang="ts">
-  import { defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+  import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
   import { useFullscreen } from '@vueuse/core';
 
   import { useI18n } from '@/hooks/useI18n';
@@ -36,8 +37,6 @@
   import MsCodeEditorTheme from './themes';
   import { CustomTheme, editorProps, Theme } from './types';
   import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
-  import prettier from 'prettier';
-  import parserBabel from 'prettier/parser-babel';
 
   export default defineComponent({
     name: 'MonacoEditor',
@@ -60,6 +59,7 @@
           value: item,
         }))
       );
+      const showTitleLine = computed(() => props.title || props.showThemeChange || props.showFullScreen);
 
       watch(
         () => props.theme,
@@ -167,6 +167,7 @@
         isFullscreen,
         currentTheme,
         themeOptions,
+        showTitleLine,
         toggle,
         t,
         handleThemeChange,

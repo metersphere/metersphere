@@ -18,7 +18,7 @@
       <slot name="footer">
         <div class="flex" :class="[props.switchProps?.showSwitch ? 'justify-between' : 'justify-end']">
           <div v-if="props.switchProps?.showSwitch" class="flex flex-row items-center justify-center">
-            <a-switch v-model="switchEnable" class="mr-1" size="small" />
+            <a-switch v-model="switchEnable" class="mr-1" size="small" type="line" />
             <a-tooltip v-if="props.switchProps?.switchTooltip" :content="t(props.switchProps?.switchTooltip)">
               <span class="flex items-center">
                 <span class="mr-1">{{ props.switchProps?.switchName }}</span>

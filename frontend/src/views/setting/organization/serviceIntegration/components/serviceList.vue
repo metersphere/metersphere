@@ -86,10 +86,17 @@
                         v-model="item.enable"
                         size="small"
                         :disabled="true"
+                        type="line"
                         @change="(v) => changeStatus(v, item.id)"
                     /></span>
                   </a-tooltip>
-                  <a-switch v-else v-model="item.enable" size="small" @change="(v) => changeStatus(v, item.id)" />
+                  <a-switch
+                    v-else
+                    v-model="item.enable"
+                    size="small"
+                    type="line"
+                    @change="(v) => changeStatus(v, item.id)"
+                  />
                 </span>
               </div>
             </div>

@@ -1,9 +1,10 @@
 <template>
-  <MsBaseTable v-bind="propsRes" id="headerTable" :hoverable="false" v-on="propsEvent">
+  <MsBaseTable v-bind="propsRes" id="headerTable" :hoverable="false" no-disable v-on="propsEvent">
+    <!-- 表格头 slot -->
     <template #encodeTitle>
       <div class="flex items-center text-[var(--color-text-3)]">
         {{ t('apiTestDebug.encode') }}
-        <a-tooltip>
+        <a-tooltip position="right">
           <icon-question-circle
             class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
             size="16"
@@ -15,6 +16,18 @@
         </a-tooltip>
       </div>
     </template>
+    <template #typeTitle="{ columnConfig }">
+      <div class="flex items-center text-[var(--color-text-3)]">
+        {{ t('apiTestDebug.paramType') }}
+        <a-tooltip :content="columnConfig.typeTitleTooltip" position="right">
+          <icon-question-circle
+            class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
+            size="16"
+          />
+        </a-tooltip>
+      </div>
+    </template>
+    <!-- 表格列 slot -->
     <template #name="{ record }">
       <a-popover position="tl" :disabled="!record.name || record.name.trim() === ''" class="ms-params-input-popover">
         <template #content>
@@ -33,8 +46,11 @@
         />
       </a-popover>
     </template>
-    <template #type="{ record }">
-      <a-tooltip :content="t(record.required ? 'apiTestDebug.paramRequired' : 'apiTestDebug.paramNotRequired')">
+    <template #type="{ record, columnConfig }">
+      <a-tooltip
+        v-if="columnConfig.hasRequired"
+        :content="t(record.required ? 'apiTestDebug.paramRequired' : 'apiTestDebug.paramNotRequired')"
+      >
         <MsButton
           type="icon"
           :class="[
@@ -48,13 +64,35 @@
       </a-tooltip>
       <a-select
         v-model:model-value="record.type"
-        :options="typeOptions"
+        :options="columnConfig.typeOptions || []"
         class="param-input"
         @change="(val) => handleTypeChange(val, record)"
-      ></a-select>
+      />
     </template>
-    <template #value="{ record }">
+    <template #value="{ record, columnConfig }">
+      <a-popover
+        v-if="columnConfig.isNormal"
+        position="tl"
+        :disabled="!record.value || record.value.trim() === ''"
+        class="ms-params-input-popover"
+      >
+        <template #content>
+          <div class="param-popover-title">
+            {{ t('apiTestDebug.paramValue') }}
+          </div>
+          <div class="param-popover-value">
+            {{ record.value }}
+          </div>
+        </template>
+        <a-input
+          v-model:model-value="record.value"
+          class="param-input"
+          :placeholder="t('apiTestDebug.commonPlaceholder')"
+          @input="(val) => addTableLine(val)"
+        />
+      </a-popover>
       <MsParamsInput
+        v-else
         v-model:value="record.value"
         @change="addTableLine"
         @dblclick="quickInputParams(record)"
@@ -78,6 +116,19 @@
         ></a-input-number>
       </div>
     </template>
+    <template #tag="{ record }">
+      <a-popover position="tl" :disabled="record.tag.length === 0" class="ms-params-input-popover">
+        <template #content>
+          <div class="param-popover-title">
+            {{ t('common.tag') }}
+          </div>
+          <div class="param-popover-value">
+            <MsTagsGroup is-string-tag :tag-list="record.tag" />
+          </div>
+        </template>
+        <MsTagsInput v-model:model-value="record.tag" :max-tag-count="1" class="param-input" @change="addTableLine" />
+      </a-popover>
+    </template>
     <template #desc="{ record }">
       <paramDescInput
         v-model:desc="record.desc"
@@ -91,12 +142,16 @@
         v-model:model-value="record.encode"
         size="small"
         class="param-input-switch"
+        type="line"
         @change="(val) => addTableLine(val.toString())"
-      ></a-switch>
+      />
     </template>
-    <template #operation="{ record, rowIndex }">
+    <template #mustContain="{ record }">
+      <a-checkbox v-model:model-value="record.mustContain" @change="(val) => addTableLine(val)" />
+    </template>
+    <template #operation="{ record, rowIndex, columnConfig }">
       <a-trigger
-        v-if="props.format && props.format !== RequestBodyFormat.X_WWW_FORM_URLENCODED"
+        v-if="columnConfig.format && columnConfig.format !== RequestBodyFormat.X_WWW_FORM_URLENCODED"
         trigger="click"
         position="br"
       >
@@ -109,10 +164,17 @@
               :options="Object.values(RequestContentTypeEnum).map((e) => ({ label: e, value: e }))"
               allow-create
               @change="(val) => addTableLine(val as string)"
-            ></a-select>
+            />
           </div>
         </template>
       </a-trigger>
+      <a-switch
+        v-if="columnConfig.hasEnable"
+        v-model:model-value="record.enable"
+        size="small"
+        type="line"
+        @change="(val) => addTableLine(val)"
+      />
       <icon-minus-circle
         v-if="paramsLength > 1 && rowIndex !== paramsLength - 1"
         class="cursor-pointer text-[var(--color-text-4)]"
@@ -120,14 +182,12 @@
         @click="deleteParam(rowIndex)"
       />
     </template>
-    <template #mustContain="{ record }">
-      <a-checkbox v-model:model-value="record.mustContain"></a-checkbox>
-    </template>
   </MsBaseTable>
   <a-modal
     v-model:visible="showQuickInputParam"
     :title="t('ms.paramsInput.value')"
     :ok-text="t('apiTestDebug.apply')"
+    :ok-button-props="{ disabled: !quickInputParamValue || quickInputParamValue.trim() === '' }"
     class="ms-modal-form"
     body-class="!p-0"
     :width="680"
@@ -177,14 +237,18 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import type { MsTableColumn } from '@/components/pure/ms-table/type';
+  import type { MsTableColumnData } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import MsTagsGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
+  import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import MsParamsInput from '@/components/business/ms-params-input/index.vue';
   import paramDescInput from './paramDescInput.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import useTableStore from '@/hooks/useTableStore';
 
   import { RequestBodyFormat, RequestContentTypeEnum } from '@/enums/apiEnum';
+  import { TableKeyEnum } from '@/enums/tableEnum';
 
   interface Param {
     id: number;
@@ -197,21 +261,60 @@
     contentType: RequestContentTypeEnum;
     desc: string;
     encode: boolean;
+    tag: string[];
+    enable: boolean;
+    mustContain: boolean;
     [key: string]: any;
   }
 
-  const props = defineProps<{
-    params: any[];
-    columns: MsTableColumn;
-    format?: RequestBodyFormat | 'query' | 'rest';
-    scroll?: {
-      x?: number | string;
-      y?: number | string;
-      maxHeight?: number | string;
-      minWidth?: number | string;
-    };
-    heightUsed?: number;
-  }>();
+  export type ParamTableColumn = MsTableColumnData & {
+    isNormal?: boolean; // 用于 value 列区分是普通输入框还是 MsParamsInput
+    hasRequired?: boolean; // 用于 type 列区分是否有 required 星号
+    typeOptions?: { label: string; value: string }[]; // 用于 type 列选择器选项
+    typeTitleTooltip?: string; // 用于 type 表头列展示的 tooltip
+    hasEnable?: boolean; // 用于 operation 列区分是否有 enable 开关
+    format?: RequestBodyFormat | 'query' | 'rest'; // 用于 operation 列区分是否有请求体格式选择器
+  };
+
+  const props = withDefaults(
+    defineProps<{
+      params: any[];
+      defaultParamItem?: Partial<Param>; // 默认参数项，用于添加新行时的默认值
+      columns: ParamTableColumn[];
+      scroll?: {
+        x?: number | string;
+        y?: number | string;
+        maxHeight?: number | string;
+        minWidth?: number | string;
+      };
+      heightUsed?: number;
+      draggable?: boolean;
+      selectable?: boolean;
+      showSetting?: boolean; // 是否显示列设置
+      tableKey?: TableKeyEnum; // 表格key showSetting为true时必传
+      disabled?: boolean; // 是否禁用
+      showSelectorAll?: boolean; // 是否显示全选
+    }>(),
+    {
+      selectable: true,
+      showSetting: false,
+      tableKey: undefined,
+      defaultParamItem: () => ({
+        required: false,
+        name: '',
+        type: 'string',
+        value: '',
+        min: undefined,
+        max: undefined,
+        contentType: RequestContentTypeEnum.TEXT,
+        tag: [],
+        desc: '',
+        encode: false,
+        enable: false,
+        mustContain: false,
+      }),
+    }
+  );
   const emit = defineEmits<{
     (e: 'update:params', value: any[]): void;
     (e: 'change', data: any[], isInit?: boolean): void;
@@ -219,60 +322,21 @@
 
   const { t } = useI18n();
 
-  const defaultParams: Omit<Param, 'id'> = {
-    required: false,
-    name: '',
-    type: 'string',
-    value: '',
-    min: undefined,
-    max: undefined,
-    contentType: RequestContentTypeEnum.TEXT,
-    desc: '',
-    encode: false,
-  };
-  const allType = [
-    {
-      label: 'string',
-      value: 'string',
-    },
-    {
-      label: 'integer',
-      value: 'integer',
-    },
-    {
-      label: 'number',
-      value: 'number',
-    },
-    {
-      label: 'array',
-      value: 'array',
-    },
-    {
-      label: 'json',
-      value: 'json',
-    },
-    {
-      label: 'file',
-      value: 'file',
-    },
-  ];
-  const typeOptions = computed(() => {
-    if (
-      props.format === RequestBodyFormat.X_WWW_FORM_URLENCODED ||
-      props.format === 'query' ||
-      props.format === 'rest'
-    ) {
-      return allType.filter((e) => e.value !== 'file' && e.value !== 'json');
-    }
-    return allType;
-  });
+  const tableStore = useTableStore();
+  if (props.showSetting && props.tableKey) {
+    await tableStore.initColumn(props.tableKey, props.columns);
+  }
 
   const { propsRes, propsEvent } = useTable(() => Promise.resolve([]), {
+    tableKey: props.showSetting ? props.tableKey : undefined,
     scroll: props.scroll,
     heightUsed: props.heightUsed,
     columns: props.columns,
-    selectable: true,
-    draggable: { type: 'handle', width: 24 },
+    selectable: props.selectable,
+    draggable: props.draggable ? { type: 'handle', width: 24 } : undefined,
+    showSetting: props.showSetting,
+    disabled: props.disabled,
+    showSelectorAll: props.showSelectorAll,
   });
 
   watch(
@@ -282,16 +346,8 @@
         propsRes.value.data = val;
       } else {
         propsRes.value.data = props.params.concat({
-          id: new Date().getTime(),
-          required: false,
-          name: '',
-          type: 'string',
-          value: '',
-          min: undefined,
-          max: undefined,
-          contentType: RequestContentTypeEnum.TEXT,
-          desc: '',
-          encode: false,
+          id: new Date().getTime(), // 默认给时间戳 id，若 props.defaultParamItem 有 id，则覆盖
+          ...props.defaultParamItem,
         });
         emit('change', propsRes.value.data, true);
       }
@@ -320,13 +376,15 @@
    * @param val 输入值
    * @param isForce 是否强制添加
    */
-  function addTableLine(val?: string | number, isForce?: boolean) {
+  function addTableLine(val?: string | number | boolean | (string | number | boolean)[], isForce?: boolean) {
     const lastData = propsRes.value.data[propsRes.value.data.length - 1];
-    const isNotChange = Object.keys(defaultParams).every((key) => lastData[key] === defaultParams[key as any]);
+    const isNotChange = Object.keys(props.defaultParamItem).every(
+      (key) => JSON.stringify(lastData[key]) === JSON.stringify(props.defaultParamItem[key])
+    );
     if (isForce || (val !== '' && val !== undefined && !isNotChange)) {
       propsRes.value.data.push({
         id: new Date().getTime(),
-        ...defaultParams,
+        ...props.defaultParamItem,
       } as any);
       emit('change', propsRes.value.data);
     }
@@ -387,15 +445,18 @@
 
   function handleTypeChange(
     val: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[],
-    record: Param
+    record: Partial<Param>
   ) {
     addTableLine(val as string);
-    if (val === 'file') {
-      record.contentType = RequestContentTypeEnum.OCTET_STREAM;
-    } else if (val === 'json') {
-      record.contentType = RequestContentTypeEnum.JSON;
-    } else {
-      record.contentType = RequestContentTypeEnum.TEXT;
+    // 根据参数类型自动推断 Content-Type 类型
+    if (record.contentType) {
+      if (val === 'file') {
+        record.contentType = RequestContentTypeEnum.OCTET_STREAM;
+      } else if (val === 'json') {
+        record.contentType = RequestContentTypeEnum.JSON;
+      } else {
+        record.contentType = RequestContentTypeEnum.TEXT;
+      }
     }
   }
 </script>
@@ -423,9 +484,6 @@
         color: var(--color-text-brand);
       }
     }
-  }
-  .param-input-switch:not(:hover).arco-switch-checked {
-    background-color: rgb(var(--primary-3)) !important;
   }
   .content-type-trigger-content {
     @apply bg-white;

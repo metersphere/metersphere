@@ -226,6 +226,7 @@
           unchecked-value="false"
           :value="allValueMap['BUG_SYNC_SYNC_ENABLE']"
           size="small"
+          type="line"
           @change="(v: boolean | string| number) => handleMenuStatusChange('BUG_SYNC_SYNC_ENABLE',v as boolean, MenuEnum.bugManagement)"
         />
       </a-tooltip>
@@ -234,6 +235,7 @@
         checked-value="true"
         unchecked-value="false"
         size="small"
+        type="line"
         @change="(v: boolean | string| number) => handleMenuStatusChange('BUG_SYNC_SYNC_ENABLE',v as boolean, MenuEnum.bugManagement)"
       />
       <!-- 关联需求状态 -->
@@ -252,6 +254,7 @@
           unchecked-value="false"
           :value="allValueMap['CASE_RELATED_CASE_ENABLE']"
           size="small"
+          type="line"
           @change="(v: boolean | string| number) => handleMenuStatusChange('CASE_RELATED_CASE_ENABLE',v as boolean, MenuEnum.caseManagement)"
         />
       </a-tooltip>
@@ -260,6 +263,7 @@
         checked-value="true"
         unchecked-value="false"
         size="small"
+        type="line"
         @change="(v: boolean | string| number) => handleMenuStatusChange('CASE_RELATED_CASE_ENABLE',v as boolean, MenuEnum.caseManagement)"
       />
       <!-- 其他配置项 -->
@@ -270,6 +274,7 @@
         checked-value="true"
         unchecked-value="false"
         size="small"
+        type="line"
         @change="(v: boolean | string| number) => handleMenuStatusChange(record.type,v as boolean,MenuEnum.workstation)"
       />
       <!-- 用例 公共用例 Switch-->
@@ -279,6 +284,7 @@
         checked-value="true"
         unchecked-value="false"
         size="small"
+        type="line"
         @change="(v: boolean | string| number) => handleMenuStatusChange(record.type,v as boolean,MenuEnum.caseManagement)"
       />
       <!-- 用例 重新提审 Switch-->
@@ -288,6 +294,7 @@
         checked-value="true"
         unchecked-value="false"
         size="small"
+        type="line"
         @change="(v: boolean | string| number) => handleMenuStatusChange(record.type,v as boolean,MenuEnum.caseManagement)"
       />
       <!-- 接口测试 接口定义URL可重复 Switch-->
@@ -297,6 +304,7 @@
         checked-value="true"
         unchecked-value="false"
         size="small"
+        type="line"
         @change="(v: boolean | string| number) => handleMenuStatusChange(record.type,v as boolean,MenuEnum.apiTest)"
       />
       <!-- 接口测试 用例同步 Switch-->
@@ -306,6 +314,7 @@
         checked-value="true"
         unchecked-value="false"
         size="small"
+        type="line"
         @change="(v: boolean | string| number) => handleMenuStatusChange(record.type,v as boolean,MenuEnum.apiTest)"
       />
       <!-- 性能测试 脚本审核 Switch-->
@@ -315,6 +324,7 @@
         checked-value="true"
         unchecked-value="false"
         size="small"
+        type="line"
         @change="(v: boolean | string| number) => handleMenuStatusChange('PERFORMANCE_TEST_SCRIPT_REVIEWER_ENABLE',v as boolean,MenuEnum.loadTest)"
       />
     </template>

@@ -21,6 +21,7 @@
         :disabled="loading"
         size="small"
         class="mr-[4px]"
+        type="line"
       />
       <a-tooltip :content="t('project.fileManagement.uploadTipSingle')">
         <MsIcon type="icon-icon-maybe_outlined" class="mr-[8px] cursor-pointer hover:text-[rgb(var(--primary-5))]" />

@@ -59,7 +59,7 @@
       </div>
     </div>
   </div>
-  <div ref="splitContainerRef" class="flex-1">
+  <div ref="splitContainerRef" class="h-[calc(100%-125px)]">
     <MsSplitBox
       ref="splitBoxRef"
       v-model:size="splitBoxSize"
@@ -69,7 +69,7 @@
       @expand-change="handleExpandChange"
     >
       <template #first>
-        <div :class="`h-full min-w-[700px] px-[24px] pb-[16px] ${activeLayout === 'horizontal' ? ' pr-[16px]' : ''}`">
+        <div :class="`h-full min-w-[800px] px-[24px] pb-[16px] ${activeLayout === 'horizontal' ? ' pr-[16px]' : ''}`">
           <a-tabs v-model:active-key="activeDebug.activeTab" class="no-content">
             <a-tab-pane v-for="item of contentTabList" :key="item.value" :title="item.label" />
           </a-tabs>
@@ -98,6 +98,13 @@
           <debugRest
             v-else-if="activeDebug.activeTab === RequestComposition.REST"
             v-model:params="activeDebug.restParams"
+            :layout="activeLayout"
+            :second-box-height="secondBoxHeight"
+            @change="handleActiveDebugChange"
+          />
+          <precondition
+            v-else-if="activeDebug.activeTab === RequestComposition.PREFIX"
+            v-model:params="activeDebug.preconditions"
             :layout="activeLayout"
             :second-box-height="secondBoxHeight"
             @change="handleActiveDebugChange"
@@ -159,6 +166,7 @@
   import debugAuth from './auth.vue';
   import debugBody, { BodyParams } from './body.vue';
   import debugHeader from './header.vue';
+  import precondition from './precondition.vue';
   import debugQuery from './query.vue';
   import debugRest from './rest.vue';
   import debugSetting from './setting.vue';
@@ -201,6 +209,7 @@
         account: '',
         password: '',
       },
+      preconditions: [],
       setting: {
         connectTimeout: 60000,
         responseTimeout: 60000,

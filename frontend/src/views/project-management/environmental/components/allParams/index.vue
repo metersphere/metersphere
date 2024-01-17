@@ -16,7 +16,7 @@
     </a-input>
     <batchAddKeyVal :params="innerParams" @apply="handleBatchParamApply" />
   </div>
-  <AllParamsTable
+  <paramsTable
     v-model:params="innerParams"
     :table-key="props.tableKey"
     :columns="columns"
@@ -28,8 +28,7 @@
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
 
-  import { MsTableColumn } from '@/components/pure/ms-table/type';
-  import AllParamsTable from './AllParamsTable.vue';
+  import paramsTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
   import batchAddKeyVal from '@/views/api-test/debug/components/debug/batchAddKeyVal.vue';
 
   import { useI18n } from '@/hooks/useI18n';
@@ -56,7 +55,7 @@
 
   const innerParams = useVModel(props, 'params', emit);
 
-  const columns: MsTableColumn = [
+  const columns: ParamTableColumn[] = [
     {
       title: 'project.environmental.paramName',
       dataIndex: 'name',
@@ -70,6 +69,34 @@
       slotName: 'type',
       showInTable: true,
       showDrag: true,
+      typeOptions: [
+        {
+          label: t('common.string'),
+          value: 'string',
+        },
+        {
+          label: t('common.integer'),
+          value: 'integer',
+        },
+        {
+          label: t('common.number'),
+          value: 'number',
+        },
+        {
+          label: t('common.array'),
+          value: 'array',
+        },
+        {
+          label: t('common.json'),
+          value: 'json',
+        },
+        {
+          label: t('common.file'),
+          value: 'file',
+        },
+      ],
+      titleSlotName: 'typeTitle',
+      typeTitleTooltip: t('project.environmental.paramTypeTooltip'),
     },
     {
       title: 'project.environmental.paramValue',

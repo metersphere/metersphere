@@ -20,6 +20,7 @@
           v-model="record.enableDefault"
           :disabled="record.enableDefault || isEnableOrdTemplate"
           size="small"
+          type="line"
           @change="(value) => changeDefault(value, record)"
         />
       </template>

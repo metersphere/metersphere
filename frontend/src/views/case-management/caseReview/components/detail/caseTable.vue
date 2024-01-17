@@ -187,7 +187,7 @@
       <template #footer>
         <div class="flex items-center justify-end">
           <div v-if="dialogShowType === 'changeReviewer'" class="mr-auto flex items-center">
-            <a-switch v-model:model-value="dialogForm.isAppend" size="small" class="mr-[4px]"></a-switch>
+            <a-switch v-model:model-value="dialogForm.isAppend" size="small" class="mr-[4px]" type="line"></a-switch>
             {{ t('caseManagement.caseReview.append') }}
             <a-tooltip :content="t('caseManagement.caseReview.reviewResultTip')" position="right">
               <template #content>

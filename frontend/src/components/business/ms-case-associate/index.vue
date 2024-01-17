@@ -129,6 +129,7 @@
 
 <script setup lang="ts">
   import { computed, ref, watch } from 'vue';
+  import { useVModel } from '@vueuse/core';
 
   import { CustomTypeMaps, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import { FilterFormItem, FilterType } from '@/components/pure/ms-advance-filter/type';
@@ -206,8 +207,8 @@
     selectedModuleKeys.value = [];
   }
 
-  const innerVisible = ref(props.visible);
-  const innerProject = ref(props.projectId);
+  const innerVisible = useVModel(props, 'visible', emit);
+  const innerProject = useVModel(props, 'projectId', emit);
 
   const protocolType = ref('HTTP'); // 协议类型
   const protocolOptions = ref(['HTTP']);
@@ -559,22 +560,11 @@
   watch(
     () => props.visible,
     (val) => {
-      innerVisible.value = val;
       if (val) {
         resetSelector();
         initModules();
         searchCase();
         initFilter();
-      }
-    }
-  );
-
-  watch(
-    () => innerVisible.value,
-    (val) => {
-      emit('update:visible', val);
-      if (val) {
-        initModules();
       }
     }
   );
@@ -592,18 +582,8 @@
   );
 
   watch(
-    () => props.projectId,
-    (val) => {
-      if (val) {
-        innerProject.value = val;
-      }
-    }
-  );
-
-  watch(
     () => innerProject.value,
-    (val) => {
-      emit('update:project', val);
+    () => {
       if (innerVisible.value) {
         searchCase();
         resetSelector();

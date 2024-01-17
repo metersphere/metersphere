@@ -8,20 +8,14 @@
       <a-radio value="digest">Digest Auth</a-radio>
     </a-radio-group>
     <a-form v-if="authForm.authType !== 'none'" ref="authFormRef" :model="authForm" layout="vertical">
-      <a-form-item
-        :label="t('apiTestDebug.account')"
-        :rules="[{ required: true, message: t('apiTestDebug.accountRequired') }]"
-      >
+      <a-form-item :label="t('apiTestDebug.account')">
         <a-input
           v-model:model-value="authForm.account"
           :placeholder="t('apiTestDebug.commonPlaceholder')"
           class="w-[450px]"
         />
       </a-form-item>
-      <a-form-item
-        :label="t('apiTestDebug.password')"
-        :rules="[{ required: true, message: t('apiTestDebug.passwordRequired') }]"
-      >
+      <a-form-item :label="t('apiTestDebug.password')">
         <a-input-password
           v-model:model-value="authForm.password"
           autocomplete="new-password"

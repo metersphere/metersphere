@@ -44,6 +44,7 @@
           v-model:model-value="projectVersionStatus"
           size="small"
           :before-change="(val) => openProjectVersion(val)"
+          type="line"
         >
         </a-switch>
         <span class="ml-[4px] font-medium">{{ t('project.projectVersion.version') }}</span>
@@ -144,6 +145,7 @@
           v-model:model-value="record.status"
           size="small"
           :before-change="(val) => handleStatusChange(val, record)"
+          type="line"
         ></a-switch>
       </template>
       <template #latest="{ record }">
@@ -152,6 +154,7 @@
           :disabled="record.latest"
           :before-change="() => handleUseLatestVersionChange(record)"
           size="small"
+          type="line"
         />
       </template>
       <template #action="{ record }">

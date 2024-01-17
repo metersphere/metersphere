@@ -80,9 +80,9 @@
     <template v-if="platformOption.length" #footerLeft>
       <div class="flex flex-row items-center gap-[4px]">
         <a-tooltip v-if="okDisabled" :content="t('project.menu.defect.enableAfterConfig')">
-          <a-switch size="small" disabled />
+          <a-switch size="small" type="line" disabled />
         </a-tooltip>
-        <a-switch v-else v-model="form.SYNC_ENABLE" size="small" />
+        <a-switch v-else v-model="form.SYNC_ENABLE" size="small" type="line" />
         <span class="text-[var(--color-text-1)]">
           {{ t('project.menu.status') }}
         </span>

@@ -67,6 +67,7 @@
                 v-model:model-value="robot.enable"
                 size="small"
                 class="ml-auto"
+                type="line"
                 @change="handleEnableIntercept(robot)"
               />
             </div>
@@ -240,7 +241,7 @@
         </a-form-item>
       </a-form>
       <template #footerLeft>
-        <a-switch v-model:model-value="robotForm.enable" size="small" class="mr-[4px]"></a-switch>
+        <a-switch v-model:model-value="robotForm.enable" size="small" class="mr-[4px]" type="line"></a-switch>
         {{ t('project.messageManagement.status') }}
         <a-tooltip position="tl" mini>
           <template #content>

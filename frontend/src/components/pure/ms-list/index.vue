@@ -3,38 +3,45 @@
     v-bind="props"
     ref="listRef"
     :data="data"
-    :class="['ms-list', containerStatusClass]"
+    :class="['ms-list', containerStatusClass, props.class]"
     @reach-bottom="handleReachBottom"
   >
     <template #item="{ item, index }">
       <slot name="item" :item="item" :index="index">
         <div
-          :key="index"
+          :key="item.id"
           :class="[
             'ms-list-item',
             props.noHover ? 'ms-list-item--no-hover' : '',
             props.itemBorder ? 'ms-list-item--bordered' : '',
+            props.itemClass,
             innerFocusItemKey === item[itemKeyField] ? 'ms-list-item--focus' : '',
+            innerActiveItemKey === item[itemKeyField] ? props.activeItemClass : '',
           ]"
-          @click="emit('itemClick', item, index)"
         >
-          <slot name="title" :item="item" :index="index"></slot>
-          <div
-            v-if="$slots['itemAction'] || (props.itemMoreActions && props.itemMoreActions.length > 0)"
-            class="ms-list-item-actions"
-          >
-            <slot name="itemAction" :item="item" :index="index"></slot>
-            <MsTableMoreAction
-              v-if="props.itemMoreActions && props.itemMoreActions.length > 0"
-              :list="props.itemMoreActions"
-              trigger="click"
-              @select="handleMoreActionSelect($event, item)"
-              @close="handleMoreActionClose"
+          <div class="flex-1" @click="emit('itemClick', item, index)">
+            <slot name="title" :item="item" :index="index"></slot>
+          </div>
+          <div class="flex items-center gap-[4px]">
+            <icon-drag-dot-vertical v-if="props.draggable" class="ms-list-drag-icon" />
+            <div
+              v-if="$slots['itemAction'] || (props.itemMoreActions && props.itemMoreActions.length > 0)"
+              class="ms-list-item-actions"
             >
-              <MsButton type="icon" size="mini" class="ms-list-item-actions-btn" @click="handleClickMore(item)">
-                <MsIcon type="icon-icon_more_outlined" size="14" class="text-[var(--color-text-4)]" />
-              </MsButton>
-            </MsTableMoreAction>
+              <slot name="itemAction" :item="item" :index="index"></slot>
+              <MsTableMoreAction
+                v-if="props.itemMoreActions && props.itemMoreActions.length > 0"
+                :list="props.itemMoreActions"
+                trigger="click"
+                @select="handleMoreActionSelect($event, item)"
+                @close="handleMoreActionClose"
+              >
+                <MsButton type="icon" size="mini" class="ms-list-item-actions-btn" @click="handleClickMore(item)">
+                  <MsIcon type="icon-icon_more_outlined" size="14" class="text-[var(--color-text-4)]" />
+                </MsButton>
+              </MsTableMoreAction>
+            </div>
+            <slot name="itemRight" :item="item" :index="index"></slot>
           </div>
           <div
             v-if="props.mode === 'remote' && index === props.data.length - 1"
@@ -60,6 +67,8 @@
 
 <script setup lang="ts">
   import { nextTick, Ref, ref, watch } from 'vue';
+  import { useVModel } from '@vueuse/core';
+  import { useDraggable } from 'vue-draggable-plus';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
@@ -69,10 +78,14 @@
   import useContainerShadow from '@/hooks/useContainerShadow';
   import { useI18n } from '@/hooks/useI18n';
 
+  import type { VirtualListProps } from '@arco-design/web-vue/es/_components/virtual-list-v2/interface';
+
   const props = withDefaults(
     defineProps<{
       mode?: 'static' | 'remote'; // 静态数据或者远程数据
       data: Record<string, any>[];
+      bordered?: boolean; // 是否显示边框
+      activeItemKey?: string | number; // 当前选中的项的 key
       focusItemKey?: string | number; // 聚焦的项的 key
       itemMoreActions?: ActionsItem[]; // 每一项的更多操作
       itemKeyField?: string; // 唯一值 key 的字段名，默认为 key
@@ -81,16 +94,25 @@
       noMoreData?: boolean; // 远程模式下，是否没有更多数据
       noHover?: boolean; // 是否不显示列表项的 hover 效果
       itemBorder?: boolean; // 是否显示列表项的边框
+      class?: string;
+      itemClass?: string;
+      activeItemClass?: string;
+      draggable?: boolean;
+      virtualListProps?: VirtualListProps;
     }>(),
     {
       mode: 'static',
       itemKeyField: 'key',
       itemHeight: 20,
+      bordered: false,
+      draggable: false,
     }
   );
 
   const emit = defineEmits([
+    'update:data',
     'update:focusItemKey',
+    'update:activeItemKey',
     'itemClick',
     'close',
     'moreActionSelect',
@@ -101,21 +123,9 @@
 
   const { t } = useI18n();
 
-  const innerFocusItemKey = ref(props.focusItemKey || ''); // 聚焦的节点，一般用于在操作扩展按钮时，高亮当前节点，保持扩展按钮持续显示
-
-  watch(
-    () => props.focusItemKey,
-    (val) => {
-      innerFocusItemKey.value = val || '';
-    }
-  );
-
-  watch(
-    () => innerFocusItemKey.value,
-    (val) => {
-      emit('update:focusItemKey', val);
-    }
-  );
+  const innerFocusItemKey = useVModel(props, 'focusItemKey', emit); // 聚焦的节点，一般用于在操作扩展按钮时，高亮当前节点，保持扩展按钮持续显示
+  const innerActiveItemKey = useVModel(props, 'activeItemKey', emit); // 激活的节点，搭配activeItemClass使用，用于高亮当前节点
+  const innerData = useVModel(props, 'data', emit);
 
   const popVisible = ref(false);
 
@@ -148,6 +158,21 @@
     props.data,
     () => {
       if (props.data.length > 0 && !isInitListener.value) {
+        // 如果数据不为空，且没有初始化容器的滚动监听器
+        if (props.draggable) {
+          // 如果开启拖拽
+          if (props.virtualListProps) {
+            // 如果开启虚拟滚动，需要将拖拽的容器设置为虚拟滚动的容器
+            useDraggable('.arco-list-content div div', innerData, {
+              ghostClass: 'ms-list-ghost',
+            });
+          } else {
+            // 否则直接设置为列表容器
+            useDraggable('.arco-list-content', innerData, {
+              ghostClass: 'ms-list-ghost',
+            });
+          }
+        }
         nextTick(() => {
           const listContent = listRef.value?.$el.querySelector('.arco-list-content');
           setContainer(listContent);
@@ -179,9 +204,15 @@
         border-radius: var(--border-radius-small);
         &:hover {
           background-color: rgb(var(--primary-1));
+          .ms-list-drag-icon {
+            @apply visible;
+          }
           .ms-list-item-actions {
             @apply visible;
           }
+        }
+        .ms-list-drag-icon {
+          @apply invisible cursor-move;
         }
         .ms-list-item-actions {
           @apply invisible flex items-center justify-end;
@@ -221,5 +252,16 @@
         margin-right: 4px;
       }
     }
+    :deep(.arco-scrollbar),
+    :deep(.arco-list),
+    :deep(.arco-list-content-wrapper) {
+      @apply h-full;
+    }
+    :deep(.arco-list-content) {
+      .ms-scroll-bar();
+    }
+  }
+  .ms-list-ghost {
+    opacity: 0.5;
   }
 </style>

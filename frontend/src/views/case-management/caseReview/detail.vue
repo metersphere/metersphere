@@ -20,7 +20,7 @@
     </template>
     <template #headerRight>
       <div class="mr-[16px] flex items-center">
-        <a-switch v-model:model-value="onlyMine" size="small" class="mr-[8px]" />
+        <a-switch v-model:model-value="onlyMine" size="small" class="mr-[8px]" type="line" />
         {{ t('caseManagement.caseReview.onlyMine') }}
       </div>
       <MsButton type="button" status="default" @click="associateDrawerVisible = true">
@@ -221,7 +221,7 @@
 
   const caseTableRef = ref<InstanceType<typeof CaseTable>>();
   const associateDrawerVisible = ref(false);
-  const associateDrawerProject = ref('');
+  const associateDrawerProject = ref(appStore.currentProjectId);
 
   // 关联用例
   async function writeAssociateCases(params: BaseAssociateCaseRequest & { reviewers: string[] }) {

@@ -58,7 +58,7 @@
           :label="t('system.orgTemplate.allowMultiMember')"
           asterisk-position="end"
         >
-          <a-switch v-model="isMultipleSelectMember" size="small" :disabled="isEdit" />
+          <a-switch v-model="isMultipleSelectMember" size="small" :disabled="isEdit" type="line" />
         </a-form-item>
         <!-- 选项选择器 -->
         <a-form-item

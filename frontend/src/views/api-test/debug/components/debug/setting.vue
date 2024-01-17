@@ -11,7 +11,13 @@
               <div class="text-[var(--color-text-brand)]">(ms)</div>
             </div>
           </template>
-          <a-input-number v-model:model-value="settingForm.connectTimeout" mode="button" class="w-[160px]" />
+          <a-input-number
+            v-model:model-value="settingForm.connectTimeout"
+            mode="button"
+            :step="100"
+            :min="0"
+            class="w-[160px]"
+          />
         </a-form-item>
         <a-form-item>
           <template #label>
@@ -20,7 +26,13 @@
               <div class="text-[var(--color-text-brand)]">(ms)</div>
             </div>
           </template>
-          <a-input-number v-model:model-value="settingForm.responseTimeout" mode="button" class="w-[160px]" />
+          <a-input-number
+            v-model:model-value="settingForm.responseTimeout"
+            mode="button"
+            :step="100"
+            :min="0"
+            class="w-[160px]"
+          />
         </a-form-item>
         <a-form-item :label="t('apiTestDebug.certificateAlias')">
           <a-input

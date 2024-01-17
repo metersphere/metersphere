@@ -55,7 +55,7 @@
         >
           <template #title>
             <div class="flex w-full flex-row flex-nowrap items-center">
-              <slot :name="item.titleSlotName">
+              <slot :name="item.titleSlotName" :column-config="item">
                 <div class="text-[var(--color-text-3)]">{{ t(item.title as string) }}</div>
               </slot>
               <icon-settings
@@ -96,7 +96,7 @@
                 <template
                   v-if="!record[item.dataIndex as string] || (Array.isArray(record[item.dataIndex as string]) && record[item.dataIndex as string].length === 0)"
                 >
-                  <slot :name="item.slotName" v-bind="{ record, rowIndex, column }"> - </slot>
+                  <slot :name="item.slotName" v-bind="{ record, rowIndex, column, columnConfig: item }"> - </slot>
                 </template>
                 <MsTagGroup
                   v-else
@@ -107,7 +107,7 @@
                 />
               </template>
               <template v-else-if="item.slotName === SpecialColumnEnum.OPERATION">
-                <slot name="operation" v-bind="{ record, rowIndex }" />
+                <slot name="operation" v-bind="{ record, rowIndex, columnConfig: item }" />
               </template>
               <template v-else-if="item.slotName === SpecialColumnEnum.ACTION">
                 <slot name="action" v-bind="{ record, rowIndex }" />
@@ -126,7 +126,7 @@
                 />
                 <a-tooltip v-else placement="top" :content="String(record[item.dataIndex as string])">
                   <div class="one-line-text max-w-[300px]">
-                    <slot :name="item.slotName" v-bind="{ record, rowIndex, column }">
+                    <slot :name="item.slotName" v-bind="{ record, rowIndex, column, columnConfig: item }">
                       {{ record[item.dataIndex as string] || (attrs.emptyDataShowLine ? '-' : '') }}
                     </slot>
                   </div>
@@ -146,11 +146,14 @@
                   />
                 </div>
                 <div>
-                  <slot :name="item.revokeDeletedSlot" v-bind="{ record, rowIndex, column }"></slot>
+                  <slot :name="item.revokeDeletedSlot" v-bind="{ record, rowIndex, column, columnConfig: item }"></slot>
                 </div>
               </template>
               <template v-else>
-                <slot :name="item.slotName" v-bind="{ record, rowIndex, column, dataIndex: item.dataIndex }">
+                <slot
+                  :name="item.slotName"
+                  v-bind="{ record, rowIndex, column, dataIndex: item.dataIndex, columnConfig: item }"
+                >
                   {{ record[item.dataIndex as string] || (attrs.emptyDataShowLine ? '-' : '') }}
                 </slot>
               </template>

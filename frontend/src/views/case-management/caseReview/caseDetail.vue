@@ -17,7 +17,7 @@
         }}
       </div>
       <div class="ml-[16px] flex items-center">
-        <a-switch v-model:model-value="onlyMine" size="small" class="mr-[8px]" />
+        <a-switch v-model:model-value="onlyMine" size="small" class="mr-[8px]" type="line" />
         {{ t('caseManagement.caseReview.myReview') }}
       </div>
     </template>
@@ -228,7 +228,7 @@
               <div class="font-medium text-[var(--color-text-1)]">
                 {{ t('caseManagement.caseReview.startReview') }}
               </div>
-              <a-switch v-model:model-value="autoNext" class="mx-[8px]" size="small" />
+              <a-switch v-model:model-value="autoNext" class="mx-[8px]" size="small" type="line" />
               <div class="text-[var(--color-text-4)]">{{ t('caseManagement.caseReview.autoNext') }}</div>
               <a-tooltip position="right">
                 <template #content>
