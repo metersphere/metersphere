@@ -36,6 +36,13 @@ public class TaskRequest implements Serializable {
      * 执行模式
      */
     private String runMode;
+
+    /**
+     * 触发方式
+     * 手动执行，批量执行，API执行，定时任务
+     */
+    private String triggerMode;
+
     /**
      * 资源类型
      * ApiResourceType
@@ -73,6 +80,11 @@ public class TaskRequest implements Serializable {
      * 集合报告,空则是单报告
      */
     private CollectionReportDTO collectionReport;
+
+    /**
+     * 要执行的请求总量
+     */
+    private Long requestCount;
 
     // TODO 其它执行参数
 }

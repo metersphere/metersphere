@@ -11,10 +11,10 @@ import java.util.List;
 @Data
 public class RequestResult {
     // 请求ID
-    private String id;
+    private String resourceId;
 
     // 步骤请求唯一ID
-    private String resourceId;
+    private String stepId;
 
     // 线程名称
     private String threadName;

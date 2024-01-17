@@ -6,15 +6,18 @@ import lombok.Data;
 public class ProcessResultDTO {
     // 报告状态
     private String status;
-    // 总数
+
+    // TODO 总数,放报告生成后计算
     private long total;
+
     // 成功总数
     private long successCount;
     // 误报总数
     private long fakeErrorCount;
     // 失败总数
     private long errorCount;
-    // 未执行总数
+
+    // TODO 根据初始步骤大小，在执行过程中进行标记； 初始大小 - 过程标记步骤
     private long pendingCount;
     // 断言总数
     private long assertionCount;
@@ -28,7 +31,7 @@ public class ProcessResultDTO {
     private String assertionPassRate;
 
     public void computerTotal() {
-        this.total = (this.successCount + this.errorCount + this.pendingCount);
+        this.total = this.pendingCount + this.errorCount + this.successCount;
     }
 
     public void computerFakeError(long fakeErrorCount) {
@@ -43,10 +46,6 @@ public class ProcessResultDTO {
         this.errorCount += error;
     }
 
-    public void computerPending(long pending) {
-        this.pendingCount += pending;
-    }
-
     public void computerAssertion(long assertion) {
         this.assertionCount += assertion;
     }
@@ -55,19 +54,35 @@ public class ProcessResultDTO {
         this.successAssertionCount += successAssertion;
     }
 
+    /**
+     * 整体执行完成后调用计算执行率
+     * (成功+失败 ) /总量* 100
+     */
     public void computerRequestExecutionRate() {
-        this.computerTotal();
-        double executionRate = (double) this.total / (this.successCount + this.errorCount);
-        this.requestExecutionRate = String.format("%.2f", executionRate);
+        long count = this.successCount + this.errorCount;
+        if (this.total > 0 && count > 0) {
+            double executionRate = (double) count / this.total * 100;
+            this.requestExecutionRate = String.format("%.2f", executionRate);
+        }
     }
 
+    /**
+     * 整体完成后调用计算通过率
+     * 成功总数 / 总量 * 100
+     */
     public void computerRequestPassRate() {
-        this.computerTotal();
-        this.requestPassRate = String.format("%.2f", (double) this.total / (this.successCount));
+        if (this.total > 0 && this.successCount > 0) {
+            this.requestPassRate = String.format("%.2f", (double) this.successCount / this.total * 100);
+        }
     }
 
+    /**
+     * 整体完成后调用计算断言通过率
+     */
     public void computerAssertionPassRate() {
-        this.assertionPassRate = String.format("%.2f", (double) this.assertionCount / successAssertionCount);
+        if (this.assertionCount > 0 && successAssertionCount > 0) {
+            this.assertionPassRate = String.format("%.2f", (double) successAssertionCount / this.assertionCount * 100);
+        }
     }
 
 }
