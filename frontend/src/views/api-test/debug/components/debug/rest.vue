@@ -16,7 +16,6 @@
     :columns="columns"
     :height-used="heightUsed"
     :scroll="{ minWidth: 1160 }"
-    format="query"
     @change="handleParamTableChange"
   />
 </template>
@@ -24,8 +23,7 @@
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
 
-  import type { MsTableColumn } from '@/components/pure/ms-table/type';
-  import paramTable from '../../../components/paramTable.vue';
+  import paramTable, { type ParamTableColumn } from '../../../components/paramTable.vue';
   import batchAddKeyVal from './batchAddKeyVal.vue';
 
   import { useI18n } from '@/hooks/useI18n';
@@ -44,7 +42,7 @@
 
   const innerParams = useVModel(props, 'params', emit);
 
-  const columns: MsTableColumn = [
+  const columns: ParamTableColumn[] = [
     {
       title: 'apiTestDebug.paramName',
       dataIndex: 'name',
@@ -54,6 +52,25 @@
       title: 'apiTestDebug.paramType',
       dataIndex: 'type',
       slotName: 'type',
+      hasRequired: true,
+      typeOptions: [
+        {
+          label: 'string',
+          value: 'string',
+        },
+        {
+          label: 'integer',
+          value: 'integer',
+        },
+        {
+          label: 'number',
+          value: 'number',
+        },
+        {
+          label: 'array',
+          value: 'array',
+        },
+      ],
       width: 120,
     },
     {
@@ -82,7 +99,8 @@
       title: '',
       slotName: 'operation',
       fixed: 'right',
-      width: 50,
+      format: 'query',
+      width: 80,
     },
   ];
 

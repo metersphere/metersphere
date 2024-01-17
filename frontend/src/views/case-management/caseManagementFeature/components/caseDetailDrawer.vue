@@ -65,7 +65,7 @@
 
             <template #content>
               <a-doption>
-                <a-switch class="mr-1" size="small" />{{ t('caseManagement.featureCase.addToPublic') }}
+                <a-switch class="mr-1" size="small" type="line" />{{ t('caseManagement.featureCase.addToPublic') }}
               </a-doption>
               <a-doption @click="updateHandler('copy')">
                 <MsIcon type="icon-icon_copy_filled" class="font-[16px]" />{{ t('common.copy') }}</a-doption

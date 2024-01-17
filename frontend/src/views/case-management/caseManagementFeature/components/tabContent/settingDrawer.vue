@@ -29,7 +29,7 @@
     <div>
       <div class="itemTab">
         <span>{{ t('caseManagement.featureCase.detail') }}</span>
-        <a-switch v-model="detailEnable" size="small" :disabled="true" />
+        <a-switch v-model="detailEnable" size="small" :disabled="true" type="line" />
       </div>
       <a-divider orientation="center" class="non-sort"
         ><span class="one-line-text text-xs text-[var(--color-text-4)]">{{
@@ -38,7 +38,7 @@
       >
       <div v-for="item of tabSettingList" :key="item.key" class="itemTab">
         <span>{{ t(item.title) }}</span>
-        <a-switch v-model="item.enable" size="small" />
+        <a-switch v-model="item.enable" size="small" type="line" />
       </div>
     </div>
   </MsDrawer>

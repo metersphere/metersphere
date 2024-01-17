@@ -97,6 +97,7 @@
    * @description 系统管理-模版-模版管理-创建模板-添加字段到模板抽屉
    */
   import { ref } from 'vue';
+  import { VueDraggable } from 'vue-draggable-plus';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
@@ -105,8 +106,6 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import type { DefinedFieldItem } from '@/models/setting/template';
-
-  import { VueDraggable } from 'vue-draggable-plus';
 
   const { t } = useI18n();
 

@@ -18,7 +18,6 @@
     v-else-if="showParamTable"
     v-model:params="currentTableParams"
     :scroll="{ minWidth: 1160 }"
-    :format="format"
     :columns="columns"
     :height-used="heightUsed"
     @change="handleParamTableChange"
@@ -33,7 +32,7 @@
       />
     </div>
     <div class="flex items-center">
-      <a-switch v-model:model-value="innerParams.binarySend" class="mr-[8px]" size="small"></a-switch>
+      <a-switch v-model:model-value="innerParams.binarySend" class="mr-[8px]" size="small" type="line"></a-switch>
       <span>{{ t('apiTestDebug.sendAsMainText') }}</span>
       <a-tooltip position="right">
         <template #content>
@@ -52,7 +51,7 @@
       v-model:model-value="currentBodyCode"
       class="flex-1"
       theme="vs-dark"
-      height="calc(100% - 48px)"
+      height="calc(100% - 12px)"
       :show-full-screen="false"
       :language="currentCodeLanguage"
     >
@@ -74,8 +73,7 @@
   import { useVModel } from '@vueuse/core';
 
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
-  import { MsTableColumn } from '@/components/pure/ms-table/type';
-  import paramTable from '../../../components/paramTable.vue';
+  import paramTable, { type ParamTableColumn } from '../../../components/paramTable.vue';
   import batchAddKeyVal from './batchAddKeyVal.vue';
 
   import { useI18n } from '@/hooks/useI18n';
@@ -107,7 +105,7 @@
 
   const innerParams = useVModel(props, 'params', emit);
 
-  const columns: MsTableColumn = [
+  const columns: ParamTableColumn[] = [
     {
       title: 'apiTestDebug.paramName',
       dataIndex: 'name',
@@ -117,6 +115,33 @@
       title: 'apiTestDebug.paramType',
       dataIndex: 'type',
       slotName: 'type',
+      hasRequired: true,
+      typeOptions: [
+        {
+          label: 'string',
+          value: 'string',
+        },
+        {
+          label: 'integer',
+          value: 'integer',
+        },
+        {
+          label: 'number',
+          value: 'number',
+        },
+        {
+          label: 'array',
+          value: 'array',
+        },
+        {
+          label: 'json',
+          value: 'json',
+        },
+        {
+          label: 'file',
+          value: 'file',
+        },
+      ],
       width: 120,
     },
     {
@@ -146,7 +171,7 @@
       title: '',
       slotName: 'operation',
       fixed: 'right',
-      width: 80,
+      width: 50,
     },
   ];
 

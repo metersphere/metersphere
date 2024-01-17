@@ -376,7 +376,7 @@
   }
 
   const caseAssociateVisible = ref<boolean>(false);
-  const caseAssociateProject = ref('');
+  const caseAssociateProject = ref(appStore.currentProjectId);
   const loading = ref(false);
   async function initReviewDetail() {
     try {

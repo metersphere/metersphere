@@ -48,7 +48,7 @@
       allowClear: true,
     }
   );
-  const emit = defineEmits(['update:modelValue', 'update:inputValue']);
+  const emit = defineEmits(['update:modelValue', 'update:inputValue', 'change']);
 
   const { t } = useI18n();
 
@@ -72,6 +72,7 @@
         tagsLength.value = val.length;
       }
       emit('update:modelValue', val);
+      emit('change', val);
     }
   );
 

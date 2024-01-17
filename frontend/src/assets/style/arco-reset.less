@@ -604,14 +604,23 @@
 }
 
 /** 开关 **/
-.arco-switch:not(.arco-switch-disabled) {
-  background: var(--color-fill-4) !important;
-}
-.arco-switch-checked:not(.arco-switch-disabled) {
-  background: rgb(var(--primary-6)) !important;
-}
 .arco-switch[disabled] {
   background: var(--color-text-n8);
+}
+.arco-switch-type-line.arco-switch-small {
+  height: 14px;
+  line-height: 14px;
+}
+.arco-switch-type-line.arco-switch-small {
+  .arco-switch-handle {
+    width: 14px;
+    height: 14px;
+  }
+}
+.arco-switch-type-line.arco-switch-small.arco-switch-checked {
+  .arco-switch-handle {
+    left: calc(100% - 14px - 0px);
+  }
 }
 
 /** 分页 **/

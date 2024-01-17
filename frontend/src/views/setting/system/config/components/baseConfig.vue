@@ -180,11 +180,11 @@
           ></a-input>
         </a-form-item>
         <a-form-item :label="t('system.config.email.ssl')" field="ssl" asterisk-position="end">
-          <a-switch v-model:model-value="emailConfigForm.ssl" />
+          <a-switch v-model:model-value="emailConfigForm.ssl" type="line" />
           <MsFormItemSub :text="t('system.config.email.sslTip')" :show-fill-icon="false" />
         </a-form-item>
         <a-form-item :label="t('system.config.email.tsl')" field="tsl" asterisk-position="end">
-          <a-switch v-model:model-value="emailConfigForm.tsl" />
+          <a-switch v-model:model-value="emailConfigForm.tsl" type="line" />
           <MsFormItemSub :text="t('system.config.email.tslTip')" :show-fill-icon="false" />
         </a-form-item>
       </a-form>

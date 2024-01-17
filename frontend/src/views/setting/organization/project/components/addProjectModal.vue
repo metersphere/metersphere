@@ -72,7 +72,7 @@
     <template #footer>
       <div class="flex flex-row justify-between">
         <div class="flex flex-row items-center gap-[4px]">
-          <a-switch v-model="form.enable" size="small" />
+          <a-switch v-model="form.enable" size="small" type="line" />
           <span>{{ t('system.organization.status') }}</span>
           <a-tooltip :content="t('system.project.createTip')" position="top">
             <MsIcon type="icon-icon-maybe_outlined" class="text-[var(--color-text-4)]" />

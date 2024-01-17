@@ -122,6 +122,7 @@
                 class="mt-[8px]"
                 :style="{ 'margin-top': index === 0 && !props.isShowDrag ? '36px' : '' }"
                 size="small"
+                type="line"
               />
             </div>
             <div
@@ -159,6 +160,7 @@
 
 <script setup lang="ts">
   import { ref, unref, watchEffect } from 'vue';
+  import { VueDraggable } from 'vue-draggable-plus';
 
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
 
@@ -167,7 +169,6 @@
 
   import type { FormItemModel, FormMode } from './types';
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
-  import { VueDraggable } from 'vue-draggable-plus';
 
   const { t } = useI18n();
 

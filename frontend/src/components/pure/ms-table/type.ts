@@ -51,6 +51,8 @@ export interface MsTableColumnData extends TableColumnData {
   columnTitle?: string;
   // 是否是自定义字段
   isCustomParam?: boolean;
+  // 自定义属性
+  [key: string]: any;
 }
 
 export type MsTableErrorStatus = boolean | 'error' | 'empty';

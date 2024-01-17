@@ -88,6 +88,7 @@
               v-model:model-value="record.projectRobotConfigMap[dataIndex as string].enable"
               :before-change="(val) => handleChangeIntercept(!!val, record, dataIndex as string)"
               size="small"
+              type="line"
             />
             <a-popover position="right" :popup-container="isFullscreen ? '#mscard' : undefined">
               <div

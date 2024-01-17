@@ -58,6 +58,7 @@
             v-model="item.showInTable"
             size="small"
             :disabled="item.dataIndex === 'name' || item.dataIndex === 'operation'"
+            type="line"
             @change="handleSwitchChange"
           />
         </div>
@@ -73,7 +74,7 @@
             <MsIcon type="icon-icon_drag" class="text-[16px] text-[var(--color-text-4)]" />
             <span class="ml-[8px]">{{ t((element.title || element.columnTitle) as string) }}</span>
           </div>
-          <a-switch v-model="element.showInTable" size="small" @update="handleSwitchChange" />
+          <a-switch v-model="element.showInTable" size="small" type="line" @update="handleSwitchChange" />
         </div>
       </VueDraggable>
     </div>
@@ -82,6 +83,7 @@
 
 <script lang="ts" setup>
   import { onBeforeMount, ref } from 'vue';
+  import { VueDraggable } from 'vue-draggable-plus';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
@@ -93,7 +95,6 @@
   import { TableOpenDetailMode } from '@/store/modules/components/ms-table/types';
 
   import { MsTableColumn } from './type';
-  import { VueDraggable } from 'vue-draggable-plus';
 
   const tableStore = useTableStore();
   const { t } = useI18n();

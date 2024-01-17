@@ -92,4 +92,7 @@ export default {
   'common.file': 'File',
   'common.desc': 'Description',
   'common.root': 'Default Module',
+  'common.revoke': 'Revoke',
+  'common.clear': 'Clear',
+  'common.tag': 'Tag',
 };

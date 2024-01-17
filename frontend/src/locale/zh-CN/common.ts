@@ -93,4 +93,7 @@ export default {
   'common.file': '文件',
   'common.desc': '描述',
   'common.root': '默认模块',
+  'common.revoke': '撤销',
+  'common.clear': '清空',
+  'common.tag': '标签',
 };

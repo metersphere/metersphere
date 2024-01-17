@@ -15,8 +15,7 @@
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
 
-  import type { MsTableColumn } from '@/components/pure/ms-table/type';
-  import paramTable from '../../../components/paramTable.vue';
+  import paramTable, { ParamTableColumn } from '../../../components/paramTable.vue';
   import batchAddKeyVal from './batchAddKeyVal.vue';
 
   import { useI18n } from '@/hooks/useI18n';
@@ -35,7 +34,7 @@
 
   const innerParams = useVModel(props, 'params', emit);
 
-  const columns: MsTableColumn = [
+  const columns: ParamTableColumn[] = [
     {
       title: 'apiTestDebug.paramName',
       dataIndex: 'name',

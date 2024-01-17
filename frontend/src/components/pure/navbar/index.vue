@@ -113,66 +113,6 @@
           </template>
         </a-dropdown>
       </li>
-      <!-- <li>
-        <a-tooltip :content="isFullscreen ? t('settings.navbar.screen.toExit') : t('settings.navbar.screen.toFull')">
-          <a-button class="nav-btn" type="outline" :shape="'circle'" @click="toggleFullScreen">
-            <template #icon>
-              <icon-fullscreen-exit v-if="isFullscreen" />
-              <icon-fullscreen v-else />
-            </template>
-          </a-button>
-        </a-tooltip>
-      </li> -->
-      <!-- <li>
-        <a-tooltip :content="t('settings.title')">
-          <a-button class="nav-btn" type="outline" :shape="'circle'" @click="setVisible">
-            <template #icon>
-              <icon-settings />
-            </template>
-          </a-button>
-        </a-tooltip>
-      </li> -->
-      <!-- <li>
-        <a-dropdown trigger="click">
-          <a-avatar :size="32" :style="{ marginRight: '8px', cursor: 'pointer' }">
-            <img alt="avatar" :src="avatar" />
-          </a-avatar>
-          <template #content>
-            <a-doption>
-              <a-space @click="switchRoles">
-                <icon-tag />
-                <span>
-                  {{ t('messageBox.switchRoles') }}
-                </span>
-              </a-space>
-            </a-doption>
-            <a-doption>
-              <a-space @click="$router.push({ name: 'Info' })">
-                <icon-user />
-                <span>
-                  {{ t('messageBox.userCenter') }}
-                </span>
-              </a-space>
-            </a-doption>
-            <a-doption>
-              <a-space @click="$router.push({ name: 'Setting' })">
-                <icon-settings />
-                <span>
-                  {{ t('messageBox.userSettings') }}
-                </span>
-              </a-space>
-            </a-doption>
-            <a-doption>
-              <a-space @click="handleLogout">
-                <icon-export />
-                <span>
-                  {{ t('messageBox.logout') }}
-                </span>
-              </a-space>
-            </a-doption>
-          </template>
-        </a-dropdown>
-      </li> -->
     </ul>
   </div>
 </template>
@@ -181,19 +121,17 @@
   import { computed, onBeforeMount, Ref, ref, watch } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
 
-  // import useUser from '@/hooks/useUser';
   import TopMenu from '@/components/business/ms-top-menu/index.vue';
   import MessageBox from '../message-box/index.vue';
 
-  import { getProjectList } from '@/api/modules/project-management/project';
+  import { getProjectList, switchProject } from '@/api/modules/project-management/project';
   import { MENU_LEVEL, type PathMapRoute } from '@/config/pathMap';
   import { useI18n } from '@/hooks/useI18n';
   import usePathMap from '@/hooks/usePathMap';
   import { LOCALE_OPTIONS } from '@/locale';
   import useLocale from '@/locale/useLocale';
-  // import { Message } from '@arco-design/web-vue';
-  // import { useFullscreen } from '@vueuse/core';
-  import { useAppStore } from '@/store';
+  import useAppStore from '@/store/modules/app';
+  import useUserStore from '@/store/modules/user';
 
   import type { ProjectListItem } from '@/models/setting/project';
 
@@ -206,7 +144,7 @@
   }>();
 
   const appStore = useAppStore();
-  // const { logout } = useUser();
+  const userStore = useUserStore();
   const route = useRoute();
   const router = useRouter();
   const { t } = useI18n();
@@ -240,18 +178,28 @@
     return getRouteLevelByKey(route.name as PathMapRoute) === MENU_LEVEL[2];
   });
 
-  function selectProject(
+  async function selectProject(
     value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
   ) {
     appStore.setCurrentProjectId(value as string);
-    router.replace({
-      path: route.path,
-      query: {
-        ...route.query,
-        organizationId: appStore.currentOrgId,
-        projectId: appStore.currentProjectId,
-      },
-    });
+    try {
+      await switchProject({
+        projectId: value as string,
+        userId: userStore.id || '',
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      router.replace({
+        path: route.path,
+        query: {
+          ...route.query,
+          organizationId: appStore.currentOrgId,
+          projectId: appStore.currentProjectId,
+        },
+      });
+    }
   }
 
   const helpCenterList = [
@@ -278,14 +226,8 @@
   ];
 
   const { changeLocale, currentLocale } = useLocale();
-  // const { isFullscreen, toggle: toggleFullScreen } = useFullscreen();
   const locales = [...LOCALE_OPTIONS];
-  // const avatar = computed(() => {
-  //   return userStore.avatar;
-  // });
-  // const setVisible = () => {
-  //   appStore.updateSettings({ globalSettings: true });
-  // };
+
   const refBtn = ref();
   const setPopoverVisible = () => {
     const event = new MouseEvent('click', {
@@ -295,13 +237,6 @@
     });
     refBtn.value.dispatchEvent(event);
   };
-  // const handleLogout = () => {
-  //   logout();
-  // };
-  // const switchRoles = async () => {
-  //   const res = await userStore.switchRoles();
-  //   Message.success(res as string);
-  // };
 </script>
 
 <style scoped lang="less">

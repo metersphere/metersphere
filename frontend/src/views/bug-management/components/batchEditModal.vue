@@ -92,7 +92,7 @@
       <div class="flex flex-row items-center justify-between">
         <div>
           <div v-if="showAppend" class="flex flex-row items-center gap-[4px]">
-            <a-switch v-model:model-value="form.append" size="small" />
+            <a-switch v-model:model-value="form.append" size="small" type="line" />
             <span class="text-[var(--color-text-1)]">{{ t('bugManagement.batchUpdate.update') }}</span>
             <a-tooltip position="top">
               <template #content>

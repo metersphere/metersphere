@@ -182,6 +182,8 @@
 </template>
 
 <script lang="ts" setup>
+  import { VueDraggable } from 'vue-draggable-plus';
+
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
@@ -198,8 +200,6 @@
   import { EnvListItem } from '@/models/projectManagement/environmental';
   import { PopVisible } from '@/models/setting/usergroup';
   import { EnvAuthScopeEnum, EnvAuthTypeEnum } from '@/enums/envEnum';
-
-  import { VueDraggable } from 'vue-draggable-plus';
 
   const { t } = useI18n();
   const store = useProjectEnvStore();

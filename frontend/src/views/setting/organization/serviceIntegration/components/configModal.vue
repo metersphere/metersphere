@@ -15,7 +15,7 @@
     <template #footer>
       <div class="flex justify-between">
         <div class="flex flex-row items-center justify-center">
-          <a-switch v-model="isEnable" :disabled="isDisabled" size="small" />
+          <a-switch v-model="isEnable" :disabled="isDisabled" size="small" type="line" />
           <a-tooltip>
             <template #content>
               <div class="text-sm">{{ t('organization.service.statusEnableTip') }}</div>

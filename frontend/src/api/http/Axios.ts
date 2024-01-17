@@ -8,7 +8,7 @@ import { ContentTypeEnum } from '@/enums/httpEnum';
 import { AxiosCanceler } from './axiosCancel';
 import type { CreateAxiosOptions } from './axiosTransform';
 import type { RequestOptions, Result, UploadFileParams } from '#/axios';
-import type { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import type { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 
 export * from './axiosTransform';
 
@@ -56,7 +56,7 @@ export class MSAxios {
       if (requestInterceptors && isFunction(requestInterceptors)) {
         config = requestInterceptors(config, this.options);
       }
-      return config;
+      return config as InternalAxiosRequestConfig; // TODO: 拦截配置升级了，暂时 as 处理
     }, undefined);
 
     // 响应拦截器

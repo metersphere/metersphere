@@ -1,5 +1,5 @@
 import MSR from '@/api/http/index';
-import { ProjectListUrl } from '@/api/requrls/project-management/project';
+import { ProjectListUrl, ProjectSwitchUrl } from '@/api/requrls/project-management/project';
 
 import type { ProjectListItem } from '@/models/setting/project';
 
@@ -7,4 +7,6 @@ export function getProjectList(organizationId: string) {
   return MSR.get<ProjectListItem[]>({ url: ProjectListUrl, params: organizationId });
 }
 
-export default {};
+export function switchProject(data: { projectId: string; userId: string }) {
+  return MSR.post({ url: ProjectSwitchUrl, data });
+}

@@ -43,6 +43,7 @@
               size="small"
               :disabled="apiConfig.id === '' || testApiLoading"
               :before-change="(val) => handleApiPriorityBeforeChange(val)"
+              type="line"
             />
           </div>
         </div>
@@ -86,6 +87,7 @@
               size="small"
               :disabled="uiConfig.id === '' || testUiLoading"
               :before-change="(val) => handleUiPriorityBeforeChange(val)"
+              type="line"
             />
           </div>
         </div>

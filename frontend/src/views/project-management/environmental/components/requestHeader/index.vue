@@ -1,21 +1,15 @@
 <template>
   <div class="mb-[8px] flex items-center justify-between">
-    <div class="font-medium">{{ t('ms.apiTestDebug.header') }}</div>
+    <div class="font-medium">{{ t('apiTestDebug.header') }}</div>
     <batchAddKeyVal :params="innerParams" @apply="handleBatchParamApply" />
   </div>
-  <AllParamsTable
-    v-model:params="innerParams"
-    :show-setting="false"
-    :columns="columns"
-    @change="handleParamTableChange"
-  />
+  <paramsTable v-model:params="innerParams" :show-setting="false" :columns="columns" @change="handleParamTableChange" />
 </template>
 
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
 
-  import type { MsTableColumn } from '@/components/pure/ms-table/type';
-  import AllParamsTable from '../allParams/AllParamsTable.vue';
+  import paramsTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
   import batchAddKeyVal from '@/views/api-test/debug/components/debug/batchAddKeyVal.vue';
 
   import { useI18n } from '@/hooks/useI18n';
@@ -32,14 +26,14 @@
 
   const innerParams = useVModel(props, 'params', emit);
 
-  const columns: MsTableColumn = [
+  const columns: ParamTableColumn[] = [
     {
-      title: 'ms.apiTestDebug.paramName',
+      title: 'apiTestDebug.paramName',
       dataIndex: 'name',
       slotName: 'name',
     },
     {
-      title: 'ms.apiTestDebug.desc',
+      title: 'apiTestDebug.desc',
       dataIndex: 'desc',
       slotName: 'desc',
     },

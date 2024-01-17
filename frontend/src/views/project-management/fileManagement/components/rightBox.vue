@@ -174,7 +174,7 @@
     >
       <template #tabExtra>
         <div v-if="acceptType === 'jar'" class="flex items-center gap-[4px]">
-          <a-switch size="small" :disabled="fileList.length === 0" @change="enableAllJar"></a-switch>
+          <a-switch size="small" :disabled="fileList.length === 0" type="line" @change="enableAllJar"></a-switch>
           {{ t('project.fileManagement.enableAll') }}
           <a-tooltip :content="t('project.fileManagement.uploadTip')">
             <MsIcon type="icon-icon-maybe_outlined" class="cursor-pointer hover:text-[rgb(var(--primary-5))]" />
@@ -182,7 +182,7 @@
         </div>
       </template>
       <template #actions="{ item }">
-        <a-switch v-if="acceptType === 'jar'" v-model:model-value="item.enable" size="small"></a-switch>
+        <a-switch v-if="acceptType === 'jar'" v-model:model-value="item.enable" size="small" type="line"></a-switch>
       </template>
     </MsFileList>
     <template #footer>

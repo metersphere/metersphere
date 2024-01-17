@@ -71,6 +71,7 @@
             v-model:model-value="item.enable"
             size="small"
             :before-change="() => handleBeforeEnableChange(item)"
+            type="line"
           />
         </div>
       </div>
