@@ -171,7 +171,8 @@ export default {
     },
     showPicture() {
       if (this.responseResult.contentType && this.contentType.includes(this.responseResult.contentType)) {
-        this.modes.push('picture')
+        this.modes.push('picture');
+        this.mode = 'picture';
         this.srcUrl = 'data:' + this.responseResult.contentType + ';base64,' + this.responseResult.imageUrl;
       }
     },
@@ -193,6 +194,19 @@ export default {
           }
         });
       }
+      if (this.response && this.response.responseResult && this.response.responseResult.contentType) {
+        let contentType = this.response.responseResult.contentType;
+        if (contentType.includes('application/json')) {
+          this.mode = this.bodyFormat.JSON;
+        } else if (contentType.includes('text/html')) {
+          this.mode = this.bodyFormat.HTML;
+        } else if (contentType.includes('text/xml')) {
+          this.mode = this.bodyFormat.XML;
+        } else {
+          this.mode = this.bodyFormat.TEXT;
+        }
+      }
+      this.msCodeReload();
     },
     msCodeReload() {
       this.isMsCodeEditShow = false;
@@ -200,13 +214,7 @@ export default {
         this.isMsCodeEditShow = true;
       });
     },
-    isPicture() {
-      return (
-        this.responseResult.contentType &&
-        this.contentType.includes(this.responseResult.contentType) &&
-        this.mode === 'picture'
-      );
-    },
+
     setReqMessage() {
       if (this.response) {
         if (!this.response.url) {
@@ -272,6 +280,13 @@ export default {
       return this.response && this.response.responseResult
         ? this.response.responseResult
         : {};
+    },
+    isPicture() {
+      return (
+        this.responseResult.contentType &&
+        this.contentType.includes(this.responseResult.contentType) &&
+        this.mode === 'picture'
+      );
     },
   },
 };
