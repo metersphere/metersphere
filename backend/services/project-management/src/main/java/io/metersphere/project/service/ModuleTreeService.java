@@ -63,6 +63,7 @@ public abstract class ModuleTreeService {
      * @param haveVirtualRootNode 是否包含虚拟跟节点
      */
     public List<BaseTreeNode> buildTreeAndCountResource(List<BaseTreeNode> traverseList, boolean haveVirtualRootNode, String virtualRootName) {
+
         List<BaseTreeNode> baseTreeNodeList = new ArrayList<>();
         if (haveVirtualRootNode) {
             BaseTreeNode defaultNode = this.getDefaultModule(virtualRootName);

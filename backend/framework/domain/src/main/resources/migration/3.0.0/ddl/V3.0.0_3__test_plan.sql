@@ -13,7 +13,9 @@ CREATE TABLE IF NOT EXISTS test_plan_module
     `create_user` VARCHAR(100) COMMENT '创建人',
     `update_user` VARCHAR(100) COMMENT '更新人',
     PRIMARY KEY (id)
-) COMMENT = '测试计划模块';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '测试计划模块';
 
 
 CREATE INDEX idx_project_id ON test_plan_module (project_id);
@@ -42,7 +44,9 @@ CREATE TABLE IF NOT EXISTS test_plan
     `actual_end_time`    BIGINT COMMENT '实际结束时间',
     `description` VARCHAR(2000) COMMENT '描述',
     PRIMARY KEY (id)
-) COMMENT = '测试计划';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '测试计划';
 
 CREATE INDEX idx_group_id ON test_plan (group_id);
 CREATE INDEX idx_project_id ON test_plan (project_id);
@@ -60,14 +64,18 @@ CREATE TABLE IF NOT EXISTS test_plan_config
     `repeat_case`             BIT         NOT NULL DEFAULT 0 COMMENT '是否允许重复添加用例',
     `pass_threshold`          DOUBLE      NOT NULL DEFAULT 100 COMMENT '测试计划通过阈值;0-100',
     PRIMARY KEY (test_plan_id)
-) COMMENT = '测试计划配置';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '测试计划配置';
 
 CREATE TABLE IF NOT EXISTS test_plan_follower
 (
     `test_plan_id` VARCHAR(50) NOT NULL COMMENT '测试计划ID;联合主键',
     `user_id`      VARCHAR(50) NOT NULL COMMENT '用户ID;联合主键',
     PRIMARY KEY (test_plan_id, user_id)
-) COMMENT = '测试计划关注人';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '测试计划关注人';
 
 CREATE TABLE IF NOT EXISTS test_plan_functional_case
 (
@@ -81,7 +89,9 @@ CREATE TABLE IF NOT EXISTS test_plan_functional_case
     `last_exec_result` VARCHAR(50) COMMENT '最后执行结果',
     `pos`                BIGINT      NOT NULL COMMENT '自定义排序，间隔5000',
     PRIMARY KEY (id)
-) COMMENT = '测试计划关联功能用例';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '测试计划关联功能用例';
 
 CREATE INDEX idx_functional_case_id ON test_plan_functional_case (functional_case_id);
 CREATE INDEX idx_test_plan_id ON test_plan_functional_case (test_plan_id);
@@ -100,7 +110,9 @@ CREATE TABLE IF NOT EXISTS test_plan_api_case
     `create_user`         VARCHAR(50) NOT NULL COMMENT '创建人',
     `pos`                 BIGINT      NOT NULL COMMENT '自定义排序，间隔5000',
     PRIMARY KEY (id)
-) COMMENT = '测试计划关联接口用例';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '测试计划关联接口用例';
 
 
 CREATE INDEX idx_api_case_id ON test_plan_api_case (api_case_id);
@@ -120,11 +132,22 @@ CREATE TABLE IF NOT EXISTS test_plan_api_scenario
     `create_user`         VARCHAR(40) NOT NULL COMMENT '创建人',
     `pos`                 BIGINT      NOT NULL COMMENT '自定义排序，间隔5000',
     PRIMARY KEY (id)
-) COMMENT = '测试计划关联场景用例';
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '测试计划关联场景用例';
 
 CREATE INDEX idx_api_scenario_id ON test_plan_api_scenario (api_scenario_id);
 CREATE INDEX idx_test_plan_id ON test_plan_api_scenario (test_plan_id);
 CREATE INDEX idx_create_user ON test_plan_api_scenario (create_user);
+
+CREATE TABLE IF NOT EXISTS test_plan_follower
+(
+    `test_plan_id` VARCHAR(50) NOT NULL COMMENT '测试计划ID;联合主键',
+    `user_id`      VARCHAR(50) NOT NULL COMMENT '用户ID;联合主键',
+    PRIMARY KEY (test_plan_id, user_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '测试计划关注人';
 
 
 -- set innodb lock wait timeout to default

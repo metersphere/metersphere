@@ -40,7 +40,7 @@ public class TestPlanLogService {
                 .method(requestMethod)
                 .path(requestUrl)
                 .sourceId(module.getId())
-                .content(module.getName())
+                .content(generateTestPlanSimpleContent(module))
                 .originalValue(JSON.toJSONBytes(module))
                 .createUser(operator)
                 .build().getLogDTO();
@@ -101,6 +101,16 @@ public class TestPlanLogService {
             list.add(dto);
         }
         operationLogService.batchAdd(list);
+    }
+
+    private String generateTestPlanSimpleContent(TestPlan testPlan) {
+        StringBuilder content = new StringBuilder();
+        if (StringUtils.equals(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
+            content.append(Translator.get("test_plan.test_plan_group")).append(StringUtils.SPACE).append(testPlan.getName()).append(StringUtils.SPACE);
+        } else {
+            content.append(Translator.get("test_plan.test_plan")).append(StringUtils.SPACE).append(testPlan.getName()).append(StringUtils.SPACE);
+        }
+        return content.toString();
     }
 
     private String generateTestPlanDeleteContent(TestPlan deleteTestPlan) {

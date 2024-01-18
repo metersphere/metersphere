@@ -3,13 +3,16 @@ package io.metersphere.plan.service;
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.plan.domain.*;
+import io.metersphere.plan.dto.request.TestPlanUpdateRequest;
 import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.stereotype.Service;
 import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
@@ -147,5 +150,81 @@ public class TestPlanTestService {
         example.createCriteria().andTestPlanIdEqualTo(testPlanId);
         example.setOrderByClause(" pos asc ");
         return testPlanFunctionalCaseMapper.selectByExample(example);
+    }
+
+    public TestPlanConfig selectTestPlanConfigById(String id) {
+        return testPlanConfigMapper.selectByPrimaryKey(id);
+    }
+
+    public void checkTestPlanUpdateResult(TestPlan testPlan, TestPlanConfig testPlanConfig, TestPlanUpdateRequest updateRequest) {
+        TestPlan newTestPlan = testPlanMapper.selectByPrimaryKey(updateRequest.getId());
+
+        if (StringUtils.isNotBlank(updateRequest.getName())) {
+            Assertions.assertEquals(newTestPlan.getName(), updateRequest.getName());
+        } else {
+            Assertions.assertEquals(newTestPlan.getName(), testPlan.getName());
+        }
+        if (StringUtils.isNotBlank(updateRequest.getModuleId())) {
+            Assertions.assertEquals(newTestPlan.getModuleId(), updateRequest.getModuleId());
+        } else {
+            Assertions.assertEquals(newTestPlan.getModuleId(), testPlan.getModuleId());
+        }
+        if (CollectionUtils.isNotEmpty(updateRequest.getTags())) {
+            Assertions.assertEquals(JSON.toJSONString(newTestPlan.getTags()), JSON.toJSONString(updateRequest.getTags()));
+        } else {
+            Assertions.assertEquals(JSON.toJSONString(newTestPlan.getTags()), JSON.toJSONString(testPlan.getTags()));
+        }
+
+        if (updateRequest.getPlannedStartTime() != null) {
+            Assertions.assertEquals(newTestPlan.getPlannedStartTime(), updateRequest.getPlannedStartTime());
+        } else {
+            Assertions.assertEquals(newTestPlan.getPlannedStartTime(), testPlan.getPlannedStartTime());
+        }
+
+        if (updateRequest.getPlannedEndTime() != null) {
+            Assertions.assertEquals(newTestPlan.getPlannedEndTime(), updateRequest.getPlannedEndTime());
+        } else {
+            Assertions.assertEquals(newTestPlan.getPlannedEndTime(), testPlan.getPlannedEndTime());
+        }
+
+        if (StringUtils.isNotBlank(updateRequest.getDescription())) {
+            Assertions.assertEquals(newTestPlan.getDescription(), updateRequest.getDescription());
+        } else {
+            Assertions.assertEquals(newTestPlan.getDescription(), testPlan.getDescription());
+        }
+
+        if (testPlanConfig != null) {
+            TestPlanConfig newTestPlanConfig = testPlanConfigMapper.selectByPrimaryKey(updateRequest.getId());
+            if (updateRequest.getAutomaticStatusUpdate() != null) {
+                Assertions.assertEquals(newTestPlanConfig.getAutomaticStatusUpdate(), updateRequest.getAutomaticStatusUpdate());
+            } else {
+                Assertions.assertEquals(newTestPlanConfig.getAutomaticStatusUpdate(), testPlanConfig.getAutomaticStatusUpdate());
+            }
+
+            if (updateRequest.getRepeatCase() != null) {
+                Assertions.assertEquals(newTestPlanConfig.getRepeatCase(), updateRequest.getRepeatCase());
+            } else {
+                Assertions.assertEquals(newTestPlanConfig.getRepeatCase(), testPlanConfig.getRepeatCase());
+            }
+
+            if (updateRequest.getPassThreshold() != null) {
+                Assertions.assertEquals(newTestPlanConfig.getPassThreshold(), updateRequest.getPassThreshold());
+            } else {
+                Assertions.assertEquals(newTestPlanConfig.getPassThreshold(), testPlanConfig.getPassThreshold());
+            }
+        }
+
+        if (updateRequest.getTestPlanGroupId() != null) {
+            Assertions.assertEquals(newTestPlan.getGroupId(), updateRequest.getTestPlanGroupId());
+        } else {
+            Assertions.assertEquals(newTestPlan.getGroupId(), testPlan.getGroupId());
+        }
+
+    }
+
+    public TestPlanUpdateRequest generateUpdateRequest(String testPlanId) {
+        TestPlanUpdateRequest updateRequest = new TestPlanUpdateRequest();
+        updateRequest.setId(testPlanId);
+        return updateRequest;
     }
 }

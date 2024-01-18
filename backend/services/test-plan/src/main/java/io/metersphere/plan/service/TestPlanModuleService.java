@@ -150,13 +150,13 @@ public class TestPlanModuleService extends ModuleTreeService implements CleanupP
     public void deleteModule(String deleteId, String operator, String requestUrl, String requestMethod) {
         TestPlanModule deleteModule = testPlanModuleMapper.selectByPrimaryKey(deleteId);
         if (deleteModule != null) {
-            this.deleteModule(Collections.singletonList(deleteId), operator, requestUrl, requestMethod);
+            this.deleteModule(Collections.singletonList(deleteId), deleteModule.getProjectId(), operator, requestUrl, requestMethod);
             //记录日志
             testPlanModuleLogService.saveDeleteLog(deleteModule, operator, requestUrl, requestMethod);
         }
     }
 
-    public void deleteModule(List<String> deleteIds, String operator, String requestUrl, String requestMethod) {
+    public void deleteModule(List<String> deleteIds, String projectId, String operator, String requestUrl, String requestMethod) {
         if (CollectionUtils.isEmpty(deleteIds)) {
             return;
         }
@@ -165,11 +165,12 @@ public class TestPlanModuleService extends ModuleTreeService implements CleanupP
         TestPlanBatchProcessRequest request = new TestPlanBatchProcessRequest();
         request.setModuleIds(deleteIds);
         request.setSelectAll(true);
+        request.setProjectId(projectId);
         testPlanService.batchDelete(request, operator, requestUrl, requestMethod);
 
         List<String> childrenIds = extTestPlanModuleMapper.selectChildrenIdsByParentIds(deleteIds);
         if (CollectionUtils.isNotEmpty(childrenIds)) {
-            deleteModule(childrenIds, operator, requestUrl, requestMethod);
+            deleteModule(childrenIds, projectId, operator, requestUrl, requestMethod);
         }
     }
 
@@ -234,7 +235,7 @@ public class TestPlanModuleService extends ModuleTreeService implements CleanupP
     public void deleteResources(String projectId) {
         List<String> fileModuleIdList = extTestPlanModuleMapper.selectIdsByProjectId(projectId);
         if (CollectionUtils.isNotEmpty(fileModuleIdList)) {
-            this.deleteModule(fileModuleIdList, "SCHEDULE", "none", "none");
+            this.deleteModule(fileModuleIdList, projectId, "SCHEDULE", "none", "none");
         }
     }
 

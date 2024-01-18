@@ -21,7 +21,7 @@ public class TestPlanQueryConditions {
     private String projectId;
 
     //测试计划所属GroupId
-    private String groupId = TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID;
+    private String groupId;
 
     //查询条件
     private BaseCondition condition = new BaseCondition();
@@ -29,7 +29,11 @@ public class TestPlanQueryConditions {
     //隐藏的测试计划ID
     public List<String> hiddenIds = new ArrayList<>();
 
+    //需要包含的ID
+    public List<String> includeIds = new ArrayList<>();
+
     public TestPlanQueryConditions(List<String > moduleIds,String projectId,BaseCondition condition){
+        this.groupId = TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID;
         this.moduleIds = moduleIds;
         this.projectId = projectId;
         this.condition = condition;
