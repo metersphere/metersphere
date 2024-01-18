@@ -10,21 +10,21 @@ public class LicenseServiceMockImpl implements LicenseService {
     @Override
     public LicenseDTO refreshLicense() {
         LicenseDTO licenseDTO = new LicenseDTO();
-        licenseDTO.setStatus("OK");
+        licenseDTO.setStatus("valid");
         return licenseDTO;
     }
 
     @Override
     public LicenseDTO validate() {
         LicenseDTO licenseDTO = new LicenseDTO();
-        licenseDTO.setStatus("OK");
+        licenseDTO.setStatus("valid");
         return licenseDTO;
     }
 
     @Override
     public LicenseDTO addLicense(String licenseCode, String userId) {
         LicenseDTO licenseDTO = new LicenseDTO();
-        licenseDTO.setStatus("OK");
+        licenseDTO.setStatus("valid");
         return licenseDTO;
     }
 

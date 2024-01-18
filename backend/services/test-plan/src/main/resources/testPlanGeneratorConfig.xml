@@ -77,9 +77,10 @@
         <!--                            typeHandler="io.metersphere.handler.ListTypeHandler"/>-->
         <!--        </table>-->
 
-        <table tableName="test_plan_functional_case"/>
-        <table tableName="test_plan_api_case"/>
-        <table tableName="test_plan_api_scenario"/>
+        <!--        <table tableName="test_plan_functional_case"/>-->
+        <!--        <table tableName="test_plan_api_case"/>-->
+        <!--        <table tableName="test_plan_api_scenario"/>-->
+        <table tableName="test_plan_follower"/>
         <!--        <table tableName="test_plan_config"/>-->
         <!--        要忽略的字段-->
         <!-- <table tableName="test_case">

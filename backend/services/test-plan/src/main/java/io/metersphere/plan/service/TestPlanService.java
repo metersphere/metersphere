@@ -1,16 +1,16 @@
 package io.metersphere.plan.service;
 
-import io.metersphere.plan.domain.TestPlan;
-import io.metersphere.plan.domain.TestPlanConfig;
-import io.metersphere.plan.domain.TestPlanConfigExample;
-import io.metersphere.plan.domain.TestPlanExample;
+import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.TestPlanQueryConditions;
 import io.metersphere.plan.dto.request.TestPlanBatchProcessRequest;
 import io.metersphere.plan.dto.request.TestPlanCreateRequest;
-import io.metersphere.plan.dto.response.TestPlanResponse;
+import io.metersphere.plan.dto.request.TestPlanUpdateRequest;
+import io.metersphere.plan.dto.response.TestPlanCountResponse;
 import io.metersphere.plan.mapper.ExtTestPlanMapper;
 import io.metersphere.plan.mapper.TestPlanConfigMapper;
+import io.metersphere.plan.mapper.TestPlanFollowerMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
+import io.metersphere.plan.utils.TestPlanXPackFactory;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.TestPlanConstants;
@@ -26,6 +26,7 @@ import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.BatchProcessUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,10 +51,10 @@ public class TestPlanService {
     @Resource
     private TestPlanModuleMapper testPlanModuleMapper;
     @Resource
-    private TestPlanConfigService testPlanConfigService;
-    
+    private TestPlanFollowerMapper testPlanFollowerMapper;
     @Resource
-    private TestPlanFollowerService testPlanFollowerService;
+    private TestPlanXPackFactory testPlanXPackFactory;
+
     @Resource
     private TestPlanApiCaseService testPlanApiCaseService;
     @Resource
@@ -87,18 +88,20 @@ public class TestPlanService {
         createTestPlan.setCreateTime(operateTime);
         createTestPlan.setUpdateTime(operateTime);
         createTestPlan.setStatus(TestPlanConstants.TEST_PLAN_STATUS_PREPARED);
-        createTestPlan.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
-        testPlanMapper.insert(createTestPlan);
 
         TestPlanConfig testPlanConfig = new TestPlanConfig();
         testPlanConfig.setTestPlanId(createTestPlan.getId());
         testPlanConfig.setAutomaticStatusUpdate(testPlanCreateRequest.isAutomaticStatusUpdate());
         testPlanConfig.setRepeatCase(testPlanCreateRequest.isRepeatCase());
         testPlanConfig.setPassThreshold(testPlanCreateRequest.getPassThreshold());
+
+        if (testPlanCreateRequest.isGroupOption()) {
+            testPlanXPackFactory.getTestPlanGroupService().validateGroup(createTestPlan, testPlanConfig);
+        }
+
+        testPlanMapper.insert(createTestPlan);
         testPlanConfigMapper.insert(testPlanConfig);
-
         testPlanLogService.saveAddLog(createTestPlan, operator, requestUrl, requestMethod);
-
         return createTestPlan.getId();
     }
 
@@ -107,26 +110,23 @@ public class TestPlanService {
         if (StringUtils.isBlank(testPlan.getId())) {
             TestPlanExample.Criteria criteria = example.createCriteria();
             //测试计划第一层的数据还不能超过1000个
-            criteria.andGroupIdEqualTo(TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID);
-            if (testPlanMapper.countByExample(example) >= MAX_TEST_PLAN_SIZE) {
-                throw new MSException(Translator.getWithArgs("test_plan.too_many", MAX_TEST_PLAN_SIZE));
+            if (StringUtils.equals(testPlan.getGroupId(), TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID)) {
+                criteria.andGroupIdEqualTo(TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID);
+                if (testPlanMapper.countByExample(example) >= MAX_TEST_PLAN_SIZE) {
+                    throw new MSException(Translator.getWithArgs("test_plan.too_many", MAX_TEST_PLAN_SIZE));
+                }
             }
             example.clear();
             example.createCriteria().andNameEqualTo(testPlan.getName()).andProjectIdEqualTo(testPlan.getProjectId());
             if (testPlanMapper.countByExample(example) > 0) {
                 throw new MSException(Translator.get("test_plan.name.exist") + ":" + testPlan.getName());
             }
-        }
-
-        /*
-        //todo 重名校验-写到测试计划修改的时候再增加
-        else {
+        } else {
             example.createCriteria().andNameEqualTo(testPlan.getName()).andProjectIdEqualTo(testPlan.getProjectId()).andIdNotEqualTo(testPlan.getId());
             if (testPlanMapper.countByExample(example) > 0) {
                 throw new MSException(Translator.get("test_plan.name.exist") + ":" + testPlan.getName());
             }
         }
-         */
     }
 
     public void delete(String id, String operator, String requestUrl, String requestMethod) {
@@ -212,23 +212,26 @@ public class TestPlanService {
         TestPlanConfigExample configExample = new TestPlanConfigExample();
         configExample.createCriteria().andTestPlanIdIn(testPlanIds);
         testPlanConfigMapper.deleteByExample(configExample);
+
+        TestPlanFollowerExample testPlanFollowerExample = new TestPlanFollowerExample();
+        testPlanFollowerExample.createCriteria().andTestPlanIdIn(testPlanIds);
+        testPlanFollowerMapper.deleteByExample(testPlanFollowerExample);
         /*
         todo
-            删除计划的关注者
-            删除计划报告
             删除计划定时任务
          */
 
     }
 
 
-    public TestPlanResponse getCount(String id) {
-        TestPlanResponse response = new TestPlanResponse();
+    public TestPlanCountResponse getCount(String id) {
+        TestPlanCountResponse response = new TestPlanCountResponse();
         response.setId(id);
         /*
         todo  统计：测试进度、通过率、用例数、Bug数量（这些比较慢的查询，是否需要另开接口查询)
             Q:测试计划组需要查询这些数据吗？
          */
+
         response.setFunctionalCaseCount(0);
         response.setApiCaseCount(0);
         response.setApiScenarioCount(0);
@@ -236,4 +239,51 @@ public class TestPlanService {
         response.setTestProgress("15.92%");
         return response;
     }
+
+    public String update(TestPlanUpdateRequest request, String userId, String requestUrl, String requestMethod) {
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getId());
+        if (testPlan == null) {
+            throw new MSException("test_plan.not.exist");
+        }
+        if (!ObjectUtils.allNull(request.getName(), request.getModuleId(), request.getTags(), request.getPlannedEndTime(), request.getPlannedStartTime(), request.getDescription(), request.getTestPlanGroupId())) {
+            TestPlan updateTestPlan = new TestPlan();
+            updateTestPlan.setId(request.getId());
+            if (StringUtils.isNotBlank(request.getName())) {
+                updateTestPlan.setName(request.getName());
+                updateTestPlan.setProjectId(testPlan.getProjectId());
+                this.validateTestPlan(updateTestPlan);
+            }
+            if (StringUtils.isNotBlank(request.getModuleId())) {
+                //检查模块的合法性
+                this.checkModule(request.getModuleId());
+                updateTestPlan.setModuleId(request.getModuleId());
+            }
+            if (CollectionUtils.isNotEmpty(request.getTags())) {
+                updateTestPlan.setTags(new ArrayList<>(request.getTags()));
+            }
+            updateTestPlan.setPlannedStartTime(request.getPlannedStartTime());
+            updateTestPlan.setPlannedEndTime(request.getPlannedEndTime());
+            updateTestPlan.setDescription(request.getDescription());
+            updateTestPlan.setGroupId(request.getTestPlanGroupId());
+            updateTestPlan.setType(testPlan.getType());
+
+            if (StringUtils.equals(testPlan.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP) || StringUtils.isNotEmpty(request.getTestPlanGroupId())) {
+                //修改组、移动测试计划进组出组，需要特殊的处理方式
+                testPlanXPackFactory.getTestPlanGroupService().validateGroup(testPlan, null);
+            }
+            testPlanMapper.updateByPrimaryKeySelective(updateTestPlan);
+        }
+
+        if (!ObjectUtils.allNull(request.getAutomaticStatusUpdate(), request.getRepeatCase(), request.getPassThreshold())) {
+            TestPlanConfig testPlanConfig = new TestPlanConfig();
+            testPlanConfig.setTestPlanId(request.getId());
+            testPlanConfig.setAutomaticStatusUpdate(request.getAutomaticStatusUpdate());
+            testPlanConfig.setRepeatCase(request.getRepeatCase());
+            testPlanConfig.setPassThreshold(request.getPassThreshold());
+            testPlanConfigMapper.updateByPrimaryKeySelective(testPlanConfig);
+        }
+        testPlanLogService.saveUpdateLog(testPlan, testPlanMapper.selectByPrimaryKey(request.getId()), testPlan.getProjectId(), userId, requestUrl, requestMethod);
+        return request.getId();
+    }
+
 }

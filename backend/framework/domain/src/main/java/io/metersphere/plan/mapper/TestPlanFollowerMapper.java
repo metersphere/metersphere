@@ -21,4 +21,8 @@ public interface TestPlanFollowerMapper {
     int updateByExampleSelective(@Param("record") TestPlanFollower record, @Param("example") TestPlanFollowerExample example);
 
     int updateByExample(@Param("record") TestPlanFollower record, @Param("example") TestPlanFollowerExample example);
+
+    int batchInsert(@Param("list") List<TestPlanFollower> list);
+
+    int batchInsertSelective(@Param("list") List<TestPlanFollower> list, @Param("selective") TestPlanFollower.Column ... selective);
 }

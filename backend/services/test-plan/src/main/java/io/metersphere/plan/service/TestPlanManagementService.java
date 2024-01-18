@@ -28,20 +28,37 @@ public class TestPlanManagementService {
     public Map<String, Long> moduleCount(TestPlanTableRequest request) {
         //查出每个模块节点下的资源数量。 不需要按照模块进行筛选
         TestPlanQueryConditions testPlanQueryConditions = new TestPlanQueryConditions(null, request.getProjectId(), request);
-        List<ModuleCountDTO> moduleCountDTOList = extTestPlanMapper.countModuleIdByKeywordAndFileType(testPlanQueryConditions);
+        List<ModuleCountDTO> moduleCountDTOList = extTestPlanMapper.countModuleIdByConditions(testPlanQueryConditions);
         Map<String, Long> moduleCountMap = testPlanModuleService.getModuleCountMap(request.getProjectId(), moduleCountDTOList);
-
         return moduleCountMap;
     }
 
     public Pager<List<TestPlanResponse>> page(TestPlanTableRequest request) {
+        TestPlanQueryConditions queryConditions = this.generateTestPlanConditions(request);
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "t.update_time desc");
-        return PageUtils.setPageInfo(page, this.getTableList(request));
+        return PageUtils.setPageInfo(page, this.getTableList(queryConditions));
     }
 
-    private List<TestPlanResponse> getTableList(TestPlanTableRequest request) {
-        List<TestPlanResponse> testPlanResponses = extTestPlanMapper.selectByConditions(new TestPlanQueryConditions(request.getModuleIds(), request.getProjectId(), request));
+    /**
+     * 生成查询条件
+     *
+     * @param request 前端传来的筛选条件
+     * @return
+     */
+    private TestPlanQueryConditions generateTestPlanConditions(TestPlanTableRequest request) {
+        TestPlanQueryConditions conditions = new TestPlanQueryConditions(request.getModuleIds(), request.getProjectId(), request);
+        if (!request.conditionIsEmpty()) {
+            //查询符合匹配的子节点时不需要传入groupId
+            conditions.setGroupId(null);
+            List<String> includeGroupIds = extTestPlanMapper.selectGroupIdByConditions(conditions);
+            conditions.setIncludeIds(includeGroupIds);
+        }
+        return conditions;
+    }
+
+    private List<TestPlanResponse> getTableList(TestPlanQueryConditions request) {
+        List<TestPlanResponse> testPlanResponses = extTestPlanMapper.selectByConditions(request);
         testPlanResponses.forEach(item -> {
             item.setModuleName(testPlanModuleService.getNameById(item.getModuleId()));
             //todo 定时任务相关信息处理

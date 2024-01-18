@@ -1,10 +1,10 @@
 package io.metersphere.system.controller;
 
 import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.system.dto.sdk.LicenseDTO;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.dto.sdk.LicenseDTO;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.MethodOrderer;
@@ -72,7 +72,7 @@ public class LicenseControllerTests extends BaseTest {
         Assertions.assertEquals(200, mvcResult.getResponse().getStatus());
         LicenseDTO licenseDTO = parseObjectFromMvcResult(mvcResult, LicenseDTO.class);
         Assertions.assertNotNull(licenseDTO);
-        Assertions.assertEquals("OK", licenseDTO.getStatus());
+        Assertions.assertEquals("valid", licenseDTO.getStatus());
     }
 
     @Test
@@ -81,7 +81,7 @@ public class LicenseControllerTests extends BaseTest {
         Assertions.assertEquals(200, mvcResult.getResponse().getStatus());
         LicenseDTO licenseDTO = parseObjectFromMvcResult(mvcResult, LicenseDTO.class);
         Assertions.assertNotNull(licenseDTO);
-        Assertions.assertEquals("OK", licenseDTO.getStatus());
+        Assertions.assertEquals("valid", licenseDTO.getStatus());
     }
 
 

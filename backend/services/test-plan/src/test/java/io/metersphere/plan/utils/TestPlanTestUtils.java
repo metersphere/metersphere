@@ -6,7 +6,7 @@ import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
-public class TestPlanUtils {
+public class TestPlanTestUtils {
     public static BaseTreeNode getNodeByName(List<BaseTreeNode> preliminaryTreeNodes, String nodeName) {
         for (BaseTreeNode firstLevelNode : preliminaryTreeNodes) {
             if (StringUtils.equals(firstLevelNode.getName(), nodeName)) {

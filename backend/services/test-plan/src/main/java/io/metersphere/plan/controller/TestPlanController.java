@@ -3,6 +3,8 @@ package io.metersphere.plan.controller;
 import io.metersphere.plan.dto.request.TestPlanBatchProcessRequest;
 import io.metersphere.plan.dto.request.TestPlanCreateRequest;
 import io.metersphere.plan.dto.request.TestPlanTableRequest;
+import io.metersphere.plan.dto.request.TestPlanUpdateRequest;
+import io.metersphere.plan.dto.response.TestPlanCountResponse;
 import io.metersphere.plan.dto.response.TestPlanResponse;
 import io.metersphere.plan.service.TestPlanManagementService;
 import io.metersphere.plan.service.TestPlanService;
@@ -43,7 +45,7 @@ public class TestPlanController {
     @Operation(summary = "测试计划-获取统计数据")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
     @CheckOwner(resourceId = "#id", resourceType = "test_plan")
-    public TestPlanResponse getCount(@PathVariable String id) {
+    public TestPlanCountResponse getCount(@PathVariable String id) {
         return testPlanService.getCount(id);
     }
 
@@ -52,7 +54,8 @@ public class TestPlanController {
     @Operation(summary = "测试计划-模块统计")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
-    public Map<String, Long> moduleCount(@Validated @RequestBody TestPlanTableRequest request) {
+    public Map<String, Long> moduleCount(@Validated @RequestBody TestPlanTableRequest
+                                                 request) {
         return testPlanManagementService.moduleCount(request);
     }
 
@@ -61,8 +64,16 @@ public class TestPlanController {
     @Operation(summary = "测试计划-创建测试计划")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_ADD)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
-    public String add(@Validated @RequestBody TestPlanCreateRequest testPlan) {
-        return testPlanService.add(testPlan, SessionUtils.getUserId(), "/test-plan/add", HttpMethodConstants.POST.name());
+    public String add(@Validated @RequestBody TestPlanCreateRequest request) {
+        return testPlanService.add(request, SessionUtils.getUserId(), "/test-plan/add", HttpMethodConstants.POST.name());
+    }
+
+    @PostMapping("/update")
+    @Operation(summary = "测试计划-创建测试计划")
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
+    @CheckOwner(resourceId = "#request.getId()", resourceType = "test_plan")
+    public String add(@Validated @RequestBody TestPlanUpdateRequest request) {
+        return testPlanService.update(request, SessionUtils.getUserId(), "/test-plan/update", HttpMethodConstants.POST.name());
     }
 
 

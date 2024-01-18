@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -58,8 +59,14 @@ public class TestPlanCreateRequest {
     @Schema(description =  "测试计划通过阈值;0-100", requiredMode = Schema.RequiredMode.REQUIRED)
     @Max(value = 100, message = "{test_plan.pass_threshold.max}")
     private double passThreshold = 100;
+    @Schema(description = "测试计划类型")
+    private String type = TestPlanConstants.TEST_PLAN_TYPE_PLAN;
 
     public List<String> getTags() {
         return tags == null ? null : new ArrayList<>(tags);
+    }
+
+    public boolean isGroupOption() {
+        return StringUtils.equals(this.type, TestPlanConstants.TEST_PLAN_TYPE_GROUP) || !StringUtils.equals(this.groupId, TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID);
     }
 }
