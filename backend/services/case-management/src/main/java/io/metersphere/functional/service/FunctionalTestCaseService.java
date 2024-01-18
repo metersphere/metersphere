@@ -1,5 +1,6 @@
 package io.metersphere.functional.service;
 
+import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.dto.BugProviderDTO;
 import io.metersphere.dto.TestCaseProviderDTO;
@@ -17,6 +18,7 @@ import io.metersphere.functional.request.DisassociateOtherCaseRequest;
 import io.metersphere.functional.request.FunctionalCaseTestRequest;
 import io.metersphere.provider.BaseAssociateApiProvider;
 import io.metersphere.provider.BaseAssociateBugProvider;
+import io.metersphere.provider.BaseAssociateScenarioProvider;
 import io.metersphere.request.*;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
@@ -32,6 +34,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,7 +47,10 @@ import java.util.Map;
 public class FunctionalTestCaseService {
 
     @Resource
-    private BaseAssociateApiProvider provider;
+    private BaseAssociateApiProvider associateApiProvider;
+
+    @Resource
+    private BaseAssociateScenarioProvider associateScenarioProvider;
 
     @Resource
     SqlSessionFactory sqlSessionFactory;
@@ -68,13 +74,19 @@ public class FunctionalTestCaseService {
 
 
     /**
-     * 获取功能用例未关联的接口用例列表
+     * 获取功能用例未关联的用例列表
      *
      * @param request request
      * @return List<ApiTestCaseProviderDTO>
      */
     public List<TestCaseProviderDTO> page(TestCasePageProviderRequest request) {
-        return provider.getApiTestCaseList("functional_case_test", "case_id", "source_id", request);
+        List<TestCaseProviderDTO> testCaseProviderDTOS = new ArrayList<>();
+        switch (request.getSourceType()) {
+            case AssociateCaseType.API ->  testCaseProviderDTOS = associateApiProvider.getApiTestCaseList("functional_case_test", "case_id", "source_id", request);
+            case AssociateCaseType.SCENARIO -> testCaseProviderDTOS = associateScenarioProvider.getScenarioCaseList("functional_case_test", "case_id", "source_id", request);
+            default -> new ArrayList<>();
+        }
+        return testCaseProviderDTOS;
     }
 
     /**
@@ -85,7 +97,13 @@ public class FunctionalTestCaseService {
      * @return 接口模块统计数量
      */
     public Map<String, Long> moduleCount(TestCasePageProviderRequest request, boolean deleted) {
-        return provider.moduleCount("functional_case_test", "case_id", "source_id", request, deleted);
+        Map<String, Long> moduleCount = new HashMap<>();
+        switch (request.getSourceType()) {
+            case AssociateCaseType.API ->  moduleCount = associateApiProvider.moduleCount("functional_case_test", "case_id", "source_id", request, deleted);
+            case AssociateCaseType.SCENARIO -> moduleCount = associateScenarioProvider.moduleCount("functional_case_test", "case_id", "source_id", request, deleted);
+            default -> new HashMap<>();
+        }
+        return moduleCount;
 
     }
 
@@ -96,22 +114,41 @@ public class FunctionalTestCaseService {
      * @param deleted 接口定义是否删除
      */
     public void associateCase(AssociateOtherCaseRequest request, boolean deleted, String userId) {
-
         switch (request.getSourceType()) {
             case AssociateCaseType.API -> associateApi(request, deleted, userId);
             case AssociateCaseType.SCENARIO -> associateScenario(request, deleted, userId);
             default -> LogUtils.info("AssociateCaseType: " + request.getSourceType());
         }
-
-
     }
 
     private void associateScenario(AssociateOtherCaseRequest request, boolean deleted, String userId) {
+        List<ApiScenario> scenarioCases = associateScenarioProvider.getSelectScenarioCases(request, deleted);
+        if (CollectionUtils.isEmpty(scenarioCases)) {
+            return;
+        }
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        FunctionalCaseTestMapper caseTestMapper = sqlSession.getMapper(FunctionalCaseTestMapper.class);
+        for (ApiScenario apiScenario : scenarioCases) {
+            FunctionalCaseTest functionalCaseTest = new FunctionalCaseTest();
+            functionalCaseTest.setCaseId(request.getSourceId());
+            functionalCaseTest.setProjectId(request.getProjectId());
+            functionalCaseTest.setSourceId(apiScenario.getId());
+            functionalCaseTest.setVersionId(apiScenario.getVersionId());
+            functionalCaseTest.setSourceType(request.getSourceType());
+            functionalCaseTest.setId(IdGenerator.random().generateId());
+            functionalCaseTest.setCreateUser(userId);
+            functionalCaseTest.setCreateTime(System.currentTimeMillis());
+            functionalCaseTest.setUpdateUser(userId);
+            functionalCaseTest.setUpdateTime(System.currentTimeMillis());
+            caseTestMapper.insert(functionalCaseTest);
+        }
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         LogUtils.info("关联场景");
     }
 
     private void associateApi(AssociateOtherCaseRequest request, boolean deleted, String userId) {
-        List<ApiTestCase> apiTestCases = provider.getSelectApiTestCases(request, deleted);
+        List<ApiTestCase> apiTestCases = associateApiProvider.getSelectApiTestCases(request, deleted);
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return;
         }

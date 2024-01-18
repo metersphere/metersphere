@@ -9,6 +9,11 @@
     <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiScenario">
         <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
     </resultMap>
+
+    <resultMap id="TestCaseProviderDTO" type="io.metersphere.dto.TestCaseProviderDTO">
+        <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler" />
+    </resultMap>
+
     <select id="list" resultMap="ApiScenarioDTO">
         select
         api_scenario.id, api_scenario.`name`,api_scenario.priority,
@@ -52,6 +57,53 @@
         </foreach>
     </select>
 
+    <select id="listByProviderRequest" resultMap="TestCaseProviderDTO">
+        SELECT
+        api_scenario.id,
+        api_scenario.project_id,
+        api_scenario.name,
+        api_scenario.priority,
+        api_scenario.tags,
+        api_scenario.name as versionName
+        FROM
+        api_scenario
+        LEFT JOIN project_version ON api_scenario.version_id = project_version.id
+        WHERE api_scenario.deleted =#{deleted}
+        and api_scenario.id not in
+        (
+        select associate.${apiCaseColumnName} from ${table} associate  where  associate.${sourceName} = #{request.sourceId}
+        )
+        <include refid="queryWhereConditionByProvider"/>
+    </select>
+
+    <select id="countModuleIdByProviderRequest" resultType="io.metersphere.project.dto.ModuleCountDTO">
+        SELECT api_scenario.module_id AS moduleId, count(api_scenario.id) AS dataCount
+        FROM api_scenario
+        WHERE api_scenario.deleted =#{deleted}
+        and api_scenario.id not in
+        (
+        select associate.${apiCaseColumnName} from ${table} associate  where  associate.${sourceName} = #{request.sourceId}
+        )
+        <include refid="queryWhereConditionByProvider"/>
+        GROUP BY api_scenario.module_id
+    </select>
+
+    <select id="selectIdAndParentIdByProjectId" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
+        SELECT a.id,
+               a.parent_id AS parentId
+        FROM  api_scenario_module a
+        WHERE a.project_id = #{projectId}
+        ORDER BY pos
+    </select>
+
+    <select id="getTestCaseByProvider" resultType="io.metersphere.api.domain.ApiScenario">
+        SELECT
+        t1.id, t1.version_id
+        FROM
+        api_scenario t1
+        WHERE t1.deleted =#{deleted}
+        <include refid="queryWhereConditionByBaseQueryRequest"/>
+    </select>
 
     <sql id="queryWhereConditionByBaseQueryRequest">
         <if test="request.condition.combine != null">
@@ -108,6 +160,40 @@
         </include>
     </sql>
 
+
+    <sql id="queryWhereConditionByProvider">
+        <if test="request.keyword != null and request.keyword != ''">
+            and (
+            api_scenario.num like concat('%', #{request.keyword},'%')
+            or api_scenario.name like concat('%', #{request.keyword},'%')
+            or api_scenario.tags like JSON_CONTAINS(tags, concat('["',#{request.keyword},'"]'))
+            )
+        </if>
+        <if test="request.projectId != null and request.projectId != ''">
+            and api_scenario.project_id = #{request.projectId}
+        </if>
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            and api_scenario.module_id in
+            <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                #{nodeId}
+            </foreach>
+        </if>
+        <include refid="filters">
+            <property name="filter" value="request.filter"/>
+        </include>
+
+        <if test="request.combine != null and request.combine != ''">
+            <include refid="combine">
+                <property name="condition" value="request.combine"/>
+                <property name="name" value="request.name"/>
+                <property name="ObjectTags" value="request.combine.tags"/>
+            </include>
+        </if>
+
+        <include refid="queryVersionConditionProvider">
+            <property name="versionTable" value="api_scenario"/>
+        </include>
+    </sql>
 
     <sql id="filters">
         <if test="${filter} != null and ${filter}.size() > 0">
@@ -253,6 +339,20 @@
             AND ${versionTable}.latest = 1
         </if>
     </sql>
+
+
+    <sql id="queryVersionConditionProvider">
+        <if test="request.versionId != null and request.versionId != ''">
+            and ${versionTable}.version_id = #{request.versionId}
+        </if>
+        <if test="request.refId != null and request.refId != ''">
+            and ${versionTable}.ref_id = #{request.refId}
+        </if>
+        <if test="request.versionId == null and request.refId == null">
+            AND ${versionTable}.latest = 1
+        </if>
+    </sql>
+
     <sql id="queryDocVersionCondition">
         <if test="request.versionId != null and request.versionId != ''">
             and ${versionTable}.version_id = #{request.versionId}
