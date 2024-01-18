@@ -7,13 +7,13 @@
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="sort" jdbcType="BIGINT" property="sort" />
     <result column="enable" jdbcType="BIT" property="enable" />
-    <result column="resource_id" jdbcType="BIGINT" property="resourceId" />
+    <result column="resource_id" jdbcType="VARCHAR" property="resourceId" />
     <result column="resource_num" jdbcType="VARCHAR" property="resourceNum" />
     <result column="step_type" jdbcType="VARCHAR" property="stepType" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="parent_id" jdbcType="VARCHAR" property="parentId" />
     <result column="version_id" jdbcType="VARCHAR" property="versionId" />
-    <result column="source" jdbcType="VARCHAR" property="source" />
+    <result column="ref_type" jdbcType="VARCHAR" property="refType" />
     <result column="config" jdbcType="VARCHAR" property="config" />
   </resultMap>
   <sql id="Example_Where_Clause">
@@ -76,7 +76,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, scenario_id, `name`, sort, `enable`, resource_id, resource_num, step_type, project_id, 
-    parent_id, version_id, `source`, config
+    parent_id, version_id, ref_type, config
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiScenarioStepExample" resultMap="BaseResultMap">
     select
@@ -112,12 +112,12 @@
     insert into api_scenario_step (id, scenario_id, `name`, 
       sort, `enable`, resource_id, 
       resource_num, step_type, project_id, 
-      parent_id, version_id, `source`, 
+      parent_id, version_id, ref_type, 
       config)
     values (#{id,jdbcType=VARCHAR}, #{scenarioId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{sort,jdbcType=BIGINT}, #{enable,jdbcType=BIT}, #{resourceId,jdbcType=BIGINT}, 
+      #{sort,jdbcType=BIGINT}, #{enable,jdbcType=BIT}, #{resourceId,jdbcType=VARCHAR}, 
       #{resourceNum,jdbcType=VARCHAR}, #{stepType,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
-      #{parentId,jdbcType=VARCHAR}, #{versionId,jdbcType=VARCHAR}, #{source,jdbcType=VARCHAR}, 
+      #{parentId,jdbcType=VARCHAR}, #{versionId,jdbcType=VARCHAR}, #{refType,jdbcType=VARCHAR}, 
       #{config,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiScenarioStep">
@@ -156,8 +156,8 @@
       <if test="versionId != null">
         version_id,
       </if>
-      <if test="source != null">
-        `source`,
+      <if test="refType != null">
+        ref_type,
       </if>
       <if test="config != null">
         config,
@@ -180,7 +180,7 @@
         #{enable,jdbcType=BIT},
       </if>
       <if test="resourceId != null">
-        #{resourceId,jdbcType=BIGINT},
+        #{resourceId,jdbcType=VARCHAR},
       </if>
       <if test="resourceNum != null">
         #{resourceNum,jdbcType=VARCHAR},
@@ -197,8 +197,8 @@
       <if test="versionId != null">
         #{versionId,jdbcType=VARCHAR},
       </if>
-      <if test="source != null">
-        #{source,jdbcType=VARCHAR},
+      <if test="refType != null">
+        #{refType,jdbcType=VARCHAR},
       </if>
       <if test="config != null">
         #{config,jdbcType=VARCHAR},
@@ -230,7 +230,7 @@
         `enable` = #{record.enable,jdbcType=BIT},
       </if>
       <if test="record.resourceId != null">
-        resource_id = #{record.resourceId,jdbcType=BIGINT},
+        resource_id = #{record.resourceId,jdbcType=VARCHAR},
       </if>
       <if test="record.resourceNum != null">
         resource_num = #{record.resourceNum,jdbcType=VARCHAR},
@@ -247,8 +247,8 @@
       <if test="record.versionId != null">
         version_id = #{record.versionId,jdbcType=VARCHAR},
       </if>
-      <if test="record.source != null">
-        `source` = #{record.source,jdbcType=VARCHAR},
+      <if test="record.refType != null">
+        ref_type = #{record.refType,jdbcType=VARCHAR},
       </if>
       <if test="record.config != null">
         config = #{record.config,jdbcType=VARCHAR},
@@ -265,13 +265,13 @@
       `name` = #{record.name,jdbcType=VARCHAR},
       sort = #{record.sort,jdbcType=BIGINT},
       `enable` = #{record.enable,jdbcType=BIT},
-      resource_id = #{record.resourceId,jdbcType=BIGINT},
+      resource_id = #{record.resourceId,jdbcType=VARCHAR},
       resource_num = #{record.resourceNum,jdbcType=VARCHAR},
       step_type = #{record.stepType,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       parent_id = #{record.parentId,jdbcType=VARCHAR},
       version_id = #{record.versionId,jdbcType=VARCHAR},
-      `source` = #{record.source,jdbcType=VARCHAR},
+      ref_type = #{record.refType,jdbcType=VARCHAR},
       config = #{record.config,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -293,7 +293,7 @@
         `enable` = #{enable,jdbcType=BIT},
       </if>
       <if test="resourceId != null">
-        resource_id = #{resourceId,jdbcType=BIGINT},
+        resource_id = #{resourceId,jdbcType=VARCHAR},
       </if>
       <if test="resourceNum != null">
         resource_num = #{resourceNum,jdbcType=VARCHAR},
@@ -310,8 +310,8 @@
       <if test="versionId != null">
         version_id = #{versionId,jdbcType=VARCHAR},
       </if>
-      <if test="source != null">
-        `source` = #{source,jdbcType=VARCHAR},
+      <if test="refType != null">
+        ref_type = #{refType,jdbcType=VARCHAR},
       </if>
       <if test="config != null">
         config = #{config,jdbcType=VARCHAR},
@@ -325,26 +325,26 @@
       `name` = #{name,jdbcType=VARCHAR},
       sort = #{sort,jdbcType=BIGINT},
       `enable` = #{enable,jdbcType=BIT},
-      resource_id = #{resourceId,jdbcType=BIGINT},
+      resource_id = #{resourceId,jdbcType=VARCHAR},
       resource_num = #{resourceNum,jdbcType=VARCHAR},
       step_type = #{stepType,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
       parent_id = #{parentId,jdbcType=VARCHAR},
       version_id = #{versionId,jdbcType=VARCHAR},
-      `source` = #{source,jdbcType=VARCHAR},
+      ref_type = #{refType,jdbcType=VARCHAR},
       config = #{config,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_scenario_step
     (id, scenario_id, `name`, sort, `enable`, resource_id, resource_num, step_type, project_id, 
-      parent_id, version_id, `source`, config)
+      parent_id, version_id, ref_type, config)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.scenarioId,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, 
-        #{item.sort,jdbcType=BIGINT}, #{item.enable,jdbcType=BIT}, #{item.resourceId,jdbcType=BIGINT}, 
+        #{item.sort,jdbcType=BIGINT}, #{item.enable,jdbcType=BIT}, #{item.resourceId,jdbcType=VARCHAR}, 
         #{item.resourceNum,jdbcType=VARCHAR}, #{item.stepType,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, 
-        #{item.parentId,jdbcType=VARCHAR}, #{item.versionId,jdbcType=VARCHAR}, #{item.source,jdbcType=VARCHAR}, 
+        #{item.parentId,jdbcType=VARCHAR}, #{item.versionId,jdbcType=VARCHAR}, #{item.refType,jdbcType=VARCHAR}, 
         #{item.config,jdbcType=VARCHAR})
     </foreach>
   </insert>
@@ -374,7 +374,7 @@
           #{item.enable,jdbcType=BIT}
         </if>
         <if test="'resource_id'.toString() == column.value">
-          #{item.resourceId,jdbcType=BIGINT}
+          #{item.resourceId,jdbcType=VARCHAR}
         </if>
         <if test="'resource_num'.toString() == column.value">
           #{item.resourceNum,jdbcType=VARCHAR}
@@ -391,8 +391,8 @@
         <if test="'version_id'.toString() == column.value">
           #{item.versionId,jdbcType=VARCHAR}
         </if>
-        <if test="'source'.toString() == column.value">
-          #{item.source,jdbcType=VARCHAR}
+        <if test="'ref_type'.toString() == column.value">
+          #{item.refType,jdbcType=VARCHAR}
         </if>
         <if test="'config'.toString() == column.value">
           #{item.config,jdbcType=VARCHAR}

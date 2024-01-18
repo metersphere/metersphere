@@ -54,6 +54,7 @@ public class DefaultRepositoryDir {
      * project/{projectId}/api-debug/{apiDebugId}
      */
     private static final String PROJECT_API_DEBUG_DIR = PROJECT_DIR + "/api-debug/%s";
+    private static final String PROJECT_API_SCENARIO_DIR = PROJECT_DIR + "/api-scenario/%s";
     private static final String PROJECT_BUG_DIR = PROJECT_DIR + "/bug/%s";
 
     /**
@@ -111,5 +112,9 @@ public class DefaultRepositoryDir {
 
     public static String getSystemTempDir() {
         return SYSTEM_TEMP_DIR;
+    }
+
+    public static String getApiScenarioDir(String projectId, String apiScenarioId) {
+        return String.format(PROJECT_API_SCENARIO_DIR, projectId, apiScenarioId);
     }
 }

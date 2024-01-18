@@ -30,4 +30,5 @@ public interface ExtApiScenarioMapper {
 
     List<ApiScenario> getTestCaseByProvider(@Param("request") AssociateOtherCaseRequest request, @Param("deleted") boolean deleted);
 
+    Long getLastPos(@Param("projectId") String projectId);
 }

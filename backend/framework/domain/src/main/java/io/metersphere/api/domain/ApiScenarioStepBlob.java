@@ -15,6 +15,11 @@ public class ApiScenarioStepBlob implements Serializable {
     @Size(min = 1, max = 50, message = "{api_scenario_step_blob.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
+    @Schema(description = "场景id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_scenario_step_blob.scenario_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{api_scenario_step_blob.scenario_id.length_range}", groups = {Created.class, Updated.class})
+    private String scenarioId;
+
     @Schema(description = "场景步骤内容")
     private byte[] content;
 
@@ -22,6 +27,7 @@ public class ApiScenarioStepBlob implements Serializable {
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
+        scenarioId("scenario_id", "scenarioId", "VARCHAR", false),
         content("content", "content", "LONGVARBINARY", false);
 
         private static final String BEGINNING_DELIMITER = "`";

@@ -14,6 +14,7 @@ public class FileAssociationSourceUtil {
     public static final String SOURCE_TYPE_BUG = "BUG";
     public static final String SOURCE_TYPE_FUNCTIONAL_CASE = "FUNCTIONAL_CASE";
     public static final String SOURCE_TYPE_API_DEBUG = "API_DEBUG";
+    public static final String SOURCE_TYPE_API_SCENARIO= "API_SCENARIO";
     public static final String SOURCE_TYPE_API_TEST_CASE = "API_TEST_CASE";
     public static final String SOURCE_TYPE_API_DEFINITION = "API_DEFINITION";
     public static final String SOURCE_TYPE_API_DEFINITION_MOCK = "API_DEFINITION_MOCK";
@@ -23,6 +24,7 @@ public class FileAssociationSourceUtil {
         QUERY_SQL.put(SOURCE_TYPE_BUG, "SELECT id AS sourceId,title AS sourceName FROM bug");
         QUERY_SQL.put(SOURCE_TYPE_FUNCTIONAL_CASE, "SELECT id AS sourceId,name AS sourceName FROM functional_case");
         QUERY_SQL.put(SOURCE_TYPE_API_DEBUG, "SELECT id AS sourceId,name AS sourceName FROM api_debug");
+        QUERY_SQL.put(SOURCE_TYPE_API_SCENARIO, "SELECT id AS sourceId,name AS sourceName FROM api_scenario");
         QUERY_SQL.put(SOURCE_TYPE_API_TEST_CASE, "SELECT id AS sourceId,name AS sourceName FROM api_test_case");
         QUERY_SQL.put(SOURCE_TYPE_API_DEFINITION, "SELECT id AS sourceId,name AS sourceName FROM api_definition");
         QUERY_SQL.put(SOURCE_TYPE_API_DEFINITION_MOCK, "SELECT id AS sourceId,name AS sourceName FROM api_definition_mock");

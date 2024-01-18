@@ -3,6 +3,7 @@
 <mapper namespace="io.metersphere.api.mapper.ApiScenarioStepBlobMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiScenarioStepBlob">
     <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="scenario_id" jdbcType="VARCHAR" property="scenarioId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.api.domain.ApiScenarioStepBlob">
     <result column="content" jdbcType="LONGVARBINARY" property="content" />
@@ -66,7 +67,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id
+    id, scenario_id
   </sql>
   <sql id="Blob_Column_List">
     content
@@ -120,14 +121,19 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.api.domain.ApiScenarioStepBlob">
-    insert into api_scenario_step_blob (id, content)
-    values (#{id,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARBINARY})
+    insert into api_scenario_step_blob (id, scenario_id, content
+      )
+    values (#{id,jdbcType=VARCHAR}, #{scenarioId,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARBINARY}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiScenarioStepBlob">
     insert into api_scenario_step_blob
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
+      </if>
+      <if test="scenarioId != null">
+        scenario_id,
       </if>
       <if test="content != null">
         content,
@@ -136,6 +142,9 @@
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="scenarioId != null">
+        #{scenarioId,jdbcType=VARCHAR},
       </if>
       <if test="content != null">
         #{content,jdbcType=LONGVARBINARY},
@@ -154,6 +163,9 @@
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
+      <if test="record.scenarioId != null">
+        scenario_id = #{record.scenarioId,jdbcType=VARCHAR},
+      </if>
       <if test="record.content != null">
         content = #{record.content,jdbcType=LONGVARBINARY},
       </if>
@@ -165,6 +177,7 @@
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update api_scenario_step_blob
     set id = #{record.id,jdbcType=VARCHAR},
+      scenario_id = #{record.scenarioId,jdbcType=VARCHAR},
       content = #{record.content,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -172,7 +185,8 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update api_scenario_step_blob
-    set id = #{record.id,jdbcType=VARCHAR}
+    set id = #{record.id,jdbcType=VARCHAR},
+      scenario_id = #{record.scenarioId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -180,6 +194,9 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.api.domain.ApiScenarioStepBlob">
     update api_scenario_step_blob
     <set>
+      <if test="scenarioId != null">
+        scenario_id = #{scenarioId,jdbcType=VARCHAR},
+      </if>
       <if test="content != null">
         content = #{content,jdbcType=LONGVARBINARY},
       </if>
@@ -188,15 +205,22 @@
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.api.domain.ApiScenarioStepBlob">
     update api_scenario_step_blob
-    set content = #{content,jdbcType=LONGVARBINARY}
+    set scenario_id = #{scenarioId,jdbcType=VARCHAR},
+      content = #{content,jdbcType=LONGVARBINARY}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiScenarioStepBlob">
+    update api_scenario_step_blob
+    set scenario_id = #{scenarioId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into api_scenario_step_blob
-    (id, content)
+    (id, scenario_id, content)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.content,jdbcType=LONGVARBINARY})
+      (#{item.id,jdbcType=VARCHAR}, #{item.scenarioId,jdbcType=VARCHAR}, #{item.content,jdbcType=LONGVARBINARY}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -211,6 +235,9 @@
       <foreach collection="selective" item="column" separator=",">
         <if test="'id'.toString() == column.value">
           #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'scenario_id'.toString() == column.value">
+          #{item.scenarioId,jdbcType=VARCHAR}
         </if>
         <if test="'content'.toString() == column.value">
           #{item.content,jdbcType=LONGVARBINARY}

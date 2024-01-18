@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.request.http.body;
 
+import io.metersphere.api.dto.ApiFile;
 import lombok.Data;
 
 /**
@@ -8,6 +9,6 @@ import lombok.Data;
  */
 @Data
 public class BinaryBody {
-    private BodyFile bodyFile;
+    private ApiFile bodyFile;
     private String description;
 }

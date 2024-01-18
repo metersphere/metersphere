@@ -2,6 +2,8 @@ package io.metersphere.api.service.scenario;
 
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.domain.ApiScenarioExample;
+import io.metersphere.api.dto.scenario.ApiScenarioAddRequest;
+import io.metersphere.api.dto.scenario.ApiScenarioUpdateRequest;
 import io.metersphere.api.mapper.ApiScenarioMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
@@ -96,5 +98,50 @@ public class ApiScenarioLogService {
         dto.setMethod(HttpMethodConstants.GET.name());
         dto.setOriginalValue(JSON.toJSONBytes(apiTestCase));
         operationLogService.add(dto);
+    }
+
+    public LogDTO addLog(ApiScenarioAddRequest request) {
+        // todo 记录完整的场景信息
+        LogDTO dto = new LogDTO(
+                null,
+                null,
+                null,
+                null,
+                OperationLogType.ADD.name(),
+                OperationLogModule.API_SCENARIO,
+                request.getName());
+        dto.setHistory(true);
+        dto.setOriginalValue(JSON.toJSONBytes(request));
+        return dto;
+    }
+
+    public LogDTO updateLog(ApiScenarioUpdateRequest request) {
+        ApiScenario apiScenario = apiScenarioMapper.selectByPrimaryKey(request.getId());
+        // todo 记录完整的场景信息
+        LogDTO dto = new LogDTO(
+                null,
+                null,
+                apiScenario.getId(),
+                null,
+                OperationLogType.UPDATE.name(),
+                OperationLogModule.API_SCENARIO,
+                apiScenario.getName());
+        dto.setHistory(true);
+        dto.setOriginalValue(JSON.toJSONBytes(request));
+        return dto;
+    }
+
+    public LogDTO deleteLog(String id) {
+        ApiScenario apiScenario = apiScenarioMapper.selectByPrimaryKey(id);
+        LogDTO dto = new LogDTO(
+                null,
+                null,
+                apiScenario.getId(),
+                null,
+                OperationLogType.DELETE.name(),
+                OperationLogModule.API_SCENARIO,
+                apiScenario.getName());
+        dto.setOriginalValue(JSON.toJSONBytes(apiScenario));
+        return dto;
     }
 }

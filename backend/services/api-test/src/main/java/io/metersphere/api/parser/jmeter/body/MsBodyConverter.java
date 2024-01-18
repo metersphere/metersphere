@@ -1,7 +1,7 @@
 package io.metersphere.api.parser.jmeter.body;
 
 
-import io.metersphere.api.dto.request.http.body.BodyFile;
+import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.request.http.body.WWWFormKV;
 import io.metersphere.jmeter.mock.Mock;
 import io.metersphere.plugin.api.dto.ParameterConfig;
@@ -63,7 +63,7 @@ public abstract class MsBodyConverter<T> {
      * @param file
      * @return
      */
-    protected HTTPFileArg getHttpFileArg(BodyFile file) {
+    protected HTTPFileArg getHttpFileArg(ApiFile file) {
         String fileId = file.getFileId();
         String fileName = file.getFileName();
         // 在对应目录下创建文件ID目录，将文件放入
