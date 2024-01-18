@@ -1,20 +1,20 @@
 package io.metersphere.project.service;
 
 import io.metersphere.api.domain.ApiScenario;
-import io.metersphere.bug.domain.Bug;
 import io.metersphere.functional.domain.CaseReview;
 import io.metersphere.load.domain.LoadTest;
 import io.metersphere.plan.domain.TestPlan;
 import io.metersphere.project.dto.MessageTemplateFieldDTO;
 import io.metersphere.project.dto.MessageTemplateResultDTO;
 import io.metersphere.sdk.constants.TemplateScene;
-import io.metersphere.system.dto.sdk.ApiDefinitionCaseDTO;
-import io.metersphere.system.dto.sdk.FunctionalCaseMessageDTO;
-import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomField;
 import io.metersphere.system.domain.CustomFieldExample;
 import io.metersphere.system.domain.Schedule;
+import io.metersphere.system.dto.BugNoticeDTO;
+import io.metersphere.system.dto.sdk.ApiDefinitionCaseDTO;
+import io.metersphere.system.dto.sdk.FunctionalCaseMessageDTO;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.notice.utils.MessageTemplateUtils;
@@ -71,8 +71,8 @@ public class NoticeTemplateService {
                 //TODO：获取报告
             }
             case NoticeConstants.TaskType.BUG_TASK -> {
-                Field[] allFields = FieldUtils.getAllFields(Bug.class);
-                addOptionDto(messageTemplateFieldDTOList, allFields, "bug_");
+                Field[] allFields = FieldUtils.getAllFields(BugNoticeDTO.class);
+                addOptionDto(messageTemplateFieldDTOList, allFields, null);
                 addCustomFiled(messageTemplateFieldDTOList, projectId, TemplateScene.BUG.toString());
                 //TODO：获取报告
             }

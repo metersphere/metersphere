@@ -139,6 +139,7 @@ public class BugRelateCaseCommonService extends ModuleTreeService {
      * @param request 请求参数
      */
     public List<BugRelateCaseDTO> page(BugRelatedCasePageRequest request) {
+        // 目前只查关联的功能用例类型, 后续多个用例类型SQL扩展
         List<BugRelateCaseDTO> relateCases = extBugRelateCaseMapper.list(request);
         if (CollectionUtils.isEmpty(relateCases)) {
             return new ArrayList<>();

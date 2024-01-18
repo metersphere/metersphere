@@ -597,27 +597,23 @@ public class ProjectApplicationService {
     }
 
     /**
-     * 过滤掉非Local平台的项目
+     * 过滤出能够同步的项目
      *
      * @param projectIds 项目ID集合
-     * @return 非Local平台的项目
+     * @return 同步的项目ID集合
      */
-    public List<String> filterNoLocalPlatform(List<String> projectIds) {
-        ProjectApplicationExample example = new ProjectApplicationExample();
-        example.createCriteria().andProjectIdIn(projectIds).andTypeEqualTo(ProjectApplicationType.BUG.BUG_SYNC.name() + "_PLATFORM_KEY");
-        List<ProjectApplication> allProjectPlatformKeys = projectApplicationMapper.selectByExample(example);
-        if (CollectionUtils.isNotEmpty(allProjectPlatformKeys)) {
-            for (ProjectApplication projectApplication : allProjectPlatformKeys) {
-                String pluginName = getPluginName(projectApplication.getTypeValue());
-                if (StringUtils.equals("Local", pluginName)) {
-                    // 本地平台
-                    projectIds.remove(projectApplication.getProjectId());
-                }
+    public List<String> filterNeedSyncProject(List<String> projectIds) {
+        Iterator<String> iterator = projectIds.iterator();
+        while (iterator.hasNext()) {
+            String projectId = iterator.next();
+            ServiceIntegration serviceIntegration = getPlatformServiceIntegrationWithSyncOrDemand(projectId, true);
+            String platformName = getPlatformName(projectId);
+            if (serviceIntegration == null || StringUtils.equals("Local", platformName)) {
+                // 项目未配置第三方平台 或者 项目同步配置为Local
+                iterator.remove();
             }
-            return projectIds;
-        } else {
-            return new ArrayList<>();
         }
+        return projectIds;
     }
 
     /**

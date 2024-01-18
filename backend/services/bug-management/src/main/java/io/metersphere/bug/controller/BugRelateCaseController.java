@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.bug.dto.request.BugRelatedCasePageRequest;
 import io.metersphere.bug.dto.response.BugRelateCaseDTO;
 import io.metersphere.bug.service.BugRelateCaseCommonService;
+import io.metersphere.bug.service.BugRelateCaseLogService;
 import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.provider.BaseAssociateCaseProvider;
 import io.metersphere.request.AssociateCaseModuleRequest;
@@ -12,6 +13,8 @@ import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.log.annotation.Log;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -80,6 +83,7 @@ public class BugRelateCaseController {
     @GetMapping("/un-relate/{id}")
     @Operation(description = "缺陷管理-关联用例-取消关联用例")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
+    @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.getRelateLog(#id)", msClass = BugRelateCaseLogService.class)
     public void unRelate(@PathVariable String id) {
         bugRelateCaseCommonService.unRelate(id);
     }

@@ -7,7 +7,7 @@ public enum BugAttachmentSourceType {
      */
     ATTACHMENT,
     /**
-     * MarkDown编辑器
+     * MD图片
      */
-    MD;
+    MD_PIC;
 }

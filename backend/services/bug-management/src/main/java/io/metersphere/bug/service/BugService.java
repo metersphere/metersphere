@@ -28,6 +28,7 @@ import io.metersphere.project.dto.ProjectUserDTO;
 import io.metersphere.project.dto.filemanagement.FileLogRecord;
 import io.metersphere.project.mapper.FileAssociationMapper;
 import io.metersphere.project.mapper.FileMetadataMapper;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.request.ProjectMemberRequest;
 import io.metersphere.project.service.*;
 import io.metersphere.sdk.constants.*;
@@ -37,17 +38,27 @@ import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.ServiceIntegration;
 import io.metersphere.system.domain.Template;
 import io.metersphere.system.domain.TemplateCustomField;
+import io.metersphere.system.domain.User;
+import io.metersphere.system.dto.BugNoticeDTO;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.log.dto.LogDTO;
+import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.system.mapper.TemplateMapper;
+import io.metersphere.system.mapper.UserMapper;
+import io.metersphere.system.notice.NoticeModel;
+import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.notice.utils.MessageTemplateUtils;
 import io.metersphere.system.service.*;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
 import jodd.util.StringUtil;
+import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -84,23 +95,31 @@ public class BugService {
     @Resource
     private BugMapper bugMapper;
     @Resource
+    private UserMapper userMapper;
+    @Resource
     private ExtBugMapper extBugMapper;
     @Resource
-    private BugContentMapper bugContentMapper;
+    private ProjectMapper projectMapper;
+    @Resource
+    private NoticeSendService noticeSendService;
     @Resource
     private BaseUserMapper baseUserMapper;
     @Resource
     protected TemplateMapper templateMapper;
     @Resource
+    private BugContentMapper bugContentMapper;
+    @Resource
     private SqlSessionFactory sqlSessionFactory;
     @Resource
-    private ProjectTemplateService projectTemplateService;
-    @Resource
-    private BaseTemplateCustomFieldService baseTemplateCustomFieldService;
+    private OperationLogService operationLogService;
     @Resource
     private PlatformPluginService platformPluginService;
     @Resource
+    private ProjectTemplateService projectTemplateService;
+    @Resource
     private UserPlatformAccountService userPlatformAccountService;
+    @Resource
+    private BaseTemplateCustomFieldService baseTemplateCustomFieldService;
     @Resource
     private BugCustomFieldMapper bugCustomFieldMapper;
     @Resource
@@ -135,6 +154,8 @@ public class BugService {
     private PluginLoadService pluginLoadService;
     @Resource
     private BugSyncExtraService bugSyncExtraService;
+    @Resource
+    private BugSyncNoticeService bugSyncNoticeService;
     @Resource
     private BugStatusService bugStatusService;
     @Resource
@@ -208,7 +229,7 @@ public class BugService {
      *
      * @param id 缺陷ID
      */
-    public void delete(String id) {
+    public void delete(String id, String currentUser) {
         Bug bug = checkById(id);
         if (StringUtils.equals(bug.getPlatform(), BugPlatform.LOCAL.getName())) {
             Bug record = new Bug();
@@ -224,6 +245,8 @@ public class BugService {
             clearAssociate(id, bug.getProjectId());
             bugMapper.deleteByPrimaryKey(id);
         }
+        // 发送通知
+        sendDeleteNotice(bug, currentUser);
     }
 
     /**
@@ -284,9 +307,12 @@ public class BugService {
      * 批量删除缺陷
      * @param request 请求参数
      */
-    public void batchDelete(BugBatchRequest request) {
+    public void batchDelete(BugBatchRequest request, String currentUser) {
         List<String> batchIds = getBatchIdsByRequest(request);
-        batchIds.forEach(this::delete);
+        batchIds.forEach(id -> delete(id, currentUser));
+        // 批量日志
+        List<LogDTO> logs = getBatchLogByRequest(batchIds, OperationLogType.DELETE.name(), "/bug/batch-delete", request.getProjectId(), false, false, null);
+        operationLogService.batchAdd(logs);
     }
 
     /**
@@ -296,6 +322,9 @@ public class BugService {
     public void batchRecover(BugBatchRequest request) {
         List<String> batchIds = getBatchIdsByRequest(request);
         batchIds.forEach(this::recover);
+        // 批量日志
+        List<LogDTO> logs = getBatchLogByRequest(batchIds, OperationLogType.RECOVER.name(), "/bug/batch-recover", request.getProjectId(), false, false, null);
+        operationLogService.batchAdd(logs);
     }
 
     /**
@@ -315,6 +344,10 @@ public class BugService {
     public void batchUpdate(BugBatchUpdateRequest request, String currentUser) {
         List<String> batchIds = getBatchIdsByRequest(request);
 
+        // 批量日志{修改之前}
+        List<LogDTO> logs = getBatchLogByRequest(batchIds, OperationLogType.UPDATE.name(), "/bug/batch-update",
+                request.getProjectId(), true, request.isAppend(), request.getTags());
+        operationLogService.batchAdd(logs);
         // 目前只做标签的批量编辑
         if (request.isAppend()) {
             // 标签(追加)
@@ -369,13 +402,14 @@ public class BugService {
      * 同步平台缺陷(全量)
      * @param request 同步请求参数
      * @param project 项目
+     * @param currentUser 当前用户
      */
     @Async
-    public void syncPlatformAllBugs(BugSyncRequest request, Project project) {
+    public void syncPlatformAllBugs(BugSyncRequest request, Project project, String currentUser) {
         try {
             XpackBugService bugService = CommonBeanFactory.getBean(XpackBugService.class);
             if (bugService != null) {
-                bugService.syncPlatformBugs(project, request);
+                bugService.syncPlatformBugs(project, request, currentUser);
             }
         } catch (Exception e) {
             LogUtils.error(e);
@@ -393,7 +427,7 @@ public class BugService {
      * @param project 项目
      */
     @Async
-    public void syncPlatformBugs(List<Bug> remainBugs, Project project) {
+    public void syncPlatformBugs(List<Bug> remainBugs, Project project, String currentUser) {
         try {
             // 分页同步
             SubListUtils.dealForSubList(remainBugs, 500, (subBugs) -> doSyncPlatformBugs(subBugs, project));
@@ -404,6 +438,8 @@ public class BugService {
         } finally {
             // 异常或正常结束都得删除当前项目执行同步的Key
             bugSyncExtraService.deleteSyncKey(project.getId());
+            // 发送同步通知
+            bugSyncNoticeService.sendNotice(remainBugs.size(), currentUser);
         }
     }
 
@@ -956,7 +992,7 @@ public class BugService {
      * @param bugs 缺陷集合
      * @return 缺陷DTO集合
      */
-    private List<BugDTO> handleCustomField(List<BugDTO> bugs, String projectId) {
+    public List<BugDTO> handleCustomField(List<BugDTO> bugs, String projectId) {
         List<String> ids = bugs.stream().map(BugDTO::getId).toList();
         List<BugCustomFieldDTO> customFields = extBugCustomFieldMapper.getBugAllCustomFields(ids, projectId);
         Map<String, List<BugCustomFieldDTO>> customFieldMap = customFields.stream().collect(Collectors.groupingBy(BugCustomFieldDTO::getBugId));
@@ -1168,7 +1204,7 @@ public class BugService {
      * @param request 批量操作参数
      * @return 缺陷集合
      */
-    private List<String> getBatchIdsByRequest(BugBatchRequest request) {
+    public List<String> getBatchIdsByRequest(BugBatchRequest request) {
         if (request.isSelectAll()) {
             // 全选{根据查询条件查询所有数据, 排除取消勾选的数据}
             BugPageRequest bugPageRequest = new BugPageRequest();
@@ -1272,11 +1308,78 @@ public class BugService {
         return headerCustomFields.stream().distinct().toList();
     }
 
+    /**
+     * 校验缺陷是否存在并返回
+     * @param bugId 缺陷ID
+     * @return 缺陷
+     */
     private Bug checkById(String bugId) {
         Bug bug = bugMapper.selectByPrimaryKey(bugId);
         if (bug == null) {
             throw new MSException(BUG_NOT_EXIST);
         }
         return bug;
+    }
+
+    /**
+     * 根据批量操作参数获取批量日志
+     * @param batchIds 批量操作ID
+     * @param operationType 操作类型
+     * @param path 请求路径
+     * @param batchUpdate 是否批量更新
+     * @return 日志集合
+     */
+    private List<LogDTO> getBatchLogByRequest(List<String> batchIds, String operationType, String path, String projectId, boolean batchUpdate,
+                                              boolean appendTag, List<String> modifiedTags) {
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        BugExample example = new BugExample();
+        example.createCriteria().andIdIn(batchIds);
+        List<Bug> bugs = bugMapper.selectByExample(example);
+        List<LogDTO> logs = new ArrayList<>();
+        bugs.forEach(bug -> {
+            LogDTO log = new LogDTO(bug.getProjectId(), project.getOrganizationId(), bug.getId(), null, operationType, OperationLogModule.BUG_MANAGEMENT, bug.getTitle());
+            log.setPath(path);
+            log.setMethod(HttpMethodConstants.POST.name());
+            if (batchUpdate) {
+                // 批量更新只记录TAG的变更内容
+                log.setOriginalValue(JSON.toJSONBytes(bug.getTags()));
+                log.setModifiedValue(JSON.toJSONBytes(appendTag ? ListUtils.union(bug.getTags(), modifiedTags) : modifiedTags));
+            } else {
+                log.setOriginalValue(JSON.toJSONBytes(bug));
+            }
+            logs.add(log);
+        });
+        return logs;
+    }
+
+    private void sendDeleteNotice(Bug bug, String currentUser) {
+        List<SelectOption> statusOption = bugStatusService.getHeaderStatusOption(bug.getProjectId());
+        Map<String, String> statusMap = statusOption.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
+        List<SelectOption> handlerOption = getHeaderHandlerOption(bug.getProjectId());
+        Map<String, String> handlerMap = handlerOption.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
+        // 缺陷相关内容
+        BugNoticeDTO notice = new BugNoticeDTO();
+        notice.setTitle(bug.getTitle());
+        notice.setStatus(statusMap.get(bug.getStatus()));
+        notice.setHandleUser(handlerMap.get(bug.getHandleUser()));
+        List<BugCustomFieldDTO> customFields = extBugCustomFieldMapper.getBugAllCustomFields(List.of(bug.getId()), bug.getProjectId());
+        List<OptionDTO> fields = customFields.stream().map(field -> {
+            OptionDTO fieldDTO = new OptionDTO();
+            fieldDTO.setId(field.getName());
+            fieldDTO.setName(field.getValue());
+            return fieldDTO;
+        }).toList();
+        notice.setCustomFields(fields);
+        BeanMap beanMap = new BeanMap(notice);
+        User user = userMapper.selectByPrimaryKey(currentUser);
+        Map paramMap = new HashMap<>(beanMap);
+        paramMap.put(NoticeConstants.RelatedUser.OPERATOR, user.getName());
+        Map<String, String> defaultTemplateMap = MessageTemplateUtils.getDefaultTemplateMap();
+        String template = defaultTemplateMap.get(NoticeConstants.TemplateText.BUG_TASK_DELETE);
+        Map<String, String> defaultSubjectMap = MessageTemplateUtils.getDefaultTemplateSubjectMap();
+        String subject = defaultSubjectMap.get(NoticeConstants.TemplateText.BUG_TASK_DELETE);
+        NoticeModel noticeModel = NoticeModel.builder().operator(currentUser)
+                .context(template).subject(subject).paramMap(paramMap).event(NoticeConstants.Event.DELETE).build();
+        noticeSendService.send(NoticeConstants.TaskType.BUG_TASK, noticeModel);
     }
 }
