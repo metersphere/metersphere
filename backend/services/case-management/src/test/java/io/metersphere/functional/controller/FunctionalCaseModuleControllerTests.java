@@ -721,7 +721,7 @@ public class FunctionalCaseModuleControllerTests extends BaseTest {
         String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         List<BaseTreeNode> baseTreeNodes = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), BaseTreeNode.class);
-        Assertions.assertTrue(CollectionUtils.isEmpty(baseTreeNodes));
+        Assertions.assertEquals(1, baseTreeNodes.size());
         //回收站有数据
         FunctionalCaseModuleCreateRequest request = new FunctionalCaseModuleCreateRequest();
         request.setProjectId(project.getId());
