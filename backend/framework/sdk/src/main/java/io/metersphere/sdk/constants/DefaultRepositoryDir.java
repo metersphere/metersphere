@@ -112,4 +112,8 @@ public class DefaultRepositoryDir {
     public static String getSystemTempDir() {
         return SYSTEM_TEMP_DIR;
     }
+
+    public static String getSystemTempCompressDir() {
+        return SYSTEM_TEMP_DIR + "/compress";
+    }
 }

@@ -14,10 +14,14 @@ import io.metersphere.project.service.FileService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.file.FileCenter;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.*;
@@ -29,6 +33,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.web.multipart.MultipartFile;
 import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -66,7 +71,7 @@ public class FunctionalCaseAttachmentControllerTests extends BaseTest {
     public static final String DELETE_FILE_URL = "/attachment/delete/file";
     public static final String OPTIONS_URL = "/attachment/options/";
     public static final String UPLOAD_TEMP = "/attachment/upload/temp/file";
-
+    public static final String UPLOAD_DOWNLOAD = "/attachment/download/file/%s/%s/%S";
 
     @Test
     @Order(1)
@@ -244,7 +249,7 @@ public class FunctionalCaseAttachmentControllerTests extends BaseTest {
         Assertions.assertTrue(StringUtils.isNotBlank(fileId));
         file = getNoNameMockMultipartFile();
         doUploadTempFileFalse(file);
-        functionalCaseAttachmentService.uploadMinioFile("TEST_FUNCTIONAL_CASE_ATTACHMENT_ID_1","WX_TEST_PROJECT_ID", List.of(fileId),"admin", CaseFileSourceType.CASE_DETAIL.toString());
+        functionalCaseAttachmentService.uploadMinioFile("TEST_FUNCTIONAL_CASE_ATTACHMENT_ID_1", "WX_TEST_PROJECT_ID", List.of(fileId), "admin", CaseFileSourceType.CASE_DETAIL.toString());
         FunctionalCaseSourceFileRequest request = new FunctionalCaseSourceFileRequest();
         request.setProjectId("WX_TEST_PROJECT_ID");
         request.setLocal(true);
@@ -256,13 +261,59 @@ public class FunctionalCaseAttachmentControllerTests extends BaseTest {
         functionalCaseAttachmentExample.createCriteria().andCaseIdEqualTo("TEST_FUNCTIONAL_CASE_ATTACHMENT_ID_1").andFileIdEqualTo(fileId).andFileSourceEqualTo(CaseFileSourceType.CASE_DETAIL.toString());
         List<FunctionalCaseAttachment> functionalCaseAttachments = functionalCaseAttachmentMapper.selectByExample(functionalCaseAttachmentExample);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(functionalCaseAttachments));
-        functionalCaseAttachmentService.uploadMinioFile("TEST_FUNCTIONAL_CASE_ATTACHMENT_ID_1","WX_TEST_PROJECT_ID",new ArrayList<>(),"admin", CaseFileSourceType.CASE_COMMENT.toString());
+        functionalCaseAttachmentService.uploadMinioFile("TEST_FUNCTIONAL_CASE_ATTACHMENT_ID_1", "WX_TEST_PROJECT_ID", new ArrayList<>(), "admin", CaseFileSourceType.CASE_COMMENT.toString());
         String functionalCaseDir = DefaultRepositoryDir.getFunctionalCaseDir("WX_TEST_PROJECT_ID", "TEST_FUNCTIONAL_CASE_ATTACHMENT_ID_1");
-        functionalCaseAttachmentService.uploadFileResource(functionalCaseDir,new HashMap<>(),"WX_TEST_PROJECT_ID", "TEST_FUNCTIONAL_CASE_ATTACHMENT_ID_1");
+        functionalCaseAttachmentService.uploadFileResource(functionalCaseDir, new HashMap<>(), "WX_TEST_PROJECT_ID", "TEST_FUNCTIONAL_CASE_ATTACHMENT_ID_1");
         Map<String, String> objectObjectHashMap = new HashMap<>();
-        objectObjectHashMap.put(fileId,null);
-        functionalCaseAttachmentService.uploadFileResource(functionalCaseDir,objectObjectHashMap,"WX_TEST_PROJECT_ID", "TEST_FUNCTIONAL_CASE_ATTACHMENT_ID_1");
+        objectObjectHashMap.put(fileId, null);
+        functionalCaseAttachmentService.uploadFileResource(functionalCaseDir, objectObjectHashMap, "WX_TEST_PROJECT_ID", "TEST_FUNCTIONAL_CASE_ATTACHMENT_ID_1");
 
+    }
+
+    @Test
+    @Order(11)
+    public void downTemp() throws Exception {
+        MockMultipartFile file = getMockMultipartFile();
+        String fileId = doUploadTempFile(file);
+        Assertions.assertTrue(StringUtils.isNotBlank(fileId));
+        MvcResult compressedResult = this.downloadTempFile(String.format(UPLOAD_DOWNLOAD, "WX_TEST_PROJECT_ID", fileId, false));
+        Assertions.assertTrue(compressedResult.getResponse().getContentAsByteArray().length > 0);
+        compressedResult = this.downloadTempFile(String.format(UPLOAD_DOWNLOAD, "WX_TEST_PROJECT_ID", fileId, true));
+        Assertions.assertTrue(compressedResult.getResponse().getContentAsByteArray().length > 0);
+        functionalCaseAttachmentService.uploadMinioFile("TEST_FUNCTIONAL_CASE_ATTACHMENT_ID_1", "WX_TEST_PROJECT_ID", List.of(fileId), "admin", CaseFileSourceType.CASE_DETAIL.toString());
+        compressedResult = this.downloadTempFile(String.format(UPLOAD_DOWNLOAD, "WX_TEST_PROJECT_ID", fileId, false));
+        Assertions.assertTrue(compressedResult.getResponse().getContentAsByteArray().length > 0);
+        compressedResult = this.downloadTempFile(String.format(UPLOAD_DOWNLOAD, "WX_TEST_PROJECT_ID", fileId, true));
+        Assertions.assertTrue(compressedResult.getResponse().getContentAsByteArray().length > 0);
+        MockMultipartFile NewFile = getMockMultipartFile();
+        String newFileId = uploadTemp(NewFile);
+        compressedResult = this.downloadTempFile(String.format(UPLOAD_DOWNLOAD, "WX_TEST_PROJECT_ID", newFileId, true));
+        Assertions.assertTrue(compressedResult.getResponse().getContentAsByteArray().length > 0);
+        compressedResult = this.downloadTempFile(String.format(UPLOAD_DOWNLOAD, "WX_TEST_PROJECT_ID", "1123586", true));
+        Assertions.assertFalse(compressedResult.getResponse().getContentAsByteArray().length > 0);
+    }
+
+    public String uploadTemp(MultipartFile file) {
+        String fileName = StringUtils.trim(file.getOriginalFilename());
+        String fileId = IDGenerator.nextStr();
+        FileRequest fileRequest = new FileRequest();
+        fileRequest.setFileName(fileName);
+        String systemTempDir = DefaultRepositoryDir.getSystemTempDir();
+        fileRequest.setFolder(systemTempDir + "/" + fileId);
+        try {
+            FileCenter.getDefaultRepository()
+                    .saveFile(file, fileRequest);
+        } catch (Exception e) {
+            LogUtils.error(e);
+            throw new MSException(Translator.get("file_upload_fail"));
+        }
+        return fileId;
+    }
+
+    protected MvcResult downloadTempFile(String url, Object... uriVariables) throws Exception {
+        return mockMvc.perform(getRequestBuilder(url, uriVariables))
+                .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE))
+                .andExpect(status().isOk()).andReturn();
     }
 
     private static MockMultipartFile getMockMultipartFile() {
