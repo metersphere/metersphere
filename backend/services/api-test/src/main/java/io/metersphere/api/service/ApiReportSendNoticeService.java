@@ -8,7 +8,6 @@ import io.metersphere.api.mapper.ApiScenarioMapper;
 import io.metersphere.api.mapper.ApiTestCaseMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.sdk.constants.ApiExecuteResourceType;
 import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.dto.api.notice.ApiNoticeDTO;
@@ -55,13 +54,13 @@ public class ApiReportSendNoticeService {
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         BeanMap beanMap;
         switch (noticeDTO.getResourceType()) {
-            case ApiExecuteResourceType.API_SCENARIO:
+            case "API_SCENARIO":
                 ApiScenario scenario = apiScenarioMapper.selectByPrimaryKey(noticeDTO.getResourceId());
                 beanMap = new BeanMap(scenario);
                 noticeType = NoticeConstants.TaskType.API_SCENARIO_TASK;
                 reportUrl = baseSystemConfigDTO.getUrl() + "/#/api/automation/report/view/" + noticeDTO.getReportId();
                 break;
-            case ApiExecuteResourceType.API:
+            case "API":
                 ApiDefinition definition = apiDefinitionMapper.selectByPrimaryKey(noticeDTO.getResourceId());
                 beanMap = new BeanMap(definition);
                 noticeType = NoticeConstants.TaskType.API_DEFINITION_TASK;
