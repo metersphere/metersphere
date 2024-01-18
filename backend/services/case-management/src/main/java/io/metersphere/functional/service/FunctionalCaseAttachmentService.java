@@ -383,6 +383,15 @@ public class FunctionalCaseAttachmentService {
         try {
             FileCenter.getDefaultRepository()
                     .saveFile(file, fileRequest);
+            String fileType = StringUtils.substring(fileName, fileName.lastIndexOf(".") + 1);
+
+            if (TempFileUtils.isImage(fileType)) {
+                //图片文件自动生成预览图
+                byte[] previewImg = TempFileUtils.compressPic(file.getBytes());
+                fileRequest.setFolder(DefaultRepositoryDir.getSystemTempCompressDir() + "/" + fileId);
+                fileRequest.setStorage(StorageType.MINIO.toString());
+                fileService.upload(previewImg, fileRequest);
+            }
         } catch (Exception e) {
             LogUtils.error(e);
             throw new MSException(Translator.get("file_upload_fail"));
@@ -390,7 +399,7 @@ public class FunctionalCaseAttachmentService {
         return fileId;
     }
 
-    public void uploadMinioFile(String caseId, String projectId, List<String> uploadFileIds, String userId, String fileSource){
+    public void uploadMinioFile(String caseId, String projectId, List<String> uploadFileIds, String userId, String fileSource) {
         String functionalCaseDir = DefaultRepositoryDir.getFunctionalCaseDir(projectId, caseId);
         // 处理本地上传文件
         FileRepository defaultRepository = FileCenter.getDefaultRepository();
@@ -433,10 +442,9 @@ public class FunctionalCaseAttachmentService {
      */
     public String getTempFileNameByFileId(String fileId) {
         FileRepository defaultRepository = FileCenter.getDefaultRepository();
-        String systemTempDir = DefaultRepositoryDir.getSystemTempDir();
         try {
             FileRequest fileRequest = new FileRequest();
-            fileRequest.setFolder(systemTempDir + "/" + fileId);
+            fileRequest.setFolder(DefaultRepositoryDir.getSystemTempDir() + "/" + fileId);
             List<String> folderFileNames = defaultRepository.getFolderFileNames(fileRequest);
             if (CollectionUtils.isEmpty(folderFileNames)) {
                 return null;
@@ -453,7 +461,7 @@ public class FunctionalCaseAttachmentService {
     /**
      * 上传用例管理相关的资源文件
      *
-     * @param folder  用例管理文件路径
+     * @param folder     用例管理文件路径
      * @param addFileMap key:fileId value:fileName
      */
     public void uploadFileResource(String folder, Map<String, String> addFileMap, String projectId, String caseId) {
@@ -482,7 +490,7 @@ public class FunctionalCaseAttachmentService {
                     //图片文件自动生成预览图
                     byte[] file = defaultRepository.getFile(fileCopyRequest);
                     byte[] previewImg = TempFileUtils.compressPic(file);
-                    fileCopyRequest.setFolder(DefaultRepositoryDir.getFunctionalCasePreviewDir(projectId,caseId)+ "/" + fileId);
+                    fileCopyRequest.setFolder(DefaultRepositoryDir.getFunctionalCasePreviewDir(projectId, caseId) + "/" + fileId);
                     fileCopyRequest.setStorage(StorageType.MINIO.toString());
                     fileService.upload(previewImg, fileCopyRequest);
                 }
@@ -495,6 +503,92 @@ public class FunctionalCaseAttachmentService {
                 throw new MSException(Translator.get("file_upload_fail"));
             }
         }
+    }
+
+    /**
+     * 预览图片
+     *
+     * @param fileId 文件ID
+     */
+    public ResponseEntity<byte[]> downloadImgById(String projectId, String fileId, boolean compressed) {
+        byte[] bytes;
+        String fileName;
+        FunctionalCaseAttachmentExample example = new FunctionalCaseAttachmentExample();
+        example.createCriteria().andFileIdEqualTo(fileId);
+        List<FunctionalCaseAttachment> caseAttachments = functionalCaseAttachmentMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(caseAttachments)) {
+            //在临时文件获取
+            fileName = getTempFileNameByFileId(fileId);
+            bytes = getPreviewImg(fileName, fileId, compressed);
+        } else {
+            //在正式目录获取
+            FunctionalCaseAttachment attachment = caseAttachments.get(0);
+            fileName = attachment.getFileName();
+            FileRequest fileRequest = new FileRequest();
+            fileRequest.setFileName(attachment.getFileName());
+            if (compressed) {
+                fileRequest.setFolder(DefaultRepositoryDir.getFunctionalCasePreviewDir(projectId, attachment.getCaseId()) + "/" + attachment.getFileId());
+            } else {
+                fileRequest.setFolder(DefaultRepositoryDir.getFunctionalCaseDir(projectId, attachment.getCaseId()) + "/" + attachment.getFileId());
+            }
+            fileRequest.setStorage(StorageType.MINIO.name());
+            try {
+                bytes = fileService.download(fileRequest);
+            } catch (Exception e) {
+                throw new MSException("get file error");
+            }
+        }
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                .body(bytes);
+    }
+
+    public byte[] getPreviewImg(String fileName, String fileId, boolean isCompressed) {
+        String systemTempDir;
+        if (isCompressed) {
+            systemTempDir = DefaultRepositoryDir.getSystemTempCompressDir();
+        } else {
+            systemTempDir = DefaultRepositoryDir.getSystemTempDir();
+        }
+        FileRequest previewRequest = new FileRequest();
+        previewRequest.setFileName(fileName);
+        previewRequest.setStorage(StorageType.MINIO.name());
+        previewRequest.setFolder(systemTempDir + "/" + fileId);
+        byte[] previewImg = null;
+        try {
+            previewImg = fileService.download(previewRequest);
+        } catch (Exception e) {
+            LogUtils.error("获取预览图失败", e);
+        }
+
+        if (previewImg == null || previewImg.length == 0) {
+            try {
+                if (isCompressed) {
+                    previewImg = this.compressPicWithFileMetadata(fileName, fileId);
+                    previewRequest.setFolder(DefaultRepositoryDir.getSystemTempCompressDir() + "/" + fileId);
+                    fileService.upload(previewImg, previewRequest);
+                }
+                return previewImg;
+            } catch (Exception e) {
+                LogUtils.error("获取预览图失败", e);
+            }
+        }
+        return previewImg;
+    }
+
+    //获取文件并压缩的方法需要上锁，防止并发超过一定数量时内存溢出
+    private synchronized byte[] compressPicWithFileMetadata(String fileName, String fileId) throws Exception {
+        byte[] fileBytes = this.getFile(fileName, fileId);
+        return TempFileUtils.compressPic(fileBytes);
+    }
+
+    public byte[] getFile(String fileName, String fileId) throws Exception {
+        FileRequest fileRequest = new FileRequest();
+        fileRequest.setFileName(fileName);
+        fileRequest.setFolder(DefaultRepositoryDir.getSystemTempDir() + "/" + fileId);
+        fileRequest.setStorage(StorageType.MINIO.name());
+        return fileService.download(fileRequest);
     }
 
 }

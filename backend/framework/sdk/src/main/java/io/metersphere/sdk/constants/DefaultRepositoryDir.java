@@ -114,6 +114,10 @@ public class DefaultRepositoryDir {
         return SYSTEM_TEMP_DIR;
     }
 
+    public static String getSystemTempCompressDir() {
+        return SYSTEM_TEMP_DIR + "/compress";
+    }
+
     public static String getApiScenarioDir(String projectId, String apiScenarioId) {
         return String.format(PROJECT_API_SCENARIO_DIR, projectId, apiScenarioId);
     }

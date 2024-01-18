@@ -78,4 +78,10 @@ public class ReviewFunctionalCaseController {
         return functionalCaseAttachmentService.downloadPreviewImgById(request);
     }
 
+    @GetMapping(value = "/download/file/{projectId}/{fileId}/{compressed}")
+    @Operation(summary = "用例管理-功能用例-预览上传的副文本里所需的文件资源原图")
+    public ResponseEntity<byte[]> downloadImgById(@PathVariable String projectId, @PathVariable String fileId, @PathVariable boolean compressed) throws Exception {
+        return functionalCaseAttachmentService.downloadImgById(projectId, fileId, compressed);
+    }
+
 }
