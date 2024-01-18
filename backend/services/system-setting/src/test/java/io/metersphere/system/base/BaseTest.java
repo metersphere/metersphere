@@ -87,6 +87,7 @@ public abstract class BaseTest {
     private MinioClient client;
 
     protected static final String DEFAULT_LIST = "list";
+    protected static final String DEFAULT_PAGE = "page";
     protected static final String DEFAULT_GET = "get/{0}";
     protected static final String DEFAULT_ADD = "add";
     protected static final String DEFAULT_UPDATE = "update";

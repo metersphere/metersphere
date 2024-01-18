@@ -80,7 +80,6 @@ public class ApiDebugService {
         apiDebug.setPos(getNextOrder(request.getProjectId()));
 
         apiDebugMapper.insert(apiDebug);
-        // todo 校验 moduleId
         ApiDebugBlob apiDebugBlob = new ApiDebugBlob();
         apiDebugBlob.setId(apiDebug.getId());
         apiDebugBlob.setRequest(request.getRequest().getBytes());
@@ -120,7 +119,6 @@ public class ApiDebugService {
         apiDebug.setUpdateUser(updateUser);
         apiDebug.setUpdateTime(System.currentTimeMillis());
         apiDebugMapper.updateByPrimaryKeySelective(apiDebug);
-        // todo 校验 moduleId
 
         if (StringUtils.isNotBlank(request.getRequest())) {
             ApiDebugBlob apiDebugBlob = new ApiDebugBlob();

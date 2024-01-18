@@ -362,5 +362,12 @@
         </if>
     </sql>
 
+    <select id="getLastPos" resultType="java.lang.Long">
+        SELECT pos
+        FROM api_scenario
+        WHERE project_id = #{projectId}
+        ORDER BY pos DESC
+            LIMIT 1;
+    </select>
 
 </mapper>

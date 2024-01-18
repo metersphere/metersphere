@@ -275,13 +275,13 @@ CREATE TABLE IF NOT EXISTS api_scenario_step(
     `name` VARCHAR(255)    COMMENT '步骤名称' ,
     `sort` BIGINT NOT NULL   COMMENT '序号' ,
     `enable` BIT(1) NOT NULL  DEFAULT 1 COMMENT '启用/禁用' ,
-    `resource_id` BIGINT    COMMENT '资源id' ,
+    `resource_id` VARCHAR(50)    COMMENT '资源id' ,
     `resource_num` VARCHAR(50)    COMMENT '资源编号' ,
     `step_type` VARCHAR(50)    COMMENT '步骤类型/API/CASE等' ,
     `project_id` VARCHAR(50)    COMMENT '项目fk' ,
     `parent_id` VARCHAR(50)   DEFAULT 'NONE' COMMENT '父级fk' ,
     `version_id` VARCHAR(50)    COMMENT '版本号' ,
-    `source` VARCHAR(10)    COMMENT '引用/复制/自定义' ,
+    `ref_type` VARCHAR(10)    COMMENT '引用/复制/自定义' ,
     `config` VARCHAR(500)    COMMENT '循环等组件基础数据' ,
     PRIMARY KEY (id)
 )  ENGINE = InnoDB
@@ -296,11 +296,14 @@ CREATE INDEX idx_resource_num ON api_scenario_step(resource_num);
 
 CREATE TABLE IF NOT EXISTS api_scenario_step_blob(
     `id` VARCHAR(50) NOT NULL   COMMENT '场景步骤id' ,
+    `scenario_id` VARCHAR(50) NOT NULL   COMMENT '场景id' ,
     `content` LONGBLOB    COMMENT '场景步骤内容' ,
     PRIMARY KEY (id)
 )  ENGINE = InnoDB
    DEFAULT CHARSET = utf8mb4
    COLLATE = utf8mb4_general_ci COMMENT = '场景步骤内容';
+
+CREATE INDEX idx_scenario_id ON api_scenario_step_blob(scenario_id);
 
 
 CREATE TABLE IF NOT EXISTS api_scenario_follower(

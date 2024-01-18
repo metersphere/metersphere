@@ -31,7 +31,7 @@ public class ApiScenarioStep implements Serializable {
     private Boolean enable;
 
     @Schema(description = "资源id")
-    private Long resourceId;
+    private String resourceId;
 
     @Schema(description = "资源编号")
     private String resourceNum;
@@ -49,7 +49,7 @@ public class ApiScenarioStep implements Serializable {
     private String versionId;
 
     @Schema(description = "引用/复制/自定义")
-    private String source;
+    private String refType;
 
     @Schema(description = "循环等组件基础数据")
     private String config;
@@ -62,13 +62,13 @@ public class ApiScenarioStep implements Serializable {
         name("name", "name", "VARCHAR", true),
         sort("sort", "sort", "BIGINT", false),
         enable("enable", "enable", "BIT", true),
-        resourceId("resource_id", "resourceId", "BIGINT", false),
+        resourceId("resource_id", "resourceId", "VARCHAR", false),
         resourceNum("resource_num", "resourceNum", "VARCHAR", false),
         stepType("step_type", "stepType", "VARCHAR", false),
         projectId("project_id", "projectId", "VARCHAR", false),
         parentId("parent_id", "parentId", "VARCHAR", false),
         versionId("version_id", "versionId", "VARCHAR", false),
-        source("source", "source", "VARCHAR", true),
+        refType("ref_type", "refType", "VARCHAR", false),
         config("config", "config", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";

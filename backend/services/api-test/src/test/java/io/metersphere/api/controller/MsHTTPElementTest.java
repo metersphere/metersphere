@@ -1,5 +1,6 @@
 package io.metersphere.api.controller;
 
+import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.definition.HttpResponse;
 import io.metersphere.api.dto.request.MsCommonElement;
 import io.metersphere.api.dto.request.assertion.*;
@@ -64,7 +65,7 @@ public class MsHTTPElementTest {
         formDataKV.setValue("@email");
         formDataKV.setKey("key");
         FormDataKV formDataFileKV = new FormDataKV();
-        BodyFile bodyFile = new BodyFile();
+        ApiFile bodyFile = new ApiFile();
         bodyFile.setFileId("aaa");
         bodyFile.setFileName("aaa");
         formDataFileKV.setFiles(List.of(bodyFile));

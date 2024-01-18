@@ -34,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -58,6 +59,8 @@ public class ProjectService {
     private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
     @Resource
     private TestResourcePoolOrganizationMapper testResourcePoolOrganizationMapper;
+
+    public static final Long ORDER_STEP = 5000L;
 
 
     public List<Project> getUserProject(String organizationId, String userId) {
@@ -198,5 +201,10 @@ public class ProjectService {
         ProjectVersionExample projectVersionExample = new ProjectVersionExample();
         projectVersionExample.createCriteria().andProjectIdEqualTo(projectId);
         return projectVersionMapper.selectByExample(projectVersionExample).get(0);
+    }
+
+    public Long getNextOrder(Function<String, Long> getLastPosFunc, String projectId) {
+        Long pos = getLastPosFunc.apply(projectId);
+        return (pos == null ? 0 : pos) + ORDER_STEP;
     }
 }
