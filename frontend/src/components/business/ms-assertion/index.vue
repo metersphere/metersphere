@@ -8,15 +8,19 @@
         </div>
       </a-button>
       <template #content>
-        <a-doption v-for="item in assertOption" :key="item.value" :value="item.value">{{ item.label }}</a-doption>
+        <a-doption v-for="item in assertOptionSource" :key="item.value" :value="item.value">{{ item.label }}</a-doption>
       </template>
     </a-dropdown>
     <div v-if="showBody" class="ms-assertion-body">
-      <article class="ms-assertion-body-left">
+      <VueDraggable v-model="selectItems" class="ms-assertion-body-left" ghost-class="ghost" handle=".sort-handle">
         <div
-          v-for="(item, index) in activeOption"
-          :key="item.value"
+          v-for="(item, index) in selectItems"
+          :key="item.id"
           class="ms-assertion-body-left-item"
+          :class="{
+            'ms-assertion-body-left-item-active': activeKey === item.id,
+            'ms-assertion-body-left-item-active-focus': focusKey === item.id,
+          }"
           @click="handleItemClick(item)"
         >
           <div class="ms-assertion-body-left-item-row">
@@ -24,38 +28,92 @@
             <span class="ms-assertion-body-left-item-row-title">{{ item.label }}</span>
           </div>
           <div class="ms-assertion-body-left-item-switch">
+            <div class="ms-assertion-body-left-item-switch-action">
+              <MsIcon
+                type="icon-icon_drag"
+                class="action-btn-move sort-handle cursor-move text-[12px] text-[var(--color-text-4)]"
+              />
+              <MsTableMoreAction
+                :list="itemMoreActions"
+                trigger="click"
+                @select="handleMoreActionSelect($event, item)"
+                @close="focusKey = ''"
+              >
+                <MsButton type="icon" size="mini" class="action-btn-more">
+                  <MsIcon
+                    type="icon-icon_more_outlined"
+                    size="14"
+                    class="text-[var(--color-text-4)]"
+                    @click="focusKey = item.id"
+                  />
+                </MsButton>
+              </MsTableMoreAction>
+            </div>
+
             <a-switch type="line" size="small" />
           </div>
         </div>
-      </article>
+      </VueDraggable>
       <section class="ms-assertion-body-right">
-        <MsAssertionStatusCodeTab
-          v-if="activeKey === 'statusCode'"
+        <StatusCodeTab
+          v-if="valueKey === 'statusCode'"
           v-model:selectValue="codeTabState.selectValue"
           v-model:statusCode="codeTabState.statusCode"
         />
-        <ResponseHeaderTab v-if="activeKey === 'responseHeader'" />
+        <ResponseHeaderTab v-if="valueKey === 'responseHeader'" />
+        <ResponseTimeTab v-if="valueKey === 'responseTime'" />
+        <VariableTab v-if="valueKey === 'variable'" />
       </section>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+  import { VueDraggable } from 'vue-draggable-plus';
+
+  import MsButton from '@/components/pure/ms-button/index.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
+  import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import ResponseHeaderTab from './comp/ResponseHeaderTab.vue';
-  import MsAssertionStatusCodeTab from './comp/StatusCodeTab.vue';
+  import ResponseTimeTab from './comp/ResponseTimeTab.vue';
+  import StatusCodeTab from './comp/StatusCodeTab.vue';
+  import VariableTab from './comp/VariableTab.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+
+  import { MsAssertionItem } from './type';
 
   defineOptions({
     name: 'MsAssertion',
   });
 
   const { t } = useI18n();
+  // 当前鼠标所在的key
+  const focusKey = ref<string>('');
+  // 选中的选项
+  const selectItems = ref<MsAssertionItem[]>([]);
+  // Item点击的key
+  const activeKey = ref<string>('');
+  // valueKey
+  const valueKey = computed(() => {
+    return activeKey.value && selectItems.value.find((item) => item.id === activeKey.value)?.value;
+  });
 
   const codeTabState = reactive({
     selectValue: '',
     statusCode: 200,
   });
+  const itemMoreActions: ActionsItem[] = [
+    {
+      label: 'common.copy',
+      eventTag: 'copy',
+    },
+    {
+      label: 'project.fileManagement.delete',
+      eventTag: 'delete',
+    },
+  ];
   // 源选项
   const assertOptionSource = [
     {
@@ -76,37 +134,53 @@
     },
     {
       label: t('ms.assertion.param'),
-      value: 'param',
+      value: 'variable',
     },
     {
       label: t('ms.assertion.script'),
       value: 'script',
     },
   ];
-  // 选中的选项
-  const selectIds = ref<string[]>([]);
-  // Item点击的key
-  const activeKey = ref<string>('');
 
-  // 未选中的选项
-  const assertOption = computed(() => {
-    return assertOptionSource.filter((item) => !selectIds.value.includes(item.value));
-  });
-  // 选中的选项
-  const activeOption = computed(() => {
-    return assertOptionSource.filter((item) => selectIds.value.includes(item.value));
-  });
   // 是否显示主体
   const showBody = computed(() => {
-    return selectIds.value.length > 0;
+    return selectItems.value.length > 0;
   });
   // dropdown选择
   const handleSelect = (value: string | number | Record<string, any> | undefined) => {
-    selectIds.value.push(value as string);
+    const tmpObj = {
+      label: assertOptionSource.find((item) => item.value === value)?.label || '',
+      value: value as string,
+      id: new Date().getTime().toString(),
+    };
+    if (activeKey.value) {
+      const currentIndex = selectItems.value.findIndex((item) => item.id === activeKey.value);
+      const tmpArr = selectItems.value;
+      tmpArr.splice(currentIndex, 0, tmpObj);
+      selectItems.value = tmpArr;
+    } else {
+      selectItems.value.push(tmpObj);
+    }
+    activeKey.value = tmpObj.id;
   };
+  const handleMoreActionSelect = (event: ActionsItem, item: MsAssertionItem) => {
+    const currentIndex = selectItems.value.findIndex((tmpItem) => tmpItem.id === item.id);
+    if (event.eventTag === 'delete') {
+      selectItems.value.splice(currentIndex, 1);
+      activeKey.value = currentIndex > 0 ? selectItems.value[currentIndex - 1].id : '';
+    } else {
+      // copy 当前item
+      const tmpObj = { ...selectItems.value[currentIndex], id: new Date().getTime().valueOf().toString() };
+      const tmpArr = selectItems.value;
+      tmpArr.splice(currentIndex, 0, tmpObj);
+      selectItems.value = tmpArr;
+      activeKey.value = tmpObj.id;
+    }
+  };
+
   // item点击
-  const handleItemClick = (item: { label: string; value: string }) => {
-    activeKey.value = item.value;
+  const handleItemClick = (item: MsAssertionItem) => {
+    activeKey.value = item.id;
   };
 </script>
 
@@ -153,10 +227,21 @@
               line-height: 16px;
             }
             &-title {
-              font-size: 12px;
+              font-size: 14px;
               font-weight: 400;
               color: var(--color-text-1);
               line-height: 22px;
+            }
+          }
+          &-switch {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 4px;
+            &-action {
+              display: flex;
+              align-items: center;
+              gap: 4px;
             }
           }
         }
@@ -169,6 +254,37 @@
         border-radius: 4px;
         background: var(--color-text-fff);
       }
+    }
+  }
+  .action-btn-move,
+  .action-btn-more {
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .ms-assertion-body-left-item-active {
+    background-color: rgb(var(--primary-1)) !important;
+    .ms-assertion-body-left-item-row {
+      &-num {
+        color: rgb(var(--primary-5)) !important;
+        background-color: var(--color-text-fff) !important;
+      }
+      &-title {
+        color: rgb(var(--primary-5));
+      }
+    }
+  }
+  .ms-assertion-body-left-item:hover {
+    background-color: rgb(var(--primary-1));
+    .action-btn-move,
+    .action-btn-more {
+      opacity: 1;
+    }
+  }
+  .ms-assertion-body-left-item-active-focus {
+    background-color: rgb(var(--primary-1));
+    .action-btn-move,
+    .action-btn-more {
+      opacity: 1;
     }
   }
 </style>

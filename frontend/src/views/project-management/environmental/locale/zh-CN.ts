@@ -19,6 +19,7 @@ export default {
   'project.environmental.desc': '描述',
   'project.environmental.envName': '环境名称',
   'project.environmental.envParams': '环境变量',
+  'project.environmental.newEnv': '未命名环境',
   'project.environmental.envNamePlaceholder': '请输入环境名称',
   'project.environmental.envNameRequired': '环境名称不能为空',
   'project.environmental.database': '数据库',
