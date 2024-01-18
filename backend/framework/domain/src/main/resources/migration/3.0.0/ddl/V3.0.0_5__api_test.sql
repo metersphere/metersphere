@@ -101,7 +101,8 @@ CREATE INDEX idx_name ON api_definition(name);
 CREATE TABLE IF NOT EXISTS api_report(
     `id` VARCHAR(50) NOT NULL   COMMENT '接口报告pk' ,
     `name` VARCHAR(255) NOT NULL   COMMENT '接口报告名称' ,
-    `resource_id` VARCHAR(50) NOT NULL   COMMENT '接口资源fk/api_definition_id/api_test_case_id' ,
+    `resource_id` VARCHAR(50) NOT NULL   COMMENT '用例id' ,
+    `test_plan_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '测试计划id' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
     `delete_time` BIGINT    COMMENT '删除时间' ,
     `delete_user` VARCHAR(50)    COMMENT '删除人' ,
@@ -144,6 +145,10 @@ CREATE INDEX idx_update_time ON api_report(update_time);
 CREATE INDEX idx_create_user ON api_report(create_user);
 CREATE INDEX idx_name ON api_report(name);
 CREATE INDEX idx_pool_id ON api_report(pool_id);
+CREATE INDEX idx_start_time ON api_report(start_time);
+CREATE INDEX idx_integrated ON api_report(integrated);
+CREATE INDEX idx_test_plan_id ON api_report(test_plan_id);
+DROP TABLE IF EXISTS api_scenario_report;
 
 CREATE TABLE IF NOT EXISTS api_report_step(
     `step_id` VARCHAR(50) NOT NULL   COMMENT '步骤id' ,
@@ -333,6 +338,7 @@ CREATE TABLE IF NOT EXISTS  api_scenario_report(
     `id` VARCHAR(50) NOT NULL   COMMENT '场景报告pk' ,
     `name` VARCHAR(255) NOT NULL   COMMENT '报告名称' ,
     `scenario_id` VARCHAR(50) NOT NULL   COMMENT '场景fk' ,
+    `test_plan_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '测试计划id' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
     `delete_time` BIGINT    COMMENT '删除时间' ,
     `delete_user` VARCHAR(50)    COMMENT '删除人' ,
@@ -374,6 +380,9 @@ CREATE INDEX idx_update_time ON api_scenario_report(update_time);
 CREATE INDEX idx_create_user ON api_scenario_report(create_user);
 CREATE INDEX idx_name ON api_scenario_report(name);
 CREATE INDEX idx_pool_id ON api_scenario_report(pool_id);
+CREATE INDEX idx_integrated ON api_scenario_report(integrated);
+CREATE INDEX idx_start_time ON api_scenario_report(start_time);
+CREATE INDEX idx_test_plan_id ON api_scenario_report(test_plan_id);
 
 CREATE TABLE IF NOT EXISTS api_scenario_report_detail(
     `id` VARCHAR(50) NOT NULL   COMMENT 'ID' ,
