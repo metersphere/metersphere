@@ -57,7 +57,6 @@ import org.springframework.util.MultiValueMap;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -786,7 +785,7 @@ public class EnvironmentControllerTests extends BaseTest {
         EnvironmentExample example = new EnvironmentExample();
         example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("name");
         List<Environment> environments = environmentMapper.selectByExample(example);
-        String id = environments.get(0).getId();
+        String id = environments.getFirst().getId();
         MvcResult mvcResult = this.responseGet(get + id);
         EnvironmentInfoDTO response = parseObjectFromMvcResult(mvcResult, EnvironmentInfoDTO.class);
         Assertions.assertNotNull(response);
@@ -817,7 +816,7 @@ public class EnvironmentControllerTests extends BaseTest {
         EnvironmentExample environmentExample = new EnvironmentExample();
         environmentExample.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andMockEqualTo(true);
         List<Environment> environmentList = environmentMapper.selectByExample(environmentExample);
-        MOCKID = environmentList.get(0).getId();
+        MOCKID = environmentList.getFirst().getId();
         this.responseGet(get + MOCKID);
     }
 
@@ -858,20 +857,13 @@ public class EnvironmentControllerTests extends BaseTest {
         dataSource.setDbUrl(null);
         dataSource.setPassword("Password123@mysql");
         dataSource.setUsername("root");
-        dataSource.setDriverId(StringUtils.join("system", "&", "com.mysql.cj.jdbc.Driver"));
-        dataSource.setDriver("com.mysql.cj.jdbc.Driver");
-        this.requestPost(validate, dataSource, BAD_REQUEST_MATCHER);
         //测试mysql DriverId为空
-        dataSource.setDbUrl("jdbc:mysql://");
         dataSource.setDriverId(null);
-        this.requestPost(validate, dataSource, BAD_REQUEST_MATCHER);
-        //测试mysql Driver为空
-        dataSource.setDriverId(StringUtils.join("system", "&", "com.mysql.cj.jdbc.Driver"));
-        dataSource.setDriver(null);
         this.requestPost(validate, dataSource, BAD_REQUEST_MATCHER);
         // 测试500
         dataSource.setDriver("com.mysql.cj.jdbc.Driver");
         dataSource.setDbUrl("jdbc:mysql://");
+        dataSource.setDriverId(StringUtils.join("system", "&", "com.mysql.cj.jdbc.Driver"));
         this.requestPost(validate, dataSource, ERROR_REQUEST_MATCHER);
     }
 
@@ -893,7 +885,7 @@ public class EnvironmentControllerTests extends BaseTest {
         EnvironmentExample example = new EnvironmentExample();
         example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("name");
         List<Environment> environments = environmentMapper.selectByExample(example);
-        String id = environments.get(0).getId();
+        String id = environments.getFirst().getId();
         EnvironmentRequest request = new EnvironmentRequest();
         request.setId(id);
         request.setProjectId(DEFAULT_PROJECT_ID);
@@ -912,7 +904,7 @@ public class EnvironmentControllerTests extends BaseTest {
         example = new EnvironmentExample();
         example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("commonParams");
         environments = environmentMapper.selectByExample(example);
-        request.setId(environments.get(0).getId());
+        request.setId(environments.getFirst().getId());
         request.setName("commonParams");
         FileInputStream inputStream = new FileInputStream(new File(
                 this.getClass().getClassLoader().getResource("file/e5d6b195f54c96a59b3c0a9c8888798f.p12")
@@ -931,7 +923,7 @@ public class EnvironmentControllerTests extends BaseTest {
         example = new EnvironmentExample();
         example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("校验权限");
         environments = environmentMapper.selectByExample(example);
-        id = environments.get(0).getId();
+        id = environments.getFirst().getId();
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setName("校验更新权限");
         request.setId(id);
@@ -956,7 +948,7 @@ public class EnvironmentControllerTests extends BaseTest {
         EnvironmentExample example = new EnvironmentExample();
         example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("name");
         List<Environment> environments = environmentMapper.selectByExample(example);
-        String id = environments.get(0).getId();
+        String id = environments.getFirst().getId();
         request = new EnvironmentRequest();
         request.setId(id);
         request.setProjectId(DEFAULT_PROJECT_ID);
@@ -985,7 +977,7 @@ public class EnvironmentControllerTests extends BaseTest {
         EnvironmentExample example = new EnvironmentExample();
         example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andMockEqualTo(true);
         List<Environment> environments = environmentMapper.selectByExample(example);
-        posRequest.setMoveId(environments.get(0).getId());
+        posRequest.setMoveId(environments.getFirst().getId());
         posRequest.setMoveMode("AFTER");
         this.requestPostWithOkAndReturn(POS_URL, posRequest, DEFAULT_PROJECT_ID);
 
@@ -1001,7 +993,7 @@ public class EnvironmentControllerTests extends BaseTest {
         EnvironmentExample example = new EnvironmentExample();
         example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("name");
         List<Environment> environments = environmentMapper.selectByExample(example);
-        String id = environments.get(0).getId();
+        String id = environments.getFirst().getId();
         this.requestGet(delete + id);
         //校验日志
         checkLog(id, OperationLogType.DELETE);
@@ -1017,7 +1009,7 @@ public class EnvironmentControllerTests extends BaseTest {
         example = new EnvironmentExample();
         example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("uploadFile");
         environments = environmentMapper.selectByExample(example);
-        id = environments.get(0).getId();
+        id = environments.getFirst().getId();
         this.requestGet(delete + id);
         //查询文件
         FileRequest fileRequest = new FileRequest();
@@ -1136,10 +1128,6 @@ public class EnvironmentControllerTests extends BaseTest {
         request.setExcludeIds(List.of("environmentId1"));
         MvcResult mvcResult1 = this.requestPostDownloadFile(exportEnv, null, request, DEFAULT_PROJECT_ID);
         byte[] fileBytes1 = mvcResult1.getResponse().getContentAsByteArray();
-        File file = new File("test.json");
-        FileOutputStream fileOutputStream = new FileOutputStream(file);
-        fileOutputStream.write(fileBytes1);
-        fileOutputStream.close();
         Assertions.assertNotNull(fileBytes1);
         request.setSelectIds(List.of("不存在blob"));
         request.setSelectAll(false);

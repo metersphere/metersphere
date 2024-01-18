@@ -13,15 +13,47 @@
         api_report.create_user,
         api_report.update_user,
         api_report.trigger_mode
-        from api_report where api_report.project_id = #{projectId}
+        from api_report where api_report.deleted = false
+                          and api_report.test_plan_id = 'NONE'
         <if test="request.keyword != null and request.keyword != ''">
             and (
             api_report.name like concat('%', #{request.keyword},'%')
             )
         </if>
+        <if test="request.projectId != null and request.projectId != ''">
+            and api_report.project_id = #{request.projectId}
+        </if>
         <include refid="filters">
             <property name="filter" value="request.filter"/>
         </include>
+    </select>
+    <select id="getIds" resultType="java.lang.String">
+        select
+        api_report.id
+        from api_report where api_report.deleted = false
+                          and api_report.test_plan_id = 'NONE'
+        <if test="request.condition.keyword != null">
+            and (
+            api_report.name like concat('%', #{request.condition.keyword},'%')
+            )
+        </if>
+        <if test="request.projectId != null and request.projectId != ''">
+            and api_report.project_id = #{request.projectId}
+        </if>
+        <include refid="filters">
+            <property name="filter" value="request.condition.filter"/>
+        </include>
+    </select>
+    <select id="selectApiReportByIds" resultType="io.metersphere.api.domain.ApiReport">
+        select
+        api_report.id,
+        api_report.name
+        from api_report where api_report.deleted = #{deleted}
+                          and api_report.test_plan_id = 'NONE'
+        and api_report.id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
     </select>
 
 
@@ -36,6 +68,10 @@
                         </when>
                         <when test="key=='status'">
                             and api_report.status in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='triggerMode'">
+                            and api_report.trigger_mode in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                         </when>
                     </choose>

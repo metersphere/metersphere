@@ -156,17 +156,21 @@ CREATE INDEX idx_type ON operation_history (`type`);
 
 CREATE TABLE IF NOT EXISTS share_info
 (
-   `id` VARCHAR(50) NOT NULL   COMMENT '分享ID' ,
-   `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
-   `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
-   `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
-   `share_type` VARCHAR(64)    COMMENT '分享类型single batch' ,
-   `custom_data` LONGBLOB    COMMENT '分享扩展数据' ,
-   `lang` VARCHAR(10)    COMMENT '语言' ,
+    `id` VARCHAR(50) NOT NULL   COMMENT '分享ID' ,
+    `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+    `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
+    `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
+    `share_type` VARCHAR(64)    COMMENT '分享类型 资源的类型 Single, Batch, API_SHARE_REPORT, TEST_PLAN_SHARE_REPORT' ,
+    `custom_data` LONGBLOB    COMMENT '分享扩展数据 资源的id' ,
+    `lang` VARCHAR(10)    COMMENT '语言' ,
+    `project_id` VARCHAR(50) NOT NULL   COMMENT '项目id' ,
    PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '分享';
+
+CREATE INDEX idx_share_type ON share_info(share_type);
+CREATE INDEX idx_project_id ON share_info(project_id);
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

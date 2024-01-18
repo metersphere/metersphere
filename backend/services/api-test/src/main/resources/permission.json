@@ -129,6 +129,21 @@
             "id": "PROJECT_API_SCENARIO:READ+DEBUG"
           }
         ]
+      },
+      {
+        "id": "PROJECT_API_REPORT",
+        "name": "permission.api_report",
+        "permissions": [
+          {
+            "id": "PROJECT_API_REPORT:READ"
+          },
+          {
+            "id": "PROJECT_API_REPORT:READ+UPDATE"
+          },
+          {
+            "id": "PROJECT_API_REPORT:READ+DELETE"
+          }
+        ]
       }
     ]
   }

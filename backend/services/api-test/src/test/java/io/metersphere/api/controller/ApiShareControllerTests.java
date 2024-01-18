@@ -35,7 +35,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.List;
 
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
 public class ApiShareControllerTests extends BaseTest {
@@ -78,7 +78,7 @@ public class ApiShareControllerTests extends BaseTest {
         ApiDataUtils.setResolver(MsHTTPElement.class);
         ShareInfoDTO shareInfoDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResult).get("data")), ShareInfoDTO.class);
         // 校验数据是否正确
-        List<ShareInfo> shareInfos = extShareInfoMapper.selectByShareTypeAndShareApiIdWithBLOBs(ShareInfoType.Single.name(), JSON.toJSONString(request).getBytes(), "zh_CN");
+        List<ShareInfo> shareInfos = extShareInfoMapper.selectByShareTypeAndShareApiIdWithBLOBs(ShareInfoType.SINGLE.name(), JSON.toJSONString(request).getBytes(), "zh_CN");
         Assertions.assertNotNull(shareInfos);
         Assertions.assertEquals(1, shareInfos.size());
         Assertions.assertEquals(shareInfoDTO.getId(), shareInfos.get(0).getId());
@@ -96,7 +96,7 @@ public class ApiShareControllerTests extends BaseTest {
         ApiDataUtils.setResolver(MsHTTPElement.class);
         ShareInfoDTO shareInfoDTOModule = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResultModule).get("data")), ShareInfoDTO.class);
         // 校验数据是否正确
-        List<ShareInfo> shareInfosModule = extShareInfoMapper.selectByShareTypeAndShareApiIdWithBLOBs(ShareInfoType.Batch.name(), JSON.toJSONString(request).getBytes(), "zh_CN");
+        List<ShareInfo> shareInfosModule = extShareInfoMapper.selectByShareTypeAndShareApiIdWithBLOBs(ShareInfoType.BATCH.name(), JSON.toJSONString(request).getBytes(), "zh_CN");
         Assertions.assertNotNull(shareInfosModule);
         Assertions.assertEquals(1, shareInfosModule.size());
         Assertions.assertEquals(shareInfoDTOModule.getId(), shareInfosModule.get(0).getId());
@@ -112,7 +112,7 @@ public class ApiShareControllerTests extends BaseTest {
         ShareInfoDTO allShareInfoDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResultAll).get("data")), ShareInfoDTO.class);
 
         // 校验数据是否正确
-        List<ShareInfo> allShareInfos = extShareInfoMapper.selectByShareTypeAndShareApiIdWithBLOBs(ShareInfoType.Batch.name(), JSON.toJSONString(request).getBytes(), "zh_CN");
+        List<ShareInfo> allShareInfos = extShareInfoMapper.selectByShareTypeAndShareApiIdWithBLOBs(ShareInfoType.BATCH.name(), JSON.toJSONString(request).getBytes(), "zh_CN");
         Assertions.assertNotNull(allShareInfos);
         Assertions.assertEquals(1, allShareInfos.size());
         Assertions.assertEquals(allShareInfoDTO.getId(), allShareInfos.get(0).getId());
@@ -135,14 +135,14 @@ public class ApiShareControllerTests extends BaseTest {
         ApiDefinitionDocDTO copyAllApiDefinitionDocDTO = new ApiDefinitionDocDTO();
 
         List<ApiDefinitionDTO> allList = extApiDefinitionMapper.listDoc(apiDefinitionDocRequest);
-        if(null != allList){
+        if (null != allList) {
             ApiDefinitionDTO info = allList.stream().findFirst().orElseThrow(() -> new MSException(ApiResultCode.API_DEFINITION_NOT_EXIST));
             ApiDefinitionBlob allApiDefinitionBlob = apiDefinitionBlobMapper.selectByPrimaryKey(info.getId());
-            if(allApiDefinitionBlob != null){
+            if (allApiDefinitionBlob != null) {
                 info.setRequest(ApiDataUtils.parseObject(new String(allApiDefinitionBlob.getRequest()), AbstractMsTestElement.class));
                 info.setResponse(ApiDataUtils.parseArray(new String(allApiDefinitionBlob.getResponse()), HttpResponse.class));
             }
-            if(StringUtils.isBlank(copyAllApiDefinitionDocDTO.getDocTitle())){
+            if (StringUtils.isBlank(copyAllApiDefinitionDocDTO.getDocTitle())) {
                 copyAllApiDefinitionDocDTO.setDocTitle(Translator.get(ALL_API));
             }
             copyAllApiDefinitionDocDTO.setType(ApiDefinitionDocType.ALL.name());

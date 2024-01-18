@@ -2,8 +2,9 @@ package io.metersphere.api.mapper;
 
 import io.metersphere.api.domain.ApiReportStep;
 import io.metersphere.api.domain.ApiReportStepExample;
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface ApiReportStepMapper {
     long countByExample(ApiReportStepExample example);
@@ -30,5 +31,5 @@ public interface ApiReportStepMapper {
 
     int batchInsert(@Param("list") List<ApiReportStep> list);
 
-    int batchInsertSelective(@Param("list") List<ApiReportStep> list, @Param("selective") ApiReportStep.Column ... selective);
+    int batchInsertSelective(@Param("list") List<ApiReportStep> list, @Param("selective") ApiReportStep.Column... selective);
 }

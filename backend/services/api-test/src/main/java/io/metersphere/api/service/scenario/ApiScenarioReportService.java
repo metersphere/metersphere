@@ -31,8 +31,6 @@ public class ApiScenarioReportService {
             ApiScenarioReportMapper reportMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
             SubListUtils.dealForSubList(reports, 1000, subList -> {
                 subList.forEach(reportMapper::insertSelective);
-                sqlSession.flushStatements();
-                sqlSession.clearCache();
             });
             sqlSession.flushStatements();
             if (sqlSessionFactory != null) {
@@ -48,8 +46,6 @@ public class ApiScenarioReportService {
             ApiScenarioReportStepMapper stepMapper = sqlSession.getMapper(ApiScenarioReportStepMapper.class);
             SubListUtils.dealForSubList(reportSteps, 1000, subList -> {
                 subList.forEach(stepMapper::insertSelective);
-                sqlSession.flushStatements();
-                sqlSession.clearCache();
             });
             sqlSession.flushStatements();
             if (sqlSessionFactory != null) {

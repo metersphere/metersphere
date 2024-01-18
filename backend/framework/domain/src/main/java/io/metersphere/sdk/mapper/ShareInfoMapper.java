@@ -33,4 +33,8 @@ public interface ShareInfoMapper {
     int updateByPrimaryKeyWithBLOBs(ShareInfo record);
 
     int updateByPrimaryKey(ShareInfo record);
+
+    int batchInsert(@Param("list") List<ShareInfo> list);
+
+    int batchInsertSelective(@Param("list") List<ShareInfo> list, @Param("selective") ShareInfo.Column ... selective);
 }

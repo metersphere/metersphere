@@ -16,13 +16,11 @@ public class DataSource implements Serializable {
     @Schema(description = "数据源名称")
     private String dataSource;
     @Schema(description = "数据驱动")
-    @NotBlank(message = "{environment_datasource.driver.not_blank}")
     private String driver;
     @Schema(description = "数据驱动id")
     @NotBlank(message = "{environment_datasource.driverId.not_blank}")
     private String driverId;
     @Schema(description = "数据库连接url")
-    @NotBlank(message = "{environment_datasource.dbUrl.not_blank}")
     private String dbUrl;
     @Schema(description = "用户名")
     private String username;

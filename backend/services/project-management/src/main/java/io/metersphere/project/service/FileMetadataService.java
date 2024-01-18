@@ -614,7 +614,7 @@ public class FileMetadataService {
         fileMetadataExample.createCriteria().andRefIdEqualTo(refId).andLatestEqualTo(true);
         List<FileMetadata> fileMetadataList = fileMetadataMapper.selectByExample(fileMetadataExample);
         if (CollectionUtils.isNotEmpty(fileMetadataList)) {
-            return fileMetadataList.get(0);
+            return fileMetadataList.getFirst();
         } else {
             throw new MSException(Translator.get("latest.file.not.exist"));
         }

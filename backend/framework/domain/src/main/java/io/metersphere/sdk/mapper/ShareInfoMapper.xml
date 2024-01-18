@@ -8,6 +8,7 @@
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="share_type" jdbcType="VARCHAR" property="shareType" />
     <result column="lang" jdbcType="VARCHAR" property="lang" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.sdk.domain.ShareInfo">
     <result column="custom_data" jdbcType="LONGVARBINARY" property="customData" />
@@ -71,7 +72,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, create_time, create_user, update_time, share_type, lang
+    id, create_time, create_user, update_time, share_type, lang, project_id
   </sql>
   <sql id="Blob_Column_List">
     custom_data
@@ -127,10 +128,10 @@
   <insert id="insert" parameterType="io.metersphere.sdk.domain.ShareInfo">
     insert into share_info (id, create_time, create_user, 
       update_time, share_type, lang, 
-      custom_data)
+      project_id, custom_data)
     values (#{id,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
       #{updateTime,jdbcType=BIGINT}, #{shareType,jdbcType=VARCHAR}, #{lang,jdbcType=VARCHAR}, 
-      #{customData,jdbcType=LONGVARBINARY})
+      #{projectId,jdbcType=VARCHAR}, #{customData,jdbcType=LONGVARBINARY})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.sdk.domain.ShareInfo">
     insert into share_info
@@ -152,6 +153,9 @@
       </if>
       <if test="lang != null">
         lang,
+      </if>
+      <if test="projectId != null">
+        project_id,
       </if>
       <if test="customData != null">
         custom_data,
@@ -175,6 +179,9 @@
       </if>
       <if test="lang != null">
         #{lang,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
       </if>
       <if test="customData != null">
         #{customData,jdbcType=LONGVARBINARY},
@@ -208,6 +215,9 @@
       <if test="record.lang != null">
         lang = #{record.lang,jdbcType=VARCHAR},
       </if>
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
+      </if>
       <if test="record.customData != null">
         custom_data = #{record.customData,jdbcType=LONGVARBINARY},
       </if>
@@ -224,6 +234,7 @@
       update_time = #{record.updateTime,jdbcType=BIGINT},
       share_type = #{record.shareType,jdbcType=VARCHAR},
       lang = #{record.lang,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
       custom_data = #{record.customData,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -236,7 +247,8 @@
       create_user = #{record.createUser,jdbcType=VARCHAR},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       share_type = #{record.shareType,jdbcType=VARCHAR},
-      lang = #{record.lang,jdbcType=VARCHAR}
+      lang = #{record.lang,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -259,6 +271,9 @@
       <if test="lang != null">
         lang = #{lang,jdbcType=VARCHAR},
       </if>
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=VARCHAR},
+      </if>
       <if test="customData != null">
         custom_data = #{customData,jdbcType=LONGVARBINARY},
       </if>
@@ -272,6 +287,7 @@
       update_time = #{updateTime,jdbcType=BIGINT},
       share_type = #{shareType,jdbcType=VARCHAR},
       lang = #{lang,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=VARCHAR},
       custom_data = #{customData,jdbcType=LONGVARBINARY}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -281,7 +297,57 @@
       create_user = #{createUser,jdbcType=VARCHAR},
       update_time = #{updateTime,jdbcType=BIGINT},
       share_type = #{shareType,jdbcType=VARCHAR},
-      lang = #{lang,jdbcType=VARCHAR}
+      lang = #{lang,jdbcType=VARCHAR},
+      project_id = #{projectId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into share_info
+    (id, create_time, create_user, update_time, share_type, lang, project_id, custom_data
+      )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, 
+        #{item.updateTime,jdbcType=BIGINT}, #{item.shareType,jdbcType=VARCHAR}, #{item.lang,jdbcType=VARCHAR}, 
+        #{item.projectId,jdbcType=VARCHAR}, #{item.customData,jdbcType=LONGVARBINARY})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into share_info (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'create_time'.toString() == column.value">
+          #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'create_user'.toString() == column.value">
+          #{item.createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'update_time'.toString() == column.value">
+          #{item.updateTime,jdbcType=BIGINT}
+        </if>
+        <if test="'share_type'.toString() == column.value">
+          #{item.shareType,jdbcType=VARCHAR}
+        </if>
+        <if test="'lang'.toString() == column.value">
+          #{item.lang,jdbcType=VARCHAR}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
+        </if>
+        <if test="'custom_data'.toString() == column.value">
+          #{item.customData,jdbcType=LONGVARBINARY}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
 </mapper>

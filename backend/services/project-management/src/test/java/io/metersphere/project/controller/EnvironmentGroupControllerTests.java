@@ -213,7 +213,7 @@ public class EnvironmentGroupControllerTests extends BaseTest {
         }
         EnvironmentGroupExample example = new EnvironmentGroupExample();
         example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("group");
-        GROUP_ID = environmentGroupMapper.selectByExample(example).get(0).getId();
+        GROUP_ID = environmentGroupMapper.selectByExample(example).getFirst().getId();
         return GROUP_ID;
     }
 
@@ -229,7 +229,7 @@ public class EnvironmentGroupControllerTests extends BaseTest {
         EnvironmentExample environmentExample = new EnvironmentExample();
         environmentExample.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("httpConfig-group");
         List<Environment> environments = environmentMapper.selectByExample(environmentExample);
-        environmentGroupProjectDTO.setEnvironmentId(environments.get(0).getId());
+        environmentGroupProjectDTO.setEnvironmentId(environments.getFirst().getId());
         environmentGroupProjectDTO.setProjectId(DEFAULT_PROJECT_ID);
         groupRequest.setEnvGroupProject(List.of(environmentGroupProjectDTO));
         MvcResult mvcResult = this.responsePost(update, groupRequest);
@@ -306,7 +306,7 @@ public class EnvironmentGroupControllerTests extends BaseTest {
         EnvironmentGroupExample example = new EnvironmentGroupExample();
         example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("校验权限");
         List<EnvironmentGroup> environments = environmentGroupMapper.selectByExample(example);
-        posRequest.setMoveId(environments.get(0).getId());
+        posRequest.setMoveId(environments.getFirst().getId());
         posRequest.setMoveMode("AFTER");
         this.requestPostWithOkAndReturn(POS_URL, posRequest);
 

@@ -6,5 +6,5 @@ package io.metersphere.api.constants;
  * @version: 1.0
  */
 public enum ShareInfoType {
-    Single, Batch
+    SINGLE, BATCH, API_SHARE_REPORT, TEST_PLAN_SHARE_REPORT
 }
