@@ -26,7 +26,7 @@ public class MessageListenerTest {
         ApiNoticeDTO api = new ApiNoticeDTO();
 
         // Set values for the fields
-        api.setResourceType(ApiExecuteResourceType.API);
+        api.setResourceType(ApiExecuteResourceType.API.name());
         api.setResourceId("exampleResourceId");
         api.setReportStatus("exampleReportStatus");
         api.setUserId("exampleUserId");
@@ -42,7 +42,7 @@ public class MessageListenerTest {
         ApiNoticeDTO scenario = new ApiNoticeDTO();
 
         // Set values for the fields
-        scenario.setResourceType(ApiExecuteResourceType.API);
+        scenario.setResourceType(ApiExecuteResourceType.API.name());
         scenario.setResourceId("exampleResourceId");
         scenario.setReportStatus("exampleReportStatus");
         scenario.setUserId("exampleUserId");
@@ -58,7 +58,7 @@ public class MessageListenerTest {
         ApiNoticeDTO testCase = new ApiNoticeDTO();
 
         // Set values for the fields
-        testCase.setResourceType(ApiExecuteResourceType.API);
+        testCase.setResourceType(ApiExecuteResourceType.API.name());
         testCase.setResourceId("exampleResourceId");
         testCase.setReportStatus("exampleReportStatus");
         testCase.setUserId("exampleUserId");

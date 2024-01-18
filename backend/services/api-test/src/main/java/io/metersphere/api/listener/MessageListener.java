@@ -3,6 +3,7 @@ package io.metersphere.api.listener;
 import io.metersphere.api.event.ApiEventSource;
 import io.metersphere.api.service.ApiReportSendNoticeService;
 import io.metersphere.api.service.queue.ApiExecutionQueueService;
+import io.metersphere.sdk.constants.ApiReportType;
 import io.metersphere.sdk.constants.ApplicationScope;
 import io.metersphere.sdk.constants.KafkaTopicConstants;
 import io.metersphere.sdk.dto.api.notice.ApiNoticeDTO;
@@ -11,6 +12,7 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -33,12 +35,15 @@ public class MessageListener {
             LogUtils.info("接收到发送通知信息：", record.key());
             if (ObjectUtils.isNotEmpty(record.value())) {
                 ApiNoticeDTO dto = JSON.parseObject(record.value(), ApiNoticeDTO.class);
-                apiReportSendNoticeService.sendNotice(dto);
 
-                // TODO 通知测试计划处理后续
-                LogUtils.info("发送通知给测试计划：", record.key());
-                apiEventSource.fireEvent(ApplicationScope.API_TEST, record.value());
+                // 集合报告不发送通知
+                if (!StringUtils.equalsIgnoreCase(dto.getReportType(), ApiReportType.INTEGRATED.name())) {
+                    apiReportSendNoticeService.sendNotice(dto);
+                    // TODO 通知测试计划处理后续
+                    LogUtils.info("发送通知给测试计划：", record.key());
+                    apiEventSource.fireEvent(ApplicationScope.API_TEST, record.value());
 
+                }
                 // TODO 串行触发下次执行
                 ExecutionQueueDetail detail = apiExecutionQueueService.getNextDetail(dto.getQueueId());
                 // TODO 调用执行方法
