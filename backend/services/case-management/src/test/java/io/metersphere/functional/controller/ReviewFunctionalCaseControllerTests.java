@@ -58,6 +58,7 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
     public static final String ATTACHMENT_DOWNLOAD_URL = "/review/functional/case/download";
     public static final String UPLOAD_TEMP = "/review/functional/case/upload/temp/file";
     public static final String ATTACHMENT_PREVIEW_URL = "/review/functional/case/preview";
+    public static final String DOWNLOAD_FILE = "/review/functional/case/download/file/%s/%s/%s";
 
 
     @Resource
@@ -339,6 +340,29 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         request.setCaseId("gyqReviewCaseTest");
         request.setLocal(true);
         this.downloadFile(ATTACHMENT_DOWNLOAD_URL, request);
+    }
+
+    @Test
+    @Order(8)
+    public void downTemp() throws Exception {
+        MockMultipartFile file = getMockMultipartFile();
+        String fileId = doUploadTempFile(file);
+        Assertions.assertTrue(org.testcontainers.shaded.org.apache.commons.lang3.StringUtils.isNotBlank(fileId));
+        MvcResult compressedResult = this.downloadTempFile(String.format(DOWNLOAD_FILE, "project-review-case-test", fileId, false));
+        Assertions.assertTrue(compressedResult.getResponse().getContentAsByteArray().length > 0);
+        compressedResult = this.downloadTempFile(String.format(DOWNLOAD_FILE, "project-review-case-test", fileId, true));
+        Assertions.assertTrue(compressedResult.getResponse().getContentAsByteArray().length > 0);
+        functionalCaseAttachmentService.uploadMinioFile("gyqReviewCaseTest", "project-review-case-test", List.of(fileId), "admin", CaseFileSourceType.CASE_DETAIL.toString());
+        compressedResult = this.downloadTempFile(String.format(DOWNLOAD_FILE, "project-review-case-test", fileId, false));
+        Assertions.assertTrue(compressedResult.getResponse().getContentAsByteArray().length > 0);
+        compressedResult = this.downloadTempFile(String.format(DOWNLOAD_FILE, "project-review-case-test", fileId, true));
+        Assertions.assertTrue(compressedResult.getResponse().getContentAsByteArray().length > 0);
+    }
+
+    protected MvcResult downloadTempFile(String url, Object... uriVariables) throws Exception {
+        return mockMvc.perform(getRequestBuilder(url, uriVariables))
+                .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE))
+                .andExpect(status().isOk()).andReturn();
     }
 
 
