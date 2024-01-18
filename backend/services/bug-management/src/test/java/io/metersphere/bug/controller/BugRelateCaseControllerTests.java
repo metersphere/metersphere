@@ -113,7 +113,7 @@ public class BugRelateCaseControllerTests extends BaseTest {
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= request.getPageSize());
         // 返回值中取出第一条数据, 并判断是否包含关键字default
         BugRelateCaseDTO bugRelateCaseDTO = JSON.parseArray(JSON.toJSONString(pageData.getList()), BugRelateCaseDTO.class).get(0);
-        Assertions.assertTrue(StringUtils.contains(bugRelateCaseDTO.getName(), request.getKeyword()));
+        Assertions.assertTrue(StringUtils.contains(bugRelateCaseDTO.getRelateCaseName(), request.getKeyword()));
     }
 
     @Test

@@ -52,8 +52,9 @@ public class BugSyncService {
     /**
      * XPACK用户 (同步全量缺陷)
      * @param request 同步全量参数
+     * @param currentUser 当前用户
      */
-    public void syncAllBugs(BugSyncRequest request) {
+    public void syncAllBugs(BugSyncRequest request, String currentUser) {
         try {
             // 获取当前项目同步缺陷唯一Key
             String syncValue = bugSyncExtraService.getSyncKey(request.getProjectId());
@@ -61,7 +62,7 @@ public class BugSyncService {
                 // 不存在, 设置保证唯一性, 并开始同步
                 bugSyncExtraService.setSyncKey(request.getProjectId());
                 Project project = getProjectById(request.getProjectId());
-                bugService.syncPlatformAllBugs(request, project);
+                bugService.syncPlatformAllBugs(request, project, currentUser);
             }
         } catch (Exception e) {
             bugSyncExtraService.deleteSyncKey(request.getProjectId());
@@ -73,7 +74,7 @@ public class BugSyncService {
      * 开源用户 (同步存量缺陷)
      * @param projectId 项目ID
      */
-    public void syncBugs(String projectId) {
+    public void syncBugs(String projectId, String currentUser) {
         try {
             String syncValue = bugSyncExtraService.getSyncKey(projectId);
             if (StringUtils.isEmpty(syncValue)) {
@@ -99,7 +100,7 @@ public class BugSyncService {
                     Map<String, Template> templateMap = templates.stream().collect(Collectors.toMap(Template::getId, t -> t));
                     // 非插件默认模板且模板不存在, 无需同步
                     bugs.removeIf(bug -> !templateMap.containsKey(bug.getTemplateId()) && !StringUtils.equals(bug.getTemplateId(), pluginTemplate.getId()));
-                    bugService.syncPlatformBugs(bugs, project);
+                    bugService.syncPlatformBugs(bugs, project, currentUser);
                 }
             }
         } catch (Exception e) {
@@ -136,11 +137,11 @@ public class BugSyncService {
     public void syncPlatformBugBySchedule() {
         ProjectExample example = new ProjectExample();
         List<Project> projects = projectMapper.selectByExample(example);
-        List<String> allProjectIds = projects.stream().map(Project::getId).toList();
-        List<String> syncProjectIds = projectApplicationService.filterNoLocalPlatform(allProjectIds);
+        List<String> allProjectIds = projects.stream().map(Project::getId).collect(Collectors.toList());
+        List<String> syncProjectIds = projectApplicationService.filterNeedSyncProject(allProjectIds);
         syncProjectIds.forEach(id -> {
             try {
-                syncBugs(id);
+                syncBugs(id, "admin");
             } catch (Exception e) {
                 LogUtils.error(e.getMessage(), e);
             }

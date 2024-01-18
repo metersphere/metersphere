@@ -6,9 +6,7 @@ import io.metersphere.bug.constants.BugExportColumns;
 import io.metersphere.bug.dto.BugSyncResult;
 import io.metersphere.bug.dto.request.*;
 import io.metersphere.bug.dto.response.BugDTO;
-import io.metersphere.bug.service.BugService;
-import io.metersphere.bug.service.BugStatusService;
-import io.metersphere.bug.service.BugSyncService;
+import io.metersphere.bug.service.*;
 import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.project.dto.ProjectTemplateOptionDTO;
 import io.metersphere.project.service.ProjectTemplateService;
@@ -16,6 +14,11 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
+import io.metersphere.system.log.annotation.Log;
+import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.notice.annotation.SendNotice;
+import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
@@ -51,29 +54,33 @@ public class BugController {
     private ProjectTemplateService projectTemplateService;
 
     @GetMapping("/header/custom-field/{projectId}")
-    @Operation(summary = "缺陷管理-获取表头自定义字段")
+    @Operation(summary = "缺陷管理-列表-获取表头自定义字段")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<TemplateCustomFieldDTO> getHeaderFields(@PathVariable String projectId) {
         return bugService.getHeaderCustomFields(projectId);
     }
 
     @GetMapping("/header/status-option/{projectId}")
-    @Operation(summary = "缺陷管理-获取表头状态选项")
+    @Operation(summary = "缺陷管理-列表-获取表头状态选项")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<SelectOption> getHeaderStatusOption(@PathVariable String projectId) {
         return bugStatusService.getHeaderStatusOption(projectId);
     }
 
     @GetMapping("/header/handler-option/{projectId}")
-    @Operation(summary = "缺陷管理-获取表头处理人选项")
+    @Operation(summary = "缺陷管理-列表-获取表头处理人选项")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<SelectOption> getHeaderHandleOption(@PathVariable String projectId) {
         return bugService.getHeaderHandlerOption(projectId);
     }
 
     @PostMapping("/page")
-    @Operation(summary = "缺陷管理-获取缺陷列表")
+    @Operation(summary = "缺陷管理-列表-分页缺陷列表")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<BugDTO>> page(@Validated @RequestBody BugPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
@@ -82,104 +89,121 @@ public class BugController {
     }
 
     @PostMapping("/add")
-    @Operation(summary = "缺陷管理-创建缺陷")
+    @Operation(summary = "缺陷管理-列表-创建缺陷")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_ADD)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request, #files)", msClass = BugLogService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.BUG_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.getNoticeByRequest(#request)", targetClass = BugNoticeService.class)
     public void add(@Validated({Created.class}) @RequestPart(value = "request") BugEditRequest request,
                     @RequestPart(value = "file", required = false) List<MultipartFile> files) {
         bugService.addOrUpdate(request, files, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), false);
     }
 
     @PostMapping("/update")
-    @Operation(summary = "缺陷管理-更新缺陷")
+    @Operation(summary = "缺陷管理-列表-编辑缺陷")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request, #files)", msClass = BugLogService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.BUG_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getNoticeByRequest(#request)", targetClass = BugNoticeService.class)
     public void update(@Validated({Updated.class}) @RequestPart(value = "request") BugEditRequest request,
                        @RequestPart(value = "file", required = false) List<MultipartFile> files) {
         bugService.addOrUpdate(request, files, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), true);
     }
 
     @GetMapping("/delete/{id}")
-    @Operation(summary = "缺陷管理-删除缺陷")
+    @Operation(summary = "缺陷管理-列表-删除缺陷")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_DELETE)
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = BugLogService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.BUG_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getNoticeById(#id)", targetClass = BugNoticeService.class)
     public void delete(@PathVariable String id) {
-        bugService.delete(id);
+        bugService.delete(id, SessionUtils.getUserId());
     }
 
-    @GetMapping("/template/option")
-    @Operation(summary = "缺陷管理-获取当前项目缺陷模板选项")
-    @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
-    public List<ProjectTemplateOptionDTO> getTemplateOption(@RequestParam(value = "projectId") String projectId) {
-        return projectTemplateService.getOption(projectId, TemplateScene.BUG.name());
+    @GetMapping("/sync/{projectId}")
+    @Operation(summary = "缺陷管理-列表-同步缺陷(开源)")
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public void sync(@PathVariable String projectId) {
+        bugSyncService.syncBugs(projectId, SessionUtils.getUserId());
     }
 
-    @PostMapping("/template/detail")
-    @Operation(summary = "缺陷管理-获取模板详情内容")
+    @PostMapping("/sync/all")
+    @Operation(summary = "缺陷管理-列表-同步缺陷(全量)")
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public void syncAll(@RequestBody BugSyncRequest request) {
+        bugSyncService.syncAllBugs(request, SessionUtils.getUserId());
+    }
+
+    @GetMapping("/sync/check/{projectId}")
+    @Operation(summary = "缺陷管理-列表-同步状态校验")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
-    public TemplateDTO getTemplateDetail(@RequestBody BugTemplateRequest request) {
-        return bugService.getTemplate(request.getId(), request.getProjectId(), request.getFromStatusId(), request.getPlatformBugKey());
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public BugSyncResult checkStatus(@PathVariable String projectId) {
+        return bugSyncService.checkSyncStatus(projectId);
+    }
+
+    @GetMapping("/export/columns/{projectId}")
+    @Operation(summary = "缺陷管理-列表-获取导出字段配置")
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_EXPORT)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public BugExportColumns getExportColumns(@PathVariable String projectId) {
+        return bugService.getExportColumns(projectId);
+    }
+
+    @PostMapping("/export")
+    @Operation(summary = "缺陷管理-列表-批量导出缺陷")
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_EXPORT)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public ResponseEntity<byte[]> export(@Validated @RequestBody BugExportRequest request) throws Exception {
+        return bugService.export(request);
     }
 
     @PostMapping("/batch-delete")
-    @Operation(summary = "缺陷管理-批量删除缺陷")
+    @Operation(summary = "缺陷管理-列表-批量删除缺陷")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_DELETE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void batchDelete(@Validated @RequestBody BugBatchRequest request) {
         request.setUseTrash(false);
-        bugService.batchDelete(request);
+        bugService.batchDelete(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/batch-update")
-    @Operation(summary = "缺陷管理-批量编辑缺陷")
+    @Operation(summary = "缺陷管理-列表-批量编辑缺陷")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void batchUpdate(@Validated @RequestBody BugBatchUpdateRequest request) {
         request.setUseTrash(false);
         bugService.batchUpdate(request, SessionUtils.getUserId());
     }
 
+    @GetMapping("/template/option/{projectId}")
+    @Operation(summary = "缺陷管理-详情-获取当前项目模板选项")
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public List<ProjectTemplateOptionDTO> getTemplateOption(@PathVariable String projectId) {
+        return projectTemplateService.getOption(projectId, TemplateScene.BUG.name());
+    }
+
+    @PostMapping("/template/detail")
+    @Operation(summary = "缺陷管理-详情-获取模板详情内容")
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public TemplateDTO getTemplateDetail(@RequestBody BugTemplateRequest request) {
+        return bugService.getTemplate(request.getId(), request.getProjectId(), request.getFromStatusId(), request.getPlatformBugKey());
+    }
+
     @GetMapping("/follow/{id}")
-    @Operation(summary = "缺陷管理-关注缺陷")
+    @Operation(summary = "缺陷管理-详情-关注缺陷")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
     public void follow(@PathVariable String id) {
         bugService.follow(id, SessionUtils.getUserId());
     }
 
     @GetMapping("/unfollow/{id}")
-    @Operation(summary = "缺陷管理-取消关注缺陷")
+    @Operation(summary = "缺陷管理-详情-取消关注缺陷")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
     public void unfollow(@PathVariable String id) {
         bugService.unfollow(id, SessionUtils.getUserId());
-    }
-
-    @GetMapping("/sync/{projectId}")
-    @Operation(summary = "缺陷管理-同步缺陷(开源)")
-    @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
-    public void sync(@PathVariable String projectId) {
-        bugSyncService.syncBugs(projectId);
-    }
-
-    @PostMapping("/sync/all")
-    @Operation(summary = "缺陷管理-同步缺陷(全量)")
-    @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
-    public void syncAll(@RequestBody BugSyncRequest request) {
-        bugSyncService.syncAllBugs(request);
-    }
-
-    @GetMapping("/sync/check/{projectId}")
-    @Operation(summary = "缺陷管理-同步状态校验")
-    @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
-    public BugSyncResult checkStatus(@PathVariable String projectId) {
-        return bugSyncService.checkSyncStatus(projectId);
-    }
-
-    @GetMapping("/export/columns/{projectId}")
-    @Operation(summary = "缺陷管理-获取导出字段配置")
-    @RequiresPermissions(PermissionConstants.PROJECT_BUG_EXPORT)
-    public BugExportColumns getExportColumns(@PathVariable String projectId) {
-        return bugService.getExportColumns(projectId);
-    }
-
-    @PostMapping("/export")
-    @Operation(summary = "缺陷管理-批量导出缺陷")
-    @RequiresPermissions(PermissionConstants.PROJECT_BUG_EXPORT)
-    public ResponseEntity<byte[]> export(@Validated @RequestBody BugExportRequest request) throws Exception {
-        return bugService.export(request);
     }
 }

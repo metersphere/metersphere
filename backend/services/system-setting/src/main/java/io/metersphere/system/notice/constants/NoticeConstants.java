@@ -194,6 +194,9 @@ public interface NoticeConstants {
 
         @Schema(description = "message.close")
         String CLOSE = "CLOSE";
+
+        @Schema(description = "message.close")
+        String SYNC_COMPLETED = "SYNC_COMPLETED";
     }
 
     interface RelatedUser {

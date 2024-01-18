@@ -1,14 +1,14 @@
 package io.metersphere.system.notice.utils;
 
 import io.metersphere.api.domain.ApiScenario;
-import io.metersphere.bug.domain.Bug;
 import io.metersphere.functional.domain.CaseReview;
 import io.metersphere.load.domain.LoadTest;
 import io.metersphere.plan.domain.TestPlan;
-import io.metersphere.system.dto.sdk.ApiDefinitionCaseDTO;
-import io.metersphere.system.dto.sdk.FunctionalCaseMessageDTO;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.Schedule;
+import io.metersphere.system.dto.BugNoticeDTO;
+import io.metersphere.system.dto.sdk.ApiDefinitionCaseDTO;
+import io.metersphere.system.dto.sdk.FunctionalCaseMessageDTO;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.ui.domain.UiScenario;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -153,7 +153,7 @@ public class MessageTemplateUtils {
                 allFields = FieldUtils.getAllFields(FunctionalCaseMessageDTO.class);
             }
             case NoticeConstants.TaskType.BUG_TASK -> {
-                allFields = FieldUtils.getAllFields(Bug.class);
+                allFields = FieldUtils.getAllFields(BugNoticeDTO.class);
             }
             case NoticeConstants.TaskType.UI_SCENARIO_TASK -> {
                 allFields = FieldUtils.getAllFields(UiScenario.class);

@@ -770,10 +770,10 @@ public class ProjectApplicationControllerTests extends BaseTest {
         Assertions.assertFalse(projectApplicationService.isPlatformSyncMethodByIncrement("default-project-for-application-not-exist"));
 
         // 过滤Local平台项目
-        projectApplicationService.filterNoLocalPlatform(new ArrayList<>(List.of("default-project-for-application")));
-        projectApplicationService.filterNoLocalPlatform(new ArrayList<>(List.of("default-project-for-application-not-exist")));
+        projectApplicationService.filterNeedSyncProject(new ArrayList<>(new ArrayList<>(List.of("default-project-for-application"))));
+        projectApplicationService.filterNeedSyncProject(new ArrayList<>(new ArrayList<>(List.of("default-project-for-application-not-exist"))));
         // 移除插件测试
         basePluginTestService.deleteJiraPlugin();
-        projectApplicationService.filterNoLocalPlatform(new ArrayList<>(List.of("default-project-for-application")));
+        projectApplicationService.filterNeedSyncProject(new ArrayList<>(new ArrayList<>(List.of("default-project-for-application"))));
     }
 }

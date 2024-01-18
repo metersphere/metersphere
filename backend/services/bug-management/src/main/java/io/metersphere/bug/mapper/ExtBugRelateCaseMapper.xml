@@ -46,13 +46,24 @@
     </select>
 
     <select id="list" resultType="io.metersphere.bug.dto.response.BugRelateCaseDTO">
-        select fc.num, fc.name, fc.project_id, fc.version_id, brc.case_type relateCaseType, brc.id relateId,
+        select fc.num relateId, fc.name relateCaseName, fc.project_id projectId, fc.version_id versionId, brc.case_type relateCaseType,
                brc.test_plan_id is not null relatePlanCase, brc.case_id is not null relateCase
         from bug_relation_case brc join functional_case fc on (brc.case_id = fc.id or brc.test_plan_case_id = fc.id)
         where brc.bug_id = #{request.bugId} and fc.deleted = false
         <if test="request.keyword != null and request.keyword != ''">
             and fc.name like concat('%', #{request.keyword}, '%')
         </if>
+    </select>
+
+    <select id="getRelateCase" resultType="io.metersphere.bug.dto.response.BugRelateCaseDTO">
+        select distinct c.name relateCaseName, c.project_id projectId, c.version_id versionId, brc.case_type relateCaseType, c.num relateId,
+        brc.test_plan_id is not null relatePlanCase, brc.case_id is not null relateCase
+        from bug_relation_case brc
+            <if test="sourceType == 'FUNCTIONAL'">
+                join functional_case c on (brc.case_id = c.id or brc.test_plan_case_id = c.id)
+            </if>
+            <!-- 后续根据SourceType扩展 -->
+        where c.id = #{id} and c.deleted = false
     </select>
 
     <select id="getAssociateBugs" resultType="io.metersphere.dto.BugProviderDTO">

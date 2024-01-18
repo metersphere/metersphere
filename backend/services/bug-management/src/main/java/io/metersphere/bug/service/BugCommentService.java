@@ -47,7 +47,7 @@ public class BugCommentService {
         BugCommentExample example = new BugCommentExample();
         example.createCriteria().andBugIdEqualTo(bugId);
         List<BugComment> bugComments = bugCommentMapper.selectByExample(example);
-        return generateCommentDTOs(bugComments);
+        return wrapperComments(bugComments);
     }
 
     /**
@@ -56,7 +56,7 @@ public class BugCommentService {
      * @param bugComments 缺陷评论集合
      * @return 缺陷评论DTO
      */
-    private List<BugCommentDTO> generateCommentDTOs(List<BugComment> bugComments) {
+    private List<BugCommentDTO> wrapperComments(List<BugComment> bugComments) {
         if (CollectionUtils.isEmpty(bugComments)) {
             return new ArrayList<>();
         }
@@ -100,7 +100,7 @@ public class BugCommentService {
 
         Map<String, List<BugCommentDTO>> returnMap = new HashMap<>();
         for (Map.Entry<String, List<BugComment>> entry : bugCommentByBugId.entrySet()) {
-            returnMap.put(entry.getKey(), generateCommentDTOs(entry.getValue()));
+            returnMap.put(entry.getKey(), wrapperComments(entry.getValue()));
         }
         return returnMap;
     }

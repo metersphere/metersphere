@@ -5,8 +5,12 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.bug.dto.request.BugBatchRequest;
 import io.metersphere.bug.dto.request.BugPageRequest;
 import io.metersphere.bug.dto.response.BugDTO;
+import io.metersphere.bug.service.BugLogService;
 import io.metersphere.bug.service.BugService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.log.annotation.Log;
+import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,6 +44,7 @@ public class BugTrashController {
     @GetMapping("/recover/{id}")
     @Operation(summary = "回收站-恢复")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
+    @Log(type = OperationLogType.RECOVER, expression = "#msClass.recoverLog(#id)", msClass = BugLogService.class)
     public void recover(@PathVariable String id) {
         bugService.recover(id);
     }
@@ -54,6 +59,7 @@ public class BugTrashController {
     @PostMapping("/batch-recover")
     @Operation(summary = "回收站-批量恢复")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void batchRecover(@Validated @RequestBody BugBatchRequest request) {
         request.setUseTrash(true);
         bugService.batchRecover(request);
@@ -62,6 +68,7 @@ public class BugTrashController {
     @PostMapping("/batch-delete")
     @Operation(summary = "回收站-批量彻底删除")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_DELETE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void batchDelete(@Validated @RequestBody BugBatchRequest request) {
         request.setUseTrash(true);
         bugService.batchDeleteTrash(request);

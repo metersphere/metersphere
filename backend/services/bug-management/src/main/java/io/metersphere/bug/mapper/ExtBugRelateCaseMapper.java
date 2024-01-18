@@ -50,5 +50,14 @@ public interface ExtBugRelateCaseMapper {
      */
     List<BugRelateCaseDTO> list(@Param("request") BugRelatedCasePageRequest request);
 
+    /**
+     * 根据CaseId获取关联的Case
+     * @param id 用例ID
+     * @param sourceType 用例类型
+     * @return 用例关联DTO
+     */
+    BugRelateCaseDTO getRelateCase(@Param("id") String id, @Param("sourceType") String sourceType);
+
+
     List<BugProviderDTO> getAssociateBugs(@Param("request") AssociateBugPageRequest request, @Param("sort") String sort);
 }

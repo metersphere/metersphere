@@ -304,7 +304,7 @@ public class BugControllerTests extends BaseTest {
     @Test
     @Order(9)
     void testGetBugTemplateOption() throws Exception {
-        MvcResult mvcResult = this.requestGetWithOkAndReturn(BUG_TEMPLATE_OPTION + "?projectId=default-project-for-bug");
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(BUG_TEMPLATE_OPTION + "/default-project-for-bug");
         String sortData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(sortData, ResultHolder.class);
         List<ProjectTemplateOptionDTO> templateOptionDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), ProjectTemplateOptionDTO.class);
@@ -557,6 +557,12 @@ public class BugControllerTests extends BaseTest {
 
         // 添加使用Jira默认模板的缺陷
         addRequest.setTemplateId("jira");
+        BugCustomFieldDTO summary = new BugCustomFieldDTO();
+        summary.setId("summary");
+        summary.setName("摘要");
+        summary.setType("input");
+        summary.setValue("这是一个系统Jira模板创建的缺陷");
+        addRequest.getCustomFields().add(summary);
         MultiValueMap<String, Object> addParam3 = getDefaultMultiPartParam(addRequest, null);
         this.requestMultipart(BUG_ADD, addParam3).andExpect(status().is5xxServerError());
 
@@ -584,13 +590,13 @@ public class BugControllerTests extends BaseTest {
         List<Bug> remainBugs = bugMapper.selectByExample(example);
         Project defaultProject = projectMapper.selectByPrimaryKey("default-project-for-bug");
         // 同步第一次
-        bugService.syncPlatformBugs(remainBugs, defaultProject);
+        bugService.syncPlatformBugs(remainBugs, defaultProject, "admin");
         // 同步第二次
         renameLocalFile(updateRequest2.getId()); // 重命名后, 同步时会删除本地文件
-        bugService.syncPlatformBugs(remainBugs, defaultProject);
+        bugService.syncPlatformBugs(remainBugs, defaultProject, "admin");
         // 同步第三次
         deleteLocalFile(updateRequest2.getId()); // 手动删除关联的文件, 重新同步时会下载平台附件
-        bugService.syncPlatformBugs(remainBugs, defaultProject);
+        bugService.syncPlatformBugs(remainBugs, defaultProject, "admin");
 
         // 集成配置为空
         addRequest.setProjectId("default-project-for-not-integration");
@@ -686,9 +692,9 @@ public class BugControllerTests extends BaseTest {
         Project project = projectMapper.selectByPrimaryKey("default-project-for-bug");
         this.requestPostWithOk(BUG_SYNC_ALL, request);
         BugService mockBugService = Mockito.mock(BugService.class);
-        Mockito.doThrow(new MSException("sync error!")).when(mockBugService).syncPlatformAllBugs(syncRequest, project);
+        Mockito.doThrow(new MSException("sync error!")).when(mockBugService).syncPlatformAllBugs(syncRequest, project, "admin");
         ReflectionTestUtils.setField(bugSyncService, "bugService", mockBugService);
-        MSException msException = assertThrows(MSException.class, () -> bugSyncService.syncAllBugs(syncRequest));
+        MSException msException = assertThrows(MSException.class, () -> bugSyncService.syncAllBugs(syncRequest, "admin"));
         assertEquals(msException.getMessage(), "sync error!");
     }
 
