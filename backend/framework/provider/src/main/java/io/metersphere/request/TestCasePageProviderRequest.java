@@ -53,7 +53,7 @@ public class TestCasePageProviderRequest implements Serializable {
     @Size(min = 1, max = 50, message = "{api_definition.project_id.length_range}")
     private String sourceId;
 
-    @Schema(description = "接口pk")
+    @Schema(description = "接口pk(只在关联接口的时候用)")
     private String apiDefinitionId;
 
     @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
