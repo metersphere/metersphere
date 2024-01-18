@@ -12,4 +12,8 @@ public class KeyValueEnableParam extends KeyValueParam {
      * 描述
      */
     private String description;
+    /**
+     * 是否必填
+     */
+    private Boolean required = false;
 }

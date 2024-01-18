@@ -167,8 +167,8 @@ public class ProjectService {
         TestResourcePoolExample.Criteria criteria = example.createCriteria();
         criteria.andIdIn(poolIds).andEnableEqualTo(true).andDeletedEqualTo(false);
         List<TestResourcePool> testResourcePools = new ArrayList<>();
-        testResourcePools =  switch (type) {
-            case ApplicationScope.API_TEST-> {
+        testResourcePools = switch (type) {
+            case ApplicationScope.API_TEST -> {
                 criteria.andApiTestEqualTo(true);
                 yield testResourcePoolMapper.selectByExample(example);
             }
@@ -183,7 +183,7 @@ public class ProjectService {
             default -> new ArrayList<>();
         };
         return testResourcePools.stream().map(testResourcePool ->
-            new OptionDTO(testResourcePool.getId(), testResourcePool.getName())
+                new OptionDTO(testResourcePool.getId(), testResourcePool.getName())
         ).toList();
     }
 
@@ -200,7 +200,7 @@ public class ProjectService {
     public ProjectVersion getLatestVersion(String projectId) {
         ProjectVersionExample projectVersionExample = new ProjectVersionExample();
         projectVersionExample.createCriteria().andProjectIdEqualTo(projectId);
-        return projectVersionMapper.selectByExample(projectVersionExample).get(0);
+        return projectVersionMapper.selectByExample(projectVersionExample).getFirst();
     }
 
     public Long getNextOrder(Function<String, Long> getLastPosFunc, String projectId) {

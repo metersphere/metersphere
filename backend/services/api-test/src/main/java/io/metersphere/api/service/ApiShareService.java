@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 /**
  * @author: LAN
@@ -37,6 +36,8 @@ public class ApiShareService {
 
     @Resource
     ApiDefinitionService apiDefinitionService;
+    @Resource
+    ApiReportShareService apiReportShareService;
 
     /**
      * 生成 api 接口文档分享信息
@@ -54,28 +55,28 @@ public class ApiShareService {
                     shareInfoRequest.setCreateUser(user.getId());
                     shareInfoRequest.setLang(lang);
                     shareInfoRequest.setCustomData(data.getBytes());
+                    shareInfoRequest.setProjectId(request.getProjectId());
                 });
         ShareInfo shareInfo = Optional.ofNullable(customData)
                 .map(data -> genShareInfo(shareInfoRequest))
                 .orElse(new ShareInfo());
 
-        return conversionShareInfoToDTO(shareInfo);
+        return apiReportShareService.conversionShareInfoToDTO(shareInfo);
     }
 
     private String genCustomData(ApiDefinitionDocRequest request, ShareInfo shareInfoRequest) {
         String customData = null;
         if (ApiDefinitionDocType.ALL.name().equals(request.getType()) || ApiDefinitionDocType.MODULE.name().equals(request.getType())) {
             customData = JSON.toJSONString(request);
-            shareInfoRequest.setShareType(ShareInfoType.Batch.name());
+            shareInfoRequest.setShareType(ShareInfoType.BATCH.name());
         } else if (ApiDefinitionDocType.API.name().equals(request.getType())) {
             apiDefinitionService.checkApiDefinition(request.getApiId());
             customData = JSON.toJSONString(request);
-            shareInfoRequest.setShareType(ShareInfoType.Single.name());
+            shareInfoRequest.setShareType(ShareInfoType.SINGLE.name());
         }
 
         return customData;
     }
-
 
 
     /**
@@ -87,27 +88,9 @@ public class ApiShareService {
      */
     public ShareInfo genShareInfo(ShareInfo request) {
         List<ShareInfo> shareInfos = extShareInfoMapper.selectByShareTypeAndShareApiIdWithBLOBs(request.getShareType(), request.getCustomData(), request.getLang());
-        return shareInfos.isEmpty() ? createShareInfo(request) : shareInfos.get(0);
+        return shareInfos.isEmpty() ? apiReportShareService.createShareInfo(request) : shareInfos.getFirst();
     }
 
-    public ShareInfo createShareInfo(ShareInfo shareInfo) {
-        long createTime = System.currentTimeMillis();
-        shareInfo.setId(UUID.randomUUID().toString());
-        shareInfo.setCreateTime(createTime);
-        shareInfo.setUpdateTime(createTime);
-        shareInfoMapper.insert(shareInfo);
-        return shareInfo;
-    }
-
-    public ShareInfoDTO conversionShareInfoToDTO(ShareInfo shareInfo) {
-        ShareInfoDTO returnDTO = new ShareInfoDTO();
-        if (null != shareInfo.getCustomData()) {
-            String url = "?shareId=" + shareInfo.getId();
-            returnDTO.setId(shareInfo.getId());
-            returnDTO.setShareUrl(url);
-        }
-        return returnDTO;
-    }
 
     public ApiDefinitionDocDTO shareDocView(String shareId) {
         ShareInfo shareInfo = shareInfoMapper.selectByPrimaryKey(shareId);

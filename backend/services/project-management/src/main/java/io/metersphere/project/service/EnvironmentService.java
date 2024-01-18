@@ -175,7 +175,7 @@ public class EnvironmentService {
             String baseUrl = baseSystemConfigDTO.getUrl();
             if (StringUtils.isNotEmpty(baseUrl)) {
                 Project project = projectMapper.selectByPrimaryKey(environment.getProjectId());
-                environmentInfoDTO.getConfig().getHttpConfig().get(0).setUrl(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, project.getNum()));
+                environmentInfoDTO.getConfig().getHttpConfig().getFirst().setUrl(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, project.getNum()));
             }
         }
 
@@ -194,7 +194,7 @@ public class EnvironmentService {
             String fileName = null;
             if (CollectionUtils.isNotEmpty(environmentList)) {
                 if (environmentList.size() == 1) {
-                    fileName = StringUtils.join(project.getName(), "_", environmentList.get(0).getName(), ".json");
+                    fileName = StringUtils.join(project.getName(), "_", environmentList.getFirst().getName(), ".json");
                 } else {
                     fileName = StringUtils.join(project.getName(), "_", Translator.get("env_info_all"));
                 }
@@ -267,7 +267,7 @@ public class EnvironmentService {
         environmentExample.createCriteria().andNameEqualTo(environment.getName()).andProjectIdEqualTo(environment.getProjectId()).andIdNotEqualTo(environment.getId());
         List<Environment> environments = environmentMapper.selectByExample(environmentExample);
         if (CollectionUtils.isNotEmpty(environments)) {
-            return environments.get(0);
+            return environments.getFirst();
         }
         return null;
     }

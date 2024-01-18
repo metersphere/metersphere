@@ -59,12 +59,12 @@ public class ApiDefinitionScheduleControllerTests extends BaseTest {
         example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID);
         List<ApiDefinitionSwagger> apiDefinitionSwaggers = apiDefinitionSwaggerMapper.selectByExample(example);
         assert apiDefinitionSwaggers.size() == 1;
-        ID = apiDefinitionSwaggers.get(0).getId();
+        ID = apiDefinitionSwaggers.getFirst().getId();
         ScheduleExample scheduleExample = new ScheduleExample();
-        scheduleExample.createCriteria().andResourceIdEqualTo(apiDefinitionSwaggers.get(0).getId());
+        scheduleExample.createCriteria().andResourceIdEqualTo(apiDefinitionSwaggers.getFirst().getId());
         List<Schedule> schedules = scheduleMapper.selectByExample(scheduleExample);
         assert schedules.size() == 1;
-        SCHEDULE_ID = schedules.get(0).getId();
+        SCHEDULE_ID = schedules.getFirst().getId();
 
         request = new ApiScheduleRequest();
         request.setName("定时任务2");

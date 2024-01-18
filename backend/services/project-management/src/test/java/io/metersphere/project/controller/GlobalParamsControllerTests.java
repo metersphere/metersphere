@@ -368,7 +368,7 @@ public class GlobalParamsControllerTests extends BaseTest {
         List<ProjectParameter> projectParametersList = projectParametersMapper.selectByExample(example);
         GlobalParamsRequest request = new GlobalParamsRequest();
         request.setProjectId("projectId1");
-        request.setId(projectParametersList.get(0).getId());
+        request.setId(projectParametersList.getFirst().getId());
         GlobalParams globalParams = new GlobalParams();
         globalParams.setHeaders(getHeaders(2));
         globalParams.setCommonVariables(getEnvVariables(2));
@@ -390,7 +390,7 @@ public class GlobalParamsControllerTests extends BaseTest {
         example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID);
         projectParametersList = projectParametersMapper.selectByExample(example);
         request.setProjectId(DEFAULT_PROJECT_ID);
-        request.setId(projectParametersList.get(0).getId());
+        request.setId(projectParametersList.getFirst().getId());
         GlobalParams globalParams1 = new GlobalParams();
         globalParams1.setHeaders(getHeaders(3));
         globalParams1.setCommonVariables(getEnvVariables(4));
@@ -575,7 +575,7 @@ public class GlobalParamsControllerTests extends BaseTest {
                         if (CollectionUtils.isEmpty(listObject)) {
                             continue;
                         }
-                        if (listObject.get(0) instanceof File || listObject.get(0) instanceof MockMultipartFile) {
+                        if (listObject.getFirst() instanceof File || listObject.getFirst() instanceof MockMultipartFile) {
                             // 参数是多个文件时,设置多个文件
                             for (Object subObject : ((List) o)) {
                                 multipartFile = getMockMultipartFile(key, subObject);

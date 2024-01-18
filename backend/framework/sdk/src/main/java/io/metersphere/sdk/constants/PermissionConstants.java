@@ -286,6 +286,13 @@ public class PermissionConstants {
 
 
     /*------ end: API_MANAGEMENT ------*/
+
+    /*------ start: API_REPORT ------*/
+    public static final String PROJECT_API_REPORT_READ = "PROJECT_API_REPORT:READ";
+    public static final String PROJECT_API_REPORT_UPDATE = "PROJECT_API_REPORT:READ+UPDATE";
+    public static final String PROJECT_API_REPORT_DELETE = "PROJECT_API_REPORT:READ+DELETE";
+    /*------ end: API_REPORT ------*/
+
     //个人中心
     /*------ start: PERSONAL_CENTER ------*/
     public static final String SYSTEM_PERSONAL_API_KEY_ADD = "SYSTEM_PERSONAL_API_KEY:READ+ADD";

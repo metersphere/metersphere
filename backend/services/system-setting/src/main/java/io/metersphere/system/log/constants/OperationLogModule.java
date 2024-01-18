@@ -22,6 +22,7 @@ public class OperationLogModule {
     public static final String API_DEFINITION_MOCK = "API_DEFINITION_MOCK";
     public static final String API_DEFINITION_CASE = "API_DEFINITION_CASE";
     public static final String API_SCENARIO = "API_SCENARIO";
+    public static final String API_REPORT = "API_REPORT";
     public static final String AUTH_TITLE = "AUTH_TITLE";
     public static final String PROJECT_ENVIRONMENT_SETTING = "PROJECT_ENVIRONMENT_SETTING";
     public static final String PROJECT_PROJECT_MANAGER = "PROJECT_PROJECT_MANAGER";

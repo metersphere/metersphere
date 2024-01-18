@@ -81,8 +81,8 @@ public class GlobalParamsService {
         if (CollectionUtils.isNotEmpty(projectParameters)) {
             GlobalParamsDTO globalParamsDTO = new GlobalParamsDTO();
             globalParamsDTO.setProjectId(projectId);
-            globalParamsDTO.setId(projectParameters.get(0).getId());
-            globalParamsDTO.setGlobalParams(JSON.parseObject(new String(projectParameters.get(0).getParameters()), GlobalParams.class));
+            globalParamsDTO.setId(projectParameters.getFirst().getId());
+            globalParamsDTO.setGlobalParams(JSON.parseObject(new String(projectParameters.getFirst().getParameters()), GlobalParams.class));
             return globalParamsDTO;
         } else {
             return null;
@@ -116,8 +116,8 @@ public class GlobalParamsService {
             if (CollectionUtils.isNotEmpty(projectParameters)) {
                 GlobalParamsDTO globalParamsDTO = new GlobalParamsDTO();
                 globalParamsDTO.setProjectId(projectId);
-                globalParamsDTO.setId(projectParameters.get(0).getId());
-                globalParamsDTO.setGlobalParams(JSON.parseObject(new String(projectParameters.get(0).getParameters()), GlobalParams.class));
+                globalParamsDTO.setId(projectParameters.getFirst().getId());
+                globalParamsDTO.setGlobalParams(JSON.parseObject(new String(projectParameters.getFirst().getParameters()), GlobalParams.class));
                 bytes = JSON.toJSONString(globalParamsDTO).getBytes();
             } else {
                 throw new MSException(Translator.get("global_parameters_is_not_exist"));
