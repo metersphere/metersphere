@@ -4,6 +4,7 @@ import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.domain.FunctionalCaseCustomField;
 import io.metersphere.functional.dto.CaseCustomFieldDTO;
 import io.metersphere.functional.dto.FunctionalCasePageDTO;
+import io.metersphere.functional.dto.response.FunctionalCaseImportResponse;
 import io.metersphere.functional.mapper.FunctionalCaseCustomFieldMapper;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.CaseManagementResultCode;
@@ -65,6 +66,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
     public static final String FUNCTIONAL_CASE_BATCH_EDIT_URL = "/functional/case/batch/edit";
     public static final String FUNCTIONAL_CASE_POS_URL = "/functional/case/edit/pos";
     public static final String DOWNLOAD_EXCEL_TEMPLATE_URL = "/functional/case/download/excel/template/";
+    public static final String CHECK_EXCEL_URL = "/functional/case/pre-check/excel";
 
     @Resource
     private NotificationMapper notificationMapper;
@@ -495,5 +497,38 @@ public class FunctionalCaseControllerTests extends BaseTest {
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken))
                 .andExpect(status().isOk()).andReturn();
+    }
+
+
+    @Test
+    @Order(20)
+    public void testImportCheckExcel() throws Exception {
+        String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/1.xlsx")).getPath();
+        MockMultipartFile file = new MockMultipartFile("file", "11.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileBaseUtils.getFileBytes(filePath));
+        FunctionalCaseImportRequest request = new FunctionalCaseImportRequest();
+        request.setCover(false);
+        request.setProjectId("100001100001");
+        LinkedMultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("file", file);
+        MvcResult functionalCaseMvcResult = this.requestMultipartWithOkAndReturn(CHECK_EXCEL_URL,paramMap);
+
+        String functionalCaseImportResponseData = functionalCaseMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder functionalCaseResultHolder = JSON.parseObject(functionalCaseImportResponseData, ResultHolder.class);
+        FunctionalCaseImportResponse functionalCaseImportResponse = JSON.parseObject(JSON.toJSONString(functionalCaseResultHolder.getData()), FunctionalCaseImportResponse.class);
+        Assertions.assertNotNull(functionalCaseImportResponse);
+
+
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        this.requestMultipart(CHECK_EXCEL_URL,paramMap);
+
+        //覆盖异常
+        String filePath2 = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/2.xlsx")).getPath();
+        MockMultipartFile file2 = new MockMultipartFile("file", "22.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileBaseUtils.getFileBytes(filePath2));
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("file", file2);
+        this.requestMultipart(CHECK_EXCEL_URL,paramMap);
     }
 }

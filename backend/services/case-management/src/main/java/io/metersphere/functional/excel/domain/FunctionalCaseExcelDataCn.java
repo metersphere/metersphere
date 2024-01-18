@@ -33,7 +33,7 @@ public class FunctionalCaseExcelDataCn extends FunctionalCaseExcelData {
     @Length(max = 50)
     @ExcelProperty("所属模块")
     @ColumnWidth(30)
-    private String moduleId;
+    private String module;
 
     @ColumnWidth(50)
     @ExcelProperty("标签")

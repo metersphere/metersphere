@@ -106,7 +106,7 @@ public class FunctionCaseTemplateWriteHandler implements RowWriteHandler {
                             }
                         } else {
                             if (CollectionUtils.isNotEmpty(strings)) {
-                                setComment(fieldMap.get(entry.getKey()), Translator.get("excel.template.not_required").concat("：").concat(JSON.toJSONString(caseLevelAndStatusValueMap.get(entry.getKey()))));
+                                setComment(fieldMap.get(entry.getKey()), Translator.get("excel.template.not_required").concat("：").concat(Translator.get("options")).concat(JSON.toJSONString(caseLevelAndStatusValueMap.get(entry.getKey()))));
                             } else {
                                 setComment(fieldMap.get(entry.getKey()), Translator.get("excel.template.not_required"));
                             }
