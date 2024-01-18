@@ -1,11 +1,21 @@
 package io.metersphere.functional.service;
 
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.EasyExcelFactory;
+import com.alibaba.excel.enums.CellExtraTypeEnum;
+import io.metersphere.functional.dto.response.FunctionalCaseImportResponse;
 import io.metersphere.functional.excel.constants.FunctionalCaseImportFiled;
+import io.metersphere.functional.excel.domain.ExcelMergeInfo;
 import io.metersphere.functional.excel.domain.FunctionalCaseExcelData;
 import io.metersphere.functional.excel.domain.FunctionalCaseExcelDataFactory;
 import io.metersphere.functional.excel.handler.FunctionCaseTemplateWriteHandler;
+import io.metersphere.functional.excel.listener.FunctionalCaseCheckEventListener;
+import io.metersphere.functional.excel.listener.FunctionalCasePretreatmentListener;
+import io.metersphere.functional.request.FunctionalCaseImportRequest;
+import io.metersphere.plugin.sdk.util.MSPluginException;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.TemplateScene;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomFieldOption;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
@@ -16,6 +26,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -40,8 +51,7 @@ public class FunctionalCaseFileService {
      */
     public void downloadExcelTemplate(String projectId, HttpServletResponse response) {
         //获取当前项目下默认模板的自定义字段属性
-        TemplateDTO defaultTemplateDTO = projectTemplateService.getDefaultTemplateDTO(projectId, TemplateScene.FUNCTIONAL.name());
-        List<TemplateCustomFieldDTO> customFields = Optional.ofNullable(defaultTemplateDTO.getCustomFields()).orElse(new ArrayList<>());
+        List<TemplateCustomFieldDTO> customFields = getCustomFields(projectId);
 
         //获取表头字段 当前项目下默认模板的自定义字段  heads:默认表头名称+自定义字段名称
         List<List<String>> heads = getTemplateHead(projectId, customFields);
@@ -115,7 +125,7 @@ public class FunctionalCaseFileService {
         for (int i = 1; i <= 4; i++) {
             path.append("/" + Translator.get("module") + i);
             FunctionalCaseExcelData testCaseDTO = new FunctionalCaseExcelData();
-            testCaseDTO.setId(StringUtils.EMPTY);
+            testCaseDTO.setNum(StringUtils.EMPTY);
             testCaseDTO.setName(Translator.get("test_case") + i);
             testCaseDTO.setModule(path.toString());
             testCaseDTO.setPrerequisite(Translator.get("test_case_prerequisite"));
@@ -163,5 +173,49 @@ public class FunctionalCaseFileService {
     private List<List<String>> getTemplateHead(String projectId, List<TemplateCustomFieldDTO> customFields) {
         List<List<String>> heads = new FunctionalCaseExcelDataFactory().getFunctionalCaseExcelDataLocal().getHead(customFields);
         return heads;
+    }
+
+
+    /**
+     * 导入前校验excel模板
+     *
+     * @param request
+     * @param file
+     * @return
+     */
+    public FunctionalCaseImportResponse preCheckExcel(FunctionalCaseImportRequest request, MultipartFile file) {
+        if (file == null) {
+            throw new MSPluginException("file_cannot_be_null");
+        }
+        FunctionalCaseImportResponse response = new FunctionalCaseImportResponse();
+        checkImportExcel(response, request, file);
+        return response;
+    }
+
+    private void checkImportExcel(FunctionalCaseImportResponse response, FunctionalCaseImportRequest request, MultipartFile file) {
+        try {
+            //根据本地语言环境选择用哪种数据对象进行存放读取的数据
+            Class clazz = new FunctionalCaseExcelDataFactory().getExcelDataByLocal();
+            //获取当前项目默认模板的自定义字段
+            List<TemplateCustomFieldDTO> customFields = getCustomFields(request.getProjectId());
+            Set<ExcelMergeInfo> mergeInfoSet = new TreeSet<>();
+            // 预处理，查询合并单元格信息
+            EasyExcel.read(file.getInputStream(), null, new FunctionalCasePretreatmentListener(mergeInfoSet))
+                    .extraRead(CellExtraTypeEnum.MERGE).sheet().doRead();
+            FunctionalCaseCheckEventListener eventListener = new FunctionalCaseCheckEventListener(request, clazz, customFields, mergeInfoSet);
+            EasyExcelFactory.read(file.getInputStream(), eventListener).sheet().doRead();
+            response.setErrorMessages(eventListener.getErrList());
+            response.setSuccessCount(eventListener.getSuccessCount());
+            response.setFailCount(eventListener.getErrList().size());
+        } catch (Exception e) {
+            LogUtils.error("checkImportExcel error", e);
+            throw new MSPluginException("checkImportExcel error");
+        }
+    }
+
+    private List<TemplateCustomFieldDTO> getCustomFields(String projectId) {
+        TemplateDTO defaultTemplateDTO = projectTemplateService.getDefaultTemplateDTO(projectId, TemplateScene.FUNCTIONAL.name());
+        List<TemplateCustomFieldDTO> customFields = Optional.ofNullable(defaultTemplateDTO.getCustomFields()).orElse(new ArrayList<>());
+        return customFields;
     }
 }
