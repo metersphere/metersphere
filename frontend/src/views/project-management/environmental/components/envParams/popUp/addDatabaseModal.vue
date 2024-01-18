@@ -9,7 +9,7 @@
     <template #title>
       <span v-if="isEdit">
         {{ t('project.environmental.database.updateDatabase') }}
-        <span class="text-[var(--color-text-4)]">({{ props.currentProject?.name }})</span>
+        <span class="text-[var(--color-text-4)]">({{ form.name }})</span>
       </span>
       <span v-else>
         {{ t('project.environmental.database.addDatabase') }}
@@ -26,20 +26,18 @@
         >
           <a-input v-model="form.name" allow-clear :placeholder="t('project.environmental.database.namePlaceholder')" />
         </a-form-item>
-        <a-form-item field="driver" asterisk-position="end" :label="t('project.environmental.database.driver')">
-          <a-select v-model="form.driver">
-            <a-option value="mysql">MySQL</a-option>
-          </a-select>
+        <a-form-item field="driverId" asterisk-position="end" :label="t('project.environmental.database.driver')">
+          <a-select v-model="form.driverId" :options="driverOption" />
         </a-form-item>
         <a-form-item
-          field="url"
+          field="dbUrl"
           required
           :label="t('project.environmental.database.url')"
           asterisk-position="end"
           :extra="t('project.environmental.database.urlExtra')"
           :rules="[{ required: true, message: t('project.environmental.database.urlIsRequire') }]"
         >
-          <a-input v-model="form.url" allow-clear :placeholder="t('common.pleaseInput')" />
+          <a-input v-model="form.dbUrl" allow-clear :placeholder="t('common.pleaseInput')" />
         </a-form-item>
         <a-form-item
           field="username"
@@ -48,10 +46,16 @@
           asterisk-position="end"
           :rules="[{ required: true, message: t('project.environmental.database.usernameIsRequire') }]"
         >
-          <a-input v-model="form.username" allow-clear :placeholder="t('common.pleaseInput')" />
+          <a-input
+            v-model="form.username"
+            :max-length="255"
+            show-word-limit
+            allow-clear
+            :placeholder="t('common.pleaseInput')"
+          />
         </a-form-item>
         <a-form-item field="password" :label="t('project.environmental.database.password')">
-          <a-input
+          <a-input-password
             v-model="form.password"
             :placeholder="t('common.pleaseInput')"
             allow-clear
@@ -59,12 +63,25 @@
           />
         </a-form-item>
         <a-form-item field="poolMax" :label="t('project.environmental.database.poolMax')">
-          <a-input-number v-model:model-value="form.poolMax" :min="1" :default-value="1" />
+          <a-input-number
+            v-model:model-value="form.poolMax"
+            class="w-[152px]"
+            mode="button"
+            :min="1"
+            :default-value="1"
+          />
         </a-form-item>
         <a-form-item field="timeout" :label="t('project.environmental.database.timeout')">
-          <a-input-number v-model:model-value="form.timeout" :default-value="1000" />
+          <a-input-number
+            v-model:model-value="form.timeout"
+            class="w-[152px]"
+            mode="button"
+            :step="100"
+            :min="0"
+            :default-value="1000"
+          />
         </a-form-item>
-        <a-button type="outline" class="w-[88px]">
+        <a-button type="outline" class="w-[88px]" @click="testConnection">
           {{ t('project.environmental.database.testConnection') }}
         </a-button>
       </a-form>
@@ -85,28 +102,29 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, reactive, ref, watchEffect } from 'vue';
+  import { computed, ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
 
+  import { driverOptionFun, validateDatabaseEnv } from '@/api/modules/project-management/envManagement';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import useLicenseStore from '@/store/modules/setting/license';
 
-  import { CreateOrUpdateSystemProjectParams, SystemOrgOption } from '@/models/setting/system/orgAndProject';
+  import { DataSourceItem } from '@/models/projectManagement/environmental';
 
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
 
   const { t } = useI18n();
+
   const props = defineProps<{
+    modelValue: DataSourceItem;
     visible: boolean;
-    currentProject?: CreateOrUpdateSystemProjectParams;
   }>();
 
   const formRef = ref<FormInstance>();
 
   const loading = ref(false);
-  const isEdit = computed(() => props.currentProject && props.currentProject.id);
-  const driverOption = ref<SystemOrgOption[]>([]);
+  const driverOption = ref<{ label: string; value: string }[]>([]);
   const appStore = useAppStore();
   const licenseStore = useLicenseStore();
 
@@ -114,33 +132,86 @@
     (e: 'cancel', shouldSearch: boolean): void;
   }>();
 
-  const form = reactive({
-    id: '',
-    name: '',
-    driver: 'mysql',
-    url: '',
-    username: '',
-    password: '',
-    poolMax: 1,
-    timeout: 1000,
-    enable: true,
+  const currentVisible = defineModel('visible', {
+    default: false,
+    type: Boolean,
   });
 
-  const currentVisible = ref(props.visible);
+  const form = defineModel<DataSourceItem>('modelValue', {
+    required: true,
+  });
+
+  const isEdit = computed(() => form.value.id);
+
+  const getDriverOption = async () => {
+    try {
+      const res = (await driverOptionFun(appStore.currentOrgId)) || [];
+      driverOption.value = res.map((item) => ({
+        label: item.name,
+        value: item.id,
+      }));
+      if (res.length && !isEdit.value) {
+        // 创建模式下默认选中第一个
+        form.value.driverId = res[0].id;
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+    }
+  };
+
+  const testConnection = async () => {
+    await formRef.value?.validateField(
+      ['url', 'username'],
+      async (errors: undefined | Record<string, ValidatedError>) => {
+        if (errors) {
+          return;
+        }
+        try {
+          loading.value = true;
+          await validateDatabaseEnv({
+            name: form.value.name,
+            driverId: form.value.driverId,
+            dbUrl: form.value.dbUrl,
+            username: form.value.username,
+            password: form.value.password,
+            poolMax: form.value.poolMax,
+            timeout: form.value.timeout,
+          });
+          Message.success(t('project.environmental.database.testConnectionSuccess'));
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.error(error);
+        } finally {
+          loading.value = false;
+        }
+      }
+    );
+  };
 
   const isXpack = computed(() => {
     return licenseStore.hasLicense();
   });
 
-  watchEffect(() => {
-    currentVisible.value = props.visible;
-  });
-
   const formReset = () => {
-    form.name = '';
+    if (!isEdit.value) {
+      form.value = {
+        id: '',
+        name: '',
+        driverId: '',
+        dbUrl: '',
+        username: '',
+        password: '',
+        poolMax: 1,
+        timeout: 1000,
+        enable: true,
+      };
+    }
   };
   const handleCancel = (shouldSearch: boolean) => {
     emit('cancel', shouldSearch);
+    currentVisible.value = false;
+    formReset();
   };
 
   const handleBeforeOk = async () => {
@@ -150,6 +221,7 @@
       }
       try {
         loading.value = true;
+
         Message.success(
           isEdit.value
             ? t('project.environmental.database.updateProjectSuccess')
@@ -164,29 +236,12 @@
       }
     });
   };
-  const initDriverOption = async () => {
-    try {
-      const res = [];
-      driverOption.value = res;
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error(error);
-    }
+  const initData = () => {
+    getDriverOption();
   };
   watchEffect(() => {
-    if (isEdit.value && props.currentProject) {
-      form.name = props.currentProject.name;
+    if (props.visible) {
+      initData();
     }
   });
-  watch(
-    () => props.visible,
-    (val) => {
-      currentVisible.value = val;
-      if (!val) {
-        formReset();
-      } else {
-        initDriverOption();
-      }
-    }
-  );
 </script>

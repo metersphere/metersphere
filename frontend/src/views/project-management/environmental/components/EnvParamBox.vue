@@ -54,11 +54,16 @@
   import TcpTab from './envParams/TcpTab.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore } from '@/store';
+  import useProjectEnvStore, { NEW_ENV_PARAM } from '@/store/modules/setting/useProjectEnvStore';
 
-  const activeKey = ref('tcp');
+  const activeKey = ref('assert');
   const envForm = ref();
   const canSave = ref(false);
   const { t } = useI18n();
+
+  const store = useProjectEnvStore();
+  const appStore = useAppStore();
 
   const form = reactive({
     name: '',
@@ -112,6 +117,20 @@
       }
     });
   };
+  const initData = async () => {
+    await store.initEnvDetail();
+  };
+  watchEffect(() => {
+    if (store.currentId === NEW_ENV_PARAM) {
+      store.setEnvDetailInfo({
+        name: '',
+        projectId: appStore.currentProjectId,
+        config: {},
+      });
+    } else {
+      initData();
+    }
+  });
 </script>
 
 <style lang="less" scoped>

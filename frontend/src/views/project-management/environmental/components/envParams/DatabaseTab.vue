@@ -21,7 +21,12 @@
       </div>
     </template>
   </MsBaseTable>
-  <AddDatabaseModal v-model:visible="addVisible" :current-id="currentId" @close="addVisible = false" />
+  <AddDatabaseModal
+    v-model:visible="addVisible"
+    v-model="currentDatabase"
+    :current-id="currentId"
+    @close="addVisible = false"
+  />
 </template>
 
 <script lang="ts" async setup>
@@ -40,6 +45,7 @@
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
 
   import { BugListItem } from '@/models/bug-management';
+  import { DataSourceItem } from '@/models/projectManagement/environmental';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const { t } = useI18n();
@@ -50,6 +56,18 @@
   const tableStore = useTableStore();
   const addVisible = ref(false);
   const currentId = ref('');
+
+  const currentDatabase = ref<DataSourceItem>({
+    id: '',
+    name: '',
+    driverId: '',
+    dbUrl: '',
+    username: '',
+    password: '',
+    poolMax: 1,
+    timeout: 1000,
+    enable: true,
+  });
 
   const columns: MsTableColumn = [
     {

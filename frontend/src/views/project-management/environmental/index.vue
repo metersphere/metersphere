@@ -9,9 +9,10 @@
           </a-radio-group>
           <template v-if="showType === 'PROJECT'">
             <a-input-search
+              v-model="keyword"
               :placeholder="t('project.environmental.searchHolder')"
               allow-clear
-              @press-enter="enterData"
+              @press-enter="searchData"
               @search="searchData"
             />
             <!-- 全局参数-->
@@ -42,7 +43,7 @@
                     @select="(value) => handleMoreAction(value, 'all', EnvAuthTypeEnum.ENVIRONMENT)"
                   />
                 </div>
-                <MsButton type="icon" class="!mr-0 p-[2px]">
+                <MsButton type="icon" class="!mr-0 p-[2px]" @click="handleCreateEnv">
                   <MsIcon
                     type="icon-icon_create_planarity"
                     size="18"
@@ -54,7 +55,7 @@
             <div>
               <!-- 环境list-->
               <div v-if="envList.length">
-                <VueDraggable v-model="envList" ghost-class="ghost">
+                <VueDraggable v-model="envList" ghost-class="ghost" handle=".drag-handle">
                   <div
                     v-for="element in envList"
                     :key="element.id"
@@ -66,7 +67,7 @@
                       :type="(showType as EnvAuthScopeEnum)"
                       v-bind="popVisible[element.id]"
                       @cancel="handleRenameCancel(element)"
-                      @submit="handleRenameCancel(element, element.id)"
+                      @submit="handleRenameCancel(element, true)"
                     >
                       <div class="flex max-w-[100%] grow flex-row items-center justify-between">
                         <a-tooltip :content="element.name">
@@ -78,7 +79,7 @@
                         </a-tooltip>
                         <div class="node-extra">
                           <div class="flex flex-row items-center gap-[8px]">
-                            <MsButton type="icon" class="!mr-0 p-[2px]">
+                            <MsButton type="icon" class="drag-handle !mr-0 p-[2px]">
                               <MsIcon
                                 type="icon-icon_drag"
                                 size="16"
@@ -118,9 +119,9 @@
                 </MsButton>
               </div>
             </div>
-            <!-- 环境list-->
+            <!-- 环境组list-->
             <div v-if="envList.length">
-              <VueDraggable v-model="envList" ghost-class="ghost">
+              <VueDraggable v-model="envList" ghost-class="ghost" handle=".drag-handle">
                 <div
                   v-for="element in envList"
                   :key="element.id"
@@ -132,7 +133,7 @@
                     :type="(showType as EnvAuthScopeEnum)"
                     v-bind="popVisible[element.id]"
                     @cancel="handleRenameCancel(element)"
-                    @submit="handleRenameCancel(element, element.id)"
+                    @submit="handleRenameCancel(element, true)"
                   >
                     <div class="flex max-w-[100%] grow flex-row items-center justify-between">
                       <a-tooltip :content="element.name">
@@ -144,7 +145,7 @@
                       </a-tooltip>
                       <div class="node-extra">
                         <div class="flex flex-row items-center gap-[8px]">
-                          <MsButton type="icon" class="!mr-0 p-[2px]">
+                          <MsButton type="icon" class="drag-handle !mr-0 p-[2px]">
                             <MsIcon
                               type="icon-icon_drag"
                               size="16"
@@ -194,8 +195,10 @@
   import EnvParamBox from './components/EnvParamBox.vue';
   import RenamePop from './components/RenamePop.vue';
 
+  import { listEnv } from '@/api/modules/project-management/envManagement';
   import { useI18n } from '@/hooks/useI18n';
-  import useProjectEnvStore, { ALL_PARAM } from '@/store/modules/setting/useProjectEnvStore';
+  import { useAppStore } from '@/store';
+  import useProjectEnvStore, { ALL_PARAM, NEW_ENV_PARAM } from '@/store/modules/setting/useProjectEnvStore';
 
   import { EnvListItem } from '@/models/projectManagement/environmental';
   import { PopVisible } from '@/models/setting/usergroup';
@@ -209,6 +212,9 @@
   const showType = ref<EnvAuthScopeEnum>(EnvAuthScopeEnum.PROJECT); // 展示类型
 
   const activeKey = computed(() => store.currentId); // 当前选中的id
+
+  const keyword = ref<string>(''); // 搜索关键字
+  const appStore = useAppStore();
 
   // 气泡弹窗
   const popVisible = ref<PopVisible>({});
@@ -262,26 +268,33 @@
     console.log(item, id, scopeType);
   };
 
+  const handleCreateEnv = () => {
+    const tmpArr = envList.value;
+    tmpArr.unshift({
+      id: NEW_ENV_PARAM,
+      name: t('project.environmental.newEnv'),
+    });
+    store.setCurrentId(NEW_ENV_PARAM);
+    envList.value = tmpArr;
+  };
+
   function changeShowType(value: string | number | boolean) {
     console.log(value);
   }
 
   // 用户组数据初始化
-  const initData = async (id?: string, isSelect = true) => {
-    const tmpArr: EnvListItem[] = [];
-    for (let i = 0; i < 100; i++) {
-      tmpArr.push({
-        id: `${i + 1}`,
-        name: `环境${i + 1}`,
-      });
+  const initData = async (keywordStr = '') => {
+    try {
+      envList.value = await listEnv({ projectId: appStore.currentProjectId, keyword: keywordStr });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
     }
-    envList.value = tmpArr;
-    console.log(id, isSelect);
   };
 
-  const handleRenameCancel = (element: EnvListItem, id?: string) => {
-    if (id) {
-      initData(id, true);
+  const handleRenameCancel = (element: EnvListItem, shouldSearch?: boolean) => {
+    if (shouldSearch) {
+      initData();
     }
     popVisible.value[element.id].visible = false;
   };
@@ -291,22 +304,8 @@
     store.setCurrentId(id);
   };
 
-  function enterData(eve: Event) {
-    if (!(eve.target as HTMLInputElement).value) {
-      return;
-    }
-    const keyword = (eve.target as HTMLInputElement).value;
-    const tmpArr = envList.value.filter((ele) => ele.name.includes(keyword));
-    envList.value = tmpArr;
-  }
-  function searchData(value: string) {
-    if (!value) {
-      // initData('', false);
-      return;
-    }
-    const keyword = value;
-    const tmpArr = envList.value.filter((ele) => ele.name.includes(keyword));
-    envList.value = tmpArr;
+  function searchData() {
+    initData(keyword.value);
   }
   onMounted(() => {
     initData();
@@ -330,14 +329,14 @@
     border-radius: var(--border-radius-base);
     cursor: pointer;
     .node-extra {
-      @apply relative hidden;
+      opacity: 0;
       &:hover {
-        @apply block;
+        opacity: 1;
       }
     }
     &:hover {
       .node-extra {
-        @apply block;
+        opacity: 1;
       }
     }
     :active {
@@ -351,7 +350,7 @@
     }
     &:hover {
       .env-row-extra {
-        @apply block;
+        opacity: 1;
       }
     }
   }

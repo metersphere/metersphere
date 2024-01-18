@@ -9,4 +9,5 @@ export default {
   'ms.assertion.noValidation': '不校验',
   'ms.assertion.matchCondition': '匹配条件',
   'ms.assertion.matchValue': '匹配值',
+  'ms.assertion.variableName': '变量名',
 };

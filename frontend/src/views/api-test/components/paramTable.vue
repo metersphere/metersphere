@@ -183,17 +183,17 @@
       />
     </template>
     <template #responseHeader="{ record, columnConfig }">
-      <a-select v-model="record.responseHeader" @change="(val) => addTableLine(val as string)">
+      <a-select v-model="record.responseHeader" class="param-input" @change="(val) => addTableLine(val as string)">
         <a-option v-for="item in columnConfig.options" :key="item.value">{{ t(item.label) }}</a-option>
       </a-select>
     </template>
     <template #matchCondition="{ record, columnConfig }">
-      <a-select v-model="record.condition" @change="(val) => addTableLine(val as string)">
+      <a-select v-model="record.condition" class="param-input" @change="(val) => addTableLine(val as string)">
         <a-option v-for="item in columnConfig.options" :key="item.value">{{ t(item.label) }}</a-option>
       </a-select>
     </template>
     <template #matchValue="{ record }">
-      <a-input-number v-model="record.matchValue" hide-button @change="(val) => addTableLine(val)" />
+      <a-input v-model="record.matchValue" class="param-input" @change="(val) => addTableLine(val)" />
     </template>
   </MsBaseTable>
   <a-modal
