@@ -314,6 +314,76 @@ public class ApiReportExample {
             return (Criteria) this;
         }
 
+        public Criteria andTestPlanIdIsNull() {
+            addCriterion("test_plan_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanIdIsNotNull() {
+            addCriterion("test_plan_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanIdEqualTo(String value) {
+            addCriterion("test_plan_id =", value, "testPlanId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanIdNotEqualTo(String value) {
+            addCriterion("test_plan_id <>", value, "testPlanId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanIdGreaterThan(String value) {
+            addCriterion("test_plan_id >", value, "testPlanId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanIdGreaterThanOrEqualTo(String value) {
+            addCriterion("test_plan_id >=", value, "testPlanId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanIdLessThan(String value) {
+            addCriterion("test_plan_id <", value, "testPlanId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanIdLessThanOrEqualTo(String value) {
+            addCriterion("test_plan_id <=", value, "testPlanId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanIdLike(String value) {
+            addCriterion("test_plan_id like", value, "testPlanId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanIdNotLike(String value) {
+            addCriterion("test_plan_id not like", value, "testPlanId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanIdIn(List<String> values) {
+            addCriterion("test_plan_id in", values, "testPlanId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanIdNotIn(List<String> values) {
+            addCriterion("test_plan_id not in", values, "testPlanId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanIdBetween(String value1, String value2) {
+            addCriterion("test_plan_id between", value1, value2, "testPlanId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestPlanIdNotBetween(String value1, String value2) {
+            addCriterion("test_plan_id not between", value1, value2, "testPlanId");
+            return (Criteria) this;
+        }
+
         public Criteria andCreateUserIsNull() {
             addCriterion("create_user is null");
             return (Criteria) this;
