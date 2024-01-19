@@ -50,6 +50,10 @@ public class ProjectCustomFieldService extends BaseCustomFieldService {
     @Override
     public CustomField update(CustomField customField, List<CustomFieldOptionRequest> options) {
         CustomField originCustomField = getWithCheck(customField.getId());
+        if (originCustomField.getInternal()) {
+            // 内置字段不能修改名字
+            originCustomField.setName(null);
+        }
         customField.setScopeId(originCustomField.getScopeId());
         Project project = projectService.checkResourceExist(originCustomField.getScopeId());
         checkProjectTemplateEnable(project.getOrganizationId(), originCustomField.getScene());

@@ -81,6 +81,10 @@ public class OrganizationCustomFieldService extends BaseCustomFieldService {
     @Override
     public CustomField update(CustomField customField, List<CustomFieldOptionRequest> options) {
         CustomField originCustomField = getWithCheck(customField.getId());
+        if (originCustomField.getInternal()) {
+            // 内置字段不能修改名字
+            originCustomField.setName(null);
+        }
         checkOrganizationTemplateEnable(customField.getScopeId(), originCustomField.getScene());
         customField.setScopeId(originCustomField.getScopeId());
         OrganizationService.checkResourceExist(originCustomField.getScopeId());

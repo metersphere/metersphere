@@ -181,6 +181,12 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
         }
         assertRefCustomField(customField);
 
+        CustomFieldExample example = new CustomFieldExample();
+        example.createCriteria().andScopeIdEqualTo(DEFAULT_ORGANIZATION_ID).andInternalEqualTo(true);
+        request = BeanUtils.copyBean(request, customFieldMapper.selectByExample(example).get(0));
+        this.requestPostWithOk(DEFAULT_UPDATE, request);
+        Assertions.assertEquals(customFieldMapper.selectByExample(example).get(0).getInternal(), true);
+
         // @校验是否开启组织模板
         changeOrgTemplateEnable(false);
         assertErrorCode(this.requestPost(DEFAULT_UPDATE, request), ORGANIZATION_TEMPLATE_PERMISSION);
