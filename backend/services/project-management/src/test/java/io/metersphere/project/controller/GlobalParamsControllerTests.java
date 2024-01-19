@@ -126,7 +126,7 @@ public class GlobalParamsControllerTests extends BaseTest {
         List<CommonVariables> commonVariables = new ArrayList<>();
         for (int i = 0; i < length; i++) {
             CommonVariables envVariable = new CommonVariables();
-            envVariable.setName("name" + i);
+            envVariable.setKey("name" + i);
             envVariable.setValue("value" + i);
             envVariable.setDescription("desc" + i);
             envVariable.setTags(List.of("tag" + i));

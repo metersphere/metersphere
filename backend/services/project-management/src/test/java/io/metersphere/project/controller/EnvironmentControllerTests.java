@@ -19,7 +19,10 @@ import io.metersphere.project.dto.environment.ssl.KeyStoreConfig;
 import io.metersphere.project.dto.environment.ssl.KeyStoreEntry;
 import io.metersphere.project.dto.environment.ssl.KeyStoreFile;
 import io.metersphere.project.dto.environment.variables.CommonVariables;
-import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.constants.DefaultRepositoryDir;
+import io.metersphere.sdk.constants.MsAssertionCondition;
+import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentBlob;
 import io.metersphere.sdk.domain.EnvironmentExample;
@@ -57,6 +60,7 @@ import org.springframework.util.MultiValueMap;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -225,7 +229,7 @@ public class EnvironmentControllerTests extends BaseTest {
         List<CommonVariables> commonVariables = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             CommonVariables commonVariable = new CommonVariables();
-            commonVariable.setName("key" + i);
+            commonVariable.setKey("key" + i);
             commonVariable.setValue("value" + i);
             commonVariable.setDescription("description" + i);
             commonVariables.add(commonVariable);
@@ -1088,31 +1092,6 @@ public class EnvironmentControllerTests extends BaseTest {
 
     }
 
-    private List<CommonVariables> getEnvVariables(int length) {
-        List<CommonVariables> commonVariables = new ArrayList<>();
-        for (int i = 0; i < length; i++) {
-            CommonVariables envVariable = new CommonVariables();
-            envVariable.setName("name" + i);
-            envVariable.setValue("value" + i);
-            envVariable.setDescription("desc" + i);
-            envVariable.setType(VariableTypeConstants.CONSTANT.name());
-            commonVariables.add(envVariable);
-        }
-        return commonVariables;
-    }
-
-    //根据需要多长的list 生成不同的List<KeyValue> headers
-    private List<KeyValue> getHeaders(int length) {
-        List<KeyValue> headers = new ArrayList<>();
-        for (int i = 0; i < length; i++) {
-            KeyValue header = new KeyValue();
-            header.setName("key" + i);
-            header.setValue("value" + i);
-            headers.add(header);
-        }
-        return headers;
-    }
-
     @Test
     @Order(14)
     public void testExport() throws Exception {
@@ -1128,6 +1107,10 @@ public class EnvironmentControllerTests extends BaseTest {
         request.setExcludeIds(List.of("environmentId1"));
         MvcResult mvcResult1 = this.requestPostDownloadFile(exportEnv, null, request, DEFAULT_PROJECT_ID);
         byte[] fileBytes1 = mvcResult1.getResponse().getContentAsByteArray();
+        File file = new File("test.json");
+        FileOutputStream fileOutputStream = new FileOutputStream(file);
+        fileOutputStream.write(fileBytes1);
+        fileOutputStream.close();
         Assertions.assertNotNull(fileBytes1);
         request.setSelectIds(List.of("不存在blob"));
         request.setSelectAll(false);
