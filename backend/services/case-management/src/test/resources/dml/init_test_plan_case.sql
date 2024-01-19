@@ -16,5 +16,5 @@ INSERT INTO project(id, num, organization_id, name, description, create_time, up
 
 
 INSERT INTO test_plan_functional_case(id,num, test_plan_id, functional_case_id, create_time, create_user, last_exec_time, last_exec_result, pos)
-VALUES ('associate_case_plan_gyq_one', '123456','test_plan_associate_case_gyq_one', 'gyq_associate_function_case', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'SUCCESS', 200),
-       ('associate_case_plan_gyq_two', 'test_plan_associate_case_gyq_two', 'gyq_associate_function_case', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'SUCCESS', 200);
+VALUES ('associate_case_plan_gyq_one', 1,'test_plan_associate_case_gyq_one', 'gyq_associate_function_case', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'SUCCESS', 200),
+       ('associate_case_plan_gyq_two', 2,'test_plan_associate_case_gyq_two', 'gyq_associate_function_case', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'SUCCESS', 200);
