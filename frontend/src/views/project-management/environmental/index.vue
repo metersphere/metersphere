@@ -20,15 +20,15 @@
               {{ t('project.environmental.allParam') }}
             </div>
             <div
-              class="env-item justify-between font-medium text-[rgb(var(--primary-5))] hover:bg-[rgb(var(--primary-1))]"
-              :class="{ 'bg-[rgb(var(--primary-1))]': activeKey === ALL_PARAM }"
+              class="env-item justify-between font-medium text-[var(--color-text-1)] hover:bg-[rgb(var(--primary-1))]"
+              :class="{ 'bg-[rgb(var(--primary-1))] !text-[rgb(var(--primary-5))]': activeKey === ALL_PARAM }"
               @click="handleListItemClick({ id: 'allParam', name: 'allParam' })"
             >
               {{ t('project.environmental.allParam') }}
               <div class="node-extra">
                 <MsMoreAction
                   :list="allMoreAction"
-                  @select="(value) => handleMoreAction(value, 'all', EnvAuthTypeEnum.GLOBAL)"
+                  @select="(value) => handleMoreAction(value, 'allParams', EnvAuthTypeEnum.GLOBAL)"
                 />
               </div>
             </div>
@@ -180,6 +180,7 @@
       </template>
     </MsSplitBox>
   </div>
+  <CommonImportPop v-model:visible="importVisible" :type="importAuthType" @submit="handleSubmit" />
 </template>
 
 <script lang="ts" setup>
@@ -191,14 +192,16 @@
   import MsMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import AllParamBox from './components/AllParamBox.vue';
+  import CommonImportPop from './components/common/CommonImportPop.vue';
   import EnvGroupBox from './components/EnvGroupBox.vue';
   import EnvParamBox from './components/EnvParamBox.vue';
   import RenamePop from './components/RenamePop.vue';
 
-  import { listEnv } from '@/api/modules/project-management/envManagement';
+  import { exportGlobalParam, listEnv } from '@/api/modules/project-management/envManagement';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import useProjectEnvStore, { ALL_PARAM, NEW_ENV_PARAM } from '@/store/modules/setting/useProjectEnvStore';
+  import { downloadByteFile } from '@/utils';
 
   import { EnvListItem } from '@/models/projectManagement/environmental';
   import { PopVisible } from '@/models/setting/usergroup';
@@ -218,6 +221,10 @@
 
   // 气泡弹窗
   const popVisible = ref<PopVisible>({});
+  // 导入弹窗
+  const importVisible = ref<boolean>(false);
+  // 导入类型
+  const importAuthType = ref<EnvAuthTypeEnum>(EnvAuthTypeEnum.GLOBAL);
 
   // 默认环境MoreAction
   const envMoreAction: ActionsItem[] = [
@@ -250,6 +257,35 @@
     },
   ];
 
+  // 处理全局参数导入
+  const handleGlobalImport = () => {
+    importVisible.value = true;
+    importAuthType.value = EnvAuthTypeEnum.GLOBAL;
+  };
+
+  // 处理全局参数导出
+  const handleGlobalExport = async () => {
+    try {
+      const blob = await exportGlobalParam(appStore.currentProjectId);
+      downloadByteFile(blob, 'globalParam.json');
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  };
+
+  const handleSubmit = (shouldSearch: boolean) => {
+    if (shouldSearch) {
+      if (importAuthType.value === EnvAuthTypeEnum.GLOBAL && store.currentId === ALL_PARAM) {
+        store.initEnvDetail();
+      } else if (importAuthType.value === EnvAuthTypeEnum.ENVIRONMENT && store.currentId !== ALL_PARAM) {
+        store.initEnvDetail();
+      }
+    }
+  };
+  // 处理环境导入
+  const handleEnvImport = () => {};
+
   // 处理MoreAction
   const handleMoreAction = (item: ActionsItem, id: string, scopeType: EnvAuthTypeEnum) => {
     const { eventTag } = item;
@@ -257,15 +293,24 @@
       case 'rename':
         break;
       case 'export':
+        if (scopeType === EnvAuthTypeEnum.GLOBAL) {
+          handleGlobalExport();
+        } else if (scopeType === EnvAuthTypeEnum.ENVIRONMENT) {
+          handleEnvImport();
+        }
         break;
       case 'delete':
         break;
       case 'import':
+        if (scopeType === EnvAuthTypeEnum.GLOBAL) {
+          handleGlobalImport();
+        } else if (scopeType === EnvAuthTypeEnum.ENVIRONMENT) {
+          handleEnvImport();
+        }
         break;
       default:
         break;
     }
-    console.log(item, id, scopeType);
   };
 
   const handleCreateEnv = () => {

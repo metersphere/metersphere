@@ -28,18 +28,18 @@
       </div>
     </template>
     <!-- 表格列 slot -->
-    <template #name="{ record }">
+    <template #name="{ record, columnConfig }">
       <a-popover position="tl" :disabled="!record.name || record.name.trim() === ''" class="ms-params-input-popover">
         <template #content>
           <div class="param-popover-title">
             {{ t('apiTestDebug.paramName') }}
           </div>
           <div class="param-popover-value">
-            {{ record.name }}
+            {{ record[columnConfig.dataIndex as string] }}
           </div>
         </template>
         <a-input
-          v-model:model-value="record.name"
+          v-model:model-value="record[columnConfig.dataIndex as string]"
           :placeholder="t('apiTestDebug.paramNamePlaceholder')"
           class="param-input"
           @input="(val) => addTableLine(val)"
@@ -116,22 +116,31 @@
         ></a-input-number>
       </div>
     </template>
-    <template #tag="{ record }">
-      <a-popover position="tl" :disabled="record.tag.length === 0" class="ms-params-input-popover">
+    <template #tag="{ record, columnConfig }">
+      <a-popover
+        position="tl"
+        :disabled="record[columnConfig.dataIndex as string].length === 0"
+        class="ms-params-input-popover"
+      >
         <template #content>
           <div class="param-popover-title">
             {{ t('common.tag') }}
           </div>
           <div class="param-popover-value">
-            <MsTagsGroup is-string-tag :tag-list="record.tag" />
+            <MsTagsGroup is-string-tag :tag-list="record[columnConfig.dataIndex as string]" />
           </div>
         </template>
-        <MsTagsInput v-model:model-value="record.tag" :max-tag-count="1" class="param-input" @change="addTableLine" />
+        <MsTagsInput
+          v-model:model-value="record[columnConfig.dataIndex as string]"
+          :max-tag-count="1"
+          class="param-input"
+          @change="addTableLine"
+        />
       </a-popover>
     </template>
-    <template #desc="{ record }">
+    <template #desc="{ record, columnConfig }">
       <paramDescInput
-        v-model:desc="record.desc"
+        v-model:desc="record[columnConfig.dataIndex as string]"
         @input="addTableLine"
         @dblclick="quickInputDesc(record)"
         @change="handleDescChange"
@@ -146,8 +155,8 @@
         @change="(val) => addTableLine(val.toString())"
       />
     </template>
-    <template #mustContain="{ record }">
-      <a-checkbox v-model:model-value="record.mustContain" @change="(val) => addTableLine(val)" />
+    <template #mustContain="{ record, columnConfig }">
+      <a-checkbox v-model:model-value="record[columnConfig.dataIndex as string]" @change="(val) => addTableLine(val)" />
     </template>
     <template #operation="{ record, rowIndex, columnConfig }">
       <a-trigger

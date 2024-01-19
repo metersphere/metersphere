@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia';
 
-import { getDetailEnv } from '@/api/modules/project-management/envManagement';
+import { getDetailEnv, getGlobalParamDetail } from '@/api/modules/project-management/envManagement';
+import { useAppStore } from '@/store';
 
-import { EnvDetailItem, EnvGroupListItem } from '@/models/projectManagement/environmental';
+import { EnvDetailItem, GlobalParams } from '@/models/projectManagement/environmental';
 
 export const ALL_PARAM = 'allParam';
 export const NEW_ENV_PARAM = 'newEnvParam';
@@ -10,30 +11,37 @@ export const NEW_ENV_PARAM = 'newEnvParam';
 const useProjectEnvStore = defineStore(
   'projectEnv',
   () => {
-    const currentId = ref<string>('');
-    const currentEnvDetailInfo = ref<EnvDetailItem>();
+    const currentId = ref<string>(ALL_PARAM); // 当前选中的key值
+    const currentEnvDetailInfo = ref<EnvDetailItem>(); // 当前选中的环境详情
+    const allParamDetailInfo = ref<GlobalParams>(); // 全局参数详情
     const httpNoWarning = ref(true);
-    const envGroupList = ref<EnvGroupListItem[]>([]);
-
-    const getCurrentId = computed(() => currentId.value);
     const getHttpNoWarning = computed(() => httpNoWarning.value);
-    const getGroupLength = computed(() => 1);
-
-    const getDatabaseList = computed(() => [{ id: 1, name: 'test' }]);
+    const groupLength = ref(0); // 环境分组数据
+    // 设置选中项
     function setCurrentId(id: string) {
       currentId.value = id;
     }
+    // 设置http提醒
     function setHttpNoWarning(noWarning: boolean) {
       httpNoWarning.value = noWarning;
     }
+    // 设置环境详情
     function setEnvDetailInfo(item: EnvDetailItem) {
       currentEnvDetailInfo.value = item;
     }
+    // 设置全局参数
+    function setAllParamDetailInfo(item: GlobalParams) {
+      allParamDetailInfo.value = item;
+    }
+    // 初始化环境详情
     async function initEnvDetail() {
       const id = currentId.value;
+      const appStore = useAppStore();
       try {
         if (id === NEW_ENV_PARAM) {
           currentEnvDetailInfo.value = undefined;
+        } else if (id === ALL_PARAM) {
+          allParamDetailInfo.value = await getGlobalParamDetail(appStore.currentProjectId);
         } else if (id !== ALL_PARAM && id) {
           currentEnvDetailInfo.value = await getDetailEnv(id);
         }
@@ -44,16 +52,15 @@ const useProjectEnvStore = defineStore(
     }
 
     return {
-      getCurrentId,
       currentId,
+      getHttpNoWarning,
       httpNoWarning,
+      allParamDetailInfo,
+      groupLength,
       setCurrentId,
       setHttpNoWarning,
       setEnvDetailInfo,
-      getHttpNoWarning,
-      getDatabaseList,
-      envGroupList,
-      getGroupLength,
+      setAllParamDetailInfo,
       initEnvDetail,
     };
   },

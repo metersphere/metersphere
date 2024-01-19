@@ -155,10 +155,7 @@
   const handleAdd = () => {
     addVisible.value = true;
   };
-  const fetchData = () => {
-    const list = store.getDatabaseList;
-    console.log(list);
-  };
+  const fetchData = () => {};
   const handleNoWarning = () => {
     store.setHttpNoWarning(false);
   };

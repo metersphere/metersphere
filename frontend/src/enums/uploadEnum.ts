@@ -15,6 +15,7 @@ export enum UploadAcceptEnum {
   sketch = '.sketch',
   none = 'none',
   unknown = 'unknown',
+  json = '.json',
 }
 
 export enum UploadStatus {

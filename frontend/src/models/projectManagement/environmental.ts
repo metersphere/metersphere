@@ -50,3 +50,12 @@ export interface EnvDetailItem {
   mock?: string;
   description?: string;
 }
+export interface GlobalParamsItem {
+  headers: EnvConfigItem[];
+  commonVariables: EnvConfigItem[];
+}
+export interface GlobalParams {
+  id?: string;
+  projectId: string;
+  globalParams: GlobalParamsItem;
+}
