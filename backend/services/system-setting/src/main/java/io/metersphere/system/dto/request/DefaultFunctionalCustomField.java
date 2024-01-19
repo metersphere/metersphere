@@ -14,10 +14,10 @@ public enum DefaultFunctionalCustomField {
 
     PRIORITY("functional_priority", CustomFieldType.SELECT,
             Arrays.asList(
+                    getNewOption("P0", "P0"),
                     getNewOption("P1", "P1"),
                     getNewOption("P2", "P2"),
-                    getNewOption("P3", "P3"),
-                    getNewOption("P4", "P4")
+                    getNewOption("P3", "P3")
             )
     );
 

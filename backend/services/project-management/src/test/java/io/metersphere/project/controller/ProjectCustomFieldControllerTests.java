@@ -176,6 +176,12 @@ public class ProjectCustomFieldControllerTests extends BaseTest {
             Assertions.assertEquals(customField.getId(), optionItem.getFieldId());
         }
 
+        CustomFieldExample example = new CustomFieldExample();
+        example.createCriteria().andScopeIdEqualTo(DEFAULT_PROJECT_ID).andInternalEqualTo(true);
+        request = BeanUtils.copyBean(request, customFieldMapper.selectByExample(example).get(0));
+        this.requestPostWithOk(DEFAULT_UPDATE, request);
+        Assertions.assertEquals(customFieldMapper.selectByExample(example).get(0).getInternal(), true);
+
         // @校验是否开启项目模板
         changeOrgTemplateEnable(true);
         assertErrorCode(this.requestPost(DEFAULT_ADD, request), PROJECT_TEMPLATE_PERMISSION);

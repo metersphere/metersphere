@@ -144,7 +144,7 @@ public class BaseCustomFieldService {
         customField.setScopeId(null);
         customField.setScene(null);
         customField.setScopeType(null);
-        customField.setInternal(false);
+        customField.setInternal(null);
         customField.setCreateUser(null);
         customField.setCreateTime(null);
         customField.setType(null);
