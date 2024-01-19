@@ -22,7 +22,7 @@
             <template #content>
               <div class="w-[436px] bg-[var(--color-bg-3)] px-2 pb-2">
                 <MsCodeEditor
-                  v-model:model-value="record.name"
+                  v-model:model-value="record.script"
                   :show-theme-change="false"
                   title=""
                   width="100%"
@@ -36,12 +36,14 @@
           </a-popover>
         </div>
       </template>
-      <template #enable="{ record }">
-        <MsTag v-if="record.enable" type="success" theme="light">{{ t('project.commonScript.testsPass') }}</MsTag>
+      <template #status="{ record }">
+        <MsTag v-if="record.status === 'PASSED'" type="success" theme="light">{{
+          t('project.commonScript.testsPass')
+        }}</MsTag>
         <MsTag v-else>{{ t('project.commonScript.draft') }}</MsTag>
       </template>
       <template #operation="{ record }">
-        <MsButton status="primary">
+        <MsButton status="primary" @click="editHandler(record)">
           {{ t('common.edit') }}
         </MsButton>
         <MsTableMoreAction
@@ -56,8 +58,16 @@
         <MsButton class="ml-[8px]"> {{ t('project.commonScript.addPublicScript') }} </MsButton>
       </div>
     </template>
-    <AddScriptDrawer v-model:visible="showScriptDrawer" @save="saveHandler" />
-    <ScriptDetailDrawer v-model:visible="showDetailDrawer" />
+    <AddScriptDrawer
+      v-model:visible="showScriptDrawer"
+      v-model:params="paramsList"
+      :confirm-loading="confirmLoading"
+      :script-id="isEditId"
+      ok-text="project.commonScript.apply"
+      :enable-radio-selected="radioSelected"
+      @save="saveHandler"
+    />
+    <ScriptDetailDrawer v-model:visible="showDetailDrawer" :script-id="scriptId" />
   </MsCard>
 </template>
 
@@ -74,18 +84,28 @@
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
-  // import AddScriptDrawer from './components/addScriptDrawer.vue';
-  // import ScriptDetailDrawer from './components/scriptDetailDrawer.vue';
   import AddScriptDrawer from '@/components/business/ms-common-script/ms-addScriptDrawer.vue';
   import ScriptDetailDrawer from './components/scriptDetailDrawer.vue';
 
-  import { getDependOnCase } from '@/api/modules/case-management/featureCase';
+  import {
+    addCommonScriptReq,
+    deleteCommonScript,
+    getCommonScriptPage,
+  } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
   import { characterLimit } from '@/utils';
 
+  import type {
+    AddOrUpdateCommonScript,
+    CommonScriptItem,
+    ParamsRequestType,
+  } from '@/models/projectManagement/commonScript';
   import { TableKeyEnum } from '@/enums/tableEnum';
+
+  const appStore = useAppStore();
+  const currentProjectId = computed(() => appStore.currentProjectId);
 
   const tableStore = useTableStore();
 
@@ -112,8 +132,8 @@
     },
     {
       title: 'project.commonScript.enable',
-      dataIndex: 'enable',
-      slotName: 'enable',
+      dataIndex: 'status',
+      slotName: 'status',
       showInTable: true,
       width: 150,
       showDrag: true,
@@ -163,14 +183,26 @@
     },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setProps } = useTable(getDependOnCase, {
-    scroll: { x: '100%' },
-    tableKey: TableKeyEnum.ORGANIZATION_PROJECT_COMMON_SCRIPT,
-    selectable: true,
-    heightUsed: 340,
-    showSetting: true,
-    enableDrag: true,
-  });
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setProps } = useTable(
+    getCommonScriptPage,
+    {
+      scroll: { x: '100%' },
+      tableKey: TableKeyEnum.ORGANIZATION_PROJECT_COMMON_SCRIPT,
+      heightUsed: 290,
+      showSetting: true,
+    },
+    (record) => {
+      return {
+        ...record,
+        tags: (record.tags || []).map((item: string, i: number) => {
+          return {
+            id: `${record.id}-${i}`,
+            name: item,
+          };
+        }),
+      };
+    }
+  );
 
   const actions: ActionsItem[] = [
     {
@@ -180,7 +212,15 @@
     },
   ];
 
-  function deleteScript(record: Record<string, any>) {
+  function initData() {
+    setLoadListParams({
+      projectId: currentProjectId.value,
+      keyword: keyword.value,
+    });
+    loadList();
+  }
+
+  function deleteScript(record: CommonScriptItem) {
     openModal({
       type: 'error',
       title: t('project.commonScript.deleteTitleTip', { name: characterLimit(record.name) }),
@@ -192,6 +232,8 @@
       },
       onBeforeOk: async () => {
         try {
+          await deleteCommonScript(record.id);
+          initData();
           Message.success(t('common.deleteSuccess'));
         } catch (error) {
           // eslint-disable-next-line no-console
@@ -202,42 +244,67 @@
     });
   }
 
-  function handleMoreActionSelect(item: ActionsItem, record: Record<string, any>) {
+  function handleMoreActionSelect(item: ActionsItem, record: CommonScriptItem) {
     if (item.eventTag === 'delete') {
       deleteScript(record);
     }
   }
 
-  onMounted(() => {
-    // setLoadListParams({});
-    // loadList();
-    setProps({
-      data: [
-        // {
-        //   name: '哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈哈',
-        //   description: 'description',
-        //   enable: true,
-        //   tags: [{ id: '1001', name: 'A' }],
-        // },
-      ],
-    });
-  });
   tableStore.initColumn(TableKeyEnum.ORGANIZATION_PROJECT_COMMON_SCRIPT, columns, 'drawer');
 
   const showScriptDrawer = ref<boolean>(false);
-
+  const scriptId = ref<string>('');
+  const isEditId = ref<string>('');
   const showDetailDrawer = ref<boolean>(false);
+
   // 脚本详情
-  function showDetail(record: any) {
+  function showDetail(record: CommonScriptItem) {
+    scriptId.value = record.id;
     showDetailDrawer.value = true;
   }
+  const paramsList = ref<ParamsRequestType[]>([]);
+  const confirmLoading = ref<boolean>(false);
 
   // 保存自定义代码片段应用
-  function saveHandler(isDraft: boolean) {}
+  async function saveHandler(form: AddOrUpdateCommonScript) {
+    try {
+      confirmLoading.value = true;
+      const { status } = form;
+      const paramsObj: AddOrUpdateCommonScript = {
+        ...form,
+        status: status || 'DRAFT',
+        projectId: currentProjectId.value,
+        params: JSON.stringify(paramsList.value),
+      };
+      await addCommonScriptReq(paramsObj);
+      showScriptDrawer.value = false;
+      initData();
+      Message.success(
+        form.status === 'DRAFT'
+          ? t('project.commonScript.saveDraftSuccessfully')
+          : t('project.commonScript.appliedSuccessfully')
+      );
+    } catch (error) {
+      console.log(error);
+    } finally {
+      confirmLoading.value = false;
+    }
+  }
 
   function addCommonScript() {
     showScriptDrawer.value = true;
   }
+
+  const radioSelected = ref<boolean>(false);
+
+  function editHandler(record: AddOrUpdateCommonScript) {
+    isEditId.value = record.id as string;
+    showScriptDrawer.value = true;
+  }
+
+  onMounted(() => {
+    initData();
+  });
 </script>
 
 <style scoped></style>

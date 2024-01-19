@@ -34,6 +34,9 @@
     <template #name="{ record, rowIndex }">
       <a-button type="text" class="px-0" @click="showCaseDetail(record.id, rowIndex)">{{ record.name }}</a-button>
     </template>
+    <template #caseLevel="{ record }">
+      <caseLevel :case-level="getCaseLevel(record)" />
+    </template>
     <template #reviewStatus="{ record }">
       <MsIcon
         :type="getStatusText(record.reviewStatus)?.iconType || ''"
@@ -74,27 +77,9 @@
         }}</span>
       </a-tooltip>
     </template>
-    <!-- 渲染自定义字段开始 -->
-    <template v-for="item in customFieldsColumns" :key="item.slotName" #[item.slotName]="{ record }">
-      <div v-if="isCaseLevel(item.slotName as string).name === '用例等级'" class="flex items-center">
-        <span v-if="!record.visible" class="flex items-center" @click="record.visible = true">
-          <caseLevel :case-level="getCaseLevel(record, item)" />
-        </span>
-        <TableFormChange
-          v-model:visible="record.visible"
-          :default-value="record[item.slotName]"
-          :data-rules="record[`rule-${item.slotName}`] || []"
-          @update-customs="updateHandler(record)"
-        />
-      </div>
-      <div v-if="isCaseLevel(item.slotName as string).name === '用例状态'" class="flex items-center">
-        <MsTag
-          :type="getCaseState(record[item.slotName as string]).type"
-          :theme="getCaseState(record[item.slotName as string]).theme"
-          >{{ record[item.slotName as string] }}</MsTag
-        >
-      </div>
-    </template>
+    <!-- 渲染自定义字段开始TODO -->
+    <!-- <template v-for="item in customFieldsColumns" :key="item.slotName" #[item.slotName]="{ record }">
+    </template> -->
     <!-- 渲染自定义字段结束 -->
     <template #operation="{ record }">
       <MsButton @click="operateCase(record, 'edit')">{{ t('common.edit') }}</MsButton>
@@ -215,7 +200,6 @@
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import type { TagType, Theme } from '@/components/pure/ms-tag/ms-tag.vue';
-  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import BatchEditModal from './batchEditModal.vue';
@@ -350,7 +334,7 @@
   const columns: MsTableColumn = [
     {
       title: 'caseManagement.featureCase.tableColumnID',
-      dataIndex: 'id',
+      dataIndex: 'num',
       width: 200,
       showInTable: true,
       sortable: {
@@ -373,6 +357,13 @@
       },
       ellipsis: true,
       showDrag: false,
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnLevel',
+      slotName: 'caseLevel',
+      showInTable: true,
+      width: 200,
+      showDrag: true,
     },
     {
       title: 'caseManagement.featureCase.tableColumnReviewResult',
@@ -431,6 +422,7 @@
       slotName: 'createUser',
       dataIndex: 'createUser',
       showInTable: true,
+      width: 200,
       showDrag: true,
     },
     {
@@ -449,6 +441,7 @@
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
+      width: 260,
       showInTable: true,
       showDrag: false,
     },
@@ -513,6 +506,7 @@
 
   const filterConfigList = ref<FilterFormItem[]>([]);
   const searchCustomFields = ref<FilterFormItem[]>([]);
+  const scrollWidth = ref<number>(3400);
   async function initFilter() {
     const result = await getCustomFieldsTable(currentProjectId.value);
     filterConfigList.value = [
@@ -602,11 +596,12 @@
 
   function getCustomMaps(detailResult: CaseManagementTable) {
     const { customFields } = detailResult;
-    const customFieldsMaps: Record<string, any> = {};
-    customFields.forEach((item: any) => {
-      customFieldsMaps[item.fieldId] = JSON.parse(item.defaultValue);
+    return customFields.map((item: any) => {
+      return {
+        fieldId: item.fieldId,
+        value: Array.isArray(item.defaultValue) ? JSON.stringify(item.defaultValue) : item.defaultValue,
+      };
     });
-    return customFieldsMaps;
   }
   /**
    * 处理更新用例参数
@@ -618,7 +613,6 @@
         ...detailResult,
         name,
         customFields: getCustomMaps(detailResult),
-        tags: JSON.parse(detailResult.tags),
       },
       fileList: [],
     };
@@ -640,57 +634,21 @@
     }
   }
   const initDefaultFields = ref<CustomAttributes[]>([]);
+  let fullColumns: MsTableColumn = []; // 全量列表
+
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setKeyword, setAdvanceFilter } = useTable(
     getCaseList,
     {
       tableKey: TableKeyEnum.CASE_MANAGEMENT_TABLE,
-      scroll: { x: 3400 },
+      scroll: { x: scrollWidth.value },
       selectable: true,
       showSetting: true,
       heightUsed: 374,
       enableDrag: true,
     },
     (record) => {
-      const recordCustomFields = record.customFields;
-      const recordMap: Record<string, any> = {};
-      const recordMapRules: Record<string, any[]> = {};
-      recordCustomFields.forEach((it: any) => {
-        recordMap[it.fieldId] = JSON.parse(it.value);
-      });
-      initDefaultFields.value.forEach((item: any) => {
-        const currentFormRules = FieldTypeFormRules[item.type];
-        const options = item?.options;
-        const currentOptions = options?.map((optionsItem: any) => {
-          return {
-            label: optionsItem.text,
-            value: optionsItem.value,
-          };
-        });
-        const currentForm = {
-          ...currentFormRules,
-          field: item.fieldId, // 字段
-          title: item.fieldName, // label 表单标签
-          value: recordMap[item.fieldId], // 目前的值
-          effect: {
-            required: false, // 是否必填
-          },
-          options: [],
-          props: {
-            ...currentFormRules.props,
-            options: [],
-            modelValue: recordMap[item.fieldId],
-          },
-          emit: ['on-change'],
-        };
-        if (currentOptions && currentOptions.length) {
-          currentForm.options = currentOptions;
-          currentForm.props.options = currentOptions;
-        }
-        recordMapRules[`rule-${item.fieldId}`] = [currentForm];
-      });
       return {
         ...record,
-        ...recordMap,
         tags: (record.tags || []).map((item: string, i: number) => {
           return {
             id: `${record.id}-${i}`,
@@ -698,7 +656,6 @@
           };
         }),
         visible: false,
-        ...recordMapRules,
         showModuleTree: false,
       };
     },
@@ -885,11 +842,13 @@
   // 获取对应模块name
   function getModules(moduleIds: string) {
     const modules = findNodePathByKey(caseTreeData.value, moduleIds, undefined, 'id');
-    const moduleName = (modules || []).treePath.map((item: any) => item.name);
-    if (moduleName.length === 1) {
-      return moduleName[0];
+    if (modules) {
+      const moduleName = (modules || [])?.treePath.map((item: any) => item.name);
+      if (moduleName.length === 1) {
+        return moduleName[0];
+      }
+      return `/${moduleName.join('/')}`;
     }
-    return `/${moduleName.join('/')}`;
   }
 
   // 批量删除
@@ -1008,7 +967,6 @@
 
   // 处理自定义字段列
   let customFieldsColumns: Record<string, any>[] = [];
-  let fullColumns: MsTableColumn = []; // 全量列表
   const tableRef = ref<InstanceType<typeof MsBaseTable> | null>(null);
 
   // 处理自定义字段展示
@@ -1023,6 +981,7 @@
         showTooltip: true,
         showInTable: true,
         showDrag: true,
+        width: 300,
       };
     });
 
@@ -1047,18 +1006,21 @@
   // 获取更新自定义字段参数
   function getCustomsParams(detailResult: CaseManagementTable, record: CaseManagementTable) {
     const customFieldsList = Object.keys(record).filter((item) => item.includes('rule-'));
-    const customMaps: Record<string, any> = {};
+    const customArr: { fieldId: string; value: any }[] = [];
     customFieldsList.forEach((key) => {
       record[key].forEach((it: any) => {
-        customMaps[it.field] = it.value;
+        customArr.push({
+          fieldId: it.field,
+          value: Array.isArray(it.value) ? JSON.stringify(it.value) : it.value,
+        });
       });
     });
 
     return {
       request: {
         ...detailResult,
-        customFields: customMaps,
-        tags: JSON.parse(detailResult.tags),
+        customFields: customArr,
+        tags: detailResult.tags,
       },
       fileList: [],
     };
@@ -1099,8 +1061,9 @@
     }
   }
 
-  function getCaseLevel(record: CaseManagementTable, item: MsTableColumnData): CaseLevel {
-    return (record[item.slotName as string].replaceAll('P', '') * 1) as CaseLevel;
+  function getCaseLevel(record: CaseManagementTable): CaseLevel {
+    const caseLevelItem = record.customFields.find((it: any) => it.fieldName === '用例等级');
+    return caseLevelItem?.options.find((it: any) => it.value === caseLevelItem.defaultValue).text;
   }
 
   // 模块树改变回调

@@ -8,8 +8,11 @@
 
   import { createOrUpdateComment, deleteComment, getCommentList } from '@/api/modules/bug-management/index';
   import { useI18n } from '@/hooks/useI18n';
+  import useModal from '@/hooks/useModal';
 
   import message from '@arco-design/web-vue/es/message';
+
+  const { openModal } = useModal();
 
   const props = defineProps<{
     bugId: string;
@@ -28,15 +31,28 @@
   };
 
   const handleDelete = async (bugid: string) => {
-    try {
-      await deleteComment(bugid);
-      message.success(t('common.deleteSuccess'));
-      initData(bugid);
-    } catch (error) {
-      message.error(t('common.deleteFail'));
-      // eslint-disable-next-line no-console
-      console.error(error);
-    }
+    openModal({
+      type: 'error',
+      title: t('ms.comment.deleteConfirm'),
+      content: t('ms.comment.deleteContent'),
+      okText: t('common.confirmDelete'),
+      cancelText: t('common.cancel'),
+      okButtonProps: {
+        status: 'danger',
+      },
+      onBeforeOk: async () => {
+        try {
+          await deleteComment(bugid);
+          message.success(t('common.deleteSuccess'));
+          initData(bugid);
+        } catch (error) {
+          message.error(t('common.deleteFail'));
+          // eslint-disable-next-line no-console
+          console.error(error);
+        }
+      },
+      hideCancel: false,
+    });
   };
 
   const handleUpdate = async (item: CommentParams, cb: (result: boolean) => void) => {

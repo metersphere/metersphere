@@ -41,9 +41,9 @@
       :confirm-loading="confirmLoading"
       :case-id="props.caseId"
       :associated-ids="associatedIds"
+      :type="RequestModuleEnum.API_CASE"
       @close="emit('close')"
       @save="saveHandler"
-      @init="getModuleCount"
     >
     </MsCaseAssociate>
   </div>
@@ -57,12 +57,12 @@
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsCaseAssociate from '@/components/business/ms-case-associate/index.vue';
+  import { RequestModuleEnum } from '@/components/business/ms-case-associate/utils';
 
   import {
     associationPublicCase,
     getAssociatedCasePage,
     getPublicLinkCaseList,
-    getPublicLinkCaseModulesCounts,
     getPublicLinkModuleTree,
   } from '@/api/modules/case-management/featureCase';
   import { postTabletList } from '@/api/modules/project-management/menuManagement';
@@ -188,14 +188,6 @@
   const caseTypeOptions = ref<{ label: string; value: string }[]>([]);
 
   const modulesCount = ref<Record<string, any>>({});
-
-  async function getModuleCount(params: TableQueryParams) {
-    try {
-      modulesCount.value = await getPublicLinkCaseModulesCounts(params);
-    } catch (error) {
-      console.log(error);
-    }
-  }
 
   const confirmLoading = ref<boolean>(false);
 

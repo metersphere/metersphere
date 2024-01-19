@@ -1,10 +1,11 @@
 <template>
   <div class="flex flex-row gap-[8px]">
-    <MsAvatar avatar="word" />
-    <div class="flex flex-col">
-      <div class="text-[var(--color-text-1)]">{{ props.element.createUser }}</div>
-      <div v-dompurify-html="props.element.content" class="mt-[4px]"></div>
-      <div class="mt-[16px] flex flex-row items-center">
+    <div class="p-1"> <MsAvatar avatar="word" /></div>
+    <div class="flex w-full flex-col">
+      <div class="font-medium text-[var(--color-text-1)]">{{ props.element.createUser }}</div>
+      <div v-if="!isEdit" v-dompurify-html="props.element.content" class="mt-[4px] text-[var(--color-text-2)]"></div>
+
+      <div class="mb-4 mt-[16px] flex flex-row items-center">
         <div class="text-[var(--color-text-4)]">{{
           dayjs(props.element.updateTime).format('YYYY-MM-DD HH:mm:ss')
         }}</div>
@@ -18,15 +19,15 @@
             <span>{{ !expendComment ? t('ms.comment.expendComment') : t('ms.comment.collapseComment') }}</span>
             <span class="text-[var(--color-text-4)]">({{ element.childComments?.length }})</span>
           </div>
-          <div class="comment-btn" @click="replyClick">
+          <div class="comment-btn hover:bg-[rgb(var(--color-bg-3))]" @click="replyClick">
             <MsIconfont type="icon-icon_reply" />
             <span>{{ t('ms.comment.reply') }}</span>
           </div>
-          <div v-if="hasEditAuth" class="comment-btn" @click="editClick">
+          <div v-if="hasEditAuth" class="comment-btn hover:bg-[rgb(var(--color-bg-3))]" @click="editClick">
             <MsIconfont type="icon-icon_edit_outlined" />
             <span>{{ t('ms.comment.edit') }}</span>
           </div>
-          <div class="comment-btn" @click="deleteClick">
+          <div class="comment-btn hover:bg-[rgb(var(--danger-1))]" @click="deleteClick">
             <MsIconfont type="icon-icon_delete-trash_outlined" />
             <span>{{ t('ms.comment.delete') }}</span>
           </div>
@@ -102,8 +103,5 @@
     flex-direction: row;
     gap: 4px;
     cursor: pointer;
-    :hover {
-      background-color: var(--color-bg-2);
-    }
   }
 </style>

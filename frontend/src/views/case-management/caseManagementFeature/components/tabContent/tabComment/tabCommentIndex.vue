@@ -10,20 +10,42 @@
     </div>
   </div>
   <div>
-    <!-- TODO -->
-    <MsComment :comment-list="commentList" @delete="handleDelete" @update-or-add="handleUpdate" />
+    <!-- 用例评论 -->
+    <MsComment
+      v-if="activeComment === 'caseComment'"
+      :comment-list="commentList"
+      @delete="handleDelete"
+      @update-or-add="handleUpdateOrAdd"
+    />
+    <!-- 评审评论 -->
+    <MsComment
+      v-else-if="activeComment === 'reviewComment'"
+      :comment-list="reviewCommentList"
+      @delete="handleDelete"
+      @update-or-add="handleUpdateOrAdd"
+    />
+    <!-- 执行评论 -->
+    <MsComment v-else :comment-list="commentList" @delete="handleDelete" @update-or-add="handleUpdateOrAdd" />
   </div>
 </template>
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { Message } from '@arco-design/web-vue';
 
   import MsComment from '@/components/business/ms-comment/comment';
   import { CommentItem, CommentParams } from '@/components/business/ms-comment/types';
 
-  import { getCommentList } from '@/api/modules/case-management/featureCase';
+  import {
+    deleteCommentList,
+    getCommentList,
+    getReviewCommentList,
+    updateCommentList,
+  } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
+  import useModal from '@/hooks/useModal';
 
+  const { openModal } = useModal();
   const { t } = useI18n();
 
   const props = defineProps<{
@@ -32,37 +54,98 @@
 
   const activeComment = ref('caseComment');
 
-  const content = ref<string>('');
-
   const commentList = ref<CommentItem[]>([]);
+  const reviewCommentList = ref<CommentItem[]>([]);
 
   // 初始化评论列表
   async function initCommentList() {
     try {
       const result = await getCommentList(props.caseId);
-      commentList.value = result.map((item) => {
-        return {
-          ...item,
-        };
-      });
+      commentList.value = result;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  // 初始化评审评论
+  async function initReviewCommentList() {
+    try {
+      const result = await getReviewCommentList(props.caseId);
+      reviewCommentList.value = result;
     } catch (error) {
       console.log(error);
     }
   }
 
-  const currentUserId = ref('');
+  function getAllCommentList() {
+    switch (activeComment.value) {
+      case 'caseComment':
+        initCommentList();
+        break;
+      case 'reviewComment':
+        initReviewCommentList();
+        break;
+      case 'executiveComment':
+        break;
+
+      default:
+        break;
+    }
+  }
 
   // 添加或者更新评论
-  function handleUpdateOrAdd() {}
+  async function handleUpdateOrAdd(item: CommentParams, cb: (result: boolean) => void) {
+    try {
+      if (item.id) {
+        await updateCommentList(item);
+      } else {
+        await updateCommentList(item);
+      }
+      getAllCommentList();
+      cb(true);
+    } catch (error) {
+      cb(false);
+      // eslint-disable-next-line no-console
+      console.error(error);
+    }
+  }
 
   // 删除评论
-  function handleDelete() {}
+  async function handleDelete(caseCommentId: string) {
+    openModal({
+      type: 'error',
+      title: t('ms.comment.deleteConfirm'),
+      content: t('ms.comment.deleteContent'),
+      okText: t('common.confirmDelete'),
+      cancelText: t('common.cancel'),
+      okButtonProps: {
+        status: 'danger',
+      },
+      onBeforeOk: async () => {
+        try {
+          await deleteCommentList(caseCommentId);
+          Message.success(t('common.deleteSuccess'));
+          getAllCommentList();
+        } catch (error) {
+          console.error(error);
+        }
+      },
+      hideCancel: false,
+    });
+  }
 
-  // 更新评论
-  function handleUpdate() {}
+  watch(
+    () => activeComment.value,
+    () => {
+      getAllCommentList();
+    }
+  );
 
   onBeforeMount(() => {
-    initCommentList();
+    getAllCommentList();
+  });
+
+  defineExpose({
+    getAllCommentList,
   });
 </script>
 

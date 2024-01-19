@@ -74,7 +74,7 @@ export const MULTIPLE_MEMBER = {
   type: 'SearchSelect',
   field: 'fieldName',
   title: '',
-  value: '',
+  value: [],
   options: [],
   props: {
     multiple: true,

@@ -20,7 +20,7 @@ export default {
   'project.commonScript.pleaseEnterScriptName': 'Please enter a script name',
   'project.commonScript.scriptEnabled': 'Script state',
   'project.commonScript.enterContentAddTags': 'Enter the content to add the label directly',
-  'project.commonScript.inputParams': 'In parameter',
+  'project.commonScript.inputParams': 'Pass parameters',
   'project.commonScript.commonScript': 'Common script',
   'project.commonScript.executionResult': 'Execution result',
   'project.commonScript.scriptTest': 'test',

@@ -92,6 +92,8 @@ export const checkFileIsUpdateUrl = '/attachment/check-update';
 
 // 评论列表
 export const GetCommentListUrl = '/functional/case/comment/get/list';
+// 评审评论
+export const GetReviewCommentListUrl = '/functional/case/review/comment';
 // 创建评论
 export const CreateCommentItemUrl = '/functional/case/comment/save';
 // 更新评论
@@ -130,3 +132,12 @@ export const CancelAssociatedDebuggerUrl = '/functional/case/test/disassociate/b
 export const GetAssociatedDebuggerUrl = '/functional/case/test/has/associate/bug/page';
 // 获取前后置已关联用例ids
 export const GetAssociatedCaseIdsUrl = '/functional/case/relationship/get-ids';
+// 导入功能
+// 功能用例导入excel下载模板
+export const DownloadExcelTemplateUrl = '/functional/case/download/excel/template';
+// 富文本所需资源上传
+export const EditorUploadFileUrl = '/attachment/upload/temp/file';
+// 富文本资源详情预览压缩图
+export const EditorPreviewImagesUrl = '/attachment/preview/compressed';
+// 预览压缩图
+export const PreviewEditorImageUrl = '/attachment/preview';

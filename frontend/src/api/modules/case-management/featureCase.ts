@@ -1,4 +1,4 @@
-import { CommentItem } from '@/components/business/ms-comment/types';
+import { CommentItem, CommentParams } from '@/components/business/ms-comment/types';
 
 import MSR from '@/api/http/index';
 import {
@@ -24,7 +24,9 @@ import {
   deleteFileOrCancelAssociationUrl,
   DeleteRecycleCaseListUrl,
   DetailCaseUrl,
+  DownloadExcelTemplateUrl,
   DownloadFileUrl,
+  EditorUploadFileUrl,
   FollowerCaseUrl,
   GetAssociatedCaseIdsUrl,
   GetAssociatedDebuggerUrl,
@@ -46,11 +48,13 @@ import {
   GetFileIsUpdateUrl,
   GetRecycleCaseListUrl,
   GetRecycleCaseModulesCountUrl,
+  GetReviewCommentListUrl,
   GetReviewerListUrl,
   GetSearchCustomFieldsUrl,
   getTransferTreeUrl,
   GetTrashCaseModuleTreeUrl,
   MoveCaseModuleTreeUrl,
+  PreviewEditorImageUrl,
   PreviewFileUrl,
   publicAssociatedCaseUrl,
   RecoverRecycleCaseListUrl,
@@ -71,7 +75,6 @@ import type {
   BatchMoveOrCopyType,
   CaseManagementTable,
   CaseModuleQueryParams,
-  CreateOrUpdate,
   CreateOrUpdateDemand,
   CreateOrUpdateModule,
   DeleteCaseType,
@@ -79,6 +82,7 @@ import type {
   DetailCase,
   ModulesTreeType,
   OperationFile,
+  PreviewImages,
   UpdateModule,
 } from '@/models/caseManagement/featureCase';
 import type { CommonList, MoveModules, TableQueryParams } from '@/models/common';
@@ -268,19 +272,24 @@ export function getCommentList(caseId: string) {
   return MSR.get<CommentItem[]>({ url: `${GetCommentListUrl}/${caseId}` });
 }
 
-// 创建评论
-export function createCommentList(data: CreateOrUpdate) {
-  return MSR.post({ url: CreateCommentItemUrl, data });
+// 获取评审评论
+export function getReviewCommentList(caseId: string) {
+  return MSR.get<CommentItem[]>({ url: `${GetReviewCommentListUrl}/${caseId}` });
 }
 
 // 创建评论
-export function updateCommentList(data: CreateOrUpdate) {
+export function createCommentList(data: CommentParams) {
+  return MSR.post({ url: CreateCommentItemUrl, data });
+}
+
+// 编辑评论
+export function updateCommentList(data: CommentParams) {
   return MSR.post({ url: UpdateCommentItemUrl, data });
 }
 
 // 删除评论
 export function deleteCommentList(commentId: string) {
-  return MSR.post({ url: `${DeleteCommentItemUrl}/${commentId}` });
+  return MSR.get({ url: `${DeleteCommentItemUrl}/${commentId}` });
 }
 
 // 评审
@@ -305,24 +314,24 @@ export function getPublicLinkCaseModulesCounts(data: TableQueryParams) {
 
 // 获取关联用例接口模块树
 export function getPublicLinkModuleTree(data: TableQueryParams) {
-  return MSR.post<ModulesTreeType[]>({ url: `${GetAssociationPublicModuleTreeUrl}`, data });
+  return MSR.post<ModulesTreeType[]>({ url: GetAssociationPublicModuleTreeUrl, data });
 }
 // 关联用例
 export function associationPublicCase(data: TableQueryParams) {
-  return MSR.post<ModulesTreeType[]>({ url: `${publicAssociatedCaseUrl}`, data });
+  return MSR.post<ModulesTreeType[]>({ url: publicAssociatedCaseUrl, data });
 }
 
 // 获取前后置用例
 export function getDependOnCase(data: TableQueryParams) {
-  return MSR.post<CommonList<CaseManagementTable>>({ url: `${GetDependOnPageUrl}`, data });
+  return MSR.post<CommonList<CaseManagementTable>>({ url: GetDependOnPageUrl, data });
 }
 // 用例管理-功能用例-用例详情-前后置关系
 export function getPrepositionRelation(data: TableQueryParams) {
-  return MSR.post<CommonList<CaseManagementTable>>({ url: `${GetDependOnRelationUrl}`, data });
+  return MSR.post<CommonList<CaseManagementTable>>({ url: GetDependOnRelationUrl, data });
 }
 // 添加前后置关系
 export function addPrepositionRelation(data: TableQueryParams) {
-  return MSR.post<ModulesTreeType[]>({ url: `${AddDependOnRelationUrl}`, data });
+  return MSR.post<ModulesTreeType[]>({ url: AddDependOnRelationUrl, data });
 }
 // 取消依赖关系
 export function cancelPreOrPostCase(id: string) {
@@ -330,15 +339,15 @@ export function cancelPreOrPostCase(id: string) {
 }
 // 获取抽屉详情已关联用例列表
 export function getAssociatedCasePage(data: TableQueryParams) {
-  return MSR.post<CommonList<CaseManagementTable>>({ url: `${GetAssociatedDrawerCaseUrl}`, data });
+  return MSR.post<CommonList<CaseManagementTable>>({ url: GetAssociatedDrawerCaseUrl, data });
 }
 // 获取用例未关联抽屉缺陷列表
 export function getDrawerDebugPage(data: TableQueryParams) {
-  return MSR.post<CommonList<CaseManagementTable>>({ url: `${GetDebugDrawerPageUrl}`, data });
+  return MSR.post<CommonList<CaseManagementTable>>({ url: GetDebugDrawerPageUrl, data });
 }
 // 关联缺陷
 export function associatedDrawerDebug(data: TableQueryParams) {
-  return MSR.post<CommonList<CaseManagementTable>>({ url: `${AssociatedDebuggerUrl}`, data });
+  return MSR.post<CommonList<CaseManagementTable>>({ url: AssociatedDebuggerUrl, data });
 }
 
 // 取消关联缺陷
@@ -348,12 +357,34 @@ export function cancelAssociatedDebug(id: string) {
 
 // 获取已关联缺陷列表
 export function getLinkedCaseBugList(data: TableQueryParams) {
-  return MSR.post<CommonList<BugListItem>>({ url: `${GetAssociatedDebuggerUrl}`, data });
+  return MSR.post<CommonList<BugListItem>>({ url: GetAssociatedDebuggerUrl, data });
 }
 
 // 获取已关联前后置用例ids
 export function getAssociatedCaseIds(caseId: string) {
   return MSR.get<string[]>({ url: `${GetAssociatedCaseIdsUrl}/${caseId}` });
+}
+
+// 下载导入excel模板
+export function downloadTemplate(projectId: string, type: 'Excel' | 'Xmind') {
+  if (type === 'Excel') {
+    return MSR.get(
+      { url: `${DownloadExcelTemplateUrl}/${projectId}`, responseType: 'blob' },
+      { isTransformResponse: false }
+    );
+  }
+  return MSR.get(
+    { url: `${DownloadExcelTemplateUrl}/${projectId}`, responseType: 'blob' },
+    { isTransformResponse: false }
+  );
+}
+// 富文本编辑器上传图片文件
+export function editorUploadFile(data: { fileList: File[] }) {
+  return MSR.uploadFile({ url: EditorUploadFileUrl }, { fileList: data.fileList }, '', false);
+}
+// 富文本预览查看详情
+export function editorPreviewImages(data: PreviewImages) {
+  return MSR.post({ url: PreviewEditorImageUrl, data });
 }
 
 export default {};

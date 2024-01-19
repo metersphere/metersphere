@@ -2,19 +2,21 @@ export interface CommentUserInfo {
   id: string;
   name: string;
   email: string;
+  avatar: string;
 }
 
 export interface CommentItem {
   id: string; // 评论id
-  parentId?: string; // 父级评论id
-  bugId: string; // bug id
-  createUser: string; // 创建人
-  updateTime: number; // 更新时间
+  createUser: string;
+  parentId: string; // 父级评论id
+  notifier: string; // 通知人
+  replyUser: string; // 回复人
+  createTime: number;
+  updateTime: number;
   content: string;
-  commentUserInfo: CommentUserInfo; // 评论人用户信息
-  replyUser?: string; // 回复人
-  notifier?: string; // 通知人
-  childComments?: CommentItem[];
+  commentUserInfos: CommentUserInfo[];
+  childComments: CommentItem[];
+  [key: string]: any;
 }
 
 // 仅评论: ’COMMENT‘; 评论并@: ’AT‘; 回复评论/回复并@: ’REPLAY‘;)
@@ -31,4 +33,5 @@ export interface CommentParams extends WriteCommentProps {
   content: string;
   replyUser?: string; // 回复人
   notifiers?: string; // 通知人
+  notifier?: string; // 通知人
 }

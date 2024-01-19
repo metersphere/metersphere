@@ -84,7 +84,7 @@
         </div>
         <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
           <template #caseLevel="{ record }">
-            <caseLevel :case-level="(getCaseLevel(record) as CaseLevel)" />
+            <caseLevel :case-level="getCaseLevel(record)" />
           </template>
         </ms-base-table>
         <div class="footer">
@@ -299,11 +299,7 @@
 
   // 用例等级
   function getCaseLevel(record: CaseManagementTable) {
-    const caseLevelRes = record.customFields.find((item: any) => item.name === '用例等级');
-    if (caseLevelRes) {
-      return JSON.parse(caseLevelRes.value).replaceAll('P', '') * 1;
-    }
-    return 0;
+    return (record.customFields.find((item: any) => item.name === '用例等级')?.value as CaseLevel) || 'P1';
   }
 
   const loading = ref(false);

@@ -1,14 +1,13 @@
 <template>
   <MsDrawer
     v-model:visible="showScriptDrawer"
-    :title="t('ms.case.associate.title')"
+    :title="t('project.commonScript.addPublicScript')"
     :width="768"
     :footer="true"
     unmount-on-close
-    :show-continue="true"
+    :ok-loading="props.confirmLoading"
     save-continue-text="project.commonScript.saveAsDraft"
     ok-text="project.commonScript.apply"
-    @continue="handleDrawerConfirm(true)"
     @confirm="handleDrawerConfirm"
     @cancel="handleDrawerCancel"
   >
@@ -25,10 +24,10 @@
           :placeholder="t('project.commonScript.pleaseEnterScriptName')"
         />
       </a-form-item>
-      <a-form-item field="enable" :label="t('project.commonScript.scriptEnabled')">
-        <a-select class="max-w-[396px]" :placeholder="t('project.commonScript.scriptEnabled')">
-          <a-option>{{ t('project.commonScript.draft') }}</a-option>
-          <a-option>{{ t('project.commonScript.testsPass') }}</a-option>
+      <a-form-item field="status" :label="t('project.commonScript.scriptEnabled')">
+        <a-select v-model="form.status" class="max-w-[396px]" :placeholder="t('project.commonScript.scriptEnabled')">
+          <a-option value="DRAFT">{{ t('project.commonScript.draft') }}</a-option>
+          <a-option value="PASSED">{{ t('project.commonScript.testsPass') }}</a-option>
         </a-select>
       </a-form-item>
       <a-form-item field="description" :label="t('system.organization.description')">
@@ -39,11 +38,17 @@
           :auto-size="{ minRows: 1 }"
         />
       </a-form-item>
-      <a-form-item field="tags" :label="t('system.organization.description')">
-        <a-input-tag :placeholder="t('project.commonScript.enterContentAddTags')" allow-clear />
+      <a-form-item field="tags" :label="t('project.commonScript.tags')">
+        <a-input-tag v-model="form.tags" :placeholder="t('project.commonScript.enterContentAddTags')" allow-clear />
       </a-form-item>
       <a-form-item field="inputParameters" :label="t('project.commonScript.inputParams')">
-        <ms-base-table v-bind="propsRes" ref="tableRef" no-disable v-on="propsEvent"> </ms-base-table>
+        <paramTable
+          v-model:params="innerParams"
+          :scroll="{ x: '100%' }"
+          :columns="columns"
+          :height-used="heightUsed"
+          @change="handleParamTableChange"
+        />
       </a-form-item>
       <div class="mb-2 flex items-center justify-between">
         <a-radio-group v-model:model-value="scriptType" type="button" size="small">
@@ -52,30 +57,51 @@
         </a-radio-group>
         <a-button type="outline">{{ t('project.commonScript.scriptTest') }}</a-button>
       </div>
-      <ScriptDefined :show-type="scriptType" />
+      <ScriptDefined
+        v-model:language="form.type"
+        v-model:code="form.script"
+        :show-type="scriptType"
+        :enable-radio-selected="props.enableRadioSelected"
+      />
     </a-form>
   </MsDrawer>
 </template>
 
 <script setup lang="ts">
   import { computed, ref } from 'vue';
+  import { useVModel } from '@vueuse/core';
+  import { FormInstance } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
-  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
-  import useTable from '@/components/pure/ms-table/useTable';
   import ScriptDefined from './scriptDefined.vue';
+  import paramTable from '@/views/api-test/components/paramTable.vue';
 
+  import { getCommonScriptDetail } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
 
-  import { TableKeyEnum } from '@/enums/tableEnum';
+  import type { AddOrUpdateCommonScript, ParamsRequestType } from '@/models/projectManagement/commonScript';
 
+  const heightUsed = ref<number | undefined>(undefined);
+  const formRef = ref<FormInstance>();
   const { t } = useI18n();
+
   const props = defineProps<{
     visible: boolean;
+    params: ParamsRequestType[];
+    confirmLoading: boolean;
+    scriptId?: string; // 脚本id
+    enableRadioSelected?: boolean;
   }>();
 
-  const emit = defineEmits(['update:visible', 'save', 'close']);
+  const emit = defineEmits<{
+    (e: 'update:params', value: any[]): void;
+    (e: 'update:visible', value: boolean): void;
+    (e: 'change'): void;
+    (e: 'save', form: AddOrUpdateCommonScript): void;
+    (e: 'close'): void;
+  }>();
 
   const showScriptDrawer = computed({
     get() {
@@ -86,9 +112,16 @@
     },
   });
 
-  const initForm = {
+  const initForm: AddOrUpdateCommonScript = {
     name: '',
+    status: '',
+    tags: [],
     description: '',
+    projectId: '',
+    params: '',
+    script: '',
+    type: 'beanshellJSR223',
+    result: '',
   };
 
   const form = ref({ ...initForm });
@@ -98,62 +131,94 @@
       title: 'project.commonScript.ParameterNames',
       slotName: 'name',
       dataIndex: 'name',
-      showTooltip: true,
-      showInTable: true,
-    },
-    {
-      title: 'project.commonScript.isRequired',
-      slotName: 'required',
-      dataIndex: 'required',
-      showInTable: true,
     },
     {
       title: 'project.commonScript.ParameterValue',
-      dataIndex: 'tags',
-      slotName: 'tags',
-      showTooltip: true,
-      showInTable: true,
+      dataIndex: 'value',
+      slotName: 'value',
     },
     {
       title: 'project.commonScript.description',
       slotName: 'desc',
-      dataIndex: 'desc',
-      showTooltip: true,
+      dataIndex: 'description',
+    },
+    {
+      title: 'project.commonScript.isRequired',
+      slotName: 'mustContain',
+      dataIndex: 'required',
+    },
+    {
+      title: '',
+      slotName: 'operation',
+      width: 50,
     },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
-    () =>
-      Promise.resolve({
-        list: [],
-        current: 1,
-        pageSize: 10,
-        total: 2,
-      }),
-    {
-      columns,
-      tableKey: TableKeyEnum.FILE_MANAGEMENT_FILE,
-      showSetting: false,
-      scroll: { x: '100%' },
-      heightUsed: 300,
-    },
-    (item) => {
-      return {
-        ...item,
-        tags: item.tags?.map((e: string) => ({ id: e, name: e })) || [],
-      };
-    }
-  );
-
   const scriptType = ref<'commonScript' | 'executionResult'>('commonScript');
 
-  function handleDrawerConfirm(isDraft = false) {
-    emit('save', isDraft);
+  const innerParams = useVModel(props, 'params', emit);
+
+  function handleParamTableChange(resultArr: any[], isInit?: boolean) {
+    innerParams.value = [...resultArr];
+    if (!isInit) {
+      emit('change');
+    }
+  }
+
+  function handleDrawerConfirm() {
+    formRef.value?.validate(async (errors) => {
+      if (!errors) {
+        emit('save', form.value);
+      }
+    });
+  }
+
+  function reset() {
+    formRef.value?.resetFields();
+    form.value = { ...initForm };
+    innerParams.value = [];
   }
 
   function handleDrawerCancel() {
     emit('close');
+    reset();
   }
+
+  const editScriptId = ref<string | undefined>('');
+
+  async function getDetail() {
+    try {
+      if (editScriptId.value) {
+        const result = await getCommonScriptDetail(editScriptId.value);
+        form.value = cloneDeep(result);
+        innerParams.value = JSON.parse(result.params);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  watch(
+    () => props.scriptId,
+    (val) => {
+      if (val) {
+        editScriptId.value = val;
+        if (val) {
+          getDetail();
+        }
+      }
+    }
+  );
+
+  watch(
+    () => showScriptDrawer.value,
+    (val) => {
+      if (val) {
+        form.value = { ...initForm };
+        innerParams.value = [];
+      }
+    }
+  );
 </script>
 
 <style scoped></style>

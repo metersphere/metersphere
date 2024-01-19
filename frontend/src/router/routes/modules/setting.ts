@@ -250,6 +250,7 @@ const Setting: AppRouteRecordRaw = {
               {
                 name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
                 locale: 'menu.settings.organization.templateManagementDetail',
+                editTag: 'id',
                 editLocale: 'menu.settings.organization.templateManagementEdit',
               },
             ],

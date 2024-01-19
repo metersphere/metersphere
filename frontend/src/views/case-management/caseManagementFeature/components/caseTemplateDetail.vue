@@ -48,17 +48,17 @@
             <AddStep v-model:step-list="stepData" :is-disabled="false" />
           </div>
           <!-- 文本描述 -->
-          <MsRichText v-else v-model:raw="form.textDescription" />
+          <MsRichText v-else v-model:raw="form.textDescription" :upload-image="handleUploadImage" />
         </a-form-item>
         <a-form-item
           v-if="form.caseEditType === 'TEXT'"
           field="remark"
           :label="t('caseManagement.featureCase.expectedResult')"
         >
-          <MsRichText v-model:raw="form.expectedResult" />
+          <MsRichText v-model:raw="form.expectedResult" :upload-image="handleUploadImage" />
         </a-form-item>
         <a-form-item field="remark" :label="t('caseManagement.featureCase.remark')">
-          <MsRichText v-model:raw="form.description" />
+          <MsRichText v-model:raw="form.description" :upload-image="handleUploadImage" />
         </a-form-item>
         <AddAttachment @change="handleChange" @link-file="associatedFile" @upload="beforeUpload" />
       </a-form>
@@ -239,16 +239,15 @@
   import {
     checkFileIsUpdateRequest,
     downloadFileRequest,
+    editorUploadFile,
     getAssociatedFileListUrl,
     getCaseDefaultFields,
     getCaseDetail,
     previewFile,
     transferFileRequest,
     updateFile,
-    uploadOrAssociationFile,
   } from '@/api/modules/case-management/featureCase';
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
-  import { getProjectFieldList } from '@/api/modules/setting/template';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
@@ -266,10 +265,6 @@
   import type { CustomField, DefinedFieldItem } from '@/models/setting/template';
 
   import { convertToFile } from './utils';
-  import {
-    getCustomDetailFields,
-    getTotalFieldOptionList,
-  } from '@/views/setting/organization/template/components/fieldSetting';
 
   const { t } = useI18n();
   const route = useRoute();
@@ -285,9 +280,6 @@
   const acceptType = ref('none'); // 模块-上传文件类型
   const formRef = ref<FormInstance>();
   const caseFormRef = ref<FormInstance>();
-
-  // 默认模版自定义字段
-  const selectData = ref<DefinedFieldItem[]>([]);
 
   // 步骤描述
   const stepData = ref<StepList[]>([
@@ -364,33 +356,36 @@
     form.value.caseEditType = value as string;
   };
 
-  // 总自定义字段
-  const totalTemplateField = ref<DefinedFieldItem[]>([]);
-
   const isLoading = ref<boolean>(true);
 
-  // 获取所有字段
-  async function getAllCaseFields() {
-    try {
-      totalTemplateField.value = await getProjectFieldList({ scopedId: currentProjectId.value, scene: 'FUNCTIONAL' });
-      totalTemplateField.value = getTotalFieldOptionList(totalTemplateField.value as DefinedFieldItem[]);
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  const rowLength = ref<number>(0);
+  const formRules = ref<FormItem[]>([]);
+  const formItem = ref<FormRuleItem[]>([]);
+  const fApi = ref<any>(null);
 
   // 初始化模版默认字段
   async function initDefaultFields() {
+    formRules.value = [];
     try {
       isLoading.value = true;
-      await getAllCaseFields();
       const res = await getCaseDefaultFields(currentProjectId.value);
-
       const { customFields, id } = res;
       form.value.templateId = id;
-
-      selectData.value = getCustomDetailFields(totalTemplateField.value as DefinedFieldItem[], customFields);
-
+      const result = customFields.map((item: any) => {
+        return {
+          type: item.type,
+          name: item.fieldId,
+          label: item.fieldName,
+          value: item.defaultValue,
+          required: item.required,
+          options: item.options || [],
+          props: {
+            modelValue: item.defaultValue,
+            options: item.options || [],
+          },
+        };
+      });
+      formRules.value = result;
       isLoading.value = false;
     } catch (error) {
       console.log(error);
@@ -500,10 +495,24 @@
       name: route.params.mode === 'copy' ? `${detailResult.name}_copy` : detailResult.name,
     };
     // 处理自定义字段
-    selectData.value = getCustomDetailFields(
-      totalTemplateField.value as DefinedFieldItem[],
-      customFields as CustomField[]
-    );
+    formRules.value = customFields.map((item: any) => {
+      const multipleType = ['MULTIPLE_SELECT', 'CHECKBOX', 'MULTIPLE_MEMBER', 'MULTIPLE_INPUT'];
+      const currentDefaultValue = multipleType.includes(item.type) ? JSON.parse(item.defaultValue) : item.defaultValue;
+
+      return {
+        ...item,
+        type: item.type,
+        name: item.fieldId,
+        label: item.fieldName,
+        value: currentDefaultValue,
+        required: item.required,
+        options: item.options || [],
+        props: {
+          modelValue: currentDefaultValue,
+          options: item.options || [],
+        },
+      };
+    });
     // 处理步骤
     if (steps) {
       stepData.value = JSON.parse(steps).map((item: any) => {
@@ -534,13 +543,12 @@
   async function getCaseInfo() {
     try {
       isLoading.value = true;
-      await getAllCaseFields();
+      // await getAllCaseFields();
       const detailResult: DetailCase = await getCaseDetail(props.caseId);
       const fileIds = (detailResult.attachments || []).map((item: any) => item.id);
       if (fileIds.length) {
         checkUpdateFileIds.value = await checkFileIsUpdateRequest(fileIds);
       }
-
       getDetailData(detailResult);
     } catch (error) {
       console.log(error);
@@ -629,57 +637,17 @@
     });
   }
 
-  const rowLength = ref<number>(0);
-  const formRuleField = ref<FormItem[][]>([]);
-  const formRules = ref<FormItem[]>([]);
-  const formItem = ref<FormRuleItem[]>([]);
-  const fApi = ref<any>(null);
-
-  // 处理表单格式
-  const getFormRules = () => {
-    formRuleField.value = [];
-    formRules.value = [];
-    if (selectData.value && selectData.value.length) {
-      selectData.value.forEach((item: any) => {
-        const currentFormItem = item.formRules?.map((rule: any) => {
-          let optionsItem = [];
-          if (rule.options && rule.options.length) {
-            optionsItem = rule.options.map((opt: any) => {
-              return {
-                text: opt.label,
-                value: opt.value,
-              };
-            });
-          }
-          return {
-            type: item.type,
-            name: item.id,
-            label: item.name,
-            value: rule.value,
-            options: optionsItem,
-            required: item.required,
-            props: {
-              modelValue: rule.value,
-              options: optionsItem,
-            },
-          };
-        });
-        formRuleField.value.push(currentFormItem as FormItem[]);
-      });
-      formRules.value = formRuleField.value.flatMap((item) => item);
-    }
-  };
-
   // 监视表单右侧自定义字段改变收集自定义字段参数
   watch(
     () => formItem.value,
     (val) => {
       if (val) {
-        const customFieldsMaps: Record<string, any> = {};
-        formItem.value?.forEach((item: any) => {
-          customFieldsMaps[item.field as string] = item.value;
+        form.value.customFields = formItem.value.map((item: any) => {
+          return {
+            fieldId: item.field,
+            value: Array.isArray(item.value) ? JSON.stringify(item.value) : item.value,
+          };
         });
-        form.value.customFields = customFieldsMaps;
       }
     },
     { deep: true }
@@ -687,9 +655,8 @@
 
   // 监视自定义字段改变处理formCreate
   watch(
-    () => selectData.value,
+    () => formRules.value,
     () => {
-      getFormRules();
       rowLength.value = formRules.value.length + 2;
     },
     { deep: true }
@@ -697,7 +664,6 @@
 
   onBeforeUnmount(() => {
     formRules.value = [];
-    formRuleField.value = [];
   });
 
   const transferVisible = ref<boolean>(false);
@@ -731,11 +697,7 @@
   }
 
   async function handleUploadImage(file: File) {
-    const { data } = await uploadOrAssociationFile({
-      request: {
-        caseId: route.query.id,
-        projectId: currentProjectId.value,
-      },
+    const { data } = await editorUploadFile({
       fileList: [file],
     });
     return data;

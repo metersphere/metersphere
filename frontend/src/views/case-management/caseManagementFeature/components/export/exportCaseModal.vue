@@ -22,7 +22,9 @@
             :type="props.validateType === 'Excel' ? 'icon-icon_file-excel_colorful1' : 'icon-icon_file-xmind_colorful1'"
             class="mx-1 cursor-pointer text-[rgb(var(--primary-6))]"
           ></MsIcon>
-          <MsButton>{{ t('caseManagement.featureCase.downloadTemplate', { type: props.validateType }) }}</MsButton>
+          <MsButton @click="downloadExcelTemplate">{{
+            t('caseManagement.featureCase.downloadTemplate', { type: props.validateType })
+          }}</MsButton>
         </div>
       </a-alert>
       <MsUpload
@@ -78,13 +80,15 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { FileItem, Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
 
+  import { downloadTemplate } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
-
-  import type { FileItem } from '@arco-design/web-vue';
+  import { useAppStore } from '@/store';
+  import { downloadByteFile } from '@/utils';
 
   const { t } = useI18n();
 
@@ -99,6 +103,9 @@
     (e: 'close'): void;
   }>();
   const fileList = ref<FileItem[]>([]);
+
+  const appStore = useAppStore();
+  const currentProjectId = computed(() => appStore.currentProjectId);
 
   const dialogVisible = computed({
     get: () => props.visible,
@@ -122,6 +129,16 @@
   const isRecover = ref<boolean>(false);
 
   const isDisabled = ref<boolean>(false);
+
+  // 下载excel|| xmind模板
+  async function downloadExcelTemplate() {
+    try {
+      const res = await downloadTemplate(currentProjectId.value, props.validateType);
+      downloadByteFile(res, 'excel_case.xlsx');
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   function saveConfirm() {
     emit('save', fileList.value);

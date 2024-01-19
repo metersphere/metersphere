@@ -28,6 +28,8 @@ export interface customFieldsItem {
   caseId?: string; // 用例id
   fieldId: string;
   value: string;
+  defaultValue?: string;
+  [key: string]: any;
 }
 
 export interface OptionsFieldId {
@@ -296,3 +298,12 @@ export interface CreateOrUpdate {
 }
 
 export type DemandList = DemandItem[];
+
+// 获取editor富文本语言详情
+export interface PreviewImages {
+  projectId: string;
+  caseId: string;
+  fileId?: string;
+  fileSource?: string; // 附件(ATTACHMENT)/功能用例详情(CASE_DETAIL)/用例评论(CASE_COMMENT)/评审评论(REVIEW_COMMENT)
+  local: boolean;
+}

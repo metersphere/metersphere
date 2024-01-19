@@ -4,7 +4,6 @@ import Item from './comment-item.vue';
 import CommentInput from './input.vue';
 
 import { useI18n } from '@/hooks/useI18n';
-import useModal from '@/hooks/useModal';
 
 import { CommentItem, CommentParams } from './types';
 import message from '@arco-design/web-vue/es/message';
@@ -33,7 +32,6 @@ export default defineComponent({
       parentId: '',
     });
     const { t } = useI18n();
-    const { openModal } = useModal();
 
     const resetCurrentItem = () => {
       currentItem.id = '';
@@ -57,20 +55,7 @@ export default defineComponent({
     };
 
     const handleDelete = (item: CommentItem) => {
-      openModal({
-        type: 'error',
-        title: t('ms.comment.deleteConfirm'),
-        content: t('ms.comment.deleteContent'),
-        okText: t('common.confirmDelete'),
-        cancelText: t('common.cancel'),
-        okButtonProps: {
-          status: 'danger',
-        },
-        onBeforeOk: async () => {
-          emit('delete', item.id);
-        },
-        hideCancel: false,
-      });
+      emit('delete', item.id);
     };
 
     const handleReply = (item: CommentItem) => {
