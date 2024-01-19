@@ -99,7 +99,7 @@
         </MsAdvanceFilter>
         <ms-base-table v-bind="propsRes" no-disable class="mt-[16px]" v-on="propsEvent">
           <template #caseLevel="{ record }">
-            <caseLevel :case-level="(getCaseLevel(record) as CaseLevel)" />
+            <caseLevel :case-level="getCaseLevel(record)" />
           </template>
         </ms-base-table>
         <div class="footer">
@@ -143,7 +143,7 @@
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import caseLevel from './caseLevel.vue';
 
-  import { getCaseModulesCounts, getCustomFieldsTable } from '@/api/modules/case-management/featureCase';
+  import { getCustomFieldsTable } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import { mapTree } from '@/utils';
@@ -153,6 +153,7 @@
   import { ModuleTreeNode } from '@/models/projectManagement/file';
 
   import type { CaseLevel } from './types';
+  import { initGetModuleCountFunc, type RequestModuleEnum } from './utils';
 
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -170,11 +171,13 @@
     moduleOptions?: { label: string; value: string }[]; // 功能模块对应用例下拉
     confirmLoading: boolean;
     associatedIds: string[]; // 已关联用例id集合用于去重已关联
+    type: RequestModuleEnum[keyof RequestModuleEnum];
+    moduleCountParams?: TableQueryParams; // 获取模块树数量额外的参数
   }>();
 
   const emit = defineEmits<{
     (e: 'update:visible', val: boolean): void;
-    (e: 'update:project', val: string): void;
+    (e: 'update:projectId', val: string): void;
     (e: 'update:currentSelectCase', val: string | number | Record<string, any> | undefined): void;
     (e: 'init', val: TableQueryParams): void; // 初始化模块数量
     (e: 'close'): void;
@@ -508,9 +511,11 @@
         current: propsRes.value.msPagination?.current,
         pageSize: propsRes.value.msPagination?.pageSize,
         combine: combine.value,
+        sourceId: props.caseId,
+        sourceType: caseType.value,
+        ...props.moduleCountParams,
       };
-      modulesCount.value = await getCaseModulesCounts(params);
-      emit('init', params);
+      modulesCount.value = await initGetModuleCountFunc(props.type, params);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -544,11 +549,7 @@
 
   // 用例等级
   function getCaseLevel(record: CaseManagementTable) {
-    const caseLevelRes = record.customFields.find((item: any) => item.name === '用例等级');
-    if (caseLevelRes) {
-      return JSON.parse(caseLevelRes.value).replaceAll('P', '') * 1;
-    }
-    return 0;
+    return (record.customFields.find((item: any) => item.name === '用例等级')?.value as CaseLevel) || 'P1';
   }
 
   function cancel() {

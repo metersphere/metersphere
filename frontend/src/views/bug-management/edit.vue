@@ -154,8 +154,8 @@
     createBug,
     getAssociatedFileList,
     getBugDetail,
-    getTemplageOption,
     getTemplateById,
+    getTemplateOption,
   } from '@/api/modules/bug-management';
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
@@ -297,7 +297,7 @@
 
   const getTemplateOptions = async () => {
     try {
-      const res = await getTemplageOption({ projectId: appStore.currentProjectId });
+      const res = await getTemplateOption(appStore.currentProjectId);
       templateOption.value = res.map((item) => {
         if (item.enableDefault && !isEdit.value) {
           // 当创建时 选中默认模板

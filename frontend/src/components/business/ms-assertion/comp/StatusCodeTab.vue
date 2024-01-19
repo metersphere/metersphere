@@ -13,7 +13,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed } from 'vue';
+  import { computed, defineModel } from 'vue';
 
   import { statusCodeOptions } from '@/components/pure/ms-advance-filter/index';
 

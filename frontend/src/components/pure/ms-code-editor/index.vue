@@ -125,6 +125,19 @@
         }
       };
 
+      // 撤销
+      function undo() {
+        if (editor) {
+          editor.trigger('source', 'undo', {});
+        }
+      }
+      // 重做
+      function redo() {
+        if (editor) {
+          editor.trigger('source', 'redo', {});
+        }
+      }
+
       watch(
         () => props.modelValue,
         (newValue) => {
@@ -172,6 +185,8 @@
         t,
         handleThemeChange,
         insertContent,
+        undo,
+        redo,
       };
     },
   });

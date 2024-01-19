@@ -445,6 +445,13 @@ export const pathMap: PathMapItem[] = [
         level: MENU_LEVEL[2],
       },
       {
+        key: 'PROJECT_MANAGEMENT_COMMON_SCRIPT', // 项目管理-公共脚本
+        locale: 'menu.projectManagement.commonScript',
+        route: RouteEnum.PROJECT_MANAGEMENT_COMMON_SCRIPT,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+      {
         key: 'PROJECT_MANAGEMENT_LOG', // 项目管理-日志
         locale: 'menu.projectManagement.log',
         route: RouteEnum.PROJECT_MANAGEMENT_LOG,

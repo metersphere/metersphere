@@ -15,7 +15,12 @@
             }}</a-button
           ></span
         >
-        <MsRichText v-if="isEditPreposition" v-model:raw="detailForm.prerequisite" class="mt-2" />
+        <MsRichText
+          v-if="isEditPreposition"
+          v-model:raw="detailForm.prerequisite"
+          :upload-image="handleUploadImage"
+          class="mt-2"
+        />
         <div v-else v-dompurify-html="detailForm?.prerequisite || '-'" class="text-[var(--color-text-3)]"></div>
       </a-form-item>
       <a-form-item
@@ -51,6 +56,7 @@
         <MsRichText
           v-if="detailForm.caseEditType === 'TEXT' && isEditPreposition"
           v-model:raw="detailForm.textDescription"
+          :upload-image="handleUploadImage"
         />
         <div v-if="detailForm.caseEditType === 'TEXT' && !isEditPreposition">{{
           detailForm.textDescription || '-'
@@ -64,11 +70,12 @@
         <MsRichText
           v-if="detailForm.caseEditType === 'TEXT' && isEditPreposition"
           v-model:raw="detailForm.expectedResult"
+          :upload-image="handleUploadImage"
         />
         <div v-else class="text-[var(--color-text-3)]" v-html="detailForm.description || '-'"></div>
       </a-form-item>
       <a-form-item field="remark" :label="t('caseManagement.featureCase.remark')">
-        <MsRichText v-if="isEditPreposition" v-model:raw="detailForm.description" />
+        <MsRichText v-if="isEditPreposition" v-model:raw="detailForm.description" :upload-image="handleUploadImage" />
         <div v-else v-dompurify-html="detailForm.description || '-'" class="text-[var(--color-text-3)]"></div>
       </a-form-item>
       <div v-if="isEditPreposition" class="flex justify-end">
@@ -235,6 +242,7 @@
     checkFileIsUpdateRequest,
     deleteFileOrCancelAssociation,
     downloadFileRequest,
+    editorUploadFile,
     getAssociatedFileListUrl,
     previewFile,
     transferFileRequest,
@@ -252,7 +260,6 @@
   import type { TableQueryParams } from '@/models/common';
 
   import { convertToFile } from '../utils';
-  import debounce from 'lodash-es/debounce';
 
   const caseFormRef = ref<FormInstance>();
 
@@ -398,9 +405,11 @@
       };
     });
 
-    const customFieldsMaps: Record<string, any> = {};
-    props.formRules?.forEach((item: any) => {
-      customFieldsMaps[item.field as string] = item.value;
+    const customFieldsArr = props.formRules?.map((item: any) => {
+      return {
+        fieldId: item.field,
+        value: Array.isArray(item.value) ? JSON.stringify(item.value) : item.value,
+      };
     });
 
     return {
@@ -410,8 +419,7 @@
         deleteFileMetaIds: deleteFileMetaIds.value,
         unLinkFilesIds: unLinkFilesIds.value,
         newAssociateFileListIds: newAssociateFileListIds.value,
-        tags: detailForm.value.tags.length ? JSON.parse(detailForm.value.tags) : detailForm.value.tags,
-        customFields: customFieldsMaps,
+        customFields: customFieldsArr,
       },
       fileList: fileList.value.filter((item: any) => item.status === 'init'), // 总文件列表
     };
@@ -564,32 +572,6 @@
     }
   );
 
-  // 单独更新字段
-  const updateCustomFields = debounce(() => {
-    const customFieldsMaps: Record<string, any> = {};
-    props.formRules?.forEach((item: any) => {
-      customFieldsMaps[item.field as string] = item.value;
-    });
-    detailForm.value.customFields = customFieldsMaps as Record<string, any>;
-  }, 300);
-
-  // 监视收集自定义字段参数
-  watch(
-    () => props.formRules,
-    (val) => {
-      if (val) {
-        const customFieldsValues = props.form.customFields.map((item: any) => JSON.parse(item.defaultValue));
-        // 如果和起始值不一致更新某个字段
-        const isChange = val?.every((item: any) => customFieldsValues.includes(item.value));
-        if (!isChange) {
-          updateCustomFields();
-          handleOK();
-        }
-      }
-    },
-    { deep: true }
-  );
-
   // 文件列表单个上传
   watch(
     () => fileList.value,
@@ -620,6 +602,13 @@
     }
   }
 
+  async function handleUploadImage(file: File) {
+    const { data } = await editorUploadFile({
+      fileList: [file],
+    });
+    return data;
+  }
+
   onMounted(() => {
     detailForm.value = { ...props.form };
     getDetails();
@@ -627,6 +616,7 @@
 
   defineExpose({
     handleOK,
+    getParams,
   });
 </script>
 

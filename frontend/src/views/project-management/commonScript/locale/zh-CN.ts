@@ -19,7 +19,7 @@ export default {
   'project.commonScript.pleaseEnterScriptName': '请输入脚本名称',
   'project.commonScript.scriptEnabled': '脚本状态',
   'project.commonScript.enterContentAddTags': '输入内容后回车可直接添加标签',
-  'project.commonScript.inputParams': '入参',
+  'project.commonScript.inputParams': '传递参数',
   'project.commonScript.commonScript': '公共脚本',
   'project.commonScript.executionResult': '执行结果',
   'project.commonScript.scriptTest': '测试',
@@ -30,7 +30,7 @@ export default {
   'project.commonScript.clear': '清空',
   'project.commonScript.testSuccess': '测试成功',
   'project.commonScript.ParameterNames': '参数名称',
-  'project.commonScript.isRequired': '是否必填',
+  'project.commonScript.isRequired': '必含',
   'project.commonScript.ParameterValue': '参数值',
   'project.commonScript.changeSerialNumber': '变更序号',
   'project.commonScript.actionType': '类型',
@@ -50,6 +50,8 @@ export default {
   'project.commonScript.responsible': '责任人',
   'project.commonScript.path': '路径',
   'project.commonScript.saveAsDraft': '保存为草稿',
+  'project.commonScript.saveDraftSuccessfully': '保存草稿成功',
+  'project.commonScript.appliedSuccessfully': '应用成功',
   'project': {
     code_segment: {
       importApiTest: '从API定义导入',

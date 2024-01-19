@@ -54,8 +54,8 @@ export function deleteBatchBug(data: TableQueryParams) {
   return MSR.post({ url: bugURL.postBatchDeleteBugUrl, data });
 }
 /** 获取模板 Option */
-export function getTemplageOption(params: { projectId: string }) {
-  return MSR.get<TemplateOption[]>({ url: bugURL.getTemplageOption, params });
+export function getTemplateOption(projectId: string) {
+  return MSR.get<TemplateOption[]>({ url: `${bugURL.getTemplateOption}/${projectId}` });
 }
 /** 获取模板详情 */
 export function getTemplateById(data: TableQueryParams) {

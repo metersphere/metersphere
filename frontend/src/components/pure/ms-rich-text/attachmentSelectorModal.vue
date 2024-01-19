@@ -5,15 +5,21 @@
       v-model:file-list="fileList"
       class="w-full"
       accept="none"
-      :max-size="50"
-      size-unit="MB"
-      main-text="system.user.importModalDragText"
-      :sub-text="t('system.plugin.supportFormat')"
+      :is-limit="false"
+      :show-sub-text="false"
       :show-file-list="false"
       :auto-upload="false"
-      :disabled="confirmLoading"
-    ></MsUpload>
-    <template #footer> </template>
+    />
+    <template #footer>
+      <div class="flex flex-row justify-end gap-[8px]"
+        ><a-button type="secondary" @click="handleCancel">
+          {{ t('common.cancel') }}
+        </a-button>
+        <a-button type="primary" :loading="confirmLoading" @click="handleConfirm">
+          {{ t('common.confirm') }}
+        </a-button></div
+      >
+    </template>
   </a-modal>
 </template>
 
@@ -21,10 +27,9 @@
   import { ref } from 'vue';
 
   import MsUpload from '@/components/pure/ms-upload/index.vue';
+  import type { MsFileItem } from '@/components/pure/ms-upload/types';
 
   import { useI18n } from '@/hooks/useI18n';
-
-  import type { FileItem } from '@arco-design/web-vue';
 
   const { t } = useI18n();
 
@@ -34,6 +39,8 @@
 
   const emits = defineEmits<{
     (e: 'update:visible', value: boolean): void;
+    (event: 'close'): void;
+    (event: 'select', attachments: MsFileItem[]): void;
   }>();
 
   const uploadVisible = computed({
@@ -45,9 +52,18 @@
     },
   });
 
-  const fileList = ref<FileItem[]>([]);
+  const fileList = ref<MsFileItem[]>([]);
 
   const confirmLoading = ref<boolean>(false);
+
+  function handleConfirm() {
+    emits('select', fileList.value);
+  }
+
+  function handleCancel() {
+    fileList.value = [];
+    uploadVisible.value = false;
+  }
 </script>
 
 <style scoped></style>

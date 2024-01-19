@@ -7,9 +7,9 @@
     unmount-on-close
   >
     <template #headerLeft>
-      <MsTag type="success" theme="light">{{ t('project.commonScript.testSuccess') }}</MsTag>
+      <MsTag class="ml-1" type="success" theme="light">{{ t('project.commonScript.testSuccess') }}</MsTag>
     </template>
-    <a-radio-group v-model:model-value="showType" type="button" size="small">
+    <a-radio-group v-model="showType" type="button" size="small">
       <a-radio value="detail">{{ t('project.commonScript.detail') }}</a-radio>
       <a-radio value="changeHistory">{{ t('project.commonScript.changeHistory') }}</a-radio>
     </a-radio-group>
@@ -18,19 +18,24 @@
       <div class="detailField mt-4">
         <div class="item">
           <span class="label">{{ t('project.commonScript.description') }}</span>
-          <span class="content">内容内容内容内容内容内容内容内容</span>
+          <span class="content">{{ form.description }}</span>
         </div>
         <div class="item">
           <span class="label">{{ t('project.commonScript.tags') }}</span>
           <span class="content">
-            <MsTag theme="outline">标签</MsTag>
+            <MsTag v-for="tag of form.tags" :key="tag" theme="outline">{{ tag }}</MsTag>
           </span>
         </div>
       </div>
       <span>{{ t('project.commonScript.inputParams') }}</span>
-      <ms-base-table v-bind="propsRes" ref="tableRef" class="mb-4" no-disable v-on="propsEvent"> </ms-base-table>
 
-      <a-radio-group v-model:model-value="scriptType" type="button" size="small">
+      <ms-base-table v-bind="propsRes" ref="tableRef" class="mb-4" no-disable v-on="propsEvent">
+        <template #mustContain="{ record }">
+          <a-checkbox v-model:model-value="record.mustContain" :disabled="true"></a-checkbox>
+        </template>
+      </ms-base-table>
+
+      <a-radio-group v-model="scriptType" class="mt-4" type="button" size="small">
         <a-radio value="commonScript">{{ t('project.commonScript.commonScript') }}</a-radio>
         <a-radio value="executionResult">{{ t('project.commonScript.executionResult') }}</a-radio>
       </a-radio-group>
@@ -68,6 +73,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { cloneDeep } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
@@ -77,17 +83,20 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
 
+  import { getCommonScriptDetail } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
 
+  import type { AddOrUpdateCommonScript, ParamsRequestType } from '@/models/projectManagement/commonScript';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const { t } = useI18n();
 
   const props = defineProps<{
     visible: boolean;
+    scriptId: string; // 脚本id
   }>();
 
-  const emit = defineEmits(['update:visible']);
+  const emit = defineEmits(['update:visible', 'change']);
 
   const showType = ref('detail');
 
@@ -109,15 +118,9 @@
       showInTable: true,
     },
     {
-      title: 'project.commonScript.isRequired',
-      slotName: 'required',
-      dataIndex: 'required',
-      showInTable: true,
-    },
-    {
       title: 'project.commonScript.ParameterValue',
-      dataIndex: 'tags',
-      slotName: 'tags',
+      dataIndex: 'value',
+      slotName: 'value',
       showTooltip: true,
       showInTable: true,
     },
@@ -127,28 +130,21 @@
       dataIndex: 'desc',
       showTooltip: true,
     },
+    {
+      title: 'project.commonScript.isRequired',
+      slotName: 'mustContain',
+      dataIndex: 'required',
+      showInTable: true,
+    },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
-    () =>
-      Promise.resolve({
-        list: [
-          {
-            ParameterNames: 'xxxx',
-          },
-        ],
-        current: 1,
-        pageSize: 10,
-        total: 2,
-      }),
-    {
-      columns,
-      selectable: false,
-      showSetting: false,
-      scroll: { x: '100%' },
-      heightUsed: 300,
-    }
-  );
+  const { propsRes, propsEvent, setProps } = useTable(undefined, {
+    columns,
+    selectable: false,
+    showSetting: false,
+    scroll: { x: '100%' },
+    heightUsed: 300,
+  });
 
   const scriptType = ref<'commonScript' | 'executionResult'>('commonScript');
 
@@ -218,6 +214,54 @@
   );
 
   function recoverHandler(record: any) {}
+
+  const initForm: AddOrUpdateCommonScript = {
+    name: '',
+    status: '',
+    tags: [],
+    description: '',
+    projectId: '',
+    params: '',
+    script: '',
+    type: 'beanshell',
+    result: '',
+  };
+
+  const form = ref<AddOrUpdateCommonScript>({ ...initForm });
+
+  async function getDetail(scriptId: string) {
+    try {
+      const result = await getCommonScriptDetail(scriptId);
+      form.value = cloneDeep(result);
+      detailValue.value = form.value.script;
+      const innerTableData = JSON.parse(form.value.params);
+      setProps({ data: innerTableData.slice(0, innerTableData.length - 1) });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  const originScript = ref<string>('');
+
+  watch(
+    () => props.scriptId,
+    (val) => {
+      if (val && originScript.value !== val) {
+        getDetail(val);
+      }
+    }
+  );
+
+  watch(
+    () => scriptType.value,
+    () => {
+      const { script, result } = form.value;
+      detailValue.value = scriptType.value === 'commonScript' ? script : result;
+    }
+  );
+
+  onMounted(() => {
+    originScript.value = props.scriptId;
+  });
 </script>
 
 <style scoped lang="less">

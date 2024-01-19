@@ -77,11 +77,7 @@
             </div>
           </template>
         </MsAdvanceFilter>
-        <ms-base-table v-bind="propsRes" no-disable class="mt-[16px]" v-on="propsEvent">
-          <!-- <template #caseLevel="{ record }">
-            <caseLevel :case-level="(getCaseLevel(record) as CaseLevel)" />
-          </template> -->
-        </ms-base-table>
+        <ms-base-table v-bind="propsRes" no-disable class="mt-[16px]" v-on="propsEvent"> </ms-base-table>
       </div>
     </div>
   </MsDrawer>
@@ -89,6 +85,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { useVModel } from '@vueuse/core';
 
   import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import { FilterFormItem } from '@/components/pure/ms-advance-filter/type';
@@ -101,12 +98,19 @@
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
 
+  import {
+    getFormApiImportModule,
+    getFormApiImportModuleCount,
+    getFormApiImportPageList,
+  } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import { mapTree } from '@/utils';
 
   import type { TableQueryParams } from '@/models/common';
   import { ModuleTreeNode } from '@/models/projectManagement/file';
+
+  const appStore = useAppStore();
 
   const { t } = useI18n();
 
@@ -116,7 +120,9 @@
     confirmLoading: boolean;
   }>();
 
-  const emit = defineEmits(['update:visible', 'save', 'close']);
+  const emit = defineEmits(['update:visible', 'save', 'close', 'update:projectId']);
+
+  const innerProject = useVModel(props, 'projectId', emit);
 
   const drawerLoading = ref<boolean>(false);
 
@@ -129,10 +135,8 @@
     },
   });
 
-  const innerProject = ref(props.projectId);
-
   const moduleKeyword = ref('');
-  const activeFolder = ref('');
+  const activeFolder = ref('all');
   function getFolderClass(id: string) {
     return activeFolder.value === id ? 'folder-text folder-text--active' : 'folder-text';
   }
@@ -174,6 +178,7 @@
   const keyword = ref('');
   const filterConfigList = ref<FilterFormItem[]>([]);
   const searchCustomFields = ref<FilterFormItem[]>([]);
+  const combine = ref<Record<string, any>>({});
   const filterRowCount = ref(0);
   const columns: MsTableColumn = [
     {
@@ -188,7 +193,7 @@
     },
     {
       title: 'project.commonScript.apiName',
-      dataIndex: 'apiName',
+      dataIndex: 'name',
       sortable: {
         sortDirections: ['ascend', 'descend'],
       },
@@ -197,8 +202,8 @@
     },
     {
       title: 'project.commonScript.requestType',
-      dataIndex: 'requestType',
-      slotName: 'requestType',
+      dataIndex: 'method',
+      slotName: 'method',
       sortable: {
         sortDirections: ['ascend', 'descend'],
       },
@@ -224,7 +229,8 @@
     },
     {
       title: 'ms.case.associate.version',
-      slotName: 'version',
+      dataIndex: 'versionId',
+      slotName: 'versionId',
       width: 200,
     },
     {
@@ -243,13 +249,7 @@
     },
   ];
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
-    () =>
-      Promise.resolve({
-        list: [],
-        current: 1,
-        pageSize: 10,
-        total: 2,
-      }),
+    getFormApiImportPageList,
     {
       scroll: { x: 'auto' },
       columns,
@@ -261,7 +261,7 @@
     (record) => {
       return {
         ...record,
-        tags: (JSON.parse(record.tags) || []).map((item: string, i: number) => {
+        tags: (record.tags || []).map((item: string, i: number) => {
           return {
             id: `${record.id}-${i}`,
             name: item,
@@ -273,12 +273,86 @@
 
   const protocolType = ref('HTTP'); // 协议类型
   const protocolOptions = ref(['HTTP']);
-
-  function searchCase() {}
-
   const searchParams = ref<TableQueryParams>({
     moduleIds: [],
+    protocol: protocolType.value,
   });
+
+  /**
+   * 初始化模块树
+   * @param isSetDefaultKey 是否设置第一个节点为选中节点
+   */
+  async function initModules(isSetDefaultKey = false) {
+    try {
+      moduleLoading.value = true;
+      const params = {
+        projectId: innerProject.value,
+        protocol: protocolType.value,
+      };
+      const res = await getFormApiImportModule(params);
+      folderTree.value = mapTree<ModuleTreeNode>(res, (e) => {
+        return {
+          ...e,
+          hideMoreAction: e.id === 'root',
+          draggable: false,
+          disabled: false,
+          count: modulesCount.value[e.id] || 0,
+        };
+      });
+      if (isSetDefaultKey) {
+        selectedModuleKeys.value = [folderTree.value[0].id];
+        activeFolderName.value = folderTree.value[0].name;
+        mapTree(folderTree.value[0].children || [], (e) => {
+          offspringIds.value.push(e.id);
+          return e;
+        });
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      moduleLoading.value = false;
+    }
+  }
+
+  function getLoadListParams() {
+    if (activeFolder.value === 'all' || !activeFolder.value) {
+      searchParams.value.moduleIds = [];
+    } else {
+      searchParams.value.moduleIds = [activeFolder.value, ...offspringIds.value];
+    }
+    setLoadListParams({
+      ...searchParams.value,
+      keyword: keyword.value,
+      projectId: innerProject.value,
+    });
+  }
+
+  // 初始化模块数量
+  async function initModuleCount() {
+    try {
+      const params = {
+        keyword: keyword.value,
+        moduleIds: [],
+        projectId: innerProject.value,
+        current: propsRes.value.msPagination?.current,
+        pageSize: propsRes.value.msPagination?.pageSize,
+        combine: combine.value,
+        protocol: protocolType.value,
+      };
+      modulesCount.value = await getFormApiImportModuleCount(params);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  function searchCase() {
+    getLoadListParams();
+    loadList();
+    initModuleCount();
+  }
+
   // 保存参数
   function handleDrawerConfirm() {
     const { excludeKeys, selectedKeys, selectorStatus } = propsRes.value;
@@ -292,7 +366,6 @@
       refId: '',
       projectId: innerProject.value,
     };
-
     emit('save', params);
   }
 
@@ -301,6 +374,50 @@
     resetSelector();
     emit('close');
   }
+
+  watch(
+    () => exportScriptDrawer.value,
+    (val) => {
+      emit('update:visible', val);
+      if (val) {
+        searchCase();
+        initModules();
+      }
+    }
+  );
+
+  watch(
+    () => innerProject.value,
+    (val) => {
+      if (val) {
+        resetSelector();
+        initModules();
+        searchCase();
+      }
+    }
+  );
+
+  watch(
+    () => activeFolder.value,
+    () => {
+      searchCase();
+    }
+  );
+
+  /**
+   * 初始化模块数量
+   */
+  watch(
+    () => modulesCount.value,
+    (obj) => {
+      folderTree.value = mapTree<ModuleTreeNode>(folderTree.value, (node) => {
+        return {
+          ...node,
+          count: obj?.[node.id] || 0,
+        };
+      });
+    }
+  );
 </script>
 
 <style scoped lang="less">

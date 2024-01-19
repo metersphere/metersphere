@@ -8,6 +8,7 @@
     :get-table-func="getCaseList"
     :confirm-loading="confirmLoading"
     :associated-ids="associatedIds"
+    :type="RequestModuleEnum.CASE_MANAGEMENT"
     @close="emit('close')"
     @save="saveHandler"
   >
@@ -74,6 +75,7 @@
   import { FormInstance, SelectOptionData } from '@arco-design/web-vue';
 
   import MsCaseAssociate from '@/components/business/ms-case-associate/index.vue';
+  import { RequestModuleEnum } from '@/components/business/ms-case-associate/utils';
   import MsSelect from '@/components/business/ms-select';
 
   import { getReviewUsers } from '@/api/modules/case-management/caseReview';

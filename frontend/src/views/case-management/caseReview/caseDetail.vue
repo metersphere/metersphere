@@ -445,9 +445,9 @@
   const descriptions = ref<Description[]>([]);
   const caseDetailLevel = computed<CaseLevel>(() => {
     if (caseDetail.value.functionalPriority) {
-      return (Number(JSON.parse(caseDetail.value.functionalPriority).match(/\d+/g)[0]) as CaseLevel) || 0; // 匹配出用例等级的数字
+      return caseDetail.value.functionalPriority as CaseLevel;
     }
-    return 0;
+    return 'P1';
   });
 
   function changeActiveCase(item: ReviewCaseItem) {

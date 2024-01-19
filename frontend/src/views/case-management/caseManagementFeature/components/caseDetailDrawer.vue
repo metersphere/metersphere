@@ -123,7 +123,7 @@
                 <TabDependency v-else-if="activeTab === 'dependency'" :case-id="props.detailId" />
                 <TabCaseReview v-else-if="activeTab === 'caseReview'" :case-id="props.detailId" />
                 <TabTestPlan v-else-if="activeTab === 'testPlan'" />
-                <TabComment v-else-if="activeTab === 'comments'" :case-id="props.detailId" />
+                <TabComment v-else-if="activeTab === 'comments'" ref="commentRef" :case-id="props.detailId" />
                 <TabChangeHistory v-else-if="activeTab === 'changeHistory'" />
               </div>
             </div>
@@ -162,6 +162,7 @@
                 :form-rule="formRules"
                 class="w-full"
                 :option="options"
+                @change="changeHandler"
               />
               <!-- 自定义字段结束 -->
               <div class="baseItem">
@@ -176,7 +177,14 @@
           </template>
         </MsSplitBox>
       </div>
-      <inputComment :content="content" is-show-avatar is-use-bottom @publish="publishHandler" />
+      <inputComment
+        v-model:content="content"
+        :is-active="isActive"
+        is-show-avatar
+        is-use-bottom
+        @publish="publishHandler"
+        @cancel="cancelPublish"
+      />
     </template>
   </MsDetailDrawer>
   <SettingDrawer ref="settingDrawerRef" v-model:visible="showSettingDrawer" />
@@ -197,6 +205,7 @@
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import inputComment from '@/components/business/ms-comment/input.vue';
+  import { CommentItem, CommentParams } from '@/components/business/ms-comment/types';
   import MsDetailDrawer from '@/components/business/ms-detail-drawer/index.vue';
   import SettingDrawer from './tabContent/settingDrawer.vue';
   import TabDefect from './tabContent/tabBug/tabDefect.vue';
@@ -226,6 +235,7 @@
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   import { LabelValue } from '@arco-design/web-vue/es/tree-select/interface';
+  import debounce from 'lodash-es/debounce';
 
   const router = useRouter();
   const detailDrawerRef = ref<InstanceType<typeof MsDetailDrawer>>();
@@ -301,13 +311,13 @@
 
   const detailInfo = ref<DetailCase>({ ...initDetail });
   const customFields = ref<CustomAttributes[]>([]);
-  const caseLevels = ref<CaseLevel>(0);
+  const caseLevels = ref<CaseLevel>('P1');
   function loadedCase(detail: DetailCase) {
     detailInfo.value = { ...detail };
     customFields.value = detailInfo.value.customFields;
     const caseLevelsValue = customFields.value.find((item) => item.fieldName === '用例等级')?.defaultValue;
     if (caseLevelsValue) {
-      caseLevels.value = (JSON.parse(caseLevelsValue).replaceAll('P', '') * 1) as CaseLevel;
+      caseLevels.value = caseLevelsValue as CaseLevel;
     }
   }
 
@@ -425,15 +435,18 @@
   // 初始化表单
   function initForm() {
     formRules.value = customFields.value.map((item: any) => {
+      const multipleType = ['MULTIPLE_SELECT', 'CHECKBOX', 'MULTIPLE_MEMBER', 'MULTIPLE_INPUT'];
+      const currentDefaultValue = multipleType.includes(item.type) ? JSON.parse(item.defaultValue) : item.defaultValue;
       return {
+        ...item,
         type: item.type,
         name: item.fieldId,
         label: item.fieldName,
-        value: JSON.parse(item.defaultValue),
+        value: currentDefaultValue,
         required: item.required,
         options: item.options || [],
         props: {
-          modelValue: JSON.parse(item.defaultValue),
+          modelValue: currentDefaultValue,
           disabled: isDisabled.value,
           options: item.options || [],
         },
@@ -481,7 +494,8 @@
   );
 
   const content = ref('');
-
+  const commentRef = ref();
+  const isActive = ref<boolean>(false);
   async function publishHandler(currentContent: string) {
     const regex = /data-id="([^"]*)"/g;
     const matchesNotifier = currentContent.match(regex);
@@ -490,7 +504,7 @@
       notifiers = matchesNotifier.map((match) => match.replace('data-id="', '').replace('"', '')).join(';');
     }
     try {
-      const params = {
+      const params: CommentParams = {
         caseId: detailInfo.value.id,
         notifier: notifiers,
         replyUser: '',
@@ -499,11 +513,20 @@
         event: notifiers ? 'AT' : 'COMMENT', // 任务事件(仅评论: ’COMMENT‘; 评论并@: ’AT‘; 回复评论/回复并@: ’REPLAY‘;)
       };
       await createCommentList(params);
+      commentRef.value.initCommentList();
       Message.success(t('common.publishSuccessfully'));
     } catch (error) {
       console.log(error);
     }
   }
+
+  function cancelPublish() {
+    isActive.value = !isActive.value;
+  }
+
+  const changeHandler = debounce(() => {
+    tabDetailRef.value.handleOK();
+  }, 300);
 </script>
 
 <style scoped lang="less">

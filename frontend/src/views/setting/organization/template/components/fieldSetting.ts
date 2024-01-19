@@ -274,7 +274,10 @@ export const getTotalFieldOptionList = (totalData: DefinedFieldItem[]) => {
     return {
       ...item,
       formRules: [
-        { ...currentFormRules, value: item.value, props: { ...currentFormRules.props, options: selectOptions } },
+        {
+          ...currentFormRules,
+          props: { ...currentFormRules.props, options: selectOptions },
+        },
       ],
       fApi: null,
       required: item.internal,

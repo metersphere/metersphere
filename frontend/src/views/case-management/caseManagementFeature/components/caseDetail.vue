@@ -10,7 +10,7 @@
     <CaseTemplateDetail
       ref="caseModuleDetailRef"
       v-model:form-mode-value="caseDetailInfo"
-      :case-id="(route.query.id as string)"
+      :case-id="(route.query.id as string || '')"
     />
     <template #footerRight>
       <div class="flex justify-end gap-[16px]">

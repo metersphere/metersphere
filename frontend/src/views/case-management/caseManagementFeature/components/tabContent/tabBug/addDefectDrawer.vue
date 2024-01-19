@@ -36,7 +36,7 @@
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
 
-  import { createBug, getTemplageOption, getTemplateDetailInfo } from '@/api/modules/bug-management/index';
+  import { createBug, getTemplateDetailInfo, getTemplateOption } from '@/api/modules/bug-management/index';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
 
@@ -105,7 +105,7 @@
   }
 
   onBeforeMount(async () => {
-    templateOptions.value = await getTemplageOption({ projectId: appStore.currentProjectId });
+    templateOptions.value = await getTemplateOption(appStore.currentProjectId);
     form.value.templateId = templateOptions.value.find((item) => item.enableDefault)?.id as string;
     const result = await getTemplateDetailInfo({ id: form.value.templateId, projectId: appStore.currentProjectId });
     templateCustomFields.value = result.customFields.map((item: any) => {

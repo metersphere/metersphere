@@ -1,1 +1,1 @@
-export type CaseLevel = 0 | 1 | 2 | 3;
+export type CaseLevel = 'P1' | 'P2' | 'P3' | 'P4';

@@ -4,7 +4,14 @@ import type { CommonScriptMenu } from '@/models/projectManagement/commonScript';
 
 const { t } = useI18n();
 
-export type Languages = 'groovy' | 'python' | 'beanshell' | 'nashornScript' | 'rhinoScript' | 'javascript';
+export type Languages =
+  | 'beanshellJSR223'
+  | 'groovy'
+  | 'python'
+  | 'beanshell'
+  | 'nashornScript'
+  | 'rhinoScript'
+  | 'javascript';
 
 export const SCRIPT_MENU: CommonScriptMenu[] = [
   {
@@ -511,6 +518,8 @@ export function getCodeTemplate(language: Languages, requestObj: any) {
       return jsCode(requestObj);
     case 'javascript':
       return jsCode(requestObj);
+    case 'beanshellJSR223':
+      return javaCode(requestObj);
     default:
       return '';
   }

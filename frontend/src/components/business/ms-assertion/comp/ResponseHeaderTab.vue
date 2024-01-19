@@ -12,6 +12,8 @@
 </template>
 
 <script setup lang="ts">
+  import { defineModel } from 'vue';
+
   import { statusCodeOptions } from '@/components/pure/ms-advance-filter/index';
   import paramsTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 

@@ -62,34 +62,31 @@
       </template>
       <template #second>
         <div class="p-[24px]">
-          <div class="page-header mb-4 h-[34px]">
-            <div class="text-[var(--color-text-1)]"
-              >{{ currentModuleName }}
-              <span class="text-[var(--color-text-4)]"> ({{ recycleModulesCount[activeFolder] || 0 }})</span></div
-            >
-            <div class="flex w-[80%] items-center justify-end">
-              <a-select class="w-[240px]" :placeholder="t('caseManagement.featureCase.versionPlaceholder')">
-                <a-option v-for="version of versionOptions" :key="version.id" :value="version.id">{{
-                  version.name
-                }}</a-option>
-              </a-select>
-              <a-input-search
-                v-model="keyword"
-                :placeholder="t('caseManagement.featureCase.searchByNameAndId')"
-                allow-clear
-                class="mx-[8px] w-[240px]"
-                @search="searchList"
-                @press-enter="searchList"
-              ></a-input-search>
-            </div>
-          </div>
+          <MsAdvanceFilter
+            :filter-config-list="filterConfigList"
+            :custom-fields-config-list="searchCustomFields"
+            :row-count="filterRowCount"
+            @keyword-search="initRecycleList"
+            @adv-search="handleAdvSearch"
+          >
+            <template #left>
+              <div class="text-[var(--color-text-1)]"
+                >{{ moduleNamePath }}
+                <span class="text-[var(--color-text-4)]"> ({{ recycleModulesCount[activeFolder] || 0 }})</span></div
+              >
+            </template>
+          </MsAdvanceFilter>
           <ms-base-table
+            class="mb-4"
             v-bind="propsRes"
             :action-config="tableBatchActions"
             @selected-change="handleTableSelect"
             v-on="propsEvent"
             @batch-action="handleTableBatch"
           >
+            <template #caseLevel="{ record }">
+              <caseLevel :case-level="getCaseLevel(record)" />
+            </template>
             <template #reviewStatus="{ record }">
               <MsIcon
                 :type="getStatusText(record.reviewStatus)?.iconType || ''"
@@ -111,6 +108,21 @@
                 <span class="one-line-text inline-block">{{ getModules(record.moduleId) }}</span>
               </a-tooltip>
             </template>
+            <!-- 自定义字段非系统TODO -->
+            <!-- <template v-for="item in customFieldsColumns" :key="item.slotName" #[item.slotName]="{ record }">
+              <div v-if="isCaseLevel(item.slotName as string).name === '用例等级'" class="flex items-center">
+                <span v-if="!record.visible" class="flex items-center" @click="record.visible = true">
+                  <caseLevel :case-level="getCaseLevel(record, item)" />
+                </span>
+              </div>
+              <div v-if="isCaseLevel(item.slotName as string).name === '用例状态'" class="flex items-center">
+                <MsTag
+                  :type="getCaseState(record[item.slotName as string]).type"
+                  :theme="getCaseState(record[item.slotName as string]).theme"
+                  >{{ record[item.slotName as string] }}</MsTag
+                >
+              </div>
+            </template> -->
             <template #operation="{ record }">
               <MsButton @click="recoverCase(record.id)">{{ t('caseManagement.featureCase.batchRecover') }}</MsButton>
               <MsButton class="!mr-0" @click="handleBatchCleanOut(record)">{{
@@ -131,18 +143,30 @@
   import { computed, ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
 
+  import { CustomTypeMaps, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
+  import { FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
+  import type {
+    BatchActionParams,
+    BatchActionQueryParams,
+    MsTableColumn,
+    MsTableColumnData,
+  } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import type { TagType, Theme } from '@/components/pure/ms-tag/ms-tag.vue';
+  import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
+  import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
 
   import {
     batchDeleteRecycleCase,
     deleteRecycleCaseList,
+    getCaseDefaultFields,
+    getCustomFieldsTable,
     getRecycleListRequest,
     getTrashCaseModuleTree,
     recoverRecycleCase,
@@ -158,13 +182,13 @@
     BatchMoveOrCopyType,
     CaseManagementTable,
     CaseModuleQueryParams,
+    CustomAttributes,
   } from '@/models/caseManagement/featureCase';
   import type { TableQueryParams } from '@/models/common';
   import { ModuleTreeNode } from '@/models/projectManagement/file';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   import { getReviewStatusClass, getStatusText } from './utils';
-  import debounce from 'lodash-es/debounce';
 
   const tableStore = useTableStore();
   const featureCaseStore = useFeatureCaseStore();
@@ -177,19 +201,13 @@
   const appStore = useAppStore();
 
   const currentProjectId = computed(() => appStore.currentProjectId);
+  const scrollWidth = ref<number>(3400);
 
-  const versionOptions = ref([
-    {
-      id: '1001',
-      name: 'v_1.0',
-    },
-  ]);
-
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setAdvanceFilter } = useTable(
     getRecycleListRequest,
     {
       tableKey: TableKeyEnum.FILE_MANAGEMENT_CASE_RECYCLE,
-      scroll: { x: 3200 },
+      scroll: { x: scrollWidth.value },
       selectable: true,
       showSetting: true,
       heightUsed: 340,
@@ -197,7 +215,7 @@
     },
     (record) => ({
       ...record,
-      tags: (JSON.parse(record.tags) || []).map((item: string, i: number) => {
+      tags: (record.tags || []).map((item: string, i: number) => {
         return {
           id: `${record.id}-${i}`,
           name: item,
@@ -386,10 +404,9 @@
   });
 
   const offspringIds = ref<string[]>([]);
-
   const selectedKeysNode = ref<(string | number)[]>([]);
-
   const focusNodeKey = ref<string>('');
+
   // 用例树节点选中事件
   const caseNodeSelect = (selectedNodeKeys: (string | number)[] | string[], node: MsTreeNodeData) => {
     [activeFolder.value] = selectedNodeKeys as string[];
@@ -442,13 +459,13 @@
     }
   }
 
-  const currentModuleName = computed(() => {
+  const keyword = ref<string>('');
+
+  const moduleNamePath = computed(() => {
     return activeFolder.value === 'all'
       ? t('caseManagement.featureCase.allCase')
-      : findNodeByKey<Record<string, any>>(caseTree.value, activeFolder.value, 'id')?.name;
+      : findNodeByKey<Record<string, any>>(caseTree.value, featureCaseStore.moduleId[0], 'id')?.name;
   });
-
-  const keyword = ref<string>('');
 
   const searchParams = ref<TableQueryParams>({
     projectId: currentProjectId.value,
@@ -570,11 +587,6 @@
     loadList();
   }
 
-  const searchList = debounce(() => {
-    getLoadListParams();
-    loadList();
-  }, 100);
-
   // 恢复用例
   async function recoverCase(id: string) {
     try {
@@ -633,7 +645,190 @@
     }
   );
 
+  const filterConfigList = ref<FilterFormItem[]>([]);
+  const searchCustomFields = ref<FilterFormItem[]>([]);
+
+  const filterRowCount = ref(0);
+
+  // 处理自定义字段列
+  let customFieldsColumns: Record<string, any>[] = [];
+  const tableRef = ref<InstanceType<typeof MsBaseTable> | null>(null);
+
+  const initDefaultFields = ref<CustomAttributes[]>([]);
+
+  let fullColumns: MsTableColumn = []; // 全量列表
+
+  // 处理自定义字段展示
+  async function getDefaultFields() {
+    const result = await getCaseDefaultFields(currentProjectId.value);
+    initDefaultFields.value = result.customFields;
+    customFieldsColumns = initDefaultFields.value.map((item: any) => {
+      return {
+        title: item.fieldName,
+        slotName: item.fieldId as string,
+        dataIndex: item.fieldId,
+        showTooltip: true,
+        showInTable: true,
+        showDrag: true,
+        width: 300,
+      };
+    });
+
+    fullColumns = [
+      ...columns.slice(0, columns.length - 1),
+      ...customFieldsColumns,
+      ...columns.slice(columns.length - 1, columns.length),
+    ];
+    tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_TABLE, fullColumns, 'drawer');
+    tableRef.value?.initColumn(fullColumns);
+  }
+
+  async function initFilter() {
+    const result = await getCustomFieldsTable(currentProjectId.value);
+    filterConfigList.value = [
+      {
+        title: 'caseManagement.featureCase.tableColumnID',
+        dataIndex: 'id',
+        type: FilterType.INPUT,
+      },
+      {
+        title: 'caseManagement.featureCase.tableColumnName',
+        dataIndex: 'name',
+        type: FilterType.INPUT,
+      },
+      {
+        title: 'caseManagement.featureCase.tableColumnModule',
+        dataIndex: 'moduleId',
+        type: FilterType.TREE_SELECT,
+        treeSelectData: caseTree.value,
+        treeSelectProps: {
+          fieldNames: {
+            title: 'name',
+            key: 'id',
+            children: 'children',
+          },
+        },
+      },
+      {
+        title: 'caseManagement.featureCase.tableColumnVersion',
+        dataIndex: 'versionId',
+        type: FilterType.INPUT,
+      },
+      {
+        title: 'caseManagement.featureCase.tableColumnCreateUser',
+        dataIndex: 'createUser',
+        type: FilterType.SELECT,
+        selectProps: {
+          mode: 'static',
+          options: [],
+        },
+      },
+      {
+        title: 'caseManagement.featureCase.tableColumnCreateTime',
+        dataIndex: 'createTime',
+        type: FilterType.DATE_PICKER,
+      },
+      {
+        title: 'caseManagement.featureCase.tableColumnUpdateUser',
+        dataIndex: 'updateUser',
+        type: FilterType.SELECT,
+        selectProps: {
+          mode: 'static',
+          options: [],
+        },
+      },
+      {
+        title: 'caseManagement.featureCase.tableColumnUpdateTime',
+        dataIndex: 'updateTime',
+        type: FilterType.DATE_PICKER,
+      },
+      {
+        title: 'caseManagement.featureCase.tableColumnTag',
+        dataIndex: 'tags',
+        type: FilterType.TAGS_INPUT,
+      },
+    ];
+    // 处理系统自定义字段
+    searchCustomFields.value = result.map((item: any) => {
+      const FilterTypeKey: keyof typeof FilterType = CustomTypeMaps[item.type].type;
+      const formType = FilterType[FilterTypeKey];
+      const formObject = CustomTypeMaps[item.type];
+      const { props: formProps } = formObject;
+      const currentItem: any = {
+        title: item.name,
+        dataIndex: item.id,
+        type: formType,
+      };
+
+      if (formObject.propsKey && formProps.options) {
+        formProps.options = item.options;
+        currentItem[formObject.propsKey] = {
+          ...formProps,
+        };
+      }
+      return currentItem;
+    });
+  }
+
+  const filterResult = ref<FilterResult>({ accordBelow: 'AND', combine: {} });
+  // 当前选择的条数
+  const currentSelectParams = ref<BatchActionQueryParams>({ selectAll: false, currentSelectCount: 0 });
+  // 高级检索
+  const handleAdvSearch = (filter: FilterResult) => {
+    filterResult.value = filter;
+    const { accordBelow, combine } = filter;
+    setAdvanceFilter(filter);
+    currentSelectParams.value = {
+      ...currentSelectParams.value,
+      condition: {
+        keyword: keyword.value,
+        searchMode: accordBelow,
+        filter: propsRes.value.filter,
+        combine,
+      },
+    };
+    initRecycleList();
+  };
+
+  // 如果是用例等级
+  function isCaseLevel(slotFieldId: string) {
+    const currentItem = initDefaultFields.value.find((item: any) => item.fieldId === slotFieldId);
+    return {
+      name: currentItem?.fieldName,
+      type: currentItem?.type,
+      options: currentItem?.options,
+    };
+  }
+
+  // 如果是用例状态
+  function getCaseState(caseState: string | undefined): { type: TagType; theme: Theme } {
+    switch (caseState) {
+      case '已完成':
+        return {
+          type: 'success',
+          theme: 'default',
+        };
+      case '进行中':
+        return {
+          type: 'link',
+          theme: 'default',
+        };
+
+      default:
+        return {
+          type: 'default',
+          theme: 'default',
+        };
+    }
+  }
+
+  function getCaseLevel(record: CaseManagementTable): CaseLevel {
+    const caseLevelItem = record.customFields.find((it: any) => it.fieldName === '用例等级');
+    return caseLevelItem?.options.find((it: any) => it.value === caseLevelItem.defaultValue).text;
+  }
   onMounted(() => {
+    getDefaultFields();
+    initFilter();
     initRecycleList();
     getRecycleModules();
     initRecycleModulesCount();

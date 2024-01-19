@@ -14,13 +14,15 @@
    */
   import { useDebounceFn, useLocalStorage } from '@vueuse/core';
 
-  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import type { MsFileItem } from '@/components/pure/ms-upload/types';
   import AttachmentSelectorModal from './attachmentSelectorModal.vue';
 
+  import { editorUploadFile } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useLocale from '@/locale/useLocale';
 
   import '@halo-dev/richtext-editor/dist/style.css';
+  import ExtensionImage from './extensions/image/index';
   import suggestion from './extensions/mention/suggestion';
   import {
     type AnyExtension,
@@ -47,7 +49,6 @@
     ExtensionHistory,
     ExtensionHorizontalRule,
     ExtensionIframe,
-    ExtensionImage,
     ExtensionIndent,
     ExtensionItalic,
     ExtensionLink,
@@ -78,7 +79,7 @@
   // image drag and paste upload
   type Task = {
     file: File;
-    process: (permalink: string) => void;
+    process: (compressUrl: string, permalink: string, fileId: string) => void;
   };
 
   const props = withDefaults(
@@ -100,13 +101,97 @@
     (event: 'update', value: string): void;
   }>();
 
+  /**
+   * 图片压缩
+   * @param {*} img 图片对象
+   * @param {*} type 图片类型
+   * @param {*} maxWidth 图片最大宽度
+   * @param {*} flag
+   */
+
+  function compress(img, type, maxWidth, flag) {
+    let canvas: HTMLCanvasElement | null = document.createElement('canvas');
+    let ctx2: any = canvas.getContext('2d');
+
+    const ratio = img.width / img.height;
+    let { width } = img;
+    let { height } = img;
+    // 根据flag判断是否压缩图片
+    if (flag && maxWidth <= width) {
+      width = maxWidth;
+      height = maxWidth / ratio; // 维持图片宽高比
+    }
+    canvas.width = width;
+    canvas.height = height;
+
+    ctx2.fillStyle = '#fff';
+    ctx2.fillRect(0, 0, canvas.width, canvas.height);
+    ctx2.drawImage(img, 0, 0, width, height);
+
+    let base64Data = canvas.toDataURL(type, 0.75);
+
+    if (type === 'image/gif') {
+      const regx = /(?<=data:image).*?(?=;base64)/; // 正则表示时在用于replace时，根据浏览器的不同，有的需要为字符串
+      base64Data = base64Data.replace(regx, '/gif');
+    }
+    canvas = null;
+    ctx2 = null;
+    return base64Data;
+  }
+
+  function handleFile(file: File, callback: any, maxWidth = 600) {
+    if (!file || !/\/(?:png|jpg|jpeg|gif)/i.test(file.type)) {
+      return;
+    }
+    const reader = new FileReader();
+    // eslint-disable-next-line func-names
+    reader.onload = function () {
+      const { result } = this;
+      let img: HTMLImageElement | null = new Image();
+      img.onload = () => {
+        const compressedDataUrl = compress(img, file.type, maxWidth, true);
+        const url = compress(img, file.type, maxWidth, false);
+        img = null;
+        callback({
+          data: file,
+          compressedDataUrl,
+          url,
+          type: 'image',
+        });
+      };
+      img.src = result as any;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function onPaste(file: File) {
+    return new Promise((resovle, reject) => {
+      handleFile(file, (data) => {
+        resovle(data);
+      });
+    });
+  }
+
+  const imageMap = {};
+
   async function asyncWorker(arg: Task): Promise<void> {
     if (!props.uploadImage) {
       return;
     }
-    const attachmentData = await props.uploadImage(arg.file);
-    if (attachmentData.status?.permalink) {
-      arg.process(attachmentData.status.permalink);
+
+    const uploadFileId = await props.uploadImage(arg.file);
+    const result: any = await onPaste(arg.file);
+    // 如果上传成功
+    if (uploadFileId) {
+      // eslint-disable-next-line no-prototype-builtins
+      if (!imageMap.hasOwnProperty(uploadFileId)) {
+        imageMap[uploadFileId] = {
+          compressedUrl: result.compressedDataUrl,
+          permanentUrl: '',
+          fileId: uploadFileId,
+        };
+      }
+      arg.process(result.compressedDataUrl, imageMap[uploadFileId].permanentUrl, uploadFileId);
     }
   }
 
@@ -162,7 +247,7 @@
         ExtensionText,
         ExtensionImage.configure({
           inline: true,
-          allowBase64: false,
+          allowBase64: true,
           HTMLAttributes: {
             loading: 'lazy',
           },
@@ -218,11 +303,11 @@
                     component: markRaw(ToolboxItem),
                     props: {
                       editor,
-                      // icon: () => {
-                      //   return defineComponent({
-                      //     template: "<MsIcon type='icon-icon_link-copy_outlined' size='16' />",
-                      //   });
-                      // },
+                      icon: markRaw(
+                        defineComponent({
+                          template: "<MsIcon type='icon-icon_link-copy_outlined' size='16' />",
+                        })
+                      ),
                       title: t('editor.attachment'),
                       action: () => {
                         attachmentSelectorModal.value = true;
@@ -238,7 +323,6 @@
                   props: {
                     editor,
                     isActive: showSidebar.value,
-                    // icon: markRaw(RiLayoutRightLine),
                     title: t(''),
                     action: () => {
                       showSidebar.value = !showSidebar.value;
@@ -272,7 +356,6 @@
       },
       editorProps: {
         handleDrop: (view, event: DragEvent, _, moved) => {
-          debugger;
           if (!moved && event.dataTransfer && event.dataTransfer.files) {
             const images = Array.from(event.dataTransfer.files).filter((file) =>
               file.type.startsWith('image/')
@@ -335,7 +418,8 @@
           images.forEach((file) => {
             uploadQueue.push({
               file,
-              process: (url: string) => {
+              // 压缩url  永久url  文件id
+              process: (compressUrl: string, permalink: string, fileId: string) => {
                 editor.value
                   ?.chain()
                   .focus()
@@ -343,7 +427,9 @@
                     {
                       type: 'image',
                       attrs: {
-                        src: url,
+                        fileId,
+                        src: compressUrl,
+                        permalinkSrc: permalink,
                       },
                     },
                   ])
@@ -366,21 +452,79 @@
       overflow: 'auto',
     };
   });
+
+  // 模拟附件最终插入到富文本TODO 预览接口更新后替换为真实的url
+  function getContents(fileList: { id: string; file: File }[]) {
+    const contents = fileList
+      // eslint-disable-next-line array-callback-return
+      .map((item: any) => {
+        const { file } = item.file;
+        if (file.type.includes('image')) {
+          return {
+            type: 'image',
+            attrs: {
+              src: 'https://demo.halo.run/upload/image-xakz.png',
+            },
+          };
+        }
+        if (file.type.includes('text/html')) {
+          return {
+            type: 'text',
+            marks: [
+              {
+                type: 'link',
+                attrs: {
+                  href: 'https://demo.halo.run/console/posts/editor?name=1210fe82-1d93-4aab-a3a0-9c9820fd4981',
+                  fileId: item.id,
+                },
+              },
+            ],
+            text: file.name,
+          };
+        }
+      })
+      .filter(Boolean);
+    editor.value?.chain().focus().insertContent(contents).run();
+    attachmentSelectorModal.value = false;
+  }
+
+  async function onAttachmentSelect(fileList: MsFileItem[]) {
+    try {
+      const upFileFileIds: { id: string; file: File }[] = [];
+
+      const uploadPromises = fileList.map(async (item: any) => {
+        const fileId = await editorUploadFile({
+          fileList: [item.file],
+        });
+        if (fileId) {
+          upFileFileIds.push({
+            id: fileId,
+            file: item,
+          });
+        }
+      });
+
+      await Promise.all(uploadPromises);
+
+      await getContents(upFileFileIds);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 </script>
 
 <template>
   <div class="rich-wrapper flex w-full">
-    <AttachmentSelectorModal v-model:visible="attachmentSelectorModal" />
+    <AttachmentSelectorModal v-model:visible="attachmentSelectorModal" @select="onAttachmentSelect" />
     <RichTextEditor v-if="editor" :editor="editor" :content-styles="contentStyles" :locale="currentLocale" />
   </div>
 </template>
 
 <style scoped lang="less">
   .rich-wrapper {
-    @apply relative overflow-hidden;
-
     border: 1px solid var(--color-text-n8);
     border-radius: var(--border-radius-small);
+    @apply relative overflow-hidden;
     :deep(.halo-rich-text-editor .ProseMirror) {
       padding: 16px 24px !important;
       p:first-child {
