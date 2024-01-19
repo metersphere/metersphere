@@ -2,6 +2,7 @@ package io.metersphere.api.service;
 
 import io.metersphere.api.constants.ShareInfoType;
 import io.metersphere.api.domain.ApiReport;
+import io.metersphere.api.domain.ApiScenarioReport;
 import io.metersphere.api.dto.share.ShareInfoDTO;
 import io.metersphere.api.mapper.ApiReportMapper;
 import io.metersphere.api.mapper.ApiScenarioReportMapper;
@@ -49,12 +50,12 @@ public class ApiReportShareService {
             ApiReport apiReport = apiReportMapper.selectByPrimaryKey(new String(shareInfo.getCustomData()));
             if (apiReport != null && BooleanUtils.isFalse(apiReport.getDeleted())) {
                 projectId = apiReport.getProjectId();
-            } /*else {
+            } else {
                 ApiScenarioReport result = apiScenarioReportMapper.selectByPrimaryKey(new String(shareInfo.getCustomData()));
                 if (result != null && BooleanUtils.isFalse(result.getDeleted())) {
                     projectId = result.getProjectId();
                 }
-            }*/
+            }
         }
         if (StringUtils.isBlank(projectId)) {
             throw new MSException(Translator.get("api_case_report_not_exist"));
@@ -102,6 +103,7 @@ public class ApiReportShareService {
         String lang = user.getLanguage() == null ? LocaleContextHolder.getLocale().toString() : user.getLanguage();
         request.setLang(lang);
         request.setCreateUser(user.getId());
+        request.setShareType(ShareInfoType.API_SHARE_REPORT.name());
         ShareInfo shareInfo = createShareInfo(request);
         return conversionShareInfoToDTO(shareInfo);
     }

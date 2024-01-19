@@ -279,7 +279,7 @@ public class ApiReportControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(6)
+    @Order(7)
     public void testGetDetail() throws Exception {
         // @@请求成功
         List<ApiReportDetail> reports = new ArrayList<>();
@@ -315,7 +315,7 @@ public class ApiReportControllerTests extends BaseTest {
 
     //分享报告
     @Test
-    @Order(7)
+    @Order(8)
     public void generateUrl() throws Exception {
         ShareInfo shareInfo = new ShareInfo();
         shareInfo.setCustomData("test-report-id".getBytes());

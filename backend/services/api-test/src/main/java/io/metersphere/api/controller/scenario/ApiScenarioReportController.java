@@ -1,14 +1,14 @@
-package io.metersphere.api.controller.definition;
+package io.metersphere.api.controller.scenario;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.api.domain.ApiReport;
+import io.metersphere.api.domain.ApiScenarioReport;
 import io.metersphere.api.dto.definition.ApiReportBatchRequest;
-import io.metersphere.api.dto.definition.ApiReportDTO;
-import io.metersphere.api.dto.definition.ApiReportDetailDTO;
 import io.metersphere.api.dto.definition.ApiReportPageRequest;
+import io.metersphere.api.dto.scenario.ApiScenarioReportDTO;
+import io.metersphere.api.dto.scenario.ApiScenarioReportDetailDTO;
 import io.metersphere.api.service.ApiReportShareService;
-import io.metersphere.api.service.definition.ApiReportService;
+import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.domain.ShareInfo;
 import io.metersphere.system.security.CheckOwner;
@@ -27,80 +27,80 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/api/report/case")
-@Tag(name = "接口测试-接口报告-用例")
-public class ApiReportController {
+@RequestMapping(value = "/api/report/scenario")
+@Tag(name = "接口测试-接口报告-场景")
+public class ApiScenarioReportController {
     @Resource
-    private ApiReportService apiReportService;
+    private ApiScenarioReportService apiScenarioReportService;
     @Resource
     private ApiReportShareService apiReportShareService;
 
     @PostMapping("/page")
-    @Operation(summary = "接口测试-接口报告-用例()")
+    @Operation(summary = "接口测试-接口报告-场景()")
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_READ)
-    public Pager<List<ApiReport>> getPage(@Validated @RequestBody ApiReportPageRequest request) {
+    public Pager<List<ApiScenarioReport>> getPage(@Validated @RequestBody ApiReportPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "start_time desc");
-        return PageUtils.setPageInfo(page, apiReportService.getPage(request));
+        return PageUtils.setPageInfo(page, apiScenarioReportService.getPage(request));
     }
 
     @GetMapping("/rename/{id}/{name}")
-    @Operation(summary = "接口测试-接口报告-用例报告重命名")
-    @CheckOwner(resourceId = "#id", resourceType = "api_report")
+    @Operation(summary = "接口测试-接口报告-场景报告重命名")
+    @CheckOwner(resourceId = "#id", resourceType = "api_scenario_report")
     @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_UPDATE)
     public void rename(@PathVariable String id, @PathVariable String name) {
-        apiReportService.rename(id, name, SessionUtils.getUserId());
+        apiScenarioReportService.rename(id, name, SessionUtils.getUserId());
     }
 
     @GetMapping("/delete/{id}")
-    @Operation(summary = "接口测试-接口报告-用例报告删除")
-    @CheckOwner(resourceId = "#id", resourceType = "api_report")
+    @Operation(summary = "接口测试-接口报告-场景报告删除")
+    @CheckOwner(resourceId = "#id", resourceType = "api_scenario_report")
     @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_DELETE)
     public void delete(@PathVariable String id) {
-        apiReportService.delete(id, SessionUtils.getUserId());
+        apiScenarioReportService.delete(id, SessionUtils.getUserId());
     }
 
     @PostMapping("/batch/delete")
-    @Operation(summary = "接口测试-接口报告-用例报告批量删除")
-    @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_report")
+    @Operation(summary = "接口测试-接口报告-场景报告批量删除")
+    @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_scenario_report")
     @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_DELETE)
     public void batchDelete(@RequestBody ApiReportBatchRequest request) {
-        apiReportService.batchDelete(request, SessionUtils.getUserId());
+        apiScenarioReportService.batchDelete(request, SessionUtils.getUserId());
     }
 
     @GetMapping("/get/{id}")
     @Operation(summary = "接口测试-接口报告-报告获取")
-    @CheckOwner(resourceId = "#id", resourceType = "api_report")
-    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_REPORT_READ, PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE}, logical = Logical.OR)
-    public ApiReportDTO get(@PathVariable String id) {
-        return apiReportService.get(id);
+    @CheckOwner(resourceId = "#id", resourceType = "api_scenario_report")
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_REPORT_READ, PermissionConstants.PROJECT_API_SCENARIO_UPDATE}, logical = Logical.OR)
+    public ApiScenarioReportDTO get(@PathVariable String id) {
+        return apiScenarioReportService.get(id);
     }
 
     @GetMapping("/get/{shareId}/{reportId}")
     @Operation(summary = "接口测试-接口报告-分享报告获取")
-    public ApiReportDTO get(@PathVariable String shareId, @PathVariable String reportId) {
+    public ApiScenarioReportDTO get(@PathVariable String shareId, @PathVariable String reportId) {
         ShareInfo shareInfo = apiReportShareService.checkResource(shareId);
         apiReportShareService.validateExpired(shareInfo);
-        return apiReportService.get(reportId);
+        return apiScenarioReportService.get(reportId);
     }
 
     @GetMapping("/get/detail/{reportId}/{stepId}")
     @Operation(summary = "接口测试-接口报告-报告详情获取")
-    @CheckOwner(resourceId = "#reportId", resourceType = "api_report")
+    @CheckOwner(resourceId = "#reportId", resourceType = "api_scenario_report")
     @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_READ)
-    public List<ApiReportDetailDTO> getDetail(@PathVariable String stepId,
-                                              @PathVariable String reportId) {
-        return apiReportService.getDetail(stepId, reportId);
+    public List<ApiScenarioReportDetailDTO> getDetail(@PathVariable String stepId,
+                                                      @PathVariable String reportId) {
+        return apiScenarioReportService.getDetail(stepId, reportId);
     }
 
     @GetMapping("/get/detail/{shareId}/{reportId}/{stepId}")
-    public List<ApiReportDetailDTO> selectReportContent(@PathVariable String shareId,
-                                                        @PathVariable String reportId,
-                                                        @PathVariable String stepId) {
+    public List<ApiScenarioReportDetailDTO> selectReportContent(@PathVariable String shareId,
+                                                                @PathVariable String reportId,
+                                                                @PathVariable String stepId) {
         ShareInfo shareInfo = apiReportShareService.checkResource(shareId);
         apiReportShareService.validateExpired(shareInfo);
-        return apiReportService.getDetail(stepId, reportId);
+        return apiScenarioReportService.getDetail(stepId, reportId);
     }
 
 }

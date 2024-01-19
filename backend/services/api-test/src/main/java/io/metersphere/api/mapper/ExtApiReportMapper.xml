@@ -55,6 +55,23 @@
             #{id}
         </foreach>
     </select>
+    <select id="selectStepsByReportId" resultType="io.metersphere.api.dto.definition.ApiReportStepDTO">
+        select api_report_step.step_id,
+               api_report_step.report_id,
+               api_report_step.`name`,
+               api_report_step.sort,
+               api_report_step.step_type,
+               api_report_detail.status,
+               api_report_detail.fake_code,
+               api_report_detail.request_name,
+               api_report_detail.request_time,
+               api_report_detail.code,
+               api_report_detail.response_size,
+               api_report_detail.script_identifier
+        from api_report_step left join api_report_detail on api_report_step.step_id = api_report_detail.step_id
+        and api_report_detail.report_id = api_report_step.report_id
+        where api_report_step.report_id = #{reportId}
+    </select>
 
 
     <sql id="filters">
