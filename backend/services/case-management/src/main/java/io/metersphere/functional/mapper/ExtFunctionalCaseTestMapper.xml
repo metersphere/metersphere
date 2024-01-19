@@ -58,7 +58,7 @@
 
     <select id="getPlanList" parameterType="io.metersphere.functional.request.AssociatePlanPageRequest" resultType="io.metersphere.functional.dto.FunctionalCaseTestPlanDTO">
         SELECT
-        tpfc.*, tp.num as num, tp.status as planStatus, p.name as projectName
+        tpfc.*, tp.num as testPlanNum, tp.status as planStatus, p.name as projectName
         FROM
         test_plan_functional_case tpfc
         LEFT JOIN test_plan tp ON tpfc.test_plan_id = tp.id

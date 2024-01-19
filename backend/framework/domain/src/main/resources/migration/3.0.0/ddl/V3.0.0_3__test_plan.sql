@@ -68,18 +68,10 @@ CREATE TABLE IF NOT EXISTS test_plan_config
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '测试计划配置';
 
-CREATE TABLE IF NOT EXISTS test_plan_follower
-(
-    `test_plan_id` VARCHAR(50) NOT NULL COMMENT '测试计划ID;联合主键',
-    `user_id`      VARCHAR(50) NOT NULL COMMENT '用户ID;联合主键',
-    PRIMARY KEY (test_plan_id, user_id)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '测试计划关注人';
-
 CREATE TABLE IF NOT EXISTS test_plan_functional_case
 (
     `id`                 VARCHAR(50) NOT NULL COMMENT 'ID',
+    `num` BIGINT NOT NULL   COMMENT 'num' ,
     `test_plan_id`       VARCHAR(50) NOT NULL COMMENT '测试计划ID',
     `functional_case_id` VARCHAR(50) NOT NULL COMMENT '功能用例ID',
     `create_time`        BIGINT      NOT NULL COMMENT '创建时间',
@@ -100,6 +92,7 @@ CREATE INDEX idx_create_user ON test_plan_functional_case (create_user);
 CREATE TABLE IF NOT EXISTS test_plan_api_case
 (
     `id`                  VARCHAR(50) NOT NULL COMMENT 'ID',
+    `num` BIGINT NOT NULL COMMENT 'num',
     `test_plan_id`        VARCHAR(50) NOT NULL COMMENT '测试计划ID',
     `api_case_id`         VARCHAR(50) NOT NULL COMMENT '接口用例ID',
     `environment_id`      LONGTEXT COMMENT '所属环境',
@@ -122,6 +115,7 @@ CREATE INDEX idx_create_user ON test_plan_api_case (create_user);
 CREATE TABLE IF NOT EXISTS test_plan_api_scenario
 (
     `id`                  VARCHAR(50) NOT NULL COMMENT 'ID',
+    `num` BIGINT NOT NULL COMMENT 'num',
     `test_plan_id`        VARCHAR(50) NOT NULL COMMENT '测试计划ID',
     `api_scenario_id`     VARCHAR(50) COMMENT '场景ID',
     `environment_id`      LONGTEXT COMMENT '所属环境',
@@ -148,6 +142,26 @@ CREATE TABLE IF NOT EXISTS test_plan_follower
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '测试计划关注人';
+
+CREATE TABLE IF NOT EXISTS test_plan_bug
+(
+    `id`           VARCHAR(50) NOT NULL COMMENT 'ID',
+    `num` BIGINT NOT NULL COMMENT 'num',
+    `test_plan_id` VARCHAR(50) NOT NULL COMMENT '测试计划ID;测试计划ID',
+    `case_id`      VARCHAR(50) NOT NULL COMMENT '接口用例ID;测试用例ID（包含功能、接口、场景等）',
+    `case_type`    VARCHAR(50) NOT NULL COMMENT '用例类型;用例类型（FUNCTIONAL_CASE/API_TEST_CASE/API_SCENARIO)',
+    `bug_id`       VARCHAR(50) NOT NULL COMMENT '缺陷id;缺陷ID',
+    `create_time`  BIGINT      NOT NULL COMMENT '创建时间',
+    `create_user`  VARCHAR(50) NOT NULL COMMENT '创建人',
+    PRIMARY KEY (id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '测试计划关联接口用例';
+
+CREATE INDEX idx_case_id ON test_plan_bug (case_id);
+CREATE INDEX idx_test_plan_id ON test_plan_bug (test_plan_id);
+CREATE INDEX idx_create_user ON test_plan_bug (create_user);
+CREATE INDEX idx_bug_id ON test_plan_bug (bug_id);
 
 
 -- set innodb lock wait timeout to default

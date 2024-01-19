@@ -25,7 +25,7 @@ public class NumGenerator {
     private static StringRedisTemplate stringRedisTemplate;
     private static ProjectMapper projectMapper;
 
-    private static final List<ApplicationNumScope> SUB_NUM = List.of(ApplicationNumScope.API_TEST_CASE, ApplicationNumScope.API_MOCK);
+    private static final List<ApplicationNumScope> SUB_NUM = List.of(ApplicationNumScope.API_TEST_CASE, ApplicationNumScope.API_MOCK, ApplicationNumScope.TEST_PLAN_FUNCTION_CASE, ApplicationNumScope.TEST_PLAN_API_CASE, ApplicationNumScope.TEST_PLAN_API_SCENARIO);
 
     /**
      * @param prefix 前缀: PROJECT_ID, 或者 PROJECT_ID + "_" + DOMAIN 例如接口用例的前缀为: 100001_12345

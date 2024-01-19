@@ -5,7 +5,7 @@ import io.metersphere.plan.dto.request.ResourceSortRequest;
 import io.metersphere.plan.dto.request.TestPlanAssociationRequest;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
-import io.metersphere.plan.service.TestPlanFunctionalCaseService;
+import io.metersphere.plan.service.TestPlanApiScenarioService;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.security.CheckOwner;
@@ -20,28 +20,28 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "测试计划场景用例")
 @RestController
-@Tag(name = "测试计划功能用例")
-@RequestMapping("/test-plan/functional/case")
-public class TestPlanFunctionalCaseController {
+@RequestMapping("/test-plan/api/scenario")
+public class TestPlanApiScenarioController {
 
     @Resource
-    private TestPlanFunctionalCaseService testPlanFunctionalCaseService;
+    private TestPlanApiScenarioService testPlanApiScenarioService;
 
     @PostMapping(value = "/association")
-    @Operation(summary = "测试计划功能用例-关联功能用例")
+    @Operation(summary = "测试计划场景用例-关联接口用例")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public TestPlanAssociationResponse association(@Validated @RequestBody TestPlanAssociationRequest request) {
-        return testPlanFunctionalCaseService.association(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/association", HttpMethodConstants.POST.name()));
+        return testPlanApiScenarioService.association(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/api/scenario/association", HttpMethodConstants.POST.name()));
     }
 
     @PostMapping(value = "/sort")
-    @Operation(summary = "测试计划功能用例-关联功能用例")
+    @Operation(summary = "测试计划场景用例-关联功能用例")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public TestPlanResourceSortResponse sortNode(@Validated @RequestBody ResourceSortRequest request) {
-        return testPlanFunctionalCaseService.sortNode(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/functional/case/sort", HttpMethodConstants.POST.name()));
+        return testPlanApiScenarioService.sortNode(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/api/scenario/sort", HttpMethodConstants.POST.name()));
     }
 
 }

@@ -7,7 +7,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-public interface ExtTestPlanFunctionalCaseMapper {
+public interface ExtTestPlanApiScenarioMapper {
 
     long updatePos(@Param("id") String id, @Param("pos") long pos);
 

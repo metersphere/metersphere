@@ -15,6 +15,9 @@ public class TestPlanFunctionalCase implements Serializable {
     @Size(min = 1, max = 50, message = "{test_plan_functional_case.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
+    @Schema(description = "num")
+    private Long num;
+
     @Schema(description = "测试计划ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_plan_functional_case.test_plan_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{test_plan_functional_case.test_plan_id.length_range}", groups = {Created.class, Updated.class})
@@ -48,6 +51,7 @@ public class TestPlanFunctionalCase implements Serializable {
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
+        num("num", "num", "BIGINT", false),
         testPlanId("test_plan_id", "testPlanId", "VARCHAR", false),
         functionalCaseId("functional_case_id", "functionalCaseId", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),
