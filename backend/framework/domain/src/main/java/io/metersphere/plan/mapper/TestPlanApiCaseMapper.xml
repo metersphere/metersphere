@@ -3,6 +3,7 @@
 <mapper namespace="io.metersphere.plan.mapper.TestPlanApiCaseMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.plan.domain.TestPlanApiCase">
     <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="num" jdbcType="BIGINT" property="num" />
     <result column="test_plan_id" jdbcType="VARCHAR" property="testPlanId" />
     <result column="api_case_id" jdbcType="VARCHAR" property="apiCaseId" />
     <result column="last_exec_result" jdbcType="VARCHAR" property="lastExecResult" />
@@ -74,7 +75,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, test_plan_id, api_case_id, last_exec_result, last_exec_report_id, execute_user, 
+    id, num, test_plan_id, api_case_id, last_exec_result, last_exec_report_id, execute_user, 
     create_time, create_user, pos
   </sql>
   <sql id="Blob_Column_List">
@@ -129,20 +130,23 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.plan.domain.TestPlanApiCase">
-    insert into test_plan_api_case (id, test_plan_id, api_case_id, 
-      last_exec_result, last_exec_report_id, execute_user, 
-      create_time, create_user, pos, 
-      environment_id)
-    values (#{id,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, #{apiCaseId,jdbcType=VARCHAR}, 
-      #{lastExecResult,jdbcType=VARCHAR}, #{lastExecReportId,jdbcType=VARCHAR}, #{executeUser,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, #{pos,jdbcType=BIGINT}, 
-      #{environmentId,jdbcType=LONGVARCHAR})
+    insert into test_plan_api_case (id, num, test_plan_id, 
+      api_case_id, last_exec_result, last_exec_report_id, 
+      execute_user, create_time, create_user, 
+      pos, environment_id)
+    values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=BIGINT}, #{testPlanId,jdbcType=VARCHAR}, 
+      #{apiCaseId,jdbcType=VARCHAR}, #{lastExecResult,jdbcType=VARCHAR}, #{lastExecReportId,jdbcType=VARCHAR}, 
+      #{executeUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
+      #{pos,jdbcType=BIGINT}, #{environmentId,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanApiCase">
     insert into test_plan_api_case
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
+      </if>
+      <if test="num != null">
+        num,
       </if>
       <if test="testPlanId != null">
         test_plan_id,
@@ -175,6 +179,9 @@
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="num != null">
+        #{num,jdbcType=BIGINT},
       </if>
       <if test="testPlanId != null">
         #{testPlanId,jdbcType=VARCHAR},
@@ -217,6 +224,9 @@
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
+      <if test="record.num != null">
+        num = #{record.num,jdbcType=BIGINT},
+      </if>
       <if test="record.testPlanId != null">
         test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
       </if>
@@ -252,6 +262,7 @@
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update test_plan_api_case
     set id = #{record.id,jdbcType=VARCHAR},
+      num = #{record.num,jdbcType=BIGINT},
       test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
       api_case_id = #{record.apiCaseId,jdbcType=VARCHAR},
       last_exec_result = #{record.lastExecResult,jdbcType=VARCHAR},
@@ -268,6 +279,7 @@
   <update id="updateByExample" parameterType="map">
     update test_plan_api_case
     set id = #{record.id,jdbcType=VARCHAR},
+      num = #{record.num,jdbcType=BIGINT},
       test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
       api_case_id = #{record.apiCaseId,jdbcType=VARCHAR},
       last_exec_result = #{record.lastExecResult,jdbcType=VARCHAR},
@@ -283,6 +295,9 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.plan.domain.TestPlanApiCase">
     update test_plan_api_case
     <set>
+      <if test="num != null">
+        num = #{num,jdbcType=BIGINT},
+      </if>
       <if test="testPlanId != null">
         test_plan_id = #{testPlanId,jdbcType=VARCHAR},
       </if>
@@ -315,7 +330,8 @@
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.plan.domain.TestPlanApiCase">
     update test_plan_api_case
-    set test_plan_id = #{testPlanId,jdbcType=VARCHAR},
+    set num = #{num,jdbcType=BIGINT},
+      test_plan_id = #{testPlanId,jdbcType=VARCHAR},
       api_case_id = #{apiCaseId,jdbcType=VARCHAR},
       last_exec_result = #{lastExecResult,jdbcType=VARCHAR},
       last_exec_report_id = #{lastExecReportId,jdbcType=VARCHAR},
@@ -328,7 +344,8 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.plan.domain.TestPlanApiCase">
     update test_plan_api_case
-    set test_plan_id = #{testPlanId,jdbcType=VARCHAR},
+    set num = #{num,jdbcType=BIGINT},
+      test_plan_id = #{testPlanId,jdbcType=VARCHAR},
       api_case_id = #{apiCaseId,jdbcType=VARCHAR},
       last_exec_result = #{lastExecResult,jdbcType=VARCHAR},
       last_exec_report_id = #{lastExecReportId,jdbcType=VARCHAR},
@@ -340,12 +357,12 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into test_plan_api_case
-    (id, test_plan_id, api_case_id, last_exec_result, last_exec_report_id, execute_user, 
+    (id, num, test_plan_id, api_case_id, last_exec_result, last_exec_report_id, execute_user, 
       create_time, create_user, pos, environment_id)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.testPlanId,jdbcType=VARCHAR}, #{item.apiCaseId,jdbcType=VARCHAR}, 
-        #{item.lastExecResult,jdbcType=VARCHAR}, #{item.lastExecReportId,jdbcType=VARCHAR}, 
+      (#{item.id,jdbcType=VARCHAR}, #{item.num,jdbcType=BIGINT}, #{item.testPlanId,jdbcType=VARCHAR}, 
+        #{item.apiCaseId,jdbcType=VARCHAR}, #{item.lastExecResult,jdbcType=VARCHAR}, #{item.lastExecReportId,jdbcType=VARCHAR}, 
         #{item.executeUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR}, 
         #{item.pos,jdbcType=BIGINT}, #{item.environmentId,jdbcType=LONGVARCHAR})
     </foreach>
@@ -362,6 +379,9 @@
       <foreach collection="selective" item="column" separator=",">
         <if test="'id'.toString() == column.value">
           #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'num'.toString() == column.value">
+          #{item.num,jdbcType=BIGINT}
         </if>
         <if test="'test_plan_id'.toString() == column.value">
           #{item.testPlanId,jdbcType=VARCHAR}

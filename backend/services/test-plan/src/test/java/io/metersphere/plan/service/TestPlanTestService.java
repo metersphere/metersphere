@@ -1,12 +1,16 @@
 package io.metersphere.plan.service;
 
+import io.metersphere.api.domain.ApiDefinition;
+import io.metersphere.api.domain.ApiScenario;
+import io.metersphere.api.domain.ApiTestCase;
+import io.metersphere.api.mapper.ApiDefinitionMapper;
+import io.metersphere.api.mapper.ApiScenarioMapper;
+import io.metersphere.api.mapper.ApiTestCaseMapper;
 import io.metersphere.functional.domain.FunctionalCase;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.request.TestPlanUpdateRequest;
-import io.metersphere.plan.mapper.TestPlanConfigMapper;
-import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
-import io.metersphere.plan.mapper.TestPlanMapper;
+import io.metersphere.plan.mapper.*;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.uid.IDGenerator;
@@ -30,6 +34,16 @@ public class TestPlanTestService {
     private FunctionalCaseMapper functionalCaseMapper;
     @Resource
     private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
+    @Resource
+    private TestPlanApiCaseMapper testPlanApiCaseMapper;
+    @Resource
+    private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
+    @Resource
+    private ApiDefinitionMapper apiDefinitionMapper;
+    @Resource
+    private ApiTestCaseMapper apiTestCaseMapper;
+    @Resource
+    private ApiScenarioMapper apiScenarioMapper;
 
     public TestPlan selectTestPlanByName(String name) {
         TestPlanExample testPlanExample = new TestPlanExample();
@@ -136,11 +150,47 @@ public class TestPlanTestService {
         return returnList;
     }
 
+    public List<ApiScenario> createApiScenario(int caseNums, String projectId) {
+        List<ApiScenario> returnList = new ArrayList<>();
+        for (int i = 0; i < caseNums; i++) {
+            ApiScenario apiScenario = new ApiScenario();
+            apiScenario.setId(IDGenerator.nextStr());
+            apiScenario.setProjectId(projectId);
+            apiScenario.setNum(NumGenerator.nextNum(projectId, ApplicationNumScope.API_SCENARIO));
+            apiScenario.setModuleId(ModuleConstants.DEFAULT_NODE_ID);
+            apiScenario.setName("api_scenario_" + projectId + "_" + i);
+            apiScenario.setPriority("P0");
+            apiScenario.setVersionId("v6.6.6");
+            apiScenario.setPos((long) (i * 64));
+            apiScenario.setRefId(apiScenario.getId());
+            apiScenario.setStatus("Prepared");
+            apiScenario.setLatest(true);
+            apiScenario.setCreateUser("admin");
+            apiScenario.setCreateTime(System.currentTimeMillis());
+            apiScenario.setUpdateTime(System.currentTimeMillis());
+            apiScenario.setUpdateUser("admin");
+            apiScenario.setDeleted(false);
+            apiScenario.setStepTotal(1);
+            apiScenario.setRequestPassRate("100");
+            returnList.add(apiScenario);
+        }
+        apiScenarioMapper.batchInsert(returnList);
+        return returnList;
+    }
+
     public long countResource(String id, String resourceFunctionalCase) {
         if (StringUtils.equals(TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE, resourceFunctionalCase)) {
             TestPlanFunctionalCaseExample example = new TestPlanFunctionalCaseExample();
             example.createCriteria().andTestPlanIdEqualTo(id);
             return testPlanFunctionalCaseMapper.countByExample(example);
+        } else if (StringUtils.equals(TestPlanResourceConstants.RESOURCE_API_CASE, resourceFunctionalCase)) {
+            TestPlanApiCaseExample example = new TestPlanApiCaseExample();
+            example.createCriteria().andTestPlanIdEqualTo(id);
+            return testPlanApiCaseMapper.countByExample(example);
+        } else if (StringUtils.equals(TestPlanResourceConstants.RESOURCE_API_SCENARIO, resourceFunctionalCase)) {
+            TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
+            example.createCriteria().andTestPlanIdEqualTo(id);
+            return testPlanApiScenarioMapper.countByExample(example);
         }
         return 0;
     }
@@ -150,6 +200,20 @@ public class TestPlanTestService {
         example.createCriteria().andTestPlanIdEqualTo(testPlanId);
         example.setOrderByClause(" pos asc ");
         return testPlanFunctionalCaseMapper.selectByExample(example);
+    }
+
+    public List<TestPlanApiCase> selectTestPlanApiCaseByTestPlanId(String testPlanId) {
+        TestPlanApiCaseExample example = new TestPlanApiCaseExample();
+        example.createCriteria().andTestPlanIdEqualTo(testPlanId);
+        example.setOrderByClause(" pos asc ");
+        return testPlanApiCaseMapper.selectByExample(example);
+    }
+
+    public List<TestPlanApiScenario> selectTestPlanApiScenarioByTestPlanId(String testPlanId) {
+        TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
+        example.createCriteria().andTestPlanIdEqualTo(testPlanId);
+        example.setOrderByClause(" pos asc ");
+        return testPlanApiScenarioMapper.selectByExample(example);
     }
 
     public TestPlanConfig selectTestPlanConfigById(String id) {
@@ -226,5 +290,50 @@ public class TestPlanTestService {
         TestPlanUpdateRequest updateRequest = new TestPlanUpdateRequest();
         updateRequest.setId(testPlanId);
         return updateRequest;
+    }
+
+    public List<ApiTestCase> createApiCases(int caseNums, String projectId) {
+        ApiDefinition apiDefinition = new ApiDefinition();
+        apiDefinition.setId(IDGenerator.nextStr());
+        apiDefinition.setName("建国测试用接口");
+        apiDefinition.setNum(NumGenerator.nextNum(projectId, ApplicationNumScope.API_DEFINITION));
+        apiDefinition.setProtocol("HTTP");
+        apiDefinition.setMethod("POST");
+        apiDefinition.setPath("/api/def");
+        apiDefinition.setStatus("Prepared");
+        apiDefinition.setProjectId(projectId);
+        apiDefinition.setModuleId(ModuleConstants.DEFAULT_NODE_ID);
+        apiDefinition.setPos(0L);
+        apiDefinition.setLatest(true);
+        apiDefinition.setCreateUser("admin");
+        apiDefinition.setCreateTime(System.currentTimeMillis());
+        apiDefinition.setUpdateUser("admin");
+        apiDefinition.setUpdateTime(System.currentTimeMillis());
+        apiDefinition.setRefId(apiDefinition.getId());
+        apiDefinition.setVersionId("v6.6.6");
+        apiDefinition.setDeleted(false);
+        apiDefinitionMapper.insert(apiDefinition);
+
+        List<ApiTestCase> returnList = new ArrayList<>();
+        for (int i = 0; i < caseNums; i++) {
+            ApiTestCase apiTestCase = new ApiTestCase();
+            apiTestCase.setId(IDGenerator.nextStr());
+            apiTestCase.setApiDefinitionId(apiDefinition.getId());
+            apiTestCase.setProjectId(projectId);
+            apiTestCase.setNum(NumGenerator.nextNum(projectId + "_" + apiDefinition.getNum(), ApplicationNumScope.API_TEST_CASE));
+            apiTestCase.setName(apiDefinition.getName() + "_test-case_" + i);
+            apiTestCase.setPriority("P0");
+            apiTestCase.setPos((long) (i * 64));
+            apiTestCase.setStatus("Prepared");
+            apiTestCase.setVersionId("v6.6.6");
+            apiTestCase.setDeleted(false);
+            apiTestCase.setCreateTime(System.currentTimeMillis());
+            apiTestCase.setCreateUser("admin");
+            apiTestCase.setUpdateUser("admin");
+            apiTestCase.setUpdateTime(System.currentTimeMillis());
+            returnList.add(apiTestCase);
+        }
+        apiTestCaseMapper.batchInsert(returnList);
+        return returnList;
     }
 }

@@ -1,24 +1,41 @@
 package io.metersphere.plan.service;
 
-import io.metersphere.plan.dto.AssociationNode;
-import io.metersphere.plan.dto.AssociationNodeSortDTO;
+import io.metersphere.plan.domain.TestPlan;
+import io.metersphere.plan.domain.TestPlanConfig;
+import io.metersphere.plan.dto.*;
 import io.metersphere.plan.dto.request.ResourceSortRequest;
+import io.metersphere.plan.dto.request.TestPlanAssociationRequest;
+import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
+import io.metersphere.plan.mapper.TestPlanConfigMapper;
+import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.project.dto.ModuleSortCountResultDTO;
 import io.metersphere.project.dto.NodeSortQueryParam;
 import io.metersphere.project.utils.NodeSortUtils;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
+import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 //测试计划关联表 通用方法
 @Service
 @Transactional(rollbackFor = Exception.class)
 public abstract class TestPlanResourceService {
+
+    @Resource
+    private TestPlanMapper testPlanMapper;
+    @Resource
+    private TestPlanConfigMapper testPlanConfigMapper;
+    @Resource
+    private TestPlanResourceLogService testPlanResourceLogService;
 
     protected static final long DEFAULT_NODE_INTERVAL_POS = NodeSortUtils.DEFAULT_NODE_INTERVAL_POS;
 
@@ -32,8 +49,50 @@ public abstract class TestPlanResourceService {
 
     private static final String MOVE_POS_OPERATOR_LESS = "lessThan";
     private static final String MOVE_POS_OPERATOR_MORE = "moreThan";
-    private static final String MOVE_POS_OPERATOR_LATEST = "latest";
     private static final String DRAG_NODE_NOT_EXIST = "drag_node.not.exist";
+
+    /**
+     * 关联资源od
+     *
+     * @return
+     */
+    public TestPlanAssociationResponse association(
+            String resourceType,
+            TestPlanAssociationRequest request,
+            @Validated LogInsertModule logInsertModule,
+            Function<ResourceSelectParam, List<String>> selectByResourceIdFunc,
+            Function<ResourceSelectParam, List<String>> selectByModuleIdFunc,
+            Consumer<TestPlanResourceAssociationParam> saveResourceFunc) {
+        TestPlanAssociationResponse response = new TestPlanAssociationResponse();
+        if (request.isEmpty()) {
+            return response;
+        }
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestPlanId());
+        TestPlanConfig testPlanConfig = testPlanConfigMapper.selectByPrimaryKey(request.getTestPlanId());
+        boolean repeatCase = testPlanConfig.getRepeatCase();
+        List<String> associationIdList = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(request.getSelectIds())) {
+            //获取有效ID
+            associationIdList.addAll(
+                    selectByResourceIdFunc.apply(
+                            new ResourceSelectParam(request.getTestPlanId(), request.getSelectIds(), null, repeatCase, request.getOrderString())));
+        }
+        if (CollectionUtils.isNotEmpty(request.getSelectModuleIds())) {
+            //获取有效ID
+            associationIdList.addAll(
+                    selectByModuleIdFunc.apply(
+                            new ResourceSelectParam(request.getTestPlanId(), null, request.getSelectModuleIds(), repeatCase, request.getOrderString())));
+        }
+        associationIdList = new ArrayList<>(associationIdList.stream().distinct().toList());
+        associationIdList.removeAll(request.getExcludeIds());
+        if (CollectionUtils.isNotEmpty(associationIdList)) {
+            TestPlanResourceAssociationParam associationParam = new TestPlanResourceAssociationParam(associationIdList, testPlan.getProjectId(), testPlan.getId(), testPlan.getNum(), logInsertModule.getOperator());
+            saveResourceFunc.accept(associationParam);
+            response.setAssociationCount(associationIdList.size());
+            testPlanResourceLogService.saveAddLog(testPlan, new ResourceLogInsertModule(resourceType, logInsertModule));
+        }
+        return response;
+    }
 
     /**
      * 构建节点排序的参数
@@ -59,8 +118,8 @@ public abstract class TestPlanResourceService {
             throw new MSException(Translator.get(DRAG_NODE_NOT_EXIST) + ":" + request.getDropNodeId());
         }
 
-        AssociationNode previousNode = null;
-        AssociationNode nextNode = null;
+        AssociationNode previousNode;
+        AssociationNode nextNode;
 
         if (request.getDropPosition() == 1) {
             //dropPosition=1: 放到dropNode节点后，原dropNode后面的节点之前
@@ -102,4 +161,5 @@ public abstract class TestPlanResourceService {
             refreshPos(sortDTO.getTestPlanId());
         }
     }
+
 }

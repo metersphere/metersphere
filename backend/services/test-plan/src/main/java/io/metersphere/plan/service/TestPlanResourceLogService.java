@@ -1,6 +1,7 @@
 package io.metersphere.plan.service;
 
 import io.metersphere.plan.domain.TestPlan;
+import io.metersphere.plan.dto.ResourceLogInsertModule;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.util.Translator;
@@ -13,6 +14,7 @@ import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -37,50 +39,50 @@ public class TestPlanResourceLogService {
         return content.toString();
     }
 
-    public void saveAddLog(TestPlan module, String resourceType, String operator, String requestUrl, String requestMethod) {
+    public void saveAddLog(TestPlan module, @Validated ResourceLogInsertModule logInsertModule) {
         Project project = projectMapper.selectByPrimaryKey(module.getProjectId());
         LogDTO dto = LogDTOBuilder.builder()
                 .projectId(module.getProjectId())
                 .organizationId(project.getOrganizationId())
                 .type(OperationLogType.ADD.name())
                 .module(logModule)
-                .method(requestMethod)
-                .path(requestUrl)
+                .method(logInsertModule.getRequestMethod())
+                .path(logInsertModule.getRequestUrl())
                 .sourceId(module.getId())
-                .content(generateContent(module.getName(), resourceType, "add"))
-                .createUser(operator)
+                .content(generateContent(module.getName(), logInsertModule.getResourceType(), "add"))
+                .createUser(logInsertModule.getOperator())
                 .build().getLogDTO();
         operationLogService.add(dto);
     }
 
-    public void saveDeleteLog(TestPlan module, String resourceType, String operator, String requestUrl, String requestMethod) {
+    public void saveDeleteLog(TestPlan module, @Validated ResourceLogInsertModule logInsertModule) {
         Project project = projectMapper.selectByPrimaryKey(module.getProjectId());
         LogDTO dto = LogDTOBuilder.builder()
                 .projectId(module.getProjectId())
                 .organizationId(project.getOrganizationId())
                 .type(OperationLogType.DELETE.name())
                 .module(logModule)
-                .method(requestMethod)
-                .path(requestUrl)
+                .method(logInsertModule.getRequestMethod())
+                .path(logInsertModule.getRequestUrl())
                 .sourceId(module.getId())
-                .content(generateContent(module.getName(), resourceType, "remove"))
-                .createUser(operator)
+                .content(generateContent(module.getName(), logInsertModule.getResourceType(), "remove"))
+                .createUser(logInsertModule.getOperator())
                 .build().getLogDTO();
         operationLogService.add(dto);
     }
 
-    public void saveSortLog(TestPlan testPlan, String resourceId, String resourceType, String operator, String requestUrl, String requestMethod) {
+    public void saveSortLog(TestPlan testPlan, String resourceId, @Validated ResourceLogInsertModule logInsertModule) {
         Project project = projectMapper.selectByPrimaryKey(testPlan.getProjectId());
         LogDTO dto = LogDTOBuilder.builder()
                 .projectId(testPlan.getProjectId())
                 .organizationId(project.getOrganizationId())
                 .type(OperationLogType.UPDATE.name())
                 .module(logModule)
-                .method(requestMethod)
-                .path(requestUrl)
+                .method(logInsertModule.getRequestMethod())
+                .path(logInsertModule.getRequestUrl())
                 .sourceId(resourceId)
-                .content(generateContent(testPlan.getName(), resourceType, "move"))
-                .createUser(operator)
+                .content(generateContent(testPlan.getName(), logInsertModule.getResourceType(), "move"))
+                .createUser(logInsertModule.getOperator())
                 .build().getLogDTO();
         operationLogService.add(dto);
     }

@@ -14,6 +14,9 @@ public enum ApplicationNumScope {
     LOAD_TEST,
 
     TEST_PLAN,
+    TEST_PLAN_FUNCTION_CASE,
+    TEST_PLAN_API_CASE,
+    TEST_PLAN_API_SCENARIO,
 
     BUG_MANAGEMENT,
 
