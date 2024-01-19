@@ -36,7 +36,7 @@ public abstract class ScriptProcessorConverter extends MsProcessorConverter<Scri
         testElement.setProperty(JmeterProperty.SCRIPT, scriptProcessor.getScript());
     }
 
-    protected boolean isJSR233(ScriptProcessor scriptProcessor) {
+    public static boolean isJSR233(ScriptProcessor scriptProcessor) {
       return !StringUtils.equals(scriptProcessor.getScriptLanguage(), ScriptProcessor.ScriptLanguageType.BEANSHELL.getValue());
     }
 }

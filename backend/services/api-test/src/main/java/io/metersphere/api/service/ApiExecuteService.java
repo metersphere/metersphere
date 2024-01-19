@@ -4,19 +4,24 @@ import io.metersphere.api.config.JmeterProperties;
 import io.metersphere.api.config.KafkaConfig;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.dto.debug.ApiResourceRunRequest;
+import io.metersphere.api.dto.request.controller.MsCommentScriptElement;
 import io.metersphere.api.parser.TestElementParser;
 import io.metersphere.api.parser.TestElementParserFactory;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.ProjectApplication;
+import io.metersphere.project.dto.customfunction.request.CustomFunctionRunRequest;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileManagementService;
 import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.project.service.ProjectApplicationService;
+import io.metersphere.sdk.constants.ApiExecuteResourceType;
+import io.metersphere.sdk.constants.ApiExecuteRunMode;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.dto.api.task.ApiExecuteFileInfo;
+import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.*;
@@ -27,6 +32,7 @@ import io.metersphere.system.dto.pool.TestResourceNodeDTO;
 import io.metersphere.system.service.CommonProjectService;
 import io.metersphere.system.service.SystemParameterService;
 import io.metersphere.system.service.TestResourcePoolService;
+import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.TaskRunnerClient;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
@@ -39,7 +45,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
-import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +70,8 @@ public class ApiExecuteService {
     private SystemParameterService systemParameterService;
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+    @Resource
+    private RoundRobinService roundRobinService;
     @Resource
     private JmeterProperties jmeterProperties;
     @Resource
@@ -104,16 +111,14 @@ public class ApiExecuteService {
     }
 
     public void debug(ApiResourceRunRequest request) {
-        TestResourceDTO resourcePoolDTO = getAvailableResourcePoolDTO(request.getProjectId());
         String reportId = request.getReportId();
         String testId = request.getTestId();
 
         TaskRequestDTO taskRequest = new TaskRequestDTO();
         BeanUtils.copyBean(taskRequest, request);
-        taskRequest.setKafkaConfig(EncryptUtils.aesEncrypt(JSON.toJSONString(KafkaConfig.getKafkaConfig())));
-        taskRequest.setMinioConfig(EncryptUtils.aesEncrypt(JSON.toJSONString(getMinio())));
-        taskRequest.setMsUrl(systemParameterService.getBaseInfo().getUrl());
         taskRequest.setRealTime(true);
+        taskRequest.setResourceId(testId);
+        setServerInfoParam(taskRequest);
 
         // 设置执行文件参数
         setTaskFileParam(request, taskRequest);
@@ -128,15 +133,30 @@ public class ApiExecuteService {
         parameterConfig.setReportId(reportId);
         String executeScript = parseExecuteScript(request.getRequest(), parameterConfig);
 
+        TestResourceNodeDTO testResourceNodeDTO = getProjectExecuteNode(request.getProjectId());
+
+        doDebug(reportId, testId, taskRequest, executeScript, testResourceNodeDTO);
+    }
+
+    /**
+     * 发送执行任务
+     * @param reportId 报告ID
+     * @param testId   资源ID
+     * @param taskRequest 执行参数
+     * @param executeScript 执行脚本
+     * @param testResourceNodeDTO 资源池
+     */
+    private void doDebug(String reportId,
+                         String testId,
+                         TaskRequestDTO taskRequest,
+                         String executeScript,
+                         TestResourceNodeDTO testResourceNodeDTO) {
         // 将测试脚本缓存到 redis
         String scriptRedisKey = getScriptRedisKey(reportId, testId);
         stringRedisTemplate.opsForValue().set(scriptRedisKey, executeScript);
 
-        List<TestResourceNodeDTO> nodesList = resourcePoolDTO.getNodesList();
-        int index = new SecureRandom().nextInt(nodesList.size());
-        TestResourceNodeDTO testResourceNodeDTO = nodesList.get(index);
-        String endpoint = TaskRunnerClient.getEndpoint(testResourceNodeDTO.getIp(), testResourceNodeDTO.getPort());
         try {
+            String endpoint = TaskRunnerClient.getEndpoint(testResourceNodeDTO.getIp(), testResourceNodeDTO.getPort());
             LogUtils.info(String.format("开始发送请求【 %s 】到 %s 节点执行", testId, endpoint), reportId);
             TaskRunnerClient.debugApi(endpoint, taskRequest);
         } catch (Exception e) {
@@ -145,6 +165,57 @@ public class ApiExecuteService {
             stringRedisTemplate.delete(scriptRedisKey);
             throw new MSException(RESOURCE_POOL_EXECUTE_ERROR, e.getMessage());
         }
+    }
+
+    private TestResourceNodeDTO getProjectExecuteNode(String projectId) {
+        String resourcePoolId = getProjectApiResourcePoolId(projectId);
+        TestResourceDTO resourcePoolDTO = getAvailableResourcePoolDTO(projectId, resourcePoolId);
+        roundRobinService.initializeNodes(resourcePoolId, resourcePoolDTO.getNodesList());
+        try {
+            return roundRobinService.getNextNode(resourcePoolId);
+        } catch (Exception e) {
+            LogUtils.error(e);
+            throw new MSException("get execute node error", e);
+        }
+    }
+
+    /**
+     * 设置minio kafka ms 等信息
+     *
+     * @param taskRequest
+     */
+    private void setServerInfoParam(TaskRequestDTO taskRequest) {
+        taskRequest.setKafkaConfig(EncryptUtils.aesEncrypt(JSON.toJSONString(KafkaConfig.getKafkaConfig())));
+        taskRequest.setMinioConfig(EncryptUtils.aesEncrypt(JSON.toJSONString(getMinio())));
+        taskRequest.setMsUrl(systemParameterService.getBaseInfo().getUrl());
+    }
+
+    /**
+     * 公共脚本执行
+     * @param runRequest
+     * @return
+     */
+    public String runScript(CustomFunctionRunRequest runRequest) {
+        String reportId = IDGenerator.nextStr();
+        String testId = runRequest.getProjectId();
+        // 生成执行脚本
+        MsCommentScriptElement msCommentScriptElement = BeanUtils.copyBean(new MsCommentScriptElement(), runRequest);
+        String executeScript = parseExecuteScript(msCommentScriptElement, new ParameterConfig());
+        // 设置执行参数
+        TaskRequestDTO taskRequest = new TaskRequestDTO();
+        setServerInfoParam(taskRequest);
+        taskRequest.setRealTime(true);
+        taskRequest.setReportId(reportId);
+        taskRequest.setResourceId(testId);
+        taskRequest.setResourceType(ApiExecuteResourceType.API_DEBUG.name());
+        ApiRunModeConfigDTO apiRunModeConfig = new ApiRunModeConfigDTO();
+        apiRunModeConfig.setRunMode(ApiExecuteRunMode.BACKEND_DEBUG.name());
+        taskRequest.setRunModeConfig(apiRunModeConfig);
+
+        TestResourceNodeDTO testResourceNodeDTO = getProjectExecuteNode(runRequest.getProjectId());
+
+        doDebug(reportId, testId, taskRequest, executeScript, testResourceNodeDTO);
+        return reportId;
     }
 
     /**
@@ -236,14 +307,18 @@ public class ApiExecuteService {
      * 生成执行脚本
      *
      * @param testElementStr
-     * @param msParameter
+     * @param config
      * @return
      */
-    private static String parseExecuteScript(String testElementStr, ParameterConfig msParameter) {
+    private static String parseExecuteScript(String testElementStr, ParameterConfig config) {
+        // 解析生成脚本
+        return parseExecuteScript(ApiDataUtils.parseObject(testElementStr, AbstractMsTestElement.class), config);
+    }
+
+    private static String parseExecuteScript(AbstractMsTestElement msTestElement, ParameterConfig config) {
         // 解析生成脚本
         TestElementParser defaultParser = TestElementParserFactory.getDefaultParser();
-        AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(testElementStr, AbstractMsTestElement.class);
-        return defaultParser.parse(msTestElement, msParameter);
+        return defaultParser.parse(msTestElement, config);
     }
 
 
@@ -262,14 +337,7 @@ public class ApiExecuteService {
      * @param projectId
      * @param
      */
-    public TestResourceDTO getAvailableResourcePoolDTO(String projectId) {
-        // 查询接口默认资源池
-        ProjectApplication resourcePoolConfig = projectApplicationService.getByType(projectId, ProjectApplicationType.API.API_RESOURCE_POOL_ID.name());
-        // 没有配置接口默认资源池
-        if (resourcePoolConfig == null || StringUtils.isBlank(resourcePoolConfig.getTypeValue())) {
-            throw new MSException(ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);
-        }
-        String resourcePoolId = StringUtils.isBlank(resourcePoolConfig.getTypeValue()) ? null : resourcePoolConfig.getTypeValue();
+    public TestResourceDTO getAvailableResourcePoolDTO(String projectId, String resourcePoolId) {
         TestResourcePool testResourcePool = testResourcePoolService.getTestResourcePool(resourcePoolId);
         if (testResourcePool == null ||
                 // 资源池禁用
@@ -279,5 +347,16 @@ public class ApiExecuteService {
             throw new MSException(ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);
         }
         return testResourcePoolService.getTestResourceDTO(resourcePoolId);
+    }
+
+    private String getProjectApiResourcePoolId(String projectId) {
+        // 查询接口默认资源池
+        ProjectApplication resourcePoolConfig = projectApplicationService.getByType(projectId, ProjectApplicationType.API.API_RESOURCE_POOL_ID.name());
+        // 没有配置接口默认资源池
+        if (resourcePoolConfig == null || StringUtils.isBlank(resourcePoolConfig.getTypeValue())) {
+            throw new MSException(ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);
+        }
+        String resourcePoolId = StringUtils.isBlank(resourcePoolConfig.getTypeValue()) ? null : resourcePoolConfig.getTypeValue();
+        return resourcePoolId;
     }
 }

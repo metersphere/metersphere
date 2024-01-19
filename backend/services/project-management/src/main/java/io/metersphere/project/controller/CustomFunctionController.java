@@ -6,6 +6,7 @@ import io.metersphere.project.domain.CustomFunction;
 import io.metersphere.project.dto.customfunction.CustomFunctionDTO;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionPageRequest;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionRequest;
+import io.metersphere.project.dto.customfunction.request.CustomFunctionRunRequest;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionUpdateRequest;
 import io.metersphere.project.service.CustomFunctionLogService;
 import io.metersphere.project.service.CustomFunctionService;
@@ -92,5 +93,10 @@ public class CustomFunctionController {
         customFunctionService.delete(id);
     }
 
-
+    @PostMapping("/run")
+    @Operation(summary = "项目管理-公共脚本-脚本测试")
+    @RequiresPermissions(PermissionConstants.PROJECT_CUSTOM_FUNCTION_EXECUTE)
+    public String run(@Validated @RequestBody CustomFunctionRunRequest runRequest) {
+        return customFunctionService.run(runRequest);
+    }
 }

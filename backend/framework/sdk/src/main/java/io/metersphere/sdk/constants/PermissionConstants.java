@@ -203,6 +203,7 @@ public class PermissionConstants {
     public static final String PROJECT_CUSTOM_FUNCTION_ADD = "PROJECT_CUSTOM_FUNCTION:READ+ADD";
     public static final String PROJECT_CUSTOM_FUNCTION_UPDATE = "PROJECT_CUSTOM_FUNCTION:READ+UPDATE";
     public static final String PROJECT_CUSTOM_FUNCTION_DELETE = "PROJECT_CUSTOM_FUNCTION:READ+DELETE";
+    public static final String PROJECT_CUSTOM_FUNCTION_EXECUTE = "PROJECT_CUSTOM_FUNCTION:READ+EXECUTE";
     /*------ end: PROJECT_CUSTOM_FUNCTION ------*/
 
     /*------ start: PROJECT_TEMPLATE ------*/

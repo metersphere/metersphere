@@ -6,6 +6,7 @@ import io.metersphere.project.domain.CustomFunctionExample;
 import io.metersphere.project.dto.customfunction.CustomFunctionDTO;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionPageRequest;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionRequest;
+import io.metersphere.project.dto.customfunction.request.CustomFunctionRunRequest;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionUpdateRequest;
 import io.metersphere.project.enums.CustomFunctionStatus;
 import io.metersphere.project.enums.result.ProjectResultCode;
@@ -18,6 +19,7 @@ import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,6 +44,13 @@ public class CustomFunctionService {
 
     @Resource
     ExtCustomFunctionMapper extCustomFunctionMapper;
+
+    /**
+     * 使用 Autowired
+     * 从接口模块注入实现类
+     */
+    @Autowired
+    CustomFunctionRunService customFunctionRunService;
 
     public List<CustomFunctionDTO> getPage(CustomFunctionPageRequest request) {
         List<CustomFunctionDTO> list = extCustomFunctionMapper.list(request);
@@ -162,4 +171,7 @@ public class CustomFunctionService {
         }
     }
 
+    public String run(CustomFunctionRunRequest runRequest) {
+        return customFunctionRunService.run(runRequest);
+    }
 }
