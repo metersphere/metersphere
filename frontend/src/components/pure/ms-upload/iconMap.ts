@@ -72,6 +72,10 @@ export const FileIconMap: FileIconMapping = {
     [UploadStatus.init]: 'icon-icon_file-unknow_colorful1',
     [UploadStatus.done]: 'icon-icon_file-unknow_colorful1',
   },
+  json: {
+    [UploadStatus.init]: 'icon-icon_file-json_colorful_ash',
+    [UploadStatus.done]: 'icon-icon_file-json_colorful1',
+  },
 };
 
 /**

@@ -88,6 +88,8 @@ export default {
   'common.number': '数字',
   'common.boolean': '布尔',
   'common.array': '数组',
+  'common.list': '列表',
+  'common.constant': '常量',
   'common.json': '对象',
   'common.integer': '整数',
   'common.file': '文件',

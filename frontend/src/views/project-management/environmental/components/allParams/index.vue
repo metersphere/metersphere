@@ -1,11 +1,11 @@
 <template>
   <div class="mb-[8px] flex items-center justify-between">
-    <a-input
-      v-model:value="searchValue"
+    <a-input-search
+      v-model="searchValue"
       :placeholder="t('project.environmental.searchParamsHolder')"
       allow-clear
       class="w-[240px]"
-      @blur="handleSearch"
+      @search="handleSearch"
       @press-enter="handleSearch"
     >
       <template #prefix>
@@ -13,7 +13,7 @@
           <icon-search class="cursor-pointer" @click="handleSearch" />
         </span>
       </template>
-    </a-input>
+    </a-input-search>
     <batchAddKeyVal :params="innerParams" @apply="handleBatchParamApply" />
   </div>
   <paramsTable
@@ -21,6 +21,8 @@
     :table-key="props.tableKey"
     :columns="columns"
     show-setting
+    :selectable="false"
+    :default-param-item="defaultParamItem"
     @change="handleParamTableChange"
   />
 </template>
@@ -34,6 +36,8 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import { TableKeyEnum } from '@/enums/tableEnum';
+
+  defineOptions({ name: 'EnvManagementAllParams' });
 
   const props = withDefaults(
     defineProps<{
@@ -54,11 +58,21 @@
   const { t } = useI18n();
 
   const innerParams = useVModel(props, 'params', emit);
+  const backupParmas = ref(props.params);
+  const firstSearch = ref(true);
+
+  const defaultParamItem = {
+    key: '',
+    type: '',
+    value: '',
+    description: '',
+    tags: [],
+  };
 
   const columns: ParamTableColumn[] = [
     {
       title: 'project.environmental.paramName',
-      dataIndex: 'name',
+      dataIndex: 'key',
       slotName: 'name',
       showInTable: true,
       showDrag: true,
@@ -73,28 +87,16 @@
       columnSelectorDisabled: true,
       typeOptions: [
         {
-          label: t('common.string'),
-          value: 'string',
+          label: t('common.constant'),
+          value: 'CONSTANT',
         },
         {
-          label: t('common.integer'),
-          value: 'integer',
-        },
-        {
-          label: t('common.number'),
-          value: 'number',
-        },
-        {
-          label: t('common.array'),
-          value: 'array',
+          label: t('common.list'),
+          value: 'LIST',
         },
         {
           label: t('common.json'),
-          value: 'json',
-        },
-        {
-          label: t('common.file'),
-          value: 'file',
+          value: 'JSON',
         },
       ],
       titleSlotName: 'typeTitle',
@@ -110,7 +112,7 @@
     },
     {
       title: 'project.environmental.tag',
-      dataIndex: 'tag',
+      dataIndex: 'tags',
       slotName: 'tag',
       width: 200,
       showInTable: true,
@@ -118,19 +120,16 @@
     },
     {
       title: 'project.environmental.desc',
-      dataIndex: 'desc',
+      dataIndex: 'description',
       slotName: 'desc',
       showInTable: true,
       showDrag: true,
     },
     {
       title: '',
-      columnTitle: 'common.operation',
       slotName: 'operation',
       dataIndex: 'operation',
       width: 50,
-      showInTable: true,
-      showDrag: true,
     },
   ];
 
@@ -150,18 +149,21 @@
     innerParams.value = [...resultArr];
     if (!isInit) {
       emit('change');
+      firstSearch.value = true;
     }
   }
 
   function handleSearch() {
-    if (searchValue.value.length === 0) {
-      return;
+    if (firstSearch.value) {
+      backupParmas.value = [...innerParams.value];
+      firstSearch.value = false;
     }
-    const result = innerParams.value.filter((item) => item.name.includes(searchValue.value));
-    if (result.length === 0) {
-      return;
+    if (!searchValue.value) {
+      innerParams.value = [...backupParmas.value];
+    } else {
+      const result = backupParmas.value.filter((item) => item.key.includes(searchValue.value));
+      innerParams.value = [...result];
     }
-    innerParams.value = [...result];
   }
 </script>
 

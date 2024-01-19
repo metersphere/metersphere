@@ -3,7 +3,15 @@
     <div class="font-medium">{{ t('apiTestDebug.header') }}</div>
     <batchAddKeyVal :params="innerParams" @apply="handleBatchParamApply" />
   </div>
-  <paramsTable v-model:params="innerParams" :show-setting="false" :columns="columns" @change="handleParamTableChange" />
+  <paramsTable
+    v-model:params="innerParams"
+    :selectable="false"
+    :show-setting="false"
+    :columns="columns"
+    :table-key="TableKeyEnum.PROJECT_MANAGEMENT_ENV_ALL_PARAM_HEADER"
+    :default-param-item="defaultParamItem"
+    @change="handleParamTableChange"
+  />
 </template>
 
 <script setup lang="ts">
@@ -13,6 +21,12 @@
   import batchAddKeyVal from '@/views/api-test/debug/components/debug/batchAddKeyVal.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+
+  import { TableKeyEnum } from '@/enums/tableEnum';
+
+  defineOptions({
+    name: 'EnvManangeGloblaRequestHeader',
+  });
 
   const props = defineProps<{
     params: any[];
@@ -25,22 +39,27 @@
   const { t } = useI18n();
 
   const innerParams = useVModel(props, 'params', emit);
+  const defaultParamItem = {
+    key: '',
+    value: '',
+    description: '',
+  };
 
   const columns: ParamTableColumn[] = [
     {
       title: 'apiTestDebug.paramName',
-      dataIndex: 'name',
+      dataIndex: 'key',
       slotName: 'name',
     },
     {
-      title: 'apiTestDebug.desc',
-      dataIndex: 'desc',
-      slotName: 'desc',
+      title: 'apiTestDebug.paramValue',
+      dataIndex: 'value',
+      slotName: 'value',
     },
     {
-      title: 'project.environmental.mustContain',
-      dataIndex: 'mustContain',
-      slotName: 'mustContain',
+      title: 'apiTestDebug.desc',
+      dataIndex: 'description',
+      slotName: 'desc',
     },
     {
       title: '',

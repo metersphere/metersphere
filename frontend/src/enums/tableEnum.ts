@@ -50,6 +50,8 @@ export enum TableKeyEnum {
   PROJECT_MANAGEMENT_ENV_ALL_PARAM = 'projectManagementEnvAllParam',
   PROJECT_MANAGEMENT_ENV_ENV_PARAM = 'projectManagementEnvEnvParam',
   PROJECT_MANAGEMENT_ENV_ENV_HTTP = 'projectManagementEnvEnvHttp',
+  PROJECT_MANAGEMENT_ENV_ALL_PARAM_HEADER = 'projectManagementEnvAllParamHeader',
+  PROJECT_MANAGEMENT_ENV_ALL_PARAM_VARIABLE = 'projectManagementEnvAllParamVariable',
 }
 
 // 具有特殊功能的列
