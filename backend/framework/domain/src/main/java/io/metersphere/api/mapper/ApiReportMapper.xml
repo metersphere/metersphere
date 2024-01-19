@@ -29,7 +29,9 @@
     <result column="success_count" jdbcType="BIGINT" property="successCount" />
     <result column="assertion_count" jdbcType="BIGINT" property="assertionCount" />
     <result column="assertion_success_count" jdbcType="BIGINT" property="assertionSuccessCount" />
-    <result column="request_execution_rate" jdbcType="VARCHAR" property="requestExecutionRate" />
+    <result column="request_error_rate" jdbcType="VARCHAR" property="requestErrorRate" />
+    <result column="request_pending_rate" jdbcType="VARCHAR" property="requestPendingRate" />
+    <result column="request_fake_error_rate" jdbcType="VARCHAR" property="requestFakeErrorRate" />
     <result column="request_pass_rate" jdbcType="VARCHAR" property="requestPassRate" />
     <result column="assertion_pass_rate" jdbcType="VARCHAR" property="assertionPassRate" />
     <result column="script_identifier" jdbcType="VARCHAR" property="scriptIdentifier" />
@@ -97,7 +99,8 @@
     update_user, update_time, start_time, end_time, request_duration, `status`, trigger_mode, 
     run_mode, pool_id, version_id, integrated, project_id, environment_id, error_count, 
     fake_error_count, pending_count, success_count, assertion_count, assertion_success_count, 
-    request_execution_rate, request_pass_rate, assertion_pass_rate, script_identifier
+    request_error_rate, request_pending_rate, request_fake_error_rate, request_pass_rate, 
+    assertion_pass_rate, script_identifier
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiReportExample" resultMap="BaseResultMap">
     select
@@ -139,8 +142,9 @@
       integrated, project_id, environment_id, 
       error_count, fake_error_count, pending_count, 
       success_count, assertion_count, assertion_success_count, 
-      request_execution_rate, request_pass_rate, 
-      assertion_pass_rate, script_identifier)
+      request_error_rate, request_pending_rate, request_fake_error_rate, 
+      request_pass_rate, assertion_pass_rate, script_identifier
+      )
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, 
       #{testPlanId,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{deleteTime,jdbcType=BIGINT}, 
       #{deleteUser,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT}, #{updateUser,jdbcType=VARCHAR}, 
@@ -150,8 +154,9 @@
       #{integrated,jdbcType=BIT}, #{projectId,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, 
       #{errorCount,jdbcType=BIGINT}, #{fakeErrorCount,jdbcType=BIGINT}, #{pendingCount,jdbcType=BIGINT}, 
       #{successCount,jdbcType=BIGINT}, #{assertionCount,jdbcType=BIGINT}, #{assertionSuccessCount,jdbcType=BIGINT}, 
-      #{requestExecutionRate,jdbcType=VARCHAR}, #{requestPassRate,jdbcType=VARCHAR}, 
-      #{assertionPassRate,jdbcType=VARCHAR}, #{scriptIdentifier,jdbcType=VARCHAR})
+      #{requestErrorRate,jdbcType=VARCHAR}, #{requestPendingRate,jdbcType=VARCHAR}, #{requestFakeErrorRate,jdbcType=VARCHAR}, 
+      #{requestPassRate,jdbcType=VARCHAR}, #{assertionPassRate,jdbcType=VARCHAR}, #{scriptIdentifier,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiReport">
     insert into api_report
@@ -237,8 +242,14 @@
       <if test="assertionSuccessCount != null">
         assertion_success_count,
       </if>
-      <if test="requestExecutionRate != null">
-        request_execution_rate,
+      <if test="requestErrorRate != null">
+        request_error_rate,
+      </if>
+      <if test="requestPendingRate != null">
+        request_pending_rate,
+      </if>
+      <if test="requestFakeErrorRate != null">
+        request_fake_error_rate,
       </if>
       <if test="requestPassRate != null">
         request_pass_rate,
@@ -332,8 +343,14 @@
       <if test="assertionSuccessCount != null">
         #{assertionSuccessCount,jdbcType=BIGINT},
       </if>
-      <if test="requestExecutionRate != null">
-        #{requestExecutionRate,jdbcType=VARCHAR},
+      <if test="requestErrorRate != null">
+        #{requestErrorRate,jdbcType=VARCHAR},
+      </if>
+      <if test="requestPendingRate != null">
+        #{requestPendingRate,jdbcType=VARCHAR},
+      </if>
+      <if test="requestFakeErrorRate != null">
+        #{requestFakeErrorRate,jdbcType=VARCHAR},
       </if>
       <if test="requestPassRate != null">
         #{requestPassRate,jdbcType=VARCHAR},
@@ -436,8 +453,14 @@
       <if test="record.assertionSuccessCount != null">
         assertion_success_count = #{record.assertionSuccessCount,jdbcType=BIGINT},
       </if>
-      <if test="record.requestExecutionRate != null">
-        request_execution_rate = #{record.requestExecutionRate,jdbcType=VARCHAR},
+      <if test="record.requestErrorRate != null">
+        request_error_rate = #{record.requestErrorRate,jdbcType=VARCHAR},
+      </if>
+      <if test="record.requestPendingRate != null">
+        request_pending_rate = #{record.requestPendingRate,jdbcType=VARCHAR},
+      </if>
+      <if test="record.requestFakeErrorRate != null">
+        request_fake_error_rate = #{record.requestFakeErrorRate,jdbcType=VARCHAR},
       </if>
       <if test="record.requestPassRate != null">
         request_pass_rate = #{record.requestPassRate,jdbcType=VARCHAR},
@@ -482,7 +505,9 @@
       success_count = #{record.successCount,jdbcType=BIGINT},
       assertion_count = #{record.assertionCount,jdbcType=BIGINT},
       assertion_success_count = #{record.assertionSuccessCount,jdbcType=BIGINT},
-      request_execution_rate = #{record.requestExecutionRate,jdbcType=VARCHAR},
+      request_error_rate = #{record.requestErrorRate,jdbcType=VARCHAR},
+      request_pending_rate = #{record.requestPendingRate,jdbcType=VARCHAR},
+      request_fake_error_rate = #{record.requestFakeErrorRate,jdbcType=VARCHAR},
       request_pass_rate = #{record.requestPassRate,jdbcType=VARCHAR},
       assertion_pass_rate = #{record.assertionPassRate,jdbcType=VARCHAR},
       script_identifier = #{record.scriptIdentifier,jdbcType=VARCHAR}
@@ -571,8 +596,14 @@
       <if test="assertionSuccessCount != null">
         assertion_success_count = #{assertionSuccessCount,jdbcType=BIGINT},
       </if>
-      <if test="requestExecutionRate != null">
-        request_execution_rate = #{requestExecutionRate,jdbcType=VARCHAR},
+      <if test="requestErrorRate != null">
+        request_error_rate = #{requestErrorRate,jdbcType=VARCHAR},
+      </if>
+      <if test="requestPendingRate != null">
+        request_pending_rate = #{requestPendingRate,jdbcType=VARCHAR},
+      </if>
+      <if test="requestFakeErrorRate != null">
+        request_fake_error_rate = #{requestFakeErrorRate,jdbcType=VARCHAR},
       </if>
       <if test="requestPassRate != null">
         request_pass_rate = #{requestPassRate,jdbcType=VARCHAR},
@@ -614,7 +645,9 @@
       success_count = #{successCount,jdbcType=BIGINT},
       assertion_count = #{assertionCount,jdbcType=BIGINT},
       assertion_success_count = #{assertionSuccessCount,jdbcType=BIGINT},
-      request_execution_rate = #{requestExecutionRate,jdbcType=VARCHAR},
+      request_error_rate = #{requestErrorRate,jdbcType=VARCHAR},
+      request_pending_rate = #{requestPendingRate,jdbcType=VARCHAR},
+      request_fake_error_rate = #{requestFakeErrorRate,jdbcType=VARCHAR},
       request_pass_rate = #{requestPassRate,jdbcType=VARCHAR},
       assertion_pass_rate = #{assertionPassRate,jdbcType=VARCHAR},
       script_identifier = #{scriptIdentifier,jdbcType=VARCHAR}
@@ -626,8 +659,8 @@
       update_user, update_time, start_time, end_time, request_duration, `status`, trigger_mode, 
       run_mode, pool_id, version_id, integrated, project_id, environment_id, error_count, 
       fake_error_count, pending_count, success_count, assertion_count, assertion_success_count, 
-      request_execution_rate, request_pass_rate, assertion_pass_rate, script_identifier
-      )
+      request_error_rate, request_pending_rate, request_fake_error_rate, request_pass_rate, 
+      assertion_pass_rate, script_identifier)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.resourceId,jdbcType=VARCHAR}, 
@@ -639,7 +672,8 @@
         #{item.integrated,jdbcType=BIT}, #{item.projectId,jdbcType=VARCHAR}, #{item.environmentId,jdbcType=VARCHAR}, 
         #{item.errorCount,jdbcType=BIGINT}, #{item.fakeErrorCount,jdbcType=BIGINT}, #{item.pendingCount,jdbcType=BIGINT}, 
         #{item.successCount,jdbcType=BIGINT}, #{item.assertionCount,jdbcType=BIGINT}, #{item.assertionSuccessCount,jdbcType=BIGINT}, 
-        #{item.requestExecutionRate,jdbcType=VARCHAR}, #{item.requestPassRate,jdbcType=VARCHAR}, 
+        #{item.requestErrorRate,jdbcType=VARCHAR}, #{item.requestPendingRate,jdbcType=VARCHAR}, 
+        #{item.requestFakeErrorRate,jdbcType=VARCHAR}, #{item.requestPassRate,jdbcType=VARCHAR}, 
         #{item.assertionPassRate,jdbcType=VARCHAR}, #{item.scriptIdentifier,jdbcType=VARCHAR}
         )
     </foreach>
@@ -735,8 +769,14 @@
         <if test="'assertion_success_count'.toString() == column.value">
           #{item.assertionSuccessCount,jdbcType=BIGINT}
         </if>
-        <if test="'request_execution_rate'.toString() == column.value">
-          #{item.requestExecutionRate,jdbcType=VARCHAR}
+        <if test="'request_error_rate'.toString() == column.value">
+          #{item.requestErrorRate,jdbcType=VARCHAR}
+        </if>
+        <if test="'request_pending_rate'.toString() == column.value">
+          #{item.requestPendingRate,jdbcType=VARCHAR}
+        </if>
+        <if test="'request_fake_error_rate'.toString() == column.value">
+          #{item.requestFakeErrorRate,jdbcType=VARCHAR}
         </if>
         <if test="'request_pass_rate'.toString() == column.value">
           #{item.requestPassRate,jdbcType=VARCHAR}
