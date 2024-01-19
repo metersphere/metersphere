@@ -27,7 +27,13 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/authsource/list/allenable", "anon");
         filterChainDefinitionMap.put("/sso/callback/**", "anon");
         filterChainDefinitionMap.put("/license/validate", "anon");
+        //功能用例副文本访问
+        filterChainDefinitionMap.put("/attachment/download/file/**", "anon");
+        //用例评审副文本访问
+        filterChainDefinitionMap.put("/review/functional/case/download/file/**", "anon");
+
         filterChainDefinitionMap.put("/system/version/current", "anon");
+
         //用户通过邮箱邀请自行注册的接口
         filterChainDefinitionMap.put("/system/user/register-by-invite", "anon");
 

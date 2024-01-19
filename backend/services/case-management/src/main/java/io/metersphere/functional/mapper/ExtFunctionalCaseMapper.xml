@@ -105,6 +105,7 @@
             NAME,
             module_id,
             version_id,
+            case_edit_type,
             create_user,
             create_time,
             update_user,
