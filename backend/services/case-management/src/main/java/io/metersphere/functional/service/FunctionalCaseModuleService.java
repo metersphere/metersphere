@@ -275,9 +275,10 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
         while (CollectionUtils.isNotEmpty(finalModuleIds))  {
             List<BaseTreeNode> modules = extFunctionalCaseModuleMapper.selectBaseByIds(finalModuleIds);
             totalList.addAll(modules);
-            List<String> parentModuleIds = modules.stream().map(BaseTreeNode::getParentId).filter(parentId -> !StringUtils.equalsIgnoreCase(parentId,ModuleConstants.ROOT_NODE_PARENT_ID)).toList();
+            List<String> finalModuleIdList = finalModuleIds;
+            List<String> parentModuleIds = modules.stream().map(BaseTreeNode::getParentId).filter(parentId -> !StringUtils.equalsIgnoreCase(parentId,ModuleConstants.ROOT_NODE_PARENT_ID) && !finalModuleIdList.contains(parentId)).toList();
             finalModuleIds.clear();
-            finalModuleIds = parentModuleIds;
+            finalModuleIds = new ArrayList<>(parentModuleIds);
         }
         return totalList.stream().distinct().toList();
     }
