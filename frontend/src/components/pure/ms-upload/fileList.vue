@@ -241,7 +241,7 @@
   const previewCurrent = ref(0);
 
   const previewList = computed(() => {
-    return innerFileList.value.filter((item) => item.file?.type.includes('image/')).map((item) => item.url);
+    return innerFileList.value.filter((item: any) => item.file?.type.includes('image/')).map((item: any) => item.url);
   });
 
   function handlePreview(item: MsFileItem) {
