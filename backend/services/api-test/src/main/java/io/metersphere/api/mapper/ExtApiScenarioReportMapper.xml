@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.api.mapper.ExtApiScenarioReportMapper">
+
+    <select id="list" resultType="io.metersphere.api.domain.ApiScenarioReport">
+        select
+        api_scenario_report.id,
+        api_scenario_report.name,
+        api_scenario_report.integrated,
+        api_scenario_report.status,
+        api_scenario_report.start_time,
+        api_scenario_report.update_time,
+        api_scenario_report.create_user,
+        api_scenario_report.update_user,
+        api_scenario_report.trigger_mode
+        from api_scenario_report where api_scenario_report.deleted = false
+                          and api_scenario_report.test_plan_id = 'NONE'
+        <if test="request.keyword != null and request.keyword != ''">
+            and (
+            api_scenario_report.name like concat('%', #{request.keyword},'%')
+            )
+        </if>
+        <if test="request.projectId != null and request.projectId != ''">
+            and api_scenario_report.project_id = #{request.projectId}
+        </if>
+        <include refid="filters">
+            <property name="filter" value="request.filter"/>
+        </include>
+    </select>
+    <select id="getIds" resultType="java.lang.String">
+        select
+        api_scenario_report.id
+        from api_scenario_report where api_scenario_report.deleted = false
+                          and api_scenario_report.test_plan_id = 'NONE'
+        <if test="request.condition.keyword != null">
+            and (
+            api_scenario_report.name like concat('%', #{request.condition.keyword},'%')
+            )
+        </if>
+        <if test="request.projectId != null and request.projectId != ''">
+            and api_scenario_report.project_id = #{request.projectId}
+        </if>
+        <include refid="filters">
+            <property name="filter" value="request.condition.filter"/>
+        </include>
+    </select>
+    <select id="selectApiReportByIds" resultType="io.metersphere.api.domain.ApiScenarioReport">
+        select
+        api_scenario_report.id,
+        api_scenario_report.name
+        from api_scenario_report where api_scenario_report.deleted = #{deleted}
+                          and api_scenario_report.test_plan_id = 'NONE'
+        and api_scenario_report.id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+    <select id="selectStepByReportId" resultType="io.metersphere.api.dto.scenario.ApiScenarioReportStepDTO">
+        select api_scenario_report_step.step_id,
+               api_scenario_report_step.report_id,
+               api_scenario_report_step.`name`,
+               api_scenario_report_step.sort,
+               api_scenario_report_step.step_type,
+               api_scenario_report_step.parent_id,
+               api_scenario_report_detail.status,
+               api_scenario_report_detail.fake_code,
+               api_scenario_report_detail.request_name,
+               api_scenario_report_detail.request_time,
+               api_scenario_report_detail.code,
+               api_scenario_report_detail.response_size,
+               api_scenario_report_detail.script_identifier
+        from api_scenario_report_step
+            left join api_scenario_report_detail
+            on api_scenario_report_step.step_id = api_scenario_report_detail.step_id
+            and api_scenario_report_detail.report_id = api_scenario_report_step.report_id
+        where api_scenario_report_step.report_id = #{reportId}
+    </select>
+
+
+    <sql id="filters">
+        <if test="${filter} != null and ${filter}.size() > 0">
+            <foreach collection="${filter}.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='integrated'">
+                            and api_scenario_report.integrated in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='status'">
+                            and api_scenario_report.status in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='triggerMode'">
+                            and api_scenario_report.trigger_mode in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+
+</mapper>

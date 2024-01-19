@@ -1,10 +1,7 @@
 package io.metersphere.api.service.definition;
 
 import io.metersphere.api.domain.*;
-import io.metersphere.api.dto.definition.ApiReportBatchRequest;
-import io.metersphere.api.dto.definition.ApiReportDTO;
-import io.metersphere.api.dto.definition.ApiReportDetailDTO;
-import io.metersphere.api.dto.definition.ApiReportPageRequest;
+import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.mapper.ApiReportDetailMapper;
 import io.metersphere.api.mapper.ApiReportMapper;
 import io.metersphere.api.mapper.ApiReportStepMapper;
@@ -158,13 +155,11 @@ public class ApiReportService {
         ApiReport apiReport = checkResource(id);
         BeanUtils.copyBean(apiReportDTO, apiReport);
         //需要查询出所有的步骤
-        ApiReportStepExample apiReportStep = new ApiReportStepExample();
-        apiReportStep.createCriteria().andReportIdEqualTo(id);
-        List<ApiReportStep> apiReportSteps = apiReportStepMapper.selectByExample(apiReportStep);
+        List<ApiReportStepDTO> apiReportSteps = extApiReportMapper.selectStepsByReportId(id);
         if (CollectionUtils.isEmpty(apiReportSteps)) {
             throw new MSException(Translator.get("api_case_report_not_exist"));
         }
-        apiReportSteps.sort(Comparator.comparingLong(ApiReportStep::getSort));
+        apiReportSteps.sort(Comparator.comparingLong(ApiReportStepDTO::getSort));
         apiReportDTO.setChildren(apiReportSteps);
         return apiReportDTO;
     }
