@@ -15,6 +15,9 @@ public class TestPlanApiCase implements Serializable {
     @Size(min = 1, max = 50, message = "{test_plan_api_case.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
+    @Schema(description = "num")
+    private Long num;
+
     @Schema(description = "测试计划ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{test_plan_api_case.test_plan_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{test_plan_api_case.test_plan_id.length_range}", groups = {Created.class, Updated.class})
@@ -51,6 +54,7 @@ public class TestPlanApiCase implements Serializable {
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
+        num("num", "num", "BIGINT", false),
         testPlanId("test_plan_id", "testPlanId", "VARCHAR", false),
         apiCaseId("api_case_id", "apiCaseId", "VARCHAR", false),
         lastExecResult("last_exec_result", "lastExecResult", "VARCHAR", false),

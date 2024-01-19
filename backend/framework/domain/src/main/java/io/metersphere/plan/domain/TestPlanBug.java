@@ -9,31 +9,34 @@ import java.util.Arrays;
 import lombok.Data;
 
 @Data
-public class TestPlanApiScenario implements Serializable {
+public class TestPlanBug implements Serializable {
     @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_plan_api_scenario.id.not_blank}", groups = {Updated.class})
-    @Size(min = 1, max = 50, message = "{test_plan_api_scenario.id.length_range}", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{test_plan_bug.id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{test_plan_bug.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
     @Schema(description = "num")
     private Long num;
 
-    @Schema(description = "测试计划ID", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{test_plan_api_scenario.test_plan_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{test_plan_api_scenario.test_plan_id.length_range}", groups = {Created.class, Updated.class})
+    @Schema(description = "测试计划ID;测试计划ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{test_plan_bug.test_plan_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{test_plan_bug.test_plan_id.length_range}", groups = {Created.class, Updated.class})
     private String testPlanId;
 
-    @Schema(description = "场景ID")
-    private String apiScenarioId;
+    @Schema(description = "接口用例ID;测试用例ID（包含功能、接口、场景等）", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{test_plan_bug.case_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{test_plan_bug.case_id.length_range}", groups = {Created.class, Updated.class})
+    private String caseId;
 
-    @Schema(description = "最后执行结果")
-    private String lastExecResult;
+    @Schema(description = "用例类型;用例类型（FUNCTIONAL_CASE/API_TEST_CASE/API_SCENARIO)", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{test_plan_bug.case_type.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{test_plan_bug.case_type.length_range}", groups = {Created.class, Updated.class})
+    private String caseType;
 
-    @Schema(description = "最后执行报告")
-    private String lastExecReportId;
-
-    @Schema(description = "执行人")
-    private String executeUser;
+    @Schema(description = "缺陷id;缺陷ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{test_plan_bug.bug_id.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{test_plan_bug.bug_id.length_range}", groups = {Created.class, Updated.class})
+    private String bugId;
 
     @Schema(description = "创建时间")
     private Long createTime;
@@ -41,27 +44,17 @@ public class TestPlanApiScenario implements Serializable {
     @Schema(description = "创建人")
     private String createUser;
 
-    @Schema(description = "自定义排序，间隔5000", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotNull(message = "{test_plan_api_scenario.pos.not_blank}", groups = {Created.class})
-    private Long pos;
-
-    @Schema(description = "所属环境")
-    private String environmentId;
-
     private static final long serialVersionUID = 1L;
 
     public enum Column {
         id("id", "id", "VARCHAR", false),
         num("num", "num", "BIGINT", false),
         testPlanId("test_plan_id", "testPlanId", "VARCHAR", false),
-        apiScenarioId("api_scenario_id", "apiScenarioId", "VARCHAR", false),
-        lastExecResult("last_exec_result", "lastExecResult", "VARCHAR", false),
-        lastExecReportId("last_exec_report_id", "lastExecReportId", "VARCHAR", false),
-        executeUser("execute_user", "executeUser", "VARCHAR", false),
+        caseId("case_id", "caseId", "VARCHAR", false),
+        caseType("case_type", "caseType", "VARCHAR", false),
+        bugId("bug_id", "bugId", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),
-        createUser("create_user", "createUser", "VARCHAR", false),
-        pos("pos", "pos", "BIGINT", false),
-        environmentId("environment_id", "environmentId", "LONGVARCHAR", false);
+        createUser("create_user", "createUser", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

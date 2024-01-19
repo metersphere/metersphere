@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.plan.domain.TestPlanFunctionalCase">
+<mapper namespace="io.metersphere.plan.mapper.TestPlanBugMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.plan.domain.TestPlanBug">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="num" jdbcType="BIGINT" property="num" />
     <result column="test_plan_id" jdbcType="VARCHAR" property="testPlanId" />
-    <result column="functional_case_id" jdbcType="VARCHAR" property="functionalCaseId" />
+    <result column="case_id" jdbcType="VARCHAR" property="caseId" />
+    <result column="case_type" jdbcType="VARCHAR" property="caseType" />
+    <result column="bug_id" jdbcType="VARCHAR" property="bugId" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
-    <result column="execute_user" jdbcType="VARCHAR" property="executeUser" />
-    <result column="last_exec_time" jdbcType="BIGINT" property="lastExecTime" />
-    <result column="last_exec_result" jdbcType="VARCHAR" property="lastExecResult" />
-    <result column="pos" jdbcType="BIGINT" property="pos" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -72,16 +70,15 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, num, test_plan_id, functional_case_id, create_time, create_user, execute_user, 
-    last_exec_time, last_exec_result, pos
+    id, num, test_plan_id, case_id, case_type, bug_id, create_time, create_user
   </sql>
-  <select id="selectByExample" parameterType="io.metersphere.plan.domain.TestPlanFunctionalCaseExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="io.metersphere.plan.domain.TestPlanBugExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from test_plan_functional_case
+    from test_plan_bug
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -92,31 +89,29 @@
   <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from test_plan_functional_case
+    from test_plan_bug
     where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from test_plan_functional_case
+    delete from test_plan_bug
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.plan.domain.TestPlanFunctionalCaseExample">
-    delete from test_plan_functional_case
+  <delete id="deleteByExample" parameterType="io.metersphere.plan.domain.TestPlanBugExample">
+    delete from test_plan_bug
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.plan.domain.TestPlanFunctionalCase">
-    insert into test_plan_functional_case (id, num, test_plan_id, 
-      functional_case_id, create_time, create_user, 
-      execute_user, last_exec_time, last_exec_result, 
-      pos)
+  <insert id="insert" parameterType="io.metersphere.plan.domain.TestPlanBug">
+    insert into test_plan_bug (id, num, test_plan_id, 
+      case_id, case_type, bug_id, 
+      create_time, create_user)
     values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=BIGINT}, #{testPlanId,jdbcType=VARCHAR}, 
-      #{functionalCaseId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR}, 
-      #{executeUser,jdbcType=VARCHAR}, #{lastExecTime,jdbcType=BIGINT}, #{lastExecResult,jdbcType=VARCHAR}, 
-      #{pos,jdbcType=BIGINT})
+      #{caseId,jdbcType=VARCHAR}, #{caseType,jdbcType=VARCHAR}, #{bugId,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{createUser,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanFunctionalCase">
-    insert into test_plan_functional_case
+  <insert id="insertSelective" parameterType="io.metersphere.plan.domain.TestPlanBug">
+    insert into test_plan_bug
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
@@ -127,26 +122,20 @@
       <if test="testPlanId != null">
         test_plan_id,
       </if>
-      <if test="functionalCaseId != null">
-        functional_case_id,
+      <if test="caseId != null">
+        case_id,
+      </if>
+      <if test="caseType != null">
+        case_type,
+      </if>
+      <if test="bugId != null">
+        bug_id,
       </if>
       <if test="createTime != null">
         create_time,
       </if>
       <if test="createUser != null">
         create_user,
-      </if>
-      <if test="executeUser != null">
-        execute_user,
-      </if>
-      <if test="lastExecTime != null">
-        last_exec_time,
-      </if>
-      <if test="lastExecResult != null">
-        last_exec_result,
-      </if>
-      <if test="pos != null">
-        pos,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -159,8 +148,14 @@
       <if test="testPlanId != null">
         #{testPlanId,jdbcType=VARCHAR},
       </if>
-      <if test="functionalCaseId != null">
-        #{functionalCaseId,jdbcType=VARCHAR},
+      <if test="caseId != null">
+        #{caseId,jdbcType=VARCHAR},
+      </if>
+      <if test="caseType != null">
+        #{caseType,jdbcType=VARCHAR},
+      </if>
+      <if test="bugId != null">
+        #{bugId,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -168,28 +163,16 @@
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
       </if>
-      <if test="executeUser != null">
-        #{executeUser,jdbcType=VARCHAR},
-      </if>
-      <if test="lastExecTime != null">
-        #{lastExecTime,jdbcType=BIGINT},
-      </if>
-      <if test="lastExecResult != null">
-        #{lastExecResult,jdbcType=VARCHAR},
-      </if>
-      <if test="pos != null">
-        #{pos,jdbcType=BIGINT},
-      </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.plan.domain.TestPlanFunctionalCaseExample" resultType="java.lang.Long">
-    select count(*) from test_plan_functional_case
+  <select id="countByExample" parameterType="io.metersphere.plan.domain.TestPlanBugExample" resultType="java.lang.Long">
+    select count(*) from test_plan_bug
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update test_plan_functional_case
+    update test_plan_bug
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
@@ -200,8 +183,14 @@
       <if test="record.testPlanId != null">
         test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
       </if>
-      <if test="record.functionalCaseId != null">
-        functional_case_id = #{record.functionalCaseId,jdbcType=VARCHAR},
+      <if test="record.caseId != null">
+        case_id = #{record.caseId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.caseType != null">
+        case_type = #{record.caseType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.bugId != null">
+        bug_id = #{record.bugId,jdbcType=VARCHAR},
       </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
@@ -209,41 +198,27 @@
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
-      <if test="record.executeUser != null">
-        execute_user = #{record.executeUser,jdbcType=VARCHAR},
-      </if>
-      <if test="record.lastExecTime != null">
-        last_exec_time = #{record.lastExecTime,jdbcType=BIGINT},
-      </if>
-      <if test="record.lastExecResult != null">
-        last_exec_result = #{record.lastExecResult,jdbcType=VARCHAR},
-      </if>
-      <if test="record.pos != null">
-        pos = #{record.pos,jdbcType=BIGINT},
-      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update test_plan_functional_case
+    update test_plan_bug
     set id = #{record.id,jdbcType=VARCHAR},
       num = #{record.num,jdbcType=BIGINT},
       test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
-      functional_case_id = #{record.functionalCaseId,jdbcType=VARCHAR},
+      case_id = #{record.caseId,jdbcType=VARCHAR},
+      case_type = #{record.caseType,jdbcType=VARCHAR},
+      bug_id = #{record.bugId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      create_user = #{record.createUser,jdbcType=VARCHAR},
-      execute_user = #{record.executeUser,jdbcType=VARCHAR},
-      last_exec_time = #{record.lastExecTime,jdbcType=BIGINT},
-      last_exec_result = #{record.lastExecResult,jdbcType=VARCHAR},
-      pos = #{record.pos,jdbcType=BIGINT}
+      create_user = #{record.createUser,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.plan.domain.TestPlanFunctionalCase">
-    update test_plan_functional_case
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.plan.domain.TestPlanBug">
+    update test_plan_bug
     <set>
       <if test="num != null">
         num = #{num,jdbcType=BIGINT},
@@ -251,8 +226,14 @@
       <if test="testPlanId != null">
         test_plan_id = #{testPlanId,jdbcType=VARCHAR},
       </if>
-      <if test="functionalCaseId != null">
-        functional_case_id = #{functionalCaseId,jdbcType=VARCHAR},
+      <if test="caseId != null">
+        case_id = #{caseId,jdbcType=VARCHAR},
+      </if>
+      <if test="caseType != null">
+        case_type = #{caseType,jdbcType=VARCHAR},
+      </if>
+      <if test="bugId != null">
+        bug_id = #{bugId,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -260,48 +241,32 @@
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
       </if>
-      <if test="executeUser != null">
-        execute_user = #{executeUser,jdbcType=VARCHAR},
-      </if>
-      <if test="lastExecTime != null">
-        last_exec_time = #{lastExecTime,jdbcType=BIGINT},
-      </if>
-      <if test="lastExecResult != null">
-        last_exec_result = #{lastExecResult,jdbcType=VARCHAR},
-      </if>
-      <if test="pos != null">
-        pos = #{pos,jdbcType=BIGINT},
-      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="io.metersphere.plan.domain.TestPlanFunctionalCase">
-    update test_plan_functional_case
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.plan.domain.TestPlanBug">
+    update test_plan_bug
     set num = #{num,jdbcType=BIGINT},
       test_plan_id = #{testPlanId,jdbcType=VARCHAR},
-      functional_case_id = #{functionalCaseId,jdbcType=VARCHAR},
+      case_id = #{caseId,jdbcType=VARCHAR},
+      case_type = #{caseType,jdbcType=VARCHAR},
+      bug_id = #{bugId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
-      create_user = #{createUser,jdbcType=VARCHAR},
-      execute_user = #{executeUser,jdbcType=VARCHAR},
-      last_exec_time = #{lastExecTime,jdbcType=BIGINT},
-      last_exec_result = #{lastExecResult,jdbcType=VARCHAR},
-      pos = #{pos,jdbcType=BIGINT}
+      create_user = #{createUser,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
-    insert into test_plan_functional_case
-    (id, num, test_plan_id, functional_case_id, create_time, create_user, execute_user, 
-      last_exec_time, last_exec_result, pos)
+    insert into test_plan_bug
+    (id, num, test_plan_id, case_id, case_type, bug_id, create_time, create_user)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.num,jdbcType=BIGINT}, #{item.testPlanId,jdbcType=VARCHAR}, 
-        #{item.functionalCaseId,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
-        #{item.createUser,jdbcType=VARCHAR}, #{item.executeUser,jdbcType=VARCHAR}, #{item.lastExecTime,jdbcType=BIGINT}, 
-        #{item.lastExecResult,jdbcType=VARCHAR}, #{item.pos,jdbcType=BIGINT})
+        #{item.caseId,jdbcType=VARCHAR}, #{item.caseType,jdbcType=VARCHAR}, #{item.bugId,jdbcType=VARCHAR}, 
+        #{item.createTime,jdbcType=BIGINT}, #{item.createUser,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
-    insert into test_plan_functional_case (
+    insert into test_plan_bug (
     <foreach collection="selective" item="column" separator=",">
       ${column.escapedColumnName}
     </foreach>
@@ -319,26 +284,20 @@
         <if test="'test_plan_id'.toString() == column.value">
           #{item.testPlanId,jdbcType=VARCHAR}
         </if>
-        <if test="'functional_case_id'.toString() == column.value">
-          #{item.functionalCaseId,jdbcType=VARCHAR}
+        <if test="'case_id'.toString() == column.value">
+          #{item.caseId,jdbcType=VARCHAR}
+        </if>
+        <if test="'case_type'.toString() == column.value">
+          #{item.caseType,jdbcType=VARCHAR}
+        </if>
+        <if test="'bug_id'.toString() == column.value">
+          #{item.bugId,jdbcType=VARCHAR}
         </if>
         <if test="'create_time'.toString() == column.value">
           #{item.createTime,jdbcType=BIGINT}
         </if>
         <if test="'create_user'.toString() == column.value">
           #{item.createUser,jdbcType=VARCHAR}
-        </if>
-        <if test="'execute_user'.toString() == column.value">
-          #{item.executeUser,jdbcType=VARCHAR}
-        </if>
-        <if test="'last_exec_time'.toString() == column.value">
-          #{item.lastExecTime,jdbcType=BIGINT}
-        </if>
-        <if test="'last_exec_result'.toString() == column.value">
-          #{item.lastExecResult,jdbcType=VARCHAR}
-        </if>
-        <if test="'pos'.toString() == column.value">
-          #{item.pos,jdbcType=BIGINT}
         </if>
       </foreach>
       )

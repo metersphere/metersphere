@@ -8,7 +8,7 @@ import lombok.Data;
 public class FunctionalCaseTestPlanDTO extends TestPlanFunctionalCase {
 
     @Schema(description = "测试计划ID")
-    private String num;
+    private String testPlanNum;
 
     @Schema(description = "所属项目")
     private String projectName;
