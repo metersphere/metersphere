@@ -119,10 +119,20 @@ public class ApiReport implements Serializable {
     @NotNull(message = "{api_report.assertion_success_count.not_blank}", groups = {Created.class})
     private Long assertionSuccessCount;
 
-    @Schema(description = "请求执行率", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_report.request_execution_rate.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 20, message = "{api_report.request_execution_rate.length_range}", groups = {Created.class, Updated.class})
-    private String requestExecutionRate;
+    @Schema(description = "请求失败率", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_report.request_error_rate.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 20, message = "{api_report.request_error_rate.length_range}", groups = {Created.class, Updated.class})
+    private String requestErrorRate;
+
+    @Schema(description = "请求未执行率", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_report.request_pending_rate.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 20, message = "{api_report.request_pending_rate.length_range}", groups = {Created.class, Updated.class})
+    private String requestPendingRate;
+
+    @Schema(description = "请求误报率", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{api_report.request_fake_error_rate.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 20, message = "{api_report.request_fake_error_rate.length_range}", groups = {Created.class, Updated.class})
+    private String requestFakeErrorRate;
 
     @Schema(description = "请求通过率", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_report.request_pass_rate.not_blank}", groups = {Created.class})
@@ -167,7 +177,9 @@ public class ApiReport implements Serializable {
         successCount("success_count", "successCount", "BIGINT", false),
         assertionCount("assertion_count", "assertionCount", "BIGINT", false),
         assertionSuccessCount("assertion_success_count", "assertionSuccessCount", "BIGINT", false),
-        requestExecutionRate("request_execution_rate", "requestExecutionRate", "VARCHAR", false),
+        requestErrorRate("request_error_rate", "requestErrorRate", "VARCHAR", false),
+        requestPendingRate("request_pending_rate", "requestPendingRate", "VARCHAR", false),
+        requestFakeErrorRate("request_fake_error_rate", "requestFakeErrorRate", "VARCHAR", false),
         requestPassRate("request_pass_rate", "requestPassRate", "VARCHAR", false),
         assertionPassRate("assertion_pass_rate", "assertionPassRate", "VARCHAR", false),
         scriptIdentifier("script_identifier", "scriptIdentifier", "VARCHAR", false);

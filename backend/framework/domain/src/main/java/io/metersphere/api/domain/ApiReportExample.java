@@ -1864,73 +1864,213 @@ public class ApiReportExample {
             return (Criteria) this;
         }
 
-        public Criteria andRequestExecutionRateIsNull() {
-            addCriterion("request_execution_rate is null");
+        public Criteria andRequestErrorRateIsNull() {
+            addCriterion("request_error_rate is null");
             return (Criteria) this;
         }
 
-        public Criteria andRequestExecutionRateIsNotNull() {
-            addCriterion("request_execution_rate is not null");
+        public Criteria andRequestErrorRateIsNotNull() {
+            addCriterion("request_error_rate is not null");
             return (Criteria) this;
         }
 
-        public Criteria andRequestExecutionRateEqualTo(String value) {
-            addCriterion("request_execution_rate =", value, "requestExecutionRate");
+        public Criteria andRequestErrorRateEqualTo(String value) {
+            addCriterion("request_error_rate =", value, "requestErrorRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestExecutionRateNotEqualTo(String value) {
-            addCriterion("request_execution_rate <>", value, "requestExecutionRate");
+        public Criteria andRequestErrorRateNotEqualTo(String value) {
+            addCriterion("request_error_rate <>", value, "requestErrorRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestExecutionRateGreaterThan(String value) {
-            addCriterion("request_execution_rate >", value, "requestExecutionRate");
+        public Criteria andRequestErrorRateGreaterThan(String value) {
+            addCriterion("request_error_rate >", value, "requestErrorRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestExecutionRateGreaterThanOrEqualTo(String value) {
-            addCriterion("request_execution_rate >=", value, "requestExecutionRate");
+        public Criteria andRequestErrorRateGreaterThanOrEqualTo(String value) {
+            addCriterion("request_error_rate >=", value, "requestErrorRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestExecutionRateLessThan(String value) {
-            addCriterion("request_execution_rate <", value, "requestExecutionRate");
+        public Criteria andRequestErrorRateLessThan(String value) {
+            addCriterion("request_error_rate <", value, "requestErrorRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestExecutionRateLessThanOrEqualTo(String value) {
-            addCriterion("request_execution_rate <=", value, "requestExecutionRate");
+        public Criteria andRequestErrorRateLessThanOrEqualTo(String value) {
+            addCriterion("request_error_rate <=", value, "requestErrorRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestExecutionRateLike(String value) {
-            addCriterion("request_execution_rate like", value, "requestExecutionRate");
+        public Criteria andRequestErrorRateLike(String value) {
+            addCriterion("request_error_rate like", value, "requestErrorRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestExecutionRateNotLike(String value) {
-            addCriterion("request_execution_rate not like", value, "requestExecutionRate");
+        public Criteria andRequestErrorRateNotLike(String value) {
+            addCriterion("request_error_rate not like", value, "requestErrorRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestExecutionRateIn(List<String> values) {
-            addCriterion("request_execution_rate in", values, "requestExecutionRate");
+        public Criteria andRequestErrorRateIn(List<String> values) {
+            addCriterion("request_error_rate in", values, "requestErrorRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestExecutionRateNotIn(List<String> values) {
-            addCriterion("request_execution_rate not in", values, "requestExecutionRate");
+        public Criteria andRequestErrorRateNotIn(List<String> values) {
+            addCriterion("request_error_rate not in", values, "requestErrorRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestExecutionRateBetween(String value1, String value2) {
-            addCriterion("request_execution_rate between", value1, value2, "requestExecutionRate");
+        public Criteria andRequestErrorRateBetween(String value1, String value2) {
+            addCriterion("request_error_rate between", value1, value2, "requestErrorRate");
             return (Criteria) this;
         }
 
-        public Criteria andRequestExecutionRateNotBetween(String value1, String value2) {
-            addCriterion("request_execution_rate not between", value1, value2, "requestExecutionRate");
+        public Criteria andRequestErrorRateNotBetween(String value1, String value2) {
+            addCriterion("request_error_rate not between", value1, value2, "requestErrorRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPendingRateIsNull() {
+            addCriterion("request_pending_rate is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPendingRateIsNotNull() {
+            addCriterion("request_pending_rate is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPendingRateEqualTo(String value) {
+            addCriterion("request_pending_rate =", value, "requestPendingRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPendingRateNotEqualTo(String value) {
+            addCriterion("request_pending_rate <>", value, "requestPendingRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPendingRateGreaterThan(String value) {
+            addCriterion("request_pending_rate >", value, "requestPendingRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPendingRateGreaterThanOrEqualTo(String value) {
+            addCriterion("request_pending_rate >=", value, "requestPendingRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPendingRateLessThan(String value) {
+            addCriterion("request_pending_rate <", value, "requestPendingRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPendingRateLessThanOrEqualTo(String value) {
+            addCriterion("request_pending_rate <=", value, "requestPendingRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPendingRateLike(String value) {
+            addCriterion("request_pending_rate like", value, "requestPendingRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPendingRateNotLike(String value) {
+            addCriterion("request_pending_rate not like", value, "requestPendingRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPendingRateIn(List<String> values) {
+            addCriterion("request_pending_rate in", values, "requestPendingRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPendingRateNotIn(List<String> values) {
+            addCriterion("request_pending_rate not in", values, "requestPendingRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPendingRateBetween(String value1, String value2) {
+            addCriterion("request_pending_rate between", value1, value2, "requestPendingRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestPendingRateNotBetween(String value1, String value2) {
+            addCriterion("request_pending_rate not between", value1, value2, "requestPendingRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestFakeErrorRateIsNull() {
+            addCriterion("request_fake_error_rate is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestFakeErrorRateIsNotNull() {
+            addCriterion("request_fake_error_rate is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestFakeErrorRateEqualTo(String value) {
+            addCriterion("request_fake_error_rate =", value, "requestFakeErrorRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestFakeErrorRateNotEqualTo(String value) {
+            addCriterion("request_fake_error_rate <>", value, "requestFakeErrorRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestFakeErrorRateGreaterThan(String value) {
+            addCriterion("request_fake_error_rate >", value, "requestFakeErrorRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestFakeErrorRateGreaterThanOrEqualTo(String value) {
+            addCriterion("request_fake_error_rate >=", value, "requestFakeErrorRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestFakeErrorRateLessThan(String value) {
+            addCriterion("request_fake_error_rate <", value, "requestFakeErrorRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestFakeErrorRateLessThanOrEqualTo(String value) {
+            addCriterion("request_fake_error_rate <=", value, "requestFakeErrorRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestFakeErrorRateLike(String value) {
+            addCriterion("request_fake_error_rate like", value, "requestFakeErrorRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestFakeErrorRateNotLike(String value) {
+            addCriterion("request_fake_error_rate not like", value, "requestFakeErrorRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestFakeErrorRateIn(List<String> values) {
+            addCriterion("request_fake_error_rate in", values, "requestFakeErrorRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestFakeErrorRateNotIn(List<String> values) {
+            addCriterion("request_fake_error_rate not in", values, "requestFakeErrorRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestFakeErrorRateBetween(String value1, String value2) {
+            addCriterion("request_fake_error_rate between", value1, value2, "requestFakeErrorRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andRequestFakeErrorRateNotBetween(String value1, String value2) {
+            addCriterion("request_fake_error_rate not between", value1, value2, "requestFakeErrorRate");
             return (Criteria) this;
         }
 
