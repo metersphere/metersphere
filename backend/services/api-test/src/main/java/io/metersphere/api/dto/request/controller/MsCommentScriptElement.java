@@ -1,0 +1,30 @@
+package io.metersphere.api.dto.request.controller;
+
+import io.metersphere.api.dto.request.processors.ScriptProcessor;
+import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.project.dto.environment.KeyValueParam;
+import lombok.Data;
+
+import java.util.List;
+
+
+/**
+ * 公共脚本组件
+ * 主要用于公共脚本测试执行时，生成jmx
+ */
+@Data
+public class MsCommentScriptElement extends AbstractMsTestElement {
+    /**
+     * 脚本内容
+     */
+    private String script;
+    /**
+     * 脚本语言
+     * @see ScriptProcessor.ScriptLanguageType
+     */
+    private String scriptLanguage;
+    /**
+     * 公共脚本入参
+     */
+    private List<KeyValueParam> params;
+}

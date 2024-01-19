@@ -226,6 +226,28 @@
         ]
       },
       {
+        "id": "PROJECT_CUSTOM_FUNCTION",
+        "name": "permission.project_custom_function.name",
+        "permissions": [
+          {
+            "id": "PROJECT_CUSTOM_FUNCTION:READ"
+          },
+          {
+            "id": "PROJECT_CUSTOM_FUNCTION:READ+ADD"
+          },
+          {
+            "id": "PROJECT_CUSTOM_FUNCTION:READ+UPDATE"
+          },
+          {
+            "id": "PROJECT_CUSTOM_FUNCTION:READ+DELETE"
+          },
+          {
+            "id": "PROJECT_CUSTOM_FUNCTION:READ+EXECUTE",
+            "name": "permission.project_custom_function.execute"
+          }
+        ]
+      },
+      {
         "id": "PROJECT_LOG",
         "name": "permission.project_log.name",
         "license": true,

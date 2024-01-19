@@ -22,6 +22,7 @@ import io.metersphere.api.parser.TestElementParserFactory;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.project.constants.ScriptLanguageType;
 import io.metersphere.sdk.constants.MsAssertionCondition;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -135,13 +136,13 @@ public class MsHTTPElementTest {
         ScriptProcessor scriptProcessor = new ScriptProcessor();
         scriptProcessor.setEnable(true);
         scriptProcessor.setScript("script");
-        scriptProcessor.setScriptLanguage(ScriptProcessor.ScriptLanguageType.JAVASCRIPT.getValue());
+        scriptProcessor.setScriptLanguage(ScriptLanguageType.JAVASCRIPT.getValue());
         processors.add(scriptProcessor);
 
         ScriptProcessor beanShellScriptProcessor = new ScriptProcessor();
         beanShellScriptProcessor.setEnable(true);
         beanShellScriptProcessor.setScript("script");
-        beanShellScriptProcessor.setScriptLanguage(ScriptProcessor.ScriptLanguageType.BEANSHELL.getValue());
+        beanShellScriptProcessor.setScriptLanguage(ScriptLanguageType.BEANSHELL.getValue());
         processors.add(beanShellScriptProcessor);
 
         SQLProcessor sqlProcessor = new SQLProcessor();

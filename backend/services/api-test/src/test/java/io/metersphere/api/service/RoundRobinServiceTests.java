@@ -1,7 +1,7 @@
 package io.metersphere.api.service;
 
-import io.metersphere.api.dto.NodeDTO;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.system.dto.pool.TestResourceNodeDTO;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -24,11 +24,11 @@ public class RoundRobinServiceTests {
     @Test
     @Order(1)
     public void testInit() throws Exception {
-        List<NodeDTO> nodes = new LinkedList<>();
-        nodes.add(new NodeDTO("172.0.0.1", "8080", 10));
-        nodes.add(new NodeDTO("172.0.0.2", "8080", 10));
-        nodes.add(new NodeDTO("172.0.0.3", "8080", 10));
-        nodes.add(new NodeDTO("172.0.0.4", "8080", 10));
+        List<TestResourceNodeDTO> nodes = new LinkedList<>();
+        nodes.add(new TestResourceNodeDTO("172.0.0.1", "8080", null, 10));
+        nodes.add(new TestResourceNodeDTO("172.0.0.2", "8080", null, 10));
+        nodes.add(new TestResourceNodeDTO("172.0.0.3", "8080", null, 10));
+        nodes.add(new TestResourceNodeDTO("172.0.0.4", "8080", null, 10));
 
         roundRobinService.initializeNodes("test", nodes);
     }
@@ -48,15 +48,15 @@ public class RoundRobinServiceTests {
     @Test
     @Order(3)
     public void testInitAfter() throws Exception {
-        List<NodeDTO> nodes = new LinkedList<>();
-        nodes.add(new NodeDTO("172.0.0.1", "8080", 10));
-        nodes.add(new NodeDTO("172.0.0.2", "8080", 10));
-        nodes.add(new NodeDTO("172.0.0.3", "8080", 10));
+        List<TestResourceNodeDTO> nodes = new LinkedList<>();
+        nodes.add(new TestResourceNodeDTO("172.0.0.1", "8080", null, 10));
+        nodes.add(new TestResourceNodeDTO("172.0.0.2", "8080", null, 10));
+        nodes.add(new TestResourceNodeDTO("172.0.0.3", "8080", null, 10));
         roundRobinService.initializeNodes("test", nodes);
 
-        nodes.add(new NodeDTO("172.0.0.3", "8080", 10));
-        nodes.add(new NodeDTO("172.0.0.7", "8080", 10));
-        nodes.add(new NodeDTO("172.0.0.6", "8080", 10));
+        nodes.add(new TestResourceNodeDTO("172.0.0.3", "8080", null, 10));
+        nodes.add(new TestResourceNodeDTO("172.0.0.7", "8080", null, 10));
+        nodes.add(new TestResourceNodeDTO("172.0.0.6", "8080", null, 10));
         roundRobinService.initializeNodes("test", nodes);
 
     }

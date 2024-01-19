@@ -57,6 +57,11 @@
             <artifactId>ApacheJMeter_http</artifactId>
             <version>${jmeter.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.jmeter</groupId>
+            <artifactId>ApacheJMeter_java</artifactId>
+            <version>${jmeter.version}</version>
+        </dependency>
         <!-- 自定义jmeter 断言插件 -->
         <dependency>
             <groupId>io.metersphere</groupId>

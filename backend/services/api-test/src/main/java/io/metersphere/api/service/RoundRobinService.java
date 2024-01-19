@@ -1,7 +1,7 @@
 package io.metersphere.api.service;
 
-import io.metersphere.api.dto.NodeDTO;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.dto.pool.TestResourceNodeDTO;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -17,7 +17,7 @@ public class RoundRobinService {
     /**
      * 获取下一个节点
      */
-    public String getNextNode(String poolId) throws Exception {
+    public TestResourceNodeDTO getNextNode(String poolId) throws Exception {
         // 从列表头部获取下一个节点
         String node = redisTemplate.opsForList().leftPop(poolId);
 
@@ -35,22 +35,24 @@ public class RoundRobinService {
         if (StringUtils.isNotBlank(node)) {
             // 将节点重新放回列表尾部，实现轮询
             redisTemplate.opsForList().rightPush(poolId, node);
+        } else {
+            return null;
         }
 
-        return node;
+        return JSON.parseObject(node, TestResourceNodeDTO.class);
     }
 
     /**
      * 初始化节点列表
      */
-    public void initializeNodes(String poolId, List<NodeDTO> nodes) {
+    public void initializeNodes(String poolId, List<TestResourceNodeDTO> nodes) {
         // 检查节点是否有变更
         Long poolSize = redisTemplate.opsForList().size(poolId);
         int size = poolSize != null ? poolSize.intValue() : 0;
         if (size == nodes.size()) {
             // 对比redis中的节点列表和传入的节点列表是否一致
             boolean isSame = true;
-            for (NodeDTO node : nodes) {
+            for (TestResourceNodeDTO node : nodes) {
                 boolean isExist = false;
                 for (int i = 0; i < size; i++) {
                     if (JSON.toJSONString(node).equals(redisTemplate.opsForList().index(poolId, i))) {

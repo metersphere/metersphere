@@ -91,6 +91,4 @@ public class CustomFunctionController {
     public void delete(@PathVariable String id) {
         customFunctionService.delete(id);
     }
-
-
 }

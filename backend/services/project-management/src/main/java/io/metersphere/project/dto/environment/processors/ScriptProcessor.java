@@ -16,7 +16,7 @@ public class ScriptProcessor extends MsProcessor {
     /**
      * 脚本语言
      *
-     * @see ScriptLanguageType
+     * @see io.metersphere.project.constants.ScriptLanguageType
      */
     private String scriptLanguage;
     /**
@@ -31,22 +31,4 @@ public class ScriptProcessor extends MsProcessor {
      * 公共脚本入参
      */
     private List<KeyValueParam> params;
-
-    public enum ScriptLanguageType {
-        BEANSHELL("beanshell"),
-        BEANSHELL_JSR233("beanshell-JSR233"),
-        GROOVY("groovy"),
-        JAVASCRIPT("javascript"),
-        PYTHON("python");
-
-        private String value;
-
-        ScriptLanguageType(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
-    }
 }

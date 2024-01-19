@@ -16,22 +16,16 @@ import io.metersphere.api.parser.ImportParserFactory;
 import io.metersphere.api.parser.TestElementParserFactory;
 import io.metersphere.api.parser.jmeter.MsScenarioConverter;
 import io.metersphere.api.service.ApiFileResourceService;
+import io.metersphere.api.service.BaseResourcePoolTestService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
-import io.metersphere.project.domain.ProjectApplication;
-import io.metersphere.project.domain.ProjectTestResourcePool;
-import io.metersphere.project.domain.ProjectTestResourcePoolExample;
 import io.metersphere.project.dto.filemanagement.FileInfo;
 import io.metersphere.project.dto.filemanagement.request.FileUploadRequest;
-import io.metersphere.project.mapper.ProjectApplicationMapper;
-import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.constants.ProjectApplicationType;
-import io.metersphere.sdk.constants.ResourcePoolTypeEnum;
 import io.metersphere.sdk.file.FileCenter;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.BeanUtils;
@@ -40,28 +34,16 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.TestResourcePool;
-import io.metersphere.system.domain.TestResourcePoolBlob;
-import io.metersphere.system.domain.TestResourcePoolOrganization;
-import io.metersphere.system.domain.TestResourcePoolOrganizationExample;
-import io.metersphere.system.dto.pool.TestResourceDTO;
-import io.metersphere.system.dto.pool.TestResourceNodeDTO;
-import io.metersphere.system.dto.pool.TestResourcePoolDTO;
 import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.mapper.TestResourcePoolBlobMapper;
-import io.metersphere.system.mapper.TestResourcePoolMapper;
-import io.metersphere.system.mapper.TestResourcePoolOrganizationMapper;
-import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.jorphan.collections.ListedHashTree;
 import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MvcResult;
-import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -92,19 +74,7 @@ public class ApiDebugControllerTests extends BaseTest {
     @Resource
     private FileMetadataService fileMetadataService;
     @Resource
-    private ProjectApplicationMapper projectApplicationMapper;
-    @Resource
-    private TestResourcePoolOrganizationMapper testResourcePoolOrganizationMapper;
-    @Resource
-    private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
-    @Resource
-    private TestResourcePoolMapper testResourcePoolMapper;
-    @Resource
-    private TestResourcePoolBlobMapper testResourcePoolBlobMapper;
-    @Value("${embedded.mockserver.host}")
-    private String mockServerHost;
-    @Value("${embedded.mockserver.port}")
-    private int mockServerHostPort;
+    private BaseResourcePoolTestService baseResourcePoolTestService;
     private static ApiDebug addApiDebug;
     private static ApiDebug anotherAddApiDebug;
     private static String fileMetadataId;
@@ -397,13 +367,13 @@ public class ApiDebugControllerTests extends BaseTest {
 
         // @校验组织没有资源池权限异常
         assertErrorCode(this.requestPost(DEBUG, request), ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);
-        TestResourcePool resourcePool = insertResourcePool();
-        insertResourcePoolOrg(resourcePool);
+        TestResourcePool resourcePool = baseResourcePoolTestService.insertResourcePool();
+        baseResourcePoolTestService.insertResourcePoolOrg(resourcePool);
         // @校验项目没有资源池权限异常
         assertErrorCode(this.requestPost(DEBUG, request), ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);
 
-        insertResourcePoolProject(resourcePool);
-        insertProjectApplication(resourcePool);
+        baseResourcePoolTestService.insertResourcePoolProject(resourcePool);
+        baseResourcePoolTestService.insertProjectApplication(resourcePool);
         // @校验资源池调用失败
         assertErrorCode(this.requestPost(DEBUG, request), ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR);
 
@@ -485,71 +455,6 @@ public class ApiDebugControllerTests extends BaseTest {
         this.requestPostWithOk(DEBUG, request);
     }
 
-    private TestResourcePool insertResourcePool() {
-        String id = IDGenerator.nextStr();
-        TestResourcePoolDTO testResourcePool = new TestResourcePoolDTO();
-        testResourcePool.setId(id);
-        testResourcePool.setApiTest(true);
-        testResourcePool.setCreateTime(System.currentTimeMillis());
-        testResourcePool.setUpdateTime(System.currentTimeMillis());
-        testResourcePool.setDeleted(false);
-        testResourcePool.setName("api debug test");
-        testResourcePool.setCreateUser("admin");
-        testResourcePool.setAllOrg(false);
-        testResourcePool.setEnable(true);
-        testResourcePool.setType(ResourcePoolTypeEnum.NODE.name());
-        TestResourcePoolBlob testResourcePoolBlob = new TestResourcePoolBlob();
-        testResourcePoolBlob.setId(id);
-        TestResourceDTO testResourceDTO = new TestResourceDTO();
-        TestResourceNodeDTO testResourceNodeDTO = new TestResourceNodeDTO();
-        testResourceNodeDTO.setIp(mockServerHost);
-        testResourceNodeDTO.setPort(mockServerHostPort + StringUtils.EMPTY);
-        testResourceNodeDTO.setConcurrentNumber(10);
-        testResourceDTO.setNodesList(List.of(testResourceNodeDTO));
-        String configuration = JSON.toJSONString(testResourceDTO);
-        testResourcePoolBlob.setConfiguration(configuration.getBytes());
-        testResourcePool.setTestResourceDTO(testResourceDTO);
-
-        testResourcePoolMapper.insert(testResourcePool);
-        testResourcePoolBlobMapper.insert(testResourcePoolBlob);
-        return testResourcePool;
-    }
-
-    private void insertProjectApplication(TestResourcePool resourcePool) {
-        ProjectApplication projectApplication = new ProjectApplication();
-        projectApplication.setTypeValue(resourcePool.getId());
-        projectApplication.setType(ProjectApplicationType.API.API_RESOURCE_POOL_ID.name());
-        projectApplication.setProjectId(DEFAULT_PROJECT_ID);
-        projectApplicationMapper.insert(projectApplication);
-    }
-
-    private void insertResourcePoolProject(TestResourcePool resourcePool) {
-        ProjectTestResourcePoolExample example = new ProjectTestResourcePoolExample();
-        example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID);
-        example.createCriteria().andTestResourcePoolIdEqualTo(resourcePool.getId());
-        List<ProjectTestResourcePool> projectTestResourcePools = projectTestResourcePoolMapper.selectByExample(example);
-        if (CollectionUtils.isEmpty(projectTestResourcePools)) {
-            ProjectTestResourcePool projectTestResourcePool = new ProjectTestResourcePool();
-            projectTestResourcePool.setTestResourcePoolId(resourcePool.getId());
-            projectTestResourcePool.setProjectId(DEFAULT_PROJECT_ID);
-            projectTestResourcePoolMapper.insert(projectTestResourcePool);
-        }
-    }
-
-    private void insertResourcePoolOrg(TestResourcePool resourcePool) {
-        TestResourcePoolOrganizationExample example = new TestResourcePoolOrganizationExample();
-        example.createCriteria().andOrgIdEqualTo(DEFAULT_ORGANIZATION_ID);
-        example.createCriteria().andTestResourcePoolIdEqualTo(resourcePool.getId());
-        List<TestResourcePoolOrganization> testResourcePoolOrganizations = testResourcePoolOrganizationMapper.selectByExample(example);
-        if (CollectionUtils.isEmpty(testResourcePoolOrganizations)) {
-            TestResourcePoolOrganization resourcePoolOrganization = new TestResourcePoolOrganization();
-            resourcePoolOrganization.setTestResourcePoolId(resourcePool.getId());
-            resourcePoolOrganization.setOrgId(DEFAULT_ORGANIZATION_ID);
-            resourcePoolOrganization.setId(IDGenerator.nextStr());
-            testResourcePoolOrganizationMapper.insert(resourcePoolOrganization);
-        }
-    }
-
     @Test
     @Order(7)
     public void delete() throws Exception {
@@ -568,4 +473,5 @@ public class ApiDebugControllerTests extends BaseTest {
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_API_DEBUG_DELETE, DEFAULT_DELETE, addApiDebug.getId());
     }
+
 }
