@@ -4,17 +4,17 @@
   "globalParams":{
     "headers":[
       {
-        "name":"key0",
+        "key":"key0",
         "value":"value0",
         "enable":true
       },
       {
-        "name":"key1",
+        "key":"key1",
         "value":"value1",
         "enable":true
       },
       {
-        "name":"key2",
+        "key":"key2",
         "value":"value2",
         "enable":true
       }
@@ -22,7 +22,7 @@
     "commonVariables":[
       {
         "id":null,
-        "name":"name0",
+        "key":"name0",
         "type":"CONSTANT",
         "value":"value0",
         "enable":true,
@@ -33,7 +33,7 @@
       },
       {
         "id":null,
-        "name":"name1",
+        "key":"name1",
         "type":"CONSTANT",
         "value":"value1",
         "enable":true,
@@ -44,7 +44,7 @@
       },
       {
         "id":null,
-        "name":"name2",
+        "key":"name2",
         "type":"CONSTANT",
         "value":"value2",
         "enable":true,
@@ -55,7 +55,7 @@
       },
       {
         "id":null,
-        "name":"name4",
+        "key":"name4",
         "type":"CONSTANT",
         "value":"value4",
         "enable":true,
