@@ -328,7 +328,7 @@ VALUES (UUID_SHORT(), 'project_member', 'PROJECT_TEST_PLAN:READ+EXECUTE');
 -- 初始化当前站点配置
 INSERT into system_parameter values('base.url', 'http://127.0.0.1:8081', 'text');
 -- 初始化prometheus站点配置
-INSERT into system_parameter values('base.prometheus.host', 'http://ms-prometheus:9090', 'text');
+INSERT into system_parameter values('base.prometheus.host', 'http://prometheus:9090', 'text');
 
 -- 初始化资源池
 INSERT INTO test_resource_pool (id, name, type, description, enable, create_time, update_time, create_user, api_test, load_test, ui_test, all_org, deleted) VALUES (uuid_short(), 'LOCAL', 'Node', '系统初始化资源池', true, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', true, true, true, true, false);

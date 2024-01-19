@@ -222,13 +222,13 @@
   const baseFormRef = ref<FormInstance>();
   const baseInfo = ref({
     url: 'http://127.0.0.1:8081',
-    prometheusHost: 'http://ms-prometheus:9090',
+    prometheusHost: 'http://prometheus:9090',
   });
   const baseInfoForm = ref({ ...baseInfo.value });
   const baseInfoDescs = ref<Description[]>([]);
   // 默认示例
   const defaultUrl = 'https://metersphere.com';
-  const defaultPrometheus = 'http://ms-prometheus:9090';
+  const defaultPrometheus = 'http://prometheus:9090';
 
   function fillDefaultUrl() {
     baseInfoForm.value.url = defaultUrl;
