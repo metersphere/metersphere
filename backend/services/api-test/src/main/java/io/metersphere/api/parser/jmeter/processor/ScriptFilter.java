@@ -1,6 +1,6 @@
 package io.metersphere.api.parser.jmeter.processor;
 
-import io.metersphere.api.dto.request.processors.ScriptProcessor;
+import io.metersphere.project.constants.ScriptLanguageType;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.LogUtils;
 import org.apache.commons.collections4.CollectionUtils;
@@ -57,10 +57,10 @@ public class ScriptFilter {
 
     public static void verify(String language, String label, String script) {
         // 默认 groovy
-        ScriptProcessor.ScriptLanguageType scriptLanguageType = Arrays.stream(ScriptProcessor.ScriptLanguageType.values())
+        ScriptLanguageType scriptLanguageType = Arrays.stream(ScriptLanguageType.values())
                 .filter(item -> StringUtils.equals(item.getValue(), language))
                 .findFirst()
-                .orElse(ScriptProcessor.ScriptLanguageType.GROOVY);
+                .orElse(ScriptLanguageType.GROOVY);
 
         if (StringUtils.isNotEmpty(script)) {
             final StringBuffer buffer = new StringBuffer();

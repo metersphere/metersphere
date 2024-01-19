@@ -1,5 +1,6 @@
 package io.metersphere.api.parser.jmeter.processor.assertion;
 
+import io.metersphere.project.constants.ScriptLanguageType;
 import io.metersphere.api.dto.request.assertion.MsVariableAssertion;
 import io.metersphere.api.dto.request.processors.ScriptProcessor;
 import io.metersphere.api.parser.jmeter.processor.ScriptProcessorConverter;
@@ -57,7 +58,7 @@ public class VariableAssertionConverter extends AssertionConverter<MsVariableAss
         String name = String.format("Variable '%s' expect %s %s", variableName, condition.toLowerCase().replace("_", ""), expectedValue);
         scriptProcessor.setName(name);
 
-        scriptProcessor.setScriptLanguage(ScriptProcessor.ScriptLanguageType.BEANSHELL_JSR233.getValue());
+        scriptProcessor.setScriptLanguage(ScriptLanguageType.BEANSHELL_JSR233.getValue());
         JSR223Assertion jsr223Assertion = new JSR223Assertion();
         ScriptProcessorConverter.parse(jsr223Assertion, scriptProcessor);
         return jsr223Assertion;

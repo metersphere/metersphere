@@ -1,5 +1,6 @@
 package io.metersphere.api.utils;
 
+import io.metersphere.api.parser.jmeter.MsCommentScriptElementConverter;
 import io.metersphere.api.parser.jmeter.MsCommonElementConverter;
 import io.metersphere.api.parser.jmeter.MsHTTPElementConverter;
 import io.metersphere.plugin.api.spi.AbstractJmeterElementConverter;
@@ -28,6 +29,7 @@ public class JmeterElementConverterRegister {
         // 注册默认的转换器 todo 注册插件的转换器
         register(MsHTTPElementConverter.class);
         register(MsCommonElementConverter.class);
+        register(MsCommentScriptElementConverter.class);
     }
 
     /**

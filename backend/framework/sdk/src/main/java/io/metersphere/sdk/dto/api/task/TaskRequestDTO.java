@@ -39,7 +39,7 @@ public class TaskRequestDTO implements Serializable {
 
     /**
      * 资源类型
-     * ApiResourceType
+     * @see io.metersphere.sdk.constants.ApiExecuteResourceType
      */
     private String resourceType;
 

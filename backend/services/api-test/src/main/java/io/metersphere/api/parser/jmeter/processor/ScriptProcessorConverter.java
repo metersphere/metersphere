@@ -1,5 +1,6 @@
 package io.metersphere.api.parser.jmeter.processor;
 
+import io.metersphere.project.constants.ScriptLanguageType;
 import io.metersphere.api.dto.request.processors.ScriptProcessor;
 import io.metersphere.api.parser.jmeter.constants.JmeterAlias;
 import io.metersphere.api.parser.jmeter.constants.JmeterProperty;
@@ -36,7 +37,7 @@ public abstract class ScriptProcessorConverter extends MsProcessorConverter<Scri
         testElement.setProperty(JmeterProperty.SCRIPT, scriptProcessor.getScript());
     }
 
-    protected boolean isJSR233(ScriptProcessor scriptProcessor) {
-      return !StringUtils.equals(scriptProcessor.getScriptLanguage(), ScriptProcessor.ScriptLanguageType.BEANSHELL.getValue());
+    public static boolean isJSR233(ScriptProcessor scriptProcessor) {
+      return !StringUtils.equals(scriptProcessor.getScriptLanguage(), ScriptLanguageType.BEANSHELL.getValue());
     }
 }
