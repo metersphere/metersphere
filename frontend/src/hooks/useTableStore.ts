@@ -1,7 +1,6 @@
 import { filter, orderBy, sortBy } from 'lodash-es';
 import localforage from 'localforage';
 
-import { is } from '@/components/pure/minder-editor/script/tool/key';
 import { MsTableColumn, MsTableColumnData } from '@/components/pure/ms-table/type';
 
 import { useAppStore } from '@/store';
