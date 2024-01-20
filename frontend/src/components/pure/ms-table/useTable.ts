@@ -59,7 +59,8 @@ export default function useTableProps<T>(
     rowSelection: null, // 禁用表格默认的选择器
     selectable: false, // 是否显示选择器
     selectorType: 'checkbox', // 选择器类型
-    selectedKeys: new Set<string>(), // 选中的key
+    selectedKeys: new Set<string>(), // 选中的key, 多选
+    selectedKey: '', // 选中的key，单选
     excludeKeys: new Set<string>(), // 排除的key
     selectorStatus: SelectAllEnum.NONE, // 选择器状态
     showSelectorAll: true, // 是否显示全选

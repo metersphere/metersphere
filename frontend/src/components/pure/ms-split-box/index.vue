@@ -16,7 +16,7 @@
       <div
         :class="`ms-split-box ${props.direction === 'horizontal' ? 'ms-split-box--left' : 'ms-split-box--top'} ${
           props.disabled && props.direction === 'horizontal' ? 'border-r border-[var(--color-text-n8)]' : ''
-        }`"
+        } ${props.firstContainerClass}`"
       >
         <div
           v-if="props.direction === 'horizontal' && props.expandDirection === 'right' && !props.disabled"
@@ -51,7 +51,11 @@
           />
         </div>
       </div>
-      <div :class="`ms-split-box ${props.direction === 'horizontal' ? 'ms-split-box--right' : 'ms-split-box--bottom'}`">
+      <div
+        :class="`ms-split-box ${props.direction === 'horizontal' ? 'ms-split-box--right' : 'ms-split-box--bottom'} ${
+          props.secondContainerClass
+        }`"
+      >
         <slot name="second"></slot>
       </div>
     </template>
@@ -71,6 +75,8 @@
       direction?: 'horizontal' | 'vertical';
       expandDirection?: 'left' | 'right' | 'top'; // TODO: 未实现 bottom，有场景再补充。目前默认水平是 left，垂直是 top
       disabled?: boolean; // 是否禁用
+      firstContainerClass?: string; // first容器类名
+      secondContainerClass?: string; // second容器类名
     }>(),
     {
       size: '300px',

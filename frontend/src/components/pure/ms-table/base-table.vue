@@ -17,9 +17,10 @@
         <slot name="optional" v-bind="{ rowIndex, record }" />
       </template>
       <template #columns>
-        <a-table-column v-if="attrs.selectable && props.selectedKeys" :width="60">
+        <a-table-column v-if="attrs.selectable && props.selectedKeys" :width="props.firstColumnWidth || 60">
           <template #title>
             <SelectALL
+              v-if="attrs.selectorType === 'checkbox'"
               :total="selectTotal"
               :current="selectCurrent"
               :show-select-all="(attrs.showPagination as boolean) && props.showSelectorAll"
@@ -29,8 +30,14 @@
           </template>
           <template #cell="{ record }">
             <MsCheckbox
+              v-if="attrs.selectorType === 'checkbox'"
               :value="props.selectedKeys.has(record[rowKey || 'id'])"
               @change="rowSelectChange(record[rowKey || 'id'])"
+            />
+            <a-radio
+              v-else-if="attrs.selectorType === 'radio'"
+              v-model:model-value="innerSelectedKey"
+              :value="record[rowKey || 'id']"
             />
           </template>
         </a-table-column>
@@ -54,7 +61,7 @@
           :tooltip="item.tooltip"
         >
           <template #title>
-            <div class="flex w-full flex-row flex-nowrap items-center">
+            <div :class="{ 'flex w-full flex-row flex-nowrap items-center': !item.align }">
               <slot :name="item.titleSlotName" :column-config="item">
                 <div class="text-[var(--color-text-3)]">{{ t(item.title as string) }}</div>
               </slot>
@@ -80,7 +87,7 @@
             </div>
           </template>
           <template #cell="{ column, record, rowIndex }">
-            <div :class="{ 'flex flex-row items-center': !item.isTag }">
+            <div :class="{ 'flex flex-row items-center': !item.isTag && !item.align }">
               <template v-if="item.dataIndex === SpecialColumnEnum.ENABLE">
                 <slot name="enable" v-bind="{ record }">
                   <div v-if="record.enable" class="flex flex-row flex-nowrap items-center gap-[2px]">
@@ -224,6 +231,7 @@
 
 <script lang="ts" setup>
   import { computed, nextTick, onMounted, ref, useAttrs } from 'vue';
+  import { useVModel } from '@vueuse/core';
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsPagination from '@/components/pure/ms-pagination/index';
@@ -259,6 +267,7 @@
 
   const props = defineProps<{
     selectedKeys: Set<string>;
+    selectedKey: string;
     excludeKeys: Set<string>;
     selectorStatus: SelectAllEnum;
     actionConfig?: BatchActionConfig;
@@ -270,8 +279,10 @@
     rowClass?: string | any[] | Record<string, any> | ((record: TableData, rowIndex: number) => any);
     spanAll?: boolean;
     showSelectorAll?: boolean;
+    firstColumnWidth?: number; // 选择、拖拽列的宽度
   }>();
   const emit = defineEmits<{
+    (e: 'update:selectedKey', value: string): void;
     (e: 'batchAction', value: BatchActionParams, queryParams: BatchActionQueryParams): void;
     (e: 'pageChange', value: number): void;
     (e: 'pageSizeChange', value: number): void;
@@ -356,6 +367,8 @@
       console.error('InitColumn failed', error);
     }
   };
+
+  const innerSelectedKey = useVModel(props, 'selectedKey', emit); // 内部维护的单选选中项
 
   // 全选change事件
   const handleSelectAllChange = (v: SelectAllEnum) => {
@@ -511,6 +524,11 @@
     .edit-icon {
       color: rgb(var(--primary-7));
       opacity: 0;
+    }
+    :deep(.arco-table-cell-align-left) {
+      .arco-table-td-content {
+        @apply flex items-center;
+      }
     }
     :deep(.arco-table-hover) {
       :not(.arco-table-dragging) {

@@ -4,21 +4,23 @@ export type CustomTheme = 'MS-text';
 export type Theme = 'vs' | 'hc-black' | 'vs-dark' | CustomTheme;
 export type FoldingStrategy = 'auto' | 'indentation';
 export type RenderLineHighlight = 'all' | 'line' | 'none' | 'gutter';
-export type Language =
-  | 'plaintext'
-  | 'javascript'
-  | 'typescript'
-  | 'css'
-  | 'less'
-  | 'sass'
-  | 'html'
-  | 'sql'
-  | 'json'
-  | 'java'
-  | 'python'
-  | 'xml'
-  | 'yaml'
-  | 'shell';
+export const LanguageEnum = {
+  PLAINTEXT: 'plaintext' as const,
+  JAVASCRIPT: 'javascript' as const,
+  TYPESCRIPT: 'typescript' as const,
+  CSS: 'css' as const,
+  LESS: 'less' as const,
+  SASS: 'sass' as const,
+  HTML: 'html' as const,
+  SQL: 'sql' as const,
+  JSON: 'json' as const,
+  JAVA: 'java' as const,
+  PYTHON: 'python' as const,
+  XML: 'xml' as const,
+  YAML: 'yaml' as const,
+  SHELL: 'shell' as const,
+} as const;
+export type Language = (typeof LanguageEnum)[keyof typeof LanguageEnum];
 export interface Options {
   automaticLayout: boolean; // 自适应布局
   foldingStrategy: FoldingStrategy; // 折叠方式  auto | indentation
@@ -86,6 +88,15 @@ export const editorProps = {
   showFullScreen: {
     type: Boolean as PropType<boolean>,
     default: true,
+  },
+  languages: {
+    // 支持选择的语言种类
+    type: Array as PropType<Array<Language>>,
+    default: undefined,
+  },
+  showLanguageChange: {
+    type: Boolean as PropType<boolean>,
+    default: false,
   },
   showThemeChange: {
     type: Boolean as PropType<boolean>,

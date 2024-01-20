@@ -1,22 +1,37 @@
 <template>
   <div ref="fullRef" class="h-full rounded-[4px] bg-[var(--color-fill-1)] p-[12px]">
-    <div v-if="showTitleLine" class="mb-[12px] flex justify-between pr-[12px]">
-      <slot name="title">
-        <span class="font-medium">{{ title }}</span>
-      </slot>
-      <div v-if="showThemeChange">
+    <div v-if="showTitleLine" class="mb-[12px] flex items-center justify-between pr-[12px]">
+      <div>
         <a-select
+          v-if="showLanguageChange"
+          v-model:model-value="currentLanguage"
+          :options="languageOptions"
+          class="mr-[4px] w-[100px]"
+          size="small"
+          @change="(val) => handleLanguageChange(val as Language)"
+        />
+        <a-select
+          v-if="showThemeChange"
           v-model:model-value="currentTheme"
           :options="themeOptions"
           class="w-[100px]"
           size="small"
           @change="(val) => handleThemeChange(val as Theme)"
-        ></a-select>
+        />
       </div>
-      <div v-if="showFullScreen" class="w-[96px] cursor-pointer text-right !text-[var(--color-text-4)]" @click="toggle">
-        <MsIcon v-if="isFullscreen" type="icon-icon_minify_outlined" />
-        <MsIcon v-else type="icon-icon_magnify_outlined" />
-        {{ t('msCodeEditor.fullScreen') }}
+      <div>
+        <slot name="title">
+          <span class="font-medium">{{ title }}</span>
+        </slot>
+        <div
+          v-if="showFullScreen"
+          class="w-[96px] cursor-pointer text-right !text-[var(--color-text-4)]"
+          @click="toggle"
+        >
+          <MsIcon v-if="isFullscreen" type="icon-icon_minify_outlined" />
+          <MsIcon v-else type="icon-icon_magnify_outlined" />
+          {{ t('msCodeEditor.fullScreen') }}
+        </div>
       </div>
     </div>
     <!-- 这里的 32px 是顶部标题的 32px -->
@@ -35,20 +50,23 @@
 
   import './userWorker';
   import MsCodeEditorTheme from './themes';
-  import { CustomTheme, editorProps, Theme } from './types';
+  import { CustomTheme, editorProps, Language, LanguageEnum, Theme } from './types';
   import * as monaco from 'monaco-editor/esm/vs/editor/editor.api';
 
   export default defineComponent({
     name: 'MonacoEditor',
     props: editorProps,
-    emits: ['update:modelValue', 'change', 'editorMounted'],
+    emits: ['update:modelValue', 'change'],
     setup(props, { emit }) {
       const { t } = useI18n();
       let editor: monaco.editor.IStandaloneCodeEditor;
 
       const codeEditBox = ref();
+      // 用于全屏的容器 ref
       const fullRef = ref<HTMLElement | null>();
+      // 当前主题
       const currentTheme = ref<Theme>(props.theme);
+      // 主题选项
       const themeOptions = [
         { label: 'vs', value: 'vs' },
         { label: 'vs-dark', value: 'vs-dark' },
@@ -59,7 +77,32 @@
           value: item,
         }))
       );
-      const showTitleLine = computed(() => props.title || props.showThemeChange || props.showFullScreen);
+      // 当前语言
+      const currentLanguage = ref<Language>(props.language);
+      // 语言选项
+      const languageOptions = Object.values(LanguageEnum)
+        .map((e) => {
+          if (props.languages) {
+            // 如果传入了语言种类数组，则过滤选项
+            if (props.languages.includes(e)) {
+              return {
+                label: e,
+                value: e,
+              };
+            }
+            return false;
+          }
+          return {
+            label: e,
+            value: e,
+          };
+        })
+        .filter(Boolean) as { label: string; value: Language }[];
+
+      // 是否显示标题栏
+      const showTitleLine = computed(
+        () => props.title || props.showThemeChange || props.showLanguageChange || props.showFullScreen
+      );
 
       watch(
         () => props.theme,
@@ -70,6 +113,10 @@
 
       function handleThemeChange(val: Theme) {
         monaco.editor.setTheme(val);
+      }
+
+      function handleLanguageChange(val: Language) {
+        monaco.editor.setModelLanguage(editor.getModel()!, val);
       }
 
       const init = () => {
@@ -180,10 +227,13 @@
         isFullscreen,
         currentTheme,
         themeOptions,
+        currentLanguage,
+        languageOptions,
         showTitleLine,
         toggle,
         t,
         handleThemeChange,
+        handleLanguageChange,
         insertContent,
         undo,
         redo,

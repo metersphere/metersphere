@@ -76,6 +76,7 @@ module.exports = {
     'no-underscore-dangle': 'off',
     'vue/attributes-order': 1,
     'simple-import-sort/exports': 'error',
+    'no-case-declarations': 'off',
     // 调整导入语句的顺序
     'simple-import-sort/imports': [
       'error',
@@ -97,6 +98,7 @@ module.exports = {
             '^color$',
             '^localforage$',
             'vue-draggable-plus',
+            'jsonpath-plus',
           ], // node依赖
           ['.*/assets/.*', '^@/assets$'], // 项目静态资源
           ['^@/components/pure/.*', '^@/components/business/.*', '.*\\.vue$'], // 组件

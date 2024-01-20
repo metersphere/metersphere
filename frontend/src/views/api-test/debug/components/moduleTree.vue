@@ -1,11 +1,7 @@
 <template>
   <div>
     <div class="mb-[8px] flex items-center gap-[8px]">
-      <a-input
-        v-model:model-value="moduleKeyword"
-        :placeholder="t('caseManagement.caseReview.folderSearchPlaceholder')"
-        allow-clear
-      />
+      <a-input v-model:model-value="moduleKeyword" :placeholder="t('apiTestDebug.searchTip')" allow-clear />
       <a-dropdown @select="handleSelect">
         <a-button type="primary">{{ t('apiTestDebug.newApi') }}</a-button>
         <template #content>
@@ -17,7 +13,7 @@
     <div v-if="!props.isModal" class="folder">
       <div class="folder-text">
         <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
-        <div class="folder-name">{{ t('caseManagement.caseReview.allReviews') }}</div>
+        <div class="folder-name">{{ t('apiTestDebug.allRequest') }}</div>
         <div class="folder-count">({{ allFileCount }})</div>
       </div>
       <div class="ml-auto flex items-center">
@@ -224,9 +220,9 @@
   function deleteFolder(node: MsTreeNodeData) {
     openModal({
       type: 'error',
-      title: t('caseManagement.caseReview.deleteFolderTipTitle', { name: node.name }),
-      content: t('caseManagement.caseReview.deleteFolderTipContent'),
-      okText: t('caseManagement.caseReview.deleteConfirm'),
+      title: t('apiTestDebug.deleteFolderTipTitle', { name: node.name }),
+      content: t('apiTestDebug.deleteFolderTipContent'),
+      okText: t('apiTestDebug.deleteConfirm'),
       okButtonProps: {
         status: 'danger',
       },
@@ -234,7 +230,7 @@
       onBeforeOk: async () => {
         try {
           await deleteReviewModule(node.id);
-          Message.success(t('caseManagement.caseReview.deleteSuccess'));
+          Message.success(t('apiTestDebug.deleteSuccess'));
           initModules();
         } catch (error) {
           // eslint-disable-next-line no-console
@@ -293,7 +289,7 @@
         dropNodeId: dropNode.id || '',
         dropPosition,
       });
-      Message.success(t('caseManagement.caseReview.moduleMoveSuccess'));
+      Message.success(t('apiTestDebug.moduleMoveSuccess'));
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

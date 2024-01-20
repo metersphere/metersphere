@@ -78,7 +78,7 @@
       </a-tabs>
     </div>
   </MsCard>
-  <MsCard :loading="loading" class="mt-[16px]" :special-height="180" simple has-breadcrumb no-content-padding>
+  <MsCard class="mt-[16px]" :special-height="180" simple has-breadcrumb no-content-padding>
     <MsSplitBox>
       <template #first>
         <div class="p-[24px]">
@@ -139,7 +139,7 @@
     getReviewDetail,
     getReviewDetailModuleCount,
   } from '@/api/modules/case-management/caseReview';
-  import { reviewDefaultDetail } from '@/config/apiTest';
+  import { reviewDefaultDetail } from '@/config/caseManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import useUserStore from '@/store/modules/user';
@@ -372,3 +372,4 @@
     @apply hidden;
   }
 </style>
+@/config/caseManagement

@@ -334,7 +334,7 @@
     saveCaseReviewResult,
   } from '@/api/modules/case-management/caseReview';
   import { getCaseDetail } from '@/api/modules/case-management/featureCase';
-  import { reviewDefaultDetail, reviewResultMap } from '@/config/apiTest';
+  import { reviewDefaultDetail, reviewResultMap } from '@/config/caseManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
@@ -708,3 +708,4 @@
     }
   }
 </style>
+@/config/caseManagement

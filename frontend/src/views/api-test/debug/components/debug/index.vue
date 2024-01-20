@@ -66,6 +66,7 @@
       :max="0.98"
       min="10px"
       :direction="activeLayout"
+      second-container-class="!overflow-y-hidden"
       @expand-change="handleExpandChange"
     >
       <template #first>
@@ -103,8 +104,14 @@
             @change="handleActiveDebugChange"
           />
           <precondition
-            v-else-if="activeDebug.activeTab === RequestComposition.PREFIX"
+            v-else-if="activeDebug.activeTab === RequestComposition.PRECONDITION"
             v-model:params="activeDebug.preconditions"
+            @change="handleActiveDebugChange"
+          />
+          <postcondition
+            v-else-if="activeDebug.activeTab === RequestComposition.POST_CONDITION"
+            v-model:params="activeDebug.postConditions"
+            :response="activeDebug.response.body"
             :layout="activeLayout"
             :second-box-height="secondBoxHeight"
             @change="handleActiveDebugChange"
@@ -166,6 +173,7 @@
   import debugAuth from './auth.vue';
   import debugBody, { BodyParams } from './body.vue';
   import debugHeader from './header.vue';
+  import postcondition from './postcondition.vue';
   import precondition from './precondition.vue';
   import debugQuery from './query.vue';
   import debugRest from './rest.vue';
@@ -191,33 +199,105 @@
     binarySend: false,
     raw: '',
   };
-  const debugTabs = ref<TabItem[]>([
-    {
-      id: initDefaultId,
-      moduleProtocol: 'http',
-      activeTab: RequestComposition.HEADER,
-      label: t('apiTestDebug.newApi'),
-      closable: true,
-      method: RequestMethods.GET,
-      unSave: false,
-      headerParams: [],
-      bodyParams: cloneDeep(defaultBodyParams),
-      queryParams: [],
-      restParams: [],
-      authParams: {
-        authType: 'none',
-        account: '',
-        password: '',
-      },
-      preconditions: [],
-      setting: {
-        connectTimeout: 60000,
-        responseTimeout: 60000,
-        certificateAlias: '',
-        redirect: 'follow',
-      },
+  const defaultDebugParams = {
+    id: initDefaultId,
+    moduleProtocol: 'http',
+    activeTab: RequestComposition.HEADER,
+    label: t('apiTestDebug.newApi'),
+    closable: true,
+    method: RequestMethods.GET,
+    unSave: false,
+    headerParams: [],
+    bodyParams: cloneDeep(defaultBodyParams),
+    queryParams: [],
+    restParams: [],
+    authParams: {
+      authType: 'none',
+      account: '',
+      password: '',
     },
-  ]);
+    preconditions: [],
+    postConditions: [],
+    setting: {
+      connectTimeout: 60000,
+      responseTimeout: 60000,
+      certificateAlias: '',
+      redirect: 'follow',
+    },
+    response: {
+      status: 200,
+      headers: [],
+      body: `{
+	"type": "team",
+	"test": {
+		"testPage": "tools/testing/run-tests.htm",
+		"enabled": true
+	},
+    "search": {
+        "excludeFolders": [
+			".git",
+			"node_modules",
+			"tools/bin",
+			"tools/counts",
+			"tools/policheck",
+			"tools/tfs_build_extensions",
+			"tools/testing/jscoverage",
+			"tools/testing/qunit",
+			"tools/testing/chutzpah",
+			"server.net"
+        ]
+    },
+	"languages": {
+		"vs.languages.typescript": {
+			"validationSettings": [{
+				"scope":"/",
+				"noImplicitAny":true,
+				"noLib":false,
+				"extraLibs":[],
+				"semanticValidation":true,
+				"syntaxValidation":true,
+				"codeGenTarget":"ES5",
+				"moduleGenTarget":"",
+				"lint": {
+                    "emptyBlocksWithoutComment": "warning",
+                    "curlyBracketsMustNotBeOmitted": "warning",
+                    "comparisonOperatorsNotStrict": "warning",
+                    "missingSemicolon": "warning",
+                    "unknownTypeOfResults": "warning",
+                    "semicolonsInsteadOfBlocks": "warning",
+                    "functionsInsideLoops": "warning",
+                    "functionsWithoutReturnType": "warning",
+                    "tripleSlashReferenceAlike": "warning",
+                    "unusedImports": "warning",
+                    "unusedVariables": "warning",
+                    "unusedFunctions": "warning",
+                    "unusedMembers": "warning"
+                }
+			}, 
+			{
+				"scope":"/client",
+				"baseUrl":"/client",
+				"moduleGenTarget":"amd"
+			},
+			{
+				"scope":"/server",
+				"moduleGenTarget":"commonjs"
+			},
+			{
+				"scope":"/build",
+				"moduleGenTarget":"commonjs"
+			},
+			{
+				"scope":"/node_modules/nake",
+				"moduleGenTarget":"commonjs"
+			}],
+			"allowMultipleWorkers": true
+		}
+	}
+}`,
+    }, // 调试返回的响应内容
+  };
+  const debugTabs = ref<TabItem[]>([cloneDeep(defaultDebugParams)]);
   const debugUrl = ref('');
   const activeDebug = ref<TabItem>(debugTabs.value[0]);
 
@@ -232,28 +312,8 @@
   function addDebugTab() {
     const id = `debug-${Date.now()}`;
     debugTabs.value.push({
+      ...cloneDeep(defaultDebugParams),
       id,
-      moduleProtocol: 'http',
-      activeTab: RequestComposition.HEADER,
-      label: t('apiTestDebug.newApi'),
-      closable: true,
-      method: RequestMethods.GET,
-      unSave: false,
-      headerParams: [],
-      bodyParams: cloneDeep(defaultBodyParams),
-      queryParams: [],
-      restParams: [],
-      authParams: {
-        authType: 'none',
-        account: '',
-        password: '',
-      },
-      setting: {
-        connectTimeout: 60000,
-        responseTimeout: 60000,
-        certificateAlias: '',
-        redirect: 'follow',
-      },
     });
     activeTab.value = id;
   }
@@ -295,12 +355,12 @@
       label: RequestComposition.REST,
     },
     {
-      value: RequestComposition.PREFIX,
+      value: RequestComposition.PRECONDITION,
       label: t('apiTestDebug.prefix'),
     },
     {
       value: RequestComposition.POST_CONDITION,
-      label: t('apiTestDebug.postCondition'),
+      label: t('apiTestDebug.post'),
     },
     {
       value: RequestComposition.ASSERTION,
@@ -331,8 +391,14 @@
   watch(
     () => splitBoxSize.value,
     debounce((val) => {
+      // 动画 300ms
       if (splitContainerRef.value) {
-        secondBoxHeight.value = splitContainerRef.value.clientHeight * (1 - val);
+        if (typeof val === 'string' && val.includes('px')) {
+          val = Number(val.split('px')[0]);
+          secondBoxHeight.value = splitContainerRef.value.clientHeight - val;
+        } else {
+          secondBoxHeight.value = splitContainerRef.value.clientHeight * (1 - val);
+        }
       }
     }, 300),
     {

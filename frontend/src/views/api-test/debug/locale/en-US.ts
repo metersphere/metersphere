@@ -8,7 +8,7 @@ export default {
   'apiTestDebug.header': 'Header',
   'apiTestDebug.body': 'Body',
   'apiTestDebug.prefix': 'Prefix',
-  'apiTestDebug.postCondition': 'Post condition',
+  'apiTestDebug.post': 'Post',
   'apiTestDebug.assertion': 'Assertion',
   'apiTestDebug.auth': 'Auth',
   'apiTestDebug.setting': 'Setting',
@@ -24,8 +24,9 @@ export default {
   'apiTestDebug.desc': 'Description',
   'apiTestDebug.apply': 'Apply',
   'apiTestDebug.batchAddParamsTip': 'Writing format: parameter name: parameter value; such as nama: natural',
-  'apiTestDebug.batchAddParamsTip2':
-    'Note: Multiple records are separated by newlines. Parameter names in batch addition are repeated. By default, the last data is the latest data.',
+  'apiTestDebug.batchAddParamsTip2': 'Multiple records are separated by newlines.',
+  'apiTestDebug.batchAddParamsTip3':
+    'Parameter names in batch addition are repeated. By default, the last data is the latest data.',
   'apiTestDebug.quickInputParamsTip': 'Support Mock/JMeter/Json/Text/String, etc.',
   'apiTestDebug.descPlaceholder': 'Please enter content',
 };

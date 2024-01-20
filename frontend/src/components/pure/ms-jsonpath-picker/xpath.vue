@@ -1,5 +1,5 @@
 <template>
-  <div v-if="parsedXml">
+  <div v-if="parsedXml" class="container">
     <div v-for="(node, index) in flattenedXml" :key="index">
       <span style="white-space: pre" @click="copyXPath(node.xpath)" v-html="node.content"></span>
     </div>
@@ -8,6 +8,7 @@
 
 <script setup lang="ts">
   import { XpathNode } from './types';
+  import * as XmlBeautify from 'xml-beautify';
 
   const props = defineProps<{
     xmlString: string;
@@ -67,7 +68,6 @@
       emit('pick', xpath);
     }
   }
-
   /**
    * 解析xml
    */
@@ -76,12 +76,12 @@
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(props.xmlString, 'application/xml');
       parsedXml.value = xmlDoc;
-      // 先将 XML 字符串解析转换并给每个开始标签加上复制 icon
-      flattenedXml.value = props.xmlString
+      // 先将 XML 字符串格式化，然后解析转换并给每个开始标签加上复制 icon
+      flattenedXml.value = new XmlBeautify({ parser: DOMParser })
+        .beautify(props.xmlString)
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
-        .replace(/(&lt;\w+\s*[^&gt;]*&gt;)/g, '<span style="color: rgb(var(--primary-5));cursor: pointer">$1📋</span>')
-        .replace(/(&lt;\/\w+\s*[^&gt;]*&gt;)/g, '<span style="color: rgb(var(--primary-5));">$1</span>')
+        .replace(/(&lt;([^/][^&]*?)&gt;)/g, '<span style="color: rgb(var(--primary-5));cursor: pointer">$1📋</span>')
         .split(/\r?\n/)
         .map((e) => ({ content: e, xpath: '' }));
       // 解析真实 XML 并将其扁平化，得到每个节点的 xpath
@@ -115,3 +115,13 @@
     }
   );
 </script>
+
+<style lang="less" scoped>
+  .container {
+    @apply h-full overflow-y-auto;
+    .ms-scroll-bar();
+
+    padding: 12px 1.85em;
+    border-radius: var(--border-radius-small);
+  }
+</style>

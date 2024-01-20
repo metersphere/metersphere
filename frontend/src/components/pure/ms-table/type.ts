@@ -82,7 +82,8 @@ export interface MsTableProps<T> {
   /** 选择器相关 */
   selectable?: boolean; // 是否显示选择器
   selectorType: 'none' | 'checkbox' | 'radio'; // 选择器类型
-  selectedKeys: Set<string>; // 选中的key
+  selectedKeys: Set<string>; // 选中的key，多选
+  selectedKey: string; // 选中的key，单选
   excludeKeys: Set<string>; // 排除的key
   selectorStatus: SelectAllEnum; // 选择器状态
   showSelectorAll?: boolean; // 是否显示跨页全选选择器
