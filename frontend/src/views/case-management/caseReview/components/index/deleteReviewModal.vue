@@ -55,7 +55,7 @@
   import { Message } from '@arco-design/web-vue';
 
   import { deleteReview } from '@/api/modules/case-management/caseReview';
-  import { reviewStatusMap } from '@/config/apiTest';
+  import { reviewStatusMap } from '@/config/caseManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
@@ -102,3 +102,4 @@
 </script>
 
 <style lang="less" scoped></style>
+@/config/caseManagement

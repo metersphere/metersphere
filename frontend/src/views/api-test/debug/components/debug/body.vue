@@ -73,6 +73,7 @@
   import { useVModel } from '@vueuse/core';
 
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
+  import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
   import paramTable, { type ParamTableColumn } from '../../../components/paramTable.vue';
   import batchAddKeyVal from './batchAddKeyVal.vue';
 
@@ -154,6 +155,7 @@
       title: 'apiTestDebug.paramLengthRange',
       dataIndex: 'lengthRange',
       slotName: 'lengthRange',
+      align: 'center',
       width: 200,
     },
     {
@@ -244,12 +246,12 @@
   // 当前代码编辑器的语言
   const currentCodeLanguage = computed(() => {
     if (format.value === RequestBodyFormat.JSON) {
-      return 'json';
+      return LanguageEnum.JSON;
     }
     if (format.value === RequestBodyFormat.XML) {
-      return 'xml';
+      return LanguageEnum.XML;
     }
-    return 'plaintext';
+    return LanguageEnum.PLAINTEXT;
   });
 
   function formatChange() {

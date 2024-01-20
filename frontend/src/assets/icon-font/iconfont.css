@@ -1,7 +1,7 @@
 @font-face {
   font-family: iconfont; /* Project id 3462279 */
-  src: url('iconfont.woff2?t=1702433539155') format('woff2'), url('iconfont.woff?t=1702433539155') format('woff'),
-    url('iconfont.ttf?t=1702433539155') format('truetype'), url('iconfont.svg?t=1702433539155#iconfont') format('svg');
+  src: url('iconfont.woff2?t=1705549750803') format('woff2'), url('iconfont.woff?t=1705549750803') format('woff'),
+    url('iconfont.ttf?t=1705549750803') format('truetype'), url('iconfont.svg?t=1705549750803#iconfont') format('svg');
 }
 .iconfont {
   font-size: 16px;
@@ -9,6 +9,18 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+.icon-icon_carriage_return2::before {
+  content: '\e79a';
+}
+.icon-icon_carriage_return1::before {
+  content: '\e799';
+}
+.icon-icon_swagger::before {
+  content: '\e798';
+}
+.icon-a-icon_file-json::before {
+  content: '\e797';
 }
 .icon-icon_keyboard::before {
   content: '\e796';

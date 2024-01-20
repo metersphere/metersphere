@@ -211,7 +211,7 @@
       @select="selectAutoComplete"
     >
       <template #suffix>
-        <MsIcon type="icon-icon_mock" class="ms-params-input-mock-icon" @click.stop="openParamSetting" />
+        <MsIcon type="icon-icon_mock" class="ms-params-input-suffix-icon" @click.stop="openParamSetting" />
       </template>
       <template #option="{ data }">
         <div class="w-[350px]">
@@ -588,16 +588,22 @@
     }
   }
   .ms-params-input {
-    .ms-params-input-mock-icon {
+    .ms-params-input-suffix-icon,
+    .ms-params-input-suffix-icon--disabled {
       @apply invisible;
     }
     &:hover,
     &.arco-input-focus {
-      .ms-params-input-mock-icon {
+      .ms-params-input-suffix-icon {
         @apply visible cursor-pointer;
         &:hover {
           color: rgb(var(--primary-5));
         }
+      }
+      .ms-params-input-suffix-icon--disabled {
+        @apply visible cursor-not-allowed;
+
+        color: rgb(var(--primary-3));
       }
     }
     :deep(.arco-select-option) {
@@ -606,10 +612,15 @@
   }
   .ms-params-input--focus {
     border-color: rgb(var(--primary-5)) !important;
-    .ms-params-input-mock-icon {
+    .ms-params-input-suffix-icon {
       @apply visible cursor-pointer;
 
       color: rgb(var(--primary-5));
+    }
+    .ms-params-input-suffix-icon--disabled {
+      @apply visible cursor-not-allowed;
+
+      color: rgb(var(--primary-3));
     }
   }
   .ms-params-input-trigger {

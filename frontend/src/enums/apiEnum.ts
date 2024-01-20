@@ -15,7 +15,7 @@ export enum RequestComposition {
   BODY = 'BODY',
   QUERY = 'QUERY',
   REST = 'REST',
-  PREFIX = 'PREFIX',
+  PRECONDITION = 'PRECONDITION',
   POST_CONDITION = 'POST_CONDITION',
   ASSERTION = 'ASSERTION',
   AUTH = 'AUTH',

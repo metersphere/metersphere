@@ -6,6 +6,34 @@
   "description": "DE、MS项目icon管理",
   "glyphs": [
     {
+      "icon_id": "38923289",
+      "name": "icon_carriage_return",
+      "font_class": "icon_carriage_return2",
+      "unicode": "e79a",
+      "unicode_decimal": 59290
+    },
+    {
+      "icon_id": "38923258",
+      "name": "icon_delete",
+      "font_class": "icon_carriage_return1",
+      "unicode": "e799",
+      "unicode_decimal": 59289
+    },
+    {
+      "icon_id": "38884170",
+      "name": "icon_swagger",
+      "font_class": "icon_swagger",
+      "unicode": "e798",
+      "unicode_decimal": 59288
+    },
+    {
+      "icon_id": "38747707",
+      "name": "icon_file- json",
+      "font_class": "a-icon_file-json",
+      "unicode": "e797",
+      "unicode_decimal": 59287
+    },
+    {
       "icon_id": "38499852",
       "name": "icon_keyboard",
       "font_class": "icon_keyboard",

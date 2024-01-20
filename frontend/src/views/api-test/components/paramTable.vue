@@ -1,5 +1,5 @@
 <template>
-  <MsBaseTable v-bind="propsRes" id="headerTable" :hoverable="false" no-disable v-on="propsEvent">
+  <MsBaseTable v-bind="propsRes" :hoverable="false" no-disable v-on="propsEvent">
     <!-- 表格头 slot -->
     <template #encodeTitle>
       <div class="flex items-center text-[var(--color-text-3)]">
@@ -42,7 +42,7 @@
           v-model:model-value="record[columnConfig.dataIndex as string]"
           :placeholder="t('apiTestDebug.paramNamePlaceholder')"
           class="param-input"
-          @input="(val) => addTableLine(val)"
+          @input="(val) => addTableLine(val, 'name')"
         />
       </a-popover>
     </template>
@@ -69,6 +69,25 @@
         @change="(val) => handleTypeChange(val, record)"
       />
     </template>
+    <template #expressionType="{ record, columnConfig }">
+      <a-select
+        v-model:model-value="record.expressionType"
+        :options="columnConfig.typeOptions || []"
+        class="param-input w-[110px]"
+        @change="(val) => handleExpressionTypeChange(val)"
+      />
+    </template>
+    <template #range="{ record, columnConfig }">
+      <a-select
+        v-model:model-value="record.range"
+        :options="columnConfig.typeOptions || []"
+        class="param-input w-[180px]"
+        @change="(val) => handleRangeChange(val)"
+      />
+    </template>
+    <template #expression="{ record, rowIndex, columnConfig }">
+      <slot name="expression" :record="record" :row-index="rowIndex" :column-config="columnConfig"></slot>
+    </template>
     <template #value="{ record, columnConfig }">
       <a-popover
         v-if="columnConfig.isNormal"
@@ -88,13 +107,13 @@
           v-model:model-value="record.value"
           class="param-input"
           :placeholder="t('apiTestDebug.commonPlaceholder')"
-          @input="(val) => addTableLine(val)"
+          @input="(val) => addTableLine(val, 'value')"
         />
       </a-popover>
       <MsParamsInput
         v-else
         v-model:value="record.value"
-        @change="addTableLine"
+        @change="(val) => addTableLine(val, 'value')"
         @dblclick="quickInputParams(record)"
         @apply="handleParamSettingApply"
       />
@@ -104,16 +123,16 @@
         <a-input-number
           v-model:model-value="record.min"
           :placeholder="t('apiTestDebug.paramMin')"
-          class="param-input"
-          @input="(val) => addTableLine(val)"
-        ></a-input-number>
+          class="param-input param-input-number"
+          @input="(val) => addTableLine(val || '', 'min')"
+        />
         <div class="mx-[4px]">～</div>
         <a-input-number
           v-model:model-value="record.max"
           :placeholder="t('apiTestDebug.paramMax')"
           class="param-input"
-          @input="(val) => addTableLine(val)"
-        ></a-input-number>
+          @input="(val) => addTableLine(val || '', 'max')"
+        />
       </div>
     </template>
     <template #tag="{ record, columnConfig }">
@@ -134,14 +153,14 @@
           v-model:model-value="record[columnConfig.dataIndex as string]"
           :max-tag-count="1"
           class="param-input"
-          @change="addTableLine"
+          @change="(val) => addTableLine(val, 'tag')"
         />
       </a-popover>
     </template>
     <template #desc="{ record, columnConfig }">
       <paramDescInput
         v-model:desc="record[columnConfig.dataIndex as string]"
-        @input="addTableLine"
+        @input="(val) => addTableLine(val, 'desc')"
         @dblclick="quickInputDesc(record)"
         @change="handleDescChange"
       />
@@ -152,13 +171,19 @@
         size="small"
         class="param-input-switch"
         type="line"
-        @change="(val) => addTableLine(val.toString())"
+        @change="(val) => addTableLine(val.toString(), 'encode')"
       />
     </template>
     <template #mustContain="{ record, columnConfig }">
       <a-checkbox v-model:model-value="record[columnConfig.dataIndex as string]" @change="(val) => addTableLine(val)" />
     </template>
     <template #operation="{ record, rowIndex, columnConfig }">
+      <slot name="operationPre" :record="record" :row-index="rowIndex" :column-config="columnConfig"></slot>
+      <MsTableMoreAction
+        v-if="columnConfig.moreAction"
+        :list="getMoreActionList(columnConfig.moreAction, record)"
+        @select="(e) => handleMoreActionSelect(e, record)"
+      />
       <a-trigger
         v-if="columnConfig.format && columnConfig.format !== RequestBodyFormat.X_WWW_FORM_URLENCODED"
         trigger="click"
@@ -172,7 +197,7 @@
               v-model:model-value="record.contentType"
               :options="Object.values(RequestContentTypeEnum).map((e) => ({ label: e, value: e }))"
               allow-create
-              @change="(val) => addTableLine(val as string)"
+              @change="(val) => addTableLine(val as string, 'contentType')"
             />
           </div>
         </template>
@@ -182,7 +207,7 @@
         v-model:model-value="record.enable"
         size="small"
         type="line"
-        @change="(val) => addTableLine(val)"
+        @change="(val) => addTableLine(val, 'enable')"
       />
       <icon-minus-circle
         v-if="paramsLength > 1 && rowIndex !== paramsLength - 1"
@@ -261,6 +286,8 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumnData } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
+  import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTagsGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import MsParamsInput from '@/components/business/ms-params-input/index.vue';
@@ -295,6 +322,7 @@
     typeOptions?: { label: string; value: string }[]; // 用于 type 列选择器选项
     typeTitleTooltip?: string; // 用于 type 表头列展示的 tooltip
     hasEnable?: boolean; // 用于 operation 列区分是否有 enable 开关
+    moreAction?: ActionsItem[]; // 用于 operation 列更多操作按钮配置
     format?: RequestBodyFormat | 'query' | 'rest'; // 用于 operation 列区分是否有请求体格式选择器
   };
 
@@ -317,6 +345,7 @@
       disabled?: boolean; // 是否禁用
       showSelectorAll?: boolean; // 是否显示全选
       isSimpleSetting?: boolean; // 是否简单Column设置
+      response?: string; // 响应内容
     }>(),
     {
       selectable: true,
@@ -342,14 +371,18 @@
   const emit = defineEmits<{
     (e: 'update:params', value: any[]): void;
     (e: 'change', data: any[], isInit?: boolean): void;
+    (e: 'moreActionSelect', event: ActionsItem, record: Record<string, any>): void;
   }>();
 
   const { t } = useI18n();
 
   const tableStore = useTableStore();
-  if (props.showSetting && props.tableKey) {
-    await tableStore.initColumn(props.tableKey, props.columns);
+  async function initColumns() {
+    if (props.showSetting && props.tableKey) {
+      await tableStore.initColumn(props.tableKey, props.columns);
+    }
   }
+  initColumns();
 
   const { propsRes, propsEvent } = useTable(() => Promise.resolve([]), {
     tableKey: props.showSetting ? props.tableKey : undefined,
@@ -399,14 +432,21 @@
   /**
    * 当表格输入框变化时，给参数表格添加一行数据行
    * @param val 输入值
+   * @param key 当前列的 key
    * @param isForce 是否强制添加
    */
-  function addTableLine(val?: string | number | boolean | (string | number | boolean)[], isForce?: boolean) {
+  function addTableLine(
+    val?: string | number | boolean | (string | number | boolean)[],
+    key?: string,
+    isForce?: boolean
+  ) {
     const lastData = propsRes.value.data[propsRes.value.data.length - 1];
-    const isNotChange = Object.keys(props.defaultParamItem).every(
-      (key) => JSON.stringify(lastData[key]) === JSON.stringify(props.defaultParamItem[key])
-    );
-    if (isForce || (val !== '' && val !== undefined && !isNotChange)) {
+    // 当不传入输入值或对应列的 key 时，遍历整个数据对象判断是否有变化；当传入输入值或对应列的 key 时，判断对应列的值是否有变化
+    const isNotChange =
+      val === undefined || key === undefined
+        ? Object.keys(props.defaultParamItem).every((e) => lastData[e] === props.defaultParamItem[e])
+        : JSON.stringify(lastData[key]) === JSON.stringify(props.defaultParamItem[key]);
+    if (isForce || (val !== '' && !isNotChange)) {
       propsRes.value.data.push({
         id: new Date().getTime(),
         ...props.defaultParamItem,
@@ -434,12 +474,12 @@
     activeQuickInputRecord.value.value = quickInputParamValue.value;
     showQuickInputParam.value = false;
     clearQuickInputParam();
-    addTableLine(quickInputParamValue.value, true);
+    addTableLine(quickInputParamValue.value, 'value', true);
     emit('change', propsRes.value.data);
   }
 
   function handleParamSettingApply(val: string | number) {
-    addTableLine(val);
+    addTableLine(val, 'value');
   }
 
   const showQuickInputDesc = ref(false);
@@ -460,7 +500,7 @@
     activeQuickInputRecord.value.desc = quickInputDescValue.value;
     showQuickInputDesc.value = false;
     clearQuickInputDesc();
-    addTableLine(quickInputDescValue.value, true);
+    addTableLine(quickInputDescValue.value, 'desc', true);
     emit('change', propsRes.value.data);
   }
 
@@ -472,7 +512,7 @@
     val: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[],
     record: Partial<Param>
   ) {
-    addTableLine(val as string);
+    addTableLine(val as string, 'type');
     // 根据参数类型自动推断 Content-Type 类型
     if (record.contentType) {
       if (val === 'file') {
@@ -484,6 +524,42 @@
       }
     }
   }
+
+  function handleExpressionTypeChange(
+    val: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
+  ) {
+    addTableLine(val as string, 'expressionType');
+  }
+
+  function handleRangeChange(
+    val: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
+  ) {
+    addTableLine(val as string, 'range');
+  }
+
+  /**
+   * 获取更多操作按钮列表
+   * @param actions 按钮列表
+   * @param record 当前行数据
+   */
+  function getMoreActionList(actions: ActionsItem[], record: Record<string, any>) {
+    if (props.columns.findIndex((e) => e.dataIndex === 'expression') !== -1) {
+      // 如果有expression列，就需要根据expression的值来判断按钮列表是否禁用
+      if (record.expression === '' || record.expression === undefined || record.expression === null) {
+        return actions.map((e) => ({ ...e, disabled: true }));
+      }
+      return actions;
+    }
+    return actions;
+  }
+
+  function handleMoreActionSelect(event: ActionsItem, record: Record<string, any>) {
+    emit('moreActionSelect', event, record);
+  }
+
+  defineExpose({
+    addTableLine,
+  });
 </script>
 
 <style lang="less" scoped>
@@ -491,10 +567,12 @@
     background-color: var(--color-text-n9);
   }
   :deep(.arco-table-cell-align-left) {
-    padding: 16px 4px;
+    padding: 16px 12px;
   }
-  :deep(.arco-table-cell) {
-    padding: 11px 4px;
+  :deep(.arco-table-td) {
+    .arco-table-cell {
+      padding: 12px 2px;
+    }
   }
   :deep(.param-input:not(.arco-input-focus, .arco-select-view-focus)) {
     &:not(:hover) {
@@ -510,26 +588,30 @@
       }
     }
   }
+  :deep(.param-input-number) {
+    @apply pr-0;
+    .arco-input {
+      @apply text-right;
+    }
+    .arco-input-suffix {
+      @apply hidden;
+    }
+    &:hover,
+    &.arco-input-focus {
+      .arco-input {
+        @apply text-left;
+      }
+      .arco-input-suffix {
+        @apply inline-flex;
+      }
+    }
+  }
   .content-type-trigger-content {
     @apply bg-white;
 
     padding: 8px;
     border-radius: var(--border-radius-small);
     box-shadow: 0 4px 10px -1px rgb(100 100 102 / 15%);
-  }
-  .param-input {
-    .param-input-mock-icon {
-      @apply invisible;
-    }
-    &:hover,
-    &.arco-input-focus {
-      .param-input-mock-icon {
-        @apply visible cursor-pointer;
-        &:hover {
-          color: rgb(var(--primary-5));
-        }
-      }
-    }
   }
   .param-popover-title {
     @apply font-medium;

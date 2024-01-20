@@ -259,7 +259,7 @@
     getReviewDetailCasePage,
     getReviewUsers,
   } from '@/api/modules/case-management/caseReview';
-  import { reviewResultMap, reviewStatusMap } from '@/config/apiTest';
+  import { reviewResultMap, reviewStatusMap } from '@/config/caseManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
@@ -871,3 +871,4 @@
     @apply inline-flex;
   }
 </style>
+@/config/caseManagement

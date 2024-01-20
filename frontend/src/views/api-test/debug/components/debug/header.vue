@@ -8,6 +8,7 @@
     :columns="columns"
     :height-used="heightUsed"
     :scroll="scroll"
+    draggable
     @change="handleParamTableChange"
   />
 </template>
@@ -57,30 +58,13 @@
     },
   ];
 
-  const heightUsed = ref<number | undefined>(undefined);
+  const heightUsed = computed(() => {
+    if (props.layout === 'horizontal') {
+      return 422;
+    }
+    return 422 + props.secondBoxHeight;
+  });
   const scroll = computed(() => (props.layout === 'horizontal' ? { x: '700px' } : { x: '100%' }));
-
-  watch(
-    () => props.layout,
-    (val) => {
-      heightUsed.value = val === 'horizontal' ? 422 : 422 + props.secondBoxHeight;
-    },
-    {
-      immediate: true,
-    }
-  );
-
-  watch(
-    () => props.secondBoxHeight,
-    (val) => {
-      if (props.layout === 'vertical') {
-        heightUsed.value = 422 + val;
-      }
-    },
-    {
-      immediate: true,
-    }
-  );
 
   /**
    * 批量参数代码转换为参数表格数据

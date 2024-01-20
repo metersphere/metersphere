@@ -4,12 +4,24 @@
   </a-button>
   <MsDrawer
     v-model:visible="showBatchAddParamDrawer"
-    :title="t('common.batchAdd')"
     :width="680"
     :ok-text="t('apiTestDebug.apply')"
     disabled-width-drag
     @confirm="applyBatchParams"
   >
+    <template #title>
+      {{ t('common.batchAdd') }}
+      <a-tooltip position="right">
+        <icon-exclamation-circle
+          class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
+          size="16"
+        />
+        <template #content>
+          <div>{{ t('apiTestDebug.batchAddParamsTip2') }} </div>
+          <div>{{ t('apiTestDebug.batchAddParamsTip3') }} </div>
+        </template>
+      </a-tooltip>
+    </template>
     <div class="flex h-full">
       <MsCodeEditor
         v-if="showBatchAddParamDrawer"
@@ -20,13 +32,8 @@
         :show-full-screen="false"
       >
         <template #title>
-          <div class="flex flex-col">
-            <div class="text-[12px] leading-[16px] text-[var(--color-text-4)]">
-              {{ t('apiTestDebug.batchAddParamsTip') }}
-            </div>
-            <div class="text-[12px] leading-[16px] text-[var(--color-text-4)]">
-              {{ t('apiTestDebug.batchAddParamsTip2') }}
-            </div>
+          <div class="text-[12px] leading-[16px] text-[var(--color-text-4)]">
+            {{ t('apiTestDebug.batchAddParamsTip') }}
           </div>
         </template>
       </MsCodeEditor>
@@ -74,29 +81,27 @@
    */
   function applyBatchParams() {
     const arr = batchParamsCode.value.replaceAll('\r', '\n').split('\n'); // 先将回车符替换成换行符，避免粘贴的代码是以回车符分割的，然后以换行符分割
-    const resultArr = arr
-      .map((item, i) => {
-        const [name, value] = item.split(':');
-        if (name || value) {
-          return {
-            id: new Date().getTime() + i,
-            name: name?.trim(),
-            value: value?.trim(),
-            required: false,
-            type: 'string',
-            min: undefined,
-            max: undefined,
-            contentType: RequestContentTypeEnum.TEXT,
-            desc: '',
-            encode: false,
-          };
-        }
-        return null;
-      })
-      .filter((item) => item);
+    const tempObj: Record<string, any> = {}; // 同名参数去重，保留最新的
+    for (let i = 0; i < arr.length; i++) {
+      const [name, value] = arr[i].split(':');
+      if (name) {
+        tempObj[name.trim()] = {
+          id: new Date().getTime() + i,
+          name: name.trim(),
+          value: value?.trim(),
+          required: false,
+          type: 'string',
+          min: undefined,
+          max: undefined,
+          contentType: RequestContentTypeEnum.TEXT,
+          desc: '',
+          encode: false,
+        };
+      }
+    }
     showBatchAddParamDrawer.value = false;
     batchParamsCode.value = '';
-    emit('apply', resultArr);
+    emit('apply', Object.values(tempObj));
   }
 </script>
 

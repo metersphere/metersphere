@@ -27,30 +27,35 @@
       @selected-change="handleTableSelect"
       @batch-action="handleTableBatch"
     >
-      <!-- <template #status-filter>
-        <a-checkbox-group>
-          <a-checkbox :value="0">
-            <a-tag :color="reviewStatusMap[0].color" :class="reviewStatusMap[0].class">
-              {{ t(reviewStatusMap[0].label) }}
-            </a-tag>
-          </a-checkbox>
-          <a-checkbox :value="1">
-            <a-tag :color="reviewStatusMap[1].color" :class="reviewStatusMap[1].class">
-              {{ t(reviewStatusMap[1].label) }}
-            </a-tag>
-          </a-checkbox>
-          <a-checkbox :value="2">
-            <a-tag :color="reviewStatusMap[2].color" :class="reviewStatusMap[2].class">
-              {{ t(reviewStatusMap[2].label) }}
-            </a-tag>
-          </a-checkbox>
-          <a-checkbox :value="3">
-            <a-tag :color="reviewStatusMap[3].color" :class="reviewStatusMap[3].class">
-              {{ t(reviewStatusMap[3].label) }}
-            </a-tag>
-          </a-checkbox>
-        </a-checkbox-group>
-      </template> -->
+      <template #statusFilter="{ columnConfig }">
+        <a-trigger
+          v-model:popup-visible="statusFilterVisible"
+          trigger="click"
+          @popup-visible-change="handleFilterHidden"
+        >
+          <a-button type="text" class="arco-btn-text--secondary" @click="statusFilterVisible = true">
+            {{ t(columnConfig.title as string) }}
+            <icon-down :class="statusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
+          </a-button>
+          <template #content>
+            <div class="arco-table-filters-content">
+              <div class="flex items-center justify-center px-[6px] py-[2px]">
+                <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
+                  <a-checkbox v-for="key of Object.keys(reviewStatusMap)" :key="key" :value="key">
+                    <a-tag
+                      :color="reviewStatusMap[key].color"
+                      :class="[reviewStatusMap[key].class, 'px-[4px]']"
+                      size="small"
+                    >
+                      {{ t(reviewStatusMap[key].label) }}
+                    </a-tag>
+                  </a-checkbox>
+                </a-checkbox-group>
+              </div>
+            </div>
+          </template>
+        </a-trigger>
+      </template>
       <template #passRateColumn>
         <div class="flex items-center text-[var(--color-text-3)]">
           {{ t('caseManagement.caseReview.passRate') }}
@@ -164,7 +169,7 @@
   import ModuleTree from './moduleTree.vue';
 
   import { getReviewList, getReviewUsers } from '@/api/modules/case-management/caseReview';
-  import { reviewStatusMap } from '@/config/apiTest';
+  import { reviewStatusMap } from '@/config/caseManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
@@ -330,7 +335,6 @@
       console.log(error);
     }
   });
-
   const columns: MsTableColumn = [
     {
       title: 'ID',
@@ -357,6 +361,7 @@
       title: 'caseManagement.caseReview.status',
       dataIndex: 'status',
       slotName: 'status',
+      titleSlotName: 'statusFilter',
       width: 150,
     },
     {
@@ -412,7 +417,7 @@
       slotName: 'action',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 140,
+      width: 150,
     },
   ];
   const tableStore = useTableStore();
@@ -445,6 +450,8 @@
     ],
   };
 
+  const statusFilterVisible = ref(false);
+  const statusFilters = ref<string[]>(Object.keys(reviewStatusMap));
   const tableQueryParams = ref<any>();
   function searchReview(filter?: FilterResult) {
     const params = {
@@ -453,6 +460,7 @@
       moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
       createByMe: props.showType === 'createByMe' ? userStore.id : undefined,
       reviewByMe: props.showType === 'reviewByMe' ? userStore.id : undefined,
+      filter: { status: statusFilters.value },
       combine: filter
         ? {
             ...filter.combine,
@@ -481,6 +489,12 @@
       searchReview();
     }
   );
+
+  function handleFilterHidden(val: boolean) {
+    if (!val) {
+      searchReview();
+    }
+  }
 
   const tableSelected = ref<(string | number)[]>([]);
   const batchParams = ref<BatchActionQueryParams>({
@@ -663,3 +677,4 @@
 </script>
 
 <style lang="less" scoped></style>
+@/config/caseManagement
