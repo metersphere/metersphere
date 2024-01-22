@@ -437,23 +437,6 @@ CREATE TABLE IF NOT EXISTS api_scenario_report_log(
 
 CREATE INDEX idx_report_id ON api_scenario_report_log(report_id);
 
-CREATE TABLE IF NOT EXISTS api_sync_config(
-  `id` VARCHAR(50) NOT NULL   COMMENT '' ,
-  `resource_id` VARCHAR(50) NOT NULL   COMMENT 'API/CASE 来源fk' ,
-  `resource_type` VARCHAR(50) NOT NULL   COMMENT '来源类型/API/CASE' ,
-  `hide` BIT(1)   DEFAULT 0 COMMENT '是否隐藏' ,
-  `rule_config` LONGTEXT    COMMENT '同步规则' ,
-  `notify_case_creator` BIT(1) NOT NULL  DEFAULT 1 COMMENT '是否通知用例创建人' ,
-  `notify_scenario_creator` BIT(1) NOT NULL  DEFAULT 1 COMMENT '是否通知场景创建人' ,
-  `sync_enable` BIT(1) NOT NULL  DEFAULT 0 COMMENT '是否同步用例' ,
-  `notice_enable` BIT(1)   DEFAULT 0 COMMENT '是否发送通知' ,
-  PRIMARY KEY (id)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_general_ci COMMENT = '接口同步用例配置';
-
-
-CREATE INDEX idx_resource_id ON api_sync_config(resource_id);
 
 CREATE TABLE IF NOT EXISTS api_test_case
 (

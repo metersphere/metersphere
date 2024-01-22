@@ -1,6 +1,7 @@
 package io.metersphere.api.service.scenario;
 
 import io.metersphere.api.domain.ApiScenarioReport;
+import io.metersphere.api.mapper.ApiScenarioReportMapper;
 import io.metersphere.api.mapper.ExtApiScenarioReportMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
@@ -26,15 +27,18 @@ public class ApiScenarioReportLogService {
     private OperationLogService operationLogService;
     @Resource
     private ExtApiScenarioReportMapper extApiScenarioReportMapper;
+    @Resource
+    private ApiScenarioReportMapper apiScenarioReportMapper;
 
 
-    public void deleteLog(ApiScenarioReport scenarioReport) {
+    public void deleteLog(String id) {
+        ApiScenarioReport scenarioReport = apiScenarioReportMapper.selectByPrimaryKey(id);
         Project project = projectMapper.selectByPrimaryKey(scenarioReport.getProjectId());
         LogDTO dto = new LogDTO(
                 scenarioReport.getProjectId(),
                 project.getOrganizationId(),
                 scenarioReport.getId(),
-                scenarioReport.getUpdateUser(),
+                null,
                 OperationLogType.DELETE.name(),
                 OperationLogModule.API_REPORT,
                 scenarioReport.getName());
@@ -45,13 +49,14 @@ public class ApiScenarioReportLogService {
         operationLogService.add(dto);
     }
 
-    public void updateLog(ApiScenarioReport scenarioReport) {
+    public void updateLog(String id) {
+        ApiScenarioReport scenarioReport = apiScenarioReportMapper.selectByPrimaryKey(id);
         Project project = projectMapper.selectByPrimaryKey(scenarioReport.getProjectId());
         LogDTO dto = new LogDTO(
                 scenarioReport.getProjectId(),
                 project.getOrganizationId(),
                 scenarioReport.getId(),
-                scenarioReport.getUpdateUser(),
+                null,
                 OperationLogType.UPDATE.name(),
                 OperationLogModule.API_REPORT,
                 scenarioReport.getName());

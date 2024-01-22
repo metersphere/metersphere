@@ -100,7 +100,6 @@ public class ApiScenarioReportService {
         apiScenarioReport.setUpdateTime(System.currentTimeMillis());
         apiScenarioReport.setUpdateUser(userId);
         apiScenarioReportMapper.updateByPrimaryKeySelective(apiScenarioReport);
-        apiScenarioReportLogService.updateLog(apiScenarioReport);
     }
 
     public void delete(String id, String userId) {
@@ -109,7 +108,6 @@ public class ApiScenarioReportService {
         scenarioReport.setDeleteTime(System.currentTimeMillis());
         scenarioReport.setDeleteUser(userId);
         apiScenarioReportMapper.updateByPrimaryKeySelective(scenarioReport);
-        apiScenarioReportLogService.deleteLog(scenarioReport);
     }
 
     private ApiScenarioReport checkResource(String id) {

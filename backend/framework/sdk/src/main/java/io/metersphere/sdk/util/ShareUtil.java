@@ -3,6 +3,7 @@ package io.metersphere.sdk.util;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
@@ -46,5 +47,33 @@ public class ShareUtil {
             date = localDateTime.plusYears(quantity);
         }
         return date;
+    }
+
+    public static long getCleanDate(String expr) {
+        LocalDate date = null;
+        LocalDate localDate = LocalDate.now();
+        long timeMills = 0;
+        if (StringUtils.isNotBlank(expr)) {
+            try {
+                String unit = expr.substring(expr.length() - 1);
+                int quantity = Integer.parseInt(expr.substring(0, expr.length() - 1));
+                if (StringUtils.equals(unit, UNIT_DAY)) {
+                    date = localDate.minusDays(quantity);
+                } else if (StringUtils.equals(unit, UNIT_MONTH)) {
+                    date = localDate.minusMonths(quantity);
+                } else if (StringUtils.equals(unit, UNIT_YEAR)) {
+                    date = localDate.minusYears(quantity);
+                } else {
+                    LogUtils.error("clean up expr parse error. expr : " + expr);
+                }
+            } catch (Exception e) {
+                LogUtils.error(e.getMessage(), e);
+                LogUtils.error("clean up job. get clean date error.");
+            }
+        }
+        if (date != null) {
+            timeMills = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        }
+        return timeMills;
     }
 }

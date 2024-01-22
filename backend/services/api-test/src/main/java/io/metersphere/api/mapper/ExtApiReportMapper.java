@@ -16,4 +16,11 @@ public interface ExtApiReportMapper {
     List<ApiReport> selectApiReportByIds(@Param("ids") List<String> ids, @Param("deleted") boolean deleted);
 
     List<ApiReportStepDTO> selectStepsByReportId(String id);
+
+    List<String> selectApiReportByProjectId(String projectId);
+
+    List<String> selectApiReportByProjectIdAndTime(@Param("time") long time, @Param("projectId") String projectId);
+
+    int selectApiReportByTime(@Param("time") long time, @Param("projectId") String projectId);
+
 }

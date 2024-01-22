@@ -80,6 +80,7 @@ public class ApiTestCaseLogService {
         dto.setPath("/api/case/delete/" + id);
         dto.setMethod(HttpMethodConstants.GET.name());
         dto.setOriginalValue(JSON.toJSONBytes(apiTestCase));
+        operationLogService.deleteBySourceIds(List.of(id));
         return dto;
     }
 
@@ -220,6 +221,7 @@ public class ApiTestCaseLogService {
                 }
         );
         operationLogService.batchAdd(logs);
+        operationLogService.deleteBySourceIds(apiTestCases.stream().map(ApiTestCase::getId).toList());
     }
 
     public void batchToGcLog(List<ApiTestCase> apiTestCases, String operator, String projectId) {
