@@ -162,6 +162,7 @@ public class EnvironmentService {
         environmentInfoDTO.setProjectId(environment.getProjectId());
         environmentInfoDTO.setName(environment.getName());
         environmentInfoDTO.setId(environment.getId());
+        environmentInfoDTO.setMock(environment.getMock());
         EnvironmentBlob environmentBlob = environmentBlobMapper.selectByPrimaryKey(environmentId);
         if (environmentBlob == null) {
             environmentInfoDTO.setConfig(new EnvironmentConfig());
