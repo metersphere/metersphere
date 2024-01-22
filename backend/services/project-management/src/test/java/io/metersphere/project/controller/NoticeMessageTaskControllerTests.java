@@ -624,7 +624,7 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
                 for (MessageTaskDetailDTO messageTaskDetailDTO : messageTaskDetailDTOList) {
                     String event = messageTaskDetailDTO.getEvent();
                     List<OptionDTO> receivers = messageTaskDetailDTO.getReceivers();
-                    if (StringUtils.equalsIgnoreCase(event, NoticeConstants.Event.CREATE) || StringUtils.equalsIgnoreCase(event, NoticeConstants.Event.CASE_CREATE) || CollectionUtils.isEmpty(receivers)) {
+                    if (StringUtils.equalsIgnoreCase(event, NoticeConstants.Event.CREATE) || StringUtils.equalsIgnoreCase(event, NoticeConstants.Event.CASE_CREATE) || StringUtils.equalsIgnoreCase(event, NoticeConstants.Event.MOCK_CREATE) || CollectionUtils.isEmpty(receivers)) {
                         continue;
                     }
                     for (OptionDTO receiver : receivers) {
