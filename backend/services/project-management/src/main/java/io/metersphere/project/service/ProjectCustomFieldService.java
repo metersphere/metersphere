@@ -52,7 +52,7 @@ public class ProjectCustomFieldService extends BaseCustomFieldService {
         CustomField originCustomField = getWithCheck(customField.getId());
         if (originCustomField.getInternal()) {
             // 内置字段不能修改名字
-            originCustomField.setName(null);
+            customField.setName(null);
         }
         customField.setScopeId(originCustomField.getScopeId());
         Project project = projectService.checkResourceExist(originCustomField.getScopeId());

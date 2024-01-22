@@ -177,10 +177,13 @@ public class ProjectCustomFieldControllerTests extends BaseTest {
         }
 
         CustomFieldExample example = new CustomFieldExample();
-        example.createCriteria().andScopeIdEqualTo(DEFAULT_PROJECT_ID).andInternalEqualTo(true);
-        request = BeanUtils.copyBean(request, customFieldMapper.selectByExample(example).get(0));
-        this.requestPostWithOk(DEFAULT_UPDATE, request);
+        example.createCriteria().andScopeIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("functional_priority");
+        CustomFieldUpdateRequest internalRequest = BeanUtils.copyBean(new CustomFieldUpdateRequest(), customFieldMapper.selectByExample(example).get(0));
+        internalRequest.setName("aaaa");
+        this.requestPostWithOk(DEFAULT_UPDATE, internalRequest);
         Assertions.assertEquals(customFieldMapper.selectByExample(example).get(0).getInternal(), true);
+        // 内置字段名称不能修改
+        Assertions.assertEquals(customFieldMapper.selectByExample(example).get(0).getName(), "functional_priority");
 
         // @校验是否开启项目模板
         changeOrgTemplateEnable(true);
