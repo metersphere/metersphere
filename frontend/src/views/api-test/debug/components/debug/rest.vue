@@ -23,8 +23,8 @@
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
 
-  import paramTable, { type ParamTableColumn } from '../../../components/paramTable.vue';
   import batchAddKeyVal from './batchAddKeyVal.vue';
+  import paramTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 

@@ -75,6 +75,7 @@ export default {
   'common.collapseAll': '收起全部',
   'common.expandAll': '展开全部',
   'common.copy': '复制',
+  'common.copySuccess': '复制成功',
   'common.fork': '关注',
   'common.forked': '已关注',
   'common.more': '更多',
@@ -98,4 +99,6 @@ export default {
   'common.revoke': '撤销',
   'common.clear': '清空',
   'common.tag': '标签',
+  'common.success': '成功',
+  'common.fail': '失败',
 };

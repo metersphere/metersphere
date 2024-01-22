@@ -11,3 +11,15 @@ export interface ExpressionConfig {
   specifyMatchNum?: number; // 指定匹配下标
   xmlMatchContentType?: 'xml' | 'html'; // 响应内容格式
 }
+// 响应时间信息
+export interface ResponseTiming {
+  ready: number;
+  socketInit: number;
+  dnsQuery: number;
+  tcpHandshake: number;
+  sslHandshake: number;
+  waitingTTFB: number;
+  downloadContent: number;
+  deal: number;
+  total: number;
+}

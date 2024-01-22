@@ -1,7 +1,7 @@
 <template>
   <condition
     v-model:list="postConditions"
-    :condition-types="['script', 'sql', 'waitTime', 'extract']"
+    :condition-types="['script', 'sql', 'extract']"
     add-text="apiTestDebug.postCondition"
     :response="props.response"
     :height-used="heightUsed"
@@ -23,7 +23,7 @@
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
 
-  import condition from '../../../components/condition/index.vue';
+  import condition from '@/views/api-test/components/condition/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 

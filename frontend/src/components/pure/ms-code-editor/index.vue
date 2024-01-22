@@ -1,14 +1,22 @@
 <template>
   <div ref="fullRef" class="h-full rounded-[4px] bg-[var(--color-fill-1)] p-[12px]">
-    <div v-if="showTitleLine" class="mb-[12px] flex items-center justify-between pr-[12px]">
-      <div>
+    <div v-if="showTitleLine" class="mb-[12px] flex items-center justify-between">
+      <div class="flex flex-wrap gap-[4px]">
         <a-select
           v-if="showLanguageChange"
           v-model:model-value="currentLanguage"
           :options="languageOptions"
-          class="mr-[4px] w-[100px]"
+          class="w-[100px]"
           size="small"
           @change="(val) => handleLanguageChange(val as Language)"
+        />
+        <a-select
+          v-if="showCharsetChange"
+          v-model:model-value="currentCharset"
+          :options="charsetOptions"
+          class="w-[100px]"
+          size="small"
+          @change="(val) => handleCharsetChange(val as string)"
         />
         <a-select
           v-if="showThemeChange"
@@ -34,9 +42,9 @@
         </div>
       </div>
     </div>
-    <!-- 这里的 32px 是顶部标题的 32px -->
-    <div :class="`flex ${showTitleLine ? 'h-[calc(100%-32px)]' : 'h-full'} w-full flex-row`">
-      <div ref="codeEditBox" :class="['ms-code-editor', isFullscreen ? 'ms-code-editor-full-screen' : '']"></div>
+    <!-- 这里的 40px 是顶部标题的 40px -->
+    <div :class="`flex ${showTitleLine ? 'h-[calc(100%-40px)]' : 'h-full'} w-full flex-row`">
+      <div ref="codeContainerRef" :class="['ms-code-editor', isFullscreen ? 'ms-code-editor-full-screen' : '']"></div>
       <slot name="rightBox"> </slot>
     </div>
   </div>
@@ -46,7 +54,9 @@
   import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
   import { useFullscreen } from '@vueuse/core';
 
+  import { codeCharset } from '@/config/apiTest';
   import { useI18n } from '@/hooks/useI18n';
+  import { decodeStringToCharset } from '@/utils';
 
   import './userWorker';
   import MsCodeEditorTheme from './themes';
@@ -59,9 +69,34 @@
     emits: ['update:modelValue', 'change'],
     setup(props, { emit }) {
       const { t } = useI18n();
+      // 编辑器实例，每次调用组件都会创建独立的实例
       let editor: monaco.editor.IStandaloneCodeEditor;
 
-      const codeEditBox = ref();
+      const codeContainerRef = ref();
+
+      const init = () => {
+        // 注册自定义主题
+        Object.keys(MsCodeEditorTheme).forEach((e) => {
+          monaco.editor.defineTheme(e, MsCodeEditorTheme[e as CustomTheme]);
+        });
+        editor = monaco.editor.create(codeContainerRef.value, {
+          value: props.modelValue,
+          automaticLayout: true,
+          padding: {
+            top: 12,
+            bottom: 12,
+          },
+          ...props,
+        });
+
+        // 监听值的变化
+        editor.onDidBlurEditorText(() => {
+          const value = editor.getValue(); // 给父组件实时返回最新文本
+          emit('update:modelValue', value);
+          emit('change', value);
+        });
+      };
+
       // 用于全屏的容器 ref
       const fullRef = ref<HTMLElement | null>();
       // 当前主题
@@ -77,6 +112,12 @@
           value: item,
         }))
       );
+      function handleThemeChange(val: Theme) {
+        editor.updateOptions({
+          theme: val,
+        });
+      }
+
       // 当前语言
       const currentLanguage = ref<Language>(props.language);
       // 语言选项
@@ -98,10 +139,29 @@
           };
         })
         .filter(Boolean) as { label: string; value: Language }[];
+      function handleLanguageChange(val: Language) {
+        monaco.editor.setModelLanguage(editor.getModel()!, val);
+      }
+
+      // 当前字符集
+      const currentCharset = ref('UTF-8');
+      // 字符集选项
+      const charsetOptions = codeCharset.map((e) => ({
+        label: e,
+        value: e,
+      }));
+      function handleCharsetChange(val: string) {
+        editor.setValue(decodeStringToCharset(props.modelValue, val));
+      }
 
       // 是否显示标题栏
       const showTitleLine = computed(
-        () => props.title || props.showThemeChange || props.showLanguageChange || props.showFullScreen
+        () =>
+          props.title ||
+          props.showThemeChange ||
+          props.showLanguageChange ||
+          props.showCharsetChange ||
+          props.showFullScreen
       );
 
       watch(
@@ -111,33 +171,6 @@
         }
       );
 
-      function handleThemeChange(val: Theme) {
-        monaco.editor.setTheme(val);
-      }
-
-      function handleLanguageChange(val: Language) {
-        monaco.editor.setModelLanguage(editor.getModel()!, val);
-      }
-
-      const init = () => {
-        // 注册自定义主题
-        Object.keys(MsCodeEditorTheme).forEach((e) => {
-          monaco.editor.defineTheme(e, MsCodeEditorTheme[e as CustomTheme]);
-        });
-        editor = monaco.editor.create(codeEditBox.value, {
-          value: props.modelValue,
-          automaticLayout: true,
-          ...props,
-        });
-
-        // 监听值的变化
-        editor.onDidBlurEditorText(() => {
-          const value = editor.getValue(); // 给父组件实时返回最新文本
-          emit('update:modelValue', value);
-          emit('change', value);
-        });
-      };
-
       const setEditBoxBg = () => {
         const codeBgEl = document.querySelector('.monaco-editor-background');
         if (codeBgEl) {
@@ -146,7 +179,7 @@
 
           // 获取背景颜色
           const { backgroundColor } = computedStyle;
-          codeEditBox.value.style.backgroundColor = backgroundColor;
+          codeContainerRef.value.style.backgroundColor = backgroundColor;
         }
       };
 
@@ -222,18 +255,21 @@
       });
 
       return {
-        codeEditBox,
+        codeContainerRef,
         fullRef,
         isFullscreen,
         currentTheme,
         themeOptions,
         currentLanguage,
         languageOptions,
+        currentCharset,
+        charsetOptions,
         showTitleLine,
         toggle,
         t,
         handleThemeChange,
         handleLanguageChange,
+        handleCharsetChange,
         insertContent,
         undo,
         redo,
@@ -244,11 +280,11 @@
 
 <style lang="less" scoped>
   .ms-code-editor {
-    @apply z-10;
+    @apply z-10 overflow-hidden;
 
-    padding: 16px 0;
     width: v-bind(width);
     height: v-bind(height);
+    border-radius: var(--border-radius-small);
     &[data-mode-id='plaintext'] {
       :deep(.mtk1) {
         color: rgb(var(--primary-5));

@@ -1,17 +1,18 @@
 <template>
   <div class="border-b border-[var(--color-text-n8)] p-[24px_24px_16px_24px]">
     <MsEditableTab
-      v-model:active-tab="activeTab"
-      :tabs="debugTabs"
+      v-model:active-tab="activeRequestTab"
+      v-model:tabs="debugTabs"
       :more-action-list="moreActionList"
+      at-least-one
       @add="addDebugTab"
       @close="closeDebugTab"
       @change="setActiveDebug"
+      @more-action-select="handleMoreActionSelect"
     >
       <template #label="{ tab }">
         <apiMethodName :method="tab.method" class="mr-[4px]" />
         {{ tab.label }}
-        <div v-if="tab.unSave" class="ml-[8px] h-[8px] w-[8px] rounded-full bg-[rgb(var(--primary-5))]"></div>
       </template>
     </MsEditableTab>
   </div>
@@ -34,7 +35,7 @@
             </a-option>
           </a-select>
           <a-input
-            v-model:model-value="debugUrl"
+            v-model:model-value="activeDebug.url"
             :placeholder="t('apiTestDebug.urlPlaceholder')"
             @change="handleActiveDebugChange"
           />
@@ -129,65 +130,89 @@
         </div>
       </template>
       <template #second>
-        <div class="min-w-[290px] bg-[var(--color-text-n9)] p-[8px_16px]">
-          <div class="flex items-center">
-            <template v-if="activeLayout === 'vertical'">
-              <MsButton
-                v-if="isExpanded"
-                type="icon"
-                class="!mr-0 !rounded-full bg-[rgb(var(--primary-1))]"
-                @click="changeExpand(false)"
-              >
-                <icon-down :size="12" />
-              </MsButton>
-              <MsButton v-else type="icon" status="secondary" class="!mr-0 !rounded-full" @click="changeExpand(true)">
-                <icon-right :size="12" />
-              </MsButton>
-            </template>
-            <div class="ml-[4px] mr-[24px] font-medium">{{ t('apiTestDebug.responseContent') }}</div>
-            <a-radio-group
-              v-model:model-value="activeLayout"
-              type="button"
-              size="small"
-              @change="handleActiveLayoutChange"
-            >
-              <a-radio value="vertical">{{ t('apiTestDebug.vertical') }}</a-radio>
-              <a-radio value="horizontal">{{ t('apiTestDebug.horizontal') }}</a-radio>
-            </a-radio-group>
-          </div>
-        </div>
-        <div class="p-[16px]"></div>
+        <response
+          v-model:active-layout="activeLayout"
+          v-model:active-tab="activeDebug.responseActiveTab"
+          :is-expanded="isExpanded"
+          :response="activeDebug.response"
+          @change-expand="changeExpand"
+          @change-layout="handleActiveLayoutChange"
+        />
       </template>
     </MsSplitBox>
   </div>
+  <a-modal
+    v-model:visible="saveModalVisible"
+    :title="t('common.save')"
+    :ok-loading="saveLoading"
+    class="ms-modal-form"
+    title-align="start"
+    body-class="!p-0"
+    @before-ok="handleSave"
+  >
+    <a-form ref="saveModalFormRef" :model="saveModalForm" layout="vertical">
+      <a-form-item
+        field="name"
+        :label="t('apiTestDebug.requestName')"
+        :rules="[{ required: true, message: t('apiTestDebug.requestNameRequired') }]"
+        asterisk-position="end"
+      >
+        <a-input v-model:model-value="saveModalForm.name" :placeholder="t('apiTestDebug.requestNamePlaceholder')" />
+      </a-form-item>
+      <a-form-item
+        field="url"
+        :label="t('apiTestDebug.requestUrl')"
+        :rules="[{ required: true, message: t('apiTestDebug.requestUrlRequired') }]"
+        asterisk-position="end"
+      >
+        <a-input v-model:model-value="saveModalForm.url" :placeholder="t('apiTestDebug.commonPlaceholder')" />
+      </a-form-item>
+      <a-form-item :label="t('apiTestDebug.requestModule')" class="mb-0">
+        <a-tree-select
+          v-model:modelValue="saveModalForm.module"
+          :data="props.moduleTree"
+          :field-names="{ title: 'name', key: 'id', children: 'children' }"
+          allow-search
+        />
+      </a-form-item>
+    </a-form>
+  </a-modal>
 </template>
 
 <script setup lang="ts">
+  import { FormInstance, Message } from '@arco-design/web-vue';
   import { cloneDeep, debounce } from 'lodash-es';
 
-  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
-  import apiMethodName from '../../../components/apiMethodName.vue';
+  import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import debugAuth from './auth.vue';
   import debugBody, { BodyParams } from './body.vue';
   import debugHeader from './header.vue';
   import postcondition from './postcondition.vue';
   import precondition from './precondition.vue';
   import debugQuery from './query.vue';
+  import response from './response.vue';
   import debugRest from './rest.vue';
   import debugSetting from './setting.vue';
+  import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
 
   import { useI18n } from '@/hooks/useI18n';
   import { registerCatchSaveShortcut, removeCatchSaveShortcut } from '@/utils/event';
 
-  import { RequestBodyFormat, RequestComposition, RequestMethods } from '@/enums/apiEnum';
+  import type { ModuleTreeNode } from '@/models/projectManagement/file';
+  import { RequestBodyFormat, RequestComposition, RequestMethods, ResponseComposition } from '@/enums/apiEnum';
+
+  const props = defineProps<{
+    module: string; // 当前激活的接口模块
+    moduleTree: ModuleTreeNode[]; // 接口模块树
+  }>();
 
   const { t } = useI18n();
 
   const initDefaultId = `debug-${Date.now()}`;
-  const activeTab = ref<string | number>(initDefaultId);
+  const activeRequestTab = ref<string | number>(initDefaultId);
   const defaultBodyParams: BodyParams = {
     format: RequestBodyFormat.NONE,
     formData: [],
@@ -201,12 +226,14 @@
   };
   const defaultDebugParams = {
     id: initDefaultId,
+    module: 'root',
     moduleProtocol: 'http',
+    url: '',
     activeTab: RequestComposition.HEADER,
     label: t('apiTestDebug.newApi'),
     closable: true,
     method: RequestMethods.GET,
-    unSave: false,
+    unSaved: false,
     headerParams: [],
     bodyParams: cloneDeep(defaultBodyParams),
     queryParams: [],
@@ -224,81 +251,74 @@
       certificateAlias: '',
       redirect: 'follow',
     },
+    responseActiveTab: ResponseComposition.BODY,
     response: {
       status: 200,
       headers: [],
-      body: `{
-	"type": "team",
-	"test": {
-		"testPage": "tools/testing/run-tests.htm",
-		"enabled": true
-	},
-    "search": {
-        "excludeFolders": [
-			".git",
-			"node_modules",
-			"tools/bin",
-			"tools/counts",
-			"tools/policheck",
-			"tools/tfs_build_extensions",
-			"tools/testing/jscoverage",
-			"tools/testing/qunit",
-			"tools/testing/chutzpah",
-			"server.net"
-        ]
-    },
-	"languages": {
-		"vs.languages.typescript": {
-			"validationSettings": [{
-				"scope":"/",
-				"noImplicitAny":true,
-				"noLib":false,
-				"extraLibs":[],
-				"semanticValidation":true,
-				"syntaxValidation":true,
-				"codeGenTarget":"ES5",
-				"moduleGenTarget":"",
-				"lint": {
-                    "emptyBlocksWithoutComment": "warning",
-                    "curlyBracketsMustNotBeOmitted": "warning",
-                    "comparisonOperatorsNotStrict": "warning",
-                    "missingSemicolon": "warning",
-                    "unknownTypeOfResults": "warning",
-                    "semicolonsInsteadOfBlocks": "warning",
-                    "functionsInsideLoops": "warning",
-                    "functionsWithoutReturnType": "warning",
-                    "tripleSlashReferenceAlike": "warning",
-                    "unusedImports": "warning",
-                    "unusedVariables": "warning",
-                    "unusedFunctions": "warning",
-                    "unusedMembers": "warning"
-                }
-			}, 
-			{
-				"scope":"/client",
-				"baseUrl":"/client",
-				"moduleGenTarget":"amd"
-			},
-			{
-				"scope":"/server",
-				"moduleGenTarget":"commonjs"
-			},
-			{
-				"scope":"/build",
-				"moduleGenTarget":"commonjs"
-			},
-			{
-				"scope":"/node_modules/nake",
-				"moduleGenTarget":"commonjs"
-			}],
-			"allowMultipleWorkers": true
-		}
-	}
-}`,
+      timing: 12938,
+      size: 8734,
+      env: 'Mock',
+      resource: '66',
+      timingInfo: {
+        ready: 10,
+        socketInit: 50,
+        dnsQuery: 20,
+        tcpHandshake: 80,
+        sslHandshake: 40,
+        waitingTTFB: 30,
+        downloadContent: 10,
+        deal: 10,
+        total: 250,
+      },
+      extract: {
+        a: 'asdasd',
+        b: 'asdasdasd43f43',
+      },
+      console: `GET https://qa-release.fit2cloud.com/test`,
+      content: `请求地址:
+https://qa-release.fit2cloud.com/test
+请求头:
+Connection: keep-alive
+Content-Length: 0
+Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+Host: qa-release.fit2cloud.com
+User-Agent: Apache-HttpClient/4.5.14 (Java/17.0.9)
+
+Body:
+POST https://qa-release.fit2cloud.com/test
+
+POST data:
+
+
+[no cookies]
+`,
+      header: `HTTP/ 1.1 200 OK 
+Content-Length: 2381 
+Content-Type: text/html 
+Server: bfe 
+Date: Wed, 13 Dec 2023 08:53:25 GMTHTTP/ 1.1 200 OK 
+Content-Length: 2381 
+Content-Type: text/html 
+Server: bfe 
+Date: Wed, 13 Dec 2023 08:53:25 GMT`,
+      body: `<?xml version="1.0"?>
+<configuration xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+  <connectionStrings>
+    <add name="MyDB" 
+      connectionString="value for the deployed Web.config file" 
+      xdt:Transform="SetAttributes" xdt:Locator="Match(name)"/>
+  </connectionStrings>
+  <a>哈哈哈哈哈哈哈</a>
+  <system.web>
+    <customErrors defaultRedirect="GenericError.htm"
+      mode="RemoteOnly" xdt:Transform="Replace">
+      <error statusCode="500" redirect="InternalError.htm"/>
+    </customErrors>
+  </system.web>
+</configuration>`,
     }, // 调试返回的响应内容
   };
   const debugTabs = ref<TabItem[]>([cloneDeep(defaultDebugParams)]);
-  const debugUrl = ref('');
   const activeDebug = ref<TabItem>(debugTabs.value[0]);
 
   function setActiveDebug(item: TabItem) {
@@ -306,36 +326,39 @@
   }
 
   function handleActiveDebugChange() {
-    activeDebug.value.unSave = true;
+    activeDebug.value.unSaved = true;
   }
 
   function addDebugTab() {
     const id = `debug-${Date.now()}`;
     debugTabs.value.push({
       ...cloneDeep(defaultDebugParams),
+      module: props.module,
       id,
     });
-    activeTab.value = id;
+    activeRequestTab.value = id;
   }
 
   function closeDebugTab(tab: TabItem) {
     const index = debugTabs.value.findIndex((item) => item.id === tab.id);
     debugTabs.value.splice(index, 1);
-    if (activeTab.value === tab.id) {
-      activeTab.value = debugTabs.value[0]?.id || '';
+    if (activeRequestTab.value === tab.id) {
+      activeRequestTab.value = debugTabs.value[0]?.id || '';
     }
   }
 
   const moreActionList = [
     {
-      key: 'add',
-      label: t('common.add'),
-    },
-    {
-      key: 'delete',
-      label: t('common.delete'),
+      eventTag: 'closeOther',
+      label: t('apiTestDebug.closeOther'),
     },
   ];
+
+  function handleMoreActionSelect(event: ActionsItem) {
+    if (event.eventTag === 'closeOther') {
+      debugTabs.value = debugTabs.value.filter((item) => item.id === activeRequestTab.value);
+    }
+  }
 
   const contentTabList = [
     {
@@ -427,16 +450,60 @@
     splitBoxRef.value?.expand(0.6);
   }
 
-  function saveDebug() {
-    activeDebug.value.unSave = false;
+  const saveModalVisible = ref(false);
+  const saveModalForm = ref({
+    name: '',
+    url: activeDebug.value.url,
+    module: activeDebug.value.module,
+  });
+  const saveModalFormRef = ref<FormInstance>();
+  const saveLoading = ref(false);
+
+  watch(
+    () => saveModalVisible.value,
+    (val) => {
+      if (!val) {
+        saveModalFormRef.value?.resetFields();
+      }
+    }
+  );
+
+  function handleSaveShortcut() {
+    saveModalForm.value = {
+      name: '',
+      url: activeDebug.value.url,
+      module: activeDebug.value.module,
+    };
+    saveModalVisible.value = true;
+  }
+
+  function handleSave(done: (closed: boolean) => void) {
+    saveModalFormRef.value?.validate(async (errors) => {
+      if (!errors) {
+        try {
+          saveLoading.value = true;
+          // eslint-disable-next-line no-promise-executor-return
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+          saveLoading.value = false;
+          saveModalVisible.value = false;
+          done(true);
+          activeDebug.value.unSaved = false;
+          Message.success(t('common.saveSuccess'));
+        } catch (error) {
+          saveLoading.value = false;
+        }
+      } else {
+        done(false);
+      }
+    });
   }
 
   onMounted(() => {
-    registerCatchSaveShortcut(saveDebug);
+    registerCatchSaveShortcut(handleSaveShortcut);
   });
 
   onBeforeUnmount(() => {
-    removeCatchSaveShortcut(saveDebug);
+    removeCatchSaveShortcut(handleSaveShortcut);
   });
 
   defineExpose({

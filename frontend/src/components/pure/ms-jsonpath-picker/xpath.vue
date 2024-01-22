@@ -1,24 +1,31 @@
 <template>
-  <div v-if="parsedXml" class="container">
-    <div v-for="(node, index) in flattenedXml" :key="index">
-      <span style="white-space: pre" @click="copyXPath(node.xpath)" v-html="node.content"></span>
+  <div>
+    <div v-if="parsedXml" class="container">
+      <div v-for="(node, index) in flattenedXml" :key="index">
+        <span style="white-space: pre" @click="copyXPath(node.xpath)" v-html="node.content"></span>
+      </div>
     </div>
+    <div v-if="!isValidXml">{{ t('ms.jsonpathPicker.xmlNotValid') }}</div>
   </div>
 </template>
 
 <script setup lang="ts">
+  import { useI18n } from '@/hooks/useI18n';
+
   import { XpathNode } from './types';
   import * as XmlBeautify from 'xml-beautify';
 
   const props = defineProps<{
     xmlString: string;
   }>();
-
   const emit = defineEmits(['pick']);
+
+  const { t } = useI18n();
 
   const parsedXml = ref<Document | null>(null);
   const flattenedXml = ref<XpathNode[]>([]);
   const tempXmls = ref<XpathNode[]>([]);
+  const isValidXml = ref(true); // 是否是合法的xml
 
   /**
    * 获取同名兄弟节点
@@ -68,6 +75,7 @@
       emit('pick', xpath);
     }
   }
+
   /**
    * 解析xml
    */
@@ -75,6 +83,12 @@
     try {
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(props.xmlString, 'application/xml');
+      // 如果存在 parsererror 元素，说明 XML 不合法
+      const errors = xmlDoc.getElementsByTagName('parsererror');
+      if (errors.length > 0) {
+        isValidXml.value = false;
+        return;
+      }
       parsedXml.value = xmlDoc;
       // 先将 XML 字符串格式化，然后解析转换并给每个开始标签加上复制 icon
       flattenedXml.value = new XmlBeautify({ parser: DOMParser })
@@ -88,7 +102,7 @@
       flattenXml(xmlDoc.documentElement, '');
       // 将扁平化后的 XML 字符串中的每个节点的 xpath 替换为真实的 xpath
       flattenedXml.value = flattenedXml.value.map((e) => {
-        const targetNodeIndex = tempXmls.value.findIndex((t) => e.content.includes(`&lt;${t.content}`));
+        const targetNodeIndex = tempXmls.value.findIndex((txt) => e.content.includes(`&lt;${txt.content}`));
         if (targetNodeIndex >= 0) {
           const { xpath } = tempXmls.value[targetNodeIndex];
           tempXmls.value.splice(targetNodeIndex, 1); // 匹配成功后，将匹配到的节点从 tempXmls 中删除，避免重复匹配

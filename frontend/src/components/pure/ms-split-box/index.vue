@@ -67,12 +67,14 @@
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
 
+  export type Direction = 'horizontal' | 'vertical';
+
   const props = withDefaults(
     defineProps<{
       size?: number | string; // 左侧宽度/顶部容器高度。expandDirection为 right 时，size 也是左侧容器宽度，所以想要缩小右侧容器宽度只需要将 size 调大即可
       min?: number | string;
       max?: number | string;
-      direction?: 'horizontal' | 'vertical';
+      direction?: Direction;
       expandDirection?: 'left' | 'right' | 'top'; // TODO: 未实现 bottom，有场景再补充。目前默认水平是 left，垂直是 top
       disabled?: boolean; // 是否禁用
       firstContainerClass?: string; // first容器类名
@@ -214,7 +216,9 @@
       @apply h-full bg-white;
     }
     .vertical-expand-line {
-      @apply relative z-10 flex items-center justify-center bg-transparent;
+      @apply relative flex items-center justify-center bg-transparent;
+
+      z-index: 1;
       &::before {
         @apply absolute w-full bg-transparent;
 

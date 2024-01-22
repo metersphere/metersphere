@@ -84,6 +84,14 @@ export default {
       priority: '优先级',
       tag: '标签',
     },
+    tag: {
+      case: '用例',
+      module: '模块',
+      precondition: '前置条件',
+      desc: '步骤描述',
+      expect: '预期结果',
+      remark: '备注',
+    },
     hotboxMenu: {
       expand: '展开/收起',
       insetParent: '插入上一级',
