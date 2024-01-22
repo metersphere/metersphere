@@ -56,7 +56,7 @@ public class KeystoreConfig extends ConfigTestElement implements TestBean, TestS
     @Override
     public void testEnded(String host) {
         log.info("Destroying Keystore");
-        String resourceId = this.getPropertyAsString("MS-RESOURCE-ID");
+        String resourceId = this.getPropertyAsString("MS-KEYSTORE-ID");
         SSLManager.getInstance().destroyKeystore(resourceId);
     }
 
@@ -101,7 +101,7 @@ public class KeystoreConfig extends ConfigTestElement implements TestBean, TestS
         String path = this.getPropertyAsString("MS-KEYSTORE-FILE-PATH");
         String password = this.getPropertyAsString("MS-KEYSTORE-FILE-PASSWORD");
         // 获取请求上的资源ID
-        String resourceId = this.getPropertyAsString("MS-RESOURCE-ID");
+        String resourceId = this.getPropertyAsString("MS-KEYSTORE-ID");
         if (StringUtils.isNotBlank(resourceId)) {
             KeystoreDTO dto = new KeystoreDTO();
             dto.setStartIndex(startIndexAsInt);

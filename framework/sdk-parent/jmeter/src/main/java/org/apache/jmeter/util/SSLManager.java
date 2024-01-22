@@ -150,7 +150,7 @@ public abstract class SSLManager {
                             // 重新加载认证文件
                             JMeterContext threadContext = JMeterContextService.getContext();
                             if (threadContext != null && threadContext.getCurrentSampler() != null) {
-                                String resourceId = threadContext.getCurrentSampler().getPropertyAsString("MS-RESOURCE-ID");
+                                String resourceId = threadContext.getCurrentSampler().getPropertyAsString("MS-KEYSTORE-ID");
                                 if (StringUtils.isNotBlank(resourceId) && keyMap.containsKey(resourceId)) {
                                     log.info("重新加载认证文件{}", resourceId);
                                     KeystoreDTO dto = keyMap.get(resourceId);
@@ -371,7 +371,7 @@ public abstract class SSLManager {
             // 重新加载认证文件
             JMeterContext threadContext = JMeterContextService.getContext();
             if (threadContext != null && threadContext.getCurrentSampler() != null) {
-                String resourceId = threadContext.getCurrentSampler().getPropertyAsString("MS-RESOURCE-ID");
+                String resourceId = threadContext.getCurrentSampler().getPropertyAsString("MS-KEYSTORE-ID");
                 if (StringUtils.isNotBlank(resourceId) && keyMap.containsKey(resourceId)) {
                     log.info("重新加载认证文件{}", resourceId);
                     KeystoreDTO dto = keyMap.get(resourceId);

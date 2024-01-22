@@ -91,6 +91,7 @@ public class MsScenario extends MsTestElement {
         HashTree scenarioTree = tree;
         // 取出自身场景环境
         ParameterConfig newConfig = new ParameterConfig(this.getProjectId(), false);
+        newConfig.setReportId(config.getReportId());
         if (this.isEnvironmentEnable()) {
             this.setNewConfig(newConfig);
             newConfig.setRetryNum(config.getRetryNum());

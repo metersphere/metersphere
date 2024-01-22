@@ -136,6 +136,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         sampler.setProperty(TestElement.TEST_CLASS, HTTPSamplerProxy.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HttpTestSampleGui"));
         String resourceId = ElementUtil.setBaseParams(sampler, this.getParent(), config, this.getId(), this.getIndex());
+        resourceId = StringUtils.isNotBlank(config.getReportId()) ? config.getReportId() : resourceId;
+        LogUtil.info("设置SSL证书配置{}", resourceId);
+        sampler.setProperty("MS-KEYSTORE-ID", resourceId);
 
         sampler.setMethod(this.getMethod());
         sampler.setContentEncoding(StandardCharsets.UTF_8.name());
@@ -551,7 +554,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     keystoreConfig.setProperty("startIndex", 0);
                     keystoreConfig.setProperty(ElementConstants.MS_KEYSTORE_FILE_PATH, msKeyStore.getPath());
                     keystoreConfig.setProperty(ElementConstants.MS_KEYSTORE_FILE_PASSWORD, msKeyStore.getPassword());
-                    keystoreConfig.setProperty("MS-RESOURCE-ID", resourceId);
+                    keystoreConfig.setProperty("MS-KEYSTORE-ID", resourceId);
                     httpSamplerTree.add(keystoreConfig);
                     config.getKeyStoreMap().put(this.getProjectId(), new MsKeyStore(msKeyStore.getPath(), msKeyStore.getPassword()));
                 }

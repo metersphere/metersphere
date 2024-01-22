@@ -442,6 +442,7 @@ public class ApiScenarioExecuteService {
         }
         ParameterConfig config = new ParameterConfig(request.getProjectId(), false);
         config.setScenarioId(request.getScenarioId());
+        config.setReportId(request.getReportId());
         if (MapUtils.isNotEmpty(request.getEnvironmentMap())) {
             apiScenarioEnvService.setEnvConfig(request.getEnvironmentMap(), config);
         }

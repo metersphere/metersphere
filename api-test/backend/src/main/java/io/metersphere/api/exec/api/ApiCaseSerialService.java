@@ -140,6 +140,7 @@ public class ApiCaseSerialService {
                 if (runRequest.isRetryEnable() && runRequest.getRetryNum() > 0) {
                     config.setRetryNum(runRequest.getRetryNum());
                 }
+                config.setReportId(runRequest.getReportId());
                 testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), config);
                 LoggerUtil.info("用例资源：" + caseWithBLOBs.getName() + ", 生成执行脚本JMX成功", runRequest.getReportId());
                 return jmeterHashTree;
