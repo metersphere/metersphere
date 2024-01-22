@@ -11,6 +11,8 @@ import io.metersphere.functional.mapper.FunctionalCaseMapper;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.request.TestPlanUpdateRequest;
 import io.metersphere.plan.mapper.*;
+import io.metersphere.project.domain.Project;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.uid.IDGenerator;
@@ -26,6 +28,8 @@ import java.util.List;
 
 @Service
 public class TestPlanTestService {
+    @Resource
+    private ProjectMapper projectMapper;
     @Resource
     private TestPlanMapper testPlanMapper;
     @Resource
@@ -335,5 +339,23 @@ public class TestPlanTestService {
         }
         apiTestCaseMapper.batchInsert(returnList);
         return returnList;
+    }
+
+    public void removeProjectModule(Project project, String[] projectModule, String removeModule) {
+        ArrayList<String> moduleList = new ArrayList<>(List.of(projectModule));
+        moduleList.remove(removeModule);
+
+        Project updateProject = new Project();
+        updateProject.setId(project.getId());
+        updateProject.setModuleSetting(JSON.toJSONString(moduleList));
+        projectMapper.updateByPrimaryKeySelective(updateProject);
+    }
+
+    public void resetProjectModule(Project project, String[] projectModule) {
+        ArrayList<String> moduleList = new ArrayList<>(List.of(projectModule));
+        Project updateProject = new Project();
+        updateProject.setId(project.getId());
+        updateProject.setModuleSetting(JSON.toJSONString(moduleList));
+        projectMapper.updateByPrimaryKeySelective(updateProject);
     }
 }

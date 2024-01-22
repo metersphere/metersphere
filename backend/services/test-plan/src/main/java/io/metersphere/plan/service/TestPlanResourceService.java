@@ -60,8 +60,7 @@ public abstract class TestPlanResourceService {
             String resourceType,
             TestPlanAssociationRequest request,
             @Validated LogInsertModule logInsertModule,
-            Function<ResourceSelectParam, List<String>> selectByResourceIdFunc,
-            Function<ResourceSelectParam, List<String>> selectByModuleIdFunc,
+            Function<ResourceSelectParam, List<String>> getIdByParam,
             Consumer<TestPlanResourceAssociationParam> saveResourceFunc) {
         TestPlanAssociationResponse response = new TestPlanAssociationResponse();
         if (request.isEmpty()) {
@@ -70,19 +69,11 @@ public abstract class TestPlanResourceService {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestPlanId());
         TestPlanConfig testPlanConfig = testPlanConfigMapper.selectByPrimaryKey(request.getTestPlanId());
         boolean repeatCase = testPlanConfig.getRepeatCase();
-        List<String> associationIdList = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(request.getSelectIds())) {
-            //获取有效ID
-            associationIdList.addAll(
-                    selectByResourceIdFunc.apply(
-                            new ResourceSelectParam(request.getTestPlanId(), request.getSelectIds(), null, repeatCase, request.getOrderString())));
-        }
-        if (CollectionUtils.isNotEmpty(request.getSelectModuleIds())) {
-            //获取有效ID
-            associationIdList.addAll(
-                    selectByModuleIdFunc.apply(
-                            new ResourceSelectParam(request.getTestPlanId(), null, request.getSelectModuleIds(), repeatCase, request.getOrderString())));
-        }
+        //获取有效ID
+        List<String> associationIdList =
+                getIdByParam.apply(
+                        new ResourceSelectParam(request.getTestPlanId(), request.getSelectIds(), request.getSelectModuleIds(), repeatCase, request.getOrderString()));
+
         associationIdList = new ArrayList<>(associationIdList.stream().distinct().toList());
         associationIdList.removeAll(request.getExcludeIds());
         if (CollectionUtils.isNotEmpty(associationIdList)) {
@@ -105,7 +96,7 @@ public abstract class TestPlanResourceService {
     public AssociationNodeSortDTO getNodeSortDTO(ResourceSortRequest request, Function<String, AssociationNode> selectIdNodeFunc, Function<NodeSortQueryParam, AssociationNode> selectPosNodeFunc) {
         if (StringUtils.equals(request.getDragNodeId(), request.getDropNodeId())) {
             //两种节点不能一样
-            throw new MSException(Translator.get("invalid_parameter"));
+            throw new MSException(Translator.get("invalid_parameter") + ": drag node  and drop node");
         }
 
         AssociationNode dragNode = selectIdNodeFunc.apply(request.getDragNodeId());
@@ -139,7 +130,7 @@ public abstract class TestPlanResourceService {
             sortParam.setOperator(MOVE_POS_OPERATOR_LESS);
             previousNode = selectPosNodeFunc.apply(sortParam);
         } else {
-            throw new MSException(Translator.get("invalid_parameter"));
+            throw new MSException(Translator.get("invalid_parameter") + ": dropPosition");
         }
 
         return new AssociationNodeSortDTO(request.getTestPlanId(), dragNode, previousNode, nextNode);

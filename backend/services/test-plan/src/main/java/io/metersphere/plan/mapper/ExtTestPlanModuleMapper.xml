@@ -68,4 +68,9 @@
         FROM test_plan_module
         WHERE id = #{0}
     </select>
+    <select id="selectProjectIdByModuleId" resultType="java.lang.String">
+        SELECT project_id
+        FROM test_plan_module
+        WHERE id = #{0}
+    </select>
 </mapper>

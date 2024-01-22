@@ -18,16 +18,25 @@
         FROM test_plan_api_case
         WHERE test_plan_id = #{0}
     </select>
-    <select id="getIdByIds"
+
+    <select id="getIdByParam"
             parameterType="io.metersphere.plan.dto.ResourceSelectParam"
             resultType="java.lang.String">
         SELECT id
         FROM api_test_case
         WHERE deleted = false
-        AND id IN
-        <foreach collection="selectIds" item="item" index="index" open="(" close=")" separator=",">
-            #{item}
-        </foreach>
+        <if test="selectIds != null and selectIds.size() != 0">
+            AND id IN
+            <foreach collection="selectIds" item="item" index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="moduleIds != null and moduleIds.size() != 0">
+            AND module_id IN
+            <foreach collection="moduleIds" item="item" index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
         <if test="repeatCase == false">
             AND id NOT IN
             (SELECT api_case_id FROM test_plan_api_case WHERE test_plan_id = #{testPlanId})
@@ -36,24 +45,7 @@
             ORDER BY #{orderString}
         </if>
     </select>
-    <select id="getIdByModuleIds"
-            parameterType="io.metersphere.plan.dto.ResourceSelectParam"
-            resultType="java.lang.String">
-        SELECT id
-        FROM api_test_case
-        WHERE deleted = false
-        AND module_id IN
-        <foreach collection="moduleIds" item="item" index="index" open="(" close=")" separator=",">
-            #{item}
-        </foreach>
-        <if test="repeatCase == false">
-            AND id NOT IN
-            (SELECT api_case_id FROM test_plan_api_case WHERE test_plan_id = #{testPlanId})
-        </if>
-        <if test="orderString != null ">
-            ORDER BY #{orderString}
-        </if>
-    </select>
+
     <select id="selectDragInfoById" resultType="io.metersphere.plan.dto.AssociationNode">
         SELECT id, pos
         FROM test_plan_api_case

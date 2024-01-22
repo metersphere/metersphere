@@ -316,5 +316,6 @@ public class PermissionConstants {
     public static final String TEST_PLAN_READ_UPDATE = "PROJECT_TEST_PLAN:READ+UPDATE";
     public static final String TEST_PLAN_READ_DELETE = "PROJECT_TEST_PLAN:READ+DELETE";
     public static final String TEST_PLAN_READ_EXECUTE = "PROJECT_TEST_PLAN:READ+EXECUTE";
+    public static final String TEST_PLAN_READ_ASSOCIATION = "PROJECT_TEST_PLAN:READ+ASSOCIATION";
     /*------ end: TEST_PLAN ------*/
 }

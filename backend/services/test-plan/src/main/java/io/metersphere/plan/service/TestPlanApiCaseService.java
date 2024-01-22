@@ -13,7 +13,6 @@ import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
 import io.metersphere.plan.mapper.ExtTestPlanApiCaseMapper;
 import io.metersphere.plan.mapper.TestPlanApiCaseMapper;
-import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.TestPlanResourceConstants;
@@ -41,8 +40,6 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
     @Resource
     private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
-    @Resource
-    private TestPlanConfigMapper testPlanConfigMapper;
     @Resource
     private TestPlanResourceLogService testPlanResourceLogService;
     @Resource
@@ -87,8 +84,7 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
                 TestPlanResourceConstants.RESOURCE_API_CASE,
                 request,
                 logInsertModule,
-                extTestPlanApiCaseMapper::getIdByIds,
-                extTestPlanApiCaseMapper::getIdByModuleIds,
+                extTestPlanApiCaseMapper::getIdByParam,
                 this::saveTestPlanResource);
     }
 
@@ -116,21 +112,18 @@ public class TestPlanApiCaseService extends TestPlanResourceService {
         TestPlanResourceSortResponse response = new TestPlanResourceSortResponse();
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestPlanId());
         TestPlanApiCase dragNode = testPlanApiCaseMapper.selectByPrimaryKey(request.getDragNodeId());
-        if (dragNode == null && testPlan == null) {
+        if (dragNode == null) {
             throw new MSException("test_plan.drag.node.error");
         }
-        if (request.getDropPosition() == -1 || request.getDropPosition() == 1) {
-            AssociationNodeSortDTO sortDTO = super.getNodeSortDTO(
-                    request,
-                    extTestPlanApiCaseMapper::selectDragInfoById,
-                    extTestPlanApiCaseMapper::selectNodeByPosOperator
-            );
-            this.sort(sortDTO);
-            response.setSortNodeNum(1);
-            testPlanResourceLogService.saveSortLog(testPlan, request.getDragNodeId(), new ResourceLogInsertModule(TestPlanResourceConstants.RESOURCE_API_CASE, logInsertModule));
-        } else {
-            throw new MSException("test_plan.drag.position.error");
-        }
+        AssociationNodeSortDTO sortDTO = super.getNodeSortDTO(
+                request,
+                extTestPlanApiCaseMapper::selectDragInfoById,
+                extTestPlanApiCaseMapper::selectNodeByPosOperator
+        );
+        this.sort(sortDTO);
+        response.setSortNodeNum(1);
+        testPlanResourceLogService.saveSortLog(testPlan, request.getDragNodeId(), new ResourceLogInsertModule(TestPlanResourceConstants.RESOURCE_API_CASE, logInsertModule));
         return response;
+
     }
 }
