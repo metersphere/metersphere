@@ -7,8 +7,8 @@
         WHERE project_id = #{projectId}
         ORDER BY pos
     </select>
-    <select id="selectBaseByProjectIdAndReviewId" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
-        SELECT fcm.id, fcm.name, fcm.parent_id AS parentId, 'module' AS type
+    <select id="selectBaseByProjectIdAndReviewId" resultType="java.lang.String">
+        SELECT fcm.id
         FROM functional_case_module fcm
         WHERE fcm.project_id = #{projectId}
         AND fcm.id IN

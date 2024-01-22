@@ -515,6 +515,15 @@ public class FunctionalCaseService {
 
     private List<FunctionalCasePageDTO> handleCustomFields(List<FunctionalCasePageDTO> functionalCaseLists) {
         List<String> ids = functionalCaseLists.stream().map(FunctionalCasePageDTO::getId).collect(Collectors.toList());
+        Map<String, List<FunctionalCaseCustomFieldDTO>> collect = getCaseCustomFiledMap(ids);
+        functionalCaseLists.forEach(functionalCasePageDTO -> {
+            functionalCasePageDTO.setCustomFields(collect.get(functionalCasePageDTO.getId()));
+        });
+        return functionalCaseLists;
+
+    }
+
+    public Map<String, List<FunctionalCaseCustomFieldDTO>> getCaseCustomFiledMap(List<String> ids) {
         List<FunctionalCaseCustomFieldDTO> customFields = functionalCaseCustomFieldService.getCustomFieldsByCaseIds(ids);
         customFields.forEach(customField -> {
             if (customField.getInternal()) {
@@ -527,12 +536,7 @@ public class FunctionalCaseService {
         customFields.forEach(customField -> {
             customField.setOptions(customOptions.get(customField.getFieldId()));
         });
-        Map<String, List<FunctionalCaseCustomFieldDTO>> collect = customFields.stream().collect(Collectors.groupingBy(FunctionalCaseCustomFieldDTO::getCaseId));
-        functionalCaseLists.forEach(functionalCasePageDTO -> {
-            functionalCasePageDTO.setCustomFields(collect.get(functionalCasePageDTO.getId()));
-        });
-        return functionalCaseLists;
-
+        return customFields.stream().collect(Collectors.groupingBy(FunctionalCaseCustomFieldDTO::getCaseId));
     }
 
     public void batchDeleteFunctionalCaseToGc(FunctionalCaseBatchRequest request, String userId) {
