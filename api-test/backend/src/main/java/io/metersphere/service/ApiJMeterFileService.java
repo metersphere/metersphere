@@ -124,6 +124,7 @@ public class ApiJMeterFileService {
         JmeterRunRequestDTO runRequest = new JmeterRunRequestDTO(remoteTestId, reportId, runMode, null);
         runRequest.setReportType(reportType);
         runRequest.setQueueId(queueId);
+        runRequest.setReportId(reportId);
         BooleanPool booleanPool = new BooleanPool();
         booleanPool.setK8s(true);
         runRequest.setPool(booleanPool);

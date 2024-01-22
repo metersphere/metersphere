@@ -157,6 +157,8 @@ public class GenerateHashTreeUtil {
             config.setScenarioId(item.getId());
             config.setReportType(runRequest.getReportType());
             config.setConfig(getEnv(scenario.getEnvironmentMap()));
+            config.setReportId(runRequest.getReportId());
+
             if (runRequest.isRetryEnable() && runRequest.getRetryNum() > 0) {
                 config.setRetryNum(runRequest.getRetryNum());
             }
