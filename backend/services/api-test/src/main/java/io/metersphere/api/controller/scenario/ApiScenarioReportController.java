@@ -8,9 +8,12 @@ import io.metersphere.api.dto.definition.ApiReportPageRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDetailDTO;
 import io.metersphere.api.service.ApiReportShareService;
+import io.metersphere.api.service.scenario.ApiScenarioReportLogService;
 import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.domain.ShareInfo;
+import io.metersphere.system.log.annotation.Log;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -49,6 +52,7 @@ public class ApiScenarioReportController {
     @Operation(summary = "接口测试-接口报告-场景报告重命名")
     @CheckOwner(resourceId = "#id", resourceType = "api_scenario_report")
     @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#id)", msClass = ApiScenarioReportLogService.class)
     public void rename(@PathVariable String id, @PathVariable String name) {
         apiScenarioReportService.rename(id, name, SessionUtils.getUserId());
     }
@@ -57,6 +61,7 @@ public class ApiScenarioReportController {
     @Operation(summary = "接口测试-接口报告-场景报告删除")
     @CheckOwner(resourceId = "#id", resourceType = "api_scenario_report")
     @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_DELETE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.deleteLog(#id)", msClass = ApiScenarioReportLogService.class)
     public void delete(@PathVariable String id) {
         apiScenarioReportService.delete(id, SessionUtils.getUserId());
     }
@@ -88,7 +93,7 @@ public class ApiScenarioReportController {
     @GetMapping("/get/detail/{reportId}/{stepId}")
     @Operation(summary = "接口测试-接口报告-报告详情获取")
     @CheckOwner(resourceId = "#reportId", resourceType = "api_scenario_report")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_READ)
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_REPORT_READ, PermissionConstants.PROJECT_API_SCENARIO_UPDATE}, logical = Logical.OR)
     public List<ApiScenarioReportDetailDTO> getDetail(@PathVariable String stepId,
                                                       @PathVariable String reportId) {
         return apiScenarioReportService.getDetail(stepId, reportId);

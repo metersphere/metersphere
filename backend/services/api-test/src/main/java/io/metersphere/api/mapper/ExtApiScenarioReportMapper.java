@@ -16,4 +16,12 @@ public interface ExtApiScenarioReportMapper {
     List<ApiScenarioReport> selectApiReportByIds(@Param("ids") List<String> ids, @Param("deleted") boolean deleted);
 
     List<ApiScenarioReportStepDTO> selectStepByReportId(@Param("reportId") String reportId);
+
+    List<String> selectApiScenarioReportByProjectId(String projectId);
+
+    int selectReportByTime(@Param("time") long time, @Param("projectId") String projectId);
+
+    int selectScenarioReportByTime(@Param("time") long time, @Param("projectId") String projectId);
+
+    List<String> selectApiReportByProjectIdAndTime(@Param("time") long time, @Param("projectId") String projectId);
 }

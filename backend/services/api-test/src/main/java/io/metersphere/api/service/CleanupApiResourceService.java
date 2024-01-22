@@ -2,11 +2,22 @@ package io.metersphere.api.service;
 
 import io.metersphere.api.domain.*;
 import io.metersphere.api.mapper.*;
+import io.metersphere.api.service.schedule.SwaggerUrlImportJob;
+import io.metersphere.project.domain.ProjectApplication;
+import io.metersphere.project.domain.ProjectApplicationExample;
+import io.metersphere.project.mapper.ProjectApplicationMapper;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.OperationLogConstants;
+import io.metersphere.sdk.constants.ProjectApplicationType;
+import io.metersphere.sdk.domain.ShareInfoExample;
+import io.metersphere.sdk.mapper.ShareInfoMapper;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.SubListUtils;
+import io.metersphere.system.domain.Schedule;
+import io.metersphere.system.domain.ScheduleExample;
 import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.mapper.ScheduleMapper;
+import io.metersphere.system.sechedule.ScheduleService;
 import io.metersphere.system.service.CleanupProjectResourceService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -15,6 +26,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static io.metersphere.sdk.util.ShareUtil.getCleanDate;
 
 @Component
 @Transactional(rollbackFor = Exception.class)
@@ -47,6 +61,38 @@ public class CleanupApiResourceService implements CleanupProjectResourceService 
     private ApiDefinitionMockConfigMapper apiDefinitionMockConfigMapper;
     @Resource
     private ApiDefinitionMockMapper apiDefinitionMockMapper;
+    @Resource
+    private ApiReportMapper apiReportMapper;
+    @Resource
+    private ExtApiReportMapper extApiReportMapper;
+    @Resource
+    private ApiReportStepMapper apiReportStepMapper;
+    @Resource
+    private ApiReportDetailMapper apiReportDetailMapper;
+    @Resource
+    private ApiReportLogMapper apiReportLogMapper;
+    @Resource
+    private ApiScenarioReportMapper apiScenarioReportMapper;
+    @Resource
+    private ExtApiScenarioReportMapper extApiScenarioReportMapper;
+    @Resource
+    private ApiScenarioReportStepMapper apiScenarioReportStepMapper;
+    @Resource
+    private ApiScenarioReportDetailMapper apiScenarioReportDetailMapper;
+    @Resource
+    private ApiScenarioReportLogMapper apiScenarioReportLogMapper;
+    @Resource
+    private ScheduleService scheduleService;
+    @Resource
+    private ScheduleMapper scheduleMapper;
+    @Resource
+    private ShareInfoMapper shareInfoMapper;
+    @Resource
+    private ProjectApplicationMapper projectApplicationMapper;
+    @Resource
+    private ApiDefinitionSwaggerMapper apiDefinitionSwaggerMapper;
+
+    private static final String DEFAULT = "30D";
 
 
     @Async
@@ -58,17 +104,59 @@ public class CleanupApiResourceService implements CleanupProjectResourceService 
         delScenarioModule(projectId);
         //删除接口
         delApi(projectId);
-        //删除场景
-
-        //删除执行记录
-        //删除报告
+        //删除报告 删除执行记录
+        deleteReport(projectId);
+        //删除分享报告的数据
+        deleteShareUrl(projectId);
         //删除定时任务
+        deleteSchedule(projectId);
 
     }
 
+    private void deleteShareUrl(String projectId) {
+        ShareInfoExample example = new ShareInfoExample();
+        example.createCriteria().andProjectIdEqualTo(projectId);
+        shareInfoMapper.deleteByExample(example);
+    }
+
+    @Async
     @Override
     public void cleanReportResources(String projectId) {
         LogUtils.info("清理当前项目[" + projectId + "]相关接口测试报告资源");
+        //只是删除报告的详情，  但是会保存执行历史
+        ProjectApplicationExample example = new ProjectApplicationExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andTypeEqualTo(ProjectApplicationType.API.API_CLEAN_REPORT.name());
+        List<ProjectApplication> projectApplications = projectApplicationMapper.selectByExample(example);
+        long timeMills = 0;
+        if (CollectionUtils.isNotEmpty(projectApplications)) {
+            String expr = projectApplications.getFirst().getTypeValue();
+            timeMills = getCleanDate(expr);
+        } else {
+            timeMills = getCleanDate(DEFAULT);
+        }
+        int apiReportCount = extApiReportMapper.selectApiReportByTime(timeMills, projectId);
+        while (apiReportCount > 0) {
+            List<String> ids = extApiReportMapper.selectApiReportByProjectIdAndTime(timeMills, projectId);
+            ApiReportExample reportExample = new ApiReportExample();
+            reportExample.createCriteria().andIdIn(ids);
+            ApiReport report = new ApiReport();
+            report.setDeleted(true);
+            apiReportMapper.updateByExampleSelective(report, reportExample);
+            deleteApiReport(ids);
+            apiReportCount = extApiReportMapper.selectApiReportByTime(timeMills, projectId);
+        }
+
+        int scenarioReportCount = extApiScenarioReportMapper.selectScenarioReportByTime(timeMills, projectId);
+        while (scenarioReportCount > 0) {
+            List<String> ids = extApiScenarioReportMapper.selectApiReportByProjectIdAndTime(timeMills, projectId);
+            ApiScenarioReportExample reportExample = new ApiScenarioReportExample();
+            reportExample.createCriteria().andIdIn(ids);
+            ApiScenarioReport report = new ApiScenarioReport();
+            report.setDeleted(true);
+            apiScenarioReportMapper.updateByExampleSelective(report, reportExample);
+            deleteScenarioReport(ids);
+            scenarioReportCount = extApiScenarioReportMapper.selectScenarioReportByTime(timeMills, projectId);
+        }
     }
 
     private void delScenarioModule(String projectId) {
@@ -86,8 +174,6 @@ public class CleanupApiResourceService implements CleanupProjectResourceService 
     /**
      * 删除接口
      * 有可能及联数据没有删干净  需要补充
-     *
-     * @param projectId
      */
     private void delApi(String projectId) {
         List<String> apiIds = extApiDefinitionMapper.selectByProjectId(projectId);
@@ -157,6 +243,71 @@ public class CleanupApiResourceService implements CleanupProjectResourceService 
         ApiTestCaseBlobExample blobExample = new ApiTestCaseBlobExample();
         blobExample.createCriteria().andIdIn(ids);
         apiTestCaseBlobMapper.deleteByExample(blobExample);
+    }
+
+    private void deleteReport(String projectId) {
+        ApiReportExample reportExample = new ApiReportExample();
+        reportExample.createCriteria().andProjectIdEqualTo(projectId);
+        long apiCount = apiReportMapper.countByExample(reportExample);
+        while (apiCount > 0) {
+            List<String> ids = extApiReportMapper.selectApiReportByProjectId(projectId);
+            ApiReportExample example = new ApiReportExample();
+            example.createCriteria().andIdIn(ids);
+            apiReportMapper.deleteByExample(example);
+            deleteApiReport(ids);
+            apiCount = apiReportMapper.countByExample(reportExample);
+        }
+
+        ApiScenarioReportExample scenarioReportExample = new ApiScenarioReportExample();
+        scenarioReportExample.createCriteria().andProjectIdEqualTo(projectId);
+        long scenarioCount = apiScenarioReportMapper.countByExample(scenarioReportExample);
+        while (scenarioCount > 0) {
+            List<String> ids = extApiScenarioReportMapper.selectApiScenarioReportByProjectId(projectId);
+            ApiScenarioReportExample example = new ApiScenarioReportExample();
+            example.createCriteria().andIdIn(ids);
+            apiScenarioReportMapper.deleteByExample(example);
+            deleteScenarioReport(ids);
+            scenarioCount = apiReportMapper.countByExample(reportExample);
+        }
+
+    }
+
+    private void deleteApiReport(List<String> ids) {
+        ApiReportStepExample stepExample = new ApiReportStepExample();
+        stepExample.createCriteria().andReportIdIn(ids);
+        apiReportStepMapper.deleteByExample(stepExample);
+        ApiReportDetailExample detailExample = new ApiReportDetailExample();
+        detailExample.createCriteria().andReportIdIn(ids);
+        apiReportDetailMapper.deleteByExample(detailExample);
+        ApiReportLogExample logExample = new ApiReportLogExample();
+        logExample.createCriteria().andReportIdIn(ids);
+        apiReportLogMapper.deleteByExample(logExample);
+    }
+
+    private void deleteScenarioReport(List<String> ids) {
+        ApiScenarioReportStepExample stepExample = new ApiScenarioReportStepExample();
+        stepExample.createCriteria().andReportIdIn(ids);
+        apiScenarioReportStepMapper.deleteByExample(stepExample);
+        ApiScenarioReportDetailExample detailExample = new ApiScenarioReportDetailExample();
+        detailExample.createCriteria().andReportIdIn(ids);
+        apiScenarioReportDetailMapper.deleteByExample(detailExample);
+        ApiScenarioReportLogExample logExample = new ApiScenarioReportLogExample();
+        logExample.createCriteria().andReportIdIn(ids);
+        apiScenarioReportLogMapper.deleteByExample(logExample);
+    }
+
+    private void deleteSchedule(String projectId) {
+        ScheduleExample scheduleExample = new ScheduleExample();
+        scheduleExample.createCriteria().andProjectIdEqualTo(projectId).andJobEqualTo(SwaggerUrlImportJob.class.getName());
+        List<Schedule> schedules = scheduleMapper.selectByExample(scheduleExample);
+        if (CollectionUtils.isNotEmpty(schedules)) {
+            scheduleService.deleteByResourceIds(schedules.stream().map(Schedule::getResourceId).collect(Collectors.toList()), SwaggerUrlImportJob.class.getName());
+        }
+        ApiDefinitionSwaggerExample swaggerExample = new ApiDefinitionSwaggerExample();
+        swaggerExample.createCriteria().andProjectIdEqualTo(projectId);
+        apiDefinitionSwaggerMapper.deleteByExample(swaggerExample);
+        //TODO 删除场景的定时任务
+
     }
 
 }

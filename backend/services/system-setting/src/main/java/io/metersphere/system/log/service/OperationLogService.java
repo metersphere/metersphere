@@ -8,6 +8,7 @@ import io.metersphere.sdk.mapper.OperationLogMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.OperationHistory;
+import io.metersphere.system.domain.OperationHistoryExample;
 import io.metersphere.system.domain.Organization;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.log.dto.LogDTO;
@@ -58,6 +59,7 @@ public class OperationLogService {
         BeanUtils.copyBean(history, log);
         return history;
     }
+
     private OperationLogBlob getBlob(LogDTO log) {
         OperationLogBlob blob = new OperationLogBlob();
         blob.setId(log.getId());
@@ -139,5 +141,15 @@ public class OperationLogService {
         if (sqlSessionFactory != null) {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
+    }
+
+    @Async
+    public void deleteBySourceIds(List<String> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
+        }
+        OperationHistoryExample example = new OperationHistoryExample();
+        example.createCriteria().andSourceIdIn(ids);
+        operationHistoryMapper.deleteByExample(example);
     }
 }

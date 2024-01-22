@@ -99,7 +99,6 @@ public class ApiReportService {
         apiReport.setUpdateTime(System.currentTimeMillis());
         apiReport.setUpdateUser(userId);
         apiReportMapper.updateByPrimaryKeySelective(apiReport);
-        apiReportLogService.updateLog(apiReport);
     }
 
     public void delete(String id, String userId) {
@@ -108,7 +107,6 @@ public class ApiReportService {
         apiReport.setDeleteTime(System.currentTimeMillis());
         apiReport.setDeleteUser(userId);
         apiReportMapper.updateByPrimaryKeySelective(apiReport);
-        apiReportLogService.deleteLog(apiReport);
     }
 
     private ApiReport checkResource(String id) {

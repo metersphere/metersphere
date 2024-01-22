@@ -72,6 +72,31 @@
         and api_report_detail.report_id = api_report_step.report_id
         where api_report_step.report_id = #{reportId}
     </select>
+    <select id="selectApiReportByProjectId" resultType="java.lang.String">
+        select
+        api_report.id
+        from api_report
+        where api_report.project_id = #{projectId}
+            limit 500
+    </select>
+    <select id="selectApiReportByTime" resultType="java.lang.Integer">
+        select
+        count(api_report.id)
+        from api_report inner join api_report_step on
+        api_report_step.report_id = api_report.id
+        where api_report.test_plan_id = 'NONE'
+        and api_report.start_time &lt;= #{time}
+        and api_report.project_id = #{projectId}
+    </select>
+    <select id="selectApiReportByProjectIdAndTime" resultType="java.lang.String">
+        select
+            api_report.id
+        from api_report inner join api_report_step on
+            api_report_step.report_id = api_report.id
+        where api_report.test_plan_id = 'NONE'
+          and api_report.start_time &lt;= #{time}
+          and api_report.project_id = #{projectId} limit 500;
+    </select>
 
 
     <sql id="filters">

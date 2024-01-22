@@ -1,6 +1,7 @@
 package io.metersphere.api.service.definition;
 
 import io.metersphere.api.domain.ApiReport;
+import io.metersphere.api.mapper.ApiReportMapper;
 import io.metersphere.api.mapper.ExtApiReportMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
@@ -25,9 +26,12 @@ public class ApiReportLogService {
     private OperationLogService operationLogService;
     @Resource
     private ExtApiReportMapper extApiReportMapper;
+    @Resource
+    private ApiReportMapper apiReportMapper;
 
 
-    public void deleteLog(ApiReport apiReport) {
+    public void deleteLog(String id) {
+        ApiReport apiReport = apiReportMapper.selectByPrimaryKey(id);
         Project project = projectMapper.selectByPrimaryKey(apiReport.getProjectId());
         LogDTO dto = new LogDTO(
                 apiReport.getProjectId(),
@@ -44,7 +48,8 @@ public class ApiReportLogService {
         operationLogService.add(dto);
     }
 
-    public void updateLog(ApiReport apiReport) {
+    public void updateLog(String id) {
+        ApiReport apiReport = apiReportMapper.selectByPrimaryKey(id);
         Project project = projectMapper.selectByPrimaryKey(apiReport.getProjectId());
         LogDTO dto = new LogDTO(
                 apiReport.getProjectId(),
