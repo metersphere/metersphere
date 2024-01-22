@@ -46,7 +46,7 @@ public class BugEditRequest {
     @Schema(description = "自定义字段集合")
     private List<BugCustomFieldDTO> customFields;
 
-    @Schema(description = "删除的本地附件集合, 文件ID")
+    @Schema(description = "删除的本地附件集合, {文件ID")
     private List<String> deleteLocalFileIds;
 
     @Schema(description = "取消关联附件关系ID集合, 关联关系ID")

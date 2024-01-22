@@ -7,7 +7,7 @@ public enum BugAttachmentSourceType {
      */
     ATTACHMENT,
     /**
-     * MD图片
+     * 缺陷内容
      */
-    MD_PIC;
+    CONTENT;
 }
