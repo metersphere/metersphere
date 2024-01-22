@@ -29,9 +29,40 @@ VALUES
 
 
 INSERT INTO custom_field (id, name, scene, type, remark, internal, scope_type, create_time, update_time, create_user, scope_id) VALUE
-    ('custom_field_minder_gyq_id_3', 'functional_priority', 'FUNCTIONAL', 'SELECT', '', 0, 'ORGANIZATION', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', '100001');
+    ('custom_field_minder_gyq_id_3', '用例等级', 'FUNCTIONAL', 'SELECT', '', 0, 'ORGANIZATION', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', '100001');
 
 
+INSERT INTO case_review(id, num, name, module_id, project_id, status, review_pass_rule, pos, start_time, end_time, case_count, pass_rate, tags, description, create_time, create_user, update_time, update_user)
+    VALUES ('TEST_MINDER_REVIEW_ID_GYQ', 100, 'TEST_MINDER_REVIEW_GYQ', 'TEST_MINDER_REVIEW_MODULE_GYQ', 'project-case-minder-test', 'UNDERWAY', 'MULTIPLE', 100,UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 6, 50.00, null, null, UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin'),
+           ('TEST_MINDER_REVIEW_ID_GYQ2', 200, 'TEST_MINDER_REVIEW_GYQ2', 'TEST_MINDER_REVIEW_MODULE_GYQ', 'project-case-minder-test', 'UNDERWAY', 'SINGLE', 200,UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 6, 50.00, null, null, UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin');
 
+INSERT INTO case_review_functional_case(id, review_id, case_id, status, create_time, create_user, update_time, pos)
+VALUES ('case_review_functional_case_minder_id1', 'TEST_MINDER_REVIEW_ID_GYQ', 'TEST_FUNCTIONAL_MINDER_CASE_ID_1', 'PASS', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 100 ),
+       ('case_review_functional_case_minder_id2', 'TEST_MINDER_REVIEW_ID_GYQ', 'TEST_FUNCTIONAL_MINDER_CASE_ID_2', 'PASS', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 100 ),
+       ('case_review_functional_case_minder_id3', 'TEST_MINDER_REVIEW_ID_GYQ', 'TEST_FUNCTIONAL_MINDER_CASE_ID_3', 'PASS', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 100 ),
+       ('case_review_functional_case_minder_id4', 'TEST_MINDER_REVIEW_ID_GYQ', 'TEST_FUNCTIONAL_MINDER_CASE_ID_4', 'UNDER_REVIEWED', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 100 ),
+       ('case_review_functional_case_minder_id5', 'TEST_MINDER_REVIEW_ID_GYQ', 'TEST_FUNCTIONAL_MINDER_CASE_ID_5', 'UNDER_REVIEWED', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 100 ),
+       ('case_review_functional_case_minder_id6', 'TEST_MINDER_REVIEW_ID_GYQ', 'TEST_FUNCTIONAL_MINDER_CASE_ID_6', 'UNDER_REVIEWED', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 100 ),
+       ('case_review_functional_case_minder_id7', 'TEST_MINDER_REVIEW_ID_GYQ2', 'TEST_FUNCTIONAL_MINDER_CASE_ID_1', 'PASS', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 100 ),
+       ('case_review_functional_case_minder_id8', 'TEST_MINDER_REVIEW_ID_GYQ2', 'TEST_FUNCTIONAL_MINDER_CASE_ID_2', 'PASS', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 100 ),
+       ('case_review_functional_case_minder_id9', 'TEST_MINDER_REVIEW_ID_GYQ2', 'TEST_FUNCTIONAL_MINDER_CASE_ID_3', 'PASS', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 100 ),
+       ('case_review_functional_case_minder_ida', 'TEST_MINDER_REVIEW_ID_GYQ2', 'TEST_FUNCTIONAL_MINDER_CASE_ID_4', 'UNDER_REVIEWED', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 100 ),
+       ('case_review_functional_case_minder_idb', 'TEST_MINDER_REVIEW_ID_GYQ2', 'TEST_FUNCTIONAL_MINDER_CASE_ID_5', 'UNDER_REVIEWED', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 100 ),
+       ('case_review_functional_case_minder_idc', 'TEST_MINDER_REVIEW_ID_GYQ2', 'TEST_FUNCTIONAL_MINDER_CASE_ID_6', 'UNDER_REVIEWED', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 100 );
+
+
+INSERT INTO case_review_functional_case_user(case_id, review_id, user_id)
+VALUES ('TEST_FUNCTIONAL_MINDER_CASE_ID_1', 'TEST_MINDER_REVIEW_ID_GYQ', 'admin'),
+       ('TEST_FUNCTIONAL_MINDER_CASE_ID_2', 'TEST_MINDER_REVIEW_ID_GYQ', 'admin'),
+       ('TEST_FUNCTIONAL_MINDER_CASE_ID_3', 'TEST_MINDER_REVIEW_ID_GYQ', 'admin'),
+       ('TEST_FUNCTIONAL_MINDER_CASE_ID_4', 'TEST_MINDER_REVIEW_ID_GYQ', 'admin'),
+       ('TEST_FUNCTIONAL_MINDER_CASE_ID_5', 'TEST_MINDER_REVIEW_ID_GYQ', 'admin'),
+       ('TEST_FUNCTIONAL_MINDER_CASE_ID_6', 'TEST_MINDER_REVIEW_ID_GYQ', 'admin'),
+       ('TEST_FUNCTIONAL_MINDER_CASE_ID_1', 'TEST_MINDER_REVIEW_ID_GYQ2', 'admin'),
+       ('TEST_FUNCTIONAL_MINDER_CASE_ID_2', 'TEST_MINDER_REVIEW_ID_GYQ2', 'admin'),
+       ('TEST_FUNCTIONAL_MINDER_CASE_ID_3', 'TEST_MINDER_REVIEW_ID_GYQ2', 'admin'),
+       ('TEST_FUNCTIONAL_MINDER_CASE_ID_4', 'TEST_MINDER_REVIEW_ID_GYQ2', 'admin'),
+       ('TEST_FUNCTIONAL_MINDER_CASE_ID_5', 'TEST_MINDER_REVIEW_ID_GYQ2', 'admin'),
+       ('TEST_FUNCTIONAL_MINDER_CASE_ID_6', 'TEST_MINDER_REVIEW_ID_GYQ2', 'admin');
 
 

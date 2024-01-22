@@ -19,6 +19,9 @@ public class FunctionalMinderTreeNodeDTO {
     @Schema(description = "用例等级")
     private String priority;
 
+    @Schema(description = "用例评审状态")
+    private String status;
+
     @Schema(description = "节点标签")
     private List<String> resource;
 

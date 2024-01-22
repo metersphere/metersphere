@@ -5,6 +5,7 @@ import io.metersphere.functional.dto.FunctionalCaseStepDTO;
 import io.metersphere.functional.dto.FunctionalMinderTreeDTO;
 import io.metersphere.functional.mapper.FunctionalCaseBlobMapper;
 import io.metersphere.functional.request.FunctionalCasePageRequest;
+import io.metersphere.functional.request.MinderReviewFunctionalCasePageRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
@@ -28,14 +29,13 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
 
 
     public static final String FUNCTIONAL_CASE_LIST_URL = "/functional/mind/case/list";
+    public static final String REViEW_FUNCTIONAL_CASE_LIST_URL = "/functional/mind/case/review/list";
 
     @Resource
     private FunctionalCaseBlobMapper functionalCaseBlobMapper;
 
-    @Test
-    @Order(1)
-    @Sql(scripts = {"/dml/init_file_minder_test.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
-    public void testGetPageList() throws Exception {
+
+    public void initPartBlob() {
         List<FunctionalCaseBlob>blobs = new ArrayList<>();
         FunctionalCaseBlob blob = new FunctionalCaseBlob();
         blob.setId("TEST_FUNCTIONAL_MINDER_CASE_ID_4");
@@ -87,7 +87,13 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         blob6.setDescription(description6.getBytes(StandardCharsets.UTF_8));
         blobs.add(blob6);
         functionalCaseBlobMapper.batchInsert(blobs);
+    }
 
+    @Test
+    @Order(1)
+    @Sql(scripts = {"/dml/init_file_minder_test.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
+    public void testGetPageList() throws Exception {
+        initPartBlob();
         FunctionalCasePageRequest request = new FunctionalCasePageRequest();
         request.setProjectId("project-case-minder-test");
         request.setCurrent(1);
@@ -95,8 +101,20 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
         request.setSort(new HashMap<>() {{
             put("createTime", "desc");
         }});
-        /*//自定义字段 测试
-        Map<String, Object> map = new HashMap<>();
+        MvcResult mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_LIST_URL, request);
+        String contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        FunctionalMinderTreeDTO baseTreeNodes = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), FunctionalMinderTreeDTO.class);
+        Assertions.assertNotNull(baseTreeNodes);
+       // String jsonString = JSON.toJSONString(baseTreeNodes);
+        //System.out.println(jsonString);
+
+    }
+
+    @Test
+    @Order(2)
+    public void testGetReviewPageList() throws Exception {
+       /* Map<String, Object> map = new HashMap<>();
         map.put("customs", Arrays.asList(new LinkedHashMap() {{
             put("id", "TEST_FIELD_ID");
             put("operator", "in");
@@ -104,13 +122,31 @@ public class FunctionalCaseMinderControllerTest extends BaseTest {
             put("type", "List");
         }}));
         request.setCombine(map);*/
-        MvcResult mvcResultPage = this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_LIST_URL, request);
+        MinderReviewFunctionalCasePageRequest request = new MinderReviewFunctionalCasePageRequest();
+        request.setProjectId("project-case-minder-test");
+        request.setCurrent(1);
+        request.setPageSize(10);
+        request.setSort(new HashMap<>() {{
+            put("createTime", "desc");
+        }});
+        request.setReviewId("TEST_MINDER_REVIEW_ID_GYQ");
+        request.setViewFlag(true);
+        request.setViewResult(true);
+
+        MvcResult mvcResultPage = this.requestPostWithOkAndReturn(REViEW_FUNCTIONAL_CASE_LIST_URL, request);
         String contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         FunctionalMinderTreeDTO baseTreeNodes = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), FunctionalMinderTreeDTO.class);
         Assertions.assertNotNull(baseTreeNodes);
-        String jsonString = JSON.toJSONString(baseTreeNodes);
-        System.out.println(jsonString);
-
+        //String jsonString = JSON.toJSONString(baseTreeNodes);
+        //System.out.println(jsonString);
+        request.setReviewId("TEST_MINDER_REVIEW_ID_GYQ2");
+        mvcResultPage = this.requestPostWithOkAndReturn(REViEW_FUNCTIONAL_CASE_LIST_URL, request);
+        contentAsString = mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        baseTreeNodes = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), FunctionalMinderTreeDTO.class);
+        Assertions.assertNotNull(baseTreeNodes);
+        //jsonString = JSON.toJSONString(baseTreeNodes);
+        //System.out.println(jsonString);
     }
 }

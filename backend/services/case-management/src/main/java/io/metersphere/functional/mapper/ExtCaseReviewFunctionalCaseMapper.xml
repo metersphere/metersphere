@@ -38,7 +38,8 @@
         functional_case.version_id as versionId,
         functional_case.module_id as moduleId,
         functional_case.name as name,
-        functional_case.num as num
+        functional_case.num as num,
+        functional_case.case_edit_type as caseEditType
         FROM
         case_review_functional_case crfc
         LEFT JOIN functional_case ON crfc.case_id = functional_case.id

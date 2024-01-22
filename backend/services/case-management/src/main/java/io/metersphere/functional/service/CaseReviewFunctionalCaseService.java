@@ -16,7 +16,6 @@ import io.metersphere.project.domain.ProjectVersion;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.mapper.ProjectApplicationMapper;
-import io.metersphere.project.service.ModuleTreeService;
 import io.metersphere.provider.BaseCaseProvider;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.exception.MSException;
@@ -47,7 +46,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class CaseReviewFunctionalCaseService extends ModuleTreeService {
+public class CaseReviewFunctionalCaseService {
 
 
     @Resource
@@ -78,6 +77,9 @@ public class CaseReviewFunctionalCaseService extends ModuleTreeService {
     private ReviewSendNoticeService reviewSendNoticeService;
     @Resource
     private FunctionalCaseAttachmentService functionalCaseAttachmentService;
+    @Resource
+    private FunctionalCaseModuleService functionalCaseModuleService;
+
 
 
     private static final String CASE_MODULE_COUNT_ALL = "all";
@@ -531,8 +533,9 @@ public class CaseReviewFunctionalCaseService extends ModuleTreeService {
     }
 
     public List<BaseTreeNode> getTree(String projectId, String reviewId) {
-        List<BaseTreeNode> functionalModuleList = extFunctionalCaseModuleMapper.selectBaseByProjectIdAndReviewId(projectId, reviewId);
-        return super.buildTreeAndCountResource(functionalModuleList, true, Translator.get("default.module"));
+        List<String> functionalModuleIds = extFunctionalCaseModuleMapper.selectBaseByProjectIdAndReviewId(projectId, reviewId);
+        List<BaseTreeNode> nodeByNodeIds = functionalCaseModuleService.getNodeByNodeIds(functionalModuleIds);
+        return functionalCaseModuleService.buildTreeAndCountResource(nodeByNodeIds, true, Translator.get("default.module"));
     }
 
     public Map<String, Long> moduleCount(ReviewFunctionalCasePageRequest request, boolean deleted, String userId) {
@@ -554,22 +557,13 @@ public class CaseReviewFunctionalCaseService extends ModuleTreeService {
         //构建模块树，并计算每个节点下的所有数量（包含子节点）
         List<BaseTreeNode> treeNodeList = this.getTreeOnlyIdsAndResourceCount(projectId,reviewId, moduleCountDTOList);
         //通过广度遍历的方式构建返回值
-        return super.getIdCountMapByBreadth(treeNodeList);
+        return functionalCaseModuleService.getIdCountMapByBreadth(treeNodeList);
     }
 
     public List<BaseTreeNode> getTreeOnlyIdsAndResourceCount(String projectId, String reviewId, List<ModuleCountDTO> moduleCountDTOList) {
         //节点内容只有Id和parentId
         List<BaseTreeNode> fileModuleList = extFunctionalCaseModuleMapper.selectIdAndParentIdByProjectIdAndReviewId(projectId, reviewId);
-        return super.buildTreeAndCountResource(fileModuleList, moduleCountDTOList, true, Translator.get("default.module"));
+        return functionalCaseModuleService.buildTreeAndCountResource(fileModuleList, moduleCountDTOList, true, Translator.get("default.module"));
     }
 
-    @Override
-    public void updatePos(String id, long pos) {
-
-    }
-
-    @Override
-    public void refreshPos(String parentId) {
-
-    }
 }

@@ -11,7 +11,7 @@ import java.util.List;
 public interface ExtFunctionalCaseModuleMapper {
     List<BaseTreeNode> selectBaseByProjectId(@Param("projectId")String projectId);
 
-    List<BaseTreeNode> selectBaseByProjectIdAndReviewId(@Param("projectId")String projectId, @Param("reviewId")String reviewId);
+    List<String> selectBaseByProjectIdAndReviewId(@Param("projectId")String projectId, @Param("reviewId")String reviewId);
 
     List<BaseTreeNode> selectBaseByIds(@Param("ids") List<String> ids);
 
