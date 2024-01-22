@@ -332,7 +332,7 @@ export default {
   watch: {
     items: {
       handler(v) {
-        if (!this.selectVariable) {
+        if (this.needInitData()) {
           this.initData(v);
         }
       },
@@ -341,6 +341,15 @@ export default {
     },
   },
   methods: {
+    needInitData() {
+      if (this.selectVariable) {
+        return false;
+      }
+      if (this.condition.filters && this.condition.filters.scope && this.condition.filters.scope.length > 0) {
+        return false;
+      }
+      return true;
+    },
     remove: function (index) {
       const dataIndex = this.pageData.findIndex((d) => d.name === index.name);
       if (dataIndex !== -1) {
