@@ -83,7 +83,7 @@ public class OrganizationCustomFieldService extends BaseCustomFieldService {
         CustomField originCustomField = getWithCheck(customField.getId());
         if (originCustomField.getInternal()) {
             // 内置字段不能修改名字
-            originCustomField.setName(null);
+            customField.setName(null);
         }
         checkOrganizationTemplateEnable(customField.getScopeId(), originCustomField.getScene());
         customField.setScopeId(originCustomField.getScopeId());
