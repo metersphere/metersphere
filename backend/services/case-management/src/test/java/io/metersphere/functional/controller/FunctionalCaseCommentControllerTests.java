@@ -468,6 +468,15 @@ public class FunctionalCaseCommentControllerTests {
 
     }
 
+    @Test
+    @Order(22)
+    public void deleteCommentUser() throws Exception {
+        delFunctionalCaseCommentError();
+        FunctionalCaseComment functionalCaseComment = functionalCaseCommentMapper.selectByPrimaryKey("user_not_exist");
+        Assertions.assertNotNull(functionalCaseComment);
+
+    }
+
     private FunctionalCaseComment getFunctionalCaseComment(FunctionalCaseCommentRequest functionalCaseCommentRequest, String url) throws Exception {
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post(url).header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
@@ -488,6 +497,15 @@ public class FunctionalCaseCommentControllerTests {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+    }
+
+    private void delFunctionalCaseCommentError() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.get(DELETE_URL+ "user_not_exist").header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .header(SessionConstants.CURRENT_PROJECT, projectId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is5xxServerError())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
     private FunctionalCaseComment getFunctionalCaseComment() {

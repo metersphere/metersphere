@@ -142,5 +142,8 @@ VALUES (UUID(), 'default-project-member-user-guo', 'project_admin', 'project-cas
 INSERT INTO user_role_permission(id, role_id, permission_id)
 VALUES ('user_role_guo_permission1', 'project_admin', 'FUNCTIONAL_CASE:READ+COMMENT');
 
+INSERT INTO functional_case_comment(id, case_id, create_user, parent_id, resource_id, notifier, content, reply_user, create_time, update_time)
+VALUES ('user_not_exist', 'comment_case', 'gyq', 'NONE', null, 'gyq;', '', null,UNIX_TIMESTAMP() * 1000,UNIX_TIMESTAMP() * 1000);
+
 
 

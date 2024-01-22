@@ -213,10 +213,14 @@ public class FunctionalCaseCommentService {
         return relatedUserList;
     }
 
-    public void deleteComment(String commentId) {
+    public void deleteComment(String commentId, String userId) {
         FunctionalCaseComment functionalCaseComment = functionalCaseCommentMapper.selectByPrimaryKey(commentId);
         if (functionalCaseComment == null) {
             return;
+        }
+        //只有评论人自己可以删除当前评论
+        if (!StringUtils.equalsIgnoreCase(functionalCaseComment.getCreateUser(), userId)) {
+            throw new MSException(Translator.get("case_comment.user_self"));
         }
         //删除选中的评论下的所有回复
         FunctionalCaseCommentExample functionalCaseCommentExample = new FunctionalCaseCommentExample();
