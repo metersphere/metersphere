@@ -3,6 +3,7 @@ package io.metersphere.bug.dto.response;
 import io.metersphere.bug.domain.Bug;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
@@ -10,6 +11,7 @@ import java.util.List;
  * @author song-cc-rock
  */
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class BugDTO extends Bug {
 
     @Schema(description = "缺陷内容")

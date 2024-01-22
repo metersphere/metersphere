@@ -14,6 +14,8 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 
@@ -44,6 +46,11 @@ public class BugSyncExtraServiceTests extends BaseTest {
     @Sql(scripts = {"/dml/init_bug_sync_extra.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     void test() throws Exception {
         List<BugFileDTO> allBugFile = bugAttachmentService.getAllBugFiles("bug-for-sync-extra");
+        // Mock minio upload exception
+        MockMultipartFile file = new MockMultipartFile("file", "test.txt", MediaType.APPLICATION_OCTET_STREAM_VALUE, "aa".getBytes());
+        Mockito.doThrow(new MSException("save minio error!")).when(minioMock).saveFile(Mockito.eq(file), Mockito.any());
+        MSException uploadException = assertThrows(MSException.class, () -> bugAttachmentService.uploadMdFile(file));
+        assertEquals(uploadException.getMessage(), "save minio error!");
         // Mock minio delete exception
         Mockito.doThrow(new MSException("delete minio error!")).when(minioMock).delete(Mockito.any());
         MSException deleteException = assertThrows(MSException.class, () ->

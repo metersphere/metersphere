@@ -110,6 +110,13 @@ public class BugController {
         bugService.addOrUpdate(request, files, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), true);
     }
 
+    @GetMapping("/get/{id}")
+    @Operation(summary = "缺陷管理-列表-详情&&编辑&&复制")
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
+    public void get(@PathVariable String id) {
+        bugService.get(id);
+    }
+
     @GetMapping("/delete/{id}")
     @Operation(summary = "缺陷管理-列表-删除缺陷")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_DELETE)

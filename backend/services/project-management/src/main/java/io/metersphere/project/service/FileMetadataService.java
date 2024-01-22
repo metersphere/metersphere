@@ -328,7 +328,7 @@ public class FileMetadataService {
         byte[] bytes = this.getFileByte(fileMetadata);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + this.getFileName(fileMetadata.getId(), fileMetadata.getType()) + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + this.getFileName(fileMetadata.getName(), fileMetadata.getType()) + "\"")
                 .body(bytes);
     }
 

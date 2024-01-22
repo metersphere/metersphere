@@ -4,10 +4,7 @@ import io.metersphere.bug.constants.BugExportColumns;
 import io.metersphere.bug.domain.*;
 import io.metersphere.bug.dto.BugTemplateInjectField;
 import io.metersphere.bug.dto.request.*;
-import io.metersphere.bug.dto.response.BugCustomFieldDTO;
-import io.metersphere.bug.dto.response.BugDTO;
-import io.metersphere.bug.dto.response.BugRelateCaseCountDTO;
-import io.metersphere.bug.dto.response.BugTagEditDTO;
+import io.metersphere.bug.dto.response.*;
 import io.metersphere.bug.enums.BugAttachmentSourceType;
 import io.metersphere.bug.enums.BugPlatform;
 import io.metersphere.bug.enums.BugTemplateCustomField;
@@ -38,8 +35,6 @@ import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.ServiceIntegration;
 import io.metersphere.system.domain.Template;
 import io.metersphere.system.domain.TemplateCustomField;
-import io.metersphere.system.domain.User;
-import io.metersphere.system.dto.BugNoticeDTO;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
@@ -49,16 +44,11 @@ import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.system.mapper.TemplateMapper;
-import io.metersphere.system.mapper.UserMapper;
-import io.metersphere.system.notice.NoticeModel;
-import io.metersphere.system.notice.constants.NoticeConstants;
-import io.metersphere.system.notice.utils.MessageTemplateUtils;
 import io.metersphere.system.service.*;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
 import jodd.util.StringUtil;
-import org.apache.commons.beanutils.BeanMap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.MapUtils;
@@ -68,6 +58,7 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -95,13 +86,9 @@ public class BugService {
     @Resource
     private BugMapper bugMapper;
     @Resource
-    private UserMapper userMapper;
-    @Resource
     private ExtBugMapper extBugMapper;
     @Resource
     private ProjectMapper projectMapper;
-    @Resource
-    private NoticeSendService noticeSendService;
     @Resource
     private BaseUserMapper baseUserMapper;
     @Resource
@@ -120,6 +107,9 @@ public class BugService {
     private UserPlatformAccountService userPlatformAccountService;
     @Resource
     private BaseTemplateCustomFieldService baseTemplateCustomFieldService;
+    @Resource
+    @Lazy
+    private BugNoticeService bugNoticeService;
     @Resource
     private BugCustomFieldMapper bugCustomFieldMapper;
     @Resource
@@ -160,6 +150,8 @@ public class BugService {
     private BugStatusService bugStatusService;
     @Resource
     private ProjectMemberService projectMemberService;
+    @Resource
+    private BugAttachmentService bugAttachmentService;
 
     /**
      * 缺陷列表查询
@@ -191,7 +183,6 @@ public class BugService {
          *  2. 第三方平台缺陷需调用插件同步缺陷至其他平台(自定义字段需处理);
          *  3. 保存MS缺陷(基础字段, 自定义字段)
          *  4. 处理附件(第三方平台缺陷需异步调用接口同步附件至第三方)
-         *  4. 变更历史, 操作记录;
          */
         String platformName = projectApplicationService.getPlatformName(request.getProjectId());
         PlatformBugUpdateDTO platformBug = null;
@@ -225,6 +216,28 @@ public class BugService {
     }
 
     /**
+     * 获取缺陷详情
+     * @param id 缺陷ID
+     * @return 缺陷详情
+     */
+    public BugDetailDTO get(String id) {
+        BugDetailDTO bugDetail = new BugDetailDTO();
+        Bug bug = checkBugExist(id);
+        BeanUtils.copyBean(bugDetail, bug);
+        // 缺陷内容
+        BugContent bugContent = bugContentMapper.selectByPrimaryKey(id);
+        if (bugContent != null) {
+            bugDetail.setDescription(bugContent.getDescription());
+        }
+        // 缺陷自定义字段
+        List<BugCustomFieldDTO> customFields = extBugCustomFieldMapper.getBugAllCustomFields(List.of(id), bug.getProjectId());
+        bugDetail.setCustomFields(customFields);
+        // 缺陷附件信息
+        bugDetail.setAttachments(bugAttachmentService.getAllBugFiles(id));
+        return bugDetail;
+    }
+
+    /**
      * 删除缺陷
      *
      * @param id 缺陷ID
@@ -246,7 +259,7 @@ public class BugService {
             bugMapper.deleteByPrimaryKey(id);
         }
         // 发送通知
-        sendDeleteNotice(bug, currentUser);
+        bugNoticeService.sendDeleteNotice(bug, currentUser);
     }
 
     /**
@@ -554,7 +567,6 @@ public class BugService {
         // 来自平台模板
         templateDTO.setPlatformDefault(false);
         String platformName = projectApplicationService.getPlatformName(projectId);
-        // TODO: 严重程度
 
         // 状态字段
         attachTemplateStatusField(templateDTO, projectId, fromStatusId, platformBugKey);
@@ -690,10 +702,15 @@ public class BugService {
             bug.setUpdateUser(currentUser);
             bug.setUpdateTime(System.currentTimeMillis());
             bugMapper.updateByPrimaryKeySelective(bug);
+            BugContent originalContent = bugContentMapper.selectByPrimaryKey(bug.getId());
             BugContent bugContent = new BugContent();
             bugContent.setBugId(bug.getId());
             bugContent.setDescription(request.getDescription());
-            bugContentMapper.updateByPrimaryKeySelective(bugContent);
+            if (originalContent == null) {
+                bugContentMapper.insert(bugContent);
+            } else {
+                bugContentMapper.updateByPrimaryKeySelective(bugContent);
+            }
         }
     }
 
@@ -792,7 +809,7 @@ public class BugService {
         List<SyncAttachmentToPlatformRequest> allSyncAttachments = Stream.concat(removeAttachments.stream(), uploadAttachments.stream()).toList();
 
         // 同步至第三方(异步调用)
-        if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
+        if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName()) && CollectionUtils.isNotEmpty(allSyncAttachments)) {
             bugSyncExtraService.syncAttachmentToPlatform(allSyncAttachments, request.getProjectId(), tempFileDir);
         }
     }
@@ -815,7 +832,7 @@ public class BugService {
             Map<String, BugLocalAttachment> localAttachmentMap = bugLocalAttachments.stream().collect(Collectors.toMap(BugLocalAttachment::getFileId, v -> v));
             // 删除本地上传的附件, BUG_LOCAL_ATTACHMENT表
             request.getDeleteLocalFileIds().forEach(deleteFileId -> {
-                FileRequest fileRequest = buildBugFileRequest(request.getProjectId(), request.getId(), localAttachmentMap.get(deleteFileId).getFileName());
+                FileRequest fileRequest = buildBugFileRequest(request.getProjectId(), request.getId(), deleteFileId, localAttachmentMap.get(deleteFileId).getFileName());
                 try {
                     fileService.deleteFile(fileRequest);
                     // 删除的本地的附件同步至平台
@@ -884,12 +901,12 @@ public class BugService {
             });
             extBugLocalAttachmentMapper.batchInsert(addFiles);
             uploadMinioFiles.forEach((fileId, file) -> {
-                FileRequest fileRequest = buildBugFileRequest(request.getProjectId(), request.getId(), file.getOriginalFilename());
+                FileRequest fileRequest = buildBugFileRequest(request.getProjectId(), request.getId(), fileId, file.getOriginalFilename());
                 try {
                     fileService.upload(file, fileRequest);
                     // 同步新上传的附件至平台
                     if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
-                        File uploadTmpFile = new File(tempFileDir, Objects.requireNonNull(file.getOriginalFilename()));
+                        File uploadTmpFile = new File(tempFileDir, Objects.requireNonNull(file.getOriginalFilename())).toPath().normalize().toFile();;
                         FileUtils.writeByteArrayToFile(uploadTmpFile, file.getBytes());
                         uploadPlatformAttachments.add(new SyncAttachmentToPlatformRequest(platformBug.getPlatformBugKey(), uploadTmpFile, SyncAttachmentType.UPLOAD.syncOperateType()));
                     }
@@ -1093,7 +1110,7 @@ public class BugService {
        attachmentExample.createCriteria().andBugIdEqualTo(bugId);
        List<BugLocalAttachment> bugLocalAttachments = bugLocalAttachmentMapper.selectByExample(attachmentExample);
        bugLocalAttachments.forEach(bugLocalAttachment -> {
-           FileRequest fileRequest = buildBugFileRequest(projectId, bugId, bugLocalAttachment.getFileName());
+           FileRequest fileRequest = buildBugFileRequest(projectId, bugId, bugLocalAttachment.getFileId(), bugLocalAttachment.getFileName());
            try {
                fileService.deleteFile(fileRequest);
            } catch (Exception e) {
@@ -1133,12 +1150,13 @@ public class BugService {
      * 构建缺陷文件请求
      * @param projectId 项目ID
      * @param resourceId 资源ID
+     * @param fileId 文件ID
      * @param fileName 文件名称
      * @return 文件请求对象
      */
-    private FileRequest buildBugFileRequest(String projectId, String resourceId, String fileName) {
+    private FileRequest buildBugFileRequest(String projectId, String resourceId, String fileId, String fileName) {
         FileRequest fileRequest = new FileRequest();
-        fileRequest.setFolder(DefaultRepositoryDir.getBugDir(projectId, resourceId));
+        fileRequest.setFolder(DefaultRepositoryDir.getBugDir(projectId, resourceId) + "/" + fileId);
         fileRequest.setFileName(StringUtils.isEmpty(fileName) ? null : fileName);
         fileRequest.setStorage(StorageType.MINIO.name());
         return fileRequest;
@@ -1350,36 +1368,5 @@ public class BugService {
             logs.add(log);
         });
         return logs;
-    }
-
-    private void sendDeleteNotice(Bug bug, String currentUser) {
-        List<SelectOption> statusOption = bugStatusService.getHeaderStatusOption(bug.getProjectId());
-        Map<String, String> statusMap = statusOption.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
-        List<SelectOption> handlerOption = getHeaderHandlerOption(bug.getProjectId());
-        Map<String, String> handlerMap = handlerOption.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
-        // 缺陷相关内容
-        BugNoticeDTO notice = new BugNoticeDTO();
-        notice.setTitle(bug.getTitle());
-        notice.setStatus(statusMap.get(bug.getStatus()));
-        notice.setHandleUser(handlerMap.get(bug.getHandleUser()));
-        List<BugCustomFieldDTO> customFields = extBugCustomFieldMapper.getBugAllCustomFields(List.of(bug.getId()), bug.getProjectId());
-        List<OptionDTO> fields = customFields.stream().map(field -> {
-            OptionDTO fieldDTO = new OptionDTO();
-            fieldDTO.setId(field.getName());
-            fieldDTO.setName(field.getValue());
-            return fieldDTO;
-        }).toList();
-        notice.setCustomFields(fields);
-        BeanMap beanMap = new BeanMap(notice);
-        User user = userMapper.selectByPrimaryKey(currentUser);
-        Map paramMap = new HashMap<>(beanMap);
-        paramMap.put(NoticeConstants.RelatedUser.OPERATOR, user.getName());
-        Map<String, String> defaultTemplateMap = MessageTemplateUtils.getDefaultTemplateMap();
-        String template = defaultTemplateMap.get(NoticeConstants.TemplateText.BUG_TASK_DELETE);
-        Map<String, String> defaultSubjectMap = MessageTemplateUtils.getDefaultTemplateSubjectMap();
-        String subject = defaultSubjectMap.get(NoticeConstants.TemplateText.BUG_TASK_DELETE);
-        NoticeModel noticeModel = NoticeModel.builder().operator(currentUser)
-                .context(template).subject(subject).paramMap(paramMap).event(NoticeConstants.Event.DELETE).build();
-        noticeSendService.send(NoticeConstants.TaskType.BUG_TASK, noticeModel);
     }
 }

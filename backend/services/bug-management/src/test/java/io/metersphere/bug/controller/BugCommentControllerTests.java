@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class BugCommentTests extends BaseTest {
+public class BugCommentControllerTests extends BaseTest {
 
     @Resource
     private BugCommentMapper bugCommentMapper;

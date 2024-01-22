@@ -76,6 +76,8 @@ public class BugControllerTests extends BaseTest {
     public static final String BUG_PAGE = "/bug/page";
     public static final String BUG_ADD = "/bug/add";
     public static final String BUG_UPDATE = "/bug/update";
+    public static final String BUG_DETAIL = "/bug/get";
+    public static final String BUG_QUICK_UPDATE = "/bug/quick-update";
     public static final String BUG_DELETE = "/bug/delete";
     public static final String BUG_TEMPLATE_OPTION = "/bug/template/option";
     public static final String BUG_TEMPLATE_DETAIL = "/bug/template/detail";
@@ -227,6 +229,7 @@ public class BugControllerTests extends BaseTest {
         File file = new File(filePath);
         MultiValueMap<String, Object> paramMap = getDefaultMultiPartParam(request, file);
         this.requestMultipartWithOkAndReturn(BUG_ADD, paramMap);
+
     }
 
     @Test
@@ -271,8 +274,17 @@ public class BugControllerTests extends BaseTest {
         request.setLinkFileIds(null);
         request.setUnLinkRefIds(null);
         request.setDeleteLocalFileIds(null);
+        request.setDescription("1111");
         noFileParamMap.add("request", JSON.toJSONString(request));
         this.requestMultipartWithOkAndReturn(BUG_UPDATE, noFileParamMap);
+        // 获取缺陷详情
+        this.requestGetWithOk(BUG_DETAIL + "/default-bug-id");
+        this.requestGetWithOk(BUG_DETAIL + "/" + request.getId());
+        // 更新部分
+        BugQuickEditRequest quickEditRequest = new BugQuickEditRequest();
+        quickEditRequest.setId(request.getId());
+        quickEditRequest.setTags(List.of("TEST"));
+        this.requestPost(BUG_QUICK_UPDATE, quickEditRequest, status().isOk());
     }
 
     @Test

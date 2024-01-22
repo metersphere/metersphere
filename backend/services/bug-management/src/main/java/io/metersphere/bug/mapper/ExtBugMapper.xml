@@ -15,7 +15,7 @@
 
     <select id="list" resultMap="BugDTO">
         select b.id, b.num, b.title, b.handle_user, b.create_user, b.create_time, b.update_time, b.delete_time, b.delete_user,
-               b.project_id, b.template_id, b.platform, b.status, b.tags, bc.description from bug b left join bug_content bc on b.id = bc.bug_id
+               b.project_id, b.template_id, b.platform, b.status, b.tags from bug b
         <include refid="queryWhereCondition"/>
     </select>
 
