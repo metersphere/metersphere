@@ -46,7 +46,7 @@ public class FunctionalCaseCommentController {
     @Operation(summary = "用例管理-功能用例-用例评论-删除评论")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_COMMENT)
     public void deleteComment(@PathVariable String commentId) {
-        functionalCaseCommentService.deleteComment(commentId);
+        functionalCaseCommentService.deleteComment(commentId, SessionUtils.getUserId());
     }
 
     @GetMapping("/get/list/{caseId}")
