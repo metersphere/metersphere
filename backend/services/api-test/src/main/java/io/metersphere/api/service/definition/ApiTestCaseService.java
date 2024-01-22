@@ -40,6 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -528,5 +529,14 @@ public class ApiTestCaseService {
                 SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
             }
         }
+    }
+
+    public List<ApiTestCaseBlob> getBlobByIds(List<String> apiCaseIds) {
+        if (CollectionUtils.isEmpty(apiCaseIds)) {
+            return Collections.emptyList();
+        }
+        ApiTestCaseBlobExample example = new ApiTestCaseBlobExample();
+        example.createCriteria().andIdIn(apiCaseIds);
+        return apiTestCaseBlobMapper.selectByExampleWithBLOBs(example);
     }
 }

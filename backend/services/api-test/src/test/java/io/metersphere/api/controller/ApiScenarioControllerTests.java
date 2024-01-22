@@ -3,6 +3,7 @@ package io.metersphere.api.controller;
 import io.metersphere.api.constants.ApiDefinitionStatus;
 import io.metersphere.api.constants.ApiScenarioStatus;
 import io.metersphere.api.constants.ApiScenarioStepRefType;
+import io.metersphere.api.constants.ApiScenarioStepType;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.ApiDefinitionAddRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseAddRequest;
@@ -11,6 +12,7 @@ import io.metersphere.api.dto.request.assertion.MsScriptAssertion;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.scenario.*;
 import io.metersphere.api.mapper.*;
+import io.metersphere.api.service.BaseResourcePoolTestService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.utils.ApiDataUtils;
@@ -60,6 +62,7 @@ public class ApiScenarioControllerTests extends BaseTest {
     private static final String FOLLOW = "follow/";
     protected static final String UPLOAD_TEMP_FILE = "upload/temp/file";
     protected static final String DELETE_TO_GC = "delete-to-gc/{0}";
+    protected static final String DEBUG = "debug";
 
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
     @Resource
@@ -86,6 +89,8 @@ public class ApiScenarioControllerTests extends BaseTest {
     private ApiDefinitionService apiDefinitionService;
     @Resource
     private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private BaseResourcePoolTestService baseResourcePoolTestService;
     private static ApiScenario addApiScenario;
     private static ApiScenario anOtherAddApiScenario;
     private static ApiDefinition apiDefinition;
@@ -227,7 +232,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         stepRequest2.setId(IDGenerator.nextStr());
         stepRequest2.setName(addApiScenario.getName());
         stepRequest2.setResourceId(addApiScenario.getId());
-        stepRequest2.setRefType(ApiScenarioStepRefType.STEP_REF.name());
+        stepRequest2.setRefType(ApiScenarioStepRefType.PARTIAL_REF.name());
         stepRequest2.setChildren(List.of(stepRequest));
         steps = List.of(stepRequest, stepRequest2);
         request.setSteps(steps);
@@ -326,8 +331,11 @@ public class ApiScenarioControllerTests extends BaseTest {
         stepRequest3.setResourceId(apiDefinition.getId());
         stepRequest.setName(apiDefinition.getName() + "3");
         stepRequest3.setRefType(ApiScenarioStepRefType.REF.name());
-
-        return List.of(stepRequest, stepRequest2);
+        return new ArrayList<>() {{
+            add(stepRequest);
+            add(stepRequest2);
+            add(stepRequest3);
+        }};
     }
 
     private void initTestData() {
@@ -410,30 +418,6 @@ public class ApiScenarioControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(3)
-    public void deleteToGc() throws Exception {
-        // @@请求成功
-        this.requestGetWithOk(DELETE_TO_GC, addApiScenario.getId());
-        // todo 校验请求成功数据
-        // @@校验日志
-        checkLog(addApiScenario.getId(), OperationLogType.DELETE);
-        // @@校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_DELETE, DELETE_TO_GC, addApiScenario.getId());
-    }
-
-    @Test
-    @Order(4)
-    public void delete() throws Exception {
-        // @@请求成功
-        this.requestGetWithOk(DEFAULT_DELETE, addApiScenario.getId());
-        // todo 校验请求成功数据
-        // @@校验日志
-        checkLog(addApiScenario.getId(), OperationLogType.DELETE);
-        // @@校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_DELETE, DEFAULT_DELETE, addApiScenario.getId());
-    }
-
-    @Test
     @Order(5)
     public void uploadTempFile() throws Exception {
         // @@请求成功
@@ -448,6 +432,45 @@ public class ApiScenarioControllerTests extends BaseTest {
 
         requestUploadPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_ADD, UPLOAD_TEMP_FILE, file);
         requestUploadPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_UPDATE, UPLOAD_TEMP_FILE, file);
+    }
+
+    @Test
+    @Order(6)
+    public void debug() throws Exception {
+        mockPost("/api/debug", "");
+        baseResourcePoolTestService.initProjectResourcePool();
+        // @@请求成功
+        ApiScenarioDebugRequest request = new ApiScenarioDebugRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setScenarioConfig(new ScenarioConfig());
+        request.setEnvironmentId("environmentId");
+
+        List<ApiScenarioStepRequest> steps = getApiScenarioStepRequests();
+        ApiScenarioStepRequest stepRequest = new ApiScenarioStepRequest();
+        stepRequest.setName("test step");
+        stepRequest.setId(IDGenerator.nextStr());
+        stepRequest.setRefType(ApiScenarioStepRefType.REF.name());
+        stepRequest.setResourceId(addApiScenario.getId());
+        stepRequest.setResourceNum(addApiScenario.getNum().toString());
+        stepRequest.setName(addApiScenario.getName());
+        stepRequest.setStepType(ApiScenarioStepType.API_SCENARIO.name());
+        stepRequest.setChildren(getApiScenarioStepRequests());
+        steps.add(stepRequest);
+        ApiScenarioStepRequest copyScenarioStep = BeanUtils.copyBean(new ApiScenarioStepRequest(), stepRequest);
+        copyScenarioStep.setRefType(ApiScenarioStepRefType.COPY.name());
+        copyScenarioStep.setChildren(getApiScenarioStepRequests());
+        steps.add(stepRequest);
+        ApiScenarioStepRequest partialScenarioStep = BeanUtils.copyBean(new ApiScenarioStepRequest(), stepRequest);
+        partialScenarioStep.setRefType(ApiScenarioStepRefType.PARTIAL_REF.name());
+        partialScenarioStep.setChildren(getApiScenarioStepRequests());
+        steps.add(partialScenarioStep);
+        request.setId(addApiScenario.getId());
+        request.setSteps(steps);
+        request.setStepDetails(new HashMap<>());
+        this.requestPostWithOk(DEBUG, request);
+
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE, DEBUG, request);
     }
 
     private String doUploadTempFile(MockMultipartFile file) throws Exception {
@@ -465,6 +488,30 @@ public class ApiScenarioControllerTests extends BaseTest {
                 "Hello, World!".getBytes()
         );
         return file;
+    }
+
+    @Test
+    @Order(9)
+    public void deleteToGc() throws Exception {
+        // @@请求成功
+        this.requestGetWithOk(DELETE_TO_GC, addApiScenario.getId());
+        // todo 校验请求成功数据
+        // @@校验日志
+        checkLog(addApiScenario.getId(), OperationLogType.DELETE);
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_DELETE, DELETE_TO_GC, addApiScenario.getId());
+    }
+
+    @Test
+    @Order(10)
+    public void delete() throws Exception {
+        // @@请求成功
+        this.requestGetWithOk(DEFAULT_DELETE, addApiScenario.getId());
+        // todo 校验请求成功数据
+        // @@校验日志
+        checkLog(addApiScenario.getId(), OperationLogType.DELETE);
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_DELETE, DEFAULT_DELETE, addApiScenario.getId());
     }
 
     @Test

@@ -3,6 +3,7 @@ package io.metersphere.api.utils;
 import io.metersphere.api.parser.jmeter.MsCommentScriptElementConverter;
 import io.metersphere.api.parser.jmeter.MsCommonElementConverter;
 import io.metersphere.api.parser.jmeter.MsHTTPElementConverter;
+import io.metersphere.api.parser.jmeter.MsScenarioConverter;
 import io.metersphere.plugin.api.spi.AbstractJmeterElementConverter;
 import io.metersphere.plugin.api.spi.MsTestElement;
 import io.metersphere.plugin.sdk.util.PluginLogUtils;
@@ -30,6 +31,7 @@ public class JmeterElementConverterRegister {
         register(MsHTTPElementConverter.class);
         register(MsCommonElementConverter.class);
         register(MsCommentScriptElementConverter.class);
+        register(MsScenarioConverter.class);
     }
 
     /**

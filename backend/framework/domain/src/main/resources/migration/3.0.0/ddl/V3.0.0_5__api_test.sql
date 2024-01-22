@@ -283,7 +283,7 @@ CREATE TABLE IF NOT EXISTS api_scenario_step(
     `project_id` VARCHAR(50)    COMMENT '项目fk' ,
     `parent_id` VARCHAR(50)   DEFAULT 'NONE' COMMENT '父级fk' ,
     `version_id` VARCHAR(50)    COMMENT '版本号' ,
-    `ref_type` VARCHAR(10)    COMMENT '引用/复制/自定义' ,
+    `ref_type` VARCHAR(20)    COMMENT '引用/复制/自定义' ,
     `config` VARCHAR(500)    COMMENT '循环等组件基础数据' ,
     PRIMARY KEY (id)
 )  ENGINE = InnoDB

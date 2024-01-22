@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.debug;
 
+import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import lombok.Data;
 
 import java.util.List;
@@ -20,7 +21,11 @@ public class ApiResourceRunRequest {
      */
     private String reportId;
     /**
-     * 环境ID
+     * 是否为环境组
+     */
+    private Boolean grouped = false;
+    /**
+     * 环境或者环境组ID
      */
     private String environmentId;
     /**
@@ -33,9 +38,9 @@ public class ApiResourceRunRequest {
      */
     private String resourceType;
     /**
-     * 请求内容
+     * 执行组件
      */
-    private String request;
+    private AbstractMsTestElement testElement;
     /**
      * 点击调试时尚未保存的文件列表
      */
