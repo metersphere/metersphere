@@ -655,6 +655,9 @@ org.apache.http.client.method . . . '' at line number 2
 </script>
 
 <style lang="less" scoped>
+  :deep(.arco-table-th) {
+    background-color: var(--color-text-n9);
+  }
   .condition-content {
     @apply flex-1 overflow-y-auto;
     .ms-scroll-bar();

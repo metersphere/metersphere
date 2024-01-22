@@ -95,3 +95,12 @@ export const reviewDefaultDetail: ReviewItem = {
   reReviewedCount: 0,
   followFlag: false,
 };
+// 脑图-标签
+export const minderTagMap = {
+  CASE: 'minder.tag.case',
+  MODULE: 'minder.tag.module',
+  PREREQUISITE: 'minder.tag.precondition',
+  TEXT_DESCRIPTION: 'minder.tag.desc',
+  EXPECTED_RESULT: 'minder.tag.expect',
+  DESCRIPTION: 'minder.tag.remark',
+};

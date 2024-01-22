@@ -51,7 +51,7 @@
       v-model:model-value="currentBodyCode"
       class="flex-1"
       theme="vs-dark"
-      height="calc(100% - 12px)"
+      height="100%"
       :show-full-screen="false"
       :language="currentCodeLanguage"
     >

@@ -94,10 +94,17 @@ export const editorProps = {
     type: Array as PropType<Array<Language>>,
     default: undefined,
   },
+  // 是否代码语言切换
   showLanguageChange: {
     type: Boolean as PropType<boolean>,
     default: false,
   },
+  // 是否显示字符集切换
+  showCharsetChange: {
+    type: Boolean as PropType<boolean>,
+    default: true,
+  },
+  // 是否显示主题切换
   showThemeChange: {
     type: Boolean as PropType<boolean>,
     default: true,

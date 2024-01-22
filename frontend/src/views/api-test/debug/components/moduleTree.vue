@@ -10,7 +10,7 @@
         </template>
       </a-dropdown>
     </div>
-    <div v-if="!props.isModal" class="folder">
+    <div class="folder">
       <div class="folder-text">
         <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
         <div class="folder-name">{{ t('apiTestDebug.allRequest') }}</div>
@@ -33,17 +33,18 @@
         </popConfirm>
       </div>
     </div>
-    <a-divider v-if="!props.isModal" class="my-[8px]" />
+    <a-divider class="my-[8px]" />
     <a-spin class="min-h-[400px] w-full" :loading="loading">
       <MsTree
         v-model:focus-node-key="focusNodeKey"
+        v-model:selected-keys="selectedKeys"
         :data="folderTree"
         :keyword="moduleKeyword"
         :node-more-actions="folderMoreActions"
         :default-expand-all="isExpandAll"
         :expand-all="isExpandAll"
         :empty-text="t('apiTestDebug.noMatchModule')"
-        :draggable="!props.isModal"
+        :draggable="true"
         :virtual-list-props="virtualListProps"
         :field-names="{
           title: 'name',
@@ -61,10 +62,10 @@
         <template #title="nodeData">
           <div class="inline-flex w-full">
             <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
-            <div v-if="!props.isModal" class="ml-[4px] text-[var(--color-text-4)]">({{ nodeData.count || 0 }})</div>
+            <div class="ml-[4px] text-[var(--color-text-4)]">({{ nodeData.count || 0 }})</div>
           </div>
         </template>
-        <template v-if="!props.isModal" #extra="nodeData">
+        <template #extra="nodeData">
           <!-- 默认模块的 id 是root，默认模块不可编辑、不可添加子模块 -->
           <popConfirm
             v-if="nodeData.id !== 'root'"
@@ -116,11 +117,10 @@
   import { ModuleTreeNode } from '@/models/projectManagement/file';
 
   const props = defineProps<{
-    isModal?: boolean; // 是否是弹窗模式
     modulesCount?: Record<string, number>; // 模块数量统计对象
     isExpandAll?: boolean; // 是否展开所有节点
   }>();
-  const emit = defineEmits(['init', 'folderNodeSelect', 'newApi']);
+  const emit = defineEmits(['init', 'change', 'newApi']);
 
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -140,11 +140,6 @@
   }
 
   const virtualListProps = computed(() => {
-    if (props.isModal) {
-      return {
-        height: 'calc(60vh - 190px)',
-      };
-    }
     return {
       height: 'calc(100vh - 325px)',
     };
@@ -169,7 +164,15 @@
   const moduleKeyword = ref('');
   const folderTree = ref<ModuleTreeNode[]>([]);
   const focusNodeKey = ref<string | number>('');
+  const selectedKeys = ref<string[]>([]);
   const loading = ref(false);
+
+  watch(
+    () => selectedKeys.value,
+    (arr) => {
+      emit('change', arr[0]);
+    }
+  );
 
   function setFocusNodeKey(node: MsTreeNodeData) {
     focusNodeKey.value = node.id || '';
@@ -200,8 +203,8 @@
         return {
           ...e,
           hideMoreAction: e.id === 'root',
-          draggable: e.id !== 'root' && !props.isModal,
-          disabled: e.id === activeFolder.value && props.isModal,
+          draggable: e.id !== 'root',
+          disabled: e.id === activeFolder.value,
         };
       });
       emit('init', folderTree.value);

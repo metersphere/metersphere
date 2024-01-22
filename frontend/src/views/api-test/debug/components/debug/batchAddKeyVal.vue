@@ -28,7 +28,7 @@
         v-model:model-value="batchParamsCode"
         class="flex-1"
         theme="MS-text"
-        height="calc(100% - 12px)"
+        height="100%"
         :show-full-screen="false"
       >
         <template #title>

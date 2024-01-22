@@ -90,6 +90,14 @@ export default {
       priority: 'Priority',
       tag: 'Tag',
     },
+    tag: {
+      case: 'Case',
+      module: 'Module',
+      precondition: 'Precondition',
+      desc: 'Step desc',
+      expect: 'Expected result',
+      remark: 'Remark',
+    },
     hotboxMenu: {
       expand: 'Expand/Collapse',
       insetParent: 'Insert one level up',

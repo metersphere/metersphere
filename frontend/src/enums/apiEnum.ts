@@ -43,3 +43,12 @@ export enum RequestContentTypeEnum {
   ATOM_XML = 'application/atom+xml',
   ECMASCRIPT = 'application/ecmascript',
 }
+// 接口响应组成部分
+export enum ResponseComposition {
+  BODY = 'BODY',
+  HEADER = 'HEADER',
+  REAL_REQUEST = 'REAL_REQUEST', // 实际请求
+  CONSOLE = 'CONSOLE',
+  EXTRACT = 'EXTRACT',
+  ASSERTION = 'ASSERTION',
+}

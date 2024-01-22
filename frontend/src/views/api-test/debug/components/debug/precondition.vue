@@ -21,7 +21,7 @@
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
 
-  import condition from '../../../components/condition/index.vue';
+  import condition from '@/views/api-test/components/condition/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 

@@ -74,6 +74,7 @@ export default {
   'common.collapseAll': 'Collapse all',
   'common.expandAll': 'Expand all',
   'common.copy': 'Copy',
+  'common.copySuccess': 'Copy successfully',
   'common.fork': 'Fork',
   'common.forked': 'Forked',
   'common.more': 'More',
@@ -95,4 +96,6 @@ export default {
   'common.revoke': 'Revoke',
   'common.clear': 'Clear',
   'common.tag': 'Tag',
+  'common.success': 'Success',
+  'common.fail': 'Failed',
 };

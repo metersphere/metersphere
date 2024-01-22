@@ -567,7 +567,7 @@
     background-color: var(--color-text-n9);
   }
   :deep(.arco-table-cell-align-left) {
-    padding: 16px 12px;
+    padding: 16px 2px;
   }
   :deep(.arco-table-td) {
     .arco-table-cell {

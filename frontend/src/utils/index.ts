@@ -1,5 +1,7 @@
 import JSEncrypt from 'jsencrypt';
 
+import { codeCharset } from '@/config/apiTest';
+
 import { isObject } from './is';
 
 type TargetContext = '_self' | '_parent' | '_blank' | '_top';
@@ -324,7 +326,7 @@ export const getHashParameters = (): Record<string, string> => {
 };
 
 /**
- * 获取 id 序列号
+ * 生成 id 序列号
  * @returns
  */
 export const getGenerateId = () => {
@@ -357,3 +359,14 @@ export const downloadByteFile = (byte: BlobPart, fileName: string) => {
   window.URL.revokeObjectURL(url);
   document.body.removeChild(link);
 };
+
+/**
+ * 转换字符串的字符集编码
+ * @param str 需要转换的字符串
+ * @param charset 字符集编码
+ */
+export function decodeStringToCharset(str: string, charset = 'UTF-8') {
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder(charset);
+  return decoder.decode(encoder.encode(str));
+}

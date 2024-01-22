@@ -257,7 +257,7 @@
   }
   .code-container {
     padding: 12px;
-    height: 400px;
+    max-height: 400px;
     border-radius: var(--border-radius-small);
     background-color: var(--color-text-n9);
   }
