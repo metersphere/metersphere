@@ -363,7 +363,7 @@ public class ApiDebugControllerTests extends BaseTest {
         MsHTTPElement msHTTPElement = new MsHTTPElement();
         msHTTPElement.setPath("/test");
         msHTTPElement.setMethod("GET");
-        request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
+        request.setRequest(JSON.parseObject(ApiDataUtils.toJSONString(msHTTPElement)));
 
         // @校验组织没有资源池权限异常
         assertErrorCode(this.requestPost(DEBUG, request), ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);
@@ -392,7 +392,7 @@ public class ApiDebugControllerTests extends BaseTest {
         msHTTPElement = MsHTTPElementTest.getMsHttpElement();
         msHTTPElement.setChildren(linkedList);
         msHTTPElement.setEnable(true);
-        request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
+        request.setRequest(getMsElementParam(msHTTPElement));
         this.requestPostWithOk(DEBUG, request);
 
         // 测试请求体
@@ -407,10 +407,10 @@ public class ApiDebugControllerTests extends BaseTest {
 
         // 增加覆盖率
         msHTTPElement.setMethod("GET");
-        request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
+        request.setRequest(getMsElementParam(msHTTPElement));
         this.requestPostWithOk(DEBUG, request);
         msHTTPElement.setEnable(false);
-        request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
+        request.setRequest(getMsElementParam(msHTTPElement));
         this.requestPostWithOk(DEBUG, request);
 
         // 增加覆盖率
@@ -426,33 +426,37 @@ public class ApiDebugControllerTests extends BaseTest {
     private void testBodyParse(ApiDebugRunRequest request, MsHTTPElement msHTTPElement, Body generalBody) throws Exception {
         // 测试 FORM_DATA
         generalBody.setBodyType(Body.BodyType.FORM_DATA.name());
-        request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
+        request.setRequest(getMsElementParam(msHTTPElement));
         this.requestPostWithOk(DEBUG, request);
 
         // 测试 WWW_FORM
         generalBody.setBodyType(Body.BodyType.WWW_FORM.name());
-        request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
+        request.setRequest(getMsElementParam(msHTTPElement));
         this.requestPostWithOk(DEBUG, request);
 
         // 测试 BINARY
         generalBody.setBodyType(Body.BodyType.BINARY.name());
-        request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
+        request.setRequest(getMsElementParam(msHTTPElement));
         this.requestPostWithOk(DEBUG, request);
 
         // 测试 JSON
         generalBody.setBodyType(Body.BodyType.JSON.name());
-        request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
+        request.setRequest(getMsElementParam(msHTTPElement));
         this.requestPostWithOk(DEBUG, request);
 
         // 测试 XML
         generalBody.setBodyType(Body.BodyType.XML.name());
-        request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
+        request.setRequest(getMsElementParam(msHTTPElement));
         this.requestPostWithOk(DEBUG, request);
 
         // 测试 RAW
         generalBody.setBodyType(Body.BodyType.RAW.name());
-        request.setRequest(ApiDataUtils.toJSONString(msHTTPElement));
+        request.setRequest(getMsElementParam(msHTTPElement));
         this.requestPostWithOk(DEBUG, request);
+    }
+
+    private Object getMsElementParam(MsHTTPElement msHTTPElement) {
+        return JSON.parseObject(ApiDataUtils.toJSONString(msHTTPElement));
     }
 
     @Test

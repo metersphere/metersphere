@@ -50,7 +50,8 @@ public class ApiScenarioStepRequest {
     /**
      * 引用模式：默认完全引用
      *   - 完全引用：步骤状态不可调整
-     *   - 步骤引用：步骤状态可调整
+     *   - 部分引用：步骤状态可调整
+     * @see io.metersphere.api.constants.ApiScenarioStepRefType
      */
     @Schema(description = "引用/复制/自定义")
     private String refType;

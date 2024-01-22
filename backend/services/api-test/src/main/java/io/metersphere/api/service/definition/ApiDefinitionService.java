@@ -1011,4 +1011,13 @@ public class ApiDefinitionService {
         // 记录操作日志
         return apiDefinitionLogService.recoverOperationHistoryLog(apiDefinitionDTO, apiDefinition.getCreateUser(), apiDefinition.getProjectId());
     }
+
+    public List<ApiDefinitionBlob> getBlobByIds(List<String> apiIds) {
+        if (CollectionUtils.isEmpty(apiIds)) {
+            return Collections.emptyList();
+        }
+        ApiDefinitionBlobExample apiDefinitionBlobExample = new ApiDefinitionBlobExample();
+        apiDefinitionBlobExample.createCriteria().andIdIn(apiIds);
+        return apiDefinitionBlobMapper.selectByExampleWithBLOBs(apiDefinitionBlobExample);
+    }
 }

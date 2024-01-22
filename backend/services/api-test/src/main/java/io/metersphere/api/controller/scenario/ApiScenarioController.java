@@ -70,7 +70,7 @@ public class ApiScenarioController {
     }
 
     @PostMapping("/add")
-    @Operation(summary = "创建场景")
+    @Operation(summary = "接口测试-接口场景管理-创建场景")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = ApiScenarioLogService.class)
     public ApiScenario add(@Validated @RequestBody ApiScenarioAddRequest request) {
@@ -78,14 +78,14 @@ public class ApiScenarioController {
     }
 
     @PostMapping("/upload/temp/file")
-    @Operation(summary = "上传场景所需的文件资源，并返回文件ID")
+    @Operation(summary = "接口测试-接口场景管理-上传场景所需的文件资源，并返回文件ID")
     @RequiresPermissions(logical = Logical.OR, value = {PermissionConstants.PROJECT_API_SCENARIO_ADD, PermissionConstants.PROJECT_API_SCENARIO_UPDATE})
     public String uploadTempFile(@RequestParam("file") MultipartFile file) {
         return apiScenarioService.uploadTempFile(file);
     }
 
     @PostMapping("/update")
-    @Operation(summary = "更新场景")
+    @Operation(summary = "接口测试-接口场景管理-更新场景")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ApiScenarioLogService.class)
     public ApiScenario update(@Validated @RequestBody ApiScenarioUpdateRequest request) {
@@ -93,7 +93,7 @@ public class ApiScenarioController {
     }
 
     @GetMapping("/delete/{id}")
-    @Operation(summary = "删除场景")
+    @Operation(summary = "接口测试-接口场景管理-删除场景")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = ApiScenarioLogService.class)
     public void delete(@PathVariable String id) {
@@ -101,10 +101,17 @@ public class ApiScenarioController {
     }
 
     @GetMapping("/delete-to-gc/{id}")
-    @Operation(summary = "删除场景到回收站")
+    @Operation(summary = "接口测试-接口场景管理-删除场景到回收站")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = ApiScenarioLogService.class)
     public void deleteToGc(@PathVariable String id) {
         apiScenarioService.deleteToGc(id);
+    }
+
+    @PostMapping("/debug")
+    @Operation(summary = "接口测试-接口场景管理-场景调试")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE)
+    public String debug(@RequestBody ApiScenarioDebugRequest request) {
+        return apiScenarioService.debug(request);
     }
 }

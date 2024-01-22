@@ -18,5 +18,5 @@ public class ApiDebugRunRequest {
     private List<String> tempFileIds;
     @NotNull
     @Schema(description = "请求内容")
-    private String request;
+    private Object request;
 }

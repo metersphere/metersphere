@@ -18,6 +18,7 @@ import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
@@ -187,6 +188,8 @@ public class ApiDebugService {
         runRequest.setReportId(id);
         runRequest.setResourceType(ApiResourceType.API_DEBUG.name());
         runRequest.setRunMode(ApiExecuteRunMode.BACKEND_DEBUG.name());
+        runRequest.setEnvironmentId(request.getEnvironmentId());
+        runRequest.setTestElement(ApiDataUtils.parseObject(JSON.toJSONString(request.getRequest()), AbstractMsTestElement.class));
 
         apiExecuteService.debug(runRequest);
 

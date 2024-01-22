@@ -131,7 +131,7 @@ public class ApiExecuteService {
         // todo 接口用例 method 获取定义中的数据库字段
         ParameterConfig parameterConfig = new ParameterConfig();
         parameterConfig.setReportId(reportId);
-        String executeScript = parseExecuteScript(request.getRequest(), parameterConfig);
+        String executeScript = parseExecuteScript(request.getTestElement(), parameterConfig);
 
         TestResourceNodeDTO testResourceNodeDTO = getProjectExecuteNode(request.getProjectId());
 
@@ -306,15 +306,10 @@ public class ApiExecuteService {
     /**
      * 生成执行脚本
      *
-     * @param testElementStr
+     * @param msTestElement
      * @param config
      * @return
      */
-    private static String parseExecuteScript(String testElementStr, ParameterConfig config) {
-        // 解析生成脚本
-        return parseExecuteScript(ApiDataUtils.parseObject(testElementStr, AbstractMsTestElement.class), config);
-    }
-
     private static String parseExecuteScript(AbstractMsTestElement msTestElement, ParameterConfig config) {
         // 解析生成脚本
         TestElementParser defaultParser = TestElementParserFactory.getDefaultParser();

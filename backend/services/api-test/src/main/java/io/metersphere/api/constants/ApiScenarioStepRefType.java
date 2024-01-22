@@ -11,13 +11,13 @@ public enum ApiScenarioStepRefType {
      */
     DIRECT,
     /**
-     * 引用
+     * 完全引用
      */
     REF,
     /**
-     * 步骤引用
+     * 部分引用
      */
-    STEP_REF,
+    PARTIAL_REF,
     /**
      * 复制
      */
