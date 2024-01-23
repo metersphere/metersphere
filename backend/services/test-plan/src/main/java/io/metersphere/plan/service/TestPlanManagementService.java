@@ -11,6 +11,7 @@ import io.metersphere.plan.mapper.ExtTestPlanModuleMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.sdk.constants.TestPlanConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
@@ -18,6 +19,7 @@ import io.metersphere.system.service.CommonProjectService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,10 +76,24 @@ public class TestPlanManagementService {
     private List<TestPlanResponse> getTableList(TestPlanQueryConditions request) {
         List<TestPlanResponse> testPlanResponses = extTestPlanMapper.selectByConditions(request);
         testPlanResponses.forEach(item -> {
-            item.setModuleName(testPlanModuleService.getNameById(item.getModuleId()));
-            //todo 定时任务相关信息处理
+            if (StringUtils.equals(item.getType(), TestPlanConstants.TEST_PLAN_TYPE_GROUP)) {
+                TestPlanQueryConditions childrenCondition = new TestPlanQueryConditions();
+                childrenCondition.setProjectId(request.getProjectId());
+                childrenCondition.setGroupId(item.getId());
+                item.setChildren(extTestPlanMapper.selectByConditions(childrenCondition));
+            }
+            this.initTestPlanResponse(item);
         });
         return testPlanResponses;
+    }
+
+    private void initTestPlanResponse(TestPlanResponse testPlanResponse) {
+        testPlanResponse.setModuleName(testPlanModuleService.getNameById(testPlanResponse.getModuleId()));
+        //todo 定时任务相关信息处理
+
+        if (CollectionUtils.isNotEmpty(testPlanResponse.getChildren())) {
+            testPlanResponse.getChildren().forEach(this::initTestPlanResponse);
+        }
     }
 
     public void checkModuleIsOpen(String resourceId, String resourceType, List<String> moduleMenus) {

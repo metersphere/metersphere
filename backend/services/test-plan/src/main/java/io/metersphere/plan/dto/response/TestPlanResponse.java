@@ -17,6 +17,8 @@ public class TestPlanResponse {
     private String name;
     @Schema(description = "状态")
     private String status;
+    @Schema(description = "测试计划类型 测试计划/测试计划组")
+    private String type;
     @Schema(description = "标签")
     private List<String> tags;
     @Schema(description = "定时任务")
@@ -30,7 +32,7 @@ public class TestPlanResponse {
     @Schema(description = "模块Id")
     private String moduleId;
     @Schema(description = "测试计划组内的测试计划")
-    List<TestPlanResponse> testPlanItem;
+    List<TestPlanResponse> children;
 
     @Schema(description = "测试计划组Id")
     private String testPlanGroupId;

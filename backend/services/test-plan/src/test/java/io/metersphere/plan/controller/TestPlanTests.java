@@ -749,6 +749,27 @@ public class TestPlanTests extends BaseTest {
             Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(result.getList())).size() <= testPlanTableRequest.getPageSize());
             Assertions.assertEquals(result.getTotal(), 111);
 
+
+            //测试根据名称模糊查询（包含测试组的）： Plan_7  预期结果： a1Node下有1条（testPlan_7), a2Node下有10条（testPlan_70~testPlan_79）,a1b1Node下有100条（testPlan_700~testPlan_799）
+            testPlanTableRequest.setKeyword("Plan_7");
+            testPlanTableRequest.setSort(new HashMap<>() {{
+                this.put("num", "asc");
+            }});
+            moduleCountResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_MODULE_COUNT, testPlanTableRequest);
+            moduleCountReturnData = moduleCountResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+            moduleCountMap = JSON.parseObject(JSON.toJSONString(JSON.parseObject(moduleCountReturnData, ResultHolder.class).getData()), Map.class);
+            this.checkModuleCount(moduleCountMap, 1, 10, 0, 0, 100);
+
+            pageResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_PAGE, testPlanTableRequest);
+            returnData = pageResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+            resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+            result = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+            //返回值的页码和当前页码相同
+            Assertions.assertEquals(result.getCurrent(), testPlanTableRequest.getCurrent());
+            //返回的数据量不超过规定要返回的数据量相同
+            Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(result.getList())).size() <= testPlanTableRequest.getPageSize());
+            Assertions.assertEquals(result.getTotal(), 111);
+
             //反例：参数校验（项目ID不存在）
             testPlanTableRequest.setProjectId(null);
             this.requestPost(URL_POST_TEST_PLAN_MODULE_COUNT, testPlanTableRequest).andExpect(status().isBadRequest());
