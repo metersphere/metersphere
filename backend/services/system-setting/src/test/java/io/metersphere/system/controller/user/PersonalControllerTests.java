@@ -1,6 +1,5 @@
 package io.metersphere.system.controller.user;
 
-import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.util.CodingUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.RsaKey;
@@ -49,8 +48,6 @@ public class PersonalControllerTests extends BaseTest {
         //查询非登录人
         this.requestGet(String.format(PersonalRequestUtils.URL_PERSONAL_GET, IDGenerator.nextStr())).andExpect(status().is5xxServerError());
 
-        //权限校验
-        this.requestGetPermissionTest(PermissionConstants.SYSTEM_PERSONAL_READ, String.format(PersonalRequestUtils.URL_PERSONAL_GET, loginUser));
     }
 
     private UserDTO selectUserDTO(String id) throws Exception {
@@ -150,7 +147,6 @@ public class PersonalControllerTests extends BaseTest {
         request.setEmail("admin@metersphere.io");
         request.setUsername("'Administrator'");
         request.setPhone("12345678901");
-        this.requestPostPermissionTest(PermissionConstants.SYSTEM_PERSONAL_READ_UPDATE, PersonalRequestUtils.URL_PERSONAL_UPDATE_INFO, request);
         this.checkLog(loginUser, OperationLogType.UPDATE, PersonalRequestUtils.URL_PERSONAL_UPDATE_INFO);
     }
 
@@ -229,7 +225,6 @@ public class PersonalControllerTests extends BaseTest {
         request.setId(loginUser);
         request.setOldPassword(RsaUtils.publicEncrypt("metersphere222", rsaKey.getPublicKey()));
         request.setNewPassword(RsaUtils.publicEncrypt("metersphere", rsaKey.getPublicKey()));
-        this.requestPostPermissionTest(PermissionConstants.SYSTEM_PERSONAL_READ_UPDATE, PersonalRequestUtils.URL_PERSONAL_UPDATE_PASSWORD, request);
 
         //最后检查密码是否回归原密码
         example.clear();

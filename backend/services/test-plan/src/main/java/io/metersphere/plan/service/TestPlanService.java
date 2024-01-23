@@ -67,7 +67,7 @@ public class TestPlanService {
             TestPlanModuleExample example = new TestPlanModuleExample();
             example.createCriteria().andIdEqualTo(moduleId);
             if (testPlanModuleMapper.countByExample(example) == 0) {
-                throw new MSException("module.not.exist");
+                throw new MSException(Translator.get("module.not.exist"));
             }
         }
     }
@@ -242,9 +242,6 @@ public class TestPlanService {
 
     public String update(TestPlanUpdateRequest request, String userId, String requestUrl, String requestMethod) {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getId());
-        if (testPlan == null) {
-            throw new MSException("test_plan.not.exist");
-        }
         if (!ObjectUtils.allNull(request.getName(), request.getModuleId(), request.getTags(), request.getPlannedEndTime(), request.getPlannedStartTime(), request.getDescription(), request.getTestPlanGroupId())) {
             TestPlan updateTestPlan = new TestPlan();
             updateTestPlan.setId(request.getId());

@@ -1,5 +1,6 @@
 package io.metersphere.plan.controller;
 
+import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.dto.request.TestPlanBatchProcessRequest;
 import io.metersphere.plan.dto.request.TestPlanCreateRequest;
 import io.metersphere.plan.dto.request.TestPlanTableRequest;
@@ -21,6 +22,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -33,11 +35,13 @@ public class TestPlanController {
     @Resource
     private TestPlanManagementService testPlanManagementService;
 
+
     @PostMapping("/page")
     @Operation(summary = "测试计划-表格分页查询")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<TestPlanResponse>> page(@Validated @RequestBody TestPlanTableRequest request) {
+        testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
         return testPlanManagementService.page(request);
     }
 
@@ -46,6 +50,7 @@ public class TestPlanController {
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
     @CheckOwner(resourceId = "#id", resourceType = "test_plan")
     public TestPlanCountResponse getCount(@PathVariable String id) {
+        testPlanManagementService.checkModuleIsOpen(id, TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
         return testPlanService.getCount(id);
     }
 
@@ -54,8 +59,8 @@ public class TestPlanController {
     @Operation(summary = "测试计划-模块统计")
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
-    public Map<String, Long> moduleCount(@Validated @RequestBody TestPlanTableRequest
-                                                 request) {
+    public Map<String, Long> moduleCount(@Validated @RequestBody TestPlanTableRequest request) {
+        testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
         return testPlanManagementService.moduleCount(request);
     }
 
@@ -65,6 +70,7 @@ public class TestPlanController {
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_ADD)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public String add(@Validated @RequestBody TestPlanCreateRequest request) {
+        testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
         return testPlanService.add(request, SessionUtils.getUserId(), "/test-plan/add", HttpMethodConstants.POST.name());
     }
 
@@ -73,6 +79,7 @@ public class TestPlanController {
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getId()", resourceType = "test_plan")
     public String add(@Validated @RequestBody TestPlanUpdateRequest request) {
+        testPlanManagementService.checkModuleIsOpen(request.getId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
         return testPlanService.update(request, SessionUtils.getUserId(), "/test-plan/update", HttpMethodConstants.POST.name());
     }
 
@@ -82,6 +89,7 @@ public class TestPlanController {
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_DELETE)
     @CheckOwner(resourceId = "#id", resourceType = "test_plan")
     public void delete(@NotBlank @PathVariable String id) {
+        testPlanManagementService.checkModuleIsOpen(id, TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
         testPlanService.delete(id, SessionUtils.getUserId(), "/test-plan/delete", HttpMethodConstants.GET.name());
     }
 
@@ -91,18 +99,9 @@ public class TestPlanController {
     @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_DELETE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void delete(@Validated @RequestBody TestPlanBatchProcessRequest request) throws Exception {
+        testPlanManagementService.checkModuleIsOpen(request.getProjectId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN));
         testPlanService.batchDelete(request, SessionUtils.getUserId(), "/test-plan/batch-delete", HttpMethodConstants.POST.name());
     }
-
-    /*
-     todo 更新接口（具体字段未确定）
-        @PostMapping(value = "/update")
-        @Operation(summary = "项目管理-文件管理-修改文件")
-        @RequiresPermissions(PermissionConstants.PROJECT_FILE_MANAGEMENT_READ_UPDATE)
-        @CheckOwner(resourceId = "#request.getId()", resourceType = "file_metadata")
-        public void update(@Validated @RequestBody FileUpdateRequest request) throws Exception {
-        }
-     */
 
 
     //todo 关注测试计划接口

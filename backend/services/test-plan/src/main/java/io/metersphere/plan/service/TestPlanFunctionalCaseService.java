@@ -12,12 +12,12 @@ import io.metersphere.plan.dto.request.TestPlanAssociationRequest;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
 import io.metersphere.plan.mapper.ExtTestPlanFunctionalCaseMapper;
-import io.metersphere.plan.mapper.TestPlanConfigMapper;
 import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
 import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.TestPlanResourceConstants;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
@@ -39,8 +39,6 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
     @Resource
     private ExtTestPlanFunctionalCaseMapper extTestPlanFunctionalCaseMapper;
-    @Resource
-    private TestPlanConfigMapper testPlanConfigMapper;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
     @Resource
@@ -87,8 +85,7 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
                 TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE,
                 request,
                 logInsertModule,
-                extTestPlanFunctionalCaseMapper::getIdByIds,
-                extTestPlanFunctionalCaseMapper::getIdByModuleIds,
+                extTestPlanFunctionalCaseMapper::getIdByParam,
                 this::saveTestPlanResource);
     }
 
@@ -115,8 +112,8 @@ public class TestPlanFunctionalCaseService extends TestPlanResourceService {
     public TestPlanResourceSortResponse sortNode(ResourceSortRequest request, LogInsertModule logInsertModule) {
         TestPlanFunctionalCase dragNode = testPlanFunctionalCaseMapper.selectByPrimaryKey(request.getDragNodeId());
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestPlanId());
-        if (dragNode == null && testPlan == null) {
-            throw new MSException("test_plan.drag.node.error");
+        if (dragNode == null) {
+            throw new MSException(Translator.get("test_plan.drag.node.error"));
         }
         TestPlanResourceSortResponse response = new TestPlanResourceSortResponse();
         AssociationNodeSortDTO sortDTO = super.getNodeSortDTO(

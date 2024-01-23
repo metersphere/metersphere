@@ -39,6 +39,9 @@
             "id": "PROJECT_TEST_PLAN:READ+DELETE"
           },
           {
+            "id": "PROJECT_TEST_PLAN:READ+ASSOCIATION"
+          },
+          {
             "id": "PROJECT_TEST_PLAN:READ+EXECUTE"
           }
         ]

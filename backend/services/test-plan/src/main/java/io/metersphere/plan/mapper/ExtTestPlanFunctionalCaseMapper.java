@@ -15,9 +15,7 @@ public interface ExtTestPlanFunctionalCaseMapper {
 
     Long getMaxPosByTestPlanId(String testPlanId);
 
-    List<String> getIdByIds(ResourceSelectParam resourceSelectParam);
-
-    List<String> getIdByModuleIds(ResourceSelectParam resourceSelectParam);
+    List<String> getIdByParam(ResourceSelectParam resourceSelectParam);
 
     AssociationNode selectDragInfoById(String id);
 

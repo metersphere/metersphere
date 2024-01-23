@@ -29,4 +29,13 @@ public class TestPlanTableRequest extends BasePageRequest {
     public boolean conditionIsEmpty() {
         return StringUtils.isEmpty(this.getKeyword()) && MapUtils.isEmpty(this.getFilter()) && MapUtils.isEmpty(this.getCombine());
     }
+
+    public String getSortString() {
+        if (StringUtils.isEmpty(super.getSortString())) {
+            return "t.update_time desc";
+        } else {
+            return "t." + super.getSortString();
+        }
+
+    }
 }

@@ -3,12 +3,14 @@ package io.metersphere.plan.controller;
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.functional.domain.FunctionalCase;
+import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.domain.*;
 import io.metersphere.plan.dto.request.*;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
 import io.metersphere.plan.dto.response.TestPlanResponse;
 import io.metersphere.plan.mapper.TestPlanMapper;
+import io.metersphere.plan.service.TestPlanManagementService;
 import io.metersphere.plan.service.TestPlanModuleService;
 import io.metersphere.plan.service.TestPlanService;
 import io.metersphere.plan.service.TestPlanTestService;
@@ -71,14 +73,11 @@ public class TestPlanTests extends BaseTest {
     private static List<BaseTreeNode> preliminaryTreeNodes = new ArrayList<>();
 
     @Resource
-    private CommonProjectService commonProjectService;
-    @Resource
     private TestPlanModuleMapper testPlanModuleMapper;
     @Resource
-    private TestPlanMapper testPlanMapper;
-    @Resource
     private TestPlanModuleService testPlanModuleService;
-
+    @Resource
+    private CommonProjectService commonProjectService;
     @Resource
     private TestPlanTestService testPlanTestService;
 
@@ -125,6 +124,8 @@ public class TestPlanTests extends BaseTest {
     private static TestPlan simpleTestPlan;
     //允许重复添加用例的测试计划
     private static TestPlan repeatCaseTestPlan;
+
+    private static final String[] PROJECT_MODULE = new String[]{"workstation", "testPlan", "bugManagement", "caseManagement", "apiTest", "uiTest", "loadTest"};
     @BeforeEach
     public void initTestData() {
         //文件管理专用项目
@@ -135,8 +136,21 @@ public class TestPlanTests extends BaseTest {
             initProject.setDescription("建国创建的文件管理专用项目");
             initProject.setEnable(true);
             project = commonProjectService.add(initProject, "admin", "/organization-project/add", OperationLogModule.SETTING_ORGANIZATION_PROJECT);
+
+
+            //测试没指定module的项目检查模块菜单是否会报错
+            boolean methodHasError = false;
+            try {
+                testPlanManagementService.checkModuleIsOpen(project.getId(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, new ArrayList<>());
+            } catch (Exception e) {
+                methodHasError = true;
+            }
+            Assertions.assertTrue(methodHasError);
+            //测试完之后，赋值module
+            testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
         }
     }
+
 
     private static long a1NodeCount = 0;
     private static long a2NodeCount = 0;
@@ -162,6 +176,14 @@ public class TestPlanTests extends BaseTest {
         //查询测试计划列表
         TestPlanTableRequest testPlanTableRequest = new TestPlanTableRequest();
         testPlanTableRequest.setProjectId(project.getId());
+
+        //先测试一下没有开启模块时接口能否使用
+        testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "testPlan");
+        this.requestPost(URL_POST_TEST_PLAN_PAGE, testPlanTableRequest).andExpect(status().is5xxServerError());
+        this.requestGet(String.format(URL_GET_MODULE_TREE, project.getId())).andExpect(status().is5xxServerError());
+        //恢复
+        testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
+
         MvcResult pageResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_PAGE, testPlanTableRequest);
         String returnData = pageResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
@@ -184,6 +206,13 @@ public class TestPlanTests extends BaseTest {
         FileModuleCreateRequest request = new FileModuleCreateRequest();
         request.setProjectId(project.getId());
         request.setName("a1");
+
+        //测试项目没有开启测试计划模块时能否使用
+        testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "testPlan");
+        this.requestPost(URL_POST_MODULE_ADD, request).andExpect(status().is5xxServerError());
+        //恢复
+        testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
+
         MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_POST_MODULE_ADD, request);
         String returnId = mvcResult.getResponse().getContentAsString();
         Assertions.assertNotNull(returnId);
@@ -425,6 +454,13 @@ public class TestPlanTests extends BaseTest {
         FileModuleUpdateRequest updateRequest = new FileModuleUpdateRequest();
         updateRequest.setId(a1Node.getId());
         updateRequest.setName("a1-a1");
+
+        //测试项目没有开启测试计划模块时能否使用
+        testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "testPlan");
+        this.requestPost(URL_POST_MODULE_UPDATE, updateRequest).andExpect(status().is5xxServerError());
+        //恢复
+        testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
+
         this.requestPostWithOkAndReturn(URL_POST_MODULE_UPDATE, updateRequest);
 
         preliminaryTreeNodes = this.getFileModuleTreeNode();
@@ -499,8 +535,13 @@ public class TestPlanTests extends BaseTest {
                 a1b1NodeCount++;
             }
 
+            if (i == 201) {
+                //第201时，先测试能否添加重复用例
+                request.setName("testPlan_200");
+                request.setModuleId(moduleId);
+                this.requestPost(URL_POST_TEST_PLAN_ADD, request).andExpect(status().is5xxServerError());
+            }
             //添加测试计划
-
             request.setName("testPlan_" + i);
             request.setModuleId(moduleId);
             MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_ADD, request);
@@ -530,12 +571,7 @@ public class TestPlanTests extends BaseTest {
             request.setType(TestPlanConstants.TEST_PLAN_TYPE_PLAN);
         }
 
-        TestPlan updateTestPlan = new TestPlan();
-        updateTestPlan.setId(groupTestPlanId7);
-        updateTestPlan.setType(TestPlanConstants.TEST_PLAN_TYPE_GROUP);
-        testPlanMapper.updateByPrimaryKeySelective(updateTestPlan);
-        updateTestPlan.setId(groupTestPlanId15);
-        testPlanMapper.updateByPrimaryKeySelective(updateTestPlan);
+
         /*
         抽查：
             testPlan_13没有设置计划开始时间、没有设置重复添加用例和自动更新状态、阈值为100、描述为空；
@@ -559,6 +595,13 @@ public class TestPlanTests extends BaseTest {
             itemRequest.setModuleId(a1Node.getId());
             itemRequest.setGroupId(groupTestPlanId7);
             itemRequest.setName("testPlan_group7_" + i);
+            if (i == 0) {
+                //测试项目没有开启测试计划模块时能否使用
+                testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "testPlan");
+                this.requestPost(URL_POST_TEST_PLAN_ADD, itemRequest).andExpect(status().is5xxServerError());
+                //恢复
+                testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
+            }
             MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_ADD, itemRequest);
             String returnStr = mvcResult.getResponse().getContentAsString();
             ResultHolder holder = JSON.parseObject(returnStr, ResultHolder.class);
@@ -580,6 +623,7 @@ public class TestPlanTests extends BaseTest {
                 3.1 group_id不存在
                 3.2 group_id对应的测试计划type不是group
             4.参数校验：passThreshold大于100
+            5.重名校验
         */
         request.setName(null);
         this.requestPost(URL_POST_TEST_PLAN_ADD, request).andExpect(status().isBadRequest());
@@ -605,6 +649,14 @@ public class TestPlanTests extends BaseTest {
     public void testPlanPageCountTest() throws Exception {
         TestPlanTableRequest testPlanTableRequest = new TestPlanTableRequest();
         testPlanTableRequest.setProjectId(project.getId());
+
+        //测试项目没有开启测试计划模块时能否使用
+        testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "testPlan");
+        this.requestPost(URL_POST_TEST_PLAN_MODULE_COUNT, testPlanTableRequest).andExpect(status().is5xxServerError());
+        this.requestPost(URL_POST_TEST_PLAN_MODULE_COUNT, testPlanTableRequest).andExpect(status().is5xxServerError());
+        //恢复
+        testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
+
         MvcResult moduleCountResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_MODULE_COUNT, testPlanTableRequest);
         String moduleCountReturnData = moduleCountResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         Map<String, Object> moduleCountMap = JSON.parseObject(JSON.toJSONString(JSON.parseObject(moduleCountReturnData, ResultHolder.class).getData()), Map.class);
@@ -635,6 +687,20 @@ public class TestPlanTests extends BaseTest {
             String returnData = pageResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
             ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
             Pager<Object> result = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+            //返回值的页码和当前页码相同
+            Assertions.assertEquals(result.getCurrent(), testPlanTableRequest.getCurrent());
+            //返回的数据量不超过规定要返回的数据量相同
+            Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(result.getList())).size() <= testPlanTableRequest.getPageSize());
+            Assertions.assertEquals(result.getTotal(), 999);
+
+            //按照名称倒叙
+            testPlanTableRequest.setSort(new HashMap<>() {{
+                this.put("name", "desc");
+            }});
+            pageResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_PAGE, testPlanTableRequest);
+            returnData = pageResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+            resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+            result = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
             //返回值的页码和当前页码相同
             Assertions.assertEquals(result.getCurrent(), testPlanTableRequest.getCurrent());
             //返回的数据量不超过规定要返回的数据量相同
@@ -709,6 +775,13 @@ public class TestPlanTests extends BaseTest {
         //修改名称
         TestPlanUpdateRequest updateRequest = testPlanTestService.generateUpdateRequest(testPlan.getId());
         updateRequest.setName(IDGenerator.nextStr());
+
+        //测试项目没有开启测试计划模块时能否使用
+        testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "testPlan");
+        this.requestPost(URL_POST_TEST_PLAN_UPDATE, updateRequest).andExpect(status().is5xxServerError());
+        //恢复
+        testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
+
         MvcResult mvcResult = this.requestPostWithOkAndReturn(URL_POST_TEST_PLAN_UPDATE, updateRequest);
         String returnStr = mvcResult.getResponse().getContentAsString();
         ResultHolder holder = JSON.parseObject(returnStr, ResultHolder.class);
@@ -832,6 +905,10 @@ public class TestPlanTests extends BaseTest {
         updateRequest = testPlanTestService.generateUpdateRequest(testPlan.getId());
         this.requestPostWithOk(URL_POST_TEST_PLAN_UPDATE, updateRequest);
 
+        //反例：名称重复
+        updateRequest.setName("testPlan_400");
+        this.requestPost(URL_POST_TEST_PLAN_UPDATE, updateRequest).andExpect(status().is5xxServerError());
+
         //因为有条数据被移动了测试计划组里，所以检查一下moduleCount.
         TestPlanTableRequest testPlanTableRequest = new TestPlanTableRequest();
         testPlanTableRequest.setProjectId(project.getId());
@@ -879,6 +956,12 @@ public class TestPlanTests extends BaseTest {
         Assertions.assertEquals(response.getAssociationCount(), FUNCTIONAL_CASES.size());
         Assertions.assertEquals(testPlanTestService.countResource(request.getTestPlanId(), TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE), FUNCTIONAL_CASES.size());
 
+        //先测试一下没有开启模块时能否使用
+        testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "caseManagement");
+        this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION, request).andExpect(status().is5xxServerError());
+        //恢复
+        testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
+
         result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION, request);
         resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
         response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanAssociationResponse.class);
@@ -918,13 +1001,12 @@ public class TestPlanTests extends BaseTest {
         request.setTestPlanId(null);
         this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION, request).andExpect(status().isBadRequest());
         //反例 测试计划不存在
-        //测试权限
         request.setTestPlanId(IDGenerator.nextStr());
         this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION, request).andExpect(status().is5xxServerError());
 
         //测试权限
         request.setTestPlanId(simpleTestPlan.getId());
-        this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_UPDATE, URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION, request);
+        this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_ASSOCIATION, URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION, request);
 
         LOG_CHECK_LIST.add(
                 new CheckLogModel(simpleTestPlan.getId(), OperationLogType.ADD, URL_POST_RESOURCE_FUNCTIONAL_CASE_ASSOCIATION)
@@ -949,6 +1031,12 @@ public class TestPlanTests extends BaseTest {
         request.setDropNodeId(funcList.get(0).getId());
         request.setDropPosition(-1);
 
+        //先测试一下没有开启模块时能否使用
+        testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "caseManagement");
+        this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request).andExpect(status().is5xxServerError());
+        //恢复
+        testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
+
         MvcResult result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request);
         ResultHolder resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
         TestPlanResourceSortResponse response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanResourceSortResponse.class);
@@ -971,6 +1059,23 @@ public class TestPlanTests extends BaseTest {
         funcList = testPlanTestService.selectTestPlanFunctionalCaseByTestPlanId(repeatCaseTestPlan.getId());
         Assertions.assertEquals(funcList.get(0).getId(), request.getDropNodeId());
         Assertions.assertEquals(funcList.get(1).getId(), request.getDragNodeId());
+        LOG_CHECK_LIST.add(
+                new CheckLogModel(request.getDragNodeId(), OperationLogType.UPDATE, URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT)
+        );
+
+
+        //再将这时的第80个放到第一位之后,但是第一个的pos为2，检查能否触发ref操作
+        request.setDragNodeId(funcList.get(79).getId());
+        request.setDropNodeId(funcList.get(0).getId());
+        request.setDropPosition(-1);
+        testPlanTestService.setResourcePos(funcList.get(0).getId(), TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE, 2);
+        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request);
+        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanResourceSortResponse.class);
+        Assertions.assertEquals(response.getSortNodeNum(), 1);
+        funcList = testPlanTestService.selectTestPlanFunctionalCaseByTestPlanId(repeatCaseTestPlan.getId());
+        Assertions.assertEquals(funcList.get(0).getId(), request.getDragNodeId());
+        Assertions.assertEquals(funcList.get(1).getId(), request.getDropNodeId());
         LOG_CHECK_LIST.add(
                 new CheckLogModel(request.getDragNodeId(), OperationLogType.UPDATE, URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT)
         );
@@ -1021,6 +1126,12 @@ public class TestPlanTests extends BaseTest {
         Assertions.assertEquals(response.getAssociationCount(), API_TEST_CASES.size());
         Assertions.assertEquals(testPlanTestService.countResource(request.getTestPlanId(), TestPlanResourceConstants.RESOURCE_API_CASE), API_TEST_CASES.size());
 
+        //先测试一下没有开启模块时能否使用
+        testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "apiTest");
+        this.requestPost(URL_POST_RESOURCE_API_CASE_ASSOCIATION, request).andExpect(status().is5xxServerError());
+        //恢复
+        testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
+
         result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_CASE_ASSOCIATION, request);
         resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
         response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanAssociationResponse.class);
@@ -1060,13 +1171,12 @@ public class TestPlanTests extends BaseTest {
         request.setTestPlanId(null);
         this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request).andExpect(status().isBadRequest());
         //反例 测试计划不存在
-        //测试权限
         request.setTestPlanId(IDGenerator.nextStr());
         this.requestPost(URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request).andExpect(status().is5xxServerError());
 
         //测试权限
         request.setTestPlanId(simpleTestPlan.getId());
-        this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_UPDATE, URL_POST_RESOURCE_FUNCTIONAL_CASE_SORT, request);
+        this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_ASSOCIATION, URL_POST_RESOURCE_API_CASE_ASSOCIATION, request);
 
         LOG_CHECK_LIST.add(
                 new CheckLogModel(simpleTestPlan.getId(), OperationLogType.ADD, URL_POST_RESOURCE_API_CASE_ASSOCIATION)
@@ -1091,6 +1201,12 @@ public class TestPlanTests extends BaseTest {
         request.setDropNodeId(funcList.get(0).getId());
         request.setDropPosition(-1);
 
+        //先测试一下没有开启模块时能否使用
+        testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "apiTest");
+        this.requestPost(URL_POST_RESOURCE_API_CASE_SORT, request).andExpect(status().is5xxServerError());
+        //恢复
+        testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
+
         MvcResult result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_CASE_SORT, request);
         ResultHolder resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
         TestPlanResourceSortResponse response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanResourceSortResponse.class);
@@ -1113,6 +1229,22 @@ public class TestPlanTests extends BaseTest {
         funcList = testPlanTestService.selectTestPlanApiCaseByTestPlanId(repeatCaseTestPlan.getId());
         Assertions.assertEquals(funcList.get(0).getId(), request.getDropNodeId());
         Assertions.assertEquals(funcList.get(1).getId(), request.getDragNodeId());
+        LOG_CHECK_LIST.add(
+                new CheckLogModel(request.getDragNodeId(), OperationLogType.UPDATE, URL_POST_RESOURCE_API_CASE_SORT)
+        );
+
+        //再将这时的第80个放到第一位之前,但是第一个的pos为2，检查能否触发ref操作
+        request.setDragNodeId(funcList.get(79).getId());
+        request.setDropNodeId(funcList.get(0).getId());
+        request.setDropPosition(-1);
+        testPlanTestService.setResourcePos(funcList.get(0).getId(), TestPlanResourceConstants.RESOURCE_API_CASE, 2);
+        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_CASE_SORT, request);
+        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanResourceSortResponse.class);
+        Assertions.assertEquals(response.getSortNodeNum(), 1);
+        funcList = testPlanTestService.selectTestPlanApiCaseByTestPlanId(repeatCaseTestPlan.getId());
+        Assertions.assertEquals(funcList.get(0).getId(), request.getDragNodeId());
+        Assertions.assertEquals(funcList.get(1).getId(), request.getDropNodeId());
         LOG_CHECK_LIST.add(
                 new CheckLogModel(request.getDragNodeId(), OperationLogType.UPDATE, URL_POST_RESOURCE_API_CASE_SORT)
         );
@@ -1166,6 +1298,12 @@ public class TestPlanTests extends BaseTest {
         Assertions.assertEquals(response.getAssociationCount(), API_SCENARIOS.size());
         Assertions.assertEquals(testPlanTestService.countResource(request.getTestPlanId(), TestPlanResourceConstants.RESOURCE_API_SCENARIO), API_SCENARIOS.size());
 
+        //先测试一下没有开启模块时能否使用
+        testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "apiTest");
+        this.requestPost(URL_POST_RESOURCE_API_SCENARIO_ASSOCIATION, request).andExpect(status().is5xxServerError());
+        //恢复
+        testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
+
         result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_SCENARIO_ASSOCIATION, request);
         resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
         response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanAssociationResponse.class);
@@ -1205,13 +1343,12 @@ public class TestPlanTests extends BaseTest {
         request.setTestPlanId(null);
         this.requestPost(URL_POST_RESOURCE_API_SCENARIO_ASSOCIATION, request).andExpect(status().isBadRequest());
         //反例 测试计划不存在
-        //测试权限
         request.setTestPlanId(IDGenerator.nextStr());
         this.requestPost(URL_POST_RESOURCE_API_SCENARIO_ASSOCIATION, request).andExpect(status().is5xxServerError());
 
         //测试权限
         request.setTestPlanId(simpleTestPlan.getId());
-        this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_UPDATE, URL_POST_RESOURCE_API_SCENARIO_ASSOCIATION, request);
+        this.requestPostPermissionTest(PermissionConstants.TEST_PLAN_READ_ASSOCIATION, URL_POST_RESOURCE_API_SCENARIO_ASSOCIATION, request);
 
         LOG_CHECK_LIST.add(
                 new CheckLogModel(simpleTestPlan.getId(), OperationLogType.ADD, URL_POST_RESOURCE_API_SCENARIO_ASSOCIATION)
@@ -1236,6 +1373,12 @@ public class TestPlanTests extends BaseTest {
         request.setDropNodeId(funcList.get(0).getId());
         request.setDropPosition(-1);
 
+        //先测试一下没有开启模块时能否使用
+        testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "apiTest");
+        this.requestPost(URL_POST_RESOURCE_API_SCENARIO_SORT, request).andExpect(status().is5xxServerError());
+        //恢复
+        testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
+
         MvcResult result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_SCENARIO_SORT, request);
         ResultHolder resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
         TestPlanResourceSortResponse response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanResourceSortResponse.class);
@@ -1258,6 +1401,22 @@ public class TestPlanTests extends BaseTest {
         funcList = testPlanTestService.selectTestPlanApiScenarioByTestPlanId(repeatCaseTestPlan.getId());
         Assertions.assertEquals(funcList.get(0).getId(), request.getDropNodeId());
         Assertions.assertEquals(funcList.get(1).getId(), request.getDragNodeId());
+        LOG_CHECK_LIST.add(
+                new CheckLogModel(request.getDragNodeId(), OperationLogType.UPDATE, URL_POST_RESOURCE_API_SCENARIO_SORT)
+        );
+
+        //再将这时的第80个放到第一位之后,但是第一个的pos为2，检查能否触发ref操作
+        request.setDragNodeId(funcList.get(79).getId());
+        request.setDropNodeId(funcList.get(0).getId());
+        request.setDropPosition(-1);
+        testPlanTestService.setResourcePos(funcList.get(0).getId(), TestPlanResourceConstants.RESOURCE_API_SCENARIO, 2);
+        result = this.requestPostWithOkAndReturn(URL_POST_RESOURCE_API_SCENARIO_SORT, request);
+        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), TestPlanResourceSortResponse.class);
+        Assertions.assertEquals(response.getSortNodeNum(), 1);
+        funcList = testPlanTestService.selectTestPlanApiScenarioByTestPlanId(repeatCaseTestPlan.getId());
+        Assertions.assertEquals(funcList.get(0).getId(), request.getDragNodeId());
+        Assertions.assertEquals(funcList.get(1).getId(), request.getDropNodeId());
         LOG_CHECK_LIST.add(
                 new CheckLogModel(request.getDragNodeId(), OperationLogType.UPDATE, URL_POST_RESOURCE_API_SCENARIO_SORT)
         );
@@ -1325,6 +1484,14 @@ public class TestPlanTests extends BaseTest {
             request.setDragNodeId(a1Node.getId());
             request.setDropNodeId(a3Node.getId());
             request.setDropPosition(1);
+
+
+            //测试项目没有开启测试计划模块时能否使用
+            testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "testPlan");
+            this.requestPost(URL_POST_MODULE_MOVE, request).andExpect(status().is5xxServerError());
+            //恢复
+            testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
+
             this.requestPostWithOk(URL_POST_MODULE_MOVE, request);
             this.checkModulePos(a3Node.getId(), a1Node.getId(), null, false);
         }
@@ -1543,6 +1710,7 @@ public class TestPlanTests extends BaseTest {
     @Test
     @Order(101)
     public void deleteTestPlanTest() throws Exception {
+        int allDataInDB = 999 + 40;
         if (StringUtils.isEmpty(groupTestPlanId7)) {
             this.testPlanAddTest();
         }
@@ -1550,8 +1718,10 @@ public class TestPlanTests extends BaseTest {
         //根据id删除 （删除 第61这1个)
         List<TestPlan> testPlanList = testPlanTestService.selectByProjectIdAndNames(project.getId(),
                 new String[]{"testPlan_61"});
+
         this.requestGet(String.format(URL_GET_TEST_PLAN_DELETE, testPlanList.get(0).getId())).andExpect(status().isOk());
-        Assertions.assertTrue(testPlanTestService.checkDataCount(project.getId(), 999 + 40 - 1));
+        allDataInDB--;
+        Assertions.assertTrue(testPlanTestService.checkDataCount(project.getId(), allDataInDB));
 
         //根据id删除 （删除 第610-619这11个)
         testPlanList = testPlanTestService.selectByProjectIdAndNames(project.getId(),
@@ -1560,7 +1730,24 @@ public class TestPlanTests extends BaseTest {
         request.setProjectId(project.getId());
         request.setSelectIds(testPlanList.stream().map(TestPlan::getId).collect(Collectors.toList()));
         this.requestPostWithOk(URL_POST_TEST_PLAN_BATCH_DELETE, request);
-        Assertions.assertTrue(testPlanTestService.checkDataCount(project.getId(), 999 + 40 - 1 - 10));
+        allDataInDB = allDataInDB - 10;
+        Assertions.assertTrue(testPlanTestService.checkDataCount(project.getId(), allDataInDB));
+
+        //删除组
+        this.requestGetWithOk(String.format(URL_GET_TEST_PLAN_DELETE, groupTestPlanId7));
+        allDataInDB--;
+        Assertions.assertTrue(testPlanTestService.checkDataCount(project.getId(), allDataInDB));
+        TestPlanExample example = new TestPlanExample();
+        example.createCriteria().andGroupIdEqualTo(groupTestPlanId7);
+        Assertions.assertEquals(testPlanMapper.countByExample(example), 0);
+
+
+        //测试项目没有开启测试计划模块时能否使用
+        testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "testPlan");
+        this.requestGet(String.format(URL_GET_TEST_PLAN_DELETE, testPlanList.get(0).getId())).andExpect(status().is5xxServerError());
+        this.requestPost(URL_POST_TEST_PLAN_BATCH_DELETE, request).andExpect(status().is5xxServerError());
+        //恢复
+        testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
 
         // 根据查询条件删除（ 删除plan_2)这一部分
         request = new TestPlanBatchProcessRequest();
@@ -1568,14 +1755,19 @@ public class TestPlanTests extends BaseTest {
         request.setSelectAll(true);
         request.getCondition().setKeyword("plan_2");
         this.requestPostWithOk(URL_POST_TEST_PLAN_BATCH_DELETE, request);
-        Assertions.assertTrue(testPlanTestService.checkDataCount(project.getId(), 999 + 40 - (1 + 10) - (1 + 10 + 100)));
+        allDataInDB = allDataInDB - (1 + 10 + 100);
+        Assertions.assertTrue(testPlanTestService.checkDataCount(project.getId(), allDataInDB));
 
-        //批量删除的数据中包含group7这个用户组
+        //批量删除的数据中包含group15这个用户组
         request = new TestPlanBatchProcessRequest();
-        request.setSelectIds(Collections.singletonList(groupTestPlanId7));
+        request.setSelectIds(Collections.singletonList(groupTestPlanId15));
         request.setProjectId(project.getId());
         this.requestPostWithOk(URL_POST_TEST_PLAN_BATCH_DELETE, request);
-        Assertions.assertTrue(testPlanTestService.checkDataCount(project.getId(), 999 + 40 - (1 + 10) - (1 + 10 + 100) - 1));
+        allDataInDB--;
+        Assertions.assertTrue(testPlanTestService.checkDataCount(project.getId(), allDataInDB));
+        example.clear();
+        example.createCriteria().andGroupIdEqualTo(groupTestPlanId15);
+        Assertions.assertEquals(testPlanMapper.countByExample(example), 0);
 
         //根据a1a1Node模快删除
         BaseTreeNode a1a1Node = TestPlanTestUtils.getNodeByName(this.getFileModuleTreeNode(), "a1-a1");
@@ -1584,7 +1776,8 @@ public class TestPlanTests extends BaseTest {
         request.setModuleIds(Arrays.asList(a1a1Node.getId()));
         request.setProjectId(project.getId());
         this.requestPostWithOk(URL_POST_TEST_PLAN_BATCH_DELETE, request);
-        Assertions.assertTrue(testPlanTestService.checkDataCount(project.getId(), 999 + 40 - (1 + 10) - (1 + 10 + 100) - 1 - 50));
+        allDataInDB = allDataInDB - 50;
+        Assertions.assertTrue(testPlanTestService.checkDataCount(project.getId(), allDataInDB));
 
         //根据 a1b1Node模块以及planSty这个条件删除（应当删除0条，数据量不会变化）
         BaseTreeNode a1b1Node = TestPlanTestUtils.getNodeByName(this.getFileModuleTreeNode(), "a1-b1");
@@ -1594,7 +1787,7 @@ public class TestPlanTests extends BaseTest {
         request.getCondition().setKeyword("planSty");
         request.setProjectId(project.getId());
         this.requestPostWithOk(URL_POST_TEST_PLAN_BATCH_DELETE, request);
-        Assertions.assertTrue(testPlanTestService.checkDataCount(project.getId(), 999 + 40 - (1 + 10) - (1 + 10 + 100) - 1 - 50));
+        Assertions.assertTrue(testPlanTestService.checkDataCount(project.getId(), allDataInDB));
     }
 
     @Test
@@ -1605,6 +1798,12 @@ public class TestPlanTests extends BaseTest {
         // 删除没有文件的节点a1-b1-c1  检查是否级联删除根节点
         BaseTreeNode a1b1Node = TestPlanTestUtils.getNodeByName(this.getFileModuleTreeNode(), "a1-b1");
         assert a1b1Node != null;
+
+        //测试项目没有开启测试计划模块时能否使用
+        testPlanTestService.removeProjectModule(project, PROJECT_MODULE, "testPlan");
+        this.requestGet(String.format(URL_GET_MODULE_DELETE, a1b1Node.getId())).andExpect(status().is5xxServerError());
+        //恢复
+        testPlanTestService.resetProjectModule(project, PROJECT_MODULE);
 
         this.requestGetWithOk(String.format(URL_GET_MODULE_DELETE, a1b1Node.getId()));
         this.checkModuleIsEmpty(a1b1Node.getId());
@@ -1622,9 +1821,10 @@ public class TestPlanTests extends BaseTest {
         );
 
         //删除不存在的节点
-        this.requestGetWithOk(String.format(URL_GET_MODULE_DELETE, IDGenerator.nextNum()));
-        // 测试删除根节点
-        this.requestGetWithOk(String.format(URL_GET_MODULE_DELETE, ModuleConstants.DEFAULT_NODE_ID));
+        this.requestGet(String.format(URL_GET_MODULE_DELETE, IDGenerator.nextNum())).andExpect(status().is5xxServerError());
+        // 测试删除根节点(根节点无法删除）
+        this.requestGet(String.format(URL_GET_MODULE_DELETE, ModuleConstants.DEFAULT_NODE_ID)).andExpect(status().is5xxServerError());
+        ;
 
         //service层判断：测试删除空集合
         testPlanModuleService.deleteModule(new ArrayList<>(), project.getId(), null, null, null);
@@ -1761,10 +1961,32 @@ public class TestPlanTests extends BaseTest {
 
     @Resource
     private TestPlanService testPlanService;
+    @Resource
+    private TestPlanMapper testPlanMapper;
+    @Resource
+    private TestPlanManagementService testPlanManagementService;
 
     @Test
     @Order(111)
     public void serviceCheckTest() throws Exception {
         testPlanService.checkModule(ModuleConstants.DEFAULT_NODE_ID);
+
+        //不存在的project测试
+        boolean methodHasError = false;
+        try {
+            testPlanManagementService.checkModuleIsOpen(IDGenerator.nextStr(), TestPlanResourceConfig.CHECK_TYPE_PROJECT, new ArrayList<>());
+        } catch (Exception e) {
+            methodHasError = true;
+        }
+        Assertions.assertTrue(methodHasError);
+
+        //不存在的类型
+        methodHasError = false;
+        try {
+            testPlanManagementService.checkModuleIsOpen(IDGenerator.nextStr(), IDGenerator.nextStr(), new ArrayList<>());
+        } catch (Exception e) {
+            methodHasError = true;
+        }
+        Assertions.assertTrue(methodHasError);
     }
 }

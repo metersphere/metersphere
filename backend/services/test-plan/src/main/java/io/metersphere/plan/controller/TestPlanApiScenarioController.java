@@ -1,11 +1,13 @@
 package io.metersphere.plan.controller;
 
+import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.dto.LogInsertModule;
 import io.metersphere.plan.dto.request.ResourceSortRequest;
 import io.metersphere.plan.dto.request.TestPlanAssociationRequest;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
 import io.metersphere.plan.service.TestPlanApiScenarioService;
+import io.metersphere.plan.service.TestPlanManagementService;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.security.CheckOwner;
@@ -20,19 +22,24 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
+
 @Tag(name = "测试计划场景用例")
 @RestController
 @RequestMapping("/test-plan/api/scenario")
 public class TestPlanApiScenarioController {
 
     @Resource
+    private TestPlanManagementService testPlanManagementService;
+    @Resource
     private TestPlanApiScenarioService testPlanApiScenarioService;
 
     @PostMapping(value = "/association")
     @Operation(summary = "测试计划场景用例-关联接口用例")
-    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_ASSOCIATION)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public TestPlanAssociationResponse association(@Validated @RequestBody TestPlanAssociationRequest request) {
+        testPlanManagementService.checkModuleIsOpen(request.getTestPlanId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN_API_SCENARIO));
         return testPlanApiScenarioService.association(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/api/scenario/association", HttpMethodConstants.POST.name()));
     }
 
@@ -41,6 +48,7 @@ public class TestPlanApiScenarioController {
     @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public TestPlanResourceSortResponse sortNode(@Validated @RequestBody ResourceSortRequest request) {
+        testPlanManagementService.checkModuleIsOpen(request.getTestPlanId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN_API_SCENARIO));
         return testPlanApiScenarioService.sortNode(request, new LogInsertModule(SessionUtils.getUserId(), "/test-plan/api/scenario/sort", HttpMethodConstants.POST.name()));
     }
 
