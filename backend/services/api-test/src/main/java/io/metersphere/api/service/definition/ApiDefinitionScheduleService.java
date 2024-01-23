@@ -11,6 +11,7 @@ import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.HttpMethodConstants;
+import io.metersphere.sdk.constants.ScheduleResourceType;
 import io.metersphere.sdk.constants.ScheduleType;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
@@ -66,6 +67,7 @@ public class ApiDefinitionScheduleService {
         schedule.setResourceId(apiSwagger.getId());
         schedule.setJob(SwaggerUrlImportJob.class.getName());
         schedule.setType(ScheduleType.CRON.name());
+        schedule.setResourceType(ScheduleResourceType.API_IMPORT.name());
         scheduleService.addSchedule(schedule);
         scheduleService.addOrUpdateCronJob(schedule,
                 SwaggerUrlImportJob.getJobKey(apiSwagger.getId()),

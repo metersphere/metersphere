@@ -7,6 +7,7 @@
     <result column="type" jdbcType="VARCHAR" property="type" />
     <result column="value" jdbcType="VARCHAR" property="value" />
     <result column="job" jdbcType="VARCHAR" property="job" />
+    <result column="resource_type" jdbcType="VARCHAR" property="resourceType" />
     <result column="enable" jdbcType="BIT" property="enable" />
     <result column="resource_id" jdbcType="VARCHAR" property="resourceId" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
@@ -75,8 +76,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `key`, `type`, `value`, job, `enable`, resource_id, create_user, create_time, 
-    update_time, project_id, `name`, config
+    id, `key`, `type`, `value`, job, resource_type, `enable`, resource_id, create_user, 
+    create_time, update_time, project_id, `name`, config
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.system.domain.ScheduleExample" resultMap="BaseResultMap">
     select
@@ -110,15 +111,15 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.system.domain.Schedule">
     insert into schedule (id, `key`, `type`, 
-      `value`, job, `enable`, resource_id, 
-      create_user, create_time, update_time, 
-      project_id, `name`, config
-      )
+      `value`, job, resource_type, 
+      `enable`, resource_id, create_user, 
+      create_time, update_time, project_id, 
+      `name`, config)
     values (#{id,jdbcType=VARCHAR}, #{key,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
-      #{value,jdbcType=VARCHAR}, #{job,jdbcType=VARCHAR}, #{enable,jdbcType=BIT}, #{resourceId,jdbcType=VARCHAR}, 
-      #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{config,jdbcType=VARCHAR}
-      )
+      #{value,jdbcType=VARCHAR}, #{job,jdbcType=VARCHAR}, #{resourceType,jdbcType=VARCHAR}, 
+      #{enable,jdbcType=BIT}, #{resourceId,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{projectId,jdbcType=VARCHAR}, 
+      #{name,jdbcType=VARCHAR}, #{config,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.system.domain.Schedule">
     insert into schedule
@@ -137,6 +138,9 @@
       </if>
       <if test="job != null">
         job,
+      </if>
+      <if test="resourceType != null">
+        resource_type,
       </if>
       <if test="enable != null">
         `enable`,
@@ -178,6 +182,9 @@
       </if>
       <if test="job != null">
         #{job,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceType != null">
+        #{resourceType,jdbcType=VARCHAR},
       </if>
       <if test="enable != null">
         #{enable,jdbcType=BIT},
@@ -229,6 +236,9 @@
       <if test="record.job != null">
         job = #{record.job,jdbcType=VARCHAR},
       </if>
+      <if test="record.resourceType != null">
+        resource_type = #{record.resourceType,jdbcType=VARCHAR},
+      </if>
       <if test="record.enable != null">
         `enable` = #{record.enable,jdbcType=BIT},
       </if>
@@ -265,6 +275,7 @@
       `type` = #{record.type,jdbcType=VARCHAR},
       `value` = #{record.value,jdbcType=VARCHAR},
       job = #{record.job,jdbcType=VARCHAR},
+      resource_type = #{record.resourceType,jdbcType=VARCHAR},
       `enable` = #{record.enable,jdbcType=BIT},
       resource_id = #{record.resourceId,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
@@ -291,6 +302,9 @@
       </if>
       <if test="job != null">
         job = #{job,jdbcType=VARCHAR},
+      </if>
+      <if test="resourceType != null">
+        resource_type = #{resourceType,jdbcType=VARCHAR},
       </if>
       <if test="enable != null">
         `enable` = #{enable,jdbcType=BIT},
@@ -325,6 +339,7 @@
       `type` = #{type,jdbcType=VARCHAR},
       `value` = #{value,jdbcType=VARCHAR},
       job = #{job,jdbcType=VARCHAR},
+      resource_type = #{resourceType,jdbcType=VARCHAR},
       `enable` = #{enable,jdbcType=BIT},
       resource_id = #{resourceId,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
@@ -337,15 +352,15 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into schedule
-    (id, `key`, `type`, `value`, job, `enable`, resource_id, create_user, create_time, 
-      update_time, project_id, `name`, config)
+    (id, `key`, `type`, `value`, job, resource_type, `enable`, resource_id, create_user, 
+      create_time, update_time, project_id, `name`, config)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.key,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, 
-        #{item.value,jdbcType=VARCHAR}, #{item.job,jdbcType=VARCHAR}, #{item.enable,jdbcType=BIT}, 
-        #{item.resourceId,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
-        #{item.updateTime,jdbcType=BIGINT}, #{item.projectId,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, 
-        #{item.config,jdbcType=VARCHAR})
+        #{item.value,jdbcType=VARCHAR}, #{item.job,jdbcType=VARCHAR}, #{item.resourceType,jdbcType=VARCHAR}, 
+        #{item.enable,jdbcType=BIT}, #{item.resourceId,jdbcType=VARCHAR}, #{item.createUser,jdbcType=VARCHAR}, 
+        #{item.createTime,jdbcType=BIGINT}, #{item.updateTime,jdbcType=BIGINT}, #{item.projectId,jdbcType=VARCHAR}, 
+        #{item.name,jdbcType=VARCHAR}, #{item.config,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -372,6 +387,9 @@
         </if>
         <if test="'job'.toString() == column.value">
           #{item.job,jdbcType=VARCHAR}
+        </if>
+        <if test="'resource_type'.toString() == column.value">
+          #{item.resourceType,jdbcType=VARCHAR}
         </if>
         <if test="'enable'.toString() == column.value">
           #{item.enable,jdbcType=BIT}

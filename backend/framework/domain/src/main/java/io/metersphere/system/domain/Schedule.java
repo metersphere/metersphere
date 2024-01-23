@@ -10,51 +10,56 @@ import lombok.Data;
 
 @Data
 public class Schedule implements Serializable {
-    @Schema(description =  "", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{schedule.id.not_blank}", groups = {Updated.class})
     @Size(min = 1, max = 50, message = "{schedule.id.length_range}", groups = {Created.class, Updated.class})
     private String id;
 
-    @Schema(description =  "qrtz UUID")
+    @Schema(description = "qrtz UUID")
     private String key;
 
-    @Schema(description =  "资源类型", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "执行类型 cron", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{schedule.type.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{schedule.type.length_range}", groups = {Created.class, Updated.class})
     private String type;
 
-    @Schema(description =  "cron 表达式", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "cron 表达式", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{schedule.value.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 255, message = "{schedule.value.length_range}", groups = {Created.class, Updated.class})
     private String value;
 
-    @Schema(description =  "Schedule Job Class Name", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "Schedule Job Class Name", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{schedule.job.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 64, message = "{schedule.job.length_range}", groups = {Created.class, Updated.class})
     private String job;
 
-    @Schema(description =  "是否开启")
+    @Schema(description = "资源类型 API/TESL_PLAN", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{schedule.resource_type.not_blank}", groups = {Created.class})
+    @Size(min = 1, max = 50, message = "{schedule.resource_type.length_range}", groups = {Created.class, Updated.class})
+    private String resourceType;
+
+    @Schema(description = "是否开启")
     private Boolean enable;
 
-    @Schema(description =  "资源ID，api_scenario ui_scenario load_test")
+    @Schema(description = "资源ID，api_scenario ui_scenario load_test")
     private String resourceId;
 
-    @Schema(description =  "创建人")
+    @Schema(description = "创建人")
     private String createUser;
 
-    @Schema(description =  "创建时间")
+    @Schema(description = "创建时间")
     private Long createTime;
 
-    @Schema(description =  "更新时间")
+    @Schema(description = "更新时间")
     private Long updateTime;
 
-    @Schema(description =  "项目ID")
+    @Schema(description = "项目ID")
     private String projectId;
 
-    @Schema(description =  "名称")
+    @Schema(description = "名称")
     private String name;
 
-    @Schema(description =  "配置")
+    @Schema(description = "配置")
     private String config;
 
     private static final long serialVersionUID = 1L;
@@ -65,6 +70,7 @@ public class Schedule implements Serializable {
         type("type", "type", "VARCHAR", true),
         value("value", "value", "VARCHAR", true),
         job("job", "job", "VARCHAR", false),
+        resourceType("resource_type", "resourceType", "VARCHAR", false),
         enable("enable", "enable", "BIT", true),
         resourceId("resource_id", "resourceId", "VARCHAR", false),
         createUser("create_user", "createUser", "VARCHAR", false),
