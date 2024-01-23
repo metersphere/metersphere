@@ -10,6 +10,8 @@ import io.metersphere.functional.dto.*;
 import io.metersphere.functional.mapper.*;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.CaseManagementResultCode;
+import io.metersphere.plan.domain.TestPlanFunctionalCaseExample;
+import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
 import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.domain.ProjectVersion;
 import io.metersphere.project.dto.ModuleCountDTO;
@@ -114,6 +116,8 @@ public class FunctionalCaseService {
     @Resource
     private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
     @Resource
+    private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
+    @Resource
     private BaseCustomFieldOptionService baseCustomFieldOptionService;
 
 
@@ -125,6 +129,7 @@ public class FunctionalCaseService {
         //上传文件
         functionalCaseAttachmentService.uploadFile(request.getProjectId(), caseId, files, true, userId);
 
+        //上传副文本里的文件
         functionalCaseAttachmentService.uploadMinioFile(caseId, request.getProjectId(), request.getCaseDetailFileIds(), userId, CaseFileSourceType.CASE_DETAIL.toString());
 
         //关联附件
@@ -276,7 +281,11 @@ public class FunctionalCaseService {
         CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
         caseReviewFunctionalCaseExample.createCriteria().andCaseIdEqualTo(functionalCaseDetailDTO.getId());
         functionalCaseDetailDTO.setCaseReviewCount((int) caseReviewFunctionalCaseMapper.countByExample(caseReviewFunctionalCaseExample));
-        //TODO 获取已关联测试计划数量
+        //获取已关联测试计划数量
+        TestPlanFunctionalCaseExample testPlanFunctionalCaseExample = new TestPlanFunctionalCaseExample();
+        testPlanFunctionalCaseExample.createCriteria().andFunctionalCaseIdEqualTo(functionalCaseDetailDTO.getId());
+        functionalCaseDetailDTO.setTestPlanCount((int) testPlanFunctionalCaseMapper.countByExample(testPlanFunctionalCaseExample));
+
     }
 
 
