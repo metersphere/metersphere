@@ -66,6 +66,7 @@ public class PermissionConstants {
     public static final String SYSTEM_USER_ADD = "SYSTEM_USER:READ+ADD";
     public static final String SYSTEM_USER_IMPORT = "SYSTEM_USER:READ+IMPORT";
     public static final String SYSTEM_USER_UPDATE = "SYSTEM_USER:READ+UPDATE";
+    public static final String SYSTEM_USER_INVITE = "SYSTEM_USER:READ+INVITE";
     public static final String SYSTEM_USER_DELETE = "SYSTEM_USER:READ+DELETE";
     /*------ end: SYSTEM_SERVICE_INTEGRATION ------*/
 
@@ -300,8 +301,6 @@ public class PermissionConstants {
     public static final String SYSTEM_PERSONAL_API_KEY_DELETE = "SYSTEM_PERSONAL_API_KEY:READ+DELETE";
     public static final String SYSTEM_PERSONAL_API_KEY_READ = "SYSTEM_PERSONAL_API_KEY:READ";
     public static final String SYSTEM_PERSONAL_API_KEY_UPDATE = "SYSTEM_PERSONAL_API_KEY:READ+UPDATE";
-    public static final String SYSTEM_PERSONAL_READ = "SYSTEM_PERSONAL:READ";
-    public static final String SYSTEM_PERSONAL_READ_UPDATE = "SYSTEM_PERSONAL:READ+UPDATE";
     /*------ end: PERSONAL_CENTER ------*/
 
     //测试计划

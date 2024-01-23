@@ -187,7 +187,7 @@ public class UserController {
 
     @PostMapping("/invite")
     @Operation(summary = "系统设置-系统-用户-邀请用户注册")
-    @RequiresPermissions(PermissionConstants.SYSTEM_USER_ADD)
+    @RequiresPermissions(PermissionConstants.SYSTEM_USER_INVITE)
     public UserInviteResponse invite(@Validated @RequestBody UserInviteRequest request) {
         return userService.saveInviteRecord(request, SessionUtils.getUser());
     }

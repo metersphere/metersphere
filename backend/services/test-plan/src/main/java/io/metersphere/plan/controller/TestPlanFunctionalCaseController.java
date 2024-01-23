@@ -6,7 +6,6 @@ import io.metersphere.plan.dto.request.ResourceSortRequest;
 import io.metersphere.plan.dto.request.TestPlanAssociationRequest;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
-import io.metersphere.plan.mapper.ExtTestPlanMapper;
 import io.metersphere.plan.service.TestPlanFunctionalCaseService;
 import io.metersphere.plan.service.TestPlanManagementService;
 import io.metersphere.sdk.constants.HttpMethodConstants;
@@ -33,13 +32,11 @@ public class TestPlanFunctionalCaseController {
     @Resource
     private TestPlanManagementService testPlanManagementService;
     @Resource
-    private ExtTestPlanMapper extTestPlanMapper;
-    @Resource
     private TestPlanFunctionalCaseService testPlanFunctionalCaseService;
 
     @PostMapping(value = "/association")
     @Operation(summary = "测试计划功能用例-关联功能用例")
-    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_UPDATE)
+    @RequiresPermissions(PermissionConstants.TEST_PLAN_READ_ASSOCIATION)
     @CheckOwner(resourceId = "#request.getTestPlanId()", resourceType = "test_plan")
     public TestPlanAssociationResponse association(@Validated @RequestBody TestPlanAssociationRequest request) {
         testPlanManagementService.checkModuleIsOpen(request.getTestPlanId(), TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN, Collections.singletonList(TestPlanResourceConfig.CONFIG_TEST_PLAN_FUNCTIONAL_CASE));

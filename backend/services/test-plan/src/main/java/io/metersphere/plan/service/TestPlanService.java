@@ -242,9 +242,6 @@ public class TestPlanService {
 
     public String update(TestPlanUpdateRequest request, String userId, String requestUrl, String requestMethod) {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getId());
-        if (testPlan == null) {
-            throw new MSException(Translator.get("test_plan.not.exist"));
-        }
         if (!ObjectUtils.allNull(request.getName(), request.getModuleId(), request.getTags(), request.getPlannedEndTime(), request.getPlannedStartTime(), request.getDescription(), request.getTestPlanGroupId())) {
             TestPlan updateTestPlan = new TestPlan();
             updateTestPlan.setId(request.getId());

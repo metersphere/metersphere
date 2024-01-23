@@ -358,4 +358,23 @@ public class TestPlanTestService {
         updateProject.setModuleSetting(JSON.toJSONString(moduleList));
         projectMapper.updateByPrimaryKeySelective(updateProject);
     }
+
+    public void setResourcePos(String id, String resourceType, long pos) {
+        if (StringUtils.equals(resourceType, TestPlanResourceConstants.RESOURCE_FUNCTIONAL_CASE)) {
+            TestPlanFunctionalCase updateCase = new TestPlanFunctionalCase();
+            updateCase.setId(id);
+            updateCase.setPos(pos);
+            testPlanFunctionalCaseMapper.updateByPrimaryKeySelective(updateCase);
+        } else if (StringUtils.equals(resourceType, TestPlanResourceConstants.RESOURCE_API_CASE)) {
+            TestPlanApiCase updateCase = new TestPlanApiCase();
+            updateCase.setId(id);
+            updateCase.setPos(pos);
+            testPlanApiCaseMapper.updateByPrimaryKeySelective(updateCase);
+        } else if (StringUtils.equals(resourceType, TestPlanResourceConstants.RESOURCE_API_SCENARIO)) {
+            TestPlanApiScenario updateCase = new TestPlanApiScenario();
+            updateCase.setId(id);
+            updateCase.setPos(pos);
+            testPlanApiScenarioMapper.updateByPrimaryKeySelective(updateCase);
+        }
+    }
 }
