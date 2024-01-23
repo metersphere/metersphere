@@ -52,9 +52,6 @@
           },
           {
             "id": "PROJECT_API_DEFINITION:READ+EXPORT"
-          },
-          {
-            "id": "PROJECT_API_DEFINITION:READ+DEBUG"
           }
         ]
       },
@@ -124,9 +121,6 @@
           },
           {
             "id": "PROJECT_API_SCENARIO:READ+EXPORT"
-          },
-          {
-            "id": "PROJECT_API_SCENARIO:READ+DEBUG"
           }
         ]
       },
