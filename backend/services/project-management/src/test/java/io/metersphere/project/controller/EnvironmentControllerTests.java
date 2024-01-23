@@ -443,7 +443,6 @@ public class EnvironmentControllerTests extends BaseTest {
         EnvironmentRequest request = new EnvironmentRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setName("name");
-        request.setConfig(new EnvironmentConfig());
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.add("request", JSON.toJSONString(request));
         MvcResult mvcResult = this.requestMultipartWithOkAndReturn(add, paramMap);
@@ -773,11 +772,6 @@ public class EnvironmentControllerTests extends BaseTest {
         request.setConfig(new EnvironmentConfig());
         paramMap.set("request", JSON.toJSONString(request));
         requestMultipart(add, paramMap, ERROR_REQUEST_MATCHER);
-        //配置为空
-        request.setConfig(null);
-        paramMap.set("request", JSON.toJSONString(request));
-        requestMultipart(add, paramMap, BAD_REQUEST_MATCHER);
-
 
     }
 
@@ -903,6 +897,17 @@ public class EnvironmentControllerTests extends BaseTest {
         Assertions.assertNotNull(environment);
         Assertions.assertEquals(response.getId(), environment.getId());
         Assertions.assertEquals(response.getName(), environment.getName());
+        request.setName("test-edit-name");
+        request.setConfig(null);
+        paramMap.clear();
+        paramMap.set("request", JSON.toJSONString(request));
+        mvcResult = requestMultipartWithOkAndReturn(update, paramMap);
+        response = parseObjectFromMvcResult(mvcResult, Environment.class);
+        Assertions.assertNotNull(response);
+        environment = environmentMapper.selectByPrimaryKey(response.getId());
+        Assertions.assertNotNull(environment);
+        Assertions.assertEquals(response.getId(), environment.getId());
+        Assertions.assertEquals(response.getName(), environment.getName());
 
         example = new EnvironmentExample();
         example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("commonParams");
@@ -942,14 +947,14 @@ public class EnvironmentControllerTests extends BaseTest {
         EnvironmentRequest request = new EnvironmentRequest();
         request.setId("environmentId2");
         request.setProjectId(DEFAULT_PROJECT_ID);
-        request.setName("name");
+        request.setName("test-edit-name");
         request.setConfig(new EnvironmentConfig());
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.set("request", JSON.toJSONString(request));
         requestMultipart(update, paramMap, ERROR_REQUEST_MATCHER);
         //重名
         EnvironmentExample example = new EnvironmentExample();
-        example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("name");
+        example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("test-edit-name");
         List<Environment> environments = environmentMapper.selectByExample(example);
         String id = environments.getFirst().getId();
         request = new EnvironmentRequest();
@@ -959,15 +964,6 @@ public class EnvironmentControllerTests extends BaseTest {
         request.setConfig(new EnvironmentConfig());
         paramMap.set("request", JSON.toJSONString(request));
         requestMultipart(update, paramMap, ERROR_REQUEST_MATCHER);
-        //配置为空
-        request = new EnvironmentRequest();
-        request.setId("environmentId2");
-        request.setProjectId(DEFAULT_PROJECT_ID);
-        request.setName("name");
-        request.setConfig(null);
-        paramMap = new LinkedMultiValueMap<>();
-        paramMap.set("request", JSON.toJSONString(request));
-        requestMultipart(update, paramMap, BAD_REQUEST_MATCHER);
 
     }
 
@@ -994,7 +990,7 @@ public class EnvironmentControllerTests extends BaseTest {
     public void testDeleteSuccess() throws Exception {
         //校验参数
         EnvironmentExample example = new EnvironmentExample();
-        example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("name");
+        example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("test-edit-name");
         List<Environment> environments = environmentMapper.selectByExample(example);
         String id = environments.getFirst().getId();
         this.requestGet(delete + id);

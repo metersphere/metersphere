@@ -235,8 +235,7 @@
         api_report.start_time,
         api_report.create_user,
         api_report.trigger_mode,
-        api_report.test_plan_id,
-        api_report.resource_id
+        api_report.test_plan_id
         from api_report where
         <if test="request.id != null and request.id != ''">
             api_report.resource_id = #{request.id}

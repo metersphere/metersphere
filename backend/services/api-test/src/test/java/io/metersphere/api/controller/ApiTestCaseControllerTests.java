@@ -608,9 +608,6 @@ public class ApiTestCaseControllerTests extends BaseTest {
         Pager<?> returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
         //返回值不为空
         Assertions.assertNotNull(returnPager);
-        List<ApiCaseReportDTO> reportDTOS = JSON.parseArray(JSON.toJSONString(returnPager.getList()), ApiCaseReportDTO.class);
-        reportDTOS.forEach(reportDTO -> Assertions.assertEquals(reportDTO.getResourceId(), first.getId()));
-
         request.setFilter(new HashMap<>() {{
             put("status", List.of(ApiReportStatus.SUCCESS.name()));
         }});
@@ -619,7 +616,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         //返回值不为空
         Assertions.assertNotNull(returnPager);
         Assertions.assertTrue(((List<ApiReport>) returnPager.getList()).size() <= request.getPageSize());
-        reportDTOS = JSON.parseArray(JSON.toJSONString(returnPager.getList()), ApiCaseReportDTO.class);
+        List<ApiCaseReportDTO> reportDTOS = JSON.parseArray(JSON.toJSONString(returnPager.getList()), ApiCaseReportDTO.class);
         reportDTOS.forEach(apiReport -> {
             Assertions.assertEquals(apiReport.getStatus(), ApiReportStatus.SUCCESS.name());
         });

@@ -17,10 +17,7 @@ import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.file.MinioRepository;
 import io.metersphere.sdk.mapper.EnvironmentBlobMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
-import io.metersphere.sdk.util.CommonBeanFactory;
-import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.LogUtils;
-import io.metersphere.sdk.util.Translator;
+import io.metersphere.sdk.util.*;
 import io.metersphere.system.dto.sdk.BaseSystemConfigDTO;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
@@ -131,6 +128,9 @@ public class EnvironmentService {
         request.setId(environment.getId());
         EnvironmentBlob environmentBlob = new EnvironmentBlob();
         environmentBlob.setId(environment.getId());
+        if (request.getConfig() == null) {
+            request.setConfig(new EnvironmentConfig());
+        }
         environmentBlob.setConfig(JSON.toJSONBytes(request.getConfig()));
         environmentBlobMapper.insert(environmentBlob);
         uploadFileToMinio(sslFiles, environment);
@@ -163,6 +163,7 @@ public class EnvironmentService {
         environmentInfoDTO.setName(environment.getName());
         environmentInfoDTO.setId(environment.getId());
         environmentInfoDTO.setMock(environment.getMock());
+        BeanUtils.copyBean(environmentInfoDTO, environment);
         EnvironmentBlob environmentBlob = environmentBlobMapper.selectByPrimaryKey(environmentId);
         if (environmentBlob == null) {
             environmentInfoDTO.setConfig(new EnvironmentConfig());
@@ -284,6 +285,9 @@ public class EnvironmentService {
         environmentMapper.updateByPrimaryKeySelective(environment);
         EnvironmentBlob environmentBlob = new EnvironmentBlob();
         environmentBlob.setId(environment.getId());
+        if (request.getConfig() == null) {
+            request.setConfig(new EnvironmentConfig());
+        }
         environmentBlob.setConfig(JSON.toJSONBytes(request.getConfig()));
         environmentBlobMapper.updateByPrimaryKeySelective(environmentBlob);
         uploadFileToMinio(sslFiles, environment);

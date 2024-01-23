@@ -4,7 +4,6 @@ import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -27,7 +26,6 @@ public class EnvironmentRequest implements Serializable {
     @NotBlank(message = "{environment_name_is_null}", groups = {Created.class, Updated.class})
     private String name;
     @Schema(description = "环境配置")
-    @NotNull(message = "{environment_config_is_null}", groups = {Created.class, Updated.class})
     private EnvironmentConfig config;
     @Schema(description = "是否是mock环境")
     private Boolean mock;

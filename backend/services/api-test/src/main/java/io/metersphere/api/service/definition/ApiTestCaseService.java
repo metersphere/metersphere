@@ -559,7 +559,6 @@ public class ApiTestCaseService {
             apiReport.setOperationUser(userMap.get(apiReport.getCreateUser()));
             Date date = new Date(apiReport.getStartTime());
             apiReport.setNum(sdf.format(date));
-            apiReport.setTestPlan(!StringUtils.equals(apiReport.getTestPlanId(), "NONE"));
         });
         return executeList;
     }
