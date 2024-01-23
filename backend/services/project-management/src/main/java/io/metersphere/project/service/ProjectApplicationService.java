@@ -15,6 +15,7 @@ import io.metersphere.project.request.ProjectApplicationRequest;
 import io.metersphere.project.utils.ModuleSortUtils;
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.ProjectApplicationType;
+import io.metersphere.sdk.constants.ScheduleResourceType;
 import io.metersphere.sdk.constants.ScheduleType;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
@@ -142,6 +143,7 @@ public class ProjectApplicationService {
             // 每天凌晨2点执行清理任务
             request.setValue("0 0 2 * * ?");
             request.setJob(CleanUpReportJob.class.getName());
+            request.setResourceType(ScheduleResourceType.CLEAN_REPORT.name());
             scheduleService.addSchedule(request);
             scheduleService.addOrUpdateCronJob(request,
                     CleanUpReportJob.getJobKey(projectId),
@@ -280,6 +282,7 @@ public class ProjectApplicationService {
                 // 每天凌晨2点执行清理任务
                 request.setValue(typeValue);
                 request.setJob(BugSyncJob.class.getName());
+                request.setResourceType(ScheduleResourceType.BUG_SYNC.name());
                 scheduleService.addSchedule(request);
                 scheduleService.addOrUpdateCronJob(request,
                         BugSyncJob.getJobKey(projectId),

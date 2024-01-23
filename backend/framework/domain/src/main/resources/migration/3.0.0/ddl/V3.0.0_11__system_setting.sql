@@ -113,9 +113,10 @@ CREATE TABLE IF NOT EXISTS schedule
 (
     `id`          VARCHAR(50)  NOT NULL COMMENT '',
     `key`         VARCHAR(50) COMMENT 'qrtz UUID',
-    `type`        VARCHAR(50)  NOT NULL COMMENT '资源类型',
+    `type`        VARCHAR(50)  NOT NULL COMMENT '执行类型 cron',
     `value`       VARCHAR(255) NOT NULL COMMENT 'cron 表达式',
     `job`         VARCHAR(64)  NOT NULL COMMENT 'Schedule Job Class Name',
+    `resource_type` VARCHAR(50) NOT NULL DEFAULT 'NONE' COMMENT '资源类型 API_IMPORT,API_SCENARIO,UI_SCENARIO,LOAD_TEST,TEST_PLAN,CLEAN_REPORT,BUG_SYNC' ,
     `enable`      BIT COMMENT '是否开启',
     `resource_id` VARCHAR(50) COMMENT '资源ID，api_scenario ui_scenario load_test',
     `create_user` VARCHAR(50)  NOT NULL COMMENT '创建人',
@@ -138,6 +139,7 @@ CREATE INDEX idx_project_id ON schedule (`project_id`);
 CREATE INDEX idx_enable ON schedule (`enable`);
 CREATE INDEX idx_name ON schedule (`name`);
 CREATE INDEX idx_type ON schedule (`type`);
+CREATE INDEX idx_resource_type ON schedule(`resource_type`);
 
 CREATE TABLE IF NOT EXISTS service_integration
 (

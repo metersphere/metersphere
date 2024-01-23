@@ -1,6 +1,7 @@
 package io.metersphere.project.service;
 
 import io.metersphere.project.job.CleanUpReportJob;
+import io.metersphere.sdk.constants.ScheduleResourceType;
 import io.metersphere.sdk.constants.ScheduleType;
 import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.sechedule.ScheduleService;
@@ -32,6 +33,7 @@ public class CreateApplicationResourceService implements CreateProjectResourceSe
         // 每天凌晨2点执行清理任务
         request.setValue("0 0 2 * * ?");
         request.setJob(CleanUpReportJob.class.getName());
+        request.setResourceType(ScheduleResourceType.CLEAN_REPORT.name());
         scheduleService.addSchedule(request);
         scheduleService.addOrUpdateCronJob(request,
                 CleanUpReportJob.getJobKey(projectId),
