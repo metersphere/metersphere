@@ -24,4 +24,6 @@ public interface ExtTestPlanMapper {
     List<TestPlan> selectBaseInfoByIds(@Param("list") List<String> deleteIdList);
 
     long updateDefaultGroupId(@Param("list") List<String> groupIds);
+
+    String selectProjectIdByTestPlanId(String testPlanId);
 }

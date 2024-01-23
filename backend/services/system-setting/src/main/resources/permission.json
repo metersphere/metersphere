@@ -21,6 +21,9 @@
             "id": "SYSTEM_USER:READ+UPDATE"
           },
           {
+            "id": "SYSTEM_USER:READ+INVITE"
+          },
+          {
             "id": "SYSTEM_USER:READ+DELETE"
           }
         ]
@@ -296,18 +299,6 @@
     "name": "permission.my_settings",
     "type": "SYSTEM",
     "children": [
-      {
-        "id": "PERSONAL_INFO",
-        "name": "permission.my_settings_personal_info",
-        "permissions": [
-          {
-            "id": "SYSTEM_PERSONAL:READ"
-          },
-          {
-            "id": "SYSTEM_PERSONAL:READ+UPDATE"
-          }
-        ]
-      },
       {
         "id": "API_KEYS",
         "name": "permission.api_keys",

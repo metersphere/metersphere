@@ -1,6 +1,7 @@
 package io.metersphere.project.controller.filemanagement;
 
 import io.metersphere.project.domain.*;
+import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.dto.filemanagement.FileAssociationDTO;
 import io.metersphere.project.dto.filemanagement.FileLogRecord;
 import io.metersphere.project.dto.filemanagement.request.*;
@@ -2463,6 +2464,13 @@ public class FileManagementControllerTests extends BaseTest {
             error = true;
         }
         Assertions.assertTrue(error);
+
+        List<ModuleCountDTO> treeNodeList = new ArrayList<>() {{
+            this.add(new ModuleCountDTO(IDGenerator.nextStr(), 1));
+            this.add(new ModuleCountDTO(IDGenerator.nextStr(), 2));
+            this.add(new ModuleCountDTO(IDGenerator.nextStr(), 3));
+        }};
+        fileModuleService.getAllCount(treeNodeList);
     }
 
     @Test

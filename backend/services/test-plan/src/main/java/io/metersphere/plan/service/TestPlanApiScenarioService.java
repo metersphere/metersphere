@@ -11,7 +11,10 @@ import io.metersphere.plan.dto.request.ResourceSortRequest;
 import io.metersphere.plan.dto.request.TestPlanAssociationRequest;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
 import io.metersphere.plan.dto.response.TestPlanResourceSortResponse;
-import io.metersphere.plan.mapper.*;
+import io.metersphere.plan.mapper.ExtTestPlanApiCaseMapper;
+import io.metersphere.plan.mapper.ExtTestPlanApiScenarioMapper;
+import io.metersphere.plan.mapper.TestPlanApiScenarioMapper;
+import io.metersphere.plan.mapper.TestPlanMapper;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.TestPlanResourceConstants;
 import io.metersphere.sdk.exception.MSException;
@@ -38,8 +41,6 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
     @Resource
     private ExtTestPlanApiScenarioMapper extTestPlanApiScenarioMapper;
-    @Resource
-    private TestPlanConfigMapper testPlanConfigMapper;
     @Resource
     private TestPlanResourceLogService testPlanResourceLogService;
     @Resource
@@ -84,8 +85,7 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
                 TestPlanResourceConstants.RESOURCE_API_CASE,
                 request,
                 logInsertModule,
-                extTestPlanApiScenarioMapper::getIdByIds,
-                extTestPlanApiScenarioMapper::getIdByModuleIds,
+                extTestPlanApiScenarioMapper::getIdByParam,
                 this::saveTestPlanResource);
     }
 
@@ -110,24 +110,20 @@ public class TestPlanApiScenarioService extends TestPlanResourceService {
     }
 
     public TestPlanResourceSortResponse sortNode(ResourceSortRequest request, LogInsertModule logInsertModule) {
-        TestPlanResourceSortResponse response = new TestPlanResourceSortResponse();
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestPlanId());
         TestPlanApiScenario dragNode = testPlanApiScenarioMapper.selectByPrimaryKey(request.getDragNodeId());
-        if (dragNode == null && testPlan == null) {
+        if (dragNode == null) {
             throw new MSException("test_plan.drag.node.error");
         }
-        if (request.getDropPosition() == -1 || request.getDropPosition() == 1) {
-            AssociationNodeSortDTO sortDTO = super.getNodeSortDTO(
-                    request,
-                    extTestPlanApiScenarioMapper::selectDragInfoById,
-                    extTestPlanApiScenarioMapper::selectNodeByPosOperator
-            );
-            this.sort(sortDTO);
-            response.setSortNodeNum(1);
-            testPlanResourceLogService.saveSortLog(testPlan, request.getDragNodeId(), new ResourceLogInsertModule(TestPlanResourceConstants.RESOURCE_API_CASE, logInsertModule));
-        } else {
-            throw new MSException("test_plan.drag.position.error");
-        }
+        TestPlanResourceSortResponse response = new TestPlanResourceSortResponse();
+        AssociationNodeSortDTO sortDTO = super.getNodeSortDTO(
+                request,
+                extTestPlanApiScenarioMapper::selectDragInfoById,
+                extTestPlanApiScenarioMapper::selectNodeByPosOperator
+        );
+        this.sort(sortDTO);
+        response.setSortNodeNum(1);
+        testPlanResourceLogService.saveSortLog(testPlan, request.getDragNodeId(), new ResourceLogInsertModule(TestPlanResourceConstants.RESOURCE_API_CASE, logInsertModule));
         return response;
     }
 }

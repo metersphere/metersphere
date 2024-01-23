@@ -27,4 +27,6 @@ public interface ExtTestPlanModuleMapper {
     List<String> selectChildrenIdsSortByPos(String parentId);
 
     String selectNameById(String id);
+
+    String selectProjectIdByModuleId(String id);
 }

@@ -34,7 +34,7 @@ public class BasePageRequest extends BaseCondition {
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, String> entry : sort.entrySet()) {
             String column = CaseFormat.LOWER_CAMEL.to(CaseFormat.LOWER_UNDERSCORE, entry.getKey());
-            sb.append(column)
+            sb.append("t." + column)
                     .append(StringUtils.SPACE)
                     .append(StringUtils.equalsIgnoreCase(entry.getValue(), "DESC") ? "DESC" : "ASC")
                     .append(",");
