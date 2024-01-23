@@ -19,6 +19,7 @@ import io.metersphere.project.mapper.ProjectApplicationMapper;
 import io.metersphere.provider.BaseCaseProvider;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.notice.constants.NoticeConstants;
@@ -290,7 +291,17 @@ public class CaseReviewFunctionalCaseService {
         CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper = sqlSession.getMapper(CaseReviewFunctionalCaseMapper.class);
 
         for (CaseReviewFunctionalCase caseReviewFunctionalCase : caseReviewFunctionalCaseList) {
+            //校验当前操作人是否是该用例的评审人，是增加评审历史，不是过滤掉
             String caseId = caseReviewFunctionalCase.getCaseId();
+            List<CaseReviewFunctionalCaseUser> userList = reviewerMap.get(caseId);
+            if(CollectionUtils.isEmpty(userList)){
+                LogUtils.error(caseId+": no review user, please check");
+                continue;
+            }
+            List<CaseReviewFunctionalCaseUser> list = userList.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getUserId(), userId)).toList();
+            if (CollectionUtils.isEmpty(list)) {
+                continue;
+            }
             CaseReviewHistory caseReviewHistory = buildCaseReviewHistory(request, userId, caseId);
             caseReviewHistoryMapper.insert(caseReviewHistory);
             if (caseHistoryMap.get(caseId) == null) {

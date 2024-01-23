@@ -4,7 +4,6 @@ import io.metersphere.functional.constants.CaseReviewPassRule;
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.domain.CaseReviewFunctionalCase;
 import io.metersphere.functional.domain.CaseReviewFunctionalCaseExample;
-import io.metersphere.functional.domain.CaseReviewFunctionalCaseUser;
 import io.metersphere.functional.dto.ReviewFunctionalCaseDTO;
 import io.metersphere.functional.mapper.CaseReviewFunctionalCaseMapper;
 import io.metersphere.functional.mapper.CaseReviewFunctionalCaseUserMapper;
@@ -236,13 +235,13 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
     @Test
     @Order(8)
     public void testBatchReview() throws Exception {
-        List<CaseReviewFunctionalCase> caseReviewList = getCaseReviewFunctionalCase("wx_review_id_1");
+        /*List<CaseReviewFunctionalCase> caseReviewList = getCaseReviewFunctionalCase("wx_review_id_1");
         List<CaseReviewFunctionalCase> list = caseReviewList.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getCreateUser(), "admin")).toList();
         CaseReviewFunctionalCaseUser caseReviewFunctionalCaseUser = new CaseReviewFunctionalCaseUser();
         caseReviewFunctionalCaseUser.setReviewId("wx_review_id_1");
         caseReviewFunctionalCaseUser.setCaseId(list.get(0).getCaseId());
         caseReviewFunctionalCaseUser.setUserId("admin");
-        caseReviewFunctionalCaseUserMapper.insertSelective(caseReviewFunctionalCaseUser);
+        caseReviewFunctionalCaseUserMapper.insertSelective(caseReviewFunctionalCaseUser);*/
 
         BatchReviewFunctionalCaseRequest request = new BatchReviewFunctionalCaseRequest();
         request.setReviewId("wx_review_id_1");
@@ -285,6 +284,18 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         request.setNotifier("gyq;admin");
         request.setContent("测试批量评审通过");
         this.requestPostWithOk(REVIEW_FUNCTIONAL_CASE_BATCH_REVIEW, request);
+
+        request = new BatchReviewFunctionalCaseRequest();
+        request.setReviewId("wx_review_id_1");
+        request.setReviewPassRule(CaseReviewPassRule.MULTIPLE.toString());
+        request.setStatus(FunctionalCaseReviewStatus.PASS.toString());
+        request.setSelectAll(false);
+        ids = new ArrayList<>();
+        ids.add(" gyq_test_5");
+        request.setSelectIds(ids);
+        request.setContent("测试批量评审通过");
+        this.requestPostWithOk(REVIEW_FUNCTIONAL_CASE_BATCH_REVIEW, request);
+
     }
 
     @Test
