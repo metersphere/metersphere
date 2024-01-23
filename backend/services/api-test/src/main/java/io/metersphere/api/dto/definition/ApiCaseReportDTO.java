@@ -16,12 +16,6 @@ public class ApiCaseReportDTO implements Serializable {
     @Schema(description = "任务名称")
     private String name;
 
-    @Schema(description = "用例id")
-    private String resourceId;
-
-    @Schema(description = "测试计划id")
-    private String testPlanId;
-
     @Schema(description = "操作人")
     private String operationUser;
     @Schema(description = "操作人id")
@@ -35,9 +29,6 @@ public class ApiCaseReportDTO implements Serializable {
 
     @Schema(description = "执行方式")
     private String triggerMode;
-
-    @Schema(description = "是否是测试计划执行的用例")
-    private boolean testPlan;
 
     private static final long serialVersionUID = 1L;
 
