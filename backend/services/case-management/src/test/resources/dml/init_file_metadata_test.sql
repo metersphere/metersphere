@@ -72,3 +72,7 @@ VALUES ('wx_review_id',10006,'测试重新提审', 'test_module_one', 'TEST_MODU
 INSERT INTO project_version(id, project_id, name, description, status, latest, publish_time, start_time, end_time, create_time, create_user)
 VALUES ('v2.0.1', 'wx_relationship', 'v1.0', NULL, 'open', b'1', 1698810592000, 1698810592000, 1698810592000, 1698810592000, 'admin');
 
+INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
+VALUES ('TEST_IMPORT', 10, 'TEST_MODULE_ID_GYQ', '100001100001', '100001', '1223', 'UN_REVIEWED', NULL, 'STEP', 0, 'v3.0.0', 'wx_ref_id', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL);
+
+INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('TEST_IMPORT', 'STEP', '1111', '', '', 'TEST');

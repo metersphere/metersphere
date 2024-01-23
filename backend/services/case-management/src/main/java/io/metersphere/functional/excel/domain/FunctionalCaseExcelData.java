@@ -33,13 +33,13 @@ public class FunctionalCaseExcelData {
     private String expectedResult;
     @ExcelIgnore
     private String caseEditType;
-
+    @ExcelIgnore
+    private String steps;
     @ExcelIgnore
     Map<String, Object> customData = new LinkedHashMap<>();
     @ExcelIgnore
     Map<String, String> otherFields;
-    @ExcelIgnore
-    Set<String> textFieldSet = new HashSet<>(1);
+
     /**
      * 合并文本描述
      */
