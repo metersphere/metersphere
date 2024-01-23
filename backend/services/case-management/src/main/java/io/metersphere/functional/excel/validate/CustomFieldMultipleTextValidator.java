@@ -2,9 +2,12 @@ package io.metersphere.functional.excel.validate;
 
 
 import io.metersphere.functional.excel.exception.CustomFieldValidateException;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
 
 /**
  * @author wx
@@ -32,6 +35,8 @@ public class CustomFieldMultipleTextValidator extends AbstractCustomFieldValidat
         if (StringUtils.isBlank(keyOrValuesStr)) {
             return StringUtils.EMPTY;
         }
-        return parse2Array(keyOrValuesStr);
+        List<String> keyOrValues = parse2Array(keyOrValuesStr);
+
+        return JSON.toJSONString(keyOrValues);
     }
 }

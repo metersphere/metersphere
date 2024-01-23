@@ -10,11 +10,13 @@ import io.metersphere.functional.excel.domain.FunctionalCaseExcelData;
 import io.metersphere.functional.excel.domain.FunctionalCaseExcelDataFactory;
 import io.metersphere.functional.excel.handler.FunctionCaseTemplateWriteHandler;
 import io.metersphere.functional.excel.listener.FunctionalCaseCheckEventListener;
+import io.metersphere.functional.excel.listener.FunctionalCaseImportEventListener;
 import io.metersphere.functional.excel.listener.FunctionalCasePretreatmentListener;
 import io.metersphere.functional.request.FunctionalCaseImportRequest;
-import io.metersphere.plugin.sdk.util.MSPluginException;
+import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.TemplateScene;
+import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomFieldOption;
@@ -41,6 +43,8 @@ public class FunctionalCaseFileService {
 
     @Resource
     private ProjectTemplateService projectTemplateService;
+    @Resource
+    private ExtBaseProjectVersionMapper extBaseProjectVersionMapper;
 
 
     /**
@@ -185,7 +189,7 @@ public class FunctionalCaseFileService {
      */
     public FunctionalCaseImportResponse preCheckExcel(FunctionalCaseImportRequest request, MultipartFile file) {
         if (file == null) {
-            throw new MSPluginException("file_cannot_be_null");
+            throw new MSException(Translator.get("file_cannot_be_null"));
         }
         FunctionalCaseImportResponse response = new FunctionalCaseImportResponse();
         checkImportExcel(response, request, file);
@@ -205,11 +209,11 @@ public class FunctionalCaseFileService {
             FunctionalCaseCheckEventListener eventListener = new FunctionalCaseCheckEventListener(request, clazz, customFields, mergeInfoSet);
             EasyExcelFactory.read(file.getInputStream(), eventListener).sheet().doRead();
             response.setErrorMessages(eventListener.getErrList());
-            response.setSuccessCount(eventListener.getSuccessCount());
+            response.setSuccessCount(eventListener.getList().size());
             response.setFailCount(eventListener.getErrList().size());
         } catch (Exception e) {
             LogUtils.error("checkImportExcel error", e);
-            throw new MSPluginException("checkImportExcel error");
+            throw new MSException(Translator.get("check_import_excel_error"));
         }
     }
 
@@ -217,5 +221,43 @@ public class FunctionalCaseFileService {
         TemplateDTO defaultTemplateDTO = projectTemplateService.getDefaultTemplateDTO(projectId, TemplateScene.FUNCTIONAL.name());
         List<TemplateCustomFieldDTO> customFields = Optional.ofNullable(defaultTemplateDTO.getCustomFields()).orElse(new ArrayList<>());
         return customFields;
+    }
+
+
+    /**
+     * 导入excel
+     *
+     * @param request
+     * @param userId
+     * @param file
+     */
+    public FunctionalCaseImportResponse importExcel(FunctionalCaseImportRequest request, String userId, MultipartFile file) {
+        if (file == null) {
+            throw new MSException(Translator.get("file_cannot_be_null"));
+        }
+        try {
+            FunctionalCaseImportResponse response = new FunctionalCaseImportResponse();
+            //设置默认版本
+            if (StringUtils.isEmpty(request.getVersionId())) {
+                request.setVersionId(extBaseProjectVersionMapper.getDefaultVersion(request.getProjectId()));
+            }
+            //根据本地语言环境选择用哪种数据对象进行存放读取的数据
+            Class clazz = new FunctionalCaseExcelDataFactory().getExcelDataByLocal();
+            //获取当前项目默认模板的自定义字段
+            List<TemplateCustomFieldDTO> customFields = getCustomFields(request.getProjectId());
+            Set<ExcelMergeInfo> mergeInfoSet = new TreeSet<>();
+            // 预处理，查询合并单元格信息
+            EasyExcel.read(file.getInputStream(), null, new FunctionalCasePretreatmentListener(mergeInfoSet))
+                    .extraRead(CellExtraTypeEnum.MERGE).sheet().doRead();
+            FunctionalCaseImportEventListener eventListener = new FunctionalCaseImportEventListener(request, clazz, customFields, mergeInfoSet, userId);
+            EasyExcelFactory.read(file.getInputStream(), eventListener).sheet().doRead();
+            response.setErrorMessages(eventListener.getErrList());
+            response.setSuccessCount(eventListener.getSuccessCount());
+            response.setFailCount(eventListener.getErrList().size());
+            return response;
+        } catch (Exception e) {
+            LogUtils.error("checkImportExcel error", e);
+            throw new MSException(Translator.get("check_import_excel_error"));
+        }
     }
 }

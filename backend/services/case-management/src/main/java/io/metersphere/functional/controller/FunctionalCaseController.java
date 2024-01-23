@@ -226,4 +226,13 @@ public class FunctionalCaseController {
     public FunctionalCaseImportResponse preCheckExcel(@RequestPart("request") FunctionalCaseImportRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
         return functionalCaseFileService.preCheckExcel(request, file);
     }
+
+
+    @PostMapping("/import/excel")
+    @Operation(summary = "用例管理-功能用例-excel导入")
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
+    public FunctionalCaseImportResponse importExcel(@RequestPart("request") FunctionalCaseImportRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
+        String userId = SessionUtils.getUserId();
+        return functionalCaseFileService.importExcel(request, userId, file);
+    }
 }

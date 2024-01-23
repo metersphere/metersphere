@@ -55,25 +55,8 @@ public abstract class AbstractCustomFieldValidator {
 
     protected List<String> parse2Array(String name, String value) throws CustomFieldValidateException {
         try {
-            // [a, b] => ["a","b"]
-            if (!StringUtils.equals(value, "[]")) {
-                if (!value.contains("[\"")) {
-                    value = value.replace("[", "[\"");
-                }
-                if (!value.contains("\"]")) {
-                    value = value.replace("]", "\"]");
-
-                }
-                if (!value.contains("\",\"")) {
-                    value = value.replace(",", "\",\"");
-
-                }
-                if (!value.contains("\"，\"")) {
-                    value = value.replace("，", "\"，\"");
-                }
-                value = value.replace(StringUtils.SPACE, StringUtils.EMPTY);
-            }
-            return JSON.parseArray(value, String.class);
+            //a,b,c => ["a","b","c"]
+            return JSON.parseArray(JSON.toJSONString(value.split(",")));
         } catch (Exception e) {
             CustomFieldValidateException.throwException(String.format(Translator.get("custom_field_array_tip"), name));
         }

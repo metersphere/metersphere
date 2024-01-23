@@ -3,6 +3,7 @@ package io.metersphere.functional.excel.listener;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
+import io.metersphere.functional.constants.FunctionalCaseTypeConstants;
 import io.metersphere.functional.excel.annotation.NotRequired;
 import io.metersphere.functional.excel.domain.ExcelMergeInfo;
 import io.metersphere.functional.excel.domain.FunctionalCaseExcelData;
@@ -11,12 +12,18 @@ import io.metersphere.functional.excel.exception.CustomFieldValidateException;
 import io.metersphere.functional.excel.validate.AbstractCustomFieldValidator;
 import io.metersphere.functional.excel.validate.CustomFieldValidatorFactory;
 import io.metersphere.functional.request.FunctionalCaseImportRequest;
+import io.metersphere.functional.service.FunctionalCaseModuleService;
+import io.metersphere.functional.service.FunctionalCaseService;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.CommonBeanFactory;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.excel.ExcelValidateHelper;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.excel.domain.ExcelErrData;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,12 +35,17 @@ import java.util.stream.Collectors;
 /**
  * @author wx
  */
-public class FunctionalCaseCheckEventListener extends AnalysisEventListener<Map<Integer, String>> {
+public class FunctionalCaseImportEventListener extends AnalysisEventListener<Map<Integer, String>> {
 
     private Class excelDataClass;
+    private FunctionalCaseImportRequest request;
     private Map<Integer, String> headMap;
-    private Map<String, TemplateCustomFieldDTO> customFieldsMap = new HashMap<>();
+    Map<String, TemplateCustomFieldDTO> customFieldsMap = new HashMap<>();
     private Set<ExcelMergeInfo> mergeInfoSet;
+    /**
+     * 所有的模块集合
+     */
+    private List<BaseTreeNode> moduleTree;
     private Map<String, String> excelHeadToFieldNameDic = new HashMap<>();
     /**
      * 标记下当前遍历的行是不是有合并单元格
@@ -52,18 +64,34 @@ public class FunctionalCaseCheckEventListener extends AnalysisEventListener<Map<
      */
     private FunctionalCaseExcelData currentMergeData;
     private Integer firstMergeRowIndex;
+    /**
+     * 每隔5000条存储数据库，然后清理list ，方便内存回收
+     */
+    protected static final int BATCH_COUNT = 5000;
     protected List<FunctionalCaseExcelData> list = new ArrayList<>();
     protected List<ExcelErrData<FunctionalCaseExcelData>> errList = new ArrayList<>();
+    /**
+     * 待更新用例的集合
+     */
+    protected List<FunctionalCaseExcelData> updateList = new ArrayList<>();
     private static final String ERROR_MSG_SEPARATOR = ";";
     private HashMap<String, AbstractCustomFieldValidator> customFieldValidatorMap;
+    private FunctionalCaseService functionalCaseService;
+    private String userId;
+    private int successCount = 0;
+    private Map<String, String> pathMap = new HashMap<>();
 
 
-    public FunctionalCaseCheckEventListener(FunctionalCaseImportRequest request, Class clazz, List<TemplateCustomFieldDTO> customFields, Set<ExcelMergeInfo> mergeInfoSet) {
+    public FunctionalCaseImportEventListener(FunctionalCaseImportRequest request, Class clazz, List<TemplateCustomFieldDTO> customFields, Set<ExcelMergeInfo> mergeInfoSet, String userId) {
         this.mergeInfoSet = mergeInfoSet;
+        this.request = request;
         excelDataClass = clazz;
         //当前项目模板的自定义字段
         customFieldsMap = customFields.stream().collect(Collectors.toMap(TemplateCustomFieldDTO::getFieldName, i -> i));
+        moduleTree = CommonBeanFactory.getBean(FunctionalCaseModuleService.class).getTree(request.getProjectId());
+        functionalCaseService = CommonBeanFactory.getBean(FunctionalCaseService.class);
         customFieldValidatorMap = CustomFieldValidatorFactory.getValidatorMap();
+        this.userId = userId;
 
     }
 
@@ -85,9 +113,11 @@ public class FunctionalCaseCheckEventListener extends AnalysisEventListener<Map<
         if (headMap == null) {
             throw new MSException(Translator.get("case_import_table_header_missing"));
         }
+
         Integer rowIndex = analysisContext.readRowHolder().getRowIndex();
         //处理合并单元格
         handleMergeData(data, rowIndex);
+
         FunctionalCaseExcelData functionalCaseExcelData;
         // 读取名称列，如果该列是合并单元格，则读取多行数据后合并步骤
         if (isMergeRow) {
@@ -95,7 +125,6 @@ public class FunctionalCaseCheckEventListener extends AnalysisEventListener<Map<
                 firstMergeRowIndex = rowIndex;
                 // 如果是合并单元格的首行
                 functionalCaseExcelData = parseDataToModel(data);
-                //合并文本描述
                 functionalCaseExcelData.setMergeTextDescription(new ArrayList<>() {
                     @Serial
                     private static final long serialVersionUID = -2563948462432733672L;
@@ -104,7 +133,6 @@ public class FunctionalCaseCheckEventListener extends AnalysisEventListener<Map<
                         add(functionalCaseExcelData.getTextDescription());
                     }
                 });
-                //合并
                 functionalCaseExcelData.setMergeExpectedResult(new ArrayList<>() {
                     @Serial
                     private static final long serialVersionUID = 8985001651375529701L;
@@ -138,8 +166,17 @@ public class FunctionalCaseCheckEventListener extends AnalysisEventListener<Map<
             firstMergeRowIndex = null;
             functionalCaseExcelData = parseDataToModel(data);
         }
+
         //校验数据
         buildUpdateOrErrorList(rowIndex, functionalCaseExcelData);
+
+        if (list.size() > BATCH_COUNT || updateList.size() > BATCH_COUNT) {
+            saveData();
+            this.successCount += list.size() + updateList.size();
+            list.clear();
+            updateList.clear();
+        }
+
     }
 
 
@@ -148,6 +185,25 @@ public class FunctionalCaseCheckEventListener extends AnalysisEventListener<Map<
         // 如果文件最后一行是没有内容的步骤，这里处理最后一条合并单元格的数据
         if (currentMergeData != null) {
             buildUpdateOrErrorList(firstMergeRowIndex, currentMergeData);
+        }
+        saveData();
+        this.successCount += list.size() + updateList.size();
+        list.clear();
+        updateList.clear();
+        customFieldsMap.clear();
+    }
+
+
+    /**
+     * 执行保存数据
+     */
+    private void saveData() {
+        if (CollectionUtils.isNotEmpty(list)) {
+            functionalCaseService.saveImportData(list, request, moduleTree, userId, customFieldsMap, pathMap);
+        }
+
+        if (CollectionUtils.isNotEmpty(updateList)) {
+            functionalCaseService.updateImportData(updateList, request, moduleTree, userId, customFieldsMap, pathMap);
         }
     }
 
@@ -165,7 +221,6 @@ public class FunctionalCaseCheckEventListener extends AnalysisEventListener<Map<
             errMsg = new StringBuilder(ExcelValidateHelper.validateEntity(functionalCaseExcelData));
             //自定义校验规则
             if (StringUtils.isEmpty(errMsg)) {
-                //开始校验
                 validate(functionalCaseExcelData, errMsg);
             }
         } catch (NoSuchFieldException e) {
@@ -173,7 +228,11 @@ public class FunctionalCaseCheckEventListener extends AnalysisEventListener<Map<
             LogUtils.error(e.getMessage(), e);
         }
 
-        if (StringUtils.isNotEmpty(errMsg)) {
+        if (StringUtils.isEmpty(errMsg)) {
+            //不存在错误信息，说明可以新增或更新
+            handleImportDate(functionalCaseExcelData);
+
+        } else {
             Integer errorRowIndex = rowIndex;
             if (firstMergeRowIndex != null) {
                 errorRowIndex = firstMergeRowIndex;
@@ -188,13 +247,146 @@ public class FunctionalCaseCheckEventListener extends AnalysisEventListener<Map<
                             .concat(errMsg.toString()));
             //错误信息
             errList.add(excelErrData);
+        }
+
+    }
+
+    /**
+     * 处理可以导入的数据
+     *
+     * @param functionalCaseExcelData
+     */
+    private void handleImportDate(FunctionalCaseExcelData functionalCaseExcelData) {
+        //处理id判断是新增还是更新
+        handleId(functionalCaseExcelData);
+        //处理单元格
+        handleSteps(functionalCaseExcelData);
+    }
+
+    /**
+     * 处理步骤描述和预期结果
+     *
+     * @param functionalCaseExcelData
+     */
+    private void handleSteps(FunctionalCaseExcelData functionalCaseExcelData) {
+
+        if (StringUtils.isNotBlank(functionalCaseExcelData.getCaseEditType()) && StringUtils.equalsIgnoreCase(functionalCaseExcelData.getCaseEditType(), FunctionalCaseTypeConstants.CaseEditType.TEXT.name())) {
+            functionalCaseExcelData.setTextDescription(functionalCaseExcelData.getTextDescription());
+            functionalCaseExcelData.setExpectedResult(functionalCaseExcelData.getExpectedResult());
         } else {
-            //通过数量
+            String steps = getSteps(functionalCaseExcelData);
+            functionalCaseExcelData.setSteps(steps);
+        }
+
+    }
+
+    private String getSteps(FunctionalCaseExcelData data) {
+        List<Map<String, Object>> steps = new ArrayList<>();
+
+        if (CollectionUtils.isNotEmpty(data.getMergeTextDescription()) || CollectionUtils.isNotEmpty(data.getMergeExpectedResult())) {
+            // 如果是合并单元格，则组合多条单元格的数据
+            for (int i = 0; i < data.getMergeTextDescription().size(); i++) {
+                List<Map<String, Object>> rowSteps = getSingleRowSteps(data.getMergeTextDescription().get(i), data.getMergeExpectedResult().get(i), steps.size());
+                steps.addAll(rowSteps);
+            }
+        } else {
+            // 如果不是合并单元格，则直接解析单元格数据
+            steps.addAll(getSingleRowSteps(data.getTextDescription(), data.getExpectedResult(), steps.size()));
+        }
+        return JSON.toJSONString(steps);
+    }
+
+
+    /**
+     * 解析步骤描述。预期结果
+     *
+     * @param cellDesc       步骤描述
+     * @param cellResult     预期结果
+     * @param startStepIndex 步骤序号
+     * @return
+     */
+    private List<Map<String, Object>> getSingleRowSteps(String cellDesc, String cellResult, Integer startStepIndex) {
+        List<Map<String, Object>> steps = new ArrayList<>();
+
+        List<String> stepDescList = parseStepCell(cellDesc);
+        List<String> stepResList = parseStepCell(cellResult);
+
+        int index = Math.max(stepDescList.size(), stepResList.size());
+        for (int i = 0; i < index; i++) {
+            // 保持插入顺序，判断用例是否有相同的steps
+            Map<String, Object> step = new LinkedHashMap<>();
+            step.put("num", startStepIndex + i + 1);
+            if (i < stepDescList.size()) {
+                step.put("desc", stepDescList.get(i));
+            } else {
+                step.put("desc", StringUtils.EMPTY);
+            }
+
+            if (i < stepResList.size()) {
+                step.put("result", stepResList.get(i));
+            } else {
+                step.put("result", StringUtils.EMPTY);
+            }
+
+            steps.add(step);
+        }
+        return steps;
+    }
+
+
+    /**
+     * 解析步骤类型的单元格内容
+     *
+     * @param cellContent 单元格内容
+     * @return 解析后的字符文本
+     */
+    private List<String> parseStepCell(String cellContent) {
+        List<String> cellStepContentList = new ArrayList<>();
+        if (StringUtils.isNotEmpty(cellContent)) {
+            // 根据[1], [2]...分割步骤描述, 开头空字符去掉, 末尾保留
+            String[] cellContentArr = cellContent.split("\\[\\d+]", -1);
+            if (StringUtils.isEmpty(cellContentArr[0])) {
+                cellContentArr = Arrays.copyOfRange(cellContentArr, 1, cellContentArr.length);
+            }
+            for (String stepContent : cellContentArr) {
+                cellStepContentList.add(stepContent.replaceAll("(?m)^\\s*|\\s*$", StringUtils.EMPTY));
+            }
+        } else {
+            cellStepContentList.add(StringUtils.EMPTY);
+        }
+        return cellStepContentList;
+    }
+
+
+    /**
+     * 处理新增数据集合还是更新数据集合
+     *
+     * @param functionalCaseExcelData
+     */
+    private void handleId(FunctionalCaseExcelData functionalCaseExcelData) {
+        if (StringUtils.isNotEmpty(functionalCaseExcelData.getNum())) {
+            String checkResult = functionalCaseService.checkNumExist(functionalCaseExcelData.getNum(), request.getProjectId());
+            if (StringUtils.isNotEmpty(checkResult)) {
+                if (request.isCover()) {
+                    //如果是覆盖，那么有id的需要更新
+                    functionalCaseExcelData.setNum(checkResult);
+                    updateList.add(functionalCaseExcelData);
+                }
+            } else {
+                list.add(functionalCaseExcelData);
+            }
+        } else {
             list.add(functionalCaseExcelData);
         }
     }
 
 
+    /**
+     * 校验excel中的数据
+     *
+     * @param data
+     * @param errMsg
+     */
     public void validate(FunctionalCaseExcelData data, StringBuilder errMsg) {
         //模块校验
         validateModule(data, errMsg);
@@ -222,6 +414,7 @@ public class FunctionalCaseCheckEventListener extends AnalysisEventListener<Map<
             try {
                 num = Integer.parseInt(data.getNum());
             } catch (Exception e) {
+                data.setNum(null);
                 return;
             }
             if (num < 0) {
@@ -245,6 +438,7 @@ public class FunctionalCaseCheckEventListener extends AnalysisEventListener<Map<
         Map<String, Object> customData = data.getCustomData();
         for (String fieldName : customData.keySet()) {
             Object value = customData.get(fieldName);
+            String originFieldName = fieldName;
             TemplateCustomFieldDTO templateCustomFieldDTO = customFieldsMap.get(fieldName);
             if (templateCustomFieldDTO == null) {
                 continue;
@@ -252,6 +446,10 @@ public class FunctionalCaseCheckEventListener extends AnalysisEventListener<Map<
             AbstractCustomFieldValidator customFieldValidator = customFieldValidatorMap.get(templateCustomFieldDTO.getType());
             try {
                 customFieldValidator.validate(templateCustomFieldDTO, value.toString());
+                if (customFieldValidator.isKVOption) {
+                    // 这里如果填的是选项值，替换成选项ID，保存
+                    customData.put(originFieldName, customFieldValidator.parse2Key(value.toString(), templateCustomFieldDTO));
+                }
             } catch (CustomFieldValidateException e) {
                 errMsg.append(e.getMessage().concat(ERROR_MSG_SEPARATOR));
             }
@@ -453,7 +651,7 @@ public class FunctionalCaseCheckEventListener extends AnalysisEventListener<Map<
         return errList;
     }
 
-    public List<FunctionalCaseExcelData> getList() {
-        return list;
+    public int getSuccessCount() {
+        return successCount;
     }
 }

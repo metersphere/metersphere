@@ -72,6 +72,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
     public static final String FUNCTIONAL_CASE_POS_URL = "/functional/case/edit/pos";
     public static final String DOWNLOAD_EXCEL_TEMPLATE_URL = "/functional/case/download/excel/template/";
     public static final String CHECK_EXCEL_URL = "/functional/case/pre-check/excel";
+    public static final String IMPORT_EXCEL_URL = "/functional/case/import/excel";
 
     @Resource
     private NotificationMapper notificationMapper;
@@ -132,7 +133,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
         paramMap = new LinkedMultiValueMap<>();
         paramMap.add("request", JSON.toJSONString(request));
         paramMap.add("files", new LinkedMultiValueMap<>());
-       functionalCaseMvcResult = this.requestMultipartWithOkAndReturn(FUNCTIONAL_CASE_ADD_URL, paramMap);
+        functionalCaseMvcResult = this.requestMultipartWithOkAndReturn(FUNCTIONAL_CASE_ADD_URL, paramMap);
         // 获取返回值
         returnData = functionalCaseMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         resultHolder = JSON.parseObject(returnData, ResultHolder.class);
@@ -140,7 +141,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
         Assertions.assertNotNull(resultHolder);
         functionalCase = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), FunctionalCase.class);
         FunctionalCaseEditRequest request1 = new FunctionalCaseEditRequest();
-        BeanUtils.copyBean(request1,request);
+        BeanUtils.copyBean(request1, request);
         request1.setId(functionalCase.getId());
         request1.setRelateFileMetaIds(new ArrayList<>());
         paramMap = new LinkedMultiValueMap<>();
@@ -559,7 +560,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
 
 
     @Test
-    @Order(20)
+    @Order(18)
     public void testImportCheckExcel() throws Exception {
         String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/1.xlsx")).getPath();
         MockMultipartFile file = new MockMultipartFile("file", "11.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileBaseUtils.getFileBytes(filePath));
@@ -569,7 +570,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
         LinkedMultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.add("request", JSON.toJSONString(request));
         paramMap.add("file", file);
-        MvcResult functionalCaseMvcResult = this.requestMultipartWithOkAndReturn(CHECK_EXCEL_URL,paramMap);
+        MvcResult functionalCaseMvcResult = this.requestMultipartWithOkAndReturn(CHECK_EXCEL_URL, paramMap);
 
         String functionalCaseImportResponseData = functionalCaseMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder functionalCaseResultHolder = JSON.parseObject(functionalCaseImportResponseData, ResultHolder.class);
@@ -579,7 +580,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
 
         paramMap = new LinkedMultiValueMap<>();
         paramMap.add("request", JSON.toJSONString(request));
-        this.requestMultipart(CHECK_EXCEL_URL,paramMap);
+        this.requestMultipart(CHECK_EXCEL_URL, paramMap);
 
         //覆盖异常
         String filePath2 = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/2.xlsx")).getPath();
@@ -587,6 +588,47 @@ public class FunctionalCaseControllerTests extends BaseTest {
         paramMap = new LinkedMultiValueMap<>();
         paramMap.add("request", JSON.toJSONString(request));
         paramMap.add("file", file2);
-        this.requestMultipart(CHECK_EXCEL_URL,paramMap);
+        this.requestMultipart(CHECK_EXCEL_URL, paramMap);
+    }
+
+
+    @Test
+    @Order(19)
+    public void testImportExcel() throws Exception {
+        String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/3.xlsx")).getPath();
+        MockMultipartFile file = new MockMultipartFile("file", "11.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileBaseUtils.getFileBytes(filePath));
+        FunctionalCaseImportRequest request = new FunctionalCaseImportRequest();
+        request.setCover(true);
+        request.setProjectId("100001100001");
+        LinkedMultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("file", file);
+        MvcResult functionalCaseMvcResult = this.requestMultipartWithOkAndReturn(IMPORT_EXCEL_URL, paramMap);
+
+        String functionalCaseImportResponseData = functionalCaseMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder functionalCaseResultHolder = JSON.parseObject(functionalCaseImportResponseData, ResultHolder.class);
+        FunctionalCaseImportResponse functionalCaseImportResponse = JSON.parseObject(JSON.toJSONString(functionalCaseResultHolder.getData()), FunctionalCaseImportResponse.class);
+        Assertions.assertNotNull(functionalCaseImportResponse);
+
+
+        String filePath1 = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/4.xlsx")).getPath();
+        MockMultipartFile file1 = new MockMultipartFile("file", "14.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileBaseUtils.getFileBytes(filePath1));
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("file", file1);
+        this.requestMultipart(IMPORT_EXCEL_URL, paramMap);
+
+
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        this.requestMultipart(IMPORT_EXCEL_URL, paramMap);
+
+        //覆盖异常
+        String filePath2 = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/2.xlsx")).getPath();
+        MockMultipartFile file2 = new MockMultipartFile("file", "22.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileBaseUtils.getFileBytes(filePath2));
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("file", file2);
+        this.requestMultipart(IMPORT_EXCEL_URL, paramMap);
     }
 }
