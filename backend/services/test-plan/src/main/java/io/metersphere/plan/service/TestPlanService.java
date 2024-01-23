@@ -229,7 +229,6 @@ public class TestPlanService {
         response.setId(id);
         /*
         todo  统计：测试进度、通过率、用例数、Bug数量（这些比较慢的查询，是否需要另开接口查询)
-            Q:测试计划组需要查询这些数据吗？
          */
 
         response.setFunctionalCaseCount(0);
