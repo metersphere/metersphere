@@ -21,8 +21,12 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.dto.OperationHistoryDTO;
+import io.metersphere.system.dto.request.OperationHistoryRequest;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.service.OperationHistoryService;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
@@ -39,12 +43,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -80,6 +83,8 @@ public class ApiTestCaseService {
     private ApiFileResourceService apiFileResourceService;
     @Resource
     private ApiDefinitionModuleMapper apiDefinitionModuleMapper;
+    @Resource
+    private OperationHistoryService operationHistoryService;
 
     private void checkProjectExist(String projectId) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
@@ -538,5 +543,39 @@ public class ApiTestCaseService {
         ApiTestCaseBlobExample example = new ApiTestCaseBlobExample();
         example.createCriteria().andIdIn(apiCaseIds);
         return apiTestCaseBlobMapper.selectByExampleWithBLOBs(example);
+    }
+
+    public List<ApiCaseReportDTO> getExecuteList(ApiCaseExecutePageRequest request) {
+        List<ApiCaseReportDTO> executeList = extApiTestCaseMapper.getExecuteList(request);
+        if (CollectionUtils.isEmpty(executeList)) {
+            return new ArrayList<>();
+        }
+        Set<String> userSet = executeList.stream()
+                .flatMap(apiReport -> Stream.of(apiReport.getCreateUser()))
+                .collect(Collectors.toSet());
+        Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userSet));
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        executeList.forEach(apiReport -> {
+            apiReport.setOperationUser(userMap.get(apiReport.getCreateUser()));
+            Date date = new Date(apiReport.getStartTime());
+            apiReport.setNum(sdf.format(date));
+            apiReport.setTestPlan(!StringUtils.equals(apiReport.getTestPlanId(), "NONE"));
+        });
+        return executeList;
+    }
+
+    public List<OperationHistoryDTO> getHistoryList(OperationHistoryRequest request) {
+        List<OperationHistoryDTO> operationHistoryList = operationHistoryService.list(request);
+        if (CollectionUtils.isNotEmpty(operationHistoryList)) {
+            List<String> apiIds = operationHistoryList.stream()
+                    .map(OperationHistoryDTO::getSourceId).toList();
+
+            Map<String, String> apiMap = extApiTestCaseMapper.selectVersionOptionByIds(apiIds).stream()
+                    .collect(Collectors.toMap(OptionDTO::getId, OptionDTO::getName));
+
+            operationHistoryList.forEach(item -> item.setVersionName(apiMap.getOrDefault(item.getSourceId(), StringUtils.EMPTY)));
+        }
+
+        return operationHistoryList;
     }
 }

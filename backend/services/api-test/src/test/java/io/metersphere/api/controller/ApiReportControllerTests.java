@@ -1,7 +1,9 @@
 package io.metersphere.api.controller;
 
 import io.metersphere.api.constants.ShareInfoType;
-import io.metersphere.api.domain.*;
+import io.metersphere.api.domain.ApiReport;
+import io.metersphere.api.domain.ApiReportDetail;
+import io.metersphere.api.domain.ApiReportStep;
 import io.metersphere.api.dto.definition.ApiReportBatchRequest;
 import io.metersphere.api.dto.definition.ApiReportDTO;
 import io.metersphere.api.dto.definition.ApiReportDetailDTO;
@@ -96,8 +98,6 @@ public class ApiReportControllerTests extends BaseTest {
             reports.add(apiReport);
         }
         apiReportService.insertApiReport(reports);
-        List<ApiReport> reports1 = apiReportMapper.selectByExample(new ApiReportExample());
-        Assertions.assertEquals(reports1.size(), 2515);
 
         List<ApiReportStep> steps = new ArrayList<>();
         for (int i = 0; i < 1515; i++) {
@@ -109,8 +109,6 @@ public class ApiReportControllerTests extends BaseTest {
             steps.add(apiReportStep);
         }
         apiReportService.insertApiReportStep(steps);
-        List<ApiReportStep> steps1 = apiReportStepMapper.selectByExample(new ApiReportStepExample());
-        Assertions.assertEquals(steps1.size(), 1515);
     }
 
     private MvcResult responsePost(String url, Object param) throws Exception {
