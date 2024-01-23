@@ -154,7 +154,6 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_API_DEFINITION:READ+EXPORT');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_API_DEFINITION:READ+EXECUTE');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_API_DEFINITION:READ+RECOVER');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_API_DEFINITION:READ+DEBUG');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_API_DEFINITION_CASE:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_API_DEFINITION_CASE:READ+ADD');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_API_DEFINITION_CASE:READ+UPDATE');
@@ -174,7 +173,6 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_API_SCENARIO:READ+RECOVER');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_API_SCENARIO:READ+IMPORT');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_API_SCENARIO:READ+EXPORT');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_API_SCENARIO:READ+DEBUG');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_API_REPORT:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_API_REPORT:READ+UPDATE');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_API_REPORT:READ+DELETE');
@@ -276,7 +274,6 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_API_DEFINITION:READ+EXPORT');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_API_DEFINITION:READ+EXECUTE');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_API_DEFINITION:READ+RECOVER');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_API_DEFINITION:READ+DEBUG');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_API_DEFINITION_CASE:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_API_DEFINITION_CASE:READ+ADD');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_API_DEFINITION_CASE:READ+UPDATE');
@@ -296,7 +293,6 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_API_SCENARIO:READ+RECOVER');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_API_SCENARIO:READ+IMPORT');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_API_SCENARIO:READ+EXPORT');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_API_SCENARIO:READ+DEBUG');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_API_REPORT:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_API_REPORT:READ+UPDATE');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_API_REPORT:READ+DELETE');
