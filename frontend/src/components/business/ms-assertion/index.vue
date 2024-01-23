@@ -63,6 +63,7 @@
         <ResponseHeaderTab v-if="valueKey === 'responseHeader'" />
         <ResponseTimeTab v-if="valueKey === 'responseTime'" />
         <VariableTab v-if="valueKey === 'variable'" />
+        <ScriptTab v-if="valueKey === 'script'" />
       </section>
     </div>
   </div>
@@ -77,6 +78,7 @@
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import ResponseHeaderTab from './comp/ResponseHeaderTab.vue';
   import ResponseTimeTab from './comp/ResponseTimeTab.vue';
+  import ScriptTab from './comp/ScriptTab.vue';
   import StatusCodeTab from './comp/StatusCodeTab.vue';
   import VariableTab from './comp/VariableTab.vue';
 

@@ -50,7 +50,7 @@ const Setting: AppRouteRecordRaw = {
           component: () => import('@/views/setting/system/organizationAndProject/index.vue'),
           meta: {
             locale: 'menu.settings.system.organizationAndProject',
-            roles: ['*'],
+            roles: ['SYSTEM_ORGANIZATION_PROJECT:READ'],
             isTopMenu: true,
           },
         },

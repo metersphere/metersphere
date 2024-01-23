@@ -12,8 +12,8 @@ import type {
 } from '@/models/projectManagement/environmental';
 import { OptionsItem } from '@/models/setting/log';
 
-export function updateEnv(data: EnvListItem) {
-  return MSR.post<EnvListItem>({ url: envURL.updateEnvUrl, data });
+export function updateOrAddEnv(data: EnvDetailItem) {
+  return MSR.post<EnvDetailItem>({ url: data.id ? envURL.updateEnvUrl : envURL.addEnvUrl, data });
 }
 export function listEnv(data: { projectId: string; keyword: string }) {
   return MSR.post<EnvListItem[]>({ url: envURL.listEnvUrl, data });
@@ -24,8 +24,8 @@ export function importEnv(data: { request: EnvListItem; fileList: FileItem[] }) 
 export function getEntryEnv(data: EnvListItem) {
   return MSR.post<EnvListItem>({ url: envURL.getEntryEnvUrl, data });
 }
-export function exportEnv(data: EnvListItem) {
-  return MSR.post<EnvListItem>({ url: envURL.exportEnvUrl, data });
+export function exportEnv(id: string) {
+  return MSR.get<EnvListItem>({ url: envURL.exportEnvUrl + id, responseType: 'blob' }, { isTransformResponse: false });
 }
 export function editPosEnv(data: EnvListItem) {
   return MSR.post<EnvListItem>({ url: envURL.editPosEnvUrl, data });
@@ -85,5 +85,8 @@ export function getGlobalParamDetail(id: string) {
 }
 /** 项目管理-环境-全局参数-导出 */
 export function exportGlobalParam(id: string) {
-  return MSR.get<BlobPart>({ url: envURL.exportGlobalParamUrl + id });
+  return MSR.get<BlobPart>(
+    { url: envURL.exportGlobalParamUrl + id, responseType: 'blob' },
+    { isTransformResponse: false }
+  );
 }

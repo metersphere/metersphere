@@ -4,13 +4,14 @@ import { isLogin as userIsLogin, login as userLogin, logout as userLogout } from
 import { useI18n } from '@/hooks/useI18n';
 import { getHashParameters } from '@/utils';
 import { clearToken, setToken } from '@/utils/auth';
+import { composePermissions } from '@/utils/permission';
 import { removeRouteListener } from '@/utils/route-listener';
 
 import type { LoginData } from '@/models/user';
 
 import useAppStore from '../app';
 import useLicenseStore from '../setting/license';
-import type { UserState } from './types';
+import { UserState } from './types';
 
 const useUserStore = defineStore('user', {
   // 开启数据持久化
@@ -32,11 +33,28 @@ const useUserStore = defineStore('user', {
     id: undefined,
     certification: undefined,
     role: '',
+    userRolePermissions: [],
   }),
 
   getters: {
     userInfo(state: UserState): UserState {
       return { ...state };
+    },
+    isAdmin(state: UserState): boolean {
+      if (!state.userRolePermissions) return false;
+      return state.userRolePermissions.findIndex((ur) => ur.userRole.id === 'admin') > -1;
+    },
+    currentRole(state: UserState): {
+      projectPermissions: string[];
+      orgPermissions: string[];
+      systemPermissions: string[];
+    } {
+      const appStore = useAppStore();
+      return {
+        projectPermissions: composePermissions(state.userRolePermissions || [], 'PROJECT', appStore.currentProjectId),
+        orgPermissions: composePermissions(state.userRolePermissions || [], 'ORGANIZATION', appStore.currentOrgId),
+        systemPermissions: composePermissions(state.userRolePermissions || [], 'SYSTEM', 'global'),
+      };
     },
   },
 
@@ -51,7 +69,6 @@ const useUserStore = defineStore('user', {
     setInfo(partial: Partial<UserState>) {
       this.$patch(partial);
     },
-
     // 重置用户信息
     resetInfo() {
       this.$reset();

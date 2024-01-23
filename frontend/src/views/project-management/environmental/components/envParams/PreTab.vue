@@ -1,13 +1,20 @@
 <template>
-  <div class="p-[24px]">
-    <a-divider :margin="0" class="!mb-[16px]" />
-  </div>
+  <PreTab v-model:params="params" layout="horizontal" />
 </template>
 
 <script lang="ts" setup>
-  import { useI18n } from '@/hooks/useI18n';
+  import PreTab from '@/views/api-test/debug/components/debug/precondition.vue';
 
-  const { t } = useI18n();
+  import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
+
+  const store = useProjectEnvStore();
+
+  const params = computed({
+    set: (value: any) => {
+      store.currentEnvDetailInfo.config.preScript = value;
+    },
+    get: () => store.currentEnvDetailInfo.config.preScript || [],
+  });
 </script>
 
 <style lang="less" scoped></style>

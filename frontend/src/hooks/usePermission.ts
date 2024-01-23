@@ -1,13 +1,15 @@
 import { RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
+import { includes } from 'lodash-es';
 
-import { useUserStore } from '@/store';
+import { hasAnyPermission, hasFirstMenuPermission } from '@/utils/permission';
+
+const firstLevelMenu = ['workstation', 'testPlan', 'bugManagement', 'caseManagement', 'apiTest', 'uiTest', 'loadTest'];
 
 /**
  * 用户权限
  * @returns 调用方法
  */
 export default function usePermission() {
-  const userStore = useUserStore();
   return {
     /**
      * 是否为允许访问的路由
@@ -15,34 +17,16 @@ export default function usePermission() {
      * @returns 是否
      */
     accessRouter(route: RouteLocationNormalized | RouteRecordRaw) {
+      if (includes(firstLevelMenu, route.name)) {
+        // 一级菜单
+        return hasFirstMenuPermission(route.name as string);
+      }
       return (
         route.meta?.requiresAuth === false ||
         !route.meta?.roles ||
         route.meta?.roles?.includes('*') ||
-        route.meta?.roles?.includes(userStore.role)
+        hasAnyPermission(route.meta?.roles || [])
       );
-    },
-    /**
-     * 查找第一个允许访问的路由
-     * @param _routers 路由数组
-     * @param role 用户角色
-     * @returns 路由信息 or null
-     */
-    findFirstPermissionRoute(_routers: any, role = 'admin') {
-      const cloneRouters = [..._routers];
-      while (cloneRouters.length) {
-        const firstElement = cloneRouters.shift();
-        if (
-          firstElement?.meta?.roles?.find((el: string[]) => {
-            return el.includes('*') || el.includes(role);
-          })
-        )
-          return { name: firstElement.name };
-        if (firstElement?.children) {
-          cloneRouters.push(...firstElement.children);
-        }
-      }
-      return null;
     },
     // You can add any rules you want
   };

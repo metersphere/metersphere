@@ -89,6 +89,7 @@
             });
           }
         };
+
         menuTree.value?.forEach((el: RouteRecordRaw | null) => {
           if (isFind) return; // 节省性能
           backtrack(el, [el?.name as string]);
@@ -336,6 +337,7 @@
           }
           return nodes;
         }
+
         return travel(menuTree.value);
       };
 

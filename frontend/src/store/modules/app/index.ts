@@ -4,6 +4,7 @@ import { cloneDeep } from 'lodash-es';
 
 import type { BreadcrumbItem } from '@/components/business/ms-breadcrumb/types';
 
+import { getProjectInfo } from '@/api/modules/project-management/basicInfo';
 import { getPageConfig } from '@/api/modules/setting/config';
 import { getSystemVersion } from '@/api/modules/system';
 import { getMenuList } from '@/api/modules/user';
@@ -51,6 +52,7 @@ const useAppStore = defineStore('app', {
     defaultLoginConfig,
     defaultPlatformConfig,
     innerHeight: 0,
+    currentMenuConfig: [],
     pageConfig: {
       ...defaultThemeConfig,
       ...defaultLoginConfig,
@@ -269,6 +271,18 @@ const useAppStore = defineStore('app', {
           }
           window.document.title = this.pageConfig.title;
         }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+
+    /**
+     * 设置当前项目菜单配置
+     */
+    async setCurrentMenuConfig() {
+      try {
+        const res = await getProjectInfo(this.currentProjectId);
+        this.currentMenuConfig = res.moduleIds;
       } catch (error) {
         console.log(error);
       }
