@@ -2,15 +2,13 @@ package io.metersphere.api.mapper;
 
 
 import io.metersphere.api.domain.ApiTestCase;
-import io.metersphere.api.dto.definition.ApiTestCaseBatchRequest;
-import io.metersphere.api.dto.definition.ApiTestCaseDTO;
-import io.metersphere.api.dto.definition.ApiTestCasePageRequest;
-import io.metersphere.api.dto.definition.CasePassDTO;
+import io.metersphere.api.dto.definition.*;
 import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -58,4 +56,7 @@ public interface ExtApiTestCaseMapper {
 
     List<ApiTestCase> getTagsByIds(@Param("ids") List<String> ids, @Param("deleted") boolean deleted);
 
+    List<ApiCaseReportDTO> getExecuteList(@Param("request") ApiCaseExecutePageRequest request);
+
+    List<OptionDTO> selectVersionOptionByIds(@Param("ids") List<String> ids);
 }

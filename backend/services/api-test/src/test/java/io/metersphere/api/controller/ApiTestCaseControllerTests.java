@@ -6,16 +6,16 @@ import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiFileResourceService;
+import io.metersphere.api.service.definition.ApiReportService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.project.domain.ProjectVersion;
 import io.metersphere.project.dto.filemanagement.FileInfo;
 import io.metersphere.project.dto.filemanagement.request.FileUploadRequest;
+import io.metersphere.project.mapper.ProjectVersionMapper;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileMetadataService;
-import io.metersphere.sdk.constants.ApplicationNumScope;
-import io.metersphere.sdk.constants.DefaultRepositoryDir;
-import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.constants.SessionConstants;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.file.FileCenter;
@@ -27,11 +27,13 @@ import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.dto.OperationHistoryDTO;
+import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.Pager;
-import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.http.HttpHeaders;
@@ -81,6 +83,8 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private static final String BATCH_RECOVER = BASE_PATH + "batch/recover";
     private static final String POS_URL = BASE_PATH + "/edit/pos";
     private static final String UPLOAD_TEMP_FILE = BASE_PATH + "/upload/temp/file";
+    private static final String EXECUTE = BASE_PATH + "/execute/page";
+    private static final String HISTORY = BASE_PATH + "/operation-history/page";
 
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
     private static ApiTestCase apiTestCase;
@@ -106,6 +110,10 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private static String uploadFileId;
     @Resource
     private FileMetadataService fileMetadataService;
+    @Resource
+    private ApiReportService apiReportService;
+    @Resource
+    private ProjectVersionMapper projectVersionMapper;
 
     public static <T> T parseObjectFromMvcResult(MvcResult mvcResult, Class<T> parseClass) {
         try {
@@ -566,19 +574,55 @@ public class ApiTestCaseControllerTests extends BaseTest {
 
     @Test
     @Order(10)
-    public void test() throws Exception {
-        PosRequest request = new PosRequest();
-        request.setProjectId(DEFAULT_PROJECT_ID);
-        request.setTargetId(apiTestCase.getId());
-        request.setMoveId(anotherApiTestCase.getId());
-        request.setMoveMode("AFTER");
+    public void testExecuteList() throws Exception {
+        ApiTestCase first = apiTestCaseMapper.selectByExample(new ApiTestCaseExample()).getFirst();
+        List<ApiReport> reports = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            ApiReport apiReport = new ApiReport();
+            apiReport.setId(IDGenerator.nextStr());
+            apiReport.setProjectId(DEFAULT_PROJECT_ID);
+            apiReport.setName("api-case-name" + i);
+            apiReport.setStartTime(System.currentTimeMillis());
+            apiReport.setResourceId(first.getId());
+            apiReport.setCreateUser("admin");
+            apiReport.setUpdateUser("admin");
+            apiReport.setUpdateTime(System.currentTimeMillis());
+            apiReport.setPoolId("api-pool-id" + i);
+            apiReport.setEnvironmentId("api-environment-id" + i);
+            apiReport.setRunMode("api-run-mode" + i);
+            if (i % 2 == 0) {
+                apiReport.setStatus(ApiReportStatus.SUCCESS.name());
+            } else {
+                apiReport.setStatus(ApiReportStatus.ERROR.name());
+            }
+            apiReport.setTriggerMode("api-trigger-mode" + i);
+            apiReport.setVersionId("api-version-id" + i);
+            reports.add(apiReport);
+        }
+        apiReportService.insertApiReport(reports);
+        ApiCaseExecutePageRequest request = new ApiCaseExecutePageRequest();
+        request.setId(first.getId());
+        request.setPageSize(10);
+        request.setCurrent(1);
+        MvcResult mvcResult = responsePost(EXECUTE, request);
+        Pager<?> returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
+        //返回值不为空
+        Assertions.assertNotNull(returnPager);
+        List<ApiCaseReportDTO> reportDTOS = JSON.parseArray(JSON.toJSONString(returnPager.getList()), ApiCaseReportDTO.class);
+        reportDTOS.forEach(reportDTO -> Assertions.assertEquals(reportDTO.getResourceId(), first.getId()));
 
-        ServiceUtils.updatePosField(request,
-                ApiTestCase.class,
-                apiTestCaseMapper::selectByPrimaryKey,
-                extApiTestCaseMapper::getPrePos,
-                extApiTestCaseMapper::getLastPos,
-                apiTestCaseMapper::updateByPrimaryKeySelective);
+        request.setFilter(new HashMap<>() {{
+            put("status", List.of(ApiReportStatus.SUCCESS.name()));
+        }});
+        mvcResult = responsePost(EXECUTE, request);
+        returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
+        //返回值不为空
+        Assertions.assertNotNull(returnPager);
+        Assertions.assertTrue(((List<ApiReport>) returnPager.getList()).size() <= request.getPageSize());
+        reportDTOS = JSON.parseArray(JSON.toJSONString(returnPager.getList()), ApiCaseReportDTO.class);
+        reportDTOS.forEach(apiReport -> {
+            Assertions.assertEquals(apiReport.getStatus(), ApiReportStatus.SUCCESS.name());
+        });
     }
 
     @Test
@@ -761,6 +805,32 @@ public class ApiTestCaseControllerTests extends BaseTest {
 
     @Test
     @Order(14)
+    public void testGetHistory() throws Exception {
+        ApiTestCase first = apiTestCaseMapper.selectByExample(new ApiTestCaseExample()).getFirst();
+        OperationHistoryRequest request = new OperationHistoryRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setSourceId(first.getId());
+        request.setPageSize(10);
+        request.setCurrent(1);
+        ProjectVersion version = new ProjectVersion();
+        version.setId("1.0");
+        version.setName("1.0");
+        version.setProjectId(DEFAULT_PROJECT_ID);
+        version.setCreateTime(System.currentTimeMillis());
+        version.setLatest(true);
+        version.setCreateUser("admin");
+        projectVersionMapper.insertSelective(version);
+
+        MvcResult mvcResult = responsePost(HISTORY, request);
+        Pager<?> returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
+        //返回值不为空
+        Assertions.assertNotNull(returnPager);
+        List<OperationHistoryDTO> reportDTOS = JSON.parseArray(JSON.toJSONString(returnPager.getList()), OperationHistoryDTO.class);
+        reportDTOS.forEach(reportDTO -> Assertions.assertEquals(reportDTO.getSourceId(), first.getId()));
+    }
+
+    @Test
+    @Order(15)
     public void batchMoveGc() throws Exception {
         // @@请求成功
         ApiTestCaseBatchRequest request = new ApiTestCaseBatchRequest();
@@ -791,7 +861,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(15)
+    @Order(16)
     public void trashPage() throws Exception {
         // @@请求成功
         ApiTestCasePageRequest pageRequest = new ApiTestCasePageRequest();
@@ -841,7 +911,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(14)
+    @Order(17)
     public void batchRecover() throws Exception {
         // @@请求成功
         ApiTestCaseBatchRequest request = new ApiTestCaseBatchRequest();

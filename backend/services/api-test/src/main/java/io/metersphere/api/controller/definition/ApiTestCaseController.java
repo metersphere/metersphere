@@ -9,6 +9,8 @@ import io.metersphere.api.service.definition.ApiTestCaseNoticeService;
 import io.metersphere.api.service.definition.ApiTestCaseRecoverService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.dto.OperationHistoryDTO;
+import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -98,6 +100,7 @@ public class ApiTestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = ApiTestCaseLogService.class)
     @CheckOwner(resourceId = "#id", resourceType = "api_test_case")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_DELETE, target = "#targetClass.getCaseDTO(#request.id)", targetClass = ApiTestCaseNoticeService.class)
     public void delete(@PathVariable String id) {
         apiTestCaseService.delete(id, SessionUtils.getUserId());
     }
@@ -106,6 +109,7 @@ public class ApiTestCaseController {
     @Operation(summary = "接口测试-接口管理-接口用例-更新")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ApiTestCaseLogService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_UPDATE, target = "#targetClass.getCaseDTO(#request)", targetClass = ApiTestCaseNoticeService.class)
     @CheckOwner(resourceId = "#request.id", resourceType = "api_test_case")
     public ApiTestCase update(@Validated @RequestBody ApiTestCaseUpdateRequest request) {
         return apiTestCaseService.update(request, SessionUtils.getUserId());
@@ -141,6 +145,7 @@ public class ApiTestCaseController {
     @Operation(summary = "接口测试-接口管理-接口用例-批量移动到回收站")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE)
     @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_test_case")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_DELETE, target = "#targetClass.getBatchDeleteApiCaseDTO(#request)", targetClass = ApiTestCaseNoticeService.class)
     public void deleteToGcByParam(@RequestBody ApiTestCaseBatchRequest request) {
         apiTestCaseService.batchMoveGc(request, SessionUtils.getUserId());
     }
@@ -149,6 +154,7 @@ public class ApiTestCaseController {
     @Operation(summary = "接口测试-接口管理-接口用例-批量编辑")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE)
     @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_test_case")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_DELETE, target = "#targetClass.getBatchEditApiCaseDTO(#request)", targetClass = ApiTestCaseNoticeService.class)
     public void batchUpdate(@Validated @RequestBody ApiCaseBatchEditRequest request) {
         apiTestCaseService.batchEdit(request, SessionUtils.getUserId());
     }
@@ -183,5 +189,26 @@ public class ApiTestCaseController {
     public String uploadTempFile(@RequestParam("file") MultipartFile file) {
         return apiTestCaseService.uploadTempFile(file);
     }
+
+    @PostMapping("/execute/page")
+    @Operation(summary = "接口测试-接口管理-接口用例-获取执行历史")
+    @RequiresPermissions(logical = Logical.OR, value = {PermissionConstants.PROJECT_API_DEFINITION_CASE_READ, PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE})
+    @CheckOwner(resourceId = "#request.getId()", resourceType = "api_test_case")
+    public Pager<List<ApiCaseReportDTO>> getExecuteList(@Validated @RequestBody ApiCaseExecutePageRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "start_time desc");
+        return PageUtils.setPageInfo(page, apiTestCaseService.getExecuteList(request));
+    }
+
+    @PostMapping("/operation-history/page")
+    @Operation(summary = "接口测试-接口管理-接口用例-接口变更历史")
+    @RequiresPermissions(logical = Logical.OR, value = {PermissionConstants.PROJECT_API_DEFINITION_CASE_READ, PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE})
+    @CheckOwner(resourceId = "#request.getSourceId()", resourceType = "api_test_case")
+    public Pager<List<OperationHistoryDTO>> operationHistoryList(@Validated @RequestBody OperationHistoryRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+        return PageUtils.setPageInfo(page, apiTestCaseService.getHistoryList(request));
+    }
+
 
 }

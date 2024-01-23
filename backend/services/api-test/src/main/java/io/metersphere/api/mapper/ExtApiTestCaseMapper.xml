@@ -227,6 +227,56 @@
             #{id}
         </foreach>
     </select>
+    <select id="getExecuteList" resultType="io.metersphere.api.dto.definition.ApiCaseReportDTO">
+        select
+        api_report.id,
+        api_report.name,
+        api_report.status,
+        api_report.start_time,
+        api_report.create_user,
+        api_report.trigger_mode,
+        api_report.test_plan_id,
+        api_report.resource_id
+        from api_report where
+        <if test="request.id != null and request.id != ''">
+            api_report.resource_id = #{request.id}
+        </if>
+        <include refid="report_filters">
+            <property name="filter" value="request.filter"/>
+        </include>
+    </select>
+    <select id="selectVersionOptionByIds" resultType="io.metersphere.system.dto.sdk.OptionDTO">
+        select
+        api_test_case.id, project_version.name as name
+        from api_test_case
+        LEFT JOIN project_version ON project_version.id = api_test_case.version_id
+        where api_test_case.id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+    <sql id="report_filters">
+        <if test="${filter} != null and ${filter}.size() > 0">
+            <foreach collection="${filter}.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='integrated'">
+                            and api_report.integrated in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='status'">
+                            and api_report.status in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='triggerMode'">
+                            and api_report.trigger_mode in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
 
     <sql id="queryWhereConditionByBatch">
         <if test="request.protocol != null and request.protocol!=''">

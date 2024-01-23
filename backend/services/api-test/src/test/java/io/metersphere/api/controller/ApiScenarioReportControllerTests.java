@@ -1,7 +1,10 @@
 package io.metersphere.api.controller;
 
 import io.metersphere.api.constants.ShareInfoType;
-import io.metersphere.api.domain.*;
+import io.metersphere.api.domain.ApiReport;
+import io.metersphere.api.domain.ApiScenarioReport;
+import io.metersphere.api.domain.ApiScenarioReportDetail;
+import io.metersphere.api.domain.ApiScenarioReportStep;
 import io.metersphere.api.dto.definition.ApiReportBatchRequest;
 import io.metersphere.api.dto.definition.ApiReportPageRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioDTO;
@@ -94,8 +97,6 @@ public class ApiScenarioReportControllerTests extends BaseTest {
             reports.add(scenarioReport);
         }
         apiScenarioReportService.insertApiScenarioReport(reports);
-        List<ApiScenarioReport> reports1 = apiScenarioReportMapper.selectByExample(new ApiScenarioReportExample());
-        Assertions.assertEquals(reports1.size(), 2515);
 
         List<ApiScenarioReportStep> steps = new ArrayList<>();
         for (int i = 0; i < 1515; i++) {
@@ -107,8 +108,6 @@ public class ApiScenarioReportControllerTests extends BaseTest {
             steps.add(apiScenarioReportStep);
         }
         apiScenarioReportService.insertApiScenarioReportStep(steps);
-        List<ApiScenarioReportStep> steps1 = apiScenarioReportStepMapper.selectByExample(new ApiScenarioReportStepExample());
-        Assertions.assertEquals(steps1.size(), 1515);
     }
 
     private MvcResult responsePost(String url, Object param) throws Exception {

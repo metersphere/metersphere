@@ -60,7 +60,6 @@ import org.springframework.util.MultiValueMap;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -1107,10 +1106,6 @@ public class EnvironmentControllerTests extends BaseTest {
         request.setExcludeIds(List.of("environmentId1"));
         MvcResult mvcResult1 = this.requestPostDownloadFile(exportEnv, null, request, DEFAULT_PROJECT_ID);
         byte[] fileBytes1 = mvcResult1.getResponse().getContentAsByteArray();
-        File file = new File("test.json");
-        FileOutputStream fileOutputStream = new FileOutputStream(file);
-        fileOutputStream.write(fileBytes1);
-        fileOutputStream.close();
         Assertions.assertNotNull(fileBytes1);
         request.setSelectIds(List.of("不存在blob"));
         request.setSelectAll(false);
