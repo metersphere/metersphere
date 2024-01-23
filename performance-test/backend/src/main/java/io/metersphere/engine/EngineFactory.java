@@ -192,7 +192,8 @@ public class EngineFactory {
         if (CollectionUtils.isNotEmpty(resourceFiles)) {
             resourceFiles.forEach(cf -> {
                 InputStream in = fileMetadataService.getFileAsStream(cf.getId());
-                if (in == null) {
+                // 兼容1.20之前的版本
+                if (cf.getStorage() == null) {
                     byte[] bytes = fileMetadataService.loadFileAsBytes(cf.getId());
                     in = new ByteArrayInputStream(bytes);
                 }
