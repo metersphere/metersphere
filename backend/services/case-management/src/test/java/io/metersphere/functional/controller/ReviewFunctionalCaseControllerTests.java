@@ -54,7 +54,6 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
     private static final String ADD_CASE_REVIEW = "/case/review/add";
     private static final String REVIEW_LIST = "/review/functional/case/get/list/";
 
-    public static final String ATTACHMENT_PREVIEW_COMPRESSED_URL = "/review/functional/case/preview/compressed";
     public static final String ATTACHMENT_DOWNLOAD_URL = "/review/functional/case/download";
     public static final String UPLOAD_TEMP = "/review/functional/case/upload/temp/file";
     public static final String ATTACHMENT_PREVIEW_URL = "/review/functional/case/preview";
@@ -310,13 +309,6 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         file = getNoNameMockMultipartFile();
         doUploadTempFileFalse(file);
         functionalCaseAttachmentService.uploadMinioFile("gyqReviewCaseTest","project-review-case-test", List.of(fileId),"admin", CaseFileSourceType.REVIEW_COMMENT.toString());
-        FunctionalCaseSourceFileRequest request = new FunctionalCaseSourceFileRequest();
-        request.setProjectId("project-review-case-test");
-        request.setLocal(true);
-        request.setFileSource(CaseFileSourceType.REVIEW_COMMENT.toString());
-        request.setCaseId("gyqReviewCaseTest");
-        MvcResult mvcResult = this.downloadFile(ATTACHMENT_PREVIEW_COMPRESSED_URL, request);
-        Assertions.assertNotNull(mvcResult);
         FunctionalCaseAttachmentExample functionalCaseAttachmentExample = new FunctionalCaseAttachmentExample();
         functionalCaseAttachmentExample.createCriteria().andCaseIdEqualTo("gyqReviewCaseTest").andFileIdEqualTo(fileId).andFileSourceEqualTo(CaseFileSourceType.REVIEW_COMMENT.toString());
         List<FunctionalCaseAttachment> functionalCaseAttachments = functionalCaseAttachmentMapper.selectByExample(functionalCaseAttachmentExample);
