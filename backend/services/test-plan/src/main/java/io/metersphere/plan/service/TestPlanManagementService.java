@@ -2,11 +2,19 @@ package io.metersphere.plan.service;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.plan.constants.TestPlanResourceConfig;
 import io.metersphere.plan.dto.TestPlanQueryConditions;
 import io.metersphere.plan.dto.request.TestPlanTableRequest;
 import io.metersphere.plan.dto.response.TestPlanResponse;
 import io.metersphere.plan.mapper.ExtTestPlanMapper;
+import io.metersphere.plan.mapper.ExtTestPlanModuleMapper;
+import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.ModuleCountDTO;
+import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.service.CommonProjectService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
@@ -22,6 +30,12 @@ import java.util.Map;
 public class TestPlanManagementService {
     @Resource
     private ExtTestPlanMapper extTestPlanMapper;
+    @Resource
+    private ProjectMapper projectMapper;
+    @Resource
+    private ExtTestPlanModuleMapper extTestPlanModuleMapper;
+    @Resource
+    private CommonProjectService commonProjectService;
     @Resource
     private TestPlanModuleService testPlanModuleService;
 
@@ -64,5 +78,27 @@ public class TestPlanManagementService {
             //todo 定时任务相关信息处理
         });
         return testPlanResponses;
+    }
+
+    public void checkModuleIsOpen(String resourceId, String resourceType, List<String> moduleMenus) {
+        Project project;
+
+        if (StringUtils.equals(resourceType, TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN)) {
+            project = projectMapper.selectByPrimaryKey(extTestPlanMapper.selectProjectIdByTestPlanId(resourceId));
+        } else if (StringUtils.equals(resourceType, TestPlanResourceConfig.CHECK_TYPE_TEST_PLAN_MODULE)) {
+            project = projectMapper.selectByPrimaryKey(extTestPlanModuleMapper.selectProjectIdByModuleId(resourceId));
+        } else if (StringUtils.equals(resourceType, TestPlanResourceConfig.CHECK_TYPE_PROJECT)) {
+            project = projectMapper.selectByPrimaryKey(resourceId);
+        } else {
+            throw new MSException(Translator.get("project.module_menu.check.error"));
+        }
+
+        if (project == null || StringUtils.isEmpty(project.getModuleSetting())) {
+            throw new MSException(Translator.get("project.module_menu.check.error"));
+        }
+        List<String> projectModuleMenus = JSON.parseArray(project.getModuleSetting(), String.class);
+        if (!projectModuleMenus.containsAll(moduleMenus)) {
+            throw new MSException(Translator.get("project.module_menu.check.error"));
+        }
     }
 }

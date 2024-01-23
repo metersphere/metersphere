@@ -111,7 +111,7 @@ public abstract class ModuleTreeService {
     public NodeSortDTO getNodeSortDTO(NodeMoveRequest request, Function<String, BaseModule> selectIdNodeFunc, Function<NodeSortQueryParam, BaseModule> selectPosNodeFunc) {
         if (StringUtils.equals(request.getDragNodeId(), request.getDropNodeId())) {
             //两种节点不能一样
-            throw new MSException(Translator.get("invalid_parameter"));
+            throw new MSException(Translator.get("invalid_parameter") + ": drag node  and drop node");
         }
         
         BaseModule dragNode = selectIdNodeFunc.apply(request.getDragNodeId());
@@ -125,7 +125,7 @@ public abstract class ModuleTreeService {
 
         }
         BaseModule parentModule;
-        BaseModule previousNode = null;
+        BaseModule previousNode;
         BaseModule nextNode = null;
         if (request.getDropPosition() == 0) {
             //dropPosition=0: 放到dropNode节点内，最后一个节点之后
@@ -160,7 +160,7 @@ public abstract class ModuleTreeService {
                 sortParam.setOperator(MOVE_POS_OPERATOR_LESS);
                 previousNode = selectPosNodeFunc.apply(sortParam);
             } else {
-                throw new MSException(Translator.get("invalid_parameter"));
+                throw new MSException(Translator.get("invalid_parameter") + ": dropPosition");
             }
         }
 

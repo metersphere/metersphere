@@ -86,6 +86,11 @@
             #{item}
         </foreach>
     </select>
+    <select id="selectProjectIdByTestPlanId" resultType="java.lang.String">
+        SELECT project_id
+        FROM test_plan
+        WHERE id = #{testPlanId}
+    </select>
 
     <sql id="test_plan_page_request">
         WHERE t.project_id = #{projectId}

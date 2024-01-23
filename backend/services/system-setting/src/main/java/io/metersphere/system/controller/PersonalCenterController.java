@@ -1,6 +1,5 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.system.dto.request.user.PersonalUpdatePasswordRequest;
 import io.metersphere.system.dto.request.user.PersonalUpdateRequest;
@@ -14,7 +13,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +26,6 @@ public class PersonalCenterController {
 
     @GetMapping("/get/{id}")
     @Operation(summary = "个人中心-获取信息")
-    @RequiresPermissions(PermissionConstants.SYSTEM_PERSONAL_READ)
     public PersonalDTO getInformation(@PathVariable String id) {
         this.checkPermission(id);
         return userService.getPersonalById(id);
@@ -36,7 +33,6 @@ public class PersonalCenterController {
 
     @PostMapping("/update-info")
     @Operation(summary = "个人中心-修改信息")
-    @RequiresPermissions(PermissionConstants.SYSTEM_PERSONAL_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateAccountLog(#request)", msClass = UserLogService.class)
     public boolean updateUser(@Validated @RequestBody PersonalUpdateRequest request) {
         this.checkPermission(request.getId());
@@ -45,7 +41,6 @@ public class PersonalCenterController {
 
     @PostMapping("/update-password")
     @Operation(summary = "个人中心-修改密码")
-    @RequiresPermissions(PermissionConstants.SYSTEM_PERSONAL_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updatePasswordLog(#request)", msClass = UserLogService.class)
     public boolean updateUser(@Validated @RequestBody PersonalUpdatePasswordRequest request) {
         this.checkPermission(request.getId());

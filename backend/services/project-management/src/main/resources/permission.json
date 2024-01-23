@@ -77,15 +77,6 @@
         ]
       },
       {
-        "id": "PROJECT_FILE",
-        "name": "permission.project_file.name",
-        "permissions": [
-          {
-            "id": "PROJECT_FILE:READ"
-          }
-        ]
-      },
-      {
         "id": "PROJECT_TEMPLATE",
         "name": "permission.project_template.name",
         "permissions": [
