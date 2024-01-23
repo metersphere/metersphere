@@ -20,6 +20,7 @@ import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.Logical;
@@ -75,16 +76,6 @@ public class FunctionalCaseAttachmentController {
             return fileMetadataService.downloadPreviewImgById(request.getFileId());
         }
     }
-
-
-    @PostMapping(value = "/preview/compressed")
-    @Operation(summary = "用例管理-功能用例-显示详情(副文本)图片缩略图")
-    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
-    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
-    public ResponseEntity<byte[]> compressedImg(@Validated @RequestBody FunctionalCaseSourceFileRequest request) throws Exception {
-        return functionalCaseAttachmentService.downloadPreviewCompressedImg(request);
-    }
-
 
     @PostMapping("/download")
     @Operation(summary = "用例管理-功能用例-附件/副文本(原图/文件)-文件下载")
@@ -168,7 +159,6 @@ public class FunctionalCaseAttachmentController {
         functionalCaseAttachmentService.deleteFile(request, userId);
     }
 
-
     @GetMapping("/options/{projectId}")
     @Operation(summary = "用例管理-功能用例-附件-转存目录下拉框")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
@@ -176,7 +166,6 @@ public class FunctionalCaseAttachmentController {
     public List<BaseTreeNode> options(@PathVariable String projectId) {
         return fileModuleService.getTree(projectId);
     }
-
 
     @PostMapping("/upload/temp/file")
     @Operation(summary = "用例管理-功能用例-上传副文本里所需的文件资源，并返回文件ID")
@@ -187,7 +176,8 @@ public class FunctionalCaseAttachmentController {
 
     @GetMapping(value = "/download/file/{projectId}/{fileId}/{compressed}")
     @Operation(summary = "用例管理-功能用例-预览上传的副文本里所需的文件资源原图")
-    public ResponseEntity<byte[]> downloadImgById(@PathVariable String projectId, @PathVariable String fileId, @PathVariable boolean compressed) throws Exception {
+    public ResponseEntity<byte[]> downloadImgById(@PathVariable String projectId, @PathVariable String fileId,   @Schema(description =  "查看压缩图片", requiredMode = Schema.RequiredMode.REQUIRED)
+    @PathVariable("compressed") boolean compressed) {
         return functionalCaseAttachmentService.downloadImgById(projectId, fileId, compressed);
     }
 
