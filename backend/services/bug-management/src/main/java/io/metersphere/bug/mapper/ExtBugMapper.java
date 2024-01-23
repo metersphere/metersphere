@@ -61,6 +61,29 @@ public interface ExtBugMapper {
      */
     void batchUpdate(@Param("request") BugBatchUpdateRequest request, @Param("ids") List<String> ids);
 
+    /**
+     * 获取前置排序位置
+     * @param projectId 项目ID
+     * @param basePos 目标位置
+     * @return 排序位置
+     */
+    Long getPrePos(@Param("projectId") String projectId, @Param("basePos") Long basePos);
+
+    /**
+     * 获取后置排序位置
+     * @param projectId 项目ID
+     * @param basePos 目标位置
+     * @return 排序位置
+     */
+    Long getLastPos(@Param("projectId") String projectId, @Param("basePos") Long basePos);
+
+    /**
+     * 获取当前项目下的最大排序位置
+     * @param projectId 项目ID
+     * @return 最大排序位置
+     */
+    Long getMaxPos(@Param("projectId") String projectId);
+
     List<BugProviderDTO> listByProviderRequest(@Param("table") String sourceType, @Param("sourceName") String sourceName, @Param("bugColumnName") String bugColumnName, @Param("request") BugPageProviderRequest bugPageProviderRequest, @Param("deleted") boolean deleted);
 
     List<String> getIdsByProvider(@Param("request") AssociateBugRequest request, @Param("deleted") boolean deleted);

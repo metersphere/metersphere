@@ -53,6 +53,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -180,7 +182,7 @@ public class BugAttachmentService {
         } else {
             // 删除本地上传的文件
             List<SyncAttachmentToPlatformRequest> syncLocalFiles =
-                    deleteLocalFile(bug.getId(), bug.getPlatformBugId(), request.getProjectId(), tempFileDir, request.getRefId(), bug.getPlatform(), true);
+                    deleteLocalFile(bug.getId(), bug.getPlatformBugId(), request.getProjectId(), tempFileDir, request.getRefId(), bug.getPlatform());
             platformAttachments.addAll(syncLocalFiles);
         }
         // 同步至第三方(异步调用)
@@ -200,9 +202,10 @@ public class BugAttachmentService {
             return ResponseEntity.ok().contentType(MediaType.parseMediaType("application/octet-stream")).body(null);
         }
         byte[] bytes = getLocalFileBytes(attachment, request.getProjectId(), request.getBugId());
+        String name = URLEncoder.encode(attachment.getFileName(), StandardCharsets.UTF_8);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + attachment.getFileName() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + name + "\";" + "filename*=utf-8''"+ name)
                 .body(bytes);
     }
 
@@ -225,7 +228,7 @@ public class BugAttachmentService {
             association.setModuleId(request.getModuleId());
             fileId = fileAssociationService.transferAndAssociation(association);
             // 删除本地上传的附件
-            deleteLocalFile(request.getBugId(), null, request.getProjectId(), null, attachment.getId(), null, false);
+            deleteLocalFile(request.getBugId(), null, request.getProjectId(), null, attachment.getId(), null);
         } catch (Exception e) {
             throw new MSException(Translator.get("file.transfer.error"));
         }
@@ -419,7 +422,7 @@ public class BugAttachmentService {
      * @return 同步至平台的附件集合
      */
     private List<SyncAttachmentToPlatformRequest> deleteLocalFile(String bugId, String platformBugKey, String projectId, File tmpFileDir,
-                                 String refId, String platformName, boolean syncToPlatform) {
+                                 String refId, String platformName) {
         List<SyncAttachmentToPlatformRequest> syncLocalFiles = new ArrayList<>();
         BugLocalAttachment localAttachment = bugLocalAttachmentMapper.selectByPrimaryKey(refId);
         // 删除本地上传的附件, BUG_LOCAL_ATTACHMENT表
@@ -428,7 +431,7 @@ public class BugAttachmentService {
             // 删除MINIO附件
             fileService.deleteFile(fileRequest);
             // 删除的本地的附件同步至平台
-            if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName()) && syncToPlatform) {
+            if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
                 File deleteTmpFile = new File(tmpFileDir, localAttachment.getFileName());
                 syncLocalFiles.add(new SyncAttachmentToPlatformRequest(platformBugKey, deleteTmpFile, SyncAttachmentType.DELETE.syncOperateType()));
             }

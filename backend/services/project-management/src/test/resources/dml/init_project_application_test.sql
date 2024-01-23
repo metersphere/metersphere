@@ -11,7 +11,8 @@ replace INTO user(id, name, email, password, create_time, update_time, language,
 replace INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user) VALUES (UUID_SHORT(), 'wx-test', 'project_admin', '100001100001', '100001', 1684747668375, 'admin');
 
 INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time) VALUE
-    ('default-project-for-application', null, '100002', '测试项目(缺陷)', '系统默认创建的项目(缺陷)', 'admin', 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000);
+    ('default-project-for-application', null, '100002', '测试项目(缺陷)', '系统默认创建的项目(缺陷)', 'admin', 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000),
+    ('project_application_test_id', null, '100003', '测试项目(缺陷)', '系统默认创建的项目(缺陷)', 'admin', 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000);
 
 -- 集成信息
 INSERT INTO project_application (project_id, type, type_value) VALUES

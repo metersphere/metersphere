@@ -72,7 +72,7 @@ public class BugCommentService {
                 commentUserInfos.add(userMap.get(bugComment.getReplyUser()));
             }
             commentUserInfos.addAll(getNotifyUserInfo(bugComment.getNotifier(), userMap));
-            commentDTO.setCommentUserInfos(commentUserInfos);
+            commentDTO.setCommentUserInfos(commentUserInfos.stream().filter(Objects::nonNull).distinct().toList());
             return commentDTO;
         }).toList();
 
@@ -90,12 +90,12 @@ public class BugCommentService {
 
 
     /**
-     * 批量获取缺陷ID
+     * 批量获取缺陷评论
      */
     public Map<String, List<BugCommentDTO>> getComments(@NotEmpty List<String> bugIds) {
         BugCommentExample example = new BugCommentExample();
         example.createCriteria().andBugIdIn(bugIds);
-        List<BugComment> bugComments = bugCommentMapper.selectByExample(example);
+        List<BugComment> bugComments = bugCommentMapper.selectByExampleWithBLOBs(example);
         Map<String, List<BugComment>> bugCommentByBugId = bugComments.stream().collect(Collectors.groupingBy(BugComment::getBugId));
 
         Map<String, List<BugCommentDTO>> returnMap = new HashMap<>();

@@ -20,21 +20,23 @@ CREATE TABLE IF NOT EXISTS bug(
     `delete_user` VARCHAR(50) NOT NULL   COMMENT '删除人' ,
     `delete_time` BIGINT NOT NULL   COMMENT '删除时间' ,
     `deleted` BIT(1) NOT NULL   COMMENT '删除状态' ,
+    `pos` BIGINT NOT NULL   COMMENT '自定义排序，间隔5000' ,
     PRIMARY KEY (id)
 )  COMMENT = '缺陷';
 
 
 CREATE INDEX idx_num ON bug(num);
 CREATE INDEX idx_title ON bug(title);
-CREATE INDEX idx_handle_user ON bug(handle_user);
+CREATE INDEX idx_assign_user ON bug(handle_user);
 CREATE INDEX idx_create_user ON bug(create_user);
-CREATE INDEX idx_create_time ON bug(create_time desc);
+CREATE INDEX idx_create_time ON bug(create_time);
 CREATE INDEX idx_update_user ON bug(update_user);
-CREATE INDEX idx_update_time ON bug(update_time desc);
+CREATE INDEX idx_update_time ON bug(update_time);
 CREATE INDEX idx_project_id ON bug(project_id);
 CREATE INDEX idx_platform ON bug(platform);
 CREATE INDEX idx_status ON bug(status);
 CREATE INDEX idx_deleted ON bug(deleted);
+CREATE INDEX idx_pos ON bug(pos);
 
 
 CREATE TABLE IF NOT EXISTS bug_content(
@@ -112,21 +114,6 @@ CREATE INDEX idx_bug_id ON bug_relation_case(bug_id);
 CREATE INDEX idx_plan_case_id ON bug_relation_case(test_plan_id,test_plan_case_id);
 CREATE INDEX idx_case_id ON bug_relation_case(case_id);
 CREATE INDEX idx_case_type ON bug_relation_case(case_type);
-
-CREATE TABLE IF NOT EXISTS bug_history(
-    `id` VARCHAR(50) NOT NULL   COMMENT '变更记录ID' ,
-    `bug_id` VARCHAR(50) NOT NULL   COMMENT '所属缺陷ID' ,
-    `num` INT NOT NULL   COMMENT '变更记录批次号' ,
-    `type` VARCHAR(64)    COMMENT '变更类型;IMPORT/EDIT/' ,
-    `rollback_source_id` VARCHAR(50)    COMMENT '回退来源' ,
-    `content` BLOB NOT NULL   COMMENT '修改内容' ,
-    `create_user` VARCHAR(50) NOT NULL   COMMENT '操作人' ,
-    `create_time` BIGINT NOT NULL   COMMENT '操作时间' ,
-    PRIMARY KEY (id)
-)  COMMENT = '缺陷变更记录';
-
-
-CREATE INDEX idx_bug_id ON bug_history(bug_id);
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;
