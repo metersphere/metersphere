@@ -11,7 +11,6 @@ import io.metersphere.functional.mapper.FunctionalCaseAttachmentMapper;
 import io.metersphere.functional.request.FunctionalCaseAssociationFileRequest;
 import io.metersphere.functional.request.FunctionalCaseDeleteFileRequest;
 import io.metersphere.functional.request.FunctionalCaseFileRequest;
-import io.metersphere.functional.request.FunctionalCaseSourceFileRequest;
 import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.dto.filemanagement.FileInfo;
 import io.metersphere.project.dto.filemanagement.FileLogRecord;
@@ -130,7 +129,7 @@ public class FunctionalCaseAttachmentService {
      */
     public void getAttachmentInfo(FunctionalCaseDetailDTO functionalCaseDetailDTO) {
         FunctionalCaseAttachmentExample example = new FunctionalCaseAttachmentExample();
-        example.createCriteria().andCaseIdEqualTo(functionalCaseDetailDTO.getId());
+        example.createCriteria().andCaseIdEqualTo(functionalCaseDetailDTO.getId()).andFileSourceEqualTo(CaseFileSourceType.ATTACHMENT.toString());
         List<FunctionalCaseAttachment> caseAttachments = functionalCaseAttachmentMapper.selectByExample(example);
         List<FunctionalCaseAttachmentDTO> attachmentDTOs = new ArrayList<>(Lists.transform(caseAttachments, (functionalCaseAttachment) -> {
             FunctionalCaseAttachmentDTO attachmentDTO = new FunctionalCaseAttachmentDTO();
@@ -150,7 +149,7 @@ public class FunctionalCaseAttachmentService {
             return attachmentDTO;
         }));
         attachmentDTOs.addAll(filesDTOs);
-        Collections.sort(attachmentDTOs, Comparator.comparing(FunctionalCaseAttachmentDTO::getCreateTime));
+        attachmentDTOs.sort(Comparator.comparing(FunctionalCaseAttachmentDTO::getCreateTime));
         functionalCaseDetailDTO.setAttachments(attachmentDTOs);
     }
 
@@ -201,8 +200,9 @@ public class FunctionalCaseAttachmentService {
      * @return
      */
     public Map<String, List<FunctionalCaseAttachment>> getAttachmentByCaseIds(List<String> ids) {
+        List<String> sources = List.of(CaseFileSourceType.ATTACHMENT.toString(), CaseFileSourceType.CASE_DETAIL.toString());
         FunctionalCaseAttachmentExample example = new FunctionalCaseAttachmentExample();
-        example.createCriteria().andCaseIdIn(ids);
+        example.createCriteria().andCaseIdIn(ids).andFileSourceIn(sources);
         List<FunctionalCaseAttachment> caseAttachments = functionalCaseAttachmentMapper.selectByExample(example);
         Map<String, List<FunctionalCaseAttachment>> attachmentMap = new HashMap<>();
         if (CollectionUtils.isNotEmpty(caseAttachments)) {
@@ -266,36 +266,6 @@ public class FunctionalCaseAttachmentService {
             FileRequest fileRequest = new FileRequest();
             fileRequest.setFileName(attachment.getFileName());
             fileRequest.setFolder(DefaultRepositoryDir.getFunctionalCaseDir(request.getProjectId(), request.getCaseId()) + "/" + attachment.getFileId());
-            fileRequest.setStorage(StorageType.MINIO.name());
-            byte[] bytes = null;
-            try {
-                bytes = fileService.download(fileRequest);
-            } catch (Exception e) {
-                throw new MSException("get file error");
-            }
-            return ResponseEntity.ok()
-                    .contentType(MediaType.parseMediaType("application/octet-stream"))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + attachment.getFileName() + "\"")
-                    .body(bytes);
-        }
-        return ResponseEntity.ok().contentType(MediaType.parseMediaType("application/octet-stream")).body(null);
-    }
-
-
-    /**
-     * 预览压缩图片
-     *
-     * @param request request
-     */
-    public ResponseEntity<byte[]> downloadPreviewCompressedImg(FunctionalCaseSourceFileRequest request) {
-        FunctionalCaseAttachmentExample example = new FunctionalCaseAttachmentExample();
-        example.createCriteria().andCaseIdEqualTo(request.getCaseId()).andFileSourceEqualTo(CaseFileSourceType.CASE_DETAIL.toString());
-        List<FunctionalCaseAttachment> caseAttachments = functionalCaseAttachmentMapper.selectByExample(example);
-        if (CollectionUtils.isNotEmpty(caseAttachments)) {
-            FunctionalCaseAttachment attachment = caseAttachments.get(0);
-            FileRequest fileRequest = new FileRequest();
-            fileRequest.setFileName(attachment.getFileName());
-            fileRequest.setFolder(DefaultRepositoryDir.getFunctionalCasePreviewDir(request.getProjectId(), request.getCaseId()) + "/" + attachment.getFileId());
             fileRequest.setStorage(StorageType.MINIO.name());
             byte[] bytes = null;
             try {
@@ -400,41 +370,51 @@ public class FunctionalCaseAttachmentService {
     }
 
     public void uploadMinioFile(String caseId, String projectId, List<String> uploadFileIds, String userId, String fileSource) {
+        if (CollectionUtils.isEmpty(uploadFileIds)) {
+            return;
+        }
+        //过滤已上传过的
+        FunctionalCaseAttachmentExample functionalCaseAttachmentExample = new FunctionalCaseAttachmentExample();
+        functionalCaseAttachmentExample.createCriteria().andCaseIdEqualTo(caseId).andFileIdIn(uploadFileIds).andFileSourceEqualTo(fileSource);
+        List<FunctionalCaseAttachment> existFiles = functionalCaseAttachmentMapper.selectByExample(functionalCaseAttachmentExample);
+        List<String> existFileIds = existFiles.stream().map(FunctionalCaseAttachment::getFileId).distinct().toList();
+        List<String> filIds = uploadFileIds.stream().filter(t -> !existFileIds.contains(t)).toList();
+        if (CollectionUtils.isEmpty(filIds)) {
+            return;
+        }
         String functionalCaseDir = DefaultRepositoryDir.getFunctionalCaseDir(projectId, caseId);
         // 处理本地上传文件
         FileRepository defaultRepository = FileCenter.getDefaultRepository();
         String systemTempDir = DefaultRepositoryDir.getSystemTempDir();
-        if (CollectionUtils.isNotEmpty(uploadFileIds)) {
-            // 添加文件与功能用例的关联关系
-            Map<String, String> addFileMap = new HashMap<>();
-            List<FunctionalCaseAttachment> functionalCaseAttachments = uploadFileIds.stream().map(fileId -> {
-                FunctionalCaseAttachment functionalCaseAttachment = new FunctionalCaseAttachment();
-                String fileName = getTempFileNameByFileId(fileId);
-                functionalCaseAttachment.setId(IDGenerator.nextStr());
-                functionalCaseAttachment.setCaseId(caseId);
-                functionalCaseAttachment.setFileId(fileId);
-                functionalCaseAttachment.setFileName(fileName);
-                functionalCaseAttachment.setFileSource(fileSource);
-                long fileSize = 0;
-                try {
-                    FileCopyRequest fileCopyRequest = new FileCopyRequest();
-                    fileCopyRequest.setFolder(systemTempDir + "/" + fileId);
-                    fileCopyRequest.setFileName(fileName);
-                    fileSize = defaultRepository.getFileSize(fileCopyRequest);
-                } catch (Exception e) {
-                    LogUtils.error("读取文件大小失败");
-                }
-                functionalCaseAttachment.setSize(fileSize);
-                functionalCaseAttachment.setLocal(true);
-                functionalCaseAttachment.setCreateUser(userId);
-                functionalCaseAttachment.setCreateTime(System.currentTimeMillis());
-                addFileMap.put(fileId, fileName);
-                return functionalCaseAttachment;
-            }).toList();
-            functionalCaseAttachmentMapper.batchInsert(functionalCaseAttachments);
-            // 上传文件到对象存储
-            uploadFileResource(functionalCaseDir, addFileMap, projectId, caseId);
-        }
+        // 添加文件与功能用例的关联关系
+        Map<String, String> addFileMap = new HashMap<>();
+        List<FunctionalCaseAttachment> functionalCaseAttachments = filIds.stream().map(fileId -> {
+            FunctionalCaseAttachment functionalCaseAttachment = new FunctionalCaseAttachment();
+            String fileName = getTempFileNameByFileId(fileId);
+            functionalCaseAttachment.setId(IDGenerator.nextStr());
+            functionalCaseAttachment.setCaseId(caseId);
+            functionalCaseAttachment.setFileId(fileId);
+            functionalCaseAttachment.setFileName(fileName);
+            functionalCaseAttachment.setFileSource(fileSource);
+            long fileSize = 0;
+            try {
+                FileCopyRequest fileCopyRequest = new FileCopyRequest();
+                fileCopyRequest.setFolder(systemTempDir + "/" + fileId);
+                fileCopyRequest.setFileName(fileName);
+                fileSize = defaultRepository.getFileSize(fileCopyRequest);
+            } catch (Exception e) {
+                LogUtils.error("读取文件大小失败");
+            }
+            functionalCaseAttachment.setSize(fileSize);
+            functionalCaseAttachment.setLocal(true);
+            functionalCaseAttachment.setCreateUser(userId);
+            functionalCaseAttachment.setCreateTime(System.currentTimeMillis());
+            addFileMap.put(fileId, fileName);
+            return functionalCaseAttachment;
+        }).toList();
+        functionalCaseAttachmentMapper.batchInsert(functionalCaseAttachments);
+        // 上传文件到对象存储
+        uploadFileResource(functionalCaseDir, addFileMap, projectId, caseId);
     }
 
     /**
