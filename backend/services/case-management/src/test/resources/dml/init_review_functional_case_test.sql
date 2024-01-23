@@ -64,6 +64,7 @@ VALUES ('wx_case_id_1', 'wx_review_id_1', 'admin'),
        ('gyq_review_case_id_3', 'wx_review_id_1', 'admin'),
        ('gyq_case_id_4', 'wx_review_id_1', 'admin'),
        ('gyq_case_id_5', 'wx_review_id_1', 'gyq'),
+       ('gyq_case_id_5', 'wx_review_id_1', 'GGG'),
        ('wx_case_id_3', 'wx_review_id_3', 'admin'),
        ('wx_case_id_4', 'wx_review_id_4', 'admin'),
        ('wx_case_id_1', 'wx_review_id_4', '123'),
@@ -78,11 +79,18 @@ INSERT INTO case_review_module(id, project_id, name, parent_id, pos, create_time
 INSERT INTO functional_case_module(id, project_id, name, parent_id, pos, create_time, update_time, create_user, update_user) VALUES ('TEST_MODULE_ID', 'wx_test_project', '测试所属模块', 'NONE', 0, 1669174143999, 1669174143999, 'admin', 'admin');
 
 
+INSERT INTO user(id, name, email, password, create_time, update_time, language, last_organization_id, phone, source,
+                 last_project_id, create_user, update_user, deleted)
+VALUES ('gyq', 'gyq', 'gyq_case_review_case@fit2cloud.com', MD5('metersphere'),UNIX_TIMESTAMP() * 1000,UNIX_TIMESTAMP() * 1000, NULL, NUll, '', 'LOCAL', NULL, 'admin', 'admin', false),
+       ('GGG', 'GGG', 'GGG_case_review_case@metersphere.io', MD5('metersphere'), UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, NULL, NUll, '', 'LOCAL', NULL, 'admin', 'admin', false);
+
 INSERT INTO case_review_history(id, review_id, case_id, content, status, deleted, notifier, create_user, create_time)
 VALUES ('wx_history', 'wx_review_id_3', 'wx_case_id_1', NULL, 'PASS', b'0', NULL, 'admin', 1669174143999),
        ('wx_histor_1', 'wx_review_id_3', 'wx_case_id_1', NULL, 'PASS', b'0', NULL, 'admin', 1669174143999),
        ('wx_history_2', 'wx_review_id_3', 'wx_case_id_3', NULL, 'PASS', b'0', NULL, 'admin', 1669174143999),
        ('wx_history_3', 'wx_review_id_4', 'wx_case_id_4', NULL, 'PASS', b'0', NULL, 'A', 1669174143999),
        ('wx_history_4', 'wx_review_id_4', 'wx_case_id_1', NULL, 'PASS', b'0', NULL, 'admin', 1669174143999),
-       ('wx_history_5', 'wx_review_id_4', 'wx_case_id_2', NULL, 'UN_PASS', b'0', NULL, 'admin', 1669174143999);
+       ('wx_history_5', 'wx_review_id_4', 'wx_case_id_2', NULL, 'UN_PASS', b'0', NULL, 'admin', 1669174143999),
+       ('wx_history_6', 'wx_review_id_1', 'gyq_case_id_5', NULL, 'PASS', b'0', NULL, 'gyq', 1669174143999),
+       ('wx_history_7', 'wx_review_id_1', 'gyq_case_id_5', NULL, 'UN_PASS', b'0', NULL, 'GGG', 1669174143999);
 
