@@ -10,3 +10,7 @@ export function getProjectList(organizationId: string) {
 export function switchProject(data: { projectId: string; userId: string }) {
   return MSR.post({ url: ProjectSwitchUrl, data });
 }
+
+export function getProjectInfo(projectId: string) {
+  return MSR.get<ProjectListItem>({ url: `/project/get/${projectId}` });
+}

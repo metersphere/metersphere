@@ -1,22 +1,17 @@
 import { DirectiveBinding } from 'vue';
 
-import { useUserStore } from '@/store';
+import { hasAnyPermission } from '@/utils/permission';
 
 /**
- * 权限指令,TODO:权限判定按权限点来
+ * 权限指令
  * @param el dom 节点
  * @param binding vue 绑定的数据
  */
 function checkPermission(el: HTMLElement, binding: DirectiveBinding) {
   const { value } = binding;
-  const userStore = useUserStore();
-  const { role } = userStore;
-
   if (Array.isArray(value)) {
     if (value.length > 0) {
-      const permissionValues = value;
-
-      const hasPermission = permissionValues.includes(role);
+      const hasPermission = hasAnyPermission(value);
       if (!hasPermission && el.parentNode) {
         el.parentNode.removeChild(el);
       }

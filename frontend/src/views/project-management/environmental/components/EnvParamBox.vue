@@ -15,6 +15,7 @@
             :max-length="255"
             class="w-[732px]"
             :placeholder="t('project.environmental.envNamePlaceholder')"
+            @blur="store.currentEnvDetailInfo.name = form.name"
           />
         </a-form-item>
       </a-form>
@@ -32,20 +33,21 @@
       <PreTab v-else-if="activeKey === 'pre'" />
       <PostTab v-else-if="activeKey === 'post'" />
       <AssertTab v-else-if="activeKey === 'assert'" />
-      <DisplayTab v-else-if="activeKey === 'display'" />
     </div>
 
     <div class="footer" :style="{ width: '100%' }">
-      <a-button :disabled="!canSave" @click="handleReset">{{ t('common.cancel') }}</a-button>
+      <a-button @click="handleReset">{{ t('common.cancel') }}</a-button>
       <a-button :disabled="!canSave" type="primary" @click="handleSave">{{ t('common.save') }}</a-button>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
+  import { Message } from '@arco-design/web-vue';
+  import { isEqual } from 'lodash-es';
+
   import AssertTab from './envParams/AssertTab.vue';
   import DataBaseTab from './envParams/DatabaseTab.vue';
-  import DisplayTab from './envParams/DisplayTab.vue';
   import EnvParamsTab from './envParams/EnvParamsTab.vue';
   import HostTab from './envParams/HostTab.vue';
   import HttpTab from './envParams/HttpTab.vue';
@@ -53,17 +55,17 @@
   import PreTab from './envParams/PreTab.vue';
   import TcpTab from './envParams/TcpTab.vue';
 
+  import { updateOrAddEnv } from '@/api/modules/project-management/envManagement';
   import { useI18n } from '@/hooks/useI18n';
-  import { useAppStore } from '@/store';
-  import useProjectEnvStore, { NEW_ENV_PARAM } from '@/store/modules/setting/useProjectEnvStore';
+  import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
 
   const activeKey = ref('assert');
   const envForm = ref();
   const canSave = ref(false);
   const { t } = useI18n();
+  const loading = ref(false);
 
   const store = useProjectEnvStore();
-  const appStore = useAppStore();
 
   const form = reactive({
     name: '',
@@ -109,26 +111,42 @@
   ];
   const handleReset = () => {
     envForm.value?.resetFields();
+    store.initEnvDetail();
   };
-  const handleSave = () => {
-    envForm.value?.validate(async (valid) => {
-      if (valid) {
-        console.log('form', form);
+  const handleSave = async () => {
+    await envForm.value?.validate(async (valid) => {
+      if (!valid) {
+        try {
+          loading.value = true;
+          store.currentEnvDetailInfo.mock = true;
+          const res = await updateOrAddEnv(store.currentEnvDetailInfo);
+          store.currentEnvDetailInfo = res;
+          Message.success(t('common.saveSuccess'));
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        } finally {
+          loading.value = false;
+        }
       }
     });
   };
-  const initData = async () => {
-    await store.initEnvDetail();
-  };
   watchEffect(() => {
-    if (store.currentId === NEW_ENV_PARAM) {
-      store.setEnvDetailInfo({
-        name: '',
-        projectId: appStore.currentProjectId,
-        config: {},
-      });
-    } else {
-      initData();
+    if (store.currentId) {
+      store.initEnvDetail();
+    }
+  });
+
+  watchEffect(() => {
+    if (store.currentEnvDetailInfo) {
+      const { currentEnvDetailInfo } = store;
+      form.name = currentEnvDetailInfo.name;
+    }
+  });
+  watchEffect(() => {
+    if (store.currentEnvDetailInfo) {
+      const { currentEnvDetailInfo, backupEnvDetailInfo } = store;
+      canSave.value = !isEqual(currentEnvDetailInfo, backupEnvDetailInfo);
     }
   });
 </script>

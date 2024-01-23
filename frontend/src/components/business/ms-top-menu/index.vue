@@ -79,7 +79,9 @@
               (item) => name && item?.name && (name as string).includes(item.name as string)
             );
           }
-          appStore.setTopMenus(currentParent?.children?.filter((item) => item.meta?.isTopMenu));
+          appStore.setTopMenus(
+            currentParent?.children?.filter((item) => permission.accessRouter(item) && item.meta?.isTopMenu)
+          );
           setCurrentTopMenu(name as string);
           return;
         }

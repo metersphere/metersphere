@@ -49,9 +49,14 @@
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const { t } = useI18n();
-
   const store = useProjectEnvStore();
 
+  const innerParam = computed({
+    get: () => (store.currentEnvDetailInfo.config.dataSource || []) as DataSourceItem[],
+    set: (value: DataSourceItem[] | undefined) => {
+      store.currentEnvDetailInfo.config.dataSource = value;
+    },
+  });
   const keyword = ref('');
   const tableStore = useTableStore();
   const addVisible = ref(false);
@@ -156,21 +161,8 @@
     addVisible.value = true;
   };
   const fetchData = () => {};
-  const handleNoWarning = () => {
-    store.setHttpNoWarning(false);
-  };
   const initData = () => {
-    propsRes.value.data = [
-      {
-        id: '1',
-        name: 'test',
-        desc: 'test',
-        url: 'test',
-        username: 'test',
-        poolMax: 'test',
-        timeout: 'test',
-      },
-    ];
+    propsRes.value.data = innerParam.value;
   };
   onMounted(() => {
     initData();

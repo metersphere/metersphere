@@ -1,15 +1,20 @@
 <template>
-  <div>
-    <ms-assertion />
-  </div>
+  <MsAssertion v-model:params="params" />
 </template>
 
 <script lang="ts" setup>
   import MsAssertion from '@/components/business/ms-assertion/index.vue';
 
-  import { useI18n } from '@/hooks/useI18n';
+  import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
 
-  const { t } = useI18n();
+  const store = useProjectEnvStore();
+
+  const params = computed({
+    set: (value: any) => {
+      store.currentEnvDetailInfo.config.assertions = value;
+    },
+    get: () => store.currentEnvDetailInfo.config.assertions || [],
+  });
 </script>
 
 <style lang="less" scoped></style>

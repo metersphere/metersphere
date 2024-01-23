@@ -23,7 +23,7 @@ export enum CaseManagementRouteEnum {
 }
 
 export enum PerformanceTestRouteEnum {
-  PERFORMANCE_TEST = 'performanceTest',
+  PERFORMANCE_TEST = 'loadTest',
 }
 
 export enum ProjectManagementRouteEnum {
@@ -57,7 +57,7 @@ export enum UITestRouteEnum {
 }
 
 export enum WorkbenchRouteEnum {
-  WORKBENCH = 'workbench',
+  WORKBENCH = 'workstation',
 }
 
 export enum SettingRouteEnum {

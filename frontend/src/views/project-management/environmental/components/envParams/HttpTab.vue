@@ -68,6 +68,10 @@
   const tableStore = useTableStore();
   const addVisible = ref(false);
   const currentId = ref('');
+  const innerParam = defineModel<TableData[]>('modelValue', {
+    type: Array,
+    default: () => [],
+  });
 
   const columns: MsTableColumn = [
     {
@@ -160,15 +164,7 @@
     store.setHttpNoWarning(false);
   };
   const initData = () => {
-    propsRes.value.data = [
-      {
-        host: 'http://www.baidu.com',
-        desc: '百度',
-        applyScope: '全部',
-        enableScope: '全部',
-        value: 'http://www.baidu.com',
-      },
-    ];
+    propsRes.value.data = innerParam.value;
   };
   onMounted(() => {
     initData();

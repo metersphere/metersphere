@@ -12,7 +12,8 @@ const useProjectEnvStore = defineStore(
   'projectEnv',
   () => {
     const currentId = ref<string>(ALL_PARAM); // 当前选中的key值
-    const currentEnvDetailInfo = ref<EnvDetailItem>(); // 当前选中的环境详情
+    const currentEnvDetailInfo = ref<EnvDetailItem>({ projectId: '', name: '', config: {} }); // 当前选中的环境详情
+    const backupEnvDetailInfo = ref<EnvDetailItem>({ projectId: '', name: '', config: {} }); // 当前选中的环境详情-备份
     const allParamDetailInfo = ref<GlobalParams>(); // 全局参数详情
     const httpNoWarning = ref(true);
     const getHttpNoWarning = computed(() => httpNoWarning.value);
@@ -25,10 +26,6 @@ const useProjectEnvStore = defineStore(
     function setHttpNoWarning(noWarning: boolean) {
       httpNoWarning.value = noWarning;
     }
-    // 设置环境详情
-    function setEnvDetailInfo(item: EnvDetailItem) {
-      currentEnvDetailInfo.value = item;
-    }
     // 设置全局参数
     function setAllParamDetailInfo(item: GlobalParams) {
       allParamDetailInfo.value = item;
@@ -39,11 +36,14 @@ const useProjectEnvStore = defineStore(
       const appStore = useAppStore();
       try {
         if (id === NEW_ENV_PARAM) {
-          currentEnvDetailInfo.value = undefined;
+          currentEnvDetailInfo.value = { projectId: appStore.currentProjectId, name: '', config: {} };
+          backupEnvDetailInfo.value = { projectId: appStore.currentProjectId, name: '', config: {} };
         } else if (id === ALL_PARAM) {
           allParamDetailInfo.value = await getGlobalParamDetail(appStore.currentProjectId);
         } else if (id !== ALL_PARAM && id) {
-          currentEnvDetailInfo.value = await getDetailEnv(id);
+          const tmpObj = await getDetailEnv(id);
+          currentEnvDetailInfo.value = tmpObj;
+          backupEnvDetailInfo.value = JSON.parse(JSON.stringify(tmpObj));
         }
       } catch (e) {
         // eslint-disable-next-line no-console
@@ -56,10 +56,11 @@ const useProjectEnvStore = defineStore(
       getHttpNoWarning,
       httpNoWarning,
       allParamDetailInfo,
+      currentEnvDetailInfo,
+      backupEnvDetailInfo,
       groupLength,
       setCurrentId,
       setHttpNoWarning,
-      setEnvDetailInfo,
       setAllParamDetailInfo,
       initEnvDetail,
     };

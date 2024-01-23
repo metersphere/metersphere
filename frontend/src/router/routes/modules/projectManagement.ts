@@ -270,7 +270,7 @@ const ProjectManagement: AppRouteRecordRaw = {
       component: () => import('@/views/project-management/environmental/index.vue'),
       meta: {
         locale: 'menu.projectManagement.environmentManagement',
-        roles: ['*'],
+        roles: ['PROJECT_ENVIRONMENT:READ'],
         isTopMenu: true,
       },
     },

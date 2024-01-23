@@ -1,7 +1,7 @@
 <template>
-  <div class="p-[24px]">
+  <div>
     <div class="flex flex-row items-center gap-[8px]">
-      <a-switch v-model:model-value="configSwitch" size="small" />
+      <a-switch type="line" size="small" />
       <div class="text-[var(--color-text-1)]">{{ t('project.environmental.host.config') }}</div>
     </div>
     <div class="mt-[8px]">
@@ -19,18 +19,31 @@
 </template>
 
 <script lang="ts" setup>
+  import { onClickOutside } from '@vueuse/core';
+
   import MsBatchForm from '@/components/business/ms-batch-form/index.vue';
   import { FormItemModel } from '@/components/business/ms-batch-form/types';
 
   import { useI18n } from '@/hooks/useI18n';
+  import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
 
+  import { EnvConfigItem } from '@/models/projectManagement/environmental';
   import { FakeTableListItem } from '@/models/projectManagement/menuManagement';
 
   const { t } = useI18n();
 
-  const currentList = ref<FakeTableListItem[]>([]);
+  const store = useProjectEnvStore();
 
-  const configSwitch = ref<boolean>(false);
+  const currentList = computed({
+    get: () => (store.currentEnvDetailInfo.config.hostConfig || []) as FakeTableListItem[],
+    set: (value: EnvConfigItem[] | undefined) => {
+      store.currentEnvDetailInfo.config.hostConfig = value;
+    },
+  });
+  const batchFormRef = ref();
+  onClickOutside(batchFormRef, () => {
+    currentList.value = batchFormRef.value?.getFormResult();
+  });
   type UserModalMode = 'create' | 'edit';
   const batchFormModels: Ref<FormItemModel[]> = ref([
     {

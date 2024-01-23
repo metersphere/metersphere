@@ -1,3 +1,5 @@
+import { UserState } from '@/store/modules/user/types';
+
 // 登录信息
 export interface LoginData {
   username: string;
@@ -5,37 +7,11 @@ export interface LoginData {
   authenticate: string;
 }
 
-export interface UserRole {
-  id: string;
-  createTime: number;
-  createUser: string;
-  roleId: string;
-  sourceId: string;
-  userId: string;
-}
-
 // 登录返回
-export interface LoginRes {
+export interface LoginRes extends UserState {
   csrfToken: string;
-  createTime: number;
-  createUser: string;
-  email: string;
-  enabled: boolean;
-  id: string;
-  language: string;
-  lastOrganizationId: string;
-  lastProjectId: string;
-  name: string;
-  phone: string;
-  platformInfo: string;
-  seleniumServer: string;
   sessionId: string;
-  source: string;
-  updateTime: number;
-  updateUser: string;
-  userRolePermissions: UserRole[];
-  userRoleRelations: UserRole[];
-  userRoles: UserRole[];
+  token: string;
 }
 // 更新本地执行配置
 export interface UpdateLocalConfigParams {
@@ -93,23 +69,6 @@ export interface Resource {
   id: string;
   name: string;
   license: boolean;
-}
-export interface UserRolePermission {
-  resource: Resource;
-  permissions: Permission[];
-  type: string;
-  userRole: UserRole;
-  userRolePermissions: Permission[];
-}
-
-export interface UserRoleRelation {
-  id: string;
-  userId: string;
-  roleId: string;
-  sourceId: string;
-  organizationId: string;
-  createTime: number;
-  createUser: string;
 }
 // 个人信息
 export interface PersonalOrganization {

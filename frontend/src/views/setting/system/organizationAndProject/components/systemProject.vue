@@ -17,17 +17,37 @@
     </template>
     <template #operation="{ record }">
       <template v-if="record.deleted">
-        <MsButton @click="handleRevokeDelete(record)">{{ t('common.revokeDelete') }}</MsButton>
+        <MsButton v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+RECOVER']" @click="handleRevokeDelete(record)">{{
+          t('common.revokeDelete')
+        }}</MsButton>
       </template>
       <template v-else-if="!record.enable">
-        <MsButton @click="handleEnableOrDisableProject(record)">{{ t('common.enable') }}</MsButton>
-        <MsButton @click="handleDelete(record)">{{ t('common.delete') }}</MsButton>
+        <MsButton
+          v-permission="['SYSTEM_ORGANIZATIN_PROJECT:READ+UPDATE']"
+          @click="handleEnableOrDisableProject(record)"
+          >{{ t('common.enable') }}</MsButton
+        >
+        <MsButton v-permission="['SYSTEM_ORGANIZATIN_PROJECT:READ+DELETE']" @click="handleDelete(record)">{{
+          t('common.delete')
+        }}</MsButton>
       </template>
       <template v-else>
-        <MsButton @click="showAddProjectModal(record)">{{ t('common.edit') }}</MsButton>
-        <MsButton @click="showAddUserModal(record)">{{ t('system.organization.addMember') }}</MsButton>
-        <MsButton @click="handleEnableOrDisableProject(record, false)">{{ t('common.end') }}</MsButton>
-        <MsTableMoreAction :list="tableActions" @select="handleMoreAction($event, record)"></MsTableMoreAction>
+        <MsButton v-permission="['SYSTEM_ORGANIZATIN_PROJECT:READ+UPDATE']" @click="showAddProjectModal(record)">{{
+          t('common.edit')
+        }}</MsButton>
+        <MsButton v-permission="['SYSTEM_ORGANIZATIN_PROJECT:READ']" @click="showAddUserModal(record)">{{
+          t('system.organization.addMember')
+        }}</MsButton>
+        <MsButton
+          v-permission="['SYSTEM_ORGANIZATIN_PROJECT:READ+UPDATE']"
+          @click="handleEnableOrDisableProject(record, false)"
+          >{{ t('common.end') }}</MsButton
+        >
+        <MsTableMoreAction
+          v-permission="['SYSTEM_ORGANIZATIN_PROJECT:READ+DELETE']"
+          :list="tableActions"
+          @select="handleMoreAction($event, record)"
+        ></MsTableMoreAction>
       </template>
     </template>
   </MsBaseTable>

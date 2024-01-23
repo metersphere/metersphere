@@ -1,13 +1,20 @@
 <template>
-  <div class="p-[24px]">
-    <a-divider :margin="0" class="!mb-[16px]" />
-  </div>
+  <PostTab v-model:params="params" layout="horizontal" />
 </template>
 
 <script lang="ts" setup>
-  import { useI18n } from '@/hooks/useI18n';
+  import PostTab from '@/views/api-test/debug/components/debug/postcondition.vue';
 
-  const { t } = useI18n();
+  import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
+
+  const store = useProjectEnvStore();
+
+  const params = computed({
+    set: (value: any) => {
+      store.currentEnvDetailInfo.config.postScript = value;
+    },
+    get: () => store.currentEnvDetailInfo.config.postScript || [],
+  });
 </script>
 
 <style lang="less" scoped></style>

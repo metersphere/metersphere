@@ -38,16 +38,16 @@ export interface EnvConfig {
   dataSource?: DataSourceItem[];
   hostConfig?: EnvConfigItem;
   authConfig?: EnvConfigItem;
-  preScript?: EnvConfigItem;
-  postScript?: EnvConfigItem;
-  assertions?: EnvConfigItem;
+  preScript?: EnvConfigItem[];
+  postScript?: EnvConfigItem[];
+  assertions?: EnvConfigItem[];
 }
 export interface EnvDetailItem {
   id?: string;
   projectId: string;
   name: string;
   config: EnvConfig;
-  mock?: string;
+  mock?: boolean;
   description?: string;
 }
 export interface GlobalParamsItem {
