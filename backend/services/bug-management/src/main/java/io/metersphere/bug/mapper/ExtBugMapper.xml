@@ -38,10 +38,8 @@
         b.template_id,
         b.platform,
         b.status,
-        b.tags,
-        bc.description
+        b.tags
         from bug b
-        left join bug_content bc on b.id = bc.bug_id
         WHERE b.id IN
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
@@ -77,6 +75,27 @@
             #{id}
         </foreach>
     </update>
+
+    <select id="getPrePos" resultType="java.lang.Long">
+        select `pos` from bug where project_id = #{projectId}
+        <if test="basePos != null">
+            and `pos` &lt; #{basePos}
+        </if>
+        order by `pos` desc limit 1;
+    </select>
+
+
+    <select id="getLastPos" resultType="java.lang.Long">
+        select `pos` from bug where project_id = #{projectId}
+        <if test="basePos != null">
+            and `pos` &gt; #{basePos}
+        </if>
+        order by `pos` desc limit 1;
+    </select>
+
+    <select id="getMaxPos" resultType="java.lang.Long">
+        select max(pos) from bug where project_id = #{projectId}
+    </select>
 
     <select id="listByProviderRequest" resultMap="BugProviderDTO">
         SELECT

@@ -595,6 +595,12 @@ public class ProjectApplicationService {
         boolean isEnable = platformEnableConfig != null && Boolean.parseBoolean(platformEnableConfig.getTypeValue()) && platformKeyConfig != null;
         if (!isEnable) {
             return "Local";
+        } else {
+            ServiceIntegration serviceIntegration = getPlatformServiceIntegrationWithSyncOrDemand(projectId, true);
+            if (serviceIntegration == null) {
+                // 项目未配置第三方平台
+                return "Local";
+            }
         }
         return getPluginName(platformKeyConfig.getTypeValue());
     }

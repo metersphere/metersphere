@@ -3,9 +3,11 @@ package io.metersphere.bug.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.bug.constants.BugExportColumns;
+import io.metersphere.bug.domain.Bug;
 import io.metersphere.bug.dto.BugSyncResult;
 import io.metersphere.bug.dto.request.*;
 import io.metersphere.bug.dto.response.BugDTO;
+import io.metersphere.bug.dto.response.BugDetailDTO;
 import io.metersphere.bug.service.*;
 import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.project.dto.ProjectTemplateOptionDTO;
@@ -14,6 +16,7 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.notice.annotation.SendNotice;
@@ -83,7 +86,7 @@ public class BugController {
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<BugDTO>> page(@Validated @RequestBody BugPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "pos desc");
         request.setUseTrash(false);
         return PageUtils.setPageInfo(page, bugService.list(request));
     }
@@ -94,9 +97,9 @@ public class BugController {
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request, #files)", msClass = BugLogService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.BUG_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.getNoticeByRequest(#request)", targetClass = BugNoticeService.class)
-    public void add(@Validated({Created.class}) @RequestPart(value = "request") BugEditRequest request,
-                    @RequestPart(value = "file", required = false) List<MultipartFile> files) {
-        bugService.addOrUpdate(request, files, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), false);
+    public Bug add(@Validated({Created.class}) @RequestPart(value = "request") BugEditRequest request,
+                   @RequestPart(value = "file", required = false) List<MultipartFile> files) {
+        return bugService.addOrUpdate(request, files, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), false);
     }
 
     @PostMapping("/update")
@@ -105,16 +108,16 @@ public class BugController {
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request, #files)", msClass = BugLogService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.BUG_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getNoticeByRequest(#request)", targetClass = BugNoticeService.class)
-    public void update(@Validated({Updated.class}) @RequestPart(value = "request") BugEditRequest request,
+    public Bug update(@Validated({Updated.class}) @RequestPart(value = "request") BugEditRequest request,
                        @RequestPart(value = "file", required = false) List<MultipartFile> files) {
-        bugService.addOrUpdate(request, files, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), true);
+        return bugService.addOrUpdate(request, files, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), true);
     }
 
     @GetMapping("/get/{id}")
     @Operation(summary = "缺陷管理-列表-详情&&编辑&&复制")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
-    public void get(@PathVariable String id) {
-        bugService.get(id);
+    public BugDetailDTO get(@PathVariable String id) {
+        return bugService.get(id);
     }
 
     @GetMapping("/delete/{id}")
@@ -163,6 +166,7 @@ public class BugController {
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_EXPORT)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public ResponseEntity<byte[]> export(@Validated @RequestBody BugExportRequest request) throws Exception {
+        request.setUseTrash(false);
         return bugService.export(request);
     }
 
@@ -182,6 +186,14 @@ public class BugController {
     public void batchUpdate(@Validated @RequestBody BugBatchUpdateRequest request) {
         request.setUseTrash(false);
         bugService.batchUpdate(request, SessionUtils.getUserId());
+    }
+
+    @PostMapping("/edit/pos")
+    @Operation(summary = "缺陷管理-列表-拖拽排序")
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
+    @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    public void editPos(@Validated @RequestBody PosRequest request) {
+        bugService.editPos(request);
     }
 
     @GetMapping("/template/option/{projectId}")

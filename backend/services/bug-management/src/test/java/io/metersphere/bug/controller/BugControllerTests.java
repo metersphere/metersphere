@@ -35,6 +35,7 @@ import io.metersphere.system.domain.CustomFieldExample;
 import io.metersphere.system.domain.ServiceIntegration;
 import io.metersphere.system.dto.request.PluginUpdateRequest;
 import io.metersphere.system.dto.sdk.TemplateDTO;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.mapper.ServiceIntegrationMapper;
 import io.metersphere.system.service.PluginService;
@@ -74,10 +75,10 @@ public class BugControllerTests extends BaseTest {
     public static final String BUG_HEADER_STATUS_OPTION = "/bug/header/status-option";
     public static final String BUG_HEADER_HANDLER_OPTION = "/bug/header/handler-option";
     public static final String BUG_PAGE = "/bug/page";
+    public static final String BUG_EDIT_POS = "/bug/edit/pos";
     public static final String BUG_ADD = "/bug/add";
     public static final String BUG_UPDATE = "/bug/update";
     public static final String BUG_DETAIL = "/bug/get";
-    public static final String BUG_QUICK_UPDATE = "/bug/quick-update";
     public static final String BUG_DELETE = "/bug/delete";
     public static final String BUG_TEMPLATE_OPTION = "/bug/template/option";
     public static final String BUG_TEMPLATE_DETAIL = "/bug/template/detail";
@@ -130,7 +131,6 @@ public class BugControllerTests extends BaseTest {
         fileService.upload(getMockFile(), fileRequest);
     }
 
-
     @Test
     @Order(1)
     void testBugPageSuccess() throws Exception {
@@ -174,6 +174,14 @@ public class BugControllerTests extends BaseTest {
         // 返回值中取出第一条ID最大的数据, 并判断是否是default-bug
         BugDTO maxBugDTO = JSON.parseArray(JSON.toJSONString(sortPageData.getList()), BugDTO.class).get(0);
         Assertions.assertTrue(maxBugDTO.getId().contains("default"));
+
+        // 拖拽
+        PosRequest posRequest = new PosRequest();
+        posRequest.setProjectId("default-project-for-bug");
+        posRequest.setMoveId("default-bug-id");
+        posRequest.setMoveMode("AFTER");
+        posRequest.setTargetId("default-bug-id-tapd1");
+        this.requestPost(BUG_EDIT_POS, posRequest);
     }
 
     @Test
@@ -225,6 +233,7 @@ public class BugControllerTests extends BaseTest {
     @Order(4)
     void testAddBugSuccess() throws Exception {
         BugEditRequest request = buildRequest(false);
+        request.setDescription(null);
         String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/test.xlsx")).getPath();
         File file = new File(filePath);
         MultiValueMap<String, Object> paramMap = getDefaultMultiPartParam(request, file);
@@ -277,14 +286,7 @@ public class BugControllerTests extends BaseTest {
         request.setDescription("1111");
         noFileParamMap.add("request", JSON.toJSONString(request));
         this.requestMultipartWithOkAndReturn(BUG_UPDATE, noFileParamMap);
-        // 获取缺陷详情
-        this.requestGetWithOk(BUG_DETAIL + "/default-bug-id");
         this.requestGetWithOk(BUG_DETAIL + "/" + request.getId());
-        // 更新部分
-        BugQuickEditRequest quickEditRequest = new BugQuickEditRequest();
-        quickEditRequest.setId(request.getId());
-        quickEditRequest.setTags(List.of("TEST"));
-        this.requestPost(BUG_QUICK_UPDATE, quickEditRequest, status().isOk());
     }
 
     @Test
@@ -541,6 +543,8 @@ public class BugControllerTests extends BaseTest {
     @Test
     @Order(96)
     void coverPlatformBugSyncTests() throws Exception {
+        // 获取默认模板缺陷详情
+        this.requestGetWithOk(BUG_DETAIL + "/default-bug-id-jira-sync");
         // 表头字段, 状态选项, 处理人选项 (非Local平台)
         this.requestGetWithOk(BUG_HEADER_CUSTOM_FIELD + "/default-project-for-bug");
         this.requestGetWithOk(BUG_HEADER_STATUS_OPTION + "/default-project-for-bug");
@@ -640,7 +644,7 @@ public class BugControllerTests extends BaseTest {
 
     @Test
     @Order(98)
-    void coverBugTests() throws Exception {
+    void coverBugTests() {
         BugCustomFieldDTO field = new BugCustomFieldDTO();
         field.setId("test_field");
         field.setName("test");
@@ -651,11 +655,6 @@ public class BugControllerTests extends BaseTest {
         removeApiFieldTmp();
         bugService.transferCustomToPlatformField("default-bug-template-id-not-exist", List.of(field), false);
         rollBackApiField();
-        // 覆盖导出相关的代码
-        BugExportRequest request = new BugExportRequest();
-        request.setSelectAll(true);
-        request.setExcludeIds(List.of("test-id"));
-        bugService.export(request);
     }
 
     @Test
