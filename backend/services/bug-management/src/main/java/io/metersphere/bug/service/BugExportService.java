@@ -6,9 +6,12 @@ import io.metersphere.bug.domain.BugContent;
 import io.metersphere.bug.domain.BugContentExample;
 import io.metersphere.bug.dto.BugExportColumn;
 import io.metersphere.bug.dto.BugExportExcelModel;
+import io.metersphere.bug.dto.BugExportHeaderModel;
 import io.metersphere.bug.dto.response.BugCommentDTO;
 import io.metersphere.bug.dto.response.BugDTO;
 import io.metersphere.bug.mapper.BugContentMapper;
+import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -30,54 +33,54 @@ public class BugExportService {
     private static final String EXPORT_TEMP_BASE_FOLDER = "/tmp/metersphere/export/bug/";
 
     @Resource
-    private BugContentMapper bugContentMapper;
-    @Resource
     private BugCommentService bugCommentService;
+    @Resource
+    private BugContentMapper bugContentMapper;
 
     /**
-     * @param list          缺陷数据
-     * @param exportColumns excel导出的列
+     * @param list      缺陷数据
+     * @param headerModel     excel导出表头
      * @return excel所在的文件夹
-     * @throws Exception
      */
-    public String generateExcelFiles(List<BugDTO> list, List<BugExportColumn> exportColumns) {
+    public String generateExcelFiles(List<BugDTO> list, BugExportHeaderModel headerModel) {
         String filesFolder = EXPORT_TEMP_BASE_FOLDER + IDGenerator.nextStr();
         try {
             FileUtils.forceMkdir(new File(filesFolder));
             int index = 1;
-            while (list.size() > 2000) {
+            while (list.size() > BATCH_PROCESS_QUANTITY) {
                 List<BugDTO> excelBugList = list.subList(0, BATCH_PROCESS_QUANTITY);
-                this.generateExcelFile(excelBugList, index, filesFolder, exportColumns);
+                this.generateExcelFile(excelBugList, index, filesFolder, headerModel);
                 list.removeAll(excelBugList);
-                index = 1;
+                index += 1;
             }
-            this.generateExcelFile(list, index, filesFolder, exportColumns);
-        } catch (Exception ignore) {
+            this.generateExcelFile(list, index, filesFolder, headerModel);
+        } catch (Exception e) {
+            LogUtils.error(e.getMessage());
+            throw new MSException(e.getMessage());
         }
         return filesFolder;
     }
 
-    private void generateExcelFile(List<BugDTO> list, int fileIndex, String excelPath, List<BugExportColumn> exportColumns) throws Exception {
+    private void generateExcelFile(List<BugDTO> list, int fileIndex, String excelPath, BugExportHeaderModel headerModel) throws Exception {
         if (CollectionUtils.isNotEmpty(list)) {
-            boolean exportComment = this.exportComment(exportColumns);
-            boolean exportContent = this.exportContent(exportColumns);
+            // 准备数据 {评论, 内容, 关联用例数}
+            boolean exportComment = this.exportComment(headerModel.getExportColumns());
+            boolean exportContent = this.exportContent(headerModel.getExportColumns());
 
             List<String> bugIdList = list.stream().map(BugDTO::getId).toList();
-            Map<String, List<BugCommentDTO>> bugCommentMap = new HashMap<>();
-            Map<String, BugContent> bugContentMap = new HashMap<>();
-            //todo 等昌昌需求确定，再实现
-            Map<String, Long> bugCountMap = new HashMap<>();
+            Map<String, List<BugCommentDTO>> bugCommentMap = new HashMap<>(16);
+            Map<String, BugContent> bugContentMap = new HashMap<>(16);
             if (exportContent) {
                 BugContentExample example = new BugContentExample();
                 example.createCriteria().andBugIdIn(bugIdList);
-                bugContentMap = bugContentMapper.selectByExample(example).stream().collect(Collectors.toMap(BugContent::getBugId, bugContent -> bugContent));
+                bugContentMap = bugContentMapper.selectByExampleWithBLOBs(example).stream().collect(Collectors.toMap(BugContent::getBugId, bugContent -> bugContent));
             }
             if (exportComment) {
                 bugCommentMap = bugCommentService.getComments(bugIdList);
             }
 
             //生成excel对象
-            BugExportExcelModel bugExportExcelModel = new BugExportExcelModel(exportColumns, list, bugCommentMap, bugContentMap, bugCountMap);
+            BugExportExcelModel bugExportExcelModel = new BugExportExcelModel(headerModel, list, bugCommentMap, bugContentMap);
 
             //生成excel文件
             List<List<String>> data = bugExportExcelModel.getData();
@@ -88,7 +91,11 @@ public class BugExportService {
         }
     }
 
-    //是否包含缺陷评论
+    /**
+     * 是否包含缺陷评论
+     * @param exportColumns 导出列
+     * @return 是否包含评论列
+     */
     public boolean exportComment(List<BugExportColumn> exportColumns) {
         for (BugExportColumn exportColumn : exportColumns) {
             if ("comment".equals(exportColumn.getKey()) && "other".equals(exportColumn.getColumnType())) {
@@ -98,7 +105,11 @@ public class BugExportService {
         return false;
     }
 
-    //是否包含缺陷内容
+    /**
+     * 是否包含缺陷内容
+     * @param exportColumns 导出列
+     * @return 是否包含缺陷内容列
+     */
     public boolean exportContent(List<BugExportColumn> exportColumns) {
         for (BugExportColumn exportColumn : exportColumns) {
             if ("content".equals(exportColumn.getKey()) && "system".equals(exportColumn.getColumnType())) {

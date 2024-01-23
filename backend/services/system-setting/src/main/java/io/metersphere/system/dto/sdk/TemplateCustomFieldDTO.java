@@ -15,6 +15,9 @@ public class TemplateCustomFieldDTO {
     @Schema(title = "字段名称", requiredMode = Schema.RequiredMode.REQUIRED)
     private String fieldName;
 
+    @Schema(title = "字段唯一Key, 处理人,状态字段需要, 其余自定义字段ID即可标识唯一")
+    private String fieldKey;
+
     @Schema(title = "是否必填")
     private Boolean required;
 

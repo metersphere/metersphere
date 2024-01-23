@@ -83,6 +83,10 @@ public class Bug implements Serializable {
     @NotNull(message = "{bug.deleted.not_blank}", groups = {Created.class})
     private Boolean deleted;
 
+    @Schema(description = "自定义排序，间隔5000", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{bug.pos.not_blank}", groups = {Created.class})
+    private Long pos;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -103,7 +107,8 @@ public class Bug implements Serializable {
         platformBugId("platform_bug_id", "platformBugId", "VARCHAR", false),
         deleteUser("delete_user", "deleteUser", "VARCHAR", false),
         deleteTime("delete_time", "deleteTime", "BIGINT", false),
-        deleted("deleted", "deleted", "BIT", false);
+        deleted("deleted", "deleted", "BIT", false),
+        pos("pos", "pos", "BIGINT", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 

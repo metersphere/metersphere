@@ -20,6 +20,7 @@
     <result column="delete_user" jdbcType="VARCHAR" property="deleteUser" />
     <result column="delete_time" jdbcType="BIGINT" property="deleteTime" />
     <result column="deleted" jdbcType="BIT" property="deleted" />
+    <result column="pos" jdbcType="BIGINT" property="pos" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -120,7 +121,7 @@
   <sql id="Base_Column_List">
     id, num, title, handle_users, handle_user, create_user, create_time, update_user, 
     update_time, project_id, template_id, platform, `status`, tags, platform_bug_id, 
-    delete_user, delete_time, deleted
+    delete_user, delete_time, deleted, pos
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.bug.domain.BugExample" resultMap="BaseResultMap">
     select
@@ -159,14 +160,14 @@
       project_id, template_id, platform, 
       `status`, tags, 
       platform_bug_id, delete_user, delete_time, 
-      deleted)
+      deleted, pos)
     values (#{id,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, 
       #{handleUsers,jdbcType=VARCHAR}, #{handleUser,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, 
       #{projectId,jdbcType=VARCHAR}, #{templateId,jdbcType=VARCHAR}, #{platform,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
       #{platformBugId,jdbcType=VARCHAR}, #{deleteUser,jdbcType=VARCHAR}, #{deleteTime,jdbcType=BIGINT}, 
-      #{deleted,jdbcType=BIT})
+      #{deleted,jdbcType=BIT}, #{pos,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.bug.domain.Bug">
     insert into bug
@@ -225,6 +226,9 @@
       <if test="deleted != null">
         deleted,
       </if>
+      <if test="pos != null">
+        pos,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -280,6 +284,9 @@
       </if>
       <if test="deleted != null">
         #{deleted,jdbcType=BIT},
+      </if>
+      <if test="pos != null">
+        #{pos,jdbcType=BIGINT},
       </if>
     </trim>
   </insert>
@@ -346,6 +353,9 @@
       <if test="record.deleted != null">
         deleted = #{record.deleted,jdbcType=BIT},
       </if>
+      <if test="record.pos != null">
+        pos = #{record.pos,jdbcType=BIGINT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -370,7 +380,8 @@
       platform_bug_id = #{record.platformBugId,jdbcType=VARCHAR},
       delete_user = #{record.deleteUser,jdbcType=VARCHAR},
       delete_time = #{record.deleteTime,jdbcType=BIGINT},
-      deleted = #{record.deleted,jdbcType=BIT}
+      deleted = #{record.deleted,jdbcType=BIT},
+      pos = #{record.pos,jdbcType=BIGINT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -429,6 +440,9 @@
       <if test="deleted != null">
         deleted = #{deleted,jdbcType=BIT},
       </if>
+      <if test="pos != null">
+        pos = #{pos,jdbcType=BIGINT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -450,14 +464,15 @@
       platform_bug_id = #{platformBugId,jdbcType=VARCHAR},
       delete_user = #{deleteUser,jdbcType=VARCHAR},
       delete_time = #{deleteTime,jdbcType=BIGINT},
-      deleted = #{deleted,jdbcType=BIT}
+      deleted = #{deleted,jdbcType=BIT},
+      pos = #{pos,jdbcType=BIGINT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into bug
     (id, num, title, handle_users, handle_user, create_user, create_time, update_user, 
       update_time, project_id, template_id, platform, `status`, tags, platform_bug_id, 
-      delete_user, delete_time, deleted)
+      delete_user, delete_time, deleted, pos)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.num,jdbcType=INTEGER}, #{item.title,jdbcType=VARCHAR}, 
@@ -466,7 +481,7 @@
         #{item.projectId,jdbcType=VARCHAR}, #{item.templateId,jdbcType=VARCHAR}, #{item.platform,jdbcType=VARCHAR}, 
         #{item.status,jdbcType=VARCHAR}, #{item.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
         #{item.platformBugId,jdbcType=VARCHAR}, #{item.deleteUser,jdbcType=VARCHAR}, #{item.deleteTime,jdbcType=BIGINT}, 
-        #{item.deleted,jdbcType=BIT})
+        #{item.deleted,jdbcType=BIT}, #{item.pos,jdbcType=BIGINT})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -532,6 +547,9 @@
         </if>
         <if test="'deleted'.toString() == column.value">
           #{item.deleted,jdbcType=BIT}
+        </if>
+        <if test="'pos'.toString() == column.value">
+          #{item.pos,jdbcType=BIGINT}
         </if>
       </foreach>
       )

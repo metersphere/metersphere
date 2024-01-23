@@ -3,21 +3,24 @@ INSERT INTO project (id, num, organization_id, name, description, create_user, u
 
 INSERT INTO project (id, num, organization_id, name, description, create_user, update_user, create_time, update_time) VALUE
     ('default-project-for-bug', null, '100001', '测试项目(缺陷)', '系统默认创建的项目(缺陷)', 'admin', 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000),
-    ('no-status-project', null, '100001', '测试项目(缺陷)', '系统默认创建的项目(缺陷)', 'admin', 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000);
+    ('no-status-project', null, '100001', '测试项目(缺陷)', '系统默认创建的项目(缺陷)', 'admin', 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000),
+    ('default-project-for-bug-no-local', null, '100001', '测试项目(缺陷)', '系统默认创建的项目(缺陷)', 'admin', 'admin', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000);
 
 INSERT INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user) VALUES
     (UUID(), 'admin', 'project_admin', 'default-project-for-bug', '100001', UNIX_TIMESTAMP() * 1000, 'admin');
 
-INSERT INTO bug (id, num, title, handle_users, handle_user, create_user, create_time, update_user, update_time, delete_user, delete_time, project_id, template_id, platform, status, tags, platform_bug_id, deleted) VALUES
-    ('default-bug-id', 100000, 'default-bug', 'oasis', 'oasis', 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'default-project-for-bug', 'bug-template-id', 'Local', 'open', '["default-tag"]', null, 0),
-    ('default-bug-id-tapd1', 100000, 'default-bug', 'oasis', 'oasis', 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'default-project-for-bug', 'default-bug-template-id', 'Tapd', 'open', '["default-tag"]', null, 0),
-    ('default-bug-id-tapd2', 100000, 'default-bug', 'oasis', 'oasis', 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'default-project-for-bug-no-local', 'default-bug-template-id', 'Tapd', 'open', '["default-tag"]', null, 0),
-    ('default-bug-id-single', 100000, 'default-bug', 'oasis', 'oasis', 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'default-project-for-bug-single', 'default-bug-template-id', 'Tapd', 'open', '["default-tag"]', null, 0),
-    ('default-bug-id-jira', 100000, 'default-bug', 'oasis', 'oasis', 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'default-project-for-bug-single', 'default-bug-template-id', 'Jira', 'open', '["default-tag"]', 'TES-TEST', 0),
-    ('default-bug-id-jira-sync', 100000, 'default-bug', 'oasis', 'oasis', 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'default-project-for-bug', 'jira', 'Jira', 'open', '["default-tag"]', 'TES-TEST', 0),
-    ('default-bug-id-jira-sync-1', 100000, 'default-bug', 'oasis', 'oasis', 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'default-project-for-bug', 'jira-test', 'Jira', 'open', '["default-tag"]', 'TES-TEST', 0);
+INSERT INTO bug (id, num, title, handle_users, handle_user, create_user, create_time, update_user, update_time, delete_user, delete_time, project_id, template_id, platform, status, tags, platform_bug_id, deleted, pos) VALUES
+    ('default-bug-id', 100000, 'default-bug', 'oasis', 'oasis', 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'default-project-for-bug', 'bug-template-id', 'Local', 'open', '["default-tag"]', null, 0, 5000),
+    ('default-bug-id-tapd1', 100000, 'default-bug', 'oasis', 'oasis', 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'default-project-for-bug', 'default-bug-template-id', 'Tapd', 'open', '["default-tag"]', null, 0, 10000),
+    ('default-bug-id-tapd2', 100000, 'default-bug', 'oasis', 'oasis', 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'default-project-for-bug-no-local', 'default-bug-template-id', 'Tapd', 'open', '["default-tag"]', null, 0, 5000),
+    ('default-bug-id-single', 100000, 'default-bug', 'oasis', 'oasis', 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'default-project-for-bug-single', 'default-bug-template-id', 'Tapd', 'open', '["default-tag"]', null, 0, 5000),
+    ('default-bug-id-jira', 100000, 'default-bug', 'oasis', 'oasis', 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'default-project-for-bug-single', 'default-bug-template-id', 'Jira', 'open', '["default-tag"]', 'TES-TEST', 0, 10000),
+    ('default-bug-id-jira-sync', 100000, '这是一段summary444', 'oasis', 'oasis', 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'default-project-for-bug', 'jira', 'Jira', 'open', '["default-tag"]', 'TES-TEST', 0, 15000),
+    ('default-bug-id-jira-sync-1', 100000, 'default-bug', 'oasis', 'oasis', 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'default-project-for-bug', 'jira-test', 'Jira', 'open', '["default-tag"]', 'TES-TEST', 0, 20000);
 
+INSERT INTO bug_content(bug_id, description) VALUE ('default-bug-id', 'oasis');
 INSERT INTO bug_custom_field (bug_id, field_id, value) VALUE ('default-bug-id', 'test_field', '["default", "default-1"]');
+INSERT INTO bug_custom_field (bug_id, field_id, value) VALUE ('default-bug-id-jira-sync', 'summary', '这是一段summary444');
 
 INSERT INTO custom_field (id, name, scene, type, remark, internal, scope_type, create_time, update_time, create_user, scope_id) VALUE
     ('test_field', '测试字段', 'BUG', 'MULTIPLE_SELECT', '', 0, 'PROJECT', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'default-project-for-bug'),

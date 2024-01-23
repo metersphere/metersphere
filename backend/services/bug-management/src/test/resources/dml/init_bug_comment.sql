@@ -9,9 +9,9 @@ INSERT INTO user(id, name, email, password, create_time, update_time, language, 
     ('oasis-user-id4', 'oasis4', 'oasis4@test.com', MD5('metersphere'), UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, NULL, NUll, '', 'LOCAL', NULL, 'admin', 'admin', false);
 
 INSERT INTO bug (id, num, title, handle_users, handle_user, create_user, create_time,
-                 update_user, update_time, delete_user, delete_time, project_id, template_id, platform, status, tags, platform_bug_id, deleted) VALUE
-    ('default-bug-id-for-comment', 100099, 'default-bug-for-comment', 'oasis', 'oasis', 'oasis-user-id', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, '100001100001', 'bug-template-id', 'Local', 'open', '["default-tag"]', null, 0),
-    ('default-bug-id-for-comment1', 100099, 'default-bug-for-comment', 'oasis', 'oasis', 'oasis-user-id', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, '100001100001', 'bug-template-id', 'Local', 'open', '["default-tag"]', null, 0);
+                 update_user, update_time, delete_user, delete_time, project_id, template_id, platform, status, tags, platform_bug_id, deleted, pos) VALUE
+    ('default-bug-id-for-comment', 100099, 'default-bug-for-comment', 'oasis', 'oasis', 'oasis-user-id', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, '100001100001', 'bug-template-id', 'Local', 'open', '["default-tag"]', null, 0, 5000),
+    ('default-bug-id-for-comment1', 100099, 'default-bug-for-comment', 'oasis', 'oasis', 'oasis-user-id', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000, '100001100001', 'bug-template-id', 'Local', 'open', '["default-tag"]', null, 0, 10000);
 
 INSERT INTO bug_comment (id, bug_id, reply_user, notifier, parent_id, content, create_user, create_time, update_user, update_time) VALUES
     ('default-bug-comment-id-1', 'default-bug-id-for-comment', null, null, null, 'This is a test comment!', 'admin', UNIX_TIMESTAMP() * 1000, 'admin', UNIX_TIMESTAMP() * 1000),

@@ -1,6 +1,6 @@
 package io.metersphere.bug.utils;
 
-import io.metersphere.bug.dto.BugExportColumn;
+import io.metersphere.bug.dto.BugExportHeaderModel;
 import io.metersphere.bug.dto.response.BugDTO;
 import io.metersphere.sdk.util.CompressUtils;
 import org.apache.commons.io.FileUtils;
@@ -12,23 +12,23 @@ import java.util.function.BiFunction;
 public class ExportUtils {
 
     private List<BugDTO> bugs;
-    private List<BugExportColumn> exportColumns;
+    private BugExportHeaderModel headerModel;
 
     public ExportUtils(
             List<BugDTO> bugs,
-            List<BugExportColumn> exportColumns) {
+            BugExportHeaderModel headerModel) {
         this.bugs = bugs;
-        this.exportColumns = exportColumns;
+        this.headerModel = headerModel;
     }
 
-    /*
-    1.生成包含excel文件目录
-    2.压缩
-    3.删除该目录
+    /**
+     *  1.生成包含excel文件目录
+     *  2.压缩
+     *  3.删除该目录
      */
-    public byte[] exportToZipFile(BiFunction<List, List, String> generateExcelFilesFunction) throws Exception {
+    public byte[] exportToZipFile(BiFunction<List, BugExportHeaderModel, String> generateExcelFilesFunction) throws Exception {
         //生成包含excel文件目录
-        String folderPath = generateExcelFilesFunction.apply(bugs, exportColumns);
+        String folderPath = generateExcelFilesFunction.apply(bugs, headerModel);
         File excelFolder = new File(folderPath);
         //压缩文件
         File zipFile = CompressUtils.zipFiles(folderPath + File.separatorChar + "bug-export.zip", List.of(excelFolder.listFiles()));

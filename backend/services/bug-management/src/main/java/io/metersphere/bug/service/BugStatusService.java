@@ -1,23 +1,30 @@
 package io.metersphere.bug.service;
 
+import io.metersphere.bug.domain.Bug;
+import io.metersphere.bug.domain.BugExample;
 import io.metersphere.bug.enums.BugPlatform;
+import io.metersphere.bug.mapper.BugMapper;
 import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.plugin.platform.spi.Platform;
 import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.sdk.constants.TemplateScene;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.service.BaseStatusFlowSettingService;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class BugStatusService {
-
+   @Resource
+   private BugMapper bugMapper;
    @Resource
    private ProjectApplicationService projectApplicationService;
    @Resource
@@ -38,7 +45,13 @@ public class BugStatusService {
             List<SelectOption> localStatusOption = getAllLocalStatusOptions(projectId);
             Platform platform = projectApplicationService.getPlatform(projectId, true);
             String projectConfig = projectApplicationService.getProjectBugThirdPartConfig(projectId);
-            List<SelectOption> platformStatusOption = platform.getStatusTransitions(projectConfig, null);
+            // 获取一条最新的Jira默认模板缺陷Key
+            List<SelectOption> platformStatusOption = new ArrayList<>();
+            try {
+                platformStatusOption = platform.getStatusTransitions(projectConfig, getJiraPlatformBugKeyLatest(projectId));
+            } catch (Exception e) {
+                LogUtils.error("获取平台状态选项有误: " + e.getMessage());
+            }
             return ListUtils.union(localStatusOption, platformStatusOption);
         }
     }
@@ -60,7 +73,13 @@ public class BugStatusService {
            // 获取配置平台, 获取第三方平台状态流
            Platform platform = projectApplicationService.getPlatform(projectId, true);
            String projectConfig = projectApplicationService.getProjectBugThirdPartConfig(projectId);
-           return platform.getStatusTransitions(projectConfig, platformBugKey);
+           List<SelectOption> platformOption = new ArrayList<>();
+           try {
+               platformOption =  platform.getStatusTransitions(projectConfig, platformBugKey);
+           } catch (Exception e) {
+               LogUtils.error("获取平台状态选项有误: " + e.getMessage());
+           }
+           return platformOption;
        }
    }
 
@@ -81,5 +100,17 @@ public class BugStatusService {
      */
    public List<SelectOption> getAllLocalStatusOptions(String projectId) {
        return baseStatusFlowSettingService.getAllStatusOption(projectId, TemplateScene.BUG.name());
+   }
+
+   public String getJiraPlatformBugKeyLatest(String projectId) {
+       BugExample example = new BugExample();
+       example.createCriteria().andTemplateIdEqualTo("jira").andProjectIdEqualTo(projectId);
+       example.setOrderByClause("create_time desc");
+       List<Bug> bugs = bugMapper.selectByExample(example);
+       if (CollectionUtils.isNotEmpty(bugs)) {
+           return bugs.get(0).getPlatformBugId();
+       } else {
+           return StringUtils.EMPTY;
+       }
    }
 }
