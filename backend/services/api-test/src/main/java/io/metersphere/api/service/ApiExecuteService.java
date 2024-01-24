@@ -196,7 +196,7 @@ public class ApiExecuteService {
      * @return
      */
     public String runScript(CustomFunctionRunRequest runRequest) {
-        String reportId = IDGenerator.nextStr();
+        String reportId = runRequest.getReportId();
         String testId = runRequest.getProjectId();
         // 生成执行脚本
         MsCommentScriptElement msCommentScriptElement = BeanUtils.copyBean(new MsCommentScriptElement(), runRequest);
