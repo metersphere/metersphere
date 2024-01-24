@@ -24,14 +24,18 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.CustomField;
+import io.metersphere.system.dto.OperationHistoryDTO;
+import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
+import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -73,7 +77,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
     public static final String DOWNLOAD_EXCEL_TEMPLATE_URL = "/functional/case/download/excel/template/";
     public static final String CHECK_EXCEL_URL = "/functional/case/pre-check/excel";
     public static final String IMPORT_EXCEL_URL = "/functional/case/import/excel";
-
+    public static final String OPERATION_HISTORY_URL = "/functional/case/operation-history";
     @Resource
     private NotificationMapper notificationMapper;
 
@@ -83,6 +87,8 @@ public class FunctionalCaseControllerTests extends BaseTest {
     private ProjectTemplateService projectTemplateService;
     @Resource
     private FunctionalCaseCustomFieldMapper functionalCaseCustomFieldMapper;
+
+    protected static String caseId;
 
     @Test
     @Order(1)
@@ -140,6 +146,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
         functionalCase = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), FunctionalCase.class);
+        caseId = functionalCase.getId();
         FunctionalCaseEditRequest request1 = new FunctionalCaseEditRequest();
         BeanUtils.copyBean(request1, request);
         request1.setId(functionalCase.getId());
@@ -630,5 +637,43 @@ public class FunctionalCaseControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(request));
         paramMap.add("file", file2);
         this.requestMultipart(IMPORT_EXCEL_URL, paramMap);
+    }
+
+    @Test
+    @Order(21)
+    public void getOperationHistoryList() throws Exception {
+        OperationHistoryRequest operationHistoryRequest = new OperationHistoryRequest();
+        operationHistoryRequest.setCurrent(1);
+        operationHistoryRequest.setPageSize(10);
+        operationHistoryRequest.setProjectId(DEFAULT_PROJECT_ID);
+        operationHistoryRequest.setSourceId(caseId);
+        operationHistoryRequest.setCreateUser("admin");
+        operationHistoryRequest.setModule(OperationLogModule.FUNCTIONAL_CASE);
+        MvcResult historyMvcResult = this.requestPostWithOkAndReturn(OPERATION_HISTORY_URL, operationHistoryRequest);
+
+        String contentAsString = historyMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        List<OperationHistoryDTO> list = JSON.parseArray(JSON.toJSONString(pageData.getList()), OperationHistoryDTO.class);
+        Assertions.assertTrue(list.size() <= operationHistoryRequest.getPageSize());
+        // 返回值中取出第一条数据, 并判断name, email, phone是否包含关键字default
+        OperationHistoryDTO operationHistoryDTO = JSON.parseArray(JSON.toJSONString(pageData.getList()), OperationHistoryDTO.class).get(0);
+        Assertions.assertTrue(StringUtils.contains(operationHistoryDTO.getSourceId(), caseId));
+        System.out.println(JSON.toJSONString(pageData.getList()));
+
+        operationHistoryRequest.setSort(Map.of("createTime", "asc"));
+        operationHistoryRequest.setSourceId(caseId + "XXXX");
+        historyMvcResult = this.requestPostWithOkAndReturn(OPERATION_HISTORY_URL, operationHistoryRequest);
+
+        contentAsString = historyMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        list = JSON.parseArray(JSON.toJSONString(pageData.getList()), OperationHistoryDTO.class);
+        Assertions.assertTrue(CollectionUtils.isEmpty(list));
+
     }
 }

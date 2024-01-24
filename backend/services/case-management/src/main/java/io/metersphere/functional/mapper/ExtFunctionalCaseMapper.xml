@@ -666,6 +666,18 @@
             </if>
     </select>
 
+    <select id="selectOptionByIds" resultType="io.metersphere.system.dto.sdk.OptionDTO">
+        select
+        functional_case.id, project_version.name as name
+        from functional_case
+        LEFT JOIN project_version ON project_version.id = functional_case.version_id
+        where functional_case.id in
+        <foreach collection="caseIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+
     <select id="getSelectIdsByAssociateParam" resultType="java.lang.String">
         select fc.id
         from functional_case fc

@@ -27,12 +27,16 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomFieldOption;
+import io.metersphere.system.dto.OperationHistoryDTO;
+import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.service.BaseCustomFieldOptionService;
 import io.metersphere.system.service.BaseCustomFieldService;
+import io.metersphere.system.service.OperationHistoryService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.ServiceUtils;
@@ -101,6 +105,9 @@ public class FunctionalCaseService {
 
     @Resource
     private BaseCaseProvider provider;
+
+    @Resource
+    private OperationHistoryService operationHistoryService;
 
     private static final String CASE_MODULE_COUNT_ALL = "all";
 
@@ -942,5 +949,25 @@ public class FunctionalCaseService {
         fieldExample.createCriteria().andCaseIdEqualTo(caseId);
         customFieldMapper.deleteByExample(fieldExample);
         handleImportCustomField(functionalCaseExcelData, caseId, customFieldMapper, customFieldsMap);
+    }
+
+    /**
+     * 功能用例变更历史
+     * @param request request
+     * @return List<OperationHistoryDTO>
+     */
+    public List<OperationHistoryDTO> getOperationHistoryList(OperationHistoryRequest request) {
+        List<OperationHistoryDTO> operationHistoryList = operationHistoryService.list(request);
+        if (CollectionUtils.isNotEmpty(operationHistoryList)) {
+            List<String> caseIds = operationHistoryList.stream()
+                    .map(OperationHistoryDTO::getSourceId).toList();
+
+            Map<String, String> caseMap = extFunctionalCaseMapper.selectOptionByIds(caseIds).stream()
+                    .collect(Collectors.toMap(OptionDTO::getId, OptionDTO::getName));
+
+            operationHistoryList.forEach(item -> item.setVersionName(caseMap.getOrDefault(item.getSourceId(), StringUtils.EMPTY)));
+        }
+
+        return operationHistoryList;
     }
 }

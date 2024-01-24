@@ -17,6 +17,8 @@ import io.metersphere.project.dto.CustomFieldOptions;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.TemplateScene;
+import io.metersphere.system.dto.OperationHistoryDTO;
+import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.annotation.Log;
@@ -234,5 +236,15 @@ public class FunctionalCaseController {
     public FunctionalCaseImportResponse importExcel(@RequestPart("request") FunctionalCaseImportRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
         String userId = SessionUtils.getUserId();
         return functionalCaseFileService.importExcel(request, userId, file);
+    }
+
+    @PostMapping("/operation-history")
+    @Operation(summary = "用例管理-功能用例-功能用例变更历史")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @CheckOwner(resourceId = "#request.getSourceId()", resourceType = "functional_case")
+    public Pager<List<OperationHistoryDTO>> operationHistoryList(@Validated @RequestBody OperationHistoryRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+               StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+        return PageUtils.setPageInfo(page, functionalCaseService.getOperationHistoryList(request));
     }
 }

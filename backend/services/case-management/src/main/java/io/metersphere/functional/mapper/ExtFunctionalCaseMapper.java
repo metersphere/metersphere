@@ -10,6 +10,7 @@ import io.metersphere.functional.request.FunctionalCasePageRequest;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -77,4 +78,6 @@ public interface ExtFunctionalCaseMapper {
      * @return 关联的用例ID集合
      */
     List<String> getSelectIdsByAssociateParam(@Param("request")AssociateOtherCaseRequest request, @Param("deleted") boolean deleted);
+
+    List<OptionDTO> selectOptionByIds(@Param("caseIds")List<String> caseIds);
 }
