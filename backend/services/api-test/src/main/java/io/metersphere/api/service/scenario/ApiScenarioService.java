@@ -172,10 +172,10 @@ public class ApiScenarioService {
         ApiScenarioMapper mapper = sqlSession.getMapper(ApiScenarioMapper.class);
 
         switch (request.getType()) {
-            case PRIORITY -> batchUpdatePriority(example, updateScenario, request.getPriority());
-            case STATUS -> batchUpdateStatus(example, updateScenario, request.getStatus());
-            case TAGS -> batchUpdateTags(example, updateScenario, request, ids, sqlSession, mapper);
-            case ENVIRONMENT -> batchUpdateEnvironment(example, updateScenario, request);
+            case PRIORITY -> batchUpdatePriority(example, updateScenario, request.getPriority(), mapper);
+            case STATUS -> batchUpdateStatus(example, updateScenario, request.getStatus(), mapper);
+            case TAGS -> batchUpdateTags(example, updateScenario, request, ids, mapper);
+            case ENVIRONMENT -> batchUpdateEnvironment(example, updateScenario, request, mapper);
             default -> throw new MSException(Translator.get("batch_edit_type_error"));
         }
         sqlSession.flushStatements();
@@ -185,7 +185,7 @@ public class ApiScenarioService {
     }
 
     private void batchUpdateEnvironment(ApiScenarioExample example, ApiScenario updateScenario,
-                                        ApiScenarioBatchEditRequest request) {
+                                        ApiScenarioBatchEditRequest request, ApiScenarioMapper mapper) {
         if (BooleanUtils.isFalse(request.isGrouped())) {
             if (StringUtils.isBlank(request.getEnvId())) {
                 throw new MSException(Translator.get("environment_id_is_null"));
@@ -207,13 +207,13 @@ public class ApiScenarioService {
             updateScenario.setGrouped(true);
             updateScenario.setEnvironmentId(request.getGroupId());
         }
-        apiScenarioMapper.updateByExampleSelective(updateScenario, example);
+        mapper.updateByExampleSelective(updateScenario, example);
 
     }
 
     private void batchUpdateTags(ApiScenarioExample example, ApiScenario updateScenario,
                                  ApiScenarioBatchEditRequest request, List<String> ids,
-                                 SqlSession sqlSession, ApiScenarioMapper mapper) {
+                                 ApiScenarioMapper mapper) {
         if (CollectionUtils.isEmpty(request.getTags())) {
             throw new MSException(Translator.get("tags_is_null"));
         }
@@ -234,31 +234,27 @@ public class ApiScenarioService {
                     v.setUpdateUser(updateScenario.getUpdateUser());
                     mapper.updateByPrimaryKeySelective(v);
                 });
-                sqlSession.flushStatements();
-                if (sqlSessionFactory != null) {
-                    SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-                }
             }
         } else {
             updateScenario.setTags(request.getTags());
-            apiScenarioMapper.updateByExampleSelective(updateScenario, example);
+            mapper.updateByExampleSelective(updateScenario, example);
         }
     }
 
-    private void batchUpdateStatus(ApiScenarioExample example, ApiScenario updateScenario, String status) {
+    private void batchUpdateStatus(ApiScenarioExample example, ApiScenario updateScenario, String status, ApiScenarioMapper mapper) {
         if (StringUtils.isBlank(status)) {
             throw new MSException(Translator.get("status_is_null"));
         }
         updateScenario.setStatus(status);
-        apiScenarioMapper.updateByExampleSelective(updateScenario, example);
+        mapper.updateByExampleSelective(updateScenario, example);
     }
 
-    private void batchUpdatePriority(ApiScenarioExample example, ApiScenario updateScenario, String priority) {
+    private void batchUpdatePriority(ApiScenarioExample example, ApiScenario updateScenario, String priority, ApiScenarioMapper mapper) {
         if (StringUtils.isBlank(priority)) {
             throw new MSException(Translator.get("priority_is_null"));
         }
         updateScenario.setPriority(priority);
-        apiScenarioMapper.updateByExampleSelective(updateScenario, example);
+        mapper.updateByExampleSelective(updateScenario, example);
     }
 
     public List<String> doSelectIds(ApiScenarioBatchEditRequest request, boolean deleted) {

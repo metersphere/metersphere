@@ -419,10 +419,10 @@ public class ApiTestCaseService {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiTestCaseMapper mapper = sqlSession.getMapper(ApiTestCaseMapper.class);
         switch (request.getType()) {
-            case PRIORITY -> batchUpdatePriority(example, updateCase, request.getPriority());
-            case STATUS -> batchUpdateStatus(example, updateCase, request.getStatus());
-            case TAGS -> batchUpdateTags(example, updateCase, request, ids, sqlSession, mapper);
-            case ENVIRONMENT -> batchUpdateEnvironment(example, updateCase, request.getEnvId());
+            case PRIORITY -> batchUpdatePriority(example, updateCase, request.getPriority(), mapper);
+            case STATUS -> batchUpdateStatus(example, updateCase, request.getStatus(), mapper);
+            case TAGS -> batchUpdateTags(example, updateCase, request, ids, mapper);
+            case ENVIRONMENT -> batchUpdateEnvironment(example, updateCase, request.getEnvId(), mapper);
             default -> throw new MSException(Translator.get("batch_edit_type_error"));
         }
         sqlSession.flushStatements();
@@ -431,7 +431,7 @@ public class ApiTestCaseService {
         apiTestCaseLogService.batchEditLog(caseInfoByIds, userId, projectId);
     }
 
-    private void batchUpdateEnvironment(ApiTestCaseExample example, ApiTestCase updateCase, String envId) {
+    private void batchUpdateEnvironment(ApiTestCaseExample example, ApiTestCase updateCase, String envId, ApiTestCaseMapper mapper) {
         if (StringUtils.isBlank(envId)) {
             throw new MSException(Translator.get("environment_id_is_null"));
         }
@@ -440,12 +440,12 @@ public class ApiTestCaseService {
             throw new MSException(Translator.get("environment_is_not_exist"));
         }
         updateCase.setEnvironmentId(envId);
-        apiTestCaseMapper.updateByExampleSelective(updateCase, example);
+        mapper.updateByExampleSelective(updateCase, example);
     }
 
     private void batchUpdateTags(ApiTestCaseExample example, ApiTestCase updateCase,
                                  ApiCaseBatchEditRequest request, List<String> ids,
-                                 SqlSession sqlSession, ApiTestCaseMapper mapper) {
+                                 ApiTestCaseMapper mapper) {
         if (CollectionUtils.isEmpty(request.getTags())) {
             throw new MSException(Translator.get("tags_is_null"));
         }
@@ -466,31 +466,27 @@ public class ApiTestCaseService {
                     v.setUpdateUser(updateCase.getUpdateUser());
                     mapper.updateByPrimaryKeySelective(v);
                 });
-                sqlSession.flushStatements();
-                if (sqlSessionFactory != null) {
-                    SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-                }
             }
         } else {
             updateCase.setTags(request.getTags());
-            apiTestCaseMapper.updateByExampleSelective(updateCase, example);
+            mapper.updateByExampleSelective(updateCase, example);
         }
     }
 
-    private void batchUpdateStatus(ApiTestCaseExample example, ApiTestCase updateCase, String status) {
+    private void batchUpdateStatus(ApiTestCaseExample example, ApiTestCase updateCase, String status, ApiTestCaseMapper mapper) {
         if (StringUtils.isBlank(status)) {
             throw new MSException(Translator.get("status_is_null"));
         }
         updateCase.setStatus(status);
-        apiTestCaseMapper.updateByExampleSelective(updateCase, example);
+        mapper.updateByExampleSelective(updateCase, example);
     }
 
-    private void batchUpdatePriority(ApiTestCaseExample example, ApiTestCase updateCase, String priority) {
+    private void batchUpdatePriority(ApiTestCaseExample example, ApiTestCase updateCase, String priority, ApiTestCaseMapper mapper) {
         if (StringUtils.isBlank(priority)) {
             throw new MSException(Translator.get("priority_is_null"));
         }
         updateCase.setPriority(priority);
-        apiTestCaseMapper.updateByExampleSelective(updateCase, example);
+        mapper.updateByExampleSelective(updateCase, example);
     }
 
     public void editPos(PosRequest request) {
