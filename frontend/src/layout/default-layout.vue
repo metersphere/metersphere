@@ -3,55 +3,57 @@
     <div v-if="navbar" class="layout-navbar z-[100]">
       <NavBar :is-preview="innerProps.isPreview" :logo="innerLogo" :name="innerName" />
     </div>
-    <a-layout>
+    <slot name="body">
       <a-layout>
-        <a-layout-sider
-          v-if="renderMenu && !innerProps.isPreview"
-          v-show="!hideMenu"
-          class="layout-sider z-[99]"
-          breakpoint="xl"
-          :collapsed="collapsed"
-          :collapsible="true"
-          :width="menuWidth"
-          :collapsed-width="collapsedWidth"
-          :style="{ paddingTop: navbar ? navbarHeight : '' }"
-          :hide-trigger="true"
-          @collapse="setCollapsed"
-        >
-          <div class="menu-wrapper">
+        <a-layout>
+          <a-layout-sider
+            v-if="renderMenu && !innerProps.isPreview"
+            v-show="!hideMenu"
+            class="layout-sider z-[99]"
+            breakpoint="xl"
+            :collapsed="collapsed"
+            :collapsible="true"
+            :width="menuWidth"
+            :collapsed-width="collapsedWidth"
+            :style="{ paddingTop: navbar ? navbarHeight : '' }"
+            :hide-trigger="true"
+            @collapse="setCollapsed"
+          >
+            <div class="menu-wrapper">
+              <MsMenu />
+            </div>
+          </a-layout-sider>
+          <a-drawer
+            v-if="hideMenu"
+            :visible="drawerVisible"
+            placement="left"
+            :footer="false"
+            mask-closable
+            :closable="false"
+            @cancel="drawerCancel"
+          >
             <MsMenu />
-          </div>
-        </a-layout-sider>
-        <a-drawer
-          v-if="hideMenu"
-          :visible="drawerVisible"
-          placement="left"
-          :footer="false"
-          mask-closable
-          :closable="false"
-          @cancel="drawerCancel"
-        >
-          <MsMenu />
-        </a-drawer>
-        <a-layout class="layout-content" :style="paddingStyle">
-          <a-spin :loading="appStore.loading" :tip="appStore.loadingTip">
-            <a-scrollbar
-              :style="{
-                overflow: 'auto',
-                height: 'calc(100vh - 64px)',
-              }"
-            >
-              <MsBreadCrumb />
-              <a-layout-content>
-                <PageLayout v-if="!props.isPreview" />
-                <slot></slot>
-              </a-layout-content>
-              <Footer v-if="footer" />
-            </a-scrollbar>
-          </a-spin>
+          </a-drawer>
+          <a-layout class="layout-content" :style="paddingStyle">
+            <a-spin :loading="appStore.loading" :tip="appStore.loadingTip">
+              <a-scrollbar
+                :style="{
+                  overflow: 'auto',
+                  height: 'calc(100vh - 64px)',
+                }"
+              >
+                <MsBreadCrumb />
+                <a-layout-content>
+                  <PageLayout v-if="!props.isPreview" />
+                  <slot></slot>
+                </a-layout-content>
+                <Footer v-if="footer" />
+              </a-scrollbar>
+            </a-spin>
+          </a-layout>
         </a-layout>
       </a-layout>
-    </a-layout>
+    </slot>
   </a-layout>
 </template>
 
@@ -73,6 +75,7 @@
     isPreview?: boolean;
     logo?: string;
     name?: string;
+    singleLogo?: boolean;
   }
   const props = defineProps<Props>();
 

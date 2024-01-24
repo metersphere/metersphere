@@ -26,11 +26,18 @@
     </template>
     <template #operation="{ record }">
       <div class="flex flex-row flex-nowrap">
-        <MsButton class="!mr-0" @click="showAuthDrawer(record)">{{ t('project.userGroup.viewAuth') }}</MsButton>
-        <a-divider v-if="!record.internal" direction="vertical" />
-        <MsButton v-if="!record.internal" class="!mr-0" status="danger" @click="handleDelete(record)">{{
-          t('common.delete')
-        }}</MsButton>
+        <span v-permission="['SYSTEM_ORGANIZATIN_PROJECT:READ+UPDATE']" class="flex flex-row">
+          <MsButton class="!mr-0" @click="showAuthDrawer(record)">{{ t('project.userGroup.viewAuth') }}</MsButton>
+          <a-divider v-if="!record.internal" direction="vertical" />
+        </span>
+        <MsButton
+          v-if="!record.internal"
+          v-permission="['SYSTEM_ORGANIZATIN_PROJECT:READ+UPDATE']"
+          class="!mr-0"
+          status="danger"
+          @click="handleDelete(record)"
+          >{{ t('common.delete') }}</MsButton
+        >
       </div>
     </template>
   </MsBaseTable>

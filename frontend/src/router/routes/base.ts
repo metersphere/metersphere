@@ -1,4 +1,4 @@
-import { REDIRECT_ROUTE_NAME } from '@/router/constants';
+import { NO_PROJECT_ROUTE_NAME, NO_RESOURCE_ROUTE_NAME, REDIRECT_ROUTE_NAME } from '@/router/constants';
 
 import type { RouteRecordRaw } from 'vue-router';
 
@@ -34,6 +34,24 @@ export const INVITE_ROUTE: RouteRecordRaw = {
   path: '/invite',
   name: 'invite',
   component: () => import('@/views/base/invite/index.vue'),
+  meta: {
+    hideInMenu: true,
+  },
+};
+
+export const NO_RESOURCE: RouteRecordRaw = {
+  path: '/no-resource',
+  name: NO_RESOURCE_ROUTE_NAME,
+  component: () => import('@/views/base/no-resource/index.vue'),
+  meta: {
+    hideInMenu: true,
+  },
+};
+
+export const NO_PROJECT: RouteRecordRaw = {
+  path: '/no-project',
+  name: NO_PROJECT_ROUTE_NAME,
+  component: () => import('@/views/base/no-project/index.vue'),
   meta: {
     hideInMenu: true,
   },

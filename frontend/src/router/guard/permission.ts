@@ -1,6 +1,6 @@
 import usePermission from '@/hooks/usePermission';
 
-import { NOT_FOUND, WHITE_LIST } from '../constants';
+import { NO_RESOURCE_ROUTE_NAME, WHITE_LIST } from '../constants';
 import NProgress from 'nprogress'; // progress bar
 import type { Router } from 'vue-router';
 
@@ -13,7 +13,7 @@ export default function setupPermissionGuard(router: Router) {
 
     if (exist || permissionsAllow) {
       next();
-    } else next(NOT_FOUND);
+    } else next(NO_RESOURCE_ROUTE_NAME);
     NProgress.done();
   });
 }

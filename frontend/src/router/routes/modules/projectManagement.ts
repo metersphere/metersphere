@@ -44,7 +44,7 @@ const ProjectManagement: AppRouteRecordRaw = {
           component: () => import('@/views/project-management/projectAndPermission/menuManagement/menuManagement.vue'),
           meta: {
             locale: 'project.permission.menuManagement',
-            roles: ['*'],
+            roles: ['PROJECT_APPLICATION_WORKSTATION:READ'],
           },
         },
         // 项目版本
@@ -74,7 +74,7 @@ const ProjectManagement: AppRouteRecordRaw = {
           component: () => import('@/views/project-management/projectAndPermission/userGroup/projectUserGroup.vue'),
           meta: {
             locale: 'project.permission.userGroup',
-            roles: ['*'],
+            roles: ['PROJECT_GROUP:READ'],
           },
         },
       ],
