@@ -366,6 +366,24 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         Assertions.assertTrue(CollectionUtils.isEmpty(optionDTOS));
     }
 
+    @Test
+    @Order(12)
+    public void getModuleCount() throws Exception {
+        ReviewFunctionalCasePageRequest request = new ReviewFunctionalCasePageRequest();
+        request.setReviewId("wx_review_id_1");
+        request.setCurrent(1);
+        request.setPageSize(10);
+        request.setViewFlag(false);
+        request.setProjectId("wx_test_project");
+        MvcResult moduleCountMvcResult = this.requestPostWithOkAndReturn(REVIEW_FUNCTIONAL_CASE_MODULE_COUNT, request);
+        Map<String, Integer> moduleCount = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(moduleCountMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Map.class);
+
+        Assertions.assertTrue(moduleCount.containsKey("TEST_MODULE_ID_COUNT_three"));
+
+    }
+
     private List<OptionDTO> getOptionDTOS(String reviewId, String caseId) throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(REVIEW_FUNCTIONAL_CASE_REVIEWER_STATUS+"/"+reviewId+"/"+caseId).header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)

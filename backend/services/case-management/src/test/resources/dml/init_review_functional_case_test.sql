@@ -11,7 +11,9 @@ INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, r
 VALUES ('gyq_case_id_4', 106, 'TEST_MODULE_ID', 'wx_test_project', '100001', '测试多版本', 'UN_REVIEWED', '["测试标签_1"]', 'STEP', 0, 'v1.0.0', 'TEST_REF_ID', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL);
 
 INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
-VALUES ('gyq_case_id_5', 102, 'TEST_MODULE_ID', 'wx_test_project', '100001', '测试多版本', 'UN_REVIEWED', '["测试标签_1"]', 'STEP', 0, 'v1.0.0', 'gyq_case_id_4', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL);
+VALUES ('gyq_case_id_5', 102, 'TEST_MODULE_ID', 'wx_test_project', '100001', '测试多版本', 'UN_REVIEWED', '["测试标签_1"]', 'STEP', 0, 'v1.0.0', 'gyq_case_id_4', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL),
+       ('gyq_case_id_7', 102, 'TEST_MODULE_ID_COUNT_three', 'wx_test_project', '100001', '测试模块', 'UN_REVIEWED', '["测试标签_1"]', 'STEP', 0, 'v1.0.0', 'gyq_case_id_7', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL),
+       ('gyq_case_id_8', 102, 'TEST_MODULE_ID_COUNT_three', 'wx_test_project', '100001', '测试模块2', 'UN_REVIEWED', '["测试标签_1"]', 'STEP', 0, 'v1.0.0', 'gyq_case_id_8', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL);
 
 INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
 VALUES ('wx_case_id_3', 104, 'TEST_MODULE_ID', 'wx_test_project', '100001', '测试多版本', 'UN_REVIEWED', '["测试标签_1"]', 'STEP', 0, 'v1.0.0', 'TEST_REF_ID', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL);
@@ -47,6 +49,8 @@ VALUES ('wx_test_1', 'wx_review_id_1', 'wx_case_id_1', 'PASS', 1698058347559,'ad
        ('gyq_test_3', 'wx_review_id_1', 'gyq_review_case_id_3', 'PASS', 1698058347559,'admin',1698058347559, 1500),
        ('gyq_test_4', 'wx_review_id_1', 'gyq_case_id_4', 'PASS', 1698058347559,'admin',1698058347559, 2000),
        ('gyq_test_5', 'wx_review_id_1', 'gyq_case_id_5', 'PASS', 1698058347559,'admin',1698058347559, 2000),
+       ('gyq_test_7', 'wx_review_id_1', 'gyq_case_id_7', 'PASS', 1698058347559,'admin',1698058347559, 2000),
+       ('gyq_test_8', 'wx_review_id_1', 'gyq_case_id_8', 'PASS', 1698058347559,'admin',1698058347559, 2000),
        ('wx_test_2', 'wx_review_id_2', 'wx_case_id_2', 'PASS', 1698058347559,'admin',1698058347559, 3000),
        ('wx_test_3', 'wx_review_id_2', 'wx_case_id_1', 'PASS', 1698058347559,'admin',1698058347559, 3000),
        ('wx_test_4', 'wx_review_id_2', 'wx_case_id_2', 'PASS', 1698058347559,'admin',1698058347559, 3000),
@@ -76,7 +80,11 @@ VALUES ('wx_case_id_1', 'wx_review_id_1', 'admin'),
 
 INSERT INTO case_review_module(id, project_id, name, parent_id, pos, create_time, update_time, create_user, update_user) VALUES ('wx_module_1', 'wx_test_project', '测试所属模块', 'NONE', 0, 1669174143999, 1669174143999, 'admin', 'admin');
 
-INSERT INTO functional_case_module(id, project_id, name, parent_id, pos, create_time, update_time, create_user, update_user) VALUES ('TEST_MODULE_ID', 'wx_test_project', '测试所属模块', 'NONE', 0, 1669174143999, 1669174143999, 'admin', 'admin');
+INSERT INTO functional_case_module(id, project_id, name, parent_id, pos, create_time, update_time, create_user, update_user)
+VALUES ('TEST_MODULE_ID', 'wx_test_project', '测试所属模块', 'NONE', 1568, 1669174143999, 1669174143999, 'admin', 'admin'),
+    ('TEST_MODULE_ID_COUNT_ID', 'wx_test_project', '测试所属模块子集', 'TEST_MODULE_ID', 64, 1669174143999, 1669174143999, 'admin', 'admin'),
+       ('TEST_MODULE_ID_COUNT_three', 'wx_test_project', '测试所属模块子集2', 'TEST_MODULE_ID_COUNT_ID', 64, 1669174143999, 1669174143999, 'admin', 'admin');
+
 
 
 INSERT INTO user(id, name, email, password, create_time, update_time, language, last_organization_id, phone, source,

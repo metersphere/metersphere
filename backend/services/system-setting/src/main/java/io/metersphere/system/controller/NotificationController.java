@@ -46,6 +46,7 @@ public class NotificationController {
     }
 
     @PostMapping(value = "/count")
+    @Operation(summary = "消息中心-获取消息中心消息具体类型具体状态的数量")
     public Integer countNotification(@RequestBody Notification notification) {
         return notificationService.countNotification(notification, SessionUtils.getUserId());
     }

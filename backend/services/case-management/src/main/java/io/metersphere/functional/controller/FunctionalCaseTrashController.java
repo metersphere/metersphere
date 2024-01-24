@@ -47,7 +47,7 @@ public class FunctionalCaseTrashController {
     }
 
     @PostMapping("/module/count")
-    @Operation(summary = "用例管理-功能用例-回收站-表格分页查询文件")
+    @Operation(summary = "用例管理-功能用例-回收站-模块树统计用例数量")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Map<String, Long> moduleCount(@Validated @RequestBody FunctionalCasePageRequest request) {
