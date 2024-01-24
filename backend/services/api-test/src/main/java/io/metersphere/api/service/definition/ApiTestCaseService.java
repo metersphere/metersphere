@@ -418,7 +418,6 @@ public class ApiTestCaseService {
         updateCase.setUpdateTime(System.currentTimeMillis());
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiTestCaseMapper mapper = sqlSession.getMapper(ApiTestCaseMapper.class);
-
         switch (request.getType()) {
             case PRIORITY -> batchUpdatePriority(example, updateCase, request.getPriority());
             case STATUS -> batchUpdateStatus(example, updateCase, request.getStatus());
@@ -426,6 +425,8 @@ public class ApiTestCaseService {
             case ENVIRONMENT -> batchUpdateEnvironment(example, updateCase, request.getEnvId());
             default -> throw new MSException(Translator.get("batch_edit_type_error"));
         }
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         List<ApiTestCase> caseInfoByIds = extApiTestCaseMapper.getCaseInfoByIds(ids, false);
         apiTestCaseLogService.batchEditLog(caseInfoByIds, userId, projectId);
     }
@@ -576,5 +577,15 @@ public class ApiTestCaseService {
         }
 
         return operationHistoryList;
+    }
+
+    public void updatePriority(String id, String priority, String userId) {
+        checkResourceExist(id);
+        ApiTestCase update = new ApiTestCase();
+        update.setId(id);
+        update.setPriority(priority);
+        update.setUpdateUser(userId);
+        update.setUpdateTime(System.currentTimeMillis());
+        apiTestCaseMapper.updateByPrimaryKeySelective(update);
     }
 }

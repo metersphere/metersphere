@@ -88,6 +88,7 @@ public class ApiScenarioController {
     @Operation(summary = "接口测试-接口场景管理-更新场景")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ApiScenarioLogService.class)
+    @CheckOwner(resourceId = "#request.getId()", resourceType = "api_scenario")
     public ApiScenario update(@Validated @RequestBody ApiScenarioUpdateRequest request) {
         return apiScenarioService.update(request, SessionUtils.getUserId());
     }
@@ -96,6 +97,7 @@ public class ApiScenarioController {
     @Operation(summary = "接口测试-接口场景管理-删除场景")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = ApiScenarioLogService.class)
+    @CheckOwner(resourceId = "#id", resourceType = "api_scenario")
     public void delete(@PathVariable String id) {
         apiScenarioService.delete(id);
     }
@@ -104,6 +106,7 @@ public class ApiScenarioController {
     @Operation(summary = "接口测试-接口场景管理-删除场景到回收站")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = ApiScenarioLogService.class)
+    @CheckOwner(resourceId = "#id", resourceType = "api_scenario")
     public void deleteToGc(@PathVariable String id) {
         apiScenarioService.deleteToGc(id);
     }
@@ -114,4 +117,23 @@ public class ApiScenarioController {
     public String debug(@RequestBody ApiScenarioDebugRequest request) {
         return apiScenarioService.debug(request);
     }
+
+    @GetMapping(value = "/update-status/{id}/{status}")
+    @Operation(summary = "接口测试-接口场景管理-更新状态")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#id)", msClass = ApiScenarioLogService.class)
+    @CheckOwner(resourceId = "#id", resourceType = "api_scenario")
+    public void updateStatus(@PathVariable String id, @PathVariable String status) {
+        apiScenarioService.updateStatus(id, status, SessionUtils.getUserId());
+    }
+
+    @GetMapping(value = "/update-priority/{id}/{priority}")
+    @Operation(summary = "接口测试-接口场景管理-更新等级")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#id)", msClass = ApiScenarioLogService.class)
+    @CheckOwner(resourceId = "#id", resourceType = "api_scenario")
+    public void updatePriority(@PathVariable String id, @PathVariable String priority) {
+        apiScenarioService.updatePriority(id, priority, SessionUtils.getUserId());
+    }
+
 }

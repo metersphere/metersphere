@@ -22,6 +22,12 @@ public class ApiScenarioDTO extends ApiScenario {
     private String modulePath;
     @Schema(description = "环境名称")
     private String environmentName;
+    @Schema(description = "是否有定时任务")
+    private Boolean schedule;
+    @Schema(description = "定时任务状态")
+    private Boolean enable;
+    @Schema(description = "下一次执行时间")
+    private Long scheduleExecuteTime;
 
 
 }

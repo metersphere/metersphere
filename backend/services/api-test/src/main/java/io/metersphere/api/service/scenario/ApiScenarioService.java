@@ -178,6 +178,8 @@ public class ApiScenarioService {
             case ENVIRONMENT -> batchUpdateEnvironment(example, updateScenario, request);
             default -> throw new MSException(Translator.get("batch_edit_type_error"));
         }
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         List<ApiScenario> scenarioInfoByIds = extApiScenarioMapper.getInfoByIds(ids, false);
         apiScenarioLogService.batchEditLog(scenarioInfoByIds, userId, projectId);
     }
@@ -506,7 +508,7 @@ public class ApiScenarioService {
      * @return
      */
     private List<ApiScenarioStep> getApiScenarioSteps(ApiScenarioStepRequest parent,
-                                                            List<ApiScenarioStepRequest> steps) {
+                                                      List<ApiScenarioStepRequest> steps) {
 
         if (CollectionUtils.isEmpty(steps)) {
             return Collections.emptyList();
@@ -737,6 +739,7 @@ public class ApiScenarioService {
 
     /**
      * 设置部分引用的步骤的启用状态
+     *
      * @param step
      * @param stepDetailMap
      */
@@ -751,6 +754,7 @@ public class ApiScenarioService {
 
     /**
      * 设置部分引用的步骤的启用状态
+     *
      * @param steps
      * @param enableStepIds
      * @param stepDetailMap
@@ -867,5 +871,25 @@ public class ApiScenarioService {
             }
         }
         return scenarioConfig;
+    }
+
+    public void updateStatus(String id, String status, String userId) {
+        checkResourceExist(id);
+        ApiScenario update = new ApiScenario();
+        update.setId(id);
+        update.setStatus(status);
+        update.setUpdateUser(userId);
+        update.setUpdateTime(System.currentTimeMillis());
+        apiScenarioMapper.updateByPrimaryKeySelective(update);
+    }
+
+    public void updatePriority(String id, String priority, String userId) {
+        checkResourceExist(id);
+        ApiScenario update = new ApiScenario();
+        update.setId(id);
+        update.setPriority(priority);
+        update.setUpdateUser(userId);
+        update.setUpdateTime(System.currentTimeMillis());
+        apiScenarioMapper.updateByPrimaryKeySelective(update);
     }
 }

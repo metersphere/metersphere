@@ -63,6 +63,8 @@ public class ApiScenarioControllerTests extends BaseTest {
     protected static final String UPLOAD_TEMP_FILE = "upload/temp/file";
     protected static final String DELETE_TO_GC = "delete-to-gc/{0}";
     protected static final String DEBUG = "debug";
+    private static final String UPDATE_STATUS = "update-status";
+    private static final String UPDATE_PRIORITY = "update-priority";
 
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
     @Resource
@@ -607,6 +609,34 @@ public class ApiScenarioControllerTests extends BaseTest {
         // @@校验日志
         checkLog("api-scenario-id1", OperationLogType.UPDATE);
         assertErrorCode(this.requestGet(FOLLOW + "111"), NOT_FOUND);
+    }
+
+    @Test
+    @Order(12)
+    public void updateStatus() throws Exception {
+        List<ApiScenario> apiScenarioList = apiScenarioMapper.selectByExample(new ApiScenarioExample());
+        String scenarioId = apiScenarioList.getFirst().getId();
+        // @@请求成功
+        this.requestGetWithOk(UPDATE_STATUS + "/" + scenarioId + "/Underway");
+        ApiScenario apiScenario = apiScenarioMapper.selectByPrimaryKey(scenarioId);
+        Assertions.assertEquals(apiScenario.getStatus(), "Underway");
+        // @@校验日志
+        checkLog(scenarioId, OperationLogType.UPDATE);
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_UPDATE, UPDATE_STATUS + "/" + scenarioId + "/Underway");
+    }
+
+    @Test
+    @Order(12)
+    public void updatePriority() throws Exception {
+        // @@请求成功
+        this.requestGetWithOk(UPDATE_PRIORITY + "/" + "api-scenario-id1" + "/P1");
+        ApiScenario apiScenario = apiScenarioMapper.selectByPrimaryKey("api-scenario-id1");
+        Assertions.assertEquals(apiScenario.getPriority(), "P1");
+        // @@校验日志
+        checkLog("api-scenario-id1", OperationLogType.UPDATE);
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_UPDATE, UPDATE_PRIORITY + "/" + "api-scenario-id1" + "/P1");
     }
 
     @Test
