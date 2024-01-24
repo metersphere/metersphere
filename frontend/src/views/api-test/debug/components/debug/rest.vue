@@ -82,6 +82,7 @@
       title: 'apiTestDebug.paramLengthRange',
       dataIndex: 'lengthRange',
       slotName: 'lengthRange',
+      align: 'center',
       width: 200,
     },
     {

@@ -329,14 +329,20 @@ Date: Wed, 13 Dec 2023 08:53:25 GMT`,
     activeDebug.value.unSaved = true;
   }
 
-  function addDebugTab() {
+  function addDebugTab(defaultProps?: Partial<TabItem>) {
     const id = `debug-${Date.now()}`;
     debugTabs.value.push({
       ...cloneDeep(defaultDebugParams),
       module: props.module,
       id,
+      ...defaultProps,
     });
     activeRequestTab.value = id;
+    nextTick(() => {
+      if (defaultProps) {
+        handleActiveDebugChange();
+      }
+    });
   }
 
   function closeDebugTab(tab: TabItem) {

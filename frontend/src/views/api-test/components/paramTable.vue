@@ -65,7 +65,7 @@
       <a-select
         v-model:model-value="record.type"
         :options="columnConfig.typeOptions || []"
-        class="param-input"
+        class="param-input w-full"
         @change="(val) => handleTypeChange(val, record)"
       />
     </template>
@@ -281,6 +281,8 @@
 </template>
 
 <script async setup lang="ts">
+  import { isEqual } from 'lodash-es';
+
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -369,8 +371,7 @@
     }
   );
   const emit = defineEmits<{
-    (e: 'update:params', value: any[]): void;
-    (e: 'change', data: any[], isInit?: boolean): void;
+    (e: 'change', data: any[], isInit?: boolean): void; // 都触发这个事件以通知父组件参数数组被更改
     (e: 'moreActionSelect', event: ActionsItem, record: Record<string, any>): void;
   }>();
 
@@ -398,24 +399,6 @@
   });
 
   watch(
-    () => props.params,
-    (val) => {
-      if (val.length > 0) {
-        propsRes.value.data = val;
-      } else {
-        propsRes.value.data = props.params.concat({
-          id: new Date().getTime(), // 默认给时间戳 id，若 props.defaultParamItem 有 id，则覆盖
-          ...props.defaultParamItem,
-        });
-        emit('change', propsRes.value.data, true);
-      }
-    },
-    {
-      immediate: true,
-    }
-  );
-
-  watch(
     () => props.heightUsed,
     (val) => {
       propsRes.value.heightUsed = val;
@@ -440,12 +423,13 @@
     key?: string,
     isForce?: boolean
   ) {
-    const lastData = propsRes.value.data[propsRes.value.data.length - 1];
+    const lastData = { ...propsRes.value.data[propsRes.value.data.length - 1] };
+    delete lastData.id;
     // 当不传入输入值或对应列的 key 时，遍历整个数据对象判断是否有变化；当传入输入值或对应列的 key 时，判断对应列的值是否有变化
     const isNotChange =
       val === undefined || key === undefined
-        ? Object.keys(props.defaultParamItem).every((e) => lastData[e] === props.defaultParamItem[e])
-        : JSON.stringify(lastData[key]) === JSON.stringify(props.defaultParamItem[key]);
+        ? isEqual(lastData, props.defaultParamItem)
+        : isEqual(lastData[key], props.defaultParamItem[key]);
     if (isForce || (val !== '' && !isNotChange)) {
       propsRes.value.data.push({
         id: new Date().getTime(),
@@ -454,6 +438,32 @@
       emit('change', propsRes.value.data);
     }
   }
+
+  watch(
+    () => props.params,
+    (val) => {
+      if (val.length > 0) {
+        const lastData = { ...val[val.length - 1] };
+        delete lastData.id; // 删除 id 属性，避免影响判断是否有变化
+        const isNotChange = isEqual(lastData, props.defaultParamItem);
+        propsRes.value.data = val;
+        if (!isNotChange) {
+          addTableLine();
+        }
+      } else {
+        propsRes.value.data = [
+          {
+            id: new Date().getTime(), // 默认给时间戳 id，若 props.defaultParamItem 有 id，则覆盖
+            ...props.defaultParamItem,
+          },
+        ] as any[];
+        emit('change', propsRes.value.data, true);
+      }
+    },
+    {
+      immediate: true,
+    }
+  );
 
   const showQuickInputParam = ref(false);
   const activeQuickInputRecord = ref<any>({});

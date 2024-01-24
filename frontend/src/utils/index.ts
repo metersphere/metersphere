@@ -370,3 +370,69 @@ export function decodeStringToCharset(str: string, charset = 'UTF-8') {
   const decoder = new TextDecoder(charset);
   return decoder.decode(encoder.encode(str));
 }
+
+interface ParsedCurlOptions {
+  url?: string;
+  queryParameters?: { name: string; value: string }[];
+  headers?: { name: string; value: string }[];
+}
+/**
+ * 解析 curl 脚本
+ * @param curlScript curl 脚本
+ */
+export function parseCurlScript(curlScript: string): ParsedCurlOptions {
+  const options: ParsedCurlOptions = {};
+
+  // 提取 URL
+  const [_, url] = curlScript.match(/curl\s+'([^']+)'/) || [];
+  if (url) {
+    options.url = url;
+  }
+
+  // 提取 query 参数
+  const queryMatch = curlScript.match(/\?(.*?)'/);
+  if (queryMatch) {
+    const queryParams = queryMatch[1].split('&').map((param) => {
+      const [name, value] = param.split('=');
+      return { name, value };
+    });
+    options.queryParameters = queryParams;
+  }
+
+  // 提取 header
+  const headersMatch = curlScript.match(/-H\s+'([^']+)'/g);
+  if (headersMatch) {
+    const headers = headersMatch.map((header) => {
+      const [, value] = header.match(/-H\s+'([^']+)'/) || [];
+      const [name, rawValue] = value.split(':');
+      const trimmedName = name.trim();
+      const trimmedValue = rawValue ? rawValue.trim() : '';
+      return { name: trimmedName, value: trimmedValue };
+    });
+
+    // 过滤常用的 HTTP header
+    const commonHeaders = [
+      'accept',
+      'accept-language',
+      'cache-control',
+      'content-type',
+      'origin',
+      'pragma',
+      'referer',
+      'sec-ch-ua',
+      'sec-ch-ua-mobile',
+      'sec-ch-ua-platform',
+      'sec-fetch-dest',
+      'sec-fetch-mode',
+      'sec-fetch-site',
+      'user-agent',
+      'Connection',
+      'Host',
+      'Accept-Encoding',
+      'X-Requested-With',
+    ];
+    options.headers = headers.filter((header) => !commonHeaders.includes(header.name.toLowerCase()));
+  }
+
+  return options;
+}

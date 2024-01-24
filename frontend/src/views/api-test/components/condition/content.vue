@@ -485,7 +485,7 @@ org.apache.http.client.method . . . '' at line number 2
           value: 'temp',
         },
       ],
-      width: 110,
+      width: 130,
     },
     {
       title: 'apiTestDebug.mode',

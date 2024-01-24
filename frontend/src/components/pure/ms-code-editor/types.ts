@@ -102,7 +102,7 @@ export const editorProps = {
   // 是否显示字符集切换
   showCharsetChange: {
     type: Boolean as PropType<boolean>,
-    default: true,
+    default: false,
   },
   // 是否显示主题切换
   showThemeChange: {
