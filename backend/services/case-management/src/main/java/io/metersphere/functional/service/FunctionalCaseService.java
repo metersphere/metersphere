@@ -15,22 +15,30 @@ import io.metersphere.functional.result.CaseManagementResultCode;
 import io.metersphere.plan.domain.TestPlanFunctionalCaseExample;
 import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
 import io.metersphere.project.domain.FileAssociation;
+import io.metersphere.project.domain.FileAssociationExample;
 import io.metersphere.project.domain.ProjectVersion;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
+import io.metersphere.project.mapper.FileAssociationMapper;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.provider.BaseCaseProvider;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.FunctionalCaseExecuteResult;
+import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomFieldOption;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
+import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.log.dto.LogDTO;
+import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.service.BaseCustomFieldOptionService;
 import io.metersphere.system.service.BaseCustomFieldService;
 import io.metersphere.system.uid.IDGenerator;
@@ -122,9 +130,17 @@ public class FunctionalCaseService {
     private TestPlanFunctionalCaseMapper testPlanFunctionalCaseMapper;
     @Resource
     private BaseCustomFieldOptionService baseCustomFieldOptionService;
+    @Resource
+    private OperationLogService operationLogService;
+    @Resource
+    private FunctionalCaseCustomFieldMapper functionalCaseCustomFieldMapper;
+    @Resource
+    private FunctionalCaseAttachmentMapper functionalCaseAttachmentMapper;
+    @Resource
+    private FileAssociationMapper fileAssociationMapper;
 
 
-    public FunctionalCase addFunctionalCase(FunctionalCaseAddRequest request, List<MultipartFile> files, String userId) {
+    public FunctionalCase addFunctionalCase(FunctionalCaseAddRequest request, List<MultipartFile> files, String userId, String organizationId) {
         String caseId = IDGenerator.nextStr();
         //添加功能用例
         FunctionalCase functionalCase = addCase(caseId, request, userId);
@@ -141,6 +157,10 @@ public class FunctionalCaseService {
         }
 
         addCaseReviewCase(request.getReviewId(), caseId, userId);
+
+        //记录日志
+        FunctionalCaseHistoryLogDTO historyLogDTO = getImportLogModule(functionalCase);
+        saveImportDataLog(functionalCase, new FunctionalCaseHistoryLogDTO(), historyLogDTO, userId, organizationId);
 
         return functionalCase;
     }
@@ -785,7 +805,7 @@ public class FunctionalCaseService {
      * @param userId          用户id
      * @param customFieldsMap 当前默认模板的自定义字段
      */
-    public void saveImportData(List<FunctionalCaseExcelData> list, FunctionalCaseImportRequest request, List<BaseTreeNode> moduleTree, String userId, Map<String, TemplateCustomFieldDTO> customFieldsMap, Map<String, String> pathMap) {
+    public void saveImportData(List<FunctionalCaseExcelData> list, FunctionalCaseImportRequest request, List<BaseTreeNode> moduleTree, String userId, Map<String, TemplateCustomFieldDTO> customFieldsMap, Map<String, String> pathMap, String organizationId) {
         //默认模板
         TemplateDTO defaultTemplateDTO = projectTemplateService.getDefaultTemplateDTO(request.getProjectId(), TemplateScene.FUNCTIONAL.name());
         //模块路径
@@ -799,14 +819,14 @@ public class FunctionalCaseService {
         FunctionalCaseCustomFieldMapper customFieldMapper = sqlSession.getMapper(FunctionalCaseCustomFieldMapper.class);
         Long nextOrder = getNextOrder(request.getProjectId());
         for (int i = 0; i < list.size(); i++) {
-            parseInsertDataToModule(list.get(i), request, userId, caseModulePathMap, defaultTemplateDTO, nextOrder, caseMapper, caseBlobMapper, customFieldMapper, customFieldsMap);
+            parseInsertDataToModule(list.get(i), request, userId, caseModulePathMap, defaultTemplateDTO, nextOrder, caseMapper, caseBlobMapper, customFieldMapper, customFieldsMap, organizationId);
         }
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 
     private void parseInsertDataToModule(FunctionalCaseExcelData functionalCaseExcelData, FunctionalCaseImportRequest request, String userId, Map<String, String> caseModulePathMap, TemplateDTO defaultTemplateDTO, Long nextOrder,
-                                         FunctionalCaseMapper caseMapper, FunctionalCaseBlobMapper caseBlobMapper, FunctionalCaseCustomFieldMapper customFieldMapper, Map<String, TemplateCustomFieldDTO> customFieldsMap) {
+                                         FunctionalCaseMapper caseMapper, FunctionalCaseBlobMapper caseBlobMapper, FunctionalCaseCustomFieldMapper customFieldMapper, Map<String, TemplateCustomFieldDTO> customFieldsMap, String organizationId) {
         //构建用例
         FunctionalCase functionalCase = new FunctionalCase();
         String caseId = IDGenerator.nextStr();
@@ -841,6 +861,14 @@ public class FunctionalCaseService {
 
         //自定义字段
         handleImportCustomField(functionalCaseExcelData, caseId, customFieldMapper, customFieldsMap);
+
+        //新增用例记录日志
+        FunctionalCaseCustomFieldExample fieldExample = new FunctionalCaseCustomFieldExample();
+        fieldExample.createCriteria().andCaseIdEqualTo(functionalCase.getId());
+        List<FunctionalCaseCustomField> customFields = functionalCaseCustomFieldMapper.selectByExample(fieldExample);
+        FunctionalCaseHistoryLogDTO historyLogDTO = new FunctionalCaseHistoryLogDTO(functionalCase, caseBlob, customFields, new ArrayList<>(), new ArrayList<>());
+
+        saveImportDataLog(functionalCase, new FunctionalCaseHistoryLogDTO(), historyLogDTO, userId, organizationId);
     }
 
 
@@ -889,7 +917,7 @@ public class FunctionalCaseService {
      * @param userId          用户id
      * @param customFieldsMap 当前默认模板的自定义字段
      */
-    public void updateImportData(List<FunctionalCaseExcelData> updateList, FunctionalCaseImportRequest request, List<BaseTreeNode> moduleTree, String userId, Map<String, TemplateCustomFieldDTO> customFieldsMap, Map<String, String> pathMap) {
+    public void updateImportData(List<FunctionalCaseExcelData> updateList, FunctionalCaseImportRequest request, List<BaseTreeNode> moduleTree, String userId, Map<String, TemplateCustomFieldDTO> customFieldsMap, Map<String, String> pathMap, String organizationId) {
         //默认模板
         TemplateDTO defaultTemplateDTO = projectTemplateService.getDefaultTemplateDTO(request.getProjectId(), TemplateScene.FUNCTIONAL.name());
         //模块路径
@@ -901,16 +929,19 @@ public class FunctionalCaseService {
         FunctionalCaseBlobMapper caseBlobMapper = sqlSession.getMapper(FunctionalCaseBlobMapper.class);
         FunctionalCaseCustomFieldMapper customFieldMapper = sqlSession.getMapper(FunctionalCaseCustomFieldMapper.class);
         for (int i = 0; i < updateList.size(); i++) {
-            parseUpdateDataToModule(updateList.get(i), request, userId, caseModulePathMap, defaultTemplateDTO, caseMapper, caseBlobMapper, customFieldMapper, customFieldsMap);
+            parseUpdateDataToModule(updateList.get(i), request, userId, caseModulePathMap, defaultTemplateDTO, caseMapper, caseBlobMapper, customFieldMapper, customFieldsMap, organizationId);
         }
 
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 
-    private void parseUpdateDataToModule(FunctionalCaseExcelData functionalCaseExcelData, FunctionalCaseImportRequest request, String userId, Map<String, String> caseModulePathMap, TemplateDTO defaultTemplateDTO, FunctionalCaseMapper caseMapper, FunctionalCaseBlobMapper caseBlobMapper, FunctionalCaseCustomFieldMapper customFieldMapper, Map<String, TemplateCustomFieldDTO> customFieldsMap) {
+    private void parseUpdateDataToModule(FunctionalCaseExcelData functionalCaseExcelData, FunctionalCaseImportRequest request, String userId, Map<String, String> caseModulePathMap, TemplateDTO defaultTemplateDTO, FunctionalCaseMapper caseMapper, FunctionalCaseBlobMapper caseBlobMapper, FunctionalCaseCustomFieldMapper customFieldMapper, Map<String, TemplateCustomFieldDTO> customFieldsMap, String organizationId) {
         //用例表
         FunctionalCase functionalCase = caseMapper.selectByPrimaryKey(functionalCaseExcelData.getNum());
+        //记录原值
+        FunctionalCaseHistoryLogDTO originalValue = getImportLogModule(functionalCase);
+
         functionalCase.setName(functionalCaseExcelData.getName());
         functionalCase.setModuleId(caseModulePathMap.get(functionalCaseExcelData.getModule()));
         functionalCase.setTags(handleImportTags(functionalCaseExcelData.getTags()));
@@ -935,6 +966,10 @@ public class FunctionalCaseService {
         //自定义字段
         handleUpdateCustomField(functionalCaseExcelData, functionalCase.getId(), customFieldMapper, customFieldsMap);
 
+        //记录新值
+        FunctionalCaseHistoryLogDTO modifiedLogDTO = getImportLogModule(functionalCase);
+        //记录日志
+        saveImportDataLog(functionalCase, originalValue, modifiedLogDTO, userId, organizationId);
     }
 
     private void handleUpdateCustomField(FunctionalCaseExcelData functionalCaseExcelData, String caseId, FunctionalCaseCustomFieldMapper customFieldMapper, Map<String, TemplateCustomFieldDTO> customFieldsMap) {
@@ -942,5 +977,57 @@ public class FunctionalCaseService {
         fieldExample.createCriteria().andCaseIdEqualTo(caseId);
         customFieldMapper.deleteByExample(fieldExample);
         handleImportCustomField(functionalCaseExcelData, caseId, customFieldMapper, customFieldsMap);
+    }
+
+
+    /**
+     * 保存日志
+     *
+     * @param functionalCase 用例
+     * @param originalValue  原值
+     * @param modifiedLogDTO 新值
+     */
+    private void saveImportDataLog(FunctionalCase functionalCase, FunctionalCaseHistoryLogDTO originalValue, FunctionalCaseHistoryLogDTO modifiedLogDTO, String userId, String organizationId) {
+        LogDTO dto = new LogDTO(
+                functionalCase.getProjectId(),
+                organizationId,
+                functionalCase.getId(),
+                userId,
+                OperationLogType.IMPORT.name(),
+                OperationLogModule.FUNCTIONAL_CASE,
+                functionalCase.getName());
+        dto.setHistory(true);
+        dto.setPath("/functional/case/import/excel");
+        dto.setMethod(HttpMethodConstants.POST.name());
+        dto.setModifiedValue(JSON.toJSONBytes(modifiedLogDTO));
+        dto.setOriginalValue(JSON.toJSONBytes(originalValue));
+        operationLogService.add(dto);
+    }
+
+    /**
+     * 日志原值
+     *
+     * @param functionalCase
+     * @return
+     */
+    private FunctionalCaseHistoryLogDTO getImportLogModule(FunctionalCase functionalCase) {
+        FunctionalCaseBlob functionalCaseBlob = functionalCaseBlobMapper.selectByPrimaryKey(functionalCase.getId());
+        //自定义字段
+        FunctionalCaseCustomFieldExample fieldExample = new FunctionalCaseCustomFieldExample();
+        fieldExample.createCriteria().andCaseIdEqualTo(functionalCase.getId());
+        List<FunctionalCaseCustomField> customFields = functionalCaseCustomFieldMapper.selectByExample(fieldExample);
+
+        //附件  本地 + 文件库
+        FunctionalCaseAttachmentExample attachmentExample = new FunctionalCaseAttachmentExample();
+        attachmentExample.createCriteria().andCaseIdEqualTo(functionalCase.getId());
+        List<FunctionalCaseAttachment> caseAttachments = functionalCaseAttachmentMapper.selectByExample(attachmentExample);
+
+        FileAssociationExample example = new FileAssociationExample();
+        example.createCriteria().andSourceIdEqualTo(functionalCase.getId());
+        List<FileAssociation> fileAssociationList = fileAssociationMapper.selectByExample(example);
+
+
+        FunctionalCaseHistoryLogDTO historyLogDTO = new FunctionalCaseHistoryLogDTO(functionalCase, functionalCaseBlob, customFields, caseAttachments, fileAssociationList);
+        return historyLogDTO;
     }
 }
