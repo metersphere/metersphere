@@ -10,6 +10,7 @@ import io.metersphere.functional.service.CaseReviewFunctionalCaseService;
 import io.metersphere.functional.service.CaseReviewLogService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOwner;
@@ -17,6 +18,7 @@ import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -111,5 +113,16 @@ public class CaseReviewFunctionalCaseController {
     public void batchEditReviewUser(@Validated @RequestBody BatchEditReviewerRequest request) {
         caseReviewFunctionalCaseService.batchEditReviewUser(request, SessionUtils.getUserId());
     }
+
+    @GetMapping("/reviewer/status/{reviewId}/{caseId}")
+    @Operation(summary = "用例管理-用例评审-评审列表-评审详情-评审结果的气泡数据")
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
+    public List<OptionDTO> getUserStatus(@Schema(description =  "评审id", requiredMode = Schema.RequiredMode.REQUIRED)
+                                       @PathVariable("reviewId") String reviewId, @Schema(description =  "用例id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @PathVariable("caseId") String caseId) {
+        return caseReviewFunctionalCaseService.getUserStatus(reviewId, caseId);
+    }
+
 
 }

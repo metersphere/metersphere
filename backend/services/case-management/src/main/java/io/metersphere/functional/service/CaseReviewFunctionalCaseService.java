@@ -6,6 +6,7 @@ import io.metersphere.functional.constants.CaseFileSourceType;
 import io.metersphere.functional.constants.CaseReviewPassRule;
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.domain.*;
+import io.metersphere.functional.dto.CaseReviewHistoryDTO;
 import io.metersphere.functional.dto.ReviewFunctionalCaseDTO;
 import io.metersphere.functional.dto.ReviewsDTO;
 import io.metersphere.functional.mapper.*;
@@ -22,6 +23,7 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
@@ -80,6 +82,8 @@ public class CaseReviewFunctionalCaseService {
     private FunctionalCaseAttachmentService functionalCaseAttachmentService;
     @Resource
     private FunctionalCaseModuleService functionalCaseModuleService;
+    @Resource
+    private ExtCaseReviewHistoryMapper extCaseReviewHistoryMapper;
 
 
 
@@ -575,4 +579,16 @@ public class CaseReviewFunctionalCaseService {
         return functionalCaseModuleService.buildTreeAndCountResource(fileModuleList, moduleCountDTOList, true, Translator.get("default.module"));
     }
 
+    public List<OptionDTO> getUserStatus(String reviewId, String caseId) {
+        List<CaseReviewHistoryDTO> list = extCaseReviewHistoryMapper.list(caseId, reviewId);
+        Map<String, List<CaseReviewHistoryDTO>> collect = list.stream().sorted(Comparator.comparingLong(CaseReviewHistoryDTO::getCreateTime).reversed()).collect(Collectors.groupingBy(CaseReviewHistoryDTO::getCreateUser, Collectors.toList()));
+        List<OptionDTO>optionDTOS = new ArrayList<>();
+        collect.forEach((k,v)->{
+            OptionDTO optionDTO = new OptionDTO();
+            optionDTO.setId(v.get(0).getUserName());
+            optionDTO.setName(v.get(0).getStatus());
+            optionDTOS.add(optionDTO);
+        });
+        return optionDTOS;
+    }
 }

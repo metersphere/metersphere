@@ -6,7 +6,6 @@ import io.metersphere.functional.domain.CaseReviewFunctionalCase;
 import io.metersphere.functional.domain.CaseReviewFunctionalCaseExample;
 import io.metersphere.functional.dto.ReviewFunctionalCaseDTO;
 import io.metersphere.functional.mapper.CaseReviewFunctionalCaseMapper;
-import io.metersphere.functional.mapper.CaseReviewFunctionalCaseUserMapper;
 import io.metersphere.functional.request.*;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.SessionConstants;
@@ -15,8 +14,10 @@ import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.BaseCondition;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -55,11 +56,12 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
 
     public static final String REVIEW_FUNCTIONAL_CASE_MODULE_COUNT= "/case/review/detail/module/count";
 
+    public static final String REVIEW_FUNCTIONAL_CASE_REVIEWER_STATUS= "/case/review/detail/reviewer/status/";
+
+
     @Resource
     private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
 
-    @Resource
-    private CaseReviewFunctionalCaseUserMapper caseReviewFunctionalCaseUserMapper;
 
     @Test
     @Order(1)
@@ -145,7 +147,7 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         //检查有没有默认节点
         boolean hasNode = false;
         for (BaseTreeNode baseTreeNode : treeNodes) {
-            if (org.testcontainers.shaded.org.apache.commons.lang3.StringUtils.equals(baseTreeNode.getId(), ModuleConstants.DEFAULT_NODE_ID)) {
+            if (StringUtils.equals(baseTreeNode.getId(), ModuleConstants.DEFAULT_NODE_ID)) {
                 hasNode = true;
             }
             Assertions.assertNotNull(baseTreeNode.getParentId());
@@ -235,13 +237,6 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
     @Test
     @Order(8)
     public void testBatchReview() throws Exception {
-        /*List<CaseReviewFunctionalCase> caseReviewList = getCaseReviewFunctionalCase("wx_review_id_1");
-        List<CaseReviewFunctionalCase> list = caseReviewList.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getCreateUser(), "admin")).toList();
-        CaseReviewFunctionalCaseUser caseReviewFunctionalCaseUser = new CaseReviewFunctionalCaseUser();
-        caseReviewFunctionalCaseUser.setReviewId("wx_review_id_1");
-        caseReviewFunctionalCaseUser.setCaseId(list.get(0).getCaseId());
-        caseReviewFunctionalCaseUser.setUserId("admin");
-        caseReviewFunctionalCaseUserMapper.insertSelective(caseReviewFunctionalCaseUser);*/
 
         BatchReviewFunctionalCaseRequest request = new BatchReviewFunctionalCaseRequest();
         request.setReviewId("wx_review_id_1");
@@ -361,6 +356,28 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         request.setSelectIds(List.of("wx_test_10"));
         this.requestPostWithOkAndReturn(BATCH_EDIT_REVIEWERS, request);
     }
+
+    @Test
+    @Order(11)
+    public void getUserStatus() throws Exception {
+        List<OptionDTO> optionDTOS = getOptionDTOS("wx_review_id_1","gyq_case_id_5");
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(optionDTOS));
+        optionDTOS = getOptionDTOS("wx_review_id_1_NONE","gyq_case_id_5");
+        Assertions.assertTrue(CollectionUtils.isEmpty(optionDTOS));
+    }
+
+    private List<OptionDTO> getOptionDTOS(String reviewId, String caseId) throws Exception {
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(REVIEW_FUNCTIONAL_CASE_REVIEWER_STATUS+"/"+reviewId+"/"+caseId).header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        String returnData = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        List<OptionDTO> optionDTOS = JSON.parseArray(JSON.toJSONString(resultHolder.getData()), OptionDTO.class);
+        return optionDTOS;
+    }
+
 
     private List<BaseTreeNode> getCaseReviewModuleTreeNode(String projectId, String reviewId) throws Exception {
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(URL_MODULE_TREE+"/"+projectId+"/"+reviewId).header(SessionConstants.HEADER_TOKEN, sessionId)
