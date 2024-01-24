@@ -119,7 +119,7 @@
         try {
           loading.value = true;
           store.currentEnvDetailInfo.mock = true;
-          const res = await updateOrAddEnv(store.currentEnvDetailInfo);
+          const res = await updateOrAddEnv({ fileList: [], request: store.currentEnvDetailInfo });
           store.currentEnvDetailInfo = res;
           Message.success(t('common.saveSuccess'));
         } catch (error) {

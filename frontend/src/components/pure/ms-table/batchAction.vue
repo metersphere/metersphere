@@ -4,7 +4,7 @@
     <template v-for="(element, idx) in baseAction" :key="element.label">
       <a-divider v-if="element.isDivider" class="divider mx-0 my-[6px]" />
       <a-button
-        v-if="!element.isDivider && !element.children"
+        v-if="!element.isDivider && !element.children && hasAnyPermission(element.permission as string[])"
         class="ml-[12px]"
         :class="{
           'arco-btn-outline--danger': element.danger,
@@ -15,7 +15,11 @@
         >{{ t(element.label as string) }}</a-button
       >
       <!-- baseAction多菜单选择 -->
-      <a-dropdown v-if="!element.isDivider && element.children" position="tr" @select="handleSelect">
+      <a-dropdown
+        v-if="!element.isDivider && element.children && hasAnyPermission(element.permission as string[])"
+        position="tr"
+        @select="handleSelect"
+      >
         <a-button
           class="ml-[12px]"
           :class="{
@@ -43,7 +47,11 @@
         <template #content>
           <template v-for="element in moreAction" :key="element.label">
             <a-divider v-if="element.isDivider" margin="4px" />
-            <a-doption v-else :value="element" :class="{ delete: element.danger }">
+            <a-doption
+              v-else-if="hasAnyPermission(element.permission as string[])"
+              :value="element"
+              :class="{ delete: element.danger }"
+            >
               {{ t(element.label as string) }}
             </a-doption>
           </template>
@@ -59,6 +67,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
   import { getNodeWidth } from '@/utils/dom';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { BatchActionConfig, BatchActionParams } from './type';
   import ResizeObserver from 'resize-observer-polyfill';

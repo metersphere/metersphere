@@ -28,7 +28,10 @@
           </template>
           <template #cell="{ record, rowIndex }">
             <div class="flex flex-row items-center justify-between">
-              <a-checkbox-group v-model="record.perChecked" @change="(v) => handleCellAuthChange(v, rowIndex)">
+              <a-checkbox-group
+                :model-value="record.perChecked"
+                @change="(v, e) => handleCellAuthChange(v, rowIndex, record, e)"
+              >
                 <a-checkbox
                   v-for="item in record.permissions"
                   :key="item.id"
@@ -339,9 +342,32 @@
     handleAllChange();
     if (!canSave.value) canSave.value = true;
   };
+  // 当选中某个权限值时判断当前选中的列中有没有read权限
+  const setAutoRead = (record: TableData, currentValue: string) => {
+    if (!record.perChecked.includes(currentValue)) {
+      // 如果当前没有选中则执行自动添加查询权限逻辑
+      // 添加权限值
+      record.perChecked.push(currentValue);
+      const preStr = currentValue.split(':')[0];
+      const postStr = currentValue.split(':')[1];
+      const existRead = record.perChecked.some((item: string) => item.split(':')[1] === 'READ');
+      if (!existRead && postStr !== 'READ') {
+        record.perChecked.push(`${preStr}:READ`);
+      }
+    } else {
+      // 删除权限值
+      record.perChecked.splice(record.perChecked.indexOf(currentValue), 1);
+    }
+  };
 
   // 表格第三列的复选框change事件
-  const handleCellAuthChange = (values: (string | number | boolean)[], rowIndex: number) => {
+  const handleCellAuthChange = (
+    values: (string | number | boolean)[],
+    rowIndex: number,
+    record: TableData,
+    e: Event
+  ) => {
+    setAutoRead(record, (e.target as HTMLInputElement).value);
     if (!tableData.value) return;
     const tmpArr = tableData.value;
     const length = tmpArr[rowIndex].permissions?.length || 0;

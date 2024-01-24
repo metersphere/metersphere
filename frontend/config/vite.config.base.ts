@@ -76,6 +76,11 @@ export default defineConfig({
   },
   define: {
     'process.env': {},
+    // 定义特性标志
+    '__VUE_OPTIONS_API__': true,
+    '__VUE_PROD_DEVTOOLS__': false,
+    // 设置hydration不匹配详细信息的标志
+    '__VUE_PROD_HYDRATION_MISMATCH_DETAILS__': true,
   },
   css: {
     preprocessorOptions: {
