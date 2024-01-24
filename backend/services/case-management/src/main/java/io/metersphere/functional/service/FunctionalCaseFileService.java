@@ -231,7 +231,7 @@ public class FunctionalCaseFileService {
      * @param userId
      * @param file
      */
-    public FunctionalCaseImportResponse importExcel(FunctionalCaseImportRequest request, String userId, MultipartFile file) {
+    public FunctionalCaseImportResponse importExcel(FunctionalCaseImportRequest request, String userId, MultipartFile file, String organizationId) {
         if (file == null) {
             throw new MSException(Translator.get("file_cannot_be_null"));
         }
@@ -249,7 +249,7 @@ public class FunctionalCaseFileService {
             // 预处理，查询合并单元格信息
             EasyExcel.read(file.getInputStream(), null, new FunctionalCasePretreatmentListener(mergeInfoSet))
                     .extraRead(CellExtraTypeEnum.MERGE).sheet().doRead();
-            FunctionalCaseImportEventListener eventListener = new FunctionalCaseImportEventListener(request, clazz, customFields, mergeInfoSet, userId);
+            FunctionalCaseImportEventListener eventListener = new FunctionalCaseImportEventListener(request, clazz, customFields, mergeInfoSet, userId, organizationId);
             EasyExcelFactory.read(file.getInputStream(), eventListener).sheet().doRead();
             response.setErrorMessages(eventListener.getErrList());
             response.setSuccessCount(eventListener.getSuccessCount());

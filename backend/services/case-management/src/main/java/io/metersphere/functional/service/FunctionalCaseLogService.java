@@ -1,6 +1,5 @@
 package io.metersphere.functional.service;
 
-import io.metersphere.api.mapper.ApiTestCaseMapper;
 import io.metersphere.bug.domain.Bug;
 import io.metersphere.bug.domain.BugRelationCase;
 import io.metersphere.bug.mapper.BugMapper;
@@ -55,32 +54,6 @@ public class FunctionalCaseLogService {
     private BugRelationCaseMapper bugRelationCaseMapper;
     @Resource
     private BugMapper bugMapper;
-
-
-    //TODO 日志(需要修改)
-
-    /**
-     * 新增用例 日志
-     *
-     * @param requests
-     * @param files
-     * @return
-     */
-    public LogDTO addFunctionalCaseLog(FunctionalCaseAddRequest requests, List<MultipartFile> files) {
-        LogDTO dto = new LogDTO(
-                requests.getProjectId(),
-                null,
-                null,
-                null,
-                OperationLogType.ADD.name(),
-                OperationLogModule.FUNCTIONAL_CASE,
-                requests.getName());
-        dto.setHistory(true);
-        dto.setPath("/functional/case/add");
-        dto.setMethod(HttpMethodConstants.POST.name());
-        dto.setModifiedValue(JSON.toJSONBytes(requests));
-        return dto;
-    }
 
 
     /**
@@ -392,9 +365,9 @@ public class FunctionalCaseLogService {
                     null,
                     OperationLogType.DISASSOCIATE.name(),
                     OperationLogModule.FUNCTIONAL_CASE,
-                    bug.getTitle()+"缺陷");
+                    bug.getTitle() + "缺陷");
 
-            dto.setPath("/functional/case/test/disassociate/bug/"+id);
+            dto.setPath("/functional/case/test/disassociate/bug/" + id);
             dto.setMethod(HttpMethodConstants.GET.name());
             dto.setOriginalValue(JSON.toJSONBytes(bugRelationCase));
             return dto;

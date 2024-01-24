@@ -78,11 +78,12 @@ public class FunctionalCaseImportEventListener extends AnalysisEventListener<Map
     private HashMap<String, AbstractCustomFieldValidator> customFieldValidatorMap;
     private FunctionalCaseService functionalCaseService;
     private String userId;
+    private String organizationId;
     private int successCount = 0;
     private Map<String, String> pathMap = new HashMap<>();
 
 
-    public FunctionalCaseImportEventListener(FunctionalCaseImportRequest request, Class clazz, List<TemplateCustomFieldDTO> customFields, Set<ExcelMergeInfo> mergeInfoSet, String userId) {
+    public FunctionalCaseImportEventListener(FunctionalCaseImportRequest request, Class clazz, List<TemplateCustomFieldDTO> customFields, Set<ExcelMergeInfo> mergeInfoSet, String userId, String organizationId) {
         this.mergeInfoSet = mergeInfoSet;
         this.request = request;
         excelDataClass = clazz;
@@ -92,6 +93,7 @@ public class FunctionalCaseImportEventListener extends AnalysisEventListener<Map
         functionalCaseService = CommonBeanFactory.getBean(FunctionalCaseService.class);
         customFieldValidatorMap = CustomFieldValidatorFactory.getValidatorMap();
         this.userId = userId;
+        this.organizationId = organizationId;
 
     }
 
@@ -199,11 +201,11 @@ public class FunctionalCaseImportEventListener extends AnalysisEventListener<Map
      */
     private void saveData() {
         if (CollectionUtils.isNotEmpty(list)) {
-            functionalCaseService.saveImportData(list, request, moduleTree, userId, customFieldsMap, pathMap);
+            functionalCaseService.saveImportData(list, request, moduleTree, userId, customFieldsMap, pathMap, organizationId);
         }
 
         if (CollectionUtils.isNotEmpty(updateList)) {
-            functionalCaseService.updateImportData(updateList, request, moduleTree, userId, customFieldsMap, pathMap);
+            functionalCaseService.updateImportData(updateList, request, moduleTree, userId, customFieldsMap, pathMap, organizationId);
         }
     }
 

@@ -72,12 +72,12 @@ public class FunctionalCaseController {
     @PostMapping("/add")
     @Operation(summary = "用例管理-功能用例-新增用例")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_ADD)
-    @Log(type = OperationLogType.ADD, expression = "#msClass.addFunctionalCaseLog(#request, #files)", msClass = FunctionalCaseLogService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.getMainFunctionalCaseDTO(#request.name, #request.caseEditType, #request.projectId, #request.customFields)", targetClass = FunctionalCaseNoticeService.class)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public FunctionalCase addFunctionalCase(@Validated @RequestPart("request") FunctionalCaseAddRequest request, @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         String userId = SessionUtils.getUserId();
-        return functionalCaseService.addFunctionalCase(request, files, userId);
+        String organizationId = SessionUtils.getCurrentOrganizationId();
+        return functionalCaseService.addFunctionalCase(request, files, userId, organizationId);
     }
 
 
@@ -233,6 +233,7 @@ public class FunctionalCaseController {
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
     public FunctionalCaseImportResponse importExcel(@RequestPart("request") FunctionalCaseImportRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
         String userId = SessionUtils.getUserId();
-        return functionalCaseFileService.importExcel(request, userId, file);
+        String organizationId = SessionUtils.getCurrentOrganizationId();
+        return functionalCaseFileService.importExcel(request, userId, file, organizationId);
     }
 }
