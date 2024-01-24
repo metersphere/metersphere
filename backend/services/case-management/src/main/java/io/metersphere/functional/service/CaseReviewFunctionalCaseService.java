@@ -575,8 +575,9 @@ public class CaseReviewFunctionalCaseService {
 
     public List<BaseTreeNode> getTreeOnlyIdsAndResourceCount(String projectId, String reviewId, List<ModuleCountDTO> moduleCountDTOList) {
         //节点内容只有Id和parentId
-        List<BaseTreeNode> fileModuleList = extFunctionalCaseModuleMapper.selectIdAndParentIdByProjectIdAndReviewId(projectId, reviewId);
-        return functionalCaseModuleService.buildTreeAndCountResource(fileModuleList, moduleCountDTOList, true, Translator.get("default.module"));
+        List<String> moduleIds = extFunctionalCaseModuleMapper.selectIdByProjectIdAndReviewId(projectId, reviewId);
+        List<BaseTreeNode> nodeByNodeIds = functionalCaseModuleService.getNodeByNodeIds(moduleIds);
+        return functionalCaseModuleService.buildTreeAndCountResource(nodeByNodeIds, moduleCountDTOList, true, Translator.get("default.module"));
     }
 
     public List<OptionDTO> getUserStatus(String reviewId, String caseId) {

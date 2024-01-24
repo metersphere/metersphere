@@ -31,5 +31,5 @@ public interface ExtFunctionalCaseModuleMapper {
 
     List<BaseTreeNode> selectApiScenarioModuleByRequest(@Param("request") AssociateCaseModuleRequest request);
 
-    List<BaseTreeNode> selectIdAndParentIdByProjectIdAndReviewId(@Param("projectId")String projectId, @Param("reviewId")String reviewId);
+    List<String> selectIdByProjectIdAndReviewId(@Param("projectId")String projectId, @Param("reviewId")String reviewId);
 }

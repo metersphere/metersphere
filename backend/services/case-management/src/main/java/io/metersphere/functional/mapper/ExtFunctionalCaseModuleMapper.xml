@@ -94,8 +94,8 @@
         ORDER BY pos
     </select>
 
-    <select id="selectIdAndParentIdByProjectIdAndReviewId" resultType="io.metersphere.system.dto.sdk.BaseTreeNode">
-        SELECT fcm.id, fcm.parent_id AS parentId
+    <select id="selectIdByProjectIdAndReviewId" resultType="java.lang.String">
+        SELECT fcm.id
         FROM functional_case_module fcm
         WHERE fcm.project_id = #{projectId}
         AND fcm.id IN
