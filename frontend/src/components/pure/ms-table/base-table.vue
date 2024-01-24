@@ -87,7 +87,7 @@
             </div>
           </template>
           <template #cell="{ column, record, rowIndex }">
-            <div :class="{ 'flex flex-row items-center': !item.isTag && !item.align }">
+            <div :class="{ 'flex w-full flex-row items-center': !item.isTag && !item.align }">
               <template v-if="item.dataIndex === SpecialColumnEnum.ENABLE">
                 <slot name="enable" v-bind="{ record }">
                   <div v-if="record.enable" class="flex flex-row flex-nowrap items-center gap-[2px]">

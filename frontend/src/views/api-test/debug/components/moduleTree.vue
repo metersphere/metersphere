@@ -120,7 +120,7 @@
     modulesCount?: Record<string, number>; // 模块数量统计对象
     isExpandAll?: boolean; // 是否展开所有节点
   }>();
-  const emit = defineEmits(['init', 'change', 'newApi']);
+  const emit = defineEmits(['init', 'change', 'newApi', 'import']);
 
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -132,6 +132,7 @@
         emit('newApi');
         break;
       case 'import':
+        emit('import');
         break;
 
       default:

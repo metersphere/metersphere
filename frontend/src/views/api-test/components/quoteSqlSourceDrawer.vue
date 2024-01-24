@@ -72,7 +72,7 @@
     {
       title: 'apiTestDebug.maxConnection',
       dataIndex: 'maxConnection',
-      width: 110,
+      width: 140,
     },
     {
       title: 'apiTestDebug.timeout',
