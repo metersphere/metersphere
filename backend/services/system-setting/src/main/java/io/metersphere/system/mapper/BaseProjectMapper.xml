@@ -21,4 +21,33 @@
         FROM project
         WHERE organization_id = #{orgId}
     </select>
+
+
+    <select id="getProjectOptionsByOrgId" resultType="io.metersphere.system.dto.sdk.OptionDTO">
+        select id, name
+        from project
+        <where>
+            <if test="orgId != null and orgId != ''">
+                and organization_id = #{orgId}
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="getProjectOptionsById" resultType="io.metersphere.system.dto.sdk.OptionDTO">
+        select id, name
+        from project
+        <where>
+            <if test="id != null and id != ''">
+                and id = #{id}
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+    <select id="getProjectOptions" resultType="io.metersphere.system.dto.sdk.OptionDTO">
+        select id, name
+        from project
+        order by create_time desc
+    </select>
 </mapper>

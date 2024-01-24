@@ -122,4 +122,83 @@
         </if>
     </sql>
 
+    <select id="taskCenterlist" resultType="io.metersphere.system.dto.taskcenter.TaskCenterDTO">
+        SELECT
+        api_report.id,
+        api_report.project_id,
+        api_report.integrated,
+        api_report.STATUS,
+        api_report.start_time AS operationTime,
+        api_report.create_user AS operationName,
+        api_report.trigger_mode,
+
+        CASE
+        WHEN api_report.integrated = 0 THEN
+        c.num ELSE api_report.id
+        END AS resourceId,
+
+        CASE
+        WHEN api_report.integrated = 0 THEN
+        c.NAME ELSE api_report.NAME
+        END AS resourceName,
+
+        t.NAME AS poolName
+        FROM
+        api_report
+        LEFT JOIN api_test_case c ON api_report.resource_id = c.id
+        LEFT JOIN test_resource_pool t ON api_report.pool_id = t.id
+        where  api_report.project_id IN
+        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+            #{projectId}
+        </foreach>
+        <if test="request.keyword != null and request.keyword != ''">
+            and (
+            api_report.name like concat('%', #{request.keyword},'%')
+            or c.name like concat('%', #{request.keyword},'%')
+            )
+        </if>
+        <include refid="taskCenterFilters">
+            <property name="filter" value="request.filter"/>
+        </include>
+    </select>
+
+    <sql id="taskCenterFilters">
+        <if test="${filter} != null and ${filter}.size() > 0">
+            <foreach collection="${filter}.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='triggerMode'">
+                            and api_report.trigger_mode in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+
+
+    <select id="getProjectIds" resultType="java.lang.String">
+        select p.id,
+        p.num,
+        p.organization_id,
+        p.name,
+        p.description,
+        p.create_time,
+        p.update_time,
+        p.create_user,
+        p.delete_time,
+        p.deleted,
+        p.delete_user,
+        p.update_user,
+        p.enable,
+        o.name as organization_name,
+        p.module_setting
+        FROM project p
+        INNER JOIN organization o on p.organization_id = o.id
+        where organization.organization_id IN
+        <foreach collection="organizationIds" item="organizationId" separator="," open="(" close=")">
+            #{organizationId}
+        </foreach>
+    </select>
 </mapper>
