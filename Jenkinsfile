@@ -86,7 +86,6 @@ pipeline {
     
                     docker --config /home/metersphere/.docker buildx build --no-cache --build-arg MS_VERSION=\${TAG_NAME:-\$BRANCH_NAME}-\${GIT_COMMIT:0:8} -t ${IMAGE_PREFIX}/${IMAGE_NAME}:\${TAG_NAME:-\$BRANCH_NAME}-community --platform linux/amd64,linux/arm64 . --push
                     
-                    docker --config /home/metersphere/.docker buildx build --no-cache --build-arg MS_VERSION=\${TAG_NAME:-\$BRANCH_NAME}-\${GIT_COMMIT:0:8} -t metersphere/${IMAGE_NAME}:\${TAG_NAME:-\$BRANCH_NAME}-community --platform linux/amd64 . --push
                     '''
                 }
             }
