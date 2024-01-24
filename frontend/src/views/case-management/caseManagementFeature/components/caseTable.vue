@@ -35,7 +35,7 @@
       <a-button type="text" class="px-0" @click="showCaseDetail(record.id, rowIndex)">{{ record.name }}</a-button>
     </template>
     <template #caseLevel="{ record }">
-      <caseLevel :case-level="getCaseLevel(record)" />
+      <caseLevel :case-level="getCaseLevels(record.customFields)" />
     </template>
     <template #reviewStatus="{ record }">
       <MsIcon
@@ -186,22 +186,15 @@
   import { FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
-  import { FieldTypeFormRules } from '@/components/pure/ms-form-create/form-create';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MinderEditor from '@/components/pure/ms-minder-editor/minderEditor.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import type {
-    BatchActionParams,
-    BatchActionQueryParams,
-    MsTableColumn,
-    MsTableColumnData,
-  } from '@/components/pure/ms-table/type';
+  import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import type { TagType, Theme } from '@/components/pure/ms-tag/ms-tag.vue';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
-  import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import BatchEditModal from './batchEditModal.vue';
   import CaseDetailDrawer from './caseDetailDrawer.vue';
   import FeatureCaseTree from './caseTree.vue';
@@ -236,7 +229,7 @@
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
 
-  import { getReviewStatusClass, getStatusText } from './utils';
+  import { getCaseLevels, getReviewStatusClass, getStatusText } from './utils';
   import { LabelValue } from '@arco-design/web-vue/es/tree-select/interface';
 
   const { openModal } = useModal();
@@ -259,7 +252,7 @@
     (e: 'import', type: 'Excel' | 'Xmind'): void;
   }>();
 
-  const keyword = ref<string>();
+  const keyword = ref<string>('');
   const filterRowCount = ref(0);
 
   const showType = ref<string>('list');
@@ -1059,11 +1052,6 @@
           theme: 'default',
         };
     }
-  }
-
-  function getCaseLevel(record: CaseManagementTable): CaseLevel {
-    const caseLevelItem = record.customFields.find((it: any) => it.fieldName === '用例等级');
-    return caseLevelItem?.options.find((it: any) => it.value === caseLevelItem.defaultValue).text;
   }
 
   // 模块树改变回调

@@ -1,6 +1,7 @@
 import MSR from '@/api/http/index';
 import {
   AddCommonScriptUrl,
+  ConnectionWebsocketUrl,
   DeleteCommonScriptUrl,
   GetCommonScriptDetailUrl,
   GetCommonScriptPageUrl,
@@ -9,12 +10,17 @@ import {
   GetFormApiImportPageListUrl,
   GetFormApiImportUrl,
   GetInsertCommonScriptPageUrl,
+  TestScriptUrl,
   UpdateCommonScriptUrl,
 } from '@/api/requrls/project-management/commonScript';
 
 import type { ModulesTreeType } from '@/models/caseManagement/featureCase';
 import { CommonList, TableQueryParams } from '@/models/common';
-import type { AddOrUpdateCommonScript, CommonScriptItem } from '@/models/projectManagement/commonScript';
+import type {
+  AddOrUpdateCommonScript,
+  CommonScriptItem,
+  TestScriptType,
+} from '@/models/projectManagement/commonScript';
 
 // 获取公共脚本列表
 export function getCommonScriptPage(data: TableQueryParams) {
@@ -58,4 +64,22 @@ export function getFormApiImportPageList(data: TableQueryParams) {
 // 获取从api接口导入模块数量
 export function getFormApiImportModuleCount(data: TableQueryParams) {
   return MSR.post<Record<string, any>>({ url: GetFormApiImportModuleCountUrl, data });
+}
+
+// 测试脚本
+export function testCommonScript(data: TestScriptType) {
+  return MSR.post({ url: TestScriptUrl, data });
+}
+// apiSocket 建立连接
+export const apiSocket = (url: string) => {
+  let protocol = 'ws://';
+  if (window.location.protocol === 'https:') {
+    protocol = 'wss://';
+  }
+  const uri = protocol + window.location.host + url;
+  return new WebSocket(uri);
+};
+
+export function getSocket(reportId: string) {
+  return apiSocket(`${ConnectionWebsocketUrl}/${reportId}`);
 }

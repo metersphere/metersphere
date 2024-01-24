@@ -1,3 +1,4 @@
+import { MsFileItem } from '@/components/pure/ms-upload/types';
 import { CommentItem, CommentParams } from '@/components/business/ms-comment/types';
 
 import MSR from '@/api/http/index';
@@ -27,6 +28,7 @@ import {
   DownloadExcelTemplateUrl,
   DownloadFileUrl,
   EditorUploadFileUrl,
+  exportExcelCheckUrl,
   FollowerCaseUrl,
   GetAssociatedCaseIdsUrl,
   GetAssociatedDebuggerUrl,
@@ -80,6 +82,7 @@ import type {
   DeleteCaseType,
   DemandItem,
   DetailCase,
+  ImportExcelType,
   ModulesTreeType,
   OperationFile,
   PreviewImages,
@@ -378,6 +381,12 @@ export function downloadTemplate(projectId: string, type: 'Excel' | 'Xmind') {
     { isTransformResponse: false }
   );
 }
+
+// 导入excel文件检查
+export function importExcelChecked(data: { request: ImportExcelType; fileList: File[] }) {
+  return MSR.uploadFile({ url: exportExcelCheckUrl }, { request: data.request, fileList: data.fileList }, '');
+}
+
 // 富文本编辑器上传图片文件
 export function editorUploadFile(data: { fileList: File[] }) {
   return MSR.uploadFile({ url: EditorUploadFileUrl }, { fileList: data.fileList }, '', false);

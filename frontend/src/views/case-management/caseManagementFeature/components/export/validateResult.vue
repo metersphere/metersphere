@@ -14,27 +14,36 @@
       <div class="leading-8">
         <span
           >{{ t('caseManagement.featureCase.successfulCheck')
-          }}<span class="mx-1 text-[rgb(var(--success-6))]"> {{ validateCount.success }}</span
+          }}<span class="mx-1 text-[rgb(var(--success-6))]"> {{ validateResultInfo.successCount }}</span
           >{{ t('caseManagement.featureCase.caseCount') }}</span
         >
         <span
           >{{ t('caseManagement.featureCase.failCheck')
-          }}<span class="mx-1 font-medium text-[rgb(var(--danger-6))]">{{ validateCount.failure }}</span
+          }}<span class="mx-1 font-medium text-[rgb(var(--danger-6))]">{{ validateResultInfo.failCount }}</span
           >{{ t('caseManagement.featureCase.caseCount') }}</span
         >
         <a-popover position="bottom">
-          <span v-if="validateCount.failure" class="font-medium text-[rgb(var(--primary-5))]">{{
+          <span v-if="validateResultInfo.failCount" class="font-medium text-[rgb(var(--primary-5))]">{{
             t('caseManagement.featureCase.viewErrorDetail')
           }}</span>
           <template #title>
             <div class="w-[440px]"
               >{{ t('caseManagement.featureCase.someCaseImportFailed') }}
-              <span class="text-[var(--color-text-4)]">({{ validateCount.failure }})</span></div
+              <span class="text-[var(--color-text-4)]">({{ validateResultInfo.failCount }})</span></div
             >
           </template>
           <template #content>
             <div class="w-[440px]">
               <a-divider class="mx-0 my-0" />
+              <div class="max-h-[400px] overflow-hidden">
+                <div
+                  v-for="(item, index) of validateResultInfo.errorMessages"
+                  :key="`${item.rowNum}-${index}`"
+                  class="errorMessages"
+                >
+                  {{ item.errMsg }}
+                </div>
+              </div>
               <a-button class="mt-[8px]" type="text" long @click="showMore">{{
                 t('caseManagement.featureCase.ViewMore')
               }}</a-button>
@@ -47,18 +56,22 @@
     <template #footer>
       <div class="flex justify-end">
         <MsButton
-          v-if="!validateCount.success || !validateCount.failure"
+          v-if="!validateResultInfo.successCount || !validateResultInfo.failCount"
           type="text"
           class="!text-[var(--color-text-1)]"
+          @click="backCaseList"
           >{{ t('caseManagement.featureCase.backCaseList') }}</MsButton
         >
-        <MsButton v-if="!validateCount.failure" type="text" class="ml-[8px]">{{
+        <MsButton v-if="!validateResultInfo.failCount" type="text" class="ml-[8px]" @click="confirmImport">{{
           t('caseManagement.featureCase.import')
         }}</MsButton>
-        <MsButton v-if="validateCount.failure || (validateCount.failure && validateCount.success)" class="ml-[8px]">{{
-          t('caseManagement.featureCase.backToUploadPage')
-        }}</MsButton>
-        <MsButton v-if="validateCount.failure && validateCount.success">{{
+        <MsButton
+          v-if="validateResultInfo.failCount || (validateResultInfo.failCount && validateResultInfo.successCount)"
+          class="ml-[8px]"
+          @click="handleCancel"
+          >{{ t('caseManagement.featureCase.backToUploadPage') }}</MsButton
+        >
+        <MsButton v-if="validateResultInfo.failCount && validateResultInfo.successCount" @click="confirmImport">{{
           t('caseManagement.featureCase.ignoreErrorContinueImporting')
         }}</MsButton>
       </div>
@@ -66,25 +79,29 @@
   </a-modal>
   <MsDrawer
     v-model:visible="showMoreFailureCase"
-    :title="t('caseManagement.featureCase.cancelValidateSuccess', { number: validateCount.failure })"
+    :title="t('caseManagement.featureCase.cancelValidateSuccess', { number: validateResultInfo.failCount })"
     :width="960"
     :footer="false"
     no-content-padding
   >
     <MsList
+      mode="static"
       :virtual-list-props="{
-        height: 'calc(100vh - 325px)',
+        height: 'calc(100vh - 56px)',
       }"
-      :data="failureCaseList"
+      :data="validateResultInfo.errorMessages"
       :bordered="false"
+      :item-border="false"
       :split="false"
       :empty-text="t('project.fileManagement.noStorage')"
-      item-key-field="id"
-      class="mr-[-6px]"
+      active-item-class="activeItemClass"
+      item-class="my-[8px]"
+      :item-height="26"
     >
       <template #title="{ item, index }">
-        <div :key="index">
-          <div>{{ item }} </div>
+        <div :key="index" class="flex px-4">
+          <div class="circle"></div>
+          <div class="text-[var(--color-text-2)]">{{ item.errMsg }} </div>
         </div>
       </template>
     </MsList>
@@ -100,12 +117,15 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
+  import { ValidateInfo } from '@/models/caseManagement/featureCase';
+
   import type { FileItem } from '@arco-design/web-vue';
 
   const { t } = useI18n();
   const props = defineProps<{
     visible: boolean;
     validateType: 'Excel' | 'Xmind';
+    validateInfo: ValidateInfo;
   }>();
 
   const emit = defineEmits<{
@@ -123,24 +143,20 @@
     validateResultModal.value = false;
   }
 
-  const validateCount = ref({
-    success: 100,
-    failure: 100,
-  });
-
+  const validateResultInfo = ref<ValidateInfo>(props.validateInfo);
   const validateResult = ref('');
 
   const getIconType = computed(() => {
-    const { success, failure } = validateCount.value;
-    if (failure && success) {
+    const { successCount, failCount } = validateResultInfo.value;
+    if (failCount && successCount) {
       validateResult.value = t('caseManagement.featureCase.partialCheckFailure');
       return 'icon-icon_warning_colorful';
     }
-    if (!failure) {
+    if (!failCount) {
       validateResult.value = t('caseManagement.featureCase.CheckSuccess');
       return 'icon-icon_succeed_colorful';
     }
-    if (!success) {
+    if (!successCount) {
       validateResult.value = t('caseManagement.featureCase.CheckFailure');
       return 'icon-icon_close_colorful';
     }
@@ -148,9 +164,42 @@
 
   const showMoreFailureCase = ref<boolean>(false);
 
-  const failureCaseList = ref([]);
   // 查看更多导入失败用例
-  function showMore() {}
+  function showMore() {
+    showMoreFailureCase.value = true;
+  }
+
+  // 返回用例列表
+  function backCaseList() {
+    emit('close');
+  }
+
+  // 确定继续导入
+  function confirmImport() {}
+
+  watchEffect(() => {
+    validateResultInfo.value = { ...props.validateInfo };
+  });
 </script>
 
-<style scoped></style>
+<style scoped lang="less">
+  .activeItemClass {
+    background: none;
+  }
+  :deep(.ms-list-item--focus) {
+    background: none !important;
+  }
+  .errorMessages {
+    font-size: 14px;
+    line-height: 21px;
+    color: var(--color-text-2);
+    @apply my-4;
+  }
+  .circle {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-text-input-border);
+    @apply mr-2 mt-2;
+  }
+</style>

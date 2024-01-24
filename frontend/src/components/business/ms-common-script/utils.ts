@@ -5,7 +5,7 @@ import type { CommonScriptMenu } from '@/models/projectManagement/commonScript';
 const { t } = useI18n();
 
 export type Languages =
-  | 'beanshellJSR223'
+  | 'beanshell-jsr233'
   | 'groovy'
   | 'python'
   | 'beanshell'
@@ -518,7 +518,7 @@ export function getCodeTemplate(language: Languages, requestObj: any) {
       return jsCode(requestObj);
     case 'javascript':
       return jsCode(requestObj);
-    case 'beanshellJSR223':
+    case 'beanshell-jsr233':
       return javaCode(requestObj);
     default:
       return '';

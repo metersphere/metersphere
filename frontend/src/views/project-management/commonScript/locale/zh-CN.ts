@@ -66,6 +66,8 @@ export default {
       paramEnvironmentSetGlobalVariable: '设置环境参数',
       insertPublicScript: '插入公共脚本',
       terminationTest: '终止测试',
+      code_hide_report_length: '隐藏报文长度',
+      code_add_report_length: '报文头添加长度',
     },
   },
 };

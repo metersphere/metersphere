@@ -70,7 +70,7 @@
   const innerLanguageType = useVModel(props, 'languagesType', emit);
 
   const languages = [
-    { text: 'beanshellJSR223', value: 'beanshellJSR223' },
+    { text: 'beanshellJSR223', value: 'beanshell-jsr233' },
     { text: 'beanshell', value: 'beanshell' },
     { text: 'python', value: 'python' },
     { text: 'groovy', value: 'groovy' },

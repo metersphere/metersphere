@@ -18,6 +18,7 @@
         <MsRichText
           v-if="isEditPreposition"
           v-model:raw="detailForm.prerequisite"
+          v-model:filed-ids="prerequisiteFileIds"
           :upload-image="handleUploadImage"
           class="mt-2"
         />
@@ -56,6 +57,7 @@
         <MsRichText
           v-if="detailForm.caseEditType === 'TEXT' && isEditPreposition"
           v-model:raw="detailForm.textDescription"
+          v-model:filed-ids="textDescriptionFileIds"
           :upload-image="handleUploadImage"
         />
         <div v-if="detailForm.caseEditType === 'TEXT' && !isEditPreposition">{{
@@ -70,12 +72,18 @@
         <MsRichText
           v-if="detailForm.caseEditType === 'TEXT' && isEditPreposition"
           v-model:raw="detailForm.expectedResult"
+          v-model:filed-ids="expectedResultFileIds"
           :upload-image="handleUploadImage"
         />
         <div v-else class="text-[var(--color-text-3)]" v-html="detailForm.description || '-'"></div>
       </a-form-item>
-      <a-form-item field="remark" :label="t('caseManagement.featureCase.remark')">
-        <MsRichText v-if="isEditPreposition" v-model:raw="detailForm.description" :upload-image="handleUploadImage" />
+      <a-form-item field="description" :label="t('caseManagement.featureCase.remark')">
+        <MsRichText
+          v-if="isEditPreposition"
+          v-model:filed-ids="descriptionFileIds"
+          v-model:raw="detailForm.description"
+          :upload-image="handleUploadImage"
+        />
         <div v-else v-dompurify-html="detailForm.description || '-'" class="text-[var(--color-text-3)]"></div>
       </a-form-item>
       <div v-if="isEditPreposition" class="flex justify-end">
@@ -395,6 +403,25 @@
     );
   });
 
+  // 前置条件附件id
+  const prerequisiteFileIds = ref<string[]>([]);
+  // 文本描述附件id
+  const textDescriptionFileIds = ref<string[]>([]);
+  // 预期结果附件id
+  const expectedResultFileIds = ref<string[]>([]);
+  // 描述附件id
+  const descriptionFileIds = ref<string[]>([]);
+
+  // 所有附近文件id
+  const allAttachmentsFileIds = computed(() => {
+    return [
+      ...prerequisiteFileIds.value,
+      ...textDescriptionFileIds.value,
+      ...expectedResultFileIds.value,
+      ...descriptionFileIds.value,
+    ];
+  });
+
   // 处理编辑详情参数
   function getParams() {
     const steps = stepData.value.map((item, index) => {
@@ -420,6 +447,7 @@
         unLinkFilesIds: unLinkFilesIds.value,
         newAssociateFileListIds: newAssociateFileListIds.value,
         customFields: customFieldsArr,
+        caseDetailFileIds: allAttachmentsFileIds.value,
       },
       fileList: fileList.value.filter((item: any) => item.status === 'init'), // 总文件列表
     };

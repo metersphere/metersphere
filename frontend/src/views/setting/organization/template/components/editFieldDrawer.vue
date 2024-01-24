@@ -17,6 +17,7 @@
           :label="t('system.orgTemplate.fieldName')"
           :rules="[{ required: true, message: t('system.orgTemplate.fieldNameRules') }]"
           required
+          :disabled="fieldForm.internal"
           asterisk-position="end"
         >
           <a-input

@@ -17,7 +17,7 @@
 
       <div class="flex w-[92%] flex-col">
         <span class="text-[var(--color-text-1)]">{{ t('caseManagement.featureCase.verifyingTemplate') }}</span>
-        <a-progress :percent="percent" size="large" />
+        <a-progress :percent="props.percent" size="large" />
       </div>
     </div>
     <template #footer>
@@ -37,6 +37,7 @@
   const props = defineProps<{
     visible: boolean;
     validateType: 'Excel' | 'Xmind';
+    percent: number;
   }>();
 
   const emit = defineEmits<{
@@ -53,8 +54,15 @@
   const handleCancel = () => {
     dialogVisible.value = false;
   };
-
-  const percent = ref<number>(0.1);
+  watch(
+    () => props.percent,
+    (val) => {
+      if (val === 1) {
+        handleCancel();
+        emit('checkFinished');
+      }
+    }
+  );
 </script>
 
 <style scoped></style>

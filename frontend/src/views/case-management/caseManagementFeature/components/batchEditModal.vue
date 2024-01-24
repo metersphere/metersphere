@@ -166,7 +166,7 @@
           };
           formItem.value?.forEach((item: any) => {
             customField.fieldId = item.field;
-            customField.value = JSON.stringify(item.value);
+            customField.value = Array.isArray(item.value) ? JSON.stringify(item.value) : item.value;
           });
           const params: BatchEditCaseType = {
             selectIds: props.batchParams.selectedIds as string[],

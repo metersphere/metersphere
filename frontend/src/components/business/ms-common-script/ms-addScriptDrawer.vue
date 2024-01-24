@@ -55,7 +55,9 @@
           <a-radio value="commonScript">{{ t('project.commonScript.commonScript') }}</a-radio>
           <a-radio value="executionResult">{{ t('project.commonScript.executionResult') }}</a-radio>
         </a-radio-group>
-        <a-button type="outline">{{ t('project.commonScript.scriptTest') }}</a-button>
+        <a-button type="outline" :loading="loading" @click="testScript">{{
+          t('project.commonScript.scriptTest')
+        }}</a-button>
       </div>
       <ScriptDefined
         v-model:language="form.type"
@@ -78,10 +80,13 @@
   import ScriptDefined from './scriptDefined.vue';
   import paramTable from '@/views/api-test/components/paramTable.vue';
 
-  import { getCommonScriptDetail } from '@/api/modules/project-management/commonScript';
+  import { getCommonScriptDetail, getSocket, testCommonScript } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
 
   import type { AddOrUpdateCommonScript, ParamsRequestType } from '@/models/projectManagement/commonScript';
+
+  const appStore = useAppStore();
 
   const heightUsed = ref<number | undefined>(undefined);
   const formRef = ref<FormInstance>();
@@ -120,7 +125,7 @@
     projectId: '',
     params: '',
     script: '',
-    type: 'beanshellJSR223',
+    type: 'beanshell-jsr233',
     result: '',
   };
 
@@ -140,7 +145,7 @@
     {
       title: 'project.commonScript.description',
       slotName: 'desc',
-      dataIndex: 'description',
+      dataIndex: 'desc',
     },
     {
       title: 'project.commonScript.isRequired',
@@ -219,6 +224,69 @@
       }
     }
   );
+
+  const loading = ref<boolean>(false);
+  const websocket = ref<any>();
+
+  function onDebugMessage(e: any) {
+    if (e.data && e.data.startsWith('result_')) {
+      try {
+        const data = e.data.substring(7);
+        websocket.value.close();
+        console.log(data, 'datadatadatadatadata');
+      } catch (error) {
+        websocket.value.close();
+      }
+    }
+  }
+  // 测试脚本
+  async function testScript() {
+    try {
+      loading.value = true;
+      const { type, script } = form.value;
+      const parameters = innerParams.value
+        .filter((item: any) => item.name && item.value)
+        .map((item) => {
+          return {
+            key: item.name,
+            value: item.value,
+            valid: item.mustContain,
+          };
+        });
+      const params = {
+        type,
+        script,
+        params: parameters,
+        projectId: appStore.currentProjectId,
+      };
+
+      const reportId = await testCommonScript(params);
+      if (reportId) {
+        websocket.value = getSocket(reportId);
+        // TODO 接口需要调整
+        // websocket.value.addEventListener('open', (event) => {
+        //   console.log('WebSocket连接已打开:', event);
+        //   websocket.value.send('Hello, WebSocket Server!');
+        // });
+
+        // websocket.value.addEventListener('message', (event) => {
+        //   console.log('接收到消息:', event.data);
+        // });
+
+        // websocket.value.addEventListener('close', (event) => {
+        //   console.log('WebSocket连接已关闭:', event);
+        // });
+
+        // websocket.value.addEventListener('error', (event) => {
+        //   console.error('WebSocket连接发生错误:', event);
+        // });
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      loading.value = false;
+    }
+  }
 </script>
 
 <style scoped></style>

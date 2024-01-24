@@ -234,6 +234,7 @@
   import type { CustomAttributes, DetailCase, TabItemType } from '@/models/caseManagement/featureCase';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
+  import { getCaseLevels } from './utils';
   import { LabelValue } from '@arco-design/web-vue/es/tree-select/interface';
   import debounce from 'lodash-es/debounce';
 
@@ -311,14 +312,11 @@
 
   const detailInfo = ref<DetailCase>({ ...initDetail });
   const customFields = ref<CustomAttributes[]>([]);
-  const caseLevels = ref<CaseLevel>('P1');
+  const caseLevels = ref<CaseLevel>('P0');
   function loadedCase(detail: DetailCase) {
     detailInfo.value = { ...detail };
     customFields.value = detailInfo.value.customFields;
-    const caseLevelsValue = customFields.value.find((item) => item.fieldName === '用例等级')?.defaultValue;
-    if (caseLevelsValue) {
-      caseLevels.value = caseLevelsValue as CaseLevel;
-    }
+    caseLevels.value = getCaseLevels(customFields.value) as CaseLevel;
   }
 
   const moduleName = computed(() => {

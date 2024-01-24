@@ -50,3 +50,13 @@ export interface ParamsRequestType {
   type: string;
   value: string;
 }
+export interface TestScriptType {
+  type: string;
+  params: {
+    key: string;
+    value: string;
+    valid: boolean;
+  }[];
+  script: string;
+  projectId: string;
+}

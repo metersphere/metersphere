@@ -18,3 +18,7 @@ export const GetFormApiImportUrl = '/api/definition/module/tree';
 export const GetFormApiImportPageListUrl = '/api/definition/page';
 // 获取公共脚本从api导入模块数量
 export const GetFormApiImportModuleCountUrl = '/api/definition/module/count';
+// 脚本测试
+export const TestScriptUrl = '/api/test/custom/func/run';
+// websoket连接
+export const ConnectionWebsocketUrl = '/ws/api';

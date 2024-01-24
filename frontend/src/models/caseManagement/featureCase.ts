@@ -307,3 +307,20 @@ export interface PreviewImages {
   fileSource?: string; // 附件(ATTACHMENT)/功能用例详情(CASE_DETAIL)/用例评论(CASE_COMMENT)/评审评论(REVIEW_COMMENT)
   local: boolean;
 }
+
+// 导入excel检查
+export interface ImportExcelType {
+  projectId: string;
+  versionId: string;
+  cover: boolean;
+}
+
+export interface errorMessagesType {
+  rowNum: number;
+  errMsg: string;
+}
+export interface ValidateInfo {
+  failCount: number;
+  successCount: number;
+  errorMessages: errorMessagesType[];
+}
