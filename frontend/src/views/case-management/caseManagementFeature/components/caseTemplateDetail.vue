@@ -18,7 +18,11 @@
           ></a-input>
         </a-form-item>
         <a-form-item field="precondition" :label="t('system.orgTemplate.precondition')" asterisk-position="end">
-          <MsRichText v-model:raw="form.prerequisite" :upload-image="handleUploadImage" />
+          <MsRichText
+            v-model:raw="form.prerequisite"
+            v-model:filed-ids="prerequisiteFileIds"
+            :upload-image="handleUploadImage"
+          />
         </a-form-item>
         <a-form-item
           field="step"
@@ -48,17 +52,30 @@
             <AddStep v-model:step-list="stepData" :is-disabled="false" />
           </div>
           <!-- 文本描述 -->
-          <MsRichText v-else v-model:raw="form.textDescription" :upload-image="handleUploadImage" />
+          <MsRichText
+            v-else
+            v-model:raw="form.textDescription"
+            v-model:filed-ids="textDescriptionFileIds"
+            :upload-image="handleUploadImage"
+          />
         </a-form-item>
         <a-form-item
           v-if="form.caseEditType === 'TEXT'"
           field="remark"
           :label="t('caseManagement.featureCase.expectedResult')"
         >
-          <MsRichText v-model:raw="form.expectedResult" :upload-image="handleUploadImage" />
+          <MsRichText
+            v-model:raw="form.expectedResult"
+            v-model:filed-ids="expectedResultFileIds"
+            :upload-image="handleUploadImage"
+          />
         </a-form-item>
-        <a-form-item field="remark" :label="t('caseManagement.featureCase.remark')">
-          <MsRichText v-model:raw="form.description" :upload-image="handleUploadImage" />
+        <a-form-item field="description" :label="t('caseManagement.featureCase.remark')">
+          <MsRichText
+            v-model:raw="form.description"
+            v-model:filed-ids="descriptionFileIds"
+            :upload-image="handleUploadImage"
+          />
         </a-form-item>
         <AddAttachment @change="handleChange" @link-file="associatedFile" @upload="beforeUpload" />
       </a-form>
@@ -695,6 +712,34 @@
       console.log(error);
     }
   }
+
+  // 前置条件附件id
+  const prerequisiteFileIds = ref<string[]>([]);
+  // 文本描述附件id
+  const textDescriptionFileIds = ref<string[]>([]);
+  // 预期结果附件id
+  const expectedResultFileIds = ref<string[]>([]);
+  // 描述附件id
+  const descriptionFileIds = ref<string[]>([]);
+
+  // 所有附近文件id
+  const allAttachmentsFileIds = computed(() => {
+    return [
+      ...prerequisiteFileIds.value,
+      ...textDescriptionFileIds.value,
+      ...expectedResultFileIds.value,
+      ...descriptionFileIds.value,
+    ];
+  });
+
+  watch(
+    () => allAttachmentsFileIds.value,
+    (val) => {
+      if (val) {
+        params.value.request.caseDetailFileIds = val;
+      }
+    }
+  );
 
   async function handleUploadImage(file: File) {
     const { data } = await editorUploadFile({

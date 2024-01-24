@@ -1,8 +1,9 @@
 import type { MsFileItem } from '@/components/pure/ms-upload/types';
+import type { CaseLevel } from '@/components/business/ms-case-associate/types';
 
 import { useI18n } from '@/hooks/useI18n';
 
-import type { AssociatedList } from '@/models/caseManagement/featureCase';
+import type { AssociatedList, CustomAttributes } from '@/models/caseManagement/featureCase';
 import { StatusType } from '@/enums/caseEnum';
 
 const { t } = useI18n();
@@ -120,6 +121,15 @@ export function convertToFile(fileInfo: AssociatedList): MsFileItem {
     isUpdateFlag,
     associateId,
   };
+}
+
+// 返回用例等级
+export function getCaseLevels(customFields: CustomAttributes[]): CaseLevel {
+  const caseLevelItem = customFields.find((it: any) => it.internal && it.fieldName === '用例等级');
+  return (
+    (caseLevelItem?.options.find((it: any) => it.value === caseLevelItem.defaultValue)?.text as CaseLevel) ||
+    ('P0' as CaseLevel)
+  );
 }
 
 export default {};

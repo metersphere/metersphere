@@ -17,23 +17,23 @@
   }>();
 
   const caseLevelMap = {
-    P1: {
-      label: 'P1',
+    P0: {
+      label: 'P0',
       bgColor: 'rgb(var(--danger-2))',
       borderColor: 'rgb(var(--danger-6))',
     },
-    P2: {
-      label: 'P2',
+    P1: {
+      label: 'P1',
       bgColor: 'rgb(var(--warning-2))',
       borderColor: 'rgb(var(--warning-6))',
     },
-    P3: {
-      label: 'P3',
+    P2: {
+      label: 'P2',
       bgColor: 'rgb(var(--link-2))',
       borderColor: 'rgb(var(--link-5))',
     },
-    P4: {
-      label: 'P4',
+    P3: {
+      label: 'P3',
       bgColor: 'var(--color-text-n8)',
       borderColor: 'var(--color-text-brand)',
     },

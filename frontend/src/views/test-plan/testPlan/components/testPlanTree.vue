@@ -13,7 +13,7 @@
       :keyword="groupKeyword"
       :node-more-actions="caseMoreActions"
       :expand-all="props.isExpandAll"
-      :empty-text="t('caseManagement.featureCase.caseEmptyContent')"
+      :empty-text="t('testPlan.testPlanIndex.planEmptyContent')"
       draggable
       :virtual-list-props="virtualListProps"
       block-node
@@ -40,10 +40,10 @@
           :visible="addSubVisible"
           :is-delete="false"
           :all-names="[]"
-          :title="t('caseManagement.featureCase.addSubModule')"
+          :title="t('testPlan.testPlanIndex.addSubModule')"
           :ok-text="t('common.confirm')"
           :field-config="{
-            placeholder: t('caseManagement.featureCase.addGroupTip'),
+            placeholder: t('testPlan.testPlanIndex.addGroupTip'),
           }"
           :loading="confirmLoading"
           @confirm="addSubModule"
@@ -54,7 +54,7 @@
           </MsButton>
         </MsPopConfirm>
         <MsPopConfirm
-          :title="t('caseManagement.featureCase.rename')"
+          :title="t('testPlan.testPlanIndex.rename')"
           :all-names="[]"
           :is-delete="false"
           :ok-text="t('common.confirm')"
@@ -71,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, ref, watch } from 'vue';
+  import { computed, onBeforeMount, ref, watch } from 'vue';
   import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -81,16 +81,14 @@
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
 
   import {
-    createCaseModuleTree,
-    deleteCaseModuleTree,
-    getCaseModuleTree,
-    moveCaseModuleTree,
-    updateCaseModuleTree,
-  } from '@/api/modules/case-management/featureCase';
+    createPlanModuleTree,
+    getTestPlanModule,
+    moveTestPlanModuleTree,
+    updatePlanModuleTree,
+  } from '@/api/modules/test-plan/testPlan';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
-  import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { mapTree } from '@/utils';
 
   import type { CreateOrUpdateModule, UpdateModule } from '@/models/caseManagement/featureCase';
@@ -111,7 +109,7 @@
     modulesCount?: Record<string, number>; // 模块数量统计对象
   }>();
 
-  const emits = defineEmits(['update:selectedKeys', 'caseNodeSelect', 'init']);
+  const emits = defineEmits(['update:selectedKeys', 'planTreeNodeSelect', 'init']);
 
   const currentProjectId = computed(() => appStore.currentProjectId);
 
@@ -150,7 +148,6 @@
       emits('update:selectedKeys', val);
     }
   );
-  const featureCaseStore = useFeatureCaseStore();
   /**
    * 初始化模块树
    * @param isSetDefaultKey 是否设置第一个节点为选中节点
@@ -158,7 +155,7 @@
   async function initModules(isSetDefaultKey = false) {
     try {
       loading.value = true;
-      const res = await getCaseModuleTree({ projectId: currentProjectId.value });
+      const res = await getTestPlanModule({ projectId: currentProjectId.value });
       caseTree.value = mapTree<ModuleTreeNode>(res, (e) => {
         return {
           ...e,
@@ -168,7 +165,6 @@
           count: props.modulesCount?.[e.id] || 0,
         };
       });
-      featureCaseStore.setModulesTree(caseTree.value);
       if (isSetDefaultKey) {
         selectedNodeKeys.value = [caseTree.value[0].id];
       }
@@ -196,13 +192,7 @@
       },
       maskClosable: false,
       onBeforeOk: async () => {
-        try {
-          await deleteCaseModuleTree(node.id);
-          Message.success(t('caseManagement.featureCase.deleteSuccess'));
-          initModules(selectedNodeKeys.value[0] === node.id);
-        } catch (error) {
-          console.log(error);
-        }
+        Message.success(t('caseManagement.featureCase.deleteSuccess'));
       },
       hideCancel: false,
     });
@@ -224,7 +214,7 @@
       offspringIds.push(e.id);
       return e;
     });
-    emits('caseNodeSelect', selectedKeys, offspringIds);
+    emits('planTreeNodeSelect', selectedKeys, offspringIds);
   };
 
   // 用例树节点更多事件
@@ -259,7 +249,7 @@
   ) {
     try {
       loading.value = true;
-      await moveCaseModuleTree({
+      await moveTestPlanModuleTree({
         dragNodeId: dragNode.id as string,
         dropNodeId: dropNode.id || '',
         dropPosition,
@@ -292,7 +282,7 @@
         name: formValue?.field as string,
         parentId: focusNodeKey.value,
       };
-      await createCaseModuleTree(params);
+      await createPlanModuleTree(params);
       Message.success(t('common.addSuccess'));
       if (cancel) {
         cancel();
@@ -313,7 +303,7 @@
         id: focusNodeKey.value,
         name: formValue?.field as string,
       };
-      await updateCaseModuleTree(params);
+      await updatePlanModuleTree(params);
       Message.success(t('common.updateSuccess'));
       if (cancel) {
         cancel();

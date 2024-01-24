@@ -361,6 +361,44 @@ export const downloadByteFile = (byte: BlobPart, fileName: string) => {
 };
 
 /**
+ * 图片压缩
+ * @param {*} img 图片对象
+ * @param {*} type 图片类型
+ * @param {*} maxWidth 图片最大宽度
+ * @param {*} flag
+ */
+
+export function compress(img, type, maxWidth, flag) {
+  let canvas: HTMLCanvasElement | null = document.createElement('canvas');
+  let ctx2: any = canvas.getContext('2d');
+
+  const ratio = img.width / img.height;
+  let { width } = img;
+  let { height } = img;
+  // 根据flag判断是否压缩图片
+  if (flag && maxWidth <= width) {
+    width = maxWidth;
+    height = maxWidth / ratio; // 维持图片宽高比
+  }
+  canvas.width = width;
+  canvas.height = height;
+
+  ctx2.fillStyle = '#fff';
+  ctx2.fillRect(0, 0, canvas.width, canvas.height);
+  ctx2.drawImage(img, 0, 0, width, height);
+
+  let base64Data = canvas.toDataURL(type, 0.75);
+
+  if (type === 'image/gif') {
+    const regx = /(?<=data:image).*?(?=;base64)/; // 正则表示时在用于replace时，根据浏览器的不同，有的需要为字符串
+    base64Data = base64Data.replace(regx, '/gif');
+  }
+  canvas = null;
+  ctx2 = null;
+  return base64Data;
+}
+
+/**
  * 转换字符串的字符集编码
  * @param str 需要转换的字符串
  * @param charset 字符集编码

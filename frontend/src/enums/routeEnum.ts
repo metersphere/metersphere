@@ -50,6 +50,7 @@ export enum ProjectManagementRouteEnum {
 
 export enum TestPlanRouteEnum {
   TEST_PLAN = 'testPlan',
+  TEST_PLAN_INDEX = 'testPlanIndex',
 }
 
 export enum UITestRouteEnum {

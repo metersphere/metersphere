@@ -99,7 +99,7 @@
 
   const emit = defineEmits<{
     (e: 'update:visible', val: boolean): void;
-    (e: 'save', files: FileItem[]): void;
+    (e: 'save', files: FileItem[], isRecover: boolean): void;
     (e: 'close'): void;
   }>();
   const fileList = ref<FileItem[]>([]);
@@ -141,7 +141,7 @@
   }
 
   function saveConfirm() {
-    emit('save', fileList.value);
+    emit('save', fileList.value, isRecover.value);
   }
 </script>
 

@@ -85,7 +85,7 @@
             @batch-action="handleTableBatch"
           >
             <template #caseLevel="{ record }">
-              <caseLevel :case-level="getCaseLevel(record)" />
+              <caseLevel :case-level="(getCaseLevels(record.customFields) as CaseLevel)" />
             </template>
             <template #reviewStatus="{ record }">
               <MsIcon
@@ -188,7 +188,7 @@
   import { ModuleTreeNode } from '@/models/projectManagement/file';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
-  import { getReviewStatusClass, getStatusText } from './utils';
+  import { getCaseLevels, getReviewStatusClass, getStatusText } from './utils';
 
   const tableStore = useTableStore();
   const featureCaseStore = useFeatureCaseStore();
@@ -252,11 +252,9 @@
     },
     {
       title: 'caseManagement.featureCase.tableColumnLevel',
-      dataIndex: 'level',
+      slotName: 'caseLevel',
       showInTable: true,
       width: 200,
-      showTooltip: true,
-      ellipsis: true,
       showDrag: true,
     },
     {
@@ -789,16 +787,6 @@
     };
     initRecycleList();
   };
-
-  // 如果是用例等级
-  function isCaseLevel(slotFieldId: string) {
-    const currentItem = initDefaultFields.value.find((item: any) => item.fieldId === slotFieldId);
-    return {
-      name: currentItem?.fieldName,
-      type: currentItem?.type,
-      options: currentItem?.options,
-    };
-  }
 
   // 如果是用例状态
   function getCaseState(caseState: string | undefined): { type: TagType; theme: Theme } {

@@ -1,7 +1,6 @@
 <script lang="ts" setup>
   import { computed, onMounted, ref } from 'vue';
 
-  import { editorPreviewImages } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
 
   import Image from './index';
@@ -56,15 +55,6 @@
     },
     set: (newFileId: string) => {
       props.updateAttributes({ fileId: newFileId });
-    },
-  });
-
-  const permalinkSrc = computed({
-    get: () => {
-      return props.node?.attrs.permalinkSrc;
-    },
-    set: (newPermalinkSrc: string) => {
-      props.updateAttributes({ permalinkSrc: newPermalinkSrc });
     },
   });
 
@@ -145,14 +135,7 @@
         height: node.attrs.height,
       }"
     >
-      <img
-        :src="src || permalinkSrc"
-        :title="node.attrs.title"
-        :alt="alt"
-        :href="href"
-        class="h-full w-full"
-        @load="onImageLoaded"
-      />
+      <img :src="src" :title="node.attrs.title" :alt="alt" :href="href" class="h-full w-full" @load="onImageLoaded" />
     </div>
   </node-view-wrapper>
 </template>

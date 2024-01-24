@@ -467,4 +467,21 @@ export const pathMap: PathMapItem[] = [
       },
     ],
   },
+  // 测试计划
+  {
+    key: 'TEST_PLAN', // 测试计划
+    locale: 'menu.testPlan',
+    route: RouteEnum.TEST_PLAN,
+    permission: [],
+    level: MENU_LEVEL[2],
+    children: [
+      {
+        key: 'TEST_PLAN_INDEX', // 测试计划-测试计划
+        locale: 'menu.testPlan',
+        route: RouteEnum.TEST_PLAN_INDEX,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+    ],
+  },
 ];

@@ -6,7 +6,7 @@ import type { AppRouteRecordRaw } from '../types';
 const TestPlan: AppRouteRecordRaw = {
   path: '/test-plan',
   name: TestPlanRouteEnum.TEST_PLAN,
-  redirect: '/test-plan/index',
+  redirect: '/test-plan/testPlanIndex',
   component: DEFAULT_LAYOUT,
   meta: {
     locale: 'menu.testPlan',
@@ -15,12 +15,15 @@ const TestPlan: AppRouteRecordRaw = {
     hideChildrenInMenu: true,
   },
   children: [
+    // 测试计划
     {
-      path: 'index',
-      name: 'testPlanIndex',
-      component: () => import('@/views/test-plan/index.vue'),
+      path: 'testPlanIndex',
+      name: TestPlanRouteEnum.TEST_PLAN_INDEX,
+      component: () => import('@/views/test-plan/testPlan/index.vue'),
       meta: {
+        locale: 'menu.testPlan',
         roles: ['*'],
+        isTopMenu: true,
       },
     },
   ],

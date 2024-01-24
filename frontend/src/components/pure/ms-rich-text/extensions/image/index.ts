@@ -2,6 +2,7 @@ import { markRaw } from 'vue';
 
 import ImageView from './ImageView.vue';
 
+import { PreviewEditorImageUrl } from '@/api/requrls/case-management/featureCase';
 import { useI18n } from '@/hooks/useI18n';
 
 import type { ExtensionOptions, NodeBubbleMenu } from '../../types';
@@ -97,7 +98,7 @@ const Image = TiptapImage.extend<ExtensionOptions & ImageOptions>({
         },
         renderHTML: (attributes) => {
           return {
-            permalinkSrc: attributes.permalinkSrc,
+            permalinkSrc: attributes.src,
           };
         },
       },

@@ -104,10 +104,16 @@
   <ValidateModal
     v-model:visible="validateModal"
     :validate-type="validateType"
+    :percent="progress"
     @cancel="cancelValidate"
     @check-finished="checkFinished"
   />
-  <ValidateResult v-model:visible="validateResultModal" :validate-type="validateType" />
+  <ValidateResult
+    v-model:visible="validateResultModal"
+    :validate-type="validateType"
+    :validate-info="validateInfo"
+    @close="closeHandler"
+  />
 </template>
 
 <script setup lang="ts">
@@ -127,12 +133,12 @@
   import ValidateModal from './components/export/validateModal.vue';
   import ValidateResult from './components/export/validateResult.vue';
 
-  import { createCaseModuleTree } from '@/api/modules/case-management/featureCase';
+  import { createCaseModuleTree, importExcelChecked } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
 
-  import type { CaseModuleQueryParams, CreateOrUpdateModule } from '@/models/caseManagement/featureCase';
+  import type { CaseModuleQueryParams, CreateOrUpdateModule, ValidateInfo } from '@/models/caseManagement/featureCase';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   import type { FileItem } from '@arco-design/web-vue';
@@ -268,8 +274,8 @@
   });
 
   const showExcelModal = ref<boolean>(false);
-
   const validateType = ref<'Excel' | 'Xmind'>('Excel');
+
   // 导入excel
   function importCase(type: 'Excel' | 'Xmind') {
     validateType.value = type;
@@ -277,14 +283,64 @@
   }
 
   const validateModal = ref<boolean>(false);
-  const fileList = ref<FileItem[]>([]);
-  // 校验导入模版
-  function validateTemplate(files: FileItem[]) {
-    fileList.value = files;
-    validateModal.value = true;
-  }
+
   // 校验结果弹窗
   const validateResultModal = ref<boolean>(false);
+
+  const validateInfo = ref<ValidateInfo>({
+    failCount: 0,
+    successCount: 0,
+    errorMessages: [],
+  });
+
+  const intervalId = ref<any>(null);
+  const progress = ref<number>(0);
+  const increment = ref<number>(0.1);
+
+  function updateProgress() {
+    progress.value = Math.floor(progress.value + increment.value);
+    if (progress.value >= 1) {
+      progress.value = 1;
+    }
+  }
+
+  function finish() {
+    clearInterval(intervalId.value);
+    progress.value = 1;
+    updateProgress();
+  }
+
+  function start() {
+    progress.value = 0;
+    increment.value = 0.1;
+    intervalId.value = setInterval(() => {
+      if (progress.value >= 1) {
+        finish();
+      } else {
+        updateProgress();
+      }
+    }, 100);
+  }
+
+  // 校验导入模版
+  async function validateTemplate(files: FileItem[], cover: boolean) {
+    try {
+      start();
+      validateModal.value = true;
+      const params = {
+        projectId: appStore.currentProjectId,
+        versionId: '',
+        cover,
+      };
+      if (validateType.value === 'Excel') {
+        const result = await importExcelChecked({ request: params, fileList: files.map((item: any) => item.file) });
+        finish();
+        validateInfo.value = result.data;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   function checkFinished() {
     validateResultModal.value = true;
@@ -292,6 +348,11 @@
 
   function cancelValidate() {
     validateModal.value = false;
+  }
+
+  function closeHandler() {
+    showExcelModal.value = false;
+    validateResultModal.value = false;
   }
 
   onMounted(() => {

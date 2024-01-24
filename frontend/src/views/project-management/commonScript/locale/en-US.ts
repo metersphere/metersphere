@@ -64,5 +64,7 @@ export default {
     paramEnvironmentSetGlobalVariable: 'Set run environment param',
     insertPublicScript: 'Insert the public script',
     terminationTest: 'Termination test',
+    code_hide_report_length: 'Hide report length',
+    code_add_report_length: 'Add report length to head',
   },
 };

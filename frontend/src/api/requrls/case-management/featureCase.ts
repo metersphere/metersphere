@@ -138,6 +138,6 @@ export const DownloadExcelTemplateUrl = '/functional/case/download/excel/templat
 // 富文本所需资源上传
 export const EditorUploadFileUrl = '/attachment/upload/temp/file';
 // 富文本资源详情预览压缩图
-export const EditorPreviewImagesUrl = '/attachment/preview/compressed';
-// 预览压缩图
-export const PreviewEditorImageUrl = '/attachment/preview';
+export const PreviewEditorImageUrl = '/attachment/download/file';
+// 导入excel文件检查
+export const exportExcelCheckUrl = '/functional/case/pre-check/excel';
