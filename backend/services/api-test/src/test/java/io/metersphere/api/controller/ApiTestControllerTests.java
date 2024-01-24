@@ -6,6 +6,7 @@ import io.metersphere.project.dto.customfunction.request.CustomFunctionRunReques
 import io.metersphere.project.dto.environment.KeyValueParam;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
@@ -55,6 +56,7 @@ public class ApiTestControllerTests extends BaseTest {
         baseResourcePoolTestService.initProjectResourcePool();
 
         CustomFunctionRunRequest request = new CustomFunctionRunRequest();
+        request.setReportId(IDGenerator.nextStr());
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setType(ScriptLanguageType.BEANSHELL.getValue());
         request.setScript("""

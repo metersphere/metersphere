@@ -20,6 +20,11 @@ public class CustomFunctionRunRequest  implements Serializable {
     @Size(max = 50)
     private String type;
 
+    @Schema(description = "报告ID")
+    @NotBlank
+    @Size(max = 50)
+    private String reportId;
+
     @Schema(description =  "参数列表")
     private List<KeyValueParam> params;
 
