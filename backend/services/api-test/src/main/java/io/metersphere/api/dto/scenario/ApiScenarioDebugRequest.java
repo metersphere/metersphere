@@ -1,6 +1,7 @@
 package io.metersphere.api.dto.scenario;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -29,6 +30,7 @@ public class ApiScenarioDebugRequest {
     @Schema(description = "场景的通用配置")
     private ScenarioConfig scenarioConfig;
 
+    @Valid
     @Schema(description = "步骤集合")
     private List<ApiScenarioStepRequest> steps;
 

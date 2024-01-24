@@ -1,6 +1,7 @@
 package io.metersphere.api.parser.step;
 
 import io.metersphere.api.constants.ApiScenarioStepRefType;
+import io.metersphere.api.dto.scenario.ApiScenarioStepCommonDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioStepRequest;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
@@ -12,7 +13,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public abstract class StepParser {
 
-    public abstract AbstractMsTestElement parse(ApiScenarioStepRequest step, String resourceBlob, String stepDetail);
+    public abstract AbstractMsTestElement parse(ApiScenarioStepCommonDTO step, String resourceBlob, String stepDetail);
 
     protected boolean isRef(String refType) {
         return StringUtils.equalsAny(refType, ApiScenarioStepRefType.REF.name(), ApiScenarioStepRefType.PARTIAL_REF.name());

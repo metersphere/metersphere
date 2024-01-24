@@ -5,6 +5,7 @@ import io.metersphere.system.valid.EnumValue;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -54,6 +55,7 @@ public class ApiScenarioUpdateRequest {
     @Schema(description = "场景的通用配置")
     private ScenarioConfig scenarioConfig;
 
+    @Valid
     @Schema(description = "步骤集合")
     private List<ApiScenarioStepRequest> steps;
 

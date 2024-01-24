@@ -3,7 +3,7 @@ package io.metersphere.api.parser.step;
 import io.metersphere.api.dto.request.http.KeyValueParam;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.body.Body;
-import io.metersphere.api.dto.scenario.ApiScenarioStepRequest;
+import io.metersphere.api.dto.scenario.ApiScenarioStepCommonDTO;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import org.apache.commons.collections.CollectionUtils;
@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class ApiStepParser extends StepParser {
     @Override
-    public AbstractMsTestElement parse(ApiScenarioStepRequest step, String resourceBlob, String stepDetail) {
+    public AbstractMsTestElement parse(ApiScenarioStepCommonDTO step, String resourceBlob, String stepDetail) {
         if (isRef(step.getRefType())) {
             if (StringUtils.isBlank(resourceBlob)) {
                 return null;

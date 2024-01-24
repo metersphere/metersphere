@@ -111,10 +111,17 @@ public class ApiScenarioController {
         apiScenarioService.deleteToGc(id);
     }
 
+    @GetMapping("/get/{scenarioId}")
+    @Operation(summary = "接口测试-接口场景管理-获取场景详情")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
+    public ApiScenarioDetail get(@PathVariable String scenarioId) {
+        return apiScenarioService.get(scenarioId);
+    }
+
     @PostMapping("/debug")
     @Operation(summary = "接口测试-接口场景管理-场景调试")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE)
-    public String debug(@RequestBody ApiScenarioDebugRequest request) {
+    public String debug(@Validated @RequestBody ApiScenarioDebugRequest request) {
         return apiScenarioService.debug(request);
     }
 

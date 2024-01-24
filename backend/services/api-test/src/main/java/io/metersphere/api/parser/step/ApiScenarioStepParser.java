@@ -1,7 +1,7 @@
 package io.metersphere.api.parser.step;
 
 import io.metersphere.api.dto.request.MsScenario;
-import io.metersphere.api.dto.scenario.ApiScenarioStepRequest;
+import io.metersphere.api.dto.scenario.ApiScenarioStepCommonDTO;
 import io.metersphere.api.dto.scenario.ScenarioConfig;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.sdk.util.JSON;
@@ -13,7 +13,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class ApiScenarioStepParser extends StepParser {
     @Override
-    public AbstractMsTestElement parse(ApiScenarioStepRequest step, String resourceBlob, String stepDetail) {
+    public AbstractMsTestElement parse(ApiScenarioStepCommonDTO step, String resourceBlob, String stepDetail) {
         MsScenario msScenario = new MsScenario();
         if (isRef(step.getRefType())) {
             if (StringUtils.isNotBlank(resourceBlob)) {

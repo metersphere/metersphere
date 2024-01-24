@@ -479,7 +479,7 @@ public class ApiScenarioService {
             if (step == null) {
                 return;
             }
-            if (!isRef(step.getRefType()) || StringUtils.equals(step.getRefType(), ApiScenarioStepType.API.name())) {
+            if (!isRef(step.getRefType()) || isRefApi(step.getStepType(), step.getRefType())) {
                 // 非引用的步骤，如果有编辑内容，保存到blob表
                 // 如果引用的是接口定义，也保存详情，因为应用接口定义允许修改参数值
                 ApiScenarioStepBlob apiScenarioStepBlob = new ApiScenarioStepBlob();
@@ -503,15 +503,14 @@ public class ApiScenarioService {
      * @param steps
      * @return
      */
-    private List<ApiScenarioStep> getApiScenarioSteps(ApiScenarioStepRequest parent,
-                                                      List<ApiScenarioStepRequest> steps) {
-
+    private List<ApiScenarioStep> getApiScenarioSteps(ApiScenarioStepCommonDTO parent,
+                                                      List<? extends ApiScenarioStepCommonDTO> steps) {
         if (CollectionUtils.isEmpty(steps)) {
             return Collections.emptyList();
         }
         List<ApiScenarioStep> apiScenarioSteps = new ArrayList<>();
         long sort = 1;
-        for (ApiScenarioStepRequest step : steps) {
+        for (ApiScenarioStepCommonDTO step : steps) {
             ApiScenarioStep apiScenarioStep = new ApiScenarioStep();
             BeanUtils.copyBean(apiScenarioStep, step);
             apiScenarioStep.setSort(sort++);
@@ -540,13 +539,13 @@ public class ApiScenarioService {
      * @param steps
      * @return
      */
-    private List<ApiScenarioStepBlob> getPartialRefStepDetails(List<ApiScenarioStepRequest> steps) {
+    private List<ApiScenarioStepBlob> getPartialRefStepDetails(List<? extends ApiScenarioStepCommonDTO> steps) {
         if (CollectionUtils.isEmpty(steps)) {
             return Collections.emptyList();
         }
         List<ApiScenarioStepBlob> apiScenarioStepsDetails = new ArrayList<>();
 
-        for (ApiScenarioStepRequest step : steps) {
+        for (ApiScenarioStepCommonDTO step : steps) {
             if (StringUtils.equals(step.getRefType(), ApiScenarioStepRefType.REF.name())) {
                 // 引用的步骤不解析子步骤
                 continue;
@@ -572,12 +571,12 @@ public class ApiScenarioService {
      * @param steps
      * @return
      */
-    private Set<String> getEnableStepSet(List<ApiScenarioStepRequest> steps) {
+    private Set<String> getEnableStepSet(List<? extends ApiScenarioStepCommonDTO> steps) {
         Set<String> enableSteps = new HashSet<>();
         if (CollectionUtils.isEmpty(steps)) {
             return Collections.emptySet();
         }
-        for (ApiScenarioStepRequest step : steps) {
+        for (ApiScenarioStepCommonDTO step : steps) {
             if (BooleanUtils.isTrue(step.getEnable())) {
                 enableSteps.add(step.getId());
             }
@@ -708,20 +707,19 @@ public class ApiScenarioService {
      * @param stepDetailMap
      */
     private void parseStep2MsElement(AbstractMsTestElement parentElement,
-                                     List<ApiScenarioStepRequest> steps,
+                                     List<? extends ApiScenarioStepCommonDTO> steps,
                                      Map<String, String> resourceBlobMap,
                                      Map<String, String> stepDetailMap) {
         if (CollectionUtils.isNotEmpty(steps)) {
             parentElement.setChildren(new LinkedList<>());
         }
-        for (ApiScenarioStepRequest step : steps) {
+        for (ApiScenarioStepCommonDTO step : steps) {
             StepParser stepParser = StepParserFactory.getStepParser(step.getStepType());
             if (stepParser == null || BooleanUtils.isFalse(step.getEnable())) {
                 continue;
             }
-            if (StringUtils.equals(step.getStepType(), ApiScenarioStepRefType.PARTIAL_REF.name())) {
-                setPartialRefStepEnable(step, stepDetailMap);
-            }
+            setPartialRefStepEnable(step, stepDetailMap);
+
             // 将步骤详情解析生成对应的MsTestElement
             AbstractMsTestElement msTestElement = stepParser.parse(step, resourceBlobMap.get(step.getResourceId()), stepDetailMap.get(step.getId()));
             if (msTestElement != null) {
@@ -734,18 +732,18 @@ public class ApiScenarioService {
     }
 
     /**
-     * 设置部分引用的步骤的启用状态
+     * 设置单个部分引用的步骤的启用状态
      *
      * @param step
      * @param stepDetailMap
      */
-    private void setPartialRefStepEnable(ApiScenarioStepRequest step, Map<String, String> stepDetailMap) {
+    private void setPartialRefStepEnable(ApiScenarioStepCommonDTO step, Map<String, String> stepDetailMap) {
         String stepDetail = stepDetailMap.get(step.getId());
-        if (StringUtils.isBlank(stepDetail)) {
-            return;
+        if (!isPartialRef(step) || StringUtils.isBlank(stepDetail)) {
+           return;
         }
         PartialRefStepDetail partialRefStepDetail = JSON.parseObject(stepDetail, PartialRefStepDetail.class);
-        setChildPartialRefEnable(step.getChildren(), partialRefStepDetail.getEnableStepIds(), stepDetailMap);
+        setChildPartialRefEnable(step.getChildren(), partialRefStepDetail.getEnableStepIds());
     }
 
     /**
@@ -753,26 +751,29 @@ public class ApiScenarioService {
      *
      * @param steps
      * @param enableStepIds
-     * @param stepDetailMap
      */
-    private void setChildPartialRefEnable(List<ApiScenarioStepRequest> steps, Set<String> enableStepIds, Map<String, String> stepDetailMap) {
-        for (ApiScenarioStepRequest step : steps) {
+    private void setChildPartialRefEnable(List<? extends ApiScenarioStepCommonDTO> steps, Set<String> enableStepIds) {
+        for (ApiScenarioStepCommonDTO step : steps) {
             if (StringUtils.equals(step.getRefType(), ApiScenarioStepRefType.REF.name())) {
                 // 引用的启用不修改
                 continue;
             }
             // 非完全引用的步骤，使用当前场景配置的启用状态
             step.setEnable(enableStepIds.contains(step.getId()));
-            if (StringUtils.equals(step.getRefType(), ApiScenarioStepRefType.PARTIAL_REF.name())) {
-                // 如果是部分引用的场景，重新获取详情再解析
-                setPartialRefStepEnable(step, stepDetailMap);
+            if (isPartialRef(step)) {
+                // 如果是部分引用的场景，不递归解析了，上层的递归会解析
                 continue;
             }
             // 非完全引用和部分引用的步骤，递归设置子步骤
             if (CollectionUtils.isNotEmpty(step.getChildren())) {
-                setChildPartialRefEnable(step.getChildren(), enableStepIds, stepDetailMap);
+                setChildPartialRefEnable(step.getChildren(), enableStepIds);
             }
         }
+    }
+
+    private boolean isPartialRef(ApiScenarioStepCommonDTO step) {
+        return StringUtils.equals(step.getStepType(), ApiScenarioStepType.API_SCENARIO.name()) &&
+                StringUtils.equals(step.getRefType(), ApiScenarioStepRefType.PARTIAL_REF.name());
     }
 
     private Map<String, String> getStepDetailMap(List<ApiScenarioStepRequest> steps, Map<String, Object> stepDetailsParam) {
@@ -836,8 +837,8 @@ public class ApiScenarioService {
         return apiScenarioBlobMapper.selectByExampleWithBLOBs(example);
     }
 
-    private void buildRefResourceIdMap(List<ApiScenarioStepRequest> steps, Map<String, List<String>> refResourceIdMap) {
-        for (ApiScenarioStepRequest step : steps) {
+    private void buildRefResourceIdMap(List<? extends ApiScenarioStepCommonDTO> steps, Map<String, List<String>> refResourceIdMap) {
+        for (ApiScenarioStepCommonDTO step : steps) {
             if (isRef(step.getRefType()) && BooleanUtils.isTrue(step.getEnable())) {
                 // 记录引用的步骤ID
                 List<String> resourceIds = refResourceIdMap.get(step.getStepType());
@@ -887,5 +888,166 @@ public class ApiScenarioService {
         update.setUpdateUser(userId);
         update.setUpdateTime(System.currentTimeMillis());
         apiScenarioMapper.updateByPrimaryKeySelective(update);
+    }
+
+    public ApiScenarioDetail get(String scenarioId) {
+        checkResourceExist(scenarioId);
+        ApiScenario apiScenario = apiScenarioMapper.selectByPrimaryKey(scenarioId);
+        ApiScenarioDetail apiScenarioDetail = BeanUtils.copyBean(new ApiScenarioDetail(), apiScenario);
+        ApiScenarioBlob apiScenarioBlob = apiScenarioBlobMapper.selectByPrimaryKey(scenarioId);
+        if (apiScenarioBlob != null) {
+            apiScenarioDetail.setScenarioConfig(JSON.parseObject(new String(apiScenarioBlob.getConfig()), ScenarioConfig.class));
+        }
+
+        // 获取所有步骤
+        List<ApiScenarioStepDTO> allSteps = getAllStepsByScenarioIds(List.of(scenarioId));
+        // 构造 map，key 为场景ID，value 为步骤列表
+        Map<String, List<ApiScenarioStepDTO>> scenarioStepMap = allSteps.stream()
+                .collect(Collectors.groupingBy(step -> Optional.ofNullable(step.getScenarioId()).orElse(StringUtils.EMPTY)));
+
+        // 查询部分引用的步骤详情和接口定义的步骤详情
+        Map<String, String> stepDetailMap = getStepDetailMap(allSteps);
+
+        // key 为父步骤ID，value 为子步骤列表
+        Map<String, List<ApiScenarioStepDTO>> parentStepMap = scenarioStepMap.get(scenarioId)
+                .stream()
+                .collect(Collectors.groupingBy(step -> Optional.ofNullable(step.getParentId()).orElse(StringUtils.EMPTY)));
+        List<ApiScenarioStepDTO> steps = buildStepTree(parentStepMap.get(StringUtils.EMPTY), scenarioStepMap, scenarioStepMap);
+        // 设置部分引用的步骤的启用状态
+        setPartialRefStepsEnable(steps, stepDetailMap);
+
+        apiScenarioDetail.setSteps(steps);
+
+        return apiScenarioDetail;
+    }
+
+    /**
+     * 设置部分引用的步骤的启用状态
+     *
+     * @param steps
+     * @param stepDetailMap
+     */
+    private void setPartialRefStepsEnable(List<? extends ApiScenarioStepCommonDTO> steps, Map<String, String> stepDetailMap) {
+        if (CollectionUtils.isNotEmpty(steps)) {
+            return;
+        }
+        for (ApiScenarioStepCommonDTO step : steps) {
+            setPartialRefStepEnable(step, stepDetailMap);
+            if (CollectionUtils.isNotEmpty(step.getChildren())) {
+                setPartialRefStepsEnable(step.getChildren(), stepDetailMap);
+            }
+        }
+    }
+
+    /**
+     * 查询部分引用的步骤详情 和 接口定义的步骤详情
+     *
+     * @param allSteps
+     */
+    private Map<String, String> getStepDetailMap(List<ApiScenarioStepDTO> allSteps) {
+        List<String> stepDetailIds = allSteps.stream().filter(step -> isRefApi(step.getStepType(), step.getRefType())
+                        || StringUtils.equals(step.getRefType(), ApiScenarioStepRefType.PARTIAL_REF.name()))
+                .map(ApiScenarioStepDTO::getId)
+                .collect(Collectors.toList());
+        if (CollectionUtils.isEmpty(stepDetailIds)) {
+            return new HashMap<>(0);
+        }
+        ApiScenarioBlobExample example = new ApiScenarioBlobExample();
+        example.createCriteria().andIdIn(stepDetailIds);
+        return apiScenarioBlobMapper.selectByExample(example).stream()
+                .collect(Collectors.toMap(ApiScenarioBlob::getId, blob -> new String(blob.getConfig())));
+    }
+
+    /**
+     * 判断步骤是否是引用的接口定义
+     * 引用的接口定义允许修改参数值，需要特殊处理
+     *
+     * @param stepType
+     * @param refType
+     * @return
+     */
+    private boolean isRefApi(String stepType, String refType) {
+        return StringUtils.equals(stepType, ApiScenarioStepType.API.name()) && StringUtils.equals(refType, ApiScenarioStepRefType.REF.name());
+    }
+
+    /**
+     * 递归构造步骤树
+     *
+     * @param steps           当前场景下，当前层级的步骤
+     * @param parentStepMap   当前场景所有的步骤，key 为父步骤ID，value 为子步骤列表
+     * @param scenarioStepMap 所有场景步骤，key 为场景ID，value 为子步骤列表
+     */
+    private List<ApiScenarioStepDTO> buildStepTree(List<ApiScenarioStepDTO> steps,
+                                                   Map<String, List<ApiScenarioStepDTO>> parentStepMap,
+                                                   Map<String, List<ApiScenarioStepDTO>> scenarioStepMap) {
+        if (CollectionUtils.isEmpty(steps)) {
+            return Collections.emptyList();
+        }
+        steps.forEach(step -> {
+            // 获取当前步骤的子步骤
+            List<ApiScenarioStepDTO> children = parentStepMap.get(step.getId());
+            if (CollectionUtils.isEmpty(children)) {
+                return;
+            }
+            if (isRefApiScenario(step)) {
+                // 如果当前步骤是引用的场景，获取该场景的子步骤
+                Map<String, List<ApiScenarioStepDTO>> childStepMap = scenarioStepMap.get(step.getResourceId())
+                        .stream()
+                        .collect(Collectors.groupingBy(ApiScenarioStepDTO::getParentId));
+                step.setChildren(buildStepTree(children, childStepMap, scenarioStepMap));
+            } else {
+                step.setChildren(buildStepTree(children, parentStepMap, scenarioStepMap));
+            }
+        });
+        // 排序
+        return steps.stream()
+                .sorted(Comparator.comparing(ApiScenarioStepDTO::getSort))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 判断步骤是否是引用的场景
+     * @param step
+     * @return
+     */
+    private boolean isRefApiScenario(ApiScenarioStepDTO step) {
+        return isRef(step.getRefType()) && StringUtils.equals(step.getStepType(), ApiScenarioStepType.API_SCENARIO.name());
+    }
+
+    /**
+     * 递归获取所有的场景步骤
+     *
+     * @param scenarioIds
+     * @return
+     */
+    private List<ApiScenarioStepDTO> getAllStepsByScenarioIds(List<String> scenarioIds) {
+        List<ApiScenarioStepDTO> steps = getStepDTOByScenarioIds(scenarioIds);
+        if (CollectionUtils.isEmpty(steps)) {
+            return steps;
+        }
+
+        // 将 config 转换成对象
+        steps.stream().forEach(step -> {
+            if (step.getConfig() != null && StringUtils.isNotBlank(step.getConfig().toString())) {
+                step.setConfig(JSON.parseObject(step.getConfig().toString()));
+            }
+        });
+
+        // 获取步骤中引用的场景ID
+        List<String> childScenarioIds = steps.stream()
+                .filter(step -> isRefApiScenario(step))
+                .map(ApiScenarioStepDTO::getResourceId)
+                .collect(Collectors.toList());
+
+        // 嵌套获取引用的场景步骤
+        steps.addAll(getAllStepsByScenarioIds(childScenarioIds));
+        return steps;
+    }
+
+    private List<ApiScenarioStepDTO> getStepDTOByScenarioIds(List<String> scenarioIds) {
+        if (CollectionUtils.isEmpty(scenarioIds)) {
+            return Collections.emptyList();
+        }
+        return extApiScenarioStepMapper.getStepDTOByScenarioIds(scenarioIds);
     }
 }

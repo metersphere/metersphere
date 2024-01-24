@@ -3,6 +3,7 @@ package io.metersphere.api.dto.scenario;
 import io.metersphere.api.constants.ApiScenarioStatus;
 import io.metersphere.system.valid.EnumValue;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -57,6 +58,7 @@ public class ApiScenarioAddRequest {
     private ScenarioConfig scenarioConfig;
 
     @Schema(description = "步骤集合")
+    @Valid
     private List<ApiScenarioStepRequest> steps;
 
     /**

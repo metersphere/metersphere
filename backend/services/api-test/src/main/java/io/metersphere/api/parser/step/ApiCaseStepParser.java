@@ -1,6 +1,6 @@
 package io.metersphere.api.parser.step;
 
-import io.metersphere.api.dto.scenario.ApiScenarioStepRequest;
+import io.metersphere.api.dto.scenario.ApiScenarioStepCommonDTO;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import org.apache.commons.lang3.StringUtils;
@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class ApiCaseStepParser extends StepParser {
     @Override
-    public AbstractMsTestElement parse(ApiScenarioStepRequest step, String resourceBlob, String stepDetail) {
+    public AbstractMsTestElement parse(ApiScenarioStepCommonDTO step, String resourceBlob, String stepDetail) {
         if (isRef(step.getRefType())) {
             return StringUtils.isBlank(resourceBlob) ? null : parse2MsTestElement(resourceBlob);
         } else {
