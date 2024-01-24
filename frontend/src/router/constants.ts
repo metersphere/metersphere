@@ -18,4 +18,10 @@ export const REDIRECT_ROUTE_NAME = 'Redirect';
 // 首页路由
 export const DEFAULT_ROUTE_NAME = 'workbench';
 
+// 无资源/权限路由
+export const NO_RESOURCE_ROUTE_NAME = 'noResource';
+
+// 无项目路由
+export const NO_PROJECT_ROUTE_NAME = 'noProject';
+
 export const WHITE_LIST_NAME = WHITE_LIST.map((el) => el.name);

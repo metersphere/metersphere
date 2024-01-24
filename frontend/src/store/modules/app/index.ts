@@ -279,13 +279,8 @@ const useAppStore = defineStore('app', {
     /**
      * 设置当前项目菜单配置
      */
-    async setCurrentMenuConfig() {
-      try {
-        const res = await getProjectInfo(this.currentProjectId);
-        this.currentMenuConfig = res.moduleIds;
-      } catch (error) {
-        console.log(error);
-      }
+    async setCurrentMenuConfig(menuConfig: string[]) {
+      this.currentMenuConfig = menuConfig;
     },
   },
   persist: {

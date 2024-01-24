@@ -1,3 +1,5 @@
+import { MsUserSelectorOption } from '@/components/business/ms-user-selector/types';
+
 import MSR from '@/api/http/index';
 import * as orgUrl from '@/api/requrls/setting/organizationAndProject';
 
@@ -172,7 +174,10 @@ export function addProjectMemberByOrg(data: AddUserToOrgOrProjectParams) {
 
 // 组织-获取项目下的管理员选项
 export function getAdminByProjectByOrg(organizationId: string, keyword: string) {
-  return MSR.get({ url: `${orgUrl.getAdminByOrganizationOrProjectUrl}${organizationId}`, params: { keyword } });
+  return MSR.get<MsUserSelectorOption[]>({
+    url: `${orgUrl.getAdminByOrganizationOrProjectUrl}${organizationId}`,
+    params: { keyword },
+  });
 }
 
 // 组织-获取成员下的成员选项

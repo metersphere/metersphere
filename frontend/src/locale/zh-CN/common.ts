@@ -101,4 +101,7 @@ export default {
   'common.tag': '标签',
   'common.success': '成功',
   'common.fail': '失败',
+  'common.noProject': '暂无项目权限，请联系管理员',
+  'common.noResource': '暂无资源权限，请联系管理员',
+  'common.noSelectProject': '无可选项目',
 };
