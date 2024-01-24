@@ -33,4 +33,7 @@ public class FunctionalCaseHistoryLogDTO implements Serializable {
         this.caseAttachments = caseAttachments;
         this.fileAssociationList = fileAssociationList;
     }
+
+    public FunctionalCaseHistoryLogDTO() {
+    }
 }
