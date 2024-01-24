@@ -12,8 +12,13 @@ import type {
 } from '@/models/projectManagement/environmental';
 import { OptionsItem } from '@/models/setting/log';
 
-export function updateOrAddEnv(data: EnvDetailItem) {
-  return MSR.post<EnvDetailItem>({ url: data.id ? envURL.updateEnvUrl : envURL.addEnvUrl, data });
+export function updateOrAddEnv(data: { request: EnvDetailItem; fileList: FileItem[] }) {
+  return MSR.uploadFile<EnvDetailItem>(
+    { url: data.request.id ? envURL.updateEnvUrl : envURL.addEnvUrl },
+    data,
+    '',
+    true
+  );
 }
 export function listEnv(data: { projectId: string; keyword: string }) {
   return MSR.post<EnvListItem[]>({ url: envURL.listEnvUrl, data });

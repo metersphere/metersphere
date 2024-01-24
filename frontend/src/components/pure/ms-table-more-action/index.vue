@@ -1,26 +1,28 @@
 <template>
-  <a-dropdown :trigger="props.trigger || 'hover'" @select="selectHandler" @popup-visible-change="visibleChange">
-    <slot>
-      <MsButton type="text" size="mini" class="more-icon">
-        <MsIcon type="icon-icon_more_outlined" size="16" class="text-[var(--color-text-4)]" />
-      </MsButton>
-    </slot>
-    <template #content>
-      <template v-for="item of props.list">
-        <a-divider v-if="item.isDivider" :key="`${item.label}-divider`" margin="4px" />
-        <a-doption
-          v-else
-          :key="item.label"
-          :class="item.danger ? 'error-6' : ''"
-          :disabled="item.disabled"
-          :value="item.eventTag"
-        >
-          <MsIcon v-if="item.icon" :type="item.icon" />
-          {{ t(item.label || '') }}
-        </a-doption>
+  <span>
+    <a-dropdown :trigger="props.trigger || 'hover'" @select="selectHandler" @popup-visible-change="visibleChange">
+      <slot>
+        <MsButton type="text" size="mini" class="more-icon">
+          <MsIcon type="icon-icon_more_outlined" size="16" class="text-[var(--color-text-4)]" />
+        </MsButton>
+      </slot>
+      <template #content>
+        <template v-for="item of props.list">
+          <a-divider v-if="item.isDivider" :key="`${item.label}-divider`" margin="4px" />
+          <a-doption
+            v-else
+            :key="item.label"
+            :class="item.danger ? 'error-6' : ''"
+            :disabled="item.disabled"
+            :value="item.eventTag"
+          >
+            <MsIcon v-if="item.icon" :type="item.icon" />
+            {{ t(item.label || '') }}
+          </a-doption>
+        </template>
       </template>
-    </template>
-  </a-dropdown>
+    </a-dropdown>
+  </span>
 </template>
 
 <script setup lang="ts">

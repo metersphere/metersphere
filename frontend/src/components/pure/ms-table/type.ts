@@ -127,6 +127,7 @@ export interface BatchActionParams {
   isDivider?: boolean;
   danger?: boolean;
   children?: BatchActionParams[];
+  permission?: string[];
 }
 export interface BatchActionConfig {
   baseAction: BatchActionParams[];

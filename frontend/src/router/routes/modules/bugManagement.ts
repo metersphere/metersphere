@@ -22,7 +22,7 @@ const BugManagement: AppRouteRecordRaw = {
       component: () => import('@/views/bug-management/index.vue'),
       meta: {
         locale: 'bugManagement.index',
-        roles: ['*'],
+        roles: ['PROJECT_BUG:READ'],
         isTopMenu: true,
       },
     },
@@ -33,7 +33,7 @@ const BugManagement: AppRouteRecordRaw = {
       component: () => import('@/views/bug-management/edit.vue'),
       meta: {
         locale: 'bugManagement.editBug',
-        roles: ['*'],
+        roles: ['PROJECT_BUG:READ+ADD', 'PROJECT_BUG:READ+UPDATE'],
         breadcrumbs: [
           {
             name: BugManagementRouteEnum.BUG_MANAGEMENT_INDEX,
@@ -54,7 +54,7 @@ const BugManagement: AppRouteRecordRaw = {
       component: () => import('@/views/bug-management/recycle.vue'),
       meta: {
         locale: 'bugManagement.recycle',
-        roles: ['*'],
+        roles: ['PROJECT_BUG:READ'],
         isTopMenu: true,
       },
     },

@@ -8,8 +8,14 @@
     >
       <template #left>
         <div class="flex gap-[12px]">
-          <a-button type="primary" @click="handleCreate">{{ t('bugManagement.createBug') }} </a-button>
-          <a-button :disabled="syncBugLoading" type="outline" @click="handleSync"
+          <a-button v-permission="['PROJECT_BUG:READ+ADD']" type="primary" @click="handleCreate"
+            >{{ t('bugManagement.createBug') }}
+          </a-button>
+          <a-button
+            v-permission="['PROJECT_BUG:READ+IMPORT']"
+            :disabled="syncBugLoading"
+            type="outline"
+            @click="handleSync"
             >{{ t('bugManagement.syncBug') }}
           </a-button>
         </div>
@@ -40,11 +46,20 @@
       </template>
       <template #operation="{ record }">
         <div class="flex flex-row flex-nowrap">
-          <MsButton class="!mr-0" @click="handleCopy(record)">{{ t('common.copy') }}</MsButton>
-          <a-divider direction="vertical" />
-          <MsButton class="!mr-0" @click="handleEdit(record)">{{ t('common.edit') }}</MsButton>
-          <a-divider direction="vertical" />
-          <MsTableMoreAction :list="moreActionList" trigger="click" @select="handleMoreActionSelect($event, record)" />
+          <span v-permission="['PROJECT_BUG:READ+ADD']" class="flex flex-row">
+            <MsButton class="!mr-0" @click="handleCopy(record)">{{ t('common.copy') }}</MsButton>
+            <a-divider direction="vertical" />
+          </span>
+          <span v-permission="['PROJECT_BUG:READ+UPDATE']" class="flex flex-row">
+            <MsButton class="!mr-0" @click="handleEdit(record)">{{ t('common.edit') }}</MsButton>
+            <a-divider direction="vertical" />
+          </span>
+          <MsTableMoreAction
+            v-permission="['PROJECT_BUG:READ+DELETE']"
+            :list="moreActionList"
+            trigger="click"
+            @select="handleMoreActionSelect($event, record)"
+          />
         </div>
       </template>
       <template #empty> </template>
@@ -364,15 +379,18 @@
       {
         label: 'common.export',
         eventTag: 'export',
+        permission: ['PROJECT_BUG:READ+EXPORT'],
       },
       {
         label: 'common.edit',
         eventTag: 'edit',
+        permission: ['PROJECT_BUG:READ+UPDATE'],
       },
       {
         label: 'common.delete',
         eventTag: 'delete',
         danger: true,
+        permission: ['PROJECT_BUG:READ+DELETE'],
       },
     ],
   };
