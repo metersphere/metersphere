@@ -131,6 +131,22 @@ public class ApiScenarioLogService {
         return dto;
     }
 
+    public LogDTO updateLog(String id) {
+        ApiScenario apiScenario = apiScenarioMapper.selectByPrimaryKey(id);
+        // todo 记录完整的场景信息
+        LogDTO dto = new LogDTO(
+                null,
+                null,
+                apiScenario.getId(),
+                null,
+                OperationLogType.UPDATE.name(),
+                OperationLogModule.API_SCENARIO,
+                apiScenario.getName());
+        dto.setHistory(true);
+        dto.setOriginalValue(JSON.toJSONBytes(apiScenario));
+        return dto;
+    }
+
     public LogDTO deleteLog(String id) {
         ApiScenario apiScenario = apiScenarioMapper.selectByPrimaryKey(id);
         LogDTO dto = new LogDTO(

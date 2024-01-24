@@ -115,6 +115,15 @@ public class ApiTestCaseController {
         return apiTestCaseService.update(request, SessionUtils.getUserId());
     }
 
+    @GetMapping(value = "/update-priority/{id}/{priority}")
+    @Operation(summary = "接口测试-接口管理-接口用例-更新等级")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#id)", msClass = ApiTestCaseLogService.class)
+    @CheckOwner(resourceId = "#id", resourceType = "api_test_case")
+    public void updatePriority(@PathVariable String id, @PathVariable String priority) {
+        apiTestCaseService.updatePriority(id, priority, SessionUtils.getUserId());
+    }
+
     @GetMapping(value = "/update-status/{id}/{status}")
     @Operation(summary = "接口测试-接口管理-接口用例-更新状态")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE)

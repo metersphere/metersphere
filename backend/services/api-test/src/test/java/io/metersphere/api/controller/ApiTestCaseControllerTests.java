@@ -77,6 +77,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private static final String PAGE = BASE_PATH + "page";
     private static final String TRASH_PAGE = BASE_PATH + "trash/page";
     private static final String UPDATE_STATUS = BASE_PATH + "update-status";
+    private static final String UPDATE_PRIORITY = BASE_PATH + "update-priority";
     private static final String BATCH_EDIT = BASE_PATH + "batch/edit";
     private static final String BATCH_DELETE = BASE_PATH + "batch/delete";
     private static final String BATCH_MOVE_GC = BASE_PATH + "batch/move-gc";
@@ -694,6 +695,20 @@ public class ApiTestCaseControllerTests extends BaseTest {
         this.requestGet(UPDATE_STATUS + "/" + "11111" + "/Underway").andExpect(ERROR_REQUEST_MATCHER);
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE, UPDATE_STATUS + "/" + apiTestCase.getId() + "/Underway");
+    }
+
+    @Test
+    @Order(12)
+    public void updatePriority() throws Exception {
+        // @@请求成功
+        this.requestGetWithOk(UPDATE_PRIORITY + "/" + apiTestCase.getId() + "/P1");
+        ApiTestCase apiCase = apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId());
+        Assertions.assertEquals(apiCase.getPriority(), "P1");
+        // @@校验日志
+        checkLog(apiTestCase.getId(), OperationLogType.UPDATE);
+        this.requestGet(UPDATE_PRIORITY + "/" + "11111" + "/P1").andExpect(ERROR_REQUEST_MATCHER);
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE, UPDATE_PRIORITY + "/" + apiTestCase.getId() + "/P1");
     }
 
     @Test
