@@ -94,7 +94,9 @@ public class ApiScenarioControllerTests extends BaseTest {
     @Resource
     private BaseResourcePoolTestService baseResourcePoolTestService;
     private static ApiScenario addApiScenario;
+    private static List<ApiScenarioStepRequest> addApiScenarioSteps;
     private static ApiScenario anOtherAddApiScenario;
+    private static List<ApiScenarioStepRequest> anOtherAddApiScenarioSteps;
     private static ApiDefinition apiDefinition;
     private static ApiTestCase apiTestCase;
 
@@ -229,6 +231,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         stepRequest.setName(addApiScenario.getName());
         stepRequest.setResourceId(addApiScenario.getId());
         stepRequest.setRefType(ApiScenarioStepRefType.REF.name());
+        stepRequest.setStepType(ApiScenarioStepType.API_SCENARIO.name());
 
         ApiScenarioStepRequest stepRequest2 = new ApiScenarioStepRequest();
         stepRequest2.setId(IDGenerator.nextStr());
@@ -236,12 +239,14 @@ public class ApiScenarioControllerTests extends BaseTest {
         stepRequest2.setResourceId(addApiScenario.getId());
         stepRequest2.setRefType(ApiScenarioStepRefType.PARTIAL_REF.name());
         stepRequest2.setChildren(List.of(stepRequest));
+        stepRequest2.setStepType(ApiScenarioStepType.API_SCENARIO.name());
         steps = List.of(stepRequest, stepRequest2);
         request.setSteps(steps);
         mvcResult = this.requestPostWithOkAndReturn(DEFAULT_ADD, request);
         this.anOtherAddApiScenario = apiScenarioMapper.selectByPrimaryKey(getResultData(mvcResult, ApiScenario.class).getId());
         assertUpdateApiScenario(request, request.getScenarioConfig(), anOtherAddApiScenario.getId());
         assertUpdateSteps(steps, steptDetailMap);
+        anOtherAddApiScenarioSteps = steps;
 
         // @@重名校验异常
         assertErrorCode(this.requestPost(DEFAULT_ADD, request), API_SCENARIO_EXIST);
@@ -314,6 +319,8 @@ public class ApiScenarioControllerTests extends BaseTest {
         stepRequest.setName(apiTestCase.getName());
         stepRequest.setResourceId(apiTestCase.getId());
         stepRequest.setRefType(ApiScenarioStepRefType.REF.name());
+        stepRequest.setStepType(ApiScenarioStepType.API_CASE.name());
+        stepRequest.setProjectId(DEFAULT_PROJECT_ID);
         stepRequest.setConfig(new HashMap<>());
 
         ApiScenarioStepRequest stepRequest2 = new ApiScenarioStepRequest();
@@ -322,17 +329,22 @@ public class ApiScenarioControllerTests extends BaseTest {
         stepRequest2.setConfig(new HashMap<>());
         stepRequest2.setEnable(true);
         stepRequest2.setResourceId(apiTestCase.getId());
-        stepRequest.setName(apiTestCase.getName() + "2");
+        stepRequest2.setName(apiTestCase.getName() + "2");
+        stepRequest2.setStepType(ApiScenarioStepType.API_CASE.name());
         stepRequest2.setRefType(ApiScenarioStepRefType.COPY.name());
+        stepRequest2.setProjectId(DEFAULT_PROJECT_ID);
 
         ApiScenarioStepRequest stepRequest3 = new ApiScenarioStepRequest();
         stepRequest3.setId(IDGenerator.nextStr());
         stepRequest3.setVersionId(extBaseProjectVersionMapper.getDefaultVersion(DEFAULT_PROJECT_ID));
         stepRequest3.setConfig(new HashMap<>());
         stepRequest3.setEnable(true);
+        stepRequest3.setStepType(ApiScenarioStepType.API.name());
         stepRequest3.setResourceId(apiDefinition.getId());
-        stepRequest.setName(apiDefinition.getName() + "3");
+        stepRequest3.setName(apiDefinition.getName() + "3");
         stepRequest3.setRefType(ApiScenarioStepRefType.REF.name());
+        stepRequest3.setProjectId(DEFAULT_PROJECT_ID);
+
         return new ArrayList<>() {{
             add(stepRequest);
             add(stepRequest2);
@@ -409,6 +421,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         steps.get(0).setName("test name update");
         this.requestPostWithOk(DEFAULT_UPDATE, request);
         assertUpdateSteps(steps, steptDetailMap);
+        addApiScenarioSteps = steps;
 
         // @@重名校验异常
         request.setName(anOtherAddApiScenario.getName());
@@ -475,6 +488,37 @@ public class ApiScenarioControllerTests extends BaseTest {
         requestPostPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE, DEBUG, request);
     }
 
+    @Test
+    @Order(7)
+    public void get() throws Exception {
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(DEFAULT_GET, addApiScenario.getId());
+        ApiScenarioDetail apiScenarioDetail = getResultData(mvcResult, ApiScenarioDetail.class);
+        // 验证数据
+        asserGetApiScenarioSteps(this.addApiScenarioSteps, apiScenarioDetail.getSteps());
+
+        mvcResult = this.requestGetWithOkAndReturn(DEFAULT_GET, anOtherAddApiScenario.getId());
+        apiScenarioDetail = getResultData(mvcResult, ApiScenarioDetail.class);
+        // 验证数据
+        Assertions.assertEquals(this.anOtherAddApiScenarioSteps.size(), apiScenarioDetail.getSteps().size());
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_READ, DEFAULT_GET, addApiScenario.getId());
+    }
+
+    private void asserGetApiScenarioSteps(List<? extends ApiScenarioStepCommonDTO> addApiScenarioSteps, List<? extends ApiScenarioStepCommonDTO> steps) {
+        if (addApiScenarioSteps == null || steps == null) {
+            Assertions.assertEquals(addApiScenarioSteps, null);
+            Assertions.assertEquals(steps, null);
+            return;
+        }
+        Assertions.assertEquals(addApiScenarioSteps.size(), steps.size());
+        for (int i = 0; i < addApiScenarioSteps.size(); i++) {
+            ApiScenarioStepRequest stepRequest = (ApiScenarioStepRequest) addApiScenarioSteps.get(i);
+            ApiScenarioStepDTO stepDTO = (ApiScenarioStepDTO) steps.get(i);
+            Assertions.assertEquals(BeanUtils.copyBean(new ApiScenarioStepCommonDTO(), stepRequest), BeanUtils.copyBean(new ApiScenarioStepCommonDTO(), stepDTO));
+            asserGetApiScenarioSteps(stepRequest.getChildren(), stepDTO.getChildren());
+        }
+    }
+
     private String doUploadTempFile(MockMultipartFile file) throws Exception {
         return JSON.parseObject(requestUploadFileWithOkAndReturn(UPLOAD_TEMP_FILE, file)
                         .getResponse()
@@ -497,7 +541,8 @@ public class ApiScenarioControllerTests extends BaseTest {
     public void deleteToGc() throws Exception {
         // @@请求成功
         this.requestGetWithOk(DELETE_TO_GC, addApiScenario.getId());
-        // todo 校验请求成功数据
+        ApiScenario apiScenario = apiScenarioMapper.selectByPrimaryKey(addApiScenario.getId());
+        Assertions.assertTrue(apiScenario.getDeleted());
         // @@校验日志
         checkLog(addApiScenario.getId(), OperationLogType.DELETE);
         // @@校验权限
@@ -509,7 +554,10 @@ public class ApiScenarioControllerTests extends BaseTest {
     public void delete() throws Exception {
         // @@请求成功
         this.requestGetWithOk(DEFAULT_DELETE, addApiScenario.getId());
-        // todo 校验请求成功数据
+        ApiScenario apiScenario = apiScenarioMapper.selectByPrimaryKey(addApiScenario.getId());
+        ApiScenarioBlob apiScenarioBlob = apiScenarioBlobMapper.selectByPrimaryKey(addApiScenario.getId());
+        Assertions.assertNull(apiScenario);
+        Assertions.assertNull(apiScenarioBlob);
         // @@校验日志
         checkLog(addApiScenario.getId(), OperationLogType.DELETE);
         // @@校验权限

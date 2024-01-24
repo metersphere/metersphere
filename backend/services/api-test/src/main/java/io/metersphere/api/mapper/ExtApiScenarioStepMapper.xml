@@ -5,4 +5,12 @@
     <select id="getStepIdsByScenarioId" resultType="java.lang.String">
         SELECT id FROM api_scenario_step WHERE scenario_id = #{scenarioId}
     </select>
+    <select id="getStepDTOByScenarioIds" resultType="io.metersphere.api.dto.scenario.ApiScenarioStepDTO">
+        select
+        <include refid="io.metersphere.api.mapper.ApiScenarioStepMapper.Base_Column_List"/>
+        from api_scenario_step where scenario_id in
+        <foreach collection="scenarioIds" item="scenarioId" open="(" separator="," close=")">
+            #{scenarioId}
+        </foreach>
+    </select>
 </mapper>
