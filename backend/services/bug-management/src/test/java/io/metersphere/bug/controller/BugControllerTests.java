@@ -239,6 +239,10 @@ public class BugControllerTests extends BaseTest {
         MultiValueMap<String, Object> paramMap = getDefaultMultiPartParam(request, file);
         this.requestMultipartWithOkAndReturn(BUG_ADD, paramMap);
 
+        request.setCaseId("test");
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        this.requestMultipartWithOkAndReturn(BUG_ADD, paramMap);
     }
 
     @Test

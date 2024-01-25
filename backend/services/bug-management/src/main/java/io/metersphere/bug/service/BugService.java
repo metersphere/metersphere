@@ -224,6 +224,20 @@ public class BugService {
         handleAndSaveCustomFields(request, isUpdate);
         // 处理附件
         handleAndSaveAttachments(request, files, currentUser, platformName, platformBug);
+
+        if (!isUpdate && StringUtils.isNotBlank(request.getCaseId())) {
+            //用例创建缺陷并关联
+            BugRelationCase bugRelationCase = new BugRelationCase();
+            bugRelationCase.setId(IDGenerator.nextStr());
+            bugRelationCase.setCaseId(request.getCaseId());
+            bugRelationCase.setBugId(bug.getId());
+            bugRelationCase.setCaseType(CaseType.FUNCTIONAL_CASE.getKey());
+            bugRelationCase.setCreateUser(currentUser);
+            bugRelationCase.setCreateTime(System.currentTimeMillis());
+            bugRelationCase.setUpdateTime(System.currentTimeMillis());
+            bugRelationCaseMapper.insertSelective(bugRelationCase);
+        }
+
         return bug;
     }
 

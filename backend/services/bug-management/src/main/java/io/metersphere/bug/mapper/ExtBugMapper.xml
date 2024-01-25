@@ -378,18 +378,20 @@
     </sql>
 
     <sql id="queryWhereConditionByProvider">
-        <if test="request.projectId != null">
+        <if test="request.projectId != null and request.projectId != ''">
             and b.project_id = #{request.projectId}
         </if>
-        <if test="request.keyword != null">
+        <if test="request.keyword != null and request.keyword != ''">
             and (
             b.title like concat('%', #{request.keyword},'%')
             or b.num like concat('%', #{request.keyword},'%')
+            or b.tags like concat('%', #{request.keyword},'%')
             )
         </if>
         <include refid="filter"/>
         <include refid="combine">
             <property name="condition" value="request.combine"/>
+            <property name="searchMode" value="request.searchMode"/>
         </include>
     </sql>
 </mapper>

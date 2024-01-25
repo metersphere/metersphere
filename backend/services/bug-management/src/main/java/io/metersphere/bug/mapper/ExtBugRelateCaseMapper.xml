@@ -91,10 +91,10 @@
     </select>
 
     <sql id="queryWhereConditionByProvider">
-        <if test="request.caseId != null">
+        <if test="request.caseId != null and request.caseId != ''">
             and brc.case_id = #{request.caseId}
         </if>
-        <if test="request.keyword != null">
+        <if test="request.keyword != null and request.keyword != ''">
             and b.title like concat('%', #{request.keyword},'%')
         </if>
     </sql>
