@@ -2,8 +2,10 @@ package io.metersphere.api.controller.scenario;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.constants.ApiResource;
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.dto.scenario.*;
+import io.metersphere.api.service.ApiValidateService;
 import io.metersphere.api.service.scenario.ApiScenarioLogService;
 import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -31,6 +33,8 @@ import java.util.List;
 public class ApiScenarioController {
     @Resource
     private ApiScenarioService apiScenarioService;
+    @Resource
+    private ApiValidateService apiValidateService;
 
     @PostMapping("/page")
     @Operation(summary = "接口测试-接口场景管理-场景列表(deleted 状态为 1 时为回收站数据)")
@@ -51,14 +55,6 @@ public class ApiScenarioController {
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
         request.setDeleted(true);
         return PageUtils.setPageInfo(page, apiScenarioService.getScenarioPage(request));
-    }
-
-    @PostMapping("/batch/edit")
-    @Operation(summary = "接口测试-接口场景管理-批量编辑")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_UPDATE)
-    @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_scenario")
-    public void batchUpdate(@Validated @RequestBody ApiScenarioBatchEditRequest request) {
-        apiScenarioService.batchEdit(request, SessionUtils.getUserId());
     }
 
     @GetMapping("follow/{id}")
@@ -124,6 +120,16 @@ public class ApiScenarioController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
     public Object getStepDetail(@PathVariable String stepId) {
         return apiScenarioService.getStepDetail(stepId);
+    }
+
+    @GetMapping("/restore/{id}")
+    @Operation(summary = "接口测试-接口场景管理-删除场景到回收站")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_DELETE)
+    @Log(type = OperationLogType.RESTORE, expression = "#msClass.restoreLog(#id)", msClass = ApiScenarioLogService.class)
+    @CheckOwner(resourceId = "#id", resourceType = "api_scenario")
+    public void recover(@PathVariable String id) {
+        apiValidateService.validateApiMenuInProject(id, ApiResource.API_SCENARIO.name());
+        apiScenarioService.restore(id);
     }
 
     @PostMapping("/debug")

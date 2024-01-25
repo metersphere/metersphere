@@ -663,4 +663,16 @@ public class CommonProjectService {
         // 校验组织是否有权限
         return testResourcePoolService.validateOrgResourcePool(resourcePool, project.getOrganizationId());
     }
+
+    //检测资源所在的项目是否含有模块菜单
+    public void checkProjectHasModuleMenu(List<String> moduleMenus, String resourceId, String resourceTable) {
+        String moduleSettings = extSystemProjectMapper.selectModuleSettingsByResourceIdAndTable(resourceId, resourceTable);
+        if (StringUtils.isEmpty(moduleSettings)) {
+            throw new MSException(Translator.get("project.module_menu.check.error"));
+        }
+        List<String> projectModuleMenus = JSON.parseArray(moduleSettings, String.class);
+        if (!projectModuleMenus.containsAll(moduleMenus)) {
+            throw new MSException(Translator.get("project.module_menu.check.error"));
+        }
+    }
 }

@@ -28,10 +28,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -111,28 +109,10 @@ public class TestPlanModuleService extends ModuleTreeService implements CleanupP
             throw new MSException(Translator.get("node.name.repeat"));
         }
         example.clear();
-
-        //非默认节点，检查该节点所在分支的总长度，确保不超过阈值
-        if (!StringUtils.equals(module.getId(), ModuleConstants.DEFAULT_NODE_ID)) {
-            this.checkBranchModules(this.getRootNodeId(module), extTestPlanModuleMapper::selectChildrenIdsByParentIds);
-        }
     }
-
-    private String getRootNodeId(TestPlanModule module) {
-        if (StringUtils.equals(module.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
-            return module.getId();
-        } else {
-            TestPlanModule parentModule = testPlanModuleMapper.selectByPrimaryKey(module.getParentId());
-            return this.getRootNodeId(parentModule);
-        }
-    }
-
 
     public void update(TestPlanModuleUpdateRequest request, String userId,String requestUrl,String requestMethod) {
         TestPlanModule module = testPlanModuleMapper.selectByPrimaryKey(request.getId());
-        if (module == null) {
-            throw new MSException("module.not.exist");
-        }
         TestPlanModule updateModule = new TestPlanModule();
         updateModule.setId(request.getId());
         updateModule.setName(request.getName().trim());
@@ -242,17 +222,6 @@ public class TestPlanModuleService extends ModuleTreeService implements CleanupP
     @Override
     public void cleanReportResources(String projectId) {
         // nothing to do
-    }
-
-    public Map<String, String> getModuleNameMapByIds(List<String> moduleIds) {
-        if (CollectionUtils.isEmpty(moduleIds)) {
-            return new HashMap<>();
-        } else {
-            TestPlanModuleExample example = new TestPlanModuleExample();
-            example.createCriteria().andIdIn(moduleIds);
-            List<TestPlanModule> moduleList = testPlanModuleMapper.selectByExample(example);
-            return moduleList.stream().collect(Collectors.toMap(TestPlanModule::getId, TestPlanModule::getName));
-        }
     }
 
     public String getNameById(String id) {

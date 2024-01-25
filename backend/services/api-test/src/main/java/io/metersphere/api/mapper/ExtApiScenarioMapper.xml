@@ -98,14 +98,23 @@
 
     <select id="getTestCaseByProvider" resultType="io.metersphere.api.domain.ApiScenario">
         SELECT
-        t1.id, t1.version_id
+        id, version_id
         FROM
-        api_scenario t1
-        WHERE t1.deleted =#{deleted}
+        api_scenario
+        WHERE deleted =#{deleted}
         <include refid="queryWhereConditionByBaseQueryRequest"/>
     </select>
 
     <sql id="queryWhereConditionByBaseQueryRequest">
+        <if test="request.projectId != null and request.projectId != ''">
+            and api_scenario.project_id = #{request.projectId}
+        </if>
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            and api_scenario.module_id in
+            <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                #{nodeId}
+            </foreach>
+        </if>
         <if test="request.condition.combine != null">
             <include refid="combine">
                 <property name="condition" value="request.condition.combine"/>
