@@ -14,6 +14,7 @@ import java.util.List;
 /**
  * 步骤解析使用的核心数据
  * 用于步骤解析的统一处理
+ *
  * @Author: jianxing
  * @CreateTime: 2024-01-10  11:24
  */
@@ -40,8 +41,9 @@ public class ApiScenarioStepCommonDTO {
 
     /**
      * 引用模式：默认完全引用
-     *   - 完全引用：步骤状态不可调整
-     *   - 部分引用：步骤状态可调整
+     * - 完全引用：步骤状态不可调整
+     * - 部分引用：步骤状态可调整
+     *
      * @see ApiScenarioStepRefType
      */
     @Schema(description = "引用/复制/自定义")
@@ -50,6 +52,9 @@ public class ApiScenarioStepCommonDTO {
 
     @Schema(description = "循环等组件基础数据")
     private Object config;
+
+    @Schema(description = "csv文件id集合")
+    private List<String> csvFileIds;
 
     @Valid
     @Schema(description = "子步骤")
