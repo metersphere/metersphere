@@ -14,10 +14,10 @@ public interface CaseEvent {
     interface Param {
         String REVIEW_ID = "reviewId";
         String CASE_IDS = "caseIds";
-        String STATUS = "status";
         String USER_ID = "userId";
         String EVENT_NAME = "eventName";
         String COUNT_MAP = "countMap";
+        String STATUS_MAP = "statusMap";
     }
 
 }

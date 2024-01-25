@@ -294,6 +294,7 @@ public class CaseReviewFunctionalCaseService {
         CaseReviewHistoryMapper caseReviewHistoryMapper = sqlSession.getMapper(CaseReviewHistoryMapper.class);
         CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper = sqlSession.getMapper(CaseReviewFunctionalCaseMapper.class);
 
+        Map<String,String>statusMap = new HashMap<>();
         for (CaseReviewFunctionalCase caseReviewFunctionalCase : caseReviewFunctionalCaseList) {
             //校验当前操作人是否是该用例的评审人，是增加评审历史，不是过滤掉
             String caseId = caseReviewFunctionalCase.getCaseId();
@@ -315,7 +316,7 @@ public class CaseReviewFunctionalCaseService {
             }
             //根据评审规则更新用例评审和功能用例关系表中的状态 1.单人评审直接更新评审结果 2.多人评审需要计算
             setStatus(request, caseReviewFunctionalCase, caseHistoryMap, reviewerMap);
-
+            statusMap.put(caseReviewFunctionalCase.getCaseId(),caseReviewFunctionalCase.getStatus());
             caseReviewFunctionalCaseMapper.updateByPrimaryKeySelective(caseReviewFunctionalCase);
 
             //检查是否有@，发送@通知
@@ -344,7 +345,7 @@ public class CaseReviewFunctionalCaseService {
         });
         param.put(CaseEvent.Param.CASE_IDS, CollectionUtils.isNotEmpty(caseIds) ? caseIds : new ArrayList<>());
         param.put(CaseEvent.Param.REVIEW_ID, reviewId);
-        param.put(CaseEvent.Param.STATUS, request.getStatus());
+        param.put(CaseEvent.Param.STATUS_MAP, statusMap);
         param.put(CaseEvent.Param.USER_ID, userId);
         param.put(CaseEvent.Param.EVENT_NAME, CaseEvent.Event.REVIEW_FUNCTIONAL_CASE);
         param.put(CaseEvent.Param.COUNT_MAP, countMap);
@@ -440,16 +441,13 @@ public class CaseReviewFunctionalCaseService {
             Map<String, List<CaseReviewHistory>> caseHistoryMap = caseReviewHistories.stream().collect(Collectors.groupingBy(CaseReviewHistory::getCaseId, Collectors.toList()));
 
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-            FunctionalCaseMapper functionalCaseMapper = sqlSession.getMapper(FunctionalCaseMapper.class);
+            Map<String, String>statusMap = new HashMap<>();
             CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper = sqlSession.getMapper(CaseReviewFunctionalCaseMapper.class);
             cases.forEach(caseReview -> {
                 String status = multipleReview(caseReview, caseHistoryMap.get(caseReview.getCaseId()), newReviewersMap.get(caseReview.getCaseId()), oldReviewUserMap.get(caseReview.getCaseId()));
                 caseReview.setStatus(status);
                 caseReviewFunctionalCaseMapper.updateByPrimaryKeySelective(caseReview);
-                FunctionalCase functionalCase = new FunctionalCase();
-                functionalCase.setId(caseReview.getCaseId());
-                functionalCase.setReviewStatus(caseReview.getStatus());
-                functionalCaseMapper.updateByPrimaryKeySelective(functionalCase);
+                statusMap.put(caseReview.getCaseId(), caseReview.getStatus());
             });
             sqlSession.flushStatements();
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
@@ -463,6 +461,7 @@ public class CaseReviewFunctionalCaseService {
             param.put(CaseEvent.Param.USER_ID, userId);
             param.put(CaseEvent.Param.CASE_IDS, caseIds);
             param.put(CaseEvent.Param.COUNT_MAP, countMap);
+            param.put(CaseEvent.Param.STATUS_MAP, statusMap);
             param.put(CaseEvent.Param.EVENT_NAME, CaseEvent.Event.REVIEW_FUNCTIONAL_CASE);
             provider.updateCaseReview(param);
         }
