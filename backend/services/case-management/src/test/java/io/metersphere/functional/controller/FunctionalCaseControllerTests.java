@@ -24,14 +24,18 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.CustomField;
+import io.metersphere.system.dto.OperationHistoryDTO;
+import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.service.OperationHistoryService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -73,6 +77,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
     public static final String DOWNLOAD_EXCEL_TEMPLATE_URL = "/functional/case/download/excel/template/";
     public static final String CHECK_EXCEL_URL = "/functional/case/pre-check/excel";
     public static final String IMPORT_EXCEL_URL = "/functional/case/import/excel";
+    public static final String OPERATION_HISTORY_URL = "/functional/case/operation-history";
 
     @Resource
     private NotificationMapper notificationMapper;
@@ -83,6 +88,11 @@ public class FunctionalCaseControllerTests extends BaseTest {
     private ProjectTemplateService projectTemplateService;
     @Resource
     private FunctionalCaseCustomFieldMapper functionalCaseCustomFieldMapper;
+    @Resource
+    private OperationHistoryService operationHistoryService;
+
+    protected static String functionalCaseId;
+
 
     @Test
     @Order(1)
@@ -121,7 +131,6 @@ public class FunctionalCaseControllerTests extends BaseTest {
         String functionalCaseData = functionalCaseMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder functionalCaseResultHolder = JSON.parseObject(functionalCaseData, ResultHolder.class);
         FunctionalCase functionalCase = JSON.parseObject(JSON.toJSONString(functionalCaseResultHolder.getData()), FunctionalCase.class);
-
         NotificationExample notificationExample = new NotificationExample();
         notificationExample.createCriteria().andResourceNameEqualTo(functionalCase.getName()).andResourceTypeEqualTo(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK);
         List<Notification> notifications = notificationMapper.selectByExampleWithBLOBs(notificationExample);
@@ -134,6 +143,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(request));
         paramMap.add("files", new LinkedMultiValueMap<>());
         functionalCaseMvcResult = this.requestMultipartWithOkAndReturn(FUNCTIONAL_CASE_ADD_URL, paramMap);
+        functionalCaseId = functionalCase.getId();
         // 获取返回值
         returnData = functionalCaseMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         resultHolder = JSON.parseObject(returnData, ResultHolder.class);
@@ -630,5 +640,35 @@ public class FunctionalCaseControllerTests extends BaseTest {
         paramMap.add("request", JSON.toJSONString(request));
         paramMap.add("file", file2);
         this.requestMultipart(IMPORT_EXCEL_URL, paramMap);
+    }
+
+    @Test
+    @Order(22)
+    public void operationHistoryList() throws Exception {
+        OperationHistoryRequest request = new OperationHistoryRequest();
+        request.setSourceId(functionalCaseId);
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setCurrent(1);
+        request.setPageSize(10);
+        request.setSort(Map.of("createTime", "asc"));
+
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(OPERATION_HISTORY_URL, request);
+        // 获取返回值
+        String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        // 返回请求正常
+        Assertions.assertNotNull(resultHolder);
+        Pager<?> pageData = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        // 返回值不为空
+        Assertions.assertNotNull(pageData);
+        // 返回值的页码和当前页码相同
+        Assertions.assertEquals(pageData.getCurrent(), request.getCurrent());
+        // 返回的数据量不超过规定要返回的数据量相同
+        Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= request.getPageSize());
+        request.setSort(Map.of());
+        this.requestPost(OPERATION_HISTORY_URL, request);
+        List<OperationHistoryDTO> operationHistoryDTOS = operationHistoryService.listWidthLimit(request, "functional_case");
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(operationHistoryDTOS));
+
     }
 }

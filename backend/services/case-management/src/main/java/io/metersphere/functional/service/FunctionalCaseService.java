@@ -28,9 +28,12 @@ import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomFieldOption;
+import io.metersphere.system.dto.OperationHistoryDTO;
+import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
@@ -115,6 +118,8 @@ public class FunctionalCaseService {
     private static final String ADD_FUNCTIONAL_CASE_FILE_LOG_URL = "/functional/case/add";
     private static final String UPDATE_FUNCTIONAL_CASE_FILE_LOG_URL = "/functional/case/update";
     private static final String FUNCTIONAL_CASE_BATCH_COPY_FILE_LOG_URL = "/functional/case/batch/copy";
+
+    private static final String CASE_TABLE = "functional_case";
 
     @Resource
     private FunctionalCaseDemandMapper functionalCaseDemandMapper;
@@ -1029,5 +1034,13 @@ public class FunctionalCaseService {
 
         FunctionalCaseHistoryLogDTO historyLogDTO = new FunctionalCaseHistoryLogDTO(functionalCase, functionalCaseBlob, customFields, caseAttachments, fileAssociationList);
         return historyLogDTO;
+    }
+
+    public List<OperationHistoryDTO> operationHistoryList(OperationHistoryRequest request) {
+        XpackFunctionalCaseService functionalCaseService = CommonBeanFactory.getBean(XpackFunctionalCaseService.class);
+        if (functionalCaseService != null) {
+            return functionalCaseService.listHis(request, CASE_TABLE);
+        }
+        return List.of();
     }
 }
