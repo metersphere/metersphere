@@ -14,7 +14,7 @@ public class ImportRequest {
     private String projectId;
     @Schema(description = "导入的swagger地址")
     private String swaggerUrl;
-    @Schema(description = "如果是定时任务的时候 需要传入创建人id")
+    @Schema(description = "如果是定时任务的时候 需要传入创建人id", requiredMode = Schema.RequiredMode.REQUIRED)
     private String userId;
     private String versionId; // 新导入选择的版本
     private String updateVersionId; // 覆盖导入已存在的接口选择的版本

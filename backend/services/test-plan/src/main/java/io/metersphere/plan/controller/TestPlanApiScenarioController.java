@@ -1,7 +1,6 @@
 package io.metersphere.plan.controller;
 
 import io.metersphere.plan.constants.TestPlanResourceConfig;
-import io.metersphere.plan.dto.LogInsertModule;
 import io.metersphere.plan.dto.request.ResourceSortRequest;
 import io.metersphere.plan.dto.request.TestPlanAssociationRequest;
 import io.metersphere.plan.dto.response.TestPlanAssociationResponse;
@@ -10,6 +9,7 @@ import io.metersphere.plan.service.TestPlanApiScenarioService;
 import io.metersphere.plan.service.TestPlanManagementService;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;

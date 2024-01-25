@@ -111,11 +111,6 @@ public class ApiScenarioModuleService extends ModuleTreeService {
             throw new MSException(Translator.get("node.name.repeat"));
         }
         example.clear();
-
-        //非默认节点，检查该节点所在分支的总长度，确保不超过阈值
-        if (!StringUtils.equals(module.getId(), ModuleConstants.DEFAULT_NODE_ID)) {
-            this.checkBranchModules(this.getRootNodeId(module), extApiScenarioModuleMapper::selectChildrenIdsByParentIds);
-        }
     }
 
     private String getRootNodeId(ApiScenarioModule module) {

@@ -1,5 +1,6 @@
 package io.metersphere.plan.dto;
 
+import io.metersphere.system.dto.LogInsertModule;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
