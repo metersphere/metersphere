@@ -3,20 +3,20 @@ package io.metersphere.system.service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
 import io.metersphere.api.domain.ApiScenario;
+import io.metersphere.api.mapper.ApiDefinitionSwaggerMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.ScheduleResourceType;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.Organization;
+import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.taskcenter.TaskCenterScheduleDTO;
 import io.metersphere.system.dto.taskcenter.enums.ScheduleTagType;
 import io.metersphere.system.dto.taskcenter.request.TaskCenterSchedulePageRequest;
-import io.metersphere.system.mapper.BaseProjectMapper;
-import io.metersphere.system.mapper.ExtOrganizationMapper;
-import io.metersphere.system.mapper.ExtScheduleMapper;
-import io.metersphere.system.mapper.OrganizationMapper;
+import io.metersphere.system.mapper.*;
+import io.metersphere.system.sechedule.ScheduleService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
@@ -57,6 +57,15 @@ public class TaskCenterService {
 
     @Resource
     OrganizationMapper organizationMapper;
+
+    @Resource
+    ApiDefinitionSwaggerMapper apiDefinitionSwaggerMapper;
+
+    @Resource
+    ScheduleMapper scheduleMapper;
+
+    @Resource
+    ScheduleService scheduleService;
 
 
     private static final String CREATE_TIME_SORT = "create_time desc";
@@ -210,6 +219,22 @@ public class TaskCenterService {
             throw new MSException(Translator.get("organization_not_exist"));
         }
         return organization;
+    }
+
+    public void delete(String id) {
+        Schedule schedule = checkScheduleExit(id);
+        if (ScheduleTagType.API_IMPORT.getNames().contains(schedule.getResourceType())) {
+            apiDefinitionSwaggerMapper.deleteByPrimaryKey(schedule.getResourceId());
+        }
+        scheduleService.deleteByResourceId(schedule.getResourceId(), schedule.getJob());
+    }
+
+    private Schedule checkScheduleExit(String id) {
+        Schedule schedule = scheduleMapper.selectByPrimaryKey(id);
+        if (schedule == null) {
+            throw new MSException(Translator.get("schedule_not_exist"));
+        }
+        return schedule;
     }
 
 }

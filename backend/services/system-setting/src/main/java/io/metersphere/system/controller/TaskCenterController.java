@@ -12,10 +12,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -56,7 +53,12 @@ public class TaskCenterController {
         return taskCenterService.getSystemSchedulePage(request);
     }
 
-
+    @GetMapping("/scheduled/delete/{id}")
+    @Operation(summary = "系统-任务中心-删除定时任务")
+    @CheckOwner(resourceId = "#id", resourceType = "scheduled")
+    public void delete(@PathVariable String id) {
+        taskCenterService.delete(id);
+    }
 
 
 }
