@@ -7,8 +7,12 @@
 package io.metersphere.functional.service;
 
 
-import io.metersphere.functional.domain.*;
-import io.metersphere.functional.mapper.*;
+import io.metersphere.functional.domain.CaseReview;
+import io.metersphere.functional.domain.CaseReviewModule;
+import io.metersphere.functional.domain.CaseReviewModuleExample;
+import io.metersphere.functional.mapper.CaseReviewModuleMapper;
+import io.metersphere.functional.mapper.ExtCaseReviewMapper;
+import io.metersphere.functional.mapper.ExtCaseReviewModuleMapper;
 import io.metersphere.functional.request.CaseReviewModuleCreateRequest;
 import io.metersphere.functional.request.CaseReviewModuleUpdateRequest;
 import io.metersphere.project.dto.ModuleCountDTO;
@@ -212,11 +216,6 @@ public class CaseReviewModuleService extends ModuleTreeService {
             throw new MSException(Translator.get("node.name.repeat"));
         }
         example.clear();
-
-        //非默认节点，检查该节点所在分支的总长度，确保不超过阈值
-        if (!StringUtils.equals(caseReviewModule.getId(), ModuleConstants.DEFAULT_NODE_ID)) {
-            this.checkBranchModules(this.getRootNodeId(caseReviewModule), extCaseReviewModuleMapper::selectChildrenIdsByParentIds);
-        }
     }
 
     private String getRootNodeId(CaseReviewModule caseReviewModule) {
