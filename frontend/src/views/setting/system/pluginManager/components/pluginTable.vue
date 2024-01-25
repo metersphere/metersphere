@@ -3,7 +3,9 @@
   <div>
     <a-row class="grid-demo mb-4" :gutter="10">
       <a-col :span="5">
-        <a-button class="mr-3" type="primary" @click="uploadPlugin">{{ t('system.plugin.uploadPlugin') }}</a-button>
+        <a-button v-permission="['SYSTEM_PLUGIN:READ+ADD']" class="mr-3" type="primary" @click="uploadPlugin">{{
+          t('system.plugin.uploadPlugin')
+        }}</a-button>
       </a-col>
       <a-col :span="5" :offset="9">
         <a-select v-model="searchKeys.scene" @change="searchHandler">
@@ -108,12 +110,18 @@
             </template>
             <template #cell="{ record }">
               <div class="flex">
-                <MsButton @click="update(record)">{{ t('system.plugin.edit') }}</MsButton>
+                <MsButton v-permission="['SYSTEM_PLUGIN:READ+UPDATE']" @click="update(record)">{{
+                  t('system.plugin.edit')
+                }}</MsButton>
                 <MsButton v-if="record.enable" @click="disableHandler(record)">{{
                   t('system.plugin.tableDisable')
                 }}</MsButton>
                 <MsButton v-else @click="enableHandler(record)">{{ t('system.plugin.tableEnable') }}</MsButton>
-                <MsTableMoreAction :list="tableActions" @select="handleSelect($event, record)"></MsTableMoreAction>
+                <MsTableMoreAction
+                  v-permission="['SYSTEM_PLUGIN:READ+DELETE']"
+                  :list="tableActions"
+                  @select="handleSelect($event, record)"
+                ></MsTableMoreAction>
               </div>
             </template>
           </a-table-column>

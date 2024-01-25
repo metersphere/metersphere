@@ -58,7 +58,7 @@
               >
             </li>
             <li>
-              <MsButton class="font-medium" @click="authChecking">{{
+              <MsButton v-permission="['SYSTEM_AUTH:READ+UPDATE']" class="font-medium" @click="authChecking">{{
                 t('system.authorized.authorityChecking')
               }}</MsButton>
             </li>

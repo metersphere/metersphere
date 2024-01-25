@@ -4,9 +4,13 @@
   </div>
   <div class="wrapper mb-6 flex justify-between">
     <span class="font-medium text-[var(--color-text-000)]">{{ t('project.basicInfo.basicInfo') }}</span>
-    <a-button v-if="!projectDetail?.deleted" type="outline" @click="editHandler">{{
-      t('project.basicInfo.edit')
-    }}</a-button>
+    <a-button
+      v-if="!projectDetail?.deleted"
+      v-permission="['SYSTEM_PARAMETER_SETTING_BASE:READ+UPDATE']"
+      type="outline"
+      @click="editHandler"
+      >{{ t('project.basicInfo.edit') }}</a-button
+    >
   </div>
   <div class="project-info mb-6 h-[112px] bg-white p-1">
     <div class="inner-wrapper rounded-md p-4">

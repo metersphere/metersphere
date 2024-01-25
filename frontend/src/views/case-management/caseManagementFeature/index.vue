@@ -1,15 +1,15 @@
 <template>
   <div class="rounded-2xl bg-white">
     <div class="p-[24px] pb-[16px]">
-      <a-button type="primary" @click="caseDetail">
+      <a-button v-permission="['FUNCTIONAL_CASE:READ+ADD']" type="primary" @click="caseDetail">
         {{ t('caseManagement.featureCase.creatingCase') }}
       </a-button>
-      <a-button class="mx-3" type="outline" @click="importCase('Excel')">
+      <a-button v-permission="['FUNCTIONAL_CASE:READ+IMPORT']" class="mx-3" type="outline" @click="importCase('Excel')">
         {{ t('caseManagement.featureCase.importExcel') }}
       </a-button>
-      <a-button type="outline" @click="importCase('Xmind')">
+      <!-- <a-button type="outline" @click="importCase('Xmind')">
         {{ t('caseManagement.featureCase.importXmind') }}
-      </a-button>
+      </a-button> -->
     </div>
     <a-divider class="!my-0" />
     <div class="pageWrap">
@@ -98,6 +98,7 @@
   <ExportExcelModal
     v-model:visible="showExcelModal"
     :validate-type="validateType"
+    :confirm-loading="validateLoading"
     @save="validateTemplate"
     @close="showExcelModal = false"
   />
@@ -112,7 +113,9 @@
     v-model:visible="validateResultModal"
     :validate-type="validateType"
     :validate-info="validateInfo"
+    :import-loading="importLoading"
     @close="closeHandler"
+    @save="conFirmImport"
   />
 </template>
 
@@ -133,7 +136,7 @@
   import ValidateModal from './components/export/validateModal.vue';
   import ValidateResult from './components/export/validateResult.vue';
 
-  import { createCaseModuleTree, importExcelChecked } from '@/api/modules/case-management/featureCase';
+  import { createCaseModuleTree, importExcelCase, importExcelChecked } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
@@ -193,7 +196,7 @@
     [activeFolder.value] = keys;
     activeCaseType.value = 'module';
     offspringIds.value = [..._offspringIds];
-    featureCaseStore.setModuleId(keys, offspringIds.value);
+    featureCaseStore.setModuleId(keys);
   }
 
   const confirmLoading = ref(false);
@@ -322,8 +325,15 @@
     }, 100);
   }
 
+  const fileList = ref<FileItem[]>([]);
+  const isCover = ref<boolean>(false);
+  const validateLoading = ref<boolean>(false);
+
   // 校验导入模版
   async function validateTemplate(files: FileItem[], cover: boolean) {
+    fileList.value = files;
+    isCover.value = cover;
+    validateLoading.value = true;
     try {
       start();
       validateModal.value = true;
@@ -339,6 +349,8 @@
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      validateLoading.value = false;
     }
   }
 
@@ -353,6 +365,29 @@
   function closeHandler() {
     showExcelModal.value = false;
     validateResultModal.value = false;
+    caseTreeRef.value.initModules();
+  }
+
+  const importLoading = ref<boolean>(false);
+  // 确定导入
+  async function conFirmImport() {
+    importLoading.value = true;
+    try {
+      const params = {
+        projectId: appStore.currentProjectId,
+        versionId: '',
+        cover: isCover.value,
+      };
+      await importExcelCase({ request: params, fileList: fileList.value.map((item: any) => item.file) });
+      Message.success(t('caseManagement.featureCase.importSuccess'));
+      validateResultModal.value = false;
+      showExcelModal.value = false;
+      caseTreeRef.value.initModules();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      importLoading.value = false;
+    }
   }
 
   onMounted(() => {

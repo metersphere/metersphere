@@ -1,7 +1,7 @@
 <template>
   <div class="rounded-2xl bg-white">
     <div class="p-[24px] pb-[16px]">
-      <a-button type="primary">
+      <a-button v-permission="['PROJECT_TEST_PLAN:READ+ADD']" type="primary">
         {{ t('testPlan.testPlanIndex.createTestPlan') }}
       </a-button>
     </div>

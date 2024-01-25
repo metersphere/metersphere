@@ -77,7 +77,12 @@
             :upload-image="handleUploadImage"
           />
         </a-form-item>
-        <AddAttachment @change="handleChange" @link-file="associatedFile" @upload="beforeUpload" />
+        <AddAttachment
+          v-model:file-list="fileList"
+          @change="handleChange"
+          @link-file="associatedFile"
+          @upload="beforeUpload"
+        />
       </a-form>
       <!-- 文件列表开始 -->
       <div class="w-[90%]">
@@ -260,6 +265,7 @@
     getAssociatedFileListUrl,
     getCaseDefaultFields,
     getCaseDetail,
+    getCaseModuleTree,
     previewFile,
     transferFileRequest,
     updateFile,
@@ -311,14 +317,6 @@
 
   const featureCaseStore = useFeatureCaseStore();
   const modelId = computed(() => featureCaseStore.moduleId[0]);
-  const caseTree = computed(() => {
-    return mapTree<ModuleTreeNode>(featureCaseStore.caseTree, (e) => {
-      return {
-        ...e,
-        draggable: false,
-      };
-    });
-  });
 
   const initForm: DetailCase = {
     id: '',
@@ -560,7 +558,6 @@
   async function getCaseInfo() {
     try {
       isLoading.value = true;
-      // await getAllCaseFields();
       const detailResult: DetailCase = await getCaseDetail(props.caseId);
       const fileIds = (detailResult.attachments || []).map((item: any) => item.id);
       if (fileIds.length) {
@@ -574,12 +571,23 @@
     }
   }
 
-  watchEffect(() => {
+  const caseTree = ref<ModuleTreeNode[]>([]);
+
+  async function initSelectTree() {
+    try {
+      caseTree.value = await getCaseModuleTree({ projectId: currentProjectId.value });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  onMounted(() => {
     if (route.params.mode === 'edit' || route.params.mode === 'copy') {
       getCaseInfo();
     } else {
       initDefaultFields();
     }
+    initSelectTree();
   });
   // 处理关联文件和已关联文件本地文件和已上传文本文件
   function getFilesParams() {
@@ -619,7 +627,7 @@
         if (val) {
           params.value.request = { ...form.value };
           emit('update:formModeValue', params.value);
-          featureCaseStore.setModuleId([form.value.moduleId], []);
+          featureCaseStore.setModuleId([form.value.moduleId]);
         }
       }
     },

@@ -1,16 +1,18 @@
 <template>
-  <MsPopconfirm
-    type="error"
-    :title="props.title"
-    :sub-title-tip="props.subTitleTip"
-    :loading="props.loading"
-    :visible="currentVisible"
-    :ok-text="props.okText"
-    @confirm="handleOk"
-    @cancel="handleCancel"
-  >
-    <MsButton @click="showPopover">{{ t(props.removeText) }}</MsButton>
-  </MsPopconfirm>
+  <span>
+    <MsPopconfirm
+      type="error"
+      :title="props.title"
+      :sub-title-tip="props.subTitleTip"
+      :loading="props.loading"
+      :visible="currentVisible"
+      :ok-text="props.okText"
+      @confirm="handleOk"
+      @cancel="handleCancel"
+    >
+      <MsButton @click="showPopover">{{ t(props.removeText) }}</MsButton>
+    </MsPopconfirm>
+  </span>
 </template>
 
 <script setup lang="ts">

@@ -136,7 +136,7 @@
       <a-form-item v-if="isShowTypeItem" :label="t('system.resourcePool.type')" field="type" class="form-item">
         <a-radio-group v-model:model-value="form.type" type="button" @change="changeResourceType">
           <a-radio value="Node">Node</a-radio>
-          <a-radio value="Kubernetes">Kubernetes</a-radio>
+          <a-radio v-xpack value="Kubernetes">Kubernetes</a-radio>
         </a-radio-group>
       </a-form-item>
       <template v-if="isShowNodeResources">
@@ -356,6 +356,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useVisit from '@/hooks/useVisit';
   import useAppStore from '@/store/modules/app';
+  import useLicenseStore from '@/store/modules/setting/license';
   import { downloadStringFile, sleep } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
 
@@ -363,6 +364,8 @@
 
   import { getYaml, job, YamlType } from './template';
 
+  const licenseStore = useLicenseStore();
+  const isXpack = computed(() => licenseStore.hasLicense());
   const route = useRoute();
   const router = useRouter();
   const { t } = useI18n();
@@ -399,7 +402,7 @@
   const form = ref({ ...defaultForm });
   const formRef = ref<FormInstance | null>(null);
   const orgOptions = ref<SelectOptionData>([]);
-  const useList = [
+  const useList = ref([
     {
       label: 'system.resourcePool.usePerformance',
       value: 'performance',
@@ -412,11 +415,14 @@
       label: 'system.resourcePool.useUI',
       value: 'UI',
     },
-  ];
+  ]);
   const defaultGrid = 'http://selenium-hub:4444';
 
   onBeforeMount(async () => {
     orgOptions.value = await getSystemOrgOption();
+    if (!isXpack.value) {
+      useList.value = useList.value.filter((item) => item.value === 'API');
+    }
   });
 
   async function initPoolInfo() {

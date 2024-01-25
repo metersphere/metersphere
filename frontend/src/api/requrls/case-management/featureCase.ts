@@ -141,3 +141,5 @@ export const EditorUploadFileUrl = '/attachment/upload/temp/file';
 export const PreviewEditorImageUrl = '/attachment/download/file';
 // 导入excel文件检查
 export const exportExcelCheckUrl = '/functional/case/pre-check/excel';
+// 导入excel文件
+export const importExcelCaseUrl = '/functional/case/import/excel';

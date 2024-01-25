@@ -96,6 +96,8 @@
   import type { CreateOrUpdateModule, UpdateModule } from '@/models/caseManagement/featureCase';
   import { ModuleTreeNode } from '@/models/projectManagement/file';
 
+  const featureCaseStore = useFeatureCaseStore();
+
   const { t } = useI18n();
   const { openModal } = useModal();
   const appStore = useAppStore();
@@ -141,6 +143,7 @@
     () => props.selectedKeys,
     (val) => {
       selectedNodeKeys.value = val || [];
+      featureCaseStore.setModuleId(val as string[]);
     }
   );
 
@@ -150,7 +153,6 @@
       emits('update:selectedKeys', val);
     }
   );
-  const featureCaseStore = useFeatureCaseStore();
   /**
    * 初始化模块树
    * @param isSetDefaultKey 是否设置第一个节点为选中节点
@@ -169,6 +171,7 @@
         };
       });
       featureCaseStore.setModulesTree(caseTree.value);
+      featureCaseStore.setModuleId(['all']);
       if (isSetDefaultKey) {
         selectedNodeKeys.value = [caseTree.value[0].id];
       }

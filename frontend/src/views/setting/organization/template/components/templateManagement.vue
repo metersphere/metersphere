@@ -5,7 +5,13 @@
     }}</a-alert>
     <div class="mb-4 flex items-center justify-between">
       <span v-if="isEnableOrdTemplate" class="font-medium">{{ t('system.orgTemplate.templateList') }}</span>
-      <a-button v-else type="primary" :disabled="false" @click="createTemplate">
+      <a-button
+        v-else
+        v-permission="['ORGANIZATION_TEMPLATE:READ+ADD']"
+        type="primary"
+        :disabled="false"
+        @click="createTemplate"
+      >
         {{ t('system.orgTemplate.createTemplate') }}
       </a-button>
       <a-input-search
@@ -28,12 +34,22 @@
         {{ record.enableThirdPart ? t('system.orgTemplate.yes') : t('system.orgTemplate.no') }}
       </template>
       <template #operation="{ record }">
-        <div class="flex flex-row flex-nowrap">
-          <MsButton @click="editTemplate(record.id)">{{ t('system.orgTemplate.edit') }}</MsButton>
-          <MsButton class="!mr-0" @click="copyTemplate(record.id)">{{ t('system.orgTemplate.copy') }}</MsButton>
-          <a-divider v-if="!record.internal" class="h-[12px]" direction="vertical" />
+        <div class="flex flex-row flex-nowrap items-center">
+          <MsButton v-permission="['ORGANIZATION_TEMPLATE:READ+UPDATE']" @click="editTemplate(record.id)">{{
+            t('system.orgTemplate.edit')
+          }}</MsButton>
+          <MsButton v-permission="['ORGANIZATION_TEMPLATE:READ+ADD']" class="!mr-0" @click="copyTemplate(record.id)">{{
+            t('system.orgTemplate.copy')
+          }}</MsButton>
+          <a-divider
+            v-if="!record.internal"
+            v-permission="['ORGANIZATION_TEMPLATE:READ+ADD']"
+            class="h-[12px]"
+            direction="vertical"
+          />
           <MsTableMoreAction
             v-if="!record.internal"
+            v-permission="['ORGANIZATION_TEMPLATE:READ+DELETE']"
             :list="moreActions"
             @select="(item) => handleMoreActionSelect(item, record)"
           />

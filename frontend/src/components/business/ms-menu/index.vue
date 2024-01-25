@@ -13,6 +13,7 @@
   import useUser from '@/hooks/useUser';
   import { BOTTOM_MENU_LIST } from '@/router/constants';
   import { useAppStore, useUserStore } from '@/store';
+  import useLicenseStore from '@/store/modules/setting/license';
   import { openWindow, regexUrl } from '@/utils';
   import { listenerRouteChange } from '@/utils/route-listener';
 
@@ -138,16 +139,6 @@
         }
       }
 
-      onBeforeMount(async () => {
-        try {
-          const res = await getOrgOptions();
-          originOrgList.value = res || [];
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log(error);
-        }
-      });
-
       const isActiveSwitchOrg = ref(false);
       const personalMenus = [
         {
@@ -180,6 +171,21 @@
           event: () => logout(),
         },
       ];
+
+      const licenseStore = useLicenseStore();
+      onBeforeMount(async () => {
+        if (!licenseStore.hasLicense()) {
+          personalMenus.splice(1, 1);
+          return;
+        }
+        try {
+          const res = await getOrgOptions();
+          originOrgList.value = res || [];
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
+      });
 
       watch(
         () => personalMenusVisible.value,

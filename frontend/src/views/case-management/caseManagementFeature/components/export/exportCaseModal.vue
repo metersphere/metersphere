@@ -43,11 +43,12 @@
         :auto-upload="false"
         :disabled="confirmLoading"
       ></MsUpload>
-      <a-form-item field="post" :label="t('caseManagement.featureCase.selectVersion')">
+      <!-- 版本暂时不上 -->
+      <!-- <a-form-item field="post" :label="t('caseManagement.featureCase.selectVersion')">
         <a-select class="max-w-[240px]" :placeholder="t('caseManagement.featureCase.defaultSelectNewVersion')">
           <a-option v-for="item of versionOptions" :key="item.id" :value="item.id">{{ item.name }}</a-option>
         </a-select>
-      </a-form-item>
+      </a-form-item> -->
     </div>
     <template #footer>
       <div class="flex items-center justify-between">
@@ -69,9 +70,14 @@
         ></a-checkbox>
         <div>
           <a-button type="secondary" @click="handleCancel">{{ t('system.plugin.pluginCancel') }}</a-button>
-          <a-button class="ml-3" type="primary" :disabled="isDisabled" :loading="confirmLoading" @click="saveConfirm">{{
-            t('caseManagement.featureCase.checkTemplate')
-          }}</a-button>
+          <a-button
+            class="ml-3"
+            type="primary"
+            :disabled="isDisabled"
+            :loading="props.confirmLoading"
+            @click="saveConfirm"
+            >{{ t('caseManagement.featureCase.checkTemplate') }}</a-button
+          >
         </div>
       </div>
     </template>
@@ -95,6 +101,7 @@
   const props = defineProps<{
     visible: boolean;
     validateType: 'Excel' | 'Xmind';
+    confirmLoading: boolean;
   }>();
 
   const emit = defineEmits<{
@@ -112,19 +119,17 @@
     set: (val) => emit('update:visible', val),
   });
 
-  const confirmLoading = ref<boolean>(false);
-
   const handleCancel = () => {
     fileList.value = [];
     emit('close');
   };
 
-  const versionOptions = ref([
-    {
-      id: '1001',
-      name: 'V1.0',
-    },
-  ]);
+  // const versionOptions = ref([
+  //   {
+  //     id: '1001',
+  //     name: 'V1.0',
+  //   },
+  // ]);
 
   const isRecover = ref<boolean>(false);
 

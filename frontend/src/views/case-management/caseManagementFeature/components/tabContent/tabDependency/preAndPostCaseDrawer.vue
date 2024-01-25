@@ -84,7 +84,15 @@
         </div>
         <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
           <template #caseLevel="{ record }">
-            <caseLevel :case-level="getCaseLevel(record)" />
+            <caseLevel :case-level="getCaseLevels(record.customFields)" />
+          </template>
+          <template v-if="(keyword || '').trim() === ''" #empty>
+            <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
+              {{ t('caseManagement.caseReview.tableNoData') }}
+              <MsButton v-permission="['FUNCTIONAL_CASE:READ+ADD']" class="ml-[8px]" @click="createCase">
+                {{ t('caseManagement.featureCase.creatingCase') }}
+              </MsButton>
+            </div>
           </template>
         </ms-base-table>
         <div class="footer">
@@ -114,8 +122,10 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
 
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
@@ -139,6 +149,9 @@
   import type { CaseManagementTable, CaseModuleQueryParams } from '@/models/caseManagement/featureCase';
   import type { TableQueryParams } from '@/models/common';
   import { ModuleTreeNode } from '@/models/projectManagement/file';
+  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
+
+  import { getCaseLevels } from '../../utils';
 
   const appStore = useAppStore();
   const currentProjectId = computed(() => appStore.currentProjectId);
@@ -450,6 +463,13 @@
       searchCase();
     }
   );
+
+  const router = useRouter();
+  function createCase() {
+    router.push({
+      name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
+    });
+  }
 
   onMounted(() => {
     resetSelector();

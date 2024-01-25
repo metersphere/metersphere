@@ -23,7 +23,7 @@ const ProjectManagement: AppRouteRecordRaw = {
       redirect: '/project-management/permission/basicInfo',
       meta: {
         locale: 'menu.projectManagement.projectPermission',
-        roles: ['*'],
+        roles: ['PROJECT_USER:READ'],
         isTopMenu: true,
       },
       children: [
@@ -34,7 +34,7 @@ const ProjectManagement: AppRouteRecordRaw = {
           component: () => import('@/views/project-management/projectAndPermission/basicInfos/index.vue'),
           meta: {
             locale: 'project.permission.basicInfo',
-            roles: ['*'],
+            roles: ['SYSTEM_PARAMETER_SETTING_BASE:READ'],
           },
         },
         // 菜单管理
@@ -86,7 +86,7 @@ const ProjectManagement: AppRouteRecordRaw = {
       component: () => import('@/views/project-management/template/index.vue'),
       meta: {
         locale: 'menu.projectManagement.templateManager',
-        roles: ['*'],
+        roles: ['PROJECT_TEMPLATE:READ'],
         isTopMenu: true,
       },
     },
@@ -227,7 +227,7 @@ const ProjectManagement: AppRouteRecordRaw = {
       component: () => import('@/views/project-management/commonScript/index.vue'),
       meta: {
         locale: 'menu.projectManagement.commonScript',
-        roles: ['*'],
+        roles: ['PROJECT_CUSTOM_FUNCTION:READ'],
         isTopMenu: true,
       },
     },

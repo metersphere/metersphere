@@ -124,10 +124,15 @@
               </div>
             </template> -->
             <template #operation="{ record }">
-              <MsButton @click="recoverCase(record.id)">{{ t('caseManagement.featureCase.batchRecover') }}</MsButton>
-              <MsButton class="!mr-0" @click="handleBatchCleanOut(record)">{{
-                t('caseManagement.featureCase.batchCleanOut')
+              <MsButton v-permission="['FUNCTIONAL_CASE:READ+DELETE']" @click="recoverCase(record.id)">{{
+                t('caseManagement.featureCase.batchRecover')
               }}</MsButton>
+              <MsButton
+                v-permission="['FUNCTIONAL_CASE:READ+DELETE']"
+                class="!mr-0"
+                @click="handleBatchCleanOut(record)"
+                >{{ t('caseManagement.featureCase.batchCleanOut') }}</MsButton
+              >
             </template>
           </ms-base-table>
         </div>
@@ -810,10 +815,6 @@
     }
   }
 
-  function getCaseLevel(record: CaseManagementTable): CaseLevel {
-    const caseLevelItem = record.customFields.find((it: any) => it.fieldName === '用例等级');
-    return caseLevelItem?.options.find((it: any) => it.value === caseLevelItem.defaultValue).text;
-  }
   onMounted(() => {
     getDefaultFields();
     initFilter();

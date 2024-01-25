@@ -20,6 +20,7 @@
   import pageConfig from './components/pageConfig.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import useLicenseStore from '@/store/modules/setting/license';
 
   const { t } = useI18n();
   const route = useRoute();
@@ -29,12 +30,12 @@
   const isInitAuthConfig = ref(activeTab.value === 'authConfig');
   const isInitMemoryCleanup = ref(activeTab.value === 'memoryCleanup');
   const authConfigRef = ref<AuthConfigInstance | null>();
-  const tabList = [
+  const tabList = ref([
     { key: 'baseConfig', title: t('system.config.baseConfig') },
     { key: 'pageConfig', title: t('system.config.pageConfig') },
     { key: 'authConfig', title: t('system.config.authConfig') },
     { key: 'memoryCleanup', title: t('system.config.memoryCleanup') },
-  ];
+  ]);
 
   watch(
     () => activeTab.value,
@@ -51,10 +52,14 @@
       immediate: true,
     }
   );
-
+  const licenseStore = useLicenseStore();
   onMounted(() => {
     if (route.query.tab === 'authConfig' && route.query.id) {
       authConfigRef.value?.openAuthDetail(route.query.id as string);
+    }
+    if (!licenseStore.hasLicense()) {
+      const excludes = ['baseConfig', 'memoryCleanup'];
+      tabList.value = tabList.value.filter((item: any) => excludes.includes(item.key));
     }
   });
 </script>

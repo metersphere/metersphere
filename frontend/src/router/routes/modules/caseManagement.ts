@@ -22,7 +22,7 @@ const CaseManagement: AppRouteRecordRaw = {
       component: () => import('@/views/case-management/caseManagementFeature/index.vue'),
       meta: {
         locale: 'menu.caseManagement.featureCase',
-        roles: ['*'],
+        roles: ['FUNCTIONAL_CASE:READ'],
         isTopMenu: true,
       },
     },

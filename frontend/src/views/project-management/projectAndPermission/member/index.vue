@@ -1,7 +1,9 @@
 <template>
   <div class="mb-4 grid grid-cols-4 gap-2">
     <div class="col-span-2"
-      ><a-button class="mr-3" type="primary" @click="addMember">{{ t('project.member.addMember') }}</a-button></div
+      ><a-button v-permission="['PROJECT_USER:READ+ADD']" class="mr-3" type="primary" @click="addMember">{{
+        t('project.member.addMember')
+      }}</a-button></div
     >
     <div>
       <a-select v-model="roleIds" @change="changeSelect">
@@ -60,6 +62,7 @@
     </template>
     <template #operation="{ record }">
       <MsRemoveButton
+        v-permission="['PROJECT_USER:READ+DELETE']"
         position="br"
         :title="t('project.member.deleteMemberTip', { name: characterLimit(record.name) })"
         :sub-title-tip="t('project.member.subTitle')"
@@ -180,10 +183,12 @@
       {
         label: 'project.member.batchActionAddUserGroup',
         eventTag: 'batchAddUserGroup',
+        permission: ['PROJECT_USER:READ+ADD'],
       },
       {
         label: 'project.member.batchActionRemove',
         eventTag: 'batchActionRemove',
+        permission: ['PROJECT_USER:READ+ADD'],
       },
     ],
   };

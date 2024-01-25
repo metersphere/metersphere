@@ -55,9 +55,13 @@
           <a-radio value="commonScript">{{ t('project.commonScript.commonScript') }}</a-radio>
           <a-radio value="executionResult">{{ t('project.commonScript.executionResult') }}</a-radio>
         </a-radio-group>
-        <a-button type="outline" :loading="loading" @click="testScript">{{
-          t('project.commonScript.scriptTest')
-        }}</a-button>
+        <a-button
+          v-permission="['PROJECT_CUSTOM_FUNCTION:READ+EXECUTE']"
+          type="outline"
+          :loading="loading"
+          @click="testScript"
+          >{{ t('project.commonScript.scriptTest') }}</a-button
+        >
       </div>
       <ScriptDefined
         v-model:language="form.type"

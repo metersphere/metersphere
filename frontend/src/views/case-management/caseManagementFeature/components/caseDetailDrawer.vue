@@ -136,7 +136,7 @@
                 <span class="w-[calc(100%-36%)]">
                   <a-tree-select
                     v-model="detailInfo.moduleId"
-                    :data="featureCaseStore.caseTree"
+                    :data="caseTree"
                     class="w-full"
                     :allow-search="true"
                     :field-names="{
@@ -179,6 +179,7 @@
       </div>
       <inputComment
         v-model:content="content"
+        v-permission="['FUNCTIONAL_CASE:READ+COMMENT']"
         :is-active="isActive"
         is-show-avatar
         is-use-bottom
@@ -223,15 +224,17 @@
     deleteCaseRequest,
     followerCaseRequest,
     getCaseDetail,
+    getCaseModuleTree,
   } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import useUserStore from '@/store/modules/user';
-  import { characterLimit, findNodeByKey } from '@/utils';
+  import { characterLimit } from '@/utils';
 
   import type { CustomAttributes, DetailCase, TabItemType } from '@/models/caseManagement/featureCase';
+  import { ModuleTreeNode } from '@/models/projectManagement/file';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   import { getCaseLevels } from './utils';
@@ -310,19 +313,25 @@
     reviewStatus: 'UN_REVIEWED',
   };
 
+  const caseTree = ref<ModuleTreeNode[]>([]);
+
+  async function getCaseTree() {
+    try {
+      caseTree.value = await getCaseModuleTree({ projectId: currentProjectId.value });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   const detailInfo = ref<DetailCase>({ ...initDetail });
   const customFields = ref<CustomAttributes[]>([]);
   const caseLevels = ref<CaseLevel>('P0');
   function loadedCase(detail: DetailCase) {
+    getCaseTree();
     detailInfo.value = { ...detail };
     customFields.value = detailInfo.value.customFields;
     caseLevels.value = getCaseLevels(customFields.value) as CaseLevel;
   }
-
-  const moduleName = computed(() => {
-    return findNodeByKey<Record<string, any>>(featureCaseStore.caseTree, detailInfo.value?.moduleId as string, 'id')
-      ?.name;
-  });
 
   const editLoading = ref<boolean>(false);
 
