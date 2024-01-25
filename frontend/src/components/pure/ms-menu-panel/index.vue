@@ -4,7 +4,7 @@
       <div v-if="props.title" class="mb-2 font-medium">{{ props.title }}</div>
       <div class="menu">
         <div
-          v-for="(item, index) of props.menuList"
+          v-for="(item, index) of innerMenuList"
           :key="item.name"
           class="menu-item px-2"
           :class="{
@@ -26,6 +26,8 @@
 </template>
 
 <script setup lang="ts">
+  import { hasAnyPermission } from '@/utils/permission';
+
   const props = defineProps<{
     title?: string;
     defaultKey?: string;
@@ -33,6 +35,7 @@
       title: string;
       level: number;
       name: string;
+      permission?: string[];
     }[];
     activeClass?: string;
   }>();
@@ -41,6 +44,10 @@
   }>();
 
   const currentKey = ref(props.defaultKey);
+
+  const innerMenuList = computed(() => {
+    return props.menuList.filter((item: any) => hasAnyPermission(item.permission));
+  });
 
   watch(
     () => props.defaultKey,

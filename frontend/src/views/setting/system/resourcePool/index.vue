@@ -1,7 +1,7 @@
 <template>
   <MsCard :loading="loading" simple>
     <div class="mb-4 flex items-center justify-between">
-      <a-button v-xpack type="primary" @click="addPool">
+      <a-button v-permission="['SYSTEM_TEST_RESOURCE_POOL:READ+ADD']" v-xpack type="primary" @click="addPool">
         {{ t('system.resourcePool.createPool') }}
       </a-button>
       <a-input-search
@@ -18,12 +18,25 @@
         <a-button type="text" class="px-0" @click="showPoolDetail(record.id)">{{ record.name }}</a-button>
       </template>
       <template #action="{ record }">
-        <MsButton @click="editPool(record)">{{ t('system.resourcePool.editPool') }}</MsButton>
-        <MsButton v-if="record.enable" v-xpack @click="disabledPool(record)">
+        <MsButton v-permission="['SYSTEM_TEST_RESOURCE_POOL:READ+UPDATE']" @click="editPool(record)">{{
+          t('system.resourcePool.editPool')
+        }}</MsButton>
+        <MsButton
+          v-if="record.enable"
+          v-permission="['SYSTEM_TEST_RESOURCE_POOL:READ+UPDATE']"
+          v-xpack
+          @click="disabledPool(record)"
+        >
           {{ t('system.resourcePool.tableDisable') }}
         </MsButton>
-        <MsButton v-else v-xpack @click="enablePool(record)">{{ t('system.resourcePool.tableEnable') }}</MsButton>
-        <MsTableMoreAction :list="tableActions" @select="handleSelect($event, record)"></MsTableMoreAction>
+        <MsButton v-else v-permission="['SYSTEM_TEST_RESOURCE_POOL:READ+UPDATE']" v-xpack @click="enablePool(record)">{{
+          t('system.resourcePool.tableEnable')
+        }}</MsButton>
+        <MsTableMoreAction
+          v-permission="['SYSTEM_TEST_RESOURCE_POOL:READ+DELETE']"
+          :list="tableActions"
+          @select="handleSelect($event, record)"
+        ></MsTableMoreAction>
       </template>
     </ms-base-table>
   </MsCard>
@@ -40,7 +53,13 @@
     show-description
   >
     <template #tbutton>
-      <a-button type="outline" size="mini" :disabled="drawerLoading" @click="editPool(activePool)">
+      <a-button
+        v-permission="['SYSTEM_TEST_RESOURCE_POOL:READ+UPDATE']"
+        type="outline"
+        size="mini"
+        :disabled="drawerLoading"
+        @click="editPool(activePool)"
+      >
         {{ t('system.resourcePool.editPool') }}
       </a-button>
     </template>

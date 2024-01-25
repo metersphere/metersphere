@@ -68,6 +68,7 @@
       dataIndex: 'reviewName',
       sortable: {
         sortDirections: ['ascend', 'descend'],
+        sorter: true,
       },
       showTooltip: true,
       width: 300,

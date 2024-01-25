@@ -27,6 +27,7 @@ import {
   DetailCaseUrl,
   DownloadExcelTemplateUrl,
   DownloadFileUrl,
+  dragSortUrl,
   EditorUploadFileUrl,
   exportExcelCheckUrl,
   FollowerCaseUrl,
@@ -83,6 +84,7 @@ import type {
   DeleteCaseType,
   DemandItem,
   DetailCase,
+  DragCase,
   ImportExcelType,
   ModulesTreeType,
   OperationFile,
@@ -399,6 +401,11 @@ export function editorPreviewImages(data: PreviewImages) {
 // 导入excel
 export function importExcelCase(data: { request: ImportExcelType; fileList: File[] }) {
   return MSR.uploadFile({ url: importExcelCaseUrl }, { request: data.request, fileList: data.fileList }, '');
+}
+
+// 拖拽排序
+export function dragSort(data: DragCase) {
+  return MSR.post({ url: dragSortUrl, data });
 }
 
 export default {};

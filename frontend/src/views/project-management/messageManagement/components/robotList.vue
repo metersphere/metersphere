@@ -7,7 +7,7 @@
           <span class="text-[14px]">{{ t('project.messageManagement.notRemind') }}</span>
         </template>
       </a-alert>
-      <a-button type="primary" class="mb-[16px]" @click="handleCreateClick">
+      <a-button v-permission="['PROJECT_MESSAGE:READ+ADD']" type="primary" class="mb-[16px]" @click="handleCreateClick">
         {{ t('project.messageManagement.createBot') }}
       </a-button>
       <div
@@ -52,6 +52,7 @@
             <div class="flex items-center justify-between leading-[24px]">
               <div v-if="!['IN_SITE', 'MAIL'].includes(robot.platform)">
                 <a-button
+                  v-permission="['PROJECT_MESSAGE:READ+UPDATE']"
                   type="outline"
                   size="mini"
                   class="arco-btn-outline--secondary mr-[8px]"
@@ -59,7 +60,13 @@
                 >
                   {{ t('common.edit') }}
                 </a-button>
-                <a-button type="outline" size="mini" class="arco-btn-outline--secondary" @click="delRobot(robot)">
+                <a-button
+                  v-permission="['PROJECT_MESSAGE:READ+DELETE']"
+                  type="outline"
+                  size="mini"
+                  class="arco-btn-outline--secondary"
+                  @click="delRobot(robot)"
+                >
                   {{ t('common.delete') }}
                 </a-button>
               </div>

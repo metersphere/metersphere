@@ -324,3 +324,10 @@ export interface ValidateInfo {
   successCount: number;
   errorMessages: errorMessagesType[];
 }
+// 拖拽排序
+export interface DragCase {
+  projectId: string;
+  targetId: string;
+  moveMode: 'BEFORE' | 'AFTER' | 'APPEND'[]; // 拖拽类型
+  moveId: string;
+}

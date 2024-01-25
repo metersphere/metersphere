@@ -255,6 +255,7 @@
       showTooltip: true,
       sortable: {
         sortDirections: ['ascend', 'descend'],
+        sorter: true,
       },
       width: 200,
     },
@@ -263,6 +264,7 @@
       dataIndex: 'name',
       sortable: {
         sortDirections: ['ascend', 'descend'],
+        sorter: true,
       },
       showTooltip: true,
       width: 300,

@@ -50,4 +50,5 @@ export default {
   'organization.service.closeSuccess': 'Disable successfully',
   'organization.service.configSuccess': 'Configuration successfully',
   'organization.service.updateSuccess': 'Update successfully',
+  'organization.service.noPermissionsTip': 'You do not have operation permission, please contact the administrator',
 };

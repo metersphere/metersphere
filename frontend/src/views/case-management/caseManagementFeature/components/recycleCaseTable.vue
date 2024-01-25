@@ -237,6 +237,7 @@
       showInTable: true,
       sortable: {
         sortDirections: ['ascend', 'descend'],
+        sorter: true,
       },
       showTooltip: true,
       ellipsis: true,
@@ -251,6 +252,7 @@
       width: 300,
       sortable: {
         sortDirections: ['ascend', 'descend'],
+        sorter: true,
       },
       ellipsis: true,
       showDrag: false,
@@ -325,6 +327,7 @@
       showInTable: true,
       sortable: {
         sortDirections: ['ascend', 'descend'],
+        sorter: true,
       },
       width: 200,
       showDrag: true,
@@ -343,6 +346,7 @@
       dataIndex: 'updateTime',
       sortable: {
         sortDirections: ['ascend', 'descend'],
+        sorter: true,
       },
       showInTable: true,
       width: 200,

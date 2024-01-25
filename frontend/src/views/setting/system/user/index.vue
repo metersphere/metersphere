@@ -2,13 +2,15 @@
   <MsCard simple>
     <div class="mb-4 flex items-center justify-between">
       <div>
-        <a-button class="mr-3" type="primary" @click="showUserModal('create')">
+        <a-button v-permission="['SYSTEM_USER:READ+ADD']" class="mr-3" type="primary" @click="showUserModal('create')">
           {{ t('system.user.createUser') }}
         </a-button>
-        <a-button class="mr-3" type="outline" @click="showEmailInviteModal">
+        <a-button v-permission="['SYSTEM_USER_INVITE']" class="mr-3" type="outline" @click="showEmailInviteModal">
           {{ t('system.user.emailInvite') }}
         </a-button>
-        <a-button class="mr-3" type="outline" @click="showImportModal">{{ t('system.user.importUser') }}</a-button>
+        <a-button v-permission="['SYSTEM_USER:READ+IMPORT']" class="mr-3" type="outline" @click="showImportModal">{{
+          t('system.user.importUser')
+        }}</a-button>
       </div>
       <a-input-search
         v-model:model-value="keyword"
@@ -28,10 +30,14 @@
       <template #action="{ record }">
         <template v-if="!record.enable">
           <MsButton @click="enableUser(record)">{{ t('system.user.enable') }}</MsButton>
-          <MsButton @click="deleteUser(record)">{{ t('system.user.delete') }}</MsButton>
+          <MsButton v-permission="['SYSTEM_USER:READ+DELETE']" @click="deleteUser(record)">{{
+            t('system.user.delete')
+          }}</MsButton>
         </template>
         <template v-else>
-          <MsButton @click="showUserModal('edit', record)">{{ t('system.user.editUser') }}</MsButton>
+          <MsButton v-permission="['SYSTEM_USER:READ+UPDATE']" @click="showUserModal('edit', record)">{{
+            t('system.user.editUser')
+          }}</MsButton>
           <MsTableMoreAction :list="tableActions" @select="handleSelect($event, record)"></MsTableMoreAction>
         </template>
       </template>
@@ -470,28 +476,34 @@
       {
         label: 'system.user.batchActionAddProject',
         eventTag: 'batchAddProject',
+        permission: ['SYSTEM_USER:READ+ADD'],
       },
       {
         label: 'system.user.batchActionAddUserGroup',
         eventTag: 'batchAddUserGroup',
+        permission: ['SYSTEM_USER:READ+ADD'],
       },
       {
         label: 'system.user.batchActionAddOrganization',
         eventTag: 'batchAddOrganization',
+        permission: ['SYSTEM_USER:READ+ADD'],
       },
     ],
     moreAction: [
       {
         label: 'system.user.resetPassword',
         eventTag: 'resetPassword',
+        permission: ['SYSTEM_USER:READ+UPDATE'],
       },
       {
         label: 'system.user.disable',
         eventTag: 'disabled',
+        permission: ['SYSTEM_USER:READ+UPDATE'],
       },
       {
         label: 'system.user.enable',
         eventTag: 'enable',
+        permission: ['SYSTEM_USER:READ+UPDATE'],
       },
       {
         isDivider: true,
@@ -500,6 +512,7 @@
         label: 'system.user.delete',
         eventTag: 'delete',
         danger: true,
+        permission: ['SYSTEM_USER:READ+DELETE'],
       },
     ],
   };

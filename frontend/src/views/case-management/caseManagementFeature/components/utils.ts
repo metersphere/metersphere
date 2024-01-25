@@ -132,4 +132,31 @@ export function getCaseLevels(customFields: CustomAttributes[]): CaseLevel {
   );
 }
 
+// 处理自定义字段
+export function getTableFields(customFields: any, itemDataIndex: any) {
+  const multipleExcludes = ['MULTIPLE_SELECT', 'CHECKBOX', 'MULTIPLE_MEMBER'];
+  const selectExcludes = ['MEMBER', 'RADIO', 'SELECT'];
+
+  const currentColumnData = customFields.find((item: any) => itemDataIndex.dataIndex === item.fieldId);
+  // 处理多选项
+  if (multipleExcludes.includes(currentColumnData.type)) {
+    const selectValue = JSON.parse(currentColumnData.defaultValue);
+    return currentColumnData.options
+      .filter((item: any) => selectValue.includes(item.value))
+      .map((it: any) => it.text)
+      .join(',');
+  }
+  if (currentColumnData.type === 'MULTIPLE_INPUT') {
+    // 处理标签形式
+    return JSON.parse(currentColumnData.defaultValue).join('，');
+  }
+  if (selectExcludes.includes(currentColumnData.type)) {
+    return currentColumnData.options
+      .filter((item: any) => currentColumnData.defaultValue === item.value)
+      .map((it: any) => it.text)
+      .join();
+  }
+  return currentColumnData.defaultValue;
+}
+
 export default {};

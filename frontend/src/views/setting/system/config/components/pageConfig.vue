@@ -39,7 +39,12 @@
       <div class="config-content">
         <div class="config-title !mb-[8px] flex items-center justify-between">
           {{ t('system.config.page.pagePreview') }}
-          <MsButton class="!leading-none" @click="resetLoginPageConfig">{{ t('system.config.page.reset') }}</MsButton>
+          <MsButton
+            v-permission="['SYSTEM_PARAMETER_SETTING_DISPLAY:READ+UPDATE']"
+            class="!leading-none"
+            @click="resetLoginPageConfig"
+            >{{ t('system.config.page.reset') }}</MsButton
+          >
         </div>
         <!-- 登录页预览盒子 -->
         <div :class="['config-preview', currentLocale === 'en-US' ? 'config-preview--en' : '']">
@@ -90,7 +95,12 @@
                   size-unit="KB"
                   :auto-upload="false"
                 >
-                  <a-button type="outline" class="arco-btn-outline--secondary" size="mini">
+                  <a-button
+                    v-permission="['SYSTEM_PARAMETER_SETTING_DISPLAY:READ+UPDATE']"
+                    type="outline"
+                    class="arco-btn-outline--secondary"
+                    size="mini"
+                  >
                     {{ t('system.config.page.replace') }}
                   </a-button>
                 </MsUpload>
@@ -118,7 +128,12 @@
                   size-unit="KB"
                   :auto-upload="false"
                 >
-                  <a-button type="outline" class="arco-btn-outline--secondary" size="mini">
+                  <a-button
+                    v-permission="['SYSTEM_PARAMETER_SETTING_DISPLAY:READ+UPDATE']"
+                    type="outline"
+                    class="arco-btn-outline--secondary"
+                    size="mini"
+                  >
                     {{ t('system.config.page.replace') }}
                   </a-button>
                 </MsUpload>
@@ -148,7 +163,12 @@
                   size-unit="MB"
                   :auto-upload="false"
                 >
-                  <a-button type="outline" class="arco-btn-outline--secondary" size="mini">
+                  <a-button
+                    v-permission="['SYSTEM_PARAMETER_SETTING_DISPLAY:READ+UPDATE']"
+                    type="outline"
+                    class="arco-btn-outline--secondary"
+                    size="mini"
+                  >
                     {{ t('system.config.page.replace') }}
                   </a-button>
                 </MsUpload>
@@ -199,7 +219,12 @@
       <div class="config-content border border-solid border-[var(--color-text-n8)] !bg-white">
         <div class="config-title !mb-[8px] flex items-center justify-between">
           {{ t('system.config.page.pagePreview') }}
-          <MsButton class="!leading-none" @click="resetPlatformConfig">{{ t('system.config.page.reset') }}</MsButton>
+          <MsButton
+            v-permission="['SYSTEM_PARAMETER_SETTING_DISPLAY:READ+UPDATE']"
+            class="!leading-none"
+            @click="resetPlatformConfig"
+            >{{ t('system.config.page.reset') }}</MsButton
+          >
         </div>
         <!-- 平台主页预览盒子 -->
         <div :class="['config-preview', '!h-[290px]', currentLocale === 'en-US' ? '!h-[340px]' : '']">
@@ -252,7 +277,12 @@
                   size-unit="MB"
                   :auto-upload="false"
                 >
-                  <a-button type="outline" class="arco-btn-outline--secondary" size="mini">
+                  <a-button
+                    v-permission="['SYSTEM_PARAMETER_SETTING_DISPLAY:READ+UPDATE']"
+                    type="outline"
+                    class="arco-btn-outline--secondary"
+                    size="mini"
+                  >
                     {{ t('system.config.page.replace') }}
                   </a-button>
                 </MsUpload>
@@ -299,8 +329,10 @@
       class="fixed bottom-0 right-[16px] z-[999] flex justify-between bg-white p-[24px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
       :style="{ width: `calc(100% - ${menuWidth + 16}px)` }"
     >
-      <a-button type="secondary" @click="resetAll">{{ t('system.config.page.resetAll') }}</a-button>
-      <a-button type="primary" @click="beforeSave">
+      <a-button v-permission="['SYSTEM_PARAMETER_SETTING_DISPLAY:READ+UPDATE']" type="secondary" @click="resetAll">{{
+        t('system.config.page.resetAll')
+      }}</a-button>
+      <a-button v-permission="['SYSTEM_PARAMETER_SETTING_DISPLAY:READ+UPDATE']" type="primary" @click="beforeSave">
         {{ t('system.config.page.save') }}
       </a-button>
     </div>

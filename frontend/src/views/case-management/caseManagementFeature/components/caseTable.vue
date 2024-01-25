@@ -25,12 +25,17 @@
     v-if="showType === 'list'"
     v-bind="propsRes"
     ref="tableRef"
+    filter-icon-align-left
     class="mt-4"
     :action-config="tableBatchActions"
     @selected-change="handleTableSelect"
     v-on="propsEvent"
     @batch-action="handleTableBatch"
+    @change="changeHandler"
   >
+    <template #num="{ record, rowIndex }">
+      <span class="flex w-full" @click="showCaseDetail(record.id, rowIndex)">{{ record.num }}</span>
+    </template>
     <template #name="{ record, rowIndex }">
       <a-button type="text" class="px-0" @click="showCaseDetail(record.id, rowIndex)">{{ record.name }}</a-button>
     </template>
@@ -78,8 +83,11 @@
       </a-tooltip>
     </template>
     <!-- 渲染自定义字段开始TODO -->
-    <!-- <template v-for="item in customFieldsColumns" :key="item.slotName" #[item.slotName]="{ record }">
-    </template> -->
+    <template v-for="item in customFieldsColumns" :key="item.slotName" #[item.slotName]="{ record }">
+      <a-tooltip :content="getTableFields(record.customFields, item)" position="top" :mouse-enter-delay="100" mini>
+        <div>{{ getTableFields(record.customFields, item) }}</div>
+      </a-tooltip>
+    </template>
     <!-- 渲染自定义字段结束 -->
     <template #operation="{ record }">
       <MsButton v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" @click="operateCase(record, 'edit')">{{
@@ -186,7 +194,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
-  import { Message } from '@arco-design/web-vue';
+  import { Message, TableChangeExtra, TableData } from '@arco-design/web-vue';
 
   import { CustomTypeMaps, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import { FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
@@ -213,6 +221,7 @@
     batchDeleteCase,
     batchMoveToModules,
     deleteCaseRequest,
+    dragSort,
     getCaseDefaultFields,
     getCaseDetail,
     getCaseList,
@@ -230,12 +239,13 @@
     CaseModuleQueryParams,
     CustomAttributes,
     DemandItem,
+    DragCase,
   } from '@/models/caseManagement/featureCase';
   import type { TableQueryParams } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
 
-  import { getCaseLevels, getReviewStatusClass, getStatusText } from './utils';
+  import { getCaseLevels, getReviewStatusClass, getStatusText, getTableFields } from './utils';
   import { LabelValue } from '@arco-design/web-vue/es/tree-select/interface';
 
   const { openModal } = useModal();
@@ -332,16 +342,19 @@
 
   const columns: MsTableColumn = [
     {
-      title: 'caseManagement.featureCase.tableColumnID',
-      dataIndex: 'num',
-      width: 200,
-      showInTable: true,
-      sortable: {
+      'title': 'caseManagement.featureCase.tableColumnID',
+      'slotName': 'num',
+      'dataIndex': 'num',
+      'width': 200,
+      'showInTable': true,
+      'sortable': {
         sortDirections: ['ascend', 'descend'],
+        sorter: true,
       },
-      showTooltip: true,
-      ellipsis: true,
-      showDrag: false,
+      'filter-icon-align-left': true,
+      'showTooltip': true,
+      'ellipsis': true,
+      'showDrag': false,
     },
     {
       title: 'caseManagement.featureCase.tableColumnName',
@@ -353,6 +366,7 @@
       editType: ColumnEditTypeEnum.INPUT,
       sortable: {
         sortDirections: ['ascend', 'descend'],
+        sorter: true,
       },
       ellipsis: true,
       showDrag: false,
@@ -411,6 +425,7 @@
       dataIndex: 'updateTime',
       sortable: {
         sortDirections: ['ascend', 'descend'],
+        sorter: true,
       },
       showInTable: true,
       width: 200,
@@ -972,17 +987,18 @@
   async function getDefaultFields() {
     const result = await getCaseDefaultFields(currentProjectId.value);
     initDefaultFields.value = result.customFields;
-    customFieldsColumns = initDefaultFields.value.map((item: any) => {
-      return {
-        title: item.fieldName,
-        slotName: item.fieldId as string,
-        dataIndex: item.fieldId,
-        showTooltip: true,
-        showInTable: true,
-        showDrag: true,
-        width: 300,
-      };
-    });
+    customFieldsColumns = initDefaultFields.value
+      .filter((item: any) => !item.internal)
+      .map((item: any) => {
+        return {
+          title: item.fieldName,
+          slotName: item.fieldId as string,
+          dataIndex: item.fieldId,
+          showInTable: true,
+          showDrag: true,
+          width: 300,
+        };
+      });
 
     fullColumns = [
       ...columns.slice(0, columns.length - 1),
@@ -1072,7 +1088,6 @@
           ...detailResult,
           moduleId: value,
           customFields: getCustomMaps(detailResult),
-          tags: JSON.parse(detailResult.tags),
         },
         fileList: [],
       };
@@ -1103,6 +1118,36 @@
     };
     initData();
   };
+
+  // 拖拽排序
+  async function changeHandler(data: TableData[], extra: TableChangeExtra, currentData: TableData[]) {
+    if (extra && extra.dragTarget?.id) {
+      const params: DragCase = {
+        projectId: currentProjectId.value,
+        targetId: '',
+        moveMode: 'BEFORE',
+        moveId: extra.dragTarget.id as string,
+      };
+      const index = currentData.findIndex((item: any) => item.raw.id === extra.dragTarget?.id);
+
+      if (index > -1 && currentData[index + 1].raw) {
+        params.moveMode = 'AFTER';
+        params.targetId = currentData[index + 1].raw.id;
+      } else if (index > -1 && !currentData[index + 1].raw) {
+        if (index > -1 && currentData[index - 1].raw) {
+          params.moveMode = 'BEFORE';
+          params.targetId = currentData[index - 1].raw.id;
+        }
+      }
+      try {
+        await dragSort(params);
+        Message.success(t('caseManagement.featureCase.sortSuccess'));
+        initData();
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
 
   onBeforeMount(() => {
     if (route.query.id) {

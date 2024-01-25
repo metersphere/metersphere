@@ -250,4 +250,5 @@ export default {
   'caseManagement.featureCase.cancelDependencyContent': 'Cancel after impact test plan related statistics',
   'caseManagement.featureCase.associatedSuccess': 'Associated with success',
   'caseManagement.featureCase.defectSource': 'defect Source',
+  'caseManagement.featureCase.sortSuccess': 'Sort successfully',
 };

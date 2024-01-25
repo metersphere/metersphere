@@ -87,6 +87,7 @@
       name: 'apiKey',
       title: t('ms.personal.apiKey'),
       level: 2,
+      permission: ['SYSTEM_PERSONAL_API_KEY:READ'],
     },
     {
       name: 'local',

@@ -34,7 +34,7 @@ const Setting: AppRouteRecordRaw = {
           component: () => import('@/views/setting/system/user/index.vue'),
           meta: {
             locale: 'menu.settings.system.user',
-            roles: ['*'],
+            roles: ['SYSTEM_USER:READ'],
             isTopMenu: true,
           },
         },
@@ -64,7 +64,7 @@ const Setting: AppRouteRecordRaw = {
           component: () => import('@/views/setting/system/config/index.vue'),
           meta: {
             locale: 'menu.settings.system.parameter',
-            roles: ['*'],
+            roles: ['SYSTEM_PARAMETER_SETTING_BASE:READ'],
             isTopMenu: true,
           },
         },
@@ -74,7 +74,7 @@ const Setting: AppRouteRecordRaw = {
           component: () => import('@/views/setting/system/resourcePool/index.vue'),
           meta: {
             locale: 'menu.settings.system.resourcePool',
-            roles: ['*'],
+            roles: ['SYSTEM_TEST_RESOURCE_POOL:READ'],
             isTopMenu: true,
           },
         },
@@ -84,7 +84,7 @@ const Setting: AppRouteRecordRaw = {
           component: () => import('@/views/setting/system/resourcePool/detail.vue'),
           meta: {
             locale: 'menu.settings.system.resourcePoolDetail',
-            roles: ['*'],
+            roles: ['SYSTEM_TEST_RESOURCE_POOL:READ'],
             breadcrumbs: [
               {
                 name: SettingRouteEnum.SETTING_SYSTEM_RESOURCE_POOL,
