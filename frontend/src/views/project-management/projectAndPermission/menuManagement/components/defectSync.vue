@@ -10,6 +10,7 @@
     :width="680"
     :ok-loading="okLoading"
     :ok-disabled="okDisabled"
+    :ok-permission="['PROJECT_APPLICATION_CASE:READ+UPDATE']"
     @cancel="handleCancel(false)"
     @confirm="handleConfirm"
   >

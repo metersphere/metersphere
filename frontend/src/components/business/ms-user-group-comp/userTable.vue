@@ -1,7 +1,6 @@
 <template>
   <MsBaseTable class="mt-[16px]" v-bind="propsRes" v-on="propsEvent">
-    <template #quickCreate>
-      <!-- <a-button type="primary" @click="handleAddUser">{{ t('system.userGroup.quickAddUser') }}</a-button> -->
+    <template v-if="hasAnyPermission(props.updatePermission || [])" #quickCreate>
       <MsConfirmUserSelector :ok-loading="okLoading" v-bind="userSelectorProps" @confirm="handleAddMember" />
     </template>
     <template #action="{ record }">
@@ -33,6 +32,7 @@
   } from '@/api/modules/setting/usergroup';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { CurrentUserGroupItem, UserTableItem } from '@/models/setting/usergroup';
   import { AuthScopeEnum } from '@/enums/commonEnum';
@@ -48,6 +48,9 @@
   const props = defineProps<{
     keyword: string;
     current: CurrentUserGroupItem;
+    deletePermission?: string[];
+    readPermission?: string[];
+    updatePermission?: string[];
   }>();
 
   const userSelectorProps = computed(() => {
@@ -112,26 +115,37 @@
     heightUsed: 288,
   });
 
+  const handlePermission = (permission: string[], cb: () => void) => {
+    if (!hasAnyPermission(permission)) {
+      Message.error(t('common.noPermission'));
+      return false;
+    }
+    cb();
+  };
   const fetchData = async () => {
-    setKeyword(props.keyword);
-    await loadList();
+    handlePermission(props.readPermission || [], async () => {
+      setKeyword(props.keyword);
+      await loadList();
+    });
   };
   const handleRemove = async (record: UserTableItem) => {
-    try {
-      if (systemType === AuthScopeEnum.SYSTEM) {
-        await deleteUserFromUserGroup(record.id);
-      } else if (systemType === AuthScopeEnum.ORGANIZATION) {
-        await deleteOrgUserFromUserGroup({
-          organizationId: currentOrgId.value,
-          userRoleId: props.current.id,
-          userIds: [record.id],
-        });
+    handlePermission(props.deletePermission || [], async () => {
+      try {
+        if (systemType === AuthScopeEnum.SYSTEM) {
+          await deleteUserFromUserGroup(record.id);
+        } else if (systemType === AuthScopeEnum.ORGANIZATION) {
+          await deleteOrgUserFromUserGroup({
+            organizationId: currentOrgId.value,
+            userRoleId: props.current.id,
+            userIds: [record.id],
+          });
+        }
+        await fetchData();
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
       }
-      await fetchData();
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
+    });
   };
 
   /**

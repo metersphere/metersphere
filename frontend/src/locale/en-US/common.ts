@@ -101,4 +101,5 @@ export default {
   'common.noProject': 'No project, please contact the administrator',
   'common.noResource': 'No resource, please contact the administrator',
   'common.noSelectProject': 'No optional items available',
+  'common.noPermission': 'No permission',
 };

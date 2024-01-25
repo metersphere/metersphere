@@ -59,7 +59,9 @@
     :style="{ width: props.width }"
   >
     <ms-button :disabled="!canSave" @click="handleReset">{{ t('system.userGroup.reset') }}</ms-button>
-    <a-button :disabled="!canSave" type="primary" @click="handleSave">{{ t('system.userGroup.save') }}</a-button>
+    <a-button v-permission="props.savePermission || []" :disabled="!canSave" type="primary" @click="handleSave">{{
+      t('system.userGroup.save')
+    }}</a-button>
   </div>
 </template>
 
@@ -101,6 +103,7 @@
   const props = withDefaults(
     defineProps<{
       current: CurrentUserGroupItem;
+      savePermission?: string[];
       width?: string;
       showBottom?: boolean;
       scroll?: {

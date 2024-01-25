@@ -12,6 +12,7 @@
           <a-doption
             v-else
             :key="item.label"
+            v-permission="item.permission || []"
             :class="item.danger ? 'error-6' : ''"
             :disabled="item.disabled"
             :value="item.eventTag"

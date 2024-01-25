@@ -24,11 +24,13 @@
   import MsMenuPanel from '@/components/pure/ms-menu-panel/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import usePermission from '@/hooks/usePermission';
   import useLicenseStore from '@/store/modules/setting/license';
 
   import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
 
   const { t } = useI18n();
+  const permission = usePermission();
 
   const router = useRouter();
   const route = useRoute();
@@ -47,7 +49,7 @@
     }
     return [];
   }
-  const menuList = ref([
+  const sourceMenuList = [
     {
       key: 'project',
       title: t('project.permission.project'),
@@ -85,7 +87,18 @@
       level: 2,
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_USER_GROUP,
     },
-  ]);
+  ];
+  const menuList = computed(() => {
+    const routerList = router.getRoutes();
+    return sourceMenuList.filter((item) => {
+      if (item.name) {
+        const routerItem = routerList.find((rou) => rou.name === item.name);
+        if (!routerItem) return false;
+        return permission.accessRouter(routerItem);
+      }
+      return true;
+    });
+  });
 
   const currentKey = ref<string>('');
 

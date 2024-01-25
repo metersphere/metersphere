@@ -5,6 +5,7 @@ export interface ActionsItem {
   danger?: boolean; // 是否危险操作，true 的话会显示红色按钮
   disabled?: boolean; // 是否禁用
   icon?: string; // 按钮图标
+  permission?: string[]; // 权限标识
 }
 
 export type SelectedValue = string | number | Record<string, any> | undefined;

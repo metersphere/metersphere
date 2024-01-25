@@ -1,6 +1,6 @@
 <template>
   <MsCard simple>
-    <div class="mb-4 flex items-center justify-between">
+    <div class="mb-[16px] flex items-center justify-between">
       <a-button type="primary" @click="showAddProject">{{ t('system.organization.createProject') }}</a-button>
       <a-input-search
         v-model="keyword"
@@ -31,17 +31,35 @@
       </template>
       <template #operation="{ record }">
         <template v-if="record.deleted">
-          <MsButton @click="handleRevokeDelete(record)">{{ t('common.revokeDelete') }}</MsButton>
+          <MsButton v-permission="['ORGANIZATION_PROJECT:READ+RECOVER']" @click="handleRevokeDelete(record)">{{
+            t('common.revokeDelete')
+          }}</MsButton>
         </template>
         <template v-else-if="!record.enable">
-          <MsButton @click="handleEnableOrDisableProject(record)">{{ t('common.enable') }}</MsButton>
-          <MsButton @click="handleDelete(record)">{{ t('common.delete') }}</MsButton>
+          <MsButton v-permission="['ORGANIZATION_PROJECT:READ+UPDATE']" @click="handleEnableOrDisableProject(record)">{{
+            t('common.enable')
+          }}</MsButton>
+          <MsButton v-permission="['ORGANIZATION_PROJECT:READ+DELETE']" @click="handleDelete(record)">{{
+            t('common.delete')
+          }}</MsButton>
         </template>
         <template v-else>
-          <MsButton @click="showAddProjectModal(record)">{{ t('common.edit') }}</MsButton>
-          <MsButton @click="showAddUserModal(record)">{{ t('system.organization.addMember') }}</MsButton>
-          <MsButton @click="handleEnableOrDisableProject(record, false)">{{ t('common.end') }}</MsButton>
-          <MsTableMoreAction :list="tableActions" @select="handleMoreAction($event, record)"></MsTableMoreAction>
+          <MsButton v-permission="['ORGANIZATION_PROJECT:READ+UPDATE']" @click="showAddProjectModal(record)">{{
+            t('common.edit')
+          }}</MsButton>
+          <MsButton v-permission="['ORGANIZATION_PROJECT:READ+UPDATE']" @click="showAddUserModal(record)">{{
+            t('system.organization.addMember')
+          }}</MsButton>
+          <MsButton
+            v-permission="['ORGANIZATION_PROJECT:READ+UPDATE']"
+            @click="handleEnableOrDisableProject(record, false)"
+            >{{ t('common.end') }}</MsButton
+          >
+          <MsTableMoreAction
+            v-permission="['ORGANIZATION_PROJECT:READ+DELETE']"
+            :list="tableActions"
+            @select="handleMoreAction($event, record)"
+          ></MsTableMoreAction>
         </template>
       </template>
     </MsBaseTable>
@@ -177,6 +195,10 @@
       dataIndex: 'createTime',
       width: 180,
       showDrag: true,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
     },
     {
       title: 'system.organization.operation',
@@ -205,9 +227,8 @@
       tableKey: TableKeyEnum.ORGANIZATION_PROJECT,
       selectable: false,
       noDisable: false,
-      size: 'default',
       showSetting: true,
-      heightUsed: 286,
+      heightUsed: 300,
     },
     undefined,
     (record) => handleNameChange(record)

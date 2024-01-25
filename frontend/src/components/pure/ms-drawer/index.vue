@@ -59,10 +59,22 @@
             <a-button :disabled="props.okLoading" @click="handleCancel">
               {{ t(props.cancelText || 'ms.drawer.cancel') }}
             </a-button>
-            <a-button v-if="showContinue" type="secondary" :loading="props.okLoading" @click="handleContinue">
+            <a-button
+              v-if="showContinue"
+              v-permission="props.okPermission || []"
+              type="secondary"
+              :loading="props.okLoading"
+              @click="handleContinue"
+            >
               {{ t(props.saveContinueText || 'ms.drawer.saveContinue') }}
             </a-button>
-            <a-button type="primary" :disabled="okDisabled" :loading="props.okLoading" @click="handleOk">
+            <a-button
+              v-permission="props.okPermission || []"
+              type="primary"
+              :disabled="okDisabled"
+              :loading="props.okLoading"
+              @click="handleOk"
+            >
               {{ t(props.okText || 'ms.drawer.ok') }}
             </a-button>
           </div>
@@ -93,6 +105,7 @@
     showSkeleton?: boolean; // 是否显示骨架屏
     okLoading?: boolean;
     okDisabled?: boolean;
+    okPermission?: string[]; // 确认按钮权限
     okText?: string;
     cancelText?: string;
     saveContinueText?: string;
@@ -110,6 +123,7 @@
     showContinue: false,
     popupContainer: 'body',
     disabledWidthDrag: false,
+    okPermission: () => [], // 确认按钮权限
   });
   const emit = defineEmits(['update:visible', 'confirm', 'cancel', 'continue']);
 

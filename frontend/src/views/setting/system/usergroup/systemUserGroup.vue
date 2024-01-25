@@ -36,11 +36,15 @@
               ref="userRef"
               :keyword="currentKeyword"
               :current="currentUserGroupItem"
+              :delete-permission="['SYSTEM_USER_ROLE:READ+DELETE']"
+              :read-permission="['SYSTEM_USER_ROLE:READ']"
+              :update-permission="['SYSTEM_USER_ROLE:READ+UPDATE']"
             />
             <AuthTable
               v-if="currentTable === 'auth' && couldShowAuth"
               :current="currentUserGroupItem"
               :width="bottomWidth"
+              :save-permission="['PROJECT_GROUP:READ+UPDATE']"
             />
           </div>
         </div>

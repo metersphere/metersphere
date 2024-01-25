@@ -3,8 +3,15 @@
     <template #revokeDelete="{ record }">
       <a-tooltip background-color="#FFFFFF">
         <template #content>
-          <span class="text-[var(--color-text-1)]">{{ t('system.project.revokeDeleteToolTip') }}</span>
-          <MsButton class="ml-[8px]" @click="handleRevokeDelete(record)">{{ t('common.revokeDelete') }}</MsButton>
+          <span>
+            <span class="text-[var(--color-text-1)]">{{ t('system.project.revokeDeleteToolTip') }}</span>
+            <MsButton
+              v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+RECOVER']"
+              class="ml-[8px]"
+              @click="handleRevokeDelete(record)"
+              >{{ t('common.revokeDelete') }}</MsButton
+            >
+          </span>
         </template>
         <MsIcon v-if="record.deleted" type="icon-icon_alarm_clock" class="ml-[4px] text-[rgb(var(--danger-6))]" />
       </a-tooltip>
@@ -91,6 +98,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useTableStore } from '@/store';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { UserItem } from '@/models/setting/log';
   import { CreateOrUpdateSystemProjectParams, OrgProjectTableItem } from '@/models/setting/system/orgAndProject';
@@ -120,7 +128,7 @@
       title: 'system.organization.name',
       dataIndex: 'name',
       revokeDeletedSlot: 'revokeDelete',
-      editType: ColumnEditTypeEnum.INPUT,
+      editType: hasAnyPermission(['SYSTEM_ORGANIZATIN_PROJECT:READ+UPDATE']) ? ColumnEditTypeEnum.INPUT : undefined,
       showTooltip: true,
     },
     {
