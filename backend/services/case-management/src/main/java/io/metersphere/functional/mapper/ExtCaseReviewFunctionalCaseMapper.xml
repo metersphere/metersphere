@@ -35,6 +35,7 @@
         crfc.case_id as caseId,
         crfc.`status` as status,
         crfc.create_time as createTime,
+        crfc.create_user as createUser,
         functional_case.version_id as versionId,
         functional_case.module_id as moduleId,
         functional_case.name as name,
@@ -316,7 +317,7 @@
 
     <select id="getList" resultType="io.metersphere.functional.domain.CaseReviewFunctionalCase">
         SELECT
-            *
+        crfc.id, crfc.review_id, crfc.case_id, crfc.status, crfc.create_time, crfc.create_user
         FROM
             case_review_functional_case crfc
         LEFT JOIN functional_case fc ON crfc.case_id = fc.id
@@ -335,7 +336,7 @@
 
     <select id="getListExcludes" resultType="io.metersphere.functional.domain.CaseReviewFunctionalCase">
         SELECT
-        *
+        crfc.id, crfc.review_id, crfc.case_id, crfc.status, crfc.create_time, crfc.create_user
         FROM
         case_review_functional_case crfc
         LEFT JOIN functional_case fc ON crfc.case_id = fc.id
