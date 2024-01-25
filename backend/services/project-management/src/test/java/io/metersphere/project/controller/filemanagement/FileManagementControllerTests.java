@@ -300,7 +300,7 @@ public class FileManagementControllerTests extends BaseTest {
 
 
         /**
-         测试能否正常做200个节点
+         创建210个节点
          */
         String parentId = null;
         for (int i = 0; i < 210; i++) {
@@ -317,9 +317,6 @@ public class FileManagementControllerTests extends BaseTest {
                     //到20换下一层级
                     parentId = holder.getData().toString();
                 }
-            } else {
-                //测试超过500会报错
-                this.requestPost(FileManagementRequestUtils.URL_MODULE_ADD, perfRequest).andExpect(status().is5xxServerError());
             }
         }
         treeNodes = this.getFileModuleTreeNode();

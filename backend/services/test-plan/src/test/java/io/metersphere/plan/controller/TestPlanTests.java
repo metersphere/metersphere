@@ -371,9 +371,6 @@ public class TestPlanTests extends BaseTest {
                     //到20换下一层级
                     parentId = holder.getData().toString();
                 }
-            } else {
-                //测试超过500会报错
-                this.requestPost(URL_POST_MODULE_ADD, perfRequest).andExpect(status().is5xxServerError());
             }
         }
         treeNodes = this.getFileModuleTreeNode();

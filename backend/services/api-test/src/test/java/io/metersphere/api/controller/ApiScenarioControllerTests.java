@@ -10,8 +10,11 @@ import io.metersphere.api.dto.definition.ApiTestCaseAddRequest;
 import io.metersphere.api.dto.request.assertion.MsAssertionConfig;
 import io.metersphere.api.dto.request.assertion.MsScriptAssertion;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
+import io.metersphere.api.dto.response.ApiScenarioBatchOperationResponse;
+import io.metersphere.api.dto.response.OperationDataInfo;
 import io.metersphere.api.dto.scenario.*;
 import io.metersphere.api.mapper.*;
+import io.metersphere.api.service.ApiScenarioBatchOperationTestService;
 import io.metersphere.api.service.BaseResourcePoolTestService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
@@ -22,6 +25,7 @@ import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
+import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
@@ -49,6 +53,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -62,7 +67,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class ApiScenarioControllerTests extends BaseTest {
     private static final String BASE_PATH = "/api/scenario/";
     private static final String TRASH_PAGE = "trash/page";
-    private static final String BATCH_EDIT = "batch/edit";
+    private static final String BATCH_EDIT = "batch-operation/edit";
     private static final String FOLLOW = "follow/";
     protected static final String UPLOAD_TEMP_FILE = "upload/temp/file";
     protected static final String DELETE_TO_GC = "delete-to-gc/{0}";
@@ -70,6 +75,9 @@ public class ApiScenarioControllerTests extends BaseTest {
     protected static final String DEBUG = "debug";
     private static final String UPDATE_STATUS = "update-status";
     private static final String UPDATE_PRIORITY = "update-priority";
+
+    private static final Map<String, String> BATCH_OPERATION_SCENARIO_MODULE_MAP = new HashMap<>();
+    private static final List<String> BATCH_OPERATION_SCENARIO_ID = new ArrayList<>();
 
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
     @Resource
@@ -96,6 +104,8 @@ public class ApiScenarioControllerTests extends BaseTest {
     private ApiDefinitionService apiDefinitionService;
     @Resource
     private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private ApiScenarioBatchOperationTestService apiScenarioBatchOperationTestService;
     @Resource
     private BaseResourcePoolTestService baseResourcePoolTestService;
     @Resource
@@ -827,7 +837,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         requestPostAndReturn(BATCH_EDIT, request);
         //判断数据的优先级是不是P3
         example.clear();
-        example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andDeletedEqualTo(false);
+        example.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andDeletedEqualTo(false).andModuleIdEqualTo("scenario-moduleId");
         List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(example);
 
         apiScenarios.forEach(apiTestCase -> Assertions.assertEquals(apiTestCase.getPriority(), "P3"));
@@ -946,5 +956,303 @@ public class ApiScenarioControllerTests extends BaseTest {
         requestPostAndReturn(TRASH_PAGE, pageRequest);
         //校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_READ, TRASH_PAGE, pageRequest);
+    }
+
+    /*
+            要价格与批量测试的数据结构：
+                建国批量测试场景模块_1    ->50条数据 有标签和环境组
+                |
+                |
+                建国批量测试场景模块_51    ->50条数据    有环境
+                    |
+                    |
+                    建国批量测试场景模块_101    ->50条数据   有blob
+                        |
+                        |
+                        建国批量测试场景模块_151    ->50条数据   有step
+                            |
+                            |
+                            建国批量测试场景模块_201    ->50条数据   有step和blob
+                            |
+                            |
+                            建国批量测试场景模块_251    ->250条数据  有文件
+             */
+
+    @Test
+    @Order(20)
+    public void batchCopy() throws Exception {
+        String testUrl = "/batch-operation/copy";
+        if (CollectionUtils.isEmpty(BATCH_OPERATION_SCENARIO_ID)) {
+            this.batchCreateScenarios();
+        }
+        /*
+        正例测试 1.超过300条的批量复制
+                2.移动到新模块
+
+                测试数据：使用建国批量测试场景模块_200模块为查询条件，和建国批量测试场景模块_250里的所有id，复制到 【建国批量测试场景模块_1】中
+         */
+        ApiScenarioBatchCopyRequest request = new ApiScenarioBatchCopyRequest();
+        request.setSelectIds(BATCH_OPERATION_SCENARIO_ID.subList(250, 500));
+        request.setModuleIds(List.of(BATCH_OPERATION_SCENARIO_MODULE_MAP.get("建国批量测试场景模块_201")));
+        request.setTargetModuleId(BATCH_OPERATION_SCENARIO_MODULE_MAP.get("建国批量测试场景模块_1"));
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setSelectAll(true);
+
+        //先测试一下没有开启模块时接口能否使用
+        apiScenarioBatchOperationTestService.removeApiModule(DEFAULT_PROJECT_ID);
+        this.requestPost(testUrl, request).andExpect(status().is5xxServerError());
+        //恢复
+        apiScenarioBatchOperationTestService.resetProjectModule(DEFAULT_PROJECT_ID);
+
+        MvcResult result = this.requestPostAndReturn(testUrl, request);
+        ResultHolder resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        ApiScenarioBatchOperationResponse resultResponse = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), ApiScenarioBatchOperationResponse.class);
+        //检查返回值
+        Assertions.assertEquals(resultResponse.getSuccess(), 300);
+        //数据库级别的检查
+        apiScenarioBatchOperationTestService.checkBatchCopy(BATCH_OPERATION_SCENARIO_ID.subList(200, 500), resultResponse.getSuccessData().stream().map(OperationDataInfo::getId).toList(), 50, request);
+
+        //        2.没有数据
+        request = new ApiScenarioBatchCopyRequest();
+        request.setTargetModuleId(BATCH_OPERATION_SCENARIO_MODULE_MAP.get("建国批量测试场景模块_1"));
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        result = this.requestPostAndReturn(testUrl, request);
+        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        resultResponse = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), ApiScenarioBatchOperationResponse.class);
+        //检查返回值
+        Assertions.assertEquals(resultResponse.getSuccess(), 0);
+
+        /*
+        正例测试
+            3.移动到当前模块
+            4.移动到新模块
+            5.移动的场景中，有名字以copy开头的。 不会重复生成copy_copy_
+            6.要移动的场景中，有名字以"_"+自身num结尾的
+
+                测试数据：建国批量测试场景模块_1中所有的数据（350条）再复制到当前数据里
+         */
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andModuleIdEqualTo(BATCH_OPERATION_SCENARIO_MODULE_MAP.get("建国批量测试场景模块_1"));
+        List<ApiScenario> reCopyScenarios = apiScenarioMapper.selectByExample(example);
+
+
+        request = new ApiScenarioBatchCopyRequest();
+        request.setModuleIds(List.of(BATCH_OPERATION_SCENARIO_MODULE_MAP.get("建国批量测试场景模块_1")));
+        request.setTargetModuleId(BATCH_OPERATION_SCENARIO_MODULE_MAP.get("建国批量测试场景模块_1"));
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setSelectAll(true);
+
+        result = this.requestPostAndReturn(testUrl, request);
+        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        resultResponse = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), ApiScenarioBatchOperationResponse.class);
+        //检查返回值
+        Assertions.assertEquals(resultResponse.getSuccess(), reCopyScenarios.size());
+        //数据库级别的检查
+        apiScenarioBatchOperationTestService.checkBatchCopy(new ArrayList<>(reCopyScenarios.stream().map(ApiScenario::getId).toList()), resultResponse.getSuccessData().stream().map(OperationDataInfo::getId).toList(), 350, request);
+
+
+        /*
+            正例测试
+                5.移动的场景中，有名字长度在250以上的
+
+                测试数据：【建国批量测试场景模块_101】的用例修改名字长度为255.  然后复制到【建国批量测试场景模块_101】中
+         */
+        apiScenarioBatchOperationTestService.updateNameToTestByModuleId(BATCH_OPERATION_SCENARIO_MODULE_MAP.get("建国批量测试场景模块_101"));
+
+        request = new ApiScenarioBatchCopyRequest();
+        request.setModuleIds(List.of(BATCH_OPERATION_SCENARIO_MODULE_MAP.get("建国批量测试场景模块_101")));
+        request.setTargetModuleId(BATCH_OPERATION_SCENARIO_MODULE_MAP.get("建国批量测试场景模块_101"));
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setSelectAll(true);
+
+        result = this.requestPostAndReturn(testUrl, request);
+        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        resultResponse = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), ApiScenarioBatchOperationResponse.class);
+        //检查返回值
+        Assertions.assertEquals(resultResponse.getSuccess(), 50);
+        //数据库级别的检查
+        apiScenarioBatchOperationTestService.checkBatchCopy(BATCH_OPERATION_SCENARIO_ID.subList(100, 150), resultResponse.getSuccessData().stream().map(OperationDataInfo::getId).toList(), 50, request);
+
+        //1.反例测试 ->模块不存在
+        request = new ApiScenarioBatchCopyRequest();
+        request.setTargetModuleId(IDGenerator.nextStr());
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setSelectAll(true);
+        this.requestPost(testUrl, request).andExpect(status().is5xxServerError());
+        //2.反例测试 ->要移动的模块是别的项目下的
+        String otherProjectModuleId = this.createModule(500, IDGenerator.nextStr(), ModuleConstants.ROOT_NODE_PARENT_ID);
+        request = new ApiScenarioBatchCopyRequest();
+        request.setTargetModuleId(otherProjectModuleId);
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setSelectAll(true);
+        this.requestPost(testUrl, request).andExpect(status().is5xxServerError());
+        //3.反例测试 ->参数校验：项目ID为空 模块ID为空
+        request = new ApiScenarioBatchCopyRequest();
+        request.setTargetModuleId(otherProjectModuleId);
+        this.requestPost(testUrl, request).andExpect(status().isBadRequest());
+
+        request = new ApiScenarioBatchCopyRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        this.requestPost(testUrl, request).andExpect(status().isBadRequest());
+    }
+
+    //30开始是关于删除和恢复的
+    @Test
+    @Order(30)
+    public void restore() throws Exception {
+        if (CollectionUtils.isEmpty(BATCH_OPERATION_SCENARIO_ID)) {
+            this.batchCreateScenarios();
+        }
+        this.requestGetWithOk("/restore/" + BATCH_OPERATION_SCENARIO_ID.get(0));
+    }
+
+    private String createModule(int i, String projectId, String parentId) {
+        ApiScenarioModule apiScenarioModule = new ApiScenarioModule();
+        apiScenarioModule.setId(IDGenerator.nextStr());
+        apiScenarioModule.setProjectId(projectId);
+        apiScenarioModule.setName("建国批量测试场景模块_" + i);
+        apiScenarioModule.setCreateTime(System.currentTimeMillis());
+        apiScenarioModule.setUpdateTime(System.currentTimeMillis());
+        apiScenarioModule.setCreateUser("admin");
+        apiScenarioModule.setUpdateUser("admin");
+        apiScenarioModule.setParentId(parentId);
+        apiScenarioModule.setPos(i * 64L);
+        apiScenarioModuleMapper.insertSelective(apiScenarioModule);
+        return apiScenarioModule.getId();
+    }
+
+    /*
+        创建模块树。结构：
+            建国批量测试场景模块_1    ->50条数据 有标签和环境组
+            |
+            |
+            建国批量测试场景模块_51    ->50条数据    有环境
+                |
+                |
+                建国批量测试场景模块_101    ->50条数据   有blob
+                    |
+                    |
+                    建国批量测试场景模块_151    ->50条数据   有step
+                        |
+                        |
+                        建国批量测试场景模块_201    ->50条数据   有step和blob
+                        |
+                        |
+                        建国批量测试场景模块_251    ->250条数据  有文件
+         */
+    private void batchCreateScenarios() {
+        int size = 500;
+        String moduleId = null;
+        EnvironmentExample environmentExample = new EnvironmentExample();
+        environmentExample.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andMockEqualTo(true);
+        List<Environment> environments = environmentMapper.selectByExample(environmentExample);
+        String parentModuleId = ModuleConstants.ROOT_NODE_PARENT_ID;
+
+        for (int i = 1; i <= size; i++) {
+            if (moduleId == null) {
+                moduleId = createModule(i, DEFAULT_PROJECT_ID, parentModuleId);
+                BATCH_OPERATION_SCENARIO_MODULE_MAP.put("建国批量测试场景模块_" + i, moduleId);
+            } else if (i == 51) {
+                moduleId = createModule(i, DEFAULT_PROJECT_ID, parentModuleId);
+                BATCH_OPERATION_SCENARIO_MODULE_MAP.put("建国批量测试场景模块_" + i, moduleId);
+            } else if (i == 101) {
+                parentModuleId = moduleId;
+                moduleId = createModule(i, DEFAULT_PROJECT_ID, parentModuleId);
+                BATCH_OPERATION_SCENARIO_MODULE_MAP.put("建国批量测试场景模块_" + i, moduleId);
+            } else if (i == 151) {
+                parentModuleId = moduleId;
+                moduleId = createModule(i, DEFAULT_PROJECT_ID, parentModuleId);
+                BATCH_OPERATION_SCENARIO_MODULE_MAP.put("建国批量测试场景模块_" + i, moduleId);
+            } else if (i == 201) {
+                parentModuleId = moduleId;
+                moduleId = createModule(i, DEFAULT_PROJECT_ID, parentModuleId);
+                BATCH_OPERATION_SCENARIO_MODULE_MAP.put("建国批量测试场景模块_" + i, moduleId);
+            } else if (i == 251) {
+                //本次创建的模块和 _200 属于同一级
+                moduleId = createModule(i, DEFAULT_PROJECT_ID, parentModuleId);
+                BATCH_OPERATION_SCENARIO_MODULE_MAP.put("建国批量测试场景模块_" + i, moduleId);
+            }
+            ApiScenario apiScenario = new ApiScenario();
+            apiScenario.setId(IDGenerator.nextStr());
+            apiScenario.setProjectId(DEFAULT_PROJECT_ID);
+            apiScenario.setNum(NumGenerator.nextNum(DEFAULT_PROJECT_ID, ApplicationNumScope.API_SCENARIO));
+            apiScenario.setName(StringUtils.join("建国批量测试接口场景-", apiScenario.getId()));
+            apiScenario.setModuleId(moduleId);
+            apiScenario.setStatus("未规划");
+            apiScenario.setPos(i * 64L);
+            apiScenario.setPriority("P0");
+            apiScenario.setLatest(true);
+            apiScenario.setVersionId("1.0");
+            apiScenario.setRefId(apiScenario.getId());
+            apiScenario.setCreateTime(System.currentTimeMillis());
+            apiScenario.setUpdateTime(System.currentTimeMillis());
+            apiScenario.setCreateUser("admin");
+            apiScenario.setUpdateUser("admin");
+            if (i <= 50) {
+                apiScenario.setTags(new ArrayList<>(List.of("tag1", "tag2")));
+                apiScenario.setGrouped(true);
+                apiScenario.setEnvironmentId("scenario-environment-group-id");
+            } else if (i <= 100) {
+                apiScenario.setGrouped(false);
+                apiScenario.setEnvironmentId(environments.get(0).getId());
+            } else if (i <= 150) {
+                //带blob
+                ApiScenarioBlob apiScenarioBlob = new ApiScenarioBlob();
+                apiScenarioBlob.setId(apiScenario.getId());
+                apiScenarioBlobMapper.insertSelective(apiScenarioBlob);
+            } else if (i <= 200) {
+                ApiScenarioStep step1 = new ApiScenarioStep();
+                step1.setId(IDGenerator.nextStr());
+                step1.setScenarioId(apiScenario.getId());
+                step1.setName(apiScenario.getName() + "_" + IDGenerator.nextStr());
+                step1.setSort(0L);
+                step1.setEnable(true);
+                apiScenarioStepMapper.insertSelective(step1);
+
+                ApiScenarioStep step2 = new ApiScenarioStep();
+                step2.setId(IDGenerator.nextStr());
+                step2.setScenarioId(apiScenario.getId());
+                step2.setName(apiScenario.getName() + "_" + IDGenerator.nextStr());
+                step2.setSort(1L);
+                step1.setEnable(false);
+                apiScenarioStepMapper.insertSelective(step2);
+            } else if (i <= 250) {
+                //带步骤和详情的
+                ApiScenarioStep step1 = new ApiScenarioStep();
+                step1.setId(IDGenerator.nextStr());
+                step1.setScenarioId(apiScenario.getId());
+                step1.setName(apiScenario.getName() + "_" + IDGenerator.nextStr());
+                step1.setSort(0L);
+                step1.setEnable(true);
+                apiScenarioStepMapper.insertSelective(step1);
+                ApiScenarioStepBlob step1Blob = new ApiScenarioStepBlob();
+                step1Blob.setId(step1.getId());
+                step1Blob.setScenarioId(apiScenario.getId());
+                apiScenarioStepBlobMapper.insertSelective(step1Blob);
+
+                ApiScenarioStep step2 = new ApiScenarioStep();
+                step2.setId(IDGenerator.nextStr());
+                step2.setScenarioId(apiScenario.getId());
+                step2.setName(apiScenario.getName() + "_" + IDGenerator.nextStr());
+                step2.setSort(1L);
+                step1.setEnable(false);
+                apiScenarioStepMapper.insertSelective(step2);
+                ApiScenarioStepBlob step2Blob = new ApiScenarioStepBlob();
+                step2Blob.setId(step2.getId());
+                step2Blob.setScenarioId(apiScenario.getId());
+                apiScenarioStepBlobMapper.insertSelective(step2Blob);
+            } else if (i <= 300) {
+                //带文件的
+                ApiFileResource apiFileResource = new ApiFileResource();
+                apiFileResource.setResourceId(apiScenario.getId());
+                apiFileResource.setFileId(IDGenerator.nextStr());
+                apiFileResource.setFileName("test");
+                apiFileResource.setResourceType("API_SCENARIO");
+                apiFileResource.setCreateTime(System.currentTimeMillis());
+                apiFileResource.setProjectId(apiScenario.getProjectId());
+            }
+            apiScenarioMapper.insertSelective(apiScenario);
+            BATCH_OPERATION_SCENARIO_ID.add(apiScenario.getId());
+        }
     }
 }

@@ -2,6 +2,7 @@ package io.metersphere.api.service.scenario;
 
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.domain.ApiScenarioExample;
+import io.metersphere.api.dto.response.ApiScenarioBatchOperationResponse;
 import io.metersphere.api.dto.scenario.ApiScenarioAddRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioUpdateRequest;
 import io.metersphere.api.mapper.ApiScenarioMapper;
@@ -10,6 +11,7 @@ import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.builder.LogDTOBuilder;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -159,5 +161,44 @@ public class ApiScenarioLogService {
                 apiScenario.getName());
         dto.setOriginalValue(JSON.toJSONBytes(apiScenario));
         return dto;
+    }
+
+    public LogDTO restoreLog(String id) {
+        ApiScenario apiScenario = apiScenarioMapper.selectByPrimaryKey(id);
+        LogDTO dto = new LogDTO(
+                apiScenario.getProjectId(),
+                null,
+                apiScenario.getId(),
+                null,
+                OperationLogType.RESTORE.name(),
+                OperationLogModule.API_SCENARIO,
+                apiScenario.getName());
+        dto.setOriginalValue(JSON.toJSONBytes(apiScenario));
+        return dto;
+    }
+
+    public void saveBatchCopyLog(ApiScenarioBatchOperationResponse response, String projectId, LogInsertModule logInsertModule) {
+
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        //取出apiTestCases所有的id为新的list
+        List<LogDTO> logs = new ArrayList<>();
+        response.getSuccessData().forEach(item -> {
+
+                    LogDTO dto = LogDTOBuilder.builder()
+                            .projectId(project.getId())
+                            .organizationId(project.getOrganizationId())
+                            .type(OperationLogType.COPY.name())
+                            .module(OperationLogModule.API_SCENARIO)
+                            .method(logInsertModule.getRequestMethod())
+                            .path(logInsertModule.getRequestUrl())
+                            .sourceId(item.getId())
+                            .content(item.getName())
+                            .createUser(logInsertModule.getOperator())
+                            .build().getLogDTO();
+                    dto.setHistory(false);
+                    logs.add(dto);
+                }
+        );
+        operationLogService.batchAdd(logs);
     }
 }

@@ -277,4 +277,14 @@ public class ApiFileResourceService {
             apiFileResourceMapper.batchInsert(apiFileResources);
         }
     }
+
+    public List<ApiFileResource> selectByApiScenarioId(List<String> scenarioIds) {
+        ApiFileResourceExample example = new ApiFileResourceExample();
+        example.createCriteria().andResourceIdIn(scenarioIds);
+        return apiFileResourceMapper.selectByExample(example);
+    }
+
+    public void batchInsert(List<ApiFileResource> insertApiFileResourceList) {
+        apiFileResourceMapper.batchInsert(insertApiFileResourceList);
+    }
 }

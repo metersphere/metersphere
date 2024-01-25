@@ -181,6 +181,19 @@
             </if>
         </where>
     </select>
+    <select id="selectModuleSettingsByResourceIdAndTable" resultType="java.lang.String">
+        SELECT module_setting FROM project
+        <where>
+            <if test="resourceTable == 'project' ">
+                id = #{resourceId}
+            </if>
+            <if test="resourceTable != 'project' ">
+                id IN (
+                SELECT project_id FROM ${resourceTable} WHERE id = #{resourceId}
+                )
+            </if>
+        </where>
+    </select>
 
 
 </mapper>
