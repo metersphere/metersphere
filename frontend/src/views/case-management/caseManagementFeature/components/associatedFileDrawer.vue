@@ -107,6 +107,7 @@
       dataIndex: 'createUser',
       sortable: {
         sortDirections: ['ascend', 'descend'],
+        sorter: true,
       },
       showTooltip: true,
       showDrag: true,
@@ -116,6 +117,7 @@
       dataIndex: 'updateUser',
       sortable: {
         sortDirections: ['ascend', 'descend'],
+        sorter: true,
       },
       showTooltip: true,
       showInTable: true,
@@ -125,6 +127,7 @@
       dataIndex: 'updateTime',
       sortable: {
         sortDirections: ['ascend', 'descend'],
+        sorter: true,
       },
       showTooltip: true,
       showInTable: true,

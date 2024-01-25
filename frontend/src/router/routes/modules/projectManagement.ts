@@ -192,7 +192,7 @@ const ProjectManagement: AppRouteRecordRaw = {
       component: () => import('@/views/project-management/fileManagement/index.vue'),
       meta: {
         locale: 'menu.projectManagement.fileManagement',
-        roles: ['*'],
+        roles: ['PROJECT_FILE_MANAGEMENT:READ'],
         isTopMenu: true,
       },
     },
@@ -203,7 +203,7 @@ const ProjectManagement: AppRouteRecordRaw = {
       component: () => import('@/views/project-management/messageManagement/index.vue'),
       meta: {
         locale: 'menu.projectManagement.messageManagement',
-        roles: ['*'],
+        roles: ['PROJECT_MESSAGE:READ'],
         isTopMenu: true,
       },
     },

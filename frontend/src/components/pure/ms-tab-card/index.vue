@@ -1,7 +1,7 @@
 <template>
   <MsCard class="mb-[16px]" :title="props.title" hide-back hide-footer auto-height no-content-padding no-bottom-radius>
     <a-tabs v-model:active-key="innerTab" class="no-content">
-      <a-tab-pane v-for="item of tabList" :key="item.key" :title="item.title" />
+      <a-tab-pane v-for="item of permissionTabList" :key="item.key" :title="item.title" />
     </a-tabs>
   </MsCard>
 </template>
@@ -11,14 +11,20 @@
 
   import MsCard from '@/components/pure/ms-card/index.vue';
 
+  import { hasAnyPermission } from '@/utils/permission';
+
   const props = defineProps<{
     activeTab: string;
     title?: string;
-    tabList: { key: string; title: string }[];
+    tabList: { key: string; title: string; permission?: string[] }[];
   }>();
   const emit = defineEmits(['update:activeTab']);
 
   const innerTab = ref(props.activeTab);
+
+  const permissionTabList = computed(() => {
+    return props.tabList.filter((item: any) => hasAnyPermission(item.permission));
+  });
 
   watch(
     () => props.activeTab,

@@ -2,7 +2,7 @@
   <div>
     <MsCard :loading="loading" simple>
       <div class="mb-4 flex items-center justify-between">
-        <a-button type="primary" @click="createAuth">
+        <a-button v-permission="['SYSTEM_PARAMETER_SETTING_AUTH:READ+ADD']" type="primary" @click="createAuth">
           {{ t('system.config.auth.add') }}
         </a-button>
       </div>
@@ -11,12 +11,24 @@
           <a-button type="text" class="px-0" @click="openAuthDetail(record.id)">{{ record.name }}</a-button>
         </template>
         <template #action="{ record }">
-          <MsButton @click="editAuth(record)">{{ t('system.config.auth.edit') }}</MsButton>
-          <MsButton v-if="record.enable" @click="disabledAuth(record)">
+          <MsButton v-permission="['SYSTEM_PARAMETER_SETTING_AUTH:READ+UPDATE']" @click="editAuth(record)">{{
+            t('system.config.auth.edit')
+          }}</MsButton>
+          <MsButton
+            v-if="record.enable"
+            v-permission="['SYSTEM_PARAMETER_SETTING_AUTH:READ+UPDATE']"
+            @click="disabledAuth(record)"
+          >
             {{ t('system.config.auth.disable') }}
           </MsButton>
-          <MsButton v-else @click="enableAuth(record)">{{ t('system.config.auth.enable') }}</MsButton>
-          <MsTableMoreAction :list="tableActions" @select="handleSelect($event, record)"></MsTableMoreAction>
+          <MsButton v-else v-permission="['SYSTEM_PARAMETER_SETTING_AUTH:READ+UPDATE']" @click="enableAuth(record)">{{
+            t('system.config.auth.enable')
+          }}</MsButton>
+          <MsTableMoreAction
+            v-permission="['SYSTEM_PARAMETER_SETTING_AUTH:READ+DELETE']"
+            :list="tableActions"
+            @select="handleSelect($event, record)"
+          ></MsTableMoreAction>
         </template>
       </ms-base-table>
     </MsCard>

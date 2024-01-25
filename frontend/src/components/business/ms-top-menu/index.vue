@@ -21,7 +21,12 @@
   import usePermission from '@/hooks/usePermission';
   import appClientMenus from '@/router/app-menus';
   import { useAppStore } from '@/store';
+  import useLicenseStore from '@/store/modules/setting/license';
   import { listenerRouteChange } from '@/utils/route-listener';
+
+  import { RouteEnum } from '@/enums/routeEnum';
+
+  const licenseStore = useLicenseStore();
 
   const copyRouters = cloneDeep(appClientMenus) as RouteRecordRaw[];
   const permission = usePermission();
@@ -79,9 +84,17 @@
               (item) => name && item?.name && (name as string).includes(item.name as string)
             );
           }
-          appStore.setTopMenus(
-            currentParent?.children?.filter((item) => permission.accessRouter(item) && item.meta?.isTopMenu)
-          );
+
+          const filterMenuTopRouter = currentParent?.children
+            ?.filter((item: any) => permission.accessRouter(item) && item.meta?.isTopMenu)
+            .filter((item: any) => {
+              if (item.name === RouteEnum.SETTING_SYSTEM_AUTHORIZED_MANAGEMENT) {
+                return licenseStore.hasLicense();
+              }
+              return true;
+            });
+
+          appStore.setTopMenus(filterMenuTopRouter);
           setCurrentTopMenu(name as string);
           return;
         }

@@ -18,7 +18,7 @@
           >
             <template #footer>
               <div class="mb-[6px] mt-[4px] p-[3px_8px]">
-                <MsButton type="text" @click="emit('createRobot')">
+                <MsButton v-permission="['PROJECT_MESSAGE:READ+ADD']" type="text" @click="emit('createRobot')">
                   <MsIcon type="icon-icon_add_outlined" class="mr-[8px] text-[rgb(var(--primary-6))]" size="14" />
                   {{ t('project.messageManagement.createBot') }}
                 </MsButton>
@@ -86,6 +86,7 @@
           <div v-if="!record.children && record.projectRobotConfigMap?.[dataIndex as string]" class="flex items-center">
             <a-switch
               v-model:model-value="record.projectRobotConfigMap[dataIndex as string].enable"
+              v-permission="['PROJECT_MESSAGE:READ+UPDATE']"
               :before-change="(val) => handleChangeIntercept(!!val, record, dataIndex as string)"
               size="small"
               type="line"
@@ -104,7 +105,13 @@
                 />
               </template>
             </a-popover>
-            <MsButton type="button" @click="editRobot(record, dataIndex as string)">{{ t('common.setting') }}</MsButton>
+            <MsButton
+              v-permission="['PROJECT_MESSAGE:READ+UPDATE']"
+              v-xpack
+              type="button"
+              @click="editRobot(record, dataIndex as string)"
+              >{{ t('common.setting') }}</MsButton
+            >
           </div>
           <span v-else></span>
         </template>

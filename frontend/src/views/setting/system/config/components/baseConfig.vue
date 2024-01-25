@@ -3,7 +3,12 @@
     <MsCard class="mb-[16px]" :loading="baseloading" simple auto-height>
       <div class="mb-[16px] flex justify-between">
         <div class="text-[var(--color-text-000)]">{{ t('system.config.baseInfo') }}</div>
-        <a-button type="outline" size="mini" @click="baseInfoDrawerVisible = true">
+        <a-button
+          v-permission="['SYSTEM_PARAMETER_SETTING_BASE:READ+UPDATE']"
+          type="outline"
+          size="mini"
+          @click="baseInfoDrawerVisible = true"
+        >
           {{ t('system.config.update') }}
         </a-button>
       </div>
@@ -12,7 +17,12 @@
     <MsCard class="mb-[16px]" :loading="emailLoading" simple auto-height>
       <div class="mb-[16px] flex justify-between">
         <div class="text-[var(--color-text-000)]">{{ t('system.config.emailConfig') }}</div>
-        <a-button type="outline" size="mini" @click="emailConfigDrawerVisible = true">
+        <a-button
+          v-permission="['SYSTEM_PARAMETER_SETTING_BASE:READ+UPDATE']"
+          type="outline"
+          size="mini"
+          @click="emailConfigDrawerVisible = true"
+        >
           {{ t('system.config.update') }}
         </a-button>
       </div>

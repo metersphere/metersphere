@@ -121,6 +121,7 @@
       editType: ColumnEditTypeEnum.INPUT,
       sortable: {
         sortDirections: ['ascend', 'descend'],
+        sorter: true,
       },
       ellipsis: true,
       showDrag: false,
@@ -186,6 +187,7 @@
       showInTable: true,
       sortable: {
         sortDirections: ['ascend', 'descend'],
+        sorter: true,
       },
       width: 200,
       showDrag: true,

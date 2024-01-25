@@ -143,3 +143,5 @@ export const PreviewEditorImageUrl = '/attachment/download/file';
 export const exportExcelCheckUrl = '/functional/case/pre-check/excel';
 // 导入excel文件
 export const importExcelCaseUrl = '/functional/case/import/excel';
+// 用例拖拽排序
+export const dragSortUrl = '/functional/case/edit/pos';

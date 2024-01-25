@@ -25,16 +25,22 @@
                 <div class="flex items-center justify-between">
                   <span class="font-normal">{{ t(item.title) }}</span>
                   <span>
-                    <a-button
-                      v-for="links of item.skipTitle"
-                      :key="links.name"
-                      size="mini"
-                      class="ml-3 px-0 text-sm"
-                      type="text"
-                      @click.stop="jumpHandler(links)"
+                    <a-tooltip
+                      :content="isHasSystemPermission ? '' : t('organization.service.noPermissionsTip')"
+                      position="bottom"
                     >
-                      {{ t(links.name) }}
-                    </a-button>
+                      <a-button
+                        v-for="links of item.skipTitle"
+                        :key="links.name"
+                        size="mini"
+                        class="ml-3 px-0 text-sm"
+                        type="text"
+                        :disabled="!links.disabled"
+                        @click.stop="jumpHandler(links)"
+                      >
+                        {{ t(links.name) }}
+                      </a-button>
+                    </a-tooltip>
                   </span>
                 </div>
                 <div class="text-xs text-[var(--color-text-4)]">
@@ -61,10 +67,19 @@
   import ServiceList from './components/serviceList.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import useUserStore from '@/store/modules/user/index';
   import { openWindow } from '@/utils/index';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { SkipTitle, StepListType } from '@/models/setting/serviceIntegration';
   import { SettingRouteEnum } from '@/enums/routeEnum';
+
+  const userStore = useUserStore();
+
+  const isHasSystemPermission = computed(() => {
+    const { systemPermissions } = userStore.currentRole;
+    return hasAnyPermission(systemPermissions, ['SYSTEM']) as boolean;
+  });
 
   const { t } = useI18n();
   const router = useRouter();
@@ -78,11 +93,13 @@
           name: 'organization.service.developmentDoc',
           src: 'https://github.com/metersphere/metersphere-platform-plugin/wiki/%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91%E6%8C%87%E5%8D%97',
           active: false,
+          disabled: false,
         },
         {
           name: 'organization.service.downPlugin',
           src: 'https://github.com/metersphere/metersphere-platform-plugin',
           active: false,
+          disabled: false,
         },
       ],
       step: '@/assets/images/ms_plugindownload.jpg',
@@ -97,6 +114,7 @@
           name: 'organization.service.jumpPlugin',
           src: '',
           active: true,
+          disabled: isHasSystemPermission.value,
         },
       ],
       step: '@/assets/images/ms_configplugin.jpg',

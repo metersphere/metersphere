@@ -27,6 +27,7 @@
         <MsIcon type="icon-icon-maybe_outlined" class="mr-[8px] cursor-pointer hover:text-[rgb(var(--primary-5))]" />
       </a-tooltip>
       <MsButton
+        v-permission="['PROJECT_FILE_MANAGEMENT:READ+DOWNLOAD']"
         type="icon"
         status="secondary"
         class="!rounded-[var(--border-radius-small)] !text-[var(--color-text-1)]"
@@ -39,6 +40,7 @@
       </MsButton>
       <MsButton
         v-if="detail?.storage === 'GIT'"
+        v-permission="['PROJECT_FILE_MANAGEMENT:READ+UPDATE']"
         type="icon"
         status="secondary"
         class="!rounded-[var(--border-radius-small)] !text-[var(--color-text-1)]"
@@ -132,7 +134,9 @@
                       :all-names="[]"
                       @update-desc-finish="detailDrawerRef?.initDetail"
                     >
-                      <MsButton class="ml-[8px]"><MsIcon type="icon-icon_edit_outlined"></MsIcon></MsButton>
+                      <MsButton v-permission="['PROJECT_FILE_MANAGEMENT:READ+UPDATE']" class="ml-[8px]"
+                        ><MsIcon type="icon-icon_edit_outlined"></MsIcon
+                      ></MsButton>
                     </popConfirm>
                   </template>
                 </div>
@@ -167,7 +171,12 @@
                 v-on="caseTableEvent"
               >
                 <template #action="{ record }">
-                  <MsButton type="text" class="mr-[8px]" @click="updateCase(record)">
+                  <MsButton
+                    v-permission="['PROJECT_FILE_MANAGEMENT:READ+UPDATE']"
+                    type="text"
+                    class="mr-[8px]"
+                    @click="updateCase(record)"
+                  >
                     {{ t('project.fileManagement.updateCaseFile') }}
                   </MsButton>
                 </template>

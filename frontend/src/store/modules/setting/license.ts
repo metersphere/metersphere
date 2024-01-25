@@ -24,8 +24,7 @@ const useLicenseStore = defineStore('license', {
         if (!result || !result.status || !result.license || !result.license.count) {
           return;
         }
-        // this.setLicenseStatus(result.status);
-        this.setLicenseStatus('fail');
+        this.setLicenseStatus(result.status);
       } catch (error) {
         console.log(error);
       }

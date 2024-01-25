@@ -164,6 +164,7 @@
       dataIndex: 'createTime',
       sortable: {
         sortDirections: ['ascend', 'descend'],
+        sorter: true,
       },
       showInTable: true,
       width: 300,

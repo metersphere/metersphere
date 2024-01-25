@@ -45,4 +45,5 @@ export default {
   'organization.service.closeSuccess': '禁用成功',
   'organization.service.configSuccess': '配置成功',
   'organization.service.updateSuccess': '更新成功',
+  'organization.service.noPermissionsTip': '您没有操作权限，请联系管理员',
 };

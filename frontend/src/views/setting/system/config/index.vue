@@ -31,10 +31,10 @@
   const isInitMemoryCleanup = ref(activeTab.value === 'memoryCleanup');
   const authConfigRef = ref<AuthConfigInstance | null>();
   const tabList = ref([
-    { key: 'baseConfig', title: t('system.config.baseConfig') },
-    { key: 'pageConfig', title: t('system.config.pageConfig') },
-    { key: 'authConfig', title: t('system.config.authConfig') },
-    { key: 'memoryCleanup', title: t('system.config.memoryCleanup') },
+    { key: 'baseConfig', title: t('system.config.baseConfig'), permission: ['SYSTEM_PARAMETER_SETTING_BASE:READ'] },
+    { key: 'pageConfig', title: t('system.config.pageConfig'), permission: ['SYSTEM_PARAMETER_SETTING_DISPLAY:READ'] },
+    { key: 'authConfig', title: t('system.config.authConfig'), permission: ['SYSTEM_PARAMETER_SETTING_AUTH:READ'] },
+    { key: 'memoryCleanup', title: t('system.config.memoryCleanup'), permission: [] },
   ]);
 
   watch(

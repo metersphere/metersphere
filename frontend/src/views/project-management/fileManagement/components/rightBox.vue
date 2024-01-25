@@ -1,7 +1,9 @@
 <template>
   <div class="flex h-[calc(100vh-88px)] flex-col overflow-hidden p-[24px]">
     <div class="header">
-      <a-button type="primary" @click="handleAddClick">{{ t('project.fileManagement.addFile') }}</a-button>
+      <a-button v-permission="['PROJECT_FILE_MANAGEMENT:READ+ADD']" type="primary" @click="handleAddClick">{{
+        t('project.fileManagement.addFile')
+      }}</a-button>
       <div class="header-right">
         <a-select v-model="tableFileType" class="w-[240px]" :loading="fileTypeLoading" @change="searchList">
           <template #prefix>
@@ -562,15 +564,18 @@
       {
         label: 'project.fileManagement.download',
         eventTag: 'download',
+        permission: ['PROJECT_FILE_MANAGEMENT:READ+DOWNLOAD'],
       },
       {
         label: 'project.fileManagement.move',
         eventTag: 'move',
+        permission: ['PROJECT_FILE_MANAGEMENT:READ+UPDATE'],
       },
       {
         label: 'project.fileManagement.delete',
         eventTag: 'delete',
         danger: true,
+        permission: ['PROJECT_FILE_MANAGEMENT:READ+DELETE'],
       },
     ],
   };
@@ -579,11 +584,13 @@
       {
         label: 'project.fileManagement.download',
         eventTag: 'download',
+        permission: ['PROJECT_FILE_MANAGEMENT:READ+DOWNLOAD'],
       },
       {
         label: 'project.fileManagement.delete',
         eventTag: 'delete',
         danger: true,
+        permission: ['PROJECT_FILE_MANAGEMENT:READ+DELETE'],
       },
     ],
   };

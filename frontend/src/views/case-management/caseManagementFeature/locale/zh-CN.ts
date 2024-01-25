@@ -245,4 +245,5 @@ export default {
   'caseManagement.featureCase.cancelDependencyContent': '取消后，影响测试计划相关统计',
   'caseManagement.featureCase.associatedSuccess': '关联成功',
   'caseManagement.featureCase.defectSource': '缺陷来源',
+  'caseManagement.featureCase.sortSuccess': '排序成功',
 };

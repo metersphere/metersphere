@@ -26,6 +26,7 @@ export interface SkipTitle {
   name: string;
   src: string;
   active: boolean; // 是否激活
+  disabled: boolean;
 }
 
 export interface StepListType {

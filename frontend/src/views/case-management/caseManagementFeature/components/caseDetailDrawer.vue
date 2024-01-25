@@ -4,6 +4,7 @@
     v-model:visible="showDrawerVisible"
     :width="1200"
     :footer="false"
+    :mask="false"
     :title="t('caseManagement.featureCase.caseDetailTitle', { id: detailInfo?.id, name: detailInfo?.name })"
     :detail-id="props.detailId"
     :detail-index="props.detailIndex"
@@ -11,7 +12,6 @@
     :pagination="props.pagination"
     :table-data="props.tableData"
     :page-change="props.pageChange"
-    :mask-closable="false"
     @loaded="loadedCase"
   >
     <template #titleLeft>
@@ -534,6 +534,15 @@
   const changeHandler = debounce(() => {
     tabDetailRef.value.handleOK();
   }, 300);
+
+  watch(
+    () => props.detailId,
+    (val) => {
+      if (val) {
+        updateSuccess();
+      }
+    }
+  );
 </script>
 
 <style scoped lang="less">
