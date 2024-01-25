@@ -583,6 +583,48 @@ CREATE TABLE IF NOT EXISTS api_definition_custom_field(
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci COMMENT = '自定义字段接口定义关系';
 
+CREATE TABLE api_scenario_csv
+(
+    `id`                 VARCHAR(50)  NOT NULL COMMENT 'id',
+    `file_id`            VARCHAR(50)  NOT NULL COMMENT '文件id/引用文件id',
+    `scenario_id`        VARCHAR(50)  NOT NULL COMMENT '场景id',
+    `name`               VARCHAR(255) NOT NULL COMMENT 'csv变量名称',
+    `file_name`          VARCHAR(255) COMMENT '文件名称',
+    `scope`              VARCHAR(50)  NOT NULL COMMENT '作用域 SCENARIO/STEP',
+    `enable`             BIT(1)       NOT NULL DEFAULT 1 COMMENT '启用/禁用',
+    `association`        BIT(1)       NOT NULL DEFAULT 0 COMMENT '是否引用',
+    `encoding`           VARCHAR(50)  NOT NULL DEFAULT 'UTF-8' COMMENT '文件编码',
+    `random`             BIT(1)       NOT NULL DEFAULT 0 COMMENT '是否随机',
+    `variable_names`     VARCHAR(255) COMMENT '变量名称(西文逗号间隔)',
+    `ignore_first_line`  BIT(1)       NOT NULL DEFAULT 0 COMMENT '忽略首行(只有在设置了变量名称后才生效)',
+    `delimiter`          VARCHAR(50) COMMENT '分隔符',
+    `allow_quoted_data`  BIT(1)       NOT NULL DEFAULT 0 COMMENT '是否允许带引号',
+    `recycle_on_eof`     BIT(1)       NOT NULL DEFAULT 1 COMMENT '遇到文件结束符再次循环',
+    `stop_thread_on_eof` BIT(1)       NOT NULL DEFAULT 0 COMMENT '遇到文件结束符停止线程',
+    `project_id`         VARCHAR(50)  NOT NULL COMMENT '项目id',
+    PRIMARY KEY (id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '场景csv';
+
+CREATE INDEX idx_scenario_id ON api_scenario_csv(scenario_id);
+CREATE INDEX idx_name ON api_scenario_csv(name);
+CREATE INDEX idx_file_name ON api_scenario_csv(file_name);
+CREATE INDEX idx_project_id ON api_scenario_csv(project_id);
+
+DROP TABLE IF EXISTS api_scenario_csv_step;
+CREATE TABLE api_scenario_csv_step
+(
+    `id`      VARCHAR(50) NOT NULL COMMENT 'id',
+    `file_id` VARCHAR(50) NOT NULL COMMENT '文件id',
+    `step_id` VARCHAR(50) NOT NULL COMMENT '步骤id',
+    PRIMARY KEY (id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '场景csv引用关系';
+
+CREATE INDEX idx_file_id ON api_scenario_csv_step(file_id);
+CREATE INDEX idx_step_id ON api_scenario_csv_step(step_id);
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

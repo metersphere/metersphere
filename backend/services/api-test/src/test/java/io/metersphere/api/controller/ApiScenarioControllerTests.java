@@ -16,7 +16,9 @@ import io.metersphere.api.service.BaseResourcePoolTestService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.project.dto.filemanagement.request.FileUploadRequest;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
+import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -47,6 +49,7 @@ import org.springframework.test.web.servlet.ResultMatcher;
 import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static io.metersphere.api.controller.result.ApiResultCode.API_SCENARIO_EXIST;
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
@@ -93,6 +96,12 @@ public class ApiScenarioControllerTests extends BaseTest {
     private ApiTestCaseService apiTestCaseService;
     @Resource
     private BaseResourcePoolTestService baseResourcePoolTestService;
+    @Resource
+    private FileMetadataService fileMetadataService;
+    @Resource
+    private ApiScenarioCsvMapper apiScenarioCsvMapper;
+    private static String fileMetadataId;
+    private static String localFileId;
     private static ApiScenario addApiScenario;
     private static List<ApiScenarioStepRequest> addApiScenarioSteps;
     private static ApiScenario anOtherAddApiScenario;
@@ -160,6 +169,16 @@ public class ApiScenarioControllerTests extends BaseTest {
             }
             apiScenarioMapper.insertSelective(apiScenario);
         }
+    }
+
+    @Test
+    @Order(0)
+    public void uploadTempFileTest() throws Exception {
+        // 准备数据，上传文件管理文件
+        uploadFileMetadata();
+        MockMultipartFile file = getMockMultipartFile();
+        localFileId = doUploadTempFile(file);
+
     }
 
     public void initApiScenarioTrash() {
@@ -294,7 +313,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         }
     }
 
-    private ScenarioConfig getScenarioConfig() {
+    private ScenarioConfig getScenarioConfig() throws Exception {
         ScenarioConfig scenarioConfig = new ScenarioConfig();
         MsAssertionConfig msAssertionConfig = new MsAssertionConfig();
         MsScriptAssertion scriptAssertion = new MsScriptAssertion();
@@ -307,7 +326,38 @@ public class ApiScenarioControllerTests extends BaseTest {
         scenarioOtherConfig.setFailureStrategy(ScenarioOtherConfig.FailureStrategy.CONTINUE.name());
         scenarioOtherConfig.setEnableCookieShare(true);
         scenarioConfig.setOtherConfig(scenarioOtherConfig);
+        ScenarioVariable scenarioVariable = new ScenarioVariable();
+        scenarioVariable.setCsvVariables(getCsvVariables());
+        scenarioConfig.setVariable(scenarioVariable);
         return scenarioConfig;
+    }
+
+    /**
+     * 文件管理插入一条数据
+     * 便于测试关联文件
+     */
+    private void uploadFileMetadata() throws Exception {
+        FileUploadRequest fileUploadRequest = new FileUploadRequest();
+        fileUploadRequest.setProjectId(DEFAULT_PROJECT_ID);
+        //导入正常文件
+        MockMultipartFile file = new MockMultipartFile("file", "file.csv", MediaType.APPLICATION_OCTET_STREAM_VALUE, "aa".getBytes());
+        fileMetadataId = fileMetadataService.upload(fileUploadRequest, "admin", file);
+    }
+
+    public List<CsvVariable> getCsvVariables() throws Exception {
+        List<CsvVariable> csvVariables = new ArrayList<>();
+        CsvVariable csvVariable = new CsvVariable();
+        csvVariable.setFileId(localFileId);
+        csvVariable.setName("csv变量");
+        csvVariable.setScope(CsvVariable.CsvVariableScope.SCENARIO.name());
+        csvVariables.add(csvVariable);
+        csvVariable = new CsvVariable();
+        csvVariable.setFileId(fileMetadataId);
+        csvVariable.setName("csv-关联的");
+        csvVariable.setScope(CsvVariable.CsvVariableScope.SCENARIO.name());
+        csvVariable.setAssociation(true);
+        csvVariables.add(csvVariable);
+        return csvVariables;
     }
 
     private List<ApiScenarioStepRequest> getApiScenarioStepRequests() {
@@ -322,6 +372,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         stepRequest.setStepType(ApiScenarioStepType.API_CASE.name());
         stepRequest.setProjectId(DEFAULT_PROJECT_ID);
         stepRequest.setConfig(new HashMap<>());
+        stepRequest.setCsvFileIds(List.of(fileMetadataId));
 
         ApiScenarioStepRequest stepRequest2 = new ApiScenarioStepRequest();
         stepRequest2.setId(IDGenerator.nextStr());
@@ -333,6 +384,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         stepRequest2.setStepType(ApiScenarioStepType.API_CASE.name());
         stepRequest2.setRefType(ApiScenarioStepRefType.COPY.name());
         stepRequest2.setProjectId(DEFAULT_PROJECT_ID);
+        stepRequest2.setCsvFileIds(List.of(fileMetadataId));
 
         ApiScenarioStepRequest stepRequest3 = new ApiScenarioStepRequest();
         stepRequest3.setId(IDGenerator.nextStr());
@@ -380,6 +432,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         apiTestCase = apiTestCaseService.addCase(apiTestCaseAddRequest, "admin");
     }
 
+
     @Test
     @Order(2)
     public void update() throws Exception {
@@ -417,8 +470,16 @@ public class ApiScenarioControllerTests extends BaseTest {
         this.requestPostWithOk(DEFAULT_UPDATE, request);
         assertUpdateSteps(steps, steptDetailMap);
 
+        ApiScenarioCsvExample apiScenarioCsvExample = new ApiScenarioCsvExample();
+        apiScenarioCsvExample.createCriteria().andScenarioIdEqualTo(addApiScenario.getId());
+        List<ApiScenarioCsv> apiScenarioCsvs = apiScenarioCsvMapper.selectByExample(apiScenarioCsvExample);
+        Map<String, ApiScenarioCsv> collect = apiScenarioCsvs.stream().collect(Collectors.toMap(ApiScenarioCsv::getFileId, t -> t));
         // 验证修改步骤
         steps.get(0).setName("test name update");
+        CsvVariable csvVariable = request.getScenarioConfig().getVariable().getCsvVariables().get(0);
+        request.getScenarioConfig().getVariable().getCsvVariables().get(0).setId(collect.get(csvVariable.getFileId()).getId());
+        CsvVariable csvVariable1 = request.getScenarioConfig().getVariable().getCsvVariables().get(0);
+        request.getScenarioConfig().getVariable().getCsvVariables().get(1).setId(collect.get(csvVariable1.getFileId()).getId());
         this.requestPostWithOk(DEFAULT_UPDATE, request);
         assertUpdateSteps(steps, steptDetailMap);
         addApiScenarioSteps = steps;
