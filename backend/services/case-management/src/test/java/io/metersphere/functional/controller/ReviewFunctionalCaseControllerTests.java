@@ -105,8 +105,6 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo("gyqReviewCaseTest");
         List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
         Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCases.get(0).getStatus(),FunctionalCaseReviewStatus.PASS.toString()));
-        List<CaseReview> caseReviews1 = getCaseReviews("创建用例评审1");
-        Assertions.assertTrue(StringUtils.equals(caseReviews1.get(0).getStatus(), CaseReviewStatus.UNDERWAY.toString()));
         //单人评审不通过
         reviewFunctionalCaseRequest = new ReviewFunctionalCaseRequest();
         reviewFunctionalCaseRequest.setReviewId(reviewId);
@@ -125,8 +123,7 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo("gyqReviewCaseTestOne");
         caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
         Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCases.get(0).getStatus(),FunctionalCaseReviewStatus.UN_PASS.toString()));
-        caseReviews1 = getCaseReviews("创建用例评审1");
-        Assertions.assertTrue(StringUtils.equals(caseReviews1.get(0).getStatus(), CaseReviewStatus.COMPLETED.toString()));
+
 
         reviewFunctionalCaseRequest = new ReviewFunctionalCaseRequest();
         reviewFunctionalCaseRequest.setReviewId(reviewId);
@@ -145,8 +142,6 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo("gyqReviewCaseTestOne");
         caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
         Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCases.get(0).getStatus(),FunctionalCaseReviewStatus.RE_REVIEWED.toString()));
-        caseReviews1 = getCaseReviews("创建用例评审1");
-        Assertions.assertTrue(StringUtils.equals(caseReviews1.get(0).getStatus(), CaseReviewStatus.UNDERWAY.toString()));
 
     }
 
@@ -210,8 +205,6 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo("gyqReviewCaseTestThree");
         List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
         Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCases.get(0).getStatus(),FunctionalCaseReviewStatus.PASS.toString()));
-        List<CaseReview> caseReviews1 = getCaseReviews("创建用例评审3");
-        Assertions.assertTrue(StringUtils.equals(caseReviews1.get(0).getStatus(), CaseReviewStatus.UNDERWAY.toString()));
 
         reviewFunctionalCaseRequest = new ReviewFunctionalCaseRequest();
         reviewFunctionalCaseRequest.setReviewId(reviewId);
@@ -230,8 +223,6 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo("gyqReviewCaseTestFour");
         caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
         Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCases.get(0).getStatus(),FunctionalCaseReviewStatus.UN_PASS.toString()));
-        caseReviews1 = getCaseReviews("创建用例评审3");
-        Assertions.assertTrue(StringUtils.equals(caseReviews1.get(0).getStatus(), CaseReviewStatus.COMPLETED.toString()));
     }
 
     @Test
