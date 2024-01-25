@@ -39,7 +39,7 @@
         />
       </template>
       <template v-if="(keyword || '').trim() === ''" #empty>
-        <div class="flex items-center justify-center">
+        <div class="flex w-full items-center justify-center">
           {{ t('caseManagement.caseReview.tableNoData') }}
           <MsButton class="ml-[8px]" @click="addCase">
             {{

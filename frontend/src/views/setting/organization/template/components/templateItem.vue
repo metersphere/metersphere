@@ -15,7 +15,7 @@
               <span @click="fieldSetting">{{ t('system.orgTemplate.fieldSetting') }}</span>
               <a-divider direction="vertical" />
             </span>
-            <span class="operation hover:text-[rgb(var(--primary-5))]">
+            <span v-permission="['ORGANIZATION_TEMPLATE:READ']" class="operation hover:text-[rgb(var(--primary-5))]">
               <span @click="templateManagement">{{ t('system.orgTemplate.TemplateManagement') }}</span>
               <a-divider v-if="isEnableProject || props.cardItem.key === 'BUG'" direction="vertical" />
             </span>
@@ -23,7 +23,11 @@
               <span @click="workflowSetup">{{ t('system.orgTemplate.workflowSetup') }}</span>
               <a-divider v-if="isEnableProject && props.cardItem.key === 'BUG'" direction="vertical" />
             </span>
-            <span v-if="isEnableProject" class="rounded p-[2px] hover:bg-[rgb(var(--primary-9))]">
+            <span
+              v-if="isEnableProject"
+              v-permission="['ORGANIZATION_TEMPLATE:READ+ENABLE']"
+              class="rounded p-[2px] hover:bg-[rgb(var(--primary-9))]"
+            >
               <MsTableMoreAction :list="moreActions" @select="handleMoreActionSelect"
             /></span>
           </div>

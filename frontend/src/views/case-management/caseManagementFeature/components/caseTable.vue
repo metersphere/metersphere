@@ -82,26 +82,32 @@
     </template> -->
     <!-- 渲染自定义字段结束 -->
     <template #operation="{ record }">
-      <MsButton @click="operateCase(record, 'edit')">{{ t('common.edit') }}</MsButton>
-      <a-divider direction="vertical" :margin="8"></a-divider>
-      <MsButton @click="operateCase(record, 'copy')">{{ t('caseManagement.featureCase.copy') }}</MsButton>
-      <a-divider direction="vertical" :margin="8"></a-divider>
-      <MsTableMoreAction :list="moreActions" @select="handleMoreActionSelect($event, record)" />
+      <MsButton v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" @click="operateCase(record, 'edit')">{{
+        t('common.edit')
+      }}</MsButton>
+      <a-divider v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" direction="vertical" :margin="8"></a-divider>
+      <MsButton v-permission="['FUNCTIONAL_CASE:READ+ADD']" @click="operateCase(record, 'copy')">{{
+        t('caseManagement.featureCase.copy')
+      }}</MsButton>
+      <a-divider v-permission="['FUNCTIONAL_CASE:READ+ADD']" direction="vertical" :margin="8"></a-divider>
+      <span v-permission="['FUNCTIONAL_CASE:READ+DELETE']">
+        <MsTableMoreAction :list="moreActions" @select="handleMoreActionSelect($event, record)" />
+      </span>
     </template>
 
     <template v-if="(keyword || '').trim() === ''" #empty>
-      <div class="flex items-center justify-center p-[8px] text-[var(--color-text-4)]">
+      <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
         {{ t('caseManagement.caseReview.tableNoData') }}
-        <MsButton class="ml-[8px]" @click="createCase">
+        <MsButton v-permission="['FUNCTIONAL_CASE:READ+ADD']" class="ml-[8px]" @click="createCase">
           {{ t('caseManagement.featureCase.creatingCase') }}
         </MsButton>
         {{ t('caseManagement.featureCase.or') }}
-        <MsButton class="ml-[8px]" @click="emit('import', 'Excel')">
+        <MsButton v-permission="['FUNCTIONAL_CASE:READ+IMPORT']" class="ml-[8px]" @click="emit('import', 'Excel')">
           {{ t('caseManagement.featureCase.importExcel') }}
         </MsButton>
-        <MsButton class="ml-[4px]" @click="emit('import', 'Xmind')">
+        <!-- <MsButton class="ml-[4px]" @click="emit('import', 'Xmind')">
           {{ t('caseManagement.featureCase.importXmind') }}
-        </MsButton>
+        </MsButton> -->
       </div>
     </template>
   </ms-base-table>
@@ -1098,7 +1104,7 @@
     initData();
   };
 
-  onMounted(() => {
+  onBeforeMount(() => {
     if (route.query.id) {
       showCaseDetail(route.query.id as string, 0);
     }
@@ -1116,10 +1122,12 @@
 
   watch(
     () => props.activeFolder,
-    () => {
+    (val) => {
       keyword.value = '';
-      initData();
-      resetSelector();
+      if (props.activeFolder !== 'recycle' && val) {
+        initData();
+        resetSelector();
+      }
     }
   );
 </script>

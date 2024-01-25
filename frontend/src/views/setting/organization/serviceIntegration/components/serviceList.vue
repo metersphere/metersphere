@@ -67,11 +67,28 @@
                     @click="getValidateHandler(item)"
                     >{{ t('organization.service.testLink') }}</a-button
                   >
-                  <a-button type="outline" class="arco-btn-outline--secondary" size="mini" @click="editHandler(item)">{{
-                    t('organization.service.edit')
-                  }}</a-button>
                   <a-button
                     v-if="item.config"
+                    v-permission="['SYSTEM_SERVICE_INTEGRATION:READ+UPDATE']"
+                    type="outline"
+                    class="arco-btn-outline--secondary"
+                    size="mini"
+                    @click="editHandler(item)"
+                    >{{ t('organization.service.edit') }}</a-button
+                  >
+                  <a-button
+                    v-else
+                    v-permission="['SYSTEM_SERVICE_INTEGRATION:READ+ADD']"
+                    type="outline"
+                    class="arco-btn-outline--secondary"
+                    size="mini"
+                    @click="editHandler(item)"
+                    >{{ t('common.add') }}</a-button
+                  >
+
+                  <a-button
+                    v-if="item.config"
+                    v-permission="['SYSTEM_SERVICE_INTEGRATION:READ+RESET']"
                     type="outline"
                     class="arco-btn-outline--secondary"
                     size="mini"

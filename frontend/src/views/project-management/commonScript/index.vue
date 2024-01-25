@@ -1,7 +1,9 @@
 <template>
   <MsCard simple>
     <div class="mb-4 flex items-center justify-between">
-      <a-button type="outline" @click="addCommonScript"> {{ t('project.commonScript.addPublicScript') }} </a-button>
+      <a-button v-permission="['PROJECT_CUSTOM_FUNCTION:READ+ADD']" type="outline" @click="addCommonScript">
+        {{ t('project.commonScript.addPublicScript') }}
+      </a-button>
       <a-input-search
         v-model:model-value="keyword"
         :placeholder="t('project.commonScript.searchByNameAndId')"
@@ -43,11 +45,12 @@
         <MsTag v-else>{{ t('project.commonScript.draft') }}</MsTag>
       </template>
       <template #operation="{ record }">
-        <MsButton status="primary" @click="editHandler(record)">
+        <MsButton v-permission="['PROJECT_CUSTOM_FUNCTION:READ+UPDATE']" status="primary" @click="editHandler(record)">
           {{ t('common.edit') }}
         </MsButton>
         <MsTableMoreAction
           v-if="!record.internal"
+          v-permission="['PROJECT_CUSTOM_FUNCTION:READ+DELETE']"
           :list="actions"
           @select="(item:ActionsItem) => handleMoreActionSelect(item,record)"
       /></template>

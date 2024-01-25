@@ -3,6 +3,7 @@ export default {
   'caseManagement.featureCase.importCase': '导入用例',
   'caseManagement.featureCase.importExcel': 'Excel导入',
   'caseManagement.featureCase.importXmind': 'Xmind导入',
+  'caseManagement.featureCase.importSuccess': '导入成功',
   'caseManagement.featureCase.publicCase': '公共用例库',
   'caseManagement.featureCase.allCase': '全部用例',
   'caseManagement.featureCase.searchTip': '请输入分组名称',

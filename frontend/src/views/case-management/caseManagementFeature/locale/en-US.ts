@@ -3,6 +3,7 @@ export default {
   'caseManagement.featureCase.importCase': 'Import Case',
   'caseManagement.featureCase.importExcel': 'Import Excel',
   'caseManagement.featureCase.importXmind': 'Import Xmind',
+  'caseManagement.featureCase.importSuccess': 'Import successfully',
   'caseManagement.featureCase.publicCase': 'Public of Cases',
   'caseManagement.featureCase.allCase': 'All of Cases',
   'caseManagement.featureCase.searchTip': 'Please enter a group name',

@@ -15,7 +15,7 @@
       }}</MsButton>
     </template>
     <template v-if="(props.funParams.keyword || '').trim() === ''" #empty>
-      <div class="flex items-center justify-center">
+      <div class="flex w-full w-full items-center justify-center">
         {{ t('caseManagement.caseReview.tableNoData') }}
         <MsButton class="ml-[8px]" @click="emit('create')">
           {{ t('caseManagement.featureCase.addDemand') }}

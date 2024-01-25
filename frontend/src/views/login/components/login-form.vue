@@ -13,7 +13,7 @@
         <a-form-item class="login-form-item" field="radio" hide-label>
           <a-radio-group v-model="userInfo.authenticate" type="button">
             <a-radio value="LOCAL">普通登陆</a-radio>
-            <a-radio value="LDAP">LDAP</a-radio>
+            <a-radio v-xpack value="LDAP">LDAP</a-radio>
             <a-radio value="OAuth2">OAuth2 测试</a-radio>
             <a-radio value="OIDC 90">OIDC 90</a-radio>
           </a-radio-group>

@@ -66,9 +66,13 @@
     <template #operation="{ record }">
       <MsButton>{{ t('testPlan.testPlanIndex.execution') }}</MsButton>
       <a-divider direction="vertical" :margin="8"></a-divider>
-      <MsButton>{{ t('testPlan.testPlanIndex.copy') }}</MsButton>
+      <MsButton v-permission="['PROJECT_TEST_PLAN:READ+ADD']">{{ t('testPlan.testPlanIndex.copy') }}</MsButton>
       <a-divider direction="vertical" :margin="8"></a-divider>
-      <MsTableMoreAction :list="moreActions" @select="handleMoreActionSelect($event, record)" />
+      <MsTableMoreAction
+        v-permission="['PROJECT_TEST_PLAN:READ+DELETE']"
+        :list="moreActions"
+        @select="handleMoreActionSelect($event, record)"
+      />
     </template>
   </ms-base-table>
 </template>

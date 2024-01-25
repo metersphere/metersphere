@@ -9,7 +9,13 @@
         asterisk-position="end"
       >
         <span class="absolute right-[6px] top-0">
-          <a-button v-if="props.allowEdit" type="text" class="px-0" @click="prepositionEdit">
+          <a-button
+            v-if="props.allowEdit"
+            v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
+            type="text"
+            class="px-0"
+            @click="prepositionEdit"
+          >
             <MsIcon type="icon-icon_edit_outlined" class="mr-1 font-[16px] text-[rgb(var(--primary-5))]" />{{
               t('caseManagement.featureCase.contentEdit')
             }}</a-button
@@ -99,7 +105,7 @@
         <div v-if="props.allowEdit" class="flex flex-col">
           <div class="mb-1">
             <a-dropdown position="tr" trigger="hover">
-              <a-button type="outline">
+              <a-button v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" type="outline">
                 <template #icon> <icon-plus class="text-[14px]" /> </template
                 >{{ t('system.orgTemplate.addAttachment') }}</a-button
               >
@@ -261,7 +267,7 @@
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
-  import { downloadByteFile, getGenerateId } from '@/utils';
+  import { downloadByteFile, encrypted, getGenerateId, sleep } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
 
   import type { AssociatedList, DetailCase, StepList } from '@/models/caseManagement/featureCase';
@@ -479,10 +485,6 @@
   }
 
   const fileListRef = ref<InstanceType<typeof MsFileList>>();
-  async function startUpload() {
-    await fileListRef.value?.startUpload();
-    emit('updateSuccess');
-  }
 
   function beforeUpload(file: File) {
     const _maxSize = 50 * 1024 * 1024;
@@ -600,16 +602,18 @@
     }
   );
 
+  async function startUpload() {
+    await sleep(300);
+    await fileListRef.value?.startUpload();
+    emit('updateSuccess');
+  }
   // 文件列表单个上传
   watch(
     () => fileList.value,
-    (val) => {
-      if (val) {
-        if (val.filter((item) => item.status === 'init').length) {
-          setTimeout(() => {
-            startUpload();
-          }, 30);
-        }
+    async (val) => {
+      const isNewFiles = val.filter((item) => item.status === 'init').length;
+      if (val && isNewFiles) {
+        startUpload();
       }
     }
   );

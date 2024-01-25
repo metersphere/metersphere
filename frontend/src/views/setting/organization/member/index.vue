@@ -2,9 +2,13 @@
   <MsCard simple>
     <div class="mb-4 flex items-center justify-between">
       <div>
-        <a-button class="mr-3" type="primary" @click="addOrEditMember('add')">{{
-          t('organization.member.addMember')
-        }}</a-button>
+        <a-button
+          v-permission="['ORGANIZATION_MEMBER:READ+ADD']"
+          class="mr-3"
+          type="primary"
+          @click="addOrEditMember('add')"
+          >{{ t('organization.member.addMember') }}</a-button
+        >
       </div>
       <a-input-search
         v-model="keyword"
@@ -78,8 +82,11 @@
         </div>
       </template>
       <template #action="{ record }">
-        <MsButton @click="addOrEditMember('edit', record)">{{ t('organization.member.edit') }}</MsButton>
+        <MsButton v-permission="['ORGANIZATION_MEMBER:READ+UPDATE']" @click="addOrEditMember('edit', record)">{{
+          t('organization.member.edit')
+        }}</MsButton>
         <MsRemoveButton
+          v-permission="['ORGANIZATION_MEMBER:READ+DELETE']"
           position="br"
           :title="t('organization.member.deleteMemberTip', { name: characterLimit(record.name) })"
           :sub-title-tip="t('organization.member.subTitle')"
@@ -213,10 +220,12 @@
       {
         label: 'organization.member.batchActionAddProject',
         eventTag: 'batchAddProject',
+        permission: ['ORGANIZATION_MEMBER:READ+ADD'],
       },
       {
         label: 'organization.member.batchActionAddUserGroup',
         eventTag: 'batchAddUserGroup',
+        permission: ['ORGANIZATION_MEMBER:READ+ADD'],
       },
     ],
   };

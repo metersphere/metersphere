@@ -22,7 +22,7 @@ const TestPlan: AppRouteRecordRaw = {
       component: () => import('@/views/test-plan/testPlan/index.vue'),
       meta: {
         locale: 'menu.testPlan',
-        roles: ['*'],
+        roles: ['PROJECT_TEST_PLAN:READ'],
         isTopMenu: true,
       },
     },

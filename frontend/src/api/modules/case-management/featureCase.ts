@@ -55,6 +55,7 @@ import {
   GetSearchCustomFieldsUrl,
   getTransferTreeUrl,
   GetTrashCaseModuleTreeUrl,
+  importExcelCaseUrl,
   MoveCaseModuleTreeUrl,
   PreviewEditorImageUrl,
   PreviewFileUrl,
@@ -394,6 +395,10 @@ export function editorUploadFile(data: { fileList: File[] }) {
 // 富文本预览查看详情
 export function editorPreviewImages(data: PreviewImages) {
   return MSR.post({ url: PreviewEditorImageUrl, data });
+}
+// 导入excel
+export function importExcelCase(data: { request: ImportExcelType; fileList: File[] }) {
+  return MSR.uploadFile({ url: importExcelCaseUrl }, { request: data.request, fileList: data.fileList }, '');
 }
 
 export default {};

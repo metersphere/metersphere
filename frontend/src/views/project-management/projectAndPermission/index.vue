@@ -24,6 +24,7 @@
   import MsMenuPanel from '@/components/pure/ms-menu-panel/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import useLicenseStore from '@/store/modules/setting/license';
 
   import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
 
@@ -31,6 +32,21 @@
 
   const router = useRouter();
   const route = useRoute();
+  const licenseStore = useLicenseStore();
+
+  function getProjectVersion() {
+    if (licenseStore.hasLicense()) {
+      return [
+        {
+          key: 'projectVersion',
+          title: t('project.permission.projectVersion'),
+          level: 2,
+          name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_VERSION,
+        },
+      ];
+    }
+    return [];
+  }
   const menuList = ref([
     {
       key: 'project',
@@ -50,12 +66,7 @@
       level: 2,
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT,
     },
-    {
-      key: 'projectVersion',
-      title: t('project.permission.projectVersion'),
-      level: 2,
-      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_VERSION,
-    },
+    ...getProjectVersion(),
     {
       key: 'memberPermission',
       title: t('project.permission.memberPermission'),

@@ -1,7 +1,11 @@
+// import useLicenseStore from '@/store/modules/setting/license';
+
 import { SettingRouteEnum } from '@/enums/routeEnum';
 
 import { DEFAULT_LAYOUT } from '../base';
 import type { AppRouteRecordRaw } from '../types';
+
+// const licenseStore = useLicenseStore();
 
 const Setting: AppRouteRecordRaw = {
   path: '/setting',
@@ -101,7 +105,7 @@ const Setting: AppRouteRecordRaw = {
           component: () => import('@/views/setting/system/authorizedManagement/index.vue'),
           meta: {
             locale: 'menu.settings.system.authorizedManagement',
-            roles: ['*'],
+            roles: ['SYSTEM_AUTH:READ'],
             isTopMenu: true,
           },
         },
@@ -121,7 +125,7 @@ const Setting: AppRouteRecordRaw = {
           component: () => import('@/views/setting/system/pluginManager/index.vue'),
           meta: {
             locale: 'menu.settings.system.pluginManager',
-            roles: ['*'],
+            roles: ['SYSTEM_PLUGIN:READ'],
             isTopMenu: true,
           },
         },
@@ -144,7 +148,7 @@ const Setting: AppRouteRecordRaw = {
           component: () => import('@/views/setting/organization/member/index.vue'),
           meta: {
             locale: 'menu.settings.organization.member',
-            roles: ['*'],
+            roles: ['ORGANIZATION_MEMBER:READ'],
             isTopMenu: true,
           },
         },
@@ -174,7 +178,7 @@ const Setting: AppRouteRecordRaw = {
           component: () => import('@/views/setting/organization/serviceIntegration/index.vue'),
           meta: {
             locale: 'menu.settings.organization.serviceIntegration',
-            roles: ['*'],
+            roles: ['SYSTEM_SERVICE_INTEGRATION:READ'],
             isTopMenu: true,
           },
         },
@@ -184,7 +188,7 @@ const Setting: AppRouteRecordRaw = {
           component: () => import('@/views/setting/organization/template/index.vue'),
           meta: {
             locale: 'menu.settings.organization.template',
-            roles: ['*'],
+            roles: ['ORGANIZATION_TEMPLATE:READ'],
             isTopMenu: true,
           },
         },

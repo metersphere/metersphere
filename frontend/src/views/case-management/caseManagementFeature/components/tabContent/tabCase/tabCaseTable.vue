@@ -26,6 +26,22 @@
       <template #operation="{ record }">
         <MsButton @click="cancelLink(record)">{{ t('caseManagement.featureCase.cancelLink') }}</MsButton>
       </template>
+      <template v-if="(keyword || '').trim() === ''" #empty>
+        <div class="flex w-full items-center justify-center">
+          {{ t('caseManagement.caseReview.tableNoData') }}
+
+          <a-dropdown @select="handleSelect">
+            <MsButton class="ml-[8px]">
+              {{ t('caseManagement.featureCase.linkCase') }}
+            </MsButton>
+            <template #content>
+              <a-doption v-for="item of caseTypeOptions" :key="item.value" :value="item.value">{{
+                t(item.label)
+              }}</a-doption>
+            </template>
+          </a-dropdown>
+        </div>
+      </template>
     </ms-base-table>
     <MsCaseAssociate
       v-model:visible="innerVisible"

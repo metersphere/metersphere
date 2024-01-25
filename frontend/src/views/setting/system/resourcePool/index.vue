@@ -1,7 +1,7 @@
 <template>
   <MsCard :loading="loading" simple>
     <div class="mb-4 flex items-center justify-between">
-      <a-button type="primary" @click="addPool">
+      <a-button v-xpack type="primary" @click="addPool">
         {{ t('system.resourcePool.createPool') }}
       </a-button>
       <a-input-search
@@ -19,10 +19,10 @@
       </template>
       <template #action="{ record }">
         <MsButton @click="editPool(record)">{{ t('system.resourcePool.editPool') }}</MsButton>
-        <MsButton v-if="record.enable" @click="disabledPool(record)">
+        <MsButton v-if="record.enable" v-xpack @click="disabledPool(record)">
           {{ t('system.resourcePool.tableDisable') }}
         </MsButton>
-        <MsButton v-else @click="enablePool(record)">{{ t('system.resourcePool.tableEnable') }}</MsButton>
+        <MsButton v-else v-xpack @click="enablePool(record)">{{ t('system.resourcePool.tableEnable') }}</MsButton>
         <MsTableMoreAction :list="tableActions" @select="handleSelect($event, record)"></MsTableMoreAction>
       </template>
     </ms-base-table>
@@ -83,7 +83,6 @@
   const { t } = useI18n();
   const router = useRouter();
   const route = useRoute();
-
   const columns: MsTableColumn = [
     {
       title: 'system.resourcePool.tableColumnName',

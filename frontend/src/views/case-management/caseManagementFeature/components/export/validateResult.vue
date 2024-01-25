@@ -119,19 +119,18 @@
 
   import { ValidateInfo } from '@/models/caseManagement/featureCase';
 
-  import type { FileItem } from '@arco-design/web-vue';
-
   const { t } = useI18n();
   const props = defineProps<{
     visible: boolean;
     validateType: 'Excel' | 'Xmind';
     validateInfo: ValidateInfo;
+    importLoading: boolean;
   }>();
 
   const emit = defineEmits<{
     (e: 'update:visible', val: boolean): void;
-    (e: 'save', files: FileItem[]): void;
     (e: 'close'): void;
+    (e: 'save'): void;
   }>();
 
   const validateResultModal = computed({
@@ -175,7 +174,9 @@
   }
 
   // 确定继续导入
-  function confirmImport() {}
+  function confirmImport() {
+    emit('save');
+  }
 
   watchEffect(() => {
     validateResultInfo.value = { ...props.validateInfo };

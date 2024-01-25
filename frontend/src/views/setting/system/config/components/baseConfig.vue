@@ -207,6 +207,7 @@
 
   import { getBaseInfo, getEmailInfo, saveBaseInfo, saveEmailInfo, testEmail } from '@/api/modules/setting/config';
   import { useI18n } from '@/hooks/useI18n';
+  import useLicenseStore from '@/store/modules/setting/license';
   import { desensitize } from '@/utils';
   import { validateEmail } from '@/utils/validate';
 
@@ -241,22 +242,33 @@
   /**
    * 初始化基础信息
    */
+
+  const licenseStore = useLicenseStore();
   async function initBaseInfo() {
     try {
       baseloading.value = true;
       const res = await getBaseInfo();
       baseInfo.value = { ...res };
       baseInfoForm.value = { ...res };
-      baseInfoDescs.value = [
-        {
-          label: t('system.config.pageUrl'),
-          value: res.url,
-        },
-        {
-          label: t('system.config.prometheus'),
-          value: res.prometheusHost,
-        },
-      ];
+      if (licenseStore.hasLicense()) {
+        baseInfoDescs.value = [
+          {
+            label: t('system.config.pageUrl'),
+            value: res.url,
+          },
+          {
+            label: t('system.config.prometheus'),
+            value: res.prometheusHost,
+          },
+        ];
+      } else {
+        baseInfoDescs.value = [
+          {
+            label: t('system.config.pageUrl'),
+            value: res.url,
+          },
+        ];
+      }
     } catch (error) {
       console.log(error);
     } finally {

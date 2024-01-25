@@ -53,9 +53,11 @@
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
+  import useLicenseStore from '@/store/modules/setting/license';
 
   import type { TabItemType } from '@/models/caseManagement/featureCase';
 
+  const licenseStore = useLicenseStore();
   const { t } = useI18n();
 
   const featureCaseStore = useFeatureCaseStore();
@@ -98,6 +100,19 @@
 
   let buggerTab: TabItemType[] = [];
   let testPlanTab: TabItemType[] = [];
+
+  function getTabList() {
+    if (licenseStore.hasLicense()) {
+      return [
+        {
+          key: 'changeHistory',
+          title: 'caseManagement.featureCase.changeHistory',
+          enable: true,
+        },
+      ];
+    }
+    return [];
+  }
   const tabDefaultSettingList = ref<TabItemType[]>([
     {
       key: 'case',
@@ -119,11 +134,7 @@
       title: 'caseManagement.featureCase.comments',
       enable: true,
     },
-    {
-      key: 'changeHistory',
-      title: 'caseManagement.featureCase.changeHistory',
-      enable: true,
-    },
+    ...getTabList(),
   ]);
   async function getTabModule() {
     buggerTab = [];

@@ -53,8 +53,10 @@
   onBeforeMount(async () => {
     try {
       appStore.initSystemVersion(); // 初始化系统版本
-      appStore.initPageConfig(); // 初始化页面配置
       licenseStore.getValidateLicense(); // 初始化校验license
+      if (licenseStore.hasLicense()) {
+        appStore.initPageConfig(); // 初始化页面配置
+      }
       // 项目初始化时需要获取基础设置信息，看当前站点 url是否为系统内置默认地址，如果是需要替换为当前项目部署的 url 地址
       const isInitUrl = getLocalStorage('isInitUrl'); // 是否已经初始化过 url
       if (isInitUrl === 'true') return;

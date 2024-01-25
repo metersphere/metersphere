@@ -10,7 +10,7 @@
           <template #content>
             <a-upload
               ref="uploadRef"
-              v-model:file-list="fileList"
+              v-model:file-list="innerFileList"
               :auto-upload="false"
               :show-file-list="false"
               :before-upload="beforeUpload"
@@ -38,7 +38,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { useVModel } from '@vueuse/core';
 
   import type { MsFileItem } from '@/components/pure/ms-upload/types';
 
@@ -46,19 +46,26 @@
 
   const { t } = useI18n();
 
+  const props = defineProps<{
+    fileList: MsFileItem[];
+  }>();
+
   const emit = defineEmits<{
     (e: 'upload', file: File): void;
     (e: 'change', _fileList: MsFileItem[], fileItem: MsFileItem): void;
     (e: 'linkFile'): void;
+    (e: 'update:fileList', fileList: MsFileItem[]): void;
   }>();
 
-  const fileList = ref<MsFileItem[]>([]);
+  // const innerFileList = ref<MsFileItem[]>([]);
+  const innerFileList = useVModel(props, 'fileList', emit);
 
   function beforeUpload(file: File) {
     emit('upload', file);
   }
 
   function handleChange(_fileList: MsFileItem[], fileItem: MsFileItem) {
+    innerFileList.value = _fileList;
     emit('change', _fileList, fileItem);
   }
 
