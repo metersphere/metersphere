@@ -15,6 +15,7 @@ import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.BaseResourcePoolTestService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
+import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.project.dto.filemanagement.request.FileUploadRequest;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
@@ -65,6 +66,7 @@ public class ApiScenarioControllerTests extends BaseTest {
     private static final String FOLLOW = "follow/";
     protected static final String UPLOAD_TEMP_FILE = "upload/temp/file";
     protected static final String DELETE_TO_GC = "delete-to-gc/{0}";
+    protected static final String STEP_GET = "step/get/{0}";
     protected static final String DEBUG = "debug";
     private static final String UPDATE_STATUS = "update-status";
     private static final String UPDATE_PRIORITY = "update-priority";
@@ -100,6 +102,8 @@ public class ApiScenarioControllerTests extends BaseTest {
     private FileMetadataService fileMetadataService;
     @Resource
     private ApiScenarioCsvMapper apiScenarioCsvMapper;
+    @Resource
+    private ApiScenarioService apiScenarioService;
     private static String fileMetadataId;
     private static String localFileId;
     private static ApiScenario addApiScenario;
@@ -563,6 +567,32 @@ public class ApiScenarioControllerTests extends BaseTest {
         Assertions.assertEquals(this.anOtherAddApiScenarioSteps.size(), apiScenarioDetail.getSteps().size());
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_READ, DEFAULT_GET, addApiScenario.getId());
+    }
+
+    @Test
+    @Order(7)
+    public void getStepDetail() throws Exception {
+        ApiScenarioDetail apiScenarioDetail = apiScenarioService.get(addApiScenario.getId());
+        List<ApiScenarioStepDTO> steps = apiScenarioDetail.getSteps();
+        requestGetStepDetail(steps);
+
+        apiScenarioDetail = apiScenarioService.get(anOtherAddApiScenario.getId());
+        steps = apiScenarioDetail.getSteps();
+        requestGetStepDetail(steps);
+
+        // @@校验权限
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_READ, STEP_GET, addApiScenario.getId());
+    }
+
+    private void requestGetStepDetail(List<? extends ApiScenarioStepCommonDTO> steps) throws Exception {
+        if (CollectionUtils.isEmpty(steps)) {
+            return;
+        }
+        for (ApiScenarioStepCommonDTO step : steps) {
+            this.requestGetWithOk(STEP_GET, step.getId());
+            List<? extends ApiScenarioStepCommonDTO> children = step.getChildren();
+            requestGetStepDetail(children);
+        }
     }
 
     private void asserGetApiScenarioSteps(List<? extends ApiScenarioStepCommonDTO> addApiScenarioSteps, List<? extends ApiScenarioStepCommonDTO> steps) {

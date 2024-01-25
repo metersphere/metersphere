@@ -1,9 +1,13 @@
 package io.metersphere.api.parser.step;
 
+import io.metersphere.api.domain.ApiScenarioBlob;
+import io.metersphere.api.domain.ApiScenarioStep;
 import io.metersphere.api.dto.request.MsScenario;
 import io.metersphere.api.dto.scenario.ApiScenarioStepCommonDTO;
 import io.metersphere.api.dto.scenario.ScenarioConfig;
+import io.metersphere.api.mapper.ApiScenarioBlobMapper;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import org.apache.commons.lang3.StringUtils;
 
@@ -13,7 +17,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class ApiScenarioStepParser extends StepParser {
     @Override
-    public AbstractMsTestElement parse(ApiScenarioStepCommonDTO step, String resourceBlob, String stepDetail) {
+    public AbstractMsTestElement parseTestElement(ApiScenarioStepCommonDTO step, String resourceBlob, String stepDetail) {
         MsScenario msScenario = new MsScenario();
         if (isRef(step.getRefType())) {
             if (StringUtils.isNotBlank(resourceBlob)) {
@@ -25,5 +29,28 @@ public class ApiScenarioStepParser extends StepParser {
             }
         }
         return msScenario;
+    }
+
+    /**
+     * 获取场景配置详情
+     * @param step
+     * @return
+     */
+    @Override
+    public Object parseDetail(ApiScenarioStep step) {
+        if (isRef(step.getRefType())) {
+            ApiScenarioBlobMapper apiScenarioBlobMapper = CommonBeanFactory.getBean(ApiScenarioBlobMapper.class);
+            ApiScenarioBlob apiScenarioBlob = apiScenarioBlobMapper.selectByPrimaryKey(step.getResourceId());
+            if (apiScenarioBlob == null || apiScenarioBlob.getConfig() == null) {
+                return null;
+            }
+            return JSON.parseObject(new String(apiScenarioBlob.getConfig()), ScenarioConfig.class);
+        } else {
+            String stepDetailStr= getStepBlobString(step.getId());
+            if (StringUtils.isBlank(stepDetailStr)) {
+                return null;
+            }
+            return JSON.parseObject(stepDetailStr, ScenarioConfig.class);
+        }
     }
 }
