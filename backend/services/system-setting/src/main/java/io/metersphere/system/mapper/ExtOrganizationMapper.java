@@ -114,4 +114,11 @@ public interface ExtOrganizationMapper {
      * @return 用户ID集合
      */
     List<String> getRelatedOrganizationIds(@Param("userId") String userId);
+
+    /**
+     * 根据项目获取组织名称
+     *
+     * @return 项目id对应组织名称列表
+     */
+    List<OptionDTO> getOrgListByProjectIds(@Param("projectIds") List<String> projectIds);
 }

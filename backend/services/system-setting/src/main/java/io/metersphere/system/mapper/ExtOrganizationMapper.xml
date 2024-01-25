@@ -177,4 +177,14 @@
             </if>
         </if>
     </sql>
+
+    <select id="getOrgListByProjectIds" resultType="io.metersphere.system.dto.sdk.OptionDTO">
+        select p.id, o.name
+        from project p
+        inner join organization o on p.organization_id = o.id
+        where p.id in
+        <foreach collection="projectIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.system.mapper.ExtScheduleMapper">
+    <select id="taskCenterSchedulelist" resultType="io.metersphere.system.dto.taskcenter.TaskCenterScheduleDTO">
+        SELECT
+        schedule.id,
+        schedule.name as taskname,
+        schedule.project_id,
+        schedule.value,
+        schedule.enable,
+        schedule.resource_id,
+        schedule.resource_type,
+        schedule.create_user AS createUserName,
+        schedule.create_time
+        FROM
+        schedule
+        where
+        schedule.resource_type in
+        <foreach collection="resourceTypes" item="resourceType" separator="," open="(" close=")">
+            #{resourceType}
+        </foreach>
+        and schedule.project_id IN
+        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+            #{projectId}
+        </foreach>
+        <if test="request.keyword != null and request.keyword != ''">
+            and (
+            schedule.name like concat('%', #{request.keyword},'%')
+            )
+        </if>
+        <include refid="taskCenterScheduleFilters">
+            <property name="filter" value="request.filter"/>
+        </include>
+    </select>
+
+    <sql id="taskCenterScheduleFilters">
+        <if test="${filter} != null and ${filter}.size() > 0">
+            <foreach collection="${filter}.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='resourceType'">
+                            and schedule.resource_type in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
+
+    <select id="getApiTestCaseListByIds" resultType="io.metersphere.api.domain.ApiTestCase">
+        select
+        api_test_case.id,
+        api_test_case.num,
+        api_test_case.name
+        from api_test_case where api_report.id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+
+    </select>
+
+    <select id="getApiScenarioListByIds" resultType="io.metersphere.api.domain.ApiScenario">
+        select
+        api_scenario.id,
+        api_scenario.num,
+        api_scenario.name
+        from api_scenario where api_scenario.id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+
+</mapper>

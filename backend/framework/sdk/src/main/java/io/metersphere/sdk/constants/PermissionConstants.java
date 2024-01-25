@@ -315,4 +315,13 @@ public class PermissionConstants {
     public static final String TEST_PLAN_READ_EXECUTE = "PROJECT_TEST_PLAN:READ+EXECUTE";
     public static final String TEST_PLAN_READ_ASSOCIATION = "PROJECT_TEST_PLAN:READ+ASSOCIATION";
     /*------ end: TEST_PLAN ------*/
+
+    /*------ start: SYSTEM_TASK_CENTER ------*/
+    public static final String SYSTEM_TASK_CENTER_READ = "SYSTEM_TASK_CENTER:READ";
+    /*------ end: SYSTEM_TASK_CENTER ------*/
+
+    /*------ start: ORGANIZATION_TASK_CENTER_READ ------*/
+    public static final String ORGANIZATION_TASK_CENTER_READ = "ORGANIZATION_TASK_CENTER:READ";
+    public static final String ORGANIZATION_TASK_CENTER_READ_STOP = "ORGANIZATION_TASK_CENTER::READ+STOP";
+    /*------ end: ORGANIZATION_TASK_CENTER_READ ------*/
 }
