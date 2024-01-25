@@ -395,14 +395,14 @@ public class FunctionalCaseService {
         }
 
         //处理评审状态
-        handleReviewStatus(request, functionalCaseBlob, checked.getName());
+        handleReviewStatus(request, functionalCaseBlob, checked.getName(), userId);
 
         return functionalCase;
 
     }
 
-    private void handleReviewStatus(FunctionalCaseEditRequest request, FunctionalCaseBlob blob, String name) {
-        caseReviewFunctionalCaseService.reReviewedCase(request, blob, name);
+    private void handleReviewStatus(FunctionalCaseEditRequest request, FunctionalCaseBlob blob, String name, String userId) {
+        caseReviewFunctionalCaseService.reReviewedCase(request, blob, name, userId);
     }
 
 

@@ -84,7 +84,8 @@ public class CaseReviewFunctionalCaseService {
     private FunctionalCaseModuleService functionalCaseModuleService;
     @Resource
     private ExtCaseReviewHistoryMapper extCaseReviewHistoryMapper;
-
+    @Resource
+    private CaseReviewUserMapper caseReviewUserMapper;
 
 
     private static final String CASE_MODULE_COUNT_ALL = "all";
@@ -157,7 +158,6 @@ public class CaseReviewFunctionalCaseService {
     }
 
 
-
     public List<String> doSelectIds(BaseReviewCaseBatchRequest request) {
         if (request.isSelectAll()) {
             List<String> ids = extCaseReviewFunctionalCaseMapper.getIds(request, request.getUserId(), false);
@@ -200,13 +200,41 @@ public class CaseReviewFunctionalCaseService {
         reviewFunctionalCase.setPos(caseReviewService.getCaseFunctionalCaseNextPos(reviewId));
         caseReviewFunctionalCaseMapper.insertSelective(reviewFunctionalCase);
 
+        //评审人
+        CaseReviewUserExample caseReviewUserExample = new CaseReviewUserExample();
+        caseReviewUserExample.createCriteria().andReviewIdEqualTo(reviewId);
+        List<CaseReviewUser> caseReviewUsers = caseReviewUserMapper.selectByExample(caseReviewUserExample);
+        if (CollectionUtils.isNotEmpty(caseReviewUsers)) {
+            List<CaseReviewFunctionalCaseUser> list = new ArrayList<>();
+            caseReviewUsers.forEach(item -> {
+                CaseReviewFunctionalCaseUser caseUser = new CaseReviewFunctionalCaseUser();
+                caseUser.setCaseId(caseId);
+                caseUser.setReviewId(reviewId);
+                caseUser.setUserId(item.getUserId());
+                list.add(caseUser);
+            });
+            caseReviewFunctionalCaseUserMapper.batchInsert(list);
+            //更新评审的整体状态
+            Map<String, Integer> countMap = new HashMap<>();
+            countMap.put(reviewFunctionalCase.getStatus(), 1);
+            Map<String, String> statusMap = new HashMap<>();
+            statusMap.put(caseId, reviewFunctionalCase.getStatus());
+            Map<String, Object> param = new HashMap<>();
+            param.put(CaseEvent.Param.REVIEW_ID, reviewId);
+            param.put(CaseEvent.Param.USER_ID, userId);
+            param.put(CaseEvent.Param.CASE_IDS, List.of(caseId));
+            param.put(CaseEvent.Param.COUNT_MAP, countMap);
+            param.put(CaseEvent.Param.STATUS_MAP, statusMap);
+            param.put(CaseEvent.Param.EVENT_NAME, CaseEvent.Event.REVIEW_FUNCTIONAL_CASE);
+            provider.updateCaseReview(param);
+        }
     }
 
 
     /**
      * 用例更新 更新状态为重新评审
      */
-    public void reReviewedCase(FunctionalCaseEditRequest request, FunctionalCaseBlob blob, String name) {
+    public void reReviewedCase(FunctionalCaseEditRequest request, FunctionalCaseBlob blob, String name, String userId) {
         ProjectApplicationExample example = new ProjectApplicationExample();
         example.createCriteria().andProjectIdEqualTo(request.getProjectId()).andTypeEqualTo(ProjectApplicationType.CASE.CASE_RE_REVIEW.name());
         List<ProjectApplication> projectApplications = projectApplicationMapper.selectByExample(example);
@@ -215,12 +243,12 @@ public class CaseReviewFunctionalCaseService {
                     || !StringUtils.equals(new String(blob.getSteps(), StandardCharsets.UTF_8), request.getSteps())
                     || !StringUtils.equals(new String(blob.getTextDescription(), StandardCharsets.UTF_8), request.getTextDescription())
                     || !StringUtils.equals(new String(blob.getExpectedResult(), StandardCharsets.UTF_8), request.getExpectedResult())) {
-                doHandleStatusAndHistory(request, blob, name);
+                doHandleStatusAndHistory(blob, userId);
             }
         }
     }
 
-    private void doHandleStatusAndHistory(FunctionalCaseEditRequest request, FunctionalCaseBlob blob, String name) {
+    private void doHandleStatusAndHistory(FunctionalCaseBlob blob, String userId) {
         CaseReviewFunctionalCaseExample reviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
         reviewFunctionalCaseExample.createCriteria().andCaseIdEqualTo(blob.getId());
         List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(reviewFunctionalCaseExample);
@@ -228,6 +256,20 @@ public class CaseReviewFunctionalCaseService {
             caseReviewFunctionalCases.forEach(item -> {
                 updateReviewCaseAndCaseStatus(item);
                 insertHistory(item);
+                //更新用例触发重新提审-需要重新计算评审的整体状态
+                Map<String, Integer> countMap = new HashMap<>();
+                countMap.put(item.getStatus(), 1);
+                Map<String, String> statusMap = new HashMap<>();
+                statusMap.put(item.getCaseId(), item.getStatus());
+                Map<String, Object> param = new HashMap<>();
+                param.put(CaseEvent.Param.REVIEW_ID, item.getReviewId());
+                param.put(CaseEvent.Param.USER_ID, userId);
+                param.put(CaseEvent.Param.CASE_IDS, List.of(item.getCaseId()));
+                param.put(CaseEvent.Param.COUNT_MAP, countMap);
+                param.put(CaseEvent.Param.STATUS_MAP, statusMap);
+                param.put(CaseEvent.Param.EVENT_NAME, CaseEvent.Event.REVIEW_FUNCTIONAL_CASE);
+                provider.updateCaseReview(param);
+
             });
         }
     }
@@ -294,14 +336,14 @@ public class CaseReviewFunctionalCaseService {
         CaseReviewHistoryMapper caseReviewHistoryMapper = sqlSession.getMapper(CaseReviewHistoryMapper.class);
         CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper = sqlSession.getMapper(CaseReviewFunctionalCaseMapper.class);
 
-        Map<String,String>statusMap = new HashMap<>();
+        Map<String, String> statusMap = new HashMap<>();
         for (CaseReviewFunctionalCase caseReviewFunctionalCase : caseReviewFunctionalCaseList) {
             //校验当前操作人是否是该用例的评审人，是增加评审历史，不是过滤掉
             String caseId = caseReviewFunctionalCase.getCaseId();
             List<CaseReviewFunctionalCaseUser> userList = reviewerMap.get(caseId);
 
-            if(CollectionUtils.isEmpty(userList) || CollectionUtils.isEmpty(userList.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getUserId(), userId)).toList())){
-                LogUtils.error(caseId+": no review user, please check");
+            if (CollectionUtils.isEmpty(userList) || CollectionUtils.isEmpty(userList.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getUserId(), userId)).toList())) {
+                LogUtils.error(caseId + ": no review user, please check");
                 continue;
             }
 
@@ -316,7 +358,7 @@ public class CaseReviewFunctionalCaseService {
             }
             //根据评审规则更新用例评审和功能用例关系表中的状态 1.单人评审直接更新评审结果 2.多人评审需要计算
             setStatus(request, caseReviewFunctionalCase, caseHistoryMap, reviewerMap);
-            statusMap.put(caseReviewFunctionalCase.getCaseId(),caseReviewFunctionalCase.getStatus());
+            statusMap.put(caseReviewFunctionalCase.getCaseId(), caseReviewFunctionalCase.getStatus());
             caseReviewFunctionalCaseMapper.updateByPrimaryKeySelective(caseReviewFunctionalCase);
 
             //检查是否有@，发送@通知
@@ -332,7 +374,7 @@ public class CaseReviewFunctionalCaseService {
                 reviewSendNoticeService.sendNoticeCase(new ArrayList<>(), userId, caseId, NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, NoticeConstants.Event.REVIEW_PASSED, reviewId);
             }
 
-            functionalCaseAttachmentService.uploadMinioFile(caseId,caseProjectIdMap.get(caseId),request.getReviewCommentFileIds(),userId, CaseFileSourceType.REVIEW_COMMENT.toString());
+            functionalCaseAttachmentService.uploadMinioFile(caseId, caseProjectIdMap.get(caseId), request.getReviewCommentFileIds(), userId, CaseFileSourceType.REVIEW_COMMENT.toString());
         }
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
@@ -340,8 +382,8 @@ public class CaseReviewFunctionalCaseService {
         Map<String, Object> param = new HashMap<>();
         Map<String, List<CaseReviewFunctionalCase>> collect = caseReviewFunctionalCaseList.stream().collect(Collectors.groupingBy(CaseReviewFunctionalCase::getStatus));
         Map<String, Integer> countMap = new HashMap<>();
-        collect.forEach((k,v)->{
-            countMap.put(k,v.size());
+        collect.forEach((k, v) -> {
+            countMap.put(k, v.size());
         });
         param.put(CaseEvent.Param.CASE_IDS, CollectionUtils.isNotEmpty(caseIds) ? caseIds : new ArrayList<>());
         param.put(CaseEvent.Param.REVIEW_ID, reviewId);
@@ -441,7 +483,7 @@ public class CaseReviewFunctionalCaseService {
             Map<String, List<CaseReviewHistory>> caseHistoryMap = caseReviewHistories.stream().collect(Collectors.groupingBy(CaseReviewHistory::getCaseId, Collectors.toList()));
 
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-            Map<String, String>statusMap = new HashMap<>();
+            Map<String, String> statusMap = new HashMap<>();
             CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper = sqlSession.getMapper(CaseReviewFunctionalCaseMapper.class);
             cases.forEach(caseReview -> {
                 String status = multipleReview(caseReview, caseHistoryMap.get(caseReview.getCaseId()), newReviewersMap.get(caseReview.getCaseId()), oldReviewUserMap.get(caseReview.getCaseId()));
@@ -453,8 +495,8 @@ public class CaseReviewFunctionalCaseService {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
             Map<String, List<CaseReviewFunctionalCase>> collect = cases.stream().collect(Collectors.groupingBy(CaseReviewFunctionalCase::getStatus));
             Map<String, Integer> countMap = new HashMap<>();
-            collect.forEach((k,v)->{
-                countMap.put(k,v.size());
+            collect.forEach((k, v) -> {
+                countMap.put(k, v.size());
             });
             Map<String, Object> param = new HashMap<>();
             param.put(CaseEvent.Param.REVIEW_ID, request.getReviewId());
@@ -563,11 +605,10 @@ public class CaseReviewFunctionalCaseService {
 
     /**
      * 查找当前项目下模块每个节点对应的资源统计
-     *
      */
     public Map<String, Long> getModuleCountMap(String projectId, String reviewId, List<ModuleCountDTO> moduleCountDTOList) {
         //构建模块树，并计算每个节点下的所有数量（包含子节点）
-        List<BaseTreeNode> treeNodeList = this.getTreeOnlyIdsAndResourceCount(projectId,reviewId, moduleCountDTOList);
+        List<BaseTreeNode> treeNodeList = this.getTreeOnlyIdsAndResourceCount(projectId, reviewId, moduleCountDTOList);
         //通过广度遍历的方式构建返回值
         return functionalCaseModuleService.getIdCountMapByBreadth(treeNodeList);
     }
@@ -582,8 +623,8 @@ public class CaseReviewFunctionalCaseService {
     public List<OptionDTO> getUserStatus(String reviewId, String caseId) {
         List<CaseReviewHistoryDTO> list = extCaseReviewHistoryMapper.list(caseId, reviewId);
         Map<String, List<CaseReviewHistoryDTO>> collect = list.stream().sorted(Comparator.comparingLong(CaseReviewHistoryDTO::getCreateTime).reversed()).collect(Collectors.groupingBy(CaseReviewHistoryDTO::getCreateUser, Collectors.toList()));
-        List<OptionDTO>optionDTOS = new ArrayList<>();
-        collect.forEach((k,v)->{
+        List<OptionDTO> optionDTOS = new ArrayList<>();
+        collect.forEach((k, v) -> {
             OptionDTO optionDTO = new OptionDTO();
             optionDTO.setId(v.get(0).getUserName());
             optionDTO.setName(v.get(0).getStatus());
