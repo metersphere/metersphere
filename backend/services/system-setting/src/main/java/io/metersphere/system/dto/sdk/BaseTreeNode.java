@@ -34,6 +34,17 @@ public class BaseTreeNode {
     @Schema(description = "节点资源数量（多数情况下不会随着节点信息返回，视接口而定）")
     private long count = 0;
 
+    @Schema(description = "节点路径（当前节点所在整棵树的路径）")
+    private String path = "/";
+
+    public void genModulePath(BaseTreeNode parentNode) {
+        if (parentNode != null) {
+            path = parentNode.getPath() + "/" + this.getName();
+        } else {
+            path = "/" + this.getName();
+        }
+    }
+
     public BaseTreeNode(String id, String name, String type) {
         this.id = id;
         this.name = name;

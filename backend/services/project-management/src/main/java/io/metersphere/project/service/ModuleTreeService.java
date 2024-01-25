@@ -67,6 +67,7 @@ public abstract class ModuleTreeService {
         List<BaseTreeNode> baseTreeNodeList = new ArrayList<>();
         if (haveVirtualRootNode) {
             BaseTreeNode defaultNode = this.getDefaultModule(virtualRootName);
+            defaultNode.genModulePath(null);
             baseTreeNodeList.add(defaultNode);
         }
         int lastSize = 0;
@@ -75,18 +76,18 @@ public abstract class ModuleTreeService {
             lastSize = traverseList.size();
             List<BaseTreeNode> notMatchedList = new ArrayList<>();
             for (BaseTreeNode treeNode : traverseList) {
+                if (!baseTreeNodeMap.containsKey(treeNode.getParentId()) && !StringUtils.equals(treeNode.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
+                    notMatchedList.add(treeNode);
+                    continue;
+                }
+                BaseTreeNode node = new BaseTreeNode(treeNode.getId(), treeNode.getName(), treeNode.getType(), treeNode.getParentId());
+                node.genModulePath(baseTreeNodeMap.get(treeNode.getParentId()));
+                baseTreeNodeMap.put(treeNode.getId(), node);
+
                 if (StringUtils.equalsIgnoreCase(treeNode.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
-                    BaseTreeNode node = new BaseTreeNode(treeNode.getId(), treeNode.getName(), treeNode.getType(), treeNode.getParentId());
                     baseTreeNodeList.add(node);
-                    baseTreeNodeMap.put(treeNode.getId(), node);
-                } else {
-                    if (baseTreeNodeMap.containsKey(treeNode.getParentId())) {
-                        BaseTreeNode node = new BaseTreeNode(treeNode.getId(), treeNode.getName(), treeNode.getType(), treeNode.getParentId());
-                        baseTreeNodeMap.get(treeNode.getParentId()).addChild(node);
-                        baseTreeNodeMap.put(treeNode.getId(), node);
-                    } else {
-                        notMatchedList.add(treeNode);
-                    }
+                } else if (baseTreeNodeMap.containsKey(treeNode.getParentId())) {
+                    baseTreeNodeMap.get(treeNode.getParentId()).addChild(node);
                 }
             }
             traverseList = notMatchedList;
