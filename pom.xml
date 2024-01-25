@@ -26,7 +26,7 @@
         <easyexcel.version>3.3.3</easyexcel.version>
         <dom4j.version>2.1.4</dom4j.version>
         <guava.version>33.0.0-jre</guava.version>
-        <pagehelper.version>6.0.0</pagehelper.version>
+        <pagehelper.version>6.1.0</pagehelper.version>
         <metersphere-jmeter-functions.version>3.0</metersphere-jmeter-functions.version>
         <metersphere-jmeter-assertions.version>1.0.1</metersphere-jmeter-assertions.version>
         <quartz-starter.version>1.0.7</quartz-starter.version>
