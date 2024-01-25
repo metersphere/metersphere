@@ -106,6 +106,15 @@
     </select>
 
     <sql id="queryWhereConditionByBaseQueryRequest">
+        <if test="request.projectId != null and request.projectId != ''">
+            and api_scenario.project_id = #{request.projectId}
+        </if>
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            and api_scenario.module_id in
+            <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                #{nodeId}
+            </foreach>
+        </if>
         <if test="request.condition.combine != null">
             <include refid="combine">
                 <property name="condition" value="request.condition.combine"/>

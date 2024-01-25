@@ -1,11 +1,11 @@
 package io.metersphere.system.mapper;
 
-import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.dto.OrganizationProjectOptionsDTO;
 import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.dto.ProjectResourcePoolDTO;
 import io.metersphere.system.dto.request.ProjectMemberRequest;
 import io.metersphere.system.dto.request.ProjectRequest;
+import io.metersphere.system.dto.user.UserExtendDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -27,4 +27,6 @@ public interface ExtSystemProjectMapper {
     List<ProjectDTO> getProjectExtendDTOList(@Param("projectIds") List<String> projectIds);
 
     List<ProjectResourcePoolDTO> getProjectResourcePoolDTOList(@Param("projectIds") List<String> projectIds);
+
+    String selectModuleSettingsByResourceIdAndTable(@Param("resourceId") String resourceId, @Param("resourceTable") String resourceTable);
 }
