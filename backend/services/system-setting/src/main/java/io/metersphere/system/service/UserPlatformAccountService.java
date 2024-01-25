@@ -15,7 +15,6 @@ import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.UserExtendMapper;
 import jakarta.annotation.Resource;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -97,7 +96,7 @@ public class UserPlatformAccountService {
      */
     public Map<String, Object> get(String userId, String orgId) {
         UserExtend userExtend = userExtendMapper.selectByPrimaryKey(userId);
-        if (userExtend == null || StringUtils.isBlank(new String(userExtend.getPlatformInfo()))) {
+        if (userExtend == null || userExtend.getPlatformInfo() == null) {
             return null;
         }
         // noinspection unchecked
