@@ -1,4 +1,4 @@
-package io.metersphere.plan.dto;
+package io.metersphere.system.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

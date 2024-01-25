@@ -7,6 +7,7 @@ import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.request.MsScenario;
+import io.metersphere.api.dto.response.ApiScenarioBatchOperationResponse;
 import io.metersphere.api.dto.scenario.*;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.parser.step.StepParser;
@@ -15,6 +16,7 @@ import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
+import io.metersphere.api.utils.ApiScenarioBatchOperationUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
@@ -24,24 +26,29 @@ import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.ApiExecuteRunMode;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
+import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.domain.EnvironmentGroup;
 import io.metersphere.sdk.domain.EnvironmentGroupExample;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.file.FileCenter;
+import io.metersphere.sdk.file.FileCopyRequest;
 import io.metersphere.sdk.file.FileRequest;
+import io.metersphere.sdk.file.MinioRepository;
 import io.metersphere.sdk.mapper.EnvironmentGroupMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.*;
+import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
-import org.apache.commons.collections.CollectionUtils;
+import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.collections.MapUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -270,13 +277,16 @@ public class ApiScenarioService {
         mapper.updateByExampleSelective(updateScenario, example);
     }
 
-    public List<String> doSelectIds(ApiScenarioBatchEditRequest request, boolean deleted) {
+    public List<String> doSelectIds(ApiScenarioBatchRequest request, boolean deleted) {
         if (request.isSelectAll()) {
             List<String> ids = extApiScenarioMapper.getIds(request, deleted);
+            if (CollectionUtils.isNotEmpty(request.getSelectIds())) {
+                ids.addAll(request.getSelectIds());
+            }
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 ids.removeAll(request.getExcludeIds());
             }
-            return ids;
+            return new ArrayList<>(ids.stream().distinct().toList());
         } else {
             return request.getSelectIds();
         }
@@ -811,6 +821,14 @@ public class ApiScenarioService {
         deleteStepDetailByScenarioId(id);
     }
 
+
+    public void restore(String id) {
+        ApiScenario apiScenario = new ApiScenario();
+        apiScenario.setId(id);
+        apiScenario.setDeleted(false);
+        apiScenarioMapper.updateByPrimaryKeySelective(apiScenario);
+    }
+
     public void deleteToGc(String id) {
         checkResourceExist(id);
         ApiScenario apiScenario = new ApiScenario();
@@ -1261,6 +1279,184 @@ public class ApiScenarioService {
         }
         return extApiScenarioStepMapper.getStepDTOByScenarioIds(scenarioIds);
     }
+
+    public ApiScenarioBatchOperationResponse batchCopy(ApiScenarioBatchCopyRequest request, LogInsertModule logInsertModule) {
+        if (!StringUtils.equals(request.getTargetModuleId(), ModuleConstants.DEFAULT_NODE_ID)) {
+            ApiScenarioModule module = apiScenarioModuleMapper.selectByPrimaryKey(request.getTargetModuleId());
+            if (module == null || !StringUtils.equals(module.getProjectId(), request.getProjectId())) {
+                throw new MSException(Translator.get("module.not.exist"));
+            }
+        }
+
+        List<String> scenarioIds = doSelectIds(request, false);
+        if (CollectionUtils.isEmpty(scenarioIds)) {
+            return new ApiScenarioBatchOperationResponse();
+        }
+        request.setSelectIds(scenarioIds);
+        ApiScenarioBatchOperationResponse response =
+                ApiScenarioBatchOperationUtils.executeWithBatchOperationResponse(scenarioIds, sublist -> copyAndInsert(sublist, request, logInsertModule.getOperator()));
+        apiScenarioLogService.saveBatchCopyLog(response, request.getProjectId(), logInsertModule);
+        return response;
+    }
+
+    private String getScenarioCopyName(String oldName, long oldNum, long newNum, String moduleId) {
+        String newScenarioName = oldName;
+        if (!StringUtils.startsWith(newScenarioName, "copy_")) {
+            newScenarioName = "copy_" + newScenarioName;
+        }
+        // 限制名称长度 （数据库里最大的长度是255，这里判断超过250时截取到200附近）
+        if (newScenarioName.length() > 250) {
+            newScenarioName = newScenarioName.substring(0, 200) + "...";
+        }
+        if (StringUtils.endsWith(newScenarioName, "_" + oldNum)) {
+            newScenarioName = StringUtils.substringBeforeLast(newScenarioName, "_" + oldNum);
+        }
+        newScenarioName = newScenarioName + "_" + newNum;
+        int index_length = 1;
+        while (true) {
+            ApiScenarioExample example = new ApiScenarioExample();
+            example.createCriteria().andModuleIdEqualTo(moduleId).andNameEqualTo(newScenarioName);
+            if (apiScenarioMapper.countByExample(example) == 0) {
+                break;
+            } else {
+                newScenarioName = newScenarioName + "_" + index_length;
+                index_length++;
+            }
+        }
+        return newScenarioName;
+    }
+
+    private ApiScenarioBatchOperationResponse copyAndInsert(List<String> scenarioIds, ApiScenarioBatchCopyRequest request, String operator) {
+        ApiScenarioBatchOperationResponse response = new ApiScenarioBatchOperationResponse();
+
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andIdIn(scenarioIds);
+        List<ApiScenario> operationList = apiScenarioMapper.selectByExample(example);
+        List<String> operationIdList = operationList.stream().map(ApiScenario::getId).collect(Collectors.toList());
+
+        Map<String, ApiScenarioBlob> apiScenarioBlobMap = this.selectBlobByScenarioIds(operationIdList).stream().collect(Collectors.toMap(ApiScenarioBlob::getId, Function.identity()));
+        Map<String, List<ApiFileResource>> apiFileResourceMap = this.selectApiFileResourceByScenarioIds(operationIdList).stream().collect(Collectors.groupingBy(ApiFileResource::getResourceId));
+        Map<String, List<ApiScenarioStep>> apiScenarioStepMap = this.selectStepByScenarioIds(operationIdList).stream().collect(Collectors.groupingBy(ApiScenarioStep::getScenarioId));
+        Map<String, ApiScenarioStepBlob> apiScenarioStepBlobMap = this.selectStepBlobByScenarioIds(operationIdList).stream().collect(Collectors.toMap(ApiScenarioStepBlob::getId, Function.identity()));
+
+        List<ApiScenario> insertApiScenarioList = new ArrayList<>();
+        List<ApiScenarioBlob> insertApiScenarioBlobList = new ArrayList<>();
+        List<ApiScenarioStep> insertApiScenarioStepList = new ArrayList<>();
+        List<ApiScenarioStepBlob> insertApiScenarioStepBlobList = new ArrayList<>();
+        List<ApiFileResource> insertApiFileResourceList = new ArrayList<>();
+
+        MinioRepository minioRepository = CommonBeanFactory.getBean(MinioRepository.class);
+
+        operationList.forEach(apiScenario -> {
+            ApiScenario copyScenario = new ApiScenario();
+            BeanUtils.copyBean(copyScenario, apiScenario);
+            copyScenario.setId(IDGenerator.nextStr());
+            copyScenario.setNum(getNextNum(copyScenario.getProjectId()));
+            copyScenario.setPos(getNextOrder(copyScenario.getProjectId()));
+            copyScenario.setModuleId(request.getTargetModuleId());
+            copyScenario.setName(this.getScenarioCopyName(copyScenario.getName(), apiScenario.getNum(), copyScenario.getNum(), request.getTargetModuleId()));
+            copyScenario.setCreateUser(operator);
+            copyScenario.setUpdateUser(operator);
+            copyScenario.setCreateTime(System.currentTimeMillis());
+            copyScenario.setUpdateTime(System.currentTimeMillis());
+            copyScenario.setRefId(copyScenario.getId());
+            copyScenario.setLastReportStatus(StringUtils.EMPTY);
+            copyScenario.setRequestPassRate("0");
+
+            insertApiScenarioList.add(copyScenario);
+
+            ApiScenarioBlob apiScenarioBlob = apiScenarioBlobMap.get(apiScenario.getId());
+            if (apiScenarioBlob != null) {
+                ApiScenarioBlob copyApiScenarioBlob = new ApiScenarioBlob();
+                BeanUtils.copyBean(copyApiScenarioBlob, apiScenarioBlob);
+                copyApiScenarioBlob.setId(copyScenario.getId());
+                insertApiScenarioBlobList.add(copyApiScenarioBlob);
+            }
+
+            List<ApiFileResource> apiFileResourceList = apiFileResourceMap.get(apiScenario.getId());
+            if (CollectionUtils.isNotEmpty(apiFileResourceList)) {
+                apiFileResourceList.forEach(apiFileResource -> {
+                    ApiFileResource copyApiFileResource = new ApiFileResource();
+                    BeanUtils.copyBean(copyApiFileResource, apiFileResource);
+                    copyApiFileResource.setResourceId(copyScenario.getId());
+                    insertApiFileResourceList.add(copyApiFileResource);
+
+                    try {
+                        FileCopyRequest fileCopyRequest = new FileCopyRequest();
+                        fileCopyRequest.setCopyFolder(DefaultRepositoryDir.getApiScenarioDir(apiScenario.getProjectId(), apiScenario.getId()));
+                        fileCopyRequest.setCopyfileName(copyApiFileResource.getFileId());
+                        fileCopyRequest.setFileName(copyApiFileResource.getFileId());
+                        fileCopyRequest.setFolder(DefaultRepositoryDir.getApiScenarioDir(copyScenario.getProjectId(), copyScenario.getId()));
+                        minioRepository.copyFile(fileCopyRequest);
+                    } catch (Exception ignore) {
+                    }
+
+                });
+            }
+
+            List<ApiScenarioStep> stepList = apiScenarioStepMap.get(apiScenario.getId());
+            if (CollectionUtils.isNotEmpty(stepList)) {
+                stepList.forEach(step -> {
+                    ApiScenarioStep copyStep = new ApiScenarioStep();
+                    BeanUtils.copyBean(copyStep, step);
+                    copyStep.setId(IDGenerator.nextStr());
+                    copyStep.setScenarioId(copyScenario.getId());
+                    insertApiScenarioStepList.add(copyStep);
+
+                    //todo 刚の没提交的CSV关联表
+
+                    ApiScenarioStepBlob stepBlob = apiScenarioStepBlobMap.get(step.getId());
+                    if (stepBlob != null) {
+                        ApiScenarioStepBlob copyStepBlob = new ApiScenarioStepBlob();
+                        BeanUtils.copyBean(copyStepBlob, stepBlob);
+                        copyStepBlob.setId(copyStep.getId());
+                        copyStepBlob.setScenarioId(copyScenario.getId());
+                        insertApiScenarioStepBlobList.add(copyStepBlob);
+                    }
+                });
+            }
+            response.addSuccessData(copyScenario.getId(), copyScenario.getNum(), copyScenario.getName());
+        });
+
+        response.setSuccess(apiScenarioMapper.batchInsert(insertApiScenarioList));
+        if (CollectionUtils.isNotEmpty(insertApiScenarioBlobList)) {
+            apiScenarioBlobMapper.batchInsert(insertApiScenarioBlobList);
+        }
+        if (CollectionUtils.isNotEmpty(insertApiScenarioStepList)) {
+            apiScenarioStepMapper.batchInsert(insertApiScenarioStepList);
+        }
+        if (CollectionUtils.isNotEmpty(insertApiScenarioStepBlobList)) {
+            apiScenarioStepBlobMapper.batchInsert(insertApiScenarioStepBlobList);
+        }
+        if (CollectionUtils.isNotEmpty(insertApiFileResourceList)) {
+            apiFileResourceService.batchInsert(insertApiFileResourceList);
+        }
+        return response;
+    }
+
+
+    public List<ApiScenarioBlob> selectBlobByScenarioIds(@NotEmpty List<String> scenarioIds) {
+        ApiScenarioBlobExample example = new ApiScenarioBlobExample();
+        example.createCriteria().andIdIn(scenarioIds);
+        return apiScenarioBlobMapper.selectByExampleWithBLOBs(example);
+    }
+
+    public List<ApiScenarioStep> selectStepByScenarioIds(@NotEmpty List<String> scenarioIds) {
+        ApiScenarioStepExample example = new ApiScenarioStepExample();
+        example.createCriteria().andScenarioIdIn(scenarioIds);
+        return apiScenarioStepMapper.selectByExample(example);
+    }
+
+    public List<ApiFileResource> selectApiFileResourceByScenarioIds(@NotEmpty List<String> scenarioIds) {
+        return apiFileResourceService.selectByApiScenarioId(scenarioIds);
+    }
+
+    public List<ApiScenarioStepBlob> selectStepBlobByScenarioIds(@NotEmpty List<String> scenarioIds) {
+        ApiScenarioStepBlobExample example = new ApiScenarioStepBlobExample();
+        example.createCriteria().andScenarioIdIn(scenarioIds);
+        return apiScenarioStepBlobMapper.selectByExampleWithBLOBs(example);
+    }
+
 
     public Object getStepDetail(String stepId) {
         ApiScenarioStep step = checkStepExist(stepId);

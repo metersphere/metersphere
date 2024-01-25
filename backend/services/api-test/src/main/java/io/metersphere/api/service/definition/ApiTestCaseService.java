@@ -374,7 +374,8 @@ public class ApiTestCaseService {
             if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 ids.removeAll(request.getExcludeIds());
             }
-            return ids;
+            ids.addAll(request.getSelectIds());
+            return ids.stream().distinct().toList();
         } else {
             request.getSelectIds().removeAll(request.getExcludeIds());
             return request.getSelectIds();
