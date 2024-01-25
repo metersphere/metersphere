@@ -9,7 +9,7 @@ import io.metersphere.api.parser.jmeter.body.MsFormDataBodyConverter;
 import io.metersphere.api.parser.jmeter.body.MsWWWFormBodyConverter;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractJmeterElementConverter;
-import io.metersphere.sdk.constants.ProcessDataStatus;
+import io.metersphere.plugin.api.constants.ElementProperty;
 import io.metersphere.sdk.util.LogUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -44,8 +44,9 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(HTTP_TEST_SAMPLE_GUI));
 
         // TODO: 当前步骤唯一标识，很重要，结果和步骤匹配的关键
-        sampler.setProperty(ProcessDataStatus.MS_RESOURCE_ID.name(), msHTTPElement.getResourceId());
-        sampler.setProperty(ProcessDataStatus.MS_STEP_ID.name(), msHTTPElement.getStepId());
+        sampler.setProperty(ElementProperty.MS_RESOURCE_ID.name(), msHTTPElement.getResourceId());
+        sampler.setProperty(ElementProperty.MS_STEP_ID.name(), msHTTPElement.getStepId());
+        sampler.setProperty(ElementProperty.MS_REPORT_ID.name(), config.getReportId());
 
         sampler.setMethod(msHTTPElement.getMethod());
         // todo 根据环境设置
