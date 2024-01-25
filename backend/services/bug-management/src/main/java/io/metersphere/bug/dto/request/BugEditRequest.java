@@ -54,4 +54,7 @@ public class BugEditRequest {
 
     @Schema(description = "关联附件集合, 文件ID")
     private List<String> linkFileIds;
+
+    @Schema(description = "用例ID")
+    private String caseId;
 }
