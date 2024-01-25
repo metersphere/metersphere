@@ -9,7 +9,7 @@ import io.metersphere.functional.mapper.FunctionalCaseDemandMapper;
 import io.metersphere.functional.request.FunctionalCaseDemandRequest;
 import io.metersphere.functional.request.FunctionalThirdDemandPageRequest;
 import io.metersphere.functional.request.QueryDemandListRequest;
-import io.metersphere.plugin.platform.dto.reponse.DemandRelatePageResponse;
+import io.metersphere.plugin.platform.dto.reponse.PlatformDemandDTO;
 import io.metersphere.plugin.platform.dto.request.DemandPageRequest;
 import io.metersphere.plugin.platform.spi.Platform;
 import io.metersphere.plugin.platform.utils.PluginPager;
@@ -215,7 +215,7 @@ public class FunctionalCaseDemandService {
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 
-    public PluginPager<DemandRelatePageResponse> pageDemand(FunctionalThirdDemandPageRequest request) {
+    public PluginPager<PlatformDemandDTO> pageDemand(FunctionalThirdDemandPageRequest request) {
         DemandPageRequest demandPageRequest = new DemandPageRequest();
         demandPageRequest.setQuery(request.getQuery());
         demandPageRequest.setFilter(request.getFilter());

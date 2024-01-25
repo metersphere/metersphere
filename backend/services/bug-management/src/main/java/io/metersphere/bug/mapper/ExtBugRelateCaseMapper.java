@@ -58,6 +58,11 @@ public interface ExtBugRelateCaseMapper {
      */
     BugRelateCaseDTO getRelateCase(@Param("id") String id, @Param("sourceType") String sourceType);
 
-
+    /**
+     * 获取关联的缺陷
+     * @param request 关联请求参数
+     * @param sort 排序
+     * @return 缺陷集合
+     */
     List<BugProviderDTO> getAssociateBugs(@Param("request") AssociateBugPageRequest request, @Param("sort") String sort);
 }

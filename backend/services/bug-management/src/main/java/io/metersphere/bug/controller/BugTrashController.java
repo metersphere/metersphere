@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "缺陷管理")
+@Tag(name = "缺陷管理-回收站")
 @RestController
 @RequestMapping("/bug/trash")
 public class BugTrashController {
@@ -32,7 +32,7 @@ public class BugTrashController {
     private BugService bugService;
 
     @PostMapping("/page")
-    @Operation(summary = "回收站-获取缺陷列表")
+    @Operation(summary = "缺陷管理-回收站-获取缺陷列表")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     public Pager<List<BugDTO>> page(@Validated @RequestBody BugPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
@@ -42,7 +42,7 @@ public class BugTrashController {
     }
 
     @GetMapping("/recover/{id}")
-    @Operation(summary = "回收站-恢复")
+    @Operation(summary = "缺陷管理-回收站-恢复")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
     @Log(type = OperationLogType.RECOVER, expression = "#msClass.recoverLog(#id)", msClass = BugLogService.class)
     public void recover(@PathVariable String id) {
@@ -50,14 +50,14 @@ public class BugTrashController {
     }
 
     @GetMapping("/delete/{id}")
-    @Operation(summary = "回收站-彻底删除")
+    @Operation(summary = "缺陷管理-回收站-彻底删除")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_DELETE)
     public void deleteTrash(@PathVariable String id) {
         bugService.deleteTrash(id);
     }
 
     @PostMapping("/batch-recover")
-    @Operation(summary = "回收站-批量恢复")
+    @Operation(summary = "缺陷管理-回收站-批量恢复")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void batchRecover(@Validated @RequestBody BugBatchRequest request) {
@@ -66,7 +66,7 @@ public class BugTrashController {
     }
 
     @PostMapping("/batch-delete")
-    @Operation(summary = "回收站-批量彻底删除")
+    @Operation(summary = "缺陷管理-回收站-批量彻底删除")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_DELETE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public void batchDelete(@Validated @RequestBody BugBatchRequest request) {

@@ -9,7 +9,7 @@ import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class BugCommentNoticeDTO extends BugDTO{
+public class BugCommentNoticeDTO extends BugDTO {
 
     @Schema(description = "通知人集合, @用户, 使用';'隔开! ")
     private String notifier;

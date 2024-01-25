@@ -5,11 +5,11 @@ import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+
+import java.io.Serializable;
 
 @Data
-@EqualsAndHashCode(callSuper = false)
-public class BugCommentEditRequest {
+public class BugCommentEditRequest implements Serializable {
 
     @Schema(description = "评论ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{bug_comment.id.not_blank}", groups = {Updated.class})

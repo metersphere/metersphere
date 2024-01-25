@@ -6,15 +6,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.util.List;
 
-/**
- * @author song-cc-rock
- */
 @Data
-@EqualsAndHashCode(callSuper = false)
 public class BugDetailDTO {
 
     @Schema(description = "ID", requiredMode = Schema.RequiredMode.REQUIRED)

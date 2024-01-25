@@ -35,5 +35,4 @@ public enum BugPlatform {
     BugPlatform(String name) {
         this.name = name;
     }
-
 }

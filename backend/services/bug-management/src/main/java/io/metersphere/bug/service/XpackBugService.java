@@ -8,7 +8,7 @@ import io.metersphere.system.dto.OperationHistoryDTO;
 import java.util.List;
 
 /**
- * 缺陷Xpack功能接口 (全量同步)
+ * 缺陷相关xpack功能接口
  */
 public interface XpackBugService {
 
@@ -18,7 +18,7 @@ public interface XpackBugService {
     void syncPlatformBugsBySchedule();
 
     /**
-     * 同步当前项目第三方平台缺陷(前台调用)
+     * 同步当前项目第三方平台缺陷(前台调用, 全量同步)
      * @param project 项目
      * @param request 同步请求参数
      * @param currentUser 当前用户

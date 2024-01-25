@@ -8,7 +8,7 @@ import io.metersphere.functional.mapper.FunctionalCaseDemandMapper;
 import io.metersphere.functional.request.FunctionalCaseDemandRequest;
 import io.metersphere.functional.request.FunctionalThirdDemandPageRequest;
 import io.metersphere.functional.request.QueryDemandListRequest;
-import io.metersphere.plugin.platform.dto.reponse.DemandRelatePageResponse;
+import io.metersphere.plugin.platform.dto.reponse.PlatformDemandDTO;
 import io.metersphere.plugin.platform.utils.PluginPager;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.domain.OperationLog;
@@ -483,7 +483,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         functionalThirdDemandPageRequest.setPageSize(10);
         functionalThirdDemandPageRequest.setStartPage(1);
         MvcResult mvcResultDemand= this.requestPostWithOkAndReturn(URL_DEMAND_PAGE_DEMAND, functionalThirdDemandPageRequest);
-        PluginPager<DemandRelatePageResponse> tableData = JSON.parseObject(JSON.toJSONString(
+        PluginPager<PlatformDemandDTO> tableData = JSON.parseObject(JSON.toJSONString(
                         JSON.parseObject(mvcResultDemand.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
                 PluginPager.class);
 

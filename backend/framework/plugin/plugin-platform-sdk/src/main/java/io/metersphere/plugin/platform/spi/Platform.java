@@ -2,9 +2,9 @@ package io.metersphere.plugin.platform.spi;
 
 import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.plugin.platform.dto.SyncBugResult;
-import io.metersphere.plugin.platform.dto.reponse.DemandRelatePageResponse;
 import io.metersphere.plugin.platform.dto.reponse.PlatformBugUpdateDTO;
 import io.metersphere.plugin.platform.dto.reponse.PlatformCustomFieldItemDTO;
+import io.metersphere.plugin.platform.dto.reponse.PlatformDemandDTO;
 import io.metersphere.plugin.platform.dto.request.*;
 import io.metersphere.plugin.platform.utils.PluginPager;
 import org.pf4j.ExtensionPoint;
@@ -82,7 +82,14 @@ public interface Platform extends ExtensionPoint {
      * @param request 需求分页查询参数
      * @return 需求分页数据
      */
-    PluginPager<DemandRelatePageResponse> pageDemand(DemandPageRequest request);
+    PluginPager<PlatformDemandDTO> pageDemand(DemandPageRequest request);
+
+    /**
+     * 根据关联的需求ID查询平台需求信息
+     * @param request 需求关联查询参数
+     * @return 平台需求信息
+     */
+    PlatformDemandDTO getDemands(DemandRelateQueryRequest request);
 
     /**
      * 新增平台缺陷

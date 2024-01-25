@@ -47,40 +47,19 @@ public class BugExportExcelModel {
         for (BugDTO bugDTO : bugList) {
             LinkedHashMap<String, String> excelRow = new LinkedHashMap<>();
             for (String key : excelHeader.keySet()) {
-                switch (key) {
-                    case "name" :
-                        excelRow.put(key, bugDTO.getTitle());
-                        break;
-                    case "num" :
-                        excelRow.put(key, bugDTO.getNum().toString());
-                        break;
-                    case "content" :
-                        excelRow.put(key, this.getBugContent(bugContents, bugDTO.getId()));
-                        break;
-                    case "status" :
-                        excelRow.put(key, headerModel.getStatusMap().get(bugDTO.getStatus()));
-                        break;
-                    case "handle_user" :
-                        excelRow.put(key, headerModel.getHandleUserMap().get(bugDTO.getHandleUser()));
-                        break;
-                    case "create_user" :
-                        excelRow.put(key, bugDTO.getCreateUserName());
-                        break;
-                    case "create_time" :
-                        excelRow.put(key, DateUtils.getTimeString(bugDTO.getCreateTime()));
-                        break;
-                    case "case_count" :
-                        excelRow.put(key, String.valueOf(bugDTO.getRelationCaseCount()));
-                        break;
-                    case "comment" :
-                        excelRow.put(key, this.getBugComment(bugComment.get(bugDTO.getId())));
-                        break;
-                    case "platform" :
-                        excelRow.put(key, bugDTO.getPlatform());
-                        break;
-                    default :
-                        excelRow.put(key, this.getCustomFieldValue(bugDTO.getCustomFields(), key, headerModel.getHeaderCustomFields()));
-                }
+				switch (key) {
+					case "name" -> excelRow.put(key, bugDTO.getTitle());
+					case "num" -> excelRow.put(key, bugDTO.getNum().toString());
+					case "content" -> excelRow.put(key, this.getBugContent(bugContents, bugDTO.getId()));
+					case "status" -> excelRow.put(key, headerModel.getStatusMap().get(bugDTO.getStatus()));
+					case "handle_user" -> excelRow.put(key, headerModel.getHandleUserMap().get(bugDTO.getHandleUser()));
+					case "create_user" -> excelRow.put(key, bugDTO.getCreateUserName());
+					case "create_time" -> excelRow.put(key, DateUtils.getTimeString(bugDTO.getCreateTime()));
+					case "case_count" -> excelRow.put(key, String.valueOf(bugDTO.getRelationCaseCount()));
+					case "comment" -> excelRow.put(key, this.getBugComment(bugComment.get(bugDTO.getId())));
+					case "platform" -> excelRow.put(key, bugDTO.getPlatform());
+					default -> excelRow.put(key, this.getCustomFieldValue(bugDTO.getCustomFields(), key, headerModel.getHeaderCustomFields()));
+				}
             }
             excelRows.add(excelRow);
         }
