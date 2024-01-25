@@ -24,7 +24,7 @@ public class BugCommentController {
     private BugCommentService bugCommentService;
 
     @GetMapping("/get/{bugId}")
-    @Operation(summary = "缺陷管理-评论-获取评论")
+    @Operation(summary = "缺陷管理-评论-获取评论集合")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     @CheckOwner(resourceId = "#bugId", resourceType = "bug")
     public List<BugCommentDTO> get(@PathVariable String bugId) {
@@ -32,7 +32,7 @@ public class BugCommentController {
     }
 
     @PostMapping("/add")
-    @Operation(summary = "缺陷管理-评论-新增评论")
+    @Operation(summary = "缺陷管理-评论-新增/回复评论")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     @CheckOwner(resourceId = "#request.getBugId()", resourceType = "bug")
     public BugComment add(@RequestBody BugCommentEditRequest request) {

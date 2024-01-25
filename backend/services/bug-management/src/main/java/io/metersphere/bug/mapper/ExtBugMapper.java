@@ -84,7 +84,22 @@ public interface ExtBugMapper {
      */
     Long getMaxPos(@Param("projectId") String projectId);
 
+    /**
+     * 根据关联请求参数查询缺陷集合
+     * @param sourceType 资源类型
+     * @param sourceName 资源名称
+     * @param bugColumnName 缺陷列名
+     * @param bugPageProviderRequest 关联分页请求参数
+     * @param deleted 是否删除
+     * @return 缺陷集合
+     */
     List<BugProviderDTO> listByProviderRequest(@Param("table") String sourceType, @Param("sourceName") String sourceName, @Param("bugColumnName") String bugColumnName, @Param("request") BugPageProviderRequest bugPageProviderRequest, @Param("deleted") boolean deleted);
 
+    /**
+     * 根据关联请求参数查询缺陷ID集合
+     * @param request 关联请求参数
+     * @param deleted 是否删除
+     * @return 缺陷ID集合
+     */
     List<String> getIdsByProvider(@Param("request") AssociateBugRequest request, @Param("deleted") boolean deleted);
 }

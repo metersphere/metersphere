@@ -45,6 +45,11 @@ public class BugNoticeService {
     @Resource
     private ExtBugCustomFieldMapper extBugCustomFieldMapper;
 
+    /**
+     * 获取缺陷通知
+     * @param request 请求参数
+     * @return 缺陷通知
+     */
     public BugNoticeDTO getNoticeByRequest(BugEditRequest request) {
         // 获取状态选项, 处理人选项
         Map<String, String> statusMap = getStatusMap(request.getProjectId());
@@ -78,6 +83,11 @@ public class BugNoticeService {
         return notice;
     }
 
+    /**
+     * 发送删除缺陷通知
+     * @param bug 缺陷
+     * @param currentUser 当前用户
+     */
     public void sendDeleteNotice(Bug bug, String currentUser) {
         Map<String, String> statusMap = getStatusMap(bug.getProjectId());
         Map<String, String> handlerMap = getHandleMap(bug.getProjectId());
@@ -107,11 +117,21 @@ public class BugNoticeService {
         noticeSendService.send(NoticeConstants.TaskType.BUG_TASK, noticeModel);
     }
 
+    /**
+     * 获取状态集合
+     * @param projectId 项目ID
+     * @return
+     */
     private Map<String, String> getStatusMap(String projectId) {
         List<SelectOption> statusOption = bugStatusService.getHeaderStatusOption(projectId);
         return statusOption.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
     }
 
+    /**
+     * 获取处理人集合
+     * @param projectId 项目ID
+     * @return 处理人集合
+     */
     private Map<String, String> getHandleMap(String projectId) {
         List<SelectOption> handlerOption = bugService.getHeaderHandlerOption(projectId);
         return handlerOption.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));

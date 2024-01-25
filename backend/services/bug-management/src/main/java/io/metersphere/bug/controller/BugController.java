@@ -57,7 +57,7 @@ public class BugController {
     private ProjectTemplateService projectTemplateService;
 
     @GetMapping("/header/custom-field/{projectId}")
-    @Operation(summary = "缺陷管理-列表-获取表头自定义字段")
+    @Operation(summary = "缺陷管理-列表-获取表头自定义字段集合")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<TemplateCustomFieldDTO> getHeaderFields(@PathVariable String projectId) {
@@ -81,7 +81,7 @@ public class BugController {
     }
 
     @PostMapping("/page")
-    @Operation(summary = "缺陷管理-列表-分页缺陷列表")
+    @Operation(summary = "缺陷管理-列表-分页获取缺陷列表")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<BugDTO>> page(@Validated @RequestBody BugPageRequest request) {
@@ -114,7 +114,7 @@ public class BugController {
     }
 
     @GetMapping("/get/{id}")
-    @Operation(summary = "缺陷管理-列表-详情&&编辑&&复制")
+    @Operation(summary = "缺陷管理-列表-查看缺陷(详情&&编辑&&复制)")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     public BugDetailDTO get(@PathVariable String id) {
         return bugService.get(id);
@@ -146,7 +146,7 @@ public class BugController {
     }
 
     @GetMapping("/sync/check/{projectId}")
-    @Operation(summary = "缺陷管理-列表-同步状态校验")
+    @Operation(summary = "缺陷管理-列表-校验缺陷同步状态")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public BugSyncResult checkStatus(@PathVariable String projectId) {

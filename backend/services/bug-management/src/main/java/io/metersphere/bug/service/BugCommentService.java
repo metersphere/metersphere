@@ -98,7 +98,7 @@ public class BugCommentService {
         List<BugComment> bugComments = bugCommentMapper.selectByExampleWithBLOBs(example);
         Map<String, List<BugComment>> bugCommentByBugId = bugComments.stream().collect(Collectors.groupingBy(BugComment::getBugId));
 
-        Map<String, List<BugCommentDTO>> returnMap = new HashMap<>();
+        Map<String, List<BugCommentDTO>> returnMap = new HashMap<>(16);
         for (Map.Entry<String, List<BugComment>> entry : bugCommentByBugId.entrySet()) {
             returnMap.put(entry.getKey(), wrapperComments(entry.getValue()));
         }

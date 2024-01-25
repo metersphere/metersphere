@@ -85,9 +85,9 @@
 
 
         <!--        要忽略的字段-->
-        <!-- <table tableName="test_case">
-             <ignoreColumn column="follow_people"/>
-         </table>-->
+<!--        <table tableName="bug">-->
+<!--             <ignoreColumn column="handle_user"/>-->
+<!--         </table>-->
 
         <!--        表名和关键字冲突-->
         <!--                <table tableName="group" delimitIdentifiers="true"></table>-->

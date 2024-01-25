@@ -51,7 +51,7 @@ public class BugAttachmentController {
     }
 
     @PostMapping("/file/page")
-    @Operation(summary = "缺陷管理-附件-关联文件分页接口")
+    @Operation(summary = "缺陷管理-附件-关联文件库文件列表")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<FileInformationResponse>> page(@Validated @RequestBody FileMetadataTableRequest request) {
@@ -103,7 +103,7 @@ public class BugAttachmentController {
     }
 
     @GetMapping("/transfer/options/{projectId}")
-    @Operation(summary = "缺陷管理-附件-转存选项")
+    @Operation(summary = "缺陷管理-附件-转存文件库模块集合")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<BaseTreeNode> options(@PathVariable String projectId) {
@@ -111,7 +111,7 @@ public class BugAttachmentController {
     }
 
     @PostMapping("/transfer")
-    @Operation(summary = "缺陷管理-附件-本地转存")
+    @Operation(summary = "缺陷管理-附件-本地文件转存")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public String transfer(@Validated @RequestBody BugFileTransferRequest request) {
@@ -119,7 +119,7 @@ public class BugAttachmentController {
     }
 
     @PostMapping("/check-update")
-    @Operation(summary = "缺陷管理-附件-检查关联文件是否存在更新")
+    @Operation(summary = "缺陷管理-附件-检查关联文件集合是否存在更新")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     public List<String> checkUpdate(@RequestBody List<String> fileIds) {
         return fileAssociationService.checkFilesVersion(fileIds);

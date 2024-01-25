@@ -17,12 +17,14 @@ public class BugExportColumns {
     private LinkedHashMap<String, String> customColumns = new LinkedHashMap<>();
 
     public BugExportColumns() {
+        // 系统字段
         systemColumns.put("num", Translator.get("bug.export.system.columns.id"));
         systemColumns.put("name", Translator.get("bug.export.system.columns.name"));
         systemColumns.put("content", Translator.get("bug.export.system.columns.content"));
         systemColumns.put("status", Translator.get("bug.export.system.columns.status"));
         systemColumns.put("handle_user", Translator.get("bug.export.system.columns.handle_user"));
 
+        // 其他字段
         otherColumns.put("create_user", Translator.get("bug.export.system.other.columns.create_user"));
         otherColumns.put("create_time", Translator.get("bug.export.system.other.columns.create_time"));
         otherColumns.put("case_count", Translator.get("bug.export.system.other.columns.case_count"));
@@ -32,8 +34,6 @@ public class BugExportColumns {
     }
 
     public void initCustomColumns(List<TemplateCustomFieldDTO> headerCustomFields) {
-        headerCustomFields.forEach(item -> {
-            customColumns.put(item.getFieldId(), item.getFieldName());
-        });
+        headerCustomFields.forEach(item -> customColumns.put(item.getFieldId(), item.getFieldName()));
     }
 }

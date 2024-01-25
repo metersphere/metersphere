@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 @Data
-public class DemandRelatePageResponse {
+public class PlatformDemandDTO {
 
     /**
      * 自定义表头字段(支持过滤)

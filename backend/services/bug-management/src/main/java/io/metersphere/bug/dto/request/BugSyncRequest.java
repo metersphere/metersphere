@@ -3,8 +3,10 @@ package io.metersphere.bug.dto.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
+import java.io.Serializable;
+
 @Data
-public class BugSyncRequest {
+public class BugSyncRequest implements Serializable {
 
     @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     private String projectId;
