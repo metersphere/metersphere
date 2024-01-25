@@ -28,8 +28,7 @@ public class CleanProjectJob {
     @QuartzScheduled(cron = "0 0 3 * * ?")
     public void cleanupProject() {
         LogUtils.info("clean up project start.");
-        //TODO 为了测试改成一天  正是后改成一个月
-        LocalDate date = LocalDate.now().minusDays(1);
+        LocalDate date = LocalDate.now().minusMonths(1);
         long timestamp = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
         this.doCleanupProject(timestamp);
         LogUtils.info("clean up project end.");

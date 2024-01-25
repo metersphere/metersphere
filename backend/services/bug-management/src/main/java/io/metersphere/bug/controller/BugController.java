@@ -147,7 +147,7 @@ public class BugController {
 
     @GetMapping("/sync/check/{projectId}")
     @Operation(summary = "缺陷管理-列表-校验缺陷同步状态")
-    @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
+    @RequiresPermissions(PermissionConstants.PROJECT_BUG_UPDATE)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public BugSyncResult checkStatus(@PathVariable String projectId) {
         return bugSyncService.checkSyncStatus(projectId);

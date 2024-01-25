@@ -2,10 +2,10 @@ package io.metersphere.bug.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.bug.dto.request.BugHistoryPageRequest;
 import io.metersphere.bug.service.BugHistoryService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.OperationHistoryDTO;
+import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -34,7 +34,7 @@ public class BugHistoryController {
     @Operation(summary = "缺陷管理-变更历史-列表")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
-    public Pager<List<OperationHistoryDTO>> page(@Validated @RequestBody BugHistoryPageRequest request) {
+    public Pager<List<OperationHistoryDTO>> page(@Validated @RequestBody OperationHistoryRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "id desc");
         return PageUtils.setPageInfo(page, bugHistoryService.list(request));
