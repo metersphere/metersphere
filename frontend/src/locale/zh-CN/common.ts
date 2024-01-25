@@ -104,4 +104,5 @@ export default {
   'common.noProject': '暂无项目权限，请联系管理员',
   'common.noResource': '暂无资源权限，请联系管理员',
   'common.noSelectProject': '无可选项目',
+  'common.noPermission': '无权限',
 };

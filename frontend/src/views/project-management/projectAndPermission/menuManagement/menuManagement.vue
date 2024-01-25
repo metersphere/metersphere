@@ -33,6 +33,7 @@
         <!-- 测试计划 报告保留时间范围 -->
         <MsTimeSelectorVue
           v-model="allValueMap['TEST_PLAN_CLEAN_REPORT']"
+          :disabled="!hasAnyPermission(['PROJECT_APPLICATION_TEST_PLAN:READ+UPDATE'])"
           @change="(v: string) => handleMenuStatusChange('TEST_PLAN_CLEAN_REPORT',v,MenuEnum.testPlan)"
         />
       </div>
@@ -40,15 +41,19 @@
         <!-- 测试计划 报告链接有效期 -->
         <MsTimeSelectorVue
           v-model="allValueMap['TEST_PLAN_SHARE_REPORT']"
+          :disabled="!hasAnyPermission(['PROJECT_APPLICATION_TEST_PLAN:READ+UPDATE'])"
           @change="(v: string) => handleMenuStatusChange('TEST_PLAN_SHARE_REPORT',v,MenuEnum.testPlan)"
         />
       </div>
       <template v-if="record.type === 'BUG_SYNC'">
         <!-- 同步缺陷 -->
         <span>{{ t('project.menu.row2') }}</span>
-        <div class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]" @click="showDefectDrawer">{{
-          t('project.menu.BUG_SYNC')
-        }}</div>
+        <div
+          v-permission="['PROJECT_APPLICATION_BUG:READ+UPDATE']"
+          class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]"
+          @click="showDefectDrawer"
+          >{{ t('project.menu.BUG_SYNC') }}</div
+        >
       </template>
       <div v-if="record.type === 'CASE_PUBLIC'">
         <!-- 用例 公共用例库 -->
@@ -57,9 +62,12 @@
       <div v-if="record.type === 'CASE_RELATED'" class="flex flex-row">
         <!-- 用例 关联需求 -->
         <div>{{ t('project.menu.row4') }}</div>
-        <div class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]" @click="showRelatedCaseDrawer">{{
-          t('project.menu.CASE_RELATED')
-        }}</div>
+        <div
+          v-permission="['PROJECT_APPLICATION_CASE:READ+UPDATE']"
+          class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]"
+          @click="showRelatedCaseDrawer"
+          >{{ t('project.menu.CASE_RELATED') }}</div
+        >
       </div>
       <div v-if="record.type === 'CASE_RE_REVIEW'">
         <!-- 用例 重新提审 -->
@@ -72,6 +80,7 @@
       <div v-if="record.type === 'API_CLEAN_REPORT'">
         <MsTimeSelectorVue
           v-model="allValueMap['API_CLEAN_REPORT']"
+          :disabled="!hasAnyPermission(['PROJECT_APPLICATION_API:READ+UPDATE'])"
           @change="(v: string) => handleMenuStatusChange('API_CLEAN_REPORT',v,MenuEnum.apiTest)"
         />
       </div>
@@ -79,6 +88,7 @@
         <!--接口测试 报告链接有效期 -->
         <MsTimeSelectorVue
           v-model="allValueMap['API_SHARE_REPORT']"
+          :disabled="!hasAnyPermission(['PROJECT_APPLICATION_API:READ+UPDATE'])"
           @change="(v: string) => handleMenuStatusChange('API_SHARE_REPORT',v,MenuEnum.apiTest)"
         />
       </div>
@@ -89,6 +99,7 @@
           :field-names="{ label: 'name', value: 'id' }"
           :options="apiPoolOption"
           class="w-[120px]"
+          :disabled="!hasAnyPermission(['PROJECT_APPLICATION_API:READ+UPDATE'])"
           @change="(v: SelectValue) => handleMenuStatusChange('API_RESOURCE_POOL_ID',v as string,MenuEnum.apiTest)"
         />
         <a-tooltip
@@ -110,6 +121,7 @@
           v-model="allValueMap['API_SCRIPT_REVIEWER_ID']"
           :field-names="{ label: 'name', value: 'id' }"
           :options="apiAuditorOption"
+          :disabled="!hasAnyPermission(['PROJECT_APPLICATION_API:READ+UPDATE'])"
           class="w-[120px]"
           @change="(v: SelectValue) => handleMenuStatusChange('API_SCRIPT_REVIEWER_ID',v as string,MenuEnum.apiTest)"
         />
@@ -133,9 +145,12 @@
             </template>
           </a-input-number>
         </div>
-        <div class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]" @click="pushFar">{{
-          t('project.menu.API_ERROR_REPORT_RULE')
-        }}</div>
+        <div
+          v-permission="['PROJECT_APPLICATION_API:READ+UPDATE']"
+          class="ml-[8px] cursor-pointer text-[rgb(var(--primary-7))]"
+          @click="pushFar"
+          >{{ t('project.menu.API_ERROR_REPORT_RULE') }}</div
+        >
         <a-tooltip :content="t('project.menu.API_ERROR_REPORT_RULE_TIP')" position="right">
           <div>
             <MsIcon class="ml-[4px] text-[rgb(var(--primary-5))]" type="icon-icon-maybe_outlined" />
@@ -147,6 +162,7 @@
         <!--UI 报告保留时间范围 -->
         <MsTimeSelectorVue
           v-model="allValueMap['UI_CLEAN_REPORT']"
+          :disabled="!hasAnyPermission(['PROJECT_APPLICATION_UI:READ+UPDATE'])"
           @change="(v: string) => handleMenuStatusChange('UI_CLEAN_REPORT',v,MenuEnum.uiTest)"
         />
       </div>
@@ -154,6 +170,7 @@
         <!--UI 报告链接有效期 -->
         <MsTimeSelectorVue
           v-model="allValueMap['UI_SHARE_REPORT']"
+          :disabled="!hasAnyPermission(['PROJECT_APPLICATION_UI:READ+UPDATE'])"
           @change="(v: string) => handleMenuStatusChange('UI_SHARE_REPORT',v,MenuEnum.uiTest)"
         />
       </div>
@@ -164,6 +181,7 @@
           :field-names="{ label: 'name', value: 'id' }"
           :options="uiPoolOption"
           class="w-[120px]"
+          :disabled="!hasAnyPermission(['PROJECT_APPLICATION_UI:READ+UPDATE'])"
           @change="(v: SelectValue) => handleMenuStatusChange('UI_RESOURCE_POOL_ID',v as string,MenuEnum.uiTest)"
         />
         <a-tooltip
@@ -183,6 +201,7 @@
         <!--性能测试 报告保留时间范围 -->
         <MsTimeSelectorVue
           v-model="allValueMap['PERFORMANCE_TEST_CLEAN_REPORT']"
+          :disabled="!hasAnyPermission(['PROJECT_APPLICATION_PERFORMANCE_TEST:READ+UPDATE'])"
           @change="(v: string) => handleMenuStatusChange('PERFORMANCE_TEST_CLEAN_REPORT',v,MenuEnum.loadTest)"
         />
       </div>
@@ -190,6 +209,7 @@
         <!--性能测试 报告链接有效期 -->
         <MsTimeSelectorVue
           v-model="allValueMap['PERFORMANCE_TEST_SHARE_REPORT']"
+          :disabled="!hasAnyPermission(['PROJECT_APPLICATION_PERFORMANCE_TEST:READ+UPDATE'])"
           @change="(v: string) => handleMenuStatusChange('PERFORMANCE_TEST_SHARE_REPORT',v,MenuEnum.loadTest)"
         />
       </div>
@@ -200,6 +220,7 @@
           :field-names="{ label: 'name', value: 'id' }"
           :options="performanceAuditorOption"
           class="w-[120px]"
+          :disabled="!hasAnyPermission(['PROJECT_APPLICATION_PERFORMANCE_TEST:READ+UPDATE'])"
           @change="(v: SelectValue) => handleMenuStatusChange('PERFORMANCE_TEST_SCRIPT_REVIEWER_ID',v as string,MenuEnum.loadTest)"
         />
         <a-tooltip :content="t('project.menu.PERFORMANCE_TEST_SCRIPT_REVIEWER_TIP')" position="right">
@@ -210,8 +231,12 @@
       </div>
     </template>
     <template #operation="{ record }">
-      <!-- 同步缺陷状态 -->
-      <a-tooltip v-if="record.type === 'BUG_SYNC' && !allValueMap['BUG_SYNC_SYNC_ENABLE']" position="tr">
+      <!-- 用例 同步缺陷状态 -->
+      <a-tooltip
+        v-if="record.type === 'BUG_SYNC' && !allValueMap['BUG_SYNC_SYNC_ENABLE']"
+        v-permission="['PROJECT_APPLICATION_BUG:READ+UPDATE']"
+        position="tr"
+      >
         <template #content>
           <span>
             {{ t('project.menu.notConfig') }}
@@ -224,6 +249,7 @@
         <a-switch
           checked-value="true"
           unchecked-value="false"
+          :disabled="!hasAnyPermission(['PROJECT_APPLICATION_BUG:READ+UPDATE'])"
           :value="allValueMap['BUG_SYNC_SYNC_ENABLE']"
           size="small"
           type="line"
@@ -234,12 +260,17 @@
         v-if="record.type === 'BUG_SYNC' && allValueMap['BUG_SYNC_SYNC_ENABLE']"
         checked-value="true"
         unchecked-value="false"
+        :disabled="!hasAnyPermission(['PROJECT_APPLICATION_BUG:READ+UPDATE'])"
         size="small"
         type="line"
         @change="(v: boolean | string| number) => handleMenuStatusChange('BUG_SYNC_SYNC_ENABLE',v as boolean, MenuEnum.bugManagement)"
       />
-      <!-- 关联需求状态 -->
-      <a-tooltip v-if="record.type === 'CASE_RELATED' && !allValueMap['CASE_RELATED_CASE_ENABLE']" position="tr">
+      <!-- 功能测试 同步缺陷 -->
+      <a-tooltip
+        v-if="record.type === 'CASE_RELATED' && !allValueMap['CASE_RELATED_CASE_ENABLE']"
+        v-permission="['PROJECT_APPLICATION_BUG:READ+UPDATE']"
+        position="tr"
+      >
         <template #content>
           <span>
             {{ t('project.menu.notConfig') }}
@@ -252,6 +283,7 @@
         <a-switch
           checked-value="true"
           unchecked-value="false"
+          :disabled="!hasAnyPermission(['PROJECT_APPLICATION_CASE:READ+UPDATE'])"
           :value="allValueMap['CASE_RELATED_CASE_ENABLE']"
           size="small"
           type="line"
@@ -260,6 +292,7 @@
       </a-tooltip>
       <a-switch
         v-if="record.type === 'CASE_RELATED' && allValueMap['CASE_RELATED_CASE_ENABLE']"
+        :disabled="!hasAnyPermission(['PROJECT_APPLICATION_BUG:READ+UPDATE'])"
         checked-value="true"
         unchecked-value="false"
         size="small"
@@ -271,6 +304,7 @@
       <a-switch
         v-if="record.type === 'WORKSTATION_SYNC_RULE'"
         v-model="allValueMap['WORKSTATION_SYNC_RULE']"
+        :disabled="!hasAnyPermission(['PROJECT_APPLICATION_API:READ+UPDATE'])"
         checked-value="true"
         unchecked-value="false"
         size="small"
@@ -281,6 +315,7 @@
       <a-switch
         v-if="record.type === 'CASE_PUBLIC'"
         v-model="allValueMap['CASE_PUBLIC']"
+        :disabled="!hasAnyPermission(['PROJECT_APPLICATION_CASE:READ+UPDATE'])"
         checked-value="true"
         unchecked-value="false"
         size="small"
@@ -291,6 +326,7 @@
       <a-switch
         v-if="record.type === 'CASE_RE_REVIEW'"
         v-model="allValueMap['CASE_RE_REVIEW']"
+        :disabled="!hasAnyPermission(['PROJECT_APPLICATION_CASE:READ+UPDATE'])"
         checked-value="true"
         unchecked-value="false"
         size="small"
@@ -301,6 +337,7 @@
       <a-switch
         v-if="record.type === 'API_URL_REPEATABLE'"
         v-model="allValueMap['API_URL_REPEATABLE']"
+        :disabled="!hasAnyPermission(['PROJECT_APPLICATION_API:READ+UPDATE'])"
         checked-value="true"
         unchecked-value="false"
         size="small"
@@ -311,6 +348,7 @@
       <a-switch
         v-if="record.type === 'API_SYNC_CASE'"
         v-model="allValueMap['API_SYNC_CASE']"
+        :disabled="!hasAnyPermission(['PROJECT_APPLICATION_API:READ+UPDATE'])"
         checked-value="true"
         unchecked-value="false"
         size="small"
@@ -321,6 +359,7 @@
       <a-switch
         v-if="record.type === 'PERFORMANCE_TEST_SCRIPT_REVIEWER'"
         v-model="allValueMap['PERFORMANCE_TEST_SCRIPT_REVIEWER_ENABLE']"
+        :disabled="!hasAnyPermission(['PROJECT_APPLICATION_PERFORMANCE_TEST:READ+UPDATE'])"
         checked-value="true"
         unchecked-value="false"
         size="small"
@@ -356,6 +395,7 @@
   } from '@/api/modules/project-management/menuManagement';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { MenuTableConfigItem, PoolOption, SelectValue } from '@/models/projectManagement/menuManagement';
   import { MenuEnum } from '@/enums/commonEnum';
@@ -562,6 +602,52 @@
 
   const getMenuConfig = async (type: string) => {
     try {
+      let hasAuth = false;
+      switch (type) {
+        case MenuEnum.workstation:
+          if (hasAnyPermission(['PROJECT_APPLICATION_WORKSTATION:READ'])) {
+            hasAuth = true;
+          }
+          break;
+        case MenuEnum.apiTest:
+          if (hasAnyPermission(['PROJECT_APPLICATION_API:READ'])) {
+            hasAuth = true;
+          }
+          break;
+        case MenuEnum.bugManagement:
+          if (hasAnyPermission(['PROJECT_APPLICATION_BUG:READ'])) {
+            hasAuth = true;
+          }
+          break;
+        case MenuEnum.caseManagement:
+          if (hasAnyPermission(['PROJECT_APPLICATION_CASE:READ'])) {
+            hasAuth = true;
+          }
+          break;
+        case 'loadTest':
+          if (hasAnyPermission(['PROJECT_APPLICATION_PERFORMANCE_TEST:READ'])) {
+            hasAuth = true;
+          }
+          break;
+        case MenuEnum.testPlan:
+          if (hasAnyPermission(['PROJECT_APPLICATION_TEST_PLAN:READ'])) {
+            hasAuth = true;
+          }
+          break;
+        case MenuEnum.uiTest:
+          if (hasAnyPermission(['PROJECT_APPLICATION_UI:READ'])) {
+            hasAuth = true;
+          }
+          break;
+        default:
+          break;
+      }
+
+      if (!hasAuth) {
+        Message.error(t('common.noPermission'));
+        return;
+      }
+
       const resultObj = await getConfigByMenuItem({
         projectId: currentProjectId.value,
         type,
@@ -584,14 +670,11 @@
       getMenuConfig(record.module);
       if (record.module === MenuEnum.apiTest && !apiPoolOption.value.length) {
         apiPoolOption.value = await getPoolOptions(currentProjectId.value, record.module);
-      }
-      if (record.module === MenuEnum.uiTest && !uiPoolOption.value.length) {
+      } else if (record.module === MenuEnum.uiTest && !uiPoolOption.value.length) {
         uiPoolOption.value = await getPoolOptions(currentProjectId.value, record.module);
-      }
-      if (record.module === MenuEnum.apiTest && !apiAuditorOption.value.length) {
+      } else if (record.module === MenuEnum.apiTest && !apiAuditorOption.value.length) {
         apiAuditorOption.value = await getAuditorOptions(currentProjectId.value, record.module);
-      }
-      if (record.module === MenuEnum.loadTest && !performanceAuditorOption.value.length) {
+      } else if (record.module === MenuEnum.loadTest && !performanceAuditorOption.value.length) {
         performanceAuditorOption.value = await getAuditorOptions(currentProjectId.value, record.module);
       }
     } catch (e) {
@@ -620,6 +703,53 @@
 
   const handleMenuStatusChange = async (type: string, typeValue: string | boolean, suffix: string) => {
     try {
+      let hasAuth = false;
+      switch (suffix) {
+        case MenuEnum.workstation:
+          if (hasAnyPermission(['PROJECT_APPLICATION_WORKSTATION:READ+UPDATE'])) {
+            hasAuth = true;
+          }
+          break;
+        case MenuEnum.apiTest:
+          if (hasAnyPermission(['PROJECT_APPLICATION_API:READ+UPDATE'])) {
+            hasAuth = true;
+          }
+          break;
+        case MenuEnum.bugManagement:
+          if (hasAnyPermission(['PROJECT_APPLICATION_BUG:READ+UPDATE'])) {
+            hasAuth = true;
+          }
+          break;
+        case MenuEnum.caseManagement:
+          if (hasAnyPermission(['PROJECT_APPLICATION_CASE:READ+UPDATE'])) {
+            hasAuth = true;
+          }
+          break;
+        case MenuEnum.loadTest:
+          if (hasAnyPermission(['PROJECT_APPLICATION_PERFORMANCE_TEST:READ+UPDATE'])) {
+            hasAuth = true;
+          }
+          break;
+        case MenuEnum.testPlan:
+          if (hasAnyPermission(['PROJECT_APPLICATION_TEST_PLAN:READ+UPDATE'])) {
+            hasAuth = true;
+          }
+          break;
+        case MenuEnum.uiTest:
+          if (hasAnyPermission(['PROJECT_APPLICATION_UI:READ+UPDATE'])) {
+            hasAuth = true;
+          }
+          break;
+        default:
+          // eslint-disable-next-line no-console
+          console.log('no ');
+          break;
+      }
+
+      if (!hasAuth) {
+        Message.error(t('common.noPermission'));
+        return;
+      }
       await postUpdateMenu(
         {
           projectId: currentProjectId.value,

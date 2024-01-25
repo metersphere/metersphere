@@ -6,6 +6,7 @@
       :min="0"
       hide-button
       size="small"
+      :disabled="props.disabled"
       @press-enter="handleEnter(false)"
       @blur="handleEnter(true)"
     >
@@ -14,6 +15,7 @@
           v-model:model-value="current.type"
           size="small"
           class="max-w-[64px]"
+          :disabled="props.disabled"
           :options="option"
           :trigger-props="{ autoFitPopupMinWidth: true }"
           @change="handleEnter(false)"
@@ -28,7 +30,7 @@
 
   const { t } = useI18n();
 
-  const props = defineProps<{ modelValue?: string; defaultValue?: string }>();
+  const props = defineProps<{ modelValue?: string; defaultValue?: string; disabled?: boolean }>();
   const emit = defineEmits<{
     (e: 'update:modelValue', value: string): void;
     (e: 'change', value: string): void;

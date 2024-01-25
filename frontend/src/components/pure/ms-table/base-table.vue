@@ -75,7 +75,6 @@
                 @show-setting="handleShowSetting"
                 @init-data="handleInitColumn"
               />
-
               <slot v-else-if="item.filterConfig" :name="item.filterConfig.filterSlotName">
                 <DefaultFilter
                   class="ml-[4px]"
@@ -540,9 +539,6 @@
           }
         }
       }
-    }
-    :deep(.arco-table-th-title) {
-      width: 100%;
     }
     .setting-icon {
       margin-left: 16px;

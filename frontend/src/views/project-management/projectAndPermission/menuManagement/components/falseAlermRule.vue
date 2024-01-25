@@ -6,7 +6,9 @@
       </div>
     </div>
     <div class="mb-4 flex items-center justify-between">
-      <a-button type="primary" @click="showAddRule(undefined)">{{ t('project.menu.addFalseAlertRules') }}</a-button>
+      <a-button v-permission="['PROJECT_APPLICATION_API:READ+ADD']" type="primary" @click="showAddRule(undefined)">{{
+        t('project.menu.addFalseAlertRules')
+      }}</a-button>
       <a-input-search
         v-model="keyword"
         :placeholder="t('project.menu.nameSearch')"
@@ -24,18 +26,36 @@
     >
       <template #operation="{ record }">
         <template v-if="!record.enable">
-          <MsButton class="!mr-0" @click="handleEnableOrDisableProject(record.id)">{{ t('common.enable') }}</MsButton>
-          <a-divider direction="vertical" />
-          <MsButton class="!mr-0" @click="handleDelete(record.id)">{{ t('common.delete') }}</MsButton>
+          <div class="flex flex-row">
+            <span v-permission="['PROJECT_APPLICATION_API:READ+UPDATE']" class="flex flex-row">
+              <MsButton class="!mr-0" @click="handleEnableOrDisableProject(record.id)">{{
+                t('common.enable')
+              }}</MsButton>
+              <a-divider direction="vertical" />
+            </span>
+            <span>
+              <MsButton
+                v-permission="['PROJECT_APPLICATION_API:READ+DELETE']"
+                class="!mr-0"
+                @click="handleDelete(record.id)"
+                >{{ t('common.delete') }}</MsButton
+              >
+            </span>
+          </div>
         </template>
         <template v-else>
-          <MsButton class="!mr-0" @click="showAddRule(record)">{{ t('common.edit') }}</MsButton>
-          <a-divider direction="vertical" />
-          <MsButton class="!mr-0" @click="handleEnableOrDisableProject(record.id, false)">{{
-            t('common.disable')
-          }}</MsButton>
-          <a-divider direction="vertical" />
+          <span v-permission="['PROJECT_APPLICATION_API:READ+UPDATE']" class="flex flex-row">
+            <MsButton class="!mr-0" @click="showAddRule(record)">{{ t('common.edit') }}</MsButton>
+            <a-divider direction="vertical" />
+          </span>
+          <span v-permission="['PROJECT_APPLICATION_API:READ+UPDATE']" class="flex flex-row">
+            <MsButton class="!mr-0" @click="handleEnableOrDisableProject(record.id, false)">{{
+              t('common.disable')
+            }}</MsButton>
+            <a-divider direction="vertical" />
+          </span>
           <MsTableMoreAction
+            v-permission="['PROJECT_APPLICATION_API:READ+DELETE']"
             class="!mr-0"
             :list="tableActions"
             @select="handleMoreAction($event, record)"
@@ -70,7 +90,7 @@
   </MsDrawer>
 </template>
 
-<script lang="ts" setup>
+<script async lang="ts" setup>
   import { useRouter } from 'vue-router';
   import { Message, TableData } from '@arco-design/web-vue';
 
@@ -94,7 +114,7 @@
   } from '@/api/modules/project-management/menuManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
-  import { useAppStore } from '@/store';
+  import { useAppStore, useTableStore } from '@/store';
 
   import { FakeTableListItem } from '@/models/projectManagement/menuManagement';
   import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
@@ -111,6 +131,7 @@
   const batchFormRef = ref();
   const ruleFormMode = ref<UserModalMode>('create');
   const currentList = ref<FakeTableListItem[]>([]);
+  const tableStore = useTableStore();
   const headerOptions = computed(() => [
     { label: 'Response Headers', value: 'headers' },
     { label: 'Response Data', value: 'data' },
@@ -131,15 +152,18 @@
       {
         label: 'common.enable',
         eventTag: 'batchEnable',
+        permission: ['PROJECT_APPLICATION_API:READ+UPDATE'],
       },
       {
         label: 'common.disable',
         eventTag: 'batchDisable',
+        permission: ['PROJECT_APPLICATION_API:READ+UPDATE'],
       },
       {
         label: 'common.delete',
         eventTag: 'batchDelete',
         danger: true,
+        permission: ['PROJECT_APPLICATION_API:READ+UPDATE'],
       },
     ],
   };
@@ -196,17 +220,16 @@
       width: 169,
     },
   ];
-
+  await tableStore.initColumn(TableKeyEnum.PROJECT_MANAGEMENT_MENU_FALSE_ALERT, rulesColumn, 'drawer');
   const { propsRes, propsEvent, loadList, setKeyword, setLoadListParams, resetSelector } = useTable(
     postFakeTableList,
     {
       scroll: { x: 1200 },
-      columns: rulesColumn,
       tableKey: TableKeyEnum.PROJECT_MANAGEMENT_MENU_FALSE_ALERT,
       selectable: true,
       noDisable: false,
       size: 'default',
-      debug: true,
+      showSetting: true,
     },
     (record: TableData) => {
       record.typeList = record.type ? record.type.split(',') : [];

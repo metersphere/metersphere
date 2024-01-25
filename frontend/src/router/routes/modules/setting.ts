@@ -44,7 +44,7 @@ const Setting: AppRouteRecordRaw = {
           component: () => import('@/views/setting/system/usergroup/systemUserGroup.vue'),
           meta: {
             locale: 'menu.settings.system.usergroup',
-            roles: ['*'],
+            roles: ['SYSTEM_USER_ROLE:READ'],
             isTopMenu: true,
           },
         },
@@ -158,7 +158,7 @@ const Setting: AppRouteRecordRaw = {
           component: () => import('@/views/setting/organization/usergroup/orgUserGroup.vue'),
           meta: {
             locale: 'menu.settings.organization.userGroup',
-            roles: ['*'],
+            roles: ['ORGANIZATION_USER_ROLE:READ'],
             isTopMenu: true,
           },
         },
@@ -168,7 +168,7 @@ const Setting: AppRouteRecordRaw = {
           component: () => import('@/views/setting/organization/project/orgProject.vue'),
           meta: {
             locale: 'menu.settings.organization.project',
-            roles: ['*'],
+            roles: ['ORGANIZATION_PROJECT:READ'],
             isTopMenu: true,
           },
         },

@@ -1,6 +1,8 @@
 <template>
   <div class="flex flex-row items-center justify-between">
-    <a-button type="primary" @click="addUserGroup">{{ t('project.userGroup.add') }}</a-button>
+    <a-button v-permission="['PROJECT_GROUP:READ+ADD']" type="primary" @click="addUserGroup">{{
+      t('project.userGroup.add')
+    }}</a-button>
     <a-input-search
       v-model="keyword"
       :placeholder="t('project.userGroup.searchUser')"
@@ -61,9 +63,14 @@
         <ms-button class="btn" :disabled="!canSave" @click="handleAuthReset">{{
           t('system.userGroup.reset')
         }}</ms-button>
-        <a-button class="btn" :disabled="!canSave" type="primary" @click="handleAuthSave">{{
-          t('common.save')
-        }}</a-button>
+        <a-button
+          v-permission="['PROJECT_GROUP:READ+UPDATE']"
+          class="btn"
+          :disabled="!canSave"
+          type="primary"
+          @click="handleAuthSave"
+          >{{ t('common.save') }}</a-button
+        >
       </div>
     </template>
   </MsDrawer>

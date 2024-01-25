@@ -44,7 +44,15 @@ const ProjectManagement: AppRouteRecordRaw = {
           component: () => import('@/views/project-management/projectAndPermission/menuManagement/menuManagement.vue'),
           meta: {
             locale: 'project.permission.menuManagement',
-            roles: ['PROJECT_APPLICATION_WORKSTATION:READ'],
+            roles: [
+              'PROJECT_APPLICATION_WORKSTATION:READ',
+              'PROJECT_APPLICATION_TEST_PLAN:READ',
+              'PROJECT_APPLICATION_BUG:READ',
+              'PROJECT_APPLICATION_CASE:READ',
+              'PROJECT_APPLICATION_API:READ',
+              'PROJECT_APPLICATION_UI:READ',
+              'PROJECT_APPLICATION_PERFORMANCE_TEST:READ',
+            ],
           },
         },
         // 项目版本
@@ -250,7 +258,7 @@ const ProjectManagement: AppRouteRecordRaw = {
         import('@/views/project-management/projectAndPermission/menuManagement/components/falseAlermRule.vue'),
       meta: {
         locale: 'project.menu.API_ERROR_REPORT_RULE',
-        roles: ['*'],
+        roles: ['PROJECT_APPLICATION_API:READ'],
         breadcrumbs: [
           {
             name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT,

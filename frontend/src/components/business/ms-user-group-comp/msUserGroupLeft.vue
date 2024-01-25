@@ -8,7 +8,7 @@
         @search="searchData"
       />
     </div>
-    <div v-if="showSystem" class="mt-2">
+    <div v-if="showSystem" v-permission="['SYSTEM_USER_ROLE:READ']" class="mt-2">
       <CreateUserGroupPopup
         :list="systemUserGroupList"
         :visible="systemUserGroupVisible"
@@ -36,7 +36,11 @@
               {{ t('system.userGroup.systemUserGroup') }}
             </div>
           </div>
-          <MsMoreAction :list="createSystemUGActionItem" @select="handleCreateUG(AuthScopeEnum.SYSTEM)">
+          <MsMoreAction
+            v-permission="['SYSTEM_USER_ROLE:READ+ADD']"
+            :list="createSystemUGActionItem"
+            @select="handleCreateUG(AuthScopeEnum.SYSTEM)"
+          >
             <icon-plus-circle-fill class="cursor-pointer text-[rgb(var(--primary-7))]" size="20" />
           </MsMoreAction>
         </div>
@@ -67,6 +71,7 @@
                 <div v-if="element.id === currentId && !element.internal" class="flex flex-row items-center gap-[8px]">
                   <MsMoreAction
                     v-if="element.type === systemType"
+                    v-permission="['SYSTEM_USER_ROLE:READ+UPDATE']"
                     :list="addMemberActionItem"
                     @select="handleAddMember"
                   >
@@ -75,7 +80,7 @@
                     </div>
                   </MsMoreAction>
                   <MsMoreAction
-                    :list="moreAction"
+                    :list="systemMoreAction"
                     @select="(value) => handleMoreAction(value, element.id, AuthScopeEnum.SYSTEM)"
                   >
                     <div class="icon-button">
@@ -90,7 +95,7 @@
         </div>
       </Transition>
     </div>
-    <div v-if="showOrg" class="mt-2">
+    <div v-if="showOrg" v-permission="['ORGANIZATION_USER_ROLE:READ']" class="mt-2">
       <CreateUserGroupPopup
         :list="orgUserGroupList"
         :visible="orgUserGroupVisible"
@@ -118,7 +123,11 @@
               {{ t('system.userGroup.orgUserGroup') }}
             </div>
           </div>
-          <MsMoreAction :list="createOrgUGActionItem" @select="orgUserGroupVisible = true">
+          <MsMoreAction
+            v-permission="['ORGANIZATION_USER_ROLE:READ+ADD']"
+            :list="createOrgUGActionItem"
+            @select="orgUserGroupVisible = true"
+          >
             <icon-plus-circle-fill class="cursor-pointer text-[rgb(var(--primary-7))]" size="20" />
           </MsMoreAction>
         </div>
@@ -149,6 +158,7 @@
                 <div v-if="element.id === currentId && !element.internal" class="flex flex-row items-center gap-[8px]">
                   <MsMoreAction
                     v-if="element.type === systemType"
+                    v-permission="['ORGANIZATION_USER_ROLE:READ+UPDATE']"
                     :list="addMemberActionItem"
                     @select="handleAddMember"
                   >
@@ -157,7 +167,7 @@
                     </div>
                   </MsMoreAction>
                   <MsMoreAction
-                    :list="moreAction"
+                    :list="orgMoreAction"
                     @select="(value) => handleMoreAction(value, element.id, AuthScopeEnum.ORGANIZATION)"
                   >
                     <div class="icon-button">
@@ -172,7 +182,7 @@
         </div>
       </Transition>
     </div>
-    <div v-if="showProject" class="mt-2">
+    <div v-if="showProject" v-permission="['PROJECT_GROUP:READ']" class="mt-2">
       <CreateUserGroupPopup
         :list="projectUserGroupList"
         :visible="projectUserGroupVisible"
@@ -200,7 +210,11 @@
               {{ t('system.userGroup.projectUserGroup') }}
             </div>
           </div>
-          <MsMoreAction :list="createProjectUGActionItem" @select="projectUserGroupVisible = true">
+          <MsMoreAction
+            v-permission="['PROJECT_GROUP:READ+ADD']"
+            :list="createProjectUGActionItem"
+            @select="projectUserGroupVisible = true"
+          >
             <icon-plus-circle-fill class="cursor-pointer text-[rgb(var(--primary-7))]" size="20" />
           </MsMoreAction>
         </div>
@@ -231,6 +245,7 @@
                 <div v-if="element.id === currentId && !element.internal" class="flex flex-row items-center gap-[8px]">
                   <MsMoreAction
                     v-if="element.type === systemType"
+                    v-permission="['PROJECT_GROUP:READ+UPDATE']"
                     :list="addMemberActionItem"
                     @select="handleAddMember"
                   >
@@ -239,7 +254,7 @@
                     </div>
                   </MsMoreAction>
                   <MsMoreAction
-                    :list="moreAction"
+                    :list="projectMoreAction"
                     @select="(value) => handleMoreAction(value, element.id, AuthScopeEnum.PROJECT)"
                   >
                     <div class="icon-button">
@@ -278,6 +293,7 @@
   import useModal from '@/hooks/useModal';
   import { useAppStore } from '@/store';
   import { characterLimit } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { CurrentUserGroupItem, PopVisible, PopVisibleItem, UserGroupItem } from '@/models/setting/usergroup';
   import { AuthScopeEnum } from '@/enums/commonEnum';
@@ -362,6 +378,57 @@
       eventTag: 'delete',
     },
   ];
+  const systemMoreAction: ActionsItem[] = [
+    {
+      label: 'system.userGroup.rename',
+      danger: false,
+      eventTag: 'rename',
+      permission: ['SYSTEM_USER_ROLE:READ+UPDATE'],
+    },
+    {
+      isDivider: true,
+    },
+    {
+      label: 'system.userGroup.delete',
+      danger: true,
+      eventTag: 'delete',
+      permission: ['SYSTEM_USER_ROLE:READ+DELETE'],
+    },
+  ];
+  const orgMoreAction: ActionsItem[] = [
+    {
+      label: 'system.userGroup.rename',
+      danger: false,
+      eventTag: 'rename',
+      permission: ['ORGANIZATION_USER_ROLE:READ+UPDATE'],
+    },
+    {
+      isDivider: true,
+    },
+    {
+      label: 'system.userGroup.delete',
+      danger: true,
+      eventTag: 'delete',
+      permission: ['ORGANIZATION_USER_ROLE:READ+UPDATE'],
+    },
+  ];
+  const projectMoreAction: ActionsItem[] = [
+    {
+      label: 'system.userGroup.rename',
+      danger: false,
+      eventTag: 'rename',
+      permission: ['PROJECT_GROUP:READ+UPDATE'],
+    },
+    {
+      isDivider: true,
+    },
+    {
+      label: 'system.userGroup.delete',
+      danger: true,
+      eventTag: 'delete',
+      permission: ['PROJECT_GROUP:READ+UPDATE'],
+    },
+  ];
 
   // 点击用户组列表
   const handleListItemClick = (element: UserGroupItem) => {
@@ -375,11 +442,11 @@
   const initData = async (id?: string, isSelect = true) => {
     try {
       let res: UserGroupItem[] = [];
-      if (systemType === AuthScopeEnum.SYSTEM) {
+      if (systemType === AuthScopeEnum.SYSTEM && hasAnyPermission(['SYSTEM_USER_ROLE:READ'])) {
         res = await getUserGroupList();
-      } else if (systemType === AuthScopeEnum.ORGANIZATION) {
+      } else if (systemType === AuthScopeEnum.ORGANIZATION && hasAnyPermission(['ORGANIZATION_USER_ROLE:READ'])) {
         res = await getOrgUserGroupList(appStore.currentOrgId);
-      } else if (systemType === AuthScopeEnum.PROJECT) {
+      } else if (systemType === AuthScopeEnum.PROJECT && hasAnyPermission(['PROJECT_GROUP:READ'])) {
         res = await getProjectUserGroupList(appStore.currentProjectId);
       }
       if (res.length > 0) {

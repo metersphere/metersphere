@@ -2,11 +2,16 @@
   <MsCard simple>
     <div class="mb-4 flex items-center justify-between">
       <div>
-        <a-button type="primary" @click="handleAddOrganization">{{
-          currentTable === 'organization'
-            ? t('system.organization.createOrganization')
-            : t('system.organization.createProject')
-        }}</a-button>
+        <a-button
+          v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+ADD']"
+          type="primary"
+          @click="handleAddOrganization"
+          >{{
+            currentTable === 'organization'
+              ? t('system.organization.createOrganization')
+              : t('system.organization.createProject')
+          }}</a-button
+        >
       </div>
       <div class="flex items-center">
         <a-input-search
