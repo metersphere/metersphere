@@ -198,6 +198,12 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
+
+        request.setReviewId("wx_review_id_4");
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("files", files);
+        this.requestMultipartWithOkAndReturn(FUNCTIONAL_CASE_ADD_URL, paramMap);
     }
 
     @Test

@@ -122,6 +122,7 @@ public class BaseTemplateService {
                     BeanUtils.copyBean(templateCustomFieldDTO, i);
                     templateCustomFieldDTO.setFieldName(customField.getName());
                     templateCustomFieldDTO.setType(customField.getType());
+                    templateCustomFieldDTO.setInternal(customField.getInternal());
                     AbstractCustomFieldResolver customFieldResolver = CustomFieldResolverFactory.getResolver(customField.getType());
                     Object defaultValue = null;
                     try {

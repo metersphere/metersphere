@@ -102,3 +102,5 @@ VALUES ('wx_history', 'wx_review_id_3', 'wx_case_id_1', NULL, 'PASS', b'0', NULL
        ('wx_history_6', 'wx_review_id_1', 'gyq_case_id_5', NULL, 'PASS', b'0', NULL, 'gyq_case_review', 1669174143999),
        ('wx_history_7', 'wx_review_id_1', 'gyq_case_id_5', NULL, 'UN_PASS', b'0', NULL, 'GGG', 1669174143999);
 
+INSERT INTO case_review_user(review_id, user_id)
+VALUES ('wx_review_id_4', 'admin')

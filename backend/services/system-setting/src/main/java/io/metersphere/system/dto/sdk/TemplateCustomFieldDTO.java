@@ -41,4 +41,7 @@ public class TemplateCustomFieldDTO {
 
     @Schema(title = "搜索调用方法")
     private String optionMethod;
+
+    @Schema(description = "是否内置字段")
+    private Boolean internal;
 }
