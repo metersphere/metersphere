@@ -1,5 +1,6 @@
 package io.metersphere.system.service;
 
+import io.metersphere.plugin.api.spi.AbstractApiPlugin;
 import io.metersphere.plugin.api.spi.AbstractProtocolPlugin;
 import io.metersphere.plugin.api.spi.MsTestElement;
 import io.metersphere.sdk.constants.PluginScenarioType;
@@ -29,20 +30,12 @@ public class ApiPluginService {
 
     /**
      * 获取协议插件的的协议列表
+     *
      * @param orgId
      * @return
      */
     public List<ProtocolDTO> getProtocols(String orgId) {
-        // 查询组织下有权限的插件
-        Set<String> pluginIds = basePluginService.getOrgEnabledPlugins(orgId, PluginScenarioType.API_PROTOCOL)
-                .stream()
-                .map(Plugin::getId)
-                .collect(Collectors.toSet());
-
-        // 过滤协议插件
-        List<PluginWrapper> plugins = pluginLoadService.getMsPluginManager().getPlugins();
-        List<PluginWrapper> pluginWrappers = plugins.stream()
-                .filter(plugin -> pluginIds.contains(plugin.getPluginId()) && plugin.getPlugin() instanceof AbstractProtocolPlugin).toList();
+        List<PluginWrapper> pluginWrappers = getOrgProtocolPluginWrappers(orgId);
 
         List protocols = new ArrayList<ProtocolDTO>();
         pluginWrappers.forEach(pluginWrapper -> {
@@ -54,6 +47,7 @@ public class ApiPluginService {
                 AbstractProtocolPlugin protocolPlugin = ((AbstractProtocolPlugin) pluginWrapper.getPlugin());
                 ProtocolDTO protocolDTO = new ProtocolDTO();
                 protocolDTO.setProtocol(protocolPlugin.getProtocol());
+                protocolDTO.setPluginId(pluginWrapper.getPluginId());
                 if (CollectionUtils.isNotEmpty(extensionClasses)) {
                     protocolDTO.setPolymorphicName(extensionClasses.get(0).getSimpleName());
                 }
@@ -65,5 +59,26 @@ public class ApiPluginService {
             }
         });
         return protocols;
+    }
+
+    private List<PluginWrapper> getOrgProtocolPluginWrappers(String orgId) {
+        return getOrgApiPluginWrappers(orgId).stream()
+                .filter(plugin -> plugin.getPlugin() instanceof AbstractProtocolPlugin)
+                .toList();
+    }
+
+    public List<PluginWrapper> getOrgApiPluginWrappers(String orgId) {
+        // 查询组织下有权限的插件
+        Set<String> pluginIds = basePluginService.getOrgEnabledPlugins(orgId, PluginScenarioType.API_PROTOCOL)
+                .stream()
+                .map(Plugin::getId)
+                .collect(Collectors.toSet());
+
+        // 过滤协议插件
+        List<PluginWrapper> plugins = pluginLoadService.getMsPluginManager().getPlugins();
+        List<PluginWrapper> pluginWrappers = plugins.stream()
+                .filter(plugin -> pluginIds.contains(plugin.getPluginId()) && plugin.getPlugin() instanceof AbstractApiPlugin)
+                .toList();
+        return pluginWrappers;
     }
 }

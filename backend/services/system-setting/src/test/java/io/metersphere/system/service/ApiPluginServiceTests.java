@@ -37,6 +37,7 @@ public class ApiPluginServiceTests extends BaseTest {
         ProtocolDTO jdbcProtocol = new ProtocolDTO();
         jdbcProtocol.setProtocol("JDBC");
         jdbcProtocol.setPolymorphicName("MsJDBCElement");
+        jdbcProtocol.setPluginId("jdbc");
         expected.add(jdbcProtocol);
         Assertions.assertEquals(protocols, expected);
     }

@@ -17,4 +17,8 @@ public class ProtocolDTO {
      * 例如 Http 对应 MsHTTPElement
      */
     private String polymorphicName;
+    /**
+     * 插件ID
+     */
+    private String pluginId;
 }
