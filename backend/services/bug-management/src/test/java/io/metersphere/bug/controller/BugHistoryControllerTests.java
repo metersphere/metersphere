@@ -1,7 +1,7 @@
 package io.metersphere.bug.controller;
 
-import io.metersphere.bug.dto.request.BugHistoryPageRequest;
 import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.dto.request.OperationHistoryRequest;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -26,8 +26,8 @@ public class BugHistoryControllerTests extends BaseTest {
 	@Order(1)
 	@Sql(scripts = {"/dml/init_bug_history.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
 	void testBugHistoryPageSuccess() throws Exception {
-		BugHistoryPageRequest request = new BugHistoryPageRequest();
-		request.setBugId("bug-history-id");
+		OperationHistoryRequest request = new OperationHistoryRequest();
+		request.setSourceId("bug-history-id");
 		request.setProjectId("100001100001");
 		request.setCurrent(1);
 		request.setPageSize(10);
