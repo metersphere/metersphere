@@ -46,6 +46,23 @@ public class OperationHistoryService {
         return list;
     }
 
+
+    public List<OperationHistoryDTO> listWidthLimit(OperationHistoryRequest request, String table) {
+        List<OperationHistoryDTO> list = baseOperationHistoryMapper.listWidthLimit(request, table);
+        if (CollectionUtils.isNotEmpty(list)) {
+            List<String> userIds = list.stream().distinct()
+                    .map(OperationHistoryDTO::getCreateUser).toList();
+
+            Map<String, String> userMap = baseUserMapper.selectUserOptionByIds(userIds).stream()
+                    .collect(Collectors.toMap(OptionDTO::getId, OptionDTO::getName));
+
+            list.forEach(item -> item.setCreateUserName(userMap.getOrDefault(item.getCreateUser(), StringUtils.EMPTY)));
+
+        }
+        return list;
+    }
+
+
     public void associationRefId(Long refLogId, Long logId) {
         OperationHistory operationHistory = operationHistoryMapper.selectByPrimaryKey(logId);
         operationHistory.setRefId(refLogId);

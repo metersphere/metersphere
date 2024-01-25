@@ -16,4 +16,6 @@ public interface BaseOperationHistoryMapper {
     void deleteByIds(@Param("sourceId") String sourceId, @Param("ids") List<Long> ids);
 
     List<OperationHistoryDTO> list(@Param("request") OperationHistoryRequest request);
+
+    List<OperationHistoryDTO> listWidthLimit(@Param("request") OperationHistoryRequest request, @Param("table") String table);
 }
