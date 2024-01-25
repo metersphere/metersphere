@@ -224,7 +224,7 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
             Object mapCount = paramMap.get(CaseEvent.Param.COUNT_MAP);
             Map<String,Integer> map = JSON.parseMap(JSON.toJSONString(mapCount));
             updateMapCount(map, caseCountMap);
-            updateCaseReview(reviewId, caseReview.getCaseCount(), caseCountMap, paramMap.get(CaseEvent.Param.USER_ID).toString());
+            updateCaseReview(reviewId, caseReviewFunctionalCases.size()+caseIdList.size(), caseCountMap, paramMap.get(CaseEvent.Param.USER_ID).toString());
 
         } catch (Exception e) {
             LogUtils.error(CaseEvent.Event.REVIEW_FUNCTIONAL_CASE + "事件更新失败", e.getMessage());
@@ -350,7 +350,7 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
             caseReview.setPassRate(BigDecimal.ZERO);
         } else {
             BigDecimal passRate = passCount.divide(totalCount, 2, RoundingMode.HALF_UP);
-            caseReview.setPassRate(passRate);
+            caseReview.setPassRate(passRate.multiply(BigDecimal.valueOf(100)));
         }
         boolean completed = false;
         //1.如果都是未评审，则用例评审状态为未开始

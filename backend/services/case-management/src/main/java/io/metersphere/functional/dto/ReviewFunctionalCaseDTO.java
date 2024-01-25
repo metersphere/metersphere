@@ -52,4 +52,7 @@ public class ReviewFunctionalCaseDTO implements Serializable {
     @Schema(description = "编辑模式(用于脑图的查询)")
     private String caseEditType;
 
+    @Schema(description = "用例创建人")
+    private String createUser;
+
 }
