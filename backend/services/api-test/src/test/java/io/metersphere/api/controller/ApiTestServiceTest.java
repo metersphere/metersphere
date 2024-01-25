@@ -40,6 +40,7 @@ public class ApiTestServiceTest extends BaseTest {
         httpProtocol.setPolymorphicName(MsHTTPElement.class.getSimpleName());
         ProtocolDTO jdbcProtocol = new ProtocolDTO();
         jdbcProtocol.setProtocol("JDBC");
+        jdbcProtocol.setPluginId("jdbc");
         jdbcProtocol.setPolymorphicName("MsJDBCElement");
         expected.add(httpProtocol);
         expected.add(jdbcProtocol);
