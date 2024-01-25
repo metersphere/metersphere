@@ -16,7 +16,10 @@ import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
+import io.metersphere.project.service.FileAssociationService;
+import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.ApiExecuteRunMode;
 import io.metersphere.sdk.constants.ApplicationNumScope;
@@ -26,6 +29,8 @@ import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.domain.EnvironmentGroup;
 import io.metersphere.sdk.domain.EnvironmentGroupExample;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.file.FileCenter;
+import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.mapper.EnvironmentGroupMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.*;
@@ -100,6 +105,14 @@ public class ApiScenarioService {
     private ApiDefinitionService apiDefinitionService;
     @Resource
     private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private FileAssociationService fileAssociationService;
+    @Resource
+    private FileMetadataService fileMetadataService;
+    @Resource
+    private ApiScenarioCsvMapper apiScenarioCsvMapper;
+    @Resource
+    private ApiScenarioCsvStepMapper apiScenarioCsvStepMapper;
     public static final String PRIORITY = "Priority";
     public static final String STATUS = "Status";
     public static final String TAGS = "Tags";
@@ -299,7 +312,8 @@ public class ApiScenarioService {
         // 插入步骤
         if (CollectionUtils.isNotEmpty(request.getSteps())) {
             // 获取待添加的步骤
-            List<ApiScenarioStep> steps = getApiScenarioSteps(null, request.getSteps());
+            List<ApiScenarioCsvStep> csvSteps = new ArrayList<>();
+            List<ApiScenarioStep> steps = getApiScenarioSteps(null, request.getSteps(), csvSteps);
             steps.forEach(step -> step.setScenarioId(scenario.getId()));
             // 获取待添加的步骤详情
             List<ApiScenarioStepBlob> apiScenarioStepsDetails = getPartialRefStepDetails(request.getSteps());
@@ -312,6 +326,8 @@ public class ApiScenarioService {
             if (CollectionUtils.isNotEmpty(apiScenarioStepsDetails)) {
                 apiScenarioStepBlobMapper.batchInsert(apiScenarioStepsDetails);
             }
+
+            saveStepCsv(steps, csvSteps);
         }
 
         // 处理文件
@@ -319,7 +335,166 @@ public class ApiScenarioService {
         resourceUpdateRequest.setUploadFileIds(request.getUploadFileIds());
         resourceUpdateRequest.setLinkFileIds(request.getLinkFileIds());
         apiFileResourceService.addFileResource(resourceUpdateRequest);
+        //处理csv变量
+        if (request.getScenarioConfig() != null
+                && request.getScenarioConfig().getVariable() != null) {
+            saveCsv(request.getScenarioConfig().getVariable().getCsvVariables(), resourceUpdateRequest);
+        }
         return scenario;
+    }
+
+    private void saveStepCsv(List<ApiScenarioStep> steps, List<ApiScenarioCsvStep> csvSteps) {
+        //获取所有的步骤id  然后删掉历史的关联关系
+        List<String> stepIds = steps.stream().map(ApiScenarioStep::getId).toList();
+        SubListUtils.dealForSubList(stepIds, 500, subList -> {
+            ApiScenarioCsvStepExample csvStepExample = new ApiScenarioCsvStepExample();
+            csvStepExample.createCriteria().andStepIdIn(subList);
+            apiScenarioCsvStepMapper.deleteByExample(csvStepExample);
+        });
+        //插入csv步骤
+        if (CollectionUtils.isNotEmpty(csvSteps)) {
+            SubListUtils.dealForSubList(csvSteps, 100, subList -> apiScenarioCsvStepMapper.batchInsert(subList));
+        }
+    }
+
+    private void saveCsv(List<CsvVariable> csvVariables, ApiFileResourceUpdateRequest resourceUpdateRequest) {
+        //进行比较一下  哪些是已存在的  那些是新上传的
+        //查询已经存在的fileId   这里直接过滤所有的数据  拿到新上传的本地文件id  和已经存在的文件id   关联的文件id  关于新的  需要删除的 已经存在的
+        ApiScenarioCsvExample apiScenarioCsvExample = new ApiScenarioCsvExample();
+        apiScenarioCsvExample.createCriteria().andScenarioIdEqualTo(resourceUpdateRequest.getResourceId());
+        List<ApiScenarioCsv> dbFileIds = apiScenarioCsvMapper.selectByExample(apiScenarioCsvExample);
+        //取出所有的fileId Association为false的数据
+        List<String> dbLocalFileIds = dbFileIds.stream().filter(c -> BooleanUtils.isFalse(c.getAssociation())).map(ApiScenarioCsv::getFileId).toList();
+        //取出所有的fileId Association为true的数据
+        List<String> dbRefFileIds = dbFileIds.stream().filter(c -> BooleanUtils.isTrue(c.getAssociation())).map(ApiScenarioCsv::getFileId).toList();
+
+        //获取传的所有Association为false的数据
+        List<String> localFileIds = csvVariables.stream().filter(c -> BooleanUtils.isFalse(c.getAssociation())).map(CsvVariable::getFileId).toList();
+        //获取传的所有Association为true的数据
+        List<String> refFileIds = csvVariables.stream().filter(c -> BooleanUtils.isTrue(c.getAssociation())).map(CsvVariable::getFileId).toList();
+
+        //取交集  交集数据是已存在的  不需要重新上传 和处理关联关系  但是需要更新apiScenarioCsv表的数据
+        List<String> intersectionLocal = ListUtils.intersection(dbLocalFileIds, localFileIds);
+        //取差集 dbFileIds和 intersection的差集是需要删除的数据  本地数据需要删除的数据
+        List<String> deleteLocals = ListUtils.subtract(dbLocalFileIds, intersectionLocal);
+        resourceUpdateRequest.setDeleteFileIds(deleteLocals);
+        List<String> addLocal = ListUtils.subtract(localFileIds, intersectionLocal);
+        resourceUpdateRequest.setUploadFileIds(addLocal);
+        //获取  关联文件的交集
+        List<String> intersectionRef = ListUtils.intersection(dbRefFileIds, refFileIds);
+        //获取删除的
+        List<String> deleteRefs = ListUtils.subtract(dbRefFileIds, intersectionRef);
+        List<String> addRef = ListUtils.subtract(refFileIds, intersectionRef);
+        resourceUpdateRequest.setLinkFileIds(addRef);
+        resourceUpdateRequest.setUnLinkRefIds(deleteRefs);
+        //删除不存在的数据
+        deleteCsvResource(resourceUpdateRequest);
+
+        addCsvResource(resourceUpdateRequest, csvVariables);
+    }
+
+    private void addCsvResource(ApiFileResourceUpdateRequest resourceUpdateRequest,
+                                List<CsvVariable> csvVariables) {
+        List<ApiScenarioCsv> addData = new ArrayList<>();
+        List<ApiScenarioCsv> updateData = new ArrayList<>();
+        List<String> addFileIds = resourceUpdateRequest.getUploadFileIds();
+        List<String> linkFileIds = resourceUpdateRequest.getLinkFileIds();
+        Map<String, String> refFilesMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(linkFileIds)) {
+            //根据fileId查询文件名
+            List<FileMetadata> fileList = fileMetadataService.selectByList(linkFileIds);
+            if (CollectionUtils.isNotEmpty(fileList)) {
+                //生成map  key为文件id  值为文件名称 文件名称为name.类型
+                refFilesMap = fileList.stream().collect(Collectors.toMap(FileMetadata::getId, f -> f.getName() + "." + f.getType()));
+            }
+            fileAssociationService.association(resourceUpdateRequest.getResourceId(), FileAssociationSourceUtil.SOURCE_TYPE_API_SCENARIO, linkFileIds,
+                    apiFileResourceService.createFileLogRecord(resourceUpdateRequest.getOperator(), resourceUpdateRequest.getProjectId(), OperationLogModule.API_SCENARIO));
+        }
+        Map<String, String> finalRefFilesMap = refFilesMap;
+        // 添加文件与接口的关联关系
+        Map<String, String> addFileMap = new HashMap<>();
+        csvVariables.forEach(item -> {
+            ApiScenarioCsv scenarioCsv = new ApiScenarioCsv();
+            BeanUtils.copyBean(scenarioCsv, item);
+            scenarioCsv.setScenarioId(resourceUpdateRequest.getResourceId());
+            scenarioCsv.setProjectId(resourceUpdateRequest.getProjectId());
+            // uploadFileIds里包含的数据  全部需要上传到minio上或者需要重新建立关联关系
+            if (BooleanUtils.isFalse(item.getAssociation())
+                    && CollectionUtils.isNotEmpty(addFileIds)
+                    && addFileIds.contains(item.getFileId())) {
+                scenarioCsv.setFileName(apiFileResourceService.getTempFileNameByFileId(item.getFileId()));
+                addFileMap.put(item.getFileId(), scenarioCsv.getId());
+            } else if (BooleanUtils.isTrue(item.getAssociation())
+                    && finalRefFilesMap.containsKey(item.getFileId())
+                    && CollectionUtils.isNotEmpty(linkFileIds)
+                    && linkFileIds.contains(item.getFileId())) {
+                scenarioCsv.setFileName(finalRefFilesMap.get(item.getFileId()));
+            }
+            if (StringUtils.isBlank(item.getId())) {
+                scenarioCsv.setId(IDGenerator.nextStr());
+                addData.add(scenarioCsv);
+            } else {
+                updateData.add(scenarioCsv);
+            }
+        });
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ApiScenarioCsvMapper mapper = sqlSession.getMapper(ApiScenarioCsvMapper.class);
+        if (CollectionUtils.isNotEmpty(updateData)) {
+            //更新apiScenarioCsv表
+            updateData.forEach(mapper::updateByPrimaryKeySelective);
+        }
+        if (CollectionUtils.isNotEmpty(addData)) {
+            //插入apiScenarioCsv表
+            addData.forEach(mapper::insertSelective);
+        }
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+        if (MapUtils.isNotEmpty(addFileMap)) {
+            // 上传文件到对象存储
+            apiFileResourceService.uploadFileResource(resourceUpdateRequest.getFolder(), addFileMap);
+        }
+    }
+
+    private void deleteCsvResource(ApiFileResourceUpdateRequest resourceUpdateRequest) {
+        // 处理本地上传文件
+        List<String> deleteFileIds = resourceUpdateRequest.getDeleteFileIds();
+        ApiScenarioCsvExample example = new ApiScenarioCsvExample();
+        ApiScenarioCsvStepExample stepExample = new ApiScenarioCsvStepExample();
+        if (CollectionUtils.isNotEmpty(deleteFileIds)) {
+            // 删除关联关系
+            deleteFileIds.forEach(fileId -> {
+                FileRequest request = new FileRequest();
+                // 删除文件所在目录
+                request.setFolder(resourceUpdateRequest.getFolder() + "/" + fileId);
+                try {
+                    FileCenter.getDefaultRepository().deleteFolder(request);
+                } catch (Exception e) {
+                    LogUtils.error(e);
+                }
+            });
+
+            example.createCriteria()
+                    .andScenarioIdEqualTo(resourceUpdateRequest.getResourceId())
+                    .andFileIdIn(deleteFileIds);
+            apiScenarioCsvMapper.deleteByExample(example);
+            stepExample.createCriteria().andFileIdIn(deleteFileIds);
+            apiScenarioCsvStepMapper.deleteByExample(stepExample);
+
+        }
+        List<String> unLinkRefIds = resourceUpdateRequest.getUnLinkRefIds();
+        // 处理关联文件
+        if (CollectionUtils.isNotEmpty(unLinkRefIds)) {
+            fileAssociationService.deleteBySourceIdAndFileIds(resourceUpdateRequest.getResourceId(), unLinkRefIds,
+                    apiFileResourceService.createFileLogRecord(resourceUpdateRequest.getOperator(), resourceUpdateRequest.getProjectId(), resourceUpdateRequest.getLogModule()));
+            example.clear();
+            example.createCriteria()
+                    .andScenarioIdEqualTo(resourceUpdateRequest.getResourceId())
+                    .andFileIdIn(unLinkRefIds);
+            apiScenarioCsvMapper.deleteByExample(example);
+            stepExample.clear();
+            stepExample.createCriteria().andFileIdIn(deleteFileIds);
+            apiScenarioCsvStepMapper.deleteByExample(stepExample);
+        }
     }
 
     private ApiScenario getAddApiScenario(ApiScenarioAddRequest request, String creator) {
@@ -371,6 +546,13 @@ public class ApiScenarioService {
         resourceUpdateRequest.setDeleteFileIds(request.getDeleteFileIds());
         apiFileResourceService.updateFileResource(resourceUpdateRequest);
 
+        //处理csv变量
+        if (request.getScenarioConfig() != null
+                && request.getScenarioConfig().getVariable() != null) {
+            saveCsv(request.getScenarioConfig().getVariable().getCsvVariables(), resourceUpdateRequest);
+        } else {
+            saveCsv(new ArrayList<>(), resourceUpdateRequest);
+        }
         return scenario;
     }
 
@@ -389,11 +571,12 @@ public class ApiScenarioService {
                 deleteStepDetailByScenarioId(scenario.getId());
                 return;
             }
-
+            List<ApiScenarioCsvStep> scenarioCsvSteps = new ArrayList<>();
             // 获取待更新的步骤
-            List<ApiScenarioStep> apiScenarioSteps = getApiScenarioSteps(null, request.getSteps());
+            List<ApiScenarioStep> apiScenarioSteps = getApiScenarioSteps(null, request.getSteps(), scenarioCsvSteps);
             apiScenarioSteps.forEach(step -> step.setScenarioId(scenario.getId()));
 
+            saveStepCsv(apiScenarioSteps, scenarioCsvSteps);
             // 获取待更新的步骤详情
             List<ApiScenarioStepBlob> apiScenarioStepsDetails = getPartialRefStepDetails(request.getSteps());
             apiScenarioStepsDetails.addAll(getUpdateStepDetails(apiScenarioSteps, request.getStepDetails()));
@@ -504,7 +687,7 @@ public class ApiScenarioService {
      * @return
      */
     private List<ApiScenarioStep> getApiScenarioSteps(ApiScenarioStepCommonDTO parent,
-                                                      List<? extends ApiScenarioStepCommonDTO> steps) {
+                                                      List<? extends ApiScenarioStepCommonDTO> steps, List<ApiScenarioCsvStep> csvSteps) {
         if (CollectionUtils.isEmpty(steps)) {
             return Collections.emptyList();
         }
@@ -520,6 +703,16 @@ public class ApiScenarioService {
             if (step.getConfig() != null) {
                 apiScenarioStep.setConfig(JSON.toJSONString(step.getConfig()));
             }
+            if (CollectionUtils.isNotEmpty(step.getCsvFileIds())) {
+                //如果是csv文件  需要保存到apiScenarioCsvStep表中
+                step.getCsvFileIds().forEach(fileId -> {
+                    ApiScenarioCsvStep csvStep = new ApiScenarioCsvStep();
+                    csvStep.setId(IDGenerator.nextStr());
+                    csvStep.setStepId(apiScenarioStep.getId());
+                    csvStep.setFileId(fileId);
+                    csvSteps.add(csvStep);
+                });
+            }
             apiScenarioSteps.add(apiScenarioStep);
 
             if (StringUtils.equalsAny(step.getRefType(), ApiScenarioStepRefType.REF.name(), ApiScenarioStepRefType.PARTIAL_REF.name())) {
@@ -527,7 +720,7 @@ public class ApiScenarioService {
                 continue;
             }
             // 解析子步骤
-            apiScenarioSteps.addAll(getApiScenarioSteps(step, step.getChildren()));
+            apiScenarioSteps.addAll(getApiScenarioSteps(step, step.getChildren(), csvSteps));
         }
         return apiScenarioSteps;
     }
@@ -740,7 +933,7 @@ public class ApiScenarioService {
     private void setPartialRefStepEnable(ApiScenarioStepCommonDTO step, Map<String, String> stepDetailMap) {
         String stepDetail = stepDetailMap.get(step.getId());
         if (!isPartialRef(step) || StringUtils.isBlank(stepDetail)) {
-           return;
+            return;
         }
         PartialRefStepDetail partialRefStepDetail = JSON.parseObject(stepDetail, PartialRefStepDetail.class);
         setChildPartialRefEnable(step.getChildren(), partialRefStepDetail.getEnableStepIds());
@@ -898,9 +1091,26 @@ public class ApiScenarioService {
         if (apiScenarioBlob != null) {
             apiScenarioDetail.setScenarioConfig(JSON.parseObject(new String(apiScenarioBlob.getConfig()), ScenarioConfig.class));
         }
+        //存放csv变量
+        List<CsvVariable> csvVariables = extApiScenarioStepMapper.getCsvVariableByScenarioId(scenarioId);
+        if (CollectionUtils.isNotEmpty(csvVariables) && apiScenarioDetail.getScenarioConfig() != null
+                && apiScenarioDetail.getScenarioConfig().getVariable() != null) {
+            apiScenarioDetail.getScenarioConfig().getVariable().setCsvVariables(csvVariables);
+        }
 
         // 获取所有步骤
         List<ApiScenarioStepDTO> allSteps = getAllStepsByScenarioIds(List.of(scenarioId));
+        //获取所有步骤的csv的关联关系
+        List<String> stepIds = allSteps.stream().map(ApiScenarioStepDTO::getId).toList();
+        List<ApiScenarioCsvStep> csvSteps = extApiScenarioStepMapper.getCsvStepByStepIds(stepIds);
+        // 构造 map，key 为步骤ID，value 为csv文件ID列表
+        Map<String, List<String>> stepsCsvMap = csvSteps.stream()
+                .collect(Collectors.groupingBy(ApiScenarioCsvStep::getStepId, Collectors.mapping(ApiScenarioCsvStep::getFileId, Collectors.toList())));
+        //将stepsCsvMap根据步骤id放入到allSteps中
+        if (CollectionUtils.isNotEmpty(allSteps)) {
+            allSteps.forEach(step -> step.setCsvFileIds(stepsCsvMap.get(step.getId())));
+        }
+
         // 构造 map，key 为场景ID，value 为步骤列表
         Map<String, List<ApiScenarioStepDTO>> scenarioStepMap = allSteps.stream()
                 .collect(Collectors.groupingBy(step -> Optional.ofNullable(step.getScenarioId()).orElse(StringUtils.EMPTY)));
@@ -1007,6 +1217,7 @@ public class ApiScenarioService {
 
     /**
      * 判断步骤是否是引用的场景
+     *
      * @param step
      * @return
      */

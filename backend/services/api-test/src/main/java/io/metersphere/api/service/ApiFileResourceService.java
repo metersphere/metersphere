@@ -9,12 +9,12 @@ import io.metersphere.project.dto.filemanagement.FileLogRecord;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.LogUtils;
-import io.metersphere.sdk.util.Translator;
 import io.metersphere.sdk.file.FileCenter;
 import io.metersphere.sdk.file.FileCopyRequest;
 import io.metersphere.sdk.file.FileRepository;
 import io.metersphere.sdk.file.FileRequest;
+import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -47,7 +47,7 @@ public class ApiFileResourceService {
      * @param folder
      * @param addFileMap key:fileId value:fileName
      */
-    private void uploadFileResource(String folder, Map<String, String> addFileMap) {
+    public void uploadFileResource(String folder, Map<String, String> addFileMap) {
         if (MapUtils.isEmpty(addFileMap)) {
             return;
         }
@@ -138,7 +138,7 @@ public class ApiFileResourceService {
         }
     }
 
-    private FileLogRecord createFileLogRecord(String operator, String projectId, String logModule) {
+    public FileLogRecord createFileLogRecord(String operator, String projectId, String logModule) {
         return FileLogRecord.builder()
                 .logModule(logModule)
                 .operator(operator)
@@ -189,6 +189,7 @@ public class ApiFileResourceService {
 
     /**
      * 删除资源下所有的文件或者关联关系
+     *
      * @param apiDebugDir
      * @param resourceId
      * @param projectId
@@ -246,10 +247,10 @@ public class ApiFileResourceService {
 
     public void copyFileByResourceId(String sourceId, String sourceFolder, String targetId, String targetFolder) {
         List<ApiFileResource> files = getByResourceId(sourceId);
-        if(!files.isEmpty()){
+        if (!files.isEmpty()) {
             FileRepository defaultRepository = FileCenter.getDefaultRepository();
             List<ApiFileResource> apiFileResources = new ArrayList<>();
-            files.forEach(item->{
+            files.forEach(item -> {
                 try {
                     // 按ID建文件夹，避免文件名重复
                     FileCopyRequest fileCopyRequest = new FileCopyRequest();

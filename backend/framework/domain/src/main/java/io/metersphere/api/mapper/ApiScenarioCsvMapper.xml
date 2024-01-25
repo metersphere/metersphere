@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.api.mapper.ApiScenarioCsvMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.api.domain.ApiScenarioCsv">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="file_id" jdbcType="VARCHAR" property="fileId" />
+    <result column="scenario_id" jdbcType="VARCHAR" property="scenarioId" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="file_name" jdbcType="VARCHAR" property="fileName" />
+    <result column="scope" jdbcType="VARCHAR" property="scope" />
+    <result column="enable" jdbcType="BIT" property="enable" />
+    <result column="association" jdbcType="BIT" property="association" />
+    <result column="encoding" jdbcType="VARCHAR" property="encoding" />
+    <result column="random" jdbcType="BIT" property="random" />
+    <result column="variable_names" jdbcType="VARCHAR" property="variableNames" />
+    <result column="ignore_first_line" jdbcType="BIT" property="ignoreFirstLine" />
+    <result column="delimiter" jdbcType="VARCHAR" property="delimiter" />
+    <result column="allow_quoted_data" jdbcType="BIT" property="allowQuotedData" />
+    <result column="recycle_on_eof" jdbcType="BIT" property="recycleOnEof" />
+    <result column="stop_thread_on_eof" jdbcType="BIT" property="stopThreadOnEof" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, file_id, scenario_id, `name`, file_name, `scope`, `enable`, association, `encoding`, 
+    random, variable_names, ignore_first_line, `delimiter`, allow_quoted_data, recycle_on_eof, 
+    stop_thread_on_eof, project_id
+  </sql>
+  <select id="selectByExample" parameterType="io.metersphere.api.domain.ApiScenarioCsvExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from api_scenario_csv
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from api_scenario_csv
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from api_scenario_csv
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.api.domain.ApiScenarioCsvExample">
+    delete from api_scenario_csv
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.api.domain.ApiScenarioCsv">
+    insert into api_scenario_csv (id, file_id, scenario_id, 
+      `name`, file_name, `scope`, 
+      `enable`, association, `encoding`, 
+      random, variable_names, ignore_first_line, 
+      `delimiter`, allow_quoted_data, recycle_on_eof, 
+      stop_thread_on_eof, project_id)
+    values (#{id,jdbcType=VARCHAR}, #{fileId,jdbcType=VARCHAR}, #{scenarioId,jdbcType=VARCHAR}, 
+      #{name,jdbcType=VARCHAR}, #{fileName,jdbcType=VARCHAR}, #{scope,jdbcType=VARCHAR}, 
+      #{enable,jdbcType=BIT}, #{association,jdbcType=BIT}, #{encoding,jdbcType=VARCHAR}, 
+      #{random,jdbcType=BIT}, #{variableNames,jdbcType=VARCHAR}, #{ignoreFirstLine,jdbcType=BIT}, 
+      #{delimiter,jdbcType=VARCHAR}, #{allowQuotedData,jdbcType=BIT}, #{recycleOnEof,jdbcType=BIT}, 
+      #{stopThreadOnEof,jdbcType=BIT}, #{projectId,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.api.domain.ApiScenarioCsv">
+    insert into api_scenario_csv
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="fileId != null">
+        file_id,
+      </if>
+      <if test="scenarioId != null">
+        scenario_id,
+      </if>
+      <if test="name != null">
+        `name`,
+      </if>
+      <if test="fileName != null">
+        file_name,
+      </if>
+      <if test="scope != null">
+        `scope`,
+      </if>
+      <if test="enable != null">
+        `enable`,
+      </if>
+      <if test="association != null">
+        association,
+      </if>
+      <if test="encoding != null">
+        `encoding`,
+      </if>
+      <if test="random != null">
+        random,
+      </if>
+      <if test="variableNames != null">
+        variable_names,
+      </if>
+      <if test="ignoreFirstLine != null">
+        ignore_first_line,
+      </if>
+      <if test="delimiter != null">
+        `delimiter`,
+      </if>
+      <if test="allowQuotedData != null">
+        allow_quoted_data,
+      </if>
+      <if test="recycleOnEof != null">
+        recycle_on_eof,
+      </if>
+      <if test="stopThreadOnEof != null">
+        stop_thread_on_eof,
+      </if>
+      <if test="projectId != null">
+        project_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="fileId != null">
+        #{fileId,jdbcType=VARCHAR},
+      </if>
+      <if test="scenarioId != null">
+        #{scenarioId,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="fileName != null">
+        #{fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="scope != null">
+        #{scope,jdbcType=VARCHAR},
+      </if>
+      <if test="enable != null">
+        #{enable,jdbcType=BIT},
+      </if>
+      <if test="association != null">
+        #{association,jdbcType=BIT},
+      </if>
+      <if test="encoding != null">
+        #{encoding,jdbcType=VARCHAR},
+      </if>
+      <if test="random != null">
+        #{random,jdbcType=BIT},
+      </if>
+      <if test="variableNames != null">
+        #{variableNames,jdbcType=VARCHAR},
+      </if>
+      <if test="ignoreFirstLine != null">
+        #{ignoreFirstLine,jdbcType=BIT},
+      </if>
+      <if test="delimiter != null">
+        #{delimiter,jdbcType=VARCHAR},
+      </if>
+      <if test="allowQuotedData != null">
+        #{allowQuotedData,jdbcType=BIT},
+      </if>
+      <if test="recycleOnEof != null">
+        #{recycleOnEof,jdbcType=BIT},
+      </if>
+      <if test="stopThreadOnEof != null">
+        #{stopThreadOnEof,jdbcType=BIT},
+      </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.api.domain.ApiScenarioCsvExample" resultType="java.lang.Long">
+    select count(*) from api_scenario_csv
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update api_scenario_csv
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.fileId != null">
+        file_id = #{record.fileId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.scenarioId != null">
+        scenario_id = #{record.scenarioId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.name != null">
+        `name` = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.fileName != null">
+        file_name = #{record.fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.scope != null">
+        `scope` = #{record.scope,jdbcType=VARCHAR},
+      </if>
+      <if test="record.enable != null">
+        `enable` = #{record.enable,jdbcType=BIT},
+      </if>
+      <if test="record.association != null">
+        association = #{record.association,jdbcType=BIT},
+      </if>
+      <if test="record.encoding != null">
+        `encoding` = #{record.encoding,jdbcType=VARCHAR},
+      </if>
+      <if test="record.random != null">
+        random = #{record.random,jdbcType=BIT},
+      </if>
+      <if test="record.variableNames != null">
+        variable_names = #{record.variableNames,jdbcType=VARCHAR},
+      </if>
+      <if test="record.ignoreFirstLine != null">
+        ignore_first_line = #{record.ignoreFirstLine,jdbcType=BIT},
+      </if>
+      <if test="record.delimiter != null">
+        `delimiter` = #{record.delimiter,jdbcType=VARCHAR},
+      </if>
+      <if test="record.allowQuotedData != null">
+        allow_quoted_data = #{record.allowQuotedData,jdbcType=BIT},
+      </if>
+      <if test="record.recycleOnEof != null">
+        recycle_on_eof = #{record.recycleOnEof,jdbcType=BIT},
+      </if>
+      <if test="record.stopThreadOnEof != null">
+        stop_thread_on_eof = #{record.stopThreadOnEof,jdbcType=BIT},
+      </if>
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update api_scenario_csv
+    set id = #{record.id,jdbcType=VARCHAR},
+      file_id = #{record.fileId,jdbcType=VARCHAR},
+      scenario_id = #{record.scenarioId,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
+      file_name = #{record.fileName,jdbcType=VARCHAR},
+      `scope` = #{record.scope,jdbcType=VARCHAR},
+      `enable` = #{record.enable,jdbcType=BIT},
+      association = #{record.association,jdbcType=BIT},
+      `encoding` = #{record.encoding,jdbcType=VARCHAR},
+      random = #{record.random,jdbcType=BIT},
+      variable_names = #{record.variableNames,jdbcType=VARCHAR},
+      ignore_first_line = #{record.ignoreFirstLine,jdbcType=BIT},
+      `delimiter` = #{record.delimiter,jdbcType=VARCHAR},
+      allow_quoted_data = #{record.allowQuotedData,jdbcType=BIT},
+      recycle_on_eof = #{record.recycleOnEof,jdbcType=BIT},
+      stop_thread_on_eof = #{record.stopThreadOnEof,jdbcType=BIT},
+      project_id = #{record.projectId,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.api.domain.ApiScenarioCsv">
+    update api_scenario_csv
+    <set>
+      <if test="fileId != null">
+        file_id = #{fileId,jdbcType=VARCHAR},
+      </if>
+      <if test="scenarioId != null">
+        scenario_id = #{scenarioId,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        `name` = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="fileName != null">
+        file_name = #{fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="scope != null">
+        `scope` = #{scope,jdbcType=VARCHAR},
+      </if>
+      <if test="enable != null">
+        `enable` = #{enable,jdbcType=BIT},
+      </if>
+      <if test="association != null">
+        association = #{association,jdbcType=BIT},
+      </if>
+      <if test="encoding != null">
+        `encoding` = #{encoding,jdbcType=VARCHAR},
+      </if>
+      <if test="random != null">
+        random = #{random,jdbcType=BIT},
+      </if>
+      <if test="variableNames != null">
+        variable_names = #{variableNames,jdbcType=VARCHAR},
+      </if>
+      <if test="ignoreFirstLine != null">
+        ignore_first_line = #{ignoreFirstLine,jdbcType=BIT},
+      </if>
+      <if test="delimiter != null">
+        `delimiter` = #{delimiter,jdbcType=VARCHAR},
+      </if>
+      <if test="allowQuotedData != null">
+        allow_quoted_data = #{allowQuotedData,jdbcType=BIT},
+      </if>
+      <if test="recycleOnEof != null">
+        recycle_on_eof = #{recycleOnEof,jdbcType=BIT},
+      </if>
+      <if test="stopThreadOnEof != null">
+        stop_thread_on_eof = #{stopThreadOnEof,jdbcType=BIT},
+      </if>
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.api.domain.ApiScenarioCsv">
+    update api_scenario_csv
+    set file_id = #{fileId,jdbcType=VARCHAR},
+      scenario_id = #{scenarioId,jdbcType=VARCHAR},
+      `name` = #{name,jdbcType=VARCHAR},
+      file_name = #{fileName,jdbcType=VARCHAR},
+      `scope` = #{scope,jdbcType=VARCHAR},
+      `enable` = #{enable,jdbcType=BIT},
+      association = #{association,jdbcType=BIT},
+      `encoding` = #{encoding,jdbcType=VARCHAR},
+      random = #{random,jdbcType=BIT},
+      variable_names = #{variableNames,jdbcType=VARCHAR},
+      ignore_first_line = #{ignoreFirstLine,jdbcType=BIT},
+      `delimiter` = #{delimiter,jdbcType=VARCHAR},
+      allow_quoted_data = #{allowQuotedData,jdbcType=BIT},
+      recycle_on_eof = #{recycleOnEof,jdbcType=BIT},
+      stop_thread_on_eof = #{stopThreadOnEof,jdbcType=BIT},
+      project_id = #{projectId,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <insert id="batchInsert" parameterType="map">
+    insert into api_scenario_csv
+    (id, file_id, scenario_id, `name`, file_name, `scope`, `enable`, association, `encoding`, 
+      random, variable_names, ignore_first_line, `delimiter`, allow_quoted_data, recycle_on_eof, 
+      stop_thread_on_eof, project_id)
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id,jdbcType=VARCHAR}, #{item.fileId,jdbcType=VARCHAR}, #{item.scenarioId,jdbcType=VARCHAR}, 
+        #{item.name,jdbcType=VARCHAR}, #{item.fileName,jdbcType=VARCHAR}, #{item.scope,jdbcType=VARCHAR}, 
+        #{item.enable,jdbcType=BIT}, #{item.association,jdbcType=BIT}, #{item.encoding,jdbcType=VARCHAR}, 
+        #{item.random,jdbcType=BIT}, #{item.variableNames,jdbcType=VARCHAR}, #{item.ignoreFirstLine,jdbcType=BIT}, 
+        #{item.delimiter,jdbcType=VARCHAR}, #{item.allowQuotedData,jdbcType=BIT}, #{item.recycleOnEof,jdbcType=BIT}, 
+        #{item.stopThreadOnEof,jdbcType=BIT}, #{item.projectId,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+  <insert id="batchInsertSelective" parameterType="map">
+    insert into api_scenario_csv (
+    <foreach collection="selective" item="column" separator=",">
+      ${column.escapedColumnName}
+    </foreach>
+    )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (
+      <foreach collection="selective" item="column" separator=",">
+        <if test="'id'.toString() == column.value">
+          #{item.id,jdbcType=VARCHAR}
+        </if>
+        <if test="'file_id'.toString() == column.value">
+          #{item.fileId,jdbcType=VARCHAR}
+        </if>
+        <if test="'scenario_id'.toString() == column.value">
+          #{item.scenarioId,jdbcType=VARCHAR}
+        </if>
+        <if test="'name'.toString() == column.value">
+          #{item.name,jdbcType=VARCHAR}
+        </if>
+        <if test="'file_name'.toString() == column.value">
+          #{item.fileName,jdbcType=VARCHAR}
+        </if>
+        <if test="'scope'.toString() == column.value">
+          #{item.scope,jdbcType=VARCHAR}
+        </if>
+        <if test="'enable'.toString() == column.value">
+          #{item.enable,jdbcType=BIT}
+        </if>
+        <if test="'association'.toString() == column.value">
+          #{item.association,jdbcType=BIT}
+        </if>
+        <if test="'encoding'.toString() == column.value">
+          #{item.encoding,jdbcType=VARCHAR}
+        </if>
+        <if test="'random'.toString() == column.value">
+          #{item.random,jdbcType=BIT}
+        </if>
+        <if test="'variable_names'.toString() == column.value">
+          #{item.variableNames,jdbcType=VARCHAR}
+        </if>
+        <if test="'ignore_first_line'.toString() == column.value">
+          #{item.ignoreFirstLine,jdbcType=BIT}
+        </if>
+        <if test="'delimiter'.toString() == column.value">
+          #{item.delimiter,jdbcType=VARCHAR}
+        </if>
+        <if test="'allow_quoted_data'.toString() == column.value">
+          #{item.allowQuotedData,jdbcType=BIT}
+        </if>
+        <if test="'recycle_on_eof'.toString() == column.value">
+          #{item.recycleOnEof,jdbcType=BIT}
+        </if>
+        <if test="'stop_thread_on_eof'.toString() == column.value">
+          #{item.stopThreadOnEof,jdbcType=BIT}
+        </if>
+        <if test="'project_id'.toString() == column.value">
+          #{item.projectId,jdbcType=VARCHAR}
+        </if>
+      </foreach>
+      )
+    </foreach>
+  </insert>
+</mapper>
