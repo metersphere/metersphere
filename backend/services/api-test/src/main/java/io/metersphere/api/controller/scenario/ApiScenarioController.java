@@ -114,8 +114,16 @@ public class ApiScenarioController {
     @GetMapping("/get/{scenarioId}")
     @Operation(summary = "接口测试-接口场景管理-获取场景详情")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
+    @CheckOwner(resourceId = "#scenarioId", resourceType = "api_scenario")
     public ApiScenarioDetail get(@PathVariable String scenarioId) {
         return apiScenarioService.get(scenarioId);
+    }
+
+    @GetMapping("/step/get/{stepId}")
+    @Operation(summary = "接口测试-接口场景管理-获取场景步骤详情")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
+    public Object getStepDetail(@PathVariable String stepId) {
+        return apiScenarioService.getStepDetail(stepId);
     }
 
     @PostMapping("/debug")

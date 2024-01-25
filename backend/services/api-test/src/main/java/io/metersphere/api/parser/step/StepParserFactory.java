@@ -12,6 +12,7 @@ import java.util.Map;
 public abstract class StepParserFactory {
 
     private static Map<String, StepParser> stepParserMap = new HashMap<>();
+    private static StepParser defaultStepParser = new DefaultStepParser();
 
     static {
         stepParserMap.put(ApiScenarioStepType.API.name(), new ApiStepParser());
@@ -20,6 +21,7 @@ public abstract class StepParserFactory {
     }
 
     public static StepParser getStepParser(String stepType) {
-        return stepParserMap.get(stepType);
+        StepParser stepParser = stepParserMap.get(stepType);
+        return stepParser == null ? defaultStepParser : stepParser;
     }
 }

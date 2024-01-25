@@ -1,11 +1,15 @@
 package io.metersphere.api.parser.step;
 
+import io.metersphere.api.domain.ApiDefinitionBlob;
+import io.metersphere.api.domain.ApiScenarioStep;
 import io.metersphere.api.dto.request.http.KeyValueParam;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.api.dto.scenario.ApiScenarioStepCommonDTO;
+import io.metersphere.api.mapper.ApiDefinitionBlobMapper;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -17,22 +21,48 @@ import java.util.List;
  */
 public class ApiStepParser extends StepParser {
     @Override
-    public AbstractMsTestElement parse(ApiScenarioStepCommonDTO step, String resourceBlob, String stepDetail) {
+    public AbstractMsTestElement parseTestElement(ApiScenarioStepCommonDTO step, String resourceBlob, String stepDetail) {
         if (isRef(step.getRefType())) {
-            if (StringUtils.isBlank(resourceBlob)) {
-                return null;
-            }
-            AbstractMsTestElement refResourceElement = parse2MsTestElement(resourceBlob);
-            if (refResourceElement instanceof MsHTTPElement && StringUtils.isNotBlank(stepDetail)) {
-                // 如果是 http 并且有修改请求参数，则替换请求参数
-                AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(stepDetail, AbstractMsTestElement.class);
-                return replaceParams((MsHTTPElement) msTestElement, (MsHTTPElement) refResourceElement);
-            } else {
-                return refResourceElement;
-            }
+            return parseRefTestElement(resourceBlob, stepDetail);
         } else {
             return StringUtils.isBlank(stepDetail) ? null : ApiDataUtils.parseObject(stepDetail, AbstractMsTestElement.class);
         }
+    }
+
+    /**
+     * 处理引用的接口步骤
+     * 替换修改的参数
+     * @param resourceBlob 引用的接口步骤详情
+     * @param stepDetail 引用之后修改的步骤详情
+     * @return
+     */
+    public AbstractMsTestElement parseRefTestElement(String resourceBlob, String stepDetail) {
+        if (StringUtils.isBlank(resourceBlob)) {
+            return null;
+        }
+        AbstractMsTestElement refResourceElement = parse2MsTestElement(resourceBlob);
+        if (refResourceElement instanceof MsHTTPElement && StringUtils.isNotBlank(stepDetail)) {
+            // 如果是 http 并且有修改请求参数，则替换请求参数
+            AbstractMsTestElement stepElement = parse2MsTestElement(stepDetail);
+            return replaceParams((MsHTTPElement) stepElement, (MsHTTPElement) refResourceElement);
+        } else {
+            return refResourceElement;
+        }
+    }
+
+    @Override
+    public Object parseDetail(ApiScenarioStep step) {
+        if (isRef(step.getRefType())) {
+            ApiDefinitionBlobMapper apiDefinitionBlobMapper = CommonBeanFactory.getBean(ApiDefinitionBlobMapper.class);
+            ApiDefinitionBlob apiDefinitionBlob = apiDefinitionBlobMapper.selectByPrimaryKey(step.getResourceId());
+            if (apiDefinitionBlob == null) {
+                return null;
+            }
+            return parseRefTestElement(new String(apiDefinitionBlob.getRequest()), getStepBlobString(step.getId()));
+        } else {
+            return parse2MsTestElement(getStepBlobString(step.getId()));
+        }
+
     }
 
 

@@ -908,13 +908,13 @@ public class ApiScenarioService {
         }
         for (ApiScenarioStepCommonDTO step : steps) {
             StepParser stepParser = StepParserFactory.getStepParser(step.getStepType());
-            if (stepParser == null || BooleanUtils.isFalse(step.getEnable())) {
+            if (BooleanUtils.isFalse(step.getEnable())) {
                 continue;
             }
             setPartialRefStepEnable(step, stepDetailMap);
 
             // 将步骤详情解析生成对应的MsTestElement
-            AbstractMsTestElement msTestElement = stepParser.parse(step, resourceBlobMap.get(step.getResourceId()), stepDetailMap.get(step.getId()));
+            AbstractMsTestElement msTestElement = stepParser.parseTestElement(step, resourceBlobMap.get(step.getResourceId()), stepDetailMap.get(step.getId()));
             if (msTestElement != null) {
                 parentElement.getChildren().add(msTestElement);
             }
@@ -1260,5 +1260,15 @@ public class ApiScenarioService {
             return Collections.emptyList();
         }
         return extApiScenarioStepMapper.getStepDTOByScenarioIds(scenarioIds);
+    }
+
+    public Object getStepDetail(String stepId) {
+        ApiScenarioStep step = checkStepExist(stepId);
+        StepParser stepParser = StepParserFactory.getStepParser(step.getStepType());
+        return stepParser.parseDetail(step);
+    }
+
+    private ApiScenarioStep checkStepExist(String id) {
+        return ServiceUtils.checkResourceExist(apiScenarioStepMapper.selectByPrimaryKey(id), "permission.api_step.name");
     }
 }
