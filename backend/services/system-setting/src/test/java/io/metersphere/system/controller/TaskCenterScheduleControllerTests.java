@@ -1,12 +1,18 @@
 package io.metersphere.system.controller;
 
+import io.metersphere.api.domain.ApiDefinitionSwagger;
+import io.metersphere.api.mapper.ApiDefinitionSwaggerMapper;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.dto.taskcenter.enums.ScheduleTagType;
 import io.metersphere.system.dto.taskcenter.request.TaskCenterSchedulePageRequest;
+import io.metersphere.system.mapper.ScheduleMapper;
 import io.metersphere.system.utils.Pager;
+import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,10 +41,15 @@ class TaskCenterScheduleControllerTests extends BaseTest {
     private final static String SCHEDULED_PROJECT_PAGE = BASE_PATH + "project/schedule/page";
     private final static String SCHEDULED_ORG_PAGE = BASE_PATH + "org/schedule/page";
     private final static String SCHEDULED_SYSTEM_PAGE = BASE_PATH + "system/schedule/page";
+    private final static String SCHEDULED_DELETE = BASE_PATH + "scheduled/delete/";
 
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
 
+    @Resource
+    ScheduleMapper scheduleMapper;
 
+    @Resource
+    ApiDefinitionSwaggerMapper apiDefinitionSwaggerMapper;
 
 
 
@@ -136,6 +147,23 @@ class TaskCenterScheduleControllerTests extends BaseTest {
     void getPageError() throws Exception {
         doTaskCenterSchedulePageError(SCHEDULED_PROJECT_PAGE, ScheduleTagType.API_IMPORT.toString());
         doTaskCenterSchedulePageError(SCHEDULED_ORG_PAGE, ScheduleTagType.API_IMPORT.toString());
+    }
+
+    @Test
+    @Order(12)
+    void testDel() throws Exception {
+        LogUtils.info("delete Schedule test");
+        String scheduleId = "1";
+        Schedule oldSchedule = scheduleMapper.selectByPrimaryKey(scheduleId);
+        // @@请求成功
+        this.requestGet(SCHEDULED_DELETE + scheduleId);
+        Schedule schedule = scheduleMapper.selectByPrimaryKey(scheduleId);
+        Assertions.assertNull(schedule);
+        if (ScheduleTagType.API_IMPORT.getNames().contains(oldSchedule.getType())) {
+            ApiDefinitionSwagger apiDefinitionSwagger = apiDefinitionSwaggerMapper.selectByPrimaryKey(oldSchedule.getResourceId());
+            Assertions.assertNull(apiDefinitionSwagger);
+        }
+        this.requestGet(SCHEDULED_DELETE + "schedule-121", ERROR_REQUEST_MATCHER);
     }
 
 }
