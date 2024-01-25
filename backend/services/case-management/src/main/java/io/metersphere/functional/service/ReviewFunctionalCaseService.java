@@ -4,9 +4,7 @@ import io.metersphere.functional.constants.CaseEvent;
 import io.metersphere.functional.constants.CaseFileSourceType;
 import io.metersphere.functional.constants.CaseReviewPassRule;
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
-import io.metersphere.functional.domain.CaseReviewFunctionalCaseUserExample;
-import io.metersphere.functional.domain.CaseReviewHistory;
-import io.metersphere.functional.domain.CaseReviewHistoryExample;
+import io.metersphere.functional.domain.*;
 import io.metersphere.functional.dto.CaseReviewHistoryDTO;
 import io.metersphere.functional.mapper.CaseReviewFunctionalCaseUserMapper;
 import io.metersphere.functional.mapper.CaseReviewHistoryMapper;
@@ -57,6 +55,13 @@ public class ReviewFunctionalCaseService {
         //保存评审历史
         String reviewId = request.getReviewId();
         String caseId = request.getCaseId();
+        CaseReviewFunctionalCaseUserExample caseReviewFunctionalCaseUserExample = new CaseReviewFunctionalCaseUserExample();
+        caseReviewFunctionalCaseUserExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo(caseId);
+        List<CaseReviewFunctionalCaseUser> caseReviewFunctionalCaseUsers = caseReviewFunctionalCaseUserMapper.selectByExample(caseReviewFunctionalCaseUserExample);
+        List<String> users = caseReviewFunctionalCaseUsers.stream().map(CaseReviewFunctionalCaseUser::getUserId).toList();
+        if (!users.contains(userId)) {
+            throw new MSException(Translator.get("case_review_user"));
+        }
         CaseReviewHistory caseReviewHistory = buildReviewHistory(request, userId);
         CaseReviewHistoryExample caseReviewHistoryExample = new CaseReviewHistoryExample();
         caseReviewHistoryExample.createCriteria().andCaseIdEqualTo(request.getCaseId()).andReviewIdEqualTo(request.getReviewId()).andDeletedEqualTo(false);
@@ -90,9 +95,11 @@ public class ReviewFunctionalCaseService {
         Map<String, Object> param = new HashMap<>();
         Map<String, Integer> countMap = new HashMap<>();
         countMap.put(functionalCaseStatus,1);
+        Map<String, String> statusMap = new HashMap<>();
+        statusMap.put(caseId,functionalCaseStatus);
         param.put(CaseEvent.Param.CASE_IDS, List.of(caseId));
         param.put(CaseEvent.Param.REVIEW_ID, reviewId);
-        param.put(CaseEvent.Param.STATUS, request.getStatus());
+        param.put(CaseEvent.Param.STATUS_MAP, statusMap);
         param.put(CaseEvent.Param.USER_ID, userId);
         param.put(CaseEvent.Param.COUNT_MAP,countMap);
         param.put(CaseEvent.Param.EVENT_NAME, CaseEvent.Event.REVIEW_FUNCTIONAL_CASE);

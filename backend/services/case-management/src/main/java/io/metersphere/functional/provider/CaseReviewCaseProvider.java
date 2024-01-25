@@ -12,6 +12,10 @@ import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +29,8 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
 
     @Resource
     private CaseReviewMapper caseReviewMapper;
+    @Resource
+    private SqlSessionFactory sqlSessionFactory;
     @Resource
     private CaseReviewFunctionalCaseUserMapper caseReviewFunctionalCaseUserMapper;
     @Resource
@@ -210,6 +216,9 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
             if(CollectionUtils.isEmpty(caseIdList)){
                 return;
             }
+            Object statusObjMap = paramMap.get(CaseEvent.Param.STATUS_MAP);
+            Map<String,String> statusMap = JSON.parseMap(JSON.toJSONString(statusObjMap));
+            updateFunctionalCase(statusMap);
             List<CaseReviewFunctionalCase> caseReviewFunctionalCases = extCaseReviewFunctionalCaseMapper.getListExcludes(List.of(reviewId), caseIdList, false);
             Map<String, Integer> caseCountMap = getCaseCountMap(caseReviewFunctionalCases);
             Object mapCount = paramMap.get(CaseEvent.Param.COUNT_MAP);
@@ -220,6 +229,19 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
         } catch (Exception e) {
             LogUtils.error(CaseEvent.Event.REVIEW_FUNCTIONAL_CASE + "事件更新失败", e.getMessage());
         }
+    }
+
+    private void updateFunctionalCase(Map<String,String> statusMap) {
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        FunctionalCaseMapper mapper = sqlSession.getMapper(FunctionalCaseMapper.class);
+        statusMap.forEach((castId,status)->{
+            FunctionalCase functionalCase = new FunctionalCase();
+            functionalCase.setId(castId);
+            functionalCase.setReviewStatus(status);
+            mapper.updateByPrimaryKeySelective(functionalCase);
+        });
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 
 

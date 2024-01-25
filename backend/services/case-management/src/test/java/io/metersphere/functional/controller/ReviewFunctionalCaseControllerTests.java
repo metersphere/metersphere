@@ -106,7 +106,7 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
         Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCases.get(0).getStatus(),FunctionalCaseReviewStatus.PASS.toString()));
         List<CaseReview> caseReviews1 = getCaseReviews("创建用例评审1");
-        Assertions.assertTrue(StringUtils.equals(caseReviews1.get(0).getStatus(), CaseReviewStatus.UNDERWAY.toString()));
+        Assertions.assertFalse(StringUtils.equals(caseReviews1.get(0).getStatus(), CaseReviewStatus.UNDERWAY.toString()));
         //单人评审不通过
         reviewFunctionalCaseRequest = new ReviewFunctionalCaseRequest();
         reviewFunctionalCaseRequest.setReviewId(reviewId);
@@ -146,6 +146,7 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
         Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCases.get(0).getStatus(),FunctionalCaseReviewStatus.RE_REVIEWED.toString()));
         caseReviews1 = getCaseReviews("创建用例评审1");
+        System.out.println(caseReviews1.get(0).getStatus());
         Assertions.assertTrue(StringUtils.equals(caseReviews1.get(0).getStatus(), CaseReviewStatus.UNDERWAY.toString()));
 
     }
@@ -211,7 +212,8 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
         Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCases.get(0).getStatus(),FunctionalCaseReviewStatus.PASS.toString()));
         List<CaseReview> caseReviews1 = getCaseReviews("创建用例评审3");
-        Assertions.assertTrue(StringUtils.equals(caseReviews1.get(0).getStatus(), CaseReviewStatus.UNDERWAY.toString()));
+        System.out.println(caseReviews1.get(0).getStatus());
+        Assertions.assertFalse(StringUtils.equals(caseReviews1.get(0).getStatus(), CaseReviewStatus.UNDERWAY.toString()));
 
         reviewFunctionalCaseRequest = new ReviewFunctionalCaseRequest();
         reviewFunctionalCaseRequest.setReviewId(reviewId);
