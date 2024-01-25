@@ -40,4 +40,28 @@
             </if>
         </where>
     </select>
+
+    <select id="listWidthLimit" resultType="io.metersphere.system.dto.OperationHistoryDTO">
+        SELECT operation_history.id, operation_history.project_id, operation_history.create_time, operation_history.create_user, operation_history.source_id, operation_history.`type`, operation_history.`module`, operation_history.ref_id, project_version.name as versionName
+        FROM operation_history
+        LEFT JOIN ${table} sourceTable ON sourceTable.id = operation_history.source_id
+        LEFT JOIN project_version ON project_version.id = sourceTable.version_id
+        <where>
+            <if test="request.projectId != null and request.projectId != ''">
+                AND operation_history.project_id = #{request.projectId,jdbcType=VARCHAR}
+            </if>
+            <if test="request.sourceId != null and request.sourceId != ''">
+                AND operation_history.source_id = #{request.sourceId,jdbcType=VARCHAR}
+            </if>
+            <if test="request.createUser != null and request.createUser != ''">
+                AND operation_history.create_user = #{request.createUser,jdbcType=VARCHAR}
+            </if>
+            <if test="request.type != null and request.type != ''">
+                AND operation_history.`type` = #{request.type,jdbcType=VARCHAR}
+            </if>
+            <if test="request.module != null and request.module != ''">
+                AND operation_history.`module` = #{request.module,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </select>
 </mapper>
