@@ -77,7 +77,7 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         request.setProjectId("100001100001");
         request.setCurrent(1);
         request.setPageSize(10);
-        request.setExcludeIds(Arrays.asList("TEST_FUNCTIONAL_CASE_ID_1"));
+        request.setReviewId("wx_review_id_1");
         Map<String, Object> map = new HashMap<>();
         map.put("customs", Arrays.asList(new LinkedHashMap() {{
             put("id", "TEST_FIELD_ID");
@@ -86,7 +86,7 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
             put("type", "List");
         }}));
         request.setCombine(map);
-        this.requestPost(FUNCTIONAL_CASE_LIST_URL, request);
+        this.requestPostWithOkAndReturn(FUNCTIONAL_CASE_LIST_URL, request);
     }
 
 
