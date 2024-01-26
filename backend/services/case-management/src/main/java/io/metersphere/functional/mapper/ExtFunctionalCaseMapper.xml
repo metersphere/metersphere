@@ -127,11 +127,10 @@
                 )
             </when>
         </choose>
-        <if test="request.excludeIds != null and request.excludeIds.size() > 0">
-            AND functional_case.id not in
-            <foreach collection="request.excludeIds" item="excludeId" separator="," open="(" close=")">
-                #{excludeId}
-            </foreach>
+        <if test="request.reviewId != null and request.reviewId != ''">
+            AND functional_case.id not in (
+                select case_id from case_review_functional_case where review_id = #{request.reviewId}
+            )
         </if>
     </select>
 
@@ -594,11 +593,10 @@
                 )
             </when>
         </choose>
-        <if test="request.excludeIds != null and request.excludeIds.size() > 0">
-            AND id not in
-            <foreach collection="request.excludeIds" item="excludeId" separator="," open="(" close=")">
-                #{excludeId}
-            </foreach>
+        <if test="request.reviewId != null and request.reviewId != ''">
+            AND functional_case.id not in (
+            select case_id from case_review_functional_case where review_id = #{request.reviewId}
+            )
         </if>
         GROUP BY module_id
     </select>
