@@ -5,7 +5,7 @@ import io.metersphere.bug.service.XpackBugService;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.dto.sdk.LicenseDTO;
-import io.metersphere.system.sechedule.BaseScheduleJob;
+import io.metersphere.system.schedule.BaseScheduleJob;
 import io.metersphere.system.service.LicenseService;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobExecutionContext;

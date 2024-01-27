@@ -10,6 +10,7 @@ import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.dto.taskcenter.enums.ScheduleTagType;
 import io.metersphere.system.dto.taskcenter.request.TaskCenterSchedulePageRequest;
+import io.metersphere.system.mapper.ExtSwaggerMapper;
 import io.metersphere.system.mapper.ScheduleMapper;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
@@ -41,7 +42,7 @@ class TaskCenterScheduleControllerTests extends BaseTest {
     private final static String SCHEDULED_PROJECT_PAGE = BASE_PATH + "project/schedule/page";
     private final static String SCHEDULED_ORG_PAGE = BASE_PATH + "org/schedule/page";
     private final static String SCHEDULED_SYSTEM_PAGE = BASE_PATH + "system/schedule/page";
-    private final static String SCHEDULED_DELETE = BASE_PATH + "scheduled/delete/";
+    private final static String SCHEDULED_DELETE = BASE_PATH + "schedule/delete/";
 
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
 
@@ -49,7 +50,7 @@ class TaskCenterScheduleControllerTests extends BaseTest {
     ScheduleMapper scheduleMapper;
 
     @Resource
-    ApiDefinitionSwaggerMapper apiDefinitionSwaggerMapper;
+    ExtSwaggerMapper extSwaggerMapper;
 
 
 
@@ -160,8 +161,8 @@ class TaskCenterScheduleControllerTests extends BaseTest {
         Schedule schedule = scheduleMapper.selectByPrimaryKey(scheduleId);
         Assertions.assertNull(schedule);
         if (ScheduleTagType.API_IMPORT.getNames().contains(oldSchedule.getType())) {
-            ApiDefinitionSwagger apiDefinitionSwagger = apiDefinitionSwaggerMapper.selectByPrimaryKey(oldSchedule.getResourceId());
-            Assertions.assertNull(apiDefinitionSwagger);
+            int count = extSwaggerMapper.selectByPrimaryKey(oldSchedule.getResourceId());
+            Assertions.assertTrue(count > 0);
         }
         this.requestGet(SCHEDULED_DELETE + "schedule-121", ERROR_REQUEST_MATCHER);
     }

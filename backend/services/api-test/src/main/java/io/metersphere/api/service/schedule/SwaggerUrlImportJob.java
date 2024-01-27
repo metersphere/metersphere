@@ -8,7 +8,7 @@ import io.metersphere.api.service.definition.ApiDefinitionScheduleService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
-import io.metersphere.system.sechedule.BaseScheduleJob;
+import io.metersphere.system.schedule.BaseScheduleJob;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;

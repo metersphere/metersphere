@@ -1,4 +1,4 @@
-package io.metersphere.system.sechedule;
+package io.metersphere.system.schedule;
 
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.LogUtils;

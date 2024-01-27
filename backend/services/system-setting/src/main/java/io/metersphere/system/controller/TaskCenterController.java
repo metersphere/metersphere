@@ -53,7 +53,7 @@ public class TaskCenterController {
         return taskCenterService.getSystemSchedulePage(request);
     }
 
-    @GetMapping("/scheduled/delete/{id}")
+    @GetMapping("/schedule/delete/{id}")
     @Operation(summary = "系统-任务中心-删除定时任务")
     @CheckOwner(resourceId = "#id", resourceType = "scheduled")
     public void delete(@PathVariable String id) {
