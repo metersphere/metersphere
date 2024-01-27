@@ -21,6 +21,7 @@ import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.excel.ExcelValidateHelper;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.excel.domain.ExcelErrData;
 import org.apache.commons.collections.CollectionUtils;
@@ -77,13 +78,12 @@ public class FunctionalCaseImportEventListener extends AnalysisEventListener<Map
     private static final String ERROR_MSG_SEPARATOR = ";";
     private HashMap<String, AbstractCustomFieldValidator> customFieldValidatorMap;
     private FunctionalCaseService functionalCaseService;
-    private String userId;
-    private String organizationId;
+    private SessionUser user;
     private int successCount = 0;
     private Map<String, String> pathMap = new HashMap<>();
 
 
-    public FunctionalCaseImportEventListener(FunctionalCaseImportRequest request, Class clazz, List<TemplateCustomFieldDTO> customFields, Set<ExcelMergeInfo> mergeInfoSet, String userId, String organizationId) {
+    public FunctionalCaseImportEventListener(FunctionalCaseImportRequest request, Class clazz, List<TemplateCustomFieldDTO> customFields, Set<ExcelMergeInfo> mergeInfoSet, SessionUser user) {
         this.mergeInfoSet = mergeInfoSet;
         this.request = request;
         excelDataClass = clazz;
@@ -92,8 +92,7 @@ public class FunctionalCaseImportEventListener extends AnalysisEventListener<Map
         moduleTree = CommonBeanFactory.getBean(FunctionalCaseModuleService.class).getTree(request.getProjectId());
         functionalCaseService = CommonBeanFactory.getBean(FunctionalCaseService.class);
         customFieldValidatorMap = CustomFieldValidatorFactory.getValidatorMap();
-        this.userId = userId;
-        this.organizationId = organizationId;
+        this.user = user;
 
     }
 
@@ -201,11 +200,11 @@ public class FunctionalCaseImportEventListener extends AnalysisEventListener<Map
      */
     private void saveData() {
         if (CollectionUtils.isNotEmpty(list)) {
-            functionalCaseService.saveImportData(list, request, moduleTree, userId, customFieldsMap, pathMap, organizationId);
+            functionalCaseService.saveImportData(list, request, moduleTree, customFieldsMap, pathMap, user);
         }
 
         if (CollectionUtils.isNotEmpty(updateList)) {
-            functionalCaseService.updateImportData(updateList, request, moduleTree, userId, customFieldsMap, pathMap, organizationId);
+            functionalCaseService.updateImportData(updateList, request, moduleTree, customFieldsMap, pathMap, user);
         }
     }
 

@@ -19,6 +19,7 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
+import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.annotation.Log;
@@ -234,9 +235,8 @@ public class FunctionalCaseController {
     @Operation(summary = "用例管理-功能用例-excel导入")
     @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE)
     public FunctionalCaseImportResponse importExcel(@RequestPart("request") FunctionalCaseImportRequest request, @RequestPart(value = "file", required = false) MultipartFile file) {
-        String userId = SessionUtils.getUserId();
-        String organizationId = SessionUtils.getCurrentOrganizationId();
-        return functionalCaseFileService.importExcel(request, userId, file, organizationId);
+        SessionUser user = SessionUtils.getUser();
+        return functionalCaseFileService.importExcel(request, user, file);
     }
 
     @PostMapping("/operation-history")

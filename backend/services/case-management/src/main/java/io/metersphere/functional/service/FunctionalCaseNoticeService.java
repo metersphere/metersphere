@@ -141,8 +141,8 @@ public class FunctionalCaseNoticeService {
                 if (customField == null) {
                     continue;
                 }
-                optionDTO.setId(customField.getName());
-                optionDTO.setName(customFieldDTO.getValue());
+                optionDTO.setId(customField.getId());
+                optionDTO.setName(customField.getName());
                 fields.add(optionDTO);
             }
         }
