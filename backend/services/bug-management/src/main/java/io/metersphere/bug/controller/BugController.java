@@ -50,6 +50,8 @@ public class BugController {
     @Resource
     private BugService bugService;
     @Resource
+    private BugCommonService bugCommonService;
+    @Resource
     private BugSyncService bugSyncService;
     @Resource
     private BugStatusService bugStatusService;
@@ -77,7 +79,7 @@ public class BugController {
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<SelectOption> getHeaderHandleOption(@PathVariable String projectId) {
-        return bugService.getHeaderHandlerOption(projectId);
+        return bugCommonService.getHeaderHandlerOption(projectId);
     }
 
     @PostMapping("/page")

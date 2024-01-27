@@ -218,7 +218,7 @@ public class FunctionalCaseDemandService {
     public PluginPager<PlatformDemandDTO> pageDemand(FunctionalThirdDemandPageRequest request) {
         DemandPageRequest demandPageRequest = new DemandPageRequest();
         demandPageRequest.setQuery(request.getKeyword());
-        //demandPageRequest.setFilter(request.getFilter());
+        demandPageRequest.setFilter(request.getFilter());
         demandPageRequest.setStartPage(request.getCurrent());
         demandPageRequest.setPageSize(request.getPageSize());
         demandPageRequest.setProjectConfig(projectApplicationService.getProjectDemandThirdPartConfig(request.getProjectId()));

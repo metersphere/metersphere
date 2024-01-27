@@ -2,6 +2,7 @@ package io.metersphere.plugin.platform.dto.request;
 
 import lombok.Data;
 
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -20,7 +21,7 @@ public class DemandPageRequest {
     /**
      * 筛选条件
      */
-    private Map<String, Object> filter;
+    private Map<String, List<String>> filter;
 
     /**
      * 开始页码

@@ -12,8 +12,10 @@ import io.metersphere.bug.enums.BugAttachmentSourceType;
 import io.metersphere.bug.enums.BugPlatform;
 import io.metersphere.bug.mapper.BugLocalAttachmentMapper;
 import io.metersphere.bug.mapper.BugMapper;
+import io.metersphere.plugin.platform.dto.PlatformAttachment;
 import io.metersphere.plugin.platform.dto.request.SyncAttachmentToPlatformRequest;
 import io.metersphere.plugin.platform.enums.SyncAttachmentType;
+import io.metersphere.plugin.platform.spi.Platform;
 import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.domain.FileAssociationExample;
 import io.metersphere.project.domain.FileMetadata;
@@ -27,6 +29,7 @@ import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.project.service.FileService;
+import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.StorageType;
 import io.metersphere.sdk.exception.MSException;
@@ -42,10 +45,10 @@ import jakarta.annotation.Resource;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.unit.DataSize;
@@ -55,10 +58,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -74,14 +74,13 @@ public class BugAttachmentService {
     @Resource
     private FileMetadataService fileMetadataService;
     @Resource
-    @Lazy
-    private BugSyncExtraService bugSyncExtraService;
-    @Resource
     private FileAssociationMapper fileAssociationMapper;
     @Resource
     private FileAssociationService fileAssociationService;
     @Resource
     private BugLocalAttachmentMapper bugLocalAttachmentMapper;
+    @Resource
+    private ProjectApplicationService projectApplicationService;
 
     @Value("50MB")
     private DataSize maxFileSize;
@@ -161,7 +160,7 @@ public class BugAttachmentService {
 
         // 同步至第三方(异步调用)
         if (!StringUtils.equals(bug.getPlatform(), BugPlatform.LOCAL.getName())) {
-            bugSyncExtraService.syncAttachmentToPlatform(platformAttachments, request.getProjectId(), tempFileDir);
+            syncAttachmentToPlatform(platformAttachments, request.getProjectId(), tempFileDir);
         }
     }
 
@@ -187,7 +186,7 @@ public class BugAttachmentService {
         }
         // 同步至第三方(异步调用)
         if (!StringUtils.equals(bug.getPlatform(), BugPlatform.LOCAL.getName())) {
-            bugSyncExtraService.syncAttachmentToPlatform(platformAttachments, request.getProjectId(), tempFileDir);
+            syncAttachmentToPlatform(platformAttachments, request.getProjectId(), tempFileDir);
         }
     }
 
@@ -254,7 +253,7 @@ public class BugAttachmentService {
         List<SyncAttachmentToPlatformRequest> syncLinkFiles = uploadLinkFile(bug.getId(), bug.getPlatformBugId(), request.getProjectId(), tempFileDir, List.of(upgradeFileId), currentUser, bug.getPlatform(), true);
         List<SyncAttachmentToPlatformRequest> platformAttachments = Stream.concat(syncUnlinkFiles.stream(), syncLinkFiles.stream()).toList();
         if (!StringUtils.equals(bug.getPlatform(), BugPlatform.LOCAL.getName())) {
-            bugSyncExtraService.syncAttachmentToPlatform(platformAttachments, request.getProjectId(), tempFileDir);
+            syncAttachmentToPlatform(platformAttachments, request.getProjectId(), tempFileDir);
         }
         return upgradeFileId;
     }
@@ -286,6 +285,137 @@ public class BugAttachmentService {
         return fileId;
     }
 
+    /**
+     * 同步附件到平台
+     * @param platformAttachments 平台附件参数
+     * @param projectId 项目ID
+     * @param tmpFilePath 临时文件路径
+     */
+    @Async
+    public void syncAttachmentToPlatform(List<SyncAttachmentToPlatformRequest> platformAttachments, String projectId, File tmpFilePath) {
+        // 平台缺陷需同步附件
+        Platform platform = projectApplicationService.getPlatform(projectId, true);
+        platformAttachments.forEach(platform::syncAttachmentToPlatform);
+        tmpFilePath.deleteOnExit();
+    }
+
+    /**
+     * 同步平台附件到MS
+     * @param platform 平台对象
+     * @param attachmentMap 平台附件缺陷集合
+     * @param projectId 项目ID
+     */
+    @Async
+    public void syncAttachmentToMs(Platform platform, Map<String, List<PlatformAttachment>> attachmentMap, String projectId) {
+        for (String bugId : attachmentMap.keySet()) {
+            List<PlatformAttachment> syncAttachments = attachmentMap.get(bugId);
+            // 获取所有MS附件
+            Set<String> platformAttachmentSet = new HashSet<>();
+            List<BugFileDTO> allBugFiles = getAllBugFiles(bugId);
+            Set<String> attachmentsNameSet = allBugFiles.stream().map(BugFileDTO::getFileName).collect(Collectors.toSet());
+            for (PlatformAttachment syncAttachment : syncAttachments) {
+                String fileName = syncAttachment.getFileName();
+                String fileKey = syncAttachment.getFileKey();
+                platformAttachmentSet.add(fileName);
+                if (!attachmentsNameSet.contains(fileName)) {
+                    saveSyncAttachmentToMs(platform, bugId, fileName, fileKey, projectId);
+                }
+            }
+
+            // 删除Jira中不存在的附件
+            deleteSyncAttachmentFromMs(platformAttachmentSet, allBugFiles, bugId, projectId);
+        }
+    }
+
+    /**
+     * 保存同步附件到MS
+     * @param platform 平台对象
+     * @param bugId 缺陷ID
+     * @param fileName 附件名称
+     * @param fileKey 附件唯一Key
+     * @param projectId 项目ID
+     */
+    public void saveSyncAttachmentToMs(Platform platform, String bugId, String fileName, String fileKey, String projectId) {
+        try {
+            platform.getAttachmentContent(fileKey, (in) -> {
+                if (in == null) {
+                    return;
+                }
+                String fileId = IDGenerator.nextStr();
+                byte[] bytes;
+                try {
+                    // upload platform attachment to minio
+                    bytes = in.readAllBytes();
+                    FileCenter.getDefaultRepository().saveFile(bytes, buildBugFileRequest(projectId, bugId, fileId, fileName));
+                } catch (Exception e) {
+                    throw new MSException(e.getMessage());
+                }
+                // save bug attachment relation
+                BugLocalAttachment localAttachment = new BugLocalAttachment();
+                localAttachment.setId(IDGenerator.nextStr());
+                localAttachment.setBugId(bugId);
+                localAttachment.setFileId(fileId);
+                localAttachment.setFileName(fileName);
+                localAttachment.setSize((long) bytes.length);
+                localAttachment.setCreateTime(System.currentTimeMillis());
+                localAttachment.setCreateUser("admin");
+                localAttachment.setSource(BugAttachmentSourceType.ATTACHMENT.name());
+                bugLocalAttachmentMapper.insert(localAttachment);
+            });
+        } catch (Exception e) {
+            LogUtils.error(e.getMessage());
+            throw new MSException(e.getMessage());
+        }
+    }
+
+    /**
+     * 删除MS中不存在的平台附件
+     * @param platformAttachmentSet 已处理的平台附件集合
+     * @param allMsAttachments 所有MS附件集合
+     * @param bugId 缺陷ID
+     * @param projectId 项目ID
+     */
+    public void deleteSyncAttachmentFromMs(Set<String> platformAttachmentSet, List<BugFileDTO> allMsAttachments, String bugId, String projectId) {
+        try {
+            // 删除MS中不存在的平台附件
+            if (!CollectionUtils.isEmpty(allMsAttachments)) {
+                List<BugFileDTO> deleteMsAttachments = allMsAttachments.stream()
+                        .filter(msAttachment -> !platformAttachmentSet.contains(msAttachment.getFileName()))
+                        .toList();
+                List<String> unLinkIds = new ArrayList<>();
+                List<String> deleteLocalIds = new ArrayList<>();
+                deleteMsAttachments.forEach(deleteMsFile -> {
+                    if (deleteMsFile.getAssociated()) {
+                        unLinkIds.add(deleteMsFile.getRefId());
+                    } else {
+                        deleteLocalIds.add(deleteMsFile.getRefId());
+                    }
+                });
+                if (!CollectionUtils.isEmpty(unLinkIds)) {
+                    FileAssociationExample example = new FileAssociationExample();
+                    example.createCriteria().andIdIn(unLinkIds);
+                    fileAssociationMapper.deleteByExample(example);
+                }
+                if (!CollectionUtils.isEmpty(deleteLocalIds)) {
+                    Map<String, BugFileDTO> localFileMap = deleteMsAttachments.stream().collect(Collectors.toMap(BugFileDTO::getRefId, f -> f));
+                    deleteLocalIds.forEach(deleteLocalId -> {
+                        try {
+                            BugFileDTO bugFileDTO = localFileMap.get(deleteLocalId);
+                            FileCenter.getDefaultRepository().delete(buildBugFileRequest(projectId, bugId, bugFileDTO.getFileId(), bugFileDTO.getFileName()));
+                        } catch (Exception e) {
+                            throw new MSException(e.getMessage());
+                        }
+                    });
+                    BugLocalAttachmentExample example = new BugLocalAttachmentExample();
+                    example.createCriteria().andIdIn(deleteLocalIds);
+                    bugLocalAttachmentMapper.deleteByExample(example);
+                }
+            }
+        } catch (Exception e) {
+            LogUtils.error(e.getMessage());
+            throw new MSException(e.getMessage());
+        }
+    }
 
     /**
      * 获取本地文件字节流

@@ -5,8 +5,11 @@ import io.metersphere.bug.domain.BugRelationCase;
 import io.metersphere.bug.mapper.BugRelationCaseMapper;
 import io.metersphere.bug.mapper.ExtBugMapper;
 import io.metersphere.bug.mapper.ExtBugRelateCaseMapper;
+import io.metersphere.bug.service.BugCommonService;
 import io.metersphere.bug.service.BugRelateCaseCommonService;
+import io.metersphere.bug.service.BugStatusService;
 import io.metersphere.dto.BugProviderDTO;
+import io.metersphere.plugin.platform.dto.SelectOption;
 import io.metersphere.provider.BaseAssociateBugProvider;
 import io.metersphere.request.AssociateBugPageRequest;
 import io.metersphere.request.AssociateBugRequest;
@@ -24,6 +27,11 @@ import java.util.List;
 
 @Service
 public class AssociateBugProvider implements BaseAssociateBugProvider {
+
+    @Resource
+    private BugCommonService bugCommonService;
+    @Resource
+    private BugStatusService bugStatusService;
     @Resource
     private ExtBugMapper extBugMapper;
     @Resource
@@ -36,8 +44,8 @@ public class AssociateBugProvider implements BaseAssociateBugProvider {
 
     @Override
     public List<BugProviderDTO> getBugList(String sourceType, String sourceName, String bugColumnName, BugPageProviderRequest bugPageProviderRequest) {
-        return extBugMapper.listByProviderRequest(sourceType, sourceName, bugColumnName, bugPageProviderRequest, false);
-        //TODO 需要转义状态和处理人属性
+        List<BugProviderDTO> associateBugs = extBugMapper.listByProviderRequest(sourceType, sourceName, bugColumnName, bugPageProviderRequest, false);
+        return buildAssociateBugs(associateBugs, bugPageProviderRequest.getProjectId());
     }
 
     @Override
@@ -78,13 +86,32 @@ public class AssociateBugProvider implements BaseAssociateBugProvider {
     @Override
     public List<BugProviderDTO> hasAssociateBugPage(AssociateBugPageRequest request) {
         List<BugProviderDTO> associateBugs = extBugRelateCaseMapper.getAssociateBugs(request, request.getSortString());
-        //TODO 需要转义状态和处理人属性
-        associateBugs.stream().forEach(item -> {
+        associateBugs.forEach(item -> {
             if (StringUtils.isNotBlank(item.getTestPlanName())) {
                 item.setSource(Translator.get("test_plan_relate"));
             } else {
                 item.setSource(Translator.get("direct_related"));
             }
+        });
+        return buildAssociateBugs(associateBugs, request.getProjectId());
+    }
+
+    /**
+     * 关联缺陷列表数据处理
+     * @param associateBugs 关联缺陷
+     * @param projectId 项目ID
+     * @return 关联缺陷列表
+     */
+    private List<BugProviderDTO> buildAssociateBugs(List<BugProviderDTO> associateBugs, String projectId) {
+        List<SelectOption> headerHandlerOption = bugCommonService.getHeaderHandlerOption(projectId);
+        List<SelectOption> statusOption = bugStatusService.getHeaderStatusOption(projectId);
+        associateBugs.forEach(item -> {
+            headerHandlerOption.stream().filter(option -> StringUtils.equals(option.getValue(), item.getHandleUser())).findFirst().ifPresent(option -> {
+                item.setHandleUserName(option.getText());
+            });
+            statusOption.stream().filter(option -> StringUtils.equals(option.getValue(), item.getStatus())).findFirst().ifPresent(option -> {
+                item.setStatusName(option.getText());
+            });
         });
         return associateBugs;
     }
