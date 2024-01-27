@@ -20,5 +20,6 @@ public enum ApplicationNumScope {
 
     BUG_MANAGEMENT,
 
-    CASE_MANAGEMENT
+    CASE_MANAGEMENT,
+    REVIEW_CASE_MANAGEMENT
 }

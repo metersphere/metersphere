@@ -481,7 +481,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         FunctionalThirdDemandPageRequest functionalThirdDemandPageRequest = new FunctionalThirdDemandPageRequest();
         functionalThirdDemandPageRequest.setProjectId("gyq_project-case-demand-test");
         functionalThirdDemandPageRequest.setPageSize(10);
-        functionalThirdDemandPageRequest.setStartPage(1);
+        functionalThirdDemandPageRequest.setCurrent(1);
         MvcResult mvcResultDemand= this.requestPostWithOkAndReturn(URL_DEMAND_PAGE_DEMAND, functionalThirdDemandPageRequest);
         PluginPager<PlatformDemandDTO> tableData = JSON.parseObject(JSON.toJSONString(
                         JSON.parseObject(mvcResultDemand.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
