@@ -216,7 +216,7 @@ public class ApiTestCaseController {
     public Pager<List<OperationHistoryDTO>> operationHistoryList(@Validated @RequestBody OperationHistoryRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
-        return PageUtils.setPageInfo(page, apiTestCaseService.getHistoryList(request));
+        return PageUtils.setPageInfo(page, apiTestCaseService.operationHistoryList(request));
     }
 
 

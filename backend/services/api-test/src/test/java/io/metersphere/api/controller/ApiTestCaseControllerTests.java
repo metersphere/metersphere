@@ -31,6 +31,7 @@ import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.service.OperationHistoryService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.Pager;
@@ -115,6 +116,8 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private ApiReportService apiReportService;
     @Resource
     private ProjectVersionMapper projectVersionMapper;
+    @Resource
+    private OperationHistoryService operationHistoryService;
 
     public static <T> T parseObjectFromMvcResult(MvcResult mvcResult, Class<T> parseClass) {
         try {
@@ -839,6 +842,16 @@ public class ApiTestCaseControllerTests extends BaseTest {
         Assertions.assertNotNull(returnPager);
         List<OperationHistoryDTO> reportDTOS = JSON.parseArray(JSON.toJSONString(returnPager.getList()), OperationHistoryDTO.class);
         reportDTOS.forEach(reportDTO -> Assertions.assertEquals(reportDTO.getSourceId(), first.getId()));
+
+        List<OperationHistoryDTO> operationHistoryDTOS = operationHistoryService.listWidthLimit(request, "api_test_case");
+        Assertions.assertTrue(org.apache.commons.collections4.CollectionUtils.isNotEmpty(operationHistoryDTOS));
+
+        request = new OperationHistoryRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setSourceId("111");
+        request.setPageSize(10);
+        request.setCurrent(1);
+        responsePost(HISTORY, request);
     }
 
     @Test

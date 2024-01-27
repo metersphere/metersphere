@@ -17,13 +17,9 @@ import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.FileAssociationSourceUtil;
-import io.metersphere.sdk.util.SubListUtils;
-import io.metersphere.sdk.util.Translator;
+import io.metersphere.sdk.util.*;
 import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
-import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.service.OperationHistoryService;
@@ -85,6 +81,7 @@ public class ApiTestCaseService {
     private ApiDefinitionModuleMapper apiDefinitionModuleMapper;
     @Resource
     private OperationHistoryService operationHistoryService;
+    private static final String CASE_TABLE = "api_test_case";
 
     private void checkProjectExist(String projectId) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
@@ -371,10 +368,13 @@ public class ApiTestCaseService {
     public List<String> doSelectIds(ApiTestCaseBatchRequest request, boolean deleted) {
         if (request.isSelectAll()) {
             List<String> ids = extApiTestCaseMapper.getIds(request, deleted);
-            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+            if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(request.getSelectIds())) {
+                ids.addAll(request.getSelectIds());
+            }
+            if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(request.getExcludeIds())) {
                 ids.removeAll(request.getExcludeIds());
             }
-            return ids;
+            return new ArrayList<>(ids.stream().distinct().toList());
         } else {
             request.getSelectIds().removeAll(request.getExcludeIds());
             return request.getSelectIds();
@@ -560,19 +560,13 @@ public class ApiTestCaseService {
         return executeList;
     }
 
-    public List<OperationHistoryDTO> getHistoryList(OperationHistoryRequest request) {
-        List<OperationHistoryDTO> operationHistoryList = operationHistoryService.list(request);
-        if (CollectionUtils.isNotEmpty(operationHistoryList)) {
-            List<String> apiIds = operationHistoryList.stream()
-                    .map(OperationHistoryDTO::getSourceId).toList();
 
-            Map<String, String> apiMap = extApiTestCaseMapper.selectVersionOptionByIds(apiIds).stream()
-                    .collect(Collectors.toMap(OptionDTO::getId, OptionDTO::getName));
-
-            operationHistoryList.forEach(item -> item.setVersionName(apiMap.getOrDefault(item.getSourceId(), StringUtils.EMPTY)));
+    public List<OperationHistoryDTO> operationHistoryList(OperationHistoryRequest request) {
+        XpackApiDefinitionService xpackApiDefinitionService = CommonBeanFactory.getBean(XpackApiDefinitionService.class);
+        if (xpackApiDefinitionService != null) {
+            return xpackApiDefinitionService.listHis(request, CASE_TABLE);
         }
-
-        return operationHistoryList;
+        return new ArrayList<>();
     }
 
     public void updatePriority(String id, String priority, String userId) {

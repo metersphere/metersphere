@@ -269,6 +269,30 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
         initApiDebugData(a1ChildNode.getId());
         checkLog(a1ChildNode.getId(), OperationLogType.ADD, URL_MODULE_ADD);
 
+        //继续创建a2下继续创建a2-a1
+        request = new ModuleCreateRequest();
+        request.setProjectId(project.getId());
+        request.setName("a2-a1");
+        request.setParentId(a2Node.getId());
+        this.requestPostWithOkAndReturn(URL_MODULE_ADD, request);
+        treeNodes = this.getModuleTreeNode();
+        BaseTreeNode a2ChildNode = null;
+        for (BaseTreeNode baseTreeNode : treeNodes) {
+            Assertions.assertNotNull(baseTreeNode.getParentId());
+            if (StringUtils.equals(baseTreeNode.getName(), "a2") && CollectionUtils.isNotEmpty(baseTreeNode.getChildren())) {
+                for (BaseTreeNode childNode : baseTreeNode.getChildren()) {
+                    Assertions.assertNotNull(childNode.getParentId());
+                    if (StringUtils.equals(childNode.getName(), "a2-a1") && StringUtils.equals(childNode.getType(), ModuleConstants.NODE_TYPE_DEFAULT)) {
+                        a2ChildNode = childNode;
+                    }
+                }
+            }
+        }
+        Assertions.assertNotNull(a2ChildNode);
+        initApiDebugData(a2ChildNode.getId());
+        checkLog(a2ChildNode.getId(), OperationLogType.ADD, URL_MODULE_ADD);
+
+
         //a1的子节点a1下继续创建节点a1-a1-c1
         request = new ModuleCreateRequest();
         request.setProjectId(project.getId());
@@ -812,7 +836,6 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
     @Order(10)
     public void deleteModuleTestSuccess() throws Exception {
         this.preliminaryData();
-        this.getModuleTrashTreeNode();
 
         // 删除没有文件的节点a1-b1-c1  检查是否级联删除根节点
         BaseTreeNode a1b1Node = getNodeByName(this.getModuleTreeNode(), "a1-b1");
@@ -843,10 +866,19 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
     @Test
     @Order(11)
     public void getModuleTrashTreeNode() throws Exception {
+        BaseTreeNode a2a1Node = getNodeByName(this.getModuleTreeNode(), "a2-a1");
+        //将模块为a2-a1的节点数据放入回收站
+        ApiDefinitionExample example = new ApiDefinitionExample();
+        assert a2a1Node != null;
+        example.createCriteria().andModuleIdEqualTo(a2a1Node.getId());
+        ApiDefinition apiDefinition = new ApiDefinition();
+        apiDefinition.setDeleted(true);
+        apiDefinitionMapper.updateByExampleSelective(apiDefinition, example);
         MvcResult result = this.requestPostWithOkAndReturn(URL_MODULE_TRASH_TREE, new ApiModuleRequest() {{
             this.setProtocol("HTTP");
             this.setProjectId(project.getId());
         }});
+
         String returnData = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         JSON.parseArray(JSON.toJSONString(resultHolder.getData()), BaseTreeNode.class);

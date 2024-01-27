@@ -89,7 +89,7 @@ public class ApiDefinitionModuleController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
     @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public List<BaseTreeNode> getTrashTree(@RequestBody @Validated ApiModuleRequest request) {
-        return apiDefinitionModuleService.getTrashTree(request, true);
+        return apiDefinitionModuleService.getTrashTree(request);
     }
 
     @PostMapping("/env/tree")

@@ -7,7 +7,6 @@ import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.importdto.ApiDefinitionImport;
-import io.metersphere.api.dto.definition.importdto.ApiDefinitionImportDTO;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.parser.ImportParser;
@@ -28,7 +27,7 @@ import io.metersphere.sdk.util.*;
 import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.request.OperationHistoryVersionRequest;
-import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.service.OperationHistoryService;
@@ -63,6 +62,7 @@ public class ApiDefinitionService {
     private static final String ALL_API = "api_definition_module.api.all";
 
     private static final String UNPLANNED_API = "api_unplanned_request";
+    private static final String API_TABLE = "api_definition";
 
     @Resource
     private ApiDefinitionMapper apiDefinitionMapper;
@@ -886,7 +886,7 @@ public class ApiDefinitionService {
         return apiDefinitionDocDTO;
     }
 
-    public ApiDefinitionImport apiTestImport(MultipartFile file, ImportRequest request, String userId, String projectId) {
+    public ApiDefinitionImport apiTestImport(MultipartFile file, ImportRequest request, SessionUser user, String projectId) {
         if (file != null) {
             String originalFilename = file.getOriginalFilename();
             if (StringUtils.isNotBlank(originalFilename)) {
@@ -894,38 +894,25 @@ public class ApiDefinitionService {
                 apiDefinitionImportUtilService.checkFileSuffixName(request, suffixName);
             }
         }
-        request.setUserId(userId);
         if (StringUtils.isBlank(request.getProjectId())) {
             request.setProjectId(projectId);
         }
         ImportParser<?> runService = ImportParserFactory.getImportParser(request.getPlatform());
         ApiDefinitionImport apiImport = null;
         if (StringUtils.equals(request.getType(), "SCHEDULE")) {
-            request.setProtocol("HTTP");
+            request.setProtocol(ModuleConstants.NODE_PROTOCOL_HTTP);
         }
         try {
             apiImport = (ApiDefinitionImport) Objects.requireNonNull(runService).parse(file == null ? null : file.getInputStream(), request);
             //TODO  处理mock数据
-            // 发送通知
         } catch (Exception e) {
-            // TODO 发送通知
             LogUtils.error(e.getMessage(), e);
             throw new MSException(Translator.get("parse_data_error"));
         }
 
         try {
-            apiDefinitionImportUtilService.importApi(request, apiImport);
-            apiDefinitionMapper.selectByExample(new ApiDefinitionExample());
-            if (CollectionUtils.isNotEmpty(apiImport.getData())) {
-                List<String> names = apiImport.getData().stream().map(ApiDefinitionImportDTO::getName).collect(Collectors.toList());
-                request.setName(String.join(",", names));
-                List<String> ids = apiImport.getData().stream().map(ApiDefinitionImportDTO::getId).collect(Collectors.toList());
-                request.setId(JSON.toJSONString(ids));
-            }
-            // 发送通知
-            //apiDefinitionImportUtilService.sendImportNotice(request, apiImportSendNoticeDTOS, project);
+            apiDefinitionImportUtilService.importApi(request, apiImport, user);
         } catch (Exception e) {
-            //apiDefinitionImportUtilService.sendFailMessage(request, project);
             LogUtils.error(e);
             throw new MSException(Translator.get("user_import_format_wrong"));
         }
@@ -933,18 +920,11 @@ public class ApiDefinitionService {
     }
 
     public List<OperationHistoryDTO> list(OperationHistoryRequest request) {
-        List<OperationHistoryDTO> operationHistoryList = operationHistoryService.list(request);
-        if (CollectionUtils.isNotEmpty(operationHistoryList)) {
-            List<String> apiIds = operationHistoryList.stream()
-                    .map(OperationHistoryDTO::getSourceId).toList();
-
-            Map<String, String> apiMap = extApiDefinitionMapper.selectVersionOptionByIds(apiIds).stream()
-                    .collect(Collectors.toMap(OptionDTO::getId, OptionDTO::getName));
-
-            operationHistoryList.forEach(item -> item.setVersionName(apiMap.getOrDefault(item.getSourceId(), StringUtils.EMPTY)));
+        XpackApiDefinitionService xpackApiDefinitionService = CommonBeanFactory.getBean(XpackApiDefinitionService.class);
+        if (xpackApiDefinitionService != null) {
+            return xpackApiDefinitionService.listHis(request, API_TABLE);
         }
-
-        return operationHistoryList;
+        return new ArrayList<>();
     }
 
     /**
