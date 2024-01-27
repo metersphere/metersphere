@@ -20,6 +20,7 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.mapper.ExtUserMapper;
+import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.ServiceUtils;
@@ -33,11 +34,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 用例评审表服务实现类
@@ -80,6 +79,8 @@ public class CaseReviewService {
     private BaseCaseProvider provider;
     @Resource
     private ExtCaseReviewHistoryMapper extCaseReviewHistoryMapper;
+    @Resource
+    private UserLoginService userLoginService;
 
 
     private static final String CASE_MODULE_COUNT_ALL = "all";
@@ -98,11 +99,21 @@ public class CaseReviewService {
         List<String> reviewIds = list.stream().map(CaseReview::getId).toList();
         Map<String, List<CaseReviewFunctionalCase>> reviewCaseMap = getReviewCaseMap(reviewIds);
         List<CaseReviewUserDTO> reviewUsers = getReviewUsers(reviewIds);
+        Set<String> userIds = extractUserIds(list);
+        Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userIds));
         for (CaseReviewDTO caseReviewDTO : list) {
             buildCaseReviewDTO(caseReviewDTO, reviewCaseMap, reviewUsers);
+            caseReviewDTO.setCreateUserName(userMap.get(caseReviewDTO.getCreateUser()));
+            caseReviewDTO.setUpdateUserName(userMap.get(caseReviewDTO.getUpdateUser()));
         }
 
         return list;
+    }
+
+    private Set<String> extractUserIds(List<CaseReviewDTO> list) {
+        return list.stream()
+                .flatMap(caseReviewDTO -> Stream.of(caseReviewDTO.getUpdateUser(), caseReviewDTO.getCreateUser()))
+                .collect(Collectors.toSet());
     }
 
     /**
@@ -599,7 +610,7 @@ public class CaseReviewService {
     }
 
     public String getReviewPassRule(String id) {
-       return extCaseReviewMapper.getReviewPassRule(id);
+        return extCaseReviewMapper.getReviewPassRule(id);
     }
 
     

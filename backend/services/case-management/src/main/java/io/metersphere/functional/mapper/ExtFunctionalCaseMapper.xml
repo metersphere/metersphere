@@ -100,22 +100,24 @@
 
     <select id="list" resultMap="BaseResultMapDTO">
         SELECT
-            id,
-            num,
-            NAME,
-            module_id,
-            version_id,
-            case_edit_type,
-            create_user,
-            create_time,
-            update_user,
-            update_time,
-            review_status,
-            last_execute_result,
-            tags
+        functional_case.id,
+        functional_case.num,
+        functional_case.NAME,
+        functional_case.module_id,
+        functional_case.version_id,
+        project_version.name as versionName,
+        functional_case.case_edit_type,
+        functional_case.create_user,
+        functional_case.create_time,
+        functional_case.update_user,
+        functional_case.update_time,
+        functional_case.review_status,
+        functional_case.last_execute_result,
+        functional_case.tags
         FROM
             functional_case
-        where deleted = #{deleted}
+        LEFT JOIN project_version ON  functional_case.version_id = project_version.id
+        where functional_case.deleted = #{deleted}
         and functional_case.project_id = #{request.projectId}
         <choose>
             <when test='request.searchMode == "AND"'>
@@ -129,7 +131,7 @@
         </choose>
         <if test="request.reviewId != null and request.reviewId != ''">
             AND functional_case.id not in (
-                select case_id from case_review_functional_case where review_id = #{request.reviewId}
+                select case_review_functional_case.case_id from case_review_functional_case where case_review_functional_case.review_id = #{request.reviewId}
             )
         </if>
     </select>
