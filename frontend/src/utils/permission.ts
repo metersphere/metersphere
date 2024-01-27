@@ -1,5 +1,21 @@
+import { RouteLocationNormalized, RouteRecordNormalized, RouteRecordRaw, useRouter } from 'vue-router';
+import { includes } from 'lodash-es';
+
+import { INDEX_ROUTE } from '@/router/routes/base';
 import { useAppStore, useUserStore } from '@/store';
 import { SystemScopeType, UserRole, UserRolePermissions } from '@/store/modules/user/types';
+
+const firstLevelMenuNames = [
+  'workstation',
+  'testPlan',
+  'bugManagement',
+  'caseManagement',
+  'apiTest',
+  'uiTest',
+  'loadTest',
+  'setting',
+  'projectManagement',
+];
 
 export function hasPermission(permission: string, typeList: string[]) {
   const userStore = useUserStore();
@@ -7,6 +23,10 @@ export function hasPermission(permission: string, typeList: string[]) {
     return true;
   }
   const { projectPermissions, orgPermissions, systemPermissions } = userStore.currentRole;
+
+  if (projectPermissions.length === 0 && orgPermissions.length === 0 && systemPermissions.length === 0) {
+    return false;
+  }
 
   if (typeList.includes('PROJECT') && projectPermissions.includes(permission)) {
     return true;
@@ -58,13 +78,24 @@ export function composePermissions(userRolePermissions: UserRolePermissions[], t
 }
 
 // 判断当前一级菜单是否有权限
-export function hasFirstMenuPermission(menuName: string) {
+export function topLevelMenuHasPermission(route: RouteLocationNormalized | RouteRecordRaw) {
   const userStore = useUserStore();
   const appStore = useAppStore();
-  if (userStore.isAdmin || menuName === 'setting' || menuName === 'projectManagement') {
+  if (userStore.isAdmin) {
     // 如果是超级管理员，或者是系统设置菜单，或者是项目菜单，都有权限
     return true;
   }
   const { currentMenuConfig } = appStore;
-  return currentMenuConfig.includes(menuName);
+  return currentMenuConfig.includes(route.name as string) && hasAnyPermission(route.meta?.roles || []);
+}
+
+// 有权限的第一个路由名，如果没有找到则返回IndexRoute
+export function getFirstRouteNameByPermission(routerList: RouteRecordNormalized[]) {
+  const currentRoute = routerList
+    .filter((item) => includes(firstLevelMenuNames, item.name))
+    .sort((a, b) => {
+      return (a.meta.order || 0) - (b.meta.order || 0);
+    })
+    .find((item) => hasAnyPermission(item.meta.roles || []));
+  return currentRoute?.name || INDEX_ROUTE.name;
 }

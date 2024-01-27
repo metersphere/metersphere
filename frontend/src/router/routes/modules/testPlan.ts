@@ -13,6 +13,7 @@ const TestPlan: AppRouteRecordRaw = {
     icon: 'icon-icon_test-tracking_filled',
     order: 1,
     hideChildrenInMenu: true,
+    roles: ['TEST_PLAN:READ'],
   },
   children: [
     // 测试计划
@@ -22,7 +23,7 @@ const TestPlan: AppRouteRecordRaw = {
       component: () => import('@/views/test-plan/testPlan/index.vue'),
       meta: {
         locale: 'menu.testPlan',
-        roles: ['PROJECT_TEST_PLAN:READ'],
+        roles: ['TEST_PLAN:READ'],
         isTopMenu: true,
       },
     },

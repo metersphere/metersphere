@@ -13,6 +13,7 @@ const UiTest: AppRouteRecordRaw = {
     icon: 'icon-icon_ui-test-filled',
     order: 5,
     hideChildrenInMenu: true,
+    roles: ['UI_INDEX:READ'],
   },
   children: [
     {
@@ -20,7 +21,7 @@ const UiTest: AppRouteRecordRaw = {
       name: 'uiTestIndex',
       component: () => import('@/views/ui-test/index.vue'),
       meta: {
-        roles: ['*'],
+        roles: ['UI_INDEX:READ'],
       },
     },
   ],

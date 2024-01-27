@@ -63,6 +63,7 @@
   import { useAppStore, useUserStore } from '@/store';
   import { encrypted } from '@/utils';
   import { setLoginExpires } from '@/utils/auth';
+  import { getFirstRouteNameByPermission } from '@/utils/permission';
 
   import type { LoginData } from '@/models/user';
   import { WorkbenchRouteEnum } from '@/enums/routeEnum';
@@ -125,9 +126,10 @@
         loginConfig.value.username = rememberPassword ? username : '';
         loginConfig.value.password = rememberPassword ? password : '';
         const { redirect, ...othersQuery } = router.currentRoute.value.query;
+        const currentRouteName = getFirstRouteNameByPermission(router.getRoutes());
         setLoginExpires();
         router.push({
-          name: (redirect as string) || WorkbenchRouteEnum.WORKBENCH,
+          name: (redirect as string) || currentRouteName,
           query: {
             ...othersQuery,
             organizationId: appStore.currentOrgId,

@@ -32,6 +32,7 @@
   import { getProjectList, switchProject } from '@/api/modules/project-management/project';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore, useUserStore } from '@/store';
+  import { getFirstRouteNameByPermission } from '@/utils/permission';
 
   import { SelectValue } from '@/models/projectManagement/menuManagement';
   import type { ProjectListItem } from '@/models/setting/project';
@@ -68,7 +69,7 @@
       console.log(error);
     } finally {
       router.replace({
-        path: route.path,
+        name: getFirstRouteNameByPermission(router.getRoutes()),
         query: {
           ...route.query,
           organizationId: appStore.currentOrgId,

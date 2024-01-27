@@ -2,6 +2,7 @@
 export const WHITE_LIST = [
   { name: 'notFound', path: '/notFound', children: [] },
   { name: 'invite', path: '/invite', children: [] },
+  { name: 'index', path: '/index', children: [] },
 ];
 
 // 左侧菜单底部对齐的菜单数组，数组项为一级路由的name
@@ -19,9 +20,12 @@ export const REDIRECT_ROUTE_NAME = 'Redirect';
 export const DEFAULT_ROUTE_NAME = 'workbench';
 
 // 无资源/权限路由
-export const NO_RESOURCE_ROUTE_NAME = 'noResource';
+export const NO_RESOURCE_ROUTE_NAME = 'no-resource';
 
 // 无项目路由
-export const NO_PROJECT_ROUTE_NAME = 'noProject';
+export const NO_PROJECT_ROUTE_NAME = 'no-project';
+
+// 白板用户首页
+export const WHITEBOARD_INDEX = 'index';
 
 export const WHITE_LIST_NAME = WHITE_LIST.map((el) => el.name);

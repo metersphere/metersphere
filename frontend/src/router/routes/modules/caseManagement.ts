@@ -13,6 +13,7 @@ const CaseManagement: AppRouteRecordRaw = {
     icon: 'icon-icon_functional_testing',
     order: 3,
     hideChildrenInMenu: true,
+    roles: ['FUNCTIONAL_CASE:READ', 'CASE_REVIEW:READ'],
   },
   children: [
     // 功能用例
@@ -33,7 +34,7 @@ const CaseManagement: AppRouteRecordRaw = {
       component: () => import('@/views/case-management/caseManagementFeature/components/caseDetail.vue'),
       meta: {
         locale: 'menu.caseManagement.featureCaseDetail',
-        roles: ['*'],
+        roles: ['FUNCTIONAL_CASE:READ+EDIT'],
         breadcrumbs: [
           {
             name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE,
@@ -54,7 +55,7 @@ const CaseManagement: AppRouteRecordRaw = {
       component: () => import('@/views/case-management/caseManagementFeature/components/createSuccess.vue'),
       meta: {
         locale: 'menu.caseManagement.featureCaseCreateSuccess',
-        roles: ['*'],
+        roles: ['FUNCTIONAL_CASE:READ+EDIT'],
       },
     },
     // 功能用例回收站
@@ -64,7 +65,7 @@ const CaseManagement: AppRouteRecordRaw = {
       component: () => import('@/views/case-management/caseManagementFeature/components/recycleCaseTable.vue'),
       meta: {
         locale: 'menu.caseManagement.featureCaseRecycle',
-        roles: ['*'],
+        roles: ['FUNCTIONAL_CASE:READ'],
         breadcrumbs: [
           {
             name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE,
@@ -84,7 +85,7 @@ const CaseManagement: AppRouteRecordRaw = {
       component: () => import('@/views/case-management/caseReview/index.vue'),
       meta: {
         locale: 'menu.caseManagement.caseManagementReview',
-        roles: ['*'],
+        roles: ['CASE_REVIEW:READ'],
         isTopMenu: true,
       },
     },
@@ -95,7 +96,7 @@ const CaseManagement: AppRouteRecordRaw = {
       component: () => import('@/views/case-management/caseReview/create.vue'),
       meta: {
         locale: 'menu.caseManagement.caseManagementReviewCreate',
-        roles: ['*'],
+        roles: ['CASE_REVIEW:READ+ADD'],
         breadcrumbs: [
           {
             name: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW,
@@ -117,7 +118,7 @@ const CaseManagement: AppRouteRecordRaw = {
       component: () => import('@/views/case-management/caseReview/detail.vue'),
       meta: {
         locale: 'menu.caseManagement.caseManagementReviewDetail',
-        roles: ['*'],
+        roles: ['CASE_REVIEW:READ'],
         breadcrumbs: [
           {
             name: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW,
@@ -137,7 +138,7 @@ const CaseManagement: AppRouteRecordRaw = {
       component: () => import('@/views/case-management/caseReview/caseDetail.vue'),
       meta: {
         locale: 'menu.caseManagement.caseManagementCaseDetail',
-        roles: ['*'],
+        roles: ['CASE_REVIEW:READ'],
         breadcrumbs: [
           {
             name: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW,

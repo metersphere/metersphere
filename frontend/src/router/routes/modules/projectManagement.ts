@@ -13,6 +13,15 @@ const ProjectManagement: AppRouteRecordRaw = {
     icon: 'icon-icon_project-settings-filled',
     order: 7,
     hideChildrenInMenu: true,
+    roles: [
+      'PROJECT_USER:READ',
+      'PROJECT_TEMPLATE:READ',
+      'PROJECT_FILE_MANAGEMENT:READ',
+      'PROJECT_MESSAGE:READ',
+      'PROJECT_CUSTOM_FUNCTION:READ',
+      'PROJECT_LOG:READ',
+      'PROJECT_ENVIRONMENT:READ',
+    ],
   },
   children: [
     // 项目与权限
@@ -105,7 +114,7 @@ const ProjectManagement: AppRouteRecordRaw = {
       component: () => import('@/views/project-management/template/components/projectFieldSetting.vue'),
       meta: {
         locale: 'menu.settings.organization.templateFieldSetting',
-        roles: ['*'],
+        roles: ['PROJECT_TEMPLATE:READ'],
         breadcrumbs: [
           {
             name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE,
@@ -126,7 +135,7 @@ const ProjectManagement: AppRouteRecordRaw = {
       component: () => import('@/views/project-management/template/components/templateManagement.vue'),
       meta: {
         locale: 'menu.settings.organization.templateManagement',
-        roles: ['*'],
+        roles: ['PROJECT_TEMPLATE:READ'],
         breadcrumbs: [
           {
             name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE,
@@ -147,7 +156,7 @@ const ProjectManagement: AppRouteRecordRaw = {
       component: () => import('@/views/project-management/template/components/proTemplateDetail.vue'),
       meta: {
         locale: 'menu.settings.organization.templateManagementDetail',
-        roles: ['*'],
+        roles: ['PROJECT_TEMPLATE:READ+ADD'],
         breadcrumbs: [
           {
             name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE,
@@ -207,6 +216,7 @@ const ProjectManagement: AppRouteRecordRaw = {
         isTopMenu: true,
       },
     },
+    // 消息管理编辑
     {
       path: 'messageManagementEdit',
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_MESSAGE_MANAGEMENT_EDIT,
@@ -246,7 +256,7 @@ const ProjectManagement: AppRouteRecordRaw = {
       component: () => import('@/views/project-management/log/index.vue'),
       meta: {
         locale: 'menu.projectManagement.log',
-        roles: ['*'],
+        roles: ['PROJECT_LOG:READ'],
         isTopMenu: true,
       },
     },

@@ -1,7 +1,7 @@
 import { RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
 import { includes } from 'lodash-es';
 
-import { hasAnyPermission, hasFirstMenuPermission } from '@/utils/permission';
+import { hasAnyPermission, topLevelMenuHasPermission } from '@/utils/permission';
 
 const firstLevelMenu = ['workstation', 'testPlan', 'bugManagement', 'caseManagement', 'apiTest', 'uiTest', 'loadTest'];
 
@@ -18,8 +18,8 @@ export default function usePermission() {
      */
     accessRouter(route: RouteLocationNormalized | RouteRecordRaw) {
       if (includes(firstLevelMenu, route.name)) {
-        // 一级菜单
-        return hasFirstMenuPermission(route.name as string);
+        // 一级菜单: 创建项目时 被勾选的模块
+        return topLevelMenuHasPermission(route);
       }
       return (
         route.meta?.requiresAuth === false ||
