@@ -61,12 +61,12 @@ public class CaseReviewFunctionalCaseController {
     }
 
 
-    @GetMapping("/tree/{projectId}/{reviewId}")
+    @GetMapping("/tree/{reviewId}")
     @Operation(summary = "用例管理-用例评审-评审列表-评审详情-已关联用例列表模块树")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ)
-    @CheckOwner(resourceId = "#projectId", resourceType = "project")
-    public List<BaseTreeNode> getTree(@PathVariable String projectId, @PathVariable String reviewId) {
-        return caseReviewFunctionalCaseService.getTree(projectId, reviewId);
+    @CheckOwner(resourceId = "#reviewId", resourceType = "case_review")
+    public List<BaseTreeNode> getTree(@PathVariable String reviewId) {
+        return caseReviewFunctionalCaseService.getTree(reviewId);
     }
 
 
