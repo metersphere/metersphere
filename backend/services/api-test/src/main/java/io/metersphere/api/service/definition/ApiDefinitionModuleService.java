@@ -126,15 +126,6 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
         example.clear();
     }
 
-    private String getRootNodeId(ApiDefinitionModule module) {
-        if (StringUtils.equals(module.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
-            return module.getId();
-        } else {
-            ApiDefinitionModule parentModule = apiDefinitionModuleMapper.selectByPrimaryKey(module.getParentId());
-            return this.getRootNodeId(parentModule);
-        }
-    }
-
     public void update(ModuleUpdateRequest request, String userId) {
         ApiDefinitionModule module = checkModuleExist(request.getId());
         ApiDefinitionModule updateModule = new ApiDefinitionModule();
@@ -270,19 +261,35 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
         return moduleCountMap;
     }
 
-    public List<BaseTreeNode> getTrashTree(ApiModuleRequest request, boolean deleted) {
+    public List<BaseTreeNode> getTrashTree(ApiModuleRequest request) {
         ApiDefinitionExample example = new ApiDefinitionExample();
-        example.createCriteria().andProjectIdEqualTo(request.getProjectId()).andDeletedEqualTo(true).andProtocolEqualTo(request.getProtocol());
+        example.createCriteria()
+                .andProjectIdEqualTo(request.getProjectId())
+                .andDeletedEqualTo(true)
+                .andProtocolEqualTo(request.getProtocol());
         List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
         if (CollectionUtils.isEmpty(apiDefinitions)) {
             return new ArrayList<>();
         }
         List<String> moduleIds = apiDefinitions.stream().map(ApiDefinition::getModuleId).distinct().toList();
-        List<BaseTreeNode> baseTreeNodes = extApiDefinitionModuleMapper.selectBaseByIds(moduleIds);
-        super.buildTreeAndCountResource(baseTreeNodes, true, Translator.get(UNPLANNED_API));
-        List<ApiTreeNode> apiTreeNodeList = extApiDefinitionModuleMapper.selectApiDataByRequest(request, deleted);
-        return apiDebugModuleService.getBaseTreeNodes(apiTreeNodeList, baseTreeNodes);
+        List<BaseTreeNode> baseTreeNodes = getNodeByNodeIds(moduleIds);
+        return super.buildTreeAndCountResource(baseTreeNodes, true, Translator.get(UNPLANNED_API));
     }
+
+    public List<BaseTreeNode> getNodeByNodeIds(List<String> moduleIds) {
+        List<String> finalModuleIds = new ArrayList<>(moduleIds);
+        List<BaseTreeNode> totalList = new ArrayList<>();
+        while (CollectionUtils.isNotEmpty(finalModuleIds)) {
+            List<BaseTreeNode> modules = extApiDefinitionModuleMapper.selectBaseByIds(finalModuleIds);
+            totalList.addAll(modules);
+            List<String> finalModuleIdList = finalModuleIds;
+            List<String> parentModuleIds = modules.stream().map(BaseTreeNode::getParentId).filter(parentId -> !StringUtils.equalsIgnoreCase(parentId, ModuleConstants.ROOT_NODE_PARENT_ID) && !finalModuleIdList.contains(parentId)).toList();
+            finalModuleIds.clear();
+            finalModuleIds = new ArrayList<>(parentModuleIds);
+        }
+        return totalList.stream().distinct().toList();
+    }
+
 
     public EnvApiTreeDTO envTree(EnvApiModuleRequest request) {
         EnvApiTreeDTO envApiTreeDTO = new EnvApiTreeDTO();

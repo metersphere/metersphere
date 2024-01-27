@@ -34,11 +34,15 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
+import io.metersphere.system.dto.sdk.ApiDefinitionCaseDTO;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
+import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
+import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.notice.sender.AfterReturningNoticeSendService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import jakarta.annotation.Resource;
@@ -60,7 +64,6 @@ import java.util.stream.Collectors;
 public class ApiDefinitionImportUtilService {
 
     private static final String UNPLANNED_API = "api_unplanned_request";
-    private static final String MODULE = "modulePath";
     public static final Long ORDER_STEP = 5000L;
     private final ThreadLocal<Long> currentApiOrder = new ThreadLocal<>();
     private final ThreadLocal<Long> currentApiCaseOrder = new ThreadLocal<>();
@@ -78,33 +81,37 @@ public class ApiDefinitionImportUtilService {
     @Resource
     private ApiDefinitionBlobMapper apiDefinitionBlobMapper;
     @Resource
-    private ApiTestCaseService apiTestCaseService;
-    @Resource
     private ApiDefinitionModuleService apiDefinitionModuleService;
     @Resource
     private ProjectMapper projectMapper;
     @Resource
     private OperationLogService operationLogService;
+    @Resource
+    private AfterReturningNoticeSendService afterReturningNoticeSendService;
+
+    private static final String FILE_JMX = "jmx";
+    private static final String FILE_HAR = "har";
+    private static final String FILE_JSON = "json";
 
     public void checkFileSuffixName(ImportRequest request, String suffixName) {
-        if ("jmx".equalsIgnoreCase(suffixName)) {
+        if (FILE_JMX.equalsIgnoreCase(suffixName)) {
             if (!ApiImportPlatform.Jmeter.name().equalsIgnoreCase(request.getPlatform())) {
                 throw new MSException(Translator.get("file_format_does_not_meet_requirements"));
             }
         }
-        if ("har".equalsIgnoreCase(suffixName)) {
+        if (FILE_HAR.equalsIgnoreCase(suffixName)) {
             if (!ApiImportPlatform.Har.name().equalsIgnoreCase(request.getPlatform())) {
                 throw new MSException(Translator.get("file_format_does_not_meet_requirements"));
             }
         }
-        if ("json".equalsIgnoreCase(suffixName)) {
+        if (FILE_JSON.equalsIgnoreCase(suffixName)) {
             if (ApiImportPlatform.Har.name().equalsIgnoreCase(request.getPlatform()) || ApiImportPlatform.Jmeter.name().equalsIgnoreCase(request.getPlatform())) {
                 throw new MSException(Translator.get("file_format_does_not_meet_requirements"));
             }
         }
     }
 
-    public void importApi(ImportRequest request, ApiDefinitionImport apiImport) {
+    public void importApi(ImportRequest request, ApiDefinitionImport apiImport, SessionUser user) {
         String defaultVersion = extBaseProjectVersionMapper.getDefaultVersion(request.getProjectId());
         request.setDefaultVersion(defaultVersion);
         if (request.getVersionId() == null) {
@@ -126,11 +133,11 @@ public class ApiDefinitionImportUtilService {
         }
 
         //处理数据，判断数据是否重复
-        dealWithData(request, filterData);
+        dealWithData(request, filterData, user);
 
     }
 
-    private void dealWithData(ImportRequest request, List<ApiDefinitionImportDTO> importData) {
+    private void dealWithData(ImportRequest request, List<ApiDefinitionImportDTO> importData, SessionUser user) {
         //查询数据库中所有的数据， 用于判断是否重复
         ApiDefinitionPageRequest pageRequest = new ApiDefinitionPageRequest();
         pageRequest.setProjectId(request.getProjectId());
@@ -139,12 +146,12 @@ public class ApiDefinitionImportUtilService {
         List<ApiDefinitionImportDTO> apiLists = extApiDefinitionMapper.importList(pageRequest);
         List<BaseTreeNode> apiModules = this.buildTreeData(request.getProjectId(), request.getProtocol());
         //将apiModules转换成新的map 要求key是attachInfo中的modulePath 使用stream实现
-        Map<String, BaseTreeNode> modulePathMap = apiModules.stream().collect(Collectors.toMap(t -> t.getAttachInfo().get(MODULE), t -> t));
+        Map<String, BaseTreeNode> modulePathMap = apiModules.stream().collect(Collectors.toMap(BaseTreeNode::getPath, t -> t));
         Map<String, BaseTreeNode> idModuleMap = apiModules.stream().collect(Collectors.toMap(BaseTreeNode::getId, apiModuleDTO -> apiModuleDTO));
         //如果导入的时候选择了模块，需要把所有的导入数据的模块路径前面拼接上选择的模块路径
         if (StringUtils.isNotBlank(request.getModuleId())) {
             BaseTreeNode baseTreeNode = idModuleMap.get(request.getModuleId());
-            String modulePath = baseTreeNode.getAttachInfo().get(MODULE);
+            String modulePath = baseTreeNode.getPath();
             importData.forEach(t -> {
                 t.setModulePath(modulePath + t.getModulePath());
             });
@@ -152,7 +159,7 @@ public class ApiDefinitionImportUtilService {
         //去掉apiLists中不存在的模块数据
         apiLists = apiLists.stream().filter(t -> modulePathMap.containsKey(t.getModulePath())).toList();
         apiLists.forEach(t -> {
-            t.setModulePath(idModuleMap.get(t.getModuleId()) != null ? idModuleMap.get(t.getModuleId()).getAttachInfo().get(MODULE) : StringUtils.EMPTY);
+            t.setModulePath(idModuleMap.get(t.getModuleId()) != null ? idModuleMap.get(t.getModuleId()).getPath() : StringUtils.EMPTY);
         });
         ApiDeatlWithData apiDeatlWithData = new ApiDeatlWithData();
         //判断数据是否是唯一的
@@ -162,7 +169,7 @@ public class ApiDefinitionImportUtilService {
         getNeedUpdateData(request, apiDeatlWithData, apiDeatlWithDataUpdate);
 
         //数据入库
-        insertData(modulePathMap, idModuleMap, apiDeatlWithDataUpdate, request);
+        insertData(modulePathMap, idModuleMap, apiDeatlWithDataUpdate, request, user);
 
     }
 
@@ -181,7 +188,7 @@ public class ApiDefinitionImportUtilService {
         return order;
     }
 
-    public Long getImportNextCaseOrder(String projectId) {
+   /* public Long getImportNextCaseOrder(String projectId) {
         Long order = currentApiCaseOrder.get();
         if (order == null) {
             order = apiTestCaseService.getNextOrder(projectId);
@@ -189,7 +196,7 @@ public class ApiDefinitionImportUtilService {
         order = order + ORDER_STEP;
         currentApiCaseOrder.set(order);
         return order;
-    }
+    }*/
 
     public Long getImportNextModuleOrder(String projectId) {
         Long order = currentModuleOrder.get();
@@ -205,7 +212,7 @@ public class ApiDefinitionImportUtilService {
     public void insertData(Map<String, BaseTreeNode> modulePathMap,
                            Map<String, BaseTreeNode> idModuleMap,
                            ApiDeatlWithDataUpdate apiDeatlWithDataUpdate,
-                           ImportRequest request) {
+                           ImportRequest request, SessionUser user) {
         //先判断是否需要新增模块
         List<ApiDefinitionImportDTO> addModuleData = apiDeatlWithDataUpdate.getAddModuleData();
         List<ApiDefinitionImportDTO> updateModuleData = apiDeatlWithDataUpdate.getUpdateModuleData();
@@ -228,15 +235,20 @@ public class ApiDefinitionImportUtilService {
             //解析modulePath  格式为/a/b/c
             String[] split = item.split("/");
             //一层一层的创建
-            for (int i = 0; i < split.length; i++) {
-                String path = StringUtils.join(split, "/", 0, i + 1);
+            for (int i = 1; i < split.length; i++) {
+                String modulePath = StringUtils.join(split, "/", 1, i + 1);
+                String path = StringUtils.join("/", modulePath);
                 BaseTreeNode baseTreeNode = modulePathMap.get(path);
                 if (baseTreeNode == null) {
                     //创建模块
                     BaseTreeNode module = new BaseTreeNode();
                     module.setId(IDGenerator.nextStr());
                     module.setName(split[i]);
-                    module.setParentId(i == 0 ? ModuleConstants.ROOT_NODE_PARENT_ID : modulePathMap.get(StringUtils.join(split, "/", 0, i)).getId());
+                    if (i != 1) {
+                        String parentId = path.substring(0, path.lastIndexOf("/" + split[i]));
+                        module.setParentId(modulePathMap.get(parentId).getId());
+                    }
+                    module.setPath(path);
                     addModuleList.add(module);
                     modulePathMap.put(path, module);
                     idModuleMap.put(module.getId(), module);
@@ -295,10 +307,14 @@ public class ApiDefinitionImportUtilService {
         });
         Map<String, ApiDefinitionImportDTO> logData = apiDeatlWithDataUpdate.getLogData();
         Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
+        List<ApiDefinitionCaseDTO> updateLists = new ArrayList<>();
         if (MapUtils.isNotEmpty(logData)) {
             logData.forEach((k, v) -> {
                 ApiDefinitionDTO apiDefinitionDTO = new ApiDefinitionDTO();
                 BeanUtils.copyBean(apiDefinitionDTO, v);
+                ApiDefinitionCaseDTO apiDefinitionCaseDTO = new ApiDefinitionCaseDTO();
+                BeanUtils.copyBean(apiDefinitionCaseDTO, v);
+                updateLists.add(apiDefinitionCaseDTO);
                 LogDTO dto = new LogDTO(
                         project.getId(),
                         project.getOrganizationId(),
@@ -314,6 +330,7 @@ public class ApiDefinitionImportUtilService {
                 operationLogs.add(dto);
             });
         }
+        List<ApiDefinitionCaseDTO> createLists = new ArrayList<>();
         addModuleData.forEach(t -> {
             ApiDefinition apiDefinition = new ApiDefinition();
             BeanUtils.copyBean(apiDefinition, t);
@@ -352,11 +369,22 @@ public class ApiDefinitionImportUtilService {
             dto.setPath("/api/definition/import");
             dto.setMethod(HttpMethodConstants.POST.name());
             dto.setOriginalValue(JSON.toJSONBytes(apiDefinitionDTO));
+
+            ApiDefinitionCaseDTO apiDefinitionCaseDTO = new ApiDefinitionCaseDTO();
+            BeanUtils.copyBean(apiDefinitionCaseDTO, t);
+            createLists.add(apiDefinitionCaseDTO);
         });
 
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         operationLogService.batchAdd(operationLogs);
+        //发送通知
+        List<Map> createResources = new ArrayList<>();
+        createResources.addAll(JSON.parseArray(JSON.toJSONString(createLists), Map.class));
+        afterReturningNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.Event.CREATE, createResources, user, request.getProjectId());
+        List<Map> updateResources = new ArrayList<>();
+        updateResources.addAll(JSON.parseArray(JSON.toJSONString(updateResources), Map.class));
+        afterReturningNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.Event.UPDATE, updateResources, user, request.getProjectId());
     }
 
     private void getNeedUpdateData(ImportRequest request, ApiDeatlWithData apiDeatlWithData, ApiDeatlWithDataUpdate apiDeatlWithDataUpdate) {
@@ -367,6 +395,7 @@ public class ApiDefinitionImportUtilService {
         List<ApiDefinitionImportDTO> updateModuleData = new ArrayList<>();
         List<ApiDefinitionImportDTO> updateRequestData = new ArrayList<>();
         List<ApiDefinitionImportDTO> addData = new ArrayList<>();
+        Map<String, ApiDefinitionImportDTO> logMap = new HashMap<>();
         //判断参数是否一样  一样的参数需要判断是否需要覆盖模块  如果需要就要update数据， 如果不需要  就直接跳过
         if (CollectionUtils.isNotEmpty(sameList) && getFullCoverage(request.getCoverData())) {
             //需要覆盖数据的  会判断是否需要覆盖模块
@@ -376,7 +405,6 @@ public class ApiDefinitionImportUtilService {
             ApiDefinitionBlobExample blobExample = new ApiDefinitionBlobExample();
             blobExample.createCriteria().andIdIn(sameIds);
             List<ApiDefinitionBlob> apiDefinitionBlobs = apiDefinitionBlobMapper.selectByExampleWithBLOBs(blobExample);
-            Map<String, ApiDefinitionImportDTO> logMap = new HashMap<>();
             Map<String, ApiDefinitionBlob> blobMap = apiDefinitionBlobs.stream().collect(Collectors.toMap(ApiDefinitionBlob::getId, t -> t));
             //判断参数是否一样
             for (ApiDefinitionImportDTO apiDefinitionDTO : sameData) {
@@ -412,6 +440,7 @@ public class ApiDefinitionImportUtilService {
         apiDeatlWithDataUpdate.setUpdateModuleData(updateModuleData);
         apiDeatlWithDataUpdate.setUpdateRequestData(updateRequestData);
         apiDeatlWithDataUpdate.setAddModuleData(addData);
+        apiDeatlWithDataUpdate.setLogData(logMap);
     }
 
     private void checkApiDataOnly(ImportRequest request,
@@ -453,7 +482,7 @@ public class ApiDefinitionImportUtilService {
         if (CollectionUtils.isNotEmpty(dbHeaders) || CollectionUtils.isNotEmpty(importHeaders)) {
             List<String> dbHeaderKeys = dbHeaders.stream().map(Header::getKey).toList();
             List<String> importHeaderKeys = importHeaders.stream().map(Header::getKey).toList();
-            if (!paramsIsSame(dbHeaderKeys, importHeaderKeys)) {
+            if (paramsIsSame(dbHeaderKeys, importHeaderKeys)) {
                 return false;
             }
         }
@@ -463,7 +492,7 @@ public class ApiDefinitionImportUtilService {
         if (CollectionUtils.isNotEmpty(dbQuery) || CollectionUtils.isNotEmpty(importQuery)) {
             List<String> dbQueryKeys = dbQuery.stream().map(QueryParam::getKey).toList();
             List<String> importQueryKeys = importQuery.stream().map(QueryParam::getKey).toList();
-            if (!paramsIsSame(dbQueryKeys, importQueryKeys)) {
+            if (paramsIsSame(dbQueryKeys, importQueryKeys)) {
                 return false;
             }
         }
@@ -472,7 +501,7 @@ public class ApiDefinitionImportUtilService {
         if (CollectionUtils.isNotEmpty(dbRest) || CollectionUtils.isNotEmpty(importRest)) {
             List<String> dbRestKeys = dbRest.stream().map(RestParam::getKey).toList();
             List<String> importRestKeys = importRest.stream().map(RestParam::getKey).toList();
-            if (!paramsIsSame(dbRestKeys, importRestKeys)) {
+            if (paramsIsSame(dbRestKeys, importRestKeys)) {
                 return false;
             }
         }
@@ -493,7 +522,7 @@ public class ApiDefinitionImportUtilService {
                     if (CollectionUtils.isNotEmpty(fromValues) || CollectionUtils.isNotEmpty(importFromValues)) {
                         List<String> dbFormKeys = fromValues.stream().map(FormDataKV::getKey).toList();
                         List<String> importFormKeys = importFromValues.stream().map(FormDataKV::getKey).toList();
-                        if (!paramsIsSame(dbFormKeys, importFormKeys)) {
+                        if (paramsIsSame(dbFormKeys, importFormKeys)) {
                             return false;
                         }
                     }
@@ -507,7 +536,7 @@ public class ApiDefinitionImportUtilService {
                     if (CollectionUtils.isNotEmpty(wwwValues) || CollectionUtils.isNotEmpty(importWwwValues)) {
                         List<String> dbWwwKeys = wwwValues.stream().map(FormDataKV::getKey).toList();
                         List<String> importWwwKeys = importWwwValues.stream().map(FormDataKV::getKey).toList();
-                        if (!paramsIsSame(dbWwwKeys, importWwwKeys)) {
+                        if (paramsIsSame(dbWwwKeys, importWwwKeys)) {
                             return false;
                         }
                     }
@@ -542,6 +571,14 @@ public class ApiDefinitionImportUtilService {
     }
 
     //判断jsonschema的参数是否一样
+
+    /**
+     * 判断jsonschema的参数是否一样
+     *
+     * @param jsonSchema       数据库中的数据
+     * @param importJsonSchema 导入的生成的jsonschema
+     * @return true 一样 false 不一样 一样的话就不需要更新
+     */
     private static boolean jsonSchemaIsSame(JsonSchemaItem jsonSchema, JsonSchemaItem importJsonSchema) {
         boolean same = true;
         if (jsonSchema == null && importJsonSchema == null) {
@@ -557,7 +594,7 @@ public class ApiDefinitionImportUtilService {
             if (MapUtils.isNotEmpty(properties) || MapUtils.isNotEmpty(importProperties)) {
                 List<String> dbJsonKeys = properties.keySet().stream().toList();
                 List<String> importJsonKeys = importProperties.keySet().stream().toList();
-                if (!paramsIsSame(dbJsonKeys, importJsonKeys)) {
+                if (paramsIsSame(dbJsonKeys, importJsonKeys)) {
                     return false;
                 }
                 //遍历判断每个参数是否一样
@@ -585,11 +622,11 @@ public class ApiDefinitionImportUtilService {
 
     private static boolean paramsIsSame(List<String> dbRestKeys, List<String> importRestKeys) {
         if (dbRestKeys.size() != importRestKeys.size()) {
-            return false;
+            return true;
         }
         //看看是否有差集
         List<String> differenceRest = dbRestKeys.stream().filter(t -> !importRestKeys.contains(t)).toList();
-        return CollectionUtils.isEmpty(differenceRest);
+        return !CollectionUtils.isEmpty(differenceRest);
     }
 
     private Boolean getFullCoverage(Boolean fullCoverage) {
@@ -602,24 +639,23 @@ public class ApiDefinitionImportUtilService {
     /**
      * 构造树结构 但是这里需要module的path
      *
-     * @param projectId
-     * @param protocol
-     * @return
+     * @param projectId 项目id
+     * @param protocol  协议
+     * @return 树结构
      */
     public List<BaseTreeNode> buildTreeData(String projectId, String protocol) {
         ApiModuleRequest request = new ApiModuleRequest();
         request.setProjectId(projectId);
         request.setProtocol(protocol);
-        List<BaseTreeNode> fileModuleList = extApiDefinitionModuleMapper.selectBaseByRequest(request);
-        return this.buildTreeAndCountResource(fileModuleList, true, Translator.get(UNPLANNED_API));
-
+        List<BaseTreeNode> apiModuleList = extApiDefinitionModuleMapper.selectBaseByRequest(request);
+        return this.buildTreeAndCountResource(apiModuleList, true, Translator.get(UNPLANNED_API));
     }
 
     public List<BaseTreeNode> buildTreeAndCountResource(List<BaseTreeNode> traverseList, boolean haveVirtualRootNode, String virtualRootName) {
         List<BaseTreeNode> baseTreeNodeList = new ArrayList<>();
         if (haveVirtualRootNode) {
             BaseTreeNode defaultNode = new BaseTreeNode(ModuleConstants.DEFAULT_NODE_ID, virtualRootName, ModuleConstants.NODE_TYPE_DEFAULT, ModuleConstants.ROOT_NODE_PARENT_ID);
-            defaultNode.setAttachInfo(Map.of(MODULE, StringUtils.join("/", defaultNode.getName())));
+            defaultNode.setPath(StringUtils.join("/", defaultNode.getName()));
             baseTreeNodeList.add(defaultNode);
         }
         int lastSize = 0;
@@ -630,13 +666,13 @@ public class ApiDefinitionImportUtilService {
             for (BaseTreeNode treeNode : traverseList) {
                 if (StringUtils.equalsIgnoreCase(treeNode.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
                     BaseTreeNode node = new BaseTreeNode(treeNode.getId(), treeNode.getName(), treeNode.getType(), treeNode.getParentId());
-                    node.setAttachInfo(Map.of(MODULE, StringUtils.join("/", node.getName())));
+                    node.setPath(StringUtils.join("/", node.getName()));
                     baseTreeNodeList.add(node);
                     baseTreeNodeMap.put(treeNode.getId(), node);
                 } else {
                     if (baseTreeNodeMap.containsKey(treeNode.getParentId())) {
                         BaseTreeNode node = new BaseTreeNode(treeNode.getId(), treeNode.getName(), treeNode.getType(), treeNode.getParentId());
-                        node.setAttachInfo(Map.of(MODULE, StringUtils.join(baseTreeNodeMap.get(treeNode.getParentId()).getAttachInfo().get(MODULE), "/", node.getName())));
+                        node.setPath(StringUtils.join(baseTreeNodeMap.get(treeNode.getParentId()).getPath(), "/", node.getName()));
                         baseTreeNodeList.add(node);
                     }
                 }
@@ -645,6 +681,5 @@ public class ApiDefinitionImportUtilService {
         }
         return baseTreeNodeList;
     }
-
 
 }

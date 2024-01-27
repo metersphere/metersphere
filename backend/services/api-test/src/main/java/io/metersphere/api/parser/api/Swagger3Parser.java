@@ -14,7 +14,6 @@ import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.utils.SessionUtils;
 import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.oas.models.*;
 import io.swagger.v3.oas.models.media.*;
@@ -283,11 +282,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
         apiDefinition.setProtocol("HTTP");
         apiDefinition.setMethod(method);
         apiDefinition.setProjectId(this.projectId);
-        if (StringUtils.equalsIgnoreCase("schedule", importRequest.getType())) {
-            apiDefinition.setCreateUser(importRequest.getUserId());
-        } else {
-            apiDefinition.setCreateUser(SessionUtils.getUserId());
-        }
+        apiDefinition.setCreateUser(importRequest.getUserId());
         apiDefinition.setModulePath(CollectionUtils.isNotEmpty(operation.getTags()) ? StringUtils.join("/", operation.getTags().get(0)) : StringUtils.EMPTY);
         apiDefinition.setResponse(new ArrayList<>());
         return apiDefinition;
@@ -621,6 +616,9 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
             itemsSchema = getModelByRef(items.get$ref());
         } else {
             itemsSchema = items;
+        }
+        if (itemsSchema == null) {
+            return jsonSchemaArray;
         }
         if (itemsSchema instanceof IntegerSchema integerSchema) {
             jsonSchemaArray.setItems(parseInteger(integerSchema));

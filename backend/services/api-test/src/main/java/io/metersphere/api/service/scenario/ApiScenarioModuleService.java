@@ -260,7 +260,21 @@ public class ApiScenarioModuleService extends ModuleTreeService {
             return new ArrayList<>();
         }
         List<String> moduleIds = apiScenarios.stream().map(ApiScenario::getModuleId).distinct().toList();
-        List<BaseTreeNode> baseTreeNodes = extApiScenarioModuleMapper.selectBaseByIds(moduleIds);
+        List<BaseTreeNode> baseTreeNodes = getNodeByNodeIds(moduleIds);
         return super.buildTreeAndCountResource(baseTreeNodes, true, Translator.get(UNPLANNED_SCENARIO));
+    }
+
+    public List<BaseTreeNode> getNodeByNodeIds(List<String> moduleIds) {
+        List<String> finalModuleIds = new ArrayList<>(moduleIds);
+        List<BaseTreeNode> totalList = new ArrayList<>();
+        while (CollectionUtils.isNotEmpty(finalModuleIds)) {
+            List<BaseTreeNode> modules = extApiScenarioModuleMapper.selectBaseByIds(finalModuleIds);
+            totalList.addAll(modules);
+            List<String> finalModuleIdList = finalModuleIds;
+            List<String> parentModuleIds = modules.stream().map(BaseTreeNode::getParentId).filter(parentId -> !StringUtils.equalsIgnoreCase(parentId, ModuleConstants.ROOT_NODE_PARENT_ID) && !finalModuleIdList.contains(parentId)).toList();
+            finalModuleIds.clear();
+            finalModuleIds = new ArrayList<>(parentModuleIds);
+        }
+        return totalList.stream().distinct().toList();
     }
 }
