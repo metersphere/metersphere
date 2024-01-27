@@ -36,6 +36,7 @@
         crfc.`status` as status,
         crfc.create_time as createTime,
         crfc.create_user as createUser,
+        user.name as createUserName,
         functional_case.version_id as versionId,
         functional_case.module_id as moduleId,
         functional_case.name as name,
@@ -44,6 +45,7 @@
         FROM
         case_review_functional_case crfc
         LEFT JOIN functional_case ON crfc.case_id = functional_case.id
+        LEFT JOIN user ON crfc.create_user = user.id
         WHERE
         review_id = #{request.reviewId}
         AND functional_case.deleted = #{deleted}

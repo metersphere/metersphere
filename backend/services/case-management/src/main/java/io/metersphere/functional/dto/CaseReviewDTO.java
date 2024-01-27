@@ -33,4 +33,10 @@ public class CaseReviewDTO extends CaseReview {
     @Schema(description = "所属模块名称")
     private String moduleName;
 
+    @Schema(description = "创建人名称")
+    private String createUserName;
+
+    @Schema(description = "更新人名称")
+    private String updateUserName;
+
 }

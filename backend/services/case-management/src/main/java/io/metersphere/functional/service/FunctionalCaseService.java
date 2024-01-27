@@ -44,6 +44,7 @@ import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.notice.sender.AfterReturningNoticeSendService;
 import io.metersphere.system.service.BaseCustomFieldOptionService;
 import io.metersphere.system.service.BaseCustomFieldService;
+import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.ServiceUtils;
@@ -62,6 +63,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author wx
@@ -112,6 +114,9 @@ public class FunctionalCaseService {
 
     @Resource
     private BaseCaseProvider provider;
+
+    @Resource
+    private UserLoginService userLoginService;
 
     private static final String CASE_MODULE_COUNT_ALL = "all";
 
@@ -545,11 +550,22 @@ public class FunctionalCaseService {
     private List<FunctionalCasePageDTO> handleCustomFields(List<FunctionalCasePageDTO> functionalCaseLists) {
         List<String> ids = functionalCaseLists.stream().map(FunctionalCasePageDTO::getId).collect(Collectors.toList());
         Map<String, List<FunctionalCaseCustomFieldDTO>> collect = getCaseCustomFiledMap(ids);
+        Set<String> userIds = extractUserIds(functionalCaseLists);
+        Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userIds));
         functionalCaseLists.forEach(functionalCasePageDTO -> {
             functionalCasePageDTO.setCustomFields(collect.get(functionalCasePageDTO.getId()));
+            functionalCasePageDTO.setCreateUserName(userMap.get(functionalCasePageDTO.getCreateUser()));
+            functionalCasePageDTO.setUpdateUserName(userMap.get(functionalCasePageDTO.getUpdateUser()));
+            functionalCasePageDTO.setDeleteUserName(userMap.get(functionalCasePageDTO.getDeleteUserName()));
         });
         return functionalCaseLists;
 
+    }
+
+    private Set<String> extractUserIds(List<FunctionalCasePageDTO> list) {
+        return list.stream()
+                .flatMap(functionalCasePageDTO -> Stream.of(functionalCasePageDTO.getUpdateUser(), functionalCasePageDTO.getDeleteUser(), functionalCasePageDTO.getCreateUser()))
+                .collect(Collectors.toSet());
     }
 
     public Map<String, List<FunctionalCaseCustomFieldDTO>> getCaseCustomFiledMap(List<String> ids) {
