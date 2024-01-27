@@ -177,17 +177,16 @@ public class ApiScenarioLogService {
         return dto;
     }
 
-    public void saveBatchCopyLog(ApiScenarioBatchOperationResponse response, String projectId, LogInsertModule logInsertModule) {
+    public void saveBatchOperationLog(ApiScenarioBatchOperationResponse response, String projectId, String operationType, LogInsertModule logInsertModule) {
 
         Project project = projectMapper.selectByPrimaryKey(projectId);
         //取出apiTestCases所有的id为新的list
         List<LogDTO> logs = new ArrayList<>();
         response.getSuccessData().forEach(item -> {
-
                     LogDTO dto = LogDTOBuilder.builder()
                             .projectId(project.getId())
                             .organizationId(project.getOrganizationId())
-                            .type(OperationLogType.COPY.name())
+                            .type(operationType)
                             .module(OperationLogModule.API_SCENARIO)
                             .method(logInsertModule.getRequestMethod())
                             .path(logInsertModule.getRequestUrl())

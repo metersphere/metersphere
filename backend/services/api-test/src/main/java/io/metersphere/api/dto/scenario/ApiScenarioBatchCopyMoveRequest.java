@@ -9,7 +9,7 @@ import java.io.Serializable;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class ApiScenarioBatchCopyRequest extends ApiScenarioBatchRequest implements Serializable {
+public class ApiScenarioBatchCopyMoveRequest extends ApiScenarioBatchRequest implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

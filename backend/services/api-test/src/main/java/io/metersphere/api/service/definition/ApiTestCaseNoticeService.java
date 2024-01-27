@@ -43,7 +43,7 @@ public class ApiTestCaseNoticeService {
     private List<ApiDefinitionCaseDTO> handleBatchNotice(List<String> ids) {
         List<ApiDefinitionCaseDTO> dtoList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(ids)) {
-            SubListUtils.dealForSubList(ids, 500, (subList) -> {
+            SubListUtils.dealForSubList(ids, 500, subList -> {
                 ApiTestCaseExample example = new ApiTestCaseExample();
                 example.createCriteria().andIdIn(subList);
                 List<ApiTestCase> caseList = apiTestCaseMapper.selectByExample(example);
