@@ -41,6 +41,7 @@ import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
@@ -796,16 +797,81 @@ public class ApiScenarioService {
         return projectService.getNextOrder(extApiScenarioMapper::getLastPos, projectId);
     }
 
-    public void delete(String id) {
+    public void delete(String id, String operator) {
         checkResourceExist(id);
+        ApiScenario scenario = apiScenarioMapper.selectByPrimaryKey(id);
+        cascadeDelete(scenario, operator);
         apiScenarioMapper.deleteByPrimaryKey(id);
-        apiScenarioBlobMapper.deleteByPrimaryKey(id);
-        deleteStepByScenarioId(id);
-        deleteStepDetailByScenarioId(id);
+    }
+
+    public ApiScenarioBatchOperationResponse delete(@NotEmpty List<String> idList, String operator) {
+        ApiScenarioBatchOperationResponse response = new ApiScenarioBatchOperationResponse();
+
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andIdIn(idList).andDeletedEqualTo(true);
+        List<ApiScenario> scenarioList = apiScenarioMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(scenarioList)) {
+            apiScenarioMapper.deleteByExample(example);
+            cascadeDelete(scenarioList, operator);
+        }
+
+        //构建返回值
+        for (ApiScenario scenario : scenarioList) {
+            response.addSuccessData(scenario.getId(), scenario.getNum(), scenario.getName());
+        }
+        return response;
+    }
+
+    //级联删除
+    public void cascadeDelete(ApiScenario scenario, String operator) {
+        //删除blob
+        apiScenarioBlobMapper.deleteByPrimaryKey(scenario.getId());
+        //删除step
+        deleteStepByScenarioId(scenario.getId());
+        //删除step-blob
+        deleteStepDetailByScenarioId(scenario.getId());
+        //删除文件
+        String scenarioDir = DefaultRepositoryDir.getApiDebugDir(scenario.getProjectId(), scenario.getId());
+        try {
+            apiFileResourceService.deleteByResourceId(scenarioDir, scenario.getId(), scenario.getProjectId(), operator, OperationLogModule.API_DEBUG);
+        }catch (Exception ignore){}
+
+        //todo wang xiao gang: 删除csv相关东西
+    }
+
+    //级联删除
+    public void cascadeDelete(@NotEmpty List<ApiScenario> scenarioList, String operator) {
+        List<String> scenarioIdList = scenarioList.stream().map(ApiScenario::getId).toList();
+        ApiScenarioBlobExample example = new ApiScenarioBlobExample();
+        example.createCriteria().andIdIn(scenarioIdList);
+        //删除blob
+        apiScenarioBlobMapper.deleteByExample(example);
+
+
+        ApiScenarioStepExample stepExample = new ApiScenarioStepExample();
+        stepExample.createCriteria().andScenarioIdIn(scenarioIdList);
+        //删除step
+        apiScenarioStepMapper.deleteByExample(stepExample);
+
+        //删除step-blob
+        ApiScenarioStepBlobExample blobExample = new ApiScenarioStepBlobExample();
+        blobExample.createCriteria().andScenarioIdIn(scenarioIdList);
+        apiScenarioStepBlobMapper.deleteByExample(blobExample);
+
+        //删除文件
+        scenarioList.forEach(scenario -> {
+            String scenarioDir = DefaultRepositoryDir.getApiDebugDir(scenario.getProjectId(), scenario.getId());
+            try {
+                apiFileResourceService.deleteByResourceId(scenarioDir, scenario.getId(), scenario.getProjectId(), operator, OperationLogModule.API_DEBUG);
+            }catch (Exception ignore){}
+
+        });
+
+        //todo wang xiao gang: 删除csv相关东西
     }
 
 
-    public void restore(String id) {
+    public void recover(String id) {
         ApiScenario apiScenario = new ApiScenario();
         apiScenario.setId(id);
         apiScenario.setDeleted(false);
@@ -1243,13 +1309,32 @@ public class ApiScenarioService {
         return ServiceUtils.checkResourceExist(apiScenarioStepMapper.selectByPrimaryKey(id), "permission.api_step.name");
     }
 
-    public ApiScenarioBatchOperationResponse batchCopy(ApiScenarioBatchCopyRequest request, LogInsertModule logInsertModule) {
-        if (!StringUtils.equals(request.getTargetModuleId(), ModuleConstants.DEFAULT_NODE_ID)) {
-            ApiScenarioModule module = apiScenarioModuleMapper.selectByPrimaryKey(request.getTargetModuleId());
-            if (module == null || !StringUtils.equals(module.getProjectId(), request.getProjectId())) {
+    private void checkTargetModule(String targetModuleId, String projectId) {
+        if (!StringUtils.equals(targetModuleId, ModuleConstants.DEFAULT_NODE_ID)) {
+            ApiScenarioModule module = apiScenarioModuleMapper.selectByPrimaryKey(targetModuleId);
+            if (module == null || !StringUtils.equals(module.getProjectId(), projectId)) {
                 throw new MSException(Translator.get("module.not.exist"));
             }
         }
+    }
+
+    public ApiScenarioBatchOperationResponse batchMove(ApiScenarioBatchCopyMoveRequest request, LogInsertModule logInsertModule) {
+        this.checkTargetModule(request.getTargetModuleId(), request.getProjectId());
+
+        List<String> scenarioIds = doSelectIds(request, false);
+        if (CollectionUtils.isEmpty(scenarioIds)) {
+            return new ApiScenarioBatchOperationResponse();
+        }
+        request.setSelectIds(scenarioIds);
+        long moveTime = System.currentTimeMillis();
+        ApiScenarioBatchOperationResponse response =
+                ApiScenarioBatchOperationUtils.executeWithBatchOperationResponse(scenarioIds, sublist -> move(sublist, request, moveTime, logInsertModule.getOperator()));
+        apiScenarioLogService.saveBatchOperationLog(response, request.getProjectId(), OperationLogType.UPDATE.name(), logInsertModule);
+        return response;
+    }
+
+    public ApiScenarioBatchOperationResponse batchCopy(ApiScenarioBatchCopyMoveRequest request, LogInsertModule logInsertModule) {
+        this.checkTargetModule(request.getTargetModuleId(), request.getProjectId());
 
         List<String> scenarioIds = doSelectIds(request, false);
         if (CollectionUtils.isEmpty(scenarioIds)) {
@@ -1258,7 +1343,7 @@ public class ApiScenarioService {
         request.setSelectIds(scenarioIds);
         ApiScenarioBatchOperationResponse response =
                 ApiScenarioBatchOperationUtils.executeWithBatchOperationResponse(scenarioIds, sublist -> copyAndInsert(sublist, request, logInsertModule.getOperator()));
-        apiScenarioLogService.saveBatchCopyLog(response, request.getProjectId(), logInsertModule);
+        apiScenarioLogService.saveBatchOperationLog(response, request.getProjectId(), OperationLogType.COPY.name(), logInsertModule);
         return response;
     }
 
@@ -1289,7 +1374,45 @@ public class ApiScenarioService {
         return newScenarioName;
     }
 
-    private ApiScenarioBatchOperationResponse copyAndInsert(List<String> scenarioIds, ApiScenarioBatchCopyRequest request, String operator) {
+    private ApiScenarioBatchOperationResponse move(List<String> scenarioIds, ApiScenarioBatchCopyMoveRequest request, long moveTime, String operator) {
+        ApiScenarioBatchOperationResponse response = new ApiScenarioBatchOperationResponse();
+
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andIdIn(scenarioIds);
+        List<ApiScenario> operationList = apiScenarioMapper.selectByExample(example);
+        List<String> updateScenarioIds = new ArrayList<>();
+        operationList.forEach(apiScenario -> {
+
+            if (StringUtils.equals(apiScenario.getModuleId(), request.getTargetModuleId())) {
+                response.addErrorData(Translator.get("api_scenario_exist"), apiScenario.getId(), apiScenario.getNum(), apiScenario.getName());
+            } else {
+                ApiScenarioExample checkExample = new ApiScenarioExample();
+                // 统一模块下名称不能重复
+                checkExample.createCriteria()
+                        .andNameEqualTo(apiScenario.getName())
+                        .andModuleIdEqualTo(request.getTargetModuleId());
+                if (apiScenarioMapper.countByExample(checkExample) > 0) {
+                    response.addErrorData(Translator.get("api_scenario.name.repeat"), apiScenario.getId(), apiScenario.getNum(), apiScenario.getName());
+                } else {
+                    updateScenarioIds.add(apiScenario.getId());
+                    response.addSuccessData(apiScenario.getId(), apiScenario.getNum(), apiScenario.getName());
+                }
+            }
+        });
+        if (CollectionUtils.isNotEmpty(updateScenarioIds)) {
+            ApiScenario moveModule = new ApiScenario();
+            moveModule.setModuleId(request.getTargetModuleId());
+            moveModule.setUpdateTime(moveTime);
+            moveModule.setUpdateUser(operator);
+            example.clear();
+            example.createCriteria().andIdIn(updateScenarioIds);
+            apiScenarioMapper.updateByExampleSelective(moveModule, example);
+        }
+
+        return response;
+    }
+
+    private ApiScenarioBatchOperationResponse copyAndInsert(List<String> scenarioIds, ApiScenarioBatchCopyMoveRequest request, String operator) {
         ApiScenarioBatchOperationResponse response = new ApiScenarioBatchOperationResponse();
 
         ApiScenarioExample example = new ApiScenarioExample();
@@ -1419,5 +1542,54 @@ public class ApiScenarioService {
         example.createCriteria().andScenarioIdIn(scenarioIds);
         return apiScenarioStepBlobMapper.selectByExampleWithBLOBs(example);
     }
+
+    public ApiScenarioBatchOperationResponse batchGCOperation(ApiScenarioBatchRequest request, boolean isDeleteOperation, LogInsertModule logInsertModule) {
+        List<String> scenarioIds = doSelectIds(request, !isDeleteOperation);
+        if (CollectionUtils.isEmpty(scenarioIds)) {
+            return new ApiScenarioBatchOperationResponse();
+        }
+
+        long deleteTime = System.currentTimeMillis();
+
+        ApiScenarioBatchOperationResponse response = ApiScenarioBatchOperationUtils.executeWithBatchOperationResponse(
+                scenarioIds,
+                sublist -> operationGC(sublist, isDeleteOperation, deleteTime, logInsertModule.getOperator()));
+        apiScenarioLogService.saveBatchOperationLog(response, request.getProjectId(),
+                isDeleteOperation ? OperationLogType.DELETE.name() : OperationLogType.RECOVER.name(), logInsertModule);
+        return response;
+    }
+
+    private ApiScenarioBatchOperationResponse operationGC(List<String> scenarioIds, boolean isDeleteOperation, long deleteTime, String operator) {
+        ApiScenarioBatchOperationResponse response = new ApiScenarioBatchOperationResponse();
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andIdIn(scenarioIds).andDeletedEqualTo(!isDeleteOperation);
+
+        List<ApiScenario> apiScenarioList = apiScenarioMapper.selectByExample(example);
+
+        ApiScenario updateScenarioModel = new ApiScenario();
+        updateScenarioModel.setDeleted(isDeleteOperation);
+        updateScenarioModel.setDeleteUser(operator);
+        updateScenarioModel.setDeleteTime(deleteTime);
+        apiScenarioMapper.updateByExampleSelective(updateScenarioModel, example);
+
+        for (ApiScenario scenario : apiScenarioList) {
+            response.addSuccessData(scenario.getId(), scenario.getNum(), scenario.getName());
+        }
+        return response;
+    }
+
+    public ApiScenarioBatchOperationResponse batchDelete(ApiScenarioBatchRequest request, LogInsertModule logInsertModule) {
+        List<String> scenarioIds = doSelectIds(request, true);
+        if (CollectionUtils.isEmpty(scenarioIds)) {
+            return new ApiScenarioBatchOperationResponse();
+        }
+
+        ApiScenarioBatchOperationResponse response = ApiScenarioBatchOperationUtils.executeWithBatchOperationResponse(
+                scenarioIds,
+                sublist -> delete(sublist, logInsertModule.getOperator()));
+        apiScenarioLogService.saveBatchOperationLog(response, request.getProjectId(), OperationLogType.DELETE.name(), logInsertModule);
+        return response;
+    }
+
 
 }

@@ -95,7 +95,7 @@ public class ApiScenarioController {
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = ApiScenarioLogService.class)
     @CheckOwner(resourceId = "#id", resourceType = "api_scenario")
     public void delete(@PathVariable String id) {
-        apiScenarioService.delete(id);
+        apiScenarioService.delete(id, SessionUtils.getUserId());
     }
 
     @GetMapping("/delete-to-gc/{id}")
@@ -122,14 +122,16 @@ public class ApiScenarioController {
         return apiScenarioService.getStepDetail(stepId);
     }
 
-    @GetMapping("/restore/{id}")
+
+    //需求补充：回收站里的相关操作都不需要发通知
+    @GetMapping("/recover/{id}")
     @Operation(summary = "接口测试-接口场景管理-删除场景到回收站")
-    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_DELETE)
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_RECOVER)
     @Log(type = OperationLogType.RESTORE, expression = "#msClass.restoreLog(#id)", msClass = ApiScenarioLogService.class)
     @CheckOwner(resourceId = "#id", resourceType = "api_scenario")
     public void recover(@PathVariable String id) {
         apiValidateService.validateApiMenuInProject(id, ApiResource.API_SCENARIO.name());
-        apiScenarioService.restore(id);
+        apiScenarioService.recover(id);
     }
 
     @PostMapping("/debug")
