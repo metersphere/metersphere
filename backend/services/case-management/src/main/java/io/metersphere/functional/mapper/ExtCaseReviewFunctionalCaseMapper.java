@@ -1,12 +1,12 @@
 package io.metersphere.functional.mapper;
 
 import io.metersphere.functional.domain.CaseReviewFunctionalCase;
+import io.metersphere.functional.dto.FunctionalCaseModuleCountDTO;
 import io.metersphere.functional.dto.FunctionalCaseReviewDTO;
 import io.metersphere.functional.dto.ReviewFunctionalCaseDTO;
 import io.metersphere.functional.request.BaseReviewCaseBatchRequest;
 import io.metersphere.functional.request.FunctionalCaseReviewListRequest;
 import io.metersphere.functional.request.ReviewFunctionalCasePageRequest;
-import io.metersphere.project.dto.ModuleCountDTO;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -41,7 +41,8 @@ public interface ExtCaseReviewFunctionalCaseMapper {
 
     List<CaseReviewFunctionalCase> getCaseIdsByIds(@Param("ids") List<String> ids);
 
-    List<ModuleCountDTO> countModuleIdByRequest(@Param("request") ReviewFunctionalCasePageRequest request, @Param("deleted") boolean deleted, @Param("userId") String userId);
+    List<FunctionalCaseModuleCountDTO> countModuleIdByRequest(@Param("request") ReviewFunctionalCasePageRequest request, @Param("deleted") boolean deleted, @Param("userId") String userId);
 
     long caseCount(@Param("request") ReviewFunctionalCasePageRequest request, @Param("deleted") boolean deleted, @Param("userId") String userId);
+
 }

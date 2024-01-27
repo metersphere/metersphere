@@ -59,6 +59,7 @@ public class BaseTreeNode {
     }
 
     public void addChild(BaseTreeNode node) {
+        node.setParentId(this.getId());
         children.add(node);
     }
 

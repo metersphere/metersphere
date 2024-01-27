@@ -7,7 +7,6 @@ import io.metersphere.functional.domain.CaseReviewFunctionalCaseExample;
 import io.metersphere.functional.dto.ReviewFunctionalCaseDTO;
 import io.metersphere.functional.mapper.CaseReviewFunctionalCaseMapper;
 import io.metersphere.functional.request.*;
-import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
@@ -142,17 +141,26 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
     @Test
     @Order(4)
     public void emptyDataTest() throws Exception {
-        //空数据下，检查模块树
-        List<BaseTreeNode> treeNodes = this.getCaseReviewModuleTreeNode("wx_test_project","wx_review_id_1");
-        //检查有没有默认节点
-        boolean hasNode = false;
-        for (BaseTreeNode baseTreeNode : treeNodes) {
-            if (StringUtils.equals(baseTreeNode.getId(), ModuleConstants.DEFAULT_NODE_ID)) {
-                hasNode = true;
-            }
-            Assertions.assertNotNull(baseTreeNode.getParentId());
-        }
-        Assertions.assertTrue(hasNode);
+        List<BaseTreeNode> treeNodes = this.getCaseReviewModuleTreeNode("wx_test_project","wx_review_id_2");
+        String jsonString = JSON.toJSONString(treeNodes);
+        System.out.println(jsonString);
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(treeNodes));
+        ReviewFunctionalCasePageRequest request = new ReviewFunctionalCasePageRequest();
+        request.setReviewId("wx_review_id_2");
+        request.setProjectId("wx_test_project");
+        request.setCurrent(1);
+        request.setPageSize(10);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(REVIEW_FUNCTIONAL_CASE_MODULE_COUNT, request);
+        Map<String, Integer> moduleCountResult = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Map.class);
+        System.out.println(JSON.toJSONString(moduleCountResult));
+
+        MvcResult mvcResultPage = this.requestPostWithOkAndReturn(REVIEW_CASE_PAGE, request);
+        Pager<List<ReviewFunctionalCaseDTO>> tableData = JSON.parseObject(JSON.toJSONString(
+                        JSON.parseObject(mvcResultPage.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
+                Pager.class);
+        System.out.println(JSON.toJSONString(tableData.getList()));
     }
 
 
@@ -404,7 +412,7 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
 
 
     private List<BaseTreeNode> getCaseReviewModuleTreeNode(String projectId, String reviewId) throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(URL_MODULE_TREE+"/"+projectId+"/"+reviewId).header(SessionConstants.HEADER_TOKEN, sessionId)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(URL_MODULE_TREE+"/"+reviewId).header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .header(SessionConstants.CURRENT_PROJECT, projectId)
                         .contentType(MediaType.APPLICATION_JSON))

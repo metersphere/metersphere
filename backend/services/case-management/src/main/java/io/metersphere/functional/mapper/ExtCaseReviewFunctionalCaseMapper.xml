@@ -49,7 +49,6 @@
         WHERE
         review_id = #{request.reviewId}
         AND functional_case.deleted = #{deleted}
-        AND functional_case.project_id = #{request.projectId}
         <if test="userId != null and userId != ''">
             AND crfc.case_id in (select case_id from case_review_functional_case_user crfcu where crfcu.review_id = #{request.reviewId} and crfcu.user_id = #{userId})
         </if>
@@ -382,14 +381,15 @@
         </foreach>
     </select>
 
-    <select id="countModuleIdByRequest"  resultType="io.metersphere.project.dto.ModuleCountDTO">
-        SELECT functional_case.module_id AS moduleId, count(functional_case.id) AS dataCount
-        FROM case_review_functional_case crfc LEFT JOIN functional_case ON crfc.case_id = functional_case.id
+    <select id="countModuleIdByRequest"  resultType="io.metersphere.functional.dto.FunctionalCaseModuleCountDTO">
+        SELECT functional_case.module_id AS moduleId, count(functional_case.id) AS dataCount, functional_case.project_id AS projectId, project.name AS projectName
+        FROM case_review_functional_case crfc
+        LEFT JOIN functional_case ON crfc.case_id = functional_case.id
+        LEFT JOIN project ON functional_case.project_id = project.id
         WHERE crfc.review_id = #{request.reviewId}
         AND functional_case.deleted = #{deleted}
-        AND functional_case.project_id = #{request.projectId}
         <if test="userId != null and userId != ''">
-            AND crfc.case_id in (select case_id from case_review_functional_case_user crfcu where crfcu.review_id = #{request.reviewId} and crfcu.user_id = #{userId})
+            AND crfc.case_id in (select crfcu.case_id from case_review_functional_case_user crfcu where crfcu.review_id = #{request.reviewId} and crfcu.user_id = #{userId})
         </if>
         <choose>
             <when test='request.searchMode == "AND"'>
@@ -410,7 +410,6 @@
         FROM case_review_functional_case crfc LEFT JOIN functional_case ON crfc.case_id = functional_case.id
         WHERE crfc.review_id = #{request.reviewId}
         AND functional_case.deleted = #{deleted}
-        AND functional_case.project_id = #{request.projectId}
         <if test="userId != null and userId != ''">
             AND crfc.case_id in (select case_id from case_review_functional_case_user crfcu where crfcu.review_id = #{request.reviewId} and crfcu.user_id = #{userId})
         </if>
@@ -425,5 +424,6 @@
             </when>
         </choose>
     </select>
+
 
 </mapper>
