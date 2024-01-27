@@ -405,7 +405,7 @@ public class CaseReviewService {
      * @return num
      */
     public long getNextNum(String projectId) {
-        return NumGenerator.nextNum(projectId, ApplicationNumScope.CASE_MANAGEMENT);
+        return NumGenerator.nextNum(projectId, ApplicationNumScope.REVIEW_CASE_MANAGEMENT);
     }
 
     /**
