@@ -17,7 +17,7 @@ import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.domain.ScheduleExample;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.mapper.ScheduleMapper;
-import io.metersphere.system.sechedule.ScheduleService;
+import io.metersphere.system.schedule.ScheduleService;
 import io.metersphere.system.service.CleanupProjectResourceService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;

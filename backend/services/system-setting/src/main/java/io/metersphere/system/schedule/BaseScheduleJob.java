@@ -1,4 +1,4 @@
-package io.metersphere.system.sechedule;
+package io.metersphere.system.schedule;
 
 import io.metersphere.sdk.util.LogUtils;
 import org.quartz.*;

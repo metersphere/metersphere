@@ -1,4 +1,4 @@
-package io.metersphere.system.sechedule;
+package io.metersphere.system.schedule;
 
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.system.domain.Schedule;
@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
 import org.quartz.TriggerKey;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -46,7 +47,7 @@ public class ScheduleService {
         example.createCriteria().andResourceIdEqualTo(resourceId).andJobEqualTo(job);
         List<Schedule> schedules = scheduleMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(schedules)) {
-            return schedules.get(0);
+            return schedules.getFirst();
         }
         return null;
     }

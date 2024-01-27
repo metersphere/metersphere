@@ -3,7 +3,6 @@ package io.metersphere.system.service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
 import io.metersphere.api.domain.ApiScenario;
-import io.metersphere.api.mapper.ApiDefinitionSwaggerMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.ScheduleResourceType;
@@ -16,7 +15,7 @@ import io.metersphere.system.dto.taskcenter.TaskCenterScheduleDTO;
 import io.metersphere.system.dto.taskcenter.enums.ScheduleTagType;
 import io.metersphere.system.dto.taskcenter.request.TaskCenterSchedulePageRequest;
 import io.metersphere.system.mapper.*;
-import io.metersphere.system.sechedule.ScheduleService;
+import io.metersphere.system.schedule.ScheduleService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
@@ -59,7 +58,7 @@ public class TaskCenterService {
     OrganizationMapper organizationMapper;
 
     @Resource
-    ApiDefinitionSwaggerMapper apiDefinitionSwaggerMapper;
+    ExtSwaggerMapper extSwaggerMapper;
 
     @Resource
     ScheduleMapper scheduleMapper;
@@ -224,7 +223,7 @@ public class TaskCenterService {
     public void delete(String id) {
         Schedule schedule = checkScheduleExit(id);
         if (ScheduleTagType.API_IMPORT.getNames().contains(schedule.getResourceType())) {
-            apiDefinitionSwaggerMapper.deleteByPrimaryKey(schedule.getResourceId());
+            extSwaggerMapper.deleteByPrimaryKey(schedule.getResourceId());
         }
         scheduleService.deleteByResourceId(schedule.getResourceId(), schedule.getJob());
     }

@@ -4,7 +4,7 @@ import io.metersphere.project.job.CleanUpReportJob;
 import io.metersphere.sdk.constants.ScheduleResourceType;
 import io.metersphere.sdk.constants.ScheduleType;
 import io.metersphere.system.domain.Schedule;
-import io.metersphere.system.sechedule.ScheduleService;
+import io.metersphere.system.schedule.ScheduleService;
 import io.metersphere.system.service.CreateProjectResourceService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
