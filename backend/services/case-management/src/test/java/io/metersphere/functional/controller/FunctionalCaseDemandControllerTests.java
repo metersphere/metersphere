@@ -303,6 +303,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
     @NotNull
     private static QueryDemandListRequest getQueryDemandListRequest(String caseId) {
         QueryDemandListRequest queryDemandListRequest = new QueryDemandListRequest();
+        queryDemandListRequest.setProjectId("project-case-demand-test");
         queryDemandListRequest.setCurrent(1);
         queryDemandListRequest.setPageSize(5);
         queryDemandListRequest.setCaseId(caseId);
@@ -481,7 +482,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         FunctionalThirdDemandPageRequest functionalThirdDemandPageRequest = new FunctionalThirdDemandPageRequest();
         functionalThirdDemandPageRequest.setProjectId("gyq_project-case-demand-test");
         functionalThirdDemandPageRequest.setPageSize(10);
-        functionalThirdDemandPageRequest.setStartPage(1);
+        functionalThirdDemandPageRequest.setCurrent(1);
         MvcResult mvcResultDemand= this.requestPostWithOkAndReturn(URL_DEMAND_PAGE_DEMAND, functionalThirdDemandPageRequest);
         PluginPager<PlatformDemandDTO> tableData = JSON.parseObject(JSON.toJSONString(
                         JSON.parseObject(mvcResultDemand.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
