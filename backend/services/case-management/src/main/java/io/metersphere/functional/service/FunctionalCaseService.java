@@ -62,6 +62,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -641,7 +642,7 @@ public class FunctionalCaseService {
             //自定义字段
             Map<String, List<FunctionalCaseCustomField>> customFieldMap = functionalCaseCustomFieldService.getCustomFieldMapByCaseIds(ids);
 
-            Long nextOrder = getNextOrder(request.getProjectId());
+            AtomicReference<Long> nextOrder = new AtomicReference<>(getNextOrder(request.getProjectId()));
 
             for (String s : ids) {
                 String id = IDGenerator.nextStr();
@@ -658,7 +659,7 @@ public class FunctionalCaseService {
                     functional.setNum(getNextNum(request.getProjectId()));
                     functional.setName(getCopyName(functionalCase.getName()));
                     functional.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.name());
-                    functional.setPos(nextOrder + ServiceUtils.POS_STEP);
+                    functional.setPos(nextOrder.get());
                     functional.setLastExecuteResult(FunctionalCaseExecuteResult.UN_EXECUTED.name());
                     functional.setCreateUser(userId);
                     functional.setCreateTime(System.currentTimeMillis());
@@ -667,6 +668,7 @@ public class FunctionalCaseService {
 
                     functionalCaseBlob.setId(id);
                     functionalCaseBlobMapper.insert(functionalCaseBlob);
+                    nextOrder.updateAndGet(v -> v + ServiceUtils.POS_STEP);
                 });
 
                 if (CollectionUtils.isNotEmpty(caseAttachments)) {
@@ -843,8 +845,9 @@ public class FunctionalCaseService {
         FunctionalCaseCustomFieldMapper customFieldMapper = sqlSession.getMapper(FunctionalCaseCustomFieldMapper.class);
         Long nextOrder = getNextOrder(request.getProjectId());
         List<FunctionalCaseDTO> noticeList = new ArrayList<>();
-        for (int i = 0; i < list.size(); i++) {
+        for (int i = list.size() - 1; i > -1; i--) {
             parseInsertDataToModule(list.get(i), request, user.getId(), caseModulePathMap, defaultTemplateDTO, nextOrder, caseMapper, caseBlobMapper, customFieldMapper, customFieldsMap, user.getLastOrganizationId());
+            nextOrder += ServiceUtils.POS_STEP;
             //通知
             noticeModule(noticeList, list.get(i), request, user.getId(), customFieldsMap);
         }
@@ -899,7 +902,7 @@ public class FunctionalCaseService {
         functionalCase.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.name());
         functionalCase.setTags(handleImportTags(functionalCaseExcelData.getTags()));
         functionalCase.setCaseEditType(StringUtils.defaultIfBlank(functionalCaseExcelData.getCaseEditType(), FunctionalCaseTypeConstants.CaseEditType.TEXT.name()));
-        functionalCase.setPos(nextOrder + ServiceUtils.POS_STEP);
+        functionalCase.setPos(nextOrder);
         functionalCase.setVersionId(request.getVersionId());
         functionalCase.setRefId(caseId);
         functionalCase.setLastExecuteResult(FunctionalCaseExecuteResult.UN_EXECUTED.name());
