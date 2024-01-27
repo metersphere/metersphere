@@ -15,6 +15,20 @@ const Setting: AppRouteRecordRaw = {
     locale: 'menu.settings',
     icon: 'icon-a-icon_system_settings',
     order: 8,
+    roles: [
+      'SYSTEM_USER:READ',
+      'SYSTEM_USER_ROLE:READ',
+      'SYSTEM_ORGANIZATION_PROJECT:READ',
+      'SYSTEM_PARAMETER_SETTING_BASE:READ',
+      'SYSTEM_TEST_RESOURCE_POOL:READ',
+      'SYSTEM_AUTH:READ',
+      'SYSTEM_PLUGIN:READ',
+      'ORGANIZATION_MEMBER:READ',
+      'ORGANIZATION_USER_ROLE:READ',
+      'ORGANIZATION_PROJECT:READ',
+      'SYSTEM_SERVICE_INTEGRATION:READ',
+      'ORGANIZATION_TEMPLATE:READ',
+    ],
   },
   children: [
     {
@@ -24,7 +38,15 @@ const Setting: AppRouteRecordRaw = {
       component: null,
       meta: {
         locale: 'menu.settings.system',
-        roles: ['*'],
+        roles: [
+          'SYSTEM_USER:READ',
+          'SYSTEM_USER_ROLE:READ',
+          'SYSTEM_ORGANIZATION_PROJECT:READ',
+          'SYSTEM_PARAMETER_SETTING_BASE:READ',
+          'SYSTEM_TEST_RESOURCE_POOL:READ',
+          'SYSTEM_AUTH:READ',
+          'SYSTEM_PLUGIN:READ',
+        ],
         hideChildrenInMenu: true,
       },
       children: [
@@ -115,7 +137,7 @@ const Setting: AppRouteRecordRaw = {
           component: () => import('@/views/setting/system/log/index.vue'),
           meta: {
             locale: 'menu.settings.system.log',
-            roles: ['*'],
+            roles: ['SYSTEM_LOG:READ'],
             isTopMenu: true,
           },
         },
@@ -138,7 +160,13 @@ const Setting: AppRouteRecordRaw = {
       component: null,
       meta: {
         locale: 'menu.settings.organization',
-        roles: ['*'],
+        roles: [
+          'ORGANIZATION_MEMBER:READ',
+          'ORGANIZATION_USER_ROLE:READ',
+          'ORGANIZATION_PROJECT:READ',
+          'SYSTEM_SERVICE_INTEGRATION:READ',
+          'ORGANIZATION_TEMPLATE:READ',
+        ],
         hideChildrenInMenu: true,
       },
       children: [

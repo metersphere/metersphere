@@ -13,6 +13,7 @@ const Workbench: AppRouteRecordRaw = {
     icon: 'icon-icon_pc_filled',
     order: 0,
     hideChildrenInMenu: true,
+    roles: ['WORKSTATION_INDEX:READ'],
   },
   children: [
     {
@@ -20,7 +21,7 @@ const Workbench: AppRouteRecordRaw = {
       name: 'workbenchIndex',
       component: () => import('@/views/workbench/index.vue'),
       meta: {
-        roles: ['*'],
+        roles: ['WORKSTATION_INDEX:READ'],
       },
     },
   ],

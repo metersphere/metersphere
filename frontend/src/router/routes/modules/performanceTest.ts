@@ -13,6 +13,7 @@ const PerformanceTest: AppRouteRecordRaw = {
     icon: 'icon-icon_performance-test-filled',
     order: 6,
     hideChildrenInMenu: true,
+    roles: ['LOAD_TEST:READ'],
   },
   children: [
     {
@@ -20,7 +21,7 @@ const PerformanceTest: AppRouteRecordRaw = {
       name: 'performanceTestIndex',
       component: () => import('@/views/performance-test/index.vue'),
       meta: {
-        roles: ['*'],
+        roles: ['LOAD_TEST:READ'],
       },
     },
   ],

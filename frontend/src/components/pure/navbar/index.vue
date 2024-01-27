@@ -153,8 +153,12 @@
 
   async function initProjects() {
     try {
-      const res = await getProjectList(appStore.getCurrentOrgId);
-      projectList.value = res;
+      if (appStore.currentOrgId) {
+        const res = await getProjectList(appStore.getCurrentOrgId);
+        projectList.value = res;
+      } else {
+        projectList.value = [];
+      }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

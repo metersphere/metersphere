@@ -13,6 +13,14 @@ const ApiTest: AppRouteRecordRaw = {
     icon: 'icon-icon_api-test-filled',
     order: 4,
     hideChildrenInMenu: true,
+    roles: [
+      'PROJECT_API_DEBUG:READ',
+      'PROJECT_API_DEFINITION:READ',
+      'PROJECT_API_DEFINITION_CASE:READ',
+      'PROJECT_API_DEFINITION_MOCK:READ',
+      'PROJECT_API_SCENARIO:READ',
+      'PROJECT_API_REPORT:READ',
+    ],
   },
   children: [
     {
@@ -21,7 +29,7 @@ const ApiTest: AppRouteRecordRaw = {
       component: () => import('@/views/api-test/debug/index.vue'),
       meta: {
         locale: 'menu.apiTest.debug',
-        roles: ['*'],
+        roles: ['PROJECT_API_DEBUG:READ'],
         isTopMenu: true,
       },
     },
