@@ -37,7 +37,7 @@ public class BugNoticeService {
     @Resource
     private UserMapper userMapper;
     @Resource
-    private BugService bugService;
+    private BugCommonService bugCommonService;
     @Resource
     private BugStatusService bugStatusService;
     @Resource
@@ -133,7 +133,7 @@ public class BugNoticeService {
      * @return 处理人集合
      */
     private Map<String, String> getHandleMap(String projectId) {
-        List<SelectOption> handlerOption = bugService.getHeaderHandlerOption(projectId);
+        List<SelectOption> handlerOption = bugCommonService.getHeaderHandlerOption(projectId);
         return handlerOption.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
     }
 }

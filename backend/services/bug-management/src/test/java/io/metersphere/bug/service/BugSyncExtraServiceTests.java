@@ -37,8 +37,6 @@ public class BugSyncExtraServiceTests extends BaseTest {
     @MockBean
     MinioRepository minioMock;
     @Resource
-    private BugSyncExtraService bugSyncExtraService;
-    @Resource
     private BugAttachmentService bugAttachmentService;
 
     @Test
@@ -54,12 +52,12 @@ public class BugSyncExtraServiceTests extends BaseTest {
         // Mock minio delete exception
         Mockito.doThrow(new MSException("delete minio error!")).when(minioMock).delete(Mockito.any());
         MSException deleteException = assertThrows(MSException.class, () ->
-                bugSyncExtraService.deleteSyncAttachmentFromMs(Set.of("sync-extra-file-associate-B", "sync-extra-file-local-B", "sync-extra-file-local-A.txt"),
+                bugAttachmentService.deleteSyncAttachmentFromMs(Set.of("sync-extra-file-associate-B", "sync-extra-file-local-B", "sync-extra-file-local-A.txt"),
                         allBugFile, "bug-for-sync-extra", "project-for-sync-extra"));
         assertEquals(deleteException.getMessage(), "delete minio error!");
         // Reset minio mock
         Mockito.reset(minioMock);
-        bugSyncExtraService.deleteSyncAttachmentFromMs(Set.of("sync-extra-file-associate-B", "sync-extra-file-local-B"),
+        bugAttachmentService.deleteSyncAttachmentFromMs(Set.of("sync-extra-file-associate-B", "sync-extra-file-local-B"),
                 allBugFile, "bug-for-sync-extra", "project-for-sync-extra");
 
         // Mock null input stream and exception input stream
@@ -76,9 +74,9 @@ public class BugSyncExtraServiceTests extends BaseTest {
             return null;
         }).when(platform).getAttachmentContent(Mockito.anyString(), Mockito.any());
         // called twice for cover test
-        bugSyncExtraService.saveSyncAttachmentToMs(platform, "bug-for-sync-extra", "sync-extra-file-associate-B", "TEST-1", "project-for-sync-extra");
+        bugAttachmentService.saveSyncAttachmentToMs(platform, "bug-for-sync-extra", "sync-extra-file-associate-B", "TEST-1", "project-for-sync-extra");
         MSException msException = assertThrows(MSException.class, () ->
-                bugSyncExtraService.saveSyncAttachmentToMs(platform, "bug-for-sync-extra", "sync-extra-file-associate-B", "TEST-2", "project-for-sync-extra"));
+                bugAttachmentService.saveSyncAttachmentToMs(platform, "bug-for-sync-extra", "sync-extra-file-associate-B", "TEST-2", "project-for-sync-extra"));
         assertEquals(msException.getMessage(), "read bytes exception occurred!");
     }
 }

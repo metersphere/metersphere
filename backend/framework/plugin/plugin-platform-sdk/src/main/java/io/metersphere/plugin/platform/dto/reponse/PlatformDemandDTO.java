@@ -36,6 +36,10 @@ public class PlatformDemandDTO {
          */
         private String demandUrl;
         /**
+         * 子需求集合
+         */
+        private List<Demand> children;
+        /**
          * 自定义字段
          */
         private Map<String, Object> customFields;

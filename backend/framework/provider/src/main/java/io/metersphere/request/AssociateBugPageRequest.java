@@ -24,6 +24,10 @@ public class AssociateBugPageRequest extends BaseProviderCondition {
     @NotBlank(message = "{functional_case.id.not_blank}")
     private String caseId;
 
+    @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank(message = "{functional_case.project_id.not_blank}")
+    private String projectId;
+
 
     @Min(value = 1, message = "当前页码必须大于0")
     @Schema(description =  "当前页码")

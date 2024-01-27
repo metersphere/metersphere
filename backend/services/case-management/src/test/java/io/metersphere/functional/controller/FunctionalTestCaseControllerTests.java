@@ -509,6 +509,7 @@ public class FunctionalTestCaseControllerTests extends BaseTest {
         request.setCurrent(1);
         request.setPageSize(10);
         request.setCaseId("wx_2");
+        request.setProjectId("project_wx_associate_test");
         List<BugProviderDTO> list = new ArrayList<>();
         BugProviderDTO bugProviderDTO = new BugProviderDTO();
         bugProviderDTO.setId("123");

@@ -18,16 +18,13 @@ import io.metersphere.plugin.platform.dto.reponse.PlatformBugUpdateDTO;
 import io.metersphere.plugin.platform.dto.reponse.PlatformCustomFieldItemDTO;
 import io.metersphere.plugin.platform.dto.request.*;
 import io.metersphere.plugin.platform.enums.SyncAttachmentType;
-import io.metersphere.plugin.platform.spi.AbstractPlatformPlugin;
 import io.metersphere.plugin.platform.spi.Platform;
 import io.metersphere.project.domain.*;
 import io.metersphere.project.dto.ProjectTemplateOptionDTO;
-import io.metersphere.project.dto.ProjectUserDTO;
 import io.metersphere.project.dto.filemanagement.FileLogRecord;
 import io.metersphere.project.mapper.FileAssociationMapper;
 import io.metersphere.project.mapper.FileMetadataMapper;
 import io.metersphere.project.mapper.ProjectMapper;
-import io.metersphere.project.request.ProjectMemberRequest;
 import io.metersphere.project.service.*;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
@@ -47,7 +44,10 @@ import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.BaseUserMapper;
 import io.metersphere.system.mapper.TemplateMapper;
-import io.metersphere.system.service.*;
+import io.metersphere.system.service.BaseTemplateCustomFieldService;
+import io.metersphere.system.service.BaseTemplateService;
+import io.metersphere.system.service.PlatformPluginService;
+import io.metersphere.system.service.UserPlatformAccountService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.ServiceUtils;
@@ -62,7 +62,6 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -114,8 +113,9 @@ public class BugService {
     @Resource
     private BaseTemplateCustomFieldService baseTemplateCustomFieldService;
     @Resource
-    @Lazy
     private BugNoticeService bugNoticeService;
+    @Resource
+    private BugCommonService bugCommonService;
     @Resource
     private BugCustomFieldMapper bugCustomFieldMapper;
     @Resource
@@ -147,15 +147,11 @@ public class BugService {
     @Resource
     private ProjectApplicationService projectApplicationService;
     @Resource
-    private PluginLoadService pluginLoadService;
-    @Resource
     private BugSyncExtraService bugSyncExtraService;
     @Resource
     private BugSyncNoticeService bugSyncNoticeService;
     @Resource
     private BugStatusService bugStatusService;
-    @Resource
-    private ProjectMemberService projectMemberService;
     @Resource
     private BugAttachmentService bugAttachmentService;
 
@@ -615,7 +611,7 @@ public class BugService {
 
             // 同步附件至MS
             if (MapUtils.isNotEmpty(syncBugResult.getAttachmentMap())) {
-                bugSyncExtraService.syncAttachmentToMs(platform, syncBugResult.getAttachmentMap(), project.getId());
+                bugAttachmentService.syncAttachmentToMs(platform, syncBugResult.getAttachmentMap(), project.getId());
             }
 
             sqlSession.commit();
@@ -650,7 +646,7 @@ public class BugService {
             // 状态选项获取时, 获取平台校验了服务集成配置, 所以此处不需要再次校验
             Platform platform = platformPluginService.getPlatform(serviceIntegration.getPluginId(), serviceIntegration.getOrganizationId(),
                     new String(serviceIntegration.getConfiguration()));
-            List<BugTemplateInjectField> injectFieldList = getPlatformInjectFields(projectId);
+            List<BugTemplateInjectField> injectFieldList = bugCommonService.getPlatformInjectFields(projectId);
             for (BugTemplateInjectField injectField : injectFieldList) {
                 TemplateCustomFieldDTO templateCustomFieldDTO = new TemplateCustomFieldDTO();
                 BeanUtils.copyBean(templateCustomFieldDTO, injectField);
@@ -681,7 +677,7 @@ public class BugService {
             handleUserField.setFieldName(BugTemplateCustomField.HANDLE_USER.getName());
             handleUserField.setFieldKey(BugTemplateCustomField.HANDLE_USER.getId());
             handleUserField.setType(CustomFieldType.SELECT.getType());
-            List<SelectOption> localHandlerOption = getLocalHandlerOption(projectId);
+            List<SelectOption> localHandlerOption = bugCommonService.getLocalHandlerOption(projectId);
             handleUserOption = localHandlerOption.stream().map(user -> {
                 CustomFieldOption option = new CustomFieldOption();
                 option.setText(user.getText());
@@ -915,7 +911,7 @@ public class BugService {
 
         // 同步至第三方(异步调用)
         if (!StringUtils.equals(platformName, BugPlatform.LOCAL.getName()) && CollectionUtils.isNotEmpty(allSyncAttachments)) {
-            bugSyncExtraService.syncAttachmentToPlatform(allSyncAttachments, request.getProjectId(), tempFileDir);
+            bugAttachmentService.syncAttachmentToPlatform(allSyncAttachments, request.getProjectId(), tempFileDir);
         }
     }
 
@@ -1284,7 +1280,7 @@ public class BugService {
         handleCustomField(bugs, request.getProjectId());
         bugs = buildExtraInfo(bugs);
         // 表头处理人选项
-        List<SelectOption> handleUserOption = getHeaderHandlerOption(request.getProjectId());
+        List<SelectOption> handleUserOption = bugCommonService.getHeaderHandlerOption(request.getProjectId());
         Map<String, String> handleUserMap = handleUserOption.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
         // 表头状态选项
         List<SelectOption> statusOption = bugStatusService.getHeaderStatusOption(request.getProjectId());
@@ -1368,69 +1364,6 @@ public class BugService {
     }
 
     /**
-     * 获取表头处理人选项
-     * @param projectId 项目ID
-     * @return 处理人选项集合
-     */
-    public List<SelectOption> getHeaderHandlerOption(String projectId) {
-        String platformName = projectApplicationService.getPlatformName(projectId);
-        // 需要校验服务集成是否开启
-        ServiceIntegration serviceIntegration = projectApplicationService.getPlatformServiceIntegrationWithSyncOrDemand(projectId, true);
-        if (StringUtils.equals(platformName, BugPlatform.LOCAL.getName())) {
-            // Local处理人
-            return getLocalHandlerOption(projectId);
-        } else {
-            // 第三方平台(Local处理人 && 平台处理人)
-            List<SelectOption> localHandlerOption = getLocalHandlerOption(projectId);
-            // 获取插件中自定义的注入字段(处理人)
-            Platform platform = platformPluginService.getPlatform(serviceIntegration.getPluginId(), serviceIntegration.getOrganizationId(),
-                    new String(serviceIntegration.getConfiguration()));
-            List<SelectOption> platformHandlerOption = new ArrayList<>();
-            List<BugTemplateInjectField> platformInjectFields = getPlatformInjectFields(projectId);
-            for (BugTemplateInjectField injectField : platformInjectFields) {
-                if (StringUtils.equals(injectField.getKey(), BugTemplateCustomField.HANDLE_USER.getId())) {
-                    GetOptionRequest request = new GetOptionRequest();
-                    request.setOptionMethod(injectField.getOptionMethod());
-                    request.setProjectConfig(projectApplicationService.getProjectBugThirdPartConfig(projectId));
-                    platformHandlerOption = platform.getFormOptions(request);
-                }
-            }
-            return ListUtils.union(localHandlerOption, platformHandlerOption);
-        }
-    }
-
-    /**
-     * 项目成员选项(处理人)
-     * @param projectId 项目ID
-     * @return 处理人选项集合
-     */
-    private List<SelectOption> getLocalHandlerOption(String projectId) {
-        ProjectMemberRequest request = new ProjectMemberRequest();
-        request.setProjectId(projectId);
-        List<ProjectUserDTO> projectMembers = projectMemberService.listMember(request);
-        return projectMembers.stream().map(user -> {
-            SelectOption option = new SelectOption();
-            option.setText(user.getName());
-            option.setValue(user.getId());
-            return option;
-        }).toList();
-    }
-
-    /**
-     * 获取平台注入的字段
-     * @param projectId 项目ID
-     * @return 注入的字段集合
-     */
-    private List<BugTemplateInjectField> getPlatformInjectFields(String projectId) {
-        // 获取插件中自定义的注入字段(处理人)
-        ServiceIntegration serviceIntegration = projectApplicationService.getPlatformServiceIntegrationWithSyncOrDemand(projectId, true);
-        AbstractPlatformPlugin platformPlugin = (AbstractPlatformPlugin) pluginLoadService.getMsPluginManager().getPlugin(serviceIntegration.getPluginId()).getPlugin();
-        Object scriptContent = pluginLoadService.getPluginScriptContent(serviceIntegration.getPluginId(), platformPlugin.getProjectBugTemplateInjectField());
-        String injectFields = JSON.toJSONString(((Map<?, ?>) scriptContent).get("injectFields"));
-        return JSON.parseArray(injectFields, BugTemplateInjectField.class);
-    }
-
-    /**
      * 获取表头自定义字段
      * @param projectId 项目ID
      * @return 自定义字段集合
@@ -1441,7 +1374,7 @@ public class BugService {
         List<Template> templates = projectTemplateService.getTemplates(projectId, TemplateScene.BUG.name());
         templates.forEach(template -> headerCustomFields.addAll(baseTemplateService.getTemplateDTO(template).getCustomFields()));
         // 填充自定义字段成员类型的选项值
-        List<SelectOption> memberOption = getHeaderHandlerOption(projectId);
+        List<SelectOption> memberOption = bugCommonService.getHeaderHandlerOption(projectId);
         List<CustomFieldOption> memberCustomOption = memberOption.stream().map(option -> {
             CustomFieldOption customFieldOption = new CustomFieldOption();
             customFieldOption.setValue(option.getValue());

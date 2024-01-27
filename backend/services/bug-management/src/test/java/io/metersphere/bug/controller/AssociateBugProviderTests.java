@@ -85,6 +85,7 @@ public class AssociateBugProviderTests extends BaseTest {
         request.setCurrent(1);
         request.setPageSize(10);
         request.setCaseId("123");
+        request.setProjectId("project_wx_associate_test");
         associateBugProvider.hasAssociateBugPage(request);
         request.setCaseId("wx_2");
         associateBugProvider.hasAssociateBugPage(request);

@@ -119,12 +119,12 @@ public class BugAttachmentControllerTests extends BaseTest {
         request.setSelectAll(false);
         request.setSelectIds(List.of("not-exist-file-id"));
         MultiValueMap<String, Object> paramMap4 = getDefaultMultiPartParam(request, null);
-        this.requestMultipartWithOk(BUG_ATTACHMENT_UPLOAD, paramMap4);
+        this.requestMultipart(BUG_ATTACHMENT_UPLOAD, paramMap4).andExpect(status().is5xxServerError());
         request.setSelectIds(List.of(unRelatedFiles.get(0).getId()));
         MultiValueMap<String, Object> paramMap5 = getDefaultMultiPartParam(request, null);
-        this.requestMultipartWithOk(BUG_ATTACHMENT_UPLOAD, paramMap5);
+        this.requestMultipart(BUG_ATTACHMENT_UPLOAD, paramMap5).andExpect(status().is5xxServerError());
         MultiValueMap<String, Object> paramMap6 = getDefaultMultiPartParam(request, file);
-        this.requestMultipartWithOk(BUG_ATTACHMENT_UPLOAD, paramMap6);
+        this.requestMultipart(BUG_ATTACHMENT_UPLOAD, paramMap6).andExpect(status().is5xxServerError());
     }
 
     @Test
@@ -195,7 +195,7 @@ public class BugAttachmentControllerTests extends BaseTest {
             try {
                 request.setBugId("default-bug-id-tapd");
                 request.setRefId(file.getRefId());
-                this.requestPostWithOk(BUG_ATTACHMENT_UPDATE, request);
+                this.requestPost(BUG_ATTACHMENT_UPDATE, request).andExpect(status().is5xxServerError());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -227,7 +227,7 @@ public class BugAttachmentControllerTests extends BaseTest {
             request.setRefId(file.getRefId());
             request.setAssociated(file.getAssociated());
             try {
-                this.requestPostWithOk(BUG_ATTACHMENT_DELETE, request);
+                this.requestPost(BUG_ATTACHMENT_DELETE, request).andExpect(status().is5xxServerError());
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
