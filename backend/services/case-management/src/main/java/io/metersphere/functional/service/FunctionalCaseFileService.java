@@ -20,6 +20,7 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomFieldOption;
+import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import io.metersphere.system.dto.sdk.TemplateDTO;
 import io.metersphere.system.excel.utils.EasyExcelExporter;
@@ -228,10 +229,10 @@ public class FunctionalCaseFileService {
      * 导入excel
      *
      * @param request
-     * @param userId
+     * @param user
      * @param file
      */
-    public FunctionalCaseImportResponse importExcel(FunctionalCaseImportRequest request, String userId, MultipartFile file, String organizationId) {
+    public FunctionalCaseImportResponse importExcel(FunctionalCaseImportRequest request, SessionUser user, MultipartFile file) {
         if (file == null) {
             throw new MSException(Translator.get("file_cannot_be_null"));
         }
@@ -249,7 +250,7 @@ public class FunctionalCaseFileService {
             // 预处理，查询合并单元格信息
             EasyExcel.read(file.getInputStream(), null, new FunctionalCasePretreatmentListener(mergeInfoSet))
                     .extraRead(CellExtraTypeEnum.MERGE).sheet().doRead();
-            FunctionalCaseImportEventListener eventListener = new FunctionalCaseImportEventListener(request, clazz, customFields, mergeInfoSet, userId, organizationId);
+            FunctionalCaseImportEventListener eventListener = new FunctionalCaseImportEventListener(request, clazz, customFields, mergeInfoSet, user);
             EasyExcelFactory.read(file.getInputStream(), eventListener).sheet().doRead();
             response.setErrorMessages(eventListener.getErrList());
             response.setSuccessCount(eventListener.getSuccessCount());
