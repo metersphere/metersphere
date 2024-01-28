@@ -3,6 +3,7 @@ package io.metersphere.api.dto.definition;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
@@ -65,12 +66,12 @@ public class ApiDefinitionAddRequest implements Serializable {
     private LinkedHashSet<@NotBlank String> tags;
 
     @Schema(description = "请求内容")
-    @NotBlank
-    private String request;
+    @NotNull
+    private Object request;
 
     @Schema(description = "请求内容")
-    @NotBlank
-    private String response;
+    @NotNull
+    private Object response;
 
     /**
      * 新上传的文件ID

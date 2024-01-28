@@ -140,7 +140,7 @@ public class ApiDebugControllerTests extends BaseTest {
         request.setModuleId("default");
         request.setProjectId(DEFAULT_PROJECT_ID);
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
-        request.setRequest(ApiDataUtils.toJSONString(msHttpElement));
+        request.setRequest(getMsElementParam(msHttpElement));
 
         uploadFileId = doUploadTempFile(getMockMultipartFile());
         request.setUploadFileIds(List.of(uploadFileId));
@@ -203,7 +203,7 @@ public class ApiDebugControllerTests extends BaseTest {
         request.setModuleId("default1");
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
         msHttpElement.setName("test1");
-        request.setRequest(ApiDataUtils.toJSONString(msHttpElement));
+        request.setRequest(getMsElementParam(msHttpElement));
 
         // 不带文件的更新
         request.setUnLinkRefIds(List.of(fileMetadataId));

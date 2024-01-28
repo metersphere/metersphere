@@ -86,7 +86,7 @@ public class RestControllerExceptionHandler {
                 message = getNotFoundMessage(message);
             }
             return ResponseEntity.status(code % 1000)
-                    .body(ResultHolder.error(code, message));
+                    .body(ResultHolder.error(code, message, e.getMessage()));
         } else {
             // 响应码返回 500，设置业务状态码
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

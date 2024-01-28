@@ -2,6 +2,7 @@ package io.metersphere.api.dto.debug;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -44,8 +45,8 @@ public class ApiDebugAddRequest implements Serializable {
     private String moduleId;
 
     @Schema(description = "请求内容")
-    @NotBlank
-    private String request;
+    @NotNull
+    private Object request;
     /**
      * 新上传的文件ID
      * 创建时先按ID创建目录，再把文件放入目录

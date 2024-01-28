@@ -434,7 +434,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         apiDefinitionAddRequest.setDescription("描述内容");
         apiDefinitionAddRequest.setName("test scenario");
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
-        apiDefinitionAddRequest.setRequest(ApiDataUtils.toJSONString(msHttpElement));
+        apiDefinitionAddRequest.setRequest(getMsElementParam(msHttpElement));
         apiDefinitionAddRequest.setResponse("{}");
         apiDefinition = apiDefinitionService.create(apiDefinitionAddRequest, "admin");
 
@@ -445,10 +445,13 @@ public class ApiScenarioControllerTests extends BaseTest {
         apiTestCaseAddRequest.setPriority("P0");
         apiTestCaseAddRequest.setStatus("Underway");
         apiTestCaseAddRequest.setTags(new LinkedHashSet<>(List.of("tag1", "tag2")));
-        apiTestCaseAddRequest.setRequest(ApiDataUtils.toJSONString(msHttpElement));
+        apiTestCaseAddRequest.setRequest(getMsElementParam(msHttpElement));
         apiTestCase = apiTestCaseService.addCase(apiTestCaseAddRequest, "admin");
     }
 
+    private Object getMsElementParam(MsHTTPElement msHTTPElement) {
+        return JSON.parseObject(ApiDataUtils.toJSONString(msHTTPElement));
+    }
 
     @Test
     @Order(2)

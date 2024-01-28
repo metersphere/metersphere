@@ -83,7 +83,7 @@ public class ApiDebugService {
         apiDebugMapper.insert(apiDebug);
         ApiDebugBlob apiDebugBlob = new ApiDebugBlob();
         apiDebugBlob.setId(apiDebug.getId());
-        apiDebugBlob.setRequest(request.getRequest().getBytes());
+        apiDebugBlob.setRequest(getMsTestElementStr(request.getRequest()).getBytes());
         apiDebugBlobMapper.insert(apiDebugBlob);
 
         // 处理文件
@@ -93,6 +93,7 @@ public class ApiDebugService {
         apiFileResourceService.addFileResource(resourceUpdateRequest);
         return apiDebug;
     }
+
 
     private Long getNextOrder(String projectId) {
         Long pos = extApiDebugMapper.getPos(projectId);
@@ -121,10 +122,10 @@ public class ApiDebugService {
         apiDebug.setUpdateTime(System.currentTimeMillis());
         apiDebugMapper.updateByPrimaryKeySelective(apiDebug);
 
-        if (StringUtils.isNotBlank(request.getRequest())) {
+        if (request.getRequest() != null) {
             ApiDebugBlob apiDebugBlob = new ApiDebugBlob();
             apiDebugBlob.setId(request.getId());
-            apiDebugBlob.setRequest(request.getRequest().getBytes());
+            apiDebugBlob.setRequest(getMsTestElementStr(request.getRequest()).getBytes());
             apiDebugBlobMapper.updateByPrimaryKeySelective(apiDebugBlob);
         }
 
@@ -135,6 +136,14 @@ public class ApiDebugService {
         resourceUpdateRequest.setDeleteFileIds(request.getDeleteFileIds());
         apiFileResourceService.updateFileResource(resourceUpdateRequest);
         return apiDebug;
+    }
+
+    private String getMsTestElementStr(Object request) {
+        String requestStr = JSON.toJSONString(request);
+        AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(requestStr, AbstractMsTestElement.class);
+        // 手动校验参数
+        ServiceUtils.validateParam(msTestElement);
+        return requestStr;
     }
 
     public void delete(String id, String operator) {

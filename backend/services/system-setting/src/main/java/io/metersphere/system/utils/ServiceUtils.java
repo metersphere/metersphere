@@ -1,10 +1,16 @@
 package io.metersphere.system.utils;
 
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.CommonBeanFactory;
+import io.metersphere.system.controller.handler.result.MsHttpResultCode;
 import io.metersphere.system.dto.sdk.enums.MoveTypeEnum;
 import io.metersphere.system.dto.sdk.request.PosRequest;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
+import org.apache.commons.collections.CollectionUtils;
 
 import java.lang.reflect.Method;
+import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -89,5 +95,24 @@ public class ServiceUtils {
         } catch (Exception e) {
             throw new MSException("更新 pos 字段失败");
         }
+    }
+
+    /**
+     * 校验对象的参数校验注解
+     * @param param
+     */
+    public static <T> void validateParam(T param) {
+        Validator validator = (Validator) CommonBeanFactory.getBean("validator");
+        Set<ConstraintViolation<T>> errors = validator.validate(param);
+        if (CollectionUtils.isEmpty(errors)) {
+            return;
+        }
+        StringBuilder tips = new StringBuilder();
+        for (ConstraintViolation<T> error : errors) {
+            String fieldName = error.getPropertyPath().toString();
+            String message = error.getMessage();
+            tips.append(fieldName + message).append("; ");
+        }
+        throw new MSException(MsHttpResultCode.VALIDATE_FAILED, tips.toString());
     }
 }
