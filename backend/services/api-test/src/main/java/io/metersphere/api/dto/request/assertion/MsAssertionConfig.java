@@ -13,8 +13,9 @@ import java.util.List;
 public class MsAssertionConfig {
     /**
      * 是否启用全局断言
+     * 默认为 false
      */
-    private Boolean enableGlobal;
+    private Boolean enableGlobal = false;
     /**
      * 断言列表
      */

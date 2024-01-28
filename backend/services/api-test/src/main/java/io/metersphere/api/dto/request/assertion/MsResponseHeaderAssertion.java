@@ -1,6 +1,8 @@
 package io.metersphere.api.dto.request.assertion;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import io.metersphere.system.valid.EnumValue;
+import jakarta.validation.Valid;
 import lombok.Data;
 
 import java.util.List;
@@ -13,14 +15,21 @@ import java.util.List;
 @Data
 @JsonTypeName("RESPONSE_HEADER")
 public class MsResponseHeaderAssertion extends MsAssertion {
-
+    /**
+     * 断言列表
+     */
+    @Valid
     private List<ResponseHeaderAssertionItem> assertions;
 
 
+    /**
+     * 响应头断言项
+     */
     @Data
     public static class ResponseHeaderAssertionItem {
         /**
          * 是否启用
+         * 默认启用
          */
         private Boolean enable = true;
         /**
@@ -29,8 +38,9 @@ public class MsResponseHeaderAssertion extends MsAssertion {
         private String header;
         /**
          * 匹配条件
-         * 值为 MsAssertionCondition
+         * 取值参考 {@link io.metersphere.sdk.constants.MsAssertionCondition}
          */
+        @EnumValue(enumClass = io.metersphere.sdk.constants.MsAssertionCondition.class)
         private String condition;
         /**
          * 匹配值

@@ -1,6 +1,7 @@
 package io.metersphere.api.dto.request.processors.extract;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import io.metersphere.system.valid.EnumValue;
 import lombok.Data;
 
 /**
@@ -9,6 +10,11 @@ import lombok.Data;
 @Data
 @JsonTypeName("X_PATH")
 public class XPathExtract extends ResultMatchingExtract {
+    /**
+     * 提取范围
+     * 取值参考 {@link ResponseFormat}
+     */
+    @EnumValue(enumClass = ResponseFormat.class)
     private String responseFormat;
 
     public enum ResponseFormat {

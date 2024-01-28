@@ -1,6 +1,7 @@
 package io.metersphere.api.dto.request.assertion;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
@@ -15,8 +16,9 @@ public class MsResponseCodeAssertion extends MsAssertion {
      * 不校验即忽略状态
      * 选择其他条件时，也忽略状态
      * 不校验可搭配其他校验使用
-     * @see io.metersphere.sdk.constants.MsAssertionCondition
+     * 取值参考 {@link io.metersphere.sdk.constants.MsAssertionCondition}
      */
+    @Size(max = 50)
     private String condition;
     /**
      * 匹配值

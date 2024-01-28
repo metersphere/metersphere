@@ -14,8 +14,7 @@ import org.apache.jmeter.protocol.http.util.HTTPFileArg;
 public class MsBinaryBodyConverter extends MsBodyConverter<BinaryBody> {
     @Override
     public void parse(HTTPSamplerProxy sampler, BinaryBody body, ParameterConfig config) {
-        ApiFile bodyFile = body.getBodyFile();
-        HTTPFileArg httpFileArg = getHttpFileArg(bodyFile);
+        HTTPFileArg httpFileArg = getHttpFileArg(body);
         sampler.setHTTPFiles(new HTTPFileArg[]{httpFileArg});
     }
 }

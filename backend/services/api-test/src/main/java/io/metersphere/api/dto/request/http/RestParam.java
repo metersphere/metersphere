@@ -1,8 +1,10 @@
 package io.metersphere.api.dto.request.http;
 
+import io.metersphere.system.valid.EnumValue;
 import lombok.Data;
 
 /**
+ * rest参数
  * @Author: jianxing
  * @CreateTime: 2023-11-06  16:59
  */
@@ -10,10 +12,11 @@ import lombok.Data;
 public class RestParam extends KeyValueEnableParam {
     /**
      * 参数类型
-     * 默认string，可选integer、number、array
-     * todo
+     * 取值参考 {@link KeyValueParamType}
+     * 默认String
      */
-    private String paramType;
+    @EnumValue(enumClass = KeyValueParamType.class)
+    private String paramType = KeyValueParamType.STRING.getValue();
     /**
      * 是否必填
      */

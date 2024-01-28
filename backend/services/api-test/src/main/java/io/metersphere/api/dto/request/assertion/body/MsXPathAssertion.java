@@ -1,6 +1,7 @@
 package io.metersphere.api.dto.request.assertion.body;
 
 
+import io.metersphere.system.valid.EnumValue;
 import lombok.Data;
 
 import java.util.List;
@@ -14,11 +15,12 @@ import java.util.List;
 public class MsXPathAssertion {
     /**
      * 响应内容格式
-     * xml 或者 html
+     * 取值参考 {@link ResponseFormat}
      */
+    @EnumValue(enumClass = ResponseFormat.class)
     private String responseFormat;
     /**
-     * xpath断言
+     * xpath断言列表
      */
     private List<MsXPathAssertionItem> assertions;
 

@@ -9,5 +9,9 @@ import lombok.Data;
  */
 @Data
 public abstract class MsBodyAssertionItem {
+    /**
+     * 是否启用
+     * 默认启用
+     */
     private Boolean enable = true;
 }

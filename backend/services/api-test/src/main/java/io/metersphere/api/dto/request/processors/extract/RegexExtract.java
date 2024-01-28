@@ -1,6 +1,7 @@
 package io.metersphere.api.dto.request.processors.extract;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import io.metersphere.system.valid.EnumValue;
 import lombok.Data;
 
 @Data
@@ -8,54 +9,43 @@ import lombok.Data;
 public class RegexExtract extends ResultMatchingExtract {
     /**
      * 表达式匹配规则
-     * @see ExpressionRuleType
+     * 取值参考 {@link ExpressionRuleType} 中的 value
+     * 默认为表达式匹配
      */
-    private String expressionMatchingRule;
+    @EnumValue(enumClass = ExpressionRuleType.class)
+    private String expressionMatchingRule = ExpressionRuleType.EXPRESSION.name();
     /**
      * 提取范围
-     * @see ExtractScope
+     * 取值参考 {@link ExtractScope}
      */
+    @EnumValue(enumClass = ExtractScope.class)
     private String extractScope;
 
+    /**
+     * 表达式匹配规则
+     */
     public enum ExpressionRuleType {
         /**
          * 匹配表达式
          */
-        EXPRESSION("$1$"),
+        EXPRESSION,
         /**
          * 匹配组
          */
-        GROUP("$0$");
-
-        private String value;
-
-        ExpressionRuleType(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
+        GROUP;
     }
 
+    /**
+     * 提取对象
+     */
     public enum ExtractScope {
-        BODY("false"),
-        REQUEST_HEADERS("request_headers"),
-        UNESCAPED_BODY("unescaped"),
-        BODY_AS_DOCUMENT("as_document"),
-        RESPONSE_HEADERS("true"),
-        URL("URL"),
-        RESPONSE_CODE("code"),
-        RESPONSE_MESSAGE("message");
-
-        private String value;
-
-        ExtractScope(String value) {
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
+        BODY,
+        REQUEST_HEADERS,
+        UNESCAPED_BODY,
+        BODY_AS_DOCUMENT,
+        RESPONSE_HEADERS,
+        URL,
+        RESPONSE_CODE,
+        RESPONSE_MESSAGE;
     }
 }
