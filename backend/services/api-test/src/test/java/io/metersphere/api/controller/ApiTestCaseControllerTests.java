@@ -324,7 +324,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setTags(new LinkedHashSet<>(List.of("tag1", "tag2")));
         request.setEnvironmentId(environments.get(0).getId());
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
-        request.setRequest(ApiDataUtils.toJSONString(msHttpElement));
+        request.setRequest(getMsElementParam(msHttpElement));
 
         uploadFileId = doUploadTempFile(getMockMultipartFile());
         request.setUploadFileIds(List.of(uploadFileId));
@@ -370,6 +370,10 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setName("permission");
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD, ADD, request);
 
+    }
+
+    private Object getMsElementParam(MsHTTPElement msHTTPElement) {
+        return JSON.parseObject(ApiDataUtils.toJSONString(msHTTPElement));
     }
 
 
@@ -498,7 +502,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setTags(List.of("tag1", "tag2"));
         request.setEnvironmentId(null);
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
-        request.setRequest(ApiDataUtils.toJSONString(msHttpElement));
+        request.setRequest(getMsElementParam(msHttpElement));
         // 不带文件的更新
         request.setUnLinkRefIds(List.of(fileMetadataId));
         request.setDeleteFileIds(List.of(uploadFileId));
@@ -638,7 +642,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setStatus("Underway");
         request.setTags(new LinkedHashSet<>(List.of("tag1", "tag2")));
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
-        request.setRequest(ApiDataUtils.toJSONString(msHttpElement));
+        request.setRequest(getMsElementParam(msHttpElement));
         this.requestPost(ADD, request);
         ApiTestCasePageRequest pageRequest = new ApiTestCasePageRequest();
         pageRequest.setProjectId(DEFAULT_PROJECT_ID);

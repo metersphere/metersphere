@@ -192,9 +192,9 @@ public class ApiDefinitionControllerTests extends BaseTest {
         // 创建测试数据
         ApiDefinitionAddRequest request = createApiDefinitionAddRequest();
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
-        request.setRequest(ApiDataUtils.toJSONString(msHttpElement));
+        request.setRequest(getMsElementParam(msHttpElement));
         List<HttpResponse> msHttpResponse = MsHTTPElementTest.getMsHttpResponse();
-        request.setResponse(ApiDataUtils.toJSONString(msHttpResponse));
+        request.setResponse(msHttpResponse);
 
         uploadFileId = doUploadTempFile(getMockMultipartFile("file_upload.JPG"));
         request.setUploadFileIds(List.of(uploadFileId));
@@ -233,6 +233,10 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setMethod("DELETE");
         request.setPath("/api/admin/posts");
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_ADD, ADD, request);
+    }
+
+    private Object getMsElementParam(MsHTTPElement msHTTPElement) {
+        return JSON.parseObject(ApiDataUtils.toJSONString(msHTTPElement));
     }
 
     private ApiDefinitionAddRequest createApiDefinitionAddRequest() {
@@ -327,9 +331,9 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
         request.setCustomFields(customFieldMap);
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
-        request.setRequest(ApiDataUtils.toJSONString(msHttpElement));
+        request.setRequest(getMsElementParam(msHttpElement));
         List<HttpResponse> msHttpResponse = MsHTTPElementTest.getMsHttpResponse();
-        request.setResponse(ApiDataUtils.toJSONString(msHttpResponse));
+        request.setResponse(msHttpResponse);
 
         // 清除文件的更新
         request.setUnLinkRefIds(List.of(fileMetadataId));
@@ -410,8 +414,8 @@ public class ApiDefinitionControllerTests extends BaseTest {
         addRequest.setDescription("描述内容");
         addRequest.setTags(new LinkedHashSet<>(List.of("tag1", "tag2")));
         addRequest.setCustomFields(new HashMap<>());
-        addRequest.setRequest(ApiDataUtils.toJSONString(msHttpElement));
-        addRequest.setResponse(ApiDataUtils.toJSONString(msHttpResponse));
+        addRequest.setRequest(getMsElementParam(msHttpElement));
+        addRequest.setResponse(msHttpResponse);
         MvcResult mvcResult = this.requestPostWithOkAndReturn(ADD, addRequest);
         ApiDefinition apiDefinition = getResultData(mvcResult, ApiDefinition.class);
         ApiDefinition apiPathAndMethod = apiDefinitionMapper.selectByPrimaryKey(apiDefinition.getId());
@@ -420,8 +424,8 @@ public class ApiDefinitionControllerTests extends BaseTest {
         ApiDefinitionUpdateRequest updateRequest = new ApiDefinitionUpdateRequest();
         BeanUtils.copyBean(updateRequest, apiPathAndMethod);
         updateRequest.setPath("/api/test/path/method");
-        updateRequest.setRequest(ApiDataUtils.toJSONString(msHttpElement));
-        updateRequest.setResponse(ApiDataUtils.toJSONString(msHttpResponse));
+        updateRequest.setRequest(getMsElementParam(msHttpElement));
+        updateRequest.setResponse(msHttpResponse);
         updateRequest.setMethod("GET");
         this.requestPostWithOk(UPDATE, updateRequest);
         //增加用例
@@ -433,7 +437,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
             testCaseAddRequest.setPriority("P0");
             testCaseAddRequest.setStatus(ApiDefinitionStatus.PREPARE.getValue());
             testCaseAddRequest.setTags(new LinkedHashSet<>(List.of("tag1", "tag2")));
-            testCaseAddRequest.setRequest(ApiDataUtils.toJSONString(msHttpElement));
+            testCaseAddRequest.setRequest(getMsElementParam(msHttpElement));
             this.requestPostWithOkAndReturn("/api/case/add", testCaseAddRequest);
         }
         updateRequest.setPath("/api/test/path/method/case");

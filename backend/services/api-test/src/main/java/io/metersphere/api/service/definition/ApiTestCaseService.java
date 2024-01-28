@@ -156,7 +156,7 @@ public class ApiTestCaseService {
 
         ApiTestCaseBlob caseBlob = new ApiTestCaseBlob();
         caseBlob.setId(testCase.getId());
-        caseBlob.setRequest(request.getRequest().getBytes());
+        caseBlob.setRequest(getMsTestElementStr(request.getRequest()).getBytes());
         apiTestCaseBlobMapper.insert(caseBlob);
 
         // 处理文件
@@ -165,6 +165,14 @@ public class ApiTestCaseService {
         resourceUpdateRequest.setLinkFileIds(request.getLinkFileIds());
         apiFileResourceService.addFileResource(resourceUpdateRequest);
         return testCase;
+    }
+
+    private String getMsTestElementStr(Object request) {
+        String requestStr = JSON.toJSONString(request);
+        AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(requestStr, AbstractMsTestElement.class);
+        // 手动校验参数
+        ServiceUtils.validateParam(msTestElement);
+        return requestStr;
     }
 
     private ApiTestCase checkResourceExist(String id) {
@@ -240,7 +248,7 @@ public class ApiTestCaseService {
         apiTestCaseMapper.updateByPrimaryKey(testCase);
         ApiTestCaseBlob apiTestCaseBlob = new ApiTestCaseBlob();
         apiTestCaseBlob.setId(request.getId());
-        apiTestCaseBlob.setRequest(request.getRequest().getBytes());
+        apiTestCaseBlob.setRequest(getMsTestElementStr(request.getRequest()).getBytes());
         apiTestCaseBlobMapper.updateByPrimaryKeySelective(apiTestCaseBlob);
 
         ApiFileResourceUpdateRequest resourceUpdateRequest = getApiFileResourceUpdateRequest(testCase.getId(), testCase.getProjectId(), userId);

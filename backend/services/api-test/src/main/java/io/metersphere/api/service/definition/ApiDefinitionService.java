@@ -35,6 +35,7 @@ import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.CustomFieldUtils;
+import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -186,8 +187,8 @@ public class ApiDefinitionService {
         apiDefinitionMapper.insertSelective(apiDefinition);
         ApiDefinitionBlob apiDefinitionBlob = new ApiDefinitionBlob();
         apiDefinitionBlob.setId(apiDefinition.getId());
-        apiDefinitionBlob.setRequest(request.getRequest().getBytes());
-        apiDefinitionBlob.setResponse(request.getResponse().getBytes());
+        apiDefinitionBlob.setRequest(getMsTestElementStr(request.getRequest()).getBytes());
+        apiDefinitionBlob.setResponse(JSON.toJSONString(request.getResponse()).getBytes());
         apiDefinitionBlobMapper.insertSelective(apiDefinitionBlob);
 
         // 处理文件
@@ -205,6 +206,14 @@ public class ApiDefinitionService {
         }
 
         return apiDefinition;
+    }
+
+    private String getMsTestElementStr(Object request) {
+        String requestStr = JSON.toJSONString(request);
+        AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(requestStr, AbstractMsTestElement.class);
+        // 手动校验参数
+        ServiceUtils.validateParam(msTestElement);
+        return requestStr;
     }
 
     private static ApiFileResourceUpdateRequest getApiFileResourceUpdateRequest(String sourceId, String projectId, String operator) {
@@ -244,8 +253,14 @@ public class ApiDefinitionService {
         apiDefinitionMapper.updateByPrimaryKeySelective(apiDefinition);
         ApiDefinitionBlob apiDefinitionBlob = new ApiDefinitionBlob();
         apiDefinitionBlob.setId(apiDefinition.getId());
-        apiDefinitionBlob.setRequest(request.getRequest().getBytes());
-        apiDefinitionBlob.setResponse(request.getResponse().getBytes());
+        if (request.getRequest() != null) {
+            apiDefinitionBlob.setRequest(getMsTestElementStr(request.getRequest()).getBytes());
+        }
+
+        if (request.getResponse() != null) {
+            apiDefinitionBlob.setResponse(JSON.toJSONString(request.getResponse()).getBytes());
+        }
+
         apiDefinitionBlobMapper.updateByPrimaryKeySelective(apiDefinitionBlob);
 
         // 自定义字段

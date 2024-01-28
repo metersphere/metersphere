@@ -37,7 +37,7 @@ public class ApiDebugUpdateRequest implements Serializable {
     private String moduleId;
 
     @Schema(description = "请求内容")
-    private String request;
+    private Object request;
 
     /**
      * 新上传的文件ID
