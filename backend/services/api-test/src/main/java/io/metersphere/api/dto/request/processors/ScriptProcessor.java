@@ -3,6 +3,8 @@ package io.metersphere.api.dto.request.processors;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.metersphere.api.dto.request.http.KeyValueParam;
 import io.metersphere.project.constants.ScriptLanguageType;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.util.List;
@@ -20,19 +22,23 @@ public class ScriptProcessor extends MsProcessor {
     private String script;
     /**
      * 脚本语言
-     * @see ScriptLanguageType
+     * {@link ScriptLanguageType}
      */
+    @Size(max = 20)
     private String scriptLanguage;
     /**
      * 是否启用公共脚本
+     * 默认为 false
      */
     private Boolean enableCommonScript = false;
     /**
-     * 脚本ID
+     * 公共脚本ID
      */
+    @Size(max = 50)
     private String scriptId;
     /**
      * 公共脚本入参
      */
+    @Valid
     private List<KeyValueParam> params;
 }

@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.request.assertion.body;
 
+import jakarta.validation.Valid;
 import lombok.Data;
 
 import java.util.List;
@@ -14,5 +15,6 @@ public class MsRegexAssertion {
     /**
      * 断言列表
      */
+    @Valid
     private List<MsRegexAssertionItem> assertions;
 }

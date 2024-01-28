@@ -10,6 +10,9 @@ import org.apache.commons.lang3.StringUtils;
  */
 @Data
 public class MsRegexAssertionItem extends MsBodyAssertionItem {
+    /**
+     * 表达式
+     */
     private String expression;
 
     public boolean isValid() {

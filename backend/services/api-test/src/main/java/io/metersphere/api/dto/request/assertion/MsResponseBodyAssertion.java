@@ -5,6 +5,8 @@ import io.metersphere.api.dto.request.assertion.body.MsDocumentAssertion;
 import io.metersphere.api.dto.request.assertion.body.MsJSONPathAssertion;
 import io.metersphere.api.dto.request.assertion.body.MsRegexAssertion;
 import io.metersphere.api.dto.request.assertion.body.MsXPathAssertion;
+import io.metersphere.system.valid.EnumValue;
+import jakarta.validation.Valid;
 import lombok.Data;
 
 import java.util.HashMap;
@@ -26,24 +28,29 @@ public class MsResponseBodyAssertion extends MsAssertion {
      * 后端从设计层面支持多种断言，前端只支持一种
      * 同时切换可以同时持久化两种类型
      *
-     * @see MsBodyAssertionType
+     * 取值参考 {@link MsBodyAssertionType}
      */
+    @EnumValue(enumClass = MsBodyAssertionType.class)
     private String assertionBodyType;
     /**
      * jsonPath断言
      */
+    @Valid
     private MsJSONPathAssertion jsonPathAssertion;
     /**
      * xpath断言
      */
+    @Valid
     private MsXPathAssertion xpathAssertion;
     /**
      * 文档断言
      */
+    @Valid
     private MsDocumentAssertion documentAssertion;
     /**
      * 正则断言
      */
+    @Valid
     private MsRegexAssertion regexAssertion;
 
     private static Map<MsBodyAssertionType, Class> bodyAssertionClassMap = new HashMap<>();
@@ -68,6 +75,9 @@ public class MsResponseBodyAssertion extends MsAssertion {
         return boadyAssertionMap.get(MsBodyAssertionType.valueOf(assertionBodyType));
     }
 
+    /**
+     * 请求体断言类型
+     */
     public enum MsBodyAssertionType {
         /**
          * 正则断言

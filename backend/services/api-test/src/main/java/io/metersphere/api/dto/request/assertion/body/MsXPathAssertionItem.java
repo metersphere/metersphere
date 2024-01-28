@@ -11,7 +11,13 @@ import org.apache.commons.lang3.StringUtils;
  */
 @Data
 public class MsXPathAssertionItem extends MsBodyAssertionItem {
+    /**
+     * 表达式
+     */
     private String expression;
+    /**
+     * 匹配值
+     */
     private String expectedValue;
 
     public boolean isValid() {

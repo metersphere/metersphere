@@ -8,6 +8,8 @@ import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
+import java.util.HashMap;
+
 import static io.metersphere.api.parser.jmeter.constants.JmeterAlias.REGEX_EXTRACTOR_GUI;
 
 /**
@@ -23,18 +25,42 @@ public class RegexExtractConverter extends ExtractConverter<RegexExtract> {
         extractor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(REGEX_EXTRACTOR_GUI));
         extractor.setRefName(msExtract.getVariableName());
         extractor.setRegex(msExtract.getExpression());
-        extractor.setUseField(msExtract.getExtractScope());
         extractor.setEnabled(msExtract.getEnable());
-
+        extractor.setUseField(getUseField(msExtract.getExtractScope()));
+        extractor.setTemplate(getTemplate(msExtract.getExpressionMatchingRule()));
         // 处理匹配多条等匹配规则
         extractor.setMatchNumber(parseResultMatchingRule(msExtract));
-
-        // $1$提取 JSON 响应中的第一个匹配项 $0$用于提取整个 JSON 响应
-        if (StringUtils.isBlank(msExtract.getExpressionMatchingRule())) {
-            extractor.setTemplate(RegexExtract.ExpressionRuleType.EXPRESSION.getValue());
-        } else {
-            extractor.setTemplate(msExtract.getExpressionMatchingRule());
-        }
         hashTree.add(extractor);
+    }
+
+    private String getTemplate(String expressionMatchingRule) {
+        // $1$提取 JSON 响应中的第一个匹配项 $0$用于提取整个 JSON 响应
+        HashMap<String, String> ruleValueMap = new HashMap<>() {{
+            put(RegexExtract.ExpressionRuleType.EXPRESSION.name(), "$1$");
+            put(RegexExtract.ExpressionRuleType.GROUP.name(), "$0$");
+        }};
+        if (StringUtils.isBlank(expressionMatchingRule)) {
+            return ruleValueMap.get(RegexExtract.ExpressionRuleType.EXPRESSION.name());
+        } else {
+            return ruleValueMap.get(expressionMatchingRule);
+        }
+    }
+
+    private String getUseField(String extractScope) {
+        HashMap<String, String> extractScopeMap = new HashMap<>() {{
+            put(RegexExtract.ExtractScope.BODY.name(), "false");
+            put(RegexExtract.ExtractScope.REQUEST_HEADERS.name(), "request_headers");
+            put(RegexExtract.ExtractScope.UNESCAPED_BODY.name(), "unescaped");
+            put(RegexExtract.ExtractScope.BODY_AS_DOCUMENT.name(), "as_document");
+            put(RegexExtract.ExtractScope.RESPONSE_HEADERS.name(), "true");
+            put(RegexExtract.ExtractScope.URL.name(), "URL");
+            put(RegexExtract.ExtractScope.RESPONSE_CODE.name(), "code");
+            put(RegexExtract.ExtractScope.RESPONSE_MESSAGE.name(), "message");
+        }};
+        if (StringUtils.isNotBlank(extractScope)) {
+            return extractScopeMap.get(extractScope);
+        } else {
+            return RegexExtract.ExtractScope.BODY.name();
+        }
     }
 }

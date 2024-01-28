@@ -7,6 +7,7 @@ import lombok.Data;
 import java.util.List;
 
 /**
+ * 提取处理器配置
  * @Author: jianxing
  * @CreateTime: 2023-11-22  11:08
  */

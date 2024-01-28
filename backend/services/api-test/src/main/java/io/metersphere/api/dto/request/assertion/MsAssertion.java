@@ -2,10 +2,24 @@ package io.metersphere.api.dto.request.assertion;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import io.metersphere.api.dto.request.processors.extract.JSONPathExtract;
+import io.metersphere.api.dto.request.processors.extract.RegexExtract;
+import io.metersphere.api.dto.request.processors.extract.XPathExtract;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
  * 断言
+ * <pre>
+ * 该参数传参时，需要传入 assertionType 字段，用于区分是哪种断言
+ * assertionType 取值为:
+ *   RESPONSE_CODE {@link MsResponseCodeAssertion}
+ *   RESPONSE_HEADER {@link MsResponseHeaderAssertion}
+ *   RESPONSE_BODY {@link MsResponseBodyAssertion}
+ *   RESPONSE_TIME {@link MsResponseTimeAssertion}
+ *   SCRIPT {@link MsScriptAssertion}
+ *   VARIABLE {@link MsVariableAssertion}
+ * </pre>
  */
 @Data
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "assertionType")
@@ -20,10 +34,12 @@ import lombok.Data;
 public abstract class MsAssertion {
     /**
      * 是否启用
+     * 默认启用
      */
     private Boolean enable = true;
     /**
      * 断言名称
      */
+    @Size(max = 100)
     private String name;
 }

@@ -24,6 +24,7 @@ import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.constants.ScriptLanguageType;
 import io.metersphere.sdk.constants.MsAssertionCondition;
+import io.metersphere.sdk.util.BeanUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -93,10 +94,7 @@ public class MsHTTPElementTest {
         xmlBody.setValue("<a/>");
         body.setXmlBody(xmlBody);
 
-        BinaryBody binaryBody = new BinaryBody();
-        binaryBody.setBodyFile(bodyFile);
-        body.setBinaryBody(binaryBody);
-
+        body.setBinaryBody(BeanUtils.copyBean(new BinaryBody(), bodyFile));
         return body;
     }
 
