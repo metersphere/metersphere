@@ -5,6 +5,7 @@ import io.metersphere.system.base.BasePluginTestService;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.Plugin;
+import io.metersphere.system.domain.UserExtend;
 import io.metersphere.system.domain.UserExtendExample;
 import io.metersphere.system.mapper.UserExtendMapper;
 import jakarta.annotation.Resource;
@@ -94,6 +95,11 @@ public class UserPlatformAccountControllerTests extends BaseTest {
         Map<String, Object> accountMap = parseObjectFromMvcResult(mvcResult, Map.class);
         Assertions.assertNull(accountMap);
         // @@请求成功 保存两次
+        this.requestPostWithOk(SAVE_POST, buildUserPlatformConfig());
+        UserExtend record = new UserExtend();
+        record.setId("admin");
+        record.setPlatformInfo(null);
+        userExtendMapper.updateByPrimaryKeyWithBLOBs(record);
         this.requestPostWithOk(SAVE_POST, buildUserPlatformConfig());
         this.requestPostWithOk(SAVE_POST, buildUserPlatformConfig());
     }
