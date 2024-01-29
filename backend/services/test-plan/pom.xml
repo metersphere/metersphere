@@ -54,7 +54,7 @@
                     <dependency>
                         <groupId>mysql</groupId>
                         <artifactId>mysql-connector-java</artifactId>
-                        <version>8.0.16</version>
+                        <version>${mysql-connector-java.version}</version>
                     </dependency>
                     <dependency>
                         <groupId>com.itfsw</groupId>
