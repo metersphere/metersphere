@@ -22,7 +22,7 @@ import java.nio.charset.StandardCharsets;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class LicenseControllerTests extends BaseTest {
@@ -31,7 +31,7 @@ public class LicenseControllerTests extends BaseTest {
     private MockMvc mockMvc;
 
     private final String validate = "/license/validate";
-    private final String add = "/license/add";
+    private final String add = "/license/addLicense";
 
     private MvcResult responsePost(String url, Object param) throws Exception {
         return mockMvc.perform(MockMvcRequestBuilders.post(url)
@@ -83,7 +83,6 @@ public class LicenseControllerTests extends BaseTest {
         Assertions.assertNotNull(licenseDTO);
         Assertions.assertEquals("valid", licenseDTO.getStatus());
     }
-
 
 
 }

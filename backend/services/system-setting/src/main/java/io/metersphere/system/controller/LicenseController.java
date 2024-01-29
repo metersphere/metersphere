@@ -1,9 +1,9 @@
 package io.metersphere.system.controller;
 
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.system.dto.sdk.LicenseDTO;
 import io.metersphere.system.service.LicenseService;
-import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,9 +25,9 @@ public class LicenseController {
         return new LicenseDTO();
     }
 
-    @PostMapping("/add")
+    @PostMapping("/addLicense")
     @Operation(summary = "添加有效的License")
-    @RequiresPermissions(value= {PermissionConstants.SYSTEM_AUTH_READ, PermissionConstants.SYSTEM_AUTH_READ_UPDATE}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.SYSTEM_AUTH_READ, PermissionConstants.SYSTEM_AUTH_READ_UPDATE}, logical = Logical.OR)
     public LicenseDTO addLicense(@RequestBody String licenseCode) {
         LicenseService licenseService = CommonBeanFactory.getBean(LicenseService.class);
         if (licenseService != null) {

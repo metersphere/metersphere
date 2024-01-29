@@ -1,2 +1,2 @@
 export const getLicenseUrl = '/license/validate';
-export const addLicenseUrl = '/license/add';
+export const addLicenseUrl = '/license/addLicense';
