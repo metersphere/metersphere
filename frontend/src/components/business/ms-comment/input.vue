@@ -10,7 +10,7 @@
     <div class="w-full items-center">
       <a-input v-if="!isActive" class="w-full" @click="isActive = true"></a-input>
       <div v-else class="flex flex-col justify-between">
-        <MsRichText v-model:raw="currentContent" class="w-full" />
+        <MsRichText v-model:raw="currentContent" v-model:commentIds="commentIds" class="w-full" />
         <div class="mt-4 flex flex-row justify-end gap-[12px]">
           <a-button @click="cancelClick">{{ t('common.cancel') }}</a-button>
           <a-button type="primary" :disabled="!currentContent" @click="publish">{{ t('common.publish') }}</a-button>
@@ -22,6 +22,7 @@
 
 <script lang="ts" setup>
   import { ref } from 'vue';
+  import { useVModel } from '@vueuse/core';
 
   import MsAvatar from '@/components/pure/ms-avatar/index.vue';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
@@ -38,6 +39,7 @@
     isShowAvatar: boolean; // 是否显示评论人头像
     isUseBottom: boolean; // 是否被用于底部
     defaultValue?: string; // 默认值
+    noticeUserIds?: string[]; // 评论人id列表
   }>();
 
   const currentContent = ref(props.defaultValue || '');
@@ -48,6 +50,7 @@
   }>();
 
   const isActive = ref(false);
+  const commentIds = useVModel(props, 'noticeUserIds', emit);
 
   const publish = () => {
     emit('publish', currentContent.value);

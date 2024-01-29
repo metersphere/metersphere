@@ -12,6 +12,7 @@
     :pagination="props.pagination"
     :table-data="props.tableData"
     :page-change="props.pageChange"
+    :mask-closable="true"
     @loaded="loadedCase"
   >
     <template #titleLeft>
@@ -102,8 +103,9 @@
                       <a-badge
                         class="ml-1"
                         :class="activeTab === tab.key ? 'active' : ''"
-                        :count="1000"
-                        :max-count="99"
+                        :count="tab.total"
+                        :max-count="1000000000000000"
+                        :min-count="0"
                       /> </div
                   ></a-menu-item>
                   <a-menu-item key="setting">
@@ -184,6 +186,7 @@
       </div>
       <inputComment
         v-model:content="content"
+        v-model:notice-user-ids="noticeUserIds"
         v-permission="['FUNCTIONAL_CASE:READ+COMMENT']"
         :is-active="isActive"
         is-show-avatar
@@ -483,8 +486,9 @@
   watch(
     () => props.visible,
     (val) => {
-      showDrawerVisible.value = val;
       if (val) {
+        showDrawerVisible.value = val;
+        activeTab.value = 'detail';
         settingDrawerRef.value.getTabModule();
       }
     }
@@ -508,21 +512,17 @@
   const content = ref('');
   const commentRef = ref();
   const isActive = ref<boolean>(false);
+
+  const noticeUserIds = ref<string[]>([]);
   async function publishHandler(currentContent: string) {
-    const regex = /data-id="([^"]*)"/g;
-    const matchesNotifier = currentContent.match(regex);
-    let notifiers = '';
-    if (matchesNotifier?.length) {
-      notifiers = matchesNotifier.map((match) => match.replace('data-id="', '').replace('"', '')).join(';');
-    }
     try {
       const params: CommentParams = {
         caseId: detailInfo.value.id,
-        notifier: notifiers,
+        notifier: noticeUserIds.value.join(';'),
         replyUser: '',
         parentId: '',
         content: currentContent,
-        event: notifiers ? 'AT' : 'COMMENT', // 任务事件(仅评论: ’COMMENT‘; 评论并@: ’AT‘; 回复评论/回复并@: ’REPLAY‘;)
+        event: noticeUserIds.value.join(';') ? 'AT' : 'COMMENT', // 任务事件(仅评论: ’COMMENT‘; 评论并@: ’AT‘; 回复评论/回复并@: ’REPLAY‘;)
       };
       await createCommentList(params);
       commentRef.value.getAllCommentList();

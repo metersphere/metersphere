@@ -74,6 +74,8 @@ export default defineComponent({
       currentItem.parentId = item.parentId || '';
     };
 
+    const noticeUserIds = ref<string[]>([]);
+
     const renderInput = (item: CommentItem) => {
       return (
         <CommentInput
