@@ -10,4 +10,8 @@ public class SystemVersionService {
     public String getVersion() {
         return System.getenv("MS_VERSION");
     }
+
+    public String getPackageType() {
+        return System.getenv("MS_PACKAGE_TYPE");
+    }
 }
