@@ -32,7 +32,7 @@
   import { getProjectList, switchProject } from '@/api/modules/project-management/project';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore, useUserStore } from '@/store';
-  import { getFirstRouteNameByPermission } from '@/utils/permission';
+  import { getFirstRouteNameByPermission, hasAnyPermission } from '@/utils/permission';
 
   import { SelectValue } from '@/models/projectManagement/menuManagement';
   import type { ProjectListItem } from '@/models/setting/project';
@@ -49,8 +49,11 @@
 
   async function initProjects() {
     try {
-      const res = await getProjectList(appStore.getCurrentOrgId);
-      projectList.value = res;
+      if (appStore.getCurrentOrgId && hasAnyPermission(['PROJECT_BASE_INFO:READ'])) {
+        const res = await getProjectList(appStore.getCurrentOrgId);
+      } else {
+        projectList.value = [];
+      }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
