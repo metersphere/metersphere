@@ -113,7 +113,7 @@
                 <if test="values != null and values.size() > 0">
                     <choose>
                         <when test="key=='status'">
-                            case_review_functional_case.status in
+                            crfc.status in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
                             <include refid="queryType">
                                 <property name="searchMode" value="${searchMode}"/>
