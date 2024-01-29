@@ -651,13 +651,14 @@ public class FunctionalCaseService {
                 List<FunctionalCaseAttachment> caseAttachments = attachmentMap.get(s);
                 List<FileAssociation> fileAssociationList = fileAssociationMap.get(s);
                 List<FunctionalCaseCustomField> customFields = customFieldMap.get(s);
+                Long num = functionalCase.getNum();
 
                 Optional.ofNullable(functionalCase).ifPresent(functional -> {
                     functional.setId(id);
                     functional.setRefId(id);
                     functional.setModuleId(request.getModuleId());
                     functional.setNum(getNextNum(request.getProjectId()));
-                    functional.setName(getCopyName(functionalCase.getName()));
+                    functional.setName(getCopyName(functionalCase.getName(), num, functional.getNum()));
                     functional.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.name());
                     functional.setPos(nextOrder.get());
                     functional.setLastExecuteResult(FunctionalCaseExecuteResult.UN_EXECUTED.name());
@@ -697,12 +698,18 @@ public class FunctionalCaseService {
         }
     }
 
-    private String getCopyName(String name) {
-        String copyName = "copy_" + name + "_" + UUID.randomUUID().toString().substring(0, 4);
-        if (copyName.length() > 255) {
-            copyName = copyName.substring(0, 250) + copyName.substring(copyName.length() - 5);
+    private String getCopyName(String name, long oldNum, long newNum) {
+        if (!StringUtils.startsWith(name, "copy_")) {
+            name = "copy_" + name;
         }
-        return copyName;
+        if (name.length() > 250) {
+            name = name.substring(0, 200) + "...";
+        }
+        if (StringUtils.endsWith(name, "_" + oldNum)) {
+            name = StringUtils.substringBeforeLast(name, "_" + oldNum);
+        }
+        name = name + "_" + newNum;
+        return name;
     }
 
 
