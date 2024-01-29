@@ -63,10 +63,9 @@
   import { useAppStore, useUserStore } from '@/store';
   import { encrypted } from '@/utils';
   import { setLoginExpires } from '@/utils/auth';
-  import { getFirstRouteNameByPermission } from '@/utils/permission';
+  import { getFirstRouteNameByPermission, routerNameHasPermission } from '@/utils/permission';
 
   import type { LoginData } from '@/models/user';
-  import { WorkbenchRouteEnum } from '@/enums/routeEnum';
 
   import { ValidatedError } from '@arco-design/web-vue/es/form/interface';
 
@@ -126,10 +125,11 @@
         loginConfig.value.username = rememberPassword ? username : '';
         loginConfig.value.password = rememberPassword ? password : '';
         const { redirect, ...othersQuery } = router.currentRoute.value.query;
+        const redirectHasPermission = redirect && routerNameHasPermission(redirect as string, router.getRoutes());
         const currentRouteName = getFirstRouteNameByPermission(router.getRoutes());
         setLoginExpires();
         router.push({
-          name: (redirect as string) || currentRouteName,
+          name: redirectHasPermission ? (redirect as string) : currentRouteName,
           query: {
             ...othersQuery,
             organizationId: appStore.currentOrgId,

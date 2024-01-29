@@ -15,7 +15,7 @@
   import { GetPlatformIconUrl } from '@/api/requrls/setting/config';
   // import GlobalSetting from '@/components/pure/global-setting/index.vue';
   import useLocale from '@/locale/useLocale';
-  import { WHITE_LIST } from '@/router/constants';
+  import { NO_PROJECT_ROUTE_NAME, WHITE_LIST } from '@/router/constants';
   import { useUserStore } from '@/store';
   import useAppStore from '@/store/modules/app';
   import useLicenseStore from '@/store/modules/setting/license';
@@ -70,13 +70,13 @@
   const checkIsLogin = async () => {
     const isLogin = await userStore.isLogin();
     const isLoginPage = route.name === 'login';
-    if (isLogin && appStore.currentProjectId) {
+    if (isLogin && appStore.currentProjectId && appStore.currentProjectId !== 'no_such_project') {
       // 当前为登陆状态，且已经选择了项目，初始化当前项目配置
       try {
         const res = await getProjectInfo(appStore.currentProjectId);
         if (res.deleted || !res.enable) {
           // 如果项目被删除或者被禁用，跳转到无项目页面
-          router.push(WorkbenchRouteEnum.WORKBENCH);
+          router.push(NO_PROJECT_ROUTE_NAME);
           return;
         }
         appStore.setCurrentMenuConfig(res.moduleIds);

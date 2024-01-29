@@ -1,4 +1,4 @@
-import { RouteLocationNormalized, RouteRecordNormalized, RouteRecordRaw, useRouter } from 'vue-router';
+import { RouteLocationNormalized, RouteRecordNormalized, RouteRecordRaw } from 'vue-router';
 import { includes } from 'lodash-es';
 
 import { INDEX_ROUTE } from '@/router/routes/base';
@@ -98,4 +98,10 @@ export function getFirstRouteNameByPermission(routerList: RouteRecordNormalized[
     })
     .find((item) => hasAnyPermission(item.meta.roles || []));
   return currentRoute?.name || INDEX_ROUTE.name;
+}
+
+// 判断当前路由名有没有权限
+export function routerNameHasPermission(routerName: string, routerList: RouteRecordNormalized[]) {
+  const currentRoute = routerList.find((item) => item.name === routerName);
+  return currentRoute ? hasAnyPermission(currentRoute.meta?.roles || []) : false;
 }

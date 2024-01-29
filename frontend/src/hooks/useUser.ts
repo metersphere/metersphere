@@ -2,16 +2,19 @@ import { useRouter } from 'vue-router';
 import { Message } from '@arco-design/web-vue';
 
 import { useI18n } from '@/hooks/useI18n';
-import { useUserStore } from '@/store';
+import { useAppStore, useUserStore } from '@/store';
 
 export default function useUser() {
   const router = useRouter();
   const userStore = useUserStore();
+  const appStore = useAppStore();
   const { t } = useI18n();
 
   const logout = async (logoutTo?: string) => {
     await userStore.logout();
     const currentRoute = router.currentRoute.value;
+    // 清空顶部菜单
+    appStore.setTopMenus([]);
     Message.success(t('message.logoutSuccess'));
     router.push({
       name: logoutTo && typeof logoutTo === 'string' ? logoutTo : 'login',
