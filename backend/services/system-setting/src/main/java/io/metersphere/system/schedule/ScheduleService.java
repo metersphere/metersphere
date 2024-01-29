@@ -4,18 +4,17 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.domain.ScheduleExample;
 import io.metersphere.system.mapper.ScheduleMapper;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
 import org.quartz.TriggerKey;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
-import io.metersphere.system.uid.IDGenerator;
 
 @Transactional(rollbackFor = Exception.class)
 public class ScheduleService {
@@ -86,7 +85,7 @@ public class ScheduleService {
     public void addOrUpdateCronJob(Schedule request, JobKey jobKey, TriggerKey triggerKey, Class clazz) {
         Boolean enable = request.getEnable();
         String cronExpression = request.getValue();
-        if (Optional.ofNullable(enable).isPresent() && StringUtils.isNotBlank(cronExpression)) {
+        if (BooleanUtils.isTrue(enable) && StringUtils.isNotBlank(cronExpression)) {
             try {
                 scheduleManager.addOrUpdateCronJob(jobKey, triggerKey, clazz, cronExpression,
                         scheduleManager.getDefaultJobDataMap(request, cronExpression, request.getCreateUser()));
