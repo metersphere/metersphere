@@ -30,9 +30,15 @@
             LIMIT 1;
     </select>
 
-    <select id="list" resultType="io.metersphere.functional.dto.CaseReviewDTO">
+    <select id="list" resultType="BaseResultMapDTO">
         SELECT
-        case_review.* , case_review_module.name as moduleName
+        case_review.id, case_review.num, case_review.name,
+        case_review.module_id, case_review.project_id, case_review.status,
+        case_review.review_pass_rule, case_review.pos, case_review.start_time, case_review.end_time,
+        case_review.case_count, case_review.pass_rate, case_review.tags,
+        case_review.description, case_review.create_time, case_review.create_user,
+        case_review.update_time, case_review.update_user,
+        case_review_module.name as moduleName
         FROM
         case_review left join case_review_module on  case_review.module_id = case_review_module.id
         where case_review.project_id = #{request.projectId}
