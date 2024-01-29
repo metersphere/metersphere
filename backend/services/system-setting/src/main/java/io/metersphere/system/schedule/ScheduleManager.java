@@ -127,9 +127,8 @@ public class ScheduleManager {
     /**
      * 添加或修改 cronJob
      */
-    public void addOrUpdateCronJob(JobKey jobKey, TriggerKey triggerKey, Class<? extends Job> jobClass, String cron, JobDataMap jobDataMap)
+    public void addOrUpdateCronJob(JobKey jobKey, TriggerKey triggerKey, Class jobClass, String cron, JobDataMap jobDataMap)
             throws SchedulerException {
-
         LogUtils.info("AddOrUpdateCronJob: " + jobKey.getName() + "," + triggerKey.getGroup());
 
         if (scheduler.checkExists(triggerKey)) {
@@ -139,7 +138,7 @@ public class ScheduleManager {
         }
     }
 
-    public void addOrUpdateCronJob(JobKey jobKey, TriggerKey triggerKey, Class<? extends Job> jobClass, String cron) throws SchedulerException {
+    public void addOrUpdateCronJob(JobKey jobKey, TriggerKey triggerKey, Class jobClass, String cron) throws SchedulerException {
         addOrUpdateCronJob(jobKey, triggerKey, jobClass, cron, null);
     }
 

@@ -7,6 +7,7 @@ import io.metersphere.sdk.file.FileCenter;
 import io.metersphere.sdk.file.MinioRepository;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.system.service.BaseScheduleService;
 import io.metersphere.system.service.PluginLoadService;
 import io.minio.MinioClient;
 import jakarta.annotation.Resource;
@@ -22,11 +23,17 @@ public class AppStartListener implements ApplicationRunner {
     @Resource
     private MinioClient minioClient;
 
+    @Resource
+    private BaseScheduleService baseScheduleService;
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
         LogUtils.info("================= 应用启动 =================");
         // 初始化MinIO配置
         ((MinioRepository) FileCenter.getRepository(StorageType.MINIO)).init(minioClient);
+
+        LogUtils.info("初始化定时任务");
+        baseScheduleService.startEnableSchedules();
 
         // 注册所有监听源
         LogUtils.info("初始化接口事件源");

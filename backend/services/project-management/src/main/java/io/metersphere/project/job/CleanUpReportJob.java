@@ -1,3 +1,7 @@
+
+//TODO 后续清理 （合并完没问题再清理）=====清理报告定时任务只有一个，cron表达式凌晨定时扫描
+
+/*
 package io.metersphere.project.job;
 
 import io.metersphere.system.schedule.BaseScheduleJob;
@@ -23,3 +27,5 @@ public class CleanUpReportJob extends BaseScheduleJob {
         return new TriggerKey(projectId, CleanUpReportJob.class.getName());
     }
 }
+*/
+

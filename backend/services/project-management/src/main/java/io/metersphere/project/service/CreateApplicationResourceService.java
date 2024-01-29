@@ -1,3 +1,6 @@
+
+//TODO 后续清理（合并完没问题再清理）=====清理报告定时任务只有一个，cron表达式凌晨定时扫描 创建项目不再创建定时任务
+/*
 package io.metersphere.project.service;
 
 import io.metersphere.project.job.CleanUpReportJob;
@@ -9,9 +12,11 @@ import io.metersphere.system.service.CreateProjectResourceService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 
+*/
 /**
  * @author wx
- */
+ *//*
+
 @Component
 public class CreateApplicationResourceService implements CreateProjectResourceService {
 
@@ -41,3 +46,4 @@ public class CreateApplicationResourceService implements CreateProjectResourceSe
                 CleanUpReportJob.class);
     }
 }
+*/
