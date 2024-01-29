@@ -10,69 +10,113 @@ import java.util.List;
  */
 @Data
 public class RequestResult {
-    // 请求ID
+    /**
+     * 请求ID
+     */
     private String resourceId;
 
-    // 步骤请求唯一ID
+    /**
+     * 步骤请求唯一ID
+     */
     private String stepId;
 
-    // 线程名称
+    /**
+     * 线程名称
+     */
     private String threadName;
 
-    // 步骤名称
+    /**
+     * 步骤名称
+     */
     private String name;
 
-    // 请求地址
+    /**
+     * 请求地址
+     */
     private String url;
 
-    // 请求大小
+    /**
+     * 请求大小
+     */
     private long requestSize;
 
-    // 开始时间
+    /**
+     * 请求开始时间
+     */
     private long startTime;
 
-    // 结束时间
+    /**
+     * 请求结束时间
+     */
     private long endTime;
 
-    // 失败数量
+    /**
+     * 失败数量
+     */
     private int error;
 
-    // 请求头
+    /**
+     * 请求头
+     */
     private String headers;
 
-    // cookies
+    /**
+     * cookies
+     */
     private String cookies;
 
-    // 请求体
+    /**
+     * 请求体
+     */
     private String body;
 
-    // 响应状态
+    /**
+     * 响应状态
+     */
     private String status;
 
-    // 请求方法
+    /**
+     * 请求方法
+     */
     private String method;
 
-    // 断言总数
+    /**
+     * 断言总数
+     */
     private int assertionTotal = 0;
 
-    // 断言通过数
+    /**
+     * 断言通过数
+     */
     private int passAssertionsTotal = 0;
 
-    // 子请求结果
+    /**
+     * 子请求结果
+     */
     private List<RequestResult> subRequestResults = new ArrayList<>();
 
-    // 响应结果
+    /**
+     * 响应结果
+     */
     private ResponseResult responseResult = new ResponseResult();
 
+    /**
+     * 是否成功
+     */
     private Boolean isSuccessful;
 
     public void increasePassAssertionCount() {
         this.passAssertionsTotal++;
     }
 
-    // 误报信息
+    /**
+     * 误报信息
+     */
     private String fakeErrorMessage;
-    //  误报编码名称
+
+    /**
+     * 误报编码名称
+     */
     private String fakeErrorCode;
 
 }
