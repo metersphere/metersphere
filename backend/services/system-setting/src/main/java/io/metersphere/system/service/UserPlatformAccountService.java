@@ -68,6 +68,9 @@ public class UserPlatformAccountService {
             userExtend.setId(userId);
             userExtend.setPlatformInfo(JSON.toJSONBytes(platformInfo));
             userExtendMapper.insertSelective(userExtend);
+        } else if (userExtend.getPlatformInfo() == null){
+            userExtend.setPlatformInfo(JSON.toJSONBytes(platformInfo));
+            userExtendMapper.updateByPrimaryKeySelective(userExtend);
         } else {
             // noinspection unchecked
             Map<String, Object> originalUserPlatformInfo = JSON.parseMap(new String(userExtend.getPlatformInfo()));
