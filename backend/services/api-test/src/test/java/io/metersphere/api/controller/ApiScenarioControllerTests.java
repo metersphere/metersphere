@@ -98,6 +98,8 @@ public class ApiScenarioControllerTests extends BaseTest {
     @Resource
     private ApiScenarioStepBlobMapper apiScenarioStepBlobMapper;
     @Resource
+    private ApiFileResourceMapper apiFileResourceMapper;
+    @Resource
     private ApiScenarioBlobMapper apiScenarioBlobMapper;
     @Resource
     private ExtBaseProjectVersionMapper extBaseProjectVersionMapper;
@@ -1122,7 +1124,7 @@ public class ApiScenarioControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(21)
+    @Order(22)
     void batchMove() throws Exception {
         String testUrl = "/batch-operation/move";
         if (CollectionUtils.isEmpty(BATCH_OPERATION_SCENARIO_ID)) {
@@ -1252,7 +1254,133 @@ public class ApiScenarioControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(22)
+    @Order(23)
+    void scheduleTest() throws Exception {
+        String testUrl = "/schedule-config";
+
+        if (CollectionUtils.isEmpty(BATCH_OPERATION_SCENARIO_ID)) {
+            this.batchCreateScenarios();
+        }
+
+        //使用第一个场景ID用于做定时任务的测试
+        String scenarioId = BATCH_OPERATION_SCENARIO_ID.getFirst();
+        ApiScenarioScheduleConfigRequest request = new ApiScenarioScheduleConfigRequest();
+
+        request.setScenarioId(scenarioId);
+        request.setEnable(true);
+        request.setCron("0 0 0 * * ?");
+
+        //先测试一下没有开启模块时接口能否使用
+        apiScenarioBatchOperationTestService.removeApiModule(DEFAULT_PROJECT_ID);
+        this.requestPost(testUrl, request).andExpect(status().is5xxServerError());
+        //恢复
+        apiScenarioBatchOperationTestService.resetProjectModule(DEFAULT_PROJECT_ID);
+        MvcResult result = this.requestPostAndReturn(testUrl, request);
+        ResultHolder resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        String scheduleId = resultHolder.getData().toString();
+        apiScenarioBatchOperationTestService.checkSchedule(scheduleId, scenarioId, request.isEnable());
+
+        //增加日志检查
+        LOG_CHECK_LIST.add(
+                new CheckLogModel(scenarioId, OperationLogType.UPDATE, "/api/scenario/schedule-config")
+        );
+
+        //关闭
+        request.setEnable(false);
+        result = this.requestPostAndReturn(testUrl, request);
+        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        String newScheduleId = resultHolder.getData().toString();
+        //检查两个scheduleId是否相同
+        Assertions.assertEquals(scheduleId, newScheduleId);
+        apiScenarioBatchOperationTestService.checkSchedule(newScheduleId, scenarioId, request.isEnable());
+
+        //配置configMap
+        request.setEnable(true);
+        request.setConfigMap(new HashMap<>() {{
+            this.put("envId", "testEnv");
+            this.put("resourcePoolId", "testResourcePool");
+        }});
+        result = this.requestPostAndReturn(testUrl, request);
+        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        newScheduleId = resultHolder.getData().toString();
+        apiScenarioBatchOperationTestService.checkSchedule(newScheduleId, scenarioId, request.isEnable());
+
+        //清空configMap
+        request.setConfigMap(new HashMap<>());
+        request.setEnable(false);
+        result = this.requestPostAndReturn(testUrl, request);
+        resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        newScheduleId = resultHolder.getData().toString();
+        apiScenarioBatchOperationTestService.checkSchedule(newScheduleId, scenarioId, request.isEnable());
+        //测试各种corn表达式用于校验正则的准确性
+
+        String[] cornStrArr = new String[]{
+                "0 0 12 * * ?", //每天中午12点触发
+                "0 15 10 ? * *", //每天上午10:15触发
+                "0 15 10 * * ?", //每天上午10:15触发
+                "0 15 10 * * ? *",//每天上午10:15触发
+                "0 15 10 * * ? 2048",//2008年的每天上午10:15触发
+                "0 * 10 * * ?",//每天上午10:00至10:59期间的每1分钟触发
+                "0 0/5 10 * * ?",//每天上午10:00至10:55期间的每5分钟触发
+                "0 0/5 10,16 * * ?",//每天上午10:00至10:55期间和下午4:00至4:55期间的每5分钟触发
+                "0 0-5 10 * * ?",//每天上午10:00至10:05期间的每1分钟触发
+                "0 10,14,18 15 ? 3 WED",//每年三月的星期三的下午2:10和2:18触发
+                "0 10 15 ? * MON-FRI",//每个周一、周二、周三、周四、周五的下午3:10触发
+                "0 15 10 15 * ?",//每月15日上午10:15触发
+                "0 15 10 L * ?", //每月最后一日的上午10:15触发
+                "0 15 10 ? * 6L", //每月的最后一个星期五上午10:15触发
+                "0 15 10 ? * 6L 2024-2026", //从2024年至2026年每月的最后一个星期五上午10:15触发
+                "0 15 10 ? * 6#3", //每月的第三个星期五上午10:15触发
+        };
+        //每种corn表达式开启、关闭都测试一遍，检查是否能正常开关定时任务
+        for (String corn : cornStrArr) {
+            request = new ApiScenarioScheduleConfigRequest();
+            request.setScenarioId(scenarioId);
+            request.setEnable(true);
+            request.setCron(corn);
+            result = this.requestPostAndReturn(testUrl, request);
+            resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+            scheduleId = resultHolder.getData().toString();
+            apiScenarioBatchOperationTestService.checkSchedule(scheduleId, scenarioId, request.isEnable());
+
+            request = new ApiScenarioScheduleConfigRequest();
+            request.setScenarioId(scenarioId);
+            request.setEnable(false);
+            request.setCron(corn);
+            result = this.requestPostAndReturn(testUrl, request);
+            resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+            scheduleId = resultHolder.getData().toString();
+            apiScenarioBatchOperationTestService.checkSchedule(scheduleId, scenarioId, request.isEnable());
+        }
+
+
+        //校验权限
+        this.requestPostPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE, testUrl, request);
+
+        //反例：scenarioId不存在
+        request = new ApiScenarioScheduleConfigRequest();
+        request.setCron("0 0 0 * * ?");
+        this.requestPost(testUrl, request).andExpect(status().isBadRequest());
+        request.setScenarioId(IDGenerator.nextStr());
+        this.requestPost(testUrl, request).andExpect(status().is5xxServerError());
+
+        //反例：不配置cron表达式
+        request = new ApiScenarioScheduleConfigRequest();
+        request.setScenarioId(scenarioId);
+        this.requestPost(testUrl, request).andExpect(status().isBadRequest());
+
+        //反例：配置错误的cron表达式，测试是否会关闭定时任务
+        request = new ApiScenarioScheduleConfigRequest();
+        request.setScenarioId(scenarioId);
+        request.setEnable(true);
+        request.setCron(IDGenerator.nextStr());
+        this.requestPost(testUrl, request).andExpect(status().is5xxServerError());
+
+    }
+
+    //30开始是关于删除和恢复的
+    @Test
+    @Order(31)
     void batchRemoveToGc() throws Exception {
         String testUrl = "/batch-operation/delete-gc";
         if (CollectionUtils.isEmpty(BATCH_OPERATION_SCENARIO_ID)) {
@@ -1320,7 +1448,7 @@ public class ApiScenarioControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(23)
+    @Order(32)
     //todo
     void batchRecoverToGc() throws Exception {
         String testUrl = "/batch-operation/recover-gc";
@@ -1393,7 +1521,7 @@ public class ApiScenarioControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(24)
+    @Order(33)
     //todo
     void batchDelete() throws Exception {
         String testUrl = "/batch-operation/delete";
@@ -1467,9 +1595,8 @@ public class ApiScenarioControllerTests extends BaseTest {
 
     }
 
-    //30开始是关于删除和恢复的
     @Test
-    @Order(30)
+    @Order(34)
     void recover() throws Exception {
         if (CollectionUtils.isEmpty(BATCH_OPERATION_SCENARIO_ID)) {
             this.batchCreateScenarios();
@@ -1651,6 +1778,7 @@ public class ApiScenarioControllerTests extends BaseTest {
                 apiFileResource.setResourceType("API_SCENARIO");
                 apiFileResource.setCreateTime(System.currentTimeMillis());
                 apiFileResource.setProjectId(apiScenario.getProjectId());
+                apiFileResourceMapper.insertSelective(apiFileResource);
             }
             apiScenarioMapper.insertSelective(apiScenario);
             BATCH_OPERATION_SCENARIO_ID.add(apiScenario.getId());

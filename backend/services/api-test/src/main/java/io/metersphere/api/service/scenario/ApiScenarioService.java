@@ -9,6 +9,7 @@ import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.request.MsScenario;
 import io.metersphere.api.dto.response.ApiScenarioBatchOperationResponse;
 import io.metersphere.api.dto.scenario.*;
+import io.metersphere.api.job.ApiScenarioScheduleJob;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.parser.step.StepParser;
 import io.metersphere.api.parser.step.StepParserFactory;
@@ -23,10 +24,7 @@ import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.project.service.ProjectService;
-import io.metersphere.sdk.constants.ApiExecuteRunMode;
-import io.metersphere.sdk.constants.ApplicationNumScope;
-import io.metersphere.sdk.constants.DefaultRepositoryDir;
-import io.metersphere.sdk.constants.ModuleConstants;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.domain.EnvironmentGroup;
@@ -40,8 +38,10 @@ import io.metersphere.sdk.mapper.EnvironmentGroupMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.dto.LogInsertModule;
+import io.metersphere.system.dto.request.ScheduleConfig;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.schedule.ScheduleService;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
@@ -121,6 +121,9 @@ public class ApiScenarioService {
     private ApiScenarioCsvMapper apiScenarioCsvMapper;
     @Resource
     private ApiScenarioCsvStepMapper apiScenarioCsvStepMapper;
+    @Resource
+    private ScheduleService scheduleService;
+
     public static final String PRIORITY = "Priority";
     public static final String STATUS = "Status";
     public static final String TAGS = "Tags";
@@ -1592,4 +1595,24 @@ public class ApiScenarioService {
     }
 
 
+    public String scheduleConfig(ApiScenarioScheduleConfigRequest scheduleRequest, String operator) {
+        ApiScenario apiScenario = apiScenarioMapper.selectByPrimaryKey(scheduleRequest.getScenarioId());
+        ScheduleConfig scheduleConfig = ScheduleConfig.builder()
+                .resourceId(apiScenario.getId())
+                .key(apiScenario.getId())
+                .projectId(apiScenario.getProjectId())
+                .name(apiScenario.getName())
+                .enable(scheduleRequest.isEnable())
+                .cron(scheduleRequest.getCron())
+                .resourceType(ScheduleResourceType.API_SCENARIO.name())
+                .configMap(scheduleRequest.getConfigMap())
+                .build();
+
+        return scheduleService.scheduleConfig(
+                scheduleConfig,
+                ApiScenarioScheduleJob.getJobKey(apiScenario.getId()),
+                ApiScenarioScheduleJob.getTriggerKey(apiScenario.getId()),
+                ApiScenarioScheduleJob.class,
+                operator);
+    }
 }

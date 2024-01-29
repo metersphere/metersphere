@@ -4,6 +4,7 @@ import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.TestPlanConstants;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -58,6 +59,7 @@ public class TestPlanCreateRequest {
 
     @Schema(description =  "测试计划通过阈值;0-100", requiredMode = Schema.RequiredMode.REQUIRED)
     @Max(value = 100, message = "{test_plan.pass_threshold.max}")
+    @Min(value = 0)
     private double passThreshold = 100;
     @Schema(description = "测试计划类型")
     private String type = TestPlanConstants.TEST_PLAN_TYPE_PLAN;
