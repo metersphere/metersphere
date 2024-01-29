@@ -6,11 +6,14 @@ import io.metersphere.api.constants.ApiResource;
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.dto.scenario.*;
 import io.metersphere.api.service.ApiValidateService;
+import io.metersphere.api.service.definition.ApiScenarioNoticeService;
 import io.metersphere.api.service.scenario.ApiScenarioLogService;
 import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.notice.annotation.SendNotice;
+import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -159,4 +162,19 @@ public class ApiScenarioController {
         apiScenarioService.updatePriority(id, priority, SessionUtils.getUserId());
     }
 
+    @PostMapping(value = "/schedule-config")
+    @Operation(summary = "接口测试-接口场景管理-定时任务配置")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.scheduleLog(#request.getScenarioId())", msClass = ApiScenarioLogService.class)
+    @CheckOwner(resourceId = "#request.getScenarioId()", resourceType = "api_scenario")
+    @SendNotice(taskType = NoticeConstants.TaskType.SCHEDULE_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getScheduleNotice(#request)", targetClass = ApiScenarioNoticeService.class)
+    public String scheduleConfig(@Validated @RequestBody ApiScenarioScheduleConfigRequest request) {
+        /*
+        TODO to Chen Jianxing:
+            request.configMap 中需要补充场景的执行信息，比如环境、资源池、是否失败停止等配置。
+            在触发定时任务的APIScenarioScheduleJob中会用到
+         */
+        apiValidateService.validateApiMenuInProject(request.getScenarioId(), ApiResource.API_SCENARIO.name());
+        return apiScenarioService.scheduleConfig(request, SessionUtils.getUserId());
+    }
 }

@@ -1,20 +1,25 @@
 package io.metersphere.system.schedule;
 
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.domain.ScheduleExample;
+import io.metersphere.system.dto.request.ScheduleConfig;
 import io.metersphere.system.mapper.ScheduleMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.quartz.JobDataMap;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
 import org.quartz.TriggerKey;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Transactional(rollbackFor = Exception.class)
 public class ScheduleService {
@@ -99,5 +104,45 @@ public class ScheduleService {
                 throw new MSException("定时任务关闭异常: " + e.getMessage());
             }
         }
+    }
+
+    public String scheduleConfig(ScheduleConfig scheduleConfig, JobKey jobKey, TriggerKey triggerKey, Class clazz, String operator) {
+        Schedule schedule;
+        ScheduleExample example = new ScheduleExample();
+        example.createCriteria().andResourceIdEqualTo(scheduleConfig.getResourceId()).andJobEqualTo(clazz.getName());
+        List<Schedule> scheduleList = scheduleMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(scheduleList)) {
+            schedule = scheduleConfig.genCronSchedule(scheduleList.getFirst());
+            schedule.setUpdateTime(System.currentTimeMillis());
+            schedule.setJob(clazz.getName());
+            scheduleMapper.updateByExampleSelective(schedule, example);
+        } else {
+            schedule = scheduleConfig.genCronSchedule(null);
+            schedule.setJob(clazz.getName());
+            schedule.setId(IDGenerator.nextStr());
+            schedule.setCreateUser(operator);
+            schedule.setCreateTime(System.currentTimeMillis());
+            schedule.setUpdateTime(System.currentTimeMillis());
+            scheduleMapper.insert(schedule);
+        }
+
+        JobDataMap jobDataMap = scheduleManager.getDefaultJobDataMap(schedule, scheduleConfig.getCron(), operator);
+        if (StringUtils.isNotEmpty(schedule.getConfig())) {
+            Map<String, Object> configMap = JSON.parseObject(schedule.getConfig(), Map.class);
+            jobDataMap.putAll(configMap);
+        }
+
+        /*
+        scheduleManager.modifyCronJobTime方法如同它的方法名所说，只能修改定时任务的触发时间。
+        如果定时任务的配置数据jobData发生了变化，上面方法是无法更新配置数据的。
+        所以，如果配置数据发生了变化，做法就是先删除运行中的定时任务，再重新添加定时任务。
+
+        以上的更新逻辑配合 enable 开关，可以简化为下列写法：
+         */
+        scheduleManager.removeJob(jobKey, triggerKey);
+        if (BooleanUtils.isTrue(schedule.getEnable())) {
+            scheduleManager.addCronJob(jobKey, triggerKey, clazz, scheduleConfig.getCron(), jobDataMap);
+        }
+        return schedule.getId();
     }
 }

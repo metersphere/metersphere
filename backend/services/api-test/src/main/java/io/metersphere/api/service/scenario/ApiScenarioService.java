@@ -9,6 +9,7 @@ import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.request.MsScenario;
 import io.metersphere.api.dto.response.ApiScenarioBatchOperationResponse;
 import io.metersphere.api.dto.scenario.*;
+import io.metersphere.api.job.ApiScenarioScheduleJob;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.parser.step.StepParser;
 import io.metersphere.api.parser.step.StepParserFactory;
@@ -23,10 +24,7 @@ import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.project.service.ProjectService;
-import io.metersphere.sdk.constants.ApiExecuteRunMode;
-import io.metersphere.sdk.constants.ApplicationNumScope;
-import io.metersphere.sdk.constants.DefaultRepositoryDir;
-import io.metersphere.sdk.constants.ModuleConstants;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.domain.EnvironmentGroup;
@@ -40,8 +38,10 @@ import io.metersphere.sdk.mapper.EnvironmentGroupMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.dto.LogInsertModule;
+import io.metersphere.system.dto.request.ScheduleConfig;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.schedule.ScheduleService;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
@@ -121,6 +121,9 @@ public class ApiScenarioService {
     private ApiScenarioCsvMapper apiScenarioCsvMapper;
     @Resource
     private ApiScenarioCsvStepMapper apiScenarioCsvStepMapper;
+    @Resource
+    private ScheduleService scheduleService;
+
     public static final String PRIORITY = "Priority";
     public static final String STATUS = "Status";
     public static final String TAGS = "Tags";
@@ -836,6 +839,9 @@ public class ApiScenarioService {
             apiFileResourceService.deleteByResourceId(scenarioDir, scenario.getId(), scenario.getProjectId(), operator, OperationLogModule.API_DEBUG);
         }catch (Exception ignore){}
 
+        //删除定时任务
+        scheduleService.deleteByResourceId(scenario.getId(), ApiScenarioScheduleJob.class.getName());
+
         //todo wang xiao gang: 删除csv相关东西
     }
 
@@ -858,13 +864,14 @@ public class ApiScenarioService {
         blobExample.createCriteria().andScenarioIdIn(scenarioIdList);
         apiScenarioStepBlobMapper.deleteByExample(blobExample);
 
-        //删除文件
         scenarioList.forEach(scenario -> {
+            //删除文件
             String scenarioDir = DefaultRepositoryDir.getApiDebugDir(scenario.getProjectId(), scenario.getId());
             try {
                 apiFileResourceService.deleteByResourceId(scenarioDir, scenario.getId(), scenario.getProjectId(), operator, OperationLogModule.API_DEBUG);
             }catch (Exception ignore){}
-
+            //删除定时任务
+            scheduleService.deleteByResourceId(scenario.getId(), ApiScenarioScheduleJob.class.getName());
         });
 
         //todo wang xiao gang: 删除csv相关东西
@@ -884,6 +891,9 @@ public class ApiScenarioService {
         apiScenario.setId(id);
         apiScenario.setDeleted(true);
         apiScenarioMapper.updateByPrimaryKeySelective(apiScenario);
+
+        //删除定时任务
+        scheduleService.deleteByResourceId(id, ApiScenarioScheduleJob.class.getName());
     }
 
     private void checkAddExist(ApiScenarioAddRequest apiScenario) {
@@ -1574,6 +1584,9 @@ public class ApiScenarioService {
 
         for (ApiScenario scenario : apiScenarioList) {
             response.addSuccessData(scenario.getId(), scenario.getNum(), scenario.getName());
+
+            //删除定时任务
+            scheduleService.deleteByResourceId(scenario.getId(), ApiScenarioScheduleJob.class.getName());
         }
         return response;
     }
@@ -1592,4 +1605,24 @@ public class ApiScenarioService {
     }
 
 
+    public String scheduleConfig(ApiScenarioScheduleConfigRequest scheduleRequest, String operator) {
+        ApiScenario apiScenario = apiScenarioMapper.selectByPrimaryKey(scheduleRequest.getScenarioId());
+        ScheduleConfig scheduleConfig = ScheduleConfig.builder()
+                .resourceId(apiScenario.getId())
+                .key(apiScenario.getId())
+                .projectId(apiScenario.getProjectId())
+                .name(apiScenario.getName())
+                .enable(scheduleRequest.isEnable())
+                .cron(scheduleRequest.getCron())
+                .resourceType(ScheduleResourceType.API_SCENARIO.name())
+                .configMap(scheduleRequest.getConfigMap())
+                .build();
+
+        return scheduleService.scheduleConfig(
+                scheduleConfig,
+                ApiScenarioScheduleJob.getJobKey(apiScenario.getId()),
+                ApiScenarioScheduleJob.getTriggerKey(apiScenario.getId()),
+                ApiScenarioScheduleJob.class,
+                operator);
+    }
 }

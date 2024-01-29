@@ -22,4 +22,11 @@ public interface ExtScheduleMapper {
 
     List<ApiScenario> getApiScenarioListByIds(@Param("ids") List<String> ids);
 
+    long countByResourceId(String resourceId);
+
+    long countByIdAndEnable(@Param("id") String scheduleId, @Param("enable") boolean isEnable);
+
+    long countQuartzTriggersByResourceId(String scheduleId);
+
+    long countQuartzCronTriggersByResourceId(String scheduleId);
 }

@@ -19,7 +19,8 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @Tag(name = "个人中心")
 @RequestMapping("/personal")
-public class PersonalCenterController {
+public class
+PersonalCenterController {
 
     @Resource
     private UserService userService;

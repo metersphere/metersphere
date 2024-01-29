@@ -619,7 +619,7 @@ public class TestPlanTests extends BaseTest {
             3.group_id
                 3.1 group_id不存在
                 3.2 group_id对应的测试计划type不是group
-            4.参数校验：passThreshold大于100
+            4.参数校验：passThreshold大于100 、 小于0
             5.重名校验
         */
         request.setName(null);
@@ -632,6 +632,8 @@ public class TestPlanTests extends BaseTest {
         this.requestPost(URL_POST_TEST_PLAN_ADD, request).andExpect(status().is5xxServerError());
         request.setGroupId(TestPlanConstants.TEST_PLAN_DEFAULT_GROUP_ID);
         request.setPassThreshold(100.111);
+        this.requestPost(URL_POST_TEST_PLAN_ADD, request).andExpect(status().isBadRequest());
+        request.setPassThreshold(-0.12);
         this.requestPost(URL_POST_TEST_PLAN_ADD, request).andExpect(status().isBadRequest());
 
         //测试权限
