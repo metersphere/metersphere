@@ -46,7 +46,7 @@ public class UserLocalConfigService {
                 .projectId(OperationLogConstants.SYSTEM)
                 .organizationId(OperationLogConstants.SYSTEM)
                 .type(OperationLogType.ADD.name())
-                .module(OperationLogModule.PERSONAL_INFORMATION_LOCAL_CONFIG)
+                .module(OperationLogModule.PERSONAL_INFORMATION_LOCAL_EXECUTE)
                 .method(HttpMethodConstants.POST.name())
                 .path("/user/local/config/add")
                 .sourceId(userLocalConfig.getId())
@@ -111,5 +111,16 @@ public class UserLocalConfigService {
         UserLocalConfig userLocalConfig = checkResourceById(request.getId());
         userLocalConfig.setUserUrl(request.getUserUrl());
         userLocalConfigMapper.updateByPrimaryKeySelective(userLocalConfig);
+        LogDTO dto = LogDTOBuilder.builder()
+                .projectId(OperationLogConstants.SYSTEM)
+                .organizationId(OperationLogConstants.SYSTEM)
+                .type(OperationLogType.UPDATE.name())
+                .module(OperationLogModule.PERSONAL_INFORMATION_LOCAL_EXECUTE)
+                .method(HttpMethodConstants.POST.name())
+                .path("/user/local/config/update")
+                .sourceId(userLocalConfig.getId())
+                .originalValue(JSON.toJSONBytes(userLocalConfig))
+                .build().getLogDTO();
+        operationLogService.add(dto);
     }
 }

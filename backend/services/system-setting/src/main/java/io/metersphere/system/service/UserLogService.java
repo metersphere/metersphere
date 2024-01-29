@@ -91,7 +91,7 @@ public class UserLogService {
                     .projectId(OperationLogConstants.SYSTEM)
                     .organizationId(OperationLogConstants.SYSTEM)
                     .type(OperationLogType.UPDATE.name())
-                    .module(OperationLogModule.PERSONAL_INFORMATION_PERSONAL_SETTINGS)
+                    .module(OperationLogModule.PERSONAL_INFORMATION_PSW)
                     .method(HttpMethodConstants.POST.name())
                     .path("/personal/update-password")
                     .sourceId(request.getId())
@@ -122,7 +122,7 @@ public class UserLogService {
                     .projectId(OperationLogConstants.SYSTEM)
                     .organizationId(OperationLogConstants.SYSTEM)
                     .type(OperationLogType.UPDATE.name())
-                    .module(OperationLogModule.PERSONAL_INFORMATION_PERSONAL_SETTINGS)
+                    .module(OperationLogModule.PERSONAL_INFORMATION_BASE_INFO)
                     .method(HttpMethodConstants.POST.name())
                     .path("/personal/update-info")
                     .sourceId(request.getId())
@@ -262,6 +262,7 @@ public class UserLogService {
         }
         operationLogService.batchAdd(logs);
     }
+
     public void batchAddOrgLog(UserRoleBatchRelationRequest request, String operator) {
         List<LogDTO> logs = new ArrayList<>();
         List<String> userIds = userToolService.getBatchUserIds(request);

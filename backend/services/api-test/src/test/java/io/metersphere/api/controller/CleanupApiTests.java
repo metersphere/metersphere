@@ -2,12 +2,11 @@ package io.metersphere.api.controller;
 
 import io.metersphere.api.domain.*;
 import io.metersphere.api.mapper.*;
-import io.metersphere.api.service.CleanupApiResourceService;
+import io.metersphere.api.service.CleanupApiReportServiceImpl;
+import io.metersphere.api.service.CleanupApiResourceServiceImpl;
 import io.metersphere.api.service.definition.ApiReportService;
 import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.api.service.schedule.SwaggerUrlImportJob;
-import io.metersphere.project.domain.ProjectApplication;
-import io.metersphere.project.mapper.ProjectApplicationMapper;
 import io.metersphere.sdk.constants.ApiReportStatus;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.constants.ScheduleType;
@@ -25,7 +24,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -34,7 +35,7 @@ import java.util.List;
 public class CleanupApiTests {
     private final ProjectServiceInvoker serviceInvoker;
     @Resource
-    private CleanupApiResourceService cleanupApiResourceService;
+    private CleanupApiResourceServiceImpl cleanupApiResourceServiceImpl;
     @Resource
     private ApiDefinitionModuleMapper apiDefinitionModuleMapper;
     @Resource
@@ -52,11 +53,7 @@ public class CleanupApiTests {
     @Resource
     private ScheduleMapper scheduleMapper;
     @Resource
-    private ProjectApplicationMapper projectApplicationMapper;
-    @Resource
-    private ApiReportMapper apiReportMapper;
-    @Resource
-    private ApiScenarioReportMapper apiScenarioReportMapper;
+    private CleanupApiReportServiceImpl cleanupApiReportServiceImpl;
 
     @Autowired
     public CleanupApiTests(ProjectServiceInvoker serviceInvoker) {
@@ -144,7 +141,7 @@ public class CleanupApiTests {
         initReportData("test");
         initScheduleData();
         serviceInvoker.invokeServices("test");
-        cleanupApiResourceService.deleteResources("test");
+        cleanupApiResourceServiceImpl.deleteResources("test");
     }
 
     private void initScheduleData() {
@@ -169,21 +166,9 @@ public class CleanupApiTests {
     @Order(2)
     public void testCleanupReport() throws Exception {
         initReportData("test-clean-project");
-        cleanupApiResourceService.cleanReportResources("test-clean-project");
-        ApiReportExample apiReportExample = new ApiReportExample();
-        apiReportExample.createCriteria().andProjectIdEqualTo("test-clean-project");
-        apiReportMapper.deleteByExample(apiReportExample);
-        ApiScenarioReportExample apiScenarioReportExample = new ApiScenarioReportExample();
-        apiScenarioReportExample.createCriteria().andProjectIdEqualTo("test-clean-project");
-        apiScenarioReportMapper.deleteByExample(apiScenarioReportExample);
-        // 清理报告有数据
-        ProjectApplication projectApplication = new ProjectApplication();
-        projectApplication.setProjectId("test-clean-project-report");
-        projectApplication.setType(ProjectApplicationType.API.API_CLEAN_REPORT.name());
-        projectApplication.setTypeValue("1D");
-        projectApplicationMapper.insert(projectApplication);
-        initReportData("test-clean-project1");
-        cleanupApiResourceService.cleanReportResources("test-clean-project1");
+        Map<String, String> map = new HashMap<>();
+        map.put(ProjectApplicationType.API.API_CLEAN_REPORT.name(), "1D");
+        cleanupApiReportServiceImpl.cleanReport(map, "test-clean-project");
     }
 
     private void initReportData(String projectId) {

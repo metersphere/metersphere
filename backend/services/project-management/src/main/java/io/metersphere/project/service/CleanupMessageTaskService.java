@@ -36,8 +36,4 @@ public class CleanupMessageTaskService implements CleanupProjectResourceService 
         LogUtils.info("删除当前项目[" + projectId + "]相关消息管理资源");
     }
 
-    @Override
-    public void cleanReportResources(String projectId) {
-        LogUtils.info("清理当前项目[" + projectId + "]相关消息管理报告资源");
-    }
 }

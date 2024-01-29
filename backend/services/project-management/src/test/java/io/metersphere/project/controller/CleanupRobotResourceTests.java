@@ -1,7 +1,6 @@
 package io.metersphere.project.controller;
 
 import io.metersphere.project.domain.ProjectRobot;
-
 import io.metersphere.project.service.CleanupRobotResourceService;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
@@ -45,12 +44,7 @@ public class CleanupRobotResourceTests extends BaseTest {
         List<ProjectRobot> projectRobotAfters = getList();
         Assertions.assertTrue(CollectionUtils.isEmpty(projectRobotAfters));
     }
-
-    @Test
-    @Order(2)
-    public void testCleanupReportResource() throws Exception {
-        resourceService.cleanReportResources("test");
-    }
+    
 
     private List<ProjectRobot> getList() throws Exception {
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get(ROBOT_LIST + "test")

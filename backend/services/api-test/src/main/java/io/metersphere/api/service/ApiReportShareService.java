@@ -40,7 +40,7 @@ public class ApiReportShareService {
     @Resource
     private ApiScenarioReportMapper apiScenarioReportMapper;
 
-    private static final Long DEFAULT = 1000L * 60 * 60 * 24 * 30;
+    private static final Long DEFAULT = 1000L * 60 * 60 * 24;
 
     @Transactional(propagation = Propagation.NOT_SUPPORTED)
     public void validateExpired(ShareInfo shareInfo) {

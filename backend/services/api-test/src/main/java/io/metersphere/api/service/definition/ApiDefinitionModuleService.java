@@ -61,10 +61,13 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
     @Resource
     private ApiTestCaseService apiTestCaseService;
 
-    public List<BaseTreeNode> getTree(ApiModuleRequest request, boolean deleted) {
+    public List<BaseTreeNode> getTree(ApiModuleRequest request, boolean deleted, boolean containRequest) {
         //接口的树结构是  模块：子模块+接口 接口为非delete状态的
         List<BaseTreeNode> fileModuleList = extApiDefinitionModuleMapper.selectBaseByRequest(request);
         List<BaseTreeNode> baseTreeNodes = super.buildTreeAndCountResource(fileModuleList, true, Translator.get(UNPLANNED_API));
+        if (!containRequest) {
+            return baseTreeNodes;
+        }
         List<ApiTreeNode> apiTreeNodeList = extApiDefinitionModuleMapper.selectApiDataByRequest(request, deleted);
         return apiDebugModuleService.getBaseTreeNodes(apiTreeNodeList, baseTreeNodes);
 

@@ -33,8 +33,8 @@ public class ApiDefinitionModuleController {
     @Operation(summary = "接口测试-接口管理-模块-查找模块")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
     @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
-    public List<BaseTreeNode> getTree(@RequestBody @Validated ApiModuleRequest request) {
-        return apiDefinitionModuleService.getTree(request, false);
+    public List<BaseTreeNode> getTreeAndRequest(@RequestBody @Validated ApiModuleRequest request) {
+        return apiDefinitionModuleService.getTree(request, false, true);
     }
 
     @PostMapping("/add")
@@ -96,5 +96,13 @@ public class ApiDefinitionModuleController {
     @Operation(summary = "获取环境中的接口树和选中的模块")
     public EnvApiTreeDTO envTree(@RequestBody @Validated EnvApiModuleRequest request) {
         return apiDefinitionModuleService.envTree(request);
+    }
+
+    @PostMapping("/only/tree")
+    @Operation(summary = "接口测试-接口管理-模块-不包含请求数据的模块树")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_READ)
+    @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
+    public List<BaseTreeNode> getTree(@RequestBody @Validated ApiModuleRequest request) {
+        return apiDefinitionModuleService.getTree(request, false, false);
     }
 }

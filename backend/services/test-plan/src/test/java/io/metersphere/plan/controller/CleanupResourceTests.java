@@ -10,7 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 
 
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
 public class CleanupResourceTests {
@@ -21,11 +21,5 @@ public class CleanupResourceTests {
     @Order(1)
     public void testCleanupResource() throws Exception {
         resourceService.deleteResources("test");
-    }
-
-    @Test
-    @Order(2)
-    public void testCleanupReportResource() throws Exception {
-        resourceService.cleanReportResources("test");
     }
 }

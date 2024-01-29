@@ -38,9 +38,4 @@ public class CleanupCaseReviewResourceService implements CleanupProjectResourceS
         caseReviewModuleMapper.deleteByExample(caseReviewModuleExample);
     }
 
-    @Override
-    public void cleanReportResources(String projectId) {
-        LogUtils.info("清理当前项目[" + projectId + "]相关用例评审报告资源");
-
-    }
 }

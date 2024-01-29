@@ -16,7 +16,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 
 
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
 public class CleanupEnvironmentTests {
@@ -27,6 +27,7 @@ public class CleanupEnvironmentTests {
     private EnvironmentGroupMapper environmentGroupMapper;
     @Resource
     private EnvironmentGroupRelationMapper environmentGroupRelationMapper;
+
     @Autowired
     public CleanupEnvironmentTests(ProjectServiceInvoker serviceInvoker) {
         this.serviceInvoker = serviceInvoker;
@@ -52,7 +53,6 @@ public class CleanupEnvironmentTests {
         environmentGroupRelation.setProjectId("test");
         environmentGroupRelationMapper.insert(environmentGroupRelation);
         serviceInvoker.invokeServices("test");
-        cleanupEnvironmentResourceService.cleanReportResources("test");
     }
 
 }

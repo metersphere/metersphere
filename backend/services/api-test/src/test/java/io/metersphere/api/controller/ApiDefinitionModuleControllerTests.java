@@ -59,6 +59,7 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
     private static final String URL_FILE_MODULE_COUNT = "/api/definition/module/count";
     private static final String URL_MODULE_TRASH_TREE = "/api/definition/module/trash/tree";
     private static final String URL_MODULE_TRASH_COUNT = "/api/definition/module/trash/count";
+    private static final String URL_MODULE_ONLY_TREE = "/api/definition/module/only/tree";
     private static final ResultMatcher BAD_REQUEST_MATCHER = status().isBadRequest();
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
     private static Project project;
@@ -950,6 +951,10 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
 
     private List<BaseTreeNode> getModuleTreeNode() throws Exception {
         MvcResult result = this.requestPostWithOkAndReturn(URL_MODULE_TREE, new ApiModuleRequest() {{
+            this.setProtocol("HTTP");
+            this.setProjectId(project.getId());
+        }});
+        this.requestPostWithOkAndReturn(URL_MODULE_ONLY_TREE, new ApiModuleRequest() {{
             this.setProtocol("HTTP");
             this.setProjectId(project.getId());
         }});
