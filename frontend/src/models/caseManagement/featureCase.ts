@@ -224,6 +224,7 @@ export interface TabItemType {
   key: string;
   title: string;
   enable: boolean;
+  total: number;
 }
 
 // 需求
