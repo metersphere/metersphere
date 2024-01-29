@@ -107,6 +107,9 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         request.setCombine(map);
         request.setViewFlag(true);
         request.setProjectId("wx_test_project");
+        Map<String, List<String>> filters = new HashMap<>();
+        filters.put("status", List.of("UN_PASS"));
+        request.setFilter(filters);
         this.requestPostWithOkAndReturn(REVIEW_CASE_PAGE, request);
         this.requestPostWithOkAndReturn(REVIEW_FUNCTIONAL_CASE_MODULE_COUNT, request);
         request.setViewFlag(false);
