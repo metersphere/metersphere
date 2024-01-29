@@ -568,7 +568,9 @@ public class CaseReviewFunctionalCaseService {
                     list.add(caseUser);
                 });
             });
-            caseReviewFunctionalCaseUserMapper.batchInsert(list);
+            if (CollectionUtils.isNotEmpty(list)) {
+                caseReviewFunctionalCaseUserMapper.batchInsert(list);
+            }
         } else {
             //更新评审人
             extCaseReviewFunctionalCaseUserMapper.deleteByCaseIds(caseIds, request.getReviewId());
