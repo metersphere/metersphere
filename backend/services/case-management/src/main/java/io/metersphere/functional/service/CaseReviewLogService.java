@@ -60,7 +60,7 @@ public class CaseReviewLogService {
                 null,
                 null,
                 OperationLogType.ADD.name(),
-                OperationLogModule.CASE_REVIEW,
+                OperationLogModule.CASE_REVIEW_CREATE,
                 requests.getName());
 
         dto.setPath("/case/review/add");
@@ -82,7 +82,7 @@ public class CaseReviewLogService {
                 null,
                 null,
                 OperationLogType.COPY.name(),
-                OperationLogModule.CASE_REVIEW,
+                OperationLogModule.CASE_REVIEW_CREATE,
                 requests.getName());
 
         dto.setPath("/case/review/copy");
@@ -108,7 +108,7 @@ public class CaseReviewLogService {
                 caseReview.getId(),
                 caseReview.getCreateUser(),
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.CASE_REVIEW,
+                OperationLogModule.CASE_REVIEW_UPDATE,
                 caseReview.getName());
 
         dto.setPath("/case/review/edit");
@@ -167,7 +167,7 @@ public class CaseReviewLogService {
                     caseReview.getId(),
                     caseReview.getCreateUser(),
                     OperationLogType.ASSOCIATE.name(),
-                    OperationLogModule.CASE_REVIEW,
+                    OperationLogModule.CASE_REVIEW_DETAIL,
                     functionalCase.getName());
 
             dto.setPath("/case/review/associate");
@@ -194,7 +194,7 @@ public class CaseReviewLogService {
                 caseReview.getId(),
                 null,
                 OperationLogType.DISASSOCIATE.name(),
-                OperationLogModule.CASE_REVIEW,
+                OperationLogModule.CASE_REVIEW_DETAIL,
                 functionalCase.getName());
 
         dto.setPath("/case/review/disassociate");
@@ -218,7 +218,7 @@ public class CaseReviewLogService {
                             caseReviewFunctionalCase.getId(),
                             null,
                             OperationLogType.DISASSOCIATE.name(),
-                            OperationLogModule.CASE_REVIEW,
+                            OperationLogModule.CASE_REVIEW_DETAIL,
                             functionalCase.getName());
                     dto.setPath("/case/review/batch/disassociate");
                     dto.setMethod(HttpMethodConstants.POST.name());

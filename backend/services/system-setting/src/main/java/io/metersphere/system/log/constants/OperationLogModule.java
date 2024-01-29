@@ -96,6 +96,9 @@ public class OperationLogModule {
 
     public static final String CASE_REVIEW = "CASE_MANAGEMENT_REVIEW";
 
+    public static final String CASE_REVIEW_CREATE = "CASE_MANAGEMENT_REVIEW_CREATE";
+    public static final String CASE_REVIEW_UPDATE = "CASE_MANAGEMENT_REVIEW_UPDATE";
+    public static final String CASE_REVIEW_DETAIL = "CASE_MANAGEMENT_REVIEW_DETAIL";
 
     //接口调试
     public static final String API_DEBUG = "API_DEBUG";
