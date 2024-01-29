@@ -13,7 +13,7 @@ import java.util.List;
 public class XpackBugMockServiceImpl implements XpackBugService {
 
     @Override
-    public void syncPlatformBugsBySchedule() {
+    public void syncPlatformBugsBySchedule(String projectId, String scheduleUser) {
 
     }
 

@@ -286,7 +286,7 @@ public class ProjectApplicationController {
     @Operation(summary = "缺陷管理-同步缺陷配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_BUG_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateBugSyncLog(#projectId, #configs)", msClass = ProjectApplicationService.class)
-    public void syncBugConfig(@PathVariable("projectId") String projectId, @RequestBody Map<String, String> configs) {
+    public void syncBugConfig(@PathVariable("projectId") String projectId, @RequestBody Map<String, Object> configs) {
         projectApplicationService.syncBugConfig(projectId, configs, SessionUtils.getUserId());
     }
 

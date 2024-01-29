@@ -638,7 +638,7 @@ public class BugControllerTests extends BaseTest {
     @Order(97)
     void coverSyncScheduleTests() {
         // 定时同步存量缺陷
-        bugSyncService.syncPlatformBugBySchedule();
+        bugSyncService.syncPlatformBugBySchedule("default-project-for-bug", "admin");
         // 异常信息
         bugSyncExtraService.setSyncErrorMsg("default-project-for-bug", "sync error!");
         String syncErrorMsg = bugSyncExtraService.getSyncErrorMsg("default-project-for-bug");

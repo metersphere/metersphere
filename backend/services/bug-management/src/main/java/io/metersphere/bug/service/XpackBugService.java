@@ -14,8 +14,10 @@ public interface XpackBugService {
 
     /**
      * 同步系统下所有第三方平台项目缺陷(定时任务)
+     * @param projectId 项目ID
+     * @param scheduleUser 定时任务执行用户
      */
-    void syncPlatformBugsBySchedule();
+    void syncPlatformBugsBySchedule(String projectId, String scheduleUser);
 
     /**
      * 同步当前项目第三方平台缺陷(前台调用, 全量同步)
