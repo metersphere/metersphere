@@ -68,7 +68,7 @@ public class EnvironmentService {
     private static final String USERNAME = "user";
     private static final String PASSWORD = "password";
     private static final String PATH = "/project/environment/import";
-    private static final String MOCK_EVN_SOCKET = "/api/mock/";
+    private static final String MOCK_EVN_SOCKET = "/mock-server/";
 
     public List<OptionDTO> getDriverOptions(String organizationId) {
         return jdbcDriverPluginService.getJdbcDriverOption(organizationId);

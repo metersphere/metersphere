@@ -70,6 +70,28 @@
             #{id}
         </foreach>
     </select>
+    <select id="countByIdAndEnable" resultType="java.lang.Long">
+        select count(*)
+        from schedule
+        where id = #{id}
+          and enable = #{enable}
+    </select>
+    <select id="countQuartzTriggersByResourceId" resultType="java.lang.Long">
+        SELECT *
+        FROM QRTZ_TRIGGERS
+        WHERE TRIGGER_NAME = #{0}
+
+    </select>
+    <select id="countQuartzCronTriggersByResourceId" resultType="java.lang.Long">
+        SELECT *
+        FROM QRTZ_CRON_TRIGGERS
+        WHERE TRIGGER_NAME = #{0}
+    </select>
+    <select id="countByResourceId" resultType="java.lang.Long">
+        SELECT count(*)
+        FROM schedule
+        WHERE resource_id = #{0}
+    </select>
 
 
 </mapper>

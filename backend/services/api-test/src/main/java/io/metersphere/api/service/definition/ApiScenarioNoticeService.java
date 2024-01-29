@@ -3,9 +3,14 @@ package io.metersphere.api.service.definition;
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.domain.ApiScenarioExample;
 import io.metersphere.api.dto.scenario.ApiScenarioBatchRequest;
+import io.metersphere.api.dto.scenario.ApiScenarioScheduleConfigRequest;
+import io.metersphere.api.job.ApiScenarioScheduleJob;
 import io.metersphere.api.mapper.ApiScenarioMapper;
 import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.sdk.util.SubListUtils;
+import io.metersphere.system.domain.Schedule;
+import io.metersphere.system.domain.ScheduleExample;
+import io.metersphere.system.mapper.ScheduleMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
@@ -21,6 +26,14 @@ public class ApiScenarioNoticeService {
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
 
+    @Resource
+    private ScheduleMapper scheduleMapper;
+
+    public List<Schedule> getScheduleNotice(ApiScenarioScheduleConfigRequest request) {
+        ScheduleExample example = new ScheduleExample();
+        example.createCriteria().andResourceIdEqualTo(request.getScenarioId()).andJobEqualTo(ApiScenarioScheduleJob.class.getName());
+        return scheduleMapper.selectByExample(example);
+    }
 
     public List<ApiScenario> getBatchOptionScenarios(ApiScenarioBatchRequest request) {
         List<String> ids = apiScenarioService.doSelectIds(request, false);

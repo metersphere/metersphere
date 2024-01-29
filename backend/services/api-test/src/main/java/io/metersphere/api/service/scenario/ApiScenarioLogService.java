@@ -133,6 +133,20 @@ public class ApiScenarioLogService {
         return dto;
     }
 
+    public LogDTO scheduleLog(String id) {
+        ApiScenario apiScenario = apiScenarioMapper.selectByPrimaryKey(id);
+        Project project = projectMapper.selectByPrimaryKey(apiScenario.getProjectId());
+        LogDTO dto = LogDTOBuilder.builder()
+                .projectId(project.getId())
+                .organizationId(project.getOrganizationId())
+                .type(OperationLogType.UPDATE.name())
+                .module(OperationLogModule.API_SCENARIO)
+                .sourceId(apiScenario.getId())
+                .content(Translator.get("api_automation_schedule") + ":" + apiScenario.getName())
+                .build().getLogDTO();
+        return dto;
+    }
+
     public LogDTO updateLog(String id) {
         ApiScenario apiScenario = apiScenarioMapper.selectByPrimaryKey(id);
         // todo 记录完整的场景信息

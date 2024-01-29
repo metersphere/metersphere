@@ -2,13 +2,16 @@ package io.metersphere.api.service;
 
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.scenario.ApiScenarioBatchCopyMoveRequest;
+import io.metersphere.api.job.ApiScenarioScheduleJob;
 import io.metersphere.api.mapper.*;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.system.mapper.ExtScheduleMapper;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.MapUtils;
 import org.junit.jupiter.api.Assertions;
+import org.quartz.Scheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +33,11 @@ public class ApiScenarioBatchOperationTestService {
     private ApiScenarioStepBlobMapper apiScenarioStepBlobMapper;
     @Resource
     private ApiFileResourceMapper apiFileResourceMapper;
+    @Resource
+    private ExtScheduleMapper extScheduleMapper;
+
+    @Resource
+    private Scheduler scheduler;
 
     @Resource
     private ProjectMapper projectMapper;
@@ -188,5 +196,21 @@ public class ApiScenarioBatchOperationTestService {
         ApiFileResourceExample sourceFileExample = new ApiFileResourceExample();
         sourceFileExample.createCriteria().andResourceIdIn(deleteScenarioIds);
         Assertions.assertEquals(apiFileResourceMapper.countByExample(sourceFileExample), 0);
+    }
+
+    /*
+    校验定时任务是否成功开启：
+        1.schedule表中存在数据，且开启状态符合isEnable
+        2.开启状态下：    qrtz_triggers 和 qrtz_cron_triggers 表存在对应的数据
+        3.关闭状态下：    qrtz_triggers 和 qrtz_cron_triggers 表不存在对应的数据
+     */
+    public void checkSchedule(String scheduleId, String resourceId, boolean isEnable) throws Exception {
+        Assertions.assertEquals(extScheduleMapper.countByIdAndEnable(scheduleId, isEnable), 1L);
+        Assertions.assertEquals(scheduler.checkExists(ApiScenarioScheduleJob.getJobKey(resourceId)), isEnable);
+    }
+
+    public void checkScheduleIsRemove(String resourceId) throws Exception {
+        Assertions.assertEquals(extScheduleMapper.countByResourceId(resourceId), 0L);
+        Assertions.assertEquals(scheduler.checkExists(ApiScenarioScheduleJob.getJobKey(resourceId)), false);
     }
 }
