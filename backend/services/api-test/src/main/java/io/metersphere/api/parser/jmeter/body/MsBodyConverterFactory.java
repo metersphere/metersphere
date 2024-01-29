@@ -11,7 +11,7 @@ import java.util.Map;
  */
 public class MsBodyConverterFactory {
 
-    private static Map<Class, MsBodyConverter> converterMap = new HashMap<>();
+    private static final Map<Class<?>, MsBodyConverter> converterMap = new HashMap<>();
 
     static {
         converterMap.put(RawBody.class, new MsRawBodyConverter());
@@ -23,7 +23,7 @@ public class MsBodyConverterFactory {
         converterMap.put(BinaryBody.class, new MsBinaryBodyConverter());
     }
 
-    public static MsBodyConverter getConverter(Class bodyClassByType) {
+    public static MsBodyConverter getConverter(Class<?> bodyClassByType) {
         return converterMap.get(bodyClassByType);
     }
 }

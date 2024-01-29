@@ -21,7 +21,7 @@ public class ScriptFilter {
     // 关键字内容较小，全局缓存下来避免重复读取
     public static final Map<String, List<String>> scriptCache = new HashMap<>();
 
-   static {
+    static {
         // 初始化安全过滤脚本
         ScriptFilter.initScript(ScriptFilter.beanshell);
         ScriptFilter.initScript(ScriptFilter.python);
@@ -29,8 +29,7 @@ public class ScriptFilter {
     }
 
     public static void initScript(String path) {
-        try {
-            InputStream in = ScriptFilter.class.getResourceAsStream(path);
+        try (InputStream in = ScriptFilter.class.getResourceAsStream(path)) {
             List<String> bks = IOUtils.readLines(in, Charset.defaultCharset());
             if (CollectionUtils.isNotEmpty(bks)) {
                 scriptCache.put(path, bks);
@@ -45,7 +44,7 @@ public class ScriptFilter {
             List<String> bks = scriptCache.get(path);
             if (CollectionUtils.isNotEmpty(bks)) {
                 bks.forEach(item -> {
-                    if (script.contains(item) && script.indexOf(item) != -1) {
+                    if (script.contains(item)) {
                         buffer.append(item).append(",");
                     }
                 });
@@ -76,7 +75,7 @@ public class ScriptFilter {
                     break;
             }
             if (StringUtils.isNotEmpty(buffer.toString())) {
-                String message = "脚本内包含敏感函数：【" + buffer.toString().substring(0, buffer.toString().length() - 1) + "】";
+                String message = "脚本内包含敏感函数：【" + buffer.substring(0, buffer.toString().length() - 1) + "】";
                 if (StringUtils.isNotEmpty(label)) {
                     message = label + "," + message;
                 }

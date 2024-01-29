@@ -44,8 +44,7 @@ public class MsCommonElementConverter extends AbstractJmeterElementConverter<MsC
         }
         boolean isIgnoreStatus = false;
         for (MsAssertion assertion : assertionConfig.getAssertions()) {
-            if (assertion instanceof MsResponseCodeAssertion) {
-                MsResponseCodeAssertion responseCodeAssertion = (MsResponseCodeAssertion) assertion;
+            if (assertion instanceof MsResponseCodeAssertion responseCodeAssertion) {
                 // 如果状态码断言添加了不校验状态码，则所有断言忽略状态码
                 if (StringUtils.equals(responseCodeAssertion.getCondition(), MsAssertionCondition.UNCHECK.name())) {
                     isIgnoreStatus = true;

@@ -14,8 +14,8 @@ import java.util.Map;
  */
 public class MsProcessorConverterFactory {
 
-    private static Map<Class, MsProcessorConverter> preConverterMap = new HashMap<>();
-    private static Map<Class, MsProcessorConverter> postConverterMap = new HashMap<>();
+    private static final Map<Class<?>, MsProcessorConverter> preConverterMap = new HashMap<>();
+    private static final Map<Class<?>, MsProcessorConverter> postConverterMap = new HashMap<>();
 
     static {
         preConverterMap.put(ScriptProcessor.class, new ScriptPreProcessorConverter());
@@ -28,11 +28,11 @@ public class MsProcessorConverterFactory {
         postConverterMap.put(ExtractPostProcessor.class, new ExtractPostProcessorConverter());
     }
 
-    public static MsProcessorConverter getPreConverter(Class processorClass) {
+    public static MsProcessorConverter getPreConverter(Class<?> processorClass) {
         return preConverterMap.get(processorClass);
     }
 
-    public static MsProcessorConverter getPostConverter(Class processorClass) {
+    public static MsProcessorConverter getPostConverter(Class<?> processorClass) {
         return postConverterMap.get(processorClass);
     }
 }

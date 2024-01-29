@@ -10,7 +10,7 @@ import java.util.Map;
  * @CreateTime: 2023-12-27  10:31
  */
 public class AssertionConverterFactory {
-    private static Map<Class, AssertionConverter> converterMap = new HashMap<>();
+    private static final Map<Class<?>, AssertionConverter> converterMap = new HashMap<>();
 
     static {
         converterMap.put(MsResponseCodeAssertion.class, new ResponseCodeAssertionConverter());
@@ -21,7 +21,7 @@ public class AssertionConverterFactory {
         converterMap.put(MsVariableAssertion.class, new VariableAssertionConverter());
     }
 
-    public static AssertionConverter getConverter(Class processorClass) {
+    public static AssertionConverter getConverter(Class<?> processorClass) {
         return converterMap.get(processorClass);
     }
 }

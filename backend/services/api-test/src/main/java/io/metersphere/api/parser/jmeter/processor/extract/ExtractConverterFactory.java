@@ -12,7 +12,7 @@ import java.util.Map;
  * @CreateTime: 2023-12-27  10:31
  */
 public class ExtractConverterFactory {
-    private static Map<Class, ExtractConverter> converterMap = new HashMap<>();
+    private static final Map<Class<?>, ExtractConverter> converterMap = new HashMap<>();
 
     static {
         converterMap.put(RegexExtract.class, new RegexExtractConverter());
@@ -20,7 +20,7 @@ public class ExtractConverterFactory {
         converterMap.put(XPathExtract.class, new XPathExtractConverter());
     }
 
-    public static ExtractConverter getConverter(Class processorClass) {
+    public static ExtractConverter getConverter(Class<?> processorClass) {
         return converterMap.get(processorClass);
     }
 }

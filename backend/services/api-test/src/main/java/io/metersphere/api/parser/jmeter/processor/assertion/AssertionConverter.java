@@ -1,6 +1,7 @@
 package io.metersphere.api.parser.jmeter.processor.assertion;
 
 import io.metersphere.api.dto.request.assertion.MsAssertion;
+import io.metersphere.api.parser.jmeter.validator.EnumValidator;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.sdk.constants.MsAssertionCondition;
 import org.apache.commons.lang3.BooleanUtils;
@@ -23,6 +24,7 @@ import static io.metersphere.api.parser.jmeter.constants.JmeterAlias.ASSERTION_G
 public abstract class AssertionConverter<T extends MsAssertion> {
     /**
      * 解析对应的提取器
+     *
      * @param hashTree
      * @param extract
      * @param config
@@ -56,7 +58,7 @@ public abstract class AssertionConverter<T extends MsAssertion> {
         regexgenerateMap.put(MsAssertionCondition.EMPTY, value -> StringUtils.join("^$", value));
         regexgenerateMap.put(MsAssertionCondition.NOT_EMPTY, value -> StringUtils.join("^(?!^$).*$", value));
         regexgenerateMap.put(MsAssertionCondition.REGEX, value -> value);
-        MsAssertionCondition msAssertionCondition = MsAssertionCondition.valueOf(condition);
+        MsAssertionCondition msAssertionCondition = EnumValidator.validateEnum(MsAssertionCondition.class, condition);
         if (msAssertionCondition != null && regexgenerateMap.get(msAssertionCondition) != null) {
             return regexgenerateMap.get(msAssertionCondition).apply(text);
         }
