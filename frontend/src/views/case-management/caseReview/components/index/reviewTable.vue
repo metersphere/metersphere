@@ -402,7 +402,7 @@
       title: 'caseManagement.caseReview.tag',
       dataIndex: 'tags',
       isTag: true,
-      width: 150,
+      width: 300,
     },
     {
       title: 'caseManagement.caseReview.desc',

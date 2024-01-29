@@ -28,13 +28,13 @@
     </template>
     <template #operation="{ record }">
       <div class="flex flex-row flex-nowrap">
-        <span v-permission="['SYSTEM_ORGANIZATIN_PROJECT:READ+UPDATE']" class="flex flex-row">
+        <span v-permission="['PROJECT_GROUP:READ+UPDATE']" class="flex flex-row">
           <MsButton class="!mr-0" @click="showAuthDrawer(record)">{{ t('project.userGroup.viewAuth') }}</MsButton>
           <a-divider v-if="!record.internal" direction="vertical" />
         </span>
         <MsButton
           v-if="!record.internal"
-          v-permission="['SYSTEM_ORGANIZATIN_PROJECT:READ+UPDATE']"
+          v-permission="['PROJECT_GROUP:READ+UPDATE']"
           class="!mr-0"
           status="danger"
           @click="handleDelete(record)"
@@ -57,6 +57,7 @@
       :show-bottom="false"
       :scroll="{ x: 800, y: 'calc(100vh - 150px)' }"
       :current="currentItem"
+      :disabled="!hasAnyPermission(['PROJECT_GROUP:READ+UPDATE'])"
     />
     <template #footer>
       <div class="flex items-center justify-between">
@@ -134,6 +135,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore } from '@/store';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { CurrentUserGroupItem, UserGroupItem } from '@/models/setting/usergroup';
   import { AuthScopeEnum } from '@/enums/commonEnum';

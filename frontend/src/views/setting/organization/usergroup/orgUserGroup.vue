@@ -45,6 +45,7 @@
               :current="currentUserGroupItem"
               :width="bottomWidth"
               :save-permission="['ORGANIZATION_GROUP:READ+UPDATE']"
+              :disabled="!hasAnyPermission(['ORGANIZATION_GROUP:READ+UPDATE'])"
             />
           </div>
         </div>
@@ -67,6 +68,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import { addPixelValues } from '@/utils/css';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { CurrentUserGroupItem } from '@/models/setting/usergroup';
   import { AuthScopeEnum } from '@/enums/commonEnum';

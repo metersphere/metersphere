@@ -44,7 +44,8 @@
               v-if="currentTable === 'auth' && couldShowAuth"
               :current="currentUserGroupItem"
               :width="bottomWidth"
-              :save-permission="['PROJECT_GROUP:READ+UPDATE']"
+              :save-permission="['SYSTEM_USER_ROLE:READ+UPDATE']"
+              :disabled="!hasAnyPermission(['SYSTEM_USER_ROLE:READ+UPDATE'])"
             />
           </div>
         </div>
@@ -67,6 +68,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import { addPixelValues } from '@/utils/css';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { CurrentUserGroupItem } from '@/models/setting/usergroup';
   import { AuthScopeEnum } from '@/enums/commonEnum';
