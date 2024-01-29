@@ -105,4 +105,10 @@ export default {
   'common.noResource': '暂无资源权限，请联系管理员',
   'common.noSelectProject': '无可选项目',
   'common.noPermission': '无权限',
+  'common.batchEdit': '批量编辑',
+  'common.tagsInputPlaceholder': '输入内容后回车可直接添加标签',
+  'common.move': '移动',
+  'common.batchMove': '批量移动',
+  'common.batchMoveSuccess': '批量移动成功',
+  'common.importSuccess': '导入成功',
 };

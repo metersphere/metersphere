@@ -56,7 +56,6 @@
 
   import { getReviewDetailModuleTree } from '@/api/modules/case-management/caseReview';
   import { useI18n } from '@/hooks/useI18n';
-  import useAppStore from '@/store/modules/app';
   import { mapTree } from '@/utils';
 
   import { ModuleTreeNode } from '@/models/projectManagement/file';
@@ -70,7 +69,6 @@
   const emit = defineEmits(['init', 'folderNodeSelect']);
 
   const route = useRoute();
-  const appStore = useAppStore();
   const { t } = useI18n();
 
   const virtualListProps = computed(() => {
@@ -111,7 +109,7 @@
   async function initModules() {
     try {
       loading.value = true;
-      const res = await getReviewDetailModuleTree(appStore.currentProjectId, route.query.id as string);
+      const res = await getReviewDetailModuleTree(route.query.id as string);
       folderTree.value = mapTree<ModuleTreeNode>(res, (node) => {
         return {
           ...node,

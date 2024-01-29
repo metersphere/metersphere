@@ -126,34 +126,21 @@ export default {
   'system.config.auth.addResource': '添加资源',
   'system.config.auth.serviceUrl': '服务端地址',
   'system.config.auth.serviceUrlRequired': '服务端地址不能为空',
-  'system.config.auth.serviceUrlPlaceholder': '例如：http://<casurl>',
+  'system.config.auth.commonUrlPlaceholder': '例如：{url}',
   'system.config.auth.loginUrl': '登录地址',
   'system.config.auth.loginUrlRequired': '登录地址不能为空',
-  'system.config.auth.loginUrlPlaceholder': '例如：http://<casurl>/login',
   'system.config.auth.loginUrlTip': '当身份认证失败，会重新定向到该登录页',
   'system.config.auth.verifyUrl': '验证地址',
   'system.config.auth.verifyUrlRequired': '验证地址不能为空',
-  'system.config.auth.verifyUrlPlaceholder': '例如：http://<casurl>/serviceValidate',
   'system.config.auth.verifyUrlTip': '用于验证登录的信息是否正确',
   'system.config.auth.callbackUrl': '回调地址',
   'system.config.auth.callbackUrlRequired': '回调地址不能为空',
-  // eslint-disable-next-line no-template-curly-in-string
-  'system.config.auth.callbackUrlPlaceholder': '例如：http://<meteresphere-endpoint>/sso/callback/cas/suthld',
-  'system.config.auth.OIDCCallbackUrlPlaceholder':
-    // eslint-disable-next-line no-template-curly-in-string
-    '例如：http://<metersphere-endpoint>/sso/callback or http://<metersphere-endpoint>/sso/callback/authld',
   'system.config.auth.authUrl': '授权端地址',
   'system.config.auth.authUrlRequired': '授权端地址不能为空',
-  'system.config.auth.authUrlPlaceholder':
-    '例如：http://<keyclock>auth/realms/<metersphere>/protocol/openid-connect/auth',
   'system.config.auth.tokenUrl': 'Token 端点地址',
   'system.config.auth.tokenUrlRequired': 'Token 端点地址不能为空',
-  'system.config.auth.tokenUrlPlaceholder':
-    '例如：http://<keyclock>auth/realms/<metersphere>/protocol/openid-connect/token',
   'system.config.auth.userInfoUrl': '用户信息端点地址',
   'system.config.auth.userInfoUrlRequired': '用户信息端点地址不能为空',
-  'system.config.auth.userInfoUrlPlaceholder':
-    '例如：http://<keyclock>auth/realms/<metersphere>/protocol/openid-connect/userinfo',
   'system.config.auth.clientId': '客户端 ID',
   'system.config.auth.clientIdRequired': '客户端 ID不能为空',
   'system.config.auth.clientIdPlaceholder': '例如：metersphere',
@@ -162,8 +149,6 @@ export default {
   'system.config.auth.clientSecretPlaceholder': 'OIDC client secret',
   'system.config.auth.logoutSessionUrl': '注销会话端地址',
   'system.config.auth.logoutSessionUrlRequired': '注销会话端地址不能为空',
-  'system.config.auth.logoutSessionUrlPlaceholder':
-    '例如：http://<keyclock>/auth/realms/<metersphere>/protocol/openid-connect/logout',
   'system.config.auth.password': '密码',
   'system.config.auth.passwordRequired': '密码不能为空',
   'system.config.auth.passwordPlaceholder': 'OIDC client secret',

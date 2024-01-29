@@ -69,7 +69,6 @@ export default defineComponent(
       selectRef,
       selectVal: innerValue,
       isCascade: true,
-      options: props.options,
       valueKey: props.valueKey,
       labelKey: props.labelKey,
     });
@@ -79,7 +78,7 @@ export default defineComponent(
       (val) => {
         innerValue.value = val;
         if (Array.isArray(val) && val.length > 0 && props.multiple) {
-          calculateMaxTag();
+          calculateMaxTag(remoteOriginOptions.value);
         }
       },
       {
@@ -239,6 +238,7 @@ export default defineComponent(
             handleSelectAllChange(true);
           }
         }
+        calculateMaxTag(val);
       }
     );
 
@@ -357,9 +357,15 @@ export default defineComponent(
         popup-container={props.popupContainer || document.body}
         trigger-props={props.triggerProps}
         fallback-option={props.fallbackOption}
-        onChange={(value: ModelType) => emit('update:modelValue', value)}
+        onChange={(value: ModelType) => {
+          emit('update:modelValue', value);
+          emit('change', value);
+        }}
         onSearch={handleSearch}
-        onPopupVisibleChange={(val: boolean) => emit('popupVisibleChange', val)}
+        onPopupVisibleChange={(val: boolean) => {
+          handleSearch('', true);
+          emit('popupVisibleChange', val);
+        }}
         onRemove={(val: string | number | boolean | Record<string, any> | undefined) => emit('remove', val)}
         onKeyup={(e: KeyboardEvent) => {
           // 阻止组件在回车时自动触发的事件
@@ -416,6 +422,6 @@ export default defineComponent(
       'atLeastOne',
       'objectValue',
     ],
-    emits: ['update:modelValue', 'remoteSearch', 'popupVisibleChange', 'update:loading', 'remove'],
+    emits: ['update:modelValue', 'remoteSearch', 'popupVisibleChange', 'update:loading', 'remove', 'change'],
   }
 );

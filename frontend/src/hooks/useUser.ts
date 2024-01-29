@@ -6,11 +6,11 @@ import { useAppStore, useUserStore } from '@/store';
 
 export default function useUser() {
   const router = useRouter();
-  const userStore = useUserStore();
-  const appStore = useAppStore();
   const { t } = useI18n();
 
   const logout = async (logoutTo?: string) => {
+    const appStore = useAppStore();
+    const userStore = useUserStore();
     await userStore.logout();
     const currentRoute = router.currentRoute.value;
     // 清空顶部菜单

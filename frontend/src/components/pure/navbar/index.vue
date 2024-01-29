@@ -3,8 +3,8 @@
     <div class="left-side">
       <a-space>
         <div class="one-line-text flex max-w-[145px] items-center">
-          <img :src="props.logo" class="mr-[4px] h-[32px] w-[32px]" />
-          {{ props.name }}
+          <img :src="props.logo" class="mr-[4px] h-[34px] w-[32px]" />
+          <div class="font-['Helvetica_Neue'] text-[16px] font-bold text-[rgb(var(--primary-5))]">{{ props.name }}</div>
         </div>
       </a-space>
     </div>
@@ -135,7 +135,7 @@
 
   import type { ProjectListItem } from '@/models/setting/project';
 
-  import { IconCompass, IconFile, IconInfoCircle, IconQuestionCircle } from '@arco-design/web-vue/es/icon';
+  import { IconInfoCircle, IconQuestionCircle } from '@arco-design/web-vue/es/icon';
 
   const props = defineProps<{
     isPreview?: boolean;
@@ -207,21 +207,21 @@
   }
 
   const helpCenterList = [
-    {
-      name: 'settings.help.guide',
-      icon: IconCompass,
-      route: '/help-center/guide',
-    },
+    // {
+    //   name: 'settings.help.guide',
+    //   icon: IconCompass,
+    //   route: '/help-center/guide',
+    // },
     {
       name: 'settings.help.doc',
       icon: IconQuestionCircle,
       route: '/help-center/guide',
     },
-    {
-      name: 'settings.help.APIDoc',
-      icon: IconFile,
-      route: '/help-center/guide',
-    },
+    // {
+    //   name: 'settings.help.APIDoc',
+    //   icon: IconFile,
+    //   route: '/help-center/guide',
+    // },
     {
       name: 'settings.help.version',
       icon: IconInfoCircle,

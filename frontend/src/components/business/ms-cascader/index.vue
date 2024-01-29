@@ -215,10 +215,11 @@
 
   // TODO: 临时解决 arco-design 的 cascader 组件绑定值只能是 path-mode 的问题，如果实际值也包含了 ‘-’，则不要取这个值，而是取绑定的 v-model 的值
   function getInputLabel(data: CascaderOption) {
+    const isTagCount = data[props.labelKey].includes('+');
     if (!props.pathMode) {
-      return t(data[props.labelKey].split('-').pop());
+      return isTagCount ? data[props.labelKey] : t(data[props.labelKey].split('-').pop());
     }
-    return t(data[props.labelKey]);
+    return isTagCount ? data[props.labelKey] : t(data[props.labelKey]);
   }
 
   function clearValues() {

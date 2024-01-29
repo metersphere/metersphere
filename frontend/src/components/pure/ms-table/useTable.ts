@@ -276,6 +276,8 @@ export default function useTableProps<T>(
       } catch (err) {
         setTableErrorStatus('error');
         propsRes.value.data = [];
+        // eslint-disable-next-line no-console
+        console.log(err);
       } finally {
         setLoading(false);
       }

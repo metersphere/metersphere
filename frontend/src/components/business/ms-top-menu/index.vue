@@ -113,4 +113,12 @@
   }
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+  :deep(.arco-menu-inner) {
+    overflow-y: hidden;
+    padding: 9px 20px;
+    .arco-menu-selected-label {
+      bottom: -8px !important;
+    }
+  }
+</style>

@@ -83,7 +83,7 @@
           />
         </template>
         <template v-if="keyword.trim() === ''" #empty>
-          <div class="flex items-center justify-center p-[8px] text-[var(--color-text-4)]">
+          <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
             {{ t('project.fileManagement.tableNoFile') }}
             <MsButton class="ml-[8px]" @click="handleAddClick">
               {{ t('project.fileManagement.addFile') }}

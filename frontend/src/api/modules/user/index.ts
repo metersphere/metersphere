@@ -47,7 +47,7 @@ export function login(data: LoginData) {
 }
 
 export function isLogin() {
-  return MSR.get<LoginRes>({ url: isLoginUrl }, { ignoreCancelToken: true });
+  return MSR.get<LoginRes>({ url: isLoginUrl }, { ignoreCancelToken: true, errorMessageMode: 'none' });
 }
 
 export function logout() {
@@ -143,18 +143,18 @@ export function updatePsw(data: UpdatePswParams) {
 }
 
 // 个人信息-校验第三方平台账号信息
-export function validatePlatform(id: string, data: Record<string, any>) {
-  return MSR.post({ url: `${ValidatePlatformUrl}/${id}`, data });
+export function validatePlatform(id: string, orgId: string, data: Record<string, any>) {
+  return MSR.post({ url: `${ValidatePlatformUrl}/${id}/${orgId}`, data });
 }
 
 // 个人信息-保存第三方平台账号信息
-export function savePlatform(data: UpdatePswParams) {
+export function savePlatform(data: Record<string, any>) {
   return MSR.post({ url: SavePlatformUrl, data });
 }
 
 // 个人信息-获取第三方平台账号信息
-export function getPlatform() {
-  return MSR.get({ url: GetPlatformUrl });
+export function getPlatform(orgId: string) {
+  return MSR.get({ url: GetPlatformUrl, params: orgId });
 }
 
 // 个人信息-获取第三方平台账号信息-插件信息

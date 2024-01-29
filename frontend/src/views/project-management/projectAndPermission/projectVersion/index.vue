@@ -329,6 +329,7 @@
       dataIndex: 'publishTime',
       sortable: {
         sortDirections: ['ascend', 'descend'],
+        sorter: true,
       },
       width: 180,
     },
@@ -337,6 +338,7 @@
       dataIndex: 'createTime',
       sortable: {
         sortDirections: ['ascend', 'descend'],
+        sorter: true,
       },
       width: 180,
     },

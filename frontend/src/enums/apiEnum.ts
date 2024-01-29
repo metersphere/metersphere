@@ -52,3 +52,14 @@ export enum ResponseComposition {
   EXTRACT = 'EXTRACT',
   ASSERTION = 'ASSERTION',
 }
+// 接口定义状态
+export enum RequestDefinitionStatus {
+  DEPRECATED = 'DEPRECATED',
+  PROCESSING = 'PROCESSING',
+  DEBUGGING = 'DEBUGGING',
+  DONE = 'DONE',
+}
+// 接口导入支持格式
+export enum RequestImportFormat {
+  SWAGGER = 'SWAGGER',
+}

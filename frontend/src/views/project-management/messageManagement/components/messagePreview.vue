@@ -20,7 +20,7 @@
       <div class="flex gap-[12px] p-[16px]">
         <a-avatar>MS</a-avatar>
         <div class="flex flex-1 flex-col">
-          <div class="font-medium text-[var(--color-text-1)]">{{ subject || '-' }}</div>
+          <div class="font-medium text-[var(--color-text-1)]" v-html="subject || '-'"></div>
           <div class="mt-[4px] text-[var(--color-text-2)]" v-html="template || '-'"></div>
           <div class="text-[var(--color-text-4)]">{{ dayjs().format('YYYY-MM-DD HH:mm:ss') }}</div>
         </div>
@@ -31,8 +31,7 @@
     v-else-if="props.robot.platform === 'MAIL'"
     class="preview-rounded w-[400px] bg-[var(--color-text-n9)] p-[12px] text-[14px]"
   >
-    <div class="mb-[4px] text-[16px] font-medium leading-[24px] text-[var(--color-text-1)]">
-      {{ subject || '-' }}
+    <div class="mb-[4px] text-[16px] font-medium leading-[24px] text-[var(--color-text-1)]" v-html="subject || '-'">
     </div>
     <div class="mb-[8px] flex flex-col">
       <div class="text-[12px] leading-[16px] text-[var(--color-text-4)]">
@@ -216,9 +215,6 @@
   // 使用正则表达式替换 {{name}} 为高亮的关键字
   function replacePreviewName(str: string) {
     return str
-      .replace(/<|>/g, (match) => {
-        return match === '<' ? '&lt;' : '&gt;';
-      })
       .replace(/{{(.*?)}}/g, `<span style='color: rgb(var(--primary-6))'>&lt;$1&gt;</span>`)
       .replace(/\n/g, '<br>');
   }

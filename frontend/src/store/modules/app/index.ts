@@ -29,7 +29,7 @@ const defaultLoginConfig = {
   icon: [],
   loginLogo: [],
   loginImage: [],
-  slogan: '一站式开源持续测试平台',
+  slogan: 'login.form.title',
 };
 const defaultPlatformConfig = {
   logoPlatform: [],

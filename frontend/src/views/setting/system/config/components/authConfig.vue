@@ -1,6 +1,6 @@
 <template>
   <div>
-    <MsCard :loading="loading" simple>
+    <MsCard :loading="loading" auto-height simple>
       <div class="mb-4 flex items-center justify-between">
         <a-button v-permission="['SYSTEM_PARAMETER_SETTING_AUTH:READ+ADD']" type="primary" @click="createAuth">
           {{ t('system.config.auth.add') }}
@@ -100,7 +100,7 @@
             <a-input
               v-model:model-value="activeAuthForm.configuration.casUrl"
               :max-length="250"
-              :placeholder="t('system.config.auth.serviceUrlPlaceholder')"
+              :placeholder="t('system.config.auth.commonUrlPlaceholder', { url: 'http://<casurl>' })"
               allow-clear
             ></a-input>
           </a-form-item>
@@ -114,7 +114,7 @@
             <a-input
               v-model:model-value="activeAuthForm.configuration.loginUrl"
               :max-length="250"
-              :placeholder="t('system.config.auth.loginUrlPlaceholder')"
+              :placeholder="t('system.config.auth.commonUrlPlaceholder', { url: 'http://<casurl>/login' })"
               allow-clear
             ></a-input>
             <MsFormItemSub :text="t('system.config.auth.loginUrlTip')" :show-fill-icon="false" />
@@ -129,7 +129,11 @@
             <a-input
               v-model:model-value="activeAuthForm.configuration.redirectUrl"
               :max-length="250"
-              :placeholder="t('system.config.auth.callbackUrlPlaceholder')"
+              :placeholder="
+                t('system.config.auth.commonUrlPlaceholder', {
+                  url: 'http://<meteresphere-endpoint>/sso/callback/cas/suthld',
+                })
+              "
               allow-clear
             ></a-input>
           </a-form-item>
@@ -143,7 +147,7 @@
             <a-input
               v-model:model-value="activeAuthForm.configuration.validateUrl"
               :max-length="250"
-              :placeholder="t('system.config.auth.verifyUrlPlaceholder')"
+              :placeholder="t('system.config.auth.commonUrlPlaceholder', { url: 'http://<casurl>/serviceValidate' })"
               allow-clear
             ></a-input>
             <MsFormItemSub :text="t('system.config.auth.verifyUrlTip')" :show-fill-icon="false" />
@@ -160,7 +164,11 @@
             <a-input
               v-model:model-value="activeAuthForm.configuration.authUrl"
               :max-length="250"
-              :placeholder="t('system.config.auth.authUrlPlaceholder')"
+              :placeholder="
+                t('system.config.auth.commonUrlPlaceholder', {
+                  url: 'http://<keyclock>auth/realms/<metersphere>/protocol/openid-connect/auth',
+                })
+              "
               allow-clear
             ></a-input>
           </a-form-item>
@@ -174,7 +182,11 @@
             <a-input
               v-model:model-value="activeAuthForm.configuration.tokenUrl"
               :max-length="250"
-              :placeholder="t('system.config.auth.tokenUrlPlaceholder')"
+              :placeholder="
+                t('system.config.auth.commonUrlPlaceholder', {
+                  url: 'http://<keyclock>auth/realms/<metersphere>/protocol/openid-connect/token',
+                })
+              "
               allow-clear
             ></a-input>
           </a-form-item>
@@ -188,7 +200,11 @@
             <a-input
               v-model:model-value="activeAuthForm.configuration.userInfoUrl"
               :max-length="250"
-              :placeholder="t('system.config.auth.userInfoUrlPlaceholder')"
+              :placeholder="
+                t('system.config.auth.commonUrlPlaceholder', {
+                  url: 'http://<keyclock>auth/realms/<metersphere>/protocol/openid-connect/userinfo',
+                })
+              "
               allow-clear
             ></a-input>
           </a-form-item>
@@ -202,7 +218,11 @@
             <a-input
               v-model:model-value="activeAuthForm.configuration.redirectUrl"
               :max-length="250"
-              :placeholder="t('system.config.auth.OIDCCallbackUrlPlaceholder')"
+              :placeholder="
+                t('system.config.auth.commonUrlPlaceholder', {
+                  url: 'http://<metersphere-endpoint>/sso/callback or http://<metersphere-endpoint>/sso/callback/authld',
+                })
+              "
               allow-clear
             ></a-input>
           </a-form-item>
@@ -244,7 +264,11 @@
             <a-input
               v-model:model-value="activeAuthForm.configuration.logoutUrl"
               :max-length="250"
-              :placeholder="t('system.config.auth.logoutSessionUrlPlaceholder')"
+              :placeholder="
+                t('system.config.auth.commonUrlPlaceholder', {
+                  url: 'http://<keyclock>/auth/realms/<metersphere>/protocol/openid-connect/logout',
+                })
+              "
               allow-clear
             ></a-input>
           </a-form-item>
@@ -252,7 +276,7 @@
             <a-input
               v-model:model-value="activeAuthForm.configuration.loginUrl"
               :max-length="250"
-              :placeholder="t('system.config.auth.loginUrlPlaceholder')"
+              :placeholder="t('system.config.auth.commonUrlPlaceholder', { url: 'http://<casurl>/login' })"
               allow-clear
             ></a-input>
             <MsFormItemSub :text="t('system.config.auth.loginUrlTip')" :show-fill-icon="false" />
@@ -269,7 +293,11 @@
             <a-input
               v-model:model-value="activeAuthForm.configuration.authUrl"
               :max-length="250"
-              :placeholder="t('system.config.auth.authUrlPlaceholder')"
+              :placeholder="
+                t('system.config.auth.commonUrlPlaceholder', {
+                  url: 'http://<keyclock>auth/realms/<metersphere>/protocol/openid-connect/auth',
+                })
+              "
               allow-clear
             ></a-input>
           </a-form-item>
@@ -283,7 +311,11 @@
             <a-input
               v-model:model-value="activeAuthForm.configuration.tokenUrl"
               :max-length="250"
-              :placeholder="t('system.config.auth.tokenUrlPlaceholder')"
+              :placeholder="
+                t('system.config.auth.commonUrlPlaceholder', {
+                  url: 'http://<keyclock>auth/realms/<metersphere>/protocol/openid-connect/token',
+                })
+              "
               allow-clear
             ></a-input>
           </a-form-item>
@@ -297,7 +329,11 @@
             <a-input
               v-model:model-value="activeAuthForm.configuration.userInfoUrl"
               :max-length="250"
-              :placeholder="t('system.config.auth.userInfoUrlPlaceholder')"
+              :placeholder="
+                t('system.config.auth.commonUrlPlaceholder', {
+                  url: 'http://<keyclock>auth/realms/<metersphere>/protocol/openid-connect/userinfo',
+                })
+              "
               allow-clear
             ></a-input>
           </a-form-item>
@@ -311,7 +347,11 @@
             <a-input
               v-model:model-value="activeAuthForm.configuration.redirectUrl"
               :max-length="250"
-              :placeholder="t('system.config.auth.OIDCCallbackUrlPlaceholder')"
+              :placeholder="
+                t('system.config.auth.commonUrlPlaceholder', {
+                  url: 'http://<meteresphere-endpoint>/sso/callback/cas/suthld',
+                })
+              "
               allow-clear
             ></a-input>
           </a-form-item>
@@ -365,7 +405,11 @@
             <a-input
               v-model:model-value="activeAuthForm.configuration.logoutUrl"
               :max-length="250"
-              :placeholder="t('system.config.auth.logoutSessionUrlPlaceholder')"
+              :placeholder="
+                t('system.config.auth.commonUrlPlaceholder', {
+                  url: 'http://<keyclock>/auth/realms/<metersphere>/protocol/openid-connect/logout',
+                })
+              "
               allow-clear
             ></a-input>
           </a-form-item>
@@ -381,7 +425,7 @@
             <a-input
               v-model:model-value="activeAuthForm.configuration.loginUrl"
               :max-length="250"
-              :placeholder="t('system.config.auth.loginUrlPlaceholder')"
+              :placeholder="t('system.config.auth.commonUrlPlaceholder')"
               allow-clear
             ></a-input>
             <MsFormItemSub :text="t('system.config.auth.loginUrlTip')" :show-fill-icon="false" />

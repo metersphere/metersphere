@@ -181,8 +181,8 @@ export const getReviewDetailModuleCount = (data: ReviewDetailCaseListQueryParams
 };
 
 // 评审详情-已关联用例模块树
-export const getReviewDetailModuleTree = (projectId: string, reviewId: string) => {
-  return MSR.get({ url: `${GetReviewDetailModuleTreeUrl}/${projectId}/${reviewId}` });
+export const getReviewDetailModuleTree = (reviewId: string) => {
+  return MSR.get({ url: `${GetReviewDetailModuleTreeUrl}/${reviewId}` });
 };
 
 // 评审详情-获取用例评审历史

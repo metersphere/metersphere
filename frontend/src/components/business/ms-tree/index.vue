@@ -66,6 +66,7 @@
 
 <script setup lang="ts">
   import { h, nextTick, onBeforeMount, Ref, ref, watch, watchEffect } from 'vue';
+  import { useVModel } from '@vueuse/core';
   import { debounce } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -302,28 +303,14 @@
     emit('check', checkedKeys);
   }
 
-  const innerFocusNodeKey = ref(props.focusNodeKey || ''); // 聚焦的节点，一般用于在操作扩展按钮时，高亮当前节点，保持扩展按钮持续显示
-
-  watch(
-    () => props.focusNodeKey,
-    (val) => {
-      innerFocusNodeKey.value = val || '';
-    }
-  );
-
-  watch(
-    () => innerFocusNodeKey.value,
-    (val) => {
-      emit('update:focusNodeKey', val);
-    }
-  );
+  const innerFocusNodeKey = useVModel(props, 'focusNodeKey', emit); // 聚焦的节点，一般用于在操作扩展按钮时，高亮当前节点，保持扩展按钮持续显示
 
   const focusEl = ref<HTMLElement | null>(); // 存储聚焦的节点元素
 
   watch(
     () => innerFocusNodeKey.value,
     (val) => {
-      if (val.toString() !== '') {
+      if (val?.toString() !== '') {
         focusEl.value = treeRef.value?.$el.querySelector(`[data-key="${val}"]`);
         if (focusEl.value) {
           focusEl.value.style.backgroundColor = 'rgb(var(--primary-1))';
@@ -355,21 +342,7 @@
     }
   );
 
-  const innerSelectedKeys = ref(props.selectedKeys || []);
-
-  watch(
-    () => props.selectedKeys,
-    (val) => {
-      innerSelectedKeys.value = val || [];
-    }
-  );
-
-  watch(
-    () => innerSelectedKeys.value,
-    (val) => {
-      emit('update:selectedKeys', val);
-    }
-  );
+  const innerSelectedKeys = useVModel(props, 'selectedKeys', emit);
 </script>
 
 <style lang="less">
@@ -381,6 +354,14 @@
         border-radius: var(--border-radius-small);
         &:hover {
           background-color: rgb(var(--primary-1));
+          .arco-tree-node-title {
+            background-color: rgb(var(--primary-1));
+            &:not([draggable='false']) {
+              .arco-tree-node-title-text {
+                width: calc(100% - 22px);
+              }
+            }
+          }
         }
         .arco-tree-node-indent-block {
           width: 1px;
@@ -409,7 +390,7 @@
           &:hover {
             background-color: rgb(var(--primary-1));
             + .ms-tree-node-extra {
-              @apply block;
+              @apply visible w-auto;
             }
           }
           .arco-tree-node-title-text {
@@ -418,7 +399,7 @@
           .arco-tree-node-drag-icon {
             @apply cursor-move;
 
-            right: 4px;
+            right: 6px;
             .arco-icon {
               font-size: 14px;
             }
@@ -428,9 +409,9 @@
           width: 80%;
         }
         .ms-tree-node-extra {
-          @apply relative hidden;
+          @apply invisible relative w-0;
           &:hover {
-            @apply block;
+            @apply visible w-auto;
           }
           .ms-tree-node-extra__btn,
           .ms-tree-node-extra__more {
@@ -448,7 +429,7 @@
           }
         }
         .ms-tree-node-extra--focus {
-          @apply block;
+          @apply visible w-auto;
         }
         .arco-tree-node-custom-icon {
           @apply hidden;

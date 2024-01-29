@@ -3,5 +3,6 @@ export interface TabItem {
   label: string;
   closable?: boolean;
   unSaved?: boolean; // 未保存
+  draggable?: boolean;
   [key: string]: any;
 }

@@ -28,8 +28,9 @@ export default function useSelect(config: UseSelectOption) {
 
   /**
    * 计算最大标签数量
+   * @param options 选择器的选项
    */
-  function calculateMaxTag() {
+  function calculateMaxTag(options?: CascaderOption[] | SelectOptionData[]) {
     nextTick(() => {
       if (config.selectRef.value && selectViewInner.value && Array.isArray(config.selectVal.value)) {
         if (maxTagCount.value >= 1 && config.selectVal.value.length > maxTagCount.value) return; // 已经超过最大数量的展示，不需要再计算
@@ -38,7 +39,9 @@ export default function useSelect(config: UseSelectOption) {
         let tagCount = 0;
         const values = Object.values(config.selectVal.value);
         for (let i = 0; i < values.length; i++) {
-          const tagWidth = (values[i][config.labelKey || 'label']?.length || 0) * 12; // 计算每个标签渲染出来的宽度，文字大小在12px时宽度也是 12px
+          const option = options?.find((e) => e[config.valueKey || 'value'] === values[i]);
+          const tagWidth = (option ? option[config.labelKey || 'label']?.length || 0 : values[i].length) * 12; // 计算每个标签渲染出来的宽度，文字大小在12px时宽度也是 12px
+
           if (lastWidth > tagWidth + 36) {
             tagCount += 1;
             lastWidth -= tagWidth + 36; // 36px是标签的边距、边框等宽度

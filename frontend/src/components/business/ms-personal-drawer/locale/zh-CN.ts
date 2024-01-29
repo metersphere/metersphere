@@ -66,7 +66,7 @@ export default {
   'ms.personal.validPass': '校验通过',
   'ms.personal.validFail': '校验失败',
   'ms.personal.unValid': '未校验',
-  'ms.personal.valid': '校验',
+  'ms.personal.valid': '校验并保存',
   'ms.personal.authType': '认证方式',
   'ms.personal.platformAccount': '平台账号',
   'ms.personal.platformAccountPlaceholder': '请输入 {type} 账号',

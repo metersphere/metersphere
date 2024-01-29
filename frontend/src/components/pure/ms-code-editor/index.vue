@@ -34,9 +34,9 @@
         <div
           v-if="showFullScreen"
           class="w-[96px] cursor-pointer text-right !text-[var(--color-text-4)]"
-          @click="toggle"
+          @click="toggleFullScreen"
         >
-          <MsIcon v-if="isFullscreen" type="icon-icon_minify_outlined" />
+          <MsIcon v-if="isFullScreen" type="icon-icon_minify_outlined" />
           <MsIcon v-else type="icon-icon_magnify_outlined" />
           {{ t('msCodeEditor.fullScreen') }}
         </div>
@@ -44,7 +44,7 @@
     </div>
     <!-- 这里的 40px 是顶部标题的 40px -->
     <div :class="`flex ${showTitleLine ? 'h-[calc(100%-40px)]' : 'h-full'} w-full flex-row`">
-      <div ref="codeContainerRef" :class="['ms-code-editor', isFullscreen ? 'ms-code-editor-full-screen' : '']"></div>
+      <div ref="codeContainerRef" :class="['ms-code-editor', isFullScreen ? 'ms-code-editor-full-screen' : '']"></div>
       <slot name="rightBox"> </slot>
     </div>
   </div>
@@ -52,9 +52,9 @@
 
 <script lang="ts">
   import { computed, defineComponent, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-  import { useFullscreen } from '@vueuse/core';
 
   import { codeCharset } from '@/config/apiTest';
+  import useFullScreen from '@/hooks/useFullScreen';
   import { useI18n } from '@/hooks/useI18n';
   import { decodeStringToCharset } from '@/utils';
 
@@ -183,7 +183,7 @@
         }
       };
 
-      const { isFullscreen, toggle } = useFullscreen(fullRef);
+      const { isFullScreen, toggleFullScreen } = useFullScreen(fullRef);
 
       // 插入内容
       const insertContent = (text: string) => {
@@ -257,7 +257,7 @@
       return {
         codeContainerRef,
         fullRef,
-        isFullscreen,
+        isFullScreen,
         currentTheme,
         themeOptions,
         currentLanguage,
@@ -265,7 +265,7 @@
         currentCharset,
         charsetOptions,
         showTitleLine,
-        toggle,
+        toggleFullScreen,
         t,
         handleThemeChange,
         handleLanguageChange,

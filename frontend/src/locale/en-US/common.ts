@@ -102,4 +102,10 @@ export default {
   'common.noResource': 'No resource, please contact the administrator',
   'common.noSelectProject': 'No optional items available',
   'common.noPermission': 'No permission',
+  'common.batchEdit': 'Batch Edit',
+  'common.tagsInputPlaceholder': 'Enter the content and press Enter to directly add tags',
+  'common.move': 'Move',
+  'common.batchMove': 'Batch move',
+  'common.batchMoveSuccess': 'Batch move successful',
+  'common.importSuccess': 'Import successful',
 };

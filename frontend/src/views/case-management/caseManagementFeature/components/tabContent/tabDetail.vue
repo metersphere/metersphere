@@ -98,11 +98,8 @@
           {{ t('common.save') }}
         </a-button></div
       >
-      <a-form-item
-        field="attachment"
-        :label="props.allowEdit ? t('caseManagement.featureCase.attachment') : '附件列表'"
-      >
-        <div v-if="props.allowEdit" class="flex flex-col">
+      <a-form-item v-if="props.allowEdit" field="attachment" :label="t('caseManagement.featureCase.attachment')">
+        <div class="flex flex-col">
           <div class="mb-1">
             <a-dropdown position="tr" trigger="hover">
               <a-button v-permission="['FUNCTIONAL_CASE:READ+UPDATE']" type="outline">
@@ -119,26 +116,28 @@
                 >
                   <template #upload-button>
                     <a-button type="text" class="!text-[var(--color-text-1)]">
-                      <icon-upload />{{ t('caseManagement.featureCase.uploadFile') }}</a-button
-                    >
+                      <icon-upload />{{ t('caseManagement.featureCase.uploadFile') }}
+                    </a-button>
                   </template>
                 </a-upload>
                 <a-button type="text" class="!text-[var(--color-text-1)]" @click="associatedFile">
-                  <MsIcon type="icon-icon_link-copy_outlined" size="16" />{{
-                    t('caseManagement.featureCase.associatedFile')
-                  }}</a-button
-                >
+                  <MsIcon type="icon-icon_link-copy_outlined" size="16" />
+                  {{ t('caseManagement.featureCase.associatedFile') }}
+                </a-button>
               </template>
             </a-dropdown>
           </div>
-          <div class="!hover:bg-[rgb(var(--primary-1))] !text-[var(--color-text-4)]">{{
-            t('system.orgTemplate.addAttachmentTip')
-          }}</div>
+          <div class="!hover:bg-[rgb(var(--primary-1))] !text-[var(--color-text-4)]">
+            {{ t('system.orgTemplate.addAttachmentTip') }}
+          </div>
         </div>
       </a-form-item>
     </a-form>
     <!-- 文件列表开始 -->
     <div class="w-[90%]">
+      <div v-if="!props.allowEdit" class="mb-[16px] font-medium text-[var(--color-text-1)]">
+        {{ t('caseManagement.featureCase.attachment') }}
+      </div>
       <MsFileList
         ref="fileListRef"
         v-model:file-list="fileList"

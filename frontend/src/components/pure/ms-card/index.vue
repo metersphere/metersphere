@@ -1,18 +1,19 @@
 <template>
   <a-spin class="!block h-full" :loading="props.loading" :size="28">
     <div
+      ref="fullRef"
       :class="[
         'ms-card',
         'relative',
         'h-full',
-        props.isFullscreen ? 'ms-card--no-radius' : '',
+        props.isFullscreen || isFullScreen ? 'ms-card--no-radius' : '',
         props.autoHeight ? '' : 'min-h-[500px]',
         props.noContentPadding ? 'ms-card--noContentPadding' : 'p-[24px]',
         props.noBottomRadius ? 'ms-card--noBottomRadius' : '',
       ]"
     >
       <a-scrollbar v-if="!props.simple" :style="{ overflow: 'auto' }">
-        <div class="card-header" :style="props.minWidth ? { minWidth: `${props.minWidth}px` } : {}">
+        <div class="ms-card-header" :style="props.headerMinWidth ? { minWidth: `${props.headerMinWidth}px` } : {}">
           <div v-if="!props.hideBack" class="back-btn" @click="back"><icon-arrow-left /></div>
           <slot name="headerLeft">
             <div class="font-medium text-[var(--color-text-000)]">{{ props.title }}</div>
@@ -20,6 +21,15 @@
           </slot>
           <div class="ml-auto flex items-center">
             <slot name="headerRight"></slot>
+            <div
+              v-if="props.showFullScreen"
+              class="w-[96px] cursor-pointer text-right !text-[var(--color-text-4)]"
+              @click="toggleFullScreen"
+            >
+              <MsIcon v-if="isFullScreen" type="icon-icon_minify_outlined" />
+              <MsIcon v-else type="icon-icon_magnify_outlined" />
+              {{ t('msCodeEditor.fullScreen') }}
+            </div>
           </div>
           <div v-if="$slots.subHeader" class="basis-full">
             <slot name="subHeader"></slot>
@@ -30,7 +40,7 @@
         <a-divider v-if="!props.simple && !props.hideDivider" class="mb-[16px] mt-0" />
       </div>
       <div class="ms-card-container">
-        <a-scrollbar :class="props.noContentPadding ? '' : 'pr-[5px]'" :style="getComputedContentStyle">
+        <a-scrollbar :class="['h-full', props.noContentPadding ? '' : 'pr-[5px]']" :style="getComputedContentStyle">
           <div class="relative h-full w-full" :style="{ minWidth: `${props.minWidth || 1000}px` }">
             <slot></slot>
           </div>
@@ -38,7 +48,7 @@
       </div>
       <div
         v-if="!props.hideFooter && !props.simple"
-        class="fixed bottom-0 right-[16px] z-10 flex items-center bg-white p-[24px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
+        class="fixed bottom-0 right-[16px] z-[100] flex items-center bg-white p-[24px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
         :style="{ width: `calc(100% - ${menuWidth + 16}px)` }"
       >
         <div class="ml-0 mr-auto">
@@ -64,6 +74,7 @@
   import { computed } from 'vue';
   import { useRouter } from 'vue-router';
 
+  import useFullScreen from '@/hooks/useFullScreen';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
@@ -81,7 +92,8 @@
         hideBack: boolean; // 隐藏返回按钮
         autoHeight: boolean; // 内容区域高度是否自适应
         otherWidth: number; // 该宽度为卡片外部同级容器的宽度
-        minWidth: number; // 卡片最小宽度
+        headerMinWidth: number; // 卡片头部最小宽度
+        minWidth: number; // 卡片内容最小宽度
         hasBreadcrumb: boolean; // 是否有面包屑，如果有面包屑，高度需要减去面包屑的高度
         noContentPadding: boolean; // 内容区域是否有padding
         noBottomRadius?: boolean; // 底部是否有圆角
@@ -89,6 +101,7 @@
         hideDivider?: boolean; // 是否隐藏分割线
         handleBack: () => void; // 自定义返回按钮触发事件
         dividerHasPX: boolean; // 分割线是否有左右padding;
+        showFullScreen: boolean; // 是否显示全屏按钮
       }>
     >(),
     {
@@ -117,6 +130,10 @@
     return appStore.menuCollapse ? collapsedWidth : appStore.menuWidth;
   });
 
+  // 用于全屏的容器 ref
+  const fullRef = ref<HTMLElement | null>();
+  const { isFullScreen, toggleFullScreen } = useFullScreen(fullRef);
+
   const _specialHeight = props.hasBreadcrumb ? 32 + props.specialHeight : props.specialHeight; // 有面包屑的话，默认面包屑高度32
 
   const cardOverHeight = computed(() => {
@@ -132,18 +149,18 @@
   });
 
   const getComputedContentStyle = computed(() => {
+    if (props.isFullscreen || isFullScreen.value) {
+      return {
+        overflow: 'auto',
+        width: 'auto',
+        height: 'auto',
+      };
+    }
     if (props.noContentPadding) {
       return {
         overflow: 'auto',
         width: 'auto',
         height: props.autoHeight ? 'auto' : `calc(100vh - ${cardOverHeight.value}px)`,
-      };
-    }
-    if (props.isFullscreen) {
-      return {
-        overflow: 'auto',
-        width: 'calc(100vw - 58px)',
-        height: 'auto',
       };
     }
     return {
@@ -172,7 +189,7 @@
     box-shadow: 0 0 10px rgb(120 56 135 / 5%);
     &--noContentPadding {
       border-radius: var(--border-radius-large);
-      .card-header {
+      .ms-card-header {
         padding: 24px 24px 16px;
       }
       .arco-divider {
@@ -182,7 +199,7 @@
     &--noBottomRadius {
       border-radius: var(--border-radius-large) var(--border-radius-large) 0 0;
     }
-    .card-header {
+    .ms-card-header {
       @apply flex flex-wrap items-center;
 
       padding-bottom: 16px;
@@ -199,6 +216,9 @@
           color: rgb(var(--primary-5));
         }
       }
+    }
+    .ms-card-container {
+      @apply h-full;
     }
   }
   .ms-card--no-radius {

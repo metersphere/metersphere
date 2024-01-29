@@ -34,12 +34,14 @@
               {{ t(props.mainText || 'ms.upload.importModalDragText') }}
             </div>
             <div v-if="showSubText" class="ms-upload-sub-text">
-              {{
-                t(props.subText || 'ms.upload.importModalFileTip', {
-                  type: UploadAcceptEnum[props.accept],
-                  size: props.maxSize || defaultMaxSize,
-                })
-              }}
+              <slot name="subText">
+                {{
+                  t(props.subText || 'ms.upload.importModalFileTip', {
+                    type: UploadAcceptEnum[props.accept],
+                    size: props.maxSize || defaultMaxSize,
+                  })
+                }}
+              </slot>
             </div>
           </template>
           <template v-else>

@@ -7,7 +7,7 @@
     :get-modules-func="getCaseModuleTree"
     :get-table-func="getCaseList"
     :confirm-loading="confirmLoading"
-    :associated-ids="associatedIds"
+    :associated-ids="[]"
     :type="RequestModuleEnum.CASE_MANAGEMENT"
     @close="emit('close')"
     @save="saveHandler"
@@ -90,10 +90,12 @@
   const props = defineProps<{
     visible: boolean;
     project: string;
+    // associatedIds: string[];
   }>();
   const emit = defineEmits<{
     (e: 'update:visible', val: boolean): void;
     (e: 'update:project', val: string): void;
+    (e: 'update:associatedIds', val: string[]): void;
     (e: 'success', val: BaseAssociateCaseRequest & { reviewers: string[] }): void;
     (e: 'close'): void;
   }>();
@@ -136,7 +138,7 @@
 
   const currentSelectCase = ref<string | number | Record<string, any> | undefined>('');
 
-  const associatedIds = ref<string[]>([]);
+  // const associatedIds = useVModel(props, 'associatedIds', emit);
   const confirmLoading = ref<boolean>(false);
 
   function saveHandler(params: BaseAssociateCaseRequest) {
@@ -144,7 +146,7 @@
       if (!errors) {
         try {
           confirmLoading.value = true;
-          associatedIds.value = [...params.selectIds];
+          // associatedIds.value = [...params.selectIds];
           emit('success', { ...params, reviewers: associateForm.value.reviewers });
           innerVisible.value = false;
         } catch (error) {

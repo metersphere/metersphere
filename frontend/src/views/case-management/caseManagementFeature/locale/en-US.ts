@@ -153,7 +153,7 @@ export default {
   'caseManagement.featureCase.fullScreen': 'Full screen',
   'caseManagement.featureCase.more': 'More',
   'caseManagement.featureCase.basicInfo': 'Basic Info',
-  'caseManagement.featureCase.attachment': 'attachment',
+  'caseManagement.featureCase.attachment': 'Attachment',
   'caseManagement.featureCase.contentEdit': 'Content Edit',
   'caseManagement.featureCase.followSuccess': 'Followed Success',
   'caseManagement.featureCase.cancelFollowSuccess': 'Cancel success',

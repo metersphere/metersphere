@@ -10,8 +10,8 @@
               <div class="folder-count">({{ myFileCount }})</div>
             </div>
           </div>
-          <div class="folder">
-            <div :class="getFolderClass('all')" @click="setActiveFolder('all')">
+          <div class="folder" @click="setActiveFolder('all')">
+            <div :class="getFolderClass('all')">
               <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
               <div class="folder-name">{{ t('project.fileManagement.allFile') }}</div>
               <div class="folder-count">({{ allFileCount }})</div>

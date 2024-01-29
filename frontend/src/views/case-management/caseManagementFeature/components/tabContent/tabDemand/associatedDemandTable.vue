@@ -7,14 +7,14 @@
       >
     </template>
     <template #operation="{ record }">
-      <MsButton v-if="record.demandPlatform !== pageConfig.platformName" @click="emit('update', record)">{{
-        t('caseManagement.featureCase.cancelAssociation')
-      }}</MsButton>
-      <MsButton v-if="record.demandPlatform === pageConfig.platformName" @click="emit('update', record)">{{
-        t('common.edit')
-      }}</MsButton>
+      <MsButton v-if="record.demandPlatform !== pageConfig.platformName" @click="emit('update', record)">
+        {{ t('caseManagement.featureCase.cancelAssociation') }}
+      </MsButton>
+      <MsButton v-if="record.demandPlatform === pageConfig.platformName" @click="emit('update', record)">
+        {{ t('common.edit') }}
+      </MsButton>
     </template>
-    <template v-if="(props.funParams.keyword || '').trim() === ''" #empty>
+    <template v-if="(props.funParams.keyword || '').trim() === '' && props.showEmpty" #empty>
       <div class="flex w-full items-center justify-center">
         {{ t('caseManagement.caseReview.tableNoData') }}
         <MsButton class="ml-[8px]" @click="emit('create')">
@@ -53,6 +53,7 @@
       }; // 列表查询参数
       isShowOperation?: boolean; // 是否显示操作列
       highlightName?: boolean; // 是否高亮名称
+      showEmpty?: boolean; // 是否显示自定义的空状态，否则显示表格的默认空状态
     }>(),
     {
       isShowOperation: true,
