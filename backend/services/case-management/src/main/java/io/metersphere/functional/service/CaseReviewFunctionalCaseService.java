@@ -618,9 +618,9 @@ public class CaseReviewFunctionalCaseService {
             returnList.add(projectNode);
             List<String> projectModuleIds = moduleList.stream().map(FunctionalCaseModule::getId).toList();
             List<BaseTreeNode> nodeByNodeIds = functionalCaseModuleService.getNodeByNodeIds(projectModuleIds);
-            List<BaseTreeNode> list = nodeByNodeIds.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getId(), ModuleConstants.DEFAULT_NODE_ID.toString())).toList();
+            List<BaseTreeNode> list = nodeByNodeIds.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getId(), ModuleConstants.DEFAULT_NODE_ID)).toList();
             boolean haveVirtualRootNode = list.isEmpty();
-            List<BaseTreeNode> baseTreeNodes = functionalCaseModuleService.buildTreeAndCountResource(nodeByNodeIds, haveVirtualRootNode, Translator.get("default.module"));
+            List<BaseTreeNode> baseTreeNodes = functionalCaseModuleService.buildTreeAndCountResource(nodeByNodeIds, !haveVirtualRootNode, Translator.get("default.module"));
             for (BaseTreeNode baseTreeNode : baseTreeNodes) {
                 projectNode.addChild(baseTreeNode);
             }
