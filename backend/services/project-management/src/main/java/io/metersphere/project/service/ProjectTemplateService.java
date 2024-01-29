@@ -62,10 +62,37 @@ public class ProjectTemplateService extends BaseTemplateService {
     public List list(String projectId, String scene) {
         projectService.checkResourceExist(projectId);
         List<Template> templates = super.list(projectId, scene);
+        List<ProjectTemplateDTO> templateDTOS = templates.stream().map(item -> BeanUtils.copyBean(new ProjectTemplateDTO(), item)).collect(Collectors.toList());
         // 缺陷模板需要获取第三方平台模板
-        templates = addPluginBugTemplate(projectId, scene, templates);
+        if (StringUtils.equals(scene, TemplateScene.BUG.name())) {
+            Template pluginBugTemplate = getPluginBugTemplate(projectId);
+            if (pluginBugTemplate != null) {
+                ProjectTemplateDTO pluginTemplate = BeanUtils.copyBean(new ProjectTemplateDTO(), pluginBugTemplate);
+                pluginTemplate.setEnablePlatformDefault(true);
+                templateDTOS.add(pluginTemplate);
+            }
+        }
+
         // 标记默认模板
-        return tagDefaultTemplate(projectId, scene, templates);
+        // 查询项目下设置中配置的默认模板
+        String defaultProjectId = getDefaultTemplateId(projectId, scene);
+        ProjectTemplateDTO defaultTemplate = templateDTOS.stream()
+                .filter(t -> StringUtils.equals(defaultProjectId, t.getId()))
+                .findFirst()
+                .orElse(null);
+
+        // 如果查询不到默认模板，设置内置模板为默认模板
+        if (defaultTemplate == null) {
+            Optional<ProjectTemplateDTO> internalTemplate = templateDTOS.stream()
+                    .filter(ProjectTemplateDTO::getInternal).findFirst();
+            if (internalTemplate.isPresent()) {
+                defaultTemplate = internalTemplate.get();
+            }
+        }
+        if (defaultTemplate != null) {
+            defaultTemplate.setEnableDefault(true);
+        }
+        return templateDTOS;
     }
 
     /**

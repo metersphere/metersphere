@@ -31,9 +31,7 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
@@ -768,12 +766,5 @@ public class ProjectApplicationControllerTests extends BaseTest {
         // 获取同步机制
         Assertions.assertTrue(projectApplicationService.isPlatformSyncMethodByIncrement("default-project-for-application"));
         Assertions.assertFalse(projectApplicationService.isPlatformSyncMethodByIncrement("default-project-for-application-not-exist"));
-
-        // 过滤Local平台项目
-        projectApplicationService.filterNeedSyncProject(new ArrayList<>(new ArrayList<>(List.of("default-project-for-application"))));
-        projectApplicationService.filterNeedSyncProject(new ArrayList<>(new ArrayList<>(List.of("default-project-for-application-not-exist"))));
-        // 移除插件测试
-        basePluginTestService.deleteJiraPlugin();
-        projectApplicationService.filterNeedSyncProject(new ArrayList<>(new ArrayList<>(List.of("default-project-for-application"))));
     }
 }

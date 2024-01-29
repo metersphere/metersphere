@@ -554,8 +554,7 @@ public class BugControllerTests extends BaseTest {
         this.requestGetWithOk(BUG_HEADER_STATUS_OPTION + "/default-project-for-bug");
         this.requestGetWithOk(BUG_HEADER_HANDLER_OPTION + "/default-project-for-bug");
 
-        // 同步删除缺陷(default-bug-id-jira-sync)
-        // 一条模板不存在的缺陷(手动删除default-bug-id-jira-sync-1, 影响后续测试)
+        // 同步并删除的两条缺陷
         this.requestGetWithOk(BUG_SYNC + "/default-project-for-bug");
         bugMapper.deleteByPrimaryKey("default-bug-id-jira-sync-1");
 
@@ -618,6 +617,12 @@ public class BugControllerTests extends BaseTest {
         deleteLocalFile(updateRequest2.getId()); // 手动删除关联的文件, 重新同步时会下载平台附件
         bugService.syncPlatformBugs(remainBugs, defaultProject, "admin");
 
+        // 全选删除所有Jira缺陷
+        BugBatchRequest request = new BugBatchRequest();
+        request.setProjectId("default-project-for-bug");
+        request.setSelectAll(true);
+        this.requestPost(BUG_BATCH_DELETE, request);
+
         // 集成配置为空
         addRequest.setProjectId("default-project-for-not-integration");
         MultiValueMap<String, Object> notIntegrationParam = getDefaultMultiPartParam(addRequest, file);
@@ -638,7 +643,7 @@ public class BugControllerTests extends BaseTest {
     @Order(97)
     void coverSyncScheduleTests() {
         // 定时同步存量缺陷
-        bugSyncService.syncPlatformBugBySchedule();
+        bugSyncService.syncPlatformBugBySchedule("default-project-for-bug", "admin");
         // 异常信息
         bugSyncExtraService.setSyncErrorMsg("default-project-for-bug", "sync error!");
         String syncErrorMsg = bugSyncExtraService.getSyncErrorMsg("default-project-for-bug");
@@ -823,7 +828,7 @@ public class BugControllerTests extends BaseTest {
             summaryField.setId("summary");
             summaryField.setName("摘要");
             summaryField.setType("input");
-            summaryField.setValue("这是一段summary内容!!!!");
+            summaryField.setValue("这是一段summary内容1!!!!");
             BugCustomFieldDTO descriptionField = new BugCustomFieldDTO();
             descriptionField.setId("description");
             descriptionField.setName("描述");

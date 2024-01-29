@@ -8,25 +8,26 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.domain.ProjectApplicationExample;
 import io.metersphere.project.dto.ModuleDTO;
-import io.metersphere.project.job.BugSyncJob;
 import io.metersphere.project.mapper.*;
 import io.metersphere.project.request.ProjectApplicationRequest;
 import io.metersphere.project.utils.ModuleSortUtils;
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.ProjectApplicationType;
-import io.metersphere.sdk.constants.ScheduleResourceType;
-import io.metersphere.sdk.constants.ScheduleType;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.*;
+import io.metersphere.system.domain.Plugin;
+import io.metersphere.system.domain.ServiceIntegration;
+import io.metersphere.system.domain.ServiceIntegrationExample;
+import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.mapper.PluginMapper;
 import io.metersphere.system.mapper.ServiceIntegrationMapper;
-import io.metersphere.system.schedule.ScheduleService;
+import io.metersphere.system.service.BaseBugScheduleService;
 import io.metersphere.system.service.PlatformPluginService;
 import io.metersphere.system.service.PluginLoadService;
 import io.metersphere.system.service.ServiceIntegrationService;
@@ -48,9 +49,6 @@ import static io.metersphere.system.controller.handler.result.MsHttpResultCode.N
 public class ProjectApplicationService {
     @Resource
     private ProjectApplicationMapper projectApplicationMapper;
-
-    @Resource
-    private ScheduleService scheduleService;
 
     @Resource
     private ExtProjectUserRoleMapper extProjectUserRoleMapper;
@@ -105,53 +103,13 @@ public class ProjectApplicationService {
     }
 
     private void doBeforeUpdate(ProjectApplication application, String currentUser) {
-        //TODO 后续清理（合并完没问题再清理）===== 清理报告只有一个定时任务，项目配置时不需要在添加定时任务了
-        /*String type = application.getType();
-        if (StringUtils.equals(type, ProjectApplicationType.TEST_PLAN.TEST_PLAN_CLEAN_REPORT.name())
-                || StringUtils.equals(type, ProjectApplicationType.UI.UI_CLEAN_REPORT.name())
-                || StringUtils.equals(type, ProjectApplicationType.LOAD_TEST.LOAD_TEST_CLEAN_REPORT.name())
-                || StringUtils.equals(type, ProjectApplicationType.API.API_CLEAN_REPORT.name())) {
-            //清除 测试计划/UI测试/性能测试/接口测试 报告 定时任务
-            this.doHandleSchedule(application, currentUser);
-        }*/
+        BaseBugScheduleService baseBugScheduleService = CommonBeanFactory.getBean(BaseBugScheduleService.class);
+        if (StringUtils.equals(ProjectApplicationType.BUG.BUG_SYNC.name() + "_" + ProjectApplicationType.BUG_SYNC_CONFIG.SYNC_ENABLE.name(),
+                application.getType()) && baseBugScheduleService != null) {
+            // 缺陷同步配置开启或关闭
+            baseBugScheduleService.enableOrNotBugSyncSchedule(application.getProjectId(), currentUser, Boolean.valueOf(application.getTypeValue()));
+        }
     }
-
-    /*private void doHandleSchedule(ProjectApplication application, String currentUser) {
-        String typeValue = application.getTypeValue();
-        String projectId = application.getProjectId();
-        Boolean enable = BooleanUtils.isTrue(Boolean.valueOf(typeValue));
-        Schedule schedule = scheduleService.getScheduleByResource(application.getProjectId(), CleanUpReportJob.class.getName());
-        Optional<Schedule> optional = Optional.ofNullable(schedule);
-        optional.ifPresentOrElse(s -> {
-            s.setEnable(enable);
-            s.setCreateUser(currentUser);
-            scheduleService.editSchedule(s);
-            scheduleService.addOrUpdateCronJob(s,
-                    CleanUpReportJob.getJobKey(projectId),
-                    CleanUpReportJob.getTriggerKey(projectId),
-                    CleanUpReportJob.class);
-        }, () -> {
-            Schedule request = new Schedule();
-            request.setName("Clean Report Job");
-            request.setResourceId(projectId);
-            request.setKey(projectId);
-            request.setProjectId(projectId);
-            request.setEnable(enable);
-            request.setCreateUser(currentUser);
-            request.setType(ScheduleType.CRON.name());
-            // 每天凌晨2点执行清理任务
-            request.setValue("0 0 2 * * ?");
-            request.setJob(CleanUpReportJob.class.getName());
-            request.setResourceType(ScheduleResourceType.CLEAN_REPORT.name());
-            scheduleService.addSchedule(request);
-            scheduleService.addOrUpdateCronJob(request,
-                    CleanUpReportJob.getJobKey(projectId),
-                    CleanUpReportJob.getTriggerKey(projectId),
-                    CleanUpReportJob.class);
-        });
-
-    }*/
-
 
     /**
      * 获取配置信息
@@ -237,10 +195,9 @@ public class ProjectApplicationService {
      * @param projectId
      * @param configs
      */
-    public void syncBugConfig(String projectId, Map<String, String> configs, String currentUser) {
-        List<ProjectApplication> bugSyncConfigs = configs.entrySet().stream().map(config -> new ProjectApplication(projectId, ProjectApplicationType.BUG.BUG_SYNC.name() + "_" + config.getKey().toUpperCase(), config.getValue())).collect(Collectors.toList());
-        //处理同步缺陷定时任务配置
-        doSaveOrUpdateSchedule(bugSyncConfigs, projectId, currentUser);
+    public void syncBugConfig(String projectId, Map<String, Object> configs, String currentUser) {
+        List<ProjectApplication> bugSyncConfigs = configs.entrySet().stream().map(config -> new ProjectApplication(projectId, ProjectApplicationType.BUG.BUG_SYNC.name() + "_" + config.getKey().toUpperCase(),
+                (config.getValue() instanceof String) ? config.getValue().toString() : JSON.toJSONString(config.getValue()))).toList();
         ProjectApplicationExample example = new ProjectApplicationExample();
         example.createCriteria().andProjectIdEqualTo(projectId).andTypeLike(ProjectApplicationType.BUG.BUG_SYNC.name() + "%");
         if (projectApplicationMapper.countByExample(example) > 0) {
@@ -251,46 +208,12 @@ public class ProjectApplicationService {
         } else {
             projectApplicationMapper.batchInsert(bugSyncConfigs);
         }
-    }
-
-    private void doSaveOrUpdateSchedule(List<ProjectApplication> bugSyncConfigs, String projectId, String currentUser) {
-        List<ProjectApplication> syncCron = bugSyncConfigs.stream().filter(config -> config.getType().equals(ProjectApplicationType.BUG.BUG_SYNC.name() + "_" + ProjectApplicationType.BUG_SYNC_CONFIG.CRON_EXPRESSION.name())).collect(Collectors.toList());
-        List<ProjectApplication> syncEnable = bugSyncConfigs.stream().filter(config -> config.getType().equals(ProjectApplicationType.BUG.BUG_SYNC.name() + "_" + ProjectApplicationType.BUG_SYNC_CONFIG.SYNC_ENABLE.name())).collect(Collectors.toList());
-        if (CollectionUtils.isNotEmpty(syncCron)) {
-            Boolean enable = Boolean.valueOf(syncEnable.get(0).getTypeValue());
-            String typeValue = syncCron.get(0).getTypeValue();
-            Schedule schedule = scheduleService.getScheduleByResource(projectId, BugSyncJob.class.getName());
-            Optional<Schedule> optional = Optional.ofNullable(schedule);
-            optional.ifPresentOrElse(s -> {
-                s.setEnable(enable);
-                s.setValue(typeValue);
-                scheduleService.editSchedule(s);
-                scheduleService.addOrUpdateCronJob(s,
-                        BugSyncJob.getJobKey(projectId),
-                        BugSyncJob.getTriggerKey(projectId),
-                        BugSyncJob.class);
-            }, () -> {
-                Schedule request = new Schedule();
-                request.setName("Bug Sync Job");
-                request.setResourceId(projectId);
-                request.setKey(projectId);
-                request.setProjectId(projectId);
-                request.setEnable(enable);
-                request.setCreateUser(currentUser);
-                request.setType(ScheduleType.CRON.name());
-                // 每天凌晨2点执行清理任务
-                request.setValue(typeValue);
-                request.setJob(BugSyncJob.class.getName());
-                request.setResourceType(ScheduleResourceType.BUG_SYNC.name());
-                scheduleService.addSchedule(request);
-                scheduleService.addOrUpdateCronJob(request,
-                        BugSyncJob.getJobKey(projectId),
-                        BugSyncJob.getTriggerKey(projectId),
-                        BugSyncJob.class);
-            });
+        // 更新缺陷定时任务配置
+        BaseBugScheduleService baseBugScheduleService = CommonBeanFactory.getBean(BaseBugScheduleService.class);
+        if (baseBugScheduleService != null) {
+            baseBugScheduleService.updateBugSyncScheduleConfig(bugSyncConfigs, projectId, currentUser);
         }
     }
-
 
     /**
      * 获取同步缺陷配置
@@ -602,26 +525,6 @@ public class ProjectApplicationService {
             }
         }
         return getPluginName(platformKeyConfig.getTypeValue());
-    }
-
-    /**
-     * 过滤出能够同步的项目
-     *
-     * @param projectIds 项目ID集合
-     * @return 同步的项目ID集合
-     */
-    public List<String> filterNeedSyncProject(List<String> projectIds) {
-        Iterator<String> iterator = projectIds.iterator();
-        while (iterator.hasNext()) {
-            String projectId = iterator.next();
-            ServiceIntegration serviceIntegration = getPlatformServiceIntegrationWithSyncOrDemand(projectId, true);
-            String platformName = getPlatformName(projectId);
-            if (serviceIntegration == null || StringUtils.equals("Local", platformName)) {
-                // 项目未配置第三方平台 或者 项目同步配置为Local
-                iterator.remove();
-            }
-        }
-        return projectIds;
     }
 
     /**

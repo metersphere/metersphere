@@ -10,7 +10,7 @@ public class SyncAllBugRequest extends SyncBugRequest {
     /**
      * 创建时间前后
      */
-    private boolean pre;
+    private Boolean pre;
 
     /**
      * 条件: 缺陷创建时间

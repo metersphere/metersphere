@@ -94,4 +94,10 @@ public class MsSyncBugDTO {
      * 缺陷描述
      */
     private String description;
+
+
+    /**
+     * 缺陷位置
+     */
+    private Long pos;
 }

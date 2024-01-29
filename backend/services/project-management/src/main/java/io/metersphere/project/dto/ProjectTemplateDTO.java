@@ -19,4 +19,7 @@ public class ProjectTemplateDTO extends Template implements Serializable {
 
     @Schema(description = "是否是默认模板")
     private Boolean enableDefault = false;
+
+    @Schema(description = "是否是平台自动获取模板")
+    private Boolean enablePlatformDefault = false;
 }
