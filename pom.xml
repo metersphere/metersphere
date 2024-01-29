@@ -162,6 +162,7 @@
                         <exclude>io/metersphere/sdk/**</exclude>
                         <exclude>io/metersphere/provider/**</exclude>
                         <exclude>io/metersphere/plugin/**</exclude>
+                        <exclude>io/metersphere/*/job/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>

@@ -12,7 +12,7 @@ public class BugSyncRequest implements Serializable {
     private String projectId;
 
     @Schema(description = "创建时间前或后", requiredMode = Schema.RequiredMode.REQUIRED)
-    private boolean pre;
+    private Boolean pre;
 
     @Schema(description = "创建时间", requiredMode = Schema.RequiredMode.REQUIRED)
     private Long createTime;
