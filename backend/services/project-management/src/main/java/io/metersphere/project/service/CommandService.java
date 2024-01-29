@@ -2,7 +2,7 @@ package io.metersphere.project.service;
 
 
 import io.metersphere.project.dto.environment.ssl.KeyStoreEntry;
-  import io.metersphere.sdk.constants.LocalRepositoryDir;
+import io.metersphere.sdk.constants.LocalRepositoryDir;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.LogUtils;
@@ -27,8 +27,8 @@ public class CommandService {
         MsFileUtils.validateFileName(bodyFile.getOriginalFilename());
         String dir = LocalRepositoryDir.getSystemTempDir();
         File fileDir = new File(dir);
-        if (!fileDir.exists()) {
-            fileDir.mkdirs();
+        if (!fileDir.exists() && !fileDir.mkdir()) {
+            throw new MSException(Translator.get("upload_fail"));
         }
         File file = new File(dir + IDGenerator.nextStr() + "_" + bodyFile.getOriginalFilename());
         try (InputStream in = bodyFile.getInputStream(); OutputStream out = new FileOutputStream(file)) {
@@ -39,13 +39,6 @@ public class CommandService {
             throw new MSException(Translator.get("upload_fail"));
         }
         return file.getPath();
-    }
-
-    public static void deleteFile(String path) {
-        File file = new File(path);
-        if (file.exists()) {
-            file.delete();
-        }
     }
 
     public List<KeyStoreEntry> getEntry(String password, MultipartFile file) {
@@ -73,6 +66,7 @@ public class CommandService {
                         dto.setOriginalAsName(line.split(":")[1]);
                     }
                     if (line.startsWith("条目类型") || line.startsWith("Entry type")) {
+                        assert dto != null;
                         dto.setType(line.split(":")[1]);
                     }
                 }
@@ -80,7 +74,10 @@ public class CommandService {
                     dtoList.add(dto);
                 }
             }
-            deleteFile(path);
+            File localFiles = new File(path);
+            if (!localFiles.exists() && !localFiles.delete()) {
+                LogUtils.info("delete file fail");
+            }
             return dtoList;
         } catch (Exception e) {
             LogUtils.error(e);

@@ -74,7 +74,7 @@ public class ApiDefinitionLogService {
      */
     public LogDTO updateLog(ApiDefinitionUpdateRequest request) {
         ApiDefinitionDTO apiDefinition = getOriginalValue(request.getId());
-        if(apiDefinition.getId() != null) {
+        if (apiDefinition.getId() != null) {
             LogDTO dto = new LogDTO(
                     request.getProjectId(),
                     null,
@@ -100,7 +100,7 @@ public class ApiDefinitionLogService {
      */
     public LogDTO delLog(ApiDefinitionDeleteRequest request) {
         ApiDefinitionDTO apiDefinition = getOriginalValue(request.getId());
-        if(apiDefinition.getId() != null) {
+        if (apiDefinition.getId() != null) {
             LogDTO dto = new LogDTO(
                     request.getProjectId(),
                     null,
@@ -139,7 +139,7 @@ public class ApiDefinitionLogService {
 
     public LogDTO copyLog(ApiDefinitionCopyRequest request) {
         ApiDefinitionDTO apiDefinition = getOriginalValue(request.getId());
-        if(apiDefinition.getId() != null) {
+        if (apiDefinition.getId() != null) {
             LogDTO dto = new LogDTO(
                     apiDefinition.getProjectId(),
                     null,
@@ -163,7 +163,7 @@ public class ApiDefinitionLogService {
 
     public LogDTO followLog(String id) {
         ApiDefinitionDTO apiDefinition = getOriginalValue(id);
-        if(apiDefinition.getId() != null) {
+        if (apiDefinition.getId() != null) {
             Project project = projectMapper.selectByPrimaryKey(apiDefinition.getProjectId());
             LogDTO dto = new LogDTO(
                     apiDefinition.getProjectId(),
@@ -190,7 +190,7 @@ public class ApiDefinitionLogService {
      */
     public LogDTO recoverLog(ApiDefinitionDeleteRequest request) {
         ApiDefinitionDTO apiDefinition = getOriginalValue(request.getId());
-        if(apiDefinition.getId() != null) {
+        if (apiDefinition.getId() != null) {
             LogDTO dto = new LogDTO(
                     request.getProjectId(),
                     null,
@@ -225,7 +225,7 @@ public class ApiDefinitionLogService {
      */
     public LogDTO trashDelLog(ApiDefinitionDeleteRequest request) {
         ApiDefinitionDTO apiDefinition = getOriginalValue(request.getId());
-        if(apiDefinition.getId() != null) {
+        if (apiDefinition.getId() != null) {
             LogDTO dto = new LogDTO(
                     request.getProjectId(),
                     null,
@@ -254,7 +254,7 @@ public class ApiDefinitionLogService {
     private ApiDefinitionDTO getOriginalValue(String id) {
         ApiDefinitionDTO apiDefinitionDTO = new ApiDefinitionDTO();
         ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(id);
-        if(null != apiDefinition) {
+        if (null != apiDefinition) {
             // 2. 使用Optional避免空指针异常
             handleBlob(id, apiDefinitionDTO);
             BeanUtils.copyBean(apiDefinitionDTO, apiDefinition);

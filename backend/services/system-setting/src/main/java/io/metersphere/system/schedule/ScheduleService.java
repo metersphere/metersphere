@@ -1,7 +1,6 @@
 package io.metersphere.system.schedule;
 
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.domain.ScheduleExample;
 import io.metersphere.system.dto.request.ScheduleConfig;
@@ -18,8 +17,6 @@ import org.quartz.TriggerKey;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 @Transactional(rollbackFor = Exception.class)
 public class ScheduleService {
@@ -127,10 +124,6 @@ public class ScheduleService {
         }
 
         JobDataMap jobDataMap = scheduleManager.getDefaultJobDataMap(schedule, scheduleConfig.getCron(), operator);
-        if (StringUtils.isNotEmpty(schedule.getConfig())) {
-            Map<String, Object> configMap = JSON.parseObject(schedule.getConfig(), Map.class);
-            jobDataMap.putAll(configMap);
-        }
 
         /*
         scheduleManager.modifyCronJobTime方法如同它的方法名所说，只能修改定时任务的触发时间。

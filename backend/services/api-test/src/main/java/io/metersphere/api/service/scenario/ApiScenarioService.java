@@ -833,16 +833,32 @@ public class ApiScenarioService {
         deleteStepByScenarioId(scenario.getId());
         //删除step-blob
         deleteStepDetailByScenarioId(scenario.getId());
+        //删除csv
+        deleteCsvByScenarioId(scenario.getId());
         //删除文件
         String scenarioDir = DefaultRepositoryDir.getApiDebugDir(scenario.getProjectId(), scenario.getId());
         try {
             apiFileResourceService.deleteByResourceId(scenarioDir, scenario.getId(), scenario.getProjectId(), operator, OperationLogModule.API_DEBUG);
-        }catch (Exception ignore){}
+        } catch (Exception ignore) {
+        }
 
         //删除定时任务
         scheduleService.deleteByResourceId(scenario.getId(), ApiScenarioScheduleJob.class.getName());
+    }
 
-        //todo wang xiao gang: 删除csv相关东西
+    private void deleteCsvByScenarioId(String id) {
+        ApiScenarioCsvExample example = new ApiScenarioCsvExample();
+        example.createCriteria().andScenarioIdEqualTo(id);
+        List<ApiScenarioCsv> apiScenarioCsv = apiScenarioCsvMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(apiScenarioCsv)) {
+            List<String> fileIds = apiScenarioCsv.stream().map(ApiScenarioCsv::getFileId).toList();
+            //删除关联关系
+            ApiScenarioCsvStepExample stepExample = new ApiScenarioCsvStepExample();
+            stepExample.createCriteria().andFileIdIn(fileIds);
+            apiScenarioCsvStepMapper.deleteByExample(stepExample);
+        }
+        apiScenarioCsvMapper.deleteByExample(example);
+
     }
 
     //级联删除
@@ -869,12 +885,25 @@ public class ApiScenarioService {
             String scenarioDir = DefaultRepositoryDir.getApiDebugDir(scenario.getProjectId(), scenario.getId());
             try {
                 apiFileResourceService.deleteByResourceId(scenarioDir, scenario.getId(), scenario.getProjectId(), operator, OperationLogModule.API_DEBUG);
-            }catch (Exception ignore){}
-            //删除定时任务
-            scheduleService.deleteByResourceId(scenario.getId(), ApiScenarioScheduleJob.class.getName());
-        });
+                //删除定时任务
+                scheduleService.deleteByResourceId(scenario.getId(), ApiScenarioScheduleJob.class.getName());
+            } catch (Exception ignore) {
+            }
 
-        //todo wang xiao gang: 删除csv相关东西
+        });
+        //删除csv
+        ApiScenarioCsvExample csvExample = new ApiScenarioCsvExample();
+        csvExample.createCriteria().andScenarioIdIn(scenarioIdList);
+        List<ApiScenarioCsv> apiScenarioCsv = apiScenarioCsvMapper.selectByExample(csvExample);
+        if (CollectionUtils.isNotEmpty(apiScenarioCsv)) {
+            List<String> fileIds = apiScenarioCsv.stream().map(ApiScenarioCsv::getFileId).toList();
+            //删除关联关系
+            ApiScenarioCsvStepExample csvStepExample = new ApiScenarioCsvStepExample();
+            csvStepExample.createCriteria().andFileIdIn(fileIds);
+            apiScenarioCsvStepMapper.deleteByExample(csvStepExample);
+        }
+        apiScenarioCsvMapper.deleteByExample(csvExample);
+
     }
 
 
@@ -1615,7 +1644,7 @@ public class ApiScenarioService {
                 .enable(scheduleRequest.isEnable())
                 .cron(scheduleRequest.getCron())
                 .resourceType(ScheduleResourceType.API_SCENARIO.name())
-                .configMap(scheduleRequest.getConfigMap())
+                .config(JSON.toJSONString(scheduleRequest.getConfig()))
                 .build();
 
         return scheduleService.scheduleConfig(

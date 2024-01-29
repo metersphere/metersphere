@@ -2,6 +2,8 @@ package io.metersphere.system.controller;
 
 import io.metersphere.sdk.constants.ScheduleResourceType;
 import io.metersphere.sdk.constants.ScheduleType;
+import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.dto.request.ScheduleConfig;
@@ -16,7 +18,6 @@ import org.quartz.TriggerKey;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.HashMap;
 import java.util.List;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -88,10 +89,7 @@ public class ScheduleControllerTests extends BaseTest {
                 .enable(true)
                 .cron("0 0/1 * * * ?")
                 .resourceType(ScheduleResourceType.API_SCENARIO.name())
-                .configMap(new HashMap<>() {{
-                    this.put("envId", "testEnv");
-                    this.put("resourcePoolId", "testResourcePool");
-                }})
+                .config(JSON.toJSONString(new ApiRunModeConfigDTO()))
                 .build();
 
         scheduleService.scheduleConfig(

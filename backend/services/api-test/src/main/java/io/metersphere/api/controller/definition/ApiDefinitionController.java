@@ -7,6 +7,7 @@ import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.importdto.ApiDefinitionImport;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.service.definition.ApiDefinitionLogService;
+import io.metersphere.api.service.definition.ApiDefinitionNoticeService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.OperationHistoryDTO;
@@ -14,6 +15,8 @@ import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.request.OperationHistoryVersionRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.notice.annotation.SendNotice;
+import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -45,9 +48,9 @@ public class ApiDefinitionController {
     @PostMapping(value = "/add")
     @Operation(summary = "接口测试-接口管理-添加接口定义")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_ADD)
-    // 添加接口Log示例
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = ApiDefinitionLogService.class)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.getApiDTO(#request)", targetClass = ApiDefinitionNoticeService.class)
     public ApiDefinition add(@Validated @RequestBody ApiDefinitionAddRequest request) {
         return apiDefinitionService.create(request, SessionUtils.getUserId());
     }
@@ -55,9 +58,9 @@ public class ApiDefinitionController {
     @PostMapping(value = "/update")
     @Operation(summary = "接口测试-接口管理-更新接口定义")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_UPDATE)
-    // 添加修改Log示例
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ApiDefinitionLogService.class)
     @CheckOwner(resourceId = "#request.getId()", resourceType = "api_definition")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getUpdateApiDTO(#request)", targetClass = ApiDefinitionNoticeService.class)
     public ApiDefinition update(@Validated @RequestBody ApiDefinitionUpdateRequest request) {
         return apiDefinitionService.update(request, SessionUtils.getUserId());
     }

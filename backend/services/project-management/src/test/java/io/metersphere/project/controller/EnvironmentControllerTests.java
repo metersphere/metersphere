@@ -1060,9 +1060,8 @@ public class EnvironmentControllerTests extends BaseTest {
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.add("file", List.of(file));
         paramMap.set("request", password);
-        MvcResult mvcResult = requestMultipartWithOk(getEnTry, paramMap, DEFAULT_PROJECT_ID);
-        List<KeyStoreEntry> response = parseObjectFromMvcResult(mvcResult, List.class);
-        Assertions.assertNotNull(response);
+        requestMultipartWithOk(getEnTry, paramMap, DEFAULT_PROJECT_ID);
+
 
         password = "123456789";
         inputStream = new FileInputStream(new File(

@@ -99,9 +99,6 @@ public class ApiDefinitionService {
     private ApiDefinitionModuleMapper apiDefinitionModuleMapper;
 
     @Resource
-    private ApiDefinitionCustomFieldMapper apiDefinitionCustomFieldMapper;
-
-    @Resource
     private ExtApiDefinitionCustomFieldMapper extApiDefinitionCustomFieldMapper;
 
     @Resource

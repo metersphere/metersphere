@@ -147,7 +147,7 @@ public class ApiDefinitionScheduleControllerTests extends BaseTest {
         SwaggerUrlCheck swaggerUrlCheck = new SwaggerUrlCheck();
         swaggerUrlCheck.setProjectId(DEFAULT_PROJECT_ID);
         swaggerUrlCheck.setSwaggerUrl("https://petstore3.swagger.io/api/v3/openapi.json");
-        this.requestPost(BASE_PATH + "check/", swaggerUrlCheck);
+        this.requestPost(BASE_PATH + "check", swaggerUrlCheck);
     }
 
     @Order(6)

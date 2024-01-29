@@ -64,6 +64,7 @@ public class ApiTestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.moveToGcLog(#id)", msClass = ApiTestCaseLogService.class)
     @CheckOwner(resourceId = "#id", resourceType = "api_test_case")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_DELETE, target = "#targetClass.getCaseDTO(#id)", targetClass = ApiTestCaseNoticeService.class)
     public void deleteToGc(@PathVariable String id) {
         apiTestCaseService.deleteToGc(id, SessionUtils.getUserId());
     }
