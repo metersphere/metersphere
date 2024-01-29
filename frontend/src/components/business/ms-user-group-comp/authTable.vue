@@ -20,7 +20,7 @@
                 v-if="tableData && tableData?.length > 0"
                 :model-value="allChecked"
                 :indeterminate="allIndeterminate"
-                :disabled="currentInternal"
+                :disabled="currentInternal || props.disabled"
                 class="mr-[7px]"
                 @change="handleAllAuthChangeByCheckbox"
               ></a-checkbox>
@@ -35,7 +35,7 @@
                 <a-checkbox
                   v-for="item in record.permissions"
                   :key="item.id"
-                  :disabled="item.license || currentInternal"
+                  :disabled="item.license || currentInternal || props.disabled"
                   :value="item.id"
                   >{{ t(item.name) }}</a-checkbox
                 >
@@ -44,7 +44,7 @@
                 class="mr-[7px]"
                 :model-value="record.enable"
                 :indeterminate="record.indeterminate"
-                :disabled="currentInternal"
+                :disabled="currentInternal || props.disabled"
                 @change="(value) => handleRowAuthChange(value, rowIndex)"
               />
             </div>
@@ -106,6 +106,7 @@
       savePermission?: string[];
       width?: string;
       showBottom?: boolean;
+      disabled?: boolean;
       scroll?: {
         x?: number | string;
         y?: number | string;
@@ -115,6 +116,7 @@
     }>(),
     {
       showBottom: true,
+      disabled: false,
       scroll() {
         return {
           x: '800px',

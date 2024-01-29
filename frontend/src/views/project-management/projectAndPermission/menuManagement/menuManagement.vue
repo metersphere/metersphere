@@ -11,7 +11,9 @@
     ref="tableRef"
     class="mt-[16px]"
     v-bind="propsRes"
+    row-class="cursor-pointer"
     :expanded-keys="expandedKeys"
+    @row-click="handleRowClick"
     @expand="expandChange"
     v-on="propsEvent"
   >
@@ -231,31 +233,31 @@
       </div>
     </template>
     <template #operation="{ record }">
-      <!-- 用例 同步缺陷状态 -->
-      <a-tooltip
-        v-if="record.type === 'BUG_SYNC' && !allValueMap['BUG_SYNC_SYNC_ENABLE']"
-        v-permission="['PROJECT_APPLICATION_BUG:READ+UPDATE']"
-        position="tr"
-      >
-        <template #content>
-          <span>
-            {{ t('project.menu.notConfig') }}
-            <span class="cursor-pointer text-[rgb(var(--primary-4))]" @click="showDefectDrawer">{{
-              t(`project.menu.${record.type}`)
-            }}</span>
-            {{ t('project.menu.configure') }}
-          </span>
-        </template>
-        <a-switch
-          checked-value="true"
-          unchecked-value="false"
-          :disabled="!hasAnyPermission(['PROJECT_APPLICATION_BUG:READ+UPDATE'])"
-          :value="allValueMap['BUG_SYNC_SYNC_ENABLE']"
-          size="small"
-          type="line"
-          @change="(v: boolean | string| number) => handleMenuStatusChange('BUG_SYNC_SYNC_ENABLE',v as boolean, MenuEnum.bugManagement)"
-        />
-      </a-tooltip>
+      <!-- 缺陷 同步缺陷状态 -->
+      <div v-permission="['PROJECT_APPLICATION_BUG:READ+UPDATE']">
+        <a-tooltip v-if="record.type === 'BUG_SYNC' && !allValueMap['BUG_SYNC_SYNC_ENABLE']" position="tr">
+          <template #content>
+            <span>
+              {{ t('project.menu.notConfig') }}
+              <span class="cursor-pointer text-[rgb(var(--primary-4))]" @click="showDefectDrawer">{{
+                t(`project.menu.${record.type}`)
+              }}</span>
+              {{ t('project.menu.configure') }}
+            </span>
+          </template>
+
+          <a-switch
+            checked-value="true"
+            unchecked-value="false"
+            :disabled="!hasAnyPermission(['PROJECT_APPLICATION_BUG:READ+UPDATE'])"
+            :value="allValueMap['BUG_SYNC_SYNC_ENABLE']"
+            size="small"
+            type="line"
+            @change="(v: boolean | string| number) => handleMenuStatusChange('BUG_SYNC_SYNC_ENABLE',v as boolean, MenuEnum.bugManagement)"
+          />
+        </a-tooltip>
+      </div>
+
       <a-switch
         v-if="record.type === 'BUG_SYNC' && allValueMap['BUG_SYNC_SYNC_ENABLE']"
         checked-value="true"
@@ -266,30 +268,28 @@
         @change="(v: boolean | string| number) => handleMenuStatusChange('BUG_SYNC_SYNC_ENABLE',v as boolean, MenuEnum.bugManagement)"
       />
       <!-- 功能测试 同步缺陷 -->
-      <a-tooltip
-        v-if="record.type === 'CASE_RELATED' && !allValueMap['CASE_RELATED_CASE_ENABLE']"
-        v-permission="['PROJECT_APPLICATION_BUG:READ+UPDATE']"
-        position="tr"
-      >
-        <template #content>
-          <span>
-            {{ t('project.menu.notConfig') }}
-            <span class="cursor-pointer text-[rgb(var(--primary-4))]" @click="showDefectDrawer">{{
-              t(`project.menu.${record.type}`)
-            }}</span>
-            {{ t('project.menu.configure') }}
-          </span>
-        </template>
-        <a-switch
-          checked-value="true"
-          unchecked-value="false"
-          :disabled="!hasAnyPermission(['PROJECT_APPLICATION_CASE:READ+UPDATE'])"
-          :value="allValueMap['CASE_RELATED_CASE_ENABLE']"
-          size="small"
-          type="line"
-          @change="(v: boolean | string| number) => handleMenuStatusChange('CASE_RELATED_CASE_ENABLE',v as boolean, MenuEnum.caseManagement)"
-        />
-      </a-tooltip>
+      <div v-permission="['PROJECT_APPLICATION_BUG:READ+UPDATE']">
+        <a-tooltip v-if="record.type === 'CASE_RELATED' && !allValueMap['CASE_RELATED_CASE_ENABLE']" position="tr">
+          <template #content>
+            <span>
+              {{ t('project.menu.notConfig') }}
+              <span class="cursor-pointer text-[rgb(var(--primary-4))]" @click="showDefectDrawer">{{
+                t(`project.menu.${record.type}`)
+              }}</span>
+              {{ t('project.menu.configure') }}
+            </span>
+          </template>
+          <a-switch
+            checked-value="true"
+            unchecked-value="false"
+            :disabled="!hasAnyPermission(['PROJECT_APPLICATION_CASE:READ+UPDATE'])"
+            :value="allValueMap['CASE_RELATED_CASE_ENABLE']"
+            size="small"
+            type="line"
+            @change="(v: boolean | string| number) => handleMenuStatusChange('CASE_RELATED_CASE_ENABLE',v as boolean, MenuEnum.caseManagement)"
+          />
+        </a-tooltip>
+      </div>
       <a-switch
         v-if="record.type === 'CASE_RELATED' && allValueMap['CASE_RELATED_CASE_ENABLE']"
         :disabled="!hasAnyPermission(['PROJECT_APPLICATION_BUG:READ+UPDATE'])"
@@ -417,14 +417,14 @@
 
   // 默认初始值的配置项
   const defaultValueMap = {
-    TEST_PLAN_CLEAN_REPORT: '30D',
-    TEST_PLAN_SHARE_REPORT: '30D',
-    API_CLEAN_REPORT: '30D',
-    API_SHARE_REPORT: '30D',
-    UI_CLEAN_REPORT: '30D',
-    UI_SHARE_REPORT: '30D',
-    PERFORMANCE_TEST_CLEAN_REPORT: '30D',
-    PERFORMANCE_TEST_SHARE_REPORT: '30D',
+    TEST_PLAN_CLEAN_REPORT: '3M',
+    TEST_PLAN_SHARE_REPORT: '1D',
+    API_CLEAN_REPORT: '3M',
+    API_SHARE_REPORT: '1D',
+    UI_CLEAN_REPORT: '3M',
+    UI_SHARE_REPORT: '1D',
+    PERFORMANCE_TEST_CLEAN_REPORT: '3M',
+    PERFORMANCE_TEST_SHARE_REPORT: '1D',
     WORKSTATION_SYNC_RULE: true,
     CASE_RELATED: true,
     CASE_RE_REVIEW: true,
@@ -795,6 +795,13 @@
       await expandChange({ module: MenuEnum.apiTest });
     } else {
       expandedKeys.value = [];
+    }
+  };
+
+  // 点击展开
+  const handleRowClick = (record: TableData, ev: Event) => {
+    if (record.module) {
+      expandChange(record);
     }
   };
 
