@@ -30,7 +30,10 @@ public abstract class ScriptProcessorConverter extends MsProcessorConverter<Scri
 //        if (StringUtils.isNotEmpty(scriptProcessor.getScript())) {
 //            scriptProcessor.setScript(StringUtils.replace(scriptProcessor.getScript(), ENV_VARIABLE_EXPRESSION, "\"" + MS_RUNNING_ENV_PREFIX + evnId + ".\""));
 //        }
-        testElement.setProperty(JmeterProperty.CACHE_KEY, false);
+
+        // python 和 js cache 打开
+        boolean cacheKey = StringUtils.equalsAny(scriptProcessor.getScriptLanguage(), ScriptLanguageType.PYTHON.getValue(), ScriptLanguageType.JAVASCRIPT.getValue());
+        testElement.setProperty(JmeterProperty.CACHE_KEY, cacheKey);
         testElement.setProperty(TestElement.TEST_CLASS, testElement.getClass().getSimpleName());
         testElement.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(JmeterAlias.TEST_BEAN_GUI));
         testElement.setProperty(JmeterProperty.SCRIPT_LANGUAGE, scriptProcessor.getScriptLanguage());

@@ -4,6 +4,7 @@ import io.metersphere.sdk.constants.MsAssertionCondition;
 import io.metersphere.sdk.constants.ValueEnum;
 import io.metersphere.system.valid.EnumValue;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -40,6 +41,7 @@ public class MsDocumentAssertionElement {
      * 匹配条件
      * 取值参考 {@link MsAssertionCondition}
      */
+    @NotBlank
     @EnumValue(enumClass = MsAssertionCondition.class)
     private String condition;
     /**

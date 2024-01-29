@@ -3,6 +3,7 @@ package io.metersphere.api.dto.request.assertion;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.metersphere.system.valid.EnumValue;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.util.List;
@@ -40,6 +41,7 @@ public class MsResponseHeaderAssertion extends MsAssertion {
          * 匹配条件
          * 取值参考 {@link io.metersphere.sdk.constants.MsAssertionCondition}
          */
+        @NotBlank
         @EnumValue(enumClass = io.metersphere.sdk.constants.MsAssertionCondition.class)
         private String condition;
         /**
