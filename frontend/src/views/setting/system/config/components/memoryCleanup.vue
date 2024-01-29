@@ -1,57 +1,61 @@
 <template>
-  <MsCard class="mb-[16px]" :loading="loading" simple auto-height>
-    <div class="mb-[16px] flex justify-between">
-      <div class="font-medium text-[var(--color-text-000)]">{{ t('system.config.memoryCleanup') }}</div>
-    </div>
-    <a-radio-group v-model:model-value="activeType" type="button">
-      <a-radio value="log">{{ t('system.config.memoryCleanup.log') }}</a-radio>
-      <a-radio value="history">{{ t('system.config.memoryCleanup.history') }}</a-radio>
-    </a-radio-group>
-    <template v-if="activeType === 'log'">
-      <div class="mb-[8px] mt-[16px] flex items-center">
-        <div class="text-[var(--color-text-000)]">{{ t('system.config.memoryCleanup.keepTime') }}</div>
-        <a-tooltip :content="t('system.config.memoryCleanup.keepTimeTip')" position="right">
-          <icon-question-circle
-            class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
-            size="16"
-          />
-        </a-tooltip>
+  <div>
+    <MsCard class="mb-[16px]" :loading="loading" simple auto-height>
+      <div class="mb-[16px] flex justify-between">
+        <div class="font-medium text-[var(--color-text-000)]">{{ t('system.config.memoryCleanup') }}</div>
       </div>
-      <a-input-number
-        v-model:model-value="timeCount"
-        class="w-[130px]"
-        :disabled="saveLoading || !userStore.isAdmin"
-        @blur="() => saveConfig()"
-      >
-        <template #append>
-          <a-select
-            v-model:model-value="activeTime"
-            :options="timeOptions"
-            class="select-input-append"
-            :loading="saveLoading"
-            @change="() => saveConfig()"
-          />
-        </template>
-      </a-input-number>
-    </template>
-    <template v-else>
-      <div class="mb-[8px] mt-[16px] flex items-center">
-        <div class="text-[var(--color-text-000)]">{{ t('system.config.memoryCleanup.saveCount') }}</div>
-        <a-tooltip :content="t('system.config.memoryCleanup.saveCountTip')" position="right">
-          <icon-question-circle
-            class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
-            size="16"
-          />
-        </a-tooltip>
-      </div>
-      <a-input-number
-        v-model:model-value="historyCount"
-        class="w-[130px]"
-        :disabled="saveLoading"
-        @blur="() => saveConfig()"
-      />
-    </template>
-  </MsCard>
+      <a-radio-group v-model:model-value="activeType" type="button">
+        <a-radio value="log">{{ t('system.config.memoryCleanup.log') }}</a-radio>
+        <a-radio value="history">{{ t('system.config.memoryCleanup.history') }}</a-radio>
+      </a-radio-group>
+      <template v-if="activeType === 'log'">
+        <div class="mb-[8px] mt-[16px] flex items-center">
+          <div class="text-[var(--color-text-000)]">{{ t('system.config.memoryCleanup.keepTime') }}</div>
+          <a-tooltip :content="t('system.config.memoryCleanup.keepTimeTip')" position="right">
+            <icon-question-circle
+              class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+              size="16"
+            />
+          </a-tooltip>
+        </div>
+        <a-input-number
+          v-model:model-value="timeCount"
+          class="w-[130px]"
+          :disabled="saveLoading"
+          :min="0"
+          @blur="() => saveConfig()"
+        >
+          <template #append>
+            <a-select
+              v-model:model-value="activeTime"
+              :options="timeOptions"
+              class="select-input-append"
+              :loading="saveLoading"
+              @change="() => saveConfig()"
+            />
+          </template>
+        </a-input-number>
+      </template>
+      <template v-else>
+        <div class="mb-[8px] mt-[16px] flex items-center">
+          <div class="text-[var(--color-text-000)]">{{ t('system.config.memoryCleanup.saveCount') }}</div>
+          <a-tooltip :content="t('system.config.memoryCleanup.saveCountTip')" position="right">
+            <icon-question-circle
+              class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+              size="16"
+            />
+          </a-tooltip>
+        </div>
+        <a-input-number
+          v-model:model-value="historyCount"
+          class="w-[130px]"
+          :disabled="saveLoading"
+          :min="0"
+          @blur="() => saveConfig()"
+        />
+      </template>
+    </MsCard>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -88,20 +92,26 @@
   const historyCount = ref(10);
 
   onBeforeMount(async () => {
-    loading.value = true;
-    const res = await getCleanupConfig();
-    if (res.operationLog) {
-      const matches = res.operationLog.match(/(\d+)([MDY])$/);
-      if (matches) {
-        const [, number, letter] = matches;
-        timeCount.value = Number(number);
-        activeTime.value = letter;
+    try {
+      loading.value = true;
+      const res = await getCleanupConfig();
+      if (res.operationLog) {
+        const matches = res.operationLog.match(/(\d+)([MDY])$/);
+        if (matches) {
+          const [, number, letter] = matches;
+          timeCount.value = Number(number);
+          activeTime.value = letter;
+        }
       }
+      if (res.operationHistory) {
+        historyCount.value = Number(res.operationHistory);
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      loading.value = false;
     }
-    if (res.operationHistory) {
-      historyCount.value = Number(res.operationHistory);
-    }
-    loading.value = false;
   });
 
   const saveLoading = ref(false);

@@ -6,6 +6,20 @@
   "description": "DE、MS项目icon管理",
   "glyphs": [
     {
+      "icon_id": "39108518",
+      "name": "icon_swich",
+      "font_class": "icon_swich",
+      "unicode": "e79c",
+      "unicode_decimal": 59292
+    },
+    {
+      "icon_id": "39084088",
+      "name": "icon_split_turn-down_arrow",
+      "font_class": "icon_split_turn-down_arrow",
+      "unicode": "e79b",
+      "unicode_decimal": 59291
+    },
+    {
       "icon_id": "38923289",
       "name": "icon_carriage_return",
       "font_class": "icon_carriage_return2",

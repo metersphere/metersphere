@@ -1,5 +1,5 @@
 export default {
-  'login.form.title': 'Login to MeterSphere',
+  'login.form.title': 'One-stop open source continuous testing platform',
   'login.form.userName.errMsg': 'Username cannot be empty',
   'login.form.password.errMsg': 'Password cannot be empty',
   'login.form.login.errMsg': 'Login error, refresh and try again',
@@ -10,5 +10,6 @@ export default {
   'login.form.forgetPassword': 'Forgot password',
   'login.form.login': 'login',
   'login.form.register': 'register account',
-  'login.banner.slogan1': 'Out-of-the-box high-quality template',
+  'login.form.normalLogin': 'Normal login',
+  'login.form.oauth2Test': 'OAuth2 Test',
 };

@@ -17,8 +17,9 @@
           :style="{
             'border-top': item.level === 1 && index !== 0 ? '1px solid var(--color-border-2)' : 'none',
           }"
+          @click.stop="toggleMenu(item)"
         >
-          <div @click="toggleMenu(item.name)">{{ item.title }}</div>
+          <div>{{ item.title }}</div>
         </div>
       </div>
     </div>
@@ -28,15 +29,15 @@
 <script setup lang="ts">
   import { hasAnyPermission } from '@/utils/permission';
 
+  interface MenuItem {
+    title: string;
+    level: number;
+    name: string;
+  }
   const props = defineProps<{
     title?: string;
     defaultKey?: string;
-    menuList: {
-      title: string;
-      level: number;
-      name: string;
-      permission?: string[];
-    }[];
+    menuList: MenuItem[];
     activeClass?: string;
   }>();
   const emit = defineEmits<{
@@ -56,10 +57,10 @@
     }
   );
 
-  const toggleMenu = (itemName: string) => {
-    if (itemName) {
-      currentKey.value = itemName;
-      emit('toggleMenu', itemName);
+  const toggleMenu = (item: MenuItem) => {
+    if (item.level !== 1 && item.name !== currentKey.value) {
+      currentKey.value = item.name;
+      emit('toggleMenu', item.name);
     }
   };
 </script>

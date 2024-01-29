@@ -31,8 +31,8 @@
     >
       <template #title="nodeData">
         <div class="inline-flex w-full">
-          <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
-          <div v-if="!props.isModal" class="ml-[4px] text-[var(--color-text-4)]">({{ nodeData.count || 0 }})</div>
+          <div class="one-line-text text-[var(--color-text-1)]">{{ nodeData.name }}</div>
+          <div v-if="!props.isModal" class="ml-auto text-[var(--color-text-4)]">({{ nodeData.count || 0 }})</div>
         </div>
       </template>
       <template v-if="!props.isModal" #extra="nodeData">

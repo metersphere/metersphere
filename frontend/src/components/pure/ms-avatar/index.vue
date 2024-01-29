@@ -1,6 +1,6 @@
 <template>
   <MsIcon
-    v-if="props.avatar === 'default'"
+    v-if="props.avatar === 'default' || props.avatar === null"
     type="icon-icon_that_person"
     :size="props.size"
     class="text-[var(--color-text-4)]"

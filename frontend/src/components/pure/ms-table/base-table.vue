@@ -174,11 +174,13 @@
       </template>
 
       <template #empty>
-        <slot name="empty">
-          <div class="flex h-[20px] flex-col items-center justify-center">
-            <span class="text-[14px] text-[var(--color-text-4)]">{{ t('msTable.empty') }}</span>
-          </div>
-        </slot>
+        <div class="w-full">
+          <slot name="empty">
+            <div class="flex h-[20px] flex-col items-center justify-center">
+              <span class="text-[14px] text-[var(--color-text-4)]">{{ t('msTable.empty') }}</span>
+            </div>
+          </slot>
+        </div>
       </template>
       <template #expand-icon="{ expanded }">
         <MsIcon v-if="!expanded" :size="8" type="icon-icon_right_outlined" class="text-[var(--color-text-4)]" />
@@ -258,6 +260,7 @@
     MsTableProps,
   } from './type';
   import type { TableColumnData, TableData } from '@arco-design/web-vue';
+  import type { TableOperationColumn } from '@arco-design/web-vue/es/table/interface';
 
   const batchLeft = ref('10px');
   const { t } = useI18n();
@@ -275,7 +278,15 @@
     noDisable?: boolean;
     showSetting?: boolean;
     columns: MsTableColumn;
-    spanMethod?: (params: { record: TableData; rowIndex: number; columnIndex: number }) => void;
+    spanMethod?: (params: {
+      record: TableData;
+      column: TableColumnData | TableOperationColumn;
+      rowIndex: number;
+      columnIndex: number;
+    }) => void | {
+      rowspan?: number | undefined;
+      colspan?: number | undefined;
+    };
     expandedKeys?: string[];
     rowClass?: string | any[] | Record<string, any> | ((record: TableData, rowIndex: number) => any);
     spanAll?: boolean;

@@ -44,10 +44,10 @@
           </a-tooltip>
         </div>
       </template>
-      <template #name="{ record }">
-        <a-tooltip :content="record.name">
+      <template #num="{ record }">
+        <a-tooltip :content="record.num">
           <a-button type="text" class="px-0" @click="review(record)">
-            <div class="one-line-text max-w-[168px]">{{ record.name }}</div>
+            <div class="one-line-text max-w-[168px]">{{ record.num }}</div>
           </a-button>
         </a-tooltip>
       </template>
@@ -86,7 +86,7 @@
         </MsPopconfirm>
       </template>
       <template v-if="keyword.trim() === ''" #empty>
-        <div class="flex items-center justify-center p-[8px] text-[var(--color-text-4)]">
+        <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
           {{ t('caseManagement.caseReview.tableNoData') }}
           <MsButton class="ml-[8px]" @click="createCase">
             {{ t('caseManagement.caseReview.crateCase') }}
@@ -158,11 +158,7 @@
           asterisk-position="end"
           class="mb-0"
         >
-          <!-- <a-input
-            v-model:model-value="dialogForm.reason"
-            :placeholder="t('caseManagement.caseReview.reasonPlaceholder')"
-          /> -->
-          <MsRichText v-model:modelValue="dialogForm.reason" class="w-full" />
+          <MsRichText v-model:raw="dialogForm.reason" class="w-full" />
         </a-form-item>
         <a-form-item
           v-if="dialogShowType === 'changeReviewer'"
@@ -298,17 +294,19 @@
     {
       title: 'ID',
       dataIndex: 'num',
+      slotName: 'num',
       sortIndex: 1,
       showTooltip: true,
       width: 100,
     },
     {
       title: 'caseManagement.caseReview.caseName',
-      slotName: 'name',
       dataIndex: 'name',
       sortable: {
         sortDirections: ['ascend', 'descend'],
+        sorter: true,
       },
+      showTooltip: true,
       width: 200,
     },
     {
@@ -317,6 +315,7 @@
       slotName: 'reviewNames',
       sortable: {
         sortDirections: ['ascend', 'descend'],
+        sorter: true,
       },
       width: 150,
     },
@@ -352,6 +351,7 @@
     {
       scroll: { x: '100%' },
       tableKey: TableKeyEnum.CASE_MANAGEMENT_REVIEW_CASE,
+      heightUsed: 484,
       showSetting: true,
       selectable: true,
       showSelectAll: true,

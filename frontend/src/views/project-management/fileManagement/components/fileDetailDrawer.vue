@@ -67,11 +67,17 @@
             <div class="mb-[16px] h-[102px] w-[102px]">
               <a-spin class="h-full w-full" :loading="fileLoading">
                 <MsThumbnailCard
-                  mode="hover"
+                  :mode="detail.storage === 'GIT' ? 'default' : 'hover'"
                   :type="detail.fileType || ''"
                   :url="`${CompressImgUrl}/${userStore.id}/${detail.id}`"
-                  :footer-text="t('project.fileManagement.replaceFile')"
-                  @click="handleFileIconClick"
+                  :footer-text="detail.storage === 'GIT' ? undefined : t('project.fileManagement.replaceFile')"
+                  @click="
+                    () => {
+                      if (detail.storage !== 'GIT') {
+                        handleFileIconClick();
+                      }
+                    }
+                  "
                 />
               </a-spin>
             </div>

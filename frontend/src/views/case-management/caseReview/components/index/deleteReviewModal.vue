@@ -31,7 +31,7 @@
         <a-button
           type="primary"
           status="danger"
-          :disabled="confirmReviewName !== props.record.name"
+          :disabled="confirmReviewName !== props.record.name || loading"
           class="ml-[12px]"
           @click="handleDeleteConfirm"
         >
@@ -39,6 +39,7 @@
         </a-button>
         <a-button
           v-if="props.record.status === 'COMPLETED'"
+          :loading="loading"
           type="primary"
           class="ml-[12px]"
           @click="handleDeleteConfirm"
@@ -79,6 +80,7 @@
 
   const dialogVisible = useVModel(props, 'visible', emit);
   const confirmReviewName = ref('');
+  const loading = ref(false);
 
   function handleDialogCancel() {
     dialogVisible.value = false;
@@ -90,6 +92,7 @@
    */
   async function handleDeleteConfirm() {
     try {
+      loading.value = true;
       await deleteReview(props.record.id, appStore.currentProjectId);
       Message.success(t('common.deleteSuccess'));
       dialogVisible.value = false;
@@ -97,9 +100,10 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      loading.value = false;
     }
   }
 </script>
 
 <style lang="less" scoped></style>
-@/config/caseManagement

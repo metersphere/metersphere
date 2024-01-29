@@ -10,6 +10,7 @@
       'ms-drawer',
       props.mask ? '' : 'ms-drawer-no-mask',
       props.noContentPadding ? 'ms-drawer-no-content-padding' : '',
+      props.noTitle ? 'ms-drawer-no-title' : '',
     ]"
     @cancel="handleCancel"
     @close="handleClose"
@@ -20,15 +21,15 @@
           <div class="flex items-center">
             {{ props.title }}
             <slot name="headerLeft"></slot>
-            <a-tag v-if="titleTag" :color="props.titleTagColor" class="ml-[8px] mr-auto">{{
-              props.titleTag
-            }}</a-tag></div
-          >
+            <a-tag v-if="titleTag" :color="props.titleTagColor" class="ml-[8px] mr-auto">
+              {{ props.titleTag }}
+            </a-tag>
+          </div>
           <slot name="tbutton"></slot>
         </div>
       </slot>
     </template>
-    <div v-if="!props.disabledWidthDrag" class="handle" @mousedown="startResize">
+    <div v-if="!props.disabledWidthDrag && typeof drawerWidth === 'number'" class="handle" @mousedown="startResize">
       <icon-drag-dot-vertical class="absolute left-[-3px] top-[50%] w-[14px]" size="14" />
     </div>
     <a-scrollbar class="h-full overflow-y-auto">
@@ -110,10 +111,13 @@
     cancelText?: string;
     saveContinueText?: string;
     showContinue?: boolean;
-    width: number;
+    width: string | number; // 抽屉宽度，为数值时才可拖拽改变宽度
     noContentPadding?: boolean; // 是否没有内容内边距
     popupContainer?: string;
     disabledWidthDrag?: boolean; // 是否禁止拖拽宽度
+    closable?: boolean; // 是否显示右上角的关闭按钮
+    noTitle?: boolean; // 是否不显示标题栏
+    drawerStyle?: Record<string, string>; // 抽屉样式
   }
 
   const props = withDefaults(defineProps<DrawerProps>(), {
@@ -164,33 +168,35 @@
    * 鼠标单击开始监听拖拽移动
    */
   const startResize = (event: MouseEvent) => {
-    resizing.value = true;
-    const startX = event.clientX;
-    const initialWidth = drawerWidth.value;
+    if (typeof drawerWidth.value === 'number') {
+      resizing.value = true;
+      const startX = event.clientX;
+      const initialWidth = drawerWidth.value;
 
-    // 计算鼠标移动距离
-    const handleMouseMove = (_event: MouseEvent) => {
-      if (resizing.value) {
-        const newWidth = initialWidth + (startX - _event.clientX); // 新的宽度等于当前抽屉宽度+鼠标移动的距离
-        if (newWidth >= (props.width || 480) && newWidth <= window.innerWidth * 0.9) {
-          // 最大最小宽度限制，最小宽度为传入的width或480，最大宽度为视图窗口宽度的90%
-          drawerWidth.value = newWidth;
+      // 计算鼠标移动距离
+      const handleMouseMove = (_event: MouseEvent) => {
+        if (resizing.value) {
+          const newWidth = initialWidth + (startX - _event.clientX); // 新的宽度等于当前抽屉宽度+鼠标移动的距离
+          if (newWidth >= (props.width || 480) && newWidth <= window.innerWidth * 0.9) {
+            // 最大最小宽度限制，最小宽度为传入的width或480，最大宽度为视图窗口宽度的90%
+            drawerWidth.value = newWidth;
+          }
         }
-      }
-    };
+      };
 
-    // 松开鼠标按键，拖拽结束
-    const handleMouseUp = () => {
-      if (resizing.value) {
-        // 如果当前是在拖拽，则重置拖拽状态，且移除鼠标监听事件
-        resizing.value = false;
-        window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('mouseup', handleMouseUp);
-      }
-    };
+      // 松开鼠标按键，拖拽结束
+      const handleMouseUp = () => {
+        if (resizing.value) {
+          // 如果当前是在拖拽，则重置拖拽状态，且移除鼠标监听事件
+          resizing.value = false;
+          window.removeEventListener('mousemove', handleMouseMove);
+          window.removeEventListener('mouseup', handleMouseUp);
+        }
+      };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+    }
   };
 </script>
 
@@ -230,6 +236,11 @@
     }
     .arco-scrollbar-track-direction-vertical {
       right: -12px;
+    }
+  }
+  .ms-drawer-no-title {
+    .arco-drawer-header {
+      @apply hidden;
     }
   }
   .ms-drawer-no-mask {

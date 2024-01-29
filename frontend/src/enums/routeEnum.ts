@@ -1,6 +1,7 @@
 export enum ApiTestRouteEnum {
   API_TEST = 'apiTest',
   API_TEST_DEBUG = 'apiTestDebug',
+  API_TEST_MANAGEMENT = 'apiTestManagement',
 }
 
 export enum BugManagementRouteEnum {

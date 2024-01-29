@@ -1,7 +1,14 @@
 <template>
-  <div class="flex h-full flex-col overflow-hidden">
+  <a-spin :loading="loading" class="flex h-full flex-col overflow-hidden">
     <div class="mb-[16px] flex items-center justify-between">
       <div class="font-medium text-[var(--color-text-1)]">{{ t('ms.personal.tripartite') }}</div>
+      <MsSelect
+        v-model:model-value="currentOrg"
+        :options="orgOptions"
+        :loading="orgLoading"
+        class="w-[300px]"
+        @change="handleOrgChange"
+      />
     </div>
     <div class="platform-card-container">
       <div v-for="config of dynamicForm" :key="config.key" class="platform-card">
@@ -30,7 +37,7 @@
         </a-button>
       </div>
     </div>
-  </div>
+  </a-spin>
 </template>
 
 <script setup lang="ts">
@@ -38,10 +45,14 @@
 
   import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
   import MsTag, { TagType } from '@/components/pure/ms-tag/ms-tag.vue';
+  import MsSelect from '@/components/business/ms-select';
 
+  import { getSystemOrgOption } from '@/api/modules/setting/organizationAndProject';
   import { getPlatform, getPlatformAccount, savePlatform, validatePlatform } from '@/api/modules/user/index';
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
 
+  const appStore = useAppStore();
   const { t } = useI18n();
 
   type Status = 0 | 1 | 2;
@@ -81,10 +92,33 @@
       'validate-trigger': ['change'],
     },
   });
+  const currentOrg = ref(appStore.currentOrgId);
+  const orgOptions = ref([]);
+  const orgLoading = ref(false);
 
+  async function initOrgOptions() {
+    try {
+      orgLoading.value = true;
+      const res = await getSystemOrgOption();
+      orgOptions.value = res.map((e) => ({
+        label: e.name,
+        value: e.id,
+      }));
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      orgLoading.value = false;
+    }
+  }
+
+  const loading = ref(false);
   async function initPlatformAccountInfo() {
     try {
+      loading.value = true;
+      dynamicForm.value = {};
       const res = await getPlatformAccount();
+      // 动态生成插件表单
       Object.keys(res).forEach((key) => {
         dynamicForm.value[key] = {
           key,
@@ -97,22 +131,48 @@
         };
       });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      loading.value = false;
     }
   }
 
   async function initPlatformInfo() {
     try {
-      const res = await getPlatform();
+      loading.value = true;
+      const res = await getPlatform(currentOrg.value);
+      // 遍历插件表单
+      Object.keys(dynamicForm.value).forEach((configKey: any) => {
+        const config = dynamicForm.value[configKey].formModel.form;
+        // 遍历插件表单的表单项并赋值
+        Object.keys(config).forEach((key) => {
+          const value = res[configKey][key];
+          config[key] = value || config[key];
+          dynamicForm.value[configKey].status = value !== undefined ? 1 : 0;
+        });
+      });
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
+    } finally {
+      loading.value = false;
     }
   }
 
   async function validate(config: any) {
     try {
       config.validateLoading = true;
-      await validatePlatform(config.key, config.formModel.form);
+      const configForms: Record<string, any> = {};
+      Object.keys(dynamicForm.value).forEach((key) => {
+        configForms[key] = {
+          ...dynamicForm.value[key].formModel.form,
+        };
+      });
+      await validatePlatform(config.key, currentOrg.value, config.formModel.form);
+      await savePlatform({
+        [currentOrg.value]: configForms,
+      });
       Message.success(t('ms.personal.validPass'));
       config.status = 1;
     } catch (error) {
@@ -124,8 +184,14 @@
     }
   }
 
-  onBeforeMount(() => {
-    initPlatformAccountInfo();
+  async function handleOrgChange() {
+    await initPlatformAccountInfo();
+    initPlatformInfo();
+  }
+
+  onBeforeMount(async () => {
+    initOrgOptions();
+    await initPlatformAccountInfo();
     initPlatformInfo();
   });
 </script>

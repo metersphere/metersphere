@@ -33,7 +33,7 @@
           trigger="click"
           @popup-visible-change="handleFilterHidden"
         >
-          <a-button type="text" class="arco-btn-text--secondary" @click="statusFilterVisible = true">
+          <a-button type="text" class="arco-btn-text--secondary p-[8px_4px]" @click="statusFilterVisible = true">
             {{ t(columnConfig.title as string) }}
             <icon-down :class="statusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
           </a-button>
@@ -67,10 +67,10 @@
           </a-tooltip>
         </div>
       </template>
-      <template #name="{ record }">
-        <a-tooltip :content="record.name">
+      <template #num="{ record }">
+        <a-tooltip :content="`${record.num}`">
           <a-button type="text" class="px-0" @click="openDetail(record.id)">
-            <div class="one-line-text max-w-[168px]">{{ record.name }}</div>
+            <div class="one-line-text max-w-[168px]">{{ record.num }}</div>
           </a-button>
         </a-tooltip>
       </template>
@@ -109,7 +109,7 @@
         <MsTableMoreAction :list="getMoreAction(record.status)" @select="handleMoreActionSelect($event, record)" />
       </template>
       <template v-if="keyword.trim() === ''" #empty>
-        <div class="flex items-center justify-center p-[8px] text-[var(--color-text-4)]">
+        <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
           {{ t('caseManagement.caseReview.tableNoData') }}
           <MsButton class="ml-[8px]" @click="() => emit('goCreate')">
             {{ t('caseManagement.caseReview.create') }}
@@ -339,17 +339,19 @@
     {
       title: 'ID',
       dataIndex: 'num',
+      slotName: 'num',
       sortIndex: 1,
       showTooltip: true,
       width: 100,
     },
     {
       title: 'caseManagement.caseReview.name',
-      slotName: 'name',
       dataIndex: 'name',
       sortable: {
         sortDirections: ['ascend', 'descend'],
+        sorter: true,
       },
+      showTooltip: true,
       width: 200,
     },
     {
@@ -382,6 +384,7 @@
       dataIndex: 'reviewers',
       sortable: {
         sortDirections: ['ascend', 'descend'],
+        sorter: true,
       },
       width: 150,
     },
@@ -677,4 +680,3 @@
 </script>
 
 <style lang="less" scoped></style>
-@/config/caseManagement

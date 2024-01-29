@@ -230,7 +230,7 @@
         <div :class="['config-preview', '!h-[290px]', currentLocale === 'en-US' ? '!h-[340px]' : '']">
           <div ref="platformPageFullRef" class="login-preview">
             <div
-              class="absolute right-[18px] top-[16px] z-[999] w-[96px] cursor-pointer text-right !text-[var(--color-text-4)]"
+              class="absolute right-[12px] top-[8px] z-[999] w-[96px] cursor-pointer text-right !text-[var(--color-text-4)]"
               @click="platformFullscreenToggle"
             >
               <MsIcon v-if="isPlatformPageFullscreen" type="icon-icon_off_screen" />
@@ -341,7 +341,6 @@
 
 <script setup lang="ts">
   import { computed, onBeforeUnmount, ref, watch } from 'vue';
-  import { useFullscreen } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -354,6 +353,7 @@
   import loginForm from '@/views/login/components/login-form.vue';
 
   import { savePageConfig } from '@/api/modules/setting/config';
+  import useFullScreen from '@/hooks/useFullScreen';
   import { useI18n } from '@/hooks/useI18n';
   import useLocale from '@/locale/useLocale';
   import useAppStore from '@/store/modules/app';
@@ -377,9 +377,10 @@
   const pageConfig = ref({ ...appStore.pageConfig });
   const loginPageFullRef = ref<HTMLElement | null>(null);
   const platformPageFullRef = ref<HTMLElement | null>(null);
-  const { isFullscreen: isLoginPageFullscreen, toggle: loginFullscreenToggle } = useFullscreen(loginPageFullRef);
-  const { isFullscreen: isPlatformPageFullscreen, toggle: platformFullscreenToggle } =
-    useFullscreen(platformPageFullRef);
+  const { isFullScreen: isLoginPageFullscreen, toggleFullScreen: loginFullscreenToggle } =
+    useFullScreen(loginPageFullRef);
+  const { isFullScreen: isPlatformPageFullscreen, toggleFullScreen: platformFullscreenToggle } =
+    useFullScreen(platformPageFullRef);
   const loginConfigFormRef = ref<FormInstance>();
   const platformConfigFormRef = ref<FormInstance>();
 

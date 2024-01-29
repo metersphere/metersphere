@@ -19,7 +19,7 @@
         :type="FileIconMap[fileType][UploadStatus.done]"
         class="absolute top-0 h-full w-full p-[24px] text-[var(--color-text-4)]"
       />
-      <a-tooltip :content="props.footerText" :mouse-enter-delay="300" position="bl" mini>
+      <a-tooltip v-if="props.footerText" :content="props.footerText" :mouse-enter-delay="300" position="bl" mini>
         <div class="ms-thumbnail-card-footer one-line-text">
           {{ props.footerText }}
         </div>

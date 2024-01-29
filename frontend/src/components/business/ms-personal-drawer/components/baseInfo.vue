@@ -6,7 +6,7 @@
     </a-button>
   </div>
   <div class="mb-[16px] flex items-center">
-    <MsAvatar :avatar="userStore.avatar || 'default'" class="mb-[4px]" />
+    <MsAvatar :avatar="userStore.avatar || 'default'" :size="58" class="mb-[4px]" />
     <a-button
       type="outline"
       class="arco-btn-outline--secondary ml-[8px] p-[2px_8px]"
@@ -303,5 +303,8 @@
     @apply absolute right-0 rounded-full bg-white;
 
     bottom: 22px;
+  }
+  :deep(.ms-description-item-value) {
+    -webkit-line-clamp: unset !important;
   }
 </style>

@@ -130,34 +130,21 @@ export default {
   'system.config.auth.addResource': 'Add resource',
   'system.config.auth.serviceUrl': 'Server address',
   'system.config.auth.serviceUrlRequired': 'Server address cannot be empty',
-  'system.config.auth.serviceUrlPlaceholder': 'eg: http://<casurl>',
+  'system.config.auth.commonUrlPlaceholder': 'eg: {url}',
   'system.config.auth.loginUrl': 'Login address',
   'system.config.auth.loginUrlRequired': 'Login address cannot be empty',
-  'system.config.auth.loginUrlPlaceholder': 'eg: http://<casurl>/login',
   'system.config.auth.loginUrlTip': 'When authentication fails, redirect to this login page',
   'system.config.auth.verifyUrl': 'Verify address',
   'system.config.auth.verifyUrlRequired': 'Verification address cannot be empty',
-  'system.config.auth.verifyUrlPlaceholder': 'eg: http://<casurl>/serviceValidate',
   'system.config.auth.verifyUrlTip': 'The information used to verify the login is correct',
   'system.config.auth.callbackUrl': 'Callback address',
   'system.config.auth.callbackUrlRequired': 'Callback address cannot be empty',
-  // eslint-disable-next-line no-template-curly-in-string
-  'system.config.auth.callbackUrlPlaceholder': 'eg: http://<meteresphere-endpoint>/sso/callback/cas/suthld',
-  'system.config.auth.OIDCCallbackUrlPlaceholder':
-    // eslint-disable-next-line no-template-curly-in-string
-    'eg: http://<metersphere-endpoint>/sso/callback or http://<metersphere-endpoint>/sso/callback/authld',
   'system.config.auth.authUrl': 'Authorized end address',
   'system.config.auth.authUrlRequired': 'Authorization end address cannot be empty',
-  'system.config.auth.authUrlPlaceholder':
-    'eg: http://<keyclock>auth/realms/<metersphere>/protocol/openid-connect/auth',
   'system.config.auth.tokenUrl': 'Token endpoint address',
   'system.config.auth.tokenUrlRequired': 'Token endpoint address cannot be empty',
-  'system.config.auth.tokenUrlPlaceholder':
-    'eg: http://<keyclock>auth/realms/<metersphere>/protocol/openid-connect/token',
   'system.config.auth.userInfoUrl': 'User information endpoint address',
   'system.config.auth.userInfoUrlRequired': 'User information endpoint address cannot be empty',
-  'system.config.auth.userInfoUrlPlaceholder':
-    'eg: http://<keyclock>auth/realms/<metersphere>/protocol/openid-connect/userinfo',
   'system.config.auth.clientId': 'Client ID',
   'system.config.auth.clientIdRequired': 'Client ID cannot be empty',
   'system.config.auth.clientIdPlaceholder': 'eg: metersphere',
@@ -166,8 +153,6 @@ export default {
   'system.config.auth.clientSecretPlaceholder': 'OIDC client secret',
   'system.config.auth.logoutSessionUrl': 'Logout session address',
   'system.config.auth.logoutSessionUrlRequired': 'Logout session address cannot be empty',
-  'system.config.auth.logoutSessionUrlPlaceholder':
-    'eg: http://<keyclock>/auth/realms/<metersphere>/protocol/openid-connect/logout',
   'system.config.auth.password': 'Password',
   'system.config.auth.passwordRequired': 'Password cannot be empty',
   'system.config.auth.passwordPlaceholder': 'OIDC client secret',

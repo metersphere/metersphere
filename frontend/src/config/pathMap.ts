@@ -9,7 +9,7 @@ export type PathMapRoute = (typeof RouteEnum)[PathMapKey];
 export interface PathMapItem {
   key: PathMapKey | string; // 系统设置
   locale: string;
-  route: PathMapRoute;
+  route: PathMapRoute | string;
   permission?: [];
   level: (typeof MENU_LEVEL)[number]; // 系统设置里有系统级别也有组织级别，按最低权限级别配置
   children?: PathMapItem[];
@@ -35,12 +35,18 @@ export const pathMap: PathMapItem[] = [
     level: MENU_LEVEL[2],
     children: [
       {
-        key: 'API_TEST_DEBUG', // 接口测试
+        key: 'API_TEST_DEBUG', // 接口测试-接口调试
         locale: 'menu.apiTest.debug',
         route: RouteEnum.API_TEST_DEBUG,
         permission: [],
         level: MENU_LEVEL[2],
-        children: [],
+      },
+      {
+        key: 'API_TEST_MANAGEMENT', // 接口测试-接口管理
+        locale: 'menu.apiTest.management',
+        route: RouteEnum.API_TEST_MANAGEMENT,
+        permission: [],
+        level: MENU_LEVEL[2],
       },
     ],
   },
@@ -87,13 +93,6 @@ export const pathMap: PathMapItem[] = [
         route: RouteEnum.CASE_MANAGEMENT_CASE,
         permission: [],
         level: MENU_LEVEL[2],
-      },
-      {
-        key: 'CASE_MANAGEMENT_REVIEW', // 功能测试-功能用例-用例评审
-        locale: 'menu.caseManagement.caseManagementReview',
-        route: RouteEnum.CASE_MANAGEMENT_REVIEW,
-        permission: [],
-        level: MENU_LEVEL[2],
         children: [
           {
             key: 'CASE_MANAGEMENT_CASE_DETAIL', // 功能测试-功能用例详情
@@ -116,9 +115,32 @@ export const pathMap: PathMapItem[] = [
             permission: [],
             level: MENU_LEVEL[2],
           },
+        ],
+      },
+      {
+        key: 'CASE_MANAGEMENT_REVIEW', // 功能测试-功能用例-用例评审
+        locale: 'menu.caseManagement.caseManagementReview',
+        route: RouteEnum.CASE_MANAGEMENT_REVIEW,
+        permission: [],
+        level: MENU_LEVEL[2],
+        children: [
+          {
+            key: 'CASE_MANAGEMENT_REVIEW_LIST', // 功能测试-功能用例-用例评审列表
+            locale: 'menu.caseManagement.caseManagementReview',
+            route: RouteEnum.CASE_MANAGEMENT_REVIEW,
+            permission: [],
+            level: MENU_LEVEL[2],
+          },
           {
             key: 'CASE_MANAGEMENT_REVIEW_CREATE', // 功能测试-功能用例-创建评审
             locale: 'menu.caseManagement.caseManagementReviewCreate',
+            route: RouteEnum.CASE_MANAGEMENT_REVIEW_CREATE,
+            permission: [],
+            level: MENU_LEVEL[2],
+          },
+          {
+            key: 'CASE_MANAGEMENT_REVIEW_UPDATE', // 功能测试-功能用例-更新评审
+            locale: 'menu.caseManagement.caseManagementCaseReviewEdit',
             route: RouteEnum.CASE_MANAGEMENT_REVIEW_CREATE,
             permission: [],
             level: MENU_LEVEL[2],
@@ -479,6 +501,50 @@ export const pathMap: PathMapItem[] = [
         key: 'TEST_PLAN_INDEX', // 测试计划-测试计划
         locale: 'menu.testPlan',
         route: RouteEnum.TEST_PLAN_INDEX,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+    ],
+  },
+  {
+    key: 'PERSONAL_INFORMATION', // 个人信息
+    locale: 'ms.personal',
+    route: '',
+    permission: [],
+    level: MENU_LEVEL[2],
+    children: [
+      {
+        key: 'PERSONAL_INFORMATION_BASE_INFO', // 个人信息-基本信息
+        locale: 'ms.personal.baseInfo',
+        route: '',
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+      {
+        key: 'PERSONAL_INFORMATION_PSW', // 个人信息-密码设置
+        locale: 'ms.personal.setPsw',
+        route: '',
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+      {
+        key: 'PERSONAL_INFORMATION_APIKEYS', // 个人信息-ApiKeys
+        locale: 'APIKEY',
+        route: '',
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+      {
+        key: 'PERSONAL_INFORMATION_LOCAL_EXECUTE', // 个人信息-本地执行
+        locale: 'ms.personal.localExecution',
+        route: '',
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+      {
+        key: 'PERSONAL_INFORMATION_TRIPARTITE', // 个人信息-三方平台账号
+        locale: 'ms.personal.tripartite',
+        route: '',
         permission: [],
         level: MENU_LEVEL[2],
       },

@@ -40,7 +40,7 @@
             <div>{{ t('caseManagement.caseReview.reReview') }}</div>
           </td>
           <td class="popover-value-td">
-            {{ props.reviewDetail.reviewedCount }}
+            {{ props.reviewDetail.reReviewedCount }}
           </td>
         </tr>
         <tr>
@@ -66,7 +66,7 @@
     reviewDetail: {
       passCount: number;
       unPassCount: number;
-      reviewedCount: number;
+      reReviewedCount: number;
       underReviewedCount: number;
       caseCount: number;
       [key: string]: any;
@@ -81,7 +81,7 @@
       props.reviewDetail.status === 'PREPARED' ||
       (props.reviewDetail.passCount === 0 &&
         props.reviewDetail.unPassCount === 0 &&
-        props.reviewDetail.reviewedCount === 0 &&
+        props.reviewDetail.reReviewedCount === 0 &&
         props.reviewDetail.underReviewedCount === 0)
     ) {
       return [
@@ -101,7 +101,7 @@
         color: 'rgb(var(--danger-6))',
       },
       {
-        percentage: (props.reviewDetail.reviewedCount / props.reviewDetail.caseCount) * 100,
+        percentage: (props.reviewDetail.reReviewedCount / props.reviewDetail.caseCount) * 100,
         color: 'rgb(var(--warning-6))',
       },
       {

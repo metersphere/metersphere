@@ -1,5 +1,5 @@
 <template>
-  <MsCard ref="fullRef" :special-height="132" :is-fullscreen="isFullscreen" simple>
+  <MsCard ref="fullRef" :special-height="132" :is-fullscreen="isFullScreen" simple>
     <div id="mscard">
       <div class="mb-[16px] flex items-center justify-between">
         <div class="font-medium text-[var(--color-text-000)]">{{ t('project.messageManagement.config') }}</div>
@@ -14,7 +14,7 @@
             :multiple="true"
             :has-all-select="true"
             :default-all-select="true"
-            :popup-container="isFullscreen ? '#mscard' : undefined"
+            :popup-container="isFullScreen ? '#mscard' : undefined"
           >
             <template #footer>
               <div class="mb-[6px] mt-[4px] p-[3px_8px]">
@@ -25,15 +25,15 @@
               </div>
             </template>
           </MsSelect>
-          <a-button type="outline" class="arco-btn-outline--secondary px-[5px]" @click="toggle">
+          <a-button type="outline" class="arco-btn-outline--secondary px-[5px]" @click="toggleFullScreen">
             <template #icon>
               <MsIcon
-                :type="isFullscreen ? 'icon-icon_off_screen' : 'icon-icon_full_screen_one'"
+                :type="isFullScreen ? 'icon-icon_off_screen' : 'icon-icon_full_screen_one'"
                 class="text-[var(--color-text-4)]"
                 size="14"
               />
             </template>
-            {{ t(isFullscreen ? 'common.offFullScreen' : 'common.fullScreen') }}
+            {{ t(isFullScreen ? 'common.offFullScreen' : 'common.fullScreen') }}
           </a-button>
         </div>
       </div>
@@ -42,7 +42,6 @@
         v-bind="propsRes"
         v-model:expandedKeys="expandedKeys"
         no-disable
-        span-all
         :indent-size="0"
         v-on="propsEvent"
       >
@@ -71,7 +70,7 @@
             :remote-func="getMessageUserList"
             :remote-fields-map="{ label: 'name', value: 'id', id: 'id' }"
             :not-auto-init-search="true"
-            :popup-container="isFullscreen ? '#mscard' : undefined"
+            :popup-container="isFullScreen ? '#mscard' : undefined"
             :fallback-option="(val) => ({
               label: (val as Record<string, any>).name,
               value: val,
@@ -91,7 +90,7 @@
               size="small"
               type="line"
             />
-            <a-popover position="right" :popup-container="isFullscreen ? '#mscard' : undefined">
+            <a-popover position="right" :popup-container="isFullScreen ? '#mscard' : undefined">
               <div
                 class="ml-[8px] mr-[4px] cursor-pointer text-[var(--color-text-1)] hover:text-[rgb(var(--primary-6))]"
               >
@@ -123,7 +122,6 @@
 <script setup lang="ts">
   import { computed, onBeforeMount, ref, watch } from 'vue';
   import { useRouter } from 'vue-router';
-  import { useFullscreen } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -141,6 +139,7 @@
     getRobotList,
     saveMessageConfig,
   } from '@/api/modules/project-management/messageManagement';
+  import useFullScreen from '@/hooks/useFullScreen';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
@@ -160,7 +159,7 @@
   const robotOptions = ref<(SelectOptionData & RobotItem)[]>([]);
   const fullRef = ref<HTMLElement | null>();
 
-  const { isFullscreen, toggle } = useFullscreen(fullRef);
+  const { isFullScreen, toggleFullScreen } = useFullScreen(fullRef);
 
   const tableRef = ref<InstanceType<typeof MsBaseTable> | null>(null);
   const staticColumns: MsTableColumn = [
@@ -287,7 +286,7 @@
             functionName: (item as unknown as MessageItem).name,
             taskType: child.taskType,
             name: child.taskTypeName,
-            rowspan: child.messageTaskDetailDTOList.length,
+            rowspan: child.messageTaskDetailDTOList.length || 1,
             ...grandson,
           });
         }

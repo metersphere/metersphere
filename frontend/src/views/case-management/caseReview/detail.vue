@@ -1,5 +1,14 @@
 <template>
-  <MsCard :loading="loading" :min-width="1100" auto-height hide-footer no-bottom-radius no-content-padding hide-divider>
+  <MsCard
+    :loading="loading"
+    :header-min-width="1100"
+    :min-width="150"
+    auto-height
+    hide-footer
+    no-bottom-radius
+    no-content-padding
+    hide-divider
+  >
     <template #headerLeft>
       <a-tooltip :content="reviewDetail.name">
         <div class="one-line-text mr-[8px] max-w-[260px] font-medium text-[var(--color-text-000)]">
@@ -284,11 +293,11 @@
       eventTag: 'createCase',
       icon: 'icon-icon_add_outlined-1',
     },
-    {
-      label: t('caseManagement.caseReview.createTestPlan'),
-      eventTag: 'createTestPlan',
-      icon: 'icon-icon_add_outlined-1',
-    },
+    // {
+    //   label: t('caseManagement.caseReview.createTestPlan'),
+    //   eventTag: 'createTestPlan',
+    //   icon: 'icon-icon_add_outlined-1',
+    // },
     {
       isDivider: true,
     },

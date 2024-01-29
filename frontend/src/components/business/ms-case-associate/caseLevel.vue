@@ -2,11 +2,11 @@
   <div
     class="mr-[4px] h-[8px] w-[8px] rounded-full"
     :style="{
-      backgroundColor: caseLevelMap[props.caseLevel].bgColor,
-      border: `1px solid ${caseLevelMap[props.caseLevel].borderColor}`,
+      backgroundColor: caseLevel.bgColor,
+      border: `1px solid ${caseLevel.borderColor}`,
     }"
   ></div>
-  {{ caseLevelMap[props.caseLevel].label }}
+  {{ caseLevel.label }}
 </template>
 
 <script setup lang="ts">
@@ -37,7 +37,9 @@
       bgColor: 'var(--color-text-n8)',
       borderColor: 'var(--color-text-brand)',
     },
-  } as const;
+  };
+
+  const caseLevel = computed(() => caseLevelMap[props.caseLevel] || {});
 </script>
 
 <style lang="less" scoped></style>

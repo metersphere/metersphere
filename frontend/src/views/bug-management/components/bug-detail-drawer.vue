@@ -66,8 +66,13 @@
             </template>
           </a-dropdown>
         </MsButton>
-        <MsButton type="icon" status="secondary" class="!rounded-[var(--border-radius-small)]" @click="toggle">
-          <MsIcon :type="isFullscreen ? 'icon-icon_off_screen' : 'icon-icon_full_screen_one'" class="mr-1" size="16" />
+        <MsButton
+          type="icon"
+          status="secondary"
+          class="!rounded-[var(--border-radius-small)]"
+          @click="toggleFullScreen"
+        >
+          <MsIcon :type="isFullScreen ? 'icon-icon_off_screen' : 'icon-icon_full_screen_one'" class="mr-1" size="16" />
           {{ t('caseManagement.featureCase.fullScreen') }}
         </MsButton>
       </div>
@@ -150,7 +155,6 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useRouter } from 'vue-router';
-  import { useFullscreen } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
@@ -169,6 +173,7 @@
   import CommentTab from './commentTab.vue';
 
   import { createOrUpdateComment, deleteSingleBug, followBug, getBugDetail } from '@/api/modules/bug-management/index';
+  import useFullScreen from '@/hooks/useFullScreen';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore } from '@/store';
@@ -181,7 +186,7 @@
   const router = useRouter();
   const detailDrawerRef = ref<InstanceType<typeof MsDetailDrawer>>();
   const wrapperRef = ref();
-  const { isFullscreen, toggle } = useFullscreen(wrapperRef);
+  const { isFullScreen, toggleFullScreen } = useFullScreen(wrapperRef);
   const featureCaseStore = useFeatureCaseStore();
   const { t } = useI18n();
   const { openModal } = useModal();
