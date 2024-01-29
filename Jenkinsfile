@@ -61,7 +61,7 @@ pipeline {
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
                         export PATH=$JAVA_HOME/bin:/opt/apache-maven-3.8.3/bin:$PATH
                         java -version
-                        mvn clean package -Drevision=${REVISION} -DskipTests --settings ./settings.xml
+                        mvn clean install -Drevision=${REVISION} -DskipTests --settings ./settings.xml
                         mkdir -p backend/app/target/dependency && (cd backend/app/target/dependency && jar -xf ../*.jar);
                     '''
                 }
