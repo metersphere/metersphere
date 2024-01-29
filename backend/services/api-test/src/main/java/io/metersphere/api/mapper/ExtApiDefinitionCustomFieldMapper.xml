@@ -3,10 +3,20 @@
 <mapper namespace="io.metersphere.api.mapper.ExtApiDefinitionCustomFieldMapper">
     <select id="getApiCustomFields" resultType="io.metersphere.api.dto.definition.ApiDefinitionCustomFieldDTO">
         select cf.*, adcf.value, adcf.api_id from api_definition_custom_field adcf join custom_field cf on adcf.field_id = cf.id
-        where cf.scene = 'API' and cf.scope_type = 'PROJECT' and scope_id = #{projectId}
-        and api_id in
+        where cf.scene = 'API' and cf.scope_type = 'PROJECT' and cf.scope_id = #{projectId}
+        and adcf.api_id in
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
     </select>
+
+    <insert id="batchInsertCustomField" parameterType="map">
+        insert into api_definition_custom_field
+        (api_id, field_id, `value`)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{apiId,jdbcType=VARCHAR}, #{item.fieldId,jdbcType=VARCHAR}, #{item.value,jdbcType=VARCHAR}
+            )
+        </foreach>
+    </insert>
 </mapper>

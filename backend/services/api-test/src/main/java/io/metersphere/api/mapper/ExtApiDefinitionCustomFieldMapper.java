@@ -1,5 +1,6 @@
 package io.metersphere.api.mapper;
 
+import io.metersphere.api.domain.ApiDefinitionCustomField;
 import io.metersphere.api.dto.definition.ApiDefinitionCustomFieldDTO;
 import org.apache.ibatis.annotations.Param;
 
@@ -13,10 +14,12 @@ import java.util.List;
 public interface ExtApiDefinitionCustomFieldMapper {
     /**
      * 获取缺陷自定义字段值
- * @param apiIds 接口集合
+     * @param apiIds 接口集合
      * @param projectId 项目ID
      * @return 缺陷自定义字段值
      */
     List<ApiDefinitionCustomFieldDTO> getApiCustomFields(@Param("ids") List<String> apiIds, @Param("projectId") String projectId);
+
+    int batchInsertCustomField(@Param("apiId") String apiId, @Param("list") List<ApiDefinitionCustomField> list);
 
 }

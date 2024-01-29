@@ -38,7 +38,6 @@ import io.metersphere.system.utils.CustomFieldUtils;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -198,11 +197,10 @@ public class ApiDefinitionService {
         apiFileResourceService.addFileResource(resourceUpdateRequest);
 
         //保存自定义字段
-        Map<String, String> customFields = request.getCustomFields();
-        if (MapUtils.isNotEmpty(customFields)) {
-            List<ApiDefinitionCustomField> list = new ArrayList<>();
-            customFields.keySet().forEach(key -> createNewCustomField(apiDefinition.getId(), key, customFields.get(key), list));
-            batchInsertCustomFields(list);
+        List<ApiDefinitionCustomField> customFields = request.getCustomFields();
+        if (CollectionUtils.isNotEmpty(customFields)) {
+            customFields = customFields.stream().distinct().toList();
+            batchInsertCustomFields(apiDefinition.getId(), customFields);
         }
 
         return apiDefinition;
@@ -264,7 +262,7 @@ public class ApiDefinitionService {
         apiDefinitionBlobMapper.updateByPrimaryKeySelective(apiDefinitionBlob);
 
         // 自定义字段
-        handleUpdateCustomFields(request, false);
+        handleUpdateCustomFields(request);
 
         // 处理文件
         ApiFileResourceUpdateRequest resourceUpdateRequest = getApiFileResourceUpdateRequest(originApiDefinition.getId(), originApiDefinition.getProjectId(), userId);
@@ -288,13 +286,17 @@ public class ApiDefinitionService {
             } else if (request.getType().equals("customs")) {
                 // 自定义字段处理
                 ApiDefinitionCustomFieldDTO customField = request.getCustomField();
-                Map<String, String> customFieldMap = Collections.singletonMap(customField.getId(), customField.getValue());
+                List<ApiDefinitionCustomField> list = new ArrayList<>();
+                ApiDefinitionCustomField apiDefinitionCustomField = new ApiDefinitionCustomField();
+                apiDefinitionCustomField.setFieldId(customField.getId());
+                apiDefinitionCustomField.setValue(customField.getValue());
+                list.add(apiDefinitionCustomField);
                 ApiDefinitionUpdateRequest apiDefinitionUpdateRequest = new ApiDefinitionUpdateRequest();
                 BeanUtils.copyBean(apiDefinitionUpdateRequest, request);
-                apiDefinitionUpdateRequest.setCustomFields(customFieldMap);
+                apiDefinitionUpdateRequest.setCustomFields(list);
                 ids.forEach(id -> {
                     apiDefinitionUpdateRequest.setId(id);
-                    handleUpdateCustomFields(apiDefinitionUpdateRequest, request.isAppend());
+                    handleUpdateCustomFields(apiDefinitionUpdateRequest);
                 });
             } else {
                 ApiDefinition apiDefinition = new ApiDefinition();
@@ -309,61 +311,51 @@ public class ApiDefinitionService {
     }
 
 
-    private void handleUpdateCustomFields(ApiDefinitionUpdateRequest request, boolean append) {
-        Map<String, String> customFields = request.getCustomFields();
-        if (MapUtils.isNotEmpty(customFields)) {
+    private void handleUpdateCustomFields(ApiDefinitionUpdateRequest request) {
+        List<ApiDefinitionCustomField> customFields = request.getCustomFields();
+        //更新自定义字段
+        if (CollectionUtils.isNotEmpty(customFields)) {
             List<ApiDefinitionCustomField> addFields = new ArrayList<>();
             List<ApiDefinitionCustomField> updateFields = new ArrayList<>();
             List<ApiDefinitionCustomFieldDTO> originalFields = extApiDefinitionCustomFieldMapper.getApiCustomFields(List.of(request.getId()), request.getProjectId());
-            Map<String, String> originalFieldMap = originalFields.stream().collect(Collectors.toMap(ApiDefinitionCustomFieldDTO::getId, ApiDefinitionCustomFieldDTO::getValue));
-            customFields.keySet().forEach(fieldId -> {
-                if (!originalFieldMap.containsKey(fieldId)) {
+            Map<String, ApiDefinitionCustomFieldDTO> originalFieldMap = originalFields.stream().collect(Collectors.toMap(ApiDefinitionCustomFieldDTO::getId, Function.identity()));
+
+            customFields.forEach(customField -> {
+                if (!originalFieldMap.containsKey(customField.getFieldId())) {
                     // New custom field relationship
-                    createNewCustomField(request.getId(), fieldId, customFields.get(fieldId), addFields);
+                    updateExistingCustomField(request.getId(), customField, addFields);
                 } else {
                     // Existing custom field relationship
-                    updateExistingCustomField(request.getId(), fieldId, append, customFields.get(fieldId), updateFields, originalFieldMap);
+                    updateExistingCustomField(request.getId(), customField, updateFields);
                 }
             });
 
-            batchInsertCustomFields(addFields);
-            batchUpdateCustomFields(updateFields);
+            batchInsertCustomFields(request.getId(), addFields);
+            batchUpdateCustomFields(request.getId(), updateFields);
         }
     }
 
-    private void createNewCustomField(String apiId, String fieldId, String value, List<ApiDefinitionCustomField> addFields) {
+    private void updateExistingCustomField(String apiId, ApiDefinitionCustomField customField, List<ApiDefinitionCustomField> updateFields) {
         ApiDefinitionCustomField apiDefinitionCustomField = new ApiDefinitionCustomField();
         apiDefinitionCustomField.setApiId(apiId);
-        apiDefinitionCustomField.setFieldId(fieldId);
-        apiDefinitionCustomField.setValue(value);
-        addFields.add(apiDefinitionCustomField);
-    }
-
-    private void updateExistingCustomField(String apiId, String fieldId, boolean append, String value, List<ApiDefinitionCustomField> updateFields, Map<String, String> originalFieldMap) {
-        ApiDefinitionCustomField apiDefinitionCustomField = new ApiDefinitionCustomField();
-        apiDefinitionCustomField.setApiId(apiId);
-        apiDefinitionCustomField.setFieldId(fieldId);
-        if (append) {
-            apiDefinitionCustomField.setValue(CustomFieldUtils.appendToMultipleCustomField(originalFieldMap.get(fieldId), value));
-        } else {
-            apiDefinitionCustomField.setValue(value);
-        }
+        apiDefinitionCustomField.setFieldId(customField.getFieldId());
+        apiDefinitionCustomField.setValue(customField.getValue());
         updateFields.add(apiDefinitionCustomField);
     }
 
-    private void batchInsertCustomFields(List<ApiDefinitionCustomField> addFields) {
+    private void batchInsertCustomFields(String apiId, List<ApiDefinitionCustomField> addFields) {
         if (CollectionUtils.isNotEmpty(addFields)) {
-            apiDefinitionCustomFieldMapper.batchInsert(addFields);
+            extApiDefinitionCustomFieldMapper.batchInsertCustomField(apiId, addFields);
         }
     }
 
-    private void batchUpdateCustomFields(List<ApiDefinitionCustomField> updateFields) {
+    private void batchUpdateCustomFields(String apiId, List<ApiDefinitionCustomField> updateFields) {
         if (CollectionUtils.isNotEmpty(updateFields)) {
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
             ApiDefinitionCustomFieldMapper apiCustomFieldMapper = sqlSession.getMapper(ApiDefinitionCustomFieldMapper.class);
             for (ApiDefinitionCustomField apiDefinitionCustomField : updateFields) {
                 ApiDefinitionCustomFieldExample apiDefinitionCustomFieldExample = new ApiDefinitionCustomFieldExample();
-                apiDefinitionCustomFieldExample.createCriteria().andApiIdEqualTo(apiDefinitionCustomField.getApiId()).andFieldIdEqualTo(apiDefinitionCustomField.getFieldId());
+                apiDefinitionCustomFieldExample.createCriteria().andApiIdEqualTo(apiId).andFieldIdEqualTo(apiDefinitionCustomField.getFieldId());
                 apiCustomFieldMapper.updateByExample(apiDefinitionCustomField, apiDefinitionCustomFieldExample);
             }
             sqlSession.flushStatements();
