@@ -369,6 +369,11 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         request.setReviewerId(List.of("wx11"));
         request.setSelectIds(List.of("wx_test_10"));
         this.requestPostWithOkAndReturn(BATCH_EDIT_REVIEWERS, request);
+        //覆盖率
+        request.setReviewId("wx_review_id_4");
+        request.setReviewerId(List.of("wx11"));
+        request.setSelectIds(List.of("wx_test_10"));
+        this.requestPostWithOkAndReturn(BATCH_EDIT_REVIEWERS, request);
     }
 
     @Test
