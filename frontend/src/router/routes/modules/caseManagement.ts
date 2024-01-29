@@ -42,8 +42,9 @@ const CaseManagement: AppRouteRecordRaw = {
           },
           {
             name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
-            editTag: 'id',
             locale: 'menu.caseManagement.featureCaseDetail',
+            editTag: 'id',
+            editLocale: 'menu.caseManagement.featureCaseEdit',
           },
         ],
       },

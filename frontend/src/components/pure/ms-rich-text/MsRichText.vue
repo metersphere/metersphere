@@ -94,6 +94,7 @@
       uploadImage?: (file: File) => Promise<any>;
       maxHeight?: string;
       filedIds?: string[];
+      commentIds?: string[];
     }>(),
     {
       raw: '',
@@ -107,9 +108,11 @@
     (event: 'update:raw', value: string): void;
     (event: 'update:filedIds', value: string[]): void;
     (event: 'update', value: string): void;
+    (event: 'update:commentIds', value: string): void;
   }>();
 
-  const imagesNodes = useVModel(props, 'filedIds', emit);
+  const imagesNodesIds = useVModel(props, 'filedIds', emit);
+  const commentNodeIds = useVModel(props, 'commentIds', emit);
 
   async function asyncWorker(arg: Task): Promise<void> {
     if (!props.uploadImage) {
@@ -142,6 +145,7 @@
 
   const attachmentSelectorModal = ref(false);
   const selectedimagesNode = ref<string>();
+  const selectedCommentNode = ref<string>();
 
   onMounted(() => {
     const debounceOnUpdate = useDebounceFn(() => {
@@ -194,10 +198,36 @@
                         images.push(node.attrs.fileId);
                       }
                     });
-                    imagesNodes.value = images;
+                    imagesNodesIds.value = images;
                     if (!selectedimagesNode.value) {
                       // eslint-disable-next-line prefer-destructuring
                       selectedimagesNode.value = images[0];
+                    }
+                    return DecorationSet.empty;
+                  },
+                },
+              }),
+            ];
+          },
+        }),
+        Extension.create({
+          addProseMirrorPlugins() {
+            return [
+              new Plugin({
+                key: new PluginKey(Mention.name),
+                props: {
+                  decorations: (state) => {
+                    const commentUsers: string[] = [];
+                    const { doc } = state;
+                    doc.descendants((node) => {
+                      if (node.type.name === 'mention') {
+                        commentUsers.push(node.attrs.id);
+                      }
+                    });
+                    commentNodeIds.value = commentUsers;
+                    if (!selectedCommentNode.value) {
+                      // eslint-disable-next-line prefer-destructuring
+                      selectedCommentNode.value = commentUsers[0];
                     }
                     return DecorationSet.empty;
                   },

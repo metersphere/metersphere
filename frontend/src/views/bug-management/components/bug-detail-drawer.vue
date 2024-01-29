@@ -146,6 +146,7 @@
         :content="commentContent"
         is-show-avatar
         is-use-bottom
+        :notice-user-ids="noticeUserIds"
         @publish="publishHandler"
       />
     </template>
@@ -205,6 +206,7 @@
   const appStore = useAppStore();
   const commentContent = ref('');
   const commentRef = ref();
+  const noticeUserIds = ref<string[]>([]); // 通知人ids
 
   const currentProjectId = computed(() => appStore.currentProjectId);
 

@@ -82,11 +82,13 @@
         key: 'requirement',
         title: 'caseManagement.featureCase.requirement',
         enable: true,
+        total: 0,
       },
       {
         key: 'bug',
         title: 'caseManagement.featureCase.bug',
         enable: true,
+        total: 0,
       },
     ],
     // testPlan: [
@@ -108,31 +110,37 @@
           key: 'changeHistory',
           title: 'caseManagement.featureCase.changeHistory',
           enable: true,
+          total: 0,
         },
       ];
     }
     return [];
   }
+
   const tabDefaultSettingList = ref<TabItemType[]>([
     {
       key: 'case',
       title: 'caseManagement.featureCase.case',
       enable: true,
+      total: 0,
     },
     {
       key: 'dependency',
       title: 'caseManagement.featureCase.dependency',
       enable: true,
+      total: 0,
     },
     {
       key: 'caseReview',
       title: 'caseManagement.featureCase.caseReview',
       enable: true,
+      total: 0,
     },
     {
       key: 'comments',
       title: 'caseManagement.featureCase.comments',
       enable: true,
+      total: 0,
     },
     // TOTO Xpack 不上
     // ...getTabList(),

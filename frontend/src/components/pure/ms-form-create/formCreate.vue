@@ -1,5 +1,5 @@
 <template>
-  <FormCreate v-model:api="formApi" :rule="formRules" :option="option"></FormCreate>
+  <FormCreate v-model:api="formApi" :rule="formRules" :option="props.option"></FormCreate>
 </template>
 
 <script setup lang="ts">

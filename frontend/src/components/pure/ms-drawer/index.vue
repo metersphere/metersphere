@@ -128,6 +128,7 @@
     popupContainer: 'body',
     disabledWidthDrag: false,
     okPermission: () => [], // 确认按钮权限
+    closable: true,
   });
   const emit = defineEmits(['update:visible', 'confirm', 'cancel', 'continue']);
 
