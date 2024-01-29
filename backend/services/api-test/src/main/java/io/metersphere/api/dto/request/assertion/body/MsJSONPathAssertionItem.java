@@ -1,5 +1,7 @@
 package io.metersphere.api.dto.request.assertion.body;
 
+import io.metersphere.system.valid.EnumValue;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
@@ -19,6 +21,8 @@ public class MsJSONPathAssertionItem extends MsBodyAssertionItem {
      * 匹配条件
      * 取值参考 {@link io.metersphere.sdk.constants.MsAssertionCondition}
      */
+    @NotBlank
+    @EnumValue(enumClass = io.metersphere.sdk.constants.MsAssertionCondition.class)
     private String condition;
     /**
      * 匹配值

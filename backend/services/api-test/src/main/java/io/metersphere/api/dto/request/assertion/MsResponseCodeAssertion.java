@@ -1,7 +1,8 @@
 package io.metersphere.api.dto.request.assertion;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import jakarta.validation.constraints.Size;
+import io.metersphere.system.valid.EnumValue;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
@@ -18,7 +19,8 @@ public class MsResponseCodeAssertion extends MsAssertion {
      * 不校验可搭配其他校验使用
      * 取值参考 {@link io.metersphere.sdk.constants.MsAssertionCondition}
      */
-    @Size(max = 50)
+    @NotBlank
+    @EnumValue(enumClass = io.metersphere.sdk.constants.MsAssertionCondition.class)
     private String condition;
     /**
      * 匹配值

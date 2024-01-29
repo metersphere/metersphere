@@ -35,12 +35,7 @@ public class ResponseCodeAssertionConverter extends AssertionConverter<MsRespons
 
         String condition = msAssertion.getCondition();
         assertion.setName(String.format("Response code %s %s", condition.toLowerCase().replace("_", ""), expectedValue));
-        MsAssertionCondition msAssertionCondition = MsAssertionCondition.valueOf(condition);
-        if (msAssertionCondition!= null) {
-            assertion.addTestString(generateRegexExpression(condition, expectedValue));
-        } else {
-            assertion.addTestString(expectedValue);
-        }
+        assertion.addTestString(generateRegexExpression(condition, expectedValue));
         assertion.setToContainsType();
         assertion.setTestFieldResponseCode();
         return assertion;

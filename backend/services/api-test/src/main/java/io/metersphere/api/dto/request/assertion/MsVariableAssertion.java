@@ -1,6 +1,8 @@
 package io.metersphere.api.dto.request.assertion;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import io.metersphere.system.valid.EnumValue;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 import java.util.List;
@@ -29,6 +31,8 @@ public class MsVariableAssertion extends MsAssertion {
          * 匹配条件
          * 值为 MsAssertionCondition
          */
+        @NotBlank
+        @EnumValue(enumClass = io.metersphere.sdk.constants.MsAssertionCondition.class)
         private String condition;
         /**
          * 匹配值

@@ -3,6 +3,7 @@ package io.metersphere.api.dto.request.processors;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.metersphere.api.dto.request.http.KeyValueParam;
 import io.metersphere.project.constants.ScriptLanguageType;
+import io.metersphere.system.valid.EnumValue;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -25,6 +26,7 @@ public class ScriptProcessor extends MsProcessor {
      * {@link ScriptLanguageType}
      */
     @Size(max = 20)
+    @EnumValue(enumClass = ScriptLanguageType.class)
     private String scriptLanguage;
     /**
      * 是否启用公共脚本
