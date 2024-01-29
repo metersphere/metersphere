@@ -19,6 +19,9 @@ public class BugProviderDTO implements Serializable {
     @Schema(description = "id")
     private String id;
 
+    @Schema(description = "num")
+    private String num;
+
     @Schema(description = "缺陷id")
     private String bugId;
 

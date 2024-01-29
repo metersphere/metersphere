@@ -100,6 +100,7 @@
     <select id="listByProviderRequest" resultMap="BugProviderDTO">
         SELECT
         b.id as id,
+        b.num as num,
         b.title name,
         b.handle_user handleUser,
         b.`status` as status,
