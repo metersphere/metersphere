@@ -132,6 +132,7 @@
   import useLocale from '@/locale/useLocale';
   import useAppStore from '@/store/modules/app';
   import useUserStore from '@/store/modules/user';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { ProjectListItem } from '@/models/setting/project';
 
@@ -153,7 +154,7 @@
 
   async function initProjects() {
     try {
-      if (appStore.currentOrgId) {
+      if (appStore.currentOrgId && hasAnyPermission(['PROJECT_BASE_INFO:READ'])) {
         const res = await getProjectList(appStore.getCurrentOrgId);
         projectList.value = res;
       } else {

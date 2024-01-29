@@ -14,6 +14,7 @@
 <script setup lang="ts">
   import { getProjectList } from '@/api/modules/project-management/project';
   import useAppStore from '@/store/modules/app';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { ProjectListItem } from '@/models/setting/project';
 
@@ -44,8 +45,12 @@
 
   onBeforeMount(async () => {
     try {
-      const res = await getProjectList(appStore.getCurrentOrgId);
-      projectList.value = res;
+      if (appStore.currentOrgId && hasAnyPermission(['PROJECT_BASE_INFO:READ'])) {
+        const res = await getProjectList(appStore.getCurrentOrgId);
+        projectList.value = res;
+      } else {
+        projectList.value = [];
+      }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
