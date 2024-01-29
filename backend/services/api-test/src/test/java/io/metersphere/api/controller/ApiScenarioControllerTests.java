@@ -30,6 +30,7 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.domain.EnvironmentGroup;
+import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import io.metersphere.sdk.file.FileCenter;
 import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.mapper.EnvironmentGroupMapper;
@@ -662,6 +663,15 @@ public class ApiScenarioControllerTests extends BaseTest {
     @Order(10)
     public void delete() throws Exception {
         // @@请求成功
+        ApiScenarioCsv apiScenarioCsv = new ApiScenarioCsv();
+        apiScenarioCsv.setId(IDGenerator.nextStr());
+        apiScenarioCsv.setScenarioId(addApiScenario.getId());
+        apiScenarioCsv.setFileId(fileMetadataId);
+        apiScenarioCsv.setName("csv变量");
+        apiScenarioCsv.setScope(CsvVariable.CsvVariableScope.SCENARIO.name());
+        apiScenarioCsv.setProjectId(DEFAULT_PROJECT_ID);
+        apiScenarioCsvMapper.insertSelective(apiScenarioCsv);
+
         this.requestGetWithOk(DEFAULT_DELETE, addApiScenario.getId());
         ApiScenario apiScenario = apiScenarioMapper.selectByPrimaryKey(addApiScenario.getId());
         ApiScenarioBlob apiScenarioBlob = apiScenarioBlobMapper.selectByPrimaryKey(addApiScenario.getId());
@@ -1296,17 +1306,14 @@ public class ApiScenarioControllerTests extends BaseTest {
 
         //配置configMap
         request.setEnable(true);
-        request.setConfigMap(new HashMap<>() {{
-            this.put("envId", "testEnv");
-            this.put("resourcePoolId", "testResourcePool");
-        }});
+        request.setConfig(new ApiRunModeConfigDTO());
         result = this.requestPostAndReturn(testUrl, request);
         resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
         newScheduleId = resultHolder.getData().toString();
         apiScenarioBatchOperationTestService.checkSchedule(newScheduleId, scenarioId, request.isEnable());
 
         //清空configMap
-        request.setConfigMap(new HashMap<>());
+        request.setConfig(new ApiRunModeConfigDTO());
         request.setEnable(false);
         result = this.requestPostAndReturn(testUrl, request);
         resultHolder = JSON.parseObject(result.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
@@ -1465,7 +1472,7 @@ public class ApiScenarioControllerTests extends BaseTest {
 
     @Test
     @Order(32)
-    //todo
+        //todo
     void batchRecoverToGc() throws Exception {
         String testUrl = "/batch-operation/recover-gc";
         if (CollectionUtils.isEmpty(BATCH_OPERATION_SCENARIO_ID)) {
@@ -1538,7 +1545,7 @@ public class ApiScenarioControllerTests extends BaseTest {
 
     @Test
     @Order(33)
-    //todo
+        //todo
     void batchDelete() throws Exception {
         String testUrl = "/batch-operation/delete";
         if (CollectionUtils.isEmpty(BATCH_OPERATION_SCENARIO_ID)) {
@@ -1633,6 +1640,7 @@ public class ApiScenarioControllerTests extends BaseTest {
             }
         }
     }
+
     private String createModule(int i, String projectId, String parentId) {
         ApiScenarioModule apiScenarioModule = new ApiScenarioModule();
         apiScenarioModule.setId(IDGenerator.nextStr());
@@ -1795,6 +1803,15 @@ public class ApiScenarioControllerTests extends BaseTest {
                 apiFileResource.setCreateTime(System.currentTimeMillis());
                 apiFileResource.setProjectId(apiScenario.getProjectId());
                 apiFileResourceMapper.insertSelective(apiFileResource);
+
+                ApiScenarioCsv apiScenarioCsv = new ApiScenarioCsv();
+                apiScenarioCsv.setId(IDGenerator.nextStr());
+                apiScenarioCsv.setScenarioId(apiScenario.getId());
+                apiScenarioCsv.setFileId(fileMetadataId);
+                apiScenarioCsv.setName("csv变量");
+                apiScenarioCsv.setScope(CsvVariable.CsvVariableScope.SCENARIO.name());
+                apiScenarioCsv.setProjectId(DEFAULT_PROJECT_ID);
+                apiScenarioCsvMapper.insertSelective(apiScenarioCsv);
             }
             apiScenarioMapper.insertSelective(apiScenario);
             BATCH_OPERATION_SCENARIO_ID.add(apiScenario.getId());

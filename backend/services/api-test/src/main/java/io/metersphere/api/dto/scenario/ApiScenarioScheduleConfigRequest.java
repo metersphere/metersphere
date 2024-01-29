@@ -1,10 +1,9 @@
 package io.metersphere.api.dto.scenario;
 
+import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-
-import java.util.Map;
 
 @Data
 public class ApiScenarioScheduleConfigRequest {
@@ -20,7 +19,7 @@ public class ApiScenarioScheduleConfigRequest {
     @NotBlank
     private String cron;
 
-    @Schema(description = "定时任务配置 (如果配置不更改，不需要传入这个参数。 如果要清空配置，传入一个空数据{} )")
-    Map<String, Object> configMap;
+    @Schema(description = "定时任务配置")
+    private ApiRunModeConfigDTO config;
 
 }

@@ -4,6 +4,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 public class ApiDefinitionCaseDTO {
@@ -80,5 +82,7 @@ public class ApiDefinitionCaseDTO {
     @Schema(description = "项目ID")
     private String projectId;
 
+    @Schema(description = "自定义字段的值")
+    private List<OptionDTO> fields;
 
 }

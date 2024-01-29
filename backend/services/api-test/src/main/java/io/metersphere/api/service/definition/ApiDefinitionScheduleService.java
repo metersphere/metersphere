@@ -12,12 +12,12 @@ import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.ScheduleResourceType;
-import io.metersphere.sdk.constants.ScheduleType;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.Schedule;
+import io.metersphere.system.dto.request.ScheduleConfig;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
@@ -49,7 +49,7 @@ public class ApiDefinitionScheduleService {
     @Resource
     private ProjectMapper projectMapper;
 
-    public void createSchedule(ApiScheduleRequest request, String userId) {
+    public String createSchedule(ApiScheduleRequest request, String userId) {
         /*保存swaggerUrl*/
         ApiDefinitionSwagger apiSwagger = new ApiDefinitionSwagger();
         BeanUtils.copyBean(apiSwagger, request);
@@ -63,17 +63,17 @@ public class ApiDefinitionScheduleService {
         apiSwagger.setConfig(ApiDataUtils.toJSONString(basicAuth));
         apiDefinitionSwaggerMapper.insertSelective(apiSwagger);
 
-        Schedule schedule = this.buildApiTestSchedule(request, userId);
-        schedule.setResourceId(apiSwagger.getId());
-        schedule.setJob(SwaggerUrlImportJob.class.getName());
-        schedule.setType(ScheduleType.CRON.name());
-        schedule.setResourceType(ScheduleResourceType.API_IMPORT.name());
-        scheduleService.addSchedule(schedule);
-        scheduleService.addOrUpdateCronJob(schedule,
-                SwaggerUrlImportJob.getJobKey(apiSwagger.getId()),
-                SwaggerUrlImportJob.getTriggerKey(apiSwagger.getId()),
-                SwaggerUrlImportJob.class);
-        //TODO 记录日志
+        ScheduleConfig scheduleConfig = ScheduleConfig.builder()
+                .resourceId(apiSwagger.getId())
+                .key(apiSwagger.getId())
+                .projectId(apiSwagger.getProjectId())
+                .name(apiSwagger.getName())
+                .enable(request.getEnable())
+                .cron(request.getValue().trim())
+                .resourceType(ScheduleResourceType.API_IMPORT.name())
+                .config(apiSwagger.getConfig())
+                .build();
+
         LogDTO dto = new LogDTO(
                 request.getProjectId(),
                 projectMapper.selectByPrimaryKey(request.getProjectId()).getOrganizationId(),
@@ -81,25 +81,18 @@ public class ApiDefinitionScheduleService {
                 userId,
                 OperationLogType.ADD.name(),
                 OperationLogModule.API_DEFINITION,
-                request.getName());
+                Translator.get("api_import_schedule") + ": " + request.getName());
         dto.setHistory(false);
         dto.setPath("/api/definition/schedule/add");
         dto.setMethod(HttpMethodConstants.POST.name());
         dto.setOriginalValue(JSON.toJSONBytes(request));
         operationLogService.add(dto);
-    }
-
-    public Schedule buildApiTestSchedule(ApiScheduleRequest request, String userId) {
-        Schedule schedule = new Schedule();
-        schedule.setName(request.getName());
-        schedule.setResourceId(request.getId());
-        schedule.setEnable(request.getEnable());
-        schedule.setValue(request.getValue().trim());
-        schedule.setKey(request.getId());
-        schedule.setCreateUser(userId);
-        schedule.setProjectId(request.getProjectId());
-        schedule.setConfig(request.getConfig());
-        return schedule;
+        return scheduleService.scheduleConfig(
+                scheduleConfig,
+                SwaggerUrlImportJob.getJobKey(apiSwagger.getId()),
+                SwaggerUrlImportJob.getTriggerKey(apiSwagger.getId()),
+                SwaggerUrlImportJob.class,
+                userId);
     }
 
     public ApiDefinitionSwagger checkSchedule(String id) {
@@ -117,7 +110,7 @@ public class ApiDefinitionScheduleService {
         return CollectionUtils.isNotEmpty(apiDefinitionSwaggers);
     }
 
-    public void updateSchedule(ApiScheduleRequest request, String userId) {
+    public String updateSchedule(ApiScheduleRequest request, String userId) {
         ApiDefinitionSwagger apiDefinitionSwagger = checkSchedule(request.getId());
         BeanUtils.copyBean(apiDefinitionSwagger, request);
         // 设置鉴权信息
@@ -127,16 +120,17 @@ public class ApiDefinitionScheduleService {
         basicAuth.setAuthSwitch(request.isAuthSwitch());
         apiDefinitionSwagger.setConfig(ApiDataUtils.toJSONString(basicAuth));
         apiDefinitionSwaggerMapper.updateByPrimaryKeySelective(apiDefinitionSwagger);
-        // 只修改表达式和名称
-        Schedule schedule = scheduleService.getScheduleByResource(request.getId(), SwaggerUrlImportJob.class.getName());
-        schedule.setValue(request.getValue().trim());
-        schedule.setEnable(request.getEnable());
-        schedule.setName(request.getName());
-        scheduleService.editSchedule(schedule);
-        scheduleService.addOrUpdateCronJob(schedule,
-                SwaggerUrlImportJob.getJobKey(request.getId()),
-                SwaggerUrlImportJob.getTriggerKey(request.getId()),
-                SwaggerUrlImportJob.class);
+
+        ScheduleConfig scheduleConfig = ScheduleConfig.builder()
+                .resourceId(apiDefinitionSwagger.getId())
+                .key(apiDefinitionSwagger.getId())
+                .projectId(apiDefinitionSwagger.getProjectId())
+                .name(apiDefinitionSwagger.getName())
+                .enable(request.getEnable())
+                .cron(request.getValue().trim())
+                .resourceType(ScheduleResourceType.API_IMPORT.name())
+                .config(apiDefinitionSwagger.getConfig())
+                .build();
 
         LogDTO dto = new LogDTO(
                 request.getProjectId(),
@@ -145,12 +139,18 @@ public class ApiDefinitionScheduleService {
                 userId,
                 OperationLogType.UPDATE.name(),
                 OperationLogModule.API_DEFINITION,
-                request.getName());
+                Translator.get("api_import_schedule") + ": " + request.getName());
         dto.setHistory(false);
         dto.setPath("/api/definition/schedule/update");
         dto.setMethod(HttpMethodConstants.POST.name());
         dto.setOriginalValue(JSON.toJSONBytes(request));
         operationLogService.add(dto);
+        return scheduleService.scheduleConfig(
+                scheduleConfig,
+                SwaggerUrlImportJob.getJobKey(apiDefinitionSwagger.getId()),
+                SwaggerUrlImportJob.getTriggerKey(apiDefinitionSwagger.getId()),
+                SwaggerUrlImportJob.class,
+                userId);
     }
 
     public ApiScheduleDTO getSchedule(String id) {

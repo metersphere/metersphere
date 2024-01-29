@@ -3,8 +3,12 @@ package io.metersphere.api.controller.definition;
 import io.metersphere.api.dto.definition.ApiScheduleDTO;
 import io.metersphere.api.dto.definition.SwaggerUrlCheck;
 import io.metersphere.api.dto.definition.importdto.ApiScheduleRequest;
+import io.metersphere.api.service.definition.ApiDefinitionLogService;
 import io.metersphere.api.service.definition.ApiDefinitionScheduleService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.log.annotation.Log;
+import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
@@ -26,15 +30,17 @@ public class ApiDefinitionScheduleController {
     @PostMapping(value = "/add")
     @Operation(summary = "接口测试-接口管理-定时同步-创建")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_IMPORT)
-    public void createSchedule(@RequestBody @Validated({Created.class}) ApiScheduleRequest request) {
-        apiDefinitionScheduleService.createSchedule(request, SessionUtils.getUserId());
+    @Log(type = OperationLogType.ADD, expression = "#msClass.scheduleLog(#request)", msClass = ApiDefinitionLogService.class)
+    @CheckOwner(resourceId = "#request.getScenarioId()", resourceType = "api_scenario")
+    public String createSchedule(@RequestBody @Validated({Created.class}) ApiScheduleRequest request) {
+        return apiDefinitionScheduleService.createSchedule(request, SessionUtils.getUserId());
     }
 
     @PostMapping(value = "/update")
     @Operation(summary = "接口测试-接口管理-定时同步-更新")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_IMPORT)
-    public void updateSchedule(@RequestBody @Validated({Updated.class}) ApiScheduleRequest request) {
-        apiDefinitionScheduleService.updateSchedule(request, SessionUtils.getUserId());
+    public String updateSchedule(@RequestBody @Validated({Updated.class}) ApiScheduleRequest request) {
+        return apiDefinitionScheduleService.updateSchedule(request, SessionUtils.getUserId());
     }
 
     @PostMapping(value = "/check")

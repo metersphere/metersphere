@@ -410,7 +410,7 @@ public class ProjectApplicationService {
                 OperationLogConstants.SYSTEM,
                 null,
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.PROJECT_PROJECT_MANAGER,
+                OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT,
                 "同步缺陷");
         dto.setModifiedValue(JSON.toJSONBytes(configs));
         dto.setOriginalValue(JSON.toJSONBytes(originConfig));
@@ -433,7 +433,7 @@ public class ProjectApplicationService {
                 OperationLogConstants.SYSTEM,
                 null,
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.PROJECT_PROJECT_MANAGER,
+                OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT,
                 "关联需求");
         dto.setModifiedValue(JSON.toJSONBytes(configs));
         dto.setOriginalValue(JSON.toJSONBytes(originConfig));

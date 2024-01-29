@@ -5,6 +5,7 @@ import io.metersphere.api.domain.ApiTestCaseExample;
 import io.metersphere.api.dto.definition.ApiCaseBatchEditRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseAddRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseBatchRequest;
+import io.metersphere.api.dto.definition.ApiTestCaseUpdateRequest;
 import io.metersphere.api.mapper.ApiTestCaseMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.SubListUtils;
@@ -31,6 +32,33 @@ public class ApiTestCaseNoticeService {
         caseDTO.setCaseStatus(request.getStatus());
         caseDTO.setCaseCreateUser(null);
         caseDTO.setCaseUpdateUser(null);
+        return caseDTO;
+    }
+
+    public ApiDefinitionCaseDTO getCaseDTO(ApiTestCaseUpdateRequest request) {
+        ApiDefinitionCaseDTO caseDTO = new ApiDefinitionCaseDTO();
+        BeanUtils.copyBean(caseDTO, request);
+        caseDTO.setName(null);
+        caseDTO.setStatus(null);
+        caseDTO.setCaseCreateUser(null);
+        caseDTO.setCaseUpdateUser(null);
+        caseDTO.setCaseName(request.getName());
+        caseDTO.setCaseStatus(request.getStatus());
+        return caseDTO;
+    }
+
+    public ApiDefinitionCaseDTO getCaseDTO(String id) {
+        ApiTestCase testCase = apiTestCaseMapper.selectByPrimaryKey(id);
+        ApiDefinitionCaseDTO caseDTO = new ApiDefinitionCaseDTO();
+        BeanUtils.copyBean(caseDTO, testCase);
+        caseDTO.setName(null);
+        caseDTO.setStatus(null);
+        caseDTO.setCaseCreateTime(testCase.getCreateTime());
+        caseDTO.setCaseUpdateTime(testCase.getUpdateTime());
+        caseDTO.setCaseCreateUser(testCase.getCreateUser());
+        caseDTO.setCaseUpdateUser(testCase.getUpdateUser());
+        caseDTO.setCaseName(testCase.getName());
+        caseDTO.setCaseStatus(testCase.getStatus());
         return caseDTO;
     }
 
