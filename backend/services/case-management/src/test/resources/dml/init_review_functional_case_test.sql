@@ -108,7 +108,13 @@ VALUES ('wx_test_project_review_one', null, 'organization-associate-case-test', 
 INSERT INTO user(id, name, email, password, create_time, update_time, language, last_organization_id, phone, source,
                  last_project_id, create_user, update_user, deleted)
 VALUES ('gyq_case_review', 'gyq_case_review', 'gyq_case_review_case@fit2cloud.com', MD5('metersphere'),UNIX_TIMESTAMP() * 1000,UNIX_TIMESTAMP() * 1000, NULL, NUll, '', 'LOCAL', NULL, 'admin', 'admin', false),
-       ('GGG', 'GGG', 'GGG_case_review_case@metersphere.io', MD5('metersphere'), UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, NULL, NUll, '', 'LOCAL', NULL, 'admin', 'admin', false);
+       ('GGG', 'GGG', 'GGG_case_review_case@metersphere.io', MD5('metersphere'), UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, NULL, NUll, '', 'LOCAL', NULL, 'admin', 'admin', false),
+       ('multiple_review_admin', 'multiple_review_admin', 'multiple_review_admin@metersphere.io', MD5('metersphere'), UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, NULL, NUll, '', 'LOCAL', NULL, 'admin', 'admin', false);
+
+INSERT INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user)
+VALUE (UUID(), 'multiple_review_admin', 'admin', 'system',
+        'system', UNIX_TIMESTAMP() * 1000,
+        'admin');
 
 INSERT INTO case_review_history(id, review_id, case_id, content, status, deleted, notifier, create_user, create_time)
 VALUES ('wx_history', 'wx_review_id_3', 'wx_case_id_1', NULL, 'PASS', b'0', NULL, 'admin', 1669174143999),

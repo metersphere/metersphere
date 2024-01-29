@@ -172,6 +172,10 @@ VALUES ('default-project-member-user-gyq', 'default-project-member-user1', 'proj
        ('default-project-member-user-gyq-3', 'default-project-member-user4', 'project-member-gyq4@metersphere.io',
         MD5('metersphere'), true, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, NULL, NUll, '', 'LOCAL', NULL,
         'admin',
+        'admin', 0),
+       ('default-project-member-user-gyq-4', 'default-project-member-user4', 'project-member-gyq5@metersphere.io',
+        MD5('metersphere'), true, UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, NULL, NUll, '', 'LOCAL', NULL,
+        'admin',
         'admin', 0);
 
 
@@ -187,6 +191,9 @@ VALUES (UUID(), 'default-project-member-user-gyq', 'org_member', 'organization-r
         'admin'),
        (UUID(), 'default-project-member-user-gyq-3', 'org_member', 'organization-review-case-test',
         'organization-review-case-test', UNIX_TIMESTAMP() * 1000,
+        'admin'),
+       (UUID(), 'default-project-member-user-gyq-4', 'admin', 'system',
+        'system', UNIX_TIMESTAMP() * 1000,
         'admin');
 
 INSERT INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user)

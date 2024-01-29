@@ -7,6 +7,7 @@ import io.metersphere.functional.domain.CaseReviewFunctionalCaseExample;
 import io.metersphere.functional.dto.ReviewFunctionalCaseDTO;
 import io.metersphere.functional.mapper.CaseReviewFunctionalCaseMapper;
 import io.metersphere.functional.request.*;
+import io.metersphere.functional.service.CaseReviewFunctionalCaseService;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
@@ -60,6 +61,8 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
 
     @Resource
     private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
+    @Resource
+    private CaseReviewFunctionalCaseService caseReviewFunctionalCaseService;
 
 
     @Test
@@ -287,12 +290,39 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
 
         request = new BatchReviewFunctionalCaseRequest();
         request.setReviewId("wx_review_id_1");
+        request.setReviewPassRule(CaseReviewPassRule.SINGLE.toString());
+        request.setStatus(FunctionalCaseReviewStatus.UN_PASS.toString());
+        request.setContent("hhh");
+        request.setSelectAll(false);
+        ids = new ArrayList<>();
+        ids.add("gyq_test_3");
+        request.setSelectIds(ids);
+        caseReviewFunctionalCaseService.batchReview(request, "multiple_review_admin");
+        caseReviewFunctionalCase = caseReviewFunctionalCaseMapper.selectByPrimaryKey("gyq_test_3");
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCase.getStatus(), FunctionalCaseReviewStatus.PASS.toString()));
+
+        request = new BatchReviewFunctionalCaseRequest();
+        request.setReviewId("wx_review_id_1");
+        request.setReviewPassRule(CaseReviewPassRule.SINGLE.toString());
+        request.setStatus(FunctionalCaseReviewStatus.UNDER_REVIEWED.toString());
+        request.setSelectAll(false);
+        ids = new ArrayList<>();
+        ids.add("gyq_test_3");
+        request.setSelectIds(ids);
+        caseReviewFunctionalCaseService.batchReview(request, "admin");
+        caseReviewFunctionalCase = caseReviewFunctionalCaseMapper.selectByPrimaryKey("gyq_test_3");
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCase.getStatus(), FunctionalCaseReviewStatus.PASS.toString()));
+
+        request = new BatchReviewFunctionalCaseRequest();
+        request.setReviewId("wx_review_id_1");
         request.setReviewPassRule(CaseReviewPassRule.MULTIPLE.toString());
         request.setStatus(FunctionalCaseReviewStatus.PASS.toString());
         request.setSelectAll(true);
         request.setNotifier("gyq;admin");
         request.setContent("测试批量评审通过");
         this.requestPostWithOk(REVIEW_FUNCTIONAL_CASE_BATCH_REVIEW, request);
+
+
 
         request = new BatchReviewFunctionalCaseRequest();
         request.setReviewId("wx_review_id_1");
@@ -304,6 +334,22 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         request.setSelectIds(ids);
         request.setContent("测试批量评审通过");
         this.requestPostWithOk(REVIEW_FUNCTIONAL_CASE_BATCH_REVIEW, request);
+        caseReviewFunctionalCase = caseReviewFunctionalCaseMapper.selectByPrimaryKey("gyq_test_5");
+
+
+        request = new BatchReviewFunctionalCaseRequest();
+        request.setReviewId("wx_review_id_1");
+        request.setReviewPassRule(CaseReviewPassRule.MULTIPLE.toString());
+        request.setStatus(FunctionalCaseReviewStatus.UN_PASS.toString());
+        request.setContent("hhh");
+        request.setSelectAll(false);
+        ids = new ArrayList<>();
+        ids.add(" gyq_test_5");
+        request.setSelectIds(ids);
+        request.setContent("测试批量评审通过");
+        caseReviewFunctionalCaseService.batchReview(request, "multiple_review_admin");
+        CaseReviewFunctionalCase caseReviewFunctionalCase1 = caseReviewFunctionalCaseMapper.selectByPrimaryKey("gyq_test_5");
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCase.getStatus(), caseReviewFunctionalCase1.getStatus()));
 
     }
 
