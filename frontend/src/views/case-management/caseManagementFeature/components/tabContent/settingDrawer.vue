@@ -89,17 +89,17 @@
         enable: true,
       },
     ],
-    testPlan: [
-      {
-        key: 'testPlan',
-        title: 'caseManagement.featureCase.testPlan',
-        enable: true,
-      },
-    ],
+    // testPlan: [
+    //   {
+    //     key: 'testPlan',
+    //     title: 'caseManagement.featureCase.testPlan',
+    //     enable: true,
+    //   },
+    // ],
   });
 
   let buggerTab: TabItemType[] = [];
-  let testPlanTab: TabItemType[] = [];
+  // let testPlanTab: TabItemType[] = [];
 
   function getTabList() {
     if (licenseStore.hasLicense()) {
@@ -134,25 +134,29 @@
       title: 'caseManagement.featureCase.comments',
       enable: true,
     },
-    ...getTabList(),
+    // TOTO Xpack 不上
+    // ...getTabList(),
   ]);
   async function getTabModule() {
     buggerTab = [];
-    testPlanTab = [];
+    // testPlanTab = [];
     const result = await postTabletList({ projectId: currentProjectId.value });
-    const enableModuleArr = result.filter((item: any) => item.module === 'testPlan' || item.module === 'bugManagement');
+    // TODO 第一版不展示测试计划
+    // const enableModuleArr = result.filter((item: any) => item.module === 'testPlan' || item.module === 'bugManagement');
+    const enableModuleArr = result.filter((item: any) => item.module === 'bugManagement');
     enableModuleArr.forEach((item) => {
       if (item.module === 'bugManagement') {
         buggerTab.push(...moduleTab.value[item.module]);
-      } else if (item.module === 'testPlan') {
-        testPlanTab.push(...moduleTab.value[item.module]);
       }
+      // else if (item.module === 'testPlan') {
+      //   testPlanTab.push(...moduleTab.value[item.module]);
+      // }
     });
     const newTabDefaultSettingList = [
       tabDefaultSettingList.value[0],
       ...buggerTab,
       ...tabDefaultSettingList.value.slice(1, -2),
-      ...testPlanTab,
+      // ...testPlanTab,
       tabDefaultSettingList.value[tabDefaultSettingList.value.length - 2],
       tabDefaultSettingList.value[tabDefaultSettingList.value.length - 1],
     ];

@@ -20,7 +20,7 @@
       <a-input-number
         v-model:model-value="timeCount"
         class="w-[130px]"
-        :disabled="saveLoading"
+        :disabled="saveLoading || !userStore.isAdmin"
         @blur="() => saveConfig()"
       >
         <template #append>
@@ -61,7 +61,9 @@
 
   import { getCleanupConfig, saveCleanupConfig } from '@/api/modules/setting/config';
   import { useI18n } from '@/hooks/useI18n';
+  import { useUserStore } from '@/store';
 
+  const userStore = useUserStore();
   const { t } = useI18n();
   const loading = ref(false);
 

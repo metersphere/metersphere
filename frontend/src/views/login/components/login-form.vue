@@ -8,16 +8,17 @@
         <span class="title-welcome">{{ innerSlogan || t('login.form.title') }}</span>
       </div>
     </div>
-    <div class="form mt-[32px]">
+    <div class="form mt-[32px] min-w-[416px]">
       <a-form ref="formRef" :model="userInfo" @submit="handleSubmit">
-        <a-form-item class="login-form-item" field="radio" hide-label>
+        <!-- TOTO 第一版本暂时只考虑普通登录 -->
+        <!-- <a-form-item class="login-form-item" field="radio" hide-label>
           <a-radio-group v-model="userInfo.authenticate" type="button">
             <a-radio value="LOCAL">普通登陆</a-radio>
             <a-radio v-xpack value="LDAP">LDAP</a-radio>
-            <a-radio value="OAuth2">OAuth2 测试</a-radio>
-            <a-radio value="OIDC 90">OIDC 90</a-radio>
+            <a-radio v-xpack value="OAuth2">OAuth2 测试</a-radio>
+            <a-radio v-xpack value="OIDC 90">OIDC 90</a-radio>
           </a-radio-group>
-        </a-form-item>
+        </a-form-item> -->
         <a-form-item
           class="login-form-item"
           field="username"

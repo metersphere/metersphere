@@ -12,6 +12,7 @@
       :span-all="props.spanAll"
       @expand="(rowKey, record) => emit('expand', record)"
       @sorter-change="(dataIndex: string,direction: string) => handleSortChange(dataIndex, direction)"
+      @cell-click="(record: TableData,column: TableColumnData,ev: Event) => emit('cell-click',record, column,ev)"
     >
       <template #optional="{ rowIndex, record }">
         <slot name="optional" v-bind="{ rowIndex, record }" />
@@ -59,6 +60,7 @@
           :summary-cell-style="item.summaryCellStyle"
           :index="item.index"
           :tooltip="item.tooltip"
+          :title="item.slotName"
         >
           <template #title>
             <div :class="{ 'flex w-full flex-row flex-nowrap items-center': !item.align }">
@@ -255,7 +257,7 @@
     MsTableColumn,
     MsTableProps,
   } from './type';
-  import type { TableData } from '@arco-design/web-vue';
+  import type { TableColumnData, TableData } from '@arco-design/web-vue';
 
   const batchLeft = ref('10px');
   const { t } = useI18n();
@@ -290,6 +292,7 @@
     (e: 'selectAllChange', value: SelectAllEnum): void;
     (e: 'sorterChange', value: { [key: string]: string }): void;
     (e: 'expand', record: TableData): void | Promise<any>;
+    (e: 'cell-click', record: TableData, column: TableColumnData, ev: Event): void | Promise<any>;
     (e: 'clearSelector'): void;
     (e: 'filterChange', dataIndex: string, value: (string | number)[], multiple: boolean, isCustomParam: boolean): void;
   }>();

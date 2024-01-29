@@ -12,6 +12,7 @@
       <template #name="{ record }">
         <a-button type="text" class="px-0">{{ record.name }}</a-button>
       </template>
+      <template #type> </template>
       <template #operation="{ record }">
         <MsRemoveButton
           position="br"
@@ -78,37 +79,43 @@
   import MsFormItemSub from '@/components/business/ms-form-item-sub/index.vue';
   import MsRemoveButton from '@/components/business/ms-remove-button/MsRemoveButton.vue';
 
-  import { getRecycleListRequest } from '@/api/modules/case-management/featureCase';
+  import { getChangeHistoryList } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
-  import useModal from '@/hooks/useModal';
   import useVisit from '@/hooks/useVisit';
+  import { useAppStore } from '@/store';
   import { characterLimit } from '@/utils';
 
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const { t } = useI18n();
 
+  const appStore = useAppStore();
+
   const visitedKey = 'notRemindChangeHistoryTip';
   const { addVisited } = useVisit(visitedKey);
   const { getIsVisited } = useVisit(visitedKey);
 
+  const props = defineProps<{
+    caseId: string;
+  }>();
+
   const columns: MsTableColumn = [
     {
       title: 'caseManagement.featureCase.changeNumber',
-      dataIndex: 'changeNumber',
+      dataIndex: 'id',
       showTooltip: true,
       width: 90,
     },
     {
       title: 'caseManagement.featureCase.changeType',
-      slotName: 'changeType',
-      dataIndex: 'changeType',
+      slotName: 'type',
+      dataIndex: 'type',
       width: 200,
     },
     {
       title: 'caseManagement.featureCase.operator',
-      dataIndex: 'operator',
-      slotName: 'operator',
+      dataIndex: 'createUser',
+      slotName: 'createUser',
       width: 150,
     },
     {
@@ -128,7 +135,7 @@
     },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getRecycleListRequest, {
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getChangeHistoryList, {
     columns,
     tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_CHANGE_HISTORY,
     scroll: { x: '100%' },
@@ -209,8 +216,18 @@
     isShowTip.value = !getIsVisited();
   };
 
+  function initData() {
+    setLoadListParams({
+      projectId: appStore.currentProjectId,
+      sourceId: props.caseId,
+      module: 'FUNCTIONAL_CASE',
+    });
+    loadList();
+  }
+
   onBeforeMount(() => {
     doCheckIsTip();
+    initData();
   });
 </script>
 

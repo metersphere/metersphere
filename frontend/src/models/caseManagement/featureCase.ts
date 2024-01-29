@@ -331,3 +331,16 @@ export interface DragCase {
   moveMode: 'BEFORE' | 'AFTER' | 'APPEND'[]; // 拖拽类型
   moveId: string;
 }
+// 变更历史
+export interface ChangeHistoryItem {
+  id: string;
+  projectId: string;
+  createTime: string;
+  createUser: string;
+  sourceId: string;
+  type: string;
+  module: string;
+  refId: string;
+  createUserName: string;
+  versionName: string;
+}

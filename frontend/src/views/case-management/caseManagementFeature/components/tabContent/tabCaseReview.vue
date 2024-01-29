@@ -57,7 +57,7 @@
   const columns: MsTableColumn = [
     {
       title: 'ID',
-      dataIndex: 'reviewId',
+      dataIndex: 'reviewNum',
       sortIndex: 1,
       showTooltip: true,
       width: 300,

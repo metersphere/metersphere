@@ -32,6 +32,7 @@
     v-on="propsEvent"
     @batch-action="handleTableBatch"
     @change="changeHandler"
+    @cell-click="showCaseDetailEvent"
   >
     <template #num="{ record, rowIndex }">
       <span class="flex w-full" @click="showCaseDetail(record.id, rowIndex)">{{ record.num }}</span>
@@ -84,8 +85,13 @@
     </template>
     <!-- 渲染自定义字段开始TODO -->
     <template v-for="item in customFieldsColumns" :key="item.slotName" #[item.slotName]="{ record }">
-      <a-tooltip :content="getTableFields(record.customFields, item)" position="top" :mouse-enter-delay="100" mini>
-        <div>{{ getTableFields(record.customFields, item) }}</div>
+      <a-tooltip
+        :content="getTableFields(record.customFields, item as MsTableColumn)"
+        position="top"
+        :mouse-enter-delay="100"
+        mini
+      >
+        <div>{{ getTableFields(record.customFields, item as MsTableColumn) }}</div>
       </a-tooltip>
     </template>
     <!-- 渲染自定义字段结束 -->
@@ -194,7 +200,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
-  import { Message, TableChangeExtra, TableData } from '@arco-design/web-vue';
+  import { Message, TableChangeExtra, TableColumnData, TableData } from '@arco-design/web-vue';
 
   import { CustomTypeMaps, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import { FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
@@ -396,8 +402,8 @@
     },
     {
       title: 'caseManagement.featureCase.tableColumnVersion',
-      slotName: 'versionId',
-      dataIndex: 'versionId',
+      slotName: 'versionName',
+      dataIndex: 'versionNam',
       width: 300,
       showTooltip: true,
       showInTable: true,
@@ -420,6 +426,18 @@
       showDrag: true,
     },
     {
+      title: 'caseManagement.featureCase.tableColumnUpdateUser',
+      slotName: 'updateUserName',
+      dataIndex: 'updateUserName',
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
+      showInTable: true,
+      width: 200,
+      showDrag: true,
+    },
+    {
       title: 'caseManagement.featureCase.tableColumnUpdateTime',
       slotName: 'updateTime',
       dataIndex: 'updateTime',
@@ -433,8 +451,8 @@
     },
     {
       title: 'caseManagement.featureCase.tableColumnCreateUser',
-      slotName: 'createUser',
-      dataIndex: 'createUser',
+      slotName: 'createUserName',
+      dataIndex: 'createUserName',
       showInTable: true,
       width: 200,
       showDrag: true,
@@ -1121,21 +1139,24 @@
 
   // 拖拽排序
   async function changeHandler(data: TableData[], extra: TableChangeExtra, currentData: TableData[]) {
+    if (currentData.length === 1) {
+      return;
+    }
     if (extra && extra.dragTarget?.id) {
       const params: DragCase = {
         projectId: currentProjectId.value,
-        targetId: '',
+        targetId: '', // 放置目标id
         moveMode: 'BEFORE',
-        moveId: extra.dragTarget.id as string,
+        moveId: extra.dragTarget.id as string, // 拖拽id
       };
-      const index = currentData.findIndex((item: any) => item.raw.id === extra.dragTarget?.id);
+      const index = currentData.findIndex((item: any) => item.key === extra.dragTarget?.id);
 
-      if (index > -1 && currentData[index + 1].raw) {
-        params.moveMode = 'AFTER';
+      if (index > -1 && currentData[index + 1]) {
+        params.moveMode = 'BEFORE';
         params.targetId = currentData[index + 1].raw.id;
-      } else if (index > -1 && !currentData[index + 1].raw) {
-        if (index > -1 && currentData[index - 1].raw) {
-          params.moveMode = 'BEFORE';
+      } else if (index > -1 && !currentData[index + 1]) {
+        if (index > -1 && currentData[index - 1]) {
+          params.moveMode = 'AFTER';
           params.targetId = currentData[index - 1].raw.id;
         }
       }
@@ -1149,7 +1170,13 @@
     }
   }
 
-  onBeforeMount(() => {
+  function showCaseDetailEvent(record: TableData, column: TableColumnData, ev: Event) {
+    if (column.title === 'name' || column.title === 'num') {
+      const rowIndex = propsRes.value.data.map((item: any) => item.id).indexOf(record.id);
+      showCaseDetail(record.id, rowIndex);
+    }
+  }
+  onMounted(() => {
     if (route.query.id) {
       showCaseDetail(route.query.id as string, 0);
     }
