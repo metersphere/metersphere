@@ -12,7 +12,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 
 
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
 public class CleanupResourceTests {
@@ -27,9 +27,4 @@ public class CleanupResourceTests {
         resourceService.deleteResources("project_clean_gyq");
     }
 
-    @Test
-    @Order(2)
-    public void testCleanupReportResource() throws Exception {
-        resourceService.cleanReportResources("test");
-    }
 }

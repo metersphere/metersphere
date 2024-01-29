@@ -13,27 +13,25 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class CleanBugResourceServiceTests extends BaseTest {
 
-	private final ProjectServiceInvoker serviceInvoker;
-	@Resource
-	private CleanupBugResourceService cleanupBugResourceService;
+    private final ProjectServiceInvoker serviceInvoker;
+    @Resource
+    private CleanupBugResourceService cleanupBugResourceService;
 
-	@Autowired
-	public CleanBugResourceServiceTests(ProjectServiceInvoker serviceInvoker) {
-		this.serviceInvoker = serviceInvoker;
-	}
+    @Autowired
+    public CleanBugResourceServiceTests(ProjectServiceInvoker serviceInvoker) {
+        this.serviceInvoker = serviceInvoker;
+    }
 
-	@Test
-	@Order(1)
-	@Sql(scripts = {"/dml/init_bug_clean_resource.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
-	void test() {
-		serviceInvoker.invokeServices("default-project-for-clean-resource");
-		serviceInvoker.invokeServices("default-project-for-clean-resource-not-exist");
-		cleanupBugResourceService.cleanReportResources("default-project-for-clean-resource");
-		cleanupBugResourceService.cleanReportResources("default-project-for-clean-resource-not-exist");
-	}
+    @Test
+    @Order(1)
+    @Sql(scripts = {"/dml/init_bug_clean_resource.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
+    void test() {
+        serviceInvoker.invokeServices("default-project-for-clean-resource");
+        serviceInvoker.invokeServices("default-project-for-clean-resource-not-exist");
+    }
 }

@@ -50,7 +50,7 @@ public class TestPlanModuleService extends ModuleTreeService implements CleanupP
         return super.buildTreeAndCountResource(fileModuleList, true, Translator.get("default.module"));
     }
 
-    public List<BaseTreeNode> getTreeOnlyIdsAndResourceCount(String projectId,  List<ModuleCountDTO> moduleCountDTOList) {
+    public List<BaseTreeNode> getTreeOnlyIdsAndResourceCount(String projectId, List<ModuleCountDTO> moduleCountDTOList) {
         //节点内容只有Id和parentId
         List<BaseTreeNode> fileModuleList = extTestPlanModuleMapper.selectIdAndParentIdByProjectId(projectId);
         return super.buildTreeAndCountResource(fileModuleList, moduleCountDTOList, true, Translator.get("default.module"));
@@ -70,7 +70,7 @@ public class TestPlanModuleService extends ModuleTreeService implements CleanupP
         testPlanModule.setUpdateUser(operator);
         testPlanModuleMapper.insert(testPlanModule);
         //记录日志
-        testPlanModuleLogService.saveAddLog(testPlanModule, operator,requestUrl,requestMethod);
+        testPlanModuleLogService.saveAddLog(testPlanModule, operator, requestUrl, requestMethod);
         return testPlanModule.getId();
     }
 
@@ -111,7 +111,7 @@ public class TestPlanModuleService extends ModuleTreeService implements CleanupP
         example.clear();
     }
 
-    public void update(TestPlanModuleUpdateRequest request, String userId,String requestUrl,String requestMethod) {
+    public void update(TestPlanModuleUpdateRequest request, String userId, String requestUrl, String requestMethod) {
         TestPlanModule module = testPlanModuleMapper.selectByPrimaryKey(request.getId());
         TestPlanModule updateModule = new TestPlanModule();
         updateModule.setId(request.getId());
@@ -123,7 +123,7 @@ public class TestPlanModuleService extends ModuleTreeService implements CleanupP
         testPlanModuleMapper.updateByPrimaryKeySelective(updateModule);
         TestPlanModule newModule = testPlanModuleMapper.selectByPrimaryKey(request.getId());
         //记录日志
-        testPlanModuleLogService.saveUpdateLog(module, newModule, module.getProjectId(), userId,requestUrl,requestMethod);
+        testPlanModuleLogService.saveUpdateLog(module, newModule, module.getProjectId(), userId, requestUrl, requestMethod);
     }
 
 
@@ -154,7 +154,7 @@ public class TestPlanModuleService extends ModuleTreeService implements CleanupP
         }
     }
 
-    public void moveNode(NodeMoveRequest request, String currentUser,String requestUrl,String requestMethod) {
+    public void moveNode(NodeMoveRequest request, String currentUser, String requestUrl, String requestMethod) {
 
         NodeSortDTO nodeSortDTO = super.getNodeSortDTO(request,
                 extTestPlanModuleMapper::selectBaseModuleById,
@@ -171,12 +171,11 @@ public class TestPlanModuleService extends ModuleTreeService implements CleanupP
         }
         super.sort(nodeSortDTO);
         //记录日志
-        testPlanModuleLogService.saveMoveLog(nodeSortDTO, currentUser,requestUrl,requestMethod);
+        testPlanModuleLogService.saveMoveLog(nodeSortDTO, currentUser, requestUrl, requestMethod);
     }
 
     /**
      * 查找当前项目下模块每个节点对应的资源统计
-     *
      */
     public Map<String, Long> getModuleCountMap(String projectId, List<ModuleCountDTO> moduleCountDTOList) {
 
@@ -217,11 +216,6 @@ public class TestPlanModuleService extends ModuleTreeService implements CleanupP
         if (CollectionUtils.isNotEmpty(fileModuleIdList)) {
             this.deleteModule(fileModuleIdList, projectId, "SCHEDULE", "none", "none");
         }
-    }
-
-    @Override
-    public void cleanReportResources(String projectId) {
-        // nothing to do
     }
 
     public String getNameById(String id) {

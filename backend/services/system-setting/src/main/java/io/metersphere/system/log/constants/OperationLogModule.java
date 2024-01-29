@@ -106,4 +106,13 @@ public class OperationLogModule {
     //测试计划
     public static final String TEST_PLAN = "TEST_PLAN";
     public static final String TEST_PLAN_MODULE = "TEST_PLAN_MODULE";
+
+    // 个人信息-基本信息
+    public static final String PERSONAL_INFORMATION_BASE_INFO = "PERSONAL_INFORMATION_BASE_INFO";
+    // 个人信息-密码设置
+    public static final String PERSONAL_INFORMATION_PSW = "PERSONAL_INFORMATION_PSW";
+    // 个人信息-本地执行
+    public static final String PERSONAL_INFORMATION_LOCAL_EXECUTE = "PERSONAL_INFORMATION_LOCAL_EXECUTE";
+    // 个人信息-三方平台账号
+    public static final String PERSONAL_INFORMATION_TRIPARTITE = "PERSONAL_INFORMATION_TRIPARTITE";
 }

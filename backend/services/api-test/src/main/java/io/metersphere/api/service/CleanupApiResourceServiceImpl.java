@@ -3,12 +3,8 @@ package io.metersphere.api.service;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.schedule.SwaggerUrlImportJob;
-import io.metersphere.project.domain.ProjectApplication;
-import io.metersphere.project.domain.ProjectApplicationExample;
-import io.metersphere.project.mapper.ProjectApplicationMapper;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.OperationLogConstants;
-import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.domain.ShareInfoExample;
 import io.metersphere.sdk.mapper.ShareInfoMapper;
 import io.metersphere.sdk.util.LogUtils;
@@ -28,12 +24,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static io.metersphere.sdk.util.ShareUtil.getCleanDate;
-
 @Component
 @Transactional(rollbackFor = Exception.class)
-public class CleanupApiResourceService implements CleanupProjectResourceService {
-
+public class CleanupApiResourceServiceImpl implements CleanupProjectResourceService {
 
     @Resource
     private ApiDefinitionModuleMapper apiDefinitionModuleMapper;
@@ -88,11 +81,7 @@ public class CleanupApiResourceService implements CleanupProjectResourceService 
     @Resource
     private ShareInfoMapper shareInfoMapper;
     @Resource
-    private ProjectApplicationMapper projectApplicationMapper;
-    @Resource
     private ApiDefinitionSwaggerMapper apiDefinitionSwaggerMapper;
-
-    private static final String DEFAULT = "30D";
 
 
     @Async
@@ -117,46 +106,6 @@ public class CleanupApiResourceService implements CleanupProjectResourceService 
         ShareInfoExample example = new ShareInfoExample();
         example.createCriteria().andProjectIdEqualTo(projectId);
         shareInfoMapper.deleteByExample(example);
-    }
-
-    @Async
-    @Override
-    public void cleanReportResources(String projectId) {
-        LogUtils.info("清理当前项目[" + projectId + "]相关接口测试报告资源");
-        //只是删除报告的详情，  但是会保存执行历史
-        ProjectApplicationExample example = new ProjectApplicationExample();
-        example.createCriteria().andProjectIdEqualTo(projectId).andTypeEqualTo(ProjectApplicationType.API.API_CLEAN_REPORT.name());
-        List<ProjectApplication> projectApplications = projectApplicationMapper.selectByExample(example);
-        long timeMills = 0;
-        if (CollectionUtils.isNotEmpty(projectApplications)) {
-            String expr = projectApplications.getFirst().getTypeValue();
-            timeMills = getCleanDate(expr);
-        } else {
-            timeMills = getCleanDate(DEFAULT);
-        }
-        int apiReportCount = extApiReportMapper.selectApiReportByTime(timeMills, projectId);
-        while (apiReportCount > 0) {
-            List<String> ids = extApiReportMapper.selectApiReportByProjectIdAndTime(timeMills, projectId);
-            ApiReportExample reportExample = new ApiReportExample();
-            reportExample.createCriteria().andIdIn(ids);
-            ApiReport report = new ApiReport();
-            report.setDeleted(true);
-            apiReportMapper.updateByExampleSelective(report, reportExample);
-            deleteApiReport(ids);
-            apiReportCount = extApiReportMapper.selectApiReportByTime(timeMills, projectId);
-        }
-
-        int scenarioReportCount = extApiScenarioReportMapper.selectScenarioReportByTime(timeMills, projectId);
-        while (scenarioReportCount > 0) {
-            List<String> ids = extApiScenarioReportMapper.selectApiReportByProjectIdAndTime(timeMills, projectId);
-            ApiScenarioReportExample reportExample = new ApiScenarioReportExample();
-            reportExample.createCriteria().andIdIn(ids);
-            ApiScenarioReport report = new ApiScenarioReport();
-            report.setDeleted(true);
-            apiScenarioReportMapper.updateByExampleSelective(report, reportExample);
-            deleteScenarioReport(ids);
-            scenarioReportCount = extApiScenarioReportMapper.selectScenarioReportByTime(timeMills, projectId);
-        }
     }
 
     private void delScenarioModule(String projectId) {

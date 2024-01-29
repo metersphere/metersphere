@@ -47,9 +47,4 @@ public class CleanupEnvironmentResourceService implements CleanupProjectResource
 
     }
 
-    @Override
-    public void cleanReportResources(String projectId) {
-
-    }
-
 }

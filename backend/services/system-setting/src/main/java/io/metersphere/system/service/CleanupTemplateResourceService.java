@@ -11,6 +11,7 @@ public class CleanupTemplateResourceService implements CleanupProjectResourceSer
     private BaseCustomFieldService baseCustomFieldService;
     @Resource
     private BaseStatusFlowSettingService baseStatusFlowSettingService;
+
     @Override
     public void deleteResources(String projectId) {
         baseTemplateService.deleteByScopeId(projectId);
@@ -18,6 +19,4 @@ public class CleanupTemplateResourceService implements CleanupProjectResourceSer
         baseStatusFlowSettingService.deleteByScopeId(projectId);
     }
 
-    @Override
-    public void cleanReportResources(String projectId) {}
 }

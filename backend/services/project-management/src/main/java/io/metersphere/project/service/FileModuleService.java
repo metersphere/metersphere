@@ -159,6 +159,7 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
         fileModuleRepositoryMapper.deleteByExample(repositoryExample);
 
     }
+
     public void deleteModule(List<String> deleteIds) {
         if (CollectionUtils.isEmpty(deleteIds)) {
             return;
@@ -199,7 +200,6 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
 
     /**
      * 查找当前项目下模块每个节点对应的资源统计
-     *
      */
     public Map<String, Long> getModuleCountMap(String projectId, String storage, List<ModuleCountDTO> moduleCountDTOList) {
 
@@ -242,10 +242,6 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
         }
     }
 
-    @Override
-    public void cleanReportResources(String projectId) {
-        // nothing to do
-    }
 
     public Map<String, String> getModuleNameMapByIds(List<String> moduleIds) {
         if (CollectionUtils.isEmpty(moduleIds)) {

@@ -68,7 +68,7 @@ public class UserPlatformAccountService {
             userExtend.setId(userId);
             userExtend.setPlatformInfo(JSON.toJSONBytes(platformInfo));
             userExtendMapper.insertSelective(userExtend);
-        } else if (userExtend.getPlatformInfo() == null){
+        } else if (userExtend.getPlatformInfo() == null) {
             userExtend.setPlatformInfo(JSON.toJSONBytes(platformInfo));
             userExtendMapper.updateByPrimaryKeySelective(userExtend);
         } else {
@@ -82,7 +82,7 @@ public class UserPlatformAccountService {
                 .projectId(OperationLogConstants.SYSTEM)
                 .organizationId(OperationLogConstants.SYSTEM)
                 .type(OperationLogType.UPDATE.name())
-                .module(OperationLogModule.PERSONAL_INFORMATION_APIKEYS)
+                .module(OperationLogModule.PERSONAL_INFORMATION_TRIPARTITE)
                 .method(HttpMethodConstants.GET.name())
                 .path("/user/platform/save")
                 .sourceId(userId)
@@ -93,8 +93,9 @@ public class UserPlatformAccountService {
 
     /**
      * 获取个人三方平台账号
+     *
      * @param userId 用户ID
-     * @param orgId 组织ID
+     * @param orgId  组织ID
      * @return 三方平台账号
      */
     public Map<String, Object> get(String userId, String orgId) {

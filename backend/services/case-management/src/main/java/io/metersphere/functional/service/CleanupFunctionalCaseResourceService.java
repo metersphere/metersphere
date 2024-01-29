@@ -3,7 +3,6 @@ package io.metersphere.functional.service;
 import io.metersphere.functional.domain.FunctionalCaseModuleExample;
 import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
 import io.metersphere.functional.mapper.FunctionalCaseModuleMapper;
-import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.service.CleanupProjectResourceService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -39,9 +38,5 @@ public class CleanupFunctionalCaseResourceService implements CleanupProjectResou
         functionalCaseModuleExample.createCriteria().andProjectIdEqualTo(projectId);
         functionalCaseModuleMapper.deleteByExample(functionalCaseModuleExample);
     }
-
-    @Override
-    public void cleanReportResources(String projectId) {
-        LogUtils.info("清理当前项目[" + projectId + "]相关报告资源");
-    }
+    
 }

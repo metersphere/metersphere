@@ -21,6 +21,7 @@ public class CleanupVersionResourceService implements CleanupProjectResourceServ
     private ProjectVersionMapper projectVersionMapper;
     @Resource
     private ProjectApplicationMapper projectApplicationMapper;
+
     @Override
     public void deleteResources(String projectId) {
         // 删除所有项目版本
@@ -32,8 +33,4 @@ public class CleanupVersionResourceService implements CleanupProjectResourceServ
         LogUtils.info("清理当前项目[" + projectId + "]相关版本资源");
     }
 
-    @Override
-    public void cleanReportResources(String projectId) {
-        LogUtils.info("清理当前项目[" + projectId + "]相关报告资源");
-    }
 }
