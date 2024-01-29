@@ -21,4 +21,10 @@ public class SystemVersionController {
     public String getVersion() {
         return systemVersionService.getVersion();
     }
+
+    @GetMapping("/package-type")
+    @Operation(summary = "获取当前系统类型")
+    public String getPackageType() {
+        return systemVersionService.getPackageType();
+    }
 }
