@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.definition;
 
+import io.metersphere.api.domain.ApiDefinitionCustomField;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -13,7 +14,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author lan
@@ -86,7 +86,7 @@ public class ApiDefinitionAddRequest implements Serializable {
     private List<String> linkFileIds;
 
     @Schema(description = "自定义字段集合")
-    private Map<String, String> customFields;
+    private List<ApiDefinitionCustomField> customFields;
 
     public void setPath(String path) {
         this.path = StringUtils.trim(path);

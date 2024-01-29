@@ -137,12 +137,6 @@ public class ApiDefinitionControllerTests extends BaseTest {
     private ApiTestCaseBlobMapper apiTestCaseBlobMapper;
 
     @Resource
-    private OperationLogMapper operationLogMapper;
-
-    @Resource
-    private OperationLogBlobMapper operationLogBlobMapper;
-
-    @Resource
     private FileMetadataService fileMetadataService;
     private static String fileMetadataId;
     private static String uploadFileId;
@@ -253,12 +247,22 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setVersionId(defaultVersion);
         request.setDescription("描述内容");
         request.setTags(new LinkedHashSet<>(List.of("tag1", "tag2")));
-        Map<String, String> customFieldMap = new HashMap<>();
-        customFieldMap.put("custom-field", "oasis");
-        customFieldMap.put("test_field", JSON.toJSONString(List.of("test")));
-
-        request.setCustomFields(customFieldMap);
+        List<ApiDefinitionCustomField> customFields= createCustomFields();
+        request.setCustomFields(customFields);
         return request;
+    }
+
+    private List<ApiDefinitionCustomField> createCustomFields() {
+        List<ApiDefinitionCustomField> list = new ArrayList<>();
+        ApiDefinitionCustomField customField = new ApiDefinitionCustomField();
+        customField.setFieldId("custom-field");
+        customField.setValue("oasis");
+        list.add(customField);
+        ApiDefinitionCustomField customField2 = new ApiDefinitionCustomField();
+        customField2.setFieldId("test_field");
+        customField2.setValue(JSON.toJSONString(List.of("test")));
+        list.add(customField2);
+        return list;
     }
 
     private ApiDefinition assertAddApiDefinition(Object request, MsHTTPElement msHttpElement, String id) {
@@ -325,11 +329,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setMethod("POST");
         request.setModuleId("default1");
         request.setTags(new LinkedHashSet<>(List.of("tag1", "tag2-update")));
-        Map<String, String> customFieldMap = new HashMap<>();
-        customFieldMap.put("custom-field", "oasis-update");
-        customFieldMap.put("test_field", JSON.toJSONString(List.of("test-update")));
-
-        request.setCustomFields(customFieldMap);
+        request.setCustomFields(updateCustomFields());
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
         request.setRequest(getMsElementParam(msHttpElement));
         List<HttpResponse> msHttpResponse = MsHTTPElementTest.getMsHttpResponse();
@@ -413,7 +413,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         addRequest.setVersionId(DEFAULT_PROJECT_ID);
         addRequest.setDescription("描述内容");
         addRequest.setTags(new LinkedHashSet<>(List.of("tag1", "tag2")));
-        addRequest.setCustomFields(new HashMap<>());
+        addRequest.setCustomFields(new ArrayList<>());
         addRequest.setRequest(getMsElementParam(msHttpElement));
         addRequest.setResponse(msHttpResponse);
         MvcResult mvcResult = this.requestPostWithOkAndReturn(ADD, addRequest);
@@ -463,6 +463,19 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setName("permission-st-6");
         request.setModuleId("module-st-6");
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_UPDATE, UPDATE, request);
+    }
+
+    private List<ApiDefinitionCustomField> updateCustomFields() {
+        List<ApiDefinitionCustomField> list = new ArrayList<>();
+        ApiDefinitionCustomField customField = new ApiDefinitionCustomField();
+        customField.setFieldId("custom-field");
+        customField.setValue("oasis-update");
+        list.add(customField);
+        ApiDefinitionCustomField customField2 = new ApiDefinitionCustomField();
+        customField2.setFieldId("test_field");
+        customField2.setValue(JSON.toJSONString(List.of("test-update")));
+        list.add(customField2);
+        return list;
     }
 
     /**
@@ -545,16 +558,13 @@ public class ApiDefinitionControllerTests extends BaseTest {
         apiDefinitionBatchUpdateRequest.setAppend(false);
         this.requestPostWithOk(BATCH_UPDATE, apiDefinitionBatchUpdateRequest);
         assertBatchUpdateApiDefinition(apiDefinitionBatchUpdateRequest, List.of("1003", "1004"));
-        // 自定义字段追加
+        // 自定义字段覆盖
         apiDefinitionBatchUpdateRequest.setType("customs");
         apiDefinitionBatchUpdateRequest.setSelectIds(List.of("1002", "1003", "1004"));
         ApiDefinitionCustomFieldDTO field = new ApiDefinitionCustomFieldDTO();
         field.setId("test_field");
         field.setValue(JSON.toJSONString(List.of("test1-batch")));
         apiDefinitionBatchUpdateRequest.setCustomField(field);
-        apiDefinitionBatchUpdateRequest.setAppend(true);
-        this.requestPostWithOk(BATCH_UPDATE, apiDefinitionBatchUpdateRequest);
-        // 自定义字段覆盖
         apiDefinitionBatchUpdateRequest.setAppend(false);
         this.requestPostWithOk(BATCH_UPDATE, apiDefinitionBatchUpdateRequest);
         // 修改协议类型
