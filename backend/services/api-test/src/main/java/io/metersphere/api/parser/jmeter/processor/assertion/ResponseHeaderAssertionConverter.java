@@ -1,6 +1,7 @@
 package io.metersphere.api.parser.jmeter.processor.assertion;
 
 import io.metersphere.api.dto.request.assertion.MsResponseHeaderAssertion;
+import io.metersphere.api.parser.jmeter.validator.EnumValidator;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.sdk.constants.MsAssertionCondition;
 import org.apache.commons.lang3.BooleanUtils;
@@ -47,8 +48,8 @@ public class ResponseHeaderAssertionConverter extends AssertionConverter<MsRespo
         String expectedValue = msAssertion.getExpectedValue();
         String condition = msAssertion.getCondition();
         assertion.setName(String.format("Response header %s %s", condition.toLowerCase().replace("_", ""), expectedValue));
-        MsAssertionCondition msAssertionCondition = MsAssertionCondition.valueOf(condition);
-        if (msAssertionCondition!= null) {
+        MsAssertionCondition msAssertionCondition = EnumValidator.validateEnum(MsAssertionCondition.class, condition);
+        if (msAssertionCondition != null) {
             assertion.addTestString(generateRegexExpression(condition, expectedValue));
         } else {
             assertion.addTestString(expectedValue);

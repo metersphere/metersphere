@@ -42,10 +42,7 @@ public class VariableAssertionConverter extends AssertionConverter<MsVariableAss
 
     protected boolean needParse(MsVariableAssertion.VariableAssertionItem variableAssertionItem, ParameterConfig config) {
         // 如果组件是启用的，或者设置了解析禁用的组件，则返回 true
-        if (BooleanUtils.isTrue(variableAssertionItem.getEnable()) || config.getParseDisabledElement()) {
-            return true;
-        }
-        return false;
+        return BooleanUtils.isTrue(variableAssertionItem.getEnable()) || config.getParseDisabledElement();
     }
 
     private static JSR223Assertion parse2JSR233Assertion(MsVariableAssertion.VariableAssertionItem variableAssertionItem) {

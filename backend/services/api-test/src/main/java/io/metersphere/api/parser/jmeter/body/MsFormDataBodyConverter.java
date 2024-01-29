@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 /**
  * 处理 form-data 类型的请求体
+ *
  * @Author: jianxing
  * @CreateTime: 2023-12-14  15:18
  */
@@ -33,6 +34,7 @@ public class MsFormDataBodyConverter extends MsBodyConverter<FormDataBody> {
 
     /**
      * 解析文件类型的参数
+     *
      * @param fileFromValues
      * @return
      */
@@ -41,7 +43,7 @@ public class MsFormDataBodyConverter extends MsBodyConverter<FormDataBody> {
             return new HTTPFileArg[0];
         }
         List<HTTPFileArg> list = new ArrayList<>();
-        if (fileFromValues != null) {
+        if (CollectionUtils.isNotEmpty(fileFromValues)) {
             fileFromValues.forEach(formDataKV -> {
                 String paramName = formDataKV.getKey();
                 formDataKV.getFiles().forEach(file -> {

@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public class ResponseBodyTypeAssertionFactory {
 
-    private static Map<Class, ResponseBodyTypeAssertionConverter> converterMap = new HashMap<>();
+    private static final Map<Class<?>, ResponseBodyTypeAssertionConverter> converterMap = new HashMap<>();
 
     static {
         converterMap.put(MsJSONPathAssertion.class, new JSONPathAssertionConverter());
@@ -23,7 +23,7 @@ public class ResponseBodyTypeAssertionFactory {
         converterMap.put(MsRegexAssertion.class, new RegexAssertionConverter());
     }
 
-    public static ResponseBodyTypeAssertionConverter getConverter(Class processorClass) {
+    public static ResponseBodyTypeAssertionConverter getConverter(Class<?> processorClass) {
         return converterMap.get(processorClass);
     }
 }
