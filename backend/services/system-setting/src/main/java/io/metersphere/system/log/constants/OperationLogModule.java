@@ -92,9 +92,9 @@ public class OperationLogModule {
     public static final String PROJECT_CUSTOM_FUNCTION = "PROJECT_CUSTOM_FUNCTION";// 项目公共脚本
 
     //用例
-    public static final String FUNCTIONAL_CASE = "FUNCTIONAL_CASE";
+    public static final String FUNCTIONAL_CASE = "CASE_MANAGEMENT_CASE";
 
-    public static final String CASE_REVIEW = "CASE_REVIEW";
+    public static final String CASE_REVIEW = "CASE_MANAGEMENT_REVIEW";
 
 
     //接口调试
