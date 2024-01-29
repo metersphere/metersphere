@@ -52,8 +52,12 @@
 
   onBeforeMount(async () => {
     try {
-      appStore.initSystemVersion(); // 初始化系统版本
-      licenseStore.getValidateLicense(); // 初始化校验license
+      await appStore.initSystemPackage(); // 初始化系统包版本
+      await appStore.initSystemVersion(); // 初始化系统版本
+      // 企业版才校验license
+      if (appStore.packageType === 'enterprise') {
+        licenseStore.getValidateLicense();
+      }
       if (licenseStore.hasLicense()) {
         appStore.initPageConfig(); // 初始化页面配置
       }

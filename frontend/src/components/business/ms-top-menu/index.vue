@@ -89,7 +89,7 @@
             ?.filter((item: any) => permission.accessRouter(item) && item.meta?.isTopMenu)
             .filter((item: any) => {
               if (item.name === RouteEnum.SETTING_SYSTEM_AUTHORIZED_MANAGEMENT) {
-                return licenseStore.hasLicense();
+                return appStore.packageType === 'enterprise';
               }
               return true;
             });

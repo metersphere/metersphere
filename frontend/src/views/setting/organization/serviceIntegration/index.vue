@@ -26,7 +26,11 @@
                   <span class="font-normal">{{ t(item.title) }}</span>
                   <span>
                     <a-tooltip
-                      :content="isHasSystemPermission ? '' : t('organization.service.noPermissionsTip')"
+                      :content="
+                        isHasSystemPermission
+                          ? t('organization.service.jumpPlugin')
+                          : t('organization.service.noPermissionsTip')
+                      "
                       position="bottom"
                     >
                       <a-button

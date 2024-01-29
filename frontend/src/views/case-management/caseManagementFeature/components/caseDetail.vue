@@ -73,6 +73,7 @@
   async function save(isReview: boolean) {
     try {
       loading.value = true;
+      // 编辑用例
       if (route.params.mode === 'edit') {
         await updateCaseRequest(caseDetailInfo.value);
         Message.success(t('caseManagement.featureCase.editSuccess'));
@@ -80,7 +81,9 @@
           name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE,
           query: { organizationId: route.query.organizationId, projectId: route.query.projectId },
         });
+        // 创建用例
       } else {
+        // 创建并关联
         if (isReview) {
           caseDetailInfo.value.request.reviewId = route.query.reviewId;
         }
@@ -89,6 +92,10 @@
         Message.success(route.params.mode === 'copy' ? t('ms.description.copySuccess') : t('common.addSuccess'));
         featureCaseStore.setIsAlreadySuccess(true);
         isShowTip.value = !getIsVisited();
+        if (isReview) {
+          router.back();
+          return;
+        }
         if (isShowTip.value && !route.query.id) {
           router.push({
             name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_CREATE_SUCCESS,
@@ -97,24 +104,15 @@
               ...route.query,
             },
           });
+        } else {
+          router.push({
+            name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE,
+            query: {
+              organizationId: route.query.organizationId,
+              projectId: route.query.projectId,
+            },
+          });
         }
-      }
-      if (isReview) {
-        router.back();
-        return;
-      }
-      router.push({ name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE, query: { ...route.query } });
-
-      featureCaseStore.setIsAlreadySuccess(true);
-      isShowTip.value = !getIsVisited();
-      if (isShowTip.value && !route.query.id) {
-        router.push({
-          name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_CREATE_SUCCESS,
-          query: {
-            id: createSuccessId.value,
-            ...route.query,
-          },
-        });
       }
     } catch (error) {
       // eslint-disable-next-line no-console

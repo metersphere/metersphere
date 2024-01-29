@@ -84,6 +84,9 @@
             v-on="propsEvent"
             @batch-action="handleTableBatch"
           >
+            <template #num="{ record }">
+              <span class="flex w-full">{{ record.num }}</span>
+            </template>
             <template #caseLevel="{ record }">
               <caseLevel :case-level="(getCaseLevels(record.customFields) as CaseLevel)" />
             </template>
@@ -108,21 +111,17 @@
                 <span class="one-line-text inline-block">{{ getModules(record.moduleId) }}</span>
               </a-tooltip>
             </template>
-            <!-- 自定义字段非系统TODO -->
-            <!-- <template v-for="item in customFieldsColumns" :key="item.slotName" #[item.slotName]="{ record }">
-              <div v-if="isCaseLevel(item.slotName as string).name === '用例等级'" class="flex items-center">
-                <span v-if="!record.visible" class="flex items-center" @click="record.visible = true">
-                  <caseLevel :case-level="getCaseLevel(record, item)" />
-                </span>
-              </div>
-              <div v-if="isCaseLevel(item.slotName as string).name === '用例状态'" class="flex items-center">
-                <MsTag
-                  :type="getCaseState(record[item.slotName as string]).type"
-                  :theme="getCaseState(record[item.slotName as string]).theme"
-                  >{{ record[item.slotName as string] }}</MsTag
-                >
-              </div>
-            </template> -->
+            <!-- 回收站自定义字段 -->
+            <template v-for="item in customFieldsColumns" :key="item.slotName" #[item.slotName]="{ record }">
+              <a-tooltip
+                :content="getTableFields(record.customFields, item as MsTableColumn)"
+                position="top"
+                :mouse-enter-delay="100"
+                mini
+              >
+                <div>{{ getTableFields(record.customFields, item as MsTableColumn) }}</div>
+              </a-tooltip>
+            </template>
             <template #operation="{ record }">
               <MsButton v-permission="['FUNCTIONAL_CASE:READ+DELETE']" @click="recoverCase(record.id)">{{
                 t('caseManagement.featureCase.batchRecover')
@@ -154,12 +153,7 @@
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import type {
-    BatchActionParams,
-    BatchActionQueryParams,
-    MsTableColumn,
-    MsTableColumnData,
-  } from '@/components/pure/ms-table/type';
+  import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import type { TagType, Theme } from '@/components/pure/ms-tag/ms-tag.vue';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
@@ -193,7 +187,7 @@
   import { ModuleTreeNode } from '@/models/projectManagement/file';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
-  import { getCaseLevels, getReviewStatusClass, getStatusText } from './utils';
+  import { getCaseLevels, getReviewStatusClass, getStatusText, getTableFields } from './utils';
 
   const tableStore = useTableStore();
   const featureCaseStore = useFeatureCaseStore();
@@ -211,7 +205,7 @@
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setAdvanceFilter } = useTable(
     getRecycleListRequest,
     {
-      tableKey: TableKeyEnum.FILE_MANAGEMENT_CASE_RECYCLE,
+      tableKey: TableKeyEnum.CASE_MANAGEMENT_RECYCLE_TABLE,
       scroll: { x: scrollWidth.value },
       selectable: true,
       showSetting: true,
@@ -228,20 +222,21 @@
       }),
     })
   );
-
   const columns: MsTableColumn = [
     {
-      title: 'caseManagement.featureCase.tableColumnID',
-      dataIndex: 'id',
-      width: 200,
-      showInTable: true,
-      sortable: {
+      'title': 'caseManagement.featureCase.tableColumnID',
+      'slotName': 'num',
+      'dataIndex': 'num',
+      'width': 200,
+      'showInTable': true,
+      'sortable': {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
-      showTooltip: true,
-      ellipsis: true,
-      showDrag: false,
+      'filter-icon-align-left': true,
+      'showTooltip': true,
+      'ellipsis': true,
+      'showDrag': false,
     },
     {
       title: 'caseManagement.featureCase.tableColumnName',
@@ -265,15 +260,6 @@
       showDrag: true,
     },
     {
-      title: 'caseManagement.featureCase.tableColumnCaseState',
-      dataIndex: 'caseState',
-      showInTable: true,
-      width: 200,
-      showTooltip: true,
-      ellipsis: true,
-      showDrag: true,
-    },
-    {
       title: 'caseManagement.featureCase.tableColumnReviewResult',
       dataIndex: 'reviewStatus',
       slotName: 'reviewStatus',
@@ -291,8 +277,8 @@
     },
     {
       title: 'caseManagement.featureCase.tableColumnVersion',
-      slotName: 'versionId',
-      dataIndex: 'versionId',
+      slotName: 'versionName',
+      dataIndex: 'versionNam',
       width: 300,
       showTooltip: true,
       showInTable: true,
@@ -301,6 +287,7 @@
     {
       title: 'caseManagement.featureCase.tableColumnModule',
       slotName: 'moduleId',
+      dataIndex: 'moduleId',
       showInTable: true,
       width: 300,
       showDrag: true,
@@ -314,28 +301,13 @@
       showDrag: true,
     },
     {
-      title: 'caseManagement.featureCase.tableColumnCreateUser',
-      slotName: 'createUser',
-      dataIndex: 'createUser',
-      showInTable: true,
-      showDrag: true,
-    },
-    {
-      title: 'caseManagement.featureCase.tableColumnCreateTime',
-      slotName: 'createTime',
-      dataIndex: 'createTime',
-      showInTable: true,
+      title: 'caseManagement.featureCase.tableColumnUpdateUser',
+      slotName: 'updateUserName',
+      dataIndex: 'updateUserName',
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
       },
-      width: 200,
-      showDrag: true,
-    },
-    {
-      title: 'caseManagement.featureCase.tableColumnUpdateUser',
-      slotName: 'updateUser',
-      dataIndex: 'updateUser',
       showInTable: true,
       width: 200,
       showDrag: true,
@@ -353,11 +325,30 @@
       showDrag: true,
     },
     {
+      title: 'caseManagement.featureCase.tableColumnCreateUser',
+      slotName: 'createUserName',
+      dataIndex: 'createUserName',
+      showInTable: true,
+      width: 200,
+      showDrag: true,
+    },
+    {
+      title: 'caseManagement.featureCase.tableColumnCreateTime',
+      slotName: 'createTime',
+      dataIndex: 'createTime',
+      showInTable: true,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+      },
+      width: 200,
+      showDrag: true,
+    },
+    {
       title: 'caseManagement.featureCase.tableColumnActions',
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 140,
+      width: 260,
       showInTable: true,
       showDrag: false,
     },
@@ -668,13 +659,12 @@
   // 处理自定义字段展示
   async function getDefaultFields() {
     const result = await getCaseDefaultFields(currentProjectId.value);
-    initDefaultFields.value = result.customFields;
+    initDefaultFields.value = result.customFields.filter((item: any) => !item.internal);
     customFieldsColumns = initDefaultFields.value.map((item: any) => {
       return {
         title: item.fieldName,
         slotName: item.fieldId as string,
         dataIndex: item.fieldId,
-        showTooltip: true,
         showInTable: true,
         showDrag: true,
         width: 300,
@@ -686,7 +676,7 @@
       ...customFieldsColumns,
       ...columns.slice(columns.length - 1, columns.length),
     ];
-    tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_TABLE, fullColumns, 'drawer');
+    tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_RECYCLE_TABLE, fullColumns, 'drawer');
     tableRef.value?.initColumn(fullColumns);
   }
 
@@ -737,7 +727,7 @@
       },
       {
         title: 'caseManagement.featureCase.tableColumnUpdateUser',
-        dataIndex: 'updateUser',
+        dataIndex: 'updateUserName',
         type: FilterType.SELECT,
         selectProps: {
           mode: 'static',
@@ -826,7 +816,7 @@
     getRecycleModules();
     initRecycleModulesCount();
   });
-  tableStore.initColumn(TableKeyEnum.FILE_MANAGEMENT_CASE_RECYCLE, columns, 'drawer');
+  tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_RECYCLE_TABLE, columns, 'drawer');
 </script>
 
 <style scoped lang="less">

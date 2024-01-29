@@ -83,6 +83,12 @@ const useUserStore = defineStore('user', {
         appStore.setCurrentOrgId(res.lastOrganizationId || '');
         appStore.setCurrentProjectId(res.lastProjectId || '');
         this.setInfo(res);
+        // 登录后初始化系统包版本
+        appStore.initSystemPackage();
+        if (appStore.packageType === 'enterprise') {
+          const licenseStore = useLicenseStore();
+          licenseStore.getValidateLicense();
+        }
       } catch (err) {
         clearToken();
         throw err;

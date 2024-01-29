@@ -456,10 +456,12 @@
     {
       label: 'system.user.resetPassword',
       eventTag: 'resetPassword',
+      permission: ['SYSTEM_USER:READ+UPDATE'],
     },
     {
       label: 'system.user.disable',
       eventTag: 'disabled',
+      permission: ['SYSTEM_USER:READ+UPDATE'],
     },
     {
       isDivider: true,
@@ -468,6 +470,7 @@
       label: 'system.user.delete',
       eventTag: 'delete',
       danger: true,
+      permission: ['SYSTEM_USER:READ+DELETE'],
     },
   ];
 

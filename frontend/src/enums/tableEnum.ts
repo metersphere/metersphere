@@ -33,6 +33,7 @@ export enum TableKeyEnum {
   PROJECT_MANAGEMENT_COMMON_SCRIPT_CHANGE_HISTORY = 'projectManagementCommonScriptChangeHistory',
   ORGANIZATION_TEMPLATE_DEFECT_TABLE = 'organizationTemplateManagementDefect',
   CASE_MANAGEMENT_TABLE = 'caseManagement',
+  CASE_MANAGEMENT_RECYCLE_TABLE = 'caseRecycleManagement',
   CASE_MANAGEMENT_DETAIL_TABLE = 'caseManagementDetailTable',
   CASE_MANAGEMENT_ASSOCIATED_TABLE = 'caseManagementAssociatedFileTable',
   BUG_MANAGEMENT = 'bugManagement',

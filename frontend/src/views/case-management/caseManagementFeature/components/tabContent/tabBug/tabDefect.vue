@@ -21,9 +21,9 @@
           <a-radio value="link" class="show-type-icon p-[2px]">{{
             t('caseManagement.featureCase.directLink')
           }}</a-radio>
-          <a-radio value="testPlan" class="show-type-icon p-[2px]">{{
+          <!-- <a-radio value="testPlan" class="show-type-icon p-[2px]">{{
             t('caseManagement.featureCase.testPlan')
-          }}</a-radio>
+          }}</a-radio> -->
         </a-radio-group>
         <a-input-search
           v-model:model-value="keyword"
@@ -135,7 +135,7 @@
   const columns: MsTableColumn = [
     {
       title: 'caseManagement.featureCase.tableColumnID',
-      dataIndex: 'id',
+      dataIndex: 'num',
       width: 200,
       showInTable: true,
       showTooltip: true,

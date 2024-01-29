@@ -15,7 +15,7 @@
       }}</MsButton>
     </template>
     <template v-if="(props.funParams.keyword || '').trim() === ''" #empty>
-      <div class="flex w-full w-full items-center justify-center">
+      <div class="flex w-full items-center justify-center">
         {{ t('caseManagement.caseReview.tableNoData') }}
         <MsButton class="ml-[8px]" @click="emit('create')">
           {{ t('caseManagement.featureCase.addDemand') }}
@@ -49,6 +49,7 @@
       funParams: {
         caseId: string;
         keyword: string;
+        projectId: string;
       }; // 列表查询参数
       isShowOperation?: boolean; // 是否显示操作列
       highlightName?: boolean; // 是否高亮名称
@@ -106,8 +107,7 @@
   });
 
   const initData = async () => {
-    const { keyword, caseId } = props.funParams;
-    setLoadListParams({ keyword, caseId });
+    setLoadListParams({ ...props.funParams });
     loadList();
   };
 

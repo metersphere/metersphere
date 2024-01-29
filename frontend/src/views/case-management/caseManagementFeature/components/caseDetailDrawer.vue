@@ -124,7 +124,7 @@
                 <TabCaseReview v-else-if="activeTab === 'caseReview'" :case-id="props.detailId" />
                 <TabTestPlan v-else-if="activeTab === 'testPlan'" />
                 <TabComment v-else-if="activeTab === 'comments'" ref="commentRef" :case-id="props.detailId" />
-                <TabChangeHistory v-else-if="activeTab === 'changeHistory'" />
+                <TabChangeHistory v-else-if="activeTab === 'changeHistory'" :case-id="props.detailId" />
               </div>
             </div>
           </template>
@@ -520,7 +520,7 @@
         event: notifiers ? 'AT' : 'COMMENT', // 任务事件(仅评论: ’COMMENT‘; 评论并@: ’AT‘; 回复评论/回复并@: ’REPLAY‘;)
       };
       await createCommentList(params);
-      commentRef.value.initCommentList();
+      commentRef.value.getAllCommentList();
       Message.success(t('common.publishSuccessfully'));
     } catch (error) {
       console.log(error);

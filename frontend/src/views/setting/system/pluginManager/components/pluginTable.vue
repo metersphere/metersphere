@@ -113,10 +113,15 @@
                 <MsButton v-permission="['SYSTEM_PLUGIN:READ+UPDATE']" @click="update(record)">{{
                   t('system.plugin.edit')
                 }}</MsButton>
-                <MsButton v-if="record.enable" @click="disableHandler(record)">{{
-                  t('system.plugin.tableDisable')
+                <MsButton
+                  v-if="record.enable"
+                  v-permission="['SYSTEM_PLUGIN:READ+UPDATE']"
+                  @click="disableHandler(record)"
+                  >{{ t('system.plugin.tableDisable') }}</MsButton
+                >
+                <MsButton v-else v-permission="['SYSTEM_PLUGIN:READ+UPDATE']" @click="enableHandler(record)">{{
+                  t('system.plugin.tableEnable')
                 }}</MsButton>
-                <MsButton v-else @click="enableHandler(record)">{{ t('system.plugin.tableEnable') }}</MsButton>
                 <MsTableMoreAction
                   v-permission="['SYSTEM_PLUGIN:READ+DELETE']"
                   :list="tableActions"

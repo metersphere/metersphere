@@ -219,7 +219,7 @@
               </div>
               <caseTabDemand
                 ref="caseDemandRef"
-                :fun-params="{ caseId: route.query.caseId as string, keyword: demandKeyword }"
+                :fun-params="{ caseId: route.query.caseId as string, keyword: demandKeyword,projectId:appStore.currentProjectId }"
               />
             </div>
           </div>

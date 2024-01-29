@@ -250,7 +250,7 @@
   const columns: MsTableColumn = [
     {
       title: 'ID',
-      dataIndex: 'id',
+      dataIndex: 'num',
       sortIndex: 1,
       showTooltip: true,
       sortable: {

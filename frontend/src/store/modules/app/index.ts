@@ -6,7 +6,7 @@ import type { BreadcrumbItem } from '@/components/business/ms-breadcrumb/types';
 
 import { getProjectInfo } from '@/api/modules/project-management/basicInfo';
 import { getPageConfig } from '@/api/modules/setting/config';
-import { getSystemVersion } from '@/api/modules/system';
+import { getPackageType, getSystemVersion } from '@/api/modules/system';
 import { getMenuList } from '@/api/modules/user';
 import defaultSettings from '@/config/settings.json';
 import { useI18n } from '@/hooks/useI18n';
@@ -58,6 +58,7 @@ const useAppStore = defineStore('app', {
       ...defaultLoginConfig,
       ...defaultPlatformConfig,
     },
+    packageType: 'community',
   }),
 
   getters: {
@@ -206,6 +207,16 @@ const useAppStore = defineStore('app', {
     async initSystemVersion() {
       try {
         this.version = await getSystemVersion();
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    /**
+     * 获取系统包类型
+     */
+    async initSystemPackage() {
+      try {
+        this.packageType = await getPackageType();
       } catch (error) {
         console.log(error);
       }

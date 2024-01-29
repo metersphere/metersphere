@@ -41,6 +41,7 @@ import {
   GetCaseListUrl,
   GetCaseModulesCountUrl,
   GetCaseModuleTreeUrl,
+  getChangeHistoryListUrl,
   GetCommentListUrl,
   GetDebugDrawerPageUrl,
   GetDefaultTemplateFieldsUrl,
@@ -54,6 +55,7 @@ import {
   GetReviewCommentListUrl,
   GetReviewerListUrl,
   GetSearchCustomFieldsUrl,
+  GetThirdDemandUrl,
   getTransferTreeUrl,
   GetTrashCaseModuleTreeUrl,
   importExcelCaseUrl,
@@ -79,6 +81,7 @@ import type {
   BatchMoveOrCopyType,
   CaseManagementTable,
   CaseModuleQueryParams,
+  ChangeHistoryItem,
   CreateOrUpdateDemand,
   CreateOrUpdateModule,
   DeleteCaseType,
@@ -228,6 +231,11 @@ export function batchAssociationDemand(data: CreateOrUpdateDemand) {
 // 取消关联
 export function cancelAssociationDemand(id: string) {
   return MSR.get({ url: `${CancelAssociationDemandUrl}/${id}` });
+}
+
+// 获取三方关联需求列表
+export function getThirdDemandList(data: TableQueryParams) {
+  return MSR.post({ url: GetThirdDemandUrl, data });
 }
 
 // 附件
@@ -406,6 +414,11 @@ export function importExcelCase(data: { request: ImportExcelType; fileList: File
 // 拖拽排序
 export function dragSort(data: DragCase) {
   return MSR.post({ url: dragSortUrl, data });
+}
+
+// 获取已关联缺陷列表
+export function getChangeHistoryList(data: TableQueryParams) {
+  return MSR.post<CommonList<ChangeHistoryItem>>({ url: getChangeHistoryListUrl, data });
 }
 
 export default {};

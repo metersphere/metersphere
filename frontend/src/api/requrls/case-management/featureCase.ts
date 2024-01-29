@@ -71,6 +71,8 @@ export const UpdateDemandUrl = '/functional/case/demand/update';
 export const BatchAssociationDemandUrl = '/functional/case/demand/batch/relevance';
 // 取消关联
 export const CancelAssociationDemandUrl = '/functional/case/demand/cancel';
+// 获取三方关联需求的接口
+export const GetThirdDemandUrl = '/functional/case/demand/third/list/page';
 
 // 附件管理
 // 上传文件并关联用例
@@ -145,3 +147,5 @@ export const exportExcelCheckUrl = '/functional/case/pre-check/excel';
 export const importExcelCaseUrl = '/functional/case/import/excel';
 // 用例拖拽排序
 export const dragSortUrl = '/functional/case/edit/pos';
+// 获取变更历史
+export const getChangeHistoryListUrl = '/functional/case/operation-history';

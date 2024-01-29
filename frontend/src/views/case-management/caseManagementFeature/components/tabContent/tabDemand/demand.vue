@@ -21,7 +21,7 @@
     </div>
     <AssociatedDemandTable
       ref="demandRef"
-      :fun-params="{ caseId: props.caseId, keyword }"
+      :fun-params="{ caseId: props.caseId, keyword, projectId: currentProjectId }"
       @update="updateDemand"
       @create="addDemand"
     ></AssociatedDemandTable>
@@ -29,7 +29,7 @@
     <MsDrawer
       v-model:visible="linkDemandDrawer"
       :mask="false"
-      :title="t('caseManagement.featureCase.associatedFile')"
+      :title="t('caseManagement.featureCase.associatedDemand')"
       :ok-text="t('caseManagement.featureCase.associated')"
       :ok-loading="drawerLoading"
       :ok-disabled="tableSelected.length < 1"
@@ -40,7 +40,10 @@
       @cancel="handleDrawerCancel"
     >
       <div class="flex items-center justify-between">
-        <div><span class="font-medium">XXXXXXXXX</span><span class="ml-1 text-[var(--color-text-4)]">(101)</span></div>
+        <div
+          ><span class="font-medium">XXXXXXXXX</span
+          ><span class="ml-1 text-[var(--color-text-4)]">({{ propsRes.value }})</span></div
+        >
         <a-input-search
           v-model="platformKeyword"
           :max-length="250"
@@ -74,7 +77,7 @@
   import AddDemandModal from './addDemandModal.vue';
   import AssociatedDemandTable from './associatedDemandTable.vue';
 
-  import { batchAssociationDemand, getDemandList } from '@/api/modules/case-management/featureCase';
+  import { batchAssociationDemand, getThirdDemandList } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
 
@@ -83,6 +86,8 @@
 
   const { t } = useI18n();
   const appStore = useAppStore();
+
+  const currentProjectId = computed(() => appStore.currentProjectId);
 
   const props = defineProps<{
     caseId: string;
@@ -160,7 +165,7 @@
     },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getDemandList, {
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getThirdDemandList, {
     tableKey: TableKeyEnum.CASE_MANAGEMENT_TAB_DEMAND_PLATFORM,
     columns,
     rowKey: 'id',
@@ -206,7 +211,7 @@
     showDrawer.value = false;
   }
 
-  // 关联需求(暂无接口)
+  // 关联需求
   const linkDemandDrawer = ref<boolean>(false);
   function associatedDemand() {
     linkDemandDrawer.value = true;
@@ -215,8 +220,8 @@
   const platformKeyword = ref<string>('');
 
   const initData = async () => {
-    setLoadListParams({ keyword: platformKeyword.value });
-    // loadList();
+    setLoadListParams({ keyword: platformKeyword.value, projectId: currentProjectId.value });
+    loadList();
   };
 
   const searchHandler = () => {
@@ -224,10 +229,19 @@
     resetSelector();
   };
 
-  onMounted(() => {
-    resetSelector();
-    initData();
-  });
+  watch(
+    () => linkDemandDrawer.value,
+    (val) => {
+      if (val) {
+        resetSelector();
+        initData();
+      }
+    }
+  );
+  // onMounted(() => {
+  //   resetSelector();
+  //   initData();
+  // });
 </script>
 
 <style scoped></style>

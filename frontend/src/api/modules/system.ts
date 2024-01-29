@@ -1,6 +1,6 @@
 // 系统全局类的接口
 import MSR from '@/api/http/index';
-import { GetVersionUrl, OrgOptionsUrl, SwitchOrgUrl } from '@/api/requrls/system';
+import { GetVersionUrl, OrgOptionsUrl, PackageTypeUrl, SwitchOrgUrl } from '@/api/requrls/system';
 
 // 获取系统版本
 export function getSystemVersion() {
@@ -15,4 +15,9 @@ export function getOrgOptions() {
 // 切换用户当前组织
 export function switchUserOrg(organizationId: string, userId: string) {
   return MSR.post({ url: SwitchOrgUrl, data: { organizationId, userId } }, { ignoreCancelToken: true });
+}
+
+// 获取当前系统的版本
+export function getPackageType() {
+  return MSR.get<'community' | 'enterprise'>({ url: PackageTypeUrl }, { ignoreCancelToken: true });
 }
