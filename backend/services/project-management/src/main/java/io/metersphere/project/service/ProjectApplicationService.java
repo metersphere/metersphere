@@ -9,7 +9,6 @@ import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.domain.ProjectApplicationExample;
 import io.metersphere.project.dto.ModuleDTO;
 import io.metersphere.project.job.BugSyncJob;
-import io.metersphere.project.job.CleanUpReportJob;
 import io.metersphere.project.mapper.*;
 import io.metersphere.project.request.ProjectApplicationRequest;
 import io.metersphere.project.utils.ModuleSortUtils;
@@ -34,7 +33,6 @@ import io.metersphere.system.service.ServiceIntegrationService;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.pf4j.PluginWrapper;
 import org.springframework.stereotype.Service;
@@ -107,17 +105,18 @@ public class ProjectApplicationService {
     }
 
     private void doBeforeUpdate(ProjectApplication application, String currentUser) {
-        String type = application.getType();
+        //TODO 后续清理（合并完没问题再清理）===== 清理报告只有一个定时任务，项目配置时不需要在添加定时任务了
+        /*String type = application.getType();
         if (StringUtils.equals(type, ProjectApplicationType.TEST_PLAN.TEST_PLAN_CLEAN_REPORT.name())
                 || StringUtils.equals(type, ProjectApplicationType.UI.UI_CLEAN_REPORT.name())
                 || StringUtils.equals(type, ProjectApplicationType.LOAD_TEST.LOAD_TEST_CLEAN_REPORT.name())
                 || StringUtils.equals(type, ProjectApplicationType.API.API_CLEAN_REPORT.name())) {
             //清除 测试计划/UI测试/性能测试/接口测试 报告 定时任务
             this.doHandleSchedule(application, currentUser);
-        }
+        }*/
     }
 
-    private void doHandleSchedule(ProjectApplication application, String currentUser) {
+    /*private void doHandleSchedule(ProjectApplication application, String currentUser) {
         String typeValue = application.getTypeValue();
         String projectId = application.getProjectId();
         Boolean enable = BooleanUtils.isTrue(Boolean.valueOf(typeValue));
@@ -151,7 +150,7 @@ public class ProjectApplicationService {
                     CleanUpReportJob.class);
         });
 
-    }
+    }*/
 
 
     /**
