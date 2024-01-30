@@ -34,10 +34,13 @@ import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.domain.Plugin;
+import io.metersphere.system.dto.request.PluginUpdateRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.service.PluginService;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
@@ -65,7 +68,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
+import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
+import static io.metersphere.sdk.constants.PermissionConstants.PROJECT_ENVIRONMENT_READ;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -88,6 +94,7 @@ public class EnvironmentControllerTests extends BaseTest {
 
     private static final String validate = prefix + "/database/validate";
     private static final String getOptions = prefix + "/database/driver-options/";
+    private static final String SCRIPTS = prefix + "/scripts/{0}";
     private static final ResultMatcher BAD_REQUEST_MATCHER = status().isBadRequest();
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
     private static String MOCKID;
@@ -97,6 +104,8 @@ public class EnvironmentControllerTests extends BaseTest {
     private EnvironmentMapper environmentMapper;
     @Resource
     private EnvironmentBlobMapper environmentBlobMapper;
+    @Resource
+    private PluginService pluginService;
     @Value("${spring.datasource.url}")
     private String dburl;
     @Value("${spring.datasource.username}")
@@ -809,7 +818,7 @@ public class EnvironmentControllerTests extends BaseTest {
         Assertions.assertNotNull(response);
         Assertions.assertEquals("environmentId1", response.getId());
         //校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_ENVIRONMENT_READ, get + DEFAULT_PROJECT_ID);
+        requestGetPermissionTest(PROJECT_ENVIRONMENT_READ, get + DEFAULT_PROJECT_ID);
         EnvironmentExample environmentExample = new EnvironmentExample();
         environmentExample.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andMockEqualTo(true);
         List<Environment> environmentList = environmentMapper.selectByExample(environmentExample);
@@ -842,7 +851,7 @@ public class EnvironmentControllerTests extends BaseTest {
         dataSource.setDriver("com.mysql.cj.jdbc.Driver");
         this.requestPost(validate, dataSource, status().isOk());
         //校验权限
-        requestPostPermissionsTest(Arrays.asList(PermissionConstants.PROJECT_ENVIRONMENT_READ, PermissionConstants.PROJECT_ENVIRONMENT_READ_ADD, PermissionConstants.PROJECT_ENVIRONMENT_READ_UPDATE),
+        requestPostPermissionsTest(Arrays.asList(PROJECT_ENVIRONMENT_READ, PermissionConstants.PROJECT_ENVIRONMENT_READ_ADD, PermissionConstants.PROJECT_ENVIRONMENT_READ_UPDATE),
                 validate, dataSource);
     }
 
@@ -872,7 +881,7 @@ public class EnvironmentControllerTests extends BaseTest {
         Assertions.assertNotNull(optionDTOS);
 
         //校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_ENVIRONMENT_READ, getOptions + DEFAULT_PROJECT_ID);
+        requestGetPermissionTest(PROJECT_ENVIRONMENT_READ, getOptions + DEFAULT_PROJECT_ID);
     }
 
     @Test
@@ -1039,7 +1048,7 @@ public class EnvironmentControllerTests extends BaseTest {
         Assertions.assertEquals(1, response.size());
         environmentDTO.setProjectId(DEFAULT_PROJECT_ID);
         //校验权限
-        requestPostPermissionTest(PermissionConstants.PROJECT_ENVIRONMENT_READ, list, environmentDTO);
+        requestPostPermissionTest(PROJECT_ENVIRONMENT_READ, list, environmentDTO);
 
         //项目不存在 返回内容为[]
         environmentDTO.setProjectId("ceshi");
@@ -1172,5 +1181,33 @@ public class EnvironmentControllerTests extends BaseTest {
                 .andExpect(ERROR_REQUEST_MATCHER);
     }
 
+    @Test
+    @Order(16)
+    public void testScripts() throws Exception {
+        Plugin plugin = addEnvScriptsTestPlugin();
 
+        MvcResult mvcResult = requestGetWithOkAndReturn(SCRIPTS, DEFAULT_PROJECT_ID);
+        List<EnvironmentPluginScriptDTO> envScripts = getResultDataArray(mvcResult, EnvironmentPluginScriptDTO.class);
+        Assertions.assertEquals(envScripts.size(), 1);
+        Assertions.assertEquals(envScripts.get(0).getPluginId(), "tcp-sampler");
+        Assertions.assertEquals(((Map) envScripts.get(0).getScript()).get("id"), "environment");
+
+        pluginService.delete(plugin.getId());
+        requestGetPermissionTest(PROJECT_ENVIRONMENT_READ, SCRIPTS, DEFAULT_PROJECT_ID);
+    }
+
+    public Plugin addEnvScriptsTestPlugin() throws Exception {
+        PluginUpdateRequest request = new PluginUpdateRequest();
+        File jarFile = new File(
+                this.getClass().getClassLoader().getResource("file/tcp-sampler-v3.x-jar-with-dependencies.jar")
+                        .getPath()
+        );
+        FileInputStream inputStream = new FileInputStream(jarFile);
+        MockMultipartFile mockMultipartFile = new MockMultipartFile(jarFile.getName(), jarFile.getName(), "jar", inputStream);
+        request.setName("测试获取环境脚本插件");
+        request.setGlobal(true);
+        request.setEnable(true);
+        request.setCreateUser(ADMIN.name());
+        return pluginService.add(request, mockMultipartFile);
+    }
 }
