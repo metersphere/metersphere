@@ -70,6 +70,7 @@ public class FilterChainUtils {
 
         // 获取插件中的图片
         filterChainDefinitionMap.put("/plugin/image/**", "anon");
+        filterChainDefinitionMap.put("/templates/user_import.xlsx", "anon");
 
         return filterChainDefinitionMap;
     }
