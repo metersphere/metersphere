@@ -3,6 +3,7 @@ package io.metersphere.functional.controller;
 import com.alibaba.excel.util.StringUtils;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.functional.domain.CaseReview;
 import io.metersphere.functional.dto.CaseReviewDTO;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.service.CaseReviewLogService;
@@ -64,7 +65,7 @@ public class CaseReviewController {
     @SendNotice(taskType = NoticeConstants.TaskType.CASE_REVIEW_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.getMainCaseReview(#request)", targetClass = CaseReviewNoticeService.class)
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_ADD)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
-    public String addCaseReview(@Validated @RequestBody CaseReviewRequest request) {
+    public CaseReview addCaseReview(@Validated @RequestBody CaseReviewRequest request) {
        return caseReviewService.addCaseReview(request, SessionUtils.getUserId());
     }
 
@@ -74,7 +75,7 @@ public class CaseReviewController {
     @SendNotice(taskType = NoticeConstants.TaskType.CASE_REVIEW_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.getMainCaseReview(#request)", targetClass = CaseReviewNoticeService.class)
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_ADD)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
-    public String copyCaseReview(@Validated @RequestBody CaseReviewCopyRequest request) {
+    public CaseReview copyCaseReview(@Validated @RequestBody CaseReviewCopyRequest request) {
         return caseReviewService.copyCaseReview(request, SessionUtils.getUserId());
     }
 
