@@ -204,10 +204,12 @@ public class UserService {
         }
     }
 
-
     public UserEditRequest updateUser(UserEditRequest userEditRequest, String operator) {
         //检查用户组合法性
         globalUserRoleService.checkRoleIsGlobalAndHaveMember(userEditRequest.getUserRoleIdList(), true);
+        //检查用户邮箱的合法性
+        this.checkUserEmail(userEditRequest.getId(), userEditRequest.getEmail());
+
         User user = new User();
         BeanUtils.copyBean(user, userEditRequest);
         user.setUpdateUser(operator);
