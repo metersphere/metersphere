@@ -25,3 +25,9 @@ export const postFakeTableAddUrl = '/fake/error/add';
 export const postFakeTableUpdateUrl = '/fake/error/update';
 // 误报规则列表启用或禁用
 export const postFakeTableEnableUrl = '/fake/error/update/enable';
+// JIRAKEY 校验
+export const postValidateJiraKeyUrl = '/project/application/validate/';
+// 缺陷管理-获取同步信息
+export const getBugSyncInfoUrl = '/project/application/bug/sync/info/';
+// 用例管理-获取关联需求信息
+export const getCaseRelatedInfoUrl = '/project/application/case/related/info/';

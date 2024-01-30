@@ -799,7 +799,7 @@
   };
 
   // 点击展开
-  const handleRowClick = (record: TableData, ev: Event) => {
+  const handleRowClick = (record: TableData) => {
     if (record.module) {
       expandChange(record);
     }

@@ -68,4 +68,5 @@ export default {
   'system.project.createTip': '项目启用后，将展示在项目切换列表',
   'system.project.affiliatedOrgRequired': '所属组织不能为空',
   'system.project.revokeDeleteToolTip': '该项目将于30 天后自动删除',
+  'system.project.removeTip': '移除后，将失去项目权限',
 };

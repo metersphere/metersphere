@@ -121,6 +121,10 @@
   import { PoolOption, SelectValue } from '@/models/projectManagement/menuManagement';
   import { MenuEnum } from '@/enums/commonEnum';
 
+  defineOptions({
+    name: 'DefectSync',
+  });
+
   const { t } = useI18n();
   const props = defineProps<{
     visible: boolean;

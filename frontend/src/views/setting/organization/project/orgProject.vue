@@ -1,6 +1,9 @@
 <template>
   <MsCard simple>
-    <div class="mb-[16px] flex items-center justify-between">
+    <div
+      class="mb-[16px] flex items-center"
+      :class="{ 'justify-between': hasAddPermission, 'justify-end': !hasAddPermission }"
+    >
       <a-button v-permission="['ORGANIZATION_PROJECT:READ+ADD']" type="primary" @click="showAddProject">{{
         t('system.organization.createProject')
       }}</a-button>
@@ -124,6 +127,7 @@
   const { openDeleteModal, openModal } = useModal();
   const appStore = useAppStore();
   const currentOrgId = computed(() => appStore.currentOrgId);
+  const hasAddPermission = computed(() => hasAnyPermission(['ORGANIZATION_PROJECT:READ+ADD']));
   const hasOperationPermission = computed(() =>
     hasAnyPermission([
       'ORGANIZATION_PROJECT:READ+RECOVER',

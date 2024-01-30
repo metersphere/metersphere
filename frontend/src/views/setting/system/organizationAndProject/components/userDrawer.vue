@@ -33,7 +33,7 @@
         <template #operation="{ record }">
           <MsRemoveButton
             :title="t('system.organization.removeName', { name: record.name })"
-            :sub-title-tip="t('system.organization.removeTip')"
+            :sub-title-tip="props.organizationId ? t('system.organization.removeTip') : t('system.project.removeTip')"
             @ok="handleRemove(record)"
           />
         </template>
@@ -160,10 +160,11 @@
         await deleteUserFromOrgOrProject(props.organizationId, record.id);
       }
       if (props.projectId) {
-        await deleteUserFromOrgOrProject(props.projectId, record.id, true);
+        await deleteUserFromOrgOrProject(props.projectId, record.id, false);
       }
       Message.success(t('common.removeSuccess'));
       fetchData();
+      emit('requestFetchData');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error(error);

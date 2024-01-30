@@ -18,9 +18,6 @@
               </div>
               <div class="title">
                 <span>{{ props.isProject ? t('common.noProject') : t('common.noResource') }}</span>
-                <span class="user">
-                  {{ adminStr }}
-                </span>
               </div>
               <slot></slot>
             </div>
@@ -34,32 +31,18 @@
 <script setup lang="ts">
   import DefaultLayout from './default-layout.vue';
 
-  import { getAdminByProjectByOrg } from '@/api/modules/setting/organizationAndProject';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
   const defaultPlatformLogo = `${import.meta.env.BASE_URL}images/MS-full-logo.svg`;
   const appStore = useAppStore();
   const pageConfig = ref({ ...appStore.pageConfig });
-  const adminStr = ref<string>('');
 
   const props = defineProps<{
     isProject?: boolean;
   }>();
 
   const { t } = useI18n();
-  const initData = async () => {
-    try {
-      const res = (await getAdminByProjectByOrg(appStore.currentOrgId, '')) || [];
-      adminStr.value = res.map((item) => item.name).join(';');
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  };
-  onMounted(() => {
-    initData();
-  });
 </script>
 
 <style lang="less" scoped>

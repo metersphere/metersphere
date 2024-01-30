@@ -73,4 +73,5 @@ export default {
   'system.project.createTip': 'After the project is enabled, it will be displayed in the project switching list',
   'system.project.affiliatedOrgRequired': 'Affiliated organization cannot be empty',
   'system.project.revokeDeleteToolTip': 'The project will be deleted automatically after 30 days',
+  'system.project.removeTip': "Remove it, and you'll lose access to the project.",
 };
