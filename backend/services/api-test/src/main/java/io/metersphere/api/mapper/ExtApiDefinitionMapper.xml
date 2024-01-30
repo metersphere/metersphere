@@ -137,7 +137,7 @@
         </foreach>
         and deleted = #{deleted}
     </select>
-    <select id="importList" resultType="io.metersphere.api.dto.definition.importdto.ApiDefinitionImportDTO">
+    <select id="importList" resultType="io.metersphere.api.dto.converter.ApiDefinitionImportDetail">
         select
         api_definition.id, api_definition.`name`, api_definition.protocol, api_definition.`method`,
         api_definition.`path`, api_definition.version_id,
