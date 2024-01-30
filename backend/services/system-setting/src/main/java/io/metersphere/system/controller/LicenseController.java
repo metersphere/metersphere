@@ -7,6 +7,7 @@ import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +31,8 @@ public class LicenseController {
     @RequiresPermissions(value= {PermissionConstants.SYSTEM_AUTH_READ, PermissionConstants.SYSTEM_AUTH_READ_UPDATE}, logical = Logical.OR)
     public LicenseDTO addLicense(@RequestBody String licenseCode) {
         LicenseService licenseService = CommonBeanFactory.getBean(LicenseService.class);
+        // 前端传入的JSON会被加上双引号，需要去掉
+        licenseCode = StringUtils.strip(licenseCode, "\"");
         if (licenseService != null) {
             return licenseService.addLicense(licenseCode, SessionUtils.getUserId());
         }
