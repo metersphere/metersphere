@@ -13,6 +13,7 @@ import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.sdk.request.PosRequest;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -79,7 +80,9 @@ public class CaseReviewControllerTests extends BaseTest {
     @Sql(scripts = {"/dml/init_case_review.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void addCaseReviewSuccess() throws Exception {
         CaseReviewRequest caseReviewRequest = getCaseReviewAddRequest("创建评审1", CaseReviewPassRule.SINGLE.toString(), "CASE_REVIEW_TEST_GYQ_ID", false, true, null);
-        this.requestPostWithOk(ADD_CASE_REVIEW, caseReviewRequest);
+        MvcResult mvcResult = this.requestPostWithOkAndReturn(ADD_CASE_REVIEW, caseReviewRequest);
+        CaseReview caseReview = getResultData(mvcResult, CaseReview.class);
+        checkLog(caseReview.getId(), OperationLogType.ADD);
         List<CaseReview> caseReviews = getCaseReviews("创建评审1");
         Assertions.assertEquals(1, caseReviews.size());
         String caseReviewId = caseReviews.get(0).getId();
@@ -95,7 +98,9 @@ public class CaseReviewControllerTests extends BaseTest {
 
         CaseReviewCopyRequest caseReviewCopyRequest = getCaseReviewAddRequest("创建评审1", CaseReviewPassRule.SINGLE.toString(), "CASE_REVIEW_TEST_GYQ_ID", false, true, null);
         caseReviewCopyRequest.setCopyId(caseReviewId);
-        this.requestPostWithOk(COPY_CASE_REVIEW, caseReviewCopyRequest);
+        MvcResult mvcResult1 = this.requestPostWithOkAndReturn(COPY_CASE_REVIEW, caseReviewCopyRequest);
+        CaseReview caseReview1 = getResultData(mvcResult1, CaseReview.class);
+        checkLog(caseReview1.getId(), OperationLogType.COPY);
         caseReviews = getCaseReviews("创建评审1");
         Assertions.assertEquals(2, caseReviews.size());
         List<String> list = caseReviews.stream().map(CaseReview::getId).distinct().toList();

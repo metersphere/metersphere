@@ -203,13 +203,13 @@ public class CaseReviewService {
      * @param request 页面参数
      * @param userId  当前操作人
      */
-    public String addCaseReview(CaseReviewRequest request, String userId) {
+    public CaseReview addCaseReview(CaseReviewRequest request, String userId) {
         String caseReviewId = IDGenerator.nextStr();
         BaseAssociateCaseRequest baseAssociateCaseRequest = request.getBaseAssociateCaseRequest();
         List<String> caseIds = doSelectIds(baseAssociateCaseRequest, baseAssociateCaseRequest.getProjectId());
-        addCaseReview(request, userId, caseReviewId, caseIds);
+        CaseReview caseReview = addCaseReview(request, userId, caseReviewId, caseIds);
         addAssociate(request, userId, caseReviewId, caseIds);
-        return caseReviewId;
+        return caseReview;
     }
 
     private void addAssociate(CaseReviewRequest request, String userId, String caseReviewId, List<String> caseIds) {
@@ -230,15 +230,15 @@ public class CaseReviewService {
         }
     }
 
-    public String copyCaseReview(CaseReviewCopyRequest request, String userId) {
+    public CaseReview copyCaseReview(CaseReviewCopyRequest request, String userId) {
         String caseReviewId = IDGenerator.nextStr();
         CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
         caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(request.getCopyId());
         List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
         List<String> caseIds = caseReviewFunctionalCases.stream().map(CaseReviewFunctionalCase::getCaseId).distinct().toList();
-        addCaseReview(request, userId, caseReviewId, caseIds);
+        CaseReview caseReview = addCaseReview(request, userId, caseReviewId, caseIds);
         addAssociate(request, userId, caseReviewId, caseIds);
-        return caseReviewId;
+        return caseReview;
     }
 
     /**
@@ -340,7 +340,7 @@ public class CaseReviewService {
      * @param userId       当前操作人
      * @param caseReviewId 用例评审id
      */
-    private void addCaseReview(CaseReviewRequest request, String userId, String caseReviewId, List<String> caseIds) {
+    private CaseReview addCaseReview(CaseReviewRequest request, String userId, String caseReviewId, List<String> caseIds) {
         CaseReview caseReview = new CaseReview();
         caseReview.setId(caseReviewId);
         caseReview.setNum(getNextNum(request.getProjectId()));
@@ -367,6 +367,7 @@ public class CaseReviewService {
         caseReview.setCreateUser(userId);
         caseReview.setUpdateUser(userId);
         caseReviewMapper.insert(caseReview);
+        return caseReview;
     }
 
     /**
