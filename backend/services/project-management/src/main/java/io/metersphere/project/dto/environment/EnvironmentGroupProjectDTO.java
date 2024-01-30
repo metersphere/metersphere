@@ -1,14 +1,16 @@
 package io.metersphere.project.dto.environment;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import org.apache.logging.log4j.core.config.plugins.validation.constraints.NotBlank;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 @Data
 public class EnvironmentGroupProjectDTO implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
     @Schema(description = "环境组id")
     private String environmentGroupId;
