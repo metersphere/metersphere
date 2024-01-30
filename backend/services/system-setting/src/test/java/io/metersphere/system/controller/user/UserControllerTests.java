@@ -402,6 +402,7 @@ public class UserControllerTests extends BaseTest {
     @Test
     @Order(5)
     public void testUserUpdateError() throws Exception {
+        this.checkUserList();
         // 4xx 验证
         UserCreateInfo user = new UserCreateInfo();
         UserEditRequest userMaintainRequest;
@@ -432,7 +433,9 @@ public class UserControllerTests extends BaseTest {
         BeanUtils.copyBean(user, USER_LIST.get(0));
         user.setEmail(USER_LIST.get(USER_LIST.size() - 1).getEmail());
         userMaintainRequest = UserParamUtils.getUserUpdateDTO(user, USER_ROLE_LIST);
-        this.requestPost(UserRequestUtils.URL_USER_UPDATE, userMaintainRequest, ERROR_REQUEST_MATCHER);
+        MvcResult mvcResult = this.requestPost(UserRequestUtils.URL_USER_UPDATE, userMaintainRequest, ERROR_REQUEST_MATCHER).andReturn();
+        ResultHolder resultHolder = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        Assertions.assertEquals(resultHolder.getMessage(), "用户邮箱已存在");
         //用户组不包含系统成员
         BeanUtils.copyBean(user, USER_LIST.get(0));
         userMaintainRequest = UserParamUtils.getUserUpdateDTO(user,
