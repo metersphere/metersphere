@@ -390,18 +390,14 @@
   };
 
   // 初始化数据
-  const initData = async (id: string, internal: boolean) => {
+  const initData = async (id: string) => {
     try {
       let res: UserGroupAuthSetting[] = [];
       loading.value = true;
       if (systemType === AuthScopeEnum.SYSTEM) {
         res = await getGlobalUSetting(id);
       } else if (systemType === AuthScopeEnum.ORGANIZATION) {
-        if (internal) {
-          res = await getGlobalUSetting(id);
-        } else {
-          res = await getOrgUSetting(id);
-        }
+        res = await getOrgUSetting(id);
       } else {
         res = await getAuthByUserGroup(id);
       }
@@ -449,7 +445,7 @@
         });
       }
       Message.success(t('common.saveSuccess'));
-      initData(props.current.id, props.current.internal);
+      initData(props.current.id);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -459,13 +455,13 @@
   // 恢复默认值
   const handleReset = () => {
     if (props.current.id) {
-      initData(props.current.id, props.current.internal);
+      initData(props.current.id);
     }
   };
 
   watchEffect(() => {
     if (props.current.id) {
-      initData(props.current.id, props.current.internal);
+      initData(props.current.id);
     }
   });
   defineExpose({

@@ -20,10 +20,22 @@
       <MsUserAdminDiv :is-admin="record.projectCreateUserIsAdmin" :name="record.createUser" />
     </template>
     <template #memberCount="{ record }">
-      <span class="primary-color" @click="showUserDrawer(record)">{{ record.memberCount }}</span>
+      <span
+        v-if="hasAnyPermission(['SYSTEM_ORGANIZATION_PROJECT:READ+UPDATE'])"
+        class="primary-color"
+        @click="showUserDrawer(record)"
+        >{{ record.memberCount }}</span
+      >
+      <span v-else>{{ record.memberCount }}</span>
     </template>
     <template #projectCount="{ record }">
-      <span class="primary-color" @click="showProjectDrawer(record)">{{ record.projectCount }}</span>
+      <span
+        v-if="hasAnyPermission(['SYSTEM_ORGANIZATION_PROJECT:READ+UPDATE'])"
+        class="primary-color"
+        @click="showProjectDrawer(record)"
+        >{{ record.projectCount }}</span
+      >
+      <span v-else>{{ record.projectCount }}</span>
     </template>
     <template #operation="{ record }">
       <template v-if="record.deleted">
@@ -43,12 +55,14 @@
         <MsButton v-permission="['SYSTEM_ORGANIZATIN_PROJECT:READ+UPDATE']" @click="showOrganizationModal(record)">{{
           t('common.edit')
         }}</MsButton>
-        <MsButton v-permission="['SYSTEM_ORGANIZATIN_PROJECT:READ']" @click="showAddUserModal(record)">{{
+        <MsButton v-permission="['SYSTEM_ORGANIZATIN_PROJECT:READ+UPDATE']" @click="showAddUserModal(record)">{{
           t('system.organization.addMember')
         }}</MsButton>
-        <MsButton v-permission="['SYSTEM_ORGANIZATIN_PROJECT:READ']" @click="handleEnableOrDisableOrg(record, false)">{{
-          t('common.end')
-        }}</MsButton>
+        <MsButton
+          v-permission="['SYSTEM_ORGANIZATIN_PROJECT:READ+UPDATE']"
+          @click="handleEnableOrDisableOrg(record, false)"
+          >{{ t('common.end') }}</MsButton
+        >
         <MsTableMoreAction
           v-permission="['SYSTEM_ORGANIZATIN_PROJECT:READ+DELETE']"
           :list="tableActions"
@@ -118,6 +132,13 @@
   const currentOrganizationId = ref('');
   const currentUpdateOrganization = ref<CreateOrUpdateSystemOrgParams>();
   const { openDeleteModal, openModal } = useModal();
+  const hasOperationPermission = computed(() =>
+    hasAnyPermission([
+      'SYSTEM_ORGANIZATION_PROJECT:READ+RECOVER',
+      'SYSTEM_ORGANIZATION_PROJECT:READ+UPDATE',
+      'SYSTEM_ORGANIZATION_PROJECT:READ+DELETE',
+    ])
+  );
 
   const organizationColumns: MsTableColumn = [
     {
@@ -164,11 +185,11 @@
       width: 180,
     },
     {
-      title: 'system.organization.operation',
+      title: hasOperationPermission.value ? 'system.organization.operation' : '',
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 230,
+      width: hasOperationPermission.value ? 230 : 50,
     },
   ];
 
