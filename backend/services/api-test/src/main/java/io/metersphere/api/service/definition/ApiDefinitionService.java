@@ -6,7 +6,7 @@ import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.definition.*;
-import io.metersphere.api.dto.definition.importdto.ApiDefinitionImport;
+import io.metersphere.api.dto.converter.ApiDefinitionImport;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.parser.ImportParser;
@@ -890,7 +890,7 @@ public class ApiDefinitionService {
         return apiDefinitionDocDTO;
     }
 
-    public ApiDefinitionImport apiTestImport(MultipartFile file, ImportRequest request, SessionUser user, String projectId) {
+    public void apiTestImport(MultipartFile file, ImportRequest request, SessionUser user, String projectId) {
         if (file != null) {
             String originalFilename = file.getOriginalFilename();
             if (StringUtils.isNotBlank(originalFilename)) {
@@ -920,7 +920,6 @@ public class ApiDefinitionService {
             LogUtils.error(e);
             throw new MSException(Translator.get("user_import_format_wrong"));
         }
-        return apiImport;
     }
 
     public List<OperationHistoryDTO> list(OperationHistoryRequest request) {

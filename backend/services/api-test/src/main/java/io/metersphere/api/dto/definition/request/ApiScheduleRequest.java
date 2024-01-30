@@ -1,4 +1,4 @@
-package io.metersphere.api.dto.definition.importdto;
+package io.metersphere.api.dto.definition.request;
 
 
 import io.metersphere.sdk.constants.ModuleConstants;

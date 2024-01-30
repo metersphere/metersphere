@@ -4,7 +4,7 @@ import io.metersphere.api.domain.ApiDefinitionSwagger;
 import io.metersphere.api.domain.ApiDefinitionSwaggerExample;
 import io.metersphere.api.dto.definition.ApiScheduleDTO;
 import io.metersphere.api.dto.definition.SwaggerUrlCheck;
-import io.metersphere.api.dto.definition.importdto.ApiScheduleRequest;
+import io.metersphere.api.dto.definition.request.ApiScheduleRequest;
 import io.metersphere.api.mapper.ApiDefinitionSwaggerMapper;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.sdk.util.JSON;

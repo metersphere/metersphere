@@ -4,7 +4,6 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.dto.definition.*;
-import io.metersphere.api.dto.definition.importdto.ApiDefinitionImport;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.service.definition.ApiDefinitionLogService;
 import io.metersphere.api.service.definition.ApiDefinitionNoticeService;
@@ -204,8 +203,8 @@ public class ApiDefinitionController {
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_IMPORT)
     @Operation(summary = "接口测试-接口管理-导入接口定义")
-    public ApiDefinitionImport testCaseImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request") ImportRequest request) {
-        return apiDefinitionService.apiTestImport(file, request, SessionUtils.getUser(), SessionUtils.getCurrentProjectId());
+    public void testCaseImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request") ImportRequest request) {
+        apiDefinitionService.apiTestImport(file, request, SessionUtils.getUser(), SessionUtils.getCurrentProjectId());
     }
 
     @PostMapping("/operation-history")

@@ -2,7 +2,7 @@ package io.metersphere.api.controller.definition;
 
 import io.metersphere.api.dto.definition.ApiScheduleDTO;
 import io.metersphere.api.dto.definition.SwaggerUrlCheck;
-import io.metersphere.api.dto.definition.importdto.ApiScheduleRequest;
+import io.metersphere.api.dto.definition.request.ApiScheduleRequest;
 import io.metersphere.api.service.definition.ApiDefinitionLogService;
 import io.metersphere.api.service.definition.ApiDefinitionScheduleService;
 import io.metersphere.sdk.constants.PermissionConstants;

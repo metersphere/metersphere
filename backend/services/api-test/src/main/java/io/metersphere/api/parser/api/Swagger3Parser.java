@@ -1,14 +1,14 @@
 package io.metersphere.api.parser.api;
 
 import io.metersphere.api.dto.definition.HttpResponse;
-import io.metersphere.api.dto.definition.importdto.ApiDefinitionImport;
-import io.metersphere.api.dto.definition.importdto.ApiDefinitionImportDTO;
+import io.metersphere.api.dto.converter.ApiDefinitionImport;
+import io.metersphere.api.dto.converter.ApiDefinitionImportDetail;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.dto.request.http.*;
 import io.metersphere.api.dto.request.http.auth.NoAuth;
 import io.metersphere.api.dto.request.http.body.*;
 import io.metersphere.api.dto.schema.JsonSchemaItem;
-import io.metersphere.api.enums.PropertyConstant;
+import io.metersphere.api.constants.PropertyConstant;
 import io.metersphere.api.parser.ImportParser;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.sdk.exception.MSException;
@@ -102,7 +102,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
         return StringUtils.isNotBlank(testStr) ? testStr.toString() : StringUtils.EMPTY;
     }
 
-    private List<ApiDefinitionImportDTO> parseRequests(OpenAPI openAPI, ImportRequest importRequest) {
+    private List<ApiDefinitionImportDetail> parseRequests(OpenAPI openAPI, ImportRequest importRequest) {
 
         Paths paths = openAPI.getPaths();
 
@@ -110,7 +110,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
 
         this.components = openAPI.getComponents();
 
-        List<ApiDefinitionImportDTO> results = new ArrayList<>();
+        List<ApiDefinitionImportDetail> results = new ArrayList<>();
 
         for (String pathName : pathNames) {
             PathItem pathItem = paths.get(pathName);
@@ -129,7 +129,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
                 Operation operation = operationsMap.get(method);
                 if (operation != null) {
                     //构建基本请求
-                    ApiDefinitionImportDTO apiDefinitionDTO = buildApiDefinition(operation, pathName, method, importRequest);
+                    ApiDefinitionImportDetail apiDefinitionDTO = buildApiDefinition(operation, pathName, method, importRequest);
                     //构建请求参数
                     MsHTTPElement request = buildRequest(apiDefinitionDTO.getName(), pathName, method);
                     parseParameters(operation, request);
@@ -266,7 +266,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
         }
     }
 
-    private ApiDefinitionImportDTO buildApiDefinition(Operation operation, String path, String
+    private ApiDefinitionImportDetail buildApiDefinition(Operation operation, String path, String
             method, ImportRequest importRequest) {
         String name;
         if (StringUtils.isNotBlank(operation.getSummary())) {
@@ -276,7 +276,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
         } else {
             name = path;
         }
-        ApiDefinitionImportDTO apiDefinition = new ApiDefinitionImportDTO();
+        ApiDefinitionImportDetail apiDefinition = new ApiDefinitionImportDetail();
         apiDefinition.setName(name);
         apiDefinition.setPath(formatPath(path));
         apiDefinition.setProtocol("HTTP");

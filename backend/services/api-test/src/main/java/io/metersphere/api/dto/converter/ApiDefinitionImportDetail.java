@@ -1,4 +1,4 @@
-package io.metersphere.api.dto.definition.importdto;
+package io.metersphere.api.dto.converter;
 
 import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.dto.definition.HttpResponse;
@@ -11,7 +11,7 @@ import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class ApiDefinitionImportDTO extends ApiDefinition {
+public class ApiDefinitionImportDetail extends ApiDefinition {
 
     @Schema(description = "请求内容")
     private AbstractMsTestElement request;

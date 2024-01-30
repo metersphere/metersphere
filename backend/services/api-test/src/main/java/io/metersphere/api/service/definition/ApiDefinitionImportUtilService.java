@@ -9,10 +9,10 @@ import io.metersphere.api.domain.ApiDefinitionModule;
 import io.metersphere.api.dto.definition.ApiDefinitionDTO;
 import io.metersphere.api.dto.definition.ApiDefinitionPageRequest;
 import io.metersphere.api.dto.definition.ApiModuleRequest;
-import io.metersphere.api.dto.definition.importdto.ApiDeatlWithData;
-import io.metersphere.api.dto.definition.importdto.ApiDeatlWithDataUpdate;
-import io.metersphere.api.dto.definition.importdto.ApiDefinitionImport;
-import io.metersphere.api.dto.definition.importdto.ApiDefinitionImportDTO;
+import io.metersphere.api.dto.converter.ApiDetailWithData;
+import io.metersphere.api.dto.converter.ApiDetailWithDataUpdate;
+import io.metersphere.api.dto.converter.ApiDefinitionImport;
+import io.metersphere.api.dto.converter.ApiDefinitionImportDetail;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.dto.request.http.Header;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
@@ -20,7 +20,7 @@ import io.metersphere.api.dto.request.http.QueryParam;
 import io.metersphere.api.dto.request.http.RestParam;
 import io.metersphere.api.dto.request.http.body.*;
 import io.metersphere.api.dto.schema.JsonSchemaItem;
-import io.metersphere.api.enums.PropertyConstant;
+import io.metersphere.api.constants.PropertyConstant;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.project.domain.Project;
@@ -117,7 +117,7 @@ public class ApiDefinitionImportUtilService {
         if (request.getVersionId() == null) {
             request.setVersionId(defaultVersion);
         }
-        List<ApiDefinitionImportDTO> initData = apiImport.getData();
+        List<ApiDefinitionImportDetail> initData = apiImport.getData();
 
         //TODO 查询项目菜单参数
         /*ProjectApplicationExample applicationExample = new ProjectApplicationExample();
@@ -127,7 +127,7 @@ public class ApiDefinitionImportUtilService {
             String typeValue = projectApplications.get(0).getTypeValue();
         }*/
         //过滤(一次只导入一个协议)
-        List<ApiDefinitionImportDTO> filterData = initData.stream().filter(t -> t.getProtocol().equals(request.getProtocol())).collect(Collectors.toList());
+        List<ApiDefinitionImportDetail> filterData = initData.stream().filter(t -> t.getProtocol().equals(request.getProtocol())).collect(Collectors.toList());
         if (filterData.isEmpty()) {
             return;
         }
@@ -137,13 +137,13 @@ public class ApiDefinitionImportUtilService {
 
     }
 
-    private void dealWithData(ImportRequest request, List<ApiDefinitionImportDTO> importData, SessionUser user) {
+    private void dealWithData(ImportRequest request, List<ApiDefinitionImportDetail> importData, SessionUser user) {
         //查询数据库中所有的数据， 用于判断是否重复
         ApiDefinitionPageRequest pageRequest = new ApiDefinitionPageRequest();
         pageRequest.setProjectId(request.getProjectId());
         pageRequest.setProtocol(request.getProtocol());
         //TODO 如果是有版本的话 需要加上版本的判断
-        List<ApiDefinitionImportDTO> apiLists = extApiDefinitionMapper.importList(pageRequest);
+        List<ApiDefinitionImportDetail> apiLists = extApiDefinitionMapper.importList(pageRequest);
         List<BaseTreeNode> apiModules = this.buildTreeData(request.getProjectId(), request.getProtocol());
         //将apiModules转换成新的map 要求key是attachInfo中的modulePath 使用stream实现
         Map<String, BaseTreeNode> modulePathMap = apiModules.stream().collect(Collectors.toMap(BaseTreeNode::getPath, t -> t));
@@ -161,15 +161,15 @@ public class ApiDefinitionImportUtilService {
         apiLists.forEach(t -> {
             t.setModulePath(idModuleMap.get(t.getModuleId()) != null ? idModuleMap.get(t.getModuleId()).getPath() : StringUtils.EMPTY);
         });
-        ApiDeatlWithData apiDeatlWithData = new ApiDeatlWithData();
+        ApiDetailWithData apiDeatlWithData = new ApiDetailWithData();
         //判断数据是否是唯一的
         checkApiDataOnly(request, importData, apiLists, apiDeatlWithData);
 
-        ApiDeatlWithDataUpdate apiDeatlWithDataUpdate = new ApiDeatlWithDataUpdate();
-        getNeedUpdateData(request, apiDeatlWithData, apiDeatlWithDataUpdate);
+        ApiDetailWithDataUpdate apiDetailWithDataUpdate = new ApiDetailWithDataUpdate();
+        getNeedUpdateData(request, apiDeatlWithData, apiDetailWithDataUpdate);
 
         //数据入库
-        insertData(modulePathMap, idModuleMap, apiDeatlWithDataUpdate, request, user);
+        insertData(modulePathMap, idModuleMap, apiDetailWithDataUpdate, request, user);
 
     }
 
@@ -211,15 +211,15 @@ public class ApiDefinitionImportUtilService {
     @Transactional(rollbackFor = Exception.class)
     public void insertData(Map<String, BaseTreeNode> modulePathMap,
                            Map<String, BaseTreeNode> idModuleMap,
-                           ApiDeatlWithDataUpdate apiDeatlWithDataUpdate,
+                           ApiDetailWithDataUpdate apiDetailWithDataUpdate,
                            ImportRequest request, SessionUser user) {
         //先判断是否需要新增模块
-        List<ApiDefinitionImportDTO> addModuleData = apiDeatlWithDataUpdate.getAddModuleData();
-        List<ApiDefinitionImportDTO> updateModuleData = apiDeatlWithDataUpdate.getUpdateModuleData();
+        List<ApiDefinitionImportDetail> addModuleData = apiDetailWithDataUpdate.getAddModuleData();
+        List<ApiDefinitionImportDetail> updateModuleData = apiDetailWithDataUpdate.getUpdateModuleData();
         //取addModuleData的模块放到set中  生成一个新的set
-        Set<String> moduleSet = addModuleData.stream().map(ApiDefinitionImportDTO::getModulePath).collect(Collectors.toSet());
+        Set<String> moduleSet = addModuleData.stream().map(ApiDefinitionImportDetail::getModulePath).collect(Collectors.toSet());
         //取updateModuleData的模块放到set中  生成一个新的set
-        Set<String> updateModuleSet = updateModuleData.stream().map(ApiDefinitionImportDTO::getModulePath).collect(Collectors.toSet());
+        Set<String> updateModuleSet = updateModuleData.stream().map(ApiDefinitionImportDetail::getModulePath).collect(Collectors.toSet());
         moduleSet.addAll(updateModuleSet);
         //将modulePathMap的key转成set
         Set<String> modulePathSet = modulePathMap.keySet();
@@ -277,7 +277,7 @@ public class ApiDefinitionImportUtilService {
         });
 
         //取出需要更新的数据的id
-        List<String> updateModuleLists = updateModuleData.stream().map(ApiDefinitionImportDTO::getId).toList();
+        List<String> updateModuleLists = updateModuleData.stream().map(ApiDefinitionImportDetail::getId).toList();
 
         //更新模块数据
         updateModuleData.forEach(t -> {
@@ -289,7 +289,7 @@ public class ApiDefinitionImportUtilService {
             apiMapper.updateByPrimaryKeySelective(apiDefinition);
         });
         List<LogDTO> operationLogs = new ArrayList<>();
-        List<ApiDefinitionImportDTO> updateRequestData = apiDeatlWithDataUpdate.getUpdateRequestData();
+        List<ApiDefinitionImportDetail> updateRequestData = apiDetailWithDataUpdate.getUpdateRequestData();
         updateRequestData.forEach(t -> {
             if (CollectionUtils.isNotEmpty(updateModuleLists) && updateModuleLists.contains(t.getId())) {
                 ApiDefinition apiDefinition = new ApiDefinition();
@@ -305,7 +305,7 @@ public class ApiDefinitionImportUtilService {
             apiDefinitionBlob.setResponse(JSON.toJSONBytes(t.getResponse()));
             apiBlobMapper.updateByPrimaryKeySelective(apiDefinitionBlob);
         });
-        Map<String, ApiDefinitionImportDTO> logData = apiDeatlWithDataUpdate.getLogData();
+        Map<String, ApiDefinitionImportDetail> logData = apiDetailWithDataUpdate.getLogData();
         Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
         List<ApiDefinitionCaseDTO> updateLists = new ArrayList<>();
         if (MapUtils.isNotEmpty(logData)) {
@@ -387,28 +387,28 @@ public class ApiDefinitionImportUtilService {
         afterReturningNoticeSendService.sendNotice(NoticeConstants.TaskType.API_DEFINITION_TASK, NoticeConstants.Event.UPDATE, updateResources, user, request.getProjectId());
     }
 
-    private void getNeedUpdateData(ImportRequest request, ApiDeatlWithData apiDeatlWithData, ApiDeatlWithDataUpdate apiDeatlWithDataUpdate) {
-        List<String> sameList = apiDeatlWithData.getSameList();
-        List<String> differenceList = apiDeatlWithData.getDifferenceList();
-        Map<String, ApiDefinitionImportDTO> apiDateMap = apiDeatlWithData.getApiDateMap();
-        Map<String, ApiDefinitionImportDTO> importDataMap = apiDeatlWithData.getImportDataMap();
-        List<ApiDefinitionImportDTO> updateModuleData = new ArrayList<>();
-        List<ApiDefinitionImportDTO> updateRequestData = new ArrayList<>();
-        List<ApiDefinitionImportDTO> addData = new ArrayList<>();
-        Map<String, ApiDefinitionImportDTO> logMap = new HashMap<>();
+    private void getNeedUpdateData(ImportRequest request, ApiDetailWithData apiDetailWithData, ApiDetailWithDataUpdate apiDetailWithDataUpdate) {
+        List<String> sameList = apiDetailWithData.getSameList();
+        List<String> differenceList = apiDetailWithData.getDifferenceList();
+        Map<String, ApiDefinitionImportDetail> apiDateMap = apiDetailWithData.getApiDateMap();
+        Map<String, ApiDefinitionImportDetail> importDataMap = apiDetailWithData.getImportDataMap();
+        List<ApiDefinitionImportDetail> updateModuleData = new ArrayList<>();
+        List<ApiDefinitionImportDetail> updateRequestData = new ArrayList<>();
+        List<ApiDefinitionImportDetail> addData = new ArrayList<>();
+        Map<String, ApiDefinitionImportDetail> logMap = new HashMap<>();
         //判断参数是否一样  一样的参数需要判断是否需要覆盖模块  如果需要就要update数据， 如果不需要  就直接跳过
         if (CollectionUtils.isNotEmpty(sameList) && getFullCoverage(request.getCoverData())) {
             //需要覆盖数据的  会判断是否需要覆盖模块
-            List<ApiDefinitionImportDTO> sameData = sameList.stream().map(apiDateMap::get).toList();
+            List<ApiDefinitionImportDetail> sameData = sameList.stream().map(apiDateMap::get).toList();
             //取所有id为新的list 需要取查询blob的数据
-            List<String> sameIds = sameData.stream().map(ApiDefinitionImportDTO::getId).toList();
+            List<String> sameIds = sameData.stream().map(ApiDefinitionImportDetail::getId).toList();
             ApiDefinitionBlobExample blobExample = new ApiDefinitionBlobExample();
             blobExample.createCriteria().andIdIn(sameIds);
             List<ApiDefinitionBlob> apiDefinitionBlobs = apiDefinitionBlobMapper.selectByExampleWithBLOBs(blobExample);
             Map<String, ApiDefinitionBlob> blobMap = apiDefinitionBlobs.stream().collect(Collectors.toMap(ApiDefinitionBlob::getId, t -> t));
             //判断参数是否一样
-            for (ApiDefinitionImportDTO apiDefinitionDTO : sameData) {
-                ApiDefinitionImportDTO importDTO = importDataMap.get(apiDefinitionDTO.getMethod() + apiDefinitionDTO.getPath());
+            for (ApiDefinitionImportDetail apiDefinitionDTO : sameData) {
+                ApiDefinitionImportDetail importDTO = importDataMap.get(apiDefinitionDTO.getMethod() + apiDefinitionDTO.getPath());
                 ApiDefinitionBlob apiDefinitionBlob = blobMap.get(apiDefinitionDTO.getId());
                 if (apiDefinitionBlob != null) {
                     MsHTTPElement dbRequest = ApiDataUtils.parseObject(new String(apiDefinitionBlob.getRequest()), MsHTTPElement.class);
@@ -437,30 +437,30 @@ public class ApiDefinitionImportUtilService {
         if (CollectionUtils.isNotEmpty(differenceList)) {
             addData = differenceList.stream().map(importDataMap::get).toList();
         }
-        apiDeatlWithDataUpdate.setUpdateModuleData(updateModuleData);
-        apiDeatlWithDataUpdate.setUpdateRequestData(updateRequestData);
-        apiDeatlWithDataUpdate.setAddModuleData(addData);
-        apiDeatlWithDataUpdate.setLogData(logMap);
+        apiDetailWithDataUpdate.setUpdateModuleData(updateModuleData);
+        apiDetailWithDataUpdate.setUpdateRequestData(updateRequestData);
+        apiDetailWithDataUpdate.setAddModuleData(addData);
+        apiDetailWithDataUpdate.setLogData(logMap);
     }
 
     private void checkApiDataOnly(ImportRequest request,
-                                  List<ApiDefinitionImportDTO> importData,
-                                  List<ApiDefinitionImportDTO> apiLists,
-                                  ApiDeatlWithData apiDeatlWithData) {
+                                  List<ApiDefinitionImportDetail> importData,
+                                  List<ApiDefinitionImportDetail> apiLists,
+                                  ApiDetailWithData apiDetailWithData) {
         //判断是否是同一接口 需要返回的数据 需要insert的  update的
         switch (request.getUniquelyIdentifies()) {
-            case "Method & Path" -> methodAndPath(importData, apiLists, apiDeatlWithData);
+            case "Method & Path" -> methodAndPath(importData, apiLists, apiDetailWithData);
             default -> {
             }
         }
     }
 
-    public void methodAndPath(List<ApiDefinitionImportDTO> importData,
-                              List<ApiDefinitionImportDTO> lists,
-                              ApiDeatlWithData apiDeatlWithData) {
+    public void methodAndPath(List<ApiDefinitionImportDetail> importData,
+                              List<ApiDefinitionImportDetail> lists,
+                              ApiDetailWithData apiDetailWithData) {
 
-        Map<String, ApiDefinitionImportDTO> apiDateMap = lists.stream().collect(Collectors.toMap(t -> t.getMethod() + t.getPath(), t -> t));
-        Map<String, ApiDefinitionImportDTO> importDataMap = importData.stream().collect(Collectors.toMap(t -> t.getMethod() + t.getPath(), t -> t));
+        Map<String, ApiDefinitionImportDetail> apiDateMap = lists.stream().collect(Collectors.toMap(t -> t.getMethod() + t.getPath(), t -> t));
+        Map<String, ApiDefinitionImportDetail> importDataMap = importData.stream().collect(Collectors.toMap(t -> t.getMethod() + t.getPath(), t -> t));
         //判断是否重复
         List<String> orgList = apiDateMap.keySet().stream().toList();
         List<String> importList = importDataMap.keySet().stream().toList();
@@ -468,10 +468,10 @@ public class ApiDefinitionImportUtilService {
         List<String> sameList = importList.stream().filter(orgList::contains).toList();
         // 不同接口的数据
         List<String> differenceList = importList.stream().filter(t -> !orgList.contains(t)).toList();
-        apiDeatlWithData.setSameList(sameList);
-        apiDeatlWithData.setDifferenceList(differenceList);
-        apiDeatlWithData.setApiDateMap(apiDateMap);
-        apiDeatlWithData.setImportDataMap(importDataMap);
+        apiDetailWithData.setSameList(sameList);
+        apiDetailWithData.setDifferenceList(differenceList);
+        apiDetailWithData.setApiDateMap(apiDateMap);
+        apiDetailWithData.setImportDataMap(importDataMap);
     }
 
     public boolean dataIsSame(MsHTTPElement dbRequest, MsHTTPElement importRequest) {
