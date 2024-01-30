@@ -235,6 +235,46 @@
                 </include>
             </if>
 
+            <if test='${condition}.status != null'>
+                case_review.status
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.status"/>
+                </include>
+                <include refid="queryType">
+                    <property name="searchMode" value="request.searchMode"/>
+                </include>
+            </if>
+
+            <if test='${condition}.description != null'>
+                case_review.status
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.status"/>
+                </include>
+                <include refid="queryType">
+                    <property name="searchMode" value="request.searchMode"/>
+                </include>
+            </if>
+
+            <if test='${condition}.reviewPassRule != null'>
+                case_review.status
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.reviewPassRule"/>
+                </include>
+                <include refid="queryType">
+                    <property name="searchMode" value="request.searchMode"/>
+                </include>
+            </if>
+
+            <if test='${condition}.createUser != null'>
+                case_review.status
+                <include refid="io.metersphere.system.mapper.BaseMapper.condition">
+                    <property name="object" value="${condition}.createUser"/>
+                </include>
+                <include refid="queryType">
+                    <property name="searchMode" value="request.searchMode"/>
+                </include>
+            </if>
+
             <if test='${condition}.id != null'>
                 case_review.num
                 <include refid="io.metersphere.system.mapper.BaseMapper.condition">
@@ -344,7 +384,7 @@
             <if test='${condition}.moduleIds != null and ${condition}.moduleIds.size() > 0 and ${ObjectModuleIds}.operator == "in"'>
                 case_review.module_id
                 <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                    <property name="object" value="${condition}.reviewers"/>
+                    <property name="object" value="${condition}.moduleIds"/>
                 </include>
 
                 <include refid="queryType">
@@ -354,7 +394,7 @@
             <if test='${condition}.moduleIds != null and ${condition}.moduleIds.size() > 0 and ${ObjectModuleIds}.operator == "not in"'>
                 case_review.module_id
                 <include refid="io.metersphere.system.mapper.BaseMapper.condition">
-                    <property name="object" value="${condition}.reviewers"/>
+                    <property name="object" value="${condition}.moduleIds"/>
                 </include>
                 <include refid="queryType">
                     <property name="searchMode" value="request.searchMode"/>
