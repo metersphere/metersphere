@@ -1,5 +1,5 @@
 <template>
-  <single-logo-layout is-project />
+  <single-logo-layout />
 </template>
 
 <script lang="ts" setup>

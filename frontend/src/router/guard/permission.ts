@@ -13,7 +13,11 @@ export default function setupPermissionGuard(router: Router) {
 
     if (exist || permissionsAllow) {
       next();
-    } else next(NO_RESOURCE_ROUTE_NAME);
+    } else {
+      next({
+        name: NO_RESOURCE_ROUTE_NAME,
+      });
+    }
     NProgress.done();
   });
 }
