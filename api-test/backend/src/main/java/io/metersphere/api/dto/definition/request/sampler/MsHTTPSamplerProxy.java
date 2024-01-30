@@ -135,10 +135,10 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
         sampler.setProperty(TestElement.TEST_CLASS, HTTPSamplerProxy.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HttpTestSampleGui"));
-        String resourceId = ElementUtil.setBaseParams(sampler, this.getParent(), config, this.getId(), this.getIndex());
-        resourceId = StringUtils.isNotBlank(config.getReportId()) ? config.getReportId() : resourceId;
-        LogUtil.info("设置SSL证书配置{}", resourceId);
-        sampler.setProperty("MS-KEYSTORE-ID", resourceId);
+        String keystoreId = ElementUtil.setBaseParams(sampler, this.getParent(), config, this.getId(), this.getIndex());
+        keystoreId = StringUtils.isNotBlank(config.getReportId()) ? config.getReportId() + "_" + keystoreId : keystoreId;
+        LogUtil.info("设置SSL证书配置{}", keystoreId);
+        sampler.setProperty("MS-KEYSTORE-ID", keystoreId);
 
         sampler.setMethod(this.getMethod());
         sampler.setContentEncoding(StandardCharsets.UTF_8.name());
@@ -237,7 +237,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         if (this.authManager != null && MsAuthManager.mechanismMap.containsKey(this.authManager.getVerification())) {
             this.authManager.setAuth(httpSamplerTree, this.authManager, sampler);
         }
-        addCertificate(config, httpSamplerTree, resourceId);
+        addCertificate(config, httpSamplerTree, keystoreId);
         if (httpConfig != null) {
             //根据配置增加全局前后至脚本
             JMeterScriptUtil.setScriptByHttpConfig(httpConfig, httpSamplerTree, config, useEnvironment, this.getEnvironmentId(), false);
