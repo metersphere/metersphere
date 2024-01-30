@@ -37,10 +37,13 @@ import io.metersphere.sdk.file.MinioRepository;
 import io.metersphere.sdk.mapper.EnvironmentGroupMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.*;
+import io.metersphere.system.domain.Schedule;
+import io.metersphere.system.domain.ScheduleExample;
 import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.request.ScheduleConfig;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.mapper.ScheduleMapper;
 import io.metersphere.system.schedule.ScheduleService;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
@@ -57,6 +60,10 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
+import org.quartz.CronExpression;
+import org.quartz.CronScheduleBuilder;
+import org.quartz.CronTrigger;
+import org.quartz.TriggerBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -123,6 +130,8 @@ public class ApiScenarioService {
     private ApiScenarioCsvStepMapper apiScenarioCsvStepMapper;
     @Resource
     private ScheduleService scheduleService;
+    @Resource
+    private ScheduleMapper scheduleMapper;
 
     public static final String PRIORITY = "Priority";
     public static final String STATUS = "Status";
@@ -134,7 +143,7 @@ public class ApiScenarioService {
         //CustomFieldUtils.setBaseQueryRequestCustomMultipleFields(request, userId);
         //TODO  场景的自定义字段 等设计 不一定会有
         List<ApiScenarioDTO> list = extApiScenarioMapper.list(request);
-        if (!CollectionUtils.isEmpty(list)) {
+        if (CollectionUtils.isNotEmpty(list)) {
             processApiScenario(list);
         }
         return list;
@@ -159,6 +168,12 @@ public class ApiScenarioService {
         List<ApiScenarioModule> modules = apiScenarioModuleMapper.selectByExample(moduleExample);
         //生成map key为id value为name
         Map<String, String> moduleMap = modules.stream().collect(Collectors.toMap(ApiScenarioModule::getId, ApiScenarioModule::getName));
+        //查询定时任务
+        List<String> scenarioIds = scenarioLists.stream().map(ApiScenarioDTO::getId).toList();
+        ScheduleExample scheduleExample = new ScheduleExample();
+        scheduleExample.createCriteria().andResourceIdIn(scenarioIds).andResourceTypeEqualTo(ScheduleResourceType.API_SCENARIO.name());
+        List<Schedule> schedules = scheduleMapper.selectByExample(scheduleExample);
+        Map<String, Schedule> scheduleMap = schedules.stream().collect(Collectors.toMap(Schedule::getResourceId, t -> t));
         scenarioLists.forEach(item -> {
             item.setCreateUserName(userMap.get(item.getCreateUser()));
             item.setDeleteUserName(userMap.get(item.getDeleteUser()));
@@ -169,7 +184,30 @@ public class ApiScenarioService {
             } else if (item.getGrouped() && groupMap.containsKey(item.getId())) {
                 item.setEnvironmentName(groupMap.get(item.getEnvironmentId()));
             }
+            if (MapUtils.isNotEmpty(scheduleMap) && scheduleMap.containsKey(item.getId())) {
+                Schedule schedule = scheduleMap.get(item.getId());
+                item.setScheduleId(schedule.getId());
+                item.setScheduleEnable(schedule.getEnable());
+                item.setScheduleCorn(schedule.getValue());
+                item.setScheduleExecuteTime(getNextTriggerTime(schedule.getValue()));
+            }
         });
+    }
+
+    /**
+     * 获取下次执行时间（getFireTimeAfter，也可以下下次...）
+     *
+     * @param cron cron表达式
+     * @return 下次执行时间
+     */
+    private static long getNextTriggerTime(String cron) {
+        if (!CronExpression.isValidExpression(cron)) {
+            return 0;
+        }
+        CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity("Calculate Date").withSchedule(CronScheduleBuilder.cronSchedule(cron)).build();
+        Date time0 = trigger.getStartTime();
+        Date time1 = trigger.getFireTimeAfter(time0);
+        return time1 == null ? 0 : time1.getTime();
     }
 
     private Set<String> extractUserIds(List<ApiScenarioDTO> list) {

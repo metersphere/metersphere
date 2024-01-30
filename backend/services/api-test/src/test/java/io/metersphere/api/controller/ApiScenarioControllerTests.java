@@ -13,6 +13,7 @@ import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.response.ApiScenarioBatchOperationResponse;
 import io.metersphere.api.dto.response.OperationDataInfo;
 import io.metersphere.api.dto.scenario.*;
+import io.metersphere.api.job.ApiScenarioScheduleJob;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiScenarioBatchOperationTestService;
 import io.metersphere.api.service.BaseResourcePoolTestService;
@@ -23,10 +24,7 @@ import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.project.dto.filemanagement.request.FileUploadRequest;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.service.FileMetadataService;
-import io.metersphere.sdk.constants.ApplicationNumScope;
-import io.metersphere.sdk.constants.DefaultRepositoryDir;
-import io.metersphere.sdk.constants.ModuleConstants;
-import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.domain.EnvironmentGroup;
@@ -39,7 +37,9 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.mapper.ScheduleMapper;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.CheckLogModel;
@@ -118,6 +118,8 @@ public class ApiScenarioControllerTests extends BaseTest {
     private ApiScenarioCsvMapper apiScenarioCsvMapper;
     @Resource
     private ApiScenarioService apiScenarioService;
+    @Resource
+    private ScheduleMapper scheduleMapper;
     private static String fileMetadataId;
     private static String localFileId;
     private static ApiScenario addApiScenario;
@@ -161,7 +163,6 @@ public class ApiScenarioControllerTests extends BaseTest {
         EnvironmentExample environmentExample = new EnvironmentExample();
         environmentExample.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID).andMockEqualTo(true);
         List<Environment> environments = environmentMapper.selectByExample(environmentExample);
-
         for (int i = 0; i < 10; i++) {
             ApiScenario apiScenario = new ApiScenario();
             apiScenario.setId("api-scenario-id" + i);
@@ -183,6 +184,21 @@ public class ApiScenarioControllerTests extends BaseTest {
                 apiScenario.setTags(new ArrayList<>(List.of("tag1", "tag2")));
                 apiScenario.setGrouped(true);
                 apiScenario.setEnvironmentId("scenario-environment-group-id");
+                Schedule schedule = new Schedule();
+                schedule.setId(IDGenerator.nextStr());
+                schedule.setKey(apiScenario.getId());
+                schedule.setProjectId(DEFAULT_PROJECT_ID);
+                schedule.setResourceId(apiScenario.getId());
+                schedule.setJob(ApiScenarioScheduleJob.class.getName());
+                schedule.setResourceType(ScheduleResourceType.API_SCENARIO.name());
+                schedule.setValue("0 0 0/1 * * ? ");
+                schedule.setEnable(true);
+                schedule.setName("定时任务");
+                schedule.setCreateUser("admin");
+                schedule.setUpdateTime(System.currentTimeMillis());
+                schedule.setCreateTime(System.currentTimeMillis());
+                schedule.setType(ScheduleType.CRON.name());
+                scheduleMapper.insertSelective(schedule);
             } else {
                 apiScenario.setGrouped(false);
                 apiScenario.setEnvironmentId(environments.get(0).getId());
