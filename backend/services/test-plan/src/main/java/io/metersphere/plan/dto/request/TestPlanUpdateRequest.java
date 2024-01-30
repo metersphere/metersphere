@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.util.LinkedHashSet;
@@ -15,6 +16,7 @@ public class TestPlanUpdateRequest {
     private String id;
 
     @Schema(description = "测试计划名称")
+    @Size(min = 1, max = 255, message = "{test_plan.name.length_range}")
     private String name;
 
     @Schema(description = "模块ID")

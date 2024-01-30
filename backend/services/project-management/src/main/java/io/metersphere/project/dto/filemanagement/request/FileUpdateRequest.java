@@ -2,6 +2,7 @@ package io.metersphere.project.dto.filemanagement.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ public class FileUpdateRequest {
     private String id;
 
     @Schema(description = "文件名称")
+    @Size(min = 1, max = 255, message = "{file_metadata.name.length_range}")
     private String name;
 
     //注： tags内的数据确保不重复且有序。所以使用这个数据结构接受
