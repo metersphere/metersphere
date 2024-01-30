@@ -173,7 +173,7 @@ public class FunctionalCaseService {
 
         //记录日志
         FunctionalCaseHistoryLogDTO historyLogDTO = getImportLogModule(functionalCase);
-        saveImportDataLog(functionalCase, new FunctionalCaseHistoryLogDTO(), historyLogDTO, userId, organizationId);
+        saveImportDataLog(functionalCase, new FunctionalCaseHistoryLogDTO(), historyLogDTO, userId, organizationId, OperationLogType.ADD.name());
 
         return functionalCase;
     }
@@ -938,7 +938,7 @@ public class FunctionalCaseService {
         List<FunctionalCaseCustomField> customFields = functionalCaseCustomFieldMapper.selectByExample(fieldExample);
         FunctionalCaseHistoryLogDTO historyLogDTO = new FunctionalCaseHistoryLogDTO(functionalCase, caseBlob, customFields, new ArrayList<>(), new ArrayList<>());
 
-        saveImportDataLog(functionalCase, new FunctionalCaseHistoryLogDTO(), historyLogDTO, userId, organizationId);
+        saveImportDataLog(functionalCase, new FunctionalCaseHistoryLogDTO(), historyLogDTO, userId, organizationId, OperationLogType.IMPORT.name());
     }
 
 
@@ -1047,7 +1047,7 @@ public class FunctionalCaseService {
         //记录新值
         FunctionalCaseHistoryLogDTO modifiedLogDTO = getImportLogModule(functionalCase);
         //记录日志
-        saveImportDataLog(functionalCase, originalValue, modifiedLogDTO, userId, organizationId);
+        saveImportDataLog(functionalCase, originalValue, modifiedLogDTO, userId, organizationId, OperationLogType.IMPORT.name());
     }
 
     private void handleUpdateCustomField(FunctionalCaseExcelData functionalCaseExcelData, String caseId, FunctionalCaseCustomFieldMapper customFieldMapper, Map<String, TemplateCustomFieldDTO> customFieldsMap) {
@@ -1065,13 +1065,13 @@ public class FunctionalCaseService {
      * @param originalValue  原值
      * @param modifiedLogDTO 新值
      */
-    private void saveImportDataLog(FunctionalCase functionalCase, FunctionalCaseHistoryLogDTO originalValue, FunctionalCaseHistoryLogDTO modifiedLogDTO, String userId, String organizationId) {
+    private void saveImportDataLog(FunctionalCase functionalCase, FunctionalCaseHistoryLogDTO originalValue, FunctionalCaseHistoryLogDTO modifiedLogDTO, String userId, String organizationId, String type) {
         LogDTO dto = new LogDTO(
                 functionalCase.getProjectId(),
                 organizationId,
                 functionalCase.getId(),
                 userId,
-                OperationLogType.IMPORT.name(),
+                type,
                 OperationLogModule.FUNCTIONAL_CASE,
                 functionalCase.getName());
         dto.setHistory(true);
