@@ -10,18 +10,20 @@ import io.metersphere.project.request.ProjectUserRoleRequest;
 import io.metersphere.project.service.ProjectUserRoleLogService;
 import io.metersphere.project.service.ProjectUserRoleService;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.system.dto.permission.PermissionDefinitionItem;
-import io.metersphere.system.dto.user.UserExtendDTO;
-import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.system.utils.PageUtils;
-import io.metersphere.system.utils.Pager;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRole;
+import io.metersphere.system.dto.permission.PermissionDefinitionItem;
+import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
+import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.UserRoleService;
+import io.metersphere.system.utils.PageUtils;
+import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
+import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -57,7 +59,7 @@ public class ProjectUserRoleController {
     @Operation(summary = "项目管理-项目与权限-用户组-添加用户组")
     @RequiresPermissions(PermissionConstants.PROJECT_GROUP_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = ProjectUserRoleLogService.class)
-    public UserRole add(@Validated @RequestBody ProjectUserRoleEditRequest request) {
+    public UserRole add(@Validated({Created.class}) @RequestBody ProjectUserRoleEditRequest request) {
         UserRole userRole = new UserRole();
         userRole.setCreateUser(SessionUtils.getUserId());
         BeanUtils.copyBean(userRole, request);
@@ -68,7 +70,7 @@ public class ProjectUserRoleController {
     @Operation(summary = "项目管理-项目与权限-用户组-修改用户组")
     @RequiresPermissions(PermissionConstants.PROJECT_GROUP_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ProjectUserRoleLogService.class)
-    public UserRole update(@Validated @RequestBody ProjectUserRoleEditRequest request) {
+    public UserRole update(@Validated({Updated.class}) @RequestBody ProjectUserRoleEditRequest request) {
         UserRole userRole = new UserRole();
         BeanUtils.copyBean(userRole, request);
         return projectUserRoleService.update(userRole);

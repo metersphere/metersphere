@@ -3,23 +3,25 @@ package io.metersphere.system.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.system.dto.permission.PermissionDefinitionItem;
-import io.metersphere.system.dto.user.UserExtendDTO;
-import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.system.utils.PageUtils;
-import io.metersphere.system.utils.Pager;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRole;
-import io.metersphere.system.log.annotation.Log;
-import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.dto.permission.PermissionDefinitionItem;
 import io.metersphere.system.dto.request.OrganizationUserRoleEditRequest;
 import io.metersphere.system.dto.request.OrganizationUserRoleMemberEditRequest;
 import io.metersphere.system.dto.request.OrganizationUserRoleMemberRequest;
+import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
+import io.metersphere.system.dto.user.UserExtendDTO;
+import io.metersphere.system.log.annotation.Log;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.OrganizationUserRoleLogService;
 import io.metersphere.system.service.OrganizationUserRoleService;
 import io.metersphere.system.service.UserRoleService;
+import io.metersphere.system.utils.PageUtils;
+import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
+import io.metersphere.validation.groups.Created;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -57,7 +59,7 @@ public class OrganizationUserRoleController {
     @Operation(summary = "系统设置-组织-用户组-添加用户组")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = OrganizationUserRoleLogService.class)
-    public UserRole add(@Validated @RequestBody OrganizationUserRoleEditRequest request) {
+    public UserRole add(@Validated({Created.class}) @RequestBody OrganizationUserRoleEditRequest request) {
         UserRole userRole = new UserRole();
         userRole.setCreateUser(SessionUtils.getUserId());
         BeanUtils.copyBean(userRole, request);
@@ -68,7 +70,7 @@ public class OrganizationUserRoleController {
     @Operation(summary = "系统设置-组织-用户组-修改用户组")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_USER_ROLE_READ_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = OrganizationUserRoleLogService.class)
-    public UserRole update(@Validated @RequestBody OrganizationUserRoleEditRequest request) {
+    public UserRole update(@Validated({Updated.class}) @RequestBody OrganizationUserRoleEditRequest request) {
         UserRole userRole = new UserRole();
         BeanUtils.copyBean(userRole, request);
         return organizationUserRoleService.update(userRole);
