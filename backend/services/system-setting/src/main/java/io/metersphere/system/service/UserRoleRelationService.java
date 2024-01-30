@@ -184,7 +184,7 @@ public class UserRoleRelationService {
                 userInfo.getUserRoleList().add(userRole);
             }
             Organization organization = organizationMap.get(userRoleRelation.getSourceId());
-            if (organization != null) {
+            if (organization != null && !userInfo.getOrganizationList().contains(organization)) {
                 userInfo.getOrganizationList().add(organization);
             }
         }
