@@ -25,9 +25,13 @@
         <MsUserAdminDiv :is-admin="record.orgCreateUserIsAdmin" :name="record.createUser" />
       </template>
       <template #memberCount="{ record }">
-        <span class="cursor-pointer text-[rgb(var(--primary-5))]" @click="showUserDrawer(record)">{{
-          record.memberCount
-        }}</span>
+        <span
+          v-if="hasAnyPermission(['ORGANIZATION_PROJECT:READ+UPDATE'])"
+          class="cursor-pointer text-[rgb(var(--primary-5))]"
+          @click="showUserDrawer(record)"
+          >{{ record.memberCount }}</span
+        >
+        <span v-else>{{ record.memberCount }}</span>
       </template>
       <template #operation="{ record }">
         <template v-if="record.deleted">
@@ -103,6 +107,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { UserItem } from '@/models/setting/log';
   import { CreateOrUpdateSystemProjectParams, OrgProjectTableItem } from '@/models/setting/system/orgAndProject';
@@ -117,6 +122,13 @@
   const { openDeleteModal, openModal } = useModal();
   const appStore = useAppStore();
   const currentOrgId = computed(() => appStore.currentOrgId);
+  const hasOperationPermission = computed(() =>
+    hasAnyPermission([
+      'ORGANIZATION_PROJECT:READ+RECOVER',
+      'ORGANIZATION_PROJECT:READ+UPDATE',
+      'ORGANIZATION_PROJECT:READ+DELETE',
+    ])
+  );
 
   const keyword = ref('');
 
@@ -126,39 +138,13 @@
       dataIndex: 'num',
       width: 100,
       showTooltip: true,
-      filterConfig: {
-        multiple: false,
-        options: [
-          {
-            label: t('common.all'),
-            value: 'all',
-          },
-          {
-            label: t('common.only'),
-            value: 'only',
-          },
-        ],
-      },
     },
     {
       title: 'system.organization.name',
       revokeDeletedSlot: 'revokeDelete',
-      editType: ColumnEditTypeEnum.INPUT,
+      editType: hasAnyPermission(['ORGANIZATION_PROJECT:READ+UPDATE']) ? ColumnEditTypeEnum.INPUT : undefined,
       dataIndex: 'name',
       showTooltip: true,
-      filterConfig: {
-        multiple: false,
-        options: [
-          {
-            label: t('common.all'),
-            value: 'all',
-          },
-          {
-            label: t('common.only'),
-            value: 'only',
-          },
-        ],
-      },
     },
     {
       title: 'system.organization.member',
@@ -201,11 +187,11 @@
       },
     },
     {
-      title: 'system.organization.operation',
+      title: hasOperationPermission.value ? 'system.organization.operation' : '',
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 230,
+      width: hasOperationPermission.value ? 230 : 50,
     },
   ];
 

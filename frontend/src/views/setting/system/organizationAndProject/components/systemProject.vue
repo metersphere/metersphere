@@ -20,7 +20,13 @@
       <MsUserAdminDiv :is-admin="record.projectCreateUserIsAdmin" :name="record.createUser" />
     </template>
     <template #memberCount="{ record }">
-      <span class="primary-color" @click="showUserDrawer(record)">{{ record.memberCount }}</span>
+      <span
+        v-if="hasAnyPermission(['SYSTEM_ORGANIZATION_PROJECT:READ+UPDATE'])"
+        class="primary-color"
+        @click="showUserDrawer(record)"
+        >{{ record.memberCount }}</span
+      >
+      <span v-else>{{ record.memberCount }}</span>
     </template>
     <template #operation="{ record }">
       <template v-if="record.deleted">
@@ -117,6 +123,13 @@
   const currentProjectId = ref('');
   const currentUpdateProject = ref<CreateOrUpdateSystemProjectParams>();
   const { openDeleteModal, openModal } = useModal();
+  const hasOperationPermission = computed(() =>
+    hasAnyPermission([
+      'SYSTEM_ORGANIZATION_PROJECT:READ+RECOVER',
+      'SYSTEM_ORGANIZATION_PROJECT:READ+UPDATE',
+      'SYSTEM_ORGANIZATION_PROJECT:READ+DELETE',
+    ])
+  );
 
   const organizationColumns: MsTableColumn = [
     {
@@ -167,10 +180,11 @@
       width: 180,
     },
     {
-      title: 'system.organization.operation',
+      title: hasOperationPermission.value ? 'system.organization.operation' : '',
       slotName: 'operation',
+      dataIndex: 'operation',
       fixed: 'right',
-      width: 230,
+      width: hasOperationPermission.value ? 230 : 50,
     },
   ];
 

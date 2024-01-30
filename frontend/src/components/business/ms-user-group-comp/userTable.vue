@@ -3,7 +3,7 @@
     <template v-if="hasAnyPermission(props.updatePermission || [])" #quickCreate>
       <MsConfirmUserSelector :ok-loading="okLoading" v-bind="userSelectorProps" @confirm="handleAddMember" />
     </template>
-    <template #action="{ record }">
+    <template v-if="hasAnyPermission(props.updatePermission || [])" #action="{ record }">
       <MsRemoveButton
         :title="t('system.userGroup.removeName', { name: record.name })"
         :sub-title-tip="t('system.userGroup.removeTip')"

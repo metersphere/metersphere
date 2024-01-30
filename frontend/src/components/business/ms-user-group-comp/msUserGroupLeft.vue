@@ -167,6 +167,7 @@
                     </div>
                   </MsMoreAction>
                   <MsMoreAction
+                    v-permission="['ORGANIZATION_USER_ROLE:READ+UPDATE']"
                     :list="orgMoreAction"
                     @select="(value) => handleMoreAction(value, element.id, AuthScopeEnum.ORGANIZATION)"
                   >
