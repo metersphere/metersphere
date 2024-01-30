@@ -1,9 +1,6 @@
 package io.metersphere.project.controller;
 
-import io.metersphere.project.dto.environment.EnvironmentFilterRequest;
-import io.metersphere.project.dto.environment.EnvironmentImportRequest;
-import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
-import io.metersphere.project.dto.environment.EnvironmentRequest;
+import io.metersphere.project.dto.environment.*;
 import io.metersphere.project.dto.environment.datasource.DataSource;
 import io.metersphere.project.dto.environment.ssl.KeyStoreEntry;
 import io.metersphere.project.service.CommandService;
@@ -57,6 +54,12 @@ public class EnvironmentController {
         return environmentService.get(id);
     }
 
+    @GetMapping("/scripts/{projectId}")
+    @Operation(summary = "项目管理-环境-环境目录-接口插件前端配置脚本列表")
+    @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ)
+    public List<EnvironmentPluginScriptDTO> getPluginScripts(@PathVariable String projectId) {
+        return environmentService.getPluginScripts(projectId);
+    }
 
     @PostMapping("/add")
     @Operation(summary = "项目管理-环境-环境目录-新增")

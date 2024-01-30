@@ -18,6 +18,7 @@ import io.metersphere.sdk.file.MinioRepository;
 import io.metersphere.sdk.mapper.EnvironmentBlobMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.*;
+import io.metersphere.system.domain.PluginScript;
 import io.metersphere.system.dto.sdk.BaseSystemConfigDTO;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
@@ -26,7 +27,9 @@ import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
+import io.metersphere.system.service.ApiPluginService;
 import io.metersphere.system.service.JdbcDriverPluginService;
+import io.metersphere.system.service.PluginScriptService;
 import io.metersphere.system.service.SystemParameterService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
@@ -34,6 +37,7 @@ import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.pf4j.PluginWrapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -63,6 +67,12 @@ public class EnvironmentService {
     private OperationLogService operationLogService;
     @Resource
     private ExtEnvironmentMapper extEnvironmentMapper;
+    @Resource
+    private ProjectService projectService;
+    @Resource
+    private ApiPluginService apiPluginService;
+    @Resource
+    private PluginScriptService pluginScriptService;
     public static final Long ORDER_STEP = 5000L;
 
     private static final String USERNAME = "user";
@@ -366,5 +376,24 @@ public class EnvironmentService {
                 extEnvironmentMapper::getPrePos,
                 extEnvironmentMapper::getLastPos,
                 environmentMapper::updateByPrimaryKeySelective);
+    }
+
+    public List<EnvironmentPluginScriptDTO> getPluginScripts(String projectId) {
+        Project project = projectService.checkProjectNotExist(projectId);
+        // 查询组织下有权限的接口插件ID
+        List<String> orgApiPluginIds = apiPluginService.getOrgApiPluginWrappers(project.getOrganizationId())
+                .stream()
+                .map(PluginWrapper::getPluginId)
+                .collect(Collectors.toList());
+        // 查询环境页面脚本
+        List<PluginScript> pluginScripts = pluginScriptService.getByPluginIdsAndScriptId(orgApiPluginIds, "environment");
+
+        // 返回环境脚本列表
+        return pluginScripts.stream().map(pluginScript -> {
+            EnvironmentPluginScriptDTO envPluginScript = new EnvironmentPluginScriptDTO();
+            envPluginScript.setPluginId(pluginScript.getPluginId());
+            envPluginScript.setScript(JSON.parseObject(new String(pluginScript.getScript())));
+            return envPluginScript;
+        }).toList();
     }
 }

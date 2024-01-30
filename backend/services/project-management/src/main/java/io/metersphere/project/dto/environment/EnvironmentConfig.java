@@ -15,6 +15,7 @@ import lombok.Data;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 @Data
 public class EnvironmentConfig implements Serializable {
@@ -38,6 +39,8 @@ public class EnvironmentConfig implements Serializable {
     private EnvironmentPostScript postScript;
     @Schema(description = "全局断言")
     private MsAssertionConfig assertions;
+    @Schema(description = "插件自定义的配置项，key为插件ID，value 为对应配置")
+    private Map<String, Object> pluginConfigMap;
 
 
     public EnvironmentConfig() {

@@ -316,6 +316,11 @@ public class PluginControllerTests extends BaseTest {
     public void getScript() throws Exception {
         // @@请求成功
         MvcResult mvcResult = this.requestGetWithOk(SCRIPT_GET, this.addPlugin.getId(), "connect").andReturn();
+
+        // 增加覆盖率
+        pluginScriptService.getByPluginIdsAndScriptId(List.of(), "connect");
+        pluginScriptService.getByPluginIdsAndScriptId(List.of(addPlugin.getId()), "connect");
+
         // 校验数据是否正确
         Assertions.assertTrue(StringUtils.isNotBlank(getResultData(mvcResult, String.class)));
         // @@校验权限

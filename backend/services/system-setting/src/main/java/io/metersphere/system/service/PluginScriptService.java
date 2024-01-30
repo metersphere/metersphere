@@ -85,4 +85,13 @@ public class PluginScriptService {
         return scriptMap;
 
     }
+
+    public List<PluginScript> getByPluginIdsAndScriptId(List<String> pluginIds, String scriptId) {
+        if (CollectionUtils.isEmpty(pluginIds)) {
+            return Collections.emptyList();
+        }
+        PluginScriptExample example = new PluginScriptExample();
+        example.createCriteria().andScriptIdEqualTo(scriptId);
+        return pluginScriptMapper.selectByExampleWithBLOBs(example);
+    }
 }

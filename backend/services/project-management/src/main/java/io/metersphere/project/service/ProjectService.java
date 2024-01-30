@@ -129,10 +129,12 @@ public class ProjectService {
         }
     }
 
-    public void checkProjectNotExist(String id) {
-        if (projectMapper.selectByPrimaryKey(id) == null) {
+    public Project checkProjectNotExist(String id) {
+        Project project = projectMapper.selectByPrimaryKey(id);
+        if (project == null) {
             throw new MSException(Translator.get("project_is_not_exist"));
         }
+        return project;
     }
 
     private List<String> getPoolIds(String projectId) {
