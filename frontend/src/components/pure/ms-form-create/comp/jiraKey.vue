@@ -4,6 +4,7 @@
     :placeholder="t('project.menu.pleaseInputJiraKey')"
     v-bind="attrs"
     @change="(v: string) => emit('update:modelValue', v)"
+    @blur="handleBlur"
   />
   <div class="flex flex-row items-center gap-[10px] text-[12px] leading-[16px]">
     <span class="text-[var(--color-text-4)]">{{ t('project.menu.howGetJiraKey') }}</span>
@@ -20,6 +21,9 @@
 </template>
 
 <script setup lang="ts">
+  import { Message } from '@arco-design/web-vue';
+
+  import { validateJIRAKey } from '@/api/modules/project-management/menuManagement';
   import { getLogo } from '@/api/modules/setting/serviceIntegration';
   import { useI18n } from '@/hooks/useI18n';
 
@@ -44,6 +48,17 @@
       previewIcon.value = URL.createObjectURL(new Blob([data]));
     });
   });
+  const handleBlur = async () => {
+    const pluginId = sessionStorage.getItem('platformKey') || '';
+    if (pluginId) {
+      try {
+        await validateJIRAKey({ name: '1231' }, pluginId);
+        Message.success('common.validateSuccess');
+      } catch {
+        Message.error('common.validateFaild');
+      }
+    }
+  };
 </script>
 
 <style scoped></style>

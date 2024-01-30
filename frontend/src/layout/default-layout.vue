@@ -1,7 +1,12 @@
 <template>
   <a-layout class="layout" :class="{ mobile: appStore.hideMenu }">
     <div v-if="navbar" class="layout-navbar z-[100]">
-      <NavBar :is-preview="innerProps.isPreview" :logo="innerLogo" :name="innerName" />
+      <NavBar
+        :is-preview="innerProps.isPreview"
+        :hide-right="innerProps.hideRight"
+        :logo="innerLogo"
+        :name="innerName"
+      />
     </div>
     <slot name="body">
       <a-layout>
@@ -44,7 +49,9 @@
               >
                 <MsBreadCrumb />
                 <a-layout-content>
-                  <PageLayout v-if="!props.isPreview" />
+                  <slot name="page">
+                    <PageLayout v-if="!props.isPreview" />
+                  </slot>
                   <slot></slot>
                 </a-layout-content>
                 <Footer v-if="footer" />
@@ -76,6 +83,7 @@
     logo?: string;
     name?: string;
     singleLogo?: boolean;
+    hideRight?: boolean;
   }
   const props = defineProps<Props>();
 

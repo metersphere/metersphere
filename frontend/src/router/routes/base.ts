@@ -4,11 +4,12 @@ import type { RouteRecordRaw } from 'vue-router';
 
 export const DEFAULT_LAYOUT = () => import('@/layout/default-layout.vue');
 export const PAGE_LAYOUT = () => import('@/layout/page-layout.vue');
+export const NO_PERMISSION_LAYOUT = () => import('@/layout/no-permission-layout.vue');
 
 export const INDEX_ROUTE: RouteRecordRaw = {
   path: '/index',
   name: 'metersphereIndex',
-  component: DEFAULT_LAYOUT,
+  component: NO_PERMISSION_LAYOUT,
   meta: {
     hideInMenu: true,
     roles: ['*'],

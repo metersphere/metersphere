@@ -34,7 +34,7 @@
       </template>
       <TopMenu />
     </div>
-    <ul v-if="!props.isPreview" class="right-side">
+    <ul v-if="!props.isPreview && !props.hideRight" class="right-side">
       <li>
         <a-tooltip :content="t('settings.navbar.search')">
           <a-button type="secondary">
@@ -142,6 +142,7 @@
     isPreview?: boolean;
     logo?: string;
     name?: string;
+    hideRight?: boolean;
   }>();
 
   const appStore = useAppStore();

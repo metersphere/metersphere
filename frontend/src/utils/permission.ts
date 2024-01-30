@@ -49,7 +49,7 @@ export function hasAnyPermission(permissions: string[], typeList = ['PROJECT', '
 }
 
 function filterProject(role: UserRole, id: string) {
-  return role && role.type === 'PROJECT' && role.scopeId === id;
+  return role && role.type === 'PROJECT' && (role.scopeId === id || role.scopeId === 'global');
 }
 function filterOrganization(role: UserRole, id: string) {
   return role && role.type === 'ORGANIZATION' && (role.scopeId === id || role.scopeId === 'global');
