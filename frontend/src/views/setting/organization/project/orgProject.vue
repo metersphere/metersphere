@@ -1,7 +1,9 @@
 <template>
   <MsCard simple>
     <div class="mb-[16px] flex items-center justify-between">
-      <a-button type="primary" @click="showAddProject">{{ t('system.organization.createProject') }}</a-button>
+      <a-button v-permission="['ORGANIZATION_PROJECT:READ+ADD']" type="primary" @click="showAddProject">{{
+        t('system.organization.createProject')
+      }}</a-button>
       <a-input-search
         v-model="keyword"
         :placeholder="t('system.user.searchUser')"

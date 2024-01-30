@@ -21,7 +21,7 @@ export default {
     'menu.workbench': '工作台',
     'menu.testPlan': '测试计划',
     'menu.bugManagement': '缺陷管理',
-    'menu.caseManagement': '功能测试',
+    'menu.caseManagement': '用例管理',
     'menu.apiTest': '接口测试',
     'menu.apiTest.debug': '接口调试',
     'menu.apiTest.management': '接口管理',

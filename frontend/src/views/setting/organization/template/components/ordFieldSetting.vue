@@ -1,5 +1,11 @@
 <template>
-  <MsCard has-breadcrumb simple> <FieldSetting mode="organization" /></MsCard>
+  <MsCard has-breadcrumb simple>
+    <FieldSetting
+      mode="organization"
+      :delete-permission="['ORGANIZATION_TEMPLATE:READ+DELETE']"
+      :update-permission="['ORGANIZATION_TEMPLATE:READ+UPDATE']"
+      :create-permission="['ORGANIZATION_TEMPLATE:READ+ADD']"
+  /></MsCard>
 </template>
 
 <script setup lang="ts">

@@ -91,7 +91,7 @@
           ></a-input>
           <MsFormItemSub :text="t('system.config.baseInfo.pageUrlSub', { url: defaultUrl })" @fill="fillDefaultUrl" />
         </a-form-item>
-        <a-form-item :label="t('system.config.prometheus')" field="prometheusHost" asterisk-position="end">
+        <a-form-item v-xpack :label="t('system.config.prometheus')" field="prometheusHost" asterisk-position="end">
           <a-input
             v-model:model-value="baseInfoForm.prometheusHost"
             :max-length="250"

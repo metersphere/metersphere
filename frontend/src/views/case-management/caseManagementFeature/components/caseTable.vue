@@ -403,7 +403,7 @@
     {
       title: 'caseManagement.featureCase.tableColumnVersion',
       slotName: 'versionName',
-      dataIndex: 'versionNam',
+      dataIndex: 'versionName',
       width: 300,
       showTooltip: true,
       showInTable: true,
@@ -481,20 +481,20 @@
 
   const tableBatchActions = {
     baseAction: [
-      {
-        label: 'caseManagement.featureCase.export',
-        eventTag: 'export',
-        children: [
-          {
-            label: 'caseManagement.featureCase.exportExcel',
-            eventTag: 'exportExcel',
-          },
-          {
-            label: 'caseManagement.featureCase.exportXMind',
-            eventTag: 'exportXMind',
-          },
-        ],
-      },
+      // {
+      //   label: 'caseManagement.featureCase.export',
+      //   eventTag: 'export',
+      //   children: [
+      //     {
+      //       label: 'caseManagement.featureCase.exportExcel',
+      //       eventTag: 'exportExcel',
+      //     },
+      //     {
+      //       label: 'caseManagement.featureCase.exportXMind',
+      //       eventTag: 'exportXMind',
+      //     },
+      //   ],
+      // },
       {
         label: 'common.edit',
         eventTag: 'batchEdit',
@@ -1171,9 +1171,12 @@
   }
 
   function showCaseDetailEvent(record: TableData, column: TableColumnData, ev: Event) {
+    showDetailDrawer.value = false;
     if (column.title === 'name' || column.title === 'num') {
       const rowIndex = propsRes.value.data.map((item: any) => item.id).indexOf(record.id);
-      showCaseDetail(record.id, rowIndex);
+      showDetailDrawer.value = true;
+      activeDetailId.value = record.id;
+      activeCaseIndex.value = rowIndex;
     }
   }
   onMounted(() => {

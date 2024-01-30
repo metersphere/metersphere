@@ -38,7 +38,11 @@
           <MsButton v-permission="['SYSTEM_USER:READ+UPDATE']" @click="showUserModal('edit', record)">{{
             t('system.user.editUser')
           }}</MsButton>
-          <MsTableMoreAction :list="tableActions" @select="handleSelect($event, record)"></MsTableMoreAction>
+          <MsTableMoreAction
+            v-if="hasAnyPermission(['SYSTEM_USER:READ+UPDATE', 'SYSTEM_USER:READ+UPDATE', 'SYSTEM_USER:READ+DELETE'])"
+            :list="tableActions"
+            @select="handleSelect($event, record)"
+          ></MsTableMoreAction>
         </template>
       </template>
     </ms-base-table>
@@ -219,6 +223,7 @@
   import useModal from '@/hooks/useModal';
   import { useTableStore } from '@/store';
   import { characterLimit } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
   import { validateEmail, validatePhone } from '@/utils/validate';
 
   import type { SimpleUserInfo, SystemRole, UserListItem } from '@/models/setting/user';

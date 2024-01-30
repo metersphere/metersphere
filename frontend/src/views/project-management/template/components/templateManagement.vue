@@ -42,7 +42,7 @@
         </div>
       </template>
       <template #operation="{ record }">
-        <div class="flex flex-row flex-nowrap items-center">
+        <div v-if="!record.enablePlatformDefault" class="flex flex-row flex-nowrap items-center">
           <MsButton v-permission="['PROJECT_TEMPLATE:READ+UPDATE']" @click="editTemplate(record.id)">{{
             t('system.orgTemplate.edit')
           }}</MsButton>

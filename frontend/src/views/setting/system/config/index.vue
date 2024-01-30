@@ -33,7 +33,8 @@
   const tabList = ref([
     { key: 'baseConfig', title: t('system.config.baseConfig'), permission: ['SYSTEM_PARAMETER_SETTING_BASE:READ'] },
     { key: 'pageConfig', title: t('system.config.pageConfig'), permission: ['SYSTEM_PARAMETER_SETTING_DISPLAY:READ'] },
-    { key: 'authConfig', title: t('system.config.authConfig'), permission: ['SYSTEM_PARAMETER_SETTING_AUTH:READ'] },
+    // TODO 后台目前没有写 第一版不上
+    // { key: 'authConfig', title: t('system.config.authConfig'), permission: ['SYSTEM_PARAMETER_SETTING_AUTH:READ'] },
     { key: 'memoryCleanup', title: t('system.config.memoryCleanup'), permission: [] },
   ]);
 
@@ -53,14 +54,19 @@
     }
   );
   const licenseStore = useLicenseStore();
-  onMounted(() => {
-    if (route.query.tab === 'authConfig' && route.query.id) {
-      authConfigRef.value?.openAuthDetail(route.query.id as string);
-    }
+
+  async function getXpackTab() {
+    await licenseStore.getValidateLicense();
     if (!licenseStore.hasLicense()) {
       const excludes = ['baseConfig', 'memoryCleanup'];
       tabList.value = tabList.value.filter((item: any) => excludes.includes(item.key));
     }
+  }
+  onMounted(() => {
+    if (route.query.tab === 'authConfig' && route.query.id) {
+      authConfigRef.value?.openAuthDetail(route.query.id as string);
+    }
+    getXpackTab();
   });
 </script>
 

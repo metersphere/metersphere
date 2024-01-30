@@ -7,7 +7,13 @@
     }}</a-alert>
     <div class="mb-4 flex items-center justify-between">
       <span v-if="isEnabledTemplate" class="font-medium">{{ t('system.orgTemplate.fieldList') }}</span>
-      <a-button v-else type="primary" :disabled="isDisabled" @click="fieldHandler">
+      <a-button
+        v-else
+        v-permission="props.createPermission"
+        type="primary"
+        :disabled="isDisabled"
+        @click="fieldHandler"
+      >
         {{ t('system.orgTemplate.addField') }}
       </a-button>
       <a-input-search
@@ -52,12 +58,15 @@
             :ok-text="t('system.orgTemplate.confirm')"
             @confirm="handleOk(record)"
           >
-            <MsButton class="!mr-0">{{ t('system.orgTemplate.edit') }}</MsButton></MsPopConfirm
+            <MsButton v-permission="props.updatePermission" class="!mr-0">{{
+              t('system.orgTemplate.edit')
+            }}</MsButton></MsPopConfirm
           >
 
           <a-divider v-if="!record.internal" class="h-[12px]" direction="vertical" />
           <MsTableMoreAction
             v-if="!record.internal"
+            v-permission="props.deletePermission"
             :list="moreActions"
             @select="(item) => handleMoreActionSelect(item, record)"
           />
@@ -157,6 +166,9 @@
 
   const props = defineProps<{
     mode: 'organization' | 'project';
+    deletePermission?: string[];
+    createPermission?: string[];
+    updatePermission?: string[];
   }>();
 
   const currentOrd = computed(() => appStore.currentOrgId);

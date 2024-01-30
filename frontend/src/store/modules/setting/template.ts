@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia';
 
 import { getOrdTemplate, getProTemplate } from '@/api/modules/setting/template';
+import { hasAnyPermission } from '@/utils/permission';
 
 import useAppStore from '../app';
 
 const appStore = useAppStore();
-
 const useTemplateStore = defineStore('template', {
   persist: true,
   state: (): {
@@ -33,8 +33,13 @@ const useTemplateStore = defineStore('template', {
       const currentOrgId = computed(() => appStore.currentOrgId);
       const currentProjectId = computed(() => appStore.currentProjectId);
       try {
-        this.ordStatus = await getOrdTemplate(currentOrgId.value);
-        this.projectStatus = await getProTemplate(currentProjectId.value);
+        if (currentOrgId.value && hasAnyPermission(['ORGANIZATION_TEMPLATE:READ'])) {
+          this.ordStatus = await getOrdTemplate(currentOrgId.value);
+        }
+
+        if (currentProjectId.value && hasAnyPermission(['PROJECT_TEMPLATE:READ'])) {
+          this.projectStatus = await getProTemplate(currentProjectId.value);
+        }
       } catch (error) {
         console.log(error);
       }

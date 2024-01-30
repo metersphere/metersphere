@@ -15,7 +15,7 @@
               <span @click="fieldSetting">{{ t('system.orgTemplate.fieldSetting') }}</span>
               <a-divider direction="vertical" />
             </span>
-            <span v-permission="['ORGANIZATION_TEMPLATE:READ']" class="operation hover:text-[rgb(var(--primary-5))]">
+            <span class="operation hover:text-[rgb(var(--primary-5))]">
               <span @click="templateManagement">{{ t('system.orgTemplate.TemplateManagement') }}</span>
               <a-divider v-if="isEnableProject || props.cardItem.key === 'BUG'" direction="vertical" />
             </span>
