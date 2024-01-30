@@ -66,7 +66,7 @@ public class CreateRobotResourceService implements CreateProjectResourceService 
         projectRobotMail.setPlatform(ProjectRobotPlatform.MAIL.toString());
         projectRobotMail.setWebhook("NONE");
         projectRobotMail.setCreateUser("admin");
-        projectRobotMail.setEnable(true);
+        projectRobotMail.setEnable(false);
         projectRobotMail.setDescription("robot_mail_description");
         projectRobotMail.setCreateTime(System.currentTimeMillis());
         projectRobotMail.setUpdateUser("admin");
