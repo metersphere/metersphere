@@ -74,6 +74,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTemplateStore from '@/store/modules/setting/template';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { UpdateWorkFlowSetting, WorkFlowType } from '@/models/setting/template';
 
@@ -89,6 +90,9 @@
     columnItem: TableColumnData;
     cellCoordinates: { rowId: string; columnId: string };
     totalData: WorkFlowType[];
+    deletePermission?: string[];
+    createPermission?: string[];
+    updatePermission?: string[];
   }>();
 
   const emit = defineEmits<{
@@ -149,6 +153,9 @@
 
   // 计算当前是否选中class
   function setSelectClass() {
+    if (!hasAnyPermission(props.updatePermission || [])) {
+      return;
+    }
     if (isUnCreateWorkFlow.value && isSelected.value) {
       styleClass.value = {
         wrapper: { _select_unCreate_Selected: true },
@@ -220,6 +227,9 @@
 
   // 创建流转步骤
   function createFlowStep() {
+    if (!hasAnyPermission(props.updatePermission || [])) {
+      return;
+    }
     if (isEnableProjectState.value) {
       return;
     }
@@ -231,6 +241,9 @@
   const updateOrdWorkStateFlow = getWorkFlowRequestApi(props.mode).updateFlow;
   // 创建工作流流转状态
   async function changeWorkFlow(type: string) {
+    if (!hasAnyPermission(props.updatePermission || [])) {
+      return;
+    }
     try {
       loading.value = true;
       const params: UpdateWorkFlowSetting = {
@@ -254,6 +267,9 @@
 
   // 删除取消流转步骤
   function cancelFlowStep() {
+    if (!hasAnyPermission(props.updatePermission || [])) {
+      return;
+    }
     if (isEnableProjectState.value) {
       return;
     }

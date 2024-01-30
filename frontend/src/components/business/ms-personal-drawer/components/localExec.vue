@@ -48,7 +48,7 @@
           </div>
         </div>
       </div>
-      <div class="config-card">
+      <div v-xpack class="config-card">
         <div class="config-card-title">
           <div class="config-card-title-text">{{ t('ms.personal.uiLocalExecution') }}</div>
           <MsTag

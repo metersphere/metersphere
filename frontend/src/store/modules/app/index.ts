@@ -58,7 +58,7 @@ const useAppStore = defineStore('app', {
       ...defaultLoginConfig,
       ...defaultPlatformConfig,
     },
-    packageType: 'community',
+    packageType: '',
   }),
 
   getters: {
@@ -200,6 +200,16 @@ const useAppStore = defineStore('app', {
      */
     setCurrentProjectId(id: string) {
       this.currentProjectId = id;
+    },
+    /**
+     * 设置当前系统包类型
+     */
+    setPackageType(type: string) {
+      this.packageType = type;
+    },
+    // 重置系统包的版本
+    resetSystemPackageType() {
+      this.packageType = '';
     },
     /**
      * 获取系统版本

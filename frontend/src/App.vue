@@ -52,7 +52,6 @@
 
   onBeforeMount(async () => {
     try {
-      await appStore.initSystemPackage(); // 初始化系统包版本
       await appStore.initSystemVersion(); // 初始化系统版本
       // 企业版才校验license
       if (appStore.packageType === 'enterprise') {

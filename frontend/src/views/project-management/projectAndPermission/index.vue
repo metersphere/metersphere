@@ -36,20 +36,7 @@
   const route = useRoute();
   const licenseStore = useLicenseStore();
 
-  function getProjectVersion() {
-    if (licenseStore.hasLicense()) {
-      return [
-        {
-          key: 'projectVersion',
-          title: t('project.permission.projectVersion'),
-          level: 2,
-          name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_VERSION,
-        },
-      ];
-    }
-    return [];
-  }
-  const sourceMenuList = [
+  const sourceMenuList = ref([
     {
       key: 'project',
       title: t('project.permission.project'),
@@ -68,7 +55,12 @@
       level: 2,
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT,
     },
-    ...getProjectVersion(),
+    {
+      key: 'projectVersion',
+      title: t('project.permission.projectVersion'),
+      level: 2,
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_VERSION,
+    },
     {
       key: 'memberPermission',
       title: t('project.permission.memberPermission'),
@@ -87,13 +79,16 @@
       level: 2,
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_USER_GROUP,
     },
-  ];
+  ]);
   const menuList = computed(() => {
     const routerList = router.getRoutes();
-    return sourceMenuList.filter((item) => {
+    return sourceMenuList.value.filter((item) => {
       if (item.name) {
         const routerItem = routerList.find((rou) => rou.name === item.name);
         if (!routerItem) return false;
+        if (routerItem.name === ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_VERSION) {
+          return licenseStore.hasLicense() && permission.accessRouter(routerItem);
+        }
         return permission.accessRouter(routerItem);
       }
       return true;
@@ -122,6 +117,7 @@
 
   onBeforeMount(() => {
     setInitRoute();
+    licenseStore.getValidateLicense();
   });
 </script>
 

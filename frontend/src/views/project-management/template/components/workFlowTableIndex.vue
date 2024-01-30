@@ -1,6 +1,11 @@
 <template>
   <MsCard has-breadcrumb simple>
-    <WorkflowTable mode="project" />
+    <WorkflowTable
+      mode="project"
+      :delete-permission="['PROJECT_TEMPLATE:READ+DELETE']"
+      :update-permission="['PROJECT_TEMPLATE:READ+UPDATE']"
+      :create-permission="['PROJECT_TEMPLATE:READ+ADD']"
+    />
   </MsCard>
 </template>
 

@@ -9,9 +9,14 @@
   </a-alert>
   <div class="mb-4">
     <div class="mb-4 flex items-center"
-      ><a-button v-if="!isEnableProjectState" class="mr-2" type="outline" @click="addStatus">{{
-        t('system.orgTemplate.addState')
-      }}</a-button>
+      ><a-button
+        v-if="!isEnableProjectState"
+        v-permission="props.createPermission"
+        class="mr-2"
+        type="outline"
+        @click="addStatus"
+        >{{ t('system.orgTemplate.addState') }}</a-button
+      >
       <span v-else class="mr-2 font-medium text-[var(--color-text-1)]">工作流</span>
       <a-popover title="" position="right">
         <MsButton class="!mr-1">{{ t('system.orgTemplate.example') }}</MsButton>
@@ -72,6 +77,7 @@
 
                 <div
                   v-if="!isEnableProjectState"
+                  v-permission="props.updatePermission"
                   class="action mr-2 flex h-8 w-8 items-center justify-center rounded opacity-0"
                 >
                   <MsTableMoreAction
@@ -88,6 +94,9 @@
                 :state-item="record"
                 :cell-coordinates="cellCoordinates"
                 :total-data="dataList"
+                :delete-permission="props.deletePermission"
+                :update-permission="props.updatePermission"
+                :create-permission="props.createPermission"
                 @click="selectCard(record, column.dataIndex)"
                 @ok="getWorkFetchList()"
               />
@@ -102,16 +111,28 @@
         >
           <template #cell="{ record }">
             <div class="ml-4 flex items-center">
-              <MsButton v-if="!isEnableProjectState" class="!mr-0 ml-4" @click="editWorkStatus(record)">{{
-                t('common.edit')
-              }}</MsButton>
-              <a-divider v-if="!isEnableProjectState" class="h-[12px]" direction="vertical" />
+              <MsButton
+                v-if="!isEnableProjectState"
+                v-permission="props.updatePermission"
+                class="!mr-0 ml-4"
+                @click="editWorkStatus(record)"
+                >{{ t('common.edit') }}</MsButton
+              >
+              <a-divider
+                v-if="!isEnableProjectState"
+                v-permission="props.updatePermission"
+                class="h-[12px]"
+                direction="vertical"
+              />
               <a-checkbox
                 v-if="!isEnableProjectState"
                 v-model="record.currentState"
+                :disabled="!hasAnyPermission(props.updatePermission || [])"
                 @change="(value) => changeState(value, record)"
               >
-                <MsButton class="!mr-0">{{ t('system.orgTemplate.endState') }}</MsButton></a-checkbox
+                <MsButton v-permission="props.updatePermission" class="!mr-0">{{
+                  t('system.orgTemplate.endState')
+                }}</MsButton></a-checkbox
               >
               <a-divider v-if="!isEnableProjectState" class="h-[12px]" direction="vertical" />
               <MsButton class="!mr-0" @click="detailWorkStatus(record)">{{ t('system.orgTemplate.details') }}</MsButton>
@@ -183,6 +204,7 @@
   import { useAppStore } from '@/store';
   import useTemplateStore from '@/store/modules/setting/template';
   import { characterLimit } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { SetStateType, WorkFlowType } from '@/models/setting/template';
 
@@ -195,6 +217,9 @@
 
   const props = defineProps<{
     mode: 'organization' | 'project'; // 组织 || 项目
+    deletePermission?: string[];
+    createPermission?: string[];
+    updatePermission?: string[];
   }>();
 
   const currentOrgId = computed(() => appStore.currentOrgId);
@@ -356,6 +381,9 @@
   const dragChangeRequest = getWorkFlowRequestApi(props.mode).dragChange;
   // 表格拖拽改变回调
   async function handleChange(_data: TableData[]) {
+    if (!hasAnyPermission(props.updatePermission || [])) {
+      return;
+    }
     const originIds = dataList.value.map((item: any) => item.id);
     dataList.value = _data as WorkFlowType[];
     const dataIds = _data.map((item: any) => item.id);

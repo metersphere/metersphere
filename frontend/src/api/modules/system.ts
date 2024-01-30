@@ -19,5 +19,5 @@ export function switchUserOrg(organizationId: string, userId: string) {
 
 // 获取当前系统的版本
 export function getPackageType() {
-  return MSR.get<'community' | 'enterprise'>({ url: PackageTypeUrl }, { ignoreCancelToken: true });
+  return MSR.get<string>({ url: PackageTypeUrl });
 }

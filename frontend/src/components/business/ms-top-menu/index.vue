@@ -21,12 +21,9 @@
   import usePermission from '@/hooks/usePermission';
   import appClientMenus from '@/router/app-menus';
   import { useAppStore } from '@/store';
-  import useLicenseStore from '@/store/modules/setting/license';
   import { listenerRouteChange } from '@/utils/route-listener';
 
   import { RouteEnum } from '@/enums/routeEnum';
-
-  const licenseStore = useLicenseStore();
 
   const copyRouters = cloneDeep(appClientMenus) as RouteRecordRaw[];
   const permission = usePermission();
@@ -111,6 +108,10 @@
   function menuClickHandler() {
     activeMenus.value = [appStore.getCurrentTopMenu?.name || ''];
   }
+
+  onBeforeMount(() => {
+    appStore.initSystemPackage();
+  });
 </script>
 
 <style lang="less" scoped>

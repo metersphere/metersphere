@@ -227,7 +227,7 @@ const Setting: AppRouteRecordRaw = {
           component: () => import('@/views/setting/organization/template/components/ordFieldSetting.vue'),
           meta: {
             locale: 'menu.settings.organization.templateFieldSetting',
-            roles: ['*'],
+            roles: ['ORGANIZATION_TEMPLATE:READ'],
             breadcrumbs: [
               {
                 name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE,
@@ -248,7 +248,7 @@ const Setting: AppRouteRecordRaw = {
           component: () => import('@/views/setting/organization/template/components/templateManagement.vue'),
           meta: {
             locale: 'menu.settings.organization.templateManagementList',
-            roles: ['*'],
+            roles: ['ORGANIZATION_TEMPLATE:READ'],
             breadcrumbs: [
               {
                 name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE,

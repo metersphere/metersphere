@@ -278,7 +278,7 @@
     {
       title: 'caseManagement.featureCase.tableColumnVersion',
       slotName: 'versionName',
-      dataIndex: 'versionNam',
+      dataIndex: 'versionName',
       width: 300,
       showTooltip: true,
       showInTable: true,

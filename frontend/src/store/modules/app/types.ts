@@ -37,7 +37,7 @@ export interface AppState {
   pageConfig: PageConfig;
   innerHeight: number;
   currentMenuConfig: string[];
-  packageType: 'community' | 'enterprise';
+  packageType: string;
 }
 
 export interface UploadFileTaskState {

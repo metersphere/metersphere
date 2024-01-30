@@ -53,7 +53,7 @@
                         type="outline"
                         class="arco-btn-outline--secondary"
                         size="mini"
-                        :disabled="!item.config"
+                        :disabled="!item.config || !hasAnyPermission(['SYSTEM_SERVICE_INTEGRATION:READ+UPDATE'])"
                         @click="getValidateHandler(item)"
                         >{{ t('organization.service.testLink') }}</a-button
                       ></span
@@ -61,6 +61,7 @@
                   </a-tooltip>
                   <a-button
                     v-else
+                    :disabled="!item.config || !hasAnyPermission(['SYSTEM_SERVICE_INTEGRATION:READ+UPDATE'])"
                     type="outline"
                     class="arco-btn-outline--secondary"
                     size="mini"
@@ -112,6 +113,7 @@
                     v-model="item.enable"
                     size="small"
                     type="line"
+                    :disabled="!hasAnyPermission(['SYSTEM_SERVICE_INTEGRATION:READ+UPDATE'])"
                     @change="(v) => changeStatus(v, item.id)"
                   />
                 </span>
@@ -138,6 +140,7 @@
   import useModal from '@/hooks/useModal';
   import { useAppStore } from '@/store';
   import { characterLimit } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { ServiceItem, ServiceList } from '@/models/setting/serviceIntegration';
   import { SettingRouteEnum } from '@/enums/routeEnum';
