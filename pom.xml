@@ -70,7 +70,7 @@
         <embedded.version>3.1.2</embedded.version>
         <otp-java.version>2.0.1</otp-java.version>
         <mockserver-client-java.version>5.15.0</mockserver-client-java.version>
-        <mysql-connector-java.version>8.0.33</mysql-connector-java.version>
+        <mysql-connector-java.version>8.3.0</mysql-connector-java.version>
         <!-- frontend -->
         <frontend-maven-plugin.version>1.12.1</frontend-maven-plugin.version>
         <node.version>v20.8.1</node.version>
