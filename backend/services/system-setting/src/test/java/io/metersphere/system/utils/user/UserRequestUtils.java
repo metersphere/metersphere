@@ -1,9 +1,9 @@
 package io.metersphere.system.utils.user;
 
 import io.metersphere.sdk.constants.SessionConstants;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.sdk.BasePageRequest;
-import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.utils.Pager;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.http.MediaType;
@@ -132,6 +132,15 @@ public class UserRequestUtils {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andReturn();
+    }
+
+    public void responseFileError(String url, MockMultipartFile file) throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.multipart(url)
+                        .file(file)
+                        .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
+                .andExpect(status().is5xxServerError());
     }
 
     public Pager<?> selectUserPage(BasePageRequest basePageRequest) throws Exception {

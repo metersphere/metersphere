@@ -47,10 +47,12 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -86,6 +88,9 @@ public class UserService {
     private UserLogService userLogService;
     @Resource
     private UserToolService userToolService;
+
+    @Value("50MB")
+    private DataSize maxImportFileSize;
 
     private void validateUserInfo(List<String> createEmails) {
         //判断参数内是否含有重复邮箱
@@ -255,6 +260,11 @@ public class UserService {
     }
 
     public UserImportResponse importByExcel(MultipartFile excelFile, String source, String sessionId) {
+
+        if (excelFile.getSize() > maxImportFileSize.toBytes()) {
+            throw new MSException(Translator.get("file.size.is.too.large"));
+        }
+
         UserImportResponse importResponse = new UserImportResponse();
         try {
             ExcelParseDTO<UserExcelRowDTO> excelParseDTO = this.getUserExcelParseDTO(excelFile);
