@@ -147,6 +147,14 @@
           {
             "id": "SYSTEM_PARAMETER_SETTING_AUTH:READ+DELETE",
             "name": "permission.system_parameter_setting_auth.delete"
+          },
+          {
+            "id": "SYSTEM_PARAMETER_SETTING_MEMORY_CLEAN:READ",
+            "name": "permission.system_parameter_setting_memory_clean.read"
+          },
+          {
+            "id": "SYSTEM_PARAMETER_SETTING_MEMORY_CLEAN:READ+UPDATE",
+            "name": "permission.system_parameter_setting_memory_clean.update"
           }
         ]
       },

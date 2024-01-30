@@ -80,6 +80,7 @@ public class SystemParameterController {
     @PostMapping("/edit/clean-config")
     @Operation(summary = "系统设置-系统-系统参数-内存清理-保存")
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.cleanOperationConfigLog(#systemParameter)", msClass = SystemParameterService.class)
+    @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_MEMORY_CLEAN_READ_UPDATE)
     public void editLogConfig(@RequestBody List<SystemParameter> systemParameter) {
         systemParameterService.editLogConfig(systemParameter);
     }
@@ -87,7 +88,7 @@ public class SystemParameterController {
 
     @GetMapping("/get/clean-config")
     @Operation(summary = "系统设置-系统-系统参数-基本设置-内存清理-获取")
-    @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_BASE_READ)
+    @RequiresPermissions(PermissionConstants.SYSTEM_PARAMETER_SETTING_MEMORY_CLEAN_READ)
     public BaseCleanConfigDTO getLogConfigInfo() {
         return systemParameterService.getLogConfigInfo();
     }

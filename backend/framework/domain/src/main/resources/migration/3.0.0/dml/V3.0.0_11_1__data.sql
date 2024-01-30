@@ -33,6 +33,7 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_PARAMETER_SETTING_BASE:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_PARAMETER_SETTING_DISPLAY:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_PARAMETER_SETTING_AUTH:READ');
+INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_PARAMETER_SETTING_MEMORY_CLEAN:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_AUTH:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_LOG:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_PERSONAL_API_KEY:READ+ADD');
