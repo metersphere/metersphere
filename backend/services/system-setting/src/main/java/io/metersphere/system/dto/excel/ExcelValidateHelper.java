@@ -6,6 +6,7 @@ import jakarta.annotation.Resource;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validator;
 import jakarta.validation.groups.Default;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
@@ -26,8 +27,12 @@ public class ExcelValidateHelper {
             for (ConstraintViolation<T> cv : set) {
                 Field declaredField = obj.getClass().getDeclaredField(cv.getPropertyPath().toString());
                 ExcelProperty annotation = declaredField.getAnnotation(ExcelProperty.class);
-                //拼接错误信息，包含当前出错数据的标题名字+错误信息
-                result.append(annotation.value()[0] + cv.getMessage()).append("; ");
+                //拼接错误信息，包含当前出错数据的标题名字+错误信息。  如果列中有必填标识*号，去掉*
+                String columnName = annotation.value()[0];
+                if (StringUtils.endsWith(columnName, "*")) {
+                    columnName = StringUtils.removeEnd(columnName, "*");
+                }
+                result.append(columnName + ":" + cv.getMessage()).append("; ");
             }
         }
         return result.toString();

@@ -528,7 +528,7 @@ public class UserControllerTests extends BaseTest {
 
     @Test
     @Order(7)
-    public void testUserImportSuccess() throws Exception {
+    public void testUserImport() throws Exception {
         this.checkUserList();
         //测试用户数据导入。  每个导入文件都有10条数据，不同文件出错的数据不同。
         int importSuccessData = 10;//应该导入成功的数据数量
