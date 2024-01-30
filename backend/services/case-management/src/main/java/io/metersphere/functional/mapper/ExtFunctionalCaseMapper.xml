@@ -462,17 +462,6 @@
         </if>
     </sql>
 
-    <sql id="prefixMode">
-        <choose>
-            <when test='${searchMode} == "AND"'>
-                1 = 1
-            </when>
-            <when test='${searchMode} == "OR"'>
-                1 = 2
-            </when>
-        </choose>
-    </sql>
-
     <sql id="queryType">
         <choose>
             <when test='${searchMode} == "AND"'>
