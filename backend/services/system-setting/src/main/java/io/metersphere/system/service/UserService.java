@@ -31,6 +31,7 @@ import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.*;
 import io.metersphere.system.notice.sender.impl.MailNoticeSender;
 import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.system.utils.UserImportEventListener;
 import jakarta.annotation.Resource;
 import jakarta.mail.internet.InternetAddress;
@@ -40,6 +41,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -227,11 +229,18 @@ public class UserService {
         userExample.createCriteria().andIdIn(
                 request.getSelectIds()
         );
+
         User updateUser = new User();
         updateUser.setEnable(request.isEnable());
         updateUser.setUpdateUser(operatorId);
         updateUser.setUpdateTime(System.currentTimeMillis());
         response.setSuccessCount(userMapper.updateByExampleSelective(updateUser, userExample));
+
+        if (BooleanUtils.isFalse(request.isEnable())) {
+            //如果是禁用，批量踢出用户
+            request.getSelectIds().forEach(SessionUtils::kickOutUser);
+        }
+
         return response;
     }
 
@@ -316,6 +325,8 @@ public class UserService {
         response.setSuccessCount(this.deleteUserByList(userIdList, operatorId));
         //删除用户角色关系
         userRoleRelationService.deleteByUserIdList(userIdList);
+        //批量踢出用户
+        userIdList.forEach(SessionUtils::kickOutUser);
         return response;
     }
 

@@ -1,7 +1,9 @@
 package io.metersphere.system.controller.user;
 
+import com.jayway.jsonpath.JsonPath;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
+import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CodingUtils;
 import io.metersphere.sdk.util.JSON;
@@ -46,6 +48,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -55,11 +58,14 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -439,8 +445,29 @@ public class UserControllerTests extends BaseTest {
     @Order(6)
     public void testUserChangeEnableSuccess() throws Exception {
         this.checkUserList();
-        //修改状态关闭
+
         UserCreateInfo userInfo = USER_LIST.get(0);
+
+        //先使用要操作的用户登录,用于检查会不会把账户踢出
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
+                        .content(String.format("{\"username\":\"%s\",\"password\":\"%s\"}", userInfo.getEmail(), userInfo.getEmail()))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+        String sessionId = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.sessionId");
+        String csrfToken = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.csrfToken");
+        //检查该用户状态登录中
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/is-login");
+        requestBuilder
+                .header(SessionConstants.HEADER_TOKEN, sessionId)
+                .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                .header(HttpHeaders.ACCEPT_LANGUAGE, "zh-CN");
+        MvcResult loginResult = mockMvc.perform(requestBuilder).andReturn();
+        ResultHolder checkLoginHolder = JSON.parseObject(loginResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        Assertions.assertNotNull(checkLoginHolder.getData());
+
+        //修改状态关闭
         UserChangeEnableRequest userChangeEnableRequest = new UserChangeEnableRequest();
         userChangeEnableRequest.setSelectIds(new ArrayList<>() {{
             this.add(userInfo.getId());
@@ -452,9 +479,18 @@ public class UserControllerTests extends BaseTest {
                     new CheckLogModel(item, OperationLogType.UPDATE, UserRequestUtils.URL_USER_UPDATE_ENABLE)
             );
         }
-
         UserDTO userDTO = this.getUserByEmail(userInfo.getEmail());
         Assertions.assertEquals(userDTO.getEnable(), userChangeEnableRequest.isEnable());
+
+        //检查该用户被踢出
+        requestBuilder = MockMvcRequestBuilders.get("/is-login");
+        requestBuilder
+                .header(SessionConstants.HEADER_TOKEN, sessionId)
+                .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                .header(HttpHeaders.ACCEPT_LANGUAGE, "zh-CN");
+        loginResult = mockMvc.perform(requestBuilder).andReturn();
+        checkLoginHolder = JSON.parseObject(loginResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        Assertions.assertNull(checkLoginHolder.getData());
 
         //修改状态开启
         userChangeEnableRequest.setEnable(true);
@@ -1064,6 +1100,27 @@ public class UserControllerTests extends BaseTest {
     @Order(99)
     public void testUserDeleteSuccess() throws Exception {
         this.checkUserList();
+
+        //先使用要操作的用户登录,用于检查会不会把账户踢出
+        UserCreateInfo userInfo = USER_LIST.get(0);
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
+                        .content(String.format("{\"username\":\"%s\",\"password\":\"%s\"}", userInfo.getEmail(), userInfo.getEmail()))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+        String sessionId = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.sessionId");
+        String csrfToken = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.csrfToken");
+        //检查该用户状态登录中
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/is-login");
+        requestBuilder
+                .header(SessionConstants.HEADER_TOKEN, sessionId)
+                .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                .header(HttpHeaders.ACCEPT_LANGUAGE, "zh-CN");
+        MvcResult loginResult = mockMvc.perform(requestBuilder).andReturn();
+        ResultHolder checkLoginHolder = JSON.parseObject(loginResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        Assertions.assertNotNull(checkLoginHolder.getData());
+
         //删除USER_LIST用户
         TableBatchProcessDTO request = new TableBatchProcessDTO();
         request.setSelectIds(USER_LIST.stream().map(UserCreateInfo::getId).toList());
@@ -1071,6 +1128,17 @@ public class UserControllerTests extends BaseTest {
                 userRequestUtils.responsePost(UserRequestUtils.URL_USER_DELETE, request), TableBatchProcessResponse.class);
         Assertions.assertEquals(request.getSelectIds().size(), response.getTotalCount());
         Assertions.assertEquals(request.getSelectIds().size(), response.getSuccessCount());
+
+        //检查该用户被踢出
+        requestBuilder = MockMvcRequestBuilders.get("/is-login");
+        requestBuilder
+                .header(SessionConstants.HEADER_TOKEN, sessionId)
+                .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                .header(HttpHeaders.ACCEPT_LANGUAGE, "zh-CN");
+        loginResult = mockMvc.perform(requestBuilder).andReturn();
+        checkLoginHolder = JSON.parseObject(loginResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        Assertions.assertNull(checkLoginHolder.getData());
+        
         //检查数据库
         List<UserCreateInfo> removeList = new ArrayList<>();
         for (UserCreateInfo deleteUser : USER_LIST) {
