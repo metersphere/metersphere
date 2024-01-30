@@ -8,14 +8,14 @@ import io.metersphere.project.request.ProjectUserRoleRequest;
 import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.system.utils.Pager;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.request.OrganizationUserRoleEditRequest;
+import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
 import io.metersphere.system.service.BaseUserRolePermissionService;
+import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -149,14 +149,20 @@ public class ProjectUserRoleControllerTests extends BaseTest {
         ProjectUserRoleEditRequest request = new ProjectUserRoleEditRequest();
         // 用户组不存在
         request.setId("default-pro-role-id-10");
+        request.setName("default-pro-role-x");
+        request.setScopeId("default-project-2");
         this.requestPost(PROJECT_USER_ROLE_UPDATE, request, status().is5xxServerError());
         // 非项目下用户组异常
         request = new ProjectUserRoleEditRequest();
         request.setId(InternalUserRole.ADMIN.getValue());
+        request.setName("default-pro-role-x");
+        request.setScopeId("default-project-2");
         this.requestPost(PROJECT_USER_ROLE_UPDATE, request).andExpect(jsonPath("$.code").value(NO_PROJECT_USER_ROLE_PERMISSION.getCode()));
         // 非全局用户组异常
         request = new ProjectUserRoleEditRequest();
         request.setId(InternalUserRole.PROJECT_ADMIN.getValue());
+        request.setName("default-pro-role-x");
+        request.setScopeId("default-project-2");
         this.requestPost(PROJECT_USER_ROLE_UPDATE, request).andExpect(jsonPath("$.code").value(NO_GLOBAL_USER_ROLE_PERMISSION.getCode()));
         // 用户组名称已存在
         request = new ProjectUserRoleEditRequest();

@@ -3,9 +3,7 @@ package io.metersphere.system.controller;
 import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.system.utils.Pager;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.User;
@@ -14,8 +12,10 @@ import io.metersphere.system.dto.OrganizationDTO;
 import io.metersphere.system.dto.request.OrganizationUserRoleEditRequest;
 import io.metersphere.system.dto.request.OrganizationUserRoleMemberEditRequest;
 import io.metersphere.system.dto.request.OrganizationUserRoleMemberRequest;
+import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
 import io.metersphere.system.service.BaseUserRolePermissionService;
 import io.metersphere.system.service.OrganizationService;
+import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -118,14 +118,20 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         OrganizationUserRoleEditRequest request = new OrganizationUserRoleEditRequest();
         // 用户组不存在
         request.setId("default-org-role-id-10");
+        request.setName("default-org-role-x");
+        request.setScopeId("default-organization-2");
         this.requestPost(ORGANIZATION_USER_ROLE_UPDATE, request, status().is5xxServerError());
         // 非组织下用户组异常
         request = new OrganizationUserRoleEditRequest();
         request.setId(InternalUserRole.ADMIN.getValue());
+        request.setName("default-org-role-x");
+        request.setScopeId("default-organization-2");
         this.requestPost(ORGANIZATION_USER_ROLE_UPDATE, request).andExpect(jsonPath("$.code").value(NO_ORG_USER_ROLE_PERMISSION.getCode()));
         // 非内置用户组异常
         request = new OrganizationUserRoleEditRequest();
         request.setId(InternalUserRole.ORG_ADMIN.getValue());
+        request.setName("default-org-role-x");
+        request.setScopeId("default-organization-2");
         this.requestPost(ORGANIZATION_USER_ROLE_UPDATE, request).andExpect(jsonPath("$.code").value(NO_GLOBAL_USER_ROLE_PERMISSION.getCode()));
         // 用户组名称已存在
         request = new OrganizationUserRoleEditRequest();
