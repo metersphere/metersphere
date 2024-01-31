@@ -540,16 +540,9 @@ SET @api_mock_delete_id = UUID_SHORT();
 Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject) VALUES (@api_mock_delete_id, 'MOCK_DELETE', 'CREATE_USER', @robot_in_site_id, 'API_DEFINITION_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.api_definition_task_mock_delete');
 INSERT INTO message_task_blob(id, template) VALUES (@api_mock_delete_id, 'message.api_definition_task_mock_delete');
 
-SET @api_mock_execute_success_id = UUID_SHORT();
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject) VALUES (@api_mock_execute_success_id, 'MOCK_EXECUTE_SUCCESSFUL', 'CREATE_USER', @robot_in_site_id, 'API_DEFINITION_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.api_definition_task_mock_execute_successful');
-INSERT INTO message_task_blob(id, template) VALUES (@api_mock_execute_success_id, 'message.api_definition_task_mock_execute');
-
 SET @api_fake_error_id = UUID_SHORT();
 INSERT INTO message_task_blob(id, template) VALUES (@api_fake_error_id, 'message.api_definition_task_case_execute');
 
-SET @api_mock_execute_failed_id = UUID_SHORT();
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject) VALUES (@api_mock_execute_failed_id, 'MOCK_EXECUTE_FAILED', 'CREATE_USER', @robot_in_site_id, 'API_DEFINITION_TASK', 'NONE', '100001100001', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.api_definition_task_mock_execute_failed');
-INSERT INTO message_task_blob(id, template) VALUES (@api_mock_execute_failed_id, 'message.api_definition_task_mock_execute');
 
 -- 初始化接口场景消息设置数据
 SET @api_scenario_update_id = UUID_SHORT();
