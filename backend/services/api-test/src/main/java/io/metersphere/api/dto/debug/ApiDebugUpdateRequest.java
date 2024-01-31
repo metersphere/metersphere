@@ -27,9 +27,11 @@ public class ApiDebugUpdateRequest implements Serializable {
     private String name;
 
     @Schema(description = "http协议类型post/get/其它协议则是协议名(mqtt)")
+    @Size(max = 20, message = "{api_debug.method.length_range}")
     private String method;
 
     @Schema(description = "http协议路径/其它协议则为空")
+    @Size(max = 500, message = "{api_debug.protocol.length_range}")
     private String path;
 
     @Schema(description = "模块fk", requiredMode = Schema.RequiredMode.REQUIRED)

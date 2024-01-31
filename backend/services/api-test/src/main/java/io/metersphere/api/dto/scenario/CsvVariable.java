@@ -1,6 +1,8 @@
 package io.metersphere.api.dto.scenario;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 
@@ -15,12 +17,15 @@ public class CsvVariable {
     private String id;
 
     @Schema(description = "文件id/引用文件id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Size(min = 1, max = 50, message = "{api_scenario_csv.file_id.length_range}")
     private String fileId;
 
     @Schema(description = "场景id", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Size(min = 1, max = 50, message = "{api_scenario_csv.scenario_id.length_range}")
     private String scenarioId;
 
     @Schema(description = "csv变量名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Size(min = 1, max = 255, message = "{api_scenario_csv.name.length_range}")
     private String name;
 
     @Schema(description = "文件名称")
@@ -30,6 +35,8 @@ public class CsvVariable {
     /**
      * @see CsvVariableScope
      */
+    @NotBlank(message = "{api_scenario_csv.scope.not_blank}")
+    @Size(min = 1, max = 50, message = "{api_scenario_csv.scope.length_range}")
     private String scope;
 
     @Schema(description = "启用/禁用")
@@ -44,18 +51,21 @@ public class CsvVariable {
      *
      * @see CsvEncodingType
      */
+    @Size(max = 50, message = "{api_scenario_csv.encoding.length_range}")
     private String encoding;
 
     @Schema(description = "是否随机")
     private Boolean random = false;
 
     @Schema(description = "变量名称(西文逗号间隔)")
+    @Size(max = 255, message = "{api_scenario_csv.variable_names.length_range}")
     private String variableNames;
 
     @Schema(description = "忽略首行(只有在设置了变量名称后才生效)")
     private Boolean ignoreFirstLine = false;
 
     @Schema(description = "分隔符")
+    @Size(max = 50, message = "{api_scenario_csv.delimiter.length_range}")
     private String delimiter;
 
     @Schema(description = "是否允许带引号")

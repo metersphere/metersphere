@@ -42,6 +42,7 @@ public class ApiTestCaseUpdateRequest implements Serializable {
                     String> tags;
 
     @Schema(description = "环境fk")
+    @Size(max = 50, message = "{api_test_case.environment_id.length_range}")
     private String environmentId;
 
     @Schema(description = "请求内容")

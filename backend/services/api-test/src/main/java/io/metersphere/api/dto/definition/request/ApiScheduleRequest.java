@@ -13,18 +13,23 @@ import lombok.Data;
 public class ApiScheduleRequest {
 
     @Schema(description = "id")
-    @NotBlank(message = "id不能为空", groups = {Updated.class})
+    @NotBlank(message = "{api_definition_swagger.id.not_blank}", groups = {Updated.class})
+    @Size(min = 1, max = 50, message = "{api_definition_swagger.id.length_range}", groups = {Updated.class})
     private String id;
     @Schema(description = "项目id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "项目id不能为空", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{api_definition_swagger.project_id.not_blank}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 50, message = "{api_definition_swagger.project_id.length_range}", groups = {Created.class, Updated.class})
     private String projectId;
     @Schema(description = "定时任务名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "定时任务名称不能为空", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{api_definition_swagger.name.not_blank}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 255, message = "{api_definition_swagger.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
     @Schema(description = "模块ID")
+    @Size(max = 50, message = "{api_definition_swagger.module_id.length_range}", groups = {Created.class, Updated.class})
     private String moduleId;
     @Schema(description = "swagger地址", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "swagger地址不能为空", groups = {Created.class, Updated.class})
+    @NotBlank(message = "{api_definition_swagger.swagger_url.not_blank}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 500, message = "{api_definition_swagger.swagger_url.length_range}", groups = {Created.class, Updated.class})
     private String swaggerUrl;
     private String taskId;
     @Schema(description = "是否覆盖模块")

@@ -28,14 +28,18 @@ public class ApiScenarioBatchEditRequest extends ApiScenarioBatchRequest impleme
     @Schema(description = "默认覆盖原标签")
     private boolean appendTag = false;
     @Schema(description = "环境id")
+    @Size(max = 50, message = "{api_test_case.environment_id.length_range}")
     private String envId;
     @Schema(description = "使用环境组")
     private boolean grouped = false;
+    @Size(max = 50, message = "{api_scenario.group_id.length_range}")
     @Schema(description = "环境组id")
     private String groupId;
     @Schema(description = "用例状态")
+    @Size(max = 20, message = "{api_test_case.status.length_range}")
     private String status;
     @Schema(description = "用例等级")
+    @Size(max = 50, message = "{api_test_case.priority.length_range}")
     private String priority;
 
     public List<String> getTags() {
