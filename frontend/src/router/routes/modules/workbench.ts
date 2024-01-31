@@ -1,7 +1,7 @@
-// import { WorkbenchRouteEnum } from '@/enums/routeEnum';
+import { WorkbenchRouteEnum } from '@/enums/routeEnum';
 
-// import { DEFAULT_LAYOUT } from '../base';
-// import type { AppRouteRecordRaw } from '../types';
+import { DEFAULT_LAYOUT } from '../base';
+import type { AppRouteRecordRaw } from '../types';
 
 // const Workbench: AppRouteRecordRaw = {
 //   path: '/workbench',
@@ -28,4 +28,3 @@
 // };
 
 // export default Workbench;
-export default {};
