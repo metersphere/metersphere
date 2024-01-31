@@ -9,8 +9,8 @@ INSERT INTO organization(id, num, name, description, create_time, update_time, c
     ('default-organization-4',null, 'default-4', 'XXX-4', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'admin', null, null);
 INSERT INTO organization(id,num, name, description, create_time, update_time, create_user, update_user, delete_user, delete_time) VALUE
     ('default-organization-5',null, 'default-5', 'XXX-5', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'admin', null, null);
-INSERT INTO organization(id, num, name, description, create_time, update_time, create_user, update_user, delete_user, delete_time) VALUE
-    ('default-organization-6',null, 'default-6', 'XXX-6', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'admin', null, null);
+INSERT INTO organization(id, num, name, description, create_time, update_time, create_user, update_user, delete_user, delete_time, deleted) VALUE
+    ('default-organization-6',null, 'default-6', 'XXX-6', UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, 'admin', 'admin', null, UNIX_TIMESTAMP() * 1000, true);
 INSERT INTO user(id, name, email, password, create_time, update_time, language, last_organization_id, phone, source, last_project_id, create_user, update_user) VALUE
    ('default-admin', 'default-Administrator', 'admin-default@metersphere.io', MD5('metersphere'), UNIX_TIMESTAMP() * 1000, UNIX_TIMESTAMP() * 1000, NULL, NUll, '', 'LOCAL', NULL, 'admin', 'admin');
 INSERT INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user) VALUE

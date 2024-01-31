@@ -49,4 +49,10 @@ public class OrganizationDTO extends Organization {
      */
     @Schema(description =  "创建人是否是管理员")
     private Boolean orgCreateUserIsAdmin;
+
+    /**
+     * 剩余删除保留天数
+     */
+    @Schema(description =  "剩余删除保留天数")
+    private Integer remainDayCount;
 }

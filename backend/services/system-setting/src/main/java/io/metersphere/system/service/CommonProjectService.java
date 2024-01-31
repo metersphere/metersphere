@@ -29,6 +29,7 @@ import io.metersphere.system.mapper.*;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -72,6 +73,7 @@ public class CommonProjectService {
     private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
     @Resource
     private TestResourcePoolService testResourcePoolService;
+    public static final Integer DEFAULT_REMAIN_DAY_COUNT = 30;
 
     @Autowired
     public CommonProjectService(ProjectServiceInvoker serviceInvoker) {
@@ -255,6 +257,9 @@ public class CommonProjectService {
                 projectDTO.setCreateUser(userMap.get(projectDTO.getCreateUser()));
                 projectDTO.setUpdateUser(userMap.get(projectDTO.getUpdateUser()));
                 projectDTO.setDeleteUser(userMap.get(projectDTO.getDeleteUser()));
+                if (BooleanUtils.isTrue(projectDTO.getDeleted())) {
+                    projectDTO.setRemainDayCount(getDeleteRemainDays(projectDTO.getDeleteTime()));
+                }
             });
         }
         return projectList;
@@ -674,5 +679,16 @@ public class CommonProjectService {
         if (!projectModuleMenus.containsAll(moduleMenus)) {
             throw new MSException(Translator.get("project.module_menu.check.error"));
         }
+    }
+
+    /**
+     * 剩余天数
+     * @param deleteTime 删除时间
+     * @return 剩余天数
+     */
+    private Integer getDeleteRemainDays(Long deleteTime) {
+        long remainDays = (System.currentTimeMillis() - deleteTime) / (1000 * 3600 * 24);
+        int remainDayCount = DEFAULT_REMAIN_DAY_COUNT - (int) remainDays;
+        return remainDayCount > 0 ? remainDayCount : 1;
     }
 }

@@ -24,6 +24,8 @@ public class ProjectDTO extends Project implements Serializable {
     private List<String> moduleIds;
     @Schema(description =  "资源池", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private List<ProjectResourcePoolDTO> resourcePoolList;
+    @Schema(description =  "剩余删除保留天数")
+    private Integer remainDayCount;
 
     private static final long serialVersionUID = 1L;
 }

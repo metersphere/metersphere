@@ -12,7 +12,7 @@ import io.metersphere.system.service.CommonProjectService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 
@@ -28,8 +28,8 @@ public class CleanProjectJob {
     @QuartzScheduled(cron = "0 0 3 * * ?")
     public void cleanupProject() {
         LogUtils.info("clean up project start.");
-        LocalDate date = LocalDate.now().minusMonths(1);
-        long timestamp = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        LocalDateTime dateTime = LocalDateTime.now().minusDays(30);
+        long timestamp = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         this.doCleanupProject(timestamp);
         LogUtils.info("clean up project end.");
     }

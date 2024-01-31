@@ -10,7 +10,7 @@ import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 
@@ -31,8 +31,8 @@ public class CleanOrganizationJob {
     public void cleanOrganization() {
         LogUtils.info("clean up organization start.");
         try {
-            LocalDate date = LocalDate.now().minusMonths(1);
-            long timestamp = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli();
+            LocalDateTime dateTime = LocalDateTime.now().minusDays(30);
+            long timestamp = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
             this.doCleanupOrganization(timestamp);
         } catch (Exception e) {
             LogUtils.error("clean up organization error.", e);
