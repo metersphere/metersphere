@@ -7,9 +7,9 @@ import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractJmeterElementConverter;
 import io.metersphere.project.dto.environment.KeyValueParam;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.jmeter.extractor.BeanShellPostProcessor;
-import org.apache.jmeter.extractor.JSR223PostProcessor;
 import org.apache.jmeter.modifiers.UserParameters;
+import org.apache.jmeter.protocol.java.sampler.BeanShellSampler;
+import org.apache.jmeter.protocol.java.sampler.JSR223Sampler;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
@@ -48,9 +48,9 @@ public class MsCommentScriptElementConverter extends AbstractJmeterElementConver
         scriptProcessor.setScript(msElement.getScript());
         TestElement scriptElement;
         if (ScriptProcessorConverter.isJSR233(scriptProcessor)) {
-            scriptElement = new JSR223PostProcessor();
+            scriptElement = new JSR223Sampler();
         } else {
-            scriptElement = new BeanShellPostProcessor();
+            scriptElement = new BeanShellSampler();
         }
         ScriptProcessorConverter.parse(scriptElement, scriptProcessor);
         hashTree.add(scriptElement);
