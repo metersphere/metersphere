@@ -304,6 +304,10 @@ public class ProjectUserRoleControllerTests extends BaseTest {
             Assertions.assertTrue(StringUtils.contains(user.getName(), request.getKeyword())
                     || StringUtils.contains(user.getId(), request.getKeyword()));
         }
+
+        // email搜索
+        request.setKeyword("admin@");
+        this.requestPost(PROJECT_USER_ROLE_LIST_MEMBER, request).andExpect(status().isOk());
         // 权限校验
         request.setProjectId(DEFAULT_PROJECT_ID);
         requestPostPermissionTest(PermissionConstants.PROJECT_GROUP_READ, PROJECT_USER_ROLE_LIST_MEMBER, request);
