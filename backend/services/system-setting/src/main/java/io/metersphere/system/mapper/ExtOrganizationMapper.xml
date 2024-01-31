@@ -99,15 +99,15 @@
     </select>
 
     <select id="selectListMemberByOrg" resultType="io.metersphere.system.dto.OptionDisabledDTO">
-        select id, name
-        from user
-        where deleted = 0
+        select u.id, u.name
+        from user u
+        where u.deleted = 0
         <if test="keyword != null and keyword != ''">
             and (u.name like CONCAT('%', #{request.keyword},'%')
             or u.email like CONCAT('%', #{request.keyword},'%')
             or u.phone like CONCAT('%', #{request.keyword},'%'))
         </if>
-        order by update_time desc
+        order by u.update_time desc
         limit 100
     </select>
 
