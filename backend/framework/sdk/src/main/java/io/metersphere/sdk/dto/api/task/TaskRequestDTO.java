@@ -24,8 +24,11 @@ public class TaskRequestDTO implements Serializable {
     /**
      * 是否需要实时接收单个步骤的结果
      */
-    private Boolean realTime;
-
+    private Boolean realTime = false;
+    /**
+     * 是否保存执行结果
+     */
+    private Boolean saveResult = true;
     /**
      * 执行的资源ID
      */

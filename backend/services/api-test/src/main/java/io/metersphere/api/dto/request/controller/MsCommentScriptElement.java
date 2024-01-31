@@ -20,7 +20,7 @@ public class MsCommentScriptElement extends AbstractMsTestElement {
     private String script;
     /**
      * 脚本语言
-     * @see ScriptProcessor.ScriptLanguageType
+     * @see io.metersphere.project.constants.ScriptLanguageType
      */
     private String scriptLanguage;
     /**

@@ -105,7 +105,7 @@ public class JmeterTestElementParser implements TestElementParser {
     private DebugSampler getDebugSampler() {
         DebugSampler debugSampler = new DebugSampler();
         debugSampler.setEnabled(true);
-        debugSampler.setName("DebugSampler");
+        debugSampler.setName("RunningDebugSampler");
         debugSampler.setProperty(TestElement.TEST_CLASS, DebugSampler.class.getName());
         debugSampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
 

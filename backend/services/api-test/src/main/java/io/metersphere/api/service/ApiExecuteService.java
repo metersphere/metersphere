@@ -117,6 +117,7 @@ public class ApiExecuteService {
         TaskRequestDTO taskRequest = new TaskRequestDTO();
         BeanUtils.copyBean(taskRequest, request);
         taskRequest.setRealTime(true);
+        taskRequest.setSaveResult(false);
         taskRequest.setResourceId(testId);
         setServerInfoParam(taskRequest);
 
@@ -205,6 +206,7 @@ public class ApiExecuteService {
         TaskRequestDTO taskRequest = new TaskRequestDTO();
         setServerInfoParam(taskRequest);
         taskRequest.setRealTime(true);
+        taskRequest.setSaveResult(false);
         taskRequest.setReportId(reportId);
         taskRequest.setResourceId(testId);
         taskRequest.setResourceType(ApiExecuteResourceType.API_DEBUG.name());
