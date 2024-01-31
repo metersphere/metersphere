@@ -1,26 +1,26 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.*;
-import io.metersphere.system.dto.permission.Permission;
-import io.metersphere.system.dto.permission.PermissionDefinitionItem;
-import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
-import io.metersphere.system.dto.sdk.request.UserRoleUpdateRequest;
-import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.service.BaseUserRolePermissionService;
-import io.metersphere.system.service.BaseUserRoleRelationService;
-import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.system.utils.SessionUtils;
+import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.param.PermissionSettingUpdateRequestDefinition;
 import io.metersphere.system.controller.param.UserRoleUpdateRequestDefinition;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.domain.UserRoleRelationExample;
+import io.metersphere.system.dto.permission.Permission;
+import io.metersphere.system.dto.permission.PermissionDefinitionItem;
+import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
+import io.metersphere.system.dto.sdk.request.UserRoleUpdateRequest;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
+import io.metersphere.system.service.BaseUserRolePermissionService;
+import io.metersphere.system.service.BaseUserRoleRelationService;
+import io.metersphere.system.uid.IDGenerator;
+import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.*;
@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
 import static io.metersphere.sdk.constants.InternalUserRole.MEMBER;
+import static io.metersphere.system.controller.handler.result.CommonResultCode.ADMIN_USER_ROLE_PERMISSION;
 import static io.metersphere.system.controller.handler.result.CommonResultCode.INTERNAL_USER_ROLE_PERMISSION;
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 import static io.metersphere.system.controller.result.SystemResultCode.GLOBAL_USER_ROLE_EXIST;
@@ -234,7 +235,7 @@ class GlobalUserRoleControllerTests extends BaseTest {
 
         // @@操作内置用户组异常
         request.setUserRoleId(ADMIN.getValue());
-        assertErrorCode(this.requestPost(PERMISSION_UPDATE, request), INTERNAL_USER_ROLE_PERMISSION);
+        assertErrorCode(this.requestPost(PERMISSION_UPDATE, request), ADMIN_USER_ROLE_PERMISSION);
 
         // @@校验 NOT_FOUND 异常
         request.setUserRoleId("1111");

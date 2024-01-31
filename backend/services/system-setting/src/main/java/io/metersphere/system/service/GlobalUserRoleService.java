@@ -61,6 +61,7 @@ public class GlobalUserRoleService extends BaseUserRoleService {
     /**
      * 校验是否是全局用户组，非全局抛异常
      */
+    @Override
     public void checkGlobalUserRole(UserRole userRole) {
         if (!StringUtils.equals(userRole.getScopeId(), UserRoleScope.GLOBAL)) {
             throw new MSException(GLOBAL_USER_ROLE_PERMISSION);
@@ -153,7 +154,8 @@ public class GlobalUserRoleService extends BaseUserRoleService {
     public void updatePermissionSetting(PermissionSettingUpdateRequest request) {
         UserRole userRole = getWithCheck(request.getUserRoleId());
         checkGlobalUserRole(userRole);
-        checkInternalUserRole(userRole);
+        // 内置管理员级别用户组无法更改权限
+        checkAdminUserRole(userRole);
         super.updatePermissionSetting(request);
     }
 }
