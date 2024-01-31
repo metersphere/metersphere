@@ -70,6 +70,7 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         List<String> userIds = new ArrayList<>();
         userIds.add("project-message-user-1");
         userIds.add("project-message-user-2");
+        userIds.add("project-message-user-3");
         userIds.add("project-message-user-del");
         messageTaskRequest.setReceiverIds(userIds);
         messageTaskRequest.setRobotId("test_message_robot2");
@@ -114,6 +115,34 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         Assertions.assertEquals(100200, resultHolder.getCode());
+
+        messageTaskRequest = new MessageTaskRequest();
+        messageTaskRequest.setProjectId("project-message-test");
+        messageTaskRequest.setTaskType(NoticeConstants.TaskType.API_DEFINITION_TASK);
+        messageTaskRequest.setEvent(NoticeConstants.Event.CREATE);
+        userIds = new ArrayList<>();
+        userIds.add("project-message-user-1");
+        messageTaskRequest.setReceiverIds(userIds);
+        messageTaskRequest.setRobotId("test_message_robot2");
+        messageTaskRequest.setEnable(true);
+        mockMvc.perform(MockMvcRequestBuilders.post("/notice/message/task/save")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .content(JSON.toJSONString(messageTaskRequest))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+       resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        Assertions.assertEquals(100200, resultHolder.getCode());
+
+        MessageTaskExample messageTaskExample = new MessageTaskExample();
+        messageTaskExample.createCriteria().andProjectIdEqualTo("project-message-test").andTaskTypeEqualTo(NoticeConstants.TaskType.API_DEFINITION_TASK).andEventEqualTo(NoticeConstants.Event.CREATE);
+        List<MessageTask> messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
+        Assertions.assertEquals(1, messageTasks.size());
+        messageTaskExample = new MessageTaskExample();
+        messageTaskExample.createCriteria().andProjectIdEqualTo("project-message-test").andTaskTypeEqualTo(NoticeConstants.TaskType.API_DEFINITION_TASK).andEventEqualTo(NoticeConstants.Event.CREATE).andReceiverEqualTo("project-message-user-3");
+        messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
+
     }
 
     @Test

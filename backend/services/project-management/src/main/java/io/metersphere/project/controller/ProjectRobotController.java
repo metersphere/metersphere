@@ -41,14 +41,14 @@ public class ProjectRobotController {
     @Operation(summary = "项目管理-消息管理-新增机器人")
     @RequiresPermissions(PermissionConstants.PROJECT_MESSAGE_READ_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addRobotLog(#projectRobotDTO)", msClass = MessageTaskLogService.class)
-    public void add(@Validated({Created.class}) @RequestBody ProjectRobotDTO projectRobotDTO) {
+    public ProjectRobot add(@Validated({Created.class}) @RequestBody ProjectRobotDTO projectRobotDTO) {
         ProjectRobot projectRobot = new ProjectRobot();
         BeanUtils.copyBean(projectRobot, projectRobotDTO);
         projectRobot.setCreateUser(SessionUtils.getUserId());
         projectRobot.setCreateTime(System.currentTimeMillis());
         projectRobot.setUpdateUser(SessionUtils.getUserId());
         projectRobot.setUpdateTime(System.currentTimeMillis());
-        projectRobotService.add(projectRobot);
+        return projectRobotService.add(projectRobot);
     }
 
     @PostMapping("update")

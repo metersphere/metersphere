@@ -115,7 +115,7 @@ public class AfterReturningNoticeSendServiceTests extends BaseTest {
         userDTO.setId(sessionId);
         userDTO.setName("admin");
         SessionUser user = SessionUser.fromUser(userDTO, sessionId);
-
+        user.setLanguage("zh-CN");
         for (String event : eventList) {
             afterReturningNoticeSendService.sendNotice(functionalCaseTask, event,resources, user, "100001100001");
         }

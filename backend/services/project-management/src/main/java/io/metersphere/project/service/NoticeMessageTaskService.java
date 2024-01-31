@@ -99,13 +99,15 @@ public class NoticeMessageTaskService {
     private void deleteUserData(MessageTaskRequest messageTaskRequest, String projectId) {
         MessageTaskExample messageTaskExample = new MessageTaskExample();
         messageTaskExample.createCriteria().andReceiverNotIn(messageTaskRequest.getReceiverIds())
-                .andProjectIdEqualTo(projectId).andProjectRobotIdEqualTo(messageTaskRequest.getRobotId()).andTaskTypeEqualTo(messageTaskRequest.getTaskType()).andEventEqualTo(messageTaskRequest.getEvent());
+                .andProjectIdEqualTo(projectId).andTaskTypeEqualTo(messageTaskRequest.getTaskType()).andEventEqualTo(messageTaskRequest.getEvent());
         List<MessageTask> delData = messageTaskMapper.selectByExample(messageTaskExample);
         List<String> delIds = delData.stream().map(MessageTask::getId).toList();
         if (CollectionUtils.isNotEmpty(delIds)) {
             MessageTaskBlobExample messageTaskBlobExample = new MessageTaskBlobExample();
             messageTaskBlobExample.createCriteria().andIdIn(delIds);
             messageTaskBlobMapper.deleteByExample(messageTaskBlobExample);
+            messageTaskExample = new MessageTaskExample();
+            messageTaskExample.createCriteria().andIdIn(delIds);
             messageTaskMapper.deleteByExample(messageTaskExample);
         }
     }

@@ -47,12 +47,12 @@
     <select id="getProjectUserSelectList" resultType="io.metersphere.system.dto.sdk.OptionDTO">
         select u.id,
                u.name
-        from user_role_relation urr
-             join `user` u on urr.user_id = u.id
+        from `user` u
+           left  join user_role_relation urr on urr.user_id = u.id
         where urr.role_id = 'project_member'
               and urr.source_id = #{projectId}
         <if test="keyword != null and keyword != ''">
-            and name LIKE CONCAT('%', #{keyword}, '%')
+            and u.name LIKE CONCAT('%', #{keyword}, '%')
         </if>
         and u.deleted = false
         order by u.update_time desc

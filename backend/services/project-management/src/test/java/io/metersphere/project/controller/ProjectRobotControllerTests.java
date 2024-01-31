@@ -116,7 +116,8 @@ public class ProjectRobotControllerTests extends BaseTest {
         projectRobotDTO.setPlatform(ProjectRobotPlatform.LARK.toString());
         projectRobotDTO.setProjectId("test_project");
         projectRobotDTO.setWebhook("https://open.feishu.cn/open-apis/bot/v2/hook/a6024229-9d9d-41c2-8662-7bc3da1092cb");
-        getPostResult(projectRobotDTO, ROBOT_ADD, status().isOk());
+        ProjectRobot postResult = getPostResult(projectRobotDTO, ROBOT_ADD, status().isOk());
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(postResult.getPlatform(),NoticeConstants.Type.LARK_ROBOT));
         checkName("test_project", "飞书机器人");
         ProjectRobot robot = getRobot("test_project", "飞书机器人");
         checkContentLog(robot.getName(),OperationLogType.ADD);
@@ -159,7 +160,9 @@ public class ProjectRobotControllerTests extends BaseTest {
         projectRobotDTO.setEnable(true);
         projectRobotDTO.setType(ProjectRobotType.CUSTOM.toString());
         projectRobotDTO.setWebhook("https://oapi.dingtalk.com/robot/send?access_token=fd963136a4d7eebaaa68de261223089148e62d7519fbaf426626fe3157725b8a");
-        getPostResult(projectRobotDTO, ROBOT_ADD, status().isOk());
+        ProjectRobot postResult = getPostResult(projectRobotDTO, ROBOT_ADD, status().isOk());
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(postResult.getPlatform(),NoticeConstants.Type.DING_CUSTOM_ROBOT));
+
     }
 
     @Test
@@ -178,7 +181,8 @@ public class ProjectRobotControllerTests extends BaseTest {
         projectRobotDTO.setAppKey("dingxwd71o7kj4qoixo7");
         projectRobotDTO.setAppSecret("szmOD9bjGgKtfYk09-Xx2rPdX-xkW4R8Iic0eig_k1D3k95nG4TLKRSpUKUD_f0G");
         projectRobotDTO.setWebhook("https://oapi.dingtalk.com/robot/send?access_token=e971f376669334cd44c585d419f0fdfa1600f97f906109b377999d8a0986b11e");
-        getPostResult(projectRobotDTO, ROBOT_ADD, status().isOk());
+        ProjectRobot postResult = getPostResult(projectRobotDTO, ROBOT_ADD, status().isOk());
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(postResult.getPlatform(),NoticeConstants.Type.DING_ENTERPRISE_ROBOT));
     }
 
     @Test
