@@ -25,6 +25,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -114,6 +116,7 @@ public class AuthSourceControllerTests extends BaseTest {
 
     @Test
     @Order(4)
+    @Sql(scripts = {"/dml/init_auth_source_test.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void testUpdateStatus() throws Exception {
 
         List<AuthSourceRequest> authSourceList = this.getAuthSourceList();
@@ -123,6 +126,12 @@ public class AuthSourceControllerTests extends BaseTest {
         request.setEnable(false);
         this.requestPost(AUTH_SOURCE_UPDATE_STATUS, request);
         requestPostPermissionTest(PermissionConstants.SYSTEM_PARAMETER_SETTING_AUTH_READ_UPDATE, AUTH_SOURCE_UPDATE_STATUS, request);
+        request.setEnable(true);
+        this.requestPost(AUTH_SOURCE_UPDATE_STATUS, request);
+
+        request.setId("wx_test_1");
+        request.setEnable(true);
+        this.requestPost(AUTH_SOURCE_UPDATE_STATUS, request);
     }
 
 

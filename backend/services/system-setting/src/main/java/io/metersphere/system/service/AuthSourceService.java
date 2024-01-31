@@ -2,15 +2,16 @@ package io.metersphere.system.service;
 
 
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.AuthSource;
 import io.metersphere.system.domain.AuthSourceExample;
 import io.metersphere.system.dto.AuthSourceDTO;
-import io.metersphere.system.mapper.AuthSourceMapper;
 import io.metersphere.system.dto.request.AuthSourceRequest;
+import io.metersphere.system.mapper.AuthSourceMapper;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -95,9 +96,20 @@ public class AuthSourceService {
     }
 
     public AuthSource updateStatus(String id, Boolean status) {
+        if (BooleanUtils.isTrue(status)) {
+            AuthSource authSource = authSourceMapper.selectByPrimaryKey(id);
+            AuthSourceExample example = new AuthSourceExample();
+            example.createCriteria().andIdNotEqualTo(id).andTypeEqualTo(authSource.getType()).andEnableEqualTo(true);
+            List<AuthSource> authSources = authSourceMapper.selectByExample(example);
+            if (CollectionUtils.isNotEmpty(authSources)) {
+                AuthSource source = authSources.get(0);
+                source.setEnable(false);
+                authSourceMapper.updateByPrimaryKeySelective(source);
+            }
+        }
         AuthSource record = new AuthSource();
         record.setId(id);
-        record.setEnable(BooleanUtils.toBooleanDefaultIfNull(status,false));
+        record.setEnable(BooleanUtils.toBooleanDefaultIfNull(status, false));
         record.setUpdateTime(System.currentTimeMillis());
         authSourceMapper.updateByPrimaryKeySelective(record);
         return record;
