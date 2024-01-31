@@ -43,10 +43,10 @@ public class OrganizationProjectController {
 
     @PostMapping("/add")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ_ADD)
-    @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#project)", msClass = OrganizationProjectLogService.class)
+    @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = OrganizationProjectLogService.class)
     @Operation(summary = "系统设置-组织-项目-创建项目")
-    public ProjectDTO addProject(@RequestBody @Validated({Created.class}) AddProjectRequest project) {
-        return organizationProjectService.add(project, SessionUtils.getUserId());
+    public ProjectDTO addProject(@RequestBody @Validated({Created.class}) AddProjectRequest request) {
+        return organizationProjectService.add(request, SessionUtils.getUserId());
     }
 
 
@@ -69,10 +69,10 @@ public class OrganizationProjectController {
     }
 
     @PostMapping("/update")
-    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#project)", msClass = OrganizationProjectLogService.class)
     @Operation(summary = "系统设置-组织-项目-编辑")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ_UPDATE)
     @CheckOwner(resourceId = "#request.id", resourceType = "project")
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = OrganizationProjectLogService.class)
     public ProjectDTO updateProject(@RequestBody @Validated({Updated.class}) UpdateProjectRequest request) {
         return organizationProjectService.update(request, SessionUtils.getUserId());
     }

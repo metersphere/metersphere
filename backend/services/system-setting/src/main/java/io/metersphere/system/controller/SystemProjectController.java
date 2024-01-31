@@ -47,10 +47,10 @@ public class SystemProjectController {
 
     @PostMapping("/add")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_ADD)
-    @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#project)", msClass = SystemProjectLogService.class)
+    @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = SystemProjectLogService.class)
     @Operation(summary = "系统设置-系统-组织与项目-项目-创建项目")
-    public ProjectDTO addProject(@RequestBody @Validated({Created.class}) AddProjectRequest project) {
-        return systemProjectService.add(project, SessionUtils.getUserId());
+    public ProjectDTO addProject(@RequestBody @Validated({Created.class}) AddProjectRequest request) {
+        return systemProjectService.add(request, SessionUtils.getUserId());
     }
 
 
