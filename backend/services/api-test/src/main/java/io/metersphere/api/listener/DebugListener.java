@@ -7,13 +7,13 @@ import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.sdk.util.WebSocketUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Component;
 
 /**
  * 后端调试消息监听器
  */
-@Configuration
+@Component
 public class DebugListener {
     public static final String DEBUG_CONSUME_ID = "MS-API-DEBUG-CONSUME";
 

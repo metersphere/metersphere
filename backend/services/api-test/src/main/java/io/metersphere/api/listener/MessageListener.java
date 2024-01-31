@@ -14,10 +14,10 @@ import jakarta.annotation.Resource;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Component;
 
-@Configuration
+@Component
 public class MessageListener {
     public static final String MESSAGE_CONSUME_ID = "MS-API-MESSAGE-CONSUME";
     @Resource
