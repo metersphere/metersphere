@@ -66,7 +66,8 @@ public abstract class ModuleTreeService {
             lastSize = traverseList.size();
             List<BaseTreeNode> notMatchedList = new ArrayList<>();
             for (BaseTreeNode treeNode : traverseList) {
-                if (!baseTreeNodeMap.containsKey(treeNode.getParentId()) && !StringUtils.equals(treeNode.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
+                if (!baseTreeNodeMap.containsKey(treeNode.getParentId()) && !StringUtils.equalsIgnoreCase(treeNode.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
+                    //                if (!baseTreeNodeMap.containsKey(treeNode.getParentId()) && !StringUtils.equals(treeNode.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
                     notMatchedList.add(treeNode);
                     continue;
                 }
@@ -127,7 +128,7 @@ public abstract class ModuleTreeService {
             sortParam.setOperator(MOVE_POS_OPERATOR_LATEST);
             previousNode = selectPosNodeFunc.apply(sortParam);
         } else {
-            if (StringUtils.equals(dropNode.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
+            if (StringUtils.equalsIgnoreCase(dropNode.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
                 parentModule = new BaseModule(ModuleConstants.ROOT_NODE_PARENT_ID, ModuleConstants.ROOT_NODE_PARENT_ID, 0, dragNode.getProjectId(), ModuleConstants.ROOT_NODE_PARENT_ID);
             } else {
                 parentModule = selectIdNodeFunc.apply(dropNode.getParentId());
