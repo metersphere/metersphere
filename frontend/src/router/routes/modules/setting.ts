@@ -314,7 +314,7 @@ const Setting: AppRouteRecordRaw = {
           component: () => import('@/views/setting/organization/log/index.vue'),
           meta: {
             locale: 'menu.settings.organization.log',
-            roles: ['*'],
+            roles: ['ORGANIZATION_LOG:READ'],
             isTopMenu: true,
           },
         },

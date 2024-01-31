@@ -56,7 +56,7 @@
             </template>
           </a-checkbox-group>
         </a-form-item>
-        <a-form-item field="resourcePool" :label="t('system.project.resourcePool')">
+        <a-form-item v-if="showPool" field="resourcePool" :label="t('system.project.resourcePool')">
           <MsSystemPool v-model:modelValue="form.resourcePoolIds" :organization-id="currentOrgId" />
         </a-form-item>
         <a-form-item field="description" :label="t('system.organization.description')">
@@ -137,6 +137,10 @@
     (e: 'cancel', shouldSearch: boolean): void;
   }>();
 
+  const allModuleIds = ['workstation', 'testPlan', 'bugManagement', 'caseManagement', 'apiTest', 'uiTest', 'loadTest'];
+
+  const showPoolModuleIds = ['uiTest', 'apiTest', 'loadTest'];
+
   const form = reactive<CreateOrUpdateSystemProjectParams>({
     name: '',
     userIds: [],
@@ -144,10 +148,11 @@
     description: '',
     resourcePoolIds: [],
     enable: true,
-    moduleIds: ['workstation', 'testPlan', 'bugManagement', 'caseManagement', 'apiTest', 'uiTest', 'loadTest'],
+    moduleIds: allModuleIds,
   });
 
   const currentVisible = ref(props.visible);
+  const showPool = computed(() => showPoolModuleIds.some((item) => form.moduleIds?.includes(item)));
 
   const isXpack = computed(() => {
     return licenseStore.hasLicense();
@@ -163,7 +168,7 @@
     form.organizationId = currentOrgId.value;
     form.description = '';
     form.enable = true;
-    form.moduleIds = ['workstation', 'testPlan', 'bugManagement', 'caseManagement', 'apiTest', 'uiTest', 'loadTest'];
+    form.moduleIds = allModuleIds;
     form.resourcePoolIds = [];
   };
   const handleCancel = (shouldSearch: boolean) => {

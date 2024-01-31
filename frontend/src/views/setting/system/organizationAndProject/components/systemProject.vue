@@ -181,6 +181,10 @@
       title: 'system.organization.createTime',
       dataIndex: 'createTime',
       width: 180,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
     },
     {
       title: hasOperationPermission.value ? 'system.organization.operation' : '',

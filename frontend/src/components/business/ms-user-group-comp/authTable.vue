@@ -361,7 +361,14 @@
       }
     } else {
       // 删除权限值
-      record.perChecked.splice(record.perChecked.indexOf(currentValue), 1);
+      const preStr = currentValue.split(':')[0];
+      const postStr = currentValue.split(':')[1];
+      if (postStr === 'READ') {
+        // 当前是查询 那 移除所有相关的
+        record.perChecked = record.perChecked.filter((item) => !item.includes(preStr));
+      } else {
+        record.perChecked.splice(record.perChecked.indexOf(currentValue), 1);
+      }
     }
   };
 
@@ -482,6 +489,12 @@
     }
     :deep(.arco-table-th-title) {
       width: 100%;
+    }
+    :deep(.arco-checkbox-indeterminate) {
+      .arco-checkbox-icon {
+        border-color: rgb(var(--primary-5));
+        background: rgb(var(--primary-1));
+      }
     }
   }
 </style>
