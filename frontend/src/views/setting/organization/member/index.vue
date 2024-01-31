@@ -27,7 +27,7 @@
       v-on="propsEvent"
       @batch-action="handleTableBatch"
     >
-      <template #project="{ record }">
+      <template #projectIdNameMap="{ record }">
         <MsTagGroup
           v-if="!record.showProjectSelect"
           :tag-list="record.projectIdNameMap || []"
@@ -47,9 +47,9 @@
         >
           <a-option v-for="item of projectOptions" :key="item.id" :value="item.id">{{ item.name }}</a-option>
         </a-select>
-        <span v-if="(record.selectProjectList || []).length === 0">-</span>
+        <span v-if="(record.projectIdNameMap || []).length === 0">-</span>
       </template>
-      <template #userRole="{ record }">
+      <template #userRoleIdNameMap="{ record }">
         <MsTagGroup
           v-if="!record.showUserSelect"
           :tag-list="record.userRoleIdNameMap || []"
@@ -69,7 +69,7 @@
         >
           <a-option v-for="item of userGroupOptions" :key="item.id" :value="item.id">{{ item.name }}</a-option>
         </a-select>
-        <span v-if="(record.selectUserList || []).length === 0">-</span>
+        <span v-if="(record.userRoleIdNameMap || []).length === 0">-</span>
       </template>
       <template #enable="{ record }">
         <div v-if="record.enable" class="flex items-center">
@@ -142,6 +142,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore, useTableStore } from '@/store';
   import { characterLimit } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { AddOrUpdateMemberModel, BatchAddProjectModel, LinkList, MemberItem } from '@/models/setting/member';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -150,7 +151,6 @@
   const appStore = useAppStore();
   const { t } = useI18n();
   const lastOrganizationId = computed(() => appStore.currentOrgId);
-
   const columns: MsTableColumn = [
     {
       title: 'organization.member.tableColunmEmail',
@@ -181,18 +181,16 @@
     },
     {
       title: 'organization.member.tableColunmPro',
-      slotName: 'project',
+      slotName: 'projectIdNameMap',
       dataIndex: 'projectIdNameMap',
       showInTable: true,
-      isTag: true,
       showDrag: true,
     },
     {
       title: 'organization.member.tableColunmUsergroup',
-      slotName: 'userRole',
+      slotName: 'userRoleIdNameMap',
       dataIndex: 'userRoleIdNameMap',
       showInTable: true,
-      isTag: true,
       showDrag: true,
     },
     {
@@ -347,6 +345,9 @@
   };
   // 编辑模式和下拉选择切换
   const changeUserOrProject = (record: MemberItem, type: string) => {
+    if (!hasAnyPermission(['ORGANIZATION_MEMBER:READ+UPDATE'])) {
+      return;
+    }
     if (!record.enable) {
       return;
     }
@@ -362,6 +363,9 @@
   };
   // 用户和项目选择改变的回调
   const selectUserOrProject = (value: any, record: MemberItem, type: string) => {
+    if (!hasAnyPermission(['PROJECT_USER:READ+UPDATE'])) {
+      return;
+    }
     if (type === 'project') {
       record.selectProjectList = value;
     } else {

@@ -34,7 +34,7 @@ const CaseManagement: AppRouteRecordRaw = {
       component: () => import('@/views/case-management/caseManagementFeature/components/caseDetail.vue'),
       meta: {
         locale: 'menu.caseManagement.featureCaseDetail',
-        roles: ['FUNCTIONAL_CASE:READ+EDIT'],
+        roles: ['FUNCTIONAL_CASE:READ+ADD'],
         breadcrumbs: [
           {
             name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE,
@@ -56,7 +56,7 @@ const CaseManagement: AppRouteRecordRaw = {
       component: () => import('@/views/case-management/caseManagementFeature/components/createSuccess.vue'),
       meta: {
         locale: 'menu.caseManagement.featureCaseCreateSuccess',
-        roles: ['FUNCTIONAL_CASE:READ+EDIT'],
+        roles: ['FUNCTIONAL_CASE:READ+ADD'],
       },
     },
     // 功能用例回收站
@@ -66,7 +66,7 @@ const CaseManagement: AppRouteRecordRaw = {
       component: () => import('@/views/case-management/caseManagementFeature/components/recycleCaseTable.vue'),
       meta: {
         locale: 'menu.caseManagement.featureCaseRecycle',
-        roles: ['FUNCTIONAL_CASE:READ'],
+        roles: ['FUNCTIONAL_CASE:READ+ADD'],
         breadcrumbs: [
           {
             name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE,

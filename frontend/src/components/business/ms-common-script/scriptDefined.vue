@@ -94,6 +94,7 @@
     language: Languages;
     code: string;
     enableRadioSelected?: boolean;
+    executionResult?: string; // 执行结果
   }>();
   const emit = defineEmits<{
     (e: 'update:language', value: Languages): void;
@@ -101,13 +102,13 @@
   }>();
 
   const { t } = useI18n();
-  const executionResultValue = ref('');
 
   const projectId = ref<string>(appStore.currentProjectId);
 
   const commonScriptValue = ref('');
 
   const innerLanguagesType = useVModel(props, 'language', emit);
+  const executionResultValue = useVModel(props, 'executionResult', emit);
 
   watch(
     () => innerLanguagesType.value,

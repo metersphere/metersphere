@@ -7,7 +7,13 @@
           <span class="text-[14px]">{{ t('project.messageManagement.notRemind') }}</span>
         </template>
       </a-alert>
-      <a-button v-permission="['PROJECT_MESSAGE:READ+ADD']" type="primary" class="mb-[16px]" @click="handleCreateClick">
+      <a-button
+        v-xpack
+        v-permission="['PROJECT_MESSAGE:READ+ADD']"
+        type="primary"
+        class="mb-[16px]"
+        @click="handleCreateClick"
+      >
         {{ t('project.messageManagement.createBot') }}
       </a-button>
       <div
