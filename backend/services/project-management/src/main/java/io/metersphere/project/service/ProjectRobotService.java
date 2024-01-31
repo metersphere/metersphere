@@ -2,8 +2,6 @@ package io.metersphere.project.service;
 
 import io.metersphere.project.domain.*;
 import io.metersphere.project.dto.ProjectRobotDTO;
-import io.metersphere.project.enums.ProjectRobotPlatform;
-import io.metersphere.project.enums.ProjectRobotType;
 import io.metersphere.project.mapper.MessageTaskBlobMapper;
 import io.metersphere.project.mapper.MessageTaskMapper;
 import io.metersphere.project.mapper.ProjectRobotMapper;
@@ -44,38 +42,23 @@ public class ProjectRobotService {
     public ProjectRobot add(ProjectRobot projectRobot) {
         projectRobot.setId(IDGenerator.nextStr());
         projectRobot.setEnable(projectRobot.getEnable());
-        reSetPlatform(projectRobot);
+        checkDingTalkAndSet(projectRobot);
         robotMapper.insert(projectRobot);
         return projectRobot;
     }
 
-    private void reSetPlatform(ProjectRobot projectRobot) {
-        switch (projectRobot.getPlatform()) {
-            case "DING_TALK" -> checkDingTalkAndSet(projectRobot);
-            case "LARK" -> projectRobot.setPlatform(NoticeConstants.Type.LARK_ROBOT);
-            case "WE_COM" -> projectRobot.setPlatform(NoticeConstants.Type.WECOM_ROBOT);
-            case "IN_SITE"  -> projectRobot.setPlatform(NoticeConstants.Type.IN_SITE);
-            case "MAIL"  -> projectRobot.setPlatform(NoticeConstants.Type.MAIL);
-            case "CUSTOM"  -> projectRobot.setPlatform(NoticeConstants.Type.CUSTOM_WEBHOOK_ROBOT);
-            default -> projectRobot.setPlatform(NoticeConstants.Type.IN_SITE);
-        }
-
-    }
-
     private static void checkDingTalkAndSet(ProjectRobot projectRobot) {
-        if (StringUtils.equals(projectRobot.getPlatform(), ProjectRobotPlatform.DING_TALK.toString()) || StringUtils.equals(projectRobot.getPlatform(), NoticeConstants.Type.DING_CUSTOM_ROBOT) || StringUtils.equals(projectRobot.getPlatform(), NoticeConstants.Type.DING_ENTERPRISE_ROBOT)) {
+        if (StringUtils.equals(projectRobot.getPlatform(), NoticeConstants.Type.DING_TALK)) {
             if (StringUtils.isBlank(projectRobot.getType())) {
                 throw new MSException(Translator.get("ding_type_is_null"));
             }
-            projectRobot.setPlatform(NoticeConstants.Type.DING_CUSTOM_ROBOT);
-            if (StringUtils.equals(projectRobot.getType(), ProjectRobotType.ENTERPRISE.toString()) || StringUtils.equals(projectRobot.getPlatform(), NoticeConstants.Type.DING_ENTERPRISE_ROBOT)) {
+            if (StringUtils.equals(projectRobot.getType(), NoticeConstants.DingType.ENTERPRISE)) {
                 if (StringUtils.isBlank(projectRobot.getAppKey())) {
                     throw new MSException(Translator.get("ding_app_key_is_null"));
                 }
                 if (StringUtils.isBlank(projectRobot.getAppSecret())) {
                     throw new MSException(Translator.get("ding_app_secret_is_null"));
                 }
-                projectRobot.setPlatform(NoticeConstants.Type.DING_ENTERPRISE_ROBOT);
             }
         }
     }
@@ -126,7 +109,7 @@ public class ProjectRobotService {
         List<ProjectRobot> projectRobots = robotMapper.selectByExample(projectExample);
         Map<String, String> userMap = getUserMap(projectRobots);
         for (ProjectRobot projectRobot : projectRobots) {
-            if ((StringUtils.equalsIgnoreCase(projectRobot.getPlatform(), ProjectRobotPlatform.IN_SITE.toString()) || StringUtils.equalsIgnoreCase(projectRobot.getPlatform(), ProjectRobotPlatform.MAIL.toString())) && StringUtils.isNotBlank(projectRobot.getDescription())) {
+            if ((StringUtils.equalsIgnoreCase(projectRobot.getPlatform(), NoticeConstants.Type.IN_SITE) || StringUtils.equalsIgnoreCase(projectRobot.getPlatform(), NoticeConstants.Type.MAIL)) && StringUtils.isNotBlank(projectRobot.getDescription())) {
                 projectRobot.setDescription(Translator.get(projectRobot.getDescription()));
                 projectRobot.setName(Translator.get(projectRobot.getName()));
             }
@@ -138,24 +121,25 @@ public class ProjectRobotService {
             }
         }
         Map<String, List<ProjectRobot>> collect = projectRobots.stream().collect(Collectors.groupingBy(ProjectRobot::getPlatform));
-        List<String>defaultPlatForm = new ArrayList<>();
+        List<String> defaultPlatForm = new ArrayList<>();
         defaultPlatForm.add(NoticeConstants.Type.MAIL);
         defaultPlatForm.add(NoticeConstants.Type.IN_SITE);
         List<ProjectRobot> list = projectRobots.stream().filter(t -> !defaultPlatForm.contains(t.getPlatform())).toList();
         List<ProjectRobot> newProjectRobots = new ArrayList<>(list.stream().sorted(Comparator.comparing(ProjectRobot::getCreateTime).reversed()).toList());
         List<ProjectRobot> mailRobot = collect.get(NoticeConstants.Type.MAIL);
         if (CollectionUtils.isNotEmpty(mailRobot)) {
-            newProjectRobots.add(0,mailRobot.get(0));
+            newProjectRobots.add(0, mailRobot.get(0));
         }
         List<ProjectRobot> inSiteRobot = collect.get(NoticeConstants.Type.IN_SITE);
         if (CollectionUtils.isNotEmpty(inSiteRobot)) {
-            newProjectRobots.add(0,inSiteRobot.get(0));
+            newProjectRobots.add(0, inSiteRobot.get(0));
         }
         return newProjectRobots;
     }
 
     private Map<String, String> getUserMap(List<ProjectRobot> projectRobots) {
-        List<String> userIds = projectRobots.stream().flatMap(projectRobot -> Stream.of(projectRobot.getCreateUser(), projectRobot.getUpdateUser())).distinct().toList();;
+        List<String> userIds = projectRobots.stream().flatMap(projectRobot -> Stream.of(projectRobot.getCreateUser(), projectRobot.getUpdateUser())).distinct().toList();
+        ;
         if (CollectionUtils.isEmpty(userIds)) {
             return new HashMap<>();
         }

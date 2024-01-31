@@ -3,18 +3,17 @@ package io.metersphere.project.service;
 
 import io.metersphere.project.domain.*;
 import io.metersphere.project.dto.*;
-import io.metersphere.project.enums.ProjectRobotPlatform;
 import io.metersphere.project.enums.result.ProjectResultCode;
 import io.metersphere.project.mapper.*;
 import io.metersphere.sdk.constants.TemplateScene;
-import io.metersphere.system.dto.sdk.OptionDTO;
-import io.metersphere.system.dto.sdk.request.MessageTaskRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.*;
+import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.sdk.request.MessageTaskRequest;
 import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
@@ -159,7 +158,7 @@ public class NoticeMessageTaskService {
     private ProjectRobot getDefaultRobot(String projectId, String robotId) {
         if (StringUtils.isBlank(robotId)) {
             ProjectRobotExample projectRobotExample = new ProjectRobotExample();
-            projectRobotExample.createCriteria().andProjectIdEqualTo(projectId).andPlatformEqualTo(ProjectRobotPlatform.IN_SITE.toString());
+            projectRobotExample.createCriteria().andProjectIdEqualTo(projectId).andPlatformEqualTo(NoticeConstants.Type.IN_SITE);
             List<ProjectRobot> projectRobots = projectRobotMapper.selectByExample(projectRobotExample);
             return projectRobots.get(0);
         } else {
@@ -400,7 +399,7 @@ public class NoticeMessageTaskService {
                             receivers.add(optionDTO);
                             String platform = robotMap.get(messageTask.getProjectRobotId()).getPlatform();
                             String defaultSubject;
-                            if (StringUtils.equalsIgnoreCase(platform, ProjectRobotPlatform.MAIL.toString())) {
+                            if (StringUtils.equalsIgnoreCase(platform, NoticeConstants.Type.MAIL)) {
                                 defaultSubject = "MeterSphere " + defaultTemplateSubjectMap.get(messageTaskTypeDTO.getTaskType() + "_" + messageTaskDetailDTO.getEvent());
                             } else {
                                 defaultSubject = defaultTemplateSubjectMap.get(messageTaskTypeDTO.getTaskType() + "_" + messageTaskDetailDTO.getEvent());
@@ -454,7 +453,7 @@ public class NoticeMessageTaskService {
         ProjectRobotConfigDTO projectRobotConfigDTO = new ProjectRobotConfigDTO();
         projectRobotConfigDTO.setRobotId(projectRobot.getId());
         projectRobotConfigDTO.setRobotName(Translator.get(projectRobot.getName()));
-        projectRobotConfigDTO.setPlatform(ProjectRobotPlatform.IN_SITE.toString());
+        projectRobotConfigDTO.setPlatform(NoticeConstants.Type.IN_SITE);
         projectRobotConfigDTO.setDingType(projectRobot.getType());
         projectRobotConfigDTO.setEnable(false);
         projectRobotConfigDTO.setTemplate(defaultTemplate);

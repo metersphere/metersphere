@@ -106,11 +106,15 @@ public interface NoticeConstants {
     interface Type {
         String MAIL = "MAIL";
         String IN_SITE = "IN_SITE";
-        String DING_CUSTOM_ROBOT = "DING_CUSTOM_ROBOT";
-        String DING_ENTERPRISE_ROBOT = "DING_ENTERPRISE_ROBOT";
-        String WECOM_ROBOT = "WECOM_ROBOT";
-        String LARK_ROBOT = "LARK_ROBOT";
-        String CUSTOM_WEBHOOK_ROBOT = "CUSTOM_WEBHOOK_ROBOT";
+        String DING_TALK= "DING_TALK";
+        String WE_COM = "WE_COM";
+        String LARK = "LARK";
+        String CUSTOM = "CUSTOM";
+    }
+
+    interface DingType {
+        String CUSTOM = "CUSTOM";
+        String ENTERPRISE = "ENTERPRISE";
     }
 
     interface Event {

@@ -12,7 +12,6 @@ import jakarta.annotation.Resource;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.context.i18n.SimpleLocaleContext;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
@@ -43,15 +42,21 @@ public class NoticeSendService {
         AbstractNoticeSender noticeSender;
         switch (messageDetail.getType()) {
             case NoticeConstants.Type.MAIL -> noticeSender = mailNoticeSender;
-            case NoticeConstants.Type.WECOM_ROBOT -> noticeSender = weComNoticeSender;
-            case NoticeConstants.Type.DING_CUSTOM_ROBOT -> noticeSender = dingCustomNoticeSender;
-            case NoticeConstants.Type.DING_ENTERPRISE_ROBOT -> noticeSender = dingEnterPriseNoticeSender;
-            case NoticeConstants.Type.LARK_ROBOT -> noticeSender = larkNoticeSender;
-            case NoticeConstants.Type.CUSTOM_WEBHOOK_ROBOT -> noticeSender = webhookNoticeSender;
+            case NoticeConstants.Type.WE_COM -> noticeSender = weComNoticeSender;
+            case NoticeConstants.Type.DING_TALK -> noticeSender = getDingSender(messageDetail.getDingType());
+            case NoticeConstants.Type.LARK -> noticeSender = larkNoticeSender;
+            case NoticeConstants.Type.CUSTOM -> noticeSender = webhookNoticeSender;
             default -> noticeSender = inSiteNoticeSender;
         }
-
         return noticeSender;
+    }
+
+    private AbstractNoticeSender getDingSender(String dingType) {
+        if (StringUtils.equalsIgnoreCase(dingType, NoticeConstants.DingType.ENTERPRISE)) {
+            return dingEnterPriseNoticeSender;
+        }else{
+            return dingCustomNoticeSender;
+        }
     }
 
     /**
@@ -59,12 +64,7 @@ public class NoticeSendService {
      */
     @Async
     public void send(String taskType, NoticeModel noticeModel) {
-        String language = (String) noticeModel.getParamMap().get("Language");
-        if (StringUtils.isBlank(language)) {
-            language = "zh-CN";
-        }
-        SimpleLocaleContext localeContext = new SimpleLocaleContext(Locale.of(language));
-        LocaleContextHolder.setLocaleContext(localeContext);
+        setLanguage(noticeModel);
         try {
             String projectId = (String) noticeModel.getParamMap().get("projectId");
             List<MessageDetail> messageDetails = messageDetailService.searchMessageByTypeAndProjectId(taskType, projectId);
@@ -79,10 +79,18 @@ public class NoticeSendService {
 
         } catch (Exception e) {
             LogUtils.error(e.getMessage(), e);
-        }finally {
-            //清理语言环境
-            LocaleContextHolder.resetLocaleContext();
         }
+    }
+
+    private static void setLanguage(NoticeModel noticeModel) {
+        String language = (String) noticeModel.getParamMap().get("Language");
+        if (StringUtils.isBlank(language)) {
+            language = "zh_CN";
+        }
+        if (language.contains("-")) {
+            language = language.replace("-","_");
+        }
+        LocaleContextHolder.setLocale(Locale.of(language));
     }
 
     /**
