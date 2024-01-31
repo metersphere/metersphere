@@ -1,5 +1,11 @@
 <template>
-  <a-modal v-model:visible="showBatchModal" title-align="start" class="ms-modal-upload ms-modal-medium">
+  <a-modal
+    v-model:visible="showBatchModal"
+    :mask-closable="false"
+    :mask="true"
+    title-align="start"
+    class="ms-modal-upload ms-modal-medium"
+  >
     <template #title>
       {{ batchTitle }}
       <div class="text-[var(--color-text-4)]">

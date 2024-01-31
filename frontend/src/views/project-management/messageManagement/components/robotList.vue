@@ -133,9 +133,8 @@
         >
           <a-input
             v-model:model-value="robotForm.name"
-            :max-length="250"
+            :max-length="255"
             :placeholder="t('project.messageManagement.namePlaceholder')"
-            show-word-limit
             allow-clear
           ></a-input>
         </a-form-item>
@@ -206,6 +205,7 @@
           >
             <a-input
               v-model:model-value="robotForm.appKey"
+              :max-length="255"
               :placeholder="t('project.messageManagement.appKeyPlaceholder')"
               allow-clear
             ></a-input>
@@ -219,6 +219,7 @@
           >
             <a-input
               v-model:model-value="robotForm.appSecret"
+              :max-length="255"
               :placeholder="t('project.messageManagement.appSecretPlaceholder')"
               allow-clear
             ></a-input>
@@ -239,6 +240,7 @@
         >
           <a-input
             v-model:model-value="robotForm.webhook"
+            :max-length="255"
             :placeholder="
               t(
                 robotForm.platform === 'CUSTOM'

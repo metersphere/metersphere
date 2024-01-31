@@ -25,7 +25,7 @@
           :label="t('system.project.name')"
           :rules="[{ required: true, message: t('system.project.projectNameRequired') }]"
         >
-          <a-input v-model="form.name" :placeholder="t('system.project.projectNamePlaceholder')" />
+          <a-input v-model="form.name" :max-length="255" :placeholder="t('system.project.projectNamePlaceholder')" />
         </a-form-item>
         <a-form-item
           required
@@ -65,6 +65,7 @@
         <a-form-item field="description" :label="t('system.organization.description')">
           <a-textarea
             v-model="form.description"
+            :max-length="1000"
             :placeholder="t('system.organization.descriptionPlaceholder')"
             allow-clear
             :auto-size="{ minRows: 1 }"

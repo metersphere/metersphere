@@ -1,7 +1,7 @@
 export default {
   'project.member.addMember': '添加成员',
   'project.member.updateMember': '更新成员',
-  'project.member.searchMember': '通过名称或邮箱搜索搜索',
+  'project.member.searchMember': '通过名称或邮箱搜索',
   'project.member.remove': '移除',
   'project.member.edit': '编辑',
   'project.member.add': '添加',

@@ -13,6 +13,7 @@
           v-model:model-value="authForm.account"
           :placeholder="t('apiTestDebug.commonPlaceholder')"
           class="w-[450px]"
+          :max-length="255"
         />
       </a-form-item>
       <a-form-item :label="t('apiTestDebug.password')">

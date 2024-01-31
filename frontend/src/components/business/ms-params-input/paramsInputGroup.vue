@@ -10,6 +10,7 @@
       v-else-if="group.type === 'input'"
       v-model:model-value="innerForm[`${paramKey}${index + 1}`]"
       :placeholder="t(group.placeholder || '')"
+      :max-length="255"
     />
     <a-radio-group
       v-else-if="group.type === 'radio'"
@@ -35,6 +36,7 @@
       v-model:model-value="innerForm[`${paramKey}${index + 1}`]"
       :placeholder="t(group.placeholder || '')"
       class="ms-params-input-inputAppendSelect"
+      :max-length="255"
     >
       <template #prepend>
         <a-select

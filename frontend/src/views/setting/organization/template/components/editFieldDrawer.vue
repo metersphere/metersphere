@@ -24,13 +24,12 @@
             v-model:model-value="fieldForm.name"
             :placeholder="t('system.orgTemplate.fieldNamePlaceholder')"
             :max-length="255"
-            show-word-limit
           ></a-input>
         </a-form-item>
         <a-form-item field="remark" :label="t('system.orgTemplate.description')" asterisk-position="end">
           <a-textarea
             v-model="fieldForm.remark"
-            :max-length="255"
+            :max-length="1000"
             :placeholder="t('system.orgTemplate.resDescription')"
             :auto-size="{
               maxRows: 1,

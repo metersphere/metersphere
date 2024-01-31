@@ -17,10 +17,10 @@
           asterisk-position="end"
           :rules="[{ required: true, message: t('project.basicInfo.projectNameTip') }]"
         >
-          <a-input v-model="form.name" allow-clear :max-length="250" />
+          <a-input v-model="form.name" allow-clear :max-length="255" />
         </a-form-item>
         <a-form-item field="description" :label="t('project.basicInfo.Description')" asterisk-position="end">
-          <a-textarea v-model="form.description" allow-clear auto-size />
+          <a-textarea v-model="form.description" :max-length="1000" allow-clear auto-size />
         </a-form-item>
       </a-form>
     </div>

@@ -388,7 +388,9 @@
   const getLinkList = async () => {
     if (lastOrganizationId) {
       userGroupOptions.value = await getGlobalUserGroup(lastOrganizationId.value);
-      projectOptions.value = await getProjectList(lastOrganizationId.value);
+      if (hasAnyPermission(['ORGANIZATION_PROJECT:READ'])) {
+        projectOptions.value = await getProjectList(lastOrganizationId.value);
+      }
     }
   };
   onBeforeMount(() => {

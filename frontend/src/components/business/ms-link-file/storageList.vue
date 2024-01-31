@@ -4,6 +4,7 @@
     :placeholder="t('project.fileManagement.folderSearchPlaceholder')"
     allow-clear
     class="mb-[8px]"
+    :max-length="255"
   ></a-input>
   <a-spin class="h-full w-full" :loading="loading">
     <MsList

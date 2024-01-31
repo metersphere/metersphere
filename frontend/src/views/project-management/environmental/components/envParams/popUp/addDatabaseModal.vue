@@ -46,13 +46,7 @@
           asterisk-position="end"
           :rules="[{ required: true, message: t('project.environmental.database.usernameIsRequire') }]"
         >
-          <a-input
-            v-model="form.username"
-            :max-length="255"
-            show-word-limit
-            allow-clear
-            :placeholder="t('common.pleaseInput')"
-          />
+          <a-input v-model="form.username" :max-length="255" allow-clear :placeholder="t('common.pleaseInput')" />
         </a-form-item>
         <a-form-item field="password" :label="t('project.environmental.database.password')">
           <a-input-password
@@ -102,7 +96,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, ref } from 'vue';
+  import { computed, defineModel, ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
 
   import { driverOptionFun, validateDatabaseEnv } from '@/api/modules/project-management/envManagement';

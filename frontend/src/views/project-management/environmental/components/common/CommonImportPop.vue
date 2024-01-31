@@ -37,6 +37,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { defineModel } from 'vue';
   import { type FileItem, Message } from '@arco-design/web-vue';
 
   import MsUpload from '@/components/pure/ms-upload/index.vue';

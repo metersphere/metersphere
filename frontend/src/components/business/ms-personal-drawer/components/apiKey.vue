@@ -128,7 +128,6 @@
           v-model:model-value="timeForm.desc"
           :max-length="64"
           :placeholder="t('ms.personal.accessKeyDescPlaceholder')"
-          show-word-limit
         />
       </a-form-item>
     </a-form>

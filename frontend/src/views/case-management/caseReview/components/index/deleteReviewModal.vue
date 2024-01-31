@@ -24,6 +24,7 @@
     <a-input
       v-model:model-value="confirmReviewName"
       :placeholder="t('caseManagement.caseReview.deleteReviewPlaceholder')"
+      :max-length="255"
     />
     <template #footer>
       <div class="flex items-center justify-end">

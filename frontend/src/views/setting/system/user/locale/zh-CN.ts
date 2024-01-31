@@ -2,7 +2,7 @@ export default {
   'system.user.createUser': '创建用户',
   'system.user.emailInvite': '邮箱邀请',
   'system.user.importUser': '导入用户',
-  'system.user.searchUser': '通过名称或邮箱搜索搜索',
+  'system.user.searchUser': '通过名称或邮箱搜索',
   'system.user.editUser': '编辑',
   'system.user.resetPassword': '重置密码',
   'system.user.disable': '禁用',

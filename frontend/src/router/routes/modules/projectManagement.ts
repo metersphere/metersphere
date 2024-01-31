@@ -14,13 +14,24 @@ const ProjectManagement: AppRouteRecordRaw = {
     order: 7,
     hideChildrenInMenu: true,
     roles: [
-      'PROJECT_USER:READ',
+      'SYSTEM_PARAMETER_SETTING_BASE:READ',
       'PROJECT_TEMPLATE:READ',
       'PROJECT_FILE_MANAGEMENT:READ',
       'PROJECT_MESSAGE:READ',
       'PROJECT_CUSTOM_FUNCTION:READ',
       'PROJECT_LOG:READ',
       'PROJECT_ENVIRONMENT:READ',
+      // 菜单管理
+      'PROJECT_APPLICATION_WORKSTATION:READ',
+      'PROJECT_APPLICATION_TEST_PLAN:READ',
+      'PROJECT_APPLICATION_BUG:READ',
+      'PROJECT_APPLICATION_CASE:READ',
+      'PROJECT_APPLICATION_API:READ',
+      'PROJECT_APPLICATION_UI:READ',
+      'PROJECT_APPLICATION_PERFORMANCE_TEST:READ',
+      // 菜单管理
+      'PROJECT_USER:READ',
+      'PROJECT_GROUP:READ',
     ],
   },
   children: [
@@ -32,7 +43,20 @@ const ProjectManagement: AppRouteRecordRaw = {
       redirect: '/project-management/permission/basicInfo',
       meta: {
         locale: 'menu.projectManagement.projectPermission',
-        roles: ['PROJECT_USER:READ'],
+        roles: [
+          'SYSTEM_PARAMETER_SETTING_BASE:READ',
+          // 菜单管理
+          'PROJECT_APPLICATION_WORKSTATION:READ',
+          'PROJECT_APPLICATION_TEST_PLAN:READ',
+          'PROJECT_APPLICATION_BUG:READ',
+          'PROJECT_APPLICATION_CASE:READ',
+          'PROJECT_APPLICATION_API:READ',
+          'PROJECT_APPLICATION_UI:READ',
+          'PROJECT_APPLICATION_PERFORMANCE_TEST:READ',
+          // 菜单管理
+          'PROJECT_USER:READ',
+          'PROJECT_GROUP:READ',
+        ],
         isTopMenu: true,
       },
       children: [
@@ -43,7 +67,7 @@ const ProjectManagement: AppRouteRecordRaw = {
           component: () => import('@/views/project-management/projectAndPermission/basicInfos/index.vue'),
           meta: {
             locale: 'project.permission.basicInfo',
-            roles: ['SYSTEM_PARAMETER_SETTING_BASE:READ'],
+            roles: ['*'],
           },
         },
         // 菜单管理
@@ -81,7 +105,7 @@ const ProjectManagement: AppRouteRecordRaw = {
           component: () => import('@/views/project-management/projectAndPermission/member/index.vue'),
           meta: {
             locale: 'project.permission.member',
-            roles: ['*'],
+            roles: ['PROJECT_USER:READ'],
           },
         },
         // 用户组

@@ -7,7 +7,7 @@
           <a-input
             v-model="form.name"
             :placeholder="t('system.plugin.defaultJarNameTip')"
-            :max-length="250"
+            :max-length="255"
             allow-clear
           />
         </a-form-item>
@@ -40,7 +40,12 @@
           </a-select>
         </a-form-item>
         <a-form-item field="description" :label="t('system.plugin.description')" asterisk-position="end">
-          <a-textarea v-model="form.description" :placeholder="t('system.plugin.pluginDescription')" allow-clear />
+          <a-textarea
+            v-model="form.description"
+            :max-length="1000"
+            :placeholder="t('system.plugin.pluginDescription')"
+            allow-clear
+          />
         </a-form-item>
       </a-form>
     </div>

@@ -37,6 +37,7 @@
         <a-form-item :label="t('apiTestDebug.certificateAlias')">
           <a-input
             v-model:model-value="settingForm.certificateAlias"
+            :max-length="255"
             :placeholder="t('apiTestDebug.commonPlaceholder')"
             class="w-[450px]"
           />

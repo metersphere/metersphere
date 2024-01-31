@@ -81,7 +81,7 @@
                   class="w-full"
                   allow-clear
                   :disabled="!item.dataIndex"
-                  :max-length="60"
+                  :max-length="255"
                 />
                 <MsTagsInput
                   v-else-if="item.type === FilterType.TAGS_INPUT"
@@ -97,7 +97,7 @@
                   class="w-full"
                   allow-clear
                   :disabled="!item.dataIndex"
-                  :max-length="60"
+                  :max-length="255"
                 />
                 <MsSelect
                   v-else-if="item.type === FilterType.SELECT"
@@ -150,8 +150,7 @@
                     minRows: 1,
                     maxRows: 1,
                   }"
-                  show-word-limit
-                  :max-length="512"
+                  :max-length="1000"
                 />
                 <a-radio-group
                   v-else-if="item.type === FilterType.RADIO"

@@ -24,7 +24,7 @@
       <div>
         <a-input-search
           v-model="searchParams.keyword"
-          :max-length="250"
+          :max-length="255"
           :placeholder="t('project.member.searchMember')"
           allow-clear
           @search="searchHandler"

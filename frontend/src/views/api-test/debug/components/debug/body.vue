@@ -24,12 +24,7 @@
   />
   <div v-else-if="format === RequestBodyFormat.BINARY">
     <div class="mb-[16px] flex justify-between gap-[8px] bg-[var(--color-text-n9)] p-[12px]">
-      <a-input
-        v-model:model-value="innerParams.binaryDesc"
-        :placeholder="t('common.desc')"
-        :max-length="255"
-        show-word-limit
-      />
+      <a-input v-model:model-value="innerParams.binaryDesc" :placeholder="t('common.desc')" :max-length="255" />
     </div>
     <div class="flex items-center">
       <a-switch v-model:model-value="innerParams.binarySend" class="mr-[8px]" size="small" type="line"></a-switch>

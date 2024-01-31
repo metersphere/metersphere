@@ -17,12 +17,7 @@
         :label="t('project.commonScript.publicScriptName')"
         :rules="[{ required: true, message: t('project.commonScript.publicScriptNameNotEmpty') }]"
       >
-        <a-input
-          v-model="form.name"
-          :max-length="255"
-          show-word-limit
-          :placeholder="t('project.commonScript.pleaseEnterScriptName')"
-        />
+        <a-input v-model="form.name" :max-length="255" :placeholder="t('project.commonScript.pleaseEnterScriptName')" />
       </a-form-item>
       <a-form-item field="status" :label="t('project.commonScript.scriptEnabled')">
         <a-select v-model="form.status" class="max-w-[396px]" :placeholder="t('project.commonScript.scriptEnabled')">
@@ -36,10 +31,11 @@
           :placeholder="t('system.organization.descriptionPlaceholder')"
           allow-clear
           :auto-size="{ minRows: 1 }"
+          :max-length="1000"
         />
       </a-form-item>
       <a-form-item field="tags" :label="t('project.commonScript.tags')">
-        <a-input-tag v-model="form.tags" :placeholder="t('project.commonScript.enterContentAddTags')" allow-clear />
+        <MsTagsInput v-model:modelValue="form.tags"></MsTagsInput>
       </a-form-item>
       <a-form-item field="inputParameters" :label="t('project.commonScript.inputParams')">
         <paramTable

@@ -43,6 +43,7 @@
 </template>
 
 <script lang="ts" async setup>
+  import { defineModel } from 'vue';
   import { TableData } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';

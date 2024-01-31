@@ -5,6 +5,7 @@
       :placeholder="t('caseManagement.caseReview.folderSearchPlaceholder')"
       allow-clear
       class="mb-[16px]"
+      :max-length="255"
     />
     <div v-if="!props.isModal" class="folder">
       <div :class="getFolderClass('all')" @click="setActiveFolder('all')">

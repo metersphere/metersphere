@@ -3,6 +3,7 @@
     v-model:model-value="moduleKeyword"
     :placeholder="t('project.fileManagement.folderSearchPlaceholder')"
     allow-clear
+    :max-length="255"
     class="mb-[16px]"
   ></a-input>
   <a-spin class="min-h-[400px] w-full" :loading="loading">

@@ -12,7 +12,6 @@
           >
             <a-input
               v-model="form.name"
-              show-word-limit
               :max-length="255"
               class="w-[732px]"
               :placeholder="t('project.environmental.group.envGroupPlaceholder')"
@@ -24,7 +23,13 @@
             field="description"
             :label="t('project.environmental.group.desc')"
           >
-            <a-textarea v-model="form.description" auto-size class="w-[732px]" :placeholder="t('common.pleaseInput')" />
+            <a-textarea
+              v-model="form.description"
+              :max-length="1000"
+              auto-size
+              class="w-[732px]"
+              :placeholder="t('common.pleaseInput')"
+            />
           </a-form-item>
         </a-form>
         <paramsTable

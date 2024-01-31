@@ -7,7 +7,7 @@
           <a-input-search
             v-model="keyword"
             :placeholder="t('organization.service.searchService')"
-            :max-length="250"
+            :max-length="255"
             allow-clear
             @search="searchHandler"
             @press-enter="searchHandler"

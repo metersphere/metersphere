@@ -29,7 +29,7 @@
             :rules="[{ required: true, message: t('bugManagement.edit.nameIsRequired') }]"
             :placeholder="t('bugManagement.edit.pleaseInputBugName')"
           >
-            <a-input v-model="form.title" :max-length="255" show-word-limit />
+            <a-input v-model="form.title" :max-length="255" />
           </a-form-item>
           <a-form-item field="description" :label="t('bugManagement.edit.content')">
             <MsRichText v-model:raw="form.description" />
@@ -100,7 +100,7 @@
             :form-rule="formRules"
           />
           <a-form-item field="tag" :label="t('bugManagement.tag')">
-            <a-input-tag
+            <MsTagsInput
               v-model:model-value="form.tag"
               :placeholder="t('bugManagement.edit.tagPlaceholder')"
               allow-clear
@@ -143,6 +143,7 @@
   import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
   import { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
+  import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import FileList from '@/components/pure/ms-upload/fileList.vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import { MsFileItem } from '@/components/pure/ms-upload/types';

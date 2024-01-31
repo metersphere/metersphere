@@ -20,6 +20,7 @@
         </div>
         <a-input
           v-model:model-value="moduleKeyword"
+          :max-length="255"
           :placeholder="t('project.commonScript.folderSearchPlaceholder')"
           allow-clear
           class="mb-[16px]"

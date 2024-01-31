@@ -20,7 +20,7 @@
         :rules="[{ required: true, message: t('bugManagement.edit.nameIsRequired') }]"
         :placeholder="t('bugManagement.edit.pleaseInputBugName')"
       >
-        <a-input v-model="form.title" :max-length="255" show-word-limit />
+        <a-input v-model="form.title" :max-length="255" />
       </a-form-item>
       <a-form-item :label="t('bugManagement.edit.content')">
         <MsRichText v-model:raw="form.description" />

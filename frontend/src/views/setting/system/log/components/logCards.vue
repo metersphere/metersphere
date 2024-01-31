@@ -76,6 +76,7 @@
         class="filter-item"
         :placeholder="t('system.log.operateNamePlaceholder')"
         allow-clear
+        :max-length="255"
       >
         <template #prefix>
           {{ t('system.log.operateName') }}

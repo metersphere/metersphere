@@ -23,15 +23,14 @@
         >
           <a-input
             v-model="form.name"
-            show-word-limit
-            :max-length="8"
+            :max-length="255"
             :placeholder="t('system.orgTemplate.stateNameDescription')"
           ></a-input>
         </a-form-item>
         <a-form-item field="remark" :label="t('system.orgTemplate.description')" asterisk-position="end">
           <a-textarea
             v-model:model-value="form.remark"
-            :max-length="250"
+            :max-length="1000"
             :placeholder="t('system.config.auth.descPlaceholder')"
             allow-clear
           ></a-textarea>

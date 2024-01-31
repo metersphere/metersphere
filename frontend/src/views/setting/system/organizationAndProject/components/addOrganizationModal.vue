@@ -27,7 +27,7 @@
         >
           <a-input
             v-model="form.name"
-            allow-clear
+            :max-length="255"
             :placeholder="t('system.organization.organizationNamePlaceholder')"
           />
         </a-form-item>
@@ -45,6 +45,7 @@
             :placeholder="t('system.organization.descriptionPlaceholder')"
             :auto-size="{ minRows: 1 }"
             style="resize: vertical"
+            :max-length="1000"
           />
         </a-form-item>
       </a-form>

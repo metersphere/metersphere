@@ -15,7 +15,6 @@
           v-model:modelValue="reviewForm.name"
           :placeholder="t('caseManagement.caseReview.reviewNamePlaceholder')"
           :max-length="255"
-          show-word-limit
         />
       </a-form-item>
       <a-form-item field="desc" :label="t('caseManagement.caseReview.desc')">
@@ -23,7 +22,6 @@
           v-model:modelValue="reviewForm.desc"
           :placeholder="t('caseManagement.caseReview.descPlaceholder')"
           :max-length="1000"
-          show-word-limit
         />
       </a-form-item>
       <a-form-item field="folderId" :label="t('caseManagement.caseReview.belongModule')">

@@ -11,7 +11,6 @@
         >
           <a-input
             v-model="form.name"
-            show-word-limit
             :max-length="255"
             class="w-[732px]"
             :placeholder="t('project.environmental.envNamePlaceholder')"

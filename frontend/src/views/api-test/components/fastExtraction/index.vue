@@ -35,6 +35,7 @@
         <div class="form-input-wrapper">
           <a-input
             v-model:model-value="expressionForm.expression"
+            :max-length="255"
             :placeholder="t('apiTestDebug.regularExpressionPlaceholder', { ex: '/<title>(.*?)</title>/' })"
             class="flex-1"
           />
@@ -53,6 +54,7 @@
         <div class="form-input-wrapper">
           <a-input
             v-model:model-value="expressionForm.expression"
+            :max-length="255"
             :placeholder="t('apiTestDebug.JSONPathPlaceholder')"
             class="flex-1"
           />
@@ -71,6 +73,7 @@
         <div class="form-input-wrapper">
           <a-input
             v-model:model-value="expressionForm.expression"
+            :max-length="255"
             :placeholder="t('apiTestDebug.XPathPlaceholder')"
             class="flex-1"
           />

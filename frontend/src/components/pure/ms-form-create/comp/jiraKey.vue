@@ -3,6 +3,7 @@
     :value="props.modelValue"
     :placeholder="t('project.menu.pleaseInputJiraKey')"
     v-bind="attrs"
+    :max-length="255"
     @change="(v: string) => emit('update:modelValue', v)"
     @blur="handleBlur"
   />

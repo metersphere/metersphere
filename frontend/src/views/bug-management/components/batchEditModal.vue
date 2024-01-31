@@ -68,7 +68,7 @@
           :rules="[{ required: true }]"
         >
           <template v-if="valueMode === 'tag'">
-            <a-input-tag v-model:model-value="form.value" :disabled="!form.attribute" />
+            <MsTagsInput v-model:modelValue="form.value" :disabled="!form.attribute"></MsTagsInput>
           </template>
           <template v-else-if="valueMode === 'user_selector'">
             <MsUserSelector
@@ -124,6 +124,7 @@
   import { type FormInstance, Message, type ValidatedError } from '@arco-design/web-vue';
 
   import { BatchActionQueryParams } from '@/components/pure/ms-table/type';
+  import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import { MsUserSelector } from '@/components/business/ms-user-selector';
   import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
 
