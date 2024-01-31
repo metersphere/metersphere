@@ -25,21 +25,7 @@ INSERT INTO user_role_relation (id, user_id, role_id, source_id, organization_id
 -- 系统管理员拥有所有的权限，不用初始化
 
 -- 系统成员的权限
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_USER:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_ORGANIZATION_PROJECT:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_USER_ROLE:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_TEST_RESOURCE_POOL:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_PLUGIN:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_PARAMETER_SETTING_BASE:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_PARAMETER_SETTING_DISPLAY:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_PARAMETER_SETTING_AUTH:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_PARAMETER_SETTING_MEMORY_CLEAN:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_AUTH:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_LOG:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_PERSONAL_API_KEY:READ+ADD');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_PERSONAL_API_KEY:READ+UPDATE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_PERSONAL_API_KEY:READ+DELETE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'member', 'SYSTEM_PERSONAL_API_KEY:READ');
+-- 空权限
 
 -- 组织管理员权限
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'org_admin', 'ORGANIZATION_USER_ROLE:READ');
@@ -71,13 +57,8 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'org_admin', 'ORGANIZATION_TASK_CENTER:READ+SHOP');
 
 -- 组织成员权限
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'org_member', 'ORGANIZATION_USER_ROLE:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'org_member', 'ORGANIZATION_MEMBER:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'org_member', 'SYSTEM_SERVICE_INTEGRATION:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'org_member', 'ORGANIZATION_PROJECT:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'org_member', 'ORGANIZATION_LOG:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'org_member', 'ORGANIZATION_CUSTOM_FIELD:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'org_member', 'ORGANIZATION_TEMPLATE:READ');
+-- 空权限
+
 
 -- 项目管理员权限
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_admin', 'PROJECT_BASE_INFO:READ');
@@ -206,10 +187,6 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT
 -- 项目成员权限
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_BASE_INFO:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_USER:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_GROUP:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_GROUP:READ+ADD');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_GROUP:READ+UPDATE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_GROUP:READ+DELETE');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_ENVIRONMENT:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_ENVIRONMENT:READ+ADD');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_ENVIRONMENT:READ+UPDATE');
@@ -222,32 +199,6 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_FILE_MANAGEMENT:READ+DOWNLOAD');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_FILE_MANAGEMENT:READ+DELETE');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_TEMPLATE:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_MESSAGE:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_MESSAGE:READ+ADD');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_MESSAGE:READ+UPDATE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_MESSAGE:READ+DELETE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_VERSION:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_VERSION:READ+ADD');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_VERSION:READ+UPDATE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_VERSION:READ+DELETE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_FAKE_ERROR:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_FAKE_ERROR:READ+ADD');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_FAKE_ERROR:READ+UPDATE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_FAKE_ERROR:READ+DELETE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_APPLICATION_TEST_PLAN:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_APPLICATION_TEST_PLAN:UPDATE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_APPLICATION_UI:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_APPLICATION_UI:UPDATE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_APPLICATION_PERFORMANCE_TEST:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_APPLICATION_PERFORMANCE_TEST:UPDATE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_APPLICATION_API:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_APPLICATION_API:UPDATE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_APPLICATION_CASE:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_APPLICATION_CASE:UPDATE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_APPLICATION_BUG:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_APPLICATION_BUG:UPDATE');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_APPLICATION_WORKSTATION:READ');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_APPLICATION_WORKSTATION:UPDATE');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_LOG:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_LOG:UPDATE');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_BUG:READ');
@@ -255,7 +206,6 @@ INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_BUG:READ+UPDATE');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_BUG:READ+DELETE');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_BUG:READ+EXPORT');
-INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_BASE_INFO:READ+UPDATE');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_CUSTOM_FUNCTION:READ');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_CUSTOM_FUNCTION:READ+ADD');
 INSERT INTO user_role_permission (id, role_id, permission_id) VALUES (UUID_SHORT(), 'project_member', 'PROJECT_CUSTOM_FUNCTION:READ+UPDATE');
