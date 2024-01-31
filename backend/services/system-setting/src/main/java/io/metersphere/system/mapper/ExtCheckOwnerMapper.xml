@@ -4,7 +4,7 @@
     <select id="checkoutOwner" resultType="boolean">
         SELECT count(id) = ${ids.size()}
         FROM ${table}
-        WHERE project_id = #{projectId}
+        WHERE project_id = #{projectId} and (select 1 from project where id = #{projectId} and enable = TRUE)
         and id in
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
@@ -14,7 +14,7 @@
     <select id="checkoutOrganizationOwner" resultType="boolean">
         SELECT count(id) = ${ids.size()}
         FROM ${table}
-        WHERE organization_id = #{organizationId}
+        WHERE organization_id = #{organizationId} and (select 1 from organization where id = #{organizationId} and enable = TRUE)
         and id in
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
