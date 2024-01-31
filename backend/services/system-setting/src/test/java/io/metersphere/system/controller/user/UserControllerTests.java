@@ -560,7 +560,24 @@ public class UserControllerTests extends BaseTest {
         errorDataIndex = new int[]{};
         UserParamUtils.checkImportResponse(response, importSuccessData, errorDataIndex);
 
+
+        //导入中文文件
+        importSuccessData = 19;
+        filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/user_import_cn_success.xls")).getPath();
+        file = new MockMultipartFile("file", "userImportCn.xls", MediaType.APPLICATION_OCTET_STREAM_VALUE, UserParamUtils.getFileBytes(filePath));
+        userImportReportDTOByFile = userService.getUserExcelParseDTO(file);
+        response = userRequestUtils.parseObjectFromMvcResult(userRequestUtils.responseFile(UserRequestUtils.URL_USER_IMPORT, file), UserImportResponse.class);
+        UserParamUtils.checkImportResponse(response, importSuccessData, errorDataIndex);//检查返回值
+        userDTOList = this.checkImportUserInDb(userImportReportDTOByFile);//检查数据已入库
+        for (UserDTO item : userDTOList) {
+            LOG_CHECK_LIST.add(
+                    new CheckLogModel(item.getId(), OperationLogType.ADD, UserRequestUtils.URL_USER_IMPORT)
+            );
+        }
+
+
         //文件内没有一条合格数据  应当导入成功的数据为0
+        importSuccessData = 0;
         filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/user_import_error_all.xlsx")).getPath();
         file = new MockMultipartFile("file", "userImport.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, UserParamUtils.getFileBytes(filePath));
         response = userRequestUtils.parseObjectFromMvcResult(userRequestUtils.responseFile(UserRequestUtils.URL_USER_IMPORT, file), UserImportResponse.class);
