@@ -1,7 +1,5 @@
 package io.metersphere.system.service;
 
-import io.metersphere.system.dto.sdk.OptionDTO;
-import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.Translator;
@@ -11,15 +9,14 @@ import io.metersphere.system.dto.AddProjectRequest;
 import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.dto.UpdateProjectNameRequest;
 import io.metersphere.system.dto.UpdateProjectRequest;
+import io.metersphere.system.dto.request.*;
+import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.ExtSystemProjectMapper;
 import io.metersphere.system.mapper.OrganizationMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
-import io.metersphere.system.dto.request.OrganizationProjectRequest;
-import io.metersphere.system.dto.request.ProjectAddMemberBatchRequest;
-import io.metersphere.system.dto.request.ProjectMemberRequest;
-import io.metersphere.system.dto.request.ProjectRequest;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -131,8 +128,8 @@ public class OrganizationProjectService {
         }
     }
 
-    public List<OptionDTO> getTestResourcePoolOptions(String organizationId) {
-        return commonProjectService.getTestResourcePoolOptions(organizationId);
+    public List<OptionDTO> getTestResourcePoolOptions(ProjectPoolRequest request) {
+        return commonProjectService.getTestResourcePoolOptions(request);
     }
 
     public void rename(UpdateProjectNameRequest project, String userId) {

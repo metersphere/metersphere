@@ -4,23 +4,20 @@ package io.metersphere.system.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.system.dto.sdk.OptionDTO;
-import io.metersphere.system.dto.user.UserExtendDTO;
-import io.metersphere.system.security.CheckOwner;
-import io.metersphere.system.utils.PageUtils;
-import io.metersphere.system.utils.Pager;
 import io.metersphere.system.dto.AddProjectRequest;
 import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.dto.UpdateProjectNameRequest;
 import io.metersphere.system.dto.UpdateProjectRequest;
+import io.metersphere.system.dto.request.*;
+import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.dto.request.OrganizationProjectRequest;
-import io.metersphere.system.dto.request.ProjectAddMemberBatchRequest;
-import io.metersphere.system.dto.request.ProjectAddMemberRequest;
-import io.metersphere.system.dto.request.ProjectMemberRequest;
+import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.service.OrganizationProjectLogService;
 import io.metersphere.system.service.OrganizationProjectService;
+import io.metersphere.system.utils.PageUtils;
+import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
@@ -164,15 +161,15 @@ public class OrganizationProjectController {
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ)
     public List<UserExtendDTO> getUserMemberList(@PathVariable String organizationId, @PathVariable String projectId,
                                                  @Schema(description = "查询关键字，根据邮箱和用户名查询")
-                                              @RequestParam(value = "keyword", required = false) String keyword) {
+                                                 @RequestParam(value = "keyword", required = false) String keyword) {
         return organizationProjectService.getUserMemberList(organizationId, projectId, keyword);
     }
 
-    @GetMapping("/pool-options/{organizationId}")
+    @PostMapping("/pool-options")
     @Operation(summary = "系统设置-组织-项目-获取资源池下拉选项")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ)
-    public List<OptionDTO> getProjectOptions(@PathVariable String organizationId) {
-        return organizationProjectService.getTestResourcePoolOptions(organizationId);
+    public List<OptionDTO> getProjectOptions(@Validated @RequestBody ProjectPoolRequest request) {
+        return organizationProjectService.getTestResourcePoolOptions(request);
     }
 
     @PostMapping("/rename")

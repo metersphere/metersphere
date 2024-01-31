@@ -19,6 +19,7 @@ import io.metersphere.system.dto.*;
 import io.metersphere.system.dto.request.OrganizationProjectRequest;
 import io.metersphere.system.dto.request.ProjectAddMemberRequest;
 import io.metersphere.system.dto.request.ProjectMemberRequest;
+import io.metersphere.system.dto.request.ProjectPoolRequest;
 import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.invoker.ProjectServiceInvoker;
@@ -50,7 +51,7 @@ import java.util.List;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class OrganizationProjectControllerTests extends BaseTest {
@@ -128,8 +129,9 @@ public class OrganizationProjectControllerTests extends BaseTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
     }
+
     private void responseGet(String url, ResultMatcher resultMatcher) throws Exception {
-         mockMvc.perform(MockMvcRequestBuilders.get(url)
+        mockMvc.perform(MockMvcRequestBuilders.get(url)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -148,6 +150,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         }
         return null;
     }
+
     public static void compareProjectDTO(Project currentProject, Project result) {
         Assertions.assertNotNull(currentProject);
         Assertions.assertNotNull(result);
@@ -173,6 +176,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         addProjectDTO.setUserIds(userIds);
         return addProjectDTO;
     }
+
     public UpdateProjectRequest generatorUpdate(String organizationId,
                                                 String projectId,
                                                 String name,
@@ -285,6 +289,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
             serviceInvoker.invokeCreateServices(initProject.getId());
         }
     }
+
     @Test
     @Order(1)
     @Sql(scripts = {"/dml/init_org_project.sql"},
@@ -295,7 +300,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
      */
     public void testAddProjectSuccess() throws Exception {
         initData();
-        AddProjectRequest project = this.generatorAdd("organizationId","organization-name", "description", true, List.of("admin"));
+        AddProjectRequest project = this.generatorAdd("organizationId", "organization-name", "description", true, List.of("admin"));
         MvcResult mvcResult = this.responsePost(addProject, project);
         ProjectDTO result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         ProjectExample projectExample = new ProjectExample();
@@ -312,7 +317,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().contains("admin"));
         userRoleRelationExample.createCriteria().andSourceIdEqualTo("organizationId").andRoleIdEqualTo(InternalUserRole.ORG_MEMBER.getValue());
-         userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
+        userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().contains("admin"));
         projectId = result.getId();
         Project projectExtend = projectMapper.selectByPrimaryKey(projectId);
@@ -321,7 +326,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         checkLog(projectId, OperationLogType.ADD);
 
         //userId为空的时候
-        project = this.generatorAdd("organizationId","organization-userIdIsNull", "description", true, new ArrayList<>());
+        project = this.generatorAdd("organizationId", "organization-userIdIsNull", "description", true, new ArrayList<>());
         mvcResult = this.responsePost(addProject, project);
         result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         projectExample = new ProjectExample();
@@ -391,7 +396,6 @@ public class OrganizationProjectControllerTests extends BaseTest {
         Assertions.assertTrue(projectTestResourcePools.stream().map(ProjectTestResourcePool::getTestResourcePoolId).toList().contains("resourcePoolId"));
 
 
-
         project.setName("organization-testAddProjectSuccess1");
         project.setOrganizationId(getDefault().getId());
         // @@校验权限
@@ -404,10 +408,10 @@ public class OrganizationProjectControllerTests extends BaseTest {
      * 测试添加项目失败的用例
      */
     public void testAddProjectError() throws Exception {
-        AddProjectRequest project = this.generatorAdd("organizationId","organization-nameError", "description", true, List.of("admin"));
+        AddProjectRequest project = this.generatorAdd("organizationId", "organization-nameError", "description", true, List.of("admin"));
         this.responsePost(addProject, project);
         //项目名称存在 500
-        project = this.generatorAdd("organizationId","organization-nameError", "description", true, List.of("admin"));
+        project = this.generatorAdd("organizationId", "organization-nameError", "description", true, List.of("admin"));
         this.requestPost(addProject, project, ERROR_REQUEST_MATCHER);
         //参数组织Id为空
         project = this.generatorAdd(null, null, null, true, List.of("admin"));
@@ -424,10 +428,11 @@ public class OrganizationProjectControllerTests extends BaseTest {
         this.requestPost(addProject, project, ERROR_REQUEST_MATCHER);
 
     }
+
     @Test
     @Order(3)
     public void testGetProject() throws Exception {
-        AddProjectRequest project = this.generatorAdd("organizationId","organization-getName", "description", true, List.of("admin"));
+        AddProjectRequest project = this.generatorAdd("organizationId", "organization-getName", "description", true, List.of("admin"));
         MvcResult mvcResult = this.responsePost(addProject, project);
         ProjectDTO result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         assert result != null;
@@ -448,6 +453,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ, getProject + projectId);
     }
+
     @Test
     @Order(4)
     public void testGetProjectError() throws Exception {
@@ -565,7 +571,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
     @Test
     @Order(7)
     public void testUpdateProject() throws Exception {
-        UpdateProjectRequest project = this.generatorUpdate("organizationId", projectId,"organization-TestName", "Edit name", true, List.of("admin1"));
+        UpdateProjectRequest project = this.generatorUpdate("organizationId", projectId, "organization-TestName", "Edit name", true, List.of("admin1"));
         Project projectExtend = projectMapper.selectByPrimaryKey(projectId);
         List<String> moduleIds = new ArrayList<>();
         if (StringUtils.isNotBlank(projectExtend.getModuleSetting())) {
@@ -625,7 +631,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
 
         //设置资源池
         project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId3", "org-updatePools", "org-updatePools", true, new ArrayList<>());
-        project.setResourcePoolIds(List.of("resourcePoolId","resourcePoolId1"));
+        project.setResourcePoolIds(List.of("resourcePoolId", "resourcePoolId1"));
         mvcResult = this.responsePost(updateProject, project);
         result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         currentProject = projectMapper.selectByPrimaryKey(project.getId());
@@ -650,7 +656,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         UpdateProjectRequest project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId1", "org-Module", "description", true, List.of("admin"));
         this.requestPost(updateProject, project, ERROR_REQUEST_MATCHER);
         //参数组织Id为空
-        project = this.generatorUpdate(null, "projectId",null, null, true , List.of("admin"));
+        project = this.generatorUpdate(null, "projectId", null, null, true, List.of("admin"));
         this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
         //项目Id为空
         project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, null, null, null, true, List.of("admin"));
@@ -714,7 +720,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
 
     @Test
     @Order(13)
-    public void testAddProjectMember() throws Exception{
+    public void testAddProjectMember() throws Exception {
         ProjectAddMemberRequest projectAddMemberRequest = new ProjectAddMemberRequest();
         projectAddMemberRequest.setProjectId(projectId);
         List<String> userIds = List.of("admin1", "admin2");
@@ -725,7 +731,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().containsAll(userIds));
         Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().containsAll(userIds));
-        userRoleRelations.forEach(item ->{
+        userRoleRelations.forEach(item -> {
             try {
                 checkLog(item.getId(), OperationLogType.ADD);
             } catch (Exception e) {
@@ -738,7 +744,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
 
     @Test
     @Order(14)
-    public void testAddProjectMemberError() throws Exception{
+    public void testAddProjectMemberError() throws Exception {
         //项目Id为空
         ProjectAddMemberRequest projectAddMemberRequest = new ProjectAddMemberRequest();
         projectAddMemberRequest.setProjectId(null);
@@ -831,7 +837,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
 
     @Test
     @Order(17)
-    public void testRemoveProjectMember() throws Exception{
+    public void testRemoveProjectMember() throws Exception {
         String userId = "admin1";
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
         userRoleRelationExample.createCriteria().andSourceIdEqualTo(projectId).andUserIdEqualTo(userId);
@@ -847,7 +853,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
 
     @Test
     @Order(18)
-    public void testRemoveProjectMemberError() throws Exception{
+    public void testRemoveProjectMemberError() throws Exception {
         String userId = "admin1";
         MvcResult mvcResult = this.responseGet(removeProjectMember + projectId + "/" + userId);
         int count = parseObjectFromMvcResult(mvcResult, Integer.class);
@@ -867,7 +873,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
     @Order(19)
     public void disableSuccess() throws Exception {
         String id = "projectId";
-        this.responseGet(disableProject + id,status().isOk());
+        this.responseGet(disableProject + id, status().isOk());
         Project currentProject = projectMapper.selectByPrimaryKey(id);
         Assertions.assertEquals(currentProject.getEnable(), false);
         checkLog(id, OperationLogType.UPDATE);
@@ -886,7 +892,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
     @Order(19)
     public void enableSuccess() throws Exception {
         String id = "projectId";
-        this.responseGet(enableProject + id,status().isOk());
+        this.responseGet(enableProject + id, status().isOk());
         Project currentProject = projectMapper.selectByPrimaryKey(id);
         Assertions.assertEquals(currentProject.getEnable(), true);
         checkLog(id, OperationLogType.UPDATE);
@@ -959,9 +965,12 @@ public class OrganizationProjectControllerTests extends BaseTest {
     @Test
     @Order(23)
     public void testGetOptions() throws Exception {
-        this.requestGetWithOkAndReturn(getPoolOptions + "organizationId");
+        ProjectPoolRequest projectPoolRequest = new ProjectPoolRequest();
+        projectPoolRequest.setModulesIds(List.of("apiTest", "uiTest", "loadTest"));
+        projectPoolRequest.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+        this.responsePost(getPoolOptions, projectPoolRequest);
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ, getPoolOptions + DEFAULT_ORGANIZATION_ID);
+        requestPostPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ, getPoolOptions, projectPoolRequest);
     }
 
     @Test
