@@ -82,6 +82,7 @@ export default function useTableStore() {
         // 初始化过了，但是可能有新变动，如列的顺序，列的显示隐藏，列的拖拽
         column = columnsTransform(column);
         const { columnBackup: oldColumn } = selectorColumnMap[tableKey];
+        // 比较页面上定义的 column 和 浏览器备份的column 是否相同
         const isEqual = isArraysEqualWithOrder<MsTableColumnData>(oldColumn, column);
         if (!isEqual) {
           // 如果不相等，说明有变动将新的column存入indexDB
@@ -129,7 +130,7 @@ export default function useTableStore() {
       selectorColumnMap[key] = {
         mode,
         column: JSON.parse(JSON.stringify(columns)),
-        columnBackup: JSON.parse(JSON.stringify(columns)),
+        columnBackup: selectorColumnMap[key].columnBackup,
       };
       await localforage.setItem('selectorColumnMap', selectorColumnMap);
     } catch (e) {

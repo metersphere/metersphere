@@ -32,7 +32,7 @@
         </template>
         <template #operation="{ record }">
           <MsRemoveButton
-            :title="t('system.organization.removeName', { name: record.name })"
+            :title="t('system.organization.removeName', { name: characterLimit(record.name) })"
             :sub-title-tip="t('system.organization.removeTip')"
             @ok="handleRemove(record)"
           />
@@ -61,6 +61,7 @@
 
   import { deleteUserFromUserGroup, postUserByUserGroup } from '@/api/modules/project-management/usergroup';
   import { useI18n } from '@/hooks/useI18n';
+  import { characterLimit } from '@/utils';
 
   export interface projectDrawerProps {
     visible: boolean;
@@ -155,6 +156,7 @@
     (visible) => {
       currentVisible.value = visible;
       if (visible) {
+        setKeyword(keyword.value);
         fetchData();
       }
     }

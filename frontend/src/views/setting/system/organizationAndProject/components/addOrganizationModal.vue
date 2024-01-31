@@ -25,7 +25,11 @@
           :label="t('system.organization.organizationName')"
           :rules="[{ required: true, message: t('system.organization.organizationNameRequired') }]"
         >
-          <a-input v-model="form.name" :placeholder="t('system.organization.organizationNamePlaceholder')" />
+          <a-input
+            v-model="form.name"
+            allow-clear
+            :placeholder="t('system.organization.organizationNamePlaceholder')"
+          />
         </a-form-item>
         <a-form-item field="name" :label="t('system.organization.organizationAdmin')">
           <MsUserSelector
@@ -35,7 +39,13 @@
           />
         </a-form-item>
         <a-form-item field="description" :label="t('system.organization.description')">
-          <a-input v-model="form.description" :placeholder="t('system.organization.descriptionPlaceholder')" />
+          <a-textarea
+            v-model="form.description"
+            allow-clear
+            :placeholder="t('system.organization.descriptionPlaceholder')"
+            :auto-size="{ minRows: 1 }"
+            style="resize: vertical"
+          />
         </a-form-item>
       </a-form>
     </div>

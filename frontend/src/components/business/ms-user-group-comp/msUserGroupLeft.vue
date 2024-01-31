@@ -36,13 +36,13 @@
               {{ t('system.userGroup.systemUserGroup') }}
             </div>
           </div>
-          <MsMoreAction
+
+          <icon-plus-circle-fill
             v-permission="['SYSTEM_USER_ROLE:READ+ADD']"
-            :list="createSystemUGActionItem"
-            @select="handleCreateUG(AuthScopeEnum.SYSTEM)"
-          >
-            <icon-plus-circle-fill class="cursor-pointer text-[rgb(var(--primary-7))]" size="20" />
-          </MsMoreAction>
+            class="cursor-pointer text-[rgb(var(--primary-7))]"
+            size="20"
+            @click="handleCreateUG(AuthScopeEnum.SYSTEM)"
+          />
         </div>
       </CreateUserGroupPopup>
       <Transition>
@@ -123,13 +123,13 @@
               {{ t('system.userGroup.orgUserGroup') }}
             </div>
           </div>
-          <MsMoreAction
+
+          <icon-plus-circle-fill
             v-permission="['ORGANIZATION_USER_ROLE:READ+ADD']"
-            :list="createOrgUGActionItem"
-            @select="orgUserGroupVisible = true"
-          >
-            <icon-plus-circle-fill class="cursor-pointer text-[rgb(var(--primary-7))]" size="20" />
-          </MsMoreAction>
+            class="cursor-pointer text-[rgb(var(--primary-7))]"
+            size="20"
+            @click="orgUserGroupVisible = true"
+          />
         </div>
       </CreateUserGroupPopup>
       <Transition>
@@ -211,13 +211,13 @@
               {{ t('system.userGroup.projectUserGroup') }}
             </div>
           </div>
-          <MsMoreAction
+
+          <icon-plus-circle-fill
             v-permission="['PROJECT_GROUP:READ+ADD']"
-            :list="createProjectUGActionItem"
-            @select="projectUserGroupVisible = true"
-          >
-            <icon-plus-circle-fill class="cursor-pointer text-[rgb(var(--primary-7))]" size="20" />
-          </MsMoreAction>
+            class="cursor-pointer text-[rgb(var(--primary-7))]"
+            size="20"
+            @click="projectUserGroupVisible = true"
+          />
         </div>
       </CreateUserGroupPopup>
       <Transition>
@@ -353,32 +353,8 @@
     return userGroupList.value.filter((ele) => ele.type === AuthScopeEnum.PROJECT);
   });
 
-  const createSystemUGActionItem: ActionsItem[] = [
-    { label: 'system.userGroup.addSysUserGroup', eventTag: 'createUserGroup' },
-  ];
-  const createOrgUGActionItem: ActionsItem[] = [
-    { label: 'system.userGroup.addOrgUserGroup', eventTag: 'createUserGroup' },
-  ];
-  const createProjectUGActionItem: ActionsItem[] = [
-    { label: 'system.userGroup.addProjectUserGroup', eventTag: 'createUserGroup' },
-  ];
-
   const addMemberActionItem: ActionsItem[] = [{ label: 'system.userGroup.addMember', eventTag: 'addMember' }];
-  const moreAction: ActionsItem[] = [
-    {
-      label: 'system.userGroup.rename',
-      danger: false,
-      eventTag: 'rename',
-    },
-    {
-      isDivider: true,
-    },
-    {
-      label: 'system.userGroup.delete',
-      danger: true,
-      eventTag: 'delete',
-    },
-  ];
+
   const systemMoreAction: ActionsItem[] = [
     {
       label: 'system.userGroup.rename',

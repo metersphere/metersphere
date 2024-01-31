@@ -5,7 +5,7 @@
     </template>
     <template v-if="hasAnyPermission(props.updatePermission || [])" #action="{ record }">
       <MsRemoveButton
-        :title="t('system.userGroup.removeName', { name: record.name })"
+        :title="t('system.userGroup.removeName', { name: characterLimit(record.name) })"
         :sub-title-tip="t('system.userGroup.removeTip')"
         @ok="handleRemove(record)"
       />
@@ -32,6 +32,7 @@
   } from '@/api/modules/setting/usergroup';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
+  import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { CurrentUserGroupItem, UserTableItem } from '@/models/setting/usergroup';

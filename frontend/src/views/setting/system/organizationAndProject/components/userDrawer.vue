@@ -16,7 +16,7 @@
         </a-button>
         <a-input-search
           v-model:model-value="keyword"
-          :placeholder="t('system.user.searchUser')"
+          :placeholder="t('system.organization.searchUserPlaceholder')"
           class="w-[230px]"
           allow-clear
           @search="searchUser"

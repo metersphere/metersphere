@@ -112,6 +112,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
+  import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { UserItem } from '@/models/setting/log';
@@ -251,7 +252,7 @@
 
   const handleDelete = (record: TableData) => {
     openDeleteModal({
-      title: t('system.organization.deleteName', { name: record.name }),
+      title: t('system.organization.deleteName', { name: characterLimit(record.name) }),
       content: t('system.organization.deleteTip'),
       onBeforeOk: async () => {
         try {

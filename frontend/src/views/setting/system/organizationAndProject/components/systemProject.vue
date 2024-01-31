@@ -4,7 +4,9 @@
       <a-tooltip background-color="#FFFFFF">
         <template #content>
           <span>
-            <span class="text-[var(--color-text-1)]">{{ t('system.project.revokeDeleteToolTip') }}</span>
+            <span class="text-[var(--color-text-1)]">{{
+              t('system.project.revokeDeleteToolTip', { count: record.remainDayCount })
+            }}</span>
             <MsButton
               v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+RECOVER']"
               class="ml-[8px]"
@@ -104,6 +106,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useTableStore } from '@/store';
+  import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { UserItem } from '@/models/setting/log';
@@ -234,7 +237,7 @@
 
   const handleDelete = (record: TableData) => {
     openDeleteModal({
-      title: t('system.organization.deleteName', { name: record.name }),
+      title: t('system.organization.deleteName', { name: characterLimit(record.name) }),
       content: t('system.organization.deleteTip'),
       onBeforeOk: async () => {
         try {
