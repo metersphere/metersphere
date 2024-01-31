@@ -11,6 +11,7 @@
     <a-input
       ref="inputRef"
       v-model:model-value="innerValue"
+      :max-length="255"
       class="param-input"
       @input="(val) => emit('input', val)"
       @change="(val) => emit('change', val)"

@@ -9,13 +9,14 @@
       </a-col>
       <a-col :span="5" :offset="9">
         <a-select v-model="searchKeys.scene" @change="searchHandler">
+          <a-option value="">{{ t('system.plugin.all') }}</a-option>
           <a-option v-for="item of sceneList" :key="item.value" :value="item.value">{{ t(item.label) }}</a-option>
         </a-select>
       </a-col>
       <a-col :span="5">
         <a-input-search
           v-model="searchKeys.name"
-          :max-length="250"
+          :max-length="255"
           :placeholder="t('system.plugin.searchPlugin')"
           allow-clear
           @search="searchHandler"
@@ -70,11 +71,19 @@
           </a-table-column>
           <a-table-column :title="t('system.plugin.tableColumnsOrg')" :width="300">
             <template #cell="{ record }">
-              <MsTagGroup :tag-list="record.organizations || []" type="primary" theme="outline" />
+              <MsTagGroup
+                v-if="(record.organizations || []).length"
+                :tag-list="record.organizations || []"
+                type="primary"
+                theme="outline"
+              />
+              <MsTag v-else type="primary" theme="outline">
+                {{ t('system.plugin.allOrganize') }}
+              </MsTag>
             </template>
           </a-table-column>
           <a-table-column
-            :title="t('system.plugin.tableColumnsDescription')"
+            :title="t('system.plugin.tableColumnsJar')"
             :ellipsis="true"
             :tooltip="true"
             data-index="fileName"
@@ -145,6 +154,14 @@
             <icon-down class="text-[rgb(var(--primary-6))]" :style="{ 'font-size': '12px' }" />
           </span>
         </template>
+        <template #empty>
+          <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
+            {{ t('system.plugin.tableNoData') }}
+            <MsButton v-permission="['SYSTEM_PLUGIN:READ+ADD']" class="ml-[8px]" @click="uploadPlugin">{{
+              t('system.plugin.uploadPlugin')
+            }}</MsButton>
+          </div>
+        </template>
       </a-table>
     </div>
     <div class="ms-footerNum"
@@ -180,6 +197,7 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
   import scriptDetailDrawer from './scriptDetailDrawer.vue';
   import TableExpand from './tableExpand.vue';
@@ -225,10 +243,6 @@
   const detailYaml = ref('');
   const { openModal } = useModal();
   const sceneList = ref([
-    {
-      label: 'system.plugin.all',
-      value: '',
-    },
     {
       label: 'system.plugin.interfaceTest',
       value: 'API_PROTOCOL',

@@ -1,7 +1,7 @@
 <template>
   <a-input
     v-model="inputValue"
-    :max-length="250"
+    :max-length="255"
     :type="isShowPassword ? 'password' : 'text'"
     :placeholder="placeholder"
     style="width: 100%"

@@ -27,7 +27,6 @@
         v-model:modelValue="baseInfoForm.name"
         :placeholder="t('ms.personal.namePlaceholder')"
         :max-length="255"
-        show-word-limit
       />
     </a-form-item>
     <a-form-item

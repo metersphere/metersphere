@@ -26,7 +26,7 @@
           :validate-trigger="['change', 'blur']"
           hide-label
         >
-          <a-input v-model="userInfo.username" :placeholder="t('login.form.userName.placeholder')" />
+          <a-input v-model="userInfo.username" :max-length="255" :placeholder="t('login.form.userName.placeholder')" />
         </a-form-item>
         <a-form-item
           class="login-form-item"

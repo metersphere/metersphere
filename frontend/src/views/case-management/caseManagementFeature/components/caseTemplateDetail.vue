@@ -13,7 +13,6 @@
             v-model="form.name"
             :max-length="255"
             :placeholder="t('system.orgTemplate.caseNamePlaceholder')"
-            show-word-limit
             allow-clear
           ></a-input>
         </a-form-item>
@@ -208,7 +207,7 @@
             :form-rule="formRules"
           />
           <a-form-item field="tags" :label="t('system.orgTemplate.tags')">
-            <a-input-tag v-model="form.tags" :placeholder="t('formCreate.PleaseEnter')" allow-clear />
+            <MsTagsInput v-model:model-value="form.tags" />
           </a-form-item>
         </a-form>
       </div>
@@ -250,6 +249,7 @@
   import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
   import type { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
+  import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import MsFileList from '@/components/pure/ms-upload/fileList.vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import type { MsFileItem } from '@/components/pure/ms-upload/types';

@@ -65,6 +65,7 @@ export default {
   'common.setting': '设置',
   'common.resetDefault': '恢复默认',
   'common.tagPlaceholder': '添加标签回车结束',
+  'common.tagInputMaxLength': '标签不得超过 {number} 个字符',
   'common.batchModify': '批量修改',
   'common.batchAdd': '批量添加',
   'common.pleaseInput': '请输入',

@@ -62,6 +62,7 @@
         <a-form-item field="description" :label="t('system.organization.description')">
           <a-textarea
             v-model="form.description"
+            :max-length="1000"
             :placeholder="t('system.organization.descriptionPlaceholder')"
             allow-clear
             :auto-size="{ minRows: 1 }"

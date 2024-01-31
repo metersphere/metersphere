@@ -4,6 +4,7 @@
     :placeholder="t('project.fileManagement.folderSearchPlaceholder')"
     allow-clear
     class="mb-[8px]"
+    :max-length="255"
   ></a-input>
   <a-spin class="h-full w-full" :loading="loading">
     <MsList
@@ -68,7 +69,6 @@
           :max-length="255"
           :placeholder="t('project.fileManagement.storageNamePlaceholder')"
           allow-clear
-          show-word-limit
         ></a-input>
       </a-form-item>
       <a-form-item :label="t('project.fileManagement.storagePlatform')" field="platform" asterisk-position="end">
@@ -122,7 +122,7 @@
       >
         <a-input
           v-model:model-value="activeStorageForm.userName"
-          :max-length="250"
+          :max-length="255"
           :placeholder="t('project.fileManagement.storageUsernamePlaceholder')"
           allow-clear
         ></a-input>

@@ -41,7 +41,7 @@
           <a-textarea
             v-if="props.fieldConfig?.isTextArea"
             v-model:model-value="form.field"
-            :max-length="props.fieldConfig?.maxLength"
+            :max-length="props.fieldConfig?.maxLength || 1000"
             :auto-size="{ maxRows: 4 }"
             :placeholder="props.fieldConfig?.placeholder"
             class="w-[245px]"
@@ -52,7 +52,7 @@
           <a-input
             v-else
             v-model:model-value="form.field"
-            :max-length="50"
+            :max-length="255"
             :placeholder="props.fieldConfig?.placeholder"
             class="w-[245px]"
             @press-enter="handleConfirm"

@@ -27,6 +27,7 @@
       <a-textarea
         v-if="record.showExpected"
         v-model="record.expected"
+        :max-length="1000"
         size="mini"
         :auto-size="true"
         class="w-max-[267px]"

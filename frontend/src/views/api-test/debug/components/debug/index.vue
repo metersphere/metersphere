@@ -36,6 +36,7 @@
           </a-select>
           <a-input
             v-model:model-value="activeDebug.url"
+            :max-length="255"
             :placeholder="t('apiTestDebug.urlPlaceholder')"
             @change="handleActiveDebugChange"
           />

@@ -16,7 +16,6 @@
             v-model:model-value="condition.name"
             :placeholder="t('apiTestDebug.preconditionScriptNamePlaceholder')"
             :max-length="255"
-            show-word-limit
             size="small"
             @press-enter="isShowEditScriptNameInput = false"
             @blur="isShowEditScriptNameInput = false"
@@ -136,7 +135,6 @@
           v-model:model-value="condition.desc"
           :placeholder="t('apiTestDebug.commonPlaceholder')"
           :max-length="255"
-          show-word-limit
         />
       </div>
       <div class="mb-[16px] flex w-full items-center bg-[var(--color-text-n9)] p-[12px]">
@@ -184,6 +182,7 @@
         <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('apiTestDebug.storageByCol') }}</div>
         <a-input
           v-model:model-value="condition.sqlSource.storageByCol"
+          :max-length="255"
           :placeholder="t('apiTestDebug.storageByColPlaceholder', { a: '{id_1}', b: '{username_1}' })"
         />
       </div>
@@ -191,6 +190,7 @@
         <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('apiTestDebug.storageByResult') }}</div>
         <a-input
           v-model:model-value="condition.sqlSource.storageByResult"
+          :max-length="255"
           :placeholder="t('apiTestDebug.storageByResultPlaceholder', { a: '${result}' })"
         />
       </div>
@@ -243,6 +243,7 @@
             <a-input
               v-model:model-value="record.expression"
               class="ms-params-input"
+              :max-length="255"
               @input="handleExpressionChange"
               @change="handleExpressionChange"
             >

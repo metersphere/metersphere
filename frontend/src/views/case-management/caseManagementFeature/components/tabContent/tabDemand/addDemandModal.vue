@@ -28,7 +28,6 @@
           <a-input
             v-model="modelForm.demandName"
             :max-length="255"
-            show-word-limit
             :placeholder="t('caseManagement.featureCase.pleaseEnterTitle')"
           />
         </a-form-item>

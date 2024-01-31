@@ -232,7 +232,7 @@
         <a-input
           v-model:model-value="storageForm.branch"
           :placeholder="t('project.fileManagement.gitBranchPlaceholder')"
-          :max-length="250"
+          :max-length="255"
         ></a-input>
       </a-form-item>
       <a-form-item
@@ -245,7 +245,7 @@
         <a-input
           v-model:model-value="storageForm.path"
           :placeholder="t('project.fileManagement.gitFilePathPlaceholder')"
-          :max-length="250"
+          :max-length="255"
         ></a-input>
         <MsFormItemSub :text="t('project.fileManagement.gitFilePathSub')" :show-fill-icon="false" />
       </a-form-item>

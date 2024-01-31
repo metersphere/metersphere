@@ -30,14 +30,13 @@
             v-model:model-value="templateForm.name"
             :placeholder="t('system.orgTemplate.templateNamePlaceholder')"
             :max-length="255"
-            show-word-limit
             class="max-w-[732px]"
           ></a-input>
         </a-form-item>
         <a-form-item field="remark" :label="t('system.orgTemplate.description')" asterisk-position="end">
           <a-textarea
             v-model="templateForm.remark"
-            :max-length="255"
+            :max-length="1000"
             :placeholder="t('system.orgTemplate.resDescription')"
             :auto-size="{
               maxRows: 1,
@@ -90,7 +89,6 @@
             v-model="defectForm.name"
             :max-length="255"
             :placeholder="t('system.orgTemplate.defectNamePlaceholder')"
-            show-word-limit
             allow-clear
           ></a-input>
           <MsFormItemSub :text="t('system.orgTemplate.defectNameTip')" :show-fill-icon="false" />

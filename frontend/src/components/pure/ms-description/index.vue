@@ -40,6 +40,7 @@
                     ref="inputRef"
                     v-model.trim="addTagInput"
                     size="mini"
+                    :max-length="255"
                     :error="!!tagInputError"
                     @keyup.enter="handleAddTag(item)"
                     @blur="handleAddTag(item)"

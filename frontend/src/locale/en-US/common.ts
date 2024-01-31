@@ -63,6 +63,7 @@ export default {
   'common.setting': 'Setting',
   'common.resetDefault': 'Reset default',
   'common.tagPlaceholder': 'Add tag and press Enter to end',
+  'common.tagInputMaxLength': 'The tag must not exceed {number} characters',
   'common.batchModify': 'Batch Edit',
   'common.batchAdd': 'Batch Add',
   'common.pleaseSelect': 'please choose',

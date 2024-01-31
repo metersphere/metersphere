@@ -1,25 +1,31 @@
 <template>
-  <a-input-tag
-    v-model:model-value="innerModelValue"
-    v-model:input-value="innerInputValue"
-    :placeholder="t(props.placeholder || 'ms.tagsInput.tagsInputPlaceholder')"
-    :allow-clear="props.allowClear"
-    :retain-input-value="props.retainInputValue"
-    :unique-value="props.uniqueValue"
-    :max-tag-count="props.maxTagCount"
-    @press-enter="tagInputEnter"
-    @blur="tagInputBlur"
-  >
-    <template v-if="props.customPrefix" #prefix>
-      <slot name="prefix"></slot>
-    </template>
-    <template v-if="props.customTag" #tag="{ data }">
-      <slot name="tag" :data="data"></slot>
-    </template>
-    <template v-if="props.customSuffix" #suffix>
-      <slot name="suffix"></slot>
-    </template>
-  </a-input-tag>
+  <div class="w-full">
+    <a-input-tag
+      v-model:model-value="innerModelValue"
+      v-model:input-value="innerInputValue"
+      :error="isError"
+      :placeholder="t(props.placeholder || 'ms.tagsInput.tagsInputPlaceholder')"
+      :allow-clear="props.allowClear"
+      :retain-input-value="props.retainInputValue"
+      :unique-value="props.uniqueValue"
+      :max-tag-count="props.maxTagCount"
+      @press-enter="tagInputEnter"
+      @blur="tagInputBlur"
+    >
+      <template v-if="props.customPrefix" #prefix>
+        <slot name="prefix"></slot>
+      </template>
+      <template v-if="props.customTag" #tag="{ data }">
+        <slot name="tag" :data="data"></slot>
+      </template>
+      <template v-if="props.customSuffix" #suffix>
+        <slot name="suffix"></slot>
+      </template>
+    </a-input-tag>
+    <span v-if="isError" class="ml-[1px] text-[12px] text-[rgb(var(--danger-6))]">{{
+      t('common.tagInputMaxLength', { number: props.maxLength })
+    }}</span>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -41,11 +47,13 @@
       customTag?: boolean;
       customSuffix?: boolean;
       maxTagCount?: number;
+      maxLength?: number;
     }>(),
     {
       retainInputValue: true,
       uniqueValue: true,
       allowClear: true,
+      maxLength: 64,
     }
   );
   const emit = defineEmits(['update:modelValue', 'update:inputValue', 'change']);
@@ -56,6 +64,11 @@
   const innerInputValue = ref(props.inputValue);
   const tagsLength = ref(0); // 记录每次回车或失去焦点前的tags长度，以判断是否有新的tag被添加，新标签添加时需要判断是否重复的标签
 
+  const isError = computed(
+    () =>
+      (innerInputValue.value || '').length > props.maxLength ||
+      innerModelValue.value.some((item) => item.length > props.maxLength)
+  );
   watch(
     () => props.modelValue,
     (val) => {
@@ -105,7 +118,12 @@
   }
 
   function tagInputBlur() {
-    if (innerInputValue.value && innerInputValue.value.trim() !== '' && validateUniqueValue()) {
+    if (
+      innerInputValue.value &&
+      innerInputValue.value.trim() !== '' &&
+      validateUniqueValue() &&
+      (innerInputValue.value || '').trim().length <= props.maxLength
+    ) {
       innerModelValue.value.push(innerInputValue.value.trim());
       innerInputValue.value = '';
       tagsLength.value += 1;
@@ -113,9 +131,12 @@
   }
 
   function tagInputEnter() {
-    if (validateUniqueValue()) {
+    if (validateUniqueValue() && (innerInputValue.value || '').trim().length <= props.maxLength) {
       innerInputValue.value = '';
       tagsLength.value += 1;
+    } else {
+      innerModelValue.value = innerModelValue.value.filter((item: any) => item.length <= props.maxLength);
+      innerInputValue.value = '';
     }
   }
 </script>

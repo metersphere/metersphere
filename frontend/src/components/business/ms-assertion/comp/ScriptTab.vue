@@ -14,7 +14,6 @@
           v-model:model-value="condition.name"
           :placeholder="t('apiTestDebug.preconditionScriptNamePlaceholder')"
           :max-length="255"
-          show-word-limit
           size="small"
           @press-enter="isShowEditScriptNameInput = false"
           @blur="isShowEditScriptNameInput = false"

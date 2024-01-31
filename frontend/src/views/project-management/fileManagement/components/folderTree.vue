@@ -4,6 +4,7 @@
     :placeholder="t('project.fileManagement.folderSearchPlaceholder')"
     allow-clear
     class="mb-[16px]"
+    :max-length="255"
   ></a-input>
   <a-spin class="min-h-[400px] w-full" :loading="loading">
     <MsTree

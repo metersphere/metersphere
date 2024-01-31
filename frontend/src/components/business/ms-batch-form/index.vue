@@ -55,7 +55,7 @@
                 v-model="element[model.filed]"
                 class="flex-1"
                 :placeholder="t(model.placeholder || '')"
-                :max-length="model.maxLength || 250"
+                :max-length="model.maxLength || 255"
                 allow-clear
               />
               <a-input-number
@@ -102,7 +102,7 @@
                     v-model="element[child.filed]"
                     :class="child.className"
                     :placeholder="t(child.placeholder || '')"
-                    :max-length="child.maxLength || 250"
+                    :max-length="child.maxLength || 255"
                     allow-clear
                   />
                   <a-select

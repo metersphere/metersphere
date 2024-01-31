@@ -100,6 +100,7 @@
                 minRows: 3,
               }"
               :rules="[{ required: true }]"
+              :max-length="1000"
             ></a-textarea>
           </a-form-item>
         </a-row>

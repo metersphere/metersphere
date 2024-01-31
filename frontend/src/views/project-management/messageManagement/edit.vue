@@ -75,8 +75,7 @@
             v-model:model-value="subject"
             :placeholder="t('project.messageManagement.titlePlaceholder')"
             :auto-size="{ minRows: 3, maxRows: 3 }"
-            :max-length="64"
-            show-word-limit
+            :max-length="1000"
             :disabled="saveLoading"
             @focus="focusTarget = 'subject'"
           />
@@ -86,9 +85,8 @@
             ref="templateInputRef"
             v-model:model-value="template"
             class="h-[calc(100%-156px)]"
-            :max-length="500"
+            :max-length="1000"
             auto-size
-            show-word-limit
             :disabled="saveLoading"
             @focus="focusTarget = 'template'"
             @blur="focusTarget = null"

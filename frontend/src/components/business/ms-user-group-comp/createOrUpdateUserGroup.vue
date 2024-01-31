@@ -25,6 +25,7 @@
               <a-input
                 v-model="form.name"
                 class="w-[243px]"
+                :max-length="255"
                 :placeholder="t('system.userGroup.pleaseInputUserGroupName')"
                 allow-clear
                 @press-enter="handleBeforeOk"

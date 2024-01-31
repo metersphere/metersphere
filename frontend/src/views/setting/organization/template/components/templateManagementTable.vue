@@ -10,6 +10,7 @@
     <template #apiFieldId="{ record }">
       <a-input
         v-model="record.apiFieldId"
+        :max-length="255"
         class="min-w-[200px] max-w-[300px]"
         :placeholder="t('system.orgTemplate.apiInputPlaceholder')"
         allow-clear

@@ -27,6 +27,8 @@ export default {
   'system.plugin.defaultJarNameTip': 'The default is the package name',
   'system.plugin.appOrganize': 'Application Organization',
   'system.plugin.description': 'Description',
+  'system.plugin.tableColumnsJar': 'jar',
+  'system.plugin.tableNoData': 'No data, please',
   'system.plugin.pluginDescription': 'Please describe the plug-in',
   'system.plugin.supportFormat': 'Only JAR format files are supported and the file size does not exceed 50M',
   'system.plugin.interfaceTestDescribe': 'Plug-ins for protocol classes recommend choosing an interface test',

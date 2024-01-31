@@ -35,11 +35,7 @@
           asterisk-position="end"
           :rules="[{ required: true, message: t('caseManagement.featureCase.PleaseInputTags') }]"
         >
-          <a-input-tag
-            v-model="form.tags"
-            :placeholder="t('caseManagement.featureCase.pleaseEnterInputTags')"
-            allow-clear
-          />
+          <MsTagsInput v-model:modelValue="form.tags" allow-clear></MsTagsInput>
         </a-form-item>
 
         <MsFormCreate ref="formCreateRef" v-model:api="fApi" v-model:form-item="formItem" :form-rule="formRules" />
@@ -56,6 +52,7 @@
   import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
   import type { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
   import type { BatchActionQueryParams } from '@/components/pure/ms-table/type';
+  import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
 
   import { batchEditAttrs, getCaseDefaultFields } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';

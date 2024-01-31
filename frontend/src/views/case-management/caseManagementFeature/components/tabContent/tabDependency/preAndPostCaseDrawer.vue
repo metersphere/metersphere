@@ -14,6 +14,7 @@
           :placeholder="t('caseManagement.featureCase.searchTip')"
           allow-clear
           class="mb-[16px]"
+          :max-length="255"
         />
         <div class="folder">
           <div :class="getFolderClass('all')" @click="setActiveFolder('all')">

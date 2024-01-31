@@ -132,6 +132,7 @@
                   "
                   ref="currentInputRef"
                   v-model="record[item.dataIndex as string]"
+                  :max-length="255"
                   @blur="handleEditInputBlur(record, item.dataIndex as string, true)"
                   @keydown.enter="handleEditInputBlur(record, item.dataIndex as string, false)"
                 />

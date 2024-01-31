@@ -193,7 +193,7 @@
                 <a-input
                   v-model:model-value="pageConfig.slogan"
                   :placeholder="t('system.config.page.sloganPlaceholder')"
-                  :max-length="250"
+                  :max-length="255"
                 ></a-input>
                 <MsFormItemSub :text="t('system.config.page.sloganTip')" :show-fill-icon="false" />
               </a-form-item>
@@ -201,7 +201,7 @@
                 <a-input
                   v-model:model-value="pageConfig.title"
                   :placeholder="t('system.config.page.titlePlaceholder')"
-                  :max-length="250"
+                  :max-length="255"
                 ></a-input>
                 <MsFormItemSub :text="t('system.config.page.titleTip')" :show-fill-icon="false" />
               </a-form-item>
@@ -307,7 +307,7 @@
                 <a-input
                   v-model:model-value="pageConfig.platformName"
                   :placeholder="t('system.config.page.platformNamePlaceholder')"
-                  :max-length="250"
+                  :max-length="255"
                 ></a-input>
                 <MsFormItemSub :text="t('system.config.page.platformNameTip')" :show-fill-icon="false" />
               </a-form-item>
@@ -315,7 +315,7 @@
                 <a-input
                   v-model:model-value="pageConfig.helpDoc"
                   :placeholder="t('system.config.page.helpDocPlaceholder')"
-                  :max-length="250"
+                  :max-length="255"
                 ></a-input>
                 <MsFormItemSub :text="t('system.config.page.helpDocTip')" :show-fill-icon="false" />
               </a-form-item>

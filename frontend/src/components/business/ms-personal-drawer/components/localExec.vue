@@ -21,6 +21,7 @@
           v-model:model-value="apiConfig.userUrl"
           :placeholder="t('ms.personal.apiLocalExecutionPlaceholder')"
           class="mb-[16px]"
+          :max-length="255"
           @press-enter="testApi"
         ></a-input>
         <div class="config-card-footer">
@@ -65,6 +66,7 @@
           v-model:model-value="uiConfig.userUrl"
           :placeholder="t('ms.personal.uiLocalExecutionPlaceholder')"
           class="mb-[16px]"
+          :max-length="255"
           @press-enter="testUi"
         ></a-input>
         <div class="config-card-footer">

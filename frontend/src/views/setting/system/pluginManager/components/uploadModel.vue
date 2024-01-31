@@ -7,16 +7,21 @@
           <a-form-item field="pluginName" :label="t('system.plugin.name')" asterisk-position="end">
             <a-input
               v-model="form.name"
-              :max-length="250"
+              :max-length="255"
               :placeholder="t('system.plugin.defaultJarNameTip')"
               allow-clear
             />
             <span class="absolute right-0 top-1 flex items-center">
               <span class="float-left text-[rgb(var(--primary-5))]">{{ t('system.plugin.getPlugin') }}</span>
-              <a-tooltip :content="t('system.plugin.infoTip')" position="bottom">
+              <a-tooltip position="bottom">
                 <span class="float-right ml-1 mt-[2px]">
-                  <IconQuestionCircle class="h-[16px] w-[16px] text-[--color-text-4]" />
+                  <IconQuestionCircle
+                    class="h-[16px] w-[16px] text-[--color-text-4] hover:text-[rgb(var(--primary-5))]"
+                  />
                 </span>
+                <template #content>
+                  <span @click="openGithub">{{ t('system.plugin.infoTip') }}</span>
+                </template>
               </a-tooltip>
             </span>
           </a-form-item>
@@ -31,7 +36,8 @@
                 >{{ t('system.plugin.allOrganize') }}
                 <span class="float-right mx-1 mt-[1px]">
                   <a-tooltip :content="t('system.plugin.allOrganizeTip')" position="top">
-                    <IconQuestionCircle class="h-[16px] w-[16px] text-[--color-text-4]"
+                    <IconQuestionCircle
+                      class="h-[16px] w-[16px] text-[--color-text-4] hover:text-[rgb(var(--primary-5))]"
                   /></a-tooltip> </span
               ></a-radio>
               <a-radio :value="false">{{ t('system.plugin.theOrganize') }}</a-radio>
@@ -54,7 +60,12 @@
             </a-select>
           </a-form-item>
           <a-form-item field="describe" :label="t('system.plugin.description')" asterisk-position="end">
-            <a-textarea v-model="form.description" :placeholder="t('system.plugin.pluginDescription')" allow-clear />
+            <a-textarea
+              v-model="form.description"
+              :max-length="1000"
+              :placeholder="t('system.plugin.pluginDescription')"
+              allow-clear
+            />
           </a-form-item>
         </a-form>
       </a-row>
@@ -74,14 +85,15 @@
       <div class="flex justify-between">
         <div class="flex flex-row items-center justify-center">
           <a-switch v-model="form.enable" size="small" type="line" />
+          <span class="ml-2">{{ t('system.plugin.pluginStatus') }}</span>
           <a-tooltip>
             <template #content>
               <div class="text-sm">{{ t('system.plugin.statusEnableTip') }}</div>
+              <div class="text-sm">{{ t('organization.service.statusDisableTip') }}</div>
             </template>
             <div class="mx-1 flex h-[32px] items-center">
-              <span class="mr-1">{{ t('system.plugin.pluginStatus') }}</span>
               <span class="mt-[2px]"
-                ><IconQuestionCircle class="h-[16px] w-[16px] text-[rgb(var(--primary-5))]"
+                ><IconQuestionCircle class="h-[16px] w-[16px] text-[--color-text-4] hover:text-[rgb(var(--primary-5))]"
               /></span>
             </div>
           </a-tooltip>
@@ -218,6 +230,10 @@
   watchEffect(() => {
     fileName.value = fileList.value[0]?.name as string;
   });
+
+  function openGithub() {
+    window.open('https://github.com/metersphere');
+  }
 </script>
 
 <style scoped lang="less">

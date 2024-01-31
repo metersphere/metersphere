@@ -14,6 +14,7 @@
         <a-input
           v-model="form.hostname"
           class="w-[100%]"
+          :max-length="255"
           :placeholder="t('project.environmental.http.hostNamePlaceholder')"
         >
           <template #prefix>
@@ -72,6 +73,7 @@
         <a-input
           v-model="form.hostname"
           class="w-[100%]"
+          :max-length="255"
           :placeholder="t('project.environmental.http.pathPlaceholder')"
         >
           <template #prefix>

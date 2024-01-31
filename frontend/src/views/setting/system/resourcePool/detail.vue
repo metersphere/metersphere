@@ -18,21 +18,21 @@
         <a-input
           v-model:model-value="form.name"
           :placeholder="t('system.resourcePool.namePlaceholder')"
-          :max-length="250"
+          :max-length="255"
         ></a-input>
       </a-form-item>
       <a-form-item :label="t('system.resourcePool.desc')" field="description" class="form-item">
         <a-textarea
           v-model:model-value="form.description"
           :placeholder="t('system.resourcePool.descPlaceholder')"
-          :max-length="250"
+          :max-length="1000"
         ></a-textarea>
       </a-form-item>
       <a-form-item :label="t('system.resourcePool.serverUrl')" field="serverUrl" class="form-item">
         <a-input
           v-model:model-value="form.serverUrl"
           :placeholder="t('system.resourcePool.rootUrlPlaceholder')"
-          :max-length="250"
+          :max-length="255"
         ></a-input>
       </a-form-item>
       <a-form-item :label="t('system.resourcePool.orgRange')" field="orgType" class="form-item">
@@ -84,14 +84,14 @@
           <a-input
             v-model:model-value="form.testResourceDTO.loadTestImage"
             :placeholder="t('system.resourcePool.mirrorPlaceholder')"
-            :max-length="250"
+            :max-length="255"
           ></a-input>
         </a-form-item>
         <a-form-item :label="t('system.resourcePool.testHeap')" field="testResourceDTO.loadTestHeap" class="form-item">
           <a-input
             v-model:model-value="form.testResourceDTO.loadTestHeap"
             :placeholder="t('system.resourcePool.testHeapPlaceholder')"
-            :max-length="250"
+            :max-length="255"
           ></a-input>
           <MsFormItemSub
             :text="t('system.resourcePool.testHeapExample', { heap: defaultHeap })"
@@ -111,7 +111,7 @@
           <a-input
             v-model:model-value="form.testResourceDTO.uiGrid"
             :placeholder="t('system.resourcePool.uiGridPlaceholder')"
-            :max-length="250"
+            :max-length="255"
           ></a-input>
           <div class="mt-[4px] text-[12px] leading-[16px] text-[var(--color-text-4)]">
             {{ t('system.resourcePool.uiGridExample', { grid: defaultGrid }) }}
@@ -218,7 +218,7 @@
           <a-input
             v-model:model-value="form.testResourceDTO.ip"
             :placeholder="t('system.resourcePool.testResourceDTO.ipPlaceholder')"
-            :max-length="250"
+            :max-length="255"
           ></a-input>
           <div class="mt-[4px] text-[12px] leading-[16px] text-[var(--color-text-4)]">
             {{ t('system.resourcePool.testResourceDTO.ipSubTip', { ip: '100.0.0.100', domain: 'example.com' }) }}
@@ -248,7 +248,7 @@
           <a-input
             v-model:model-value="form.testResourceDTO.namespace"
             :placeholder="t('system.resourcePool.testResourceDTO.nameSpacesPlaceholder')"
-            :max-length="250"
+            :max-length="255"
             class="mr-[8px] flex-1"
           ></a-input>
           <a-tooltip
@@ -273,7 +273,7 @@
           <a-input
             v-model:model-value="form.testResourceDTO.deployName"
             :placeholder="t('system.resourcePool.testResourceDTO.deployNamePlaceholder')"
-            :max-length="250"
+            :max-length="255"
             class="mr-[8px] flex-1"
           ></a-input>
           <a-tooltip

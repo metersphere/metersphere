@@ -42,6 +42,7 @@
           v-model:model-value="record[columnConfig.dataIndex as string]"
           :placeholder="t('apiTestDebug.paramNamePlaceholder')"
           class="param-input"
+          :max-length="255"
           @input="(val) => addTableLine(val, 'name')"
         />
       </a-popover>
@@ -107,6 +108,7 @@
           v-model:model-value="record.value"
           class="param-input"
           :placeholder="t('apiTestDebug.commonPlaceholder')"
+          :max-length="255"
           @input="(val) => addTableLine(val, 'value')"
         />
       </a-popover>
@@ -274,8 +276,7 @@
     <a-textarea
       v-model:model-value="quickInputDescValue"
       :placeholder="t('apiTestDebug.descPlaceholder')"
-      :max-length="255"
-      show-word-limit
+      :max-length="1000"
     ></a-textarea>
   </a-modal>
 </template>

@@ -109,6 +109,7 @@
           >
             <a-input
               v-model:model-value="quickCreateForm.name"
+              :max-length="255"
               :placeholder="t('project.projectVersion.versionNamePlaceholder')"
               class="w-[262px]"
             />

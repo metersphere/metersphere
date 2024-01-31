@@ -85,7 +85,7 @@
         >
           <a-input
             v-model:model-value="baseInfoForm.url"
-            :max-length="250"
+            :max-length="255"
             :placeholder="t('system.config.baseInfo.pageUrlPlaceholder')"
             allow-clear
           ></a-input>
@@ -94,7 +94,7 @@
         <a-form-item v-xpack :label="t('system.config.prometheus')" field="prometheusHost" asterisk-position="end">
           <a-input
             v-model:model-value="baseInfoForm.prometheusHost"
-            :max-length="250"
+            :max-length="255"
             :placeholder="t('system.config.baseInfo.prometheusPlaceholder')"
             allow-clear
           ></a-input>
@@ -124,7 +124,7 @@
         >
           <a-input
             v-model:model-value="emailConfigForm.host"
-            :max-length="250"
+            :max-length="255"
             :placeholder="t('system.config.email.hostPlaceholder')"
             allow-clear
           ></a-input>
@@ -138,7 +138,7 @@
         >
           <a-input
             v-model:model-value="emailConfigForm.port"
-            :max-length="250"
+            :max-length="255"
             :placeholder="t('system.config.email.portPlaceholder')"
             allow-clear
           ></a-input>
@@ -152,7 +152,7 @@
         >
           <a-input
             v-model:model-value="emailConfigForm.account"
-            :max-length="250"
+            :max-length="255"
             :placeholder="t('system.config.email.accountPlaceholder')"
             autocomplete="off"
             allow-clear
@@ -161,7 +161,7 @@
         <a-form-item :label="t('system.config.email.password')" field="password" asterisk-position="end">
           <a-input-password
             v-model:model-value="emailConfigForm.password"
-            :max-length="250"
+            :max-length="255"
             :placeholder="t('system.config.email.passwordPlaceholder')"
             autocomplete="new-password"
             allow-clear
@@ -170,7 +170,7 @@
         <a-form-item :label="t('system.config.email.from')" field="from" asterisk-position="end">
           <a-input
             v-model:model-value="emailConfigForm.from"
-            :max-length="250"
+            :max-length="255"
             :placeholder="t('system.config.email.fromPlaceholder')"
             allow-clear
           ></a-input>
@@ -184,7 +184,7 @@
         >
           <a-input
             v-model:model-value="emailConfigForm.recipient"
-            :max-length="250"
+            :max-length="255"
             :placeholder="t('system.config.email.recipientPlaceholder')"
             allow-clear
           ></a-input>

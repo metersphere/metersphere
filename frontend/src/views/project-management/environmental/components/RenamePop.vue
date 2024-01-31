@@ -27,6 +27,7 @@
                 class="w-[243px]"
                 :placeholder="t('system.userGroup.pleaseInputUserGroupName')"
                 allow-clear
+                :max-length="255"
                 @press-enter="handleBeforeOk"
                 @keyup.esc="handleCancel"
               />
