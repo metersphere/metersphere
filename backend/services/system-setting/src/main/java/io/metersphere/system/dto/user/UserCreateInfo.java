@@ -1,4 +1,4 @@
-package io.metersphere.system.dto;
+package io.metersphere.system.dto.user;
 
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;

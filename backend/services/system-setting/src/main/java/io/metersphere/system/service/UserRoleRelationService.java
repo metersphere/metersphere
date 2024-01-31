@@ -7,7 +7,7 @@ import io.metersphere.sdk.constants.UserRoleEnum;
 import io.metersphere.sdk.constants.UserRoleScope;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.*;
-import io.metersphere.system.dto.response.UserTableResponse;
+import io.metersphere.system.dto.user.response.UserTableResponse;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
@@ -67,7 +67,7 @@ public class UserRoleRelationService {
             log.setOrganizationId(OperationLogConstants.SYSTEM);
             log.setType(operationType);
             log.setCreateUser(operator);
-            log.setModule(OperationLogModule.SYSTEM_USER);
+            log.setModule(OperationLogModule.SETTING_SYSTEM_USER_SINGLE);
             log.setMethod(operationMethod);
             log.setCreateTime(operationTime);
             log.setSourceId(user.getId());

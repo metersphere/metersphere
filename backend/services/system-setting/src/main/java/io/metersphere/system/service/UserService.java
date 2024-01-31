@@ -6,8 +6,6 @@ import io.metersphere.sdk.constants.UserSource;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.*;
-import io.metersphere.system.dto.UserBatchCreateDTO;
-import io.metersphere.system.dto.UserCreateInfo;
 import io.metersphere.system.dto.excel.UserExcel;
 import io.metersphere.system.dto.excel.UserExcelRowDTO;
 import io.metersphere.system.dto.request.UserInviteRequest;
@@ -16,17 +14,20 @@ import io.metersphere.system.dto.request.user.PersonalUpdatePasswordRequest;
 import io.metersphere.system.dto.request.user.PersonalUpdateRequest;
 import io.metersphere.system.dto.request.user.UserChangeEnableRequest;
 import io.metersphere.system.dto.request.user.UserEditRequest;
-import io.metersphere.system.dto.response.UserImportResponse;
-import io.metersphere.system.dto.response.UserInviteResponse;
-import io.metersphere.system.dto.response.UserTableResponse;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.sdk.ExcelParseDTO;
 import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.dto.table.TableBatchProcessResponse;
 import io.metersphere.system.dto.user.PersonalDTO;
+import io.metersphere.system.dto.user.UserCreateInfo;
 import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.dto.user.UserExtendDTO;
+import io.metersphere.system.dto.user.request.UserBatchCreateRequest;
+import io.metersphere.system.dto.user.response.UserBatchCreateResponse;
+import io.metersphere.system.dto.user.response.UserImportResponse;
+import io.metersphere.system.dto.user.response.UserInviteResponse;
+import io.metersphere.system.dto.user.response.UserTableResponse;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.*;
 import io.metersphere.system.notice.sender.impl.MailNoticeSender;
@@ -41,6 +42,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -55,10 +57,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -92,38 +91,46 @@ public class UserService {
     @Value("50MB")
     private DataSize maxImportFileSize;
 
-    private void validateUserInfo(List<String> createEmails) {
+    private Map<String, String> validateUserInfo(Collection<String> createEmails) {
+        Map<String, String> errorMessage = new HashMap<>();
+        String userEmailRepeatError = Translator.get("user.email.repeat");
         //判断参数内是否含有重复邮箱
         List<String> emailList = new ArrayList<>();
-        List<String> repeatEmailList = new ArrayList<>();
         var userInDbMap = baseUserMapper.selectUserIdByEmailList(createEmails)
                 .stream().collect(Collectors.toMap(User::getEmail, User::getId));
         for (String createEmail : createEmails) {
             if (emailList.contains(createEmail)) {
-                repeatEmailList.add(createEmail);
+                errorMessage.put(createEmail, userEmailRepeatError);
             } else {
                 //判断邮箱是否已存在数据库中
                 if (userInDbMap.containsKey(createEmail)) {
-                    repeatEmailList.add(createEmail);
+                    errorMessage.put(createEmail, userEmailRepeatError);
                 } else {
                     emailList.add(createEmail);
                 }
             }
         }
-        if (CollectionUtils.isNotEmpty(repeatEmailList)) {
-            throw new MSException(Translator.get("user.email.repeat", repeatEmailList.toString()));
-        }
+        return errorMessage;
     }
 
-    public UserBatchCreateDTO addUser(UserBatchCreateDTO userCreateDTO, String source, String operator) {
-        //检查用户邮箱的合法性
-        this.validateUserInfo(userCreateDTO.getUserInfoList().stream().map(UserCreateInfo::getEmail).collect(Collectors.toList()));
+    public UserBatchCreateResponse addUser(UserBatchCreateRequest userCreateDTO, String source, String operator) {
+
         //检查用户权限的合法性
         globalUserRoleService.checkRoleIsGlobalAndHaveMember(userCreateDTO.getUserRoleIdList(), true);
-        return this.saveUserAndRole(userCreateDTO, source, operator, "/system/user/addUser");
+
+        UserBatchCreateResponse response = new UserBatchCreateResponse();
+        //检查用户邮箱的合法性
+        Map<String, String> errorEmails = this.validateUserInfo(userCreateDTO.getUserInfoList().stream().map(UserCreateInfo::getEmail).toList());
+        if (MapUtils.isNotEmpty(errorEmails)) {
+            response.setErrorEmails(errorEmails);
+        } else {
+            response.setSuccessList(this.saveUserAndRole(userCreateDTO, source, operator, "/system/user/addUser"));
+        }
+        return response;
     }
 
-    private UserBatchCreateDTO saveUserAndRole(UserBatchCreateDTO userCreateDTO, String source, String operator, String requestPath) {
+    private List<UserCreateInfo> saveUserAndRole(UserBatchCreateRequest userCreateDTO, String source, String operator, String requestPath) {
+        List<UserCreateInfo> insertList = new ArrayList<>();
         long createTime = System.currentTimeMillis();
         List<User> saveUserList = new ArrayList<>();
         //添加用户
@@ -140,11 +147,12 @@ public class UserService {
             user.setDeleted(false);
             userMapper.insertSelective(user);
             saveUserList.add(user);
+            insertList.add(userInfo);
         }
         userRoleRelationService.batchSave(userCreateDTO.getUserRoleIdList(), saveUserList);
         //写入操作日志
         operationLogService.batchAdd(userLogService.getBatchAddLogs(saveUserList, requestPath));
-        return userCreateDTO;
+        return insertList;
     }
 
     public UserDTO getUserDTOByKeyword(String email) {
@@ -309,7 +317,7 @@ public class UserService {
     }
 
     private void saveUserByExcelData(@Valid @NotEmpty List<UserExcelRowDTO> dataList, @Valid @NotEmpty String source, @Valid @NotBlank String sessionId) {
-        UserBatchCreateDTO userBatchCreateDTO = new UserBatchCreateDTO();
+        UserBatchCreateRequest userBatchCreateDTO = new UserBatchCreateRequest();
         userBatchCreateDTO.setUserRoleIdList(new ArrayList<>() {{
             add("member");
         }});
@@ -449,10 +457,12 @@ public class UserService {
     private SystemParameterMapper systemParameterMapper;
 
     public UserInviteResponse saveInviteRecord(UserInviteRequest request, SessionUser inviteUser) {
-        //校验邮箱和角色的合法性
-        this.validateUserInfo(request.getInviteEmails());
         globalUserRoleService.checkRoleIsGlobalAndHaveMember(request.getUserRoleIds(), true);
-
+        //校验邮箱和角色的合法性
+        Map<String, String> errorMap = this.validateUserInfo(request.getInviteEmails());
+        if (MapUtils.isNotEmpty(errorMap)) {
+            throw new MSException(Translator.get("user.email.repeat"));
+        }
         List<UserInvite> inviteList = userInviteService.batchInsert(request.getInviteEmails(), inviteUser.getId(), request.getUserRoleIds());
         //记录日志
         userLogService.addEmailInviteLog(inviteList, inviteUser.getId());
@@ -481,7 +491,7 @@ public class UserService {
             try {
                 this.sendInviteEmailTemporary(emailMap);
             } catch (Exception e) {
-                LogUtils.error("邮箱邀请失败!", e);
+                throw new MSException("邮箱邀请失败!", e);
             }
         });
     }

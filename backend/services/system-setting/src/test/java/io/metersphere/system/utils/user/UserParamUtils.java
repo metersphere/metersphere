@@ -2,16 +2,16 @@ package io.metersphere.system.utils.user;
 
 import io.metersphere.sdk.constants.UserRoleScope;
 import io.metersphere.sdk.constants.UserRoleType;
-import io.metersphere.system.dto.sdk.BasePageRequest;
-import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.domain.UserRole;
-import io.metersphere.system.dto.UserBatchCreateDTO;
-import io.metersphere.system.dto.UserCreateInfo;
 import io.metersphere.system.dto.request.UserInviteRequest;
 import io.metersphere.system.dto.request.user.UserEditRequest;
-import io.metersphere.system.dto.response.UserImportResponse;
-import io.metersphere.system.dto.response.UserSelectOption;
+import io.metersphere.system.dto.sdk.BasePageRequest;
+import io.metersphere.system.dto.user.UserCreateInfo;
+import io.metersphere.system.dto.user.UserDTO;
+import io.metersphere.system.dto.user.request.UserBatchCreateRequest;
+import io.metersphere.system.dto.user.response.UserImportResponse;
+import io.metersphere.system.dto.user.response.UserSelectOption;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
@@ -23,10 +23,10 @@ import java.util.stream.Collectors;
 
 public class UserParamUtils {
 
-    public static UserBatchCreateDTO getUserCreateDTO(
+    public static UserBatchCreateRequest getUserCreateDTO(
             List<UserSelectOption> userRoleList,
             List<UserCreateInfo> userInfoList) {
-        UserBatchCreateDTO userMaintainRequest = new UserBatchCreateDTO();
+        UserBatchCreateRequest userMaintainRequest = new UserBatchCreateRequest();
         if (CollectionUtils.isNotEmpty(userRoleList)) {
             userMaintainRequest.setUserRoleIdList(
                     userRoleList.stream().map(UserSelectOption::getId).collect(Collectors.toList()));

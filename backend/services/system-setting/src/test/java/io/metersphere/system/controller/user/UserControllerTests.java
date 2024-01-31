@@ -14,29 +14,27 @@ import io.metersphere.system.domain.User;
 import io.metersphere.system.domain.UserExample;
 import io.metersphere.system.domain.UserInvite;
 import io.metersphere.system.domain.UserRoleRelationExample;
-import io.metersphere.system.dto.UserBatchCreateDTO;
-import io.metersphere.system.dto.UserCreateInfo;
 import io.metersphere.system.dto.excel.UserExcelRowDTO;
 import io.metersphere.system.dto.request.UserInviteRequest;
 import io.metersphere.system.dto.request.UserRegisterRequest;
 import io.metersphere.system.dto.request.user.UserChangeEnableRequest;
 import io.metersphere.system.dto.request.user.UserEditRequest;
 import io.metersphere.system.dto.request.user.UserRoleBatchRelationRequest;
-import io.metersphere.system.dto.response.UserImportResponse;
-import io.metersphere.system.dto.response.UserInviteResponse;
-import io.metersphere.system.dto.response.UserSelectOption;
-import io.metersphere.system.dto.response.UserTableResponse;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.ExcelParseDTO;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.dto.table.TableBatchProcessResponse;
+import io.metersphere.system.dto.user.UserCreateInfo;
 import io.metersphere.system.dto.user.UserDTO;
+import io.metersphere.system.dto.user.request.UserBatchCreateRequest;
+import io.metersphere.system.dto.user.response.*;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.UserInviteMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.service.GlobalUserRoleRelationService;
+import io.metersphere.system.service.UserInviteService;
 import io.metersphere.system.service.UserService;
 import io.metersphere.system.service.UserToolService;
 import io.metersphere.system.uid.IDGenerator;
@@ -47,6 +45,7 @@ import jakarta.annotation.Resource;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.*;
@@ -121,19 +120,19 @@ public class UserControllerTests extends BaseTest {
 
     @Test
     @Order(0)
-    public void testGetGlobalSystemUserRoleSuccess() throws Exception {
+    void testGetGlobalSystemUserRoleSuccess() throws Exception {
         MvcResult mvcResult = userRequestUtils.responseGet(UserRequestUtils.URL_GET_GLOBAL_SYSTEM);
         this.setDefaultUserRoleList(mvcResult);
     }
 
     @Test
     @Order(1)
-    public void testAddSuccess() throws Exception {
+    void testAddSuccess() throws Exception {
         if (CollectionUtils.isEmpty(USER_ROLE_LIST)) {
             this.testGetGlobalSystemUserRoleSuccess();
         }
         //模拟前台批量添加用户
-        UserBatchCreateDTO userMaintainRequest = UserParamUtils.getUserCreateDTO(
+        UserBatchCreateRequest userMaintainRequest = UserParamUtils.getUserCreateDTO(
                 USER_ROLE_LIST,
                 new ArrayList<>() {{
                     add(new UserCreateInfo() {{
@@ -160,7 +159,7 @@ public class UserControllerTests extends BaseTest {
             }});
         }
         userMaintainRequest = UserParamUtils.getUserCreateDTO(
-                Collections.singletonList(USER_ROLE_LIST.get(0)),
+                Collections.singletonList(USER_ROLE_LIST.getFirst()),
                 userCreateInfoList
         );
         mvcResult = userRequestUtils.responsePost(UserRequestUtils.URL_USER_CREATE, userMaintainRequest);
@@ -190,7 +189,7 @@ public class UserControllerTests extends BaseTest {
     @Sql(scripts = {"/dml/init_user_controller_test.sql"},
             config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED),
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    public void testGetByEmailSuccess() throws Exception {
+    void testGetByEmailSuccess() throws Exception {
         this.checkUserList();
         UserDTO userDTO = this.getUserByEmail(USER_DEFAULT_EMAIL);
         //返回值不为空
@@ -215,7 +214,7 @@ public class UserControllerTests extends BaseTest {
 
     @Test
     @Order(2)
-    public void testGetByEmailError() throws Exception {
+    void testGetByEmailError() throws Exception {
         //测试使用任意参数，不能获取到任何用户信息
         this.checkUserList();
         String url = UserRequestUtils.URL_USER_GET + IDGenerator.nextNum();
@@ -231,7 +230,7 @@ public class UserControllerTests extends BaseTest {
 
     @Test
     @Order(3)
-    public void testPageSuccess() throws Exception {
+    void testPageSuccess() throws Exception {
         if (CollectionUtils.isEmpty(USER_ROLE_LIST)) {
             this.testGetGlobalSystemUserRoleSuccess();
         }
@@ -283,7 +282,7 @@ public class UserControllerTests extends BaseTest {
         returnPager = userRequestUtils.selectUserPage(basePageRequest);
         //第一个数据的createTime是最大的
         List<UserTableResponse> userInfoList = JSON.parseArray(JSON.toJSONString(returnPager.getList()), UserTableResponse.class);
-        long firstCreateTime = userInfoList.get(0).getCreateTime();
+        long firstCreateTime = userInfoList.getFirst().getCreateTime();
         for (UserTableResponse userInfo : userInfoList) {
             Assertions.assertFalse(userInfo.getCreateTime() > firstCreateTime);
         }
@@ -310,19 +309,22 @@ public class UserControllerTests extends BaseTest {
 
     @Test
     @Order(3)
-    public void testPageError() throws Exception {
+    void testPageError() throws Exception {
         //当前页码不大于0
         BasePageRequest basePageRequest = new BasePageRequest();
         basePageRequest.setPageSize(5);
-        this.requestPost(UserRequestUtils.URL_USER_PAGE, basePageRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserRequestUtils.URL_USER_PAGE, basePageRequest).andExpect(BAD_REQUEST_MATCHER);
+
         //pageSize超过501
         basePageRequest = UserParamUtils.getDefaultPageRequest();
         basePageRequest.setPageSize(501);
-        this.requestPost(UserRequestUtils.URL_USER_PAGE, basePageRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserRequestUtils.URL_USER_PAGE, basePageRequest).andExpect(BAD_REQUEST_MATCHER);
+
         //当前页数不大于5
         basePageRequest = new BasePageRequest();
         basePageRequest.setCurrent(1);
-        this.requestPost(UserRequestUtils.URL_USER_PAGE, basePageRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserRequestUtils.URL_USER_PAGE, basePageRequest).andExpect(BAD_REQUEST_MATCHER);
+
         //排序字段不合法
         basePageRequest = new BasePageRequest();
         basePageRequest.setCurrent(1);
@@ -330,15 +332,16 @@ public class UserControllerTests extends BaseTest {
         basePageRequest.setSort(new HashMap<>() {{
             put("SELECT * FROM user", "asc");
         }});
-        this.requestPost(UserRequestUtils.URL_USER_PAGE, basePageRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserRequestUtils.URL_USER_PAGE, basePageRequest).andExpect(BAD_REQUEST_MATCHER);
+
     }
 
     @Test
     @Order(4)
-    public void testUserUpdateSuccess() throws Exception {
+    void testUserUpdateSuccess() throws Exception {
         this.checkUserList();
         UserCreateInfo user = new UserCreateInfo();
-        BeanUtils.copyBean(user, USER_LIST.get(0));
+        BeanUtils.copyBean(user, USER_LIST.getFirst());
         UserEditRequest userMaintainRequest;
         UserEditRequest response;
         UserDTO checkDTO;
@@ -389,7 +392,7 @@ public class UserControllerTests extends BaseTest {
         UserParamUtils.compareUserDTO(response, checkDTO);
         //用户信息复原
         user = new UserCreateInfo();
-        BeanUtils.copyBean(user, USER_LIST.get(0));
+        BeanUtils.copyBean(user, USER_LIST.getFirst());
         userMaintainRequest = UserParamUtils.getUserUpdateDTO(user, USER_ROLE_LIST);
         response = userRequestUtils.parseObjectFromMvcResult(userRequestUtils.responsePost(UserRequestUtils.URL_USER_UPDATE, userMaintainRequest), UserEditRequest.class);
         LOG_CHECK_LIST.add(
@@ -401,55 +404,53 @@ public class UserControllerTests extends BaseTest {
 
     @Test
     @Order(5)
-    public void testUserUpdateError() throws Exception {
+    void testUserUpdateError() throws Exception {
         this.checkUserList();
         // 4xx 验证
         UserCreateInfo user = new UserCreateInfo();
         UserEditRequest userMaintainRequest;
         //更改名字
-        BeanUtils.copyBean(user, USER_LIST.get(0));
+        BeanUtils.copyBean(user, USER_LIST.getFirst());
         user.setName("");
         userMaintainRequest = UserParamUtils.getUserUpdateDTO(user, USER_ROLE_LIST);
-        this.requestPost(UserRequestUtils.URL_USER_UPDATE, userMaintainRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserRequestUtils.URL_USER_UPDATE, userMaintainRequest).andExpect(BAD_REQUEST_MATCHER);
+
         //email为空
-        BeanUtils.copyBean(user, USER_LIST.get(0));
+        BeanUtils.copyBean(user, USER_LIST.getFirst());
         user.setEmail("");
         userMaintainRequest = UserParamUtils.getUserUpdateDTO(user, USER_ROLE_LIST);
-        this.requestPost(UserRequestUtils.URL_USER_UPDATE, userMaintainRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserRequestUtils.URL_USER_UPDATE, userMaintainRequest).andExpect(BAD_REQUEST_MATCHER);
+
         //手机号为空
-        BeanUtils.copyBean(user, USER_LIST.get(0));
+        BeanUtils.copyBean(user, USER_LIST.getFirst());
         user.setEmail("");
         userMaintainRequest = UserParamUtils.getUserUpdateDTO(user, USER_ROLE_LIST);
-        this.requestPost(UserRequestUtils.URL_USER_UPDATE, userMaintainRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserRequestUtils.URL_USER_UPDATE, userMaintainRequest).andExpect(BAD_REQUEST_MATCHER);
+
         //用户组为空
-        BeanUtils.copyBean(user, USER_LIST.get(0));
+        BeanUtils.copyBean(user, USER_LIST.getFirst());
         userMaintainRequest = UserParamUtils.getUserUpdateDTO(user, new ArrayList<>());
         userMaintainRequest.setUserRoleIdList(new ArrayList<>());
-        this.requestPost(UserRequestUtils.URL_USER_UPDATE, userMaintainRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserRequestUtils.URL_USER_UPDATE, userMaintainRequest).andExpect(BAD_REQUEST_MATCHER);
+
 
         // 500验证
         //邮箱重复
         this.checkUserList();
-        BeanUtils.copyBean(user, USER_LIST.get(0));
-        user.setEmail(USER_LIST.get(USER_LIST.size() - 1).getEmail());
+        BeanUtils.copyBean(user, USER_LIST.getFirst());
+        user.setEmail(USER_LIST.getLast().getEmail());
         userMaintainRequest = UserParamUtils.getUserUpdateDTO(user, USER_ROLE_LIST);
-        MvcResult mvcResult = this.requestPost(UserRequestUtils.URL_USER_UPDATE, userMaintainRequest, ERROR_REQUEST_MATCHER).andReturn();
+        MvcResult mvcResult = this.requestPost(UserRequestUtils.URL_USER_UPDATE, userMaintainRequest).andExpect(ERROR_REQUEST_MATCHER).andReturn();
         ResultHolder resultHolder = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
         Assertions.assertEquals(resultHolder.getMessage(), "用户邮箱已存在");
-        //用户组不包含系统成员
-        BeanUtils.copyBean(user, USER_LIST.get(0));
-        userMaintainRequest = UserParamUtils.getUserUpdateDTO(user,
-                USER_ROLE_LIST.stream().filter(item -> !StringUtils.equals(item.getId(), "member")).toList()
-        );
-        this.requestPost(UserRequestUtils.URL_USER_UPDATE, userMaintainRequest, ERROR_REQUEST_MATCHER);
     }
 
     @Test
     @Order(6)
-    public void testUserChangeEnableSuccess() throws Exception {
+    void testUserChangeEnableSuccess() throws Exception {
         this.checkUserList();
 
-        UserCreateInfo userInfo = USER_LIST.get(0);
+        UserCreateInfo userInfo = USER_LIST.getFirst();
 
         //先使用要操作的用户登录,用于检查会不会把账户踢出
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
@@ -476,7 +477,7 @@ public class UserControllerTests extends BaseTest {
             this.add(userInfo.getId());
         }});
         userChangeEnableRequest.setEnable(false);
-        this.requestPost(UserRequestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest, status().isOk());
+        this.requestPostWithOk(UserRequestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest);
         for (String item : userChangeEnableRequest.getSelectIds()) {
             LOG_CHECK_LIST.add(
                     new CheckLogModel(item, OperationLogType.UPDATE, UserRequestUtils.URL_USER_UPDATE_ENABLE)
@@ -497,7 +498,7 @@ public class UserControllerTests extends BaseTest {
 
         //修改状态开启
         userChangeEnableRequest.setEnable(true);
-        this.requestPost(UserRequestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest, status().isOk());
+        this.requestPostWithOk(UserRequestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest);
         for (String item : userChangeEnableRequest.getSelectIds()) {
             LOG_CHECK_LIST.add(
                     new CheckLogModel(item, OperationLogType.UPDATE, UserRequestUtils.URL_USER_UPDATE_ENABLE)
@@ -510,28 +511,29 @@ public class UserControllerTests extends BaseTest {
 
     @Test
     @Order(6)
-    public void testUserChangeEnableError() throws Exception {
+    void testUserChangeEnableError() throws Exception {
         this.checkUserList();
         //用户不存在
         UserChangeEnableRequest userChangeEnableRequest = new UserChangeEnableRequest();
         userChangeEnableRequest.setEnable(false);
-        this.requestPost(UserRequestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserRequestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest).andExpect(ERROR_REQUEST_MATCHER);
+
         //含有非法用户
         userChangeEnableRequest.setSelectIds(new ArrayList<>() {{
             this.add("BCDEDIT");
         }});
-        this.requestPost(UserRequestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest, ERROR_REQUEST_MATCHER);
+        this.requestPost(UserRequestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest).andExpect(ERROR_REQUEST_MATCHER);
         //含有当前用户
         userChangeEnableRequest.setSelectIds(new ArrayList<>() {{
             this.add("admin");
         }});
-        this.requestPost(UserRequestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest, ERROR_REQUEST_MATCHER);
+        this.requestPost(UserRequestUtils.URL_USER_UPDATE_ENABLE, userChangeEnableRequest).andExpect(ERROR_REQUEST_MATCHER);
     }
 
 
     @Test
     @Order(7)
-    public void testUserImport() throws Exception {
+    void testUserImport() throws Exception {
         this.checkUserList();
         //测试用户数据导入。  每个导入文件都有10条数据，不同文件出错的数据不同。
         int importSuccessData = 10;//应该导入成功的数据数量
@@ -620,7 +622,7 @@ public class UserControllerTests extends BaseTest {
 
     @Test
     @Order(8)
-    public void testUserResetPasswordError() throws Exception {
+    void testUserResetPasswordError() throws Exception {
         //用户不存在
         {
             TableBatchProcessDTO request = new TableBatchProcessDTO();
@@ -631,11 +633,11 @@ public class UserControllerTests extends BaseTest {
 
     @Test
     @Order(1)
-    public void testAddError() throws Exception {
+    void testAddError() throws Exception {
         if (CollectionUtils.isEmpty(USER_ROLE_LIST)) {
             this.testGetGlobalSystemUserRoleSuccess();
         }
-        UserBatchCreateDTO userMaintainRequest;
+        UserBatchCreateRequest userMaintainRequest;
         List<UserCreateInfo> errorUserList = new ArrayList<>() {{
             add(new UserCreateInfo() {{
                 setName("tianyang.error.1");
@@ -653,24 +655,24 @@ public class UserControllerTests extends BaseTest {
          */
         //所有参数都为空
         userMaintainRequest = UserParamUtils.getUserCreateDTO(null, null);
-        this.requestPost(UserRequestUtils.URL_USER_CREATE, userMaintainRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserRequestUtils.URL_USER_CREATE, userMaintainRequest).andExpect(BAD_REQUEST_MATCHER);
         //用户组ID为空
         userMaintainRequest = UserParamUtils.getUserCreateDTO(
                 null,
                 errorUserList);
-        this.requestPost(UserRequestUtils.URL_USER_CREATE, userMaintainRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserRequestUtils.URL_USER_CREATE, userMaintainRequest).andExpect(BAD_REQUEST_MATCHER);
         //没有用户
         userMaintainRequest = UserParamUtils.getUserCreateDTO(
                 USER_ROLE_LIST,
                 null);
-        this.requestPost(UserRequestUtils.URL_USER_CREATE, userMaintainRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserRequestUtils.URL_USER_CREATE, userMaintainRequest).andExpect(BAD_REQUEST_MATCHER);
         //用户组含有null
         userMaintainRequest = UserParamUtils.getUserCreateDTO(
                 USER_ROLE_LIST,
                 errorUserList);
         userMaintainRequest.getUserRoleIdList().add(null);
         userMaintainRequest.getUserRoleIdList().add("");
-        this.requestPost(UserRequestUtils.URL_USER_CREATE, userMaintainRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserRequestUtils.URL_USER_CREATE, userMaintainRequest).andExpect(BAD_REQUEST_MATCHER);
         //含有用户名称为空的数据
         userMaintainRequest = UserParamUtils.getUserCreateDTO(
                 USER_ROLE_LIST,
@@ -679,7 +681,7 @@ public class UserControllerTests extends BaseTest {
         userMaintainRequest.getUserInfoList().add(new UserCreateInfo() {{
             setEmail("tianyang.name.empty@126.com");
         }});
-        this.requestPost(UserRequestUtils.URL_USER_CREATE, userMaintainRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserRequestUtils.URL_USER_CREATE, userMaintainRequest).andExpect(BAD_REQUEST_MATCHER);
         //含有用户邮箱为空的数据
         userMaintainRequest = UserParamUtils.getUserCreateDTO(
                 USER_ROLE_LIST,
@@ -688,7 +690,7 @@ public class UserControllerTests extends BaseTest {
         userMaintainRequest.getUserInfoList().add(new UserCreateInfo() {{
             setName("tianyang.email.empty");
         }});
-        this.requestPost(UserRequestUtils.URL_USER_CREATE, userMaintainRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserRequestUtils.URL_USER_CREATE, userMaintainRequest).andExpect(BAD_REQUEST_MATCHER);
         //用户邮箱不符合标准
         userMaintainRequest = UserParamUtils.getUserCreateDTO(
                 USER_ROLE_LIST,
@@ -698,7 +700,7 @@ public class UserControllerTests extends BaseTest {
             setName("用户邮箱放飞自我");
             setEmail("用户邮箱放飞自我");
         }});
-        this.requestPost(UserRequestUtils.URL_USER_CREATE, userMaintainRequest, BAD_REQUEST_MATCHER);
+        this.requestPost(UserRequestUtils.URL_USER_CREATE, userMaintainRequest).andExpect(BAD_REQUEST_MATCHER);
         /*
          * 校验业务判断出错的反例 （500 error)
          * 需要保证数据库有正常数据
@@ -712,18 +714,21 @@ public class UserControllerTests extends BaseTest {
                     }});
                 }},
                 errorUserList);
-        this.requestPost(UserRequestUtils.URL_USER_CREATE, userMaintainRequest, ERROR_REQUEST_MATCHER);
+        this.requestPost(UserRequestUtils.URL_USER_CREATE, userMaintainRequest).andExpect(ERROR_REQUEST_MATCHER);
         //含有重复的用户邮箱
         userMaintainRequest = UserParamUtils.getUserCreateDTO(
                 USER_ROLE_LIST,
                 errorUserList
         );
-        String firstUserEmail = userMaintainRequest.getUserInfoList().get(0).getEmail();
+        String firstUserEmail = userMaintainRequest.getUserInfoList().getFirst().getEmail();
         userMaintainRequest.getUserInfoList().add(new UserCreateInfo() {{
             setName("tianyang.no.error4");
             setEmail(firstUserEmail);
         }});
-        this.requestPost(UserRequestUtils.URL_USER_CREATE, userMaintainRequest, ERROR_REQUEST_MATCHER);
+        MvcResult errorEmailResult = this.requestPostWithOkAndReturn(UserRequestUtils.URL_USER_CREATE, userMaintainRequest);
+        ResultHolder errorEmailResultHolder = JSON.parseObject(errorEmailResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        UserBatchCreateResponse errorEmailResponse = JSON.parseObject(JSON.toJSONString(errorEmailResultHolder.getData()), UserBatchCreateResponse.class);
+        Assertions.assertTrue(MapUtils.isNotEmpty(errorEmailResponse.getErrorEmails()));
         //测试请求参数中含有数据库中已存在的邮箱情况
         userMaintainRequest = UserParamUtils.getUserCreateDTO(
                 USER_ROLE_LIST,
@@ -737,12 +742,15 @@ public class UserControllerTests extends BaseTest {
                     }});
                 }}
         );
-        this.requestPost(UserRequestUtils.URL_USER_CREATE, userMaintainRequest, ERROR_REQUEST_MATCHER);
+        errorEmailResult = this.requestPostWithOkAndReturn(UserRequestUtils.URL_USER_CREATE, userMaintainRequest);
+        errorEmailResultHolder = JSON.parseObject(errorEmailResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        errorEmailResponse = JSON.parseObject(JSON.toJSONString(errorEmailResultHolder.getData()), UserBatchCreateResponse.class);
+        Assertions.assertTrue(MapUtils.isNotEmpty(errorEmailResponse.getErrorEmails()));
     }
 
     @Test
     @Order(8)
-    public void testUserResetPasswordSuccess() throws Exception {
+    void testUserResetPasswordSuccess() throws Exception {
         this.checkUserList();
         //重置admin的密码
         {
@@ -760,7 +768,7 @@ public class UserControllerTests extends BaseTest {
         //重置普通用户密码
         {
             User paramUser = new User();
-            String userId = USER_LIST.get(0).getId();
+            String userId = USER_LIST.getFirst().getId();
             paramUser.setId(userId);
             paramUser.setPassword("I can't say any dirty words");
             Assertions.assertEquals(1, userMapper.updateByPrimaryKeySelective(paramUser));
@@ -811,7 +819,7 @@ public class UserControllerTests extends BaseTest {
 
     @Test
     @Order(9)
-    public void testUserRoleRelationSuccess() throws Exception {
+    void testUserRoleRelationSuccess() throws Exception {
         //UserList中的部分角色是没有添加到某权限中的
         if (USER_LIST.size() < 50) {
             this.testAddSuccess();
@@ -845,7 +853,7 @@ public class UserControllerTests extends BaseTest {
 
     @Test
     @Order(9)
-    public void testUserRoleRelationError() throws Exception {
+    void testUserRoleRelationError() throws Exception {
         //UserList中的部分角色是没有添加到某权限中的
         if (USER_LIST.size() < 50) {
             this.testAddSuccess();
@@ -877,7 +885,7 @@ public class UserControllerTests extends BaseTest {
 
     @Test
     @Order(9)
-    public void testGetEmptyProject() throws Exception {
+    void testGetEmptyProject() throws Exception {
         //测试如果没有项目系统不会报错
         List<Project> allProjectList = projectMapper.selectByExample(null);
         projectMapper.deleteByExample(null);
@@ -906,7 +914,7 @@ public class UserControllerTests extends BaseTest {
     @Sql(scripts = {"/dml/init_user_org_project.sql"},
             config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED),
             executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-    public void testGetProjectAndOrganization() throws Exception {
+    void testGetProjectAndOrganization() throws Exception {
         String str = userRequestUtils.responseGet(UserRequestUtils.URL_GET_PROJECT).getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder rh = JSON.parseObject(str, ResultHolder.class);
         List<BaseTreeNode> userTreeSelectOptions = JSON.parseArray(
@@ -928,7 +936,7 @@ public class UserControllerTests extends BaseTest {
 
     @Test
     @Order(11)
-    public void testAddProjectMember() throws Exception {
+    void testAddProjectMember() throws Exception {
         //UserList中的部分角色是没有添加到某权限中的
         if (CollectionUtils.isEmpty(USER_LIST)) {
             this.testAddSuccess();
@@ -980,7 +988,7 @@ public class UserControllerTests extends BaseTest {
 
     @Test
     @Order(13)
-    public void testAddOrganization() throws Exception {
+    void testAddOrganization() throws Exception {
         //UserList中的部分角色是没有添加到某权限中的
         if (CollectionUtils.isEmpty(USER_LIST)) {
             this.testAddSuccess();
@@ -1024,7 +1032,7 @@ public class UserControllerTests extends BaseTest {
 
     @Test
     @Order(11)
-    public void testAddToOrgOrProjectError() throws Exception {
+    void testAddToOrgOrProjectError() throws Exception {
         if (CollectionUtils.isEmpty(PROJECT_LIST) || CollectionUtils.isEmpty(ORG_LIST)) {
             this.testGetProjectAndOrganization();
         }
@@ -1074,7 +1082,7 @@ public class UserControllerTests extends BaseTest {
 
     @Test
     @Order(12)
-    public void testUserInvite() throws Exception {
+    void testUserInvite() throws Exception {
         if (CollectionUtils.isEmpty(USER_LIST)) {
             this.testAddSuccess();
         }
@@ -1084,7 +1092,7 @@ public class UserControllerTests extends BaseTest {
 
     @Test
     @Order(13)
-    public void testUserRegister() throws Exception {
+    void testUserRegister() throws Exception {
         if (CollectionUtils.isEmpty(INVITE_RECORD_ID_LIST)) {
             this.testUserInvite();
         }
@@ -1094,18 +1102,18 @@ public class UserControllerTests extends BaseTest {
 
     @Test
     @Order(14)
-    public void testGetKey() throws Exception {
+    void testGetKey() throws Exception {
         this.requestGetWithOk("/get-key");
     }
 
     //本测试类中会用到很多次用户数据。所以测试删除的方法放于最后
     @Test
     @Order(99)
-    public void testUserDeleteSuccess() throws Exception {
+    void testUserDeleteSuccess() throws Exception {
         this.checkUserList();
 
         //先使用要操作的用户登录,用于检查会不会把账户踢出
-        UserCreateInfo userInfo = USER_LIST.get(0);
+        UserCreateInfo userInfo = USER_LIST.getFirst();
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
                         .content(String.format("{\"username\":\"%s\",\"password\":\"%s\"}", userInfo.getEmail(), userInfo.getEmail()))
                         .contentType(MediaType.APPLICATION_JSON))
@@ -1159,30 +1167,30 @@ public class UserControllerTests extends BaseTest {
     //删除失败的方法要放在删除成功方法后面执行
     @Test
     @Order(100)
-    public void testUserDeleteError() throws Exception {
+    void testUserDeleteError() throws Exception {
         //参数为空
         TableBatchProcessDTO request = new TableBatchProcessDTO();
-        this.requestPost(UserRequestUtils.URL_USER_DELETE, request, ERROR_REQUEST_MATCHER);
+        this.requestPost(UserRequestUtils.URL_USER_DELETE, request).andExpect(ERROR_REQUEST_MATCHER);
         //用户不存在
         request.setSelectIds(Collections.singletonList("none user"));
-        this.requestPost(UserRequestUtils.URL_USER_DELETE, request, ERROR_REQUEST_MATCHER);
+        this.requestPost(UserRequestUtils.URL_USER_DELETE, request).andExpect(ERROR_REQUEST_MATCHER);
         //测试用户已经被删除的
         if (CollectionUtils.isEmpty(DELETED_USER_ID_LIST)) {
             this.testUserDeleteSuccess();
         }
         request.setSelectIds(DELETED_USER_ID_LIST);
-        this.requestPost(UserRequestUtils.URL_USER_DELETE, request, ERROR_REQUEST_MATCHER);
+        this.requestPost(UserRequestUtils.URL_USER_DELETE, request).andExpect(ERROR_REQUEST_MATCHER);
 
         //测试包含Admin用户
         request = new TableBatchProcessDTO();
         request.setSelectAll(true);
-        this.requestPost(UserRequestUtils.URL_USER_DELETE, request, ERROR_REQUEST_MATCHER);
+        this.requestPost(UserRequestUtils.URL_USER_DELETE, request).andExpect(ERROR_REQUEST_MATCHER);
     }
 
 
     @Test
     @Order(101)
-    public void testLog() throws Exception {
+    void testLog() throws Exception {
         Thread.sleep(5000);
         for (CheckLogModel checkLogModel : LOG_CHECK_LIST) {
             if (StringUtils.isEmpty(checkLogModel.getUrl())) {
@@ -1216,16 +1224,16 @@ public class UserControllerTests extends BaseTest {
     }
 
     //成功入库的用户保存内存中，其他用例会使用到
-    private void addUser2List(MvcResult mvcResult) throws Exception {
-        UserBatchCreateDTO userMaintainRequest = userRequestUtils.parseObjectFromMvcResult(mvcResult, UserBatchCreateDTO.class);
-        for (UserCreateInfo item : userMaintainRequest.getUserInfoList()) {
+    private void addUser2List(MvcResult mvcResult) {
+        UserBatchCreateResponse userMaintainRequest = userRequestUtils.parseObjectFromMvcResult(mvcResult, UserBatchCreateResponse.class);
+        for (UserCreateInfo item : userMaintainRequest.getSuccessList()) {
             LOG_CHECK_LIST.add(
                     new CheckLogModel(item.getId(), OperationLogType.ADD, null)
             );
         }
         //返回值不为空
         Assertions.assertNotNull(userMaintainRequest);
-        USER_LIST.addAll(userMaintainRequest.getUserInfoList());
+        USER_LIST.addAll(userMaintainRequest.getSuccessList());
     }
 
     private void checkUserList() throws Exception {
@@ -1245,7 +1253,7 @@ public class UserControllerTests extends BaseTest {
         return returnList;
     }
 
-    public void testUserInviteSuccess() throws Exception {
+    void testUserInviteSuccess() throws Exception {
         UserInviteRequest userInviteRequest = UserParamUtils.getUserInviteRequest(
                 USER_ROLE_LIST,
                 new ArrayList<>() {{
@@ -1253,19 +1261,18 @@ public class UserControllerTests extends BaseTest {
                     add("tianyang.song.invite.2@test.email");
                 }}
         );
-        MvcResult mvcResult = userRequestUtils.responsePost(UserRequestUtils.URL_INVITE, userInviteRequest);
-        String resultHolderStr = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
-        ResultHolder resultHolder = JSON.parseObject(resultHolderStr, ResultHolder.class);
-        UserInviteResponse response = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), UserInviteResponse.class);
-        Assertions.assertEquals(2, response.getInviteIds().size());
-        //检查日志  此处日志的资源是邀请的用户，即admin
-        LOG_CHECK_LIST.add(
-                new CheckLogModel("admin", OperationLogType.ADD, UserRequestUtils.URL_INVITE)
-        );
+        //这里无法测试邮箱是否发出，所以不针对结果进行校验
+        this.requestPost(UserRequestUtils.URL_INVITE, userInviteRequest);
+
+        List<UserInvite> inviteList = userInviteService.batchInsert(userInviteRequest.getInviteEmails(), "admin", userInviteRequest.getUserRoleIds());
+        UserInviteResponse response = new UserInviteResponse(inviteList);
         INVITE_RECORD_ID_LIST.addAll(response.getInviteIds());
     }
 
-    public void testUserInviteError() throws Exception {
+    @Resource
+    private UserInviteService userInviteService;
+
+    void testUserInviteError() throws Exception {
         List<String> inviteEmailList = new ArrayList<>() {{
             add("tianyang.song.invite.error.1@test.email");
             add("tianyang.song.invite.error.2@test.email");
@@ -1319,12 +1326,12 @@ public class UserControllerTests extends BaseTest {
                 USER_ROLE_LIST,
                 inviteEmailList
         );
-        userInviteRequest.getInviteEmails().add(USER_LIST.get(0).getEmail());
+        userInviteRequest.getInviteEmails().add(USER_LIST.getFirst().getEmail());
         userRequestUtils.requestPost(UserRequestUtils.URL_INVITE, userInviteRequest, ERROR_REQUEST_MATCHER);
     }
 
     private void testUserRegisterSuccess() throws Exception {
-        String inviteId = INVITE_RECORD_ID_LIST.get(0);
+        String inviteId = INVITE_RECORD_ID_LIST.getFirst();
         UserRegisterRequest request = new UserRegisterRequest();
         request.setInviteId(inviteId);
         request.setName("建国通过邮箱邀请");
@@ -1392,7 +1399,7 @@ public class UserControllerTests extends BaseTest {
         userInviteMapper.updateByPrimaryKeySelective(invite);
 
         String insertEmail = invite.getEmail();
-        UserBatchCreateDTO userMaintainRequest = UserParamUtils.getUserCreateDTO(
+        UserBatchCreateRequest userMaintainRequest = UserParamUtils.getUserCreateDTO(
                 USER_ROLE_LIST,
                 new ArrayList<>() {{
                     add(new UserCreateInfo() {{

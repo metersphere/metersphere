@@ -1,7 +1,7 @@
-package io.metersphere.system.dto.response;
+package io.metersphere.system.dto.user.response;
 
-import io.metersphere.system.dto.sdk.ExcelParseDTO;
 import io.metersphere.system.dto.excel.UserExcelRowDTO;
+import io.metersphere.system.dto.sdk.ExcelParseDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,9 +22,7 @@ public class UserImportResponse {
     public void generateResponse(ExcelParseDTO<UserExcelRowDTO> excelParseDTO) {
         successCount = excelParseDTO.getDataList().size();
         if (MapUtils.isNotEmpty(excelParseDTO.getErrRowData())) {
-            excelParseDTO.getErrRowData().forEach((k, v) -> {
-                errorMessages.put(k, v.getErrorMessage());
-            });
+            excelParseDTO.getErrRowData().forEach((k, v) -> errorMessages.put(k, v.getErrorMessage()));
         }
         importCount = errorMessages.size() + successCount;
     }

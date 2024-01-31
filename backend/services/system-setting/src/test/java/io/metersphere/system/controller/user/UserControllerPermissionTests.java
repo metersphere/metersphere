@@ -2,12 +2,12 @@ package io.metersphere.system.controller.user;
 
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.base.BaseTest;
-import io.metersphere.system.dto.UserCreateInfo;
 import io.metersphere.system.dto.request.UserInviteRequest;
 import io.metersphere.system.dto.request.user.UserChangeEnableRequest;
 import io.metersphere.system.dto.request.user.UserRoleBatchRelationRequest;
-import io.metersphere.system.dto.response.UserSelectOption;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
+import io.metersphere.system.dto.user.UserCreateInfo;
+import io.metersphere.system.dto.user.response.UserSelectOption;
 import io.metersphere.system.utils.user.UserParamUtils;
 import io.metersphere.system.utils.user.UserRequestUtils;
 import org.junit.jupiter.api.MethodOrderer;

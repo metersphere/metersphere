@@ -7,6 +7,7 @@ import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.dto.user.UserExcludeOptionDTO;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface BaseUserMapper {
@@ -24,7 +25,7 @@ public interface BaseUserMapper {
 
     String selectEmailInDB(@Param("email") String email, @Param("id") String id);
 
-    List<User> selectUserIdByEmailList(@Param("emailList") List<String> emailList);
+    List<User> selectUserIdByEmailList(@Param("emailList") Collection<String> emailList);
 
     List<User> selectByKeyword(@Param("keyword") String keyword, @Param("selectId") boolean selectId);
 
