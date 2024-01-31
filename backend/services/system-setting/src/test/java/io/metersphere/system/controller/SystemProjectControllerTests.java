@@ -302,6 +302,8 @@ public class SystemProjectControllerTests extends BaseTest {
             initProject.setUpdateTime(System.currentTimeMillis());
             initProject.setEnable(true);
             initProject.setModuleSetting("[\"apiTest\",\"uiTest\"]");
+            initProject.setDeleted(true);
+            initProject.setDeleteTime(System.currentTimeMillis());
             projectMapper.insertSelective(initProject);
             serviceInvoker.invokeCreateServices(initProject.getId());
         }

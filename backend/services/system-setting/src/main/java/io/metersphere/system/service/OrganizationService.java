@@ -23,6 +23,7 @@ import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -76,6 +77,7 @@ public class OrganizationService {
 
     private static final String ADD_MEMBER_PATH = "/system/organization/add-member";
     private static final String REMOVE_MEMBER_PATH = "/system/organization/remove-member";
+    public static final Integer DEFAULT_REMAIN_DAY_COUNT = 30;
 
     /**
      * 分页获取系统下组织列表
@@ -835,6 +837,9 @@ public class OrganizationService {
             organizationDTO.setUpdateUser(userMap.get(organizationDTO.getUpdateUser()));
             organizationDTO.setProjectCount(orgCountMap.get(organizationDTO.getId()).getProjectCount());
             organizationDTO.setMemberCount(orgCountMap.get(organizationDTO.getId()).getMemberCount());
+            if (BooleanUtils.isTrue(organizationDTO.getDeleted())) {
+                organizationDTO.setRemainDayCount(getDeleteRemainDays(organizationDTO.getDeleteTime()));
+            }
         });
         return organizationDTOS;
     }
@@ -918,5 +923,16 @@ public class OrganizationService {
      */
     public static Organization checkResourceExist(String id) {
         return ServiceUtils.checkResourceExist( CommonBeanFactory.getBean(OrganizationMapper.class).selectByPrimaryKey(id), "permission.system_organization_project.name");
+    }
+
+    /**
+     * 剩余天数
+     * @param deleteTime 删除时间
+     * @return 剩余天数
+     */
+    private Integer getDeleteRemainDays(Long deleteTime) {
+        long remainDays = (System.currentTimeMillis() - deleteTime) / (1000 * 3600 * 24);
+        int remainDayCount = DEFAULT_REMAIN_DAY_COUNT - (int) remainDays;
+        return remainDayCount > 0 ? remainDayCount : 1;
     }
 }
