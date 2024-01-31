@@ -1,12 +1,11 @@
-package io.metersphere.api.service.definition;
+package io.metersphere.api.service.scenario;
 
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.domain.ApiScenarioExample;
-import io.metersphere.api.dto.scenario.ApiScenarioBatchRequest;
-import io.metersphere.api.dto.scenario.ApiScenarioScheduleConfigRequest;
+import io.metersphere.api.dto.scenario.*;
 import io.metersphere.api.job.ApiScenarioScheduleJob;
 import io.metersphere.api.mapper.ApiScenarioMapper;
-import io.metersphere.api.service.scenario.ApiScenarioService;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.domain.ScheduleExample;
@@ -51,5 +50,25 @@ public class ApiScenarioNoticeService {
         }
         return dtoList;
     }
+
+    public ApiScenarioDTO getScenarioDTO(ApiScenarioAddRequest request) {
+        ApiScenarioDTO scenarioDTO = new ApiScenarioDTO();
+        BeanUtils.copyBean(scenarioDTO, request);
+        return scenarioDTO;
+    }
+
+    public ApiScenarioDTO getScenarioDTO(ApiScenarioUpdateRequest request) {
+        ApiScenarioDTO scenarioDTO = new ApiScenarioDTO();
+        BeanUtils.copyBean(scenarioDTO, request);
+        return scenarioDTO;
+    }
+
+    public ApiScenarioDTO getScenarioDTO(String id) {
+        ApiScenario apiScenario = apiScenarioMapper.selectByPrimaryKey(id);
+        ApiScenarioDTO scenarioDTO = new ApiScenarioDTO();
+        BeanUtils.copyBean(scenarioDTO, apiScenario);
+        return scenarioDTO;
+    }
+
 
 }

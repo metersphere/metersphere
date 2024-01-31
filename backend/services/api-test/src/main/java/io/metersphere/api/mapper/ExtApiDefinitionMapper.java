@@ -1,8 +1,9 @@
 package io.metersphere.api.mapper;
 
 import io.metersphere.api.domain.ApiDefinition;
-import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.domain.ApiDefinitionCustomField;
 import io.metersphere.api.dto.converter.ApiDefinitionImportDetail;
+import io.metersphere.api.dto.definition.*;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import org.apache.ibatis.annotations.Param;
@@ -51,4 +52,6 @@ public interface ExtApiDefinitionMapper {
     List<OptionDTO> selectVersionOptionByIds(@Param("apiIds") List<String> apiIds);
 
     ApiDefinition selectApiDefinitionByVersion(@Param("refId") String refId, @Param("versionId") String versionId);
+
+    List<ApiDefinitionCustomField> getCustomFieldByCaseIds(@Param("ids") List<String> ids);
 }

@@ -6,7 +6,7 @@ import io.metersphere.api.dto.scenario.ApiScenarioBatchCopyMoveRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioBatchEditRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioBatchRequest;
 import io.metersphere.api.service.ApiValidateService;
-import io.metersphere.api.service.definition.ApiScenarioNoticeService;
+import io.metersphere.api.service.scenario.ApiScenarioNoticeService;
 import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -49,7 +49,7 @@ public class ApiScenarioBatchOperationController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_DELETE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     @SendNotice(taskType = NoticeConstants.TaskType.API_SCENARIO_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getBatchOptionScenarios(#request)", targetClass = ApiScenarioNoticeService.class)
-    public ApiScenarioBatchOperationResponse deleteFromGC(@Validated @RequestBody ApiScenarioBatchRequest request) {
+    public ApiScenarioBatchOperationResponse deleteFromGc(@Validated @RequestBody ApiScenarioBatchRequest request) {
         apiValidateService.validateApiMenuInProject(request.getProjectId(), ApiResource.PROJECT.name());
         return apiScenarioService.batchGCOperation(request, true, new LogInsertModule(SessionUtils.getUserId(), "/api/scenario/batch-operation/delete-gc", HttpMethodConstants.POST.name()));
     }
@@ -59,7 +59,7 @@ public class ApiScenarioBatchOperationController {
     @Operation(summary = "接口测试-接口场景批量操作-回收站列表-批量恢复")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_RECOVER)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
-    public ApiScenarioBatchOperationResponse recoverFromGC(@Validated @RequestBody ApiScenarioBatchRequest request) {
+    public ApiScenarioBatchOperationResponse recoverFromGc(@Validated @RequestBody ApiScenarioBatchRequest request) {
         apiValidateService.validateApiMenuInProject(request.getProjectId(), ApiResource.PROJECT.name());
         return apiScenarioService.batchGCOperation(request, false, new LogInsertModule(SessionUtils.getUserId(), "/api/scenario/batch-operation/recover-gc", HttpMethodConstants.POST.name()));
     }

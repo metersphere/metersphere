@@ -121,6 +121,7 @@ public class ApiTestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#id)", msClass = ApiTestCaseLogService.class)
     @CheckOwner(resourceId = "#id", resourceType = "api_test_case")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_UPDATE, target = "#targetClass.getCaseDTO(#id)", targetClass = ApiTestCaseNoticeService.class)
     public void updatePriority(@PathVariable String id, @PathVariable String priority) {
         apiTestCaseService.updatePriority(id, priority, SessionUtils.getUserId());
     }
@@ -130,6 +131,7 @@ public class ApiTestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#id)", msClass = ApiTestCaseLogService.class)
     @CheckOwner(resourceId = "#id", resourceType = "api_test_case")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_UPDATE, target = "#targetClass.getCaseDTO(#id)", targetClass = ApiTestCaseNoticeService.class)
     public void updateStatus(@PathVariable String id, @PathVariable String status) {
         apiTestCaseService.updateStatus(id, status, SessionUtils.getUserId());
     }
@@ -155,7 +157,7 @@ public class ApiTestCaseController {
     @Operation(summary = "接口测试-接口管理-接口用例-批量移动到回收站")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_DELETE)
     @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_test_case")
-    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_DELETE, target = "#targetClass.getBatchDeleteApiCaseDTO(#request)", targetClass = ApiTestCaseNoticeService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.CASE_DELETE, target = "#targetClass.getBatchEditApiCaseDTO(#request)", targetClass = ApiTestCaseNoticeService.class)
     public void deleteToGcByParam(@RequestBody ApiTestCaseBatchRequest request) {
         apiTestCaseService.batchMoveGc(request, SessionUtils.getUserId());
     }

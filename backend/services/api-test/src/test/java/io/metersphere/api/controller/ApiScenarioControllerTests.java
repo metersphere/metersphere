@@ -180,29 +180,30 @@ public class ApiScenarioControllerTests extends BaseTest {
             apiScenario.setUpdateTime(System.currentTimeMillis());
             apiScenario.setCreateUser("admin");
             apiScenario.setUpdateUser("admin");
+            Schedule schedule = new Schedule();
+            schedule.setId(IDGenerator.nextStr());
+            schedule.setKey(apiScenario.getId());
+            schedule.setProjectId(DEFAULT_PROJECT_ID);
+            schedule.setResourceId(apiScenario.getId());
+            schedule.setJob(ApiScenarioScheduleJob.class.getName());
+            schedule.setResourceType(ScheduleResourceType.API_SCENARIO.name());
+            schedule.setEnable(true);
+            schedule.setName("定时任务");
+            schedule.setCreateUser("admin");
+            schedule.setUpdateTime(System.currentTimeMillis());
+            schedule.setCreateTime(System.currentTimeMillis());
+            schedule.setType(ScheduleType.CRON.name());
             if (i % 2 == 0) {
                 apiScenario.setTags(new ArrayList<>(List.of("tag1", "tag2")));
                 apiScenario.setGrouped(true);
                 apiScenario.setEnvironmentId("scenario-environment-group-id");
-                Schedule schedule = new Schedule();
-                schedule.setId(IDGenerator.nextStr());
-                schedule.setKey(apiScenario.getId());
-                schedule.setProjectId(DEFAULT_PROJECT_ID);
-                schedule.setResourceId(apiScenario.getId());
-                schedule.setJob(ApiScenarioScheduleJob.class.getName());
-                schedule.setResourceType(ScheduleResourceType.API_SCENARIO.name());
                 schedule.setValue("0 0 0/1 * * ? ");
-                schedule.setEnable(true);
-                schedule.setName("定时任务");
-                schedule.setCreateUser("admin");
-                schedule.setUpdateTime(System.currentTimeMillis());
-                schedule.setCreateTime(System.currentTimeMillis());
-                schedule.setType(ScheduleType.CRON.name());
-                scheduleMapper.insertSelective(schedule);
             } else {
                 apiScenario.setGrouped(false);
                 apiScenario.setEnvironmentId(environments.get(0).getId());
+                schedule.setValue("1111");
             }
+            scheduleMapper.insertSelective(schedule);
             apiScenarioMapper.insertSelective(apiScenario);
         }
     }

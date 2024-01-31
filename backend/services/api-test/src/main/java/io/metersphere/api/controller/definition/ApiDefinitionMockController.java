@@ -4,12 +4,18 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
 import io.metersphere.api.domain.ApiDefinitionMock;
 import io.metersphere.api.dto.definition.ApiDefinitionMockDTO;
-import io.metersphere.api.dto.definition.request.*;
+import io.metersphere.api.dto.definition.request.ApiDefinitionMockAddRequest;
+import io.metersphere.api.dto.definition.request.ApiDefinitionMockPageRequest;
+import io.metersphere.api.dto.definition.request.ApiDefinitionMockRequest;
+import io.metersphere.api.dto.definition.request.ApiDefinitionMockUpdateRequest;
 import io.metersphere.api.service.definition.ApiDefinitionMockLogService;
+import io.metersphere.api.service.definition.ApiDefinitionMockNoticeService;
 import io.metersphere.api.service.definition.ApiDefinitionMockService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.notice.annotation.SendNotice;
+import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
@@ -61,6 +67,7 @@ public class ApiDefinitionMockController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_MOCK_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = ApiDefinitionMockLogService.class)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.MOCK_CREATE, target = "#targetClass.getApiMockDTO(#request)", targetClass = ApiDefinitionMockNoticeService.class)
     public ApiDefinitionMock add(@Validated @RequestBody ApiDefinitionMockAddRequest request) {
         return apiDefinitionMockService.create(request, SessionUtils.getUserId());
     }
@@ -70,6 +77,7 @@ public class ApiDefinitionMockController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_MOCK_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ApiDefinitionMockLogService.class)
     @CheckOwner(resourceId = "#request.getId()", resourceType = "api_definition_mock")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.MOCK_UPDATE, target = "#targetClass.getApiMockDTO(#request)", targetClass = ApiDefinitionMockNoticeService.class)
     public ApiDefinitionMock update(@Validated @RequestBody ApiDefinitionMockUpdateRequest request) {
         return apiDefinitionMockService.update(request, SessionUtils.getUserId());
     }
@@ -88,6 +96,7 @@ public class ApiDefinitionMockController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_MOCK_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.delLog(#request)", msClass = ApiDefinitionMockLogService.class)
     @CheckOwner(resourceId = "#request.getId()", resourceType = "api_definition_mock")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.MOCK_DELETE, target = "#targetClass.getApiMockDTO(#request.id)", targetClass = ApiDefinitionMockNoticeService.class)
     public void delete(@Validated @RequestBody ApiDefinitionMockRequest request) {
         apiDefinitionMockService.delete(request, SessionUtils.getUserId());
     }
@@ -107,7 +116,6 @@ public class ApiDefinitionMockController {
     public String uploadTempFile(@RequestParam("file") MultipartFile file) {
         return apiDefinitionMockService.uploadTempFile(file);
     }
-
 
 
 }

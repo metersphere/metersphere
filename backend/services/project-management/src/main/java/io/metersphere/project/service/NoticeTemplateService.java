@@ -1,6 +1,5 @@
 package io.metersphere.project.service;
 
-import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.functional.domain.CaseReview;
 import io.metersphere.load.domain.LoadTest;
 import io.metersphere.plan.domain.TestPlan;
@@ -13,6 +12,7 @@ import io.metersphere.system.domain.CustomFieldExample;
 import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.dto.BugNoticeDTO;
 import io.metersphere.system.dto.sdk.ApiDefinitionCaseDTO;
+import io.metersphere.system.dto.sdk.ApiScenarioMessageDTO;
 import io.metersphere.system.dto.sdk.FunctionalCaseMessageDTO;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.mapper.CustomFieldMapper;
@@ -49,8 +49,8 @@ public class NoticeTemplateService {
                 //TODO：获取报告
             }
             case NoticeConstants.TaskType.API_SCENARIO_TASK -> {
-                Field[] allFields = FieldUtils.getAllFields(ApiScenario.class);
-                addOptionDto(messageTemplateFieldDTOList, allFields, "api_scenario_");
+                Field[] allFields = FieldUtils.getAllFields(ApiScenarioMessageDTO.class);
+                addOptionDto(messageTemplateFieldDTOList, allFields, null);
                 //TODO：获取报告
             }
             case NoticeConstants.TaskType.TEST_PLAN_TASK -> {

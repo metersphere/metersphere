@@ -6,8 +6,8 @@ import io.metersphere.api.constants.ApiResource;
 import io.metersphere.api.domain.ApiScenario;
 import io.metersphere.api.dto.scenario.*;
 import io.metersphere.api.service.ApiValidateService;
-import io.metersphere.api.service.definition.ApiScenarioNoticeService;
 import io.metersphere.api.service.scenario.ApiScenarioLogService;
+import io.metersphere.api.service.scenario.ApiScenarioNoticeService;
 import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.log.annotation.Log;
@@ -72,6 +72,7 @@ public class ApiScenarioController {
     @Operation(summary = "接口测试-接口场景管理-创建场景")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_ADD)
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request)", msClass = ApiScenarioLogService.class)
+    @SendNotice(taskType = NoticeConstants.TaskType.API_SCENARIO_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.getScenarioDTO(#request)", targetClass = ApiScenarioNoticeService.class)
     public ApiScenario add(@Validated @RequestBody ApiScenarioAddRequest request) {
         return apiScenarioService.add(request, SessionUtils.getUserId());
     }
@@ -88,6 +89,7 @@ public class ApiScenarioController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request)", msClass = ApiScenarioLogService.class)
     @CheckOwner(resourceId = "#request.getId()", resourceType = "api_scenario")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_SCENARIO_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getScenarioDTO(#request)", targetClass = ApiScenarioNoticeService.class)
     public ApiScenario update(@Validated @RequestBody ApiScenarioUpdateRequest request) {
         return apiScenarioService.update(request, SessionUtils.getUserId());
     }
@@ -106,6 +108,7 @@ public class ApiScenarioController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = ApiScenarioLogService.class)
     @CheckOwner(resourceId = "#id", resourceType = "api_scenario")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_SCENARIO_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getScenarioDTO(#id)", targetClass = ApiScenarioNoticeService.class)
     public void deleteToGc(@PathVariable String id) {
         apiScenarioService.deleteToGc(id);
     }
@@ -149,6 +152,7 @@ public class ApiScenarioController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#id)", msClass = ApiScenarioLogService.class)
     @CheckOwner(resourceId = "#id", resourceType = "api_scenario")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_SCENARIO_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getScenarioDTO(#id)", targetClass = ApiScenarioNoticeService.class)
     public void updateStatus(@PathVariable String id, @PathVariable String status) {
         apiScenarioService.updateStatus(id, status, SessionUtils.getUserId());
     }
@@ -158,6 +162,7 @@ public class ApiScenarioController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_UPDATE)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#id)", msClass = ApiScenarioLogService.class)
     @CheckOwner(resourceId = "#id", resourceType = "api_scenario")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_SCENARIO_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getScenarioDTO(#id)", targetClass = ApiScenarioNoticeService.class)
     public void updatePriority(@PathVariable String id, @PathVariable String priority) {
         apiScenarioService.updatePriority(id, priority, SessionUtils.getUserId());
     }
