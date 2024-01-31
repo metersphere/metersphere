@@ -20,8 +20,12 @@
       <template #revokeDelete="{ record }">
         <a-tooltip background-color="#FFFFFF">
           <template #content>
-            <span class="text-[var(--color-text-1)]">{{ t('system.project.revokeDeleteToolTip') }}</span>
-            <MsButton class="ml-[8px]" @click="handleRevokeDelete(record)">{{ t('common.revokeDelete') }}</MsButton>
+            <div class="flex flex-row">
+              <span class="text-[var(--color-text-1)]">{{
+                t('system.project.revokeDeleteToolTip', { count: record.remainDayCount })
+              }}</span>
+              <MsButton class="ml-[8px]" @click="handleRevokeDelete(record)">{{ t('common.revokeDelete') }}</MsButton>
+            </div>
           </template>
           <MsIcon v-if="record.deleted" type="icon-icon_alarm_clock" class="ml-[4px] text-[rgb(var(--danger-6))]" />
         </a-tooltip>

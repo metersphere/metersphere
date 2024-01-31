@@ -70,7 +70,7 @@ export default {
   'system.project.affiliatedOrgPlaceholder': 'Please select affiliated organization',
   'system.project.projectAdmin': 'Project administrator',
   'system.project.projectAdminPlaceholder': 'The project administrator defaults to the person who created the project',
-  'system.project.moduleSetting': 'Module setting',
+  'system.project.moduleSetting': 'Enable module',
   'system.project.projectNameRequired': 'Project name cannot be empty',
   'system.project.createTip': 'After the project is enabled, it will be displayed in the project switching list',
   'system.project.affiliatedOrgRequired': 'Affiliated organization cannot be empty',
