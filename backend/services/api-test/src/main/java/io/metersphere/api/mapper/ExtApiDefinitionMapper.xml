@@ -495,4 +495,10 @@
         from api_definition
         where api_definition.ref_id = #{refId} and api_definition.version_id = #{versionId}
     </select>
+    <select id="getCustomFieldByCaseIds" resultType="io.metersphere.api.domain.ApiDefinitionCustomField">
+        select api_id, field_id, `value` from api_definition_custom_field where api_id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

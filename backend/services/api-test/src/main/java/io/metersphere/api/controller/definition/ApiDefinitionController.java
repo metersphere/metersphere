@@ -68,6 +68,7 @@ public class ApiDefinitionController {
     @Operation(summary = "接口测试-接口管理-批量更新接口定义")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_UPDATE)
     @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_definition")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getBatchEditApiDTO(#request)", targetClass = ApiDefinitionNoticeService.class)
     public void batchUpdate(@Validated @RequestBody ApiDefinitionBatchUpdateRequest request) {
         apiDefinitionService.batchUpdate(request, SessionUtils.getUserId());
     }
@@ -85,6 +86,7 @@ public class ApiDefinitionController {
     @Operation(summary = "接口测试-接口管理-批量删除接口定义到回收站")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_DELETE)
     @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_definition")
+    @SendNotice(taskType = NoticeConstants.TaskType.API_DEFINITION_TASK, event = NoticeConstants.Event.DELETE, target = "#targetClass.getBatchEditApiDTO(#request)", targetClass = ApiDefinitionNoticeService.class)
     public void batchDelete(@Validated @RequestBody ApiDefinitionBatchRequest request) {
         apiDefinitionService.batchDelete(request, SessionUtils.getUserId());
     }

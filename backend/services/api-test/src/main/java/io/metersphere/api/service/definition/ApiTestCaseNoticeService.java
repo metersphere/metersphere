@@ -2,7 +2,6 @@ package io.metersphere.api.service.definition;
 
 import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.domain.ApiTestCaseExample;
-import io.metersphere.api.dto.definition.ApiCaseBatchEditRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseAddRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseBatchRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseUpdateRequest;
@@ -63,11 +62,6 @@ public class ApiTestCaseNoticeService {
     }
 
 
-    public List<ApiDefinitionCaseDTO> getBatchDeleteApiCaseDTO(ApiTestCaseBatchRequest request) {
-        List<String> ids = apiTestCaseService.doSelectIds(request, false);
-        return handleBatchNotice(ids);
-    }
-
     private List<ApiDefinitionCaseDTO> handleBatchNotice(List<String> ids) {
         List<ApiDefinitionCaseDTO> dtoList = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(ids)) {
@@ -88,7 +82,7 @@ public class ApiTestCaseNoticeService {
         return dtoList;
     }
 
-    public List<ApiDefinitionCaseDTO> getBatchEditApiCaseDTO(ApiCaseBatchEditRequest request) {
+    public List<ApiDefinitionCaseDTO> getBatchEditApiCaseDTO(ApiTestCaseBatchRequest request) {
         List<String> ids = apiTestCaseService.doSelectIds(request, false);
         return handleBatchNotice(ids);
     }

@@ -4,89 +4,54 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @NoArgsConstructor
-public class ApiDefinitionCaseDTO {
+public class ApiScenarioMessageDTO {
 
-    @Schema(description = "message.domain.name")
+    @Schema(description = "message.domain.api_scenario_name")
     private String name;
 
-    @Schema(description = "message.domain.protocol")
-    private String protocol;
-
-    @Schema(description = "message.domain.method")
-    private String method;
-
-    @Schema(description = "message.domain.path")
-    private String path;
-
-    @Schema(description = "message.domain.status")
-    private String status;
-
-    @Schema(description = "message.domain.description")
-    private String description;
-
-    @Schema(description = "message.domain.create_time")
-    private Long createTime;
-
-    @Schema(description = "message.domain.create_user")
-    private String createUser;
-
-    @Schema(description = "message.domain.update_time")
-    private Long updateTime;
-
-    @Schema(description = "message.domain.update_user")
-    private String updateUser;
-
-    @Schema(description = "message.domain.delete_user")
-    private String deleteUser;
-
-    @Schema(description = "message.domain.delete_time")
-    private Long deleteTime;
-
-    @Schema(description = "message.domain.case_name")
-    private String caseName;
-
-    @Schema(description = "message.domain.priority")
+    @Schema(description = "message.domain.api_scenario_priority")
     private String priority;
 
-    @Schema(description = "message.domain.case_status")
-    private String caseStatus;
+    @Schema(description = "message.domain.api_scenario_status")
+    private String status;
 
-    @Schema(description = "message.domain.last_report_status")
+    @Schema(description = "message.domain.api_scenario_stepTotal")
+    private Integer stepTotal;
+
+    @Schema(description = "message.domain.api_scenario_passRate")
+    private String requestPassRate;
+
+    @Schema(description = "message.domain.api_scenario_lastReportStatus")
     private String lastReportStatus;
 
-    @Schema(description = "message.domain.principal")
-    private String principal;
+    @Schema(description = "message.domain.api_scenario_description")
+    private String description;
 
-    @Schema(description = "message.domain.case_create_time")
-    private Long caseCreateTime;
+    @Schema(description = "message.domain.api_scenario_tags")
+    private java.util.List<String> tags;
 
-    @Schema(description = "message.domain.case_create_user")
-    private String caseCreateUser;
+    @Schema(description = "message.domain.api_scenario_grouped")
+    private Boolean grouped;
 
-    @Schema(description = "message.domain.case_update_time")
-    private Long caseUpdateTime;
+    @Schema(description = "message.domain.api_scenario_createUser")
+    private String createUser;
 
-    @Schema(description = "message.domain.case_update_user")
-    private String caseUpdateUser;
+    @Schema(description = "message.domain.api_scenario_createTime")
+    private Long createTime;
 
-    @Schema(description = "message.domain.case_delete_time")
-    private Long caseDeleteTime;
+    @Schema(description = "message.domain.api_scenario_deleteTime")
+    private Long deleteTime;
 
-    @Schema(description = "message.domain.case_delete_user")
-    private String caseDeleteUser;
+    @Schema(description = "message.domain.api_scenario_deleteUser")
+    private String deleteUser;
 
-    @Schema(description = "项目ID")
-    private String projectId;
+    @Schema(description = "message.domain.api_scenario_updateUser")
+    private String updateUser;
 
-    @Schema(description = "自定义字段的值")
-    private List<OptionDTO> fields;
-
-    @Schema(description = "message.domain.mock_name")
-    private String mockName;
+    @Schema(description = "message.domain.api_scenario_updateTime")
+    private Long updateTime;
 
     @Schema(description = "message.domain.scenario_report_url")
     private String reportUrl;
@@ -140,9 +105,10 @@ public class ApiDefinitionCaseDTO {
     private String requestFakeErrorRate;
 
     @Schema(description = "message.domain.scenario_report_request_pass_rate")
-    private String requestPassRate;
+    private String reportRequestPassRate;
 
     @Schema(description = "message.domain.scenario_report_assertion_pass_rate")
     private String assertionPassRate;
+
 
 }

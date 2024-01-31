@@ -181,7 +181,7 @@ public class ApiScenarioService {
             item.setModulePath(StringUtils.isNotBlank(moduleMap.get(item.getModuleId())) ? moduleMap.get(item.getModuleId()) : Translator.get("api_unplanned_scenario"));
             if (!item.getGrouped() && envMap.containsKey(item.getEnvironmentId())) {
                 item.setEnvironmentName(envMap.get(item.getEnvironmentId()));
-            } else if (item.getGrouped() && groupMap.containsKey(item.getId())) {
+            } else if (item.getGrouped() && groupMap.containsKey(item.getEnvironmentId())) {
                 item.setEnvironmentName(groupMap.get(item.getEnvironmentId()));
             }
             if (MapUtils.isNotEmpty(scheduleMap) && scheduleMap.containsKey(item.getId())) {
