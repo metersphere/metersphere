@@ -266,6 +266,10 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
             Assertions.assertTrue(StringUtils.contains(user.getName(), request.getKeyword())
                     || StringUtils.contains(user.getId(), request.getKeyword()));
         }
+        // email搜索
+        request.setKeyword("admin@");
+        this.requestPost(ORGANIZATION_USER_ROLE_LIST_MEMBER, request).andExpect(status().isOk());
+
         // 权限校验
         request.setOrganizationId(getDefault().getId());
         requestPostPermissionsTest(List.of(PermissionConstants.ORGANIZATION_USER_ROLE_READ, PermissionConstants.ORGANIZATION_MEMBER_READ), ORGANIZATION_USER_ROLE_LIST_MEMBER, request);
