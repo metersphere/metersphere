@@ -30,7 +30,9 @@
         and urr.role_id = #{request.userRoleId}
         <if test="request.keyword != null and request.keyword != ''">
             and (
-                u.name like concat('%', #{request.keyword}, '%') or u.email like concat('%', #{request.keyword}, '%')
+                u.name like concat('%', #{request.keyword}, '%')
+                or u.email like concat('%', #{request.keyword}, '%')
+                or u.phone like concat('%', #{request.keyword}, '%')
             )
         </if>
     </select>
