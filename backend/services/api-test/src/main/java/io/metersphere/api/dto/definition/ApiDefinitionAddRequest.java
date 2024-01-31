@@ -71,7 +71,7 @@ public class ApiDefinitionAddRequest implements Serializable {
     @NotNull
     private Object request;
 
-    @Schema(description = "请求内容")
+    @Schema(description = "响应内容")
     @NotNull
     private Object response;
 

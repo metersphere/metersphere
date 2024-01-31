@@ -12,6 +12,9 @@ public class ApiDebugRunRequest {
     @Schema(description = "接口ID")
     @NotNull
     private String id;
+    @Schema(description = "报告ID")
+    @NotNull
+    private String reportId;
     @Schema(description = "环境ID")
     private String environmentId;
     @Schema(description = "点击调试时尚未保存的文件ID列表")

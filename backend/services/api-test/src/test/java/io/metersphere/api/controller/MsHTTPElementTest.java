@@ -1,6 +1,7 @@
 package io.metersphere.api.controller;
 
 import io.metersphere.api.dto.ApiFile;
+import io.metersphere.api.dto.ApiParamConfig;
 import io.metersphere.api.dto.definition.HttpResponse;
 import io.metersphere.api.dto.request.MsCommonElement;
 import io.metersphere.api.dto.request.assertion.*;
@@ -218,7 +219,7 @@ public class MsHTTPElementTest {
         Assertions.assertEquals(ApiDataUtils.parseObject(json, AbstractMsTestElement.class), msHTTPElement);
 
         // 测试脚本解析
-        ParameterConfig parameterConfig = new ParameterConfig();
+        ParameterConfig parameterConfig = new ApiParamConfig();
         parameterConfig.setReportId("reportId");
         TestElementParser defaultParser = TestElementParserFactory.getDefaultParser();
         AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(json, AbstractMsTestElement.class);
@@ -247,7 +248,7 @@ public class MsHTTPElementTest {
         Assertions.assertEquals(ApiDataUtils.parseObject(json, AbstractMsTestElement.class), msHTTPElement);
 
         // 测试脚本解析
-        ParameterConfig parameterConfig = new ParameterConfig();
+        ParameterConfig parameterConfig = new ApiParamConfig();
         parameterConfig.setReportId("reportId");
         TestElementParser defaultParser = TestElementParserFactory.getDefaultParser();
         AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(json, AbstractMsTestElement.class);

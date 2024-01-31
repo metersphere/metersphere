@@ -14,7 +14,7 @@ import java.util.function.Function;
  * @createTime 2021-10-30  10:07
  * 将 MsTestElement 具体实现类转换为 HashTree
  */
-public abstract class AbstractJmeterElementConverter<T extends MsTestElement> {
+public abstract class AbstractJmeterElementConverter<T extends MsTestElement> implements JmeterElementConverter {
 
     public Class<? extends MsTestElement> testElementClass;
 

@@ -14,7 +14,6 @@ import java.util.LinkedList;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "polymorphicName")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class AbstractMsTestElement implements MsTestElement {
-
     /**
      * 步骤ID（唯一）
      */
@@ -24,10 +23,13 @@ public abstract class AbstractMsTestElement implements MsTestElement {
      */
     private String resourceId;
     /**
+     * 当前的项目ID
+     */
+    private String projectId;
+    /**
      * 组件标签名称
      */
     private String name;
-
     /**
      * 是否启用
      */
