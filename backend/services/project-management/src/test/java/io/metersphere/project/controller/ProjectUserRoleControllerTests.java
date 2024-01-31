@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static io.metersphere.system.controller.handler.result.CommonResultCode.INTERNAL_USER_ROLE_PERMISSION;
 import static io.metersphere.system.controller.result.SystemResultCode.NO_GLOBAL_USER_ROLE_PERMISSION;
 import static io.metersphere.system.controller.result.SystemResultCode.NO_PROJECT_USER_ROLE_PERMISSION;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -210,7 +209,7 @@ public class ProjectUserRoleControllerTests extends BaseTest {
         // 非项目下用户组异常
         this.requestGet(PROJECT_USER_ROLE_DELETE + "/" + InternalUserRole.ADMIN.getValue()).andExpect(jsonPath("$.code").value(NO_PROJECT_USER_ROLE_PERMISSION.getCode()));
         // 非内置用户组异常
-        this.requestGet(PROJECT_USER_ROLE_DELETE + "/" + InternalUserRole.PROJECT_ADMIN.getValue()).andExpect(jsonPath("$.code").value(INTERNAL_USER_ROLE_PERMISSION.getCode()));
+        this.requestGet(PROJECT_USER_ROLE_DELETE + "/" + InternalUserRole.PROJECT_ADMIN.getValue()).andExpect(jsonPath("$.code").value(NO_GLOBAL_USER_ROLE_PERMISSION.getCode()));
     }
 
     @Test

@@ -35,7 +35,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static io.metersphere.system.controller.handler.result.CommonResultCode.INTERNAL_USER_ROLE_PERMISSION;
 import static io.metersphere.system.controller.result.SystemResultCode.NO_GLOBAL_USER_ROLE_PERMISSION;
 import static io.metersphere.system.controller.result.SystemResultCode.NO_ORG_USER_ROLE_PERMISSION;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -172,7 +171,7 @@ public class OrganizationUserRoleControllerTests extends BaseTest {
         // 非组织下用户组异常
         this.requestGet(ORGANIZATION_USER_ROLE_DELETE + "/" + InternalUserRole.ADMIN.getValue()).andExpect(jsonPath("$.code").value(NO_ORG_USER_ROLE_PERMISSION.getCode()));
         // 非内置用户组异常
-        this.requestGet(ORGANIZATION_USER_ROLE_DELETE + "/" + InternalUserRole.ORG_ADMIN.getValue()).andExpect(jsonPath("$.code").value(INTERNAL_USER_ROLE_PERMISSION.getCode()));
+        this.requestGet(ORGANIZATION_USER_ROLE_DELETE + "/" + InternalUserRole.ORG_ADMIN.getValue()).andExpect(jsonPath("$.code").value(NO_GLOBAL_USER_ROLE_PERMISSION.getCode()));
     }
 
     @Test

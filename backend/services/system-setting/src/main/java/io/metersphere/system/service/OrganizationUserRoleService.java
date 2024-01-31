@@ -3,14 +3,14 @@ package io.metersphere.system.service;
 import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.UserRoleEnum;
 import io.metersphere.sdk.constants.UserRoleType;
-import io.metersphere.system.dto.permission.PermissionDefinitionItem;
-import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
-import io.metersphere.system.mapper.*;
+import io.metersphere.system.dto.permission.PermissionDefinitionItem;
 import io.metersphere.system.dto.request.OrganizationUserRoleMemberEditRequest;
 import io.metersphere.system.dto.request.OrganizationUserRoleMemberRequest;
+import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
+import io.metersphere.system.mapper.*;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -70,8 +70,9 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
 
     public void delete(String roleId, String currentUserId) {
         UserRole userRole = get(roleId);
-        // 非组织用户组不允许删除, 内置用户组不允许删除
+        // 非组织用户组不允许删除, 内置全局用户组不允许删除
         checkOrgUserRole(userRole);
+        checkGlobalUserRole(userRole);
         super.delete(userRole, InternalUserRole.ORG_MEMBER.getValue(), currentUserId, userRole.getScopeId());
     }
 
