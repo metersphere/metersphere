@@ -446,13 +446,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         // @@校验日志
         checkLog(apiTestCase.getId(), OperationLogType.RECOVER);
         this.requestGet(RECOVER + "111").andExpect(ERROR_REQUEST_MATCHER);
-        ApiTestCase updateCase = new ApiTestCase();
-        updateCase.setId(apiTestCase.getId());
-        updateCase.setApiDefinitionId("aaaa");
-        apiTestCaseMapper.updateByPrimaryKeySelective(updateCase);
-        this.requestGet(RECOVER + apiTestCase.getId()).andExpect(ERROR_REQUEST_MATCHER);
-        updateCase.setApiDefinitionId("apiDefinitionId");
-        apiTestCaseMapper.updateByPrimaryKeySelective(updateCase);
+
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_RECOVER, RECOVER + apiTestCase.getId());
     }

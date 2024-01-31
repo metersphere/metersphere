@@ -20,6 +20,8 @@ INSERT INTO user_role (id, name, description, internal, type, create_time, updat
 
 -- 初始化用户和组的关系
 INSERT INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user) VALUES (UUID_SHORT(), 'admin', 'admin', 'system', 'system', unix_timestamp() * 1000, 'admin');
+INSERT INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user) VALUES (UUID_SHORT(), 'admin', 'org_admin', '100001', '100001', unix_timestamp() * 1000, 'admin');
+INSERT INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user) VALUES (UUID_SHORT(), 'admin', 'project_admin', '100001100001', '100001', unix_timestamp() * 1000, 'admin');
 
 -- 初始化用户组权限
 -- 系统管理员拥有所有的权限，不用初始化
