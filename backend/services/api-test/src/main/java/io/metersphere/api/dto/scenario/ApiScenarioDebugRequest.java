@@ -20,6 +20,11 @@ public class ApiScenarioDebugRequest {
     @Size(max = 50, message = "{api_scenario.id.length_range}")
     private String id;
 
+    @Schema(description = "报告ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotBlank
+    @Size(max = 50)
+    private String reportId;
+
     @Schema(description = "是否为环境组")
     private Boolean grouped = false;
 

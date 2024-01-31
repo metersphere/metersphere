@@ -3,19 +3,16 @@ package io.metersphere.api.service;
 import io.metersphere.api.config.JmeterProperties;
 import io.metersphere.api.config.KafkaConfig;
 import io.metersphere.api.controller.result.ApiResultCode;
+import io.metersphere.api.dto.ApiParamConfig;
 import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.request.controller.MsCommentScriptElement;
 import io.metersphere.api.parser.TestElementParser;
 import io.metersphere.api.parser.TestElementParserFactory;
-import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionRunRequest;
-import io.metersphere.project.service.FileAssociationService;
-import io.metersphere.project.service.FileManagementService;
-import io.metersphere.project.service.FileMetadataService;
-import io.metersphere.project.service.ProjectApplicationService;
+import io.metersphere.project.service.*;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
 import io.metersphere.sdk.constants.ApiExecuteRunMode;
 import io.metersphere.sdk.constants.ProjectApplicationType;
@@ -32,7 +29,6 @@ import io.metersphere.system.dto.pool.TestResourceNodeDTO;
 import io.metersphere.system.service.CommonProjectService;
 import io.metersphere.system.service.SystemParameterService;
 import io.metersphere.system.service.TestResourcePoolService;
-import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.TaskRunnerClient;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
@@ -110,7 +106,7 @@ public class ApiExecuteService {
         return reportId + "_" + testId;
     }
 
-    public void debug(ApiResourceRunRequest request) {
+    public void debug(ApiResourceRunRequest request, ApiParamConfig parameterConfig) {
         String reportId = request.getReportId();
         String testId = request.getTestId();
 
@@ -124,14 +120,10 @@ public class ApiExecuteService {
         // 设置执行文件参数
         setTaskFileParam(request, taskRequest);
 
-//         todo 环境配置
-//        EnvironmentInfoDTO environmentInfoDTO = environmentService.get(request.getEnvironmentId());
         // todo 误报
         // todo 获取接口插件和jar包
         // todo 处理公共脚本
         // todo 接口用例 method 获取定义中的数据库字段
-        ParameterConfig parameterConfig = new ParameterConfig();
-        parameterConfig.setReportId(reportId);
         String executeScript = parseExecuteScript(request.getTestElement(), parameterConfig);
 
         TestResourceNodeDTO testResourceNodeDTO = getProjectExecuteNode(request.getProjectId());
@@ -201,7 +193,7 @@ public class ApiExecuteService {
         String testId = runRequest.getProjectId();
         // 生成执行脚本
         MsCommentScriptElement msCommentScriptElement = BeanUtils.copyBean(new MsCommentScriptElement(), runRequest);
-        String executeScript = parseExecuteScript(msCommentScriptElement, new ParameterConfig());
+        String executeScript = parseExecuteScript(msCommentScriptElement, new ApiParamConfig());
         // 设置执行参数
         TaskRequestDTO taskRequest = new TaskRequestDTO();
         setServerInfoParam(taskRequest);

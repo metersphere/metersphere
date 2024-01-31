@@ -21,8 +21,18 @@ import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.api.utils.JmeterElementConverterRegister;
+import io.metersphere.plugin.api.spi.AbstractJmeterElementConverter;
+import io.metersphere.plugin.api.spi.JmeterElementConverter;
+import io.metersphere.plugin.api.spi.MsTestElement;
+import io.metersphere.project.dto.environment.EnvironmentConfig;
+import io.metersphere.project.dto.environment.EnvironmentGroupProjectDTO;
+import io.metersphere.project.dto.environment.EnvironmentGroupRequest;
+import io.metersphere.project.dto.environment.EnvironmentRequest;
 import io.metersphere.project.dto.filemanagement.request.FileUploadRequest;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
+import io.metersphere.project.service.EnvironmentGroupService;
+import io.metersphere.project.service.EnvironmentService;
 import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.domain.Environment;
@@ -37,9 +47,13 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.domain.Schedule;
+import io.metersphere.system.dto.request.PluginUpdateRequest;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.ScheduleMapper;
+import io.metersphere.system.service.PluginLoadService;
+import io.metersphere.system.service.PluginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.CheckLogModel;
@@ -55,11 +69,14 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.metersphere.api.controller.result.ApiResultCode.API_SCENARIO_EXIST;
+import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -120,6 +137,14 @@ public class ApiScenarioControllerTests extends BaseTest {
     private ApiScenarioService apiScenarioService;
     @Resource
     private ScheduleMapper scheduleMapper;
+    @Resource
+    private EnvironmentService environmentService;
+    @Resource
+    private EnvironmentGroupService environmentGroupService;
+    @Resource
+    private PluginService pluginService;
+    @Resource
+    private PluginLoadService pluginLoadService;
     private static String fileMetadataId;
     private static String localFileId;
     private static ApiScenario addApiScenario;
@@ -128,6 +153,8 @@ public class ApiScenarioControllerTests extends BaseTest {
     private static List<ApiScenarioStepRequest> anOtherAddApiScenarioSteps;
     private static ApiDefinition apiDefinition;
     private static ApiTestCase apiTestCase;
+    private static String envId;
+    private static String envGroupId;
 
     private static final List<CheckLogModel> LOG_CHECK_LIST = new ArrayList<>();
 
@@ -254,6 +281,7 @@ public class ApiScenarioControllerTests extends BaseTest {
     @Order(1)
     public void add() throws Exception {
         initTestData();
+        initEnv();
 
         // @@请求成功
         ApiScenarioAddRequest request = new ApiScenarioAddRequest();
@@ -262,7 +290,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         request.setName("test name");
         request.setModuleId("default");
         request.setGrouped(false);
-        request.setEnvironmentId("environmentId");
+        request.setEnvironmentId(envId);
         request.setTags(List.of("tag1", "tag2"));
         request.setPriority("P0");
         request.setStatus(ApiScenarioStatus.COMPLETED.name());
@@ -281,6 +309,8 @@ public class ApiScenarioControllerTests extends BaseTest {
         assertUpdateSteps(steps, steptDetailMap);
 
         request.setName("anOther name");
+        request.setGrouped(true);
+        request.setEnvironmentId(envGroupId);
         ApiScenarioStepRequest stepRequest = new ApiScenarioStepRequest();
         stepRequest.setId(IDGenerator.nextStr());
         stepRequest.setEnable(true);
@@ -483,7 +513,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         request.setName("test name update");
         request.setModuleId("default");
         request.setGrouped(false);
-        request.setEnvironmentId("environmentId update");
+        request.setEnvironmentId(envId);
         request.setTags(List.of("tag1 update", "tag2 update"));
         request.setPriority("P0 update");
         request.setStatus(ApiScenarioStatus.DEPRECATED.name());
@@ -555,15 +585,20 @@ public class ApiScenarioControllerTests extends BaseTest {
     public void debug() throws Exception {
         mockPost("/api/debug", "");
         baseResourcePoolTestService.initProjectResourcePool();
+
         // @@请求成功
         ApiScenarioDebugRequest request = new ApiScenarioDebugRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setScenarioConfig(new ScenarioConfig());
-        request.setEnvironmentId("environmentId");
+        request.setEnvironmentId(envId);
+        request.setGrouped(false);
+        ScenarioStepConfig scenarioStepConfig = new ScenarioStepConfig();
+        scenarioStepConfig.setEnableScenarioEnv(true);
 
         List<ApiScenarioStepRequest> steps = getApiScenarioStepRequests();
         ApiScenarioStepRequest stepRequest = new ApiScenarioStepRequest();
         stepRequest.setName("test step");
+        stepRequest.setId(IDGenerator.nextStr());
         stepRequest.setId(IDGenerator.nextStr());
         stepRequest.setRefType(ApiScenarioStepRefType.REF.name());
         stepRequest.setResourceId(addApiScenario.getId());
@@ -571,11 +606,12 @@ public class ApiScenarioControllerTests extends BaseTest {
         stepRequest.setName(addApiScenario.getName());
         stepRequest.setStepType(ApiScenarioStepType.API_SCENARIO.name());
         stepRequest.setChildren(getApiScenarioStepRequests());
+        stepRequest.setConfig(scenarioStepConfig);
         steps.add(stepRequest);
         ApiScenarioStepRequest copyScenarioStep = BeanUtils.copyBean(new ApiScenarioStepRequest(), stepRequest);
         copyScenarioStep.setRefType(ApiScenarioStepRefType.COPY.name());
         copyScenarioStep.setChildren(getApiScenarioStepRequests());
-        steps.add(stepRequest);
+        steps.add(copyScenarioStep);
         ApiScenarioStepRequest partialScenarioStep = BeanUtils.copyBean(new ApiScenarioStepRequest(), stepRequest);
         partialScenarioStep.setRefType(ApiScenarioStepRefType.PARTIAL_REF.name());
         partialScenarioStep.setChildren(getApiScenarioStepRequests());
@@ -583,10 +619,83 @@ public class ApiScenarioControllerTests extends BaseTest {
         request.setId(addApiScenario.getId());
         request.setSteps(steps);
         request.setStepDetails(new HashMap<>());
+        request.setReportId(IDGenerator.nextStr());
         this.requestPostWithOk(DEBUG, request);
+
+        request.setEnvironmentId(envGroupId);
+        request.setGrouped(true);
+        this.requestPostWithOk(DEBUG, request);
+
+        ApiScenarioStepRequest pluginStep = new ApiScenarioStepRequest();
+        pluginStep.setName("plugin step");
+        pluginStep.setId(IDGenerator.nextStr());
+        pluginStep.setRefType(ApiScenarioStepRefType.COPY.name());
+        pluginStep.setRefType(ApiScenarioStepRefType.COPY.name());
+        pluginStep.setResourceId("");
+        pluginStep.setResourceNum("11111");
+        pluginStep.setName("plugin step");
+        pluginStep.setStepType(ApiScenarioStepType.API.name());
+        pluginStep.setChildren(getApiScenarioStepRequests());
+        request.getSteps().add(pluginStep);
+        HashMap<Object, Object> pluginStepDetail = new HashMap<>();
+        pluginStepDetail.put("polymorphicName", "MsTCPSampler");
+        pluginStepDetail.put("port", "port");
+        pluginStepDetail.put("projectId", DEFAULT_PROJECT_ID);
+        request.getStepDetails().put(pluginStep.getId(), pluginStepDetail);
+
+        Plugin plugin = addEnvTestPlugin();
+        List<Class<? extends MsTestElement>> msTestElementClasses =
+                pluginLoadService.getMsPluginManager().getExtensionClasses(MsTestElement.class);
+        // 注册序列化类
+        msTestElementClasses.forEach(ApiDataUtils::setResolver);
+        // 注册转换器
+        List<Class<? extends JmeterElementConverter>> converterClasses =
+                pluginLoadService.getMsPluginManager().getExtensionClasses(JmeterElementConverter.class);
+        converterClasses.forEach(item -> JmeterElementConverterRegister.register((Class<? extends AbstractJmeterElementConverter<? extends MsTestElement>>) item));
+
+        this.requestPostWithOk(DEBUG, request);
+        pluginService.delete(plugin.getId());
 
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_EXECUTE, DEBUG, request);
+    }
+
+    public Plugin addEnvTestPlugin() throws Exception {
+        PluginUpdateRequest request = new PluginUpdateRequest();
+        File jarFile = new File(
+                this.getClass().getClassLoader().getResource("file/tcpp-sampler-env-test.jar")
+                        .getPath()
+        );
+        FileInputStream inputStream = new FileInputStream(jarFile);
+        MockMultipartFile mockMultipartFile = new MockMultipartFile(jarFile.getName(), jarFile.getName(), "jar", inputStream);
+        request.setName("env_test");
+        request.setGlobal(true);
+        request.setEnable(true);
+        request.setCreateUser(ADMIN.name());
+        return pluginService.add(request, mockMultipartFile);
+    }
+
+    private void initEnv() {
+        EnvironmentRequest envRequest = new EnvironmentRequest();
+        envRequest.setProjectId(DEFAULT_PROJECT_ID);
+        envRequest.setName("test scenario debug");
+        // 添加插件的环境配置，供后续测试使用
+        Map<String, Object> pluginConfigMap = new HashMap<>();
+        pluginConfigMap.put("tcpp-sampler", new HashMap<>());
+        EnvironmentConfig environmentConfig = new EnvironmentConfig();
+        environmentConfig.setPluginConfigMap(pluginConfigMap);
+        envRequest.setConfig(environmentConfig);
+        Environment environment = environmentService.add(envRequest, "admin", null);
+        envId = environment.getId();
+
+        EnvironmentGroupRequest groupRequest = new EnvironmentGroupRequest();
+        groupRequest.setProjectId(DEFAULT_PROJECT_ID);
+        groupRequest.setName("test scenario debug");
+        EnvironmentGroupProjectDTO environmentGroupProjectDTO = new EnvironmentGroupProjectDTO();
+        environmentGroupProjectDTO.setEnvironmentId(environment.getId());
+        environmentGroupProjectDTO.setProjectId(DEFAULT_PROJECT_ID);
+        groupRequest.setEnvGroupProject(List.of(environmentGroupProjectDTO));
+        envGroupId = environmentGroupService.add(groupRequest, "admin").getId();
     }
 
     @Test

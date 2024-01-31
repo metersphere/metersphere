@@ -6,7 +6,6 @@ import io.metersphere.api.domain.ApiDebugBlob;
 import io.metersphere.api.domain.ApiFileResource;
 import io.metersphere.api.dto.debug.*;
 import io.metersphere.api.dto.request.MsCommonElement;
-import io.metersphere.api.dto.request.MsScenario;
 import io.metersphere.api.dto.request.assertion.MsAssertionConfig;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.body.Body;
@@ -14,11 +13,9 @@ import io.metersphere.api.mapper.ApiDebugBlobMapper;
 import io.metersphere.api.mapper.ApiDebugMapper;
 import io.metersphere.api.parser.ImportParserFactory;
 import io.metersphere.api.parser.TestElementParserFactory;
-import io.metersphere.api.parser.jmeter.MsScenarioConverter;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.BaseResourcePoolTestService;
 import io.metersphere.api.utils.ApiDataUtils;
-import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.dto.filemanagement.FileInfo;
 import io.metersphere.project.dto.filemanagement.request.FileUploadRequest;
@@ -35,9 +32,9 @@ import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.jorphan.collections.ListedHashTree;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -364,6 +361,7 @@ public class ApiDebugControllerTests extends BaseTest {
         msHTTPElement.setPath("/test");
         msHTTPElement.setMethod("GET");
         request.setRequest(JSON.parseObject(ApiDataUtils.toJSONString(msHTTPElement)));
+        request.setReportId(IDGenerator.nextStr());
 
         // @校验组织没有资源池权限异常
         assertErrorCode(this.requestPost(DEBUG, request), ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);
@@ -416,8 +414,6 @@ public class ApiDebugControllerTests extends BaseTest {
         // 增加覆盖率
         new TestElementParserFactory();
         new ImportParserFactory();
-        MsScenarioConverter msScenarioConverter = new MsScenarioConverter();
-        msScenarioConverter.toHashTree(new ListedHashTree(), new MsScenario(), new ParameterConfig());
 
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEBUG_EXECUTE, DEBUG, request);

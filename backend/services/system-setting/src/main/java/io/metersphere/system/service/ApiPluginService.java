@@ -1,6 +1,7 @@
 package io.metersphere.system.service;
 
 import io.metersphere.plugin.api.spi.AbstractApiPlugin;
+import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.plugin.api.spi.AbstractProtocolPlugin;
 import io.metersphere.plugin.api.spi.MsTestElement;
 import io.metersphere.sdk.constants.PluginScenarioType;
@@ -14,9 +15,7 @@ import org.pf4j.PluginWrapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -80,5 +79,19 @@ public class ApiPluginService {
                 .filter(plugin -> pluginIds.contains(plugin.getPluginId()) && plugin.getPlugin() instanceof AbstractApiPlugin)
                 .toList();
         return pluginWrappers;
+    }
+
+    /**
+     * 返回 MsTestElement 实现类与插件 ID 的映射
+     * @return
+     */
+    public Map<Class<? extends AbstractMsTestElement>, String> getTestElementPluginMap() {
+        Map<Class<? extends AbstractMsTestElement>, String> testElementPluginMap = new HashMap<>();
+        List<PluginWrapper> plugins = pluginLoadService.getMsPluginManager().getPlugins();
+        for (PluginWrapper plugin : plugins) {
+            List<Class<? extends MsTestElement>> extensionClasses = plugin.getPluginManager().getExtensionClasses(MsTestElement.class);
+            extensionClasses.forEach(clazz -> testElementPluginMap.put((Class<? extends AbstractMsTestElement>) clazz, plugin.getPluginId()));
+        }
+        return testElementPluginMap;
     }
 }

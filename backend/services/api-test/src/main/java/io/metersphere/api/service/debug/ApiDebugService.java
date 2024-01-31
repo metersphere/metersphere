@@ -4,6 +4,7 @@ import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.domain.ApiDebug;
 import io.metersphere.api.domain.ApiDebugBlob;
 import io.metersphere.api.domain.ApiDebugExample;
+import io.metersphere.api.dto.ApiParamConfig;
 import io.metersphere.api.dto.debug.*;
 import io.metersphere.api.mapper.ApiDebugBlobMapper;
 import io.metersphere.api.mapper.ApiDebugMapper;
@@ -12,6 +13,8 @@ import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
+import io.metersphere.project.service.EnvironmentService;
 import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.ApiExecuteRunMode;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
@@ -20,6 +23,7 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.service.ApiPluginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
@@ -50,6 +54,10 @@ public class ApiDebugService {
     private ApiFileResourceService apiFileResourceService;
     @Resource
     private ApiExecuteService apiExecuteService;
+    @Resource
+    private ApiPluginService apiPluginService;
+    @Resource
+    private EnvironmentService environmentService;
 
     public static final Long ORDER_STEP = 5000L;
 
@@ -200,7 +208,14 @@ public class ApiDebugService {
         runRequest.setEnvironmentId(request.getEnvironmentId());
         runRequest.setTestElement(ApiDataUtils.parseObject(JSON.toJSONString(request.getRequest()), AbstractMsTestElement.class));
 
-        apiExecuteService.debug(runRequest);
+        ApiParamConfig paramConfig = new ApiParamConfig();
+        paramConfig.setTestElementClassPluginIdMap(apiPluginService.getTestElementPluginMap());
+        paramConfig.setReportId(request.getReportId());
+        EnvironmentInfoDTO environmentInfoDTO = environmentService.get(request.getEnvironmentId());
+        // 设置环境
+        paramConfig.setEnvConfig(environmentInfoDTO);
+
+        apiExecuteService.debug(runRequest, paramConfig);
 
         return runRequest.getReportId();
     }

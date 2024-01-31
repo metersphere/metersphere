@@ -4,6 +4,9 @@ import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.constants.ApiScenarioStepRefType;
 import io.metersphere.api.constants.ApiScenarioStepType;
 import io.metersphere.api.domain.*;
+import io.metersphere.api.dto.ApiScenarioParamConfig;
+import io.metersphere.api.dto.ApiScenarioParseEnvInfo;
+import io.metersphere.api.dto.EnvironmentModeDTO;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.request.MsScenario;
@@ -20,10 +23,9 @@ import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.utils.ApiScenarioBatchOperationUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.FileMetadata;
+import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
-import io.metersphere.project.service.FileAssociationService;
-import io.metersphere.project.service.FileMetadataService;
-import io.metersphere.project.service.ProjectService;
+import io.metersphere.project.service.*;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
@@ -45,6 +47,7 @@ import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.ScheduleMapper;
 import io.metersphere.system.schedule.ScheduleService;
+import io.metersphere.system.service.ApiPluginService;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
@@ -132,6 +135,12 @@ public class ApiScenarioService {
     private ScheduleService scheduleService;
     @Resource
     private ScheduleMapper scheduleMapper;
+    @Resource
+    private EnvironmentService environmentService;
+    @Resource
+    private EnvironmentGroupService environmentGroupService;
+    @Resource
+    private ApiPluginService apiPluginService;
 
     public static final String PRIORITY = "Priority";
     public static final String STATUS = "Status";
@@ -1000,7 +1009,6 @@ public class ApiScenarioService {
     public String debug(ApiScenarioDebugRequest request) {
         ApiScenario apiScenario = apiScenarioMapper.selectByPrimaryKey(request.getId());
         boolean hasSave = apiScenario != null;
-        String reportId = IDGenerator.nextStr();
 
         List<ApiScenarioStepRequest> steps = request.getSteps();
 
@@ -1017,12 +1025,15 @@ public class ApiScenarioService {
         // 解析生成待执行的场景树
         MsScenario msScenario = new MsScenario();
         msScenario.setScenarioConfig(getScenarioConfig(request, hasSave));
-        parseStep2MsElement(msScenario, steps, resourceBlobMap, detailMap);
+
+        // 获取场景环境相关配置
+        ApiScenarioParseEnvInfo scenarioParseEnvInfo = getScenarioParseEnvInfo(refResourceMap, request.getEnvironmentId(), request.getGrouped());
+        parseStep2MsElement(msScenario, steps, resourceBlobMap, detailMap, scenarioParseEnvInfo);
 
         ApiResourceRunRequest runRequest = BeanUtils.copyBean(new ApiResourceRunRequest(), request);
         runRequest.setProjectId(request.getProjectId());
         runRequest.setTestId(request.getId());
-        runRequest.setReportId(reportId);
+        runRequest.setReportId(request.getReportId());
         runRequest.setResourceType(ApiResourceType.API_SCENARIO.name());
         runRequest.setRunMode(ApiExecuteRunMode.BACKEND_DEBUG.name());
         runRequest.setTempFileIds(request.getTempFileIds());
@@ -1030,9 +1041,85 @@ public class ApiScenarioService {
         runRequest.setEnvironmentId(request.getEnvironmentId());
         runRequest.setTestElement(msScenario);
 
-        apiExecuteService.debug(runRequest);
+        ApiScenarioParamConfig parseConfig = new ApiScenarioParamConfig();
+        parseConfig.setTestElementClassPluginIdMap(apiPluginService.getTestElementPluginMap());
+        parseConfig.setGrouped(request.getGrouped());
+        parseConfig.setReportId(request.getReportId());
+        scenarioParseEnvInfo.getPluginClassEnvConfigMap();
+        if (BooleanUtils.isTrue(request.getGrouped())) {
+            // 设置环境组 map
+            parseConfig.setProjectEnvMap(getProjectEnvMap(scenarioParseEnvInfo, request.getEnvironmentId()));
+        } else {
+            // 设置环境
+            parseConfig.setEnvConfig(scenarioParseEnvInfo.getEnvMap().get(request.getEnvironmentId()));
+        }
 
-        return reportId;
+        apiExecuteService.debug(runRequest, parseConfig);
+
+        return request.getReportId();
+    }
+
+    /**
+     * 设置脚本解析-环境相关参数
+     *
+     * @param refResourceMap
+     * @return
+     */
+    private ApiScenarioParseEnvInfo getScenarioParseEnvInfo(Map<String, List<String>> refResourceMap, String currentEnvId, Boolean isCurrentEnvGrouped) {
+        List<String> apiScenarioIds = refResourceMap.get(ApiScenarioStepType.API_SCENARIO.name());
+        List<String> envIds = new ArrayList<>();
+        List<String> envGroupIds = new ArrayList<>();
+        ApiScenarioParseEnvInfo envInfo = new ApiScenarioParseEnvInfo();
+
+        if (BooleanUtils.isTrue(isCurrentEnvGrouped)) {
+            envGroupIds.add(currentEnvId);
+        } else {
+            envIds.add(currentEnvId);
+        }
+
+        if (CollectionUtils.isNotEmpty(apiScenarioIds)) {
+            Map<String, EnvironmentModeDTO> refScenarioEnvMap = new HashMap<>();
+            List<ApiScenario> apiScenarios = getApiScenarioByIds(apiScenarioIds);
+            for (ApiScenario scenario : apiScenarios) {
+                EnvironmentModeDTO envMode = new EnvironmentModeDTO();
+                envMode.setEnvironmentId(scenario.getEnvironmentId());
+                envMode.setGrouped(scenario.getGrouped());
+                if (BooleanUtils.isTrue(scenario.getGrouped())) {
+                    // 记录环境组ID
+                    envGroupIds.add(scenario.getEnvironmentId());
+                } else {
+                    // 记录环境ID
+                    envIds.add(scenario.getEnvironmentId());
+                }
+                // 保存场景的环境配置信息
+                refScenarioEnvMap.put(scenario.getId(), envMode);
+            }
+            envInfo.setRefScenarioEnvMap(refScenarioEnvMap);
+        }
+
+        // 查询环境组中的环境ID列表
+        Map<String, List<String>> envGroupMap = new HashMap<>();
+        environmentGroupService.getEnvironmentGroupRelations(envGroupIds).forEach(environmentGroupRelation -> {
+            envGroupMap.putIfAbsent(environmentGroupRelation.getEnvironmentGroupId(), new ArrayList<>());
+            envGroupMap.get(environmentGroupRelation.getEnvironmentGroupId()).add(environmentGroupRelation.getEnvironmentId());
+            envIds.add(environmentGroupRelation.getEnvironmentId());
+        });
+
+        // 获取环境的配置信息
+        List<String> distinctEnvIds = envIds.stream().distinct().toList();
+        Map<String, EnvironmentInfoDTO> envMap = environmentService.getByIds(distinctEnvIds)
+                .stream()
+                .collect(Collectors.toMap(EnvironmentInfoDTO::getId, Function.identity()));
+
+        envInfo.setEnvGroupMap(envGroupMap);
+        envInfo.setEnvMap(envMap);
+        return envInfo;
+    }
+
+    private List<ApiScenario> getApiScenarioByIds(List<String> apiScenarioIds) {
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andIdIn(apiScenarioIds);
+        return apiScenarioMapper.selectByExample(example);
     }
 
     /**
@@ -1041,7 +1128,8 @@ public class ApiScenarioService {
     private void parseStep2MsElement(AbstractMsTestElement parentElement,
                                      List<? extends ApiScenarioStepCommonDTO> steps,
                                      Map<String, String> resourceBlobMap,
-                                     Map<String, String> stepDetailMap) {
+                                     Map<String, String> stepDetailMap,
+                                     ApiScenarioParseEnvInfo scenarioParseEnvInfo) {
         if (CollectionUtils.isNotEmpty(steps)) {
             parentElement.setChildren(new LinkedList<>());
         }
@@ -1055,12 +1143,66 @@ public class ApiScenarioService {
             // 将步骤详情解析生成对应的MsTestElement
             AbstractMsTestElement msTestElement = stepParser.parseTestElement(step, resourceBlobMap.get(step.getResourceId()), stepDetailMap.get(step.getId()));
             if (msTestElement != null) {
+                setMsScenarioParam(scenarioParseEnvInfo, step, msTestElement);
                 parentElement.getChildren().add(msTestElement);
             }
             if (CollectionUtils.isNotEmpty(step.getChildren())) {
-                parseStep2MsElement(msTestElement, step.getChildren(), resourceBlobMap, stepDetailMap);
+                parseStep2MsElement(msTestElement, step.getChildren(), resourceBlobMap, stepDetailMap, scenarioParseEnvInfo);
             }
         }
+    }
+
+    private void setMsScenarioParam(ApiScenarioParseEnvInfo scenarioParseEnvInfo,
+                                    ApiScenarioStepCommonDTO step,
+                                    AbstractMsTestElement msTestElement) {
+        // 引用的场景设置场景参数
+        if (!isScenarioStep(step.getStepType()) || !isRef(step.getRefType()) || !(msTestElement instanceof MsScenario)) {
+            return;
+        }
+
+        MsScenario msScenario = (MsScenario) msTestElement;
+        if (step.getConfig() != null) {
+            // 设置场景步骤的运行参数
+            msScenario.setScenarioStepConfig(JSON.parseObject(JSON.toJSONString(step.getConfig()), ScenarioStepConfig.class));
+        }
+
+        // 获取当前场景配置的环境信息
+        EnvironmentModeDTO environmentModeDTO = scenarioParseEnvInfo.getRefScenarioEnvMap().get(step.getResourceId());
+        String environmentId = environmentModeDTO.getEnvironmentId();
+
+        // 设置是否是环境组
+        Boolean isGrouped = environmentModeDTO.getGrouped();
+        msScenario.setGrouped(isGrouped);
+        Map<String, EnvironmentInfoDTO> envMap = scenarioParseEnvInfo.getEnvMap();
+
+        if (BooleanUtils.isTrue(isGrouped)) {
+            // 设置环境组 map
+            msScenario.setProjectEnvMap(getProjectEnvMap(scenarioParseEnvInfo, environmentId));
+        } else {
+            // 设置环境
+            msScenario.setEnvironmentInfo(envMap.get(environmentId));
+        }
+    }
+
+    /**
+     * 从 scenarioParseEnvInfo 获取对应环境组的 projectEnvMap
+     * @param scenarioParseEnvInfo
+     * @param environmentId
+     * @return
+     */
+    private Map<String, EnvironmentInfoDTO> getProjectEnvMap(ApiScenarioParseEnvInfo scenarioParseEnvInfo, String environmentId) {
+        Map<String, List<String>> envGroupMap = scenarioParseEnvInfo.getEnvGroupMap();
+        List<String> envIds = envGroupMap.get(environmentId);
+        Map<String, EnvironmentInfoDTO> projectEnvMap = new HashMap<>();
+        for (String envId : envIds) {
+            EnvironmentInfoDTO environmentInfoDTO = scenarioParseEnvInfo.getEnvMap().get(envId);
+            projectEnvMap.put(environmentInfoDTO.getProjectId(), environmentInfoDTO);
+        }
+        return projectEnvMap;
+    }
+
+    private static boolean isScenarioStep(String stepType) {
+        return StringUtils.equals(stepType, ApiScenarioStepType.API_SCENARIO.name());
     }
 
     /**
@@ -1098,7 +1240,7 @@ public class ApiScenarioService {
     }
 
     private boolean isPartialRef(ApiScenarioStepCommonDTO step) {
-        return StringUtils.equals(step.getStepType(), ApiScenarioStepType.API_SCENARIO.name()) &&
+        return isScenarioStep(step.getStepType()) &&
                 StringUtils.equals(step.getRefType(), ApiScenarioStepRefType.PARTIAL_REF.name());
     }
 
@@ -1339,7 +1481,7 @@ public class ApiScenarioService {
      * 判断步骤是否是引用的场景
      */
     private boolean isRefApiScenario(ApiScenarioStepDTO step) {
-        return isRef(step.getRefType()) && StringUtils.equals(step.getStepType(), ApiScenarioStepType.API_SCENARIO.name());
+        return isRef(step.getRefType()) && isScenarioStep(step.getStepType());
     }
 
     /**

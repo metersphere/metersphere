@@ -2,6 +2,7 @@ package io.metersphere.project.service;
 
 
 import io.metersphere.project.domain.Project;
+import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.dto.environment.*;
 import io.metersphere.project.dto.environment.datasource.DataSource;
 import io.metersphere.project.mapper.ExtEnvironmentMapper;
@@ -48,6 +49,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
 import java.sql.Driver;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -73,6 +75,8 @@ public class EnvironmentService {
     private ApiPluginService apiPluginService;
     @Resource
     private PluginScriptService pluginScriptService;
+    @Resource
+    private SystemParameterService systemParameterService;
     public static final Long ORDER_STEP = 5000L;
 
     private static final String USERNAME = "user";
@@ -223,9 +227,7 @@ public class EnvironmentService {
     public List<EnvironmentRequest> exportEnv(TableBatchProcessDTO request, String projectId) {
         List<String> environmentIds = this.getEnvironmentIds(request, projectId);
         // 查询环境
-        EnvironmentExample environmentExample = new EnvironmentExample();
-        environmentExample.createCriteria().andIdIn(environmentIds);
-        List<Environment> environments = environmentMapper.selectByExample(environmentExample);
+        List<Environment> environments = getEnvironmentsByIds(environmentIds);
         Map<String, Environment> environmentMap = new HashMap<>();
         environments.forEach(environment -> environmentMap.put(environment.getId(), environment));
         // 查询环境配置
@@ -395,5 +397,75 @@ public class EnvironmentService {
             envPluginScript.setScript(JSON.parseObject(new String(pluginScript.getScript())));
             return envPluginScript;
         }).toList();
+    }
+
+    public List<EnvironmentInfoDTO> getByIds(List<String> envIds) {
+        if (CollectionUtils.isEmpty(envIds)) {
+            return Collections.emptyList();
+        }
+
+        List<Environment> environments = getEnvironmentsByIds(envIds);
+        Map<String, EnvironmentBlob> envBlobMap = getEnvironmentBlobsByIds(envIds).stream().
+                collect(Collectors.toMap(EnvironmentBlob::getId, Function.identity()));
+
+        List<String> projectIds = environments.stream()
+                .map(Environment::getProjectId)
+                .distinct()
+                .collect(Collectors.toList());
+
+        Map<String, Project> projectMap = getProjects(projectIds).stream()
+                .collect(Collectors.toMap(Project::getId, Function.identity()));
+
+        String baseUrl = systemParameterService.getBaseInfo().getUrl();
+
+        List<EnvironmentInfoDTO> environmentInfos = new ArrayList<>();
+        for (Environment environment : environments) {
+            EnvironmentInfoDTO environmentInfo = BeanUtils.copyBean(new EnvironmentInfoDTO(), environment);
+            EnvironmentBlob environmentBlob = envBlobMap.get(environment.getId());
+            if (environmentBlob == null) {
+                environmentInfo.setConfig(new EnvironmentConfig());
+            } else {
+                if (environmentBlob.getConfig() != null) {
+                    environmentInfo.setConfig(JSON.parseObject(new String(environmentBlob.getConfig()), EnvironmentConfig.class));
+                }
+            }
+
+            if (BooleanUtils.isTrue(environment.getMock())) {
+                if (StringUtils.isNotEmpty(baseUrl)) {
+                    Long projectNum = projectMap.get(environment.getProjectId()).getNum();
+                    environmentInfo.getConfig().getHttpConfig().getFirst().setUrl(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, projectNum));
+                }
+            }
+            environmentInfos.add(environmentInfo);
+        }
+        return environmentInfos;
+    }
+
+    private List<Project> getProjects(List<String> projectIds) {
+        if (CollectionUtils.isEmpty(projectIds)) {
+            return Collections.emptyList();
+        }
+        ProjectExample example = new ProjectExample();
+        example.createCriteria().andIdIn(projectIds);
+        List<Project> projects = projectMapper.selectByExample(example);
+        return projects;
+    }
+
+    public List<Environment> getEnvironmentsByIds(List<String> envIds) {
+        if (CollectionUtils.isEmpty(envIds)) {
+            return Collections.emptyList();
+        }
+        EnvironmentExample example = new EnvironmentExample();
+        example.createCriteria().andIdIn(envIds);
+        return environmentMapper.selectByExample(example);
+    }
+
+    public List<EnvironmentBlob> getEnvironmentBlobsByIds(List<String> envIds) {
+        if (CollectionUtils.isEmpty(envIds)) {
+            return Collections.emptyList();
+        }
+        EnvironmentBlobExample example = new EnvironmentBlobExample();
+        example.createCriteria().andIdIn(envIds);
+        return environmentBlobMapper.selectByExampleWithBLOBs(example);
     }
 }

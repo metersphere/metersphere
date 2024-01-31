@@ -10,7 +10,6 @@ import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.domain.*;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.mapper.EnvironmentBlobMapper;
 import io.metersphere.sdk.mapper.EnvironmentGroupMapper;
 import io.metersphere.sdk.mapper.EnvironmentGroupRelationMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
@@ -26,6 +25,7 @@ import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -35,10 +35,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -58,13 +55,13 @@ public class EnvironmentGroupService {
     @Resource
     private EnvironmentMapper environmentMapper;
     @Resource
-    private EnvironmentBlobMapper environmentBlobMapper;
-    @Resource
     private UserRoleRelationMapper userRoleRelationMapper;
     @Resource
     private ExtProjectMapper extProjectMapper;
     @Resource
     private OrganizationMapper organizationMapper;
+    @Resource
+    private EnvironmentService environmentService;
 
     public static final Long ORDER_STEP = 5000L;
 
@@ -185,13 +182,9 @@ public class EnvironmentGroupService {
         List<EnvironmentGroupRelation> relations = environmentGroupRelationMapper.selectByExample(example);
         //提取环境id
         List<String> envIds = relations.stream().map(EnvironmentGroupRelation::getEnvironmentId).distinct().toList();
-        EnvironmentExample environmentExample = new EnvironmentExample();
-        environmentExample.createCriteria().andIdIn(envIds);
-        List<Environment> environments = environmentMapper.selectByExample(environmentExample);
+        List<Environment> environments = environmentService.getEnvironmentsByIds(envIds);
         Map<String, Environment> envMap = environments.stream().collect(Collectors.toMap(Environment::getId, e -> e));
-        EnvironmentBlobExample environmentBlobExample = new EnvironmentBlobExample();
-        environmentBlobExample.createCriteria().andIdIn(envIds);
-        List<EnvironmentBlob> environmentBlobs = environmentBlobMapper.selectByExampleWithBLOBs(environmentBlobExample);
+        List<EnvironmentBlob> environmentBlobs = environmentService.getEnvironmentBlobsByIds(envIds);
         Map<String, EnvironmentBlob> envBlobMap = environmentBlobs.stream().collect(Collectors.toMap(EnvironmentBlob::getId, e -> e));
         List<EnvironmentGroupInfo> result = new ArrayList<>();
         relations.forEach(e -> {
@@ -249,5 +242,15 @@ public class EnvironmentGroupService {
                 extEnvironmentMapper::getGroupPrePos,
                 extEnvironmentMapper::getGroupLastPos,
                 environmentGroupMapper::updateByPrimaryKeySelective);
+    }
+
+    public List<EnvironmentGroupRelation> getEnvironmentGroupRelations(List<String> envGroupIds) {
+        if (CollectionUtils.isEmpty(envGroupIds)) {
+            return Collections.emptyList();
+        }
+        EnvironmentGroupRelationExample example = new EnvironmentGroupRelationExample();
+        example.createCriteria().andEnvironmentGroupIdIn(envGroupIds);
+        List<EnvironmentGroupRelation> relations = environmentGroupRelationMapper.selectByExample(example);
+        return relations;
     }
 }
