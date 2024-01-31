@@ -193,12 +193,6 @@ public interface NoticeConstants {
         @Schema(description = "message.mock_delete")
         String MOCK_DELETE = "MOCK_DELETE";
 
-        @Schema(description = "message.mock_execute_successful")
-        String MOCK_EXECUTE_SUCCESSFUL = "MOCK_EXECUTE_SUCCESSFUL";
-
-        @Schema(description = "message.mock_execute_failed")
-        String MOCK_EXECUTE_FAILED = "MOCK_EXECUTE_FAILED";
-
         @Schema(description = "message.scenario_execute_successful")
         String SCENARIO_EXECUTE_SUCCESSFUL = "SCENARIO_EXECUTE_SUCCESSFUL";
 
@@ -327,10 +321,7 @@ public interface NoticeConstants {
         String API_DEFINITION_TASK_MOCK_UPDATE = "API_DEFINITION_TASK_MOCK_UPDATE";//${OPERATOR}更新了接口MOCK:${name}
         @Schema(description = "message.api_definition_task_mock_delete")
         String API_DEFINITION_TASK_MOCK_DELETE = "API_DEFINITION_TASK_MOCK_DELETE";//${OPERATOR}删除了接口MOCK:${name}
-        @Schema(description = "message.api_definition_task_mock_execute")
-        String API_DEFINITION_TASK_MOCK_EXECUTE_SUCCESSFUL = "API_DEFINITION_TASK_MOCK_EXECUTE_SUCCESSFUL";//${OPERATOR}执行了接口MOCK:${name}
-        @Schema(description = "message.api_definition_task_mock_execute")
-        String API_DEFINITION_TASK_MOCK_EXECUTE_FAILED = "API_DEFINITION_TASK_MOCK_EXECUTE_FAILED";//${OPERATOR}执行了接口MOCK:${name}
+
 
         @Schema(description = "message.api_scenario_task_create")
         String API_SCENARIO_TASK_CREATE = "API_SCENARIO_TASK_CREATE";//${OPERATOR}创建了接口场景:${name}
@@ -473,10 +464,6 @@ public interface NoticeConstants {
         String API_DEFINITION_TASK_MOCK_UPDATE = "API_DEFINITION_TASK_MOCK_UPDATE";
         @Schema(description = "message.title.api_definition_task_mock_delete")
         String API_DEFINITION_TASK_MOCK_DELETE = "API_DEFINITION_TASK_MOCK_DELETE";
-        @Schema(description = "message.title.api_definition_task_case_execute_successful")
-        String API_DEFINITION_TASK_MOCK_EXECUTE_SUCCESSFUL = "API_DEFINITION_TASK_MOCK_EXECUTE_SUCCESSFUL";
-        @Schema(description = "message.title.api_definition_task_case_execute_failed")
-        String API_DEFINITION_TASK_MOCK_EXECUTE_FAILED = "API_DEFINITION_TASK_MOCK_EXECUTE_FAILED";
 
         @Schema(description = "message.title.api_scenario_task_create")//接口场景创建通知
         String API_SCENARIO_TASK_CREATE = "API_SCENARIO_TASK_CREATE";

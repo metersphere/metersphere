@@ -142,7 +142,7 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         messageTaskExample = new MessageTaskExample();
         messageTaskExample.createCriteria().andProjectIdEqualTo("project-message-test").andTaskTypeEqualTo(NoticeConstants.TaskType.API_DEFINITION_TASK).andEventEqualTo(NoticeConstants.Event.CREATE).andReceiverEqualTo("project-message-user-3");
         messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
-
+        Assertions.assertEquals(0, messageTasks.size());
     }
 
     @Test

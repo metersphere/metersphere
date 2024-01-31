@@ -256,50 +256,6 @@
             ]
           },
           {
-            "event":"EXECUTE_PASSED",
-            "eventName":"",
-            "receivers":[
-              {
-                "id": "CREATE_USER",
-                "name": ""
-              }
-            ],
-            "projectRobotConfigList":[
-              {
-                "robotId":"",
-                "enable":"",
-                "template":"",
-                "defaultTemplate":"",
-                "useDefaultTemplate":true,
-                "subject":"",
-                "defaultSubject":"",
-                "useDefaultSubject":true
-              }
-            ]
-          },
-          {
-            "event":"EXECUTE_FAIL",
-            "eventName":"",
-            "receivers":[
-              {
-                "id": "CREATE_USER",
-                "name": ""
-              }
-            ],
-            "projectRobotConfigList":[
-              {
-                "robotId":"",
-                "enable":"",
-                "template":"",
-                "defaultTemplate":"",
-                "useDefaultTemplate":true,
-                "subject":"",
-                "defaultSubject":"",
-                "useDefaultSubject":true
-              }
-            ]
-          },
-          {
             "event":"COMMENT",
             "eventName":"",
             "receivers":[
@@ -676,50 +632,6 @@
           },
           {
             "event":"MOCK_DELETE",
-            "eventName":"",
-            "receivers":[
-              {
-                "id": "CREATE_USER",
-                "name": ""
-              }
-            ],
-            "projectRobotConfigList":[
-              {
-                "robotId":"",
-                "enable":"",
-                "template":"",
-                "defaultTemplate":"",
-                "useDefaultTemplate":true,
-                "subject":"",
-                "defaultSubject":"",
-                "useDefaultSubject":true
-              }
-            ]
-          },
-          {
-            "event":"MOCK_EXECUTE_SUCCESSFUL",
-            "eventName":"",
-            "receivers":[
-              {
-                "id": "CREATE_USER",
-                "name": ""
-              }
-            ],
-            "projectRobotConfigList":[
-              {
-                "robotId":"",
-                "enable":"",
-                "template":"",
-                "defaultTemplate":"",
-                "useDefaultTemplate":true,
-                "subject":"",
-                "defaultSubject":"",
-                "useDefaultSubject":true
-              }
-            ]
-          },
-          {
-            "event":"MOCK_EXECUTE_FAILED",
             "eventName":"",
             "receivers":[
               {
