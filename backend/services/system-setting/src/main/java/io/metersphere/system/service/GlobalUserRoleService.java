@@ -2,15 +2,15 @@ package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.UserRoleScope;
 import io.metersphere.sdk.constants.UserRoleType;
-import io.metersphere.system.dto.permission.PermissionDefinitionItem;
-import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRoleExample;
+import io.metersphere.system.dto.permission.PermissionDefinitionItem;
+import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
+import io.metersphere.system.dto.user.response.UserSelectOption;
 import io.metersphere.system.mapper.ExtUserRoleMapper;
 import io.metersphere.system.mapper.UserRoleMapper;
-import io.metersphere.system.dto.response.UserSelectOption;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;

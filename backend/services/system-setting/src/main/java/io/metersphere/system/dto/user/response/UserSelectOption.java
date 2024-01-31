@@ -1,4 +1,4 @@
-package io.metersphere.system.dto.response;
+package io.metersphere.system.dto.user.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

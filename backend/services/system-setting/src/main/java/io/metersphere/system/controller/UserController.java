@@ -7,7 +7,6 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.UserSource;
 import io.metersphere.system.domain.Organization;
-import io.metersphere.system.dto.UserBatchCreateDTO;
 import io.metersphere.system.dto.request.OrganizationMemberBatchRequest;
 import io.metersphere.system.dto.request.ProjectAddMemberBatchRequest;
 import io.metersphere.system.dto.request.UserInviteRequest;
@@ -15,16 +14,14 @@ import io.metersphere.system.dto.request.UserRegisterRequest;
 import io.metersphere.system.dto.request.user.UserChangeEnableRequest;
 import io.metersphere.system.dto.request.user.UserEditRequest;
 import io.metersphere.system.dto.request.user.UserRoleBatchRelationRequest;
-import io.metersphere.system.dto.response.UserImportResponse;
-import io.metersphere.system.dto.response.UserInviteResponse;
-import io.metersphere.system.dto.response.UserSelectOption;
-import io.metersphere.system.dto.response.UserTableResponse;
 import io.metersphere.system.dto.sdk.BasePageRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.dto.table.TableBatchProcessResponse;
 import io.metersphere.system.dto.user.UserDTO;
+import io.metersphere.system.dto.user.request.UserBatchCreateRequest;
+import io.metersphere.system.dto.user.response.*;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.*;
@@ -76,7 +73,7 @@ public class UserController {
     @PostMapping("/add")
     @Operation(summary = "系统设置-系统-用户-添加用户")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_ADD)
-    public UserBatchCreateDTO addUser(@Validated({Created.class}) @RequestBody UserBatchCreateDTO userCreateDTO) {
+    public UserBatchCreateResponse addUser(@Validated({Created.class}) @RequestBody UserBatchCreateRequest userCreateDTO) {
         return userService.addUser(userCreateDTO, UserSource.LOCAL.name(), SessionUtils.getUserId());
     }
 
