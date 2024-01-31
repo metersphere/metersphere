@@ -2,20 +2,22 @@ package io.metersphere.system.service;
 
 
 import io.metersphere.project.domain.Project;
-import io.metersphere.system.notice.constants.NoticeConstants;
-import io.metersphere.system.notice.MessageDetail;
-import io.metersphere.system.notice.sender.AbstractNoticeSender;
 import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.system.notice.MessageDetail;
+import io.metersphere.system.notice.NoticeModel;
+import io.metersphere.system.notice.constants.NoticeConstants;
+import io.metersphere.system.notice.sender.AbstractNoticeSender;
 import io.metersphere.system.notice.sender.impl.*;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.context.i18n.SimpleLocaleContext;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import io.metersphere.system.notice.NoticeModel;
-
 
 import java.util.List;
+import java.util.Locale;
 
 @Component
 public class NoticeSendService {
@@ -57,6 +59,12 @@ public class NoticeSendService {
      */
     @Async
     public void send(String taskType, NoticeModel noticeModel) {
+        String language = (String) noticeModel.getParamMap().get("Language");
+        if (StringUtils.isBlank(language)) {
+            language = "zh-CN";
+        }
+        SimpleLocaleContext localeContext = new SimpleLocaleContext(Locale.of(language));
+        LocaleContextHolder.setLocaleContext(localeContext);
         try {
             String projectId = (String) noticeModel.getParamMap().get("projectId");
             List<MessageDetail> messageDetails = messageDetailService.searchMessageByTypeAndProjectId(taskType, projectId);
@@ -71,6 +79,9 @@ public class NoticeSendService {
 
         } catch (Exception e) {
             LogUtils.error(e.getMessage(), e);
+        }finally {
+            //清理语言环境
+            LocaleContextHolder.resetLocaleContext();
         }
     }
 

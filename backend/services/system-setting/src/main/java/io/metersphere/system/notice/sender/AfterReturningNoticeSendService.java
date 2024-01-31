@@ -31,6 +31,7 @@ public class AfterReturningNoticeSendService {
             Map paramMap = new HashMap<>();
             paramMap.put("url", baseSystemConfigDTO.getUrl());
             paramMap.put(NoticeConstants.RelatedUser.OPERATOR, sessionUser.getName());
+            paramMap.put("Language",sessionUser.getLanguage());
             paramMap.putAll(resource);
             paramMap.putIfAbsent("projectId", currentProjectId);
             //TODO: 加来源处理
