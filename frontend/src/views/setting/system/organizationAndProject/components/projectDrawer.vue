@@ -20,7 +20,14 @@
           @press-enter="searchUser"
         ></a-input-search>
       </div>
-      <ms-base-table v-bind="propsRes" v-on="propsEvent" />
+      <ms-base-table v-bind="propsRes" v-on="propsEvent">
+        <template #num="{ record }">
+          <a-tooltip v-if="!record.enable" position="tl" :content="t('system.organization.projectIsDisabled')">
+            <div>{{ record.num }}</div>
+          </a-tooltip>
+          <span v-else>{{ record.num }}</span>
+        </template>
+      </ms-base-table>
     </div>
   </ms-drawer>
 </template>
@@ -54,6 +61,7 @@
     {
       title: 'system.organization.ID',
       dataIndex: 'num',
+      slotName: 'num',
     },
     {
       title: 'system.project.name',
@@ -62,6 +70,7 @@
     {
       title: 'system.organization.status',
       dataIndex: 'enable',
+      disableTitle: 'common.end',
     },
     {
       title: 'system.organization.creator',
@@ -70,6 +79,11 @@
     {
       title: 'system.organization.createTime',
       dataIndex: 'createTime',
+      width: 180,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
     },
   ];
 

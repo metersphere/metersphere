@@ -4,7 +4,9 @@
       <a-tooltip background-color="#FFFFFF">
         <template #content>
           <span>
-            <span class="text-[var(--color-text-1)]">{{ t('system.organization.revokeDeleteToolTip') }}</span>
+            <span class="text-[var(--color-text-1)]">{{
+              t('system.organization.revokeDeleteToolTip', { count: record.remainDayCount })
+            }}</span>
             <MsButton
               v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+RECOVER']"
               class="ml-[8px]"
@@ -87,7 +89,7 @@
   <UserDrawer v-bind="currentUserDrawer" @request-fetch-data="fetchData" @cancel="handleUserDrawerCancel" />
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup async>
   import { reactive, ref } from 'vue';
   import { Message, TableData } from '@arco-design/web-vue';
 
@@ -114,6 +116,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useTableStore } from '@/store';
+  import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { CreateOrUpdateSystemOrgParams, OrgProjectTableItem } from '@/models/setting/system/orgAndProject';
@@ -183,6 +186,10 @@
       title: 'system.organization.createTime',
       dataIndex: 'createTime',
       width: 180,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
     },
     {
       title: hasOperationPermission.value ? 'system.organization.operation' : '',
@@ -243,7 +250,7 @@
 
   const handleDelete = (record: TableData) => {
     openDeleteModal({
-      title: t('system.organization.deleteName', { name: record.name }),
+      title: t('system.organization.deleteName', { name: characterLimit(record.name) }),
       content: t('system.organization.deleteTip'),
       onBeforeOk: async () => {
         try {

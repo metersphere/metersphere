@@ -3,6 +3,7 @@
     <div class="mb-4 flex items-center justify-between">
       <div>
         <a-button
+          v-if="currentTable !== 'organization' || licenseStore.hasLicense()"
           v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+ADD']"
           type="primary"
           @click="handleAddOrganization"
@@ -16,7 +17,7 @@
       <div class="flex items-center">
         <a-input-search
           v-model="keyword"
-          :placeholder="t('system.user.searchUser')"
+          :placeholder="t('system.organization.searchIndexPlaceholder')"
           class="w-[240px]"
           allow-clear
           @press-enter="handleEnter"
@@ -53,6 +54,7 @@
 
   import { getOrgAndProjectCount } from '@/api/modules/setting/organizationAndProject';
   import { useI18n } from '@/hooks/useI18n';
+  import useLicenseStore from '@/store/modules/setting/license';
 
   const { t } = useI18n();
   const currentTable = ref('organization');
@@ -64,6 +66,7 @@
   const orgTableRef = ref();
   const projectTableRef = ref();
   const projectVisible = ref(false);
+  const licenseStore = useLicenseStore();
 
   // 初始化项目数量和组织数量
   const initOrgAndProjectCount = async () => {

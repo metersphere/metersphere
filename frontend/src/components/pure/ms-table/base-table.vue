@@ -430,6 +430,9 @@
       editActiveKey.value = '';
       currentEditValue.value = '';
     } else {
+      if (!record[dataIndex]) {
+        return;
+      }
       // 触发的是Enter
       emit('rowNameChange', record, (v: boolean) => {
         if (!v) {

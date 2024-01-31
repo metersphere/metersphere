@@ -44,7 +44,7 @@ export default {
   'system.organization.deleteName': 'Are you sure to delete {name}',
   'system.organization.deleteTip':
     'Delete the organization and delete the project data under that organization together. Please be cautious!',
-  'system.organization.revokeDeleteToolTip': 'The organization will be deleted automatically after 30 days',
+  'system.organization.revokeDeleteToolTip': 'The organization will be deleted automatically after {count} days',
   'system.organization.createOrganizationSuccess': 'Create organization success',
   'system.organization.enableTitle': 'Start organization',
   'system.organization.endTitle': 'Close organization',
@@ -55,6 +55,8 @@ export default {
   'system.organization.updateOrganizationSuccess': 'Update organization success',
   'system.organization.createProject': 'Create project',
   'system.organization.subordinateOrg': 'Subordinate organization',
+  'system.organization.searchUserPlaceholder': 'Search by name/email/phone number',
+  'system.organization.searchIndexPlaceholder': 'Search by name/id',
   'system.project.revokeDeleteTitle': 'Confirm revoke {name} ?',
   'system.project.enableTitle': 'Start project',
   'system.project.endTitle': 'Close project',
@@ -72,6 +74,7 @@ export default {
   'system.project.projectNameRequired': 'Project name cannot be empty',
   'system.project.createTip': 'After the project is enabled, it will be displayed in the project switching list',
   'system.project.affiliatedOrgRequired': 'Affiliated organization cannot be empty',
-  'system.project.revokeDeleteToolTip': 'The project will be deleted automatically after 30 days',
+  'system.project.revokeDeleteToolTip': 'The project will be deleted automatically after {count} days',
   'system.project.removeTip': "Remove it, and you'll lose access to the project.",
+  'system.organization.projectIsDisabled': 'The project has ended and can be opened in the project list.',
 };

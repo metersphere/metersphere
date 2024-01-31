@@ -23,7 +23,7 @@
   import { setFavicon, watchStyle, watchTheme } from '@/utils/theme';
 
   import { getPublicKeyRequest } from './api/modules/user';
-  import { WorkbenchRouteEnum } from './enums/routeEnum';
+  import { getFirstRouteNameByPermission } from './utils/permission';
   import enUS from '@arco-design/web-vue/es/locale/lang/en-us';
   import zhCN from '@arco-design/web-vue/es/locale/lang/zh-cn';
 
@@ -91,7 +91,8 @@
     }
     if (isLoginPage && isLogin) {
       // 当前页面为登录页面，且已经登录，跳转到首页
-      router.push(WorkbenchRouteEnum.WORKBENCH);
+      const currentRouteName = getFirstRouteNameByPermission(router.getRoutes());
+      router.push({ name: currentRouteName });
     }
   };
   // 获取公钥

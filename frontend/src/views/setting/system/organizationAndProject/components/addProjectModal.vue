@@ -41,6 +41,7 @@
             :options="affiliatedOrgOption"
             :placeholder="t('system.project.affiliatedOrgPlaceholder')"
             :field-names="{ label: 'name', value: 'id' }"
+            :extra="t('system.project.affiliatedOrgExtra')"
           >
           </a-select>
         </a-form-item>

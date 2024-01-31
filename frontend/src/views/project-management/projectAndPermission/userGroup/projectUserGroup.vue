@@ -135,6 +135,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore } from '@/store';
+  import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { CurrentUserGroupItem, UserGroupItem } from '@/models/setting/usergroup';
@@ -245,7 +246,7 @@
 
   const handleDelete = (record: UserGroupItem) => {
     openDeleteModal({
-      title: t('project.userGroup.deleteName', { name: record.name }),
+      title: t('project.userGroup.deleteName', { name: characterLimit(record.name) }),
       content: t('project.userGroup.deleteTip'),
       onBeforeOk: async () => {
         try {
