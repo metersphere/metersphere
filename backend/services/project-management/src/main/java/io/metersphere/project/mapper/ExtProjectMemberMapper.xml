@@ -14,7 +14,7 @@
             </if>
             <include refid="filter"/>
         </where>
-        order by u.name
+        order by urr.create_time desc
     </select>
 
     <select id="getMemberByOrg" resultType="io.metersphere.system.dto.user.UserExtendDTO">

@@ -126,8 +126,7 @@ public class SystemProjectController {
     @Operation(summary = "系统设置-系统-组织与项目-项目-成员列表")
     @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public Pager<List<UserExtendDTO>> getProjectMember(@Validated @RequestBody ProjectMemberRequest request) {
-        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
         return PageUtils.setPageInfo(page, systemProjectService.getProjectMember(request));
     }
 

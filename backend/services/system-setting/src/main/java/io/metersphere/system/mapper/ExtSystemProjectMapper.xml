@@ -4,9 +4,9 @@
 
 
     <select id="getProjectMemberList" resultType="io.metersphere.system.dto.user.UserExtendDTO">
-        SELECT temp.* , MAX( if (temp.role_id = 'project_admin', true, false)) as adminFlag
+        SELECT temp.* , MAX( if (temp.role_id = 'project_admin', true, false)) as adminFlag, MIN(temp.memberTime) as groupTime
         FROM (
-                 SELECT `user`.* , user_role_relation.role_id
+                 SELECT `user`.* , user_role_relation.role_id, user_role_relation.create_time as memberTime
                  FROM user_role_relation
                         LEFT JOIN `user` ON user_role_relation.user_id = `user`.id
         <where>
@@ -20,7 +20,7 @@
                 or user.phone like CONCAT('%', #{request.keyword},'%'))
             </if>
         </where>
-                 ORDER BY `user`.update_time DESC) temp GROUP BY temp.id ORDER BY adminFlag DESC
+                 ORDER BY `user_role_relation`.create_time DESC) temp GROUP BY temp.id ORDER BY adminFlag DESC, groupTime DESC
     </select>
     <select id="getProjectList" resultType="io.metersphere.system.dto.ProjectDTO">
         select p.id,

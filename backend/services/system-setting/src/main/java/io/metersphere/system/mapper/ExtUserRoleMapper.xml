@@ -25,5 +25,6 @@
                 or u.phone like concat('%', #{request.keyword}, '%')
             )
         </if>
+        order by urr.create_time desc
     </select>
 </mapper>

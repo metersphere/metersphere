@@ -57,9 +57,9 @@
     </update>
 
     <select id="listMember" resultType="io.metersphere.system.dto.user.UserExtendDTO">
-        select temp.*, max(if(temp.role_id = 'org_admin', true, false)) as adminFlag
+        select temp.*, max(if(temp.role_id = 'org_admin', true, false)) as adminFlag, min(temp.memberTime) as groupTime
         from (
-        select u.*, urr.role_id
+        select u.*, urr.role_id, urr.create_time as memberTime
         from user_role_relation urr
         join `user` u on urr.user_id = u.id
         <where>
@@ -71,10 +71,10 @@
                 and u.name like concat('%', #{request.keyword},'%')
             </if>
         </where>
-        order by u.update_time desc
+        order by urr.create_time desc
         ) temp
         group by temp.id
-        order by adminFlag desc
+        order by adminFlag desc, groupTime desc
     </select>
 
     <select id="listMemberByOrg" resultType="io.metersphere.system.dto.OrgUserExtend">
