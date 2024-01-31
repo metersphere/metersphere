@@ -25,6 +25,7 @@ public class ApiScenarioDebugRequest {
 
     @Schema(description = "环境或者环境组ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank
+    @Size(max = 50, message = "{api_scenario.environment_id.length_range}")
     private String environmentId;
 
     @Schema(description = "场景的通用配置")

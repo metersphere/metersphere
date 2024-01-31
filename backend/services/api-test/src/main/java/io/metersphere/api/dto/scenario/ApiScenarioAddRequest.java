@@ -40,6 +40,7 @@ public class ApiScenarioAddRequest {
 
     @Schema(description = "场景模块fk")
     @NotBlank(message = "{api_debug.module_id.not_blank}")
+    @Size(max = 50, message = "{api_scenario.module_id.length_range}")
     private String moduleId;
 
     @Schema(description = "描述信息")
@@ -52,6 +53,7 @@ public class ApiScenarioAddRequest {
     private Boolean grouped;
 
     @Schema(description = "环境或者环境组ID")
+    @Size(max = 50, message = "{api_scenario.environment_id.length_range}")
     private String environmentId;
 
     @Schema(description = "场景的通用配置")

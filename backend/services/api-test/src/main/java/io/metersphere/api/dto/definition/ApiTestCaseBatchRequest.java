@@ -18,6 +18,7 @@ public class ApiTestCaseBatchRequest extends TableBatchProcessDTO implements Ser
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "接口pk")
+    @Size(max = 50, message = "{api_definition.id.length_range}")
     private String apiDefinitionId;
 
     @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
@@ -34,9 +35,11 @@ public class ApiTestCaseBatchRequest extends TableBatchProcessDTO implements Ser
     private List<@NotBlank String> moduleIds;
 
     @Schema(description = "版本fk")
+    @Size(max = 50, message = "{api_definition.version_id.length_range}")
     private String versionId;
 
     @Schema(description = "版本来源")
+    @Size(max = 50, message = "{api_definition.ref_id.length_range}")
     private String refId;
 
 }

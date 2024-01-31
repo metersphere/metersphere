@@ -27,8 +27,10 @@ public class ApiModuleRequest extends BaseCondition {
     private String keyword;
 
     @Schema(description = "版本fk")
+    @Size(max = 50, message = "{api_definition.version_id.length_range}")
     private String versionId;
 
     @Schema(description = "版本引用fk")
+    @Size(max = 50, message = "{api_definition.ref_id.length_range}")
     private String refId;
 }

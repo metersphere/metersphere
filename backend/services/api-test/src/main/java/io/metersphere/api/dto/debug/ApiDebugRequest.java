@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 public class ApiDebugRequest {
     @Schema(description = "模块ID(根据模块树查询时要把当前节点以及子节点都放在这里。)")
-    private List<String> moduleIds;
+    private List<@NotBlank String> moduleIds;
 
     @Schema(description = "协议", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_debug_module.protocol.not_blank}")

@@ -70,7 +70,7 @@ public class ApiReportController {
     @Operation(summary = "接口测试-接口报告-用例报告批量删除")
     @CheckOwner(resourceId = "#request.getSelectIds()", resourceType = "api_report")
     @RequiresPermissions(PermissionConstants.PROJECT_API_REPORT_DELETE)
-    public void batchDelete(@RequestBody ApiReportBatchRequest request) {
+    public void batchDelete(@Validated @RequestBody ApiReportBatchRequest request) {
         apiReportService.batchDelete(request, SessionUtils.getUserId());
     }
 
