@@ -83,7 +83,7 @@ CREATE TABLE IF NOT EXISTS functional_case_module
 (
     `id`          VARCHAR(50)  NOT NULL COMMENT 'ID',
     `project_id`  VARCHAR(50)  NOT NULL COMMENT '项目ID',
-    `name`        VARCHAR(100) NOT NULL COMMENT '名称',
+    `name`        VARCHAR(255) NOT NULL COMMENT '名称',
     `parent_id`   VARCHAR(50)  NOT NULL DEFAULT 'NONE' COMMENT '父节点ID',
     `pos`         BIGINT       NOT NULL DEFAULT 0 COMMENT '同一节点下的顺序',
     `create_time` BIGINT       NOT NULL COMMENT '创建时间',
@@ -372,7 +372,7 @@ CREATE TABLE IF NOT EXISTS case_review_module
 (
     `id`          VARCHAR(50)  NOT NULL COMMENT 'ID',
     `project_id`  VARCHAR(50)  NOT NULL COMMENT '项目ID',
-    `name`        VARCHAR(100) NOT NULL COMMENT '名称',
+    `name`        VARCHAR(255) NOT NULL COMMENT '名称',
     `parent_id`   VARCHAR(50)  NOT NULL DEFAULT 'NONE' COMMENT '父节点ID',
     `pos`         BIGINT       NOT NULL DEFAULT 0 COMMENT '同一节点下的顺序',
     `create_time` BIGINT       NOT NULL COMMENT '创建时间',
