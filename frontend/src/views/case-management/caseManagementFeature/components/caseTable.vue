@@ -32,7 +32,6 @@
     v-on="propsEvent"
     @batch-action="handleTableBatch"
     @change="changeHandler"
-    @cell-click="showCaseDetailEvent"
   >
     <template #num="{ record, rowIndex }">
       <span class="flex w-full" @click="showCaseDetail(record.id, rowIndex)">{{ record.num }}</span>
@@ -239,6 +238,7 @@
   import { useAppStore, useTableStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { characterLimit, findNodeByKey, findNodePathByKey } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type {
     CaseManagementTable,
@@ -369,7 +369,7 @@
       showInTable: true,
       showTooltip: true,
       width: 300,
-      editType: ColumnEditTypeEnum.INPUT,
+      editType: hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE']) ? ColumnEditTypeEnum.INPUT : undefined,
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,

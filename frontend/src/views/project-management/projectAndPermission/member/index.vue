@@ -113,6 +113,7 @@
   import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
   import { characterLimit } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type {
     ActionProjectMember,
@@ -346,6 +347,9 @@
 
   // 项目用户组改变回调
   const changeUser = (record: ProjectMemberItem) => {
+    if (!hasAnyPermission(['PROJECT_USER:READ+UPDATE'])) {
+      return;
+    }
     if (record.enable) {
       record.showUserSelect = true;
       record.selectUserList = (record.userRoles || []).map((item) => item.id);

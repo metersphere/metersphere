@@ -87,6 +87,7 @@
   import { getCommonScriptDetail, getSocket, testCommonScript } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import { getGenerateId, sleep } from '@/utils';
 
   import type { AddOrUpdateCommonScript, ParamsRequestType } from '@/models/projectManagement/commonScript';
 
@@ -231,22 +232,9 @@
 
   const loading = ref<boolean>(false);
   const websocket = ref<any>();
-
-  function onDebugMessage(e: any) {
-    if (e.data && e.data.startsWith('result_')) {
-      try {
-        const data = e.data.substring(7);
-        websocket.value.close();
-        console.log(data, 'datadatadatadatadata');
-      } catch (error) {
-        websocket.value.close();
-      }
-    }
-  }
-  // 测试脚本
-  async function testScript() {
+  const reportId = ref('');
+  async function run() {
     try {
-      loading.value = true;
       const { type, script } = form.value;
       const parameters = innerParams.value
         .filter((item: any) => item.name && item.value)
@@ -262,35 +250,69 @@
         script,
         params: parameters,
         projectId: appStore.currentProjectId,
+        reportId: reportId.value,
       };
-
-      const reportId = await testCommonScript(params);
-      if (reportId) {
-        websocket.value = getSocket(reportId);
-        // TODO 接口需要调整
-        // websocket.value.addEventListener('open', (event) => {
-        //   console.log('WebSocket连接已打开:', event);
-        //   websocket.value.send('Hello, WebSocket Server!');
-        // });
-
-        // websocket.value.addEventListener('message', (event) => {
-        //   console.log('接收到消息:', event.data);
-        // });
-
-        // websocket.value.addEventListener('close', (event) => {
-        //   console.log('WebSocket连接已关闭:', event);
-        // });
-
-        // websocket.value.addEventListener('error', (event) => {
-        //   console.error('WebSocket连接发生错误:', event);
-        // });
-      }
+      await testCommonScript(params);
     } catch (error) {
       console.log(error);
-    } finally {
-      loading.value = false;
     }
   }
+  // 提交测试请求
+  function onOpen() {
+    run();
+  }
+
+  const executionResult = ref<string>('');
+  // TODO 提交给后台测试
+  function onDebugMessage(e: any) {
+    // console.log(e.data);
+    if (e.data) {
+      try {
+        // websocket.value.close();
+        executionResult.value = JSON.parse(e.data);
+        console.log(JSON.parse(e.data));
+      } catch (error) {
+        // websocket.value.close();
+        console.log(error);
+      }
+    }
+  }
+  // TODO 提交给后台测试
+  function debugSocket() {
+    websocket.value = getSocket(reportId.value);
+    websocket.value.onmessage = onDebugMessage;
+    websocket.value.onopen = onOpen;
+
+    websocket.value.addEventListener('open', (event) => {
+      console.log('打开:', event);
+    });
+
+    websocket.value.addEventListener('message', (event) => {
+      console.log('接收:', event.data);
+    });
+
+    websocket.value.addEventListener('close', (event) => {
+      console.log('关闭:', event);
+    });
+
+    websocket.value.addEventListener('error', (event) => {
+      console.error('错误:', event);
+    });
+  }
+
+  // 测试脚本
+  async function testScript() {
+    reportId.value = getGenerateId();
+  }
+
+  watch(
+    () => reportId.value,
+    (val) => {
+      if (val) {
+        debugSocket();
+      }
+    }
+  );
 </script>
 
 <style scoped></style>

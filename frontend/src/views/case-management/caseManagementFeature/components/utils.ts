@@ -146,22 +146,26 @@ export function getTableFields(customFields: CustomAttributes[], itemDataIndex: 
     // 处理多选项
     if (multipleExcludes.includes(currentColumnData.type)) {
       const selectValue = JSON.parse(currentColumnData.defaultValue);
-      return currentColumnData.options
-        .filter((item: any) => selectValue.includes(item.value))
-        .map((it: any) => it.text)
-        .join(',');
+      return (
+        (currentColumnData.options || [])
+          .filter((item: any) => selectValue.includes(item.value))
+          .map((it: any) => it.text)
+          .join(',') || '-'
+      );
     }
     if (currentColumnData.type === 'MULTIPLE_INPUT') {
       // 处理标签形式
-      return JSON.parse(currentColumnData.defaultValue).join('，');
+      return JSON.parse(currentColumnData.defaultValue).join('，') || '-';
     }
     if (selectExcludes.includes(currentColumnData.type)) {
-      return currentColumnData.options
-        .filter((item: any) => currentColumnData.defaultValue === item.value)
-        .map((it: any) => it.text)
-        .join();
+      return (
+        (currentColumnData.options || [])
+          .filter((item: any) => currentColumnData.defaultValue === item.value)
+          .map((it: any) => it.text)
+          .join() || '-'
+      );
     }
-    return currentColumnData.defaultValue;
+    return currentColumnData.defaultValue || '-';
   }
 }
 

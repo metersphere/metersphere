@@ -239,6 +239,7 @@
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import useUserStore from '@/store/modules/user';
   import { characterLimit } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { CustomAttributes, DetailCase, TabItemType } from '@/models/caseManagement/featureCase';
   import { ModuleTreeNode } from '@/models/projectManagement/file';
@@ -256,7 +257,6 @@
   const userStore = useUserStore();
   const { t } = useI18n();
   const { openModal } = useModal();
-
   const props = defineProps<{
     visible: boolean;
     detailId: string; // 详情 id
@@ -461,7 +461,7 @@
         options: item.options || [],
         props: {
           modelValue: currentDefaultValue,
-          disabled: isDisabled.value,
+          disabled: !hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE']),
           options: item.options || [],
         },
       };

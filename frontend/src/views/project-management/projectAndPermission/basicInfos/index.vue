@@ -108,7 +108,7 @@
       .detail-info {
         height: 100%;
         background: url('@/assets/images/basic_bg.png');
-        background-size: auto;
+        background-size: cover;
         .button {
           border-radius: 2px;
           @apply inline-block px-2 py-1 text-xs;
