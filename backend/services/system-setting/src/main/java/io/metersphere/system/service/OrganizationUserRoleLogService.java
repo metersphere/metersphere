@@ -1,16 +1,16 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.OperationLogConstants;
-import io.metersphere.system.log.dto.LogDTO;
-import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
-import io.metersphere.system.log.constants.OperationLogModule;
-import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.domain.UserRole;
 import io.metersphere.system.domain.UserRoleExample;
-import io.metersphere.system.mapper.UserRoleMapper;
 import io.metersphere.system.dto.request.OrganizationUserRoleEditRequest;
 import io.metersphere.system.dto.request.OrganizationUserRoleMemberEditRequest;
+import io.metersphere.system.dto.sdk.request.PermissionSettingUpdateRequest;
+import io.metersphere.system.log.constants.OperationLogModule;
+import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.log.dto.LogDTO;
+import io.metersphere.system.mapper.UserRoleMapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -106,7 +106,15 @@ public class OrganizationUserRoleLogService {
      * @return 日志详情
      */
     public LogDTO editMemberLog(OrganizationUserRoleMemberEditRequest request) {
-        LogDTO dto = getLog(request.getUserRoleId());
+        UserRole userRole = userRoleMapper.selectByPrimaryKey(request.getUserRoleId());
+        LogDTO dto = new LogDTO(
+                OperationLogConstants.ORGANIZATION,
+                request.getOrganizationId(),
+                OperationLogConstants.SYSTEM,
+                null,
+                null,
+                OperationLogModule.SETTING_ORGANIZATION_USER_ROLE,
+                userRole.getName());
         dto.setType(OperationLogType.UPDATE.name());
         dto.setModifiedValue(JSON.toJSONBytes(request));
         return dto;
