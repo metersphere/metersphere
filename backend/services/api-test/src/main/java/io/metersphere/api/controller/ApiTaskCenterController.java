@@ -4,7 +4,6 @@ import io.metersphere.api.service.ApiTaskCenterService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.taskcenter.TaskCenterDTO;
 import io.metersphere.system.dto.taskcenter.request.TaskCenterPageRequest;
-import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,7 +35,6 @@ public class ApiTaskCenterController {
     @PostMapping("/api/project/real-time/page")
     @Operation(summary = "项目-任务中心-接口用例/场景-实时任务列表")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
-    @CheckOwner(resourceId = "", resourceType = "project")
     public Pager<List<TaskCenterDTO>> projectList(@Validated @RequestBody TaskCenterPageRequest request) {
         return apiTaskCenterService.getProjectPage(request, SessionUtils.getCurrentProjectId());
     }
@@ -44,7 +42,6 @@ public class ApiTaskCenterController {
     @PostMapping("/api/org/real-time/page")
     @Operation(summary = "组织-任务中心-接口用例/场景-实时任务列表")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_TASK_CENTER_READ)
-    @CheckOwner(resourceId = "#request.getOrganizationId()", resourceType = "organization")
     public Pager<List<TaskCenterDTO>> orgList(@Validated @RequestBody TaskCenterPageRequest request) {
         return apiTaskCenterService.getOrganizationPage(request, SessionUtils.getCurrentOrganizationId());
     }

@@ -6,7 +6,6 @@ import jakarta.validation.constraints.*;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import lombok.Data;
 
 @Data
@@ -27,7 +26,7 @@ public class ApiDefinitionMock implements Serializable {
 
     @Schema(description = "mock名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_definition_mock.name.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 200, message = "{api_definition_mock.name.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 255, message = "{api_definition_mock.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
     @Schema(description = "自定义标签")
