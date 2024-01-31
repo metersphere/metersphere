@@ -28,7 +28,8 @@ public enum CommonResultCode implements IResultCode {
     STATUS_ITEM_NOT_EXIST(100015, "status_item.not.exist"),
     STATUS_ITEM_EXIST(100016, "status_item.exist"),
     FIELD_VALIDATE_ERROR(100017, "field_validate_error"),
-    STATUS_DEFINITION_REQUIRED_ERROR(100018, "status_definition_required_error");;
+    STATUS_DEFINITION_REQUIRED_ERROR(100018, "status_definition_required_error"),
+    ADMIN_USER_ROLE_PERMISSION(100019, "internal_admin_user_role_permission_error");
 
 
     private int code;

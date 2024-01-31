@@ -1,5 +1,6 @@
 package io.metersphere.system.service;
 
+import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.UserRoleEnum;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.JSON;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static io.metersphere.system.controller.handler.result.CommonResultCode.ADMIN_USER_ROLE_PERMISSION;
 import static io.metersphere.system.controller.handler.result.CommonResultCode.INTERNAL_USER_ROLE_PERMISSION;
 import static io.metersphere.system.controller.result.SystemResultCode.NO_GLOBAL_USER_ROLE_PERMISSION;
 
@@ -183,6 +185,13 @@ public class BaseUserRoleService {
     public void checkInternalUserRole(UserRole userRole) {
         if (BooleanUtils.isTrue(userRole.getInternal())) {
             throw new MSException(INTERNAL_USER_ROLE_PERMISSION);
+        }
+    }
+
+    public void checkAdminUserRole(UserRole userRole) {
+        if (StringUtils.equalsAny(userRole.getId(), InternalUserRole.ADMIN.getValue(),
+                InternalUserRole.ORG_ADMIN.getValue(), InternalUserRole.PROJECT_ADMIN.getValue())) {
+            throw new MSException(ADMIN_USER_ROLE_PERMISSION);
         }
     }
 
