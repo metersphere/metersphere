@@ -33,7 +33,6 @@ public class TaskCenterController {
     @PostMapping("/project/schedule/page")
     @Operation(summary = "项目-任务中心-定时任务列表")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
-    @CheckOwner(resourceId = "", resourceType = "project")
     public Pager<List<TaskCenterScheduleDTO>> projectScheduleList(@Validated @RequestBody TaskCenterSchedulePageRequest request) {
         return taskCenterService.getProjectSchedulePage(request, SessionUtils.getCurrentProjectId());
     }
@@ -41,7 +40,6 @@ public class TaskCenterController {
     @PostMapping("/org/schedule/page")
     @Operation(summary = "组织-任务中心-定时任务列表")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_TASK_CENTER_READ)
-    @CheckOwner(resourceId = "", resourceType = "organization")
     public Pager<List<TaskCenterScheduleDTO>> orgScheduleList(@Validated @RequestBody TaskCenterSchedulePageRequest request) {
         return taskCenterService.getOrgSchedulePage(request, SessionUtils.getCurrentOrganizationId());
     }
@@ -55,7 +53,7 @@ public class TaskCenterController {
 
     @GetMapping("/schedule/delete/{id}")
     @Operation(summary = "系统-任务中心-删除定时任务")
-    @CheckOwner(resourceId = "#id", resourceType = "scheduled")
+    @CheckOwner(resourceId = "#id", resourceType = "schedule")
     public void delete(@PathVariable String id) {
         taskCenterService.delete(id);
     }
