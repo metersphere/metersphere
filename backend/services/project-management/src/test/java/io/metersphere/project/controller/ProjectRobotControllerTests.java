@@ -5,21 +5,19 @@ import io.metersphere.project.dto.MessageTaskDTO;
 import io.metersphere.project.dto.MessageTaskDetailDTO;
 import io.metersphere.project.dto.MessageTaskTypeDTO;
 import io.metersphere.project.dto.ProjectRobotDTO;
-import io.metersphere.project.enums.ProjectRobotPlatform;
-import io.metersphere.project.enums.ProjectRobotType;
 import io.metersphere.project.mapper.MessageTaskBlobMapper;
 import io.metersphere.project.mapper.MessageTaskMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.mapper.ProjectRobotMapper;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.domain.OperationLogExample;
-import io.metersphere.system.dto.sdk.OptionDTO;
-import io.metersphere.system.dto.sdk.request.MessageTaskRequest;
 import io.metersphere.sdk.mapper.OperationLogMapper;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.sdk.request.MessageTaskRequest;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.uid.IDGenerator;
@@ -83,19 +81,19 @@ public class ProjectRobotControllerTests extends BaseTest {
     void addRobotSuccessWeCom() throws Exception {
         ProjectRobotDTO projectRobotDTOInSite = new ProjectRobotDTO();
         projectRobotDTOInSite.setName("robot_in_site");
-        projectRobotDTOInSite.setPlatform(ProjectRobotPlatform.IN_SITE.toString());
+        projectRobotDTOInSite.setPlatform(NoticeConstants.Type.IN_SITE);
         projectRobotDTOInSite.setProjectId("test_project");
         projectRobotDTOInSite.setWebhook("https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=2b67ccf4-e0da-4cd6-ae74-8d42657865f8");
         getPostResult(projectRobotDTOInSite, ROBOT_ADD, status().isOk());
         ProjectRobotDTO projectRobotDTOMail = new ProjectRobotDTO();
         projectRobotDTOMail.setName("robot_mail");
-        projectRobotDTOMail.setPlatform(ProjectRobotPlatform.MAIL.toString());
+        projectRobotDTOMail.setPlatform(NoticeConstants.Type.MAIL);
         projectRobotDTOMail.setProjectId("test_project");
         projectRobotDTOMail.setWebhook("https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=2b67ccf4-e0da-4cd6-ae74-8d42657865f8");
         getPostResult(projectRobotDTOMail, ROBOT_ADD, status().isOk());
         ProjectRobotDTO projectRobotDTO = new ProjectRobotDTO();
         projectRobotDTO.setName("企业微信机器人");
-        projectRobotDTO.setPlatform(ProjectRobotPlatform.WE_COM.toString());
+        projectRobotDTO.setPlatform(NoticeConstants.Type.WE_COM);
         projectRobotDTO.setProjectId("test_project");
         projectRobotDTO.setWebhook("https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=2b67ccf4-e0da-4cd6-ae74-8d42657865f8");
         getPostResult(projectRobotDTO, ROBOT_ADD, status().isOk());
@@ -113,11 +111,11 @@ public class ProjectRobotControllerTests extends BaseTest {
     void addRobotSuccessLark() throws Exception {
         ProjectRobotDTO projectRobotDTO = new ProjectRobotDTO();
         projectRobotDTO.setName("飞书机器人");
-        projectRobotDTO.setPlatform(ProjectRobotPlatform.LARK.toString());
+        projectRobotDTO.setPlatform(NoticeConstants.Type.LARK);
         projectRobotDTO.setProjectId("test_project");
         projectRobotDTO.setWebhook("https://open.feishu.cn/open-apis/bot/v2/hook/a6024229-9d9d-41c2-8662-7bc3da1092cb");
         ProjectRobot postResult = getPostResult(projectRobotDTO, ROBOT_ADD, status().isOk());
-        Assertions.assertTrue(StringUtils.equalsIgnoreCase(postResult.getPlatform(),NoticeConstants.Type.LARK_ROBOT));
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(postResult.getPlatform(),NoticeConstants.Type.LARK));
         checkName("test_project", "飞书机器人");
         ProjectRobot robot = getRobot("test_project", "飞书机器人");
         checkContentLog(robot.getName(),OperationLogType.ADD);
@@ -128,13 +126,13 @@ public class ProjectRobotControllerTests extends BaseTest {
     void addRobotSuccessDingCustom() throws Exception {
         ProjectRobotDTO projectRobotDTOInSite = new ProjectRobotDTO();
         projectRobotDTOInSite.setName("robot_in_site");
-        projectRobotDTOInSite.setPlatform(ProjectRobotPlatform.IN_SITE.toString());
+        projectRobotDTOInSite.setPlatform(NoticeConstants.Type.IN_SITE);
         projectRobotDTOInSite.setProjectId("test_project3");
         projectRobotDTOInSite.setWebhook("https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=2b67ccf4-e0da-4cd6-ae74-8d42657865f8");
         getPostResult(projectRobotDTOInSite, ROBOT_ADD, status().isOk());
         ProjectRobotDTO projectRobotDTOMail = new ProjectRobotDTO();
         projectRobotDTOMail.setName("robot_mail");
-        projectRobotDTOMail.setPlatform(ProjectRobotPlatform.MAIL.toString());
+        projectRobotDTOMail.setPlatform(NoticeConstants.Type.MAIL);
         projectRobotDTOMail.setProjectId("test_project3");
         projectRobotDTOMail.setWebhook("https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=2b67ccf4-e0da-4cd6-ae74-8d42657865f8");
         getPostResult(projectRobotDTOMail, ROBOT_ADD, status().isOk());
@@ -145,7 +143,7 @@ public class ProjectRobotControllerTests extends BaseTest {
     private void setInSiteCustom(String projectId,String name) throws Exception {
         ProjectRobotDTO projectRobotDTO = new ProjectRobotDTO();
         projectRobotDTO.setName(name);
-        projectRobotDTO.setPlatform(ProjectRobotPlatform.IN_SITE.toString());
+        projectRobotDTO.setPlatform(NoticeConstants.Type.IN_SITE);
         projectRobotDTO.setProjectId(projectId);
         projectRobotDTO.setEnable(true);
         projectRobotDTO.setWebhook("NONE");
@@ -155,13 +153,13 @@ public class ProjectRobotControllerTests extends BaseTest {
     private void setDingCustom(String projectId,String name) throws Exception {
         ProjectRobotDTO projectRobotDTO = new ProjectRobotDTO();
         projectRobotDTO.setName(name);
-        projectRobotDTO.setPlatform(ProjectRobotPlatform.DING_TALK.toString());
+        projectRobotDTO.setPlatform(NoticeConstants.Type.DING_TALK);
         projectRobotDTO.setProjectId(projectId);
         projectRobotDTO.setEnable(true);
-        projectRobotDTO.setType(ProjectRobotType.CUSTOM.toString());
+        projectRobotDTO.setType(NoticeConstants.DingType.CUSTOM);
         projectRobotDTO.setWebhook("https://oapi.dingtalk.com/robot/send?access_token=fd963136a4d7eebaaa68de261223089148e62d7519fbaf426626fe3157725b8a");
         ProjectRobot postResult = getPostResult(projectRobotDTO, ROBOT_ADD, status().isOk());
-        Assertions.assertTrue(StringUtils.equalsIgnoreCase(postResult.getPlatform(),NoticeConstants.Type.DING_CUSTOM_ROBOT));
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(postResult.getPlatform(),NoticeConstants.Type.DING_TALK));
 
     }
 
@@ -175,14 +173,14 @@ public class ProjectRobotControllerTests extends BaseTest {
     private void setDingEn(String name) throws Exception {
         ProjectRobotDTO projectRobotDTO = new ProjectRobotDTO();
         projectRobotDTO.setName(name);
-        projectRobotDTO.setPlatform(ProjectRobotPlatform.DING_TALK.toString());
+        projectRobotDTO.setPlatform(NoticeConstants.Type.DING_TALK);
         projectRobotDTO.setProjectId("test_project");
-        projectRobotDTO.setType(ProjectRobotType.ENTERPRISE.toString());
+        projectRobotDTO.setType(NoticeConstants.DingType.ENTERPRISE);
         projectRobotDTO.setAppKey("dingxwd71o7kj4qoixo7");
         projectRobotDTO.setAppSecret("szmOD9bjGgKtfYk09-Xx2rPdX-xkW4R8Iic0eig_k1D3k95nG4TLKRSpUKUD_f0G");
         projectRobotDTO.setWebhook("https://oapi.dingtalk.com/robot/send?access_token=e971f376669334cd44c585d419f0fdfa1600f97f906109b377999d8a0986b11e");
         ProjectRobot postResult = getPostResult(projectRobotDTO, ROBOT_ADD, status().isOk());
-        Assertions.assertTrue(StringUtils.equalsIgnoreCase(postResult.getPlatform(),NoticeConstants.Type.DING_ENTERPRISE_ROBOT));
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(postResult.getPlatform(),NoticeConstants.Type.DING_TALK));
     }
 
     @Test
@@ -190,7 +188,7 @@ public class ProjectRobotControllerTests extends BaseTest {
     void addRobotFailDingCustomByType() throws Exception {
         ProjectRobotDTO projectRobotDTO = new ProjectRobotDTO();
         projectRobotDTO.setName("钉钉自定义机器人");
-        projectRobotDTO.setPlatform(ProjectRobotPlatform.DING_TALK.toString());
+        projectRobotDTO.setPlatform(NoticeConstants.Type.DING_TALK);
         projectRobotDTO.setProjectId("test_project");
         projectRobotDTO.setWebhook("https://oapi.dingtalk.com/robot/send?access_token=e971f376669334cd44c585d419f0fdfa1600f97f906109b377999d8a0986b11e");
         getPostResult(projectRobotDTO, ROBOT_ADD, status().is5xxServerError());
@@ -201,9 +199,9 @@ public class ProjectRobotControllerTests extends BaseTest {
     void addRobotFailDingCustomByKey() throws Exception {
         ProjectRobotDTO projectRobotDTO = new ProjectRobotDTO();
         projectRobotDTO.setName("钉钉自定义机器人");
-        projectRobotDTO.setPlatform(ProjectRobotPlatform.DING_TALK.toString());
+        projectRobotDTO.setPlatform(NoticeConstants.Type.DING_TALK);
         projectRobotDTO.setProjectId("test_project");
-        projectRobotDTO.setType(ProjectRobotType.ENTERPRISE.toString());
+        projectRobotDTO.setType(NoticeConstants.DingType.ENTERPRISE);
         projectRobotDTO.setWebhook("https://oapi.dingtalk.com/robot/send?access_token=e971f376669334cd44c585d419f0fdfa1600f97f906109b377999d8a0986b11e");
         getPostResult(projectRobotDTO, ROBOT_ADD, status().is5xxServerError());
     }
@@ -213,9 +211,9 @@ public class ProjectRobotControllerTests extends BaseTest {
     void addRobotFailDingCustomBySecret() throws Exception {
         ProjectRobotDTO projectRobotDTO = new ProjectRobotDTO();
         projectRobotDTO.setName("钉钉自定义机器人");
-        projectRobotDTO.setPlatform(ProjectRobotPlatform.DING_TALK.toString());
+        projectRobotDTO.setPlatform(NoticeConstants.Type.DING_TALK);
         projectRobotDTO.setProjectId("test_project");
-        projectRobotDTO.setType(ProjectRobotType.ENTERPRISE.toString());
+        projectRobotDTO.setType(NoticeConstants.DingType.ENTERPRISE);
         projectRobotDTO.setAppKey("dingxwd71o7kj4qoixo7");
         projectRobotDTO.setWebhook("https://oapi.dingtalk.com/robot/send?access_token=e971f376669334cd44c585d419f0fdfa1600f97f906109b377999d8a0986b11e");
         getPostResult(projectRobotDTO, ROBOT_ADD, status().is5xxServerError());
@@ -481,7 +479,7 @@ public class ProjectRobotControllerTests extends BaseTest {
     private void setCustomRobot(String name, String projectId) throws Exception {
         ProjectRobotDTO projectRobotDTO = new ProjectRobotDTO();
         projectRobotDTO.setName(name);
-        projectRobotDTO.setPlatform(ProjectRobotPlatform.CUSTOM.toString());
+        projectRobotDTO.setPlatform(NoticeConstants.Type.CUSTOM);
         projectRobotDTO.setProjectId(projectId);
         projectRobotDTO.setEnable(true);
         projectRobotDTO.setWebhook("https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=2b67ccf4-e0da-4cd6-ae74-8d42657865f8");

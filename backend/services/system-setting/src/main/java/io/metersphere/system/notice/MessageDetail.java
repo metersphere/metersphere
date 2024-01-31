@@ -14,6 +14,7 @@ public class MessageDetail implements Serializable {
     private String taskType;
     private String webhook;
     private String type;
+    private String dingType;
     private String testId;
     private Long createTime;
     private String subject;

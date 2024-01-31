@@ -97,6 +97,9 @@ public class MessageDetailService {
                 return;
             }
             messageDetail.setType(projectRobot.getPlatform());
+            if (StringUtils.isNotBlank(projectRobot.getType())) {
+                messageDetail.setDingType(projectRobot.getType());
+            }
             if (StringUtils.isNotBlank(projectRobot.getWebhook())) {
                 messageDetail.setWebhook(projectRobot.getWebhook());
             }
