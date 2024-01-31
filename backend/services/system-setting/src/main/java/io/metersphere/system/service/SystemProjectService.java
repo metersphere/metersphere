@@ -1,16 +1,17 @@
 package io.metersphere.system.service;
 
 import io.metersphere.project.domain.Project;
-import io.metersphere.system.dto.sdk.OptionDTO;
-import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.*;
+import io.metersphere.system.dto.request.ProjectAddMemberBatchRequest;
+import io.metersphere.system.dto.request.ProjectMemberRequest;
+import io.metersphere.system.dto.request.ProjectPoolRequest;
+import io.metersphere.system.dto.request.ProjectRequest;
+import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.ExtSystemProjectMapper;
-import io.metersphere.system.dto.request.ProjectAddMemberBatchRequest;
-import io.metersphere.system.dto.request.ProjectMemberRequest;
-import io.metersphere.system.dto.request.ProjectRequest;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -96,8 +97,8 @@ public class SystemProjectService {
         commonProjectService.disable(id, updateUser);
     }
 
-    public List<OptionDTO> getTestResourcePoolOptions(String organizationId) {
-        return commonProjectService.getTestResourcePoolOptions(organizationId);
+    public List<OptionDTO> getTestResourcePoolOptions(ProjectPoolRequest request) {
+        return commonProjectService.getTestResourcePoolOptions(request);
 
     }
 

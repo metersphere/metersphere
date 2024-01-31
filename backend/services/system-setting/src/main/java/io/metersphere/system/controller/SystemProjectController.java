@@ -4,25 +4,22 @@ package io.metersphere.system.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.system.dto.sdk.OptionDTO;
-import io.metersphere.system.dto.user.UserExtendDTO;
-import io.metersphere.system.security.CheckOwner;
-import io.metersphere.system.utils.PageUtils;
-import io.metersphere.system.utils.Pager;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.AddProjectRequest;
 import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.dto.UpdateProjectNameRequest;
 import io.metersphere.system.dto.UpdateProjectRequest;
+import io.metersphere.system.dto.request.*;
+import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.dto.request.ProjectAddMemberBatchRequest;
-import io.metersphere.system.dto.request.ProjectAddMemberRequest;
-import io.metersphere.system.dto.request.ProjectMemberRequest;
-import io.metersphere.system.dto.request.ProjectRequest;
+import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.service.SystemProjectLogService;
 import io.metersphere.system.service.SystemProjectService;
 import io.metersphere.system.service.UserService;
+import io.metersphere.system.utils.PageUtils;
+import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
@@ -101,7 +98,7 @@ public class SystemProjectController {
     @Parameter(name = "id", description = "项目", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @CheckOwner(resourceId = "#id", resourceType = "project")
     public int revokeProject(@PathVariable String id) {
-       return systemProjectService.revoke(id, SessionUtils.getUserId());
+        return systemProjectService.revoke(id, SessionUtils.getUserId());
     }
 
     @GetMapping("/enable/{id}")
@@ -160,15 +157,15 @@ public class SystemProjectController {
     @Operation(summary = "系统设置-系统-组织与项目-项目-系统-组织及项目, 获取管理员下拉选项")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
     public List<User> getUserList(@Schema(description = "查询关键字，根据邮箱和用户名查询")
-                                      @RequestParam(value = "keyword", required = false) String keyword) {
+                                  @RequestParam(value = "keyword", required = false) String keyword) {
         return userService.getUserList(keyword);
     }
 
-    @GetMapping("/pool-options")
+    @PostMapping("/pool-options")
     @Operation(summary = "系统设置-系统-组织与项目-项目-获取资源池下拉选项")
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ)
-    public List<OptionDTO> getProjectOptions(@RequestParam(value = "organizationId",required = false) String organizationId) {
-        return systemProjectService.getTestResourcePoolOptions(organizationId);
+    public List<OptionDTO> getProjectOptions(@Validated @RequestBody ProjectPoolRequest request) {
+        return systemProjectService.getTestResourcePoolOptions(request);
     }
 
     @PostMapping("/rename")

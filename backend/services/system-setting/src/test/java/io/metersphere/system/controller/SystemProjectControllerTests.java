@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class SystemProjectControllerTests extends BaseTest {
@@ -149,8 +149,9 @@ public class SystemProjectControllerTests extends BaseTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
     }
+
     private void responseGet(String url, ResultMatcher resultMatcher) throws Exception {
-         mockMvc.perform(MockMvcRequestBuilders.get(url)
+        mockMvc.perform(MockMvcRequestBuilders.get(url)
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -169,6 +170,7 @@ public class SystemProjectControllerTests extends BaseTest {
         }
         return null;
     }
+
     public static void compareProjectDTO(Project currentProject, Project result) {
         Assertions.assertNotNull(currentProject);
         Assertions.assertNotNull(result);
@@ -194,6 +196,7 @@ public class SystemProjectControllerTests extends BaseTest {
         addProjectDTO.setUserIds(userIds);
         return addProjectDTO;
     }
+
     public UpdateProjectRequest generatorUpdate(String organizationId,
                                                 String projectId,
                                                 String name,
@@ -308,6 +311,7 @@ public class SystemProjectControllerTests extends BaseTest {
             serviceInvoker.invokeCreateServices(initProject.getId());
         }
     }
+
     @Test
     @Order(1)
     /**
@@ -319,7 +323,7 @@ public class SystemProjectControllerTests extends BaseTest {
     public void testAddProjectSuccess() throws Exception {
         initData();
         addMultipleCustomField();
-        AddProjectRequest project = this.generatorAdd(DEFAULT_ORGANIZATION_ID,"name", "description", true, List.of("admin"));
+        AddProjectRequest project = this.generatorAdd(DEFAULT_ORGANIZATION_ID, "name", "description", true, List.of("admin"));
         MvcResult mvcResult = this.responsePost(addProject, project);
         ProjectDTO result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         ProjectExample projectExample = new ProjectExample();
@@ -336,7 +340,7 @@ public class SystemProjectControllerTests extends BaseTest {
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().contains("admin"));
         userRoleRelationExample.createCriteria().andSourceIdEqualTo(DEFAULT_ORGANIZATION_ID).andRoleIdEqualTo(InternalUserRole.ORG_MEMBER.getValue());
-         userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
+        userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         Assertions.assertTrue(userRoleRelations.stream().map(UserRoleRelation::getUserId).toList().contains("admin"));
         Project currentProject = projectMapper.selectByPrimaryKey(projectId);
         Assertions.assertNull(currentProject.getModuleSetting());
@@ -345,7 +349,7 @@ public class SystemProjectControllerTests extends BaseTest {
         assertionsRefStatusFlowSetting(projectId);
 
         //userId为空的时候
-        project = this.generatorAdd(DEFAULT_ORGANIZATION_ID,"userIdIsNull", "description", true, new ArrayList<>());
+        project = this.generatorAdd(DEFAULT_ORGANIZATION_ID, "userIdIsNull", "description", true, new ArrayList<>());
         // 开启项目模板
         changeOrgTemplateEnable(false);
         mvcResult = this.responsePost(addProject, project);
@@ -604,10 +608,10 @@ public class SystemProjectControllerTests extends BaseTest {
      * 测试添加项目失败的用例
      */
     public void testAddProjectError() throws Exception {
-        AddProjectRequest project = this.generatorAdd(DEFAULT_ORGANIZATION_ID,"nameError", "description", true, List.of("admin"));
+        AddProjectRequest project = this.generatorAdd(DEFAULT_ORGANIZATION_ID, "nameError", "description", true, List.of("admin"));
         this.responsePost(addProject, project);
         //项目名称存在 500
-        project = this.generatorAdd(DEFAULT_ORGANIZATION_ID,"nameError", "description", true, List.of("admin"));
+        project = this.generatorAdd(DEFAULT_ORGANIZATION_ID, "nameError", "description", true, List.of("admin"));
         this.requestPost(addProject, project, ERROR_REQUEST_MATCHER);
         //参数组织Id为空
         project = this.generatorAdd(null, null, null, true, List.of("admin"));
@@ -624,10 +628,11 @@ public class SystemProjectControllerTests extends BaseTest {
         this.requestPost(addProject, project, ERROR_REQUEST_MATCHER);
 
     }
+
     @Test
     @Order(3)
     public void testGetProject() throws Exception {
-        AddProjectRequest project = this.generatorAdd(DEFAULT_ORGANIZATION_ID,"getName", "description", true, List.of("admin"));
+        AddProjectRequest project = this.generatorAdd(DEFAULT_ORGANIZATION_ID, "getName", "description", true, List.of("admin"));
         List<String> moduleIds = new ArrayList<>();
         moduleIds.add("apiTest");
         moduleIds.add("uiTest");
@@ -643,6 +648,7 @@ public class SystemProjectControllerTests extends BaseTest {
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, getProject + projectId);
     }
+
     @Test
     @Order(4)
     public void testGetProjectError() throws Exception {
@@ -760,7 +766,7 @@ public class SystemProjectControllerTests extends BaseTest {
     @Test
     @Order(7)
     public void testUpdateProject() throws Exception {
-        UpdateProjectRequest project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId1","TestName", "Edit name", true, List.of("admin", "admin1"));
+        UpdateProjectRequest project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId1", "TestName", "Edit name", true, List.of("admin", "admin1"));
         MvcResult mvcResult = this.responsePost(updateProject, project);
         ProjectDTO result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         Project currentProject = projectMapper.selectByPrimaryKey(project.getId());
@@ -809,7 +815,7 @@ public class SystemProjectControllerTests extends BaseTest {
 
         //设置资源池
         project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId5", "updatePools", "updatePools", true, new ArrayList<>());
-        project.setResourcePoolIds(List.of("resourcePoolId","resourcePoolId1"));
+        project.setResourcePoolIds(List.of("resourcePoolId", "resourcePoolId1"));
         mvcResult = this.responsePost(updateProject, project);
         result = parseObjectFromMvcResult(mvcResult, ProjectDTO.class);
         currentProject = projectMapper.selectByPrimaryKey(project.getId());
@@ -830,22 +836,22 @@ public class SystemProjectControllerTests extends BaseTest {
     @Order(8)
     public void testUpdateProjectError() throws Exception {
         //项目名称存在 500
-        UpdateProjectRequest project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId2","TestName2", "description", true, List.of("admin"));
+        UpdateProjectRequest project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId2", "TestName2", "description", true, List.of("admin"));
         this.requestPost(updateProject, project, ERROR_REQUEST_MATCHER);
         //参数组织Id为空
-        project = this.generatorUpdate(null, "projectId",null, null, true , List.of("admin"));
+        project = this.generatorUpdate(null, "projectId", null, null, true, List.of("admin"));
         this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
         //项目Id为空
-        project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, null,null, null, true, List.of("admin"));
+        project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, null, null, null, true, List.of("admin"));
         this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
         //项目名称为空
-        project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId",null, null, true, List.of("admin"));
+        project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId", null, null, true, List.of("admin"));
         this.requestPost(updateProject, project, BAD_REQUEST_MATCHER);
         //项目不存在
-        project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "1111","123", null, true, List.of("admin"));
+        project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "1111", "123", null, true, List.of("admin"));
         this.requestPost(updateProject, project, ERROR_REQUEST_MATCHER);
         //资源池不存在
-        project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId2","pool-edit", "description", true, List.of("admin"));
+        project = this.generatorUpdate(DEFAULT_ORGANIZATION_ID, "projectId2", "pool-edit", "description", true, List.of("admin"));
         project.setResourcePoolIds(List.of("resourcePoolId3"));
         this.requestPost(updateProject, project, ERROR_REQUEST_MATCHER);
 
@@ -894,10 +900,9 @@ public class SystemProjectControllerTests extends BaseTest {
     }
 
 
-
     @Test
     @Order(13)
-    public void testAddProjectMember() throws Exception{
+    public void testAddProjectMember() throws Exception {
         ProjectAddMemberRequest projectAddMemberRequest = new ProjectAddMemberRequest();
         projectAddMemberRequest.setProjectId("projectId");
         List<String> userIds = List.of("admin1", "admin2");
@@ -914,7 +919,7 @@ public class SystemProjectControllerTests extends BaseTest {
 
     @Test
     @Order(14)
-    public void testAddProjectMemberError() throws Exception{
+    public void testAddProjectMemberError() throws Exception {
         //项目Id为空
         ProjectAddMemberRequest projectAddMemberRequest = new ProjectAddMemberRequest();
         projectAddMemberRequest.setProjectId(null);
@@ -1008,7 +1013,7 @@ public class SystemProjectControllerTests extends BaseTest {
 
     @Test
     @Order(17)
-    public void testRemoveProjectMember() throws Exception{
+    public void testRemoveProjectMember() throws Exception {
         String projectId = "projectId1";
         String userId = "admin1";
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
@@ -1023,7 +1028,7 @@ public class SystemProjectControllerTests extends BaseTest {
 
     @Test
     @Order(18)
-    public void testRemoveProjectMemberError() throws Exception{
+    public void testRemoveProjectMemberError() throws Exception {
         String projectId = "projectId1";
         String userId = "admin1";
         MvcResult mvcResult = this.responseGet(removeProjectMember + projectId + "/" + userId);
@@ -1044,7 +1049,7 @@ public class SystemProjectControllerTests extends BaseTest {
     @Order(19)
     public void disableSuccess() throws Exception {
         String id = "projectId";
-        this.responseGet(disableProject + id,status().isOk());
+        this.responseGet(disableProject + id, status().isOk());
         Project currentProject = projectMapper.selectByPrimaryKey(id);
         Assertions.assertEquals(currentProject.getEnable(), false);
         checkLog(id, OperationLogType.UPDATE);
@@ -1063,7 +1068,7 @@ public class SystemProjectControllerTests extends BaseTest {
     @Order(19)
     public void enableSuccess() throws Exception {
         String id = "projectId";
-        this.responseGet(enableProject + id,status().isOk());
+        this.responseGet(enableProject + id, status().isOk());
         Project currentProject = projectMapper.selectByPrimaryKey(id);
         Assertions.assertEquals(currentProject.getEnable(), true);
         checkLog(id, OperationLogType.UPDATE);
@@ -1091,10 +1096,13 @@ public class SystemProjectControllerTests extends BaseTest {
     @Test
     @Order(22)
     public void testGetOptions() throws Exception {
-        this.requestGetWithOkAndReturn(getPoolOptions);
-        this.requestGetWithOkAndReturn(getPoolOptions + "?organizationId=" + DEFAULT_ORGANIZATION_ID);
+        ProjectPoolRequest projectPoolRequest = new ProjectPoolRequest();
+        projectPoolRequest.setModulesIds(List.of("apiTest", "uiTest", "loadTest"));
+        this.responsePost(getPoolOptions, projectPoolRequest);
+        projectPoolRequest.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+        this.responsePost(getPoolOptions, projectPoolRequest);
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, getPoolOptions + "?organizationId=" + DEFAULT_ORGANIZATION_ID);
+        requestPostPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ, getPoolOptions, projectPoolRequest);
     }
 
     @Test

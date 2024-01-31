@@ -18,6 +18,7 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.*;
 import io.metersphere.system.dto.request.ProjectAddMemberBatchRequest;
+import io.metersphere.system.dto.request.ProjectPoolRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.invoker.ProjectServiceInvoker;
@@ -74,6 +75,9 @@ public class CommonProjectService {
     @Resource
     private TestResourcePoolService testResourcePoolService;
     public static final Integer DEFAULT_REMAIN_DAY_COUNT = 30;
+    public static final String API_TEST = "apiTest";
+    public static final String UI_TEST = "uiTest";
+    public static final String LOAD_TEST = "loadTest";
 
     @Autowired
     public CommonProjectService(ProjectServiceInvoker serviceInvoker) {
@@ -612,12 +616,13 @@ public class CommonProjectService {
         projectMapper.updateByPrimaryKeySelective(project);
     }
 
-    public List<OptionDTO> getTestResourcePoolOptions(String organizationId) {
+    public List<OptionDTO> getTestResourcePoolOptions(ProjectPoolRequest request) {
+        List<OptionDTO> optionDTOS = new ArrayList<>();
         //获取制定组织的资源池  和全部组织的资源池
         List<TestResourcePool> testResourcePools = new ArrayList<>();
-        if (StringUtils.isNotBlank(organizationId)) {
+        if (StringUtils.isNotBlank(request.getOrganizationId())) {
             TestResourcePoolOrganizationExample example = new TestResourcePoolOrganizationExample();
-            example.createCriteria().andOrgIdEqualTo(organizationId);
+            example.createCriteria().andOrgIdEqualTo(request.getOrganizationId());
             List<TestResourcePoolOrganization> orgPools = testResourcePoolOrganizationMapper.selectByExample(example);
             if (CollectionUtils.isNotEmpty(orgPools)) {
                 List<String> poolIds = orgPools.stream().map(TestResourcePoolOrganization::getTestResourcePoolId).toList();
@@ -632,9 +637,19 @@ public class CommonProjectService {
         testResourcePools.addAll(testResourcePoolMapper.selectByExample(poolExample));
 
         testResourcePools = testResourcePools.stream().filter(Objects::nonNull).distinct().collect(Collectors.toList());
-        return testResourcePools.stream().map(testResourcePool ->
-                new OptionDTO(testResourcePool.getId(), testResourcePool.getName())
-        ).toList();
+        //这里需要获取项目开启的模块   判断资源池开启的使用范围的模块是否在项目开启的模块中
+        List<String> moduleIds = request.getModulesIds();
+        testResourcePools.forEach(pool -> {
+            if ((moduleIds.contains(API_TEST) && pool.getApiTest()) ||
+                    (moduleIds.contains(LOAD_TEST) && pool.getLoadTest()) ||
+                    (moduleIds.contains(UI_TEST) && pool.getUiTest())) {
+                OptionDTO optionDTO = new OptionDTO();
+                optionDTO.setId(pool.getId());
+                optionDTO.setName(pool.getName());
+                optionDTOS.add(optionDTO);
+            }
+        });
+        return optionDTOS;
     }
 
     public void rename(UpdateProjectNameRequest request, String userId) {
@@ -653,6 +668,7 @@ public class CommonProjectService {
 
     /**
      * 校验该项目是否有权限使用该资源池
+     *
      * @param resourcePool
      * @return
      */
@@ -683,6 +699,7 @@ public class CommonProjectService {
 
     /**
      * 剩余天数
+     *
      * @param deleteTime 删除时间
      * @return 剩余天数
      */
