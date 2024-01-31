@@ -656,7 +656,7 @@ public class FileMetadataService {
 
             FileMetadataRepository fileRepository = fileIdMap.get(item.getId());
             if (fileRepository == null) {
-                fileVersionResponse.setUpdateHistory(Translator.get("file.log.re-upload"));
+                fileVersionResponse.setUpdateHistory(Translator.get("file.log.upload_file"));
             } else {
                 fileVersionResponse.setUpdateHistory(fileRepository.getCommitMessage());
             }

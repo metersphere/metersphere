@@ -1,9 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.project.mapper.ExtFileMetadataMapper">
+
+    <resultMap id="BaseResultMap" type="io.metersphere.project.domain.FileMetadata">
+        <id column="id" jdbcType="VARCHAR" property="id"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="type" jdbcType="VARCHAR" property="type"/>
+        <result column="size" jdbcType="BIGINT" property="size"/>
+        <result column="create_time" jdbcType="BIGINT" property="createTime"/>
+        <result column="update_time" jdbcType="BIGINT" property="updateTime"/>
+        <result column="project_id" jdbcType="VARCHAR" property="projectId"/>
+        <result column="storage" jdbcType="VARCHAR" property="storage"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="tags" jdbcType="VARCHAR" property="tags" typeHandler="io.metersphere.handler.ListTypeHandler"/>
+        <result column="description" jdbcType="VARCHAR" property="description"/>
+        <result column="module_id" jdbcType="VARCHAR" property="moduleId"/>
+        <result column="path" jdbcType="VARCHAR" property="path"/>
+        <result column="latest" jdbcType="BIT" property="latest"/>
+        <result column="enable" jdbcType="BIT" property="enable"/>
+        <result column="ref_id" jdbcType="VARCHAR" property="refId"/>
+        <result column="file_version" jdbcType="VARCHAR" property="fileVersion"/>
+    </resultMap>
+
     <select id="selectByKeywordAndFileType"
             parameterType="io.metersphere.project.dto.filemanagement.FileManagementQuery"
-            resultType="io.metersphere.project.domain.FileMetadata">
+            resultMap="BaseResultMap">
         SELECT
         f.id,
         updateUser.name as updateUser,
@@ -142,13 +164,13 @@
         WHERE f.project_id = #{projectId}
           AND f.storage = #{storage}
     </select>
-    <select id="getById" resultType="io.metersphere.project.domain.FileMetadata">
+    <select id="getById" resultMap="BaseResultMap">
         SELECT f.id,
                f.module_id,
                f.create_time,
                f.update_time,
-               updateUser.name as updateUser,
-               createUser.name AS createUser,
+               updateUser.name as update_user,
+               createUser.name AS create_user,
                f.name,
                f.type,
                f.tags,
