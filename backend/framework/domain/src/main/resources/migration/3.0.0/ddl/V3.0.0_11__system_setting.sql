@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS auth_source
 (
     `id`            VARCHAR(50) NOT NULL COMMENT '认证源ID',
     `configuration` BLOB        NOT NULL COMMENT '认证源配置',
-    `enable`        BIT         NOT NULL DEFAULT 1 COMMENT '是否启用',
+    `enable`        BIT         NOT NULL DEFAULT 0 COMMENT '是否启用',
     `create_time`   BIGINT      NOT NULL COMMENT '创建时间',
     `update_time`   BIGINT      NOT NULL COMMENT '更新时间',
     `description`   VARCHAR(500) COMMENT '描述',
