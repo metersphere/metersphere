@@ -28,7 +28,6 @@ public class OperationLogModule {
     public static final String PROJECT_PROJECT_MANAGER = "PROJECT_PROJECT_MANAGER";
     public static final String PROJECT_FILE_MANAGEMENT = "PROJECT_MANAGEMENT_FILE_MANAGEMENT";
     public static final String PROJECT_TEMPLATE_MANAGEMENT = "PROJECT_TEMPLATE_MANAGEMENT";
-    public static final String PROJECT_PROJECT_MEMBER = "PROJECT_PROJECT_MEMBER";
     public static final String PERSONAL_INFORMATION_PERSONAL_SETTINGS = "PERSONAL_INFORMATION_PERSONAL_SETTINGS";
     public static final String PERSONAL_INFORMATION_APIKEYS = "PERSONAL_INFORMATION_APIKEYS";
     public static final String PERSONAL_INFORMATION_LOCAL_CONFIG = "PERSONAL_INFORMATION_LOCAL_CONFIG";
@@ -75,7 +74,7 @@ public class OperationLogModule {
     // 项目管理-项目与权限-成员
     public static final String PROJECT_MANAGEMENT_PERMISSION_MEMBER = "PROJECT_MANAGEMENT_PERMISSION_MEMBER";
     // 项目管理-项目与权限-用户组
-    public static final String PROJECT_MANAGEMENT_PERMISSION_USER_ROLE = "PROJECT_USER_GROUP";
+    public static final String PROJECT_MANAGEMENT_PERMISSION_USER_ROLE = "PROJECT_MANAGEMENT_PERMISSION_USER_GROUP";
     // 项目管理-环境
     public static final String PROJECT_MANAGEMENT_ENVIRONMENT = "PROJECT_MANAGEMENT_ENVIRONMENT";
     // 项目管理-环境组

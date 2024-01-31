@@ -4,10 +4,6 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.*;
-import io.metersphere.system.dto.request.*;
-import io.metersphere.system.log.dto.LogDTO;
-import io.metersphere.system.dto.sdk.OptionDTO;
-import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
@@ -15,8 +11,12 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.*;
+import io.metersphere.system.dto.request.*;
+import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.*;
 import io.metersphere.system.uid.IDGenerator;
@@ -442,7 +442,7 @@ public class OrganizationService {
                             memberId,
                             userId,
                             OperationLogType.ADD.name(),
-                            OperationLogModule.PROJECT_PROJECT_MEMBER,
+                            OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_MEMBER,
                             "");
                     setLog(dto, "/organization/project/add-member", logDTOList, userRoleRelation);
                 }
