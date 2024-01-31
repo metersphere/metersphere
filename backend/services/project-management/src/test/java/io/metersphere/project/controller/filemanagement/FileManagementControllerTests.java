@@ -175,10 +175,11 @@ public class FileManagementControllerTests extends BaseTest {
         //测试a1无法获取存储库详情
         this.requestGet(String.format(FileManagementRequestUtils.URL_FILE_REPOSITORY_INFO, a1Node.getId())).andExpect(status().is5xxServerError());
 
-        //根目录下创建节点a2和a3，在a1下创建子节点a1-b1
+        //根目录下创建节点a2和a3，在a1下创建子节点a1-b1   parentId设置为小写
         request = new FileModuleCreateRequest();
         request.setProjectId(project.getId());
         request.setName("a2");
+        request.setParentId("none");
         this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_MODULE_ADD, request);
 
         request.setName("a3");
@@ -1123,6 +1124,30 @@ public class FileManagementControllerTests extends BaseTest {
         LOG_CHECK_LIST.add(
                 new CheckLogModel(updateRequest.getId(), OperationLogType.UPDATE, FileManagementRequestUtils.URL_FILE_UPDATE)
         );
+        //检查表格里查询到的有没有tag
+        FileUpdateRequest finalUpdateRequest = updateRequest;
+        FileMetadataTableRequest request = new FileMetadataTableRequest() {{
+            this.setCurrent(1);
+            this.setPageSize(10);
+            this.setProjectId(project.getId());
+            this.setKeyword(finalUpdateRequest.getName());
+        }};
+        MvcResult pageResult = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_PAGE, request);
+        String returnData = pageResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        Pager<List<FileInformationResponse>> result = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), Pager.class);
+        List<FileInformationResponse> fileList = JSON.parseArray(JSON.toJSONString(result.getList()), FileInformationResponse.class);
+        for (FileInformationResponse response : fileList) {
+            if (StringUtils.equals(response.getId(), updateRequest.getId())) {
+                Assertions.assertTrue(response.getTags().contains("tag1"));
+            }
+        }
+        //检查get接口能不能获取到
+        MvcResult fileTypeResult = this.requestGetWithOkAndReturn(String.format(FileManagementRequestUtils.URL_FILE, updateRequest.getId()));
+        returnData = fileTypeResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+        resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+        FileInformationResponse dto = JSON.parseObject(JSON.toJSONString(resultHolder.getData()), FileInformationResponse.class);
+        Assertions.assertTrue(dto.getTags().contains("tag1"));
 
         //只改描述
         oldFileMetadata = fileMetadataMapper.selectByPrimaryKey(updateFileId);
