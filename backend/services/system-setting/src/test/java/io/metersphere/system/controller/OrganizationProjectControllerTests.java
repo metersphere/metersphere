@@ -73,7 +73,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
     private final static String enableProject = prefix + "/enable/";
     private final static String getAdminList = prefix + "/user-admin-list/";
     private final static String getMemberList = prefix + "/user-member-list/";
-    private final static String getPoolOptions = prefix + "/pool-options/";
+    private final static String getPoolOptions = prefix + "/pool-options";
     private final static String updateName = prefix + "/rename";
     private static final ResultMatcher BAD_REQUEST_MATCHER = status().isBadRequest();
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
