@@ -71,6 +71,7 @@ public class ProjectMemberService {
         UserRoleRelationExample relationExample = new UserRoleRelationExample();
         relationExample.createCriteria().andSourceIdEqualTo(request.getProjectId()).andUserIdIn(members);
         List<UserRoleRelation> userRoleRelates = userRoleRelationMapper.selectByExample(relationExample);
+        userRoleRelates.sort(Comparator.comparing(UserRoleRelation::getCreateTime).reversed());
         Map<String, List<String>> userRoleRelateMap = userRoleRelates.stream().collect(Collectors.groupingBy(UserRoleRelation::getUserId,
                 Collectors.mapping(UserRoleRelation::getRoleId, Collectors.toList())));
         // 查询所有项目类型用户组
@@ -100,7 +101,6 @@ public class ProjectMemberService {
             User user = userMap.get(projectUser.getId());
             BeanUtils.copyBean(projectUser, user);
         });
-        projectUsers.sort(Comparator.comparing(ProjectUserDTO::getName));
         return projectUsers;
     }
 

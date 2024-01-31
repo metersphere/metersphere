@@ -121,8 +121,7 @@ public class OrganizationProjectController {
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_READ)
     @Operation(summary = "系统设置-组织-项目-成员列表")
     public Pager<List<UserExtendDTO>> getProjectMember(@Validated @RequestBody ProjectMemberRequest request) {
-        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
         return PageUtils.setPageInfo(page, organizationProjectService.getProjectMember(request));
     }
 
