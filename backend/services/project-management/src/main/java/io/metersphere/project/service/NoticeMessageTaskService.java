@@ -381,7 +381,11 @@ public class NoticeMessageTaskService {
                 Map<String, List<MessageTask>> messageEventMap = messageTaskTypeList.stream().collect(Collectors.groupingBy(MessageTask::getEvent));
                 messageTaskTypeDTO.setTaskTypeName(taskTypeMap.get(messageTaskTypeDTO.getTaskType()));
                 for (MessageTaskDetailDTO messageTaskDetailDTO : messageTaskTypeDTO.getMessageTaskDetailDTOList()) {
-                    messageTaskDetailDTO.setEventName(eventMap.get(messageTaskDetailDTO.getEvent()));
+                    if (StringUtils.equalsIgnoreCase(messageTaskTypeDTO.getTaskType(),NoticeConstants.TaskType.API_DEFINITION_TASK)) {
+                        messageTaskDetailDTO.setEventName("API"+StringUtils.SPACE+eventMap.get(messageTaskDetailDTO.getEvent()));
+                    } else {
+                        messageTaskDetailDTO.setEventName(eventMap.get(messageTaskDetailDTO.getEvent()));
+                    }
                     List<MessageTask> messageTaskList = messageEventMap.get(messageTaskDetailDTO.getEvent());
                     List<OptionDTO> receivers = new ArrayList<>();
                     Map<String, ProjectRobotConfigDTO> projectRobotConfigMap = new HashMap<>();
