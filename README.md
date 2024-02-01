@@ -74,7 +74,7 @@ MeterSphere 按年发布 LTS（Long Term Support）版本。
 
 -   后端: [Spring Boot](https://www.tutorialspoint.com/spring_boot/spring_boot_introduction.htm)
 -   前端: [Vue.js](https://vuejs.org/)
--   中间件: [MySQL](https://www.mysql.com/), [Kafka](https://kafka.apache.org/), [MinIO](https://min.io/)
+-   中间件: [MySQL](https://www.mysql.com/), [Kafka](https://kafka.apache.org/), [MinIO](https://min.io/), [Redis](https://redis.com/)
 -   基础设施: [Docker](https://www.docker.com/), [Kubernetes](https://kubernetes.io/)
 -   测试引擎: [JMeter](https://jmeter.apache.org/)
 
