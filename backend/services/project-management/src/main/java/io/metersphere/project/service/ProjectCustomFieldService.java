@@ -55,6 +55,7 @@ public class ProjectCustomFieldService extends BaseCustomFieldService {
             customField.setName(null);
         }
         customField.setScopeId(originCustomField.getScopeId());
+        customField.setScene(originCustomField.getScene());
         Project project = projectService.checkResourceExist(originCustomField.getScopeId());
         checkProjectTemplateEnable(project.getOrganizationId(), originCustomField.getScene());
         return super.update(customField, options);

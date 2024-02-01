@@ -58,7 +58,7 @@ public abstract class AbstractCustomFieldResolver {
     }
 
     protected void validateString(String name, Object v) {
-        if (!(v instanceof String)) {
+        if (v != null && !(v instanceof String)) {
             throwValidateException(name);
         }
     }

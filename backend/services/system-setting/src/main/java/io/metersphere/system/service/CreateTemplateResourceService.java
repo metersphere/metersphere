@@ -117,7 +117,6 @@ public class CreateTemplateResourceService implements CreateProjectResourceServi
                     .map(templateCustomField -> {
                         TemplateCustomFieldRequest templateCustomFieldRequest = BeanUtils.copyBean(new TemplateCustomFieldRequest(), templateCustomField);
                         CustomField customField = customFieldMap.get(templateCustomField.getFieldId());
-                        templateCustomFieldRequest.setDefaultValue(null);
                         try {
                             if (StringUtils.isNotBlank(templateCustomField.getDefaultValue())) {
                                 // 将字符串转成对应的对象，方便调用统一的创建方法
@@ -126,6 +125,7 @@ public class CreateTemplateResourceService implements CreateProjectResourceServi
                             }
                         } catch (Exception e) {
                             LogUtils.error(e);
+                            templateCustomFieldRequest.setDefaultValue(null);
                         }
                         return templateCustomFieldRequest;
                     })
