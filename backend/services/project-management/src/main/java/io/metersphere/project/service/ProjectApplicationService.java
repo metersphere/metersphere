@@ -19,7 +19,6 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.domain.ServiceIntegration;
-import io.metersphere.system.domain.ServiceIntegrationExample;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
@@ -442,19 +441,29 @@ public class ProjectApplicationService {
      * @param pluginId
      * @param configs
      */
-    public void validateProjectConfig(String pluginId, Map configs) {
-        Platform platform = this.getPlatform(pluginId);
+    public void validateProjectConfig(String pluginId, Map configs, String organizationId) {
+        Platform platform = this.getPlatform(pluginId, organizationId);
         platform.validateProjectConfig(JSON.toJSONString(configs));
     }
 
-    private Platform getPlatform(String pluginId) {
-        ServiceIntegrationExample example = new ServiceIntegrationExample();
-        example.createCriteria().andPluginIdEqualTo(pluginId);
-        List<ServiceIntegration> serviceIntegrations = serviceIntegrationMapper.selectByExampleWithBLOBs(example);
-        if (CollectionUtils.isEmpty(serviceIntegrations)) {
+    private Platform getPlatform(String pluginId, String organizationId) {
+        Set<String> orgPluginIds = platformPluginService.getOrgEnabledPlatformPlugins(organizationId)
+                .stream()
+                .map(Plugin::getId)
+                .collect(Collectors.toSet());
+        // 查询服务集成中启用并且支持第三方模板的插件
+        ServiceIntegration integration = serviceIntegrationService.getServiceIntegrationByOrgId(organizationId)
+                .stream()
+                .filter(serviceIntegration -> {
+                    return serviceIntegration.getEnable()    // 服务集成开启
+                            && orgPluginIds.contains(pluginId);
+                })
+                .findFirst()
+                .orElse(null);
+        if (integration == null) {
             throw new MSException(NOT_FOUND);
         }
-        return platformPluginService.getPlatform(pluginId, serviceIntegrations.get(0).getOrganizationId(), new String(serviceIntegrations.get(0).getConfiguration()));
+        return platformPluginService.getPlatform(pluginId, integration.getOrganizationId(), new String(integration.getConfiguration()));
     }
 
     public int getFakeErrorList(String projectId) {
