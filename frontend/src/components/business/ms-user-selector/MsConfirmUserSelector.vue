@@ -12,7 +12,14 @@
   <div v-else>
     <div class="flex flex-row items-center">
       <MsUserSelector v-bind="$attrs" v-model="memberList" class="w-[262px]" />
-      <a-button type="outline" :loading="props.okLoading" class="ml-[12px]" size="mini" @click="handleConfirm">
+      <a-button
+        type="outline"
+        :disabled="!memberList.length"
+        :loading="props.okLoading"
+        class="ml-[12px]"
+        size="mini"
+        @click="handleConfirm"
+      >
         {{ t('common.confirm') }}
       </a-button>
       <div

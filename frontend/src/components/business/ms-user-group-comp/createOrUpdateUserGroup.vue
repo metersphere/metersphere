@@ -107,6 +107,9 @@
           callback(t('system.userGroup.userGroupNameIsExist', { name: value }));
         }
       }
+      if (value.length === 255) {
+        callback(t('common.nameIsTooLang'));
+      }
       callback();
     }
   };
