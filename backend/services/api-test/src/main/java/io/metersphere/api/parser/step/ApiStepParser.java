@@ -2,7 +2,7 @@ package io.metersphere.api.parser.step;
 
 import io.metersphere.api.domain.ApiDefinitionBlob;
 import io.metersphere.api.domain.ApiScenarioStep;
-import io.metersphere.api.dto.request.http.KeyValueParam;
+import io.metersphere.project.api.KeyValueParam;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.api.dto.scenario.ApiScenarioStepCommonDTO;

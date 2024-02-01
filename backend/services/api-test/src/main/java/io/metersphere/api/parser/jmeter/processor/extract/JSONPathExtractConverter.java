@@ -1,6 +1,6 @@
 package io.metersphere.api.parser.jmeter.processor.extract;
 
-import io.metersphere.api.dto.request.processors.extract.JSONPathExtract;
+import io.metersphere.project.api.processor.extract.JSONPathExtract;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import org.apache.jmeter.extractor.json.jsonpath.JSONPostProcessor;
 import org.apache.jmeter.save.SaveService;

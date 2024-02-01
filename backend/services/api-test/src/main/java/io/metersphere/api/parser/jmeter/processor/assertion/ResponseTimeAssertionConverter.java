@@ -1,6 +1,6 @@
 package io.metersphere.api.parser.jmeter.processor.assertion;
 
-import io.metersphere.api.dto.request.assertion.MsResponseTimeAssertion;
+import io.metersphere.project.api.assertion.MsResponseTimeAssertion;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import org.apache.jmeter.assertions.DurationAssertion;
 import org.apache.jmeter.save.SaveService;

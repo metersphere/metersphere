@@ -1,6 +1,6 @@
 package io.metersphere.api.parser.jmeter.processor;
 
-import io.metersphere.api.dto.request.processors.TimeWaitingProcessor;
+import io.metersphere.project.api.processor.TimeWaitingProcessor;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;

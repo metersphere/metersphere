@@ -1,7 +1,7 @@
 package io.metersphere.api.parser.jmeter.processor;
 
-import io.metersphere.api.dto.request.processors.SQLProcessor;
-import io.metersphere.api.dto.request.processors.ScriptProcessor;
+import io.metersphere.project.api.processor.SQLProcessor;
+import io.metersphere.project.api.processor.ScriptProcessor;
 import org.apache.jmeter.testelement.TestElement;
 
 

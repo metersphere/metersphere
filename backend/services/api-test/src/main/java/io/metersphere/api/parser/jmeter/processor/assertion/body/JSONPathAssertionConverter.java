@@ -1,7 +1,7 @@
 package io.metersphere.api.parser.jmeter.processor.assertion.body;
 
-import io.metersphere.api.dto.request.assertion.body.MsJSONPathAssertion;
-import io.metersphere.api.dto.request.assertion.body.MsJSONPathAssertionItem;
+import io.metersphere.project.api.assertion.body.MsJSONPathAssertion;
+import io.metersphere.project.api.assertion.body.MsJSONPathAssertionItem;
 import io.metersphere.assertions.JSONPathAssertion;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import org.apache.commons.lang3.BooleanUtils;

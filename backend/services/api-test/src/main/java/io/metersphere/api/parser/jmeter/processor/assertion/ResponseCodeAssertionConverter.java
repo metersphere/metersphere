@@ -1,8 +1,7 @@
 package io.metersphere.api.parser.jmeter.processor.assertion;
 
-import io.metersphere.api.dto.request.assertion.MsResponseCodeAssertion;
+import io.metersphere.project.api.assertion.MsResponseCodeAssertion;
 import io.metersphere.plugin.api.dto.ParameterConfig;
-import io.metersphere.sdk.constants.MsAssertionCondition;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.ResponseAssertion;
 import org.apache.jorphan.collections.HashTree;

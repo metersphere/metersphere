@@ -1,8 +1,8 @@
 package io.metersphere.api.parser.jmeter.processor.extract;
 
-import io.metersphere.api.dto.request.processors.extract.JSONPathExtract;
-import io.metersphere.api.dto.request.processors.extract.RegexExtract;
-import io.metersphere.api.dto.request.processors.extract.XPathExtract;
+import io.metersphere.project.api.processor.extract.JSONPathExtract;
+import io.metersphere.project.api.processor.extract.RegexExtract;
+import io.metersphere.project.api.processor.extract.XPathExtract;
 
 import java.util.HashMap;
 import java.util.Map;

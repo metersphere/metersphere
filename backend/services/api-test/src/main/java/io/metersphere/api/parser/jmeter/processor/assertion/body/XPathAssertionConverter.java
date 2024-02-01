@@ -1,8 +1,8 @@
 package io.metersphere.api.parser.jmeter.processor.assertion.body;
 
-import io.metersphere.api.dto.request.assertion.body.MsXPathAssertion;
-import io.metersphere.api.dto.request.assertion.body.MsXPathAssertionItem;
-import io.metersphere.api.dto.request.processors.extract.XPathExtract;
+import io.metersphere.project.api.assertion.body.MsXPathAssertion;
+import io.metersphere.project.api.assertion.body.MsXPathAssertionItem;
+import io.metersphere.project.api.processor.extract.XPathExtract;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;

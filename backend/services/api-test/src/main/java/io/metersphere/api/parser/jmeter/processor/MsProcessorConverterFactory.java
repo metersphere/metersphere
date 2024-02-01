@@ -1,9 +1,9 @@
 package io.metersphere.api.parser.jmeter.processor;
 
-import io.metersphere.api.dto.request.processors.ExtractPostProcessor;
-import io.metersphere.api.dto.request.processors.SQLProcessor;
-import io.metersphere.api.dto.request.processors.ScriptProcessor;
-import io.metersphere.api.dto.request.processors.TimeWaitingProcessor;
+import io.metersphere.project.api.processor.ExtractPostProcessor;
+import io.metersphere.project.api.processor.SQLProcessor;
+import io.metersphere.project.api.processor.ScriptProcessor;
+import io.metersphere.project.api.processor.TimeWaitingProcessor;
 
 import java.util.HashMap;
 import java.util.Map;

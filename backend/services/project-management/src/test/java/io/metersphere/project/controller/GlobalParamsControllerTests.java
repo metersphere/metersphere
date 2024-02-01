@@ -4,7 +4,7 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.dto.environment.GlobalParams;
 import io.metersphere.project.dto.environment.GlobalParamsDTO;
 import io.metersphere.project.dto.environment.GlobalParamsRequest;
-import io.metersphere.project.dto.environment.KeyValueEnableParam;
+import io.metersphere.project.api.KeyValueEnableParam;
 import io.metersphere.project.dto.environment.variables.CommonVariables;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.PermissionConstants;

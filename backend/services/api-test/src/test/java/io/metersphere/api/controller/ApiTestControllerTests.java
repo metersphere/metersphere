@@ -5,7 +5,7 @@ import io.metersphere.api.service.BaseResourcePoolTestService;
 import io.metersphere.plugin.api.dto.ApiPluginSelectOption;
 import io.metersphere.project.constants.ScriptLanguageType;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionRunRequest;
-import io.metersphere.project.dto.environment.KeyValueParam;
+import io.metersphere.project.api.KeyValueParam;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.base.BasePluginTestService;
 import io.metersphere.system.base.BaseTest;

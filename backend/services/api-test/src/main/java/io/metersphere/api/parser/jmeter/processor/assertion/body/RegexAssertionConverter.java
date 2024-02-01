@@ -1,7 +1,7 @@
 package io.metersphere.api.parser.jmeter.processor.assertion.body;
 
-import io.metersphere.api.dto.request.assertion.body.MsRegexAssertion;
-import io.metersphere.api.dto.request.assertion.body.MsRegexAssertionItem;
+import io.metersphere.project.api.assertion.body.MsRegexAssertion;
+import io.metersphere.project.api.assertion.body.MsRegexAssertionItem;
 import io.metersphere.api.parser.jmeter.processor.assertion.AssertionConverter;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import org.apache.commons.lang3.BooleanUtils;

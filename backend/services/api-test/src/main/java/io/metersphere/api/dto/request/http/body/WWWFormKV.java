@@ -1,6 +1,6 @@
 package io.metersphere.api.dto.request.http.body;
 
-import io.metersphere.api.dto.request.http.KeyValueEnableParam;
+import io.metersphere.project.api.KeyValueEnableParam;
 import io.metersphere.system.valid.EnumValue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

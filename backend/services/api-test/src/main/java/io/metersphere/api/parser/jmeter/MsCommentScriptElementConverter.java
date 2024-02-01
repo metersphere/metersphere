@@ -1,11 +1,11 @@
 package io.metersphere.api.parser.jmeter;
 
 import io.metersphere.api.dto.request.controller.MsCommentScriptElement;
-import io.metersphere.api.dto.request.processors.ScriptProcessor;
+import io.metersphere.project.api.KeyValueParam;
+import io.metersphere.project.api.processor.ScriptProcessor;
 import io.metersphere.api.parser.jmeter.processor.ScriptProcessorConverter;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractJmeterElementConverter;
-import io.metersphere.project.dto.environment.KeyValueParam;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.jmeter.modifiers.UserParameters;
 import org.apache.jmeter.protocol.java.sampler.BeanShellSampler;

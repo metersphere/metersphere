@@ -1,8 +1,7 @@
 package io.metersphere.api.dto.request.controller;
 
-import io.metersphere.api.dto.request.processors.ScriptProcessor;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
-import io.metersphere.project.dto.environment.KeyValueParam;
+import io.metersphere.project.api.KeyValueParam;
 import lombok.Data;
 
 import java.util.List;

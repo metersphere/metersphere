@@ -6,7 +6,7 @@ import io.metersphere.api.domain.ApiDebugBlob;
 import io.metersphere.api.domain.ApiFileResource;
 import io.metersphere.api.dto.debug.*;
 import io.metersphere.api.dto.request.MsCommonElement;
-import io.metersphere.api.dto.request.assertion.MsAssertionConfig;
+import io.metersphere.api.dto.assertion.MsAssertionConfig;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.api.mapper.ApiDebugBlobMapper;

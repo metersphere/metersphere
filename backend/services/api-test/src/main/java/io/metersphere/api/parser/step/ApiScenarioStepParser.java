@@ -19,6 +19,7 @@ public class ApiScenarioStepParser extends StepParser {
     @Override
     public AbstractMsTestElement parseTestElement(ApiScenarioStepCommonDTO step, String resourceBlob, String stepDetail) {
         MsScenario msScenario = new MsScenario();
+        msScenario.setRefType(step.getRefType());
         if (isRef(step.getRefType())) {
             if (StringUtils.isNotBlank(resourceBlob)) {
                 msScenario.setScenarioConfig(JSON.parseObject(resourceBlob, ScenarioConfig.class));

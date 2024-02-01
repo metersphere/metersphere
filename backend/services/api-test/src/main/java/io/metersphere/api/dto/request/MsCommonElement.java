@@ -1,6 +1,6 @@
 package io.metersphere.api.dto.request;
 
-import io.metersphere.api.dto.request.assertion.MsAssertionConfig;
+import io.metersphere.api.dto.assertion.MsAssertionConfig;
 import io.metersphere.api.dto.request.processors.MsProcessorConfig;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import jakarta.validation.Valid;

@@ -1,7 +1,7 @@
 package io.metersphere.api.parser.jmeter.processor;
 
 import io.metersphere.project.constants.ScriptLanguageType;
-import io.metersphere.api.dto.request.processors.ScriptProcessor;
+import io.metersphere.project.api.processor.ScriptProcessor;
 import io.metersphere.api.parser.jmeter.constants.JmeterAlias;
 import io.metersphere.api.parser.jmeter.constants.JmeterProperty;
 import org.apache.commons.lang3.StringUtils;

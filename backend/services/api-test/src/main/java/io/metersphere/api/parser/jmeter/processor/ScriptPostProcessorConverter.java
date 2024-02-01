@@ -1,6 +1,6 @@
 package io.metersphere.api.parser.jmeter.processor;
 
-import io.metersphere.api.dto.request.processors.ScriptProcessor;
+import io.metersphere.project.api.processor.ScriptProcessor;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import org.apache.jmeter.extractor.BeanShellPostProcessor;
 import org.apache.jmeter.extractor.JSR223PostProcessor;

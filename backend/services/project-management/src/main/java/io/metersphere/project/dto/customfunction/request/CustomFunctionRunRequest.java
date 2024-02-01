@@ -1,6 +1,6 @@
 package io.metersphere.project.dto.customfunction.request;
 
-import io.metersphere.project.dto.environment.KeyValueParam;
+import io.metersphere.project.api.KeyValueParam;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

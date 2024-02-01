@@ -1029,6 +1029,7 @@ public class ApiScenarioService {
 
         // 解析生成待执行的场景树
         MsScenario msScenario = new MsScenario();
+        msScenario.setRefType(ApiScenarioStepRefType.DIRECT.name());
         msScenario.setScenarioConfig(getScenarioConfig(request, hasSave));
 
         // 获取场景环境相关配置
