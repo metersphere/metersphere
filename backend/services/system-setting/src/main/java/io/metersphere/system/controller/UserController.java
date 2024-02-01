@@ -106,7 +106,7 @@ public class UserController {
     @Operation(summary = "系统设置-系统-用户-导入用户")
     @RequiresPermissions(PermissionConstants.SYSTEM_USER_IMPORT)
     public UserImportResponse importUser(@RequestPart(value = "file", required = false) MultipartFile excelFile) {
-        return userService.importByExcel(excelFile, UserSource.LOCAL.name(), SessionUtils.getSessionId());
+        return userService.importByExcel(excelFile, UserSource.LOCAL.name(), SessionUtils.getUserId());
     }
 
     @PostMapping("/delete")
