@@ -9,7 +9,7 @@
       }}</a-button>
       <a-input-search
         v-model="keyword"
-        :placeholder="t('system.user.searchUser')"
+        :placeholder="t('system.organization.searchIndexPlaceholder')"
         class="w-[240px]"
         allow-clear
         @press-enter="fetchData"
