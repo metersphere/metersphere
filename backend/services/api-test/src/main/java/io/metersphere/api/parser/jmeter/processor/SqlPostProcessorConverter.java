@@ -1,6 +1,6 @@
 package io.metersphere.api.parser.jmeter.processor;
 
-import io.metersphere.api.dto.request.processors.SQLProcessor;
+import io.metersphere.project.api.processor.SQLProcessor;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import org.apache.jorphan.collections.HashTree;
 

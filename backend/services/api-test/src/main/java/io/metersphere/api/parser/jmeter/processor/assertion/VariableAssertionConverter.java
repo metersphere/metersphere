@@ -1,8 +1,8 @@
 package io.metersphere.api.parser.jmeter.processor.assertion;
 
 import io.metersphere.project.constants.ScriptLanguageType;
-import io.metersphere.api.dto.request.assertion.MsVariableAssertion;
-import io.metersphere.api.dto.request.processors.ScriptProcessor;
+import io.metersphere.project.api.assertion.MsVariableAssertion;
+import io.metersphere.project.api.processor.ScriptProcessor;
 import io.metersphere.api.parser.jmeter.processor.ScriptProcessorConverter;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.sdk.constants.MsAssertionCondition;

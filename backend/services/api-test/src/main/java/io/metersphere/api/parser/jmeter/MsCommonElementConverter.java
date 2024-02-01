@@ -2,9 +2,9 @@ package io.metersphere.api.parser.jmeter;
 
 
 import io.metersphere.api.dto.request.MsCommonElement;
-import io.metersphere.api.dto.request.assertion.MsAssertion;
-import io.metersphere.api.dto.request.assertion.MsAssertionConfig;
-import io.metersphere.api.dto.request.assertion.MsResponseCodeAssertion;
+import io.metersphere.project.api.assertion.MsAssertion;
+import io.metersphere.api.dto.assertion.MsAssertionConfig;
+import io.metersphere.project.api.assertion.MsResponseCodeAssertion;
 import io.metersphere.api.dto.request.processors.MsProcessorConfig;
 import io.metersphere.api.parser.jmeter.processor.MsProcessorConverterFactory;
 import io.metersphere.api.parser.jmeter.processor.assertion.AssertionConverterFactory;

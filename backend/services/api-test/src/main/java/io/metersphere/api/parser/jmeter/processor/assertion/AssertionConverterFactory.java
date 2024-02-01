@@ -1,6 +1,6 @@
 package io.metersphere.api.parser.jmeter.processor.assertion;
 
-import io.metersphere.api.dto.request.assertion.*;
+import io.metersphere.project.api.assertion.*;
 
 import java.util.HashMap;
 import java.util.Map;

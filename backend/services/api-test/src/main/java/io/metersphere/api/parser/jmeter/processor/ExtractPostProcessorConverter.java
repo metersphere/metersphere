@@ -1,7 +1,7 @@
 package io.metersphere.api.parser.jmeter.processor;
 
-import io.metersphere.api.dto.request.processors.ExtractPostProcessor;
-import io.metersphere.api.dto.request.processors.extract.MsExtract;
+import io.metersphere.project.api.processor.ExtractPostProcessor;
+import io.metersphere.project.api.processor.extract.MsExtract;
 import io.metersphere.api.parser.jmeter.processor.extract.ExtractConverterFactory;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import org.apache.jorphan.collections.HashTree;

@@ -1,6 +1,6 @@
 package io.metersphere.api.parser.jmeter.processor.assertion.body;
 
-import io.metersphere.api.dto.request.assertion.body.MsDocumentAssertion;
+import io.metersphere.project.api.assertion.body.MsDocumentAssertion;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import org.apache.jorphan.collections.HashTree;
 

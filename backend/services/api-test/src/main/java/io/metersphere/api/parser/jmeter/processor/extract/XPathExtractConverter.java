@@ -1,6 +1,6 @@
 package io.metersphere.api.parser.jmeter.processor.extract;
 
-import io.metersphere.api.dto.request.processors.extract.XPathExtract;
+import io.metersphere.project.api.processor.extract.XPathExtract;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.extractor.XPath2Extractor;

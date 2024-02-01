@@ -1,9 +1,9 @@
 package io.metersphere.api.parser.jmeter.processor.assertion.body;
 
-import io.metersphere.api.dto.request.assertion.body.MsDocumentAssertion;
-import io.metersphere.api.dto.request.assertion.body.MsJSONPathAssertion;
-import io.metersphere.api.dto.request.assertion.body.MsRegexAssertion;
-import io.metersphere.api.dto.request.assertion.body.MsXPathAssertion;
+import io.metersphere.project.api.assertion.body.MsDocumentAssertion;
+import io.metersphere.project.api.assertion.body.MsJSONPathAssertion;
+import io.metersphere.project.api.assertion.body.MsRegexAssertion;
+import io.metersphere.project.api.assertion.body.MsXPathAssertion;
 
 import java.util.HashMap;
 import java.util.Map;

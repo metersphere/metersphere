@@ -1,6 +1,6 @@
 package io.metersphere.api.parser.jmeter.processor.assertion;
 
-import io.metersphere.api.dto.request.assertion.MsAssertion;
+import io.metersphere.project.api.assertion.MsAssertion;
 import io.metersphere.api.parser.jmeter.validator.EnumValidator;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.sdk.constants.MsAssertionCondition;

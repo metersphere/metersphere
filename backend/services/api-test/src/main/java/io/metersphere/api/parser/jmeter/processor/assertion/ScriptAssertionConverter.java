@@ -1,7 +1,7 @@
 package io.metersphere.api.parser.jmeter.processor.assertion;
 
-import io.metersphere.api.dto.request.assertion.MsScriptAssertion;
-import io.metersphere.api.dto.request.processors.ScriptProcessor;
+import io.metersphere.project.api.assertion.MsScriptAssertion;
+import io.metersphere.project.api.processor.ScriptProcessor;
 import io.metersphere.api.parser.jmeter.processor.ScriptProcessorConverter;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.sdk.util.BeanUtils;

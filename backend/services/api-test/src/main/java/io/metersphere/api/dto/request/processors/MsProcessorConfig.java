@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.request.processors;
 
+import io.metersphere.project.api.processor.MsProcessor;
 import jakarta.validation.Valid;
 import lombok.Data;
 

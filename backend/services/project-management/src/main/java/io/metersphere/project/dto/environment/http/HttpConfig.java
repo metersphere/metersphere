@@ -2,7 +2,7 @@ package io.metersphere.project.dto.environment.http;
 
 
 import io.metersphere.project.dto.environment.KeyValue;
-import io.metersphere.project.dto.environment.KeyValueEnableParam;
+import io.metersphere.project.api.KeyValueEnableParam;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 

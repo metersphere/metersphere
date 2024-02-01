@@ -14,26 +14,35 @@ import java.util.Map;
 public class MsScenario extends AbstractMsTestElement {
     /**
      * 场景配置
+     * 引用的场景才会设置
      */
     private ScenarioConfig scenarioConfig;
     /**
      * 场景步骤的配置
+     * 引用的场景才会设置
      */
     private ScenarioStepConfig scenarioStepConfig;
     /**
      * 环境 Map
      * key 为项目ID
      * value 为环境信息
+     * 引用的场景才会设置
      */
     private Map<String, EnvironmentInfoDTO> projectEnvMap;
     /**
      * 环境信息
+     * 引用的场景才会设置
      */
     private EnvironmentInfoDTO environmentInfo;
     /**
      * 是否为环境组
      * 是则使用 projectEnvMap
      * 否则使用 envInfo
+     * 引用的场景才会设置
      */
     private Boolean grouped;
+    /**
+     * {@link io.metersphere.api.constants.ApiScenarioStepRefType}
+     */
+    private String refType;
 }

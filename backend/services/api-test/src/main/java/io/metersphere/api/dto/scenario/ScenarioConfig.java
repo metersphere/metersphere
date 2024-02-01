@@ -1,6 +1,6 @@
 package io.metersphere.api.dto.scenario;
 
-import io.metersphere.api.dto.request.assertion.MsAssertionConfig;
+import io.metersphere.api.dto.assertion.MsAssertionConfig;
 import io.metersphere.api.dto.request.processors.MsProcessorConfig;
 import lombok.Data;
 

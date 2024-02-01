@@ -1,9 +1,12 @@
 package io.metersphere.project.controller;
 
 
+import io.metersphere.project.api.KeyValueEnableParam;
+import io.metersphere.project.api.assertion.*;
+import io.metersphere.project.api.assertion.body.*;
+import io.metersphere.project.api.processor.SQLProcessor;
+import io.metersphere.project.api.processor.ScriptProcessor;
 import io.metersphere.project.dto.environment.*;
-import io.metersphere.project.dto.environment.assertion.*;
-import io.metersphere.project.dto.environment.assertion.body.*;
 import io.metersphere.project.dto.environment.auth.AuthConfig;
 import io.metersphere.project.dto.environment.common.CommonParams;
 import io.metersphere.project.dto.environment.datasource.DataSource;
@@ -11,9 +14,6 @@ import io.metersphere.project.dto.environment.host.Host;
 import io.metersphere.project.dto.environment.host.HostConfig;
 import io.metersphere.project.dto.environment.http.HttpConfig;
 import io.metersphere.project.dto.environment.processors.*;
-import io.metersphere.project.dto.environment.processors.post.EnvironmentPostScript;
-import io.metersphere.project.dto.environment.processors.post.UiPostScript;
-import io.metersphere.project.dto.environment.processors.pre.EnvironmentPreScript;
 import io.metersphere.project.dto.environment.processors.pre.UiPreScript;
 import io.metersphere.project.dto.environment.ssl.KeyStoreConfig;
 import io.metersphere.project.dto.environment.ssl.KeyStoreEntry;
@@ -279,18 +279,10 @@ public class EnvironmentControllerTests extends BaseTest {
         return authConfig;
     }
 
-    private EnvironmentPreScript createEnvironmentPreScript() {
-        EnvironmentPreScript environmentPreScript = new EnvironmentPreScript();
-        environmentPreScript.setApiPreScript(createApiScript());
-        environmentPreScript.setUiPreScript(createUiPreScript());
+    private EnvProcessorConfig createEnvironmentProcessorConfig() {
+        EnvProcessorConfig environmentPreScript = new EnvProcessorConfig();
+        environmentPreScript.setApiProcessorConfig(createApiEnvProcessorConfig());
         return environmentPreScript;
-    }
-
-    private EnvironmentPostScript createEnvironmentPostScript() {
-        EnvironmentPostScript environmentPostScript = new EnvironmentPostScript();
-        environmentPostScript.setApiPostScript(createApiScript());
-        environmentPostScript.setUiPostScript(createUiPostScript());
-        return environmentPostScript;
     }
 
     private KeyStoreConfig createKeyStoreConfig() {
@@ -313,8 +305,8 @@ public class EnvironmentControllerTests extends BaseTest {
         return keyStoreConfig;
     }
 
-    private ApiScript createApiScript() {
-        ApiScript apiScript = new ApiScript();
+    private ApiEnvProcessorConfig createApiEnvProcessorConfig() {
+        ApiEnvProcessorConfig apiScript = new ApiEnvProcessorConfig();
         ScriptProcessor scriptProcessor = new ScriptProcessor();
         scriptProcessor.setScript("script");
         scriptProcessor.setName("测试计划级别脚本");
@@ -322,22 +314,28 @@ public class EnvironmentControllerTests extends BaseTest {
         sqlProcessor.setEnvironmentId("environmentId");
         sqlProcessor.setDataSourceId("dataSourceId");
         sqlProcessor.setQueryTimeout(1000L);
-        apiScript.setPlanProcessors(List.of(scriptProcessor, sqlProcessor));
-        ScenarioScript scenarioScript = new ScenarioScript();
+        ApiEnvPlanProcessorConfig apiEnvPlanProcessorConfig = new ApiEnvPlanProcessorConfig();
+        apiEnvPlanProcessorConfig.setProcessors(List.of(scriptProcessor, sqlProcessor));
+        apiScript.setPlanProcessorConfig(apiEnvPlanProcessorConfig);
+        ScenarioScriptProcessor scenarioScript = new ScenarioScriptProcessor();
         scenarioScript.setScript("script");
         scenarioScript.setName("场景级别脚本");
-        apiScript.setScenarioProcessors(List.of(scenarioScript, sqlProcessor));
-        StepScript stepScript = new StepScript();
+        ApiEnvScenarioProcessorConfig apiEnvScenarioProcessorConfig = new ApiEnvScenarioProcessorConfig();
+        apiEnvScenarioProcessorConfig.setProcessors(List.of(scenarioScript, sqlProcessor));
+        apiScript.setScenarioProcessorConfig(apiEnvScenarioProcessorConfig);
+        RequestScriptProcessor stepScript = new RequestScriptProcessor();
         stepScript.setScript("script");
         stepScript.setName("步骤级别前置脚本前");
-        stepScript.setScriptExecBefore(true);
-        stepScript.setFilterRequestScript(List.of("HTTP"));
-        StepScript stepScriptAfter = new StepScript();
+        stepScript.setBeforeStepScript(true);
+        stepScript.setIgnoreProtocols(List.of("HTTP"));
+        RequestScriptProcessor stepScriptAfter = new RequestScriptProcessor();
         stepScriptAfter.setScript("script");
         stepScriptAfter.setName("步骤级别前置脚本后");
-        stepScriptAfter.setScriptExecBefore(false);
-        stepScriptAfter.setFilterRequestScript(List.of("HTTP"));
-        apiScript.setStepProcessors(List.of(stepScript, sqlProcessor, stepScriptAfter));
+        stepScriptAfter.setBeforeStepScript(false);
+        stepScriptAfter.setIgnoreProtocols(List.of("HTTP"));
+        ApiEnvRequestProcessorConfig apiEnvRequestProcessorConfig = new ApiEnvRequestProcessorConfig();
+        apiEnvRequestProcessorConfig.setProcessors(List.of(stepScript, sqlProcessor, stepScriptAfter));
+        apiScript.setRequestProcessorConfig(apiEnvRequestProcessorConfig);
         return apiScript;
     }
 
@@ -348,16 +346,6 @@ public class EnvironmentControllerTests extends BaseTest {
         uiPreScript.setVariableName("variableName");
         uiPreScript.setValue(true);
         return uiPreScript;
-    }
-
-    private UiPostScript createUiPostScript() {
-        UiPostScript uiPostScript = new UiPostScript();
-        uiPostScript.setPostScriptExecBefore(true);
-        uiPostScript.setJsrType(true);
-        uiPostScript.setJsrSetVariable(true);
-        uiPostScript.setVariableName("variableName");
-        uiPostScript.setValue(true);
-        return uiPostScript;
     }
 
     public static List<MsAssertion> getGeneralAssertions() {
@@ -436,8 +424,8 @@ public class EnvironmentControllerTests extends BaseTest {
         return assertions;
     }
 
-    private MsAssertionConfig createAssertions() {
-        MsAssertionConfig assertions = new MsAssertionConfig();
+    private MsEnvAssertionConfig createAssertionConfig() {
+        MsEnvAssertionConfig assertions = new MsEnvAssertionConfig();
         assertions.setAssertions(getGeneralAssertions());
         return assertions;
     }
@@ -658,7 +646,7 @@ public class EnvironmentControllerTests extends BaseTest {
         checkLog(response.getId(), OperationLogType.ADD);
 
         //前置脚本
-        envConfig.setPreScript(createEnvironmentPreScript());
+        envConfig.setPreProcessorConfig(createEnvironmentProcessorConfig());
         request.setName("preScript");
         request.setConfig(envConfig);
         paramMap.clear();
@@ -677,14 +665,14 @@ public class EnvironmentControllerTests extends BaseTest {
         if (StringUtils.isNotBlank(config)) {
             EnvironmentConfig environmentConfig = JSON.parseObject(config, EnvironmentConfig.class);
             Assertions.assertNotNull(environmentConfig);
-            Assertions.assertNotNull(environmentConfig.getPreScript());
-            Assertions.assertEquals(envConfig.getPreScript(), environmentConfig.getPreScript());
+            Assertions.assertNotNull(environmentConfig.getPreProcessorConfig());
+            Assertions.assertEquals(envConfig.getPreProcessorConfig(), environmentConfig.getPreProcessorConfig());
         }
         //校验日志
         checkLog(response.getId(), OperationLogType.ADD);
 
-        //后置脚本
-        envConfig.setPostScript(createEnvironmentPostScript());
+        //后置脚本 todo
+        envConfig.setPostProcessorConfig(createEnvironmentProcessorConfig());
         request.setName("postScript");
         request.setConfig(envConfig);
         paramMap.clear();
@@ -704,14 +692,14 @@ public class EnvironmentControllerTests extends BaseTest {
         if (StringUtils.isNotBlank(config)) {
             EnvironmentConfig environmentConfig = JSON.parseObject(config, EnvironmentConfig.class);
             Assertions.assertNotNull(environmentConfig);
-            Assertions.assertNotNull(environmentConfig.getPostScript());
-            Assertions.assertEquals(envConfig.getPostScript(), environmentConfig.getPostScript());
+            Assertions.assertNotNull(environmentConfig.getPostProcessorConfig());
+            Assertions.assertEquals(envConfig.getPostProcessorConfig(), environmentConfig.getPostProcessorConfig());
         }
         //校验日志
         checkLog(response.getId(), OperationLogType.ADD);
 
         //断言
-        envConfig.setAssertions(createAssertions());
+        envConfig.setAssertionConfig(createAssertionConfig());
         request.setName("assertions");
         request.setConfig(envConfig);
         paramMap.clear();
@@ -730,8 +718,8 @@ public class EnvironmentControllerTests extends BaseTest {
         if (StringUtils.isNotBlank(config)) {
             EnvironmentConfig environmentConfig = JSON.parseObject(config, EnvironmentConfig.class);
             Assertions.assertNotNull(environmentConfig);
-            Assertions.assertNotNull(environmentConfig.getAssertions());
-            Assertions.assertEquals(envConfig.getAssertions(), environmentConfig.getAssertions());
+            Assertions.assertNotNull(environmentConfig.getAssertionConfig());
+            Assertions.assertEquals(envConfig.getAssertionConfig(), environmentConfig.getAssertionConfig());
         }
         //校验日志
         checkLog(response.getId(), OperationLogType.ADD);
