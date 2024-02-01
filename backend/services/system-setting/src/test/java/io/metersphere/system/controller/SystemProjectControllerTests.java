@@ -1097,8 +1097,8 @@ public class SystemProjectControllerTests extends BaseTest {
     @Order(22)
     public void testGetOptions() throws Exception {
         ProjectPoolRequest projectPoolRequest = new ProjectPoolRequest();
+        this.requestPost(getPoolOptions, projectPoolRequest, BAD_REQUEST_MATCHER);
         projectPoolRequest.setModulesIds(List.of("apiTest", "uiTest", "loadTest"));
-        this.responsePost(getPoolOptions, projectPoolRequest);
         projectPoolRequest.setOrganizationId(DEFAULT_ORGANIZATION_ID);
         this.responsePost(getPoolOptions, projectPoolRequest);
         // @@校验权限

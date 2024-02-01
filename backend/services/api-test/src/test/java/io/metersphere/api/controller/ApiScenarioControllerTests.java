@@ -878,6 +878,56 @@ public class ApiScenarioControllerTests extends BaseTest {
         requestPostPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_READ, DEFAULT_PAGE, pageRequest);
     }
 
+
+    @Test
+    @Order(11)
+    public void testGetAssociatedCase() throws Exception {
+        for (int i = 0; i < 2; i++) {
+            ApiScenario apiScenario = new ApiScenario();
+            apiScenario.setId("test-api-scenario-id" + i);
+            apiScenario.setProjectId(DEFAULT_PROJECT_ID);
+            apiScenario.setNum(NumGenerator.nextNum(DEFAULT_PROJECT_ID, ApplicationNumScope.API_SCENARIO));
+            apiScenario.setName(StringUtils.join("建国批量测试接口场景-", apiScenario.getId()));
+            apiScenario.setModuleId("test-associated");
+            apiScenario.setStatus("未规划");
+            apiScenario.setPos(1L);
+            apiScenario.setPriority("P0");
+            apiScenario.setLatest(true);
+            apiScenario.setVersionId("1.0");
+            apiScenario.setRefId(apiScenario.getId());
+            apiScenario.setCreateTime(System.currentTimeMillis());
+            apiScenario.setUpdateTime(System.currentTimeMillis());
+            apiScenario.setCreateUser("admin");
+            apiScenario.setUpdateUser("admin");
+            apiScenarioMapper.insertSelective(apiScenario);
+        }
+        for (int i = 0; i < 10; i++) {
+            ApiScenarioStep step1 = new ApiScenarioStep();
+            step1.setId(IDGenerator.nextStr());
+            step1.setScenarioId("test-api-scenario-id1");
+            step1.setName("test" + "_" + IDGenerator.nextStr());
+            step1.setSort(0L);
+            step1.setEnable(true);
+            step1.setResourceId("test-api-scenario-id0");
+            step1.setResourceNum("test-resource-num");
+            if (i % 2 == 0) {
+                step1.setRefType("COPY");
+            } else {
+                step1.setRefType("REF");
+            }
+            apiScenarioStepMapper.insertSelective(step1);
+        }
+        ApiScenarioAssociationPageRequest request = new ApiScenarioAssociationPageRequest();
+        request.setPageSize(10);
+        request.setCurrent(1);
+        this.requestPost("/association/page", request, status().is4xxClientError());
+        request.setId("test-api-scenario-id1");
+        this.requestPostAndReturn("/association/page", request);
+        request.setId("test-api-scenario-id0");
+        this.requestPostAndReturn("association/page", request);
+
+    }
+
     @Test
     @Order(12)
     public void follow() throws Exception {
@@ -1943,4 +1993,5 @@ public class ApiScenarioControllerTests extends BaseTest {
             BATCH_OPERATION_SCENARIO_ID.add(apiScenario.getId());
         }
     }
+
 }

@@ -23,8 +23,11 @@ import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.utils.ApiScenarioBatchOperationUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.FileMetadata;
+import io.metersphere.project.domain.Project;
+import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.service.*;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.domain.Environment;
@@ -141,6 +144,8 @@ public class ApiScenarioService {
     private EnvironmentGroupService environmentGroupService;
     @Resource
     private ApiPluginService apiPluginService;
+    @Resource
+    private ProjectMapper projectMapper;
 
     public static final String PRIORITY = "Priority";
     public static final String STATUS = "Status";
@@ -1186,6 +1191,7 @@ public class ApiScenarioService {
 
     /**
      * 从 scenarioParseEnvInfo 获取对应环境组的 projectEnvMap
+     *
      * @param scenarioParseEnvInfo
      * @param environmentId
      * @return
@@ -1833,5 +1839,22 @@ public class ApiScenarioService {
                 ApiScenarioScheduleJob.getTriggerKey(apiScenario.getId()),
                 ApiScenarioScheduleJob.class,
                 operator);
+    }
+
+    public List<ApiScenarioAssociationDTO> getAssociationPage(ApiScenarioAssociationPageRequest request) {
+        List<ApiScenarioAssociationDTO> list = extApiScenarioMapper.getAssociationPage(request);
+        if (CollectionUtils.isNotEmpty(list)) {
+            //获取所有的项目ID
+            List<String> projectIds = list.stream().map(ApiScenarioAssociationDTO::getProjectId).distinct().toList();
+            ProjectExample example = new ProjectExample();
+            example.createCriteria().andIdIn(projectIds);
+            List<Project> projects = projectMapper.selectByExample(example);
+            Map<String, Project> projectMap = projects.stream().collect(Collectors.toMap(Project::getId, Function.identity()));
+            list.forEach(apiScenarioAssociationDTO -> {
+                apiScenarioAssociationDTO.setProjectName(projectMap.get(apiScenarioAssociationDTO.getProjectId()).getName());
+            });
+        }
+
+        return list;
     }
 }
