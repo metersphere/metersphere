@@ -101,11 +101,11 @@
     <select id="selectListMemberByOrg" resultType="io.metersphere.system.dto.OptionDisabledDTO">
         select u.id, u.name
         from user u
-        where u.deleted = 0
+        where u.deleted = false
         <if test="keyword != null and keyword != ''">
-            and (u.name like CONCAT('%', #{request.keyword},'%')
-            or u.email like CONCAT('%', #{request.keyword},'%')
-            or u.phone like CONCAT('%', #{request.keyword},'%'))
+            and (u.name like CONCAT('%', #{keyword},'%')
+            or u.email like CONCAT('%', #{keyword},'%')
+            or u.phone like CONCAT('%', #{keyword},'%'))
         </if>
         order by u.update_time desc
         limit 100
