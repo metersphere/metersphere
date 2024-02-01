@@ -783,6 +783,136 @@ public class FileAssociationExample {
             addCriterion("create_user not between", value1, value2, "createUser");
             return (Criteria) this;
         }
+
+        public Criteria andDeletedIsNull() {
+            addCriterion("deleted is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedIsNotNull() {
+            addCriterion("deleted is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedEqualTo(Boolean value) {
+            addCriterion("deleted =", value, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedNotEqualTo(Boolean value) {
+            addCriterion("deleted <>", value, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedGreaterThan(Boolean value) {
+            addCriterion("deleted >", value, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("deleted >=", value, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedLessThan(Boolean value) {
+            addCriterion("deleted <", value, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedLessThanOrEqualTo(Boolean value) {
+            addCriterion("deleted <=", value, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedIn(List<Boolean> values) {
+            addCriterion("deleted in", values, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedNotIn(List<Boolean> values) {
+            addCriterion("deleted not in", values, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedBetween(Boolean value1, Boolean value2) {
+            addCriterion("deleted between", value1, value2, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("deleted not between", value1, value2, "deleted");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedFileNameIsNull() {
+            addCriterion("deleted_file_name is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedFileNameIsNotNull() {
+            addCriterion("deleted_file_name is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedFileNameEqualTo(String value) {
+            addCriterion("deleted_file_name =", value, "deletedFileName");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedFileNameNotEqualTo(String value) {
+            addCriterion("deleted_file_name <>", value, "deletedFileName");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedFileNameGreaterThan(String value) {
+            addCriterion("deleted_file_name >", value, "deletedFileName");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedFileNameGreaterThanOrEqualTo(String value) {
+            addCriterion("deleted_file_name >=", value, "deletedFileName");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedFileNameLessThan(String value) {
+            addCriterion("deleted_file_name <", value, "deletedFileName");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedFileNameLessThanOrEqualTo(String value) {
+            addCriterion("deleted_file_name <=", value, "deletedFileName");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedFileNameLike(String value) {
+            addCriterion("deleted_file_name like", value, "deletedFileName");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedFileNameNotLike(String value) {
+            addCriterion("deleted_file_name not like", value, "deletedFileName");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedFileNameIn(List<String> values) {
+            addCriterion("deleted_file_name in", values, "deletedFileName");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedFileNameNotIn(List<String> values) {
+            addCriterion("deleted_file_name not in", values, "deletedFileName");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedFileNameBetween(String value1, String value2) {
+            addCriterion("deleted_file_name between", value1, value2, "deletedFileName");
+            return (Criteria) this;
+        }
+
+        public Criteria andDeletedFileNameNotBetween(String value1, String value2) {
+            addCriterion("deleted_file_name not between", value1, value2, "deletedFileName");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

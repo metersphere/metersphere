@@ -328,15 +328,8 @@ public class FileMetadataService {
         byte[] bytes = this.getFileByte(fileMetadata);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + this.getFileName(fileMetadata.getName(), fileMetadata.getType()) + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + FileMetadataUtils.getFileName(fileMetadata) + "\"")
                 .body(bytes);
-    }
-
-    private String getFileName(String fileName, String type) {
-        if (StringUtils.isBlank(type)) {
-            return fileName;
-        }
-        return fileName + "." + type;
     }
 
     public void update(FileUpdateRequest request, String operator) {
@@ -391,7 +384,7 @@ public class FileMetadataService {
 
     public void batchDownloadWithResponse(List<FileMetadata> fileMetadataList, HttpServletResponse response) {
         Map<String, File> fileMap = new HashMap<>();
-        fileMetadataList.forEach(fileMetadata -> fileMap.put(this.getFileName(fileMetadata.getName(), fileMetadata.getType()), this.getTmpFile(fileMetadata)));
+        fileMetadataList.forEach(fileMetadata -> fileMap.put(FileMetadataUtils.getFileName(fileMetadata), this.getTmpFile(fileMetadata)));
         FileDownloadUtils.zipFilesWithResponse(fileMap, response);
     }
 
@@ -467,7 +460,7 @@ public class FileMetadataService {
         return moduleCountMap;
     }
 
-    public ResponseEntity<byte[]> downloadPreviewImgById(String id) throws Exception {
+    public ResponseEntity<byte[]> downloadPreviewImgById(String id) {
         FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(id);
         byte[] bytes = new byte[]{};
 
@@ -488,7 +481,7 @@ public class FileMetadataService {
 
         return ResponseEntity.ok()
                 .contentType(contentType)
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + this.getFileName(fileMetadata.getId(), fileMetadata.getType()) + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + FileMetadataUtils.getFileName(fileMetadata) + "\"")
                 .body(bytes);
     }
 

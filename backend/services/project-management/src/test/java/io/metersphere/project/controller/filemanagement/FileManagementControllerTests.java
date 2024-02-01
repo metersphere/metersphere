@@ -1388,6 +1388,22 @@ public class FileManagementControllerTests extends BaseTest {
         if (MapUtils.isEmpty(FILE_VERSIONS_ID_MAP)) {
             this.fileReUploadTestSuccess();
         }
+        //测试中涉及到全部删除。删除文件时FileAssociation不会删除。在删除前先把相关数据全部查询出来，用于全部删除之后的数据检查对比
+        FileAssociationExample fileAssociationExample = new FileAssociationExample();
+        fileAssociationExample.createCriteria().andFileIdIn(new ArrayList<>() {{
+            this.add(fileAssociationNewFilesOne);
+            this.add(fileAssociationNewFilesTwo);
+            this.add(fileAssociationNewFilesThree);
+            this.add(fileAssociationNewFilesFour);
+            this.add(fileAssociationNewFileId);
+            this.add(fileAssociationOldFileId);
+        }});
+        List<FileAssociation> beforeDeletedList = fileAssociationMapper.selectByExample(fileAssociationExample);
+        beforeDeletedList.forEach(item -> {
+            Assertions.assertFalse(item.getDeleted());
+            Assertions.assertNull(item.getDeletedFileName());
+        });
+
         FileBatchProcessRequest fileBatchProcessRequest;
         //删除指定文件
         for (Map.Entry<String, String> entry : FILE_VERSIONS_ID_MAP.entrySet()) {
@@ -1420,17 +1436,13 @@ public class FileManagementControllerTests extends BaseTest {
         example.createCriteria().andProjectIdEqualTo(project.getId());
         Assertions.assertEquals(fileMetadataMapper.countByExample(example), 0);
 
-        //检查fileAssociation表中的数据是否被删除
-        FileAssociationExample fileAssociationExample = new FileAssociationExample();
-        fileAssociationExample.createCriteria().andFileIdIn(new ArrayList<>() {{
-            this.add(fileAssociationNewFilesOne);
-            this.add(fileAssociationNewFilesTwo);
-            this.add(fileAssociationNewFilesThree);
-            this.add(fileAssociationNewFilesFour);
-            this.add(fileAssociationNewFileId);
-            this.add(fileAssociationOldFileId);
-        }});
-        Assertions.assertEquals(fileAssociationMapper.countByExample(fileAssociationExample), 0);
+        //检查fileAssociation
+        List<FileAssociation> aftreDeletedList = fileAssociationMapper.selectByExample(fileAssociationExample);
+        Assertions.assertEquals(beforeDeletedList.size(), aftreDeletedList.size());
+        aftreDeletedList.forEach(item -> {
+            Assertions.assertTrue(item.getDeleted());
+            Assertions.assertNotNull(item.getDeletedFileName());
+        });
 
         //重新上传，用于后续的测试
         this.fileUploadTestSuccess();
@@ -1894,7 +1906,7 @@ public class FileManagementControllerTests extends BaseTest {
         fileAssociation.setUpdateTime(System.currentTimeMillis());
         fileAssociation.setUpdateUser("admin");
         fileAssociation.setFileVersion(fileId);
-        fileAssociationMapper.insert(fileAssociation);
+        fileAssociationMapper.insertSelective(fileAssociation);
         return fileAssociation.getId();
     }
 

@@ -122,9 +122,7 @@
 
     <select id="selectDeleteFileInfoByIds" resultType="io.metersphere.project.domain.FileMetadata">
         SELECT
-            f.id,
-            f.project_id,
-            f.storage
+        f.id,f.name,f.type,f.project_id,f.storage
         FROM  file_metadata f WHERE f.id IN
         <foreach collection="ids" item="item" open="(" separator="," close=")">
             #{item}

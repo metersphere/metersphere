@@ -1,5 +1,6 @@
 package io.metersphere.project.utils;
 
+import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.dto.filemanagement.request.FileMetadataTableRequest;
 import org.apache.commons.lang3.StringUtils;
 
@@ -24,6 +25,13 @@ public class FileMetadataUtils {
         if (StringUtils.equals(request.getFileType(), FILE_TYPE_EMPTY)) {
             request.setFileType("");
         }
+    }
+
+    public static String getFileName(FileMetadata fileMetadata) {
+        if (StringUtils.isBlank(fileMetadata.getType())) {
+            return fileMetadata.getName();
+        }
+        return fileMetadata.getName() + "." + fileMetadata.getType();
     }
 
     /**

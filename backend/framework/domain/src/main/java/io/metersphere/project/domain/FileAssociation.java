@@ -52,6 +52,13 @@ public class FileAssociation implements Serializable {
     @Schema(description = "创建人")
     private String createUser;
 
+    @Schema(description = "是否删除", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{file_association.deleted.not_blank}", groups = {Created.class})
+    private Boolean deleted;
+
+    @Schema(description = "删除时的文件名称")
+    private String deletedFileName;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -64,7 +71,9 @@ public class FileAssociation implements Serializable {
         createTime("create_time", "createTime", "BIGINT", false),
         updateUser("update_user", "updateUser", "VARCHAR", false),
         updateTime("update_time", "updateTime", "BIGINT", false),
-        createUser("create_user", "createUser", "VARCHAR", false);
+        createUser("create_user", "createUser", "VARCHAR", false),
+        deleted("deleted", "deleted", "BIT", false),
+        deletedFileName("deleted_file_name", "deletedFileName", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 
