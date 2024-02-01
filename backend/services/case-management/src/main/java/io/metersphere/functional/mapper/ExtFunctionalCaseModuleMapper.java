@@ -1,6 +1,7 @@
 package io.metersphere.functional.mapper;
 
 import io.metersphere.functional.dto.FunctionalCaseModuleDTO;
+import io.metersphere.functional.dto.ProjectOptionDTO;
 import io.metersphere.project.dto.NodeSortQueryParam;
 import io.metersphere.request.AssociateCaseModuleRequest;
 import io.metersphere.system.dto.sdk.BaseModule;
@@ -13,6 +14,8 @@ public interface ExtFunctionalCaseModuleMapper {
     List<BaseTreeNode> selectBaseByProjectId(@Param("projectId")String projectId);
 
     List<FunctionalCaseModuleDTO> selectBaseByProjectIdAndReviewId(@Param("reviewId")String reviewId);
+
+    List<ProjectOptionDTO> selectFunRootIdByReviewId(@Param("reviewId")String reviewId);
 
     List<BaseTreeNode> selectBaseByIds(@Param("ids") List<String> ids);
 
