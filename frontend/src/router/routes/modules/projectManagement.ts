@@ -67,7 +67,7 @@ const ProjectManagement: AppRouteRecordRaw = {
           component: () => import('@/views/project-management/projectAndPermission/basicInfos/index.vue'),
           meta: {
             locale: 'project.permission.basicInfo',
-            roles: ['*'],
+            roles: ['SYSTEM_PARAMETER_SETTING_BASE:READ'],
           },
         },
         // 菜单管理
@@ -148,6 +148,7 @@ const ProjectManagement: AppRouteRecordRaw = {
             name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_FIELD_SETTING,
             locale: 'menu.settings.organization.templateFieldSetting',
             editLocale: 'menu.settings.organization.templateFieldSetting',
+            query: ['type'],
           },
         ],
       },
@@ -169,6 +170,7 @@ const ProjectManagement: AppRouteRecordRaw = {
             name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT,
             locale: 'menu.settings.organization.templateManagementList',
             editLocale: 'menu.settings.organization.templateManagementList',
+            query: ['type'],
           },
         ],
       },
@@ -189,11 +191,13 @@ const ProjectManagement: AppRouteRecordRaw = {
           {
             name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT,
             locale: 'menu.settings.organization.templateManagementList',
+            query: ['type'],
           },
           {
             name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_DETAIL,
             locale: 'menu.settings.organization.templateManagementDetail',
             editLocale: 'menu.settings.organization.templateManagementEdit',
+            query: ['type'],
           },
         ],
       },
@@ -214,6 +218,7 @@ const ProjectManagement: AppRouteRecordRaw = {
           {
             name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_WORKFLOW,
             locale: 'menu.settings.organization.templateManagementWorkFlow',
+            query: ['type'],
           },
         ],
       },

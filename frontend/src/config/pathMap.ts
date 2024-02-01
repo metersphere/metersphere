@@ -302,7 +302,7 @@ export const pathMap: PathMapItem[] = [
             level: MENU_LEVEL[1],
           },
           {
-            key: 'SETTING_ORGANIZATION_TEMPLATE', // 系统设置-组织-模版
+            key: 'SETTING_ORGANIZATION_TEMPLATE', // 系统设置-组织-模板
             locale: 'menu.settings.organization.template',
             route: RouteEnum.SETTING_ORGANIZATION_TEMPLATE,
             permission: [],

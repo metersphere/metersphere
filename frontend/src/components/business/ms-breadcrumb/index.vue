@@ -49,6 +49,7 @@
   }, true);
 
   function jumpTo(crumb: BreadcrumbItem) {
+    debugger;
     if (crumb.isBack && window.history.state.back) {
       router.back();
     } else {

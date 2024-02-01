@@ -16,13 +16,15 @@
       >
       <div class="mb-6 text-sm">
         {{ t('system.plugin.uploadSuccessAfter') }}
-        <a href="javascript:;">{{ t('system.plugin.ServiceIntegration') }}</a>
+        <a @click="router.push({ name: RouteEnum.SETTING_ORGANIZATION_SERVICE })">{{
+          t('system.plugin.ServiceIntegration')
+        }}</a>
         {{ t('system.plugin.platformAuthentication') }}
       </div>
       <div>
         <a-space>
           <a-button type="primary" @click="continueAdd">{{ t('system.plugin.continueUpload') }}</a-button>
-          <a-button type="outline" @click="router.push({ name: 'settingOrganizationService' })">{{
+          <a-button type="outline" @click="router.push({ name: RouteEnum.SETTING_ORGANIZATION_SERVICE })">{{
             t('system.plugin.ServiceIntegration')
           }}</a-button>
           <a-button type="secondary" @click="emits('close')">{{ t('system.plugin.backPluginList') }}</a-button>
@@ -41,6 +43,8 @@
 
   import { useI18n } from '@/hooks/useI18n';
   import useVisit from '@/hooks/useVisit';
+
+  import { RouteEnum } from '@/enums/routeEnum';
 
   const router = useRouter();
   const visitedKey = 'doNotShowAgain';

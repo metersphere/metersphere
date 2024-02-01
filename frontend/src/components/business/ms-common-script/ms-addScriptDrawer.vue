@@ -77,6 +77,7 @@
 
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
+  import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import ScriptDefined from './scriptDefined.vue';
   import paramTable from '@/views/api-test/components/paramTable.vue';
 

@@ -26,11 +26,12 @@
           size="small"
           @change="(val) => handleThemeChange(val as Theme)"
         />
+        <slot name="leftTitle">
+          <span class="flex items-center gap-[4px] font-medium">{{ title }}</span>
+        </slot>
       </div>
       <div>
-        <slot name="title">
-          <span class="font-medium">{{ title }}</span>
-        </slot>
+        <slot name="rightTitle"> </slot>
         <div
           v-if="showFullScreen"
           class="w-[96px] cursor-pointer text-right !text-[var(--color-text-4)]"

@@ -378,7 +378,7 @@
   const formItem = ref<FormRuleItem[]>([]);
   const fApi = ref<any>(null);
 
-  // 初始化模版默认字段
+  // 初始化模板默认字段
   async function initDefaultFields() {
     formRules.value = [];
     try {

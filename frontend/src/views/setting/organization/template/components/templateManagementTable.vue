@@ -34,7 +34,7 @@
       </div>
     </template>
   </MsBaseTable>
-  <!-- 添加字段到模版抽屉 -->
+  <!-- 添加字段到模板抽屉 -->
   <AddFieldToTemplateDrawer
     ref="fieldSelectRef"
     v-model:visible="showDrawer"

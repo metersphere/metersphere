@@ -269,14 +269,14 @@
                   robotId: e.id,
                   robotName: e.name,
                   enable: false,
-                  previewTemplate: firstRobot.previewTemplate, // 消息配置机器人预览模版
-                  template: firstRobot.defaultTemplate, // 消息配置机器人发送模版
-                  defaultTemplate: firstRobot.defaultTemplate, // 消息配置机器人默认发送模版
-                  useDefaultTemplate: true, // 消息配置机器人是否使用默认模版
-                  previewSubject: firstRobot.previewSubject, // 消息模版配置的标题
-                  subject: firstRobot.defaultSubject, // 消息模版配置的标题
-                  defaultSubject: firstRobot.defaultSubject, // 消息模版配置的默认标题
-                  useDefaultSubject: true, // 消息模版是否使用默认标题
+                  previewTemplate: firstRobot.previewTemplate, // 消息配置机器人预览模板
+                  template: firstRobot.defaultTemplate, // 消息配置机器人发送模板
+                  defaultTemplate: firstRobot.defaultTemplate, // 消息配置机器人默认发送模板
+                  useDefaultTemplate: true, // 消息配置机器人是否使用默认模板
+                  previewSubject: firstRobot.previewSubject, // 消息模板配置的标题
+                  subject: firstRobot.defaultSubject, // 消息模板配置的标题
+                  defaultSubject: firstRobot.defaultSubject, // 消息模板配置的默认标题
+                  useDefaultSubject: true, // 消息模板是否使用默认标题
                 };
               }
             });

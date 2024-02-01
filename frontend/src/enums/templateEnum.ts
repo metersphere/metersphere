@@ -1,4 +1,4 @@
-// 模版展示字段icon
+// 模板展示字段icon
 export enum TemplateIconEnum {
   INPUT = 'icon-icon_input', // 输入框
   TEXTAREA = 'icon-icon_style_one', // 文本
@@ -17,9 +17,9 @@ export enum TemplateIconEnum {
   SYSTEM = 'icon-icon_pound',
 }
 
-// 模版列表图标卡片icon
+// 模板列表图标卡片icon
 export enum TemplateCardEnum {
-  FUNCTIONAL = 'caseTemplate', // 用例模版
+  FUNCTIONAL = 'caseTemplate', // 用例模板
   API = 'api_ui_Template', // API模板
   UI = 'uiTemplate', // UI模板
   TEST_PLAN = 'testPlanTemplate', // 测试计划模板

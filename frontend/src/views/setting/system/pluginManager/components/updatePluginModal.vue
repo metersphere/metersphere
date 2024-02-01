@@ -1,6 +1,18 @@
 <template>
-  <a-modal v-model:visible="updateVisible" width="680px" title-align="start" class="ms-modal-form ms-modal-medium">
-    <template #title> {{ t('system.plugin.updateTitle', { name: title }) }}</template>
+  <a-modal
+    v-model:visible="updateVisible"
+    :mask="true"
+    :mask-closable="false"
+    width="680px"
+    title-align="start"
+    class="ms-modal-form ms-modal-medium"
+  >
+    <template #title>
+      <a-tooltip :content="title" position="right">
+        <span>{{ t('system.plugin.updateTitle') }}</span>
+        <span class="ml-1 !text-[var(--color-text-4)]"> ({{ characterLimit(title) }})</span>
+      </a-tooltip>
+    </template>
     <div class="form">
       <a-form ref="UpdateFormRef" :model="form" layout="vertical">
         <a-form-item field="name" :label="t('system.plugin.name')" asterisk-position="end">
@@ -44,7 +56,6 @@
             v-model="form.description"
             :max-length="1000"
             :placeholder="t('system.plugin.pluginDescription')"
-            allow-clear
           />
         </a-form-item>
       </a-form>
@@ -64,6 +75,7 @@
 
   import { updatePlugin } from '@/api/modules/setting/pluginManger';
   import { useI18n } from '@/hooks/useI18n';
+  import { characterLimit } from '@/utils';
 
   import type { PluginItem, UpdatePluginModel } from '@/models/setting/plugin';
 
@@ -113,10 +125,10 @@
       if (!errors) {
         confirmLoading.value = true;
         try {
-          const { id, name, organizationIds, global, description } = form.value;
+          const { id, name, organizationIds, global, description, fileName } = form.value;
           const params = {
             id,
-            name: name || title.value,
+            name: name || fileName,
             organizationIds,
             global,
             description,

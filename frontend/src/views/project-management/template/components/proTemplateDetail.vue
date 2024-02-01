@@ -116,7 +116,7 @@
 
 <script setup lang="ts">
   /**
-   * @description 系统管理-项目-模版-模版管理-创建&编辑
+   * @description 系统管理-项目-模板-模板管理-创建&编辑
    */
   import { ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
@@ -351,12 +351,14 @@
 
   // 更新面包屑标题
   const setBreadText = () => {
+    debugger;
     const { breadcrumbList } = appStore;
     const { firstBreadTitle, ThirdBreadTitle } = breadTitle.value;
     if (firstBreadTitle) {
       breadcrumbList[0].locale = firstBreadTitle;
       if (appStore.breadcrumbList.length > 2) {
         breadcrumbList[2].locale = ThirdBreadTitle;
+        // breadcrumbList[1].query = ['type'];
       }
       appStore.setBreadcrumbList(breadcrumbList);
     }
@@ -383,6 +385,7 @@
   );
 
   onMounted(() => {
+    debugger;
     setBreadText();
     getClassifyField();
     if (!isEdit.value) {

@@ -39,7 +39,7 @@ export const MoveCaseModuleTreeUrl = '/functional/case/module/move';
 export const GetTrashCaseModuleTreeUrl = '/functional/case/module/trash/tree';
 // 删除模块
 export const DeleteCaseModuleTreeUrl = '/functional/case/module/delete';
-// 获取默认模版自定义字段
+// 获取默认模板自定义字段
 export const GetDefaultTemplateFieldsUrl = '/functional/case/default/template/field';
 
 // 回收站

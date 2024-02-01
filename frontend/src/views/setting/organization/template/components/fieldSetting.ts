@@ -38,7 +38,7 @@ const { t } = useI18n();
 const templateStore = useTemplateStore();
 
 // 字段类型-日期
-const dateOptions = [
+const dateOptions: { label: string; value: FormItemType }[] = [
   {
     label: dayjs().format('YYYY/MM/DD'),
     value: 'DATE',
@@ -50,7 +50,7 @@ const dateOptions = [
 ];
 
 // 字段类型- 数字
-const numberTypeOptions = [
+const numberTypeOptions: { label: string; value: FormItemType }[] = [
   {
     label: '整数',
     value: 'INT',
@@ -62,16 +62,14 @@ const numberTypeOptions = [
 ];
 
 // 获取字段类型是数值 || 日期
-export const getFieldType = (selectFieldType: FormItemType) => {
+export function getFieldType(selectFieldType: FormItemType): { label: string; value: FormItemType }[] {
   switch (selectFieldType) {
     case 'DATE':
       return dateOptions;
-    case 'NUMBER':
-      return numberTypeOptions;
     default:
-      break;
+      return numberTypeOptions;
   }
-};
+}
 
 const organizationState = computed(() => templateStore.ordStatus);
 const projectState = computed(() => templateStore.projectStatus);
@@ -91,18 +89,18 @@ export function getCardList(type: string): Record<string, any>[] {
       value: TemplateCardEnum.API,
       name: t('system.orgTemplate.APITemplates'),
     },
-    {
-      id: 1003,
-      key: 'UI',
-      value: TemplateCardEnum.UI,
-      name: t('system.orgTemplate.UITemplates'),
-    },
-    {
-      id: 1004,
-      key: 'TEST_PLAN',
-      value: TemplateCardEnum.TEST_PLAN,
-      name: t('system.orgTemplate.testPlanTemplates'),
-    },
+    // {
+    //   id: 1003,
+    //   key: 'UI',
+    //   value: TemplateCardEnum.UI,
+    //   name: t('system.orgTemplate.UITemplates'),
+    // },
+    // {
+    //   id: 1004,
+    //   key: 'TEST_PLAN',
+    //   value: TemplateCardEnum.TEST_PLAN,
+    //   name: t('system.orgTemplate.testPlanTemplates'),
+    // },
     {
       id: 1005,
       key: 'BUG',

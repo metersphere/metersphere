@@ -27,7 +27,7 @@
 
 <script setup lang="ts">
   /**
-   * @description 项目设置--模版
+   * @description 项目设置--模板
    */
 
   import { useRouter } from 'vue-router';

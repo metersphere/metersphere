@@ -53,7 +53,11 @@
             :ellipsis="true"
             :tooltip="true"
             :width="150"
-          />
+          >
+            <template #cell="{ record }">
+              {{ record.description || '-' }}
+            </template>
+          </a-table-column>
           <a-table-column :title="t('system.plugin.tableColumnsStatus')">
             <template #cell="{ record }">
               <div v-if="record.enable" class="flex items-center">

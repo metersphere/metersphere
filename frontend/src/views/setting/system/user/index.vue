@@ -222,7 +222,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useTableStore } from '@/store';
-  import { characterLimit } from '@/utils';
+  import { characterLimit, formatPhoneNumber } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
   import { validateEmail, validatePhone } from '@/utils/validate';
 
@@ -292,6 +292,7 @@
       ...record,
       organizationList: record.organizationList.filter((e: any) => e),
       userRoleList: record.userRoleList.filter((e: any) => e),
+      phone: formatPhoneNumber(record.phone || ''),
     })
   );
 
@@ -647,7 +648,14 @@
     visible.value = true;
     userFormMode.value = mode;
     if (mode === 'edit' && record) {
-      userForm.value.list = [{ id: record.id, name: record.name, email: record.email, phone: record.phone }];
+      userForm.value.list = [
+        {
+          id: record.id,
+          name: record.name,
+          email: record.email,
+          phone: record.phone ? record.phone.replace(/\s/g, '') : record.phone,
+        },
+      ];
       userForm.value.userGroup = record.userRoleList.map((e) => e.id);
     }
   }

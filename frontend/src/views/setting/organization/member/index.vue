@@ -141,7 +141,7 @@
   } from '@/api/modules/setting/member';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore, useTableStore } from '@/store';
-  import { characterLimit } from '@/utils';
+  import { characterLimit, formatPhoneNumber } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import type { AddOrUpdateMemberModel, BatchAddProjectModel, LinkList, MemberItem } from '@/models/setting/member';
@@ -227,14 +227,23 @@
       },
     ],
   };
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getMemberList, {
-    tableKey: TableKeyEnum.ORGANIZATION_MEMBER,
-    scroll: { x: 1800 },
-    selectable: true,
-    heightUsed: 288,
-    showSetting: true,
-    size: 'default',
-  });
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
+    getMemberList,
+    {
+      tableKey: TableKeyEnum.ORGANIZATION_MEMBER,
+      scroll: { x: 1800 },
+      selectable: true,
+      heightUsed: 288,
+      showSetting: true,
+      size: 'default',
+    },
+    (record) => {
+      return {
+        ...record,
+        phone: formatPhoneNumber(record.phone || ''),
+      };
+    }
+  );
   const keyword = ref('');
   const tableSelected = ref<(string | number)[]>([]);
   // 跨页多选
@@ -311,7 +320,7 @@
       params.userRoleIds = target;
     }
     if (currentType) await batchModalRef.value.batchRequestFun(currentType.request, params);
-    loadList();
+    initData();
     resetSelector();
   };
 

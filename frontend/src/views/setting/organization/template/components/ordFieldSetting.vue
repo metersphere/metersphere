@@ -24,7 +24,7 @@
   const route = useRoute();
   const appStore = useAppStore();
 
-  // 更新面包屑根据不同的模版
+  // 更新面包屑根据不同的模板
   const updateBreadcrumbList = () => {
     const { breadcrumbList } = appStore;
     const breadTitle = getCardList('organization').find((item: any) => item.key === route.query.type);

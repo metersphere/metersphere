@@ -7,5 +7,5 @@ export const DeleteRobotUrl = '/project/robot/delete'; // 删除机器人
 export const SaveMessageUrl = '/notice/message/task/save'; // 保存消息配置
 export const GetMessageUrl = '/notice/message/task/get'; // 获取消息配置列表
 export const GetMessageUserListUrl = '/notice/message/task/get/user'; // 获取消息配置-用户列表
-export const GetMessageFieldsUrl = '/notice/template/get/fields'; // 获取消息配置-模版字段
+export const GetMessageFieldsUrl = '/notice/template/get/fields'; // 获取消息配置-模板字段
 export const GetMessageDetailUrl = '/notice/message/template/detail'; // 获取消息配置详情

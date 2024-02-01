@@ -83,7 +83,7 @@
 
 <script setup lang="ts">
   /**
-   * @description 系统管理-项目-模版-模版管理列表
+   * @description 系统管理-项目-模板-模板管理列表
    */
   import { ref } from 'vue';
   import { useRoute } from 'vue-router';
@@ -259,7 +259,7 @@
     await loadList();
   };
 
-  // 设置默认模版
+  // 设置默认模板
   const changeDefault = async (value: any, record: OrdTemplateManagement) => {
     if (value) {
       try {
@@ -350,7 +350,7 @@
     defectForm.value = { ...initDetailForm };
   };
 
-  // 更新面包屑根据不同的模版
+  // 更新面包屑根据不同的模板
   const updateBreadcrumbList = () => {
     const { breadcrumbList } = appStore;
     const breadTitle = getCardList('project').find((item: any) => item.key === route.query.type);

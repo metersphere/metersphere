@@ -62,7 +62,7 @@
 
   import { deleteUserFromUserGroup, postUserByUserGroup } from '@/api/modules/project-management/usergroup';
   import { useI18n } from '@/hooks/useI18n';
-  import { characterLimit } from '@/utils';
+  import { characterLimit, formatPhoneNumber } from '@/utils';
 
   export interface projectDrawerProps {
     visible: boolean;
@@ -103,14 +103,23 @@
     { title: 'system.organization.operation', slotName: 'operation' },
   ];
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(postUserByUserGroup, {
-    heightUsed: 240,
-    columns: projectColumn,
-    scroll: { x: '100%' },
-    selectable: false,
-    noDisable: false,
-    pageSimple: true,
-  });
+  const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(
+    postUserByUserGroup,
+    {
+      heightUsed: 240,
+      columns: projectColumn,
+      scroll: { x: '100%' },
+      selectable: false,
+      noDisable: false,
+      pageSimple: true,
+    },
+    (record) => {
+      return {
+        ...record,
+        phone: formatPhoneNumber(record.phone || ''),
+      };
+    }
+  );
 
   async function searchUser() {
     setKeyword(keyword.value);

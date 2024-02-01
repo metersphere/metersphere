@@ -5,6 +5,7 @@
     :mask="true"
     title-align="start"
     class="ms-modal-upload ms-modal-medium"
+    @close="cancelBatch"
   >
     <template #title>
       {{ batchTitle }}

@@ -94,7 +94,7 @@
 
 <script setup lang="ts">
   /**
-   * @description 系统管理-模版-模版管理-创建模板-添加字段到模板抽屉
+   * @description 系统管理-模板-模板管理-创建模板-添加字段到模板抽屉
    */
   import { ref } from 'vue';
   import { VueDraggable } from 'vue-draggable-plus';

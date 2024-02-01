@@ -42,14 +42,14 @@ export interface ProjectRobotConfig {
   type?: ProjectRobotDingTalkType; // 钉钉机器人类型
   dingType?: ProjectRobotDingTalkType; // 钉钉机器人类型
   enable: boolean; // 消息配置机器人是否开启
-  template: string; // 消息配置机器人发送模版
-  defaultTemplate: string; // 消息配置机器人默认发送模版
-  useDefaultTemplate: boolean; // 消息配置机器人是否使用默认模版
+  template: string; // 消息配置机器人发送模板
+  defaultTemplate: string; // 消息配置机器人默认发送模板
+  useDefaultTemplate: boolean; // 消息配置机器人是否使用默认模板
   previewSubject?: string; // 消息配置机器人预览邮件标题
-  previewTemplate?: string; // 消息配置机器人预览发送模版
-  subject: string; // 消息模版配置的标题
-  defaultSubject: string; // 消息模版配置的默认标题
-  useDefaultSubject: boolean; // 消息模版是否使用默认标题
+  previewTemplate?: string; // 消息配置机器人预览发送模板
+  subject: string; // 消息模板配置的标题
+  defaultSubject: string; // 消息模板配置的默认标题
+  useDefaultSubject: boolean; // 消息模板是否使用默认标题
 }
 
 // 消息配置接收人
@@ -87,9 +87,9 @@ export interface SaveMessageTemplateParams {
   testId?: string; // 具体测试的ID
   robotId: string;
   enable: boolean;
-  template: string; // 消息配置企业用户自定义的消息模版
+  template: string; // 消息配置企业用户自定义的消息模板
   subject: string; // 消息配置企业用户自定义的邮件标题
-  useDefaultTemplate: boolean; // 是否使用默认模版
+  useDefaultTemplate: boolean; // 是否使用默认模板
   useDefaultSubject: boolean; // 是否使用默认邮件标题
 }
 
@@ -99,12 +99,12 @@ export interface MessageTemplateDetail extends SaveMessageTemplateParams {
   robotName: string; // 消息配置机器人名称
   platform: ProjectRobotPlatform;
   previewSubject?: string; // 消息配置机器人预览邮件标题
-  previewTemplate?: string; // 消息配置机器人预览发送模版
-  defaultTemplate: string; // 消息配置机器人默认发送模版
-  defaultSubject: string; // 消息模版配置的默认标题
+  previewTemplate?: string; // 消息配置机器人预览发送模板
+  defaultTemplate: string; // 消息配置机器人默认发送模板
+  defaultSubject: string; // 消息模板配置的默认标题
 }
 
-// 消息配置模版字段
+// 消息配置模板字段
 export interface Field {
   id: string;
   name: string;
@@ -116,6 +116,6 @@ export interface FieldSource {
 }
 
 export interface FieldMap {
-  fieldList: Field[]; // 消息配置模版字段列表
-  fieldSourceList: FieldSource[]; // 消息配置模版字段来源列表
+  fieldList: Field[]; // 消息配置模板字段列表
+  fieldSourceList: FieldSource[]; // 消息配置模板字段来源列表
 }

@@ -11,14 +11,14 @@
     <div class="form mt-[32px] min-w-[416px]">
       <a-form ref="formRef" :model="userInfo" @submit="handleSubmit">
         <!-- TOTO 第一版本暂时只考虑普通登录 -->
-        <!-- <a-form-item class="login-form-item" field="radio" hide-label>
+        <a-form-item class="login-form-item" field="radio" hide-label>
           <a-radio-group v-model="userInfo.authenticate" type="button">
             <a-radio value="LOCAL">{{ t('login.form.normalLogin') }}</a-radio>
             <a-radio value="LDAP">LDAP</a-radio>
-            <a-radio value="OAuth2">{{ t('login.form.oauth2Test') }}</a-radio>
-            <a-radio value="OIDC 90">OIDC 90</a-radio>
+            <!-- <a-radio value="OAuth2">{{ t('login.form.oauth2Test') }}</a-radio>
+            <a-radio value="OIDC 90">OIDC 90</a-radio> -->
           </a-radio-group>
-        </a-form-item> -->
+        </a-form-item>
         <a-form-item
           class="login-form-item"
           field="username"

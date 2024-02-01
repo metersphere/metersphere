@@ -26,6 +26,7 @@
   </div>
   <MsBaseTable
     v-bind="propsRes"
+    ref="memberTableRef"
     :action-config="tableBatchActions"
     @selected-change="handleTableSelect"
     v-on="propsEvent"
@@ -112,7 +113,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
-  import { characterLimit } from '@/utils';
+  import { characterLimit, formatPhoneNumber } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import type {
@@ -132,24 +133,22 @@
   const columns: MsTableColumn = [
     {
       title: 'project.member.tableColumnName',
+      slotName: 'name',
       dataIndex: 'name',
-      showInTable: true,
       showTooltip: true,
-      sortIndex: 0,
-      ellipsis: true,
       showDrag: false,
     },
     {
       title: 'project.member.tableColumnEmail',
+      slotName: 'email',
       dataIndex: 'email',
-      showInTable: true,
       showTooltip: true,
       showDrag: true,
     },
     {
       title: 'project.member.tableColumnPhone',
+      slotName: 'phone',
       dataIndex: 'phone',
-      showInTable: true,
       showDrag: true,
       width: 150,
     },
@@ -157,7 +156,6 @@
       title: 'project.member.tableColumnUserGroup',
       slotName: 'userRole',
       dataIndex: 'userRoleIdNameMap',
-      showInTable: true,
       showDrag: true,
       width: 300,
     },
@@ -165,7 +163,6 @@
       title: 'project.member.tableColumnStatus',
       slotName: 'enable',
       dataIndex: 'enable',
-      showInTable: true,
       width: 150,
     },
     {
@@ -174,7 +171,6 @@
       fixed: 'right',
       dataIndex: 'operation',
       width: 100,
-      showInTable: true,
       showDrag: false,
     },
   ];
@@ -200,16 +196,25 @@
     tableSelected.value = selectArr;
   };
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(getProjectMemberList, {
-    tableKey: TableKeyEnum.PROJECT_MEMBER,
-    selectable: true,
-    showSetting: true,
-    heightUsed: 288,
-    columns,
-    scroll: {
-      x: 1200,
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
+    getProjectMemberList,
+    {
+      tableKey: TableKeyEnum.PROJECT_MEMBER,
+      selectable: true,
+      showSetting: true,
+      heightUsed: 288,
+      columns,
+      scroll: {
+        x: 1200,
+      },
     },
-  });
+    (record) => {
+      return {
+        ...record,
+        phone: formatPhoneNumber(record.phone || ''),
+      };
+    }
+  );
 
   const searchParams = ref<SearchParams>({
     filter: {
@@ -275,7 +280,7 @@
       if (lastProjectId.value && record.id) {
         await removeProjectMember(lastProjectId.value, record.id);
         Message.success(t('project.member.deleteMemberSuccess'));
-        loadList();
+        initData();
         resetSelector();
       }
     } catch (error) {
@@ -299,7 +304,7 @@
     };
     try {
       await batchModalRef.value.batchRequestFun(addProjectUserGroup, params);
-      loadList();
+      initData();
       resetSelector();
     } catch (error) {
       console.log(error);
@@ -380,10 +385,12 @@
       ...userGroupOptions.value,
     ];
   };
+  const memberTableRef = ref();
 
   onMounted(() => {
     initData();
     initOptions();
+    memberTableRef.value.initColumn(columns);
   });
   tableStore.initColumn(TableKeyEnum.PROJECT_MEMBER, columns, 'drawer');
 </script>
