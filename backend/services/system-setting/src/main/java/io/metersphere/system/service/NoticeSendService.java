@@ -85,8 +85,10 @@ public class NoticeSendService {
     private static void setLanguage(NoticeModel noticeModel) {
         String language = (String) noticeModel.getParamMap().get("Language");
         Locale locale = Locale.SIMPLIFIED_CHINESE;
-        if (StringUtils.isNotBlank(language)) {
-            locale = Locale.forLanguageTag(language);
+        if (StringUtils.containsIgnoreCase("US",language)) {
+            locale = Locale.US;
+        } else if (StringUtils.containsIgnoreCase("TW",language)){
+            locale = Locale.TAIWAN;
         }
         LocaleContextHolder.setLocale(locale);
     }
