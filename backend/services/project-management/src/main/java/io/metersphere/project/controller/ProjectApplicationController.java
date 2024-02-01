@@ -309,7 +309,8 @@ public class ProjectApplicationController {
     @PostMapping("/validate/{pluginId}")
     @Operation(summary = "插件key校验")
     public void validateProjectConfig(@PathVariable("pluginId") String pluginId, @RequestBody Map configs) {
-        projectApplicationService.validateProjectConfig(pluginId, configs);
+        String organizationId = SessionUtils.getCurrentOrganizationId();
+        projectApplicationService.validateProjectConfig(pluginId, configs, organizationId);
     }
 
 }

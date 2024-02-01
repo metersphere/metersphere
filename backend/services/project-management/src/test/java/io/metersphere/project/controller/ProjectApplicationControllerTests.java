@@ -639,7 +639,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
         request.setEnable(true);
         request.setPluginId(plugin.getId());
         request.setConfiguration(integrationConfigMap);
-        request.setOrganizationId("100001100001");
+        request.setOrganizationId("100001");
         this.requestPostWithOkAndReturn("/service/integration/add", request);
         mockServerClient
                 .when(

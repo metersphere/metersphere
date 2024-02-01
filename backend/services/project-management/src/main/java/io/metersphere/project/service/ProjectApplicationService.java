@@ -442,14 +442,14 @@ public class ProjectApplicationService {
      * @param pluginId
      * @param configs
      */
-    public void validateProjectConfig(String pluginId, Map configs) {
-        Platform platform = this.getPlatform(pluginId);
+    public void validateProjectConfig(String pluginId, Map configs, String organizationId) {
+        Platform platform = this.getPlatform(pluginId, organizationId);
         platform.validateProjectConfig(JSON.toJSONString(configs));
     }
 
-    private Platform getPlatform(String pluginId) {
+    private Platform getPlatform(String pluginId, String organizationId) {
         ServiceIntegrationExample example = new ServiceIntegrationExample();
-        example.createCriteria().andPluginIdEqualTo(pluginId);
+        example.createCriteria().andPluginIdEqualTo(pluginId).andEnableEqualTo(true).andOrganizationIdEqualTo(organizationId);
         List<ServiceIntegration> serviceIntegrations = serviceIntegrationMapper.selectByExampleWithBLOBs(example);
         if (CollectionUtils.isEmpty(serviceIntegrations)) {
             throw new MSException(NOT_FOUND);
