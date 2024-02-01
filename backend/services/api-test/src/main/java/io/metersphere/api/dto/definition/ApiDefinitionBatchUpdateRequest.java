@@ -36,7 +36,10 @@ public class ApiDefinitionBatchUpdateRequest extends ApiDefinitionBatchRequest {
     private String versionId;
 
     @Schema(description = "标签")
-    private LinkedHashSet<@NotBlank String> tags;
+    private LinkedHashSet<
+            @NotBlank
+            @Size(min = 1, max = 64, message = "{api_test_case.tag.length_range}")
+                    String> tags;
 
     @Schema(description = "自定义字段")
     private ApiDefinitionCustomFieldDTO customField;

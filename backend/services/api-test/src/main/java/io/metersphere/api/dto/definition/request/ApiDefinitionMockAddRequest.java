@@ -31,7 +31,10 @@ public class ApiDefinitionMockAddRequest implements Serializable {
     private String name;
 
     @Schema(description = "标签")
-    private LinkedHashSet<@NotBlank String> tags;
+    private LinkedHashSet<
+            @NotBlank
+            @Size(min = 1, max = 64, message = "{api_test_case.tag.length_range}")
+                    String> tags;
 
     @Schema(description = "请求内容")
     @NotBlank

@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS environment
     `create_time` BIGINT       NOT NULL COMMENT '创建时间',
     `update_time` BIGINT       NOT NULL COMMENT '更新时间',
     `mock`        BIT          NOT NULL DEFAULT 0 COMMENT '是否是mock环境',
-    `description` VARCHAR(255)    COMMENT '描述' ,
+    `description` VARCHAR(1000)    COMMENT '描述' ,
     `pos` BIGINT NOT NULL   COMMENT '排序' ,
     PRIMARY KEY (id)
 ) ENGINE = InnoDB
@@ -72,7 +72,7 @@ CREATE TABLE IF NOT EXISTS environment_group(
   `id` VARCHAR(50) NOT NULL   COMMENT '环境组id' ,
   `name` VARCHAR(255) NOT NULL   COMMENT '环境组名' ,
   `project_id` VARCHAR(50) NOT NULL   COMMENT '所属项目id' ,
-  `description` VARCHAR(500)    COMMENT '环境组描述' ,
+  `description` VARCHAR(1000)    COMMENT '环境组描述' ,
   `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
   `update_user` VARCHAR(50) NOT NULL   COMMENT '修改人' ,
   `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
