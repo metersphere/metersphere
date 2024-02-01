@@ -146,7 +146,6 @@ public class SystemProjectController {
     @Parameter(name = "userId", description = "用户id", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @Parameter(name = "projectId", description = "项目id", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_DELETE)
-    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#projectId)", msClass = SystemProjectLogService.class)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public int removeProjectMember(@PathVariable String projectId, @PathVariable String userId) {
         return systemProjectService.removeProjectMember(projectId, userId, SessionUtils.getUserId());

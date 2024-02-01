@@ -78,9 +78,9 @@
     </select>
 
     <select id="listMemberByOrg" resultType="io.metersphere.system.dto.OrgUserExtend">
-        select temp.*
+        select temp.*, min(temp.memberTime) as groupTime
         from (
-        select u.*, urr.role_id
+        select u.*, urr.role_id, urr.create_time as memberTime
         from user_role_relation urr
         join `user` u on urr.user_id = u.id and u.deleted = false
         <where>
@@ -96,6 +96,7 @@
         order by u.update_time desc
         ) temp
         group by temp.id
+        order by groupTime desc
     </select>
 
     <select id="selectListMemberByOrg" resultType="io.metersphere.system.dto.OptionDisabledDTO">
@@ -136,7 +137,7 @@
     <select id="getRelatedOrganizationIds" resultType="java.lang.String">
         select distinct o.id
         from user_role_relation urr join organization o on urr.organization_id = o.id
-        where user_id = #{userId}
+        where user_id = #{userId} and o.enable = true
     </select>
 
     <sql id="queryWhereCondition">

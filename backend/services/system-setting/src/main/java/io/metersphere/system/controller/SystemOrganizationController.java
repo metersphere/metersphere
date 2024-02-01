@@ -3,20 +3,20 @@ package io.metersphere.system.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.system.dto.sdk.OptionDTO;
-import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.system.utils.PageUtils;
-import io.metersphere.system.utils.Pager;
 import io.metersphere.system.dto.OrganizationDTO;
 import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.dto.request.OrganizationMemberRequest;
 import io.metersphere.system.dto.request.OrganizationProjectRequest;
 import io.metersphere.system.dto.request.OrganizationRequest;
 import io.metersphere.system.dto.request.ProjectRequest;
+import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.service.OrganizationService;
 import io.metersphere.system.service.SystemProjectService;
 import io.metersphere.system.service.UserService;
+import io.metersphere.system.utils.PageUtils;
+import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -86,7 +86,7 @@ public class SystemOrganizationController {
     })
     @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_DELETE)
     public void removeMember(@PathVariable String organizationId, @PathVariable String userId) {
-        organizationService.removeMember(organizationId, userId);
+        organizationService.removeMember(organizationId, userId, SessionUtils.getUserId());
     }
 
     @GetMapping("/default")

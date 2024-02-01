@@ -3,6 +3,8 @@ package io.metersphere.system.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.dto.OptionDisabledDTO;
+import io.metersphere.system.dto.OrgUserExtend;
 import io.metersphere.system.dto.request.OrgMemberExtendProjectRequest;
 import io.metersphere.system.dto.request.OrganizationMemberExtendRequest;
 import io.metersphere.system.dto.request.OrganizationMemberUpdateRequest;
@@ -10,12 +12,10 @@ import io.metersphere.system.dto.request.OrganizationRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.service.OrganizationService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
-import io.metersphere.system.dto.OptionDisabledDTO;
-import io.metersphere.system.dto.OrgUserExtend;
-import io.metersphere.system.service.OrganizationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -24,8 +24,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -87,7 +85,7 @@ public class OrganizationController {
     @RequiresPermissions(PermissionConstants.ORGANIZATION_MEMBER_DELETE)
     @Log(type = OperationLogType.DELETE, expression = "#msClass.batchDelLog(#organizationId, #userId)", msClass = OrganizationService.class)
     public void removeMember(@PathVariable String organizationId, @PathVariable String userId) {
-        organizationService.removeMember(organizationId, userId);
+        organizationService.removeMember(organizationId, userId, SessionUtils.getUserId());
     }
 
     @GetMapping("/project/list/{organizationId}")
