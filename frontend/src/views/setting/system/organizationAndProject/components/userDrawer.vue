@@ -33,7 +33,7 @@
         </template>
         <template #operation="{ record }">
           <MsRemoveButton
-            :title="t('system.organization.removeName', { name: record.name })"
+            :title="t('system.organization.removeName', { name: characterLimit(record.name) })"
             :sub-title-tip="props.organizationId ? t('system.organization.removeTip') : t('system.project.removeTip')"
             @ok="handleRemove(record)"
           />
@@ -66,6 +66,7 @@
     postUserTableByOrgIdOrProjectId,
   } from '@/api/modules/setting/organizationAndProject';
   import { useI18n } from '@/hooks/useI18n';
+  import { characterLimit } from '@/utils';
 
   export interface projectDrawerProps {
     visible: boolean;

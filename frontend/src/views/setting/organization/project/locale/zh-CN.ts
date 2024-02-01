@@ -6,7 +6,7 @@ export default {
   'system.organization.edit': '编辑',
   'system.organization.save': '保存',
   'system.organization.end': '结束',
-  'system.organization.removeName': '确认移除 {name} 这个用户吗',
+  'system.organization.removeName': '确认移除 {name} 这个用户吗？',
   'system.organization.removeTip': '移除后，将失去组织权限',
   'system.organization.addMember': '添加成员',
   'system.organization.addMemberPlaceholder': '请选择成员',
@@ -70,4 +70,5 @@ export default {
   'system.project.createProjectSuccess': '创建项目成功',
   'system.project.updateProjectSuccess': '更新项目成功',
   'system.project.resourcePool': '资源池',
+  'system.project.removeName': '确认移除 {name} 这个用户吗？',
 };

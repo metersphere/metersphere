@@ -87,6 +87,7 @@
     :ok-text="t('common.create')"
     title-align="start"
     class="ms-modal-form ms-modal-small"
+    :mask-closable="false"
   >
     <template #title> {{ t('project.userGroup.addUserGroup') }} </template>
     <div class="form">

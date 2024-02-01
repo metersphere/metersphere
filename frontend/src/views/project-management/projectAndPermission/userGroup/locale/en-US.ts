@@ -5,6 +5,7 @@ export default {
   'project.usergroup.memberCount': 'Member Count',
   'project.userGroup.viewAuth': 'View Auth',
   'project.userGroup.deleteName': 'Are you sure to delete: {name}?',
+  'project.userGroup.removeTip': 'Delete it, you`ll lose project auth',
   'project.userGroup.deleteTip':
     'After deletion, the user group data under the project will be deleted together, please operate with caution!',
 };
