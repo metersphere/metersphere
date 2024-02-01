@@ -18,7 +18,6 @@ import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.mapper.ProjectApplicationMapper;
 import io.metersphere.provider.BaseCaseProvider;
 import io.metersphere.sdk.constants.InternalUserRole;
-import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.constants.UserRoleScope;
 import io.metersphere.sdk.exception.MSException;
@@ -35,6 +34,7 @@ import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -611,15 +611,25 @@ public class CaseReviewFunctionalCaseService {
 
     public List<BaseTreeNode> getTree(String reviewId) {
         List<BaseTreeNode> returnList = new ArrayList<>();
+        List<ProjectOptionDTO> rootIds = extFunctionalCaseModuleMapper.selectFunRootIdByReviewId(reviewId);
+        Map<String, List<ProjectOptionDTO>> projectRootMap = rootIds.stream().collect(Collectors.groupingBy(ProjectOptionDTO::getName));
         List<FunctionalCaseModuleDTO> functionalModuleIds = extFunctionalCaseModuleMapper.selectBaseByProjectIdAndReviewId(reviewId);
         Map<String, List<FunctionalCaseModuleDTO>> projectModuleMap = functionalModuleIds.stream().collect(Collectors.groupingBy(FunctionalCaseModule::getProjectId));
+        if (MapUtils.isEmpty(projectModuleMap)) {
+            projectRootMap.forEach((projectId,projectOptionDTOList)->{
+                BaseTreeNode projectNode = new BaseTreeNode(projectId, projectOptionDTOList.get(0).getProjectName(), Project.class.getName());
+                returnList.add(projectNode);
+                BaseTreeNode defaultNode = functionalCaseModuleService.getDefaultModule(Translator.get("default.module"));
+                projectNode.addChild(defaultNode);
+            });
+            return returnList;
+        }
         projectModuleMap.forEach((projectId,moduleList)->{
             BaseTreeNode projectNode = new BaseTreeNode(projectId, moduleList.get(0).getProjectName(), Project.class.getName());
             returnList.add(projectNode);
             List<String> projectModuleIds = moduleList.stream().map(FunctionalCaseModule::getId).toList();
             List<BaseTreeNode> nodeByNodeIds = functionalCaseModuleService.getNodeByNodeIds(projectModuleIds);
-            List<BaseTreeNode> list = nodeByNodeIds.stream().filter(t -> StringUtils.equalsIgnoreCase(t.getParentId(), ModuleConstants.DEFAULT_NODE_ID)).toList();
-            boolean haveVirtualRootNode = list.isEmpty();
+            boolean haveVirtualRootNode = CollectionUtils.isEmpty(projectRootMap.get(projectId));
             List<BaseTreeNode> baseTreeNodes = functionalCaseModuleService.buildTreeAndCountResource(nodeByNodeIds, !haveVirtualRootNode, Translator.get("default.module"));
             for (BaseTreeNode baseTreeNode : baseTreeNodes) {
                 projectNode.addChild(baseTreeNode);

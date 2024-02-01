@@ -144,6 +144,9 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
     @Test
     @Order(4)
     public void emptyDataTest() throws Exception {
+        List<BaseTreeNode> treeNodeDefaults = this.getCaseReviewModuleTreeNode("wx_test_project","wx_review_id_5");
+        String jsonStringD = JSON.toJSONString(treeNodeDefaults);
+        System.out.println(jsonStringD);
         List<BaseTreeNode> treeNodes = this.getCaseReviewModuleTreeNode("wx_test_project","wx_review_id_2");
         String jsonString = JSON.toJSONString(treeNodes);
         System.out.println(jsonString);

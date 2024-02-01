@@ -7,6 +7,15 @@
         WHERE project_id = #{projectId}
         ORDER BY pos
     </select>
+    <select id="selectFunRootIdByReviewId" resultType="io.metersphere.functional.dto.ProjectOptionDTO">
+        SELECT fc.module_id as id, fc.project_id as name, p.name as projectName
+        FROM functional_case fc
+            LEFT JOIN case_review_functional_case crfc ON crfc.case_id = fc.id
+            LEFT JOIN project p ON fc.project_id = p.id
+        WHERE crfc.review_id = #{reviewId}
+          AND fc.deleted = false AND fc.module_id = 'root'
+        ORDER BY fc.pos
+    </select>
     <select id="selectBaseByProjectIdAndReviewId" resultType="io.metersphere.functional.dto.FunctionalCaseModuleDTO">
         SELECT fcm.id, fcm.project_id, p.name as projectName
         FROM functional_case_module fcm
