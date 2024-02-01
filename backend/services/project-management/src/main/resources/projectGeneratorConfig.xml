@@ -72,10 +72,12 @@
         <!--要生成的数据库表 -->
         <!--        <table tableName="custom_function"/>-->
         <!--        <table tableName="fake_error"/>-->
-        <table tableName="file_metadata">
-            <columnOverride column="tags" javaType="java.util.List&lt;String&gt;" jdbcType="VARCHAR"
-                            typeHandler="io.metersphere.handler.ListTypeHandler"/>
-        </table>
+        <!--        <table tableName="file_metadata">-->
+        <!--            <columnOverride column="tags" javaType="java.util.List&lt;String&gt;" jdbcType="VARCHAR"-->
+        <!--                            typeHandler="io.metersphere.handler.ListTypeHandler"/>-->
+        <!--        </table>-->
+
+        <table tableName="file_association"/>
         <!--        <table tableName="file_metadata_repository"/>-->
         <!--        <table tableName="file_module_repository"/>-->
         <!--        <table tableName="project"/>-->

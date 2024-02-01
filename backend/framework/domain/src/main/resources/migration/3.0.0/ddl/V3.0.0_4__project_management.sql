@@ -52,21 +52,24 @@ CREATE INDEX idx_name ON fake_error (name);
 
 CREATE TABLE IF NOT EXISTS file_association
 (
-    `id`             VARCHAR(50) NOT NULL COMMENT '',
-    `source_type`    VARCHAR(50) NOT NULL COMMENT '资源类型',
-    `source_id`      VARCHAR(50) NOT NULL COMMENT '资源ID',
-    `file_id`        VARCHAR(50) NOT NULL COMMENT '文件ID',
-    `file_ref_id`    VARCHAR(50) NOT NULL COMMENT '文件同版本ID',
-    `file_version`   VARCHAR(50) NOT NULL COMMENT '文件版本',
-    `create_time`    BIGINT      NOT NULL COMMENT '创建时间',
-    `update_user`    VARCHAR(50) NOT NULL COMMENT '修改人',
-    `update_time`    BIGINT      NOT NULL COMMENT '更新时间',
-    `create_user`    VARCHAR(50) COMMENT '创建人',
-    PRIMARY KEY (id)
+       `id` VARCHAR(50) NOT NULL   COMMENT '' ,
+       `source_type` VARCHAR(50) NOT NULL   COMMENT '资源类型' ,
+       `source_id` VARCHAR(50) NOT NULL   COMMENT '资源ID' ,
+       `file_id` VARCHAR(50) NOT NULL   COMMENT '文件ID' ,
+       `file_ref_id` VARCHAR(50) NOT NULL   COMMENT '文件同版本ID' ,
+       `file_version` VARCHAR(50) NOT NULL   COMMENT '文件版本' ,
+       `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,
+       `update_user` VARCHAR(50) NOT NULL   COMMENT '修改人' ,
+       `update_time` BIGINT NOT NULL   COMMENT '更新时间' ,
+       `create_user` VARCHAR(50)    COMMENT '创建人' ,
+       `deleted` BIT NOT NULL  DEFAULT 0 COMMENT '是否删除' ,
+       `deleted_file_name` VARCHAR(255)    COMMENT '删除时的文件名称' ,
+       PRIMARY KEY (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_general_ci
     COMMENT = '文件资源关联';
+
 
 
 

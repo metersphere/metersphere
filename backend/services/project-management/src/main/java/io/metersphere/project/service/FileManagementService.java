@@ -4,6 +4,7 @@ import io.metersphere.project.domain.*;
 import io.metersphere.project.dto.filemanagement.FileManagementQuery;
 import io.metersphere.project.dto.filemanagement.request.FileBatchProcessRequest;
 import io.metersphere.project.mapper.*;
+import io.metersphere.project.utils.FileMetadataUtils;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.StorageType;
@@ -66,9 +67,15 @@ public class FileManagementService {
             repositoryExample.createCriteria().andFileMetadataIdIn(deleteIds);
             fileMetadataRepositoryMapper.deleteByExample(repositoryExample);
 
-            FileAssociationExample associationExample = new FileAssociationExample();
-            associationExample.createCriteria().andFileIdIn(deleteIds);
-            fileAssociationMapper.deleteByExample(associationExample);
+            // 2.1 需求： 删除文件时，对应的关系不应删除，要打上删除标记并赋值删除时的文件名称。这样在关联列表中就可以看到删除的文件
+            for (FileMetadata fileMetadata : deleteList) {
+                FileAssociationExample associationExample = new FileAssociationExample();
+                associationExample.createCriteria().andFileIdEqualTo(fileMetadata.getId());
+                FileAssociation updateAssociation = new FileAssociation();
+                updateAssociation.setDeleted(true);
+                updateAssociation.setDeletedFileName(FileMetadataUtils.getFileName(fileMetadata));
+                fileAssociationMapper.updateByExampleSelective(updateAssociation, associationExample);
+            }
 
             //记录日志
             fileMetadataLogService.saveDeleteLog(deleteList, request.getProjectId(), operator);

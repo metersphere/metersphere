@@ -12,6 +12,8 @@
     <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
+    <result column="deleted" jdbcType="BIT" property="deleted" />
+    <result column="deleted_file_name" jdbcType="VARCHAR" property="deletedFileName" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -73,7 +75,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, source_type, source_id, file_id, file_ref_id, file_version, create_time, update_user, 
-    update_time, create_user
+    update_time, create_user, deleted, deleted_file_name
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.project.domain.FileAssociationExample" resultMap="BaseResultMap">
     select
@@ -109,11 +111,13 @@
     insert into file_association (id, source_type, source_id, 
       file_id, file_ref_id, file_version, 
       create_time, update_user, update_time, 
-      create_user)
+      create_user, deleted, deleted_file_name
+      )
     values (#{id,jdbcType=VARCHAR}, #{sourceType,jdbcType=VARCHAR}, #{sourceId,jdbcType=VARCHAR}, 
       #{fileId,jdbcType=VARCHAR}, #{fileRefId,jdbcType=VARCHAR}, #{fileVersion,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, 
-      #{createUser,jdbcType=VARCHAR})
+      #{createUser,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT}, #{deletedFileName,jdbcType=VARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.FileAssociation">
     insert into file_association
@@ -148,6 +152,12 @@
       <if test="createUser != null">
         create_user,
       </if>
+      <if test="deleted != null">
+        deleted,
+      </if>
+      <if test="deletedFileName != null">
+        deleted_file_name,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -179,6 +189,12 @@
       </if>
       <if test="createUser != null">
         #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="deleted != null">
+        #{deleted,jdbcType=BIT},
+      </if>
+      <if test="deletedFileName != null">
+        #{deletedFileName,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -221,6 +237,12 @@
       <if test="record.createUser != null">
         create_user = #{record.createUser,jdbcType=VARCHAR},
       </if>
+      <if test="record.deleted != null">
+        deleted = #{record.deleted,jdbcType=BIT},
+      </if>
+      <if test="record.deletedFileName != null">
+        deleted_file_name = #{record.deletedFileName,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -237,7 +259,9 @@
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_user = #{record.updateUser,jdbcType=VARCHAR},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      create_user = #{record.createUser,jdbcType=VARCHAR}
+      create_user = #{record.createUser,jdbcType=VARCHAR},
+      deleted = #{record.deleted,jdbcType=BIT},
+      deleted_file_name = #{record.deletedFileName,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -272,6 +296,12 @@
       <if test="createUser != null">
         create_user = #{createUser,jdbcType=VARCHAR},
       </if>
+      <if test="deleted != null">
+        deleted = #{deleted,jdbcType=BIT},
+      </if>
+      <if test="deletedFileName != null">
+        deleted_file_name = #{deletedFileName,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -285,19 +315,22 @@
       create_time = #{createTime,jdbcType=BIGINT},
       update_user = #{updateUser,jdbcType=VARCHAR},
       update_time = #{updateTime,jdbcType=BIGINT},
-      create_user = #{createUser,jdbcType=VARCHAR}
+      create_user = #{createUser,jdbcType=VARCHAR},
+      deleted = #{deleted,jdbcType=BIT},
+      deleted_file_name = #{deletedFileName,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into file_association
     (id, source_type, source_id, file_id, file_ref_id, file_version, create_time, update_user, 
-      update_time, create_user)
+      update_time, create_user, deleted, deleted_file_name)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.sourceType,jdbcType=VARCHAR}, #{item.sourceId,jdbcType=VARCHAR}, 
         #{item.fileId,jdbcType=VARCHAR}, #{item.fileRefId,jdbcType=VARCHAR}, #{item.fileVersion,jdbcType=VARCHAR}, 
         #{item.createTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}, 
-        #{item.createUser,jdbcType=VARCHAR})
+        #{item.createUser,jdbcType=VARCHAR}, #{item.deleted,jdbcType=BIT}, #{item.deletedFileName,jdbcType=VARCHAR}
+        )
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -339,6 +372,12 @@
         </if>
         <if test="'create_user'.toString() == column.value">
           #{item.createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="'deleted'.toString() == column.value">
+          #{item.deleted,jdbcType=BIT}
+        </if>
+        <if test="'deleted_file_name'.toString() == column.value">
+          #{item.deletedFileName,jdbcType=VARCHAR}
         </if>
       </foreach>
       )

@@ -174,6 +174,7 @@ public class FileAssociationService {
                 fileAssociation.setUpdateTime(operatorTime);
                 fileAssociation.setUpdateUser(logRecord.getOperator());
                 fileAssociation.setFileVersion(item.getFileVersion());
+                fileAssociation.setDeleted(false);
                 createFile.add(fileAssociation);
             });
             fileAssociationMapper.batchInsert(createFile);
