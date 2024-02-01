@@ -2,17 +2,17 @@ package io.metersphere.system.controller;
 
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.system.utils.Pager;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.OrganizationDTO;
 import io.metersphere.system.dto.ProjectDTO;
-import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.dto.request.OrganizationMemberRequest;
 import io.metersphere.system.dto.request.OrganizationRequest;
 import io.metersphere.system.dto.request.ProjectRequest;
+import io.metersphere.system.dto.user.UserExtendDTO;
+import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
@@ -220,7 +220,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
         organizationMemberRequest.setUserIds(List.of("admin", "default-admin"));
         this.requestPost(ORGANIZATION_ADD_MEMBER, organizationMemberRequest, status().isOk());
         // 日志校验
-        checkLog(organizationMemberRequest.getOrganizationId(), OperationLogType.UPDATE);
+        checkLog(organizationMemberRequest.getOrganizationId(), OperationLogType.ADD);
         // 批量添加成员成功后, 验证是否添加成功
         OrganizationRequest organizationRequest = new OrganizationRequest();
         organizationRequest.setCurrent(1);
@@ -313,7 +313,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
     public void testRemoveOrganizationMemberSuccess() throws Exception {
         this.requestGet(ORGANIZATION_REMOVE_MEMBER + "/default-organization-3/admin", status().isOk());
         // 日志校验
-        checkLog("default-organization-3", OperationLogType.UPDATE);
+        checkLog("default-organization-3", OperationLogType.DELETE);
         // 权限校验
         requestGetPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_DELETE, ORGANIZATION_REMOVE_MEMBER + "/default-organization-3/admin");
     }

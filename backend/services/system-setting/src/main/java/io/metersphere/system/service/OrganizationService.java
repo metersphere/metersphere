@@ -170,8 +170,8 @@ public class OrganizationService {
         UserExample example = new UserExample();
         example.createCriteria().andIdIn(batchRequest.getUserIds());
         List<User> users = userMapper.selectByExample(example);
-        Organization organization = organizationMapper.selectByPrimaryKey(organizationMemberRequest.getOrganizationId());
-        setLog(organizationMemberRequest.getOrganizationId(), createUserId, OperationLogType.UPDATE.name(), organization.getName(), ADD_MEMBER_PATH, null, users, logs);
+        List<String> nameList = users.stream().map(User::getName).collect(Collectors.toList());
+        setLog(organizationMemberRequest.getOrganizationId(), createUserId, OperationLogType.ADD.name(), Translator.get("add") + Translator.get("organization_member_log") + ": " + StringUtils.join(nameList, ","), ADD_MEMBER_PATH, null, null, logs);
         operationLogService.batchAdd(logs);
     }
 
@@ -218,7 +218,7 @@ public class OrganizationService {
      * @param organizationId 组织ID
      * @param userId         成员ID
      */
-    public void removeMember(String organizationId, String userId) {
+    public void removeMember(String organizationId, String userId, String currentUser) {
         List<LogDTO> logs = new ArrayList<>();
         checkOrgExistById(organizationId);
         //删除组织下项目与成员的关系
@@ -234,8 +234,7 @@ public class OrganizationService {
         userRoleRelationMapper.deleteByExample(example);
         // 操作记录
         User user = userMapper.selectByPrimaryKey(userId);
-        Organization organization = organizationMapper.selectByPrimaryKey(organizationId);
-        setLog(organizationId, userId, OperationLogType.UPDATE.name(), organization.getName(), REMOVE_MEMBER_PATH, user, null, logs);
+        setLog(organizationId, currentUser, OperationLogType.DELETE.name(), Translator.get("delete") + Translator.get("organization_member_log") + ": " + user.getName(), REMOVE_MEMBER_PATH, user, null, logs);
         operationLogService.batchAdd(logs);
     }
 
@@ -465,32 +464,33 @@ public class OrganizationService {
     public List<LogDTO> batchDelLog(String organizationId, String userId) {
         List<String> projectIds = getProjectIds(organizationId);
         UserRoleRelationExample example = new UserRoleRelationExample();
-        if (CollectionUtils.isEmpty(projectIds)) {
-            return null;
+        List<LogDTO> dtoList = new ArrayList<>();
+        User user = userMapper.selectByPrimaryKey(userId);
+        if (CollectionUtils.isNotEmpty(projectIds)) {
+            // 项目层级日志
+            example.createCriteria().andUserIdEqualTo(userId).andSourceIdIn(projectIds);
+            List<UserRoleRelation> userRoleWidthProjectRelations = userRoleRelationMapper.selectByExample(example);
+            //记录项目日志
+            for (UserRoleRelation userRoleWidthProjectRelation : userRoleWidthProjectRelations) {
+                LogDTO dto = new LogDTO(
+                        userRoleWidthProjectRelation.getSourceId(),
+                        organizationId,
+                        userId,
+                        userRoleWidthProjectRelation.getCreateUser(),
+                        OperationLogType.DELETE.name(),
+                        OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_MEMBER,
+                        user.getName());
+
+                dto.setPath("/organization/remove-member/{organizationId}/{userId}");
+                dto.setMethod(HttpMethodConstants.POST.name());
+                dto.setOriginalValue(JSON.toJSONBytes(userRoleWidthProjectRelation));
+                dtoList.add(dto);
+            }
         }
-        example.createCriteria().andUserIdEqualTo(userId).andSourceIdIn(projectIds);
-        List<UserRoleRelation> userRoleWidthProjectRelations = userRoleRelationMapper.selectByExample(example);
+
         example = new UserRoleRelationExample();
         example.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(organizationId);
         List<UserRoleRelation> userRoleWidthOrgRelations = userRoleRelationMapper.selectByExample(example);
-        List<LogDTO> dtoList = new ArrayList<>();
-        User user = userMapper.selectByPrimaryKey(userId);
-        //记录项目日志
-        for (UserRoleRelation userRoleWidthProjectRelation : userRoleWidthProjectRelations) {
-            LogDTO dto = new LogDTO(
-                    userRoleWidthProjectRelation.getSourceId(),
-                    organizationId,
-                    userId,
-                    userRoleWidthProjectRelation.getCreateUser(),
-                    OperationLogType.DELETE.name(),
-                    OperationLogModule.PROJECT_MANAGEMENT_PERMISSION_MEMBER,
-                    user.getName());
-
-            dto.setPath("/organization/remove-member/{organizationId}/{userId}");
-            dto.setMethod(HttpMethodConstants.POST.name());
-            dto.setOriginalValue(JSON.toJSONBytes(userRoleWidthProjectRelation));
-            dtoList.add(dto);
-        }
         //记录组织日志
         for (UserRoleRelation userRoleWidthOrgRelation : userRoleWidthOrgRelations) {
             LogDTO dto = new LogDTO(
