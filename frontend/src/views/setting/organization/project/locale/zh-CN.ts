@@ -51,7 +51,7 @@ export default {
   'system.organization.updateOrganizationSuccess': '更新组织成功',
   'system.organization.createProject': '创建项目',
   'system.organization.subordinateOrg': '所属组织',
-  'system.project.revokeDeleteTitle': '确认恢复 {name} 这个项目吗？',
+  'system.project.revokeDeleteTitle': '确认撤销删除 {name} 这个项目吗？',
   'system.project.enableTitle': '开启项目',
   'system.project.endTitle': '关闭项目',
   'system.project.enableContent': '开启后的项目展示在项目切换列表',

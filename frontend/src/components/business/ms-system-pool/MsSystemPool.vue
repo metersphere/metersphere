@@ -7,6 +7,7 @@
 
   import { getPoolOptionsByOrgOrSystem } from '@/api/modules/setting/organizationAndProject';
 
+  const showPoolModuleIds = ['uiTest', 'apiTest', 'loadTest'];
   const options = ref([]);
   const fieldNames = { value: 'id', label: 'name' };
   const props = defineProps<{ organizationId?: string; modelValue: string[] }>();
@@ -22,11 +23,12 @@
       emit('update:modelValue', v);
     },
   });
+  const showPool = computed(() => showPoolModuleIds.some((item) => props.modelValue.includes(item)));
 
-  const loadList = async (id?: string) => {
+  const loadList = async (arr: string[], id?: string) => {
     try {
       loading.value = true;
-      options.value = await getPoolOptionsByOrgOrSystem(id);
+      options.value = await getPoolOptionsByOrgOrSystem(arr, id);
     } catch (error) {
       options.value = [];
       // eslint-disable-next-line no-console
@@ -36,6 +38,6 @@
     }
   };
   watchEffect(() => {
-    loadList(props.organizationId);
+    loadList(showPool.value ? props.modelValue : [], props.organizationId);
   });
 </script>
