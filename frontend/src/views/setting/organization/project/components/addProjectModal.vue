@@ -4,6 +4,7 @@
     title-align="start"
     class="ms-modal-form ms-modal-medium"
     unmount-on-close
+    :mask-closable="false"
     @cancel="handleCancel(false)"
   >
     <template #title>

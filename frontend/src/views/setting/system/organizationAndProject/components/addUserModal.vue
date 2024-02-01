@@ -4,6 +4,7 @@
     title-align="start"
     class="ms-modal-form ms-modal-medium"
     :ok-text="t('system.organization.addMember')"
+    :mask-closable="false"
     unmount-on-close
     @cancel="handleCancel"
   >

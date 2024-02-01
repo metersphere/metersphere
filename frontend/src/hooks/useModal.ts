@@ -65,6 +65,7 @@ export default function useModal() {
         okText: t('common.confirmDelete'),
         cancelText: t('common.cancel'),
         hideCancel: false,
+        simple: false,
         okButtonProps: { status: 'danger' },
         titleAlign: 'start',
         modalClass: `ms-usemodal ms-usemodal-warning ms-usemodal-small`,

@@ -32,8 +32,8 @@
         </template>
         <template #operation="{ record }">
           <MsRemoveButton
-            :title="t('system.organization.removeName', { name: record.name })"
-            :sub-title-tip="t('system.organization.removeTip')"
+            :title="t('system.project.removeName', { name: record.name })"
+            :sub-title-tip="t('system.project.removeTip')"
             @ok="handleRemove(record)"
           />
         </template>

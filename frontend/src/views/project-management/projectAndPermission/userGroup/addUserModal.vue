@@ -5,6 +5,7 @@
     class="ms-modal-form ms-modal-medium"
     :ok-text="t('system.organization.addMember')"
     unmount-on-close
+    :mask-closable="false"
     @cancel="handleCancel(false)"
   >
     <template #title> {{ t('system.organization.addMember') }} </template>

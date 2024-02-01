@@ -5,6 +5,7 @@
     :ok-text="isEdit ? t('common.update') : t('common.create')"
     title-align="start"
     unmount-on-close
+    :mask-closable="false"
     @cancel="handleCancel(false)"
   >
     <template #title>

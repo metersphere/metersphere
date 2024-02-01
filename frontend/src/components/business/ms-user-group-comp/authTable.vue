@@ -465,6 +465,7 @@
           permissions,
         });
       }
+      canSave.value = false;
       Message.success(t('common.saveSuccess'));
       initData(props.current.id);
     } catch (error) {
