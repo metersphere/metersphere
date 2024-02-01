@@ -186,8 +186,12 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
 
         FileModuleExample example = new FileModuleExample();
         example.createCriteria().andParentIdEqualTo(nodeSortDTO.getParent().getId()).andIdEqualTo(request.getDragNodeId());
-        //节点换到了别的节点下,要先更新parent节点再计算sort
+        //节点换到了别的节点下,要先更新parent节点再计算sort （同步进行名称的校验）
         if (fileModuleMapper.countByExample(example) == 0) {
+            FileModule moveModule = fileModuleMapper.selectByPrimaryKey(request.getDragNodeId());
+            moveModule.setParentId(nodeSortDTO.getParent().getId());
+            this.checkDataValidity(moveModule);
+
             FileModule fileModule = new FileModule();
             fileModule.setId(request.getDragNodeId());
             fileModule.setParentId(nodeSortDTO.getParent().getId());
