@@ -112,4 +112,6 @@ export default {
   'common.batchMove': '批量移动',
   'common.batchMoveSuccess': '批量移动成功',
   'common.importSuccess': '导入成功',
+  'common.nameIsTooLang': '名称超过255个字符',
+  'common.validateSuccess': '验证成功',
 };

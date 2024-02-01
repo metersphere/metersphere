@@ -59,7 +59,10 @@
             </div>
           </template>
           <div>
-            <MsIcon class="ml-[4px] text-[var(--color-text-4)]" type="icon-icon-maybe_outlined" />
+            <MsIcon
+              class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+              type="icon-icon-maybe_outlined"
+            />
           </div>
         </a-tooltip>
       </div>

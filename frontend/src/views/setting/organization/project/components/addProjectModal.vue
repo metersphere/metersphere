@@ -22,7 +22,10 @@
           required
           :label="t('system.project.name')"
           asterisk-position="end"
-          :rules="[{ required: true, message: t('system.project.projectNameRequired') }]"
+          :rules="[
+            { required: true, message: t('system.project.projectNameRequired') },
+            { maxLength: 255, message: t('common.nameIsTooLang') },
+          ]"
         >
           <a-input v-model="form.name" allow-clear :placeholder="t('system.project.projectNamePlaceholder')" />
         </a-form-item>
@@ -80,7 +83,10 @@
           <a-switch v-model="form.enable" size="small" type="line" />
           <span>{{ t('system.organization.status') }}</span>
           <a-tooltip :content="t('system.project.createTip')" position="top">
-            <MsIcon type="icon-icon-maybe_outlined" class="text-[var(--color-text-4)]" />
+            <MsIcon
+              type="icon-icon-maybe_outlined"
+              class="text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+            />
           </a-tooltip>
         </div>
         <div class="flex flex-row gap-[14px]">

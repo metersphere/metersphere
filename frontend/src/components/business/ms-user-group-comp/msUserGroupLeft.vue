@@ -293,7 +293,7 @@
   } from '@/api/modules/setting/usergroup';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
-  import { useAppStore, useUserStore } from '@/store';
+  import { useAppStore } from '@/store';
   import { characterLimit } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -307,7 +307,6 @@
     (e: 'addUserSuccess', id: string): void;
   }>();
   const appStore = useAppStore();
-  const userStore = useUserStore();
   const { openModal } = useModal();
 
   const systemType = inject<AuthScopeEnum>('systemType');

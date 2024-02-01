@@ -23,15 +23,14 @@
           required
           asterisk-position="end"
           :label="t('system.organization.organizationName')"
-          :rules="[{ required: true, message: t('system.organization.organizationNameRequired') }]"
+          :rules="[
+            { required: true, message: t('system.organization.organizationNameRequired') },
+            { maxLength: 255, message: t('common.nameIsTooLang') },
+          ]"
         >
-          <a-input
-            v-model="form.name"
-            :max-length="255"
-            :placeholder="t('system.organization.organizationNamePlaceholder')"
-          />
+          <a-input v-model="form.name" :placeholder="t('system.organization.organizationNamePlaceholder')" />
         </a-form-item>
-        <a-form-item field="name" :label="t('system.organization.organizationAdmin')">
+        <a-form-item field="userIds" :label="t('system.organization.organizationAdmin')">
           <MsUserSelector
             v-model="form.userIds"
             placeholder="system.organization.organizationAdminPlaceholder"

@@ -94,7 +94,10 @@
         <a-form-item
           field="name"
           :label="t('project.userGroup.name')"
-          :rules="[{ required: true, message: t('project.userGroup.addRequired') }]"
+          :rules="[
+            { required: true, message: t('project.userGroup.addRequired') },
+            { maxLength: 255, message: t('common.nameIsTooLang') },
+          ]"
           asterisk-position="end"
         >
           <a-input v-model="form.name" />

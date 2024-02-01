@@ -3,7 +3,10 @@
     <div class="text-[var(--color-text-1)]"> {{ t('project.menu.management') }}</div>
     <a-tooltip :content="t('project.menu.manageTip')" position="bl">
       <div>
-        <MsIcon class="ml-[4px] text-[rgb(var(--primary-5))]" type="icon-icon-maybe_outlined" />
+        <MsIcon
+          class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+          type="icon-icon-maybe_outlined"
+        />
       </div>
     </a-tooltip>
   </div>
@@ -113,7 +116,10 @@
           position="right"
         >
           <div>
-            <MsIcon class="ml-[4px] text-[rgb(var(--primary-5))]" type="icon-icon-maybe_outlined" />
+            <MsIcon
+              class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+              type="icon-icon-maybe_outlined"
+            />
           </div>
         </a-tooltip>
       </div>
@@ -129,7 +135,10 @@
         />
         <a-tooltip :content="t('project.menu.API_SCRIPT_REVIEWER_TIP')" position="right">
           <div>
-            <MsIcon class="ml-[4px] text-[rgb(var(--primary-5))]" type="icon-icon-maybe_outlined" />
+            <MsIcon
+              class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+              type="icon-icon-maybe_outlined"
+            />
           </div>
         </a-tooltip>
       </div>
@@ -155,7 +164,10 @@
         >
         <a-tooltip :content="t('project.menu.API_ERROR_REPORT_RULE_TIP')" position="right">
           <div>
-            <MsIcon class="ml-[4px] text-[rgb(var(--primary-5))]" type="icon-icon-maybe_outlined" />
+            <MsIcon
+              class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+              type="icon-icon-maybe_outlined"
+            />
           </div>
         </a-tooltip>
       </div>
@@ -195,7 +207,10 @@
           position="right"
         >
           <div>
-            <MsIcon class="ml-[4px] text-[rgb(var(--primary-5))]" type="icon-icon-maybe_outlined" />
+            <MsIcon
+              class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+              type="icon-icon-maybe_outlined"
+            />
           </div>
         </a-tooltip>
       </div>
@@ -227,7 +242,10 @@
         />
         <a-tooltip :content="t('project.menu.PERFORMANCE_TEST_SCRIPT_REVIEWER_TIP')" position="right">
           <div>
-            <MsIcon class="ml-[4px] text-[rgb(var(--primary-5))]" type="icon-icon-maybe_outlined" />
+            <MsIcon
+              class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+              type="icon-icon-maybe_outlined"
+            />
           </div>
         </a-tooltip>
       </div>

@@ -109,4 +109,6 @@ export default {
   'common.batchMove': 'Batch move',
   'common.batchMoveSuccess': 'Batch move successful',
   'common.importSuccess': 'Import successful',
+  'common.nameIsTooLang': 'The name exceeds 255 characters',
+  'common.validateSuccess': 'Validate success',
 };
