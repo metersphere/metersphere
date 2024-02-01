@@ -144,7 +144,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
 
         // 去重复
         List<String> userIds = toUsers.stream().map(Receiver::getUserId).distinct().toList();
-        LogUtils.error("userIds: ", JSON.toJSONString(userIds));
+        LogUtils.info("userIds: ", JSON.toJSONString(userIds));
         List<User> users = getUsers(userIds);
         List<String> realUserIds = users.stream().map(User::getId).toList();
         return toUsers.stream().filter(t -> realUserIds.contains(t.getUserId())).toList();
