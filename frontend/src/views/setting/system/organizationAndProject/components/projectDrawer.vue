@@ -13,7 +13,7 @@
       <div class="flex flex-row justify-end">
         <a-input-search
           v-model:model-value="keyword"
-          :placeholder="t('system.user.searchUser')"
+          :placeholder="t('system.project.searchPlaceholder')"
           class="w-[230px]"
           allow-clear
           @search="searchUser"
