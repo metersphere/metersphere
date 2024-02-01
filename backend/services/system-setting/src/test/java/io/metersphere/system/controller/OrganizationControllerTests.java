@@ -1,17 +1,17 @@
 package io.metersphere.system.controller;
 
-import io.metersphere.system.base.BaseTest;
 import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.system.controller.handler.ResultHolder;
-import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.sdk.util.JSON;
-import io.metersphere.system.utils.Pager;
+import io.metersphere.system.base.BaseTest;
+import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.OrgUserExtend;
 import io.metersphere.system.dto.request.OrgMemberExtendProjectRequest;
 import io.metersphere.system.dto.request.OrganizationMemberExtendRequest;
 import io.metersphere.system.dto.request.OrganizationMemberUpdateRequest;
 import io.metersphere.system.dto.request.OrganizationRequest;
+import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -432,6 +432,7 @@ public class OrganizationControllerTests extends BaseTest {
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.get("/organization/not-exist/user/list/sys_default_organization_3")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .param("keyword", "test")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
