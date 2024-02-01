@@ -347,8 +347,8 @@
     openModal({
       type: 'error',
       cancelText: t('common.cancel'),
-      title: t('system.project.revokeDeleteTitle', { name: record.name }),
-      content: t('system.project.enableContent'),
+      title: t('system.project.revokeDeleteTitle', { name: characterLimit(record.name) }),
+      content: '',
       okText: t('common.revokeDelete'),
       onBeforeOk: async () => {
         try {

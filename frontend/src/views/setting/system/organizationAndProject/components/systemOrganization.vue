@@ -3,7 +3,7 @@
     <template #revokeDelete="{ record }">
       <a-tooltip background-color="#FFFFFF">
         <template #content>
-          <span>
+          <div class="flex flex-row">
             <span class="text-[var(--color-text-1)]">{{
               t('system.organization.revokeDeleteToolTip', { count: record.remainDayCount })
             }}</span>
@@ -13,7 +13,7 @@
               @click="handleRevokeDelete(record)"
               >{{ t('common.revokeDelete') }}</MsButton
             >
-          </span>
+          </div>
         </template>
         <MsIcon v-if="record.deleted" type="icon-icon_alarm_clock" class="ml-[4px] text-[rgb(var(--danger-6))]" />
       </a-tooltip>

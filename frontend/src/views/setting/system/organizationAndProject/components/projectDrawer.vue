@@ -66,6 +66,7 @@
     {
       title: 'system.project.name',
       dataIndex: 'name',
+      showTooltip: true,
     },
     {
       title: 'system.organization.status',

@@ -20,7 +20,7 @@
                 v-if="tableData && tableData?.length > 0"
                 :model-value="allChecked"
                 :indeterminate="allIndeterminate"
-                :disabled="currentInternal || props.disabled"
+                :disabled="systemAdminDisabled"
                 class="mr-[7px]"
                 @change="handleAllAuthChangeByCheckbox"
               ></a-checkbox>
@@ -35,7 +35,7 @@
                 <a-checkbox
                   v-for="item in record.permissions"
                   :key="item.id"
-                  :disabled="item.license || currentInternal || props.disabled"
+                  :disabled="item.license || systemAdminDisabled"
                   :value="item.id"
                   >{{ t(item.name) }}</a-checkbox
                 >
@@ -44,7 +44,7 @@
                 class="mr-[7px]"
                 :model-value="record.enable"
                 :indeterminate="record.indeterminate"
-                :disabled="currentInternal || props.disabled"
+                :disabled="systemAdminDisabled"
                 @change="(value) => handleRowAuthChange(value, rowIndex)"
               />
             </div>
@@ -79,6 +79,7 @@
     saveOrgUSetting,
   } from '@/api/modules/setting/usergroup';
   import { useI18n } from '@/hooks/useI18n';
+  import { useUserStore } from '@/store';
 
   import {
     type AuthScopeType,
@@ -125,7 +126,7 @@
       },
     }
   );
-
+  const userStore = useUserStore();
   const systemType = inject<AuthScopeEnum>('systemType');
 
   const loading = ref(false);
@@ -149,9 +150,22 @@
   const tableData = ref<AuthTableItem[]>();
   // 是否可以保存
   const canSave = ref(false);
-  // 内部用户不可编辑
-  const currentInternal = computed(() => {
-    return props.current.internal;
+
+  // 不可编辑的权限
+  const systemAdminDisabled = computed(() => {
+    const adminArr = ['admin', 'org_admin', 'project_admin'];
+    const memberArr = ['member', 'org_member', 'project_member'];
+    const { id } = props.current;
+    if (adminArr.includes(id)) {
+      // 系统管理员,组织管理员，项目管理员都不可编辑
+      return true;
+    }
+    if (memberArr.includes(id)) {
+      // 系统管理员角色可以编辑 系统成员 组织成员 项目成员
+      return !userStore.isAdmin;
+    }
+
+    return props.disabled;
   });
 
   const dataSpanMethod = (data: {
