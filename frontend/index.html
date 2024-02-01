@@ -1,13 +1,23 @@
 <!DOCTYPE html>
 <html lang="zh">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MeterSphere</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="shortcut icon" type="image/x-icon" href="./favicon.ico" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MeterSphere</title>
+</head>
+
+<body>
+  <div id="app"></div>
+  <script type="module" src="/src/main.ts"></script>
+  <script>
+    //解决 firefox 拖拽会自动打开新标签
+    document.body.ondrop = function (event) {
+      event.preventDefault()
+      event.stopPropagation()
+    }
+  </script>
+</body>
+
 </html>

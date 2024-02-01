@@ -136,13 +136,13 @@
   const affiliatedOrgOption = ref<SystemOrgOption[]>([]);
   const licenseStore = useLicenseStore();
   const moduleOption = [
-    { label: 'menu.workbench', value: 'workstation' },
-    { label: 'menu.testPlan', value: 'testPlan' },
+    // { label: 'menu.workbench', value: 'workstation' },
+    // { label: 'menu.testPlan', value: 'testPlan' },
     { label: 'menu.bugManagement', value: 'bugManagement' },
     { label: 'menu.caseManagement', value: 'caseManagement' },
     { label: 'menu.apiTest', value: 'apiTest' },
-    { label: 'menu.uiTest', value: 'uiTest' },
-    { label: 'menu.performanceTest', value: 'loadTest' },
+    // { label: 'menu.uiTest', value: 'uiTest' },
+    // { label: 'menu.performanceTest', value: 'loadTest' },
   ];
 
   const emit = defineEmits<{
