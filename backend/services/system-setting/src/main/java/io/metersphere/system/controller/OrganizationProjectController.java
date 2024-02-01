@@ -128,7 +128,7 @@ public class OrganizationProjectController {
     @PostMapping("/add-members")
     @RequiresPermissions(PermissionConstants.ORGANIZATION_PROJECT_MEMBER_ADD)
     @Operation(summary = "系统设置-组织-项目-添加成员")
-    @CheckOwner(resourceId = "#request.id", resourceType = "project")
+    @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public void addProjectMember(@Validated @RequestBody ProjectAddMemberRequest request) {
         ProjectAddMemberBatchRequest batchRequest = new ProjectAddMemberBatchRequest();
         batchRequest.setProjectIds(List.of(request.getProjectId()));
