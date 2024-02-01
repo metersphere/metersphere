@@ -6,27 +6,28 @@ import io.metersphere.project.domain.ProjectTestResourcePool;
 import io.metersphere.project.domain.ProjectTestResourcePoolExample;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
-import io.metersphere.sdk.constants.InternalUserRole;
-import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.sdk.constants.SessionConstants;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
-import io.metersphere.system.domain.User;
-import io.metersphere.system.domain.UserRoleRelation;
-import io.metersphere.system.domain.UserRoleRelationExample;
+import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.*;
 import io.metersphere.system.dto.request.OrganizationProjectRequest;
 import io.metersphere.system.dto.request.ProjectAddMemberRequest;
 import io.metersphere.system.dto.request.ProjectMemberRequest;
 import io.metersphere.system.dto.request.ProjectPoolRequest;
+import io.metersphere.system.dto.sdk.request.TemplateCustomFieldRequest;
+import io.metersphere.system.dto.sdk.request.TemplateUpdateRequest;
 import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.invoker.ProjectServiceInvoker;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.mapper.TemplateMapper;
 import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
+import io.metersphere.system.service.OrganizationCustomFieldService;
 import io.metersphere.system.service.OrganizationService;
+import io.metersphere.system.service.OrganizationTemplateService;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -90,6 +91,12 @@ public class OrganizationProjectControllerTests extends BaseTest {
     private UserMapper userMapper;
     @Resource
     private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
+    @Resource
+    private OrganizationCustomFieldService organizationCustomFieldService;
+    @Resource
+    private OrganizationTemplateService organizationTemplateService;
+    @Resource
+    protected TemplateMapper templateMapper;
     private final ProjectServiceInvoker serviceInvoker;
 
     @Autowired
@@ -194,6 +201,28 @@ public class OrganizationProjectControllerTests extends BaseTest {
     }
 
     public void initData() {
+
+        // 当前组织下，创建一个字段并关联到模板，测试创建项目时，是否初始化成功
+        CustomField customField = new CustomField();
+        customField.setName("test create project");
+        customField.setScopeId(DEFAULT_ORGANIZATION_ID);
+        customField.setScene(TemplateScene.API.name());
+        customField.setType(CustomFieldType.DATE.name());
+        customField.setCreateUser("amdin");
+        customField = organizationCustomFieldService.add(customField, null);
+        TemplateExample example = new TemplateExample();
+        example.createCriteria().andScopeIdEqualTo(DEFAULT_ORGANIZATION_ID)
+                .andSceneEqualTo(TemplateScene.API.name());
+        Template template = templateMapper.selectByExample(example).get(0);
+        TemplateUpdateRequest updateRequest = new TemplateUpdateRequest();
+        TemplateCustomFieldRequest templateCustomFieldRequest = new TemplateCustomFieldRequest();
+        templateCustomFieldRequest.setFieldId(customField.getId());
+        templateCustomFieldRequest.setDefaultValue(StringUtils.EMPTY);
+        templateCustomFieldRequest.setRequired(false);
+        updateRequest.setCustomFields(List.of(templateCustomFieldRequest));
+        updateRequest.setId(template.getId());
+        organizationTemplateService.update(updateRequest);
+
         if (projectMapper.selectByPrimaryKey("projectId") == null) {
             Project initProject = new Project();
             initProject.setId("projectId");
@@ -288,6 +317,7 @@ public class OrganizationProjectControllerTests extends BaseTest {
             projectMapper.insertSelective(initProject);
             serviceInvoker.invokeCreateServices(initProject.getId());
         }
+
     }
 
     @Test

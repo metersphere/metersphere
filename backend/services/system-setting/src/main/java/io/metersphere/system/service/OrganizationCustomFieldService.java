@@ -87,6 +87,7 @@ public class OrganizationCustomFieldService extends BaseCustomFieldService {
         }
         checkOrganizationTemplateEnable(customField.getScopeId(), originCustomField.getScene());
         customField.setScopeId(originCustomField.getScopeId());
+        customField.setScene(originCustomField.getScene());
         OrganizationService.checkResourceExist(originCustomField.getScopeId());
         // 同步创建项目级别字段
         updateRefProjectCustomField(customField, options);
@@ -109,6 +110,7 @@ public class OrganizationCustomFieldService extends BaseCustomFieldService {
             customField.setId(projectField.getId());
             customField.setScopeId(projectField.getScopeId());
             customField.setRefId(orgCustomField.getId());
+            customField.setScene(orgCustomField.getScene());
             super.update(customField, options);
         });
     }
