@@ -127,7 +127,7 @@
 
 <script setup lang="ts">
   /**
-   * @description 模版-字段列表
+   * @description 模板-字段列表
    */
   import { ref } from 'vue';
   import { useRoute } from 'vue-router';
@@ -273,7 +273,7 @@
       : !templateStore.projectStatus[scene.value as string];
   });
 
-  // 切换模版是否启用展示操作列
+  // 切换模板是否启用展示操作列
   const isEnableOperation = () => {
     if (isEnabledTemplate.value) {
       const noOperationColumn = fieldColumns.slice(0, -1);

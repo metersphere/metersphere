@@ -45,8 +45,10 @@
             </div>
           </template>
           <template v-else>
-            <div class="ms-upload-main-text">
-              {{ fileList[0]?.name }}
+            <div class="ms-upload-main-text w-full">
+              <a-tooltip :content="fileList[0]?.name">
+                <span class="one-line-text w-[80%]"> {{ fileList[0]?.name }}</span>
+              </a-tooltip>
             </div>
             <div class="ms-upload-sub-text">{{ formatFileSize(fileList[0]?.file?.size || 0) }}</div>
           </template>
@@ -89,6 +91,7 @@
     draggable: boolean; // 是否支持拖拽上传
     isAllScreen?: boolean; // 是否是全屏显示拖拽上传
     cutHeight: number; // 被剪切高度
+    fileTypeTip?: string; // 上传文件类型错误提示
   }> & {
     accept: UploadType;
     fileList: MsFileItem[];
@@ -130,6 +133,17 @@
     const _maxSize = props.sizeUnit === 'MB' ? maxSize * 1024 * 1024 : maxSize * 1024;
     if (props.isLimit && file.size > _maxSize) {
       Message.warning(t('ms.upload.overSize'));
+      return Promise.resolve(false);
+    }
+
+    const fileFormatMatch = file.name.match(/\.([a-zA-Z0-9]+)$/);
+
+    // 如果匹配成功，提取文件格式
+    const fileFormatType = fileFormatMatch ? fileFormatMatch[1] : 'none';
+    if (props.accept !== fileFormatType && props.accept !== 'none') {
+      Message.error(
+        props.fileTypeTip ? props?.fileTypeTip : t('ms.upload.fileTypeValidate', { type: props.accept.toUpperCase() })
+      );
       return Promise.resolve(false);
     }
     return Promise.resolve(true);

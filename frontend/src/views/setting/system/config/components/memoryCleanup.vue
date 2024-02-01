@@ -6,7 +6,7 @@
       </div>
       <a-radio-group v-model:model-value="activeType" type="button">
         <a-radio value="log">{{ t('system.config.memoryCleanup.log') }}</a-radio>
-        <a-radio value="history">{{ t('system.config.memoryCleanup.history') }}</a-radio>
+        <a-radio v-xpack value="history">{{ t('system.config.memoryCleanup.history') }}</a-radio>
       </a-radio-group>
       <template v-if="activeType === 'log'">
         <div class="mb-[8px] mt-[16px] flex items-center">
@@ -21,7 +21,7 @@
         <a-input-number
           v-model:model-value="timeCount"
           class="w-[130px]"
-          :disabled="saveLoading"
+          :disabled="saveLoading || !isHasAdminPermission"
           :min="0"
           @blur="() => saveConfig()"
         >
@@ -49,7 +49,7 @@
         <a-input-number
           v-model:model-value="historyCount"
           class="w-[130px]"
-          :disabled="saveLoading"
+          :disabled="saveLoading || !isHasAdminPermission"
           :min="0"
           @blur="() => saveConfig()"
         />
@@ -66,6 +66,7 @@
   import { getCleanupConfig, saveCleanupConfig } from '@/api/modules/setting/config';
   import { useI18n } from '@/hooks/useI18n';
   import { useUserStore } from '@/store';
+  import { hasAnyPermission } from '@/utils/permission';
 
   const userStore = useUserStore();
   const { t } = useI18n();
@@ -114,9 +115,16 @@
     }
   });
 
+  const isHasAdminPermission = computed(() => {
+    return userStore.isAdmin;
+  });
+
   const saveLoading = ref(false);
 
   async function saveConfig() {
+    if (!isHasAdminPermission) {
+      return;
+    }
     saveLoading.value = true;
     await saveCleanupConfig([
       {

@@ -1,11 +1,7 @@
-// import useLicenseStore from '@/store/modules/setting/license';
-
 import { SettingRouteEnum } from '@/enums/routeEnum';
 
 import { DEFAULT_LAYOUT } from '../base';
 import type { AppRouteRecordRaw } from '../types';
-
-// const licenseStore = useLicenseStore();
 
 const Setting: AppRouteRecordRaw = {
   path: '/setting',
@@ -220,7 +216,7 @@ const Setting: AppRouteRecordRaw = {
             isTopMenu: true,
           },
         },
-        // 模板列表-模版字段设置
+        // 模板列表-模板字段设置
         {
           path: 'templateFiledSetting',
           name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_FILED_SETTING,
@@ -237,11 +233,12 @@ const Setting: AppRouteRecordRaw = {
                 name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_FILED_SETTING,
                 locale: 'menu.settings.organization.templateFieldSetting',
                 editLocale: 'menu.settings.organization.templateFieldSetting',
+                query: ['type'],
               },
             ],
           },
         },
-        // 模版管理-模版列表
+        // 模板管理-模板列表
         {
           path: 'templateManagement',
           name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
@@ -258,11 +255,12 @@ const Setting: AppRouteRecordRaw = {
                 name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
                 locale: 'menu.settings.organization.templateManagementList',
                 editLocale: 'menu.settings.organization.templateManagementList',
+                query: ['type'],
               },
             ],
           },
         },
-        // 模板列表-模板管理-创建&编辑模版
+        // 模板列表-模板管理-创建&编辑模板
         {
           path: 'templateManagementDetail/:mode?',
           name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_DETAIL,
@@ -278,12 +276,14 @@ const Setting: AppRouteRecordRaw = {
               {
                 name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
                 locale: 'menu.settings.organization.templateManagementList',
+                query: ['type'],
               },
               {
                 name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT,
                 locale: 'menu.settings.organization.templateManagementDetail',
                 editTag: 'id',
                 editLocale: 'menu.settings.organization.templateManagementEdit',
+                query: ['type'],
               },
             ],
           },
@@ -304,6 +304,7 @@ const Setting: AppRouteRecordRaw = {
               {
                 name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_WORKFLOW,
                 locale: 'menu.settings.organization.templateManagementWorkFlow',
+                query: ['type'],
               },
             ],
           },

@@ -116,7 +116,7 @@
 
 <script setup lang="ts">
   /**
-   * @description 系统管理-组织-模版-模版管理-创建&编辑
+   * @description 系统管理-组织-模板-模板管理-创建&编辑
    */
   import { ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';

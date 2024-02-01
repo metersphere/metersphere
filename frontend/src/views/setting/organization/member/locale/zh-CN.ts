@@ -26,7 +26,7 @@ export default {
   'organization.member.deleteMemberTip': '确认移除 {name} 这个成员吗？',
   'organization.member.deleteMemberConfirm': '确认删除',
   'organization.member.deleteMemberCancel': '取消',
-  'organization.member.deleteMemberSuccess': '删除成功',
+  'organization.member.deleteMemberSuccess': '移除成功',
   'organization.member.batchModalSuccess': '添加成功',
   'organization.member.batchUpdateSuccess': '更新成功',
   'organization.member.project': '项目',

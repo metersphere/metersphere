@@ -68,6 +68,7 @@
 
   import { postProjectMemberByProjectId } from '@/api/modules/setting/organizationAndProject';
   import { useI18n } from '@/hooks/useI18n';
+  import { formatPhoneNumber } from '@/utils';
 
   const { t } = useI18n();
 
@@ -101,14 +102,23 @@
     { title: 'system.organization.operation', slotName: 'operation' },
   ];
 
-  const { propsRes, propsEvent, loadList, setKeyword } = useTable(postProjectMemberByProjectId, {
-    heightUsed: 240,
-    columns: projectColumn,
-    scroll: { x: '100%' },
-    selectable: false,
-    noDisable: false,
-    pageSimple: true,
-  });
+  const { propsRes, propsEvent, loadList, setKeyword } = useTable(
+    postProjectMemberByProjectId,
+    {
+      heightUsed: 240,
+      columns: projectColumn,
+      scroll: { x: '100%' },
+      selectable: false,
+      noDisable: false,
+      pageSimple: true,
+    },
+    (record) => {
+      return {
+        ...record,
+        phone: formatPhoneNumber(record.phone || ''),
+      };
+    }
+  );
 
   async function searchUser() {
     setKeyword(keyword.value);

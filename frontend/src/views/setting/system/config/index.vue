@@ -34,8 +34,12 @@
     { key: 'baseConfig', title: t('system.config.baseConfig'), permission: ['SYSTEM_PARAMETER_SETTING_BASE:READ'] },
     { key: 'pageConfig', title: t('system.config.pageConfig'), permission: ['SYSTEM_PARAMETER_SETTING_DISPLAY:READ'] },
     // TODO 后台目前没有写 第一版不上
-    // { key: 'authConfig', title: t('system.config.authConfig'), permission: ['SYSTEM_PARAMETER_SETTING_AUTH:READ'] },
-    { key: 'memoryCleanup', title: t('system.config.memoryCleanup'), permission: [] },
+    { key: 'authConfig', title: t('system.config.authConfig'), permission: ['SYSTEM_PARAMETER_SETTING_AUTH:READ'] },
+    {
+      key: 'memoryCleanup',
+      title: t('system.config.memoryCleanup'),
+      permission: ['SYSTEM_PARAMETER_SETTING_MEMORY_CLEAN:READ'],
+    },
   ]);
 
   watch(

@@ -4,12 +4,12 @@ import type { FormItem, FormItemType, FormRuleItem } from '@/components/pure/ms-
 
 import { FormRule } from '@form-create/arco-design';
 
-// 模版管理（组织）
+// 模板管理（组织）
 export interface OrganizeTemplateItem {
   id: string;
   name: string;
   remark: string; // 备注
-  internal: true; // 是否是内置模版
+  internal: true; // 是否是内置模板
   updateTime: number;
   createTime: number;
   createUser: string;
@@ -27,7 +27,7 @@ export interface FieldOptions {
   fieldId?: string;
   value: string | string[] | number | number[];
   text: string;
-  internal?: boolean; // 是否是内置模版
+  internal?: boolean; // 是否是内置模板
 }
 
 // 自定义字段

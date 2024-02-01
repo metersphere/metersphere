@@ -2,6 +2,7 @@
   import { compile, computed, defineComponent, h, ref } from 'vue';
   import { RouteRecordRaw, useRoute, useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
+  import { cloneDeep } from 'lodash-es';
 
   import MsAvatar from '@/components/pure/ms-avatar/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
@@ -140,7 +141,7 @@
       }
 
       const isActiveSwitchOrg = ref(false);
-      const personalMenus = [
+      const personalMenus = ref([
         {
           label: t('personal.info'),
           icon: <MsIcon type="icon-icon-contacts" class="text-[var(--color-text-4)]" />,
@@ -170,22 +171,34 @@
           icon: <MsIcon type="icon-icon_into-item_outlined" class="text-[var(--color-text-4)]" />,
           event: () => logout(),
         },
-      ];
+      ]);
+
+      const copyPersonalMenus = ref(cloneDeep(personalMenus));
 
       const licenseStore = useLicenseStore();
-      onBeforeMount(async () => {
-        if (!licenseStore.hasLicense()) {
-          personalMenus.splice(1, 1);
-          return;
-        }
+
+      const xPack = computed(() => licenseStore.hasLicense());
+
+      async function getOrgList() {
         try {
           const res = await getOrgOptions();
           originOrgList.value = res || [];
         } catch (error) {
-          // eslint-disable-next-line no-console
           console.log(error);
         }
-      });
+      }
+
+      watch(
+        () => xPack.value,
+        async (val) => {
+          if (val) {
+            personalMenus.value = [...copyPersonalMenus.value];
+            getOrgList();
+          } else {
+            personalMenus.value.splice(1, 1);
+          }
+        }
+      );
 
       watch(
         () => personalMenusVisible.value,
@@ -207,7 +220,7 @@
             v-slots={{
               content: () => (
                 <div class="arco-trigger-menu-inner">
-                  {personalMenus.map((e) => {
+                  {personalMenus.value.map((e) => {
                     if (e.divider) {
                       return e.divider;
                     }

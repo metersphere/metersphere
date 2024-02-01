@@ -61,7 +61,7 @@
 
 <script setup lang="ts">
   /**
-   * @description 系统管理-组织-模版-模版管理列表
+   * @description 系统管理-组织-模板-模板管理列表
    */
   import { ref } from 'vue';
   import { useRoute } from 'vue-router';
@@ -249,8 +249,9 @@
     });
   };
 
-  // 更新面包屑根据不同的模版
+  // 更新面包屑根据不同的模板
   const updateBreadcrumbList = () => {
+    debugger;
     const { breadcrumbList } = appStore;
     const breadTitle = getCardList('organization').find((item: any) => item.key === route.query.type);
     if (breadTitle) {

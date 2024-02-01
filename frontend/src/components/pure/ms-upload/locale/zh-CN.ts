@@ -15,4 +15,5 @@ export default {
   'ms.upload.success': '成功',
   'ms.upload.fail': '失败',
   'ms.upload.detail': '查看详情',
+  'ms.upload.fileTypeValidate': '仅支持 {type} 格式的文件',
 };

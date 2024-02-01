@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
   /**
-   * @description 模版-模版管理小卡片
+   * @description 模板-模板管理小卡片
    */
   import { ref } from 'vue';
   import { Message } from '@arco-design/web-vue';

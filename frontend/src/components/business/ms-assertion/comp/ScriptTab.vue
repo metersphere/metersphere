@@ -128,6 +128,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { defineModel } from 'vue';
   import { useClipboard } from '@vueuse/core';
   import { InputInstance, Message } from '@arco-design/web-vue';
 

@@ -1,5 +1,11 @@
 <template>
-  <a-modal v-model:visible="pluginVisible" class="ms-modal-form ms-modal-small" title-align="start">
+  <a-modal
+    v-model:visible="pluginVisible"
+    class="ms-modal-form ms-modal-small"
+    title-align="start"
+    :mask="true"
+    :mask-closable="false"
+  >
     <template #title> {{ t('system.plugin.uploadPlugin') }} </template>
     <div class="form grid grid-cols-1">
       <a-row class="grid-demo">
@@ -64,7 +70,6 @@
               v-model="form.description"
               :max-length="1000"
               :placeholder="t('system.plugin.pluginDescription')"
-              allow-clear
             />
           </a-form-item>
         </a-form>
@@ -79,6 +84,7 @@
         :show-file-list="false"
         :auto-upload="false"
         :disabled="confirmLoading"
+        :draggable="true"
       ></MsUpload>
     </div>
     <template #footer>
@@ -109,7 +115,7 @@
             >{{ t('system.plugin.saveAndAdd') }}</a-button
           >
           <a-button type="primary" :disabled="isDisabled" :loading="confirmLoading" @click="saveConfirm">{{
-            t('system.plugin.pluginConfirm')
+            t('common.save')
           }}</a-button>
         </div>
       </div>
@@ -125,11 +131,13 @@
 
   import { addPlugin } from '@/api/modules/setting/pluginManger';
   import { useI18n } from '@/hooks/useI18n';
+  import useVisit from '@/hooks/useVisit';
 
   import type { FileItem, FormInstance, SelectOptionData, ValidatedError } from '@arco-design/web-vue';
 
   const { t } = useI18n();
-
+  const visitedKey = 'doNotShowAgain';
+  const { getIsVisited } = useVisit(visitedKey);
   const emits = defineEmits<{
     (event: 'update:visible', visible: boolean): void;
     (e: 'success'): void;
@@ -193,7 +201,11 @@
         fileList: [fileList.value[0].file],
       };
       await addPlugin(params);
-      Message.success(t('system.plugin.uploadSuccessTip'));
+      const isOpen = getIsVisited();
+      if (isOpen) {
+        Message.success(t('system.plugin.uploadSuccessTip'));
+      }
+
       if (flag === 'Confirm') {
         emits('success');
         handleCancel();

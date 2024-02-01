@@ -65,7 +65,7 @@ export function getTemplateById(data: TableQueryParams) {
 export function getExportConfig(projectId: string) {
   return MSR.get({ url: `${bugURL.getExportConfigUrl}${projectId}` });
 }
-// 获取模版详情
+// 获取模板详情
 export function getTemplateDetailInfo(data: { id: string; projectId: string }) {
   return MSR.post({ url: `${bugURL.getTemplateDetailUrl}`, data });
 }

@@ -5,16 +5,23 @@
     :mask="false"
     :footer="false"
     :title="t('system.plugin.showScriptTitle', { name: props.config.title })"
+    unmount-on-close
     @close="handleClose"
   >
-    <MsCodeEditor
-      v-model:model-value="pluginScript"
-      title="JSON"
-      width="100%"
-      height="calc(100vh - 155px)"
-      theme="MS-text"
-      :read-only="props.readOnly"
-    />
+    <div class="w-full">
+      <div class="w-full">
+        <MsCodeEditor
+          v-model:model-value="pluginScript"
+          title="JSON"
+          width="100%"
+          height="calc(100vh - 155px)"
+          theme="MS-text"
+          :read-only="props.readOnly"
+          :show-theme-change="false"
+          :show-title-line="true"
+        />
+      </div>
+    </div>
   </MsDrawer>
 </template>
 
@@ -64,7 +71,7 @@
     }
   );
   function handleClose() {
-    emit('update:value', pluginScript.value);
+    showScriptDrawer.value = false;
   }
 </script>
 

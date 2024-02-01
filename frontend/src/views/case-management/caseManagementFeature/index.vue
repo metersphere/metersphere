@@ -329,7 +329,7 @@
   const isCover = ref<boolean>(false);
   const validateLoading = ref<boolean>(false);
 
-  // 校验导入模版
+  // 校验导入模板
   async function validateTemplate(files: FileItem[], cover: boolean) {
     fileList.value = files;
     isCover.value = cover;

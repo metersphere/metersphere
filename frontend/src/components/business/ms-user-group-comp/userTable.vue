@@ -32,7 +32,7 @@
   } from '@/api/modules/setting/usergroup';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
-  import { characterLimit } from '@/utils';
+  import { characterLimit, formatPhoneNumber } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
   import { CurrentUserGroupItem, UserTableItem } from '@/models/setting/usergroup';
@@ -107,14 +107,23 @@
     return postOrgUserByUserGroup;
   };
 
-  const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(getRequestBySystemType(), {
-    columns: userGroupUsercolumns,
-    scroll: { x: '100%', minWidth: 700 },
-    selectable: false,
-    noDisable: true,
-    showSetting: false,
-    heightUsed: 288,
-  });
+  const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(
+    getRequestBySystemType(),
+    {
+      columns: userGroupUsercolumns,
+      scroll: { x: '100%', minWidth: 700 },
+      selectable: false,
+      noDisable: true,
+      showSetting: false,
+      heightUsed: 288,
+    },
+    (record) => {
+      return {
+        ...record,
+        phone: formatPhoneNumber(record.phone || ''),
+      };
+    }
+  );
 
   const handlePermission = (permission: string[], cb: () => void) => {
     if (!hasAnyPermission(permission)) {

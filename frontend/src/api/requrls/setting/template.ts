@@ -1,35 +1,35 @@
 // 项目---模板
 
-// 获取模版列表
+// 获取模板列表
 export const GetProjectTemplateUrl = '/project/template/list';
-// 设置模版
+// 设置模板
 export const SetProjectTemplateUrl = '/project/template/set-default';
-// 创建模版
+// 创建模板
 export const CreateProjectTemplateUrl = '/project/template/add';
-// 更新模版
+// 更新模板
 export const UpdateProjectTemplateUrl = '/project/template/update';
-// 获取模版详情
+// 获取模板详情
 export const GetProjectTemplateDetailUrl = '/project/template/get';
-// 删除模版
+// 删除模板
 export const DeleteProjectTemplateUrl = '/project/template/delete';
 // 是否启用项目模板
 export const getProjectTemplateStateUrl = '/project/template/enable/config';
 
 // 组织--- 模板
 
-// 获取模版列表
+// 获取模板列表
 export const GetOrganizeTemplateUrl = '/organization/template/list';
-// 设置模版
+// 设置模板
 export const SetOrganizeTemplateUrl = '/organization/template/set-default';
-// 创建模版
+// 创建模板
 export const CreateOrganizeTemplateUrl = '/organization/template/add';
-// 更新模版
+// 更新模板
 export const UpdateOrganizeTemplateUrl = '/organization/template/update';
-// 获取模版详情
+// 获取模板详情
 export const GetOrganizeTemplateDetailUrl = '/organization/template/get';
-// 删除模版
+// 删除模板
 export const DeleteOrganizeTemplateUrl = '/organization/template/delete';
-// 关闭组织模板，开启项目模版
+// 关闭组织模板，开启项目模板
 export const EnableOrOffTemplateUrl = '/organization/template/disable';
 // 获取所有模板状态
 export const getOrdTemplateStateUrl = '/organization/template/enable/config';

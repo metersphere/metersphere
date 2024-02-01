@@ -450,7 +450,7 @@
           label: t('caseManagement.caseReview.belongModule'),
           value: res.moduleName || t('common.root'),
         },
-        // 解析用例模版的自定义字段
+        // 解析用例模板的自定义字段
         ...res.customFields.map((e) => {
           try {
             const val =

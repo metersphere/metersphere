@@ -290,7 +290,7 @@ function pythonCode(requestObj) {
   return _pythonCodeTemplate(obj);
 }
 
-// 获取javaBeanshell代码模版
+// 获取javaBeanshell代码模板
 function _beanshellTemplate(obj) {
   const {
     requestHeaders = new Map(),
@@ -410,7 +410,7 @@ function javaCode(requestObj) {
   return _beanshellTemplate(requestObj);
 }
 
-// 获取js语言代码模版
+// 获取js语言代码模板
 function _jsTemplate(obj) {
   const {
     requestHeaders = new Map(),

@@ -99,7 +99,7 @@
           show-charset-change
           read-only
         >
-          <template #title>
+          <template #rightTitle>
             <a-button type="outline" class="arco-btn-outline--secondary p-[0_8px]" size="mini" @click="copyScript">
               <template #icon>
                 <MsIcon type="icon-icon_copy_outlined" class="text-var(--color-text-4)" size="12" />

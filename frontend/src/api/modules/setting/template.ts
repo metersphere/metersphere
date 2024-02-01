@@ -52,13 +52,13 @@ import type {
 } from '@/models/setting/template';
 
 /** *
- * 模版(组织)
+ * 模板(组织)
  */
-// 获取模版列表(组织)
+// 获取模板列表(组织)
 export function getOrganizeTemplateList(params: TableQueryParams) {
   return MSR.get({ url: `${GetOrganizeTemplateUrl}/${params.organizationId}/${params.scene}` });
 }
-// 获取模版详情(组织)
+// 获取模板详情(组织)
 export function getOrganizeTemplateInfo(id: string) {
   return MSR.get({ url: `${GetOrganizeTemplateDetailUrl}/${id}` });
 }
@@ -176,13 +176,13 @@ export function getProjectFieldDetail(id: string) {
 }
 
 /** *
- * 模版(项目)
+ * 模板(项目)
  */
-// 获取模版列表(项目)
+// 获取模板列表(项目)
 export function getProjectTemplateList(params: TableQueryParams) {
   return MSR.get({ url: `${GetProjectTemplateUrl}/${params.projectId}/${params.scene}` });
 }
-// 获取模版详情(项目)
+// 获取模板详情(项目)
 export function getProjectTemplateInfo(id: string) {
   return MSR.get({ url: `${GetProjectTemplateDetailUrl}/${id}` });
 }

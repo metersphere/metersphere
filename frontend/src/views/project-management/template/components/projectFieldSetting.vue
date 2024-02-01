@@ -27,7 +27,7 @@
   // 更新面包屑
   const updateBreadcrumbList = () => {
     const { breadcrumbList } = appStore;
-    const breadTitle = getCardList('project').find((item: any) => item.key === route.query.type);
+    const breadTitle = getCardList('project').find((item: any) => item.key === route.params.type);
     if (breadTitle) {
       breadcrumbList[0].locale = breadTitle.name;
       appStore.setBreadcrumbList(breadcrumbList);

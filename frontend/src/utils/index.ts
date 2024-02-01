@@ -474,3 +474,16 @@ export function parseCurlScript(curlScript: string): ParsedCurlOptions {
 
   return options;
 }
+
+/**
+ * 转换手机号格式
+ * @param phoneNumber 需要转换的手机号
+ */
+export function formatPhoneNumber(phoneNumber = '') {
+  if (phoneNumber && phoneNumber.trim().length === 11) {
+    const cleanedNumber = phoneNumber.replace(/\D/g, '');
+    const formattedNumber = cleanedNumber.replace(/(\d{3})(\d{4})(\d{4})/, '$1 $2 $3');
+    return formattedNumber;
+  }
+  return phoneNumber;
+}

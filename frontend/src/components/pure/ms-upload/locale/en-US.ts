@@ -15,4 +15,5 @@ export default {
   'ms.upload.uploading': 'Waiting/Uploading',
   'ms.upload.success': 'Success',
   'ms.upload.detail': 'Detail',
+  'ms.upload.fileTypeValidate': 'Only files in {type} format are supported',
 };

@@ -109,11 +109,11 @@ export default {
   'system.resourcePool.testResourceDTO.downloadDeployYamlTip': '请先填写命名空间 和 Deploy Name 再下载YAML文件',
   'system.resourcePool.testResourceDTO.downloadDaemonsetYaml': 'Daemonset.yaml',
   'system.resourcePool.testResourceDTO.downloadDeploymentYaml': 'Deployment.yaml',
-  'system.resourcePool.customJobTemplate': '自定义 Job 模版',
-  'system.resourcePool.jobTemplate': 'Job 模版',
+  'system.resourcePool.customJobTemplate': '自定义 Job 模板',
+  'system.resourcePool.jobTemplate': 'Job 模板',
   'system.resourcePool.jobTemplateTip':
-    'Kubernetes Job 模版是一个YAML格式的文本，用于定义Job的运行参数，您可以在此处编辑Job模版。',
-  'system.resourcePool.jobTemplateReset': '重置 Job 模版',
+    'Kubernetes Job 模板是一个YAML格式的文本，用于定义Job的运行参数，您可以在此处编辑Job模板。',
+  'system.resourcePool.jobTemplateReset': '重置 Job 模板',
   'system.resourcePool.addSuccess': '添加资源池成功',
   'system.resourcePool.updateSuccess': '更新资源池成功',
 };

@@ -102,7 +102,7 @@
         return '';
       // 新API测试[JSON]
       case 'new_api_request': {
-        // requestObj为空则生产默认模版
+        // requestObj为空则生产默认模板
         const headers = new Map();
         headers.set('Content-type', 'application/json');
         return getCodeTemplate(innerLanguageType.value, { requestHeaders: headers });

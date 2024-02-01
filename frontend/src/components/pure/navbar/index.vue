@@ -155,7 +155,7 @@
 
   async function initProjects() {
     try {
-      if (appStore.currentOrgId && hasAnyPermission(['PROJECT_BASE_INFO:READ'])) {
+      if (appStore.currentOrgId && hasAnyPermission(['SYSTEM_PARAMETER_SETTING_BASE:READ'])) {
         const res = await getProjectList(appStore.getCurrentOrgId);
         projectList.value = res;
       } else {

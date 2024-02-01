@@ -7,13 +7,7 @@
           <span class="text-[14px]">{{ t('project.messageManagement.notRemind') }}</span>
         </template>
       </a-alert>
-      <a-button
-        v-xpack
-        v-permission="['PROJECT_MESSAGE:READ+ADD']"
-        type="primary"
-        class="mb-[16px]"
-        @click="handleCreateClick"
-      >
+      <a-button v-permission="['PROJECT_MESSAGE:READ+ADD']" type="primary" class="mb-[16px]" @click="handleCreateClick">
         {{ t('project.messageManagement.createBot') }}
       </a-button>
       <div
@@ -115,6 +109,7 @@
               {{ platform.name }}
             </div>
             <div
+              v-xpack
               :class="['platform-card-custom', robotForm.platform === 'CUSTOM' ? 'platform-card--active' : '']"
               @click="robotForm.platform = 'CUSTOM'"
             >

@@ -56,7 +56,7 @@ export default {
   'system.plugin.pluginCancel': 'Cancel',
   'system.plugin.pluginPreStep': 'Previous Step',
   'system.plugin.saveAndAdd': 'Save & Continue',
-  'system.plugin.updateTitle': 'Update Plugin（{name}）',
+  'system.plugin.updateTitle': 'Update Plugin',
   'system.plugin.selectOrganizeTip': 'Please Choose Organization',
   'system.plugin.selectOrganization': 'Choose Organization',
   'system.plugin.infoTip': 'Jump to the Github download plug-in',

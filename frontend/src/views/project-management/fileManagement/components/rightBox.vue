@@ -498,6 +498,7 @@
     },
     {
       title: 'project.fileManagement.type',
+      slotName: 'fileType',
       dataIndex: 'fileType',
       width: 90,
     },
@@ -543,7 +544,6 @@
     },
   ];
   const tableStore = useTableStore();
-  tableStore.initColumn(TableKeyEnum.FILE_MANAGEMENT_FILE, columns, 'drawer');
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, resetPagination } = useTable(
     getFileList,
     {
@@ -1200,6 +1200,8 @@
       handleStorageModalCancel();
     });
   }
+
+  await tableStore.initColumn(TableKeyEnum.FILE_MANAGEMENT_FILE, columns, 'drawer');
 </script>
 
 <style lang="less" scoped>

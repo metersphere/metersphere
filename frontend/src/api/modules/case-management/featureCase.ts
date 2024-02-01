@@ -134,7 +134,7 @@ export function getCaseList(data: TableQueryParams) {
 export function deleteCaseRequest(data: DeleteCaseType) {
   return MSR.post({ url: `${DeleteCaseUrl}`, data });
 }
-// 获取默认模版自定义字段
+// 获取默认模板自定义字段
 export function getCaseDefaultFields(projectId: string) {
   return MSR.get({ url: `${GetDefaultTemplateFieldsUrl}/${projectId}` });
 }
