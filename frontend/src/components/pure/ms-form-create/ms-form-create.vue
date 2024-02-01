@@ -19,6 +19,8 @@
   import { FormRuleItem } from './types';
   import formCreate, { Rule } from '@form-create/arco-design';
 
+  defineOptions({ name: 'MsFormCreate' });
+
   const { t } = useI18n();
 
   formCreate.component('PassWord', PassWord);

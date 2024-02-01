@@ -40,7 +40,14 @@
         <a-tooltip v-if="okDisabled" :content="t('project.menu.defect.enableAfterConfig')">
           <a-switch size="small" type="line" disabled />
         </a-tooltip>
-        <a-switch v-else v-model="form.SYNC_ENABLE" size="small" type="line" />
+        <a-switch
+          v-else
+          v-model="form.CASE_ENABLE"
+          checked-value="true"
+          unchecked-value="false"
+          size="small"
+          type="line"
+        />
         <span class="text-[var(--color-text-1)]">
           {{ t('project.menu.status') }}
         </span>
@@ -68,6 +75,7 @@
   import type { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
 
   import {
+    getCaseRelatedInfo,
     getPlatformInfo,
     getPlatformOptions,
     postSaveRelatedCase,
@@ -98,8 +106,10 @@
 
   const form = reactive({
     PLATFORM_KEY: '',
-    SYNC_ENABLE: 'false', // 同步开关
+    CASE_ENABLE: 'false', // 同步开关
   });
+
+  const formCreateValue = ref<Record<string, any>>({});
 
   const okDisabled = computed(() => !form.PLATFORM_KEY);
 
@@ -116,6 +126,13 @@
     try {
       if (value) {
         const res = await getPlatformInfo(value as string, MenuEnum.caseManagement);
+        if (formCreateValue.value) {
+          res.formItems.forEach((item) => {
+            if (formCreateValue.value[item.name]) {
+              item.value = formCreateValue.value[item.name];
+            }
+          });
+        }
         platformRules.value = res.formItems;
       } else {
         platformRules.value = [];
@@ -156,13 +173,30 @@
       console.log(error);
     }
   };
+  // 获取关联需求信息
+  const initDetailInfo = async () => {
+    try {
+      await initPlatformOption();
+      const res = await getCaseRelatedInfo(currentProjectId.value);
+      if (res && res.platform_key) {
+        form.CASE_ENABLE = res.case_enable;
+        form.PLATFORM_KEY = res.platform_key;
+        formCreateValue.value = JSON.parse(res.demand_platform_config);
+        // 如果平台key存在调用平台change拉取插件字段
+        await handlePlatformChange(res.platform_key);
+      }
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.log(e);
+    }
+  };
 
   watch(
     () => props.visible,
     (val) => {
       currentVisible.value = val;
       if (val) {
-        initPlatformOption();
+        initDetailInfo();
       } else {
         formRef.value?.resetFields();
         platformRules.value = [];

@@ -142,7 +142,7 @@
     (e: 'cancel', shouldSearch: boolean): void;
   }>();
 
-  const allModuleIds = ['workstation', 'testPlan', 'bugManagement', 'caseManagement', 'apiTest', 'uiTest', 'loadTest'];
+  const allModuleIds = ['bugManagement', 'caseManagement', 'apiTest'];
 
   const showPoolModuleIds = ['uiTest', 'apiTest', 'loadTest'];
 

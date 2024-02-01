@@ -167,14 +167,16 @@ export function getDeleteFake(data: FakeTableOperationParams) {
 
 // JIRA插件key校验
 export function validateJIRAKey(data: object, pluginId: string) {
-  return MSR.post<FakeTableListItem[]>({ url: `${Url.postValidateJiraKeyUrl}${pluginId}`, data });
+  return MSR.post<MenuTableConfigItem>({ url: `${Url.postValidateJiraKeyUrl}${pluginId}`, data });
 }
 // 缺陷管理-获取同步信息
 export function getBugSyncInfo(projectId: string) {
-  return MSR.get<FakeTableListItem[]>({ url: `${Url.getBugSyncInfoUrl}${projectId}` });
+  return MSR.get<MenuTableConfigItem>({ url: `${Url.getBugSyncInfoUrl}${projectId}` });
 }
 
 // 用例管理-获取关联需求信息
 export function getCaseRelatedInfo(projectId: string) {
-  return MSR.get<FakeTableListItem[]>({ url: `${Url.getCaseRelatedInfoUrl}${projectId}` });
+  return MSR.get<{ demand_platform_config: string; platform_key: string; case_enable: string }>({
+    url: `${Url.getCaseRelatedInfoUrl}${projectId}`,
+  });
 }

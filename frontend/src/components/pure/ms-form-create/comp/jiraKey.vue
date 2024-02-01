@@ -1,10 +1,9 @@
 <template>
   <a-input
-    :value="props.modelValue"
+    v-model:model-value="inputValue"
     :placeholder="t('project.menu.pleaseInputJiraKey')"
     v-bind="attrs"
     :max-length="255"
-    @change="(v: string) => emit('update:modelValue', v)"
     @blur="handleBlur"
   />
   <div class="flex flex-row items-center gap-[10px] text-[12px] leading-[16px]">
@@ -22,6 +21,7 @@
 </template>
 
 <script setup lang="ts">
+  import { defineModel } from 'vue';
   import { Message } from '@arco-design/web-vue';
 
   import { validateJIRAKey } from '@/api/modules/project-management/menuManagement';
@@ -29,16 +29,15 @@
   import { useI18n } from '@/hooks/useI18n';
 
   const attrs = useAttrs();
+  const { formCreateInject } = attrs;
 
   const props = defineProps<{
-    modelValue: string;
     instructionsIcon: string;
+    value?: string;
   }>();
   const previewIcon = ref<string>('');
 
-  const emit = defineEmits<{
-    (event: 'update:modelValue', value: string): void;
-  }>();
+  const inputValue = defineModel<string>();
 
   const { t } = useI18n();
   onMounted(() => {
@@ -53,13 +52,18 @@
     const pluginId = sessionStorage.getItem('platformKey') || '';
     if (pluginId) {
       try {
-        await validateJIRAKey({ name: '1231' }, pluginId);
+        await validateJIRAKey({ [(formCreateInject as { [key: string]: string }).field]: inputValue.value }, pluginId);
         Message.success('common.validateSuccess');
-      } catch {
-        Message.error('common.validateFaild');
+      } catch (e) {
+        console.log(e);
       }
     }
   };
+  watchEffect(() => {
+    if (props.value) {
+      inputValue.value = props.value;
+    }
+  });
 </script>
 
 <style scoped></style>
