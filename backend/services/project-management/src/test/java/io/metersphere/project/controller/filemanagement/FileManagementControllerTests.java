@@ -23,6 +23,7 @@ import io.metersphere.sdk.file.FileRequest;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.TempFileUtils;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.AddProjectRequest;
@@ -45,6 +46,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -63,6 +65,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 public class FileManagementControllerTests extends BaseTest {
     private static Project project;
+
+    private static BaseTreeNode A1B1C1_CHILD_NODE;
 
     private static List<BaseTreeNode> preliminaryTreeNodes = new ArrayList<>();
 
@@ -293,6 +297,30 @@ public class FileManagementControllerTests extends BaseTest {
             }
         }
         Assertions.assertNotNull(a1b1c1Node);
+
+        //子节点a1-b1下继续创建节点a1-b1-c1
+        request = new FileModuleCreateRequest();
+        request.setProjectId(project.getId());
+        request.setName("a1-b1-c1");
+        request.setParentId(a1b1c1Node.getId());
+        this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_MODULE_ADD, request);
+        treeNodes = this.getFileModuleTreeNode();
+        BaseTreeNode a1b1c1ChildNode = null;
+        for (BaseTreeNode baseTreeNode : treeNodes) {
+            if (StringUtils.equals(baseTreeNode.getName(), "a1") && CollectionUtils.isNotEmpty(baseTreeNode.getChildren())) {
+                for (BaseTreeNode secondNode : baseTreeNode.getChildren()) {
+                    if (StringUtils.equals(secondNode.getName(), "a1-b1") && CollectionUtils.isNotEmpty(secondNode.getChildren())) {
+                        for (BaseTreeNode thirdNode : secondNode.getChildren()) {
+                            if (StringUtils.equals(thirdNode.getName(), "a1-b1-c1") && CollectionUtils.isNotEmpty(thirdNode.getChildren())) {
+                                a1b1c1ChildNode = thirdNode.getChildren().getFirst();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        Assertions.assertNotNull(a1b1c1ChildNode);
+        A1B1C1_CHILD_NODE = a1b1c1ChildNode;
         preliminaryTreeNodes = treeNodes;
 
         LOG_CHECK_LIST.add(
@@ -1935,6 +1963,8 @@ public class FileManagementControllerTests extends BaseTest {
                 |   ·a1-b1   +
                 |   |        |
                 |   |        ·a1-b1-c1
+                |   |           |
+                |   |           ·a1-b1-c1
                 |   |
                 |   *a1-a1   +（创建的时候是a1，通过修改改为a1-a1）
                 |            |
@@ -1959,6 +1989,19 @@ public class FileManagementControllerTests extends BaseTest {
             this.requestPostWithOk(FileManagementRequestUtils.URL_MODULE_MOVE, request);
             this.checkModulePos(a3Node.getId(), a1Node.getId(), null, false);
         }
+
+        //测试a1b1c1（child)节点无法移动到a1b1c1同级别
+        {
+            request.setDragNodeId(A1B1C1_CHILD_NODE.getId());
+            request.setDropNodeId(a1b1Node.getId());
+            request.setDropPosition(0);
+            ResultActions resultActions = this.requestPost(FileManagementRequestUtils.URL_MODULE_MOVE, request);
+            resultActions.andExpect(status().is5xxServerError());
+            MvcResult mvcResult = resultActions.andReturn();
+            ResultHolder resultHolder = JSON.parseObject(mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+            Assertions.assertEquals(resultHolder.getMessage(), Translator.get("node.name.repeat"));
+        }
+
         //父节点内移动-移动到末位  在上面的基础上，a1挪到a2上面
         {
             request = new NodeMoveRequest();
@@ -2389,6 +2432,8 @@ public class FileManagementControllerTests extends BaseTest {
                 |   ·a1-b1   +
                 |   |        |
                 |   |        ·a1-b1-c1
+                |   |            |
+                |   |            ·a1-b1-c1
                 |   |
                 |   *a1-a1   +（创建的时候是a1，通过修改改为a1-a1）
                 |   |        |
