@@ -84,13 +84,11 @@ public class NoticeSendService {
 
     private static void setLanguage(NoticeModel noticeModel) {
         String language = (String) noticeModel.getParamMap().get("Language");
-        if (StringUtils.isBlank(language)) {
-            language = "zh_CN";
+        Locale locale = Locale.SIMPLIFIED_CHINESE;
+        if (StringUtils.isNotBlank(language)) {
+            locale = Locale.forLanguageTag(language);
         }
-        if (language.contains("-")) {
-            language = language.replace("-","_");
-        }
-        LocaleContextHolder.setLocale(Locale.of(language));
+        LocaleContextHolder.setLocale(locale);
     }
 
     /**
@@ -144,4 +142,5 @@ public class NoticeSendService {
             LogUtils.error(e.getMessage(), e);
         }
     }
+
 }
