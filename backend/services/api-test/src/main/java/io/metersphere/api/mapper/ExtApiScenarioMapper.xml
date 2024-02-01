@@ -417,6 +417,29 @@
             <property name="filter" value="request.filter"/>
         </include>
     </select>
+    <select id="getAssociationPage" resultType="io.metersphere.api.dto.scenario.ApiScenarioAssociationDTO">
+        SELECT
+            distinct a.ref_type, a.scenario_id,
+            s.name AS name,
+            a.resource_id AS resourceId,
+            a.resource_num AS resourceNum,
+            a.step_type AS stepType,
+            a.project_id AS projectId
+        FROM
+            api_scenario_step a
+                INNER JOIN
+            api_scenario s ON a.scenario_id = s.id
+        WHERE
+           a.parent_id = 'NONE'
+            AND a.resource_id = #{request.id}
+        <if test="request.keyword != null and request.keyword != ''">
+            and (
+            a.name like concat('%', #{request.keyword},'%')
+            or a.num like concat('%', #{request.keyword},'%')
+            )
+        </if>
+
+    </select>
 
     <sql id="taskCenterFilters">
         <if test="${filter} != null and ${filter}.size() > 0">

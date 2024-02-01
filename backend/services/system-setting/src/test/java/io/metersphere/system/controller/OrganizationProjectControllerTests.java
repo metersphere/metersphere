@@ -966,8 +966,9 @@ public class OrganizationProjectControllerTests extends BaseTest {
     @Order(23)
     public void testGetOptions() throws Exception {
         ProjectPoolRequest projectPoolRequest = new ProjectPoolRequest();
-        projectPoolRequest.setModulesIds(List.of("apiTest", "uiTest", "loadTest"));
         projectPoolRequest.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+        this.requestPost(getPoolOptions, projectPoolRequest, BAD_REQUEST_MATCHER);
+        projectPoolRequest.setModulesIds(List.of("apiTest", "uiTest", "loadTest"));
         this.responsePost(getPoolOptions, projectPoolRequest);
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.ORGANIZATION_PROJECT_READ, getPoolOptions, projectPoolRequest);

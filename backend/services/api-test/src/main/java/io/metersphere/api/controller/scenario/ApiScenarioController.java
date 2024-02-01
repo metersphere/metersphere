@@ -182,4 +182,14 @@ public class ApiScenarioController {
         apiValidateService.validateApiMenuInProject(request.getScenarioId(), ApiResource.API_SCENARIO.name());
         return apiScenarioService.scheduleConfig(request, SessionUtils.getUserId());
     }
+
+    @PostMapping(value = "/association/page")
+    @Operation(summary = "接口测试-接口场景管理-场景引用关系列表")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
+    @CheckOwner(resourceId = "#request.id", resourceType = "api_scenario")
+    public Pager<List<ApiScenarioAssociationDTO>> getAssociationPage(@Validated @RequestBody ApiScenarioAssociationPageRequest request) {
+        Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "resource_num desc");
+        return PageUtils.setPageInfo(page, apiScenarioService.getAssociationPage(request));
+    }
 }
