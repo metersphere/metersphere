@@ -6,6 +6,7 @@
         allow-clear
         @press-enter="enterData"
         @search="searchData"
+        @clear="searchData('')"
       />
     </div>
     <div v-if="showSystem" v-permission="['SYSTEM_USER_ROLE:READ']" class="mt-2">

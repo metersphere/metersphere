@@ -14,6 +14,7 @@
         allow-clear
         @press-enter="fetchData"
         @search="fetchData"
+        @clear="fetchData"
       ></a-input-search>
     </div>
     <MsBaseTable v-bind="propsRes" v-on="propsEvent">

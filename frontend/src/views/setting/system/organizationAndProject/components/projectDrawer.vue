@@ -18,6 +18,7 @@
           allow-clear
           @search="searchUser"
           @press-enter="searchUser"
+          @clear="searchUser"
         ></a-input-search>
       </div>
       <ms-base-table v-bind="propsRes" v-on="propsEvent">

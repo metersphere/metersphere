@@ -22,6 +22,7 @@
           allow-clear
           @press-enter="handleEnter"
           @search="handleSearch"
+          @clear="handleSearch('')"
         ></a-input-search>
         <a-radio-group v-model="currentTable" class="ml-[14px]" type="button">
           <a-radio value="organization">{{
@@ -107,7 +108,6 @@
     currentKeyword.value = (eve.target as HTMLInputElement).value;
     tableSearch();
   };
-
   const handleAddOrganization = () => {
     if (currentTable.value === 'organization') {
       organizationVisible.value = true;

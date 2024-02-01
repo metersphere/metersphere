@@ -20,6 +20,7 @@
           class="w-[230px]"
           @search="searchUser"
           @press-enter="searchUser"
+          @clear="searchUser"
         ></a-input-search>
       </div>
       <ms-base-table class="mt-[16px]" v-bind="propsRes" v-on="propsEvent">

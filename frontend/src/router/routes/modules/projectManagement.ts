@@ -205,7 +205,7 @@ const ProjectManagement: AppRouteRecordRaw = {
       component: () => import('@/views/project-management/template/components/workFlowTableIndex.vue'),
       meta: {
         locale: 'menu.settings.organization.templateManagementWorkFlow',
-        roles: ['*'],
+        roles: ['PROJECT_TEMPLATE:READ+ADD'],
         breadcrumbs: [
           {
             name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE,

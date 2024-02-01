@@ -7,10 +7,9 @@
 
   import { getPoolOptionsByOrgOrSystem } from '@/api/modules/setting/organizationAndProject';
 
-  const showPoolModuleIds = ['uiTest', 'apiTest', 'loadTest'];
   const options = ref([]);
   const fieldNames = { value: 'id', label: 'name' };
-  const props = defineProps<{ organizationId?: string; modelValue: string[] }>();
+  const props = defineProps<{ organizationId?: string; modelValue: string[]; moduleIds?: string[] }>();
   const loading = ref(false);
   const emit = defineEmits<{
     (e: 'update:modelValue', value: string[]): void;
@@ -23,8 +22,6 @@
       emit('update:modelValue', v);
     },
   });
-  const showPool = computed(() => showPoolModuleIds.some((item) => props.modelValue.includes(item)));
-
   const loadList = async (arr: string[], id?: string) => {
     try {
       loading.value = true;
@@ -38,6 +35,6 @@
     }
   };
   watchEffect(() => {
-    loadList(showPool.value ? props.modelValue : [], props.organizationId);
+    loadList(props.moduleIds || [], props.organizationId);
   });
 </script>

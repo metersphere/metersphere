@@ -57,7 +57,11 @@
           </a-checkbox-group>
         </a-form-item>
         <a-form-item v-if="showPool" field="resourcePool" :label="t('system.project.resourcePool')">
-          <MsSystemPool v-model:modelValue="form.resourcePoolIds" :organization-id="currentOrgId" />
+          <MsSystemPool
+            v-model:modelValue="form.resourcePoolIds"
+            :module-ids="form.moduleIds"
+            :organization-id="currentOrgId"
+          />
         </a-form-item>
         <a-form-item field="description" :label="t('system.organization.description')">
           <a-textarea
