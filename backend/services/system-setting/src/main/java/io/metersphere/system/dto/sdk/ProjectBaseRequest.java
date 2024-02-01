@@ -14,28 +14,29 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false)
 public class ProjectBaseRequest {
 
-    @Schema(description =  "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "组织ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{project.organization_id.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 50, message = "{project.organization_id.length_range}", groups = {Created.class, Updated.class})
     private String organizationId;
 
-    @Schema(description =  "项目名称", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "项目名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{project.name.not_blank}", groups = {Created.class, Updated.class})
     @Size(min = 1, max = 255, message = "{project.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(description =  "项目描述")
+    @Schema(description = "项目描述")
+    @Size(min = 0, max = 1000, message = "{project.description.length_range}", groups = {Created.class, Updated.class})
     private String description;
 
-    @Schema(description =  "是否启用")
+    @Schema(description = "是否启用")
     private Boolean enable;
 
-    @Schema(description =  "模块设置", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "模块设置", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private List<String> moduleIds;
 
-    @Schema(description =  "成员数", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "成员数", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private List<String> userIds;
 
-    @Schema(description =  "资源池", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "资源池", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private List<String> resourcePoolIds;
 }

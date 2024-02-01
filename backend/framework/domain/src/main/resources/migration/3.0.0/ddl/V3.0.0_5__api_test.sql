@@ -243,7 +243,7 @@ CREATE TABLE IF NOT EXISTS api_scenario(
     `latest` BIT(1) NOT NULL  DEFAULT 0 COMMENT '是否为最新版本 0:否，1:是' ,
     `project_id` VARCHAR(50) NOT NULL   COMMENT '项目fk' ,
     `module_id` VARCHAR(50) NOT NULL   COMMENT '场景模块fk' ,
-    `description` VARCHAR(500)    COMMENT '描述信息' ,
+    `description` VARCHAR(1000)    COMMENT '描述信息' ,
     `tags` VARCHAR(1000)    COMMENT '标签' ,
     `grouped` BIT(1)   DEFAULT 0 COMMENT '是否为环境组' ,
     `environment_id` VARCHAR(50)    COMMENT '环境或者环境组ID' ,

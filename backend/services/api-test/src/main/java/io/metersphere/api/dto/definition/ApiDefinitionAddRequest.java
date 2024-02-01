@@ -58,14 +58,18 @@ public class ApiDefinitionAddRequest implements Serializable {
     private String moduleId;
 
     @Schema(description = "版本fk")
-    @Size(min = 1, max = 50, message = "{api_definition.version_id.length_range}")
+    @Size(max = 50, message = "{api_definition.version_id.length_range}")
     private String versionId;
 
     @Schema(description = "描述")
+    @Size(max = 1000, message = "{api_definition.description.length_range}")
     private String description;
 
     @Schema(description = "标签")
-    private LinkedHashSet<@NotBlank String> tags;
+    private LinkedHashSet<
+            @NotBlank
+            @Size(min = 1, max = 64, message = "{api_test_case.tag.length_range}")
+                    String> tags;
 
     @Schema(description = "请求内容")
     @NotNull

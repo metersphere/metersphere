@@ -44,6 +44,7 @@ public class ApiScenarioAddRequest {
     private String moduleId;
 
     @Schema(description = "描述信息")
+    @Size(max = 1000, message = "{api_definition.description.length_range}")
     private String description;
 
     @Schema(description = "标签")
