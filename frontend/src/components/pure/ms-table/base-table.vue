@@ -137,7 +137,7 @@
                   @keydown.enter="handleEditInputBlur(record, item.dataIndex as string, false)"
                 />
                 <a-tooltip v-else placement="top" :content="String(record[item.dataIndex as string])">
-                  <div class="one-line-text max-w-[300px]">
+                  <div class="one-line-text">
                     <slot :name="item.slotName" v-bind="{ record, rowIndex, column, columnConfig: item }">
                       {{ record[item.dataIndex as string] || (attrs.emptyDataShowLine ? '-' : '') }}
                     </slot>
