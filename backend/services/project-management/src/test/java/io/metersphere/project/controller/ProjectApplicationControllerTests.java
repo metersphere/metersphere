@@ -15,6 +15,7 @@ import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.domain.ServiceIntegration;
+import io.metersphere.system.domain.ServiceIntegrationExample;
 import io.metersphere.system.dto.request.ServiceIntegrationUpdateRequest;
 import io.metersphere.system.mapper.ServiceIntegrationMapper;
 import jakarta.annotation.Resource;
@@ -639,7 +640,7 @@ public class ProjectApplicationControllerTests extends BaseTest {
         request.setEnable(true);
         request.setPluginId(plugin.getId());
         request.setConfiguration(integrationConfigMap);
-        request.setOrganizationId("100001100001");
+        request.setOrganizationId("100001");
         this.requestPostWithOkAndReturn("/service/integration/add", request);
         mockServerClient
                 .when(
@@ -660,6 +661,10 @@ public class ProjectApplicationControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
         // 返回请求正常
         Assertions.assertNotNull(resultHolder);
+        //测试完清掉
+        ServiceIntegrationExample example = new ServiceIntegrationExample();
+        example.createCriteria().andPluginIdEqualTo(plugin.getId()).andOrganizationIdEqualTo("100001").andEnableEqualTo(true);
+        serviceIntegrationMapper.deleteByExample(example);
     }
 
     @Getter
