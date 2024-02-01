@@ -18,6 +18,7 @@
                 allow-clear
                 @press-enter="handleEnter"
                 @search="handleSearch"
+                @clear="handleSearch('')"
               ></a-input-search>
               <a-radio-group
                 v-if="couldShowUser && couldShowAuth"

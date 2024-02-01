@@ -189,9 +189,9 @@ export function getUserByProjectByOrg(organizationId: string, projectId: string,
 }
 
 // 系统或组织-获取项目下的资源池options
-export function getPoolOptionsByOrgOrSystem(moduleIds: string[], rganizationId?: string) {
+export function getPoolOptionsByOrgOrSystem(modulesIds: string[], rganizationId?: string) {
   return MSR.post({
     url: orgUrl.getProjectPoolByOrgOrSystemUrl,
-    data: { rganizationId, moduleIds },
+    data: { rganizationId, modulesIds },
   });
 }
