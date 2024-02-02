@@ -4,6 +4,7 @@ import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.domain.ApiDefinitionCustomField;
 import io.metersphere.api.dto.converter.ApiDefinitionImportDetail;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.scenario.ScenarioSystemRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import org.apache.ibatis.annotations.Param;
@@ -54,4 +55,6 @@ public interface ExtApiDefinitionMapper {
     ApiDefinition selectApiDefinitionByVersion(@Param("refId") String refId, @Param("versionId") String versionId);
 
     List<ApiDefinitionCustomField> getCustomFieldByCaseIds(@Param("ids") List<String> ids);
+
+    List<String> getIdsByModules(@Param("request") ScenarioSystemRequest request);
 }

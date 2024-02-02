@@ -121,11 +121,11 @@ public class ApiScenarioController {
         return apiScenarioService.get(scenarioId);
     }
 
-    @GetMapping("/step/get/{stepId}")
+    @PostMapping("/step/get")
     @Operation(summary = "接口测试-接口场景管理-获取场景步骤详情")
     @RequiresPermissions(PermissionConstants.PROJECT_API_SCENARIO_READ)
-    public Object getStepDetail(@PathVariable String stepId) {
-        return apiScenarioService.getStepDetail(stepId);
+    public Object getStepDetail(@Validated @RequestBody StepRequest request) {
+        return apiScenarioService.getStepDetail(request);
     }
 
 
@@ -192,4 +192,13 @@ public class ApiScenarioController {
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "resource_num desc");
         return PageUtils.setPageInfo(page, apiScenarioService.getAssociationPage(request));
     }
+
+    @PostMapping(value = "/get/system-request")
+    @Operation(summary = "接口测试-接口场景管理-获取系统请求")
+    @RequiresPermissions(value = {PermissionConstants.PROJECT_API_SCENARIO_READ, PermissionConstants.PROJECT_API_SCENARIO_ADD, PermissionConstants.PROJECT_API_SCENARIO_UPDATE}, logical = Logical.OR)
+    public List<ApiScenarioStepDTO> getSystemRequest(@Validated @RequestBody ApiScenarioSystemRequest request) {
+        return apiScenarioService.getSystemRequest(request);
+    }
+
+
 }

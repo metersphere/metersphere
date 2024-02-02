@@ -56,11 +56,13 @@ import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -146,6 +148,14 @@ public class ApiScenarioService {
     private ApiPluginService apiPluginService;
     @Resource
     private ProjectMapper projectMapper;
+    @Resource
+    private ExtApiDefinitionMapper extApiDefinitionMapper;
+    @Resource
+    private ApiDefinitionMapper apiDefinitionMapper;
+    @Resource
+    private ApiTestCaseMapper apiTestCaseMapper;
+    @Resource
+    private ExtApiTestCaseMapper extApiTestCaseMapper;
 
     public static final String PRIORITY = "Priority";
     public static final String STATUS = "Status";
@@ -1380,13 +1390,15 @@ public class ApiScenarioService {
         List<ApiScenarioStepDTO> allSteps = getAllStepsByScenarioIds(List.of(scenarioId));
         //获取所有步骤的csv的关联关系
         List<String> stepIds = allSteps.stream().map(ApiScenarioStepDTO::getId).toList();
-        List<ApiScenarioCsvStep> csvSteps = extApiScenarioStepMapper.getCsvStepByStepIds(stepIds);
-        // 构造 map，key 为步骤ID，value 为csv文件ID列表
-        Map<String, List<String>> stepsCsvMap = csvSteps.stream()
-                .collect(Collectors.groupingBy(ApiScenarioCsvStep::getStepId, Collectors.mapping(ApiScenarioCsvStep::getFileId, Collectors.toList())));
-        //将stepsCsvMap根据步骤id放入到allSteps中
-        if (CollectionUtils.isNotEmpty(allSteps)) {
-            allSteps.forEach(step -> step.setCsvFileIds(stepsCsvMap.get(step.getId())));
+        if (CollectionUtils.isNotEmpty(stepIds)) {
+            List<ApiScenarioCsvStep> csvSteps = extApiScenarioStepMapper.getCsvStepByStepIds(stepIds);
+            // 构造 map，key 为步骤ID，value 为csv文件ID列表
+            Map<String, List<String>> stepsCsvMap = csvSteps.stream()
+                    .collect(Collectors.groupingBy(ApiScenarioCsvStep::getStepId, Collectors.mapping(ApiScenarioCsvStep::getFileId, Collectors.toList())));
+            //将stepsCsvMap根据步骤id放入到allSteps中
+            if (CollectionUtils.isNotEmpty(allSteps)) {
+                allSteps.forEach(step -> step.setCsvFileIds(stepsCsvMap.get(step.getId())));
+            }
         }
 
         // 构造 map，key 为场景ID，value 为步骤列表
@@ -1397,6 +1409,9 @@ public class ApiScenarioService {
         Map<String, String> stepDetailMap = getStepDetailMap(allSteps);
 
         // key 为父步骤ID，value 为子步骤列表
+        if (MapUtils.isEmpty(scenarioStepMap)) {
+            return apiScenarioDetail;
+        }
         Map<String, List<ApiScenarioStepDTO>> parentStepMap = scenarioStepMap.get(scenarioId)
                 .stream()
                 .collect(Collectors.groupingBy(step -> Optional.ofNullable(step.getParentId()).orElse(StringUtils.EMPTY)));
@@ -1525,14 +1540,16 @@ public class ApiScenarioService {
         return extApiScenarioStepMapper.getStepDTOByScenarioIds(scenarioIds);
     }
 
-    public Object getStepDetail(String stepId) {
-        ApiScenarioStep step = checkStepExist(stepId);
+    public Object getStepDetail(StepRequest request) {
+        ApiScenarioStep step = apiScenarioStepMapper.selectByPrimaryKey(request.getStepId());
+        if (step == null) {
+            step = new ApiScenarioStep();
+            step.setStepType(request.getStepType());
+            step.setResourceId(request.getResourceId());
+            step.setRefType(ApiScenarioStepRefType.REF.name());
+        }
         StepParser stepParser = StepParserFactory.getStepParser(step.getStepType());
         return stepParser.parseDetail(step);
-    }
-
-    private ApiScenarioStep checkStepExist(String id) {
-        return ServiceUtils.checkResourceExist(apiScenarioStepMapper.selectByPrimaryKey(id), "permission.api_step.name");
     }
 
     private void checkTargetModule(String targetModuleId, String projectId) {
@@ -1857,5 +1874,81 @@ public class ApiScenarioService {
         }
 
         return list;
+    }
+
+    public List<ApiScenarioStepDTO> getSystemRequest(ApiScenarioSystemRequest request) {
+        //分批处理  如果是api的处理api的  构造步骤数据
+        List<ApiScenarioStepDTO> steps = new ArrayList<>();
+        ScenarioSystemRequest apiRequest = request.getApiRequest();
+        ScenarioSystemRequest caseRequest = request.getCaseRequest();
+        ScenarioSystemRequest scenarioRequest = request.getScenarioRequest();
+
+        if (ObjectUtils.isNotEmpty(apiRequest)) {
+            if (CollectionUtils.isNotEmpty(apiRequest.getModuleIds())) {
+                apiRequest.getSelectedIds().addAll(extApiDefinitionMapper.getIdsByModules(apiRequest));
+            }
+            apiRequest.getSelectedIds().removeAll(apiRequest.getUnselectedIds());
+            List<@NotBlank String> allApiIds = apiRequest.getSelectedIds().stream().distinct().toList();
+            SubListUtils.dealForSubList(allApiIds, 100, sublist -> {
+                ApiDefinitionExample example = new ApiDefinitionExample();
+                example.createCriteria().andIdIn(sublist);
+                List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
+                apiDefinitions.forEach(item -> {
+                    ApiScenarioStepDTO step = new ApiScenarioStepDTO();
+                    step.setStepType(ApiScenarioStepType.API.name());
+                    step.setName(item.getName());
+                    step.setResourceId(item.getId());
+                    step.setRefType(request.getRefType());
+                    step.setProjectId(item.getProjectId());
+                    step.setResourceNum(item.getNum().toString());
+                    step.setVersionId(item.getVersionId());
+                    steps.add(step);
+                });
+            });
+        }
+        if (ObjectUtils.isNotEmpty(caseRequest)) {
+            if (CollectionUtils.isNotEmpty(caseRequest.getModuleIds())) {
+                caseRequest.getSelectedIds().addAll(extApiTestCaseMapper.getIdsByModules(caseRequest));
+            }
+            caseRequest.getSelectedIds().removeAll(caseRequest.getUnselectedIds());
+            List<@NotBlank String> allCaseIds = caseRequest.getSelectedIds().stream().distinct().toList();
+            SubListUtils.dealForSubList(allCaseIds, 100, sublist -> {
+                ApiTestCaseExample example = new ApiTestCaseExample();
+                example.createCriteria().andIdIn(sublist);
+                List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
+                apiTestCases.forEach(item -> {
+                    ApiScenarioStepDTO step = new ApiScenarioStepDTO();
+                    step.setStepType(ApiScenarioStepType.API_CASE.name());
+                    step.setName(item.getName());
+                    step.setResourceId(item.getId());
+                    step.setRefType(request.getRefType());
+                    step.setProjectId(item.getProjectId());
+                    step.setResourceNum(item.getNum().toString());
+                    step.setVersionId(item.getVersionId());
+                    steps.add(step);
+                });
+            });
+        }
+        if (ObjectUtils.isNotEmpty(scenarioRequest)) {
+            if (CollectionUtils.isNotEmpty(scenarioRequest.getModuleIds())) {
+                scenarioRequest.getSelectedIds().addAll(extApiScenarioMapper.getIdsByModules(scenarioRequest));
+            }
+            scenarioRequest.getSelectedIds().removeAll(scenarioRequest.getUnselectedIds());
+            List<@NotBlank String> allScenario = scenarioRequest.getSelectedIds().stream().distinct().toList();
+            allScenario.forEach(item -> {
+                ApiScenarioDetail apiScenarioDetail = get(item);
+                ApiScenarioStepDTO step = new ApiScenarioStepDTO();
+                step.setStepType(ApiScenarioStepType.API_SCENARIO.name());
+                step.setName(apiScenarioDetail.getName());
+                step.setResourceId(apiScenarioDetail.getId());
+                step.setRefType(request.getRefType());
+                step.setProjectId(apiScenarioDetail.getProjectId());
+                step.setResourceNum(apiScenarioDetail.getNum().toString());
+                step.setVersionId(apiScenarioDetail.getVersionId());
+                step.setChildren(apiScenarioDetail.getSteps());
+                steps.add(step);
+            });
+        }
+        return steps;
     }
 }

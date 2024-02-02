@@ -440,6 +440,26 @@
         </if>
 
     </select>
+    <select id="getIdsByModules" resultType="java.lang.String">
+        select id from api_scenario
+        where deleted = false
+        <if test="request.projectId != null and request.projectId != ''">
+            and api_scenario.project_id = #{request.projectId}
+        </if>
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            and api_scenario.module_id in
+            <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                #{nodeId}
+            </foreach>
+        </if>
+        <if test="request.versionId != null and request.versionId != ''">
+            and api_scenario.version_id = #{request.versionId}
+        </if>
+        <if test="request.versionId = null">
+            and api_scenario.latest = 1
+        </if>
+
+    </select>
 
     <sql id="taskCenterFilters">
         <if test="${filter} != null and ${filter}.size() > 0">
