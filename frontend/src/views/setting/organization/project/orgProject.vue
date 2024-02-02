@@ -256,33 +256,10 @@
     addProjectVisible.value = true;
   };
 
-  const handleDelete = (record: TableData) => {
-    openDeleteModal({
-      title: t('system.organization.deleteName', { name: characterLimit(record.name) }),
-      content: t('system.organization.deleteTip'),
-      onBeforeOk: async () => {
-        try {
-          await deleteProjectByOrg(record.id);
-          Message.success(t('common.deleteSuccess'));
-          fetchData();
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log(error);
-        }
-      },
-    });
-  };
-
-  const handleMoreAction = (tag: ActionsItem, record: TableData) => {
-    if (tag.eventTag === 'delete') {
-      handleDelete(record);
-    }
-  };
-
   const handleEnableOrDisableProject = async (record: any, isEnable = true) => {
     const title = isEnable ? t('system.project.enableTitle') : t('system.project.endTitle');
     const content = isEnable ? t('system.project.enableContent') : t('system.project.endContent');
-    const okText = isEnable ? t('common.confirmEnable') : t('common.confirmClose');
+    const okText = isEnable ? t('common.confirmStart') : t('common.confirmEnd');
     openModal({
       type: 'error',
       cancelText: t('common.cancel'),
@@ -364,6 +341,49 @@
       },
       hideCancel: false,
     });
+  };
+  const handleDelete = (record: TableData) => {
+    openDeleteModal({
+      title: t('system.organization.deleteName', { name: characterLimit(record.name) }),
+      content: t('system.organization.deleteTip'),
+      onBeforeOk: async () => {
+        try {
+          await deleteProjectByOrg(record.id);
+          Message.success({
+            content: () =>
+              h('span', [
+                h('span', t('common.deleteSuccess')),
+                h(
+                  'span',
+                  {
+                    directives: [
+                      {
+                        name: 'permission',
+                        value: ['ORG_PROJECT:READ+RECOVER'],
+                      },
+                    ],
+                    class: 'ml-[8px] cursor-pointer text-[rgb(var(--primary-5))]',
+                    onClick() {
+                      handleRevokeDelete(record);
+                    },
+                  },
+                  t('common.revoke')
+                ),
+              ]),
+          });
+          fetchData();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
+      },
+    });
+  };
+
+  const handleMoreAction = (tag: ActionsItem, record: TableData) => {
+    if (tag.eventTag === 'delete') {
+      handleDelete(record);
+    }
   };
 
   onMounted(() => {

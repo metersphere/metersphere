@@ -35,6 +35,8 @@ export default {
   'common.saveSuccess': 'Save success',
   'common.saveFailed': 'Save failed',
   'common.confirmEnable': 'Confirm enable',
+  'common.confirmEnd': 'Confirm end',
+  'common.confirmStart': 'Confirm start',
   'common.confirmDisable': 'Confirm disable',
   'common.confirmClose': 'Confirm close',
   'common.enableSuccess': 'Enable success',

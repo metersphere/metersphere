@@ -1,7 +1,7 @@
 <template>
-  <single-logo-layout />
+  <NoPermissionLayoutVue />
 </template>
 
 <script lang="ts" setup>
-  import SingleLogoLayout from '@/layout/single-logo-layout.vue';
+  import NoPermissionLayoutVue from '@/layout/no-permission-layout.vue';
 </script>
