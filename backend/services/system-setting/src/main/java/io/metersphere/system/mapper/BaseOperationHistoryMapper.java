@@ -17,5 +17,5 @@ public interface BaseOperationHistoryMapper {
 
     List<OperationHistoryDTO> list(@Param("request") OperationHistoryRequest request);
 
-    List<OperationHistoryDTO> listWidthLimit(@Param("request") OperationHistoryRequest request, @Param("table") String table);
+    List<OperationHistoryDTO> listWidthTable(@Param("request") OperationHistoryRequest request, @Param("table") String table);
 }

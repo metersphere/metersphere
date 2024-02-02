@@ -568,13 +568,8 @@ public class ApiTestCaseService {
         return executeList;
     }
 
-
     public List<OperationHistoryDTO> operationHistoryList(OperationHistoryRequest request) {
-        XpackApiDefinitionService xpackApiDefinitionService = CommonBeanFactory.getBean(XpackApiDefinitionService.class);
-        if (xpackApiDefinitionService != null) {
-            return xpackApiDefinitionService.listHis(request, CASE_TABLE);
-        }
-        return new ArrayList<>();
+        return operationHistoryService.listWidthTable(request, CASE_TABLE);
     }
 
     public void updatePriority(String id, String priority, String userId) {

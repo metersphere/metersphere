@@ -841,8 +841,8 @@ public class ApiTestCaseControllerTests extends BaseTest {
         List<OperationHistoryDTO> reportDTOS = JSON.parseArray(JSON.toJSONString(returnPager.getList()), OperationHistoryDTO.class);
         reportDTOS.forEach(reportDTO -> Assertions.assertEquals(reportDTO.getSourceId(), first.getId()));
 
-        List<OperationHistoryDTO> operationHistoryDTOS = operationHistoryService.listWidthLimit(request, "api_test_case");
-        Assertions.assertTrue(org.apache.commons.collections4.CollectionUtils.isNotEmpty(operationHistoryDTOS));
+        List<OperationHistoryDTO> operationHistoryDTOS = operationHistoryService.listWidthTable(request, "api_test_case");
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(operationHistoryDTOS));
 
         request = new OperationHistoryRequest();
         request.setProjectId(DEFAULT_PROJECT_ID);

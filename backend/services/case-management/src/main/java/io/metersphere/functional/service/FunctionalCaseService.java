@@ -28,7 +28,6 @@ import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomFieldOption;
@@ -44,6 +43,7 @@ import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.notice.sender.AfterReturningNoticeSendService;
 import io.metersphere.system.service.BaseCustomFieldOptionService;
 import io.metersphere.system.service.BaseCustomFieldService;
+import io.metersphere.system.service.OperationHistoryService;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
@@ -151,6 +151,8 @@ public class FunctionalCaseService {
     private FileAssociationMapper fileAssociationMapper;
     @Resource
     private AfterReturningNoticeSendService afterReturningNoticeSendService;
+    @Resource
+    private OperationHistoryService operationHistoryService;
 
 
     public FunctionalCase addFunctionalCase(FunctionalCaseAddRequest request, List<MultipartFile> files, String userId, String organizationId) {
@@ -1110,10 +1112,6 @@ public class FunctionalCaseService {
     }
 
     public List<OperationHistoryDTO> operationHistoryList(OperationHistoryRequest request) {
-        XpackFunctionalCaseService functionalCaseService = CommonBeanFactory.getBean(XpackFunctionalCaseService.class);
-        if (functionalCaseService != null) {
-            return functionalCaseService.listHis(request, CASE_TABLE);
-        }
-        return List.of();
+        return operationHistoryService.listWidthTable(request, CASE_TABLE);
     }
 }
