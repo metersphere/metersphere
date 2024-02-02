@@ -3,6 +3,8 @@ package io.metersphere.plugin.api.dto;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import lombok.Data;
 
+import java.util.Map;
+
 /**
  * @Author: jianxing
  * @CreateTime: 2023-10-27  17:30
@@ -21,5 +23,5 @@ public abstract class ParameterConfig {
      * @param msTestElement 当前 AbstractMsTestElement 的实现类对象
      * @return
      */
-    public abstract Object getProtocolEnvConfig(AbstractMsTestElement msTestElement);
+    public abstract Map<String, Object> getProtocolEnvConfig(AbstractMsTestElement msTestElement);
 }

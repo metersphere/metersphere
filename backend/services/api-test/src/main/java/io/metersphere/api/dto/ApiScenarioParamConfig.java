@@ -27,7 +27,7 @@ public class ApiScenarioParamConfig extends ApiParamConfig {
     private Boolean grouped;
 
     @Override
-    public Object getProtocolEnvConfig(AbstractMsTestElement msTestElement) {
+    public Map<String, Object> getProtocolEnvConfig(AbstractMsTestElement msTestElement) {
         if (BooleanUtils.isTrue(grouped)) {
             return getProtocolEnvConfig(msTestElement, projectEnvMap.get(msTestElement.getProjectId()));
         } else {
