@@ -25,6 +25,28 @@
         and ch.abandoned = false
     </select>
 
+    <select id="getHistoryListWidthAbandoned" resultType="io.metersphere.functional.dto.CaseReviewHistoryDTO">
+        SELECT
+        ch.id,
+        ch.review_id,
+        ch.case_id,
+        ch.status,
+        ch.notifier,
+        ch.create_user,
+        ch.create_time,
+        ch.content,
+        u.name as userName,
+        ux.avatar as userLogo
+        FROM
+        case_review_history ch
+        left join user u on  ch.create_user = u.id
+        left join user_extend ux on  ch.create_user = ux.id
+        where ch.case_id = #{caseId}
+        <if test="reviewId != null and reviewId != ''">
+            and ch.review_id = #{reviewId}
+        </if>
+    </select>
+
     <update id="updateDelete">
         update case_review_history
         set deleted = #{delete}
