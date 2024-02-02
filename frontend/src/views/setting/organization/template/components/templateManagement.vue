@@ -251,7 +251,6 @@
 
   // 更新面包屑根据不同的模板
   const updateBreadcrumbList = () => {
-    debugger;
     const { breadcrumbList } = appStore;
     const breadTitle = getCardList('organization').find((item: any) => item.key === route.query.type);
     if (breadTitle) {

@@ -16,7 +16,7 @@ export default {
   'organization.member.tableColunmStatus': '状态',
   'organization.member.tableColunmActions': '操作',
   'organization.member.member': '成员',
-  'organization.member.selectMemberScope': '请选择需要添加的成员支持多选',
+  'organization.member.selectMemberScope': '请选择需要添加的成员，支持多选',
   'organization.member.selectProjectScope': '请选择需要添加的项目支持多选',
   'organization.member.selectMemberEmptyTip': '成员不能为空',
   'organization.member.selectProjectEmptyTip': '项目不能为空',

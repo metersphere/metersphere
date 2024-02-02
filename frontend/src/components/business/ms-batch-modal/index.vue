@@ -5,6 +5,7 @@
     :mask="true"
     title-align="start"
     class="ms-modal-upload ms-modal-medium"
+    unmount-on-close
     @close="cancelBatch"
   >
     <template #title>

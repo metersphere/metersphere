@@ -16,7 +16,7 @@ export default {
   'project.member.tableColumnStatus': '状态',
   'project.member.tableColumnActions': '操作',
   'project.member.member': '成员',
-  'project.member.selectMemberScope': '请选择需要添加的成员支持多选',
+  'project.member.selectMemberScope': '请选择需要添加的成员，支持多选',
   'project.member.selectProjectScope': '请选择需要添加的项目支持多选',
   'project.member.selectMemberEmptyTip': '成员不能为空',
   'project.member.selectProjectEmptyTip': '项目不能为空',
