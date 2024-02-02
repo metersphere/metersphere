@@ -158,34 +158,13 @@
           class="mb-0"
         >
           <div class="flex w-full items-center">
-            <a-mention
-              v-model:model-value="dialogForm.reason"
-              type="textarea"
-              :auto-size="{ minRows: 1 }"
-              :max-length="1000"
-              allow-clear
-              class="flex flex-1 items-center"
+            <MsRichText
+              v-model:raw="dialogForm.reason"
+              v-model:commentIds="dialogForm.commentIds"
+              :upload-image="handleUploadImage"
+              class="w-full"
             />
-            <MsUpload
-              v-model:file-list="dialogForm.fileList"
-              accept="image"
-              size-unit="MB"
-              :auto-upload="false"
-              multiple
-              :limit="10"
-              :disabled="dialogForm.fileList.length >= 10"
-            >
-              <a-button type="outline" class="ml-[8px] p-[8px_6px]" :disabled="dialogForm.fileList.length >= 10">
-                <icon-file-image :size="18" />
-              </a-button>
-            </MsUpload>
           </div>
-          <MsFileList
-            v-model:file-list="dialogForm.fileList"
-            show-mode="imageList"
-            :show-tab="false"
-            class="mt-[8px]"
-          />
         </a-form-item>
         <a-form-item
           v-if="dialogShowType === 'changeReviewer'"
@@ -231,9 +210,10 @@
             type="primary"
             class="ml-[12px]"
             :loading="dialogLoading"
+            :disabled="submitReviewDisabled"
             @click="commitResult"
           >
-            {{ t('caseManagement.caseReview.commitResult') }}
+            {{ t('caseManagement.caseReview.submitReview') }}
           </a-button>
           <a-button
             v-if="dialogShowType === 'changeReviewer'"
@@ -268,11 +248,10 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsPopconfirm from '@/components/pure/ms-popconfirm/index.vue';
+  import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
-  import MsFileList from '@/components/pure/ms-upload/fileList.vue';
-  import MsUpload from '@/components/pure/ms-upload/index.vue';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
   import MsSelect from '@/components/business/ms-select';
 
@@ -284,6 +263,7 @@
     getReviewDetailCasePage,
     getReviewUsers,
   } from '@/api/modules/case-management/caseReview';
+  import { editorUploadFile } from '@/api/modules/case-management/featureCase';
   import { getProjectMemberCommentOptions } from '@/api/modules/project-management/projectMember';
   import { reviewResultMap } from '@/config/caseManagement';
   import { useI18n } from '@/hooks/useI18n';
@@ -420,14 +400,14 @@
             ...filter.combine,
           }
         : {},
-      current: propsRes.value.msPagination?.current,
-      pageSize: propsRes.value.msPagination?.pageSize,
-      total: propsRes.value.msPagination?.total,
     };
     setLoadListParams(tableParams.value);
     loadList();
     emit('init', {
       ...tableParams.value,
+      current: propsRes.value.msPagination?.current,
+      pageSize: propsRes.value.msPagination?.pageSize,
+      total: propsRes.value.msPagination?.total,
       moduleIds: [],
     });
   }
@@ -472,6 +452,7 @@
     reviewer: [] as string[],
     isAppend: false,
     fileList: [] as MsFileItem[],
+    commentIds: [] as string[],
   };
   const dialogForm = ref({ ...defaultDialogForm });
   const dialogFormRef = ref<FormInstance>();
@@ -649,13 +630,13 @@
             reviewPassRule: props.reviewPassRule,
             status: dialogForm.value.result as ReviewResult,
             content: dialogForm.value.reason,
-            notifier: '', // TODO: 通知人
+            notifier: dialogForm.value.commentIds.join(';'),
             selectIds: batchParams.value.selectIds,
             selectAll: batchParams.value.selectAll,
             excludeIds: batchParams.value.excludeIds,
             condition: batchParams.value.condition,
           });
-          Message.success(t('common.updateSuccess'));
+          Message.success(t('caseManagement.caseReview.reviewSuccess'));
           dialogVisible.value = false;
           resetSelector();
           emit('refresh');
@@ -669,6 +650,19 @@
       }
     });
   }
+
+  async function handleUploadImage(file: File) {
+    const { data } = await editorUploadFile({
+      fileList: [file],
+    });
+    return data;
+  }
+
+  const submitReviewDisabled = computed(
+    () =>
+      dialogForm.value.result !== 'PASS' &&
+      (dialogForm.value.reason === '' || dialogForm.value.reason.trim() === '<p style=""></p>')
+  );
 
   const reviewersOptions = ref<SelectOptionData[]>([]);
   const reviewerLoading = ref(false);

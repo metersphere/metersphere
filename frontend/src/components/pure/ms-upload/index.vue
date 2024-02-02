@@ -48,7 +48,7 @@
           <template v-else>
             <div class="ms-upload-main-text w-full">
               <a-tooltip :content="fileList[0]?.name">
-                <span class="one-line-text w-[80%]"> {{ fileList[0]?.name }}</span>
+                <span class="one-line-text w-[80%] text-center"> {{ fileList[0]?.name }}</span>
               </a-tooltip>
             </div>
             <div class="ms-upload-sub-text">{{ formatFileSize(fileList[0]?.file?.size || 0) }}</div>
