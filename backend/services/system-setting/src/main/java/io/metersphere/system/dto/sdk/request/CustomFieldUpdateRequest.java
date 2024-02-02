@@ -38,6 +38,7 @@ public class CustomFieldUpdateRequest {
     private String type;
 
     @Schema(title = "自定义字段备注")
+    @Size(max = 1000, message = "{custom_field.remark.length_range}", groups = {Created.class, Updated.class})
     private String remark;
 
     @Schema(title = "组织或项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
