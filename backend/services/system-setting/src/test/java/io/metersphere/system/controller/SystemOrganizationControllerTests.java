@@ -7,9 +7,7 @@ import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.dto.OrganizationDTO;
 import io.metersphere.system.dto.ProjectDTO;
-import io.metersphere.system.dto.request.OrganizationMemberRequest;
-import io.metersphere.system.dto.request.OrganizationRequest;
-import io.metersphere.system.dto.request.ProjectRequest;
+import io.metersphere.system.dto.request.*;
 import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.utils.Pager;
@@ -41,6 +39,12 @@ public class SystemOrganizationControllerTests extends BaseTest{
     private MockMvc mockMvc;
 
     public static final String ORGANIZATION_LIST = "/system/organization/list";
+    public static final String ORGANIZATION_UPDATE = "/system/organization/update";
+    public static final String ORGANIZATION_RENAME = "/system/organization/rename";
+    public static final String ORGANIZATION_DELETE = "/system/organization/delete";
+    public static final String ORGANIZATION_RECOVER = "/system/organization/recover";
+    public static final String ORGANIZATION_ENABLE = "/system/organization/enable";
+    public static final String ORGANIZATION_DISABLE = "/system/organization/disable";
     public static final String ORGANIZATION_LIST_OPTION_ALL = "/system/organization/option/all";
     public static final String ORGANIZATION_DEFAULT = "/system/organization/default";
     public static final String ORGANIZATION_LIST_MEMBER = "/system/organization/list-member";
@@ -132,6 +136,69 @@ public class SystemOrganizationControllerTests extends BaseTest{
 
     @Test
     @Order(3)
+    public void testUpdateOrganizationSuccess() throws Exception {
+        OrganizationEditRequest request = new OrganizationEditRequest();
+        request.setId("default-organization-5");
+        request.setName("default-5");
+        request.setUserIds(List.of("user-id1", "user-id2"));
+        this.requestPost(ORGANIZATION_UPDATE, request).andExpect(status().isOk());
+        request.setUserIds(List.of("user-id1"));
+        this.requestPost(ORGANIZATION_UPDATE, request).andExpect(status().isOk());
+        request.setUserIds(List.of());
+        this.requestPost(ORGANIZATION_UPDATE, request).andExpect(status().isOk());
+        this.requestPost(ORGANIZATION_UPDATE, request).andExpect(status().isOk());
+    }
+
+    @Test
+    @Order(4)
+    public void testUpdateOrganizationError() throws Exception {
+        OrganizationEditRequest request = new OrganizationEditRequest();
+        request.setName("default-4");
+        // 组织不存在
+        request.setId("default-organization-x");
+        this.requestPost(ORGANIZATION_UPDATE, request).andExpect(status().is5xxServerError());
+        // 组织存在, 但是名称重复
+        request.setId("default-organization-5");
+        this.requestPost(ORGANIZATION_UPDATE, request).andExpect(status().is5xxServerError());
+    }
+
+    @Test
+    @Order(5)
+    public void testOrganizationRename() throws Exception {
+        OrganizationNameEditRequest request = new OrganizationNameEditRequest();
+        request.setName("default-x");
+        request.setId("default-organization-5");
+        this.requestPost(ORGANIZATION_RENAME, request).andExpect(status().isOk());
+    }
+
+    @Test
+    @Order(6)
+    public void testDeleteOrganization() throws Exception {
+        this.requestGetWithOk(ORGANIZATION_DELETE + "/default-organization-5");
+        // 删除默认组织
+        this.requestGet(ORGANIZATION_DELETE + "/100001").andExpect(status().is5xxServerError());
+    }
+
+    @Test
+    @Order(7)
+    public void testRecoverOrganization() throws Exception {
+        this.requestGetWithOk(ORGANIZATION_RECOVER + "/default-organization-5");
+    }
+
+    @Test
+    @Order(8)
+    public void testDisableOrganization() throws Exception {
+        this.requestGetWithOk(ORGANIZATION_DISABLE + "/default-organization-5");
+    }
+
+    @Test
+    @Order(9)
+    public void testEnableOrganization() throws Exception {
+        this.requestGetWithOk(ORGANIZATION_ENABLE + "/default-organization-5");
+    }
+
+    @Test
+    @Order(10)
     public void testListAllOrganizationSuccess() throws Exception {
         MvcResult mvcResult = this.responsePost(ORGANIZATION_LIST_OPTION_ALL, null);
         // 获取返回值
@@ -144,13 +211,13 @@ public class SystemOrganizationControllerTests extends BaseTest{
     }
 
     @Test
-    @Order(4)
+    @Order(11)
     public void testListAllOrganizationError() throws Exception {
         this.requestGet(ORGANIZATION_LIST_OPTION_ALL, status().isMethodNotAllowed());
     }
 
     @Test
-    @Order(5)
+    @Order(12)
     public void testListOrganizationMemberSuccess() throws Exception {
         OrganizationRequest organizationRequest = new OrganizationRequest();
         organizationRequest.setCurrent(1);
@@ -193,7 +260,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
     }
 
     @Test
-    @Order(6)
+    @Order(13)
     public void testListOrganizationMemberError() throws Exception {
         // 页码有误
         OrganizationRequest organizationRequest = new OrganizationRequest();
@@ -213,7 +280,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
 
 
     @Test
-    @Order(7)
+    @Order(14)
     public void testAddOrganizationMemberSuccess() throws Exception {
         OrganizationMemberRequest organizationMemberRequest = new OrganizationMemberRequest();
         organizationMemberRequest.setOrganizationId("default-organization-3");
@@ -251,7 +318,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
     }
 
     @Test
-    @Order(8)
+    @Order(15)
     public void testAddOrganizationMemberSuccessWithRepeatUser() throws Exception {
         OrganizationMemberRequest organizationMemberRequest = new OrganizationMemberRequest();
         organizationMemberRequest.setOrganizationId("default-organization-3");
@@ -284,7 +351,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
     }
 
     @Test
-    @Order(9)
+    @Order(16)
     public void testAddOrganizationMemberError() throws Exception {
         // 成员选择为空
         OrganizationMemberRequest organizationMemberRequest = new OrganizationMemberRequest();
@@ -309,7 +376,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
     }
 
     @Test
-    @Order(10)
+    @Order(17)
     public void testRemoveOrganizationMemberSuccess() throws Exception {
         this.requestGet(ORGANIZATION_REMOVE_MEMBER + "/default-organization-3/admin", status().isOk());
         // 日志校验
@@ -319,14 +386,14 @@ public class SystemOrganizationControllerTests extends BaseTest{
     }
 
     @Test
-    @Order(11)
+    @Order(17)
     public void testRemoveOrganizationMemberError() throws Exception {
         // 组织不存在
         this.requestGet(ORGANIZATION_REMOVE_MEMBER + "/default-organization-x/admin-x", status().is5xxServerError());
     }
 
     @Test
-    @Order(12)
+    @Order(19)
     public void testGetOrganizationProjectSuccess() throws Exception {
         ProjectRequest projectRequest = new ProjectRequest();
         projectRequest.setCurrent(1);
@@ -363,7 +430,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
     }
 
     @Test
-    @Order(13)
+    @Order(20)
     public void testGetOrganizationProjectError() throws Exception {
         // 页码有误
         ProjectRequest projectRequest = new ProjectRequest();
@@ -380,7 +447,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
     }
 
     @Test
-    @Order(14)
+    @Order(21)
     public void testGetDefaultOrganizationSuccess() throws Exception {
         MvcResult mvcResult = this.responseGet(SystemOrganizationControllerTests.ORGANIZATION_DEFAULT);
         // 获取返回值
@@ -399,13 +466,13 @@ public class SystemOrganizationControllerTests extends BaseTest{
     }
 
     @Test
-    @Order(15)
+    @Order(22)
     public void testGetDefaultOrganizationError() throws Exception {
         this.requestPost(ORGANIZATION_DEFAULT, null, status().isMethodNotAllowed());
     }
 
     @Test
-    @Order(16)
+    @Order(23)
     public void testGetOrganizationMemberOption() throws Exception {
         MvcResult mvcResult = this.responseGet(SystemOrganizationControllerTests.ORGANIZATION_MEMBER_OPTION + "/default-organization-2");
         // 获取返回值
@@ -419,7 +486,7 @@ public class SystemOrganizationControllerTests extends BaseTest{
     }
 
     @Test
-    @Order(17)
+    @Order(24)
     public void testGetTotal() throws Exception {
         // 组织不存在
         MvcResult mvcResult = this.responseGet(SystemOrganizationControllerTests.ORGANIZATION_TOTAL + "?organizationId=default-organization-2");

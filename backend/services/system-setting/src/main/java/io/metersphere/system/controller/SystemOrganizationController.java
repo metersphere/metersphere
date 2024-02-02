@@ -6,18 +6,19 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.dto.OrganizationDTO;
 import io.metersphere.system.dto.ProjectDTO;
-import io.metersphere.system.dto.request.OrganizationMemberRequest;
-import io.metersphere.system.dto.request.OrganizationProjectRequest;
-import io.metersphere.system.dto.request.OrganizationRequest;
-import io.metersphere.system.dto.request.ProjectRequest;
+import io.metersphere.system.dto.request.*;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.user.UserExtendDTO;
+import io.metersphere.system.log.annotation.Log;
+import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.service.OrganizationService;
+import io.metersphere.system.service.SystemOrganizationLogService;
 import io.metersphere.system.service.SystemProjectService;
 import io.metersphere.system.service.UserService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
 import io.metersphere.system.utils.SessionUtils;
+import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
@@ -54,6 +55,65 @@ public class SystemOrganizationController {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
                 StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
         return PageUtils.setPageInfo(page, organizationService.list(request));
+    }
+
+    @PostMapping("/update")
+    @Operation(summary = "系统设置-系统-组织与项目-组织-修改组织")
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#organizationEditRequest)", msClass = SystemOrganizationLogService.class)
+    public void update(@Validated({Updated.class}) @RequestBody OrganizationEditRequest organizationEditRequest) {
+        OrganizationDTO organizationDTO = new OrganizationDTO();
+        BeanUtils.copyBean(organizationDTO, organizationEditRequest);
+        organizationDTO.setUpdateUser(SessionUtils.getUserId());
+        organizationService.update(organizationDTO);
+    }
+
+    @PostMapping("/rename")
+    @Operation(summary = "系统设置-系统-组织与项目-组织-修改组织名称")
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateNameLog(#organizationEditRequest)", msClass = SystemOrganizationLogService.class)
+    public void rename(@Validated({Updated.class}) @RequestBody OrganizationNameEditRequest organizationEditRequest) {
+        OrganizationDTO organizationDTO = new OrganizationDTO();
+        BeanUtils.copyBean(organizationDTO, organizationEditRequest);
+        organizationDTO.setUpdateUser(SessionUtils.getUserId());
+        organizationService.updateName(organizationDTO);
+    }
+
+    @GetMapping("/delete/{id}")
+    @Operation(summary = "系统设置-系统-组织与项目-组织-删除组织")
+    @Parameter(name = "id", description = "组织ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_DELETE)
+    @Log(type = OperationLogType.DELETE, expression = "#msClass.deleteLog(#id)", msClass = SystemOrganizationLogService.class)
+    public void delete(@PathVariable String id) {
+        OrganizationDeleteRequest organizationDeleteRequest = new OrganizationDeleteRequest();
+        organizationDeleteRequest.setOrganizationId(id);
+        organizationDeleteRequest.setDeleteUserId(SessionUtils.getUserId());
+        organizationService.delete(organizationDeleteRequest);
+    }
+
+    @GetMapping("/recover/{id}")
+    @Operation(summary = "系统设置-系统-组织与项目-组织-恢复组织")
+    @Parameter(name = "id", description = "组织ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_RECOVER)
+    @Log(type = OperationLogType.RECOVER, expression = "#msClass.recoverLog(#id)", msClass = SystemOrganizationLogService.class)
+    public void recover(@PathVariable String id) {
+        organizationService.recover(id);
+    }
+
+    @GetMapping("/enable/{id}")
+    @Operation(summary = "系统设置-系统-组织与项目-组织-启用组织")
+    @Parameter(name = "id", description = "组织ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
+    public void enable(@PathVariable String id) {
+        organizationService.enable(id);
+    }
+
+    @GetMapping("/disable/{id}")
+    @Operation(summary = "系统设置-系统-组织与项目-组织-结束组织")
+    @Parameter(name = "id", description = "组织ID", schema = @Schema(requiredMode = Schema.RequiredMode.REQUIRED))
+    @RequiresPermissions(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_READ_UPDATE)
+    public void disable(@PathVariable String id) {
+        organizationService.disable(id);
     }
 
     @PostMapping("/option/all")
