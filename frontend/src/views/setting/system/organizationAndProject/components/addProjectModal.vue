@@ -6,6 +6,7 @@
     title-align="start"
     unmount-on-close
     :mask-closable="false"
+    :ok-loading="loading"
     @cancel="handleCancel(false)"
   >
     <template #title>
@@ -57,7 +58,7 @@
           />
         </a-form-item>
         <a-form-item field="module" :label="t('system.project.moduleSetting')">
-          <a-checkbox-group v-model="form.moduleIds" :options="moduleOption">
+          <a-checkbox-group v-model="form.moduleIds" :options="moduleOption" @change="handleModuleChange">
             <template #label="{ data }">
               <span>{{ t(data.label) }}</span>
             </template>
@@ -74,7 +75,7 @@
           <a-textarea
             v-model="form.description"
             :max-length="1000"
-            :placeholder="t('system.organization.descriptionPlaceholder')"
+            :placeholder="t('system.project.descriptionPlaceholder')"
             allow-clear
             :auto-size="{ minRows: 1 }"
           />
@@ -108,6 +109,7 @@
 
 <script lang="ts" setup>
   import { computed, reactive, ref, watchEffect } from 'vue';
+  import { useIntervalFn } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
@@ -137,6 +139,18 @@
   const isEdit = computed(() => !!props.currentProject?.id);
   const affiliatedOrgOption = ref<SystemOrgOption[]>([]);
   const licenseStore = useLicenseStore();
+  const timer = ref(5); // 存储倒计时
+  const { pause, resume } = useIntervalFn(() => {
+    timer.value--;
+  }, 1000);
+  // 初始化组件时关闭
+  pause();
+  // timer 为0时关闭
+  watch(timer, () => {
+    if (timer.value === 0) {
+      pause();
+    }
+  });
   const moduleOption = [
     // { label: 'menu.workbench', value: 'workstation' },
     // { label: 'menu.testPlan', value: 'testPlan' },
@@ -179,6 +193,10 @@
     form.description = '';
     form.enable = true;
     form.moduleIds = allModuleIds;
+    form.resourcePoolIds = [];
+    timer.value = 5;
+    Message.clear();
+    pause();
   };
   const handleCancel = (shouldSearch: boolean) => {
     emit('cancel', shouldSearch);
@@ -215,6 +233,22 @@
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error(error);
+    }
+  };
+
+  const handleModuleChange = (value: (string | number | boolean)[]) => {
+    if (props.currentProject?.id && timer.value === 5 && props.currentProject.moduleIds?.length) {
+      if (props.currentProject.moduleIds.some((item) => value.includes(item))) {
+        resume();
+        Message.warning({
+          content: () =>
+            h('span', [
+              h('span', t('system.project.afterModule')),
+              h('span', { class: 'ml-[20px] text-[var(--color-text-4)]' }, `${timer.value}s`),
+            ]),
+          duration: 5000,
+        });
+      }
     }
   };
   watchEffect(() => {

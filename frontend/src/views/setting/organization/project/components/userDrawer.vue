@@ -99,7 +99,11 @@
       title: 'system.organization.phone',
       dataIndex: 'phone',
     },
-    { title: 'system.organization.operation', slotName: 'operation' },
+    {
+      title: 'system.organization.operation',
+      slotName: 'operation',
+      width: 60,
+    },
   ];
 
   const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(
