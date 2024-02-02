@@ -204,7 +204,7 @@ public class ReviewFunctionalCaseService {
     }
 
     public List<CaseReviewHistoryDTO> getCaseReviewHistoryList(String reviewId, String caseId) {
-        List<CaseReviewHistoryDTO> list = extCaseReviewHistoryMapper.list(caseId, reviewId);
+        List<CaseReviewHistoryDTO> list = extCaseReviewHistoryMapper.getHistoryListWidthAbandoned(caseId, reviewId);
         for (CaseReviewHistoryDTO caseReviewHistoryDTO : list) {
             if (StringUtils.equalsIgnoreCase(caseReviewHistoryDTO.getCreateUser(), "system")) {
                 caseReviewHistoryDTO.setUserName(Translator.get("case_review_history.system"));
@@ -213,6 +213,6 @@ public class ReviewFunctionalCaseService {
                 caseReviewHistoryDTO.setContentText(new String(caseReviewHistoryDTO.getContent(), StandardCharsets.UTF_8));
             }
         }
-        return list;
+        return list.stream().sorted(Comparator.comparing(CaseReviewHistoryDTO::getCreateTime).reversed()).toList();
     }
 }
