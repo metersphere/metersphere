@@ -550,8 +550,8 @@ public class FileMetadataService {
         fileMetadata.setProjectId(oldFile.getProjectId());
         fileMetadata.setModuleId(oldFile.getModuleId());
         fileMetadata.setName(oldFile.getName());
-        fileMetadata.setCreateTime(oldFile.getCreateTime());
-        fileMetadata.setCreateUser(oldFile.getCreateUser());
+        fileMetadata.setCreateTime(operationTime);
+        fileMetadata.setCreateUser(operator);
         fileMetadata.setUpdateTime(operationTime);
         fileMetadata.setPath(oldFile.getPath());
         fileMetadata.setUpdateUser(operator);
