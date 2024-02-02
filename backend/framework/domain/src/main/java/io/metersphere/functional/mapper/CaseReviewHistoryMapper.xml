@@ -10,6 +10,7 @@
     <result column="notifier" jdbcType="VARCHAR" property="notifier" />
     <result column="create_user" jdbcType="VARCHAR" property="createUser" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="abandoned" jdbcType="BIT" property="abandoned" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.functional.domain.CaseReviewHistory">
     <result column="content" jdbcType="LONGVARBINARY" property="content" />
@@ -73,7 +74,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, review_id, case_id, `status`, deleted, notifier, create_user, create_time
+    id, review_id, case_id, `status`, deleted, notifier, create_user, create_time, abandoned
   </sql>
   <sql id="Blob_Column_List">
     content
@@ -129,12 +130,12 @@
   <insert id="insert" parameterType="io.metersphere.functional.domain.CaseReviewHistory">
     insert into case_review_history (id, review_id, case_id, 
       `status`, deleted, notifier, 
-      create_user, create_time, content
-      )
+      create_user, create_time, abandoned, 
+      content)
     values (#{id,jdbcType=VARCHAR}, #{reviewId,jdbcType=VARCHAR}, #{caseId,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{deleted,jdbcType=BIT}, #{notifier,jdbcType=VARCHAR}, 
-      #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{content,jdbcType=LONGVARBINARY}
-      )
+      #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{abandoned,jdbcType=BIT}, 
+      #{content,jdbcType=LONGVARBINARY})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.functional.domain.CaseReviewHistory">
     insert into case_review_history
@@ -162,6 +163,9 @@
       </if>
       <if test="createTime != null">
         create_time,
+      </if>
+      <if test="abandoned != null">
+        abandoned,
       </if>
       <if test="content != null">
         content,
@@ -191,6 +195,9 @@
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="abandoned != null">
+        #{abandoned,jdbcType=BIT},
       </if>
       <if test="content != null">
         #{content,jdbcType=LONGVARBINARY},
@@ -230,6 +237,9 @@
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
+      <if test="record.abandoned != null">
+        abandoned = #{record.abandoned,jdbcType=BIT},
+      </if>
       <if test="record.content != null">
         content = #{record.content,jdbcType=LONGVARBINARY},
       </if>
@@ -248,6 +258,7 @@
       notifier = #{record.notifier,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
+      abandoned = #{record.abandoned,jdbcType=BIT},
       content = #{record.content,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -262,7 +273,8 @@
       deleted = #{record.deleted,jdbcType=BIT},
       notifier = #{record.notifier,jdbcType=VARCHAR},
       create_user = #{record.createUser,jdbcType=VARCHAR},
-      create_time = #{record.createTime,jdbcType=BIGINT}
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      abandoned = #{record.abandoned,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -291,6 +303,9 @@
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
+      <if test="abandoned != null">
+        abandoned = #{abandoned,jdbcType=BIT},
+      </if>
       <if test="content != null">
         content = #{content,jdbcType=LONGVARBINARY},
       </if>
@@ -306,6 +321,7 @@
       notifier = #{notifier,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
+      abandoned = #{abandoned,jdbcType=BIT},
       content = #{content,jdbcType=LONGVARBINARY}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -317,19 +333,20 @@
       deleted = #{deleted,jdbcType=BIT},
       notifier = #{notifier,jdbcType=VARCHAR},
       create_user = #{createUser,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=BIGINT}
+      create_time = #{createTime,jdbcType=BIGINT},
+      abandoned = #{abandoned,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into case_review_history
-    (id, review_id, case_id, `status`, deleted, notifier, create_user, create_time, content
-      )
+    (id, review_id, case_id, `status`, deleted, notifier, create_user, create_time, abandoned, 
+      content)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.reviewId,jdbcType=VARCHAR}, #{item.caseId,jdbcType=VARCHAR}, 
         #{item.status,jdbcType=VARCHAR}, #{item.deleted,jdbcType=BIT}, #{item.notifier,jdbcType=VARCHAR}, 
-        #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.content,jdbcType=LONGVARBINARY}
-        )
+        #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, #{item.abandoned,jdbcType=BIT}, 
+        #{item.content,jdbcType=LONGVARBINARY})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -365,6 +382,9 @@
         </if>
         <if test="'create_time'.toString() == column.value">
           #{item.createTime,jdbcType=BIGINT}
+        </if>
+        <if test="'abandoned'.toString() == column.value">
+          #{item.abandoned,jdbcType=BIT}
         </if>
         <if test="'content'.toString() == column.value">
           #{item.content,jdbcType=LONGVARBINARY}
