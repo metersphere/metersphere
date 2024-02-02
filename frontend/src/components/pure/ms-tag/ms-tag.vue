@@ -8,7 +8,7 @@
       ...typeStyle,
       'margin-right': noMargin ? 0 : tagMargin,
       'min-width': props.width && `${props.width}ch`,
-      'max-width': '144px',
+      'max-width': props.maxWidth || '144px',
     }"
   >
     <slot name="icon"></slot>
@@ -33,6 +33,7 @@
       theme?: Theme; // tag主题
       selfStyle?: any; // 自定义样式
       width?: number; // tag宽度,不传入时绑定max-width
+      maxWidth?: string;
       noMargin?: boolean; // tag之间是否有间距
     }>(),
     {

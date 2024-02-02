@@ -15,6 +15,7 @@ export default {
   'settings.help.guide': 'Use Guide',
   'settings.help.doc': 'Help docs',
   'settings.help.APIDoc': 'API docs',
+  'settings.help.versionInfo': 'Version info',
   'settings.help.version': 'Version',
   'settings.menu': 'Menu',
   'settings.tabBar': 'Tab Bar',

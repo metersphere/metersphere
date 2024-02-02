@@ -1,4 +1,3 @@
-import { MsFileItem } from '@/components/pure/ms-upload/types';
 import { CommentItem, CommentParams } from '@/components/business/ms-comment/types';
 
 import MSR from '@/api/http/index';
@@ -53,7 +52,6 @@ import {
   GetRecycleCaseListUrl,
   GetRecycleCaseModulesCountUrl,
   GetReviewCommentListUrl,
-  GetReviewerListUrl,
   GetSearchCustomFieldsUrl,
   GetThirdDemandUrl,
   getTransferTreeUrl,
@@ -86,7 +84,6 @@ import type {
   CreateOrUpdateModule,
   DeleteCaseType,
   DemandItem,
-  DetailCase,
   DragCase,
   ImportExcelType,
   ModulesTreeType,
@@ -95,7 +92,7 @@ import type {
   UpdateModule,
 } from '@/models/caseManagement/featureCase';
 import type { CommonList, MoveModules, TableQueryParams } from '@/models/common';
-import type { UserListItem } from '@/models/setting/user';
+
 // 获取模块树
 export function getCaseModuleTree(params: TableQueryParams) {
   return MSR.get<ModulesTreeType[]>({ url: `${GetCaseModuleTreeUrl}/${params.projectId}` });
@@ -309,11 +306,6 @@ export function deleteCommentList(commentId: string) {
 // 评审
 export function getDetailCaseReviewPage(data: TableQueryParams) {
   return MSR.post<CommonList<CaseManagementTable>>({ url: GetDetailCaseReviewUrl, data });
-}
-
-// 获取评审人列表
-export function getReviewerList(projectId: string, keyword: string) {
-  return MSR.get<UserListItem[]>({ url: `${GetReviewerListUrl}/${projectId}`, params: { keyword } });
 }
 
 // 用例接口用例分页列表

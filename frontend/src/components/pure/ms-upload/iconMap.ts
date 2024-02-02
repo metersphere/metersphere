@@ -87,7 +87,7 @@ export function getFileEnum(fileType?: string): keyof typeof UploadAcceptEnum {
     const keys = Object.keys(UploadAcceptEnum);
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i] as unknown as keyof typeof UploadAcceptEnum;
-      if (UploadAcceptEnum[key].split(',').includes(`.${fileType.split('/')[1]}`)) {
+      if (UploadAcceptEnum[key].includes(fileType)) {
         return key;
       }
     }
@@ -98,10 +98,13 @@ export function getFileEnum(fileType?: string): keyof typeof UploadAcceptEnum {
 /**
  * 获取文件图标
  * @param item 文件项
+ * @param status 文件状态
  */
-export function getFileIcon(item: MsFileItem) {
-  if (item.status === UploadStatus.done) {
-    return FileIconMap[getFileEnum(item.file?.type)]?.[item.status] ?? FileIconMap.unknown[UploadStatus.done];
+export function getFileIcon(item: MsFileItem, status?: UploadStatus) {
+  const fileType = item.file?.name.split('.').pop(); // 通过文件后缀判断文件类型
+  const _status = status || item.status;
+  if (_status === UploadStatus.done) {
+    return FileIconMap[getFileEnum(fileType)]?.[_status] ?? FileIconMap.unknown[UploadStatus.done];
   }
-  return FileIconMap[getFileEnum(item.file?.type)]?.[UploadStatus.init] ?? FileIconMap.unknown[UploadStatus.done];
+  return FileIconMap[getFileEnum(fileType)]?.[_status || UploadStatus.init] ?? FileIconMap.unknown[UploadStatus.done];
 }

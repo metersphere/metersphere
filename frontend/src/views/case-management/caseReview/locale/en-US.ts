@@ -50,7 +50,7 @@ export default {
   'caseManagement.caseReview.batchMoveConfirm': 'Move {count} use cases to the selected module',
   'caseManagement.caseReview.batchMoveTitleSub': '({count} reviews selected)',
   'caseManagement.caseReview.batchMoveSuccess': 'Review moved successfully',
-  'caseManagement.caseReview.folderSearchPlaceholder': 'Please enter a group name',
+  'caseManagement.caseReview.folderSearchPlaceholder': 'Please enter a module name',
   'caseManagement.caseReview.allReviews': 'All reviews',
   'caseManagement.caseReview.noReviews': 'No matching review data yet',
   'caseManagement.caseReview.deleteFolderTipTitle': 'Remove the `{name}` module?',

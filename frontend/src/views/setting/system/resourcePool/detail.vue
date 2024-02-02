@@ -136,7 +136,8 @@
       <a-form-item v-if="isShowTypeItem" :label="t('system.resourcePool.type')" field="type" class="form-item">
         <a-radio-group v-model:model-value="form.type" type="button" @change="changeResourceType">
           <a-radio value="Node">Node</a-radio>
-          <a-radio v-xpack value="Kubernetes">Kubernetes</a-radio>
+          <!-- TODO:第一版不上 -->
+          <!-- <a-radio v-xpack value="Kubernetes">Kubernetes</a-radio> -->
         </a-radio-group>
       </a-form-item>
       <template v-if="isShowNodeResources">
@@ -187,6 +188,7 @@
           form-mode="create"
           add-text="system.resourcePool.addResource"
           :default-vals="defaultVals"
+          :hide-add="!isXpack"
           max-height="250px"
         ></MsBatchForm>
         <!-- TODO:代码编辑器懒加载 -->
@@ -402,21 +404,28 @@
   const form = ref({ ...defaultForm });
   const formRef = ref<FormInstance | null>(null);
   const orgOptions = ref<SelectOptionData>([]);
+  // TODO:第一版只有接口测试
   const useList = ref([
-    {
-      label: 'system.resourcePool.usePerformance',
-      value: 'performance',
-    },
+    // {
+    //   label: 'system.resourcePool.usePerformance',
+    //   value: 'performance',
+    // },
     {
       label: 'system.resourcePool.useAPI',
       value: 'API',
     },
-    {
-      label: 'system.resourcePool.useUI',
-      value: 'UI',
-    },
+    // {
+    //   label: 'system.resourcePool.useUI',
+    //   value: 'UI',
+    // },
   ]);
   const defaultGrid = 'http://selenium-hub:4444';
+  const maxConcurrentNumber = computed(() => {
+    if (isXpack.value) {
+      return 9999999;
+    }
+    return 10;
+  });
 
   onBeforeMount(async () => {
     orgOptions.value = await getSystemOrgOption();
@@ -445,6 +454,7 @@
         },
       };
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       loading.value = false;
@@ -555,7 +565,7 @@
       ],
       placeholder: 'system.resourcePool.concurrentNumberPlaceholder',
       min: 1,
-      max: 9999999,
+      max: maxConcurrentNumber.value,
     },
   ]);
 

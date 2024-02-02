@@ -18,13 +18,17 @@
         <slot name="optional" v-bind="{ rowIndex, record }" />
       </template>
       <template #columns>
-        <a-table-column v-if="attrs.selectable && props.selectedKeys" :width="props.firstColumnWidth || 60">
+        <a-table-column
+          v-if="attrs.selectable && props.selectedKeys"
+          :width="props.firstColumnWidth || 60"
+          fixed="left"
+        >
           <template #title>
             <SelectALL
               v-if="attrs.selectorType === 'checkbox'"
               :total="selectTotal"
               :current="selectCurrent"
-              :show-select-all="(attrs.showPagination as boolean) && props.showSelectorAll"
+              :show-select-all="!!attrs.showPagination && props.showSelectorAll"
               :disabled="(attrs.data as []).length === 0"
               @change="handleSelectAllChange"
             />
@@ -211,7 +215,7 @@
       </div>
       <div class="min-w-[500px]">
         <ms-pagination
-          v-if="attrs.showPagination"
+          v-if="!!attrs.showPagination"
           v-show="props.selectorStatus !== SelectAllEnum.CURRENT"
           size="small"
           v-bind="(attrs.msPagination as MsPaginationI)"
@@ -226,7 +230,7 @@
       v-model:visible="columnSelectorVisible"
       :show-jump-method="(attrs.showJumpMethod as boolean)"
       :table-key="(attrs.tableKey as string)"
-      :show-pagination="(attrs.showPagination as boolean)"
+      :show-pagination="!!attrs.showPagination"
       @init-data="handleInitColumn"
       @page-size-change="pageSizeChange"
     ></ColumnSelector>
@@ -569,8 +573,14 @@
     }
   }
   .ms-base-table--hasQuickCreate {
-    :deep(.arco-table-body) {
+    :deep(.arco-table-body:not(.arco-scrollbar-container)) {
       padding-top: 54px;
+    }
+    :deep(.arco-table-element:not(.arco-table-header .arco-table-element)) {
+      padding-bottom: 54px;
+      tbody {
+        transform: translateY(54px);
+      }
     }
     :deep(.arco-table-tr:first-child) {
       .arco-table-td {

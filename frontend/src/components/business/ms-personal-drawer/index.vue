@@ -22,6 +22,8 @@
 </template>
 
 <script setup lang="ts">
+  import { useVModel } from '@vueuse/core';
+
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsMenuPanel from '@/components/pure/ms-menu-panel/index.vue';
   import apiKey from './components/apiKey.vue';
@@ -41,26 +43,8 @@
 
   const { t } = useI18n();
 
-  const innerVisible = ref(false);
-
-  watch(
-    () => props.visible,
-    (val) => {
-      innerVisible.value = val;
-    }
-  );
-
+  const innerVisible = useVModel(props, 'visible', emit);
   const activeMenu = ref('baseInfo');
-
-  watch(
-    () => innerVisible.value,
-    (val) => {
-      emit('update:visible', val);
-      if (!val) {
-        activeMenu.value = 'baseInfo';
-      }
-    }
-  );
 
   const menuList = ref([
     {

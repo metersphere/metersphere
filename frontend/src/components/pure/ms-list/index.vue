@@ -241,6 +241,9 @@
       }
       .arco-list-item-meta {
         @apply p-0;
+        .arco-list-item-meta-content {
+          @apply flex-1;
+        }
         .arco-list-item-meta-title:not(:last-child) {
           @apply mb-0;
         }

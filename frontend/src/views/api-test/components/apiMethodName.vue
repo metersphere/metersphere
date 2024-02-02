@@ -1,12 +1,21 @@
 <template>
-  <div class="font-medium" :style="{ color: methodColor }">{{ props.method }}</div>
+  <MsTag
+    v-if="props.isTag"
+    :self-style="{ border: `1px solid ${methodColor}`, color: methodColor, backgroundColor: 'white' }"
+  >
+    {{ props.method }}
+  </MsTag>
+  <div v-else class="font-medium" :style="{ color: methodColor }">{{ props.method }}</div>
 </template>
 
 <script setup lang="ts">
+  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
+
   import { RequestMethods } from '@/enums/apiEnum';
 
   const props = defineProps<{
     method: RequestMethods;
+    isTag?: boolean; // 是否展示为标签
   }>();
 
   const colorMaps = [

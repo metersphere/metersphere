@@ -126,6 +126,7 @@
               />
             </div>
             <div
+              v-if="!props.hideAdd"
               v-show="form.list.length > 1"
               class="minus"
               :class="[
@@ -169,6 +170,7 @@
 
   import type { FormItemModel, FormMode } from './types';
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
+  import { FieldData } from '@arco-design/web-vue/es/form/interface';
 
   const { t } = useI18n();
 
@@ -182,10 +184,12 @@
       isShowDrag?: boolean; // 是否可以拖拽
       formWidth?: string; // 自定义表单区域宽度
       showEnable?: boolean; // 是否显示启用禁用switch状态
+      hideAdd?: boolean; // 是否隐藏添加按钮
     }>(),
     {
       maxHeight: '30vh',
       isShowDrag: false,
+      hideAdd: false,
     }
   );
 
@@ -292,10 +296,15 @@
     formRef.value?.resetFields();
   }
 
+  function setFields(data: Record<string, FieldData>) {
+    formRef.value?.setFields(data);
+  }
+
   defineExpose({
     formValidate,
     getFormResult,
     resetForm,
+    setFields,
   });
 </script>
 

@@ -102,9 +102,6 @@
 
       right: 20px;
     }
-    .arco-list-item-meta-content {
-      @apply flex-1;
-    }
     .item-wrap {
       @apply cursor-pointer;
     }

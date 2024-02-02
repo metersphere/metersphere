@@ -54,12 +54,14 @@ export default {
   'project.messageManagement.appSecretRequired': 'AppSecret cannot be empty',
   'project.messageManagement.disableTitle': 'Are you sure you want to close {name}?',
   'project.messageManagement.disableContent':
-    'After closing, it will no longer receive in-site message notifications and will not be displayed on the message list page.',
+    'After closing, it will no longer receive {robot} message notifications and will not be displayed on the message list page.',
   'project.messageManagement.disableConfirm': 'Confirm close',
   'project.messageManagement.disableSuccess': 'Closed successfully',
   'project.messageManagement.enableTitle': 'Turn on {name}',
   'project.messageManagement.enableContent':
-    'After turning it on, site messages will be displayed in the message settings list, and the notification type needs to be manually set.',
+    'After turning it on, {robot} messages will be displayed in the message settings list, and the notification type needs to be manually set.',
+  'project.messageManagement.enableEmailContentTip':
+    'Email notifications can be sent only after configuring the SMTP service in System Settings-Email Settings.',
   'project.messageManagement.enableConfirm': 'Confirm to open',
   'project.messageManagement.enableSuccess': 'Opened successfully',
   'project.messageManagement.deleteTitle': 'Confirm to delete {name}?',
@@ -100,4 +102,5 @@ export default {
   'project.messageManagement.receiverNotNull': 'Please set at least one message recipient',
   'project.messageManagement.unsetReceiversTip': 'Please set the message recipients before configuring the template.',
   'project.messageManagement.noMatchField': 'No matching fields yet',
+  'project.messageManagement.saveContinueText': 'Save and continue creating',
 };

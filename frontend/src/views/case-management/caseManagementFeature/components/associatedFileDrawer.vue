@@ -190,7 +190,7 @@
   }
 
   function getFileType(type: string) {
-    const fileTypes = type ? getFileEnum(`/${type.toLowerCase()}`) : 'unknown';
+    const fileTypes = type ? getFileEnum(type.toLowerCase()) : 'unknown';
     return FileIconMap[fileTypes][UploadStatus.done];
   }
 

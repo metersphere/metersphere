@@ -89,6 +89,7 @@
       :ok-loading="drawerLoading"
       :show-continue="!isEdit"
       :ok-text="isEdit ? t('common.update') : t('common.create')"
+      :save-continue-text="t('project.messageManagement.saveContinueText')"
       @confirm="handleDrawerConfirm"
       @continue="handleDrawerConfirm(true)"
       @cancel="handleDrawerCancel"
@@ -407,8 +408,16 @@
       title: t(robot.enable ? 'project.messageManagement.disableTitle' : 'project.messageManagement.enableTitle', {
         name: characterLimit(robot.name),
       }),
-      content: t(robot.enable ? 'project.messageManagement.disableContent' : 'project.messageManagement.enableContent'),
-      okText: t(robot.enable ? 'project.messageManagement.disableConfirm' : 'project.messageManagement.enableConfirm'),
+      content: () =>
+        h('div', {
+          innerHTML: `<div>${t(
+            robot.enable ? 'project.messageManagement.disableContent' : 'project.messageManagement.enableContent',
+            { robot: robot.name }
+          )}</div><div>${robot.platform === 'MAIL' ? t('project.messageManagement.enableEmailContentTip') : ''}</div>`,
+        }),
+      okText: t(robot.enable ? 'project.messageManagement.disableConfirm' : 'project.messageManagement.enableConfirm', {
+        robot: robot.name,
+      }),
       cancelText: t('common.cancel'),
       maskClosable: false,
       onBeforeOk: async () => {

@@ -4,7 +4,7 @@ import { cloneDeep } from 'lodash-es';
 
 import type { BreadcrumbItem } from '@/components/business/ms-breadcrumb/types';
 
-import { getProjectInfo } from '@/api/modules/project-management/basicInfo';
+import { getProjectList } from '@/api/modules/project-management/project';
 import { getPageConfig } from '@/api/modules/setting/config';
 import { getPackageType, getSystemVersion } from '@/api/modules/system';
 import { getMenuList } from '@/api/modules/user';
@@ -13,6 +13,7 @@ import { useI18n } from '@/hooks/useI18n';
 import { watchStyle, watchTheme } from '@/utils/theme';
 
 import type { PageConfig, PageConfigKeys, Style, Theme } from '@/models/setting/config';
+import { ProjectListItem } from '@/models/setting/project';
 
 import type { AppState } from './types';
 import type { NotificationReturn } from '@arco-design/web-vue/es/notification/interface';
@@ -59,6 +60,7 @@ const useAppStore = defineStore('app', {
       ...defaultPlatformConfig,
     },
     packageType: '',
+    projectList: [] as ProjectListItem[],
   }),
 
   getters: {
@@ -218,6 +220,7 @@ const useAppStore = defineStore('app', {
       try {
         this.version = await getSystemVersion();
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.log(error);
       }
     },
@@ -228,6 +231,7 @@ const useAppStore = defineStore('app', {
       try {
         this.packageType = await getPackageType();
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.log(error);
       }
     },
@@ -293,6 +297,7 @@ const useAppStore = defineStore('app', {
           window.document.title = this.pageConfig.title;
         }
       } catch (error) {
+        // eslint-disable-next-line no-console
         console.log(error);
       }
     },
@@ -302,6 +307,19 @@ const useAppStore = defineStore('app', {
      */
     async setCurrentMenuConfig(menuConfig: string[]) {
       this.currentMenuConfig = menuConfig;
+    },
+    async initProjectList() {
+      try {
+        if (this.currentOrgId) {
+          const res = await getProjectList(this.getCurrentOrgId);
+          this.projectList = res;
+        } else {
+          this.projectList = [];
+        }
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      }
     },
   },
   persist: {

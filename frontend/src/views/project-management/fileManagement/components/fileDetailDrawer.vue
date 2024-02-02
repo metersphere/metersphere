@@ -20,10 +20,10 @@
         :before-change="handleEnableIntercept"
         :disabled="loading"
         size="small"
-        class="mr-[4px]"
+        class="mr-[8px]"
         type="line"
       />
-      <a-tooltip :content="t('project.fileManagement.uploadTipSingle')">
+      <a-tooltip v-if="fileType === 'jar'" :content="t('project.fileManagement.uploadTipSingle')">
         <MsIcon type="icon-icon-maybe_outlined" class="mr-[8px] cursor-pointer hover:text-[rgb(var(--primary-5))]" />
       </a-tooltip>
       <MsButton
@@ -176,6 +176,16 @@
                 :action-config="caseBatchActions"
                 v-on="caseTableEvent"
               >
+                <template #id="{ record }">
+                  <a-tooltip :content="`${record.id}`">
+                    <a-button type="text" class="px-0" @click="goCaseDetail(record.id)">
+                      <div class="one-line-text max-w-[168px]">{{ record.id }}</div>
+                    </a-button>
+                  </a-tooltip>
+                </template>
+                <template #sourceType="{ record }">
+                  {{ t(associateFileSourceLocaleMap[record.sourceType]) }}
+                </template>
                 <template #action="{ record }">
                   <MsButton
                     v-permission="['PROJECT_FILE_MANAGEMENT:READ+UPDATE']"
@@ -215,7 +225,6 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsPaginationI, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
-  import { getFileEnum } from '@/components/pure/ms-upload/iconMap';
   import MsDetailDrawer from '@/components/business/ms-detail-drawer/index.vue';
   import MsThumbnailCard from '@/components/business/ms-thumbnail-card/index.vue';
   import popConfirm from './popConfirm.vue';
@@ -232,13 +241,16 @@
     upgradeAssociation,
   } from '@/api/modules/project-management/fileManagement';
   import { CompressImgUrl, OriginImgUrl } from '@/api/requrls/project-management/fileManagement';
+  import { associateFileSourceLocaleMap } from '@/config/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useLocale from '@/locale/useLocale';
+  import router from '@/router';
   import { useAppStore } from '@/store';
   import useUserStore from '@/store/modules/user';
   import { downloadByteFile, formatFileSize } from '@/utils';
 
   import { AssociationItem, FileDetail } from '@/models/projectManagement/file';
+  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   const props = defineProps<{
     visible: boolean;
@@ -352,10 +364,17 @@
   }
 
   async function handleFileTagClose(tag: string | number, item: Description) {
-    await updateFile({
-      id: props.fileId,
-      tags: Array.isArray(item.value) ? item.value.filter((e) => e !== tag) : [],
-    });
+    try {
+      const lastTags = Array.isArray(item.value) ? item.value.filter((e) => e !== tag) : [];
+      await updateFile({
+        id: props.fileId,
+        tags: lastTags,
+      });
+      item.value = [...lastTags];
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
   }
 
   /**
@@ -379,23 +398,30 @@
 
   const caseColumns: MsTableColumn = [
     {
-      title: 'project.fileManagement.id',
+      title: 'project.fileManagement.caseId',
       dataIndex: 'id',
+      slotName: 'id',
       showTooltip: true,
+      width: 150,
     },
     {
-      title: 'project.fileManagement.name',
+      title: 'project.fileManagement.caseName',
       dataIndex: 'sourceName',
       showTooltip: true,
-      width: 200,
+      width: 150,
     },
     {
-      title: 'project.fileManagement.type',
+      title: 'project.fileManagement.caseType',
       dataIndex: 'sourceType',
+      slotName: 'sourceType',
+      width: 100,
+      showTooltip: true,
     },
     {
-      title: 'project.fileManagement.fileVersion',
+      title: 'project.fileManagement.caseFileVersion',
       dataIndex: 'fileVersion',
+      width: 140,
+      showTooltip: true,
     },
     {
       title: 'common.operation',
@@ -412,10 +438,10 @@
   } = useTable(getAssociationList, {
     scroll: { x: 800 },
     columns: caseColumns,
+    heightUsed: 200,
     selectable: true,
     showSelectAll: true,
     showPagination: false,
-    size: 'default',
   });
 
   const caseBatchActions = {
@@ -443,6 +469,15 @@
     } finally {
       caseLoading.value = false;
     }
+  }
+
+  function goCaseDetail(id: string) {
+    router.push({
+      name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
+      query: {
+        id,
+      },
+    });
   }
 
   const versionColumns: MsTableColumn = [
@@ -504,9 +539,7 @@
   }
 
   function loadedFile(detail: FileDetail) {
-    if (detail.fileType) {
-      fileType.value = getFileEnum(`/${detail.fileType.toLowerCase()}`);
-    }
+    fileType.value = detail.fileType;
     renameTitle.value = detail.name;
     fileDescriptions.value = [
       {
@@ -543,6 +576,7 @@
         showTagAdd: true,
         closable: true,
         key: 'tag',
+        tagType: 'default',
       },
       {
         label: t('project.fileManagement.createTime'),

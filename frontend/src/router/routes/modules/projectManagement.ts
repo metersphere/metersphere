@@ -95,7 +95,7 @@ const ProjectManagement: AppRouteRecordRaw = {
           component: () => import('@/views/project-management/projectAndPermission/projectVersion/index.vue'),
           meta: {
             locale: 'project.permission.projectVersion',
-            roles: ['*'],
+            roles: ['PROJECT_VERSION:READ'],
           },
         },
         // 成员
@@ -252,7 +252,7 @@ const ProjectManagement: AppRouteRecordRaw = {
       component: () => import('@/views/project-management/messageManagement/edit.vue'),
       meta: {
         locale: 'menu.projectManagement.messageManagementEdit',
-        roles: ['*'],
+        roles: ['PROJECT_MESSAGE:READ+UPDATE'],
         breadcrumbs: [
           {
             name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_MESSAGE_MANAGEMENT,

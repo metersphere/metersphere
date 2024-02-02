@@ -22,7 +22,7 @@
       {{ props.prefix }}
     </template>
     <template #label="{ data }">
-      <a-tooltip :content="getInputLabel(data)" position="top" :mouse-enter-delay="500" mini>
+      <a-tooltip :content="getInputLabelTooltip(data)" position="top" :mouse-enter-delay="500" mini>
         <div class="one-line-text inline-block">{{ getInputLabel(data) }}</div>
       </a-tooltip>
     </template>
@@ -64,7 +64,7 @@
     </template>
     <template #label="{ data }">
       <slot name="label" :data="{ ...data, [props.labelKey]: getInputLabel(data) }">
-        <a-tooltip :content="getInputLabel(data)" position="top" :mouse-enter-delay="500" mini>
+        <a-tooltip :content="getInputLabelTooltip(data)" position="top" :mouse-enter-delay="500" mini>
           <div class="one-line-text inline translate-y-[15%]">
             {{ getInputLabel(data) }}
           </div>
@@ -85,6 +85,7 @@
 
 <script setup lang="ts">
   import { Ref, ref, watch } from 'vue';
+  import { useVModel } from '@vueuse/core';
 
   import { useI18n } from '@/hooks/useI18n';
   import useSelect from '@/hooks/useSelect';
@@ -125,8 +126,9 @@
   const { t } = useI18n();
 
   const innerValue = ref<CascaderModelValue>([]);
-  const innerLevel = ref(''); // 顶级选项，该级别为单选选项
+  const innerLevel = useVModel(props, 'level', emit); // 顶级选项，该级别为单选选项
   const cascader: Ref = ref(null);
+  let selectedLabelObj: Record<string, any> = {}; // 存储已选的选项的label，用于多选时展示全部选项的 tooltip
 
   const { maxTagCount, getOptionComputedStyle, calculateMaxTag } = useSelect({
     selectRef: cascader,
@@ -158,28 +160,21 @@
   watch(
     () => innerValue.value,
     (val) => {
+      if (Array.isArray(val)) {
+        // 选项变化时，清理一次已选的选项的label对象
+        const tempObj: Record<string, any> = {};
+        for (let i = 0; i < val.length; i++) {
+          if (selectedLabelObj[val[i]]) {
+            tempObj[val[i]] = selectedLabelObj[val[i]];
+          }
+        }
+        selectedLabelObj = { ...tempObj };
+      }
       emit('update:modelValue', val);
       if (val === '') {
         innerLevel.value = '';
         emit('update:level', val);
       }
-    }
-  );
-
-  watch(
-    () => props.level,
-    (val) => {
-      innerLevel.value = val || '';
-    },
-    {
-      immediate: true,
-    }
-  );
-
-  watch(
-    () => innerLevel.value,
-    (val) => {
-      emit('update:level', val);
     }
   );
 
@@ -213,13 +208,25 @@
     calculateMaxTag();
   }
 
-  // TODO: 临时解决 arco-design 的 cascader 组件绑定值只能是 path-mode 的问题，如果实际值也包含了 ‘-’，则不要取这个值，而是取绑定的 v-model 的值
+  // TODO: 临时解决 arco-design 的 cascader 组件已选项的label只能是带路径‘/’的 path-mode 的问题
   function getInputLabel(data: CascaderOption) {
     const isTagCount = data[props.labelKey].includes('+');
     if (!props.pathMode) {
-      return isTagCount ? data[props.labelKey] : t(data[props.labelKey].split('-').pop());
+      return isTagCount ? data.label : t((data.label || '').split('/').pop() || ''); // 取路径最后一级
     }
-    return isTagCount ? data[props.labelKey] : t(data[props.labelKey]);
+    return isTagCount ? data.label || '' : t(data.label || '');
+  }
+
+  function getInputLabelTooltip(data: CascaderOption) {
+    const isTagCount = data[props.labelKey].includes('+');
+    if (isTagCount && Array.isArray(innerValue.value)) {
+      return Object.values(selectedLabelObj).join('，');
+    }
+    const label = getInputLabel(data);
+    if (data.value && typeof data.value === 'string') {
+      selectedLabelObj[data.value] = label;
+    }
+    return label;
   }
 
   function clearValues() {

@@ -104,8 +104,6 @@ export const UpdateCommentItemUrl = '/functional/case/comment/update';
 export const DeleteCommentItemUrl = '/functional/case/comment/delete';
 // 获取详情用例评审
 export const GetDetailCaseReviewUrl = '/functional/case/review/page';
-// 获取有权限的评审人
-export const GetReviewerListUrl = '/case/review/user-option';
 // 获取用例详情弹窗关联用例接口用例
 export const GetAssociationPublicCasePageUrl = '/functional/case/test/associate/case/page';
 // 获取接口测试接口模块数量

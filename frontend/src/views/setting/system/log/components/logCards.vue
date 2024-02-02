@@ -52,6 +52,7 @@
         :level-top="[...MENU_LEVEL]"
         :virtual-list-props="{ height: 200 }"
         :loading="rangeLoading"
+        path-mode
         class="filter-item"
       />
       <a-select v-model:model-value="type" class="filter-item">
@@ -450,6 +451,7 @@
       dataIndex: 'content',
       slotName: 'content',
       showTooltip: true,
+      width: 150,
     },
     {
       title: 'system.log.time',
@@ -463,7 +465,7 @@
     },
   ];
   const tableStore = useTableStore();
-  tableStore.initColumn(TableKeyEnum.SYSTEM_LOG, columns, 'drawer');
+  await tableStore.initColumn(TableKeyEnum.SYSTEM_LOG, columns, 'drawer');
   const { propsRes, propsEvent, loadList, setLoadListParams, resetPagination } = useTable(
     requestFuncMap[props.mode].listFunc,
     {
@@ -471,7 +473,6 @@
       columns,
       selectable: false,
       showSelectAll: false,
-      size: 'default',
     }
   );
 
@@ -494,7 +495,7 @@
     }
 
     setLoadListParams({
-      operator: operator.value,
+      operUser: operator.value,
       projectIds,
       organizationIds,
       type: type.value,

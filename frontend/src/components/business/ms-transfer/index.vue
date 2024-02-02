@@ -10,6 +10,21 @@
     }"
     :target-input-search-props="props.targetInputSearchProps"
   >
+    <template #source-title="{ countSelected, checked, indeterminate, onSelectAllChange }">
+      <div class="flex items-center gap-[8px]">
+        <a-checkbox :model-value="checked" :indeterminate="indeterminate" @change="onSelectAllChange" />
+        {{ t('ms.transfer.optional', { count: countSelected }) }}
+      </div>
+    </template>
+    <template #target-title="{ countTotal, checked, indeterminate, onSelectAllChange, onClear }">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-[8px]">
+          <a-checkbox :model-value="checked" :indeterminate="indeterminate" @change="onSelectAllChange" />
+          {{ t('ms.transfer.selected', { count: countTotal }) }}
+        </div>
+        <MsButton type="text" @click="onClear">{{ t('ms.transfer.clear') }}</MsButton>
+      </div>
+    </template>
     <template #source="{ selectedKeys, onSelect }">
       <MsTree
         :checkable="true"
@@ -19,14 +34,20 @@
         :keyword="sourceKeyword"
         block-node
         default-expand-all
+        :selectable="false"
         @check="onSelect"
       >
         <template #title="nodeData">
-          <div class="one-line-text">
+          <div class="one-line-text text-[var(--color-text-1)]">
             {{ nodeData.title }}
           </div>
         </template>
       </MsTree>
+    </template>
+    <template #item="{ label }">
+      <a-tooltip :content="label">
+        <div class="one-line-text">{{ label }}</div>
+      </a-tooltip>
     </template>
   </a-transfer>
 </template>
@@ -34,8 +55,11 @@
 <script setup lang="ts">
   import { ref, watch } from 'vue';
 
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeFieldNames, MsTreeNodeData } from '@/components/business/ms-tree/types';
+
+  import { useI18n } from '@/hooks/useI18n';
 
   export interface TransferDataItem {
     value: string;
@@ -65,6 +89,8 @@
     }
   );
   const emit = defineEmits(['update:modelValue']);
+
+  const { t } = useI18n();
 
   const innerTarget = ref<string[]>([]);
   const transferData = ref<TransferDataItem[]>([]);

@@ -106,7 +106,7 @@
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
-  import popConfirm from './popConfirm.vue';
+  import popConfirm from '@/views/api-test/components/popConfirm.vue';
 
   import { deleteReviewModule, getReviewModules, moveReviewModule } from '@/api/modules/case-management/caseReview';
   import { useI18n } from '@/hooks/useI18n';
@@ -336,7 +336,7 @@
 
 <style lang="less" scoped>
   .folder {
-    @apply flex cursor-pointer items-center justify-between;
+    @apply flex items-center justify-between;
 
     padding: 8px 4px;
     border-radius: var(--border-radius-small);
@@ -344,7 +344,7 @@
       background-color: rgb(var(--primary-1));
     }
     .folder-text {
-      @apply flex cursor-pointer items-center;
+      @apply flex items-center;
       .folder-icon {
         margin-right: 4px;
         color: var(--color-text-4);

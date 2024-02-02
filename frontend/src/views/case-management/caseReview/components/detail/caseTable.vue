@@ -33,7 +33,7 @@
       @selected-change="handleTableSelect"
       @batch-action="handleTableBatch"
     >
-      <template #resultColumn>
+      <template #resultTitle>
         <div class="flex items-center text-[var(--color-text-3)]">
           {{ t('caseManagement.caseReview.reviewResult') }}
           <a-tooltip :content="t('caseManagement.caseReview.reviewResultTip')" position="right">
@@ -96,7 +96,6 @@
     </ms-base-table>
     <a-modal
       v-model:visible="dialogVisible"
-      :on-before-ok="handleDeleteConfirm"
       class="p-[4px]"
       title-align="start"
       body-class="p-0"
@@ -158,7 +157,35 @@
           asterisk-position="end"
           class="mb-0"
         >
-          <MsRichText v-model:raw="dialogForm.reason" class="w-full" />
+          <div class="flex w-full items-center">
+            <a-mention
+              v-model:model-value="dialogForm.reason"
+              type="textarea"
+              :auto-size="{ minRows: 1 }"
+              :max-length="1000"
+              allow-clear
+              class="flex flex-1 items-center"
+            />
+            <MsUpload
+              v-model:file-list="dialogForm.fileList"
+              accept="image"
+              size-unit="MB"
+              :auto-upload="false"
+              multiple
+              :limit="10"
+              :disabled="dialogForm.fileList.length >= 10"
+            >
+              <a-button type="outline" class="ml-[8px] p-[8px_6px]" :disabled="dialogForm.fileList.length >= 10">
+                <icon-file-image :size="18" />
+              </a-button>
+            </MsUpload>
+          </div>
+          <MsFileList
+            v-model:file-list="dialogForm.fileList"
+            show-mode="imageList"
+            :show-tab="false"
+            class="mt-[8px]"
+          />
         </a-form-item>
         <a-form-item
           v-if="dialogShowType === 'changeReviewer'"
@@ -241,10 +268,12 @@
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsPopconfirm from '@/components/pure/ms-popconfirm/index.vue';
-  import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import MsFileList from '@/components/pure/ms-upload/fileList.vue';
+  import MsUpload from '@/components/pure/ms-upload/index.vue';
+  import { MsFileItem } from '@/components/pure/ms-upload/types';
   import MsSelect from '@/components/business/ms-select';
 
   import {
@@ -255,7 +284,8 @@
     getReviewDetailCasePage,
     getReviewUsers,
   } from '@/api/modules/case-management/caseReview';
-  import { reviewResultMap, reviewStatusMap } from '@/config/caseManagement';
+  import { getProjectMemberCommentOptions } from '@/api/modules/project-management/projectMember';
+  import { reviewResultMap } from '@/config/caseManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useTableStore from '@/hooks/useTableStore';
@@ -296,6 +326,10 @@
       dataIndex: 'num',
       slotName: 'num',
       sortIndex: 1,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
       showTooltip: true,
       width: 100,
     },
@@ -313,27 +347,23 @@
       title: 'caseManagement.caseReview.reviewer',
       dataIndex: 'reviewNames',
       slotName: 'reviewNames',
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
-      },
       width: 150,
     },
     {
       title: 'caseManagement.caseReview.reviewResult',
       dataIndex: 'status',
       slotName: 'status',
-      titleSlotName: 'resultColumn',
+      titleSlotName: 'resultTitle',
       width: 110,
     },
-    {
-      title: 'caseManagement.caseReview.version',
-      dataIndex: 'versionName',
-      width: 90,
-    },
+    // {
+    //   title: 'caseManagement.caseReview.version',
+    //   dataIndex: 'versionName',
+    //   width: 90,
+    // },
     {
       title: 'caseManagement.caseReview.creator',
-      dataIndex: 'creator',
+      dataIndex: 'createUserName',
       width: 150,
     },
     {
@@ -345,7 +375,6 @@
     },
   ];
   const tableStore = useTableStore();
-  tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_REVIEW_CASE, columns, 'drawer');
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, getTableQueryParams } = useTable(
     getReviewDetailCasePage,
     {
@@ -442,6 +471,7 @@
     reason: '',
     reviewer: [] as string[],
     isAppend: false,
+    fileList: [] as MsFileItem[],
   };
   const dialogForm = ref({ ...defaultDialogForm });
   const dialogFormRef = ref<FormInstance>();
@@ -485,27 +515,6 @@
       console.log(error);
     } finally {
       disassociateLoading.value = false;
-    }
-  }
-
-  /**
-   * 删除拦截
-   * @param done 关闭弹窗
-   */
-  async function handleDeleteConfirm(done: (closed: boolean) => void) {
-    try {
-      // if (replaceVersion.value !== '') {
-      //   await useLatestVersion(replaceVersion.value);
-      // }
-      // await toggleVersionStatus(activeRecord.value.id);
-      // Message.success(t('caseManagement.caseReview.close', { name: activeRecord.value.name }));
-      loadList();
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-      done(false);
-    } finally {
-      done(true);
     }
   }
 
@@ -730,71 +739,21 @@
   }
 
   onBeforeMount(async () => {
-    await initReviewers();
+    const [, memberRes] = await Promise.all([
+      initReviewers(),
+      getProjectMemberCommentOptions(appStore.currentProjectId, keyword.value),
+    ]);
+    const memberOptions = memberRes.map((e) => ({ label: e.name, value: e.id }));
     filterConfigList.value = [
       {
         title: 'ID',
-        dataIndex: 'ID',
+        dataIndex: 'id',
         type: FilterType.INPUT,
       },
       {
-        title: 'caseManagement.caseReview.name',
+        title: 'caseManagement.caseReview.caseName',
         dataIndex: 'name',
         type: FilterType.INPUT,
-      },
-      {
-        title: 'caseManagement.caseReview.caseCount',
-        dataIndex: 'caseCount',
-        type: FilterType.NUMBER,
-      },
-      {
-        title: 'caseManagement.caseReview.status',
-        dataIndex: 'status',
-        type: FilterType.SELECT,
-        selectProps: {
-          mode: 'static',
-          options: [
-            {
-              label: t(reviewStatusMap.PREPARED.label),
-              value: 'PREPARED',
-            },
-            {
-              label: t(reviewStatusMap.UNDERWAY.label),
-              value: 'UNDERWAY',
-            },
-            {
-              label: t(reviewStatusMap.COMPLETED.label),
-              value: 'COMPLETED',
-            },
-            {
-              label: t(reviewStatusMap.ARCHIVED.label),
-              value: 'ARCHIVED',
-            },
-          ],
-        },
-      },
-      {
-        title: 'caseManagement.caseReview.passRate',
-        dataIndex: 'passRate',
-        type: FilterType.NUMBER,
-      },
-      {
-        title: 'caseManagement.caseReview.type',
-        dataIndex: 'reviewPassRule',
-        type: FilterType.SELECT,
-        selectProps: {
-          mode: 'static',
-          options: [
-            {
-              label: t('caseManagement.caseReview.single'),
-              value: 'SINGLE',
-            },
-            {
-              label: t('caseManagement.caseReview.multi'),
-              value: 'MULTIPLE',
-            },
-          ],
-        },
       },
       {
         title: 'caseManagement.caseReview.reviewer',
@@ -806,46 +765,25 @@
         },
       },
       {
+        title: 'caseManagement.caseReview.reviewResult',
+        dataIndex: 'status',
+        type: FilterType.SELECT,
+        selectProps: {
+          mode: 'static',
+          options: Object.keys(reviewResultMap).map((e) => ({
+            label: t(reviewResultMap[e as ReviewResult].label),
+            value: e,
+          })),
+        },
+      },
+      {
         title: 'caseManagement.caseReview.creator',
         dataIndex: 'createUser',
         type: FilterType.SELECT,
         selectProps: {
           mode: 'static',
-          options: reviewersOptions.value,
+          options: memberOptions,
         },
-      },
-      {
-        title: 'caseManagement.caseReview.module',
-        dataIndex: 'module',
-        type: FilterType.TREE_SELECT,
-        treeSelectData: props.moduleTree,
-        treeSelectProps: {
-          fieldNames: {
-            title: 'name',
-            key: 'id',
-            children: 'children',
-          },
-        },
-      },
-      {
-        title: 'caseManagement.caseReview.tag',
-        dataIndex: 'tags',
-        type: FilterType.TAGS_INPUT,
-      },
-      {
-        title: 'caseManagement.caseReview.desc',
-        dataIndex: 'description',
-        type: FilterType.INPUT,
-      },
-      {
-        title: 'caseManagement.caseReview.startTime',
-        dataIndex: 'startTime',
-        type: FilterType.DATE_PICKER,
-      },
-      {
-        title: 'caseManagement.caseReview.endTime',
-        dataIndex: 'endTime',
-        type: FilterType.DATE_PICKER,
       },
     ];
   });
@@ -853,6 +791,8 @@
   defineExpose({
     searchCase,
   });
+
+  await tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_REVIEW_CASE, columns, 'drawer');
 </script>
 
 <style lang="less" scoped>
@@ -871,4 +811,3 @@
     @apply inline-flex;
   }
 </style>
-@/config/caseManagement

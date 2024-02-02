@@ -198,6 +198,7 @@
         Message.success(
           isEdit.value ? t('system.project.updateProjectSuccess') : t('system.project.createProjectSuccess')
         );
+        appStore.initProjectList();
         handleCancel(true);
       } catch (error) {
         // eslint-disable-next-line no-console

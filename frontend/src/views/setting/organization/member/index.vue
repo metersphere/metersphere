@@ -12,7 +12,7 @@
       </div>
       <a-input-search
         v-model="keyword"
-        :max-length="250"
+        :max-length="255"
         allow-clear
         :placeholder="t('organization.member.searchMember')"
         class="w-[230px]"

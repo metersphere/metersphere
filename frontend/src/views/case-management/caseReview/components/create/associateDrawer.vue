@@ -9,6 +9,7 @@
     :confirm-loading="confirmLoading"
     :associated-ids="[]"
     :type="RequestModuleEnum.CASE_MANAGEMENT"
+    :table-params="{ reviewId: props.reviewId }"
     @close="emit('close')"
     @save="saveHandler"
   >
@@ -90,7 +91,7 @@
   const props = defineProps<{
     visible: boolean;
     project: string;
-    // associatedIds: string[];
+    reviewId?: string;
   }>();
   const emit = defineEmits<{
     (e: 'update:visible', val: boolean): void;

@@ -123,12 +123,12 @@
   const props = withDefaults(defineProps<DrawerProps>(), {
     footer: true,
     mask: true,
+    closable: true,
     showSkeleton: false,
     showContinue: false,
     popupContainer: 'body',
     disabledWidthDrag: false,
     okPermission: () => [], // 确认按钮权限
-    closable: true,
   });
   const emit = defineEmits(['update:visible', 'confirm', 'cancel', 'continue']);
 

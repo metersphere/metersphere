@@ -111,8 +111,11 @@ const useUserStore = defineStore('user', {
         this.logoutCallBack();
       }
     },
-    // 是否已经登录
-    async isLogin() {
+    /**
+     * 判断用户是否登录并设置用户信息
+     * @param forceSet 是否强制设置项目 id 和组织 id，用于切换组织和项目时重写用户信息
+     */
+    async isLogin(forceSet = false) {
       try {
         const res = await userIsLogin();
         const appStore = useAppStore();
@@ -120,10 +123,10 @@ const useUserStore = defineStore('user', {
         this.setInfo(res);
         const { organizationId, projectId } = getHashParameters();
         // 如果访问页面的时候携带了组织 ID和项目 ID，则不设置
-        if (!organizationId) {
+        if (!organizationId || forceSet) {
           appStore.setCurrentOrgId(res.lastOrganizationId || '');
         }
-        if (!projectId) {
+        if (!projectId || forceSet) {
           appStore.setCurrentProjectId(res.lastProjectId || '');
         }
         return true;

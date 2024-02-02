@@ -16,4 +16,5 @@ export default {
   'ms.upload.fail': '失败',
   'ms.upload.detail': '查看详情',
   'ms.upload.fileTypeValidate': '仅支持 {type} 格式的文件',
+  'ms.upload.overLimit': '文件数量超出限制，最大上传数量为 {limit} 个',
 };

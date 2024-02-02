@@ -16,4 +16,5 @@ export default {
   'ms.upload.success': 'Success',
   'ms.upload.detail': 'Detail',
   'ms.upload.fileTypeValidate': 'Only files in {type} format are supported',
+  'ms.upload.overLimit': 'The number of files exceeds the limit, the maximum number of uploads is {limit}',
 };
