@@ -3,6 +3,7 @@ package io.metersphere.api.mapper;
 
 import io.metersphere.api.domain.ApiTestCase;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.scenario.ScenarioSystemRequest;
 import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.request.AssociateOtherCaseRequest;
@@ -59,4 +60,6 @@ public interface ExtApiTestCaseMapper {
     List<ApiCaseReportDTO> getExecuteList(@Param("request") ApiCaseExecutePageRequest request);
 
     List<OptionDTO> selectVersionOptionByIds(@Param("ids") List<String> ids);
+
+    List<String> getIdsByModules(@Param("request") ScenarioSystemRequest caseRequest);
 }

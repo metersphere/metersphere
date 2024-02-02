@@ -254,6 +254,25 @@
             #{id}
         </foreach>
     </select>
+    <select id="getIdsByModules" resultType="java.lang.String">
+        select api_test_case.id from api_test_case left join api_definition on api_definition.id = api_test_case.api_definition_id
+        where api_test_case.deleted = false
+        <if test="request.projectId != null and request.projectId != ''">
+            and api_test_case.project_id = #{request.projectId}
+        </if>
+        <if test="request.protocol != null and request.protocol != ''">
+            AND api_definition.protocol = #{request.protocol}
+        </if>
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            and api_definition.module_id in
+            <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                #{nodeId}
+            </foreach>
+        </if>
+        <if test="request.versionId != null and request.versionId != ''">
+            and api_test_case.version_id = #{request.versionId}
+        </if>
+    </select>
     <sql id="report_filters">
         <if test="${filter} != null and ${filter}.size() > 0">
             <foreach collection="${filter}.entrySet()" index="key" item="values">

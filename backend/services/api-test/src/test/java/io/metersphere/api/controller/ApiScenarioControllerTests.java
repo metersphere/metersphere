@@ -5,10 +5,9 @@ import io.metersphere.api.constants.ApiScenarioStatus;
 import io.metersphere.api.constants.ApiScenarioStepRefType;
 import io.metersphere.api.constants.ApiScenarioStepType;
 import io.metersphere.api.domain.*;
+import io.metersphere.api.dto.assertion.MsAssertionConfig;
 import io.metersphere.api.dto.definition.ApiDefinitionAddRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseAddRequest;
-import io.metersphere.api.dto.assertion.MsAssertionConfig;
-import io.metersphere.project.api.assertion.MsScriptAssertion;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.response.ApiScenarioBatchOperationResponse;
 import io.metersphere.api.dto.response.OperationDataInfo;
@@ -25,6 +24,7 @@ import io.metersphere.api.utils.JmeterElementConverterRegister;
 import io.metersphere.plugin.api.spi.AbstractJmeterElementConverter;
 import io.metersphere.plugin.api.spi.JmeterElementConverter;
 import io.metersphere.plugin.api.spi.MsTestElement;
+import io.metersphere.project.api.assertion.MsScriptAssertion;
 import io.metersphere.project.dto.environment.EnvironmentConfig;
 import io.metersphere.project.dto.environment.EnvironmentGroupProjectDTO;
 import io.metersphere.project.dto.environment.EnvironmentGroupRequest;
@@ -90,7 +90,7 @@ public class ApiScenarioControllerTests extends BaseTest {
     private static final String FOLLOW = "follow/";
     protected static final String UPLOAD_TEMP_FILE = "upload/temp/file";
     protected static final String DELETE_TO_GC = "delete-to-gc/{0}";
-    protected static final String STEP_GET = "step/get/{0}";
+    protected static final String STEP_GET = "step/get";
     protected static final String DEBUG = "debug";
     private static final String UPDATE_STATUS = "update-status";
     private static final String UPDATE_PRIORITY = "update-priority";
@@ -145,6 +145,10 @@ public class ApiScenarioControllerTests extends BaseTest {
     private PluginService pluginService;
     @Resource
     private PluginLoadService pluginLoadService;
+    @Resource
+    private ApiDefinitionMapper apiDefinitionMapper;
+    @Resource
+    private ApiTestCaseMapper apiTestCaseMapper;
     private static String fileMetadataId;
     private static String localFileId;
     private static ApiScenario addApiScenario;
@@ -725,8 +729,12 @@ public class ApiScenarioControllerTests extends BaseTest {
         steps = apiScenarioDetail.getSteps();
         requestGetStepDetail(steps);
 
+        StepRequest stepRequest = new StepRequest();
+        stepRequest.setStepId(addApiScenario.getId());
+        stepRequest.setStepType("API_SCENARIO");
+        stepRequest.setResourceId(addApiScenario.getId());
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_READ, STEP_GET, addApiScenario.getId());
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_READ, STEP_GET, stepRequest);
     }
 
     private void requestGetStepDetail(List<? extends ApiScenarioStepCommonDTO> steps) throws Exception {
@@ -734,7 +742,11 @@ public class ApiScenarioControllerTests extends BaseTest {
             return;
         }
         for (ApiScenarioStepCommonDTO step : steps) {
-            this.requestGetWithOk(STEP_GET, step.getId());
+            StepRequest stepRequest = new StepRequest();
+            stepRequest.setStepId(step.getId());
+            stepRequest.setStepType(step.getStepType());
+            stepRequest.setResourceId(step.getResourceId());
+            this.requestPost(STEP_GET, stepRequest);
             List<? extends ApiScenarioStepCommonDTO> children = step.getChildren();
             requestGetStepDetail(children);
         }
@@ -1993,6 +2005,112 @@ public class ApiScenarioControllerTests extends BaseTest {
             apiScenarioMapper.insertSelective(apiScenario);
             BATCH_OPERATION_SCENARIO_ID.add(apiScenario.getId());
         }
+    }
+
+    @Resource
+    private ExtApiTestCaseMapper extApiTestCaseMapper;
+
+    @Test
+    @Order(35)
+    public void testGetSystemRequest() throws Exception {
+        //需要造假数据， 接口  用例  场景
+        //接口
+        List<ApiDefinition> apiDefinitions = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            ApiDefinition apiDefinition = new ApiDefinition();
+            if (i == 0) {
+                apiDefinition.setId("system-api-id");
+            } else {
+                apiDefinition.setId(IDGenerator.nextStr());
+            }
+            apiDefinition.setProjectId(DEFAULT_PROJECT_ID);
+            apiDefinition.setName("接口" + i);
+            apiDefinition.setNum(NumGenerator.nextNum(DEFAULT_PROJECT_ID, ApplicationNumScope.API_DEFINITION));
+            apiDefinition.setCreateTime(System.currentTimeMillis());
+            apiDefinition.setUpdateTime(System.currentTimeMillis());
+            apiDefinition.setCreateUser("admin");
+            apiDefinition.setUpdateUser("admin");
+            apiDefinition.setPath("/test/" + i);
+            apiDefinition.setModuleId("test-default");
+            apiDefinition.setStatus("未规划");
+            apiDefinition.setDeleted(false);
+            apiDefinition.setLatest(true);
+            apiDefinition.setProtocol("HTTP");
+            apiDefinition.setMethod("GET");
+            apiDefinition.setVersionId("1.0");
+            apiDefinition.setRefId(apiDefinition.getId());
+            apiDefinition.setPos(i * 64L);
+            apiDefinitions.add(apiDefinition);
+        }
+        apiDefinitionMapper.batchInsert(apiDefinitions);
+
+        //用例
+        List<ApiTestCase> apiTestCases = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            ApiTestCase apiTestCase = new ApiTestCase();
+            apiTestCase.setId(IDGenerator.nextStr());
+            apiTestCase.setProjectId(DEFAULT_PROJECT_ID);
+            apiTestCase.setName("用例" + i);
+            apiTestCase.setNum(NumGenerator.nextNum(DEFAULT_PROJECT_ID, ApplicationNumScope.API_DEFINITION));
+            apiTestCase.setCreateTime(System.currentTimeMillis());
+            apiTestCase.setUpdateTime(System.currentTimeMillis());
+            apiTestCase.setCreateUser("admin");
+            apiTestCase.setUpdateUser("admin");
+            apiTestCase.setStatus("未规划");
+            apiTestCase.setDeleted(false);
+            apiTestCase.setPriority("P0");
+            apiTestCase.setPos(i * 64L);
+            apiTestCase.setApiDefinitionId("system-api-id");
+            apiTestCase.setVersionId("1.0");
+            apiTestCases.add(apiTestCase);
+        }
+        apiTestCaseMapper.batchInsert(apiTestCases);
+
+        List<ApiScenario> apiScenarios = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            ApiScenario apiScenario = new ApiScenario();
+            apiScenario.setId("system-scenario-id" + i);
+            apiScenario.setProjectId(DEFAULT_PROJECT_ID);
+            apiScenario.setName("场景" + i);
+            apiScenario.setNum(NumGenerator.nextNum(DEFAULT_PROJECT_ID, ApplicationNumScope.API_SCENARIO));
+            apiScenario.setCreateTime(System.currentTimeMillis());
+            apiScenario.setUpdateTime(System.currentTimeMillis());
+            apiScenario.setCreateUser("admin");
+            apiScenario.setUpdateUser("admin");
+            apiScenario.setStatus("未规划");
+            apiScenario.setDeleted(false);
+            apiScenario.setPriority("P0");
+            apiScenario.setStepTotal(0);
+            apiScenario.setPos(i * 64L);
+            apiScenario.setModuleId("test-default");
+            apiScenario.setVersionId("1.0");
+            apiScenario.setRequestPassRate(String.valueOf(0));
+            apiScenario.setRefId(apiScenario.getId());
+            apiScenario.setLatest(true);
+            apiScenario.setLastReportStatus("未执行");
+            apiScenarios.add(apiScenario);
+        }
+        apiScenarioMapper.batchInsert(apiScenarios);
+
+
+        ScenarioSystemRequest scenarioSystemRequest = new ScenarioSystemRequest();
+        scenarioSystemRequest.setProjectId(DEFAULT_PROJECT_ID);
+        scenarioSystemRequest.setProtocol("HTTP");
+        scenarioSystemRequest.setModuleIds(List.of("test-default"));
+        ApiScenarioSystemRequest apiScenarioSystemRequest = new ApiScenarioSystemRequest();
+        apiScenarioSystemRequest.setApiRequest(scenarioSystemRequest);
+        apiScenarioSystemRequest.setCaseRequest(scenarioSystemRequest);
+        apiScenarioSystemRequest.setScenarioRequest(scenarioSystemRequest);
+        apiScenarioSystemRequest.setRefType(ApiScenarioStepRefType.COPY.name());
+        this.requestPostWithOkAndReturn("/get/system-request", apiScenarioSystemRequest);
+
+        StepRequest stepRequest = new StepRequest();
+        stepRequest.setStepId("system-scenario-id1");
+        stepRequest.setStepType(ApiScenarioStepType.API_SCENARIO.name());
+        stepRequest.setResourceId("system-scenario-id1");
+
+        mockMvc.perform(getPostRequestBuilder(STEP_GET, stepRequest))
+                .andExpect(status().isOk());
     }
 
 }

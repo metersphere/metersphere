@@ -501,4 +501,27 @@
             #{id}
         </foreach>
     </select>
+    <select id="getIdsByModules" resultType="java.lang.String">
+        select id from api_definition
+        where deleted = false
+        <if test="request.projectId != null and request.projectId != ''">
+            and api_definition.project_id = #{request.projectId}
+        </if>
+        <if test="request.protocol != null and request.protocol != ''">
+            AND api_definition.protocol = #{request.protocol}
+        </if>
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            and api_definition.module_id in
+            <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                #{nodeId}
+            </foreach>
+        </if>
+        <if test="request.versionId != null and request.versionId != ''">
+            and api_definition.version_id = #{request.versionId}
+        </if>
+        <if test="request.versionId = null">
+            and api_definition.latest = 1
+        </if>
+
+    </select>
 </mapper>
