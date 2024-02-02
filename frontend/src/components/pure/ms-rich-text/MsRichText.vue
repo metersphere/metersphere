@@ -517,6 +517,8 @@
     :deep(.halo-rich-text-editor) {
       padding: 16px 24px !important;
       .editor-header {
+        .ms-scroll-bar();
+
         justify-content: start !important;
       }
       p:first-child {

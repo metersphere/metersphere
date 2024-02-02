@@ -145,25 +145,21 @@
 
   const cardOverHeight = computed(() => {
     if (isFullScreen.value) {
-      if (props.simple) {
-        // 简单模式没有标题、没有底部
-        return props.noContentPadding ? 0 : 48;
-      }
       if (props.hideFooter) {
         // 隐藏底部
-        return props.noContentPadding ? 88 : 118;
+        return 62;
       }
-      return 246;
+      return 142;
     }
     if (props.simple) {
       // 简单模式没有标题、没有底部
-      return props.noContentPadding ? 88 + _specialHeight : 136 + _specialHeight;
+      return props.noContentPadding ? 76 + _specialHeight : 124 + _specialHeight;
     }
     if (props.hideFooter) {
       // 隐藏底部
-      return props.noContentPadding ? 152 + _specialHeight : 192 + _specialHeight;
+      return props.noContentPadding ? 140 + _specialHeight : 180 + _specialHeight;
     }
-    return 246 + _specialHeight;
+    return 234 + _specialHeight;
   });
 
   const getComputedContentStyle = computed(() => {

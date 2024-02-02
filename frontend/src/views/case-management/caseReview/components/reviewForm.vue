@@ -1,6 +1,6 @@
 <template>
   <a-form ref="dialogFormRef" :model="caseResultForm" layout="vertical">
-    <a-form-item field="reason" :label="t('caseManagement.caseReview.reviewResult')" class="mb-[8px]">
+    <a-form-item field="reason" class="mb-[4px]">
       <a-radio-group v-model:model-value="caseResultForm.result" @change="() => dialogFormRef?.resetFields()">
         <a-radio value="PASS">
           <div class="inline-flex items-center">
@@ -28,61 +28,66 @@
         </a-radio>
       </a-radio-group>
     </a-form-item>
-    <a-form-item
-      field="reason"
-      :label="t('caseManagement.caseReview.reason')"
-      :rules="
-        caseResultForm.result !== 'PASS'
-          ? [{ required: true, message: t('caseManagement.caseReview.reasonRequired') }]
-          : []
-      "
-      asterisk-position="end"
-      class="mb-0"
-    >
-      <div class="flex w-full items-center">
-        <a-mention
-          v-model:model-value="caseResultForm.reason"
-          type="textarea"
-          :auto-size="{ minRows: 1 }"
-          :max-length="1000"
-          allow-clear
-          class="flex flex-1 items-center"
-        />
-        <MsUpload
-          v-model:file-list="caseResultForm.fileList"
-          accept="image"
-          size-unit="MB"
-          :auto-upload="false"
-          :limit="10"
-          multiple
-        >
-          <a-button type="outline" class="ml-[8px] p-[8px_6px]">
-            <icon-file-image :size="18" />
-          </a-button>
-        </MsUpload>
-      </div>
-      <MsFileList
-        v-model:file-list="caseResultForm.fileList"
-        show-mode="imageList"
-        :show-tab="false"
-        class="mt-[8px]"
-      />
-    </a-form-item>
+    <div class="flex w-full items-center">
+      <a-button type="secondary" class="p-[8px_6px]" size="small" @click="modalVisible = true">
+        <icon-plus class="mr-[4px]" />
+        {{ t('caseManagement.caseReview.reason') }}
+      </a-button>
+    </div>
   </a-form>
+  <a-button
+    type="primary"
+    class="mt-[12px]"
+    :disabled="submitDisabled"
+    :submit-review-loading="submitReviewLoading"
+    @click="submitReview"
+  >
+    {{ t('caseManagement.caseReview.submitReview') }}
+  </a-button>
+  <a-modal
+    v-model:visible="modalVisible"
+    :title="t('caseManagement.caseReview.reason')"
+    class="p-[4px]"
+    title-align="start"
+    body-class="p-0"
+    :width="680"
+    :cancel-button-props="{ disabled: submitReviewLoading }"
+    :ok-button-props="{ disabled: submitDisabled }"
+    :ok-loading="submitReviewLoading"
+    :ok-text="t('caseManagement.caseReview.submitReview')"
+    @before-ok="submitReview"
+  >
+    <MsRichText
+      v-model:raw="caseResultForm.reason"
+      v-model:commentIds="caseResultForm.commentIds"
+      :upload-image="handleUploadImage"
+      class="w-full"
+    />
+  </a-modal>
 </template>
 
 <script setup lang="ts">
-  import { FormInstance } from '@arco-design/web-vue';
+  import { FormInstance, Message } from '@arco-design/web-vue';
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import MsFileList from '@/components/pure/ms-upload/fileList.vue';
-  import MsUpload from '@/components/pure/ms-upload/index.vue';
+  import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
 
+  import { saveCaseReviewResult } from '@/api/modules/case-management/caseReview';
+  import { editorUploadFile } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
 
-  import { ReviewResult } from '@/models/caseManagement/caseReview';
+  import { ReviewPassRule, ReviewResult } from '@/models/caseManagement/caseReview';
 
+  const props = defineProps<{
+    reviewId: string;
+    caseId: string;
+    reviewPassRule: ReviewPassRule;
+  }>();
+  const emit = defineEmits(['done']);
+
+  const appStore = useAppStore();
   const { t } = useI18n();
 
   const dialogFormRef = ref<FormInstance>();
@@ -90,23 +95,64 @@
     result: 'PASS' as ReviewResult,
     reason: '',
     fileList: [] as MsFileItem[],
+    commentIds: [] as string[],
   });
+  const submitReviewLoading = ref(false);
+  const submitDisabled = computed(
+    () =>
+      caseResultForm.value.result !== 'PASS' &&
+      (caseResultForm.value.reason === '' || caseResultForm.value.reason.trim() === '<p style=""></p>')
+  );
+  const modalVisible = ref(false);
 
-  function validateForm(cb: (form: Record<string, any>) => void) {
-    dialogFormRef.value?.validate((errors) => {
-      if (!errors && typeof cb === 'function') {
-        cb(caseResultForm.value);
+  async function handleUploadImage(file: File) {
+    const { data } = await editorUploadFile({
+      fileList: [file],
+    });
+    return data;
+  }
+
+  // 提交评审
+  function submitReview() {
+    dialogFormRef.value?.validate(async (errors) => {
+      if (!errors) {
+        try {
+          submitReviewLoading.value = true;
+          const params = {
+            projectId: appStore.currentProjectId,
+            caseId: props.caseId,
+            reviewId: props.reviewId,
+            status: caseResultForm.value.result,
+            reviewPassRule: props.reviewPassRule,
+            content: caseResultForm.value.reason,
+            notifier: caseResultForm.value.commentIds.join(';'),
+          };
+          await saveCaseReviewResult(params);
+          modalVisible.value = false;
+          Message.success(t('caseManagement.caseReview.reviewSuccess'));
+          caseResultForm.value = {
+            result: 'PASS' as ReviewResult,
+            reason: '',
+            fileList: [] as MsFileItem[],
+            commentIds: [] as string[],
+          };
+          emit('done');
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        } finally {
+          submitReviewLoading.value = false;
+        }
       }
     });
   }
-
-  defineExpose({
-    validateForm,
-  });
 </script>
 
 <style lang="less" scoped>
-  .image-preview-container {
-    margin-top: 8px;
+  :deep(.arco-form-item-label-col) {
+    margin-bottom: 0;
+  }
+  .arco-radio {
+    @apply pl-0;
   }
 </style>

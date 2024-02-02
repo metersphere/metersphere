@@ -166,14 +166,14 @@
             </div>
             <caseTabDemand
               ref="caseDemandRef"
-              :fun-params="{ projectId: appStore.currentProjectId, caseId: route.query.caseId as string, keyword: demandKeyword }"
+              :fun-params="{ projectId: appStore.currentProjectId, caseId: activeCaseId, keyword: demandKeyword }"
               :show-empty="false"
             />
           </div>
-          <div v-else class="flex h-full flex-col overflow-hidden">
+          <div v-else class="flex flex-1 flex-col overflow-hidden">
             <div class="review-history-list">
               <a-spin :loading="reviewHistoryListLoading" class="h-full w-full">
-                <div v-for="item of reviewHistoryList" :key="item.id" class="mb-[16px]">
+                <div v-for="item of reviewHistoryList" :key="item.id" class="review-history-list-item">
                   <div class="flex items-center">
                     <MSAvatar :avatar="item.userLogo" />
                     <div class="ml-[8px] flex items-center">
@@ -208,7 +208,7 @@
           </div>
         </div>
         <div class="content-footer">
-          <div class="mb-[16px] flex items-center">
+          <div class="mb-[12px] flex items-center">
             <div class="font-medium text-[var(--color-text-1)]">
               {{ t('caseManagement.caseReview.startReview') }}
             </div>
@@ -225,10 +225,12 @@
               />
             </a-tooltip>
           </div>
-          <reviewForm ref="dialogFormRef" />
-          <a-button type="primary" class="mt-[16px]" :loading="submitReviewLoading" @click="submitReview">
-            {{ t('caseManagement.caseReview.submitReview') }}
-          </a-button>
+          <reviewForm
+            :review-id="reviewId"
+            :case-id="activeCaseId"
+            :review-pass-rule="reviewDetail.reviewPassRule"
+            @done="reviewDone"
+          />
         </div>
       </a-spin>
     </div>
@@ -250,7 +252,6 @@
    * @description 功能测试-用例评审-用例详情
    */
   import { useRoute, useRouter } from 'vue-router';
-  import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
   import MSAvatar from '@/components/pure/ms-avatar/index.vue';
@@ -260,7 +261,6 @@
   import MsEmpty from '@/components/pure/ms-empty/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsPagination from '@/components/pure/ms-pagination/index';
-  import { MsFileItem } from '@/components/pure/ms-upload/types';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import caseTemplateDetail from '../caseManagementFeature/components/caseTemplateDetail.vue';
@@ -272,7 +272,6 @@
     getCaseReviewHistoryList,
     getReviewDetail,
     getReviewDetailCasePage,
-    saveCaseReviewResult,
   } from '@/api/modules/case-management/caseReview';
   import { getCaseDetail } from '@/api/modules/case-management/featureCase';
   import { reviewDefaultDetail, reviewResultMap } from '@/config/caseManagement';
@@ -283,21 +282,20 @@
   import type { DetailCase } from '@/models/caseManagement/featureCase';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
-  import { Instance } from 'tippy.js';
-
   const route = useRoute();
   const router = useRouter();
   const appStore = useAppStore();
   const { t } = useI18n();
 
   const reviewDetail = ref<ReviewItem>({ ...reviewDefaultDetail });
+  const reviewId = ref(route.query.id as string);
   const loading = ref(false);
 
   // 初始化评审详情
   async function initDetail() {
     try {
       loading.value = true;
-      const res = await getReviewDetail(route.query.id as string);
+      const res = await getReviewDetail(reviewId.value);
       reviewDetail.value = res;
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -333,7 +331,7 @@
       caseListLoading.value = true;
       const res = await getReviewDetailCasePage({
         projectId: appStore.currentProjectId,
-        reviewId: route.query.id as string,
+        reviewId: reviewId.value,
         viewFlag: onlyMine.value,
         keyword: keyword.value,
         current: pageNation.value.current,
@@ -470,7 +468,7 @@
   async function initReviewHistoryList() {
     try {
       reviewHistoryListLoading.value = true;
-      const res = await getCaseReviewHistoryList(route.query.id as string, activeCaseId.value);
+      const res = await getCaseReviewHistoryList(reviewId.value, activeCaseId.value);
       reviewHistoryList.value = res;
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -489,7 +487,6 @@
   );
 
   const autoNext = ref(false);
-  const dialogFormRef = ref<InstanceType<typeof reviewForm>>();
   const demandKeyword = ref('');
   const caseDemandRef = ref<InstanceType<typeof caseTabDemand>>();
 
@@ -505,51 +502,23 @@
     );
   }
 
-  const submitReviewLoading = ref(false);
-  // 提交评审
-  function submitReview() {
-    dialogFormRef.value?.validateForm(async (caseResultForm: Record<string, any>) => {
-      try {
-        submitReviewLoading.value = true;
-        const params = {
-          projectId: appStore.currentProjectId,
-          caseId: activeCaseId.value,
-          reviewId: route.query.id as string,
-          status: caseResultForm.value.result,
-          reviewPassRule: reviewDetail.value.reviewPassRule,
-          content: caseResultForm.value.reason,
-          notifier: '', // TODO: 通知人
-        };
-        await saveCaseReviewResult(params);
-        Message.success(t('caseManagement.caseReview.reviewSuccess'));
-        caseResultForm.value = {
-          result: 'PASS' as ReviewResult,
-          reason: '',
-          fileList: [] as MsFileItem[],
-        };
-        if (autoNext.value) {
-          // 自动下一个，更改激活的 id会刷新详情
-          const index = caseList.value.findIndex((e) => e.caseId === activeCaseId.value);
-          if (index < caseList.value.length - 1) {
-            activeCaseId.value = caseList.value[index + 1].caseId;
-          } else {
-            // 当前是最后一个，刷新数据
-            loadCaseDetail();
-            initReviewHistoryList();
-          }
-        } else {
-          // 不自动下一个才请求详情
-          loadCaseDetail();
-          initReviewHistoryList();
-        }
-        loadCaseList();
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.log(error);
-      } finally {
-        submitReviewLoading.value = false;
+  function reviewDone() {
+    if (autoNext.value) {
+      // 自动下一个，更改激活的 id会刷新详情
+      const index = caseList.value.findIndex((e) => e.caseId === activeCaseId.value);
+      if (index < caseList.value.length - 1) {
+        activeCaseId.value = caseList.value[index + 1].caseId;
+      } else {
+        // 当前是最后一个，刷新数据
+        loadCaseDetail();
+        initReviewHistoryList();
       }
-    });
+    } else {
+      // 不自动下一个才请求详情
+      loadCaseDetail();
+      initReviewHistoryList();
+    }
+    loadCaseList();
   }
 
   const editCaseVisible = ref(false);
@@ -596,7 +565,7 @@
         moduleIds,
       };
     } else {
-      keyword.value = route.query.caseId as string;
+      keyword.value = route.query.reviewId as string;
     }
     initDetail();
     loadCaseList();
@@ -654,7 +623,12 @@
     .review-history-list {
       @apply h-full;
 
-      padding: 16px 0 16px 16px;
+      padding: 16px 0 0 16px;
+      .review-history-list-item {
+        &:not(:last-child) {
+          margin-bottom: 16px;
+        }
+      }
     }
   }
   .content-footer {
