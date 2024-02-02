@@ -224,7 +224,7 @@ public class PluginService {
         Plugin plugin = new Plugin();
         BeanUtils.copyBean(plugin, request);
         plugin.setCreateTime(null);
-        plugin.setUpdateTime(null);
+        plugin.setUpdateTime(System.currentTimeMillis());
         // 校验重名
         checkPluginUpdateExist(plugin);
         pluginMapper.updateByPrimaryKeySelective(plugin);
