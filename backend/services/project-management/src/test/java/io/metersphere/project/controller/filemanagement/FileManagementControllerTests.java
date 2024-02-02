@@ -503,6 +503,9 @@ public class FileManagementControllerTests extends BaseTest {
         LOG_CHECK_LIST.add(
                 new CheckLogModel(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD)
         );
+        //判断数据库里启用状态是否正确
+        FileMetadata jarFileMeta = fileMetadataMapper.selectByPrimaryKey(returnId);
+        Assertions.assertEquals(jarFileMeta.getEnable(), fileUploadRequest.isEnable());
         FILE_ID_PATH.put(returnId, filePath);
         jarFileId = returnId;
         uploadedFileTypes.add("jar");
@@ -519,6 +522,9 @@ public class FileManagementControllerTests extends BaseTest {
         LOG_CHECK_LIST.add(
                 new CheckLogModel(returnId, OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_UPLOAD)
         );
+        //判断数据库里启用状态是否正确
+        jarFileMeta = fileMetadataMapper.selectByPrimaryKey(returnId);
+        Assertions.assertEquals(jarFileMeta.getEnable(), fileUploadRequest.isEnable());
         FILE_ID_PATH.put(returnId, filePath);
         fileUploadRequest.setEnable(false);
 
