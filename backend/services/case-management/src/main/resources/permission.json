@@ -25,9 +25,6 @@
             "name": "permission.functional_case.comment"
           },
           {
-            "id": "FUNCTIONAL_CASE:READ+EXPORT"
-          },
-          {
             "id": "FUNCTIONAL_CASE:READ+IMPORT"
           },
           {

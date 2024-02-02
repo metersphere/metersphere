@@ -113,25 +113,6 @@
         ]
       },
       {
-        "id": "PROJECT_VERSION",
-        "name": "permission.project_version.name",
-        "license": true,
-        "permissions": [
-          {
-            "id": "PROJECT_VERSION:READ"
-          },
-          {
-            "id": "PROJECT_VERSION:READ+ADD"
-          },
-          {
-            "id": "PROJECT_VERSION:READ+UPDATE"
-          },
-          {
-            "id": "PROJECT_VERSION:READ+DELETE"
-          }
-        ]
-      },
-      {
         "id": "PROJECT_FILE_MANAGEMENT",
         "name": "permission.project_file.name",
         "permissions": [
@@ -159,30 +140,6 @@
         "license": true,
         "permissions": [
           {
-            "id": "PROJECT_APPLICATION_TEST_PLAN:READ",
-            "name": "permission.project_application_test_plan.read"
-          },
-          {
-            "id": "PROJECT_APPLICATION_TEST_PLAN:UPDATE",
-            "name": "permission.project_application_test_plan.update"
-          },
-          {
-            "id": "PROJECT_APPLICATION_UI:READ",
-            "name": "permission.project_application_ui.read"
-          },
-          {
-            "id": "PROJECT_APPLICATION_UI:UPDATE",
-            "name": "permission.project_application_ui.update"
-          },
-          {
-            "id": "PROJECT_APPLICATION_PERFORMANCE_TEST:READ",
-            "name": "permission.project_application_performance_test.read"
-          },
-          {
-            "id": "PROJECT_APPLICATION_PERFORMANCE_TEST:UPDATE",
-            "name": "permission.project_application_performance_test.update"
-          },
-          {
             "id": "PROJECT_APPLICATION_API:READ",
             "name": "permission.project_application_api.read"
           },
@@ -205,14 +162,6 @@
           {
             "id": "PROJECT_APPLICATION_BUG:UPDATE",
             "name": "permission.project_application_bug.update"
-          },
-          {
-            "id": "PROJECT_APPLICATION_WORKSTATION:READ",
-            "name": "permission.project_application_workstation.read"
-          },
-          {
-            "id": "PROJECT_APPLICATION_WORKSTATION:UPDATE",
-            "name": "permission.project_application_workstation.update"
           }
         ]
       },
