@@ -15,7 +15,7 @@ public class PlatformDemandDTO {
     /**
      * 需求列表数据
      */
-    private List<Demand> demandList;
+    private List<Demand> list;
 
     @Data
     public static class Demand {
