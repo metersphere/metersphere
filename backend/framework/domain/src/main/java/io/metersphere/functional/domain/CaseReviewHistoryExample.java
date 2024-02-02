@@ -643,6 +643,66 @@ public class CaseReviewHistoryExample {
             addCriterion("create_time not between", value1, value2, "createTime");
             return (Criteria) this;
         }
+
+        public Criteria andAbandonedIsNull() {
+            addCriterion("abandoned is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAbandonedIsNotNull() {
+            addCriterion("abandoned is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAbandonedEqualTo(Boolean value) {
+            addCriterion("abandoned =", value, "abandoned");
+            return (Criteria) this;
+        }
+
+        public Criteria andAbandonedNotEqualTo(Boolean value) {
+            addCriterion("abandoned <>", value, "abandoned");
+            return (Criteria) this;
+        }
+
+        public Criteria andAbandonedGreaterThan(Boolean value) {
+            addCriterion("abandoned >", value, "abandoned");
+            return (Criteria) this;
+        }
+
+        public Criteria andAbandonedGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("abandoned >=", value, "abandoned");
+            return (Criteria) this;
+        }
+
+        public Criteria andAbandonedLessThan(Boolean value) {
+            addCriterion("abandoned <", value, "abandoned");
+            return (Criteria) this;
+        }
+
+        public Criteria andAbandonedLessThanOrEqualTo(Boolean value) {
+            addCriterion("abandoned <=", value, "abandoned");
+            return (Criteria) this;
+        }
+
+        public Criteria andAbandonedIn(List<Boolean> values) {
+            addCriterion("abandoned in", values, "abandoned");
+            return (Criteria) this;
+        }
+
+        public Criteria andAbandonedNotIn(List<Boolean> values) {
+            addCriterion("abandoned not in", values, "abandoned");
+            return (Criteria) this;
+        }
+
+        public Criteria andAbandonedBetween(Boolean value1, Boolean value2) {
+            addCriterion("abandoned between", value1, value2, "abandoned");
+            return (Criteria) this;
+        }
+
+        public Criteria andAbandonedNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("abandoned not between", value1, value2, "abandoned");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
