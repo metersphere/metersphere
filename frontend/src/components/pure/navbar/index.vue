@@ -12,8 +12,8 @@
       <template v-if="showProjectSelect">
         <a-divider direction="vertical" class="ml-0" />
         <a-select
+          v-model:model-value="appStore.currentProjectId"
           class="w-[200px] focus-within:!bg-[var(--color-text-n8)] hover:!bg-[var(--color-text-n8)]"
-          :default-value="appStore.currentProjectId"
           :bordered="false"
           allow-search
           @change="selectProject"
@@ -21,7 +21,12 @@
           <template #arrow-icon>
             <icon-caret-down />
           </template>
-          <a-tooltip v-for="project of projectList" :key="project.id" :mouse-enter-delay="500" :content="project.name">
+          <a-tooltip
+            v-for="project of appStore.projectList"
+            :key="project.id"
+            :mouse-enter-delay="500"
+            :content="project.name"
+          >
             <a-option
               :value="project.id"
               :class="project.id === appStore.currentProjectId ? 'arco-select-option-selected' : ''"
@@ -35,7 +40,7 @@
       <TopMenu />
     </div>
     <ul v-if="!props.isPreview && !props.hideRight" class="right-side">
-      <li>
+      <!-- <li>
         <a-tooltip :content="t('settings.navbar.search')">
           <a-button type="secondary">
             <template #icon>
@@ -43,7 +48,7 @@
             </template>
           </a-button>
         </a-tooltip>
-      </li>
+      </li> -->
       <li>
         <a-tooltip :content="t('settings.navbar.alerts')">
           <div class="message-box-trigger">
@@ -87,10 +92,25 @@
             </a-button>
           </a-tooltip>
           <template #content>
-            <a-doption v-for="item in helpCenterList" :key="item.name" :value="item.name">
-              <component :is="item.icon"></component>
-              {{ t(item.name) }}
+            <a-doption value="doc">
+              <component :is="IconQuestionCircle"></component>
+              {{ t('settings.help.doc') }}
             </a-doption>
+            <a-popover position="left">
+              <a-doption value="version">
+                <component :is="IconInfoCircle"></component>
+                {{ t('settings.help.versionInfo') }}
+              </a-doption>
+              <template #content>
+                <div
+                  class="flex cursor-pointer items-center gap-[4px] text-[14px] text-[var(--color-text-1)]"
+                  @click="copyVersion"
+                >
+                  <div class="text-[var(--color-text-4)]">{{ t('settings.help.version') }}：</div>
+                  {{ appStore.version }}
+                </div>
+              </template>
+            </a-popover>
           </template>
         </a-dropdown>
       </li>
@@ -118,13 +138,15 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, onBeforeMount, Ref, ref, watch } from 'vue';
+  import { computed, ref, watch } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
+  import { useClipboard } from '@vueuse/core';
+  import { Message } from '@arco-design/web-vue';
 
   import TopMenu from '@/components/business/ms-top-menu/index.vue';
   import MessageBox from '../message-box/index.vue';
 
-  import { getProjectList, switchProject } from '@/api/modules/project-management/project';
+  import { switchProject } from '@/api/modules/project-management/project';
   import { MENU_LEVEL, type PathMapRoute } from '@/config/pathMap';
   import { useI18n } from '@/hooks/useI18n';
   import usePathMap from '@/hooks/usePathMap';
@@ -132,9 +154,6 @@
   import useLocale from '@/locale/useLocale';
   import useAppStore from '@/store/modules/app';
   import useUserStore from '@/store/modules/user';
-  import { hasAnyPermission } from '@/utils/permission';
-
-  import type { ProjectListItem } from '@/models/setting/project';
 
   import { IconInfoCircle, IconQuestionCircle } from '@arco-design/web-vue/es/icon';
 
@@ -151,30 +170,13 @@
   const router = useRouter();
   const { t } = useI18n();
 
-  const projectList: Ref<ProjectListItem[]> = ref([]);
-
-  async function initProjects() {
-    try {
-      if (appStore.currentOrgId && hasAnyPermission(['SYSTEM_PARAMETER_SETTING_BASE:READ'])) {
-        const res = await getProjectList(appStore.getCurrentOrgId);
-        projectList.value = res;
-      } else {
-        projectList.value = [];
-      }
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.log(error);
-    }
-  }
-
-  onBeforeMount(() => {
-    initProjects();
-  });
-
   watch(
     () => appStore.currentOrgId,
     async () => {
-      initProjects();
+      appStore.initProjectList();
+    },
+    {
+      immediate: true,
     }
   );
 
@@ -189,6 +191,7 @@
   ) {
     appStore.setCurrentProjectId(value as string);
     try {
+      appStore.showLoading();
       await switchProject({
         projectId: value as string,
         userId: userStore.id || '',
@@ -197,6 +200,7 @@
       // eslint-disable-next-line no-console
       console.log(error);
     } finally {
+      appStore.hideLoading();
       router.replace({
         path: route.path,
         query: {
@@ -208,28 +212,15 @@
     }
   }
 
-  const helpCenterList = [
-    // {
-    //   name: 'settings.help.guide',
-    //   icon: IconCompass,
-    //   route: '/help-center/guide',
-    // },
-    {
-      name: 'settings.help.doc',
-      icon: IconQuestionCircle,
-      route: '/help-center/guide',
-    },
-    // {
-    //   name: 'settings.help.APIDoc',
-    //   icon: IconFile,
-    //   route: '/help-center/guide',
-    // },
-    {
-      name: 'settings.help.version',
-      icon: IconInfoCircle,
-      route: '/help-center/guide',
-    },
-  ];
+  const { copy, isSupported } = useClipboard();
+  function copyVersion() {
+    if (isSupported) {
+      copy(appStore.version);
+      Message.success(t('common.copySuccess'));
+    } else {
+      Message.warning(t('common.copyNotSupport'));
+    }
+  }
 
   const { changeLocale, currentLocale } = useLocale();
   const locales = [...LOCALE_OPTIONS];
@@ -334,4 +325,3 @@
     }
   }
 </style>
-@/models/setting/project @/api/modules/setting/project @/api/modules/project-management/project

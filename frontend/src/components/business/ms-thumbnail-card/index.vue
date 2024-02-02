@@ -57,7 +57,7 @@
 
   const fileType = computed(() => {
     if (props.type) {
-      return getFileEnum(`/${props.type.toLowerCase()}`);
+      return getFileEnum(props.type.toLowerCase());
     }
     return 'unknown';
   });

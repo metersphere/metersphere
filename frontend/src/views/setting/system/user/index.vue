@@ -8,9 +8,9 @@
         <a-button v-permission="['SYSTEM_USER_INVITE']" class="mr-3" type="outline" @click="showEmailInviteModal">
           {{ t('system.user.emailInvite') }}
         </a-button>
-        <a-button v-permission="['SYSTEM_USER:READ+IMPORT']" class="mr-3" type="outline" @click="showImportModal">{{
-          t('system.user.importUser')
-        }}</a-button>
+        <a-button v-permission="['SYSTEM_USER:READ+IMPORT']" class="mr-3" type="outline" @click="showImportModal">
+          {{ t('system.user.importUser') }}
+        </a-button>
       </div>
       <a-input-search
         v-model:model-value="keyword"
@@ -19,7 +19,8 @@
         allow-clear
         @search="searchUser"
         @press-enter="searchUser"
-      ></a-input-search>
+        @clear="searchUser"
+      />
     </div>
     <ms-base-table
       v-bind="propsRes"
@@ -27,19 +28,50 @@
       v-on="propsEvent"
       @batch-action="handleTableBatch"
     >
+      <template #userGroup="{ record }">
+        <MsTagGroup
+          v-if="!record.selectUserGroupVisible"
+          :tag-list="record.userRoleList"
+          type="primary"
+          theme="outline"
+          @click="record.selectUserGroupVisible = true"
+        />
+        <MsSelect
+          v-else
+          v-model:model-value="record.userRoleList"
+          :placeholder="t('system.user.createUserUserGroupPlaceholder')"
+          :options="userGroupOptions"
+          :search-keys="['name']"
+          :loading="record.selectUserGroupLoading"
+          :disabled="record.selectUserGroupLoading"
+          :fallback-option="(val) => ({
+              label: (val as Record<string, any>).name,
+              value: val,
+            })"
+          value-key="id"
+          label-key="name"
+          class="w-full"
+          allow-clear
+          :multiple="true"
+          :at-least-one="true"
+          :object-value="true"
+          @popup-visible-change="(value) => handleUserGroupChange(value, record)"
+        >
+        </MsSelect>
+      </template>
       <template #action="{ record }">
         <template v-if="!record.enable">
           <MsButton @click="enableUser(record)">{{ t('system.user.enable') }}</MsButton>
-          <MsButton v-permission="['SYSTEM_USER:READ+DELETE']" @click="deleteUser(record)">{{
-            t('system.user.delete')
-          }}</MsButton>
+          <MsButton v-permission="['SYSTEM_USER:READ+DELETE']" @click="deleteUser(record)">
+            {{ t('system.user.delete') }}
+          </MsButton>
         </template>
         <template v-else>
-          <MsButton v-permission="['SYSTEM_USER:READ+UPDATE']" @click="showUserModal('edit', record)">{{
-            t('system.user.editUser')
-          }}</MsButton>
+          <MsButton v-permission="['SYSTEM_USER:READ+UPDATE']" @click="showUserModal('edit', record)">
+            {{ t('system.user.editUser') }}
+          </MsButton>
           <MsTableMoreAction
-            v-if="hasAnyPermission(['SYSTEM_USER:READ+UPDATE', 'SYSTEM_USER:READ+UPDATE', 'SYSTEM_USER:READ+DELETE'])"
+            v-permission="['SYSTEM_USER:READ+UPDATE+DELETE']"
             :list="tableActions"
             @select="handleSelect($event, record)"
           ></MsTableMoreAction>
@@ -56,7 +88,14 @@
     @close="handleUserModalClose"
   >
     <a-alert class="mb-[16px]">{{ t('system.user.createUserTip') }}</a-alert>
-    <a-form ref="userFormRef" class="rounded-[4px]" :model="userForm" layout="vertical">
+    <a-form
+      v-if="visible"
+      ref="userFormRef"
+      class="rounded-[4px]"
+      :model="userForm"
+      layout="vertical"
+      scroll-to-first-error
+    >
       <MsBatchForm
         ref="batchFormRef"
         :models="batchFormModels"
@@ -69,25 +108,27 @@
         class="mb-0"
         field="userGroup"
         :label="t('system.user.createUserUserGroup')"
-        required
+        :rules="[{ required: true, message: t('system.user.createUserUserGroupNotNull') }]"
         asterisk-position="end"
       >
-        <a-select
-          v-model="userForm.userGroup"
-          multiple
+        <MsSelect
+          v-model:model-value="userForm.userGroup"
+          :multiple="true"
           :placeholder="t('system.user.createUserUserGroupPlaceholder')"
+          :options="userGroupOptions"
+          :search-keys="['name']"
+          :fallback-option="(val) => ({
+              label: (val as Record<string, any>).name,
+              value: val,
+            })"
+          :object-value="true"
+          value-key="id"
+          label-key="name"
           allow-clear
+          :at-least-one="true"
+          :should-calculate-max-tag="false"
         >
-          <a-option
-            v-for="item of userGroupOptions"
-            :key="item.id"
-            :tag-props="{ closable: userForm.userGroup.length > 1 }"
-            :value="item.id"
-            :disabled="userForm.userGroup.includes(item.id) && userForm.userGroup.length === 1"
-          >
-            {{ item.name }}
-          </a-option>
-        </a-select>
+        </MsSelect>
       </a-form-item>
     </a-form>
     <template #footer>
@@ -107,8 +148,9 @@
     :title="t('system.user.importModalTitle')"
     title-align="start"
     class="ms-modal-upload"
+    @close="userImportFile = []"
   >
-    <a-alert class="mb-[16px]" closable>
+    <a-alert class="mb-[16px]">
       {{ t('system.user.importModalTip') }}
       <a-button type="text" size="small" @click="downLoadUserTemplate">
         {{ t('system.user.importDownload') }}
@@ -120,6 +162,7 @@
       :show-file-list="false"
       :auto-upload="false"
       :disabled="importLoading"
+      size-unit="MB"
     ></MsUpload>
     <template #footer>
       <a-button type="secondary" :disabled="importLoading" @click="cancelImport">
@@ -130,16 +173,8 @@
       </a-button>
     </template>
   </a-modal>
-  <a-modal v-model:visible="importResultVisible" title-align="start" class="ms-modal-upload">
+  <a-modal v-model:visible="importResultVisible" title-align="start" class="ms-modal-upload" :closable="false">
     <template #title>
-      <icon-exclamation-circle-fill
-        v-if="importResult === 'fail'"
-        class="mr-[8px] text-[20px] text-[rgb(var(--warning-6))]"
-      />
-      <icon-close-circle-fill
-        v-if="importResult === 'allFail'"
-        class="mr-[8px] text-[20px] text-[rgb(var(--danger-6))]"
-      />
       {{ importResultTitle }}
     </template>
     <div v-if="importResult === 'success'" class="flex flex-col items-center justify-center">
@@ -152,20 +187,46 @@
       </div>
     </div>
     <template v-else>
-      <div>
-        {{ t('system.user.importResultContent', { successNum: importSuccessCount, failNum: importFailCount }) }}
-      </div>
-      <div>
-        {{ t('system.user.importResultContentSubStart') }}
-        <a-link
-          class="text-[rgb(var(--primary-5))]"
-          :href="importErrorFileUrl"
-          :download="`${t('system.user.importErrorFile')}.pdf`"
-        >
-          {{ t('system.user.importResultContentDownload') }}
-        </a-link>
-        {{ t('system.user.importResultContentSubEnd') }}
-      </div>
+      <a-alert type="error">
+        <template #icon>
+          <icon-exclamation-circle-fill class="text-[rgb(var(--danger-6))]" />
+        </template>
+        <div class="flex items-center">
+          {{ t('system.user.importResultContent', { successNum: importSuccessCount }) }}
+          <div class="mx-[4px] text-[rgb(var(--danger-6))]">{{ importFailCount }}</div>
+          {{ t('system.user.importResultContentEnd') }}
+          <a-popover content-class="w-[400px] p-0" position="right">
+            <MsButton type="text">
+              {{ t('system.user.importErrorDetail') }}
+            </MsButton>
+            <template #content>
+              <div class="px-[16px] pt-[16px] text-[14px]">
+                <div class="flex items-center font-medium">
+                  <div class="text-[var(--color-text-1)]">{{ t('system.user.importErrorMessageTitle') }}</div>
+                  <div class="ml-[4px] text-[var(--color-text-4)]">({{ importFailCount }})</div>
+                </div>
+                <div class="import-error-message-list mt-[8px]">
+                  <div
+                    v-for="key of Object.keys(importErrorMessages)"
+                    :key="key"
+                    class="mb-[16px] flex items-center text-[var(--color-text-2)]"
+                  >
+                    {{ t('system.user.num') }}
+                    <div class="mx-[4px] font-medium">{{ key }}</div>
+                    {{ t('system.user.line') }}：
+                    {{ importErrorMessages[key] }}
+                  </div>
+                </div>
+              </div>
+              <div class="import-error-message-footer">
+                <MsButton type="text" @click="importErrorMessageDrawerVisible = true">
+                  {{ t('system.user.seeMore') }}
+                </MsButton>
+              </div>
+            </template>
+          </a-popover>
+        </div>
+      </a-alert>
     </template>
     <template #footer>
       <a-button type="text" class="!text-[var(--color-text-1)]" @click="cancelImport">
@@ -185,6 +246,27 @@
     :keyword="keyword"
     @finished="resetSelector"
   ></batchModal>
+  <MsDrawer v-model:visible="importErrorMessageDrawerVisible" :width="680" :footer="false">
+    <template #title>
+      <div class="flex items-center font-medium">
+        <div class="text-[var(--color-text-1)]">{{ t('system.user.importErrorMessageTitle') }}</div>
+        <div class="ml-[4px] text-[var(--color-text-4)]">({{ importFailCount }})</div>
+      </div>
+    </template>
+    <div class="import-error-message-list !max-h-full">
+      <div
+        v-for="key of Object.keys(importErrorMessages)"
+        :key="key"
+        class="mb-[16px] flex items-center text-[var(--color-text-2)]"
+      >
+        <div class="mr-[8px] h-[6px] w-[6px] rounded-full bg-[var(--color-text-input-border)]"></div>
+        {{ t('system.user.num') }}
+        <div class="mx-[4px] font-medium">{{ key }}</div>
+        {{ t('system.user.line') }}：
+        {{ importErrorMessages[key] }}
+      </div>
+    </div>
+  </MsDrawer>
 </template>
 
 <script setup lang="ts">
@@ -198,14 +280,17 @@
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
+  import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import MsBatchForm from '@/components/business/ms-batch-form/index.vue';
   import type { FormItemModel, MsBatchFormInstance } from '@/components/business/ms-batch-form/types';
+  import MsSelect from '@/components/business/ms-select';
   import batchModal from './components/batchModal.vue';
   import inviteModal from './components/inviteModal.vue';
 
@@ -221,6 +306,7 @@
   } from '@/api/modules/setting/user';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
+  import useLocale from '@/locale/useLocale';
   import { useTableStore } from '@/store';
   import { characterLimit, formatPhoneNumber } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
@@ -230,8 +316,10 @@
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   import type { FileItem, FormInstance, ValidatedError } from '@arco-design/web-vue';
+  import type { FieldData } from '@arco-design/web-vue/es/form/interface';
 
   const { t } = useI18n();
+  const { currentLocale } = useLocale();
   const route = useRoute();
 
   const columns: MsTableColumn = [
@@ -259,8 +347,8 @@
     },
     {
       title: 'system.user.tableColumnUserGroup',
-      isTag: true,
       dataIndex: 'userRoleList',
+      slotName: 'userGroup',
       width: 300,
     },
     {
@@ -282,8 +370,7 @@
     {
       tableKey: TableKeyEnum.SYSTEM_USER,
       columns,
-      size: 'default',
-      selectable: true,
+      selectable: !!hasAnyPermission(['SYSTEM_USER:READ+ADD+UPDATE+DELETE']),
       showSetting: true,
       showJumpMethod: true,
       heightUsed: 288,
@@ -293,6 +380,8 @@
       organizationList: record.organizationList.filter((e: any) => e),
       userRoleList: record.userRoleList.filter((e: any) => e),
       phone: formatPhoneNumber(record.phone || ''),
+      selectUserGroupVisible: false,
+      selectUserGroupLoading: false,
     })
   );
 
@@ -585,7 +674,7 @@
 
   interface UserForm {
     list: SimpleUserInfo[];
-    userGroup: string[];
+    userGroup: Record<string, any>[];
   }
 
   const visible = ref(false);
@@ -609,9 +698,7 @@
     try {
       userGroupOptions.value = await getSystemRoles();
       if (userGroupOptions.value.length) {
-        userForm.value.userGroup = userGroupOptions.value
-          .filter((e: SystemRole) => e.selected === true)
-          .map((e: SystemRole) => e.id);
+        userForm.value.userGroup = userGroupOptions.value.filter((e: SystemRole) => e.selected === true);
       }
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -620,10 +707,10 @@
   }
 
   onBeforeMount(async () => {
-    if (route.query.id) {
-      keyword.value = route.query.id as string;
-    }
     setKeyword(keyword.value);
+    if (route.query.id) {
+      setKeyword(route.query.id as string);
+    }
     init();
     loadList();
   });
@@ -634,9 +721,7 @@
   function resetUserForm() {
     userForm.value.list = [];
     userFormRef.value?.resetFields();
-    userForm.value.userGroup = userGroupOptions.value
-      .filter((e: SystemRole) => e.selected === true)
-      .map((e: SystemRole) => e.id);
+    userForm.value.userGroup = userGroupOptions.value.filter((e: SystemRole) => e.selected === true);
   }
 
   /**
@@ -656,7 +741,7 @@
           phone: record.phone ? record.phone.replace(/\s/g, '') : record.phone,
         },
       ];
-      userForm.value.userGroup = record.userRoleList.map((e) => e.id);
+      userForm.value.userGroup = record.userRoleList;
     }
   }
 
@@ -668,7 +753,7 @@
   function checkUerName(value: string | undefined, callback: (error?: string) => void) {
     if (value === '' || value === undefined) {
       callback(t('system.user.createUserNameNotNull'));
-    } else if (value.length > 50) {
+    } else if (value.length > 255) {
       callback(t('system.user.createUserNameOverLength'));
     }
   }
@@ -693,7 +778,7 @@
    * @param callback 失败回调，入参是提示信息
    */
   function checkUerPhone(value: string | undefined, callback: (error?: string) => void) {
-    if (value !== '' && value !== undefined && !validatePhone(value)) {
+    if (value !== null && value !== '' && value !== undefined && !validatePhone(value)) {
       callback(t('system.user.createUserPhoneErr'));
     }
   }
@@ -745,12 +830,38 @@
       name: activeUser.name,
       email: activeUser.email,
       phone: activeUser.phone,
-      userRoleIdList: userForm.value.userGroup,
+      userRoleIdList: userForm.value.userGroup.map((e) => e.id),
     };
     await updateUserInfo(params);
     Message.success(t('system.user.updateUserSuccess'));
     visible.value = false;
     loadList();
+  }
+
+  /**
+   * 快捷修改用户组
+   */
+  async function handleUserGroupChange(val: boolean, record: UserListItem & Record<string, any>) {
+    try {
+      if (!val) {
+        record.selectUserGroupLoading = true;
+        const params = {
+          id: record.id,
+          name: record.name,
+          email: record.email,
+          phone: record.phone,
+          userRoleIdList: record.userRoleList.map((e) => e.id),
+        };
+        await updateUserInfo(params);
+        Message.success(t('system.user.updateUserSuccess'));
+        record.selectUserGroupVisible = false;
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      record.selectUserGroupLoading = false;
+    }
   }
 
   /**
@@ -760,14 +871,28 @@
   async function createUser(isContinue?: boolean) {
     const params = {
       userInfoList: userForm.value.list,
-      userRoleIdList: userForm.value.userGroup,
+      userRoleIdList: userForm.value.userGroup.map((e) => e.id),
     };
-    await batchCreateUser(params);
-    Message.success(t('system.user.addUserSuccess'));
-    if (!isContinue) {
-      visible.value = false;
+    const res = await batchCreateUser(params);
+    if (res.errorEmails !== null) {
+      const errData: Record<string, FieldData> = {};
+      Object.keys(res.errorEmails).forEach((key) => {
+        const filedIndex = userForm.value.list.findIndex((e) => e.email === key);
+        if (filedIndex > -1) {
+          errData[`list[${filedIndex}].email`] = {
+            status: 'error',
+            message: t('system.user.createUserEmailExist'),
+          };
+        }
+      });
+      batchFormRef.value?.setFields(errData);
+    } else {
+      Message.success(t('system.user.addUserSuccess'));
+      if (!isContinue) {
+        visible.value = false;
+      }
+      loadList();
     }
-    loadList();
   }
 
   /**
@@ -834,9 +959,10 @@
   const importResultVisible = ref(false);
   const importSuccessCount = ref(0);
   const importFailCount = ref(0);
-  const importErrorFileUrl = ref('');
   const importResult = ref<'success' | 'allFail' | 'fail'>('allFail');
   const importResultTitle = ref(t('system.user.importSuccessTitle'));
+  const importErrorMessages = ref<Record<string, any>>({});
+  const importErrorMessageDrawerVisible = ref(false);
 
   function showImportModal() {
     importVisible.value = true;
@@ -886,16 +1012,18 @@
       const res = await importUserInfo({
         fileList: [userImportFile.value[0].file],
       });
-      const failCount = res.importCount - res.successCount;
-      if (failCount === res.importCount) {
+      const { data } = res;
+      const failCount = data.importCount - data.successCount;
+      if (failCount === data.importCount) {
         importResult.value = 'allFail';
       } else if (failCount > 0) {
         importResult.value = 'fail';
       } else {
         importResult.value = 'success';
       }
-      importSuccessCount.value = res.successCount;
+      importSuccessCount.value = data.successCount;
       importFailCount.value = failCount;
+      importErrorMessages.value = data.errorMessages;
       showImportResult();
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -906,7 +1034,11 @@
   }
 
   function downLoadUserTemplate() {
-    window.open('/templates/user_import.xlsx', '_blank');
+    if (currentLocale.value === 'zh-CN') {
+      window.open('/templates/user_import_cn.xlsx', '_blank');
+    } else {
+      window.open('/templates/user_import_en.xlsx', '_blank');
+    }
   }
   await tableStore.initColumn(TableKeyEnum.SYSTEM_USER, columns, 'drawer');
 </script>
@@ -919,5 +1051,17 @@
   .enableTag {
     border-color: rgb(var(--primary-5));
     color: rgb(var(--primary-5));
+  }
+  .import-error-message-list {
+    .ms-scroll-bar();
+    @apply overflow-y-auto;
+
+    max-height: 250px;
+  }
+  .import-error-message-footer {
+    @apply flex items-center justify-center;
+
+    padding: 8px 0;
+    box-shadow: 0 -1px 4px 0 rgb(31 35 41 / 10%);
   }
 </style>

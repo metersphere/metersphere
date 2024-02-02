@@ -22,6 +22,7 @@ import type { CommonList, TableQueryParams } from '@/models/common';
 import type {
   BatchAddParams,
   CreateUserParams,
+  CreateUserResult,
   DeleteUserParams,
   ImportResult,
   ImportUserParams,
@@ -35,6 +36,8 @@ import type {
   UserListItem,
 } from '@/models/setting/user';
 
+import { Result } from '#/axios';
+
 // 获取用户列表
 export function getUserList(data: TableQueryParams) {
   return MSR.post<CommonList<UserListItem>>({ url: GetUserListUrl, data });
@@ -42,7 +45,7 @@ export function getUserList(data: TableQueryParams) {
 
 // 批量创建用户
 export function batchCreateUser(data: CreateUserParams) {
-  return MSR.post({ url: CreateUserUrl, data });
+  return MSR.post<CreateUserResult>({ url: CreateUserUrl, data });
 }
 
 // 更新用户信息
@@ -68,7 +71,7 @@ export function deleteUserInfo(data: DeleteUserParams) {
 
 // 导入用户
 export function importUserInfo(data: ImportUserParams) {
-  return MSR.uploadFile<ImportResult>({ url: ImportUserUrl }, data);
+  return MSR.uploadFile<Result<ImportResult>>({ url: ImportUserUrl }, data);
 }
 
 // 获取系统用户组

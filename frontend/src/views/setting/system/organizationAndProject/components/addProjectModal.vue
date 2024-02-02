@@ -117,12 +117,14 @@
 
   import { createOrUpdateProject, getSystemOrgOption } from '@/api/modules/setting/organizationAndProject';
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
   import useLicenseStore from '@/store/modules/setting/license';
 
   import { CreateOrUpdateSystemProjectParams, SystemOrgOption } from '@/models/setting/system/orgAndProject';
 
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
 
+  const appStore = useAppStore();
   const { t } = useI18n();
   const props = defineProps<{
     visible: boolean;
@@ -193,6 +195,7 @@
         Message.success(
           isEdit.value ? t('system.project.updateProjectSuccess') : t('system.project.createProjectSuccess')
         );
+        appStore.initProjectList();
         handleCancel(true);
       } catch (error) {
         // eslint-disable-next-line no-console

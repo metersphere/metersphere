@@ -10,6 +10,7 @@
         allow-clear
         @press-enter="emit('keywordSearch', innerKeyword)"
         @search="emit('keywordSearch', innerKeyword)"
+        @clear="emit('keywordSearch', innerKeyword)"
       ></a-input-search>
       <MsTag
         :type="visible ? 'primary' : 'default'"
@@ -17,8 +18,9 @@
         size="large"
         class="min-w-[64px] cursor-pointer"
         no-margin
+        @click="handleOpenFilter"
       >
-        <span :class="!visible ? 'text-[var(--color-text-4)]' : ''" @click="handleOpenFilter">
+        <span :class="!visible ? 'text-[var(--color-text-4)]' : ''">
           <icon-filter class="text-[16px]" />
           <span class="ml-[4px]">
             <span v-if="filterCount">{{ filterCount }}</span>

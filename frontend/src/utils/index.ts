@@ -1,7 +1,5 @@
 import JSEncrypt from 'jsencrypt';
 
-import { codeCharset } from '@/config/apiTest';
-
 import { isObject } from './is';
 
 type TargetContext = '_self' | '_parent' | '_blank' | '_top';

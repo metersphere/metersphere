@@ -66,7 +66,7 @@
   }
 
   const props = defineProps<{
-    mode: 'add' | 'rename' | 'fileRename' | 'fileUpdateDesc' | 'repositoryRename';
+    mode: 'add' | 'rename';
     visible?: boolean;
     title?: string;
     allNames: string[];

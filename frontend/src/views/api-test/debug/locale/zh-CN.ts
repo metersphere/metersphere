@@ -84,7 +84,7 @@ export default {
   'apiTestDebug.storageByResult': '按结果存储',
   'apiTestDebug.storageByResultPlaceholder': '如 {a}',
   'apiTestDebug.extractParameter': '提取参数',
-  'apiTestDebug.searchTip': '请输入分组名称',
+  'apiTestDebug.searchTip': '请输入模块/请求名称',
   'apiTestDebug.allRequest': '全部请求',
   'apiTestDebug.deleteFolderTipTitle': '是否删除 `{name}` 模块？',
   'apiTestDebug.deleteFolderTipContent': '该操作会删除模块及其下所有资源，请谨慎操作！',

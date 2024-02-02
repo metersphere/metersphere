@@ -1,5 +1,10 @@
 <template>
-  <a-modal v-model:visible="showBatchModal" title-align="start" class="ms-modal-upload ms-modal-medium">
+  <a-modal
+    v-model:visible="showBatchModal"
+    title-align="start"
+    class="ms-modal-upload ms-modal-medium"
+    unmount-on-close
+  >
     <template #title>
       {{ batchTitle }}
       <div class="text-[var(--color-text-4)]">
@@ -174,11 +179,14 @@
       showBatchModal.value = false;
       emit('finished');
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       batchLoading.value = false;
     }
   }
+
+  function handleClose() {}
 </script>
 
 <style lang="less" scoped></style>

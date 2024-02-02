@@ -86,7 +86,7 @@
   });
 
   const innerSlogan = computed(() => {
-    return props.isPreview ? props.slogan : appStore.pageConfig.slogan;
+    return props.isPreview ? props.slogan : t(appStore.pageConfig.slogan);
   });
 
   const errorMessage = ref('');

@@ -2,7 +2,7 @@ import type { MsFileItem } from '@/components/pure/ms-upload/types';
 import type { BreadcrumbItem } from '@/components/business/ms-breadcrumb/types';
 
 import type { LoginConfig, PageConfig, PlatformConfig, ThemeConfig } from '@/models/setting/config';
-import { UserGroupAuthSetting } from '@/models/setting/usergroup';
+import { ProjectListItem } from '@/models/setting/project';
 
 import type { RouteRecordNormalized, RouteRecordRaw } from 'vue-router';
 
@@ -38,6 +38,7 @@ export interface AppState {
   innerHeight: number;
   currentMenuConfig: string[];
   packageType: string;
+  projectList: ProjectListItem[];
 }
 
 export interface UploadFileTaskState {

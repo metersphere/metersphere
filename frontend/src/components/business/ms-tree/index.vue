@@ -152,7 +152,7 @@
   });
   const originalTreeData = ref<MsTreeNodeData[]>([]);
 
-  function init() {
+  function init(isFirstInit = false) {
     originalTreeData.value = mapTree<MsTreeNodeData>(props.data, (node: MsTreeNodeData) => {
       if (!props.showLine) {
         // 不展示连接线时才设置节点图标，因为展示连接线时非叶子节点会展示默认的折叠图标。它不会覆盖 switcherIcon，但是会被 switcherIcon 覆盖
@@ -169,22 +169,24 @@
       return node;
     });
     nextTick(() => {
-      if (props.defaultExpandAll) {
-        treeRef.value?.expandAll(true);
-      }
-      if (!isInitListener.value && treeRef.value) {
-        setContainer(
-          props.virtualListProps?.height
-            ? (treeRef.value.$el.querySelector('.arco-virtual-list') as HTMLElement)
-            : treeRef.value.$el
-        );
-        initScrollListener();
+      if (isFirstInit) {
+        if (props.defaultExpandAll) {
+          treeRef.value?.expandAll(true);
+        }
+        if (!isInitListener.value && treeRef.value) {
+          setContainer(
+            props.virtualListProps?.height
+              ? (treeRef.value.$el.querySelector('.arco-virtual-list') as HTMLElement)
+              : treeRef.value.$el
+          );
+          initScrollListener();
+        }
       }
     });
   }
 
   onBeforeMount(() => {
-    init();
+    init(true);
   });
 
   watch(

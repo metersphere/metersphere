@@ -76,6 +76,7 @@ export default {
   'common.expandAll': 'Expand all',
   'common.copy': 'Copy',
   'common.copySuccess': 'Copy successfully',
+  'common.copyNotSupport': 'Your browser does not support automatic copying. Please copy manually.',
   'common.fork': 'Fork',
   'common.forked': 'Forked',
   'common.more': 'More',

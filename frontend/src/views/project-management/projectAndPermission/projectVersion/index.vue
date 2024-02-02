@@ -31,17 +31,18 @@
         </div>
       </div>
       <div class="mt-[40px] flex justify-center">
-        <a-button type="outline" @click="() => openProjectVersion(true)">
+        <a-button v-permission="['PROJECT_VERSION:READ+UPDATE']" type="outline" @click="() => openProjectVersion(true)">
           {{ t('project.projectVersion.openVersion') }}
         </a-button>
       </div>
     </div>
   </a-spin>
-  <div v-if="projectVersionStatus">
-    <div class="flex justify-between">
+  <div v-if="projectVersionStatus" class="table-container">
+    <div class="mb-[16px] flex justify-between">
       <div>
         <a-switch
           v-model:model-value="projectVersionStatus"
+          v-permission="['PROJECT_VERSION:READ+UPDATE']"
           size="small"
           :before-change="(val) => openProjectVersion(val)"
           type="line"
@@ -56,14 +57,20 @@
         allow-clear
         @search="searchVersion"
         @press-enter="searchVersion"
+        @clear="searchVersion"
       />
     </div>
     <MsBaseTable v-bind="propsRes" v-on="propsEvent">
       <template #statusTitle>
         <div class="flex items-center">
-          {{ t('project.projectVersion.status') }}
+          <div class="font-medium text-[var(--color-text-3)]">
+            {{ t('project.projectVersion.status') }}
+          </div>
           <a-popover position="rt">
-            <icon-info-circle class="ml-[4px] hover:text-[rgb(var(--primary-5))]" size="16" />
+            <icon-info-circle
+              class="ml-[4px] text-[var(--color-text-3)] hover:text-[rgb(var(--primary-5))]"
+              size="16"
+            />
             <template #title>
               <div class="w-[256px]"> {{ t('project.projectVersion.statusTip') }} </div>
             </template>
@@ -93,7 +100,7 @@
           </a-popover>
         </div>
       </template>
-      <template #quickCreate>
+      <template v-if="hasAnyPermission(['PROJECT_VERSION:READ+ADD'])" #quickCreate>
         <a-form
           v-if="showQuickCreateForm"
           ref="quickCreateFormRef"
@@ -144,6 +151,7 @@
       <template #status="{ record }">
         <a-switch
           v-model:model-value="record.status"
+          v-permission="['PROJECT_VERSION:READ+UPDATE']"
           size="small"
           :before-change="(val) => handleStatusChange(val, record)"
           type="line"
@@ -152,6 +160,7 @@
       <template #latest="{ record }">
         <a-switch
           v-model:model-value="record.latest"
+          v-permission="['PROJECT_VERSION:READ+UPDATE']"
           :disabled="record.latest"
           :before-change="() => handleUseLatestVersionChange(record)"
           size="small"
@@ -161,6 +170,7 @@
       <template #action="{ record }">
         <a-tooltip :content="t('project.projectVersion.latestVersionDeleteTip')" :disabled="!record.latest">
           <MsButton
+            v-permission="['PROJECT_VERSION:READ+DELETE']"
             type="text"
             :loading="delLoading"
             :disabled="record.latest"
@@ -234,6 +244,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { ProjectItem, ProjectVersionOption } from '@/models/projectManagement/projectVersion';
   import { ColumnEditTypeEnum } from '@/enums/tableEnum';
@@ -310,7 +321,7 @@
       dataIndex: 'name',
       showTooltip: true,
       editType: ColumnEditTypeEnum.INPUT,
-      width: 150,
+      width: 120,
     },
     {
       title: 'project.projectVersion.status',
@@ -346,6 +357,7 @@
     {
       title: 'project.projectVersion.creator',
       dataIndex: 'createUser',
+      showTooltip: true,
     },
     {
       title: 'common.operation',
@@ -358,8 +370,8 @@
   const { propsRes, propsEvent, loadList, setKeyword, setLoadListParams } = useTable(
     getVersionList,
     {
+      scroll: { x: '100%' },
       columns,
-      size: 'default',
     },
     (item) => {
       return {
@@ -584,5 +596,11 @@
     background: white;
     box-shadow: 0 5px 5px -3px rgb(0 0 0 / 10%), 0 8px 10px 1px rgb(0 0 0 / 6%), 0 3px 14px 2px rgb(0 0 0 / 5%);
     gap: 2px;
+  }
+  .table-container {
+    .ms-scroll-bar();
+    @apply overflow-auto;
+
+    min-width: 850px;
   }
 </style>

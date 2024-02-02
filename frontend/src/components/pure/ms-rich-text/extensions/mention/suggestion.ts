@@ -1,18 +1,17 @@
 import MentionList from './MentionList.vue';
 
-import { getReviewerList } from '@/api/modules/case-management/featureCase';
+import { getReviewUsers } from '@/api/modules/case-management/caseReview';
 import useAppStore from '@/store/modules/app';
 
-import type { UserListItem } from '@/models/setting/user';
+import { ReviewUserItem } from '@/models/caseManagement/caseReview';
 
-import { Extension, VueRenderer } from '@halo-dev/richtext-editor';
-import Suggestion from '@tiptap/suggestion';
+import { VueRenderer } from '@halo-dev/richtext-editor';
 import type { Instance } from 'tippy.js';
 import tippy from 'tippy.js';
 
 const appStore = useAppStore();
 
-const projectMember = ref<UserListItem[]>([]);
+const projectMember = ref<ReviewUserItem[]>([]);
 
 async function getMembersToolBar(query: string) {
   const params = {
@@ -20,8 +19,9 @@ async function getMembersToolBar(query: string) {
     keyword: query,
   };
   try {
-    projectMember.value = await getReviewerList(params.projectId, params.keyword);
+    projectMember.value = await getReviewUsers(params.projectId, params.keyword);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.log(error);
   }
 }
@@ -29,7 +29,9 @@ async function getMembersToolBar(query: string) {
 export default {
   items: async ({ query }: any) => {
     await getMembersToolBar(query);
-    return projectMember.value.filter((item: UserListItem) => item.name.toLowerCase().startsWith(query.toLowerCase()));
+    return projectMember.value.filter((item: ReviewUserItem) =>
+      item.name.toLowerCase().startsWith(query.toLowerCase())
+    );
   },
 
   render: () => {

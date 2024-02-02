@@ -1,112 +1,137 @@
 <template>
-  <div
-    v-if="props.mode === 'remote' && props.showTab"
-    class="sticky top-[0] z-[9999] mb-[8px] flex justify-between bg-white"
-  >
-    <a-radio-group v-model:model-value="fileListTab" type="button" size="small">
-      <a-radio value="all">{{ `${t('ms.upload.all')} (${innerFileList.length})` }}</a-radio>
-      <a-radio value="waiting">{{ `${t('ms.upload.uploading')} (${totalWaitingFileList.length})` }}</a-radio>
-      <a-radio value="success">{{ `${t('ms.upload.success')} (${totalSuccessFileList.length})` }}</a-radio>
-      <a-radio value="error">{{ `${t('ms.upload.fail')} (${totalFailFileList.length})` }}</a-radio>
-    </a-radio-group>
-    <slot name="tabExtra"></slot>
-  </div>
-  <MsList :data="filterFileList" :bordered="false" :split="false" item-border no-hover>
-    <template #item="{ item }">
-      <a-list-item
-        class="mb-[8px] w-full rounded-[var(--border-radius-small)] border border-solid border-[var(--color-text-n8)] !p-[8px_12px]"
-      >
-        <a-list-item-meta>
-          <template #avatar>
-            <a-avatar shape="square" class="rounded-[var(--border-radius-mini)] bg-[var(--color-text-n9)]">
-              <a-image v-if="item.file.type.includes('image/')" :src="item.url" width="40" height="40" hide-footer />
-              <MsIcon
-                v-else
-                :type="getFileIcon(item)"
-                size="24"
-                :class="getFileEnum(item.file?.type) === 'unknown' ? 'text-[var(--color-text-4)]' : ''"
-              />
-            </a-avatar>
-          </template>
-          <template #title>
-            <div class="flex items-center">
-              <a-tooltip :content="item.file.name">
-                <div class="one-line-text max-w-[80%] font-normal">{{ item.file.name }}</div>
-              </a-tooltip>
-              <slot name="title" :item="item"></slot>
-            </div>
-          </template>
-          <template #description>
-            <div v-if="item.status === UploadStatus.init" class="text-[12px] leading-[16px] text-[var(--color-text-4)]">
-              {{ t('ms.upload.waiting') }}
-            </div>
-            <div
-              v-else-if="item.status === UploadStatus.done"
-              class="flex items-center gap-[8px] text-[12px] leading-[16px] text-[var(--color-text-4)]"
-            >
-              {{
-                `${formatFileSize(item.file.size)}  ${t('ms.upload.uploadAt')} ${dayjs(item.uploadedTime).format(
-                  'YYYY-MM-DD HH:mm:ss'
-                )}`
-              }}
+  <div>
+    <div
+      v-if="props.mode === 'remote' && props.showTab"
+      class="sticky top-[0] z-[9999] mb-[8px] flex justify-between bg-white"
+    >
+      <a-radio-group v-model:model-value="fileListTab" type="button" size="small">
+        <a-radio value="all">{{ `${t('ms.upload.all')} (${innerFileList.length})` }}</a-radio>
+        <a-radio value="waiting">{{ `${t('ms.upload.uploading')} (${totalWaitingFileList.length})` }}</a-radio>
+        <a-radio value="success">{{ `${t('ms.upload.success')} (${totalSuccessFileList.length})` }}</a-radio>
+        <a-radio value="error">{{ `${t('ms.upload.fail')} (${totalFailFileList.length})` }}</a-radio>
+      </a-radio-group>
+      <slot name="tabExtra"></slot>
+    </div>
+    <MsList
+      v-if="props.showMode === 'fileList'"
+      :data="filterFileList"
+      :bordered="false"
+      :split="false"
+      item-border
+      no-hover
+    >
+      <template #item="{ item }">
+        <a-list-item
+          class="mb-[8px] w-full rounded-[var(--border-radius-small)] border border-solid border-[var(--color-text-n8)] !p-[8px_12px]"
+        >
+          <a-list-item-meta>
+            <template #avatar>
+              <a-avatar shape="square" class="rounded-[var(--border-radius-mini)] bg-[var(--color-text-n9)]">
+                <a-image v-if="item.file.type.includes('image/')" :src="item.url" width="40" height="40" hide-footer />
+                <MsIcon
+                  v-else
+                  :type="getFileIcon(item)"
+                  size="24"
+                  :class="item.status === UploadStatus.init ? 'text-[var(--color-text-4)]' : ''"
+                />
+              </a-avatar>
+            </template>
+            <template #title>
               <div class="flex items-center">
-                <MsIcon type="icon-icon_succeed_colorful" />
-                {{ t('ms.upload.uploadSuccess') }}
+                <a-tooltip :content="item.file.name">
+                  <div class="one-line-text max-w-[80%] font-normal">{{ item.file.name }}</div>
+                </a-tooltip>
+                <slot name="title" :item="item"></slot>
               </div>
-            </div>
-            <a-progress
-              v-else-if="item.status === UploadStatus.uploading"
-              :percent="asyncTaskStore.uploadFileTask.singleProgress / 100"
-              :show-text="false"
-              size="large"
-              class="w-[200px]"
-            />
-            <div v-else-if="item.status === UploadStatus.error" class="text-[rgb(var(--danger-6))]">
-              {{ item.errMsg || t('ms.upload.uploadFail') }}
+            </template>
+            <template #description>
+              <div
+                v-if="item.status === UploadStatus.init"
+                class="text-[12px] leading-[16px] text-[var(--color-text-4)]"
+              >
+                {{ t('ms.upload.waiting') }}
+              </div>
+              <div
+                v-else-if="item.status === UploadStatus.done"
+                class="flex items-center gap-[8px] text-[12px] leading-[16px] text-[var(--color-text-4)]"
+              >
+                {{
+                  `${formatFileSize(item.file.size)}  ${t('ms.upload.uploadAt')} ${dayjs(item.uploadedTime).format(
+                    'YYYY-MM-DD HH:mm:ss'
+                  )}`
+                }}
+                <div class="flex items-center">
+                  <MsIcon type="icon-icon_succeed_colorful" />
+                  {{ t('ms.upload.uploadSuccess') }}
+                </div>
+              </div>
+              <a-progress
+                v-else-if="item.status === UploadStatus.uploading"
+                :percent="asyncTaskStore.uploadFileTask.singleProgress / 100"
+                :show-text="false"
+                size="large"
+                class="w-[200px]"
+              />
+              <div v-else-if="item.status === UploadStatus.error" class="text-[rgb(var(--danger-6))]">
+                {{ item.errMsg || t('ms.upload.uploadFail') }}
+              </div>
+            </template>
+          </a-list-item-meta>
+          <template #actions>
+            <div class="flex items-center">
+              <MsButton
+                v-if="item.file.type.includes('image/')"
+                type="button"
+                status="primary"
+                class="!mr-0"
+                @click="handlePreview(item)"
+              >
+                {{ t('ms.upload.preview') }}
+              </MsButton>
+              <MsButton
+                v-if="item.status === UploadStatus.error"
+                type="button"
+                status="secondary"
+                class="!mr-0"
+                @click="reupload(item)"
+              >
+                {{ t('ms.upload.reUpload') }}
+              </MsButton>
+              <MsButton
+                v-if="props.showDelete"
+                type="button"
+                :status="item.deleteContent ? 'primary' : 'danger'"
+                class="!mr-[4px]"
+                @click="deleteFile(item)"
+              >
+                {{ t(item.deleteContent) || t('ms.upload.delete') }}
+              </MsButton>
+              <slot name="actions" :item="item"></slot>
             </div>
           </template>
-        </a-list-item-meta>
-        <template #actions>
-          <div class="flex items-center">
-            <MsButton
-              v-if="item.file.type.includes('image/')"
-              type="button"
-              status="primary"
-              class="!mr-0"
-              @click="handlePreview(item)"
-            >
-              {{ t('ms.upload.preview') }}
-            </MsButton>
-            <MsButton
-              v-if="item.status === UploadStatus.error"
-              type="button"
-              status="secondary"
-              class="!mr-0"
-              @click="reupload(item)"
-            >
-              {{ t('ms.upload.reUpload') }}
-            </MsButton>
-            <MsButton
-              v-if="props.showDelete"
-              type="button"
-              :status="item.deleteContent ? 'primary' : 'danger'"
-              class="!mr-[4px]"
-              @click="deleteFile(item)"
-            >
-              {{ t(item.deleteContent) || t('ms.upload.delete') }}
-            </MsButton>
-            <slot name="actions" :item="item"></slot>
-          </div>
-        </template>
-      </a-list-item>
-    </template>
-  </MsList>
-  <a-image-preview-group
-    v-model:visible="previewVisible"
-    v-model:current="previewCurrent"
-    infinite
-    :src-list="previewList"
-  />
+        </a-list-item>
+      </template>
+    </MsList>
+    <div v-else class="flex w-full items-center gap-[8px]">
+      <div v-for="item of filterFileList" :key="item.uid" class="image-item">
+        <a-image
+          :src="item.url"
+          width="40"
+          height="40"
+          :preview="false"
+          class="cursor-pointer"
+          @click="handlePreview(item)"
+        />
+        <icon-close-circle-fill class="image-item-close-icon" @click="deleteFile(item)" />
+      </div>
+    </div>
+    <a-image-preview-group
+      v-model:visible="previewVisible"
+      v-model:current="previewCurrent"
+      infinite
+      :src-list="previewList"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -123,13 +148,14 @@
 
   import { UploadStatus } from '@/enums/uploadEnum';
 
-  import { getFileEnum, getFileIcon } from './iconMap';
+  import { getFileIcon } from './iconMap';
   import type { MsFileItem } from './types';
 
   const props = withDefaults(
     defineProps<{
       mode?: 'static' | 'remote'; // 静态|远程
       fileList: MsFileItem[];
+      showMode?: 'fileList' | 'imageList'; // 展示模式, 文件列表|图片列表
       uploadFunc?: (params: any) => Promise<any>; // 上传文件时，自定义上传方法
       requestParams?: Record<string, any>; // 上传文件时，额外的请求参数
       route?: string; // 用于后台上传文件时，查看详情跳转的路由
@@ -144,6 +170,7 @@
       mode: 'remote',
       showTab: true,
       showDelete: true,
+      showMode: 'fileList',
     }
   );
   const emit = defineEmits<{
@@ -294,4 +321,23 @@
   });
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+  .image-item {
+    @apply relative;
+    &:hover {
+      .image-item-close-icon {
+        @apply visible;
+      }
+    }
+    .image-item-close-icon {
+      @apply invisible absolute cursor-pointer rounded-full;
+
+      top: -7px;
+      right: -5px;
+      z-index: 10;
+      color: var(--color-text-4);
+      background-color: var(--color-text-n8);
+      cursor: pointer;
+    }
+  }
+</style>

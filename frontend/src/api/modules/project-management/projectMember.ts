@@ -5,11 +5,13 @@ import {
   BatchRemoveMemberUrl,
   EditProjectMemberUrl,
   GetProjectMemberListUrl,
+  ProjectMemberCommentOptions,
   ProjectMemberOptions,
   ProjectUserGroupUrl,
   RemoveProjectMemberUrl,
 } from '@/api/requrls/project-management/projectMember';
 
+import { ReviewUserItem } from '@/models/caseManagement/caseReview';
 import type { CommonList, TableQueryParams } from '@/models/common';
 import type { ActionProjectMember, ProjectMemberItem } from '@/models/projectManagement/projectAndPermission';
 
@@ -49,4 +51,12 @@ export function getProjectUserGroup(projectId: string) {
 // 项目成员下拉选项
 export function getProjectMemberOptions(projectId: string, keyword?: string) {
   return MSR.get({ url: `${ProjectMemberOptions}/${projectId}`, params: { keyword } });
+}
+
+// 项目成员-@成员下拉选项
+export function getProjectMemberCommentOptions(projectId: string, keyword?: string) {
+  return MSR.get<ReviewUserItem[]>({
+    url: `${ProjectMemberCommentOptions}/${projectId}`,
+    params: { keyword },
+  });
 }

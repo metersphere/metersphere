@@ -360,10 +360,8 @@
     },
   ];
 
-  const getTableList = computed(() => props.getTableFunc);
-
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
-    getTableList.value,
+    props.getTableFunc,
     {
       columns,
       showSetting: false,

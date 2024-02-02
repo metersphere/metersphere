@@ -1,121 +1,113 @@
 <template>
-  <MsCard ref="fullRef" :special-height="132" :is-fullscreen="isFullScreen" simple>
-    <div id="mscard">
-      <div class="mb-[16px] flex items-center justify-between">
-        <div class="font-medium text-[var(--color-text-000)]">{{ t('project.messageManagement.config') }}</div>
-        <div>
-          <MsSelect
-            v-model:model-value="robotFilters"
-            :options="robotOptions"
-            :allow-search="false"
-            allow-clear
-            class="mr-[8px] w-[240px]"
-            :prefix="t('project.messageManagement.robot')"
-            :multiple="true"
-            :has-all-select="true"
-            :default-all-select="true"
-            :popup-container="isFullScreen ? '#mscard' : undefined"
-          >
-            <template #footer>
-              <div class="mb-[6px] mt-[4px] p-[3px_8px]">
-                <MsButton v-permission="['PROJECT_MESSAGE:READ+ADD']" type="text" @click="emit('createRobot')">
-                  <MsIcon type="icon-icon_add_outlined" class="mr-[8px] text-[rgb(var(--primary-6))]" size="14" />
-                  {{ t('project.messageManagement.createBot') }}
-                </MsButton>
-              </div>
-            </template>
-          </MsSelect>
-          <a-button type="outline" class="arco-btn-outline--secondary px-[5px]" @click="toggleFullScreen">
-            <template #icon>
-              <MsIcon
-                :type="isFullScreen ? 'icon-icon_off_screen' : 'icon-icon_full_screen_one'"
-                class="text-[var(--color-text-4)]"
-                size="14"
-              />
-            </template>
-            {{ t(isFullScreen ? 'common.offFullScreen' : 'common.fullScreen') }}
-          </a-button>
-        </div>
-      </div>
-      <ms-base-table
-        ref="tableRef"
-        v-bind="propsRes"
-        v-model:expandedKeys="expandedKeys"
-        no-disable
-        :indent-size="0"
-        v-on="propsEvent"
+  <MsCard
+    ref="fullRef"
+    :special-height="132"
+    show-full-screen
+    hide-back
+    hide-footer
+    @toggle-full-screen="handleToggleFullScreen"
+  >
+    <template #headerLeft>
+      <div class="font-medium text-[var(--color-text-000)]">{{ t('project.messageManagement.config') }}</div>
+    </template>
+    <template #headerRight>
+      <MsSelect
+        v-model:model-value="robotFilters"
+        :options="robotOptions"
+        :allow-search="false"
+        allow-clear
+        class="mr-[8px] !w-[240px]"
+        :prefix="t('project.messageManagement.robot')"
+        :multiple="true"
+        :has-all-select="true"
+        :default-all-select="true"
       >
-        <template #name="{ record }">
-          <span class="font-medium text-[var(--color-text-1)]">{{ record.name }}</span>
+        <template #footer>
+          <div class="mb-[6px] mt-[4px] p-[3px_8px]">
+            <MsButton v-permission="['PROJECT_MESSAGE:READ+ADD']" type="text" @click="emit('createRobot')">
+              <MsIcon type="icon-icon_add_outlined" class="mr-[8px] text-[rgb(var(--primary-6))]" size="14" />
+              {{ t('project.messageManagement.createBot') }}
+            </MsButton>
+          </div>
         </template>
-        <template #eventName="{ record }">
-          <span>{{ record.eventName || '' }}</span>
-        </template>
-        <template #receiver="{ record, dataIndex }">
-          <MsSelect
-            v-if="!record.children"
-            :id="`${record.taskType}-${record.event}`"
-            v-model:model-value="record.receivers"
-            v-model:loading="record.loading"
-            mode="remote"
-            :options="defaultReceivers"
-            :search-keys="['label']"
-            allow-search
-            :at-least-one="true"
-            value-key="id"
-            label-key="name"
-            :multiple="true"
-            :placeholder="t('project.messageManagement.receiverPlaceholder')"
-            :remote-extra-params="{ projectId: appStore.currentProjectId }"
-            :remote-func="getMessageUserList"
-            :remote-fields-map="{ label: 'name', value: 'id', id: 'id' }"
-            :not-auto-init-search="true"
-            :popup-container="isFullScreen ? '#mscard' : undefined"
-            :fallback-option="(val) => ({
+      </MsSelect>
+    </template>
+    <ms-base-table
+      ref="tableRef"
+      v-bind="propsRes"
+      v-model:expandedKeys="expandedKeys"
+      no-disable
+      :indent-size="0"
+      v-on="propsEvent"
+    >
+      <template #name="{ record }">
+        <span class="font-medium text-[var(--color-text-1)]">{{ record.name }}</span>
+      </template>
+      <template #eventName="{ record }">
+        <span>{{ record.eventName || '' }}</span>
+      </template>
+      <template #receiver="{ record, dataIndex }">
+        <MsSelect
+          v-if="!record.children"
+          v-model:model-value="record.receivers"
+          v-model:loading="record.loading"
+          class="w-full"
+          mode="remote"
+          :options="defaultReceivers"
+          :remote-filter-func="(opts) => getReceiverOptions(opts, record.event)"
+          :search-keys="['label']"
+          allow-search
+          :at-least-one="true"
+          value-key="id"
+          label-key="name"
+          :multiple="true"
+          :placeholder="t('project.messageManagement.receiverPlaceholder')"
+          :remote-extra-params="{ projectId: appStore.currentProjectId }"
+          :remote-func="getMessageUserList"
+          :remote-fields-map="{ label: 'name', value: 'id', id: 'id' }"
+          :not-auto-init-search="true"
+          :fallback-option="(val) => ({
               label: (val as Record<string, any>).name,
               value: val,
             })"
-            :object-value="true"
-            @remove="changeMessageReceivers(false, record, dataIndex as string)"
-            @popup-visible-change="changeMessageReceivers($event, record, dataIndex as string)"
+          :object-value="true"
+          @remove="changeMessageReceivers(false, record, dataIndex as string)"
+          @popup-visible-change="changeMessageReceivers($event, record, dataIndex as string)"
+        />
+        <span v-else></span>
+      </template>
+      <template #robot="{ record, dataIndex }">
+        <div v-if="!record.children && record.projectRobotConfigMap?.[dataIndex as string]" class="flex items-center">
+          <a-switch
+            v-model:model-value="record.projectRobotConfigMap[dataIndex as string].enable"
+            v-permission="['PROJECT_MESSAGE:READ+UPDATE']"
+            :before-change="(val) => handleChangeIntercept(!!val, record, dataIndex as string)"
+            size="small"
+            type="line"
           />
-          <span v-else></span>
-        </template>
-        <template #robot="{ record, dataIndex }">
-          <div v-if="!record.children && record.projectRobotConfigMap?.[dataIndex as string]" class="flex items-center">
-            <a-switch
-              v-model:model-value="record.projectRobotConfigMap[dataIndex as string].enable"
-              v-permission="['PROJECT_MESSAGE:READ+UPDATE']"
-              :before-change="(val) => handleChangeIntercept(!!val, record, dataIndex as string)"
-              size="small"
-              type="line"
-            />
-            <a-popover position="right" :popup-container="isFullScreen ? '#mscard' : undefined">
-              <div
-                class="ml-[8px] mr-[4px] cursor-pointer text-[var(--color-text-1)] hover:text-[rgb(var(--primary-6))]"
-              >
-                {{ t('common.preview') }}
-              </div>
-              <template #content>
-                <MessagePreview
-                  :robot="record.projectRobotConfigMap[dataIndex as string]"
-                  :function-name="record.functionName"
-                  :event-name="record.eventName"
-                />
-              </template>
-            </a-popover>
-            <MsButton
-              v-permission="['PROJECT_MESSAGE:READ+UPDATE']"
-              v-xpack
-              type="button"
-              @click="editRobot(record, dataIndex as string)"
-              >{{ t('common.setting') }}</MsButton
-            >
-          </div>
-          <span v-else></span>
-        </template>
-      </ms-base-table>
-    </div>
+          <a-popover position="right">
+            <div class="ml-[8px] mr-[4px] cursor-pointer text-[var(--color-text-1)] hover:text-[rgb(var(--primary-6))]">
+              {{ t('common.preview') }}
+            </div>
+            <template #content>
+              <MessagePreview
+                :robot="record.projectRobotConfigMap[dataIndex as string]"
+                :function-name="record.functionName"
+                :event-name="record.eventName"
+              />
+            </template>
+          </a-popover>
+          <MsButton
+            v-permission="['PROJECT_MESSAGE:READ+UPDATE']"
+            v-xpack
+            type="button"
+            @click="editRobot(record, dataIndex as string)"
+            >{{ t('common.setting') }}</MsButton
+          >
+        </div>
+        <span v-else></span>
+      </template>
+    </ms-base-table>
   </MsCard>
 </template>
 
@@ -139,7 +131,6 @@
     getRobotList,
     saveMessageConfig,
   } from '@/api/modules/project-management/messageManagement';
-  import useFullScreen from '@/hooks/useFullScreen';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
@@ -157,9 +148,6 @@
 
   const robotFilters = ref<string[]>([]);
   const robotOptions = ref<(SelectOptionData & RobotItem)[]>([]);
-  const fullRef = ref<HTMLElement | null>();
-
-  const { isFullScreen, toggleFullScreen } = useFullScreen(fullRef);
 
   const tableRef = ref<InstanceType<typeof MsBaseTable> | null>(null);
   const staticColumns: MsTableColumn = [
@@ -219,6 +207,7 @@
   );
 
   const expandedKeys = ref<string[]>([]);
+  const heightUsed = ref(428);
 
   interface TableMessageChildrenItem {
     functionName: string;
@@ -243,7 +232,7 @@
       showPagination: false,
       hoverable: false,
       showExpand: true,
-      heightUsed: 50,
+      heightUsed: heightUsed.value,
       rowKey: 'key',
       rowClass: (record: TableMessageItem) => {
         if (record.children) {
@@ -302,6 +291,10 @@
     }
   );
 
+  function handleToggleFullScreen(val: boolean) {
+    propsRes.value.heightUsed = val ? 224 : 428;
+  }
+
   function spanMethod(data: {
     record: TableData;
     column: TableColumnData | TableOperationColumn;
@@ -324,6 +317,14 @@
       label: e.name,
       ...e,
     }));
+  }
+
+  function getReceiverOptions(options, event: string) {
+    if (event === 'CREATE') {
+      // 创建事件的接收人不包含操作人、创建人、关注人
+      return options.filter((e) => !['OPERATOR', 'CREATE_USER', 'FOLLOW_PEOPLE'].includes(e.id));
+    }
+    return options;
   }
 
   async function initRobotList() {

@@ -34,7 +34,9 @@
           @popup-visible-change="handleFilterHidden"
         >
           <a-button type="text" class="arco-btn-text--secondary p-[8px_4px]" @click="statusFilterVisible = true">
-            {{ t(columnConfig.title as string) }}
+            <div class="font-medium">
+              {{ t(columnConfig.title as string) }}
+            </div>
             <icon-down :class="statusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
           </a-button>
           <template #content>
@@ -101,10 +103,10 @@
         <MsButton type="text" class="!mr-0" @click="() => editReview(record)">
           {{ t('common.edit') }}
         </MsButton>
-        <a-divider direction="vertical" :margin="8"></a-divider>
+        <!-- <a-divider direction="vertical" :margin="8"></a-divider>
         <MsButton type="text" class="!mr-0">
           {{ t('common.export') }}
-        </MsButton>
+        </MsButton> -->
         <a-divider direction="vertical" :margin="8"></a-divider>
         <MsTableMoreAction :list="getMoreAction(record.status)" @select="handleMoreActionSelect($event, record)" />
       </template>
@@ -169,6 +171,7 @@
   import ModuleTree from './moduleTree.vue';
 
   import { getReviewList, getReviewUsers } from '@/api/modules/case-management/caseReview';
+  import { getProjectMemberCommentOptions } from '@/api/modules/project-management/projectMember';
   import { reviewStatusMap } from '@/config/caseManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
@@ -211,8 +214,12 @@
 
   onBeforeMount(async () => {
     try {
-      const res = await getReviewUsers(appStore.currentProjectId, keyword.value);
-      const userOptions = res.map((e) => ({ label: e.name, value: e.id }));
+      const [userRes, memberRes] = await Promise.all([
+        getReviewUsers(appStore.currentProjectId, keyword.value),
+        getProjectMemberCommentOptions(appStore.currentProjectId, keyword.value),
+      ]);
+      const userOptions = userRes.map((e) => ({ label: e.name, value: e.id }));
+      const memberOptions = memberRes.map((e) => ({ label: e.name, value: e.id }));
       filterConfigList.value = [
         {
           title: 'ID',
@@ -293,7 +300,7 @@
           type: FilterType.SELECT,
           selectProps: {
             mode: 'static',
-            options: userOptions,
+            options: memberOptions,
           },
         },
         {
@@ -341,6 +348,10 @@
       dataIndex: 'num',
       slotName: 'num',
       sortIndex: 1,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
       showTooltip: true,
       width: 100,
     },
@@ -382,16 +393,13 @@
       title: 'caseManagement.caseReview.reviewer',
       slotName: 'reviewers',
       dataIndex: 'reviewers',
-      sortable: {
-        sortDirections: ['ascend', 'descend'],
-        sorter: true,
-      },
       width: 150,
     },
     {
       title: 'caseManagement.caseReview.creator',
-      dataIndex: 'createUser',
-      width: 90,
+      dataIndex: 'createUserName',
+      showTooltip: true,
+      width: 120,
     },
     {
       title: 'caseManagement.caseReview.module',
@@ -402,7 +410,7 @@
       title: 'caseManagement.caseReview.tag',
       dataIndex: 'tags',
       isTag: true,
-      width: 300,
+      width: 170,
     },
     {
       title: 'caseManagement.caseReview.desc',
@@ -420,11 +428,11 @@
       slotName: 'action',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 150,
+      width: 110,
     },
   ];
   const tableStore = useTableStore();
-  tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_REVIEW, columns, 'drawer');
+  await tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_REVIEW, columns, 'drawer');
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
     getReviewList,
     {
@@ -438,9 +446,12 @@
         ...item,
         tags: (item.tags || []).map((e: string) => ({ id: e, name: e })),
         reviewers: item.reviewers.map((e: ReviewDetailReviewersItem) => e.userName),
-        cycle: `${dayjs(item.startTime).format('YYYY-MM-DD HH:mm:ss')} - ${dayjs(item.endTime).format(
-          'YYYY-MM-DD HH:mm:ss'
-        )}`,
+        cycle:
+          item.startTime && item.endTime
+            ? `${dayjs(item.startTime).format('YYYY-MM-DD HH:mm:ss')} - ${dayjs(item.endTime).format(
+                'YYYY-MM-DD HH:mm:ss'
+              )}`
+            : '',
       };
     }
   );

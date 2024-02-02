@@ -253,11 +253,20 @@
 
   const avatarModalVisible = ref(false);
   const avatarList = ref<string[]>([]);
-  let i = 1;
-  while (i <= 46) {
-    avatarList.value.push(`/images/avatar/avatar-${i}.jpg`);
-    i++;
-  }
+
+  watch(
+    () => avatarModalVisible.value,
+    (val) => {
+      if (val && avatarList.value.length === 0) {
+        // 初始化头像列表，避免一开始就加载所有头像
+        let i = 1;
+        while (i <= 46) {
+          avatarList.value.push(`/images/avatar/avatar-${i}.jpg`);
+          i++;
+        }
+      }
+    }
+  );
 
   function changeAvatar(avatar: string) {
     activeAvatar.value = avatar;

@@ -38,7 +38,7 @@
     {
       key: 'memoryCleanup',
       title: t('system.config.memoryCleanup'),
-      permission: ['SYSTEM_PARAMETER_SETTING_MEMORY_CLEAN:READ'],
+      permission: ['SYSTEM_PARAMETER_SETTING_MEMORY_CLEAN:READ+UPDATE'],
     },
   ]);
 

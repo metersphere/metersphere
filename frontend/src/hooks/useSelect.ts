@@ -30,33 +30,27 @@ export default function useSelect(config: UseSelectOption) {
    * 计算最大标签数量
    * @param options 选择器的选项
    */
-  function calculateMaxTag(options?: CascaderOption[] | SelectOptionData[]) {
-    nextTick(() => {
-      if (config.selectRef.value && selectViewInner.value && Array.isArray(config.selectVal.value)) {
-        if (maxTagCount.value >= 1 && config.selectVal.value.length > maxTagCount.value) return; // 已经超过最大数量的展示，不需要再计算
+  function calculateMaxTag() {
+    setTimeout(() => {
+      if (config.selectRef.value && selectViewInner.value) {
         const innerViewWidth = selectViewInner.value?.getBoundingClientRect().width;
         let lastWidth = innerViewWidth - 60; // 60px 是“+N”的标签宽度+聚焦输入框的宽度
-        let tagCount = 0;
-        const values = Object.values(config.selectVal.value);
-        for (let i = 0; i < values.length; i++) {
-          const option = options?.find((e) => e[config.valueKey || 'value'] === values[i]);
-          const tagWidth = (option ? option[config.labelKey || 'label']?.length || 0 : values[i].length) * 12; // 计算每个标签渲染出来的宽度，文字大小在12px时宽度也是 12px
-
-          if (lastWidth > tagWidth + 36) {
-            tagCount += 1;
-            lastWidth -= tagWidth + 36; // 36px是标签的边距、边框等宽度
-          } else {
-            lastWidth = 0; // 当剩余宽度已经放不下刚添加的标签，则剩余宽度置为 0，避免后面再进行计算
-            break;
+        const childrenNodes = selectViewInner.value.children;
+        if (maxTagCount.value >= 1 && maxTagCount.value < config.selectVal.value.length) {
+          return;
+        }
+        for (let i = 0; i < childrenNodes.length; i++) {
+          const child = childrenNodes[i];
+          if (child.classList.contains('arco-tag')) {
+            lastWidth -= child.clientWidth - 6; // 6px 是标签的边距、边框等宽度
           }
-        }
-        if (lastWidth === 0) {
-          maxTagCount.value = tagCount || 1;
-        }
-        if (tagCount <= 1 && values.length > 0) {
-          singleTagMaxWidth.value = innerViewWidth - 100; // 100px 是 60px + 标签边距边框和 x 图标等40px
-        } else {
-          singleTagMaxWidth.value = 0;
+          if (lastWidth < 30) {
+            // 30px 是隐藏的输入搜索框的宽度+边距+容错宽度
+            maxTagCount.value = Math.max(1, i - 1);
+            break;
+          } else {
+            maxTagCount.value = Infinity;
+          }
         }
       }
     });

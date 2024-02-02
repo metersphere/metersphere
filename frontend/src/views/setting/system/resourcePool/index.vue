@@ -11,6 +11,7 @@
         allow-clear
         @search="searchPool"
         @press-enter="searchPool"
+        @clear="searchPool"
       ></a-input-search>
     </div>
     <ms-base-table v-bind="propsRes" no-disable v-on="propsEvent">
@@ -88,6 +89,7 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import { TagType, Theme } from '@/components/pure/ms-tag/ms-tag.vue';
   import JobTemplateDrawer from './components/jobTemplateDrawer.vue';
 
   import { delPoolInfo, getPoolInfo, getPoolList, togglePoolStatus } from '@/api/modules/setting/resourcePool';
@@ -142,7 +144,7 @@
     },
   ];
   const tableStore = useTableStore();
-  tableStore.initColumn(TableKeyEnum.SYSTEM_RESOURCEPOOL, columns, 'drawer');
+  await tableStore.initColumn(TableKeyEnum.SYSTEM_RESOURCEPOOL, columns, 'drawer');
   const { propsRes, propsEvent, loadList, setKeyword } = useTable(getPoolList, {
     tableKey: TableKeyEnum.SYSTEM_RESOURCEPOOL,
     columns,
@@ -257,8 +259,8 @@
   }
 
   const showDetailDrawer = ref(false);
-  const activePoolDesc: Ref<Description[]> = ref([]);
-  const activePool: Ref<ResourcePoolDetail | null> = ref(null);
+  const activePoolDesc = ref<Description[]>([]);
+  const activePool = ref<ResourcePoolDetail | null>(null);
   const showJobDrawer = ref(false);
   const drawerLoading = ref(false);
   /**
@@ -301,6 +303,9 @@
                 {
                   label: t('system.resourcePool.detailResources'),
                   value: nodesList?.map((e) => `${e.ip},${e.port},${e.monitor},${e.concurrentNumber}`),
+                  tagTheme: 'light' as Theme,
+                  tagType: 'default' as TagType,
+                  tagMaxWidth: '280px',
                   isTag: true,
                 },
               ]
@@ -402,10 +407,14 @@
               ? [t('system.resourcePool.orgAll')]
               : activePool.value.testResourceReturnDTO.orgIdNameMap.map((e) => e.name),
             isTag: true,
+            tagTheme: 'light',
+            tagType: 'default',
           },
           {
             label: t('system.resourcePool.detailUse'),
             value: poolUses.filter((e) => e !== ''),
+            tagTheme: 'light',
+            tagType: 'default',
             isTag: true,
           },
           ...performanceDesc,
@@ -416,6 +425,7 @@
         ];
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       drawerLoading.value = false;

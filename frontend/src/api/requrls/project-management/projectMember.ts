@@ -6,3 +6,4 @@ export const RemoveProjectMemberUrl = '/project/member/remove';
 export const BatchAddUserGroup = '/project/member/add-role';
 export const ProjectUserGroupUrl = '/project/member/get-role/option';
 export const ProjectMemberOptions = '/project/member/get-member/option';
+export const ProjectMemberCommentOptions = '/project/member/comment/user-option'; // 项目成员-@成员下拉列表

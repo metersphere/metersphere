@@ -18,7 +18,7 @@
       type="button"
     >
       <a-radio v-for="(option, i) of group.options || []" :key="`option${i}`" :value="option.value">
-        {{ t(option.label) }}
+        {{ t(option.label || '') }}
       </a-radio>
     </a-radio-group>
     <a-date-picker

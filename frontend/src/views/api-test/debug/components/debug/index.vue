@@ -26,14 +26,11 @@
           @change="handleActiveDebugChange"
         />
         <a-input-group class="flex-1">
-          <a-select v-model:model-value="activeDebug.method" class="w-[140px]" @change="handleActiveDebugChange">
-            <template #label="{ data }">
-              <apiMethodName :method="data.value" class="inline-block" />
-            </template>
-            <a-option v-for="method of RequestMethods" :key="method" :value="method">
-              <apiMethodName :method="method" />
-            </a-option>
-          </a-select>
+          <apiMethodSelect
+            v-model:model-value="activeDebug.method"
+            class="w-[140px]"
+            @change="handleActiveDebugChange"
+          />
           <a-input
             v-model:model-value="activeDebug.url"
             :max-length="255"
@@ -198,6 +195,7 @@
   import debugRest from './rest.vue';
   import debugSetting from './setting.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
+  import apiMethodSelect from '@/views/api-test/components/apiMethodSelect.vue';
 
   import { useI18n } from '@/hooks/useI18n';
   import { registerCatchSaveShortcut, removeCatchSaveShortcut } from '@/utils/event';

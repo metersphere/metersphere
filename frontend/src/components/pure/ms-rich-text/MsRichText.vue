@@ -514,6 +514,15 @@
         margin-top: 0;
       }
     }
+    :deep(.halo-rich-text-editor) {
+      padding: 16px 24px !important;
+      .editor-header {
+        justify-content: start !important;
+      }
+      p:first-child {
+        margin-top: 0;
+      }
+    }
   }
   :deep(.editor-header) {
     svg {

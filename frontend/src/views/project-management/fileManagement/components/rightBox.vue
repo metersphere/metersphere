@@ -1,9 +1,9 @@
 <template>
-  <div class="flex h-[calc(100vh-88px)] flex-col overflow-hidden p-[24px]">
+  <div class="flex h-[calc(100vh-88px)] flex-col p-[24px]">
     <div class="header">
-      <a-button v-permission="['PROJECT_FILE_MANAGEMENT:READ+ADD']" type="primary" @click="handleAddClick">{{
-        t('project.fileManagement.addFile')
-      }}</a-button>
+      <a-button v-permission="['PROJECT_FILE_MANAGEMENT:READ+ADD']" type="primary" @click="handleAddClick">
+        {{ t('project.fileManagement.addFile') }}
+      </a-button>
       <div class="header-right">
         <a-select v-model="tableFileType" class="w-[240px]" :loading="fileTypeLoading" @change="searchList">
           <template #prefix>
@@ -21,6 +21,7 @@
           class="w-[240px]"
           @search="searchList"
           @press-enter="searchList"
+          @clear="searchList"
         />
         <a-radio-group
           v-if="props.activeFolderType === 'folder'"
@@ -113,7 +114,7 @@
             :type="item.fileType"
             :url="`${CompressImgUrl}/${userStore.id}/${item.id}`"
             :footer-text="item.name"
-            :more-actions="item.fileType === 'JAR' ? getJarFileActions(item) : normalFileActions"
+            :more-actions="item.fileType === 'jar' ? getJarFileActions(item) : normalFileActions"
             @click="openFileDetail(item.id, index)"
             @action-select="handleMoreActionSelect($event, item)"
           />
@@ -241,6 +242,7 @@
         :rules="[{ required: true, message: t('project.fileManagement.gitFilePathNotNull') }]"
         required
         asterisk-position="end"
+        class="mb-0"
       >
         <a-input
           v-model:model-value="storageForm.path"
@@ -356,6 +358,7 @@
   import useAsyncTaskStore from '@/store/modules/app/asyncTask';
   import useUserStore from '@/store/modules/user';
   import { characterLimit, downloadByteFile, formatFileSize } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { FileItem, FileListQueryParams, Repository } from '@/models/projectManagement/file';
   import { RouteEnum } from '@/enums/routeEnum';
@@ -444,7 +447,7 @@
         },
       ];
     }
-    return [
+    const normalActions = [
       {
         label: 'project.fileManagement.move',
         eventTag: 'move',
@@ -458,10 +461,20 @@
         danger: true,
       },
     ];
+    if (showType.value === 'card') {
+      return [
+        {
+          label: 'project.fileManagement.download',
+          eventTag: 'download',
+        },
+        ...normalActions,
+      ];
+    }
+    return normalActions;
   });
 
   function getJarFileActions(record: FileItem) {
-    const jarFileActions: ActionsItem[] = [
+    let jarFileActions: ActionsItem[] = [
       {
         label: 'project.fileManagement.move',
         eventTag: 'move',
@@ -483,10 +496,24 @@
         danger: true,
       },
     ];
-    if (record.enable) {
-      return jarFileActions.filter((e) => e.label !== 'common.enable');
+    if (showType.value === 'card') {
+      jarFileActions = [
+        {
+          label: 'project.fileManagement.download',
+          eventTag: 'download',
+        },
+        ...jarFileActions,
+      ];
     }
-    return jarFileActions.filter((e) => e.label !== 'common.disable');
+    if (record.storage === 'GIT') {
+      jarFileActions = jarFileActions.filter((e) => e.eventTag !== 'move');
+    }
+    if (record.enable) {
+      jarFileActions = jarFileActions.filter((e) => e.label !== 'common.enable');
+    } else if (record.enable === false) {
+      jarFileActions = jarFileActions.filter((e) => e.label !== 'common.disable');
+    }
+    return jarFileActions;
   }
 
   const columns: MsTableColumn = [
@@ -494,6 +521,7 @@
       title: 'project.fileManagement.name',
       slotName: 'name',
       dataIndex: 'name',
+      fixed: 'left',
       width: 270,
     },
     {
@@ -515,7 +543,7 @@
     },
     {
       title: 'project.fileManagement.creator',
-      dataIndex: 'creator',
+      dataIndex: 'createUser',
       showTooltip: true,
       width: 120,
     },
@@ -544,12 +572,13 @@
     },
   ];
   const tableStore = useTableStore();
+  await tableStore.initColumn(TableKeyEnum.FILE_MANAGEMENT_FILE, columns, 'drawer');
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, resetPagination } = useTable(
     getFileList,
     {
       tableKey: TableKeyEnum.FILE_MANAGEMENT_FILE,
       showSetting: true,
-      selectable: true,
+      selectable: !!hasAnyPermission(['PROJECT_FILE_MANAGEMENT:READ+DOWNLOAD+UPDATE+DELETE']),
       showSelectAll: true,
     },
     (item) => {
@@ -809,6 +838,7 @@
    */
   async function changeFileType() {
     await initFileTypes();
+    resetSelector();
     setTableParams();
     if (showType.value === 'card') {
       cardListRef.value?.reload();
@@ -937,6 +967,9 @@
         break;
       case 'toggle':
         toggleJarFile(record);
+        break;
+      case 'download':
+        handleDownload(record);
         break;
       default:
         break;

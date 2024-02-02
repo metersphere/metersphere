@@ -664,7 +664,6 @@
     },
   ];
   const tableStore = useTableStore();
-  tableStore.initColumn(TableKeyEnum.SYSTEM_AUTH, columns, 'drawer');
   const { propsRes, propsEvent, loadList } = useTable(getAuthList, {
     tableKey: TableKeyEnum.SYSTEM_AUTH,
     columns,
@@ -1193,6 +1192,7 @@
   >;
 
   export declare type AuthConfigInstance = InstanceType<typeof _default>;
+  await tableStore.initColumn(TableKeyEnum.SYSTEM_AUTH, columns, 'drawer');
 </script>
 
 <style lang="less" scoped></style>

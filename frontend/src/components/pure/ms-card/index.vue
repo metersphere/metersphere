@@ -6,7 +6,7 @@
         'ms-card',
         'relative',
         'h-full',
-        props.isFullscreen || isFullScreen ? 'ms-card--no-radius' : '',
+        props.isFullscreen || isFullScreen ? 'ms-card--fullScreen' : '',
         props.autoHeight ? '' : 'min-h-[500px]',
         props.noContentPadding ? 'ms-card--noContentPadding' : 'p-[24px]',
         props.noBottomRadius ? 'ms-card--noBottomRadius' : '',
@@ -23,7 +23,7 @@
             <slot name="headerRight"></slot>
             <div
               v-if="props.showFullScreen"
-              class="w-[96px] cursor-pointer text-right !text-[var(--color-text-4)]"
+              class="cursor-pointer text-right !text-[var(--color-text-4)]"
               @click="toggleFullScreen"
             >
               <MsIcon v-if="isFullScreen" type="icon-icon_minify_outlined" />
@@ -48,8 +48,8 @@
       </div>
       <div
         v-if="!props.hideFooter && !props.simple"
-        class="fixed bottom-0 right-[16px] z-[100] flex items-center bg-white p-[24px] shadow-[0_-1px_4px_rgba(2,2,2,0.1)]"
-        :style="{ width: `calc(100% - ${menuWidth + 16}px)` }"
+        class="ms-card-footer"
+        :style="{ width: props.isFullscreen || isFullScreen ? '100%' : `calc(100% - ${menuWidth + 16}px)` }"
       >
         <div class="ml-0 mr-auto">
           <slot name="footerLeft"></slot>
@@ -71,7 +71,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed } from 'vue';
+  import { computed, watch } from 'vue';
   import { useRouter } from 'vue-router';
 
   import useFullScreen from '@/hooks/useFullScreen';
@@ -119,7 +119,7 @@
     }
   );
 
-  const emit = defineEmits(['saveAndContinue', 'save']);
+  const emit = defineEmits(['saveAndContinue', 'save', 'toggleFullScreen']);
 
   const router = useRouter();
   const { t } = useI18n();
@@ -134,9 +134,27 @@
   const fullRef = ref<HTMLElement | null>();
   const { isFullScreen, toggleFullScreen } = useFullScreen(fullRef);
 
+  watch(
+    () => isFullScreen.value,
+    (val) => {
+      emit('toggleFullScreen', val);
+    }
+  );
+
   const _specialHeight = props.hasBreadcrumb ? 32 + props.specialHeight : props.specialHeight; // 有面包屑的话，默认面包屑高度32
 
   const cardOverHeight = computed(() => {
+    if (isFullScreen.value) {
+      if (props.simple) {
+        // 简单模式没有标题、没有底部
+        return props.noContentPadding ? 0 : 48;
+      }
+      if (props.hideFooter) {
+        // 隐藏底部
+        return props.noContentPadding ? 88 : 118;
+      }
+      return 246;
+    }
     if (props.simple) {
       // 简单模式没有标题、没有底部
       return props.noContentPadding ? 88 + _specialHeight : 136 + _specialHeight;
@@ -153,7 +171,7 @@
       return {
         overflow: 'auto',
         width: 'auto',
-        height: 'auto',
+        height: props.autoHeight ? 'auto' : `calc(100vh - ${cardOverHeight.value}px)`,
       };
     }
     if (props.noContentPadding) {
@@ -218,10 +236,27 @@
       }
     }
     .ms-card-container {
-      @apply h-full;
+      @apply relative;
+    }
+    .ms-card-footer {
+      @apply fixed justify-between bg-white;
+
+      right: 16px;
+      bottom: 0;
+      z-index: 100;
+      padding: 24px;
+      border-bottom: 0;
+
+      --tw-shadow: 0 -1px 4px rgb(2 2 2 / 10%);
+      --tw-shadow-colored: 0 -1px 4px var(--tw-shadow-color);
+
+      box-shadow: var(--tw-ring-offset-shadow, 0 0 #00000000), var(--tw-ring-shadow, 0 0 #00000000), var(--tw-shadow);
     }
   }
-  .ms-card--no-radius {
+  .ms-card--fullScreen {
     border-radius: 0;
+    .ms-card-footer {
+      @apply left-0 right-0 w-full;
+    }
   }
 </style>

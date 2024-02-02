@@ -16,6 +16,7 @@
     }"
     @change="handleChange"
     @before-upload="beforeUpload"
+    @exceed-limit="() => Message.warning(t('ms.upload.overLimit', { limit: props.limit }))"
   >
     <template #upload-button>
       <slot>
@@ -23,8 +24,8 @@
           <div class="ms-upload-icon-box">
             <MsIcon
               v-if="props.accept !== UploadAcceptEnum.none"
-              :type="FileIconMap[props.accept][UploadStatus.done]"
-              class="ms-upload-icon"
+              :type="fileIconType"
+              class="ms-upload-icon text-[var(--color-text-4)]"
             />
             <div v-else class="ms-upload-icon ms-upload-icon--default"></div>
           </div>
@@ -69,7 +70,7 @@
 
   import { UploadAcceptEnum, UploadStatus } from '@/enums/uploadEnum';
 
-  import { FileIconMap } from './iconMap';
+  import { FileIconMap, getFileIcon } from './iconMap';
   import type { MsFileItem, UploadType } from './types';
 
   const { t } = useI18n();
@@ -92,6 +93,7 @@
     isAllScreen?: boolean; // 是否是全屏显示拖拽上传
     cutHeight: number; // 被剪切高度
     fileTypeTip?: string; // 上传文件类型错误提示
+    limit: number; // 限制上传文件数量
   }> & {
     accept: UploadType;
     fileList: MsFileItem[];
@@ -123,6 +125,15 @@
       emit('update:fileList', val);
     }
   );
+
+  const fileIconType = computed(() => {
+    // 单选并且选了文件，按文件类型展示图标(单选文件选择后直接展示绿色图标)
+    if (fileList.value.length > 0 && !props.multiple) {
+      return getFileIcon(fileList.value[0], UploadStatus.done);
+    }
+    // 多选直接按照类型展示
+    return FileIconMap[props.accept][UploadStatus.init];
+  });
 
   async function beforeUpload(file: File) {
     if (!props.multiple && fileList.value.length > 0) {

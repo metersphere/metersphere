@@ -16,7 +16,7 @@
       <div>XXXXXX <span>(101)</span></div>
       <a-input-search
         v-model="keyword"
-        :max-length="250"
+        :max-length="255"
         :placeholder="t('project.member.searchMember')"
         allow-clear
         @search="searchHandler"

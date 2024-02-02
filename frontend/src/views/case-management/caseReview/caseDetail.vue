@@ -225,49 +225,7 @@
               />
             </a-tooltip>
           </div>
-          <a-form ref="dialogFormRef" :model="caseResultForm" layout="vertical">
-            <a-form-item field="reason" :label="t('caseManagement.caseReview.reviewResult')" class="mb-[8px]">
-              <a-radio-group v-model:model-value="caseResultForm.result" @change="() => dialogFormRef?.resetFields()">
-                <a-radio value="PASS">
-                  <div class="inline-flex items-center">
-                    <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--success-6))]" />
-                    {{ t('caseManagement.caseReview.pass') }}
-                  </div>
-                </a-radio>
-                <a-radio value="UN_PASS">
-                  <div class="inline-flex items-center">
-                    <MsIcon type="icon-icon_close_filled" class="mr-[4px] text-[rgb(var(--danger-6))]" />
-                    {{ t('caseManagement.caseReview.fail') }}
-                  </div>
-                </a-radio>
-                <a-radio value="UNDER_REVIEWED">
-                  <div class="inline-flex items-center">
-                    <MsIcon type="icon-icon_warning_filled" class="mr-[4px] text-[rgb(var(--warning-6))]" />
-                    {{ t('caseManagement.caseReview.suggestion') }}
-                  </div>
-                  <a-tooltip :content="t('caseManagement.caseReview.suggestionTip')" position="right">
-                    <icon-question-circle
-                      class="ml-[4px] mt-[2px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
-                      size="16"
-                    />
-                  </a-tooltip>
-                </a-radio>
-              </a-radio-group>
-            </a-form-item>
-            <a-form-item
-              field="reason"
-              :label="t('caseManagement.caseReview.reason')"
-              :rules="
-                caseResultForm.result === 'UN_PASS' || caseResultForm.result === 'UNDER_REVIEWED'
-                  ? [{ required: true, message: t('caseManagement.caseReview.reasonRequired') }]
-                  : []
-              "
-              asterisk-position="end"
-              class="mb-0"
-            >
-              <MsRichText v-model:raw="caseResultForm.reason" class="w-full" />
-            </a-form-item>
-          </a-form>
+          <reviewForm ref="dialogFormRef" />
           <a-button type="primary" class="mt-[16px]" :loading="submitReviewLoading" @click="submitReview">
             {{ t('caseManagement.caseReview.submitReview') }}
           </a-button>
@@ -292,7 +250,7 @@
    * @description 功能测试-用例评审-用例详情
    */
   import { useRoute, useRouter } from 'vue-router';
-  import { FormInstance, Message } from '@arco-design/web-vue';
+  import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
   import MSAvatar from '@/components/pure/ms-avatar/index.vue';
@@ -302,13 +260,13 @@
   import MsEmpty from '@/components/pure/ms-empty/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsPagination from '@/components/pure/ms-pagination/index';
-  import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
-  import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
+  import { MsFileItem } from '@/components/pure/ms-upload/types';
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import caseTemplateDetail from '../caseManagementFeature/components/caseTemplateDetail.vue';
   import caseTabDemand from '../caseManagementFeature/components/tabContent/tabDemand/associatedDemandTable.vue';
   import caseTabDetail from '../caseManagementFeature/components/tabContent/tabDetail.vue';
+  import reviewForm from './components/reviewForm.vue';
 
   import {
     getCaseReviewHistoryList,
@@ -324,6 +282,8 @@
   import { ReviewCaseItem, ReviewHistoryItem, ReviewItem, ReviewResult } from '@/models/caseManagement/caseReview';
   import type { DetailCase } from '@/models/caseManagement/featureCase';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
+
+  import { Instance } from 'tippy.js';
 
   const route = useRoute();
   const router = useRouter();
@@ -529,11 +489,7 @@
   );
 
   const autoNext = ref(false);
-  const caseResultForm = ref({
-    result: 'PASS' as ReviewResult,
-    reason: '',
-  });
-  const dialogFormRef = ref<FormInstance>();
+  const dialogFormRef = ref<InstanceType<typeof reviewForm>>();
   const demandKeyword = ref('');
   const caseDemandRef = ref<InstanceType<typeof caseTabDemand>>();
 
@@ -553,47 +509,46 @@
   const submitReviewLoading = ref(false);
   // 提交评审
   function submitReview() {
-    dialogFormRef.value?.validate(async (errors) => {
-      if (!errors) {
-        try {
-          submitReviewLoading.value = true;
-          const params = {
-            projectId: appStore.currentProjectId,
-            caseId: activeCaseId.value,
-            reviewId: route.query.id as string,
-            status: caseResultForm.value.result,
-            reviewPassRule: reviewDetail.value.reviewPassRule,
-            content: caseResultForm.value.reason,
-            notifier: '', // TODO: 通知人
-          };
-          await saveCaseReviewResult(params);
-          Message.success(t('caseManagement.caseReview.reviewSuccess'));
-          caseResultForm.value = {
-            result: 'PASS' as ReviewResult,
-            reason: '',
-          };
-          if (autoNext.value) {
-            // 自动下一个，更改激活的 id会刷新详情
-            const index = caseList.value.findIndex((e) => e.caseId === activeCaseId.value);
-            if (index < caseList.value.length - 1) {
-              activeCaseId.value = caseList.value[index + 1].caseId;
-            } else {
-              // 当前是最后一个，刷新数据
-              loadCaseDetail();
-              initReviewHistoryList();
-            }
+    dialogFormRef.value?.validateForm(async (caseResultForm: Record<string, any>) => {
+      try {
+        submitReviewLoading.value = true;
+        const params = {
+          projectId: appStore.currentProjectId,
+          caseId: activeCaseId.value,
+          reviewId: route.query.id as string,
+          status: caseResultForm.value.result,
+          reviewPassRule: reviewDetail.value.reviewPassRule,
+          content: caseResultForm.value.reason,
+          notifier: '', // TODO: 通知人
+        };
+        await saveCaseReviewResult(params);
+        Message.success(t('caseManagement.caseReview.reviewSuccess'));
+        caseResultForm.value = {
+          result: 'PASS' as ReviewResult,
+          reason: '',
+          fileList: [] as MsFileItem[],
+        };
+        if (autoNext.value) {
+          // 自动下一个，更改激活的 id会刷新详情
+          const index = caseList.value.findIndex((e) => e.caseId === activeCaseId.value);
+          if (index < caseList.value.length - 1) {
+            activeCaseId.value = caseList.value[index + 1].caseId;
           } else {
-            // 不自动下一个才请求详情
+            // 当前是最后一个，刷新数据
             loadCaseDetail();
             initReviewHistoryList();
           }
-          loadCaseList();
-        } catch (error) {
-          // eslint-disable-next-line no-console
-          console.log(error);
-        } finally {
-          submitReviewLoading.value = false;
+        } else {
+          // 不自动下一个才请求详情
+          loadCaseDetail();
+          initReviewHistoryList();
         }
+        loadCaseList();
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      } finally {
+        submitReviewLoading.value = false;
       }
     });
   }

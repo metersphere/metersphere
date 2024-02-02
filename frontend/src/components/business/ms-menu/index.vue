@@ -18,8 +18,6 @@
   import { openWindow, regexUrl } from '@/utils';
   import { listenerRouteChange } from '@/utils/route-listener';
 
-  import { WorkbenchRouteEnum } from '@/enums/routeEnum';
-
   import useMenuTree from './use-menu-tree';
   import type { RouteMeta } from 'vue-router';
 
@@ -125,15 +123,22 @@
 
       async function switchOrg(id: string) {
         try {
-          Message.loading(t('personal.switchOrgLoading'));
+          appStore.showLoading(t('personal.switchOrgLoading'));
           await switchUserOrg(id, userStore.id || '');
           switchOrgVisible.value = false;
-          Message.clear();
+          appStore.hideLoading();
           Message.success(t('personal.switchOrgSuccess'));
           personalMenusVisible.value = false;
           orgKeyword.value = '';
-          await router.replace({ name: WorkbenchRouteEnum.WORKBENCH });
-          userStore.isLogin();
+          await userStore.isLogin(true);
+          router.replace({
+            path: route.path,
+            query: {
+              ...route.query,
+              organizationId: appStore.currentOrgId,
+              projectId: appStore.currentProjectId,
+            },
+          });
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -212,7 +217,7 @@
         return (
           <a-trigger
             v-model:popup-visible={personalMenusVisible.value}
-            trigger="click"
+            trigger="hover"
             unmount-on-close={false}
             popup-offset={4}
             position="right"
@@ -309,7 +314,7 @@
             }}
           >
             <a-menu-item class="flex items-center justify-between" key="personalInfo">
-              <div class="flex items-center gap-[8px] hover:!bg-transparent">
+              <div class="relative flex items-center gap-[8px] hover:!bg-transparent">
                 <MsAvatar avatar={userStore.avatar} size={20} />
                 {userStore.name}
               </div>
@@ -427,6 +432,7 @@
           @apply !bg-transparent;
         }
         .arco-menu-icon {
+          margin-right: 8px;
           .arco-icon {
             &:not(.arco-icon-down) {
               font-size: 18px;
@@ -456,6 +462,9 @@
       }
       .arco-menu-pop {
         @apply bg-transparent;
+        &:hover {
+          background-color: rgb(var(--primary-1)) !important;
+        }
       }
     }
   }
@@ -464,6 +473,10 @@
   }
   .arco-menu-collapsed {
     width: 86px;
+    .arco-avatar,
+    .arco-icon {
+      margin-right: 2px !important;
+    }
   }
   .arco-menu {
     &:hover {
@@ -483,6 +496,9 @@
         color: rgb(var(--primary-5));
       }
     }
+  }
+  .arco-menu-item-tooltip {
+    @apply hidden;
   }
   .switch-org-dropdown {
     @apply absolute max-h-none;

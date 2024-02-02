@@ -92,7 +92,7 @@
   </div>
   <a-modal
     v-model:visible="timeModalVisible"
-    :title="t('ms.personal.changeAvatar')"
+    :title="t('ms.personal.setValidTime')"
     title-align="start"
     :ok-text="t('common.save')"
     class="ms-usemodal"

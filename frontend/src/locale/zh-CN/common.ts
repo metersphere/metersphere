@@ -77,6 +77,7 @@ export default {
   'common.expandAll': '展开全部',
   'common.copy': '复制',
   'common.copySuccess': '复制成功',
+  'common.copyNotSupport': '您的浏览器不支持自动复制，请手动复制',
   'common.fork': '关注',
   'common.forked': '已关注',
   'common.more': '更多',

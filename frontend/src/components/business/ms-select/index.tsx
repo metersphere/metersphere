@@ -36,9 +36,13 @@ export interface MsSearchSelectProps {
   triggerProps?: TriggerProps; // 触发器属性
   loading?: boolean; // 加载状态
   fallbackOption?: boolean | ((value: string | number | boolean | Record<string, unknown>) => SelectOptionData); // 自定义值中不存在的选项
+  shouldCalculateMaxTag?: boolean; // 是否需要计算最大展示选项数量
+  disabled?: boolean; // 是否禁用
+  size?: 'mini' | 'small' | 'medium' | 'large'; // 尺寸
   remoteFunc?(params: Record<string, any>): Promise<any>; // 远程模式下的请求函数，返回一个 Promise
   optionLabelRender?: (item: SelectOptionData) => string; // 自定义 option 的 label 渲染，返回一个 html 字符串，默认使用 item.label
   optionTooltipContent?: (item: SelectOptionData) => string; // 自定义 option 的 tooltip 内容，返回一个字符串，默认使用 item.label
+  remoteFilterFunc?: (options: SelectOptionData[]) => SelectOptionData[]; // 自定义过滤函数，会在远程请求返回数据后执行
 }
 export interface RadioProps {
   options: SelectOptionData[];
@@ -61,6 +65,8 @@ export default defineComponent(
     const { t } = useI18n();
 
     const innerValue = ref(props.modelValue);
+    const inputValue = ref('');
+    const tempInputValue = ref('');
     const filterOptions = ref<SelectOptionData[]>([...props.options]); // 实际渲染的 options，会根据搜索关键字进行过滤
     const remoteOriginOptions = ref<SelectOptionData[]>([...props.options]); // 远程模式下的原始 options，接口返回的数据会存储在这里
 
@@ -68,7 +74,7 @@ export default defineComponent(
     const { maxTagCount, getOptionComputedStyle, singleTagMaxWidth, calculateMaxTag } = useSelect({
       selectRef,
       selectVal: innerValue,
-      isCascade: true,
+      isCascade: false,
       valueKey: props.valueKey,
       labelKey: props.labelKey,
     });
@@ -77,8 +83,8 @@ export default defineComponent(
       () => props.modelValue,
       (val) => {
         innerValue.value = val;
-        if (Array.isArray(val) && val.length > 0 && props.multiple) {
-          calculateMaxTag(remoteOriginOptions.value);
+        if (props.shouldCalculateMaxTag !== false && props.multiple) {
+          calculateMaxTag();
         }
       },
       {
@@ -139,6 +145,9 @@ export default defineComponent(
               return item;
             }
           );
+          if (props.remoteFilterFunc && typeof props.remoteFilterFunc === 'function') {
+            remoteOriginOptions.value = props.remoteFilterFunc(remoteOriginOptions.value);
+          }
           emit('remoteSearch', remoteOriginOptions.value);
         }
         if (val.trim() === '') {
@@ -161,10 +170,10 @@ export default defineComponent(
               for (let i = 0; i < props.searchKeys.length; i++) {
                 // 遍历传入的搜索字段
                 const key = props.searchKeys[i];
-                if (e[key].includes(val)) {
+                if (e[key]?.toLowerCase().includes(val.toLowerCase())) {
                   // 是否匹配
                   hasMatch = true;
-                  item[key] = e[key].replace(new RegExp(val, 'gi'), highlightedKeyword); // 高亮关键字替换
+                  item[props.labelKey || 'label'] = e[key].replace(new RegExp(val, 'gi'), highlightedKeyword); // 高亮关键字替换
                 }
               }
             }
@@ -180,6 +189,9 @@ export default defineComponent(
             return null;
           })
           .filter((e) => e) as SelectOptionData[];
+        if (props.shouldCalculateMaxTag !== false && props.multiple) {
+          calculateMaxTag();
+        }
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);
@@ -188,13 +200,14 @@ export default defineComponent(
       }
     }
 
-    const optionItemLabelRender = (item: SelectOptionData) =>
-      h('div', {
+    const optionItemLabelRender = (item: SelectOptionData) => {
+      return h('div', {
         innerHTML:
           typeof props.optionLabelRender === 'function'
             ? props.optionLabelRender(item)
             : item[props.labelKey || 'label'],
       });
+    };
 
     // 半选状态
     const indeterminate = computed(() => {
@@ -238,17 +251,24 @@ export default defineComponent(
             handleSelectAllChange(true);
           }
         }
-        calculateMaxTag(val);
+        if (props.shouldCalculateMaxTag !== false && props.multiple) {
+          calculateMaxTag();
+        }
       }
     );
 
     function getOptionItemDisabled(item: SelectOptionData) {
       return (
-        !!props.multiple &&
-        !!props.atLeastOne &&
-        Array.isArray(innerValue.value) &&
-        !!innerValue.value.find((e) => e[props.valueKey || 'value'] === item[props.valueKey || 'value']) &&
-        innerValue.value.length === 1
+        !!item.disabled ||
+        (!!props.multiple &&
+          !!props.atLeastOne &&
+          Array.isArray(innerValue.value) &&
+          !!innerValue.value.find((e) =>
+            props.objectValue
+              ? e[props.valueKey || 'value'] === item[props.valueKey || 'value']
+              : e === item[props.valueKey || 'value']
+          ) &&
+          innerValue.value.length === 1)
       );
     }
 
@@ -340,57 +360,110 @@ export default defineComponent(
       }
     });
 
+    /**
+     * 处理选择器值变化
+     * @param value
+     */
+    function handleChange(value: ModelType) {
+      if (props.multiple) {
+        nextTick(() => {
+          inputValue.value = tempInputValue.value;
+        });
+      }
+      emit('update:modelValue', value);
+      emit('change', value);
+    }
+
+    /**
+     * 处理输入框搜索值变化
+     * @param val 搜索值
+     */
+    function handleInputValueChange(val: string) {
+      inputValue.value = val;
+      if (val !== '') {
+        // 只存储有值的搜索值，因为当搜索完选中一个选项后，arco-select 会自动清空输入框，这里需要过滤掉
+        tempInputValue.value = val;
+      }
+    }
+
+    const selectFullTooltip = computed(() => {
+      const values = Array.isArray(innerValue.value) ? innerValue.value : [innerValue.value];
+      let tooltip = '';
+      if (props.objectValue) {
+        // 对象模式下，直接取 tooltipContent 或 label(若搜索的情况下会携带高亮代码，所以优先取tooltipContent)
+        tooltip = values.map((e) => e.tooltipContent || e[props.labelKey || 'label']).join('，');
+      } else {
+        // 非对象模式下，需要根据 valueKey 取 label
+        tooltip = remoteOriginOptions.value
+          .filter((e) => values.includes(e[props.valueKey || 'value']))
+          .map((e) => e[props.labelKey || 'label'])
+          .join('，');
+      }
+      return tooltip;
+    });
+
     return () => (
-      <a-select
-        ref={selectRef}
-        default-value={innerValue}
-        placeholder={t(props.placeholder || '')}
-        allow-clear={props.allowClear}
-        allow-search={props.allowSearch}
-        filter-option={false}
-        loading={loading.value}
-        multiple={props.multiple}
-        max-tag-count={maxTagCount.value}
-        search-delay={300}
-        class="ms-select"
-        value-key={props.valueKey || 'value'}
-        popup-container={props.popupContainer || document.body}
-        trigger-props={props.triggerProps}
-        fallback-option={props.fallbackOption}
-        onChange={(value: ModelType) => {
-          emit('update:modelValue', value);
-          emit('change', value);
-        }}
-        onSearch={handleSearch}
-        onPopupVisibleChange={(val: boolean) => {
-          handleSearch('', true);
-          emit('popupVisibleChange', val);
-        }}
-        onRemove={(val: string | number | boolean | Record<string, any> | undefined) => emit('remove', val)}
-        onKeyup={(e: KeyboardEvent) => {
-          // 阻止组件在回车时自动触发的事件
-          if (e.code === 'Enter') {
-            e.preventDefault();
-            e.stopPropagation();
-            handleSearch('', true);
-          }
-        }}
-      >
-        {{
-          prefix: props.prefix ? () => t(props.prefix || '') : null,
-          label: ({ data }: { data: SelectOptionData }) => (
-            <a-tooltip content={data.label} position="top" mouse-enter-delay={500} mini>
-              <div
-                class="one-line-text"
-                style={singleTagMaxWidth.value > 0 ? { maxWidth: `${singleTagMaxWidth.value}px` } : {}}
-              >
-                {slots.label ? slots.label(data) : data.label}
-              </div>
-            </a-tooltip>
-          ),
-          ...selectSlots(),
-        }}
-      </a-select>
+      <div class="w-full">
+        <a-tooltip content={selectFullTooltip.value} position="top" mouse-enter-delay={500} mini>
+          <a-select
+            ref={selectRef}
+            class="ms-select"
+            default-value={innerValue}
+            input-value={inputValue.value}
+            placeholder={t(props.placeholder || '')}
+            allow-clear={props.allowClear}
+            allow-search={props.allowSearch}
+            filter-option={true}
+            loading={loading.value}
+            multiple={props.multiple}
+            max-tag-count={maxTagCount.value}
+            search-delay={300}
+            value-key={props.valueKey || 'value'}
+            popup-container={props.popupContainer || document.body}
+            trigger-props={props.triggerProps}
+            fallback-option={props.fallbackOption}
+            disabled={props.disabled}
+            size={props.size}
+            onChange={handleChange}
+            onSearch={handleSearch}
+            onPopupVisibleChange={(val: boolean) => {
+              if (val) {
+                handleSearch('', true);
+              } else {
+                inputValue.value = '';
+                tempInputValue.value = '';
+              }
+              emit('popupVisibleChange', val);
+            }}
+            onRemove={(val: string | number | boolean | Record<string, any> | undefined) => emit('remove', val)}
+            onKeyup={(e: KeyboardEvent) => {
+              // 阻止组件在回车时自动触发的事件
+              if (e.code === 'Enter') {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSearch('', true);
+              }
+              if (e.code === 'Backspace' && inputValue.value === '') {
+                tempInputValue.value = '';
+              }
+            }}
+            onInputValueChange={handleInputValueChange}
+          >
+            {{
+              prefix: props.prefix ? () => t(props.prefix || '') : null,
+              label: ({ data }: { data: SelectOptionData }) => (
+                <div
+                  class="one-line-text"
+                  style={singleTagMaxWidth.value > 0 ? { maxWidth: `${singleTagMaxWidth.value}px` } : {}}
+                >
+                  {slots.label ? slots.label(data) : data.label}
+                </div>
+              ),
+              ...selectSlots(),
+            }}
+          </a-select>
+        </a-tooltip>
+      </div>
     );
   },
   {
@@ -421,6 +494,10 @@ export default defineComponent(
       'labelKey',
       'atLeastOne',
       'objectValue',
+      'remoteFilterFunc',
+      'shouldCalculateMaxTag',
+      'disabled',
+      'size',
     ],
     emits: ['update:modelValue', 'remoteSearch', 'popupVisibleChange', 'update:loading', 'remove', 'change'],
   }

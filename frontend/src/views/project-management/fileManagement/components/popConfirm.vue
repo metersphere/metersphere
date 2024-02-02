@@ -196,8 +196,8 @@
 
   function reset(val: boolean) {
     if (!val) {
-      form.value.field = '';
       formRef.value?.resetFields();
+      form.value.field = '';
     }
   }
 </script>

@@ -18,14 +18,16 @@
       <div class="ms-description-item-label" :style="{ width: props.labelWidth || '120px' }">
         <slot name="item-label">{{ item.label }}</slot>
       </div>
-      <div class="ms-description-item-value">
+      <div :class="item.isTag ? 'ms-description-item-value--tagline' : 'ms-description-item-value'">
         <slot name="item-value" :item="item">
           <template v-if="item.isTag">
             <slot name="tag" :item="item">
               <MsTag
                 v-for="tag of Array.isArray(item.value) ? item.value : [item.value]"
                 :key="`${tag}`"
-                theme="outline"
+                :theme="item.tagTheme || 'outline'"
+                :type="item.tagType || 'primary'"
+                :max-width="item.tagMaxWidth"
                 color="var(--color-text-n8)"
                 :class="`mb-[8px] mr-[8px] font-normal !text-[var(--color-text-1)] ${item.tagClass || ''}`"
                 :closable="item.closable"
@@ -53,7 +55,15 @@
                     {{ t('ms.description.addTagRepeat') }}
                   </span>
                 </template>
-                <MsTag v-else type="primary" theme="outline" class="cursor-pointer" @click="handleEdit">
+                <!-- 标签数量大于等于10时，不显示添加标签 -->
+                <MsTag
+                  v-else-if="Array.isArray(item.value) && item.value.length < 10"
+                  type="primary"
+                  theme="outline"
+                  :max-width="item.tagMaxWidth"
+                  class="inline-flex cursor-pointer items-center gap-[4px]"
+                  @click="handleEdit"
+                >
                   <template #icon>
                     <MsIcon type="icon-icon_add_outlined" class="text-[rgb(var(--primary-5))]" />
                   </template>
@@ -102,7 +112,7 @@
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
-  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
+  import MsTag, { TagType, Theme } from '@/components/pure/ms-tag/ms-tag.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
@@ -112,6 +122,9 @@
     key?: string;
     isTag?: boolean; // 是否标签
     tagClass?: string; // 标签自定义类名
+    tagType?: TagType; // 标签类型
+    tagTheme?: Theme; // 标签主题
+    tagMaxWidth?: string; // 标签最大宽度
     closable?: boolean; // 标签是否可关闭
     showTagAdd?: boolean; // 是否显示添加标签
     isButton?: boolean;
@@ -227,9 +240,11 @@
       color: var(--color-text-3);
       word-wrap: break-word;
     }
-    .ms-description-item-value {
+    .ms-description-item-value,
+    .ms-description-item-value--tagline {
       @apply relative flex-1 overflow-hidden break-all align-top;
-
+    }
+    .ms-description-item-value {
       /* stylelint-disable-next-line value-no-vendor-prefix */
       display: -webkit-box;
       text-overflow: ellipsis;

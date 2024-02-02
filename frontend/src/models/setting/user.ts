@@ -120,3 +120,8 @@ export interface RegisterByInviteParams {
   password: string;
   phone: string;
 }
+
+export interface CreateUserResult {
+  errorEmails: Record<string, any>;
+  successList: any[];
+}

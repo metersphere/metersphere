@@ -4,7 +4,7 @@ import { ProjectListUrl, ProjectSwitchUrl } from '@/api/requrls/project-manageme
 import type { ProjectListItem } from '@/models/setting/project';
 
 export function getProjectList(organizationId: string) {
-  return MSR.get<ProjectListItem[]>({ url: ProjectListUrl, params: organizationId });
+  return MSR.get<ProjectListItem[]>({ url: ProjectListUrl, params: organizationId }, { ignoreCancelToken: true });
 }
 
 export function switchProject(data: { projectId: string; userId: string }) {

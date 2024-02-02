@@ -117,6 +117,7 @@
   <AssociateDrawer
     v-model:visible="associateDrawerVisible"
     v-model:project="associateDrawerProject"
+    :review-id="reviewId"
     @success="writeAssociateCases"
   />
   <deleteReviewModal v-model:visible="deleteModalVisible" :record="reviewDetail" @success="handleDeleteSuccess" />
@@ -172,11 +173,12 @@
   const reviewDetail = ref<ReviewItem>({
     ...reviewDefaultDetail,
   });
+  const reviewId = ref(route.query.id as string);
 
   async function initDetail() {
     try {
       loading.value = true;
-      const res = await getReviewDetail(route.query.id as string);
+      const res = await getReviewDetail(reviewId.value);
       reviewDetail.value = res;
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -203,7 +205,7 @@
       modulesCount.value = await getReviewDetailModuleCount({
         ...params,
         viewFlag: onlyMine.value,
-        reviewId: route.query.id as string,
+        reviewId: reviewId.value,
       });
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -237,7 +239,7 @@
     try {
       loading.value = true;
       await associateReviewCase({
-        reviewId: route.query.id as string,
+        reviewId: reviewId.value,
         projectId: appStore.currentProjectId,
         reviewers: params.reviewers,
         baseAssociateCaseRequest: params,
@@ -258,7 +260,7 @@
     router.push({
       name: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW_CREATE,
       query: {
-        id: route.query.id,
+        id: reviewId.value,
       },
     });
   }
@@ -267,7 +269,7 @@
     router.push({
       name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
       query: {
-        reviewId: route.query.id,
+        reviewId: reviewId.value,
       },
     });
   }
@@ -337,7 +339,7 @@
       followLoading.value = true;
       await followReview({
         userId: userStore.id || '',
-        caseReviewId: route.query.id as string,
+        caseReviewId: reviewId.value,
       });
       Message.success(
         reviewDetail.value.followFlag
@@ -357,7 +359,7 @@
     router.push({
       name: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW_CREATE,
       query: {
-        copyId: route.query.id,
+        copyId: reviewId.value,
       },
     });
   }
@@ -381,4 +383,3 @@
     @apply hidden;
   }
 </style>
-@/config/caseManagement

@@ -1,5 +1,6 @@
 import { BatchApiParams, TableQueryParams } from '@/models/common';
 
+export type FileStorageType = 'GIT' | 'MINIO';
 // 文件列表查询参数
 export interface FileListQueryParams extends TableQueryParams {
   moduleIds: string[];
@@ -25,13 +26,13 @@ export interface FileItem {
   branch?: string; // 分支
   filePath?: string; // 文件路径
   fileVersion?: string; // 文件版本
+  storage?: FileStorageType; // 存储方式
 }
 // 文件详情
 export interface FileDetail extends FileItem {
   projectId: string;
   moduleName: string; // 所属模块名
   moduleId: string;
-  storage?: string; // 存储方式
   createUser: string;
   createTime: number;
 }
