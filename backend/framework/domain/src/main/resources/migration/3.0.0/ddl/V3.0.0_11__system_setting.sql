@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS plugin
     `enable` BIT NOT NULL  DEFAULT 1 COMMENT '是否启用插件' ,
     `global` BIT NOT NULL  DEFAULT 1 COMMENT '是否是全局插件' ,
     `xpack` BIT NOT NULL  DEFAULT 0 COMMENT '是否是企业版插件' ,
-    `description` VARCHAR(500)    COMMENT '插件描述' ,
+    `description` VARCHAR(1000)    COMMENT '插件描述' ,
     `scenario` VARCHAR(50) NOT NULL   COMMENT '插件使用场景API_PROTOCOL/PLATFORM' ,
     PRIMARY KEY (id)
 ) ENGINE = InnoDB
@@ -352,7 +352,7 @@ CREATE TABLE IF NOT EXISTS custom_field(
     `name` VARCHAR(255) NOT NULL   COMMENT '自定义字段名称' ,
     `scene` VARCHAR(30) NOT NULL   COMMENT '使用场景' ,
     `type` VARCHAR(30) NOT NULL   COMMENT '自定义字段类型' ,
-    `remark` VARCHAR(500)    COMMENT '自定义字段备注' ,
+    `remark` VARCHAR(1000)    COMMENT '自定义字段备注' ,
     `internal` BIT NOT NULL  DEFAULT 0 COMMENT '是否是内置字段' ,
     `scope_type` VARCHAR(50) NOT NULL  DEFAULT 0 COMMENT '组织或项目级别字段（PROJECT, ORGANIZATION）' ,
     `create_time` BIGINT NOT NULL   COMMENT '创建时间' ,

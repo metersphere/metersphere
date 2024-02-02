@@ -22,6 +22,6 @@ public class OrganizationNameEditRequest implements Serializable {
 
     @Schema(description =  "组织名称", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{organization.name.not_blank}", groups = {Created.class, Updated.class})
-    @Size(min = 1, max = 100, message = "{organization.name.length_range}", groups = {Created.class, Updated.class})
+    @Size(min = 1, max = 255, message = "{organization.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 }
