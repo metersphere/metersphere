@@ -95,11 +95,11 @@
           setCurrentTopMenu(name as string);
           return;
         }
-        // 切换到没有顶部菜单的路由时，清空顶部菜单
-        appStore.setTopMenus([]);
-        setCurrentTopMenu('');
       }
     }
+    // 切换到没有顶部菜单的路由时，清空顶部菜单
+    appStore.setTopMenus([]);
+    setCurrentTopMenu('');
   }, true);
 
   function jumpPath(route: RouteRecordName | undefined) {

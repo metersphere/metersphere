@@ -33,9 +33,7 @@
       appStore.setBreadcrumbList(appStore.currentTopMenu?.meta?.breadcrumbs);
     } else if ((name as string).includes(appStore.currentTopMenu.name as string)) {
       // 顶部菜单内下钻的父子路由命名是包含关系，子路由会携带完整的父路由名称
-      const { children } = router.currentRoute.value.matched[1];
-      const currentRoute = children.length > 0 ? children.find((e) => e.name === name) : null;
-      const currentBreads = currentRoute?.meta?.breadcrumbs || meta.breadcrumbs;
+      const currentBreads = meta.breadcrumbs;
       appStore.setBreadcrumbList(currentBreads);
       // 下钻的三级路由一般都会区分编辑添加场景，根据场景展示不同的国际化路由信息
       const editTag = currentBreads && currentBreads[currentBreads.length - 1].editTag;
@@ -49,7 +47,6 @@
   }, true);
 
   function jumpTo(crumb: BreadcrumbItem) {
-    debugger;
     if (crumb.isBack && window.history.state.back) {
       router.back();
     } else {
