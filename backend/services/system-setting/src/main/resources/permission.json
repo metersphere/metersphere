@@ -178,6 +178,15 @@
             "id": "SYSTEM_LOG:READ"
           }
         ]
+      },
+      {
+        "id": "SYSTEM_TASK_CENTER",
+        "name": "permission.organization_task_center.name",
+        "permissions": [
+          {
+            "id": "SYSTEM_TASK_CENTER:READ"
+          }
+        ]
       }
     ]
   },
@@ -268,7 +277,6 @@
             "name": "permission.system_organization_project_member.delete"
           }
         ]
-
       },
       {
         "id": "ORGANIZATION_TEMPLATE",
@@ -298,6 +306,19 @@
         "permissions": [
           {
             "id": "ORGANIZATION_LOG:READ"
+          }
+        ]
+      },
+      {
+        "id": "ORGANIZATION_TASK_CENTER",
+        "name": "permission.organization_task_center.name",
+        "permissions": [
+          {
+            "id": "ORGANIZATION_TASK_CENTER:READ"
+          },
+          {
+            "id": "ORGANIZATION_TASK_CENTER:READ+STOP",
+            "name": "permission.organization_task_center.stop"
           }
         ]
       }
