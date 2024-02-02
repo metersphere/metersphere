@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 
 import { isLogin as userIsLogin, login as userLogin, logout as userLogout } from '@/api/modules/user';
 import { useI18n } from '@/hooks/useI18n';
+import useLicenseStore from '@/store/modules/setting/license';
 import { getHashParameters } from '@/utils';
 import { clearToken, setToken } from '@/utils/auth';
 import { composePermissions } from '@/utils/permission';
@@ -10,7 +11,6 @@ import { removeRouteListener } from '@/utils/route-listener';
 import type { LoginData } from '@/models/user';
 
 import useAppStore from '../app';
-import useLicenseStore from '../setting/license';
 import { UserState } from './types';
 
 const useUserStore = defineStore('user', {
@@ -78,8 +78,11 @@ const useUserStore = defineStore('user', {
     async login(loginForm: LoginData) {
       try {
         const res = await userLogin(loginForm);
-        setToken(res.sessionId, res.csrfToken);
+        const licenseStore = useLicenseStore();
         const appStore = useAppStore();
+        licenseStore.getValidateLicense();
+        setToken(res.sessionId, res.csrfToken);
+
         appStore.setCurrentOrgId(res.lastOrganizationId || '');
         appStore.setCurrentProjectId(res.lastProjectId || '');
         this.setInfo(res);

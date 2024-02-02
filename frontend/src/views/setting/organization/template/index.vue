@@ -37,7 +37,7 @@
 
 <script setup lang="ts">
   /**
-   * @description 系统设置--组织--模板
+   * @description 系统设置--组织--模版
    */
   import { useRouter } from 'vue-router';
 
@@ -77,7 +77,7 @@
   const fieldSetting = (key: string) => {
     router.push({
       name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE_FILED_SETTING,
-      params: {
+      query: {
         type: key,
       },
     });

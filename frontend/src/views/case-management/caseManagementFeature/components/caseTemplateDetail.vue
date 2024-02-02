@@ -581,14 +581,15 @@
     }
   }
 
-  onMounted(() => {
-    if (route.params.mode === 'edit' || route.params.mode === 'copy') {
+  watchEffect(() => {
+    if (props.caseId) {
       getCaseInfo();
     } else {
       initDefaultFields();
     }
     initSelectTree();
   });
+
   // 处理关联文件和已关联文件本地文件和已上传文本文件
   function getFilesParams() {
     form.value.deleteFileMetaIds = deleteFileMetaIds.value;
