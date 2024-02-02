@@ -78,6 +78,7 @@ public class OrganizationService {
     private static final String ADD_MEMBER_PATH = "/system/organization/add-member";
     private static final String REMOVE_MEMBER_PATH = "/system/organization/remove-member";
     public static final Integer DEFAULT_REMAIN_DAY_COUNT = 30;
+    private static final Long DEFAULT_ORGANIZATION_NUM = 100001L;
 
     /**
      * 分页获取系统下组织列表
@@ -102,6 +103,102 @@ public class OrganizationService {
     public List<OptionDTO> listAll() {
         List<OrganizationDTO> organizations = extOrganizationMapper.listAll();
         return organizations.stream().map(o -> new OptionDTO(o.getId(), o.getName())).toList();
+    }
+
+    /**
+     * 更新组织名称
+     * @param organizationDTO 组织请求参数
+     */
+    public void updateName(OrganizationDTO organizationDTO) {
+        checkOrganizationNotExist(organizationDTO.getId());
+        checkOrganizationExist(organizationDTO);
+        organizationDTO.setUpdateTime(System.currentTimeMillis());
+        organizationDTO.setCreateUser(null);
+        organizationDTO.setCreateTime(null);
+        organizationMapper.updateByPrimaryKeySelective(organizationDTO);
+    }
+
+    /**
+     * 更新组织
+     * @param organizationDTO 组织请求参数
+     */
+    public void update(OrganizationDTO organizationDTO) {
+        checkOrganizationNotExist(organizationDTO.getId());
+        checkOrganizationExist(organizationDTO);
+        organizationDTO.setUpdateTime(System.currentTimeMillis());
+        organizationDTO.setCreateUser(null);
+        organizationDTO.setCreateTime(null);
+        organizationMapper.updateByPrimaryKeySelective(organizationDTO);
+
+        // 新增的组织管理员ID
+        List<String> addOrgAdmins = organizationDTO.getUserIds();
+        // 旧的组织管理员ID
+        List<String> oldOrgAdmins = getOrgAdminIds(organizationDTO.getId());
+        if (CollectionUtils.isNotEmpty(addOrgAdmins)) {
+            // 需要新增组织管理员ID
+            List<String> addIds = addOrgAdmins.stream().filter(addOrgAdmin -> !oldOrgAdmins.contains(addOrgAdmin)).toList();
+            // 需要删除的组织管理员ID
+            List<String> deleteIds = oldOrgAdmins.stream().filter(oldOrgAdmin -> !addOrgAdmins.contains(oldOrgAdmin)).toList();
+            // 添加组织管理员
+            if (CollectionUtils.isNotEmpty(addIds)) {
+                addIds.forEach(userId -> {
+                    // 添加组织管理员
+                    createAdmin(userId, organizationDTO.getId(), organizationDTO.getUpdateUser());
+                });
+            }
+            // 删除组织管理员
+            if (CollectionUtils.isNotEmpty(deleteIds)) {
+                UserRoleRelationExample deleteExample = new UserRoleRelationExample();
+                deleteExample.createCriteria().andSourceIdEqualTo(organizationDTO.getId()).andRoleIdEqualTo(InternalUserRole.ORG_ADMIN.getValue()).andUserIdIn(deleteIds);
+                userRoleRelationMapper.deleteByExample(deleteExample);
+            }
+        } else {
+            // 前端传入的组织管理员ID为空，删除所有组织管理员
+            if (CollectionUtils.isNotEmpty(oldOrgAdmins)) {
+                UserRoleRelationExample example = new UserRoleRelationExample();
+                example.createCriteria().andSourceIdEqualTo(organizationDTO.getId()).andRoleIdEqualTo(InternalUserRole.ORG_ADMIN.getValue());
+                userRoleRelationMapper.deleteByExample(example);
+            }
+        }
+    }
+
+    /**
+     * 删除组织
+     * @param organizationDeleteRequest 组织删除参数
+     */
+    public void delete(OrganizationDeleteRequest organizationDeleteRequest) {
+        // 默认组织不允许删除
+        checkOrgDefault(organizationDeleteRequest.getOrganizationId());
+        checkOrganizationNotExist(organizationDeleteRequest.getOrganizationId());
+        organizationDeleteRequest.setDeleteTime(System.currentTimeMillis());
+        extOrganizationMapper.delete(organizationDeleteRequest);
+    }
+
+    /**
+     * 恢复组织
+     * @param id 组织ID
+     */
+    public void recover(String id) {
+        checkOrganizationNotExist(id);
+        extOrganizationMapper.recover(id);
+    }
+
+    /**
+     * 开启组织
+     * @param id 组织ID
+     */
+    public void enable(String id) {
+        checkOrganizationNotExist(id);
+        extOrganizationMapper.updateEnable(id, Boolean.TRUE);
+    }
+
+    /**
+     * 结束组织
+     * @param id 组织ID
+     */
+    public void disable(String id) {
+        checkOrganizationNotExist(id);
+        extOrganizationMapper.updateEnable(id, Boolean.FALSE);
     }
 
     /**
@@ -934,5 +1031,74 @@ public class OrganizationService {
         long remainDays = (System.currentTimeMillis() - deleteTime) / (1000 * 3600 * 24);
         int remainDayCount = DEFAULT_REMAIN_DAY_COUNT - (int) remainDays;
         return remainDayCount > 0 ? remainDayCount : 1;
+    }
+
+    /**
+     * 校验组织不存在
+     *
+     * @param id 组织ID
+     */
+    private void checkOrganizationNotExist(String id) {
+        if (organizationMapper.selectByPrimaryKey(id) == null) {
+            throw new MSException(Translator.get("organization_not_exist"));
+        }
+    }
+
+    /**
+     * 校验组织存在
+     *
+     * @param organizationDTO 组织DTO
+     */
+    private void checkOrganizationExist(OrganizationDTO organizationDTO) {
+        OrganizationExample example = new OrganizationExample();
+        OrganizationExample.Criteria criteria = example.createCriteria();
+        criteria.andNameEqualTo(organizationDTO.getName()).andIdNotEqualTo(organizationDTO.getId());
+        if (organizationMapper.countByExample(example) > 0) {
+            throw new MSException(Translator.get("organization_name_already_exists"));
+        }
+    }
+
+    /**
+     * 获取组织下所有管理员ID
+     *
+     * @param organizationId 组织ID
+     * @return 管理员ID集合
+     */
+    public List<String> getOrgAdminIds(String organizationId) {
+        UserRoleRelationExample example = new UserRoleRelationExample();
+        example.createCriteria().andSourceIdEqualTo(organizationId).andRoleIdEqualTo(InternalUserRole.ORG_ADMIN.getValue());
+        List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(example);
+        return userRoleRelations.stream().map(UserRoleRelation::getUserId).toList();
+    }
+
+    /**
+     * 成员添加组织管理员
+     *
+     * @param memberId       成员ID
+     * @param organizationId 组织ID
+     * @param createUser     创建用户
+     */
+    public void createAdmin(String memberId, String organizationId, String createUser) {
+        UserRoleRelation orgAdmin = new UserRoleRelation();
+        orgAdmin.setId(IDGenerator.nextStr());
+        orgAdmin.setUserId(memberId);
+        orgAdmin.setRoleId(InternalUserRole.ORG_ADMIN.getValue());
+        orgAdmin.setSourceId(organizationId);
+        orgAdmin.setCreateTime(System.currentTimeMillis());
+        orgAdmin.setCreateUser(createUser);
+        orgAdmin.setOrganizationId(organizationId);
+        userRoleRelationMapper.insertSelective(orgAdmin);
+    }
+
+    /**
+     * 校验组织是否为默认组织
+     *
+     * @param id 组织ID
+     */
+    private void checkOrgDefault(String id) {
+        Organization organization = organizationMapper.selectByPrimaryKey(id);
+        if (organization.getNum().equals(DEFAULT_ORGANIZATION_NUM)) {
+            throw new MSException(Translator.get("default_organization_not_allow_delete"));
+        }
     }
 }
