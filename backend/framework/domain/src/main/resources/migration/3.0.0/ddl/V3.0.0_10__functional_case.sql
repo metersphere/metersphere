@@ -301,6 +301,8 @@ CREATE INDEX idx_case_id ON case_review_functional_case (case_id);
 CREATE INDEX idx_review_id ON case_review_functional_case (review_id);
 CREATE INDEX idx_status ON case_review_functional_case (status);
 CREATE INDEX idx_pos ON case_review_functional_case (pos);
+CREATE UNIQUE INDEX idx_case_id_review_id ON case_review_functional_case(review_id,case_id);
+
 
 
 CREATE TABLE IF NOT EXISTS case_review_functional_case_archive
@@ -352,6 +354,7 @@ CREATE TABLE IF NOT EXISTS case_review_history
     `content`     LONGBLOB COMMENT '评审意见',
     `status`      VARCHAR(64) NOT NULL COMMENT '评审结果：通过/不通过/建议',
     `deleted` BIT(1) NOT NULL  DEFAULT 0 COMMENT '是否是取消关联或评审被删除的：0-否，1-是' ,
+    `abandoned` BIT(1) NOT NULL  DEFAULT 0 COMMENT '是否是废弃的评审记录：0-否，1-是' ,
     `notifier`    VARCHAR(1000) COMMENT '通知人',
     `create_user` VARCHAR(50) NOT NULL COMMENT '操作人',
     `create_time` BIGINT      NOT NULL COMMENT '操作时间',
@@ -366,6 +369,7 @@ CREATE INDEX idx_review_id ON case_review_history (review_id);
 CREATE INDEX idx_review_id_case_id ON case_review_history (review_id, case_id);
 CREATE INDEX idx_status ON case_review_history (status);
 CREATE INDEX idx_deleted ON case_review_history(deleted);
+CREATE INDEX idx_abandoned ON case_review_history(abandoned);
 
 
 CREATE TABLE IF NOT EXISTS case_review_module

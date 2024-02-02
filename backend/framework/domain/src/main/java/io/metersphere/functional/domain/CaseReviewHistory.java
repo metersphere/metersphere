@@ -43,6 +43,10 @@ public class CaseReviewHistory implements Serializable {
     @Schema(description = "操作时间")
     private Long createTime;
 
+    @Schema(description = "是否是废弃的评审记录：0-否，1-是", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{case_review_history.abandoned.not_blank}", groups = {Created.class})
+    private Boolean abandoned;
+
     @Schema(description = "评审意见")
     private byte[] content;
 
@@ -57,6 +61,7 @@ public class CaseReviewHistory implements Serializable {
         notifier("notifier", "notifier", "VARCHAR", false),
         createUser("create_user", "createUser", "VARCHAR", false),
         createTime("create_time", "createTime", "BIGINT", false),
+        abandoned("abandoned", "abandoned", "BIT", false),
         content("content", "content", "LONGVARBINARY", false);
 
         private static final String BEGINNING_DELIMITER = "`";

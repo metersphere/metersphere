@@ -101,7 +101,7 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         reviewFunctionalCaseRequest.setReviewPassRule(CaseReviewPassRule.SINGLE.toString());
         this.requestPostWithOk(SAVE_REVIEW, reviewFunctionalCaseRequest);
         CaseReviewHistoryExample caseReviewHistoryExample = new CaseReviewHistoryExample();
-        caseReviewHistoryExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo("gyqReviewCaseTest");
+        caseReviewHistoryExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo("gyqReviewCaseTest").andAbandonedEqualTo(false);
         List<CaseReviewHistory> caseReviewHistories = caseReviewHistoryMapper.selectByExample(caseReviewHistoryExample);
         Assertions.assertEquals(1, caseReviewHistories.size());
         CaseReviewFunctionalCaseExample  caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
@@ -119,7 +119,7 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         reviewFunctionalCaseRequest.setReviewPassRule(CaseReviewPassRule.SINGLE.toString());
         this.requestPostWithOk(SAVE_REVIEW, reviewFunctionalCaseRequest);
         caseReviewHistoryExample = new CaseReviewHistoryExample();
-        caseReviewHistoryExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo("gyqReviewCaseTestOne");
+        caseReviewHistoryExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo("gyqReviewCaseTestOne").andAbandonedEqualTo(false);
         caseReviewHistories = caseReviewHistoryMapper.selectByExample(caseReviewHistoryExample);
         Assertions.assertEquals(1, caseReviewHistories.size());
         caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
@@ -138,7 +138,7 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         reviewFunctionalCaseRequest.setReviewPassRule(CaseReviewPassRule.SINGLE.toString());
         this.requestPostWithOk(SAVE_REVIEW, reviewFunctionalCaseRequest);
         caseReviewHistoryExample = new CaseReviewHistoryExample();
-        caseReviewHistoryExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo("gyqReviewCaseTestOne");
+        caseReviewHistoryExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo("gyqReviewCaseTestOne").andAbandonedEqualTo(false);
         caseReviewHistories = caseReviewHistoryMapper.selectByExample(caseReviewHistoryExample);
         Assertions.assertEquals(2, caseReviewHistories.size());
         caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
@@ -195,7 +195,7 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         this.requestPostWithOk(SAVE_REVIEW, reviewFunctionalCaseRequest);
 
         CaseReviewHistoryExample caseReviewHistoryExample = new CaseReviewHistoryExample();
-        caseReviewHistoryExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo("gyqReviewCaseTestTwo");
+        caseReviewHistoryExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo("gyqReviewCaseTestTwo").andAbandonedEqualTo(false);
         List<CaseReviewHistory> caseReviewHistories = caseReviewHistoryMapper.selectByExample(caseReviewHistoryExample);
         Assertions.assertEquals(1, caseReviewHistories.size());
         CaseReviewFunctionalCaseExample  caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
@@ -244,7 +244,7 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         reviewFunctionalCaseRequest.setReviewPassRule(CaseReviewPassRule.MULTIPLE.toString());
         this.requestPostWithOk(SAVE_REVIEW, reviewFunctionalCaseRequest);
         CaseReviewHistoryExample caseReviewHistoryExample = new CaseReviewHistoryExample();
-        caseReviewHistoryExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo("gyqReviewCaseTestThree");
+        caseReviewHistoryExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo("gyqReviewCaseTestThree").andAbandonedEqualTo(false);
         List<CaseReviewHistory> caseReviewHistories = caseReviewHistoryMapper.selectByExample(caseReviewHistoryExample);
         Assertions.assertEquals(1, caseReviewHistories.size());
         CaseReviewFunctionalCaseExample  caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
@@ -262,7 +262,7 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         reviewFunctionalCaseRequest.setReviewPassRule(CaseReviewPassRule.MULTIPLE.toString());
         this.requestPostWithOk(SAVE_REVIEW, reviewFunctionalCaseRequest);
         caseReviewHistoryExample = new CaseReviewHistoryExample();
-        caseReviewHistoryExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo("gyqReviewCaseTestFour");
+        caseReviewHistoryExample.createCriteria().andReviewIdEqualTo(reviewId).andCaseIdEqualTo("gyqReviewCaseTestFour").andAbandonedEqualTo(false);
         caseReviewHistories = caseReviewHistoryMapper.selectByExample(caseReviewHistoryExample);
         Assertions.assertEquals(1, caseReviewHistories.size());
         caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();

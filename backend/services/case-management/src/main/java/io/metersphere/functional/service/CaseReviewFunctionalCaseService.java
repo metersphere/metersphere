@@ -329,7 +329,7 @@ public class CaseReviewFunctionalCaseService {
         }
         List<String> caseIds = caseReviewFunctionalCaseList.stream().map(CaseReviewFunctionalCase::getCaseId).toList();
         CaseReviewHistoryExample caseReviewHistoryExample = new CaseReviewHistoryExample();
-        caseReviewHistoryExample.createCriteria().andCaseIdIn(caseIds).andReviewIdEqualTo(reviewId).andDeletedEqualTo(false);
+        caseReviewHistoryExample.createCriteria().andCaseIdIn(caseIds).andReviewIdEqualTo(reviewId).andDeletedEqualTo(false).andAbandonedEqualTo(false);
         List<CaseReviewHistory> caseReviewHistories = caseReviewHistoryMapper.selectByExample(caseReviewHistoryExample);
         Map<String, List<CaseReviewHistory>> caseHistoryMap = caseReviewHistories.stream().collect(Collectors.groupingBy(CaseReviewHistory::getCaseId, Collectors.toList()));
 
@@ -456,6 +456,7 @@ public class CaseReviewFunctionalCaseService {
         caseReviewHistory.setCaseId(caseId);
         caseReviewHistory.setStatus(request.getStatus());
         caseReviewHistory.setDeleted(false);
+        caseReviewHistory.setAbandoned(false);
         if (StringUtils.equalsIgnoreCase(request.getStatus(), FunctionalCaseReviewStatus.UN_PASS.toString())) {
             if (StringUtils.isBlank(request.getContent())) {
                 throw new MSException(Translator.get("case_review_content.not.exist"));
@@ -499,7 +500,7 @@ public class CaseReviewFunctionalCaseService {
             Map<String, List<CaseReviewFunctionalCaseUser>> newReviewersMap = newReviewers.stream().collect(Collectors.groupingBy(CaseReviewFunctionalCaseUser::getCaseId));
 
             CaseReviewHistoryExample caseReviewHistoryExample = new CaseReviewHistoryExample();
-            caseReviewHistoryExample.createCriteria().andCaseIdIn(caseIds).andReviewIdEqualTo(request.getReviewId()).andDeletedEqualTo(false);
+            caseReviewHistoryExample.createCriteria().andCaseIdIn(caseIds).andReviewIdEqualTo(request.getReviewId()).andDeletedEqualTo(false).andAbandonedEqualTo(false);
             List<CaseReviewHistory> caseReviewHistories = caseReviewHistoryMapper.selectByExample(caseReviewHistoryExample);
             Map<String, List<CaseReviewHistory>> caseHistoryMap = caseReviewHistories.stream().collect(Collectors.groupingBy(CaseReviewHistory::getCaseId, Collectors.toList()));
 

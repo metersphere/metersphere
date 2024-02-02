@@ -78,16 +78,16 @@ public class ReviewFunctionalCaseService {
         }
         CaseReviewHistory caseReviewHistory = buildReviewHistory(request, userId);
         CaseReviewHistoryExample caseReviewHistoryExample = new CaseReviewHistoryExample();
-        caseReviewHistoryExample.createCriteria().andCaseIdEqualTo(request.getCaseId()).andReviewIdEqualTo(request.getReviewId()).andDeletedEqualTo(false);
+        caseReviewHistoryExample.createCriteria().andCaseIdEqualTo(request.getCaseId()).andReviewIdEqualTo(request.getReviewId()).andDeletedEqualTo(false).andAbandonedEqualTo(false);
         List<CaseReviewHistory> caseReviewHistories = caseReviewHistoryMapper.selectByExample(caseReviewHistoryExample);
-        Map<String, List<CaseReviewHistory>> hasReviewedUserMap = caseReviewHistories.stream().sorted(Comparator.comparingLong(CaseReviewHistory::getCreateTime).reversed()).collect(Collectors.groupingBy(CaseReviewHistory::getCreateUser, Collectors.toList()));
+        Map<String, List<CaseReviewHistory>> hasReviewedUserMap = caseReviewHistories.stream().collect(Collectors.groupingBy(CaseReviewHistory::getCreateUser));
         if (hasReviewedUserMap.get(userId) == null) {
             List<CaseReviewHistory> caseReviewHistoryList = new ArrayList<>();
             caseReviewHistoryList.add(caseReviewHistory);
             hasReviewedUserMap.put(userId, caseReviewHistoryList);
         }
         //根据评审规则更新用例评审和功能用例关系表中的状态 1.单人评审直接更新评审结果 2.多人评审需要计算
-        String functionalCaseStatus = getFunctionalCaseStatus(request, hasReviewedUserMap, isAdmin);
+        String functionalCaseStatus = getFunctionalCaseStatus(request, hasReviewedUserMap, isAdmin, caseReviewFunctionalCaseUsers.size());
         extCaseReviewFunctionalCaseMapper.updateStatus(caseId, reviewId, functionalCaseStatus);
         caseReviewHistoryMapper.insert(caseReviewHistory);
 
@@ -127,7 +127,7 @@ public class ReviewFunctionalCaseService {
      * @param request 评审规则
      * @return 功能用例的评审结果
      */
-    private String getFunctionalCaseStatus(ReviewFunctionalCaseRequest request, Map<String, List<CaseReviewHistory>> hasReviewedUserMap, boolean isAdmin) {
+    private String getFunctionalCaseStatus(ReviewFunctionalCaseRequest request, Map<String, List<CaseReviewHistory>> hasReviewedUserMap, boolean isAdmin, int reviewerNum) {
         String functionalCaseStatus;
         CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
         caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(request.getReviewId()).andCaseIdEqualTo(request.getCaseId());
@@ -144,22 +144,20 @@ public class ReviewFunctionalCaseService {
                 return status;
             }
             //根据用例ID 查询所有评审人 再查所有评审人最后一次的评审结果（只有通过/不通过算结果）
-            CaseReviewFunctionalCaseUserExample caseReviewFunctionalCaseUserExample = new CaseReviewFunctionalCaseUserExample();
-            caseReviewFunctionalCaseUserExample.createCriteria().andReviewIdEqualTo(request.getReviewId()).andCaseIdEqualTo(request.getCaseId());
-            long reviewerNum = caseReviewFunctionalCaseUserMapper.countByExample(caseReviewFunctionalCaseUserExample);
             AtomicInteger passCount = new AtomicInteger();
             AtomicInteger unPassCount = new AtomicInteger();
             hasReviewedUserMap.forEach((k, v) -> {
-                if (StringUtils.equalsIgnoreCase(v.get(0).getStatus(), FunctionalCaseReviewStatus.PASS.toString())) {
+                List<CaseReviewHistory> list = v.stream().sorted(Comparator.comparing(CaseReviewHistory::getCreateTime).reversed()).toList();
+                if (StringUtils.equalsIgnoreCase(list.get(0).getStatus(), FunctionalCaseReviewStatus.PASS.toString())) {
                     passCount.set(passCount.get() + 1);
                 }
-                if (StringUtils.equalsIgnoreCase(v.get(0).getStatus(), FunctionalCaseReviewStatus.UN_PASS.toString())) {
+                if (StringUtils.equalsIgnoreCase(list.get(0).getStatus(), FunctionalCaseReviewStatus.UN_PASS.toString())) {
                     unPassCount.set(unPassCount.get() + 1);
                 }
             });
             if (unPassCount.get() > 0) {
                 functionalCaseStatus = FunctionalCaseReviewStatus.UN_PASS.toString();
-            } else if ((int) reviewerNum > hasReviewedUserMap.size()) {
+            } else if (reviewerNum > hasReviewedUserMap.size()) {
                 functionalCaseStatus = FunctionalCaseReviewStatus.UNDER_REVIEWED.toString();
             } else {
                 //检查是否全部是通过，全是才是PASS,否则是评审中
@@ -187,6 +185,7 @@ public class ReviewFunctionalCaseService {
         caseReviewHistory.setCaseId(request.getCaseId());
         caseReviewHistory.setStatus(request.getStatus());
         caseReviewHistory.setDeleted(false);
+        caseReviewHistory.setAbandoned(false);
         if (StringUtils.equalsIgnoreCase(request.getStatus(), FunctionalCaseReviewStatus.UN_PASS.toString())) {
             if (StringUtils.isBlank(request.getContent())) {
                 throw new MSException(Translator.get("case_review_content.not.exist"));
