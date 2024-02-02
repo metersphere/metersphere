@@ -10,7 +10,7 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/*.html", "anon");
         filterChainDefinitionMap.put("/login", "anon");
         filterChainDefinitionMap.put("/ldap/login", "anon");
-        filterChainDefinitionMap.put("/ldap/open", "anon");
+        filterChainDefinitionMap.put("/authentication/get-list", "anon");
         filterChainDefinitionMap.put("/signout", "anon");
         filterChainDefinitionMap.put("/is-login", "anon");
         filterChainDefinitionMap.put("/get-key", "anon");

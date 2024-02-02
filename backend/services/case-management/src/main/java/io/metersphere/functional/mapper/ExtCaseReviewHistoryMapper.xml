@@ -60,6 +60,23 @@
         </if>
     </update>
 
+    <update id="updateAbandoned">
+        update case_review_history
+        set abandoned = true
+        where case_id = #{caseId}
+        and abandoned = false
+    </update>
 
+
+    <update id="batchUpdateAbandoned">
+        update case_review_history
+        set abandoned = true
+        where review_id = #{reviewId}
+        and case_id in
+        <foreach collection="caseIds" item="caseId" separator="," open="(" close=")">
+            #{caseId}
+        </foreach>
+        and abandoned = false
+    </update>
 
 </mapper>

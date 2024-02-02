@@ -261,6 +261,9 @@ public class CaseReviewFunctionalCaseService {
         reviewFunctionalCaseExample.createCriteria().andCaseIdEqualTo(blob.getId());
         List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(reviewFunctionalCaseExample);
         if (CollectionUtils.isNotEmpty(caseReviewFunctionalCases)) {
+            //重新提审，作废之前的记录
+            extCaseReviewHistoryMapper.updateAbandoned(blob.getId());
+
             caseReviewFunctionalCases.forEach(item -> {
                 updateReviewCaseAndCaseStatus(item);
                 insertHistory(item);
@@ -353,6 +356,10 @@ public class CaseReviewFunctionalCaseService {
         CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper = sqlSession.getMapper(CaseReviewFunctionalCaseMapper.class);
 
         Map<String, String> statusMap = new HashMap<>();
+
+        //重新提审，作废之前的记录
+        extCaseReviewHistoryMapper.batchUpdateAbandoned(reviewId,caseIds);
+
         for (CaseReviewFunctionalCase caseReviewFunctionalCase : caseReviewFunctionalCaseList) {
             //校验当前操作人是否是该用例的评审人或者是系统管理员，是增加评审历史，不是过滤掉
             String caseId = caseReviewFunctionalCase.getCaseId();

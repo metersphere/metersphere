@@ -16,4 +16,7 @@ public interface ExtCaseReviewHistoryMapper {
 
     void updateDelete(@Param("caseIds") List<String> caseIds, @Param("reviewId") String reviewId, @Param("delete") boolean delete);
 
+    void updateAbandoned(@Param("caseId") String caseId);
+
+    void batchUpdateAbandoned(@Param("reviewId") String reviewId, @Param("caseIds") List<String> caseIds);
 }

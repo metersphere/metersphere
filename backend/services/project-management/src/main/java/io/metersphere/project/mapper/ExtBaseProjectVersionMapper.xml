@@ -3,7 +3,7 @@
 <mapper namespace="io.metersphere.project.mapper.ExtBaseProjectVersionMapper">
 
     <select id="getDefaultVersion" resultType="java.lang.String">
-        select id from project_version where project_id = #{projectId} and status = 'open' and latest = TRUE LIMIT 1
+        select id from project_version where project_id = #{projectId} and latest = TRUE LIMIT 1
     </select>
 
     <select id="getVersionByIds" resultType="io.metersphere.project.domain.ProjectVersion">
