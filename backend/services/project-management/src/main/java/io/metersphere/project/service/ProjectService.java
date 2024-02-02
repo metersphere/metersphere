@@ -138,33 +138,18 @@ public class ProjectService {
     }
 
     private List<String> getPoolIds(String projectId) {
-        List<String> poolIds = new ArrayList<>();
         ProjectTestResourcePoolExample example = new ProjectTestResourcePoolExample();
         example.createCriteria().andProjectIdEqualTo(projectId);
         List<ProjectTestResourcePool> projectPools = projectTestResourcePoolMapper.selectByExample(example);
-        if (CollectionUtils.isNotEmpty(projectPools)) {
-            return projectPools.stream().map(ProjectTestResourcePool::getTestResourcePoolId).toList();
-        }
-        //判断项目所属组织是否关联了资源池
-        Project project = projectMapper.selectByPrimaryKey(projectId);
-        TestResourcePoolOrganizationExample orgExample = new TestResourcePoolOrganizationExample();
-        orgExample.createCriteria().andOrgIdEqualTo(project.getOrganizationId());
-        List<TestResourcePoolOrganization> orgPools = testResourcePoolOrganizationMapper.selectByExample(orgExample);
-        if (CollectionUtils.isNotEmpty(orgPools)) {
-            poolIds.addAll(orgPools.stream().map(TestResourcePoolOrganization::getTestResourcePoolId).toList());
-        }
-        //获取应用全部组织的资源池
-        TestResourcePoolExample poolExample = new TestResourcePoolExample();
-        poolExample.createCriteria().andAllOrgEqualTo(true).andEnableEqualTo(true).andDeletedEqualTo(false);
-        List<TestResourcePool> testResourcePools = testResourcePoolMapper.selectByExample(poolExample);
-        poolIds.addAll(testResourcePools.stream().map(TestResourcePool::getId).toList());
-        poolIds = poolIds.stream().distinct().filter(StringUtils::isNotBlank).toList();
-        return poolIds;
+        return projectPools.stream().map(ProjectTestResourcePool::getTestResourcePoolId).toList();
     }
 
     public List<OptionDTO> getPoolOptions(String projectId, String type) {
         checkProjectNotExist(projectId);
         List<String> poolIds = getPoolIds(projectId);
+        if(CollectionUtils.isEmpty(poolIds)){
+            return new ArrayList<>();
+        }
         TestResourcePoolExample example = new TestResourcePoolExample();
         TestResourcePoolExample.Criteria criteria = example.createCriteria();
         criteria.andIdIn(poolIds).andEnableEqualTo(true).andDeletedEqualTo(false);
