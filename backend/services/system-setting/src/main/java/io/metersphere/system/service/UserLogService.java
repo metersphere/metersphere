@@ -319,7 +319,7 @@ public class UserLogService {
         LogDTO log = LogDTOBuilder.builder()
                 .projectId(OperationLogConstants.SYSTEM)
                 .module(OperationLogModule.SETTING_SYSTEM_USER_SINGLE)
-                .createUser(user.getName())
+                .createUser(user.getId())
                 .organizationId(OperationLogConstants.SYSTEM)
                 .sourceId(user.getId())
                 .type(OperationLogType.ADD.name())

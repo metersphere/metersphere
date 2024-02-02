@@ -1351,8 +1351,18 @@ public class UserControllerTests extends BaseTest {
         String inviteId = INVITE_RECORD_ID_LIST.getFirst();
         UserRegisterRequest request = new UserRegisterRequest();
         request.setInviteId(inviteId);
-        request.setName("建国通过邮箱邀请");
         request.setPassword(RsaUtils.publicEncrypt("Cao..12138", RsaUtils.getRsaKey().getPublicKey()));
+
+        //先测试反例：名称超过255
+        StringBuilder overSizeName = new StringBuilder();
+        while (overSizeName.length() < 256) {
+            overSizeName.append("i");
+        }
+        request.setName(overSizeName.toString());
+        this.requestPost(UserRequestUtils.URL_INVITE_REGISTER, request).andExpect(BAD_REQUEST_MATCHER);
+
+        //测试正常创建
+        request.setName("建国通过邮箱邀请");
         MvcResult mvcResult = userRequestUtils.responsePost(UserRequestUtils.URL_INVITE_REGISTER, request);
         String resultHolderStr = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(resultHolderStr, ResultHolder.class);
@@ -1361,6 +1371,8 @@ public class UserControllerTests extends BaseTest {
         LOG_CHECK_LIST.add(
                 new CheckLogModel(resultHolder.getData().toString(), OperationLogType.ADD, UserRequestUtils.URL_INVITE_REGISTER)
         );
+
+
     }
 
     private void testUserRegisterError() throws Exception {

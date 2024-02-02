@@ -2,6 +2,7 @@ package io.metersphere.system.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
@@ -12,6 +13,7 @@ public class UserRegisterRequest {
 
     @NotBlank
     @Schema(description = "用户名", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Size(min = 1, max = 255, message = "{user.name.length_range}")
     private String name;
 
     @NotBlank
