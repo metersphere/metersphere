@@ -102,10 +102,10 @@ public class CommonProjectService {
 
     /**
      * @param addProjectDTO 添加项目的时候  默认给用户组添加管理员的权限
-     * @param createUser
+     * @param createUser    创建人
      * @param path          请求路径
      * @param module        日志记录模块
-     * @return
+     * @return ProjectDTO
      */
     public ProjectDTO add(AddProjectRequest addProjectDTO, String createUser, String path, String module) {
 
@@ -162,7 +162,12 @@ public class CommonProjectService {
     /**
      * 检查添加的人员是否存在组织中  判断传过来的用户id是否在组织下，如果不存在，给用户创建一个组织成员的身份
      *
-     * @param
+     * @param userId 用户id
+     *               orgId      组织id
+     *               createUser 创建人
+     *               nameMap    用户id和用户名的map
+     *               path       请求路径
+     *               module     日志记录模块
      */
     public void checkOrgRoleExit(List<String> userId, String orgId, String createUser, Map<String, String> nameMap, String path, String module) {
         List<LogDTO> logDTOList = new ArrayList<>();
@@ -199,7 +204,7 @@ public class CommonProjectService {
     private void checkProjectExistByName(Project project) {
         ProjectExample example = new ProjectExample();
         example.createCriteria().andNameEqualTo(project.getName()).andOrganizationIdEqualTo(project.getOrganizationId()).andIdNotEqualTo(project.getId());
-        if (projectMapper.selectByExample(example).size() > 0) {
+        if (projectMapper.countByExample(example) > 0) {
             throw new MSException(Translator.get("project_name_already_exists"));
         }
     }
@@ -207,7 +212,7 @@ public class CommonProjectService {
     /**
      * 检查项目是否存在
      *
-     * @param id
+     * @param id 项目id
      */
     public void checkProjectNotExist(String id) {
         if (projectMapper.selectByPrimaryKey(id) == null) {
@@ -379,7 +384,7 @@ public class CommonProjectService {
     }
 
     public int delete(String id, String deleteUser) {
-        //TODO  删除项目删除全部资源 这里的删除只是假删除
+        // 删除项目删除全部资源 这里的删除只是假删除
         checkProjectNotExist(id);
         Project project = new Project();
         project.setId(id);
@@ -392,7 +397,7 @@ public class CommonProjectService {
     /**
      * 添加项目管理员
      *
-     * @param request
+     * @param request    添加项目管理员请求
      * @param createUser 创建人
      * @param path       请求路径
      * @param type       操作类型
@@ -411,7 +416,7 @@ public class CommonProjectService {
                 UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
                 userRoleRelationExample.createCriteria().andUserIdEqualTo(userId)
                         .andSourceIdEqualTo(projectId).andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
-                if (userRoleRelationMapper.selectByExample(userRoleRelationExample).size() == 0) {
+                if (userRoleRelationMapper.selectByExample(userRoleRelationExample).isEmpty()) {
                     UserRoleRelation adminRole = new UserRoleRelation();
                     adminRole.setId(IDGenerator.nextStr());
                     adminRole.setUserId(userId);
@@ -453,7 +458,7 @@ public class CommonProjectService {
     /**
      * 添加项目成员
      *
-     * @param request
+     * @param request    添加项目成员请求
      * @param createUser 创建人
      * @param path       请求路径
      * @param type       操作类型
@@ -471,7 +476,7 @@ public class CommonProjectService {
                 UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
                 userRoleRelationExample.createCriteria().andUserIdEqualTo(userId)
                         .andSourceIdEqualTo(projectId);
-                if (userRoleRelationMapper.selectByExample(userRoleRelationExample).size() == 0) {
+                if (userRoleRelationMapper.selectByExample(userRoleRelationExample).isEmpty()) {
                     UserRoleRelation memberRole = new UserRoleRelation();
                     memberRole.setId(IDGenerator.nextStr());
                     memberRole.setUserId(userId);
@@ -540,7 +545,7 @@ public class CommonProjectService {
     /**
      * 删除项目   一般是定时任务会触发
      *
-     * @param projects
+     * @param projects 项目集合
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void deleteProject(List<Project> projects) {
@@ -566,7 +571,7 @@ public class CommonProjectService {
     /**
      * 删除自定义用户组和权限关系表、项目和用户关系数据
      *
-     * @param projectId
+     * @param projectId 项目id
      */
     private void deleteProjectUserGroup(String projectId) {
         UserRoleRelationExample userGroupExample = new UserRoleRelationExample();
@@ -669,7 +674,7 @@ public class CommonProjectService {
     /**
      * 校验该项目是否有权限使用该资源池
      *
-     * @param resourcePool
+     * @param resourcePool 资源池
      * @return
      */
     public boolean validateProjectResourcePool(TestResourcePool resourcePool, String projectId) {

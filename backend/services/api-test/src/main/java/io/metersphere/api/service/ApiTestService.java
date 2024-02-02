@@ -51,6 +51,7 @@ public class ApiTestService {
             ServiceUtils.checkResourceExist(null, "permission.api_plugin.name");
         }
         ApiPluginOptionsRequest optionsRequest = BeanUtils.copyBean(new ApiPluginOptionsRequest(), request);
+        assert pluginWrapper != null;
         return ((AbstractApiPlugin) pluginWrapper.getPlugin()).getPluginOptions(optionsRequest);
     }
 }

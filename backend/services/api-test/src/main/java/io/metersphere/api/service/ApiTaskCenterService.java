@@ -65,8 +65,9 @@ public class ApiTaskCenterService {
 
     /**
      * 任务中心实时任务列表-项目级
-     * @param request
-     * @return
+     *
+     * @param request 请求参数
+     * @return 任务中心实时任务列表
      */
     public Pager<List<TaskCenterDTO>> getProjectPage(TaskCenterPageRequest request, String projectId) {
         checkProjectExist(projectId);
@@ -76,8 +77,9 @@ public class ApiTaskCenterService {
 
     /**
      * 任务中心实时任务列表-组织级
-     * @param request
-     * @returnxx
+     *
+     * @param request 请求参数
+     * @returnxx 任务中心实时任务列表
      */
     public Pager<List<TaskCenterDTO>> getOrganizationPage(TaskCenterPageRequest request, String organizationId) {
         checkOrganizationExist(organizationId);
@@ -87,8 +89,9 @@ public class ApiTaskCenterService {
 
     /**
      * 任务中心实时任务列表-系统级
-     * @param request
-     * @return
+     *
+     * @param request 请求参数
+     * @return 任务中心实时任务列表
      */
     public Pager<List<TaskCenterDTO>> getSystemPage(TaskCenterPageRequest request) {
         List<OptionDTO> projectList = getSystemProjectList();
@@ -107,7 +110,7 @@ public class ApiTaskCenterService {
         if (request != null && !projectIds.isEmpty()) {
             if (request.getModuleType().equals(TaskCenterResourceType.API_CASE.toString())) {
                 list = extApiReportMapper.taskCenterlist(request, projectIds);
-            } else  if (request.getModuleType().equals(TaskCenterResourceType.API_SCENARIO.toString())){
+            } else if (request.getModuleType().equals(TaskCenterResourceType.API_SCENARIO.toString())) {
                 list = extApiScenarioMapper.taskCenterlist(request, projectIds);
             }
             processTaskCenter(list, projectList, projectIds);
@@ -136,18 +139,19 @@ public class ApiTaskCenterService {
         }
     }
 
-    private List<OptionDTO> getProjectOption(String id){
+    private List<OptionDTO> getProjectOption(String id) {
         return baseProjectMapper.getProjectOptionsById(id);
     }
-    private List<OptionDTO> getOrgProjectList(String orgId){
+
+    private List<OptionDTO> getOrgProjectList(String orgId) {
         return baseProjectMapper.getProjectOptionsByOrgId(orgId);
     }
 
-    private List<OptionDTO> getSystemProjectList(){
+    private List<OptionDTO> getSystemProjectList() {
         return baseProjectMapper.getProjectOptions();
     }
 
-    private List<OptionDTO> getOrgListByProjectIds(List<String> projectIds){
+    private List<OptionDTO> getOrgListByProjectIds(List<String> projectIds) {
         return extOrganizationMapper.getOrgListByProjectIds(projectIds);
     }
 
@@ -156,12 +160,11 @@ public class ApiTaskCenterService {
      *
      * @param projectId 项目ID
      */
-    private Project checkProjectExist(String projectId) {
+    private void checkProjectExist(String projectId) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         if (project == null) {
             throw new MSException(Translator.get("project_not_exist"));
         }
-        return project;
     }
 
     /**
@@ -169,12 +172,11 @@ public class ApiTaskCenterService {
      *
      * @param orgId 组织ID
      */
-    private Organization checkOrganizationExist(String orgId) {
+    private void checkOrganizationExist(String orgId) {
         Organization organization = organizationMapper.selectByPrimaryKey(orgId);
         if (organization == null) {
             throw new MSException(Translator.get("organization_not_exist"));
         }
-        return organization;
     }
 
 }

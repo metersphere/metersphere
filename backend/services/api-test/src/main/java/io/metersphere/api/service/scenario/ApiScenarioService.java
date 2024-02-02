@@ -1077,9 +1077,6 @@ public class ApiScenarioService {
 
     /**
      * 设置脚本解析-环境相关参数
-     *
-     * @param refResourceMap
-     * @return
      */
     private ApiScenarioParseEnvInfo getScenarioParseEnvInfo(Map<String, List<String>> refResourceMap, String currentEnvId, Boolean isCurrentEnvGrouped) {
         List<String> apiScenarioIds = refResourceMap.get(ApiScenarioStepType.API_SCENARIO.name());
@@ -1172,11 +1169,10 @@ public class ApiScenarioService {
                                     ApiScenarioStepCommonDTO step,
                                     AbstractMsTestElement msTestElement) {
         // 引用的场景设置场景参数
-        if (!isScenarioStep(step.getStepType()) || !isRef(step.getRefType()) || !(msTestElement instanceof MsScenario)) {
+        if (!isScenarioStep(step.getStepType()) || !isRef(step.getRefType()) || !(msTestElement instanceof MsScenario msScenario)) {
             return;
         }
 
-        MsScenario msScenario = (MsScenario) msTestElement;
         if (step.getConfig() != null) {
             // 设置场景步骤的运行参数
             msScenario.setScenarioStepConfig(JSON.parseObject(JSON.toJSONString(step.getConfig()), ScenarioStepConfig.class));
@@ -1203,9 +1199,9 @@ public class ApiScenarioService {
     /**
      * 从 scenarioParseEnvInfo 获取对应环境组的 projectEnvMap
      *
-     * @param scenarioParseEnvInfo
-     * @param environmentId
-     * @return
+     * @param scenarioParseEnvInfo 环境信息
+     * @param environmentId        环境ID
+     * @return projectEnvMap
      */
     private Map<String, EnvironmentInfoDTO> getProjectEnvMap(ApiScenarioParseEnvInfo scenarioParseEnvInfo, String environmentId) {
         Map<String, List<String>> envGroupMap = scenarioParseEnvInfo.getEnvGroupMap();
@@ -1716,6 +1712,7 @@ public class ApiScenarioService {
                         fileCopyRequest.setCopyfileName(copyApiFileResource.getFileId());
                         fileCopyRequest.setFileName(copyApiFileResource.getFileId());
                         fileCopyRequest.setFolder(DefaultRepositoryDir.getApiScenarioDir(copyScenario.getProjectId(), copyScenario.getId()));
+                        assert minioRepository != null;
                         minioRepository.copyFile(fileCopyRequest);
                     } catch (Exception ignore) {
                     }
@@ -1732,7 +1729,7 @@ public class ApiScenarioService {
                     copyStep.setScenarioId(copyScenario.getId());
                     insertApiScenarioStepList.add(copyStep);
 
-                    //todo 刚の没提交的CSV关联表
+                    //这块的批量复制不处理csv文件和场景的配置信息
 
                     ApiScenarioStepBlob stepBlob = apiScenarioStepBlobMap.get(step.getId());
                     if (stepBlob != null) {

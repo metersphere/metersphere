@@ -37,4 +37,6 @@ public interface ExtApiScenarioMapper {
     List<ApiScenarioAssociationDTO> getAssociationPage(@Param("request") ApiScenarioAssociationPageRequest request);
 
     List<String> getIdsByModules(@Param("request") ScenarioSystemRequest scenarioRequest);
+
+    List<String> selectByProjectId(String projectId);
 }

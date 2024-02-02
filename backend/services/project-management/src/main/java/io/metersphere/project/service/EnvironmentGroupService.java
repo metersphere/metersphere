@@ -250,7 +250,6 @@ public class EnvironmentGroupService {
         }
         EnvironmentGroupRelationExample example = new EnvironmentGroupRelationExample();
         example.createCriteria().andEnvironmentGroupIdIn(envGroupIds);
-        List<EnvironmentGroupRelation> relations = environmentGroupRelationMapper.selectByExample(example);
-        return relations;
+        return environmentGroupRelationMapper.selectByExample(example);
     }
 }

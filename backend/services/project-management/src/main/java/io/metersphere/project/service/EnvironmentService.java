@@ -447,8 +447,7 @@ public class EnvironmentService {
         }
         ProjectExample example = new ProjectExample();
         example.createCriteria().andIdIn(projectIds);
-        List<Project> projects = projectMapper.selectByExample(example);
-        return projects;
+        return projectMapper.selectByExample(example);
     }
 
     public List<Environment> getEnvironmentsByIds(List<String> envIds) {

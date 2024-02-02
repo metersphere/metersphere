@@ -12,7 +12,10 @@ import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.*;
+import io.metersphere.system.domain.TestResourcePool;
+import io.metersphere.system.domain.TestResourcePoolExample;
+import io.metersphere.system.domain.User;
+import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.dto.UpdateProjectRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
@@ -34,6 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 
 @Service
@@ -124,7 +128,7 @@ public class ProjectService {
     private void checkProjectExistByName(Project project) {
         ProjectExample example = new ProjectExample();
         example.createCriteria().andNameEqualTo(project.getName()).andOrganizationIdEqualTo(project.getOrganizationId()).andIdNotEqualTo(project.getId());
-        if (projectMapper.selectByExample(example).size() > 0) {
+        if (projectMapper.countByExample(example) > 0) {
             throw new MSException(Translator.get("project_name_already_exists"));
         }
     }
@@ -147,7 +151,7 @@ public class ProjectService {
     public List<OptionDTO> getPoolOptions(String projectId, String type) {
         checkProjectNotExist(projectId);
         List<String> poolIds = getPoolIds(projectId);
-        if(CollectionUtils.isEmpty(poolIds)){
+        if (CollectionUtils.isEmpty(poolIds)) {
             return new ArrayList<>();
         }
         TestResourcePoolExample example = new TestResourcePoolExample();
@@ -175,7 +179,7 @@ public class ProjectService {
     }
 
     public static Project checkResourceExist(String id) {
-        return ServiceUtils.checkResourceExist(CommonBeanFactory.getBean(ProjectMapper.class).selectByPrimaryKey(id), "permission.project.name");
+        return ServiceUtils.checkResourceExist(Objects.requireNonNull(CommonBeanFactory.getBean(ProjectMapper.class)).selectByPrimaryKey(id), "permission.project.name");
     }
 
     /**

@@ -4,9 +4,9 @@ import io.metersphere.api.constants.ApiDefinitionDocType;
 import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
+import io.metersphere.api.dto.converter.ApiDefinitionImport;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.definition.*;
-import io.metersphere.api.dto.converter.ApiDefinitionImport;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.parser.ImportParser;
@@ -278,9 +278,9 @@ public class ApiDefinitionService {
         // 记录更新前的数据
         apiDefinitionLogService.batchUpdateLog(ids, userId, request.getProjectId());
         if (CollectionUtils.isNotEmpty(ids)) {
-            if (request.getType().equals("tags")) {
+            if ("tags".equals(request.getType())) {
                 handleTags(request, userId, ids);
-            } else if (request.getType().equals("customs")) {
+            } else if ("customs".equals(request.getType())) {
                 // 自定义字段处理
                 ApiDefinitionCustomFieldDTO customField = request.getCustomField();
                 List<ApiDefinitionCustomField> list = new ArrayList<>();

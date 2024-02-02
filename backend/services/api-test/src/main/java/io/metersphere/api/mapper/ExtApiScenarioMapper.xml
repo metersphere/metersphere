@@ -460,6 +460,10 @@
         </if>
 
     </select>
+    <select id="selectByProjectId" resultType="java.lang.String">
+        select id from api_scenario
+        where project_id = #{projectId}
+    </select>
 
     <sql id="taskCenterFilters">
         <if test="${filter} != null and ${filter}.size() > 0">
