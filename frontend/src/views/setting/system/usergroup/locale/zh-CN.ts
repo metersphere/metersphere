@@ -49,7 +49,7 @@ export default {
       LOAD_TEST: '性能测试',
       PERSONAL: '我的设置',
       isDeleteUserGroup: '是否删除: {name}?',
-      beforeDeleteUserGroup: '删除后，该组织下的项目数据将一起删除，请谨慎操作！',
+      beforeDeleteUserGroup: '删除后，该系统下的项目数据将一起删除，请谨慎操作！',
       confirmDelete: '确认删除',
       function: '功能',
       operationObject: '操作对象',
@@ -96,6 +96,16 @@ export default {
       update: '更新',
       delete: '删除',
       recover: '恢复',
+    },
+  },
+  org: {
+    userGroup: {
+      beforeDeleteUserGroup: '删除后，组织下用户组数据将一起删除，请谨慎操作！',
+    },
+  },
+  project: {
+    userGroup: {
+      beforeDeleteUserGroup: '删除后，项目下用户组数据将一起删除，请谨慎操作！',
     },
   },
 };

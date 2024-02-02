@@ -458,10 +458,22 @@
       popVisible.value[id] = visibleItem;
     }
     if (item.eventTag === 'delete') {
+      let content = '';
+      switch (authScope) {
+        case AuthScopeEnum.SYSTEM:
+          content = t('system.userGroup.beforeDeleteUserGroup');
+          break;
+        case AuthScopeEnum.ORGANIZATION:
+          content = t('org.userGroup.beforeDeleteUserGroup');
+          break;
+        default:
+          content = t('project.userGroup.beforeDeleteUserGroup');
+          break;
+      }
       openModal({
         type: 'error',
         title: t('system.userGroup.isDeleteUserGroup', { name: characterLimit(currentName.value) }),
-        content: t('system.userGroup.beforeDeleteUserGroup'),
+        content,
         okText: t('system.userGroup.confirmDelete'),
         cancelText: t('system.userGroup.cancel'),
         okButtonProps: {

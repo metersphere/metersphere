@@ -16,6 +16,7 @@
   import { useAppStore, useUserStore } from '@/store';
   import useLicenseStore from '@/store/modules/setting/license';
   import { openWindow, regexUrl } from '@/utils';
+  import { getFisrtRouterNameByCurrentRoute } from '@/utils/permission';
   import { listenerRouteChange } from '@/utils/route-listener';
 
   import useMenuTree from './use-menu-tree';
@@ -58,9 +59,17 @@
             selectedKey.value = [item.name as string];
             return;
           }
-          router.push({
-            name: item.name,
-          });
+          if (item.meta?.hideChildrenInMenu) {
+            // 顶级菜单路由跳转到该菜单下有权限的第一个顶部子菜单
+            const childName = getFisrtRouterNameByCurrentRoute(item.name as string);
+            router.push({
+              name: childName,
+            });
+          } else {
+            router.push({
+              name: item.name,
+            });
+          }
         } else {
           router.push({
             name: 'notFound',
@@ -365,7 +374,6 @@
           }
           return nodes;
         }
-
         return travel(menuTree.value);
       };
 

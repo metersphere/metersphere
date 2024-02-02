@@ -267,6 +267,7 @@
     BatchActionQueryParams,
     MsPaginationI,
     MsTableColumn,
+    MsTableDataItem,
     MsTableProps,
   } from './type';
   import type { TableColumnData, TableData } from '@arco-design/web-vue';
@@ -322,11 +323,11 @@
   const selectTotal = computed(() => {
     const { selectorStatus } = props;
     if (selectorStatus === SelectAllEnum.CURRENT) {
-      const { pageSize, total } = attrs.msPagination as MsPaginationI;
       if (!attrs.showPagination) {
         // 不展示分页时直接返回total
-        return total;
+        return (attrs.data as MsTableDataItem<TableData>[]).length;
       }
+      const { pageSize, total } = attrs.msPagination as MsPaginationI;
       if (pageSize > total) {
         return total;
       }
