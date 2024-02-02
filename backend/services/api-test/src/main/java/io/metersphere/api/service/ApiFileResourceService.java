@@ -44,7 +44,7 @@ public class ApiFileResourceService {
     /**
      * 上传接口相关的资源文件
      *
-     * @param folder
+     * @param folder     文件夹
      * @param addFileMap key:fileId value:fileName
      */
     public void uploadFileResource(String folder, Map<String, String> addFileMap) {
@@ -190,10 +190,10 @@ public class ApiFileResourceService {
     /**
      * 删除资源下所有的文件或者关联关系
      *
-     * @param apiDebugDir
-     * @param resourceId
-     * @param projectId
-     * @param operator
+     * @param apiDebugDir 本地上传文件目录
+     * @param resourceId  资源ID
+     * @param projectId   项目ID
+     * @param operator    操作人
      */
     public void deleteByResourceId(String apiDebugDir, String resourceId, String projectId, String operator, String logModule) {
         // 处理本地上传的文件

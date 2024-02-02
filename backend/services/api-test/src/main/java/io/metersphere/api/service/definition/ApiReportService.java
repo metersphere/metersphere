@@ -41,8 +41,6 @@ public class ApiReportService {
     @Resource
     private UserLoginService userLoginService;
     @Resource
-    private ApiReportStepMapper apiReportStepMapper;
-    @Resource
     private ApiReportDetailMapper apiReportDetailMapper;
     @Resource
     private ApiReportLogService apiReportLogService;

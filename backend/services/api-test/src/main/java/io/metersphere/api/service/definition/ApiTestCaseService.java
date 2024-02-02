@@ -98,7 +98,7 @@ public class ApiTestCaseService {
         if (CollectionUtils.isEmpty(apiDefinitions)) {
             throw new MSException(Translator.get("api_definition_not_exist"));
         }
-        return apiDefinitions.get(0);
+        return apiDefinitions.getFirst();
     }
 
     public void checkNameExist(ApiTestCase apiTestCase) {

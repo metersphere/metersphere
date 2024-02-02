@@ -1,6 +1,7 @@
 package io.metersphere.api.service;
 
 import io.metersphere.api.domain.*;
+import io.metersphere.api.job.ApiScenarioScheduleJob;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.schedule.SwaggerUrlImportJob;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
@@ -16,6 +17,7 @@ import io.metersphere.system.mapper.ScheduleMapper;
 import io.metersphere.system.schedule.ScheduleService;
 import io.metersphere.system.service.CleanupProjectResourceService;
 import jakarta.annotation.Resource;
+import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -82,6 +84,20 @@ public class CleanupApiResourceServiceImpl implements CleanupProjectResourceServ
     private ShareInfoMapper shareInfoMapper;
     @Resource
     private ApiDefinitionSwaggerMapper apiDefinitionSwaggerMapper;
+    @Resource
+    private ExtApiScenarioMapper extApiScenarioMapper;
+    @Resource
+    private ApiScenarioMapper apiScenarioMapper;
+    @Resource
+    private ApiScenarioBlobMapper apiScenarioBlobMapper;
+    @Resource
+    private ApiScenarioStepMapper apiScenarioStepMapper;
+    @Resource
+    private ApiScenarioStepBlobMapper apiScenarioStepBlobMapper;
+    @Resource
+    private ApiScenarioCsvMapper apiScenarioCsvMapper;
+    @Resource
+    private ApiScenarioCsvStepMapper apiScenarioCsvStepMapper;
 
 
     @Async
@@ -99,6 +115,66 @@ public class CleanupApiResourceServiceImpl implements CleanupProjectResourceServ
         deleteShareUrl(projectId);
         //删除定时任务
         deleteSchedule(projectId);
+        //删除场景
+        deleteScenario(projectId);
+
+    }
+
+    private void deleteScenario(String projectId) {
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andProjectIdEqualTo(projectId);
+        List<String> scenarioIds = extApiScenarioMapper.selectByProjectId(projectId);
+        if (CollectionUtils.isNotEmpty(scenarioIds)) {
+            SubListUtils.dealForSubList(scenarioIds, 500, subList -> {
+                cascadeDelete(subList, OperationLogConstants.SYSTEM);
+            });
+        }
+    }
+
+
+    public void cascadeDelete(@NotEmpty List<String> subList, String operator) {
+        ApiScenarioBlobExample example = new ApiScenarioBlobExample();
+        example.createCriteria().andIdIn(subList);
+        //删除blob
+        apiScenarioBlobMapper.deleteByExample(example);
+
+
+        ApiScenarioStepExample stepExample = new ApiScenarioStepExample();
+        stepExample.createCriteria().andScenarioIdIn(subList);
+        //删除step
+        apiScenarioStepMapper.deleteByExample(stepExample);
+
+        //删除step-blob
+        ApiScenarioStepBlobExample blobExample = new ApiScenarioStepBlobExample();
+        blobExample.createCriteria().andScenarioIdIn(subList);
+        apiScenarioStepBlobMapper.deleteByExample(blobExample);
+
+        ApiScenarioExample apiScenarioExample = new ApiScenarioExample();
+        apiScenarioExample.createCriteria().andIdIn(subList);
+        List<ApiScenario> scenarioList = apiScenarioMapper.selectByExample(apiScenarioExample);
+        scenarioList.forEach(scenario -> {
+            //删除文件
+            String scenarioDir = DefaultRepositoryDir.getApiDebugDir(scenario.getProjectId(), scenario.getId());
+            try {
+                apiFileResourceService.deleteByResourceId(scenarioDir, scenario.getId(), scenario.getProjectId(), operator, OperationLogModule.API_DEBUG);
+            } catch (Exception ignore) {
+            }
+
+        });
+        //删除csv
+        ApiScenarioCsvExample csvExample = new ApiScenarioCsvExample();
+        csvExample.createCriteria().andScenarioIdIn(subList);
+        List<ApiScenarioCsv> apiScenarioCsv = apiScenarioCsvMapper.selectByExample(csvExample);
+        if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(apiScenarioCsv)) {
+            List<String> fileIds = apiScenarioCsv.stream().map(ApiScenarioCsv::getFileId).toList();
+            //删除关联关系
+            ApiScenarioCsvStepExample csvStepExample = new ApiScenarioCsvStepExample();
+            csvStepExample.createCriteria().andFileIdIn(fileIds);
+            apiScenarioCsvStepMapper.deleteByExample(csvStepExample);
+        }
+        apiScenarioCsvMapper.deleteByExample(csvExample);
+        //删除场景
+        apiScenarioMapper.deleteByExample(apiScenarioExample);
 
     }
 
@@ -255,7 +331,13 @@ public class CleanupApiResourceServiceImpl implements CleanupProjectResourceServ
         ApiDefinitionSwaggerExample swaggerExample = new ApiDefinitionSwaggerExample();
         swaggerExample.createCriteria().andProjectIdEqualTo(projectId);
         apiDefinitionSwaggerMapper.deleteByExample(swaggerExample);
-        //TODO 删除场景的定时任务
+        // 删除场景的定时任务
+        scheduleExample = new ScheduleExample();
+        scheduleExample.createCriteria().andProjectIdEqualTo(projectId).andJobEqualTo(ApiScenarioScheduleJob.class.getName());
+        schedules = scheduleMapper.selectByExample(scheduleExample);
+        if (CollectionUtils.isNotEmpty(schedules)) {
+            scheduleService.deleteByResourceIds(schedules.stream().map(Schedule::getResourceId).collect(Collectors.toList()), ApiScenarioScheduleJob.class.getName());
+        }
 
     }
 

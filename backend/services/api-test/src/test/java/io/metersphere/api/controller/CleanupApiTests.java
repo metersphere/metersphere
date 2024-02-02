@@ -1,6 +1,8 @@
 package io.metersphere.api.controller;
 
 import io.metersphere.api.domain.*;
+import io.metersphere.api.dto.scenario.CsvVariable;
+import io.metersphere.api.job.ApiScenarioScheduleJob;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.CleanupApiReportServiceImpl;
 import io.metersphere.api.service.CleanupApiResourceServiceImpl;
@@ -54,6 +56,12 @@ public class CleanupApiTests {
     private ScheduleMapper scheduleMapper;
     @Resource
     private CleanupApiReportServiceImpl cleanupApiReportServiceImpl;
+    @Resource
+    private ApiScenarioMapper apiScenarioMapper;
+    @Resource
+    private ApiFileResourceMapper apiFileResourceMapper;
+    @Resource
+    private ApiScenarioCsvMapper apiScenarioCsvMapper;
 
     @Autowired
     public CleanupApiTests(ProjectServiceInvoker serviceInvoker) {
@@ -130,7 +138,45 @@ public class CleanupApiTests {
         apiDefinitionMock.setName("test");
         apiDefinitionMock.setExpectNum("test");
         apiDefinitionMockMapper.insertSelective(apiDefinitionMock);
+        //创建场景数据
+        ApiScenario apiScenario = new ApiScenario();
+        apiScenario.setId("system-scenario-id");
+        apiScenario.setProjectId("test");
+        apiScenario.setName("场景");
+        apiScenario.setNum(1L);
+        apiScenario.setCreateTime(System.currentTimeMillis());
+        apiScenario.setUpdateTime(System.currentTimeMillis());
+        apiScenario.setCreateUser("admin");
+        apiScenario.setUpdateUser("admin");
+        apiScenario.setStatus("未规划");
+        apiScenario.setDeleted(false);
+        apiScenario.setPriority("P0");
+        apiScenario.setStepTotal(0);
+        apiScenario.setPos(64L);
+        apiScenario.setModuleId("test-default");
+        apiScenario.setVersionId("1.0");
+        apiScenario.setRequestPassRate(String.valueOf(0));
+        apiScenario.setRefId(apiScenario.getId());
+        apiScenario.setLatest(true);
+        apiScenario.setLastReportStatus("未执行");
+        apiScenarioMapper.insertSelective(apiScenario);
+        ApiFileResource apiFileResource = new ApiFileResource();
+        apiFileResource.setResourceId(apiScenario.getId());
+        apiFileResource.setFileId(IDGenerator.nextStr());
+        apiFileResource.setFileName("test");
+        apiFileResource.setResourceType("API_SCENARIO");
+        apiFileResource.setCreateTime(System.currentTimeMillis());
+        apiFileResource.setProjectId(apiScenario.getProjectId());
+        apiFileResourceMapper.insertSelective(apiFileResource);
 
+        ApiScenarioCsv apiScenarioCsv = new ApiScenarioCsv();
+        apiScenarioCsv.setId(IDGenerator.nextStr());
+        apiScenarioCsv.setScenarioId(apiScenario.getId());
+        apiScenarioCsv.setFileId("fileMetadataId");
+        apiScenarioCsv.setName("csv变量");
+        apiScenarioCsv.setScope(CsvVariable.CsvVariableScope.SCENARIO.name());
+        apiScenarioCsv.setProjectId("test");
+        apiScenarioCsvMapper.insertSelective(apiScenarioCsv);
 
     }
 
@@ -155,6 +201,21 @@ public class CleanupApiTests {
         schedule.setProjectId("test");
         schedule.setConfig("config");
         schedule.setJob(SwaggerUrlImportJob.class.getName());
+        schedule.setType(ScheduleType.CRON.name());
+        schedule.setId(IDGenerator.nextStr());
+        schedule.setCreateTime(System.currentTimeMillis());
+        schedule.setUpdateTime(System.currentTimeMillis());
+        scheduleMapper.insertSelective(schedule);
+        schedule = new Schedule();
+        schedule.setName("test-111");
+        schedule.setResourceId("test-111");
+        schedule.setEnable(true);
+        schedule.setValue("test");
+        schedule.setKey("test");
+        schedule.setCreateUser("admin");
+        schedule.setProjectId("test");
+        schedule.setConfig("config");
+        schedule.setJob(ApiScenarioScheduleJob.class.getName());
         schedule.setType(ScheduleType.CRON.name());
         schedule.setId(IDGenerator.nextStr());
         schedule.setCreateTime(System.currentTimeMillis());

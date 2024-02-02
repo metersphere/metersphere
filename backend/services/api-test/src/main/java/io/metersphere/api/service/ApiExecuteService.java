@@ -12,7 +12,10 @@ import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionRunRequest;
-import io.metersphere.project.service.*;
+import io.metersphere.project.service.FileAssociationService;
+import io.metersphere.project.service.FileManagementService;
+import io.metersphere.project.service.FileMetadataService;
+import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
 import io.metersphere.sdk.constants.ApiExecuteRunMode;
 import io.metersphere.sdk.constants.ProjectApplicationType;
@@ -41,10 +44,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.metersphere.api.controller.result.ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR;
@@ -89,7 +89,7 @@ public class ApiExecuteService {
     }
 
     public String getJmeterHome() {
-        String home = getClass().getResource("/").getPath() + "jmeter";
+        String home = Objects.requireNonNull(getClass().getResource("/")).getPath() + "jmeter";
         try {
             File file = new File(home);
             if (file.exists()) {
@@ -133,10 +133,11 @@ public class ApiExecuteService {
 
     /**
      * 发送执行任务
-     * @param reportId 报告ID
-     * @param testId   资源ID
-     * @param taskRequest 执行参数
-     * @param executeScript 执行脚本
+     *
+     * @param reportId            报告ID
+     * @param testId              资源ID
+     * @param taskRequest         执行参数
+     * @param executeScript       执行脚本
      * @param testResourceNodeDTO 资源池
      */
     private void doDebug(String reportId,
@@ -175,7 +176,7 @@ public class ApiExecuteService {
     /**
      * 设置minio kafka ms 等信息
      *
-     * @param taskRequest
+     * @param taskRequest 执行参数
      */
     private void setServerInfoParam(TaskRequestDTO taskRequest) {
         taskRequest.setKafkaConfig(EncryptUtils.aesEncrypt(JSON.toJSONString(KafkaConfig.getKafkaConfig())));
@@ -185,8 +186,9 @@ public class ApiExecuteService {
 
     /**
      * 公共脚本执行
-     * @param runRequest
-     * @return
+     *
+     * @param runRequest 执行参数
+     * @return 报告ID
      */
     public String runScript(CustomFunctionRunRequest runRequest) {
         String reportId = runRequest.getReportId();
@@ -215,8 +217,8 @@ public class ApiExecuteService {
     /**
      * 给 taskRequest 设置文件相关参数
      *
-     * @param request
-     * @param taskRequest
+     * @param request     请求参数
+     * @param taskRequest 执行参数
      */
     private void setTaskFileParam(ApiResourceRunRequest request, TaskRequestDTO taskRequest) {
         // 查询通过本地上传的文件
@@ -264,7 +266,7 @@ public class ApiExecuteService {
                             tempFileInfo.setFileModuleRepositoryDTO(fileManagementService.getFileModuleRepositoryDTO(file.getModuleId()));
                         }
                         return tempFileInfo;
-                    }).collect(Collectors.toList());
+                    }).toList();
             // 添加临时的文件管理的文件
             refFiles.addAll(refTempFiles);
 
@@ -274,8 +276,7 @@ public class ApiExecuteService {
                     .filter(tempFileId -> !refTempFileIds.contains(tempFileId))
                     .map(tempFileId -> {
                         String fileName = apiFileResourceService.getTempFileNameByFileId(tempFileId);
-                        ApiExecuteFileInfo apiExecuteFileInfo = getApiExecuteFileInfo(tempFileId, fileName, request.getProjectId());
-                        return apiExecuteFileInfo;
+                        return getApiExecuteFileInfo(tempFileId, fileName, request.getProjectId());
                     })
                     .collect(Collectors.toList());
             taskRequest.setLocalTempFiles(localTempFiles);
@@ -300,9 +301,9 @@ public class ApiExecuteService {
     /**
      * 生成执行脚本
      *
-     * @param msTestElement
-     * @param config
-     * @return
+     * @param msTestElement 接口元素
+     * @param config        参数配置
+     * @return 执行脚本
      */
     private static String parseExecuteScript(AbstractMsTestElement msTestElement, ParameterConfig config) {
         // 解析生成脚本
@@ -314,6 +315,7 @@ public class ApiExecuteService {
     public static Map<String, String> getMinio() {
         MinioProperties minioProperties = CommonBeanFactory.getBean(MinioProperties.class);
         Map<String, String> minioPros = new HashMap<>();
+        assert minioProperties != null;
         minioPros.put("endpoint", minioProperties.getEndpoint());
         minioPros.put("accessKey", minioProperties.getAccessKey());
         minioPros.put("secretKey", minioProperties.getSecretKey());
@@ -323,8 +325,8 @@ public class ApiExecuteService {
     /**
      * 获取当前项目配置的接口默认资源池
      *
-     * @param projectId
-     * @param
+     * @param projectId      项目ID
+     * @param resourcePoolId 资源池ID
      */
     public TestResourceDTO getAvailableResourcePoolDTO(String projectId, String resourcePoolId) {
         TestResourcePool testResourcePool = testResourcePoolService.getTestResourcePool(resourcePoolId);
@@ -345,7 +347,6 @@ public class ApiExecuteService {
         if (resourcePoolConfig == null || StringUtils.isBlank(resourcePoolConfig.getTypeValue())) {
             throw new MSException(ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);
         }
-        String resourcePoolId = StringUtils.isBlank(resourcePoolConfig.getTypeValue()) ? null : resourcePoolConfig.getTypeValue();
-        return resourcePoolId;
+        return StringUtils.isBlank(resourcePoolConfig.getTypeValue()) ? null : resourcePoolConfig.getTypeValue();
     }
 }
