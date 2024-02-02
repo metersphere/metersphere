@@ -133,6 +133,10 @@
     currentProject?: CreateOrUpdateSystemProjectParams;
   }>();
 
+  defineOptions({
+    name: 'SystemAddProjectModal',
+  });
+
   const formRef = ref<FormInstance>();
 
   const loading = ref(false);
@@ -209,7 +213,7 @@
       }
       try {
         loading.value = true;
-        await createOrUpdateProject({ id: props.currentProject?.id, ...form });
+        await createOrUpdateProject({ id: isEdit.value ? props.currentProject?.id : '', ...form });
         Message.success(
           isEdit.value ? t('system.project.updateProjectSuccess') : t('system.project.createProjectSuccess')
         );

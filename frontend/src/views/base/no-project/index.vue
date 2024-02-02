@@ -1,5 +1,5 @@
 <template>
-  <single-logo-layout is-project>
+  <NoPermissionLayoutVue is-project>
     <div class="mt-[24px] flex items-center justify-center">
       <a-select class="w-[280px]" allow-search @change="selectProject">
         <template #arrow-icon>
@@ -20,14 +20,14 @@
         </template>
       </a-select>
     </div>
-  </single-logo-layout>
+  </NoPermissionLayoutVue>
 </template>
 
 <script lang="ts" setup>
   import { onBeforeMount, Ref, ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
 
-  import SingleLogoLayout from '@/layout/single-logo-layout.vue';
+  import NoPermissionLayoutVue from '@/layout/no-permission-layout.vue';
 
   import { getProjectList, switchProject } from '@/api/modules/project-management/project';
   import { useI18n } from '@/hooks/useI18n';

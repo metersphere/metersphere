@@ -122,6 +122,10 @@
 
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
 
+  defineOptions({
+    name: 'OrgAddProjectModal',
+  });
+
   const { t } = useI18n();
   const props = defineProps<{
     visible: boolean;
@@ -225,7 +229,7 @@
       }
       try {
         loading.value = true;
-        await createOrUpdateProjectByOrg({ id: props.currentProject?.id, ...form });
+        await createOrUpdateProjectByOrg({ id: isEdit.value ? props.currentProject?.id : '', ...form });
         Message.success(
           isEdit.value ? t('system.project.updateProjectSuccess') : t('system.project.createProjectSuccess')
         );

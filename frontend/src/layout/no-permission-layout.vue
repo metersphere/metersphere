@@ -17,7 +17,7 @@
                 <div class="radius-box"></div>
               </div>
               <div class="title">
-                <span>{{ t('common.noProject') }}</span>
+                <span>{{ props.isProject ? t('common.noProject') : t('common.noResource') }}</span>
               </div>
               <slot></slot>
             </div>
@@ -39,6 +39,9 @@
   const pageConfig = ref({ ...appStore.pageConfig });
 
   const { t } = useI18n();
+  const props = defineProps<{
+    isProject?: boolean;
+  }>();
 </script>
 
 <style lang="less" scoped>
@@ -80,6 +83,8 @@
           }
         }
         .title {
+          display: flex;
+          justify-content: center;
           font-size: 16px;
           color: var(--color-text-1);
           .user {

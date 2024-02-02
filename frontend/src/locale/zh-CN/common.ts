@@ -39,6 +39,8 @@ export default {
   'common.confirmEnable': '确认启用',
   'common.confirmDisable': '确认禁用',
   'common.confirmClose': '确认关闭',
+  'common.confirmEnd': '确认结束',
+  'common.confirmStart': '确认开启',
   'common.enableSuccess': '启用成功',
   'common.disableSuccess': '禁用成功',
   'common.enableFailed': '启用失败',
