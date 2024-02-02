@@ -1,6 +1,5 @@
 package io.metersphere.functional.config;
 
-import io.metersphere.functional.service.XpackFunctionalCaseService;
 import io.metersphere.provider.BaseAssociateApiProvider;
 import io.metersphere.provider.BaseAssociateBugProvider;
 import io.metersphere.provider.BaseAssociateScenarioProvider;
@@ -18,8 +17,5 @@ public class CaseTestConfiguration {
 
     @MockBean
     BaseAssociateBugProvider baseAssociateBugProvider;
-
-    @MockBean
-    XpackFunctionalCaseService xpackFunctionalCaseService;
 
 }

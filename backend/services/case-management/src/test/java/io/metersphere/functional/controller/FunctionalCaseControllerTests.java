@@ -667,7 +667,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= request.getPageSize());
         request.setSort(Map.of());
         this.requestPost(OPERATION_HISTORY_URL, request);
-        List<OperationHistoryDTO> operationHistoryDTOS = operationHistoryService.listWidthLimit(request, "functional_case");
+        List<OperationHistoryDTO> operationHistoryDTOS = operationHistoryService.listWidthTable(request, "functional_case");
         Assertions.assertTrue(CollectionUtils.isNotEmpty(operationHistoryDTOS));
 
     }

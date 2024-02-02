@@ -923,11 +923,7 @@ public class ApiDefinitionService {
     }
 
     public List<OperationHistoryDTO> list(OperationHistoryRequest request) {
-        XpackApiDefinitionService xpackApiDefinitionService = CommonBeanFactory.getBean(XpackApiDefinitionService.class);
-        if (xpackApiDefinitionService != null) {
-            return xpackApiDefinitionService.listHis(request, API_TABLE);
-        }
-        return new ArrayList<>();
+        return operationHistoryService.listWidthTable(request, API_TABLE);
     }
 
     /**

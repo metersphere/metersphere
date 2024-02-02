@@ -2,10 +2,6 @@ package io.metersphere.bug.service;
 
 import io.metersphere.bug.dto.request.BugSyncRequest;
 import io.metersphere.project.domain.Project;
-import io.metersphere.system.dto.OperationHistoryDTO;
-import io.metersphere.system.dto.request.OperationHistoryRequest;
-
-import java.util.List;
 
 /**
  * 缺陷相关xpack功能接口
@@ -27,10 +23,4 @@ public interface XpackBugService {
      */
     void syncPlatformBugs(Project project, BugSyncRequest request, String currentUser);
 
-    /**
-     * 缺陷变更历史分页列表
-     * @param request 请求参数
-     * @return 变更历史集合
-     */
-    List<OperationHistoryDTO> listHis(OperationHistoryRequest request);
 }

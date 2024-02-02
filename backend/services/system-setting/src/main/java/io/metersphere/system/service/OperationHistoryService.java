@@ -47,8 +47,8 @@ public class OperationHistoryService {
     }
 
 
-    public List<OperationHistoryDTO> listWidthLimit(OperationHistoryRequest request, String table) {
-        List<OperationHistoryDTO> list = baseOperationHistoryMapper.listWidthLimit(request, table);
+    public List<OperationHistoryDTO> listWidthTable(OperationHistoryRequest request, String table) {
+        List<OperationHistoryDTO> list = baseOperationHistoryMapper.listWidthTable(request, table);
         if (CollectionUtils.isNotEmpty(list)) {
             List<String> userIds = list.stream().distinct()
                     .map(OperationHistoryDTO::getCreateUser).toList();

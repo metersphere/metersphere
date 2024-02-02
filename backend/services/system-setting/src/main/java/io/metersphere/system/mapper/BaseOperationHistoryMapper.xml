@@ -41,7 +41,7 @@
         </where>
     </select>
 
-    <select id="listWidthLimit" resultType="io.metersphere.system.dto.OperationHistoryDTO">
+    <select id="listWidthTable" resultType="io.metersphere.system.dto.OperationHistoryDTO">
         SELECT operation_history.id, operation_history.project_id, operation_history.create_time, operation_history.create_user, operation_history.source_id, operation_history.`type`, operation_history.`module`, operation_history.ref_id, project_version.name as versionName
         FROM operation_history
         LEFT JOIN ${table} sourceTable ON sourceTable.id = operation_history.source_id
