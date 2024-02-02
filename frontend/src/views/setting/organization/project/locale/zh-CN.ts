@@ -71,4 +71,5 @@ export default {
   'system.project.updateProjectSuccess': '更新项目成功',
   'system.project.resourcePool': '资源池',
   'system.project.removeName': '确认移除 {name} 这个用户吗？',
+  'system.project.descriptionPlaceholder': '请对该项目进行描述',
 };

@@ -77,4 +77,5 @@ export default {
   'system.project.updateProjectSuccess': 'Update project success',
   'system.project.resourcePool': 'Resource pool',
   'system.project.removeName': 'Confirm remove the {name}',
+  'system.project.descriptionPlaceholder': 'Please describe the project.',
 };

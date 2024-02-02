@@ -187,6 +187,7 @@
       width: 180,
       showDrag: true,
       dataIndex: 'createUser',
+      showTooltip: true,
     },
     {
       title: 'system.organization.createTime',

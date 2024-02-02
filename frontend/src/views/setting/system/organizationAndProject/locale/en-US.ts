@@ -77,4 +77,6 @@ export default {
   'system.project.removeTip': "Remove it, and you'll lose access to the project.",
   'system.organization.projectIsDisabled': 'The project has ended and can be opened in the project list.',
   'system.project.searchPlaceholder': 'Search by name or id',
+  'system.project.afterModule':
+    'After the module is canceled, users will be unable to access the specified module, and existing data will remain intact',
 };

@@ -181,6 +181,7 @@
       title: 'system.organization.creator',
       slotName: 'creator',
       dataIndex: 'createUser',
+      showTooltip: true,
     },
     {
       title: 'system.organization.createTime',

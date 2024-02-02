@@ -49,7 +49,7 @@
       <a-divider />
       <div class="mb-2 flex items-center justify-between">
         <div class="text-[var(--color-text-4)]">{{ t('msTable.columnSetting.header') }}</div>
-        <MsButton :disabled="!hasChange" @click="handleReset">{{ t('msTable.columnSetting.resetDefault') }}</MsButton>
+        <MsButton v-if="hasChange" @click="handleReset">{{ t('msTable.columnSetting.resetDefault') }}</MsButton>
       </div>
       <div class="flex-col">
         <div v-for="item in nonSortColumn" :key="item.dataIndex" class="column-item">
@@ -140,6 +140,7 @@
 
   const handleReset = () => {
     loadColumn(props.tableKey);
+    hasChange.value = false;
   };
 
   const handleModeChange = (value: string | number | boolean) => {

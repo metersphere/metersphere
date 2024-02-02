@@ -74,4 +74,5 @@ export default {
   'system.project.deleteName': '确认删除 {name} 这个项目吗？',
   'system.project.deleteTip': '删除后，系统会在 30天 后执行删除项目 (含项目下所有业务数据)，请谨慎操作！',
   'system.project.searchPlaceholder': '通过ID或项目名称搜索',
+  'system.project.afterModule': '取消模块后用户将无法进入指定模块，已存在的数据会继续保留',
 };
