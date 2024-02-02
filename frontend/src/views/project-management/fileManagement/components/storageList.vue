@@ -26,7 +26,9 @@
         <div :key="index" class="storage" @click="setActiveFolder(item.id)">
           <div :class="props.activeFolder === item.id ? 'storage-text storage-text--active' : 'storage-text'">
             <MsIcon type="icon-icon_git" class="storage-icon" />
-            <div class="storage-name">{{ item.name }}</div>
+            <a-tooltip :content="item.name">
+              <div class="storage-name one-line-text">{{ item.name }}</div>
+            </a-tooltip>
             <div class="storage-count">({{ item.count }})</div>
           </div>
         </div>
@@ -151,6 +153,7 @@
   import {
     addRepository,
     connectRepository,
+    deleteModule,
     getRepositories,
     getRepositoryInfo,
     updateRepository,
@@ -264,7 +267,7 @@
    * 删除存储库
    * @param item 列表项信息
    */
-  function deleteStorage(item: any) {
+  function deleteStorage(item: Repository) {
     openModal({
       type: 'error',
       title: t('project.fileManagement.deleteStorageTipTitle', { name: item.name }),
@@ -276,7 +279,9 @@
       maskClosable: false,
       onBeforeOk: async () => {
         try {
+          await deleteModule(item.id);
           Message.success(t('project.fileManagement.deleteSuccess'));
+          initRepositories();
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -386,7 +391,7 @@
     storageFormRef.value?.validateField('url');
   }
 
-  function validatePlatformUrl(value: any, callback: (error?: string | undefined) => void) {
+  function validatePlatformUrl(value: string, callback: (error?: string | undefined) => void) {
     if (!validateGitUrl(value)) {
       callback(t('project.fileManagement.storageUrlError'));
     }
@@ -394,7 +399,6 @@
 
   function handleDrawerCancel() {
     showDrawer.value = false;
-    storageFormRef.value?.resetFields();
     isEdit.value = false;
   }
 
@@ -415,6 +419,7 @@
           projectId: appStore.currentProjectId,
         });
       }
+      storageFormRef.value?.resetFields();
       if (!isContinue) {
         handleDrawerCancel();
       }
@@ -478,6 +483,7 @@
         color: var(--color-text-4);
       }
       .storage-name {
+        max-width: 170px;
         color: var(--color-text-1);
       }
       .storage-count {

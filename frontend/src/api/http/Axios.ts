@@ -81,7 +81,7 @@ export class MSAxios {
    * @description:  文件上传
    */
   uploadFile<T = any>(
-    config: AxiosRequestConfig,
+    config: AxiosRequestConfig & RequestOptions,
     params: UploadFileParams,
     customFileKey = '',
     isMultiple = false
@@ -110,7 +110,6 @@ export class MSAxios {
     const { requestOptions } = this.options;
 
     const opt = { ...requestOptions, isTransformResponse: false };
-
     const { transformRequestHook } = transform || {};
     return new Promise((resolve, reject) => {
       this.axiosInstance
@@ -120,8 +119,10 @@ export class MSAxios {
           data: formData,
           headers: {
             'Content-type': ContentTypeEnum.FORM_DATA,
-            // @ts-ignore
-            'ignoreCancelToken': true, // 文件上传请求不需要添加到pending中，以免路由切换导致文件上传请求被取消
+          },
+          // @ts-ignore
+          requestOptions: {
+            ignoreCancelToken: true, // 文件上传请求不需要添加到pending中，以免路由切换导致文件上传请求被取消
           },
         })
         .then((res: AxiosResponse<Result>) => {

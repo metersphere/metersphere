@@ -52,7 +52,7 @@
         :level-top="[...MENU_LEVEL]"
         :virtual-list-props="{ height: 200 }"
         :loading="rangeLoading"
-        path-mode
+        label-path-mode
         class="filter-item"
       />
       <a-select v-model:model-value="type" class="filter-item">
@@ -116,8 +116,12 @@
         {{ t(typeOptions.find((e) => e.value === record.type)?.label || '') }}
       </template>
       <template #content="{ record }">
-        <div v-if="record.module === 'SYSTEM'">{{ record.content }}</div>
-        <MsButton v-else @click="handleNameClick(record)">{{ record.content }}</MsButton>
+        <div v-if="record.module === 'SYSTEM'" class="one-line-text">{{ record.content }}</div>
+        <MsButton v-else @click="handleNameClick(record)">
+          <div class="one-line-text">
+            {{ record.content }}
+          </div>
+        </MsButton>
       </template>
     </ms-base-table>
   </div>
@@ -450,7 +454,6 @@
       title: 'system.log.operateName',
       dataIndex: 'content',
       slotName: 'content',
-      showTooltip: true,
       width: 150,
     },
     {

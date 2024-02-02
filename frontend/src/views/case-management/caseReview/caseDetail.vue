@@ -208,22 +208,24 @@
           </div>
         </div>
         <div class="content-footer">
-          <div class="mb-[12px] flex items-center">
+          <div class="mb-[12px] flex items-center justify-between">
             <div class="font-medium text-[var(--color-text-1)]">
               {{ t('caseManagement.caseReview.startReview') }}
             </div>
-            <a-switch v-model:model-value="autoNext" class="mx-[8px]" size="small" type="line" />
-            <div class="text-[var(--color-text-4)]">{{ t('caseManagement.caseReview.autoNext') }}</div>
-            <a-tooltip position="right">
-              <template #content>
-                <div>{{ t('caseManagement.caseReview.autoNextTip1') }}</div>
-                <div>{{ t('caseManagement.caseReview.autoNextTip2') }}</div>
-              </template>
-              <icon-question-circle
-                class="mb-[2px] ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
-                size="16"
-              />
-            </a-tooltip>
+            <div class="flex items-center">
+              <a-switch v-model:model-value="autoNext" class="mx-[8px]" size="small" type="line" />
+              <div class="text-[var(--color-text-4)]">{{ t('caseManagement.caseReview.autoNext') }}</div>
+              <a-tooltip position="right">
+                <template #content>
+                  <div>{{ t('caseManagement.caseReview.autoNextTip1') }}</div>
+                  <div>{{ t('caseManagement.caseReview.autoNextTip2') }}</div>
+                </template>
+                <icon-question-circle
+                  class="mb-[2px] ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
+                  size="16"
+                />
+              </a-tooltip>
+            </div>
           </div>
           <reviewForm
             :review-id="reviewId"
@@ -334,7 +336,7 @@
         reviewId: reviewId.value,
         viewFlag: onlyMine.value,
         keyword: keyword.value,
-        current: pageNation.value.current,
+        current: pageNation.value.current || 1,
         pageSize: pageNation.value.pageSize,
         filter: type.value
           ? {
@@ -355,7 +357,10 @@
 
   watch(
     () => onlyMine.value,
-    () => loadCaseList()
+    () => {
+      pageNation.value.current = 1;
+      loadCaseList();
+    }
   );
 
   const activeCaseId = ref(route.query.caseId as string);
@@ -502,23 +507,29 @@
     );
   }
 
-  function reviewDone() {
+  async function reviewDone() {
     if (autoNext.value) {
       // 自动下一个，更改激活的 id会刷新详情
       const index = caseList.value.findIndex((e) => e.caseId === activeCaseId.value);
       if (index < caseList.value.length - 1) {
         activeCaseId.value = caseList.value[index + 1].caseId;
+      } else if (pageNation.value.current * pageNation.value.pageSize < pageNation.value.total) {
+        // 当前页不是最后一页，则加载下一页并激活第一个用例
+        pageNation.value.current += 1;
+        await loadCaseList();
+        activeCaseId.value = caseList.value[0].caseId;
       } else {
         // 当前是最后一个，刷新数据
         loadCaseDetail();
         initReviewHistoryList();
+        loadCaseList();
       }
     } else {
       // 不自动下一个才请求详情
       loadCaseDetail();
       initReviewHistoryList();
+      loadCaseList();
     }
-    loadCaseList();
   }
 
   const editCaseVisible = ref(false);
@@ -552,7 +563,7 @@
         moduleIds,
       } = lastPageParams;
       pageNation.value = {
-        total,
+        total: total || 0,
         pageSize,
         current,
       };
