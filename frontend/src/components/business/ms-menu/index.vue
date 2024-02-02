@@ -202,6 +202,9 @@
           } else {
             personalMenus.value.splice(1, 1);
           }
+        },
+        {
+          immediate: true,
         }
       );
 
