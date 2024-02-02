@@ -10,7 +10,6 @@ export default function setupPermissionGuard(router: Router) {
     const permissionsAllow = Permission.accessRouter(to);
 
     const exist = WHITE_LIST.find((el) => el.name === to.name);
-
     if (exist || permissionsAllow) {
       next();
     } else {

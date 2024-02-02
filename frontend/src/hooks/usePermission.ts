@@ -1,9 +1,8 @@
 import { RouteLocationNormalized, RouteRecordRaw } from 'vue-router';
 import { includes } from 'lodash-es';
 
+import { firstLevelMenu } from '@/config/permission';
 import { hasAnyPermission, topLevelMenuHasPermission } from '@/utils/permission';
-
-const firstLevelMenu = ['workstation', 'testPlan', 'bugManagement', 'caseManagement', 'apiTest', 'uiTest', 'loadTest'];
 
 /**
  * 用户权限

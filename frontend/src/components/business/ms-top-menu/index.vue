@@ -82,17 +82,22 @@
             );
           }
 
-          const filterMenuTopRouter = currentParent?.children
-            ?.filter((item: any) => permission.accessRouter(item) && item.meta?.isTopMenu)
-            .filter((item: any) => {
-              if (item.name === RouteEnum.SETTING_SYSTEM_AUTHORIZED_MANAGEMENT) {
-                return appStore.packageType === 'enterprise';
-              }
-              return true;
-            });
+          const filterMenuTopRouter =
+            currentParent?.children
+              ?.filter((item: any) => permission.accessRouter(item) && item.meta?.isTopMenu)
+              .filter((item: any) => {
+                if (item.name === RouteEnum.SETTING_SYSTEM_AUTHORIZED_MANAGEMENT) {
+                  return appStore.packageType === 'enterprise';
+                }
+                return true;
+              }) || [];
 
           appStore.setTopMenus(filterMenuTopRouter);
-          setCurrentTopMenu(name as string);
+          if (!newRoute.meta.isTopMenu) {
+            setCurrentTopMenu(filterMenuTopRouter[0].name as string);
+          } else {
+            setCurrentTopMenu(name as string);
+          }
           return;
         }
       }

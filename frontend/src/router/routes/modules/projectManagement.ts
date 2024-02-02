@@ -44,7 +44,7 @@ const ProjectManagement: AppRouteRecordRaw = {
       meta: {
         locale: 'menu.projectManagement.projectPermission',
         roles: [
-          'SYSTEM_PARAMETER_SETTING_BASE:READ',
+          'PROJECT_BASE_INFO:READ',
           // 菜单管理
           'PROJECT_APPLICATION_WORKSTATION:READ',
           'PROJECT_APPLICATION_TEST_PLAN:READ',
@@ -67,7 +67,7 @@ const ProjectManagement: AppRouteRecordRaw = {
           component: () => import('@/views/project-management/projectAndPermission/basicInfos/index.vue'),
           meta: {
             locale: 'project.permission.basicInfo',
-            roles: ['SYSTEM_PARAMETER_SETTING_BASE:READ'],
+            roles: ['PROJECT_BASE_INFO:READ'],
           },
         },
         // 菜单管理

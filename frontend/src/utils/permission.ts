@@ -1,21 +1,11 @@
 import { RouteLocationNormalized, RouteRecordNormalized, RouteRecordRaw } from 'vue-router';
 import { includes } from 'lodash-es';
 
+import { firstLevelMenu } from '@/config/permission';
 import { INDEX_ROUTE } from '@/router/routes/base';
+import appRoutes from '@/router/routes/index';
 import { useAppStore, useUserStore } from '@/store';
 import { SystemScopeType, UserRole, UserRolePermissions } from '@/store/modules/user/types';
-
-const firstLevelMenuNames = [
-  'workstation',
-  'testPlan',
-  'bugManagement',
-  'caseManagement',
-  'apiTest',
-  'uiTest',
-  'loadTest',
-  'setting',
-  'projectManagement',
-];
 
 export function hasPermission(permission: string, typeList: string[]) {
   const userStore = useUserStore();
@@ -92,7 +82,7 @@ export function topLevelMenuHasPermission(route: RouteLocationNormalized | Route
 // 有权限的第一个路由名，如果没有找到则返回IndexRoute
 export function getFirstRouteNameByPermission(routerList: RouteRecordNormalized[]) {
   const currentRoute = routerList
-    .filter((item) => includes(firstLevelMenuNames, item.name))
+    .filter((item) => includes(firstLevelMenu, item.name))
     .sort((a, b) => {
       return (a.meta.order || 0) - (b.meta.order || 0);
     })
@@ -104,4 +94,31 @@ export function getFirstRouteNameByPermission(routerList: RouteRecordNormalized[
 export function routerNameHasPermission(routerName: string, routerList: RouteRecordNormalized[]) {
   const currentRoute = routerList.find((item) => item.name === routerName);
   return currentRoute ? hasAnyPermission(currentRoute.meta?.roles || []) : false;
+}
+
+export function findRouteByName(name: string) {
+  const queue: RouteRecordNormalized[] = [...appRoutes];
+  while (queue.length > 0) {
+    const currentRoute = queue.shift();
+    if (!currentRoute) {
+      return;
+    }
+    if (currentRoute.name === name) {
+      return currentRoute;
+    }
+    if (currentRoute.children) {
+      queue.push(...(currentRoute.children as RouteRecordNormalized[]));
+    }
+  }
+  return null;
+}
+
+// 找到当前路由下 第一个由权限的子路由
+export function getFisrtRouterNameByCurrentRoute(parentName: string) {
+  const currentRoute = findRouteByName(parentName);
+  if (currentRoute) {
+    const hasAuthChildrenRouter = currentRoute.children.find((item) => hasAnyPermission(item.meta?.roles || []));
+    return hasAuthChildrenRouter ? hasAuthChildrenRouter.name : parentName;
+  }
+  return parentName;
 }

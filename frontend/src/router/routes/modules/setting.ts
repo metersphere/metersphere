@@ -19,18 +19,19 @@ const Setting: AppRouteRecordRaw = {
       'SYSTEM_TEST_RESOURCE_POOL:READ',
       'SYSTEM_AUTH:READ',
       'SYSTEM_PLUGIN:READ',
+      'SYSTEM_LOG:READ',
       'ORGANIZATION_MEMBER:READ',
       'ORGANIZATION_USER_ROLE:READ',
       'ORGANIZATION_PROJECT:READ',
       'SYSTEM_SERVICE_INTEGRATION:READ',
       'ORGANIZATION_TEMPLATE:READ',
+      'ORGANIZATION_LOG:READ',
     ],
   },
   children: [
     {
       path: 'system',
       name: SettingRouteEnum.SETTING_SYSTEM,
-      redirect: '/setting/system/user',
       component: null,
       meta: {
         locale: 'menu.settings.system',
@@ -42,6 +43,7 @@ const Setting: AppRouteRecordRaw = {
           'SYSTEM_TEST_RESOURCE_POOL:READ',
           'SYSTEM_AUTH:READ',
           'SYSTEM_PLUGIN:READ',
+          'SYSTEM_LOG:READ',
         ],
         hideChildrenInMenu: true,
       },
@@ -152,7 +154,7 @@ const Setting: AppRouteRecordRaw = {
     {
       path: 'organization',
       name: SettingRouteEnum.SETTING_ORGANIZATION,
-      redirect: '/setting/organization/member',
+      redirect: '',
       component: null,
       meta: {
         locale: 'menu.settings.organization',
@@ -162,6 +164,7 @@ const Setting: AppRouteRecordRaw = {
           'ORGANIZATION_PROJECT:READ',
           'SYSTEM_SERVICE_INTEGRATION:READ',
           'ORGANIZATION_TEMPLATE:READ',
+          'ORGANIZATION_LOG:READ',
         ],
         hideChildrenInMenu: true,
       },
@@ -267,7 +270,7 @@ const Setting: AppRouteRecordRaw = {
           component: () => import('@/views/setting/organization/template/components/templateDetail.vue'),
           meta: {
             locale: 'menu.settings.organization.templateManagementDetail',
-            roles: ['*'],
+            roles: ['ORGANIZATION_TEMPLATE:READ+UPDATE', 'ORGANIZATION_TEMPLATE:READ+ADD'],
             breadcrumbs: [
               {
                 name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE,
@@ -295,7 +298,7 @@ const Setting: AppRouteRecordRaw = {
           component: () => import('@/views/setting/organization/template/components/workFlowTableIndex.vue'),
           meta: {
             locale: 'menu.settings.organization.templateManagementWorkFlow',
-            roles: ['*'],
+            roles: ['ORGANIZATION_TEMPLATE:READ+UPDATE'],
             breadcrumbs: [
               {
                 name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE,

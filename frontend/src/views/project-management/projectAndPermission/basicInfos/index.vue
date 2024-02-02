@@ -6,7 +6,7 @@
     <span class="font-medium text-[var(--color-text-000)]">{{ t('project.basicInfo.basicInfo') }}</span>
     <a-button
       v-if="!projectDetail?.deleted"
-      v-permission="['SYSTEM_PARAMETER_SETTING_BASE:READ+UPDATE']"
+      v-permission="['PROJECT_BASE_INFO:READ+UPDATE']"
       type="outline"
       @click="editHandler"
       >{{ t('project.basicInfo.edit') }}</a-button

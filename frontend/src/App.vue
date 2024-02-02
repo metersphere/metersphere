@@ -73,11 +73,6 @@
   const checkIsLogin = async () => {
     const isLogin = await userStore.isLogin();
     const isLoginPage = route.name === 'login';
-    if (isLoginPage && isLogin) {
-      // 当前页面为登录页面，且已经登录，跳转到首页
-      const currentRouteName = getFirstRouteNameByPermission(router.getRoutes());
-      router.push({ name: currentRouteName });
-    }
     if (isLogin && appStore.currentProjectId && appStore.currentProjectId !== 'no_such_project') {
       // 当前为登陆状态，且已经选择了项目，初始化当前项目配置
       try {
@@ -93,6 +88,11 @@
         // eslint-disable-next-line no-console
         console.log(err);
       }
+    }
+    if (isLoginPage && isLogin) {
+      // 当前页面为登录页面，且已经登录，跳转到首页
+      const currentRouteName = getFirstRouteNameByPermission(router.getRoutes());
+      router.push({ name: currentRouteName });
     }
   };
   // 获取公钥
