@@ -12,4 +12,5 @@ export default {
   'login.form.register': '注册账号',
   'login.form.normalLogin': '普通登录',
   'login.form.oauth2Test': 'OAuth2 测试',
+  'login.form.modeLoginMethods': '更多登录方式',
 };

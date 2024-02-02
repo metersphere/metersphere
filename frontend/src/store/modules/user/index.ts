@@ -1,6 +1,11 @@
 import { defineStore } from 'pinia';
 
-import { isLogin as userIsLogin, login as userLogin, logout as userLogout } from '@/api/modules/user';
+import {
+  getAuthenticationList,
+  isLogin as userIsLogin,
+  login as userLogin,
+  logout as userLogout,
+} from '@/api/modules/user';
 import { useI18n } from '@/hooks/useI18n';
 import useLicenseStore from '@/store/modules/setting/license';
 import { getHashParameters } from '@/utils';
@@ -89,6 +94,15 @@ const useUserStore = defineStore('user', {
       } catch (err) {
         clearToken();
         throw err;
+      }
+    },
+    // 获取登录认证方式
+    async getAuthentication() {
+      try {
+        const res = await getAuthenticationList();
+        console.log(res);
+      } catch (error) {
+        console.log(error);
       }
     },
     // 登出回调

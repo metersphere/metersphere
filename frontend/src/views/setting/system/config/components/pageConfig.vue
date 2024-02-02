@@ -365,7 +365,7 @@
 
   const defaultLoginImage = `${import.meta.env.BASE_URL}images/login-banner.jpg`;
   const defaultLoginLogo = `${import.meta.env.BASE_URL}images/login-logo.svg`;
-  const defaultPlatformLogo = `${import.meta.env.BASE_URL}images/MS-full-logo.svg`;
+  const defaultPlatformLogo = `${import.meta.env.BASE_URL}images/MeterSphere-logo.svg`;
   const { t } = useI18n();
   const { currentLocale } = useLocale();
   const appStore = useAppStore();

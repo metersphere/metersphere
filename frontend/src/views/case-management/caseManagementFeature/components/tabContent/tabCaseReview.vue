@@ -16,7 +16,7 @@
         <a-button type="text" class="px-0">{{ record.reviewName }}</a-button>
       </template>
       <template #reviewStatus="{ record }">
-        <statusTag :status="record.reviewStatus" />
+        <statusTag :status="record.reviewStatus || 'PREPARED'" />
       </template>
       <template #status="{ record }">
         <MsIcon

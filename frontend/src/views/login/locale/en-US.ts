@@ -12,4 +12,5 @@ export default {
   'login.form.register': 'register account',
   'login.form.normalLogin': 'Normal login',
   'login.form.oauth2Test': 'OAuth2 Test',
+  'login.form.modeLoginMethods': 'More',
 };

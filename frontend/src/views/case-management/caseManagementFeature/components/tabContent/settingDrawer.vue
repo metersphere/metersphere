@@ -143,7 +143,7 @@
       total: 0,
     },
     // TOTO Xpack 不上
-    // ...getTabList(),
+    ...getTabList(),
   ]);
   async function getTabModule() {
     buggerTab = [];
