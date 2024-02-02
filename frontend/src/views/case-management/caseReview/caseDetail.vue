@@ -498,12 +498,11 @@
   }
 
   function goCaseDetail() {
-    router.push({
-      name: CaseManagementRouteEnum.CASE_MANAGEMENT,
-      query: {
-        id: activeCaseId.value,
-      },
-    });
+    window.open(
+      `${window.location.origin}#${router.resolve({ name: CaseManagementRouteEnum.CASE_MANAGEMENT }).fullPath}?id=${
+        activeCaseId.value
+      }`
+    );
   }
 
   const submitReviewLoading = ref(false);

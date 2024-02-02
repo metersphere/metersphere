@@ -189,6 +189,7 @@
           const res = await getOrgOptions();
           originOrgList.value = res || [];
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         }
       }
@@ -202,6 +203,9 @@
           } else {
             personalMenus.value.splice(1, 1);
           }
+        },
+        {
+          immediate: true,
         }
       );
 
@@ -217,7 +221,7 @@
         return (
           <a-trigger
             v-model:popup-visible={personalMenusVisible.value}
-            trigger="hover"
+            trigger="click"
             unmount-on-close={false}
             popup-offset={4}
             position="right"
@@ -386,8 +390,8 @@
               'collapse-icon': () => (appStore.menuCollapse ? <icon-right /> : <icon-left />),
             }}
           >
-            {renderSubMenu()}
-            {personalInfoMenu()}
+            <div class="flex flex-1 flex-col">{renderSubMenu()}</div>
+            <div class="flex flex-col">{personalInfoMenu()}</div>
           </a-menu>
           {personalInfoDrawer()}
         </>
@@ -402,7 +406,7 @@
       background-color: var(--color-bg-3);
     }
     .arco-menu-inner {
-      @apply flex flex-col;
+      @apply flex flex-col justify-between;
 
       padding: 16px 28px 16px 16px !important;
       .arco-menu-inline {
@@ -444,6 +448,9 @@
         .arco-menu-title {
           color: var(--color-text-1);
         }
+      }
+      .arco-menu-inline--bottom {
+        justify-self: end;
       }
       .arco-menu-selected {
         color: rgb(var(--primary-5)) !important;
