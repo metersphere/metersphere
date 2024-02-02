@@ -45,6 +45,7 @@
         <if test="reviewId != null and reviewId != ''">
             and ch.review_id = #{reviewId}
         </if>
+        order by ch.create_time desc
     </select>
 
     <update id="updateDelete">
