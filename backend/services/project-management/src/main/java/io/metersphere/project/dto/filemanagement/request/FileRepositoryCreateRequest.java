@@ -23,6 +23,7 @@ public class FileRepositoryCreateRequest {
 
     @Schema(description = "存储库地址", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{file_repository.url.not_blank}")
+    @Size(min = 1, max = 255, message = "Url " + "{length.too.large}")
     private String url;
 
     @Schema(description = "存储库token", requiredMode = Schema.RequiredMode.REQUIRED)

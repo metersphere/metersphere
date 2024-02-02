@@ -31,6 +31,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.StandardCharsets;
@@ -156,10 +157,31 @@ public class FileRepositoryControllerTest extends BaseTest {
         FileRepositoryCreateRequest createRequest = new FileRepositoryCreateRequest();
         createRequest.setProjectId(project.getId());
         createRequest.setPlatform(ModuleConstants.NODE_TYPE_GITEA);
-        createRequest.setUrl(GITEA_URL);
         createRequest.setToken(GITEA_TOKEN);
-        createRequest.setName("GITEA存储库");
+        createRequest.setUrl(GITEA_URL);
+        //先测试名称长度过长 和 url过长
+        StringBuilder repositoryName = new StringBuilder();
+        while (repositoryName.length() < 256) {
+            repositoryName.append("t");
+        }
+        createRequest.setName(repositoryName.toString());
+        ResultActions badRequestAction = this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE, createRequest);
+        badRequestAction.andExpect(status().isBadRequest());
+        ResultHolder badRequestHolder = JSON.parseObject(badRequestAction.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        Assertions.assertFalse(StringUtils.contains(badRequestHolder.getMessage(), "Exception"));
 
+        StringBuilder repositoryTestUrl = new StringBuilder();
+        while (repositoryTestUrl.length() < 256) {
+            repositoryTestUrl.append("t");
+        }
+        createRequest.setName("GITEA存储库");
+        createRequest.setUrl(repositoryTestUrl.toString());
+        badRequestAction = this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE, createRequest);
+        badRequestHolder = JSON.parseObject(badRequestAction.andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class);
+        Assertions.assertFalse(StringUtils.contains(badRequestHolder.getMessage(), "Exception"));
+
+        createRequest.setName("GITEA存储库");
+        createRequest.setUrl(GITEA_URL);
         MvcResult result = this.requestPostWithOkAndReturn(FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE, createRequest);
         String returnStr = result.getResponse().getContentAsString();
         ResultHolder rh = JSON.parseObject(returnStr, ResultHolder.class);

@@ -176,7 +176,7 @@ public class FileMetadataService {
         fileMetadata.setPath(filePath);
         fileMetadata.setLatest(true);
         fileMetadata.setRefId(fileMetadata.getId());
-        fileMetadata.setEnable(false);
+        fileMetadata.setEnable(enable);
         return fileMetadata;
     }
 
