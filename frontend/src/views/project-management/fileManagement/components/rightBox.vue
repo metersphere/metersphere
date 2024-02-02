@@ -1009,7 +1009,7 @@
    * @param type 文件类型
    */
   function setAcceptType(type: UploadType) {
-    if (isUploading.value) return;
+    if (isUploading.value || acceptType.value === type) return;
     acceptType.value = type;
     fileList.value = [];
   }

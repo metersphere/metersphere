@@ -34,7 +34,7 @@
           :tag-list="record.userRoleList"
           type="primary"
           theme="outline"
-          @click="record.selectUserGroupVisible = true"
+          @click="handleTagClick(record)"
         />
         <MsSelect
           v-else
@@ -61,7 +61,9 @@
       </template>
       <template #action="{ record }">
         <template v-if="!record.enable">
-          <MsButton @click="enableUser(record)">{{ t('system.user.enable') }}</MsButton>
+          <MsButton v-permission="['SYSTEM_USER:READ+UPDATE']" @click="enableUser(record)">
+            {{ t('system.user.enable') }}
+          </MsButton>
           <MsButton v-permission="['SYSTEM_USER:READ+DELETE']" @click="deleteUser(record)">
             {{ t('system.user.delete') }}
           </MsButton>
@@ -836,6 +838,12 @@
     Message.success(t('system.user.updateUserSuccess'));
     visible.value = false;
     loadList();
+  }
+
+  function handleTagClick(record: UserListItem & Record<string, any>) {
+    if (hasAnyPermission(['SYSTEM_USER:READ+UPDATE'])) {
+      record.selectUserGroupVisible = true;
+    }
   }
 
   /**

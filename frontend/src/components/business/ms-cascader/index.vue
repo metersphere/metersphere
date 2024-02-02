@@ -2,7 +2,7 @@
   <a-cascader
     v-if="props.mode === 'MS'"
     ref="cascader"
-    v-model="innerValue"
+    v-model:model-value="innerValue"
     class="ms-cascader"
     :options="props.options"
     :trigger-props="{ contentClass: `ms-cascader-popper ms-cascader-popper--${props.optionSize}` }"
@@ -14,7 +14,7 @@
     :placeholder="props.placeholder"
     :loading="props.loading"
     :value-key="props.valueKey"
-    :path-mode="props.pathMode"
+    :path-mode="false"
     @change="handleMsCascaderChange"
     @clear="clearValues"
   >
@@ -44,7 +44,7 @@
   <a-cascader
     v-else
     ref="cascader"
-    v-model="innerValue"
+    v-model:model-value="innerValue"
     class="ms-cascader"
     :options="props.options"
     :trigger-props="{ contentClass: `ms-cascader-popper ms-cascader-popper--${props.optionSize}` }"
@@ -56,7 +56,7 @@
     :virtual-list-props="props.virtualListProps"
     :loading="props.loading"
     :value-key="props.valueKey"
-    :path-mode="props.pathMode"
+    :path-mode="false"
     @change="(val) => emit('change', val)"
   >
     <template v-if="props.prefix" #prefix>
@@ -109,7 +109,8 @@
     placeholder?: string;
     loading?: boolean;
     optionSize?: 'small' | 'default';
-    pathMode?: boolean; // 是否开启路径模式
+    pathMode?: boolean; // 是否开启路径模式,TODO:目前 arco 组件库开启 pathmode 存在 BUG，不开启，实际上值也是 pathmode 格式的
+    labelPathMode?: boolean; // 是否开启回显的 label 是路径模式
     valueKey?: string;
     labelKey?: string; // 传入自定义的 labelKey
   }
@@ -149,6 +150,7 @@
         typeof val[0] === 'string' &&
         props.levelTop?.includes(val[0])
       ) {
+        // 顶级选项，该级别为单选选项
         innerLevel.value = val[0] as string;
       }
     },
@@ -162,13 +164,16 @@
     (val) => {
       if (Array.isArray(val)) {
         // 选项变化时，清理一次已选的选项的label对象
-        const tempObj: Record<string, any> = {};
+        selectedLabelObj = {};
         for (let i = 0; i < val.length; i++) {
-          if (selectedLabelObj[val[i]]) {
-            tempObj[val[i]] = selectedLabelObj[val[i]];
+          const item = val[i];
+          const value = typeof item === 'object' ? item.value : item;
+          if (!props.labelPathMode) {
+            selectedLabelObj[value] = t((item.label || '').split('/').pop() || '');
+          } else {
+            selectedLabelObj[value] = t(item.label || '');
           }
         }
-        selectedLabelObj = { ...tempObj };
       }
       emit('update:modelValue', val);
       if (val === '') {
@@ -211,20 +216,20 @@
   // TODO: 临时解决 arco-design 的 cascader 组件已选项的label只能是带路径‘/’的 path-mode 的问题
   function getInputLabel(data: CascaderOption) {
     const isTagCount = data[props.labelKey].includes('+');
-    if (!props.pathMode) {
-      return isTagCount ? data.label : t((data.label || '').split('/').pop() || ''); // 取路径最后一级
+    if (isTagCount) {
+      return data.label;
     }
-    return isTagCount ? data.label || '' : t(data.label || '');
+    if (!props.labelPathMode) {
+      return t((data.label || '').split('/').pop() || ''); // 取路径最后一级
+    }
+    return t(data.label || '');
   }
 
   function getInputLabelTooltip(data: CascaderOption) {
     const isTagCount = data[props.labelKey].includes('+');
+    const label = getInputLabel(data);
     if (isTagCount && Array.isArray(innerValue.value)) {
       return Object.values(selectedLabelObj).join('，');
-    }
-    const label = getInputLabel(data);
-    if (data.value && typeof data.value === 'string') {
-      selectedLabelObj[data.value] = label;
     }
     return label;
   }

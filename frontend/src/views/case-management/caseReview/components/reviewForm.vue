@@ -39,7 +39,7 @@
     type="primary"
     class="mt-[12px]"
     :disabled="submitDisabled"
-    :submit-review-loading="submitReviewLoading"
+    :loading="submitReviewLoading"
     @click="submitReview"
   >
     {{ t('caseManagement.caseReview.submitReview') }}

@@ -4,6 +4,7 @@
     :title="t('system.user.invite')"
     title-align="start"
     class="ms-modal-form ms-modal-medium"
+    @close="cancelInvite"
   >
     <a-form ref="inviteFormRef" class="rounded-[4px]" :model="emailForm" layout="vertical">
       <a-form-item
