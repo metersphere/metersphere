@@ -38,7 +38,7 @@ public class EnvironmentConfig implements Serializable {
     @Schema(description = "全局断言")
     private MsEnvAssertionConfig assertionConfig;
     @Schema(description = "插件自定义的配置项，key为插件ID，value 为对应配置")
-    private Map<String, Object> pluginConfigMap;
+    private Map<String, Map<String, Object>> pluginConfigMap;
 
 
     public EnvironmentConfig() {

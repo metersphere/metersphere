@@ -680,7 +680,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         envRequest.setProjectId(DEFAULT_PROJECT_ID);
         envRequest.setName("test scenario debug");
         // 添加插件的环境配置，供后续测试使用
-        Map<String, Object> pluginConfigMap = new HashMap<>();
+        Map<String, Map<String, Object>> pluginConfigMap = new HashMap<>();
         pluginConfigMap.put("tcpp-sampler", new HashMap<>());
         EnvironmentConfig environmentConfig = new EnvironmentConfig();
         environmentConfig.setPluginConfigMap(pluginConfigMap);

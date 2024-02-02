@@ -30,7 +30,7 @@ public class ApiParamConfig extends ParameterConfig {
 
 
     @Override
-    public Object getProtocolEnvConfig(AbstractMsTestElement msTestElement) {
+    public Map<String, Object> getProtocolEnvConfig(AbstractMsTestElement msTestElement) {
         return getProtocolEnvConfig(msTestElement, getEnvConfig());
     }
 
@@ -40,7 +40,7 @@ public class ApiParamConfig extends ParameterConfig {
      * @param envConfig 当前的环境配置信息
      * @return
      */
-    public Object getProtocolEnvConfig(AbstractMsTestElement msTestElement,
+    public Map<String, Object> getProtocolEnvConfig(AbstractMsTestElement msTestElement,
                                        EnvironmentInfoDTO envConfig) {
         if (envConfig == null
                 || envConfig.getConfig() == null
@@ -49,7 +49,7 @@ public class ApiParamConfig extends ParameterConfig {
                 || testElementClassPluginIdMap.get(msTestElement.getClass()) == null) {
             return null;
         }
-        Map<String, Object> pluginConfigMap = envConfig.getConfig().getPluginConfigMap();
+        Map<String, Map<String, Object>> pluginConfigMap = envConfig.getConfig().getPluginConfigMap();
         String pluginId = testElementClassPluginIdMap.get(msTestElement.getClass());
         return pluginConfigMap.get(pluginId);
     }
