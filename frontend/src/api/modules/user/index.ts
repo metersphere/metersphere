@@ -8,6 +8,7 @@ import {
   EnableAPIKEYUrl,
   EnableLocalConfigUrl,
   GetAPIKEYListUrl,
+  getAuthenticationUrl,
   GetInfoUrl,
   GetLocalConfigUrl,
   GetMenuListUrl,
@@ -15,6 +16,7 @@ import {
   GetPlatformUrl,
   GetPublicKeyUrl,
   isLoginUrl,
+  ldapLoginUrl,
   LoginUrl,
   LogoutUrl,
   SavePlatformUrl,
@@ -43,11 +45,21 @@ import type {
 import type { RouteRecordNormalized } from 'vue-router';
 
 export function login(data: LoginData) {
-  return MSR.post<LoginRes>({ url: LoginUrl, data });
+  let url = '';
+  if (data.authenticate === 'LOCAL') {
+    url = LoginUrl;
+  } else if (data.authenticate === 'LDAP') {
+    url = ldapLoginUrl;
+  }
+  return MSR.post<LoginRes>({ url, data });
 }
 
 export function isLogin() {
   return MSR.get<LoginRes>({ url: isLoginUrl }, { ignoreCancelToken: true, errorMessageMode: 'none' });
+}
+// 获取登录认证方式
+export function getAuthenticationList() {
+  return MSR.get<string[]>({ url: getAuthenticationUrl }, { ignoreCancelToken: true, errorMessageMode: 'none' });
 }
 
 export function logout() {

@@ -34,7 +34,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  const defaultPlatformLogo = `${import.meta.env.BASE_URL}images/MS-full-logo.svg`;
+  const defaultPlatformLogo = `${import.meta.env.BASE_URL}images/MeterSphere-logo.svg`;
   const appStore = useAppStore();
   const pageConfig = ref({ ...appStore.pageConfig });
 

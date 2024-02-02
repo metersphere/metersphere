@@ -42,6 +42,7 @@
           :max-tag-count="2"
           size="small"
           class="w-[260px]"
+          :popup-visible="record.showProjectSelect"
           @change="(value) => selectUserOrProject(value, record, 'project')"
           @popup-visible-change="visibleChange($event, record, 'project')"
         >
@@ -64,6 +65,7 @@
           multiple
           :max-tag-count="2"
           class="w-[260px]"
+          :popup-visible="record.showUserSelect"
           @change="(value) => selectUserOrProject(value, record, 'user')"
           @popup-visible-change="(value) => visibleChange(value, record, 'user')"
         >
@@ -119,6 +121,7 @@
    */
   import { onBeforeMount, ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
+  import { isEqual } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
@@ -383,11 +386,22 @@
   };
   // 面板切换的回调
   const visibleChange = (visible: boolean, record: MemberItem, type: string) => {
+    const originMapIds =
+      type === 'user'
+        ? (record.userRoleIdNameMap || []).map((item: any) => item.id)
+        : (record.projectIdNameMap || []).map((item: any) => item.id);
     if (!visible) {
       if (type === 'user' && record.selectUserList.length < 1) {
         Message.warning(t('organization.member.selectUserEmptyTip'));
         return;
       }
+      const currentEditUser = type === 'user' ? record.selectUserList : record.selectProjectList;
+      if (isEqual(originMapIds, currentEditUser)) {
+        record.showProjectSelect = false;
+        record.showUserSelect = false;
+        return;
+      }
+
       updateUserOrProject(record);
     }
   };
@@ -402,6 +416,7 @@
       }
     }
   };
+
   onBeforeMount(() => {
     initData();
     getLinkList();

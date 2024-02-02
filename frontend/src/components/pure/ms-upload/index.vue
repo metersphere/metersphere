@@ -64,13 +64,13 @@
   import { Message } from '@arco-design/web-vue';
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
+  import { FileIconMap, getFileEnum, getFileIcon } from '@/components/pure/ms-upload/iconMap';
 
   import { useI18n } from '@/hooks/useI18n';
   import { formatFileSize } from '@/utils';
 
   import { UploadAcceptEnum, UploadStatus } from '@/enums/uploadEnum';
 
-  import { FileIconMap, getFileIcon } from './iconMap';
   import type { MsFileItem, UploadType } from './types';
 
   const { t } = useI18n();
@@ -146,15 +146,11 @@
       Message.warning(t('ms.upload.overSize'));
       return Promise.resolve(false);
     }
-
     const fileFormatMatch = file.name.match(/\.([a-zA-Z0-9]+)$/);
-
-    // 如果匹配成功，提取文件格式
     const fileFormatType = fileFormatMatch ? fileFormatMatch[1] : 'none';
-    if (props.accept !== fileFormatType && props.accept !== 'none') {
-      Message.error(
-        props.fileTypeTip ? props?.fileTypeTip : t('ms.upload.fileTypeValidate', { type: props.accept.toUpperCase() })
-      );
+
+    if (props.accept !== getFileEnum(fileFormatType) && props.accept !== 'none') {
+      Message.error(props.fileTypeTip ? props?.fileTypeTip : t('ms.upload.fileTypeValidate', { type: props.accept }));
       return Promise.resolve(false);
     }
     return Promise.resolve(true);

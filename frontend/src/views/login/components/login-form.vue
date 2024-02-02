@@ -8,17 +8,20 @@
         <span class="title-welcome">{{ innerSlogan || t('login.form.title') }}</span>
       </div>
     </div>
+
     <div class="form mt-[32px] min-w-[416px]">
+      <div class="mb-7 text-[18px] font-medium text-[rgb(var(--primary-5))]">LDAP登录</div>
       <a-form ref="formRef" :model="userInfo" @submit="handleSubmit">
         <!-- TOTO 第一版本暂时只考虑普通登录 -->
-        <a-form-item class="login-form-item" field="radio" hide-label>
+        <!-- <a-form-item class="login-form-item" field="radio" hide-label>
           <a-radio-group v-model="userInfo.authenticate" type="button">
             <a-radio value="LOCAL">{{ t('login.form.normalLogin') }}</a-radio>
             <a-radio value="LDAP">LDAP</a-radio>
-            <!-- <a-radio value="OAuth2">{{ t('login.form.oauth2Test') }}</a-radio>
-            <a-radio value="OIDC 90">OIDC 90</a-radio> -->
+            <a-radio value="OAuth2">{{ t('login.form.oauth2Test') }}</a-radio>
+            <a-radio value="OIDC 90">OIDC 90</a-radio>
           </a-radio-group>
-        </a-form-item>
+        </a-form-item> -->
+
         <a-form-item
           class="login-form-item"
           field="username"
@@ -41,10 +44,22 @@
             allow-clear
           />
         </a-form-item>
-        <div class="mt-[12px]">
+        <div class="mb-6 mt-[12px]">
           <a-button type="primary" html-type="submit" long :loading="loading">
             {{ t('login.form.login') }}
           </a-button>
+        </div>
+        <a-divider orientation="center" type="dashed">
+          <span class="text-xs font-normal text-[var(--color-text-4)]">{{ t('login.form.modeLoginMethods') }}</span>
+        </a-divider>
+        <div class="flex items-center justify-center">
+          <div class="loginType"> <svg-icon width="18px" height="18px" name="userLogin"></svg-icon></div>
+          <div class="loginType">
+            <span class="type-text text-[10px]">OIDC</span>
+          </div>
+          <div class="loginType">
+            <span class="type-text text-[7px]">OAUTH</span>
+          </div>
         </div>
       </a-form>
       <div v-if="props.isPreview" class="mask"></div>
@@ -58,6 +73,7 @@
   import { useStorage } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
 
+  import { getAuthenticationList } from '@/api/modules/user';
   import { GetLoginLogoUrl } from '@/api/requrls/setting/config';
   import { useI18n } from '@/hooks/useI18n';
   import useLoading from '@/hooks/useLoading';
@@ -86,7 +102,7 @@
   });
 
   const innerSlogan = computed(() => {
-    return props.isPreview ? props.slogan : t(appStore.pageConfig.slogan);
+    return props.isPreview ? props.slogan : appStore.pageConfig.slogan;
   });
 
   const errorMessage = ref('');
@@ -146,6 +162,15 @@
       }
     }
   };
+  onMounted(async () => {
+    // userStore.getAuthenticationList();
+    // try {
+    //   const res = await getAuthenticationList();
+    //   console.log(res);
+    // } catch (error) {
+    //   console.log(error);
+    // }
+  });
 </script>
 
 <style lang="less" scoped>
@@ -174,6 +199,21 @@
       .mask {
         @apply absolute left-0 top-0 h-full w-full;
       }
+      .loginType {
+        margin: 0 8px;
+        width: 32px;
+        height: 32px;
+        border: 1px solid var(--color-text-n8);
+        border-radius: 50%;
+        @apply flex cursor-pointer items-center justify-center;
+        .type-text {
+          color: rgb(var(--primary-5));
+          @apply font-medium;
+        }
+      }
     }
+  }
+  :deep(.arco-divider-text) {
+    padding: 0 8px !important;
   }
 </style>

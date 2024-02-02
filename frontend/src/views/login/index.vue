@@ -17,9 +17,17 @@
   import banner from './components/banner.vue';
   import loginForm from './components/login-form.vue';
 
+  import { useUserStore } from '@/store';
+
   const props = defineProps<{
     isPreview?: boolean;
   }>();
+
+  const userStore = useUserStore();
+
+  onMounted(() => {
+    userStore.getAuthentication();
+  });
 </script>
 
 <style lang="less" scoped>

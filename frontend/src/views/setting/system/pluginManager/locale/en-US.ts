@@ -41,7 +41,7 @@ export default {
   'system.plugin.disablePluginContent':
     'The project can not integrate with the platform and the default template of the platform is not available, be careful!',
   'system.plugin.alertDescribe':
-    'The MeterSphere v2.10 LTS release supports plug-ins of DevOps、 API imports、 requests、 project management、 protocols、 and other types',
+    'The MeterSphere v3.0 LTS release supports plug-ins of DevOps、 API imports、 requests、 project management、 protocols、 and other types',
   'system.plugin.viewTable': 'View the form',
   'system.plugin.downAddress': 'More open source plug-ins can be downloaded here',
   'system.plugin.goDownload': 'downloads',

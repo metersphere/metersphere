@@ -1,5 +1,7 @@
 export const LoginUrl = '/login';
 export const isLoginUrl = '/is-login';
+export const ldapLoginUrl = '/ldap/login'; // LDAP登录认证
+export const getAuthenticationUrl = '/authentication/get-list'; // 获取登录方式
 export const LogoutUrl = '/signout';
 export const GetMenuListUrl = '/api/user/menu';
 export const GetPublicKeyUrl = '/get-key';
