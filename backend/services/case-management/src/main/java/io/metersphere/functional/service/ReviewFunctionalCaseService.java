@@ -213,6 +213,6 @@ public class ReviewFunctionalCaseService {
                 caseReviewHistoryDTO.setContentText(new String(caseReviewHistoryDTO.getContent(), StandardCharsets.UTF_8));
             }
         }
-        return list.stream().sorted(Comparator.comparing(CaseReviewHistoryDTO::getCreateTime).reversed()).toList();
+        return list;
     }
 }
