@@ -6,7 +6,6 @@ import lombok.Data;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 任务请求参数数据
@@ -42,6 +41,7 @@ public class TaskRequestDTO implements Serializable {
 
     /**
      * 资源类型
+     *
      * @see io.metersphere.sdk.constants.ApiExecuteResourceType
      */
     private String resourceType;
@@ -63,7 +63,7 @@ public class TaskRequestDTO implements Serializable {
     /**
      * 误报规则
      */
-    Map<String, List<MsRegexDTO>> fakeErrorMap;
+    List<MsRegexDTO> msRegexList;
 
     /**
      * 项目id

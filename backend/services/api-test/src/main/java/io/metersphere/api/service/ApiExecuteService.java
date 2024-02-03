@@ -24,7 +24,11 @@ import io.metersphere.sdk.dto.api.task.ApiExecuteFileInfo;
 import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.*;
+import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.CommonBeanFactory;
+import io.metersphere.sdk.util.EncryptUtils;
+import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.config.MinioProperties;
 import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.dto.pool.TestResourceDTO;
@@ -44,7 +48,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.metersphere.api.controller.result.ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR;
@@ -120,7 +129,9 @@ public class ApiExecuteService {
         // 设置执行文件参数
         setTaskFileParam(request, taskRequest);
 
-        // todo 误报
+        //  误报处理
+        taskRequest.setMsRegexList(projectApplicationService.get(Arrays.asList(request.getProjectId())));
+
         // todo 获取接口插件和jar包
         // todo 处理公共脚本
         // todo 接口用例 method 获取定义中的数据库字段
