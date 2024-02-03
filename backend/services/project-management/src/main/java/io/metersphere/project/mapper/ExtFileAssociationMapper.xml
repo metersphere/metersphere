@@ -27,7 +27,9 @@
             file_metadata.id as metadataId,
 	        'false' AS local,
 	        file_association.create_user AS createUser,
-	        file_association.create_time AS createTime
+	        file_association.create_time AS createTime,
+            file_association.deleted deleted,
+            file_association.deleted_file_name AS deletedFileName
         FROM
             file_association
             LEFT JOIN file_metadata ON file_association.file_id = file_metadata.id

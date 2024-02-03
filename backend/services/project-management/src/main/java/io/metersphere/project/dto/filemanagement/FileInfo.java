@@ -47,4 +47,10 @@ public class FileInfo implements Serializable {
 
     @Schema(description = "文件资源ID")
     private String metadataId;
+
+    @Schema(description = "是否删除")
+    private boolean deleted;
+
+    @Schema(description = "删除时的文件名称")
+    private String deletedFileName;
 }

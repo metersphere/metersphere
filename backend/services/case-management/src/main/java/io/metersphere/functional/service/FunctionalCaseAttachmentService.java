@@ -146,6 +146,9 @@ public class FunctionalCaseAttachmentService {
             BeanUtils.copyBean(attachmentDTO, fileInfo);
             attachmentDTO.setId(fileInfo.getFileId());
             attachmentDTO.setAssociationId(fileInfo.getId());
+            if (StringUtils.isNotBlank(fileInfo.getDeletedFileName())) {
+                attachmentDTO.setFileName(fileInfo.getDeletedFileName());
+            }
             return attachmentDTO;
         }));
         attachmentDTOs.addAll(filesDTOs);

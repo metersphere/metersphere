@@ -1,7 +1,9 @@
 INSERT INTO file_metadata(id, name, type, size, create_time, update_time, project_id, storage, create_user, update_user, tags, description, module_id, path, latest, ref_id, file_version) VALUES ('relate_file_meta_id_1', 'formItem', 'ts', 2502, 1698058347559, 1698058347559, '100001100001', 'MINIO', 'admin', 'admin', NULL, NULL, 'root', '100001100001/1127016598347779', b'1', '1127016598347779', '1127016598347779');
 INSERT INTO file_metadata(id, name, type, size, create_time, update_time, project_id, storage, create_user, update_user, tags, description, module_id, path, latest, ref_id, file_version) VALUES ('relate_file_meta_id_2', 'formItem', 'ts', 2502, 1698058347559, 1698058347559, '100001100001', 'MINIO', 'admin', 'admin', NULL, NULL, 'root', '100001100001/1127016598347779', b'1', '1127016598347779', '1127016598347779');
 
-INSERT INTO file_association(id, source_type, source_id, file_id, file_ref_id, file_version, create_time, update_user, update_time, create_user) VALUES ('file_association_1', 'FUNCTIONAL_CASE', 'TEST_FUNCTIONAL_CASE_ID', 'relate_file_meta_id_1', '1', '1', 1698983271536, 'admin', 1698983271536, 'admin');
+INSERT INTO file_association(id, source_type, source_id, file_id, file_ref_id, file_version, create_time, update_user, update_time, create_user, deleted, deleted_file_name)
+VALUES ('file_association_1', 'FUNCTIONAL_CASE', 'TEST_FUNCTIONAL_CASE_ID', 'relate_file_meta_id_1', '1', '1', 1698983271536, 'admin', 1698983271536, 'admin', b'0', NULL),
+        ('file_association_2', 'FUNCTIONAL_CASE', 'TEST_FUNCTIONAL_CASE_ID_2', 'relate_file_meta_id_2', '1', '1', 1698983271536, 'admin', 1698983271536, 'admin', b'1', '测试删除');
 
 
 INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
