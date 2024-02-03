@@ -50,8 +50,8 @@
             :search-keys="['label']"
             allow-search
             allow-clear
-            multiple
-            class="w-[290px]"
+            :multiple="true"
+            class="!w-[290px]"
             :loading="reviewerLoading"
           >
             <template #empty>
@@ -166,6 +166,8 @@
       if (val) {
         // 抽屉打开才加载数据
         initReviewers();
+      } else {
+        associateFormRef.value?.resetFields();
       }
     }
   );

@@ -11,7 +11,7 @@
       <div class="float-left">
         <a-select
           v-if="props?.moduleOptions"
-          v-model="caseType"
+          v-model:model-value="caseType"
           class="ml-2 max-w-[100px]"
           :placeholder="t('caseManagement.featureCase.PleaseSelect')"
         >
@@ -88,7 +88,8 @@
               </div>
             </div>
           </template>
-          <template #right>
+          <!--TODO:暂无版本-->
+          <!-- <template #right>
             <a-select
               v-model:model-value="version"
               :options="versionOptions"
@@ -96,7 +97,7 @@
               class="w-[200px]"
               allow-clear
             />
-          </template>
+          </template> -->
         </MsAdvanceFilter>
         <ms-base-table v-bind="propsRes" no-disable class="mt-[16px]" v-on="propsEvent">
           <template #caseLevel="{ record }">
@@ -191,7 +192,7 @@
     };
   });
 
-  const activeFolder = ref('');
+  const activeFolder = ref('all');
   const activeFolderName = ref(t('ms.case.associate.allCase'));
   const filterRowCount = ref(0);
 
@@ -291,20 +292,20 @@
 
   const keyword = ref('');
   const version = ref('');
-  const versionOptions = ref([
-    {
-      label: '全部',
-      value: 'all',
-    },
-    {
-      label: '版本1',
-      value: '1',
-    },
-    {
-      label: '版本2',
-      value: '2',
-    },
-  ]);
+  // const versionOptions = ref([
+  //   {
+  //     label: '全部',
+  //     value: 'all',
+  //   },
+  //   {
+  //     label: '版本1',
+  //     value: '1',
+  //   },
+  //   {
+  //     label: '版本2',
+  //     value: '2',
+  //   },
+  // ]);
 
   const columns: MsTableColumn = [
     {
@@ -555,6 +556,13 @@
 
   function cancel() {
     innerVisible.value = false;
+    keyword.value = '';
+    version.value = '';
+    searchParams.value = {
+      moduleIds: [],
+      version: '',
+    };
+    activeFolder.value = 'all';
     resetSelector();
     emit('close');
   }
@@ -567,6 +575,8 @@
         initModules();
         searchCase();
         initFilter();
+      } else {
+        cancel();
       }
     }
   );
@@ -590,7 +600,6 @@
         searchCase();
         resetSelector();
         initModules();
-        searchCase();
       }
     }
   );

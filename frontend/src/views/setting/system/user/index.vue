@@ -2,7 +2,12 @@
   <MsCard simple>
     <div class="mb-4 flex items-center justify-between">
       <div>
-        <a-button v-permission="['SYSTEM_USER:READ+ADD']" class="mr-3" type="primary" @click="showUserModal('create')">
+        <a-button
+          v-permission="['SYSTEM_USER:READ+ADD', 'SYSTEM_USER_ROLE:READ']"
+          class="mr-3"
+          type="primary"
+          @click="showUserModal('create')"
+        >
           {{ t('system.user.createUser') }}
         </a-button>
         <a-button v-permission="['SYSTEM_USER_INVITE']" class="mr-3" type="outline" @click="showEmailInviteModal">
@@ -576,17 +581,17 @@
       {
         label: 'system.user.batchActionAddProject',
         eventTag: 'batchAddProject',
-        permission: ['SYSTEM_USER:READ+ADD'],
+        permission: ['SYSTEM_USER:READ+ADD', 'SYSTEM_ORGANIZATION_PROJECT:READ'],
       },
       {
         label: 'system.user.batchActionAddUserGroup',
         eventTag: 'batchAddUserGroup',
-        permission: ['SYSTEM_USER:READ+ADD'],
+        permission: ['SYSTEM_USER:READ+ADD', 'SYSTEM_USER_ROLE:READ'],
       },
       {
         label: 'system.user.batchActionAddOrganization',
         eventTag: 'batchAddOrganization',
-        permission: ['SYSTEM_USER:READ+ADD'],
+        permission: ['SYSTEM_USER:READ+ADD', 'SYSTEM_ORGANIZATION_PROJECT:READ'],
       },
     ],
     moreAction: [
@@ -698,9 +703,11 @@
 
   async function init() {
     try {
-      userGroupOptions.value = await getSystemRoles();
-      if (userGroupOptions.value.length) {
-        userForm.value.userGroup = userGroupOptions.value.filter((e: SystemRole) => e.selected === true);
+      if (hasAnyPermission(['SYSTEM_USER_ROLE:READ'])) {
+        userGroupOptions.value = await getSystemRoles();
+        if (userGroupOptions.value.length) {
+          userForm.value.userGroup = userGroupOptions.value.filter((e: SystemRole) => e.selected === true);
+        }
       }
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -841,7 +848,7 @@
   }
 
   function handleTagClick(record: UserListItem & Record<string, any>) {
-    if (hasAnyPermission(['SYSTEM_USER:READ+UPDATE'])) {
+    if (hasAnyPermission(['SYSTEM_USER:READ+UPDATE', 'SYSTEM_USER_ROLE:READ'])) {
       record.selectUserGroupVisible = true;
     }
   }

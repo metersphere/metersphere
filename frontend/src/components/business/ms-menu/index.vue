@@ -16,8 +16,11 @@
   import { useAppStore, useUserStore } from '@/store';
   import useLicenseStore from '@/store/modules/setting/license';
   import { openWindow, regexUrl } from '@/utils';
+  import { scrollIntoView } from '@/utils/dom';
   import { getFisrtRouterNameByCurrentRoute } from '@/utils/permission';
   import { listenerRouteChange } from '@/utils/route-listener';
+
+  import { SettingRouteEnum } from '@/enums/routeEnum';
 
   import useMenuTree from './use-menu-tree';
   import type { RouteMeta } from 'vue-router';
@@ -126,6 +129,7 @@
       const personalMenusVisible = ref(false);
       const personalDrawerVisible = ref(false);
       const switchOrgVisible = ref(false);
+      const menuSwitchOrgVisible = ref(false);
       const orgKeyword = ref('');
       const originOrgList = ref<{ id: string; name: string }[]>([]);
       const orgList = computed(() => originOrgList.value.filter((e) => e.name.includes(orgKeyword.value)));
@@ -190,16 +194,19 @@
       const copyPersonalMenus = ref(cloneDeep(personalMenus));
 
       const licenseStore = useLicenseStore();
-
       const xPack = computed(() => licenseStore.hasLicense());
 
+      const orgListLoading = ref(false);
       async function getOrgList() {
         try {
+          orgListLoading.value = true;
           const res = await getOrgOptions();
           originOrgList.value = res || [];
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
+        } finally {
+          orgListLoading.value = false;
         }
       }
 
@@ -208,7 +215,6 @@
         async (val) => {
           if (val) {
             personalMenus.value = [...copyPersonalMenus.value];
-            getOrgList();
           } else {
             personalMenus.value.splice(1, 1);
           }
@@ -226,6 +232,82 @@
           }
         }
       );
+
+      watchEffect(() => {
+        if (switchOrgVisible.value || menuSwitchOrgVisible.value) {
+          getOrgList();
+          nextTick(() => {
+            // 打开组织列表时，滚动到当前组织
+            const activeOrgDom = document.querySelector('.switch-org-dropdown-list')?.querySelector('.active-org');
+            if (activeOrgDom) {
+              scrollIntoView(activeOrgDom);
+            }
+          });
+        } else {
+          orgKeyword.value = '';
+        }
+      });
+
+      // 组织切换的 trigger
+      const orgTrigger = (e, visible: Ref, slot: (item) => VNode) => (
+        <a-trigger
+          v-model:popup-visible={visible.value}
+          trigger="click"
+          unmount-on-close={true}
+          popup-offset={14}
+          position="right"
+          mouse-enter-delay={500}
+          class={['arco-trigger-menu switch-org-dropdown', visible.value ? 'block' : 'hidden']}
+          v-slots={{
+            content: () => (
+              <div class="arco-trigger-menu-inner">
+                <a-input-search
+                  v-model:model-value={orgKeyword.value}
+                  placeholder={t('personal.searchOrgPlaceholder')}
+                />
+                <a-divider margin="4px" />
+                <a-spin class="flex w-full" loading={orgListLoading.value}>
+                  {orgList.value.length === 0 && orgKeyword.value !== '' ? (
+                    <a-empty>{t('common.noData')}</a-empty>
+                  ) : (
+                    <div class="switch-org-dropdown-list">
+                      {orgList.value.map((item) => (
+                        <div
+                          key={item.id}
+                          class={[
+                            'arco-trigger-menu-item !w-[calc(100%-12px)]',
+                            item.id === appStore.currentOrgId ? 'active-org' : '',
+                          ]}
+                          onClick={() => {
+                            switchOrg(item.id);
+                          }}
+                        >
+                          <a-tooltip content={item.name}>
+                            <div class="one-line-text max-w-[220px]">{item.name}</div>
+                          </a-tooltip>
+                          {item.id === appStore.currentOrgId ? (
+                            <MsTag
+                              type="primary"
+                              theme="light"
+                              size="small"
+                              class="ml-[4px] !bg-[rgb(var(--primary-9))] px-[4px]"
+                            >
+                              {t('personal.currentOrg')}
+                            </MsTag>
+                          ) : null}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </a-spin>
+              </div>
+            ),
+          }}
+        >
+          {slot(e)}
+        </a-trigger>
+      );
+      // 个人信息菜单
       const personalInfoMenu = () => {
         return (
           <a-trigger
@@ -243,69 +325,21 @@
                       return e.divider;
                     }
                     if (e.isTrigger) {
-                      return (
-                        <a-trigger
-                          v-model:popup-visible={switchOrgVisible.value}
-                          trigger="click"
-                          unmount-on-close={false}
-                          popup-offset={14}
-                          position="right"
-                          class={['arco-trigger-menu switch-org-dropdown', switchOrgVisible.value ? 'block' : 'hidden']}
-                          v-slots={{
-                            content: () => (
-                              <div class="arco-trigger-menu-inner">
-                                <a-input-search
-                                  v-model:model-value={orgKeyword.value}
-                                  placeholder={t('personal.searchOrgPlaceholder')}
-                                />
-                                <a-divider margin="4px" />
-                                <div class="switch-org-dropdown-list">
-                                  {orgList.value.map((item) => (
-                                    <div
-                                      key={item.id}
-                                      class={[
-                                        'arco-trigger-menu-item !w-[calc(100%-12px)]',
-                                        item.id === appStore.currentOrgId ? 'active-org' : '',
-                                      ]}
-                                      onClick={() => {
-                                        switchOrg(item.id);
-                                      }}
-                                    >
-                                      <a-tooltip content={item.name}>
-                                        <div class="one-line-text max-w-[220px]">{item.name}</div>
-                                      </a-tooltip>
-                                      {item.id === appStore.currentOrgId ? (
-                                        <MsTag
-                                          type="primary"
-                                          theme="light"
-                                          size="small"
-                                          class="ml-[4px] !bg-[rgb(var(--primary-9))] px-[4px]"
-                                        >
-                                          {t('personal.currentOrg')}
-                                        </MsTag>
-                                      ) : null}
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            ),
+                      return orgTrigger(e, switchOrgVisible, (item) => (
+                        <div
+                          class={
+                            isActiveSwitchOrg.value ? 'active-org arco-trigger-menu-item' : 'arco-trigger-menu-item'
+                          }
+                          onClick={() => {
+                            if (typeof item.event === 'function') {
+                              item.event();
+                            }
                           }}
                         >
-                          <div
-                            class={
-                              isActiveSwitchOrg.value ? 'active-org arco-trigger-menu-item' : 'arco-trigger-menu-item'
-                            }
-                            onClick={() => {
-                              if (typeof e.event === 'function') {
-                                e.event();
-                              }
-                            }}
-                          >
-                            {e.icon()}
-                            {e.label}
-                          </div>
-                        </a-trigger>
-                      );
+                          {item.icon()}
+                          {item.label}
+                        </div>
+                      ));
                     }
                     return (
                       <div
@@ -336,6 +370,7 @@
           </a-trigger>
         );
       };
+      // 个人信息抽屉
       const personalInfoDrawer = () => {
         return (
           <MsPersonInfoDrawer
@@ -347,6 +382,40 @@
         );
       };
 
+      let mouseEnterTimer;
+      // 渲染菜单项
+      const renderMenuItem = (element, icon) =>
+        element?.name === SettingRouteEnum.SETTING_ORGANIZATION ? (
+          orgTrigger(element, menuSwitchOrgVisible, () => (
+            <a-menu-item
+              key={element?.name}
+              v-slots={{ icon }}
+              onClick={() => goto(element)}
+              onMouseenter={() => {
+                if (xPack.value) {
+                  // 有xpack权限才显示
+                  mouseEnterTimer = setTimeout(() => {
+                    menuSwitchOrgVisible.value = true;
+                  }, 500);
+                }
+              }}
+              onMouseleave={() => {
+                clearTimeout(mouseEnterTimer);
+              }}
+            >
+              <div class="inline-flex w-[calc(100%-34px)] items-center justify-between !bg-transparent">
+                {t(element?.meta?.locale || '')}
+                <MsIcon type="icon-icon_switch_outlined1" class="text-[var(--color-text-4)]" />
+              </div>
+            </a-menu-item>
+          ))
+        ) : (
+          <a-menu-item key={element?.name} v-slots={{ icon }} onClick={() => goto(element)}>
+            {t(element?.meta?.locale || '')}
+          </a-menu-item>
+        );
+
+      // 渲染子菜单
       const renderSubMenu = () => {
         function travel(_route: (RouteRecordRaw | null)[] | null, nodes = []) {
           if (_route) {
@@ -365,9 +434,7 @@
                     {travel(element?.children)}
                   </a-sub-menu>
                 ) : (
-                  <a-menu-item key={element?.name} v-slots={{ icon }} onClick={() => goto(element)}>
-                    {t(element?.meta?.locale || '')}
-                  </a-menu-item>
+                  renderMenuItem(element, icon)
                 );
               nodes.push(node as never);
             });
@@ -438,6 +505,9 @@
         &:hover,
         .arco-icon:hover {
           background-color: rgb(var(--primary-1)) !important;
+        }
+        .arco-menu-indent-list {
+          @apply !bg-transparent;
         }
         .arco-menu-item-inner,
         .arco-menu-item-inner:hover {
@@ -522,9 +592,10 @@
     .arco-trigger-popup-wrapper {
       @apply max-h-full;
       .switch-org-dropdown-list {
-        @apply overflow-y-auto;
+        @apply w-full overflow-y-auto;
         .ms-scroll-bar();
 
+        min-height: 30px;
         max-height: 200px;
       }
     }
