@@ -95,7 +95,7 @@ public class FakeErrorService {
             FakeErrorExample example = new FakeErrorExample();
             FakeErrorExample.Criteria criteria = example.createCriteria();
             criteria.andProjectIdEqualTo(item.getProjectId()).andNameEqualTo(item.getName());
-            if (StringUtils.isNotBlank(item.getId()) && StringUtils.equalsIgnoreCase(type,UPDATE_TYPE)) {
+            if (StringUtils.isNotBlank(item.getId()) && StringUtils.equalsIgnoreCase(type, UPDATE_TYPE)) {
                 criteria.andIdNotEqualTo(item.getId());
             }
             if (fakeErrorMapper.countByExample(example) > 0) {

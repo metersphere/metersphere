@@ -16,6 +16,11 @@ public class RequestResult {
     private String resourceId;
 
     /**
+     * 项目ID
+     */
+    private String projectId;
+
+    /**
      * 步骤请求唯一ID
      */
     private String stepId;
@@ -108,11 +113,6 @@ public class RequestResult {
     public void increasePassAssertionCount() {
         this.passAssertionsTotal++;
     }
-
-    /**
-     * 误报信息
-     */
-    private String fakeErrorMessage;
 
     /**
      * 误报编码名称

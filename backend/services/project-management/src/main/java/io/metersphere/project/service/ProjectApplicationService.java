@@ -3,6 +3,7 @@ package io.metersphere.project.service;
 import io.metersphere.plugin.platform.spi.AbstractPlatformPlugin;
 import io.metersphere.plugin.platform.spi.Platform;
 import io.metersphere.plugin.sdk.spi.MsPlugin;
+import io.metersphere.project.domain.FakeError;
 import io.metersphere.project.domain.FakeErrorExample;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectApplication;
@@ -13,7 +14,9 @@ import io.metersphere.project.request.ProjectApplicationRequest;
 import io.metersphere.project.utils.ModuleSortUtils;
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.ProjectApplicationType;
+import io.metersphere.sdk.dto.api.result.MsRegexDTO;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
@@ -471,6 +474,22 @@ public class ProjectApplicationService {
         example.createCriteria().andProjectIdEqualTo(projectId);
         long l = fakeErrorMapper.countByExample(example);
         return (int) l;
+    }
+
+    public List<MsRegexDTO> get(List<String> projectIds) {
+        List<MsRegexDTO> regexList = new ArrayList<>();
+        if (CollectionUtils.isEmpty(projectIds)) {
+            return regexList;
+        }
+        FakeErrorExample example = new FakeErrorExample();
+        example.createCriteria().andProjectIdIn(projectIds).andEnableEqualTo(true);
+        List<FakeError> fakeErrors = fakeErrorMapper.selectByExample(example);
+        fakeErrors.forEach(item -> {
+            MsRegexDTO regexConfig = new MsRegexDTO();
+            BeanUtils.copyBean(regexConfig, item);
+            regexList.add(regexConfig);
+        });
+        return regexList;
     }
 
 
