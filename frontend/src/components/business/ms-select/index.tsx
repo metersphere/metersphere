@@ -394,24 +394,65 @@ export default defineComponent(
         tooltip = values.map((e) => e.tooltipContent || e[props.labelKey || 'label']).join('，');
       } else {
         // 非对象模式下，需要根据 valueKey 取 label
-        tooltip = remoteOriginOptions.value
-          .filter((e) => values.includes(e[props.valueKey || 'value']))
-          .map((e) => e[props.labelKey || 'label'])
-          .join('，');
+        for (let i = 0; i < values.length; i++) {
+          for (let j = 0; j < remoteOriginOptions.value.length; j++) {
+            const optItem = remoteOriginOptions.value[j];
+            if (optItem[props.valueKey || 'value'] === values[i]) {
+              tooltip += optItem[props.labelKey || 'label'];
+              if (i !== values.length - 1) {
+                tooltip += '，';
+              }
+              break;
+            }
+          }
+        }
       }
       return tooltip;
     });
 
+    const popupVisible = ref(false);
+    const disabledTooltip = computed(() => {
+      if (maxTagCount.value === 0 || maxTagCount.value === Infinity) {
+        // 不限制标签数量时不会出现 +N 隐藏已选项，展示单个标签的 tooltip 即可
+        return true;
+      }
+      if (popupVisible.value) {
+        // 弹出层展开时不展示 tooltip
+        return true;
+      }
+      if (typeof innerValue.value === 'string' && innerValue.value.trim() === '') {
+        return true;
+      }
+      if (Array.isArray(innerValue.value) && innerValue.value.length === 0) {
+        return true;
+      }
+      return false;
+    });
+
+    const allowClear = computed(() => {
+      if (props.atLeastOne && Array.isArray(innerValue.value)) {
+        return innerValue.value.length > 1 && props.allowClear;
+      }
+      return props.allowClear;
+    });
+
     return () => (
       <div class="w-full">
-        <a-tooltip content={selectFullTooltip.value} position="top" mouse-enter-delay={500} mini>
+        <a-tooltip
+          content={selectFullTooltip.value}
+          class={disabledTooltip.value ? 'opacity-0' : ''}
+          position="top"
+          mouse-enter-delay={300}
+          mini
+        >
           <a-select
             ref={selectRef}
             class="ms-select"
-            default-value={innerValue}
+            default-value={innerValue.value}
             input-value={inputValue.value}
+            popup-visible={popupVisible.value}
             placeholder={t(props.placeholder || '')}
-            allow-clear={props.allowClear}
+            allow-clear={allowClear.value}
             allow-search={props.allowSearch}
             filter-option={true}
             loading={loading.value}
@@ -427,6 +468,7 @@ export default defineComponent(
             onChange={handleChange}
             onSearch={handleSearch}
             onPopupVisibleChange={(val: boolean) => {
+              popupVisible.value = val;
               if (val) {
                 handleSearch('', true);
               } else {
@@ -452,12 +494,15 @@ export default defineComponent(
             {{
               prefix: props.prefix ? () => t(props.prefix || '') : null,
               label: ({ data }: { data: SelectOptionData }) => (
-                <div
-                  class="one-line-text"
-                  style={singleTagMaxWidth.value > 0 ? { maxWidth: `${singleTagMaxWidth.value}px` } : {}}
-                >
-                  {slots.label ? slots.label(data) : data.label}
-                </div>
+                // 在不限制标签数量时展示 tooltip
+                <a-tooltip content={data.label} disabled={maxTagCount.value !== Infinity && maxTagCount.value !== 0}>
+                  <div
+                    class="one-line-text"
+                    style={singleTagMaxWidth.value > 0 ? { maxWidth: `${singleTagMaxWidth.value}px` } : {}}
+                  >
+                    {slots.label ? slots.label(data) : data.label}
+                  </div>
+                </a-tooltip>
               ),
               ...selectSlots(),
             }}
