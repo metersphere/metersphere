@@ -47,6 +47,8 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
         sampler.setProperty(ElementProperty.MS_RESOURCE_ID.name(), msHTTPElement.getResourceId());
         sampler.setProperty(ElementProperty.MS_STEP_ID.name(), msHTTPElement.getStepId());
         sampler.setProperty(ElementProperty.MS_REPORT_ID.name(), config.getReportId());
+        sampler.setProperty(ElementProperty.PROJECT_ID.name(), msHTTPElement.getProjectId());
+
         sampler.setMethod(msHTTPElement.getMethod());
         // todo 根据环境设置
         sampler.setDomain(msHTTPElement.getUrl());
