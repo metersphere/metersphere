@@ -38,4 +38,7 @@ public class FunctionalCaseAttachmentDTO implements Serializable {
 
     @Schema(description =  "创建时间")
     private Long createTime;
+
+    @Schema(description = "是否删除")
+    private boolean deleted;
 }

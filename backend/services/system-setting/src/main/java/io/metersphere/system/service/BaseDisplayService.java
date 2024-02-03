@@ -51,7 +51,7 @@ public class BaseDisplayService {
                 case "icon" ->
                         bytes = IOUtils.toByteArray(resolver.getResource("/static/favicon.ico").getInputStream());
                 case "logoPlatform" -> {
-                    bytes = IOUtils.toByteArray(resolver.getResource("/static/images/MS-full-logo.svg").getInputStream());
+                    bytes = IOUtils.toByteArray(resolver.getResource("/static/images/MeterSphere-logo.svg").getInputStream());
                     contentType = MediaType.valueOf("image/svg+xml");
                 }
                 case "loginImage" ->
