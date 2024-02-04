@@ -78,7 +78,7 @@
           </div>
         </template>
         <MsSelect
-          v-model:modelValue="reviewForm.reviewers"
+          v-model:model-value="reviewForm.reviewers"
           mode="static"
           :placeholder="t('caseManagement.caseReview.reviewerPlaceholder')"
           :options="reviewersOptions"
@@ -105,6 +105,7 @@
           v-model:model-value="reviewForm.cycle"
           show-time
           value-format="timestamp"
+          :separator="t('common.to')"
           :time-picker-props="{
             defaultValue: ['00:00:00', '00:00:00'],
           }"

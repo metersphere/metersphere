@@ -5,6 +5,7 @@
       :placeholder="t('ms.passwordInput.passwordPlaceholder')"
       allow-clear
       autocomplete="new-password"
+      :max-length="32"
       @input="validatePsw"
       @clear="validatePsw(innerPsw)"
     />

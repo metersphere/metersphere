@@ -448,7 +448,7 @@ export default defineComponent(
           <a-select
             ref={selectRef}
             class="ms-select"
-            default-value={innerValue.value}
+            model-value={innerValue.value}
             input-value={inputValue.value}
             popup-visible={popupVisible.value}
             placeholder={t(props.placeholder || '')}

@@ -131,6 +131,7 @@
                   class="w-full"
                   show-time
                   format="YYYY-MM-DD HH:mm"
+                  :separator="t('common.to')"
                   :disabled="!item.dataIndex"
                 />
                 <MsCascader

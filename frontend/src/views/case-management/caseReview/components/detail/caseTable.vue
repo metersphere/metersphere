@@ -543,6 +543,7 @@
             selectAll: batchParams.value.selectAll,
             excludeIds: batchParams.value.excludeIds,
             condition: batchParams.value.condition,
+            moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
           });
           Message.success(t('common.updateSuccess'));
           resetSelector();
@@ -569,11 +570,12 @@
         reviewPassRule: props.reviewPassRule,
         status: 'RE_REVIEWED',
         content: dialogForm.value.reason,
-        notifier: '', // TODO: 通知人
+        notifier: dialogForm.value.commentIds.join(';'),
         selectIds: batchParams.value.selectIds,
         selectAll: batchParams.value.selectAll,
         excludeIds: batchParams.value.excludeIds,
         condition: batchParams.value.condition,
+        moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
       });
       Message.success(t('common.updateSuccess'));
       dialogVisible.value = false;
@@ -603,6 +605,7 @@
             selectAll: batchParams.value.selectAll,
             excludeIds: batchParams.value.excludeIds,
             condition: batchParams.value.condition,
+            moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
           });
           Message.success(t('common.updateSuccess'));
           dialogVisible.value = false;
@@ -635,6 +638,7 @@
             selectAll: batchParams.value.selectAll,
             excludeIds: batchParams.value.excludeIds,
             condition: batchParams.value.condition,
+            moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
           });
           Message.success(t('caseManagement.caseReview.reviewSuccess'));
           dialogVisible.value = false;
@@ -784,6 +788,7 @@
 
   defineExpose({
     searchCase,
+    resetSelector,
   });
 
   await tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_REVIEW_CASE, columns, 'drawer');

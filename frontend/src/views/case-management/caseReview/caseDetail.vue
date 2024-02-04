@@ -99,13 +99,13 @@
               <div class="case-detail-value">
                 <caseLevel :case-level="caseDetailLevel" />
               </div>
-              <div class="case-detail-label">
+              <!-- <div class="case-detail-label">
                 {{ t('caseManagement.caseReview.caseVersion') }}
               </div>
               <div class="case-detail-value">
                 <MsIcon type="icon-icon_version" size="13" class="mr-[4px]" />
                 {{ caseDetail.versionName }}
-              </div>
+              </div> -->
               <div class="case-detail-label">
                 {{ t('caseManagement.caseReview.reviewResult') }}
               </div>
@@ -254,6 +254,7 @@
    * @description 功能测试-用例评审-用例详情
    */
   import { useRoute, useRouter } from 'vue-router';
+  import { Message } from '@arco-design/web-vue';
   import dayjs from 'dayjs';
 
   import MSAvatar from '@/components/pure/ms-avatar/index.vue';
@@ -275,7 +276,7 @@
     getReviewDetail,
     getReviewDetailCasePage,
   } from '@/api/modules/case-management/caseReview';
-  import { getCaseDetail } from '@/api/modules/case-management/featureCase';
+  import { getCaseDetail, updateCaseRequest } from '@/api/modules/case-management/featureCase';
   import { reviewDefaultDetail, reviewResultMap } from '@/config/caseManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
@@ -501,9 +502,9 @@
 
   function goCaseDetail() {
     window.open(
-      `${window.location.origin}#${router.resolve({ name: CaseManagementRouteEnum.CASE_MANAGEMENT }).fullPath}?id=${
-        activeCaseId.value
-      }`
+      `${window.location.origin}#${
+        router.resolve({ name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL }).fullPath
+      }?id=${activeCaseId.value}`
     );
   }
 
@@ -539,7 +540,11 @@
   async function updateCase() {
     try {
       updateCaseLoading.value = true;
-      // await updateCaseRequest();
+      await updateCaseRequest(editCaseForm.value);
+      editCaseVisible.value = false;
+      Message.success(t('caseManagement.featureCase.editSuccess'));
+      loadCaseList();
+      loadCaseDetail();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

@@ -83,21 +83,19 @@
           }
 
           const filterMenuTopRouter =
-            currentParent?.children
-              ?.filter((item: any) => permission.accessRouter(item) && item.meta?.isTopMenu)
-              .filter((item: any) => {
+            currentParent?.children?.filter((item: any) => {
+              if (permission.accessRouter(item) && item.meta?.isTopMenu) {
                 if (item.name === RouteEnum.SETTING_SYSTEM_AUTHORIZED_MANAGEMENT) {
                   return appStore.packageType === 'enterprise';
                 }
                 return true;
-              }) || [];
+              }
+              return false;
+            }) || [];
 
           appStore.setTopMenus(filterMenuTopRouter);
-          if (!newRoute.meta.isTopMenu) {
-            setCurrentTopMenu(filterMenuTopRouter[0].name as string);
-          } else {
-            setCurrentTopMenu(name as string);
-          }
+          setCurrentTopMenu(name as string);
+
           return;
         }
       }

@@ -274,7 +274,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
-  import { downloadByteFile, getGenerateId, mapTree } from '@/utils';
+  import { downloadByteFile, getGenerateId } from '@/utils';
 
   import type {
     AssociatedList,
@@ -285,7 +285,6 @@
   } from '@/models/caseManagement/featureCase';
   import type { TableQueryParams } from '@/models/common';
   import { ModuleTreeNode } from '@/models/projectManagement/file';
-  import type { CustomField, DefinedFieldItem } from '@/models/setting/template';
 
   import { convertToFile } from './utils';
 

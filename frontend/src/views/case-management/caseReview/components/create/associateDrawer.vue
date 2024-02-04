@@ -92,6 +92,7 @@
     visible: boolean;
     project: string;
     reviewId?: string;
+    reviewers?: string[];
   }>();
   const emit = defineEmits<{
     (e: 'update:visible', val: boolean): void;
@@ -109,7 +110,7 @@
   const innerProject = useVModel(props, 'project', emit);
 
   const associateForm = ref({
-    reviewers: [] as string[],
+    reviewers: props.reviewers || ([] as string[]),
   });
   const associateFormRef = ref<FormInstance>();
 
@@ -129,6 +130,7 @@
       reviewerLoading.value = true;
       const res = await getReviewUsers(appStore.currentProjectId, '');
       reviewersOptions.value = res.map((e) => ({ label: e.name, value: e.id }));
+      associateForm.value.reviewers = props.reviewers || [];
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

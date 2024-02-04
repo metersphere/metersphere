@@ -116,7 +116,7 @@
                     >
                       <MsButton class="!mr-0 ml-[8px]">{{ t('common.rename') }}</MsButton>
                     </popConfirm>
-                    <template v-if="fileType === 'image'">
+                    <template v-if="UploadAcceptEnum.image.includes(fileType)">
                       <a-divider
                         direction="vertical"
                         class="mx-[8px] min-h-[12px] rounded-[var(--border-radius-small)]"
@@ -251,6 +251,7 @@
 
   import { AssociationItem, FileDetail } from '@/models/projectManagement/file';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
+  import { UploadAcceptEnum } from '@/enums/uploadEnum';
 
   const props = defineProps<{
     visible: boolean;
