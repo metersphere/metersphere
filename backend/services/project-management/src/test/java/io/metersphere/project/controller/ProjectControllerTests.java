@@ -13,11 +13,14 @@ import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.domain.UserRoleRelation;
 import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.dto.UpdateProjectRequest;
 import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.invoker.ProjectServiceInvoker;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.mapper.UserRoleRelationMapper;
+import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -41,7 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ProjectControllerTests extends BaseTest {
@@ -62,6 +65,8 @@ public class ProjectControllerTests extends BaseTest {
 
     @Resource
     private ProjectService projectService;
+    @Resource
+    private UserRoleRelationMapper userRoleRelationMapper;
 
     @Autowired
     public ProjectControllerTests(ProjectServiceInvoker serviceInvoker) {
@@ -380,5 +385,55 @@ public class ProjectControllerTests extends BaseTest {
         ProjectVersion latestVersion = projectService.getLatestVersion(DEFAULT_PROJECT_ID);
         Assertions.assertNotNull(latestVersion);
         Assertions.assertTrue(latestVersion.getLatest());
+    }
+
+    @Test
+    @Order(11)
+    public void testHasPermission() throws Exception {
+        //当前用户是系统管理员
+        responseGet(prefix + "/has-permission/" + DEFAULT_PROJECT_ID, status().isOk());
+
+        MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/login")
+                        .content(String.format("{\"username\":\"%s\",\"password\":\"%s\"}", "delete", "deleted@metersphere.io"))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andReturn();
+        String sessionId = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.sessionId");
+        String csrfToken = JsonPath.read(mvcResult.getResponse().getContentAsString(), "$.data.csrfToken");
+
+        mockMvc.perform(MockMvcRequestBuilders.get(prefix + "/has-permission/" + "projectId")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+        UserRoleRelation userRoleRelation = new UserRoleRelation();
+        userRoleRelation.setUserId("delete");
+        userRoleRelation.setOrganizationId(DEFAULT_ORGANIZATION_ID);
+        userRoleRelation.setSourceId("projectId");
+        userRoleRelation.setRoleId("1");
+        userRoleRelation.setCreateTime(System.currentTimeMillis());
+        userRoleRelation.setCreateUser("admin");
+        userRoleRelation.setId(IDGenerator.nextStr());
+        userRoleRelationMapper.insertSelective(userRoleRelation);
+        mockMvc.perform(MockMvcRequestBuilders.get(prefix + "/has-permission/" + "projectId")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+
+        ProjectExample example = new ProjectExample();
+        example.createCriteria().andIdEqualTo("projectId");
+        Project project = new Project();
+        project.setEnable(false);
+        projectMapper.updateByExampleSelective(project, example);
+        mockMvc.perform(MockMvcRequestBuilders.get(prefix + "/has-permission/" + "projectId")
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
     }
 }

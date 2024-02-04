@@ -76,7 +76,7 @@ public class ProjectService {
         userRoleRelationExample.createCriteria().andUserIdEqualTo(userId).andRoleIdEqualTo(InternalUserRole.ADMIN.name());
         if (userRoleRelationMapper.countByExample(userRoleRelationExample) > 0) {
             ProjectExample example = new ProjectExample();
-            example.createCriteria().andOrganizationIdEqualTo(organizationId).andEnableEqualTo(true);
+            example.createCriteria().andOrganizationIdEqualTo(organizationId);
             return projectMapper.selectByExample(example);
         }
         return extProjectMapper.getUserProject(organizationId, userId);
@@ -197,5 +197,26 @@ public class ProjectService {
     public Long getNextOrder(Function<String, Long> getLastPosFunc, String projectId) {
         Long pos = getLastPosFunc.apply(projectId);
         return (pos == null ? 0 : pos) + ORDER_STEP;
+    }
+
+    public boolean hasPermission(String id, String userId) {
+        boolean hasPermission = true;
+        //判断用户是否是系统管理员
+        UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
+        userRoleRelationExample.createCriteria().andUserIdEqualTo(userId).andRoleIdEqualTo(InternalUserRole.ADMIN.name());
+        if (userRoleRelationMapper.countByExample(userRoleRelationExample) > 0) {
+            return hasPermission;
+        }
+        ProjectExample example = new ProjectExample();
+        example.createCriteria().andIdEqualTo(id).andEnableEqualTo(true);
+        if (CollectionUtils.isEmpty(projectMapper.selectByExample(example))) {
+            return false;
+        }
+        userRoleRelationExample = new UserRoleRelationExample();
+        userRoleRelationExample.createCriteria().andUserIdEqualTo(userId).andSourceIdEqualTo(id);
+        if (CollectionUtils.isEmpty(userRoleRelationMapper.selectByExample(userRoleRelationExample))) {
+            return false;
+        }
+        return hasPermission;
     }
 }
