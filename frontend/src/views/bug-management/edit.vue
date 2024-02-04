@@ -33,7 +33,11 @@
             <a-input v-model="form.title" :max-length="255" />
           </a-form-item>
           <a-form-item field="description" :label="t('bugManagement.edit.content')">
-            <MsRichText v-model:raw="form.description" />
+            <MsRichText
+              v-model:raw="form.description"
+              v-model:filed-ids="richTextFileIds"
+              :upload-image="handleUploadImage"
+            />
           </a-form-item>
           <a-form-item field="attachment" :label="t('bugManagement.edit.file')">
             <div class="flex flex-col">
@@ -145,13 +149,7 @@
         </div>
         <a-divider class="ml-[16px]" direction="vertical" />
         <div class="right mt-[16px] max-w-[433px] grow pr-[24px]">
-          <MsFormCreate
-            v-if="formRules.length"
-            ref="formCreateRef"
-            v-model:formItem="formItem"
-            v-model:api="fApi"
-            :form-rule="formRules"
-          />
+          <MsFormCreate ref="formCreateRef" v-model:formItem="formItem" v-model:api="fApi" :form-rule="formRules" />
           <a-form-item field="tag" :label="t('bugManagement.tag')">
             <MsTagsInput
               v-model:model-value="form.tags"
@@ -209,6 +207,7 @@
     checkFileIsUpdateRequest,
     createOrUpdateBug,
     downloadFileRequest,
+    editorUploadFile,
     getAssociatedFileList,
     getBugDetail,
     getTemplateById,
@@ -230,7 +229,9 @@
   import { SelectValue } from '@/models/projectManagement/menuManagement';
   import { BugManagementRouteEnum } from '@/enums/routeEnum';
 
-  import { convertToFile } from '../case-management/caseManagementFeature/components/utils';
+  import { convertToFileByBug } from './utils';
+
+  defineOptions({ name: 'BugEditPage' });
 
   const { t } = useI18n();
 
@@ -240,8 +241,6 @@
   }
 
   const appStore = useAppStore();
-  // const formCreateStore = useFormCreateStore();
-
   const route = useRoute();
   const templateOption = ref<TemplateOption[]>([]);
   const form = ref<BugEditFormObject>({
@@ -250,6 +249,9 @@
     description: '',
     templateId: '',
     tags: [],
+    deleteLocalFileIds: [],
+    unLinkRefIds: [],
+    linkFileIds: [],
   });
 
   const getListFunParams = ref<TableQueryParams>({
@@ -271,8 +273,10 @@
 
   const isEdit = computed(() => !!route.query.id && route.params.mode === 'edit');
   const bugId = computed(() => route.query.id || '');
+  const isEditOrCopy = computed(() => !!bugId.value);
   const imageUrl = ref('');
   const previewVisible = ref<boolean>(false);
+  const richTextFileIds = ref<string[]>([]);
 
   const title = computed(() => {
     return isEdit.value ? t('bugManagement.editBug') : t('bugManagement.createBug');
@@ -302,13 +306,6 @@
     return attachmentsList.value.filter((item) => item.local).map((item: any) => item.uid);
   });
 
-  // 删除本地上传的文件id
-  const deleteFileMetaIds = computed(() => {
-    return oldLocalFileList.value
-      .filter((item: any) => !currentOldLocalFileList.value.includes(item.id))
-      .map((item: any) => item.id);
-  });
-
   // 新增关联文件ID列表
   const newAssociateFileListIds = computed(() => {
     return fileList.value
@@ -328,6 +325,33 @@
       (id: string) => !currentAlreadyAssociateFileList.value.includes(id) && !deleteAssociateFileIds.includes(id)
     );
   });
+
+  // 删除本地上传的文件id
+  const deleteFileMetaIds = computed(() => {
+    return oldLocalFileList.value
+      .filter((item: any) => !currentOldLocalFileList.value.includes(item.id))
+      .map((item: any) => item.id);
+  });
+
+  // 处理关联文件和已关联文件本地文件和已上传文本文件
+  function getFilesParams() {
+    form.value.deleteLocalFileIds = deleteFileMetaIds.value;
+    form.value.unLinkRefIds = unLinkFilesIds.value;
+    form.value.linkFileIds = newAssociateFileListIds.value;
+  }
+
+  // 监视文件列表处理关联和本地文件
+  watch(
+    () => fileList.value,
+    (val) => {
+      if (val) {
+        getListFunParams.value.combine.hiddenIds = fileList.value.filter((item) => !item.local).map((item) => item.uid);
+        getFilesParams();
+      }
+    },
+    { deep: true }
+  );
+
   const transferVisible = ref<boolean>(false);
   // 转存
   function transferFile() {
@@ -460,7 +484,7 @@
 
   // 处理关联文件
   function saveSelectAssociatedFile(fileData: AssociatedList[]) {
-    const fileResultList = fileData.map((fileInfo) => convertToFile(fileInfo));
+    const fileResultList = fileData.map((fileInfo) => convertToFileByBug(fileInfo));
     fileList.value.push(...fileResultList);
   }
 
@@ -532,31 +556,32 @@
     });
     scrollIntoView(document.querySelector('.arco-form-item-message'), { block: 'center' });
   };
-
+  // 获取详情
   const getDetailInfo = async () => {
     const id = route.query.id as string;
     if (!id) return;
     const res = await getBugDetail(id);
     const { customFields, templateId, attachments } = res;
+    // 根据模板ID 初始化自定义字段
+    await templateChange(templateId);
     if (attachments && attachments.length) {
       attachmentsList.value = attachments;
       // 检查文件是否有更新
-      const checkUpdateFileIds = await checkFileIsUpdateRequest(attachments.value.map((item: any) => item.id));
+      const checkUpdateFileIds = await checkFileIsUpdateRequest(attachments.map((item: any) => item.fileId));
       // 处理文件列表
       fileList.value = attachments
         .map((fileInfo: any) => {
           return {
             ...fileInfo,
             name: fileInfo.fileName,
-            isUpdateFlag: checkUpdateFileIds.value.includes(fileInfo.id),
+            isUpdateFlag: checkUpdateFileIds.includes(fileInfo.id),
           };
         })
         .map((fileInfo: any) => {
-          return convertToFile(fileInfo);
+          return convertToFileByBug(fileInfo);
         });
     }
-    // 根据模板ID 初始化自定义字段
-    await templateChange(templateId);
+
     const tmpObj = {};
     if (customFields && Array.isArray(customFields)) {
       customFields.forEach((item) => {
@@ -576,16 +601,9 @@
     };
   };
 
-  const initDefaultFields = () => {
-    getTemplateOptions();
+  const initDefaultFields = async () => {
+    await getTemplateOptions();
   };
-
-  // 处理关联文件和已关联文件本地文件和已上传文本文件
-  function getFilesParams() {
-    form.value.deleteFileMetaIds = deleteFileMetaIds.value;
-    form.value.unLinkFilesIds = unLinkFilesIds.value;
-    form.value.relateFileMetaIds = newAssociateFileListIds.value;
-  }
 
   // 监视文件列表处理关联和本地文件
   watch(
@@ -601,16 +619,18 @@
     { deep: true }
   );
 
-  onBeforeMount(() => {
-    const { mode } = route.params;
-    if (mode === 'edit') {
+  async function handleUploadImage(file: File) {
+    const { data } = await editorUploadFile({
+      fileList: [file],
+    });
+    return data;
+  }
+
+  onMounted(async () => {
+    await initDefaultFields();
+    if (isEditOrCopy.value) {
       // 详情
-      getDetailInfo();
-    } else if (mode === 'copy') {
-      getDetailInfo();
-      initDefaultFields();
-    } else {
-      initDefaultFields();
+      await getDetailInfo();
     }
   });
 </script>

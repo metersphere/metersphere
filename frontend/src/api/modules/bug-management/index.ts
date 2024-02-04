@@ -155,3 +155,7 @@ export function deleteFileOrCancelAssociation(data: OperationFile) {
 export function getAttachmentList(bugId: string) {
   return MSR.get({ url: `${bugURL.getAttachmentListUrl}${bugId}` });
 }
+// 富文本编辑器上传图片文件
+export function editorUploadFile(data: { fileList: File[] }) {
+  return MSR.uploadFile({ url: bugURL.editorUploadFileUrl }, { fileList: data.fileList }, '', false);
+}
