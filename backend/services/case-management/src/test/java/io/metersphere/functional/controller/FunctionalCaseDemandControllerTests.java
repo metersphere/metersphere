@@ -20,7 +20,6 @@ import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.SystemParameter;
 import io.metersphere.system.log.constants.OperationLogType;
-import io.metersphere.system.mapper.ServiceIntegrationMapper;
 import io.metersphere.system.mapper.SystemParameterMapper;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
@@ -58,8 +57,6 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
     private OperationLogMapper operationLogMapper;
     @Resource
     private SystemParameterMapper systemParameterMapper;
-    @Resource
-    private ServiceIntegrationMapper serviceIntegrationMapper;
     @Resource
     private BasePluginTestService basePluginTestService;
     @Resource
