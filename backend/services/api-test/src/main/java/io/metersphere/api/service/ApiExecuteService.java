@@ -48,12 +48,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static io.metersphere.api.controller.result.ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR;
@@ -130,7 +125,9 @@ public class ApiExecuteService {
         setTaskFileParam(request, taskRequest);
 
         //  误报处理
-        taskRequest.setMsRegexList(projectApplicationService.get(Arrays.asList(request.getProjectId())));
+        if (StringUtils.isNotBlank(request.getProjectId())) {
+            taskRequest.setMsRegexList(projectApplicationService.get(Collections.singletonList(request.getProjectId())));
+        }
 
         // todo 获取接口插件和jar包
         // todo 处理公共脚本
