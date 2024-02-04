@@ -23,7 +23,7 @@ public class BugSyncNoticeService {
     @Resource
     private NoticeSendService noticeSendService;
 
-    public void sendNotice(int total, String currentUser) {
+    public void sendNotice(int total, String currentUser, String projectId) {
         User user = userMapper.selectByPrimaryKey(currentUser);
         Map<String, String> defaultTemplateMap = MessageTemplateUtils.getDefaultTemplateMap();
         String template = defaultTemplateMap.get(NoticeConstants.TemplateText.BUG_SYNC_TASK_EXECUTE_COMPLETED);
@@ -33,6 +33,7 @@ public class BugSyncNoticeService {
         Map paramMap = new HashMap<>();
         paramMap.put(NoticeConstants.RelatedUser.OPERATOR, user.getName());
         paramMap.put("total", total);
+        paramMap.put("projectId", projectId);
         NoticeModel noticeModel = NoticeModel.builder().operator(currentUser)
                 .context(template).subject(subject).paramMap(paramMap).event(NoticeConstants.Event.SYNC_COMPLETED).build();
         noticeSendService.send(NoticeConstants.TaskType.BUG_SYNC_TASK, noticeModel);
