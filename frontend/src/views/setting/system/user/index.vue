@@ -92,7 +92,7 @@
     title-align="start"
     class="ms-modal-form ms-modal-medium"
     :mask-closable="false"
-    @close="handleUserModalClose"
+    :closable="false"
   >
     <a-alert class="mb-[16px]">{{ t('system.user.createUserTip') }}</a-alert>
     <a-form
@@ -110,6 +110,7 @@
         add-text="system.user.addUser"
         :default-vals="userForm.list"
         max-height="250px"
+        @change="handleBatchFormChange"
       ></MsBatchForm>
       <a-form-item
         class="mb-0"
@@ -139,7 +140,7 @@
       </a-form-item>
     </a-form>
     <template #footer>
-      <a-button type="secondary" :disabled="loading" @click="cancelCreate">
+      <a-button type="secondary" :disabled="loading" @click="handleBeforeClose">
         {{ t('system.user.editUserModalCancelCreate') }}
       </a-button>
       <a-button v-if="userFormMode === 'create'" type="secondary" :loading="loading" @click="saveAndContinue">
@@ -820,6 +821,11 @@
       placeholder: 'system.user.createUserPhonePlaceholder',
     },
   ]);
+  const isBatchFormChange = ref(false);
+
+  function handleBatchFormChange() {
+    isBatchFormChange.value = true;
+  }
 
   /**
    * 取消创建，重置用户表单
@@ -955,12 +961,21 @@
     });
   }
 
-  /**
-   * 处理用户表单弹窗关闭
-   */
-  function handleUserModalClose() {
-    resetUserForm();
-    batchFormRef.value?.resetForm();
+  function handleBeforeClose() {
+    if (isBatchFormChange.value) {
+      openModal({
+        type: 'warning',
+        title: t('common.tip'),
+        content: t('system.user.closeTip'),
+        okText: t('common.close'),
+        onBeforeOk: async () => {
+          cancelCreate();
+        },
+        hideCancel: false,
+      });
+    } else {
+      cancelCreate();
+    }
   }
 
   const inviteVisible = ref(false);

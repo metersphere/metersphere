@@ -115,6 +115,7 @@
       }
       treeData.value = resTree;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       loading.value = false;
@@ -185,8 +186,6 @@
       batchLoading.value = false;
     }
   }
-
-  function handleClose() {}
 </script>
 
 <style lang="less" scoped></style>

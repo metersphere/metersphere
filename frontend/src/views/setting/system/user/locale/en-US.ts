@@ -114,5 +114,6 @@ export default {
   'system.user.importErrorMessageTitle': 'Failed to import some user information',
   'system.user.seeMore': 'View more',
   'system.user.num': 'Line',
-  'system.user.line': '',
+  'system.user.line': '', // 英文没有后面的单位
+  'system.user.closeTip': 'Your changes have not been saved. Do you want to continue closing the window?',
 };

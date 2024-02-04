@@ -118,4 +118,5 @@ export default {
   'common.nameIsTooLang': '名称超过255个字符',
   'common.validateSuccess': '验证成功',
   'common.to': '至',
+  'common.tip': '温馨提示',
 };

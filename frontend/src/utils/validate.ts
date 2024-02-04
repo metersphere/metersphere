@@ -4,8 +4,8 @@ export const emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
 export const phoneRegex = /^\d{11}$/;
 // 密码校验，8-32位
 export const passwordLengthRegex = /^.{8,32}$/;
-// 密码校验，必须包含数字和字母
-export const passwordWordRegex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z0-9!@#$%^&*]+$/;
+// 密码校验，必须包含数字和字母，特殊符号范围校验
+export const passwordWordRegex = /^(?=.*\d)(?=.*[a-zA-Z])[0-9a-zA-Z!@#$%^&*()_+.]+$/;
 // Git地址校验
 export const gitRepositoryUrlRegex = /\.git$/;
 

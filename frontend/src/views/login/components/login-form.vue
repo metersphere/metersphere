@@ -5,7 +5,7 @@
         <img :src="innerLogo" class="h-[60px] w-[290px]" />
       </div>
       <div class="title-0 mt-[16px] flex justify-center">
-        <span class="title-welcome">{{ innerSlogan || t('login.form.title') }}</span>
+        <span class="title-welcome">{{ t(innerSlogan || '') || t('login.form.title') }}</span>
       </div>
     </div>
 
@@ -73,7 +73,6 @@
   import { useStorage } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
 
-  import { getAuthenticationList } from '@/api/modules/user';
   import { GetLoginLogoUrl } from '@/api/requrls/setting/config';
   import { useI18n } from '@/hooks/useI18n';
   import useLoading from '@/hooks/useLoading';

@@ -348,8 +348,9 @@
     },
     {
       title: 'ms.case.associate.version',
-      slotName: 'version',
-      width: 200,
+      dataIndex: 'versionName',
+      width: 100,
+      showTooltip: true,
     },
     {
       title: 'ms.case.associate.tags',
