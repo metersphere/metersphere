@@ -140,11 +140,10 @@ public class GitRepositoryUtil {
 
     private String getFileLastCommitId(ObjectId objectId, String filePath) throws Exception {
         Iterable<RevCommit> logs = git.log().add(objectId).addPath(filePath).call();
-        String returnStr = StringUtils.EMPTY;
         for (RevCommit rev : logs) {
-            returnStr = rev.getName();
+            return rev.getName();
         }
-        return returnStr;
+        return null;
     }
 
     private RevCommit getRevTreeByRepositoryAndCommitId(InMemoryRepository repo, ObjectId fileCommitId) throws Exception {

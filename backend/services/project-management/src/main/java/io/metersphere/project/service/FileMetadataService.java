@@ -532,13 +532,16 @@ public class FileMetadataService {
     private void setFileVersionIsOld(FileMetadata oldFile, String operator) {
         //删除旧的预览文件
         TempFileUtils.deleteTmpFile(oldFile.getId());
-        //更新文件版本分支
+        //通过refId批量更新
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andRefIdEqualTo(oldFile.getRefId()).andLatestEqualTo(true);
+
         FileMetadata updateModel = new FileMetadata();
-        updateModel.setId(oldFile.getId());
         updateModel.setLatest(false);
         updateModel.setUpdateTime(System.currentTimeMillis());
         updateModel.setUpdateUser(operator);
-        fileMetadataMapper.updateByPrimaryKeySelective(updateModel);
+
+        fileMetadataMapper.updateByExampleSelective(updateModel, example);
     }
 
     private void genNewFileVersionByOldFile(FileMetadata oldFile, FileMetadata fileMetadata, String operator) {
@@ -620,6 +623,7 @@ public class FileMetadataService {
         //获取fileMetadata以及可能存在的fileMetadataRepository
         FileMetadataExample example = new FileMetadataExample();
         example.createCriteria().andRefIdEqualTo(fileMetadata.getRefId());
+        example.setOrderByClause(" create_time DESC ");
         List<FileMetadata> fileMetadataList = fileMetadataMapper.selectByExample(example);
         List<String> fileIdList = fileMetadataList.stream().map(FileMetadata::getId).toList();
         FileMetadataRepositoryExample repositoryExample = new FileMetadataRepositoryExample();
