@@ -50,9 +50,14 @@ public class GitRepositoryUtil {
 
     public byte[] getFile(String filePath, String commitId) throws Exception {
         LogUtils.info("准备获取文件. repositoryUrl：" + repositoryUrl + "; filePath：" + filePath + "; commitId：" + commitId);
+
         InMemoryRepository repo = this.getGitRepositoryInMemory(repositoryUrl, userName, token);
         ObjectId fileCommitObjectId = repo.resolve(commitId);
-        ObjectId objectId = this.getTreeWork(repo, fileCommitObjectId, filePath).getObjectId(0);
+        TreeWalk treeWalk = this.getTreeWork(repo, fileCommitObjectId, filePath);
+        if (!treeWalk.next()) {
+            return null;
+        }
+        ObjectId objectId = treeWalk.getObjectId(0);
         ObjectLoader loader = repo.open(objectId);
         byte[] returnBytes = loader.getBytes();
         this.closeConnection(repo);

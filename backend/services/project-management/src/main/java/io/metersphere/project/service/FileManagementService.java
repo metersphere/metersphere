@@ -182,6 +182,7 @@ public class FileManagementService {
             FileModuleRepositoryDTO repositoryDTO = getFileModuleRepositoryDTO(fileMetadata.getModuleId());
             FileMetadataRepositoryDTO metadataRepositoryDTO = getFileMetadataRepositoryDTO(fileMetadata.getId());
             fileRequest.setGitFileRequest(repositoryDTO, metadataRepositoryDTO);
+            fileRequest.setFileName(fileMetadata.getPath());
         }
 
         return fileService.download(fileRequest);

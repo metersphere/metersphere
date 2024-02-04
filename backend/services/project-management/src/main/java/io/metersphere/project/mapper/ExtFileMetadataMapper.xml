@@ -28,8 +28,8 @@
             resultMap="BaseResultMap">
         SELECT
         f.id,
-        updateUser.name as updateUser,
-        createUser.name AS createUser,
+        updateUser.name as update_user,
+        createUser.name AS create_uUser,
         f.module_id,
             f.name,
             f.type,

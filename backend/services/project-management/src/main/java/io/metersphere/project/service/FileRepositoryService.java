@@ -15,12 +15,12 @@ import io.metersphere.project.mapper.FileMetadataRepositoryMapper;
 import io.metersphere.project.mapper.FileModuleRepositoryMapper;
 import io.metersphere.sdk.constants.ModuleConstants;
 import io.metersphere.sdk.constants.StorageType;
+import io.metersphere.sdk.dto.RemoteFileAttachInfo;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.GitRepositoryUtil;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
-import io.metersphere.sdk.dto.RemoteFileAttachInfo;
 import io.metersphere.system.uid.IDGenerator;
-import io.metersphere.sdk.util.GitRepositoryUtil;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -137,7 +137,7 @@ public class FileRepositoryService extends FileModuleService {
         GitRepositoryUtil utils = new GitRepositoryUtil(repository.getUrl(), repository.getUserName(), repository.getToken());
 
         RemoteFileAttachInfo fileAttachInfo = utils.selectLastCommitIdByBranch(request.getBranch(), request.getFilePath());
-        if (fileAttachInfo == null) {
+        if (fileAttachInfo == null || fileAttachInfo.fileIsNotExist()) {
             throw new MSException(Translator.get("file.not.exist"));
         }
         FileMetadata fileMetadata = fileMetadataService.genFileMetadata(request.getFilePath(), StorageType.GIT.name(), fileAttachInfo.getSize(), request.isEnable(),

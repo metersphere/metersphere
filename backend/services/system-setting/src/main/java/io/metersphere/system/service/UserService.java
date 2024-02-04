@@ -521,11 +521,16 @@ public class UserService {
         javaMailSender.send(mimeMessage);
     }
 
-    public String registerByInvite(UserRegisterRequest request) throws Exception {
-        UserInvite userInvite = userInviteService.selectEfficientInviteById(request.getInviteId());
+    public UserInvite getUserInviteAndCheckEfficient(String inviteId) {
+        UserInvite userInvite = userInviteService.selectEfficientInviteById(inviteId);
         if (userInvite == null) {
             throw new MSException(Translator.get("user.not.invite.or.expired"));
         }
+        return userInvite;
+    }
+
+    public String registerByInvite(UserRegisterRequest request) throws Exception {
+        UserInvite userInvite = this.getUserInviteAndCheckEfficient(request.getInviteId());
         //检查邮箱是否已经注册
         this.validateUserInfo(new ArrayList<>() {{
             this.add(userInvite.getEmail());

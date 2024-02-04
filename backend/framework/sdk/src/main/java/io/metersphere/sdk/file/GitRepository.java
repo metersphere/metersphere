@@ -45,7 +45,7 @@ public class GitRepository implements FileRepository {
             GitFileRequest gitFileInfo = request.getGitFileRequest();
             GitRepositoryUtil repositoryUtils = new GitRepositoryUtil(
                     gitFileInfo.getUrl(), gitFileInfo.getUserName(), gitFileInfo.getToken());
-            fileBytes = repositoryUtils.getFile(gitFileInfo.getUrl(), gitFileInfo.getCommitId());
+            fileBytes = repositoryUtils.getFile(request.getFileName(), gitFileInfo.getCommitId());
         }
         return fileBytes;
     }

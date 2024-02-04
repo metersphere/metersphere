@@ -189,6 +189,12 @@ public class UserController {
         return userService.saveInviteRecord(request, SessionUtils.getUser());
     }
 
+    @GetMapping("/check-invite/{inviteId}")
+    @Operation(summary = "系统设置-系统-用户-用户接受注册邀请并创建账户")
+    public void checkInviteNum(@PathVariable String inviteId) {
+        userService.getUserInviteAndCheckEfficient(inviteId);
+    }
+
     @PostMapping("/register-by-invite")
     @Operation(summary = "系统设置-系统-用户-用户接受注册邀请并创建账户")
     public String registerByInvite(@Validated @RequestBody UserRegisterRequest request) throws Exception {

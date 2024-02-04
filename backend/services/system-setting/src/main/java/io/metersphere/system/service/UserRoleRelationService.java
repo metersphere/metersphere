@@ -6,6 +6,7 @@ import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.UserRoleEnum;
 import io.metersphere.sdk.constants.UserRoleScope;
 import io.metersphere.sdk.util.JSON;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.user.response.UserTableResponse;
 import io.metersphere.system.log.constants.OperationLogModule;
@@ -72,8 +73,8 @@ public class UserRoleRelationService {
             log.setCreateTime(operationTime);
             log.setSourceId(user.getId());
             log.setContent(user.getName() + StringUtils.SPACE
-                    + operationType + StringUtils.SPACE
-                    + "UserRole" + StringUtils.SPACE
+                    + Translator.get(StringUtils.lowerCase(operationType)) + StringUtils.SPACE
+                    + Translator.get("permission.project_group.name") + StringUtils.SPACE
                     + userRole.getName());
             log.setOriginalValue(JSON.toJSONBytes(userRole));
             logs.add(log);
