@@ -8,6 +8,7 @@ import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.domain.UserExtend;
 import io.metersphere.system.domain.UserExtendExample;
 import io.metersphere.system.mapper.UserExtendMapper;
+import io.metersphere.system.service.UserPlatformAccountService;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.*;
 import org.mockserver.client.MockServerClient;
@@ -39,6 +40,8 @@ public class UserPlatformAccountControllerTests extends BaseTest {
     private MockServerClient mockServerClient;
     @Resource
     private UserExtendMapper userExtendMapper;
+    @Resource
+    private UserPlatformAccountService userPlatformAccountService;
     private static final String VALIDATE_POST = "/user/platform/validate/{0}/{1}";
     private static final String SAVE_POST = "/user/platform/save";
     public static <T> T parseObjectFromMvcResult(MvcResult mvcResult, Class<T> parseClass) {
@@ -94,6 +97,7 @@ public class UserPlatformAccountControllerTests extends BaseTest {
         // noinspection unchecked
         Map<String, Object> accountMap = parseObjectFromMvcResult(mvcResult, Map.class);
         Assertions.assertNull(accountMap);
+        userPlatformAccountService.getPluginUserPlatformConfig("jira", "100001", "admin");
         // @@请求成功 保存两次
         this.requestPostWithOk(SAVE_POST, buildUserPlatformConfig());
         UserExtend record = new UserExtend();
@@ -102,6 +106,7 @@ public class UserPlatformAccountControllerTests extends BaseTest {
         userExtendMapper.updateByPrimaryKeyWithBLOBs(record);
         this.requestPostWithOk(SAVE_POST, buildUserPlatformConfig());
         this.requestPostWithOk(SAVE_POST, buildUserPlatformConfig());
+        userPlatformAccountService.getPluginUserPlatformConfig("jira", "100001", "admin");
     }
 
     @Test
@@ -120,11 +125,15 @@ public class UserPlatformAccountControllerTests extends BaseTest {
     private Map<String, Object> buildUserPlatformConfig() {
         Map<String, Object> platformInfo = new HashMap<>();
         Map<String, Object> userPlatformConfig = new HashMap<>();
-        userPlatformConfig.put("authType", "test");
-        userPlatformConfig.put("jiraAccount", "test");
-        userPlatformConfig.put("jiraPassword", "test");
-        userPlatformConfig.put("zentaoAccount", "test");
-        userPlatformConfig.put("zentaoPassword", "test");
+        Map<String, Object> zentaoConfig = new HashMap<>();
+        Map<String, Object> jiraConfig = new HashMap<>();
+        zentaoConfig.put("zentaoAccount", "test");
+        zentaoConfig.put("zentaoPassword", "test");
+        jiraConfig.put("authType", "test");
+        jiraConfig.put("jiraAccount", "test");
+        jiraConfig.put("jiraPassword", "test");
+        userPlatformConfig.put("zentao", zentaoConfig);
+        userPlatformConfig.put("jira", jiraConfig);
         platformInfo.put("100001", userPlatformConfig);
         return platformInfo;
     }

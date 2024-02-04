@@ -109,4 +109,21 @@ public class UserPlatformAccountService {
         // noinspection unchecked
         return (Map<String, Object>) userPlatformInfo.get(orgId);
     }
+
+    /**
+     * 获取插件个人三方平台账号
+     *
+     * @param userId 用户ID
+     * @param orgId  组织ID
+     * @return 三方平台账号
+     */
+    public Map<String, Object> getPluginUserPlatformConfig(String pluginId, String orgId, String userId) {
+        // 获取组织用户集成信息
+        Map<String, Object> userPlatformInfo = get(userId, orgId);
+        if (userPlatformInfo == null) {
+            return null;
+        }
+        // noinspection unchecked
+        return (Map<String, Object>) userPlatformInfo.get(pluginId);
+    }
 }
