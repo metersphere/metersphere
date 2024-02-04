@@ -6,8 +6,9 @@
     has-breadcrumb
     :title="title"
     :loading="loading"
-    @save="saveHandler"
-    @save-and-continue="saveHandler"
+    :is-edit="isEdit"
+    @save="saveHandler(false)"
+    @save-and-continue="saveHandler(true)"
   >
     <template #headerRight>
       <a-select
@@ -68,30 +69,82 @@
             </div>
           </a-form-item>
           <div class="mb-[8px] mt-[2px] text-[var(--color-text-4)]">{{ t('bugManagement.edit.fileExtra') }}</div>
-          <FileList
-            :show-tab="false"
-            :file-list="fileList"
-            :upload-func="uploadFile"
-            @delete-file="deleteFile"
-            @reupload="reupload"
-            @handle-preview="handlePreview"
-          >
+          <FileList mode="static" :file-list="fileList">
+            <template #actions="{ item }">
+              <!-- 本地文件 -->
+              <div v-if="item.local || item.status === 'init'" class="flex flex-nowrap">
+                <MsButton
+                  v-if="item.status !== 'init'"
+                  type="button"
+                  status="primary"
+                  class="!mr-[4px]"
+                  @click="handlePreview(item)"
+                >
+                  {{ t('ms.upload.preview') }}
+                </MsButton>
+                <MsButton
+                  v-if="item.status !== 'init'"
+                  type="button"
+                  status="primary"
+                  class="!mr-[4px]"
+                  @click="transferFile"
+                >
+                  {{ t('caseManagement.featureCase.storage') }}
+                </MsButton>
+                <TransferModal
+                  v-model:visible="transferVisible"
+                  :request-fun="transferFileRequest"
+                  :params="{
+                    projectId: currentProjectId,
+                    bugId: bugId as string,
+                    fileId: item.uid,
+                    associated: !item.local,
+                  }"
+                  @success="getDetailInfo()"
+                />
+                <MsButton
+                  v-if="item.status !== 'init'"
+                  type="button"
+                  status="primary"
+                  class="!mr-[4px]"
+                  @click="downloadFile(item)"
+                >
+                  {{ t('common.download') }}
+                </MsButton>
+              </div>
+              <!-- 关联文件 -->
+              <div v-else class="flex flex-nowrap">
+                <MsButton
+                  v-if="item.status !== 'init'"
+                  type="button"
+                  status="primary"
+                  class="!mr-[4px]"
+                  @click="handlePreview(item)"
+                >
+                  {{ t('ms.upload.preview') }}
+                </MsButton>
+                <MsButton v-if="bugId" type="button" status="primary" class="!mr-[4px]" @click="downloadFile(item)">
+                  {{ t('common.download') }}
+                </MsButton>
+                <MsButton
+                  v-if="bugId && item.isUpdateFlag"
+                  type="button"
+                  status="primary"
+                  @click="handleUpdateFile(item)"
+                >
+                  {{ t('common.update') }}
+                </MsButton>
+              </div>
+            </template>
+            <template #title="{ item }">
+              <span v-if="item.isUpdateFlag" class="ml-4 flex items-center font-normal text-[rgb(var(--warning-6))]"
+                ><icon-exclamation-circle-fill /> <span>{{ t('caseManagement.featureCase.fileIsUpdated') }}</span>
+              </span>
+            </template>
           </FileList>
         </div>
         <a-divider class="ml-[16px]" direction="vertical" />
         <div class="right mt-[16px] max-w-[433px] grow pr-[24px]">
-          <!-- <a-form-item
-            :label="t('bugManagement.handleMan')"
-            field="handleMan"
-            :rules="[{ required: true, message: t('bugManagement.edit.handleManIsRequired') }]"
-          >
-            <MsUserSelector
-              v-model:model-value="form.handleMan"
-              :type="UserRequestTypeEnum.PROJECT_PERMISSION_MEMBER"
-              :load-option-params="{ projectId: appStore.currentProjectId }"
-              placeholder="bugManagement.edit.handleManPlaceholder"
-            />
-          </a-form-item> -->
           <MsFormCreate
             v-if="formRules.length"
             ref="formCreateRef"
@@ -101,7 +154,7 @@
           />
           <a-form-item field="tag" :label="t('bugManagement.tag')">
             <MsTagsInput
-              v-model:model-value="form.tag"
+              v-model:model-value="form.tags"
               :placeholder="t('bugManagement.edit.tagPlaceholder')"
               allow-clear
             />
@@ -133,12 +186,14 @@
     :get-list-fun-params="getListFunParams"
     @save="saveSelectAssociatedFile"
   />
+  <a-image-preview v-model:visible="previewVisible" :src="imageUrl" />
 </template>
 
 <script setup lang="ts">
   import { useRoute } from 'vue-router';
-  import { FileItem, Message } from '@arco-design/web-vue';
+  import { Message } from '@arco-design/web-vue';
 
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
   import { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
@@ -148,25 +203,32 @@
   import MsUpload from '@/components/pure/ms-upload/index.vue';
   import { MsFileItem } from '@/components/pure/ms-upload/types';
   import RelateFileDrawer from '@/components/business/ms-link-file/associatedFileDrawer.vue';
+  import TransferModal from '@/views/case-management/caseManagementFeature/components/tabContent/transferModal.vue';
 
-  // import { MsUserSelector } from '@/components/business/ms-user-selector';
-  // import { UserRequestTypeEnum } from '@/components/business/ms-user-selector/utils';
   import {
-    createBug,
+    checkFileIsUpdateRequest,
+    createOrUpdateBug,
+    downloadFileRequest,
     getAssociatedFileList,
     getBugDetail,
     getTemplateById,
     getTemplateOption,
+    previewFile,
+    transferFileRequest,
+    updateFile,
   } from '@/api/modules/bug-management';
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
+  import router from '@/router';
   import { useAppStore } from '@/store';
+  import { downloadByteFile } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
 
   import { BugEditCustomField, BugEditCustomFieldItem, BugEditFormObject } from '@/models/bug-management';
   import { AssociatedList, AttachFileInfo } from '@/models/caseManagement/featureCase';
   import { TableQueryParams } from '@/models/common';
   import { SelectValue } from '@/models/projectManagement/menuManagement';
+  import { BugManagementRouteEnum } from '@/enums/routeEnum';
 
   import { convertToFile } from '../case-management/caseManagementFeature/components/utils';
 
@@ -187,7 +249,7 @@
     title: '',
     description: '',
     templateId: '',
-    tag: [],
+    tags: [],
   });
 
   const getListFunParams = ref<TableQueryParams>({
@@ -201,12 +263,16 @@
   const fileList = ref<MsFileItem[]>([]);
   const formRules = ref<FormItem[]>([]);
   const formItem = ref<FormRuleItem[]>([]);
-  const fApi = ref({});
+  const fApi = ref<any>(null);
+  const currentProjectId = computed(() => appStore.currentProjectId);
   const associatedDrawer = ref(false);
   const loading = ref(false);
   const acceptType = ref('none'); // 模块-上传文件类型
 
-  const isEdit = computed(() => !!route.query.id);
+  const isEdit = computed(() => !!route.query.id && route.params.mode === 'edit');
+  const bugId = computed(() => route.query.id || '');
+  const imageUrl = ref('');
+  const previewVisible = ref<boolean>(false);
 
   const title = computed(() => {
     return isEdit.value ? t('bugManagement.editBug') : t('bugManagement.createBug');
@@ -262,6 +328,11 @@
       (id: string) => !currentAlreadyAssociateFileList.value.includes(id) && !deleteAssociateFileIds.includes(id)
     );
   });
+  const transferVisible = ref<boolean>(false);
+  // 转存
+  function transferFile() {
+    transferVisible.value = true;
+  }
 
   // 处理表单格式
   const getFormRules = (arr: BugEditCustomField[]) => {
@@ -273,11 +344,11 @@
           name: item.fieldId,
           label: item.fieldName,
           value: item.value,
-          options: item.platformOptionJson ? JSON.parse(item.platformOptionJson) : [],
+          options: item.platformOptionJson ? JSON.parse(item.platformOptionJson) : item.options,
           required: item.required as boolean,
           props: {
             modelValue: item.value,
-            options: item.platformOptionJson ? JSON.parse(item.platformOptionJson) : [],
+            options: item.platformOptionJson ? JSON.parse(item.platformOptionJson) : item.options,
           },
         };
       });
@@ -316,37 +387,53 @@
     }
   };
 
-  const handlePreview = (item: FileItem) => {
-    const { url } = item;
-    window.open(url);
-  };
-
-  const deleteFile = (item: FileItem) => {
-    fileList.value = fileList.value.filter((e) => e.uid !== item.uid);
-  };
-
-  const reupload = (item: FileItem) => {
-    fileList.value = fileList.value.map((e) => {
-      if (e.uid === item.uid) {
-        return {
-          ...e,
-          status: 'init',
-        };
+  // 预览图片
+  async function handlePreview(item: MsFileItem) {
+    try {
+      previewVisible.value = true;
+      if (item.status !== 'init') {
+        const res = await previewFile({
+          projectId: currentProjectId.value,
+          bugId: bugId.value as string,
+          fileId: item.uid,
+          associated: !item.local,
+        });
+        const blob = new Blob([res], { type: 'image/jpeg' });
+        imageUrl.value = URL.createObjectURL(blob);
+      } else {
+        imageUrl.value = item.url || '';
       }
-      return e;
-    });
-  };
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
 
-  const uploadFile = (file: File) => {
-    const fileItem: FileItem = {
-      uid: `${Date.now()}`,
-      name: file.name,
-      status: 'init',
-      file,
-    };
-    fileList.value.push(fileItem);
-    return Promise.resolve(fileItem);
-  };
+  // 下载
+  async function downloadFile(item: MsFileItem) {
+    try {
+      const res = await downloadFileRequest({
+        projectId: currentProjectId.value,
+        bugId: bugId.value as string,
+        fileId: item.uid,
+        associated: !item.local,
+      });
+      downloadByteFile(res, `${item.name}`);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
+  // 更新文件
+  async function handleUpdateFile(item: MsFileItem) {
+    try {
+      await updateFile(currentProjectId.value, item.associationId);
+      Message.success(t('common.updateSuccess'));
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   function beforeUpload(file: File) {
     const _maxSize = 50 * 1024 * 1024;
@@ -378,10 +465,10 @@
   }
 
   // 保存
-  const saveHandler = async () => {
+  const saveHandler = async (isContinue = false) => {
     formRef.value.validate((error: any) => {
       if (!error) {
-        formCreateRef.value.formApi.validate(async (valid: any) => {
+        fApi.value.validate(async (valid: any) => {
           if (valid === true) {
             try {
               loading.value = true;
@@ -398,11 +485,41 @@
               }
               const tmpObj = {
                 ...form.value,
-                tag: form.value.tag.join(',') || '',
                 customFields,
               };
-              await createBug({ request: tmpObj, fileList: fileList.value as unknown as File[] });
-              Message.success(t('common.createSuccess'));
+              // 执行保存操作
+              const res = await createOrUpdateBug({ request: tmpObj, fileList: fileList.value as unknown as File[] });
+              if (isEdit.value) {
+                Message.success(t('common.updateSuccess'));
+                router.push({
+                  name: BugManagementRouteEnum.BUG_MANAGEMENT_INDEX,
+                });
+              } else {
+                Message.success(t('common.createSuccess'));
+                if (isContinue) {
+                  // 如果是保存并继续创建
+                  const { templateId } = form.value;
+                  // 用当前模板初始化自定义字段
+                  await templateChange(templateId);
+                  form.value = {
+                    projectId: appStore.currentProjectId, // 取当前项目id
+                    title: '',
+                    description: '',
+                    templateId,
+                    tags: [],
+                  };
+                  // 清空文件列表
+                  fileList.value = [];
+                } else {
+                  // 否则跳转到成功页
+                  router.push({
+                    name: BugManagementRouteEnum.BUG_MANAGEMENT_CREATE_SUCCESS,
+                    query: {
+                      id: res.id,
+                    },
+                  });
+                }
+              }
             } catch (err) {
               // eslint-disable-next-line no-console
               console.log(err);
@@ -418,11 +535,45 @@
 
   const getDetailInfo = async () => {
     const id = route.query.id as string;
-    // TODO: 等后端接口
+    if (!id) return;
     const res = await getBugDetail(id);
-    const { customFields, file } = res;
-    formRules.value = customFields;
-    fileList.value = file;
+    const { customFields, templateId, attachments } = res;
+    if (attachments && attachments.length) {
+      attachmentsList.value = attachments;
+      // 检查文件是否有更新
+      const checkUpdateFileIds = await checkFileIsUpdateRequest(attachments.value.map((item: any) => item.id));
+      // 处理文件列表
+      fileList.value = attachments
+        .map((fileInfo: any) => {
+          return {
+            ...fileInfo,
+            name: fileInfo.fileName,
+            isUpdateFlag: checkUpdateFileIds.value.includes(fileInfo.id),
+          };
+        })
+        .map((fileInfo: any) => {
+          return convertToFile(fileInfo);
+        });
+    }
+    // 根据模板ID 初始化自定义字段
+    await templateChange(templateId);
+    const tmpObj = {};
+    if (customFields && Array.isArray(customFields)) {
+      customFields.forEach((item) => {
+        tmpObj[item.id] = item.value;
+      });
+    }
+    // 自定义字段赋值
+    fApi.value.setValue(tmpObj);
+    // 表单赋值
+    form.value = {
+      id: res.id,
+      title: res.title,
+      description: res.description,
+      templateId: res.templateId,
+      tags: res.tags,
+      projectId: res.projectId,
+    };
   };
 
   const initDefaultFields = () => {
@@ -451,9 +602,13 @@
   );
 
   onBeforeMount(() => {
-    if (isEdit.value) {
+    const { mode } = route.params;
+    if (mode === 'edit') {
       // 详情
       getDetailInfo();
+    } else if (mode === 'copy') {
+      getDetailInfo();
+      initDefaultFields();
     } else {
       initDefaultFields();
     }

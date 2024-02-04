@@ -21,6 +21,7 @@ export default {
   'common.operation': 'Operation',
   'common.remove': 'Remove',
   'common.revoked': 'Revoked',
+  'common.download': 'Download',
   'common.createSuccess': 'Create success',
   'common.createFailed': 'Create failed',
   'common.updateSuccess': 'Update success',

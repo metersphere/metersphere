@@ -35,6 +35,7 @@ export interface BugEditCustomField {
   platformOptionJson?: string; // 选项的 Json
   required: boolean;
   isMutiple?: boolean;
+  options?: any[];
 }
 export interface BugEditFormObject {
   [key: string]: any;
@@ -62,4 +63,26 @@ export interface CreateOrUpdateComment {
   content: string;
   event: string; // 任务事件(仅评论: ’COMMENT‘; 评论并@: ’AT‘; 回复评论/回复并@: ’REPLAY‘;)
 }
-export default {};
+export interface CustomFieldItem {
+  fieldId: string;
+  fieldName: string;
+  fieldKey: string;
+  required: boolean;
+  apiFieldId: string;
+  defaultValue: string;
+  type: string;
+  options: string;
+  platformOptionJson: string;
+  supportSearch: boolean;
+  optionMethod: string;
+  internal: boolean;
+}
+
+export interface OperationFile {
+  id?: string;
+  projectId: string;
+  bugId: string;
+  fileId?: string; // 文件id
+  associated: boolean; // 是否是本地 还是关联
+  moduleId?: string; // 文件转存模块id
+}

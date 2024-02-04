@@ -78,6 +78,7 @@
       </template>
     </MsBaseTable>
     <AddProjectModal
+      v-if="addProjectVisible"
       :visible="addProjectVisible"
       :current-project="currentUpdateProject"
       @cancel="handleAddProjectModalCancel"
@@ -252,8 +253,8 @@
   ];
 
   const showAddProject = () => {
-    currentUpdateProject.value = undefined;
     addProjectVisible.value = true;
+    currentUpdateProject.value = undefined;
   };
 
   const handleEnableOrDisableProject = async (record: any, isEnable = true) => {
@@ -317,6 +318,7 @@
   };
   const handleAddProjectModalCancel = (shouldSearch: boolean) => {
     addProjectVisible.value = false;
+    currentUpdateProject.value = undefined;
     if (shouldSearch) {
       fetchData();
     }

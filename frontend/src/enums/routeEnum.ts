@@ -9,6 +9,7 @@ export enum BugManagementRouteEnum {
   BUG_MANAGEMENT_INDEX = 'bugManagementIndex',
   BUG_MANAGEMENT_DETAIL = 'bbugManagementIndexDetail',
   BUG_MANAGEMENT_RECYCLE = 'bugManagementRecycle',
+  BUG_MANAGEMENT_CREATE_SUCCESS = 'bugManagementCreateSuccess',
 }
 
 export enum CaseManagementRouteEnum {

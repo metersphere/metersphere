@@ -36,7 +36,7 @@
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
 
-  import { createBug, getTemplateDetailInfo, getTemplateOption } from '@/api/modules/bug-management/index';
+  import { createOrUpdateBug, getTemplateDetailInfo, getTemplateOption } from '@/api/modules/bug-management/index';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
 
@@ -89,7 +89,10 @@
       if (!errors) {
         drawerLoading.value = true;
         try {
-          await createBug({ request: { ...form.value, customFields: templateCustomFields.value }, fileList: [] });
+          await createOrUpdateBug({
+            request: { ...form.value, customFields: templateCustomFields.value },
+            fileList: [],
+          });
           Message.success(t('caseManagement.featureCase.quicklyCreateDefectSuccess'));
           if (!isContinue) {
             handleDrawerCancel();

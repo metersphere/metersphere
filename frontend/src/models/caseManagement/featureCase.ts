@@ -1,3 +1,5 @@
+import { key } from 'localforage';
+
 import { TableQueryParams } from '@/models/common';
 import { StatusType } from '@/enums/caseEnum';
 
@@ -261,10 +263,11 @@ export interface CreateOrUpdateDemand {
 export interface OperationFile {
   id?: string;
   projectId: string;
-  caseId: string;
+  caseId?: string;
   fileId?: string; // 文件id
-  local: boolean; // 是否是本地
+  local?: boolean; // 是否是本地
   moduleId?: string; // 文件转存模块id
+  [key: string]: any;
 }
 
 // 评论列表项
