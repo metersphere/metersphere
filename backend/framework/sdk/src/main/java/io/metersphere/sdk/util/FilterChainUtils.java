@@ -35,6 +35,7 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/system/version/current", "anon");
 
         //用户通过邮箱邀请自行注册的接口
+        filterChainDefinitionMap.put("/system/user/check-invite/**", "anon");
         filterChainDefinitionMap.put("/system/user/register-by-invite", "anon");
 
         // 下载测试资源

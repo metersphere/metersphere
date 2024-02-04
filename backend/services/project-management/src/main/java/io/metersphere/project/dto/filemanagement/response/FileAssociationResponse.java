@@ -13,6 +13,9 @@ public class FileAssociationResponse {
     @Schema(description = "资源Id")
     private String sourceId;
 
+    @Schema(description = "资源编号")
+    private String sourceNum;
+
     @Schema(description = "文件Id")
     private String fileId;
 

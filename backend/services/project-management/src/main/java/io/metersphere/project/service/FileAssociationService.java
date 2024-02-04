@@ -62,7 +62,7 @@ public class FileAssociationService {
         //查找文件信息
         Map<String,FileMetadata> fileIdMap = this.getFileIdMap( associationList.stream().map(FileAssociation::getFileId).collect(Collectors.toList()));
         //查找资源信息
-        Map<String,String> sourceIdNameMap = this.getAssociationSourceMap(
+        Map<String, FileAssociationSource> sourceIdNameMap = this.getAssociationSourceMap(
                 associationList.stream().collect(
                         Collectors.groupingBy(FileAssociation::getSourceType,Collectors.mapping(FileAssociation::getSourceId,Collectors.toList()))
                 ));
@@ -75,7 +75,8 @@ public class FileAssociationService {
                 response.setId(item.getId());
                 response.setSourceId(item.getSourceId());
                 response.setFileId(item.getFileId());
-                response.setSourceName(sourceIdNameMap.get(item.getSourceId()));
+                response.setSourceName(sourceIdNameMap.get(item.getSourceId()).getSourceName());
+                response.setSourceNum(sourceIdNameMap.get(item.getSourceId()).getSourceNum());
                 response.setSourceType(item.getSourceType());
                 response.setFileVersion(fileIdMap.get(item.getFileId()).getFileVersion());
                 responseList.add(response);
@@ -94,14 +95,14 @@ public class FileAssociationService {
     }
 
     //通过资源类型Map查找关联表
-    private Map<String, String> getAssociationSourceMap(Map<String, List<String>> sourceTypeToIdMap) {
+    private Map<String, FileAssociationSource> getAssociationSourceMap(Map<String, List<String>> sourceTypeToIdMap) {
         List<FileAssociationSource> sourceQueryList = new ArrayList<>();
         for (Map.Entry<String, List<String>> entry : sourceTypeToIdMap.entrySet()) {
             String sourceType =entry.getKey();
             sourceQueryList.addAll(
                     extFileAssociationMapper.selectAssociationSourceBySourceTableAndIdList(FileAssociationSourceUtil.getQuerySql(sourceType),entry.getValue()));
         }
-        return sourceQueryList.stream().collect(Collectors.toMap(FileAssociationSource::getSourceId, FileAssociationSource::getSourceName));
+        return sourceQueryList.stream().collect(Collectors.toMap(FileAssociationSource::getSourceId, item -> item));
     }
 
     /**

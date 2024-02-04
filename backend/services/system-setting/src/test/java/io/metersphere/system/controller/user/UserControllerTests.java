@@ -1362,6 +1362,7 @@ public class UserControllerTests extends BaseTest {
         this.requestPost(UserRequestUtils.URL_INVITE_REGISTER, request).andExpect(BAD_REQUEST_MATCHER);
 
         //测试正常创建
+        this.requestGetWithOk("/system/user/check-invite/" + request.getInviteId());
         request.setName("建国通过邮箱邀请");
         MvcResult mvcResult = userRequestUtils.responsePost(UserRequestUtils.URL_INVITE_REGISTER, request);
         String resultHolderStr = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
@@ -1380,6 +1381,7 @@ public class UserControllerTests extends BaseTest {
             this.testUserInviteSuccess();
         }
         String inviteId = INVITE_RECORD_ID_LIST.get(1);
+
         //400-用户名为空
         UserRegisterRequest request = new UserRegisterRequest();
         request.setInviteId(inviteId);
@@ -1409,8 +1411,9 @@ public class UserControllerTests extends BaseTest {
         request.setName("建国通过邮箱邀请2");
         request.setPassword(IDGenerator.nextStr());
         userRequestUtils.requestPost(UserRequestUtils.URL_INVITE_REGISTER, request, ERROR_REQUEST_MATCHER);
+        this.requestGet("/system/user/check-invite/" + request.getInviteId()).andExpect(ERROR_REQUEST_MATCHER);
 
-        //500-邀请ID已过期，且暂未删除
+        //500-邀请ID已过期，且暂未删除 （同时校验邀请检测接口）
         UserInvite invite = userInviteMapper.selectByPrimaryKey(inviteId);
         invite.setInviteTime(invite.getInviteTime() - 1000 * 60 * 60 * 24);
         userInviteMapper.updateByPrimaryKeySelective(invite);
@@ -1420,6 +1423,7 @@ public class UserControllerTests extends BaseTest {
         request.setName("建国通过邮箱邀请2");
         request.setPassword(IDGenerator.nextStr());
         userRequestUtils.requestPost(UserRequestUtils.URL_INVITE_REGISTER, request, ERROR_REQUEST_MATCHER);
+        this.requestGet("/system/user/check-invite/" + inviteId).andExpect(ERROR_REQUEST_MATCHER);
 
         //500-用户邮箱在用户注册之前已经被注册过了
         //首先还原邀请时间

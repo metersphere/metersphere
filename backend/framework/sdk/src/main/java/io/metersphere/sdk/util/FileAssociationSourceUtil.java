@@ -21,13 +21,13 @@ public class FileAssociationSourceUtil {
     public static final Map<String, String> QUERY_SQL = new HashMap<>();
 
     static {
-        QUERY_SQL.put(SOURCE_TYPE_BUG, "SELECT id AS sourceId,title AS sourceName FROM bug");
-        QUERY_SQL.put(SOURCE_TYPE_FUNCTIONAL_CASE, "SELECT id AS sourceId,name AS sourceName FROM functional_case");
-        QUERY_SQL.put(SOURCE_TYPE_API_DEBUG, "SELECT id AS sourceId,name AS sourceName FROM api_debug");
-        QUERY_SQL.put(SOURCE_TYPE_API_SCENARIO, "SELECT id AS sourceId,name AS sourceName FROM api_scenario");
-        QUERY_SQL.put(SOURCE_TYPE_API_TEST_CASE, "SELECT id AS sourceId,name AS sourceName FROM api_test_case");
-        QUERY_SQL.put(SOURCE_TYPE_API_DEFINITION, "SELECT id AS sourceId,name AS sourceName FROM api_definition");
-        QUERY_SQL.put(SOURCE_TYPE_API_DEFINITION_MOCK, "SELECT id AS sourceId,name AS sourceName FROM api_definition_mock");
+        QUERY_SQL.put(SOURCE_TYPE_BUG, "SELECT id AS sourceId, num AS sourceNum, title AS sourceName FROM bug");
+        QUERY_SQL.put(SOURCE_TYPE_FUNCTIONAL_CASE, "SELECT id AS sourceId, num AS sourceNum, name AS sourceName FROM functional_case");
+        QUERY_SQL.put(SOURCE_TYPE_API_DEBUG, "SELECT id AS sourceId, id AS sourceNum, name AS sourceName FROM api_debug");
+        QUERY_SQL.put(SOURCE_TYPE_API_SCENARIO, "SELECT id AS sourceId, num AS sourceNum, name AS sourceName FROM api_scenario");
+        QUERY_SQL.put(SOURCE_TYPE_API_TEST_CASE, "SELECT id AS sourceId, num AS sourceNum, name AS sourceName FROM api_test_case");
+        QUERY_SQL.put(SOURCE_TYPE_API_DEFINITION, "SELECT id AS sourceId, num AS sourceNum, name AS sourceName FROM api_definition");
+        QUERY_SQL.put(SOURCE_TYPE_API_DEFINITION_MOCK, "SELECT id AS sourceId, expect_num AS sourceNum, name AS sourceName FROM api_definition_mock");
     }
 
     public static void validate(String type) {

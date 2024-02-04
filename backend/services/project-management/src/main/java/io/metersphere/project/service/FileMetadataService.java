@@ -271,9 +271,9 @@ public class FileMetadataService {
         }
         FileMetadataExample example = new FileMetadataExample();
         if (StringUtils.isBlank(id)) {
-            example.createCriteria().andNameEqualTo(fileName).andTypeEqualTo(type).andProjectIdEqualTo(projectId).andStorageEqualTo(StorageType.MINIO.name());
+            example.createCriteria().andNameEqualTo(fileName).andTypeEqualTo(type).andLatestEqualTo(true).andProjectIdEqualTo(projectId).andStorageEqualTo(StorageType.MINIO.name());
         } else {
-            example.createCriteria().andNameEqualTo(fileName).andTypeEqualTo(type).andProjectIdEqualTo(projectId).andIdNotEqualTo(id).andStorageEqualTo(StorageType.MINIO.name());
+            example.createCriteria().andNameEqualTo(fileName).andTypeEqualTo(type).andLatestEqualTo(true).andProjectIdEqualTo(projectId).andIdNotEqualTo(id).andStorageEqualTo(StorageType.MINIO.name());
         }
         if (fileMetadataMapper.countByExample(example) > 0) {
             throw new MSException(Translator.get("file.name.exist") + ":" + fileName);
@@ -289,9 +289,11 @@ public class FileMetadataService {
 
         if (TempFileUtils.isImage(fileMetadata.getType())) {
             //图片文件自动生成预览图
-            byte[] previewImg = TempFileUtils.compressPic(file.getBytes());
-            uploadFileRequest.setFolder(DefaultRepositoryDir.getFileManagementPreviewDir(fileMetadata.getProjectId()));
-            fileService.upload(previewImg, uploadFileRequest);
+            byte[] previewImg = TempFileUtils.compressPic(file.getInputStream());
+            if (previewImg.length > 0) {
+                uploadFileRequest.setFolder(DefaultRepositoryDir.getFileManagementPreviewDir(fileMetadata.getProjectId()));
+                fileService.upload(previewImg, uploadFileRequest);
+            }
         }
         return filePath;
     }
@@ -312,14 +314,10 @@ public class FileMetadataService {
 
     public byte[] getFileByte(FileMetadata fileMetadata) {
         String filePath = null;
-        if (TempFileUtils.isImgTmpFileExists(fileMetadata.getId())) {
-            filePath = TempFileUtils.getTmpFilePath(fileMetadata.getId());
-        } else {
             try {
                 filePath = TempFileUtils.createFile(TempFileUtils.getTmpFilePath(fileMetadata.getId()), fileManagementService.getFile(fileMetadata));
             } catch (Exception ignore) {
             }
-        }
         return TempFileUtils.getFile(filePath);
     }
 

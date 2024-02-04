@@ -39,10 +39,14 @@ public class TempFileUtils {
 
         }
     }
-
     public static byte[] compressPic(byte[] fileBytes) throws IOException {
+        byte[] compressBytes = compressPic(new ByteArrayInputStream(fileBytes));
+        return compressBytes.length > 0 ? compressBytes : fileBytes;
+    }
+
+    public static byte[] compressPic(InputStream imgInputStream) throws IOException {
         // 读取原始图像
-        BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(fileBytes));
+        BufferedImage originalImage = ImageIO.read(imgInputStream);
         if (originalImage != null) {
             int width = originalImage.getWidth();
             int height = originalImage.getHeight();
@@ -65,11 +69,10 @@ public class TempFileUtils {
                 ImageIO.setUseCache(false);
                 ImageIO.write(previewImage, "JPEG", outputStream);
                 return outputStream.toByteArray();
-            } catch (Exception e) {
-                LogUtils.error(e);
+            } catch (Exception ignore) {
             }
         }
-        return fileBytes;
+        return new byte[0];
     }
 
     private static int getCompressFactor(int width, int height) {
