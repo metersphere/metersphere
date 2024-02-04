@@ -7,6 +7,7 @@ import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author wx
@@ -24,4 +25,7 @@ public class BaseReviewCaseBatchRequest extends TableBatchProcessDTO implements 
 
     @Schema(description = "userId用来判断是否只看我的")
     private String userId;
+
+    @Schema(description = "模块id")
+    private List<String> moduleIds;
 }

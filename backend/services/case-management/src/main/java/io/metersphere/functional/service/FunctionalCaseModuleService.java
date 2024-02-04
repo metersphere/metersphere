@@ -405,4 +405,8 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
         return this.add(request, userId);
     }
 
+
+    public FunctionalCaseModule getModule(String id) {
+        return functionalCaseModuleMapper.selectByPrimaryKey(id);
+    }
 }
