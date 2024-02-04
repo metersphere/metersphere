@@ -29,7 +29,7 @@
         cf.type type
         FROM
         functional_case_custom_field fccf
-        LEFT JOIN custom_field cf ON fccf.field_id = cf.id
+        INNER JOIN custom_field cf ON fccf.field_id = cf.id
         where case_id in
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
