@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -85,6 +86,7 @@ public class CaseReviewFunctionalCaseController {
 
     @PostMapping("/batch/disassociate")
     @Operation(summary = "用例管理-用例评审-评审列表-评审详情-列表-批量取消关联用例")
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_RELEVANCE)
     @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.batchDisassociateCaseLog(#request)", msClass = CaseReviewLogService.class)
     @CheckOwner(resourceId = "#request.getReviewId()", resourceType = "case_review")
     public void batchDisassociate(@Validated @RequestBody BaseReviewCaseBatchRequest request) {
@@ -101,15 +103,17 @@ public class CaseReviewFunctionalCaseController {
 
     @PostMapping("/batch/review")
     @Operation(summary = "用例管理-用例评审-评审列表-评审详情-列表-批量评审")
-    @RequiresPermissions(PermissionConstants.CASE_REVIEW_REVIEW)
+    @RequiresPermissions(value = {PermissionConstants.CASE_REVIEW_REVIEW, PermissionConstants.CASE_REVIEW_READ_UPDATE}, logical = Logical.OR)
     @CheckOwner(resourceId = "#request.getReviewId()", resourceType = "case_review")
     public void batchReview(@Validated @RequestBody BatchReviewFunctionalCaseRequest request) {
         caseReviewFunctionalCaseService.batchReview(request, SessionUtils.getUserId());
     }
 
+
     @PostMapping("/batch/edit/reviewers")
     @Operation(summary = "用例管理-用例评审-评审列表-评审详情-列表-批量修改评审人")
     @CheckOwner(resourceId = "#request.getReviewId()", resourceType = "case_review")
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_UPDATE)
     public void batchEditReviewUser(@Validated @RequestBody BatchEditReviewerRequest request) {
         caseReviewFunctionalCaseService.batchEditReviewUser(request, SessionUtils.getUserId());
     }
