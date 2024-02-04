@@ -16,8 +16,10 @@ import io.metersphere.project.domain.ProjectVersion;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.mapper.ProjectApplicationMapper;
+import io.metersphere.project.service.PermissionCheckService;
 import io.metersphere.provider.BaseCaseProvider;
 import io.metersphere.sdk.constants.InternalUserRole;
+import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.ProjectApplicationType;
 import io.metersphere.sdk.constants.UserRoleScope;
 import io.metersphere.sdk.exception.MSException;
@@ -32,6 +34,7 @@ import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.utils.ServiceUtils;
+import io.metersphere.system.utils.SessionUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -94,6 +97,10 @@ public class CaseReviewFunctionalCaseService {
     private CaseReviewUserMapper caseReviewUserMapper;
     @Resource
     private UserRoleRelationMapper userRoleRelationMapper;
+    @Resource
+    private PermissionCheckService permissionCheckService;
+    @Resource
+    private CaseReviewMapper caseReviewMapper;
 
 
     private static final String CASE_MODULE_COUNT_ALL = "all";
@@ -325,7 +332,12 @@ public class CaseReviewFunctionalCaseService {
      */
     public void batchReview(BatchReviewFunctionalCaseRequest request, String userId) {
         String reviewId = request.getReviewId();
-
+        CaseReview caseReview = caseReviewMapper.selectByPrimaryKey(reviewId);
+        request.setReviewPassRule(caseReview.getReviewPassRule());
+        //检查权限
+        if (!permissionCheckService.userHasProjectPermission(SessionUtils.getUserId(), caseReview.getProjectId(), PermissionConstants.CASE_REVIEW_READ_UPDATE) && StringUtils.equalsIgnoreCase(request.getStatus(), FunctionalCaseReviewStatus.RE_REVIEWED.toString()) ) {
+            throw new MSException("http_result_forbidden");
+        }
         List<CaseReviewFunctionalCase> caseReviewFunctionalCaseList = doCaseReviewFunctionalCases(request);
         if(CollectionUtils.isEmpty(caseReviewFunctionalCaseList)) {
             return;
@@ -379,7 +391,7 @@ public class CaseReviewFunctionalCaseService {
             } else {
                 caseHistoryMap.get(caseId).add(caseReviewHistory);
             }
-            //根据评审规则更新用例评审和功能用例关系表中的状态 1.单人评审直接更新评审结果 2.多人评审需要计算
+            //根据评审规则更新用例评审和功能用例关系表中的状态 1.单人评审直接更新评审结果 2.多人评审需要计算 3.如果是重新评审，直接全部变成重新评审
             setStatus(request, caseReviewFunctionalCase, caseHistoryMap, reviewerMap, isAdmin);
             statusMap.put(caseReviewFunctionalCase.getCaseId(), caseReviewFunctionalCase.getStatus());
             caseReviewFunctionalCaseMapper.updateByPrimaryKeySelective(caseReviewFunctionalCase);
@@ -419,6 +431,10 @@ public class CaseReviewFunctionalCaseService {
 
 
     private static void setStatus(BatchReviewFunctionalCaseRequest request, CaseReviewFunctionalCase caseReviewFunctionalCase, Map<String, List<CaseReviewHistory>> caseHistoryMap, Map<String, List<CaseReviewFunctionalCaseUser>> reviewerMap, boolean isAdmin) {
+        if (StringUtils.equalsIgnoreCase(request.getStatus(), FunctionalCaseReviewStatus.RE_REVIEWED.toString())) {
+            caseReviewFunctionalCase.setStatus(request.getStatus());
+            return;
+        }
         if (StringUtils.equals(request.getReviewPassRule(), CaseReviewPassRule.SINGLE.toString())) {
             if (!StringUtils.equalsIgnoreCase(request.getStatus(), FunctionalCaseReviewStatus.UNDER_REVIEWED.toString()) && !isAdmin) {
                 caseReviewFunctionalCase.setStatus(request.getStatus());
