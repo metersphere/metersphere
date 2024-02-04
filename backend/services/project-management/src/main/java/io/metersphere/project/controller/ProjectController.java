@@ -5,10 +5,10 @@ import io.metersphere.project.request.ProjectSwitchRequest;
 import io.metersphere.project.service.ProjectLogService;
 import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.PermissionConstants;
-import io.metersphere.system.dto.sdk.OptionDTO;
-import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.dto.UpdateProjectRequest;
+import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOwner;
@@ -64,8 +64,15 @@ public class ProjectController {
     @GetMapping("/pool-options/{type}/{projectId}")
     @Operation(summary = "项目管理-获取项目下的资源池")
     @RequiresPermissions(PermissionConstants.PROJECT_BASE_INFO_READ)
-    public List<OptionDTO> getPoolOptions(@PathVariable String type , @PathVariable String projectId) {
+    public List<OptionDTO> getPoolOptions(@PathVariable String type, @PathVariable String projectId) {
         return projectService.getPoolOptions(projectId, type);
+    }
+
+    @GetMapping("/has-permission/{id}")
+    @Operation(summary = "项目管理-获取当前用户是否有当前项目的权限")
+    @CheckOwner(resourceId = "#id", resourceType = "project")
+    public boolean hasPermission(@PathVariable String id) {
+        return projectService.hasPermission(id, SessionUtils.getUserId());
     }
 
 }
