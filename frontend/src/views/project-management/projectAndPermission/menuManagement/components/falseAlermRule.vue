@@ -133,9 +133,9 @@
   const currentList = ref<FakeTableListItem[]>([]);
   const tableStore = useTableStore();
   const headerOptions = computed(() => [
-    { label: 'Response Headers', value: 'headers' },
-    { label: 'Response Data', value: 'data' },
-    { label: 'Response Code', value: 'code' },
+    { label: 'Response Headers', value: 'RESPONSE_HEADERS' },
+    { label: 'Response Data', value: 'RESPONSE_DATA' },
+    { label: 'Response Code', value: 'RESPONSE_CODE' },
   ]);
   const relationOptions = computed(() => [
     { label: '包含', value: 'contain' },
@@ -452,7 +452,7 @@
           type: 'select',
           options: headerOptions.value,
           className: 'w-[205px]',
-          defaultValue: 'headers',
+          defaultValue: 'RESPONSE_HEADERS',
         },
         {
           filed: 'relation', // 匹配规则-操作类型
