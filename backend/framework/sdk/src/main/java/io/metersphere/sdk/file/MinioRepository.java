@@ -103,7 +103,13 @@ public class MinioRepository implements FileRepository {
 
     @Override
     public String saveFile(InputStream inputStream, FileRequest request) throws Exception {
-        return null;
+        String filePath = getPath(request);
+        client.putObject(PutObjectArgs.builder()
+                .bucket(BUCKET)
+                .object(filePath)
+                .stream(inputStream, -1, 5242880) // 文件内容
+                .build());
+        return filePath;
     }
 
     @Override

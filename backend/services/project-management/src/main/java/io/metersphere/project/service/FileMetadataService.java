@@ -45,6 +45,7 @@ import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -281,18 +282,22 @@ public class FileMetadataService {
     }
 
     private String uploadFile(FileMetadata fileMetadata, MultipartFile file) throws Exception {
+        String filePath;
         FileRequest uploadFileRequest = new FileRequest();
-        uploadFileRequest.setFileName(fileMetadata.getId());
-        uploadFileRequest.setFolder(this.generateMinIOFilePath(fileMetadata.getProjectId()));
-        uploadFileRequest.setStorage(StorageType.MINIO.name());
-        String filePath = fileService.upload(file, uploadFileRequest);
-
+        try (InputStream inputStream = file.getInputStream()) {
+            uploadFileRequest.setFileName(fileMetadata.getId());
+            uploadFileRequest.setFolder(this.generateMinIOFilePath(fileMetadata.getProjectId()));
+            uploadFileRequest.setStorage(StorageType.MINIO.name());
+            filePath = fileService.upload(inputStream, uploadFileRequest);
+        }
         if (TempFileUtils.isImage(fileMetadata.getType())) {
-            //图片文件自动生成预览图
-            byte[] previewImg = TempFileUtils.compressPic(file.getInputStream());
-            if (previewImg.length > 0) {
-                uploadFileRequest.setFolder(DefaultRepositoryDir.getFileManagementPreviewDir(fileMetadata.getProjectId()));
-                fileService.upload(previewImg, uploadFileRequest);
+            try (InputStream inputStream = file.getInputStream()) {
+                //图片文件自动生成预览图
+                byte[] previewImg = TempFileUtils.compressPic(inputStream);
+                if (previewImg.length > 0) {
+                    uploadFileRequest.setFolder(DefaultRepositoryDir.getFileManagementPreviewDir(fileMetadata.getProjectId()));
+                    fileService.upload(previewImg, uploadFileRequest);
+                }
             }
         }
         return filePath;
