@@ -204,7 +204,7 @@ public class BugService {
            Platform platform = platformPluginService.getPlatform(serviceIntegration.getPluginId(), serviceIntegration.getOrganizationId(),
                    new String(serviceIntegration.getConfiguration()));
            PlatformBugUpdateRequest platformRequest = buildPlatformBugRequest(request);
-           platformRequest.setUserPlatformConfig(JSON.toJSONString(userPlatformAccountService.get(currentUser, currentOrgId)));
+           platformRequest.setUserPlatformConfig(JSON.toJSONString(userPlatformAccountService.getPluginUserPlatformConfig(serviceIntegration.getPluginId(), currentOrgId, currentUser)));
            platformRequest.setProjectConfig(projectApplicationService.getProjectBugThirdPartConfig(request.getProjectId()));
            if (isUpdate) {
                Bug bug = bugMapper.selectByPrimaryKey(request.getId());
@@ -1114,7 +1114,18 @@ public class BugService {
         List<String> ids = bugs.stream().map(BugDTO::getId).toList();
         List<BugCustomFieldDTO> customFields = extBugCustomFieldMapper.getBugAllCustomFields(ids, projectId);
         Map<String, List<BugCustomFieldDTO>> customFieldMap = customFields.stream().collect(Collectors.groupingBy(BugCustomFieldDTO::getBugId));
-        bugs.forEach(bug -> bug.setCustomFields(customFieldMap.get(bug.getId())));
+        // 处理人选项
+        List<SelectOption> handleUserOption = bugCommonService.getHeaderHandlerOption(projectId);
+        Map<String, String> handleMap = handleUserOption.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
+        // 状态选项
+        List<SelectOption> statusOption = bugStatusService.getHeaderStatusOption(projectId);
+        Map<String, String> statusMap = statusOption.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
+        bugs.forEach(bug -> {
+            bug.setCustomFields(customFieldMap.get(bug.getId()));
+            // 解析处理人, 状态, 严重程度
+            bug.setHandleUserName(handleMap.get(bug.getHandleUser()));
+            bug.setStatusName(statusMap.get(bug.getStatus()));
+        });
         return bugs;
     }
 

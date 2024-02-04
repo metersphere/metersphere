@@ -32,6 +32,9 @@ public class BugDTO extends Bug {
     @Schema(description = "关联用例数量")
     private Integer relationCaseCount;
 
+    @Schema(description = "状态名称")
+    private String statusName;
+
     @Schema(description = "自定义字段集合")
     private List<BugCustomFieldDTO> customFields;
 }

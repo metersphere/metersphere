@@ -104,7 +104,7 @@ public class BugStatusService {
 
    public String getJiraPlatformBugKeyLatest(String projectId) {
        BugExample example = new BugExample();
-       example.createCriteria().andTemplateIdEqualTo("jira").andProjectIdEqualTo(projectId);
+       example.createCriteria().andPlatformEqualTo("JIRA").andProjectIdEqualTo(projectId);
        example.setOrderByClause("create_time desc");
        List<Bug> bugs = bugMapper.selectByExample(example);
        if (CollectionUtils.isNotEmpty(bugs)) {
