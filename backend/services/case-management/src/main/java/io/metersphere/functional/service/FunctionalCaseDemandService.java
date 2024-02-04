@@ -60,14 +60,14 @@ public class FunctionalCaseDemandService {
      * @return List<FunctionalCaseDemand>
      */
     public List<FunctionalDemandDTO> listFunctionalCaseDemands(QueryDemandListRequest request) {
-        List<FunctionalDemandDTO> parentDemands = extFunctionalCaseDemandMapper.selectGroupByKeyword(request.getKeyword(), request.getCaseId());
+        List<FunctionalDemandDTO> parentDemands = extFunctionalCaseDemandMapper.selectParentDemandByKeyword(request.getKeyword(), request.getCaseId());
         if (CollectionUtils.isEmpty(parentDemands)) {
             return new ArrayList<>();
         }
+        Map<String, FunctionalDemandDTO> functionalCaseDemandMap = parentDemands.stream().filter(t -> StringUtils.isNotBlank(t.getDemandId())).collect(Collectors.toMap(FunctionalCaseDemand::getDemandId, t -> t));
         List<String> ids = parentDemands.stream().map(FunctionalCaseDemand::getId).toList();
         FunctionalCaseDemandExample functionalCaseDemandExample = new FunctionalCaseDemandExample();
         functionalCaseDemandExample.createCriteria().andIdNotIn(ids);
-        Map<String, FunctionalDemandDTO> functionalCaseDemandMap = parentDemands.stream().filter(t -> StringUtils.isNotBlank(t.getDemandId())).collect(Collectors.toMap(FunctionalCaseDemand::getDemandId, t -> t));
         List<FunctionalCaseDemand> functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
         int lastSize = 0;
         while (CollectionUtils.isNotEmpty(functionalCaseDemands) && functionalCaseDemands.size() != lastSize) {
