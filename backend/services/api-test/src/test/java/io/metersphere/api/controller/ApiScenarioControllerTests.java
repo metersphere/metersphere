@@ -1,13 +1,11 @@
 package io.metersphere.api.controller;
 
-import io.metersphere.api.constants.ApiDefinitionStatus;
-import io.metersphere.api.constants.ApiScenarioStatus;
-import io.metersphere.api.constants.ApiScenarioStepRefType;
-import io.metersphere.api.constants.ApiScenarioStepType;
+import io.metersphere.api.constants.*;
 import io.metersphere.api.domain.*;
-import io.metersphere.api.dto.assertion.MsAssertionConfig;
 import io.metersphere.api.dto.definition.ApiDefinitionAddRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseAddRequest;
+import io.metersphere.api.dto.assertion.MsAssertionConfig;
+import io.metersphere.project.api.assertion.MsScriptAssertion;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.response.ApiScenarioBatchOperationResponse;
 import io.metersphere.api.dto.response.OperationDataInfo;
@@ -24,11 +22,15 @@ import io.metersphere.api.utils.JmeterElementConverterRegister;
 import io.metersphere.plugin.api.spi.AbstractJmeterElementConverter;
 import io.metersphere.plugin.api.spi.JmeterElementConverter;
 import io.metersphere.plugin.api.spi.MsTestElement;
-import io.metersphere.project.api.assertion.MsScriptAssertion;
+import io.metersphere.project.api.processor.MsProcessor;
+import io.metersphere.project.api.processor.SQLProcessor;
 import io.metersphere.project.dto.environment.EnvironmentConfig;
 import io.metersphere.project.dto.environment.EnvironmentGroupProjectDTO;
 import io.metersphere.project.dto.environment.EnvironmentGroupRequest;
 import io.metersphere.project.dto.environment.EnvironmentRequest;
+import io.metersphere.project.dto.environment.processors.EnvProcessorConfig;
+import io.metersphere.project.dto.environment.processors.EnvRequestScriptProcessor;
+import io.metersphere.project.dto.environment.processors.EnvScenarioScriptProcessor;
 import io.metersphere.project.dto.filemanagement.request.FileUploadRequest;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.service.EnvironmentGroupService;
@@ -284,8 +286,8 @@ public class ApiScenarioControllerTests extends BaseTest {
     @Test
     @Order(1)
     public void add() throws Exception {
-        initTestData();
         initEnv();
+        initTestData();
 
         // @@请求成功
         ApiScenarioAddRequest request = new ApiScenarioAddRequest();
@@ -322,6 +324,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         stepRequest.setResourceId(addApiScenario.getId());
         stepRequest.setRefType(ApiScenarioStepRefType.REF.name());
         stepRequest.setStepType(ApiScenarioStepType.API_SCENARIO.name());
+        stepRequest.setProjectId(DEFAULT_PROJECT_ID);
 
         ApiScenarioStepRequest stepRequest2 = new ApiScenarioStepRequest();
         stepRequest2.setId(IDGenerator.nextStr());
@@ -330,6 +333,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         stepRequest2.setRefType(ApiScenarioStepRefType.PARTIAL_REF.name());
         stepRequest2.setChildren(List.of(stepRequest));
         stepRequest2.setStepType(ApiScenarioStepType.API_SCENARIO.name());
+        stepRequest2.setProjectId(DEFAULT_PROJECT_ID);
         steps = List.of(stepRequest, stepRequest2);
         request.setSteps(steps);
         mvcResult = this.requestPostWithOkAndReturn(DEFAULT_ADD, request);
@@ -478,7 +482,7 @@ public class ApiScenarioControllerTests extends BaseTest {
     private void initTestData() {
         ApiDefinitionAddRequest apiDefinitionAddRequest = new ApiDefinitionAddRequest();
         apiDefinitionAddRequest.setName("test scenario");
-        apiDefinitionAddRequest.setProtocol("HTTP");
+        apiDefinitionAddRequest.setProtocol(ApiConstants.HTTP_PROTOCOL);
         apiDefinitionAddRequest.setProjectId(DEFAULT_PROJECT_ID);
         apiDefinitionAddRequest.setMethod("POST");
         apiDefinitionAddRequest.setPath("/api/admin/posts");
@@ -487,7 +491,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         apiDefinitionAddRequest.setVersionId(extBaseProjectVersionMapper.getDefaultVersion(DEFAULT_PROJECT_ID));
         apiDefinitionAddRequest.setDescription("描述内容");
         apiDefinitionAddRequest.setName("test scenario");
-        MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
+        MsHTTPElement msHttpElement = MsHTTPElementTest.getAddProcessorHttpElement();
         apiDefinitionAddRequest.setRequest(getMsElementParam(msHttpElement));
         apiDefinitionAddRequest.setResponse("{}");
         apiDefinition = apiDefinitionService.create(apiDefinitionAddRequest, "admin");
@@ -611,6 +615,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         stepRequest.setStepType(ApiScenarioStepType.API_SCENARIO.name());
         stepRequest.setChildren(getApiScenarioStepRequests());
         stepRequest.setConfig(scenarioStepConfig);
+        stepRequest.setProjectId(DEFAULT_PROJECT_ID);
         steps.add(stepRequest);
         ApiScenarioStepRequest copyScenarioStep = BeanUtils.copyBean(new ApiScenarioStepRequest(), stepRequest);
         copyScenarioStep.setRefType(ApiScenarioStepRefType.COPY.name());
@@ -640,6 +645,7 @@ public class ApiScenarioControllerTests extends BaseTest {
         pluginStep.setName("plugin step");
         pluginStep.setStepType(ApiScenarioStepType.API.name());
         pluginStep.setChildren(getApiScenarioStepRequests());
+        pluginStep.setProjectId(DEFAULT_PROJECT_ID);
         request.getSteps().add(pluginStep);
         HashMap<Object, Object> pluginStepDetail = new HashMap<>();
         pluginStepDetail.put("polymorphicName", "MsTCPSampler");
@@ -686,7 +692,44 @@ public class ApiScenarioControllerTests extends BaseTest {
         // 添加插件的环境配置，供后续测试使用
         Map<String, Map<String, Object>> pluginConfigMap = new HashMap<>();
         pluginConfigMap.put("tcpp-sampler", new HashMap<>());
+
+        EnvScenarioScriptProcessor envScenarioScriptProcessor = new EnvScenarioScriptProcessor();
+        envScenarioScriptProcessor.setScript("test");
+        envScenarioScriptProcessor.setEnableCommonScript(false);
+        envScenarioScriptProcessor.setAssociateScenarioResult(true);
+        EnvScenarioScriptProcessor envScenarioScriptProcessor1 = BeanUtils.copyBean(new EnvScenarioScriptProcessor(), envScenarioScriptProcessor);
+        envScenarioScriptProcessor1.setAssociateScenarioResult(false);
+        SQLProcessor sqlProcessor = new SQLProcessor();
+        sqlProcessor.setScript("select * from test");
+        sqlProcessor.setName("select * from test");
+
         EnvironmentConfig environmentConfig = new EnvironmentConfig();
+        EnvProcessorConfig preProcessorConfig = environmentConfig.getPreProcessorConfig();
+        EnvProcessorConfig postProcessorConfig = environmentConfig.getPostProcessorConfig();
+        List<MsProcessor> preProcessors = preProcessorConfig.getApiProcessorConfig().getScenarioProcessorConfig().getProcessors();
+        preProcessors.add(envScenarioScriptProcessor);
+        preProcessors.add(envScenarioScriptProcessor1);
+        preProcessors.add(sqlProcessor);
+
+        List<MsProcessor> postProcessors = postProcessorConfig.getApiProcessorConfig().getScenarioProcessorConfig().getProcessors();
+        postProcessors.add(envScenarioScriptProcessor);
+        postProcessors.add(envScenarioScriptProcessor1);
+        postProcessors.add(sqlProcessor);
+
+        EnvRequestScriptProcessor envRequestScriptProcessor = new EnvRequestScriptProcessor();
+        envRequestScriptProcessor.setScript("test");
+        envRequestScriptProcessor.setBeforeStepScript(true);
+        envRequestScriptProcessor.setIgnoreProtocols(List.of("TCP"));
+        EnvRequestScriptProcessor envRequestScriptProcessor1 = new EnvRequestScriptProcessor();
+        envRequestScriptProcessor1.setScript("test1");
+        envRequestScriptProcessor1.setBeforeStepScript(false);
+        envRequestScriptProcessor1.setIgnoreProtocols(List.of());
+        List<MsProcessor> preRequestProcessors = preProcessorConfig.getApiProcessorConfig().getRequestProcessorConfig().getProcessors();
+        preRequestProcessors.add(envRequestScriptProcessor);
+        preRequestProcessors.add(sqlProcessor);
+        List<MsProcessor> postRequestProcessors = postProcessorConfig.getApiProcessorConfig().getRequestProcessorConfig().getProcessors();
+        postRequestProcessors.add(envRequestScriptProcessor);
+        postRequestProcessors.add(sqlProcessor);
         environmentConfig.setPluginConfigMap(pluginConfigMap);
         envRequest.setConfig(environmentConfig);
         Environment environment = environmentService.add(envRequest, "admin", null);

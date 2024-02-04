@@ -28,7 +28,7 @@ public class EnvironmentInfoDTO implements Serializable {
     private String name;
     @Schema(description = "环境配置")
     @NotNull(message = "{environment_config_is_null}", groups = {Created.class, Updated.class})
-    private EnvironmentConfig config;
+    private EnvironmentConfig config = new EnvironmentConfig();
     @Schema(description = "是否是mock环境")
     private Boolean mock;
     @Schema(description = "描述")

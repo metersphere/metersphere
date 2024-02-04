@@ -7,6 +7,8 @@ import io.metersphere.system.valid.EnumValue;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -32,6 +34,7 @@ public class ScriptProcessor extends MsProcessor {
     /**
      * 是否启用公共脚本
      * 默认为 false
+     * 环境脚本无须配置
      */
     private Boolean enableCommonScript = false;
     /**
@@ -44,4 +47,11 @@ public class ScriptProcessor extends MsProcessor {
      */
     @Valid
     private List<KeyValueParam> params;
+
+    public boolean isValid() {
+        if (BooleanUtils.isTrue(enableCommonScript) && StringUtils.isBlank(scriptId)) {
+            return false;
+        }
+        return StringUtils.isNotBlank(script);
+    }
 }

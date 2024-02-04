@@ -94,4 +94,24 @@ public class ApiPluginService {
         }
         return testElementPluginMap;
     }
+
+    /**
+     * 返回 MsTestElement 实现类与接口协议的映射
+     * @return
+     */
+    public Map<Class<? extends AbstractMsTestElement>, String> getTestElementProtocolMap() {
+        // 过滤协议插件
+        List<PluginWrapper> protocolPlugins = pluginLoadService.getMsPluginManager()
+                .getPlugins()
+                .stream()
+                .filter(plugin -> plugin.getPlugin() instanceof AbstractProtocolPlugin)
+                .toList();
+
+        Map<Class<? extends AbstractMsTestElement>, String> testElementProtocolMap = new HashMap<>();
+        for (PluginWrapper plugin : protocolPlugins) {
+            List<Class<? extends MsTestElement>> extensionClasses = plugin.getPluginManager().getExtensionClasses(MsTestElement.class);
+            extensionClasses.forEach(clazz -> testElementProtocolMap.put((Class<? extends AbstractMsTestElement>) clazz, ((AbstractProtocolPlugin) plugin.getPlugin()).getProtocol()));
+        }
+        return testElementProtocolMap;
+    }
 }

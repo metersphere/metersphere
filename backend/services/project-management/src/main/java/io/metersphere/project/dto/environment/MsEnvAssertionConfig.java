@@ -3,6 +3,9 @@ package io.metersphere.project.dto.environment;
 import io.metersphere.project.api.assertion.MsAssertion;
 import lombok.Data;
 
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,9 +14,12 @@ import java.util.List;
  * @CreateTime: 2023-11-23  17:26
  */
 @Data
-public class MsEnvAssertionConfig {
+public class MsEnvAssertionConfig  implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     /**
      * 断言列表
      */
-    private List<MsAssertion> assertions;
+    private List<MsAssertion> assertions = new ArrayList<>(0);
 }

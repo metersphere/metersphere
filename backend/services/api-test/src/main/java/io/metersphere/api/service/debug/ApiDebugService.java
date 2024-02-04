@@ -197,10 +197,9 @@ public class ApiDebugService {
 
     public String debug(ApiDebugRunRequest request) {
         String id = request.getId();
-        ApiDebug apiDebug = checkResourceExist(id);
 
         ApiResourceRunRequest runRequest = BeanUtils.copyBean(new ApiResourceRunRequest(), request);
-        runRequest.setProjectId(apiDebug.getProjectId());
+        runRequest.setProjectId(request.getProjectId());
         runRequest.setTestId(id);
         runRequest.setReportId(id);
         runRequest.setResourceType(ApiResourceType.API_DEBUG.name());

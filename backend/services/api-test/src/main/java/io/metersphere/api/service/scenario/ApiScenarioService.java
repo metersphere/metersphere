@@ -1041,6 +1041,7 @@ public class ApiScenarioService {
         MsScenario msScenario = new MsScenario();
         msScenario.setRefType(ApiScenarioStepRefType.DIRECT.name());
         msScenario.setScenarioConfig(getScenarioConfig(request, hasSave));
+        msScenario.setProjectId(request.getProjectId());
 
         // 获取场景环境相关配置
         ApiScenarioParseEnvInfo scenarioParseEnvInfo = getScenarioParseEnvInfo(refResourceMap, request.getEnvironmentId(), request.getGrouped());
@@ -1059,6 +1060,7 @@ public class ApiScenarioService {
 
         ApiScenarioParamConfig parseConfig = new ApiScenarioParamConfig();
         parseConfig.setTestElementClassPluginIdMap(apiPluginService.getTestElementPluginMap());
+        parseConfig.setTestElementClassProtocalMap(apiPluginService.getTestElementProtocolMap());
         parseConfig.setGrouped(request.getGrouped());
         parseConfig.setReportId(request.getReportId());
         scenarioParseEnvInfo.getPluginClassEnvConfigMap();
@@ -1156,6 +1158,7 @@ public class ApiScenarioService {
             // 将步骤详情解析生成对应的MsTestElement
             AbstractMsTestElement msTestElement = stepParser.parseTestElement(step, resourceBlobMap.get(step.getResourceId()), stepDetailMap.get(step.getId()));
             if (msTestElement != null) {
+                msTestElement.setProjectId(step.getProjectId());
                 setMsScenarioParam(scenarioParseEnvInfo, step, msTestElement);
                 parentElement.getChildren().add(msTestElement);
             }

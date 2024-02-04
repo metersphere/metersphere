@@ -43,8 +43,10 @@ public abstract class AbstractJmeterElementConverter<T extends MsTestElement> im
      */
     public void parseChild(HashTree tree, AbstractMsTestElement element, ParameterConfig config) {
         if (element != null && element.getChildren() != null) {
-            element.getChildren().forEach(child ->
-                    getConverterFunc.apply(child.getClass()).toHashTree(tree, child, config));
+            element.getChildren().forEach(child -> {
+                    child.setParent(element);
+                    getConverterFunc.apply(child.getClass()).toHashTree(tree, child, config);
+            });
         }
     }
 }

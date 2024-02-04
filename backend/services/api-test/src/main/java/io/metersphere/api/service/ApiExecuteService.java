@@ -24,15 +24,11 @@ import io.metersphere.sdk.dto.api.task.ApiExecuteFileInfo;
 import io.metersphere.sdk.dto.api.task.ApiRunModeConfigDTO;
 import io.metersphere.sdk.dto.api.task.TaskRequestDTO;
 import io.metersphere.sdk.exception.MSException;
-import io.metersphere.sdk.util.BeanUtils;
-import io.metersphere.sdk.util.CommonBeanFactory;
-import io.metersphere.sdk.util.EncryptUtils;
-import io.metersphere.sdk.util.JSON;
-import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.sdk.util.*;
 import io.metersphere.system.config.MinioProperties;
 import io.metersphere.system.domain.TestResourcePool;
-import io.metersphere.system.dto.pool.TestResourceDTO;
 import io.metersphere.system.dto.pool.TestResourceNodeDTO;
+import io.metersphere.system.dto.pool.TestResourcePoolReturnDTO;
 import io.metersphere.system.service.CommonProjectService;
 import io.metersphere.system.service.SystemParameterService;
 import io.metersphere.system.service.TestResourcePoolService;
@@ -134,9 +130,7 @@ public class ApiExecuteService {
         // todo 接口用例 method 获取定义中的数据库字段
         String executeScript = parseExecuteScript(request.getTestElement(), parameterConfig);
 
-        TestResourceNodeDTO testResourceNodeDTO = getProjectExecuteNode(request.getProjectId());
-
-        doDebug(reportId, testId, taskRequest, executeScript, testResourceNodeDTO);
+        doDebug(reportId, testId, taskRequest, executeScript, request.getProjectId());
     }
 
     /**
@@ -146,13 +140,21 @@ public class ApiExecuteService {
      * @param testId              资源ID
      * @param taskRequest         执行参数
      * @param executeScript       执行脚本
-     * @param testResourceNodeDTO 资源池
+     * @param projectId           项目ID
      */
     private void doDebug(String reportId,
                          String testId,
                          TaskRequestDTO taskRequest,
                          String executeScript,
-                         TestResourceNodeDTO testResourceNodeDTO) {
+                         String projectId) {
+
+        TestResourcePoolReturnDTO testResourcePoolDTO = getGetResourcePoolNodeDTO(projectId);
+        TestResourceNodeDTO testResourceNodeDTO = getProjectExecuteNode(testResourcePoolDTO);
+        if (StringUtils.isNotBlank(testResourcePoolDTO.getServerUrl())) {
+            // 如果资源池配置了当前站点，则使用资源池的
+            taskRequest.setMsUrl(testResourcePoolDTO.getServerUrl());
+        }
+
         // 将测试脚本缓存到 redis
         String scriptRedisKey = getScriptRedisKey(reportId, testId);
         stringRedisTemplate.opsForValue().set(scriptRedisKey, executeScript);
@@ -169,16 +171,19 @@ public class ApiExecuteService {
         }
     }
 
-    private TestResourceNodeDTO getProjectExecuteNode(String projectId) {
-        String resourcePoolId = getProjectApiResourcePoolId(projectId);
-        TestResourceDTO resourcePoolDTO = getAvailableResourcePoolDTO(projectId, resourcePoolId);
-        roundRobinService.initializeNodes(resourcePoolId, resourcePoolDTO.getNodesList());
+    private TestResourceNodeDTO getProjectExecuteNode(TestResourcePoolReturnDTO resourcePoolDTO) {
+        roundRobinService.initializeNodes(resourcePoolDTO.getId(), resourcePoolDTO.getTestResourceReturnDTO().getNodesList());
         try {
-            return roundRobinService.getNextNode(resourcePoolId);
+            return roundRobinService.getNextNode(resourcePoolDTO.getId());
         } catch (Exception e) {
             LogUtils.error(e);
             throw new MSException("get execute node error", e);
         }
+    }
+
+    private TestResourcePoolReturnDTO getGetResourcePoolNodeDTO(String projectId) {
+        String resourcePoolId = getProjectApiResourcePoolId(projectId);
+        return getAvailableResourcePoolDTO(projectId, resourcePoolId);
     }
 
     /**
@@ -216,9 +221,7 @@ public class ApiExecuteService {
         apiRunModeConfig.setRunMode(ApiExecuteRunMode.BACKEND_DEBUG.name());
         taskRequest.setRunModeConfig(apiRunModeConfig);
 
-        TestResourceNodeDTO testResourceNodeDTO = getProjectExecuteNode(runRequest.getProjectId());
-
-        doDebug(reportId, testId, taskRequest, executeScript, testResourceNodeDTO);
+        doDebug(reportId, testId, taskRequest, executeScript, runRequest.getProjectId());
         return reportId;
     }
 
@@ -336,7 +339,7 @@ public class ApiExecuteService {
      * @param projectId      项目ID
      * @param resourcePoolId 资源池ID
      */
-    public TestResourceDTO getAvailableResourcePoolDTO(String projectId, String resourcePoolId) {
+    public TestResourcePoolReturnDTO getAvailableResourcePoolDTO(String projectId, String resourcePoolId) {
         TestResourcePool testResourcePool = testResourcePoolService.getTestResourcePool(resourcePoolId);
         if (testResourcePool == null ||
                 // 资源池禁用
@@ -345,7 +348,7 @@ public class ApiExecuteService {
                 !commonProjectService.validateProjectResourcePool(testResourcePool, projectId)) {
             throw new MSException(ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);
         }
-        return testResourcePoolService.getTestResourceDTO(resourcePoolId);
+        return testResourcePoolService.getTestResourcePoolDetail(resourcePoolId);
     }
 
     private String getProjectApiResourcePoolId(String projectId) {

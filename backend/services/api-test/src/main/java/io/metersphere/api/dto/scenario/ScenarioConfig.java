@@ -13,21 +13,21 @@ public class ScenarioConfig {
     /**
      * 场景变量
      */
-    private ScenarioVariable variable;
+    private ScenarioVariable variable = new ScenarioVariable();
     /**
      * 前置处理器配置
      */
-    private MsProcessorConfig preProcessorConfig;
+    private MsProcessorConfig preProcessorConfig = new MsProcessorConfig();
     /**
      * 后置处理器配置
      */
-    private MsProcessorConfig postProcessorConfig;
+    private MsProcessorConfig postProcessorConfig = new MsProcessorConfig();
     /**
      * 断言配置
      */
-    private MsAssertionConfig assertionConfig;
+    private MsAssertionConfig assertionConfig = new MsAssertionConfig();
     /**
      * 其他配置
      */
-    private ScenarioOtherConfig otherConfig;
+    private ScenarioOtherConfig otherConfig = new ScenarioOtherConfig();
 }

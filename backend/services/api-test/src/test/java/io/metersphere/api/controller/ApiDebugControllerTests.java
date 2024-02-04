@@ -1,5 +1,6 @@
 package io.metersphere.api.controller;
 
+import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.ApiDebug;
 import io.metersphere.api.domain.ApiDebugBlob;
@@ -60,7 +61,6 @@ public class ApiDebugControllerTests extends BaseTest {
     protected static final String DEFAULT_LIST = "list/{0}";
     protected static final String UPLOAD_TEMP_FILE = "upload/temp/file";
     protected static final String DEBUG = "debug";
-    protected static final String HTTP_PROTOCOL = "HTTP";
 
     @Resource
     private ApiDebugMapper apiDebugMapper;
@@ -86,7 +86,7 @@ public class ApiDebugControllerTests extends BaseTest {
     @Order(0)
     public void listEmpty() throws Exception {
         // @@校验没有数据的情况
-        this.requestGetWithOk(DEFAULT_LIST, HTTP_PROTOCOL);
+        this.requestGetWithOk(DEFAULT_LIST, ApiConstants.HTTP_PROTOCOL);
         // 准备数据，上传文件管理文件
         uploadFileMetadata();
     }
@@ -133,7 +133,7 @@ public class ApiDebugControllerTests extends BaseTest {
         request.setPath("http://test.com");
         request.setMethod("GET");
         request.setName("test");
-        request.setProtocol(HTTP_PROTOCOL);
+        request.setProtocol(ApiConstants.HTTP_PROTOCOL);
         request.setModuleId("default");
         request.setProjectId(DEFAULT_PROJECT_ID);
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
@@ -320,7 +320,7 @@ public class ApiDebugControllerTests extends BaseTest {
     @Order(4)
     public void list() throws Exception {
         // @@请求成功
-        MvcResult mvcResult = this.requestGetWithOk(DEFAULT_LIST, HTTP_PROTOCOL)
+        MvcResult mvcResult = this.requestGetWithOk(DEFAULT_LIST, ApiConstants.HTTP_PROTOCOL)
                 .andReturn();
         // 校验数据是否正确
         List<ApiDebugSimpleDTO> apiDebugList = getResultDataArray(mvcResult, ApiDebugSimpleDTO.class);
@@ -331,7 +331,7 @@ public class ApiDebugControllerTests extends BaseTest {
                 BeanUtils.copyBean(new ApiDebugSimpleDTO(), apiDebugMapper.selectByPrimaryKey(anotherAddApiDebug.getId())));
 
         // @@校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEBUG_READ, DEFAULT_LIST, HTTP_PROTOCOL);
+        requestGetPermissionTest(PermissionConstants.PROJECT_API_DEBUG_READ, DEFAULT_LIST, ApiConstants.HTTP_PROTOCOL);
     }
 
 
@@ -362,6 +362,7 @@ public class ApiDebugControllerTests extends BaseTest {
         msHTTPElement.setMethod("GET");
         request.setRequest(JSON.parseObject(ApiDataUtils.toJSONString(msHTTPElement)));
         request.setReportId(IDGenerator.nextStr());
+        request.setProjectId(DEFAULT_PROJECT_ID);
 
         // @校验组织没有资源池权限异常
         assertErrorCode(this.requestPost(DEBUG, request), ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);

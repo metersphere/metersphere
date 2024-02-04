@@ -14,7 +14,7 @@ import org.apache.jorphan.collections.HashTree;
 public class ScriptPreProcessorConverter extends ScriptProcessorConverter {
     @Override
     public void parse(HashTree hashTree, ScriptProcessor scriptProcessor, ParameterConfig config) {
-        if (!needParse(scriptProcessor, config)) {
+        if (!needParse(scriptProcessor, config) || !scriptProcessor.isValid()) {
             return;
         }
         // todo 处理公共脚本

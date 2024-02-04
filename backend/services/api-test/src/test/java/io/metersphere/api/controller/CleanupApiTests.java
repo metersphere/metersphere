@@ -1,5 +1,6 @@
 package io.metersphere.api.controller;
 
+import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.scenario.CsvVariable;
 import io.metersphere.api.job.ApiScenarioScheduleJob;
@@ -98,7 +99,7 @@ public class CleanupApiTests {
         apiDefinition.setModuleId("test-module");
         apiDefinition.setName("test");
         apiDefinition.setPath("test");
-        apiDefinition.setProtocol("http");
+        apiDefinition.setProtocol(ApiConstants.HTTP_PROTOCOL);
         apiDefinition.setMethod("test");
         apiDefinition.setCreateUser("admin");
         apiDefinition.setUpdateUser("admin");

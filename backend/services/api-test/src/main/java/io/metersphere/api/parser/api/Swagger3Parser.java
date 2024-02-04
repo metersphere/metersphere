@@ -1,5 +1,6 @@
 package io.metersphere.api.parser.api;
 
+import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.dto.definition.HttpResponse;
 import io.metersphere.api.dto.converter.ApiDefinitionImport;
 import io.metersphere.api.dto.converter.ApiDefinitionImportDetail;
@@ -279,7 +280,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
         ApiDefinitionImportDetail apiDefinition = new ApiDefinitionImportDetail();
         apiDefinition.setName(name);
         apiDefinition.setPath(formatPath(path));
-        apiDefinition.setProtocol("HTTP");
+        apiDefinition.setProtocol(ApiConstants.HTTP_PROTOCOL);
         apiDefinition.setMethod(method);
         apiDefinition.setProjectId(this.projectId);
         apiDefinition.setCreateUser(importRequest.getUserId());

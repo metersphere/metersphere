@@ -2,8 +2,8 @@ package io.metersphere.project.api.processor;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import io.metersphere.project.dto.environment.processors.RequestScriptProcessor;
-import io.metersphere.project.dto.environment.processors.ScenarioScriptProcessor;
+import io.metersphere.project.dto.environment.processors.EnvRequestScriptProcessor;
+import io.metersphere.project.dto.environment.processors.EnvScenarioScriptProcessor;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -17,8 +17,8 @@ import lombok.Data;
  *   SQL {@link SQLProcessor}
  *   TIME_WAITING {@link TimeWaitingProcessor}
  *   EXTRACT {@link ExtractPostProcessor}
- *   SCENARIO_SCRIPT {@link ScenarioScriptProcessor}
- *   REQUEST_SCRIPT {@link RequestScriptProcessor}
+ *   ENV_SCENARIO_SCRIPT {@link EnvScenarioScriptProcessor}
+ *   ENV_REQUEST_SCRIPT {@link EnvRequestScriptProcessor}
  * <pre>
  * @Author: jianxing
  * @CreateTime: 2023-11-07  10:17
@@ -27,8 +27,8 @@ import lombok.Data;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "processorType")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = ScriptProcessor.class),
-        @JsonSubTypes.Type(value = ScenarioScriptProcessor.class),
-        @JsonSubTypes.Type(value = RequestScriptProcessor.class),
+        @JsonSubTypes.Type(value = EnvScenarioScriptProcessor.class),
+        @JsonSubTypes.Type(value = EnvRequestScriptProcessor.class),
         @JsonSubTypes.Type(value = SQLProcessor.class),
         @JsonSubTypes.Type(value = TimeWaitingProcessor.class),
         @JsonSubTypes.Type(value = ExtractPostProcessor.class),

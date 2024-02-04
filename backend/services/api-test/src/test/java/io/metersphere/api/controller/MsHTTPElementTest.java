@@ -134,6 +134,22 @@ public class MsHTTPElementTest {
 
     @Test
     public void processorParseTest() {
+
+        MsHTTPElement msHTTPElement = getAddProcessorHttpElement();
+        // 测试序列化
+        String json = ApiDataUtils.toJSONString(msHTTPElement);
+        Assertions.assertNotNull(json);
+        Assertions.assertEquals(ApiDataUtils.parseObject(json, AbstractMsTestElement.class), msHTTPElement);
+
+        // 测试脚本解析
+        ParameterConfig parameterConfig = new ApiParamConfig();
+        parameterConfig.setReportId("reportId");
+        TestElementParser defaultParser = TestElementParserFactory.getDefaultParser();
+        AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(json, AbstractMsTestElement.class);
+        defaultParser.parse(msTestElement, parameterConfig);
+    }
+
+    public static MsHTTPElement getAddProcessorHttpElement() {
         MsHTTPElement msHTTPElement = getMsHttpElement();
 
         List processors = new ArrayList<>();
@@ -219,17 +235,7 @@ public class MsHTTPElementTest {
         linkedList.add(msCommonElement);
         msHTTPElement.setChildren(linkedList);
 
-        // 测试序列化
-        String json = ApiDataUtils.toJSONString(msHTTPElement);
-        Assertions.assertNotNull(json);
-        Assertions.assertEquals(ApiDataUtils.parseObject(json, AbstractMsTestElement.class), msHTTPElement);
-
-        // 测试脚本解析
-        ParameterConfig parameterConfig = new ApiParamConfig();
-        parameterConfig.setReportId("reportId");
-        TestElementParser defaultParser = TestElementParserFactory.getDefaultParser();
-        AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(json, AbstractMsTestElement.class);
-        defaultParser.parse(msTestElement, parameterConfig);
+        return msHTTPElement;
     }
 
     @Test

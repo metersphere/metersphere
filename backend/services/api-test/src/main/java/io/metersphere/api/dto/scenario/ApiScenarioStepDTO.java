@@ -16,9 +16,6 @@ public class ApiScenarioStepDTO extends ApiScenarioStepCommonDTO {
     @Schema(description = "资源编号")
     private String resourceNum;
 
-    @Schema(description = "项目fk")
-    private String projectId;
-
     @Schema(description = "版本号")
     private String versionId;
 

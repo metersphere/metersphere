@@ -1,5 +1,6 @@
 package io.metersphere.api.service;
 
+import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.dto.ApiTestPluginOptionRequest;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.plugin.api.dto.ApiPluginOptionsRequest;
@@ -25,7 +26,6 @@ import java.util.List;
 @Transactional(rollbackFor = Exception.class)
 public class ApiTestService {
 
-    private static final String HTTP_PROTOCOL = "HTTP";
     @Resource
     private ApiPluginService apiPluginService;
 
@@ -33,7 +33,7 @@ public class ApiTestService {
         List<ProtocolDTO> protocols = apiPluginService.getProtocols(orgId);
         // 将 http 协议放最前面
         ProtocolDTO protocolDTO = new ProtocolDTO();
-        protocolDTO.setProtocol(HTTP_PROTOCOL);
+        protocolDTO.setProtocol(ApiConstants.HTTP_PROTOCOL);
         protocolDTO.setPolymorphicName(MsHTTPElement.class.getSimpleName());
         protocols.addFirst(protocolDTO);
         return protocols;

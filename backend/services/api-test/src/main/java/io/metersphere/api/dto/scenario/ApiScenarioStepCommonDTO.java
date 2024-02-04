@@ -56,6 +56,10 @@ public class ApiScenarioStepCommonDTO {
     @Schema(description = "csv文件id集合")
     private List<String> csvFileIds;
 
+    @Schema(description = "项目fk")
+    @NotBlank
+    private String projectId;
+
     @Valid
     @Schema(description = "子步骤")
     private List<? extends ApiScenarioStepCommonDTO> children;

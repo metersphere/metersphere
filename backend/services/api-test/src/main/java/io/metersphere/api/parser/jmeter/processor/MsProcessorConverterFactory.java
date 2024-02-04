@@ -4,6 +4,8 @@ import io.metersphere.project.api.processor.ExtractPostProcessor;
 import io.metersphere.project.api.processor.SQLProcessor;
 import io.metersphere.project.api.processor.ScriptProcessor;
 import io.metersphere.project.api.processor.TimeWaitingProcessor;
+import io.metersphere.project.dto.environment.processors.EnvRequestScriptProcessor;
+import io.metersphere.project.dto.environment.processors.EnvScenarioScriptProcessor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,11 +23,15 @@ public class MsProcessorConverterFactory {
         preConverterMap.put(ScriptProcessor.class, new ScriptPreProcessorConverter());
         preConverterMap.put(SQLProcessor.class, new SqlPreProcessorConverter());
         preConverterMap.put(TimeWaitingProcessor.class, new TimeWaitingProcessorConverter());
+        preConverterMap.put(EnvRequestScriptProcessor.class, new ScriptPreProcessorConverter());
+        preConverterMap.put(EnvScenarioScriptProcessor.class, new ScenarioScriptProcessorConverter());
 
         postConverterMap.put(ScriptProcessor.class, new ScriptPostProcessorConverter());
         postConverterMap.put(SQLProcessor.class, new SqlPostProcessorConverter());
         postConverterMap.put(TimeWaitingProcessor.class, new TimeWaitingProcessorConverter());
         postConverterMap.put(ExtractPostProcessor.class, new ExtractPostProcessorConverter());
+        postConverterMap.put(EnvRequestScriptProcessor.class, new ScriptPostProcessorConverter());
+        postConverterMap.put(EnvScenarioScriptProcessor.class, new ScenarioScriptProcessorConverter());
     }
 
     public static MsProcessorConverter getPreConverter(Class<?> processorClass) {
