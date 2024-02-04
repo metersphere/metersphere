@@ -1,5 +1,9 @@
 package io.metersphere.project.dto;
 
+import io.metersphere.project.enums.FakeErrorType;
+import io.metersphere.sdk.constants.TemplateScene;
+import io.metersphere.system.valid.EnumValue;
+import io.metersphere.validation.groups.Created;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
@@ -29,7 +33,8 @@ public class FakeErrorDTO implements Serializable {
     @NotBlank(message = "{fake_error.type.not_blank}")
     private String type;
 
-    @Schema(description = "匹配规则-内容类型/header/data/body", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description = "匹配规则-内容类型", requiredMode = Schema.RequiredMode.REQUIRED)
+    @EnumValue(enumClass = FakeErrorType.class, groups = {Created.class})
     @NotBlank(message = "{fake_error.resp_type.not_blank}")
     private String respType;
 
