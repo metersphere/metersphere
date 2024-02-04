@@ -9,6 +9,7 @@ import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.service.BaseScheduleService;
 import io.metersphere.system.service.PluginLoadService;
+import io.metersphere.system.uid.impl.DefaultUidGenerator;
 import io.minio.MinioClient;
 import jakarta.annotation.Resource;
 import org.springframework.boot.ApplicationArguments;
@@ -26,9 +27,13 @@ public class AppStartListener implements ApplicationRunner {
     @Resource
     private BaseScheduleService baseScheduleService;
 
+    @Resource
+    private DefaultUidGenerator defaultUidGenerator;
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
         LogUtils.info("================= 应用启动 =================");
+        defaultUidGenerator.afterPropertiesSet();
         // 初始化MinIO配置
         ((MinioRepository) FileCenter.getRepository(StorageType.MINIO)).init(minioClient);
 

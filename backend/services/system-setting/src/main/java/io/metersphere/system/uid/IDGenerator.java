@@ -1,13 +1,13 @@
 package io.metersphere.system.uid;
 
-import io.metersphere.system.uid.impl.CachedUidGenerator;
 import io.metersphere.sdk.util.CommonBeanFactory;
+import io.metersphere.system.uid.impl.DefaultUidGenerator;
 
 public class IDGenerator {
-    private static final CachedUidGenerator DEFAULT_UID_GENERATOR;
+    private static final DefaultUidGenerator DEFAULT_UID_GENERATOR;
 
     static {
-        DEFAULT_UID_GENERATOR = CommonBeanFactory.getBean(CachedUidGenerator.class);
+        DEFAULT_UID_GENERATOR = CommonBeanFactory.getBean(DefaultUidGenerator.class);
     }
 
     /**
