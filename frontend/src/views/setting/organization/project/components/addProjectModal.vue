@@ -135,7 +135,7 @@
   const formRef = ref<FormInstance>();
 
   const loading = ref(false);
-  const isEdit = computed(() => props.currentProject && props.currentProject.id);
+  const isEdit = computed(() => !!(props.currentProject && props.currentProject.id));
   const affiliatedOrgOption = ref<SystemOrgOption[]>([]);
   const appStore = useAppStore();
   const currentOrgId = computed(() => appStore.currentOrgId);

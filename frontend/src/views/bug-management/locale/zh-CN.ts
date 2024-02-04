@@ -1,6 +1,7 @@
 export default {
   bugManagement: {
     index: '缺陷管理',
+    addBug: '创建缺陷',
     editBug: '编辑缺陷',
     recycle: '回收站',
     createBug: '创建缺陷',
@@ -79,6 +80,15 @@ export default {
       closeAppend: '关闭: 覆盖原有字段',
       handleUser: '处理人',
       tag: '标签',
+    },
+    success: {
+      countDownTip: '后回到缺陷列表，也可以手动回到缺陷列表',
+      bugDetail: '缺陷详情',
+      addContinueCreate: '继续创建',
+      backBugList: '返回缺陷列表',
+      notNextTip: '下次不再提醒',
+      mightWantTo: '你可能还想',
+      caseRelated: '关联用例',
     },
     severityO: {
       fatal: '致命',

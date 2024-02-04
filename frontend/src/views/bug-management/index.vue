@@ -28,8 +28,9 @@
       v-on="propsEvent"
       @batch-action="handleTableBatch"
     >
-      <template #name="{ record, rowIndex }">
-        <a-button type="text" class="px-0" @click="handleShowDetail(record.id, rowIndex)">{{ record.title }}</a-button>
+      <!-- ID -->
+      <template #num="{ record, rowIndex }">
+        <a-button type="text" class="px-0" @click="handleShowDetail(record.id, rowIndex)">{{ record.num }}</a-button>
       </template>
       <!-- 严重程度 -->
       <template #severity="{ record }">
@@ -134,7 +135,7 @@
   />
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" async setup>
   import { Message, TableData } from '@arco-design/web-vue';
 
   import { MsAdvanceFilter, timeSelectOptions } from '@/components/pure/ms-advance-filter';
@@ -158,6 +159,7 @@
     deleteSingleBug,
     exportBug,
     getBugList,
+    getCustomFieldHeader,
     getExportConfig,
     syncBugOpenSource,
   } from '@/api/modules/bug-management';
@@ -167,6 +169,7 @@
   import router from '@/router';
   import { useAppStore, useTableStore } from '@/store';
   import useLicenseStore from '@/store/modules/setting/license';
+  import { customFieldToColumns } from '@/utils';
 
   import { BugEditCustomField, BugListItem } from '@/models/bug-management';
   import { RouteEnum } from '@/enums/routeEnum';
@@ -225,7 +228,7 @@
     },
     {
       title: 'bugManagement.bugName',
-      dataIndex: 'name',
+      dataIndex: 'title',
       type: FilterType.SELECT,
       selectProps: {
         mode: 'static',
@@ -259,17 +262,25 @@
 
   const heightUsed = computed(() => 286 + (filterVisible.value ? 160 + (filterRowCount.value - 1) * 60 : 0));
 
+  // 获取自定义字段
+  const getCustomFieldColumns = async () => {
+    const res = await getCustomFieldHeader(projectId.value);
+    customFields.value = res;
+    return customFieldToColumns(res);
+  };
+
   const columns: MsTableColumn = [
     {
       title: 'bugManagement.ID',
       dataIndex: 'num',
+      slotName: 'num',
       width: 80,
     },
     {
       title: 'bugManagement.bugName',
       editType: ColumnEditTypeEnum.INPUT,
       dataIndex: 'title',
-      slotName: 'name',
+      width: 300,
       showTooltip: true,
     },
     {
@@ -347,7 +358,8 @@
       width: 158,
     },
   ];
-  await tableStore.initColumn(TableKeyEnum.BUG_MANAGEMENT, columns, 'drawer');
+  const customColumns = await getCustomFieldColumns();
+  await tableStore.initColumn(TableKeyEnum.BUG_MANAGEMENT, columns.concat(customColumns), 'drawer');
 
   const handleNameChange = async (record: BugListItem) => {
     try {
@@ -399,34 +411,6 @@
     setKeyword(v);
     keyword.value = v;
     await loadList();
-    customFields.value = propsRes.value.customFields || [
-      {
-        fieldId: 'handleUser',
-        fieldName: '处理人',
-        required: true,
-        apiFieldId: null,
-        defaultValue: null,
-        type: 'select',
-        options: null,
-        platformOptionJson:
-          '[{"text":"副驾仙人","value":"728495172886530"},{"text":"社恐的程序员","value":"728495172886645"}]',
-        supportSearch: null,
-        optionMethod: null,
-        isMutiple: true,
-      },
-      {
-        fieldId: 'status',
-        fieldName: '状态',
-        required: true,
-        apiFieldId: null,
-        defaultValue: null,
-        type: 'select',
-        options: null,
-        platformOptionJson: '[{"text":"新建","value":"100555929702892317"}]',
-        supportSearch: null,
-        optionMethod: null,
-      },
-    ];
   };
 
   const handleAdvSearch = (filter: FilterResult) => {
@@ -500,6 +484,8 @@
       name: RouteEnum.BUG_MANAGEMENT_DETAIL,
       query: {
         id: record.id,
+      },
+      params: {
         mode: 'copy',
       },
     });
@@ -510,6 +496,8 @@
       name: RouteEnum.BUG_MANAGEMENT_DETAIL,
       query: {
         id: record.id,
+      },
+      params: {
         mode: 'edit',
       },
     });

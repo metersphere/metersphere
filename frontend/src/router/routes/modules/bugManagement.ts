@@ -29,7 +29,7 @@ const BugManagement: AppRouteRecordRaw = {
     },
     // 缺陷管理-编辑缺陷
     {
-      path: 'edit',
+      path: 'detail/:mode?',
       name: BugManagementRouteEnum.BUG_MANAGEMENT_DETAIL,
       component: () => import('@/views/bug-management/edit.vue'),
       meta: {
@@ -42,10 +42,21 @@ const BugManagement: AppRouteRecordRaw = {
           },
           {
             name: BugManagementRouteEnum.BUG_MANAGEMENT_DETAIL,
-            locale: 'bugManagement.editBug',
-            editLocale: 'menu.settings.organization.templateFieldSetting',
+            locale: 'bugManagement.addBug',
+            editTag: 'id',
+            editLocale: 'bugManagement.editBug',
           },
         ],
+      },
+    },
+    // 创建用例成功
+    {
+      path: 'create-success',
+      name: BugManagementRouteEnum.BUG_MANAGEMENT_CREATE_SUCCESS,
+      component: () => import('@/views/bug-management/createSuccess.vue'),
+      meta: {
+        locale: 'bugManagement.createBugSuccess',
+        roles: ['PROJECT_BUG:READ+ADD', 'PROJECT_BUG:READ+UPDATE'],
       },
     },
     // 回收站

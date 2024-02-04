@@ -22,6 +22,7 @@ export default {
   'common.remove': '移除',
   'common.revoked': '已撤销',
   'common.filter': '筛选',
+  'common.download': '下载',
   'common.createSuccess': '创建成功',
   'common.createFailed': '创建失败',
   'common.updateSuccess': '更新成功',

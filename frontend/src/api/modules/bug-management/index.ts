@@ -3,8 +3,8 @@ import { CommentParams } from '@/components/business/ms-comment/types';
 import MSR from '@/api/http/index';
 import * as bugURL from '@/api/requrls/bug-management';
 
-import { BugEditFormObject, BugExportParams, BugListItem, CreateOrUpdateComment } from '@/models/bug-management';
-import { AssociatedList } from '@/models/caseManagement/featureCase';
+import { BugEditFormObject, BugExportParams, BugListItem } from '@/models/bug-management';
+import { AssociatedList, OperationFile } from '@/models/caseManagement/featureCase';
 import { CommonList, TableQueryParams, TemplateOption } from '@/models/common';
 
 /**
@@ -36,8 +36,8 @@ export function updateBatchBug(data: TableQueryParams) {
  * @param data
  * @returns
  */
-export function createBug(data: { request: BugEditFormObject; fileList: File[] }) {
-  return MSR.uploadFile({ url: bugURL.postCreateBugUrl }, data, '', true);
+export function createOrUpdateBug(data: { request: BugEditFormObject; fileList: File[] }) {
+  return MSR.uploadFile({ url: data.request.id ? bugURL.postUpdateBugUrl : bugURL.postCreateBugUrl }, data, '', true);
 }
 /**
  * 获取 bug 详情
@@ -106,4 +106,52 @@ export function getCommentList(bugId: string) {
 // 删除评论
 export function deleteComment(commentId: string) {
   return MSR.get({ url: `${bugURL.getDeleteCommentUrl}${commentId}` });
+}
+
+export function getCustomFieldHeader(projectId: string) {
+  return MSR.get({ url: `${bugURL.getCustomFieldHeaderUrl}${projectId}` });
+}
+
+// 附件
+
+// 上传文件并关联用例
+export function uploadOrAssociationFile(data: Record<string, any>) {
+  return MSR.uploadFile({ url: bugURL.uploadOrAssociationFileUrl }, { request: data.request, fileList: [data.file] });
+}
+// 转存文件
+export function transferFileRequest(data: OperationFile) {
+  return MSR.post({ url: bugURL.transferFileUrl, data });
+}
+// 获取文件转存目录
+export function getTransferFileTree(projectId: string) {
+  return MSR.get({ url: `${bugURL.getTransferTreeUrl}/${projectId}` });
+}
+
+// 预览文件
+export function previewFile(data: OperationFile) {
+  return MSR.post({ url: bugURL.previewFileUrl, data, responseType: 'blob' }, { isTransformResponse: false });
+}
+
+// 下载文件
+export function downloadFileRequest(data: OperationFile) {
+  return MSR.post({ url: bugURL.downloadFileUrl, data, responseType: 'blob' }, { isTransformResponse: false });
+}
+// 检查文件是否更新
+export function checkFileIsUpdateRequest(data: string[]) {
+  return MSR.post({ url: bugURL.checkFileIsUpdateUrl, data });
+}
+
+// 更新文件
+export function updateFile(projectId: string, id: string) {
+  return MSR.get({ url: `${bugURL.getFileIsUpdateUrl}/${projectId}/${id}` });
+}
+
+// 删除文件或取消关联用例文件
+export function deleteFileOrCancelAssociation(data: OperationFile) {
+  return MSR.post({ url: bugURL.deleteFileOrCancelAssociationUrl, data });
+}
+
+// 获取文件列表
+export function getAttachmentList(bugId: string) {
+  return MSR.get({ url: `${bugURL.getAttachmentListUrl}${bugId}` });
 }

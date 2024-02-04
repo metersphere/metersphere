@@ -1,4 +1,9 @@
+import { findKey } from 'lodash-es';
 import JSEncrypt from 'jsencrypt';
+
+import { MsTableColumn, MsTableColumnData } from '@/components/pure/ms-table/type';
+
+import { CustomFieldItem } from '@/models/bug-management';
 
 import { isObject } from './is';
 
@@ -484,4 +489,19 @@ export function formatPhoneNumber(phoneNumber = '') {
     return formattedNumber;
   }
   return phoneNumber;
+}
+
+export function customFieldToColumns(customFields: CustomFieldItem[]) {
+  return customFields.map((field) => {
+    const { fieldName, fieldKey, fieldId } = field;
+    const column: MsTableColumnData = {
+      title: fieldName,
+      dataIndex: ['handleUser', 'status'].includes(fieldId) ? fieldKey : fieldId,
+      showTooltip: true,
+      showDrag: true,
+      showInTable: true,
+      width: 200,
+    };
+    return column;
+  });
 }
