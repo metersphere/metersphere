@@ -71,7 +71,7 @@
                 #{moduleId}
             </foreach>
         </if>
-        <if test="request.keyword != null">
+        <if test="request.keyword != null and request.keyword != ''">
             and (
             functional_case.name like concat('%', #{request.keyword},'%')
             or functional_case.num like concat('%', #{request.keyword},'%')
@@ -306,16 +306,7 @@
         <if test="userId != null and userId != ''">
             AND crfc.case_id in (select case_id from case_review_functional_case_user crfcu where crfcu.review_id = #{request.reviewId} and crfcu.user_id = #{userId})
         </if>
-        <choose>
-            <when test='request.condition.searchMode == "AND"'>
-                AND <include refid="queryWhereConditionByBaseQueryRequest"/>
-            </when>
-            <when test='request.condition.searchMode == "OR"'>
-                and (
-                <include refid="queryWhereConditionByBaseQueryRequest"/>
-                )
-            </when>
-        </choose>
+        <include refid="queryWhereConditionByBaseQueryRequest"/>
     </select>
 
     <select id="getListByRequest" resultType="io.metersphere.functional.domain.CaseReviewFunctionalCase">
@@ -330,16 +321,7 @@
         <if test="userId != null and userId != ''">
             AND crfc.case_id in (select case_id from case_review_functional_case_user crfcu where crfcu.review_id = #{request.reviewId} and crfcu.user_id = #{userId})
         </if>
-        <choose>
-            <when test='request.condition.searchMode == "AND"'>
-                AND <include refid="queryWhereConditionByBaseQueryRequest"/>
-            </when>
-            <when test='request.condition.searchMode == "OR"'>
-                and (
-                <include refid="queryWhereConditionByBaseQueryRequest"/>
-                )
-            </when>
-        </choose>
+        <include refid="queryWhereConditionByBaseQueryRequest"/>
         <if test="request.excludeIds != null and request.excludeIds.size() > 0" >
             and crfc.id not in
             <foreach collection="request.excludeIds" item="excludeId" open="(" separator="," close=")">
@@ -350,20 +332,35 @@
 
 
     <sql id="queryWhereConditionByBaseQueryRequest">
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            and functional_case.module_id in
+            <foreach collection="request.moduleIds" item="moduleId" separator="," open="(" close=")">
+                #{moduleId}
+            </foreach>
+        </if>
         <if test="request.condition.keyword != null">
-            (
+            and (
             functional_case.name like concat('%', #{request.keyword},'%')
             or functional_case.num like concat('%', #{request.keyword},'%')
             or JSON_CONTAINS(tags, concat('["',#{request.keyword},'"]'))
             )
-            <include refid="queryType">
-                <property name="searchMode" value="request.condition.searchMode"/>
-            </include>
         </if>
         <include refid="filters">
             <property name="filter" value="request.condition.filter"/>
-            <property name="searchMode" value="request.condition.searchMode"/>
         </include>
+        <choose>
+            <when test='request.condition.searchMode == "AND"'>
+                AND <include refid="baseQueryCombine"/>
+            </when>
+            <when test='request.condition.searchMode == "OR"'>
+                and (
+                <include refid="baseQueryCombine"/>
+                )
+            </when>
+        </choose>
+    </sql>
+
+    <sql id="baseQueryCombine">
         <if test="request.condition.combine != null">
             <include refid="combine">
                 <property name="condition" value="request.condition.combine"/>
@@ -372,6 +369,7 @@
         </if>
         1=1
     </sql>
+
 
     <select id="getPos" resultType="java.lang.Long">
         SELECT

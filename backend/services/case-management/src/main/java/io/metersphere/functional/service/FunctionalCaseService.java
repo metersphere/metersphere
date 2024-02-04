@@ -276,6 +276,10 @@ public class FunctionalCaseService {
             functionalCaseDetailDTO.setVersionName(versions.get(0).getName());
         }
 
+        //模块名称
+        FunctionalCaseModule module = functionalCaseModuleService.getModule(functionalCaseDetailDTO.getModuleId());
+        functionalCaseDetailDTO.setModuleName(module.getName());
+
         //处理已关联需求数量/缺陷数量/用例数量
         handleCount(functionalCaseDetailDTO);
 
