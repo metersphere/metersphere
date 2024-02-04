@@ -216,14 +216,6 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
         example.clear();
     }
 
-    private String getRootNodeId(FunctionalCaseModule functionalCaseModule) {
-        if (StringUtils.equals(functionalCaseModule.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
-            return functionalCaseModule.getId();
-        } else {
-            FunctionalCaseModule parentModule = functionalCaseModuleMapper.selectByPrimaryKey(functionalCaseModule.getParentId());
-            return this.getRootNodeId(parentModule);
-        }
-    }
 
     @Override
     public void updatePos(String id, long pos) {
@@ -406,7 +398,10 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
     }
 
 
-    public FunctionalCaseModule getModule(String id) {
-        return functionalCaseModuleMapper.selectByPrimaryKey(id);
+    public String getModuleName(String id) {
+        if (ModuleConstants.DEFAULT_NODE_ID.equals(id)) {
+            return Translator.get("default.module");
+        }
+        return functionalCaseModuleMapper.selectByPrimaryKey(id).getName();
     }
 }

@@ -218,15 +218,6 @@ public class CaseReviewModuleService extends ModuleTreeService {
         example.clear();
     }
 
-    private String getRootNodeId(CaseReviewModule caseReviewModule) {
-        if (StringUtils.equals(caseReviewModule.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
-            return caseReviewModule.getId();
-        } else {
-            CaseReviewModule parentModule = caseReviewModuleMapper.selectByPrimaryKey(caseReviewModule.getParentId());
-            return this.getRootNodeId(parentModule);
-        }
-    }
-
     @Override
     public void updatePos(String id, long pos) {
         CaseReviewModule updateModule = new CaseReviewModule();

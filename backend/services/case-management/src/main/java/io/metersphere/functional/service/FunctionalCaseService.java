@@ -31,6 +31,7 @@ import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.CustomFieldOption;
+import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.sdk.*;
@@ -39,6 +40,7 @@ import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
+import io.metersphere.system.mapper.UserMapper;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.notice.sender.AfterReturningNoticeSendService;
 import io.metersphere.system.service.BaseCustomFieldOptionService;
@@ -153,6 +155,8 @@ public class FunctionalCaseService {
     private AfterReturningNoticeSendService afterReturningNoticeSendService;
     @Resource
     private OperationHistoryService operationHistoryService;
+    @Resource
+    private UserMapper userMapper;
 
 
     public FunctionalCase addFunctionalCase(FunctionalCaseAddRequest request, List<MultipartFile> files, String userId, String organizationId) {
@@ -276,15 +280,29 @@ public class FunctionalCaseService {
             functionalCaseDetailDTO.setVersionName(versions.get(0).getName());
         }
 
+
         //模块名称
-        FunctionalCaseModule module = functionalCaseModuleService.getModule(functionalCaseDetailDTO.getModuleId());
-        functionalCaseDetailDTO.setModuleName(module.getName());
+        handDTO(functionalCaseDetailDTO);
+
 
         //处理已关联需求数量/缺陷数量/用例数量
         handleCount(functionalCaseDetailDTO);
 
         return functionalCaseDetailDTO;
 
+    }
+
+    /**
+     * 处理返回对象的相关属性
+     *
+     * @param functionalCaseDetailDTO functionalCaseDetailDTO
+     */
+    private void handDTO(FunctionalCaseDetailDTO functionalCaseDetailDTO) {
+        String name = functionalCaseModuleService.getModuleName(functionalCaseDetailDTO.getModuleId());
+        functionalCaseDetailDTO.setModuleName(name);
+
+        User user = userMapper.selectByPrimaryKey(functionalCaseDetailDTO.getCreateUser());
+        functionalCaseDetailDTO.setCreateUserName(user.getName());
     }
 
     private void handleCount(FunctionalCaseDetailDTO functionalCaseDetailDTO) {

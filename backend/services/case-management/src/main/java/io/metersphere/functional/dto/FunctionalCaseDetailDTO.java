@@ -62,6 +62,9 @@ public class FunctionalCaseDetailDTO implements Serializable {
     @Schema(description =  "创建人")
     private String createUser;
 
+    @Schema(description =  "创建人姓名")
+    private String createUserName;
+
     @Schema(description =  "创建时间")
     private Long createTime;
 

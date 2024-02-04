@@ -244,6 +244,7 @@ public class FunctionalCaseControllerTests extends BaseTest {
             }
         });
         this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_DETAIL_URL + "TEST_FUNCTIONAL_CASE_ID_3");
+        this.requestGetWithOkAndReturn(FUNCTIONAL_CASE_DETAIL_URL + "wx_test_root");
     }
 
 
