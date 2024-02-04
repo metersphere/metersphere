@@ -33,7 +33,7 @@
 
     <select id="listAll" resultType="io.metersphere.system.dto.OrganizationDTO">
         select *
-        from organization
+        from organization where enable = true
     </select>
 
     <update id="delete" parameterType="io.metersphere.system.dto.request.OrganizationDeleteRequest">
