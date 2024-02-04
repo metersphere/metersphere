@@ -19,7 +19,6 @@ import io.metersphere.system.dto.user.UserDTO;
 import io.metersphere.system.dto.user.UserExcludeOptionDTO;
 import io.metersphere.system.dto.user.UserRolePermissionDTO;
 import io.metersphere.system.dto.user.UserRoleResourceDTO;
-import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
@@ -121,7 +120,7 @@ public class UserLoginService {
                 OperationLogConstants.SYSTEM,
                 userId,
                 type,
-                OperationLogModule.SETTING_SYSTEM,
+                OperationLogConstants.SYSTEM,
                 StringUtils.join(user.getName(), StringUtils.EMPTY, content));
         dto.setMethod(method);
         dto.setPath(path);
@@ -367,7 +366,7 @@ public class UserLoginService {
         // last organization id 变了
         if (user.getLastOrganizationId() != null && !StringUtils.equals(user.getLastOrganizationId(), userFromDB.getLastOrganizationId())) {
             List<Project> projects = getProjectListByWsAndUserId(user.getId(), user.getLastOrganizationId());
-            if (projects.size() > 0) {
+            if (!projects.isEmpty()) {
                 // 如果传入的 last_project_id 是 last_organization_id 下面的
                 boolean present = projects.stream().anyMatch(p -> StringUtils.equals(p.getId(), user.getLastProjectId()));
                 if (!present) {
