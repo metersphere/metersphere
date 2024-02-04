@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import static io.metersphere.system.controller.result.SystemResultCode.NO_ORG_USER_ROLE_PERMISSION;
@@ -46,7 +47,9 @@ public class OrganizationUserRoleService extends BaseUserRoleService {
         example.createCriteria().andTypeEqualTo(UserRoleType.ORGANIZATION.name())
                 .andScopeIdIn(Arrays.asList(organizationId, UserRoleEnum.GLOBAL.toString()));
         example.setOrderByClause("create_time asc");
-        return userRoleMapper.selectByExample(example);
+        List<UserRole> userRoles = userRoleMapper.selectByExample(example);
+        userRoles.sort(Comparator.comparing(UserRole::getInternal).reversed());
+        return userRoles;
     }
 
     @Override

@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -71,6 +72,7 @@ public class ProjectUserRoleService extends BaseUserRoleService {
                 role.setMemberCount(0);
             });
         }
+        roles.sort(Comparator.comparing(UserRole::getInternal).reversed());
         return roles;
     }
 
