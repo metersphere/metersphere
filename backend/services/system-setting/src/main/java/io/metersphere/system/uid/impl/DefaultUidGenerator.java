@@ -8,13 +8,15 @@ import io.metersphere.system.uid.worker.WorkerIdAssigner;
 import io.metersphere.sdk.util.LogUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 @Service
-public class DefaultUidGenerator {
+public class DefaultUidGenerator implements DisposableBean, InitializingBean {
     /**
      * Bits allocate
      */
@@ -175,5 +177,10 @@ public class DefaultUidGenerator {
             this.epochStr = epochStr;
             this.epochSeconds = TimeUnit.MILLISECONDS.toSeconds(TimeUtils.parseByDayPattern(epochStr).getTime());
         }
+    }
+
+    @Override
+    public void destroy() throws Exception {
+        LogUtils.info("Shutdown UidGenerator...");
     }
 }
