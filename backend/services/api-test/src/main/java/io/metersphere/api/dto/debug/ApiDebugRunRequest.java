@@ -22,4 +22,6 @@ public class ApiDebugRunRequest {
     @NotNull
     @Schema(description = "请求内容")
     private Object request;
+    @Schema(description = "项目ID")
+    private String projectId;
 }

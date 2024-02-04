@@ -1,5 +1,6 @@
 package io.metersphere.api.controller;
 
+import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.debug.ApiDebugRequest;
 import io.metersphere.api.dto.debug.ModuleCreateRequest;
@@ -134,7 +135,7 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
         apiDefinition.setProjectId(project.getId());
         apiDefinition.setName(StringUtils.join("接口定义", apiDefinition.getId()));
         apiDefinition.setModuleId(moduleId);
-        apiDefinition.setProtocol("HTTP");
+        apiDefinition.setProtocol(ApiConstants.HTTP_PROTOCOL);
         apiDefinition.setMethod("GET");
         apiDefinition.setStatus("未规划");
         apiDefinition.setNum(NumGenerator.nextNum(project.getId(), ApplicationNumScope.API_DEFINITION));
@@ -811,7 +812,7 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
     public void TestModuleCountSuccess() throws Exception {
         this.preliminaryData();
         ApiModuleRequest request = new ApiModuleRequest() {{
-            this.setProtocol("HTTP");
+            this.setProtocol(ApiConstants.HTTP_PROTOCOL);
             this.setProjectId(project.getId());
         }};
         MvcResult moduleCountMvcResult = this.requestPostWithOkAndReturn(URL_FILE_MODULE_COUNT, request);
@@ -876,7 +877,7 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
         apiDefinition.setDeleted(true);
         apiDefinitionMapper.updateByExampleSelective(apiDefinition, example);
         MvcResult result = this.requestPostWithOkAndReturn(URL_MODULE_TRASH_TREE, new ApiModuleRequest() {{
-            this.setProtocol("HTTP");
+            this.setProtocol(ApiConstants.HTTP_PROTOCOL);
             this.setProjectId(project.getId());
         }});
 
@@ -889,7 +890,7 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
     @Order(12)
     public void getModuleTrashTreeCount() throws Exception {
         ApiModuleRequest request = new ApiModuleRequest() {{
-            this.setProtocol("HTTP");
+            this.setProtocol(ApiConstants.HTTP_PROTOCOL);
             this.setProjectId(project.getId());
         }};
         MvcResult moduleCountMvcResult = this.requestPostWithOkAndReturn(URL_MODULE_TRASH_COUNT, request);
@@ -951,11 +952,11 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
 
     private List<BaseTreeNode> getModuleTreeNode() throws Exception {
         MvcResult result = this.requestPostWithOkAndReturn(URL_MODULE_TREE, new ApiModuleRequest() {{
-            this.setProtocol("HTTP");
+            this.setProtocol(ApiConstants.HTTP_PROTOCOL);
             this.setProjectId(project.getId());
         }});
         this.requestPostWithOkAndReturn(URL_MODULE_ONLY_TREE, new ApiModuleRequest() {{
-            this.setProtocol("HTTP");
+            this.setProtocol(ApiConstants.HTTP_PROTOCOL);
             this.setProjectId(project.getId());
         }});
         String returnData = result.getResponse().getContentAsString(StandardCharsets.UTF_8);

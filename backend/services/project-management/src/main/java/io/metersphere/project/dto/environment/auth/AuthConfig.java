@@ -18,7 +18,7 @@ public class AuthConfig implements Serializable {
     private String verification;
 
     @Schema(description = "SSL配置")
-    private KeyStoreConfig sslConfig;
+    private KeyStoreConfig sslConfig = new KeyStoreConfig();
 
     @Serial
     private static final long serialVersionUID = 1L;

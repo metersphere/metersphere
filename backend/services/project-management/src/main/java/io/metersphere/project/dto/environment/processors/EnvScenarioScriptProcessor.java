@@ -7,8 +7,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-@JsonTypeName("SCENARIO_SCRIPT")
-public class ScenarioScriptProcessor extends ScriptProcessor {
+@JsonTypeName("ENV_SCENARIO_SCRIPT")
+public class EnvScenarioScriptProcessor extends ScriptProcessor {
 
     /**
      * 是否关联场景结果，默认否

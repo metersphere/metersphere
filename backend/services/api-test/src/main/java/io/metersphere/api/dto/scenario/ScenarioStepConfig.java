@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 public class ScenarioStepConfig extends ApiScenario {
     @Schema(description = "是否使用源场景环境")
-    private Boolean enableScenarioEnv;
+    private Boolean enableScenarioEnv = false;
 
     @Schema(description = "是否使用当前场景参数，如果为false，则使用源场景参数")
     private Boolean useCurrentScenarioParam = false;

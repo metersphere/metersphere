@@ -38,4 +38,8 @@ public abstract class AbstractMsTestElement implements MsTestElement {
      * 子组件
      */
     private LinkedList<AbstractMsTestElement> children;
+    /**
+     * 父组件
+     */
+    private AbstractMsTestElement parent;
 }

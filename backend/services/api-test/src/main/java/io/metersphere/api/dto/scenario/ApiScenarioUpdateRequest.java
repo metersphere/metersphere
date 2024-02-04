@@ -56,7 +56,7 @@ public class ApiScenarioUpdateRequest {
     private String environmentId;
 
     @Schema(description = "场景的通用配置")
-    private ScenarioConfig scenarioConfig;
+    private ScenarioConfig scenarioConfig = new ScenarioConfig();
 
     @Valid
     @Schema(description = "步骤集合")

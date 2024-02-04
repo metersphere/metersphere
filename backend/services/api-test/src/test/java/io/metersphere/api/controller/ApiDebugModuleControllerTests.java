@@ -1,5 +1,6 @@
 package io.metersphere.api.controller;
 
+import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.debug.ApiDebugRequest;
 import io.metersphere.api.dto.debug.ModuleCreateRequest;
@@ -114,7 +115,7 @@ public class ApiDebugModuleControllerTests extends BaseTest {
         apiDebug.setProjectId(project.getId());
         apiDebug.setName(StringUtils.join("接口调试", apiDebug.getId()));
         apiDebug.setModuleId(moduleId);
-        apiDebug.setProtocol("HTTP");
+        apiDebug.setProtocol(ApiConstants.HTTP_PROTOCOL);
         apiDebug.setMethod("GET");
         apiDebug.setPath(StringUtils.join("api/debug/", apiDebug.getId()));
         apiDebug.setCreateTime(System.currentTimeMillis());
@@ -748,7 +749,7 @@ public class ApiDebugModuleControllerTests extends BaseTest {
     public void TestModuleCountSuccess() throws Exception {
         this.preliminaryData();
         ApiDebugRequest request = new ApiDebugRequest() {{
-            this.setProtocol("HTTP");
+            this.setProtocol(ApiConstants.HTTP_PROTOCOL);
         }};
         MvcResult moduleCountMvcResult = this.requestPostWithOkAndReturn(URL_FILE_MODULE_COUNT, request);
         Map<String, Integer> moduleCountResult = JSON.parseObject(JSON.toJSONString(

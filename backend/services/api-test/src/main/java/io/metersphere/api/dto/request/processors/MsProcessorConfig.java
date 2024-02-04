@@ -4,6 +4,7 @@ import io.metersphere.project.api.processor.MsProcessor;
 import jakarta.validation.Valid;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,12 +16,12 @@ import java.util.List;
 public class MsProcessorConfig {
     /**
      * 是否启用全局前置
-     * 默认为 false
+     * 默认为 true
      */
-    private Boolean enableGlobal = false;
+    private Boolean enableGlobal = true;
     /**
      * 处理器列表
      */
     @Valid
-    private List<MsProcessor> processors;
+    private List<MsProcessor> processors = new ArrayList<>(0);
 }

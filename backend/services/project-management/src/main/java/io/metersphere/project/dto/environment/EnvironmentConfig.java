@@ -10,47 +10,32 @@ import io.metersphere.project.dto.environment.variables.CommonVariables;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-import java.io.Serial;
-import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Data
-public class EnvironmentConfig implements Serializable {
-    @Serial
-    private static final long serialVersionUID = 1L;
+public class EnvironmentConfig {
     @Schema(description = "公共参数 请求超时时间、响应超时时间")
-    private CommonParams commonParams;
+    private CommonParams commonParams = new CommonParams();
     @Schema(description = "环境变量")
-    private List<CommonVariables> commonVariables;
+    private List<CommonVariables> commonVariables = new ArrayList<>(0);
     @Schema(description = "HTTP配置")
-    private List<HttpConfig> httpConfig;
+    private List<HttpConfig> httpConfig = new ArrayList<>(0);
     @Schema(description = "数据库配置")
-    private List<DataSource> dataSources;
+    private List<DataSource> dataSources = new ArrayList<>(0);
+
     @Schema(description = "Host配置")
-    private HostConfig hostConfig;
+    private HostConfig hostConfig = new HostConfig();
     @Schema(description = "认证配置")
-    private AuthConfig authConfig;
+    private AuthConfig authConfig = new AuthConfig();
     @Schema(description = "全局前置脚本")
-    private EnvProcessorConfig preProcessorConfig;
+    private EnvProcessorConfig preProcessorConfig = new EnvProcessorConfig();
     @Schema(description = "全局后置脚本")
-    private EnvProcessorConfig postProcessorConfig;
+    private EnvProcessorConfig postProcessorConfig = new EnvProcessorConfig();
     @Schema(description = "全局断言")
-    private MsEnvAssertionConfig assertionConfig;
+    private MsEnvAssertionConfig assertionConfig = new MsEnvAssertionConfig();
     @Schema(description = "插件自定义的配置项，key为插件ID，value 为对应配置")
-    private Map<String, Map<String, Object>> pluginConfigMap;
-
-
-    public EnvironmentConfig() {
-        this.commonParams = new CommonParams();
-        this.commonVariables = List.of(new CommonVariables());
-        this.httpConfig = List.of(new HttpConfig());
-        this.dataSources = List.of(new DataSource());
-        this.hostConfig = new HostConfig();
-        this.authConfig = new AuthConfig();
-        this.preProcessorConfig = new EnvProcessorConfig();
-        this.postProcessorConfig = new EnvProcessorConfig();
-        this.assertionConfig = new MsEnvAssertionConfig();
-    }
-
+    private Map<String, Map<String, Object>> pluginConfigMap = HashMap.newHashMap(0);
 }

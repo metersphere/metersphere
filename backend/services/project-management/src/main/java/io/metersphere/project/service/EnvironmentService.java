@@ -5,6 +5,7 @@ import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.dto.environment.*;
 import io.metersphere.project.dto.environment.datasource.DataSource;
+import io.metersphere.project.dto.environment.http.HttpConfig;
 import io.metersphere.project.mapper.ExtEnvironmentMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
@@ -191,7 +192,12 @@ public class EnvironmentService {
             String baseUrl = baseSystemConfigDTO.getUrl();
             if (StringUtils.isNotEmpty(baseUrl)) {
                 Project project = projectMapper.selectByPrimaryKey(environment.getProjectId());
-                environmentInfoDTO.getConfig().getHttpConfig().getFirst().setUrl(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, project.getNum()));
+                List<HttpConfig> httpConfigs = environmentInfoDTO.getConfig().getHttpConfig();
+                if (CollectionUtils.isEmpty(httpConfigs)) {
+                    HttpConfig httpConfig = new HttpConfig();
+                    httpConfig.setUrl(StringUtils.join(baseUrl, MOCK_EVN_SOCKET, project.getNum()));
+                    httpConfigs.add(new HttpConfig());
+                }
             }
         }
 

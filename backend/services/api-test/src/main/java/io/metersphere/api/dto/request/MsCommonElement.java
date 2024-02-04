@@ -33,4 +33,5 @@ public class MsCommonElement extends AbstractMsTestElement {
      */
     @Valid
     private MsAssertionConfig assertionConfig;
+
 }

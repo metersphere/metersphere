@@ -3,6 +3,7 @@ package io.metersphere.api.dto.scenario;
 import io.metersphere.project.dto.environment.variables.CommonVariables;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,9 +15,9 @@ public class ScenarioVariable {
     /**
      * 普通变量
      */
-    private List<CommonVariables> commonVariables;
+    private List<CommonVariables> commonVariables = new ArrayList<>(0);
     /**
      * csv变量
      */
-    private List<CsvVariable> csvVariables;
+    private List<CsvVariable> csvVariables = new ArrayList<>(0);
 }

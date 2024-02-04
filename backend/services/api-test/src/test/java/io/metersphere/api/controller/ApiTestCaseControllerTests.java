@@ -1,5 +1,6 @@
 package io.metersphere.api.controller;
 
+import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.controller.param.ApiTestCaseAddRequestDefinition;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.*;
@@ -147,7 +148,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         apiDefinition.setProjectId(DEFAULT_PROJECT_ID);
         apiDefinition.setName(StringUtils.join("接口定义", apiDefinition.getId()));
         apiDefinition.setModuleId("case-moduleId");
-        apiDefinition.setProtocol("HTTP");
+        apiDefinition.setProtocol(ApiConstants.HTTP_PROTOCOL);
         apiDefinition.setMethod("GET");
         apiDefinition.setStatus("未规划");
         apiDefinition.setNum(NumGenerator.nextNum(DEFAULT_PROJECT_ID, ApplicationNumScope.API_DEFINITION));

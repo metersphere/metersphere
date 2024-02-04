@@ -1,5 +1,6 @@
 package io.metersphere.api.controller;
 
+import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.constants.ApiDefinitionDocType;
 import io.metersphere.api.constants.ApiDefinitionStatus;
 import io.metersphere.api.controller.result.ApiResultCode;
@@ -238,7 +239,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         String defaultVersion = extBaseProjectVersionMapper.getDefaultVersion(DEFAULT_PROJECT_ID);
         ApiDefinitionAddRequest request = new ApiDefinitionAddRequest();
         request.setName("接口定义test");
-        request.setProtocol("HTTP");
+        request.setProtocol(ApiConstants.HTTP_PROTOCOL);
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setMethod("POST");
         request.setPath("/api/admin/posts");
@@ -404,7 +405,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         //校验修改path和method时，是否会影响用例
         ApiDefinitionAddRequest addRequest = new ApiDefinitionAddRequest();
         addRequest.setName("测试修改path和method");
-        addRequest.setProtocol("HTTP");
+        addRequest.setProtocol(ApiConstants.HTTP_PROTOCOL);
         addRequest.setProjectId(DEFAULT_PROJECT_ID);
         addRequest.setMethod("POST");
         addRequest.setPath("/api/admin/posts");
@@ -1400,7 +1401,7 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setCoverData(true);
         request.setCoverModule(true);
         request.setModuleId(apiDefinitionModule.getId());
-        request.setProtocol("HTTP");
+        request.setProtocol(ApiConstants.HTTP_PROTOCOL);
         request.setUserId("admin");
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.add("request", JSON.toJSONString(request));

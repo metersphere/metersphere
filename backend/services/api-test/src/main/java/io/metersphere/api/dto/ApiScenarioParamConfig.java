@@ -34,4 +34,17 @@ public class ApiScenarioParamConfig extends ApiParamConfig {
             return super.getProtocolEnvConfig(msTestElement);
         }
     }
+
+    /**
+     * 获取当前环境或者环境组的配置
+     * @param projectId
+     * @return
+     */
+    public EnvironmentInfoDTO getEnvConfig(String projectId) {
+        if (BooleanUtils.isTrue(grouped)) {
+            return projectEnvMap.get(projectId);
+        } else {
+            return getEnvConfig();
+        }
+    }
 }

@@ -20,10 +20,6 @@ public class ApiScenarioStepRequest extends ApiScenarioStepCommonDTO {
     @Size(min = 1, max = 50, message = "{api_scenario_step.resource_num.length_range}")
     private String resourceNum;
 
-    @Schema(description = "项目fk")
-    @Size(min = 1, max = 50, message = "{api_scenario_step.project_id.length_range}")
-    private String projectId;
-
     @Schema(description = "版本号")
     @Size(min = 1, max = 50, message = "{api_scenario_step.version_id.length_range}")
     private String versionId;

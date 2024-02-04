@@ -3,6 +3,7 @@ package io.metersphere.api.dto.assertion;
 import io.metersphere.project.api.assertion.MsAssertion;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,5 +21,5 @@ public class MsAssertionConfig {
     /**
      * 断言列表
      */
-    private List<MsAssertion> assertions;
+    private List<MsAssertion> assertions = new ArrayList<>(0);
 }

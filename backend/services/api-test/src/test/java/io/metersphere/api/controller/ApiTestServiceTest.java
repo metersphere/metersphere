@@ -1,5 +1,6 @@
 package io.metersphere.api.controller;
 
+import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.service.ApiTestService;
 import io.metersphere.system.base.BaseApiPluginTestService;
@@ -36,7 +37,7 @@ public class ApiTestServiceTest extends BaseTest {
         List<ProtocolDTO> protocols = apiTestService.getProtocols(this.DEFAULT_ORGANIZATION_ID);
         List expected = new ArrayList<ProtocolDTO>();
         ProtocolDTO httpProtocol = new ProtocolDTO();
-        httpProtocol.setProtocol("HTTP");
+        httpProtocol.setProtocol(ApiConstants.HTTP_PROTOCOL);
         httpProtocol.setPolymorphicName(MsHTTPElement.class.getSimpleName());
         ProtocolDTO jdbcProtocol = new ProtocolDTO();
         jdbcProtocol.setProtocol("JDBC");
