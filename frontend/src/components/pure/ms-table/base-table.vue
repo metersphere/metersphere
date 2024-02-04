@@ -186,7 +186,7 @@
       <template #empty>
         <div class="w-full">
           <slot name="empty">
-            <div class="flex h-[20px] flex-col items-center justify-center">
+            <div class="flex h-[40px] flex-col items-center justify-center">
               <span class="text-[14px] text-[var(--color-text-4)]">{{ t('msTable.empty') }}</span>
             </div>
           </slot>
@@ -674,6 +674,14 @@
   :deep(.arco-table-drag-handle) {
     .arco-icon-drag-dot-vertical {
       color: var(--color-text-brand);
+    }
+  }
+  :deep(.arco-table-col-sorted) {
+    @apply bg-white;
+  }
+  :deep(.arco-table-cell-with-sorter) {
+    &:hover {
+      @apply bg-white;
     }
   }
 </style>

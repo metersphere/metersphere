@@ -235,7 +235,7 @@
       @apply relative;
     }
     .ms-card-footer {
-      @apply fixed justify-between bg-white;
+      @apply fixed flex justify-between bg-white;
 
       right: 16px;
       bottom: 0;

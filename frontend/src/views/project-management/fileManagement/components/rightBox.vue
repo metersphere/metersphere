@@ -119,6 +119,14 @@
             @action-select="handleMoreActionSelect($event, item)"
           />
         </template>
+        <template #empty>
+          <div class="flex w-full items-center justify-center p-[16px] text-[var(--color-text-4)]">
+            {{ t('project.fileManagement.tableNoFile') }}
+            <MsButton class="ml-[8px]" @click="handleAddClick">
+              {{ t('project.fileManagement.addFile') }}
+            </MsButton>
+          </div>
+        </template>
       </MsCardList>
     </a-spin>
   </div>
@@ -177,7 +185,13 @@
     >
       <template #tabExtra>
         <div v-if="acceptType === 'jar'" class="flex items-center gap-[4px]">
-          <a-switch size="small" :disabled="fileList.length === 0" type="line" @change="enableAllJar"></a-switch>
+          <a-switch
+            v-model:model-value="allJarIsEnable"
+            size="small"
+            :disabled="fileList.length === 0"
+            type="line"
+            @change="enableAllJar"
+          ></a-switch>
           {{ t('project.fileManagement.enableAll') }}
           <a-tooltip :content="t('project.fileManagement.uploadTip')">
             <MsIcon type="icon-icon-maybe_outlined" class="cursor-pointer hover:text-[rgb(var(--primary-5))]" />
@@ -522,6 +536,10 @@
       slotName: 'name',
       dataIndex: 'name',
       fixed: 'left',
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      },
       width: 270,
     },
     {
@@ -996,6 +1014,7 @@
   );
 
   const uploadDrawerVisible = ref(false); // 模块-上传文件抽屉
+  const allJarIsEnable = ref(false);
   const fileList = ref<MsFileItem[]>(asyncTaskStore.uploadFileTask.fileList);
   // 是否非上传中状态
   const noWaitingUpload = computed(
@@ -1012,6 +1031,7 @@
     if (isUploading.value || acceptType.value === type) return;
     acceptType.value = type;
     fileList.value = [];
+    allJarIsEnable.value = false;
   }
 
   /**
@@ -1020,13 +1040,8 @@
    */
   function handleFileChange(files: MsFileItem[]) {
     fileList.value = files.map((e) => {
-      if (e.enable !== undefined) {
-        return e;
-      }
-      return {
-        ...e,
-        enable: false, // 是否启用
-      };
+      e.enable = acceptType.value === 'jar' ? allJarIsEnable.value : false; // 是否启用
+      return e; // 不能解构 e，否则会丢失响应性
     });
   }
 

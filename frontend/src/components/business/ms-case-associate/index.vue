@@ -100,6 +100,13 @@
           </template> -->
         </MsAdvanceFilter>
         <ms-base-table v-bind="propsRes" no-disable class="mt-[16px]" v-on="propsEvent">
+          <template #num="{ record }">
+            <a-tooltip :content="`${record.num}`">
+              <a-button type="text" class="px-0" @click="openDetail(record.id)">
+                <div class="one-line-text max-w-[168px]">{{ record.num }}</div>
+              </a-button>
+            </a-tooltip>
+          </template>
           <template #caseLevel="{ record }">
             <caseLevel :case-level="getCaseLevel(record)" />
           </template>
@@ -131,6 +138,7 @@
 
 <script setup lang="ts">
   import { computed, ref, watch } from 'vue';
+  import { useRouter } from 'vue-router';
   import { useVModel } from '@vueuse/core';
 
   import { CustomTypeMaps, MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
@@ -153,10 +161,12 @@
   import type { CaseManagementTable } from '@/models/caseManagement/featureCase';
   import type { CommonList, TableQueryParams } from '@/models/common';
   import { ModuleTreeNode } from '@/models/projectManagement/file';
+  import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   import type { CaseLevel } from './types';
   import { initGetModuleCountFunc, type RequestModuleEnum } from './utils';
 
+  const router = useRouter();
   const appStore = useAppStore();
   const { t } = useI18n();
 
@@ -310,7 +320,8 @@
   const columns: MsTableColumn = [
     {
       title: 'ID',
-      dataIndex: 'id',
+      dataIndex: 'num',
+      slotName: 'num',
       sortIndex: 1,
       showTooltip: true,
       sortable: {
@@ -347,8 +358,7 @@
     },
     {
       title: 'caseManagement.featureCase.tableColumnCreateUser',
-      slotName: 'createUser',
-      dataIndex: 'createUser',
+      dataIndex: 'createUserName',
       showInTable: true,
       width: 300,
     },
@@ -552,6 +562,14 @@
   // 用例等级
   function getCaseLevel(record: CaseManagementTable) {
     return (record.customFields.find((item: any) => item.name === '用例等级')?.value as CaseLevel) || 'P1';
+  }
+
+  function openDetail(id: string) {
+    window.open(
+      `${window.location.origin}#${
+        router.resolve({ name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL }).fullPath
+      }?id=${id}`
+    );
   }
 
   function cancel() {

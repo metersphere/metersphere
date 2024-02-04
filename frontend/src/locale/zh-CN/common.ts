@@ -117,4 +117,5 @@ export default {
   'common.importSuccess': '导入成功',
   'common.nameIsTooLang': '名称超过255个字符',
   'common.validateSuccess': '验证成功',
+  'common.to': '至',
 };

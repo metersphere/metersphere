@@ -24,7 +24,9 @@
         <a-spin :loading="bottomLoading"></a-spin>
       </div>
     </div>
-    <a-empty v-if="isShow" :description="t('common.noData')" class="h-[200px] justify-center" />
+    <slot v-if="isShow" name="empty">
+      <a-empty :description="t('common.noData')" class="h-[200px] justify-center" />
+    </slot>
   </div>
 </template>
 

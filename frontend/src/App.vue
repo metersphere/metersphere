@@ -77,12 +77,12 @@
       // 当前为登陆状态，且已经选择了项目，初始化当前项目配置
       try {
         const res = await getProjectInfo(appStore.currentProjectId);
-        if (res.deleted || !res.enable) {
+        if (res && (res.deleted || !res.enable)) {
           // 如果项目被删除或者被禁用，跳转到无项目页面
           router.push(NO_PROJECT_ROUTE_NAME);
           return;
         }
-        appStore.setCurrentMenuConfig(res.moduleIds);
+        appStore.setCurrentMenuConfig(res?.moduleIds || []);
       } catch (err) {
         appStore.setCurrentMenuConfig([]);
         // eslint-disable-next-line no-console

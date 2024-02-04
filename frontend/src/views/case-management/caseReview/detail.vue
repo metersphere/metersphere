@@ -118,6 +118,7 @@
     v-model:visible="associateDrawerVisible"
     v-model:project="associateDrawerProject"
     :review-id="reviewId"
+    :reviewers="reviewDetail.reviewers.map((e) => e.userId)"
     @success="writeAssociateCases"
   />
   <deleteReviewModal v-model:visible="deleteModalVisible" :record="reviewDetail" @success="handleDeleteSuccess" />
@@ -220,17 +221,18 @@
     get: () => [activeFolderId.value],
     set: (val) => val,
   });
+  const caseTableRef = ref<InstanceType<typeof CaseTable>>();
 
   function handleFolderNodeSelect(ids: string[], _offspringIds: string[]) {
     [activeFolderId.value] = ids;
     offspringIds.value = [..._offspringIds];
+    caseTableRef.value?.resetSelector();
   }
 
   function initModulesCount(params: ReviewDetailCaseListQueryParams) {
     getModuleCount(params);
   }
 
-  const caseTableRef = ref<InstanceType<typeof CaseTable>>();
   const associateDrawerVisible = ref(false);
   const associateDrawerProject = ref(appStore.currentProjectId);
 

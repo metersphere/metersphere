@@ -28,7 +28,6 @@
       </div>
       <a-range-picker
         v-model:model-value="time"
-        show-time
         :time-picker-props="{
           defaultValue: ['00:00:00', '00:00:00'],
         }"
@@ -36,8 +35,11 @@
         class="filter-item"
         :allow-clear="false"
         :disabled-input="false"
+        :separator="t('common.to')"
         value-format="timestamp"
+        show-time
         @select="selectTime"
+        @popup-visible-change="handleRangeVisibleChange"
       >
         <template #prefix>
           {{ t('system.log.operateTime') }}
@@ -230,16 +232,19 @@
             label: t('system.log.organization'),
           },
           label: t('system.log.organization'),
-          children: res.organizationList.map((e) => ({
-            // 组织列表，多选
-            value: {
-              level: MENU_LEVEL[1],
-              value: e.id,
-              label: `${t('system.log.organization')} / ${e.name}`,
-            },
-            label: e.name,
-            isLeaf: true,
-          })),
+          children:
+            Array.isArray(res.organizationList) && res.organizationList.length > 0
+              ? res.organizationList.map((e) => ({
+                  // 组织列表，多选
+                  value: {
+                    level: MENU_LEVEL[1],
+                    value: e.id,
+                    label: `${t('system.log.organization')} / ${e.name}`,
+                  },
+                  label: e.name,
+                  isLeaf: true,
+                }))
+              : undefined,
         });
       } else if (props.mode === MENU_LEVEL[1]) {
         rangeOptions.value.push({
@@ -258,16 +263,19 @@
           label: t('system.log.project'),
         },
         label: t('system.log.project'),
-        children: res.projectList.map((e) => ({
-          // 项目列表，多选
-          value: {
-            level: MENU_LEVEL[2],
-            value: e.id,
-            label: `${t('system.log.project')} / ${e.name}`,
-          },
-          label: e.name,
-          isLeaf: true,
-        })),
+        children:
+          Array.isArray(res.projectList) && res.projectList.length > 0
+            ? res.projectList.map((e) => ({
+                // 项目列表，多选
+                value: {
+                  level: MENU_LEVEL[2],
+                  value: e.id,
+                  label: `${t('system.log.project')} / ${e.name}`,
+                },
+                label: e.name,
+                isLeaf: true,
+              }))
+            : undefined,
       });
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -310,6 +318,12 @@
     const arr = val?.filter((e) => e) || [];
     if (arr.length === 1) {
       [selectedTime.value] = arr;
+    }
+  }
+
+  function handleRangeVisibleChange(val: boolean) {
+    if (!val) {
+      selectedTime.value = '';
     }
   }
 
@@ -454,6 +468,7 @@
       title: 'system.log.operateName',
       dataIndex: 'content',
       slotName: 'content',
+      showTooltip: true,
       width: 150,
     },
     {

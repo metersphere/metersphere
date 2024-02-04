@@ -11,7 +11,7 @@
         @submit="confirmInvite"
       >
         <a-form-item field="name" class="hidden-item">
-          <a-input v-model="form.name" :placeholder="t('invite.namePlaceholder')" allow-clear />
+          <a-input v-model="form.name" :placeholder="t('invite.namePlaceholder')" :max-length="255" allow-clear />
         </a-form-item>
         <a-form-item field="password" class="hidden-item">
           <MsPasswordInput v-model:password="form.password" />
@@ -21,6 +21,7 @@
             v-model="form.rePassword"
             :placeholder="t('invite.repasswordPlaceholder')"
             autocomplete="new-password"
+            :max-length="32"
             allow-clear
           />
         </a-form-item>

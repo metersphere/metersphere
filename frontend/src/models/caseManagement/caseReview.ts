@@ -113,6 +113,7 @@ export interface BatchReviewCaseParams extends BatchApiParams {
   status: ReviewResult; // 评审结果
   content: string; // 评论内容
   notifier: string; // 评论@的人的Id, 多个以';'隔开
+  moduleIds: (string | number)[];
 }
 // 评审详情-批量修改评审人
 export interface BatchChangeReviewerParams extends BatchApiParams {
@@ -120,11 +121,13 @@ export interface BatchChangeReviewerParams extends BatchApiParams {
   userId: string; // 用户id, 用来判断是否只看我的
   reviewerId: string[]; // 评审人员id
   append: boolean; // 是否追加
+  moduleIds: (string | number)[];
 }
 // 评审详情-批量取消关联用例
 export interface BatchCancelReviewCaseParams extends BatchApiParams {
   reviewId: string; // 评审id
   userId: string; // 用户id, 用来判断是否只看我的
+  moduleIds: (string | number)[];
 }
 export interface ReviewDetailReviewersItem {
   avatar: string;

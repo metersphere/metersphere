@@ -267,7 +267,7 @@
                 />
                 <a-divider margin="4px" />
                 <a-spin class="flex w-full" loading={orgListLoading.value}>
-                  {orgList.value.length === 0 && orgKeyword.value !== '' ? (
+                  {orgList.value.length === 0 ? (
                     <a-empty>{t('common.noData')}</a-empty>
                   ) : (
                     <div class="switch-org-dropdown-list">
@@ -387,25 +387,25 @@
       const renderMenuItem = (element, icon) =>
         element?.name === SettingRouteEnum.SETTING_ORGANIZATION ? (
           orgTrigger(element, menuSwitchOrgVisible, () => (
-            <a-menu-item
-              key={element?.name}
-              v-slots={{ icon }}
-              onClick={() => goto(element)}
-              onMouseenter={() => {
-                if (xPack.value) {
-                  // 有xpack权限才显示
-                  mouseEnterTimer = setTimeout(() => {
-                    menuSwitchOrgVisible.value = true;
-                  }, 500);
-                }
-              }}
-              onMouseleave={() => {
-                clearTimeout(mouseEnterTimer);
-              }}
-            >
+            <a-menu-item key={element?.name} v-slots={{ icon }} onClick={() => goto(element)}>
               <div class="inline-flex w-[calc(100%-34px)] items-center justify-between !bg-transparent">
                 {t(element?.meta?.locale || '')}
-                <MsIcon type="icon-icon_switch_outlined1" class="text-[var(--color-text-4)]" />
+                <div
+                  class="!bg-transparent"
+                  onMouseenter={() => {
+                    if (xPack.value) {
+                      // 有xpack权限才显示
+                      mouseEnterTimer = setTimeout(() => {
+                        menuSwitchOrgVisible.value = true;
+                      }, 500);
+                    }
+                  }}
+                  onMouseleave={() => {
+                    clearTimeout(mouseEnterTimer);
+                  }}
+                >
+                  <MsIcon type="icon-icon_switch_outlined1" class="text-[var(--color-text-4)]" />
+                </div>
               </div>
             </a-menu-item>
           ))

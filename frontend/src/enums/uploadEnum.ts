@@ -10,7 +10,7 @@ export enum UploadAcceptEnum {
   csv = '.csv',
   zip = '.zip',
   xmind = '.xmind',
-  image = '.jpg,.jpeg,.png,.svg,.webp,.gif,.bmp',
+  image = '.jpg,.jpeg,.png,.svg,.webp,.gif,.bmp,.ico',
   jar = '.jar',
   sketch = '.sketch',
   none = 'none',
