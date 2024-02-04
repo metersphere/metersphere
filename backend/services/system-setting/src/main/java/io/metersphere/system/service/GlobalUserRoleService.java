@@ -15,6 +15,7 @@ import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,8 +46,13 @@ public class GlobalUserRoleService extends BaseUserRoleService {
         List<UserRole> userRoles = userRoleMapper.selectByExample(example);
         // 先按照类型排序，再按照创建时间排序
         userRoles.sort(Comparator.comparingInt(this::getTypeOrder)
+                .thenComparingInt(item ->getInternal(item.getInternal()))
                 .thenComparing(UserRole::getCreateTime));
         return userRoles;
+    }
+
+    private int getInternal(Boolean internal) {
+        return BooleanUtils.isTrue(internal) ? 0 : 1;
     }
 
     private int getTypeOrder(UserRole userRole) {
