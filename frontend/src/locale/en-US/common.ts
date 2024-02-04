@@ -115,4 +115,5 @@ export default {
   'common.nameIsTooLang': 'The name exceeds 255 characters',
   'common.validateSuccess': 'Validate success',
   'common.to': 'To',
+  'common.tip': 'Tips',
 };

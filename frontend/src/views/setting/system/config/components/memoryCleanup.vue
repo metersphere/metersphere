@@ -66,7 +66,6 @@
   import { getCleanupConfig, saveCleanupConfig } from '@/api/modules/setting/config';
   import { useI18n } from '@/hooks/useI18n';
   import { useUserStore } from '@/store';
-  import { hasAnyPermission } from '@/utils/permission';
 
   const userStore = useUserStore();
   const { t } = useI18n();

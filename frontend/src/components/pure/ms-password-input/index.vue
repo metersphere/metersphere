@@ -20,10 +20,12 @@
       </div>
       <div class="check-list-item">
         <template v-if="pswValidateRes">
-          <icon-check-circle-fill class="check-list-item--success" />{{ t('ms.passwordInput.passwordWordRule') }}
+          <icon-check-circle-fill class="check-list-item--success" />
+          {{ t('ms.passwordInput.passwordWordRule', { symbol: '!@#$%^&*()_+.' }) }}
         </template>
         <template v-else>
-          <icon-close-circle-fill class="check-list-item--error" />{{ t('ms.passwordInput.passwordWordRule') }}
+          <icon-close-circle-fill class="check-list-item--error" />
+          {{ t('ms.passwordInput.passwordWordRule', { symbol: '!@#$%^&*()_+.' }) }}
         </template>
       </div>
     </template>

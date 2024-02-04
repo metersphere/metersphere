@@ -177,9 +177,9 @@
                 v-on="caseTableEvent"
               >
                 <template #id="{ record }">
-                  <a-tooltip :content="`${record.id}`">
-                    <a-button type="text" class="px-0" @click="goCaseDetail(record.id)">
-                      <div class="one-line-text max-w-[168px]">{{ record.id }}</div>
+                  <a-tooltip :content="`${record.sourceNum}`">
+                    <a-button type="text" class="px-0" @click="goCaseDetail(record.sourceId)">
+                      <div class="one-line-text max-w-[168px]">{{ record.sourceNum }}</div>
                     </a-button>
                   </a-tooltip>
                 </template>
@@ -400,7 +400,7 @@
   const caseColumns: MsTableColumn = [
     {
       title: 'project.fileManagement.caseId',
-      dataIndex: 'id',
+      dataIndex: 'sourceId',
       slotName: 'id',
       showTooltip: true,
       width: 150,

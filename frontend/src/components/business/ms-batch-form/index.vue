@@ -57,6 +57,7 @@
                 :placeholder="t(model.placeholder || '')"
                 :max-length="model.maxLength || 255"
                 allow-clear
+                @change="emit('change')"
               />
               <a-input-number
                 v-if="model.type === 'inputNumber'"
@@ -66,6 +67,7 @@
                 :min="model.min"
                 :max="model.max || 9999999"
                 allow-clear
+                @change="emit('change')"
               />
               <MsTagsInput
                 v-if="model.type === 'tagInput'"
@@ -76,6 +78,7 @@
                 unique-value
                 retain-input-value
                 :max-tag-count="2"
+                @change="emit('change')"
               />
               <a-select
                 v-if="model.type === 'select'"
@@ -84,6 +87,7 @@
                 :placeholder="t(model.placeholder || '')"
                 :options="model.options"
                 :field-names="model.filedNames"
+                @change="emit('change')"
               />
               <div v-if="model.type === 'multiple'" class="flex flex-row gap-[4px]">
                 <a-form-item
@@ -104,6 +108,7 @@
                     :placeholder="t(child.placeholder || '')"
                     :max-length="child.maxLength || 255"
                     allow-clear
+                    @change="emit('change')"
                   />
                   <a-select
                     v-if="child.type === 'select'"
@@ -112,6 +117,7 @@
                     :placeholder="t(child.placeholder || '')"
                     :options="child.options"
                     :field-names="child.filedNames"
+                    @change="emit('change')"
                   />
                 </a-form-item>
               </div>
@@ -123,6 +129,7 @@
                 :style="{ 'margin-top': index === 0 && !props.isShowDrag ? '36px' : '' }"
                 size="small"
                 type="line"
+                @change="emit('change')"
               />
             </div>
             <div
@@ -192,6 +199,7 @@
       hideAdd: false,
     }
   );
+  const emit = defineEmits(['change']);
 
   const defaultForm = {
     list: [] as Record<string, any>[],

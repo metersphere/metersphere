@@ -520,7 +520,7 @@
       module: _module.value,
       content: content.value,
       startTime: time.value[0],
-      endTime: time.value[1],
+      endTime: (time.value[1] as number) + 1000, // +1s 因为后台记录的是毫秒级，但是前端只能选秒到级
       level: level.value,
     });
     resetPagination();

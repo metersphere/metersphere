@@ -11,9 +11,9 @@
           <a-button type="text" class="px-0" @click="openAuthDetail(record.id)">{{ record.name }}</a-button>
         </template>
         <template #action="{ record }">
-          <MsButton v-permission="['SYSTEM_PARAMETER_SETTING_AUTH:READ+UPDATE']" @click="editAuth(record)">{{
-            t('system.config.auth.edit')
-          }}</MsButton>
+          <MsButton v-permission="['SYSTEM_PARAMETER_SETTING_AUTH:READ+UPDATE']" @click="editAuth(record)">
+            {{ t('system.config.auth.edit') }}
+          </MsButton>
           <MsButton
             v-if="record.enable"
             v-permission="['SYSTEM_PARAMETER_SETTING_AUTH:READ+UPDATE']"
@@ -21,9 +21,9 @@
           >
             {{ t('system.config.auth.disable') }}
           </MsButton>
-          <MsButton v-else v-permission="['SYSTEM_PARAMETER_SETTING_AUTH:READ+UPDATE']" @click="enableAuth(record)">{{
-            t('system.config.auth.enable')
-          }}</MsButton>
+          <MsButton v-else v-permission="['SYSTEM_PARAMETER_SETTING_AUTH:READ+UPDATE']" @click="enableAuth(record)">
+            {{ t('system.config.auth.enable') }}
+          </MsButton>
           <MsTableMoreAction
             v-permission="['SYSTEM_PARAMETER_SETTING_AUTH:READ+DELETE']"
             :list="tableActions"
@@ -85,7 +85,7 @@
           ></a-textarea>
         </a-form-item>
         <a-form-item :label="t('system.config.auth.addResource')" field="type" asterisk-position="end">
-          <a-radio-group v-model:model-value="activeAuthForm.type" type="button">
+          <a-radio-group v-model:model-value="activeAuthForm.type" type="button" :disabled="!!activeAuthForm.id">
             <a-radio v-for="item of authTypeList" :key="item" :value="item">{{ item }}</a-radio>
           </a-radio-group>
         </a-form-item>
