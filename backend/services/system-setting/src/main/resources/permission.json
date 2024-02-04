@@ -334,10 +334,10 @@
         "name": "permission.api_keys",
         "permissions": [
           {
-            "id": "SYSTEM_PERSONAL_API_KEY:READ+ADD"
+            "id": "SYSTEM_PERSONAL_API_KEY:READ"
           },
           {
-            "id": "SYSTEM_PERSONAL_API_KEY:READ"
+            "id": "SYSTEM_PERSONAL_API_KEY:READ+ADD"
           },
           {
             "id": "SYSTEM_PERSONAL_API_KEY:READ+UPDATE"
