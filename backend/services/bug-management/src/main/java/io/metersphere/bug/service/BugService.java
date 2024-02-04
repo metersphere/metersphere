@@ -519,7 +519,7 @@ public class BugService {
             // 异常或正常结束都得删除当前项目执行同步的Key
             bugSyncExtraService.deleteSyncKey(project.getId());
             // 发送同步通知
-            bugSyncNoticeService.sendNotice(remainBugs.size(), currentUser);
+            bugSyncNoticeService.sendNotice(remainBugs.size(), currentUser, project.getId());
         }
     }
 
