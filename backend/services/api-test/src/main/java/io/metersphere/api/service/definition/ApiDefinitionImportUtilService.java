@@ -517,11 +517,11 @@ public class ApiDefinitionImportUtilService {
                 FormDataBody formDataBody = dbbody.getFormDataBody();
                 FormDataBody importFormDataBody = importBody.getFormDataBody();
                 if (ObjectUtils.isNotEmpty(formDataBody) || ObjectUtils.isNotEmpty(importFormDataBody)) {
-                    List<FormDataKV> fromValues = formDataBody.getFromValues();
-                    List<FormDataKV> importFromValues = importFormDataBody.getFromValues();
-                    if (CollectionUtils.isNotEmpty(fromValues) || CollectionUtils.isNotEmpty(importFromValues)) {
-                        List<String> dbFormKeys = fromValues.stream().map(FormDataKV::getKey).toList();
-                        List<String> importFormKeys = importFromValues.stream().map(FormDataKV::getKey).toList();
+                    List<FormDataKV> formValues = formDataBody.getFormValues();
+                    List<FormDataKV> importFormValues = importFormDataBody.getFormValues();
+                    if (CollectionUtils.isNotEmpty(formValues) || CollectionUtils.isNotEmpty(importFormValues)) {
+                        List<String> dbFormKeys = formValues.stream().map(FormDataKV::getKey).toList();
+                        List<String> importFormKeys = importFormValues.stream().map(FormDataKV::getKey).toList();
                         if (paramsIsSame(dbFormKeys, importFormKeys)) {
                             return false;
                         }
@@ -531,11 +531,11 @@ public class ApiDefinitionImportUtilService {
                 WWWFormBody wwwBody = dbbody.getWwwFormBody();
                 WWWFormBody importWwwBody = importBody.getWwwFormBody();
                 if (ObjectUtils.isNotEmpty(wwwBody) || ObjectUtils.isNotEmpty(importWwwBody)) {
-                    List<FormDataKV> wwwValues = wwwBody.getFromValues();
-                    List<FormDataKV> importWwwValues = importWwwBody.getFromValues();
+                    List<WWWFormKV> wwwValues = wwwBody.getFormValues();
+                    List<WWWFormKV> importWwwValues = importWwwBody.getFormValues();
                     if (CollectionUtils.isNotEmpty(wwwValues) || CollectionUtils.isNotEmpty(importWwwValues)) {
-                        List<String> dbWwwKeys = wwwValues.stream().map(FormDataKV::getKey).toList();
-                        List<String> importWwwKeys = importWwwValues.stream().map(FormDataKV::getKey).toList();
+                        List<String> dbWwwKeys = wwwValues.stream().map(WWWFormKV::getKey).toList();
+                        List<String> importWwwKeys = importWwwValues.stream().map(WWWFormKV::getKey).toList();
                         if (paramsIsSame(dbWwwKeys, importWwwKeys)) {
                             return false;
                         }

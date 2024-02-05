@@ -35,11 +35,6 @@ public class WWWFormKV extends KeyValueEnableParam {
      */
     private Integer maxLength;
     /**
-     * 参数的 contentType
-     */
-    @Size(max = 100)
-    private String contentType;
-    /**
      * 是否对参数进行编码
      * 默认 false
      */

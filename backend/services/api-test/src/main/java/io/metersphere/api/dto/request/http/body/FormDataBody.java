@@ -13,5 +13,5 @@ public class FormDataBody {
     /**
      * form-data 请求体的键值对列表
      */
-    private List<FormDataKV> fromValues;
+    private List<FormDataKV> formValues;
 }

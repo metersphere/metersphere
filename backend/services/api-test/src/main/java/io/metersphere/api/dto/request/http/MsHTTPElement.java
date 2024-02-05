@@ -3,6 +3,8 @@ package io.metersphere.api.dto.request.http;
 import io.metersphere.api.dto.request.http.auth.HTTPAuth;
 import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.sdk.constants.HttpMethodConstants;
+import io.metersphere.system.valid.EnumValue;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -34,9 +36,11 @@ public class MsHTTPElement extends AbstractMsTestElement {
     private String path;
     /**
      * 请求方法
+     * 取值参考：{@link HttpMethodConstants}
      */
     @NotBlank
     @Size(max = 10)
+    @EnumValue(enumClass = HttpMethodConstants.class)
     private String method;
     /**
      * 请求体

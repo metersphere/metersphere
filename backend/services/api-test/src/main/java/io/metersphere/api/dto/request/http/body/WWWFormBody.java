@@ -13,5 +13,5 @@ import java.util.List;
 @Data
 public class WWWFormBody {
     @Valid
-    private List<FormDataKV> fromValues;
+    private List<WWWFormKV> formValues;
 }

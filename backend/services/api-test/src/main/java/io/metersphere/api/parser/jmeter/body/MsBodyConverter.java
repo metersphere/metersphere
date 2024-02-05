@@ -2,6 +2,7 @@ package io.metersphere.api.parser.jmeter.body;
 
 
 import io.metersphere.api.dto.ApiFile;
+import io.metersphere.api.dto.request.http.body.FormDataKV;
 import io.metersphere.api.dto.request.http.body.WWWFormKV;
 import io.metersphere.jmeter.mock.Mock;
 import io.metersphere.plugin.api.dto.ParameterConfig;
@@ -36,23 +37,23 @@ public abstract class MsBodyConverter<T> {
 
     /**
      * 解析文本类型的 kv 参数
-     * @param textFromValues
+     * @param textFormValues
      * @return
      */
-    protected Arguments getArguments(List<? extends WWWFormKV> textFromValues) {
+    protected Arguments getArguments(List<? extends WWWFormKV> textFormValues) {
         Arguments arguments = new Arguments();
-        textFromValues.forEach(formDataKV -> {
+        textFormValues.forEach(kv -> {
             // 处理 mock 函数
-            String value = Mock.buildFunctionCallString(formDataKV.getValue());
+            String value = Mock.buildFunctionCallString(kv.getValue());
             if (value == null) {
                 value = StringUtils.EMPTY;
             }
-            HTTPArgument httpArgument = new HTTPArgument(formDataKV.getKey(), value);
-            httpArgument.setAlwaysEncoded(formDataKV.getEncode());
-            if (StringUtils.isNotBlank(formDataKV.getContentType())) {
+            HTTPArgument httpArgument = new HTTPArgument(kv.getKey(), value);
+            httpArgument.setAlwaysEncoded(kv.getEncode());
+            arguments.addArgument(httpArgument);
+            if (kv instanceof FormDataKV formDataKV && formDataKV.getContentType() != null) {
                 httpArgument.setContentType(formDataKV.getContentType());
             }
-            arguments.addArgument(httpArgument);
         });
         return arguments;
     }

@@ -1,7 +1,7 @@
 package io.metersphere.api.parser.jmeter.body;
 
-import io.metersphere.api.dto.request.http.body.FormDataKV;
 import io.metersphere.api.dto.request.http.body.WWWFormBody;
+import io.metersphere.api.dto.request.http.body.WWWFormKV;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 
@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
 public class MsWWWFormBodyConverter extends MsBodyConverter<WWWFormBody> {
     @Override
     public void parse(HTTPSamplerProxy sampler, WWWFormBody body, ParameterConfig config) {
-        List<FormDataKV> fromValues = body.getFromValues();
-        List<FormDataKV> validFromValues = fromValues.stream().filter(FormDataKV::isValid).collect(Collectors.toList());
-        sampler.setArguments(getArguments(validFromValues));
+        List<WWWFormKV> formValues = body.getFormValues();
+        List<WWWFormKV> validFormValues = formValues.stream().filter(WWWFormKV::isValid).collect(Collectors.toList());
+        sampler.setArguments(getArguments(validFormValues));
     }
 }
