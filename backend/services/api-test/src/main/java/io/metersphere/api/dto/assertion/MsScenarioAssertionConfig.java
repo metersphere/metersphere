@@ -12,12 +12,7 @@ import java.util.List;
  * @CreateTime: 2023-11-23  17:26
  */
 @Data
-public class MsAssertionConfig {
-    /**
-     * 是否启用全局断言
-     * 默认为 true
-     */
-    private Boolean enableGlobal = true;
+public class MsScenarioAssertionConfig {
     /**
      * 断言列表
      */

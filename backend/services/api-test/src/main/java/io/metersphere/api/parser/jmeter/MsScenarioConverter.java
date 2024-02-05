@@ -9,8 +9,10 @@ import io.metersphere.api.dto.scenario.ScenarioConfig;
 import io.metersphere.api.dto.scenario.ScenarioStepConfig;
 import io.metersphere.api.parser.jmeter.processor.MsProcessorConverter;
 import io.metersphere.api.parser.jmeter.processor.MsProcessorConverterFactory;
+import io.metersphere.api.parser.jmeter.processor.assertion.AssertionConverterFactory;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractJmeterElementConverter;
+import io.metersphere.project.api.assertion.MsAssertion;
 import io.metersphere.project.api.processor.MsProcessor;
 import io.metersphere.project.dto.environment.EnvironmentConfig;
 import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
@@ -50,6 +52,30 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
         addScenarioProcessor(tree, msScenario, config, false);
         // 添加环境的后置
         addEnvScenarioProcessor(tree, msScenario, config, envInfo, false);
+
+        // 添加场景断言
+        addScenarioAssertions(tree, msScenario, config);
+    }
+
+    /**
+     * 添加场景断言
+     * @param tree
+     * @param msScenario
+     * @param config
+     */
+    private void addScenarioAssertions(HashTree tree, MsScenario msScenario, ApiScenarioParamConfig config) {
+        ScenarioConfig scenarioConfig = msScenario.getScenarioConfig();
+        if (scenarioConfig == null) {
+            return;
+        }
+        List<MsAssertion> assertions = scenarioConfig
+                .getAssertionConfig()
+                .getAssertions();
+
+        boolean ignoreAssertStatus = MsCommonElementConverter.isIgnoreAssertStatus(assertions);
+
+        assertions.forEach(assertion ->
+                AssertionConverterFactory.getConverter(assertion.getClass()).parse(tree, assertion, config, ignoreAssertStatus));
     }
 
     /**
