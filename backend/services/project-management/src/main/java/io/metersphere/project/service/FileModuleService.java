@@ -51,13 +51,13 @@ public class FileModuleService extends ModuleTreeService implements CleanupProje
 
     public List<BaseTreeNode> getTree(String projectId) {
         List<BaseTreeNode> fileModuleList = extFileModuleMapper.selectBaseByProjectId(projectId, ModuleConstants.NODE_TYPE_DEFAULT);
-        return super.buildTreeAndCountResource(fileModuleList, true, Translator.get("default.module"));
+        return super.buildTreeAndCountResource(fileModuleList, true, Translator.get("file.module.default.name"));
     }
 
     public List<BaseTreeNode> getTreeOnlyIdsAndResourceCount(String projectId, String storage, List<ModuleCountDTO> moduleCountDTOList) {
         //节点内容只有Id和parentId
         List<BaseTreeNode> fileModuleList = extFileModuleMapper.selectIdAndParentIdByProjectId(projectId, storage);
-        return super.buildTreeAndCountResource(fileModuleList, moduleCountDTOList, true, Translator.get("default.module"));
+        return super.buildTreeAndCountResource(fileModuleList, moduleCountDTOList, true, Translator.get("file.module.default.name"));
     }
 
     public String add(FileModuleCreateRequest request, String operator) {
