@@ -11,6 +11,7 @@ import io.metersphere.system.dto.sdk.request.MessageTaskRequest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
@@ -38,6 +39,7 @@ public class NoticeMessageTaskController {
     @Operation(summary = "项目管理-消息管理-消息设置-保存消息设置")
     @RequiresPermissions(value = {PermissionConstants.PROJECT_MESSAGE_READ_ADD, PermissionConstants.PROJECT_MESSAGE_READ_UPDATE}, logical = Logical.OR)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.addLog(#messageTaskRequest)", msClass = MessageTaskLogService.class)
+    @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
     public ResultHolder saveMessage(@Validated({Created.class, Updated.class}) @RequestBody MessageTaskRequest messageTaskRequest) {
         return noticeMessageTaskService.saveMessageTask(messageTaskRequest, SessionUtils.getUserId());
     }
@@ -45,6 +47,7 @@ public class NoticeMessageTaskController {
     @GetMapping("message/task/get/{projectId}")
     @Operation(summary = "项目管理-消息管理-消息设置-获取消息设置")
     @RequiresPermissions(PermissionConstants.PROJECT_MESSAGE_READ_ADD)
+    @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<MessageTaskDTO> getMessageList(@PathVariable String projectId) throws IOException {
         return noticeMessageTaskService.getMessageList(projectId);
     }

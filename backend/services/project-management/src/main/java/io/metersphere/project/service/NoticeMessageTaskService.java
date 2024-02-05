@@ -68,11 +68,6 @@ public class NoticeMessageTaskService {
 
     public ResultHolder saveMessageTask(MessageTaskRequest messageTaskRequest, String userId) {
         String projectId = messageTaskRequest.getProjectId();
-        checkProjectExist(projectId);
-        //如果只选了用户，没有选机器人，默认机器人为站内信
-        ProjectRobot projectRobot = getDefaultRobot(messageTaskRequest.getProjectId(), messageTaskRequest.getRobotId());
-        String robotId = projectRobot.getId();
-        messageTaskRequest.setRobotId(robotId);
         //删除用户数据不在当前传送用户内的数据
         deleteUserData(messageTaskRequest, projectId);
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
@@ -85,6 +80,10 @@ public class NoticeMessageTaskService {
         List<MessageTask> messageTasks = updateMessageTasks(messageTaskRequest, userId, mapper, blobMapper, existUserIds);
         //保存消息任务
         List<String> messageTaskReceivers = CollectionUtils.isEmpty(messageTasks) ? new ArrayList<>() : messageTasks.stream().map(MessageTask::getReceiver).toList();
+        //如果新增时只选了用户，没有选机器人，默认机器人为站内信
+        ProjectRobot projectRobot = getDefaultRobot(messageTaskRequest.getProjectId(), messageTaskRequest.getRobotId());
+        String robotId = projectRobot.getId();
+        messageTaskRequest.setRobotId(robotId);
         insertMessageTask(messageTaskRequest, userId, mapper, blobMapper, existUserIds, messageTaskReceivers);
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
@@ -111,13 +110,6 @@ public class NoticeMessageTaskService {
         }
     }
 
-    private void checkProjectExist(String projectId) {
-        Project project = projectMapper.selectByPrimaryKey(projectId);
-        if (project == null) {
-            throw new MSException(Translator.get("project_is_not_exist"));
-        }
-    }
-
     /**
      * 新增MessageTask
      *
@@ -129,7 +121,6 @@ public class NoticeMessageTaskService {
      * @param messageTaskReceivers 更新过后还有多少接收人需要保存
      */
     private void insertMessageTask(MessageTaskRequest messageTaskRequest, String userId, MessageTaskMapper mapper, MessageTaskBlobMapper blobMapper, List<String> existUserIds, List<String> messageTaskReceivers) {
-        List<MessageTask> messageTasks = new ArrayList<>();
         for (String receiverId : existUserIds) {
             if (CollectionUtils.isNotEmpty(messageTaskReceivers) && messageTaskReceivers.contains(receiverId)) {
                 continue;
@@ -143,7 +134,6 @@ public class NoticeMessageTaskService {
                 messageTaskBlob.setTemplate(messageTaskRequest.getTemplate());
             }
             messageTaskBlob.setTemplate(messageTaskRequest.getTemplate());
-            messageTasks.add(messageTask);
             blobMapper.insert(messageTaskBlob);
         }
     }
@@ -182,8 +172,7 @@ public class NoticeMessageTaskService {
         boolean useDefaultTemplate = messageTaskRequest.getUseDefaultTemplate() == null || messageTaskRequest.getUseDefaultTemplate();
 
         MessageTaskExample messageTaskExample = new MessageTaskExample();
-        messageTaskExample.createCriteria().andReceiverIn(existUserIds).andProjectIdEqualTo(messageTaskRequest.getProjectId())
-                .andProjectRobotIdEqualTo(messageTaskRequest.getRobotId()).andTaskTypeEqualTo(messageTaskRequest.getTaskType()).andEventEqualTo(messageTaskRequest.getEvent());
+        messageTaskExample.createCriteria().andReceiverIn(existUserIds).andProjectIdEqualTo(messageTaskRequest.getProjectId()).andTaskTypeEqualTo(messageTaskRequest.getTaskType()).andEventEqualTo(messageTaskRequest.getEvent());
         List<MessageTask> messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
         List<String> messageTaskIds = messageTasks.stream().map(MessageTask::getId).toList();
         if (CollectionUtils.isEmpty(messageTasks)) {
@@ -192,11 +181,15 @@ public class NoticeMessageTaskService {
         for (MessageTask messageTask : messageTasks) {
             messageTask.setUpdateTime(System.currentTimeMillis());
             messageTask.setUpdateUser(userId);
-            messageTask.setEnable(enable);
-            messageTask.setUseDefaultSubject(useDefaultSubject);
-            messageTask.setUseDefaultTemplate(useDefaultTemplate);
-            if (!useDefaultSubject) {
-                messageTask.setSubject(messageTaskRequest.getSubject());
+            if (StringUtils.isNotBlank(messageTaskRequest.getRobotId())) {
+                messageTask.setEnable(enable);
+                messageTask.setUseDefaultSubject(useDefaultSubject);
+                messageTask.setUseDefaultTemplate(useDefaultTemplate);
+                if (!messageTask.getUseDefaultSubject()) {
+                    messageTask.setSubject(messageTaskRequest.getSubject());
+                }
+            } else {
+                useDefaultTemplate = messageTask.getUseDefaultTemplate();
             }
             mapper.updateByPrimaryKeySelective(messageTask);
         }
@@ -204,9 +197,11 @@ public class NoticeMessageTaskService {
         messageTaskBlobExample.createCriteria().andIdIn(messageTaskIds);
         List<MessageTaskBlob> messageTaskBlobs = messageTaskBlobMapper.selectByExample(messageTaskBlobExample);
         for (MessageTaskBlob messageTaskBlob : messageTaskBlobs) {
-            if (!useDefaultTemplate) {
-                messageTaskBlob.setTemplate(messageTaskRequest.getTemplate());
-                blobMapper.updateByPrimaryKeySelective(messageTaskBlob);
+            if (StringUtils.isNotBlank(messageTaskRequest.getRobotId())) {
+                if (!useDefaultTemplate) {
+                    messageTaskBlob.setTemplate(messageTaskRequest.getTemplate());
+                    blobMapper.updateByPrimaryKeySelective(messageTaskBlob);
+                }
             }
         }
         return messageTasks;
@@ -318,7 +313,6 @@ public class NoticeMessageTaskService {
      * @return List<MessageTaskDTO>
      */
     public List<MessageTaskDTO> getMessageList(String projectId) throws IOException {
-        checkProjectExist(projectId);
         //获取返回数据结构
         StringBuilder jsonStr = new StringBuilder();
         try{
