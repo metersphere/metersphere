@@ -22,21 +22,22 @@
             fc.NAME name,
             fc.version_id versionId,
             pv.`name` versionName,
-            u.`name` userName
+            u.`name` userName,
+            fc.num
         FROM
             functional_case_relationship_edge fcre
                 <if test="request.type != null and request.type != ''">
                     <choose>
                         <when test="request.type == 'PRE'">
-                            INNER JOIN functional_case fc ON fcre.target_id = fc.id
+                            LEFT JOIN functional_case fc ON fcre.target_id = fc.id
                         </when>
                         <when test="request.type == 'POST'">
-                            INNER JOIN functional_case fc ON fcre.source_id = fc.id
+                            LEFT JOIN functional_case fc ON fcre.source_id = fc.id
                         </when>
                     </choose>
                 </if>
-                INNER JOIN `user` u ON fc.create_user = u.id
-                INNER JOIN project_version pv ON pv.id = fc.version_id
+                LEFT JOIN `user` u ON fc.create_user = u.id
+                LEFT JOIN project_version pv ON pv.id = fc.version_id
         WHERE
         fc.deleted = false
         <if test="request.type != null and request.type != ''">

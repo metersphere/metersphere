@@ -30,4 +30,7 @@ public class FunctionalCaseRelationshipDTO implements Serializable {
     @Schema(description = "创建人名称")
     private String userName;
 
+    @Schema(description = "num")
+    private String num;
+
 }
