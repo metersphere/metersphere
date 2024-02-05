@@ -92,6 +92,9 @@ public class OperationLogModule {
 
     //用例
     public static final String FUNCTIONAL_CASE = "CASE_MANAGEMENT_CASE";
+    public static final String CASE_MANAGEMENT_CASE_CREATE = "CASE_MANAGEMENT_CASE_CREATE";
+    public static final String CASE_MANAGEMENT_CASE_UPDATE = "CASE_MANAGEMENT_CASE_UPDATE";
+    public static final String CASE_MANAGEMENT_CASE_RECYCLE = "CASE_MANAGEMENT_CASE_RECYCLE";
 
     public static final String CASE_REVIEW = "CASE_MANAGEMENT_REVIEW";
 
