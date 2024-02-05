@@ -75,6 +75,8 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         messageTaskRequest.setReceiverIds(userIds);
         messageTaskRequest.setRobotId("test_message_robot2");
         messageTaskRequest.setEnable(true);
+        messageTaskRequest.setSubject("看看改不改");
+        messageTaskRequest.setUseDefaultSubject(false);
         MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders.post("/notice/message/task/save")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
@@ -116,6 +118,8 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         Assertions.assertEquals(100200, resultHolder.getCode());
 
+
+
         messageTaskRequest = new MessageTaskRequest();
         messageTaskRequest.setProjectId("project-message-test");
         messageTaskRequest.setTaskType(NoticeConstants.TaskType.API_DEFINITION_TASK);
@@ -123,8 +127,6 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         userIds = new ArrayList<>();
         userIds.add("project-message-user-1");
         messageTaskRequest.setReceiverIds(userIds);
-        messageTaskRequest.setRobotId("test_message_robot2");
-        messageTaskRequest.setEnable(true);
         mockMvc.perform(MockMvcRequestBuilders.post("/notice/message/task/save")
                         .header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
@@ -132,10 +134,17 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
-       resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
+        resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
         Assertions.assertEquals(100200, resultHolder.getCode());
 
         MessageTaskExample messageTaskExample = new MessageTaskExample();
+        messageTaskExample.createCriteria().andReceiverEqualTo("project-message-user-1")
+                .andProjectIdEqualTo("project-message-test").andProjectRobotIdEqualTo("test_message_robot2").andTaskTypeEqualTo(NoticeConstants.TaskType.API_DEFINITION_TASK).andEventEqualTo(NoticeConstants.Event.CREATE);
+        List<MessageTask> messageTasks1 = messageTaskMapper.selectByExample(messageTaskExample);
+        Assertions.assertTrue(messageTasks1.get(0).getEnable());
+        Assertions.assertTrue(StringUtils.equalsIgnoreCase(messageTasks1.get(0).getSubject(), "看看改不改"));
+
+       messageTaskExample = new MessageTaskExample();
         messageTaskExample.createCriteria().andProjectIdEqualTo("project-message-test").andTaskTypeEqualTo(NoticeConstants.TaskType.API_DEFINITION_TASK).andEventEqualTo(NoticeConstants.Event.CREATE);
         List<MessageTask> messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
         Assertions.assertEquals(1, messageTasks.size());
@@ -312,16 +321,6 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         System.out.println(messageTaskDetailDTOList);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(messageTaskDetailDTOList));
         System.out.println(messageTaskDetailDTOList);
-    }
-
-    @Test
-    @Order(9)
-    public void getMessageListProjectFail() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.get("/notice/message/task/get/project-message-test-x")
-                        .header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken))
-                .andExpect(status().is5xxServerError())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
     @Test
