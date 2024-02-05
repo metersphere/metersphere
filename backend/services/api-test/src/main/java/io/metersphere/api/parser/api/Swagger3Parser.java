@@ -166,7 +166,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
     private void parseWWWFormBody(JsonSchemaItem item, Body body) {
         WWWFormBody wwwFormBody = new WWWFormBody();
         List<String> required = item.getRequired();
-        List<FormDataKV> formDataKVS = new ArrayList<>();
+        List<WWWFormKV> formDataKVS = new ArrayList<>();
         item.getProperties().forEach((key, value) -> {
             if (value != null && !StringUtils.equals(PropertyConstant.OBJECT, value.getType())) {
                 FormDataKV formDataKV = new FormDataKV();
@@ -180,7 +180,7 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
                 formDataKVS.add(formDataKV);
             }
         });
-        wwwFormBody.setFromValues(formDataKVS);
+        wwwFormBody.setFormValues(formDataKVS);
         body.setWwwFormBody(wwwFormBody);
     }
 

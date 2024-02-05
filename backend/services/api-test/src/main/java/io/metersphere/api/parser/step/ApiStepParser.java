@@ -86,11 +86,11 @@ public class ApiStepParser extends StepParser {
         }
         if (StringUtils.equals(refBody.getBodyType(), Body.BodyType.FORM_DATA.name()) &&
                 valueBody.getFormDataBody() != null && refBody.getFormDataBody() != null) {
-            replaceKvParam(valueBody.getFormDataBody().getFromValues(), valueBody.getFormDataBody().getFromValues());
+            replaceKvParam(valueBody.getFormDataBody().getFormValues(), valueBody.getFormDataBody().getFormValues());
         }
         if (StringUtils.equals(refBody.getBodyType(), Body.BodyType.WWW_FORM.name()) &&
                 valueBody.getWwwFormBody() != null && refBody.getWwwFormBody() != null) {
-            replaceKvParam(valueBody.getWwwFormBody().getFromValues(), valueBody.getWwwFormBody().getFromValues());
+            replaceKvParam(valueBody.getWwwFormBody().getFormValues(), valueBody.getWwwFormBody().getFormValues());
         }
         // todo JsonSchema body
     }

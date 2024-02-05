@@ -79,11 +79,12 @@ public class MsHTTPElementTest {
         bodyFile.setFileName("aaa");
         formDataFileKV.setFiles(List.of(bodyFile));
         formDataFileKV.setKey("fileKey");
-        formDataBody.setFromValues(List.of(formDataKV));
+        formDataBody.setFormValues(List.of(formDataKV));
         body.setFormDataBody(formDataBody);
 
+        WWWFormKV wwwFormKV = BeanUtils.copyBean(new WWWFormKV(), formDataKV);
         WWWFormBody wwwFormBody = new WWWFormBody();
-        wwwFormBody.setFromValues(List.of(formDataKV));
+        wwwFormBody.setFormValues(List.of(wwwFormKV));
         body.setWwwFormBody(wwwFormBody);
 
         JsonBody jsonBody = new JsonBody();
@@ -411,7 +412,7 @@ public class MsHTTPElementTest {
         formDataKV.setRequired(true);
         formDataKV.setValue("value");
         formDataKV.setKey("key");
-        formDataBody.setFromValues(List.of(formDataKV));
+        formDataBody.setFormValues(List.of(formDataKV));
         Body body = new Body();
         body.setBodyType(Body.BodyType.FORM_DATA.name());
         httpResponse.setBody(body);

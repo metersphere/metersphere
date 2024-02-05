@@ -22,29 +22,29 @@ public class MsFormDataBodyConverter extends MsBodyConverter<FormDataBody> {
 
     @Override
     public void parse(HTTPSamplerProxy sampler, FormDataBody body, ParameterConfig config) {
-        List<FormDataKV> fromValues = body.getFromValues();
-        List<FormDataKV> validFromValues = fromValues.stream().filter(FormDataKV::isValid).collect(Collectors.toList());
-        List<FormDataKV> fileFromValues = validFromValues.stream().filter(FormDataKV::isFile).collect(Collectors.toList());
-        List<FormDataKV> textFromValues = validFromValues.stream().filter(kv -> !kv.isFile()).collect(Collectors.toList());
+        List<FormDataKV> formValues = body.getFormValues();
+        List<FormDataKV> validFormValues = formValues.stream().filter(FormDataKV::isValid).collect(Collectors.toList());
+        List<FormDataKV> fileFormValues = validFormValues.stream().filter(FormDataKV::isFile).collect(Collectors.toList());
+        List<FormDataKV> textFormValues = validFormValues.stream().filter(kv -> !kv.isFile()).collect(Collectors.toList());
         sampler.setDoMultipart(true);
-        sampler.setHTTPFiles(getHttpFileArg(fileFromValues));
-        sampler.setArguments(getArguments(textFromValues));
+        sampler.setHTTPFiles(getHttpFileArg(fileFormValues));
+        sampler.setArguments(getArguments(textFormValues));
     }
 
 
     /**
      * 解析文件类型的参数
      *
-     * @param fileFromValues
+     * @param fileFormValues
      * @return
      */
-    private HTTPFileArg[] getHttpFileArg(List<FormDataKV> fileFromValues) {
-        if (CollectionUtils.isEmpty(fileFromValues)) {
+    private HTTPFileArg[] getHttpFileArg(List<FormDataKV> fileFormValues) {
+        if (CollectionUtils.isEmpty(fileFormValues)) {
             return new HTTPFileArg[0];
         }
         List<HTTPFileArg> list = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(fileFromValues)) {
-            fileFromValues.forEach(formDataKV -> {
+        if (CollectionUtils.isNotEmpty(fileFormValues)) {
+            fileFormValues.forEach(formDataKV -> {
                 String paramName = formDataKV.getKey();
                 formDataKV.getFiles().forEach(file -> {
                     HTTPFileArg fileArg = getHttpFileArg(file);

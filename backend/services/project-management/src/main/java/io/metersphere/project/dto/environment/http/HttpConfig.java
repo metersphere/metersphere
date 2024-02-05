@@ -14,10 +14,6 @@ import java.util.List;
 public class HttpConfig implements Serializable {
     @Schema(description = "环境域名")
     private String url;
-    @Schema(description = "接口测试")
-    private Boolean apiTest = true;
-    @Schema(description = "UI测试")
-    private Boolean uiTest = false;
     @Schema(description = "启用条件  NONE/MODULE/PATH")
     private String type = "NONE";
     @Schema(description = "启用条件为PATH时，需要填写的路径/  key为equal时，value为路径，key为contain时，value为包含的路径")

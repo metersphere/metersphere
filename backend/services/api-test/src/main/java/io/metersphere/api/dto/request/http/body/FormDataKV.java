@@ -2,6 +2,7 @@ package io.metersphere.api.dto.request.http.body;
 
 import io.metersphere.api.dto.ApiFile;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
@@ -22,6 +23,11 @@ public class FormDataKV extends WWWFormKV {
      */
     @Valid
     private List<ApiFile> files;
+    /**
+     * 参数的 contentType
+     */
+    @Size(max = 100)
+    private String contentType;
 
     public boolean isFile() {
         return StringUtils.equalsIgnoreCase(getParamType(), BodyParamType.FILE.getValue());
