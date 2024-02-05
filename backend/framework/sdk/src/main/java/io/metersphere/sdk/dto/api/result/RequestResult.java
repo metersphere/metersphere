@@ -119,4 +119,9 @@ public class RequestResult {
      */
     private String fakeErrorCode;
 
+    /**
+     * 前后置脚本执行标识
+     */
+    private String scriptIdentifier;
+
 }
