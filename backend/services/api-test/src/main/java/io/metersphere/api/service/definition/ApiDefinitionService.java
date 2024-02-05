@@ -28,6 +28,7 @@ import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.request.OperationHistoryVersionRequest;
 import io.metersphere.system.dto.sdk.SessionUser;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.service.OperationHistoryService;
@@ -998,5 +999,14 @@ public class ApiDefinitionService {
         ApiDefinitionBlobExample apiDefinitionBlobExample = new ApiDefinitionBlobExample();
         apiDefinitionBlobExample.createCriteria().andIdIn(apiIds);
         return apiDefinitionBlobMapper.selectByExampleWithBLOBs(apiDefinitionBlobExample);
+    }
+
+    public void editPos(PosRequest request) {
+        ServiceUtils.updatePosField(request,
+                ApiDefinition.class,
+                apiDefinitionMapper::selectByPrimaryKey,
+                extApiDefinitionMapper::getPrePos,
+                extApiTestCaseMapper::getLastPos,
+                apiDefinitionMapper::updateByPrimaryKeySelective);
     }
 }

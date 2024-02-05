@@ -46,6 +46,7 @@ import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.domain.ScheduleExample;
 import io.metersphere.system.dto.LogInsertModule;
 import io.metersphere.system.dto.request.ScheduleConfig;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.ScheduleMapper;
@@ -1950,5 +1951,14 @@ public class ApiScenarioService {
             });
         }
         return steps;
+    }
+
+    public void editPos(PosRequest request) {
+        ServiceUtils.updatePosField(request,
+                ApiScenario.class,
+                apiScenarioMapper::selectByPrimaryKey,
+                extApiScenarioMapper::getPrePos,
+                extApiScenarioMapper::getLastPosEdit,
+                apiScenarioMapper::updateByPrimaryKeySelective);
     }
 }

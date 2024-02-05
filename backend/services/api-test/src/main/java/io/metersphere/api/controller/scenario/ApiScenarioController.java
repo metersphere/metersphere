@@ -10,6 +10,7 @@ import io.metersphere.api.service.scenario.ApiScenarioLogService;
 import io.metersphere.api.service.scenario.ApiScenarioNoticeService;
 import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.sdk.constants.PermissionConstants;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.notice.annotation.SendNotice;
@@ -45,7 +46,7 @@ public class ApiScenarioController {
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<ApiScenarioDTO>> getPage(@Validated @RequestBody ApiScenarioPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "pos desc");
         return PageUtils.setPageInfo(page, apiScenarioService.getScenarioPage(request));
     }
 
@@ -55,7 +56,7 @@ public class ApiScenarioController {
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<ApiScenarioDTO>> getTrashPage(@Validated @RequestBody ApiScenarioPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "pos desc");
         request.setDeleted(true);
         return PageUtils.setPageInfo(page, apiScenarioService.getScenarioPage(request));
     }
@@ -198,6 +199,13 @@ public class ApiScenarioController {
     @RequiresPermissions(value = {PermissionConstants.PROJECT_API_SCENARIO_READ, PermissionConstants.PROJECT_API_SCENARIO_ADD, PermissionConstants.PROJECT_API_SCENARIO_UPDATE}, logical = Logical.OR)
     public List<ApiScenarioStepDTO> getSystemRequest(@Validated @RequestBody ApiScenarioSystemRequest request) {
         return apiScenarioService.getSystemRequest(request);
+    }
+
+    @PostMapping("/edit/pos")
+    @Operation(summary = "接口测试-接口场景管理-场景-拖拽排序")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_UPDATE)
+    public void editPos(@Validated @RequestBody PosRequest request) {
+        apiScenarioService.editPos(request);
     }
 
 

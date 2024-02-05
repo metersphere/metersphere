@@ -53,6 +53,7 @@ import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.dto.request.PluginUpdateRequest;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.ScheduleMapper;
 import io.metersphere.system.service.PluginLoadService;
@@ -2062,8 +2063,20 @@ public class ApiScenarioControllerTests extends BaseTest {
         }
     }
 
-    @Resource
-    private ExtApiTestCaseMapper extApiTestCaseMapper;
+    @Test
+    @Order(9)
+    public void testPos() throws Exception {
+        PosRequest posRequest = new PosRequest();
+        posRequest.setProjectId(DEFAULT_PROJECT_ID);
+        posRequest.setTargetId(addApiScenario.getId());
+        posRequest.setMoveId(anOtherAddApiScenario.getId());
+        posRequest.setMoveMode("AFTER");
+        this.requestPostWithOkAndReturn("/edit/pos", posRequest);
+
+        posRequest.setMoveMode("BEFORE");
+        this.requestPostWithOkAndReturn("/edit/pos", posRequest);
+
+    }
 
     @Test
     @Order(35)

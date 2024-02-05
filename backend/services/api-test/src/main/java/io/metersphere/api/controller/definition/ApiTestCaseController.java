@@ -141,7 +141,7 @@ public class ApiTestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ)
     public Pager<List<ApiTestCaseDTO>> page(@Validated @RequestBody ApiTestCasePageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "pos desc");
         return PageUtils.setPageInfo(page, apiTestCaseService.page(request, false));
     }
 
@@ -184,11 +184,11 @@ public class ApiTestCaseController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ)
     public Pager<List<ApiTestCaseDTO>> pageTrash(@Validated @RequestBody ApiTestCasePageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "pos desc");
         return PageUtils.setPageInfo(page, apiTestCaseService.page(request, true));
     }
 
-    @PostMapping("edit/pos")
+    @PostMapping("/edit/pos")
     @Operation(summary = "接口测试-接口管理-接口用例-拖拽排序")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE)
     public void editPos(@Validated @RequestBody PosRequest request) {
