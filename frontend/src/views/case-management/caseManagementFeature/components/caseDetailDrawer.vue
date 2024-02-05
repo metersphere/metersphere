@@ -242,7 +242,7 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import type { CustomAttributes, DetailCase, TabItemType } from '@/models/caseManagement/featureCase';
-  import { ModuleTreeNode } from '@/models/projectManagement/file';
+  import { ModuleTreeNode } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   import { getCaseLevels } from './utils';

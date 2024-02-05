@@ -49,3 +49,14 @@ export interface MoveModules {
   dropNodeId: string; // 放入的节点
   dropPosition: number; // 放入的位置（取值：-1，,0，,1。 -1：dropNodeId节点之前。 0:dropNodeId节点内。 1：dropNodeId节点后）
 }
+// 模块树节点
+export interface ModuleTreeNode {
+  id: string;
+  name: string;
+  type: string;
+  children: ModuleTreeNode[];
+  attachInfo: Record<string, any>; // 附加信息
+  count: 0;
+  parentId: string;
+  path: string;
+}

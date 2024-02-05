@@ -6,9 +6,9 @@
         :filter-config-list="filterConfigList"
         :row-count="filterRowCount"
         :search-placeholder="t('caseManagement.caseReview.searchPlaceholder')"
-        @keyword-search="() => searchCase()"
+        @keyword-search="(val, filter) => searchCase(filter)"
         @adv-search="searchCase"
-        @reset="searchCase"
+        @refresh="searchCase"
       >
         <template #right>
           <div class="flex items-center">
@@ -273,8 +273,7 @@
   import useUserStore from '@/store/modules/user';
 
   import { ReviewCaseItem, ReviewItem, ReviewPassRule, ReviewResult } from '@/models/caseManagement/caseReview';
-  import { BatchApiParams } from '@/models/common';
-  import type { ModuleTreeNode } from '@/models/projectManagement/file';
+  import { BatchApiParams, ModuleTreeNode } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 

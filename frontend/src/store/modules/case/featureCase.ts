@@ -3,7 +3,7 @@ import { defineStore } from 'pinia';
 import { getCaseModulesCounts, getRecycleModulesCounts } from '@/api/modules/case-management/featureCase';
 
 import type { CaseModuleQueryParams, TabItemType } from '@/models/caseManagement/featureCase';
-import { ModuleTreeNode } from '@/models/projectManagement/file';
+import { ModuleTreeNode } from '@/models/common';
 
 const useFeatureCaseStore = defineStore('featureCase', {
   persist: true,

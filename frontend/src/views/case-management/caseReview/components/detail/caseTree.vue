@@ -59,7 +59,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import { mapTree } from '@/utils';
 
-  import { ModuleTreeNode } from '@/models/projectManagement/file';
+  import { ModuleTreeNode } from '@/models/common';
 
   const props = defineProps<{
     modulesCount?: Record<string, number>; // 模块数量统计对象

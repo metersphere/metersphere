@@ -94,7 +94,7 @@
   import { mapTree } from '@/utils';
 
   import type { CreateOrUpdateModule, UpdateModule } from '@/models/caseManagement/featureCase';
-  import { ModuleTreeNode } from '@/models/projectManagement/file';
+  import { ModuleTreeNode } from '@/models/common';
 
   const featureCaseStore = useFeatureCaseStore();
 

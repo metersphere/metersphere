@@ -148,8 +148,7 @@
   import { mapTree } from '@/utils';
 
   import type { CaseManagementTable, CaseModuleQueryParams } from '@/models/caseManagement/featureCase';
-  import type { TableQueryParams } from '@/models/common';
-  import { ModuleTreeNode } from '@/models/projectManagement/file';
+  import type { ModuleTreeNode, TableQueryParams } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   import { getCaseLevels } from '../../utils';

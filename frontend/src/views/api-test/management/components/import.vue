@@ -304,7 +304,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import { mapTree } from '@/utils';
 
-  import { ModuleTreeNode } from '@/models/projectManagement/file';
+  import { ModuleTreeNode } from '@/models/common';
   import { RequestImportFormat } from '@/enums/apiEnum';
 
   const props = defineProps<{

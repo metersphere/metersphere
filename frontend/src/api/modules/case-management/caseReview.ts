@@ -38,6 +38,7 @@ import {
   BatchReviewCaseParams,
   CommitReviewResultParams,
   CopyReviewParams,
+  CopyReviewResponse,
   FollowReviewParams,
   Review,
   ReviewCaseItem,
@@ -97,7 +98,7 @@ export const associateReviewCase = (data: AssociateReviewCaseParams) => {
 
 // 复制评审
 export const copyReview = (data: CopyReviewParams) => {
-  return MSR.post({ url: CopyReviewUrl, data });
+  return MSR.post<CopyReviewResponse>({ url: CopyReviewUrl, data });
 };
 
 // 编辑评审

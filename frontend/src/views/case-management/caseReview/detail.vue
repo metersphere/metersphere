@@ -161,7 +161,7 @@
     ReviewItem,
     ReviewStatus,
   } from '@/models/caseManagement/caseReview';
-  import type { ModuleTreeNode } from '@/models/projectManagement/file';
+  import { ModuleTreeNode } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   const router = useRouter();

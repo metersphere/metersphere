@@ -50,7 +50,7 @@
   async function initProjects() {
     try {
       if (appStore.getCurrentOrgId && hasAnyPermission(['PROJECT_BASE_INFO:READ'])) {
-        const res = await getProjectList(appStore.getCurrentOrgId);
+        const res = await getProjectList(appStore.getCurrentOrgId); // TODO:
       } else {
         projectList.value = [];
       }

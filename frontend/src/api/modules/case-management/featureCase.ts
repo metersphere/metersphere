@@ -91,11 +91,11 @@ import type {
   PreviewImages,
   UpdateModule,
 } from '@/models/caseManagement/featureCase';
-import type { CommonList, MoveModules, TableQueryParams } from '@/models/common';
+import type { CommonList, ModuleTreeNode, MoveModules, TableQueryParams } from '@/models/common';
 
 // 获取模块树
 export function getCaseModuleTree(params: TableQueryParams) {
-  return MSR.get<ModulesTreeType[]>({ url: `${GetCaseModuleTreeUrl}/${params.projectId}` });
+  return MSR.get<ModuleTreeNode[]>({ url: `${GetCaseModuleTreeUrl}/${params.projectId}` });
 }
 
 // 创建模块树
@@ -320,7 +320,7 @@ export function getPublicLinkCaseModulesCounts(data: TableQueryParams) {
 
 // 获取关联用例接口模块树
 export function getPublicLinkModuleTree(data: TableQueryParams) {
-  return MSR.post<ModulesTreeType[]>({ url: GetAssociationPublicModuleTreeUrl, data });
+  return MSR.post<ModuleTreeNode[]>({ url: GetAssociationPublicModuleTreeUrl, data });
 }
 // 关联用例
 export function associationPublicCase(data: TableQueryParams) {

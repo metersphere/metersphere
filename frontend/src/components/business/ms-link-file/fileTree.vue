@@ -41,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, onBeforeMount, ref, watch } from 'vue';
+  import { computed, ref, watch } from 'vue';
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsTree from '@/components/business/ms-tree/index.vue';
@@ -51,7 +51,7 @@
   import useAppStore from '@/store/modules/app';
   import { mapTree } from '@/utils';
 
-  import { ModuleTreeNode } from '@/models/projectManagement/file';
+  import { ModuleTreeNode } from '@/models/common';
 
   const appStore = useAppStore();
 

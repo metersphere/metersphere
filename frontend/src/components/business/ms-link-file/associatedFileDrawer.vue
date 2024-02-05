@@ -92,8 +92,8 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import type { AssociatedList } from '@/models/caseManagement/featureCase';
-  import type { CommonList, TableQueryParams } from '@/models/common';
-  import { FileListQueryParams, ModuleTreeNode, Repository } from '@/models/projectManagement/file';
+  import type { CommonList, ModuleTreeNode, TableQueryParams } from '@/models/common';
+  import { FileListQueryParams, Repository } from '@/models/projectManagement/file';
 
   const { t } = useI18n();
 

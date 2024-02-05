@@ -200,7 +200,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import { registerCatchSaveShortcut, removeCatchSaveShortcut } from '@/utils/event';
 
-  import type { ModuleTreeNode } from '@/models/projectManagement/file';
+  import { ModuleTreeNode } from '@/models/common';
   import { RequestBodyFormat, RequestComposition, RequestMethods, ResponseComposition } from '@/enums/apiEnum';
 
   const props = defineProps<{

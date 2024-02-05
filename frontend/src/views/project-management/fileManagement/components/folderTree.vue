@@ -85,7 +85,7 @@
   import useAppStore from '@/store/modules/app';
   import { mapTree } from '@/utils';
 
-  import { ModuleTreeNode } from '@/models/projectManagement/file';
+  import { ModuleTreeNode } from '@/models/common';
 
   const props = defineProps<{
     isExpandAll: boolean;

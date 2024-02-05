@@ -1,5 +1,9 @@
 import { BatchApiParams, TableQueryParams } from '@/models/common';
 
+// 评审状态, PREPARED: 待开始, UNDERWAY: 进行中, COMPLETED: 已完成, ARCHIVED: 已归档
+export type ReviewStatus = 'PREPARED' | 'UNDERWAY' | 'COMPLETED' | 'ARCHIVED';
+// 评审结果，UN_REVIEWED：未评审，UNDER_REVIEWED：评审中，PASS：通过，UN_PASS：未通过，RE_REVIEWED：重新提审
+export type ReviewResult = 'UN_REVIEWED' | 'UNDER_REVIEWED' | 'PASS' | 'UN_PASS' | 'RE_REVIEWED';
 // 评审模块
 export interface ReviewModule {
   projectId: string;
@@ -50,6 +54,27 @@ export interface Review {
 export interface CopyReviewParams extends Omit<Review, 'baseAssociateCaseRequest'> {
   copyId: string;
 }
+// 复制评审响应内容
+export interface CopyReviewResponse {
+  caseCount: number;
+  createTime: number;
+  createUser: string;
+  description: string;
+  endTime: number | null;
+  id: string;
+  moduleId: string;
+  name: string;
+  num: number;
+  passRate: number;
+  pos: number;
+  projectId: string;
+  reviewPassRule: ReviewPassRule;
+  startTime: number | null;
+  status: ReviewStatus;
+  tags: null;
+  updateTime: number;
+  updateUser: string;
+}
 // 更新评审入参
 export interface UpdateReviewParams extends Omit<Review, 'baseAssociateCaseRequest'> {
   id: string;
@@ -81,10 +106,6 @@ export interface SortReviewParams {
   moveMode: ReviewMoveMode;
   moveId: string; // 被移动的评审id
 }
-// 评审状态, PREPARED: 待开始, UNDERWAY: 进行中, COMPLETED: 已完成, ARCHIVED: 已归档
-export type ReviewStatus = 'PREPARED' | 'UNDERWAY' | 'COMPLETED' | 'ARCHIVED';
-// 评审结果，UN_REVIEWED：未评审，UNDER_REVIEWED：评审中，PASS：通过，UN_PASS：未通过，RE_REVIEWED：重新提审
-export type ReviewResult = 'UN_REVIEWED' | 'UNDER_REVIEWED' | 'PASS' | 'UN_PASS' | 'RE_REVIEWED';
 // 评审列表查询参数
 export interface ReviewListQueryParams extends TableQueryParams {
   moduleIds: string[];

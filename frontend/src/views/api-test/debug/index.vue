@@ -61,7 +61,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import { parseCurlScript } from '@/utils';
 
-  import { ModuleTreeNode } from '@/models/projectManagement/file';
+  import { ModuleTreeNode } from '@/models/common';
   import { RequestContentTypeEnum } from '@/enums/apiEnum';
 
   const { t } = useI18n();

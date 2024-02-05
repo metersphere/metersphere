@@ -183,8 +183,7 @@
     CaseModuleQueryParams,
     CustomAttributes,
   } from '@/models/caseManagement/featureCase';
-  import type { TableQueryParams } from '@/models/common';
-  import { ModuleTreeNode } from '@/models/projectManagement/file';
+  import type { ModuleTreeNode, TableQueryParams } from '@/models/common';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   import { getCaseLevels, getReviewStatusClass, getStatusText, getTableFields } from './utils';

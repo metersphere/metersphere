@@ -30,7 +30,7 @@ import {
   UploadFileUrl,
 } from '@/api/requrls/project-management/fileManagement';
 
-import type { CommonList } from '@/models/common';
+import type { CommonList, ModuleTreeNode } from '@/models/common';
 import type {
   AddModuleParams,
   AddRepositoryFileParams,
@@ -42,7 +42,6 @@ import type {
   FileItem,
   FileListQueryParams,
   ModuleCount,
-  ModuleTreeNode,
   MoveModuleParams,
   Repository,
   RepositoryInfo,
