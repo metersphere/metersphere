@@ -79,7 +79,9 @@
         const res = await getProjectInfo(appStore.currentProjectId);
         if (res && (res.deleted || !res.enable)) {
           // 如果项目被删除或者被禁用，跳转到无项目页面
-          router.push(NO_PROJECT_ROUTE_NAME);
+          router.push({
+            name: NO_PROJECT_ROUTE_NAME,
+          });
           return;
         }
         appStore.setCurrentMenuConfig(res?.moduleIds || []);
