@@ -375,13 +375,13 @@ export const pathMap: PathMapItem[] = [
             permission: [],
             level: MENU_LEVEL[2],
           },
-          {
+          /*{
             key: 'PROJECT_MANAGEMENT_PERMISSION_VERSION', // 项目管理-项目与权限-项目版本
             locale: 'project.permission.projectVersion',
             route: RouteEnum.PROJECT_MANAGEMENT_PERMISSION_VERSION,
             permission: [],
             level: MENU_LEVEL[2],
-          },
+          },*/
           {
             key: 'PROJECT_MANAGEMENT_PERMISSION_MEMBER', // 项目管理-项目与权限-成员
             locale: 'project.permission.member',
@@ -497,7 +497,7 @@ export const pathMap: PathMapItem[] = [
     ],
   },
   // 测试计划
-  {
+  /*{
     key: 'TEST_PLAN', // 测试计划
     locale: 'menu.testPlan',
     route: RouteEnum.TEST_PLAN,
@@ -512,7 +512,7 @@ export const pathMap: PathMapItem[] = [
         level: MENU_LEVEL[2],
       },
     ],
-  },
+  },*/
   {
     key: 'PERSONAL_INFORMATION', // 个人信息
     locale: 'ms.personal',

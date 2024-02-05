@@ -71,7 +71,7 @@ public class FunctionalCaseLogService {
                 requests.getId(),
                 null,
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.FUNCTIONAL_CASE,
+                OperationLogModule.CASE_MANAGEMENT_CASE_UPDATE,
                 requests.getName());
         dto.setHistory(true);
         dto.setPath("/functional/case/update");
