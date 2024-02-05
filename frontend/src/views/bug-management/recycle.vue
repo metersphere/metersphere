@@ -1,6 +1,7 @@
 <template>
   <MsCard simple>
     <MsAdvanceFilter
+      v-model:keyword="keyword"
       :search-placeholder="t('bugManagement.recycle.searchPlaceholder')"
       :filter-config-list="filterConfigList"
       :row-count="filterRowCount"
@@ -65,6 +66,7 @@
   const projectId = computed(() => appStore.currentProjectId);
   const filterVisible = ref(false);
   const filterRowCount = ref(0);
+  const keyword = ref('');
   const filterConfigList = reactive<FilterFormItem[]>([
     {
       title: 'bugManagement.ID',

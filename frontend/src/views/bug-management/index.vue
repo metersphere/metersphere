@@ -1,6 +1,7 @@
 <template>
   <MsCard simple>
     <MsAdvanceFilter
+      v-model:keyword="keyword"
       :filter-config-list="filterConfigList"
       :row-count="filterRowCount"
       @keyword-search="fetchData"
@@ -173,7 +174,7 @@
 
   import { BugEditCustomField, BugListItem } from '@/models/bug-management';
   import { RouteEnum } from '@/enums/routeEnum';
-  import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
+  import { TableKeyEnum } from '@/enums/tableEnum';
 
   import { useRequest } from 'ahooks-vue';
 
@@ -278,7 +279,6 @@
     },
     {
       title: 'bugManagement.bugName',
-      editType: ColumnEditTypeEnum.INPUT,
       dataIndex: 'title',
       width: 300,
       showTooltip: true,
@@ -409,7 +409,6 @@
 
   const fetchData = async (v = '') => {
     setKeyword(v);
-    keyword.value = v;
     await loadList();
   };
 

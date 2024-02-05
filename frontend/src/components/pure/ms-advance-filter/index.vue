@@ -3,14 +3,14 @@
     <slot name="left"></slot>
     <div class="flex flex-row gap-[8px]">
       <a-input-search
-        v-model="innerKeyword"
+        v-model:modelValue="innerKeyword"
         size="small"
         :placeholder="props.searchPlaceholder"
         class="w-[240px]"
         allow-clear
         @press-enter="emit('keywordSearch', innerKeyword, filterResult)"
         @search="emit('keywordSearch', innerKeyword, filterResult)"
-        @clear="emit('keywordSearch', innerKeyword, filterResult)"
+        @clear="handleClear"
       ></a-input-search>
       <MsTag
         :type="visible ? 'primary' : 'default'"
@@ -49,8 +49,6 @@
 </template>
 
 <script setup lang="ts">
-  import { useVModel } from '@vueuse/core';
-
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsTag from '../ms-tag/ms-tag.vue';
   import FilterForm from './FilterForm.vue';
@@ -64,11 +62,9 @@
     filterConfigList: FilterFormItem[]; // 系统字段
     customFieldsConfigList?: FilterFormItem[]; // 自定义字段
     searchPlaceholder?: string;
-    keyword?: string;
   }>();
 
   const emit = defineEmits<{
-    (e: 'update:keyword', value: string): void;
     (e: 'keywordSearch', value: string | undefined, combine: FilterResult): void; // innerKeyword 搜索 TODO:可以去除，父组件通过 v-model:keyword 获取关键字
     (e: 'advSearch', value: FilterResult): void; // 高级搜索
     (e: 'dataIndexChange', value: string): void; // 高级搜索选项变更
@@ -76,7 +72,7 @@
   }>();
 
   const { t } = useI18n();
-  const innerKeyword = useVModel(props, 'keyword', emit);
+  const innerKeyword = defineModel<string>('keyword', { default: '' });
   const visible = ref(false);
   const filterCount = ref(0);
   const defaultFilterResult: FilterResult = { accordBelow: 'AND', combine: {} };
@@ -98,6 +94,11 @@
 
   const dataIndexChange = (dataIndex: string) => {
     emit('dataIndexChange', dataIndex);
+  };
+
+  const handleClear = () => {
+    innerKeyword.value = '';
+    emit('keywordSearch', '', filterResult.value);
   };
 
   const handleOpenFilter = () => {
