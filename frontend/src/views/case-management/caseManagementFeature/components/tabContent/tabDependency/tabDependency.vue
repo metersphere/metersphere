@@ -75,7 +75,10 @@
   import { cancelPreOrPostCase, getDependOnCase } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
+  import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { characterLimit } from '@/utils';
+
+  const featureCaseStore = useFeatureCaseStore();
 
   const appStore = useAppStore();
 
@@ -145,21 +148,6 @@
     enableDrag: false,
   });
 
-  const cancelLoading = ref<boolean>(false);
-  // 取消依赖
-  async function cancelDependency(record: any) {
-    cancelLoading.value = true;
-    try {
-      await cancelPreOrPostCase(record.id);
-      Message.success(t('caseManagement.featureCase.cancelFollowSuccess'));
-      loadList();
-    } catch (error) {
-      console.log(error);
-    } finally {
-      cancelLoading.value = false;
-    }
-  }
-
   function getParams() {
     setLoadListParams({
       projectId: currentProjectId.value,
@@ -169,6 +157,28 @@
     });
   }
 
+  async function initData() {
+    getParams();
+    await loadList();
+    const { msPagination } = propsRes.value;
+    featureCaseStore.setListCount(featureCaseStore.activeTab, msPagination?.total || 0);
+  }
+
+  const cancelLoading = ref<boolean>(false);
+  // 取消依赖
+  async function cancelDependency(record: any) {
+    cancelLoading.value = true;
+    try {
+      await cancelPreOrPostCase(record.id);
+      Message.success(t('caseManagement.featureCase.cancelFollowSuccess'));
+      initData();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      cancelLoading.value = false;
+    }
+  }
+
   const showDrawer = ref<boolean>(false);
   const drawerRef = ref();
   // 添加前后置用例
@@ -176,22 +186,19 @@
     showDrawer.value = true;
     drawerRef.value.initModules();
   }
-
   function successHandler() {
-    loadList();
+    initData();
   }
 
   watch(
     () => showType.value,
     () => {
-      getParams();
-      loadList();
+      initData();
     }
   );
 
   onBeforeMount(() => {
-    getParams();
-    loadList();
+    initData();
   });
 </script>
 

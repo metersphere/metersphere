@@ -209,7 +209,7 @@ export default function useTableProps<T>(
             ...loadListParams.value,
           };
           const data = await loadListFunc(tableQueryParams.value);
-          const tmpArr = data.list;
+          const tmpArr = data.list || data.data.list;
           propsRes.value.data = tmpArr.map((item: MsTableDataItem<T>) => {
             if (item.updateTime) {
               item.updateTime = dayjs(item.updateTime).format('YYYY-MM-DD HH:mm:ss');

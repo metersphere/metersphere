@@ -1,3 +1,4 @@
+import { useRouter } from 'vue-router';
 import { defineStore } from 'pinia';
 import { Notification } from '@arco-design/web-vue';
 import { cloneDeep } from 'lodash-es';
@@ -10,11 +11,13 @@ import { getPackageType, getSystemVersion } from '@/api/modules/system';
 import { getMenuList } from '@/api/modules/user';
 import defaultSettings from '@/config/settings.json';
 import { useI18n } from '@/hooks/useI18n';
+import { NO_PROJECT_ROUTE_NAME } from '@/router/constants';
 import { watchStyle, watchTheme } from '@/utils/theme';
 
 import type { PageConfig, PageConfigKeys, Style, Theme } from '@/models/setting/config';
 import { ProjectListItem } from '@/models/setting/project';
 
+import useUserStore from '../user';
 import type { AppState } from './types';
 import type { NotificationReturn } from '@arco-design/web-vue/es/notification/interface';
 import type { RouteRecordNormalized, RouteRecordRaw } from 'vue-router';
@@ -230,6 +233,8 @@ const useAppStore = defineStore('app', {
     async initSystemPackage() {
       try {
         this.packageType = await getPackageType();
+        // await getPackageType();
+        // this.packageType = 'community';
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);

@@ -6,7 +6,7 @@
       </div>
       <a-radio-group v-model:model-value="activeType" type="button">
         <a-radio value="log">{{ t('system.config.memoryCleanup.log') }}</a-radio>
-        <a-radio v-xpack value="history">{{ t('system.config.memoryCleanup.history') }}</a-radio>
+        <a-radio value="history">{{ t('system.config.memoryCleanup.history') }}</a-radio>
       </a-radio-group>
       <template v-if="activeType === 'log'">
         <div class="mb-[8px] mt-[16px] flex items-center">

@@ -39,6 +39,7 @@ const useUserStore = defineStore('user', {
     certification: undefined,
     role: '',
     userRolePermissions: [],
+    loginType: [],
   }),
 
   getters: {
@@ -100,7 +101,7 @@ const useUserStore = defineStore('user', {
     async getAuthentication() {
       try {
         const res = await getAuthenticationList();
-        console.log(res);
+        this.loginType = res;
       } catch (error) {
         console.log(error);
       }

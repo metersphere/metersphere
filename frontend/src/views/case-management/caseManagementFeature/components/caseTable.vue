@@ -2,11 +2,13 @@
 <template>
   <!-- 用例表开始 -->
   <MsAdvanceFilter
+    v-model:keyword="keyword"
     :filter-config-list="filterConfigList"
     :custom-fields-config-list="searchCustomFields"
     :row-count="filterRowCount"
     @keyword-search="fetchData"
     @adv-search="handleAdvSearch"
+    @reset="fetchData"
   >
     <template #left>
       <div class="text-[var(--color-text-1)]"
@@ -34,10 +36,10 @@
     @change="changeHandler"
   >
     <template #num="{ record, rowIndex }">
-      <span class="flex w-full" @click="showCaseDetail(record.id, rowIndex)">{{ record.num }}</span>
+      <a-button type="text" class="flex w-full" @click="showCaseDetail(record.id, rowIndex)">{{ record.num }}</a-button>
     </template>
     <template #name="{ record, rowIndex }">
-      <a-button type="text" class="px-0" @click="showCaseDetail(record.id, rowIndex)">{{ record.name }}</a-button>
+      <span type="text" class="px-0" @click="showCaseDetail(record.id, rowIndex)">{{ record.name }}</span>
     </template>
     <template #caseLevel="{ record }">
       <caseLevel :case-level="getCaseLevels(record.customFields)" />
@@ -969,7 +971,6 @@
 
   const fetchData = (keywordStr = '') => {
     setKeyword(keywordStr);
-    keyword.value = keywordStr;
     getLoadListParams();
     loadList();
   };

@@ -39,7 +39,7 @@
           </div>
 
           <icon-plus-circle-fill
-            v-permission="['SYSTEM_USER_ROLE:READ+ADD']"
+            v-permission="props.addPermission"
             class="cursor-pointer text-[rgb(var(--primary-7))]"
             size="20"
             @click="handleCreateUG(AuthScopeEnum.SYSTEM)"
@@ -72,7 +72,7 @@
                 <div v-if="element.id === currentId && !element.internal" class="flex flex-row items-center gap-[8px]">
                   <MsMoreAction
                     v-if="element.type === systemType"
-                    v-permission="['SYSTEM_USER_ROLE:READ+UPDATE']"
+                    v-permission="props.updatePermission"
                     :list="addMemberActionItem"
                     @select="handleAddMember"
                   >
@@ -81,6 +81,7 @@
                     </div>
                   </MsMoreAction>
                   <MsMoreAction
+                    v-if="isSystemShowAll"
                     :list="systemMoreAction"
                     @select="(value) => handleMoreAction(value, element.id, AuthScopeEnum.SYSTEM)"
                   >
@@ -126,7 +127,7 @@
           </div>
 
           <icon-plus-circle-fill
-            v-permission="['ORGANIZATION_USER_ROLE:READ+ADD']"
+            v-permission="props.addPermission"
             class="cursor-pointer text-[rgb(var(--primary-7))]"
             size="20"
             @click="orgUserGroupVisible = true"
@@ -159,7 +160,7 @@
                 <div v-if="element.id === currentId && !element.internal" class="flex flex-row items-center gap-[8px]">
                   <MsMoreAction
                     v-if="element.type === systemType"
-                    v-permission="['ORGANIZATION_USER_ROLE:READ+UPDATE']"
+                    v-permission="props.updatePermission"
                     :list="addMemberActionItem"
                     @select="handleAddMember"
                   >
@@ -168,7 +169,8 @@
                     </div>
                   </MsMoreAction>
                   <MsMoreAction
-                    v-permission="['ORGANIZATION_USER_ROLE:READ+UPDATE']"
+                    v-if="isOrdShowAll"
+                    v-permission="props.updatePermission"
                     :list="orgMoreAction"
                     @select="(value) => handleMoreAction(value, element.id, AuthScopeEnum.ORGANIZATION)"
                   >
@@ -214,7 +216,7 @@
           </div>
 
           <icon-plus-circle-fill
-            v-permission="['PROJECT_GROUP:READ+ADD']"
+            v-permission="props.addPermission"
             class="cursor-pointer text-[rgb(var(--primary-7))]"
             size="20"
             @click="projectUserGroupVisible = true"
@@ -247,15 +249,16 @@
                 <div v-if="element.id === currentId && !element.internal" class="flex flex-row items-center gap-[8px]">
                   <MsMoreAction
                     v-if="element.type === systemType"
-                    v-permission="['PROJECT_GROUP:READ+UPDATE']"
+                    v-permission="props.updatePermission"
                     :list="addMemberActionItem"
                     @select="handleAddMember"
                   >
-                    <div class="icon-button">
+                    <div v-permission="props.updatePermission" class="icon-button">
                       <MsIcon type="icon-icon_add_outlined" size="16" />
                     </div>
                   </MsMoreAction>
                   <MsMoreAction
+                    v-if="isProjectShowAll"
                     :list="projectMoreAction"
                     @select="(value) => handleMoreAction(value, element.id, AuthScopeEnum.PROJECT)"
                   >
@@ -306,6 +309,12 @@
     (e: 'handleSelect', element: UserGroupItem): void;
     (e: 'addUserSuccess', id: string): void;
   }>();
+
+  const props = defineProps<{
+    addPermission: string[];
+    updatePermission: string[];
+  }>();
+
   const appStore = useAppStore();
   const { openModal } = useModal();
 
@@ -354,14 +363,16 @@
     return userGroupList.value.filter((ele) => ele.type === AuthScopeEnum.PROJECT);
   });
 
-  const addMemberActionItem: ActionsItem[] = [{ label: 'system.userGroup.addMember', eventTag: 'addMember' }];
+  const addMemberActionItem: ActionsItem[] = [
+    { label: 'system.userGroup.addMember', eventTag: 'addMember', permission: props.updatePermission },
+  ];
 
   const systemMoreAction: ActionsItem[] = [
     {
       label: 'system.userGroup.rename',
       danger: false,
       eventTag: 'rename',
-      permission: ['SYSTEM_USER_ROLE:READ+UPDATE'],
+      permission: props.updatePermission,
     },
     {
       isDivider: true,
@@ -378,7 +389,7 @@
       label: 'system.userGroup.rename',
       danger: false,
       eventTag: 'rename',
-      permission: ['ORGANIZATION_USER_ROLE:READ+UPDATE'],
+      permission: props.updatePermission,
     },
     {
       isDivider: true,
@@ -387,7 +398,7 @@
       label: 'system.userGroup.delete',
       danger: true,
       eventTag: 'delete',
-      permission: ['ORGANIZATION_USER_ROLE:READ+UPDATE'],
+      permission: ['ORGANIZATION_USER_ROLE:READ+DELETE'],
     },
   ];
   const projectMoreAction: ActionsItem[] = [
@@ -395,7 +406,7 @@
       label: 'system.userGroup.rename',
       danger: false,
       eventTag: 'rename',
-      permission: ['PROJECT_GROUP:READ+UPDATE'],
+      permission: props.updatePermission,
     },
     {
       isDivider: true,
@@ -404,7 +415,7 @@
       label: 'system.userGroup.delete',
       danger: true,
       eventTag: 'delete',
-      permission: ['PROJECT_GROUP:READ+UPDATE'],
+      permission: ['PROJECT_GROUP:READ+DELETE'],
     },
   ];
 
@@ -550,6 +561,16 @@
       emit('addUserSuccess', currentId.value);
     }
   };
+
+  const isSystemShowAll = computed(() => {
+    return hasAnyPermission([...props.updatePermission, 'SYSTEM_USER_ROLE:READ+DELETE']);
+  });
+  const isOrdShowAll = computed(() => {
+    return hasAnyPermission([...props.updatePermission, 'ORGANIZATION_USER_ROLE:READ+DELETE']);
+  });
+  const isProjectShowAll = computed(() => {
+    return hasAnyPermission([...props.updatePermission, 'PROJECT_GROUP:READ+DELETE']);
+  });
 </script>
 
 <style lang="less" scoped>

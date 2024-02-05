@@ -246,4 +246,5 @@ export default {
   'caseManagement.featureCase.associatedSuccess': '关联成功',
   'caseManagement.featureCase.defectSource': '缺陷来源',
   'caseManagement.featureCase.sortSuccess': '排序成功',
+  'caseManagement.featureCase.zentao': '禅道',
 };

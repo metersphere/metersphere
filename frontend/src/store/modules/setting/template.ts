@@ -36,7 +36,6 @@ const useTemplateStore = defineStore('template', {
         if (currentOrgId.value && hasAnyPermission(['ORGANIZATION_TEMPLATE:READ'])) {
           this.ordStatus = await getOrdTemplate(currentOrgId.value);
         }
-
         if (currentProjectId.value && hasAnyPermission(['PROJECT_TEMPLATE:READ'])) {
           this.projectStatus = await getProTemplate(currentProjectId.value);
         }

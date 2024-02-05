@@ -251,4 +251,5 @@ export default {
   'caseManagement.featureCase.associatedSuccess': 'Associated with success',
   'caseManagement.featureCase.defectSource': 'defect Source',
   'caseManagement.featureCase.sortSuccess': 'Sort successfully',
+  'caseManagement.featureCase.zentao': 'zentao',
 };

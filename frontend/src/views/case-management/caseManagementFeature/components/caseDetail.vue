@@ -39,6 +39,7 @@
   import { createCaseRequest, updateCaseRequest } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useVisit from '@/hooks/useVisit';
+  import { useAppStore } from '@/store';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { scrollIntoView } from '@/utils/dom';
 
@@ -50,6 +51,7 @@
   const { t } = useI18n();
   const route = useRoute();
   const router = useRouter();
+  const appStore = useAppStore();
 
   const featureCaseStore = useFeatureCaseStore();
 
@@ -61,6 +63,27 @@
     fileList: [],
   });
 
+  const initDetail = {
+    id: '',
+    templateId: '',
+    name: '',
+    prerequisite: '', // prerequisite
+    caseEditType: 'STEP', // 编辑模式：步骤模式/文本模式
+    steps: '',
+    textDescription: '',
+    expectedResult: '', // 预期结果
+    description: '',
+    publicCase: false, // 是否公共用例
+    moduleId: '',
+    versionId: '',
+    tags: [],
+    projectId: appStore.currentProjectId,
+    customFields: {}, // 自定义字段集合
+    relateFileMetaIds: [], // 关联文件ID集合
+    deleteFileMetaIds: [], //  删除本地上传的文件id
+    unLinkFilesIds: [], //  	取消关联的文件id
+  };
+
   const title = ref('');
   const loading = ref(false);
   const isEdit = computed(() => !!route.query.id);
@@ -69,8 +92,8 @@
   const isContinueFlag = ref(false);
   const isShowTip = ref<boolean>(true);
   const createSuccessId = ref<string>('');
-
-  async function save(isReview: boolean) {
+  const caseModuleDetailRef = ref();
+  async function save(isReview: boolean, isContinue: boolean) {
     try {
       loading.value = true;
       // 编辑用例
@@ -88,6 +111,11 @@
           caseDetailInfo.value.request.reviewId = route.query.reviewId;
         }
         const res = await createCaseRequest(caseDetailInfo.value);
+        if (isContinue) {
+          Message.success(t('caseManagement.featureCase.addSuccess'));
+          caseModuleDetailRef.value.resetForm();
+          return;
+        }
         createSuccessId.value = res.data.id;
         Message.success(route.params.mode === 'copy' ? t('ms.description.copySuccess') : t('common.addSuccess'));
         featureCaseStore.setIsAlreadySuccess(true);
@@ -122,8 +150,6 @@
     }
   }
 
-  const caseModuleDetailRef = ref();
-
   // 保存
   function saveHandler(isContinue = false, isReview = false) {
     const { caseFormRef, formRef, fApi } = caseModuleDetailRef.value;
@@ -134,7 +160,7 @@
           if (valid === true) {
             formRef?.validate().then((result: any) => {
               if (!result) {
-                return save(isReview);
+                return save(isReview, isContinue);
               }
             });
           }

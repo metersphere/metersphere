@@ -13,4 +13,6 @@ export default {
   'login.form.normalLogin': 'Normal login',
   'login.form.oauth2Test': 'OAuth2 Test',
   'login.form.modeLoginMethods': 'More',
+  'login.form.accountLogin': 'Account login',
+  'login.form.LDAPLogin': 'LDAP',
 };

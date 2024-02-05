@@ -40,12 +40,14 @@
 
   import { getDetailCaseReviewPage } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
+  import useFeatureCaseStore from '@/store/modules/case/featureCase';
 
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   import { getReviewStatusClass, getStatusText } from '../utils';
   import debounce from 'lodash-es/debounce';
 
+  const featureCaseStore = useFeatureCaseStore();
   const { t } = useI18n();
 
   const props = defineProps<{
@@ -101,24 +103,17 @@
     enableDrag: true,
   });
 
-  function initData() {
+  async function initData() {
     setLoadListParams({ keyword: keyword.value, caseId: props.caseId });
-    loadList();
+    await loadList();
+    const { msPagination } = propsRes.value;
+    featureCaseStore.setListCount(featureCaseStore.activeTab, msPagination?.total || 0);
   }
 
   const searchList = debounce(() => {
     initData();
   }, 100);
 
-  function getReviewStatus(status: string) {
-    switch (status) {
-      case 'UN_REVIEWED':
-        break;
-
-      default:
-        break;
-    }
-  }
   onBeforeMount(() => {
     initData();
   });

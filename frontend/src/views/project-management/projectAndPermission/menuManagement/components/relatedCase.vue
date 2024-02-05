@@ -154,7 +154,6 @@
           { ...form, DEMAND_PLATFORM_CONFIG: JSON.stringify(formData) },
           currentProjectId.value
         );
-        Message.success(t('common.createSuccess'));
         handleCancel(true);
       } catch (error) {
         // eslint-disable-next-line no-console

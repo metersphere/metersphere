@@ -90,7 +90,7 @@
         </a-form-item>
         <!-- 日期和数值 -->
         <a-form-item
-          v-if="showDateOrNumber"
+          v-if="showDateOrNumber?.length"
           field="selectFormat"
           :label="
             fieldForm.type === 'NUMBER' ? t('system.orgTemplate.numberFormat') : t('system.orgTemplate.dateFormat')
@@ -180,8 +180,10 @@
 
   // 是否展示日期或数值
   const showDateOrNumber = computed(() => {
-    selectFormat.value = getFieldType(fieldForm.value.type)[0].value;
-    if (fieldForm.value.type) return getFieldType(fieldForm.value.type);
+    if (getFieldType(fieldForm.value.type)[0]) {
+      selectFormat.value = getFieldType(fieldForm.value.type)[0]?.value;
+      if (fieldForm.value.type) return getFieldType(fieldForm.value.type);
+    }
   });
 
   // 批量表单-1.仅选项情况

@@ -156,10 +156,8 @@
       const result = await configScript(cuurentPluginId);
       formRules.value = [...result];
       if (type.value === 'edit') {
-        // fApi.value.nextTick(() => {
         fApi.value.setValue({ ...formItem.value.configuration });
         fApi.value.refresh();
-        // });
       }
     } catch (error) {
       console.log(error);

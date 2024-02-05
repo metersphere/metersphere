@@ -10,18 +10,16 @@
     </div>
 
     <div class="form mt-[32px] min-w-[416px]">
-      <div class="mb-7 text-[18px] font-medium text-[rgb(var(--primary-5))]">LDAP登录</div>
+      <div v-if="userInfo.authenticate === 'LOCAL'" class="mb-7 text-[18px] font-medium text-[rgb(var(--primary-5))]">{{
+        t('login.form.accountLogin')
+      }}</div>
+      <div
+        v-if="isShowLDAP && userInfo.authenticate !== 'LOCAL'"
+        class="mb-7 text-[18px] font-medium text-[rgb(var(--primary-5))]"
+        >{{ t('login.form.LDAPLogin') }}</div
+      >
       <a-form ref="formRef" :model="userInfo" @submit="handleSubmit">
-        <!-- TOTO 第一版本暂时只考虑普通登录 -->
-        <!-- <a-form-item class="login-form-item" field="radio" hide-label>
-          <a-radio-group v-model="userInfo.authenticate" type="button">
-            <a-radio value="LOCAL">{{ t('login.form.normalLogin') }}</a-radio>
-            <a-radio value="LDAP">LDAP</a-radio>
-            <a-radio value="OAuth2">{{ t('login.form.oauth2Test') }}</a-radio>
-            <a-radio value="OIDC 90">OIDC 90</a-radio>
-          </a-radio-group>
-        </a-form-item> -->
-
+        <!-- TOTO 第一版本暂时只考虑普通登录&LDAP -->
         <a-form-item
           class="login-form-item"
           field="username"
@@ -53,7 +51,12 @@
           <span class="text-xs font-normal text-[var(--color-text-4)]">{{ t('login.form.modeLoginMethods') }}</span>
         </a-divider>
         <div class="flex items-center justify-center">
-          <div class="loginType"> <svg-icon width="18px" height="18px" name="userLogin"></svg-icon></div>
+          <div v-if="userInfo.authenticate !== 'LDAP' && isShowLDAP" class="loginType" @click="switchLoginType('LDAP')">
+            <span class="type-text text-[10px]">LDAP</span>
+          </div>
+          <div v-if="userInfo.authenticate !== 'LOCAL'" class="loginType" @click="switchLoginType('LOCAL')">
+            <svg-icon width="18px" height="18px" name="userLogin"></svg-icon
+          ></div>
           <div class="loginType">
             <span class="type-text text-[10px]">OIDC</span>
           </div>
@@ -68,7 +71,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, reactive, ref } from 'vue';
+  import { computed, ref } from 'vue';
   import { useRouter } from 'vue-router';
   import { useStorage } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
@@ -113,11 +116,19 @@
     password: '',
   });
 
-  const userInfo = reactive({
+  const userInfo = ref<{
+    authenticate: string;
+    username: string;
+    password: string;
+  }>({
     authenticate: 'LOCAL',
     username: '',
     password: '',
   });
+
+  function switchLoginType(type: string) {
+    userInfo.value.authenticate = type;
+  }
 
   const handleSubmit = async ({
     errors,
@@ -133,7 +144,7 @@
         await userStore.login({
           username: encrypted(values.username),
           password: encrypted(values.password),
-          authenticate: values.authenticate,
+          authenticate: userInfo.value.authenticate,
         } as LoginData);
         Message.success(t('login.form.login.success'));
         const { rememberPassword } = loginConfig.value;
@@ -161,14 +172,13 @@
       }
     }
   };
-  onMounted(async () => {
-    // userStore.getAuthenticationList();
-    // try {
-    //   const res = await getAuthenticationList();
-    //   console.log(res);
-    // } catch (error) {
-    //   console.log(error);
-    // }
+
+  const isShowLDAP = computed(() => {
+    return userStore.loginType.includes('LDAP');
+  });
+
+  onMounted(() => {
+    userStore.getAuthentication();
   });
 </script>
 

@@ -84,6 +84,7 @@
   import { postTabletList } from '@/api/modules/project-management/menuManagement';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
+  import useFeatureCaseStore from '@/store/modules/case/featureCase';
 
   import type { TableQueryParams } from '@/models/common';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -91,6 +92,7 @@
   import Message from '@arco-design/web-vue/es/message';
 
   const appStore = useAppStore();
+  const featureCaseStore = useFeatureCaseStore();
 
   const { t } = useI18n();
 
@@ -255,14 +257,16 @@
     currentSelectCase.value = caseTypeOptions.value[0].value;
   }
 
-  function getFetch() {
+  async function getFetch() {
     setLoadListParams({
       keyword: keyword.value,
       sourceId: props.caseId,
       projectId: currentProjectId.value,
       sourceType: currentSelectCase.value,
     });
-    loadList();
+    await loadList();
+    const { msPagination } = propsRes.value;
+    featureCaseStore.setListCount(featureCaseStore.activeTab, msPagination?.total || 0);
   }
 
   async function searchCase() {

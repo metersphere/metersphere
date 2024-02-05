@@ -66,8 +66,10 @@ export function getFieldType(selectFieldType: FormItemType): { label: string; va
   switch (selectFieldType) {
     case 'DATE':
       return dateOptions;
-    default:
+    case 'NUMBER':
       return numberTypeOptions;
+    default:
+      return [];
   }
 }
 
