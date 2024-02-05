@@ -97,6 +97,7 @@
   import useModal from '@/hooks/useModal';
   import { useTableStore } from '@/store';
   import { characterLimit } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { ResourcePoolDetail } from '@/models/setting/resourcePool';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -104,6 +105,10 @@
   const { t } = useI18n();
   const router = useRouter();
   const route = useRoute();
+
+  const hasOperationPoolPermission = computed(() =>
+    hasAnyPermission(['SYSTEM_TEST_RESOURCE_POOL:READ+UPDATE', 'SYSTEM_TEST_RESOURCE_POOL:READ+DELETE'])
+  );
   const columns: MsTableColumn = [
     {
       title: 'system.resourcePool.tableColumnName',
@@ -136,11 +141,11 @@
       width: 180,
     },
     {
-      title: 'system.resourcePool.tableColumnActions',
+      title: hasOperationPoolPermission.value ? 'system.resourcePool.tableColumnActions' : '',
       slotName: 'action',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 140,
+      width: hasOperationPoolPermission.value ? 140 : 50,
     },
   ];
   const tableStore = useTableStore();

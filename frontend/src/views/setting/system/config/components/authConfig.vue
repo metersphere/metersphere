@@ -608,6 +608,7 @@
   import { useTableStore } from '@/store';
   import { characterLimit } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { AuthDetail, AuthForm, AuthItem, AuthType } from '@/models/setting/config';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -618,11 +619,16 @@
   const { openModal } = useModal();
   const loading = ref(false);
 
+  const hasOperationPermission = computed(() =>
+    hasAnyPermission(['SYSTEM_PARAMETER_SETTING_AUTH:READ+UPDATE', 'SYSTEM_PARAMETER_SETTING_AUTH:READ+DELETE'])
+  );
+
   const tableActions: ActionsItem[] = [
     {
       label: 'system.config.auth.delete',
       eventTag: 'delete',
       danger: true,
+      permission: ['SYSTEM_PARAMETER_SETTING_AUTH:READ+DELETE'],
     },
   ];
   const columns: MsTableColumn = [
@@ -655,10 +661,10 @@
       showInTable: true,
     },
     {
-      title: 'system.config.auth.action',
+      title: hasOperationPermission.value ? 'system.config.auth.action' : '',
       slotName: 'action',
       fixed: 'right',
-      width: 140,
+      width: hasOperationPermission.value ? 140 : 50,
       dataIndex: 'operation',
       showInTable: true,
     },

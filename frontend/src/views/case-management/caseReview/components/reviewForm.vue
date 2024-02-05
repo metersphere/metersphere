@@ -1,7 +1,11 @@
 <template>
   <a-form ref="dialogFormRef" :model="caseResultForm" layout="vertical">
     <a-form-item field="reason" class="mb-[4px]">
-      <a-radio-group v-model:model-value="caseResultForm.result" @change="() => dialogFormRef?.resetFields()">
+      <a-radio-group
+        v-model:model-value="caseResultForm.result"
+        :disabled="!hasAnyPermission(['CASE_REVIEW:READ+REVIEW'])"
+        @change="() => dialogFormRef?.resetFields()"
+      >
         <a-radio value="PASS">
           <div class="inline-flex items-center">
             <MsIcon type="icon-icon_succeed_filled" class="mr-[4px] text-[rgb(var(--success-6))]" />
@@ -29,13 +33,20 @@
       </a-radio-group>
     </a-form-item>
     <div class="flex w-full items-center">
-      <a-button type="secondary" class="p-[8px_6px]" size="small" @click="modalVisible = true">
+      <a-button
+        v-permission="['CASE_REVIEW:READ+REVIEW']"
+        type="secondary"
+        class="p-[8px_6px]"
+        size="small"
+        @click="modalVisible = true"
+      >
         <icon-plus class="mr-[4px]" />
         {{ t('caseManagement.caseReview.reason') }}
       </a-button>
     </div>
   </a-form>
   <a-button
+    v-permission="['CASE_REVIEW:READ+REVIEW']"
     type="primary"
     class="mt-[12px]"
     :disabled="submitDisabled"
@@ -77,6 +88,7 @@
   import { editorUploadFile } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { ReviewPassRule, ReviewResult } from '@/models/caseManagement/caseReview';
 

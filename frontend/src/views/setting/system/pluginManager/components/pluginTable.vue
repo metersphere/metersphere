@@ -117,7 +117,7 @@
               <span>{{ getTime(record.updateTime) }}</span>
             </template>
           </a-table-column>
-          <a-table-column :width="180" fixed="right" :bordered="false">
+          <a-table-column v-if="hasOperationPluginPermission" :width="180" fixed="right" :bordered="false">
             <template #title>
               {{ t('system.plugin.tableColumnsActions') }}
             </template>
@@ -215,6 +215,7 @@
   import useModal from '@/hooks/useModal';
   import useVisit from '@/hooks/useVisit';
   import { characterLimit } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { DrawerConfig, PluginForms, PluginItem, PluginList, UpdatePluginModel } from '@/models/setting/plugin';
 
@@ -225,6 +226,10 @@
   const data = ref<PluginList>([]);
   const loading = ref<boolean>(false);
   const expandedRowKeys = reactive([]);
+
+  const hasOperationPluginPermission = computed(() =>
+    hasAnyPermission(['SYSTEM_PLUGIN:READ+UPDATE', 'SYSTEM_PLUGIN:READ+DELETE'])
+  );
 
   const config = ref<DrawerConfig>({
     title: '',

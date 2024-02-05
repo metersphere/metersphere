@@ -529,6 +529,13 @@
     }
     return jarFileActions;
   }
+  const hasOperationPermission = computed(() =>
+    hasAnyPermission([
+      'PROJECT_FILE_MANAGEMENT:READ+UPDATE',
+      'PROJECT_FILE_MANAGEMENT:READ+DELETE',
+      'PROJECT_FILE_MANAGEMENT:READ+DOWNLOAD',
+    ])
+  );
 
   const columns: MsTableColumn = [
     {
@@ -582,11 +589,11 @@
       width: 180,
     },
     {
-      title: 'common.operation',
+      title: hasOperationPermission.value ? 'common.operation' : '',
       slotName: 'action',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 120,
+      width: hasOperationPermission.value ? 120 : 50,
     },
   ];
   const tableStore = useTableStore();

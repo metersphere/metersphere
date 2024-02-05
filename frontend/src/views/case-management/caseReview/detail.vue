@@ -32,15 +32,20 @@
         <a-switch v-model:model-value="onlyMine" size="small" class="mr-[8px]" type="line" />
         {{ t('caseManagement.caseReview.onlyMine') }}
       </div>
-      <MsButton type="button" status="default" @click="associateDrawerVisible = true">
+      <MsButton
+        v-permission="['CASE_REVIEW:READ+UPDATE']"
+        type="button"
+        status="default"
+        @click="associateDrawerVisible = true"
+      >
         <MsIcon type="icon-icon_link-record_outlined1" class="mr-[8px]" />
         {{ t('ms.case.associate.title') }}
       </MsButton>
-      <MsButton type="button" status="default" @click="editReview">
+      <MsButton v-permission="['CASE_REVIEW:READ+UPDATE']" type="button" status="default" @click="editReview">
         <MsIcon type="icon-icon_edit_outlined" class="mr-[8px]" />
         {{ t('common.edit') }}
       </MsButton>
-      <MsButton type="button" status="default" @click="copyReview">
+      <MsButton v-permission="['CASE_REVIEW:READ+ADD']" type="button" status="default" @click="copyReview">
         <MsIcon type="icon-icon_copy_outlined" class="mr-[8px]" />
         {{ t('common.copy') }}
       </MsButton>
@@ -296,6 +301,7 @@
       label: t('caseManagement.caseReview.quickCreate'),
       eventTag: 'createCase',
       icon: 'icon-icon_add_outlined-1',
+      permission: ['FUNCTIONAL_CASE:READ+ADD'],
     },
     // {
     //   label: t('caseManagement.caseReview.createTestPlan'),
@@ -310,6 +316,7 @@
       eventTag: 'delete',
       icon: 'icon-icon_delete-trash_outlined1',
       danger: true,
+      permission: ['CASE_REVIEW:READ+DELETE'],
     },
   ];
   const moreAction = computed(() => {

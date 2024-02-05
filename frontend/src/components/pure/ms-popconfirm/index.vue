@@ -18,9 +18,9 @@
             class="mr-[2px] text-xl text-[rgb(var(--danger-6))]"
           />
         </slot>
-        <span :class="[titleClass]">
+        <div :class="[titleClass]">
           {{ props.title || '' }}
-        </span>
+        </div>
       </div>
       <!-- 描述展示 -->
       <div v-if="props.subTitleTip" class="ml-8 mt-2 text-sm text-[var(--color-text-2)]">
@@ -59,7 +59,7 @@
           />
         </a-form-item>
       </a-form>
-      <div class="mt-4 flex flex-row flex-nowrap justify-end gap-2">
+      <div class="mb-1 mt-4 flex flex-row flex-nowrap justify-end gap-2">
         <a-button type="secondary" size="mini" :disabled="props.loading" @click="handleCancel">
           {{ props.cancelText || t('common.cancel') }}
         </a-button>
@@ -171,7 +171,7 @@
   const titleClass = computed(() => {
     return props.isDelete
       ? 'ml-2 font-medium text-[var(--color-text-1)] text-[14px]'
-      : 'mb-[8px] font-medium text-[var(--color-text-1)] text-[14px]';
+      : 'mb-[8px] font-medium text-[var(--color-text-1)] text-[14px] leading-[22px]';
   });
 
   watch(
@@ -215,4 +215,8 @@
   });
 </script>
 
-<style scoped lang="less"></style>
+<style scoped lang="less">
+  :deep(.arco-trigger-content) {
+    padding: 16px;
+  }
+</style>

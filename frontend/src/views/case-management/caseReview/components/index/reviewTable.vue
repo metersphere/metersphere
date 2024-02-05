@@ -105,7 +105,12 @@
         </a-tooltip>
       </template>
       <template #action="{ record }">
-        <MsButton type="text" class="!mr-0" @click="() => editReview(record)">
+        <MsButton
+          v-permission="['CASE_REVIEW:READ+UPDATE']"
+          type="text"
+          class="!mr-0"
+          @click="() => editReview(record)"
+        >
           {{ t('common.edit') }}
         </MsButton>
         <!-- <a-divider direction="vertical" :margin="8"></a-divider>
@@ -113,12 +118,16 @@
           {{ t('common.export') }}
         </MsButton> -->
         <a-divider direction="vertical" :margin="8"></a-divider>
-        <MsTableMoreAction :list="getMoreAction(record.status)" @select="handleMoreActionSelect($event, record)" />
+        <MsTableMoreAction
+          v-permission="['CASE_REVIEW:READ+DELETE']"
+          :list="getMoreAction(record.status)"
+          @select="handleMoreActionSelect($event, record)"
+        />
       </template>
       <template v-if="keyword.trim() === ''" #empty>
         <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
           {{ t('caseManagement.caseReview.tableNoData') }}
-          <MsButton class="ml-[8px]" @click="() => emit('goCreate')">
+          <MsButton v-permission="['CASE_REVIEW:READ+ADD']" class="ml-[8px]" @click="() => emit('goCreate')">
             {{ t('caseManagement.caseReview.create') }}
           </MsButton>
         </div>
@@ -183,6 +192,7 @@
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
   import useUserStore from '@/store/modules/user';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import {
     ReviewDetailReviewersItem,
@@ -212,7 +222,6 @@
     (e: 'goCreate'): void;
     (e: 'init', params: ReviewListQueryParams): void;
   }>();
-
   const userStore = useUserStore();
   const appStore = useAppStore();
   const router = useRouter();
@@ -354,6 +363,10 @@
       console.log(error);
     }
   });
+
+  const hasOperationPermission = computed(() =>
+    hasAnyPermission(['CASE_REVIEW:READ+UPDATE', 'CASE_REVIEW:READ+DELETE'])
+  );
   const columns: MsTableColumn = [
     {
       title: 'ID',
@@ -437,11 +450,11 @@
       width: 350,
     },
     {
-      title: 'common.operation',
+      title: hasOperationPermission.value ? 'common.operation' : '',
       slotName: 'action',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 110,
+      width: hasOperationPermission.value ? 110 : 50,
     },
   ];
   const tableStore = useTableStore();
@@ -565,6 +578,7 @@
           label: 'common.delete',
           eventTag: 'delete',
           danger: true,
+          permission: ['CASE_REVIEW:READ+DELETE'],
         },
       ];
     }
@@ -573,6 +587,7 @@
         label: 'common.delete',
         eventTag: 'delete',
         danger: true,
+        permission: ['CASE_REVIEW:READ+DELETE'],
       },
     ];
   }

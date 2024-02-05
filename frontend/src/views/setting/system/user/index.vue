@@ -330,6 +330,10 @@
   const { currentLocale } = useLocale();
   const route = useRoute();
 
+  const hasOperationSysUserPermission = computed(() =>
+    hasAnyPermission(['SYSTEM_USER:READ+UPDATE', 'SYSTEM_USER:READ+DELETE'])
+  );
+
   const columns: MsTableColumn = [
     {
       title: 'system.user.tableColumnEmail',
@@ -365,11 +369,11 @@
       dataIndex: 'enable',
     },
     {
-      title: 'system.user.tableColumnActions',
+      title: hasOperationSysUserPermission.value ? 'system.user.tableColumnActions' : '',
       slotName: 'action',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 110,
+      width: hasOperationSysUserPermission.value ? 110 : 50,
     },
   ];
   const tableStore = useTableStore();

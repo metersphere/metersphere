@@ -143,7 +143,7 @@
   import type { ActionTemplateManage, CustomField, DefinedFieldItem } from '@/models/setting/template';
   import { SettingRouteEnum } from '@/enums/routeEnum';
 
-  import { getCardList, getCustomDetailFields, getTotalFieldOptionList } from './fieldSetting';
+  import { getCardList, getCustomDetailFields, getTemplateName, getTotalFieldOptionList } from './fieldSetting';
 
   const { t } = useI18n();
   const route = useRoute();
@@ -233,10 +233,14 @@
       title.value = t('system.orgTemplate.copyTemplate');
       getClassifyField();
     } else if (isEdit.value) {
-      title.value = t('menu.settings.organization.templateManagementEdit');
+      title.value = t('system.orgTemplate.createTemplateType', {
+        type: getTemplateName('organization', route.query.type as string),
+      });
       getClassifyField();
     } else {
-      title.value = t('menu.settings.organization.templateManagementDetail');
+      title.value = t('menu.settings.organization.editTemplateType', {
+        type: getTemplateName('organization', route.query.type as string),
+      });
     }
   });
 

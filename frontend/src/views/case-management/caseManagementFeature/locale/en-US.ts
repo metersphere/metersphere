@@ -252,4 +252,5 @@ export default {
   'caseManagement.featureCase.defectSource': 'defect Source',
   'caseManagement.featureCase.sortSuccess': 'Sort successfully',
   'caseManagement.featureCase.zentao': 'zentao',
+  'caseManagement.featureCase.searchPlaceholder': 'Search by id or name',
 };

@@ -53,8 +53,9 @@
       </div>
       <div class="flex-col">
         <div v-for="item in nonSortColumn" :key="item.dataIndex" class="column-item">
-          <div>{{ t((item.title || item.columnTitle) as string) }}</div>
+          <div v-show="item.dataIndex !== 'operation'">{{ t((item.title || item.columnTitle) as string) }}</div>
           <a-switch
+            v-show="item.dataIndex !== 'operation'"
             v-model="item.showInTable"
             size="small"
             :disabled="item.dataIndex === 'name' || item.dataIndex === 'operation'"

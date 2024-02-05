@@ -95,8 +95,15 @@ export const pathMap: PathMapItem[] = [
         level: MENU_LEVEL[2],
         children: [
           {
-            key: 'CASE_MANAGEMENT_CASE_DETAIL', // 功能测试-功能用例详情
+            key: 'CASE_MANAGEMENT_CASE_CREATE', // 功能测试-功能用例创建
             locale: 'menu.caseManagement.featureCaseDetail',
+            route: RouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
+            permission: [],
+            level: MENU_LEVEL[2],
+          },
+          {
+            key: 'CASE_MANAGEMENT_CASE_UPDATE', // 功能测试-功能用例更新
+            locale: 'menu.caseManagement.featureCaseEdit',
             route: RouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
             permission: [],
             level: MENU_LEVEL[2],

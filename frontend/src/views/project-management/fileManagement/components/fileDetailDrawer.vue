@@ -114,7 +114,9 @@
                       :all-names="[]"
                       @rename-finish="detailDrawerRef?.initDetail"
                     >
-                      <MsButton class="!mr-0 ml-[8px]">{{ t('common.rename') }}</MsButton>
+                      <MsButton v-permission="['PROJECT_FILE_MANAGEMENT:READ+UPDATE']" class="!mr-0 ml-[8px]">{{
+                        t('common.rename')
+                      }}</MsButton>
                     </popConfirm>
                     <template v-if="UploadAcceptEnum.image.includes(fileType)">
                       <a-divider
@@ -248,6 +250,7 @@
   import { useAppStore } from '@/store';
   import useUserStore from '@/store/modules/user';
   import { downloadByteFile, formatFileSize } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { AssociationItem, FileDetail } from '@/models/projectManagement/file';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
@@ -395,6 +398,8 @@
     }
   }
 
+  const hasOperationPermission = computed(() => hasAnyPermission(['PROJECT_FILE_MANAGEMENT:READ+UPDATE']));
+
   const activeTab = ref('case');
 
   const caseColumns: MsTableColumn = [
@@ -425,10 +430,10 @@
       showTooltip: true,
     },
     {
-      title: 'common.operation',
+      title: hasOperationPermission.value ? 'common.operation' : '',
       slotName: 'action',
       fixed: 'right',
-      width: 130,
+      width: hasOperationPermission.value ? 130 : 50,
     },
   ];
   const {
@@ -450,6 +455,7 @@
       {
         label: 'project.fileManagement.updateCaseFile',
         eventTag: 'updateCaseFile',
+        permission: ['PROJECT_FILE_MANAGEMENT:READ+UPDATE'],
       },
     ],
   };

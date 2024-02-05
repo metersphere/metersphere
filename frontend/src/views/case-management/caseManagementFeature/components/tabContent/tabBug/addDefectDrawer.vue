@@ -48,7 +48,10 @@
     visible: boolean;
   }>();
 
-  const emit = defineEmits(['update:visible']);
+  const emit = defineEmits<{
+    (e: 'update:visible', visible: boolean): void;
+    (e: 'success'): void;
+  }>();
 
   const { t } = useI18n();
 
@@ -93,6 +96,7 @@
             request: { ...form.value, customFields: templateCustomFields.value },
             fileList: [],
           });
+          emit('success');
           Message.success(t('caseManagement.featureCase.quicklyCreateDefectSuccess'));
           if (!isContinue) {
             handleDrawerCancel();

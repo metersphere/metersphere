@@ -146,6 +146,7 @@
   import {
     getCardList,
     getCustomDetailFields,
+    getTemplateName,
     getTotalFieldOptionList,
   } from '@/views/setting/organization/template/components/fieldSetting';
 
@@ -238,13 +239,19 @@
 
   watchEffect(async () => {
     if (isEdit.value && route.params.mode === 'copy') {
-      title.value = t('system.orgTemplate.copyTemplate');
+      title.value = t('system.orgTemplate.copyTemplate', {
+        type: getTemplateName('organization', route.query.type as string),
+      });
       getClassifyField();
     } else if (isEdit.value) {
-      title.value = t('menu.settings.organization.templateManagementEdit');
+      title.value = t('system.orgTemplate.editTemplateType', {
+        type: getTemplateName('organization', route.query.type as string),
+      });
       getClassifyField();
     } else {
-      title.value = t('menu.settings.organization.templateManagementDetail');
+      title.value = t('system.orgTemplate.createTemplateType', {
+        type: getTemplateName('organization', route.query.type as string),
+      });
     }
   });
 

@@ -39,7 +39,7 @@
                         size="mini"
                         class="ml-3 px-0 text-sm"
                         type="text"
-                        :disabled="!links.disabled"
+                        :disabled="links.disabled"
                         @click.stop="jumpHandler(links)"
                       >
                         {{ t(links.name) }}
@@ -73,7 +73,6 @@
   import { useI18n } from '@/hooks/useI18n';
   import useUserStore from '@/store/modules/user/index';
   import { openWindow } from '@/utils/index';
-  import { hasAnyPermission } from '@/utils/permission';
 
   import type { SkipTitle, StepListType } from '@/models/setting/serviceIntegration';
   import { SettingRouteEnum } from '@/enums/routeEnum';
@@ -81,8 +80,7 @@
   const userStore = useUserStore();
 
   const isHasSystemPermission = computed(() => {
-    const { systemPermissions } = userStore.currentRole;
-    return hasAnyPermission(systemPermissions, ['SYSTEM']) as boolean;
+    return userStore.isAdmin;
   });
 
   const { t } = useI18n();
@@ -90,7 +88,7 @@
   const cardContent = ref<StepListType[]>([
     {
       id: '1001',
-      icon: 'configplugin',
+      icon: 'downloadplugin',
       title: 'organization.service.downloadPluginOrDev',
       skipTitle: [
         {
@@ -111,14 +109,14 @@
     },
     {
       id: '1002',
-      icon: 'downloadplugin',
+      icon: 'configplugin',
       title: 'organization.service.configPlugin',
       skipTitle: [
         {
           name: 'organization.service.jumpPlugin',
           src: '',
           active: true,
-          disabled: isHasSystemPermission.value,
+          disabled: !isHasSystemPermission.value,
         },
       ],
       step: '@/assets/images/ms_configplugin.jpg',

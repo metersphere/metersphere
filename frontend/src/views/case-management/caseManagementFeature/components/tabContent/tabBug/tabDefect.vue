@@ -17,14 +17,14 @@
       </div>
       <div v-else class="font-medium">{{ t('caseManagement.featureCase.testPlanLinkList') }}</div>
       <div class="mb-4">
-        <a-radio-group v-model:model-value="showType" type="button" class="file-show-type ml-[4px]">
+        <!-- <a-radio-group v-model:model-value="showType" type="button" class="file-show-type ml-[4px]">
           <a-radio value="link" class="show-type-icon p-[2px]">{{
             t('caseManagement.featureCase.directLink')
           }}</a-radio>
-          <!-- <a-radio value="testPlan" class="show-type-icon p-[2px]">{{
+          <a-radio value="testPlan" class="show-type-icon p-[2px]">{{
             t('caseManagement.featureCase.testPlan')
-          }}</a-radio> -->
-        </a-radio-group>
+          }}</a-radio>
+        </a-radio-group> -->
         <a-input-search
           v-model:model-value="keyword"
           :placeholder="t('caseManagement.featureCase.searchByNameAndId')"
@@ -85,7 +85,7 @@
         </div>
       </template>
     </ms-base-table>
-    <AddDefectDrawer v-model:visible="showDrawer" />
+    <AddDefectDrawer v-model:visible="showDrawer" @success="getFetch()" />
     <LinkDefectDrawer
       v-model:visible="showLinkDrawer"
       :case-id="props.caseId"
@@ -106,7 +106,6 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
-  import MsRemoveButton from '@/components/business/ms-remove-button/MsRemoveButton.vue';
   import AddDefectDrawer from './addDefectDrawer.vue';
   import LinkDefectDrawer from './linkDefectDrawer.vue';
 
@@ -117,9 +116,12 @@
   } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
+  import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { characterLimit } from '@/utils';
 
   import type { TableQueryParams } from '@/models/common';
+
+  const featureCaseStore = useFeatureCaseStore();
 
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -256,13 +258,17 @@
     enableDrag: true,
   });
 
-  function getFetch() {
+  async function getFetch() {
     if (showType.value === 'link') {
       setLinkListParams({ keyword: keyword.value, projectId: appStore.currentProjectId, caseId: props.caseId });
-      loadLinkList();
+      await loadLinkList();
+      const { msPagination } = linkPropsRes.value;
+      featureCaseStore.setListCount(featureCaseStore.activeTab, msPagination?.total || 0);
     } else {
       setTestPlanListParams({ keyword: keyword.value, projectId: appStore.currentProjectId, caseId: props.caseId });
-      testPlanLinkList();
+      await testPlanLinkList();
+      const { msPagination } = testPlanPropsRes.value;
+      featureCaseStore.setListCount(featureCaseStore.activeTab, msPagination?.total || 0);
     }
   }
   const cancelLoading = ref<boolean>(false);
@@ -272,6 +278,7 @@
     try {
       if (showType.value === 'link') {
         await cancelAssociatedDebug(id);
+        getFetch();
         Message.success(t('caseManagement.featureCase.cancelLinkSuccess'));
       }
     } catch (error) {

@@ -5,7 +5,7 @@
       <a-radio-group v-model="activeComment" type="button">
         <a-radio value="caseComment">{{ t('caseManagement.featureCase.caseComment') }}</a-radio>
         <a-radio value="reviewComment">{{ t('caseManagement.featureCase.reviewComment') }}</a-radio>
-        <a-radio value="executiveComment">{{ t('caseManagement.featureCase.executiveReview') }}</a-radio>
+        <!-- <a-radio value="executiveComment">{{ t('caseManagement.featureCase.executiveReview') }}</a-radio> -->
       </a-radio-group>
     </div>
   </div>
@@ -25,7 +25,7 @@
       @update-or-add="handleUpdateOrAdd"
     />
     <!-- 执行评论 -->
-    <MsComment v-else :comment-list="commentList" @delete="handleDelete" @update-or-add="handleUpdateOrAdd" />
+    <!-- <MsComment v-else :comment-list="commentList" @delete="handleDelete" @update-or-add="handleUpdateOrAdd" /> -->
   </div>
 </template>
 
@@ -89,15 +89,13 @@
         setCount(commentList.value);
         break;
       case 'reviewComment':
-        initReviewCommentList();
-        await initCommentList();
+        await initReviewCommentList();
         setCount(reviewCommentList.value);
         break;
       case 'executiveComment':
         await initCommentList();
         setCount(commentList.value);
         break;
-
       default:
         break;
     }
@@ -146,8 +144,10 @@
 
   watch(
     () => activeComment.value,
-    () => {
-      getAllCommentList();
+    (val) => {
+      if (val) {
+        getAllCommentList();
+      }
     }
   );
 

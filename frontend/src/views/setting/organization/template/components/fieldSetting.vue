@@ -150,6 +150,7 @@
   import { useAppStore, useTableStore } from '@/store';
   import useTemplateStore from '@/store/modules/setting/template';
   import { characterLimit } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { AddOrUpdateField, SeneType } from '@/models/setting/template';
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -166,9 +167,9 @@
 
   const props = defineProps<{
     mode: 'organization' | 'project';
-    deletePermission?: string[];
-    createPermission?: string[];
-    updatePermission?: string[];
+    deletePermission: string[];
+    createPermission: string[];
+    updatePermission: string[];
   }>();
 
   const currentOrd = computed(() => appStore.currentOrgId);
@@ -184,6 +185,10 @@
         return t('system.orgTemplate.templateCase');
     }
   });
+
+  const hasOperationPermission = computed(() =>
+    hasAnyPermission([...props.updatePermission, ...props.deletePermission])
+  );
 
   const fieldColumns: MsTableColumn = [
     {
@@ -211,11 +216,11 @@
       showInTable: true,
     },
     {
-      title: 'system.orgTemplate.operation',
+      title: hasOperationPermission.value ? 'system.orgTemplate.operation' : '',
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 200,
+      width: hasOperationPermission.value ? 200 : 50,
       showInTable: true,
     },
   ];

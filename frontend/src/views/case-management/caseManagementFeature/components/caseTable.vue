@@ -5,6 +5,7 @@
     v-model:keyword="keyword"
     :filter-config-list="filterConfigList"
     :custom-fields-config-list="searchCustomFields"
+    :search-placeholder="t('caseManagement.featureCase.searchPlaceholder')"
     :row-count="filterRowCount"
     @keyword-search="fetchData"
     @adv-search="handleAdvSearch"
@@ -348,6 +349,10 @@
     };
   });
 
+  const hasOperationPermission = computed(() =>
+    hasAnyPermission(['FUNCTIONAL_CASE:READ+UPDATE', 'FUNCTIONAL_CASE:READ+DELETE'])
+  );
+
   const columns: MsTableColumn = [
     {
       'title': 'caseManagement.featureCase.tableColumnID',
@@ -471,13 +476,13 @@
       showDrag: true,
     },
     {
-      title: 'caseManagement.featureCase.tableColumnActions',
+      title: hasOperationPermission.value ? 'caseManagement.featureCase.tableColumnActions' : '',
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 260,
       showInTable: true,
       showDrag: false,
+      width: hasOperationPermission.value ? 260 : 50,
     },
   ];
 

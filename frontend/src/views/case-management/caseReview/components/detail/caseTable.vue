@@ -68,7 +68,7 @@
         </div>
       </template>
       <template #action="{ record }">
-        <MsButton type="text" class="!mr-0" @click="review(record)">
+        <MsButton v-permission="['CASE_REVIEW:READ+REVIEW']" type="text" class="!mr-0" @click="review(record)">
           {{ t('caseManagement.caseReview.review') }}
         </MsButton>
         <a-divider direction="vertical" :margin="8"></a-divider>
@@ -80,7 +80,7 @@
           type="error"
           @confirm="(val, done) => handleDisassociateReviewCase(record, done)"
         >
-          <MsButton type="text" class="!mr-0">
+          <MsButton v-permission="['CASE_REVIEW:READ+RELEVANCE']" type="text" class="!mr-0">
             {{ t('caseManagement.caseReview.disassociate') }}
           </MsButton>
         </MsPopconfirm>
@@ -88,7 +88,7 @@
       <template v-if="keyword.trim() === ''" #empty>
         <div class="flex w-full items-center justify-center p-[8px] text-[var(--color-text-4)]">
           {{ t('caseManagement.caseReview.tableNoData') }}
-          <MsButton class="ml-[8px]" @click="createCase">
+          <MsButton v-permission="['FUNCTIONAL_CASE:READ+ADD']" class="ml-[8px]" @click="createCase">
             {{ t('caseManagement.caseReview.crateCase') }}
           </MsButton>
         </div>
@@ -271,6 +271,7 @@
   import useTableStore from '@/hooks/useTableStore';
   import useAppStore from '@/store/modules/app';
   import useUserStore from '@/store/modules/user';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { ReviewCaseItem, ReviewItem, ReviewPassRule, ReviewResult } from '@/models/caseManagement/caseReview';
   import { BatchApiParams, ModuleTreeNode } from '@/models/common';
@@ -293,12 +294,15 @@
   const userStore = useUserStore();
   const { t } = useI18n();
   const { openModal } = useModal();
-
   const keyword = ref('');
   const showType = ref<'list' | 'mind'>('list');
   const filterRowCount = ref(0);
   const filterConfigList = ref<FilterFormItem[]>([]);
   const tableParams = ref<Record<string, any>>({});
+
+  const hasOperationPermission = computed(() =>
+    hasAnyPermission(['CASE_REVIEW:READ+REVIEW', 'CASE_REVIEW:READ+RELEVANCE'])
+  );
   const columns: MsTableColumn = [
     {
       title: 'ID',
@@ -348,11 +352,11 @@
       width: 150,
     },
     {
-      title: 'common.operation',
+      title: hasOperationPermission.value ? 'common.operation' : '',
       slotName: 'action',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 140,
+      width: hasOperationPermission.value ? 140 : 50,
     },
   ];
   const tableStore = useTableStore();
