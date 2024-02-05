@@ -64,10 +64,10 @@
                 tags = #{request.tags, typeHandler=io.metersphere.handler.ListTypeHandler},
             </if>
             <if test="request.updateUser != null and request.updateUser != ''">
-                update_user = #{updateUser},
+                update_user = #{request.updateUser},
             </if>
             <if test="request.updateTime != null">
-                update_time = #{updateTime},
+                update_time = #{request.updateTime},
             </if>
         </set>
         where id in
