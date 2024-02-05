@@ -14,7 +14,7 @@ import java.util.List;
  * @CreateTime: 2024-02-05  18:53
  */
 @Data
-public class HttpConfigModuleMatchRule  implements Serializable {
+public class HttpConfigModuleMatchRule implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -22,11 +22,4 @@ public class HttpConfigModuleMatchRule  implements Serializable {
     @Valid
     private List<SelectModule> modules = new ArrayList<>(0);
 
-    @Data
-    public class SelectModule {
-        @Schema(description = "模块ID")
-        private String moduleId;
-        @Schema(description = "是否包含新增子模块")
-        private Boolean containChildModule = false;
-    }
 }

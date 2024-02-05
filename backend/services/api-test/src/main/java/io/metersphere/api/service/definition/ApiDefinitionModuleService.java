@@ -1,7 +1,6 @@
 package io.metersphere.api.service.definition;
 
 import com.github.pagehelper.PageHelper;
-import io.metersphere.api.constants.ModuleStatus;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.debug.ApiTreeNode;
 import io.metersphere.api.dto.debug.ModuleCreateRequest;
@@ -23,6 +22,7 @@ import io.metersphere.system.dto.sdk.request.NodeMoveRequest;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -307,7 +307,7 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
         List<ApiModuleDTO> currentModules = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(selectedModules)) {
             //将选中的模块id转换为Map 方便后面的查询 key为id
-            Map<String, ApiModuleDTO> selectedModuleMap = selectedModules.stream().collect(Collectors.toMap(ApiModuleDTO::getId, apiModuleDTO -> apiModuleDTO));
+            Map<String, ApiModuleDTO> selectedModuleMap = selectedModules.stream().collect(Collectors.toMap(ApiModuleDTO::getModuleId, apiModuleDTO -> apiModuleDTO));
             getAllModuleIds(baseTreeNodes, currentModules, selectedModuleMap);
         }
         envApiTreeDTO.setSelectedModules(currentModules);
@@ -318,7 +318,7 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
         baseTreeNodes.forEach(baseTreeNode -> {
             if (selectedModuleMap.containsKey(baseTreeNode.getId())) {
                 ApiModuleDTO apiModuleDTO = selectedModuleMap.get(baseTreeNode.getId());
-                if (StringUtils.equals(apiModuleDTO.getStatus(), ModuleStatus.All.name())) {
+                if (BooleanUtils.isTrue(apiModuleDTO.getContainChildModule())) {
                     currentModules.add(apiModuleDTO);
                     if (CollectionUtils.isNotEmpty(baseTreeNode.getChildren())) {
                         setChildren(baseTreeNode.getChildren(), currentModules);
@@ -336,8 +336,8 @@ public class ApiDefinitionModuleService extends ModuleTreeService {
     public void setChildren(List<BaseTreeNode> baseTreeNodes, List<ApiModuleDTO> currentModules) {
         baseTreeNodes.forEach(baseTreeNode -> {
             ApiModuleDTO children = new ApiModuleDTO();
-            children.setId(baseTreeNode.getId());
-            children.setStatus(ModuleStatus.All.name());
+            children.setModuleId(baseTreeNode.getId());
+            children.setContainChildModule(true);
             children.setDisabled(true);
             currentModules.add(children);
             if (CollectionUtils.isNotEmpty(baseTreeNode.getChildren())) {
