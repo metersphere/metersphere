@@ -55,12 +55,13 @@
       level: 2,
       name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_MENU_MANAGEMENT,
     },
-    {
-      key: 'projectVersion',
-      title: t('project.permission.projectVersion'),
-      level: 2,
-      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_VERSION,
-    },
+    // TODO 第一版不开启版本
+    // {
+    //   key: 'projectVersion',
+    //   title: t('project.permission.projectVersion'),
+    //   level: 2,
+    //   name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_PERMISSION_VERSION,
+    // },
     {
       key: 'memberPermission',
       title: t('project.permission.memberPermission'),

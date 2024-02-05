@@ -6,6 +6,7 @@
     <template #caseStep="{ record }">
       <a-textarea
         v-if="record.showStep"
+        :ref="(el: refItem) => setStepRefMap(el, record)"
         v-model="record.step"
         size="mini"
         :auto-size="true"
@@ -26,6 +27,7 @@
     <template #expectedResult="{ record }">
       <a-textarea
         v-if="record.showExpected"
+        :ref="(el: refItem) => setExpectedRefMap(el, record)"
         v-model="record.expected"
         :max-length="1000"
         size="mini"
@@ -78,6 +80,7 @@
   import type { StepList } from '@/models/caseManagement/featureCase';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
+  type refItem = Element | ComponentPublicInstance | null;
   const { t } = useI18n();
 
   const props = withDefaults(
@@ -240,13 +243,32 @@
     });
   };
 
+  const refStepMap: Record<string, any> = {};
+  function setStepRefMap(el: refItem, record: StepList) {
+    if (el) {
+      refStepMap[`${record.id}`] = el;
+    }
+  }
+  const expectedRefMap: Record<string, any> = {};
+
+  function setExpectedRefMap(el: refItem, record: StepList) {
+    if (el) {
+      expectedRefMap[`${record.id}`] = el;
+    }
+  }
   // 编辑步骤
   function edit(record: StepList, type: string) {
     if (props.isDisabled) return;
     if (type === 'step') {
       record.showStep = true;
+      nextTick(() => {
+        refStepMap[record.id]?.focus();
+      });
     } else {
       record.showExpected = true;
+      nextTick(() => {
+        expectedRefMap[record.id]?.focus();
+      });
     }
   }
 
@@ -259,6 +281,7 @@
       record.showExpected = false;
     }
   }
+
   const tableRef = ref<InstanceType<typeof MsBaseTable> | null>(null);
 
   watchEffect(() => {

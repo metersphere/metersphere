@@ -2,7 +2,13 @@
   <div class="card">
     <MsSplitBox v-model:width="leftWidth" @expand-change="handleCollapse">
       <template #first>
-        <UserGroupLeft ref="ugLeftRef" @handle-select="handleSelect" @add-user-success="handleAddMember" />
+        <UserGroupLeft
+          ref="ugLeftRef"
+          :add-permission="['SYSTEM_USER_ROLE:READ+ADD']"
+          :update-permission="['SYSTEM_USER_ROLE:READ+UPDATE']"
+          @handle-select="handleSelect"
+          @add-user-success="handleAddMember"
+        />
       </template>
       <template #second>
         <div class="p-[24px]">

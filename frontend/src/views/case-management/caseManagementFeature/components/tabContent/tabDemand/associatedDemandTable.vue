@@ -36,12 +36,13 @@
   import { getDemandList } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
+  import useFeatureCaseStore from '@/store/modules/case/featureCase';
 
   import type { DemandItem } from '@/models/caseManagement/featureCase';
 
   const appStore = useAppStore();
   const pageConfig = computed(() => appStore.pageConfig);
-
+  const featureCaseStore = useFeatureCaseStore();
   const { t } = useI18n();
 
   const props = withDefaults(
@@ -109,7 +110,9 @@
 
   const initData = async () => {
     setLoadListParams({ ...props.funParams });
-    loadList();
+    await loadList();
+    const { msPagination } = propsRes.value;
+    featureCaseStore.setListCount(featureCaseStore.activeTab, msPagination?.total || 0);
   };
 
   onMounted(() => {

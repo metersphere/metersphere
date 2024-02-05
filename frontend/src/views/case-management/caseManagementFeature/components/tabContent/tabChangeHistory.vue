@@ -83,6 +83,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useVisit from '@/hooks/useVisit';
   import { useAppStore } from '@/store';
+  import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { characterLimit } from '@/utils';
 
   import { TableKeyEnum } from '@/enums/tableEnum';
@@ -90,7 +91,7 @@
   const { t } = useI18n();
 
   const appStore = useAppStore();
-
+  const featureCaseStore = useFeatureCaseStore();
   const visitedKey = 'notRemindChangeHistoryTip';
   const { addVisited } = useVisit(visitedKey);
   const { getIsVisited } = useVisit(visitedKey);
@@ -216,13 +217,15 @@
     isShowTip.value = !getIsVisited();
   };
 
-  function initData() {
+  async function initData() {
     setLoadListParams({
       projectId: appStore.currentProjectId,
       sourceId: props.caseId,
       module: 'FUNCTIONAL_CASE',
     });
-    loadList();
+    await loadList();
+    const { msPagination } = propsRes.value;
+    featureCaseStore.setListCount(featureCaseStore.activeTab, msPagination?.total || 0);
   }
 
   onBeforeMount(() => {

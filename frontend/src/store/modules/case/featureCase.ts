@@ -14,6 +14,7 @@ const useFeatureCaseStore = defineStore('featureCase', {
     recycleModulesCount: Record<string, any>; // 回收站模块数量
     operatingState: boolean; // 操作状态
     tabSettingList: TabItemType[]; // 详情tab
+    activeTab: string; // 激活tab
   } => ({
     moduleId: [],
     caseTree: [],
@@ -21,6 +22,7 @@ const useFeatureCaseStore = defineStore('featureCase', {
     recycleModulesCount: {},
     operatingState: false,
     tabSettingList: [],
+    activeTab: 'detail',
   }),
   actions: {
     // 设置选择moduleId
@@ -64,6 +66,24 @@ const useFeatureCaseStore = defineStore('featureCase', {
     // 获取显示的tab
     getTab() {
       return this.tabSettingList.filter((item) => item.enable);
+    },
+    // 设置激活tab
+    setActiveTab(active: string | number) {
+      this.activeTab = active as string;
+    },
+    // 设置菜单模块列表数量
+    setListCount(type: string, count = 0) {
+      this.tabSettingList = this.tabSettingList.map((item: any) => {
+        if (type === item.key) {
+          return {
+            ...item,
+            total: count,
+          };
+        }
+        return {
+          ...item,
+        };
+      });
     },
   },
 });

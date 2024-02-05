@@ -13,4 +13,6 @@ export default {
   'login.form.normalLogin': '普通登录',
   'login.form.oauth2Test': 'OAuth2 测试',
   'login.form.modeLoginMethods': '更多登录方式',
+  'login.form.accountLogin': '账号登录',
+  'login.form.LDAPLogin': 'LDAP登录',
 };

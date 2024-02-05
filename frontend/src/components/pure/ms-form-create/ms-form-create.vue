@@ -272,6 +272,8 @@
     () => formRuleList.value,
     (val) => {
       if (val) emit('update:form-item', formRuleList.value);
+      fApi.value.refreshValidate();
+      fApi.value.clearValidateState();
     },
     {
       deep: true,
@@ -289,4 +291,13 @@
   });
 </script>
 
-<style scoped></style>
+<style scoped>
+  :deep(.arco-form-item-status-success .arco-select-view:not(.arco-select-view-disabled).arco-select-view-focus) {
+    border-color: var(--color-text-input-border);
+    background: none;
+  }
+  :deep(.arco-form-item-status-success .arco-select-view:not(.arco-select-view-disabled)) {
+    border-color: var(--color-text-input-border);
+    background: transparent;
+  }
+</style>

@@ -10,7 +10,11 @@
     <template #title>
       <span v-if="isEdit">
         {{ t('system.organization.updateOrganization') }}
-        <span class="text-[var(--color-text-4)]">({{ props.currentOrganization?.name }})</span>
+        <a-tooltip :content="props.currentOrganization?.name" position="right">
+          <span class="font-normal text-[var(--color-text-4)]"
+            >({{ characterLimit(props.currentOrganization?.name) }})</span
+          >
+        </a-tooltip>
       </span>
       <span v-else>
         {{ t('system.organization.createOrganization') }}
@@ -69,6 +73,7 @@
 
   import { createOrUpdateOrg } from '@/api/modules/setting/organizationAndProject';
   import { useI18n } from '@/hooks/useI18n';
+  import { characterLimit } from '@/utils';
 
   import { CreateOrUpdateSystemOrgParams } from '@/models/setting/system/orgAndProject';
 

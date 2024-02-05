@@ -383,7 +383,7 @@
   );
 
   onMounted(() => {
-    setBreadText();
+    // setBreadText();
     getClassifyField();
     if (!isEdit.value) {
       selectData.value = totalTemplateField.value.filter((item) => item.internal);

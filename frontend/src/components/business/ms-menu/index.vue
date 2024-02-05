@@ -215,6 +215,9 @@
         async (val) => {
           if (val) {
             personalMenus.value = [...copyPersonalMenus.value];
+            if (appStore.packageType === 'enterprise') {
+              getOrgList();
+            }
           } else {
             personalMenus.value.splice(1, 1);
           }

@@ -5,7 +5,7 @@
     :width="1200"
     :footer="false"
     :mask="false"
-    :title="t('caseManagement.featureCase.caseDetailTitle', { id: detailInfo?.id, name: detailInfo?.name })"
+    :title="t('caseManagement.featureCase.caseDetailTitle', { id: detailInfo?.num, name: detailInfo?.name })"
     :detail-id="props.detailId"
     :detail-index="props.detailIndex"
     :get-detail-func="getCaseDetail"
@@ -104,7 +104,7 @@
                         class="ml-1"
                         :class="activeTab === tab.key ? 'active' : ''"
                         :count="1000"
-                        :max-count="99"
+                        :text="getTotal(tab.total)"
                       /> </div
                   ></a-menu-item>
                   <a-menu-item key="setting">
@@ -173,7 +173,7 @@
               <!-- 自定义字段结束 -->
               <div class="baseItem">
                 <span class="label"> {{ t('caseManagement.featureCase.tableColumnCreateUser') }}</span>
-                <span>{{ detailInfo?.createUser }}</span>
+                <span>{{ detailInfo?.createUserName }}</span>
               </div>
               <div class="baseItem">
                 <span class="label"> {{ t('caseManagement.featureCase.tableColumnCreateTime') }}</span>
@@ -289,6 +289,7 @@
   const activeTab = ref<string | number>('detail');
   function clickMenu(key: string | number) {
     activeTab.value = key;
+    featureCaseStore.setActiveTab(key);
     switch (activeTab.value) {
       case 'setting':
         activeTab.value = 'detail';
@@ -524,7 +525,10 @@
         event: noticeUserIds.value.join(';') ? 'AT' : 'COMMENT', // 任务事件(仅评论: ’COMMENT‘; 评论并@: ’AT‘; 回复评论/回复并@: ’REPLAY‘;)
       };
       await createCommentList(params);
-      commentRef.value.getAllCommentList();
+      if (activeTab.value === 'comments') {
+        commentRef.value.getAllCommentList();
+      }
+
       Message.success(t('common.publishSuccessfully'));
     } catch (error) {
       console.log(error);
@@ -538,6 +542,13 @@
   const changeHandler = debounce(() => {
     tabDetailRef.value.handleOK();
   }, 300);
+
+  function getTotal(total: number) {
+    if (total <= 99) {
+      return String(total);
+    }
+    return `${total}+`;
+  }
 
   watch(
     () => props.detailId,
@@ -601,7 +612,7 @@
       color: rgb(var(--danger-6));
     }
   }
-  :deep(.active .arco-badge-number) {
+  :deep(.active .arco-badge-text) {
     background: rgb(var(--primary-5));
   }
 </style>

@@ -44,7 +44,9 @@
   } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
+  import useFeatureCaseStore from '@/store/modules/case/featureCase';
 
+  const featureCaseStore = useFeatureCaseStore();
   const { openModal } = useModal();
   const { t } = useI18n();
 
@@ -76,15 +78,24 @@
     }
   }
 
-  function getAllCommentList() {
+  function setCount(list: CommentItem[]) {
+    featureCaseStore.setListCount(featureCaseStore.activeTab, list.length);
+  }
+
+  async function getAllCommentList() {
     switch (activeComment.value) {
       case 'caseComment':
-        initCommentList();
+        await initCommentList();
+        setCount(commentList.value);
         break;
       case 'reviewComment':
         initReviewCommentList();
+        await initCommentList();
+        setCount(reviewCommentList.value);
         break;
       case 'executiveComment':
+        await initCommentList();
+        setCount(commentList.value);
         break;
 
       default:

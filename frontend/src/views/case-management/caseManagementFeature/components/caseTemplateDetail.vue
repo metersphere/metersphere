@@ -579,16 +579,6 @@
       console.log(error);
     }
   }
-
-  watchEffect(() => {
-    if (props.caseId) {
-      getCaseInfo();
-    } else {
-      initDefaultFields();
-    }
-    initSelectTree();
-  });
-
   // 处理关联文件和已关联文件本地文件和已上传文本文件
   function getFilesParams() {
     form.value.deleteFileMetaIds = deleteFileMetaIds.value;
@@ -756,10 +746,32 @@
     return data;
   }
 
+  function resetForm() {
+    form.value = { ...initForm };
+    fileList.value = [];
+    caseFormRef.value?.resetFields();
+  }
+
+  const caseId = ref(props.caseId);
+
+  watchEffect(() => {
+    if (caseId.value) {
+      getCaseInfo();
+    } else {
+      initDefaultFields();
+    }
+    initSelectTree();
+  });
+
+  onBeforeMount(() => {
+    caseId.value = '';
+  });
+
   defineExpose({
     caseFormRef,
     formRef,
     fApi,
+    resetForm,
   });
 </script>
 
