@@ -99,6 +99,7 @@
   import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
   import { characterLimit } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type {
     AddOrUpdateCommonScript,
@@ -117,6 +118,10 @@
   const { t } = useI18n();
 
   const keyword = ref<string>('');
+
+  const hasOperationPermission = computed(() =>
+    hasAnyPermission(['PROJECT_CUSTOM_FUNCTION:READ+UPDATE', 'PROJECT_CUSTOM_FUNCTION:READ+DELETE'])
+  );
 
   const columns: MsTableColumn = [
     {
@@ -177,11 +182,11 @@
       showDrag: true,
     },
     {
-      title: 'project.commonScript.tableColumnActions',
+      title: hasOperationPermission.value ? 'project.commonScript.tableColumnActions' : '',
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 140,
+      width: hasOperationPermission.value ? 140 : 50,
       showInTable: true,
       showDrag: false,
     },

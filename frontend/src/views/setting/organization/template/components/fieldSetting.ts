@@ -127,6 +127,11 @@ export function getCardList(type: string): Record<string, any>[] {
   });
 }
 
+export function getTemplateName(type: string, scene: string) {
+  const dataList = getCardList(type);
+  return dataList.find((item) => item.key === scene)?.name;
+}
+
 // table名称展示图标类型表格展示类型
 export const fieldIconAndName: fieldIconAndNameModal[] = [
   {

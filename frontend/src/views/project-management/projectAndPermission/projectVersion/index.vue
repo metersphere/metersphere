@@ -315,6 +315,10 @@
 
   const keyword = ref('');
 
+  const hasOperationPermission = computed(() =>
+    hasAnyPermission(['PROJECT_VERSION:READ+UPDATE', 'PROJECT_VERSION:READ+DELETE'])
+  );
+
   const columns: MsTableColumn = [
     {
       title: 'project.projectVersion.versionName',
@@ -360,11 +364,11 @@
       showTooltip: true,
     },
     {
-      title: 'common.operation',
+      title: hasOperationPermission.value ? 'common.operation' : '',
       fixed: 'right',
       slotName: 'action',
       dataIndex: 'operation',
-      width: 80,
+      width: hasOperationPermission.value ? 80 : 50,
     },
   ];
   const { propsRes, propsEvent, loadList, setKeyword, setLoadListParams } = useTable(

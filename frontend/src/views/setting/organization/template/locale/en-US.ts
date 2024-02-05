@@ -106,7 +106,9 @@ export default {
   'system.orgTemplate.deleteTemplateTitle': 'Are you sure to delete { name }?',
   'system.orgTemplate.apiInputPlaceholder': 'Please enter a third-party API',
   'system.orgTemplate.apiFieldId': 'API field',
-  'system.orgTemplate.copyTemplate': 'Copy Template',
+  'system.orgTemplate.copyTemplate': 'copy{type}template',
+  'system.orgTemplate.createTemplateType': 'create{type}',
+  'system.orgTemplate.editTemplateType': 'edit{type}',
   'system.orgTemplate.workFlowTip':
     'Change the properties or workflow configuration of the event will take effect immediately on the related project. Exercise caution when performing this operation',
   'system.orgTemplate.workFlowToolTip':

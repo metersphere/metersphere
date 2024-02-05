@@ -129,7 +129,7 @@
   const appStore = useAppStore();
   const tableStore = useTableStore();
   const lastProjectId = computed(() => appStore.currentProjectId);
-
+  const hasOperationPermission = computed(() => hasAnyPermission(['PROJECT_USER:READ+DELETE']));
   const columns: MsTableColumn = [
     {
       title: 'project.member.tableColumnName',
@@ -166,11 +166,11 @@
       width: 150,
     },
     {
-      title: 'project.member.tableColumnActions',
+      title: hasOperationPermission.value ? 'project.member.tableColumnActions' : '',
       slotName: 'operation',
       fixed: 'right',
       dataIndex: 'operation',
-      width: 100,
+      width: hasOperationPermission.value ? 100 : 50,
       showDrag: false,
     },
   ];

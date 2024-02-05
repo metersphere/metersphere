@@ -82,7 +82,13 @@
                   【{{ caseDetail.num }}】{{ caseDetail.name }}
                 </div>
               </a-tooltip>
-              <a-button type="outline" size="mini" class="arco-btn-outline--secondary" @click="editCaseVisible = true">
+              <a-button
+                v-permission="['FUNCTIONAL_CASE:READ+UPDATE']"
+                type="outline"
+                size="mini"
+                class="arco-btn-outline--secondary"
+                @click="editCaseVisible = true"
+              >
                 {{ t('common.edit') }}
               </a-button>
             </div>

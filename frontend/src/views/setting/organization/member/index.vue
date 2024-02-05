@@ -154,6 +154,10 @@
   const appStore = useAppStore();
   const { t } = useI18n();
   const lastOrganizationId = computed(() => appStore.currentOrgId);
+
+  const hasOrdMemberOperationPermission = computed(() =>
+    hasAnyPermission(['ORGANIZATION_MEMBER:READ+UPDATE', 'ORGANIZATION_MEMBER:READ+DELETE'])
+  );
   const columns: MsTableColumn = [
     {
       title: 'organization.member.tableColunmEmail',
@@ -205,11 +209,11 @@
       showDrag: true,
     },
     {
-      title: 'organization.member.tableColunmActions',
+      title: hasOrdMemberOperationPermission.value ? 'organization.member.tableColunmActions' : '',
       slotName: 'action',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 140,
+      width: hasOrdMemberOperationPermission.value ? 140 : 50,
       showInTable: true,
       showDrag: false,
     },

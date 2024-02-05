@@ -83,12 +83,11 @@
   import { useAppStore, useTableStore } from '@/store';
   import useTemplateStore from '@/store/modules/setting/template';
   import { characterLimit } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { OrdTemplateManagement } from '@/models/setting/template';
   import { SettingRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
-
-  import { getCardList } from './fieldSetting';
 
   const route = useRoute();
   const { t } = useI18n();
@@ -99,6 +98,10 @@
 
   const keyword = ref('');
   const currentOrd = computed(() => appStore.currentOrgId);
+
+  const hasOperationPermission = computed(() =>
+    hasAnyPermission(['ORGANIZATION_TEMPLATE:READ+UPDATE', 'ORGANIZATION_TEMPLATE:READ+DELETE'])
+  );
 
   const fieldColumns: MsTableColumn = [
     {
@@ -125,11 +128,11 @@
       showInTable: true,
     },
     {
-      title: 'system.orgTemplate.operation',
+      title: hasOperationPermission.value ? 'system.orgTemplate.operation' : '',
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 200,
+      width: hasOperationPermission.value ? 200 : 50,
       showInTable: true,
       showDrag: false,
     },
@@ -249,16 +252,6 @@
     });
   };
 
-  // 更新面包屑根据不同的模板
-  const updateBreadcrumbList = () => {
-    const { breadcrumbList } = appStore;
-    const breadTitle = getCardList('organization').find((item: any) => item.key === route.query.type);
-    if (breadTitle) {
-      breadcrumbList[0].locale = breadTitle.name;
-      appStore.setBreadcrumbList(breadcrumbList);
-    }
-  };
-
   const tableRef = ref();
 
   const sceneType = computed(() => route.query.type);
@@ -283,7 +276,6 @@
   }
 
   onMounted(() => {
-    updateBreadcrumbList();
     fetchData();
     updateColumns();
   });

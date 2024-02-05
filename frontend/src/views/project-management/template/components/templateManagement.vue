@@ -113,13 +113,13 @@
   import { useAppStore, useTableStore } from '@/store';
   import useTemplateStore from '@/store/modules/setting/template';
   import { characterLimit } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { DefinedFieldItem, OrdTemplateManagement } from '@/models/setting/template';
   import { ProjectManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   import {
-    getCardList,
     getCustomDetailFields,
     getTotalFieldOptionList,
   } from '@/views/setting/organization/template/components/fieldSetting';
@@ -135,6 +135,10 @@
   const currentProjectId = computed(() => appStore.currentProjectId);
 
   const sceneType = computed(() => route.query.type);
+
+  const hasOperationPermission = computed(() =>
+    hasAnyPermission(['PROJECT_TEMPLATE:READ+UPDATE', 'PROJECT_TEMPLATE:READ+DELETE'])
+  );
 
   const fieldColumns: MsTableColumn = [
     {
@@ -168,11 +172,11 @@
       showInTable: true,
     },
     {
-      title: 'system.orgTemplate.operation',
+      title: hasOperationPermission.value ? 'system.orgTemplate.operation' : '',
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 200,
+      width: hasOperationPermission.value ? 200 : 50,
       showInTable: true,
       showDrag: false,
     },
@@ -350,16 +354,6 @@
     defectForm.value = { ...initDetailForm };
   };
 
-  // 更新面包屑根据不同的模板
-  const updateBreadcrumbList = () => {
-    const { breadcrumbList } = appStore;
-    const breadTitle = getCardList('project').find((item: any) => item.key === route.query.type);
-    if (breadTitle) {
-      breadcrumbList[0].locale = breadTitle.name;
-      appStore.setBreadcrumbList(breadcrumbList);
-    }
-  };
-
   const tableRef = ref();
 
   function updateColumns() {
@@ -374,7 +368,6 @@
   }
 
   onMounted(() => {
-    updateBreadcrumbList();
     fetchData();
     updateColumns();
   });
