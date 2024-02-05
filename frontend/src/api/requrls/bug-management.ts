@@ -51,3 +51,16 @@ export const getBatchRecoverUrl = '/bug/trash/batch-recover';
 export const getDeleteSingleUrl = '/bug/trash/delete/';
 // 批量删除
 export const getBatchDeleteUrl = '/bug/trash/batch-delete';
+
+// 获取关联的需求列表
+export const getDemandListUrl = '/bug/case/page';
+// 批量添加关联
+export const postAddDemandUrl = '/bug/case/relate';
+// 单个取消关联
+export const getCancelDemandUrl = '/bug/case/un-relate/';
+// 未关联的用例列表
+export const getUnrelatedDemandListUrl = '/bug/case/un-relate/page';
+// 未关联的模块树
+export const getUnrelatedModuleTreeUrl = '/bug/case/un-relate/module/tree';
+// 未关联的模块树 数量
+export const getUnrelatedModuleTreeCountUrl = '/bug/case/un-relate/module/count';

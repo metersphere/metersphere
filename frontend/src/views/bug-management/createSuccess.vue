@@ -80,20 +80,20 @@
   ]);
 
   const isNextTip = ref<boolean>(false);
-  const countDown = ref<number>(5);
+  const countDown = ref<number>(15);
   const timer = ref<any>(null);
   function setCountdown() {
-    // timer.value = setInterval(() => {
-    //   if (countDown.value > 1) {
-    //     --countDown.value;
-    //   } else {
-    //     clearInterval(timer.value);
-    //     router.push({
-    //       name: BugManagementRouteEnum.BUG_MANAGEMENT_INDEX,
-    //     });
-    //   }
-    // }, 1000);
-    timer.value = 5;
+    timer.value = setInterval(() => {
+      if (countDown.value > 1) {
+        --countDown.value;
+      } else {
+        clearInterval(timer.value);
+        router.push({
+          name: BugManagementRouteEnum.BUG_MANAGEMENT_INDEX,
+        });
+      }
+    }, 1000);
+    timer.value = 15;
   }
 
   function isDoNotShowAgainChecked() {
