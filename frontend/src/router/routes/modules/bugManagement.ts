@@ -65,7 +65,7 @@ const BugManagement: AppRouteRecordRaw = {
       name: BugManagementRouteEnum.BUG_MANAGEMENT_RECYCLE,
       component: () => import('@/views/bug-management/recycle.vue'),
       meta: {
-        locale: 'bugManagement.recycle',
+        locale: 'bugManagement.recycle.recycleBin',
         roles: ['PROJECT_BUG:READ'],
         isTopMenu: true,
       },

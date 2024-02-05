@@ -5,7 +5,7 @@ import { BatchApiParams } from './common';
 export interface BugListItem {
   id: string; // 缺陷id
   num: string; // 缺陷编号
-  name: string; // 缺陷名称
+  title: string; // 缺陷名称
   severity: string; // 缺陷严重程度
   status: string; // 缺陷状态
   handleUser: string; // 缺陷处理人

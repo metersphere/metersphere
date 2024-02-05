@@ -1,21 +1,29 @@
 <template>
   <MsCard simple>
-    <MsAdvanceFilter :filter-config-list="filterConfigList" :row-count="filterRowCount">
+    <MsAdvanceFilter
+      :search-placeholder="t('bugManagement.recycle.searchPlaceholder')"
+      :filter-config-list="filterConfigList"
+      :row-count="filterRowCount"
+      @keyword-search="fetchData"
+    >
       <template #left>
         <div></div>
       </template>
     </MsAdvanceFilter>
-    <MsBaseTable v-bind="propsRes" v-on="propsEvent">
-      <template #numberOfCase="{ record }">
-        <span class="cursor-pointer text-[rgb(var(--primary-5))]" @click="jumpToTestPlan(record)">{{
-          record.memberCount
-        }}</span>
-      </template>
+    <MsBaseTable
+      class="mt-[16px]"
+      v-bind="propsRes"
+      :action-config="tableAction"
+      v-on="propsEvent"
+      @batch-action="handleTableBatch"
+    >
       <template #operation="{ record }">
         <div class="flex flex-row flex-nowrap">
-          <MsButton class="!mr-0" @click="handleCopy(record)">{{ t('common.copy') }}</MsButton>
+          <MsButton class="!mr-0" @click="handleRecover(record)">{{ t('bugManagement.recycle.recover') }}</MsButton>
           <a-divider direction="vertical" />
-          <MsButton class="!mr-0" @click="handleEdit(record)">{{ t('common.edit') }}</MsButton>
+          <MsButton class="!mr-0" @click="handleDelete(record)">{{
+            t('bugManagement.recycle.permanentlyDelete')
+          }}</MsButton>
         </div>
       </template>
       <template #empty> </template>
@@ -23,29 +31,35 @@
   </MsCard>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" async setup>
   import { Message } from '@arco-design/web-vue';
+  import dayjs from 'dayjs';
 
   import { MsAdvanceFilter } from '@/components/pure/ms-advance-filter';
   import { FilterFormItem, FilterType } from '@/components/pure/ms-advance-filter/type';
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import { MsTableColumn } from '@/components/pure/ms-table/type';
+  import { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
 
-  import { updateOrAddProjectUserGroup } from '@/api/modules/project-management/usergroup';
-  import { postProjectTableByOrg } from '@/api/modules/setting/organizationAndProject';
+  import {
+    deleteBatchByRecycle,
+    deleteSingleByRecycle,
+    getRecycleList,
+    recoverBatchByRecycle,
+    recoverSingleByRecycle,
+  } from '@/api/modules/bug-management';
   import { useI18n } from '@/hooks/useI18n';
-  import router from '@/router';
+  import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
+  import { characterLimit, tableParamsToRequestParams } from '@/utils';
 
   import { BugListItem } from '@/models/bug-management';
-  import { OrgProjectTableItem } from '@/models/setting/system/orgAndProject';
-  import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
+  import { TableKeyEnum } from '@/enums/tableEnum';
 
   const { t } = useI18n();
-
+  const { openDeleteModal } = useModal();
   const tableStore = useTableStore();
   const appStore = useAppStore();
   const projectId = computed(() => appStore.currentProjectId);
@@ -66,15 +80,6 @@
       },
     },
     {
-      title: 'bugManagement.severity',
-      dataIndex: 'severity',
-      type: FilterType.SELECT,
-      selectProps: {
-        mode: 'static',
-        multiple: true,
-      },
-    },
-    {
       title: 'bugManagement.createTime',
       dataIndex: 'createTime',
       type: FilterType.DATE_PICKER,
@@ -85,104 +90,94 @@
 
   const columns: MsTableColumn = [
     {
+      title: 'bugManagement.recycle.deleteTime',
+      dataIndex: 'deleteTime',
+      showDrag: true,
+      width: 180,
+    },
+    {
+      title: 'bugManagement.recycle.deleteMan',
+      dataIndex: 'deleteUserName',
+      showDrag: true,
+    },
+    {
       title: 'bugManagement.ID',
       dataIndex: 'num',
-      showTooltip: true,
+      showDrag: true,
     },
     {
       title: 'bugManagement.bugName',
-      editType: ColumnEditTypeEnum.INPUT,
-      dataIndex: 'name',
+      dataIndex: 'title',
       showTooltip: true,
-    },
-    {
-      title: 'bugManagement.severity',
-      slotName: 'memberCount',
-      showDrag: true,
-      dataIndex: 'severity',
-    },
-    {
-      title: 'bugManagement.status',
-      dataIndex: 'status',
-      showDrag: true,
-    },
-    {
-      title: 'bugManagement.handleMan',
-      dataIndex: 'handleUser',
-      showTooltip: true,
-      showDrag: true,
-    },
-    {
-      title: 'bugManagement.numberOfCase',
-      dataIndex: 'relationCaseCount',
-      slotName: 'numberOfCase',
-      showDrag: true,
-    },
-    {
-      title: 'bugManagement.belongPlatform',
-      width: 180,
-      showDrag: true,
-      dataIndex: 'platform',
-    },
-    {
-      title: 'bugManagement.tag',
-      showDrag: true,
-      isStringTag: true,
-      dataIndex: 'tag',
     },
     {
       title: 'bugManagement.creator',
       dataIndex: 'createUser',
       showDrag: true,
-    },
-    {
-      title: 'bugManagement.updateUser',
-      dataIndex: 'updateUser',
-      showDrag: true,
+      showTooltip: true,
     },
     {
       title: 'bugManagement.createTime',
       dataIndex: 'createTime',
       showDrag: true,
+      width: 180,
     },
     {
-      title: 'bugManagement.updateTime',
-      dataIndex: 'updateTime',
+      title: 'bugManagement.status',
+      dataIndex: 'statusName',
       showDrag: true,
+    },
+    {
+      title: 'bugManagement.handleMan',
+      dataIndex: 'handleUserName',
+      showTooltip: true,
+      showDrag: true,
+    },
+    {
+      title: 'bugManagement.tag',
+      showDrag: true,
+      isStringTag: true,
+      dataIndex: 'tags',
     },
     {
       title: 'common.operation',
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 230,
+      width: 150,
     },
   ];
-  await tableStore.initColumn(TableKeyEnum.BUG_MANAGEMENT, columns, 'drawer');
-
-  const handleNameChange = async (record: OrgProjectTableItem) => {
-    try {
-      await updateOrAddProjectUserGroup(record);
-      Message.success(t('common.updateSuccess'));
-      return true;
-    } catch (error) {
-      return false;
-    }
-  };
+  await tableStore.initColumn(TableKeyEnum.BUG_MANAGEMENT_RECYCLE, columns, 'drawer');
 
   const { propsRes, propsEvent, loadList, setKeyword, setLoadListParams, setProps } = useTable(
-    postProjectTableByOrg,
+    getRecycleList,
     {
-      tableKey: TableKeyEnum.BUG_MANAGEMENT,
-      selectable: false,
-      noDisable: false,
-      showJumpMethod: true,
+      tableKey: TableKeyEnum.BUG_MANAGEMENT_RECYCLE,
+      selectable: true,
+      noDisable: true,
       showSetting: true,
-      scroll: { x: '1769px' },
+      scroll: { x: '1900px' },
     },
-    undefined,
-    (record) => handleNameChange(record)
+    (record) => {
+      record.deleteTime = dayjs(record.deleteTime).format('YYYY-MM-DD HH:mm:ss');
+      return record;
+    }
   );
+
+  const tableAction = {
+    baseAction: [
+      {
+        eventTag: 'recover',
+        label: t('bugManagement.recycle.recover'),
+        permission: ['PROJECT_BUG:READ+UPDATE'],
+      },
+      {
+        eventTag: 'delete',
+        label: t('bugManagement.recycle.permanentlyDelete'),
+        permission: ['PROJECT_BUG:READ+DELETE'],
+      },
+    ],
+  };
 
   watchEffect(() => {
     setProps({ heightUsed: heightUsed.value });
@@ -193,39 +188,80 @@
     await loadList();
   };
 
-  const handleCreate = () => {
-    // eslint-disable-next-line no-console
-    console.log('create');
-  };
-  const handleSync = () => {
-    // eslint-disable-next-line no-console
-    console.log('sync');
-  };
-
-  const handleCopy = (record: BugListItem) => {
-    // eslint-disable-next-line no-console
-    console.log('create', record);
+  // 单个恢复
+  const handleRecover = async (record: BugListItem) => {
+    try {
+      await recoverSingleByRecycle(record.id);
+      Message.success(t('bugManagement.recycle.recoverSuccess'));
+      fetchData();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
   };
 
-  const handleEdit = (record: BugListItem) => {
-    // eslint-disable-next-line no-console
-    console.log('create', record);
+  // 批量恢复
+  const handleBatchRecover = async (params: BatchActionQueryParams) => {
+    try {
+      const tmpObj = { ...tableParamsToRequestParams(params), projectId: projectId.value };
+      await recoverBatchByRecycle(tmpObj);
+      Message.success(t('bugManagement.recycle.recoverSuccess'));
+      fetchData();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
   };
 
+  // 单个删除
   const handleDelete = (record: BugListItem) => {
-    // eslint-disable-next-line no-console
-    console.log('create', record);
-  };
-
-  const jumpToTestPlan = (record: BugListItem) => {
-    router.push({
-      name: 'testPlan',
-      query: {
-        bugId: record.id,
-        projectId: projectId.value,
+    openDeleteModal({
+      title: t('bugManagement.recycle.permanentlyDeleteTip', { name: characterLimit(record.title) }),
+      content: t('bugManagement.recycle.deleteContent'),
+      onBeforeOk: async () => {
+        try {
+          await deleteSingleByRecycle(record.id);
+          Message.success(t('common.deleteSuccess'));
+          fetchData();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
       },
     });
   };
+  // 批量删除
+  const handleBatchDelete = (params: BatchActionQueryParams) => {
+    openDeleteModal({
+      title: t('bugManagement.recycle.batchDelete', { count: params.currentSelectCount }),
+      content: t('bugManagement.recycle.deleteContent'),
+      onBeforeOk: async () => {
+        try {
+          const tmpObj = { ...tableParamsToRequestParams(params), projectId: projectId.value };
+          await deleteBatchByRecycle(tmpObj);
+          Message.success(t('common.deleteSuccess'));
+          fetchData();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
+      },
+    });
+  };
+
+  // 处理表格选中后批量操作
+  function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
+    switch (event.eventTag) {
+      case 'recover':
+        handleBatchRecover(params);
+        break;
+      case 'delete':
+        handleBatchDelete(params);
+        break;
+      default:
+        break;
+    }
+  }
 
   onMounted(() => {
     setLoadListParams({ projectId: projectId.value });

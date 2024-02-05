@@ -110,10 +110,6 @@
           <template #second>
             <div class="rightWrapper p-[24px]">
               <div class="mb-4 font-medium">{{ t('bugManagement.detail.basicInfo') }}</div>
-              <div class="baseItem">
-                <span class="label"> {{ t('bugManagement.detail.handleUser') }}</span>
-                <MsUserSelector v-model:model-value="detailInfo.handleUser" />
-              </div>
               <!-- 自定义字段开始 -->
               <MsFormCreate
                 v-if="formRules.length"
@@ -127,7 +123,7 @@
               <!-- 自定义字段结束 -->
               <div class="baseItem">
                 <span class="label"> {{ t('bugManagement.detail.tag') }}</span>
-                <MsTagsInput v-model:modelValue="detailInfo.tag"></MsTagsInput>
+                <!-- <MsTagsInput></MsTagsInput> -->
               </div>
               <div class="baseItem">
                 <span class="label"> {{ t('bugManagement.detail.creator') }}</span>
@@ -169,7 +165,6 @@
   import { CommentInput } from '@/components/business/ms-comment';
   import { CommentParams } from '@/components/business/ms-comment/types';
   import MsDetailDrawer from '@/components/business/ms-detail-drawer/index.vue';
-  import { MsUserSelector } from '@/components/business/ms-user-selector';
   import BugCaseTab from './bugCaseTab.vue';
   import BugDetailTab from './bugDetailTab.vue';
   import CommentTab from './commentTab.vue';
@@ -220,13 +215,21 @@
   const tabSetting = ref<TabItemType[]>([...tabSettingList.value]);
   const activeTab = ref<string | number>('detail');
 
-  const detailInfo = ref<Record<string, any>>({});
+  const detailInfo = ref<Record<string, any>>({
+    tags: [],
+    id: '',
+    createUser: '',
+    createTime: '',
+    description: '',
+    followFlag: false,
+    templateId: '',
+    title: '',
+  });
   const customFields = ref<CustomAttributes[]>([]);
 
   function loadedBug(detail: CaseManagementTable) {
     detailInfo.value = { ...detail };
     customFields.value = detailInfo.value.customFields;
-    detailInfo.value.id = '1070838426116099';
   }
 
   const editLoading = ref<boolean>(false);
@@ -363,7 +366,7 @@
     try {
       const params = {
         // TODO 本地测试
-        bugId: detailInfo.value.id || '1070838426116099',
+        bugId: detailInfo.value.id,
         notifier: notifiers,
         replyUser: '',
         parentId: '',
@@ -372,7 +375,7 @@
       };
       await createOrUpdateComment(params as CommentParams);
       Message.success(t('common.publishSuccessfully'));
-      commentRef.value?.initData(detailInfo.value.id || '1070838426116099');
+      commentRef.value?.initData(detailInfo.value.id);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
