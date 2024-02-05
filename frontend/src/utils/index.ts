@@ -1,7 +1,7 @@
 import { findKey } from 'lodash-es';
 import JSEncrypt from 'jsencrypt';
 
-import { MsTableColumn, MsTableColumnData } from '@/components/pure/ms-table/type';
+import { BatchActionQueryParams, MsTableColumn, MsTableColumnData } from '@/components/pure/ms-table/type';
 
 import { CustomFieldItem } from '@/models/bug-management';
 
@@ -492,7 +492,7 @@ export function formatPhoneNumber(phoneNumber = '') {
   }
   return phoneNumber;
 }
-
+// 表格自定义字段转column
 export function customFieldToColumns(customFields: CustomFieldItem[]) {
   return customFields.map((field) => {
     const { fieldName, fieldKey, fieldId } = field;
@@ -506,4 +506,14 @@ export function customFieldToColumns(customFields: CustomFieldItem[]) {
     };
     return column;
   });
+}
+// 表格查询参数转请求参数
+export function tableParamsToRequestParams(params: BatchActionQueryParams) {
+  const { selectedIds, selectAll, excludeIds, condition } = params;
+  return {
+    selectIds: selectedIds,
+    excludeIds,
+    selectAll,
+    condition,
+  };
 }

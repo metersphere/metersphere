@@ -159,3 +159,25 @@ export function getAttachmentList(bugId: string) {
 export function editorUploadFile(data: { fileList: File[] }) {
   return MSR.uploadFile({ url: bugURL.editorUploadFileUrl }, { fileList: data.fileList }, '', false);
 }
+
+// --------------------回收站
+// 获取回收站列表
+export function getRecycleList(data: TableQueryParams) {
+  return MSR.post<CommonList<BugListItem>>({ url: bugURL.getRecycleListUrl, data });
+}
+// 单个恢复
+export function recoverSingleByRecycle(id: string) {
+  return MSR.get({ url: `${bugURL.getRecoverSingleUrl}${id}` });
+}
+// 批量恢复
+export function recoverBatchByRecycle(data: TableQueryParams) {
+  return MSR.post({ url: bugURL.getBatchRecoverUrl, data });
+}
+// 删除
+export function deleteSingleByRecycle(id: string) {
+  return MSR.get({ url: `${bugURL.getDeleteSingleUrl}${id}` });
+}
+// 批量删除
+export function deleteBatchByRecycle(data: TableQueryParams) {
+  return MSR.post({ url: bugURL.getBatchDeleteUrl, data });
+}

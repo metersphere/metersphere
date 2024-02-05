@@ -40,3 +40,14 @@ export const deleteFileOrCancelAssociationUrl = '/bug/attachment/delete';
 export const getAttachmentListUrl = '/bug/attachment/list/';
 // 富文本编辑器上传图片
 export const editorUploadFileUrl = '/bug/attachment/upload/editor';
+
+// 获取回收站列表
+export const getRecycleListUrl = '/bug/trash/page';
+// 单个恢复
+export const getRecoverSingleUrl = '/bug/trash/recover/';
+// 批量恢复
+export const getBatchRecoverUrl = '/bug/trash/batch-recover';
+// 删除
+export const getDeleteSingleUrl = '/bug/trash/delete/';
+// 批量删除
+export const getBatchDeleteUrl = '/bug/trash/batch-delete';
