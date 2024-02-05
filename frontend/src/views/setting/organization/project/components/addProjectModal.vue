@@ -264,15 +264,10 @@
       form.resourcePoolIds = props.currentProject.resourcePoolIds;
     }
   });
-  watch(
-    () => props.visible,
-    (val) => {
-      currentVisible.value = val;
-      if (!val) {
-        formReset();
-      } else {
-        initAffiliatedOrgOption();
-      }
-    }
-  );
+  onMounted(() => {
+    initAffiliatedOrgOption();
+  });
+  onUnmounted(() => {
+    formReset();
+  });
 </script>
