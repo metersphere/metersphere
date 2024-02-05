@@ -33,19 +33,6 @@
       <template #num="{ record, rowIndex }">
         <a-button type="text" class="px-0" @click="handleShowDetail(record.id, rowIndex)">{{ record.num }}</a-button>
       </template>
-      <!-- 严重程度 -->
-      <template #severity="{ record }">
-        <MsEditComp mode="select" :options="severityOption" :default-value="record.severity" />
-      </template>
-      <!-- 状态 -->
-      <template #status="{ record }">
-        <MsEditComp mode="select" :options="statusOption" :default-value="record.statusName" />
-      </template>
-      <template #numberOfCase="{ record }">
-        <span class="cursor-pointer text-[rgb(var(--primary-5))]" @click="jumpToTestPlan(record)">{{
-          record.memberCount
-        }}</span>
-      </template>
       <template #operation="{ record }">
         <div class="flex flex-row flex-nowrap">
           <span v-permission="['PROJECT_BUG:READ+ADD']" class="flex flex-row">
@@ -150,7 +137,6 @@
   import useTable from '@/components/pure/ms-table/useTable';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
-  import MsEditComp from '@/components/business/ms-edit-comp';
   import BatchEditModal from './components/batchEditModal.vue';
   import BugDetailDrawer from './components/bug-detail-drawer.vue';
   import DeleteModal from './components/deleteModal.vue';
@@ -164,13 +150,12 @@
     getExportConfig,
     syncBugOpenSource,
   } from '@/api/modules/bug-management';
-  import { updateOrAddProjectUserGroup } from '@/api/modules/project-management/usergroup';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import router from '@/router';
   import { useAppStore, useTableStore } from '@/store';
   import useLicenseStore from '@/store/modules/setting/license';
-  import { customFieldToColumns } from '@/utils';
+  import { customFieldToColumns, tableParamsToRequestParams } from '@/utils';
 
   import { BugEditCustomField, BugListItem } from '@/models/bug-management';
   import { RouteEnum } from '@/enums/routeEnum';
@@ -230,29 +215,8 @@
     {
       title: 'bugManagement.bugName',
       dataIndex: 'title',
-      type: FilterType.SELECT,
-      selectProps: {
-        mode: 'static',
-        options: [
-          {
-            label: 'title',
-            value: 'title',
-          },
-          {
-            label: 'name',
-            value: 'name',
-          },
-        ],
-      },
-    },
-    {
-      title: 'bugManagement.severity',
-      dataIndex: 'severity',
-      type: FilterType.SELECT,
-      selectProps: {
-        mode: 'static',
-        multiple: true,
-      },
+      type: FilterType.INPUT,
+      backendType: BackEndEnum.STRING,
     },
     {
       title: 'bugManagement.createTime',
@@ -280,15 +244,8 @@
     {
       title: 'bugManagement.bugName',
       dataIndex: 'title',
-      width: 300,
+      width: 200,
       showTooltip: true,
-    },
-    {
-      title: 'bugManagement.severity',
-      slotName: 'severity',
-      width: 102,
-      showDrag: true,
-      dataIndex: 'severity',
     },
     {
       title: 'bugManagement.status',
@@ -361,16 +318,6 @@
   const customColumns = await getCustomFieldColumns();
   await tableStore.initColumn(TableKeyEnum.BUG_MANAGEMENT, columns.concat(customColumns), 'drawer');
 
-  const handleNameChange = async (record: BugListItem) => {
-    try {
-      await updateOrAddProjectUserGroup(record);
-      Message.success(t('common.updateSuccess'));
-      return true;
-    } catch (error) {
-      return false;
-    }
-  };
-
   const { propsRes, propsEvent, setKeyword, setAdvanceFilter, setLoadListParams, setProps, resetSelector, loadList } =
     useTable(
       getBugList,
@@ -382,8 +329,7 @@
         showSetting: true,
         scroll: { x: '1800px' },
       },
-      undefined,
-      (record) => handleNameChange(record)
+      (record: TableData) => ({ ...record, handleUser: record.handleUserName })
     );
 
   const tableBatchActions = {
@@ -503,30 +449,16 @@
   };
 
   const handleBatchDelete = (params: BatchActionQueryParams) => {
-    // TODO: 等后端接口传给后端id，获取内部和第三方的数量
-    const internalCount = 2;
-    const externalCount = 0;
     openDeleteModal({
       title: t('bugManagement.deleteCount', { count: params.selectedIds?.length }),
-      content: `${internalCount ? t('bugManagement.deleteTipInternal', { count: internalCount }) : ''}${
-        internalCount ? ';' : ''
-      } ${
-        externalCount
-          ? t('bugManagement.deleteTipExternal', {
-              count: externalCount,
-            })
-          : ''
-      }`,
+      content: t('bugManagement.deleteTip'),
       onBeforeOk: async () => {
         try {
-          const { selectedIds, selectAll, excludeIds } = params;
-          await deleteBatchBug({
-            selectIds: selectedIds || [],
-            selectAll,
-            excludeIds,
-            condition: { keyword: keyword.value },
+          const tmpObj = {
+            ...tableParamsToRequestParams(params),
             projectId: projectId.value,
-          });
+          };
+          await deleteBatchBug(tmpObj);
           Message.success(t('common.deleteSuccess'));
           fetchData();
         } catch (error) {

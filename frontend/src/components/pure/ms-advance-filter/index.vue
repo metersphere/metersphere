@@ -80,7 +80,7 @@
 
   const handleResetFilter = () => {
     filterResult.value = { ...defaultFilterResult };
-    emit('keywordSearch', '', { ...defaultFilterResult });
+    emit('advSearch', { ...defaultFilterResult });
   };
 
   const handleFilter = (filter: FilterResult) => {

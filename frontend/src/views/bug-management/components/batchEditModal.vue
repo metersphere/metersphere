@@ -24,19 +24,16 @@
         >
           <a-select v-model:model-value="form.attribute" @change="handleArrtibuteChange">
             <a-optgroup :label="t('bugManagement.batchUpdate.systemFiled')">
-              <a-option
-                v-for="item in systemOptionList"
-                :key="item.value"
-                :disabled="form.attribute === 'status'"
-                :value="item.value"
-                >{{ item.label }}</a-option
-              >
-            </a-optgroup>
-            <a-optgroup :label="t('bugManagement.batchUpdate.customFiled')">
-              <a-option v-for="item in customOptionList" :key="item.value" :value="item.value">{{
+              <a-option v-for="item in systemOptionList" :key="item.value" :value="item.value">{{
                 item.label
               }}</a-option>
             </a-optgroup>
+            <!-- V3.0 先不上自定义字段的批量更新 -->
+            <!-- <a-optgroup :label="t('bugManagement.batchUpdate.customFiled')">
+              <a-option v-for="item in customOptionList" :disabled="form.attribute === 'status'" :key="item.value" :value="item.value">{{
+                item.label
+              }}</a-option>
+            </a-optgroup> -->
           </a-select>
         </a-form-item>
         <a-form-item
@@ -67,7 +64,7 @@
           :label="t('bugManagement.batchUpdate.update')"
           :rules="[{ required: true }]"
         >
-          <template v-if="valueMode === 'tag'">
+          <template v-if="valueMode === 'tags'">
             <MsTagsInput v-model:modelValue="form.value" :disabled="!form.attribute"></MsTagsInput>
           </template>
           <template v-else-if="valueMode === 'user_selector'">
@@ -131,6 +128,7 @@
   import { updateBatchBug } from '@/api/modules/bug-management';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
+  import { tableParamsToRequestParams } from '@/utils';
 
   import type { BugBatchUpdateFiledType } from '@/models/bug-management';
   import { BugBatchUpdateFiledForm, BugEditCustomField } from '@/models/bug-management';
@@ -150,20 +148,16 @@
   const selectCount = computed(() => props.selectParam.currentSelectCount);
   const systemOptionList = computed(() => [
     {
-      label: t('bugManagement.batchUpdate.handleUser'),
-      value: 'handleUser',
-    },
-    {
       label: t('bugManagement.batchUpdate.tag'),
-      value: 'tag',
+      value: 'tags',
     },
   ]);
-  const customOptionList = computed(() => {
-    return props.customFields.map((item) => ({
-      label: item.fieldName,
-      value: item.fieldId,
-    }));
-  });
+  // const customOptionList = computed(() => {
+  //   return props.customFields.map((item) => ({
+  //     label: item.fieldName,
+  //     value: item.fieldId,
+  //   }));
+  // });
   const currentVisible = computed({
     get() {
       return props.visible;
@@ -189,7 +183,15 @@
 
   const formRef = ref<FormInstance>();
 
+  const formReset = () => {
+    form.attribute = '';
+    form.value = [];
+    form.inputValue = '';
+    form.append = false;
+  };
+
   const handleCancel = () => {
+    formReset();
     currentVisible.value = false;
     loading.value = false;
   };
@@ -198,8 +200,8 @@
   const handleArrtibuteChange = (value: SelectValue) => {
     form.value = [];
     form.inputValue = '';
-    if (value === 'tag') {
-      valueMode.value = 'tag';
+    if (value === 'tags') {
+      valueMode.value = 'tags';
       showAppend.value = true;
     } else if (value === 'handleUser') {
       valueMode.value = 'user_selector';
@@ -228,17 +230,13 @@
       if (!errors) {
         try {
           loading.value = true;
-          const params = {
-            excludeIds: props.selectParam.excludeIds,
-            selectIds: props.selectParam.selectedIds,
-            selectAll: props.selectParam.selectAll,
-            // 查询条件
-            condition: props.selectParam.condition,
+          const tmpObj = {
+            ...tableParamsToRequestParams(props.selectParam),
             projectId: appStore.currentProjectId,
             [form.attribute]: form.value || form.inputValue,
             append: form.append,
           };
-          await updateBatchBug(params);
+          await updateBatchBug(tmpObj);
           Message.success(t('common.deleteSuccess'));
           handleCancel();
           emit('submit');
