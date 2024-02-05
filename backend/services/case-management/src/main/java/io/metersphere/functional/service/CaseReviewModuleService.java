@@ -66,7 +66,7 @@ public class CaseReviewModuleService extends ModuleTreeService {
 
     public List<BaseTreeNode> getTree(String projectId) {
         List<BaseTreeNode> fileModuleList = extCaseReviewModuleMapper.selectBaseByProjectId(projectId);
-        return super.buildTreeAndCountResource(fileModuleList, true, Translator.get("default.module"));
+        return super.buildTreeAndCountResource(fileModuleList, true, Translator.get("review.module.default.name"));
     }
 
     public String add(CaseReviewModuleCreateRequest request, String userId) {
@@ -188,7 +188,7 @@ public class CaseReviewModuleService extends ModuleTreeService {
     public List<BaseTreeNode> getTreeOnlyIdsAndResourceCount(String projectId, List<ModuleCountDTO> moduleCountDTOList) {
         //节点内容只有Id和parentId
         List<BaseTreeNode> fileModuleList = extCaseReviewModuleMapper.selectIdAndParentIdByProjectId(projectId);
-        return super.buildTreeAndCountResource(fileModuleList, moduleCountDTOList, true, Translator.get("default.module"));
+        return super.buildTreeAndCountResource(fileModuleList, moduleCountDTOList, true, Translator.get("review.module.default.name"));
     }
 
     /**

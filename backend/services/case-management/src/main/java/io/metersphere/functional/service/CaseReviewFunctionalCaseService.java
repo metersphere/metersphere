@@ -642,7 +642,7 @@ public class CaseReviewFunctionalCaseService {
             projectRootMap.forEach((projectId,projectOptionDTOList)->{
                 BaseTreeNode projectNode = new BaseTreeNode(projectId, projectOptionDTOList.get(0).getProjectName(), Project.class.getName());
                 returnList.add(projectNode);
-                BaseTreeNode defaultNode = functionalCaseModuleService.getDefaultModule(Translator.get("default.module"));
+                BaseTreeNode defaultNode = functionalCaseModuleService.getDefaultModule(Translator.get("functional_case.module.default.name"));
                 projectNode.addChild(defaultNode);
             });
             return returnList;
@@ -653,7 +653,7 @@ public class CaseReviewFunctionalCaseService {
             List<String> projectModuleIds = moduleList.stream().map(FunctionalCaseModule::getId).toList();
             List<BaseTreeNode> nodeByNodeIds = functionalCaseModuleService.getNodeByNodeIds(projectModuleIds);
             boolean haveVirtualRootNode = CollectionUtils.isEmpty(projectRootMap.get(projectId));
-            List<BaseTreeNode> baseTreeNodes = functionalCaseModuleService.buildTreeAndCountResource(nodeByNodeIds, !haveVirtualRootNode, Translator.get("default.module"));
+            List<BaseTreeNode> baseTreeNodes = functionalCaseModuleService.buildTreeAndCountResource(nodeByNodeIds, !haveVirtualRootNode, Translator.get("functional_case.module.default.name"));
             for (BaseTreeNode baseTreeNode : baseTreeNodes) {
                 projectNode.addChild(baseTreeNode);
             }
@@ -704,7 +704,7 @@ public class CaseReviewFunctionalCaseService {
         //节点内容只有Id和parentId
         List<String> moduleIds = extFunctionalCaseModuleMapper.selectIdByProjectIdAndReviewId(projectId, reviewId);
         List<BaseTreeNode> nodeByNodeIds = functionalCaseModuleService.getNodeByNodeIds(moduleIds);
-        return functionalCaseModuleService.buildTreeAndCountResource(nodeByNodeIds, moduleCountDTOList, true, Translator.get("default.module"));
+        return functionalCaseModuleService.buildTreeAndCountResource(nodeByNodeIds, moduleCountDTOList, true, Translator.get("functional_case.module.default.name"));
     }
 
     public List<OptionDTO> getUserStatus(String reviewId, String caseId) {
