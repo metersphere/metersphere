@@ -14,7 +14,6 @@ import io.metersphere.functional.result.CaseManagementResultCode;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.provider.BaseCaseProvider;
 import io.metersphere.sdk.constants.ApplicationNumScope;
-import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.dto.sdk.request.PosRequest;
@@ -322,14 +321,14 @@ public class CaseReviewService {
     }
 
     /**
-     * 获取具有评审权限的用户
+     * 获取当前项目的所有用户
      *
      * @param projectId projectId
      * @param keyword   查询关键字，根据邮箱和用户名查询
      * @return List<User>
      */
     public List<UserDTO> getReviewUserList(String projectId, String keyword) {
-        return extUserMapper.getUserByPermission(projectId, keyword, PermissionConstants.CASE_REVIEW_REVIEW);
+        return extUserMapper.getUserByKeyword(projectId, keyword);
 
     }
 

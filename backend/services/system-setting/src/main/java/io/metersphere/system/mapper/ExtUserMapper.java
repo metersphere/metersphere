@@ -33,6 +33,9 @@ public interface ExtUserMapper {
      */
     List<UserDTO>getUserByPermission(@Param("projectId") String projectId, @Param("keyword") String keyword, @Param("permission") String permission);
 
+    List<UserDTO>getUserByKeyword(@Param("projectId") String projectId, @Param("keyword") String keyword);
+
+
     long countByIdAndPassword(@Param("userId") String id, @Param("password") String password);
 
     long updatePasswordByUserId(@Param("userId") String id, @Param("password") String password);

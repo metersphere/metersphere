@@ -71,6 +71,20 @@
         GROUP BY urr.user_id
         limit 100
     </select>
+
+    <select id="getUserByKeyword" resultType="io.metersphere.system.dto.user.UserDTO">
+        SELECT u.id as id, u.name as name, u.email as email, ue.avatar as avatar
+        FROM user u
+        LEFT JOIN user_extend ue ON u.id = ue.id
+        LEFT JOIN user_role_relation urr ON u.id = urr.user_id
+        WHERE urr.source_id = #{projectId}
+        <if test="keyword != null and keyword != ''">
+            AND (name LIKE concat('%', #{keyword}, '%') OR email LIKE concat('%', #{keyword}, '%'))
+        </if>
+        GROUP BY urr.user_id
+        limit 100
+    </select>
+
     <select id="countByIdAndPassword" resultType="java.lang.Long">
         SELECT count(id)
         FROM user
