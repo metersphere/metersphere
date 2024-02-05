@@ -2,7 +2,7 @@ package io.metersphere.project.api.assertion;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import io.metersphere.project.api.KeyValueParam;
-import io.metersphere.project.api.processor.ScriptProcessor;
+import io.metersphere.project.constants.ScriptLanguageType;
 import lombok.Data;
 
 import java.util.List;
@@ -21,7 +21,7 @@ public class MsScriptAssertion extends MsAssertion {
     private String script;
     /**
      * 脚本语言
-     * @see ScriptProcessor.ScriptLanguageType
+     * {@link ScriptLanguageType}
      */
     private String scriptLanguage;
     /**
