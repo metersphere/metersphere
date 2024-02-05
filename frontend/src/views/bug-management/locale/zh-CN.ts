@@ -32,6 +32,7 @@ export default {
     deleteCount: '确认删除 {count} 个缺陷吗？',
     deleteTipInternal: '删除后，{count} 条 MeterSphere 创建的缺陷进入回收站',
     deleteTipExternal: '{count} 条第三方平台同步的缺陷将不做回收',
+    deleteTip: 'Metersphere进入回收站, 三方平台的不做回收',
     edit: {
       defaultSystemTemplate: '默认为系统模板',
       content: '缺陷内容',
@@ -67,6 +68,8 @@ export default {
       detail: '详情',
       case: '用例',
       comment: '评论',
+      deleteTitle: '确认删除 {name} 吗？',
+      deleteContent: '删除后，MeterSphere 创建的缺陷进入回收站；第三方平台同步的缺陷将不做回收',
     },
     batchUpdate: {
       attribute: '选择属性',

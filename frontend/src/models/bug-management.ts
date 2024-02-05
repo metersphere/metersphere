@@ -46,7 +46,7 @@ export interface BugEditCustomFieldItem {
   type: string;
   value: string;
 }
-export type BugBatchUpdateFiledType = 'single_select' | 'multiple_select' | 'tag' | 'input' | 'user_selector' | 'date';
+export type BugBatchUpdateFiledType = 'single_select' | 'multiple_select' | 'tags' | 'input' | 'user_selector' | 'date';
 export interface BugBatchUpdateFiledForm {
   attribute: string;
   value: string[];

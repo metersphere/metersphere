@@ -88,20 +88,20 @@
                     <template #title>
                       {{ t('bugManagement.detail.detail') }}
                     </template>
-                    <BugDetailTab :detail-info="detailInfo" />
+                    <BugDetailTab />
                   </a-tab-pane>
                   <a-tab-pane key="case">
                     <template #title>
                       {{ t('bugManagement.detail.case') }}
                       <a-badge class="relative top-1 ml-1" :count="1000" :max-count="99" />
                     </template>
-                    <BugCaseTab :detail-info="detailInfo" />
+                    <BugCaseTab />
                   </a-tab-pane>
                   <a-tab-pane key="comment">
                     <template #title>
                       {{ t('bugManagement.detail.comment') }}
                     </template>
-                    <CommentTab ref="commentRef" bug-id="1070838426116099" />
+                    <CommentTab ref="commentRef" bug-id="detailInfo.id" />
                   </a-tab-pane>
                 </a-tabs>
               </div>
@@ -123,16 +123,17 @@
               <!-- 自定义字段结束 -->
               <div class="baseItem">
                 <span class="label"> {{ t('bugManagement.detail.tag') }}</span>
-                <!-- <MsTagsInput></MsTagsInput> -->
+                <MsTagsInput v-model:model-value="tags"></MsTagsInput>
               </div>
-              <div class="baseItem">
+              <!-- 创建人 创建时间需求说先去掉 -->
+              <!-- <div class="baseItem">
                 <span class="label"> {{ t('bugManagement.detail.creator') }}</span>
-                <span>{{ detailInfo?.createUser }}</span>
+                <span>{{ detailInfo?.createUserName }}</span>
               </div>
               <div class="baseItem">
                 <span class="label"> {{ t('bugManagement.detail.createTime') }}</span>
                 <span>{{ dayjs(detailInfo?.createTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
-              </div>
+              </div> -->
             </div>
           </template>
         </MsSplitBox>
@@ -153,7 +154,6 @@
   import { ref } from 'vue';
   import { useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
-  import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
@@ -169,24 +169,29 @@
   import BugDetailTab from './bugDetailTab.vue';
   import CommentTab from './commentTab.vue';
 
-  import { createOrUpdateComment, deleteSingleBug, followBug, getBugDetail } from '@/api/modules/bug-management/index';
+  import {
+    createOrUpdateComment,
+    deleteSingleBug,
+    followBug,
+    getBugDetail,
+    getTemplateById,
+  } from '@/api/modules/bug-management/index';
   import useFullScreen from '@/hooks/useFullScreen';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore } from '@/store';
-  import useFeatureCaseStore from '@/store/modules/case/featureCase';
   import { characterLimit } from '@/utils';
 
-  import type { CaseManagementTable, CustomAttributes, TabItemType } from '@/models/caseManagement/featureCase';
+  import { BugEditCustomField, BugEditFormObject } from '@/models/bug-management';
+  import { SelectValue } from '@/models/projectManagement/menuManagement';
   import { RouteEnum } from '@/enums/routeEnum';
 
   const router = useRouter();
   const detailDrawerRef = ref<InstanceType<typeof MsDetailDrawer>>();
   const wrapperRef = ref();
   const { isFullScreen, toggleFullScreen } = useFullScreen(wrapperRef);
-  const featureCaseStore = useFeatureCaseStore();
   const { t } = useI18n();
-  const { openModal } = useModal();
+  const { openDeleteModal } = useModal();
 
   const props = defineProps<{
     visible: boolean;
@@ -197,39 +202,68 @@
     pageChange: (page: number) => Promise<void>; // 分页变更函数
   }>();
 
-  const emit = defineEmits(['update:visible']);
-
   const appStore = useAppStore();
   const commentContent = ref('');
   const commentRef = ref();
   const noticeUserIds = ref<string[]>([]); // 通知人ids
-
+  const fApi = ref();
+  const formRules = ref<FormItem[]>([]); // 表单规则
+  const formItem = ref<FormRuleItem[]>([]); // 表单项
   const currentProjectId = computed(() => appStore.currentProjectId);
+  const showDrawerVisible = defineModel<boolean>('visible', { default: false });
 
-  const showDrawerVisible = ref<boolean>(false);
-
-  const tabSettingList = computed(() => {
-    return featureCaseStore.tabSettingList;
-  });
-
-  const tabSetting = ref<TabItemType[]>([...tabSettingList.value]);
   const activeTab = ref<string | number>('detail');
 
-  const detailInfo = ref<Record<string, any>>({
-    tags: [],
-    id: '',
-    createUser: '',
-    createTime: '',
-    description: '',
-    followFlag: false,
-    templateId: '',
-    title: '',
-  });
-  const customFields = ref<CustomAttributes[]>([]);
+  const detailInfo = ref<Record<string, any>>({}); // 存储当前详情信息，通过loadBug 获取
+  const tags = ref([]);
 
-  function loadedBug(detail: CaseManagementTable) {
+  // 处理表单格式
+  const getFormRules = (arr: BugEditCustomField[]) => {
+    formRules.value = [];
+    if (Array.isArray(arr) && arr.length) {
+      formRules.value = arr.map((item) => {
+        return {
+          type: item.type,
+          name: item.fieldId,
+          label: item.fieldName,
+          value: item.value,
+          options: item.platformOptionJson ? JSON.parse(item.platformOptionJson) : item.options,
+          required: item.required as boolean,
+          props: {
+            modelValue: item.value,
+            options: item.platformOptionJson ? JSON.parse(item.platformOptionJson) : item.options,
+          },
+        };
+      });
+    }
+  };
+
+  const templateChange = async (v: SelectValue) => {
+    if (v) {
+      try {
+        const res = await getTemplateById({ projectId: appStore.currentProjectId, id: v });
+        getFormRules(res.customFields);
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      }
+    }
+  };
+  async function loadedBug(detail: BugEditFormObject) {
     detailInfo.value = { ...detail };
-    customFields.value = detailInfo.value.customFields;
+    const { templateId } = detail;
+    // tag 赋值
+    tags.value = detail.tags || [];
+    // 初始化自定义字段
+    await templateChange(templateId);
+    const tmpObj = {};
+    if (detail.customFields && Array.isArray(detail.customFields)) {
+      detail.customFields.forEach((item) => {
+        tmpObj[item.id] = item.value;
+      });
+    }
+    // 自定义字段赋值
+    fApi.value.setValue(tmpObj);
   }
 
   const editLoading = ref<boolean>(false);
@@ -276,15 +310,9 @@
   // 删除用例
   function deleteHandler() {
     const { id, name } = detailInfo.value;
-    openModal({
-      type: 'error',
-      title: t('caseManagement.featureCase.deleteCaseTitle', { name: characterLimit(name) }),
-      content: t('caseManagement.featureCase.beforeDeleteCase'),
-      okText: t('common.confirmDelete'),
-      cancelText: t('common.cancel'),
-      okButtonProps: {
-        status: 'danger',
-      },
+    openDeleteModal({
+      title: t('bugManagement.detail.deleteTitle', { name: characterLimit(name) }),
+      content: t('bugManagement.detail.deleteContent'),
       onBeforeOk: async () => {
         try {
           const params = {
@@ -301,14 +329,8 @@
           console.log(error);
         }
       },
-      hideCancel: false,
     });
   }
-
-  const formRules = ref<FormItem[]>([]);
-  const formItem = ref<FormRuleItem[]>([]);
-
-  const isDisabled = ref<boolean>(false);
 
   // 表单配置项
   const options = {
@@ -336,26 +358,6 @@
     },
   };
 
-  const fApi = ref(null);
-  // 初始化表单
-  function initForm() {
-    formRules.value = customFields.value.map((item: any) => {
-      return {
-        type: item.type,
-        name: item.fieldId,
-        label: item.fieldName,
-        value: JSON.parse(item.defaultValue),
-        required: item.required,
-        options: item.options || [],
-        props: {
-          modelValue: JSON.parse(item.defaultValue),
-          disabled: isDisabled.value,
-          options: item.options || [],
-        },
-      };
-    }) as FormItem[];
-  }
-
   async function publishHandler(currentContent: string) {
     const regex = /data-id="([^"]*)"/g;
     const matchesNotifier = currentContent.match(regex);
@@ -365,7 +367,6 @@
     }
     try {
       const params = {
-        // TODO 本地测试
         bugId: detailInfo.value.id,
         notifier: notifiers,
         replyUser: '',
@@ -381,36 +382,6 @@
       console.log(error);
     }
   }
-
-  watch(
-    () => customFields.value,
-    () => {
-      initForm();
-    },
-    { deep: true }
-  );
-
-  watch(
-    () => props.visible,
-    (val) => {
-      showDrawerVisible.value = val;
-    }
-  );
-
-  watch(
-    () => showDrawerVisible.value,
-    (val) => {
-      emit('update:visible', val);
-    }
-  );
-
-  watch(
-    () => tabSettingList.value,
-    () => {
-      tabSetting.value = featureCaseStore.getTab();
-    },
-    { deep: true, immediate: true }
-  );
 </script>
 
 <style scoped lang="less">
