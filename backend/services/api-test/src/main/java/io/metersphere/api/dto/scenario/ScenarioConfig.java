@@ -1,6 +1,6 @@
 package io.metersphere.api.dto.scenario;
 
-import io.metersphere.api.dto.assertion.MsAssertionConfig;
+import io.metersphere.api.dto.assertion.MsScenarioAssertionConfig;
 import io.metersphere.api.dto.request.processors.MsProcessorConfig;
 import lombok.Data;
 
@@ -25,7 +25,7 @@ public class ScenarioConfig {
     /**
      * 断言配置
      */
-    private MsAssertionConfig assertionConfig = new MsAssertionConfig();
+    private MsScenarioAssertionConfig assertionConfig = new MsScenarioAssertionConfig();
     /**
      * 其他配置
      */

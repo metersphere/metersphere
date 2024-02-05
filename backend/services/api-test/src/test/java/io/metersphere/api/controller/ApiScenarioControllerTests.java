@@ -2,10 +2,9 @@ package io.metersphere.api.controller;
 
 import io.metersphere.api.constants.*;
 import io.metersphere.api.domain.*;
+import io.metersphere.api.dto.assertion.MsAssertionConfig;
 import io.metersphere.api.dto.definition.ApiDefinitionAddRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseAddRequest;
-import io.metersphere.api.dto.assertion.MsAssertionConfig;
-import io.metersphere.project.api.assertion.MsScriptAssertion;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.response.ApiScenarioBatchOperationResponse;
 import io.metersphere.api.dto.response.OperationDataInfo;
@@ -22,6 +21,8 @@ import io.metersphere.api.utils.JmeterElementConverterRegister;
 import io.metersphere.plugin.api.spi.AbstractJmeterElementConverter;
 import io.metersphere.plugin.api.spi.JmeterElementConverter;
 import io.metersphere.plugin.api.spi.MsTestElement;
+import io.metersphere.project.api.assertion.MsResponseCodeAssertion;
+import io.metersphere.project.api.assertion.MsScriptAssertion;
 import io.metersphere.project.api.processor.MsProcessor;
 import io.metersphere.project.api.processor.SQLProcessor;
 import io.metersphere.project.dto.environment.EnvironmentConfig;
@@ -395,7 +396,11 @@ public class ApiScenarioControllerTests extends BaseTest {
         scriptAssertion.setScript("{}");
         scriptAssertion.setName("script");
         msAssertionConfig.setAssertions(List.of(scriptAssertion));
-        scenarioConfig.setAssertionConfig(msAssertionConfig);
+        MsResponseCodeAssertion responseCodeAssertion = new MsResponseCodeAssertion();
+        responseCodeAssertion.setExpectedValue("200");
+        responseCodeAssertion.setCondition(MsAssertionCondition.EMPTY.name());
+        responseCodeAssertion.setName("test");
+        scenarioConfig.getAssertionConfig().getAssertions().add(responseCodeAssertion);
         ScenarioOtherConfig scenarioOtherConfig = new ScenarioOtherConfig();
         scenarioOtherConfig.setStepWaitTime(1000);
         scenarioOtherConfig.setFailureStrategy(ScenarioOtherConfig.FailureStrategy.CONTINUE.name());
@@ -730,6 +735,13 @@ public class ApiScenarioControllerTests extends BaseTest {
         List<MsProcessor> postRequestProcessors = postProcessorConfig.getApiProcessorConfig().getRequestProcessorConfig().getProcessors();
         postRequestProcessors.add(envRequestScriptProcessor);
         postRequestProcessors.add(sqlProcessor);
+
+        MsResponseCodeAssertion responseCodeAssertion = new MsResponseCodeAssertion();
+        responseCodeAssertion.setExpectedValue("200");
+        responseCodeAssertion.setCondition(MsAssertionCondition.EMPTY.name());
+        responseCodeAssertion.setName("test");
+        environmentConfig.getAssertionConfig().getAssertions().add(responseCodeAssertion);
+
         environmentConfig.setPluginConfigMap(pluginConfigMap);
         envRequest.setConfig(environmentConfig);
         Environment environment = environmentService.add(envRequest, "admin", null);

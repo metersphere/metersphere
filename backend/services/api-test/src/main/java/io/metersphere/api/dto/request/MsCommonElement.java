@@ -22,16 +22,16 @@ public class MsCommonElement extends AbstractMsTestElement {
      * 前置处理器配置
      */
     @Valid
-    private MsProcessorConfig preProcessorConfig;
+    private MsProcessorConfig preProcessorConfig = new MsProcessorConfig();
     /**
      * 后置处理器配置
      */
     @Valid
-    private MsProcessorConfig postProcessorConfig;
+    private MsProcessorConfig postProcessorConfig = new MsProcessorConfig();
     /**
      * 断言配置
      */
     @Valid
-    private MsAssertionConfig assertionConfig;
+    private MsAssertionConfig assertionConfig = new MsAssertionConfig();
 
 }

@@ -60,4 +60,14 @@ public class ApiParamConfig extends ParameterConfig {
         String pluginId = testElementClassPluginIdMap.get(msTestElement.getClass());
         return pluginConfigMap.get(pluginId);
     }
+
+
+    /**
+     * 获取当前环境配置
+     * @param projectId
+     * @return
+     */
+    public EnvironmentInfoDTO getEnvConfig(String projectId) {
+        return getEnvConfig();
+    }
 }
