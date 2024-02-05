@@ -10,6 +10,7 @@ import io.metersphere.system.service.NoticeSendService;
 import io.metersphere.system.service.SystemParameterService;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
@@ -24,7 +25,7 @@ public class AfterReturningNoticeSendService {
 
     @Async
     public void sendNotice(String taskType, String event, List<Map> resources, SessionUser sessionUser, String currentProjectId) {
-
+        setLanguage(sessionUser.getLanguage());
         // 有批量操作发送多次
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         for (Map resource : resources) {
@@ -71,6 +72,16 @@ public class AfterReturningNoticeSendService {
     private String getSubject(String taskType, String event) {
         Map<String, String> defaultTemplateTitleMap = MessageTemplateUtils.getDefaultTemplateSubjectMap();
         return defaultTemplateTitleMap.get(taskType + "_" + event);
+    }
+
+    private static void setLanguage(String language) {
+        Locale locale = Locale.SIMPLIFIED_CHINESE;
+        if (StringUtils.containsIgnoreCase("US",language)) {
+            locale = Locale.US;
+        } else if (StringUtils.containsIgnoreCase("TW",language)){
+            locale = Locale.TAIWAN;
+        }
+        LocaleContextHolder.setLocale(locale);
     }
 
 
