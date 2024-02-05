@@ -12,6 +12,7 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.request.OperationHistoryVersionRequest;
+import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.notice.annotation.SendNotice;
@@ -139,7 +140,7 @@ public class ApiDefinitionController {
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Pager<List<ApiDefinitionDTO>> getPage(@Validated @RequestBody ApiDefinitionPageRequest request) {
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize(),
-                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "create_time desc");
+                StringUtils.isNotBlank(request.getSortString()) ? request.getSortString() : "pos desc");
         return PageUtils.setPageInfo(page, apiDefinitionService.getApiDefinitionPage(request, SessionUtils.getUserId()));
     }
 
@@ -234,5 +235,13 @@ public class ApiDefinitionController {
     public void saveOperationHistory(@Validated @RequestBody OperationHistoryVersionRequest request) {
         apiDefinitionService.saveOperationHistory(request);
     }
+
+    @PostMapping("/edit/pos")
+    @Operation(summary = "接口测试-接口管理-接口-拖拽排序")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_UPDATE)
+    public void editPos(@Validated @RequestBody PosRequest request) {
+        apiDefinitionService.editPos(request);
+    }
+
 
 }

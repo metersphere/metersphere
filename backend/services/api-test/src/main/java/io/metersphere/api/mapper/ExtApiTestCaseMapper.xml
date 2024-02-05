@@ -51,7 +51,8 @@
         t1.last_report_id,
         t1.environment_id,
         t1.tags,
-        a.module_id
+        a.module_id,
+        t1.pos
         FROM
         api_test_case t1
         LEFT JOIN api_report t3 ON t1.last_report_id = t3.id

@@ -57,4 +57,8 @@ public interface ExtApiDefinitionMapper {
     List<ApiDefinitionCustomField> getCustomFieldByCaseIds(@Param("ids") List<String> ids);
 
     List<String> getIdsByModules(@Param("request") ScenarioSystemRequest request);
+
+    Long getPrePos(@Param("projectId") String projectId, @Param("basePos") Long basePos);
+
+    Long getLastPos(@Param("projectId") String projectId, @Param("basePos") Long basePos);
 }

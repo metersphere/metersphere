@@ -39,4 +39,9 @@ public interface ExtApiScenarioMapper {
     List<String> getIdsByModules(@Param("request") ScenarioSystemRequest scenarioRequest);
 
     List<String> selectByProjectId(String projectId);
+
+    Long getPrePos(@Param("projectId") String projectId, @Param("basePos") Long basePos);
+
+    Long getLastPosEdit(@Param("projectId") String projectId, @Param("basePos") Long basePos);
+
 }
