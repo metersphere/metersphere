@@ -53,9 +53,8 @@
         select u.id,
                u.name
         from `user` u
-           left  join user_role_relation urr on urr.user_id = u.id
-        where urr.role_id = 'project_member'
-              and urr.source_id = #{projectId}
+           left join user_role_relation urr on urr.user_id = u.id
+        where urr.source_id = #{projectId}
         <if test="keyword != null and keyword != ''">
             and u.name LIKE CONCAT('%', #{keyword}, '%')
         </if>

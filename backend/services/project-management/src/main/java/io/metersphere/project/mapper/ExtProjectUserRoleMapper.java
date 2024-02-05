@@ -49,7 +49,7 @@ public interface ExtProjectUserRoleMapper {
     List<User> getProjectUserList(@Param("sourceId") String sourceId);
 
     /**
-     * 根据关键字获取下拉框用户数据
+     * 根据关键字获取下拉框当前项目的用户数据
      * @param projectId 项目ID
      * @param keyword 远程搜索时的关键字 （name）
      * @return List<User>

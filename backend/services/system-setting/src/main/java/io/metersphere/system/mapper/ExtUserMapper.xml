@@ -81,6 +81,7 @@
         <if test="keyword != null and keyword != ''">
             AND (name LIKE concat('%', #{keyword}, '%') OR email LIKE concat('%', #{keyword}, '%'))
         </if>
+        and u.deleted = false
         GROUP BY urr.user_id
         limit 100
     </select>
