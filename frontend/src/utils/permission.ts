@@ -30,12 +30,26 @@ export function hasPermission(permission: string, typeList: string[]) {
   return false;
 }
 
-// 判断是否有权限
+/**
+ * 判断是否有任一权限
+ * @param permissions 权限列表
+ */
 export function hasAnyPermission(permissions: string[], typeList = ['PROJECT', 'ORGANIZATION', 'SYSTEM']) {
   if (!permissions || permissions.length === 0) {
     return true;
   }
   return permissions.some((permission) => hasPermission(permission, typeList));
+}
+
+/**
+ * 判断是否有所有权限
+ * @param permissions 权限列表
+ */
+export function hasAllPermission(permissions: string[], typeList = ['PROJECT', 'ORGANIZATION', 'SYSTEM']) {
+  if (!permissions || permissions.length === 0) {
+    return true;
+  }
+  return permissions.every((permission) => hasPermission(permission, typeList));
 }
 
 function filterProject(role: UserRole, id: string) {

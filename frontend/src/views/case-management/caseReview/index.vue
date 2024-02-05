@@ -25,6 +25,7 @@
           <ReviewTable
             :active-folder="activeFolderId"
             :module-tree="moduleTree"
+            :tree-path-map="moduleTreePathMap"
             :show-type="showType"
             :offspring-ids="offspringIds"
             @go-create="goCreateReview"
@@ -51,7 +52,7 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import { ReviewListQueryParams } from '@/models/caseManagement/caseReview';
-  import type { ModuleTreeNode } from '@/models/projectManagement/file';
+  import { ModuleTreeNode } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   const router = useRouter();
@@ -65,10 +66,12 @@
   const activeFolderId = ref<string>('all');
   const offspringIds = ref<string[]>([]);
   const moduleTree = ref<ModuleTreeNode[]>([]);
+  const moduleTreePathMap = ref<Record<string, any>>({});
   const modulesCount = ref<Record<string, number>>({});
 
-  function initModuleTree(tree: ModuleTreeNode[]) {
+  function initModuleTree(tree: ModuleTreeNode[], pathMap: Record<string, any>) {
     moduleTree.value = unref(tree);
+    moduleTreePathMap.value = pathMap;
   }
 
   function handleFolderNodeSelect(ids: string[], _offspringIds: string[]) {

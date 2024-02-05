@@ -212,7 +212,6 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import { SelectValue } from '@/models/projectManagement/menuManagement';
-  import { OptionsItem } from '@/models/setting/log';
 
   import { OPERATOR_MAP } from './index';
   import { AccordBelowType, BackEndEnum, CombineItem, FilterFormItem, FilterResult, FilterType } from './type';

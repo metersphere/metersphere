@@ -65,8 +65,8 @@
   import { findNodeByKey, formatFileSize } from '@/utils';
 
   import type { AssociatedList } from '@/models/caseManagement/featureCase';
-  import type { CommonList, TableQueryParams } from '@/models/common';
-  import type { FileListQueryParams, ModuleTreeNode } from '@/models/projectManagement/file';
+  import type { CommonList, ModuleTreeNode, TableQueryParams } from '@/models/common';
+  import type { FileListQueryParams } from '@/models/projectManagement/file';
   import { Repository } from '@/models/projectManagement/file';
   import { TableKeyEnum } from '@/enums/tableEnum';
 

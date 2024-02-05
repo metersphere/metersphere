@@ -283,8 +283,7 @@
     DetailCase,
     StepList,
   } from '@/models/caseManagement/featureCase';
-  import type { TableQueryParams } from '@/models/common';
-  import { ModuleTreeNode } from '@/models/projectManagement/file';
+  import type { ModuleTreeNode, TableQueryParams } from '@/models/common';
 
   import { convertToFile } from './utils';
 

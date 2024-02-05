@@ -159,8 +159,7 @@
   import { mapTree } from '@/utils';
 
   import type { CaseManagementTable } from '@/models/caseManagement/featureCase';
-  import type { CommonList, TableQueryParams } from '@/models/common';
-  import { ModuleTreeNode } from '@/models/projectManagement/file';
+  import type { CommonList, ModuleTreeNode, TableQueryParams } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
 
   import type { CaseLevel } from './types';

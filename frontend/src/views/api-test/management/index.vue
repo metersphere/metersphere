@@ -54,11 +54,7 @@
   import management from './components/management/index.vue';
   import moduleTree from './components/moduleTree.vue';
 
-  import { useI18n } from '@/hooks/useI18n';
-
-  import { ModuleTreeNode } from '@/models/projectManagement/file';
-
-  const { t } = useI18n();
+  import { ModuleTreeNode } from '@/models/common';
 
   const activeModule = ref<string>('all');
   const folderTree = ref<ModuleTreeNode[]>([]);

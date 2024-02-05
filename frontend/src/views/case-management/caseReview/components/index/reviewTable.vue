@@ -6,9 +6,9 @@
         :filter-config-list="filterConfigList"
         :row-count="filterRowCount"
         :search-placeholder="t('caseManagement.caseReview.searchPlaceholder')"
-        @keyword-search="() => searchReview()"
+        @keyword-search="(val, filter) => searchReview(filter)"
         @adv-search="searchReview"
-        @reset="searchReview"
+        @refresh="searchReview"
       >
         <template #left>
           <div class="flex items-center">
@@ -99,6 +99,11 @@
           {{ `${record.passRate}%` }}
         </div>
       </template>
+      <template #moduleName="{ record }">
+        <a-tooltip :content="record.fullModuleName">
+          <div class="one-line-text">{{ record.moduleName }}</div>
+        </a-tooltip>
+      </template>
       <template #action="{ record }">
         <MsButton type="text" class="!mr-0" @click="() => editReview(record)">
           {{ t('common.edit') }}
@@ -185,13 +190,20 @@
     ReviewListQueryParams,
     ReviewStatus,
   } from '@/models/caseManagement/caseReview';
-  import type { ModuleTreeNode } from '@/models/projectManagement/file';
+  import { ModuleTreeNode } from '@/models/common';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const props = defineProps<{
     activeFolder: string;
     moduleTree: ModuleTreeNode[];
+    treePathMap: Record<
+      string,
+      {
+        path: string;
+        fullPath: string;
+      }
+    >;
     showType: string;
     offspringIds: string[];
   }>();
@@ -403,8 +415,9 @@
     },
     {
       title: 'caseManagement.caseReview.module',
-      dataIndex: 'module',
-      width: 90,
+      dataIndex: 'moduleName',
+      slotName: 'moduleName',
+      width: 120,
     },
     {
       title: 'caseManagement.caseReview.tag',
@@ -446,6 +459,8 @@
         ...item,
         tags: (item.tags || []).map((e: string) => ({ id: e, name: e })),
         reviewers: item.reviewers.map((e: ReviewDetailReviewersItem) => e.userName),
+        moduleName: props.treePathMap[item.moduleId].path,
+        fullModuleName: props.treePathMap[item.moduleId].fullPath,
         cycle:
           item.startTime && item.endTime
             ? `${dayjs(item.startTime).format('YYYY-MM-DD HH:mm:ss')} - ${dayjs(item.endTime).format(

@@ -8,9 +8,9 @@
         :placeholder="props.searchPlaceholder"
         class="w-[240px]"
         allow-clear
-        @press-enter="emit('keywordSearch', innerKeyword)"
-        @search="emit('keywordSearch', innerKeyword)"
-        @clear="emit('keywordSearch', innerKeyword)"
+        @press-enter="emit('keywordSearch', innerKeyword, filterResult)"
+        @search="emit('keywordSearch', innerKeyword, filterResult)"
+        @clear="emit('keywordSearch', innerKeyword, filterResult)"
       ></a-input-search>
       <MsTag
         :type="visible ? 'primary' : 'default'"
@@ -28,7 +28,7 @@
           </span>
         </span>
       </MsTag>
-      <MsTag no-margin size="large" class="cursor-pointer" theme="outline" @click="handleResetSearch">
+      <MsTag no-margin size="large" class="cursor-pointer" theme="outline" @click="handleRefresh">
         <MsIcon class="text-[var(color-text-4)]" :size="16" type="icon-icon_reset_outlined" />
       </MsTag>
       <slot name="right"></slot>
@@ -44,7 +44,7 @@
     class="mt-[8px]"
     @on-search="handleFilter"
     @data-index-change="dataIndexChange"
-    @reset="emit('reset')"
+    @reset="handleResetFilter"
   />
 </template>
 
@@ -69,24 +69,31 @@
 
   const emit = defineEmits<{
     (e: 'update:keyword', value: string): void;
-    (e: 'keywordSearch', value: string | undefined): void; // innerKeyword 搜索
+    (e: 'keywordSearch', value: string | undefined, combine: FilterResult): void; // innerKeyword 搜索 TODO:可以去除，父组件通过 v-model:keyword 获取关键字
     (e: 'advSearch', value: FilterResult): void; // 高级搜索
     (e: 'dataIndexChange', value: string): void; // 高级搜索选项变更
-    (e: 'reset'): void;
+    (e: 'refresh', value: FilterResult): void;
   }>();
 
   const { t } = useI18n();
   const innerKeyword = useVModel(props, 'keyword', emit);
   const visible = ref(false);
   const filterCount = ref(0);
+  const defaultFilterResult: FilterResult = { accordBelow: 'AND', combine: {} };
+  const filterResult = ref<FilterResult>({ ...defaultFilterResult });
 
-  const handleResetSearch = () => {
-    innerKeyword.value = '';
-    emit('keywordSearch', '');
+  const handleResetFilter = () => {
+    filterResult.value = { ...defaultFilterResult };
+    emit('keywordSearch', '', { ...defaultFilterResult });
   };
 
   const handleFilter = (filter: FilterResult) => {
+    filterResult.value = filter;
     emit('advSearch', filter);
+  };
+
+  const handleRefresh = () => {
+    emit('refresh', filterResult.value);
   };
 
   const dataIndexChange = (dataIndex: string) => {

@@ -111,7 +111,7 @@
   import useAppStore from '@/store/modules/app';
   import { mapTree } from '@/utils';
 
-  import { ModuleTreeNode } from '@/models/projectManagement/file';
+  import { ModuleTreeNode } from '@/models/common';
 
   const props = defineProps<{
     isModal?: boolean; // 是否是弹窗模式
@@ -194,7 +194,13 @@
     try {
       loading.value = true;
       const res = await getReviewModules(appStore.currentProjectId);
-      folderTree.value = mapTree<ModuleTreeNode>(res, (e) => {
+      const nodePathObj: Record<string, any> = {};
+      folderTree.value = mapTree<ModuleTreeNode>(res, (e, fullPath) => {
+        // 拼接当前节点的完整路径
+        nodePathObj[e.id] = {
+          path: e.path,
+          fullPath,
+        };
         return {
           ...e,
           hideMoreAction: e.id === 'root',
@@ -213,7 +219,7 @@
 
         emit('folderNodeSelect', selectedKeys.value, offspringIds);
       }
-      emit('init', folderTree.value);
+      emit('init', folderTree.value, nodePathObj);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);

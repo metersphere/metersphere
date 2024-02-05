@@ -85,13 +85,6 @@ export interface AddModuleParams {
   name: string;
   parentId: string;
 }
-// 模块树节点
-export interface ModuleTreeNode {
-  id: string;
-  name: string;
-  type: string;
-  children: ModuleTreeNode[];
-}
 // 文件历史列表项
 export interface FileHistoryItem {
   id: string;

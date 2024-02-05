@@ -78,7 +78,7 @@
             {{ t('system.user.editUser') }}
           </MsButton>
           <MsTableMoreAction
-            v-permission="['SYSTEM_USER:READ+UPDATE+DELETE']"
+            v-permission="['SYSTEM_USER:READ+UPDATE', 'SYSTEM_USER:READ+DELETE']"
             :list="tableActions"
             @select="handleSelect($event, record)"
           ></MsTableMoreAction>
@@ -378,7 +378,7 @@
     {
       tableKey: TableKeyEnum.SYSTEM_USER,
       columns,
-      selectable: !!hasAnyPermission(['SYSTEM_USER:READ+ADD+UPDATE+DELETE']),
+      selectable: !!hasAnyPermission(['SYSTEM_USER:READ+ADD', 'SYSTEM_USER:READ+UPDATE', 'SYSTEM_USER:READ+DELETE']),
       showSetting: true,
       showJumpMethod: true,
       heightUsed: 288,
@@ -582,17 +582,17 @@
       {
         label: 'system.user.batchActionAddProject',
         eventTag: 'batchAddProject',
-        permission: ['SYSTEM_USER:READ+ADD', 'SYSTEM_ORGANIZATION_PROJECT:READ'],
+        permission: ['SYSTEM_USER:READ+UPDATE', 'SYSTEM_ORGANIZATION_PROJECT:READ'],
       },
       {
         label: 'system.user.batchActionAddUserGroup',
         eventTag: 'batchAddUserGroup',
-        permission: ['SYSTEM_USER:READ+ADD', 'SYSTEM_USER_ROLE:READ'],
+        permission: ['SYSTEM_USER:READ+UPDATE', 'SYSTEM_USER_ROLE:READ'],
       },
       {
         label: 'system.user.batchActionAddOrganization',
         eventTag: 'batchAddOrganization',
-        permission: ['SYSTEM_USER:READ+ADD', 'SYSTEM_ORGANIZATION_PROJECT:READ'],
+        permission: ['SYSTEM_USER:READ+UPDATE', 'SYSTEM_ORGANIZATION_PROJECT:READ'],
       },
     ],
     moreAction: [

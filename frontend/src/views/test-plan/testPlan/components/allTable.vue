@@ -93,9 +93,8 @@
 
   import { reviewStatusMap } from '@/config/caseManagement';
   import { useI18n } from '@/hooks/useI18n';
-  import { useAppStore, useTableStore } from '@/store';
+  import { useTableStore } from '@/store';
 
-  import { ModuleTreeNode } from '@/models/projectManagement/file';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
 
   const tableStore = useTableStore();

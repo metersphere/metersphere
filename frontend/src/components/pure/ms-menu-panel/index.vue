@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-  import { hasAnyPermission } from '@/utils/permission';
+  import { hasAllPermission } from '@/utils/permission';
 
   interface MenuItem {
     title: string;
@@ -47,7 +47,7 @@
   const currentKey = ref(props.defaultKey);
 
   const innerMenuList = computed(() => {
-    return props.menuList.filter((item: any) => hasAnyPermission(item.permission));
+    return props.menuList.filter((item: any) => hasAllPermission(item.permission));
   });
 
   watch(

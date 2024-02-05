@@ -291,7 +291,7 @@
         try {
           saveLoading.value = true;
           const { name, folderId, type, cycle, tags, desc, reviewers } = reviewForm.value;
-          let res = '';
+          let res: Record<string, any> = {};
           if (isCopy.value) {
             // 复制评审场景
             res = await copyReview({
@@ -326,7 +326,7 @@
             router.replace({
               name: CaseManagementRouteEnum.CASE_MANAGEMENT_REVIEW_DETAIL,
               query: {
-                id: res,
+                id: res.id,
               },
             });
           } else {

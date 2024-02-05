@@ -596,7 +596,11 @@
     {
       tableKey: TableKeyEnum.FILE_MANAGEMENT_FILE,
       showSetting: true,
-      selectable: !!hasAnyPermission(['PROJECT_FILE_MANAGEMENT:READ+DOWNLOAD+UPDATE+DELETE']),
+      selectable: !!hasAnyPermission([
+        'PROJECT_FILE_MANAGEMENT:READ+DOWNLOAD',
+        'PROJECT_FILE_MANAGEMENT:READ+UPDATE',
+        'PROJECT_FILE_MANAGEMENT:READ+DELETE',
+      ]),
       showSelectAll: true,
     },
     (item) => {

@@ -105,13 +105,9 @@
     getFormApiImportPageList,
   } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
-  import useAppStore from '@/store/modules/app';
   import { mapTree } from '@/utils';
 
-  import type { TableQueryParams } from '@/models/common';
-  import { ModuleTreeNode } from '@/models/projectManagement/file';
-
-  const appStore = useAppStore();
+  import type { ModuleTreeNode, TableQueryParams } from '@/models/common';
 
   const { t } = useI18n();
 
