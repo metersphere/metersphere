@@ -86,7 +86,7 @@
     field: props.fieldConfig?.field || '',
   });
   const formRef = ref<FormInstance>();
-  const loading = ref(true);
+  const loading = ref(false);
 
   watch(
     () => props.fieldConfig?.field,
