@@ -4,7 +4,7 @@ import MSR from '@/api/http/index';
 import * as bugURL from '@/api/requrls/bug-management';
 
 import { BugEditFormObject, BugExportParams, BugListItem } from '@/models/bug-management';
-import { AssociatedList, OperationFile } from '@/models/caseManagement/featureCase';
+import { AssociatedList, CreateOrUpdateDemand, DemandItem, OperationFile } from '@/models/caseManagement/featureCase';
 import { CommonList, TableQueryParams, TemplateOption } from '@/models/common';
 
 /**
@@ -180,4 +180,31 @@ export function deleteSingleByRecycle(id: string) {
 // 批量删除
 export function deleteBatchByRecycle(data: TableQueryParams) {
   return MSR.post({ url: bugURL.getBatchDeleteUrl, data });
+}
+
+// ----------------------关联需求
+
+// 已关联需求列表
+export function getAssociatedList(data: TableQueryParams) {
+  return MSR.post<CommonList<DemandItem[]>>({ url: bugURL.getDemandListUrl, data });
+}
+
+// 缺陷管理-关联用例-未关联用例-列表分页
+export function getUnAssociatedList(data: TableQueryParams) {
+  return MSR.post({ url: bugURL.getUnrelatedDemandListUrl, data });
+}
+
+// 未关联用例-模块树
+export function getModuleTree(data: TableQueryParams) {
+  return MSR.post({ url: `${bugURL.getUnrelatedModuleTreeUrl}`, data });
+}
+
+// 批量关联需求
+export function batchAssociation(data: TableQueryParams) {
+  return MSR.post({ url: bugURL.postAddDemandUrl, data });
+}
+
+// 取消关联
+export function cancelAssociation(id: string) {
+  return MSR.get({ url: `${bugURL.getCancelDemandUrl}/${id}` });
 }

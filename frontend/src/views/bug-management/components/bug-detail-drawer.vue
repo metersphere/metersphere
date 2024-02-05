@@ -88,20 +88,19 @@
                     <template #title>
                       {{ t('bugManagement.detail.detail') }}
                     </template>
-                    <BugDetailTab />
+                    <BugDetailTab :allow-edit="true" :detail-info="detailInfo" @update-success="updateSuccess" />
                   </a-tab-pane>
                   <a-tab-pane key="case">
                     <template #title>
                       {{ t('bugManagement.detail.case') }}
-                      <a-badge class="relative top-1 ml-1" :count="1000" :max-count="99" />
                     </template>
-                    <BugCaseTab />
+                    <BugCaseTab :bug-id="detailInfo.id" />
                   </a-tab-pane>
                   <a-tab-pane key="comment">
                     <template #title>
                       {{ t('bugManagement.detail.comment') }}
                     </template>
-                    <CommentTab ref="commentRef" bug-id="detailInfo.id" />
+                    <CommentTab ref="commentRef" :bug-id="detailInfo.id" />
                   </a-tab-pane>
                 </a-tabs>
               </div>
@@ -119,6 +118,7 @@
                 :form-rule="formRules"
                 class="w-full"
                 :option="options"
+                @change="handleOK"
               />
               <!-- 自定义字段结束 -->
               <div class="baseItem">
@@ -175,6 +175,7 @@
     followBug,
     getBugDetail,
     getTemplateById,
+    updateBug,
   } from '@/api/modules/bug-management/index';
   import useFullScreen from '@/hooks/useFullScreen';
   import { useI18n } from '@/hooks/useI18n';
@@ -214,7 +215,7 @@
 
   const activeTab = ref<string | number>('detail');
 
-  const detailInfo = ref<Record<string, any>>({}); // 存储当前详情信息，通过loadBug 获取
+  const detailInfo = ref<Record<string, any>>({ match: [] }); // 存储当前详情信息，通过loadBug 获取
   const tags = ref([]);
 
   // 处理表单格式
@@ -331,6 +332,25 @@
       },
     });
   }
+
+  const handleOK = async () => {
+    const values = await fApi.value.validate();
+    if (values) {
+      const params = {
+        id: detailInfo.value.id,
+        projectId: currentProjectId.value,
+        ...values,
+      };
+      try {
+        await updateBug(params);
+        Message.success(t('common.editSuccess'));
+        detailDrawerRef.value?.initDetail();
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      }
+    }
+  };
 
   // 表单配置项
   const options = {

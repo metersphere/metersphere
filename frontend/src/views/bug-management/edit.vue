@@ -218,6 +218,7 @@
   } from '@/api/modules/bug-management';
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
+  import useVisit from '@/hooks/useVisit';
   import router from '@/router';
   import { useAppStore } from '@/store';
   import { downloadByteFile } from '@/utils';
@@ -274,9 +275,12 @@
   const isEdit = computed(() => !!route.query.id && route.params.mode === 'edit');
   const bugId = computed(() => route.query.id || '');
   const isEditOrCopy = computed(() => !!bugId.value);
+  const isCopy = computed(() => route.params.mode === 'copy');
   const imageUrl = ref('');
   const previewVisible = ref<boolean>(false);
   const richTextFileIds = ref<string[]>([]);
+  const visitedKey = 'doNotNextTipCreateBug';
+  const { getIsVisited } = useVisit(visitedKey);
 
   const title = computed(() => {
     return isEdit.value ? t('bugManagement.editBug') : t('bugManagement.createBug');
@@ -507,10 +511,13 @@
                   });
                 });
               }
-              const tmpObj = {
+              const tmpObj: BugEditFormObject = {
                 ...form.value,
                 customFields,
               };
+              if (isCopy.value) {
+                delete tmpObj.id;
+              }
               // 执行保存操作
               const res = await createOrUpdateBug({ request: tmpObj, fileList: fileList.value as unknown as File[] });
               if (isEdit.value) {
@@ -520,6 +527,7 @@
                 });
               } else {
                 Message.success(t('common.createSuccess'));
+
                 if (isContinue) {
                   // 如果是保存并继续创建
                   const { templateId } = form.value;
@@ -536,6 +544,12 @@
                   fileList.value = [];
                 } else {
                   // 否则跳转到成功页
+                  if (getIsVisited()) {
+                    router.push({
+                      name: BugManagementRouteEnum.BUG_MANAGEMENT_INDEX,
+                    });
+                    return;
+                  }
                   router.push({
                     name: BugManagementRouteEnum.BUG_MANAGEMENT_CREATE_SUCCESS,
                     query: {
