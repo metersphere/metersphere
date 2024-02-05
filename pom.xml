@@ -163,6 +163,7 @@
                         <exclude>io/metersphere/provider/**</exclude>
                         <exclude>io/metersphere/plugin/**</exclude>
                         <exclude>io/metersphere/*/job/**</exclude>
+                        <exclude>io/metersphere/system/notice/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>
