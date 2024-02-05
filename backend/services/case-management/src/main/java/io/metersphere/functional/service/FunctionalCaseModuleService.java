@@ -64,7 +64,7 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
 
     public List<BaseTreeNode> getTree(String projectId) {
         List<BaseTreeNode> functionalModuleList = extFunctionalCaseModuleMapper.selectBaseByProjectId(projectId);
-        return super.buildTreeAndCountResource(functionalModuleList, true, Translator.get("default.module"));
+        return super.buildTreeAndCountResource(functionalModuleList, true, Translator.get("functional_case.module.default.name"));
     }
 
     public String add(FunctionalCaseModuleCreateRequest request, String userId) {
@@ -186,7 +186,7 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
     public List<BaseTreeNode> getTreeOnlyIdsAndResourceCount(String projectId, List<ModuleCountDTO> moduleCountDTOList) {
         //节点内容只有Id和parentId
         List<BaseTreeNode> fileModuleList = extFunctionalCaseModuleMapper.selectIdAndParentIdByProjectId(projectId);
-        return super.buildTreeAndCountResource(fileModuleList, moduleCountDTOList, true, Translator.get("default.module"));
+        return super.buildTreeAndCountResource(fileModuleList, moduleCountDTOList, true, Translator.get("functional_case.module.default.name"));
     }
 
     /**
@@ -250,7 +250,7 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
         }
         List<String> moduleIds = functionalCases.stream().map(FunctionalCase::getModuleId).distinct().toList();
         List<BaseTreeNode> nodeByNodeIds = getNodeByNodeIds(moduleIds);
-        return super.buildTreeAndCountResource(nodeByNodeIds, true, Translator.get("default.module"));
+        return super.buildTreeAndCountResource(nodeByNodeIds, true, Translator.get("functional_case.module.default.name"));
     }
 
     public List<BaseTreeNode> getNodeByNodeIds(List<String> moduleIds) {
@@ -400,7 +400,7 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
 
     public String getModuleName(String id) {
         if (ModuleConstants.DEFAULT_NODE_ID.equals(id)) {
-            return Translator.get("default.module");
+            return Translator.get("functional_case.module.default.name");
         }
         return functionalCaseModuleMapper.selectByPrimaryKey(id).getName();
     }

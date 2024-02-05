@@ -77,7 +77,7 @@ public class FunctionalCaseMinderService {
     private List<BaseTreeNode> getBaseTreeNodes(List<String> moduleIds) {
         List<BaseTreeNode> nodeByNodeIds = functionalCaseModuleService.getNodeByNodeIds(moduleIds);
         //根据模块节点构造模块树
-        return functionalCaseModuleService.buildTreeAndCountResource(nodeByNodeIds, true, Translator.get("default.module"));
+        return functionalCaseModuleService.buildTreeAndCountResource(nodeByNodeIds, true, Translator.get("functional_case.module.default.name"));
     }
 
     private static void buildCaseTree(List<BaseTreeNode> baseTreeNodes, Map<String, List<FunctionalCasePageDTO>> moduleCaseMap, List<FunctionalMinderTreeDTO> functionalMinderTreeNodeDTOs) {

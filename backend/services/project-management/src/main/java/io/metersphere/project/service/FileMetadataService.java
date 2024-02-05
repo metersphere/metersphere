@@ -116,7 +116,7 @@ public class FileMetadataService {
         Map<String, String> moduleNameMap = fileModuleService.getModuleNameMapByIds(moduleIds);
         for (FileInformationResponse dto : returnList) {
             if (StringUtils.equals(dto.getModuleId(), ModuleConstants.DEFAULT_NODE_ID)) {
-                dto.setModuleName(Translator.get("default.module"));
+                dto.setModuleName(Translator.get("file.module.default.name"));
             } else {
                 dto.setModuleName(moduleNameMap.get(dto.getModuleId()));
             }
@@ -125,7 +125,7 @@ public class FileMetadataService {
 
     private void initModuleName(FileInformationResponse dto) {
         if (StringUtils.equals(dto.getModuleId(), ModuleConstants.DEFAULT_NODE_ID)) {
-            dto.setModuleName(Translator.get("default.module"));
+            dto.setModuleName(Translator.get("file.module.default.name"));
         } else {
             dto.setModuleName(fileModuleService.getModuleName(dto.getModuleId()));
         }
