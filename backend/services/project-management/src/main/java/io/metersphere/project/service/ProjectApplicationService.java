@@ -204,7 +204,7 @@ public class ProjectApplicationService {
         example.createCriteria().andProjectIdEqualTo(projectId).andTypeLike(ProjectApplicationType.BUG.BUG_SYNC.name() + "%");
         if (projectApplicationMapper.countByExample(example) > 0) {
             example.clear();
-            example.createCriteria().andTypeLike(ProjectApplicationType.BUG.BUG_SYNC.name() + "%");
+            example.createCriteria().andProjectIdEqualTo(projectId).andTypeLike(ProjectApplicationType.BUG.BUG_SYNC.name() + "%");
             projectApplicationMapper.deleteByExample(example);
             projectApplicationMapper.batchInsert(bugSyncConfigs);
         } else {
@@ -410,7 +410,7 @@ public class ProjectApplicationService {
         example.createCriteria().andProjectIdEqualTo(projectId).andTypeLike(ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "%");
         if (projectApplicationMapper.countByExample(example) > 0) {
             example.clear();
-            example.createCriteria().andTypeLike(ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "%");
+            example.createCriteria().andProjectIdEqualTo(projectId).andTypeLike(ProjectApplicationType.CASE_RELATED_CONFIG.CASE_RELATED.name() + "%");
             projectApplicationMapper.deleteByExample(example);
             projectApplicationMapper.batchInsert(relatedConfigs);
         } else {
