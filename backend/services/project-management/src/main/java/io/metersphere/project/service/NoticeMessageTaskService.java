@@ -54,8 +54,6 @@ public class NoticeMessageTaskService {
     @Resource
     private MessageTaskBlobMapper messageTaskBlobMapper;
     @Resource
-    private ProjectMapper projectMapper;
-    @Resource
     private ExtProjectUserRoleMapper extProjectUserRoleMapper;
     @Resource
     protected CustomFieldMapper customFieldMapper;
@@ -79,12 +77,12 @@ public class NoticeMessageTaskService {
         //检查设置的通知是否存在，如果存在则更新
         List<MessageTask> messageTasks = updateMessageTasks(messageTaskRequest, userId, mapper, blobMapper, existUserIds);
         //保存消息任务
-        List<String> messageTaskReceivers = CollectionUtils.isEmpty(messageTasks) ? new ArrayList<>() : messageTasks.stream().map(MessageTask::getReceiver).toList();
+        Map<String, List<MessageTask>> robotMap = messageTasks.stream().collect(Collectors.groupingBy(MessageTask::getProjectRobotId));
         //如果新增时只选了用户，没有选机器人，默认机器人为站内信
         ProjectRobot projectRobot = getDefaultRobot(messageTaskRequest.getProjectId(), messageTaskRequest.getRobotId());
         String robotId = projectRobot.getId();
         messageTaskRequest.setRobotId(robotId);
-        insertMessageTask(messageTaskRequest, userId, mapper, blobMapper, existUserIds, messageTaskReceivers);
+        insertMessageTask(messageTaskRequest, userId, mapper, blobMapper, existUserIds, robotMap);
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         if (CollectionUtils.isNotEmpty(stringListMap.get(NO_USER_NAMES))) {
@@ -118,12 +116,18 @@ public class NoticeMessageTaskService {
      * @param mapper               MessageTaskMapper
      * @param blobMapper           MessageTaskBlobMapper
      * @param existUserIds         系统中还存在的入参传过来的接收人
-     * @param messageTaskReceivers 更新过后还有多少接收人需要保存
+     * @param robotMap             更新过后机器人消息通知map
      */
-    private void insertMessageTask(MessageTaskRequest messageTaskRequest, String userId, MessageTaskMapper mapper, MessageTaskBlobMapper blobMapper, List<String> existUserIds, List<String> messageTaskReceivers) {
+    private void insertMessageTask(MessageTaskRequest messageTaskRequest, String userId, MessageTaskMapper mapper, MessageTaskBlobMapper blobMapper, List<String> existUserIds, Map<String, List<MessageTask>> robotMap) {
+        //判断是否需要完整的新增机器人数据
+        List<MessageTask> messageTasks = robotMap.get(messageTaskRequest.getRobotId());
         for (String receiverId : existUserIds) {
-            if (CollectionUtils.isNotEmpty(messageTaskReceivers) && messageTaskReceivers.contains(receiverId)) {
-                continue;
+            //如果为空则需要完整新增，新增人,则需要过滤数据里是否有这个人，有则过滤
+            if (!CollectionUtils.isEmpty(messageTasks)) {
+                List<String> receivers = messageTasks.stream().map(MessageTask::getReceiver).toList();
+                if (CollectionUtils.isNotEmpty(receivers) && receivers.contains(receiverId)) {
+                    continue;
+                }
             }
             MessageTask messageTask = new MessageTask();
             buildMessageTask(messageTaskRequest, userId, receiverId, messageTask);
@@ -171,6 +175,7 @@ public class NoticeMessageTaskService {
         boolean useDefaultSubject = messageTaskRequest.getUseDefaultSubject() == null || messageTaskRequest.getUseDefaultSubject();
         boolean useDefaultTemplate = messageTaskRequest.getUseDefaultTemplate() == null || messageTaskRequest.getUseDefaultTemplate();
 
+        //查询在当前事件和已存在的通知人员下的数据，即数据库已存在的数据
         MessageTaskExample messageTaskExample = new MessageTaskExample();
         messageTaskExample.createCriteria().andReceiverIn(existUserIds).andProjectIdEqualTo(messageTaskRequest.getProjectId()).andTaskTypeEqualTo(messageTaskRequest.getTaskType()).andEventEqualTo(messageTaskRequest.getEvent());
         List<MessageTask> messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
@@ -181,7 +186,8 @@ public class NoticeMessageTaskService {
         for (MessageTask messageTask : messageTasks) {
             messageTask.setUpdateTime(System.currentTimeMillis());
             messageTask.setUpdateUser(userId);
-            if (StringUtils.isNotBlank(messageTaskRequest.getRobotId())) {
+            //如果有机器人id,则是修改机器人开关和消息配置
+            if (StringUtils.isNotBlank(messageTaskRequest.getRobotId()) && StringUtils.equalsIgnoreCase(messageTask.getProjectRobotId(), messageTaskRequest.getRobotId())) {
                 messageTask.setEnable(enable);
                 messageTask.setUseDefaultSubject(useDefaultSubject);
                 messageTask.setUseDefaultTemplate(useDefaultTemplate);
@@ -189,6 +195,7 @@ public class NoticeMessageTaskService {
                     messageTask.setSubject(messageTaskRequest.getSubject());
                 }
             } else {
+                //如果没有机器人id,则只是修改人其余配置不变
                 useDefaultTemplate = messageTask.getUseDefaultTemplate();
             }
             mapper.updateByPrimaryKeySelective(messageTask);

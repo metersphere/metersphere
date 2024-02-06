@@ -144,14 +144,32 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         Assertions.assertTrue(messageTasks1.get(0).getEnable());
         Assertions.assertTrue(StringUtils.equalsIgnoreCase(messageTasks1.get(0).getSubject(), "看看改不改"));
 
-       messageTaskExample = new MessageTaskExample();
+        messageTaskExample = new MessageTaskExample();
         messageTaskExample.createCriteria().andProjectIdEqualTo("project-message-test").andTaskTypeEqualTo(NoticeConstants.TaskType.API_DEFINITION_TASK).andEventEqualTo(NoticeConstants.Event.CREATE);
         List<MessageTask> messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
-        Assertions.assertEquals(1, messageTasks.size());
+        Assertions.assertEquals(2, messageTasks.size());
         messageTaskExample = new MessageTaskExample();
         messageTaskExample.createCriteria().andProjectIdEqualTo("project-message-test").andTaskTypeEqualTo(NoticeConstants.TaskType.API_DEFINITION_TASK).andEventEqualTo(NoticeConstants.Event.CREATE).andReceiverEqualTo("project-message-user-3");
         messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
         Assertions.assertEquals(0, messageTasks.size());
+
+        //projectId 存在 用户有部分被删除的测试
+       messageTaskRequest = new MessageTaskRequest();
+        messageTaskRequest.setProjectId("project-message-test");
+        messageTaskRequest.setTaskType(NoticeConstants.TaskType.API_DEFINITION_TASK);
+        messageTaskRequest.setEvent(NoticeConstants.Event.CREATE);
+        userIds = new ArrayList<>();
+        userIds.add("project-message-user-1");
+        messageTaskRequest.setReceiverIds(userIds);
+        messageTaskRequest.setRobotId("test_message_robot5");
+        messageTaskRequest.setEnable(true);
+        messageTaskRequest.setSubject("看看改不改");
+        messageTaskRequest.setUseDefaultSubject(false);
+        this.requestPostWithOk("/notice/message/task/save",messageTaskRequest);
+        messageTaskExample = new MessageTaskExample();
+        messageTaskExample.createCriteria().andProjectIdEqualTo("project-message-test").andTaskTypeEqualTo(NoticeConstants.TaskType.API_DEFINITION_TASK).andEventEqualTo(NoticeConstants.Event.CREATE).andProjectRobotIdEqualTo("test_message_robot5");
+        messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
+        Assertions.assertEquals(1, messageTasks.size());
     }
 
     @Test
