@@ -62,10 +62,14 @@ public class TaskRequestDTO implements Serializable {
      */
     private List<ApiExecuteFileInfo> refFiles;
     /**
+     * 插件文件列表
+     * id 为插件的 id + 更新时间戳
+     */
+    private List<ApiExecuteFileInfo> pluginFiles;
+    /**
      * 误报规则
      */
     List<MsRegexDTO> msRegexList;
-
     /**
      * 项目id
      */
