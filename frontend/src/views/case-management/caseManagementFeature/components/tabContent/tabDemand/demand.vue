@@ -81,7 +81,10 @@
   import AddDemandModal from './addDemandModal.vue';
   import AssociatedDemandTable from './associatedDemandTable.vue';
 
-  import { batchAssociationDemand, getThirdDemandList } from '@/api/modules/case-management/featureCase';
+  import {
+    addDemandRequest,
+    getThirdDemandList
+  } from '@/api/modules/case-management/featureCase';
   import { getCaseRelatedInfo } from '@/api/modules/project-management/menuManagement';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
@@ -255,7 +258,7 @@
     };
     try {
       drawerLoading.value = true;
-      await batchAssociationDemand(params);
+      await addDemandRequest(params);
       Message.success(t('caseManagement.featureCase.associatedSuccess'));
       linkDemandDrawer.value = false;
       demandRef.value.initData();
