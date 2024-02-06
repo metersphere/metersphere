@@ -59,3 +59,15 @@ export interface GlobalParams {
   projectId: string;
   globalParams: GlobalParamsItem;
 }
+
+export interface ContentTabItem {
+  value: string;
+  label: string;
+  canHide: boolean;
+  isShow: boolean;
+}
+
+export interface ContentTabsMap {
+  tabList: ContentTabItem[];
+  backupTabList: ContentTabItem[];
+}

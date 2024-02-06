@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <template v-if="store.groupLength">
+    <template v-if="store.currentGroupId">
       <div class="header">
         <a-form ref="envGroupForm" layout="vertical" :model="form">
           <a-form-item

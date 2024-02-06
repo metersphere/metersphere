@@ -549,7 +549,6 @@
                     });
                     return;
                   }
-                  debugger;
                   router.push({
                     name: BugManagementRouteEnum.BUG_MANAGEMENT_CREATE_SUCCESS,
                     query: {
