@@ -9,7 +9,7 @@ import io.metersphere.api.dto.request.http.*;
 import io.metersphere.api.dto.request.http.auth.NoAuth;
 import io.metersphere.api.dto.request.http.body.*;
 import io.metersphere.api.dto.schema.JsonSchemaItem;
-import io.metersphere.api.constants.PropertyConstant;
+import io.metersphere.project.constants.PropertyConstant;
 import io.metersphere.api.parser.ImportParser;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.sdk.exception.MSException;

@@ -6,13 +6,13 @@ import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.domain.ApiDefinitionBlob;
 import io.metersphere.api.domain.ApiDefinitionBlobExample;
 import io.metersphere.api.domain.ApiDefinitionModule;
+import io.metersphere.api.dto.converter.ApiDefinitionImport;
+import io.metersphere.api.dto.converter.ApiDefinitionImportDetail;
+import io.metersphere.api.dto.converter.ApiDetailWithData;
+import io.metersphere.api.dto.converter.ApiDetailWithDataUpdate;
 import io.metersphere.api.dto.definition.ApiDefinitionDTO;
 import io.metersphere.api.dto.definition.ApiDefinitionPageRequest;
 import io.metersphere.api.dto.definition.ApiModuleRequest;
-import io.metersphere.api.dto.converter.ApiDetailWithData;
-import io.metersphere.api.dto.converter.ApiDetailWithDataUpdate;
-import io.metersphere.api.dto.converter.ApiDefinitionImport;
-import io.metersphere.api.dto.converter.ApiDefinitionImportDetail;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.dto.request.http.Header;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
@@ -20,9 +20,9 @@ import io.metersphere.api.dto.request.http.QueryParam;
 import io.metersphere.api.dto.request.http.RestParam;
 import io.metersphere.api.dto.request.http.body.*;
 import io.metersphere.api.dto.schema.JsonSchemaItem;
-import io.metersphere.api.constants.PropertyConstant;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.project.constants.PropertyConstant;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.mapper.ProjectApplicationMapper;
@@ -161,12 +161,12 @@ public class ApiDefinitionImportUtilService {
         apiLists.forEach(t -> {
             t.setModulePath(idModuleMap.get(t.getModuleId()) != null ? idModuleMap.get(t.getModuleId()).getPath() : StringUtils.EMPTY);
         });
-        ApiDetailWithData apiDeatlWithData = new ApiDetailWithData();
+        ApiDetailWithData apiDealWithData = new ApiDetailWithData();
         //判断数据是否是唯一的
-        checkApiDataOnly(request, importData, apiLists, apiDeatlWithData);
+        checkApiDataOnly(request, importData, apiLists, apiDealWithData);
 
         ApiDetailWithDataUpdate apiDetailWithDataUpdate = new ApiDetailWithDataUpdate();
-        getNeedUpdateData(request, apiDeatlWithData, apiDetailWithDataUpdate);
+        getNeedUpdateData(request, apiDealWithData, apiDetailWithDataUpdate);
 
         //数据入库
         insertData(modulePathMap, idModuleMap, apiDetailWithDataUpdate, request, user);

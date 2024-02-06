@@ -1,4 +1,4 @@
-package io.metersphere.api.constants;
+package io.metersphere.project.constants;
 
 public class PropertyConstant {
     public final static String REQUIRED = "required";
@@ -10,5 +10,9 @@ public class PropertyConstant {
     public final static String INTEGER = "integer";
     public final static String NULL = "null";
     public final static String NONE = "none";
+    public final static String ROOT = "root";
+    public final static String EXPECTED_VALUE = "EXPECTED_VALUE";
+    public final static String ELEMENT_CONDITION = "ElementCondition";
+    public final static String XML_PATH = "XML_PATH";
 
 }

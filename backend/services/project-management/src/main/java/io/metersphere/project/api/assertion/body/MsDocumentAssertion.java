@@ -7,6 +7,7 @@ import lombok.Data;
 
 /**
  * 文档断言
+ *
  * @Author: jianxing
  * @CreateTime: 2023-11-23  14:19
  */
@@ -15,6 +16,7 @@ public class MsDocumentAssertion extends MsBodyAssertionItem {
     /**
      * 跟随定义的apiId
      * 传空为不跟随接口定义
+     * 如果选择了
      */
     @Size(max = 50)
     private String followApiId;
@@ -25,9 +27,10 @@ public class MsDocumentAssertion extends MsBodyAssertionItem {
      * 这里跟前端数据结构有差异
      * 后端从设计层面支持多种文档格式，前端只支持一种
      * 同时切换可以同时持久化两种格式
-     *
+     * <p>
      * 取值参考 {@link DocumentType}
-=     */
+     * =
+     */
     @EnumValue(enumClass = DocumentType.class)
     private String documentType;
     /**
