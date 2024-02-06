@@ -17,10 +17,6 @@ import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.api.utils.ApiDataUtils;
-import io.metersphere.api.utils.JmeterElementConverterRegister;
-import io.metersphere.plugin.api.spi.AbstractJmeterElementConverter;
-import io.metersphere.plugin.api.spi.JmeterElementConverter;
-import io.metersphere.plugin.api.spi.MsTestElement;
 import io.metersphere.project.api.assertion.MsResponseCodeAssertion;
 import io.metersphere.project.api.assertion.MsScriptAssertion;
 import io.metersphere.project.api.processor.MsProcessor;
@@ -660,15 +656,6 @@ public class ApiScenarioControllerTests extends BaseTest {
         request.getStepDetails().put(pluginStep.getId(), pluginStepDetail);
 
         Plugin plugin = addEnvTestPlugin();
-        List<Class<? extends MsTestElement>> msTestElementClasses =
-                pluginLoadService.getMsPluginManager().getExtensionClasses(MsTestElement.class);
-        // 注册序列化类
-        msTestElementClasses.forEach(ApiDataUtils::setResolver);
-        // 注册转换器
-        List<Class<? extends JmeterElementConverter>> converterClasses =
-                pluginLoadService.getMsPluginManager().getExtensionClasses(JmeterElementConverter.class);
-        converterClasses.forEach(item -> JmeterElementConverterRegister.register((Class<? extends AbstractJmeterElementConverter<? extends MsTestElement>>) item));
-
         this.requestPostWithOk(DEBUG, request);
         pluginService.delete(plugin.getId());
 

@@ -117,7 +117,6 @@ public class PluginService {
 
             // 从文件系统中加载插件
             id = pluginLoadService.loadPlugin(file.getOriginalFilename());
-            pluginLoadService.getMsPluginManager().startPlugin(id);
             plugin.setId(id);
 
             List<Driver> extensions = pluginLoadService.getMsPluginManager().getExtensions(Driver.class, id);

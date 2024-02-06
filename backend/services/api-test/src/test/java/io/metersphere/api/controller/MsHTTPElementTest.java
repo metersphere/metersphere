@@ -102,7 +102,9 @@ public class MsHTTPElementTest {
         xmlBody.setValue("<a/>");
         body.setXmlBody(xmlBody);
 
-        body.setBinaryBody(BeanUtils.copyBean(new BinaryBody(), bodyFile));
+        BinaryBody binaryBody = new BinaryBody();
+        binaryBody.setFile(bodyFile);
+        body.setBinaryBody(binaryBody);
         return body;
     }
 
