@@ -527,7 +527,6 @@
                 });
               } else {
                 Message.success(t('common.createSuccess'));
-
                 if (isContinue) {
                   // 如果是保存并继续创建
                   const { templateId } = form.value;
@@ -550,10 +549,12 @@
                     });
                     return;
                   }
+                  debugger;
                   router.push({
                     name: BugManagementRouteEnum.BUG_MANAGEMENT_CREATE_SUCCESS,
                     query: {
-                      id: res.id,
+                      ...route.query,
+                      id: res.data.id,
                     },
                   });
                 }
