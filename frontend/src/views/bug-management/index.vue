@@ -6,6 +6,7 @@
       :row-count="filterRowCount"
       @keyword-search="fetchData"
       @adv-search="handleAdvSearch"
+      @refresh="handleAdvSearch"
     >
       <template #left>
         <div class="flex gap-[12px]">
