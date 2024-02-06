@@ -48,7 +48,7 @@ public class ApiDebugModuleControllerTests extends BaseTest {
     private static final String URL_MODULE_ADD = "/api/debug/module/add";
     private static final String URL_MODULE_UPDATE = "/api/debug/module/update";
     private static final String URL_MODULE_DELETE = "/api/debug/module/delete/%s";
-    private static final String URL_MODULE_TREE = "/api/debug/module/tree/%s";
+    private static final String URL_MODULE_TREE = "/api/debug/module/tree";
     private static final String URL_MODULE_MOVE = "/api/debug/module/move";
     private static final String URL_FILE_MODULE_COUNT = "/api/debug/module/count";
     private static final ResultMatcher BAD_REQUEST_MATCHER = status().isBadRequest();
@@ -748,24 +748,13 @@ public class ApiDebugModuleControllerTests extends BaseTest {
     @Order(8)
     public void TestModuleCountSuccess() throws Exception {
         this.preliminaryData();
-        ApiDebugRequest request = new ApiDebugRequest() {{
-            this.setProtocol(ApiConstants.HTTP_PROTOCOL);
-        }};
+        ApiDebugRequest request = new ApiDebugRequest();
         MvcResult moduleCountMvcResult = this.requestPostWithOkAndReturn(URL_FILE_MODULE_COUNT, request);
         Map<String, Integer> moduleCountResult = JSON.parseObject(JSON.toJSONString(
                         JSON.parseObject(moduleCountMvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8), ResultHolder.class).getData()),
                 Map.class);
         Assertions.assertTrue(moduleCountResult.containsKey("all"));
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEBUG_READ, URL_FILE_MODULE_COUNT, request);
-
-    }
-
-    @Test
-    @Order(8)
-    public void TestModuleCountError() throws Exception {
-        ApiDebugRequest request = new ApiDebugRequest();
-        request.setProtocol(null);
-        this.requestPost(URL_FILE_MODULE_COUNT, request).andExpect(BAD_REQUEST_MATCHER);
 
     }
 
@@ -801,10 +790,10 @@ public class ApiDebugModuleControllerTests extends BaseTest {
     }
 
     private List<BaseTreeNode> getDebugModuleTreeNode() throws Exception {
-        MvcResult result = this.requestGetWithOkAndReturn(String.format(URL_MODULE_TREE, ModuleConstants.NODE_PROTOCOL_HTTP));
+        MvcResult result = this.requestGetWithOkAndReturn(URL_MODULE_TREE);
         String returnData = result.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
-        this.requestGetWithOkAndReturn(String.format(URL_MODULE_TREE, "TCP"));
+        this.requestGetWithOkAndReturn(URL_MODULE_TREE);
         return JSON.parseArray(JSON.toJSONString(resultHolder.getData()), BaseTreeNode.class);
     }
 

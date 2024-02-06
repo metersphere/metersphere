@@ -1,10 +1,12 @@
 package io.metersphere.project.api.assertion.body;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
+@Builder
 public class ElementCondition {
     private boolean include;
     private boolean typeVerification;
@@ -12,11 +14,4 @@ public class ElementCondition {
     private String type;
 
     List<Condition> conditions;
-
-    public ElementCondition(boolean include, boolean typeVerification, boolean arrayVerification, List<Condition> conditions) {
-        this.include = include;
-        this.typeVerification = typeVerification;
-        this.arrayVerification = arrayVerification;
-        this.conditions = conditions;
-    }
 }

@@ -11,9 +11,9 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface ExtApiDebugModuleMapper {
-    List<BaseTreeNode> selectBaseByProtocolAndUser(String protocol, String userId);
+    List<BaseTreeNode> selectBaseByProtocolAndUser(String userId);
 
-    List<BaseTreeNode> selectIdAndParentIdByProtocolAndUserId(String protocol, String userId);
+    List<BaseTreeNode> selectIdAndParentIdByProtocolAndUserId(String userId);
 
     List<String> selectChildrenIdsByParentIds(@Param("ids") List<String> deleteIds);
 
@@ -29,7 +29,7 @@ public interface ExtApiDebugModuleMapper {
 
     BaseModule selectModuleByParentIdAndPosOperator(NodeSortQueryParam nodeSortQueryParam);
 
-    List<ApiTreeNode> selectApiDebugByProtocolAndUser(String protocol, String userId);
+    List<ApiTreeNode> selectApiDebugByProtocolAndUser(String userId);
 
     List<ModuleCountDTO> countModuleIdByKeywordAndProtocol(@Param("request") ApiDebugRequest request, @Param("userId") String userId);
 }
