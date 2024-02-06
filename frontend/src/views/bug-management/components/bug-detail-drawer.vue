@@ -88,7 +88,13 @@
                     <template #title>
                       {{ t('bugManagement.detail.detail') }}
                     </template>
-                    <BugDetailTab :allow-edit="true" :detail-info="detailInfo" @update-success="updateSuccess" />
+                    <BugDetailTab
+                      ref="bugDetailTabRef"
+                      :form-item="formItem"
+                      :allow-edit="true"
+                      :detail-info="detailInfo"
+                      @update-success="updateSuccess"
+                    />
                   </a-tab-pane>
                   <a-tab-pane key="case">
                     <template #title>
@@ -118,7 +124,7 @@
                 :form-rule="formRules"
                 class="w-full"
                 :option="options"
-                @change="handleOK"
+                @change="handelFormCreateChange"
               />
               <!-- 自定义字段结束 -->
               <div class="baseItem">
@@ -154,6 +160,7 @@
   import { ref } from 'vue';
   import { useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
+  import { debounce } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
@@ -175,7 +182,6 @@
     followBug,
     getBugDetail,
     getTemplateById,
-    updateBug,
   } from '@/api/modules/bug-management/index';
   import useFullScreen from '@/hooks/useFullScreen';
   import { useI18n } from '@/hooks/useI18n';
@@ -212,6 +218,7 @@
   const formItem = ref<FormRuleItem[]>([]); // 表单项
   const currentProjectId = computed(() => appStore.currentProjectId);
   const showDrawerVisible = defineModel<boolean>('visible', { default: false });
+  const bugDetailTabRef = ref();
 
   const activeTab = ref<string | number>('detail');
 
@@ -219,7 +226,7 @@
   const tags = ref([]);
 
   // 处理表单格式
-  const getFormRules = (arr: BugEditCustomField[]) => {
+  const getFormRules = (arr: BugEditCustomField[], valueObj: BugEditFormObject) => {
     formRules.value = [];
     if (Array.isArray(arr) && arr.length) {
       formRules.value = arr.map((item) => {
@@ -227,11 +234,11 @@
           type: item.type,
           name: item.fieldId,
           label: item.fieldName,
-          value: item.value,
+          value: valueObj[item.fieldId],
           options: item.platformOptionJson ? JSON.parse(item.platformOptionJson) : item.options,
           required: item.required as boolean,
           props: {
-            modelValue: item.value,
+            modelValue: valueObj[item.fieldId],
             options: item.platformOptionJson ? JSON.parse(item.platformOptionJson) : item.options,
           },
         };
@@ -239,11 +246,11 @@
     }
   };
 
-  const templateChange = async (v: SelectValue) => {
+  const templateChange = async (v: SelectValue, valueObj: BugEditFormObject) => {
     if (v) {
       try {
         const res = await getTemplateById({ projectId: appStore.currentProjectId, id: v });
-        getFormRules(res.customFields);
+        getFormRules(res.customFields, valueObj);
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);
@@ -255,16 +262,14 @@
     const { templateId } = detail;
     // tag 赋值
     tags.value = detail.tags || [];
-    // 初始化自定义字段
-    await templateChange(templateId);
     const tmpObj = {};
     if (detail.customFields && Array.isArray(detail.customFields)) {
       detail.customFields.forEach((item) => {
         tmpObj[item.id] = item.value;
       });
     }
-    // 自定义字段赋值
-    fApi.value.setValue(tmpObj);
+    // 初始化自定义字段
+    await templateChange(templateId, tmpObj);
   }
 
   const editLoading = ref<boolean>(false);
@@ -333,24 +338,9 @@
     });
   }
 
-  const handleOK = async () => {
-    const values = await fApi.value.validate();
-    if (values) {
-      const params = {
-        id: detailInfo.value.id,
-        projectId: currentProjectId.value,
-        ...values,
-      };
-      try {
-        await updateBug(params);
-        Message.success(t('common.editSuccess'));
-        detailDrawerRef.value?.initDetail();
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.log(error);
-      }
-    }
-  };
+  const handelFormCreateChange = debounce(() => {
+    bugDetailTabRef.value?.handleSave();
+  }, 300);
 
   // 表单配置项
   const options = {

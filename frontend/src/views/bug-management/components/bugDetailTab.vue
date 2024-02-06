@@ -1,36 +1,36 @@
 <template>
-  <div class="p-[16px]">
+  <div class="relative p-[16px] pb-[16px]">
     <div class="header">
       <div class="header-title">{{ t('bugManagement.edit.content') }}</div>
-      <div v-if="!contentEditAble" v-permission="['PROJECT_BUG:READ+UPDATE']" class="header-action">
-        <a-button type="text" @click="contentEditAble = true">
+      <div v-permission="['PROJECT_BUG:READ+UPDATE']" class="header-action">
+        <a-button type="text" @click="contentEditAble = !contentEditAble">
           <template #icon> <MsIconfont type="icon-icon_edit_outlined" /> </template>
           {{ t('bugManagement.edit.contentEdit') }}
         </a-button>
       </div>
     </div>
-    <div class="mt-[8]" :class="{ 'max-h-[260px]': contentEditAble }">
+    <div class="mt-[16px]" :class="{ 'max-h-[260px]': contentEditAble }">
       <MsRichText
         v-if="contentEditAble"
-        v-model:raw="form.content"
+        v-model:raw="form.description"
         v-model:filed-ids="fileIds"
         :disabled="!contentEditAble"
         :placeholder="t('bugManagement.edit.contentPlaceholder')"
         :upload-image="handleUploadImage"
       />
-      <div v-else v-dompurify-html="form?.content || '-'" class="text-[var(--color-text-3)]"></div>
+      <div v-else v-dompurify-html="form?.description || '-'" class="text-[var(--color-text-3)]"></div>
     </div>
-    <div v-if="contentEditAble" class="flex justify-end">
+    <div v-if="contentEditAble" class="mt-[8px] flex justify-end">
       <a-button type="secondary" @click="handleCancel">{{ t('common.cancel') }}</a-button>
-      <a-button class="ml-[12px]" type="primary" :loading="confirmLoading">
+      <a-button class="ml-[12px]" type="primary" :loading="confirmLoading" @click="handleSave">
         {{ t('common.save') }}
       </a-button></div
     >
     <div v-if="props.allowEdit">
-      <div class="font-medium text-[var(--color-text-1)]">
+      <div class="mt-[16px] font-medium text-[var(--color-text-1)]">
         {{ t('bugManagement.edit.file') }}
       </div>
-      <div class="mb-1">
+      <div class="mt-[16px] pb-[4px]">
         <a-dropdown position="tr" trigger="hover">
           <a-button v-permission="['PROJECT_BUG:READ+UPDATE']" type="outline">
             <template #icon> <icon-plus class="text-[14px]" /> </template
@@ -162,6 +162,7 @@
   import { Message } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
+  import { FormRuleItem } from '@/components/pure/ms-form-create/types';
   import MsIconfont from '@/components/pure/ms-icon-font/index.vue';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import MsFileList from '@/components/pure/ms-upload/fileList.vue';
@@ -171,6 +172,7 @@
 
   import {
     checkFileIsUpdateRequest,
+    createOrUpdateBug,
     deleteFileOrCancelAssociation,
     downloadFileRequest,
     editorUploadFile,
@@ -180,14 +182,12 @@
     updateFile,
     uploadOrAssociationFile,
   } from '@/api/modules/bug-management';
-  import { updateCaseRequest } from '@/api/modules/case-management/featureCase';
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import { downloadByteFile, sleep } from '@/utils';
-  import { scrollIntoView } from '@/utils/dom';
 
-  import { BugEditFormObject } from '@/models/bug-management';
+  import { BugEditCustomFieldItem, BugEditFormObject } from '@/models/bug-management';
   import { AssociatedList, AttachFileInfo } from '@/models/caseManagement/featureCase';
   import { TableQueryParams } from '@/models/common';
 
@@ -197,6 +197,7 @@
 
   const props = defineProps<{
     detailInfo: BugEditFormObject;
+    formItem: FormRuleItem[];
     allowEdit?: boolean; // 是否允许编辑
   }>();
 
@@ -224,7 +225,7 @@
     },
   });
   const form = ref({
-    content: '',
+    description: '',
     deleteLocalFileIds: [] as string[],
     unLinkRefIds: [] as string[],
     linkFileIds: [] as string[],
@@ -251,36 +252,17 @@
     }
   };
 
+  const confirmLoading = ref<boolean>(false);
+
+  const initCurrentDetail = async (detail: BugEditFormObject) => {
+    const { attachments, description } = detail;
+    form.value.description = description;
+    handleFileFunc(attachments);
+  };
+
   function handleCancel() {
     contentEditAble.value = false;
   }
-  const confirmLoading = ref<boolean>(false);
-
-  // function handleOK() {
-  //   caseFormRef.value?.validate().then(async (res: any) => {
-  //     if (!res) {
-  //       try {
-  //         confirmLoading.value = true;
-  //         await updateCaseRequest();
-  //         Message.success(t('caseManagement.featureCase.editSuccess'));
-  //         handleCancel();
-  //         emit('updateSuccess');
-  //       } catch (error) {
-  //         // eslint-disable-next-line no-console
-  //         console.log(error);
-  //       } finally {
-  //         confirmLoading.value = false;
-  //       }
-  //     }
-  //     return scrollIntoView(document.querySelector('.arco-form-item-message'), { block: 'center' });
-  //   });
-  // }
-
-  const initCurrentDetail = async (detail: BugEditFormObject) => {
-    const { attachments, content } = detail;
-    form.value.content = content;
-    handleFileFunc(attachments);
-  };
 
   // 删除本地文件
   async function deleteFileHandler(item: MsFileItem) {
@@ -309,16 +291,6 @@
       return Promise.resolve(false);
     }
     return Promise.resolve(true);
-  }
-
-  function handleChange(_fileList: MsFileItem[]) {
-    fileList.value = _fileList.map((e) => {
-      return {
-        ...e,
-        enable: true, // 是否启用
-        local: true, // 是否本地文件
-      };
-    });
   }
 
   // 预览图片
@@ -471,9 +443,49 @@
     },
     { deep: true }
   );
+  // 保存操作
+  async function handleSave() {
+    try {
+      confirmLoading.value = true;
+      const { formItem } = props;
+      const customFields: BugEditCustomFieldItem[] = [];
+      if (formItem && formItem.length) {
+        formItem.forEach((item: FormRuleItem) => {
+          customFields.push({
+            id: item.field as string,
+            name: item.title as string,
+            type: item.sourceType as string,
+            value: item.value as string,
+          });
+        });
+      }
+      const tmpObj: BugEditFormObject = {
+        ...form.value,
+        id: props.detailInfo.id,
+        projectId: currentProjectId.value,
+        templateId: props.detailInfo.templateId,
+        customFields,
+      };
+      // 执行保存操作
+      const res = await createOrUpdateBug({ request: tmpObj, fileList: fileList.value as unknown as File[] });
+      if (res) {
+        Message.success(t('common.updateSuccess'));
+        handleCancel();
+        emit('updateSuccess');
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      confirmLoading.value = false;
+    }
+  }
 
   watchEffect(() => {
     initCurrentDetail(props.detailInfo);
+  });
+  defineExpose({
+    handleSave,
   });
 </script>
 
@@ -487,6 +499,9 @@
       color: var(--color-text-1);
     }
     &-action {
+      position: absolute;
+      top: 0;
+      right: 6px;
       color: rgb(var(--primary-7));
     }
   }

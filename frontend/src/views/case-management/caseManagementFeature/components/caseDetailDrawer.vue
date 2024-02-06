@@ -452,6 +452,7 @@
     formRules.value = customFields.value.map((item: any) => {
       const multipleType = ['MULTIPLE_SELECT', 'CHECKBOX', 'MULTIPLE_MEMBER', 'MULTIPLE_INPUT'];
       const currentDefaultValue = multipleType.includes(item.type) ? JSON.parse(item.defaultValue) : item.defaultValue;
+      console.log('currentDefaultValue', currentDefaultValue);
       return {
         ...item,
         type: item.type,
