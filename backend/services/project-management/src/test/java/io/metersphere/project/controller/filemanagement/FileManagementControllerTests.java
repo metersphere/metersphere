@@ -60,7 +60,7 @@ import java.util.stream.Collectors;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @AutoConfigureMockMvc
 public class FileManagementControllerTests extends BaseTest {
@@ -109,9 +109,11 @@ public class FileManagementControllerTests extends BaseTest {
             initProject.setName("文件管理专用项目");
             initProject.setDescription("建国创建的文件管理专用项目");
             initProject.setEnable(true);
+            initProject.setUserIds(List.of("admin"));
             project = commonProjectService.add(initProject, "admin", "/organization-project/add", OperationLogModule.SETTING_ORGANIZATION_PROJECT);
         }
     }
+
     @Test
     @Order(1)
     public void emptyDataTest() throws Exception {
@@ -2331,6 +2333,7 @@ public class FileManagementControllerTests extends BaseTest {
         request.setDropPosition(4);
         this.requestPost(FileManagementRequestUtils.URL_MODULE_MOVE, request).andExpect(status().is5xxServerError());
     }
+
     @Test
     @Order(90)
     public void deleteModuleTestSuccess() throws Exception {

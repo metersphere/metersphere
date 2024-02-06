@@ -4,6 +4,7 @@ import io.metersphere.validation.groups.Created;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -34,7 +35,8 @@ public class ProjectBaseRequest {
     @Schema(description = "模块设置", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
     private List<String> moduleIds;
 
-    @Schema(description = "成员数", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    @Schema(description = "成员数", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotEmpty(message = "{project.member_count.not_blank}", groups = {Created.class, Updated.class})
     private List<String> userIds;
 
     @Schema(description = "资源池", requiredMode = Schema.RequiredMode.NOT_REQUIRED)

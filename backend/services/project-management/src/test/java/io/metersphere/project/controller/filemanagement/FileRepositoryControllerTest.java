@@ -79,6 +79,7 @@ public class FileRepositoryControllerTest extends BaseTest {
             initProject.setName("文件管理存储库专用项目");
             initProject.setDescription("建国创建的文件管理存储库专用项目");
             initProject.setEnable(true);
+            initProject.setUserIds(List.of("admin"));
             project = commonProjectService.add(initProject, "admin", "/organization-project/add", OperationLogModule.SETTING_ORGANIZATION_PROJECT);
         }
     }
