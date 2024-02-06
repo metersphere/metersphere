@@ -110,7 +110,7 @@
             <div class="env-row mt-[8px] p-[8px]">
               <div class="text-[var(--color-text-4)]">{{ t('project.environmental.group.envGroup') }}</div>
               <div class="flex flex-row items-center">
-                <MsButton type="icon" class="!mr-0 p-[2px]">
+                <MsButton type="icon" class="!mr-0 p-[2px]" @click="handleCreateGroup">
                   <MsIcon
                     type="icon-icon_create_planarity"
                     size="18"
@@ -120,26 +120,26 @@
               </div>
             </div>
             <!-- 环境组list-->
-            <div v-if="envList.length">
-              <VueDraggable v-model="envList" ghost-class="ghost" handle=".drag-handle">
+            <div v-if="evnGroupList.length">
+              <VueDraggable v-model="evnGroupList" ghost-class="ghost" handle=".drag-handle">
                 <div
-                  v-for="element in envList"
+                  v-for="element in evnGroupList"
                   :key="element.id"
                   class="env-item hover:bg-[rgb(var(--primary-1))]"
-                  @click="handleListItemClick(element)"
+                  @click="handleListItemClickGroup(element)"
                 >
                   <RenamePop
-                    :list="envList"
+                    :list="evnGroupList"
                     :type="(showType as EnvAuthScopeEnum)"
-                    v-bind="popVisible[element.id]"
-                    @cancel="handleRenameCancel(element)"
-                    @submit="handleRenameCancel(element, true)"
+                    v-bind="groupPopVisible[element.id]"
+                    @cancel="handleRenameCancelGroup(element)"
+                    @submit="handleRenameCancelGroup(element, true)"
                   >
                     <div class="flex max-w-[100%] grow flex-row items-center justify-between">
                       <a-tooltip :content="element.name">
                         <div
                           class="one-line-text"
-                          :class="{ 'font-medium text-[rgb(var(--primary-5))]': element.id === activeKey }"
+                          :class="{ 'font-medium text-[rgb(var(--primary-5))]': element.id === activeGroupKey }"
                           >{{ element.name }}</div
                         >
                       </a-tooltip>
@@ -197,10 +197,14 @@
   import EnvParamBox from './components/EnvParamBox.vue';
   import RenamePop from './components/RenamePop.vue';
 
-  import { exportGlobalParam, listEnv } from '@/api/modules/project-management/envManagement';
+  import { exportGlobalParam, groupListEnv, listEnv } from '@/api/modules/project-management/envManagement';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
-  import useProjectEnvStore, { ALL_PARAM, NEW_ENV_PARAM } from '@/store/modules/setting/useProjectEnvStore';
+  import useProjectEnvStore, {
+    ALL_PARAM,
+    NEW_ENV_GROUP,
+    NEW_ENV_PARAM,
+  } from '@/store/modules/setting/useProjectEnvStore';
   import { downloadByteFile } from '@/utils';
 
   import { EnvListItem } from '@/models/projectManagement/environmental';
@@ -211,16 +215,21 @@
   const store = useProjectEnvStore();
 
   const envList = ref<EnvListItem[]>([]); // 环境列表
+  const evnGroupList = ref<EnvListItem[]>([]); // 环境组列表
 
   const showType = ref<EnvAuthScopeEnum>(EnvAuthScopeEnum.PROJECT); // 展示类型
 
   const activeKey = computed(() => store.currentId); // 当前选中的id
+
+  const activeGroupKey = computed(() => store.currentGroupId); // 当前选中的group id
 
   const keyword = ref<string>(''); // 搜索关键字
   const appStore = useAppStore();
 
   // 气泡弹窗
   const popVisible = ref<PopVisible>({});
+  // group 气泡弹窗
+  const groupPopVisible = ref<PopVisible>({});
   // 导入弹窗
   const importVisible = ref<boolean>(false);
   // 导入类型
@@ -312,7 +321,7 @@
         break;
     }
   };
-
+  // 创建环境变量
   const handleCreateEnv = () => {
     const tmpArr = envList.value;
     tmpArr.unshift({
@@ -322,20 +331,44 @@
     store.setCurrentId(NEW_ENV_PARAM);
     envList.value = tmpArr;
   };
+  // 创建环境组
+  const handleCreateGroup = () => {
+    const tmpArr = evnGroupList.value;
+    tmpArr.unshift({
+      id: NEW_ENV_GROUP,
+      name: t('project.environmental.newEnv'),
+    });
+    store.setCurrentGroupId(NEW_ENV_GROUP);
+    evnGroupList.value = tmpArr;
+  };
 
-  function changeShowType(value: string | number | boolean) {
-    console.log(value);
-  }
-
-  // 用户组数据初始化
-  const initData = async (keywordStr = '') => {
+  const initGroupList = async (keywordStr = '') => {
     try {
-      envList.value = await listEnv({ projectId: appStore.currentProjectId, keyword: keywordStr });
+      evnGroupList.value = await groupListEnv({ projectId: appStore.currentProjectId, keyword: keywordStr });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
     }
   };
+
+  const initData = async (keywordStr = '') => {
+    try {
+      envList.value = await listEnv({ projectId: appStore.currentProjectId, keyword: keywordStr });
+      if (showType.value === 'PROJECT_GROUP') {
+        initGroupList(keywordStr);
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  };
+
+  function changeShowType(value: string | number | boolean) {
+    if (value === 'PROJECT_GROUP') {
+      initGroupList();
+      store.setCurrentGroupId('');
+    }
+  }
 
   const handleRenameCancel = (element: EnvListItem, shouldSearch?: boolean) => {
     if (shouldSearch) {
@@ -344,9 +377,25 @@
     popVisible.value[element.id].visible = false;
   };
 
+  const handleRenameCancelGroup = (element: EnvListItem, shouldSearch?: boolean) => {
+    if (shouldSearch) {
+      initGroupList();
+    }
+    groupPopVisible.value[element.id].visible = false;
+  };
+
   const handleListItemClick = (element: EnvListItem) => {
     const { id } = element;
     store.setCurrentId(id);
+  };
+
+  const handleListItemClickGroup = (element: EnvListItem) => {
+    const { id } = element;
+    store.setCurrentGroupId(id);
+    if (id !== NEW_ENV_GROUP) {
+      // 不是新建的组，初始化组详情
+      store.initGroupDetail();
+    }
   };
 
   function searchData() {

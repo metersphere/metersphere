@@ -231,6 +231,20 @@
     <template #matchValue="{ record }">
       <a-input v-model="record.matchValue" class="param-input" @change="(val) => addTableLine(val)" />
     </template>
+    <template #project="{ record, columnConfig }">
+      <a-select
+        v-model="record.projectId"
+        class="param-input"
+        @change="(val) => handelProjectChange(val as string, record.projectId)"
+      >
+        <a-option v-for="item in columnConfig.options" :key="item.id">{{ item.name }}</a-option>
+      </a-select>
+    </template>
+    <template #environment="{ record, columnConfig }">
+      <a-select v-model="record.environmentId" class="param-input">
+        <a-option v-for="item in columnConfig.options" :key="item.id">{{ item.name }}</a-option>
+      </a-select>
+    </template>
   </MsBaseTable>
   <a-modal
     v-model:visible="showQuickInputParam"
@@ -374,6 +388,7 @@
   const emit = defineEmits<{
     (e: 'change', data: any[], isInit?: boolean): void; // 都触发这个事件以通知父组件参数数组被更改
     (e: 'moreActionSelect', event: ActionsItem, record: Record<string, any>): void;
+    (e: 'projectChange', projectId: string): void;
   }>();
 
   const { t } = useI18n();
@@ -566,6 +581,11 @@
 
   function handleMoreActionSelect(event: ActionsItem, record: Record<string, any>) {
     emit('moreActionSelect', event, record);
+  }
+
+  function handelProjectChange(val: string, projectId: string) {
+    emit('projectChange', projectId);
+    addTableLine(val as string, 'projectId');
   }
 
   defineExpose({

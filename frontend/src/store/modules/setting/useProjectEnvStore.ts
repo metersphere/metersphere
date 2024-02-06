@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import localforage from 'localforage';
 
-import { getDetailEnv, getGlobalParamDetail } from '@/api/modules/project-management/envManagement';
+import { getDetailEnv, getGlobalParamDetail, groupDetailEnv } from '@/api/modules/project-management/envManagement';
 import { useAppStore } from '@/store';
 import { isArraysEqualWithOrder } from '@/utils/equal';
 
@@ -9,6 +9,7 @@ import { ContentTabItem, ContentTabsMap, EnvDetailItem, GlobalParams } from '@/m
 
 export const ALL_PARAM = 'allParam';
 export const NEW_ENV_PARAM = 'newEnvParam';
+export const NEW_ENV_GROUP = 'newEnvGroup';
 
 const useProjectEnvStore = defineStore(
   'projectEnv',
@@ -21,13 +22,17 @@ const useProjectEnvStore = defineStore(
     const backupEnvDetailInfo = ref<EnvDetailItem>({ projectId: '', name: '', config: {} }); // 当前选中的环境详情-备份
     const allParamDetailInfo = ref<GlobalParams>(); // 全局参数详情
     // 当前选中的项目组详情
-    const groupDetailInfo = ref<GlobalParams>();
+    const groupDetailInfo = ref<EnvDetailItem>();
     const httpNoWarning = ref(true);
     const getHttpNoWarning = computed(() => httpNoWarning.value);
 
     // 设置选中项
     function setCurrentId(id: string) {
       currentId.value = id;
+    }
+    // 设置选中项目组
+    function setCurrentGroupId(id: string) {
+      currentGroupId.value = id;
     }
     // 设置http提醒
     function setHttpNoWarning(noWarning: boolean) {
@@ -52,6 +57,16 @@ const useProjectEnvStore = defineStore(
           currentEnvDetailInfo.value = tmpObj;
           backupEnvDetailInfo.value = JSON.parse(JSON.stringify(tmpObj));
         }
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.log(e);
+      }
+    }
+    // 初始化项目组详情
+    async function initGroupDetail() {
+      try {
+        const id = currentGroupId.value;
+        groupDetailInfo.value = await groupDetailEnv(id);
       } catch (e) {
         // eslint-disable-next-line no-console
         console.log(e);
@@ -114,9 +129,11 @@ const useProjectEnvStore = defineStore(
       backupEnvDetailInfo,
       groupDetailInfo,
       setCurrentId,
+      setCurrentGroupId,
       setHttpNoWarning,
       setAllParamDetailInfo,
       initEnvDetail,
+      initGroupDetail,
       initContentTabList,
       getContentTabList,
       setContentTabList,
