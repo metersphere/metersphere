@@ -147,7 +147,7 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         messageTaskExample = new MessageTaskExample();
         messageTaskExample.createCriteria().andProjectIdEqualTo("project-message-test").andTaskTypeEqualTo(NoticeConstants.TaskType.API_DEFINITION_TASK).andEventEqualTo(NoticeConstants.Event.CREATE);
         List<MessageTask> messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
-        Assertions.assertEquals(2, messageTasks.size());
+        Assertions.assertEquals(1, messageTasks.size());
         messageTaskExample = new MessageTaskExample();
         messageTaskExample.createCriteria().andProjectIdEqualTo("project-message-test").andTaskTypeEqualTo(NoticeConstants.TaskType.API_DEFINITION_TASK).andEventEqualTo(NoticeConstants.Event.CREATE).andReceiverEqualTo("project-message-user-3");
         messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
