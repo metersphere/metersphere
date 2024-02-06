@@ -129,6 +129,7 @@ public class NoticeSendService {
      */
     @Async
     public void send(Project project, String taskType, NoticeModel noticeModel) {
+        setLanguage(noticeModel);
         try {
             List<MessageDetail> messageDetails = messageDetailService.searchMessageByTypeAndProjectId(taskType, project.getId());
             // 异步发送通知

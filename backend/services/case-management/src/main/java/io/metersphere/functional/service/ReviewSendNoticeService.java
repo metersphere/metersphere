@@ -12,11 +12,14 @@ import io.metersphere.system.notice.utils.MessageTemplateUtils;
 import io.metersphere.system.service.NoticeSendService;
 import jakarta.annotation.Resource;
 import org.apache.commons.beanutils.BeanMap;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @Service
@@ -34,6 +37,7 @@ public class ReviewSendNoticeService {
     @Async
     public void sendNotice(List<String> relatedUsers, String userId, String reviewId, String task, String event) {
         User user = userMapper.selectByPrimaryKey(userId);
+        setLanguage(user.getLanguage());
         CaseReview caseReview = caseReviewMapper.selectByPrimaryKey(reviewId);
         Map<String, String> defaultTemplateMap = MessageTemplateUtils.getDefaultTemplateMap();
         String template = defaultTemplateMap.get(task + "_" + event);
@@ -59,6 +63,7 @@ public class ReviewSendNoticeService {
     public void sendNoticeCase(List<String> relatedUsers, String userId, String caseId, String task, String event,String reviewId) {
         FunctionalCase functionalCase = functionalCaseMapper.selectByPrimaryKey(caseId);
         User user = userMapper.selectByPrimaryKey(userId);
+        setLanguage(user.getLanguage());
         CaseReview caseReview = caseReviewMapper.selectByPrimaryKey(reviewId);
         Map<String, String> defaultTemplateMap = MessageTemplateUtils.getDefaultTemplateMap();
         String template = defaultTemplateMap.get(task + "_" + event);
@@ -80,6 +85,16 @@ public class ReviewSendNoticeService {
                 .relatedUsers(relatedUsers)
                 .build();
         noticeSendService.send(task, noticeModel);
+    }
+
+    private static void setLanguage(String language) {
+        Locale locale = Locale.SIMPLIFIED_CHINESE;
+        if (StringUtils.containsIgnoreCase("US",language)) {
+            locale = Locale.US;
+        } else if (StringUtils.containsIgnoreCase("TW",language)){
+            locale = Locale.TAIWAN;
+        }
+        LocaleContextHolder.setLocale(locale);
     }
 
 }
