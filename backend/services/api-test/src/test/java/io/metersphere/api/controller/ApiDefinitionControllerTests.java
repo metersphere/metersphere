@@ -212,6 +212,17 @@ public class ApiDefinitionControllerTests extends BaseTest {
 
         // @@重名校验异常
         assertErrorCode(this.requestPost(ADD, request), ApiResultCode.API_DEFINITION_EXIST);
+        // @@响应名+响应码唯一校验异常
+        request.setName("test123-response");
+        request.setMethod("GET");
+        request.setPath("/api/halo/posts");
+        List<HttpResponse> mergedList = new ArrayList<>();
+        List<HttpResponse> msHttpResponse1 = MsHTTPElementTest.getMsHttpResponse();
+        mergedList.addAll(msHttpResponse);
+        mergedList.addAll(msHttpResponse1);
+        request.setResponse(mergedList);
+        assertErrorCode(this.requestPost(ADD, request), ApiResultCode.API_RESPONSE_NAME_CODE_UNIQUE);
+
         // 校验项目是否存在
         request.setProjectId("111");
         request.setName("test123");
@@ -387,6 +398,17 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setDeleteFileIds(null);
         request.setUnLinkRefIds(null);
         assertErrorCode(this.requestPost(UPDATE, request), ApiResultCode.API_DEFINITION_EXIST);
+
+        // @@响应名+响应码唯一校验异常
+        request.setName("test123-response");
+        request.setMethod("GET");
+        request.setPath("/api/halo/posts");
+        List<HttpResponse> mergedList = new ArrayList<>();
+        List<HttpResponse> msHttpResponse1 = MsHTTPElementTest.getMsHttpResponse();
+        mergedList.addAll(msHttpResponse);
+        mergedList.addAll(msHttpResponse1);
+        request.setResponse(mergedList);
+        assertErrorCode(this.requestPost(UPDATE, request), ApiResultCode.API_RESPONSE_NAME_CODE_UNIQUE);
 
         // 校验数据是否存在
         request.setId("111");
