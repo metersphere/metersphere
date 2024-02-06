@@ -5,7 +5,9 @@ import io.metersphere.functional.domain.FunctionalCaseDemandExample;
 import io.metersphere.functional.dto.DemandDTO;
 import io.metersphere.functional.dto.FunctionalDemandDTO;
 import io.metersphere.functional.mapper.ExtFunctionalCaseDemandMapper;
+import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
 import io.metersphere.functional.mapper.FunctionalCaseDemandMapper;
+import io.metersphere.functional.request.FunctionalCaseDemandBatchRequest;
 import io.metersphere.functional.request.FunctionalCaseDemandRequest;
 import io.metersphere.functional.request.FunctionalThirdDemandPageRequest;
 import io.metersphere.functional.request.QueryDemandListRequest;
@@ -52,6 +54,8 @@ public class FunctionalCaseDemandService {
     private SystemParameterMapper systemParameterMapper;
     @Resource
     private ProjectApplicationService projectApplicationService;
+    @Resource
+    private ExtFunctionalCaseMapper extFunctionalCaseMapper;
 
     /**
      * 获取需求列表
@@ -95,31 +99,40 @@ public class FunctionalCaseDemandService {
      * @param userId  当前操作人
      */
     public void addDemand(FunctionalCaseDemandRequest request, String userId) {
-        if (checkDemandList(request)) return;
-        FunctionalCaseDemand functionalCaseDemand = buildFunctionalCaseDemand(request, userId, request.getDemandList().get(0), new ArrayList<>());
-        if (functionalCaseDemand != null) {
-            functionalCaseDemandMapper.insertSelective(functionalCaseDemand);
+        if (checkDemandList(request.getDemandList())) return;
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        FunctionalCaseDemandMapper functionalCaseDemandMapper = sqlSession.getMapper(FunctionalCaseDemandMapper.class);
+        List<String> demandIds = request.getDemandList().stream().map(DemandDTO::getDemandId).toList();
+        FunctionalCaseDemandExample functionalCaseDemandExample = new FunctionalCaseDemandExample();
+        functionalCaseDemandExample.createCriteria().andCaseIdEqualTo(request.getCaseId()).andDemandPlatformEqualTo(request.getDemandPlatform());
+        List<FunctionalCaseDemand> existDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
+        List<String> existDemandIds = existDemands.stream().map(FunctionalCaseDemand::getDemandId).toList();
+        List<String> notRepeatDemandIds = demandIds.stream().filter(t -> !existDemandIds.contains(t)).toList();
+        Map<String, DemandDTO> demandDTOMap = request.getDemandList().stream().collect(Collectors.toMap(DemandDTO::getDemandId, t -> t));
+        for (String notRepeatDemandId : notRepeatDemandIds) {
+            DemandDTO demandDTO = demandDTOMap.get(notRepeatDemandId);
+            FunctionalCaseDemand functionalCaseDemand = buildFunctionalCaseDemand(request.getCaseId(), request.getDemandPlatform(), userId, demandDTO);
+            functionalCaseDemandMapper.insert(functionalCaseDemand);
         }
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 
-    private FunctionalCaseDemand buildFunctionalCaseDemand(FunctionalCaseDemandRequest request, String userId, DemandDTO demandDTO, List<String> existDemandIds) {
+    private FunctionalCaseDemand buildFunctionalCaseDemand(String caseId, String demandPlatform, String userId, DemandDTO demandDTO) {
         FunctionalCaseDemand functionalCaseDemand = new FunctionalCaseDemand();
         functionalCaseDemand.setId(IDGenerator.nextStr());
-        functionalCaseDemand.setCaseId(request.getCaseId());
-        functionalCaseDemand.setDemandPlatform(request.getDemandPlatform());
+        functionalCaseDemand.setCaseId(caseId);
+        functionalCaseDemand.setDemandPlatform(demandPlatform);
         functionalCaseDemand.setCreateTime(System.currentTimeMillis());
         functionalCaseDemand.setCreateUser(userId);
         functionalCaseDemand.setUpdateTime(System.currentTimeMillis());
         functionalCaseDemand.setUpdateUser(userId);
-        if (existDemandIds.contains(demandDTO.getDemandId())) {
-            return null;
-        }
         dealWithDemand(demandDTO, functionalCaseDemand);
         return functionalCaseDemand;
     }
 
-    private static boolean checkDemandList(FunctionalCaseDemandRequest request) {
-        return CollectionUtils.isEmpty(request.getDemandList());
+    private static boolean checkDemandList(List<DemandDTO> demandList) {
+        return CollectionUtils.isEmpty(demandList);
     }
 
     /**
@@ -168,7 +181,7 @@ public class FunctionalCaseDemandService {
      * @param userId  当前操作人
      */
     public void updateDemand(FunctionalCaseDemandRequest request, String userId) {
-        if (checkDemandList(request)) return;
+        if (checkDemandList(request.getDemandList())) return;
         FunctionalCaseDemand functionalCaseDemand = functionalCaseDemandMapper.selectByPrimaryKey(request.getId());
         if (functionalCaseDemand == null) {
             throw new MSException(Translator.get("case.demand.not.exist"));
@@ -196,23 +209,46 @@ public class FunctionalCaseDemandService {
      * @param request 页面参数
      * @param userId  当前操作人
      */
-    public void batchRelevance(FunctionalCaseDemandRequest request, String userId) {
-        if (checkDemandList(request)) return;
+    public void batchRelevance(FunctionalCaseDemandBatchRequest request, String userId) {
+        if (checkDemandList(request.getDemandList())) return;
+        List<String> caseIds = doSelectIds(request, request.getProjectId());
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         FunctionalCaseDemandMapper functionalCaseDemandMapper = sqlSession.getMapper(FunctionalCaseDemandMapper.class);
         List<String> demandIds = request.getDemandList().stream().map(DemandDTO::getDemandId).toList();
         FunctionalCaseDemandExample functionalCaseDemandExample = new FunctionalCaseDemandExample();
-        functionalCaseDemandExample.createCriteria().andCaseIdEqualTo(request.getCaseId()).andDemandPlatformEqualTo(request.getDemandPlatform()).andDemandIdIn(demandIds);
+        String demandPlatform = request.getDemandPlatform();
+        functionalCaseDemandExample.createCriteria().andDemandPlatformEqualTo(demandPlatform);
         List<FunctionalCaseDemand> existDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
-        List<String> existDemandIds = existDemands.stream().map(FunctionalCaseDemand::getDemandId).toList();
-        for (DemandDTO demandDTO : request.getDemandList()) {
-            FunctionalCaseDemand functionalCaseDemand = buildFunctionalCaseDemand(request, userId, demandDTO, existDemandIds);
-            if (functionalCaseDemand != null) {
+        Map<String, List<FunctionalCaseDemand>> caseDemandMap = existDemands.stream().collect(Collectors.groupingBy(FunctionalCaseDemand::getCaseId));
+        Map<String, DemandDTO> demandDTOMap = request.getDemandList().stream().collect(Collectors.toMap(DemandDTO::getDemandId, t -> t));
+        caseIds.forEach(t -> {
+            List<FunctionalCaseDemand> functionalCaseDemands = caseDemandMap.get(t);
+            if (CollectionUtils.isEmpty(functionalCaseDemands)) {
+                return;
+            }
+            List<String> existDemandIds = functionalCaseDemands.stream().map(FunctionalCaseDemand::getDemandId).toList();
+            List<String> notRepeatDemandIds = demandIds.stream().filter(demand -> !existDemandIds.contains(demand)).toList();
+            for (String notRepeatDemandId : notRepeatDemandIds) {
+                DemandDTO demandDTO = demandDTOMap.get(notRepeatDemandId);
+                FunctionalCaseDemand functionalCaseDemand = buildFunctionalCaseDemand(t, demandPlatform, userId, demandDTO);
                 functionalCaseDemandMapper.insert(functionalCaseDemand);
             }
-        }
+        });
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
+    }
+
+    public <T> List<String> doSelectIds(T dto, String projectId) {
+        FunctionalCaseDemandBatchRequest request = (FunctionalCaseDemandBatchRequest) dto;
+        if (request.isSelectAll()) {
+            List<String> ids = extFunctionalCaseMapper.getIds(request, projectId, false);
+            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+                ids.removeAll(request.getExcludeIds());
+            }
+            return ids;
+        } else {
+            return request.getSelectIds();
+        }
     }
 
     public PluginPager<PlatformDemandDTO> pageDemand(FunctionalThirdDemandPageRequest request) {

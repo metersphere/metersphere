@@ -5,6 +5,7 @@ import io.metersphere.functional.domain.FunctionalCaseDemandExample;
 import io.metersphere.functional.dto.DemandDTO;
 import io.metersphere.functional.dto.FunctionalDemandDTO;
 import io.metersphere.functional.mapper.FunctionalCaseDemandMapper;
+import io.metersphere.functional.request.FunctionalCaseDemandBatchRequest;
 import io.metersphere.functional.request.FunctionalCaseDemandRequest;
 import io.metersphere.functional.request.FunctionalThirdDemandPageRequest;
 import io.metersphere.functional.request.QueryDemandListRequest;
@@ -65,7 +66,6 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
     private String mockServerHost;
     @Value("${embedded.mockserver.port}")
     private int mockServerHostPort;
-
 
 
     private static final String URL_DEMAND_PAGE = "/functional/case/demand/page";
@@ -348,7 +348,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         demandDTO3.setDemandName("手动加入Tapd2");
         demandList.add(demandDTO3);
         functionalCaseDemandRequest.setDemandList(demandList);
-        this.requestPostWithOkAndReturn(URL_DEMAND_BATCH_RELEVANCE, functionalCaseDemandRequest);
+        this.requestPostWithOkAndReturn(URL_DEMAND_ADD, functionalCaseDemandRequest);
         FunctionalCaseDemandExample functionalCaseDemandExample = new FunctionalCaseDemandExample();
         functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID2");
         List<FunctionalCaseDemand> functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
@@ -373,7 +373,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         functionalCaseDemandRequest.setDemandPlatform("ZanDao");
         List<DemandDTO> demandList = new ArrayList<>();
         functionalCaseDemandRequest.setDemandList(demandList);
-        this.requestPostWithOkAndReturn(URL_DEMAND_BATCH_RELEVANCE, functionalCaseDemandRequest);
+        this.requestPostWithOkAndReturn(URL_DEMAND_ADD, functionalCaseDemandRequest);
         FunctionalCaseDemandExample functionalCaseDemandExample = new FunctionalCaseDemandExample();
         functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID2").andDemandPlatformEqualTo("ZanDao");
         List<FunctionalCaseDemand> functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
@@ -394,7 +394,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         demandDTO3.setDemandName("手动加入Tapd2");
         demandList.add(demandDTO3);
         functionalCaseDemandRequest.setDemandList(demandList);
-        this.requestPostWithOkAndReturn(URL_DEMAND_BATCH_RELEVANCE, functionalCaseDemandRequest);
+        this.requestPostWithOkAndReturn(URL_DEMAND_ADD, functionalCaseDemandRequest);
 
         functionalCaseDemandExample = new FunctionalCaseDemandExample();
         functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID2").andDemandPlatformEqualTo("TAPD");
@@ -418,7 +418,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         demandDTO2.setDemandId("100006");
         demandList.add(demandDTO2);
         functionalCaseDemandRequest.setDemandList(demandList);
-        this.requestPost(URL_DEMAND_BATCH_RELEVANCE, functionalCaseDemandRequest).andExpect(status().is5xxServerError());
+        this.requestPost(URL_DEMAND_ADD, functionalCaseDemandRequest).andExpect(status().is5xxServerError());
         FunctionalCaseDemandExample functionalCaseDemandExample = new FunctionalCaseDemandExample();
         functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID2").andDemandPlatformEqualTo("jira");
         List<FunctionalCaseDemand> functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
@@ -436,11 +436,64 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         demandDTO2.setDemandName("手动加入jira2");
         demandList.add(demandDTO2);
         functionalCaseDemandRequest.setDemandList(demandList);
-        this.requestPost(URL_DEMAND_BATCH_RELEVANCE, functionalCaseDemandRequest).andExpect(status().is5xxServerError());
+        this.requestPost(URL_DEMAND_ADD, functionalCaseDemandRequest).andExpect(status().is5xxServerError());
     }
 
     @Test
     @Order(12)
+    public void batchCaseRelevance() throws Exception {
+        FunctionalCaseDemandBatchRequest functionalCaseDemandBatchRequest = new FunctionalCaseDemandBatchRequest();
+        functionalCaseDemandBatchRequest.setSelectAll(true);
+        functionalCaseDemandBatchRequest.setProjectId("project-case-demand-test");
+        functionalCaseDemandBatchRequest.setDemandPlatform("jira");
+        List<DemandDTO> demandList = new ArrayList<>();
+        DemandDTO demandDTO = new DemandDTO();
+        demandDTO.setDemandId("100008");
+        demandDTO.setDemandName("批量手动加入jira");
+        demandDTO.setParent("100007");
+        demandDTO.setDemandUrl("http://www.baidu.com");
+        demandList.add(demandDTO);
+        DemandDTO demandDTO2 = new DemandDTO();
+        demandDTO2.setDemandId("100007");
+        demandDTO2.setDemandName("批量手动加入jira爸爸");
+        demandDTO2.setDemandUrl("http://www.baidu.com");
+        demandList.add(demandDTO2);
+        functionalCaseDemandBatchRequest.setDemandList(demandList);
+        this.requestPostWithOkAndReturn(URL_DEMAND_BATCH_RELEVANCE, functionalCaseDemandBatchRequest);
+        FunctionalCaseDemandExample functionalCaseDemandExample = new FunctionalCaseDemandExample();
+        functionalCaseDemandExample.createCriteria().andDemandPlatformEqualTo("jira");
+        List<FunctionalCaseDemand> functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
+        String jsonString = JSON.toJSONString(functionalCaseDemands);
+        System.out.println(jsonString);
+
+        functionalCaseDemandBatchRequest.setExcludeIds(List.of("DEMAND_TEST_FUNCTIONAL_CASE_ID3"));
+        demandList = new ArrayList<>();
+        demandDTO = new DemandDTO();
+        demandDTO.setDemandId("100009");
+        demandDTO.setDemandName("批量手动加入jira2");
+        demandDTO.setParent("100007");
+        demandDTO.setDemandUrl("http://www.baidu.com");
+        demandList.add(demandDTO);
+        functionalCaseDemandBatchRequest.setDemandList(demandList);
+        this.requestPostWithOkAndReturn(URL_DEMAND_BATCH_RELEVANCE, functionalCaseDemandBatchRequest);
+        functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
+        jsonString = JSON.toJSONString(functionalCaseDemands);
+        System.out.println(jsonString);
+        functionalCaseDemandBatchRequest.setSelectAll(false);
+        functionalCaseDemandBatchRequest.setSelectIds(List.of("DEMAND_TEST_FUNCTIONAL_CASE_ID3"));
+        this.requestPostWithOkAndReturn(URL_DEMAND_BATCH_RELEVANCE, functionalCaseDemandBatchRequest);
+        functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
+        jsonString = JSON.toJSONString(functionalCaseDemands);
+        System.out.println(jsonString);
+        functionalCaseDemandBatchRequest.setDemandList(new ArrayList<>());
+        this.requestPostWithOkAndReturn(URL_DEMAND_BATCH_RELEVANCE, functionalCaseDemandBatchRequest);
+    }
+
+
+
+
+    @Test
+    @Order(13)
     public void cancelDemandNoLog() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get(URL_DEMAND_CANCEL+"DEMAND_TEST_FUNCTIONAL_CASE_X").header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
@@ -458,7 +511,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(13)
+    @Order(14)
     public void pageDemandSuccess() throws Exception {
         basePluginTestService.addJiraPlugin();
         basePluginTestService.addServiceIntegration(DEFAULT_ORGANIZATION_ID);
