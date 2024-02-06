@@ -123,10 +123,10 @@ public class CaseReviewFunctionalCaseService {
      */
     public List<ReviewFunctionalCaseDTO> page(ReviewFunctionalCasePageRequest request, boolean deleted, String userId) {
         List<ReviewFunctionalCaseDTO> list = extCaseReviewFunctionalCaseMapper.page(request, deleted, userId, request.getSortString());
-        return doHandleDTO(list, request.getReviewId());
+        return doHandleDTO(list, request, userId);
     }
 
-    private List<ReviewFunctionalCaseDTO> doHandleDTO(List<ReviewFunctionalCaseDTO> list, String reviewId) {
+    private List<ReviewFunctionalCaseDTO> doHandleDTO(List<ReviewFunctionalCaseDTO> list, ReviewFunctionalCasePageRequest request, String userId) {
         if (CollectionUtils.isNotEmpty(list)) {
             List<String> moduleIds = list.stream().map(ReviewFunctionalCaseDTO::getModuleId).toList();
             List<BaseTreeNode> modules = extFunctionalCaseModuleMapper.selectBaseByIds(moduleIds);
@@ -137,18 +137,55 @@ public class CaseReviewFunctionalCaseService {
             Map<String, String> versionMap = versions.stream().collect(Collectors.toMap(ProjectVersion::getId, ProjectVersion::getName));
 
             List<String> caseIds = list.stream().map(ReviewFunctionalCaseDTO::getCaseId).toList();
-            List<ReviewsDTO> reviewers = extCaseReviewFunctionalCaseUserMapper.selectReviewers(caseIds, reviewId);
+            List<ReviewsDTO> reviewers = extCaseReviewFunctionalCaseUserMapper.selectReviewers(caseIds, request.getReviewId());
             Map<String, String> userIdMap = reviewers.stream().collect(Collectors.toMap(ReviewsDTO::getCaseId, ReviewsDTO::getUserIds));
             Map<String, String> userNameMap = reviewers.stream().collect(Collectors.toMap(ReviewsDTO::getCaseId, ReviewsDTO::getUserNames));
+
+            LinkedHashMap<String, List<CaseReviewHistory>> caseStatusMap;
+            LinkedHashMap<String, List<CaseReviewHistory>> caseUserMap;
+            if (request.isViewStatusFlag()) {
+                List<CaseReviewHistory> histories = extCaseReviewHistoryMapper.getReviewHistoryStatus(caseIds, request.getReviewId());
+                caseStatusMap = histories.stream().collect(Collectors.groupingBy(CaseReviewHistory::getCaseId, LinkedHashMap::new, Collectors.toList()));
+                caseUserMap = histories.stream().collect(Collectors.groupingBy(CaseReviewHistory::getCreateUser, LinkedHashMap::new, Collectors.toList()));
+            } else {
+                caseStatusMap = new LinkedHashMap<>();
+                caseUserMap = new LinkedHashMap<>();
+
+            }
+            //当前用户的评审历史
+            List<CaseReviewHistory> userHistory = caseUserMap.get(userId);
 
             list.forEach(item -> {
                 item.setModuleName(moduleMap.get(item.getModuleId()));
                 item.setVersionName(versionMap.get(item.getVersionId()));
                 item.setReviewers(Collections.singletonList(userIdMap.get(item.getCaseId())));
                 item.setReviewNames(Collections.singletonList(userNameMap.get(item.getCaseId())));
+
+                if (request.isViewStatusFlag()) {
+                    List<CaseReviewHistory> histories = caseStatusMap.get(item.getCaseId());
+                    if (CollectionUtils.isNotEmpty(histories)) {
+                        item.setMyStatus(getMyStatus(histories, userHistory));
+                    } else {
+                        //不存在评审历史
+                        item.setMyStatus(FunctionalCaseReviewStatus.UNDER_REVIEWED.name());
+                    }
+                }
             });
         }
         return list;
+    }
+
+    private String getMyStatus(List<CaseReviewHistory> histories, List<CaseReviewHistory> userHistory) {
+        if (CollectionUtils.isNotEmpty(userHistory)) {
+            //当前用户存在评审记录
+            return userHistory.get(0).getStatus();
+        }
+        //重新提审记录
+        List<CaseReviewHistory> reReviewed = histories.stream().filter(history -> StringUtils.equalsIgnoreCase(history.getStatus(), FunctionalCaseReviewStatus.RE_REVIEWED.name())).toList();
+        if (CollectionUtils.isNotEmpty(reReviewed)) {
+            return FunctionalCaseReviewStatus.RE_REVIEWED.name();
+        }
+        return FunctionalCaseReviewStatus.UN_REVIEWED.name();
     }
 
     /**
@@ -334,11 +371,11 @@ public class CaseReviewFunctionalCaseService {
         CaseReview caseReview = caseReviewMapper.selectByPrimaryKey(reviewId);
         request.setReviewPassRule(caseReview.getReviewPassRule());
         //检查权限
-        if (!permissionCheckService.userHasProjectPermission(userId, caseReview.getProjectId(), PermissionConstants.CASE_REVIEW_READ_UPDATE) && StringUtils.equalsIgnoreCase(request.getStatus(), FunctionalCaseReviewStatus.RE_REVIEWED.toString()) ) {
+        if (!permissionCheckService.userHasProjectPermission(userId, caseReview.getProjectId(), PermissionConstants.CASE_REVIEW_READ_UPDATE) && StringUtils.equalsIgnoreCase(request.getStatus(), FunctionalCaseReviewStatus.RE_REVIEWED.toString())) {
             throw new MSException("http_result_forbidden");
         }
         List<CaseReviewFunctionalCase> caseReviewFunctionalCaseList = doCaseReviewFunctionalCases(request);
-        if(CollectionUtils.isEmpty(caseReviewFunctionalCaseList)) {
+        if (CollectionUtils.isEmpty(caseReviewFunctionalCaseList)) {
             return;
         }
         List<String> caseIds = caseReviewFunctionalCaseList.stream().map(CaseReviewFunctionalCase::getCaseId).toList();
@@ -369,7 +406,7 @@ public class CaseReviewFunctionalCaseService {
         Map<String, String> statusMap = new HashMap<>();
 
         //重新提审，作废之前的记录
-        extCaseReviewHistoryMapper.batchUpdateAbandoned(reviewId,caseIds);
+        extCaseReviewHistoryMapper.batchUpdateAbandoned(reviewId, caseIds);
 
         for (CaseReviewFunctionalCase caseReviewFunctionalCase : caseReviewFunctionalCaseList) {
             //校验当前操作人是否是该用例的评审人或者是系统管理员，是增加评审历史，不是过滤掉
@@ -639,7 +676,7 @@ public class CaseReviewFunctionalCaseService {
         List<FunctionalCaseModuleDTO> functionalModuleIds = extFunctionalCaseModuleMapper.selectBaseByProjectIdAndReviewId(reviewId);
         Map<String, List<FunctionalCaseModuleDTO>> projectModuleMap = functionalModuleIds.stream().collect(Collectors.groupingBy(FunctionalCaseModule::getProjectId));
         if (MapUtils.isEmpty(projectModuleMap)) {
-            projectRootMap.forEach((projectId,projectOptionDTOList)->{
+            projectRootMap.forEach((projectId, projectOptionDTOList) -> {
                 BaseTreeNode projectNode = new BaseTreeNode(projectId, projectOptionDTOList.get(0).getProjectName(), Project.class.getName());
                 returnList.add(projectNode);
                 BaseTreeNode defaultNode = functionalCaseModuleService.getDefaultModule(Translator.get("functional_case.module.default.name"));
@@ -647,7 +684,7 @@ public class CaseReviewFunctionalCaseService {
             });
             return returnList;
         }
-        projectModuleMap.forEach((projectId,moduleList)->{
+        projectModuleMap.forEach((projectId, moduleList) -> {
             BaseTreeNode projectNode = new BaseTreeNode(projectId, moduleList.get(0).getProjectName(), Project.class.getName());
             returnList.add(projectNode);
             List<String> projectModuleIds = moduleList.stream().map(FunctionalCaseModule::getId).toList();
@@ -667,21 +704,21 @@ public class CaseReviewFunctionalCaseService {
         List<FunctionalCaseModuleCountDTO> projectModuleCountDTOList = extCaseReviewFunctionalCaseMapper.countModuleIdByRequest(request, deleted, userId);
         Map<String, List<FunctionalCaseModuleCountDTO>> projectCountMap = projectModuleCountDTOList.stream().collect(Collectors.groupingBy(FunctionalCaseModuleCountDTO::getProjectId));
         Map<String, Long> projectModuleCountMap = new HashMap<>();
-        projectCountMap.forEach((projectId,moduleCountDTOList)->{
-            List<ModuleCountDTO>moduleCountDTOS = new ArrayList<>();
+        projectCountMap.forEach((projectId, moduleCountDTOList) -> {
+            List<ModuleCountDTO> moduleCountDTOS = new ArrayList<>();
             for (FunctionalCaseModuleCountDTO functionalCaseModuleCountDTO : moduleCountDTOList) {
                 ModuleCountDTO moduleCountDTO = new ModuleCountDTO();
-                BeanUtils.copyBean(moduleCountDTO,functionalCaseModuleCountDTO);
+                BeanUtils.copyBean(moduleCountDTO, functionalCaseModuleCountDTO);
                 moduleCountDTOS.add(moduleCountDTO);
             }
             int sum = moduleCountDTOList.stream().mapToInt(FunctionalCaseModuleCountDTO::getDataCount).sum();
             Map<String, Long> moduleCountMap = getModuleCountMap(projectId, request.getReviewId(), moduleCountDTOS);
-            moduleCountMap.forEach((k,v)->{
-                if (projectModuleCountMap.get(k)==null || projectModuleCountMap.get(k) == 0L){
-                    projectModuleCountMap.put(k,v);
+            moduleCountMap.forEach((k, v) -> {
+                if (projectModuleCountMap.get(k) == null || projectModuleCountMap.get(k) == 0L) {
+                    projectModuleCountMap.put(k, v);
                 }
             });
-            projectModuleCountMap.put(projectId, (long)sum);
+            projectModuleCountMap.put(projectId, (long) sum);
         });
         //查出全部用例数量
         long allCount = extCaseReviewFunctionalCaseMapper.caseCount(request, deleted, userId);

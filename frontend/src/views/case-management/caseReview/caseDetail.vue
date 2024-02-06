@@ -16,9 +16,9 @@
             : t('caseManagement.caseReview.multi')
         }}
       </div>
-      <div class="ml-[16px] flex items-center">
-        <a-switch v-model:model-value="onlyMine" size="small" class="mr-[8px]" type="line" />
-        {{ t('caseManagement.caseReview.myReview') }}
+      <div v-show="reviewDetail.reviewPassRule === 'MULTIPLE'" class="ml-[16px] flex items-center">
+        <a-switch v-model:model-value="onlyMineStatus" size="small" class="mr-[8px]" type="line" />
+        {{ t('caseManagement.caseReview.myReviewStatus') }}
       </div>
     </template>
     <div class="flex h-full w-full border-t border-[var(--color-text-n8)]">
@@ -323,7 +323,8 @@
     { label: t(reviewResultMap.RE_REVIEWED.label), value: 'RE_REVIEWED' },
   ]);
 
-  const onlyMine = ref(false);
+  const viewFlag = ref(false);
+  const onlyMineStatus = ref(false);
   const keyword = ref('');
   const caseList = ref<ReviewCaseItem[]>([]);
   const pageNation = ref({
@@ -341,7 +342,8 @@
       const res = await getReviewDetailCasePage({
         projectId: appStore.currentProjectId,
         reviewId: reviewId.value,
-        viewFlag: onlyMine.value,
+        viewFlag: viewFlag.value,
+        viewStatusFlag: onlyMineStatus.value,
         keyword: keyword.value,
         current: pageNation.value.current || 1,
         pageSize: pageNation.value.pageSize,
@@ -363,7 +365,7 @@
   }
 
   watch(
-    () => onlyMine.value,
+    () => onlyMineStatus.value,
     () => {
       pageNation.value.current = 1;
       loadCaseList();
@@ -566,7 +568,7 @@
         total,
         pageSize,
         current,
-        onlyMine: _onlyMine,
+        viewFlag: _onlyMine,
         keyword: _keyword,
         combine,
         sort,
@@ -578,7 +580,7 @@
         pageSize,
         current,
       };
-      onlyMine.value = !!_onlyMine;
+      viewFlag.value = !!_onlyMine;
       keyword.value = _keyword;
       otherListQueryParams.value = {
         combine,

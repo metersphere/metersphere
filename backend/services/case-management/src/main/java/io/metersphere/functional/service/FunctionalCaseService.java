@@ -179,7 +179,7 @@ public class FunctionalCaseService {
 
         //记录日志
         FunctionalCaseHistoryLogDTO historyLogDTO = getImportLogModule(functionalCase);
-        saveImportDataLog(functionalCase, new FunctionalCaseHistoryLogDTO(), historyLogDTO, userId, organizationId, OperationLogType.ADD.name(),OperationLogModule.CASE_MANAGEMENT_CASE_CREATE);
+        saveImportDataLog(functionalCase, new FunctionalCaseHistoryLogDTO(), historyLogDTO, userId, organizationId, OperationLogType.ADD.name(), OperationLogModule.CASE_MANAGEMENT_CASE_CREATE);
 
         return functionalCase;
     }
@@ -962,7 +962,7 @@ public class FunctionalCaseService {
         List<FunctionalCaseCustomField> customFields = functionalCaseCustomFieldMapper.selectByExample(fieldExample);
         FunctionalCaseHistoryLogDTO historyLogDTO = new FunctionalCaseHistoryLogDTO(functionalCase, caseBlob, customFields, new ArrayList<>(), new ArrayList<>());
 
-        saveImportDataLog(functionalCase, new FunctionalCaseHistoryLogDTO(), historyLogDTO, userId, organizationId, OperationLogType.IMPORT.name(),OperationLogModule.CASE_MANAGEMENT_CASE_CREATE);
+        saveImportDataLog(functionalCase, new FunctionalCaseHistoryLogDTO(), historyLogDTO, userId, organizationId, OperationLogType.IMPORT.name(), OperationLogModule.CASE_MANAGEMENT_CASE_CREATE);
     }
 
 
@@ -1071,7 +1071,7 @@ public class FunctionalCaseService {
         //记录新值
         FunctionalCaseHistoryLogDTO modifiedLogDTO = getImportLogModule(functionalCase);
         //记录日志
-        saveImportDataLog(functionalCase, originalValue, modifiedLogDTO, userId, organizationId, OperationLogType.IMPORT.name(),OperationLogModule.CASE_MANAGEMENT_CASE_UPDATE);
+        saveImportDataLog(functionalCase, originalValue, modifiedLogDTO, userId, organizationId, OperationLogType.IMPORT.name(), OperationLogModule.CASE_MANAGEMENT_CASE_UPDATE);
     }
 
     private void handleUpdateCustomField(FunctionalCaseExcelData functionalCaseExcelData, String caseId, FunctionalCaseCustomFieldMapper customFieldMapper, Map<String, TemplateCustomFieldDTO> customFieldsMap) {
@@ -1089,7 +1089,7 @@ public class FunctionalCaseService {
      * @param originalValue  原值
      * @param modifiedLogDTO 新值
      */
-    private void saveImportDataLog(FunctionalCase functionalCase, FunctionalCaseHistoryLogDTO originalValue, FunctionalCaseHistoryLogDTO modifiedLogDTO, String userId, String organizationId, String type,String module) {
+    private void saveImportDataLog(FunctionalCase functionalCase, FunctionalCaseHistoryLogDTO originalValue, FunctionalCaseHistoryLogDTO modifiedLogDTO, String userId, String organizationId, String type, String module) {
         LogDTO dto = new LogDTO(
                 functionalCase.getProjectId(),
                 organizationId,

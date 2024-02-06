@@ -58,4 +58,7 @@ public class ReviewFunctionalCaseDTO implements Serializable {
     @Schema(description = "用例创建人名称")
     private String createUserName;
 
+    @Schema(description = "只看我的评审状态")
+    private String myStatus;
+
 }
