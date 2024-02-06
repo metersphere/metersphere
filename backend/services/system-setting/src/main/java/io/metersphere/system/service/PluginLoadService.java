@@ -15,6 +15,7 @@ import io.metersphere.sdk.util.MsFileUtils;
 import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.domain.PluginExample;
 import io.metersphere.system.domain.PluginScript;
+import io.metersphere.system.invoker.PluginChangeServiceInvoker;
 import io.metersphere.system.mapper.PluginMapper;
 import io.metersphere.system.mapper.PluginScriptMapper;
 import jakarta.annotation.Resource;
@@ -49,6 +50,8 @@ public class PluginLoadService {
     private PluginMapper pluginMapper;
     @Resource
     private PluginScriptMapper pluginScriptMapper;
+    @Resource
+    private PluginChangeServiceInvoker pluginChangeServiceInvoker;
     private MsPluginManager msPluginManager = new MsPluginManager();
 
     /**
@@ -65,7 +68,11 @@ public class PluginLoadService {
             // 文件不存在，则从对象存储重新下载
             downloadPluginFromRepository(fileName);
         }
-        return msPluginManager.loadPlugin(Paths.get(filePath));
+        String pluginId = msPluginManager.loadPlugin(Paths.get(filePath));
+        msPluginManager.startPlugin(pluginId);
+        // 通知其他服务处理插件加载逻辑
+        pluginChangeServiceInvoker.handlePluginLoad(pluginId);
+        return pluginId;
     }
 
 
@@ -83,7 +90,7 @@ public class PluginLoadService {
         if (!file.exists()) {
             try (InputStream fileAsStream = FileCenter.getDefaultRepository().getFileAsStream(getDefaultRepositoryFileRequest(fileName))) {
                 FileUtils.copyInputStreamToFile(fileAsStream, file);
-                msPluginManager.loadPlugin(Paths.get(filePath));
+                loadPlugin(filePath);
             } catch (Exception e) {
                 LogUtils.error("从对象存储加载插件异常", e);
             }
@@ -192,7 +199,6 @@ public class PluginLoadService {
             String fileName = plugin.getFileName();
             try {
                 loadPlugin(fileName);
-                msPluginManager.startPlugin(plugin.getId());
             } catch (Throwable e) {
                 LogUtils.error("初始化插件异常" + plugin.getFileName(), e);
             }
@@ -308,7 +314,6 @@ public class PluginLoadService {
     public void handlePluginAddNotified(String pluginId, String fileName) {
         if (!hasPlugin(pluginId)) {
             loadPluginFromRepository(fileName);
-            msPluginManager.startPlugin(pluginId);
         }
     }
 
