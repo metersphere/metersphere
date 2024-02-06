@@ -2,13 +2,13 @@ package io.metersphere.system.notice.sender.impl;
 
 
 import io.metersphere.project.domain.Notification;
-import io.metersphere.system.notice.constants.NotificationConstants;
+import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.notice.MessageDetail;
 import io.metersphere.system.notice.NoticeModel;
 import io.metersphere.system.notice.Receiver;
+import io.metersphere.system.notice.constants.NotificationConstants;
 import io.metersphere.system.notice.sender.AbstractNoticeSender;
 import io.metersphere.system.service.NotificationService;
-import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
@@ -29,14 +29,16 @@ public class InSiteNoticeSender extends AbstractNoticeSender {
         List<Receiver> receivers = noticeModel.getReceivers();
         // 排除自己
         List<Receiver> realReceivers = new ArrayList<>();
-        for (Receiver receiver : receivers) {
-            if (!StringUtils.equals(receiver.getUserId(), noticeModel.getOperator())) {
-                realReceivers.add(receiver);
+        if (noticeModel.isExcludeSelf() ) {
+            for (Receiver receiver : receivers) {
+                if (!StringUtils.equals(receiver.getUserId(), noticeModel.getOperator())) {
+                    LogUtils.info("发送人是自己不发");
+                    realReceivers.add(receiver);
+                }
             }
         }
 
         if (CollectionUtils.isEmpty(realReceivers)) {
-            LogUtils.info("发送人是自己不发");
             return;
         }
 

@@ -148,8 +148,8 @@ public class SendNoticeAspect {
 
             SessionUser sessionUser = SessionUtils.getUser();
             String currentProjectId = SessionUtils.getCurrentProjectId();
-            LogUtils.info("event:"+event);
-            afterReturningNoticeSendService.sendNotice(taskType,event, resources, sessionUser, currentProjectId);
+            LogUtils.info("event:" + event);
+            afterReturningNoticeSendService.sendNotice(taskType, event, resources, sessionUser, currentProjectId);
         } catch (Exception e) {
             LogUtils.error(e.getMessage(), e);
         } finally {
