@@ -56,10 +56,15 @@ public class DocumentAssertionConverter extends ResponseBodyTypeAssertionConvert
 
     private void conditions(List<MsDocumentAssertionElement> dataList, Map<String, ElementCondition> conditionMap) {
         dataList.forEach(item -> {
-            ElementCondition elementCondition = new ElementCondition(item.getInclude(), item.getTypeVerification(), item.getArrayVerification(), new LinkedList<Condition>() {{
-                this.add(new Condition(item.getCondition(), item.getExpectedResult()));
-            }});
-            elementCondition.setType(item.getType());
+            ElementCondition elementCondition =
+                    ElementCondition.builder()
+                            .include(item.getInclude())
+                            .typeVerification(item.getTypeVerification())
+                            .arrayVerification(item.getArrayVerification())
+                            .type(item.getType())
+                            .conditions(new LinkedList<Condition>() {{
+                                this.add(new Condition(item.getCondition(), item.getExpectedResult()));
+                            }}).build();
             conditionMap.put(item.getId(), elementCondition);
 
             if (CollectionUtils.isNotEmpty(item.getChildren())) {

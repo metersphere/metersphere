@@ -59,10 +59,10 @@ public class ApiDebugModuleService extends ModuleTreeService {
     @Resource
     private ApiFileResourceService apiFileResourceService;
 
-    public List<BaseTreeNode> getTree(String protocol, String userId) {
-        List<BaseTreeNode> fileModuleList = extApiDebugModuleMapper.selectBaseByProtocolAndUser(protocol, userId);
+    public List<BaseTreeNode> getTree(String userId) {
+        List<BaseTreeNode> fileModuleList = extApiDebugModuleMapper.selectBaseByProtocolAndUser(userId);
         List<BaseTreeNode> baseTreeNodes = super.buildTreeAndCountResource(fileModuleList, true, Translator.get(UNPLANNED));
-        List<ApiTreeNode> apiTreeNodeList = extApiDebugModuleMapper.selectApiDebugByProtocolAndUser(protocol, userId);
+        List<ApiTreeNode> apiTreeNodeList = extApiDebugModuleMapper.selectApiDebugByProtocolAndUser(userId);
         return getBaseTreeNodes(apiTreeNodeList, baseTreeNodes);
 
     }
@@ -79,6 +79,7 @@ public class ApiDebugModuleService extends ModuleTreeService {
             baseTreeNode.setType(apiTreeNode.getType());
             if (StringUtils.equals(apiTreeNode.getProtocol(), ModuleConstants.NODE_PROTOCOL_HTTP)) {
                 baseTreeNode.putAttachInfo(METHOD, apiTreeNode.getMethod());
+                baseTreeNode.putAttachInfo(PROTOCOL, apiTreeNode.getProtocol());
             } else {
                 baseTreeNode.putAttachInfo(PROTOCOL, apiTreeNode.getProtocol());
             }
@@ -103,9 +104,9 @@ public class ApiDebugModuleService extends ModuleTreeService {
         return baseTreeNodes;
     }
 
-    public List<BaseTreeNode> getTreeOnlyIdsAndResourceCount(String protocol, String userId, List<ModuleCountDTO> moduleCountDTOList) {
+    public List<BaseTreeNode> getTreeOnlyIdsAndResourceCount(String userId, List<ModuleCountDTO> moduleCountDTOList) {
         //节点内容只有Id和parentId
-        List<BaseTreeNode> fileModuleList = extApiDebugModuleMapper.selectIdAndParentIdByProtocolAndUserId(protocol, userId);
+        List<BaseTreeNode> fileModuleList = extApiDebugModuleMapper.selectIdAndParentIdByProtocolAndUserId(userId);
         return super.buildTreeAndCountResource(fileModuleList, moduleCountDTOList, true, Translator.get(UNPLANNED));
     }
 
@@ -158,15 +159,6 @@ public class ApiDebugModuleService extends ModuleTreeService {
             throw new MSException(Translator.get("node.name.repeat"));
         }
         example.clear();
-    }
-
-    private String getRootNodeId(ApiDebugModule module) {
-        if (StringUtils.equals(module.getParentId(), ModuleConstants.ROOT_NODE_PARENT_ID)) {
-            return module.getId();
-        } else {
-            ApiDebugModule parentModule = apiDebugModuleMapper.selectByPrimaryKey(module.getParentId());
-            return this.getRootNodeId(parentModule);
-        }
     }
 
     public void update(ModuleUpdateRequest request, String userId, String projectId) {
@@ -258,9 +250,9 @@ public class ApiDebugModuleService extends ModuleTreeService {
     /**
      * 查找当前项目下模块每个节点对应的资源统计
      */
-    public Map<String, Long> getModuleCountMap(String protocol, String userId, List<ModuleCountDTO> moduleCountDTOList) {
+    public Map<String, Long> getModuleCountMap(String userId, List<ModuleCountDTO> moduleCountDTOList) {
         //构建模块树，并计算每个节点下的所有数量（包含子节点）
-        List<BaseTreeNode> treeNodeList = this.getTreeOnlyIdsAndResourceCount(protocol, userId, moduleCountDTOList);
+        List<BaseTreeNode> treeNodeList = this.getTreeOnlyIdsAndResourceCount(userId, moduleCountDTOList);
         return super.getIdCountMapByBreadth(treeNodeList);
     }
 
@@ -294,7 +286,7 @@ public class ApiDebugModuleService extends ModuleTreeService {
         request.setModuleIds(null);
         List<ModuleCountDTO> moduleCountDTOList = extApiDebugModuleMapper.countModuleIdByKeywordAndProtocol(request, operator);
         long allCount = getAllCount(moduleCountDTOList);
-        Map<String, Long> moduleCountMap = getModuleCountMap(request.getProtocol(), operator, moduleCountDTOList);
+        Map<String, Long> moduleCountMap = getModuleCountMap(operator, moduleCountDTOList);
         moduleCountMap.put(DEBUG_MODULE_COUNT_ALL, allCount);
         return moduleCountMap;
     }

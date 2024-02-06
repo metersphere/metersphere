@@ -110,9 +110,6 @@
                     #{item}
                 </foreach>
             </if>
-            <if test="request.protocol != null and request.protocol != ''">
-                AND f.protocol = #{request.protocol}
-            </if>
 
         </where>
     </sql>

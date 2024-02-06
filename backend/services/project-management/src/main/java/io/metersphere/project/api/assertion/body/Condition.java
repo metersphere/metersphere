@@ -1,18 +1,13 @@
 package io.metersphere.project.api.assertion.body;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Condition {
     private String key;
     private Object value;
-
-    public Condition() {
-
-    }
-
-    public Condition(String key, Object value) {
-        this.key = key;
-        this.value = value;
-    }
 }

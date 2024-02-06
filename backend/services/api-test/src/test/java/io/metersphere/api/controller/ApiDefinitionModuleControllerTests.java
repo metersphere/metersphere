@@ -2,7 +2,6 @@ package io.metersphere.api.controller;
 
 import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.domain.*;
-import io.metersphere.api.dto.debug.ApiDebugRequest;
 import io.metersphere.api.dto.debug.ModuleCreateRequest;
 import io.metersphere.api.dto.debug.ModuleUpdateRequest;
 import io.metersphere.api.dto.definition.ApiModuleDTO;
@@ -822,15 +821,6 @@ public class ApiDefinitionModuleControllerTests extends BaseTest {
         Assertions.assertTrue(moduleCountResult.containsKey("all"));
         request.setProjectId(DEFAULT_PROJECT_ID);
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_READ, URL_FILE_MODULE_COUNT, request);
-
-    }
-
-    @Test
-    @Order(9)
-    public void TestModuleCountError() throws Exception {
-        ApiDebugRequest request = new ApiDebugRequest();
-        request.setProtocol(null);
-        this.requestPost(URL_FILE_MODULE_COUNT, request).andExpect(BAD_REQUEST_MATCHER);
 
     }
 

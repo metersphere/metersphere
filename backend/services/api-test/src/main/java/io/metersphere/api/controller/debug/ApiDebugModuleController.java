@@ -26,11 +26,11 @@ public class ApiDebugModuleController {
     @Resource
     private ApiDebugModuleService apiDebugModuleService;
 
-    @GetMapping("/tree/{protocol}")
+    @GetMapping("/tree")
     @Operation(summary = "接口测试-接口调试-模块-查找模块")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_READ)
-    public List<BaseTreeNode> getTree(@PathVariable String protocol) {
-        return apiDebugModuleService.getTree(protocol, SessionUtils.getUserId());
+    public List<BaseTreeNode> getTree() {
+        return apiDebugModuleService.getTree(SessionUtils.getUserId());
     }
 
     @PostMapping("/add")
