@@ -125,6 +125,7 @@
 </template>
 
 <script lang="ts" async setup>
+  import { useRoute } from 'vue-router';
   import { Message, TableData } from '@arco-design/web-vue';
 
   import { MsAdvanceFilter, timeSelectOptions } from '@/components/pure/ms-advance-filter';
@@ -185,6 +186,7 @@
   const licenseStore = useLicenseStore();
   const isXpack = computed(() => licenseStore.hasLicense());
   const { openDeleteModal } = useModal();
+  const route = useRoute();
   // 自定义字段
   const customFields = ref<BugEditCustomField[]>([]);
   // 当前选择的条数
@@ -579,8 +581,12 @@
 
   onMounted(() => {
     setLoadListParams({ projectId: projectId.value });
-    fetchData();
     setExportOptionData();
+    fetchData();
+    if (route.query.id) {
+      // 分享或成功进来的页面
+      handleShowDetail(route.query.id as string, 0);
+    }
   });
 </script>
 

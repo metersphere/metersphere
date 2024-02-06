@@ -158,7 +158,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
-  import { useRouter } from 'vue-router';
+  import { useRoute, useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import { debounce } from 'lodash-es';
 
@@ -194,6 +194,7 @@
   import { RouteEnum } from '@/enums/routeEnum';
 
   const router = useRouter();
+  const route = useRoute();
   const detailDrawerRef = ref<InstanceType<typeof MsDetailDrawer>>();
   const wrapperRef = ref();
   const { isFullScreen, toggleFullScreen } = useFullScreen(wrapperRef);
@@ -290,7 +291,26 @@
   const shareLoading = ref<boolean>(false);
 
   function shareHandler() {
-    Message.info(t('bugManagement.detail.shareTip'));
+    const { origin } = window.location;
+    const url = `${origin}/#${route.path}?id=${detailInfo.value.id}&projectId=${appStore.currentProjectId}&organizationId=${appStore.currentOrgId}`;
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(
+        () => {
+          Message.info(t('bugManagement.detail.shareTip'));
+        },
+        (e) => {
+          Message.error(e);
+        }
+      );
+    } else {
+      const input = document.createElement('input');
+      input.value = url;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand('copy');
+      document.body.removeChild(input);
+      Message.info(t('bugManagement.detail.shareTip'));
+    }
   }
 
   const followLoading = ref<boolean>(false);
