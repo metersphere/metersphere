@@ -223,7 +223,16 @@
     if (props.isUpdatePreview) {
       return replaceVariableStr(props.robot.subject || '', props.fields || [], true);
     }
-    return replacePreviewName(props.robot.previewSubject || '');
+    let previewName = replacePreviewName(props.robot.previewSubject || '');
+    // 邮件标题默认显示Metersphere
+    if (
+      props.robot.platform === 'MAIL' &&
+      props.robot.previewSubject !== null &&
+      props.robot.previewSubject?.indexOf('Metersphere') === -1
+    ) {
+      previewName = `Metersphere ${previewName}`;
+    }
+    return previewName
   });
 
   const template = computed(() => {
