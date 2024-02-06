@@ -322,7 +322,11 @@
   function getReceiverOptions(options, event: string) {
     if (event === 'CREATE') {
       // 创建事件的接收人不包含操作人、创建人、关注人
-      return options.filter((e) => !['OPERATOR', 'CREATE_USER', 'FOLLOW_PEOPLE'].includes(e.id));
+      options = options.filter((e) => !['OPERATOR', 'CREATE_USER', 'FOLLOW_PEOPLE'].includes(e.id));
+    }
+    if (event.indexOf('EXECUTE') === -1) {
+      // 除执行事件，都不显示操作人
+      options = options.filter((e) => !['OPERATOR'].includes(e.id));
     }
     return options;
   }
