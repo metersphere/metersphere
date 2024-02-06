@@ -43,6 +43,9 @@ public class BugDetailDTO {
     @Schema(description = "是否平台默认模板")
     private Boolean platformDefault;
 
+    @Schema(description = "是否关注")
+    private Boolean followFlag;
+
     @Schema(description = "附件集合")
     List<BugFileDTO> attachments;
 }

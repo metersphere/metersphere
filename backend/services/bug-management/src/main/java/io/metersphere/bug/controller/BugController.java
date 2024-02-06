@@ -119,7 +119,7 @@ public class BugController {
     @Operation(summary = "缺陷管理-列表-查看缺陷(详情&&编辑&&复制)")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     public BugDetailDTO get(@PathVariable String id) {
-        return bugService.get(id);
+        return bugService.get(id, SessionUtils.getUserId());
     }
 
     @GetMapping("/delete/{id}")

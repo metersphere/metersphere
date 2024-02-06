@@ -242,7 +242,7 @@ public class BugService {
      * @param id 缺陷ID
      * @return 缺陷详情
      */
-    public BugDetailDTO get(String id) {
+    public BugDetailDTO get(String id, String currentUser) {
         Bug bug = checkBugExist(id);
         TemplateDTO template = getTemplate(bug.getTemplateId(), bug.getProjectId(), null, null);
         List<BugCustomFieldDTO> allCustomFields = extBugCustomFieldMapper.getBugAllCustomFields(List.of(id), bug.getProjectId());
@@ -288,6 +288,10 @@ public class BugService {
         detail.setCustomFields(allCustomFields);
         // 缺陷附件信息
         detail.setAttachments(bugAttachmentService.getAllBugFiles(id));
+        // 当前登录人是否关注该缺陷
+        BugFollowerExample example = new BugFollowerExample();
+        example.createCriteria().andBugIdEqualTo(id).andUserIdEqualTo(currentUser);
+        detail.setFollowFlag(bugFollowerMapper.countByExample(example) > 0);
         return detail;
     }
 
