@@ -213,9 +213,7 @@ public class EnvironmentGroupService {
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
         userRoleRelationExample.createCriteria().andUserIdEqualTo(userId).andRoleIdEqualTo(InternalUserRole.ADMIN.name());
         if (userRoleRelationMapper.countByExample(userRoleRelationExample) > 0) {
-            ProjectExample example = new ProjectExample();
-            example.createCriteria().andEnableEqualTo(true);
-            projects = projectMapper.selectByExample(example);
+            projects = projectMapper.selectByExample(new ProjectExample());
         } else {
             projects = extProjectMapper.getProject(userId);
         }

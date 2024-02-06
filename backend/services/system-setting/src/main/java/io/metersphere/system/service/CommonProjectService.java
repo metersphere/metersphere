@@ -132,11 +132,8 @@ public class CommonProjectService {
 
         ProjectAddMemberBatchRequest memberRequest = new ProjectAddMemberBatchRequest();
         memberRequest.setProjectIds(List.of(project.getId()));
-        if (CollectionUtils.isEmpty(addProjectDTO.getUserIds())) {
-            memberRequest.setUserIds(List.of(createUser));
-        } else {
-            memberRequest.setUserIds(addProjectDTO.getUserIds());
-        } //资源池
+        memberRequest.setUserIds(addProjectDTO.getUserIds());
+        //资源池
         if (CollectionUtils.isNotEmpty(addProjectDTO.getResourcePoolIds())) {
             checkResourcePoolExist(addProjectDTO.getResourcePoolIds());
             List<ProjectTestResourcePool> projectTestResourcePools = new ArrayList<>();
@@ -315,48 +312,35 @@ public class CommonProjectService {
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(example);
         List<String> orgUserIds = userRoleRelations.stream().map(UserRoleRelation::getUserId).toList();
         List<LogDTO> logDTOList = new ArrayList<>();
-        if (CollectionUtils.isNotEmpty(updateProjectDto.getUserIds())) {
-            //updateProjectDto.getUserIds() 为前端传过来的用户id  与数据库中的用户id做对比  如果数据库中的用户id不在前端传过来的用户id中  则删除
-            List<String> deleteIds = orgUserIds.stream()
-                    .filter(item -> !updateProjectDto.getUserIds().contains(item))
-                    .collect(Collectors.toList());
 
-            List<String> insertIds = updateProjectDto.getUserIds().stream()
-                    .filter(item -> !orgUserIds.contains(item))
-                    .collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(deleteIds)) {
-                UserRoleRelationExample deleteExample = new UserRoleRelationExample();
-                deleteExample.createCriteria().andSourceIdEqualTo(project.getId()).andUserIdIn(deleteIds).andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
-                userRoleRelationMapper.selectByExample(deleteExample).forEach(userRoleRelation -> {
-                    User user = userMapper.selectByPrimaryKey(userRoleRelation.getUserId());
-                    String logProjectId = OperationLogConstants.SYSTEM;
-                    if (StringUtils.equals(module, OperationLogModule.SETTING_ORGANIZATION_PROJECT)) {
-                        logProjectId = OperationLogConstants.ORGANIZATION;
-                    }
-                    LogDTO logDTO = new LogDTO(logProjectId, project.getOrganizationId(), userRoleRelation.getId(), updateUser, OperationLogType.DELETE.name(), module, Translator.get("delete") + Translator.get("project_admin") + ": " + user.getName());
-                    setLog(logDTO, path, HttpMethodConstants.POST.name(), logDTOList);
-                });
-                userRoleRelationMapper.deleteByExample(deleteExample);
-            }
-            if (CollectionUtils.isNotEmpty(insertIds)) {
-                ProjectAddMemberBatchRequest memberRequest = new ProjectAddMemberBatchRequest();
-                memberRequest.setProjectIds(List.of(project.getId()));
-                memberRequest.setUserIds(insertIds);
-                this.addProjectAdmin(memberRequest, updateUser, path, OperationLogType.ADD.name(),
-                        Translator.get("add"), module);
-            }
-        } else {
-            if (CollectionUtils.isNotEmpty(orgUserIds)) {
-                //如果前端传过来的用户id为空  则删除项目所有管理员
-                UserRoleRelationExample deleteExample = new UserRoleRelationExample();
-                deleteExample.createCriteria().andSourceIdEqualTo(project.getId()).andUserIdIn(orgUserIds).andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
-                userRoleRelationMapper.selectByExample(deleteExample).forEach(userRoleRelation -> {
-                    User user = userMapper.selectByPrimaryKey(userRoleRelation.getUserId());
-                    LogDTO logDTO = new LogDTO(OperationLogConstants.SYSTEM, project.getOrganizationId(), userRoleRelation.getId(), updateUser, OperationLogType.DELETE.name(), module, Translator.get("delete") + Translator.get("project_admin") + ": " + user.getName());
-                    setLog(logDTO, path, HttpMethodConstants.POST.name(), logDTOList);
-                });
-                userRoleRelationMapper.deleteByExample(deleteExample);
-            }
+        //updateProjectDto.getUserIds() 为前端传过来的用户id  与数据库中的用户id做对比  如果数据库中的用户id不在前端传过来的用户id中  则删除
+        List<String> deleteIds = orgUserIds.stream()
+                .filter(item -> !updateProjectDto.getUserIds().contains(item))
+                .collect(Collectors.toList());
+
+        List<String> insertIds = updateProjectDto.getUserIds().stream()
+                .filter(item -> !orgUserIds.contains(item))
+                .collect(Collectors.toList());
+        if (CollectionUtils.isNotEmpty(deleteIds)) {
+            UserRoleRelationExample deleteExample = new UserRoleRelationExample();
+            deleteExample.createCriteria().andSourceIdEqualTo(project.getId()).andUserIdIn(deleteIds).andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
+            userRoleRelationMapper.selectByExample(deleteExample).forEach(userRoleRelation -> {
+                User user = userMapper.selectByPrimaryKey(userRoleRelation.getUserId());
+                String logProjectId = OperationLogConstants.SYSTEM;
+                if (StringUtils.equals(module, OperationLogModule.SETTING_ORGANIZATION_PROJECT)) {
+                    logProjectId = OperationLogConstants.ORGANIZATION;
+                }
+                LogDTO logDTO = new LogDTO(logProjectId, project.getOrganizationId(), userRoleRelation.getId(), updateUser, OperationLogType.DELETE.name(), module, Translator.get("delete") + Translator.get("project_admin") + ": " + user.getName());
+                setLog(logDTO, path, HttpMethodConstants.POST.name(), logDTOList);
+            });
+            userRoleRelationMapper.deleteByExample(deleteExample);
+        }
+        if (CollectionUtils.isNotEmpty(insertIds)) {
+            ProjectAddMemberBatchRequest memberRequest = new ProjectAddMemberBatchRequest();
+            memberRequest.setProjectIds(List.of(project.getId()));
+            memberRequest.setUserIds(insertIds);
+            this.addProjectAdmin(memberRequest, updateUser, path, OperationLogType.ADD.name(),
+                    Translator.get("add"), module);
         }
         if (CollectionUtils.isNotEmpty(logDTOList)) {
             operationLogService.batchAdd(logDTOList);
@@ -506,11 +490,19 @@ public class CommonProjectService {
         UserExample userExample = new UserExample();
         userExample.createCriteria().andIdEqualTo(userId).andDeletedEqualTo(false);
         List<User> users = userMapper.selectByExample(userExample);
-        User user = CollectionUtils.isNotEmpty(users) ? users.get(0) : null;
+        User user = CollectionUtils.isNotEmpty(users) ? users.getFirst() : null;
         if (user == null) {
             throw new MSException(Translator.get("user_not_exist"));
         }
+        //判断用户是不是最后一个管理员  如果是  就报错
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
+        userRoleRelationExample.createCriteria().andUserIdNotEqualTo(userId)
+                .andSourceIdEqualTo(projectId)
+                .andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
+        if (userRoleRelationMapper.countByExample(userRoleRelationExample) == 0) {
+            throw new MSException(Translator.get("keep_at_least_one_administrator"));
+        }
+        userRoleRelationExample = new UserRoleRelationExample();
         userRoleRelationExample.createCriteria().andUserIdEqualTo(userId)
                 .andSourceIdEqualTo(projectId);
         if (StringUtils.equals(projectId, user.getLastProjectId())) {

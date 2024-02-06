@@ -126,6 +126,7 @@ public class TestPlanTests extends BaseTest {
     private static TestPlan repeatCaseTestPlan;
 
     private static final String[] PROJECT_MODULE = new String[]{"workstation", "testPlan", "bugManagement", "caseManagement", "apiTest", "uiTest", "loadTest"};
+
     @BeforeEach
     public void initTestData() {
         //文件管理专用项目
@@ -135,6 +136,7 @@ public class TestPlanTests extends BaseTest {
             initProject.setName("文件管理专用项目");
             initProject.setDescription("建国创建的文件管理专用项目");
             initProject.setEnable(true);
+            initProject.setUserIds(List.of("admin"));
             project = commonProjectService.add(initProject, "admin", "/organization-project/add", OperationLogModule.SETTING_ORGANIZATION_PROJECT);
 
 

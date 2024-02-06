@@ -21,6 +21,8 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.util.List;
+
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -50,6 +52,7 @@ public class LoginControllerTests extends BaseTest {
         project.setOrganizationId(DEFAULT_ORGANIZATION_ID);
         project.setName("test-login-projectName");
         project.setEnable(true);
+        project.setUserIds(List.of("test.login"));
         ProjectDTO add = systemProjectService.add(project, "test.login");
 
 
