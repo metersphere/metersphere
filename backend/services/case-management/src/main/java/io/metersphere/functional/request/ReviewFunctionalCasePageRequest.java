@@ -30,4 +30,7 @@ public class ReviewFunctionalCasePageRequest extends BasePageRequest implements 
 
     @Schema(description = "模块id")
     private List<String> moduleIds;
+
+    @Schema(description = "我的评审结果", requiredMode = Schema.RequiredMode.REQUIRED)
+    private boolean viewStatusFlag;
 }

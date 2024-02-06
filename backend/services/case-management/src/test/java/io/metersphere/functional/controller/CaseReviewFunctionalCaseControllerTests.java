@@ -54,9 +54,9 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
     public static final String REVIEW_FUNCTIONAL_CASE_BATCH_REVIEW = "/case/review/detail/batch/review";
     public static final String URL_MODULE_TREE = "/case/review/detail/tree/";
 
-    public static final String REVIEW_FUNCTIONAL_CASE_MODULE_COUNT= "/case/review/detail/module/count";
+    public static final String REVIEW_FUNCTIONAL_CASE_MODULE_COUNT = "/case/review/detail/module/count";
 
-    public static final String REVIEW_FUNCTIONAL_CASE_REVIEWER_STATUS= "/case/review/detail/reviewer/status/";
+    public static final String REVIEW_FUNCTIONAL_CASE_REVIEWER_STATUS = "/case/review/detail/reviewer/status/";
 
 
     @Resource
@@ -97,9 +97,18 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
     @Sql(scripts = {"/dml/init_review_functional_case_test.sql"}, config = @SqlConfig(encoding = "utf-8", transactionMode = SqlConfig.TransactionMode.ISOLATED))
     public void testReviewCasePage() throws Exception {
         ReviewFunctionalCasePageRequest request = new ReviewFunctionalCasePageRequest();
-        request.setReviewId("wx_review_id_1");
         request.setCurrent(1);
         request.setPageSize(10);
+        request.setProjectId("wx_test_project");
+
+        request.setReviewId("wx_review_id_5");
+        request.setViewFlag(true);
+        request.setViewStatusFlag(true);
+        this.requestPostWithOkAndReturn(REVIEW_CASE_PAGE, request);
+        request.setReviewId("wx_review_id_1");
+        this.requestPostWithOkAndReturn(REVIEW_CASE_PAGE, request);
+
+        request.setReviewId("wx_review_id_1");
         Map<String, Object> map = new HashMap<>();
         map.put("customs", Arrays.asList(new LinkedHashMap() {{
             put("id", "TEST_FIELD_ID");
@@ -109,10 +118,11 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         }}));
         request.setCombine(map);
         request.setViewFlag(true);
-        request.setProjectId("wx_test_project");
+        request.setViewStatusFlag(true);
         this.requestPostWithOkAndReturn(REVIEW_CASE_PAGE, request);
         this.requestPostWithOkAndReturn(REVIEW_FUNCTIONAL_CASE_MODULE_COUNT, request);
         request.setViewFlag(false);
+        request.setViewStatusFlag(false);
         this.requestPostWithOkAndReturn(REVIEW_CASE_PAGE, request);
 
         request.setSort(new HashMap<>() {{
@@ -144,10 +154,10 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
     @Test
     @Order(4)
     public void emptyDataTest() throws Exception {
-        List<BaseTreeNode> treeNodeDefaults = this.getCaseReviewModuleTreeNode("wx_test_project","wx_review_id_5");
+        List<BaseTreeNode> treeNodeDefaults = this.getCaseReviewModuleTreeNode("wx_test_project", "wx_review_id_5");
         String jsonStringD = JSON.toJSONString(treeNodeDefaults);
         System.out.println(jsonStringD);
-        List<BaseTreeNode> treeNodes = this.getCaseReviewModuleTreeNode("wx_test_project","wx_review_id_2");
+        List<BaseTreeNode> treeNodes = this.getCaseReviewModuleTreeNode("wx_test_project", "wx_review_id_2");
         String jsonString = JSON.toJSONString(treeNodes);
         System.out.println(jsonString);
         Assertions.assertTrue(CollectionUtils.isNotEmpty(treeNodes));
@@ -291,7 +301,7 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         this.requestPostWithOk(REVIEW_FUNCTIONAL_CASE_BATCH_REVIEW, request);
         try {
             caseReviewFunctionalCaseService.batchReview(request, "GGG");
-        } catch (Exception e){
+        } catch (Exception e) {
             Assertions.assertNotNull(e);
         }
 
@@ -372,7 +382,6 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         request.setNotifier("gyq;admin");
         request.setContent("测试批量评审通过");
         this.requestPostWithOk(REVIEW_FUNCTIONAL_CASE_BATCH_REVIEW, request);
-
 
 
         request = new BatchReviewFunctionalCaseRequest();
@@ -475,9 +484,9 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
     @Test
     @Order(11)
     public void getUserStatus() throws Exception {
-        List<OptionDTO> optionDTOS = getOptionDTOS("wx_review_id_1","gyq_case_id_5");
+        List<OptionDTO> optionDTOS = getOptionDTOS("wx_review_id_1", "gyq_case_id_5");
         Assertions.assertTrue(CollectionUtils.isNotEmpty(optionDTOS));
-        optionDTOS = getOptionDTOS("wx_review_id_1_NONE","gyq_case_id_5");
+        optionDTOS = getOptionDTOS("wx_review_id_1_NONE", "gyq_case_id_5");
         Assertions.assertTrue(CollectionUtils.isEmpty(optionDTOS));
     }
 
@@ -500,7 +509,7 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
     }
 
     private List<OptionDTO> getOptionDTOS(String reviewId, String caseId) throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(REVIEW_FUNCTIONAL_CASE_REVIEWER_STATUS+"/"+reviewId+"/"+caseId).header(SessionConstants.HEADER_TOKEN, sessionId)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(REVIEW_FUNCTIONAL_CASE_REVIEWER_STATUS + "/" + reviewId + "/" + caseId).header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -513,7 +522,7 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
 
 
     private List<BaseTreeNode> getCaseReviewModuleTreeNode(String projectId, String reviewId) throws Exception {
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(URL_MODULE_TREE+"/"+reviewId).header(SessionConstants.HEADER_TOKEN, sessionId)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get(URL_MODULE_TREE + "/" + reviewId).header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .header(SessionConstants.CURRENT_PROJECT, projectId)
                         .contentType(MediaType.APPLICATION_JSON))

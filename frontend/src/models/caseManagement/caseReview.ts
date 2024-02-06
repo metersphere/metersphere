@@ -117,6 +117,7 @@ export interface ReviewListQueryParams extends TableQueryParams {
 export interface ReviewDetailCaseListQueryParams extends TableQueryParams {
   viewFlag: boolean; // 是否只看我的
   reviewId: string;
+  viewStatusFlag: boolean; // 我的评审状态
 }
 // 评审详情-用例拖拽排序入参
 export interface SortReviewCaseParams {

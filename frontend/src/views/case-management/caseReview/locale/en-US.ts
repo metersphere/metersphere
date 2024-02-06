@@ -111,7 +111,7 @@ export default {
   'caseManagement.caseReview.append': 'Append',
   'caseManagement.caseReview.appendTip1': 'Open: Add reviewer',
   'caseManagement.caseReview.appendTip2': 'Close: Update reviewers',
-  'caseManagement.caseReview.myReview': 'My reviews',
+  'caseManagement.caseReview.myReviewStatus': 'My reviews status',
   'caseManagement.caseReview.caseLevel': 'Case level',
   'caseManagement.caseReview.caseVersion': 'Case version',
   'caseManagement.caseReview.caseStatus': 'Case status',

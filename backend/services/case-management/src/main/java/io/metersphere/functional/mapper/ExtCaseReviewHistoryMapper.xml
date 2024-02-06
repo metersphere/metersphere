@@ -79,4 +79,23 @@
         and abandoned = false
     </update>
 
+
+    <select id="getReviewHistoryStatus" resultType="io.metersphere.functional.domain.CaseReviewHistory">
+        SELECT
+            review_id,
+            case_id,
+            STATUS,
+            create_user
+        FROM
+            case_review_history
+        WHERE
+            review_id = #{reviewId}
+          AND case_id IN
+            <foreach collection="caseIds" item="caseId" separator="," open="(" close=")">
+                #{caseId}
+            </foreach>
+          AND abandoned = FALSE
+        order by create_time desc
+    </select>
+
 </mapper>

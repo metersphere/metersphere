@@ -101,7 +101,7 @@ export default {
   'caseManagement.caseReview.append': '追加',
   'caseManagement.caseReview.appendTip1': '开启：新增评审人',
   'caseManagement.caseReview.appendTip2': '关闭：更新评审人',
-  'caseManagement.caseReview.myReview': '我的评审',
+  'caseManagement.caseReview.myReviewStatus': '我的评审状态',
   'caseManagement.caseReview.caseLevel': '用例等级',
   'caseManagement.caseReview.caseVersion': '用例版本',
   'caseManagement.caseReview.caseStatus': '用例状态',

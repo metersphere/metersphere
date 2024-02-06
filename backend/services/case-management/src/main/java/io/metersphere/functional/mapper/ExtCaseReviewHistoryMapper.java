@@ -1,5 +1,6 @@
 package io.metersphere.functional.mapper;
 
+import io.metersphere.functional.domain.CaseReviewHistory;
 import io.metersphere.functional.dto.CaseReviewHistoryDTO;
 import org.apache.ibatis.annotations.Param;
 
@@ -19,4 +20,6 @@ public interface ExtCaseReviewHistoryMapper {
     void updateAbandoned(@Param("caseId") String caseId);
 
     void batchUpdateAbandoned(@Param("reviewId") String reviewId, @Param("caseIds") List<String> caseIds);
+
+    List<CaseReviewHistory> getReviewHistoryStatus(@Param("caseIds") List<String> caseIds, @Param("reviewId") String reviewId);
 }
