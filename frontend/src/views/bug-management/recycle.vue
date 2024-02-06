@@ -6,6 +6,7 @@
       :filter-config-list="filterConfigList"
       :row-count="filterRowCount"
       @keyword-search="fetchData"
+      @refresh="fetchData('')"
     >
       <template #left>
         <div></div>
