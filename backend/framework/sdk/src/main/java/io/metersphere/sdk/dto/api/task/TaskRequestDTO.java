@@ -36,6 +36,7 @@ public class TaskRequestDTO implements Serializable {
     /**
      * 触发方式
      * 手动执行，批量执行，API执行，定时任务
+     * {@link io.metersphere.sdk.constants.TaskTriggerMode}
      */
     private String triggerMode;
 
