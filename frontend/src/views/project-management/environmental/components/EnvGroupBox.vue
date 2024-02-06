@@ -46,7 +46,7 @@
     </template>
     <template v-else>
       <div class="flex h-[400px] items-center justify-center">
-        <a-empty description="暂无数据" />
+        <a-empty :description="t('common.noData')" />
       </div>
     </template>
   </div>
@@ -55,8 +55,14 @@
 <script lang="ts" setup>
   import paramsTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
+  import { groupProjectEnv, listEnv } from '@/api/modules/project-management/envManagement';
   import { useI18n } from '@/hooks/useI18n';
+  import { useAppStore } from '@/store';
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
+
+  import { EnvListItem, ProjectOptionItem } from '@/models/projectManagement/environmental';
+
+  const { t } = useI18n();
 
   const envGroupForm = ref();
   const form = reactive({
@@ -64,16 +70,26 @@
     description: '',
   });
   const store = useProjectEnvStore();
-  const columns: ParamTableColumn[] = [
+  const appStore = useAppStore();
+
+  const sourceProjectOptions = ref<ProjectOptionItem[]>([]);
+  const projectOptions = computed(() => {
+    return sourceProjectOptions.value;
+  });
+  const environmentOptions = ref<EnvListItem[]>([]);
+
+  const columns = computed<ParamTableColumn[]>(() => [
     {
       title: 'project.environmental.project',
-      dataIndex: 'project',
+      dataIndex: 'projectId',
       slotName: 'project',
+      options: projectOptions.value,
     },
     {
       title: 'project.environmental.env',
-      dataIndex: 'env',
-      slotName: 'env',
+      dataIndex: 'environmentId',
+      slotName: 'environment',
+      options: environmentOptions.value,
     },
     {
       title: 'project.environmental.host',
@@ -90,7 +106,7 @@
       slotName: 'operation',
       width: 50,
     },
-  ];
+  ]);
 
   const innerParams = ref<any[]>([]);
 
@@ -107,12 +123,24 @@
       }
     });
   };
+  // 获取项目的options
+  const initProjectOptions = async () => {
+    const res = await groupProjectEnv();
+    sourceProjectOptions.value = res;
+  };
+  // 获取环境的options
+  const initEnvOptions = async () => {
+    const res = await listEnv({ projectId: appStore.currentProjectId, keyword: '' });
+    environmentOptions.value = res;
+  };
 
   function handleParamTableChange(resultArr: any[]) {
     innerParams.value = [...resultArr];
   }
-
-  const { t } = useI18n();
+  onMounted(() => {
+    initProjectOptions();
+    initEnvOptions();
+  });
 </script>
 
 <style lang="less" scoped>

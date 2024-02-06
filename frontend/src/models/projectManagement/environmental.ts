@@ -71,3 +71,8 @@ export interface ContentTabsMap {
   tabList: ContentTabItem[];
   backupTabList: ContentTabItem[];
 }
+
+export interface ProjectOptionItem {
+  id: string;
+  name: string;
+}

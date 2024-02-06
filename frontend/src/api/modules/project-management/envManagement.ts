@@ -9,6 +9,7 @@ import type {
   EnvGroupProjectListItem,
   EnvListItem,
   GlobalParams,
+  ProjectOptionItem,
 } from '@/models/projectManagement/environmental';
 import { OptionsItem } from '@/models/setting/log';
 
@@ -57,8 +58,8 @@ export function deleteEnv(data: EnvListItem) {
 export function groupUpdateEnv(data: EnvListItem) {
   return MSR.post<EnvListItem>({ url: envURL.groupUpdateEnvUrl, data });
 }
-export function groupListEnv(data: EnvGroupListItem) {
-  return MSR.post<EnvListItem>({ url: envURL.groupListEnvUrl, data });
+export function groupListEnv(data: { projectId: string; keyword: string }) {
+  return MSR.post<EnvListItem[]>({ url: envURL.groupListEnvUrl, data });
 }
 export function groupEditPosEnv(data: EnvGroupListItem) {
   return MSR.post<EnvListItem>({ url: envURL.groupEditPosEnvUrl, data });
@@ -66,14 +67,16 @@ export function groupEditPosEnv(data: EnvGroupListItem) {
 export function groupAddEnv(data: EnvGroupListItem) {
   return MSR.post<EnvListItem>({ url: envURL.groupAddEnvUrl, data });
 }
-export function groupDetailEnv(data: EnvListItem) {
-  return MSR.post<EnvListItem>({ url: envURL.groupDetailEnvUrl, data });
+// 项目管理-项目组-详情
+export function groupDetailEnv(id: string) {
+  return MSR.get<EnvDetailItem>({ url: `${envURL.groupDetailEnvUrl}${id}` });
 }
 export function groupDeleteEnv(data: EnvListItem) {
   return MSR.post<EnvListItem>({ url: envURL.groupDeleteEnvUrl, data });
 }
-export function groupProjectEnv(data: EnvGroupProjectListItem) {
-  return MSR.post<EnvListItem>({ url: envURL.groupProjectEnvUrl, data });
+// 获取项目组的项目
+export function groupProjectEnv() {
+  return MSR.get<ProjectOptionItem[]>({ url: envURL.groupProjectEnvUrl });
 }
 
 /** 项目管理-环境-全局参数-更新or新增 */
