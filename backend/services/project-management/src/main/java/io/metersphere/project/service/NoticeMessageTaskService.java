@@ -22,6 +22,7 @@ import io.metersphere.system.notice.utils.MessageTemplateUtils;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -57,6 +58,8 @@ public class NoticeMessageTaskService {
     private ExtProjectUserRoleMapper extProjectUserRoleMapper;
     @Resource
     protected CustomFieldMapper customFieldMapper;
+    @Resource
+    protected ExtMessageTaskMapper extMessageTaskMapper;
 
 
     public static final String USER_IDS = "user_ids";
@@ -74,15 +77,14 @@ public class NoticeMessageTaskService {
         //检查用户是否存在
         Map<String, List<String>> stringListMap = checkUserExistProject(messageTaskRequest.getReceiverIds(), projectId);
         List<String> existUserIds = stringListMap.get(USER_IDS);
+
+        List<MessageTask> robotType = extMessageTaskMapper.getRobotType(projectId, messageTaskRequest.getTaskType(), messageTaskRequest.event);
+        Map<String, List<MessageTask>> robotEnasleMap = robotType.stream().collect(Collectors.groupingBy(MessageTask::getProjectRobotId));
         //检查设置的通知是否存在，如果存在则更新
         List<MessageTask> messageTasks = updateMessageTasks(messageTaskRequest, userId, mapper, blobMapper, existUserIds);
-        //保存消息任务
         Map<String, List<MessageTask>> robotMap = messageTasks.stream().collect(Collectors.groupingBy(MessageTask::getProjectRobotId));
-        //如果新增时只选了用户，没有选机器人，默认机器人为站内信
-        ProjectRobot projectRobot = getDefaultRobot(messageTaskRequest.getProjectId(), messageTaskRequest.getRobotId());
-        String robotId = projectRobot.getId();
-        messageTaskRequest.setRobotId(robotId);
-        insertMessageTask(messageTaskRequest, userId, mapper, blobMapper, existUserIds, robotMap);
+        //保存消息任务
+        insertMessageTask(messageTaskRequest, userId, mapper, blobMapper, existUserIds, robotMap, robotEnasleMap);
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         if (CollectionUtils.isNotEmpty(stringListMap.get(NO_USER_NAMES))) {
@@ -111,14 +113,45 @@ public class NoticeMessageTaskService {
     /**
      * 新增MessageTask
      *
-     * @param messageTaskRequest   入参
-     * @param userId               当前用户i的
-     * @param mapper               MessageTaskMapper
-     * @param blobMapper           MessageTaskBlobMapper
-     * @param existUserIds         系统中还存在的入参传过来的接收人
-     * @param robotMap             更新过后机器人消息通知map
+     * @param messageTaskRequest 入参
+     * @param userId             当前用户i的
+     * @param mapper             MessageTaskMapper
+     * @param blobMapper         MessageTaskBlobMapper
+     * @param existUserIds       系统中还存在的入参传过来的接收人
+     * @param robotMap           更新过后机器人消息通知map
+     * @param robotEnableMap     数据库里已开起的机器人
      */
-    private void insertMessageTask(MessageTaskRequest messageTaskRequest, String userId, MessageTaskMapper mapper, MessageTaskBlobMapper blobMapper, List<String> existUserIds, Map<String, List<MessageTask>> robotMap) {
+    private void insertMessageTask(MessageTaskRequest messageTaskRequest, String userId, MessageTaskMapper mapper, MessageTaskBlobMapper blobMapper, List<String> existUserIds, Map<String, List<MessageTask>> robotMap, Map<String, List<MessageTask>> robotEnableMap) {
+        if (MapUtils.isEmpty(robotEnableMap) || StringUtils.isNotBlank(messageTaskRequest.getRobotId())) {
+            //如果新增时只选了用户，没有选机器人，默认机器人为站内信
+            ProjectRobot projectRobot = getDefaultRobot(messageTaskRequest.getProjectId(), messageTaskRequest.getRobotId());
+            String robotId = projectRobot.getId();
+            boolean enable = getEnable(robotMap, robotId);
+            messageTaskRequest.setRobotId(robotId);
+            if (messageTaskRequest.getEnable() == null) {
+                messageTaskRequest.setEnable(enable);
+            }
+            setUserMessageTaskInfo(messageTaskRequest, userId, mapper, blobMapper, existUserIds, robotMap);
+        } else {
+            robotEnableMap.forEach((robotId, v) -> {
+                boolean enable = getEnable(robotMap, robotId);
+                messageTaskRequest.setRobotId(robotId);
+                messageTaskRequest.setEnable(enable);
+                setUserMessageTaskInfo(messageTaskRequest, userId, mapper, blobMapper, existUserIds, robotMap);
+            });
+        }
+    }
+
+    private boolean getEnable(Map<String, List<MessageTask>> robotMap, String robotId) {
+        List<MessageTask> messageTasks = robotMap.get(robotId);
+        if (CollectionUtils.isEmpty(messageTasks)) {
+            return false;
+        } else {
+            return messageTasks.get(0).getEnable();
+        }
+    }
+
+    private static void setUserMessageTaskInfo(MessageTaskRequest messageTaskRequest, String userId, MessageTaskMapper mapper, MessageTaskBlobMapper blobMapper, List<String> existUserIds, Map<String, List<MessageTask>> robotMap) {
         //判断是否需要完整的新增机器人数据
         List<MessageTask> messageTasks = robotMap.get(messageTaskRequest.getRobotId());
         for (String receiverId : existUserIds) {
@@ -322,7 +355,7 @@ public class NoticeMessageTaskService {
     public List<MessageTaskDTO> getMessageList(String projectId) throws IOException {
         //获取返回数据结构
         StringBuilder jsonStr = new StringBuilder();
-        try{
+        try {
             InputStream inputStream = getClass().getResourceAsStream("/message_task.json");
             assert inputStream != null;
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -332,7 +365,7 @@ public class NoticeMessageTaskService {
             }
             reader.close();
             inputStream.close();
-        } catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
@@ -383,8 +416,8 @@ public class NoticeMessageTaskService {
                 messageTaskTypeDTO.setTaskTypeName(taskTypeMap.get(messageTaskTypeDTO.getTaskType()));
                 List<String> eventList = List.of(NoticeConstants.Event.CREATE, NoticeConstants.Event.UPDATE, NoticeConstants.Event.DELETE);
                 for (MessageTaskDetailDTO messageTaskDetailDTO : messageTaskTypeDTO.getMessageTaskDetailDTOList()) {
-                    if (StringUtils.equalsIgnoreCase(messageTaskTypeDTO.getTaskType(),NoticeConstants.TaskType.API_DEFINITION_TASK) && eventList.contains(messageTaskDetailDTO.getEvent())) {
-                        messageTaskDetailDTO.setEventName("API"+StringUtils.SPACE+eventMap.get(messageTaskDetailDTO.getEvent()));
+                    if (StringUtils.equalsIgnoreCase(messageTaskTypeDTO.getTaskType(), NoticeConstants.TaskType.API_DEFINITION_TASK) && eventList.contains(messageTaskDetailDTO.getEvent())) {
+                        messageTaskDetailDTO.setEventName("API" + StringUtils.SPACE + eventMap.get(messageTaskDetailDTO.getEvent()));
                     } else {
                         messageTaskDetailDTO.setEventName(eventMap.get(messageTaskDetailDTO.getEvent()));
                     }
@@ -487,7 +520,6 @@ public class NoticeMessageTaskService {
         });
         return collect;
     }
-
 
 
     public MessageTemplateConfigDTO getTemplateDetail(String projectId, String taskType, String event, String robotId) {
