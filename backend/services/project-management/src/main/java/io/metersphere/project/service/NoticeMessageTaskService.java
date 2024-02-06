@@ -470,15 +470,18 @@ public class NoticeMessageTaskService {
 
     public List<OptionDTO> getUserList(String projectId, String keyword) {
         List<OptionDTO> projectUserSelectList = extProjectUserRoleMapper.getProjectUserSelectList(projectId, keyword);
+        ArrayList<OptionDTO> collect = projectUserSelectList.stream().collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(OptionDTO::getId))), ArrayList::new));
         Map<String, String> defaultRelatedUserMap = MessageTemplateUtils.getDefaultRelatedUserMap();
         defaultRelatedUserMap.forEach((k, v) -> {
             OptionDTO optionDTO = new OptionDTO();
             optionDTO.setId(k);
             optionDTO.setName(v);
-            projectUserSelectList.add(optionDTO);
+            collect.add(optionDTO);
         });
-        return projectUserSelectList;
+        return collect;
     }
+
+
 
     public MessageTemplateConfigDTO getTemplateDetail(String projectId, String taskType, String event, String robotId) {
         MessageTaskExample messageTaskExample = new MessageTaskExample();
