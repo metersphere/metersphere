@@ -6,6 +6,7 @@ import io.metersphere.plugin.sdk.spi.AbstractMsPlugin;
 import io.metersphere.plugin.sdk.util.MSPluginException;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 
 /**
@@ -13,14 +14,22 @@ import java.util.List;
  */
 public abstract class AbstractApiPlugin extends AbstractMsPlugin {
 
-    public List<ApiPluginSelectOption> getPluginOptions(ApiPluginOptionsRequest request)  {
-        String method = request.getOptionMethod();
+    /**
+     * 获取插件选项
+     *
+     * @param request 请求参数
+     * @return 选项列表
+     */
+    public List<ApiPluginSelectOption> getPluginOptions(ApiPluginOptionsRequest request) {
         try {
             // 这里反射调用插件方法，获取下拉框选项
-            return (List<ApiPluginSelectOption>) this.getClass().getMethod(method, request.getClass()).invoke(this, request);
+            Method method = this.getClass().getMethod(request.getOptionMethod(), request.getClass());
+            @SuppressWarnings("unchecked")
+            List<ApiPluginSelectOption> result = (List<ApiPluginSelectOption>) method.invoke(this, request);
+            return result;
         } catch (InvocationTargetException e) {
             throw new MSPluginException(e.getTargetException());
-        }  catch (Exception e) {
+        } catch (NoSuchMethodException | IllegalAccessException e) {
             throw new MSPluginException(e);
         }
     }
