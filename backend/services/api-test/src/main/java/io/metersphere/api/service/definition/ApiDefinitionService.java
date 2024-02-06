@@ -167,6 +167,7 @@ public class ApiDefinitionService {
         ApiDefinition apiDefinition = new ApiDefinition();
         BeanUtils.copyBean(apiDefinition, request);
         checkAddExist(apiDefinition);
+        checkResponseNameCode(request.getResponse());
         apiDefinition.setId(IDGenerator.nextStr());
         apiDefinition.setNum(getNextNum(request.getProjectId()));
         apiDefinition.setPos(getNextOrder(request.getProjectId()));
@@ -230,6 +231,7 @@ public class ApiDefinitionService {
         ApiDefinition originApiDefinition = checkApiDefinition(request.getId());
         ApiDefinition apiDefinition = new ApiDefinition();
         BeanUtils.copyBean(apiDefinition, request);
+        checkResponseNameCode(request.getResponse());
         if (request.getProtocol().equals(ModuleConstants.NODE_PROTOCOL_HTTP)) {
             checkUpdateExist(apiDefinition);
             //http协议的接口，如果修改了path和method，需要同步把case的path和method修改
@@ -1008,5 +1010,18 @@ public class ApiDefinitionService {
                 extApiDefinitionMapper::getPrePos,
                 extApiTestCaseMapper::getLastPos,
                 apiDefinitionMapper::updateByPrimaryKeySelective);
+    }
+
+    private void checkResponseNameCode(Object response) {
+        if (!response.toString().isEmpty() && !response.toString().equals("{}")) {
+            List<HttpResponse> httpResponses = ApiDataUtils.parseArray(JSON.toJSONString(response), HttpResponse.class);
+            boolean isUnique = httpResponses.stream()
+                    .map(httpResponse -> httpResponse.getName() + httpResponse.getStatusCode())
+                    .collect(Collectors.toSet())
+                    .size() == httpResponses.size();
+            if (!isUnique) {
+                throw new MSException(ApiResultCode.API_RESPONSE_NAME_CODE_UNIQUE);
+            }
+        }
     }
 }
