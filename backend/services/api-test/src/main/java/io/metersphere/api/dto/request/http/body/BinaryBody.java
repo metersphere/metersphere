@@ -9,7 +9,7 @@ import lombok.Data;
  * @CreateTime: 2023-11-06  18:25
  */
 @Data
-public class BinaryBody extends ApiFile{
+public class BinaryBody extends ApiFile {
     /**
      *  描述
      */

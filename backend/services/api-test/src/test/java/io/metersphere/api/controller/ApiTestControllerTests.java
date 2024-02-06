@@ -14,10 +14,7 @@ import io.metersphere.system.dto.request.PluginUpdateRequest;
 import io.metersphere.system.service.PluginService;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
@@ -28,6 +25,7 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
@@ -46,6 +44,7 @@ public class ApiTestControllerTests extends BaseTest {
     protected static final String MOCK = "mock/{0}";
     protected static final String CUSTOM_FUNC_RUN = "custom/func/run";
     protected static final String PLUGIN_FORM_OPTION = "plugin/form/option";
+    protected static final String PLUGIN_SCRIPT = "plugin/script/{0}";
 
     @Resource
     private BaseResourcePoolTestService baseResourcePoolTestService;
@@ -98,6 +97,7 @@ public class ApiTestControllerTests extends BaseTest {
     }
 
     @Test
+    @Order(10)
     public void getFormOptions() throws Exception {
         ApiTestPluginOptionRequest request = new ApiTestPluginOptionRequest();
         request.setOrgId(DEFAULT_ORGANIZATION_ID);
@@ -127,6 +127,30 @@ public class ApiTestControllerTests extends BaseTest {
         }}, PLUGIN_FORM_OPTION, request);
     }
 
+    @Test
+    @Order(11)
+    public void getApiProtocolScript() throws Exception {
+        assertErrorCode(this.requestGet(PLUGIN_SCRIPT, "aa"), NOT_FOUND);
+        Plugin jiraPlugin = basePluginTestService.addJiraPlugin();
+        assertErrorCode(this.requestGet(PLUGIN_SCRIPT, jiraPlugin.getId()), NOT_FOUND);
+        // @@请求成功
+        Plugin plugin = addTcpTestPlugin();
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(PLUGIN_SCRIPT, plugin.getId());
+        Object resultData = getResultData(mvcResult, Object.class);
+        Assertions.assertNotNull(resultData);
+
+        basePluginTestService.deleteJiraPlugin();
+        pluginService.delete(plugin.getId());
+
+        // @@校验权限
+        requestGetPermissionsTest(new ArrayList<>() {{
+            add(PermissionConstants.PROJECT_API_DEFINITION_READ);
+            add(PermissionConstants.PROJECT_API_DEFINITION_CASE_READ);
+            add(PermissionConstants.PROJECT_API_DEBUG_READ);
+            add(PermissionConstants.PROJECT_API_SCENARIO_READ);
+        }}, PLUGIN_SCRIPT, "11");
+    }
+
     public Plugin addOptionTestPlugin() throws Exception {
         PluginUpdateRequest request = new PluginUpdateRequest();
         File jarFile = new File(
@@ -136,6 +160,21 @@ public class ApiTestControllerTests extends BaseTest {
         FileInputStream inputStream = new FileInputStream(jarFile);
         MockMultipartFile mockMultipartFile = new MockMultipartFile(jarFile.getName(), jarFile.getName(), "jar", inputStream);
         request.setName("测试获取选项插件");
+        request.setGlobal(true);
+        request.setEnable(true);
+        request.setCreateUser(ADMIN.name());
+        return pluginService.add(request, mockMultipartFile);
+    }
+
+    public Plugin addTcpTestPlugin() throws Exception {
+        PluginUpdateRequest request = new PluginUpdateRequest();
+        File jarFile = new File(
+                this.getClass().getClassLoader().getResource("file/tcp-sampler-v3.x.jar")
+                        .getPath()
+        );
+        FileInputStream inputStream = new FileInputStream(jarFile);
+        MockMultipartFile mockMultipartFile = new MockMultipartFile(jarFile.getName(), jarFile.getName(), "jar", inputStream);
+        request.setName("测试TCP插件");
         request.setGlobal(true);
         request.setEnable(true);
         request.setCreateUser(ADMIN.name());
