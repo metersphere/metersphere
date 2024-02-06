@@ -18,8 +18,10 @@
           />
         </a-form-item>
       </a-form>
-      <a-tabs v-model:active-key="activeKey" class="no-content">
-        <a-tab-pane v-for="item of contentTabList" :key="item.value" :title="item.label" />
+
+      <a-tabs v-if="contentTabList.length" v-model:active-key="activeKey" class="no-content" @change="handleTabChange">
+        <a-tab-pane v-for="item of contentTabList" :key="item.value" :title="t(item.label)" />
+        <a-tab-pane key="displaySetting" :title="t('project.environmental.displaySetting')" />
       </a-tabs>
     </div>
     <a-divider :margin="0" class="!mb-[16px]" />
@@ -33,6 +35,7 @@
       <PostTab v-else-if="activeKey === 'post'" />
       <AssertTab v-else-if="activeKey === 'assert'" />
     </div>
+    <TabSettingDrawer v-model:visible="tabSettingVisible" @init-data="initTab" />
 
     <div class="footer" :style="{ width: '100%' }">
       <a-button @click="handleReset">{{ t('common.cancel') }}</a-button>
@@ -45,6 +48,7 @@
   import { Message } from '@arco-design/web-vue';
   import { isEqual } from 'lodash-es';
 
+  import TabSettingDrawer from './common/TabSettingDrawer.vue';
   import AssertTab from './envParams/AssertTab.vue';
   import DataBaseTab from './envParams/DatabaseTab.vue';
   import EnvParamsTab from './envParams/EnvParamsTab.vue';
@@ -58,11 +62,14 @@
   import { useI18n } from '@/hooks/useI18n';
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
 
-  const activeKey = ref('assert');
+  import { ContentTabItem } from '@/models/projectManagement/environmental';
+
+  const activeKey = ref('envParams');
   const envForm = ref();
   const canSave = ref(false);
   const { t } = useI18n();
   const loading = ref(false);
+  const tabSettingVisible = ref(false);
 
   const store = useProjectEnvStore();
 
@@ -70,44 +77,61 @@
     name: '',
   });
 
-  const contentTabList = [
+  const contentTabList = ref<ContentTabItem[]>([]);
+
+  const sourceTabList = [
     {
       value: 'envParams',
-      label: t('project.environmental.envParams'),
+      label: 'project.environmental.envParams',
+      canHide: false,
+      isShow: true,
     },
     {
       value: 'http',
-      label: 'HTTP',
+      label: 'project.environmental.HTTP',
+      canHide: true,
+      isShow: true,
     },
     {
       value: 'database',
-      label: t('project.environmental.database'),
+      label: 'project.environmental.database',
+      canHide: true,
+      isShow: true,
     },
     {
       value: 'host',
-      label: 'Host',
+      label: 'project.environmental.HOST',
+      canHide: true,
+      isShow: true,
     },
     {
       value: 'tcp',
-      label: 'TCP',
+      label: 'project.environmental.TCP',
+      canHide: true,
+      isShow: true,
     },
     {
       value: 'pre',
-      label: t('project.environmental.pre'),
+      label: 'project.environmental.pre',
+      canHide: true,
+      isShow: true,
     },
     {
       value: 'post',
-      label: t('project.environmental.post'),
+      label: 'project.environmental.post',
+      canHide: true,
+      isShow: true,
     },
     {
       value: 'assert',
-      label: t('project.environmental.assert'),
-    },
-    {
-      value: 'display',
-      label: t('project.environmental.displaySetting'),
+      label: 'project.environmental.assert',
+      canHide: true,
+      isShow: true,
     },
   ];
+  await store.initContentTabList(sourceTabList);
+  contentTabList.value = ((await store.getContentTabList()) || []).filter((item) => item.isShow);
+
   const handleReset = () => {
     envForm.value?.resetFields();
     store.initEnvDetail();
@@ -148,6 +172,21 @@
       canSave.value = !isEqual(currentEnvDetailInfo, backupEnvDetailInfo);
     }
   });
+
+  const initTab = async () => {
+    tabSettingVisible.value = false;
+    const tmpArr = (await store.getContentTabList()) || [];
+    contentTabList.value = tmpArr.filter((item) => item.isShow);
+    if (contentTabList.value.length) {
+      activeKey.value = contentTabList.value[0].value;
+    }
+  };
+
+  const handleTabChange = (key: string | number) => {
+    if (key === 'displaySetting') {
+      tabSettingVisible.value = true;
+    }
+  };
 </script>
 
 <style lang="less" scoped>
