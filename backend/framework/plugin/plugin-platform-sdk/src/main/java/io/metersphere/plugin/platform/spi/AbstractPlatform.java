@@ -8,6 +8,7 @@ import io.metersphere.plugin.sdk.util.PluginUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.List;
 
 public abstract class AbstractPlatform implements Platform {
@@ -35,13 +36,15 @@ public abstract class AbstractPlatform implements Platform {
 
     @Override
     public List<SelectOption> getPluginOptions(PluginOptionsRequest request)  {
-        String method = request.getOptionMethod();
         try {
             // 这里反射调用 getIssueTypes 等方法，获取下拉框选项
-            return (List<SelectOption>) this.getClass().getMethod(method, request.getClass()).invoke(this, request);
+            Method method = this.getClass().getMethod(request.getOptionMethod(), request.getClass());
+            @SuppressWarnings("unchecked")
+            List<SelectOption> result = (List<SelectOption>) method.invoke(this, request);
+            return result;
         } catch (InvocationTargetException e) {
             throw new MSPluginException(e.getTargetException());
-        }  catch (Exception e) {
+        } catch (NoSuchMethodException | IllegalAccessException e) {
             throw new MSPluginException(e);
         }
     }
