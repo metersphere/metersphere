@@ -38,7 +38,6 @@ public class ApiTestController {
         return apiTestService.getProtocols(organizationId);
     }
 
-
     @GetMapping("/mock/{key}")
     @Operation(summary = "获取mock数据")
     public String mock(@PathVariable String key) {
@@ -50,6 +49,18 @@ public class ApiTestController {
     @RequiresPermissions(PermissionConstants.PROJECT_CUSTOM_FUNCTION_EXECUTE)
     public String run(@Validated @RequestBody CustomFunctionRunRequest runRequest) {
         return apiExecuteService.runScript(runRequest);
+    }
+
+    @GetMapping("/plugin/script/{pluginId}")
+    @Operation(summary = "获取协议插件的的协议列表")
+    @RequiresPermissions(value = {
+            PermissionConstants.PROJECT_API_DEFINITION_READ,
+            PermissionConstants.PROJECT_API_DEFINITION_CASE_READ,
+            PermissionConstants.PROJECT_API_DEBUG_READ,
+            PermissionConstants.PROJECT_API_SCENARIO_READ
+    }, logical = Logical.OR)
+    public Object getApiProtocolScript(@PathVariable String pluginId) {
+        return apiTestService.getApiProtocolScript(pluginId);
     }
 
     @PostMapping("/plugin/form/option")

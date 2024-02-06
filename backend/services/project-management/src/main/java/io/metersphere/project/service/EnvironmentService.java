@@ -1,6 +1,7 @@
 package io.metersphere.project.service;
 
 
+import io.metersphere.plugin.api.spi.AbstractProtocolPlugin;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.dto.environment.*;
@@ -39,6 +40,7 @@ import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.pf4j.Plugin;
 import org.pf4j.PluginWrapper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -388,13 +390,17 @@ public class EnvironmentService {
 
     public List<EnvironmentPluginScriptDTO> getPluginScripts(String projectId) {
         Project project = projectService.checkProjectNotExist(projectId);
-        // 查询组织下有权限的接口插件ID
-        List<String> orgApiPluginIds = apiPluginService.getOrgApiPluginWrappers(project.getOrganizationId())
-                .stream()
-                .map(PluginWrapper::getPluginId)
-                .collect(Collectors.toList());
-        // 查询环境页面脚本
-        List<PluginScript> pluginScripts = pluginScriptService.getByPluginIdsAndScriptId(orgApiPluginIds, "environment");
+        // 查询组织下有权限的接口插件
+        List<PluginWrapper> orgApiPluginWrappers = apiPluginService.getOrgApiPluginWrappers(project.getOrganizationId());
+
+        // 接口协议环境脚本
+        List<PluginScript> pluginScripts = new ArrayList<>(orgApiPluginWrappers.size());
+        orgApiPluginWrappers.stream().forEach(wrapper -> {
+            Plugin plugin = wrapper.getPlugin();
+            if (plugin instanceof AbstractProtocolPlugin protocolPlugin) {
+                pluginScripts.add(pluginScriptService.get(wrapper.getPluginId(), protocolPlugin.getEnvProtocolScriptId()));
+            }
+        });
 
         // 返回环境脚本列表
         return pluginScripts.stream().map(pluginScript -> {

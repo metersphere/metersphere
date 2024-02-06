@@ -7,9 +7,14 @@ import lombok.Data;
 import java.util.LinkedList;
 
 /**
-*@Author: jianxing
-*@CreateTime: 2023-10-30  15:08
-*/
+ *
+ * <pre>
+ * 该对象传参时，需要传入 polymorphicName 字段，用于区分是哪个协议的组件
+ * 对应协议的组件 polymorphicName 字段，调用 /api/test/protocol/{organizationId} 接口获取
+ * <pre>
+ * @Author: jianxing
+ * @CreateTime: 2023-10-30  15:08
+ */
 @Data
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "polymorphicName")
 @JsonIgnoreProperties(ignoreUnknown = true)

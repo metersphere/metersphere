@@ -264,7 +264,7 @@ public class PluginService {
     }
 
     public String getScript(String pluginId, String scriptId) {
-        return pluginScriptService.get(pluginId, scriptId);
+        return pluginScriptService.getScriptContent(pluginId, scriptId);
     }
 
     public void getPluginImg(String pluginId, String filePath, HttpServletResponse response) throws IOException {

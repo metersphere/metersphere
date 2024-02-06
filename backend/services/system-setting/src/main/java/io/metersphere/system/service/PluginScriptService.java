@@ -64,9 +64,13 @@ public class PluginScriptService {
         pluginScriptMapper.deleteByExample(example);
     }
 
-    public String get(String pluginId, String scriptId) {
-        PluginScript frontScript = pluginScriptMapper.selectByPrimaryKey(pluginId, scriptId);
+    public String getScriptContent(String pluginId, String scriptId) {
+        PluginScript frontScript = get(pluginId, scriptId);
         return frontScript == null ? null : new String(frontScript.getScript());
+    }
+
+    public PluginScript get(String pluginId, String scriptId) {
+        return pluginScriptMapper.selectByPrimaryKey(pluginId, scriptId);
     }
 
     public Map<String, List<OptionDTO>> getScripteMap(List<String> pluginIds) {
@@ -83,15 +87,5 @@ public class PluginScriptService {
             scriptList.add(optionDTO);
         }
         return scriptMap;
-
-    }
-
-    public List<PluginScript> getByPluginIdsAndScriptId(List<String> pluginIds, String scriptId) {
-        if (CollectionUtils.isEmpty(pluginIds)) {
-            return Collections.emptyList();
-        }
-        PluginScriptExample example = new PluginScriptExample();
-        example.createCriteria().andScriptIdEqualTo(scriptId);
-        return pluginScriptMapper.selectByExampleWithBLOBs(example);
     }
 }

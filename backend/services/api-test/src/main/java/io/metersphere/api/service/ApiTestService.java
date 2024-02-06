@@ -6,9 +6,11 @@ import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.plugin.api.dto.ApiPluginOptionsRequest;
 import io.metersphere.plugin.api.dto.ApiPluginSelectOption;
 import io.metersphere.plugin.api.spi.AbstractApiPlugin;
+import io.metersphere.plugin.api.spi.AbstractProtocolPlugin;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.dto.ProtocolDTO;
 import io.metersphere.system.service.ApiPluginService;
+import io.metersphere.system.service.PluginLoadService;
 import io.metersphere.system.utils.ServiceUtils;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
@@ -28,6 +30,8 @@ public class ApiTestService {
 
     @Resource
     private ApiPluginService apiPluginService;
+    @Resource
+    private PluginLoadService pluginLoadService;
 
     public List<ProtocolDTO> getProtocols(String orgId) {
         List<ProtocolDTO> protocols = apiPluginService.getProtocols(orgId);
@@ -48,10 +52,25 @@ public class ApiTestService {
                 .orElse(null);
         if (pluginWrapper == null || !(pluginWrapper.getPlugin() instanceof AbstractApiPlugin)) {
             // 插件不存在或者非接口插件，抛出异常
-            ServiceUtils.checkResourceExist(null, "permission.api_plugin.name");
+            checkResourceExist(null);
         }
         ApiPluginOptionsRequest optionsRequest = BeanUtils.copyBean(new ApiPluginOptionsRequest(), request);
         assert pluginWrapper != null;
         return ((AbstractApiPlugin) pluginWrapper.getPlugin()).getPluginOptions(optionsRequest);
+    }
+
+    public Object getApiProtocolScript(String pluginId) {
+        PluginWrapper pluginWrapper = pluginLoadService.getPluginWrapper(pluginId);
+        checkResourceExist(pluginWrapper);
+        if (pluginWrapper.getPlugin() instanceof AbstractProtocolPlugin protocolPlugin) {
+            return pluginLoadService.getPluginScriptContent(pluginId, protocolPlugin.getApiProtocolScriptId());
+        } else {
+            // 插件不存在或者非接口插件，抛出异常
+            return checkResourceExist(null);
+        }
+    }
+
+    public Object checkResourceExist(PluginWrapper pluginWrapper) {
+        return ServiceUtils.checkResourceExist(pluginWrapper, "permission.system_plugin.name");
     }
 }
