@@ -3,6 +3,7 @@ package io.metersphere.functional.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.functional.dto.FunctionalDemandDTO;
+import io.metersphere.functional.request.FunctionalCaseDemandBatchRequest;
 import io.metersphere.functional.request.FunctionalCaseDemandRequest;
 import io.metersphere.functional.request.FunctionalThirdDemandPageRequest;
 import io.metersphere.functional.request.QueryDemandListRequest;
@@ -45,7 +46,7 @@ public class FunctionalCaseDemandController {
     }
 
     @PostMapping("/add")
-    @Operation(summary = "用例管理-功能用例-关联需求-新增需求")
+    @Operation(summary = "用例管理-功能用例详情-关联需求-新增/关联需求")
     @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ_ADD, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
     public void addDemand(@RequestBody @Validated FunctionalCaseDemandRequest request) {
         functionalCaseDemandService.addDemand(request, SessionUtils.getUserId());
@@ -67,9 +68,9 @@ public class FunctionalCaseDemandController {
     }
 
     @PostMapping("/batch/relevance")
-    @Operation(summary = "用例管理-功能用例-关联需求-批量关联需求")
+    @Operation(summary = "用例管理-功能用例列表-关联需求-批量关联新增需求")
     @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ_ADD, PermissionConstants.FUNCTIONAL_CASE_READ_UPDATE, PermissionConstants.FUNCTIONAL_CASE_READ_DELETE}, logical = Logical.OR)
-    public void batchRelevance(@RequestBody @Validated FunctionalCaseDemandRequest request) {
+    public void batchRelevance(@RequestBody @Validated FunctionalCaseDemandBatchRequest request) {
         functionalCaseDemandService.batchRelevance(request, SessionUtils.getUserId());
     }
 
