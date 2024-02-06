@@ -12,6 +12,7 @@ import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionRunRequest;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileManagementService;
 import io.metersphere.project.service.FileMetadataService;
@@ -29,6 +30,7 @@ import io.metersphere.system.config.MinioProperties;
 import io.metersphere.system.domain.TestResourcePool;
 import io.metersphere.system.dto.pool.TestResourceNodeDTO;
 import io.metersphere.system.dto.pool.TestResourcePoolReturnDTO;
+import io.metersphere.system.service.ApiPluginService;
 import io.metersphere.system.service.CommonProjectService;
 import io.metersphere.system.service.SystemParameterService;
 import io.metersphere.system.service.TestResourcePoolService;
@@ -78,7 +80,8 @@ public class ApiExecuteService {
     private FileMetadataService fileMetadataService;
     @Resource
     private FileManagementService fileManagementService;
-
+    @Resource
+    private ApiPluginService apiPluginService;
 
     @PostConstruct
     private void init() {
@@ -136,17 +139,20 @@ public class ApiExecuteService {
     /**
      * 发送执行任务
      *
-     * @param reportId            报告ID
-     * @param testId              资源ID
-     * @param taskRequest         执行参数
-     * @param executeScript       执行脚本
-     * @param projectId           项目ID
+     * @param reportId      报告ID
+     * @param testId        资源ID
+     * @param taskRequest   执行参数
+     * @param executeScript 执行脚本
+     * @param projectId     项目ID
      */
     private void doDebug(String reportId,
                          String testId,
                          TaskRequestDTO taskRequest,
                          String executeScript,
                          String projectId) {
+
+        // 设置插件文件信息
+        taskRequest.setPluginFiles(apiPluginService.getFileInfoByProjectId(projectId));
 
         TestResourcePoolReturnDTO testResourcePoolDTO = getGetResourcePoolNodeDTO(projectId);
         TestResourceNodeDTO testResourceNodeDTO = getProjectExecuteNode(testResourcePoolDTO);

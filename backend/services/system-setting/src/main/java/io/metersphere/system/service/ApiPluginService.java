@@ -4,7 +4,9 @@ import io.metersphere.plugin.api.spi.AbstractApiPlugin;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.plugin.api.spi.AbstractProtocolPlugin;
 import io.metersphere.plugin.api.spi.MsTestElement;
+import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.PluginScenarioType;
+import io.metersphere.sdk.dto.api.task.ApiExecuteFileInfo;
 import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.dto.ProtocolDTO;
@@ -26,6 +28,8 @@ public class ApiPluginService {
     private PluginLoadService pluginLoadService;
     @Resource
     private BasePluginService basePluginService;
+    @Resource
+    private ProjectMapper projectMapper;
 
     /**
      * 获取协议插件的的协议列表
@@ -83,6 +87,7 @@ public class ApiPluginService {
 
     /**
      * 返回 MsTestElement 实现类与插件 ID 的映射
+     *
      * @return
      */
     public Map<Class<? extends AbstractMsTestElement>, String> getTestElementPluginMap() {
@@ -97,6 +102,7 @@ public class ApiPluginService {
 
     /**
      * 返回 MsTestElement 实现类与接口协议的映射
+     *
      * @return
      */
     public Map<Class<? extends AbstractMsTestElement>, String> getTestElementProtocolMap() {
@@ -113,5 +119,16 @@ public class ApiPluginService {
             extensionClasses.forEach(clazz -> testElementProtocolMap.put((Class<? extends AbstractMsTestElement>) clazz, ((AbstractProtocolPlugin) plugin.getPlugin()).getProtocol()));
         }
         return testElementProtocolMap;
+    }
+
+    public List<ApiExecuteFileInfo> getFileInfoByProjectId(String projectId) {
+        return basePluginService.getOrgEnabledPlugins(projectMapper.selectByPrimaryKey(projectId).getOrganizationId(), PluginScenarioType.API_PROTOCOL)
+                .stream().map(plugin -> {
+                    ApiExecuteFileInfo apiExecuteFileInfo = new ApiExecuteFileInfo();
+                    apiExecuteFileInfo.setFileId(plugin.getId() + "_" + plugin.getUpdateTime());
+                    apiExecuteFileInfo.setFileName(plugin.getFileName());
+                    return apiExecuteFileInfo;
+                }).toList();
+
     }
 }

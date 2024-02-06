@@ -4,12 +4,18 @@ import io.metersphere.sdk.dto.FileMetadataRepositoryDTO;
 import io.metersphere.sdk.dto.FileModuleRepositoryDTO;
 import lombok.Data;
 
+import java.io.Serial;
+import java.io.Serializable;
+
 /**
  * @Author: jianxing
  * @CreateTime: 2023-12-15  16:59
  */
 @Data
-public class ApiExecuteFileInfo {
+public class ApiExecuteFileInfo  implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     private String fileId;
     private String fileName;
     /**

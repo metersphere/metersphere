@@ -23,10 +23,13 @@ public class MsFormDataBodyConverter extends MsBodyConverter<FormDataBody> {
     @Override
     public void parse(HTTPSamplerProxy sampler, FormDataBody body, ParameterConfig config) {
         List<FormDataKV> formValues = body.getFormValues();
+        sampler.setDoMultipart(true);
+        if (CollectionUtils.isEmpty(formValues)) {
+            return;
+        }
         List<FormDataKV> validFormValues = formValues.stream().filter(FormDataKV::isValid).collect(Collectors.toList());
         List<FormDataKV> fileFormValues = validFormValues.stream().filter(FormDataKV::isFile).collect(Collectors.toList());
         List<FormDataKV> textFormValues = validFormValues.stream().filter(kv -> !kv.isFile()).collect(Collectors.toList());
-        sampler.setDoMultipart(true);
         sampler.setHTTPFiles(getHttpFileArg(fileFormValues));
         sampler.setArguments(getArguments(textFormValues));
     }
