@@ -11,25 +11,25 @@ import io.metersphere.api.dto.request.http.auth.DigestAuth;
 import io.metersphere.api.dto.request.http.auth.HTTPAuth;
 import io.metersphere.api.dto.request.http.auth.NoAuth;
 import io.metersphere.api.dto.request.http.body.*;
-import io.metersphere.api.dto.request.processors.*;
-import io.metersphere.project.api.assertion.*;
-import io.metersphere.project.api.assertion.body.*;
-import io.metersphere.project.api.processor.extract.JSONPathExtract;
-import io.metersphere.project.api.processor.extract.RegexExtract;
-import io.metersphere.project.api.processor.extract.ResultMatchingExtract;
-import io.metersphere.project.api.processor.extract.XPathExtract;
-import io.metersphere.project.api.processor.ExtractPostProcessor;
+import io.metersphere.api.dto.request.processors.MsProcessorConfig;
 import io.metersphere.api.dto.schema.JsonSchemaItem;
 import io.metersphere.api.parser.TestElementParser;
 import io.metersphere.api.parser.TestElementParserFactory;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
-import io.metersphere.project.constants.ScriptLanguageType;
 import io.metersphere.project.api.KeyValueEnableParam;
+import io.metersphere.project.api.assertion.*;
+import io.metersphere.project.api.assertion.body.*;
+import io.metersphere.project.api.processor.ExtractPostProcessor;
 import io.metersphere.project.api.processor.SQLProcessor;
 import io.metersphere.project.api.processor.ScriptProcessor;
 import io.metersphere.project.api.processor.TimeWaitingProcessor;
+import io.metersphere.project.api.processor.extract.JSONPathExtract;
+import io.metersphere.project.api.processor.extract.RegexExtract;
+import io.metersphere.project.api.processor.extract.ResultMatchingExtract;
+import io.metersphere.project.api.processor.extract.XPathExtract;
+import io.metersphere.project.constants.ScriptLanguageType;
 import io.metersphere.sdk.constants.MsAssertionCondition;
 import io.metersphere.sdk.util.BeanUtils;
 import org.junit.jupiter.api.Assertions;
@@ -268,6 +268,35 @@ public class MsHTTPElementTest {
         defaultParser.parse(msTestElement, parameterConfig);
     }
 
+    @Test
+    public void msAssertionTestXml() {
+
+        MsHTTPElement msHTTPElement = getMsHttpElement();
+        List<MsAssertion> assertions = getGeneralXmlAssertions();
+
+        MsAssertionConfig msAssertionConfig = new MsAssertionConfig();
+        msAssertionConfig.setEnableGlobal(false);
+        msAssertionConfig.setAssertions(assertions);
+
+        MsCommonElement msCommonElement = new MsCommonElement();
+        msCommonElement.setAssertionConfig(msAssertionConfig);
+
+        LinkedList linkedList = new LinkedList();
+        linkedList.add(msCommonElement);
+        msHTTPElement.setChildren(linkedList);
+
+        String json = ApiDataUtils.toJSONString(msHTTPElement);
+        Assertions.assertNotNull(json);
+        Assertions.assertEquals(ApiDataUtils.parseObject(json, AbstractMsTestElement.class), msHTTPElement);
+
+        // 测试脚本解析
+        ParameterConfig parameterConfig = new ApiParamConfig();
+        parameterConfig.setReportId("reportId");
+        TestElementParser defaultParser = TestElementParserFactory.getDefaultParser();
+        AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(json, AbstractMsTestElement.class);
+        defaultParser.parse(msTestElement, parameterConfig);
+    }
+
     public static List<MsAssertion> getGeneralAssertions() {
         List<MsAssertion> assertions = new ArrayList<>();
         MsResponseCodeAssertion responseCodeAssertion = new MsResponseCodeAssertion();
@@ -297,6 +326,39 @@ public class MsHTTPElementTest {
         MsResponseBodyAssertion documentResponseBodyAssertion = new MsResponseBodyAssertion();
         documentResponseBodyAssertion.setAssertionBodyType(MsResponseBodyAssertion.MsBodyAssertionType.DOCUMENT.name());
         MsDocumentAssertion msDocumentAssertion = new MsDocumentAssertion();
+        MsDocumentAssertionElement item = new MsDocumentAssertionElement();
+        item.setId("1");
+        item.setParamName("pet");
+        item.setInclude(false);
+        item.setType("object");
+        item.setCondition("none");
+        item.setTypeVerification(false);
+        item.setExpectedResult("");
+        MsDocumentAssertionElement item1 = new MsDocumentAssertionElement();
+        item1.setId("2");
+        item1.setParamName("id");
+        item1.setInclude(false);
+        item1.setType("integer");
+        item1.setCondition("EQUALS");
+        item1.setExpectedResult("1");
+        MsDocumentAssertionElement item2 = new MsDocumentAssertionElement();
+        item2.setId("3");
+        item2.setParamName("attributes");
+        item2.setInclude(false);
+        item2.setType("string");
+        item2.setCondition("EQUALS");
+        item2.setExpectedResult("s,2");
+        MsDocumentAssertionElement item3 = new MsDocumentAssertionElement();
+        item3.setId("4");
+        item3.setParamName("array");
+        item3.setInclude(false);
+        item3.setArrayVerification(true);
+        item3.setType("array");
+        item3.setCondition("EQUALS");
+        item3.setExpectedResult("s,2");
+        item.setChildren(List.of(item1, item2, item3));
+        msDocumentAssertion.setJsonAssertion(item);
+        msDocumentAssertion.setDocumentType("JSON");
         documentResponseBodyAssertion.setDocumentAssertion(msDocumentAssertion);
         assertions.add(documentResponseBodyAssertion);
 
@@ -341,6 +403,51 @@ public class MsHTTPElementTest {
         variableAssertionItem.setVariableName("vn");
         msVariableAssertion.setVariableAssertionItems(List.of(variableAssertionItem));
         assertions.add(msVariableAssertion);
+        return assertions;
+    }
+
+    public static List<MsAssertion> getGeneralXmlAssertions() {
+        List<MsAssertion> assertions = new ArrayList<>();
+
+        MsResponseBodyAssertion documentResponseBodyAssertion = new MsResponseBodyAssertion();
+        documentResponseBodyAssertion.setAssertionBodyType(MsResponseBodyAssertion.MsBodyAssertionType.DOCUMENT.name());
+        MsDocumentAssertion msDocumentAssertion = new MsDocumentAssertion();
+        MsDocumentAssertionElement item = new MsDocumentAssertionElement();
+        item.setId("1");
+        item.setParamName("pet");
+        item.setInclude(false);
+        item.setType("object");
+        item.setCondition("none");
+        item.setTypeVerification(false);
+        item.setExpectedResult("");
+        MsDocumentAssertionElement item1 = new MsDocumentAssertionElement();
+        item1.setId("2");
+        item1.setParamName("id");
+        item1.setInclude(false);
+        item1.setType("integer");
+        item1.setCondition("EQUALS");
+        item1.setExpectedResult("1");
+        MsDocumentAssertionElement item2 = new MsDocumentAssertionElement();
+        item2.setId("3");
+        item2.setParamName("attributes");
+        item2.setInclude(false);
+        item2.setType("string");
+        item2.setCondition("EQUALS");
+        item2.setExpectedResult("s,2");
+        MsDocumentAssertionElement item3 = new MsDocumentAssertionElement();
+        item3.setId("4");
+        item3.setParamName("array");
+        item3.setInclude(false);
+        item3.setArrayVerification(true);
+        item3.setType("array");
+        item3.setCondition("EQUALS");
+        item3.setExpectedResult("s,2");
+        item.setChildren(List.of(item1, item2, item3));
+        msDocumentAssertion.setXmlAssertion(item);
+        msDocumentAssertion.setDocumentType("XML");
+        documentResponseBodyAssertion.setDocumentAssertion(msDocumentAssertion);
+        assertions.add(documentResponseBodyAssertion);
+
         return assertions;
     }
 

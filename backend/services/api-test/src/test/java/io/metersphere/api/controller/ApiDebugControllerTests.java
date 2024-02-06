@@ -5,9 +5,9 @@ import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.ApiDebug;
 import io.metersphere.api.domain.ApiDebugBlob;
 import io.metersphere.api.domain.ApiFileResource;
+import io.metersphere.api.dto.assertion.MsAssertionConfig;
 import io.metersphere.api.dto.debug.*;
 import io.metersphere.api.dto.request.MsCommonElement;
-import io.metersphere.api.dto.assertion.MsAssertionConfig;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.api.mapper.ApiDebugBlobMapper;
@@ -275,6 +275,7 @@ public class ApiDebugControllerTests extends BaseTest {
 
     /**
      * 校验上传的文件
+     *
      * @param id
      * @param fileIds 全部的文件ID
      */
@@ -304,6 +305,7 @@ public class ApiDebugControllerTests extends BaseTest {
 
     /**
      * 校验上传的文件
+     *
      * @param id
      * @param fileIds 全部的文件ID
      */
@@ -393,6 +395,20 @@ public class ApiDebugControllerTests extends BaseTest {
         msHTTPElement.setEnable(true);
         request.setRequest(getMsElementParam(msHTTPElement));
         this.requestPostWithOk(DEBUG, request);
+
+        msAssertionConfig = new MsAssertionConfig();
+        msAssertionConfig.setEnableGlobal(false);
+        msAssertionConfig.setAssertions(MsHTTPElementTest.getGeneralXmlAssertions());
+        msCommonElement = new MsCommonElement();
+        msCommonElement.setAssertionConfig(msAssertionConfig);
+        linkedList = new LinkedList();
+        linkedList.add(msCommonElement);
+        msHTTPElement = MsHTTPElementTest.getMsHttpElement();
+        msHTTPElement.setChildren(linkedList);
+        msHTTPElement.setEnable(true);
+        request.setRequest(getMsElementParam(msHTTPElement));
+        this.requestPostWithOk(DEBUG, request);
+
 
         // 测试请求体
         MockMultipartFile file = getMockMultipartFile();

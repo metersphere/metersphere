@@ -12,6 +12,7 @@ import java.util.List;
 
 /**
  * 文档断言项
+ *
  * @Author: jianxing
  * @CreateTime: 2023-11-23  11:43
  */
@@ -52,12 +53,16 @@ public class MsDocumentAssertionElement {
     /**
      * 组内校验
      */
-    private Boolean arrayVerification;
+    private Boolean arrayVerification = false;
     /**
      * 子对象
      */
     @Valid
     private List<MsDocumentAssertionElement> children;
+    /**
+     * 在执行时组装数据用
+     */
+    private String jsonPath;
 
     /**
      * 文档断言类型
@@ -80,4 +85,5 @@ public class MsDocumentAssertionElement {
             return value;
         }
     }
+
 }
