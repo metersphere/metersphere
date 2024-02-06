@@ -280,7 +280,7 @@
       showDrag: true,
       isStringTag: true,
       width: 200,
-      dataIndex: 'tag',
+      dataIndex: 'tags',
     },
     {
       title: 'bugManagement.creator',
