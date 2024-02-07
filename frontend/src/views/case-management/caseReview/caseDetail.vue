@@ -32,7 +32,7 @@
             @search="loadCaseList"
             @press-enter="loadCaseList"
           />
-          <a-select v-model:model-value="type" :options="typeOptions" class="w-[92px]" @change="loadCaseList">
+          <a-select v-model:model-value="type" :options="typeOptions" class="w-[92px]" @change="loadCaseList" :disabled="onlyMineStatus">
           </a-select>
         </div>
         <a-spin :loading="caseListLoading" class="h-[calc(100%-46px)] w-full">
@@ -45,7 +45,14 @@
             >
               <div class="mb-[4px] flex items-center justify-between">
                 <div>{{ item.num }}</div>
-                <div class="flex items-center gap-[4px] leading-[22px]">
+                <div v-if="onlyMineStatus" class="flex items-center gap-[4px] leading-[22px]">
+                  <MsIcon
+                    :type="reviewResultMap[item.myStatus]?.icon"
+                    :style="{ color: reviewResultMap[item.myStatus]?.color }"
+                  />
+                  {{ t(reviewResultMap[item.myStatus]?.label) }}
+                </div>
+                <div v-else class="flex items-center gap-[4px] leading-[22px]">
                   <MsIcon
                     :type="reviewResultMap[item.status]?.icon"
                     :style="{ color: reviewResultMap[item.status]?.color }"
