@@ -83,10 +83,9 @@ public class MessageDetailService {
         Map<String, List<MessageTask>> messageTaskGroup = messageTaskLists.stream().collect(Collectors.groupingBy(t -> (t.getTaskType() + t.getEvent() + t.getProjectRobotId())));
         messageTaskGroup.forEach((messageTaskId, messageTaskList) -> {
             //获取同一任务所有的接收人
-            List<String> receivers = messageTaskList.stream().map(MessageTask::getReceiver).collect(Collectors.toList());
             MessageDetail messageDetail = new MessageDetail();
             MessageTask messageTask = messageTaskList.get(0);
-            messageDetail.setReceiverIds(receivers);
+            messageDetail.setReceiverIds(messageTask.getReceivers());
             messageDetail.setTaskType(messageTask.getTaskType());
             messageDetail.setEvent(messageTask.getEvent());
             messageDetail.setCreateTime(messageTask.getCreateTime());
