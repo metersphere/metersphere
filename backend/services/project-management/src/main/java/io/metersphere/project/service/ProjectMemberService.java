@@ -9,6 +9,7 @@ import io.metersphere.project.request.ProjectMemberBatchDeleteRequest;
 import io.metersphere.project.request.ProjectMemberEditRequest;
 import io.metersphere.project.request.ProjectMemberRequest;
 import io.metersphere.sdk.constants.HttpMethodConstants;
+import io.metersphere.sdk.constants.InternalUserRole;
 import io.metersphere.sdk.constants.UserRoleEnum;
 import io.metersphere.sdk.constants.UserRoleType;
 import io.metersphere.sdk.exception.MSException;
@@ -223,6 +224,14 @@ public class ProjectMemberService {
         List<LogDTO> logs = new ArrayList<>();
         // 项目不存在, 则不移除
         checkProjectExist(projectId);
+        //判断用户是不是最后一个管理员  如果是  就报错
+        UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
+        userRoleRelationExample.createCriteria().andUserIdNotEqualTo(userId)
+                .andSourceIdEqualTo(projectId)
+                .andRoleIdEqualTo(InternalUserRole.PROJECT_ADMIN.getValue());
+        if (userRoleRelationMapper.countByExample(userRoleRelationExample) == 0) {
+            throw new MSException(Translator.get("keep_at_least_one_administrator"));
+        }
         // 移除成员, 则移除该成员在该项目下的所有用户组
         UserRoleRelationExample example = new UserRoleRelationExample();
         example.createCriteria().andSourceIdEqualTo(projectId).andUserIdEqualTo(userId);
@@ -331,7 +340,8 @@ public class ProjectMemberService {
 
     /**
      * 获取项目评论下拉成员选项
-     * @param keyword 搜索关键字
+     *
+     * @param keyword   搜索关键字
      * @param projectId 项目ID
      * @return 用户集合信息
      */

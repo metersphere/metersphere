@@ -34,7 +34,7 @@ import java.util.List;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class OrganizationControllerTests extends BaseTest {
@@ -160,7 +160,7 @@ public class OrganizationControllerTests extends BaseTest {
         //组织ID正确
         // 成员为空
         updateOrganizationMemberError(ORGANIZATION_UPDATE_MEMBER, "sys_default_organization_3", null, Arrays.asList("sys_default_org_role_id_2", "sys_default_org_role_id_3"), Arrays.asList("sys_org_projectId", "sys_org_projectId1"), status().isBadRequest());
-       //成员不存在
+        //成员不存在
         updateOrganizationMemberError(ORGANIZATION_UPDATE_MEMBER, "sys_default_organization_3", "sys_default_userX", Arrays.asList("sys_default_org_role_id_2", "sys_default_org_role_id_3"), Arrays.asList("sys_org_projectId", "sys_org_projectId1"), status().is5xxServerError());
         // 组织ID不存在
         updateOrganizationMemberError(ORGANIZATION_UPDATE_MEMBER, "sys_default_organization_X", "sys_default_user2", Arrays.asList("sys_default_org_role_id_2", "sys_default_org_role_id_3"), Arrays.asList("sys_org_projectId", "sys_org_projectId1"), status().is5xxServerError());
@@ -282,7 +282,7 @@ public class OrganizationControllerTests extends BaseTest {
         Assertions.assertTrue(JSON.parseArray(JSON.toJSONString(pageData.getList())).size() <= organizationRequest.getPageSize());
         //判断是否为空
         List<OrgUserExtend> orgUserExtends = JSON.parseArray(JSON.toJSONString(pageData.getList()), OrgUserExtend.class);
-        Assertions.assertTrue(CollectionUtils.isEmpty(orgUserExtends));
+        Assertions.assertTrue(CollectionUtils.isNotEmpty(orgUserExtends));
 
     }
 
@@ -309,13 +309,14 @@ public class OrganizationControllerTests extends BaseTest {
     @Test
     @Order(14)
     public void removeOrgMemberSuccess() throws Exception {
-        this.requestGet(ORGANIZATION_REMOVE_MEMBER + "/sys_default_organization_6/sys_default_user", status().isOk());
+        this.requestGet(ORGANIZATION_REMOVE_MEMBER + "/sys_default_organization_6/sys_default_user4", status().isOk());
+        this.requestGet(ORGANIZATION_REMOVE_MEMBER + "/sys_default_organization_6/sys_default_user", status().is5xxServerError());
     }
 
     @Test
     @Order(15)
     public void removeOrgMemberSuccessWithNoProject() throws Exception {
-        this.requestGet(ORGANIZATION_REMOVE_MEMBER + "/sys_default_organization_3/sys_default_user", status().isOk());
+        this.requestGet(ORGANIZATION_REMOVE_MEMBER + "/sys_default_organization_3/sys_default_user4", status().isOk());
     }
 
     @Test
@@ -425,7 +426,6 @@ public class OrganizationControllerTests extends BaseTest {
     }
 
 
-
     @Test
     @Order(23)
     public void getNotExistUserListByOrgSuccess() throws Exception {
@@ -472,7 +472,6 @@ public class OrganizationControllerTests extends BaseTest {
                 .andExpect(status().is5xxServerError())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
     }
-
 
 
     private void listByKeyWord(String keyWord, String orgId, boolean compare, String userRoleId, String projectId, boolean checkPart, String noUserRoleId, String noProjectId) throws Exception {

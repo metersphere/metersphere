@@ -107,6 +107,7 @@ public class OrganizationService {
 
     /**
      * 更新组织名称
+     *
      * @param organizationDTO 组织请求参数
      */
     public void updateName(OrganizationDTO organizationDTO) {
@@ -120,6 +121,7 @@ public class OrganizationService {
 
     /**
      * 更新组织
+     *
      * @param organizationDTO 组织请求参数
      */
     public void update(OrganizationDTO organizationDTO) {
@@ -134,36 +136,28 @@ public class OrganizationService {
         List<String> addOrgAdmins = organizationDTO.getUserIds();
         // 旧的组织管理员ID
         List<String> oldOrgAdmins = getOrgAdminIds(organizationDTO.getId());
-        if (CollectionUtils.isNotEmpty(addOrgAdmins)) {
-            // 需要新增组织管理员ID
-            List<String> addIds = addOrgAdmins.stream().filter(addOrgAdmin -> !oldOrgAdmins.contains(addOrgAdmin)).toList();
-            // 需要删除的组织管理员ID
-            List<String> deleteIds = oldOrgAdmins.stream().filter(oldOrgAdmin -> !addOrgAdmins.contains(oldOrgAdmin)).toList();
-            // 添加组织管理员
-            if (CollectionUtils.isNotEmpty(addIds)) {
-                addIds.forEach(userId -> {
-                    // 添加组织管理员
-                    createAdmin(userId, organizationDTO.getId(), organizationDTO.getUpdateUser());
-                });
-            }
-            // 删除组织管理员
-            if (CollectionUtils.isNotEmpty(deleteIds)) {
-                UserRoleRelationExample deleteExample = new UserRoleRelationExample();
-                deleteExample.createCriteria().andSourceIdEqualTo(organizationDTO.getId()).andRoleIdEqualTo(InternalUserRole.ORG_ADMIN.getValue()).andUserIdIn(deleteIds);
-                userRoleRelationMapper.deleteByExample(deleteExample);
-            }
-        } else {
-            // 前端传入的组织管理员ID为空，删除所有组织管理员
-            if (CollectionUtils.isNotEmpty(oldOrgAdmins)) {
-                UserRoleRelationExample example = new UserRoleRelationExample();
-                example.createCriteria().andSourceIdEqualTo(organizationDTO.getId()).andRoleIdEqualTo(InternalUserRole.ORG_ADMIN.getValue());
-                userRoleRelationMapper.deleteByExample(example);
-            }
+        // 需要新增组织管理员ID
+        List<String> addIds = addOrgAdmins.stream().filter(addOrgAdmin -> !oldOrgAdmins.contains(addOrgAdmin)).toList();
+        // 需要删除的组织管理员ID
+        List<String> deleteIds = oldOrgAdmins.stream().filter(oldOrgAdmin -> !addOrgAdmins.contains(oldOrgAdmin)).toList();
+        // 添加组织管理员
+        if (CollectionUtils.isNotEmpty(addIds)) {
+            addIds.forEach(userId -> {
+                // 添加组织管理员
+                createAdmin(userId, organizationDTO.getId(), organizationDTO.getUpdateUser());
+            });
+        }
+        // 删除组织管理员
+        if (CollectionUtils.isNotEmpty(deleteIds)) {
+            UserRoleRelationExample deleteExample = new UserRoleRelationExample();
+            deleteExample.createCriteria().andSourceIdEqualTo(organizationDTO.getId()).andRoleIdEqualTo(InternalUserRole.ORG_ADMIN.getValue()).andUserIdIn(deleteIds);
+            userRoleRelationMapper.deleteByExample(deleteExample);
         }
     }
 
     /**
      * 删除组织
+     *
      * @param organizationDeleteRequest 组织删除参数
      */
     public void delete(OrganizationDeleteRequest organizationDeleteRequest) {
@@ -176,6 +170,7 @@ public class OrganizationService {
 
     /**
      * 恢复组织
+     *
      * @param id 组织ID
      */
     public void recover(String id) {
@@ -185,6 +180,7 @@ public class OrganizationService {
 
     /**
      * 开启组织
+     *
      * @param id 组织ID
      */
     public void enable(String id) {
@@ -194,6 +190,7 @@ public class OrganizationService {
 
     /**
      * 结束组织
+     *
      * @param id 组织ID
      */
     public void disable(String id) {
@@ -318,6 +315,14 @@ public class OrganizationService {
     public void removeMember(String organizationId, String userId, String currentUser) {
         List<LogDTO> logs = new ArrayList<>();
         checkOrgExistById(organizationId);
+        //检查用户是不是最后一个管理员
+        UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
+        userRoleRelationExample.createCriteria().andUserIdNotEqualTo(userId)
+                .andSourceIdEqualTo(organizationId)
+                .andRoleIdEqualTo(InternalUserRole.ORG_ADMIN.getValue());
+        if (userRoleRelationMapper.countByExample(userRoleRelationExample) == 0) {
+            throw new MSException(Translator.get("keep_at_least_one_administrator"));
+        }
         //删除组织下项目与成员的关系
         List<String> projectIds = getProjectIds(organizationId);
         if (CollectionUtils.isNotEmpty(projectIds)) {
@@ -1015,15 +1020,17 @@ public class OrganizationService {
     /**
      * 校验组织是否存在
      * 这里使用静态方法，避免需要注入，导致循环依赖
+     *
      * @param id
      * @return
      */
     public static Organization checkResourceExist(String id) {
-        return ServiceUtils.checkResourceExist( CommonBeanFactory.getBean(OrganizationMapper.class).selectByPrimaryKey(id), "permission.system_organization_project.name");
+        return ServiceUtils.checkResourceExist(CommonBeanFactory.getBean(OrganizationMapper.class).selectByPrimaryKey(id), "permission.system_organization_project.name");
     }
 
     /**
      * 剩余天数
+     *
      * @param deleteTime 删除时间
      * @return 剩余天数
      */

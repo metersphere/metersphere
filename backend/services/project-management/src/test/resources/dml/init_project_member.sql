@@ -21,7 +21,8 @@ INSERT INTO user_role_relation (id, user_id, role_id, source_id, organization_id
 INSERT INTO user_role_relation (id, user_id, role_id, source_id, organization_id, create_time, create_user) VALUES
    (UUID(), 'default-project-member-user-1', 'project_admin', 'default-project-member-test', 'default-organization-member-test', UNIX_TIMESTAMP() * 1000, 'admin'),
    (UUID(), 'default-project-member-user-2', 'project_admin', 'default-project-member-test', 'default-organization-member-test', UNIX_TIMESTAMP() * 1000, 'admin'),
-   (UUID(), 'default-project-member-user-del', 'project_admin', 'default-project-member-test', 'default-organization-member-test', UNIX_TIMESTAMP() * 1000, 'admin');
+   (UUID(), 'default-project-member-user-del', 'project_admin', 'default-project-member-test', 'default-organization-member-test', UNIX_TIMESTAMP() * 1000, 'admin'),
+    (UUID(), 'admin', 'org_admin', 'default-project-member-test-1', 'default-organization-member-test', UNIX_TIMESTAMP() * 1000, 'admin');
 
 
 

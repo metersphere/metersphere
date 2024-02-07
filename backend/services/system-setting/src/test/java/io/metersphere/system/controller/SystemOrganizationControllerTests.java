@@ -30,10 +30,10 @@ import java.util.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class SystemOrganizationControllerTests extends BaseTest{
+public class SystemOrganizationControllerTests extends BaseTest {
 
     @Resource
     private MockMvc mockMvc;
@@ -145,8 +145,8 @@ public class SystemOrganizationControllerTests extends BaseTest{
         request.setUserIds(List.of("user-id1"));
         this.requestPost(ORGANIZATION_UPDATE, request).andExpect(status().isOk());
         request.setUserIds(List.of());
-        this.requestPost(ORGANIZATION_UPDATE, request).andExpect(status().isOk());
-        this.requestPost(ORGANIZATION_UPDATE, request).andExpect(status().isOk());
+        this.requestPost(ORGANIZATION_UPDATE, request).andExpect(status().isBadRequest());
+        this.requestPost(ORGANIZATION_UPDATE, request).andExpect(status().isBadRequest());
     }
 
     @Test
@@ -154,12 +154,15 @@ public class SystemOrganizationControllerTests extends BaseTest{
     public void testUpdateOrganizationError() throws Exception {
         OrganizationEditRequest request = new OrganizationEditRequest();
         request.setName("default-4");
+        request.setUserIds(List.of("user-id1", "user-id2"));
         // 组织不存在
         request.setId("default-organization-x");
         this.requestPost(ORGANIZATION_UPDATE, request).andExpect(status().is5xxServerError());
         // 组织存在, 但是名称重复
         request.setId("default-organization-5");
         this.requestPost(ORGANIZATION_UPDATE, request).andExpect(status().is5xxServerError());
+        request.setUserIds(new ArrayList<>());
+        this.requestPost(ORGANIZATION_UPDATE, request).andExpect(status().isBadRequest());
     }
 
     @Test
@@ -381,6 +384,8 @@ public class SystemOrganizationControllerTests extends BaseTest{
         this.requestGet(ORGANIZATION_REMOVE_MEMBER + "/default-organization-3/admin", status().isOk());
         // 日志校验
         checkLog("default-organization-3", OperationLogType.DELETE);
+
+        this.requestGet(ORGANIZATION_REMOVE_MEMBER + "/default-organization-5/user-id1", status().is5xxServerError());
         // 权限校验
         requestGetPermissionTest(PermissionConstants.SYSTEM_ORGANIZATION_PROJECT_MEMBER_DELETE, ORGANIZATION_REMOVE_MEMBER + "/default-organization-3/admin");
     }
