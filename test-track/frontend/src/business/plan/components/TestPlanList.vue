@@ -1133,25 +1133,27 @@ export default {
       this.haveOtherExecCase = false;
 
       this.currentPlanId = row.id;
-      let haveApiCase = row.testPlanApiCaseCount > 0;
-      let haveScenarioCase = row.testPlanApiScenarioCount > 0;
-      let haveLoadCase = row.testPlanLoadCaseCount > 0;
-      this.haveUICase = row.testPlanUiScenarioCount > 0;
-
-      if (!this.haveUICase && !haveApiCase && !haveScenarioCase && haveLoadCase) {
-        //只有性能测试，则直接执行
-        this.$refs.runMode.handleCommand("run");
-      } else if (haveApiCase || haveScenarioCase) {
-        // 有接口或场景测试, 需选择资源池
-        this.haveOtherExecCase = true;
-        this.$refs.runMode.open("API", row.runModeConfig);
-      } else if (this.haveUICase) {
-        // UI测试不需要选择资源池
-        this.$refs.runMode.open("", row.runModeConfig);
-      } else {
-        //没有可执行的资源，则直接跳转到计划里
-        this.$router.push("/track/plan/view/" + row.id);
-      }
+      //组件里的id不会及时变动，会影响到后续的操作，所以需要在下一个tick里执行
+      this.$nextTick(() => {
+        let haveApiCase = row.testPlanApiCaseCount > 0;
+        let haveScenarioCase = row.testPlanApiScenarioCount > 0;
+        let haveLoadCase = row.testPlanLoadCaseCount > 0;
+        this.haveUICase = row.testPlanUiScenarioCount > 0;
+        if (!this.haveUICase && !haveApiCase && !haveScenarioCase && haveLoadCase) {
+          //只有性能测试，则直接执行
+          this.$refs.runMode.handleCommand("run");
+        } else if (haveApiCase || haveScenarioCase) {
+          // 有接口或场景测试, 需选择资源池
+          this.haveOtherExecCase = true;
+          this.$refs.runMode.open("API", row.runModeConfig);
+        } else if (this.haveUICase) {
+          // UI测试不需要选择资源池
+          this.$refs.runMode.open("", row.runModeConfig);
+        } else {
+          //没有可执行的资源，则直接跳转到计划里
+          this.$router.push("/track/plan/view/" + row.id);
+        }
+      });
     },
     _handleRun(config) {
       let defaultPlanEnvMap = config.testPlanDefaultEnvMap;
