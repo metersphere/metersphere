@@ -11,7 +11,7 @@
   </div>
   <div v-else>
     <div class="flex flex-row items-center">
-      <MsUserSelector v-bind="$attrs" v-model="memberList" class="w-[262px]" />
+      <MsUserSelector v-bind="$attrs" v-model="memberList" class="min-w-[262px]" />
       <a-button
         type="outline"
         :disabled="!memberList.length"
@@ -22,12 +22,14 @@
       >
         {{ t('common.confirm') }}
       </a-button>
-      <div
-        class="ml-[8px] flex h-[24px] w-[48px] cursor-pointer items-center justify-center rounded-[4px] border border-[var(--color-text-input-border)] px-[11px] text-[12px] leading-[16px] text-[var(--color-text-1)] hover:bg-[rgb(var(--primary-1))]"
+      <a-button
+        type="outline"
+        size="mini"
+        class="ml-[12px] !border-[var(--color-text-input-border)] !text-[var(--color-text-1)]"
         @click="handleCancel"
       >
         {{ t('common.cancel') }}
-      </div>
+      </a-button>
     </div>
   </div>
 </template>

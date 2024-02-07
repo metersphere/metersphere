@@ -43,14 +43,20 @@
           >
           </a-select>
         </a-form-item>
-        <a-form-item field="userIds" :label="t('system.project.projectAdmin')">
+        <a-form-item
+          field="userIds"
+          asterisk-position="end"
+          :rules="[{ required: true, message: t('system.project.projectAdminIsNotNull') }]"
+          :label="t('system.project.projectAdmin')"
+        >
           <MsUserSelector
             v-model="form.userIds"
             :type="UserRequestTypeEnum.ORGANIZATION_PROJECT_ADMIN"
-            placeholder="system.project.projectAdminPlaceholder"
+            placeholder="system.project.pleaseSelectAdmin"
             :load-option-params="{
               organizationId: currentOrgId,
             }"
+            :at-least-one="true"
           />
         </a-form-item>
         <a-form-item field="module" :label="t('system.project.moduleSetting')">
@@ -115,7 +121,7 @@
 
   import { createOrUpdateProjectByOrg, getSystemOrgOption } from '@/api/modules/setting/organizationAndProject';
   import { useI18n } from '@/hooks/useI18n';
-  import { useAppStore } from '@/store';
+  import { useAppStore, useUserStore } from '@/store';
   import useLicenseStore from '@/store/modules/setting/license';
 
   import { CreateOrUpdateSystemProjectParams, SystemOrgOption } from '@/models/setting/system/orgAndProject';
@@ -128,7 +134,6 @@
 
   const { t } = useI18n();
   const props = defineProps<{
-    visible: boolean;
     currentProject?: CreateOrUpdateSystemProjectParams;
   }>();
 
@@ -137,6 +142,7 @@
   const loading = ref(false);
   const isEdit = computed(() => !!(props.currentProject && props.currentProject.id));
   const affiliatedOrgOption = ref<SystemOrgOption[]>([]);
+  const userStore = useUserStore();
   const appStore = useAppStore();
   const currentOrgId = computed(() => appStore.currentOrgId);
   const licenseStore = useLicenseStore();
@@ -180,20 +186,18 @@
     moduleIds: allModuleIds,
   });
 
-  const currentVisible = ref(props.visible);
+  const currentVisible = defineModel<boolean>('visible', {
+    default: false,
+  });
   const showPool = computed(() => showPoolModuleIds.some((item) => form.moduleIds?.includes(item)));
 
   const isXpack = computed(() => {
     return licenseStore.hasLicense();
   });
 
-  watchEffect(() => {
-    currentVisible.value = props.visible;
-  });
-
   const formReset = () => {
     form.name = '';
-    form.userIds = [];
+    form.userIds = userStore.id ? [userStore.id] : [];
     form.organizationId = currentOrgId.value;
     form.description = '';
     form.enable = true;
@@ -252,22 +256,24 @@
       console.error(error);
     }
   };
+
   watchEffect(() => {
-    if (isEdit.value && props.currentProject) {
-      form.id = props.currentProject.id;
-      form.name = props.currentProject.name;
-      form.description = props.currentProject.description;
-      form.enable = props.currentProject.enable;
-      form.userIds = props.currentProject.userIds;
-      form.organizationId = props.currentProject.organizationId;
-      form.moduleIds = props.currentProject.moduleIds;
-      form.resourcePoolIds = props.currentProject.resourcePoolIds;
-    }
-  });
-  onMounted(() => {
     initAffiliatedOrgOption();
-  });
-  onUnmounted(() => {
-    formReset();
+    if (props.currentProject?.id) {
+      // 编辑
+      if (props.currentProject) {
+        form.id = props.currentProject.id;
+        form.name = props.currentProject.name;
+        form.description = props.currentProject.description;
+        form.enable = props.currentProject.enable;
+        form.userIds = props.currentProject.userIds;
+        form.organizationId = props.currentProject.organizationId;
+        form.moduleIds = props.currentProject.moduleIds;
+        form.resourcePoolIds = props.currentProject.resourcePoolIds;
+      }
+    } else {
+      // 新建
+      formReset();
+    }
   });
 </script>
