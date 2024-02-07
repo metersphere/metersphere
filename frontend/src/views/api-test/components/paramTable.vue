@@ -58,7 +58,7 @@
             record.required ? '!text-[rgb(var(--danger-5))]' : '!text-[var(--color-text-brand)]',
             '!mr-[4px] !p-[4px]',
           ]"
-          @click="record.required = !record.required"
+          @click="toggleRequired(record)"
         >
           <div>*</div>
         </MsButton>
@@ -186,11 +186,7 @@
         :list="getMoreActionList(columnConfig.moreAction, record)"
         @select="(e) => handleMoreActionSelect(e, record)"
       />
-      <a-trigger
-        v-if="columnConfig.format && columnConfig.format !== RequestBodyFormat.X_WWW_FORM_URLENCODED"
-        trigger="click"
-        position="br"
-      >
+      <a-trigger v-if="columnConfig.format === RequestBodyFormat.FORM_DATA" trigger="click" position="br">
         <MsButton type="icon" class="mr-[8px]"><icon-more /></MsButton>
         <template #content>
           <div class="content-type-trigger-content">
@@ -296,6 +292,7 @@
 </template>
 
 <script async setup lang="ts">
+  import { useVModel } from '@vueuse/core';
   import { isEqual } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -313,7 +310,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import useTableStore from '@/hooks/useTableStore';
 
-  import { RequestBodyFormat, RequestContentTypeEnum } from '@/enums/apiEnum';
+  import { RequestBodyFormat, RequestContentTypeEnum, RequestParamsType } from '@/enums/apiEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   interface Param {
@@ -340,11 +337,12 @@
     typeTitleTooltip?: string; // 用于 type 表头列展示的 tooltip
     hasEnable?: boolean; // 用于 operation 列区分是否有 enable 开关
     moreAction?: ActionsItem[]; // 用于 operation 列更多操作按钮配置
-    format?: RequestBodyFormat | 'query' | 'rest'; // 用于 operation 列区分是否有请求体格式选择器
+    format?: RequestBodyFormat; // 用于 operation 列区分是否有请求体格式选择器
   };
 
   const props = withDefaults(
     defineProps<{
+      selectedKeys?: string[];
       params: any[];
       defaultParamItem?: Partial<Param>; // 默认参数项，用于添加新行时的默认值
       columns: ParamTableColumn[];
@@ -372,7 +370,7 @@
       defaultParamItem: () => ({
         required: false,
         name: '',
-        type: 'string',
+        type: RequestParamsType.STRING,
         value: '',
         min: undefined,
         max: undefined,
@@ -386,12 +384,15 @@
     }
   );
   const emit = defineEmits<{
+    (e: 'update:selectedKeys', value: string[]): void;
     (e: 'change', data: any[], isInit?: boolean): void; // 都触发这个事件以通知父组件参数数组被更改
     (e: 'moreActionSelect', event: ActionsItem, record: Record<string, any>): void;
     (e: 'projectChange', projectId: string): void;
   }>();
 
   const { t } = useI18n();
+
+  const innerSelectedKeys = useVModel(props, 'selectedKeys', emit);
 
   const tableStore = useTableStore();
   async function initColumns() {
@@ -402,6 +403,7 @@
   initColumns();
 
   const { propsRes, propsEvent } = useTable(() => Promise.resolve([]), {
+    firstColumnWidth: 24,
     tableKey: props.showSetting ? props.tableKey : undefined,
     scroll: props.scroll,
     heightUsed: props.heightUsed,
@@ -412,7 +414,15 @@
     disabled: props.disabled,
     showSelectorAll: props.showSelectorAll,
     isSimpleSetting: props.isSimpleSetting,
+    showPagination: false,
   });
+
+  watch(
+    () => propsRes.value.selectedKeys,
+    (val) => {
+      innerSelectedKeys.value = Array.from(val);
+    }
+  );
 
   watch(
     () => props.heightUsed,
@@ -447,10 +457,12 @@
         ? isEqual(lastData, props.defaultParamItem)
         : isEqual(lastData[key], props.defaultParamItem[key]);
     if (isForce || (val !== '' && !isNotChange)) {
+      const id = new Date().getTime().toString();
       propsRes.value.data.push({
-        id: new Date().getTime(),
+        id,
         ...props.defaultParamItem,
       } as any);
+      propsRes.value.selectedKeys.add(id);
       emit('change', propsRes.value.data);
     }
   }
@@ -467,12 +479,14 @@
           addTableLine();
         }
       } else {
+        const id = new Date().getTime().toString();
         propsRes.value.data = [
           {
-            id: new Date().getTime(), // 默认给时间戳 id，若 props.defaultParamItem 有 id，则覆盖
+            id, // 默认给时间戳 id，若 props.defaultParamItem 有 id，则覆盖
             ...props.defaultParamItem,
           },
         ] as any[];
+        propsRes.value.selectedKeys.add(id);
         emit('change', propsRes.value.data, true);
       }
     },
@@ -480,6 +494,11 @@
       immediate: true,
     }
   );
+
+  function toggleRequired(record: Record<string, any>) {
+    record.required = !record.required;
+    emit('change', propsRes.value.data);
+  }
 
   const showQuickInputParam = ref(false);
   const activeQuickInputRecord = ref<any>({});
@@ -500,7 +519,6 @@
     activeQuickInputRecord.value.value = quickInputParamValue.value;
     showQuickInputParam.value = false;
     clearQuickInputParam();
-    addTableLine(quickInputParamValue.value, 'value', true);
     emit('change', propsRes.value.data);
   }
 
@@ -526,7 +544,6 @@
     activeQuickInputRecord.value.desc = quickInputDescValue.value;
     showQuickInputDesc.value = false;
     clearQuickInputDesc();
-    addTableLine(quickInputDescValue.value, 'desc', true);
     emit('change', propsRes.value.data);
   }
 
@@ -603,6 +620,11 @@
   :deep(.arco-table-td) {
     .arco-table-cell {
       padding: 12px 2px;
+    }
+  }
+  :deep(.arco-table-col-fixed-right) {
+    .arco-table-cell-align-left {
+      padding: 16px;
     }
   }
   :deep(.param-input:not(.arco-input-focus, .arco-select-view-focus)) {

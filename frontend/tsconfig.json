@@ -28,17 +28,25 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "esModuleInterop": true,
-    "lib": ["esnext", "dom"],
+    "lib": [
+      "esnext",
+      "dom"
+    ],
     "skipLibCheck": true, // 跳过node依赖包语法检查
     "types": [
+      "node",
       // "vitest/globals",
       // "vite-plugin-svg-icons/client"
     ], // 手动导入TS类型声明文件
     "baseUrl": ".",
     "paths": {
       // 路径映射
-      "@/*": ["./src/*"],
-      "#/*": ["types/*"]
+      "@/*": [
+        "./src/*"
+      ],
+      "#/*": [
+        "types/*"
+      ]
     },
     "noImplicitAny": false,
   }

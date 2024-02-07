@@ -1,11 +1,11 @@
 <template>
   <condition
     v-model:list="preconditions"
-    :condition-types="['script', 'sql', 'waitTime']"
+    :condition-types="['SCRIPT', 'TIME_WAITING']"
     add-text="apiTestDebug.precondition"
     @change="emit('change')"
   >
-    <template #titleRight>
+    <!-- <template #titleRight>
       <a-switch v-model:model-value="openGlobalPrecondition" size="small" type="line"></a-switch>
       <div class="ml-[8px] text-[var(--color-text-1)]">{{ t('apiTestDebug.openGlobalPrecondition') }}</div>
       <a-tooltip :content="t('apiTestDebug.openGlobalPreconditionTip')" position="left">
@@ -14,7 +14,7 @@
           size="16"
         />
       </a-tooltip>
-    </template>
+    </template> -->
   </condition>
 </template>
 
@@ -23,19 +23,21 @@
 
   import condition from '@/views/api-test/components/condition/index.vue';
 
-  import { useI18n } from '@/hooks/useI18n';
+  import { ExecuteConditionProcessor } from '@/models/apiTest/debug';
+
+  // import { useI18n } from '@/hooks/useI18n';
 
   const props = defineProps<{
-    params: any[];
+    params: ExecuteConditionProcessor[];
   }>();
   const emit = defineEmits<{
-    (e: 'update:params', params: any[]): void;
+    (e: 'update:params', params: ExecuteConditionProcessor[]): void;
     (e: 'change'): void;
   }>();
 
-  const { t } = useI18n();
+  // const { t } = useI18n();
   // 是否开启全局前置条件
-  const openGlobalPrecondition = ref(false);
+  // const openGlobalPrecondition = ref(false);
   const preconditions = useVModel(props, 'params', emit);
 </script>
 

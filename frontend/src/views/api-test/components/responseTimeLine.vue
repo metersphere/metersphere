@@ -2,12 +2,11 @@
   <div class="flex w-full gap-[8px] rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[12px]">
     <div class="text-item-wrapper">
       <div class="light-item">{{ t('apiTestDebug.responseStage') }}</div>
-      <div class="light-item">{{ t('apiTestDebug.ready') }}</div>
-      <div class="normal-item">{{ t('apiTestDebug.socketInit') }}</div>
       <div class="normal-item">{{ t('apiTestDebug.dnsQuery') }}</div>
       <div class="normal-item">{{ t('apiTestDebug.tcpHandshake') }}</div>
       <div class="normal-item">{{ t('apiTestDebug.sslHandshake') }}</div>
-      <div class="normal-item">{{ t('apiTestDebug.waitingTTFB') }}</div>
+      <div class="normal-item">{{ t('apiTestDebug.socketInit') }}</div>
+      <!-- <div class="normal-item">{{ t('apiTestDebug.waitingTTFB') }}</div> -->
       <div class="normal-item">{{ t('apiTestDebug.downloadContent') }}</div>
       <div class="light-item">{{ t('apiTestDebug.deal') }}</div>
       <div class="total-item">{{ t('apiTestDebug.total') }}</div>
@@ -29,15 +28,14 @@
     <a-divider direction="vertical" margin="0" />
     <div class="text-item-wrapper--right">
       <div class="light-item">{{ t('apiTestDebug.time') }}</div>
-      <div class="light-item">{{ props.responseTiming.ready }} ms</div>
-      <div class="normal-item">{{ props.responseTiming.socketInit }} ms</div>
-      <div class="normal-item">{{ props.responseTiming.dnsQuery }} ms</div>
-      <div class="normal-item">{{ props.responseTiming.tcpHandshake }} ms</div>
-      <div class="normal-item">{{ props.responseTiming.sslHandshake }} ms</div>
-      <div class="normal-item">{{ props.responseTiming.waitingTTFB }} ms</div>
-      <div class="normal-item">{{ props.responseTiming.downloadContent }} ms</div>
-      <div class="light-item">{{ props.responseTiming.deal }} ms</div>
-      <div class="total-item">{{ props.responseTiming.total }} ms</div>
+      <div class="normal-item">{{ props.responseTiming.dnsLookupTime }} ms</div>
+      <div class="normal-item">{{ props.responseTiming.tcpHandshakeTime }} ms</div>
+      <div class="normal-item">{{ props.responseTiming.sslHandshakeTime }} ms</div>
+      <div class="normal-item">{{ props.responseTiming.socketInitTime }} ms</div>
+      <!-- <div class="normal-item">{{ props.responseTiming.latency }} ms</div> -->
+      <div class="normal-item">{{ props.responseTiming.downloadTime }} ms</div>
+      <div class="light-item">{{ props.responseTiming.transferStartTime }} ms</div>
+      <div class="total-item">{{ props.responseTiming.responseTime }} ms</div>
     </div>
   </div>
 </template>
@@ -58,13 +56,16 @@
     const keys = Object.keys(props.responseTiming).filter((key) => key !== 'total');
     let preLinesTotalLeft = 0;
     keys.forEach((key, index) => {
-      const itemWidth = (props.responseTiming[key] / props.responseTiming.total) * 100;
-      arr.push({
-        key,
-        width: `${itemWidth}%`,
-        left: index !== 0 ? `${preLinesTotalLeft}%` : '',
-      });
-      preLinesTotalLeft += itemWidth;
+      if (key !== 'responseTime' && key !== 'latency') {
+        // 总耗时就是 100%，不需要绘制
+        const itemWidth = (props.responseTiming[key] / props.responseTiming.responseTime) * 100;
+        arr.push({
+          key,
+          width: `${itemWidth}%`,
+          left: index !== 0 ? `${preLinesTotalLeft}%` : '',
+        });
+        preLinesTotalLeft += itemWidth;
+      }
     });
     return arr;
   });

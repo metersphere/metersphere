@@ -1,33 +1,42 @@
 <template>
   <div class="mb-[8px] flex items-center justify-between">
-    <div class="font-medium">{{ t('apiTestDebug.body') }}</div>
-    <div class="flex items-center gap-[16px]">
-      <batchAddKeyVal v-if="showParamTable" :params="currentTableParams" @apply="handleBatchParamApply" />
-      <a-radio-group v-model:model-value="format" type="button" size="small" @change="formatChange">
-        <a-radio v-for="item of RequestBodyFormat" :key="item" :value="item">{{ item }}</a-radio>
-      </a-radio-group>
-    </div>
+    <batchAddKeyVal v-if="showParamTable" :params="currentTableParams" @apply="handleBatchParamApply" />
+    <a-radio-group v-model:model-value="bodyType" type="button" size="small" @change="formatChange">
+      <a-radio v-for="item of RequestBodyFormat" :key="item" :value="item">{{ requestBodyTypeMap[item] }}</a-radio>
+    </a-radio-group>
   </div>
   <div
-    v-if="format === RequestBodyFormat.NONE"
+    v-if="bodyType === RequestBodyFormat.NONE"
     class="flex h-[100px] items-center justify-center rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] text-[var(--color-text-4)]"
   >
     {{ t('apiTestDebug.noneBody') }}
   </div>
   <paramTable
-    v-else-if="showParamTable"
+    v-else-if="bodyType === RequestBodyFormat.FORM_DATA"
     v-model:params="currentTableParams"
     :scroll="{ minWidth: 1160 }"
     :columns="columns"
     :height-used="heightUsed"
     @change="handleParamTableChange"
   />
-  <div v-else-if="format === RequestBodyFormat.BINARY">
+  <paramTable
+    v-else-if="bodyType === RequestBodyFormat.WWW_FORM"
+    v-model:params="currentTableParams"
+    :scroll="{ minWidth: 1160 }"
+    :columns="columns"
+    :height-used="heightUsed"
+    @change="handleParamTableChange"
+  />
+  <div v-else-if="bodyType === RequestBodyFormat.BINARY">
     <div class="mb-[16px] flex justify-between gap-[8px] bg-[var(--color-text-n9)] p-[12px]">
-      <a-input v-model:model-value="innerParams.binaryDesc" :placeholder="t('common.desc')" :max-length="255" />
+      <a-input
+        v-model:model-value="innerParams.binaryBody.description"
+        :placeholder="t('common.desc')"
+        :max-length="255"
+      />
     </div>
     <div class="flex items-center">
-      <a-switch v-model:model-value="innerParams.binarySend" class="mr-[8px]" size="small" type="line"></a-switch>
+      <!-- <a-switch v-model:model-value="innerParams.binarySend" class="mr-[8px]" size="small" type="line"></a-switch> -->
       <span>{{ t('apiTestDebug.sendAsMainText') }}</span>
       <a-tooltip position="right">
         <template #content>
@@ -72,23 +81,14 @@
   import paramTable, { type ParamTableColumn } from '../../../components/paramTable.vue';
   import batchAddKeyVal from './batchAddKeyVal.vue';
 
+  import { requestBodyTypeMap } from '@/config/apiTest';
   import { useI18n } from '@/hooks/useI18n';
 
-  import { RequestBodyFormat } from '@/enums/apiEnum';
+  import { ExecuteBody } from '@/models/apiTest/debug';
+  import { RequestBodyFormat, RequestParamsType } from '@/enums/apiEnum';
 
-  export interface BodyParams {
-    format: RequestBodyFormat;
-    formData: Record<string, any>[];
-    formUrlEncode: Record<string, any>[];
-    json: string;
-    xml: string;
-    binary: string;
-    binaryDesc: string;
-    binarySend: boolean;
-    raw: string;
-  }
   const props = defineProps<{
-    params: BodyParams;
+    params: ExecuteBody;
     layout: 'horizontal' | 'vertical';
     secondBoxHeight: number;
   }>();
@@ -100,8 +100,9 @@
   const { t } = useI18n();
 
   const innerParams = useVModel(props, 'params', emit);
+  const bodyType = ref(RequestBodyFormat.NONE);
 
-  const columns: ParamTableColumn[] = [
+  const columns = computed<ParamTableColumn[]>(() => [
     {
       title: 'apiTestDebug.paramName',
       dataIndex: 'name',
@@ -112,32 +113,10 @@
       dataIndex: 'type',
       slotName: 'type',
       hasRequired: true,
-      typeOptions: [
-        {
-          label: 'string',
-          value: 'string',
-        },
-        {
-          label: 'integer',
-          value: 'integer',
-        },
-        {
-          label: 'number',
-          value: 'number',
-        },
-        {
-          label: 'array',
-          value: 'array',
-        },
-        {
-          label: 'json',
-          value: 'json',
-        },
-        {
-          label: 'file',
-          value: 'file',
-        },
-      ],
+      typeOptions: Object.keys(RequestParamsType).map((key) => ({
+        label: RequestParamsType[key],
+        value: key,
+      })),
       width: 120,
     },
     {
@@ -168,9 +147,10 @@
       title: '',
       slotName: 'operation',
       fixed: 'right',
-      width: 50,
+      format: bodyType.value,
+      width: bodyType.value === RequestBodyFormat.FORM_DATA ? 90 : 50,
     },
-  ];
+  ]);
 
   const heightUsed = ref<number | undefined>(undefined);
 
@@ -196,61 +176,60 @@
     }
   );
 
-  const format = ref(RequestBodyFormat.NONE);
   const showParamTable = computed(() => {
     // 仅当格式为FORM_DATA或X_WWW_FORM_URLENCODED时，显示参数表格
-    return [RequestBodyFormat.FORM_DATA, RequestBodyFormat.X_WWW_FORM_URLENCODED].includes(format.value);
+    return [RequestBodyFormat.FORM_DATA, RequestBodyFormat.WWW_FORM].includes(bodyType.value);
   });
   // 当前显示的参数表格数据
   const currentTableParams = computed({
     get() {
-      if (format.value === RequestBodyFormat.FORM_DATA) {
-        return innerParams.value.formData;
+      if (bodyType.value === RequestBodyFormat.FORM_DATA) {
+        return innerParams.value.formDataBody.formValues;
       }
-      return innerParams.value.formUrlEncode;
+      return innerParams.value.wwwFormBody.formValues;
     },
     set(val) {
-      if (format.value === RequestBodyFormat.FORM_DATA) {
-        innerParams.value.formData = val;
+      if (bodyType.value === RequestBodyFormat.FORM_DATA) {
+        innerParams.value.formDataBody.formValues = val;
       } else {
-        innerParams.value.formUrlEncode = val;
+        innerParams.value.wwwFormBody.formValues = val;
       }
     },
   });
   // 当前显示的代码
   const currentBodyCode = computed({
     get() {
-      if (format.value === RequestBodyFormat.JSON) {
-        return innerParams.value.json;
+      if (bodyType.value === RequestBodyFormat.JSON) {
+        return innerParams.value.jsonBody.jsonValue;
       }
-      if (format.value === RequestBodyFormat.XML) {
-        return innerParams.value.xml;
+      if (bodyType.value === RequestBodyFormat.XML) {
+        return innerParams.value.xmlBody.value;
       }
-      return innerParams.value.raw;
+      return innerParams.value.rawBody.value;
     },
     set(val) {
-      if (format.value === RequestBodyFormat.JSON) {
-        innerParams.value.json = val;
-      } else if (format.value === RequestBodyFormat.XML) {
-        innerParams.value.xml = val;
+      if (bodyType.value === RequestBodyFormat.JSON) {
+        innerParams.value.jsonBody.jsonValue = val;
+      } else if (bodyType.value === RequestBodyFormat.XML) {
+        innerParams.value.xmlBody.value = val;
       } else {
-        innerParams.value.raw = val;
+        innerParams.value.rawBody.value = val;
       }
     },
   });
   // 当前代码编辑器的语言
   const currentCodeLanguage = computed(() => {
-    if (format.value === RequestBodyFormat.JSON) {
+    if (bodyType.value === RequestBodyFormat.JSON) {
       return LanguageEnum.JSON;
     }
-    if (format.value === RequestBodyFormat.XML) {
+    if (bodyType.value === RequestBodyFormat.XML) {
       return LanguageEnum.XML;
     }
     return LanguageEnum.PLAINTEXT;
   });
 
   function formatChange() {
-    console.log('formatChange', format.value);
+    console.log('formatChange', bodyType.value);
   }
 
   /**

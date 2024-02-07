@@ -1,7 +1,7 @@
 <template>
   <div class="condition-content">
     <!-- 脚本操作 -->
-    <template v-if="condition.type === 'script'">
+    <template v-if="condition.type === RequestConditionProcessor.SCRIPT">
       <a-radio-group v-model:model-value="condition.scriptType" size="small" class="mb-[16px]">
         <a-radio value="manual">{{ t('apiTestDebug.manual') }}</a-radio>
         <a-radio value="quote">{{ t('apiTestDebug.quote') }}</a-radio>
@@ -128,7 +128,7 @@
       </div>
     </template>
     <!-- SQL操作 -->
-    <template v-else-if="condition.type === 'sql'">
+    <template v-else-if="condition.type === RequestConditionProcessor.SQL">
       <div class="mb-[16px]">
         <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('common.desc') }}</div>
         <a-input
@@ -205,7 +205,7 @@
       </div>
     </template>
     <!-- 等待时间 -->
-    <div v-else-if="condition.type === 'waitTime'">
+    <div v-else-if="condition.type === RequestConditionProcessor.TIME_WAITING">
       <div class="mb-[8px] flex items-center">
         {{ t('apiTestDebug.waitTime') }}
         <div class="text-[var(--color-text-4)]">(ms)</div>
@@ -213,7 +213,7 @@
       <a-input-number v-model:model-value="condition.time" mode="button" :step="100" :min="0" class="w-[160px]" />
     </div>
     <!-- 提取参数 -->
-    <div v-else-if="condition.type === 'extract'">
+    <div v-else-if="condition.type === RequestConditionProcessor.EXTRACT">
       <paramTable
         ref="extractParamsTableRef"
         v-model:params="condition.extractParams"
@@ -224,7 +224,7 @@
         :response="props.response"
         :height-used="(props.heightUsed || 0) + 62"
         @change="handleExtractParamTableChange"
-        @more-action-select="handleExtractParamMoreActionSelect"
+        @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
       >
         <template #expression="{ record }">
           <a-popover
@@ -320,7 +320,17 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { ExpressionConfig } from '@/models/apiTest/debug';
+  import { JSONPathExtract, RegexExtract, XPathExtract } from '@/models/apiTest/debug';
+  import {
+    RequestConditionProcessor,
+    RequestExtractEnvType,
+    RequestExtractExpressionEnum,
+    RequestExtractResultMatchingRule,
+    RequestExtractScope,
+    ResponseBodyXPathAssertionFormat,
+  } from '@/enums/apiEnum';
+
+  export type ExpressionConfig = (RegexExtract | JSONPathExtract | XPathExtract) & Record<string, any>;
 
   const props = defineProps<{
     data: Record<string, any>;
@@ -490,8 +500,8 @@ org.apache.http.client.method . . . '' at line number 2
     },
     {
       title: 'apiTestDebug.mode',
-      dataIndex: 'expressionType',
-      slotName: 'expressionType',
+      dataIndex: 'extractType',
+      slotName: 'extractType',
       typeOptions: [
         {
           label: t('apiTestDebug.regular'),
@@ -510,8 +520,8 @@ org.apache.http.client.method . . . '' at line number 2
     },
     {
       title: 'apiTestDebug.range',
-      dataIndex: 'range',
-      slotName: 'range',
+      dataIndex: 'extractScope',
+      slotName: 'extractScope',
       typeOptions: [
         {
           label: 'Body',
@@ -581,22 +591,23 @@ org.apache.http.client.method . . . '' at line number 2
   }
 
   const extractParamsTableRef = ref<InstanceType<typeof paramTable>>();
-  const defaultExtractParamItem: Record<string, any> = {
-    name: '',
-    type: 'temp',
-    range: 'body',
+  const defaultExtractParamItem: ExpressionConfig = {
+    enable: true,
+    variableName: '',
+    variableType: RequestExtractEnvType.TEMPORARY,
+    extractScope: RequestExtractScope.BODY,
     expression: '',
-    expressionType: 'regular',
+    extractType: RequestExtractExpressionEnum.REGEX,
     regexpMatchRule: 'expression',
-    resultMatchRule: 'random',
-    specifyMatchNum: 1,
-    xmlMatchContentType: 'xml',
+    resultMatchingRule: RequestExtractResultMatchingRule.RANDOM,
+    resultMatchingRuleNum: 1,
+    responseFormat: ResponseBodyXPathAssertionFormat.XML,
     moreSettingPopoverVisible: false,
   };
   const fastExtractionVisible = ref(false);
-  const activeRecord = ref<any>({ ...defaultExtractParamItem }); // 用于暂存当前操作的提取参数表格项
+  const activeRecord = ref({ ...defaultExtractParamItem }); // 用于暂存当前操作的提取参数表格项
 
-  function showFastExtraction(record: Record<string, any>) {
+  function showFastExtraction(record: ExpressionConfig) {
     activeRecord.value = { ...record };
     fastExtractionVisible.value = true;
   }
@@ -608,7 +619,7 @@ org.apache.http.client.method . . . '' at line number 2
   /**
    * 处理提取参数表格更多操作
    */
-  function handleExtractParamMoreActionSelect(event: ActionsItem, record: Record<string, any>) {
+  function handleExtractParamMoreActionSelect(event: ActionsItem, record: ExpressionConfig) {
     activeRecord.value = { ...record };
     if (event.eventTag === 'copy') {
       emit('copy');
@@ -620,7 +631,7 @@ org.apache.http.client.method . . . '' at line number 2
   /**
    * 提取参数表格-应用更多设置
    */
-  function applyMoreSetting(record: Record<string, any>) {
+  function applyMoreSetting(record: ExpressionConfig) {
     condition.value.extractParams = condition.value.extractParams.map((e) => {
       if (e.id === activeRecord.value.id) {
         record.moreSettingPopoverVisible = false;
@@ -637,7 +648,7 @@ org.apache.http.client.method . . . '' at line number 2
   /**
    * 提取参数表格-保存快速提取的配置
    */
-  function handleFastExtractionApply(config: ExpressionConfig) {
+  function handleFastExtractionApply(config: RegexExtract | JSONPathExtract | XPathExtract) {
     condition.value.extractParams = condition.value.extractParams.map((e) => {
       if (e.id === activeRecord.value.id) {
         return {

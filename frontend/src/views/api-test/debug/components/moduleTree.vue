@@ -108,21 +108,24 @@
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
   import popConfirm from '@/views/api-test/components/popConfirm.vue';
 
-  import { deleteReviewModule, getReviewModules, moveReviewModule } from '@/api/modules/case-management/caseReview';
+  import {
+    deleteDebugModule,
+    getDebugModuleCount,
+    getDebugModules,
+    moveDebugModule,
+    updateDebugModule,
+  } from '@/api/modules/api-test/debug';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
-  import useAppStore from '@/store/modules/app';
   import { mapTree } from '@/utils';
 
   import { ModuleTreeNode } from '@/models/common';
 
   const props = defineProps<{
-    modulesCount?: Record<string, number>; // 模块数量统计对象
     isExpandAll?: boolean; // 是否展开所有节点
   }>();
   const emit = defineEmits(['init', 'change', 'newApi', 'import']);
 
-  const appStore = useAppStore();
   const { t } = useI18n();
   const { openModal } = useModal();
 
@@ -147,7 +150,6 @@
   });
 
   const activeFolder = ref<string>('all');
-  const allFileCount = ref(0);
   const isExpandAll = ref(props.isExpandAll);
   const rootModulesName = ref<string[]>([]); // 根模块名称列表
 
@@ -199,7 +201,7 @@
   async function initModules() {
     try {
       loading.value = true;
-      const res = await getReviewModules(appStore.currentProjectId);
+      const res = await getDebugModules();
       folderTree.value = mapTree<ModuleTreeNode>(res, (e) => {
         return {
           ...e,
@@ -214,6 +216,26 @@
       console.log(error);
     } finally {
       loading.value = false;
+    }
+  }
+
+  const modulesCount = ref<Record<string, number>>({});
+  const allFileCount = computed(() => modulesCount.value.all || 0);
+  async function initModuleCount() {
+    try {
+      const res = await getDebugModuleCount({
+        keyword: moduleKeyword.value,
+      });
+      modulesCount.value = res;
+      folderTree.value = mapTree<ModuleTreeNode>(folderTree.value, (node) => {
+        return {
+          ...node,
+          count: res[node.id] || 0,
+        };
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
     }
   }
 
@@ -233,7 +255,7 @@
       maskClosable: false,
       onBeforeOk: async () => {
         try {
-          await deleteReviewModule(node.id);
+          await deleteDebugModule(node.id);
           Message.success(t('apiTestDebug.deleteSuccess'));
           initModules();
         } catch (error) {
@@ -288,7 +310,7 @@
   ) {
     try {
       loading.value = true;
-      await moveReviewModule({
+      await moveDebugModule({
         dragNodeId: dragNode.id as string,
         dropNodeId: dropNode.id || '',
         dropPosition,
@@ -300,6 +322,7 @@
     } finally {
       loading.value = false;
       initModules();
+      initModuleCount();
     }
   }
 
@@ -312,22 +335,8 @@
 
   onBeforeMount(() => {
     initModules();
+    initModuleCount();
   });
-
-  /**
-   * 初始化模块文件数量
-   */
-  watch(
-    () => props.modulesCount,
-    (obj) => {
-      folderTree.value = mapTree<ModuleTreeNode>(folderTree.value, (node) => {
-        return {
-          ...node,
-          count: obj?.[node.id] || 0,
-        };
-      });
-    }
-  );
 
   defineExpose({
     initModules,

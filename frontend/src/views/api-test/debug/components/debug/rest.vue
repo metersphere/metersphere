@@ -28,8 +28,11 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
+  import { ExecuteRequestCommonParam } from '@/models/apiTest/debug';
+  import { RequestParamsType } from '@/enums/apiEnum';
+
   const props = defineProps<{
-    params: any[];
+    params: ExecuteRequestCommonParam[];
     layout: 'horizontal' | 'vertical';
     secondBoxHeight: number;
   }>();
@@ -53,24 +56,12 @@
       dataIndex: 'type',
       slotName: 'type',
       hasRequired: true,
-      typeOptions: [
-        {
-          label: 'string',
-          value: 'string',
-        },
-        {
-          label: 'integer',
-          value: 'integer',
-        },
-        {
-          label: 'number',
-          value: 'number',
-        },
-        {
-          label: 'array',
-          value: 'array',
-        },
-      ],
+      typeOptions: Object.keys(RequestParamsType)
+        .filter((key) => ![RequestParamsType.JSON, RequestParamsType.FILE].includes(key as RequestParamsType))
+        .map((key) => ({
+          label: RequestParamsType[key],
+          value: key,
+        })),
       width: 120,
     },
     {
@@ -100,8 +91,7 @@
       title: '',
       slotName: 'operation',
       fixed: 'right',
-      format: 'query',
-      width: 80,
+      width: 50,
     },
   ];
 

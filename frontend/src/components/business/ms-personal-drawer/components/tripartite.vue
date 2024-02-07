@@ -6,7 +6,7 @@
         v-model:model-value="currentOrg"
         :options="orgOptions"
         :loading="orgLoading"
-        class="w-[300px]"
+        class="!w-[300px]"
         @change="handleOrgChange"
       />
     </div>

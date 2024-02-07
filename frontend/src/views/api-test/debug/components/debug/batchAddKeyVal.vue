@@ -47,7 +47,7 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { RequestContentTypeEnum } from '@/enums/apiEnum';
+  import { RequestContentTypeEnum, RequestParamsType } from '@/enums/apiEnum';
 
   const props = defineProps<{
     params: Record<string, any>[];
@@ -90,7 +90,7 @@
           name: name.trim(),
           value: value?.trim(),
           required: false,
-          type: 'string',
+          type: RequestParamsType.STRING,
           min: undefined,
           max: undefined,
           contentType: RequestContentTypeEnum.TEXT,

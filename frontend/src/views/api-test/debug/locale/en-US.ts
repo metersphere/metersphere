@@ -5,6 +5,7 @@ export default {
   'apiTestDebug.serverExec': 'Server execution',
   'apiTestDebug.localExec': 'Local execution',
   'apiTestDebug.noMatchModule': 'No matching module data yet',
+  'apiTestDebug.pluginData': 'Request data',
   'apiTestDebug.header': 'Header',
   'apiTestDebug.body': 'Body',
   'apiTestDebug.prefix': 'Precondition',

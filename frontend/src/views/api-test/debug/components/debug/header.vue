@@ -5,6 +5,7 @@
   </div>
   <paramTable
     v-model:params="innerParams"
+    v-model:selected-keys="selectedKeys"
     :columns="columns"
     :height-used="heightUsed"
     :scroll="scroll"
@@ -21,19 +22,24 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
+  import { EnableKeyValueParam } from '@/models/apiTest/debug';
+
   const props = defineProps<{
-    params: any[];
+    selectedKeys?: string[];
+    params: EnableKeyValueParam[];
     layout: 'horizontal' | 'vertical';
     secondBoxHeight: number;
   }>();
   const emit = defineEmits<{
-    (e: 'update:params', value: any[]): void;
+    (e: 'update:selectedKeys', value: string[]): void;
+    (e: 'update:params', value: EnableKeyValueParam[]): void;
     (e: 'change'): void; //  数据发生变化
   }>();
 
   const { t } = useI18n();
 
   const innerParams = useVModel(props, 'params', emit);
+  const selectedKeys = useVModel(props, 'selectedKeys', emit);
 
   const columns: ParamTableColumn[] = [
     {

@@ -151,16 +151,16 @@
   import { useI18n } from '@/hooks/useI18n';
   import { matchXMLWithXPath } from '@/utils/xpath';
 
-  import { ExpressionConfig } from '@/models/apiTest/debug';
+  import { JSONPathExtract, RegexExtract, XPathExtract } from '@/models/apiTest/debug';
 
   const props = defineProps<{
     visible: boolean;
-    config: ExpressionConfig;
+    config: (RegexExtract | JSONPathExtract | XPathExtract) & Record<string, any>;
     response?: string; // 响应内容
   }>();
   const emit = defineEmits<{
     (e: 'update:visible', value: boolean): void;
-    (e: 'apply', config: ExpressionConfig): void;
+    (e: 'apply', config: (RegexExtract | JSONPathExtract | XPathExtract) & Record<string, any>): void;
   }>();
 
   const { t } = useI18n();
