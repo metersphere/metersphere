@@ -12,4 +12,9 @@ public interface ExtProjectMapper {
     String getModuleSetting(@Param("projectId") String projectId);
 
     List<Project> getProject(@Param("userId") String userId);
+
+    List<Project> getAllProjectByOrgId(@Param("organizationId") String organizationId);
+
+    List<Project> getProjectByOrgId(@Param("userId") String userId, @Param("organizationId") String organizationId);
+
 }

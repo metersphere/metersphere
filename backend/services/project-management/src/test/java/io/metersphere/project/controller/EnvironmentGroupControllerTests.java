@@ -1,9 +1,10 @@
 package io.metersphere.project.controller;
 
 
-import io.metersphere.project.dto.environment.*;
 import io.metersphere.project.api.KeyValueEnableParam;
+import io.metersphere.project.dto.environment.*;
 import io.metersphere.project.dto.environment.http.HttpConfig;
+import io.metersphere.project.service.EnvironmentGroupService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.SessionConstants;
 import io.metersphere.sdk.domain.Environment;
@@ -49,7 +50,7 @@ public class EnvironmentGroupControllerTests extends BaseTest {
     private static final String update = prefix + "/update";
     private static final String delete = prefix + "/delete/";
     private static final String list = prefix + "/list";
-    private static final String getProject = prefix + "/get-project";
+    private static final String getProject = prefix + "/get-project/";
     private static final String POS_URL = prefix + "/edit/pos";
     private static final ResultMatcher BAD_REQUEST_MATCHER = status().isBadRequest();
     private static final ResultMatcher ERROR_REQUEST_MATCHER = status().is5xxServerError();
@@ -61,6 +62,8 @@ public class EnvironmentGroupControllerTests extends BaseTest {
     @Resource
     private EnvironmentGroupMapper environmentGroupMapper;
     private EnvironmentGroup environmentGroup;
+    @Resource
+    private EnvironmentGroupService environmentGroupService;
 
     public static <T> T parseObjectFromMvcResult(MvcResult mvcResult, Class<T> parseClass) {
         try {
@@ -154,6 +157,8 @@ public class EnvironmentGroupControllerTests extends BaseTest {
         Assertions.assertEquals(groupResponse.getId(), environmentGroup.getId());
         Assertions.assertEquals(groupResponse.getName(), environmentGroup.getName());
         checkLog(environmentGroup.getId(), OperationLogType.ADD);
+        environmentGroupService.getEnvironmentGroupRelations(List.of(environmentGroup.getId()));
+        environmentGroupService.getEnvironmentGroupRelations(new ArrayList<>());
         //校验权限
         groupRequest.setName("校验权限");
         requestPostPermissionTest(PermissionConstants.PROJECT_ENVIRONMENT_READ_ADD, add, groupRequest);
@@ -335,11 +340,12 @@ public class EnvironmentGroupControllerTests extends BaseTest {
     @Test
     @Order(13)
     public void testGetProject() throws Exception {
-        MvcResult mvcResult = this.responseGet(getProject);
+        MvcResult mvcResult = this.responseGet(getProject + DEFAULT_ORGANIZATION_ID);
         List<OptionDTO> response = parseObjectFromMvcResult(mvcResult, List.class);
         Assertions.assertNotNull(response);
+
         //校验权限
-        requestGetPermissionTest(PermissionConstants.PROJECT_ENVIRONMENT_READ, getProject);
+        requestGetPermissionTest(PermissionConstants.PROJECT_ENVIRONMENT_READ, getProject + "/" + DEFAULT_ORGANIZATION_ID);
 
     }
 

@@ -15,8 +15,6 @@ import io.metersphere.sdk.mapper.EnvironmentGroupRelationMapper;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
-import io.metersphere.system.domain.Organization;
-import io.metersphere.system.domain.OrganizationExample;
 import io.metersphere.system.domain.UserRoleRelationExample;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.request.PosRequest;
@@ -206,30 +204,20 @@ public class EnvironmentGroupService {
         return result;
     }
 
-    public List<OptionDTO> getProject(String userId) {
+    public List<OptionDTO> getProject(String userId, String organizationId) {
         //判断用户是否是系统管理员
         List<OptionDTO> result = new ArrayList<>();
         List<Project> projects = new ArrayList<>();
         UserRoleRelationExample userRoleRelationExample = new UserRoleRelationExample();
         userRoleRelationExample.createCriteria().andUserIdEqualTo(userId).andRoleIdEqualTo(InternalUserRole.ADMIN.name());
         if (userRoleRelationMapper.countByExample(userRoleRelationExample) > 0) {
-            projects = projectMapper.selectByExample(new ProjectExample());
+            projects = extProjectMapper.getAllProjectByOrgId(organizationId);
         } else {
-            projects = extProjectMapper.getProject(userId);
+            projects = extProjectMapper.getProjectByOrgId(userId, organizationId);
         }
-        //提取所有的组织id
-        List<String> organizationIds = projects.stream().map(Project::getOrganizationId).distinct().toList();
-        //查询组织名称
-        OrganizationExample organizationExample = new OrganizationExample();
-        organizationExample.createCriteria().andIdIn(organizationIds);
-        List<Organization> organizations = organizationMapper.selectByExample(organizationExample);
-        Map<String, String> organizationMap = organizations.stream().collect(Collectors.toMap(Organization::getId, Organization::getName));
-        projects.forEach(e -> {
-            OptionDTO dto = new OptionDTO();
-            dto.setId(e.getId());
-            dto.setName(e.getName() + " (" + organizationMap.get(e.getOrganizationId()) + ")");
-            result.add(dto);
-        });
+        if (CollectionUtils.isNotEmpty(projects)) {
+            result = projects.stream().map(e -> new OptionDTO(e.getId(), e.getName())).collect(Collectors.toList());
+        }
         return result;
     }
 
