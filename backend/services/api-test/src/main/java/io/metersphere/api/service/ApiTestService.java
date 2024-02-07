@@ -63,7 +63,7 @@ public class ApiTestService {
         PluginWrapper pluginWrapper = pluginLoadService.getPluginWrapper(pluginId);
         checkResourceExist(pluginWrapper);
         if (pluginWrapper.getPlugin() instanceof AbstractProtocolPlugin protocolPlugin) {
-            return pluginLoadService.getPluginScriptContent(pluginId, protocolPlugin.getApiProtocolScriptId());
+            return pluginLoadService.getPluginScript(pluginId, protocolPlugin.getApiProtocolScriptId());
         } else {
             // 插件不存在或者非接口插件，抛出异常
             return checkResourceExist(null);
