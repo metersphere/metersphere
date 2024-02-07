@@ -97,7 +97,7 @@ export function followBug(id: string, isFollow: boolean) {
 
 // 创建评论
 export function createOrUpdateComment(data: CommentParams) {
-  if (data.id) {
+  if (data.id || data.event !== 'REPLAY') {
     return MSR.post({ url: bugURL.postUpdateCommentUrl, data });
   }
   return MSR.post({ url: bugURL.postCreateCommentUrl, data });
