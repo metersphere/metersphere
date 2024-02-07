@@ -1053,7 +1053,6 @@ public class ApiScenarioService {
         runRequest.setTestId(request.getId());
         runRequest.setReportId(request.getReportId());
         runRequest.setResourceType(ApiResourceType.API_SCENARIO.name());
-        runRequest.setRunMode(ApiExecuteRunMode.BACKEND_DEBUG.name());
         runRequest.setTempFileIds(request.getTempFileIds());
         runRequest.setGrouped(request.getGrouped());
         runRequest.setEnvironmentId(request.getEnvironmentId());

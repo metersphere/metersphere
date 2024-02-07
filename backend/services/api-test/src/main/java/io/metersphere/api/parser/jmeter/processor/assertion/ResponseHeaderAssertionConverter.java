@@ -1,7 +1,7 @@
 package io.metersphere.api.parser.jmeter.processor.assertion;
 
 import io.metersphere.project.api.assertion.MsResponseHeaderAssertion;
-import io.metersphere.api.parser.jmeter.validator.EnumValidator;
+import io.metersphere.sdk.util.EnumValidator;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.sdk.constants.MsAssertionCondition;
 import org.apache.commons.lang3.BooleanUtils;

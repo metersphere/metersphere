@@ -29,10 +29,6 @@ public class ApiResourceRunRequest {
      */
     private String environmentId;
     /**
-     * 执行模式
-     */
-    private String runMode;
-    /**
      * 资源类型
      * @see io.metersphere.api.constants.ApiResourceType
      */

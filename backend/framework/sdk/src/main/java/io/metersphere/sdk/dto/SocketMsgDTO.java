@@ -33,6 +33,6 @@ public class SocketMsgDTO implements Serializable {
     /**
      * 结果内容
      */
-    private String taskResult;
+    private Object taskResult;
 
 }

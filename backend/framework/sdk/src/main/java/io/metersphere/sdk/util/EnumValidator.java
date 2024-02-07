@@ -1,6 +1,5 @@
-package io.metersphere.api.parser.jmeter.validator;
+package io.metersphere.sdk.util;
 
-import io.metersphere.sdk.util.LogUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class EnumValidator {
