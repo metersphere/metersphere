@@ -3,6 +3,7 @@ package io.metersphere.system.dto.excel;
 import com.alibaba.excel.annotation.ExcelProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -20,6 +21,8 @@ public class UserExcel {
     private String email;
 
     @ExcelProperty(index = 2)
+    @Size(min = 1, max = 11, message = "{user.phone.error}")
+    @Pattern(regexp = "^[0-9]*[1-9][0-9]*$", message = "{user.phone.error}")
     private String phone;
 
     @ExcelProperty("workspace")

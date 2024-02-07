@@ -556,8 +556,8 @@ public class FileMetadataService {
         fileMetadata.setProjectId(oldFile.getProjectId());
         fileMetadata.setModuleId(oldFile.getModuleId());
         fileMetadata.setName(oldFile.getName());
-        fileMetadata.setCreateTime(operationTime);
-        fileMetadata.setCreateUser(operator);
+        fileMetadata.setCreateTime(oldFile.getCreateTime());
+        fileMetadata.setCreateUser(oldFile.getCreateUser());
         fileMetadata.setUpdateTime(operationTime);
         fileMetadata.setPath(oldFile.getPath());
         fileMetadata.setUpdateUser(operator);
@@ -652,7 +652,7 @@ public class FileMetadataService {
             fileVersionResponse.setId(item.getId());
             fileVersionResponse.setFileVersion(item.getFileVersion());
             fileVersionResponse.setOperator(userName);
-            fileVersionResponse.setOperateTime(item.getCreateTime());
+            fileVersionResponse.setOperateTime(item.getUpdateTime());
 
             FileMetadataRepository fileRepository = fileIdMap.get(item.getId());
             if (fileRepository == null) {

@@ -307,7 +307,7 @@ public class UserService {
             for (UserExcelRowDTO userExcelRow : prepareSaveList) {
                 //判断邮箱是否已存在数据库中
                 if (userInDbMap.containsKey(userExcelRow.getEmail())) {
-                    userExcelRow.setErrorMessage(Translator.get("user.email.repeat") + ": " + userExcelRow.getEmail());
+                    userExcelRow.setErrorMessage(Translator.get("user.email.import.in_system") + ": " + userExcelRow.getEmail());
                     excelParseDTO.addErrorRowData(userExcelRow.getDataIndex(), userExcelRow);
                 }
             }
