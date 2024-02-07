@@ -34,7 +34,12 @@
         >
           <a-input v-model="form.name" :placeholder="t('system.organization.organizationNamePlaceholder')" />
         </a-form-item>
-        <a-form-item field="userIds" :label="t('system.organization.organizationAdmin')">
+        <a-form-item
+          field="userIds"
+          asterisk-position="end"
+          :rules="[{ required: true, message: t('system.organization.organizationAdminRequired') }]"
+          :label="t('system.organization.organizationAdmin')"
+        >
           <MsUserSelector
             v-model="form.userIds"
             placeholder="system.organization.organizationAdminPlaceholder"
@@ -73,6 +78,7 @@
 
   import { createOrUpdateOrg } from '@/api/modules/setting/organizationAndProject';
   import { useI18n } from '@/hooks/useI18n';
+  import { useUserStore } from '@/store';
   import { characterLimit } from '@/utils';
 
   import { CreateOrUpdateSystemOrgParams } from '@/models/setting/system/orgAndProject';
@@ -81,13 +87,13 @@
 
   const { t } = useI18n();
   const props = defineProps<{
-    visible: boolean;
     currentOrganization?: CreateOrUpdateSystemOrgParams;
   }>();
 
   const formRef = ref<FormInstance>();
 
   const loading = ref(false);
+  const userStore = useUserStore();
 
   const emit = defineEmits<{
     (e: 'cancel', shouldSearch: boolean): void;
@@ -95,15 +101,12 @@
 
   const form = reactive<{ name: string; userIds: string[]; description: string }>({
     name: '',
-    userIds: [],
+    userIds: userStore.id ? [userStore.id] : [],
     description: '',
   });
 
-  const currentVisible = ref(props.visible);
+  const currentVisible = defineModel<boolean>('visible', { default: false });
 
-  watchEffect(() => {
-    currentVisible.value = props.visible;
-  });
   const handleCancel = (shouldSearch = false) => {
     emit('cancel', shouldSearch);
     formRef.value?.resetFields();

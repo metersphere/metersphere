@@ -57,6 +57,7 @@ export default {
   'system.organization.subordinateOrg': 'Subordinate organization',
   'system.organization.searchUserPlaceholder': 'Search by name/email/phone number',
   'system.organization.searchIndexPlaceholder': 'Search by name/id',
+  'system.organization.organizationAdminRequired': 'Organization administrator cannot be empty',
   'system.project.enableTitle': 'Start project',
   'system.project.endTitle': 'Close project',
   'system.project.enableContent': 'The project after opening is displayed in the organization switching list',
