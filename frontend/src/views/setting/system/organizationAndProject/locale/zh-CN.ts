@@ -53,6 +53,7 @@ export default {
   'system.organization.subordinateOrg': '所属组织',
   'system.organization.searchIndexPlaceholder': '通过ID或名称搜索',
   'system.organization.searchUserPlaceholder': '通过名称/邮箱/手机搜索',
+  'system.organization.organizationAdminRequired': '组织管理员不能为空',
   'system.project.enableTitle': '开启项目',
   'system.project.endTitle': '结束项目',
   'system.project.enableContent': '开启后的项目展示在项目切换列表',
