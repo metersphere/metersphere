@@ -1,4 +1,4 @@
-package io.metersphere.project.enums;
+package io.metersphere.sdk.constants;
 
 /**
  * @author: LAN

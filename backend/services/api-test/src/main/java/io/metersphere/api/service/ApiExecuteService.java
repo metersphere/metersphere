@@ -12,7 +12,6 @@ import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionRunRequest;
-import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileManagementService;
 import io.metersphere.project.service.FileMetadataService;
@@ -153,6 +152,9 @@ public class ApiExecuteService {
 
         // 设置插件文件信息
         taskRequest.setPluginFiles(apiPluginService.getFileInfoByProjectId(projectId));
+        ApiRunModeConfigDTO runModeConfig = new ApiRunModeConfigDTO();
+        runModeConfig.setRunMode(ApiExecuteRunMode.BACKEND_DEBUG.name());
+        taskRequest.setRunModeConfig(runModeConfig);
 
         TestResourcePoolReturnDTO testResourcePoolDTO = getGetResourcePoolNodeDTO(projectId);
         TestResourceNodeDTO testResourceNodeDTO = getProjectExecuteNode(testResourcePoolDTO);
@@ -223,9 +225,6 @@ public class ApiExecuteService {
         taskRequest.setReportId(reportId);
         taskRequest.setResourceId(testId);
         taskRequest.setResourceType(ApiExecuteResourceType.API_DEBUG.name());
-        ApiRunModeConfigDTO apiRunModeConfig = new ApiRunModeConfigDTO();
-        apiRunModeConfig.setRunMode(ApiExecuteRunMode.BACKEND_DEBUG.name());
-        taskRequest.setRunModeConfig(apiRunModeConfig);
 
         doDebug(reportId, testId, taskRequest, executeScript, runRequest.getProjectId());
         return reportId;

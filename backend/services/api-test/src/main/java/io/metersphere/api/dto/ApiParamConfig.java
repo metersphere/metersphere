@@ -5,6 +5,7 @@ import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
 import lombok.Data;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -26,14 +27,14 @@ public class ApiParamConfig extends ParameterConfig {
      * key 为 AbstractMsTestElement 实现类对象
      * value 为对应的插件 ID
      */
-    private Map<Class<? extends AbstractMsTestElement>, String> testElementClassPluginIdMap;
+    private Map<Class<? extends AbstractMsTestElement>, String> testElementClassPluginIdMap = HashMap.newHashMap(0);
     /**
      * AbstractMsTestElement 实现类与接口协议的映射
      * key 为 AbstractMsTestElement 实现类对象
      * value 为对应的接口协议
      * 环境前后置忽略协议需要使用
      */
-    private Map<Class<? extends AbstractMsTestElement>, String> testElementClassProtocalMap;
+    private Map<Class<? extends AbstractMsTestElement>, String> testElementClassProtocalMap = HashMap.newHashMap(0);
 
 
     @Override
