@@ -230,6 +230,7 @@
   import { SelectValue } from '@/models/projectManagement/menuManagement';
   import { BugManagementRouteEnum } from '@/enums/routeEnum';
 
+  import { convertToFile } from '../case-management/caseManagementFeature/components/utils';
   import { convertToFileByBug } from './utils';
 
   defineOptions({ name: 'BugEditPage' });
@@ -488,7 +489,7 @@
 
   // 处理关联文件
   function saveSelectAssociatedFile(fileData: AssociatedList[]) {
-    const fileResultList = fileData.map((fileInfo) => convertToFileByBug(fileInfo));
+    const fileResultList = fileData.map((fileInfo) => convertToFile(fileInfo));
     fileList.value.push(...fileResultList);
   }
 
@@ -588,7 +589,7 @@
           return {
             ...fileInfo,
             name: fileInfo.fileName,
-            isUpdateFlag: checkUpdateFileIds.includes(fileInfo.id),
+            isUpdateFlag: checkUpdateFileIds.includes(fileInfo.fileId),
           };
         })
         .map((fileInfo: any) => {
