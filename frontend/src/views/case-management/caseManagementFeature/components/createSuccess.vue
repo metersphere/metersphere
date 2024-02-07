@@ -105,6 +105,7 @@
 
   // 返回用例列表
   function backCaseList() {
+    clearInterval(timer.value);
     router.push({
       name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE,
     });
@@ -112,6 +113,7 @@
 
   // 继续创建
   function continueCreate() {
+    clearInterval(timer.value);
     router.push({
       name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
     });

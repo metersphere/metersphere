@@ -24,18 +24,30 @@
               <div class="flex h-[100%] flex-1 flex-col justify-between">
                 <div class="flex items-center justify-between">
                   <span class="font-normal">{{ t(item.title) }}</span>
-                  <span>
-                    <a-tooltip
-                      :content="
-                        isHasSystemPermission
-                          ? t('organization.service.jumpPlugin')
-                          : t('organization.service.noPermissionsTip')
-                      "
-                      position="bottom"
-                    >
+                  <span class="flex items-center justify-end">
+                    <div v-for="links of item.skipTitle" :key="links.name">
+                      <a-tooltip
+                        v-if="links.active"
+                        :content="
+                          isHasSystemPermission
+                            ? t('organization.service.jumpPlugin')
+                            : t('organization.service.noPermissionsTip')
+                        "
+                        position="left"
+                        size="small"
+                      >
+                        <a-button
+                          size="mini"
+                          class="ml-3 px-0 text-sm"
+                          type="text"
+                          :disabled="links.disabled"
+                          @click.stop="jumpHandler(links)"
+                        >
+                          {{ t(links.name) }}
+                        </a-button>
+                      </a-tooltip>
                       <a-button
-                        v-for="links of item.skipTitle"
-                        :key="links.name"
+                        v-else
                         size="mini"
                         class="ml-3 px-0 text-sm"
                         type="text"
@@ -44,7 +56,7 @@
                       >
                         {{ t(links.name) }}
                       </a-button>
-                    </a-tooltip>
+                    </div>
                   </span>
                 </div>
                 <div class="text-xs text-[var(--color-text-4)]">

@@ -202,7 +202,8 @@
       };
       await addPlugin(params);
       const isOpen = getIsVisited();
-      if (isOpen) {
+      // 确定不再提示
+      if (isOpen || flag) {
         Message.success(t('system.plugin.uploadSuccessTip'));
       }
 

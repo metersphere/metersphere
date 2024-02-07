@@ -44,16 +44,18 @@
       @close="cancelHandler"
     >
       <template #title>
-        <div class="flex items-center">
-          <icon-close-circle-fill class="mr-2 text-[20px] text-[rgb(var(--danger-6))]" />
-          <span>{{ t('system.orgTemplate.enableTip') }}</span></div
-        >
+        <div class="flex items-center justify-start">
+          <icon-exclamation-circle-fill size="20" class="mr-[8px] text-[rgb(var(--danger-6))]" />
+          <div class="text-[var(--color-text-1)]">
+            {{ t('system.orgTemplate.enableTip') }}
+          </div>
+        </div>
       </template>
 
       <span class="text-[rgb(var(--warning-6))]">{{ t('system.orgTemplate.enableWarningTip') }}</span>
       <a-input
         v-model="validateKeyWord"
-        :placeholder="t('personal.searchOrgPlaceholder')"
+        :placeholder="t('system.orgTemplate.searchOrgPlaceholder', { name: orgName })"
         allow-clear
         class="mb-4 mt-[8px]"
         :max-length="255"

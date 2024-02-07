@@ -86,7 +86,7 @@ export const MULTIPLE_MEMBER = {
 };
 
 export const DATE = {
-  type: 'DatePicker',
+  type: 'a-date-picker',
   field: 'fieldName',
   title: '',
   value: '',
@@ -98,7 +98,7 @@ export const DATE = {
 };
 
 export const DATETIME = {
-  type: 'DatePicker',
+  type: 'a-date-picker',
   field: 'fieldName',
   title: '',
   value: '',
@@ -106,6 +106,7 @@ export const DATETIME = {
     'placeholder': t('formCreate.PleaseSelect'),
     'format': 'YYYY/MM/DD HH:mm:ss',
     'show-time': true,
+    'show-now-btn': true,
   },
 };
 
@@ -115,6 +116,7 @@ export const FLOAT = {
   title: '',
   value: 0,
   props: {
+    precision: 2,
     placeholder: t('formCreate.PleaseEnter'),
   },
 };

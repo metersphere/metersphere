@@ -43,6 +43,7 @@
       <a-select
         v-else
         v-model="record.selectUserList"
+        :popup-visible="record.showUserSelect"
         multiple
         class="w-[260px]"
         :max-tag-count="2"
@@ -93,6 +94,7 @@
    */
   import { onMounted, ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
+  import { isEqual } from 'lodash-es';
 
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
@@ -368,6 +370,11 @@
     }
     if ((record.selectUserList || []).length < 1) {
       Message.warning(t('project.member.selectUserEmptyTip'));
+      return;
+    }
+    const userGroupIds = (record.userRoles || []).map((item: any) => item.id);
+    if (isEqual(userGroupIds, record.selectUserList)) {
+      record.showUserSelect = false;
       return;
     }
     editProjectMember(record);

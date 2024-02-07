@@ -376,7 +376,6 @@
   const formRules = ref<FormItem[]>([]);
   const formItem = ref<FormRuleItem[]>([]);
   const fApi = ref<any>(null);
-
   // 初始化模板默认字段
   async function initDefaultFields() {
     formRules.value = [];
@@ -750,7 +749,7 @@
   }
 
   function resetForm() {
-    form.value = { ...initForm };
+    form.value = { ...initForm, templateId: form.value.templateId };
     fileList.value = [];
     caseFormRef.value?.resetFields();
   }

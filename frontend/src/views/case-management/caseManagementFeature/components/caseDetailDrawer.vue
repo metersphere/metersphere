@@ -71,7 +71,7 @@
               <a-doption @click="updateHandler('copy')">
                 <MsIcon type="icon-icon_copy_filled" class="font-[16px]" />{{ t('common.copy') }}</a-doption
               >
-              <a-doption class="error-6 text-[rgb(var(--danger-6))]" @click="deleteHandler()">
+              <a-doption class="error-6 text-[rgb(var(--danger-6))]" @click="deleteHandler">
                 <MsIcon type="icon-icon_delete-trash_outlined" class="font-[16px] text-[rgb(var(--danger-6))]" />
                 {{ t('common.delete') }}
               </a-doption>
@@ -272,7 +272,7 @@
     pageChange: (page: number) => Promise<void>; // 分页变更函数
   }>();
 
-  const emit = defineEmits(['update:visible']);
+  const emit = defineEmits(['update:visible', 'success']);
 
   const userId = computed(() => userStore.userInfo.id);
   const appStore = useAppStore();
@@ -426,8 +426,8 @@
           };
           await deleteCaseRequest(params);
           Message.success(t('common.deleteSuccess'));
-          updateSuccess();
-          detailDrawerRef.value?.openPrevDetail();
+          showDrawerVisible.value = false;
+          emit('success');
         } catch (error) {
           console.log(error);
         }
@@ -473,7 +473,6 @@
     formRules.value = customFields.value.map((item: any) => {
       const multipleType = ['MULTIPLE_SELECT', 'CHECKBOX', 'MULTIPLE_MEMBER', 'MULTIPLE_INPUT'];
       const currentDefaultValue = multipleType.includes(item.type) ? JSON.parse(item.defaultValue) : item.defaultValue;
-      console.log('currentDefaultValue', currentDefaultValue);
       return {
         ...item,
         type: item.type,
