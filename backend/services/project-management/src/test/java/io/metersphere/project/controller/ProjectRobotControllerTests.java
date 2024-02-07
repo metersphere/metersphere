@@ -549,30 +549,29 @@ public class ProjectRobotControllerTests extends BaseTest {
                     if (StringUtils.equalsIgnoreCase(event, NoticeConstants.Event.CREATE) || StringUtils.equalsIgnoreCase(event, NoticeConstants.Event.CASE_CREATE) || StringUtils.equalsIgnoreCase(event, NoticeConstants.Event.MOCK_CREATE) || CollectionUtils.isEmpty(receivers)) {
                         continue;
                     }
-                    for (OptionDTO receiver : receivers) {
-                        String id = IDGenerator.nextStr();
-                        MessageTask messageTask = new MessageTask();
-                        messageTask.setId(id);
-                        messageTask.setEvent(event);
-                        messageTask.setTaskType(taskType);
-                        messageTask.setReceiver(receiver.getId());
-                        messageTask.setProjectId(projectId);
-                        messageTask.setProjectRobotId(defaultRobotId);
-                        messageTask.setEnable(true);
-                        messageTask.setTestId("NONE");
-                        messageTask.setCreateUser("admin");
-                        messageTask.setCreateTime(System.currentTimeMillis());
-                        messageTask.setUpdateUser("admin");
-                        messageTask.setUpdateTime(System.currentTimeMillis());
-                        messageTask.setSubject("");
-                        messageTask.setUseDefaultSubject(true);
-                        messageTask.setUseDefaultTemplate(true);
-                        MessageTaskBlob messageTaskBlob = new MessageTaskBlob();
-                        messageTaskBlob.setId(id);
-                        messageTaskBlob.setTemplate("");
-                        mapper.insert(messageTask);
-                        blobMapper.insert(messageTaskBlob);
-                    }
+                    List<String> receiverIds = receivers.stream().map(OptionDTO::getId).toList();
+                    String id = IDGenerator.nextStr();
+                    MessageTask messageTask = new MessageTask();
+                    messageTask.setId(id);
+                    messageTask.setEvent(event);
+                    messageTask.setTaskType(taskType);
+                    messageTask.setReceivers(receiverIds);
+                    messageTask.setProjectId(projectId);
+                    messageTask.setProjectRobotId(defaultRobotId);
+                    messageTask.setEnable(true);
+                    messageTask.setTestId("NONE");
+                    messageTask.setCreateUser("admin");
+                    messageTask.setCreateTime(System.currentTimeMillis());
+                    messageTask.setUpdateUser("admin");
+                    messageTask.setUpdateTime(System.currentTimeMillis());
+                    messageTask.setSubject("");
+                    messageTask.setUseDefaultSubject(true);
+                    messageTask.setUseDefaultTemplate(true);
+                    MessageTaskBlob messageTaskBlob = new MessageTaskBlob();
+                    messageTaskBlob.setId(id);
+                    messageTaskBlob.setTemplate("");
+                    mapper.insert(messageTask);
+                    blobMapper.insert(messageTaskBlob);
                 }
             }
         }

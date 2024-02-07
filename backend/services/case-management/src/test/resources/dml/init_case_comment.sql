@@ -12,51 +12,46 @@ INSERT INTO project_robot(id, project_id, name, platform, webhook, type, app_key
 
 
 
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES ('case-comment_message1', 'UPDATE', 'CREATE_USER', 'test_comment_message_robot1', 'FUNCTIONAL_CASE_TASK', 'NONE', 'project-case-comment-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_update');
+Insert into message_task(id, event, receivers, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES ('case-comment_message1', 'UPDATE', '["CREATE_USER", "FOLLOW_PEOPLE"]', 'test_comment_message_robot1', 'FUNCTIONAL_CASE_TASK', 'NONE', 'project-case-comment-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_update');
 INSERT INTO message_task_blob(id, template) VALUES ('case-comment_message1', 'message.functional_case_task_update');
 
 
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES ('case-comment_message2', 'UPDATE', 'FOLLOW_PEOPLE', 'test_comment_message_robot1', 'FUNCTIONAL_CASE_TASK', 'NONE', 'project-case-comment-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_update');
-INSERT INTO message_task_blob(id, template) VALUES ('case-comment_message2', 'message.functional_case_task_update');
-
-
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES ('case-comment_message3', 'DELETE', 'CREATE_USER', 'test_comment_message_robot1', 'FUNCTIONAL_CASE_TASK', 'NONE', 'project-case-comment-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_delete');
+Insert into message_task(id, event, receivers, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES ('case-comment_message3', 'DELETE', '["CREATE_USER"]', 'test_comment_message_robot1', 'FUNCTIONAL_CASE_TASK', 'NONE', 'project-case-comment-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_delete');
 INSERT INTO message_task_blob(id, template) VALUES ('case-comment_message3', 'message.functional_case_task_delete');
 
 
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES ('case-comment_message4', 'REVIEW_PASSED', 'CREATE_USER', 'test_comment_message_robot1', 'FUNCTIONAL_CASE_TASK', 'NONE', 'project-case-comment-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_review_passed');
+Insert into message_task(id, event, receivers, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES ('case-comment_message4', 'REVIEW_PASSED', '["CREATE_USER"]', 'test_comment_message_robot1', 'FUNCTIONAL_CASE_TASK', 'NONE', 'project-case-comment-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_review_passed');
 INSERT INTO message_task_blob(id, template) VALUES ('case-comment_message4', 'message.functional_case_task_review');
 
 
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES ('case-comment_message5', 'REVIEW_FAIL', 'CREATE_USER', 'test_comment_message_robot1', 'FUNCTIONAL_CASE_TASK', 'NONE', 'project-case-comment-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_review_fail');
+Insert into message_task(id, event, receivers, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES ('case-comment_message5', 'REVIEW_FAIL', '["CREATE_USER"]', 'test_comment_message_robot1', 'FUNCTIONAL_CASE_TASK', 'NONE', 'project-case-comment-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_review_fail');
 INSERT INTO message_task_blob(id, template) VALUES ('case-comment_message5', 'message.functional_case_task_review');
 
 
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES ('case-comment_message6', 'EXECUTE_PASSED', 'CREATE_USER', 'test_comment_message_robot1', 'FUNCTIONAL_CASE_TASK', 'NONE', 'project-case-comment-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_execute_passed');
+Insert into message_task(id, event, receivers, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES ('case-comment_message6', 'EXECUTE_PASSED', '["CREATE_USER"]', 'test_comment_message_robot1', 'FUNCTIONAL_CASE_TASK', 'NONE', 'project-case-comment-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_execute_passed');
 INSERT INTO message_task_blob(id, template) VALUES ('case-comment_message6', 'message.functional_case_task_plan');
 
 
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES ('case-comment_message7', 'EXECUTE_FAIL', 'CREATE_USER', 'test_comment_message_robot1', 'FUNCTIONAL_CASE_TASK', 'NONE', 'project-case-comment-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_execute_fail');
+Insert into message_task(id, event, receivers, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES ('case-comment_message7', 'EXECUTE_FAIL', '["CREATE_USER"]', 'test_comment_message_robot1', 'FUNCTIONAL_CASE_TASK', 'NONE', 'project-case-comment-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_execute_fail');
 INSERT INTO message_task_blob(id, template) VALUES ('case-comment_message7', 'message.functional_case_task_plan');
 
 
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES ('case-comment_message8', 'COMMENT', 'CREATE_USER', 'test_comment_message_robot1', 'FUNCTIONAL_CASE_TASK', 'NONE', 'project-case-comment-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_comment');
+Insert into message_task(id, event, receivers, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES ('case-comment_message8', 'COMMENT', '["CREATE_USER"]', 'test_comment_message_robot1', 'FUNCTIONAL_CASE_TASK', 'NONE', 'project-case-comment-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_comment');
 INSERT INTO message_task_blob(id, template) VALUES ('case-comment_message8', 'message.functional_case_task_comment');
 
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES ('case-comment_message9', 'AT', 'NONE', 'test_comment_message_robot1', 'FUNCTIONAL_CASE_TASK', 'NONE', 'project-case-comment-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_comment');
+Insert into message_task(id, event, receivers, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES ('case-comment_message9', 'AT', '[]', 'test_comment_message_robot1', 'FUNCTIONAL_CASE_TASK', 'NONE', 'project-case-comment-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_comment');
 INSERT INTO message_task_blob(id, template) VALUES ('case-comment_message9', 'message.functional_case_task_at_comment');
 
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES ('case-comment_message10', 'REPLY', 'NONE', 'test_comment_message_robot1', 'FUNCTIONAL_CASE_TASK', 'NONE', 'project-case-comment-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_comment');
+Insert into message_task(id, event, receivers, project_robot_id, task_type, test_id, project_id, enable, create_user, create_time, update_user, update_time, use_default_template, use_default_subject, subject)
+VALUES ('case-comment_message10', 'REPLY', '[]', 'test_comment_message_robot1', 'FUNCTIONAL_CASE_TASK', 'NONE', 'project-case-comment-test', true, 'admin', unix_timestamp() * 1000, 'admin',  unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_comment');
 INSERT INTO message_task_blob(id, template) VALUES ('case-comment_message10', 'message.functional_case_task_reply_comment');
 
 INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos,

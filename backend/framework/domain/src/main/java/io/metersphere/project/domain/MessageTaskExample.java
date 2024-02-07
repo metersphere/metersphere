@@ -64,19 +64,50 @@ public class MessageTaskExample {
     }
 
     protected abstract static class GeneratedCriteria {
+        protected List<Criterion> receiversCriteria;
+
+        protected List<Criterion> allCriteria;
+
         protected List<Criterion> criteria;
 
         protected GeneratedCriteria() {
             super();
             criteria = new ArrayList<Criterion>();
+            receiversCriteria = new ArrayList<Criterion>();
+        }
+
+        public List<Criterion> getReceiversCriteria() {
+            return receiversCriteria;
+        }
+
+        protected void addReceiversCriterion(String condition, Object value, String property) {
+            if (value == null) {
+                throw new RuntimeException("Value for " + property + " cannot be null");
+            }
+            receiversCriteria.add(new Criterion(condition, value, "io.metersphere.handler.ListTypeHandler"));
+            allCriteria = null;
+        }
+
+        protected void addReceiversCriterion(String condition, List<String> value1, List<String> value2, String property) {
+            if (value1 == null || value2 == null) {
+                throw new RuntimeException("Between values for " + property + " cannot be null");
+            }
+            receiversCriteria.add(new Criterion(condition, value1, value2, "io.metersphere.handler.ListTypeHandler"));
+            allCriteria = null;
         }
 
         public boolean isValid() {
-            return criteria.size() > 0;
+            return criteria.size() > 0
+                || receiversCriteria.size() > 0;
         }
 
         public List<Criterion> getAllCriteria() {
-            return criteria;
+            if (allCriteria == null) {
+                allCriteria = new ArrayList<Criterion>();
+                allCriteria.addAll(criteria);
+                allCriteria.addAll(receiversCriteria);
+            }
+            return allCriteria;
         }
 
         public List<Criterion> getCriteria() {
@@ -88,6 +119,7 @@ public class MessageTaskExample {
                 throw new RuntimeException("Value for condition cannot be null");
             }
             criteria.add(new Criterion(condition));
+            allCriteria = null;
         }
 
         protected void addCriterion(String condition, Object value, String property) {
@@ -95,6 +127,7 @@ public class MessageTaskExample {
                 throw new RuntimeException("Value for " + property + " cannot be null");
             }
             criteria.add(new Criterion(condition, value));
+            allCriteria = null;
         }
 
         protected void addCriterion(String condition, Object value1, Object value2, String property) {
@@ -102,6 +135,7 @@ public class MessageTaskExample {
                 throw new RuntimeException("Between values for " + property + " cannot be null");
             }
             criteria.add(new Criterion(condition, value1, value2));
+            allCriteria = null;
         }
 
         public Criteria andIdIsNull() {
@@ -244,76 +278,6 @@ public class MessageTaskExample {
             return (Criteria) this;
         }
 
-        public Criteria andReceiverIsNull() {
-            addCriterion("receiver is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andReceiverIsNotNull() {
-            addCriterion("receiver is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andReceiverEqualTo(String value) {
-            addCriterion("receiver =", value, "receiver");
-            return (Criteria) this;
-        }
-
-        public Criteria andReceiverNotEqualTo(String value) {
-            addCriterion("receiver <>", value, "receiver");
-            return (Criteria) this;
-        }
-
-        public Criteria andReceiverGreaterThan(String value) {
-            addCriterion("receiver >", value, "receiver");
-            return (Criteria) this;
-        }
-
-        public Criteria andReceiverGreaterThanOrEqualTo(String value) {
-            addCriterion("receiver >=", value, "receiver");
-            return (Criteria) this;
-        }
-
-        public Criteria andReceiverLessThan(String value) {
-            addCriterion("receiver <", value, "receiver");
-            return (Criteria) this;
-        }
-
-        public Criteria andReceiverLessThanOrEqualTo(String value) {
-            addCriterion("receiver <=", value, "receiver");
-            return (Criteria) this;
-        }
-
-        public Criteria andReceiverLike(String value) {
-            addCriterion("receiver like", value, "receiver");
-            return (Criteria) this;
-        }
-
-        public Criteria andReceiverNotLike(String value) {
-            addCriterion("receiver not like", value, "receiver");
-            return (Criteria) this;
-        }
-
-        public Criteria andReceiverIn(List<String> values) {
-            addCriterion("receiver in", values, "receiver");
-            return (Criteria) this;
-        }
-
-        public Criteria andReceiverNotIn(List<String> values) {
-            addCriterion("receiver not in", values, "receiver");
-            return (Criteria) this;
-        }
-
-        public Criteria andReceiverBetween(String value1, String value2) {
-            addCriterion("receiver between", value1, value2, "receiver");
-            return (Criteria) this;
-        }
-
-        public Criteria andReceiverNotBetween(String value1, String value2) {
-            addCriterion("receiver not between", value1, value2, "receiver");
-            return (Criteria) this;
-        }
-
         public Criteria andProjectRobotIdIsNull() {
             addCriterion("project_robot_id is null");
             return (Criteria) this;
@@ -381,6 +345,76 @@ public class MessageTaskExample {
 
         public Criteria andProjectRobotIdNotBetween(String value1, String value2) {
             addCriterion("project_robot_id not between", value1, value2, "projectRobotId");
+            return (Criteria) this;
+        }
+
+        public Criteria andReceiversIsNull() {
+            addCriterion("receivers is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReceiversIsNotNull() {
+            addCriterion("receivers is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReceiversEqualTo(List<String> value) {
+            addReceiversCriterion("receivers =", value, "receivers");
+            return (Criteria) this;
+        }
+
+        public Criteria andReceiversNotEqualTo(List<String> value) {
+            addReceiversCriterion("receivers <>", value, "receivers");
+            return (Criteria) this;
+        }
+
+        public Criteria andReceiversGreaterThan(List<String> value) {
+            addReceiversCriterion("receivers >", value, "receivers");
+            return (Criteria) this;
+        }
+
+        public Criteria andReceiversGreaterThanOrEqualTo(List<String> value) {
+            addReceiversCriterion("receivers >=", value, "receivers");
+            return (Criteria) this;
+        }
+
+        public Criteria andReceiversLessThan(List<String> value) {
+            addReceiversCriterion("receivers <", value, "receivers");
+            return (Criteria) this;
+        }
+
+        public Criteria andReceiversLessThanOrEqualTo(List<String> value) {
+            addReceiversCriterion("receivers <=", value, "receivers");
+            return (Criteria) this;
+        }
+
+        public Criteria andReceiversLike(List<String> value) {
+            addReceiversCriterion("receivers like", value, "receivers");
+            return (Criteria) this;
+        }
+
+        public Criteria andReceiversNotLike(List<String> value) {
+            addReceiversCriterion("receivers not like", value, "receivers");
+            return (Criteria) this;
+        }
+
+        public Criteria andReceiversIn(List<List<String>> values) {
+            addReceiversCriterion("receivers in", values, "receivers");
+            return (Criteria) this;
+        }
+
+        public Criteria andReceiversNotIn(List<List<String>> values) {
+            addReceiversCriterion("receivers not in", values, "receivers");
+            return (Criteria) this;
+        }
+
+        public Criteria andReceiversBetween(List<String> value1, List<String> value2) {
+            addReceiversCriterion("receivers between", value1, value2, "receivers");
+            return (Criteria) this;
+        }
+
+        public Criteria andReceiversNotBetween(List<String> value1, List<String> value2) {
+            addReceiversCriterion("receivers not between", value1, value2, "receivers");
             return (Criteria) this;
         }
 

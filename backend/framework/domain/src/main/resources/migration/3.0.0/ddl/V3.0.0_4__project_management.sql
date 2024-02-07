@@ -253,7 +253,7 @@ CREATE TABLE IF NOT EXISTS custom_function_blob
 CREATE TABLE IF NOT EXISTS message_task(
        `id` VARCHAR(50) NOT NULL   COMMENT '' ,
        `event` VARCHAR(255) NOT NULL   COMMENT '通知事件类型' ,
-       `receiver` VARCHAR(50) NOT NULL   COMMENT '接收人id' ,
+       `receivers` VARCHAR(1000) NOT NULL   COMMENT '接收人id集合' ,
        `project_robot_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '机器人id' ,
        `task_type` VARCHAR(64) NOT NULL   COMMENT '任务类型' ,
        `test_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '具体测试的ID' ,
@@ -276,7 +276,6 @@ CREATE TABLE IF NOT EXISTS message_task(
 CREATE INDEX idx_project_id ON message_task(project_id);
 CREATE INDEX idx_create_time ON message_task(create_time desc);
 CREATE INDEX idx_test_id ON message_task(test_id);
-CREATE INDEX idx_receiver ON message_task(receiver);
 CREATE INDEX idx_task_type ON message_task(task_type);
 CREATE INDEX idx_project_robot_id ON message_task(project_robot_id);
 CREATE INDEX idx_event ON message_task(event);

@@ -3,11 +3,10 @@ package io.metersphere.project.domain;
 import io.metersphere.validation.groups.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-
+import java.util.List;
 import lombok.Data;
 
 @Data
@@ -22,15 +21,14 @@ public class MessageTask implements Serializable {
     @Size(min = 1, max = 255, message = "{message_task.event.length_range}", groups = {Created.class, Updated.class})
     private String event;
 
-    @Schema(description = "接收人id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{message_task.receiver.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{message_task.receiver.length_range}", groups = {Created.class, Updated.class})
-    private String receiver;
-
     @Schema(description = "机器人id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{message_task.project_robot_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{message_task.project_robot_id.length_range}", groups = {Created.class, Updated.class})
     private String projectRobotId;
+
+    @Schema(description = "接收人ID集合", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull(message = "{message_task.receivers.not_blank}", groups = {Created.class})
+    private java.util.List<String> receivers;
 
     @Schema(description = "任务类型", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{message_task.task_type.not_blank}", groups = {Created.class})
@@ -78,8 +76,8 @@ public class MessageTask implements Serializable {
     public enum Column {
         id("id", "id", "VARCHAR", false),
         event("event", "event", "VARCHAR", false),
-        receiver("receiver", "receiver", "VARCHAR", false),
         projectRobotId("project_robot_id", "projectRobotId", "VARCHAR", false),
+        receivers("receivers", "receivers", "VARCHAR", false),
         taskType("task_type", "taskType", "VARCHAR", false),
         testId("test_id", "testId", "VARCHAR", false),
         projectId("project_id", "projectId", "VARCHAR", false),
@@ -135,7 +133,7 @@ public class MessageTask implements Serializable {
             return this.getEscapedColumnName() + " ASC";
         }
 
-        public static Column[] excludes(Column... excludes) {
+        public static Column[] excludes(Column ... excludes) {
             ArrayList<Column> columns = new ArrayList<>(Arrays.asList(Column.values()));
             if (excludes != null && excludes.length > 0) {
                 columns.removeAll(new ArrayList<>(Arrays.asList(excludes)));
