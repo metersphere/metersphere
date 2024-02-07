@@ -72,6 +72,7 @@
               </div>
               <a-switch
                 v-model:model-value="robot.enable"
+                v-permission="['PROJECT_MESSAGE:READ+UPDATE']"
                 size="small"
                 class="ml-auto"
                 type="line"
