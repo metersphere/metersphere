@@ -31,5 +31,32 @@ export function convertToFileByBug(fileInfo: AssociatedList): MsFileItem {
     associateId: refId,
   };
 }
+/** *
+ *
+ * @description 将文件信息转换为文件格式
+ * @param {stafileInfotus} 文件file
+ */
 
-export default {};
+export function convertToFileByDetail(fileInfo: AssociatedList): MsFileItem {
+  const gatewayAddress = `${window.location.protocol}//${window.location.hostname}:${window.location.port}`;
+  const fileName = fileInfo.fileType ? `${fileInfo.name}.${fileInfo.fileType || ''}` : `${fileInfo.name}`;
+  const type = fileName.split('.')[1];
+  const file = new File([new Blob()], `${fileName}`, {
+    type: `application/${type}`,
+  });
+  Object.defineProperty(file, 'size', { value: fileInfo.size });
+  const { id, local, isUpdateFlag, associateId } = fileInfo;
+  return {
+    enable: fileInfo.enable || false,
+    file,
+    name: fileName,
+    percent: 0,
+    status: 'done',
+    uid: id,
+    url: `${gatewayAddress}/${fileInfo.filePath || ''}`,
+    local,
+    deleteContent: local ? '' : 'caseManagement.featureCase.cancelLink',
+    isUpdateFlag,
+    associateId,
+  };
+}
