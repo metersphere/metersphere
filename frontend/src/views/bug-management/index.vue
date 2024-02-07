@@ -121,6 +121,7 @@
     v-model:visible="batchEditVisible"
     :select-param="currentSelectParams"
     :custom-fields="customFields"
+    @submit="fetchData"
   />
 </template>
 
@@ -487,16 +488,6 @@
 
   const handleExport = () => {
     exportVisible.value = true;
-  };
-
-  const jumpToTestPlan = (record: BugListItem) => {
-    router.push({
-      name: 'testPlan',
-      query: {
-        bugId: record.id,
-        projectId: projectId.value,
-      },
-    });
   };
 
   const setExportOptionData = async () => {

@@ -152,12 +152,6 @@
       value: 'tags',
     },
   ]);
-  // const customOptionList = computed(() => {
-  //   return props.customFields.map((item) => ({
-  //     label: item.fieldName,
-  //     value: item.fieldId,
-  //   }));
-  // });
   const currentVisible = computed({
     get() {
       return props.visible;
@@ -237,8 +231,7 @@
             append: form.append,
           };
           await updateBatchBug(tmpObj);
-          Message.success(t('common.deleteSuccess'));
-          handleCancel();
+          Message.success(t('common.updateSuccess'));
           emit('submit');
         } catch (error) {
           // eslint-disable-next-line no-console
