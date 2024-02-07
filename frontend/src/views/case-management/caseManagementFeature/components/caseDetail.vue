@@ -19,7 +19,7 @@
           {{ t('mscard.defaultSaveAndContinueText') }}
         </a-button>
         <a-button v-if="!isFormReviewCase" type="primary" @click="saveHandler(false)">
-          {{ t(isEdit ? 'mscard.defaultUpdate' : 'mscard.defaultConfirm') }}
+          {{ okText }}
         </a-button>
         <a-button v-if="isFormReviewCase" type="primary" @click="saveHandler(false, true)">
           {{ t('caseManagement.featureCase.createAndLink') }}
@@ -150,14 +150,17 @@
   function cancelHandler() {
     router.back();
   }
-
+  const okText = ref<string>('');
   watchEffect(() => {
     if (route.params.mode === 'edit') {
       title.value = t('caseManagement.featureCase.updateCase');
+      okText.value = t('mscard.defaultUpdate');
     } else if (route.params.mode === 'copy') {
       title.value = t('caseManagement.featureCase.copyCase');
+      okText.value = t('mscard.defaultConfirm');
     } else {
       title.value = t('caseManagement.featureCase.creatingCase');
+      okText.value = t('mscard.defaultConfirm');
     }
   });
 </script>

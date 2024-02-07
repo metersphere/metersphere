@@ -379,7 +379,7 @@
   };
   // 用户和项目选择改变的回调
   const selectUserOrProject = (value: any, record: MemberItem, type: string) => {
-    if (!hasAnyPermission(['PROJECT_USER:READ+UPDATE'])) {
+    if (!hasAnyPermission(['ORGANIZATION_MEMBER:READ+UPDATE'])) {
       return;
     }
     if (type === 'project') {

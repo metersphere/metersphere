@@ -23,6 +23,7 @@
         allow-clear
         @search="searchFiled"
         @press-enter="searchFiled"
+        @clear="searchFiled"
       ></a-input-search>
     </div>
     <MsBaseTable v-bind="propsRes" ref="tableRef" v-on="propsEvent">
@@ -39,7 +40,7 @@
           />
           <a-tooltip :content="record.name">
             <div
-              class="ellipsis ml-2 max-w-[200px]"
+              class="ellipsis max-w-[200px]"
               :class="{
                 'text-[rgb(var(--primary-5))]': props.mode === 'project',
                 'cursor-pointer': props.mode === 'project',
@@ -51,6 +52,7 @@
           <MsTag v-if="record.internal" size="small" class="ml-2">{{ t('system.orgTemplate.isSystem') }}</MsTag></div
         >
       </template>
+      <template #updateTime="{ record }"> {{ dayjs(record.updateTime).format('YYYY-MM-DD HH:mm:ss') }} </template>
       <template #operation="{ record }">
         <div class="flex flex-row flex-nowrap items-center">
           <MsPopConfirm
@@ -216,6 +218,7 @@
     {
       title: 'system.orgTemplate.columnFieldUpdatedTime',
       dataIndex: 'updateTime',
+      slotName: 'updateTime',
       showInTable: true,
     },
     {
@@ -255,7 +258,8 @@
   const searchFiled = async () => {
     try {
       totalData.value = await getList(getParams());
-      const filterData = totalData.value.filter((item: AddOrUpdateField) => item.name.includes(keyword.value));
+      const regex = new RegExp(keyword.value, 'i');
+      const filterData = totalData.value.filter((item: AddOrUpdateField) => regex.test(item.name));
       setProps({ data: filterData });
     } catch (error) {
       console.log(error);

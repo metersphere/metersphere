@@ -195,6 +195,7 @@
     :table-data="propsRes.data"
     :page-change="propsEvent.pageChange"
     :pagination="propsRes.msPagination!"
+    @success="initData()"
   />
   <AddDemandModal v-model:visible="showDemandModel" :case-id="caseId" :form="modelForm" />
 </template>
