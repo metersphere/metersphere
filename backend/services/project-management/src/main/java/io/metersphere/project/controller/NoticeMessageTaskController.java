@@ -46,7 +46,7 @@ public class NoticeMessageTaskController {
 
     @GetMapping("message/task/get/{projectId}")
     @Operation(summary = "项目管理-消息管理-消息设置-获取消息设置")
-    @RequiresPermissions(PermissionConstants.PROJECT_MESSAGE_READ_ADD)
+    @RequiresPermissions(PermissionConstants.PROJECT_MESSAGE_READ)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<MessageTaskDTO> getMessageList(@PathVariable String projectId) throws IOException {
         return noticeMessageTaskService.getMessageList(projectId);
@@ -62,7 +62,7 @@ public class NoticeMessageTaskController {
 
     @GetMapping("message/template/detail/{projectId}")
     @Operation(summary = "项目管理-消息管理-消息设置-查看消息模版详情")
-    @RequiresPermissions(PermissionConstants.PROJECT_MESSAGE_READ_ADD)
+    @RequiresPermissions(PermissionConstants.PROJECT_MESSAGE_READ)
     public MessageTemplateConfigDTO getTemplateDetail(@PathVariable String projectId, @Schema(description = "消息配置功能类型")
     @RequestParam(value = "taskType") String taskType, @Schema(description = "消息配置场景")
     @RequestParam(value = "event") String event, @Schema(description = "消息配置机器人id")
