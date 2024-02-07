@@ -51,7 +51,7 @@
   import { ref, watch } from 'vue';
   import { Message } from '@arco-design/web-vue';
 
-  import { addReviewModule, updateReviewModule } from '@/api/modules/case-management/caseReview';
+  import { addDebugModule, updateDebugModule } from '@/api/modules/api-test/debug';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
@@ -123,7 +123,7 @@
           loading.value = true;
           if (props.mode === 'add') {
             // 添加根级模块
-            await addReviewModule({
+            await addDebugModule({
               projectId: appStore.currentProjectId,
               parentId: props.parentId || '',
               name: form.value.field,
@@ -132,7 +132,7 @@
             emit('addFinish', form.value.field);
           } else if (props.mode === 'rename') {
             // 模块重命名
-            await updateReviewModule({
+            await updateDebugModule({
               id: props.nodeId || '',
               name: form.value.field,
             });

@@ -17,7 +17,7 @@
       <slot name="titleRight"></slot>
     </div>
   </div>
-  <div v-show="data.length > 0" class="flex h-[calc(100%-110px)] gap-[8px]">
+  <div v-show="data.length > 0" class="flex h-[calc(100%-40px)] gap-[8px]">
     <div class="h-full w-[20%] min-w-[220px]">
       <conditionList
         v-model:list="data"
@@ -47,6 +47,7 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import { ConditionType } from '@/models/apiTest/debug';
+  import { RequestConditionProcessor } from '@/enums/apiEnum';
 
   const props = defineProps<{
     list: Array<Record<string, any>>;
@@ -113,10 +114,10 @@ org.apache.http.client.method . . . '' at line number 2
   function addPrecondition(value: string | number | Record<string, any> | undefined) {
     const id = new Date().getTime();
     switch (value) {
-      case 'script':
+      case RequestConditionProcessor.SCRIPT:
         data.value.push({
           id,
-          type: 'script',
+          type: RequestConditionProcessor.SCRIPT,
           name: t('apiTestDebug.preconditionScriptName'),
           scriptType: 'manual',
           enable: true,
@@ -127,10 +128,10 @@ org.apache.http.client.method . . . '' at line number 2
           },
         });
         break;
-      case 'sql':
+      case RequestConditionProcessor.SQL:
         data.value.push({
           id,
-          type: 'sql',
+          type: RequestConditionProcessor.SQL,
           desc: '',
           enable: true,
           sqlSource: {
@@ -141,18 +142,18 @@ org.apache.http.client.method . . . '' at line number 2
           },
         });
         break;
-      case 'waitTime':
+      case RequestConditionProcessor.TIME_WAITING:
         data.value.push({
           id,
-          type: 'waitTime',
+          type: RequestConditionProcessor.TIME_WAITING,
           enable: true,
           time: 1000,
         });
         break;
-      case 'extract':
+      case RequestConditionProcessor.EXTRACT:
         data.value.push({
           id,
-          type: 'extract',
+          type: RequestConditionProcessor.EXTRACT,
           enable: true,
           extractParams: [],
         });

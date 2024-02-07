@@ -43,7 +43,7 @@
           />
         </a-form-item>
         <a-form-item :label="t('apiTestDebug.redirect')">
-          <a-radio-group v-model:model-value="settingForm.redirect">
+          <a-radio-group v-model:model-value="settingForm.autoRedirects">
             <a-radio value="follow">{{ t('apiTestDebug.follow') }}</a-radio>
             <a-radio value="auto">{{ t('apiTestDebug.auto') }}</a-radio>
           </a-radio-group>
@@ -58,18 +58,14 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  interface SettingForm {
-    connectTimeout: number;
-    responseTimeout: number;
-    certificateAlias: string;
-    redirect: 'follow' | 'auto';
-  }
+  import { ExecuteOtherConfig } from '@/models/apiTest/debug';
+
   const props = defineProps<{
-    params: SettingForm;
+    params: ExecuteOtherConfig;
   }>();
   const emit = defineEmits<{
-    (e: 'update:params', val: SettingForm): void;
-    (e: 'change', val: SettingForm): void;
+    (e: 'update:params', val: ExecuteOtherConfig): void;
+    (e: 'change', val: ExecuteOtherConfig): void;
   }>();
   const { t } = useI18n();
 

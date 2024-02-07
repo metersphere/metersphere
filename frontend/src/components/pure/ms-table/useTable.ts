@@ -465,5 +465,6 @@ export default function useTableProps<T>(
     getSelectedCount,
     resetSelector,
     getTableQueryParams,
+    setTableSelected,
   };
 }

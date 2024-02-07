@@ -9,7 +9,8 @@
 
   const store = useProjectEnvStore();
 
-  const params = computed({
+  // TODO:参数类型
+  const params = computed<any>({
     set: (value: any) => {
       store.currentEnvDetailInfo.config.preScript = value;
     },

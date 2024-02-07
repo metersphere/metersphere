@@ -154,11 +154,11 @@
   const { t } = useI18n();
   const { openModal } = useModal();
 
-  const moduleProtocol = ref('http');
+  const moduleProtocol = ref('HTTP');
   const moduleProtocolOptions = ref([
     {
       label: 'HTTP',
-      value: 'http',
+      value: 'HTTP',
     },
   ]);
 

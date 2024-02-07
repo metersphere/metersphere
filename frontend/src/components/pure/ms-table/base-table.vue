@@ -22,6 +22,8 @@
           v-if="attrs.selectable && props.selectedKeys"
           :width="props.firstColumnWidth || 60"
           fixed="left"
+          cell-class="arco-table-operation"
+          body-cell-class="arco-table-operation"
         >
           <template #title>
             <SelectALL
@@ -322,11 +324,11 @@
   // 全选按钮-总条数
   const selectTotal = computed(() => {
     const { selectorStatus } = props;
+    if (!attrs.showPagination) {
+      // 不展示分页时直接返回total
+      return (attrs.data as MsTableDataItem<TableData>[]).length;
+    }
     if (selectorStatus === SelectAllEnum.CURRENT) {
-      if (!attrs.showPagination) {
-        // 不展示分页时直接返回total
-        return (attrs.data as MsTableDataItem<TableData>[]).length;
-      }
       const { pageSize, total } = attrs.msPagination as MsPaginationI;
       if (pageSize > total) {
         return total;
@@ -604,6 +606,11 @@
       z-index: 11;
       padding: 16px;
       background-color: var(--color-text-n9);
+    }
+  }
+  :deep(.arco-table-operation) {
+    .arco-table-td-content {
+      @apply justify-center;
     }
   }
   :deep(.ms-table-select-all) {

@@ -96,7 +96,9 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { ExpressionConfig } from '@/models/apiTest/debug';
+  import { JSONPathExtract, RegexExtract, XPathExtract } from '@/models/apiTest/debug';
+
+  export type ExpressionConfig = (RegexExtract | JSONPathExtract | XPathExtract) & Record<string, any>;
 
   const props = defineProps<{
     config: ExpressionConfig;

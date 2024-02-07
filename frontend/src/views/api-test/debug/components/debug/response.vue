@@ -32,36 +32,51 @@
           <a-radio value="horizontal">{{ t('apiTestDebug.horizontal') }}</a-radio>
         </a-radio-group>
       </div>
-      <div v-if="props.response.status" class="flex items-center justify-between gap-[24px]">
+      <div
+        v-if="props.response.requestResults[0]?.responseResult?.responseCode"
+        class="flex items-center justify-between gap-[24px]"
+      >
         <a-popover position="left" content-class="response-popover-content">
-          <div class="text-[rgb(var(--danger-7))]">{{ props.response.status }}</div>
+          <div :style="{ color: statusCodeColor }">
+            {{ props.response.requestResults[0].responseResult.responseCode }}
+          </div>
           <template #content>
             <div class="flex items-center gap-[8px] text-[14px]">
               <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.statusCode') }}</div>
-              <div class="text-[rgb(var(--danger-7))]">{{ props.response.status }}</div>
+              <div :style="{ color: statusCodeColor }">
+                {{ props.response.requestResults[0].responseResult.responseCode }}
+              </div>
             </div>
           </template>
         </a-popover>
         <a-popover position="left" content-class="w-[400px]">
-          <div class="one-line-text text-[rgb(var(--success-7))]">{{ props.response.timing }} ms</div>
+          <div class="one-line-text text-[rgb(var(--success-7))]">
+            {{ props.response.requestResults[0].responseResult.responseTime }} ms
+          </div>
           <template #content>
             <div class="mb-[8px] flex items-center gap-[8px] text-[14px]">
               <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.responseTime') }}</div>
-              <div class="text-[rgb(var(--success-7))]">{{ props.response.timing }} ms</div>
+              <div class="text-[rgb(var(--success-7))]">
+                {{ props.response.requestResults[0].responseResult.responseTime }} ms
+              </div>
             </div>
-            <responseTimeLine :response-timing="$props.response.timingInfo" />
+            <responseTimeLine :response-timing="timingInfo" />
           </template>
         </a-popover>
         <a-popover position="left" content-class="response-popover-content">
-          <div class="one-line-text text-[rgb(var(--success-7))]">{{ props.response.size }} bytes</div>
+          <div class="one-line-text text-[rgb(var(--success-7))]">
+            {{ props.response.requestResults[0].responseResult.responseSize }} bytes
+          </div>
           <template #content>
             <div class="flex items-center gap-[8px] text-[14px]">
               <div class="text-[var(--color-text-4)]">{{ t('apiTestDebug.responseSize') }}</div>
-              <div class="one-line-text text-[rgb(var(--success-7))]">{{ props.response.size }} bytes</div>
+              <div class="one-line-text text-[rgb(var(--success-7))]">
+                {{ props.response.requestResults[0].responseResult.responseSize }} bytes
+              </div>
             </div>
           </template>
         </a-popover>
-        <a-popover position="left" content-class="response-popover-content">
+        <!-- <a-popover position="left" content-class="response-popover-content">
           <div class="text-[var(--color-text-1)]">{{ props.response.env }}</div>
           <template #content>
             <div class="flex items-center gap-[8px] text-[14px]">
@@ -78,7 +93,7 @@
               <div class="text-[var(--color-text-1)]">{{ props.response.resource }}</div>
             </div>
           </template>
-        </a-popover>
+        </a-popover> -->
       </div>
     </div>
     <div class="h-[calc(100%-42px)] px-[16px] pb-[16px]">
@@ -88,8 +103,9 @@
       <div class="response-container">
         <MsCodeEditor
           v-if="activeTab === ResponseComposition.BODY"
-          :model-value="props.response.body"
-          language="json"
+          ref="responseEditorRef"
+          :model-value="props.response.requestResults[0]?.responseResult?.body || ''"
+          :language="responseLanguage"
           theme="vs"
           height="100%"
           :languages="['json', 'html', 'xml', 'plaintext']"
@@ -143,21 +159,28 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { ResponseTiming } from '@/models/apiTest/debug';
   import { ResponseComposition } from '@/enums/apiEnum';
 
   export interface Response {
-    status: number;
-    timing: number;
-    size: number;
-    env: string;
-    resource: string;
-    body: string;
-    header: string;
-    content: string;
+    requestResults: {
+      body: string;
+      responseResult: {
+        body: string;
+        contentType: string;
+        headers: string;
+        dnsLookupTime: number;
+        downloadTime: number;
+        latency: number;
+        responseCode: number;
+        responseTime: number;
+        responseSize: number;
+        socketInitTime: number;
+        sslHandshakeTime: number;
+        tcpHandshakeTime: number;
+        transferStartTime: number;
+      };
+    }[]; // 请求结果
     console: string;
-    extract: Record<string, any>;
-    timingInfo: ResponseTiming;
   }
 
   const props = defineProps<{
@@ -177,6 +200,66 @@
 
   const innerLayout = useVModel(props, 'activeLayout', emit);
   const activeTab = useVModel(props, 'activeTab', emit);
+  // 响应时间信息
+  const timingInfo = computed(() => {
+    const {
+      dnsLookupTime,
+      downloadTime,
+      latency,
+      responseTime,
+      socketInitTime,
+      sslHandshakeTime,
+      tcpHandshakeTime,
+      transferStartTime,
+    } = props.response.requestResults[0].responseResult;
+    return {
+      dnsLookupTime,
+      tcpHandshakeTime,
+      sslHandshakeTime,
+      socketInitTime,
+      latency,
+      downloadTime,
+      transferStartTime,
+      responseTime,
+    };
+  });
+  // 响应状态码对应颜色
+  const statusCodeColor = computed(() => {
+    const code = props.response.requestResults[0].responseResult.responseCode;
+    if (code >= 200 && code < 300) {
+      return 'rgb(var(--success-7)';
+    }
+    if (code >= 300 && code < 400) {
+      return 'rgb(var(--warning-7)';
+    }
+    return 'rgb(var(--danger-7)';
+  });
+  // 响应体语言类型
+  const responseLanguage = computed(() => {
+    const { contentType } = props.response.requestResults[0].responseResult;
+    if (contentType.includes('json')) {
+      return 'json';
+    }
+    if (contentType.includes('html')) {
+      return 'html';
+    }
+    if (contentType.includes('xml')) {
+      return 'xml';
+    }
+    return 'plaintext';
+  });
+  const responseEditorRef = ref<InstanceType<typeof MsCodeEditor>>();
+
+  watch(
+    () => props.response,
+    (obj) => {
+      if (obj.requestResults[0].responseResult.body.trim() !== '') {
+        nextTick(() => {
+          responseEditorRef.value?.format();
+        });
+      }
+    }
+  );
 
   const responseTabList = [
     {
@@ -195,21 +278,21 @@
       label: t('apiTestDebug.console'),
       value: ResponseComposition.CONSOLE,
     },
-    {
-      label: t('apiTestDebug.extract'),
-      value: ResponseComposition.EXTRACT,
-    },
-    {
-      label: t('apiTestDebug.assertion'),
-      value: ResponseComposition.ASSERTION,
-    },
+    // {
+    //   label: t('apiTestDebug.extract'),
+    //   value: ResponseComposition.EXTRACT,
+    // },
+    // {
+    //   label: t('apiTestDebug.assertion'),
+    //   value: ResponseComposition.ASSERTION,
+    // },
   ];
 
   const { copy, isSupported } = useClipboard();
 
   function copyScript() {
     if (isSupported) {
-      copy(props.response.body);
+      copy(props.response.requestResults[0].responseResult.body);
       Message.success(t('common.copySuccess'));
     } else {
       Message.warning(t('apiTestDebug.copyNotSupport'));
@@ -219,15 +302,15 @@
   function getResponsePreContent(type: keyof typeof ResponseComposition) {
     switch (type) {
       case ResponseComposition.HEADER:
-        return props.response.header.trim();
+        return props.response.requestResults[0].responseResult.headers.trim();
       case ResponseComposition.REAL_REQUEST:
-        return props.response.content.trim();
+        return props.response.requestResults[0].body.trim();
       case ResponseComposition.CONSOLE:
         return props.response.console.trim();
-      case ResponseComposition.EXTRACT:
-        return Object.keys(props.response.extract)
-          .map((e) => `${e}: ${props.response.extract[e]}`)
-          .join('\n');
+      // case ResponseComposition.EXTRACT:
+      //   return Object.keys(props.response.extract)
+      //     .map((e) => `${e}: ${props.response.extract[e]}`)
+      //     .join('\n');
       default:
         return '';
     }

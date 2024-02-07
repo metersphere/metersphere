@@ -91,7 +91,7 @@
         });
 
         // 监听值的变化
-        editor.onDidBlurEditorText(() => {
+        editor.onDidChangeModelContent(() => {
           const value = editor.getValue(); // 给父组件实时返回最新文本
           emit('update:modelValue', value);
           emit('change', value);
@@ -219,6 +219,13 @@
         }
       }
 
+      function format() {
+        if (editor) {
+          // 格式化代码
+          editor.getAction('editor.action.formatDocument')?.run();
+        }
+      }
+
       watch(
         () => props.modelValue,
         (newValue) => {
@@ -274,6 +281,7 @@
         insertContent,
         undo,
         redo,
+        format,
       };
     },
   });

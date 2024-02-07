@@ -5,6 +5,7 @@ export default {
   'apiTestDebug.serverExec': '服务端执行',
   'apiTestDebug.localExec': '本地执行',
   'apiTestDebug.noMatchModule': '暂无匹配的模块数据',
+  'apiTestDebug.pluginData': '请求数据',
   'apiTestDebug.header': '请求头',
   'apiTestDebug.body': '请求体',
   'apiTestDebug.prefix': '前置',
