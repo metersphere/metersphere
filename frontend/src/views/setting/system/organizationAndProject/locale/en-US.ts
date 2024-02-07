@@ -79,4 +79,6 @@ export default {
   'system.project.searchPlaceholder': 'Search by name or id',
   'system.project.afterModule':
     'After the module is canceled, users will be unable to access the specified module, and existing data will remain intact',
+  'system.project.projectAdminIsNotNull': 'Project administrator cannot be empty',
+  'system.project.pleaseSelectAdmin': 'Please select project administrator',
 };

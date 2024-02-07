@@ -194,6 +194,10 @@
   import { convertToFileByBug } from '@/views/bug-management/utils';
   import { convertToFile } from '@/views/case-management/caseManagementFeature/components/utils';
 
+  defineOptions({
+    name: 'BugDetailTab',
+  });
+
   const { t } = useI18n();
 
   const props = defineProps<{
@@ -408,7 +412,7 @@
   watch(
     () => fileList.value,
     async (val) => {
-      const isNewFiles = val.filter((item) => item.status === 'init').length;
+      const isNewFiles = val.filter((item) => item.status === 'init' || (!item.local && !item.associateId)).length;
       if (val && isNewFiles) {
         startUpload();
       }

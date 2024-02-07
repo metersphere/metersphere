@@ -50,11 +50,17 @@
           >
           </a-select>
         </a-form-item>
-        <a-form-item field="userIds" :label="t('system.project.projectAdmin')">
+        <a-form-item
+          field="userIds"
+          asterisk-position="end"
+          :rules="[{ required: true, message: t('system.project.projectAdminIsNotNull') }]"
+          :label="t('system.project.projectAdmin')"
+        >
           <MsUserSelector
             v-model="form.userIds"
             :type="UserRequestTypeEnum.SYSTEM_PROJECT_ADMIN"
-            placeholder="system.project.projectAdminPlaceholder"
+            placeholder="system.project.pleaseSelectAdmin"
+            :at-least-one="true"
           />
         </a-form-item>
         <a-form-item field="module" :label="t('system.project.moduleSetting')">
@@ -99,7 +105,7 @@
             {{ t('common.cancel') }}
           </a-button>
           <a-button type="primary" :loading="loading" @click="handleBeforeOk">
-            {{ isEdit ? t('common.confirm') : t('common.create') }}
+            {{ isEdit ? t('common.update') : t('common.create') }}
           </a-button>
         </div>
       </div>
@@ -119,6 +125,7 @@
 
   import { createOrUpdateProject, getSystemOrgOption } from '@/api/modules/setting/organizationAndProject';
   import { useI18n } from '@/hooks/useI18n';
+  import { useUserStore } from '@/store';
   import useAppStore from '@/store/modules/app';
   import useLicenseStore from '@/store/modules/setting/license';
 
@@ -127,9 +134,9 @@
   import type { FormInstance, ValidatedError } from '@arco-design/web-vue';
 
   const appStore = useAppStore();
+  const userStore = useUserStore();
   const { t } = useI18n();
   const props = defineProps<{
-    visible: boolean;
     currentProject?: CreateOrUpdateSystemProjectParams;
   }>();
 
@@ -183,7 +190,9 @@
     resourcePoolIds: [],
   });
 
-  const currentVisible = ref(props.visible);
+  const currentVisible = defineModel<boolean>('visible', {
+    default: false,
+  });
   const showPool = computed(() => showPoolModuleIds.some((item) => form.moduleIds?.includes(item)));
 
   const isXpack = computed(() => {
@@ -192,7 +201,7 @@
 
   const formReset = () => {
     form.name = '';
-    form.userIds = [];
+    form.userIds = userStore.id ? [userStore.id] : [];
     form.organizationId = '';
     form.description = '';
     form.enable = true;
@@ -256,26 +265,22 @@
     }
   };
   watchEffect(() => {
-    if (props.currentProject) {
-      form.id = props.currentProject.id;
-      form.name = props.currentProject.name;
-      form.description = props.currentProject.description;
-      form.enable = props.currentProject.enable;
-      form.userIds = props.currentProject.userIds;
-      form.organizationId = props.currentProject.organizationId;
-      form.moduleIds = props.currentProject.moduleIds;
-      form.resourcePoolIds = props.currentProject.resourcePoolIds;
+    initAffiliatedOrgOption();
+    if (props.currentProject?.id) {
+      // 编辑
+      if (props.currentProject) {
+        form.id = props.currentProject.id;
+        form.name = props.currentProject.name;
+        form.description = props.currentProject.description;
+        form.enable = props.currentProject.enable;
+        form.userIds = props.currentProject.userIds;
+        form.organizationId = props.currentProject.organizationId;
+        form.moduleIds = props.currentProject.moduleIds;
+        form.resourcePoolIds = props.currentProject.resourcePoolIds;
+      }
+    } else {
+      // 新建
+      formReset();
     }
   });
-  watch(
-    () => props.visible,
-    (val) => {
-      currentVisible.value = val;
-      if (!val) {
-        formReset();
-      } else {
-        initAffiliatedOrgOption();
-      }
-    }
-  );
 </script>
