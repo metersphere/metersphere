@@ -72,11 +72,11 @@ public class EnvironmentGroupController {
         return environmentGroupService.get(id);
     }
 
-    @GetMapping("/get-project")
+    @GetMapping("/get-project/{organizationId}")
     @Operation(summary = "项目管理-环境组-获取项目")
     @RequiresPermissions(PermissionConstants.PROJECT_ENVIRONMENT_READ)
-    public List<OptionDTO> getProject() {
-        return environmentGroupService.getProject(SessionUtils.getUserId());
+    public List<OptionDTO> getProject(@PathVariable String organizationId) {
+        return environmentGroupService.getProject(SessionUtils.getUserId(), organizationId);
     }
 
     @PostMapping("/edit/pos")

@@ -28,4 +28,28 @@
           and p.enable = 1
           and user.deleted = 0
     </select>
+    <select id="getAllProjectByOrgId" resultType="io.metersphere.project.domain.Project">
+        select id, name, organization_id
+        from project
+        where
+            organization_id = #{organizationId}
+
+        order by create_time desc
+        limit 100
+
+    </select>
+    <select id="getProjectByOrgId" resultType="io.metersphere.project.domain.Project">
+        SELECT DISTINCT p.id, p.name, p.organization_id
+        FROM user_role u
+                 JOIN user_role_relation urr ON u.id = urr.role_id
+                 JOIN project p ON p.id = urr.source_id
+                 JOIN user on urr.user_id = user.id
+        where urr.user_id = #{userId}
+          and u.type = 'PROJECT'
+          and p.enable = 1
+          and user.deleted = 0
+          and p.organization_id = #{organizationId}
+        order by create_time desc
+        limit 100
+    </select>
 </mapper>
