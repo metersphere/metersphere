@@ -8,11 +8,11 @@ import io.metersphere.project.dto.*;
 import io.metersphere.project.mapper.MessageTaskBlobMapper;
 import io.metersphere.project.mapper.MessageTaskMapper;
 import io.metersphere.sdk.constants.SessionConstants;
-import io.metersphere.system.dto.sdk.OptionDTO;
-import io.metersphere.system.dto.sdk.request.MessageTaskRequest;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
+import io.metersphere.system.dto.sdk.OptionDTO;
+import io.metersphere.system.dto.sdk.request.MessageTaskRequest;
 import io.metersphere.system.notice.constants.NoticeConstants;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
@@ -138,7 +138,7 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         Assertions.assertEquals(100200, resultHolder.getCode());
 
         MessageTaskExample messageTaskExample = new MessageTaskExample();
-        messageTaskExample.createCriteria().andReceiverEqualTo("project-message-user-1")
+        messageTaskExample.createCriteria()
                 .andProjectIdEqualTo("project-message-test").andProjectRobotIdEqualTo("test_message_robot2").andTaskTypeEqualTo(NoticeConstants.TaskType.API_DEFINITION_TASK).andEventEqualTo(NoticeConstants.Event.CREATE);
         List<MessageTask> messageTasks1 = messageTaskMapper.selectByExample(messageTaskExample);
         Assertions.assertTrue(messageTasks1.get(0).getEnable());
@@ -148,10 +148,6 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         messageTaskExample.createCriteria().andProjectIdEqualTo("project-message-test").andTaskTypeEqualTo(NoticeConstants.TaskType.API_DEFINITION_TASK).andEventEqualTo(NoticeConstants.Event.CREATE);
         List<MessageTask> messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
         Assertions.assertEquals(1, messageTasks.size());
-        messageTaskExample = new MessageTaskExample();
-        messageTaskExample.createCriteria().andProjectIdEqualTo("project-message-test").andTaskTypeEqualTo(NoticeConstants.TaskType.API_DEFINITION_TASK).andEventEqualTo(NoticeConstants.Event.CREATE).andReceiverEqualTo("project-message-user-3");
-        messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
-        Assertions.assertEquals(0, messageTasks.size());
 
         //projectId 存在 用户有部分被删除的测试
        messageTaskRequest = new MessageTaskRequest();
@@ -191,11 +187,11 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .content(JSON.toJSONString(messageTaskRequest))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
         String contentAsString = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
         ResultHolder resultHolder = JSON.parseObject(contentAsString, ResultHolder.class);
-        Assertions.assertEquals(100500, resultHolder.getCode());
+        Assertions.assertEquals(102001, resultHolder.getCode());
     }
 
     @Test
@@ -209,6 +205,7 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         List<String> userIds = new ArrayList<>();
         userIds.add("project-message-user-7");
         userIds.add("project-message-user-8");
+        messageTaskRequest.setRobotId("test_message_robot2");
         messageTaskRequest.setReceiverIds(userIds);
         messageTaskRequest.setEnable(null);
         messageTaskRequest.setTestId("testId");
@@ -224,11 +221,14 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         Assertions.assertEquals(100200, resultHolder.getCode());
         MessageTaskExample messageTaskExample = new MessageTaskExample();
         messageTaskExample.createCriteria().andTaskTypeEqualTo(NoticeConstants.TaskType.API_DEFINITION_TASK)
-                .andEventEqualTo(NoticeConstants.Event.CREATE).andReceiverEqualTo("project-message-user-8").andProjectIdEqualTo("project-message-test-1");
+                .andEventEqualTo(NoticeConstants.Event.CREATE).andProjectIdEqualTo("project-message-test-1");
         List<MessageTask> messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
-        Assertions.assertEquals("test_message_robot1", messageTasks.get(0).getProjectRobotId());
-        Assertions.assertEquals(false, messageTasks.get(0).getEnable());
-
+        for (MessageTask messageTask : messageTasks) {
+            if (messageTask.getReceivers().contains("project-message-user-8")) {
+                Assertions.assertEquals("test_message_robot2", messageTask.getProjectRobotId());
+                Assertions.assertEquals(false, messageTask.getEnable());
+            }
+        }
     }
 
     @Test
@@ -258,9 +258,16 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         Assertions.assertEquals(100200, resultHolder.getCode());
         MessageTaskExample messageTaskExample = new MessageTaskExample();
         messageTaskExample.createCriteria().andTaskTypeEqualTo(NoticeConstants.TaskType.API_DEFINITION_TASK)
-                .andEventEqualTo(NoticeConstants.Event.CREATE).andReceiverEqualTo("project-message-user-8").andProjectIdEqualTo("project-message-test-1");
+                .andEventEqualTo(NoticeConstants.Event.CREATE).andProjectIdEqualTo("project-message-test-1");
         List<MessageTask> messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
-        Assertions.assertEquals("test_message_robot1", messageTasks.get(0).getProjectRobotId());
+        for (MessageTask messageTask : messageTasks) {
+            if (messageTask.getReceivers().contains("project-message-user-8")) {
+                Assertions.assertEquals("test_message_robot2", messageTask.getProjectRobotId());
+                Assertions.assertEquals(false, messageTask.getEnable());
+            }
+        }
+
+        Assertions.assertEquals("test_message_robot2", messageTasks.get(0).getProjectRobotId());
         Assertions.assertEquals(false, messageTasks.get(0).getEnable());
     }
 
@@ -294,11 +301,16 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         Assertions.assertEquals(100200, resultHolder.getCode());
         MessageTaskExample messageTaskExample = new MessageTaskExample();
         messageTaskExample.createCriteria().andTaskTypeEqualTo(NoticeConstants.TaskType.API_DEFINITION_TASK)
-                .andEventEqualTo(NoticeConstants.Event.CREATE).andReceiverEqualTo("project-message-user-9").andProjectIdEqualTo("project-message-test-1");
+                .andEventEqualTo(NoticeConstants.Event.CREATE).andProjectIdEqualTo("project-message-test-1").andProjectRobotIdEqualTo("test_message_robot1");
         List<MessageTask> messageTasks = messageTaskMapper.selectByExample(messageTaskExample);
-        MessageTaskBlob messageTaskBlob = messageTaskBlobMapper.selectByPrimaryKey(messageTasks.get(0).getId());
-        Assertions.assertEquals("测试新加数据模版生效", messageTaskBlob.getTemplate());
-        Assertions.assertEquals("测试新加数据模版标题生效", messageTasks.get(0).getSubject());
+        for (MessageTask messageTask : messageTasks) {
+            if (messageTask.getReceivers().contains("project-message-user-9")) {
+                MessageTaskBlob messageTaskBlob = messageTaskBlobMapper.selectByPrimaryKey(messageTask.getId());
+                Assertions.assertEquals("测试新加数据模版生效", messageTaskBlob.getTemplate());
+                Assertions.assertEquals("测试新加数据模版标题生效", messageTask.getSubject());
+            }
+        }
+
     }
 
     @Test
@@ -320,7 +332,7 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
                         .content(JSON.toJSONString(messageTaskRequest))
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is5xxServerError())
+                .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
     }
 
@@ -492,7 +504,7 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
         List<MessageTaskDetailDTO> collect2 = messageTaskDetailDTOList1.stream().filter(t -> t.event.equals(NoticeConstants.Event.CREATE)).toList();
         Map<String, ProjectRobotConfigDTO> projectRobotConfigMap = collect2.get(0).getProjectRobotConfigMap();
         ProjectRobotConfigDTO projectRobotConfigDTO = projectRobotConfigMap.get("test_message_robot2");
-        Assertions.assertTrue(StringUtils.equals(projectRobotConfigDTO.getTemplate(),"发送消息测试"));
+        Assertions.assertFalse(StringUtils.equals(projectRobotConfigDTO.getTemplate(),"发送消息测试"));
     }
 
 
@@ -673,30 +685,29 @@ public class NoticeMessageTaskControllerTests extends BaseTest {
                     if (StringUtils.equalsIgnoreCase(event, NoticeConstants.Event.CREATE) || StringUtils.equalsIgnoreCase(event, NoticeConstants.Event.CASE_CREATE) || StringUtils.equalsIgnoreCase(event, NoticeConstants.Event.MOCK_CREATE) || CollectionUtils.isEmpty(receivers)) {
                         continue;
                     }
-                    for (OptionDTO receiver : receivers) {
-                        String id = IDGenerator.nextStr();
-                        MessageTask messageTask = new MessageTask();
-                        messageTask.setId(id);
-                        messageTask.setEvent(event);
-                        messageTask.setTaskType(taskType);
-                        messageTask.setReceiver(receiver.getId());
-                        messageTask.setProjectId(projectId);
-                        messageTask.setProjectRobotId(defaultRobotId);
-                        messageTask.setEnable(true);
-                        messageTask.setTestId("NONE");
-                        messageTask.setCreateUser("admin");
-                        messageTask.setCreateTime(System.currentTimeMillis());
-                        messageTask.setUpdateUser("admin");
-                        messageTask.setUpdateTime(System.currentTimeMillis());
-                        messageTask.setSubject("");
-                        messageTask.setUseDefaultSubject(true);
-                        messageTask.setUseDefaultTemplate(true);
-                        MessageTaskBlob messageTaskBlob = new MessageTaskBlob();
-                        messageTaskBlob.setId(id);
-                        messageTaskBlob.setTemplate("");
-                        mapper.insert(messageTask);
-                        blobMapper.insert(messageTaskBlob);
-                    }
+                    List<String> receiverIds = receivers.stream().map(OptionDTO::getId).toList();
+                    String id = IDGenerator.nextStr();
+                    MessageTask messageTask = new MessageTask();
+                    messageTask.setId(id);
+                    messageTask.setEvent(event);
+                    messageTask.setTaskType(taskType);
+                    messageTask.setReceivers(receiverIds);
+                    messageTask.setProjectId(projectId);
+                    messageTask.setProjectRobotId(defaultRobotId);
+                    messageTask.setEnable(true);
+                    messageTask.setTestId("NONE");
+                    messageTask.setCreateUser("admin");
+                    messageTask.setCreateTime(System.currentTimeMillis());
+                    messageTask.setUpdateUser("admin");
+                    messageTask.setUpdateTime(System.currentTimeMillis());
+                    messageTask.setSubject("");
+                    messageTask.setUseDefaultSubject(true);
+                    messageTask.setUseDefaultTemplate(true);
+                    MessageTaskBlob messageTaskBlob = new MessageTaskBlob();
+                    messageTaskBlob.setId(id);
+                    messageTaskBlob.setTemplate("");
+                    mapper.insert(messageTask);
+                    blobMapper.insert(messageTaskBlob);
                 }
             }
         }

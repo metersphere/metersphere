@@ -4,8 +4,8 @@
   <resultMap id="BaseResultMap" type="io.metersphere.project.domain.MessageTask">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="event" jdbcType="VARCHAR" property="event" />
-    <result column="receiver" jdbcType="VARCHAR" property="receiver" />
     <result column="project_robot_id" jdbcType="VARCHAR" property="projectRobotId" />
+    <result column="receivers" jdbcType="VARCHAR" property="receivers" typeHandler="io.metersphere.handler.ListTypeHandler" />
     <result column="task_type" jdbcType="VARCHAR" property="taskType" />
     <result column="test_id" jdbcType="VARCHAR" property="testId" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
@@ -42,6 +42,25 @@
                 </when>
               </choose>
             </foreach>
+            <foreach collection="criteria.receiversCriteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler} and #{criterion.secondValue,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem,typeHandler=io.metersphere.handler.ListTypeHandler}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
           </trim>
         </if>
       </foreach>
@@ -71,13 +90,32 @@
                 </when>
               </choose>
             </foreach>
+            <foreach collection="criteria.receiversCriteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value,typeHandler=io.metersphere.handler.ListTypeHandler} and #{criterion.secondValue,typeHandler=io.metersphere.handler.ListTypeHandler}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem,typeHandler=io.metersphere.handler.ListTypeHandler}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
           </trim>
         </if>
       </foreach>
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, event, receiver, project_robot_id, task_type, test_id, project_id, `enable`, 
+    id, event, project_robot_id, receivers, task_type, test_id, project_id, `enable`, 
     create_user, create_time, update_user, update_time, use_default_template, use_default_subject, 
     subject
   </sql>
@@ -112,18 +150,18 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.project.domain.MessageTask">
-    insert into message_task (id, event, receiver, 
-      project_robot_id, task_type, test_id, 
-      project_id, `enable`, create_user, 
-      create_time, update_user, update_time, 
-      use_default_template, use_default_subject, subject
-      )
-    values (#{id,jdbcType=VARCHAR}, #{event,jdbcType=VARCHAR}, #{receiver,jdbcType=VARCHAR}, 
-      #{projectRobotId,jdbcType=VARCHAR}, #{taskType,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR}, 
-      #{projectId,jdbcType=VARCHAR}, #{enable,jdbcType=BIT}, #{createUser,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, 
-      #{useDefaultTemplate,jdbcType=BIT}, #{useDefaultSubject,jdbcType=BIT}, #{subject,jdbcType=VARCHAR}
-      )
+    insert into message_task (id, event, project_robot_id, 
+      receivers, 
+      task_type, test_id, project_id, 
+      `enable`, create_user, create_time, 
+      update_user, update_time, use_default_template, 
+      use_default_subject, subject)
+    values (#{id,jdbcType=VARCHAR}, #{event,jdbcType=VARCHAR}, #{projectRobotId,jdbcType=VARCHAR}, 
+      #{receivers,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
+      #{taskType,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, 
+      #{enable,jdbcType=BIT}, #{createUser,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{updateUser,jdbcType=VARCHAR}, #{updateTime,jdbcType=BIGINT}, #{useDefaultTemplate,jdbcType=BIT}, 
+      #{useDefaultSubject,jdbcType=BIT}, #{subject,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.MessageTask">
     insert into message_task
@@ -134,11 +172,11 @@
       <if test="event != null">
         event,
       </if>
-      <if test="receiver != null">
-        receiver,
-      </if>
       <if test="projectRobotId != null">
         project_robot_id,
+      </if>
+      <if test="receivers != null">
+        receivers,
       </if>
       <if test="taskType != null">
         task_type,
@@ -181,11 +219,11 @@
       <if test="event != null">
         #{event,jdbcType=VARCHAR},
       </if>
-      <if test="receiver != null">
-        #{receiver,jdbcType=VARCHAR},
-      </if>
       <if test="projectRobotId != null">
         #{projectRobotId,jdbcType=VARCHAR},
+      </if>
+      <if test="receivers != null">
+        #{receivers,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       </if>
       <if test="taskType != null">
         #{taskType,jdbcType=VARCHAR},
@@ -237,11 +275,11 @@
       <if test="record.event != null">
         event = #{record.event,jdbcType=VARCHAR},
       </if>
-      <if test="record.receiver != null">
-        receiver = #{record.receiver,jdbcType=VARCHAR},
-      </if>
       <if test="record.projectRobotId != null">
         project_robot_id = #{record.projectRobotId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.receivers != null">
+        receivers = #{record.receivers,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       </if>
       <if test="record.taskType != null">
         task_type = #{record.taskType,jdbcType=VARCHAR},
@@ -285,8 +323,8 @@
     update message_task
     set id = #{record.id,jdbcType=VARCHAR},
       event = #{record.event,jdbcType=VARCHAR},
-      receiver = #{record.receiver,jdbcType=VARCHAR},
       project_robot_id = #{record.projectRobotId,jdbcType=VARCHAR},
+      receivers = #{record.receivers,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       task_type = #{record.taskType,jdbcType=VARCHAR},
       test_id = #{record.testId,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
@@ -308,11 +346,11 @@
       <if test="event != null">
         event = #{event,jdbcType=VARCHAR},
       </if>
-      <if test="receiver != null">
-        receiver = #{receiver,jdbcType=VARCHAR},
-      </if>
       <if test="projectRobotId != null">
         project_robot_id = #{projectRobotId,jdbcType=VARCHAR},
+      </if>
+      <if test="receivers != null">
+        receivers = #{receivers,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       </if>
       <if test="taskType != null">
         task_type = #{taskType,jdbcType=VARCHAR},
@@ -353,8 +391,8 @@
   <update id="updateByPrimaryKey" parameterType="io.metersphere.project.domain.MessageTask">
     update message_task
     set event = #{event,jdbcType=VARCHAR},
-      receiver = #{receiver,jdbcType=VARCHAR},
       project_robot_id = #{projectRobotId,jdbcType=VARCHAR},
+      receivers = #{receivers,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler},
       task_type = #{taskType,jdbcType=VARCHAR},
       test_id = #{testId,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
@@ -370,17 +408,17 @@
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into message_task
-    (id, event, receiver, project_robot_id, task_type, test_id, project_id, `enable`, 
+    (id, event, project_robot_id, receivers, task_type, test_id, project_id, `enable`, 
       create_user, create_time, update_user, update_time, use_default_template, use_default_subject, 
       subject)
     values
     <foreach collection="list" item="item" separator=",">
-      (#{item.id,jdbcType=VARCHAR}, #{item.event,jdbcType=VARCHAR}, #{item.receiver,jdbcType=VARCHAR}, 
-        #{item.projectRobotId,jdbcType=VARCHAR}, #{item.taskType,jdbcType=VARCHAR}, #{item.testId,jdbcType=VARCHAR}, 
-        #{item.projectId,jdbcType=VARCHAR}, #{item.enable,jdbcType=BIT}, #{item.createUser,jdbcType=VARCHAR}, 
-        #{item.createTime,jdbcType=BIGINT}, #{item.updateUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}, 
-        #{item.useDefaultTemplate,jdbcType=BIT}, #{item.useDefaultSubject,jdbcType=BIT}, 
-        #{item.subject,jdbcType=VARCHAR})
+      (#{item.id,jdbcType=VARCHAR}, #{item.event,jdbcType=VARCHAR}, #{item.projectRobotId,jdbcType=VARCHAR}, 
+        #{item.receivers,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
+        #{item.taskType,jdbcType=VARCHAR}, #{item.testId,jdbcType=VARCHAR}, #{item.projectId,jdbcType=VARCHAR}, 
+        #{item.enable,jdbcType=BIT}, #{item.createUser,jdbcType=VARCHAR}, #{item.createTime,jdbcType=BIGINT}, 
+        #{item.updateUser,jdbcType=VARCHAR}, #{item.updateTime,jdbcType=BIGINT}, #{item.useDefaultTemplate,jdbcType=BIT}, 
+        #{item.useDefaultSubject,jdbcType=BIT}, #{item.subject,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -399,11 +437,11 @@
         <if test="'event'.toString() == column.value">
           #{item.event,jdbcType=VARCHAR}
         </if>
-        <if test="'receiver'.toString() == column.value">
-          #{item.receiver,jdbcType=VARCHAR}
-        </if>
         <if test="'project_robot_id'.toString() == column.value">
           #{item.projectRobotId,jdbcType=VARCHAR}
+        </if>
+        <if test="'receivers'.toString() == column.value">
+          #{item.receivers,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}
         </if>
         <if test="'task_type'.toString() == column.value">
           #{item.taskType,jdbcType=VARCHAR}

@@ -20,88 +20,61 @@ VALUES ('test_review_case_message_robot1', 'project-review-case-test', '测试�
 
 
 
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user,
+Insert into message_task(id, event, receivers, project_robot_id, task_type, test_id, project_id, enable, create_user,
                          create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES ('review-case_messageOne', 'UPDATE', 'CREATE_USER', 'test_review_case_message_robot1', 'CASE_REVIEW_TASK',
+VALUES ('review-case_messageOne', 'UPDATE', '["CREATE_USER","FOLLOW_PEOPLE"]', 'test_review_case_message_robot1', 'CASE_REVIEW_TASK',
         'NONE', 'project-review-case-test', true, 'admin', unix_timestamp() * 1000, 'admin', unix_timestamp() * 1000,
         true, true, 'message.title.case_review_task_update');
 INSERT INTO message_task_blob(id, template)
 VALUES ('review-case_messageOne', 'message.case_review_task_update');
 
-
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user,
+Insert into message_task(id, event, receivers, project_robot_id, task_type, test_id, project_id, enable, create_user,
                          create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES ('review-case_message2', 'UPDATE', 'FOLLOW_PEOPLE', 'test_review_case_message_robot1', 'CASE_REVIEW_TASK',
-        'NONE', 'project-review-case-test', true, 'admin', unix_timestamp() * 1000, 'admin', unix_timestamp() * 1000,
-        true, true, 'message.title.case_review_task_update');
-INSERT INTO message_task_blob(id, template)
-VALUES ('review-case_message2', 'message.case_review_task_update');
-
-
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user,
-                         create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES ('review-case_message3', 'DELETE', 'CREATE_USER', 'test_review_case_message_robot1', 'CASE_REVIEW_TASK', 'NONE',
+VALUES ('review-case_message3', 'DELETE', '["CREATE_USER"]', 'test_review_case_message_robot1', 'CASE_REVIEW_TASK', 'NONE',
         'project-review-case-test', true, 'admin', unix_timestamp() * 1000, 'admin', unix_timestamp() * 1000, true,
         true, 'message.title.case_review_task_delete');
 INSERT INTO message_task_blob(id, template)
 VALUES ('review-case_message3', 'message.case_review_task_delete');
 
 
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user,
+Insert into message_task(id, event, receivers, project_robot_id, task_type, test_id, project_id, enable, create_user,
                          create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES ('review-case_message4', 'REVIEW_COMPLETED', 'CREATE_USER', 'test_review_case_message_robot1',
+VALUES ('review-case_message4', 'REVIEW_COMPLETED', '["CREATE_USER","default-project-member-user-gyq"]', 'test_review_case_message_robot1',
         'CASE_REVIEW_TASK', 'NONE', 'project-review-case-test', true, 'admin', unix_timestamp() * 1000, 'admin',
         unix_timestamp() * 1000, true, true, 'message.title.case_review_task_review_completed');
 INSERT INTO message_task_blob(id, template)
 VALUES ('review-case_message4', 'message.case_review_task_review_completed');
 
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user,
-                         create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES ('review-case_messageA', 'REVIEW_COMPLETED', 'default-project-member-user-gyq',
-        'test_review_case_message_robot1', 'CASE_REVIEW_TASK', 'NONE', 'project-review-case-test', true, 'admin',
-        unix_timestamp() * 1000, 'admin', unix_timestamp() * 1000, true, true,
-        'message.title.case_review_task_review_completed');
-INSERT INTO message_task_blob(id, template)
-VALUES ('review-case_messageA', 'message.case_review_task_review_completed');
 
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user,
+Insert into message_task(id, event, receivers, project_robot_id, task_type, test_id, project_id, enable, create_user,
                          create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES ('review-case_message5', 'CREATE', 'CREATE_USER', 'test_review_case_message_robot1', 'CASE_REVIEW_TASK', 'NONE',
+VALUES ('review-case_message5', 'CREATE', '["CREATE_USER","default-project-member-user-gyq"]', 'test_review_case_message_robot1', 'CASE_REVIEW_TASK', 'NONE',
         'project-review-case-test', true, 'admin', unix_timestamp() * 1000, 'admin', unix_timestamp() * 1000, true,
         true, 'message.title.case_review_task_create');
 INSERT INTO message_task_blob(id, template)
 VALUES ('review-case_message5', 'message.case_review_task_create');
 
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user,
+Insert into message_task(id, event, receivers, project_robot_id, task_type, test_id, project_id, enable, create_user,
                          create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES ('review-case_message6', 'CREATE', 'default-project-member-user-gyq', 'test_review_case_message_robot1',
-        'CASE_REVIEW_TASK', 'NONE', 'project-review-case-test', true, 'admin', unix_timestamp() * 1000, 'admin',
-        unix_timestamp() * 1000, true, true, 'message.title.case_review_task_create');
-INSERT INTO message_task_blob(id, template)
-VALUES ('review-case_message6', 'message.case_review_task_create');
-
-
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user,
-                         create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES ('review-case_message7', 'REVIEW_AT', 'NONE', 'test_review_case_message_robot1', 'FUNCTIONAL_CASE_TASK', 'NONE',
+VALUES ('review-case_message7', 'REVIEW_AT', '[]', 'test_review_case_message_robot1', 'FUNCTIONAL_CASE_TASK', 'NONE',
         'project-review-case-test', true, 'admin', unix_timestamp() * 1000, 'admin', unix_timestamp() * 1000, true,
         true, 'message.title.functional_case_task_review_at');
 INSERT INTO message_task_blob(id, template)
 VALUES ('review-case_message7', 'message.functional_case_task_review_at');
 
 
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user,
+Insert into message_task(id, event, receivers, project_robot_id, task_type, test_id, project_id, enable, create_user,
                          create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES ('review-case_message8', 'REVIEW_PASSED', 'default-project-member-user-gyq-2', 'test_review_case_message_robot1',
+VALUES ('review-case_message8', 'REVIEW_PASSED', '["default-project-member-user-gyq-2"]', 'test_review_case_message_robot1',
         'FUNCTIONAL_CASE_TASK', 'NONE', 'project-review-case-test', true, 'admin', unix_timestamp() * 1000, 'admin',
         unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_review_passed');
 INSERT INTO message_task_blob(id, template)
 VALUES ('review-case_message8', 'message.functional_case_task_review');
 
 
-Insert into message_task(id, event, receiver, project_robot_id, task_type, test_id, project_id, enable, create_user,
+Insert into message_task(id, event, receivers, project_robot_id, task_type, test_id, project_id, enable, create_user,
                          create_time, update_user, update_time, use_default_template, use_default_subject, subject)
-VALUES ('review-case_message9', 'REVIEW_FAIL', 'default-project-member-user-gyq-2', 'test_review_case_message_robot1',
+VALUES ('review-case_message9', 'REVIEW_FAIL', '["default-project-member-user-gyq-2"]', 'test_review_case_message_robot1',
         'FUNCTIONAL_CASE_TASK', 'NONE', 'project-review-case-test', true, 'admin', unix_timestamp() * 1000, 'admin',
         unix_timestamp() * 1000, true, true, 'message.title.functional_case_task_review_fail');
 INSERT INTO message_task_blob(id, template)
