@@ -34,6 +34,7 @@ export enum ProjectManagementRouteEnum {
   PROJECT_MANAGEMENT_MESSAGE_MANAGEMENT = 'projectManagementMessageManagement',
   PROJECT_MANAGEMENT_COMMON_SCRIPT = 'projectManagementCommonScript',
   PROJECT_MANAGEMENT_MESSAGE_MANAGEMENT_EDIT = 'projectManagementMessageManagementEdit',
+  PROJECT_MANAGEMENT_TASK_CENTER = 'projectManagementTaskCenter',
   PROJECT_MANAGEMENT_LOG = 'projectManagementLog',
   PROJECT_MANAGEMENT_PERMISSION = 'projectManagementPermission',
   PROJECT_MANAGEMENT_PERMISSION_BASIC_INFO = 'projectManagementPermissionBasicInfo',
@@ -86,6 +87,7 @@ export enum SettingRouteEnum {
   SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_WORKFLOW = 'settingOrganizationTemplateWorkFlow',
   SETTING_ORGANIZATION_SERVICE = 'settingOrganizationService',
   SETTING_ORGANIZATION_LOG = 'settingOrganizationLog',
+  SETTING_ORGANIZATION_TASK_CENTER = 'settingOrganizationTaskCenter',
 }
 
 export const RouteEnum = {

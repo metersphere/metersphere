@@ -108,4 +108,7 @@ export default {
   'system.plugin.deleteContentTip':
     'After deletion, the defects/requirements of the platform cannot be synchronized, and the historical data is automatically switched to other templates. Please exercise caution!',
   'system.plugin.allOrganizeTip': 'This rule is common to new organizations',
+  'system.plugin.switchAllOrganizeTip': 'The plugin will be visible to all organizations',
+  'system.plugin.switchSectionOrganizeTip': 'Plug-in to specify organization is visible',
+  'system.plugin.changeOrganizeTip': 'Changing the organization will make historical data unavailable, so be careful!',
 };

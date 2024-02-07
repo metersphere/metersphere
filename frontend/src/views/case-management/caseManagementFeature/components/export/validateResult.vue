@@ -22,20 +22,26 @@
           }}<span class="mx-1 font-medium text-[rgb(var(--danger-6))]">{{ validateResultInfo.failCount }}</span
           >{{ t('caseManagement.featureCase.caseCount') }}</span
         >
-        <a-popover position="bottom">
+        <a-popover
+          position="bottom"
+          :content-style="{
+            padding: '0px',
+          }"
+        >
           <span v-if="validateResultInfo.failCount" class="font-medium text-[rgb(var(--primary-5))]">{{
             t('caseManagement.featureCase.viewErrorDetail')
           }}</span>
           <template #title>
-            <div class="w-[440px]"
+            <div class="w-[440px] px-4 pt-4"
               >{{ t('caseManagement.featureCase.someCaseImportFailed') }}
-              <span class="text-[var(--color-text-4)]">({{ validateResultInfo.failCount }})</span></div
+              <span class="text-[14px] font-medium text-[var(--color-text-4)]"
+                >({{ validateResultInfo.failCount }})</span
+              ></div
             >
           </template>
           <template #content>
             <div class="w-[440px]">
-              <a-divider class="mx-0 my-0" />
-              <div class="max-h-[400px] overflow-hidden">
+              <div class="max-h-[400px] overflow-hidden px-4">
                 <div
                   v-for="(item, index) of validateResultInfo.errorMessages"
                   :key="`${item.rowNum}-${index}`"
@@ -44,9 +50,9 @@
                   {{ item.errMsg }}
                 </div>
               </div>
-              <a-button class="mt-[8px]" type="text" long @click="showMore">{{
+              <div class="moreBtn h-[40px] text-[14px]" type="text" long @click="showMore">{{
                 t('caseManagement.featureCase.ViewMore')
-              }}</a-button>
+              }}</div>
             </div>
           </template>
         </a-popover>
@@ -77,13 +83,11 @@
       </div>
     </template>
   </a-modal>
-  <MsDrawer
-    v-model:visible="showMoreFailureCase"
-    :title="t('caseManagement.featureCase.cancelValidateSuccess', { number: validateResultInfo.failCount })"
-    :width="960"
-    :footer="false"
-    no-content-padding
-  >
+  <MsDrawer v-model:visible="showMoreFailureCase" :width="960" :footer="false" no-content-padding>
+    <template #title>
+      {{ t('caseManagement.featureCase.importFailedCases')
+      }}<span class="text-[var(--color-text-4)]">({{ validateResultInfo.failCount }})</span>
+    </template>
     <MsList
       mode="static"
       :virtual-list-props="{
@@ -202,5 +206,13 @@
     border-radius: 50%;
     background: var(--color-text-input-border);
     @apply mr-2 mt-2;
+  }
+  .moreBtn {
+    color: rgb(var(--primary-5));
+    box-shadow: 0 -1px 4px rgba(31 35 41/10%);
+    @apply mt-2 flex items-center justify-center;
+  }
+  :deep(.arco-popover-popup-content) {
+    padding: 0;
   }
 </style>

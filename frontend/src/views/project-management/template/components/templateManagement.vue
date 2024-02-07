@@ -2,8 +2,9 @@
   <MsCard has-breadcrumb simple>
     <div class="mb-4 flex items-center justify-between">
       <span v-if="isEnableOrdTemplate" class="font-medium">{{ t('system.orgTemplate.templateList') }}</span>
+      <!--TODO 这个版本不允许修改默认模版也不允许创建用例模版  -->
       <a-button
-        v-else
+        v-if="!isEnableOrdTemplate && route.query.type === 'BUG'"
         v-permission="['PROJECT_TEMPLATE:READ+ADD']"
         type="primary"
         :disabled="false"
@@ -22,9 +23,17 @@
     </div>
     <MsBaseTable v-bind="propsRes" ref="tableRef" v-on="propsEvent">
       <template #defaultTemplate="{ record }">
-        <a-switch
+        <!-- <a-switch
           v-model="record.enableDefault"
           :disabled="record.enableDefault || isEnableOrdTemplate"
+          size="small"
+          type="line"
+          @change="(value) => changeDefault(value, record)"
+        /> -->
+        <!-- TODO 这个版本不允许修改默认模版也不允许创建用例模版 -->
+        <a-switch
+          v-model="record.enableDefault"
+          :disabled="true"
           size="small"
           type="line"
           @change="(value) => changeDefault(value, record)"

@@ -217,7 +217,7 @@ export default {
     'Check, the original use case will be overwritten when the ID is the same',
   'caseManagement.featureCase.notSelectedRecoverCase': 'If the ID already exists, the use case is skipped',
   'caseManagement.featureCase.cancelValidate': 'Cancel the check',
-  'caseManagement.featureCase.cancelValidateSuccess': 'Cancel check successfully',
+  'caseManagement.featureCase.importFailedCases': 'Import failed use cases {number}',
   'caseManagement.featureCase.importFailedCountTitle': 'Import failure use case ({number})',
   'caseManagement.featureCase.beforeUploadTip':
     'Before uploading, please click edit content {type} in the template format',

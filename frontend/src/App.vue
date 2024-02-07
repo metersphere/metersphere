@@ -12,6 +12,7 @@
 
   import { getProjectInfo } from '@/api/modules/project-management/basicInfo';
   import { saveBaseUrl } from '@/api/modules/setting/config';
+  import { getUserHasProjectPermission } from '@/api/modules/system';
   import { GetPlatformIconUrl } from '@/api/requrls/setting/config';
   // import GlobalSetting from '@/components/pure/global-setting/index.vue';
   import useLocale from '@/locale/useLocale';
@@ -70,21 +71,32 @@
       console.log(error);
     }
   });
+
   const checkIsLogin = async () => {
     const isLogin = await userStore.isLogin();
     const isLoginPage = route.name === 'login';
     if (isLogin && appStore.currentProjectId && appStore.currentProjectId !== 'no_such_project') {
       // 当前为登陆状态，且已经选择了项目，初始化当前项目配置
       try {
-        const res = await getProjectInfo(appStore.currentProjectId);
-        if (res && (res.deleted || !res.enable)) {
-          // 如果项目被删除或者被禁用，跳转到无项目页面
+        const HasProjectPermission = await getUserHasProjectPermission(appStore.currentProjectId);
+        if (!HasProjectPermission) {
+          // 没有项目权限（用户所在的当前项目被禁用&用户被移除出去该项目）
           router.push({
             name: NO_PROJECT_ROUTE_NAME,
           });
           return;
         }
-        appStore.setCurrentMenuConfig(res?.moduleIds || []);
+        const res = await getProjectInfo(appStore.currentProjectId);
+        if (res.deleted) {
+          // 如果项目被删除或者被禁用，跳转到无项目页面
+          router.push({
+            name: NO_PROJECT_ROUTE_NAME,
+          });
+        }
+
+        if (res) {
+          appStore.setCurrentMenuConfig(res?.moduleIds || []);
+        }
       } catch (err) {
         appStore.setCurrentMenuConfig([]);
         // eslint-disable-next-line no-console

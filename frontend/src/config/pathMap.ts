@@ -330,8 +330,15 @@ export const pathMap: PathMapItem[] = [
             level: MENU_LEVEL[1],
           },
           {
-            key: 'SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_DETAIL', // 系统设置-模板管理-详情
+            key: 'SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_CREATE', // 系统设置-模板管理-创建
             locale: 'menu.settings.organization.templateManagementDetail',
+            route: RouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_DETAIL,
+            permission: [],
+            level: MENU_LEVEL[1],
+          },
+          {
+            key: 'SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_UPDATE', // 系统设置-模板管理-更新模版
+            locale: 'menu.settings.organization.templateManagementEdit',
             route: RouteEnum.SETTING_ORGANIZATION_TEMPLATE_MANAGEMENT_DETAIL,
             permission: [],
             level: MENU_LEVEL[1],
@@ -375,6 +382,13 @@ export const pathMap: PathMapItem[] = [
             permission: [],
             level: MENU_LEVEL[2],
           },
+          // {
+          //   key: 'PROJECT_MANAGEMENT_PERMISSION_VERSION', // 项目管理-项目与权限-项目版本
+          //   locale: 'project.permission.projectVersion',
+          //   route: RouteEnum.PROJECT_MANAGEMENT_PERMISSION_VERSION,
+          //   permission: [],
+          //   level: MENU_LEVEL[2],
+          // },
           {
             key: 'PROJECT_MANAGEMENT_PERMISSION_MEMBER', // 项目管理-项目与权限-成员
             locale: 'project.permission.member',
@@ -413,8 +427,15 @@ export const pathMap: PathMapItem[] = [
         level: MENU_LEVEL[2],
       },
       {
-        key: 'PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_DETAIL', // 项目管理-模板管理-详情
+        key: 'PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_CREATE', // 项目管理-模板管理-创建模版
         locale: 'menu.settings.organization.templateManagementDetail',
+        route: RouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_DETAIL,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+      {
+        key: 'PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_UPDATE', // 项目管理-模板管理-更新模版
+        locale: 'menu.settings.organization.templateManagementEdit',
         route: RouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_DETAIL,
         permission: [],
         level: MENU_LEVEL[2],
@@ -490,7 +511,7 @@ export const pathMap: PathMapItem[] = [
     ],
   },
   // 测试计划
-  /* {
+  {
     key: 'TEST_PLAN', // 测试计划
     locale: 'menu.testPlan',
     route: RouteEnum.TEST_PLAN,
@@ -505,7 +526,7 @@ export const pathMap: PathMapItem[] = [
         level: MENU_LEVEL[2],
       },
     ],
-  }, */
+  },
   {
     key: 'PERSONAL_INFORMATION', // 个人信息
     locale: 'ms.personal',
@@ -549,5 +570,13 @@ export const pathMap: PathMapItem[] = [
         level: MENU_LEVEL[2],
       },
     ],
+  },
+  // 系统
+  {
+    key: 'SYSTEM',
+    locale: 'menu.settings.system', // 系统
+    route: '',
+    permission: [],
+    level: MENU_LEVEL[0],
   },
 ];

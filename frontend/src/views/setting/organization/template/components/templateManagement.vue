@@ -6,7 +6,7 @@
     <div class="mb-4 flex items-center justify-between">
       <span v-if="isEnableOrdTemplate" class="font-medium">{{ t('system.orgTemplate.templateList') }}</span>
       <a-button
-        v-else
+        v-if="!isEnableOrdTemplate && route.query.type === 'BUG'"
         v-permission="['ORGANIZATION_TEMPLATE:READ+ADD']"
         type="primary"
         :disabled="false"

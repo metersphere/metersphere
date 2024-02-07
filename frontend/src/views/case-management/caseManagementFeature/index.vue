@@ -136,7 +136,11 @@
   import ValidateModal from './components/export/validateModal.vue';
   import ValidateResult from './components/export/validateResult.vue';
 
-  import { createCaseModuleTree, importExcelCase, importExcelChecked } from '@/api/modules/case-management/featureCase';
+  import featureCase, {
+    createCaseModuleTree,
+    importExcelCase,
+    importExcelChecked,
+  } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
   import useFeatureCaseStore from '@/store/modules/case/featureCase';
@@ -266,16 +270,6 @@
     });
   }
 
-  // 设置默认选中状态
-  router.beforeEach((to: any, from: any, next) => {
-    const routeEnumValues = Object.values(CaseManagementRouteEnum);
-    if (!routeEnumValues.includes(to.name)) {
-      // 当前路由不在枚举中，清空仓库的状态值
-      featureCaseStore.setIsAlreadySuccess(false);
-    }
-    next();
-  });
-
   const showExcelModal = ref<boolean>(false);
   const validateType = ref<'Excel' | 'Xmind'>('Excel');
 
@@ -389,12 +383,6 @@
       importLoading.value = false;
     }
   }
-
-  onMounted(() => {
-    if (featureCaseStore.operatingState) {
-      [activeFolder.value] = featureCaseStore.moduleId;
-    }
-  });
 </script>
 
 <style scoped lang="less">

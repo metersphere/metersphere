@@ -51,6 +51,7 @@
     try {
       if (appStore.getCurrentOrgId && hasAnyPermission(['PROJECT_BASE_INFO:READ'])) {
         const res = await getProjectList(appStore.getCurrentOrgId); // TODO:
+        projectList.value = res;
       } else {
         projectList.value = [];
       }

@@ -55,10 +55,6 @@ const useFeatureCaseStore = defineStore('featureCase', {
         console.log(error);
       }
     },
-    // 设置是否是编辑或者新增成功状态
-    setIsAlreadySuccess(state: boolean) {
-      this.operatingState = state;
-    },
     // 设置菜单
     setTab(list: TabItemType[]) {
       this.tabSettingList = list;
@@ -82,6 +78,15 @@ const useFeatureCaseStore = defineStore('featureCase', {
         }
         return {
           ...item,
+        };
+      });
+    },
+    // 初始化count
+    initCountMap(countMap: Record<string, any>) {
+      this.tabSettingList = this.tabSettingList.map((item) => {
+        return {
+          ...item,
+          total: countMap[item.key] || 0,
         };
       });
     },

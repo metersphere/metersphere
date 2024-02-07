@@ -13,6 +13,7 @@
       hide-button
       :formatter="handleFormatter"
       @change="handleChange"
+      @enter="handleChange"
     />
     <span v-if="$slots['jumper-append']" :class="`${prefixCls}-append`"><slot name="jumper-append" /></span>
     <span :class="`${prefixCls}-total-page`" :style="{ 'min-width': totalPageWidth }">{{

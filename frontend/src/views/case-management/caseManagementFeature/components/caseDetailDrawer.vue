@@ -91,7 +91,14 @@
     </template>
     <template #default>
       <div ref="wrapperRef" class="wrapperRef bg-white">
-        <MsSplitBox ref="wrapperRef" expand-direction="right" :max="0.7" :min="0.7" :size="900">
+        <MsSplitBox
+          ref="wrapperRef"
+          :class="isFullScreen ? 'h-[100%]' : 'h-[calc(100% - 78px)]'"
+          expand-direction="right"
+          :max="0.7"
+          :min="0.7"
+          :size="900"
+        >
           <template #first>
             <div class="leftWrapper">
               <div class="header h-[50px]">
@@ -103,7 +110,6 @@
                       <a-badge
                         class="ml-1"
                         :class="activeTab === tab.key ? 'active' : ''"
-                        :count="1000"
                         :text="getTotal(tab.total)"
                       /> </div
                   ></a-menu-item>
@@ -182,17 +188,17 @@
             </div>
           </template>
         </MsSplitBox>
+        <inputComment
+          v-model:content="content"
+          v-model:notice-user-ids="noticeUserIds"
+          v-permission="['FUNCTIONAL_CASE:READ+COMMENT']"
+          :is-active="isActive"
+          is-show-avatar
+          is-use-bottom
+          @publish="publishHandler"
+          @cancel="cancelPublish"
+        />
       </div>
-      <inputComment
-        v-model:content="content"
-        v-model:notice-user-ids="noticeUserIds"
-        v-permission="['FUNCTIONAL_CASE:READ+COMMENT']"
-        :is-active="isActive"
-        is-show-avatar
-        is-use-bottom
-        @publish="publishHandler"
-        @cancel="cancelPublish"
-      />
     </template>
   </MsDetailDrawer>
   <SettingDrawer ref="settingDrawerRef" v-model:visible="showSettingDrawer" />
@@ -212,7 +218,7 @@
   import caseLevel from '@/components/business/ms-case-associate/caseLevel.vue';
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import inputComment from '@/components/business/ms-comment/input.vue';
-  import { CommentItem, CommentParams } from '@/components/business/ms-comment/types';
+  import { CommentParams } from '@/components/business/ms-comment/types';
   import MsDetailDrawer from '@/components/business/ms-detail-drawer/index.vue';
   import SettingDrawer from './tabContent/settingDrawer.vue';
   import TabDefect from './tabContent/tabBug/tabDefect.vue';
@@ -334,9 +340,24 @@
   const detailInfo = ref<DetailCase>({ ...initDetail });
   const customFields = ref<CustomAttributes[]>([]);
   const caseLevels = ref<CaseLevel>('P0');
+
+  // 初始化count
+  function setCount(detail: DetailCase) {
+    const { bugCount, caseCount, caseReviewCount, demandCount, relateEdgeCount, testPlanCount } = detail;
+    const countMap: Record<string, any> = {
+      case: caseCount,
+      dependency: relateEdgeCount,
+      caseReview: caseReviewCount,
+      testPlan: testPlanCount,
+      bug: bugCount,
+      requirement: demandCount,
+    };
+    featureCaseStore.initCountMap(countMap);
+  }
   function loadedCase(detail: DetailCase) {
     getCaseTree();
     detailInfo.value = { ...detail };
+    setCount(detail);
     customFields.value = detailInfo.value.customFields;
     caseLevels.value = getCaseLevels(customFields.value) as CaseLevel;
   }
@@ -476,6 +497,23 @@
     tabDetailRef.value.handleOK();
   }
 
+  function getTotal(total: number): string {
+    if (total === 0) {
+      return '0';
+    }
+    if (total && total !== 0) {
+      if (total <= 99) {
+        return String(total);
+      }
+
+      if (total > 99) {
+        return `${total}+`;
+      }
+    }
+
+    return `${total}+`;
+  }
+
   watch(
     () => customFields.value,
     () => {
@@ -544,13 +582,6 @@
     tabDetailRef.value.handleOK();
   }, 300);
 
-  function getTotal(total: number) {
-    if (total <= 99) {
-      return String(total);
-    }
-    return `${total}+`;
-  }
-
   watch(
     () => props.detailId,
     (val) => {
@@ -562,9 +593,6 @@
 </script>
 
 <style scoped lang="less">
-  .wrapperRef {
-    height: calc(100% - 78px);
-  }
   :deep(.arco-menu-light) {
     height: 50px;
     background: none !important;

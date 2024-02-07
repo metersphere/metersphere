@@ -9,7 +9,7 @@
     :row-count="filterRowCount"
     @keyword-search="fetchData"
     @adv-search="handleAdvSearch"
-    @reset="fetchData"
+    @refresh="fetchData()"
   >
     <template #left>
       <div class="text-[var(--color-text-1)]"
@@ -524,14 +524,14 @@
         label: 'caseManagement.featureCase.associatedDemand',
         eventTag: 'associatedDemand',
       },
-      {
-        label: 'caseManagement.featureCase.generatingDependencies',
-        eventTag: 'generatingDependencies',
-      },
-      {
-        label: 'caseManagement.featureCase.addToPublic',
-        eventTag: 'addToPublic',
-      },
+      // {
+      //   label: 'caseManagement.featureCase.generatingDependencies',
+      //   eventTag: 'generatingDependencies',
+      // },
+      // {
+      //   label: 'caseManagement.featureCase.addToPublic',
+      //   eventTag: 'addToPublic',
+      // },
       {
         isDivider: true,
       },
@@ -703,9 +703,10 @@
 
   // 获取父组件模块数量
   function emitTableParams() {
+    const moduleIds = props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds];
     emit('init', {
       keyword: keyword.value,
-      moduleIds: [],
+      moduleIds,
       projectId: currentProjectId.value,
       current: propsRes.value.msPagination?.current,
       pageSize: propsRes.value.msPagination?.pageSize,
@@ -727,7 +728,7 @@
     if (props.activeFolder === 'all') {
       searchParams.value.moduleIds = [];
     } else {
-      searchParams.value.moduleIds = [moduleId.value, ...props.offspringIds];
+      searchParams.value.moduleIds = [...featureCaseStore.moduleId, ...props.offspringIds];
     }
     setLoadListParams({
       ...searchParams.value,
@@ -838,7 +839,7 @@
         excludeIds: batchParams.value?.excludeIds || [],
         condition: { keyword: keyword.value },
         projectId: currentProjectId.value,
-        moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder],
+        moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
         moduleId: selectedModuleKeys.value[0],
       };
       if (isMove.value) {
@@ -1029,7 +1030,7 @@
       ...customFieldsColumns,
       ...columns.slice(columns.length - 1, columns.length),
     ];
-    tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_TABLE, fullColumns, 'drawer');
+    await tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_TABLE, fullColumns, 'drawer');
     tableRef.value?.initColumn(fullColumns);
   }
 

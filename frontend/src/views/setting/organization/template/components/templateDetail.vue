@@ -330,28 +330,6 @@
     isPreview.value = !isPreview.value;
   }
 
-  // 计算当前级别title
-  const breadTitle = computed(() => {
-    const firstBreadTitle = getCardList('organization').find((item) => item.key === route.query.type)?.name;
-    const ThirdBreadTitle = title.value;
-    return {
-      firstBreadTitle,
-      ThirdBreadTitle,
-    };
-  });
-
-  // 更新面包屑标题
-  const setBreadText = () => {
-    const { breadcrumbList } = appStore;
-    const { firstBreadTitle, ThirdBreadTitle } = breadTitle.value;
-    if (firstBreadTitle) {
-      breadcrumbList[0].locale = firstBreadTitle;
-      if (appStore.breadcrumbList.length > 2) {
-        breadcrumbList[2].locale = ThirdBreadTitle;
-      }
-      appStore.setBreadcrumbList(breadcrumbList);
-    }
-  };
   // 字段表编辑更新表
   const updateHandler = (flag: boolean) => {
     isEditField.value = flag;
@@ -373,7 +351,6 @@
   );
 
   onMounted(() => {
-    // setBreadText();
     getClassifyField();
     if (!isEdit.value) {
       selectData.value = totalTemplateField.value.filter((item) => item.internal);

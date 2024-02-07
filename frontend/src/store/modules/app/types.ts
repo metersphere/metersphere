@@ -39,6 +39,7 @@ export interface AppState {
   currentMenuConfig: string[];
   packageType: string;
   projectList: ProjectListItem[];
+  ordList: { id: string; name: string }[];
 }
 
 export interface UploadFileTaskState {

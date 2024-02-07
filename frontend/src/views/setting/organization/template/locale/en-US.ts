@@ -50,7 +50,7 @@ export default {
   'system.orgTemplate.fieldNameRules': 'The field name cannot be empty',
   'system.orgTemplate.fieldNamePlaceholder': 'Please enter a field name',
   'system.orgTemplate.description': 'Description',
-  'system.orgTemplate.resDescription': 'Describe the resource pool',
+  'system.orgTemplate.resDescription': 'Describe the fields pool',
   'system.orgTemplate.fieldType': 'Field type',
   'system.orgTemplate.fieldTypePlaceholder': 'Please select a field type',
   'system.orgTemplate.allowMultiMember': 'Allows multiple members to be added',
@@ -177,4 +177,7 @@ export default {
   'system.orgTemplate.templateCase': 'Case',
   'system.orgTemplate.templateApi': 'Api',
   'system.orgTemplate.templateBug': 'Bug',
+  'system.orgTemplate.enableTip': 'Are you sure to enable the project template',
+  'system.orgTemplate.enableWarningTip': 'Enabled, irreversible for organization template, please careful operation.',
+  'system.orgTemplate.typeEmptyTip': 'The type cannot be empty',
 };

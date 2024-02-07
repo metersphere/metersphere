@@ -87,4 +87,7 @@ export default {
   'system.plugin.databaseDriver': '数据库驱动',
   'system.plugin.deleteContentTip': '删除后，将无法同步该平台的缺陷/需求，历史数据自动切换为其它模板展示，请谨慎操作！',
   'system.plugin.allOrganizeTip': '新建组织通用此规则',
+  'system.plugin.switchAllOrganizeTip': '插件将对所有组织可见',
+  'system.plugin.switchSectionOrganizeTip': '插件将对指定组织可见',
+  'system.plugin.changeOrganizeTip': ' 变更组织会导致历史数据不可用，请谨慎操作！',
 };

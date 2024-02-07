@@ -33,6 +33,7 @@ export default {
     'menu.projectManagement': '项目管理',
     'menu.projectManagement.templateManager': '模板管理',
     'menu.projectManagement.log': '日志',
+    'menu.projectManagement.taskCenter': '任务中心',
     'menu.projectManagement.fileManagement': '文件管理',
     'menu.projectManagement.messageManagement': '消息管理',
     'menu.projectManagement.commonScript': '公共脚本',
