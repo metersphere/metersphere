@@ -259,6 +259,10 @@ public class PluginLoadService {
         return getPluginScriptConfig(pluginId, scriptId).get("script");
     }
 
+    public Object getPluginScript(String pluginId, String scriptId) {
+        return getPluginScriptConfig(pluginId, scriptId);
+    }
+
     public PluginWrapper getPluginWrapper(String id) {
         return msPluginManager.getPlugin(id);
     }
