@@ -215,6 +215,7 @@ export interface ReviewCaseItem {
   reviewers: string[];
   reviewNames: string[];
   status: string;
+  myStatus: string;
   moduleId: string;
   moduleName: string;
 }
