@@ -192,6 +192,7 @@
   import { TableQueryParams } from '@/models/common';
 
   import { convertToFileByBug } from '@/views/bug-management/utils';
+  import { convertToFile } from '@/views/case-management/caseManagementFeature/components/utils';
 
   const { t } = useI18n();
 
@@ -268,9 +269,9 @@
   async function deleteFileHandler(item: MsFileItem) {
     try {
       const params = {
-        id: item.uid,
-        local: item.local,
-        bugId,
+        refId: item.uid,
+        associated: !item.local,
+        bugId: bugId.value,
         projectId: currentProjectId.value,
       };
       await deleteFileOrCancelAssociation(params);
@@ -337,7 +338,7 @@
 
   // 处理关联文件
   function saveSelectAssociatedFile(fileData: AssociatedList[]) {
-    const fileResultList = fileData.map((fileInfo) => convertToFileByBug(fileInfo));
+    const fileResultList = fileData.map((fileInfo) => convertToFile(fileInfo));
     fileList.value.push(...fileResultList);
   }
 
