@@ -228,9 +228,9 @@
     if (
       props.robot.platform === 'MAIL' &&
       props.robot.previewSubject !== null &&
-      props.robot.previewSubject?.indexOf('Metersphere') === -1
+      props.robot.previewSubject?.indexOf('MeterSphere') === -1
     ) {
-      previewName = `Metersphere ${previewName}`;
+      previewName = `MeterSphere ${previewName}`;
     }
     return previewName
   });
