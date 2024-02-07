@@ -28,7 +28,7 @@ import java.util.List;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(webEnvironment= SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ProjectMemberControllerTests extends BaseTest {
@@ -196,6 +196,7 @@ public class ProjectMemberControllerTests extends BaseTest {
     @Order(12)
     public void testRemoveMemberError() throws Exception {
         this.requestGet(REMOVE_MEMBER + "/default-project-member-x/default-project-member-user-1", status().is5xxServerError());
+        this.requestGet(REMOVE_MEMBER + "/default-project-member-test-1/admin", status().is5xxServerError());
     }
 
     @Test
