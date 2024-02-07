@@ -76,8 +76,11 @@ export function syncBugOpenSource(params: { projectId: string }) {
 }
 
 // 导出缺陷
-export function exportBug(data: BugExportParams) {
-  return MSR.post({ url: bugURL.postExportBugUrl, data });
+export function exportBug(data: TableQueryParams) {
+  return MSR.post<BlobPart>(
+    { url: bugURL.postExportBugUrl, data, responseType: 'blob' },
+    { isTransformResponse: false }
+  );
 }
 // 获取关联文件列表
 export function getAssociatedFileList(data: TableQueryParams) {

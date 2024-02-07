@@ -157,7 +157,7 @@
   import router from '@/router';
   import { useAppStore, useTableStore } from '@/store';
   import useLicenseStore from '@/store/modules/setting/license';
-  import { customFieldToColumns, tableParamsToRequestParams } from '@/utils';
+  import { customFieldToColumns, downloadByteFile, tableParamsToRequestParams } from '@/utils';
 
   import { BugEditCustomField, BugListItem } from '@/models/bug-management';
   import { RouteEnum } from '@/enums/routeEnum';
@@ -379,19 +379,18 @@
 
   const exportConfirm = async (option: MsExportDrawerOption[]) => {
     try {
-      const { selectedIds, selectAll, excludeIds } = currentSelectParams.value;
-      await exportBug({
-        selectIds: selectedIds || [],
-        selectAll,
-        excludeIds,
-        condition: { keyword: keyword.value },
-        bugExportColumns: option.map((item) => item),
+      const params = tableParamsToRequestParams(currentSelectParams.value);
+      const blob = await exportBug({
+        ...params,
+        exportColumns: option.map((item) => item),
+        projectId: appStore.currentProjectId,
       });
-      Message.success(t('common.exportSuccess'));
+      downloadByteFile(blob, `${t('bugManagement.exportBug')}.zip`);
       exportVisible.value = false;
       resetSelector();
     } catch (error) {
-      Message.error(t('common.exportFail'));
+      // eslint-disable-next-line no-console
+      console.log(error);
     }
   };
 

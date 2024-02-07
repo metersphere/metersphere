@@ -72,7 +72,7 @@
       :show-delete="props.allowEdit"
     >
       <template #actions="{ item }">
-        <div v-if="props.allowEdit">
+        <div>
           <!-- 本地文件 -->
           <div v-if="item.local || item.status === 'init'" class="flex flex-nowrap">
             <MsButton
@@ -191,8 +191,7 @@
   import { AssociatedList, AttachFileInfo } from '@/models/caseManagement/featureCase';
   import { TableQueryParams } from '@/models/common';
 
-  import { convertToFileByBug } from '@/views/bug-management/utils';
-  import { convertToFile } from '@/views/case-management/caseManagementFeature/components/utils';
+  import { convertToFileByBug, convertToFileByDetail } from '@/views/bug-management/utils';
 
   defineOptions({
     name: 'BugDetailTab',
@@ -340,12 +339,6 @@
     associatedDrawer.value = true;
   }
 
-  // 处理关联文件
-  function saveSelectAssociatedFile(fileData: AssociatedList[]) {
-    const fileResultList = fileData.map((fileInfo) => convertToFile(fileInfo));
-    fileList.value.push(...fileResultList);
-  }
-
   // 后台传过来的local文件的item列表
   const oldLocalFileList = computed(() => {
     return attachmentsList.value.filter((item) => item.local).map((item: any) => item.uid);
@@ -412,7 +405,7 @@
   watch(
     () => fileList.value,
     async (val) => {
-      const isNewFiles = val.filter((item) => item.status === 'init' || (!item.local && !item.associateId)).length;
+      const isNewFiles = val.filter((item) => item.status === 'init').length;
       if (val && isNewFiles) {
         startUpload();
       }
@@ -484,6 +477,13 @@
     } finally {
       confirmLoading.value = false;
     }
+  }
+
+  // 处理关联文件
+  function saveSelectAssociatedFile(fileData: AssociatedList[]) {
+    const fileResultList = fileData.map(convertToFileByDetail);
+    fileList.value.push(...fileResultList);
+    handleSave();
   }
 
   watchEffect(() => {
