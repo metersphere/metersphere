@@ -5,19 +5,19 @@ import { cloneDeep } from 'lodash-es';
 
 import type { BreadcrumbItem } from '@/components/business/ms-breadcrumb/types';
 
+import { getProjectInfo } from '@/api/modules/project-management/basicInfo';
 import { getProjectList } from '@/api/modules/project-management/project';
 import { getPageConfig } from '@/api/modules/setting/config';
-import { getPackageType, getSystemVersion } from '@/api/modules/system';
+import { getPackageType, getSystemVersion, getUserHasProjectPermission } from '@/api/modules/system';
 import { getMenuList } from '@/api/modules/user';
 import defaultSettings from '@/config/settings.json';
 import { useI18n } from '@/hooks/useI18n';
-import { NO_PROJECT_ROUTE_NAME } from '@/router/constants';
+import { NO_PROJECT_ROUTE_NAME, NO_RESOURCE_ROUTE_NAME, WHITE_LIST } from '@/router/constants';
 import { watchStyle, watchTheme } from '@/utils/theme';
 
 import type { PageConfig, PageConfigKeys, Style, Theme } from '@/models/setting/config';
 import { ProjectListItem } from '@/models/setting/project';
 
-import useUserStore from '../user';
 import type { AppState } from './types';
 import type { NotificationReturn } from '@arco-design/web-vue/es/notification/interface';
 import type { RouteRecordNormalized, RouteRecordRaw } from 'vue-router';
@@ -64,6 +64,7 @@ const useAppStore = defineStore('app', {
     },
     packageType: '',
     projectList: [] as ProjectListItem[],
+    ordList: [],
   }),
 
   getters: {
@@ -207,6 +208,12 @@ const useAppStore = defineStore('app', {
       this.currentProjectId = id;
     },
     /**
+     * 设置当前组织列表
+     */
+    setOrdList(ordList: { id: string; name: string }[]) {
+      this.ordList = ordList;
+    },
+    /**
      * 设置当前系统包类型
      */
     setPackageType(type: string) {
@@ -238,6 +245,32 @@ const useAppStore = defineStore('app', {
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);
+      }
+    },
+    async validateUserProjectPermission() {
+      try {
+        const router = useRouter();
+        const HasProjectPermission = await getUserHasProjectPermission(this.currentProjectId);
+        if (!HasProjectPermission) {
+          // 没有项目权限（用户所在的当前项目被禁用&用户被移除出去该项目）
+          router.push({
+            name: NO_PROJECT_ROUTE_NAME,
+          });
+          return false;
+        }
+
+        const res = await getProjectInfo(this.currentProjectId);
+        if (res.deleted) {
+          // 如果项目被删除或者被禁用，跳转到无项目页面
+          router.push({
+            name: NO_PROJECT_ROUTE_NAME,
+          });
+          return false;
+        }
+        return true;
+      } catch (error) {
+        console.log(error);
+        return false;
       }
     },
     /**

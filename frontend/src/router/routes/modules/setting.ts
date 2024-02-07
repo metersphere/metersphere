@@ -322,6 +322,17 @@ const Setting: AppRouteRecordRaw = {
             isTopMenu: true,
           },
         },
+        // 任务中心
+        {
+          path: 'taskCenter',
+          name: SettingRouteEnum.SETTING_ORGANIZATION_TASK_CENTER,
+          component: () => import('@/views/setting/organization/taskCenter/index.vue'),
+          meta: {
+            locale: 'menu.projectManagement.taskCenter',
+            roles: ['*'],
+            isTopMenu: true,
+          },
+        },
       ],
     },
   ],

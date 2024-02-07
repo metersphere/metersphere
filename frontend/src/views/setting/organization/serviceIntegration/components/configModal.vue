@@ -166,18 +166,25 @@
   // 测试连接是否通过
   const testLink = async () => {
     testLoading.value = true;
-    try {
-      const formValue = {
-        ...fApi.value.formData(),
-      };
-      await postValidate(formValue, pluginId.value);
-      if (!isConfigOrigin.value) isDisabled.value = false;
-      Message.success(t('organization.service.successMessage'));
-    } catch (error) {
-      console.log(error);
-    } finally {
-      testLoading.value = false;
-    }
+    fApi.value?.validate(async (valid: any, fail: any) => {
+      if (valid === true) {
+        try {
+          const formValue = {
+            ...fApi.value.formData(),
+          };
+          await postValidate(formValue, pluginId.value);
+          if (!isConfigOrigin.value) isDisabled.value = false;
+          Message.success(t('organization.service.successMessage'));
+        } catch (error) {
+          console.log(error);
+        } finally {
+          testLoading.value = false;
+        }
+      } else {
+        console.log(fail);
+        testLoading.value = false;
+      }
+    });
   };
 
   // 创建&编辑

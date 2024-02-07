@@ -51,7 +51,6 @@
   const { t } = useI18n();
   const route = useRoute();
   const router = useRouter();
-  const appStore = useAppStore();
 
   const featureCaseStore = useFeatureCaseStore();
 
@@ -62,27 +61,6 @@
     request: {} as CreateOrUpdateCase,
     fileList: [],
   });
-
-  const initDetail = {
-    id: '',
-    templateId: '',
-    name: '',
-    prerequisite: '', // prerequisite
-    caseEditType: 'STEP', // 编辑模式：步骤模式/文本模式
-    steps: '',
-    textDescription: '',
-    expectedResult: '', // 预期结果
-    description: '',
-    publicCase: false, // 是否公共用例
-    moduleId: '',
-    versionId: '',
-    tags: [],
-    projectId: appStore.currentProjectId,
-    customFields: {}, // 自定义字段集合
-    relateFileMetaIds: [], // 关联文件ID集合
-    deleteFileMetaIds: [], //  删除本地上传的文件id
-    unLinkFilesIds: [], //  	取消关联的文件id
-  };
 
   const title = ref('');
   const loading = ref(false);
@@ -99,6 +77,7 @@
       // 编辑用例
       if (route.params.mode === 'edit') {
         await updateCaseRequest(caseDetailInfo.value);
+        featureCaseStore.setModuleId([caseDetailInfo.value.request.moduleId]);
         Message.success(t('caseManagement.featureCase.editSuccess'));
         router.push({
           name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE,
@@ -118,7 +97,6 @@
         }
         createSuccessId.value = res.data.id;
         Message.success(route.params.mode === 'copy' ? t('ms.description.copySuccess') : t('common.addSuccess'));
-        featureCaseStore.setIsAlreadySuccess(true);
         isShowTip.value = !getIsVisited();
         if (isReview) {
           router.back();

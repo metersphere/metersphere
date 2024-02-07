@@ -58,7 +58,7 @@ export interface UpdatePluginModel {
   global?: boolean | string; // 是否选择全部组织
   description?: string;
   enable?: boolean;
-  organizationIds?: Array<string | number>; // 指定组织
+  organizationIds?: string[]; // 指定组织
   [key: string]: any;
 }
 

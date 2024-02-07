@@ -36,7 +36,12 @@
             }"
           ></a-textarea>
         </a-form-item>
-        <a-form-item field="type" :label="t('system.orgTemplate.fieldType')" asterisk-position="end" :required="true">
+        <a-form-item
+          field="type"
+          :label="t('system.orgTemplate.fieldType')"
+          asterisk-position="end"
+          :rules="[{ required: true, message: t('system.orgTemplate.typeEmptyTip') }]"
+        >
           <a-select
             v-model="fieldForm.type"
             class="w-[260px]"

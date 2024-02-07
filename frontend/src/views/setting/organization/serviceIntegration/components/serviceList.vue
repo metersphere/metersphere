@@ -8,9 +8,11 @@
             v-model="keyword"
             :placeholder="t('organization.service.searchService')"
             :max-length="255"
+            class="w-[240px]"
             allow-clear
             @search="searchHandler"
             @press-enter="searchHandler"
+            @clear="searchHandler"
           />
         </div>
       </div>
@@ -179,7 +181,8 @@
   };
 
   const searchHandler = () => {
-    filterList.value = data.value.filter((item) => item.title?.includes(keyword.value));
+    const keywordLower = keyword.value.toLowerCase();
+    filterList.value = data.value.filter((item: any) => item.title.toLowerCase().includes(keywordLower));
   };
 
   const serviceVisible = ref<boolean>(false);

@@ -213,7 +213,7 @@ export default {
   'caseManagement.featureCase.selectedRecoverCase': '勾选，ID相同时覆盖原用例',
   'caseManagement.featureCase.notSelectedRecoverCase': '不勾选，ID已存在时，跳过该用例',
   'caseManagement.featureCase.cancelValidate': '取消校验',
-  'caseManagement.featureCase.cancelValidateSuccess': '取消校验成功',
+  'caseManagement.featureCase.importFailedCases': '导入失败用例 {number}',
   'caseManagement.featureCase.importFailedCountTitle': '导入失败用例({number})',
   'caseManagement.featureCase.beforeUploadTip': '上传前请先按 { type } 模板中的格式编辑内容',
   'caseManagement.featureCase.downloadTemplate': '下载 {type} 模板',

@@ -14,10 +14,8 @@ export default function setupUserLoginInfoGuard(router: Router) {
       const appStore = useAppStore();
       if (!appStore.packageType) {
         await appStore.initSystemPackage();
-        next();
-      } else {
-        next();
       }
+      next();
     } else {
       // 未登录的都直接跳转至登录页，访问的页面地址缓存到 query 上
       if (to.name === 'login') {

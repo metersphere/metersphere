@@ -23,14 +23,16 @@
             allow-clear
           />
         </a-form-item>
-        <a-form-item field="global" :label="t('system.plugin.appOrganize')" asterisk-position="end">
-          <a-radio-group v-model="form.global">
+        <a-form-item
+          :tooltip="t('system.plugin.allOrganizeTip')"
+          field="global"
+          :label="t('system.plugin.appOrganize')"
+          asterisk-position="end"
+          :row-class="form.global ? 'allOrganizeTip' : ''"
+        >
+          <a-radio-group v-model="form.global" type="button">
             <a-radio :value="true"
-              >{{ t('system.plugin.allOrganize')
-              }}<span class="float-right mx-1 mt-[1px]">
-                <a-tooltip :content="t('system.plugin.allOrganizeTip')" position="top">
-                  <IconQuestionCircle class="h-[16px] w-[16px] text-[--color-text-4]"
-                /></a-tooltip> </span
+              >{{ t('system.plugin.allOrganize') }}<span class="float-right mx-1 mt-[1px]"> </span
             ></a-radio>
             <a-radio :value="false">{{ t('system.plugin.theOrganize') }}</a-radio>
           </a-radio-group>
@@ -40,6 +42,7 @@
           field="organizationIds"
           :label="t('system.plugin.selectOrganization')"
           asterisk-position="end"
+          :row-class="showIncludeOrg || showRemoveOrg ? 'allOrganizeTip' : ''"
           :rules="[{ required: true, message: t('system.plugin.selectOrganizeTip') }]"
         >
           <a-select
@@ -51,6 +54,15 @@
             <a-option v-for="item of organizeList" :key="item.id" :value="item.id">{{ item.name }}</a-option>
           </a-select>
         </a-form-item>
+        <div v-if="form.global" class="mb-[16px] ml-1 text-[12px] text-[rgb(var(--danger-6))]">
+          {{ title }} {{ t('system.plugin.switchAllOrganizeTip') }}
+        </div>
+        <div v-if="showIncludeOrg" class="mb-[16px] ml-1 text-[12px] text-[rgb(var(--danger-6))]">
+          {{ title }} {{ t('system.plugin.switchSectionOrganizeTip') }}
+        </div>
+        <div v-if="showRemoveOrg" class="mb-[16px] ml-1 text-[12px] text-[rgb(var(--danger-6))]">
+          {{ t('system.plugin.changeOrganizeTip') }}
+        </div>
         <a-form-item field="description" :label="t('system.plugin.description')" asterisk-position="end">
           <a-textarea
             v-model="form.description"
@@ -72,6 +84,7 @@
 <script setup lang="ts">
   import { ref, watch, watchEffect } from 'vue';
   import { FormInstance, Message, SelectOptionData, ValidatedError } from '@arco-design/web-vue';
+  import { isEqual } from 'lodash-es';
 
   import { updatePlugin } from '@/api/modules/setting/pluginManger';
   import { useI18n } from '@/hooks/useI18n';
@@ -112,8 +125,10 @@
     UpdateFormRef.value?.resetFields();
     updateVisible.value = false;
   };
+  const originOrgIds = ref<string[]>([]);
   const open = (record: PluginItem) => {
     title.value = record.name as string;
+    originOrgIds.value = (record.organizations || []).map((item) => item.id);
     form.value = {
       ...record,
       organizationIds: (record.organizations || []).map((item) => item.id),
@@ -147,10 +162,31 @@
       }
     });
   };
+
+  const showIncludeOrg = computed(() => {
+    const { organizationIds } = form.value;
+    if (!form.value.global && !isEqual(organizationIds, originOrgIds.value)) {
+      return originOrgIds.value?.every((item) => organizationIds?.includes(item));
+    }
+    return false;
+  });
+
+  const showRemoveOrg = computed(() => {
+    const { organizationIds } = form.value;
+    if (!form.value.global && !isEqual(originOrgIds.value, organizationIds)) {
+      return originOrgIds.value?.some((item) => !organizationIds?.includes(item));
+    }
+    return false;
+  });
+
   defineExpose({
     open,
     UpdateFormRef,
   });
 </script>
 
-<style scoped></style>
+<style scoped lang="less">
+  .allOrganizeTip {
+    margin-bottom: 8px;
+  }
+</style>

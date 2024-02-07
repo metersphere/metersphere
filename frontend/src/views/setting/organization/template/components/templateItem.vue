@@ -34,6 +34,50 @@
         </div>
       </div>
     </div>
+    <a-modal
+      v-model:visible="showEnableVisible"
+      class="ms-modal-form ms-modal-small"
+      unmount-on-close
+      title-align="start"
+      :mask="true"
+      :mask-closable="false"
+      @close="cancelHandler"
+    >
+      <template #title>
+        <div class="flex items-center">
+          <icon-close-circle-fill class="mr-2 text-[20px] text-[rgb(var(--danger-6))]" />
+          <span>{{ t('system.orgTemplate.enableTip') }}</span></div
+        >
+      </template>
+
+      <span class="text-[rgb(var(--warning-6))]">{{ t('system.orgTemplate.enableWarningTip') }}</span>
+      <a-input
+        v-model="validateKeyWord"
+        :placeholder="t('personal.searchOrgPlaceholder')"
+        allow-clear
+        class="mb-4 mt-[8px]"
+        :max-length="255"
+      />
+
+      <template #footer>
+        <div class="flex justify-end">
+          <a-button type="secondary" @click="cancelHandler">
+            {{ t('common.cancel') }}
+          </a-button>
+          <slot name="self-button"></slot>
+          <a-button
+            class="ml-3"
+            type="primary"
+            :loading="confirmLoading"
+            :disabled="!validateKeyWord.trim().length"
+            status="danger"
+            @click="okHandler"
+          >
+            {{ t('common.confirmEnable') }}
+          </a-button>
+        </div>
+      </template>
+    </a-modal>
   </div>
 </template>
 
@@ -84,16 +128,38 @@
       danger: true,
     },
   ]);
+  const showEnableVisible = ref<boolean>(false);
+  const validateKeyWord = ref<string>('');
+  const confirmLoading = ref<boolean>(false);
 
-  // 启用模板
-  const enableHandler = async () => {
+  const orgName = computed(() => {
+    return appStore.ordList.find((item: any) => item.id === appStore.currentOrgId)?.name;
+  });
+
+  async function okHandler() {
+    if (validateKeyWord.value.trim() !== '' && validateKeyWord.value !== orgName.value) {
+      return false;
+    }
     try {
+      confirmLoading.value = true;
       if (props.mode) {
         await enableOrOffTemplate(currentOrgId.value, props.cardItem.key);
         Message.success(t('system.orgTemplate.enabledSuccessfully'));
         await templateStore.getStatus();
         emit('updateState');
+        confirmLoading.value = false;
+        showEnableVisible.value = false;
       }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      confirmLoading.value = false;
+    }
+  }
+  // 启用模板
+  const enableHandler = async () => {
+    try {
+      showEnableVisible.value = true;
     } catch (error) {
       console.log(error);
     }
@@ -127,6 +193,11 @@
     },
     { deep: true }
   );
+
+  function cancelHandler() {
+    showEnableVisible.value = false;
+    validateKeyWord.value = '';
+  }
 </script>
 
 <style scoped lang="less">

@@ -75,7 +75,7 @@
       </li>
       <li>
         <a-tooltip :content="t('settings.navbar.task')">
-          <a-button type="secondary">
+          <a-button type="secondary" @click="goTaskCenter">
             <template #icon>
               <icon-calendar-clock />
             </template>
@@ -135,6 +135,7 @@
       </li>
     </ul>
   </div>
+  <TaskCenterModal v-model:visible="taskCenterVisible" />
 </template>
 
 <script lang="ts" setup>
@@ -145,6 +146,7 @@
 
   import TopMenu from '@/components/business/ms-top-menu/index.vue';
   import MessageBox from '../message-box/index.vue';
+  import TaskCenterModal from './taskCenterModal.vue';
 
   import { switchProject } from '@/api/modules/project-management/project';
   import { MENU_LEVEL, type PathMapRoute } from '@/config/pathMap';
@@ -234,6 +236,11 @@
     });
     refBtn.value.dispatchEvent(event);
   };
+
+  const taskCenterVisible = ref<boolean>(false);
+  function goTaskCenter() {
+    taskCenterVisible.value = true;
+  }
 </script>
 
 <style scoped lang="less">

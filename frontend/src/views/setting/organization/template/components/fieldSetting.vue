@@ -37,15 +37,17 @@
               'cursor-pointer': props.mode === 'project',
             }"
           />
-          <span
-            class="ml-2"
-            :class="{
-              'text-[rgb(var(--primary-5))]': props.mode === 'project',
-              'cursor-pointer': props.mode === 'project',
-            }"
-            @click="showDetail(record)"
-            >{{ record.name }}</span
-          >
+          <a-tooltip :content="record.name">
+            <div
+              class="ellipsis ml-2 max-w-[200px]"
+              :class="{
+                'text-[rgb(var(--primary-5))]': props.mode === 'project',
+                'cursor-pointer': props.mode === 'project',
+              }"
+              @click="showDetail(record)"
+              >{{ record.name }}</div
+            >
+          </a-tooltip>
           <MsTag v-if="record.internal" size="small" class="ml-2">{{ t('system.orgTemplate.isSystem') }}</MsTag></div
         >
       </template>
@@ -58,7 +60,7 @@
             :ok-text="t('system.orgTemplate.confirm')"
             @confirm="handleOk(record)"
           >
-            <MsButton v-permission="props.updatePermission" class="!mr-0">{{
+            <MsButton v-permission="props.updatePermission" :disabled="record.internal" class="!mr-0">{{
               t('system.orgTemplate.edit')
             }}</MsButton></MsPopConfirm
           >
@@ -82,7 +84,7 @@
       v-model:visible="showDetailVisible"
       :width="480"
       :footer="false"
-      :title="t('system.orgTemplate.filedDetail', { name: detailInfo?.name })"
+      :title="t('system.orgTemplate.filedDetail', { name: characterLimit(detailInfo?.name) })"
     >
       <div class="p-4">
         <div class="flex">
@@ -197,7 +199,6 @@
       dataIndex: 'name',
       width: 300,
       showInTable: true,
-      showTooltip: true,
     },
     {
       title: 'system.orgTemplate.columnFieldType',
@@ -208,7 +209,9 @@
     {
       title: 'system.orgTemplate.columnFieldDescription',
       dataIndex: 'remark',
+      width: 300,
       showInTable: true,
+      showTooltip: true,
     },
     {
       title: 'system.orgTemplate.columnFieldUpdatedTime',
@@ -383,5 +386,10 @@
     margin-top: 16px;
     width: 70%;
     color: var(--color-text-1);
+  }
+  .ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 </style>

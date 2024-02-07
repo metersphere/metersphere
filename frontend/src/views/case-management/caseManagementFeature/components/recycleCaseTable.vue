@@ -77,7 +77,7 @@
             </template>
           </MsAdvanceFilter>
           <ms-base-table
-            class="mb-4"
+            class="my-4"
             v-bind="propsRes"
             :action-config="tableBatchActions"
             @selected-change="handleTableSelect"

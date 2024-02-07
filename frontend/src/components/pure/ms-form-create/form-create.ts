@@ -10,7 +10,8 @@ export const INPUT = {
   field: 'fieldName',
   value: '',
   props: {
-    placeholder: t('formCreate.PleaseEnter'),
+    'placeholder': t('formCreate.PleaseEnter'),
+    'max-length': 255,
   },
 };
 export const SELECT = {
@@ -150,6 +151,7 @@ export const TEXTAREA = {
       minRows: 1,
       maxRows: 3,
     },
+    'max-length': 1000,
   },
 };
 export const JIRAKEY = {

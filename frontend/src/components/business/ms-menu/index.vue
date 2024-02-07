@@ -202,6 +202,7 @@
           orgListLoading.value = true;
           const res = await getOrgOptions();
           originOrgList.value = res || [];
+          appStore.setOrdList(originOrgList.value);
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);

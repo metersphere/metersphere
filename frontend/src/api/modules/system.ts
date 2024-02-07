@@ -1,6 +1,12 @@
 // 系统全局类的接口
 import MSR from '@/api/http/index';
-import { GetVersionUrl, OrgOptionsUrl, PackageTypeUrl, SwitchOrgUrl } from '@/api/requrls/system';
+import {
+  GetVersionUrl,
+  OrgOptionsUrl,
+  PackageTypeUrl,
+  SwitchOrgUrl,
+  userHasProjectPermissionUrl,
+} from '@/api/requrls/system';
 
 // 获取系统版本
 export function getSystemVersion() {
@@ -20,4 +26,9 @@ export function switchUserOrg(organizationId: string, userId: string) {
 // 获取当前系统的版本
 export function getPackageType() {
   return MSR.get<string>({ url: PackageTypeUrl });
+}
+
+// 获取当前用户是否具备项目权限
+export function getUserHasProjectPermission(userId: string) {
+  return MSR.get({ url: `${userHasProjectPermissionUrl}/${userId}` });
 }

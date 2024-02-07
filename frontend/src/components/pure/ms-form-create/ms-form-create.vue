@@ -1,5 +1,6 @@
 <template>
-  <FormCreate v-model:api="fApi" :rule="formRuleList" :option="props.options || option"> </FormCreate>
+  <FormCreate v-model:api="fApi" :rule="formRuleList" :option="props.options || option" @change="changeHandler">
+  </FormCreate>
 </template>
 
 <script setup lang="ts">
@@ -268,12 +269,16 @@
     },
   };
 
+  function changeHandler(value: any) {
+    fApi.value.validateField(value);
+  }
+
   watch(
     () => formRuleList.value,
     (val) => {
-      if (val) emit('update:form-item', formRuleList.value);
-      fApi.value.refreshValidate();
-      fApi.value.clearValidateState();
+      if (val) {
+        emit('update:form-item', formRuleList.value);
+      }
     },
     {
       deep: true,
@@ -291,13 +296,4 @@
   });
 </script>
 
-<style scoped>
-  :deep(.arco-form-item-status-success .arco-select-view:not(.arco-select-view-disabled).arco-select-view-focus) {
-    border-color: var(--color-text-input-border);
-    background: none;
-  }
-  :deep(.arco-form-item-status-success .arco-select-view:not(.arco-select-view-disabled)) {
-    border-color: var(--color-text-input-border);
-    background: transparent;
-  }
-</style>
+<style scoped></style>

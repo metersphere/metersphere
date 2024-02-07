@@ -49,7 +49,7 @@ export default {
   'system.orgTemplate.fieldNameRules': '字段名称不能为空',
   'system.orgTemplate.fieldNamePlaceholder': '请输入字段名称',
   'system.orgTemplate.description': '描述',
-  'system.orgTemplate.resDescription': '请对该资源池进行描述',
+  'system.orgTemplate.resDescription': '请对该字段进行描述',
   'system.orgTemplate.fieldType': '字段类型',
   'system.orgTemplate.fieldTypePlaceholder': '请选择字段类型',
   'system.orgTemplate.allowMultiMember': '允许添加多个成员',
@@ -166,4 +166,7 @@ export default {
   'system.orgTemplate.templateCase': '用例',
   'system.orgTemplate.templateApi': '接口',
   'system.orgTemplate.templateBug': '缺陷',
+  'system.orgTemplate.enableTip': '确认启用项目模版吗',
+  'system.orgTemplate.enableWarningTip': '启用后，不可恢复为组织模版，请谨慎操作！',
+  'system.orgTemplate.typeEmptyTip': '类型不能为空',
 };

@@ -289,6 +289,17 @@ const ProjectManagement: AppRouteRecordRaw = {
         isTopMenu: true,
       },
     },
+    // 任务中心
+    {
+      path: 'taskCenter',
+      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TASK_CENTER,
+      component: () => import('@/views/project-management/taskCenter/index.vue'),
+      meta: {
+        locale: 'menu.projectManagement.taskCenter',
+        roles: ['*'],
+        isTopMenu: true,
+      },
+    },
     // 菜单管理-误报规则
     {
       path: 'errorReportRule',

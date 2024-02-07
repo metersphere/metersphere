@@ -181,6 +181,7 @@
             asterisk-position="end"
             :label="t('system.orgTemplate.modules')"
             :rules="[{ required: true, message: t('system.orgTemplate.moduleRuleTip') }]"
+            @change="changeSelectModule"
           >
             <a-tree-select
               v-model="form.moduleId"
@@ -592,6 +593,10 @@
     },
   });
 
+  function changeSelectModule(value: string) {
+    featureCaseStore.setModuleId([value]);
+  }
+
   // 监视文件列表处理关联和本地文件
   watch(
     () => fileList.value,
@@ -616,7 +621,6 @@
         if (val) {
           params.value.request = { ...form.value };
           emit('update:formModeValue', params.value);
-          featureCaseStore.setModuleId([form.value.moduleId]);
         }
       }
     },
