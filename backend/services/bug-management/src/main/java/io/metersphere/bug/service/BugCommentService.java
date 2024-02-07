@@ -46,7 +46,7 @@ public class BugCommentService {
     public List<BugCommentDTO> getComments(String bugId) {
         BugCommentExample example = new BugCommentExample();
         example.createCriteria().andBugIdEqualTo(bugId);
-        List<BugComment> bugComments = bugCommentMapper.selectByExample(example);
+        List<BugComment> bugComments = bugCommentMapper.selectByExampleWithBLOBs(example);
         return wrapperComments(bugComments);
     }
 
