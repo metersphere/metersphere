@@ -1,17 +1,11 @@
+import { Language } from '@/components/pure/ms-code-editor/types';
+
 import { useI18n } from '@/hooks/useI18n';
 
 import type { CommonScriptMenu } from '@/models/projectManagement/commonScript';
+import { RequestConditionScriptLanguage } from '@/enums/apiEnum';
 
 const { t } = useI18n();
-
-export type Languages =
-  | 'beanshell-jsr233'
-  | 'groovy'
-  | 'python'
-  | 'beanshell'
-  | 'nashornScript'
-  | 'rhinoScript'
-  | 'javascript';
 
 export const SCRIPT_MENU: CommonScriptMenu[] = [
   {
@@ -504,7 +498,7 @@ function jsCode(requestObj) {
   return _jsTemplate(requestObj);
 }
 
-export function getCodeTemplate(language: Languages, requestObj: any) {
+export function getCodeTemplate(language: Language | RequestConditionScriptLanguage, requestObj: any) {
   switch (language) {
     case 'groovy':
       return groovyCode(requestObj);

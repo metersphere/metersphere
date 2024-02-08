@@ -166,13 +166,6 @@ export const mockStringGroup: MockParamItem[] = [
     ],
   },
 ];
-// 字符串变量特殊处理
-export const specialStringVars = [
-  '@character(pool)',
-  "@character('lower')",
-  "@character('upper')",
-  "@character('symbol')",
-];
 // mock日期分组
 export const mockDateGroup: MockParamItem[] = [
   {
@@ -453,13 +446,13 @@ export const mockFunctions: MockParamItem[] = [
     inputGroup: [
       {
         type: 'number',
-        value: NaN,
+        value: undefined,
         label: 'start',
         placeholder: 'ms.paramsInput.substrStartPlaceholder',
       },
       {
         type: 'number',
-        value: NaN,
+        value: undefined,
         label: 'end',
         placeholder: 'ms.paramsInput.substrEndPlaceholder',
       },
@@ -901,3 +894,16 @@ export const JMeterAllVars = [
   ...JMeterInfoGroup,
   ...JMeterStringGroup,
 ];
+// 同名函数但参数不同，需要特殊处理
+export const sameFuncNameVars = [
+  '@county(true)',
+  '@character(pool)',
+  "@character('lower')",
+  "@character('upper')",
+  "@character('symbol')",
+  '@idCard(birth)',
+  '@natural(1,100)',
+  '@integer(1,100)',
+];
+// 带形参的函数集合，指的是函数入参为形参，如果用户未填写实参则不需要填充到入参框中
+export const formalParameterVars = ['@character(pool)', '@idCard(birth)', '@natural(1,100)', '@integer(1,100)'];

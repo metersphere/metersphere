@@ -1,14 +1,14 @@
 <template>
   <div class="mb-[8px] flex items-center justify-between">
     <div class="font-medium">{{ t('apiTestDebug.header') }}</div>
-    <batchAddKeyVal :params="innerParams" @apply="handleBatchParamApply" />
+    <batchAddKeyVal :params="innerParams" :default-param-item="defaultParamItem" @apply="handleBatchParamApply" />
   </div>
   <paramTable
     v-model:params="innerParams"
-    v-model:selected-keys="selectedKeys"
     :columns="columns"
     :height-used="heightUsed"
     :scroll="scroll"
+    :default-param-item="defaultParamItem"
     draggable
     @change="handleParamTableChange"
   />
@@ -17,15 +17,14 @@
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
 
-  import paramTable, { ParamTableColumn } from '../../../components/paramTable.vue';
-  import batchAddKeyVal from './batchAddKeyVal.vue';
+  import batchAddKeyVal from '@/views/api-test/components/batchAddKeyVal.vue';
+  import paramTable, { ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
   import { EnableKeyValueParam } from '@/models/apiTest/debug';
 
   const props = defineProps<{
-    selectedKeys?: string[];
     params: EnableKeyValueParam[];
     layout: 'horizontal' | 'vertical';
     secondBoxHeight: number;
@@ -39,13 +38,18 @@
   const { t } = useI18n();
 
   const innerParams = useVModel(props, 'params', emit);
-  const selectedKeys = useVModel(props, 'selectedKeys', emit);
+  const defaultParamItem = {
+    key: '',
+    value: '',
+    description: '',
+    enable: true,
+  };
 
   const columns: ParamTableColumn[] = [
     {
       title: 'apiTestDebug.paramName',
-      dataIndex: 'name',
-      slotName: 'name',
+      dataIndex: 'key',
+      slotName: 'key',
     },
     {
       title: 'apiTestDebug.paramValue',
@@ -54,8 +58,8 @@
     },
     {
       title: 'apiTestDebug.desc',
-      dataIndex: 'desc',
-      slotName: 'desc',
+      dataIndex: 'description',
+      slotName: 'description',
     },
     {
       title: '',
@@ -66,9 +70,9 @@
 
   const heightUsed = computed(() => {
     if (props.layout === 'horizontal') {
-      return 422;
+      return 428;
     }
-    return 422 + props.secondBoxHeight;
+    return 428 + props.secondBoxHeight;
   });
   const scroll = computed(() => (props.layout === 'horizontal' ? { x: '700px' } : { x: '100%' }));
 

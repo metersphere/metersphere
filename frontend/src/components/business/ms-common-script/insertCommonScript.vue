@@ -1,8 +1,12 @@
 <template>
   <MsDrawer
     v-model:visible="insertScriptDrawer"
-    :title="t('project.commonScript.insertCommonScript')"
-    :width="768"
+    :title="
+      props.enableRadioSelected
+        ? t('project.commonScript.insertCommonScript')
+        : t('project.commonScript.insertCommonScript')
+    "
+    :width="960"
     unmount-on-close
     :show-continue="false"
     :ok-loading="drawerLoading"
@@ -26,10 +30,7 @@
       ></a-input-search>
     </div>
 
-    <ms-base-table v-bind="propsRes" ref="tableRef" v-on="propsEvent">
-      <template #radio="{ record }">
-        <a-radio v-model="record.checked" @change="(value) => changeRadio(value, record)"></a-radio>
-      </template>
+    <ms-base-table v-bind="propsRes" v-model:selected-key="innerCheckedKey" v-on="propsEvent">
       <template #name="{ record }">
         <div class="flex items-center">
           <div class="one-line-text max-w-[200px] cursor-pointer text-[rgb(var(--primary-5))]">{{ record.name }}</div>
@@ -61,9 +62,10 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { defineModel, ref } from 'vue';
 
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
+  import { Language } from '@/components/pure/ms-code-editor/types';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
@@ -74,20 +76,27 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  import { type Languages } from './utils';
+  import { RequestConditionScriptLanguage } from '@/enums/apiEnum';
+
   import debounce from 'lodash-es/debounce';
 
   const appStore = useAppStore();
   const currentProjectId = computed(() => appStore.currentProjectId);
   const { t } = useI18n();
-  const props = defineProps<{
-    visible: boolean;
-    scriptLanguage: Languages;
-    enableRadioSelected?: boolean; // 是否单选开启
-    okText?: string;
-  }>();
+  const props = withDefaults(
+    defineProps<{
+      visible: boolean;
+      scriptLanguage?: Language | RequestConditionScriptLanguage;
+      enableRadioSelected?: boolean; // 是否单选开启
+      okText?: string;
+      checkedId?: string; // 单选时默认选中的id
+    }>(),
+    {
+      checkedId: '',
+    }
+  );
 
-  const emit = defineEmits(['update:visible', 'save', 'addScript']);
+  const emit = defineEmits(['update:visible', 'update:checkedId', 'save', 'addScript']);
   const insertScriptDrawer = computed({
     get() {
       return props.visible;
@@ -109,7 +118,6 @@
     },
     {
       title: 'project.commonScript.description',
-      slotName: 'description',
       dataIndex: 'description',
       width: 200,
       showDrag: true,
@@ -125,7 +133,6 @@
     {
       title: 'project.commonScript.tags',
       dataIndex: 'tags',
-      slotName: 'tags',
       showInTable: true,
       isTag: true,
       width: 150,
@@ -133,15 +140,13 @@
     },
     {
       title: 'project.commonScript.createUser',
-      slotName: 'createUser',
-      dataIndex: 'createUser',
+      dataIndex: 'createUserName',
       showInTable: true,
       width: 200,
       showDrag: true,
     },
     {
       title: 'project.commonScript.createTime',
-      slotName: 'createTime',
       dataIndex: 'createTime',
       sortable: {
         sortDirections: ['ascend', 'descend'],
@@ -159,30 +164,9 @@
     },
   ];
 
-  const tableRef = ref();
+  const innerCheckedKey = defineModel<string>('checkedId', { default: '' });
 
-  const radioColumn = [
-    {
-      title: '',
-      dataIndex: 'radio',
-      slotName: 'radio',
-      width: 50,
-      showInTable: true,
-    },
-  ];
-  watch(
-    () => insertScriptDrawer.value,
-    (val) => {
-      if (val) {
-        if (props.enableRadioSelected) {
-          const result = [...radioColumn, ...columns];
-          tableRef.value.initColumn(result);
-        }
-      }
-    }
-  );
-
-  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setProps } = useTable(
+  const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
     getInsertCommonScriptPage,
     {
       columns,
@@ -190,7 +174,8 @@
         x: '100%',
       },
       showSetting: false,
-      selectable: !props.enableRadioSelected,
+      selectable: true,
+      selectorType: props.enableRadioSelected ? 'radio' : 'checkbox',
       heightUsed: 300,
       showSelectAll: !props.enableRadioSelected,
     },
@@ -211,7 +196,7 @@
 
   const isDisabled = computed(() => {
     if (props.enableRadioSelected) {
-      return propsRes.value.data.filter((item) => item.checked).length > 0;
+      return !!innerCheckedKey.value;
     }
     return propsRes.value.selectedKeys.size > 0;
   });
@@ -233,7 +218,7 @@
     if (props.enableRadioSelected) {
       emit(
         'save',
-        propsRes.value.data.find((item) => item.checked)
+        propsRes.value.data.find((item) => item.id === innerCheckedKey.value)
       );
     } else {
       const selectKeysIds = [...propsRes.value.selectedKeys];
@@ -250,14 +235,6 @@
 
   function addCommonScript() {
     emit('addScript');
-  }
-
-  function changeRadio(value, record) {
-    propsRes.value.data.forEach((item) => {
-      item.checked = false;
-    });
-    record.checked = true;
-    setProps({ data: propsRes.value.data });
   }
 
   watch(

@@ -16,7 +16,7 @@
       <div
         :class="`ms-split-box ${props.direction === 'horizontal' ? 'ms-split-box--left' : 'ms-split-box--top'} ${
           props.disabled && props.direction === 'horizontal' ? 'border-r border-[var(--color-text-n8)]' : ''
-        } ${props.firstContainerClass}`"
+        } ${props.firstContainerClass || ''}`"
       >
         <div
           v-if="props.direction === 'horizontal' && props.expandDirection === 'right' && !props.disabled"
@@ -171,6 +171,11 @@
   .ms-split-box {
     @apply relative h-full overflow-auto;
     .ms-scroll-bar();
+    :deep(.arco-split-vertical) {
+      .arco-split-pane-first {
+        padding-bottom: 6px; // 为了避免滚动条遮挡，垂直布局下第二个盒子顶部有6px的阴影
+      }
+    }
   }
   .ms-split-box--left {
     width: calc(v-bind(innerSize) - 2px);

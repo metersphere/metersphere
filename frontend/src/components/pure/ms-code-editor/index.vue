@@ -1,5 +1,8 @@
 <template>
-  <div ref="fullRef" class="h-full rounded-[4px] bg-[var(--color-fill-1)] p-[12px]">
+  <div
+    ref="fullRef"
+    class="h-full overflow-hidden rounded-[var(--border-radius-small)] bg-[var(--color-fill-1)] p-[12px]"
+  >
     <div v-if="showTitleLine" class="mb-[12px] flex items-center justify-between">
       <div class="flex flex-wrap gap-[4px]">
         <a-select
@@ -44,7 +47,11 @@
       </div>
     </div>
     <!-- 这里的 40px 是顶部标题的 40px -->
-    <div :class="`flex ${showTitleLine ? 'h-[calc(100%-40px)]' : 'h-full'} w-full flex-row`">
+    <div
+      :class="`flex ${
+        showTitleLine ? 'h-[calc(100%-40px)]' : 'h-full'
+      } w-full flex-row overflow-hidden rounded-[var(--border-radius-small)]`"
+    >
       <div ref="codeContainerRef" :class="['ms-code-editor', isFullScreen ? 'ms-code-editor-full-screen' : '']"></div>
       <slot name="rightBox"> </slot>
     </div>
@@ -221,7 +228,7 @@
 
       function format() {
         if (editor) {
-          // 格式化代码
+          // 格式化代码 TODO:需要额外的格式化插件或编写格式化配置
           editor.getAction('editor.action.formatDocument')?.run();
         }
       }
@@ -293,7 +300,6 @@
 
     width: v-bind(width);
     height: v-bind(height);
-    border-radius: var(--border-radius-small);
     &[data-mode-id='plaintext'] {
       :deep(.mtk1) {
         color: rgb(var(--primary-5));

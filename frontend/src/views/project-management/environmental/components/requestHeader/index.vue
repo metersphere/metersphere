@@ -17,8 +17,8 @@
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
 
+  import batchAddKeyVal from '@/views/api-test/components/batchAddKeyVal.vue';
   import paramsTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
-  import batchAddKeyVal from '@/views/api-test/debug/components/debug/batchAddKeyVal.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
@@ -49,7 +49,7 @@
     {
       title: 'apiTestDebug.paramName',
       dataIndex: 'key',
-      slotName: 'name',
+      slotName: 'key',
     },
     {
       title: 'apiTestDebug.paramValue',
@@ -59,7 +59,7 @@
     {
       title: 'apiTestDebug.desc',
       dataIndex: 'description',
-      slotName: 'desc',
+      slotName: 'description',
     },
     {
       title: '',

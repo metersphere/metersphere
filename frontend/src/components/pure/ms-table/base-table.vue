@@ -43,8 +43,8 @@
             />
             <a-radio
               v-else-if="attrs.selectorType === 'radio'"
-              v-model:model-value="innerSelectedKey"
-              :value="record[rowKey || 'id']"
+              v-model:model-value="record.tableChecked"
+              @change="(val) => handleRadioChange(val as boolean, record)"
             />
           </template>
         </a-table-column>
@@ -69,9 +69,9 @@
           :title="item.slotName"
         >
           <template #title>
-            <div :class="{ 'flex w-full flex-row flex-nowrap items-center': !item.align }">
+            <div :class="{ 'flex w-full flex-row flex-nowrap items-center gap-[16px]': !item.align }">
               <slot :name="item.titleSlotName" :column-config="item">
-                <div class="text-[var(--color-text-3)]">{{ t(item.title as string) }}</div>
+                <div v-if="item.title" class="text-[var(--color-text-3)]">{{ t(item.title as string) }}</div>
               </slot>
               <columnSelectorIcon
                 v-if="
@@ -245,7 +245,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, nextTick, onMounted, ref, useAttrs } from 'vue';
+  import { computed, nextTick, onMounted, ref, useAttrs, watch } from 'vue';
   import { useVModel } from '@vueuse/core';
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
@@ -398,7 +398,35 @@
     }
   };
 
-  const innerSelectedKey = useVModel(props, 'selectedKey', emit); // 内部维护的单选选中项
+  const innerSelectedKey = defineModel<string>('selectedKey', { default: '' }); // 内部维护的单选选中项
+  const tempRecord = ref<TableData>({});
+
+  watch(
+    () => attrs.data,
+    (arr) => {
+      if (innerSelectedKey.value && Array.isArray(arr) && arr.length > 0) {
+        arr = arr.map((item: TableData) => {
+          if (item.id === innerSelectedKey.value) {
+            item.tableChecked = true;
+            tempRecord.value = item;
+          }
+          return item;
+        });
+      }
+    },
+    {
+      immediate: true,
+    }
+  );
+
+  function handleRadioChange(val: boolean, record: TableData) {
+    if (val) {
+      innerSelectedKey.value = record.id;
+      record.tableChecked = true;
+      tempRecord.value.tableChecked = false;
+      tempRecord.value = record;
+    }
+  }
 
   // 全选change事件
   const handleSelectAllChange = (v: SelectAllEnum) => {

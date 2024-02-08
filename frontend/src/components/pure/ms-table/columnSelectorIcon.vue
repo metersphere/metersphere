@@ -109,7 +109,6 @@
 
 <style lang="scss" scoped>
   .setting-icon {
-    margin-left: 16px;
     color: var(--color-text-4);
     background-color: var(--color-text-10);
     cursor: pointer;

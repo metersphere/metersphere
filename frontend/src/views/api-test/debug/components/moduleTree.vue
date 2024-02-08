@@ -37,7 +37,6 @@
     <a-spin class="min-h-[400px] w-full" :loading="loading">
       <MsTree
         v-model:focus-node-key="focusNodeKey"
-        v-model:selected-keys="selectedKeys"
         :data="folderTree"
         :keyword="moduleKeyword"
         :node-more-actions="folderMoreActions"
@@ -60,15 +59,23 @@
         @drop="handleDrop"
       >
         <template #title="nodeData">
-          <div class="inline-flex w-full">
+          <div
+            v-if="nodeData.type === 'API'"
+            class="inline-flex w-full cursor-pointer gap-[4px]"
+            @click="emit('clickApiNode', nodeData)"
+          >
+            <apiMethodName :method="nodeData.attachInfo?.method || nodeData.attachInfo?.protocol" />
+            <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
+          </div>
+          <div v-else class="inline-flex w-full">
             <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
             <div class="ml-[4px] text-[var(--color-text-4)]">({{ nodeData.count || 0 }})</div>
           </div>
         </template>
         <template #extra="nodeData">
-          <!-- 默认模块的 id 是root，默认模块不可编辑、不可添加子模块 -->
+          <!-- 默认模块的 id 是root，默认模块不可编辑、不可添加子模块；API不可添加子模块 -->
           <popConfirm
-            v-if="nodeData.id !== 'root'"
+            v-if="nodeData.id !== 'root' && nodeData.type !== 'API'"
             mode="add"
             :all-names="(nodeData.children || []).map((e: ModuleTreeNode) => e.name || '')"
             :parent-id="nodeData.id"
@@ -106,6 +113,7 @@
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
+  import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import popConfirm from '@/views/api-test/components/popConfirm.vue';
 
   import {
@@ -113,7 +121,6 @@
     getDebugModuleCount,
     getDebugModules,
     moveDebugModule,
-    updateDebugModule,
   } from '@/api/modules/api-test/debug';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
@@ -124,7 +131,7 @@
   const props = defineProps<{
     isExpandAll?: boolean; // 是否展开所有节点
   }>();
-  const emit = defineEmits(['init', 'change', 'newApi', 'import']);
+  const emit = defineEmits(['init', 'clickApiNode', 'newApi', 'import']);
 
   const { t } = useI18n();
   const { openModal } = useModal();
@@ -145,11 +152,10 @@
 
   const virtualListProps = computed(() => {
     return {
-      height: 'calc(100vh - 325px)',
+      height: 'calc(100% - 180px)',
     };
   });
 
-  const activeFolder = ref<string>('all');
   const isExpandAll = ref(props.isExpandAll);
   const rootModulesName = ref<string[]>([]); // 根模块名称列表
 
@@ -167,15 +173,7 @@
   const moduleKeyword = ref('');
   const folderTree = ref<ModuleTreeNode[]>([]);
   const focusNodeKey = ref<string | number>('');
-  const selectedKeys = ref<string[]>([]);
   const loading = ref(false);
-
-  watch(
-    () => selectedKeys.value,
-    (arr) => {
-      emit('change', arr[0]);
-    }
-  );
 
   function setFocusNodeKey(node: MsTreeNodeData) {
     focusNodeKey.value = node.id || '';
@@ -207,7 +205,6 @@
           ...e,
           hideMoreAction: e.id === 'root',
           draggable: e.id !== 'root',
-          disabled: e.id === activeFolder.value,
         };
       });
       emit('init', folderTree.value);
@@ -231,6 +228,7 @@
         return {
           ...node,
           count: res[node.id] || 0,
+          draggable: node.id !== 'root',
         };
       });
     } catch (error) {
@@ -340,6 +338,7 @@
 
   defineExpose({
     initModules,
+    initModuleCount,
   });
 </script>
 
