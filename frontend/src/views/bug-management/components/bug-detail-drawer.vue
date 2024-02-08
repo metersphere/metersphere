@@ -157,7 +157,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
+  import { defineModel, ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
   import { Message } from '@arco-design/web-vue';
   import { debounce } from 'lodash-es';

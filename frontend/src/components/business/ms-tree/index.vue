@@ -470,9 +470,12 @@
           }
         }
       }
-    }
-    .arco-tree-node-disabled-selectable {
-      @apply !cursor-default;
+      .arco-tree-node-disabled-selectable {
+        @apply cursor-default;
+        .arco-tree-node-title {
+          @apply cursor-default;
+        }
+      }
     }
   }
 </style>

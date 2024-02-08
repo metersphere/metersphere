@@ -23,7 +23,7 @@
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
 
-  import batchAddKeyVal from './batchAddKeyVal.vue';
+  import batchAddKeyVal from '@/views/api-test/components/batchAddKeyVal.vue';
   import paramTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
   import { useI18n } from '@/hooks/useI18n';
@@ -84,8 +84,8 @@
     },
     {
       title: 'apiTestDebug.desc',
-      dataIndex: 'desc',
-      slotName: 'desc',
+      dataIndex: 'description',
+      slotName: 'description',
     },
     {
       title: '',
@@ -100,7 +100,7 @@
   watch(
     () => props.layout,
     (val) => {
-      heightUsed.value = val === 'horizontal' ? 422 : 422 + props.secondBoxHeight;
+      heightUsed.value = val === 'horizontal' ? 428 : 428 + props.secondBoxHeight;
     },
     {
       immediate: true,
@@ -111,7 +111,7 @@
     () => props.secondBoxHeight,
     (val) => {
       if (props.layout === 'vertical') {
-        heightUsed.value = 422 + val;
+        heightUsed.value = 428 + val;
       }
     },
     {

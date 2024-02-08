@@ -6,14 +6,14 @@
           <moduleTree
             @init="(val) => (folderTree = val)"
             @new-api="newApi"
-            @change="(val) => (activeModule = val)"
+            @click-api-node="handleApiNodeClick"
             @import="importDrawerVisible = true"
           />
         </div>
       </template>
       <template #second>
         <div class="flex h-full flex-col">
-          <debug ref="debugRef" :module="activeModule" :module-tree="folderTree" />
+          <debug ref="debugRef" :module-tree="folderTree" />
         </div>
       </template>
     </MsSplitBox>
@@ -67,7 +67,6 @@
   const { t } = useI18n();
 
   const debugRef = ref<InstanceType<typeof debug>>();
-  const activeModule = ref<string>('root');
   const folderTree = ref<ModuleTreeNode[]>([]);
   const importDrawerVisible = ref(false);
   const curlCode = ref('');
@@ -110,6 +109,10 @@
     });
     curlCode.value = '';
     importDrawerVisible.value = false;
+  }
+
+  function handleApiNodeClick(node: ModuleTreeNode) {
+    debugRef.value?.openApiTab(node);
   }
 </script>
 

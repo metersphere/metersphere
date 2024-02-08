@@ -1,7 +1,7 @@
 <template>
   <condition
     v-model:list="postConditions"
-    :condition-types="['SCRIPT']"
+    :condition-types="[RequestConditionProcessor.SCRIPT]"
     add-text="apiTestDebug.postCondition"
     :response="props.response"
     :height-used="heightUsed"
@@ -26,6 +26,7 @@
   import condition from '@/views/api-test/components/condition/index.vue';
 
   import { ExecuteConditionProcessor } from '@/models/apiTest/debug';
+  import { RequestConditionProcessor } from '@/enums/apiEnum';
 
   // import { useI18n } from '@/hooks/useI18n';
 
@@ -46,9 +47,9 @@
   const postConditions = useVModel(props, 'params', emit);
   const heightUsed = computed(() => {
     if (props.layout === 'horizontal') {
-      return 422;
+      return 428;
     }
-    return 422 + (props.secondBoxHeight || 0);
+    return 428 + (props.secondBoxHeight || 0);
   });
 </script>
 

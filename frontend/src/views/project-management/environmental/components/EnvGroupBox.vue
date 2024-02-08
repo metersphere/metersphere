@@ -98,8 +98,8 @@
     },
     {
       title: 'project.environmental.desc',
-      dataIndex: 'desc',
-      slotName: 'desc',
+      dataIndex: 'description',
+      slotName: 'description',
     },
     {
       title: '',
