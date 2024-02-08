@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { onBeforeMount, ref } from 'vue';
+  import { defineModel, onBeforeMount, ref } from 'vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';

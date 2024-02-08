@@ -42,15 +42,16 @@
 </template>
 
 <script setup lang="ts">
+  import { isEmpty } from 'lodash-es';
+
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { RequestContentTypeEnum, RequestParamsType } from '@/enums/apiEnum';
-
   const props = defineProps<{
     params: Record<string, any>[];
+    defaultParamItem?: Record<string, any>; // 默认参数项
   }>();
   const emit = defineEmits<{
     (e: 'apply', resultArr: (Record<string, any> | null)[]): void;
@@ -66,8 +67,8 @@
     (val) => {
       if (val) {
         batchParamsCode.value = props.params
-          .filter((e) => e && (e.name !== '' || e.value !== ''))
-          .map((item) => `${item.name}:${item.value}`)
+          .filter((e) => e && (!isEmpty(e.key) || !isEmpty(e.value)))
+          .map((item) => `${item.key}:${item.value}`)
           .join('\n');
       }
     },
@@ -83,19 +84,13 @@
     const arr = batchParamsCode.value.replaceAll('\r', '\n').split('\n'); // 先将回车符替换成换行符，避免粘贴的代码是以回车符分割的，然后以换行符分割
     const tempObj: Record<string, any> = {}; // 同名参数去重，保留最新的
     for (let i = 0; i < arr.length; i++) {
-      const [name, value] = arr[i].split(':');
-      if (name) {
-        tempObj[name.trim()] = {
+      const [key, value] = arr[i].split(':');
+      if (key) {
+        tempObj[key.trim()] = {
           id: new Date().getTime() + i,
-          name: name.trim(),
+          ...props.defaultParamItem,
+          key: key.trim(),
           value: value?.trim(),
-          required: false,
-          type: RequestParamsType.STRING,
-          min: undefined,
-          max: undefined,
-          contentType: RequestContentTypeEnum.TEXT,
-          desc: '',
-          encode: false,
         };
       }
     }

@@ -1,10 +1,8 @@
 <template>
-  <div class="pb-[24px]">
-    <div class="mb-[8px] font-medium">{{ t('apiTestDebug.auth') }}</div>
-    <div class="rounded-[var(--border-radius-small)] border border-[var(--color-text-n8)] p-[16px]">
-      <div class="mb-[8px]">{{ t('apiTestDebug.setting') }}</div>
-      <a-form :model="settingForm" layout="vertical">
-        <a-form-item>
+  <div class="h-full rounded-[var(--border-radius-small)] border border-[var(--color-text-n8)] p-[16px]">
+    <a-form :model="settingForm" layout="vertical">
+      <div class="flex items-center gap-[32px]">
+        <a-form-item class="flex-1">
           <template #label>
             <div class="flex items-center">
               {{ t('apiTestDebug.connectTimeout') }}
@@ -34,22 +32,22 @@
             class="w-[160px]"
           />
         </a-form-item>
-        <a-form-item :label="t('apiTestDebug.certificateAlias')">
-          <a-input
-            v-model:model-value="settingForm.certificateAlias"
-            :max-length="255"
-            :placeholder="t('apiTestDebug.commonPlaceholder')"
-            class="w-[450px]"
-          />
-        </a-form-item>
-        <a-form-item :label="t('apiTestDebug.redirect')">
-          <a-radio-group v-model:model-value="settingForm.autoRedirects">
-            <a-radio value="follow">{{ t('apiTestDebug.follow') }}</a-radio>
-            <a-radio value="auto">{{ t('apiTestDebug.auto') }}</a-radio>
-          </a-radio-group>
-        </a-form-item>
-      </a-form>
-    </div>
+      </div>
+      <a-form-item :label="t('apiTestDebug.certificateAlias')">
+        <a-input
+          v-model:model-value="settingForm.certificateAlias"
+          :max-length="255"
+          :placeholder="t('apiTestDebug.commonPlaceholder')"
+          class="w-[450px]"
+        />
+      </a-form-item>
+      <a-form-item :label="t('apiTestDebug.redirect')">
+        <a-radio v-model:model-value="settingForm.followRedirects">{{ t('apiTestDebug.follow') }}</a-radio>
+        <a-radio v-model:model-value="settingForm.autoRedirects" class="ml-[24px]">
+          {{ t('apiTestDebug.auto') }}
+        </a-radio>
+      </a-form-item>
+    </a-form>
   </div>
 </template>
 

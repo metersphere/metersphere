@@ -189,7 +189,7 @@
       <a-form-item :label="t('apiTestDebug.requestModule')" class="mb-0">
         <a-tree-select
           v-model:modelValue="saveModalForm.moduleId"
-          :data="props.moduleTree"
+          :data="selectTree"
           :field-names="{ title: 'name', key: 'id', children: 'children' }"
           allow-search
         />
@@ -215,18 +215,24 @@
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiMethodSelect from '@/views/api-test/components/apiMethodSelect.vue';
 
-  import { addDebug, executeDebug } from '@/api/modules/api-test/debug';
+  import { addDebug, executeDebug, getDebugDetail } from '@/api/modules/api-test/debug';
   import { getPluginScript, getProtocolList } from '@/api/modules/api-test/management';
   import { getSocket } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
-  import { getGenerateId } from '@/utils';
+  import { filterTree, getGenerateId } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
   import { registerCatchSaveShortcut, removeCatchSaveShortcut } from '@/utils/event';
 
   import { ExecuteBody, ExecuteHTTPRequestFullParams } from '@/models/apiTest/debug';
   import { ModuleTreeNode } from '@/models/common';
-  import { RequestBodyFormat, RequestComposition, RequestMethods, ResponseComposition } from '@/enums/apiEnum';
+  import {
+    RequestAuthType,
+    RequestBodyFormat,
+    RequestComposition,
+    RequestMethods,
+    ResponseComposition,
+  } from '@/enums/apiEnum';
 
   // 懒加载Http协议组件
   const debugHeader = defineAsyncComponent(() => import('./header.vue'));
@@ -237,7 +243,6 @@
   export type DebugTabParam = ExecuteHTTPRequestFullParams & TabItem & Record<string, any>;
 
   const props = defineProps<{
-    module: string; // 当前激活的接口模块
     moduleTree: ModuleTreeNode[]; // 接口模块树
   }>();
 
@@ -264,6 +269,28 @@
     },
     rawBody: { value: '' },
   };
+  const defaultResponse = {
+    requestResults: [
+      {
+        body: '',
+        responseResult: {
+          body: '',
+          contentType: '',
+          headers: '',
+          dnsLookupTime: 0,
+          downloadTime: 0,
+          latency: 0,
+          responseCode: 0,
+          responseTime: 0,
+          responseSize: 0,
+          socketInitTime: 0,
+          tcpHandshakeTime: 0,
+          transferStartTime: 0,
+        },
+      },
+    ],
+    console: '',
+  }; // 调试返回的响应内容
   const defaultDebugParams: DebugTabParam = {
     id: initDefaultId,
     moduleId: 'root',
@@ -285,7 +312,7 @@
     uploadFileIds: [],
     linkFileIds: [],
     authConfig: {
-      authType: 'NONE',
+      authType: RequestAuthType.NONE,
       username: '',
       password: '',
     },
@@ -310,32 +337,11 @@
       connectTimeout: 60000,
       responseTimeout: 60000,
       certificateAlias: '',
-      followRedirects: false,
+      followRedirects: true,
       autoRedirects: false,
     },
     responseActiveTab: ResponseComposition.BODY,
-    response: {
-      requestResults: [
-        {
-          body: '',
-          responseResult: {
-            body: '',
-            contentType: '',
-            headers: '',
-            dnsLookupTime: 0,
-            downloadTime: 0,
-            latency: 0,
-            responseCode: 0,
-            responseTime: 0,
-            responseSize: 0,
-            socketInitTime: 0,
-            tcpHandshakeTime: 0,
-            transferStartTime: 0,
-          },
-        },
-      ],
-      console: '',
-    }, // 调试返回的响应内容
+    response: cloneDeep(defaultResponse),
   };
   const debugTabs = ref<DebugTabParam[]>([cloneDeep(defaultDebugParams)]);
   const activeDebug = ref<DebugTabParam>(debugTabs.value[0]);
@@ -366,13 +372,12 @@
     const id = `debug-${Date.now()}`;
     debugTabs.value.push({
       ...cloneDeep(defaultDebugParams),
-      moduleId: props.module,
       id,
       ...defaultProps,
     });
-    activeRequestTab.value = id;
+    activeRequestTab.value = defaultProps?.id || id;
     nextTick(() => {
-      if (defaultProps) {
+      if (defaultProps && !defaultProps.id) {
         handleActiveDebugChange();
       }
     });
@@ -584,14 +589,6 @@
         executeLoading.value = false;
       }
     });
-
-    websocket.value.addEventListener('close', (event) => {
-      console.log('关闭:', event);
-    });
-
-    websocket.value.addEventListener('error', (event) => {
-      console.error('错误:', event);
-    });
   }
 
   function makeRequestParams() {
@@ -685,10 +682,16 @@
   const saveModalForm = ref({
     name: '',
     path: activeDebug.value.url || '',
-    moduleId: activeDebug.value.module,
+    moduleId: 'root',
   });
   const saveModalFormRef = ref<FormInstance>();
   const saveLoading = ref(false);
+  const selectTree = computed(() =>
+    filterTree(props.moduleTree, (e) => {
+      e.draggable = false;
+      return e.type === 'MODULE';
+    })
+  );
 
   watch(
     () => saveModalVisible.value,
@@ -708,7 +711,7 @@
       saveModalForm.value = {
         name: '',
         path: activeDebug.value.url || '',
-        moduleId: activeDebug.value.module,
+        moduleId: 'root',
       };
       saveModalVisible.value = true;
     } catch (error) {
@@ -752,6 +755,26 @@
     done(false);
   }
 
+  const apiDetailLoading = ref(false);
+  async function openApiTab(apiInfo: ModuleTreeNode) {
+    try {
+      apiDetailLoading.value = true;
+      const res = await getDebugDetail(apiInfo.id);
+      addDebugTab({
+        label: apiInfo.name,
+        ...res,
+        response: cloneDeep(defaultResponse),
+        ...res.request,
+        url: res.path,
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      apiDetailLoading.value = false;
+    }
+  }
+
   onBeforeMount(() => {
     initProtocolList();
   });
@@ -766,6 +789,7 @@
 
   defineExpose({
     addDebugTab,
+    openApiTab,
   });
 </script>
 

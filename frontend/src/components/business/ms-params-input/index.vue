@@ -238,12 +238,13 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import {
+    formalParameterVars,
     JMeterAllGroup,
     JMeterAllVars,
     mockAllGroup,
     mockAllParams,
     mockFunctions,
-    specialStringVars,
+    sameFuncNameVars,
   } from './config';
   import type { MockParamInputGroupItem, MockParamItem } from './types';
   import type { AutoComplete, CascaderOption, FormInstance } from '@arco-design/web-vue';
@@ -375,7 +376,8 @@
     // 匹配@开头的函数名
     const regex = /@([a-zA-Z]+)(\([^)]*\))?/;
     const currentParamType = mockAllParams.find((e) => {
-      if (specialStringVars.includes(val)) {
+      if (sameFuncNameVars.includes(val)) {
+        // 如果是同名函数，但可能是不同的变量，所以需要全等匹配
         return e.value === val;
       }
       if (e.value.match(regex)?.[1] === val.match(regex)?.[1]) {
@@ -428,6 +430,7 @@
    */
   function openParamSetting() {
     if (/^\$/.test(innerValue.value)) {
+      // 如果是 JMeter 变量
       paramSettingType.value = 'jmeter';
       if (JMeterAllVars.findIndex((e) => e.value === innerValue.value) !== -1) {
         paramForm.value.JMeterType = innerValue.value;
@@ -435,6 +438,7 @@
         paramForm.value.JMeterType = '';
       }
     } else if (/^@/.test(innerValue.value)) {
+      // 如果是 Mock 变量
       const valueArr = innerValue.value.split('|'); // 分割 mock变量和函数
       if (valueArr[0]) {
         // 匹配@开头的变量名
@@ -444,16 +448,23 @@
         if (variableMatch) {
           const variableName = variableMatch[1];
           const variableParams = variableMatch[2]?.split(',').map((param) => param.trim());
+          const formalParameterVar = formalParameterVars.find((e) => e.includes(variableName)); // 匹配带形参的函数，监测输入的变量是否是带形参的函数
 
-          if (variableName === 'character') {
-            handleParamTypeChange(`@${variableName}(${variableParams})`); // character变量特殊处理
+          if (formalParameterVar && variableParams.length > 0) {
+            // 如果是带形参的函数，则需要使用 原函数名(形式参数) 的变量
+            handleParamTypeChange(formalParameterVar);
+          } else if (sameFuncNameVars.includes(valueArr[0])) {
+            // 如果是同名函数，但可能是不同的变量，所以需要全等匹配
+            handleParamTypeChange(valueArr[0]);
           } else {
             handleParamTypeChange(`@${variableName}`); // 设置匹配的变量参数输入框组
           }
-          if (variableName !== 'character' || (variableName === 'character' && variableParams?.[0] !== 'pool')) {
-            // 字符串变量@character(pool)特殊处理，不需要填入 pool
+          if (!formalParameterVars.includes(valueArr[0])) {
+            // 如果是带形式参数的函数，且未填实参，则不需要填入参数
+            // 如果是带形式参数的函数，但已填写实参，则需要填入参数
+            // 如果是非形式参数的函数，则需要填入参数
             (variableParams || []).forEach((e, i) => {
-              // 设置变量入参
+              // 根据入参顺序，设置变量入参
               paramForm.value[`param${i + 1}`] = Number.isNaN(Number(e)) ? e : Number(e);
             });
           }

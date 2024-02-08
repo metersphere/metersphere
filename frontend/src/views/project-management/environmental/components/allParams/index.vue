@@ -30,8 +30,8 @@
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
 
+  import batchAddKeyVal from '@/views/api-test/components/batchAddKeyVal.vue';
   import paramsTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
-  import batchAddKeyVal from '@/views/api-test/debug/components/debug/batchAddKeyVal.vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
@@ -121,7 +121,7 @@
     {
       title: 'project.environmental.desc',
       dataIndex: 'description',
-      slotName: 'desc',
+      slotName: 'description',
       showInTable: true,
       showDrag: true,
     },

@@ -146,8 +146,8 @@
     },
     {
       title: 'project.commonScript.description',
-      slotName: 'desc',
-      dataIndex: 'desc',
+      slotName: 'description',
+      dataIndex: 'description',
     },
     {
       title: 'project.commonScript.isRequired',
