@@ -38,12 +38,12 @@
   const { t } = useI18n();
 
   const innerParams = useVModel(props, 'params', emit);
-  const defaultParamItem = ref<EnableKeyValueParam>({
+  const defaultParamItem = {
     key: '',
     value: '',
     description: '',
     enable: true,
-  });
+  };
 
   const columns: ParamTableColumn[] = [
     {

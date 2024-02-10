@@ -29,7 +29,11 @@
     </template>
     <!-- 表格列 slot -->
     <template #key="{ record, columnConfig }">
-      <a-popover position="tl" :disabled="!record.key || record.key.trim() === ''" class="ms-params-input-popover">
+      <a-popover
+        position="tl"
+        :disabled="!record[columnConfig.dataIndex as string] || record[columnConfig.dataIndex as string].trim() === ''"
+        class="ms-params-input-popover"
+      >
         <template #content>
           <div class="param-popover-title">
             {{ t('apiTestDebug.paramName') }}
@@ -47,7 +51,7 @@
         />
       </a-popover>
     </template>
-    <template #type="{ record, columnConfig }">
+    <template #paramType="{ record, columnConfig }">
       <a-tooltip
         v-if="columnConfig.hasRequired"
         :content="t(record.required ? 'apiTestDebug.paramRequired' : 'apiTestDebug.paramNotRequired')"
@@ -64,7 +68,7 @@
         </MsButton>
       </a-tooltip>
       <a-select
-        v-model:model-value="record.type"
+        v-model:model-value="record.paramType"
         :options="columnConfig.typeOptions || []"
         class="param-input w-full"
         @change="(val) => handleTypeChange(val, record)"
@@ -78,9 +82,17 @@
         @change="(val) => handleExpressionTypeChange(val)"
       />
     </template>
-    <template #range="{ record, columnConfig }">
+    <template #variableType="{ record, columnConfig }">
       <a-select
-        v-model:model-value="record.range"
+        v-model:model-value="record.variableType"
+        :options="columnConfig.typeOptions || []"
+        class="param-input w-[110px]"
+        @change="(val) => handleVariableTypeChange(val)"
+      />
+    </template>
+    <template #extractScope="{ record, columnConfig }">
+      <a-select
+        v-model:model-value="record.extractScope"
         :options="columnConfig.typeOptions || []"
         class="param-input w-[180px]"
         @change="(val) => handleRangeChange(val)"
@@ -123,19 +135,19 @@
     <template #lengthRange="{ record }">
       <div class="flex items-center justify-between">
         <a-input-number
-          v-model:model-value="record.min"
+          v-model:model-value="record.minLength"
           :placeholder="t('apiTestDebug.paramMin')"
           :min="0"
           class="param-input param-input-number"
-          @change="(val) => addTableLine(val || '', 'min')"
+          @change="(val) => addTableLine(val, 'minLength')"
         />
         <div class="mx-[4px]">～</div>
         <a-input-number
-          v-model:model-value="record.max"
+          v-model:model-value="record.maxLength"
           :placeholder="t('apiTestDebug.paramMax')"
           :min="0"
           class="param-input"
-          @change="(val) => addTableLine(val || '', 'max')"
+          @change="(val) => addTableLine(val, 'maxLength')"
         />
       </div>
     </template>
@@ -314,23 +326,6 @@
   import { RequestBodyFormat, RequestContentTypeEnum, RequestParamsType } from '@/enums/apiEnum';
   import { SelectAllEnum, TableKeyEnum } from '@/enums/tableEnum';
 
-  interface Param {
-    id: number;
-    required: boolean;
-    key: string;
-    type: string;
-    value: string;
-    min: number | undefined;
-    max: number | undefined;
-    contentType: RequestContentTypeEnum;
-    description: string;
-    encode: boolean;
-    tag: string[];
-    enable: boolean;
-    mustContain: boolean;
-    [key: string]: any;
-  }
-
   export type ParamTableColumn = MsTableColumnData & {
     isNormal?: boolean; // 用于 value 列区分是普通输入框还是 MsParamsInput
     hasRequired?: boolean; // 用于 type 列区分是否有 required 星号
@@ -343,8 +338,8 @@
 
   const props = withDefaults(
     defineProps<{
-      params: any[];
-      defaultParamItem?: Partial<Param>; // 默认参数项，用于添加新行时的默认值
+      params?: any[];
+      defaultParamItem?: Record<string, any>; // 默认参数项，用于添加新行时的默认值
       columns: ParamTableColumn[];
       scroll?: {
         x?: number | string;
@@ -363,6 +358,7 @@
       response?: string; // 响应内容
     }>(),
     {
+      params: () => [],
       selectable: true,
       showSetting: false,
       tableKey: undefined,
@@ -370,10 +366,10 @@
       defaultParamItem: () => ({
         required: false,
         key: '',
-        type: RequestParamsType.STRING,
+        paramType: RequestParamsType.STRING,
         value: '',
-        min: undefined,
-        max: undefined,
+        minLength: undefined,
+        maxLength: undefined,
         contentType: RequestContentTypeEnum.TEXT,
         tag: [],
         description: '',
@@ -570,9 +566,9 @@
 
   function handleTypeChange(
     val: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[],
-    record: Partial<Param>
+    record: Record<string, any>
   ) {
-    addTableLine(val as string, 'type');
+    addTableLine(val as string, 'paramType');
     // 根据参数类型自动推断 Content-Type 类型
     if (record.contentType) {
       if (val === 'file') {
@@ -591,10 +587,16 @@
     addTableLine(val as string, 'expressionType');
   }
 
+  function handleVariableTypeChange(
+    val: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
+  ) {
+    addTableLine(val as string, 'variableType');
+  }
+
   function handleRangeChange(
     val: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
   ) {
-    addTableLine(val as string, 'range');
+    addTableLine(val as string, 'extractScope');
   }
 
   /**

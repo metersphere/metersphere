@@ -337,6 +337,7 @@
 
   defineExpose({
     initModules,
+    initModuleCount,
   });
 </script>
 

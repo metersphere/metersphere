@@ -42,8 +42,17 @@
         />
       </a-form-item>
       <a-form-item :label="t('apiTestDebug.redirect')">
-        <a-radio v-model:model-value="settingForm.followRedirects">{{ t('apiTestDebug.follow') }}</a-radio>
-        <a-radio v-model:model-value="settingForm.autoRedirects" class="ml-[24px]">
+        <a-radio
+          v-model:model-value="settingForm.followRedirects"
+          @change="(val) => handleFollowRedirectsChange(val as boolean)"
+        >
+          {{ t('apiTestDebug.follow') }}
+        </a-radio>
+        <a-radio
+          v-model:model-value="settingForm.autoRedirects"
+          class="ml-[24px]"
+          @change="val => handleAutoRedirectsChange(val as boolean)"
+        >
           {{ t('apiTestDebug.auto') }}
         </a-radio>
       </a-form-item>
@@ -76,6 +85,18 @@
     },
     { deep: true }
   );
+
+  function handleFollowRedirectsChange(val: boolean) {
+    if (val) {
+      settingForm.value.autoRedirects = false;
+    }
+  }
+
+  function handleAutoRedirectsChange(val: boolean) {
+    if (val) {
+      settingForm.value.followRedirects = false;
+    }
+  }
 </script>
 
 <style lang="less" scoped></style>

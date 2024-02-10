@@ -447,8 +447,8 @@ export function decodeStringToCharset(str: string, charset = 'UTF-8') {
 
 interface ParsedCurlOptions {
   url?: string;
-  queryParameters?: { name: string; value: string }[];
-  headers?: { name: string; value: string }[];
+  queryParameters?: { key: string; value: string }[];
+  headers?: { key: string; value: string }[];
 }
 /**
  * 解析 curl 脚本
@@ -467,8 +467,8 @@ export function parseCurlScript(curlScript: string): ParsedCurlOptions {
   const queryMatch = curlScript.match(/\?(.*?)'/);
   if (queryMatch) {
     const queryParams = queryMatch[1].split('&').map((param) => {
-      const [name, value] = param.split('=');
-      return { name, value };
+      const [key, value] = param.split('=');
+      return { key, value };
     });
     options.queryParameters = queryParams;
   }
@@ -478,10 +478,10 @@ export function parseCurlScript(curlScript: string): ParsedCurlOptions {
   if (headersMatch) {
     const headers = headersMatch.map((header) => {
       const [, value] = header.match(/-H\s+'([^']+)'/) || [];
-      const [name, rawValue] = value.split(':');
-      const trimmedName = name.trim();
+      const [key, rawValue] = value.split(':');
+      const trimmedName = key.trim();
       const trimmedValue = rawValue ? rawValue.trim() : '';
-      return { name: trimmedName, value: trimmedValue };
+      return { key: trimmedName, value: trimmedValue };
     });
 
     // 过滤常用的 HTTP header
@@ -500,12 +500,12 @@ export function parseCurlScript(curlScript: string): ParsedCurlOptions {
       'sec-fetch-mode',
       'sec-fetch-site',
       'user-agent',
-      'Connection',
-      'Host',
-      'Accept-Encoding',
-      'X-Requested-With',
+      'connection',
+      'host',
+      'accept-encoding',
+      'x-requested-with',
     ];
-    options.headers = headers.filter((header) => !commonHeaders.includes(header.name.toLowerCase()));
+    options.headers = headers.filter((header) => !commonHeaders.includes(header.key.toLowerCase()));
   }
 
   return options;

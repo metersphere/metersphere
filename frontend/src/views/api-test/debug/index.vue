@@ -1,9 +1,11 @@
 <template>
-  <MsCard simple no-content-padding>
+  <!-- TODO:接口请求超过5S以上可展示取消请求按钮，避免用户过长等待 -->
+  <MsCard :loading="loading" simple no-content-padding>
     <MsSplitBox :size="0.25" :max="0.5">
       <template #first>
         <div class="p-[24px]">
           <moduleTree
+            ref="moduleTreeRef"
             @init="(val) => (folderTree = val)"
             @new-api="newApi"
             @click-api-node="handleApiNodeClick"
@@ -13,7 +15,12 @@
       </template>
       <template #second>
         <div class="flex h-full flex-col">
-          <debug ref="debugRef" :module-tree="folderTree" />
+          <debug
+            ref="debugRef"
+            v-model:detail-loading="loading"
+            :module-tree="folderTree"
+            @add-done="handleDebugAddDone"
+          />
         </div>
       </template>
     </MsSplitBox>
@@ -62,14 +69,16 @@
   import { parseCurlScript } from '@/utils';
 
   import { ModuleTreeNode } from '@/models/common';
-  import { RequestContentTypeEnum } from '@/enums/apiEnum';
+  import { RequestContentTypeEnum, RequestParamsType } from '@/enums/apiEnum';
 
   const { t } = useI18n();
 
+  const moduleTreeRef = ref<InstanceType<typeof moduleTree>>();
   const debugRef = ref<InstanceType<typeof debug>>();
   const folderTree = ref<ModuleTreeNode[]>([]);
   const importDrawerVisible = ref(false);
   const curlCode = ref('');
+  const loading = ref(false);
 
   function newApi() {
     debugRef.value?.addDebugTab();
@@ -79,31 +88,20 @@
     const { url, headers, queryParameters } = parseCurlScript(curlCode.value);
     debugRef.value?.addDebugTab({
       url,
-      headerParams: headers?.map((e) => ({
-        required: false,
-        type: 'string',
-        min: undefined,
-        max: undefined,
+      headers: headers?.map((e) => ({
         contentType: RequestContentTypeEnum.TEXT,
-        tag: [],
-        desc: '',
-        encode: false,
-        enable: false,
-        mustContain: false,
+        description: '',
+        enable: true,
         ...e,
       })),
-      value: '',
-      queryParams: queryParameters?.map((e) => ({
+      query: queryParameters?.map((e) => ({
+        paramType: RequestParamsType.STRING,
+        description: '',
         required: false,
-        type: 'string',
-        min: undefined,
-        max: undefined,
-        contentType: RequestContentTypeEnum.TEXT,
-        tag: [],
-        desc: '',
+        maxLength: undefined,
+        minLength: undefined,
         encode: false,
-        enable: false,
-        mustContain: false,
+        enable: true,
         ...e,
       })),
     });
@@ -113,6 +111,11 @@
 
   function handleApiNodeClick(node: ModuleTreeNode) {
     debugRef.value?.openApiTab(node);
+  }
+
+  function handleDebugAddDone() {
+    moduleTreeRef.value?.initModules();
+    moduleTreeRef.value?.initModuleCount();
   }
 </script>
 

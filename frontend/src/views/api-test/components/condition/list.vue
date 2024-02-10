@@ -43,13 +43,15 @@
   import { conditionTypeNameMap } from '@/config/apiTest';
   import { useI18n } from '@/hooks/useI18n';
 
+  import { ExecuteConditionProcessor } from '@/models/apiTest/debug';
+
   const props = defineProps<{
-    list: Array<Record<string, any>>;
+    list: ExecuteConditionProcessor[];
     activeId?: string | number;
   }>();
   const emit = defineEmits<{
-    (e: 'update:list', list: Array<Record<string, any>>): void;
-    (e: 'activeChange', item: Record<string, any>): void;
+    (e: 'update:list', list: ExecuteConditionProcessor[]): void;
+    (e: 'activeChange', item: ExecuteConditionProcessor): void;
     (e: 'change'): void;
   }>();
 
@@ -58,7 +60,7 @@
   // 当前聚焦的列表项
   const focusItemKey = ref<any>('');
   // 当前选中的列表项
-  const activeItem = ref<Record<string, any>>({});
+  const activeItem = ref<ExecuteConditionProcessor>({} as ExecuteConditionProcessor);
   const itemMoreActions: ActionsItem[] = [
     {
       label: 'common.copy',
@@ -81,7 +83,7 @@
     }
   );
 
-  function handleItemClick(item: Record<string, any>) {
+  function handleItemClick(item: ExecuteConditionProcessor) {
     activeItem.value = item;
     emit('activeChange', item);
   }
@@ -90,7 +92,7 @@
    * 复制列表项
    * @param item 列表项
    */
-  function copyListItem(item: Record<string, any>) {
+  function copyListItem(item: ExecuteConditionProcessor) {
     const copyItem = {
       ...item,
       id: new Date().getTime(),
@@ -104,7 +106,7 @@
    * 删除列表项
    * @param item 列表项
    */
-  function deleteListItem(item: Record<string, any>) {
+  function deleteListItem(item: ExecuteConditionProcessor) {
     data.value = data.value.filter((precondition) => precondition.id !== item.id);
     if (activeItem.value.id === item.id) {
       [activeItem.value] = data.value;
@@ -117,7 +119,7 @@
    * @param event
    * @param item
    */
-  function handleMoreActionSelect(event: ActionsItem, item: Record<string, any>) {
+  function handleMoreActionSelect(event: ActionsItem, item: ExecuteConditionProcessor) {
     if (event.eventTag === 'copy') {
       copyListItem(item);
     } else if (event.eventTag === 'delete') {

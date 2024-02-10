@@ -17,7 +17,7 @@
       <slot name="titleRight"></slot>
     </div>
   </div>
-  <div v-show="data.length > 0" class="flex h-[calc(100%-40px)] gap-[8px]">
+  <div v-if="data.length > 0" class="flex h-[calc(100%-40px)] gap-[8px]">
     <div class="h-full w-[20%] min-w-[220px]">
       <conditionList
         v-model:list="data"
@@ -46,27 +46,27 @@
   import { conditionTypeNameMap } from '@/config/apiTest';
   import { useI18n } from '@/hooks/useI18n';
 
-  import { ConditionType } from '@/models/apiTest/debug';
-  import { RequestConditionProcessor } from '@/enums/apiEnum';
+  import { ConditionType, ExecuteConditionProcessor } from '@/models/apiTest/debug';
+  import { RequestConditionProcessor, RequestConditionScriptLanguage } from '@/enums/apiEnum';
 
   const props = defineProps<{
-    list: Array<Record<string, any>>;
+    list: ExecuteConditionProcessor[];
     conditionTypes: Array<ConditionType>;
     addText: string;
     heightUsed?: number;
     response?: string; // 响应内容
   }>();
   const emit = defineEmits<{
-    (e: 'update:list', list: Array<Record<string, any>>): void;
+    (e: 'update:list', list: ExecuteConditionProcessor[]): void;
     (e: 'change'): void;
   }>();
 
   const { t } = useI18n();
 
   const data = useVModel(props, 'list', emit);
-  const activeItem = ref<Record<string, any>>({});
+  const activeItem = ref<ExecuteConditionProcessor>(data.value[0]);
 
-  function handleListActiveChange(item: Record<string, any>) {
+  function handleListActiveChange(item: ExecuteConditionProcessor) {
     activeItem.value = item;
   }
 
@@ -78,8 +78,8 @@
       ...activeItem.value,
       id: new Date().getTime(),
     };
-    data.value.push(copyItem);
-    activeItem.value = copyItem;
+    data.value.push(copyItem as ExecuteConditionProcessor);
+    activeItem.value = copyItem as ExecuteConditionProcessor;
     emit('change');
   }
 
@@ -117,45 +117,44 @@ org.apache.http.client.method . . . '' at line number 2
       case RequestConditionProcessor.SCRIPT:
         data.value.push({
           id,
-          type: RequestConditionProcessor.SCRIPT,
-          name: t('apiTestDebug.preconditionScriptName'),
-          scriptType: 'manual',
+          processorType: RequestConditionProcessor.SCRIPT,
+          scriptName: t('apiTestDebug.preconditionScriptName'),
+          enableCommonScript: false,
           enable: true,
-          script: '',
-          quoteScript: {
-            name: '',
-            script: scriptEx,
-          },
+          script: scriptEx.value,
+          scriptId: '',
+          scriptLanguage: RequestConditionScriptLanguage.BEANSHELL,
+          params: [],
         });
         break;
-      case RequestConditionProcessor.SQL:
-        data.value.push({
-          id,
-          type: RequestConditionProcessor.SQL,
-          desc: '',
-          enable: true,
-          sqlSource: {
-            name: '',
-            script: scriptEx,
-            storageType: 'column',
-            params: [],
-          },
-        });
-        break;
+      // case RequestConditionProcessor.SQL:
+      //   data.value.push({
+      //     id,
+      //     enableCommonScript: false,
+      //     desc: '',
+      //     enable: true,
+      //     sqlSource: {
+      //       scriptName: '',
+      //       script: scriptEx,
+      //       storageType: 'column',
+      //       params: [],
+      //     },
+      //   });
+      //   break;
       case RequestConditionProcessor.TIME_WAITING:
         data.value.push({
           id,
-          type: RequestConditionProcessor.TIME_WAITING,
+          processorType: RequestConditionProcessor.TIME_WAITING,
           enable: true,
-          time: 1000,
+          delay: 1000,
         });
         break;
       case RequestConditionProcessor.EXTRACT:
         data.value.push({
           id,
-          type: RequestConditionProcessor.EXTRACT,
+          processorType: RequestConditionProcessor.EXTRACT,
           enable: true,
-          extractParams: [],
+          extractors: [],
         });
         break;
       default:
