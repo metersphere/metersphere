@@ -38,8 +38,10 @@ export interface ResponseTiming {
 }
 // key-value参数信息
 export interface KeyValueParam {
+  id: string; // id用于前端渲染，后台无此字段
   key: string;
   value: string;
+  [key: string]: any; // 用于前端渲染时填充的自定义信息，后台无此字段
 }
 // 接口请求-带开启关闭的参数集合信息
 export interface EnableKeyValueParam extends KeyValueParam {
@@ -49,8 +51,8 @@ export interface EnableKeyValueParam extends KeyValueParam {
 // 接口请求公共参数集合信息
 export interface ExecuteRequestCommonParam extends EnableKeyValueParam {
   encode: boolean; // 是否编码
-  maxLength: number;
-  minLength: number;
+  maxLength?: number;
+  minLength?: number;
   paramType: RequestParamsType; // 参数类型
   required: boolean;
   description: string;
@@ -148,6 +150,7 @@ export interface ScriptCommonConfig {
   enableCommonScript: boolean; // 是否启用公共脚本
   script: string; // 脚本内容
   scriptId: string; // 脚本id
+  scriptName: string; // 脚本名称
   scriptLanguage: RequestConditionScriptLanguageType; // 脚本语言
   params: KeyValueParam[]; // 公共脚本参数
 }
@@ -169,14 +172,16 @@ export interface ResponseVariableAssertion {
 }
 // 执行请求-前后置条件处理器
 export interface ExecuteConditionProcessorCommon {
+  id: number; // 处理器ID，前端列表渲染需要，后台无此字段
   enable: boolean; // 是否启用
-  name: string; // 请求名称
+  name?: string; // 条件处理器名称
   processorType: RequestConditionProcessor;
 }
 // 执行请求-前后置条件-脚本处理器
 export type ScriptProcessor = ScriptCommonConfig;
 // 执行请求-前后置条件-SQL脚本处理器
 export interface SQLProcessor {
+  description: string; // 描述
   dataSourceId: string; // 数据源ID
   environmentId: string; // 环境ID
   queryTimeout: number; // 超时时间
@@ -219,9 +224,9 @@ export interface ExtractProcessor {
 }
 // 执行请求-前后置条件配置
 export type ExecuteConditionProcessor = ExecuteConditionProcessorCommon &
-  (ScriptProcessor | SQLProcessor | TimeWaitingProcessor | ExtractProcessor);
+  Partial<ScriptProcessor & SQLProcessor & TimeWaitingProcessor & ExtractProcessor>;
 export interface ExecuteConditionConfig {
-  enableGlobal: boolean; // 是否启用全局前置 默认为 true
+  enableGlobal?: boolean; // 是否启用全局前/后置 默认为 true
   processors: ExecuteConditionProcessor[];
 }
 // 执行请求-断言配置子项
@@ -248,7 +253,7 @@ export interface ExecuteCommonChild {
 export interface ExecuteAuthConfig {
   authType: RequestAuthType;
   password: string;
-  username: string;
+  userName: string;
 }
 // 执行请求- body 配置-文本格式的 body
 export interface ExecuteValueBody {

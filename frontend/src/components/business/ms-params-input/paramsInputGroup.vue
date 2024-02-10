@@ -30,6 +30,7 @@
       v-else-if="group.type === 'number'"
       v-model:model-value="innerForm[`${paramKey}${index + 1}`]"
       :placeholder="t(group.placeholder || '')"
+      model-event="input"
     />
     <a-input
       v-else-if="group.type === 'inputAppendSelect'"

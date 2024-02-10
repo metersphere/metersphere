@@ -9,13 +9,14 @@
         />
       </a-tooltip>
     </div>
-    <batchAddKeyVal :params="innerParams" @apply="handleBatchParamApply" />
+    <batchAddKeyVal :params="innerParams" :default-param-item="defaultParamItem" @apply="handleBatchParamApply" />
   </div>
   <paramTable
     v-model:params="innerParams"
     :columns="columns"
     :height-used="heightUsed"
     :scroll="{ minWidth: 1160 }"
+    :default-param-item="defaultParamItem"
     @change="handleParamTableChange"
   />
 </template>
@@ -44,23 +45,34 @@
   const { t } = useI18n();
 
   const innerParams = useVModel(props, 'params', emit);
+  const defaultParamItem = {
+    key: '',
+    value: '',
+    paramType: RequestParamsType.STRING,
+    description: '',
+    required: false,
+    maxLength: undefined,
+    minLength: undefined,
+    encode: false,
+    enable: true,
+  };
 
   const columns: ParamTableColumn[] = [
     {
       title: 'apiTestDebug.paramName',
-      dataIndex: 'name',
-      slotName: 'name',
+      dataIndex: 'key',
+      slotName: 'key',
     },
     {
       title: 'apiTestDebug.paramType',
-      dataIndex: 'type',
-      slotName: 'type',
+      dataIndex: 'paramType',
+      slotName: 'paramType',
       hasRequired: true,
-      typeOptions: Object.keys(RequestParamsType)
-        .filter((key) => ![RequestParamsType.JSON, RequestParamsType.FILE].includes(key as RequestParamsType))
-        .map((key) => ({
-          label: RequestParamsType[key],
-          value: key,
+      typeOptions: Object.values(RequestParamsType)
+        .filter((val) => ![RequestParamsType.JSON, RequestParamsType.FILE].includes(val as RequestParamsType))
+        .map((val) => ({
+          label: val,
+          value: val,
         })),
       width: 120,
     },
@@ -81,6 +93,7 @@
       dataIndex: 'encode',
       slotName: 'encode',
       titleSlotName: 'encodeTitle',
+      width: 80,
     },
     {
       title: 'apiTestDebug.desc',

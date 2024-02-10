@@ -4,11 +4,18 @@
       v-model:model-value="innerParams.bodyType"
       type="button"
       size="small"
-      @change="(val) => changeBodyFormat(val as string)"
+      @change="(val) => changeBodyFormat(val as RequestBodyFormat)"
     >
-      <a-radio v-for="item of RequestBodyFormat" :key="item" :value="item">{{ requestBodyTypeMap[item] }}</a-radio>
+      <a-radio v-for="item of RequestBodyFormat" :key="item" :value="item">
+        {{ requestBodyTypeMap[item] }}
+      </a-radio>
     </a-radio-group>
-    <batchAddKeyVal v-if="showParamTable" :params="currentTableParams" @apply="handleBatchParamApply" />
+    <batchAddKeyVal
+      v-if="showParamTable"
+      :params="currentTableParams"
+      :default-param-item="defaultParamItem"
+      @apply="handleBatchParamApply"
+    />
   </div>
   <div
     v-if="innerParams.bodyType === RequestBodyFormat.NONE"
@@ -24,6 +31,7 @@
     :height-used="heightUsed"
     :show-setting="true"
     :table-key="TableKeyEnum.API_TEST_DEBUG_FORM_DATA"
+    :default-param-item="defaultParamItem"
     @change="handleParamTableChange"
   />
   <paramTable
@@ -34,6 +42,7 @@
     :height-used="heightUsed"
     :show-setting="true"
     :table-key="TableKeyEnum.API_TEST_DEBUG_FORM_URL_ENCODE"
+    :default-param-item="defaultParamItem"
     @change="handleParamTableChange"
   />
   <div v-else-if="innerParams.bodyType === RequestBodyFormat.BINARY">
@@ -94,7 +103,7 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import { ExecuteBody } from '@/models/apiTest/debug';
-  import { RequestBodyFormat, RequestParamsType } from '@/enums/apiEnum';
+  import { RequestBodyFormat, RequestContentTypeEnum, RequestParamsType } from '@/enums/apiEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const props = defineProps<{
@@ -110,21 +119,33 @@
   const { t } = useI18n();
 
   const innerParams = useVModel(props, 'params', emit);
+  const defaultParamItem = {
+    key: '',
+    value: '',
+    paramType: RequestParamsType.STRING,
+    description: '',
+    required: false,
+    maxLength: undefined,
+    minLength: undefined,
+    encode: false,
+    enable: true,
+    contentType: RequestContentTypeEnum.TEXT,
+  };
 
   const columns = computed<ParamTableColumn[]>(() => [
     {
       title: 'apiTestDebug.paramName',
-      dataIndex: 'name',
-      slotName: 'name',
+      dataIndex: 'key',
+      slotName: 'key',
     },
     {
       title: 'apiTestDebug.paramType',
-      dataIndex: 'type',
-      slotName: 'type',
+      dataIndex: 'paramType',
+      slotName: 'paramType',
       hasRequired: true,
-      typeOptions: Object.keys(RequestParamsType).map((key) => ({
-        label: RequestParamsType[key],
-        value: key,
+      typeOptions: Object.values(RequestParamsType).map((val) => ({
+        label: val,
+        value: val,
       })),
       width: 120,
     },
@@ -142,15 +163,16 @@
       width: 200,
     },
     {
-      title: 'apiTestDebug.desc',
-      dataIndex: 'description',
-      slotName: 'description',
-    },
-    {
       title: 'apiTestDebug.encode',
       dataIndex: 'encode',
       slotName: 'encode',
       titleSlotName: 'encodeTitle',
+      width: 80,
+    },
+    {
+      title: 'apiTestDebug.desc',
+      dataIndex: 'description',
+      slotName: 'description',
     },
     {
       title: '',
@@ -254,8 +276,8 @@
     emit('change');
   }
 
-  function changeBodyFormat(val: string) {
-    innerParams.value.bodyType = val as RequestBodyFormat;
+  function changeBodyFormat(val: RequestBodyFormat) {
+    innerParams.value.bodyType = val;
     emit('change');
   }
 </script>

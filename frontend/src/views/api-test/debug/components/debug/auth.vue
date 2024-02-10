@@ -9,7 +9,7 @@
     <a-form v-if="authForm.authType !== 'NONE'" ref="authFormRef" :model="authForm" layout="vertical">
       <a-form-item :label="t('apiTestDebug.username')">
         <a-input
-          v-model:model-value="authForm.username"
+          v-model:model-value="authForm.userName"
           :placeholder="t('apiTestDebug.commonPlaceholder')"
           class="w-[450px]"
           :max-length="255"
@@ -58,7 +58,7 @@
 
   function authTypeChange(val: string | number | boolean) {
     if (val === 'none') {
-      authForm.value.username = '';
+      authForm.value.userName = '';
       authForm.value.password = '';
     }
   }

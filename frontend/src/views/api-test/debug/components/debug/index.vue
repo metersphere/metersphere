@@ -122,12 +122,12 @@
             />
             <precondition
               v-else-if="activeDebug.activeTab === RequestComposition.PRECONDITION"
-              v-model:params="activeDebug.children[0].preProcessorConfig.processors"
+              v-model:config="activeDebug.children[0].preProcessorConfig"
               @change="handleActiveDebugChange"
             />
             <postcondition
               v-else-if="activeDebug.activeTab === RequestComposition.POST_CONDITION"
-              v-model:params="activeDebug.children[0].postProcessorConfig.processors"
+              v-model:config="activeDebug.children[0].postProcessorConfig"
               :response="activeDebug.response.requestResults[0]?.responseResult.body"
               :layout="activeLayout"
               :second-box-height="secondBoxHeight"
@@ -199,6 +199,7 @@
 </template>
 
 <script setup lang="ts">
+  import { useVModel } from '@vueuse/core';
   import { FormInstance, Message, SelectOptionData } from '@arco-design/web-vue';
   import { cloneDeep, debounce } from 'lodash-es';
 
@@ -215,7 +216,7 @@
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiMethodSelect from '@/views/api-test/components/apiMethodSelect.vue';
 
-  import { addDebug, executeDebug, getDebugDetail } from '@/api/modules/api-test/debug';
+  import { addDebug, executeDebug, getDebugDetail, updateDebug } from '@/api/modules/api-test/debug';
   import { getPluginScript, getProtocolList } from '@/api/modules/api-test/management';
   import { getSocket } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
@@ -244,11 +245,14 @@
 
   const props = defineProps<{
     moduleTree: ModuleTreeNode[]; // 接口模块树
+    detailLoading: boolean; // 接口详情加载状态
   }>();
+  const emit = defineEmits(['update:detailLoading', 'addDone']);
 
   const appStore = useAppStore();
   const { t } = useI18n();
 
+  const loading = useVModel(props, 'detailLoading', emit);
   const initDefaultId = `debug-${Date.now()}`;
   const activeRequestTab = ref<string | number>(initDefaultId);
   const defaultBodyParams: ExecuteBody = {
@@ -313,7 +317,7 @@
     linkFileIds: [],
     authConfig: {
       authType: RequestAuthType.NONE,
-      username: '',
+      userName: '',
       password: '',
     },
     children: [
@@ -365,7 +369,10 @@
   }
 
   function handleActiveDebugChange() {
-    activeDebug.value.unSaved = true;
+    if (!loading.value) {
+      // 如果是因为加载详情触发的change则不需要标记为未保存
+      activeDebug.value.unSaved = true;
+    }
   }
 
   function addDebugTab(defaultProps?: Partial<TabItem>) {
@@ -373,6 +380,7 @@
     debugTabs.value.push({
       ...cloneDeep(defaultDebugParams),
       id,
+      isNew: !defaultProps?.id, // 新开的tab标记为前端新增的调试，因为此时都已经有id了；但是如果是查看打开的会有携带id
       ...defaultProps,
     });
     activeRequestTab.value = defaultProps?.id || id;
@@ -593,18 +601,30 @@
 
   function makeRequestParams() {
     const polymorphicName = protocolOptions.value.find((e) => e.value === activeDebug.value.protocol)?.polymorphicName; // 协议多态名称
-
     let requestParams;
     if (isHttpProtocol.value) {
       requestParams = {
         authConfig: activeDebug.value.authConfig,
-        body: { ...activeDebug.value.body, binaryBody: undefined },
-        headers: activeDebug.value.headers,
+        body: {
+          ...activeDebug.value.body,
+          binaryBody: undefined,
+          formDataBody: {
+            formValues: activeDebug.value.body.formDataBody.formValues.filter(
+              (e, i) => i !== activeDebug.value.body.formDataBody.formValues.length - 1
+            ), // 去掉最后一行空行
+          },
+          wwwFormBody: {
+            formValues: activeDebug.value.body.wwwFormBody.formValues.filter(
+              (e, i) => i !== activeDebug.value.body.wwwFormBody.formValues.length - 1
+            ), // 去掉最后一行空行
+          },
+        }, // TODO:binaryBody还没对接
+        headers: activeDebug.value.headers.filter((e, i) => i !== activeDebug.value.headers.length - 1), // 去掉最后一行空行
         method: activeDebug.value.method,
         otherConfig: activeDebug.value.otherConfig,
         path: activeDebug.value.url,
-        query: activeDebug.value.query,
-        rest: activeDebug.value.rest,
+        query: activeDebug.value.query.filter((e, i) => i !== activeDebug.value.query.length - 1), // 去掉最后一行空行
+        rest: activeDebug.value.rest.filter((e, i) => i !== activeDebug.value.rest.length - 1), // 去掉最后一行空行
         url: activeDebug.value.url,
         polymorphicName,
       };
@@ -631,14 +651,8 @@
               enableGlobal: false,
               assertions: [],
             },
-            postProcessorConfig: {
-              enableGlobal: false,
-              processors: [],
-            },
-            preProcessorConfig: {
-              enableGlobal: false,
-              processors: [],
-            },
+            postProcessorConfig: activeDebug.value.children[0].postProcessorConfig,
+            preProcessorConfig: activeDebug.value.children[0].preProcessorConfig,
           },
         ],
       },
@@ -709,7 +723,7 @@
         await fApi.value?.validate();
       }
       saveModalForm.value = {
-        name: '',
+        name: activeDebug.value.name || '',
         path: activeDebug.value.url || '',
         moduleId: 'root',
       };
@@ -734,19 +748,36 @@
       if (!errors) {
         try {
           saveLoading.value = true;
-          await addDebug({
-            ...makeRequestParams(),
-            ...saveModalForm.value,
-            protocol: activeDebug.value.protocol,
-            method: isHttpProtocol.value ? activeDebug.value.method : activeDebug.value.protocol,
-            uploadFileIds: [],
-            linkFileIds: [],
-          });
+          if (activeDebug.value.isNew) {
+            // 若是新建的调试，走添加
+            await addDebug({
+              ...makeRequestParams(),
+              ...saveModalForm.value,
+              protocol: activeDebug.value.protocol,
+              method: isHttpProtocol.value ? activeDebug.value.method : activeDebug.value.protocol,
+              uploadFileIds: [],
+              linkFileIds: [],
+            });
+          } else {
+            await updateDebug({
+              ...makeRequestParams(),
+              ...saveModalForm.value,
+              protocol: activeDebug.value.protocol,
+              method: isHttpProtocol.value ? activeDebug.value.method : activeDebug.value.protocol,
+              uploadFileIds: [],
+              linkFileIds: [],
+              deleteFileIds: [], // TODO:删除文件集合
+              unLinkRefIds: [], // TODO:取消关联文件集合
+            });
+          }
           saveLoading.value = false;
           saveModalVisible.value = false;
           done(true);
           activeDebug.value.unSaved = false;
-          Message.success(t('common.saveSuccess'));
+          activeDebug.value.name = saveModalForm.value.name;
+          activeDebug.value.label = saveModalForm.value.name;
+          emit('addDone');
+          Message.success(activeDebug.value.isNew ? t('common.saveSuccess') : t('common.updateSuccess'));
         } catch (error) {
           saveLoading.value = false;
         }
@@ -755,10 +786,15 @@
     done(false);
   }
 
-  const apiDetailLoading = ref(false);
   async function openApiTab(apiInfo: ModuleTreeNode) {
+    const isLoadedTabIndex = debugTabs.value.findIndex((e) => e.id === apiInfo.id);
+    if (isLoadedTabIndex > -1) {
+      // 如果点击的请求在tab中已经存在，则直接切换到该tab
+      activeRequestTab.value = apiInfo.id;
+      return;
+    }
     try {
-      apiDetailLoading.value = true;
+      loading.value = true;
       const res = await getDebugDetail(apiInfo.id);
       addDebugTab({
         label: apiInfo.name,
@@ -766,12 +802,16 @@
         response: cloneDeep(defaultResponse),
         ...res.request,
         url: res.path,
+        name: res.name, // request里面还有个name但是是null
+      });
+      nextTick(() => {
+        // 等待内容渲染出来再隐藏loading
+        loading.value = false;
       });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
-    } finally {
-      apiDetailLoading.value = false;
+      loading.value = false;
     }
   }
 

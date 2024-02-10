@@ -1,19 +1,19 @@
 <template>
   <div class="condition-content">
     <!-- 脚本操作 -->
-    <template v-if="condition.type === RequestConditionProcessor.SCRIPT">
-      <a-radio-group v-model:model-value="condition.scriptType" size="small" class="mb-[16px]">
-        <a-radio value="manual">{{ t('apiTestDebug.manual') }}</a-radio>
-        <a-radio value="quote">{{ t('apiTestDebug.quote') }}</a-radio>
+    <template v-if="condition.processorType === RequestConditionProcessor.SCRIPT">
+      <a-radio-group v-model:model-value="condition.enableCommonScript" class="mb-[16px]">
+        <a-radio :value="false">{{ t('apiTestDebug.manual') }}</a-radio>
+        <a-radio :value="true">{{ t('apiTestDebug.quote') }}</a-radio>
       </a-radio-group>
       <div
-        v-if="condition.scriptType === 'manual'"
+        v-if="!condition.enableCommonScript"
         class="relative rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[12px]"
       >
         <div v-if="isShowEditScriptNameInput" class="absolute left-[12px] z-10 w-[calc(100%-24px)]">
           <a-input
             ref="scriptNameInputRef"
-            v-model:model-value="condition.name"
+            v-model:model-value="condition.scriptName"
             :placeholder="t('apiTestDebug.preconditionScriptNamePlaceholder')"
             :max-length="255"
             size="small"
@@ -23,10 +23,10 @@
         </div>
         <div class="flex items-center justify-between">
           <div class="flex items-center">
-            <a-tooltip :content="condition.name">
+            <a-tooltip :content="condition.scriptName">
               <div class="script-name-container">
                 <div class="one-line-text mr-[4px] max-w-[110px] font-medium text-[var(--color-text-1)]">
-                  {{ condition.name }}
+                  {{ condition.scriptName }}
                 </div>
                 <MsIcon type="icon-icon_edit_outlined" class="edit-script-name-icon" @click="showEditScriptNameInput" />
               </div>
@@ -88,7 +88,7 @@
       <div v-else class="flex h-[calc(100%-47px)] flex-col">
         <div class="mb-[16px] flex w-full items-center bg-[var(--color-text-n9)] p-[12px]">
           <div class="text-[var(--color-text-2)]">
-            {{ condition.quoteScript.name || '-' }}
+            {{ condition.scriptName || '-' }}
           </div>
           <a-divider margin="8px" direction="vertical" />
           <MsButton type="text" class="font-medium">
@@ -116,7 +116,7 @@
         </MsBaseTable>
         <div v-show="commonScriptShowType === 'scriptContent'" class="h-[calc(100%-76px)]">
           <MsCodeEditor
-            v-model:model-value="condition.quoteScript.script"
+            v-model:model-value="condition.script"
             theme="MS-text"
             height="100%"
             :show-full-screen="false"
@@ -128,18 +128,18 @@
       </div>
     </template>
     <!-- SQL操作 -->
-    <template v-else-if="condition.type === RequestConditionProcessor.SQL">
+    <template v-else-if="condition.processorType === RequestConditionProcessor.SQL">
       <div class="mb-[16px]">
         <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('common.desc') }}</div>
         <a-input
-          v-model:model-value="condition.desc"
+          v-model:model-value="condition.description"
           :placeholder="t('apiTestDebug.commonPlaceholder')"
           :max-length="255"
         />
       </div>
       <div class="mb-[16px] flex w-full items-center bg-[var(--color-text-n9)] p-[12px]">
         <div class="text-[var(--color-text-2)]">
-          {{ condition.sqlSource.name || '-' }}
+          {{ condition.scriptName || '-' }}
         </div>
         <a-divider margin="8px" direction="vertical" />
         <MsButton type="text" class="font-medium" @click="quoteSqlSourceDrawerVisible = true">
@@ -149,7 +149,7 @@
       <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('apiTestDebug.sqlScript') }}</div>
       <div class="mb-[16px] h-[300px]">
         <MsCodeEditor
-          v-model:model-value="condition.sqlSource.script"
+          v-model:model-value="condition.script"
           theme="vs"
           height="276px"
           :language="LanguageEnum.SQL"
@@ -173,47 +173,43 @@
             </template>
           </a-tooltip>
         </div>
-        <a-radio-group v-model:model-value="condition.sqlSource.storageType" size="small" type="button" class="w-fit">
-          <a-radio value="column">{{ t('apiTestDebug.storageByCol') }}</a-radio>
-          <a-radio value="result">{{ t('apiTestDebug.storageByResult') }}</a-radio>
-        </a-radio-group>
       </div>
-      <div v-if="condition.sqlSource.storageType === 'column'" class="mb-[16px]">
+      <div class="mb-[16px]">
         <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('apiTestDebug.storageByCol') }}</div>
         <a-input
-          v-model:model-value="condition.sqlSource.storageByCol"
+          v-model:model-value="condition.variableNames"
           :max-length="255"
           :placeholder="t('apiTestDebug.storageByColPlaceholder', { a: '{id_1}', b: '{username_1}' })"
         />
       </div>
-      <div v-else class="mb-[16px]">
-        <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('apiTestDebug.storageByResult') }}</div>
-        <a-input
-          v-model:model-value="condition.sqlSource.storageByResult"
-          :max-length="255"
-          :placeholder="t('apiTestDebug.storageByResultPlaceholder', { a: '${result}' })"
-        />
-      </div>
-      <div v-if="condition.sqlSource.storageType === 'column'" class="sql-table-container">
+      <div class="sql-table-container">
         <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('apiTestDebug.extractParameter') }}</div>
         <paramTable
-          v-model:params="condition.sqlSource.params"
+          v-model:params="condition.variables"
           :columns="sqlSourceColumns"
           :selectable="false"
           @change="handleSqlSourceParamTableChange"
         />
       </div>
+      <div class="mb-[16px]">
+        <div class="mb-[8px] text-[var(--color-text-1)]">{{ t('apiTestDebug.storageByResult') }}</div>
+        <a-input
+          v-model:model-value="condition.resultVariable"
+          :max-length="255"
+          :placeholder="t('apiTestDebug.storageByResultPlaceholder', { a: '${result}' })"
+        />
+      </div>
     </template>
     <!-- 等待时间 -->
-    <div v-else-if="condition.type === RequestConditionProcessor.TIME_WAITING">
+    <div v-else-if="condition.processorType === RequestConditionProcessor.TIME_WAITING">
       <div class="mb-[8px] flex items-center">
         {{ t('apiTestDebug.waitTime') }}
         <div class="text-[var(--color-text-4)]">(ms)</div>
       </div>
-      <a-input-number v-model:model-value="condition.time" mode="button" :step="100" :min="0" class="w-[160px]" />
+      <a-input-number v-model:model-value="condition.delay" mode="button" :step="100" :min="0" class="w-[160px]" />
     </div>
     <!-- 提取参数 -->
-    <div v-else-if="condition.type === RequestConditionProcessor.EXTRACT">
+    <div v-else-if="condition.processorType === RequestConditionProcessor.EXTRACT">
       <paramTable
         ref="extractParamsTableRef"
         v-model:params="condition.extractParams"
@@ -320,11 +316,12 @@
 
   import { useI18n } from '@/hooks/useI18n';
 
-  import { JSONPathExtract, RegexExtract, XPathExtract } from '@/models/apiTest/debug';
+  import { ExecuteConditionProcessor, JSONPathExtract, RegexExtract, XPathExtract } from '@/models/apiTest/debug';
   import {
     RequestConditionProcessor,
     RequestExtractEnvType,
     RequestExtractExpressionEnum,
+    RequestExtractExpressionRuleType,
     RequestExtractResultMatchingRule,
     RequestExtractScope,
     ResponseBodyXPathAssertionFormat,
@@ -333,14 +330,14 @@
   export type ExpressionConfig = (RegexExtract | JSONPathExtract | XPathExtract) & Record<string, any>;
 
   const props = defineProps<{
-    data: Record<string, any>;
+    data: ExecuteConditionProcessor;
     response?: string; // 响应内容
     heightUsed?: number;
   }>();
   const emit = defineEmits<{
-    (e: 'update:data', data: Record<string, any>): void;
+    (e: 'update:data', data: ExecuteConditionProcessor): void;
     (e: 'copy'): void;
-    (e: 'delete', id: string): void;
+    (e: 'delete', id: number): void;
     (e: 'change'): void;
   }>();
 
@@ -358,18 +355,7 @@
     });
   }
 
-  const scriptEx = ref(`2023-12-04 11:19:28 INFO 9026fd6a 1-1 Thread started: 9026fd6a 1-1
-2023-12-04 11:19:28 ERROR 9026fd6a 1-1 Problem in JSR223 script JSR223Sampler, message: {}
-In file: inline evaluation of: prev.getResponseCode() import java.net.URI; import org.apache.http.client.method . . . '' Encountered "import" at line 2, column 1.
-in inline evaluation of: prev.getResponseCode() import java.net.URI; import org.apache.http.client.method . . . '' at line number 2
-javax.script.ScriptException '' at line number 2
-javax.script.ScriptException '' at line number 2
-javax.script.ScriptException '' at line number 2
-javax.script.ScriptException '' at line number 2
-javax.script.ScriptException '' at line number 2
-javax.script.ScriptException
-org.apache.http.client.method . . . '' at line number 2
-`);
+  const scriptEx = ref('');
   const { copy, isSupported } = useClipboard();
 
   function copyScriptEx() {
@@ -382,7 +368,7 @@ org.apache.http.client.method . . . '' at line number 2
   }
 
   function clearScript() {
-    condition.value.script = '';
+    condition.value.enable = false;
   }
 
   /**
@@ -403,7 +389,8 @@ org.apache.http.client.method . . . '' at line number 2
   const columns: MsTableColumn = [
     {
       title: 'apiTestDebug.paramName',
-      dataIndex: 'name',
+      slotName: 'key',
+      dataIndex: 'key',
       showTooltip: true,
     },
     {
@@ -413,7 +400,8 @@ org.apache.http.client.method . . . '' at line number 2
     },
     {
       title: 'apiTestDebug.desc',
-      dataIndex: 'desc',
+      dataIndex: 'description',
+      slotName: 'description',
       showTooltip: true,
     },
   ];
@@ -425,26 +413,26 @@ org.apache.http.client.method . . . '' at line number 2
     {
       id: new Date().getTime(),
       required: false,
-      name: 'asdasd',
+      key: 'asdasd',
       type: 'string',
       value: '',
-      desc: '',
+      description: '',
     },
     {
       id: new Date().getTime(),
       required: true,
-      name: '23d23d',
+      key: '23d23d',
       type: 'string',
       value: '',
-      desc: '',
+      description: '',
     },
   ] as any;
 
   const sqlSourceColumns: ParamTableColumn[] = [
     {
       title: 'apiTestDebug.paramName',
-      dataIndex: 'name',
-      slotName: 'name',
+      dataIndex: 'key',
+      slotName: 'key',
     },
     {
       title: 'apiTestDebug.paramValue',
@@ -459,13 +447,14 @@ org.apache.http.client.method . . . '' at line number 2
     },
   ];
   const quoteSqlSourceDrawerVisible = ref(false);
-  function handleQuoteSqlSourceApply(sqlSource: any) {
-    condition.value.sqlSource = sqlSource;
+  function handleQuoteSqlSourceApply(sqlSource: Record<string, any>) {
+    condition.value.script = sqlSource.script;
+    condition.value.dataSourceId = sqlSource.id;
     emit('change');
   }
 
   function handleSqlSourceParamTableChange(resultArr: any[], isInit?: boolean) {
-    condition.value.sqlSource.params = [...resultArr];
+    condition.value.variables = [...resultArr];
     if (!isInit) {
       emit('change');
     }
@@ -474,26 +463,26 @@ org.apache.http.client.method . . . '' at line number 2
   const extractParamsColumns: ParamTableColumn[] = [
     {
       title: 'apiTestDebug.paramName',
-      dataIndex: 'name',
-      slotName: 'name',
+      dataIndex: 'variableName',
+      slotName: 'key',
       width: 150,
     },
     {
       title: 'apiTestDebug.paramType',
-      dataIndex: 'type',
-      slotName: 'type',
+      dataIndex: 'variableType',
+      slotName: 'variableType',
       typeOptions: [
         {
           label: t('apiTestDebug.globalParameter'),
-          value: 'global',
+          value: RequestExtractEnvType.GLOBAL,
         },
         {
           label: t('apiTestDebug.envParameter'),
-          value: 'env',
+          value: RequestExtractEnvType.ENVIRONMENT,
         },
         {
           label: t('apiTestDebug.tempParameter'),
-          value: 'temp',
+          value: RequestExtractEnvType.TEMPORARY,
         },
       ],
       width: 130,
@@ -505,15 +494,15 @@ org.apache.http.client.method . . . '' at line number 2
       typeOptions: [
         {
           label: t('apiTestDebug.regular'),
-          value: 'regular',
+          value: RequestExtractExpressionEnum.REGEX,
         },
         {
           label: 'JSONPath',
-          value: 'JSONPath',
+          value: RequestExtractExpressionEnum.JSON_PATH,
         },
         {
           label: 'XPath',
-          value: 'XPath',
+          value: RequestExtractExpressionEnum.X_PATH,
         },
       ],
       width: 120,
@@ -525,35 +514,35 @@ org.apache.http.client.method . . . '' at line number 2
       typeOptions: [
         {
           label: 'Body',
-          value: 'body',
+          value: RequestExtractScope.BODY,
         },
         {
           label: 'Body (unescaped)',
-          value: 'body_unescaped',
+          value: RequestExtractScope.UNESCAPED_BODY,
         },
         {
           label: 'Body as a Document',
-          value: 'body_document',
+          value: RequestExtractScope.BODY_AS_DOCUMENT,
         },
         {
           label: 'URL',
-          value: 'url',
+          value: RequestExtractScope.URL,
         },
         {
           label: 'Request Headers',
-          value: 'request_headers',
+          value: RequestExtractScope.REQUEST_HEADERS,
         },
         {
           label: 'Response Headers',
-          value: 'response_headers',
+          value: RequestExtractScope.RESPONSE_HEADERS,
         },
         {
           label: 'Response Code',
-          value: 'response_code',
+          value: RequestExtractScope.RESPONSE_CODE,
         },
         {
           label: 'Response Message',
-          value: 'response_message',
+          value: RequestExtractScope.RESPONSE_MESSAGE,
         },
       ],
       width: 190,
@@ -598,7 +587,7 @@ org.apache.http.client.method . . . '' at line number 2
     extractScope: RequestExtractScope.BODY,
     expression: '',
     extractType: RequestExtractExpressionEnum.REGEX,
-    regexpMatchRule: 'expression',
+    expressionMatchingRule: RequestExtractExpressionRuleType.EXPRESSION,
     resultMatchingRule: RequestExtractResultMatchingRule.RANDOM,
     resultMatchingRuleNum: 1,
     responseFormat: ResponseBodyXPathAssertionFormat.XML,
@@ -632,13 +621,13 @@ org.apache.http.client.method . . . '' at line number 2
    * 提取参数表格-应用更多设置
    */
   function applyMoreSetting(record: ExpressionConfig) {
-    condition.value.extractParams = condition.value.extractParams.map((e) => {
+    condition.value.extractParams = condition.value.extractParams?.map((e) => {
       if (e.id === activeRecord.value.id) {
         record.moreSettingPopoverVisible = false;
         return {
           ...activeRecord.value,
           moreSettingPopoverVisible: false,
-        };
+        } as any; // TOOD: 这里的后台类型应该是不对的，需要修改
       }
       return e;
     });
@@ -649,7 +638,7 @@ org.apache.http.client.method . . . '' at line number 2
    * 提取参数表格-保存快速提取的配置
    */
   function handleFastExtractionApply(config: RegexExtract | JSONPathExtract | XPathExtract) {
-    condition.value.extractParams = condition.value.extractParams.map((e) => {
+    condition.value.extractParams = condition.value.extractParams?.map((e) => {
       if (e.id === activeRecord.value.id) {
         return {
           ...e,

@@ -80,6 +80,7 @@
                   v-model:model-value="paramForm.func"
                   :options="paramFuncOptions"
                   :placeholder="t('ms.paramsInput.commonSelectPlaceholder')"
+                  allow-clear
                   @change="(val) => handleParamFuncChange(val as string)"
                 >
                   <template #label="{ data }">
@@ -228,8 +229,8 @@
 </template>
 
 <script setup lang="ts">
-  import { useEventListener, useVModel } from '@vueuse/core';
-  import { cloneDeep } from 'lodash-es';
+  import { useEventListener, useStorage, useVModel } from '@vueuse/core';
+  import { cloneDeep, includes } from 'lodash-es';
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsCascader from '@/components/business/ms-cascader/index.vue';
@@ -264,7 +265,7 @@
   const autoCompleteParams = ref<MockParamItem[]>([]);
   const isFocusAutoComplete = ref(false);
   const popoverVisible = ref(false);
-  const lastTenParams = ref<MockParamItem[]>(JSON.parse(localStorage.getItem('ms-lastTenParams') || '[]')); // 用户最近使用的前 10 个变量
+  const lastTenParams = useStorage('ms-lastTenParams', [] as MockParamItem[]); // 用户最近使用的前 10 个变量
 
   /**
    * 搜索变量
@@ -306,7 +307,8 @@
     const lastParamsItem = lastTenParams.value.find((e) => e.value === val);
     if (index > -1 && lastParamsItem) {
       // 如果已经存在，移动到第一位
-      lastTenParams.value.splice(index, 1, lastParamsItem);
+      lastTenParams.value.splice(index, 1);
+      lastTenParams.value.unshift(lastParamsItem);
     } else {
       // 如果不存在，添加到第一位
       const mockParamItem = mockAllParams.find((e) => e.value === val);
@@ -318,7 +320,6 @@
         }
       }
     }
-    localStorage.setItem('ms-lastTenParams', JSON.stringify(lastTenParams.value));
   }
 
   function selectAutoComplete(val: string) {
@@ -450,12 +451,13 @@
           const variableParams = variableMatch[2]?.split(',').map((param) => param.trim());
           const formalParameterVar = formalParameterVars.find((e) => e.includes(variableName)); // 匹配带形参的函数，监测输入的变量是否是带形参的函数
 
-          if (formalParameterVar && variableParams.length > 0) {
-            // 如果是带形参的函数，则需要使用 原函数名(形式参数) 的变量
-            handleParamTypeChange(formalParameterVar);
-          } else if (sameFuncNameVars.includes(valueArr[0])) {
+          if (sameFuncNameVars.includes(valueArr[0])) {
+            // 先判断是否是同名函数，避免形参函数与变量函数冲突
             // 如果是同名函数，但可能是不同的变量，所以需要全等匹配
             handleParamTypeChange(valueArr[0]);
+          } else if (formalParameterVar && variableParams && variableParams.length > 0) {
+            // 如果是带形参的函数，则需要使用 原函数名(形式参数) 的变量
+            handleParamTypeChange(formalParameterVar);
           } else {
             handleParamTypeChange(`@${variableName}`); // 设置匹配的变量参数输入框组
           }
@@ -516,8 +518,13 @@
       const paramVal = [paramForm.value.param1, paramForm.value.param2, paramForm.value.param3, paramForm.value.param4]
         .filter((e) => e !== '')
         .join(',');
-      // 如果变量名是包含了入参的，则替换()内的入参为用户输入的
-      resultStr = paramVal !== '' ? paramForm.value.type.replace(testReg, `(${paramVal})`) : paramForm.value.type;
+      if (!paramForm.value.type.includes('(')) {
+        // 存在部分函数是没有括号（）的，但是有入参的
+        resultStr = `${paramForm.value.type}(${paramVal || ''})`;
+      } else {
+        // 如果变量名是包含了入参的，则替换()内的入参为用户输入的
+        resultStr = paramVal !== '' ? paramForm.value.type.replace(testReg, `(${paramVal})`) : paramForm.value.type;
+      }
     } else {
       resultStr = paramForm.value.type;
     }
