@@ -52,8 +52,8 @@
   const columns: ParamTableColumn[] = [
     {
       title: 'ms.assertion.variableName', // 变量名
-      dataIndex: 'name',
-      slotName: 'name',
+      dataIndex: 'key',
+      slotName: 'key',
       showInTable: true,
       showDrag: true,
       options: responseHeaderOption,

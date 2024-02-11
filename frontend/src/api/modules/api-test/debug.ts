@@ -4,6 +4,7 @@ import {
   AddDebugModuleUrl,
   DeleteDebugModuleUrl,
   ExecuteApiDebugUrl,
+  GetApiDebugDetailUrl,
   GetDebugModuleCountUrl,
   GetDebugModulesUrl,
   MoveDebugModuleUrl,
@@ -13,6 +14,7 @@ import {
 
 import {
   AddDebugModuleParams,
+  DebugDetail,
   ExecuteRequestParams,
   SaveDebugParams,
   UpdateDebugModule,
@@ -63,4 +65,9 @@ export function addDebug(data: SaveDebugParams) {
 // 更新调试
 export function updateDebug(data: UpdateDebugParams) {
   return MSR.post({ url: UpdateApiDebugUrl, data });
+}
+
+// 获取接口调试详情
+export function getDebugDetail(id: string) {
+  return MSR.get<DebugDetail>({ url: GetApiDebugDetailUrl, params: id });
 }

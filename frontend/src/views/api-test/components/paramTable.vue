@@ -1,5 +1,5 @@
 <template>
-  <MsBaseTable v-bind="propsRes" :hoverable="false" no-disable v-on="propsEvent">
+  <MsBaseTable v-bind="propsRes" :hoverable="false" no-disable is-simple-setting v-on="propsEvent">
     <!-- 表格头 slot -->
     <template #encodeTitle>
       <div class="flex items-center text-[var(--color-text-3)]">
@@ -28,8 +28,12 @@
       </div>
     </template>
     <!-- 表格列 slot -->
-    <template #name="{ record, columnConfig }">
-      <a-popover position="tl" :disabled="!record.name || record.name.trim() === ''" class="ms-params-input-popover">
+    <template #key="{ record, columnConfig }">
+      <a-popover
+        position="tl"
+        :disabled="!record[columnConfig.dataIndex as string] || record[columnConfig.dataIndex as string].trim() === ''"
+        class="ms-params-input-popover"
+      >
         <template #content>
           <div class="param-popover-title">
             {{ t('apiTestDebug.paramName') }}
@@ -43,11 +47,11 @@
           :placeholder="t('apiTestDebug.paramNamePlaceholder')"
           class="param-input"
           :max-length="255"
-          @input="(val) => addTableLine(val, 'name')"
+          @input="(val) => addTableLine(val, 'key')"
         />
       </a-popover>
     </template>
-    <template #type="{ record, columnConfig }">
+    <template #paramType="{ record, columnConfig }">
       <a-tooltip
         v-if="columnConfig.hasRequired"
         :content="t(record.required ? 'apiTestDebug.paramRequired' : 'apiTestDebug.paramNotRequired')"
@@ -64,7 +68,7 @@
         </MsButton>
       </a-tooltip>
       <a-select
-        v-model:model-value="record.type"
+        v-model:model-value="record.paramType"
         :options="columnConfig.typeOptions || []"
         class="param-input w-full"
         @change="(val) => handleTypeChange(val, record)"
@@ -78,9 +82,17 @@
         @change="(val) => handleExpressionTypeChange(val)"
       />
     </template>
-    <template #range="{ record, columnConfig }">
+    <template #variableType="{ record, columnConfig }">
       <a-select
-        v-model:model-value="record.range"
+        v-model:model-value="record.variableType"
+        :options="columnConfig.typeOptions || []"
+        class="param-input w-[110px]"
+        @change="(val) => handleVariableTypeChange(val)"
+      />
+    </template>
+    <template #extractScope="{ record, columnConfig }">
+      <a-select
+        v-model:model-value="record.extractScope"
         :options="columnConfig.typeOptions || []"
         class="param-input w-[180px]"
         @change="(val) => handleRangeChange(val)"
@@ -123,17 +135,19 @@
     <template #lengthRange="{ record }">
       <div class="flex items-center justify-between">
         <a-input-number
-          v-model:model-value="record.min"
+          v-model:model-value="record.minLength"
           :placeholder="t('apiTestDebug.paramMin')"
+          :min="0"
           class="param-input param-input-number"
-          @input="(val) => addTableLine(val || '', 'min')"
+          @change="(val) => addTableLine(val, 'minLength')"
         />
         <div class="mx-[4px]">～</div>
         <a-input-number
-          v-model:model-value="record.max"
+          v-model:model-value="record.maxLength"
           :placeholder="t('apiTestDebug.paramMax')"
+          :min="0"
           class="param-input"
-          @input="(val) => addTableLine(val || '', 'max')"
+          @change="(val) => addTableLine(val, 'maxLength')"
         />
       </div>
     </template>
@@ -159,10 +173,10 @@
         />
       </a-popover>
     </template>
-    <template #desc="{ record, columnConfig }">
+    <template #description="{ record, columnConfig }">
       <paramDescInput
         v-model:desc="record[columnConfig.dataIndex as string]"
-        @input="(val) => addTableLine(val, 'desc')"
+        @input="(val) => addTableLine(val, 'description')"
         @dblclick="quickInputDesc(record)"
         @change="handleDescChange"
       />
@@ -201,11 +215,11 @@
         </template>
       </a-trigger>
       <a-switch
-        v-if="columnConfig.hasEnable"
-        v-model:model-value="record.enable"
+        v-if="columnConfig.hasDisable"
+        v-model:model-value="record.disable"
         size="small"
         type="line"
-        @change="(val) => addTableLine(val, 'enable')"
+        @change="(val) => addTableLine(val, 'disable')"
       />
       <icon-minus-circle
         v-if="paramsLength > 1 && rowIndex !== paramsLength - 1"
@@ -292,7 +306,6 @@
 </template>
 
 <script async setup lang="ts">
-  import { useVModel } from '@vueuse/core';
   import { isEqual } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
@@ -311,40 +324,22 @@
   import useTableStore from '@/hooks/useTableStore';
 
   import { RequestBodyFormat, RequestContentTypeEnum, RequestParamsType } from '@/enums/apiEnum';
-  import { TableKeyEnum } from '@/enums/tableEnum';
-
-  interface Param {
-    id: number;
-    required: boolean;
-    name: string;
-    type: string;
-    value: string;
-    min: number | undefined;
-    max: number | undefined;
-    contentType: RequestContentTypeEnum;
-    desc: string;
-    encode: boolean;
-    tag: string[];
-    enable: boolean;
-    mustContain: boolean;
-    [key: string]: any;
-  }
+  import { SelectAllEnum, TableKeyEnum } from '@/enums/tableEnum';
 
   export type ParamTableColumn = MsTableColumnData & {
     isNormal?: boolean; // 用于 value 列区分是普通输入框还是 MsParamsInput
     hasRequired?: boolean; // 用于 type 列区分是否有 required 星号
     typeOptions?: { label: string; value: string }[]; // 用于 type 列选择器选项
     typeTitleTooltip?: string; // 用于 type 表头列展示的 tooltip
-    hasEnable?: boolean; // 用于 operation 列区分是否有 enable 开关
+    hasDisable?: boolean; // 用于 operation 列区分是否有 enable 开关
     moreAction?: ActionsItem[]; // 用于 operation 列更多操作按钮配置
     format?: RequestBodyFormat; // 用于 operation 列区分是否有请求体格式选择器
   };
 
   const props = withDefaults(
     defineProps<{
-      selectedKeys?: string[];
-      params: any[];
-      defaultParamItem?: Partial<Param>; // 默认参数项，用于添加新行时的默认值
+      params?: any[];
+      defaultParamItem?: Record<string, any>; // 默认参数项，用于添加新行时的默认值
       columns: ParamTableColumn[];
       scroll?: {
         x?: number | string;
@@ -363,36 +358,34 @@
       response?: string; // 响应内容
     }>(),
     {
+      params: () => [],
       selectable: true,
       showSetting: false,
       tableKey: undefined,
       isSimpleSetting: true,
       defaultParamItem: () => ({
         required: false,
-        name: '',
-        type: RequestParamsType.STRING,
+        key: '',
+        paramType: RequestParamsType.STRING,
         value: '',
-        min: undefined,
-        max: undefined,
+        minLength: undefined,
+        maxLength: undefined,
         contentType: RequestContentTypeEnum.TEXT,
         tag: [],
-        desc: '',
+        description: '',
         encode: false,
-        enable: false,
+        disable: false,
         mustContain: false,
       }),
     }
   );
   const emit = defineEmits<{
-    (e: 'update:selectedKeys', value: string[]): void;
     (e: 'change', data: any[], isInit?: boolean): void; // 都触发这个事件以通知父组件参数数组被更改
     (e: 'moreActionSelect', event: ActionsItem, record: Record<string, any>): void;
     (e: 'projectChange', projectId: string): void;
   }>();
 
   const { t } = useI18n();
-
-  const innerSelectedKeys = useVModel(props, 'selectedKeys', emit);
 
   const tableStore = useTableStore();
   async function initColumns() {
@@ -417,10 +410,28 @@
     showPagination: false,
   });
 
+  const selectedKeys = computed(() => propsRes.value.data.filter((e) => e.enable).map((e) => e.id));
+  propsEvent.value.rowSelectChange = (key: string) => {
+    propsRes.value.data = propsRes.value.data.map((e) => {
+      if (e.id === key) {
+        e.enable = !e.enable;
+      }
+      return e;
+    });
+    emit('change', propsRes.value.data);
+  };
+  propsEvent.value.selectAllChange = (v: SelectAllEnum) => {
+    propsRes.value.data = propsRes.value.data.map((e) => {
+      e.enable = v !== SelectAllEnum.NONE;
+      return e;
+    });
+    emit('change', propsRes.value.data);
+  };
+
   watch(
-    () => propsRes.value.selectedKeys,
-    (val) => {
-      innerSelectedKeys.value = Array.from(val);
+    () => selectedKeys.value,
+    (arr) => {
+      propsRes.value.selectedKeys = new Set(arr);
     }
   );
 
@@ -450,7 +461,8 @@
     isForce?: boolean
   ) {
     const lastData = { ...propsRes.value.data[propsRes.value.data.length - 1] };
-    delete lastData.id;
+    delete lastData.id; // 删除 id 属性，避免影响判断是否有变化
+    lastData.enable = props.defaultParamItem.enable; // enable 是用于判断表格行是否勾选的属性，不参与判断是否有变化
     // 当不传入输入值或对应列的 key 时，遍历整个数据对象判断是否有变化；当传入输入值或对应列的 key 时，判断对应列的值是否有变化
     const isNotChange =
       val === undefined || key === undefined
@@ -461,8 +473,8 @@
       propsRes.value.data.push({
         id,
         ...props.defaultParamItem,
+        enable: true, // 是否勾选
       } as any);
-      propsRes.value.selectedKeys.add(id);
       emit('change', propsRes.value.data);
     }
   }
@@ -473,6 +485,7 @@
       if (val.length > 0) {
         const lastData = { ...val[val.length - 1] };
         delete lastData.id; // 删除 id 属性，避免影响判断是否有变化
+        delete lastData.enable; // 删除 enable 属性，避免影响判断是否有变化
         const isNotChange = isEqual(lastData, props.defaultParamItem);
         propsRes.value.data = val;
         if (!isNotChange) {
@@ -484,9 +497,9 @@
           {
             id, // 默认给时间戳 id，若 props.defaultParamItem 有 id，则覆盖
             ...props.defaultParamItem,
+            enable: true, // 是否勾选
           },
         ] as any[];
-        propsRes.value.selectedKeys.add(id);
         emit('change', propsRes.value.data, true);
       }
     },
@@ -532,7 +545,7 @@
   function quickInputDesc(record: any) {
     activeQuickInputRecord.value = record;
     showQuickInputDesc.value = true;
-    quickInputDescValue.value = record.desc;
+    quickInputDescValue.value = record.description;
   }
 
   function clearQuickInputDesc() {
@@ -541,7 +554,7 @@
   }
 
   function applyQuickInputDesc() {
-    activeQuickInputRecord.value.desc = quickInputDescValue.value;
+    activeQuickInputRecord.value.description = quickInputDescValue.value;
     showQuickInputDesc.value = false;
     clearQuickInputDesc();
     emit('change', propsRes.value.data);
@@ -553,9 +566,9 @@
 
   function handleTypeChange(
     val: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[],
-    record: Partial<Param>
+    record: Record<string, any>
   ) {
-    addTableLine(val as string, 'type');
+    addTableLine(val as string, 'paramType');
     // 根据参数类型自动推断 Content-Type 类型
     if (record.contentType) {
       if (val === 'file') {
@@ -574,10 +587,16 @@
     addTableLine(val as string, 'expressionType');
   }
 
+  function handleVariableTypeChange(
+    val: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
+  ) {
+    addTableLine(val as string, 'variableType');
+  }
+
   function handleRangeChange(
     val: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
   ) {
-    addTableLine(val as string, 'range');
+    addTableLine(val as string, 'extractScope');
   }
 
   /**

@@ -37,7 +37,7 @@
   "dependencies": {
     "@7polo/kity": "2.0.8",
     "@7polo/kityminder-core": "1.4.53",
-    "@arco-design/web-vue": "^2.54.3",
+    "@arco-design/web-vue": "^2.54.4",
     "@arco-themes/vue-ms-theme-default": "^0.0.30",
     "@form-create/arco-design": "^3.1.23",
     "@halo-dev/richtext-editor": "0.0.0-alpha.33",
@@ -48,7 +48,7 @@
     "@tiptap/vue-3": "^2.1.13",
     "@types/color": "^3.0.4",
     "@types/node": "^20.11.16",
-    "@vueuse/core": "^10.4.1",
+    "@vueuse/core": "^10.7.2",
     "@xmldom/xmldom": "^0.8.10",
     "ace-builds": "^1.24.2",
     "ahooks-vue": "^0.15.1",

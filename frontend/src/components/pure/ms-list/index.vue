@@ -19,7 +19,7 @@
             innerActiveItemKey === item[itemKeyField] ? props.activeItemClass : '',
           ]"
         >
-          <div class="flex-1" @click="emit('itemClick', item, index)">
+          <div class="flex-1 overflow-x-hidden" @click="emit('itemClick', item, index)">
             <slot name="title" :item="item" :index="index"></slot>
           </div>
           <div class="flex items-center gap-[4px]">

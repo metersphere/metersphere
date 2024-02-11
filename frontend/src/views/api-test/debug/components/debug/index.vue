@@ -46,13 +46,16 @@
           :disabled="executeLoading"
           class="exec-btn"
           @click="execute"
+          @select="execute"
         >
-          {{ t('apiTestDebug.serverExec') }}
+          {{ isLocalExec ? t('apiTestDebug.localExec') : t('apiTestDebug.serverExec') }}
           <template #icon>
             <icon-down />
           </template>
           <template #content>
-            <a-doption>{{ t('apiTestDebug.localExec') }}</a-doption>
+            <a-doption :value="isLocalExec ? 'localExec' : 'serverExec'">
+              {{ isLocalExec ? t('apiTestDebug.serverExec') : t('apiTestDebug.localExec') }}
+            </a-doption>
           </template>
         </a-dropdown-button>
         <a-button type="secondary" @click="handleSaveShortcut">
@@ -122,12 +125,12 @@
             />
             <precondition
               v-else-if="activeDebug.activeTab === RequestComposition.PRECONDITION"
-              v-model:params="activeDebug.children[0].preProcessorConfig.processors"
+              v-model:config="activeDebug.children[0].preProcessorConfig"
               @change="handleActiveDebugChange"
             />
             <postcondition
               v-else-if="activeDebug.activeTab === RequestComposition.POST_CONDITION"
-              v-model:params="activeDebug.children[0].postProcessorConfig.processors"
+              v-model:config="activeDebug.children[0].postProcessorConfig"
               :response="activeDebug.response.requestResults[0]?.responseResult.body"
               :layout="activeLayout"
               :second-box-height="secondBoxHeight"
@@ -189,7 +192,7 @@
       <a-form-item :label="t('apiTestDebug.requestModule')" class="mb-0">
         <a-tree-select
           v-model:modelValue="saveModalForm.moduleId"
-          :data="props.moduleTree"
+          :data="selectTree"
           :field-names="{ title: 'name', key: 'id', children: 'children' }"
           allow-search
         />
@@ -199,6 +202,7 @@
 </template>
 
 <script setup lang="ts">
+  import { useVModel } from '@vueuse/core';
   import { FormInstance, Message, SelectOptionData } from '@arco-design/web-vue';
   import { cloneDeep, debounce } from 'lodash-es';
 
@@ -215,18 +219,25 @@
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiMethodSelect from '@/views/api-test/components/apiMethodSelect.vue';
 
-  import { addDebug, executeDebug } from '@/api/modules/api-test/debug';
+  import { addDebug, executeDebug, getDebugDetail, updateDebug } from '@/api/modules/api-test/debug';
   import { getPluginScript, getProtocolList } from '@/api/modules/api-test/management';
   import { getSocket } from '@/api/modules/project-management/commonScript';
+  import { getLocalConfig } from '@/api/modules/user/index';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
-  import { getGenerateId } from '@/utils';
+  import { filterTree, getGenerateId } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
   import { registerCatchSaveShortcut, removeCatchSaveShortcut } from '@/utils/event';
 
   import { ExecuteBody, ExecuteHTTPRequestFullParams } from '@/models/apiTest/debug';
   import { ModuleTreeNode } from '@/models/common';
-  import { RequestBodyFormat, RequestComposition, RequestMethods, ResponseComposition } from '@/enums/apiEnum';
+  import {
+    RequestAuthType,
+    RequestBodyFormat,
+    RequestComposition,
+    RequestMethods,
+    ResponseComposition,
+  } from '@/enums/apiEnum';
 
   // 懒加载Http协议组件
   const debugHeader = defineAsyncComponent(() => import('./header.vue'));
@@ -237,13 +248,15 @@
   export type DebugTabParam = ExecuteHTTPRequestFullParams & TabItem & Record<string, any>;
 
   const props = defineProps<{
-    module: string; // 当前激活的接口模块
     moduleTree: ModuleTreeNode[]; // 接口模块树
+    detailLoading: boolean; // 接口详情加载状态
   }>();
+  const emit = defineEmits(['update:detailLoading', 'addDone']);
 
   const appStore = useAppStore();
   const { t } = useI18n();
 
+  const loading = useVModel(props, 'detailLoading', emit);
   const initDefaultId = `debug-${Date.now()}`;
   const activeRequestTab = ref<string | number>(initDefaultId);
   const defaultBodyParams: ExecuteBody = {
@@ -264,6 +277,28 @@
     },
     rawBody: { value: '' },
   };
+  const defaultResponse = {
+    requestResults: [
+      {
+        body: '',
+        responseResult: {
+          body: '',
+          contentType: '',
+          headers: '',
+          dnsLookupTime: 0,
+          downloadTime: 0,
+          latency: 0,
+          responseCode: 0,
+          responseTime: 0,
+          responseSize: 0,
+          socketInitTime: 0,
+          tcpHandshakeTime: 0,
+          transferStartTime: 0,
+        },
+      },
+    ],
+    console: '',
+  }; // 调试返回的响应内容
   const defaultDebugParams: DebugTabParam = {
     id: initDefaultId,
     moduleId: 'root',
@@ -285,8 +320,8 @@
     uploadFileIds: [],
     linkFileIds: [],
     authConfig: {
-      authType: 'NONE',
-      username: '',
+      authType: RequestAuthType.NONE,
+      userName: '',
       password: '',
     },
     children: [
@@ -310,32 +345,11 @@
       connectTimeout: 60000,
       responseTimeout: 60000,
       certificateAlias: '',
-      followRedirects: false,
+      followRedirects: true,
       autoRedirects: false,
     },
     responseActiveTab: ResponseComposition.BODY,
-    response: {
-      requestResults: [
-        {
-          body: '',
-          responseResult: {
-            body: '',
-            contentType: '',
-            headers: '',
-            dnsLookupTime: 0,
-            downloadTime: 0,
-            latency: 0,
-            responseCode: 0,
-            responseTime: 0,
-            responseSize: 0,
-            socketInitTime: 0,
-            tcpHandshakeTime: 0,
-            transferStartTime: 0,
-          },
-        },
-      ],
-      console: '',
-    }, // 调试返回的响应内容
+    response: cloneDeep(defaultResponse),
   };
   const debugTabs = ref<DebugTabParam[]>([cloneDeep(defaultDebugParams)]);
   const activeDebug = ref<DebugTabParam>(debugTabs.value[0]);
@@ -359,20 +373,23 @@
   }
 
   function handleActiveDebugChange() {
-    activeDebug.value.unSaved = true;
+    if (!loading.value) {
+      // 如果是因为加载详情触发的change则不需要标记为未保存
+      activeDebug.value.unSaved = true;
+    }
   }
 
   function addDebugTab(defaultProps?: Partial<TabItem>) {
     const id = `debug-${Date.now()}`;
     debugTabs.value.push({
       ...cloneDeep(defaultDebugParams),
-      moduleId: props.module,
       id,
+      isNew: !defaultProps?.id, // 新开的tab标记为前端新增的调试，因为此时都已经有id了；但是如果是查看打开的会有携带id
       ...defaultProps,
     });
-    activeRequestTab.value = id;
+    activeRequestTab.value = defaultProps?.id || id;
     nextTick(() => {
-      if (defaultProps) {
+      if (defaultProps && !defaultProps.id) {
         handleActiveDebugChange();
       }
     });
@@ -475,6 +492,17 @@
       console.log(error);
     } finally {
       protocolLoading.value = false;
+    }
+  }
+
+  const isLocalExec = ref(false); // 是否优先本地执行
+  async function initLocalConfig() {
+    try {
+      const res = await getLocalConfig();
+      isLocalExec.value = res.find((e) => e.type === 'API')?.enable || false;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
     }
   }
 
@@ -584,30 +612,34 @@
         executeLoading.value = false;
       }
     });
-
-    websocket.value.addEventListener('close', (event) => {
-      console.log('关闭:', event);
-    });
-
-    websocket.value.addEventListener('error', (event) => {
-      console.error('错误:', event);
-    });
   }
 
   function makeRequestParams() {
     const polymorphicName = protocolOptions.value.find((e) => e.value === activeDebug.value.protocol)?.polymorphicName; // 协议多态名称
-
     let requestParams;
     if (isHttpProtocol.value) {
       requestParams = {
         authConfig: activeDebug.value.authConfig,
-        body: { ...activeDebug.value.body, binaryBody: undefined },
-        headers: activeDebug.value.headers,
+        body: {
+          ...activeDebug.value.body,
+          binaryBody: undefined,
+          formDataBody: {
+            formValues: activeDebug.value.body.formDataBody.formValues.filter(
+              (e, i) => i !== activeDebug.value.body.formDataBody.formValues.length - 1
+            ), // 去掉最后一行空行
+          },
+          wwwFormBody: {
+            formValues: activeDebug.value.body.wwwFormBody.formValues.filter(
+              (e, i) => i !== activeDebug.value.body.wwwFormBody.formValues.length - 1
+            ), // 去掉最后一行空行
+          },
+        }, // TODO:binaryBody还没对接
+        headers: activeDebug.value.headers.filter((e, i) => i !== activeDebug.value.headers.length - 1), // 去掉最后一行空行
         method: activeDebug.value.method,
         otherConfig: activeDebug.value.otherConfig,
         path: activeDebug.value.url,
-        query: activeDebug.value.query,
-        rest: activeDebug.value.rest,
+        query: activeDebug.value.query.filter((e, i) => i !== activeDebug.value.query.length - 1), // 去掉最后一行空行
+        rest: activeDebug.value.rest.filter((e, i) => i !== activeDebug.value.rest.length - 1), // 去掉最后一行空行
         url: activeDebug.value.url,
         polymorphicName,
       };
@@ -634,14 +666,8 @@
               enableGlobal: false,
               assertions: [],
             },
-            postProcessorConfig: {
-              enableGlobal: false,
-              processors: [],
-            },
-            preProcessorConfig: {
-              enableGlobal: false,
-              processors: [],
-            },
+            postProcessorConfig: activeDebug.value.children[0].postProcessorConfig,
+            preProcessorConfig: activeDebug.value.children[0].preProcessorConfig,
           },
         ],
       },
@@ -649,7 +675,12 @@
     };
   }
 
-  async function execute() {
+  /**
+   * 执行调试
+   * @param val 执行类型
+   */
+  async function execute(execuetType?: 'localExec' | 'serverExec') {
+    // TODO:本地&服务端执行判断
     if (isHttpProtocol.value) {
       try {
         executeLoading.value = true;
@@ -685,10 +716,16 @@
   const saveModalForm = ref({
     name: '',
     path: activeDebug.value.url || '',
-    moduleId: activeDebug.value.module,
+    moduleId: 'root',
   });
   const saveModalFormRef = ref<FormInstance>();
   const saveLoading = ref(false);
+  const selectTree = computed(() =>
+    filterTree(cloneDeep(props.moduleTree), (e) => {
+      e.draggable = false;
+      return e.type === 'MODULE';
+    })
+  );
 
   watch(
     () => saveModalVisible.value,
@@ -706,9 +743,9 @@
         await fApi.value?.validate();
       }
       saveModalForm.value = {
-        name: '',
+        name: activeDebug.value.name || '',
         path: activeDebug.value.url || '',
-        moduleId: activeDebug.value.module,
+        moduleId: 'root',
       };
       saveModalVisible.value = true;
     } catch (error) {
@@ -731,19 +768,36 @@
       if (!errors) {
         try {
           saveLoading.value = true;
-          await addDebug({
-            ...makeRequestParams(),
-            ...saveModalForm.value,
-            protocol: activeDebug.value.protocol,
-            method: isHttpProtocol.value ? activeDebug.value.method : activeDebug.value.protocol,
-            uploadFileIds: [],
-            linkFileIds: [],
-          });
+          if (activeDebug.value.isNew) {
+            // 若是新建的调试，走添加
+            await addDebug({
+              ...makeRequestParams(),
+              ...saveModalForm.value,
+              protocol: activeDebug.value.protocol,
+              method: isHttpProtocol.value ? activeDebug.value.method : activeDebug.value.protocol,
+              uploadFileIds: [],
+              linkFileIds: [],
+            });
+          } else {
+            await updateDebug({
+              ...makeRequestParams(),
+              ...saveModalForm.value,
+              protocol: activeDebug.value.protocol,
+              method: isHttpProtocol.value ? activeDebug.value.method : activeDebug.value.protocol,
+              uploadFileIds: [],
+              linkFileIds: [],
+              deleteFileIds: [], // TODO:删除文件集合
+              unLinkRefIds: [], // TODO:取消关联文件集合
+            });
+          }
           saveLoading.value = false;
           saveModalVisible.value = false;
           done(true);
           activeDebug.value.unSaved = false;
-          Message.success(t('common.saveSuccess'));
+          activeDebug.value.name = saveModalForm.value.name;
+          activeDebug.value.label = saveModalForm.value.name;
+          emit('addDone');
+          Message.success(activeDebug.value.isNew ? t('common.saveSuccess') : t('common.updateSuccess'));
         } catch (error) {
           saveLoading.value = false;
         }
@@ -752,8 +806,38 @@
     done(false);
   }
 
+  async function openApiTab(apiInfo: ModuleTreeNode) {
+    const isLoadedTabIndex = debugTabs.value.findIndex((e) => e.id === apiInfo.id);
+    if (isLoadedTabIndex > -1) {
+      // 如果点击的请求在tab中已经存在，则直接切换到该tab
+      activeRequestTab.value = apiInfo.id;
+      return;
+    }
+    try {
+      loading.value = true;
+      const res = await getDebugDetail(apiInfo.id);
+      addDebugTab({
+        label: apiInfo.name,
+        ...res,
+        response: cloneDeep(defaultResponse),
+        ...res.request,
+        url: res.path,
+        name: res.name, // request里面还有个name但是是null
+      });
+      nextTick(() => {
+        // 等待内容渲染出来再隐藏loading
+        loading.value = false;
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      loading.value = false;
+    }
+  }
+
   onBeforeMount(() => {
     initProtocolList();
+    initLocalConfig();
   });
 
   onMounted(() => {
@@ -766,6 +850,7 @@
 
   defineExpose({
     addDebugTab,
+    openApiTab,
   });
 </script>
 

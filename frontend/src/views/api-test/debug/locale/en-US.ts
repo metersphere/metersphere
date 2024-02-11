@@ -65,6 +65,7 @@ export default {
   'apiTestDebug.sql': 'SQL',
   'apiTestDebug.sqlScript': 'SQL script',
   'apiTestDebug.waitTime': 'Wait time',
+  'apiTestDebug.wait': 'Wait',
   'apiTestDebug.script': 'Script',
   'apiTestDebug.preconditionScriptName': 'Pre-script name',
   'apiTestDebug.preconditionScriptNamePlaceholder': 'Please enter the pre-script name',

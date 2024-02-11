@@ -20,11 +20,11 @@ import {
 } from '@/enums/apiEnum';
 
 // 条件操作类型
-export type ConditionType = keyof typeof RequestConditionProcessor;
+export type ConditionType = RequestConditionProcessor;
 // 断言-匹配条件规则
-export type RequestAssertionConditionType = keyof typeof RequestAssertionCondition;
+export type RequestAssertionConditionType = RequestAssertionCondition;
 // 前后置条件-脚本语言类型
-export type RequestConditionScriptLanguageType = keyof typeof RequestConditionScriptLanguage;
+export type RequestConditionScriptLanguageType = RequestConditionScriptLanguage;
 // 响应时间信息
 export interface ResponseTiming {
   dnsLookupTime: number;
@@ -38,15 +38,22 @@ export interface ResponseTiming {
 }
 // key-value参数信息
 export interface KeyValueParam {
+  id: string; // id用于前端渲染，后台无此字段
   key: string;
   value: string;
+  [key: string]: any; // 用于前端渲染时填充的自定义信息，后台无此字段
+}
+// 接口请求-带开启关闭的参数集合信息
+export interface EnableKeyValueParam extends KeyValueParam {
+  description: string;
+  enable: boolean; // 参数是否启用
 }
 // 接口请求公共参数集合信息
-export interface ExecuteRequestCommonParam {
+export interface ExecuteRequestCommonParam extends EnableKeyValueParam {
   encode: boolean; // 是否编码
-  maxLength: number;
-  minLength: number;
-  paramType: keyof typeof RequestParamsType; // 参数类型
+  maxLength?: number;
+  minLength?: number;
+  paramType: RequestParamsType; // 参数类型
   required: boolean;
   description: string;
   enable: boolean; // 参数是否启用
@@ -57,7 +64,7 @@ export type ExecuteRequestFormBodyFormValue = ExecuteRequestCommonParam & {
     fileId: string;
     fileName: string;
   }[];
-  contentType?: keyof typeof RequestContentTypeEnum & string;
+  contentType?: RequestContentTypeEnum & string;
 };
 export interface ExecuteRequestFormBody {
   formValues: ExecuteRequestFormBodyFormValue[];
@@ -77,11 +84,6 @@ export interface ExecuteJsonBody {
   jsonSchema?: string;
   jsonValue: string;
 }
-// 接口请求-带开启关闭的参数集合信息
-export interface EnableKeyValueParam extends KeyValueParam {
-  description: string;
-  enable: boolean; // 参数是否启用
-}
 // 执行请求配置
 export interface ExecuteOtherConfig {
   autoRedirects: boolean; // 是否自动重定向 默认 false
@@ -94,12 +96,12 @@ export interface ExecuteOtherConfig {
 export interface ResponseAssertionCommon {
   name: string; // 断言名称
   enable: boolean; // 是否启用断言
-  assertionType: keyof typeof ResponseAssertionType; // 断言类型
+  assertionType: ResponseAssertionType; // 断言类型
 }
 // 断言-断言列表泛型
 export interface ResponseAssertionGenerics<T> {
   assertions: T[];
-  responseFormat?: keyof typeof ResponseBodyXPathAssertionFormat;
+  responseFormat?: ResponseBodyXPathAssertionFormat;
 }
 // 断言-响应头断言子项
 export interface ResponseHeaderAssertionItem {
@@ -119,13 +121,13 @@ export interface ResponseDocumentAssertionElement {
   expectedResult: Record<string, any>; // 匹配值 即预期结果
   include: boolean; // 是否必含
   paramName: string; // 参数名
-  type: keyof typeof ResponseBodyDocumentAssertionType; // 断言类型
+  type: ResponseBodyDocumentAssertionType; // 断言类型
   typeVerification: boolean; // 是否类型验证
 }
 // 断言-文档断言
 export interface ResponseDocumentAssertion {
   enable: boolean; // 是否启用
-  documentType: keyof typeof ResponseBodyAssertionDocumentType; // 文档类型
+  documentType: ResponseBodyAssertionDocumentType; // 文档类型
   followApiId: string; // 跟随定义的apiId 传空为不跟随接口定义
   jsonAssertion: ResponseDocumentAssertionElement;
   xmlAssertion: ResponseDocumentAssertionElement;
@@ -148,12 +150,13 @@ export interface ScriptCommonConfig {
   enableCommonScript: boolean; // 是否启用公共脚本
   script: string; // 脚本内容
   scriptId: string; // 脚本id
+  scriptName: string; // 脚本名称
   scriptLanguage: RequestConditionScriptLanguageType; // 脚本语言
   params: KeyValueParam[]; // 公共脚本参数
 }
 // 断言-响应体断言
 export interface ResponseBodyAssertion {
-  assertionBodyType: keyof typeof ResponseBodyAssertionType; // 断言类型
+  assertionBodyType: ResponseBodyAssertionType; // 断言类型
   documentAssertion: ResponseDocumentAssertion; // 文档断言
   jsonPathAssertion: ResponseAssertionGenerics<ResponseJSONPathAssertionItem>; // JSONPath断言
   regexAssertion: ResponseAssertionGenerics<ResponseRegexAssertionItem>; // 正则断言
@@ -169,14 +172,16 @@ export interface ResponseVariableAssertion {
 }
 // 执行请求-前后置条件处理器
 export interface ExecuteConditionProcessorCommon {
+  id: number; // 处理器ID，前端列表渲染需要，后台无此字段
   enable: boolean; // 是否启用
-  name: string; // 请求名称
-  processorType: keyof typeof RequestConditionProcessor;
+  name?: string; // 条件处理器名称
+  processorType: RequestConditionProcessor;
 }
 // 执行请求-前后置条件-脚本处理器
-export type ScriptProcessor = ScriptCommonConfig;
+export type ScriptProcessor = ScriptCommonConfig & ExecuteConditionProcessorCommon;
 // 执行请求-前后置条件-SQL脚本处理器
-export interface SQLProcessor {
+export interface SQLProcessor extends ExecuteConditionProcessorCommon {
+  description: string; // 描述
   dataSourceId: string; // 数据源ID
   environmentId: string; // 环境ID
   queryTimeout: number; // 超时时间
@@ -187,41 +192,43 @@ export interface SQLProcessor {
   extractParams: KeyValueParam[]; // 提取参数列表
 }
 // 执行请求-前后置条件-等待时间处理器
-export interface TimeWaitingProcessor {
+export interface TimeWaitingProcessor extends ExecuteConditionProcessorCommon {
   delay: number; // 等待时间 单位：毫秒
 }
 // 表达式类型
-export type ExpressionType = keyof typeof RequestExtractExpressionEnum;
+export type ExpressionType = RequestExtractExpressionEnum;
 // 表达式配置
 export interface ExpressionCommonConfig {
   enable: boolean; // 是否启用
   expression: string;
   extractType: ExpressionType; // 表达式类型
   variableName: string;
-  variableType: keyof typeof RequestExtractEnvType;
-  resultMatchingRule: keyof typeof RequestExtractResultMatchingRule; // 结果匹配规则
+  variableType: RequestExtractEnvType;
+  resultMatchingRule: RequestExtractResultMatchingRule; // 结果匹配规则
   resultMatchingRuleNum: number; // 匹配第几条结果
 }
 // 正则提取配置
 export interface RegexExtract extends ExpressionCommonConfig {
-  expressionMatchingRule: keyof typeof RequestExtractExpressionRuleType; // 正则表达式匹配规则
-  extractScope: keyof typeof RequestExtractScope; // 正则提取范围
+  expressionMatchingRule: RequestExtractExpressionRuleType; // 正则表达式匹配规则
+  extractScope: RequestExtractScope; // 正则提取范围
 }
 // JSONPath提取配置
 export type JSONPathExtract = ExpressionCommonConfig;
 // XPath提取配置
 export interface XPathExtract extends ExpressionCommonConfig {
-  responseFormat: keyof typeof ResponseBodyXPathAssertionFormat; // 响应格式
+  responseFormat: ResponseBodyXPathAssertionFormat; // 响应格式
 }
 // 执行请求-前后置条件-参数提取处理器
-export interface ExtractProcessor {
+export interface ExtractProcessor extends ExecuteConditionProcessorCommon {
   extractors: (RegexExtract | JSONPathExtract | XPathExtract)[];
 }
 // 执行请求-前后置条件配置
-export type ExecuteConditionProcessor = ExecuteConditionProcessorCommon &
-  (ScriptProcessor | SQLProcessor | TimeWaitingProcessor | ExtractProcessor);
+export type ExecuteConditionProcessor = Partial<
+  ScriptProcessor & SQLProcessor & TimeWaitingProcessor & ExtractProcessor
+> &
+  ExecuteConditionProcessorCommon;
 export interface ExecuteConditionConfig {
-  enableGlobal: boolean; // 是否启用全局前置 默认为 true
+  enableGlobal?: boolean; // 是否启用全局前/后置 默认为 true
   processors: ExecuteConditionProcessor[];
 }
 // 执行请求-断言配置子项
@@ -246,9 +253,9 @@ export interface ExecuteCommonChild {
 }
 // 执行请求-认证配置
 export interface ExecuteAuthConfig {
-  authType: keyof typeof RequestAuthType;
+  authType: RequestAuthType;
   password: string;
-  username: string;
+  userName: string;
 }
 // 执行请求- body 配置-文本格式的 body
 export interface ExecuteValueBody {
@@ -256,7 +263,7 @@ export interface ExecuteValueBody {
 }
 // 执行请求- body 配置
 export interface ExecuteBody {
-  bodyType: keyof typeof RequestBodyFormat;
+  bodyType: RequestBodyFormat;
   binaryBody: ExecuteBinaryBody;
   formDataBody: ExecuteRequestFormBody;
   jsonBody: ExecuteJsonBody;
@@ -269,7 +276,7 @@ export interface ExecuteHTTPRequestFullParams {
   authConfig: ExecuteAuthConfig;
   body: ExecuteBody;
   headers: EnableKeyValueParam[];
-  method: keyof typeof RequestMethods;
+  method: RequestMethods;
   otherConfig: ExecuteOtherConfig;
   path: string;
   query: ExecuteRequestCommonParam[];
@@ -297,7 +304,7 @@ export interface ExecuteRequestParams {
 export interface SaveDebugParams {
   name: string;
   protocol: string;
-  method: keyof typeof RequestMethods;
+  method: RequestMethods;
   path: string;
   projectId: string;
   moduleId: string;
@@ -321,4 +328,32 @@ export interface AddDebugModuleParams {
   projectId: string;
   name: string;
   parentId: string;
+}
+// 接口调试详情-请求参数
+export interface DebugDetailRequest {
+  stepId: string;
+  resourceId: string;
+  projectId: string;
+  name: string;
+  enable: boolean;
+  children: string[];
+  parent: string;
+  polymorphicName: string;
+}
+// 接口调试详情
+export interface DebugDetail {
+  id: string;
+  name: string;
+  protocol: string;
+  method: string;
+  path: string;
+  projectId: string;
+  moduleId: string;
+  createTime: number;
+  createUser: string;
+  updateTime: number;
+  updateUser: string;
+  pos: number;
+  request: DebugDetailRequest & (ExecuteHTTPRequestFullParams | ExecutePluginRequestParams);
+  response: string;
 }

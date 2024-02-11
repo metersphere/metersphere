@@ -6,7 +6,7 @@
     disabled-width-drag
     @confirm="emit('apply', expressionForm)"
   >
-    <div v-if="expressionForm.expressionType === 'regular'" class="h-[400px]">
+    <div v-if="expressionForm.extractType === RequestExtractExpressionEnum.REGEX" class="h-[400px]">
       <MsCodeEditor
         :model-value="props.response"
         theme="vs"
@@ -18,15 +18,15 @@
         read-only
       />
     </div>
-    <div v-else-if="expressionForm.expressionType === 'JSONPath'" class="code-container">
+    <div v-else-if="expressionForm.extractType === RequestExtractExpressionEnum.JSON_PATH" class="code-container">
       <MsJsonPathPicker :data="props.response || ''" class="bg-white" @pick="handlePathPick" />
     </div>
-    <div v-else-if="expressionForm.expressionType === 'XPath'" class="code-container">
+    <div v-else-if="expressionForm.extractType === RequestExtractExpressionEnum.X_PATH" class="code-container">
       <MsXPathPicker :xml-string="props.response || ''" class="bg-white" @pick="handlePathPick" />
     </div>
     <a-form ref="expressionFormRef" :model="expressionForm" layout="vertical" class="mt-[16px]">
       <a-form-item
-        v-if="expressionForm.expressionType === 'regular'"
+        v-if="expressionForm.extractType === RequestExtractExpressionEnum.REGEX"
         field="expression"
         :label="t('apiTestDebug.regularExpression')"
         :rules="[{ required: true, message: t('apiTestDebug.regularExpressionRequired') }]"
@@ -45,7 +45,7 @@
         </div>
       </a-form-item>
       <a-form-item
-        v-else-if="expressionForm.expressionType === 'JSONPath'"
+        v-else-if="expressionForm.extractType === RequestExtractExpressionEnum.JSON_PATH"
         field="expression"
         label="JSONPath"
         :rules="[{ required: true, message: t('apiTestDebug.JSONPathRequired') }]"
@@ -101,13 +101,15 @@
           </a-tooltip>
         </div>
         <a-radio-group
-          v-if="expressionForm.expressionType === 'regular'"
-          v-model:model-value="expressionForm.regexpMatchRule"
+          v-if="expressionForm.extractType === RequestExtractExpressionEnum.REGEX"
+          v-model:model-value="expressionForm.expressionMatchingRule"
           type="button"
           size="small"
         >
-          <a-radio value="expression">{{ t('apiTestDebug.matchExpression') }}</a-radio>
-          <a-radio value="group">{{ t('apiTestDebug.matchGroup') }}</a-radio>
+          <a-radio :value="RequestExtractExpressionRuleType.EXPRESSION">
+            {{ t('apiTestDebug.matchExpression') }}
+          </a-radio>
+          <a-radio :value="RequestExtractExpressionRuleType.GROUP">{{ t('apiTestDebug.matchGroup') }}</a-radio>
         </a-radio-group>
       </div>
       <div class="match-result">
@@ -151,7 +153,8 @@
   import { useI18n } from '@/hooks/useI18n';
   import { matchXMLWithXPath } from '@/utils/xpath';
 
-  import { JSONPathExtract, RegexExtract, XPathExtract } from '@/models/apiTest/debug';
+  import type { JSONPathExtract, RegexExtract, XPathExtract } from '@/models/apiTest/debug';
+  import { RequestExtractExpressionEnum, RequestExtractExpressionRuleType } from '@/enums/apiEnum';
 
   const props = defineProps<{
     visible: boolean;
@@ -190,8 +193,8 @@
    * 测试表达式
    */
   function testExpression() {
-    switch (props.config.expressionType) {
-      case 'XPath':
+    switch (props.config.extractType) {
+      case RequestExtractExpressionEnum.X_PATH:
         const nodes = matchXMLWithXPath(props.response || '', expressionForm.value.expression);
         if (nodes) {
           // 直接匹配到文本信息
@@ -211,7 +214,7 @@
           matchResult.value = [];
         }
         break;
-      case 'JSONPath':
+      case RequestExtractExpressionEnum.JSON_PATH:
         try {
           matchResult.value = JSONPath({
             json: props.response ? JSON.parse(props.response) : '',
@@ -221,7 +224,7 @@
           matchResult.value = JSONPath({ json: props.response || '', path: expressionForm.value.expression });
         }
         break;
-      case 'regular':
+      case RequestExtractExpressionEnum.REGEX:
       default:
         // 先把前后的/和g去掉才能生成正则表达式
         const matchesIterator = props.response?.matchAll(
@@ -230,7 +233,7 @@
         if (matchesIterator) {
           const matches = Array.from(matchesIterator);
           try {
-            if (expressionForm.value.regexpMatchRule === 'expression') {
+            if (expressionForm.value.expressionMatchingRule === 'expression') {
               // 匹配表达式，取第一个匹配结果，是完整匹配结果
               matchResult.value = matches.map((e) => e[0]) || [];
             } else {

@@ -1,7 +1,6 @@
-import { findKey } from 'lodash-es';
 import JSEncrypt from 'jsencrypt';
 
-import { BatchActionQueryParams, MsTableColumn, MsTableColumnData } from '@/components/pure/ms-table/type';
+import { BatchActionQueryParams, MsTableColumnData } from '@/components/pure/ms-table/type';
 
 import { CustomFieldItem } from '@/models/bug-management';
 
@@ -217,6 +216,38 @@ export function mapTree<T>(
 }
 
 /**
+ * 过滤树形数组或树
+ * @param tree 树形数组或树
+ * @param customNodeFn 自定义节点函数
+ * @param customChildrenKey 自定义子节点的key
+ * @returns 遍历后的树形数组
+ */
+export function filterTree<T>(
+  tree: TreeNode<T> | TreeNode<T>[] | T | T[],
+  filterFn: (node: TreeNode<T>) => boolean,
+  customChildrenKey = 'children'
+): TreeNode<T>[] {
+  if (!Array.isArray(tree)) {
+    tree = [tree];
+  }
+  const filteredTree: TreeNode<T>[] = [];
+  for (let i = 0; i < tree.length; i++) {
+    const node = tree[i];
+    // 如果节点满足过滤条件，则保留该节点，并递归过滤子节点
+    if (filterFn(node)) {
+      const newNode: TreeNode<T> = { ...node };
+      if (node[customChildrenKey] && node[customChildrenKey].length > 0) {
+        // 递归过滤子节点，并将过滤后的子节点添加到当前节点中
+        newNode[customChildrenKey] = filterTree(node[customChildrenKey], filterFn, customChildrenKey);
+      } else {
+        newNode[customChildrenKey] = [];
+      }
+      filteredTree.push(newNode);
+    }
+  }
+  return filteredTree;
+}
+/**
  * 根据属性 key 查找树形数组中匹配的某个节点
  * @param trees 属性数组
  * @param targetKey 需要匹配的属性值
@@ -416,8 +447,8 @@ export function decodeStringToCharset(str: string, charset = 'UTF-8') {
 
 interface ParsedCurlOptions {
   url?: string;
-  queryParameters?: { name: string; value: string }[];
-  headers?: { name: string; value: string }[];
+  queryParameters?: { key: string; value: string }[];
+  headers?: { key: string; value: string }[];
 }
 /**
  * 解析 curl 脚本
@@ -436,8 +467,8 @@ export function parseCurlScript(curlScript: string): ParsedCurlOptions {
   const queryMatch = curlScript.match(/\?(.*?)'/);
   if (queryMatch) {
     const queryParams = queryMatch[1].split('&').map((param) => {
-      const [name, value] = param.split('=');
-      return { name, value };
+      const [key, value] = param.split('=');
+      return { key, value };
     });
     options.queryParameters = queryParams;
   }
@@ -447,10 +478,10 @@ export function parseCurlScript(curlScript: string): ParsedCurlOptions {
   if (headersMatch) {
     const headers = headersMatch.map((header) => {
       const [, value] = header.match(/-H\s+'([^']+)'/) || [];
-      const [name, rawValue] = value.split(':');
-      const trimmedName = name.trim();
+      const [key, rawValue] = value.split(':');
+      const trimmedName = key.trim();
       const trimmedValue = rawValue ? rawValue.trim() : '';
-      return { name: trimmedName, value: trimmedValue };
+      return { key: trimmedName, value: trimmedValue };
     });
 
     // 过滤常用的 HTTP header
@@ -469,12 +500,12 @@ export function parseCurlScript(curlScript: string): ParsedCurlOptions {
       'sec-fetch-mode',
       'sec-fetch-site',
       'user-agent',
-      'Connection',
-      'Host',
-      'Accept-Encoding',
-      'X-Requested-With',
+      'connection',
+      'host',
+      'accept-encoding',
+      'x-requested-with',
     ];
-    options.headers = headers.filter((header) => !commonHeaders.includes(header.name.toLowerCase()));
+    options.headers = headers.filter((header) => !commonHeaders.includes(header.key.toLowerCase()));
   }
 
   return options;
