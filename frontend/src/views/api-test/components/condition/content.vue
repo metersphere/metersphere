@@ -84,6 +84,13 @@
             </a-button>
           </div>
         </div>
+        <MsScriptDefined
+          v-if="condition.script !== undefined && condition.scriptLanguage !== undefined"
+          v-model:code="condition.script"
+          v-model:language="condition.scriptLanguage"
+          show-type="commonScript"
+          :show-header="false"
+        ></MsScriptDefined>
       </div>
       <div v-else class="flex h-[calc(100%-47px)] flex-col">
         <div class="mb-[16px] flex w-full items-center bg-[var(--color-text-n9)] p-[12px]">
@@ -91,7 +98,7 @@
             {{ condition.scriptName || '-' }}
           </div>
           <a-divider margin="8px" direction="vertical" />
-          <MsButton type="text" class="font-medium">
+          <MsButton type="text" class="font-medium" @click="showQuoteDrawer = true">
             {{ t('apiTestDebug.quote') }}
           </MsButton>
         </div>
@@ -111,7 +118,7 @@
                 <div>*</div>
               </div>
             </a-tooltip>
-            {{ record.type }}
+            {{ record.value }}
           </template>
         </MsBaseTable>
         <div v-show="commonScriptShowType === 'scriptContent'" class="h-[calc(100%-76px)]">
@@ -206,7 +213,14 @@
         {{ t('apiTestDebug.waitTime') }}
         <div class="text-[var(--color-text-4)]">(ms)</div>
       </div>
-      <a-input-number v-model:model-value="condition.delay" mode="button" :step="100" :min="0" class="w-[160px]" />
+      <a-input-number
+        v-model:model-value="condition.delay"
+        mode="button"
+        :step="100"
+        :min="0"
+        class="w-[160px]"
+        model-event="input"
+      />
     </div>
     <!-- 提取参数 -->
     <div v-else-if="condition.processorType === RequestConditionProcessor.EXTRACT">
@@ -295,6 +309,12 @@
     :config="activeRecord"
     @apply="handleFastExtractionApply"
   />
+  <InsertCommonScript
+    v-model:visible="showQuoteDrawer"
+    :checked-id="condition.scriptId"
+    enable-radio-selected
+    @save="saveQuoteScriptHandler"
+  />
 </template>
 
 <script setup lang="ts">
@@ -309,6 +329,8 @@
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import InsertCommonScript from '@/components/business/ms-common-script/insertCommonScript.vue';
+  import MsScriptDefined from '@/components/business/ms-common-script/scriptDefined.vue';
   import fastExtraction from '../fastExtraction/index.vue';
   import moreSetting from '../fastExtraction/moreSetting.vue';
   import paramTable, { type ParamTableColumn } from '../paramTable.vue';
@@ -355,7 +377,18 @@
     });
   }
 
-  const scriptEx = ref('');
+  const scriptEx = ref(`2023-12-04 11:19:28 INFO 9026fd6a 1-1 Thread started: 9026fd6a 1-1
+2023-12-04 11:19:28 ERROR 9026fd6a 1-1 Problem in JSR223 script JSR223Sampler, message: {}
+In file: inline evaluation of: prev.getResponseCode() import java.net.URI; import org.apache.http.client.method . . . '' Encountered "import" at line 2, column 1.
+in inline evaluation of: prev.getResponseCode() import java.net.URI; import org.apache.http.client.method . . . '' at line number 2
+javax.script.ScriptException '' at line number 2
+javax.script.ScriptException '' at line number 2
+javax.script.ScriptException '' at line number 2
+javax.script.ScriptException '' at line number 2
+javax.script.ScriptException '' at line number 2
+javax.script.ScriptException
+org.apache.http.client.method . . . '' at line number 2
+`);
   const { copy, isSupported } = useClipboard();
 
   function copyScriptEx() {
@@ -408,25 +441,22 @@
   const { propsRes, propsEvent } = useTable(() => Promise.resolve([]), {
     scroll: { x: '100%' },
     columns,
+    noDisable: true,
   });
-  propsRes.value.data = [
-    {
-      id: new Date().getTime(),
-      required: false,
-      key: 'asdasd',
-      type: 'string',
-      value: '',
-      description: '',
-    },
-    {
-      id: new Date().getTime(),
-      required: true,
-      key: '23d23d',
-      type: 'string',
-      value: '',
-      description: '',
-    },
-  ] as any;
+  const showQuoteDrawer = ref(false);
+  function saveQuoteScriptHandler(item: any) {
+    condition.value.script = item.script;
+    condition.value.scriptId = item.id;
+    condition.value.scriptName = item.name;
+    condition.value.params = (JSON.parse(item.params) || []).map((e: any) => {
+      return {
+        key: e.name,
+        ...e,
+      };
+    });
+    propsRes.value.data = condition.value.params as any[];
+    showQuoteDrawer.value = false;
+  }
 
   const sqlSourceColumns: ParamTableColumn[] = [
     {

@@ -73,9 +73,9 @@
           </div>
         </template>
         <template #extra="nodeData">
-          <!-- 默认模块的 id 是root，默认模块不可编辑、不可添加子模块 -->
+          <!-- 默认模块的 id 是root，默认模块不可编辑、不可添加子模块；API不可添加子模块 -->
           <popConfirm
-            v-if="nodeData.id !== 'root'"
+            v-if="nodeData.id !== 'root' && nodeData.type !== 'API'"
             mode="add"
             :all-names="(nodeData.children || []).map((e: ModuleTreeNode) => e.name || '')"
             :parent-id="nodeData.id"
@@ -228,6 +228,7 @@
         return {
           ...node,
           count: res[node.id] || 0,
+          draggable: node.id !== 'root',
         };
       });
     } catch (error) {

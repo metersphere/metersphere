@@ -46,13 +46,16 @@
           :disabled="executeLoading"
           class="exec-btn"
           @click="execute"
+          @select="execute"
         >
-          {{ t('apiTestDebug.serverExec') }}
+          {{ isLocalExec ? t('apiTestDebug.localExec') : t('apiTestDebug.serverExec') }}
           <template #icon>
             <icon-down />
           </template>
           <template #content>
-            <a-doption>{{ t('apiTestDebug.localExec') }}</a-doption>
+            <a-doption :value="isLocalExec ? 'localExec' : 'serverExec'">
+              {{ isLocalExec ? t('apiTestDebug.serverExec') : t('apiTestDebug.localExec') }}
+            </a-doption>
           </template>
         </a-dropdown-button>
         <a-button type="secondary" @click="handleSaveShortcut">
@@ -219,6 +222,7 @@
   import { addDebug, executeDebug, getDebugDetail, updateDebug } from '@/api/modules/api-test/debug';
   import { getPluginScript, getProtocolList } from '@/api/modules/api-test/management';
   import { getSocket } from '@/api/modules/project-management/commonScript';
+  import { getLocalConfig } from '@/api/modules/user/index';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import { filterTree, getGenerateId } from '@/utils';
@@ -491,6 +495,17 @@
     }
   }
 
+  const isLocalExec = ref(false); // 是否优先本地执行
+  async function initLocalConfig() {
+    try {
+      const res = await getLocalConfig();
+      isLocalExec.value = res.find((e) => e.type === 'API')?.enable || false;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
   const pluginScriptMap = ref<Record<string, any>>({}); // 存储初始化过后的插件配置
   const pluginLoading = ref(false);
   const currentPluginScript = computed<Record<string, any>[]>(
@@ -660,7 +675,12 @@
     };
   }
 
-  async function execute() {
+  /**
+   * 执行调试
+   * @param val 执行类型
+   */
+  async function execute(execuetType?: 'localExec' | 'serverExec') {
+    // TODO:本地&服务端执行判断
     if (isHttpProtocol.value) {
       try {
         executeLoading.value = true;
@@ -701,7 +721,7 @@
   const saveModalFormRef = ref<FormInstance>();
   const saveLoading = ref(false);
   const selectTree = computed(() =>
-    filterTree(props.moduleTree, (e) => {
+    filterTree(cloneDeep(props.moduleTree), (e) => {
       e.draggable = false;
       return e.type === 'MODULE';
     })
@@ -817,6 +837,7 @@
 
   onBeforeMount(() => {
     initProtocolList();
+    initLocalConfig();
   });
 
   onMounted(() => {

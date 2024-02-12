@@ -178,9 +178,9 @@ export interface ExecuteConditionProcessorCommon {
   processorType: RequestConditionProcessor;
 }
 // 执行请求-前后置条件-脚本处理器
-export type ScriptProcessor = ScriptCommonConfig;
+export type ScriptProcessor = ScriptCommonConfig & ExecuteConditionProcessorCommon;
 // 执行请求-前后置条件-SQL脚本处理器
-export interface SQLProcessor {
+export interface SQLProcessor extends ExecuteConditionProcessorCommon {
   description: string; // 描述
   dataSourceId: string; // 数据源ID
   environmentId: string; // 环境ID
@@ -192,7 +192,7 @@ export interface SQLProcessor {
   extractParams: KeyValueParam[]; // 提取参数列表
 }
 // 执行请求-前后置条件-等待时间处理器
-export interface TimeWaitingProcessor {
+export interface TimeWaitingProcessor extends ExecuteConditionProcessorCommon {
   delay: number; // 等待时间 单位：毫秒
 }
 // 表达式类型
@@ -219,12 +219,14 @@ export interface XPathExtract extends ExpressionCommonConfig {
   responseFormat: ResponseBodyXPathAssertionFormat; // 响应格式
 }
 // 执行请求-前后置条件-参数提取处理器
-export interface ExtractProcessor {
+export interface ExtractProcessor extends ExecuteConditionProcessorCommon {
   extractors: (RegexExtract | JSONPathExtract | XPathExtract)[];
 }
 // 执行请求-前后置条件配置
-export type ExecuteConditionProcessor = ExecuteConditionProcessorCommon &
-  Partial<ScriptProcessor & SQLProcessor & TimeWaitingProcessor & ExtractProcessor>;
+export type ExecuteConditionProcessor = Partial<
+  ScriptProcessor & SQLProcessor & TimeWaitingProcessor & ExtractProcessor
+> &
+  ExecuteConditionProcessorCommon;
 export interface ExecuteConditionConfig {
   enableGlobal?: boolean; // 是否启用全局前/后置 默认为 true
   processors: ExecuteConditionProcessor[];

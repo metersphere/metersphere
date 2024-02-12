@@ -19,6 +19,11 @@ export const LanguageEnum = {
   XML: 'xml' as const,
   YAML: 'yaml' as const,
   SHELL: 'shell' as const,
+  BEANSHELL: 'beanshell' as const,
+  BEANSHELLJSR233: 'beanshell-jsr233' as const,
+  GROOVY: 'groovy' as const,
+  NASHORNSCRIPT: 'nashornScript' as const,
+  RHINOSCRIPT: 'rhinoScript' as const,
 } as const;
 export type Language = (typeof LanguageEnum)[keyof typeof LanguageEnum];
 export interface Options {

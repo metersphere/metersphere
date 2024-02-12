@@ -73,15 +73,15 @@
     {
       title: 'project.environmental.paramName',
       dataIndex: 'key',
-      slotName: 'name',
+      slotName: 'key',
       showInTable: true,
       showDrag: true,
       columnSelectorDisabled: true,
     },
     {
       title: 'project.environmental.paramType',
-      dataIndex: 'type',
-      slotName: 'type',
+      dataIndex: 'paramType',
+      slotName: 'paramType',
       showInTable: true,
       showDrag: true,
       columnSelectorDisabled: true,

@@ -136,8 +136,8 @@
   const columns: MsTableColumn = [
     {
       title: 'project.commonScript.ParameterNames',
-      slotName: 'name',
-      dataIndex: 'name',
+      slotName: 'key',
+      dataIndex: 'key',
     },
     {
       title: 'project.commonScript.ParameterValue',

@@ -47,6 +47,7 @@
   />
   <div v-else-if="innerParams.bodyType === RequestBodyFormat.BINARY">
     <div class="mb-[16px] flex justify-between gap-[8px] bg-[var(--color-text-n9)] p-[12px]">
+      <!--TODO:文件上传&关联组件-->
       <a-input
         v-model:model-value="innerParams.binaryBody.description"
         :placeholder="t('common.desc')"

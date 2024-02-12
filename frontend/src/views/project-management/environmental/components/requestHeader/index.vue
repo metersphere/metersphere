@@ -49,7 +49,7 @@
     {
       title: 'apiTestDebug.paramName',
       dataIndex: 'key',
-      slotName: 'name',
+      slotName: 'key',
     },
     {
       title: 'apiTestDebug.paramValue',
