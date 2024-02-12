@@ -400,45 +400,6 @@ export interface LoginRes {
 
 <a name="d3Gdu"></a>
 
-## -mock
-
-提供全局接口数据 mock 功能，避免因为调试而修改请求代码导致出现问题，按功能模块划分文件，通过`index.ts`暴露，示例如下：
-
-```typescript
-import MOCK from '@/utils/setup-mock';
-
-import './user';
-```
-
-```typescript
-import { mock } from '@/utils/setup-mock';
-import { RequestEnum } from '@/enums/httpEnum';
-
-const getProjectList = () => {
-  return [
-    {
-      id: '0283f238hf2',
-      num: 0,
-      organizationId: 'v3v4h434c3',
-      name: '发了多少',
-      description: 'string',
-      createTime: 0,
-      updateTime: 0,
-      updateUser: 'string',
-      createUser: 'string',
-      deleteTime: 0,
-      deleted: true,
-      deleteUser: 'string',
-      enable: true,
-    },
-  ];
-};
-
-mock(RequestEnum.GET, '/system/project/list', getProjectList(), 200);
-```
-
-<a name="QgxDQ"></a>
-
 ## -router
 
 项目路由管理模块，入口文件`index.ts`注册并暴露全部路由，以模块命名文件夹划分模块路由放置在`routes/*`下；`guard/*`下放置路由导航控制，包含权限、登录重定向等；`app-menus/index.ts`为菜单相关的路由信息；`constants.ts`定义路由常量，包括路由白名单、重定向路由名、默认主页路由信息等

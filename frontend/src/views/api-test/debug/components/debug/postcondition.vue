@@ -1,14 +1,14 @@
 <template>
   <condition
-    v-model:list="postConditions"
-    :condition-types="['SCRIPT']"
+    v-model:list="innerConfig.processors"
+    :condition-types="[RequestConditionProcessor.SCRIPT]"
     add-text="apiTestDebug.postCondition"
     :response="props.response"
     :height-used="heightUsed"
     @change="emit('change')"
   >
     <!-- <template #titleRight>
-      <a-switch v-model:model-value="openGlobalPostCondition" size="small" type="line"></a-switch>
+      <a-switch v-model:model-value="innerConfig.enableGlobal" size="small" type="line"></a-switch>
       <div class="ml-[8px] text-[var(--color-text-1)]">{{ t('apiTestDebug.openGlobalPostCondition') }}</div>
       <a-tooltip :content="t('apiTestDebug.openGlobalPostConditionTip')" position="left">
         <icon-question-circle
@@ -25,12 +25,13 @@
 
   import condition from '@/views/api-test/components/condition/index.vue';
 
-  import { ExecuteConditionProcessor } from '@/models/apiTest/debug';
+  import { ExecuteConditionConfig, ExecuteConditionProcessor } from '@/models/apiTest/debug';
+  import { RequestConditionProcessor } from '@/enums/apiEnum';
 
   // import { useI18n } from '@/hooks/useI18n';
 
   const props = defineProps<{
-    params: ExecuteConditionProcessor[];
+    config: ExecuteConditionConfig;
     secondBoxHeight?: number;
     layout: 'horizontal' | 'vertical';
     response?: string; // 响应内容
@@ -41,14 +42,12 @@
   }>();
 
   // const { t } = useI18n();
-  // 是否开启全局后置条件
-  // const openGlobalPostCondition = ref(false);
-  const postConditions = useVModel(props, 'params', emit);
+  const innerConfig = useVModel(props, 'config', emit);
   const heightUsed = computed(() => {
     if (props.layout === 'horizontal') {
-      return 422;
+      return 428;
     }
-    return 422 + (props.secondBoxHeight || 0);
+    return 428 + (props.secondBoxHeight || 0);
   });
 </script>
 

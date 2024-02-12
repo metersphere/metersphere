@@ -62,6 +62,7 @@ export default {
   'apiTestDebug.sql': 'SQL 操作',
   'apiTestDebug.sqlScript': 'SQL 脚本',
   'apiTestDebug.waitTime': '等待时间',
+  'apiTestDebug.wait': '等待',
   'apiTestDebug.script': '脚本操作',
   'apiTestDebug.preconditionScriptName': '前置脚本名称',
   'apiTestDebug.preconditionScriptNamePlaceholder': '请输入前置脚本名称',

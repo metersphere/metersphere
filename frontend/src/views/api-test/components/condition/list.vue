@@ -10,7 +10,6 @@
     item-class="mb-[4px] bg-white !p-[4px_8px]"
     :item-more-actions="itemMoreActions"
     active-item-class="!bg-[rgb(var(--primary-1))] text-[rgb(var(--primary-5))]"
-    :virtual-list-props="{ threshold: 100, height: '100%', fixedSize: true }"
     draggable
     @item-click="handleItemClick"
     @more-action-select="handleMoreActionSelect"
@@ -25,7 +24,16 @@
         >
           {{ index + 1 }}
         </div>
-        <div>{{ t(conditionTypeNameMap[item.type]) }}</div>
+        <div
+          v-if="item.processorType === RequestConditionProcessor.TIME_WAITING"
+          :title="`${t('apiTestDebug.wait')}${item.delay}ms`"
+          class="one-line-text"
+        >
+          {{ `${t('apiTestDebug.wait')}${item.delay}` }} ms
+        </div>
+        <div v-else>
+          {{ t(conditionTypeNameMap[item.processorType]) }}
+        </div>
       </div>
     </template>
     <template #itemRight="{ item }">
@@ -43,22 +51,26 @@
   import { conditionTypeNameMap } from '@/config/apiTest';
   import { useI18n } from '@/hooks/useI18n';
 
+  import { ExecuteConditionProcessor } from '@/models/apiTest/debug';
+  import { RequestConditionProcessor } from '@/enums/apiEnum';
+
   const props = defineProps<{
-    list: Array<Record<string, any>>;
+    list: ExecuteConditionProcessor[];
     activeId?: string | number;
   }>();
   const emit = defineEmits<{
-    (e: 'update:list', list: Array<Record<string, any>>): void;
-    (e: 'activeChange', item: Record<string, any>): void;
+    (e: 'update:list', list: ExecuteConditionProcessor[]): void;
+    (e: 'activeChange', item: ExecuteConditionProcessor): void;
     (e: 'change'): void;
   }>();
 
   const { t } = useI18n();
   const data = useVModel(props, 'list', emit);
+
   // 当前聚焦的列表项
   const focusItemKey = ref<any>('');
   // 当前选中的列表项
-  const activeItem = ref<Record<string, any>>({});
+  const activeItem = ref<ExecuteConditionProcessor>({} as ExecuteConditionProcessor);
   const itemMoreActions: ActionsItem[] = [
     {
       label: 'common.copy',
@@ -70,18 +82,27 @@
     },
   ];
 
-  watch(
-    () => props.activeId,
-    (activeId) => {
-      activeItem.value = data.value.find((item) => item.id === activeId) || data.value[0] || {};
-      emit('activeChange', activeItem.value);
-    },
-    {
-      immediate: true,
+  watchEffect(() => {
+    // 后台存储无id，渲染时需要手动添加一次
+    let hasNoIdItem = false;
+    const tempArr = props.list.map((item, i) => {
+      if (!item.id) {
+        hasNoIdItem = true;
+        return {
+          ...item,
+          id: new Date().getTime() + i,
+        };
+      }
+      return item;
+    });
+    if (hasNoIdItem) {
+      data.value = tempArr;
     }
-  );
+    activeItem.value = data.value.find((item) => item.id === props.activeId) || data.value[0] || {};
+    emit('activeChange', activeItem.value);
+  });
 
-  function handleItemClick(item: Record<string, any>) {
+  function handleItemClick(item: ExecuteConditionProcessor) {
     activeItem.value = item;
     emit('activeChange', item);
   }
@@ -90,7 +111,7 @@
    * 复制列表项
    * @param item 列表项
    */
-  function copyListItem(item: Record<string, any>) {
+  function copyListItem(item: ExecuteConditionProcessor) {
     const copyItem = {
       ...item,
       id: new Date().getTime(),
@@ -104,7 +125,7 @@
    * 删除列表项
    * @param item 列表项
    */
-  function deleteListItem(item: Record<string, any>) {
+  function deleteListItem(item: ExecuteConditionProcessor) {
     data.value = data.value.filter((precondition) => precondition.id !== item.id);
     if (activeItem.value.id === item.id) {
       [activeItem.value] = data.value;
@@ -117,7 +138,7 @@
    * @param event
    * @param item
    */
-  function handleMoreActionSelect(event: ActionsItem, item: Record<string, any>) {
+  function handleMoreActionSelect(event: ActionsItem, item: ExecuteConditionProcessor) {
     if (event.eventTag === 'copy') {
       copyListItem(item);
     } else if (event.eventTag === 'delete') {

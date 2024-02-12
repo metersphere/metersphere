@@ -1,34 +1,53 @@
 <template>
   <div class="mb-[8px] flex items-center justify-between">
-    <batchAddKeyVal v-if="showParamTable" :params="currentTableParams" @apply="handleBatchParamApply" />
-    <a-radio-group v-model:model-value="bodyType" type="button" size="small" @change="formatChange">
-      <a-radio v-for="item of RequestBodyFormat" :key="item" :value="item">{{ requestBodyTypeMap[item] }}</a-radio>
+    <a-radio-group
+      v-model:model-value="innerParams.bodyType"
+      type="button"
+      size="small"
+      @change="(val) => changeBodyFormat(val as RequestBodyFormat)"
+    >
+      <a-radio v-for="item of RequestBodyFormat" :key="item" :value="item">
+        {{ requestBodyTypeMap[item] }}
+      </a-radio>
     </a-radio-group>
+    <batchAddKeyVal
+      v-if="showParamTable"
+      :params="currentTableParams"
+      :default-param-item="defaultParamItem"
+      @apply="handleBatchParamApply"
+    />
   </div>
   <div
-    v-if="bodyType === RequestBodyFormat.NONE"
+    v-if="innerParams.bodyType === RequestBodyFormat.NONE"
     class="flex h-[100px] items-center justify-center rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] text-[var(--color-text-4)]"
   >
     {{ t('apiTestDebug.noneBody') }}
   </div>
   <paramTable
-    v-else-if="bodyType === RequestBodyFormat.FORM_DATA"
+    v-else-if="innerParams.bodyType === RequestBodyFormat.FORM_DATA"
     v-model:params="currentTableParams"
     :scroll="{ minWidth: 1160 }"
     :columns="columns"
     :height-used="heightUsed"
+    :show-setting="true"
+    :table-key="TableKeyEnum.API_TEST_DEBUG_FORM_DATA"
+    :default-param-item="defaultParamItem"
     @change="handleParamTableChange"
   />
   <paramTable
-    v-else-if="bodyType === RequestBodyFormat.WWW_FORM"
+    v-else-if="innerParams.bodyType === RequestBodyFormat.WWW_FORM"
     v-model:params="currentTableParams"
     :scroll="{ minWidth: 1160 }"
     :columns="columns"
     :height-used="heightUsed"
+    :show-setting="true"
+    :table-key="TableKeyEnum.API_TEST_DEBUG_FORM_URL_ENCODE"
+    :default-param-item="defaultParamItem"
     @change="handleParamTableChange"
   />
-  <div v-else-if="bodyType === RequestBodyFormat.BINARY">
+  <div v-else-if="innerParams.bodyType === RequestBodyFormat.BINARY">
     <div class="mb-[16px] flex justify-between gap-[8px] bg-[var(--color-text-n9)] p-[12px]">
+      <!--TODO:文件上传&关联组件-->
       <a-input
         v-model:model-value="innerParams.binaryBody.description"
         :placeholder="t('common.desc')"
@@ -78,14 +97,15 @@
 
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
-  import paramTable, { type ParamTableColumn } from '../../../components/paramTable.vue';
-  import batchAddKeyVal from './batchAddKeyVal.vue';
+  import batchAddKeyVal from '@/views/api-test/components/batchAddKeyVal.vue';
+  import paramTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
   import { requestBodyTypeMap } from '@/config/apiTest';
   import { useI18n } from '@/hooks/useI18n';
 
   import { ExecuteBody } from '@/models/apiTest/debug';
-  import { RequestBodyFormat, RequestParamsType } from '@/enums/apiEnum';
+  import { RequestBodyFormat, RequestContentTypeEnum, RequestParamsType } from '@/enums/apiEnum';
+  import { TableKeyEnum } from '@/enums/tableEnum';
 
   const props = defineProps<{
     params: ExecuteBody;
@@ -100,22 +120,33 @@
   const { t } = useI18n();
 
   const innerParams = useVModel(props, 'params', emit);
-  const bodyType = ref(RequestBodyFormat.NONE);
+  const defaultParamItem = {
+    key: '',
+    value: '',
+    paramType: RequestParamsType.STRING,
+    description: '',
+    required: false,
+    maxLength: undefined,
+    minLength: undefined,
+    encode: false,
+    enable: true,
+    contentType: RequestContentTypeEnum.TEXT,
+  };
 
   const columns = computed<ParamTableColumn[]>(() => [
     {
       title: 'apiTestDebug.paramName',
-      dataIndex: 'name',
-      slotName: 'name',
+      dataIndex: 'key',
+      slotName: 'key',
     },
     {
       title: 'apiTestDebug.paramType',
-      dataIndex: 'type',
-      slotName: 'type',
+      dataIndex: 'paramType',
+      slotName: 'paramType',
       hasRequired: true,
-      typeOptions: Object.keys(RequestParamsType).map((key) => ({
-        label: RequestParamsType[key],
-        value: key,
+      typeOptions: Object.values(RequestParamsType).map((val) => ({
+        label: val,
+        value: val,
       })),
       width: 120,
     },
@@ -133,22 +164,23 @@
       width: 200,
     },
     {
-      title: 'apiTestDebug.desc',
-      dataIndex: 'desc',
-      slotName: 'desc',
-    },
-    {
       title: 'apiTestDebug.encode',
       dataIndex: 'encode',
       slotName: 'encode',
       titleSlotName: 'encodeTitle',
+      width: 80,
+    },
+    {
+      title: 'apiTestDebug.desc',
+      dataIndex: 'description',
+      slotName: 'description',
     },
     {
       title: '',
       slotName: 'operation',
       fixed: 'right',
-      format: bodyType.value,
-      width: bodyType.value === RequestBodyFormat.FORM_DATA ? 90 : 50,
+      format: innerParams.value.bodyType,
+      width: innerParams.value.bodyType === RequestBodyFormat.FORM_DATA ? 90 : 50,
     },
   ]);
 
@@ -157,7 +189,7 @@
   watch(
     () => props.layout,
     (val) => {
-      heightUsed.value = val === 'horizontal' ? 422 : 422 + props.secondBoxHeight;
+      heightUsed.value = val === 'horizontal' ? 428 : 428 + props.secondBoxHeight;
     },
     {
       immediate: true,
@@ -168,7 +200,7 @@
     () => props.secondBoxHeight,
     (val) => {
       if (props.layout === 'vertical') {
-        heightUsed.value = 422 + val;
+        heightUsed.value = 428 + val;
       }
     },
     {
@@ -178,18 +210,18 @@
 
   const showParamTable = computed(() => {
     // 仅当格式为FORM_DATA或X_WWW_FORM_URLENCODED时，显示参数表格
-    return [RequestBodyFormat.FORM_DATA, RequestBodyFormat.WWW_FORM].includes(bodyType.value);
+    return [RequestBodyFormat.FORM_DATA, RequestBodyFormat.WWW_FORM].includes(innerParams.value.bodyType);
   });
   // 当前显示的参数表格数据
   const currentTableParams = computed({
     get() {
-      if (bodyType.value === RequestBodyFormat.FORM_DATA) {
+      if (innerParams.value.bodyType === RequestBodyFormat.FORM_DATA) {
         return innerParams.value.formDataBody.formValues;
       }
       return innerParams.value.wwwFormBody.formValues;
     },
     set(val) {
-      if (bodyType.value === RequestBodyFormat.FORM_DATA) {
+      if (innerParams.value.bodyType === RequestBodyFormat.FORM_DATA) {
         innerParams.value.formDataBody.formValues = val;
       } else {
         innerParams.value.wwwFormBody.formValues = val;
@@ -199,18 +231,18 @@
   // 当前显示的代码
   const currentBodyCode = computed({
     get() {
-      if (bodyType.value === RequestBodyFormat.JSON) {
+      if (innerParams.value.bodyType === RequestBodyFormat.JSON) {
         return innerParams.value.jsonBody.jsonValue;
       }
-      if (bodyType.value === RequestBodyFormat.XML) {
+      if (innerParams.value.bodyType === RequestBodyFormat.XML) {
         return innerParams.value.xmlBody.value;
       }
       return innerParams.value.rawBody.value;
     },
     set(val) {
-      if (bodyType.value === RequestBodyFormat.JSON) {
+      if (innerParams.value.bodyType === RequestBodyFormat.JSON) {
         innerParams.value.jsonBody.jsonValue = val;
-      } else if (bodyType.value === RequestBodyFormat.XML) {
+      } else if (innerParams.value.bodyType === RequestBodyFormat.XML) {
         innerParams.value.xmlBody.value = val;
       } else {
         innerParams.value.rawBody.value = val;
@@ -219,18 +251,14 @@
   });
   // 当前代码编辑器的语言
   const currentCodeLanguage = computed(() => {
-    if (bodyType.value === RequestBodyFormat.JSON) {
+    if (innerParams.value.bodyType === RequestBodyFormat.JSON) {
       return LanguageEnum.JSON;
     }
-    if (bodyType.value === RequestBodyFormat.XML) {
+    if (innerParams.value.bodyType === RequestBodyFormat.XML) {
       return LanguageEnum.XML;
     }
     return LanguageEnum.PLAINTEXT;
   });
-
-  function formatChange() {
-    console.log('formatChange', bodyType.value);
-  }
 
   /**
    * 批量参数代码转换为参数表格数据
@@ -246,6 +274,11 @@
 
   function handleParamTableChange(resultArr: any[]) {
     currentTableParams.value = [...resultArr];
+    emit('change');
+  }
+
+  function changeBodyFormat(val: RequestBodyFormat) {
+    innerParams.value.bodyType = val;
     emit('change');
   }
 </script>

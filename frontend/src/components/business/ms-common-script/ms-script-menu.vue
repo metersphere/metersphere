@@ -32,7 +32,7 @@
   </div>
   <span
     v-if="innerExpand"
-    class="collapsebtn absolute right-2 z-10 mr-1 flex items-center justify-center"
+    class="collapsebtn absolute right-2 top-2 z-10 mr-1 flex items-center justify-center"
     @click="expandedHandler"
   >
     <icon-right class="text-[12px] text-[var(--color-text-4)]" />
@@ -40,11 +40,12 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue';
   import { useVModel } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
 
   import { useI18n } from '@/hooks/useI18n';
+
+  import { RequestConditionScriptLanguage } from '@/enums/apiEnum';
 
   import type { CommonScriptMenu } from './types';
   import { getCodeTemplate, type Languages, SCRIPT_MENU } from './utils';
@@ -53,7 +54,7 @@
 
   const props = defineProps<{
     expand: boolean;
-    languagesType: Languages;
+    languagesType: Languages | RequestConditionScriptLanguage;
   }>();
 
   const emit = defineEmits<{

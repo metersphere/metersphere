@@ -1,5 +1,5 @@
 <template>
-  <div v-if="props.showType === 'commonScript'" class="w-full bg-[var(--color-bg-3)] p-4 pb-0">
+  <div v-if="props.showHeader && props.showType === 'commonScript'" class="w-full bg-[var(--color-bg-3)] p-4 pb-0">
     <div class="flex items-center justify-between">
       <div>
         <MsTag class="!mr-2 cursor-pointer" theme="outline" @click="undoHandler">
@@ -20,14 +20,15 @@
     </div>
   </div>
   <div v-if="props.showType === 'commonScript'" class="flex bg-[var(--color-bg-3)]">
-    <div class="w-full">
+    <div class="relative w-full">
       <MsCodeEditor
         ref="codeEditorRef"
         v-model:model-value="innerCodeValue"
         title=""
         :width="expandMenu ? '100%' : '68%'"
         height="460px"
-        theme="MS-text"
+        theme="vs"
+        :language="(innerLanguagesType as Language)"
         :read-only="false"
         :show-full-screen="false"
         :show-theme-change="false"
@@ -50,7 +51,8 @@
     title=""
     width="100%"
     height="calc(100vh - 155px)"
-    theme="MS-text"
+    theme="vs"
+    :language="(innerLanguagesType as Language)"
     :read-only="false"
     :show-full-screen="false"
     :show-theme-change="false"
@@ -74,6 +76,7 @@
   import { useVModel } from '@vueuse/core';
 
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
+  import { Language } from '@/components/pure/ms-code-editor/types';
   import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
   import FormApiImportDrawer from './formApiImportDrawer.vue';
   import InsertCommonScript from './insertCommonScript.vue';
@@ -83,29 +86,33 @@
   import useAppStore from '@/store/modules/app';
 
   import type { CommonScriptItem } from '@/models/projectManagement/commonScript';
+  import { RequestConditionScriptLanguage } from '@/enums/apiEnum';
 
   import { type Languages } from './utils';
 
   const appStore = useAppStore();
-  const currentProjectId = computed(() => appStore.currentProjectId);
 
-  const props = defineProps<{
-    showType: 'commonScript' | 'executionResult'; // 执行类型
-    language: Languages;
-    code: string;
-    enableRadioSelected?: boolean;
-    executionResult?: string; // 执行结果
-  }>();
+  const props = withDefaults(
+    defineProps<{
+      showType: 'commonScript' | 'executionResult'; // 执行类型
+      language: Languages | RequestConditionScriptLanguage;
+      code: string;
+      enableRadioSelected?: boolean;
+      executionResult?: string; // 执行结果
+      showHeader?: boolean;
+    }>(),
+    {
+      showHeader: true,
+    }
+  );
   const emit = defineEmits<{
-    (e: 'update:language', value: Languages): void;
+    (e: 'update:language', value: Languages | RequestConditionScriptLanguage): void;
     (e: 'update:code', value: string): void;
   }>();
 
   const { t } = useI18n();
 
   const projectId = ref<string>(appStore.currentProjectId);
-
-  const commonScriptValue = ref('');
 
   const innerLanguagesType = useVModel(props, 'language', emit);
   const executionResultValue = useVModel(props, 'executionResult', emit);
@@ -140,21 +147,21 @@
     formApiExportVisible.value = true;
   }
 
-  const codeEditorRef = ref();
+  const codeEditorRef = ref<InstanceType<typeof MsCodeEditor>>();
 
   function formatCoding() {
-    codeEditorRef.value.formatCode(commonScriptValue.value);
+    codeEditorRef.value?.format();
   }
 
   const confirmLoading = ref<boolean>(false);
 
   function insertHandler(code: string) {
-    codeEditorRef.value.insertContent(code);
+    codeEditorRef.value?.insertContent(code);
   }
 
   function saveHandler(data: CommonScriptItem[]) {
     if (props.enableRadioSelected) {
-      codeEditorRef.value.insertContent(data[0].script);
+      codeEditorRef.value?.insertContent(data[0].script);
     } else {
       let scriptStr = '';
       data.forEach((item) => {
@@ -163,12 +170,12 @@
 ${item.script}
 `;
       });
-      codeEditorRef.value.insertContent(scriptStr);
+      codeEditorRef.value?.insertContent(scriptStr);
     }
   }
 
   function undoHandler() {
-    codeEditorRef.value.undo();
+    codeEditorRef.value?.undo();
   }
 
   function clearCode() {

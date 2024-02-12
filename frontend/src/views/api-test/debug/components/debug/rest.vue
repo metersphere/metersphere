@@ -9,13 +9,14 @@
         />
       </a-tooltip>
     </div>
-    <batchAddKeyVal :params="innerParams" @apply="handleBatchParamApply" />
+    <batchAddKeyVal :params="innerParams" :default-param-item="defaultParamItem" @apply="handleBatchParamApply" />
   </div>
   <paramTable
     v-model:params="innerParams"
     :columns="columns"
     :height-used="heightUsed"
     :scroll="{ minWidth: 1160 }"
+    :default-param-item="defaultParamItem"
     @change="handleParamTableChange"
   />
 </template>
@@ -23,7 +24,7 @@
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
 
-  import batchAddKeyVal from './batchAddKeyVal.vue';
+  import batchAddKeyVal from '@/views/api-test/components/batchAddKeyVal.vue';
   import paramTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
   import { useI18n } from '@/hooks/useI18n';
@@ -44,23 +45,34 @@
   const { t } = useI18n();
 
   const innerParams = useVModel(props, 'params', emit);
+  const defaultParamItem = {
+    key: '',
+    value: '',
+    paramType: RequestParamsType.STRING,
+    description: '',
+    required: false,
+    maxLength: undefined,
+    minLength: undefined,
+    encode: false,
+    enable: true,
+  };
 
   const columns: ParamTableColumn[] = [
     {
       title: 'apiTestDebug.paramName',
-      dataIndex: 'name',
-      slotName: 'name',
+      dataIndex: 'key',
+      slotName: 'key',
     },
     {
       title: 'apiTestDebug.paramType',
-      dataIndex: 'type',
-      slotName: 'type',
+      dataIndex: 'paramType',
+      slotName: 'paramType',
       hasRequired: true,
-      typeOptions: Object.keys(RequestParamsType)
-        .filter((key) => ![RequestParamsType.JSON, RequestParamsType.FILE].includes(key as RequestParamsType))
-        .map((key) => ({
-          label: RequestParamsType[key],
-          value: key,
+      typeOptions: Object.values(RequestParamsType)
+        .filter((val) => ![RequestParamsType.JSON, RequestParamsType.FILE].includes(val as RequestParamsType))
+        .map((val) => ({
+          label: val,
+          value: val,
         })),
       width: 120,
     },
@@ -81,11 +93,12 @@
       dataIndex: 'encode',
       slotName: 'encode',
       titleSlotName: 'encodeTitle',
+      width: 80,
     },
     {
       title: 'apiTestDebug.desc',
-      dataIndex: 'desc',
-      slotName: 'desc',
+      dataIndex: 'description',
+      slotName: 'description',
     },
     {
       title: '',
@@ -100,7 +113,7 @@
   watch(
     () => props.layout,
     (val) => {
-      heightUsed.value = val === 'horizontal' ? 422 : 422 + props.secondBoxHeight;
+      heightUsed.value = val === 'horizontal' ? 428 : 428 + props.secondBoxHeight;
     },
     {
       immediate: true,
@@ -111,7 +124,7 @@
     () => props.secondBoxHeight,
     (val) => {
       if (props.layout === 'vertical') {
-        heightUsed.value = 422 + val;
+        heightUsed.value = 428 + val;
       }
     },
     {

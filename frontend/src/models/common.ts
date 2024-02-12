@@ -1,3 +1,5 @@
+import { RequestMethods } from '@/enums/apiEnum';
+
 // 请求返回结构
 export default interface CommonResponse<T> {
   code: number;
@@ -53,9 +55,12 @@ export interface MoveModules {
 export interface ModuleTreeNode {
   id: string;
   name: string;
-  type: string;
+  type: 'MODULE' | 'API';
   children: ModuleTreeNode[];
-  attachInfo: Record<string, any>; // 附加信息
+  attachInfo: {
+    method?: keyof typeof RequestMethods;
+    protocol: string;
+  }; // 附加信息
   count: 0;
   parentId: string;
   path: string;
