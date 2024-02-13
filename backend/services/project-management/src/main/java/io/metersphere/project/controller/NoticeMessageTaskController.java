@@ -54,7 +54,7 @@ public class NoticeMessageTaskController {
 
     @GetMapping("message/task/get/user/{projectId}")
     @Operation(summary = "项目管理-消息管理-消息设置-获取用户列表")
-    @RequiresPermissions(PermissionConstants.PROJECT_MESSAGE_READ_ADD)
+    @RequiresPermissions(PermissionConstants.PROJECT_MESSAGE_READ)
     public List<OptionDTO> getUserList(@PathVariable String projectId, @Schema(description = "查询关键字，根据用户名查询")
     @RequestParam(value = "keyword", required = false) String keyword) {
         return noticeMessageTaskService.getUserList(projectId, keyword);
