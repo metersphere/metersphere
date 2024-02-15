@@ -1,9 +1,9 @@
 <template>
-  <PreTab v-model:params="params" layout="horizontal" />
+  <PreTab v-model:config="params" layout="horizontal" />
 </template>
 
 <script lang="ts" setup>
-  import PreTab from '@/views/api-test/debug/components/debug/precondition.vue';
+  import PreTab from '@/views/api-test/components/requestComposition/precondition.vue';
 
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
 

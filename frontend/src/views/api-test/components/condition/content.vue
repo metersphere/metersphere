@@ -8,7 +8,7 @@
       </a-radio-group>
       <div
         v-if="!condition.enableCommonScript"
-        class="relative rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[12px]"
+        class="relative flex-1 rounded-[var(--border-radius-small)] bg-[var(--color-text-n9)] p-[12px]"
       >
         <div v-if="isShowEditScriptNameInput" class="absolute left-[12px] z-10 w-[calc(100%-24px)]">
           <a-input
@@ -84,13 +84,15 @@
             </a-button>
           </div>
         </div>
-        <MsScriptDefined
-          v-if="condition.script !== undefined && condition.scriptLanguage !== undefined"
-          v-model:code="condition.script"
-          v-model:language="condition.scriptLanguage"
-          show-type="commonScript"
-          :show-header="false"
-        ></MsScriptDefined>
+        <div class="h-[calc(100%-24px)] min-h-[300px]">
+          <MsScriptDefined
+            v-if="condition.script !== undefined && condition.scriptLanguage !== undefined"
+            v-model:code="condition.script"
+            v-model:language="condition.scriptLanguage"
+            show-type="commonScript"
+            :show-header="false"
+          />
+        </div>
       </div>
       <div v-else class="flex h-[calc(100%-47px)] flex-col">
         <div class="mb-[16px] flex w-full items-center bg-[var(--color-text-n9)] p-[12px]">
@@ -443,11 +445,19 @@ org.apache.http.client.method . . . '' at line number 2
     columns,
     noDisable: true,
   });
+
+  watch(
+    () => condition.value.params,
+    (arr) => {
+      propsRes.value.data = arr as any[]; // 查看详情的时候需要赋值一下
+    }
+  );
+
   const showQuoteDrawer = ref(false);
   function saveQuoteScriptHandler(item: any) {
     condition.value.script = item.script;
     condition.value.scriptId = item.id;
-    condition.value.scriptName = item.name;
+    condition.value.scriptName = item.name; // TODO:详情接口未返回该字段
     condition.value.params = (JSON.parse(item.params) || []).map((e: any) => {
       return {
         key: e.name,
@@ -690,7 +700,7 @@ org.apache.http.client.method . . . '' at line number 2
     background-color: var(--color-text-n9);
   }
   .condition-content {
-    @apply flex-1 overflow-y-auto;
+    @apply flex flex-1 flex-col overflow-y-auto;
     .ms-scroll-bar();
 
     padding: 16px;

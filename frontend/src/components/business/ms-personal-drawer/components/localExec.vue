@@ -157,22 +157,23 @@
   async function testApi() {
     try {
       testApiLoading.value = true;
-      if (apiConfig.value.id) {
-        // 已经存在配置
-        await updateLocalConfig({
-          id: apiConfig.value.id,
-          userUrl: apiConfig.value.userUrl.trim(),
-        });
-      } else {
-        const result = await addLocalConfig({
-          type: 'API',
-          userUrl: apiConfig.value.userUrl.trim(),
-        });
-        apiConfig.value.id = result.id;
-      }
       const res = await validLocalConfig(apiConfig.value.id);
       apiConfig.value.status = res ? 1 : 2;
       if (res) {
+        // 检测通过才保存配置
+        if (apiConfig.value.id) {
+          // 已经存在配置
+          await updateLocalConfig({
+            id: apiConfig.value.id,
+            userUrl: apiConfig.value.userUrl.trim(),
+          });
+        } else {
+          const result = await addLocalConfig({
+            type: 'API',
+            userUrl: apiConfig.value.userUrl.trim(),
+          });
+          apiConfig.value.id = result.id;
+        }
         Message.success(t('ms.personal.testPass'));
       } else {
         Message.error(t('ms.personal.testFail'));

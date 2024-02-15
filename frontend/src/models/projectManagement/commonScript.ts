@@ -1,4 +1,4 @@
-import { type Languages } from '@/components/business/ms-common-script/utils';
+import { Language } from '@/components/pure/ms-code-editor/types';
 
 export interface CommonScriptMenu {
   title: string;
@@ -13,7 +13,7 @@ export interface CommonScriptItem {
   name: string;
   tags: string[];
   description: string;
-  type: Languages; // 脚本语言类型
+  type: Language; // 脚本语言类型
   status: string; // 脚本状态（进行中/已完成)
   createTime: number;
   updateTime: number;
@@ -29,7 +29,7 @@ export interface AddOrUpdateCommonScript {
   id?: string;
   projectId: string;
   name: string;
-  type: Languages;
+  type: Language;
   status: string;
   tags: string[];
   description: string;

@@ -7,20 +7,33 @@
           <moduleTree
             ref="moduleTreeRef"
             @init="(val) => (folderTree = val)"
-            @new-api="newApi"
-            @click-api-node="handleApiNodeClick"
+            @new-api="addDebugTab"
+            @click-api-node="openApiTab"
             @import="importDrawerVisible = true"
           />
         </div>
       </template>
       <template #second>
         <div class="flex h-full flex-col">
-          <debug
-            ref="debugRef"
-            v-model:detail-loading="loading"
-            :module-tree="folderTree"
-            @add-done="handleDebugAddDone"
-          />
+          <div class="border-b border-[var(--color-text-n8)] p-[24px_24px_16px_24px]">
+            <MsEditableTab v-model:active-tab="activeDebug" v-model:tabs="debugTabs" at-least-one @add="addDebugTab">
+              <template #label="{ tab }">
+                <apiMethodName v-if="isHttpProtocol" :method="tab.method" class="mr-[4px]" />
+                {{ tab.label }}
+              </template>
+            </MsEditableTab>
+          </div>
+          <div class="flex-1 overflow-hidden">
+            <debug
+              v-model:detail-loading="loading"
+              v-model:request="activeDebug"
+              :module-tree="folderTree"
+              :create-api="addDebug"
+              :update-api="updateDebug"
+              :execute-api="executeDebug"
+              @add-done="handleDebugAddDone"
+            />
+          </div>
         </div>
       </template>
     </MsSplitBox>
@@ -58,35 +71,194 @@
 </template>
 
 <script lang="ts" setup>
+  import { cloneDeep } from 'lodash-es';
+
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
+  import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
+  import { TabItem } from '@/components/pure/ms-editable-tab/types';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
-  import debug from './components/debug/index.vue';
   import moduleTree from './components/moduleTree.vue';
+  import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
+  import debug, { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
+  import { addDebug, executeDebug, getDebugDetail, updateDebug } from '@/api/modules/api-test/debug';
   import { useI18n } from '@/hooks/useI18n';
   import { parseCurlScript } from '@/utils';
 
+  import { ExecuteBody } from '@/models/apiTest/debug';
   import { ModuleTreeNode } from '@/models/common';
-  import { RequestContentTypeEnum, RequestParamsType } from '@/enums/apiEnum';
+  import {
+    RequestAuthType,
+    RequestBodyFormat,
+    RequestComposition,
+    RequestContentTypeEnum,
+    RequestMethods,
+    RequestParamsType,
+    ResponseComposition,
+  } from '@/enums/apiEnum';
 
   const { t } = useI18n();
 
   const moduleTreeRef = ref<InstanceType<typeof moduleTree>>();
-  const debugRef = ref<InstanceType<typeof debug>>();
   const folderTree = ref<ModuleTreeNode[]>([]);
   const importDrawerVisible = ref(false);
   const curlCode = ref('');
   const loading = ref(false);
 
-  function newApi() {
-    debugRef.value?.addDebugTab();
+  function handleDebugAddDone() {
+    moduleTreeRef.value?.initModules();
+    moduleTreeRef.value?.initModuleCount();
+  }
+
+  const initDefaultId = `debug-${Date.now()}`;
+  const defaultBodyParams: ExecuteBody = {
+    bodyType: RequestBodyFormat.NONE,
+    formDataBody: {
+      formValues: [],
+    },
+    wwwFormBody: {
+      formValues: [],
+    },
+    jsonBody: {
+      jsonValue: '',
+    },
+    xmlBody: { value: '' },
+    binaryBody: {
+      description: '',
+      file: undefined,
+    },
+    rawBody: { value: '' },
+  };
+  const defaultResponse = {
+    requestResults: [
+      {
+        body: '',
+        responseResult: {
+          body: '',
+          contentType: '',
+          headers: '',
+          dnsLookupTime: 0,
+          downloadTime: 0,
+          latency: 0,
+          responseCode: 0,
+          responseTime: 0,
+          responseSize: 0,
+          socketInitTime: 0,
+          tcpHandshakeTime: 0,
+          transferStartTime: 0,
+        },
+      },
+    ],
+    console: '',
+  }; // 调试返回的响应内容
+  const defaultDebugParams: RequestParam = {
+    id: initDefaultId,
+    moduleId: 'root',
+    protocol: 'HTTP',
+    url: '',
+    activeTab: RequestComposition.HEADER,
+    label: t('apiTestDebug.newApi'),
+    closable: true,
+    method: RequestMethods.GET,
+    unSaved: false,
+    headers: [],
+    body: cloneDeep(defaultBodyParams),
+    query: [],
+    rest: [],
+    polymorphicName: '',
+    name: '',
+    path: '',
+    projectId: '',
+    uploadFileIds: [],
+    linkFileIds: [],
+    authConfig: {
+      authType: RequestAuthType.NONE,
+      userName: '',
+      password: '',
+    },
+    children: [
+      {
+        polymorphicName: 'MsCommonElement', // 协议多态名称，写死MsCommonElement
+        assertionConfig: {
+          enableGlobal: false,
+          assertions: [],
+        },
+        postProcessorConfig: {
+          enableGlobal: false,
+          processors: [],
+        },
+        preProcessorConfig: {
+          enableGlobal: false,
+          processors: [],
+        },
+      },
+    ],
+    otherConfig: {
+      connectTimeout: 60000,
+      responseTimeout: 60000,
+      certificateAlias: '',
+      followRedirects: true,
+      autoRedirects: false,
+    },
+    responseActiveTab: ResponseComposition.BODY,
+    response: cloneDeep(defaultResponse),
+  };
+  const debugTabs = ref<RequestParam[]>([cloneDeep(defaultDebugParams)]);
+  const activeDebug = ref<RequestParam>(debugTabs.value[0]);
+  const isHttpProtocol = computed(() => activeDebug.value.protocol === 'HTTP');
+
+  function handleActiveDebugChange() {
+    if (!loading.value) {
+      // 如果是因为加载详情触发的change则不需要标记为未保存
+      activeDebug.value.unSaved = true;
+    }
+  }
+
+  function addDebugTab(defaultProps?: Partial<TabItem>) {
+    const id = `debug-${Date.now()}`;
+    debugTabs.value.push({
+      ...cloneDeep(defaultDebugParams),
+      id,
+      isNew: !defaultProps?.id, // 新开的tab标记为前端新增的调试，因为此时都已经有id了；但是如果是查看打开的会有携带id
+      ...defaultProps,
+    });
+    activeDebug.value = debugTabs.value[debugTabs.value.length - 1];
+  }
+
+  async function openApiTab(apiInfo: ModuleTreeNode) {
+    const isLoadedTabIndex = debugTabs.value.findIndex((e) => e.id === apiInfo.id);
+    if (isLoadedTabIndex > -1) {
+      // 如果点击的请求在tab中已经存在，则直接切换到该tab
+      activeDebug.value = debugTabs.value[isLoadedTabIndex];
+      return;
+    }
+    try {
+      loading.value = true;
+      const res = await getDebugDetail(apiInfo.id);
+      addDebugTab({
+        label: apiInfo.name,
+        ...res,
+        response: cloneDeep(defaultResponse),
+        ...res.request,
+        url: res.path,
+        name: res.name, // request里面还有个name但是是null
+      });
+      nextTick(() => {
+        // 等待内容渲染出来再隐藏loading
+        loading.value = false;
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      loading.value = false;
+    }
   }
 
   function handleCurlImportConfirm() {
     const { url, headers, queryParameters } = parseCurlScript(curlCode.value);
-    debugRef.value?.addDebugTab({
+    addDebugTab({
       url,
       headers: headers?.map((e) => ({
         contentType: RequestContentTypeEnum.TEXT,
@@ -107,15 +279,9 @@
     });
     curlCode.value = '';
     importDrawerVisible.value = false;
-  }
-
-  function handleApiNodeClick(node: ModuleTreeNode) {
-    debugRef.value?.openApiTab(node);
-  }
-
-  function handleDebugAddDone() {
-    moduleTreeRef.value?.initModules();
-    moduleTreeRef.value?.initModuleCount();
+    nextTick(() => {
+      handleActiveDebugChange();
+    });
   }
 </script>
 

@@ -35,7 +35,11 @@
             <slot name="extra" v-bind="_props"></slot>
             <MsTableMoreAction
               v-if="props.nodeMoreActions"
-              :list="props.nodeMoreActions"
+              :list="
+                typeof props.filterMoreActionFunc === 'function'
+                  ? props.filterMoreActionFunc(props.nodeMoreActions, _props)
+                  : props.nodeMoreActions
+              "
               trigger="click"
               @select="handleNodeMoreSelect($event, _props)"
               @close="moreActionsClose"
@@ -112,6 +116,7 @@
         | 'right'
         | 'rt'
         | 'rb'; // 标题 tooltip 的位置
+      filterMoreActionFunc?: (items: ActionsItem[], node: MsTreeNodeData) => ActionsItem[]; // 过滤更多操作按钮
     }>(),
     {
       searchDebounce: 300,

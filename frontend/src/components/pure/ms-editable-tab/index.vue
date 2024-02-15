@@ -16,7 +16,7 @@
         v-for="tab in props.tabs"
         :key="tab.id"
         class="ms-editable-tab"
-        :class="{ active: innerActiveTab === tab.id }"
+        :class="{ active: innerActiveTab?.id === tab.id }"
         @click="handleTabClick(tab)"
       >
         <div :draggable="!!tab.draggable" class="flex items-center">
@@ -46,6 +46,7 @@
       </MsButton>
     </a-tooltip>
     <a-tooltip
+      v-if="!props.readonly"
       :content="t('ms.editableTab.limitTip', { max: props.limit })"
       :disabled="!props.limit || props.tabs.length >= props.limit"
     >
@@ -60,9 +61,9 @@
       </MsButton>
     </a-tooltip>
     <MsMoreAction
-      v-if="props.moreActionList"
-      :list="props.moreActionList"
-      @select="(val) => emit('moreActionSelect', val)"
+      v-if="!props.hideMoreAction && !props.readonly"
+      :list="mergedMoreActionList"
+      @select="handleMoreActionSelect"
     >
       <MsButton type="icon" status="secondary" class="ms-editable-tab-button">
         <MsIcon type="icon-icon_more_outlined" />
@@ -82,19 +83,22 @@
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
 
   import { useI18n } from '@/hooks/useI18n';
+  import useModal from '@/hooks/useModal';
 
   import type { TabItem } from './types';
 
   const props = defineProps<{
     tabs: TabItem[];
-    activeTab: string | number;
+    activeTab?: TabItem;
     moreActionList?: ActionsItem[];
     limit?: number; // 最多可打开的tab数量
     atLeastOne?: boolean; // 是否至少保留一个tab
+    hideMoreAction?: boolean; // 是否隐藏更多操作
+    readonly?: boolean; // 是否只读
   }>();
   const emit = defineEmits<{
-    (e: 'update:tabs', activeTab: string | number): void;
-    (e: 'update:activeTab', activeTab: string | number): void;
+    (e: 'update:tabs', tabs: TabItem[]): void;
+    (e: 'update:activeTab', activeTab: TabItem): void;
     (e: 'add'): void;
     (e: 'close', item: TabItem): void;
     (e: 'change', item: TabItem): void;
@@ -102,10 +106,11 @@
   }>();
 
   const { t } = useI18n();
+  const { openModal } = useModal();
 
   const innerActiveTab = useVModel(props, 'activeTab', emit);
   const innerTabs = useVModel(props, 'tabs', emit);
-  const tabNav = ref<HTMLElement | null>(null);
+  const tabNav = ref<HTMLElement>();
   const { arrivedState } = useScroll(tabNav);
   const isNotOverflow = computed(() => arrivedState.left && arrivedState.right); // 内容是否溢出，用于判断左右滑动按钮是否展示
 
@@ -129,7 +134,7 @@
   };
 
   const scrollToActiveTab = () => {
-    const activeTabDom = tabNav.value?.querySelector('.tab.active');
+    const activeTabDom = tabNav.value?.querySelector('.ms-editable-tab.active');
     if (activeTabDom) {
       const tabRect = activeTabDom.getBoundingClientRect();
       const navRect = tabNav.value?.getBoundingClientRect();
@@ -141,21 +146,34 @@
     }
   };
 
+  const defualtMoreActionList = [
+    {
+      eventTag: 'closeAll',
+      label: t('ms.editableTab.closeAll'),
+    },
+    {
+      eventTag: 'closeOther',
+      label: t('ms.editableTab.closeOther'),
+    },
+  ];
+  const mergedMoreActionList = computed(() => {
+    const dl = props.atLeastOne
+      ? defualtMoreActionList.filter((e) => e.eventTag !== 'closeAll')
+      : defualtMoreActionList;
+    return props.moreActionList ? [...dl, ...props.moreActionList] : dl;
+  });
+
   watch(
     () => props.activeTab,
-    (val) => {
-      emit('change', props.tabs.find((item) => item.id === val) as TabItem);
+    () => {
+      useDraggable('.ms-editable-tab-nav', innerTabs, {
+        ghostClass: 'ms-editable-tab-ghost',
+      });
+      nextTick(() => {
+        scrollToActiveTab();
+      });
     }
   );
-
-  watch(props.tabs, () => {
-    useDraggable('.ms-editable-tab-nav', innerTabs, {
-      ghostClass: 'ms-editable-tab-ghost',
-    });
-    nextTick(() => {
-      scrollToActiveTab();
-    });
-  });
 
   onMounted(() => {
     const resizeObserver = new ResizeObserver(() => {
@@ -168,16 +186,75 @@
     emit('add');
   }
 
+  function closeOneTab(item: TabItem) {
+    const index = innerTabs.value.findIndex((e) => e.id === item.id);
+    innerTabs.value.splice(index, 1);
+    if (innerActiveTab.value?.id === item.id && innerTabs.value[0]) {
+      [innerActiveTab.value] = innerTabs.value;
+    }
+  }
+
   function close(item: TabItem) {
-    emit('close', item);
+    if (item.unSaved) {
+      openModal({
+        title: t('common.tip'),
+        content: t('ms.editableTab.closeTabTip'),
+        type: 'warning',
+        hideCancel: false,
+        onBeforeOk: async () => {
+          closeOneTab(item);
+          emit('close', item);
+        },
+      });
+    } else {
+      closeOneTab(item);
+      emit('close', item);
+    }
   }
 
   function handleTabClick(item: TabItem) {
-    emit('change', item);
-    innerActiveTab.value = item.id;
+    innerActiveTab.value = item;
     nextTick(() => {
       tabNav.value?.querySelector('.tab.active')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     });
+    emit('change', item);
+  }
+
+  function executeAction(event: ActionsItem) {
+    switch (event.eventTag) {
+      case 'closeAll':
+        innerTabs.value = innerTabs.value.filter((item) => item.closable === false);
+        [innerActiveTab.value] = innerTabs.value;
+        break;
+      case 'closeOther':
+        innerTabs.value = innerTabs.value.filter(
+          (item) => item.id === innerActiveTab.value?.id || item.closable === false
+        );
+        break;
+      default:
+        emit('moreActionSelect', event);
+        break;
+    }
+  }
+
+  function handleMoreActionSelect(event: ActionsItem) {
+    if (
+      (event.eventTag === 'closeAll' && innerTabs.value.some((item) => item.unSaved)) ||
+      (event.eventTag === 'closeOther' &&
+        innerTabs.value.some((item) => item.unSaved && item.id !== innerActiveTab.value?.id))
+    ) {
+      openModal({
+        title: t('common.tip'),
+        content: t('ms.editableTab.batchCloseTabTip'),
+        type: 'warning',
+        hideCancel: false,
+        onBeforeOk: async () => {
+          executeAction(event);
+        },
+      });
+      return;
+    }
+    executeAction(event);
   }
 </script>
 

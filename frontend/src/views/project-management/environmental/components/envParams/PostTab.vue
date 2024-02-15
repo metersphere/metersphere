@@ -1,9 +1,9 @@
 <template>
-  <PostTab v-model:params="params" layout="horizontal" />
+  <PostTab v-model:config="params" layout="horizontal" />
 </template>
 
 <script lang="ts" setup>
-  import PostTab from '@/views/api-test/debug/components/debug/postcondition.vue';
+  import PostTab from '@/views/api-test/components/requestComposition/postcondition.vue';
 
   import useProjectEnvStore from '@/store/modules/setting/useProjectEnvStore';
 
