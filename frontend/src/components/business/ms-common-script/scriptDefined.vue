@@ -88,14 +88,12 @@
   import type { CommonScriptItem } from '@/models/projectManagement/commonScript';
   import { RequestConditionScriptLanguage } from '@/enums/apiEnum';
 
-  import { type Languages } from './utils';
-
   const appStore = useAppStore();
 
   const props = withDefaults(
     defineProps<{
       showType: 'commonScript' | 'executionResult'; // 执行类型
-      language: Languages | RequestConditionScriptLanguage;
+      language: Language | RequestConditionScriptLanguage;
       code: string;
       enableRadioSelected?: boolean;
       executionResult?: string; // 执行结果
@@ -106,7 +104,7 @@
     }
   );
   const emit = defineEmits<{
-    (e: 'update:language', value: Languages | RequestConditionScriptLanguage): void;
+    (e: 'update:language', value: Language | RequestConditionScriptLanguage): void;
     (e: 'update:code', value: string): void;
   }>();
 

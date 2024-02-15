@@ -23,6 +23,7 @@
         </template>
         <div class="ml-[4px] mr-[24px] font-medium">{{ t('apiTestDebug.responseContent') }}</div>
         <a-radio-group
+          v-if="!props.hideLayoutSwicth"
           v-model:model-value="innerLayout"
           type="button"
           size="small"
@@ -183,12 +184,19 @@
     console: string;
   }
 
-  const props = defineProps<{
-    activeTab: keyof typeof ResponseComposition;
-    activeLayout: Direction;
-    isExpanded: boolean;
-    response: Response;
-  }>();
+  const props = withDefaults(
+    defineProps<{
+      activeTab: keyof typeof ResponseComposition;
+      activeLayout?: Direction;
+      isExpanded: boolean;
+      response: Response;
+      hideLayoutSwicth?: boolean; // 隐藏布局切换
+    }>(),
+    {
+      activeLayout: 'vertical',
+      hideLayoutSwicth: false,
+    }
+  );
   const emit = defineEmits<{
     (e: 'update:activeLayout', value: Direction): void;
     (e: 'update:activeTab', value: keyof typeof ResponseComposition): void;
@@ -285,7 +293,7 @@
     // {
     //   label: t('apiTestDebug.assertion'),
     //   value: ResponseComposition.ASSERTION,
-    // },
+    // }, // TODO:断言暂时没加
   ];
 
   const { copy, isSupported } = useClipboard();
@@ -310,7 +318,7 @@
       // case ResponseComposition.EXTRACT:
       //   return Object.keys(props.response.extract)
       //     .map((e) => `${e}: ${props.response.extract[e]}`)
-      //     .join('\n');
+      //     .join('\n'); // TODO:断言暂时没加
       default:
         return '';
     }

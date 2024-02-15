@@ -1,34 +1,34 @@
 <template>
   <div>
-    <template v-if="!props.isModal">
-      <a-select
-        v-model:model-value="moduleProtocol"
-        :options="moduleProtocolOptions"
-        class="mb-[8px]"
-        @change="(val) => handleProtocolChange(val as string)"
-      />
-      <div class="mb-[8px] flex items-center gap-[8px]">
-        <a-input v-model:model-value="moduleKeyword" :placeholder="t('apiTestManagement.searchTip')" allow-clear />
-        <a-dropdown @select="handleSelect">
-          <a-button type="primary">{{ t('apiTestManagement.newApi') }}</a-button>
-          <template #content>
-            <a-doption value="newApi">{{ t('apiTestManagement.newApi') }}</a-doption>
-            <a-doption value="import">{{ t('apiTestManagement.importApi') }}</a-doption>
-          </template>
-        </a-dropdown>
+    <a-select
+      v-model:model-value="moduleProtocol"
+      :options="moduleProtocolOptions"
+      class="mb-[8px]"
+      @change="(val) => handleProtocolChange(val as string)"
+    />
+    <div class="mb-[8px] flex items-center gap-[8px]">
+      <a-input v-model:model-value="moduleKeyword" :placeholder="t('apiTestManagement.searchTip')" allow-clear />
+      <a-dropdown v-if="!props.readOnly" @select="handleSelect">
+        <a-button type="primary">{{ t('apiTestManagement.newApi') }}</a-button>
+        <template #content>
+          <a-doption value="newApi">{{ t('apiTestManagement.newApi') }}</a-doption>
+          <a-doption value="import">{{ t('apiTestManagement.importApi') }}</a-doption>
+        </template>
+      </a-dropdown>
+    </div>
+    <div class="folder" @click="setActiveFolder('all')">
+      <div :class="allFolderClass">
+        <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
+        <div class="folder-name">{{ t('apiTestManagement.allApi') }}</div>
+        <div class="folder-count">({{ allFileCount }})</div>
       </div>
-      <div class="folder" @click="setActiveFolder('all')">
-        <div :class="allFolderClass">
-          <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
-          <div class="folder-name">{{ t('apiTestManagement.allApi') }}</div>
-          <div class="folder-count">({{ allFileCount }})</div>
-        </div>
-        <div class="ml-auto flex items-center">
-          <a-tooltip :content="isExpandAll ? t('common.collapseAll') : t('common.expandAll')">
-            <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" @click="changeExpand">
-              <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
-            </MsButton>
-          </a-tooltip>
+      <div class="ml-auto flex items-center">
+        <a-tooltip :content="isExpandAll ? t('common.collapseAll') : t('common.expandAll')">
+          <MsButton type="icon" status="secondary" class="!mr-0 p-[4px]" @click="changeExpand">
+            <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
+          </MsButton>
+        </a-tooltip>
+        <template v-if="!props.readOnly">
           <a-dropdown @select="handleSelect">
             <MsButton type="icon" class="!mr-0 p-[2px]">
               <MsIcon
@@ -45,17 +45,10 @@
           <popConfirm mode="add" :all-names="rootModulesName" parent-id="NONE" @add-finish="initModules">
             <span id="addModulePopSpan"></span>
           </popConfirm>
-        </div>
+        </template>
       </div>
-      <a-divider class="my-[8px]" />
-    </template>
-    <a-input
-      v-if="props.isModal"
-      v-model:model-value="moduleKeyword"
-      :placeholder="t('apiTestManagement.moveSearchTip')"
-      allow-clear
-      class="mb-[16px]"
-    />
+    </div>
+    <a-divider class="my-[8px]" />
     <a-spin class="min-h-[400px] w-full" :loading="loading">
       <MsTree
         v-model:focus-node-key="focusNodeKey"
@@ -73,6 +66,7 @@
           children: 'children',
           count: 'count',
         }"
+        :filter-more-action-func="filterMoreActionFunc"
         block-node
         title-tooltip-position="left"
         @select="folderNodeSelect"
@@ -81,15 +75,23 @@
         @drop="handleDrop"
       >
         <template #title="nodeData">
-          <div class="inline-flex w-full">
+          <div
+            v-if="nodeData.type === 'API'"
+            class="inline-flex w-full cursor-pointer gap-[4px]"
+            @click="emit('clickApiNode', nodeData)"
+          >
+            <apiMethodName :method="nodeData.attachInfo?.method || nodeData.attachInfo?.protocol" />
             <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
-            <div v-if="!props.isModal" class="ml-auto text-[var(--color-text-4)]">({{ nodeData.count || 0 }})</div>
+          </div>
+          <div v-else class="inline-flex w-full">
+            <div class="one-line-text w-[calc(100%-32px)] text-[var(--color-text-1)]">{{ nodeData.name }}</div>
+            <div class="ml-[4px] text-[var(--color-text-4)]">({{ nodeData.count || 0 }})</div>
           </div>
         </template>
-        <template v-if="!props.isModal" #extra="nodeData">
+        <template v-if="!props.readOnly" #extra="nodeData">
           <!-- 默认模块的 id 是root，默认模块不可编辑、不可添加子模块 -->
           <popConfirm
-            v-if="nodeData.id !== 'root'"
+            v-if="nodeData.id !== 'root' && nodeData.type === 'MODULE'"
             mode="add"
             :all-names="(nodeData.children || []).map((e: ModuleTreeNode) => e.name || '')"
             :parent-id="nodeData.id"
@@ -120,49 +122,70 @@
 
 <script setup lang="ts">
   import { computed, onBeforeMount, ref, watch } from 'vue';
-  import { Message } from '@arco-design/web-vue';
+  import { Message, SelectOptionData } from '@arco-design/web-vue';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import type { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
+  import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import popConfirm from '@/views/api-test/components/popConfirm.vue';
 
-  import { deleteReviewModule, getReviewModules, moveReviewModule } from '@/api/modules/case-management/caseReview';
+  import {
+    deleteDebugModule,
+    getDebugModuleCount,
+    getDebugModules,
+    moveDebugModule,
+  } from '@/api/modules/api-test/debug';
+  import { getProtocolList } from '@/api/modules/api-test/management';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import useAppStore from '@/store/modules/app';
-  import { mapTree } from '@/utils';
+  import { filterTree, mapTree } from '@/utils';
 
   import { ModuleTreeNode } from '@/models/common';
 
   const props = withDefaults(
     defineProps<{
-      modulesCount?: Record<string, number>; // 模块数量统计对象
       isExpandAll?: boolean; // 是否展开所有节点
       activeModule?: string | number; // 选中的节点 key
-      isModal?: boolean; // 是否是弹窗模式
+      readOnly?: boolean; // 是否是只读模式
     }>(),
     {
       activeModule: 'all',
     }
   );
-  const emit = defineEmits(['init', 'change', 'newApi', 'import', 'folderNodeSelect']);
+  const emit = defineEmits(['init', 'newApi', 'import', 'folderNodeSelect', 'clickApiNode']);
 
   const appStore = useAppStore();
   const { t } = useI18n();
   const { openModal } = useModal();
 
   const moduleProtocol = ref('HTTP');
-  const moduleProtocolOptions = ref([
-    {
-      label: 'HTTP',
-      value: 'HTTP',
-    },
-  ]);
+  const moduleProtocolOptions = ref<SelectOptionData[]>([]);
+  const protocolLoading = ref(false);
+
+  async function initProtocolList() {
+    try {
+      protocolLoading.value = true;
+      const res = await getProtocolList(appStore.currentOrgId);
+      moduleProtocolOptions.value = res.map((e) => ({
+        label: e.protocol,
+        value: e.protocol,
+        polymorphicName: e.polymorphicName,
+        pluginId: e.pluginId,
+      }));
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      protocolLoading.value = false;
+    }
+  }
 
   function handleProtocolChange(value: string | number | Record<string, any>) {
+    // TODO:搜索
     console.log(value);
   }
 
@@ -183,7 +206,7 @@
   }
 
   const virtualListProps = computed(() => {
-    if (props.isModal) {
+    if (props.readOnly) {
       return {
         height: 'calc(60vh - 190px)',
       };
@@ -193,7 +216,6 @@
     };
   });
 
-  const allFileCount = ref(0);
   const isExpandAll = ref(props.isExpandAll);
   const rootModulesName = ref<string[]>([]); // 根模块名称列表
 
@@ -217,13 +239,6 @@
   );
   const loading = ref(false);
 
-  watch(
-    () => selectedKeys.value,
-    (arr) => {
-      emit('change', arr ? arr[0] : '');
-    }
-  );
-
   function setActiveFolder(id: string) {
     selectedKeys.value = [id];
   }
@@ -245,6 +260,10 @@
       eventTag: 'share',
     },
     {
+      label: 'apiTestManagement.shareModule',
+      eventTag: 'shareModule',
+    },
+    {
       isDivider: true,
     },
     {
@@ -253,8 +272,19 @@
       danger: true,
     },
   ];
-  const renamePopVisible = ref(false);
+  const moduleActions = folderMoreActions.filter(
+    (action) => action.eventTag === undefined || !['execute', 'share'].includes(action.eventTag)
+  );
+  const apiActions = folderMoreActions.filter((action) => action.eventTag !== 'shareModule');
+  function filterMoreActionFunc(actions, node) {
+    if (node.type === 'MODULE') {
+      return moduleActions;
+    }
+    return apiActions;
+  }
 
+  const modulesCount = ref<Record<string, number>>({});
+  const allFileCount = computed(() => modulesCount.value.all || 0);
   /**
    * 初始化模块树
    * @param isSetDefaultKey 是否设置第一个节点为选中节点
@@ -262,15 +292,29 @@
   async function initModules(isSetDefaultKey = false) {
     try {
       loading.value = true;
-      const res = await getReviewModules(appStore.currentProjectId);
-      folderTree.value = mapTree<ModuleTreeNode>(res, (e) => {
-        return {
-          ...e,
-          hideMoreAction: e.id === 'root',
-          draggable: e.id !== 'root' && !props.isModal,
-          disabled: e.id === selectedKeys.value[0] && props.isModal,
-        };
-      });
+      const res = await getDebugModules();
+      if (props.readOnly) {
+        folderTree.value = filterTree<ModuleTreeNode>(res, (e) => {
+          if (e.type === 'MODULE') {
+            e = {
+              ...e,
+              hideMoreAction: true,
+              draggable: false,
+            };
+            return true;
+          }
+          return false;
+        });
+      } else {
+        folderTree.value = mapTree<ModuleTreeNode>(res, (e) => {
+          return {
+            ...e,
+            hideMoreAction: e.id === 'root',
+            draggable: e.id !== 'root' && !props.readOnly,
+            disabled: e.id === selectedKeys.value[0] && props.readOnly,
+          };
+        });
+      }
       if (isSetDefaultKey) {
         selectedKeys.value = [folderTree.value[0].id];
       }
@@ -283,16 +327,37 @@
     }
   }
 
+  async function initModuleCount() {
+    try {
+      const res = await getDebugModuleCount({
+        keyword: moduleKeyword.value,
+      });
+      modulesCount.value = res;
+      folderTree.value = mapTree<ModuleTreeNode>(folderTree.value, (node) => {
+        return {
+          ...node,
+          count: res[node.id] || 0,
+          draggable: node.id !== 'root',
+        };
+      });
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
+  }
+
   /**
    * 处理文件夹树节点选中事件
    */
   function folderNodeSelect(_selectedKeys: (string | number)[], node: MsTreeNodeData) {
-    const offspringIds: string[] = [];
-    mapTree(node.children || [], (e) => {
-      offspringIds.push(e.id);
-      return e;
-    });
-    emit('folderNodeSelect', _selectedKeys, offspringIds);
+    if (node.type === 'MODULE') {
+      const offspringIds: string[] = [];
+      mapTree(node.children || [], (e) => {
+        offspringIds.push(e.id);
+        return e;
+      });
+      emit('folderNodeSelect', _selectedKeys, offspringIds);
+    }
   }
 
   /**
@@ -311,9 +376,10 @@
       maskClosable: false,
       onBeforeOk: async () => {
         try {
-          await deleteReviewModule(node.id);
+          await deleteDebugModule(node.id);
           Message.success(t('apiTestDebug.deleteSuccess'));
-          initModules();
+          await initModules();
+          initModuleCount();
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -323,6 +389,7 @@
     });
   }
 
+  const renamePopVisible = ref(false);
   const renameFolderTitle = ref(''); // 重命名的文件夹名称
 
   function resetFocusNodeKey() {
@@ -366,7 +433,7 @@
   ) {
     try {
       loading.value = true;
-      await moveReviewModule({
+      await moveDebugModule({
         dragNodeId: dragNode.id as string,
         dropNodeId: dropNode.id || '',
         dropPosition,
@@ -377,7 +444,8 @@
       console.log(error);
     } finally {
       loading.value = false;
-      initModules();
+      await initModules();
+      initModuleCount();
     }
   }
 
@@ -388,27 +456,15 @@
     }
   }
 
-  onBeforeMount(() => {
-    initModules();
+  onBeforeMount(async () => {
+    initProtocolList();
+    await initModules();
+    initModuleCount();
   });
-
-  /**
-   * 初始化模块文件数量
-   */
-  watch(
-    () => props.modulesCount,
-    (obj) => {
-      folderTree.value = mapTree<ModuleTreeNode>(folderTree.value, (node) => {
-        return {
-          ...node,
-          count: obj?.[node.id] || 0,
-        };
-      });
-    }
-  );
 
   defineExpose({
     initModules,
+    initModuleCount,
   });
 </script>
 

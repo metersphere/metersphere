@@ -1,22 +1,6 @@
 <template>
-  <div class="border-b border-[var(--color-text-n8)] px-[22px] pb-[16px]">
-    <MsEditableTab
-      v-model:active-tab="activeRequestTab"
-      v-model:tabs="apiTabs"
-      :more-action-list="tabMoreActionList"
-      @add="addDebugTab"
-      @close="closeDebugTab"
-      @change="setActiveDebug"
-      @more-action-select="handleTabMoreActionSelect"
-    >
-      <template #label="{ tab }">
-        <apiMethodName v-if="tab.id !== 'all'" :method="tab.method" class="mr-[4px]" />
-        {{ tab.label }}
-      </template>
-    </MsEditableTab>
-  </div>
-  <div class="p-[16px_22px]">
-    <div class="flex items-center justify-between">
+  <div :class="['p-[16px_22px]', props.class]">
+    <div class="mb-[16px] flex items-center justify-between">
       <div class="flex items-center gap-[8px]">
         <a-switch v-model:model-value="showSubdirectory" size="small" type="line"></a-switch>
         {{ t('apiTestManagement.showSubdirectory') }}
@@ -31,7 +15,7 @@
           v-model:model-value="checkedEnv"
           mode="static"
           :options="envOptions"
-          class="w-[200px]"
+          class="!w-[150px]"
           :search-keys="['label']"
           allow-search
         />
@@ -53,6 +37,7 @@
     <ms-base-table
       v-bind="propsRes"
       :action-config="batchActions"
+      :first-column-width="44"
       no-disable
       filter-icon-align-left
       v-on="propsEvent"
@@ -251,8 +236,6 @@
   import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
-  import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
-  import { TabItem } from '@/components/pure/ms-editable-tab/types';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
@@ -260,10 +243,10 @@
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import MsSelect from '@/components/business/ms-select';
-  import moduleTree from '../moduleTree.vue';
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiMethodSelect from '@/views/api-test/components/apiMethodSelect.vue';
   import apiStatus from '@/views/api-test/components/apiStatus.vue';
+  import moduleTree from '@/views/api-test/management/components/moduleTree.vue';
 
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
@@ -274,79 +257,22 @@
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const props = defineProps<{
-    module: string;
-    allCount: number;
+    class?: string;
     activeModule: string;
     offspringIds: string[];
+    readOnly?: boolean; // 是否是只读模式
   }>();
   const emit = defineEmits<{
     (e: 'init', params: any): void;
+    (e: 'change'): void;
   }>();
 
   const appStore = useAppStore();
   const { t } = useI18n();
   const { openModal } = useModal();
 
-  const activeRequestTab = ref<string | number>('all');
-  const apiTabs = ref<TabItem[]>([
-    {
-      id: 'all',
-      label: `${t('apiTestManagement.allApi')}(${props.allCount})`,
-      closable: false,
-    },
-  ]);
-  const activeApiTab = ref<TabItem>(apiTabs.value[0]);
-
-  function setActiveDebug(item: TabItem) {
-    activeApiTab.value = item;
-  }
-
   function handleActiveDebugChange() {
-    activeApiTab.value.unSaved = true;
-  }
-
-  function addDebugTab(defaultProps?: Partial<TabItem>) {
-    const id = `debug-${Date.now()}`;
-    apiTabs.value.push({
-      module: props.module,
-      label: t('apiTestDebug.newApi'),
-      id,
-      ...defaultProps,
-    });
-    activeRequestTab.value = id;
-    nextTick(() => {
-      if (defaultProps) {
-        handleActiveDebugChange();
-      }
-    });
-  }
-
-  function closeDebugTab(tab: TabItem) {
-    const index = apiTabs.value.findIndex((item) => item.id === tab.id);
-    apiTabs.value.splice(index, 1);
-    if (activeRequestTab.value === tab.id) {
-      activeRequestTab.value = apiTabs.value[0]?.id || '';
-    }
-  }
-
-  const tabMoreActionList = [
-    {
-      eventTag: 'closeAll',
-      label: t('apiTestManagement.closeAll'),
-    },
-    {
-      eventTag: 'closeOther',
-      label: t('apiTestManagement.closeOther'),
-    },
-  ];
-
-  function handleTabMoreActionSelect(event: ActionsItem) {
-    if (event.eventTag === 'closeOther') {
-      apiTabs.value = apiTabs.value.filter((item) => item.id === activeRequestTab.value || item.closable === false);
-    } else if (event.eventTag === 'closeAll') {
-      apiTabs.value = apiTabs.value.filter((item) => item.id === 'all');
-      activeRequestTab.value = 'all';
-    }
+    emit('change');
   }
 
   const showSubdirectory = ref(false);
@@ -371,7 +297,7 @@
   ]);
   const keyword = ref('');
 
-  const columns: MsTableColumn = [
+  let columns: MsTableColumn = [
     {
       title: 'ID',
       dataIndex: 'num',
@@ -455,32 +381,38 @@
       width: 150,
     },
   ];
-  const tableStore = useTableStore();
-  await tableStore.initColumn(TableKeyEnum.API_TEST, columns, 'drawer');
+  if (!props.readOnly) {
+    const tableStore = useTableStore();
+    await tableStore.initColumn(TableKeyEnum.API_TEST, columns, 'drawer');
+  } else {
+    columns = columns.filter(
+      (item) => !['version', 'createTime', 'updateTime', 'operation'].includes(item.dataIndex as string)
+    );
+  }
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector } = useTable(
     () =>
       Promise.resolve({
         list: [
           {
-            id: 1001,
+            num: 1001,
             name: 'asdasdasd',
             type: RequestMethods.CONNECT,
             status: RequestDefinitionStatus.DEBUGGING,
           },
           {
-            id: 10011,
+            num: 10011,
             name: '1123',
             type: RequestMethods.OPTIONS,
             status: RequestDefinitionStatus.DEPRECATED,
           },
           {
-            id: 10012,
+            num: 10012,
             name: 'vfd',
             type: RequestMethods.POST,
             status: RequestDefinitionStatus.DONE,
           },
           {
-            id: 10013,
+            num: 10013,
             name: 'ccf',
             type: RequestMethods.DELETE,
             status: RequestDefinitionStatus.PROCESSING,
@@ -489,11 +421,13 @@
         total: 0,
       }),
     {
-      tableKey: TableKeyEnum.API_TEST,
-      showSetting: true,
+      columns: props.readOnly ? columns : [],
+      scroll: { x: '100%' },
+      tableKey: props.readOnly ? undefined : TableKeyEnum.API_TEST,
+      showSetting: !props.readOnly,
       selectable: true,
-      showSelectAll: true,
-      draggable: { type: 'handle', width: 32 },
+      showSelectAll: !props.readOnly,
+      draggable: props.readOnly ? undefined : { type: 'handle', width: 32 },
     },
     (item) => ({
       ...item,
@@ -720,6 +654,7 @@
           resetSelector();
           loadList();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         } finally {
           batchUpdateLoading.value = false;

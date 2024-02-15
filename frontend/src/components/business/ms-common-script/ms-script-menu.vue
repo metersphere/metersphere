@@ -43,27 +43,29 @@
   import { useVModel } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
 
+  import { Language } from '@/components/pure/ms-code-editor/types';
+
   import { useI18n } from '@/hooks/useI18n';
 
   import { RequestConditionScriptLanguage } from '@/enums/apiEnum';
 
   import type { CommonScriptMenu } from './types';
-  import { getCodeTemplate, type Languages, SCRIPT_MENU } from './utils';
+  import { getCodeTemplate, SCRIPT_MENU } from './utils';
 
   const { t } = useI18n();
 
   const props = defineProps<{
     expand: boolean;
-    languagesType: Languages | RequestConditionScriptLanguage;
+    languagesType: Language | RequestConditionScriptLanguage;
   }>();
 
   const emit = defineEmits<{
     (e: 'update:expand', value: boolean): void;
-    (e: 'update:languagesType', value: Languages): void;
+    (e: 'update:languagesType', value: Language): void;
     (e: 'insert', code: string): void;
     (e: 'formApiImport'): void; // 从api 定义导入
     (e: 'insertCommonScript'): void; // 从api 定义导入
-    (e: 'updateLanguages', value: Languages): void; // 从api 定义导入
+    (e: 'updateLanguages', value: Language): void; // 从api 定义导入
   }>();
 
   const innerExpand = useVModel(props, 'expand', emit);
@@ -144,7 +146,7 @@
   function changeHandler(
     value: string | number | boolean | Record<string, any> | (string | number | boolean | Record<string, any>)[]
   ) {
-    innerLanguageType.value = value as Languages;
+    innerLanguageType.value = value as Language;
   }
 </script>
 

@@ -6,9 +6,9 @@
           <moduleTree
             @init="(val) => (folderTree = val)"
             @new-api="newApi"
-            @change="(val) => (activeModule = val)"
             @import="importDrawerVisible = true"
-            @folder-node-select="(keys, _offspringIds) => (offspringIds = _offspringIds)"
+            @folder-node-select="handleNodeSelect"
+            @click-api-node="handleApiNodeClick"
           />
         </div>
         <!-- <div class="b-0 absolute w-[88%]">
@@ -36,6 +36,8 @@
             />
           </div>
           <management
+            ref="managementRef"
+            :module-tree="folderTree"
             :module="activeModule"
             :all-count="allCount"
             :active-module="activeModule"
@@ -61,9 +63,19 @@
   const allCount = ref(0);
   const importDrawerVisible = ref(false);
   const offspringIds = ref<string[]>([]);
+  const managementRef = ref<InstanceType<typeof management>>();
 
   function newApi() {
-    // debugRef.value?.addDebugTab();
+    managementRef.value?.newTab();
+  }
+
+  function handleNodeSelect(keys: string[], _offspringIds: string[]) {
+    [activeModule.value] = keys;
+    offspringIds.value = _offspringIds;
+  }
+
+  function handleApiNodeClick(node: ModuleTreeNode) {
+    managementRef.value?.newTab(node);
   }
 </script>
 
