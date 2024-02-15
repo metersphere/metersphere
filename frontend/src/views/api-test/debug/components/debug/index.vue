@@ -543,10 +543,9 @@
   const fApi = ref();
   const options = {
     form: {
-      layout: 'vertical',
-      labelPosition: 'right',
+      labelAlign: 'right',
+      autoLabelWidth: true,
       size: 'small',
-      labelWidth: '00px',
       hideRequiredAsterisk: false,
       showMessage: true,
       inlineMessage: false,
