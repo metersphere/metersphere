@@ -245,8 +245,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { computed, nextTick, onMounted, ref, useAttrs, watch } from 'vue';
-  import { useVModel } from '@vueuse/core';
+  import { computed, defineModel, nextTick, onMounted, ref, useAttrs, watch } from 'vue';
 
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsPagination from '@/components/pure/ms-pagination/index';

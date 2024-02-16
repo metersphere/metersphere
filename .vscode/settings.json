@@ -1,9 +1,9 @@
 {
   "typescript.tsdk": "/frontend/node_modules/typescript/lib",
   "editor.codeActionsOnSave": {
-    "eslint.autoFixOnSave": true,
-    "source.fixAll.stylelint": true, // 开启stylelint自动修复
-    "source.fixAll.eslint": true, // 开启eslint自动修复
+    "eslint.autoFixOnSave": "explicit",
+    "source.fixAll.stylelint": "explicit",
+    "source.fixAll.eslint": "explicit"
   },
   "editor.formatOnSave": true,
   "eslint.validate": [
