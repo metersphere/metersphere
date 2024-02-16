@@ -220,8 +220,10 @@
   // 富文本编辑器是否可编辑
   const contentEditAble = ref(false);
   const currentProjectId = computed(() => appStore.currentProjectId);
+  // 前端保存的fileList
   const fileList = ref<MsFileItem[]>([]);
   const bugId = computed(() => props.detailInfo.id);
+  // 后端保存的文件list
   const attachmentsList = ref<AttachFileInfo[]>([]);
   const getListFunParams = ref<TableQueryParams>({
     combine: {
@@ -339,60 +341,24 @@
     associatedDrawer.value = true;
   }
 
-  // 后台传过来的local文件的item列表
-  const oldLocalFileList = computed(() => {
-    return attachmentsList.value.filter((item) => item.local).map((item: any) => item.uid);
-  });
-
-  // 已经关联过的id列表
-  const associateFileIds = computed(() => {
-    return attachmentsList.value.filter((item: any) => !item.local).map((item: any) => item.id);
-  });
-
-  // 当前新增传过来的关联list
-  const currentAlreadyAssociateFileList = computed(() => {
-    return fileList.value
-      .filter((item) => !item.local && !associateFileIds.value.includes(item.uid))
-      .map((item: any) => item.uid);
-  });
-
-  // 后台已保存本地文件的item列表
-  const currentOldLocalFileList = computed(() => {
-    return fileList.value.filter((item) => item.local && item.status !== 'init').map((item: any) => item.uid);
-  });
-
-  // 新增关联文件ID列表
-  const newAssociateFileListIds = computed(() => {
-    return fileList.value
-      .filter((item: any) => !item.local && !associateFileIds.value.includes(item.uid))
-      .map((item: any) => item.uid);
-  });
-
-  // 取消关联文件id TODO
-  const unLinkFilesIds = computed(() => {
-    const deleteAssociateFileIds = fileList.value
-      .filter(
-        (item: any) =>
-          !currentAlreadyAssociateFileList.value.includes(item.uid) && associateFileIds.value.includes(item.uid)
-      )
-      .map((item) => item.uid);
-    return associateFileIds.value.filter(
-      (id: string) => !currentAlreadyAssociateFileList.value.includes(id) && !deleteAssociateFileIds.includes(id)
-    );
-  });
-
-  // 删除本地上传的文件id
-  const deleteFileMetaIds = computed(() => {
-    return oldLocalFileList.value
-      .filter((item: any) => !currentOldLocalFileList.value.includes(item.id))
-      .map((item: any) => item.id);
-  });
-
-  // 处理关联文件和已关联文件本地文件和已上传文本文件
+  // 处理文件参数
   function getFilesParams() {
-    form.value.deleteLocalFileIds = deleteFileMetaIds.value;
-    form.value.unLinkRefIds = unLinkFilesIds.value;
-    form.value.linkFileIds = newAssociateFileListIds.value;
+    const associateFileIds = attachmentsList.value.filter((item) => !item.local).map((item) => item.id);
+    const newAssociateFileListIds = fileList.value
+      .filter((item) => !item.local && !associateFileIds.includes(item.uid))
+      .map((item) => item.uid);
+
+    const currentOldLocalFileList = fileList.value
+      .filter((item) => item.local && item.status !== 'init')
+      .map((item) => item.uid);
+
+    // 更新form的值
+    form.value.deleteLocalFileIds = attachmentsList.value
+      .filter((item) => item.local && !currentOldLocalFileList.includes(item.uid))
+      .map((item) => item.uid);
+
+    form.value.unLinkRefIds = associateFileIds.filter((id) => !newAssociateFileListIds.includes(id));
+    form.value.linkFileIds = newAssociateFileListIds;
   }
 
   async function startUpload() {
