@@ -27,9 +27,10 @@ export default defineComponent({
   },
   setup(props, { emit }) {
     const { commentList, disabled } = toRefs(props);
-    const currentItem = reactive<{ id: string; parentId?: string }>({
+    const currentItem = reactive<{ id: string; parentId: string; status: string }>({
       id: '',
       parentId: '',
+      status: 'add',
     });
     const { t } = useI18n();
 
@@ -43,6 +44,7 @@ export default defineComponent({
         ...item,
         content,
         event: 'REPLAY',
+        status: currentItem.status,
       };
       emit('updateOrAdd', params, (result: boolean) => {
         if (result) {
@@ -59,19 +61,22 @@ export default defineComponent({
     };
 
     const handleReply = (item: CommentItem) => {
-      if (item.childComments) {
+      if (item.childComments && Array.isArray(item.childComments)) {
         // 父级评论
         currentItem.id = item.id;
+        currentItem.parentId = '';
       } else {
         // 子级评论
         currentItem.id = item.parentId || '';
         currentItem.parentId = item.id;
       }
+      currentItem.status = 'replay';
     };
 
     const handelEdit = (item: CommentItem) => {
       currentItem.id = item.id;
       currentItem.parentId = item.parentId || '';
+      currentItem.status = 'edit';
     };
 
     const noticeUserIds = ref<string[]>([]);
