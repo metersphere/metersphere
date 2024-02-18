@@ -60,6 +60,7 @@ public class MsCommonElementConverter extends AbstractJmeterElementConverter<MsC
 
     /**
      * 添加断言
+     *
      * @param tree
      * @param element
      * @param config
@@ -82,6 +83,7 @@ public class MsCommonElementConverter extends AbstractJmeterElementConverter<MsC
 
     /**
      * 是否忽略状态码
+     *
      * @param assertions
      * @return
      */
@@ -99,7 +101,7 @@ public class MsCommonElementConverter extends AbstractJmeterElementConverter<MsC
     }
 
     private void addProcessors(HashTree tree, MsCommonElement msCommonElement, ParameterConfig config,
-                                    EnvironmentInfoDTO envInfo, boolean isPre) {
+                               EnvironmentInfoDTO envInfo, boolean isPre) {
         MsProcessorConfig processorConfig = isPre ? msCommonElement.getPreProcessorConfig() : msCommonElement.getPostProcessorConfig();
         if (processorConfig == null || processorConfig.getProcessors() == null) {
             return;
@@ -128,15 +130,22 @@ public class MsCommonElementConverter extends AbstractJmeterElementConverter<MsC
                 isPre ? MsProcessorConverterFactory::getPreConverter : MsProcessorConverterFactory::getPostConverter;
 
         // 处理环境中，步骤前处理器
-        beforeStepProcessors.forEach(processor ->
-                getConverterFunc.apply(processor.getClass()).parse(tree, processor, config));
+        beforeStepProcessors.forEach(processor -> {
+            processor.setProjectId(msCommonElement.getProjectId());
+            getConverterFunc.apply(processor.getClass()).parse(tree, processor, config);
+        });
 
         processorConfig.getProcessors()
-                .forEach(processor -> getConverterFunc.apply(processor.getClass()).parse(tree, processor, config));
+                .forEach(processor -> {
+                    processor.setProjectId(msCommonElement.getProjectId());
+                    getConverterFunc.apply(processor.getClass()).parse(tree, processor, config);
+                });
 
         // 处理环境中，步骤后处理器
-        afterStepProcessors.forEach(processor ->
-                getConverterFunc.apply(processor.getClass()).parse(tree, processor, config));
+        afterStepProcessors.forEach(processor -> {
+            processor.setProjectId(msCommonElement.getProjectId());
+            getConverterFunc.apply(processor.getClass()).parse(tree, processor, config);
+        });
     }
 
     private void addEnvProcessors(EnvProcessorConfig envProcessorConfig,
