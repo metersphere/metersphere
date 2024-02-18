@@ -189,6 +189,7 @@ public class BaseCustomFieldService {
         CustomFieldExample example = new CustomFieldExample();
         example.createCriteria()
                 .andScopeIdEqualTo(customField.getScopeId())
+                .andSceneEqualTo(customField.getScene())
                 .andNameEqualTo(customField.getName());
         if (CollectionUtils.isNotEmpty(customFieldMapper.selectByExample(example))) {
             throw new MSException(CUSTOM_FIELD_EXIST);

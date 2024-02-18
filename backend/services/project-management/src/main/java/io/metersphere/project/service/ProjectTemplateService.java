@@ -312,6 +312,7 @@ public class ProjectTemplateService extends BaseTemplateService {
         Template originTemplate = super.getWithCheck(template.getId());
         checkProjectTemplateEnable(originTemplate.getScopeId(), originTemplate.getScene());
         template.setScopeId(originTemplate.getScopeId());
+        template.setScene(originTemplate.getScene());
         checkProjectResourceExist(originTemplate);
         return super.update(template, request.getCustomFields(), request.getSystemFields());
     }

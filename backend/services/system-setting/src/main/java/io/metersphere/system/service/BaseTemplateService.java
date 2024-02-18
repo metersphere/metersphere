@@ -248,6 +248,7 @@ public class BaseTemplateService {
         TemplateExample example = new TemplateExample();
         example.createCriteria()
                 .andScopeIdEqualTo(template.getScopeId())
+                .andSceneEqualTo(template.getScene())
                 .andNameEqualTo(template.getName());
         if (CollectionUtils.isNotEmpty(templateMapper.selectByExample(example))) {
             throw new MSException(TEMPLATE_EXIST);
@@ -262,6 +263,7 @@ public class BaseTemplateService {
         example.createCriteria()
                 .andScopeIdEqualTo(template.getScopeId())
                 .andIdNotEqualTo(template.getId())
+                .andSceneEqualTo(template.getScene())
                 .andNameEqualTo(template.getName());
         if (CollectionUtils.isNotEmpty(templateMapper.selectByExample(example))) {
             throw new MSException(TEMPLATE_EXIST);

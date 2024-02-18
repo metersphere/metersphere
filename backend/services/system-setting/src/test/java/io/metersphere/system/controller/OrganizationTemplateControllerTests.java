@@ -118,7 +118,12 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         assertTemplateCustomFields(request, template);
         assertRefTemplate(template, request);
 
+        // 不同scene，不校验重名
+        request.setScene(TemplateScene.TEST_PLAN.name());
+        this.requestPostWithOkAndReturn(DEFAULT_ADD, request);
+
         // @@重名校验异常
+        request.setScene(scene);
         assertErrorCode(this.requestPost(DEFAULT_ADD, request), TEMPLATE_EXIST);
 
         // @校验是否开启组织模板
