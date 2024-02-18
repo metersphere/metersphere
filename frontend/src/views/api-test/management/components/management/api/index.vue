@@ -221,6 +221,7 @@
     },
     responseActiveTab: ResponseComposition.BODY,
     response: cloneDeep(defaultResponse),
+    isNew: true,
   };
   function addApiTab(defaultProps?: Partial<TabItem>) {
     const id = `debug-${Date.now()}`;
@@ -229,6 +230,7 @@
       moduleId: props.module,
       label: t('apiTestDebug.newApi'),
       id,
+      isNew: !defaultProps?.id, // 新开的tab标记为前端新增的调试，因为此时都已经有id了；但是如果是查看打开的会有携带id
       ...defaultProps,
     });
     activeApiTab.value = apiTabs.value[apiTabs.value.length - 1] as RequestParam;

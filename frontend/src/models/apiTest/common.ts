@@ -16,3 +16,11 @@ export interface ProtocolItem {
   polymorphicName: string;
   pluginId: string;
 }
+// 插件配置
+export interface PluginConfig {
+  id: string;
+  name: string;
+  options: Record<string, any>;
+  script: Record<string, any>[];
+  scriptType: string;
+}

@@ -1,6 +1,6 @@
 <template>
   <div class="mb-[8px] flex items-center justify-between">
-    <a-dropdown @select="addPrecondition">
+    <a-dropdown @select="(val) => addCondition(val as ConditionType)">
       <a-button type="outline">
         <template #icon>
           <icon-plus :size="14" />
@@ -108,10 +108,9 @@ org.apache.http.client.method . . . '' at line number 2
 `);
 
   /**
-   * 添加前置条件
-   * @param value script | sql | waitTime
+   * 添加条件
    */
-  function addPrecondition(value: string | number | Record<string, any> | undefined) {
+  function addCondition(value: ConditionType) {
     const id = new Date().getTime();
     switch (value) {
       case RequestConditionProcessor.SCRIPT:

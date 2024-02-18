@@ -4,20 +4,21 @@
       <div class="mb-[8px] flex items-center justify-between">
         <div class="flex flex-1">
           <a-select
-            v-model:model-value="requsetVModel.protocol"
+            v-model:model-value="requestVModel.protocol"
             :options="protocolOptions"
             :loading="protocolLoading"
+            :disabled="!requestVModel.isNew"
             class="mr-[4px] w-[90px]"
             @change="(val) => handleActiveDebugProtocolChange(val as string)"
           />
           <a-input-group v-if="isHttpProtocol" class="flex-1">
             <apiMethodSelect
-              v-model:model-value="requsetVModel.method"
+              v-model:model-value="requestVModel.method"
               class="w-[140px]"
               @change="handleActiveDebugChange"
             />
             <a-input
-              v-model:model-value="requsetVModel.url"
+              v-model:model-value="requestVModel.url"
               :max-length="255"
               :placeholder="t('apiTestDebug.urlPlaceholder')"
               @change="handleActiveDebugChange"
@@ -26,8 +27,8 @@
         </div>
         <div class="ml-[16px]">
           <a-dropdown-button
-            :button-props="{ loading: requsetVModel.executeLoading }"
-            :disabled="requsetVModel.executeLoading"
+            :button-props="{ loading: requestVModel.executeLoading }"
+            :disabled="requestVModel.executeLoading"
             class="exec-btn"
             @click="execute"
             @select="execute"
@@ -42,7 +43,7 @@
               </a-doption>
             </template>
           </a-dropdown-button>
-          <a-dropdown v-if="props.isDefiniton" @select="handleSelect">
+          <a-dropdown v-if="props.isDefinition" @select="handleSelect">
             <a-button type="secondary">{{ t('common.save') }}</a-button>
             <template #content>
               <a-doption value="save">{{ t('common.save') }}</a-doption>
@@ -58,8 +59,8 @@
         </div>
       </div>
       <a-input
-        v-if="props.isDefiniton"
-        v-model:model-value="requsetVModel.name"
+        v-if="props.isDefinition"
+        v-model:model-value="requestVModel.name"
         :max-length="255"
         :placeholder="t('apiTestManagement.apiNamePlaceholder')"
         @change="handleActiveDebugChange"
@@ -82,65 +83,75 @@
             }`"
           >
             <div>
-              <a-tabs v-model:active-key="requsetVModel.activeTab" class="no-content mb-[16px]">
+              <a-tabs v-model:active-key="requestVModel.activeTab" class="no-content mb-[16px]">
                 <a-tab-pane v-for="item of contentTabList" :key="item.value" :title="item.label" />
               </a-tabs>
             </div>
             <div class="tab-pane-container">
-              <template v-if="isInitPluginForm || requsetVModel.activeTab === RequestComposition.PLUGIN">
-                <a-spin v-show="requsetVModel.activeTab === RequestComposition.PLUGIN" :loading="pluginLoading">
-                  <MsFormCreate v-model:api="fApi" :rule="currentPluginScript" :option="options" />
+              <template v-if="requestVModel.activeTab === RequestComposition.PLUGIN || isInitPluginForm">
+                <a-spin
+                  v-show="requestVModel.activeTab === RequestComposition.PLUGIN"
+                  :loading="pluginLoading"
+                  class="min-h-[100px] w-full"
+                >
+                  <MsFormCreate
+                    v-model:api="fApi"
+                    :rule="currentPluginScript"
+                    :option="currentPluginOptions"
+                    @mounted="() => (isInitPluginForm = true)"
+                    @change="handlePluginFormChange"
+                  />
                 </a-spin>
               </template>
               <debugHeader
-                v-if="requsetVModel.activeTab === RequestComposition.HEADER"
-                v-model:params="requsetVModel.headers"
+                v-if="requestVModel.activeTab === RequestComposition.HEADER"
+                v-model:params="requestVModel.headers"
                 :layout="activeLayout"
                 :second-box-height="secondBoxHeight"
                 @change="handleActiveDebugChange"
               />
               <debugBody
-                v-else-if="requsetVModel.activeTab === RequestComposition.BODY"
-                v-model:params="requsetVModel.body"
+                v-else-if="requestVModel.activeTab === RequestComposition.BODY"
+                v-model:params="requestVModel.body"
                 :layout="activeLayout"
                 :second-box-height="secondBoxHeight"
                 @change="handleActiveDebugChange"
               />
               <debugQuery
-                v-else-if="requsetVModel.activeTab === RequestComposition.QUERY"
-                v-model:params="requsetVModel.query"
+                v-else-if="requestVModel.activeTab === RequestComposition.QUERY"
+                v-model:params="requestVModel.query"
                 :layout="activeLayout"
                 :second-box-height="secondBoxHeight"
                 @change="handleActiveDebugChange"
               />
               <debugRest
-                v-else-if="requsetVModel.activeTab === RequestComposition.REST"
-                v-model:params="requsetVModel.rest"
+                v-else-if="requestVModel.activeTab === RequestComposition.REST"
+                v-model:params="requestVModel.rest"
                 :layout="activeLayout"
                 :second-box-height="secondBoxHeight"
                 @change="handleActiveDebugChange"
               />
               <precondition
-                v-else-if="requsetVModel.activeTab === RequestComposition.PRECONDITION"
-                v-model:config="requsetVModel.children[0].preProcessorConfig"
+                v-else-if="requestVModel.activeTab === RequestComposition.PRECONDITION"
+                v-model:config="requestVModel.children[0].preProcessorConfig"
                 @change="handleActiveDebugChange"
               />
               <postcondition
-                v-else-if="requsetVModel.activeTab === RequestComposition.POST_CONDITION"
-                v-model:config="requsetVModel.children[0].postProcessorConfig"
-                :response="requsetVModel.response.requestResults[0]?.responseResult.body"
+                v-else-if="requestVModel.activeTab === RequestComposition.POST_CONDITION"
+                v-model:config="requestVModel.children[0].postProcessorConfig"
+                :response="requestVModel.response.requestResults[0]?.responseResult.body"
                 :layout="activeLayout"
                 :second-box-height="secondBoxHeight"
                 @change="handleActiveDebugChange"
               />
               <debugAuth
-                v-else-if="requsetVModel.activeTab === RequestComposition.AUTH"
-                v-model:params="requsetVModel.authConfig"
+                v-else-if="requestVModel.activeTab === RequestComposition.AUTH"
+                v-model:params="requestVModel.authConfig"
                 @change="handleActiveDebugChange"
               />
               <debugSetting
-                v-else-if="requsetVModel.activeTab === RequestComposition.SETTING"
-                v-model:params="requsetVModel.otherConfig"
+                v-else-if="requestVModel.activeTab === RequestComposition.SETTING"
+                v-model:params="requestVModel.otherConfig"
                 @change="handleActiveDebugChange"
               />
             </div>
@@ -149,10 +160,10 @@
         <template #second>
           <response
             v-model:active-layout="activeLayout"
-            v-model:active-tab="requsetVModel.responseActiveTab"
+            v-model:active-tab="requestVModel.responseActiveTab"
             :is-expanded="isExpanded"
-            :response="requsetVModel.response"
-            :hide-layout-swicth="props.hideResponseLayoutSwicth"
+            :response="requestVModel.response"
+            :hide-layout-swicth="props.hideResponseLayoutSwitch"
             @change-expand="changeExpand"
             @change-layout="handleActiveLayoutChange"
           />
@@ -223,9 +234,12 @@
   import { scrollIntoView } from '@/utils/dom';
   import { registerCatchSaveShortcut, removeCatchSaveShortcut } from '@/utils/event';
 
+  import { PluginConfig } from '@/models/apiTest/common';
   import { ExecuteHTTPRequestFullParams } from '@/models/apiTest/debug';
   import { ModuleTreeNode } from '@/models/common';
-  import { RequestComposition } from '@/enums/apiEnum';
+  import { RequestComposition, RequestMethods } from '@/enums/apiEnum';
+
+  import { Api } from '@form-create/arco-design';
 
   // 懒加载Http协议组件
   const debugHeader = defineAsyncComponent(() => import('./header.vue'));
@@ -233,14 +247,18 @@
   const debugQuery = defineAsyncComponent(() => import('./query.vue'));
   const debugRest = defineAsyncComponent(() => import('./rest.vue'));
 
-  export type RequestParam = ExecuteHTTPRequestFullParams & TabItem & Record<string, any>;
+  export interface RequestCustomAttr {
+    isNew: boolean;
+    protocol: string;
+  }
+  export type RequestParam = ExecuteHTTPRequestFullParams & RequestCustomAttr & TabItem;
 
   const props = defineProps<{
     request: RequestParam; // 请求参数集合
     moduleTree: ModuleTreeNode[]; // 模块树
     detailLoading: boolean; // 详情加载状态
-    isDefiniton?: boolean; // 是否是接口定义模式
-    hideResponseLayoutSwicth?: boolean; // 是否隐藏响应体的布局切换
+    isDefinition?: boolean; // 是否是接口定义模式
+    hideResponseLayoutSwitch?: boolean; // 是否隐藏响应体的布局切换
     executeApi: (...args) => Promise<any>; // 执行接口
     createApi: (...args) => Promise<any>; // 创建接口
     updateApi: (...args) => Promise<any>; // 更新接口
@@ -250,33 +268,20 @@
   const appStore = useAppStore();
   const { t } = useI18n();
 
-  const loading = defineModel('detailLoading', { default: false });
-  const requsetVModel = defineModel<RequestParam>('request', { required: true });
-  requsetVModel.value.executeLoading = false; // 注册loading
-  const isHttpProtocol = computed(() => requsetVModel.value.protocol === 'HTTP');
-  const isInitPluginForm = ref(false); // 是否初始化过插件表单
-  const temporyResponseMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
-
-  watch(
-    () => requsetVModel.value.protocol,
-    (val) => {
-      if (val !== 'HTTP') {
-        isInitPluginForm.value = true;
-      }
-    },
-    {
-      immediate: true,
-    }
-  );
+  const loading = defineModel<boolean>('detailLoading', { default: false });
+  const requestVModel = defineModel<RequestParam>('request', { required: true });
+  requestVModel.value.executeLoading = false; // 注册loading
+  const isHttpProtocol = computed(() => requestVModel.value.protocol === 'HTTP');
+  const temporaryResponseMap = {}; // 缓存websocket返回的报告内容，避免执行接口后切换tab导致报告丢失
 
   watch(
     () => props.request.id,
     () => {
-      if (temporyResponseMap[props.request.reportId]) {
+      if (temporaryResponseMap[props.request.reportId]) {
         // 如果有缓存的报告未读取，则直接赋值
-        requsetVModel.value.response = temporyResponseMap[props.request.reportId];
-        requsetVModel.value.executeLoading = false;
-        delete temporyResponseMap[props.request.reportId];
+        requestVModel.value.response = temporaryResponseMap[props.request.reportId];
+        requestVModel.value.executeLoading = false;
+        delete temporaryResponseMap[props.request.reportId];
       }
     }
   );
@@ -284,7 +289,7 @@
   function handleActiveDebugChange() {
     if (!loading.value) {
       // 如果是因为加载详情触发的change则不需要标记为未保存
-      requsetVModel.value.unSaved = true;
+      requestVModel.value.unSaved = true;
     }
   }
 
@@ -382,22 +387,63 @@
     }
   }
 
-  const pluginScriptMap = ref<Record<string, any>>({}); // 存储初始化过后的插件配置
+  const pluginScriptMap = ref<Record<string, PluginConfig>>({}); // 存储初始化过后的插件配置
+  const temporaryPluginFormMap: Record<string, any> = {}; // 缓存插件表单，避免切换tab导致动态表单数据丢失
   const pluginLoading = ref(false);
-  const currentPluginScript = computed<Record<string, any>[]>(
-    () => pluginScriptMap.value[requsetVModel.value.protocol] || []
+  const isInitPluginForm = ref(false);
+  const fApi = ref<Api>();
+  const currentPluginOptions = computed<Record<string, any>>(
+    () => pluginScriptMap.value[requestVModel.value.protocol]?.options || {}
   );
+  const currentPluginScript = computed<Record<string, any>[]>(
+    () => pluginScriptMap.value[requestVModel.value.protocol]?.script || []
+  );
+
+  // 处理插件表单输入框变化
+  const handlePluginFormChange = debounce(() => {
+    temporaryPluginFormMap[requestVModel.value.id] = fApi.value?.formData();
+    handleActiveDebugChange();
+  }, 300);
+
+  /**
+   * 设置插件表单数据
+   */
+  function setPluginFormData() {
+    const tempForm = temporaryPluginFormMap[requestVModel.value.id];
+    if (tempForm || !requestVModel.value.isNew) {
+      // 如果缓存的表单数据存在或者是编辑状态，则需要将之前的输入数据填充
+      fApi.value?.nextRefresh(() => {
+        fApi.value?.reload(currentPluginScript.value);
+        const formData = tempForm || requestVModel.value;
+        if (fApi.value) {
+          const form = {};
+          fApi.value.fields().forEach((key) => {
+            form[key] = formData[key];
+          });
+          fApi.value?.setValue(form);
+        }
+      });
+    } else {
+      // 如果是没有缓存也不是编辑，则需要重置表单，因为 form-create 只有一个实例，已经被其他有数据的 tab 污染了，需要重置
+      nextTick(() => {
+        fApi.value?.resetFields();
+      });
+    }
+  }
+
   async function initPluginScript() {
-    if (pluginScriptMap.value[requsetVModel.value.protocol] !== undefined) {
+    if (pluginScriptMap.value[requestVModel.value.protocol] !== undefined) {
+      setPluginFormData();
       // 已经初始化过
       return;
     }
     try {
       pluginLoading.value = true;
       const res = await getPluginScript(
-        protocolOptions.value.find((e) => e.value === requsetVModel.value.protocol)?.pluginId || ''
+        protocolOptions.value.find((e) => e.value === requestVModel.value.protocol)?.pluginId || ''
       );
-      pluginScriptMap.value[requsetVModel.value.protocol] = res.script;
+      pluginScriptMap.value[requestVModel.value.protocol] = res;
+      setPluginFormData();
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -408,28 +454,30 @@
 
   function handleActiveDebugProtocolChange(val: string) {
     if (val !== 'HTTP') {
-      requsetVModel.value.activeTab = RequestComposition.PLUGIN;
+      requestVModel.value.activeTab = RequestComposition.PLUGIN;
       initPluginScript();
     } else {
-      requsetVModel.value.activeTab = RequestComposition.HEADER;
+      requestVModel.value.activeTab = RequestComposition.HEADER;
+      if (!Object.values(RequestMethods).includes(requestVModel.value.method)) {
+        // 第三方插件协议切换到 HTTP 时，请求方法默认设置 GET
+        requestVModel.value.method = RequestMethods.GET;
+      }
     }
     handleActiveDebugChange();
   }
 
-  const fApi = ref();
-  const options = {
-    form: {
-      labelAlign: 'right',
-      autoLabelWidth: true,
-      size: 'small',
-      hideRequiredAsterisk: false,
-      showMessage: true,
-      inlineMessage: false,
-      scrollToFirstError: true,
+  watch(
+    () => requestVModel.value.id,
+    () => {
+      if (requestVModel.value.protocol !== 'HTTP') {
+        requestVModel.value.activeTab = RequestComposition.PLUGIN;
+        initPluginScript();
+      }
     },
-    submitBtn: false,
-    resetBtn: false,
-  };
+    {
+      immediate: true,
+    }
+  );
 
   const splitBoxSize = ref<string | number>(0.6);
   const activeLayout = ref<'horizontal' | 'vertical'>('vertical');
@@ -467,7 +515,7 @@
     } else {
       splitBoxRef.value?.collapse(
         splitContainerRef.value
-          ? `${splitContainerRef.value.clientHeight - (props.hideResponseLayoutSwicth ? 37 : 42)}px`
+          ? `${splitContainerRef.value.clientHeight - (props.hideResponseLayoutSwitch ? 37 : 42)}px`
           : 0
       );
     }
@@ -486,13 +534,13 @@
     websocket.value.addEventListener('message', (event) => {
       const data = JSON.parse(event.data);
       if (data.msgType === 'EXEC_RESULT') {
-        if (requsetVModel.value.reportId === data.reportId) {
+        if (requestVModel.value.reportId === data.reportId) {
           // 判断当前查看的tab是否是当前返回的报告的tab，是的话直接赋值
-          requsetVModel.value.response = data.taskResult;
-          requsetVModel.value.executeLoading = false;
+          requestVModel.value.response = data.taskResult;
+          requestVModel.value.executeLoading = false;
         } else {
           // 不是则需要把报告缓存起来，等切换到对应的tab再赋值
-          temporyResponseMap[data.reportId] = data.taskResult;
+          temporaryResponseMap[data.reportId] = data.taskResult;
         }
       }
     });
@@ -500,46 +548,46 @@
 
   function makeRequestParams() {
     const polymorphicName = protocolOptions.value.find(
-      (e) => e.value === requsetVModel.value.protocol
+      (e) => e.value === requestVModel.value.protocol
     )?.polymorphicName; // 协议多态名称
     let requestParams;
     if (isHttpProtocol.value) {
       requestParams = {
-        authConfig: requsetVModel.value.authConfig,
+        authConfig: requestVModel.value.authConfig,
         body: {
-          ...requsetVModel.value.body,
+          ...requestVModel.value.body,
           binaryBody: undefined,
           formDataBody: {
-            formValues: requsetVModel.value.body.formDataBody.formValues.filter(
-              (e, i) => i !== requsetVModel.value.body.formDataBody.formValues.length - 1
+            formValues: requestVModel.value.body.formDataBody.formValues.filter(
+              (e, i) => i !== requestVModel.value.body.formDataBody.formValues.length - 1
             ), // 去掉最后一行空行
           },
           wwwFormBody: {
-            formValues: requsetVModel.value.body.wwwFormBody.formValues.filter(
-              (e, i) => i !== requsetVModel.value.body.wwwFormBody.formValues.length - 1
+            formValues: requestVModel.value.body.wwwFormBody.formValues.filter(
+              (e, i) => i !== requestVModel.value.body.wwwFormBody.formValues.length - 1
             ), // 去掉最后一行空行
           },
         }, // TODO:binaryBody还没对接
-        headers: requsetVModel.value.headers.filter((e, i) => i !== requsetVModel.value.headers.length - 1), // 去掉最后一行空行
-        method: requsetVModel.value.method,
-        otherConfig: requsetVModel.value.otherConfig,
-        path: requsetVModel.value.url,
-        query: requsetVModel.value.query.filter((e, i) => i !== requsetVModel.value.query.length - 1), // 去掉最后一行空行
-        rest: requsetVModel.value.rest.filter((e, i) => i !== requsetVModel.value.rest.length - 1), // 去掉最后一行空行
-        url: requsetVModel.value.url,
+        headers: requestVModel.value.headers.filter((e, i) => i !== requestVModel.value.headers.length - 1), // 去掉最后一行空行
+        method: requestVModel.value.method,
+        otherConfig: requestVModel.value.otherConfig,
+        path: requestVModel.value.url,
+        query: requestVModel.value.query.filter((e, i) => i !== requestVModel.value.query.length - 1), // 去掉最后一行空行
+        rest: requestVModel.value.rest.filter((e, i) => i !== requestVModel.value.rest.length - 1), // 去掉最后一行空行
+        url: requestVModel.value.url,
         polymorphicName,
       };
     } else {
       requestParams = {
-        ...fApi.value.form,
+        ...fApi.value?.formData(),
         polymorphicName,
       };
     }
     reportId.value = getGenerateId();
-    requsetVModel.value.reportId = reportId.value; // 存储报告ID
+    requestVModel.value.reportId = reportId.value; // 存储报告ID
     debugSocket(); // 开启websocket
     return {
-      id: requsetVModel.value.id.toString(),
+      id: requestVModel.value.id.toString(),
       reportId: reportId.value,
       environmentId: '',
       tempFileIds: [],
@@ -553,8 +601,8 @@
               enableGlobal: false,
               assertions: [],
             },
-            postProcessorConfig: requsetVModel.value.children[0].postProcessorConfig,
-            preProcessorConfig: requsetVModel.value.children[0].preProcessorConfig,
+            postProcessorConfig: requestVModel.value.children[0].postProcessorConfig,
+            preProcessorConfig: requestVModel.value.children[0].preProcessorConfig,
           },
         ],
       },
@@ -570,27 +618,27 @@
     // TODO:本地&服务端执行判断
     if (isHttpProtocol.value) {
       try {
-        requsetVModel.value.executeLoading = true;
+        requestVModel.value.executeLoading = true;
         await props.executeApi(makeRequestParams());
       } catch (error) {
         // eslint-disable-next-line no-console
         console.log(error);
-        requsetVModel.value.executeLoading = false;
+        requestVModel.value.executeLoading = false;
       }
     } else {
       // 插件需要校验动态表单
       fApi.value?.validate(async (valid) => {
         if (valid === true) {
           try {
-            requsetVModel.value.executeLoading = true;
+            requestVModel.value.executeLoading = true;
             await props.executeApi(makeRequestParams());
           } catch (error) {
             // eslint-disable-next-line no-console
             console.log(error);
-            requsetVModel.value.executeLoading = false;
+            requestVModel.value.executeLoading = false;
           }
         } else {
-          requsetVModel.value.activeTab = RequestComposition.PLUGIN;
+          requestVModel.value.activeTab = RequestComposition.PLUGIN;
           nextTick(() => {
             scrollIntoView(document.querySelector('.arco-form-item-message'), { block: 'center' });
           });
@@ -602,7 +650,7 @@
   const saveModalVisible = ref(false);
   const saveModalForm = ref({
     name: '',
-    path: requsetVModel.value.url || '',
+    path: requestVModel.value.url || '',
     moduleId: 'root',
   });
   const saveModalFormRef = ref<FormInstance>();
@@ -630,8 +678,8 @@
         await fApi.value?.validate();
       }
       saveModalForm.value = {
-        name: requsetVModel.value.name || '',
-        path: requsetVModel.value.url || '',
+        name: requestVModel.value.name || '',
+        path: requestVModel.value.url || '',
         moduleId: 'root',
       };
       saveModalVisible.value = true;
@@ -639,7 +687,7 @@
       // eslint-disable-next-line no-console
       console.log(error);
       // 校验不通过则不进行保存
-      requsetVModel.value.activeTab = RequestComposition.PLUGIN;
+      requestVModel.value.activeTab = RequestComposition.PLUGIN;
       nextTick(() => {
         scrollIntoView(document.querySelector('.arco-form-item-message'), { block: 'center' });
       });
@@ -668,13 +716,13 @@
       if (!errors) {
         try {
           saveLoading.value = true;
-          if (requsetVModel.value.isNew) {
+          if (requestVModel.value.isNew) {
             // 若是新建的调试，走添加
             await props.createApi({
               ...makeRequestParams(),
               ...saveModalForm.value,
-              protocol: requsetVModel.value.protocol,
-              method: isHttpProtocol.value ? requsetVModel.value.method : requsetVModel.value.protocol,
+              protocol: requestVModel.value.protocol,
+              method: isHttpProtocol.value ? requestVModel.value.method : requestVModel.value.protocol,
               uploadFileIds: [],
               linkFileIds: [],
             });
@@ -682,8 +730,8 @@
             await props.updateApi({
               ...makeRequestParams(),
               ...saveModalForm.value,
-              protocol: requsetVModel.value.protocol,
-              method: isHttpProtocol.value ? requsetVModel.value.method : requsetVModel.value.protocol,
+              protocol: requestVModel.value.protocol,
+              method: isHttpProtocol.value ? requestVModel.value.method : requestVModel.value.protocol,
               uploadFileIds: [],
               linkFileIds: [],
               deleteFileIds: [], // TODO:删除文件集合
@@ -693,11 +741,11 @@
           saveLoading.value = false;
           saveModalVisible.value = false;
           done(true);
-          requsetVModel.value.unSaved = false;
-          requsetVModel.value.name = saveModalForm.value.name;
-          requsetVModel.value.label = saveModalForm.value.name;
+          requestVModel.value.unSaved = false;
+          requestVModel.value.name = saveModalForm.value.name;
+          requestVModel.value.label = saveModalForm.value.name;
           emit('addDone');
-          Message.success(requsetVModel.value.isNew ? t('common.saveSuccess') : t('common.updateSuccess'));
+          Message.success(requestVModel.value.isNew ? t('common.saveSuccess') : t('common.updateSuccess'));
         } catch (error) {
           saveLoading.value = false;
         }
@@ -712,13 +760,13 @@
   });
 
   onMounted(() => {
-    if (!props.isDefiniton) {
+    if (!props.isDefinition) {
       registerCatchSaveShortcut(handleSaveShortcut);
     }
   });
 
   onBeforeUnmount(() => {
-    if (!props.isDefiniton) {
+    if (!props.isDefinition) {
       removeCatchSaveShortcut(handleSaveShortcut);
     }
   });

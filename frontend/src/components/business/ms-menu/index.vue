@@ -390,12 +390,12 @@
       // 渲染菜单项
       const renderMenuItem = (element, icon) =>
         element?.name === SettingRouteEnum.SETTING_ORGANIZATION ? (
-          orgTrigger(element, menuSwitchOrgVisible, () => (
-            <a-menu-item key={element?.name} v-slots={{ icon }} onClick={() => goto(element)}>
-              <div class="inline-flex w-[calc(100%-34px)] items-center justify-between !bg-transparent">
-                {t(element?.meta?.locale || '')}
+          <a-menu-item key={element?.name} v-slots={{ icon }} onClick={() => goto(element)}>
+            <div class="inline-flex w-[calc(100%-34px)] items-center justify-between !bg-transparent">
+              {t(element?.meta?.locale || '')}
+              {orgTrigger(element, menuSwitchOrgVisible, () => (
                 <div
-                  class="!bg-transparent"
+                  class={collapsed.value ? 'hidden' : '!bg-transparent'} // 菜单折叠时隐藏切换组织按钮
                   onMouseenter={() => {
                     if (xPack.value) {
                       // 有xpack权限才显示
@@ -410,9 +410,9 @@
                 >
                   <MsIcon type="icon-icon_switch_outlined1" class="text-[var(--color-text-4)]" />
                 </div>
-              </div>
-            </a-menu-item>
-          ))
+              ))}
+            </div>
+          </a-menu-item>
         ) : (
           <a-menu-item key={element?.name} v-slots={{ icon }} onClick={() => goto(element)}>
             {t(element?.meta?.locale || '')}

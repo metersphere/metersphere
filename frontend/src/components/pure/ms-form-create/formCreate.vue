@@ -1,5 +1,12 @@
 <template>
-  <FormCreate v-model:api="formApi" :rule="formRules" :option="props.option"></FormCreate>
+  <FormCreate
+    v-model:api="formApi"
+    :rule="formRules"
+    :option="props.option"
+    @mounted="handleMounted"
+    @reload="handleReload"
+    @change="handleChange"
+  ></FormCreate>
 </template>
 
 <script setup lang="ts">
@@ -12,7 +19,7 @@
   import PassWord from './formcreate-password.vue';
   import SearchSelect from './searchSelect.vue';
 
-  import formCreate, { FormRule } from '@form-create/arco-design';
+  import formCreate, { Api, FormRule } from '@form-create/arco-design';
 
   formCreate.component('PassWord', PassWord);
   formCreate.component('SearchSelect', SearchSelect);
@@ -20,14 +27,14 @@
   const FormCreate = formCreate.$form();
 
   const props = defineProps<{
-    rule: FormRule | undefined; // 表单的规则
+    rule?: FormRule; // 表单的规则
     option: any; // 全局配置项
-    api: any; // 收集表单的值
+    api?: Api; // 收集表单的值
   }>();
 
-  const emits = defineEmits(['update:api', 'update:rule']);
+  const emits = defineEmits(['update:api', 'update:rule', 'mounted', 'reload', 'change']);
 
-  const formApi = ref<any>({});
+  const formApi = ref<Api>();
 
   watchEffect(() => {
     formApi.value = props.api;
@@ -57,6 +64,18 @@
       emits('update:rule', val);
     }
   );
+
+  function handleMounted() {
+    emits('mounted');
+  }
+
+  function handleReload() {
+    emits('reload');
+  }
+
+  function handleChange() {
+    emits('change');
+  }
 </script>
 
 <style scoped></style>
