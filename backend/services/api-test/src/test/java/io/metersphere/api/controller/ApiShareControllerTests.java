@@ -9,7 +9,6 @@ import io.metersphere.api.dto.definition.ApiDefinitionDTO;
 import io.metersphere.api.dto.definition.ApiDefinitionDocDTO;
 import io.metersphere.api.dto.definition.ApiDefinitionDocRequest;
 import io.metersphere.api.dto.definition.HttpResponse;
-import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.share.ShareInfoDTO;
 import io.metersphere.api.mapper.ApiDefinitionBlobMapper;
 import io.metersphere.api.mapper.ApiDefinitionMapper;
@@ -75,7 +74,6 @@ public class ApiShareControllerTests extends BaseTest {
         // @@请求成功
         this.requestPostWithOkAndReturn(SHARE_DOC, request);
         MvcResult mvcResult = this.requestPostWithOkAndReturn(SHARE_DOC, request);
-        ApiDataUtils.setResolver(MsHTTPElement.class);
         ShareInfoDTO shareInfoDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResult).get("data")), ShareInfoDTO.class);
         // 校验数据是否正确
         List<ShareInfo> shareInfos = extShareInfoMapper.selectByShareTypeAndShareApiIdWithBLOBs(ShareInfoType.SINGLE.name(), JSON.toJSONString(request).getBytes(), "zh_CN");
@@ -93,7 +91,6 @@ public class ApiShareControllerTests extends BaseTest {
         request.setType(ApiDefinitionDocType.MODULE.name());
         request.setModuleIds(List.of("10001"));
         MvcResult mvcResultModule = this.requestPostWithOkAndReturn(SHARE_DOC, request);
-        ApiDataUtils.setResolver(MsHTTPElement.class);
         ShareInfoDTO shareInfoDTOModule = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResultModule).get("data")), ShareInfoDTO.class);
         // 校验数据是否正确
         List<ShareInfo> shareInfosModule = extShareInfoMapper.selectByShareTypeAndShareApiIdWithBLOBs(ShareInfoType.BATCH.name(), JSON.toJSONString(request).getBytes(), "zh_CN");
@@ -108,7 +105,6 @@ public class ApiShareControllerTests extends BaseTest {
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setType(ApiDefinitionDocType.ALL.name());
         MvcResult mvcResultAll = this.requestPostWithOkAndReturn(SHARE_DOC, request);
-        ApiDataUtils.setResolver(MsHTTPElement.class);
         ShareInfoDTO allShareInfoDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResultAll).get("data")), ShareInfoDTO.class);
 
         // 校验数据是否正确
@@ -129,7 +125,6 @@ public class ApiShareControllerTests extends BaseTest {
         ShareInfo shareInfo = shareInfoMapper.selectByPrimaryKey(shareId);
         ApiDefinitionDocRequest apiDefinitionDocRequest = ApiDataUtils.parseObject(new String(shareInfo.getCustomData()), ApiDefinitionDocRequest.class);
         MvcResult mvcResultAll = this.requestGetWithOkAndReturn(SHARE_VIEW + shareId);
-        ApiDataUtils.setResolver(MsHTTPElement.class);
         ApiDefinitionDocDTO allApiDefinitionDocDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResultAll).get("data")), ApiDefinitionDocDTO.class);
         // 校验数据是否正确
         ApiDefinitionDocDTO copyAllApiDefinitionDocDTO = new ApiDefinitionDocDTO();

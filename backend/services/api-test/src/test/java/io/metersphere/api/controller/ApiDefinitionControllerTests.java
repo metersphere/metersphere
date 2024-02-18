@@ -282,7 +282,6 @@ public class ApiDefinitionControllerTests extends BaseTest {
         ApiDefinition copyApiDefinition = BeanUtils.copyBean(new ApiDefinition(), apiDefinition);
         BeanUtils.copyBean(copyApiDefinition, request);
         Assertions.assertEquals(apiDefinition, copyApiDefinition);
-        ApiDataUtils.setResolver(MsHTTPElement.class);
         if (apiDefinitionBlob != null) {
             Assertions.assertEquals(msHttpElement, ApiDataUtils.parseObject(new String(apiDefinitionBlob.getRequest()), AbstractMsTestElement.class));
         }
@@ -298,7 +297,6 @@ public class ApiDefinitionControllerTests extends BaseTest {
         }
         // @@请求成功
         MvcResult mvcResult = this.requestGetWithOkAndReturn(GET + apiDefinition.getId());
-        ApiDataUtils.setResolver(MsHTTPElement.class);
         ApiDefinitionDTO apiDefinitionDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResult).get("data")), ApiDefinitionDTO.class);
         // 校验数据是否正确
         ApiDefinitionDTO copyApiDefinitionDTO = BeanUtils.copyBean(new ApiDefinitionDTO(), apiDefinition);
@@ -750,7 +748,6 @@ public class ApiDefinitionControllerTests extends BaseTest {
         ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1001");
         // @@请求成功
         MvcResult mvcResult = this.requestGetWithOk(VERSION + apiDefinition.getId()).andReturn();
-        ApiDataUtils.setResolver(MsHTTPElement.class);
         List<ApiDefinitionVersionDTO> apiDefinitionVersionDTO = getResultDataArray(mvcResult, ApiDefinitionVersionDTO.class);
         // 校验数据是否正确
         List<ApiDefinitionVersionDTO> copyApiDefinitionVersionDTO = extApiDefinitionMapper.getApiDefinitionByRefId(apiDefinition.getRefId());
@@ -885,7 +882,6 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setType(ApiDefinitionDocType.API.name());
         // @@请求成功
         MvcResult mvcResult = this.requestPostWithOkAndReturn(DOC, request);
-        ApiDataUtils.setResolver(MsHTTPElement.class);
         ApiDefinitionDocDTO apiDefinitionDocDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResult).get("data")), ApiDefinitionDocDTO.class);
         // 校验数据是否正确
         ApiDefinitionDocDTO copyApiDefinitionDocDTO = new ApiDefinitionDocDTO();
@@ -911,7 +907,6 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setType(ApiDefinitionDocType.MODULE.name());
         request.setModuleIds(List.of("10001"));
         MvcResult mvcResultModule = this.requestPostWithOkAndReturn(DOC, request);
-        ApiDataUtils.setResolver(MsHTTPElement.class);
         ApiDefinitionDocDTO moduleApiDefinitionDocDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResultModule).get("data")), ApiDefinitionDocDTO.class);
         // 校验数据是否正确
         ApiDefinitionDocDTO copyModuleApiDefinitionDocDTO = new ApiDefinitionDocDTO();
@@ -943,7 +938,6 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setProjectId(DEFAULT_PROJECT_ID);
         request.setType(ApiDefinitionDocType.ALL.name());
         MvcResult mvcResultAll = this.requestPostWithOkAndReturn(DOC, request);
-        ApiDataUtils.setResolver(MsHTTPElement.class);
         ApiDefinitionDocDTO allApiDefinitionDocDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResultAll).get("data")), ApiDefinitionDocDTO.class);
         // 校验数据是否正确
         ApiDefinitionDocDTO copyAllApiDefinitionDocDTO = new ApiDefinitionDocDTO();
@@ -980,7 +974,6 @@ public class ApiDefinitionControllerTests extends BaseTest {
         request.setType(ApiDefinitionDocType.MODULE.name());
         request.setModuleIds(List.of("1001001"));
         MvcResult mvcResultModule = this.requestPostWithOkAndReturn(DOC, request);
-        ApiDataUtils.setResolver(MsHTTPElement.class);
         ApiDefinitionDocDTO moduleApiDefinitionDocDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResultModule).get("data")), ApiDefinitionDocDTO.class);
         // 校验数据是否正确
         ApiDefinitionDocDTO copyModuleApiDefinitionDocDTO = new ApiDefinitionDocDTO();
@@ -1131,7 +1124,6 @@ public class ApiDefinitionControllerTests extends BaseTest {
         apiDefinitionDeleteRequest.setId("1004");
         ApiDefinition delApiDefinition = apiDefinitionMapper.selectByPrimaryKey(apiDefinitionDeleteRequest.getId());
         MvcResult mvcResult = this.requestGetWithOk(VERSION + apiDefinitionDeleteRequest.getId()).andReturn();
-        ApiDataUtils.setResolver(MsHTTPElement.class);
         List<ApiDefinitionVersionDTO> apiDefinitionVersionDTO = getResultDataArray(mvcResult, ApiDefinitionVersionDTO.class);
         if (!apiDefinitionVersionDTO.isEmpty()) {
             this.requestPostWithOkAndReturn(DELETE, apiDefinitionDeleteRequest);

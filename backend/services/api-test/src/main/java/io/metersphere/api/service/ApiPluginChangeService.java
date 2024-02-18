@@ -14,6 +14,9 @@ import io.metersphere.system.service.PluginLoadService;
 import org.pf4j.Plugin;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @Author: jianxing
  * @CreateTime: 2024-02-06  20:55
@@ -26,9 +29,11 @@ public class ApiPluginChangeService implements PluginChangeService {
         Plugin plugin = msPluginManager.getPlugin(pluginId).getPlugin();
         try {
             if (plugin instanceof AbstractApiPlugin) {
-                // 注册序列化类
-                msPluginManager.getExtensionClasses(MsTestElement.class, pluginId)
-                        .forEach(ApiDataUtils::setResolver);
+                // 注册序列化类，获取最新的实现类，重新注册
+                List<Class<? extends MsTestElement>> extensionClasses = msPluginManager.getExtensionClasses(MsTestElement.class);
+                List<Class<?>> clazzList = new ArrayList<>(extensionClasses.size());
+                extensionClasses.forEach(clazzList::add);
+                ApiDataUtils.setResolvers(clazzList);
 
                 // 注册插件元素解析器
                 msPluginManager.getExtensionClasses(JmeterElementConverter.class, pluginId)
