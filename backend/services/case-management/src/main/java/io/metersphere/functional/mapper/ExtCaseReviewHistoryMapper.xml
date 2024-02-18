@@ -95,6 +95,7 @@
                 #{caseId}
             </foreach>
           AND abandoned = FALSE
+          AND status != 'UNDER_REVIEWED'
         order by create_time desc
     </select>
 
