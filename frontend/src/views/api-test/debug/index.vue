@@ -16,9 +16,15 @@
       <template #second>
         <div class="flex h-full flex-col">
           <div class="border-b border-[var(--color-text-n8)] p-[24px_24px_16px_24px]">
-            <MsEditableTab v-model:active-tab="activeDebug" v-model:tabs="debugTabs" at-least-one @add="addDebugTab">
+            <MsEditableTab
+              v-model:active-tab="activeDebug"
+              v-model:tabs="debugTabs"
+              :limit="10"
+              at-least-one
+              @add="addDebugTab"
+            >
               <template #label="{ tab }">
-                <apiMethodName v-if="isHttpProtocol" :method="tab.method" class="mr-[4px]" />
+                <apiMethodName :method="tab.protocol === 'HTTP' ? tab.method : tab.protocol" class="mr-[4px]" />
                 {{ tab.label }}
               </template>
             </MsEditableTab>
@@ -204,10 +210,10 @@
     },
     responseActiveTab: ResponseComposition.BODY,
     response: cloneDeep(defaultResponse),
+    isNew: true,
   };
   const debugTabs = ref<RequestParam[]>([cloneDeep(defaultDebugParams)]);
   const activeDebug = ref<RequestParam>(debugTabs.value[0]);
-  const isHttpProtocol = computed(() => activeDebug.value.protocol === 'HTTP');
 
   function handleActiveDebugChange() {
     if (!loading.value) {

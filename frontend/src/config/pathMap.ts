@@ -109,13 +109,6 @@ export const pathMap: PathMapItem[] = [
             level: MENU_LEVEL[2],
           },
           {
-            key: 'CASE_MANAGEMENT_CASE_CREATE_SUCCESS', // 功能测试-功能用例创建成功页面
-            locale: 'menu.caseManagement.featureCaseCreateSuccess',
-            route: RouteEnum.CASE_MANAGEMENT_CASE_CREATE_SUCCESS,
-            permission: [],
-            level: MENU_LEVEL[2],
-          },
-          {
             key: 'CASE_MANAGEMENT_CASE_RECYCLE', // 功能测试-功能用例-回收站
             locale: 'menu.caseManagement.featureCaseRecycle',
             route: RouteEnum.CASE_MANAGEMENT_CASE_RECYCLE,
