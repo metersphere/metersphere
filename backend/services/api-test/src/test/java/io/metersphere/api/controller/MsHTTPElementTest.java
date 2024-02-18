@@ -44,9 +44,6 @@ import java.util.List;
  * @CreateTime: 2023-11-07  11:17
  */
 public class MsHTTPElementTest {
-    public MsHTTPElementTest() {
-        ApiDataUtils.setResolver(MsHTTPElement.class);
-    }
 
     @Test
     public void bodyTest() {

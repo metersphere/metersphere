@@ -2,7 +2,6 @@ package io.metersphere.api.controller;
 
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import io.metersphere.api.dto.request.controller.MsLoopController;
-import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.dto.TestElementDTO;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
@@ -15,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
@@ -29,7 +29,6 @@ public class PluginSubTypeTests {
     private BaseApiPluginTestService baseApiPluginTestService;
     @Resource
     private PluginLoadService pluginLoadService;
-
 
     @Test
     @Order(0)
@@ -56,18 +55,21 @@ public class PluginSubTypeTests {
     public void jdbcPluginSubTypeTest() throws Exception {
         // 上传 jdbc 插件
         baseApiPluginTestService.addJdbcPlugin();
-        List<Class<? extends MsTestElement>> extensionClasses =
-                pluginLoadService.getMsPluginManager().getExtensionClasses(MsTestElement.class);
-
-        // 注册序列化类
-        extensionClasses.forEach(ApiDataUtils::setResolver);
-
         String jdbcJson = """
                 {
                   "polymorphicName": "MsJDBCElement",
                   "test": "测试MsJDBCElement"
                 }
                 """;
+
+        List<Class<? extends MsTestElement>> extensionClasses =
+                pluginLoadService.getMsPluginManager().getExtensionClasses(MsTestElement.class);
+
+        // 注册序列化类
+        List<Class<?>> clazzList = new ArrayList<>(extensionClasses.size());
+        extensionClasses.forEach(clazzList::add);
+        ApiDataUtils.setResolvers(clazzList);
+
         AbstractMsTestElement testElementDTO = ApiDataUtils.parseObject(jdbcJson, AbstractMsTestElement.class);
         Assertions.assertNotNull(testElementDTO);
     }
@@ -82,8 +84,6 @@ public class PluginSubTypeTests {
         }));
         Assertions.assertTrue(isFuncSuccess((v) -> ApiDataUtils.parseObject("{")));
         Assertions.assertTrue(isFuncSuccess((v) -> ApiDataUtils.parseArray(null, AbstractMsTestElement.class)));
-
-        ApiDataUtils.setResolver(MsHTTPElement.class);
         // 检验 parseArray
         String msHttpJson = """
                 [{

@@ -268,7 +268,6 @@ public class ApiDebugControllerTests extends BaseTest {
         ApiDebug copyApiDebug = BeanUtils.copyBean(new ApiDebug(), apiDebug);
         copyApiDebug = BeanUtils.copyBean(copyApiDebug, request);
         Assertions.assertEquals(apiDebug, copyApiDebug);
-        ApiDataUtils.setResolver(MsHTTPElement.class);
         Assertions.assertEquals(msHttpElement, ApiDataUtils.parseObject(new String(apiDebugBlob.getRequest()), AbstractMsTestElement.class));
         return apiDebug;
     }
@@ -343,7 +342,6 @@ public class ApiDebugControllerTests extends BaseTest {
         // @@请求成功
         MvcResult mvcResult = this.requestGetWithOk(DEFAULT_GET, addApiDebug.getId())
                 .andReturn();
-        ApiDataUtils.setResolver(MsHTTPElement.class);
         ApiDebugDTO apiDebugDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResult).get("data")), ApiDebugDTO.class);
         // 校验数据是否正确
         ApiDebugDTO copyApiDebugDTO = BeanUtils.copyBean(new ApiDebugDTO(), apiDebugMapper.selectByPrimaryKey(addApiDebug.getId()));

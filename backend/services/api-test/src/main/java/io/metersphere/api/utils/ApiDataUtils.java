@@ -119,4 +119,13 @@ public class ApiDataUtils {
         // 加入新的动态组件
         objectMapper.registerSubtypes(clazz);
     }
+
+    /**
+     * 设置动态加载的jar的Resolver
+     */
+    public static void setResolvers(List<Class<?>> clazzList) {
+        setResolver(new LinkedList<>());
+        // 加入新的动态组件
+        clazzList.forEach(objectMapper::registerSubtypes);
+    }
 }

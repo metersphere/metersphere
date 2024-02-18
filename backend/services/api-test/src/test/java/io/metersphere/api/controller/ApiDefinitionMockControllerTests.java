@@ -241,7 +241,6 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         ApiDefinitionMock copyApiDefinitionMock = BeanUtils.copyBean(new ApiDefinitionMock(), apiDefinitionMock);
         BeanUtils.copyBean(copyApiDefinitionMock, request);
         Assertions.assertEquals(apiDefinitionMock, copyApiDefinitionMock);
-        ApiDataUtils.setResolver(MsHTTPElement.class);
         if(apiDefinitionMockConfig != null){
             Assertions.assertEquals(msHttpElement, ApiDataUtils.parseObject(new String(apiDefinitionMockConfig.getMatching()), AbstractMsTestElement.class));
         }
@@ -257,7 +256,6 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         apiDefinitionMockRequest.setApiDefinitionId(apiDefinitionMock.getApiDefinitionId());
         // @@请求成功
         MvcResult mvcResult = this.requestPostWithOkAndReturn(DETAIL, apiDefinitionMockRequest);
-        ApiDataUtils.setResolver(MsHTTPElement.class);
         ApiDefinitionMockDTO apiDefinitionMockDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResult).get("data")), ApiDefinitionMockDTO.class);
         // 校验数据是否正确
         ApiDefinitionMockDTO copyApiDefinitionMockDTO = BeanUtils.copyBean(new ApiDefinitionMockDTO(), apiDefinitionMock);

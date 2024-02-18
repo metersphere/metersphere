@@ -296,7 +296,6 @@ public class ApiTestCaseControllerTests extends BaseTest {
         ApiTestCase copyApiDebug = BeanUtils.copyBean(new ApiTestCase(), apiCase);
         BeanUtils.copyBean(copyApiDebug, request);
         Assertions.assertEquals(apiCase, copyApiDebug);
-        ApiDataUtils.setResolver(MsHTTPElement.class);
         Assertions.assertEquals(msHttpElement, ApiDataUtils.parseObject(new String(apiTestCaseBlob.getRequest()), AbstractMsTestElement.class));
         return apiCase;
     }
@@ -384,7 +383,6 @@ public class ApiTestCaseControllerTests extends BaseTest {
         // @@请求成功
         MvcResult mvcResult = this.requestGetWithOk(GET + apiTestCase.getId())
                 .andReturn();
-        ApiDataUtils.setResolver(MsHTTPElement.class);
         ApiTestCaseDTO apiDebugDTO = ApiDataUtils.parseObject(JSON.toJSONString(parseResponse(mvcResult).get("data")), ApiTestCaseDTO.class);
         // 校验数据是否正确
         ApiTestCase testCase = apiTestCaseMapper.selectByPrimaryKey(apiTestCase.getId());

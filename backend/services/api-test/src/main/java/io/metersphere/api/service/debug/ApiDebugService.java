@@ -187,7 +187,7 @@ public class ApiDebugService {
     }
 
     private ApiDebug checkResourceExist(String id) {
-        return ServiceUtils.checkResourceExist(apiDebugMapper.selectByPrimaryKey(id), "permission.system_api_debug.name");
+        return ServiceUtils.checkResourceExist(apiDebugMapper.selectByPrimaryKey(id), "permission.api_debug.name");
     }
 
     public String uploadTempFile(MultipartFile file) {
