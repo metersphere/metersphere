@@ -14,6 +14,10 @@ import java.util.List;
  */
 public abstract class AbstractApiPlugin extends AbstractMsPlugin {
 
+    public boolean isXpack() {
+        return false;
+    }
+
     /**
      * 获取插件选项
      *
