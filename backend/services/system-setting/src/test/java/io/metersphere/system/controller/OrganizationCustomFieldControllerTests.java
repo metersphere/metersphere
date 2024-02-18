@@ -117,8 +117,13 @@ public class OrganizationCustomFieldControllerTests extends BaseTest {
         }
         assertRefCustomField(customField);
 
+        // 不同scene，不校验重名
+        request.setScene(TemplateScene.TEST_PLAN.name());
+        this.requestPostWithOkAndReturn(DEFAULT_ADD, request);
+
         // @校验是否开启组织模板
         changeOrgTemplateEnable(false);
+        request.setScene(TemplateScene.FUNCTIONAL.name());
         assertErrorCode(this.requestPost(DEFAULT_ADD, request), ORGANIZATION_TEMPLATE_PERMISSION);
         changeOrgTemplateEnable(true);
 

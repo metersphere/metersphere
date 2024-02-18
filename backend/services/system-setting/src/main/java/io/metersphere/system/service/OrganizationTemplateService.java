@@ -100,6 +100,7 @@ public class OrganizationTemplateService extends BaseTemplateService {
         Template originTemplate = super.getWithCheck(template.getId());
         checkOrganizationTemplateEnable(originTemplate.getScopeId(), originTemplate.getScene());
         template.setScopeId(originTemplate.getScopeId());
+        template.setScene(originTemplate.getScene());
         checkOrgResourceExist(originTemplate);
         updateRefProjectTemplate(template, request.getCustomFields(), request.getSystemFields());
         template.setRefId(null);
@@ -122,6 +123,7 @@ public class OrganizationTemplateService extends BaseTemplateService {
             template.setId(projectTemplate.getId());
             template.setScopeId(projectTemplate.getScopeId());
             template.setRefId(orgTemplate.getId());
+            template.setScene(orgTemplate.getScene());
             List<TemplateCustomFieldRequest> refCustomFields = getRefTemplateCustomFieldRequest(projectTemplate.getScopeId(), customFields);
             super.update(template, refCustomFields, systemFields);
         });
