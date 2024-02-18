@@ -56,7 +56,7 @@ public class GlobalUserRoleLogService {
                     OperationLogConstants.SYSTEM,
                     OperationLogConstants.SYSTEM,
                     userRole.getId(),
-                    userRole.getCreateUser(),
+                    null,
                     OperationLogType.UPDATE.name(),
                     OperationLogModule.SETTING_SYSTEM_USER_GROUP,
                     userRole.getName());
@@ -74,7 +74,7 @@ public class GlobalUserRoleLogService {
                     OperationLogConstants.SYSTEM,
                     OperationLogConstants.SYSTEM,
                     request.getUserRoleId(),
-                    userRole.getCreateUser(),
+                    null,
                     OperationLogType.UPDATE.name(),
                     OperationLogModule.SETTING_SYSTEM_USER_GROUP,
                     userRole.getName());
