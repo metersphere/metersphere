@@ -59,6 +59,7 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
 
     /**
      * 添加场景断言
+     *
      * @param tree
      * @param msScenario
      * @param config
@@ -130,8 +131,10 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
                 isPre ? MsProcessorConverterFactory::getPreConverter : MsProcessorConverterFactory::getPostConverter;
 
         // 添加前后置
-        envScenarioProcessors.forEach(processor ->
-                getConverterFunc.apply(processor.getClass()).parse(tree, processor, config));
+        envScenarioProcessors.forEach(processor -> {
+            processor.setProjectId(msScenario.getProjectId());
+            getConverterFunc.apply(processor.getClass()).parse(tree, processor, config);
+        });
     }
 
     private void addScenarioProcessor(HashTree tree, MsScenario msScenario, ParameterConfig config, boolean isPre) {
@@ -152,8 +155,10 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
                 isPre ? MsProcessorConverterFactory::getPreConverter : MsProcessorConverterFactory::getPostConverter;
 
         // 添加场景前置处理器
-        scenarioPreProcessors.forEach(processor ->
-                getConverterFunc.apply(processor.getClass()).parse(tree, processor, config));
+        scenarioPreProcessors.forEach(processor -> {
+            processor.setProjectId(msScenario.getProjectId());
+            getConverterFunc.apply(processor.getClass()).parse(tree, processor, config);
+        });
     }
 
     private boolean isRef(String refType) {
