@@ -42,17 +42,7 @@
         FROM
         case_review left join case_review_module on  case_review.module_id = case_review_module.id
         where case_review.project_id = #{request.projectId}
-        <choose>
-            <when test='request.searchMode == "AND"'>
-                AND <include refid="queryWhereCondition"/>
-            </when>
-            <when test='request.searchMode == "OR"'>
-                and (
-                <include refid="queryWhereCondition"/>
-                )
-            </when>
-        </choose>
-        1 = 1
+        <include refid="queryWhereCondition"/>
     </select>
 
     <select id="getIds" resultType="java.lang.String">
@@ -61,56 +51,47 @@
         FROM
         case_review
         where case_review.project_id = #{request.projectId}
-        <choose>
-            <when test='request.condition.searchMode == "AND"'>
-                AND <include refid="queryWhereConditionByBaseQueryRequest"/>
-            </when>
-            <when test='request.condition.searchMode == "OR"'>
-                and (
-                <include refid="queryWhereConditionByBaseQueryRequest"/>
-                )
-            </when>
-        </choose>
-        1 = 1
+        <include refid="queryWhereConditionByBaseQueryRequest"/>
     </select>
 
     <sql id="queryWhereConditionByBaseQueryRequest">
         <if test="request.moduleIds != null and request.moduleIds.size() > 0">
-            case_review.module_id in
+            and case_review.module_id in
             <foreach collection="request.moduleIds" item="moduleId" separator="," open="(" close=")">
                 #{moduleId}
             </foreach>
-            <include refid="queryType">
-                <property name="searchMode" value="request.condition.searchMode"/>
-            </include>
         </if>
         <if test="request.condition.keyword != null">
-            (
+            and (
             case_review.name like concat('%', #{request.keyword},'%')
             or case_review.num like concat('%', #{request.keyword},'%')
            )
-            <include refid="queryType">
-                <property name="searchMode" value="request.condition.searchMode"/>
-            </include>
         </if>
         <if test="request.createByMe != null">
-            case_review.create_user = #{request.createByMe}
-            <include refid="queryType">
-                <property name="searchMode" value="request.searchMode"/>
-            </include>
+            and case_review.create_user = #{request.createByMe}
         </if>
         <if test="request.reviewByMe != null">
-            case_review.id  in
+            and case_review.id  in
             (
             select case_review_user.review_id from case_review_user where case_review_user.user_id = #{request.reviewByMe}
             )
-            <include refid="queryType">
-                <property name="searchMode" value="request.searchMode"/>
-            </include>
         </if>
         <include refid="filters">
             <property name="filter" value="request.condition.filter"/>
         </include>
+        <choose>
+            <when test='request.condition.searchMode == "AND"'>
+                AND <include refid="baseQueryCombine"/>
+            </when>
+            <when test='request.condition.searchMode == "OR"'>
+                and (
+                <include refid="baseQueryCombine"/>
+                )
+            </when>
+        </choose>
+    </sql>
+
+    <sql id="baseQueryCombine">
         <if test="request.condition.combine != null">
             <include refid="combine">
                 <property name="condition" value="request.condition.combine"/>
@@ -120,45 +101,48 @@
                 <property name="ObjectModuleIds" value="request.condition.combine.moduleIds"/>
             </include>
         </if>
+        1=1
     </sql>
+
 
     <sql id="queryWhereCondition">
         <if test="request.moduleIds != null and request.moduleIds.size() > 0">
-            case_review.module_id in
+            and case_review.module_id in
             <foreach collection="request.moduleIds" item="moduleId" separator="," open="(" close=")">
                 #{moduleId}
             </foreach>
-            <include refid="queryType">
-                <property name="searchMode" value="request.searchMode"/>
-            </include>
         </if>
         <if test="request.keyword != null">
-            (
+            and (
             case_review.name like concat('%', #{request.keyword},'%')
             or case_review.num like concat('%', #{request.keyword},'%')
             )
-            <include refid="queryType">
-                <property name="searchMode" value="request.searchMode"/>
-            </include>
         </if>
         <if test="request.createByMe != null">
-            case_review.create_user = #{request.createByMe}
-            <include refid="queryType">
-                <property name="searchMode" value="request.searchMode"/>
-            </include>
+            and case_review.create_user = #{request.createByMe}
         </if>
         <if test="request.reviewByMe != null">
-            case_review.id  in
+            and case_review.id  in
             (
             select case_review_user.review_id from case_review_user where case_review_user.user_id = #{request.reviewByMe}
             )
-            <include refid="queryType">
-                <property name="searchMode" value="request.searchMode"/>
-            </include>
         </if>
         <include refid="filters">
             <property name="filter" value="request.filter"/>
         </include>
+        <choose>
+            <when test='request.searchMode == "AND"'>
+                AND <include refid="queryCombine"/>
+            </when>
+            <when test='request.searchMode == "OR"'>
+                and (
+                <include refid="queryCombine"/>
+                )
+            </when>
+        </choose>
+    </sql>
+
+    <sql id="queryCombine">
         <include refid="combine">
             <property name="condition" value="request.combine"/>
             <property name="name" value="request.name"/>
@@ -166,6 +150,7 @@
             <property name="ObjectReviewers" value="request.combine.reviewers"/>
             <property name="ObjectModuleIds" value="request.combine.moduleIds"/>
         </include>
+        1=1
     </sql>
 
     <sql id="queryType">
@@ -185,37 +170,25 @@
                 <if test="values != null and values.size() > 0">
                     <choose>
                         <when test="key=='status'">
-                            case_review.status in
+                            and case_review.status in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
-                            <include refid="queryType">
-                                <property name="searchMode" value="request.searchMode"/>
-                            </include>
                         </when>
                         <when test="key=='review_pass_rule'">
-                            case_review.review_pass_rule in
+                            and case_review.review_pass_rule in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
-                            <include refid="queryType">
-                                <property name="searchMode" value="request.searchMode"/>
-                            </include>
                         </when>
                         <when test="key=='create_user'">
-                            case_review.create_user in
+                            and case_review.create_user in
                             <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
-                            <include refid="queryType">
-                                <property name="searchMode" value="request.searchMode"/>
-                            </include>
                         </when>
                         <when test="key=='case_reviewer'">
-                            case_review.id in (
+                            and case_review.id in (
                             select case_review_user.review_id from case_review_user where case_review_user.user_id in
                             in
                             <foreach collection="values" item="value" separator="," open="(" close=")">
                                 #{value}
                             </foreach>
                             )
-                            <include refid="queryType">
-                                <property name="searchMode" value="request.searchMode"/>
-                            </include>
                         </when>
                     </choose>
                 </if>
@@ -246,7 +219,7 @@
             </if>
 
             <if test='${condition}.description != null'>
-                case_review.status
+                case_review.description
                 <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                     <property name="object" value="${condition}.status"/>
                 </include>
@@ -256,7 +229,7 @@
             </if>
 
             <if test='${condition}.reviewPassRule != null'>
-                case_review.status
+                case_review.review_pass_rule
                 <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                     <property name="object" value="${condition}.reviewPassRule"/>
                 </include>
@@ -266,7 +239,7 @@
             </if>
 
             <if test='${condition}.createUser != null'>
-                case_review.status
+                case_review.create_user
                 <include refid="io.metersphere.system.mapper.BaseMapper.condition">
                     <property name="object" value="${condition}.createUser"/>
                 </include>
@@ -457,17 +430,7 @@
         SELECT module_id AS moduleId, count(id) AS dataCount
         FROM case_review
         WHERE project_id = #{request.projectId}
-        <choose>
-            <when test='request.searchMode == "AND"'>
-                AND <include refid="queryWhereCondition"/>
-            </when>
-            <when test='request.searchMode == "OR"'>
-                AND (
-                <include refid="queryWhereCondition"/>
-                )
-            </when>
-        </choose>
-        1 = 1
+        <include refid="queryWhereCondition"/>
         GROUP BY moduleId
     </select>
 
@@ -476,17 +439,7 @@
         SELECT count(id)
         FROM case_review
         WHERE  project_id = #{request.projectId}
-        <choose>
-            <when test='request.searchMode == "AND"'>
-                AND <include refid="queryWhereCondition"/>
-            </when>
-            <when test='request.searchMode == "OR"'>
-                and (
-                <include refid="queryWhereCondition"/>
-                )
-            </when>
-        </choose>
-        1 = 1
+        <include refid="queryWhereCondition"/>
     </select>
 
     <select id="getReviewPassRule" resultType="java.lang.String">
