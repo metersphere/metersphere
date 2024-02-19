@@ -254,9 +254,9 @@ export interface DemandFormList {
 // 创建需求&编辑需求
 export interface CreateOrUpdateDemand {
   id?: string;
-  caseId: string;
   demandPlatform: string;
   demandList?: DemandFormList[];
+  caseId?: string;
   [key: string]: any;
 }
 // 转存文件

@@ -14,7 +14,7 @@
         <TemplateItem
           :card-item="item"
           :index="index"
-          mode="organization"
+          mode="project"
           @field-setting="fieldSetting"
           @template-management="templateManagement"
           @workflow-setup="workflowSetup"

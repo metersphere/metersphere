@@ -1,7 +1,12 @@
 <template>
   <MsCard has-breadcrumb simple>
     <div class="mb-4 flex items-center justify-between">
-      <span v-if="isEnableOrdTemplate" class="font-medium">{{ t('system.orgTemplate.templateList') }}</span>
+      <!-- <span v-if="isEnableOrdTemplate" class="font-medium">{{
+        t('system.orgTemplate.templateList', { type: getTemplateName('project', route.query.type as string) })
+      }}</span> -->
+      <span v-if="isShowList" class="font-medium">{{
+        t('system.orgTemplate.templateList', { type: getTemplateName('project', route.query.type as string) })
+      }}</span>
       <!--TODO 这个版本不允许修改默认模版也不允许创建用例模版  -->
       <a-button
         v-if="!isEnableOrdTemplate && route.query.type === 'BUG'"
@@ -10,7 +15,11 @@
         :disabled="false"
         @click="createTemplate"
       >
-        {{ t('system.orgTemplate.createTemplate') }}
+        {{
+          t('system.orgTemplate.createTemplateType', {
+            type: getTemplateName('project', route.query.type as string),
+          })
+        }}
       </a-button>
       <a-input-search
         v-model:model-value="keyword"
@@ -33,7 +42,7 @@
         <!-- TODO 这个版本不允许修改默认模版也不允许创建用例模版 -->
         <a-switch
           v-model="record.enableDefault"
-          :disabled="true"
+          :disabled="record.enableDefault || isEnableOrdTemplate"
           size="small"
           type="line"
           @change="(value) => changeDefault(value, record)"
@@ -55,9 +64,12 @@
           <MsButton v-permission="['PROJECT_TEMPLATE:READ+UPDATE']" @click="editTemplate(record.id)">{{
             t('system.orgTemplate.edit')
           }}</MsButton>
-          <MsButton v-permission="['PROJECT_TEMPLATE:READ+ADD']" class="!mr-0" @click="copyTemplate(record.id)">{{
-            t('system.orgTemplate.copy')
-          }}</MsButton>
+          <MsButton
+            v-if="route.query.type === 'BUG' && hasAnyPermission(['PROJECT_TEMPLATE:READ+ADD'])"
+            class="!mr-0"
+            @click="copyTemplate(record.id)"
+            >{{ t('system.orgTemplate.copy') }}</MsButton
+          >
           <a-divider
             v-if="!record.internal"
             v-permission="['PROJECT_TEMPLATE:READ+ADD']"
@@ -130,6 +142,7 @@
 
   import {
     getCustomDetailFields,
+    getTemplateName,
     getTotalFieldOptionList,
   } from '@/views/setting/organization/template/components/fieldSetting';
 
@@ -203,10 +216,11 @@
   const { propsRes, propsEvent, loadList, setLoadListParams, setProps } = useTable(getProjectTemplateList, {
     tableKey: TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT,
     scroll: { x: '1400px' },
+    columns: fieldColumns,
     selectable: false,
     noDisable: true,
     size: 'default',
-    showSetting: true,
+    showSetting: false,
     showPagination: false,
     heightUsed: 380,
   });
@@ -375,6 +389,16 @@
       tableRef.value.initColumn(columns);
     }
   }
+
+  const isShowList = computed(() => {
+    if (!hasAnyPermission(['PROJECT_TEMPLATE:READ+ADD'])) {
+      return true;
+    }
+    if (isEnableOrdTemplate.value && route.query.type === 'BUG') {
+      return true;
+    }
+    return route.query.type !== 'BUG';
+  });
 
   onMounted(() => {
     fetchData();

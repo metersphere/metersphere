@@ -375,13 +375,13 @@ export const pathMap: PathMapItem[] = [
             permission: [],
             level: MENU_LEVEL[2],
           },
-          // {
-          //   key: 'PROJECT_MANAGEMENT_PERMISSION_VERSION', // 项目管理-项目与权限-项目版本
-          //   locale: 'project.permission.projectVersion',
-          //   route: RouteEnum.PROJECT_MANAGEMENT_PERMISSION_VERSION,
-          //   permission: [],
-          //   level: MENU_LEVEL[2],
-          // },
+          {
+            key: 'PROJECT_MANAGEMENT_PERMISSION_VERSION', // 项目管理-项目与权限-项目版本
+            locale: 'project.permission.projectVersion',
+            route: RouteEnum.PROJECT_MANAGEMENT_PERMISSION_VERSION,
+            permission: [],
+            level: MENU_LEVEL[2],
+          },
           {
             key: 'PROJECT_MANAGEMENT_PERMISSION_MEMBER', // 项目管理-项目与权限-成员
             locale: 'project.permission.member',
@@ -409,6 +409,13 @@ export const pathMap: PathMapItem[] = [
         key: 'PROJECT_MANAGEMENT_TEMPLATE_FIELD_SETTING', // 项目管理-模板管理-字段设置
         locale: 'menu.settings.organization.templateFieldSetting',
         route: RouteEnum.PROJECT_MANAGEMENT_TEMPLATE_FIELD_SETTING,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+      {
+        key: 'PROJECT_CUSTOM_FIELD', // 项目管理-模板管理-字段设置-新增字段
+        locale: 'system.orgTemplate.addField',
+        route: '',
         permission: [],
         level: MENU_LEVEL[2],
       },

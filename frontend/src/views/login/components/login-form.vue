@@ -26,9 +26,13 @@
           :rules="[{ required: true, message: t('login.form.userName.errMsg') }]"
           :validate-trigger="['change', 'blur']"
           hide-label
-          maxlength="64"
         >
-          <a-input v-model="userInfo.username" :max-length="255" :placeholder="t('login.form.userName.placeholder')" />
+          <a-input
+            v-model="userInfo.username"
+            :max-length="64"
+            size="large"
+            :placeholder="t('login.form.userName.placeholder')"
+          />
         </a-form-item>
         <a-form-item
           class="login-form-item"
@@ -41,18 +45,19 @@
             v-model="userInfo.password"
             :placeholder="t('login.form.password.placeholder')"
             allow-clear
-            maxlength="64"
+            :max-length="64"
+            size="large"
           />
         </a-form-item>
-        <div class="mb-6 mt-[12px]">
-          <a-button type="primary" html-type="submit" long :loading="loading">
+        <div class="mb-[60px] mt-[12px]">
+          <a-button type="primary" size="large" html-type="submit" long :loading="loading">
             {{ t('login.form.login') }}
           </a-button>
         </div>
-        <a-divider orientation="center" type="dashed">
+        <a-divider orientation="center" type="dashed" class="m-0 mb-2">
           <span class="text-xs font-normal text-[var(--color-text-4)]">{{ t('login.form.modeLoginMethods') }}</span>
         </a-divider>
-        <div class="flex items-center justify-center">
+        <div class="mt-4 flex items-center justify-center">
           <div v-if="userInfo.authenticate !== 'LDAP' && isShowLDAP" class="loginType" @click="switchLoginType('LDAP')">
             <span class="type-text text-[10px]">LDAP</span>
           </div>
@@ -188,13 +193,6 @@
   /* stylelint-disable color-function-notation */
   .login-form {
     @apply flex flex-1 flex-col items-center justify-center;
-
-    background: linear-gradient(
-      26.72deg,
-      rgba(var(--primary-5), 0.02) 0%,
-      rgba(var(--primary-5), 0.1) 51.67%,
-      var(--color-text-fff) 100%
-    );
     .title-welcome {
       color: rgb(var(--primary-5));
     }

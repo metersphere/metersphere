@@ -75,6 +75,7 @@ export enum SettingRouteEnum {
   SETTING_SYSTEM_RESOURCE_POOL_DETAIL = 'settingSystemResourcePoolDetail',
   SETTING_SYSTEM_AUTHORIZED_MANAGEMENT = 'settingSystemAuthorizedManagement',
   SETTING_SYSTEM_LOG = 'settingSystemLog',
+  SETTING_SYSTEM_TASK_CENTER = 'settingSystemTaskCenter',
   SETTING_SYSTEM_PLUGIN_MANAGEMENT = 'settingSystemPluginManagement',
   SETTING_ORGANIZATION = 'settingOrganization',
   SETTING_ORGANIZATION_MEMBER = 'settingOrganizationMember',

@@ -197,7 +197,20 @@
     :pagination="propsRes.msPagination!"
     @success="initData()"
   />
-  <AddDemandModal v-model:visible="showDemandModel" :case-id="caseId" :form="modelForm" />
+  <AddDemandModal
+    ref="demandRef"
+    v-model:visible="showDemandModel"
+    :loading="confirmLoading"
+    :case-id="caseId"
+    :form="modelForm"
+    @save="actionDemand"
+  />
+  <ThirdDemandDrawer
+    v-model:visible="showThirdDrawer"
+    :case-id="caseId"
+    :drawer-loading="drawerLoading"
+    @save="saveThirdDemand"
+  />
 </template>
 
 <script setup lang="ts">
@@ -223,9 +236,11 @@
   import FeatureCaseTree from './caseTree.vue';
   import ExportExcelDrawer from './exportExcelDrawer.vue';
   import AddDemandModal from './tabContent/tabDemand/addDemandModal.vue';
+  import ThirdDemandDrawer from './tabContent/tabDemand/thirdDemandDrawer.vue';
   import TableFormChange from './tableFormChange.vue';
 
   import {
+    batchAssociationDemand,
     batchCopyToModules,
     batchDeleteCase,
     batchMoveToModules,
@@ -247,6 +262,7 @@
   import type {
     CaseManagementTable,
     CaseModuleQueryParams,
+    CreateOrUpdateDemand,
     CustomAttributes,
     DemandItem,
     DragCase,
@@ -472,6 +488,7 @@
       showInTable: true,
       sortable: {
         sortDirections: ['ascend', 'descend'],
+        sorter: true,
       },
       width: 200,
       showDrag: true,
@@ -682,6 +699,7 @@
       tableKey: TableKeyEnum.CASE_MANAGEMENT_TABLE,
       scroll: { x: scrollWidth.value },
       selectable: true,
+      showJumpMethod: true,
       showSetting: true,
       heightUsed: 374,
       enableDrag: true,
@@ -942,8 +960,13 @@
   function addDemand() {
     showDemandModel.value = true;
   }
+
+  const showThirdDrawer = ref<boolean>(false);
+
   // 关联需求
-  function handleAssociatedDemand() {}
+  function handleAssociatedDemand() {
+    showThirdDrawer.value = true;
+  }
 
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
     batchParams.value = params;
@@ -1147,9 +1170,10 @@
 
   // 拖拽排序
   async function changeHandler(data: TableData[], extra: TableChangeExtra, currentData: TableData[]) {
-    if (currentData.length === 1) {
+    if (!currentData || currentData.length === 1) {
       return;
     }
+
     if (extra && extra.dragTarget?.id) {
       const params: DragCase = {
         projectId: currentProjectId.value,
@@ -1178,15 +1202,78 @@
     }
   }
 
-  function showCaseDetailEvent(record: TableData, column: TableColumnData, ev: Event) {
-    showDetailDrawer.value = false;
-    if (column.title === 'name' || column.title === 'num') {
-      const rowIndex = propsRes.value.data.map((item: any) => item.id).indexOf(record.id);
-      showDetailDrawer.value = true;
-      activeDetailId.value = record.id;
-      activeCaseIndex.value = rowIndex;
+  // function showCaseDetailEvent(record: TableData, column: TableColumnData, ev: Event) {
+  //   showDetailDrawer.value = false;
+  //   if (column.title === 'name' || column.title === 'num') {
+  //     const rowIndex = propsRes.value.data.map((item: any) => item.id).indexOf(record.id);
+  //     showDetailDrawer.value = true;
+  //     activeDetailId.value = record.id;
+  //     activeCaseIndex.value = rowIndex;
+  //   }
+  // }
+
+  // 批量添加需求
+  const confirmLoading = ref<boolean>(false);
+  const demandRef = ref();
+  async function actionDemand(param: CreateOrUpdateDemand, isContinue: boolean) {
+    try {
+      confirmLoading.value = true;
+      const { demandPlatform, demandList } = param;
+      const batchAddParams: CreateOrUpdateDemand = {
+        selectIds: batchParams.value?.selectAll ? [] : batchParams.value.selectedIds,
+        selectAll: !!batchParams.value?.selectAll,
+        excludeIds: batchParams.value?.excludeIds || [],
+        condition: { keyword: keyword.value },
+        projectId: currentProjectId.value,
+        moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
+        moduleId: selectedModuleKeys.value[0],
+        demandPlatform,
+        demandList,
+      };
+      await batchAssociationDemand(batchAddParams);
+      if (!isContinue) {
+        showDemandModel.value = false;
+      }
+      demandRef.value.resetForm();
+      Message.success(t('common.addSuccess'));
+      resetSelector();
+      initData();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      confirmLoading.value = false;
     }
   }
+
+  // 批量关联需求
+  const drawerLoading = ref<boolean>(false);
+  async function saveThirdDemand(params: CreateOrUpdateDemand) {
+    try {
+      drawerLoading.value = true;
+      const { demandPlatform, demandList } = params;
+      const batchAddParams: CreateOrUpdateDemand = {
+        selectIds: batchParams.value?.selectAll ? [] : batchParams.value.selectedIds,
+        selectAll: !!batchParams.value?.selectAll,
+        excludeIds: batchParams.value?.excludeIds || [],
+        condition: { keyword: keyword.value },
+        projectId: currentProjectId.value,
+        moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder, ...props.offspringIds],
+        moduleId: selectedModuleKeys.value[0],
+        demandPlatform,
+        demandList,
+      };
+      await batchAssociationDemand(batchAddParams);
+      Message.success(t('caseManagement.featureCase.associatedSuccess'));
+      showThirdDrawer.value = false;
+      resetSelector();
+      initData();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      drawerLoading.value = false;
+    }
+  }
+
   onMounted(() => {
     if (route.query.id) {
       showCaseDetail(route.query.id as string, 0);

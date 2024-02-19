@@ -111,4 +111,5 @@ export default {
   'system.plugin.switchAllOrganizeTip': 'The plugin will be visible to all organizations',
   'system.plugin.switchSectionOrganizeTip': 'Plug-in to specify organization is visible',
   'system.plugin.changeOrganizeTip': 'Changing the organization will make historical data unavailable, so be careful!',
+  'system.plugin.supportFormatType': 'Only supports the JAR file format',
 };

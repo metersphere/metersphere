@@ -25,13 +25,13 @@
             <span v-if="props.cardItem.key === 'BUG'" class="operation hover:text-[rgb(var(--primary-5))]">
               <span @click="workflowSetup">{{ t('system.orgTemplate.workflowSetup') }}</span>
               <a-divider
-                v-if="isEnableProject && props.cardItem.key === 'BUG'"
+                v-if="hasEnablePermission && props.mode === 'organization' && isEnableProject"
                 v-permission="['ORGANIZATION_TEMPLATE:READ+ENABLE']"
                 direction="vertical"
               />
             </span>
             <span
-              v-if="isEnableProject && hasEnablePermission"
+              v-if="hasEnablePermission && props.mode === 'organization' && isEnableProject"
               class="rounded p-[2px] hover:bg-[rgb(var(--primary-9))]"
             >
               <MsTableMoreAction :list="moreActions" @select="handleMoreActionSelect"

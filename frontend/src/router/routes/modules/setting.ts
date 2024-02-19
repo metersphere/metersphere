@@ -150,6 +150,17 @@ const Setting: AppRouteRecordRaw = {
             isTopMenu: true,
           },
         },
+        // 任务中心
+        {
+          path: 'taskCenter',
+          name: SettingRouteEnum.SETTING_SYSTEM_TASK_CENTER,
+          component: () => import('@/views/setting/system/taskCenter/index.vue'),
+          meta: {
+            locale: 'menu.projectManagement.taskCenter',
+            roles: ['*'],
+            isTopMenu: true,
+          },
+        },
         {
           path: 'pluginManager',
           name: SettingRouteEnum.SETTING_SYSTEM_PLUGIN_MANAGEMENT,

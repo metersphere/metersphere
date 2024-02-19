@@ -197,6 +197,7 @@ const ProjectManagement: AppRouteRecordRaw = {
             name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE_MANAGEMENT_DETAIL,
             locale: 'menu.settings.organization.templateManagementDetail',
             editLocale: 'menu.settings.organization.templateManagementEdit',
+            editTag: 'id',
             query: ['type'],
           },
         ],
@@ -286,17 +287,6 @@ const ProjectManagement: AppRouteRecordRaw = {
       meta: {
         locale: 'menu.projectManagement.log',
         roles: ['PROJECT_LOG:READ'],
-        isTopMenu: true,
-      },
-    },
-    // 任务中心
-    {
-      path: 'taskCenter',
-      name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TASK_CENTER,
-      component: () => import('@/views/project-management/taskCenter/index.vue'),
-      meta: {
-        locale: 'menu.projectManagement.taskCenter',
-        roles: ['*'],
         isTopMenu: true,
       },
     },

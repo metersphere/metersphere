@@ -90,4 +90,5 @@ export default {
   'system.plugin.switchAllOrganizeTip': '插件将对所有组织可见',
   'system.plugin.switchSectionOrganizeTip': '插件将对指定组织可见',
   'system.plugin.changeOrganizeTip': ' 变更组织会导致历史数据不可用，请谨慎操作！',
+  'system.plugin.supportFormatType': '仅支持JAR格式的文件',
 };

@@ -91,7 +91,13 @@
       </div>
     </template>
     <template #default>
-      <div ref="wrapperRef" class="wrapperRef h-full bg-white">
+      <div
+        ref="wrapperRef"
+        class="wrapperRef bg-white"
+        :style="{
+          height: isFullScreen ? '100%' : 'calc(100% - 86px)',
+        }"
+      >
         <MsSplitBox
           ref="wrapperRef"
           :class="isFullScreen ? 'h-[100%]' : 'h-[calc(100% - 78px)]'"
@@ -365,7 +371,7 @@
 
   const editLoading = ref<boolean>(false);
 
-  function updateSuccess() {
+  async function updateSuccess() {
     detailDrawerRef.value?.initDetail();
   }
 
@@ -391,7 +397,7 @@
     followLoading.value = true;
     try {
       if (detailInfo.value.id) {
-        await followerCaseRequest({ userId: userId.value as string, functionalCaseId: detailInfo.value.id });
+        await followerCaseRequest({ userId: userStore.userInfo.id as string, functionalCaseId: detailInfo.value.id });
         updateSuccess();
         Message.success(
           detailInfo.value.followFlag
@@ -440,8 +446,6 @@
   const formRules = ref<FormItem[]>([]);
   const formItem = ref<FormRuleItem[]>([]);
 
-  const isDisabled = ref<boolean>(false);
-
   // 表单配置项
   const options = {
     resetBtn: false, // 不展示默认配置的重置和提交
@@ -473,7 +477,15 @@
   function initForm() {
     formRules.value = customFields.value.map((item: any) => {
       const multipleType = ['MULTIPLE_SELECT', 'CHECKBOX', 'MULTIPLE_MEMBER', 'MULTIPLE_INPUT'];
-      const currentDefaultValue = multipleType.includes(item.type) ? JSON.parse(item.defaultValue) : item.defaultValue;
+      const numberType = ['INT', 'FLOAT'];
+      let currentDefaultValue;
+      if (numberType.includes(item.type)) {
+        currentDefaultValue = item.defaultValue * 1;
+      } else if (multipleType.includes(item.type)) {
+        currentDefaultValue = JSON.parse(item.defaultValue);
+      } else {
+        currentDefaultValue = item.defaultValue;
+      }
       return {
         ...item,
         type: item.type,

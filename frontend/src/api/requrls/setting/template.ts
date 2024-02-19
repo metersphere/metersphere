@@ -37,7 +37,7 @@ export const getOrdTemplateStateUrl = '/organization/template/enable/config';
 // 系统设置-组织-自定义字段
 
 // 获取自定义字段列表
-export const GetDefinedFieldListUrl = '/organization/custom/field/list/';
+export const GetDefinedFieldListUrl = '/organization/custom/field/list';
 // 创建自定义字段
 export const CreateFieldUrl = '/organization/custom/field/add';
 // 更新自定义字段
@@ -67,7 +67,7 @@ export const OrdUpdateStateFlowUrl = '/organization/status/flow/setting/status/f
 // 项目管理-模板-自定义字段
 
 // 获取自定义字段列表
-export const GetDefinedProjectFieldListUrl = '/project/custom/field/list/';
+export const GetDefinedProjectFieldListUrl = '/project/custom/field/list';
 // 创建自定义字段
 export const CreateProjectFieldUrl = '/project/custom/field/add';
 // 更新自定义字段

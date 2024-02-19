@@ -4,7 +4,12 @@
       t('system.orgTemplate.enableTemplateTip')
     }}</a-alert>
     <div class="mb-4 flex items-center justify-between">
-      <span v-if="isEnableOrdTemplate" class="font-medium">{{ t('system.orgTemplate.templateList') }}</span>
+      <!-- <span v-if="isEnableOrdTemplate || route.query.type === 'BUG'" class="font-medium">{{
+        t('system.orgTemplate.templateList', { type: getTemplateName('organization', route.query.type as string) })
+      }}</span> -->
+      <span v-if="isShowListTip" class="font-medium">{{
+        t('system.orgTemplate.templateList', { type: getTemplateName('organization', route.query.type as string) })
+      }}</span>
       <a-button
         v-if="!isEnableOrdTemplate && route.query.type === 'BUG'"
         v-permission="['ORGANIZATION_TEMPLATE:READ+ADD']"
@@ -12,7 +17,11 @@
         :disabled="false"
         @click="createTemplate"
       >
-        {{ t('system.orgTemplate.createTemplate') }}
+        {{
+          t('system.orgTemplate.createTemplateType', {
+            type: getTemplateName('organization', route.query.type as string),
+          })
+        }}
       </a-button>
       <a-input-search
         v-model:model-value="keyword"
@@ -38,9 +47,12 @@
           <MsButton v-permission="['ORGANIZATION_TEMPLATE:READ+UPDATE']" @click="editTemplate(record.id)">{{
             t('system.orgTemplate.edit')
           }}</MsButton>
-          <MsButton v-permission="['ORGANIZATION_TEMPLATE:READ+ADD']" class="!mr-0" @click="copyTemplate(record.id)">{{
-            t('system.orgTemplate.copy')
-          }}</MsButton>
+          <MsButton
+            v-if="route.query.type === 'BUG' && hasAnyPermission(['ORGANIZATION_TEMPLATE:READ+ADD'])"
+            class="!mr-0"
+            @click="copyTemplate(record.id)"
+            >{{ t('system.orgTemplate.copy') }}</MsButton
+          >
           <a-divider
             v-if="!record.internal"
             v-permission="['ORGANIZATION_TEMPLATE:READ+ADD']"
@@ -88,6 +100,8 @@
   import type { OrdTemplateManagement } from '@/models/setting/template';
   import { SettingRouteEnum } from '@/enums/routeEnum';
   import { TableKeyEnum } from '@/enums/tableEnum';
+
+  import { getTemplateName } from '@/views/setting/organization/template/components/fieldSetting';
 
   const route = useRoute();
   const { t } = useI18n();
@@ -145,10 +159,11 @@
   const { propsRes, propsEvent, loadList, setLoadListParams, setProps } = useTable(getOrganizeTemplateList, {
     tableKey: TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT,
     scroll: { x: '100%' },
+    columns: fieldColumns,
     selectable: false,
     noDisable: true,
     size: 'default',
-    showSetting: true,
+    showSetting: false,
     showPagination: false,
     heightUsed: 380,
   });
@@ -279,11 +294,20 @@
     }
   }
 
+  const isShowListTip = computed(() => {
+    if (!hasAnyPermission(['ORGANIZATION_TEMPLATE:READ+ADD'])) {
+      return true;
+    }
+    if (isEnableOrdTemplate.value && route.query.type === 'BUG') {
+      return true;
+    }
+    return route.query.type !== 'BUG';
+  });
+
   onMounted(() => {
     fetchData();
     updateColumns();
   });
-  tableStore.initColumn(TableKeyEnum.ORGANIZATION_TEMPLATE_MANAGEMENT, fieldColumns, 'drawer');
 </script>
 
 <style scoped lang="less">
