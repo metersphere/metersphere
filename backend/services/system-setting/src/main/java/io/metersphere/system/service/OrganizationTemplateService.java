@@ -51,7 +51,9 @@ public class OrganizationTemplateService extends BaseTemplateService {
     public TemplateDTO geDTOWithCheck(String id) {
         Template template = super.getWithCheck(id);
         checkOrgResourceExist(template);
-        return super.getTemplateDTO(template);
+        TemplateDTO templateDTO = super.getTemplateDTO(template);
+        translateInternalTemplate(List.of(templateDTO));
+        return templateDTO;
     }
 
     public Template add(TemplateUpdateRequest request, String creator) {
@@ -98,6 +100,10 @@ public class OrganizationTemplateService extends BaseTemplateService {
         Template template = new Template();
         BeanUtils.copyBean(template, request);
         Template originTemplate = super.getWithCheck(template.getId());
+        if (originTemplate.getInternal()) {
+            // 内置模板不能修改名字
+            template.setName(null);
+        }
         checkOrganizationTemplateEnable(originTemplate.getScopeId(), originTemplate.getScene());
         template.setScopeId(originTemplate.getScopeId());
         template.setScene(originTemplate.getScene());
