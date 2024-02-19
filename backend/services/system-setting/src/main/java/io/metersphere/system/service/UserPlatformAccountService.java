@@ -2,6 +2,7 @@ package io.metersphere.system.service;
 
 import io.metersphere.plugin.platform.spi.AbstractPlatformPlugin;
 import io.metersphere.plugin.platform.spi.Platform;
+import io.metersphere.plugin.sdk.spi.MsPlugin;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.constants.OperationLogConstants;
 import io.metersphere.sdk.constants.PluginScenarioType;
@@ -15,6 +16,7 @@ import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.log.service.OperationLogService;
 import io.metersphere.system.mapper.UserExtendMapper;
 import jakarta.annotation.Resource;
+import org.pf4j.PluginWrapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +46,9 @@ public class UserPlatformAccountService {
         Map<String, Object> accountInfoMap = new HashMap<>();
         plugins.forEach(plugin -> {
             Object accountInfo = getAccountInfo(plugin.getId());
+            PluginWrapper pluginWrapper = pluginLoadService.getPluginWrapper(plugin.getId());
+            MsPlugin msPlugin = (MsPlugin) pluginWrapper.getPlugin();
+            ((Map) accountInfo).put("pluginName", msPlugin.getName());
             accountInfoMap.put(plugin.getId(), accountInfo);
         });
         return accountInfoMap;
