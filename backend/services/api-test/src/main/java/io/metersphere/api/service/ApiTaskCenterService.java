@@ -2,24 +2,35 @@ package io.metersphere.api.service;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.page.PageMethod;
+import io.metersphere.api.dto.report.ReportDTO;
+import io.metersphere.api.mapper.ApiReportMapper;
 import io.metersphere.api.mapper.ExtApiReportMapper;
-import io.metersphere.api.mapper.ExtApiScenarioMapper;
+import io.metersphere.api.mapper.ExtApiScenarioReportMapper;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.TaskCenterResourceType;
 import io.metersphere.sdk.exception.MSException;
+import io.metersphere.sdk.util.DateUtils;
+import io.metersphere.sdk.util.LogUtils;
+import io.metersphere.sdk.util.SubListUtils;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.Organization;
+import io.metersphere.system.dto.pool.TestResourceNodeDTO;
+import io.metersphere.system.dto.pool.TestResourcePoolReturnDTO;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.taskcenter.TaskCenterDTO;
+import io.metersphere.system.dto.taskcenter.request.TaskCenterBatchRequest;
 import io.metersphere.system.dto.taskcenter.request.TaskCenterPageRequest;
 import io.metersphere.system.mapper.BaseProjectMapper;
 import io.metersphere.system.mapper.ExtOrganizationMapper;
 import io.metersphere.system.mapper.OrganizationMapper;
+import io.metersphere.system.service.TestResourcePoolService;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.utils.PageUtils;
 import io.metersphere.system.utils.Pager;
+import io.metersphere.system.utils.TaskRunnerClient;
 import jakarta.annotation.Resource;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +41,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static io.metersphere.api.controller.result.ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR;
 
 /**
  * @author: LAN
@@ -44,7 +57,7 @@ public class ApiTaskCenterService {
     ExtApiReportMapper extApiReportMapper;
 
     @Resource
-    ExtApiScenarioMapper extApiScenarioMapper;
+    ApiReportMapper apiReportMapper;
 
     @Resource
     ExtOrganizationMapper extOrganizationMapper;
@@ -61,6 +74,11 @@ public class ApiTaskCenterService {
     @Resource
     OrganizationMapper organizationMapper;
 
+    @Resource
+    ExtApiScenarioReportMapper extApiScenarioReportMapper;
+
+    @Resource
+    TestResourcePoolService testResourcePoolService;
     private static final String DEFAULT_SORT = "start_time desc";
 
     /**
@@ -79,7 +97,7 @@ public class ApiTaskCenterService {
      * 任务中心实时任务列表-组织级
      *
      * @param request 请求参数
-     * @returnxx 任务中心实时任务列表
+     * @return 任务中心实时任务列表
      */
     public Pager<List<TaskCenterDTO>> getOrganizationPage(TaskCenterPageRequest request, String organizationId) {
         checkOrganizationExist(organizationId);
@@ -109,9 +127,9 @@ public class ApiTaskCenterService {
         List<String> projectIds = projectList.stream().map(OptionDTO::getId).toList();
         if (request != null && !projectIds.isEmpty()) {
             if (request.getModuleType().equals(TaskCenterResourceType.API_CASE.toString())) {
-                list = extApiReportMapper.taskCenterlist(request, projectIds);
+                list = extApiReportMapper.taskCenterlist(request, projectIds, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
             } else if (request.getModuleType().equals(TaskCenterResourceType.API_SCENARIO.toString())) {
-                list = extApiScenarioMapper.taskCenterlist(request, projectIds);
+                list = extApiScenarioReportMapper.taskCenterlist(request, projectIds, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
             }
             processTaskCenter(list, projectList, projectIds);
         }
@@ -179,4 +197,80 @@ public class ApiTaskCenterService {
         }
     }
 
+    public void systemStop(TaskCenterBatchRequest request) {
+        stopApiTask(request, null);
+    }
+
+    private void stopApiTask(TaskCenterBatchRequest request, List<String> projectIds) {
+        List<ReportDTO> reports = new ArrayList<>();
+        if (request.getModuleType().equals(TaskCenterResourceType.API_CASE.toString())) {
+            if (request.isSelectAll()) {
+                reports = extApiReportMapper.getReports(request, projectIds, null, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
+            } else {
+                reports = extApiReportMapper.getReports(request, projectIds, request.getSelectIds(), DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
+            }
+        } else if (request.getModuleType().equals(TaskCenterResourceType.API_SCENARIO.toString())) {
+            if (request.isSelectAll()) {
+                reports = extApiScenarioReportMapper.getReports(request, projectIds, null, DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
+            } else {
+                reports = extApiScenarioReportMapper.getReports(request, projectIds, request.getSelectIds(), DateUtils.getDailyStartTime(), DateUtils.getDailyEndTime());
+            }
+        }
+        if (CollectionUtils.isNotEmpty(reports)) {
+            detailReport(request, reports);
+        }
+    }
+
+    private void detailReport(TaskCenterBatchRequest request, List<ReportDTO> reports) {
+        Map<String, List<String>> poolIdMap = reports.stream()
+                .collect(Collectors.groupingBy(ReportDTO::getPoolId, Collectors.mapping(ReportDTO::getId, Collectors.toList())));
+
+        poolIdMap.forEach((poolId, reportList) -> {
+            TestResourcePoolReturnDTO testResourcePoolDTO = testResourcePoolService.getTestResourcePoolDetail(poolId);
+            List<TestResourceNodeDTO> nodesList = testResourcePoolDTO.getTestResourceReturnDTO().getNodesList();
+            if (CollectionUtils.isNotEmpty(nodesList)) {
+                stopTask(request, reportList, nodesList);
+            }
+        });
+    }
+
+    private static void stopTask(TaskCenterBatchRequest request, List<String> reportList, List<TestResourceNodeDTO> nodesList) {
+        nodesList.forEach(node -> {
+            String endpoint = TaskRunnerClient.getEndpoint(node.getIp(), node.getPort());
+            //需要去除取消勾选的report
+            if (CollectionUtils.isNotEmpty(request.getExcludeIds())) {
+                reportList.removeAll(request.getExcludeIds());
+            }
+            SubListUtils.dealForSubList(reportList, 1000, (subList) -> {
+                try {
+                    LogUtils.info(String.format("开始发送停止请求到 %s 节点执行", endpoint), subList.toString());
+                    TaskRunnerClient.stopApi(endpoint, subList);
+                } catch (Exception e) {
+                    LogUtils.error(e);
+                    throw new MSException(RESOURCE_POOL_EXECUTE_ERROR, e.getMessage());
+                }
+            });
+        });
+    }
+
+    public void orgStop(TaskCenterBatchRequest request, String orgId) {
+        checkOrganizationExist(orgId);
+        List<OptionDTO> projectList = getOrgProjectList(orgId);
+        List<String> projectIds = projectList.stream().map(OptionDTO::getId).toList();
+        stopApiTask(request, projectIds);
+
+    }
+
+    public void projectStop(TaskCenterBatchRequest request, String currentProjectId) {
+        checkProjectExist(currentProjectId);
+        stopApiTask(request, List.of(currentProjectId));
+    }
+
+    public void stopById(String id) {
+        List<String> reportIds = new ArrayList<>();
+        reportIds.add(id);
+        TaskCenterBatchRequest request = new TaskCenterBatchRequest();
+        request.setSelectIds(reportIds);
+        stopApiTask(request, null);
+    }
 }

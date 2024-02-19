@@ -379,44 +379,7 @@
             LIMIT 1;
     </select>
 
-    <select id="taskCenterlist" resultType="io.metersphere.system.dto.taskcenter.TaskCenterDTO">
-        select
-        api_scenario_report.id,
-        api_scenario_report.project_id,
-        api_scenario_report.integrated,
-        api_scenario_report.status,
-        api_scenario_report.start_time as operationTime,
-        api_scenario_report.create_user as operationName,
-        api_scenario_report.trigger_mode,
 
-        CASE
-        WHEN api_scenario_report.integrated = 0 THEN
-        s.num ELSE api_scenario_report.id
-        END AS resourceId,
-
-        CASE
-        WHEN api_scenario_report.integrated = 0 THEN
-        s.NAME ELSE api_scenario_report.NAME
-        END AS resourceName,
-
-        t.name as poolName
-        from api_scenario_report
-        left JOIN api_scenario s on api_scenario_report.scenario_id = s.id
-        left JOIN test_resource_pool t on api_scenario_report.pool_id = t.id
-        where api_scenario_report.project_id IN
-        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
-            #{projectId}
-        </foreach>
-        <if test="request.keyword != null and request.keyword != ''">
-            and (
-            api_scenario_report.name like concat('%', #{request.keyword},'%')
-            or s.name like concat('%', #{request.keyword},'%')
-            )
-        </if>
-        <include refid="taskCenterFilters">
-            <property name="filter" value="request.filter"/>
-        </include>
-    </select>
     <select id="getAssociationPage" resultType="io.metersphere.api.dto.scenario.ApiScenarioAssociationDTO">
         SELECT
             distinct a.ref_type, a.scenario_id,
@@ -464,21 +427,6 @@
         select id from api_scenario
         where project_id = #{projectId}
     </select>
-
-    <sql id="taskCenterFilters">
-        <if test="${filter} != null and ${filter}.size() > 0">
-            <foreach collection="${filter}.entrySet()" index="key" item="values">
-                <if test="values != null and values.size() > 0">
-                    <choose>
-                        <when test="key=='triggerMode'">
-                            and api_scenario_report.trigger_mode in
-                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
-                        </when>
-                    </choose>
-                </if>
-            </foreach>
-        </if>
-    </sql>
 
     <select id="getPrePos" resultType="java.lang.Long">
         select `pos` from api_scenario where project_id = #{projectId}

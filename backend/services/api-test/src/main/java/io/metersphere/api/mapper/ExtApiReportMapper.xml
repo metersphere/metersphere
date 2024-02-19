@@ -147,7 +147,10 @@
         api_report
         LEFT JOIN api_test_case c ON api_report.resource_id = c.id
         LEFT JOIN test_resource_pool t ON api_report.pool_id = t.id
-        where  api_report.project_id IN
+        where  api_report.deleted = false
+        and api_report.test_plan_id = 'NONE'
+          and api_report.start_time BETWEEN #{startTime} AND #{endTime}
+          and api_report.project_id IN
         <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
             #{projectId}
         </foreach>
@@ -157,24 +160,38 @@
             or c.name like concat('%', #{request.keyword},'%')
             )
         </if>
-        <include refid="taskCenterFilters">
+        <include refid="filters">
             <property name="filter" value="request.filter"/>
         </include>
     </select>
-
-    <sql id="taskCenterFilters">
-        <if test="${filter} != null and ${filter}.size() > 0">
-            <foreach collection="${filter}.entrySet()" index="key" item="values">
-                <if test="values != null and values.size() > 0">
-                    <choose>
-                        <when test="key=='triggerMode'">
-                            and api_report.trigger_mode in
-                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
-                        </when>
-                    </choose>
-                </if>
+    <select id="getReports" resultType="io.metersphere.api.dto.report.ReportDTO">
+        select id, pool_id from api_report where
+        api_report.deleted = false
+        and api_report.test_plan_id = 'NONE'
+        and api_report.start_time BETWEEN #{startTime} AND #{endTime}
+        and status in ('PENDING', 'RUNNING')
+        <if test="ids != null and ids.size() > 0">
+            and id in
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
             </foreach>
         </if>
-    </sql>
+        <if test="projectIds != null and projectIds.size() > 0">
+            and project_id in
+            <foreach collection="projectIds" item="projectId" open="(" separator="," close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="request.condition.keyword != null">
+            and (
+            name like concat('%', #{request.condition.keyword},'%')
+            )
+        </if>
+
+        <include refid="filters">
+            <property name="filter" value="request.condition.filter"/>
+        </include>
+
+    </select>
 
 </mapper>

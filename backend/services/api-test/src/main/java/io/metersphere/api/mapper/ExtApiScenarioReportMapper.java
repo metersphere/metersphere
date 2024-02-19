@@ -3,7 +3,11 @@ package io.metersphere.api.mapper;
 import io.metersphere.api.domain.ApiScenarioReport;
 import io.metersphere.api.dto.definition.ApiReportBatchRequest;
 import io.metersphere.api.dto.definition.ApiReportPageRequest;
+import io.metersphere.api.dto.report.ReportDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportStepDTO;
+import io.metersphere.system.dto.taskcenter.TaskCenterDTO;
+import io.metersphere.system.dto.taskcenter.request.TaskCenterBatchRequest;
+import io.metersphere.system.dto.taskcenter.request.TaskCenterPageRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -24,4 +28,11 @@ public interface ExtApiScenarioReportMapper {
     int selectScenarioReportByTime(@Param("time") long time, @Param("projectId") String projectId);
 
     List<String> selectApiReportByProjectIdAndTime(@Param("time") long time, @Param("projectId") String projectId);
+
+    List<TaskCenterDTO> taskCenterlist(@Param("request") TaskCenterPageRequest request, @Param("projectIds") List<String> projectIds,
+                                       @Param("startTime") long startTime, @Param("endTime") long endTime);
+
+
+    List<ReportDTO> getReports(@Param("request") TaskCenterBatchRequest request, @Param("projectIds") List<String> projectIds,
+                               @Param("ids") List<String> ids, @Param("startTime") long startTime, @Param("endTime") long endTime);
 }
