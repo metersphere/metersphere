@@ -11,7 +11,7 @@
   >
     <div>
       <div class="flex flex-row justify-between">
-        <a-button type="primary" @click="handleAddMember">
+        <a-button v-permission="['SYSTEM_ORGANIZATIN_PROJECT:READ+UPDATE']" type="primary" @click="handleAddMember">
           {{ t('system.organization.addMember') }}
         </a-button>
         <a-input-search
@@ -33,6 +33,7 @@
         </template>
         <template #operation="{ record }">
           <MsRemoveButton
+            v-permission="['SYSTEM_ORGANIZATIN_PROJECT:READ+DELETE']"
             :title="t('system.organization.removeName', { name: characterLimit(record.name) })"
             :sub-title-tip="props.organizationId ? t('system.organization.removeTip') : t('system.project.removeTip')"
             @ok="handleRemove(record)"
@@ -67,6 +68,7 @@
   } from '@/api/modules/setting/organizationAndProject';
   import { useI18n } from '@/hooks/useI18n';
   import { characterLimit } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   export interface projectDrawerProps {
     visible: boolean;
@@ -87,6 +89,14 @@
 
   const keyword = ref('');
 
+  const hasOperationPermission = computed(() =>
+    hasAnyPermission([
+      'SYSTEM_ORGANIZATION_PROJECT:READ+RECOVER',
+      'SYSTEM_ORGANIZATION_PROJECT:READ+UPDATE',
+      'SYSTEM_ORGANIZATION_PROJECT:READ+DELETE',
+    ])
+  );
+
   const projectColumn: MsTableColumn = [
     {
       title: 'system.organization.userName',
@@ -105,7 +115,7 @@
       title: 'system.organization.phone',
       dataIndex: 'phone',
     },
-    { title: 'system.organization.operation', slotName: 'operation', width: 60 },
+    { title: hasOperationPermission.value ? 'system.organization.operation' : '', slotName: 'operation', width: 60 },
   ];
 
   const { propsRes, propsEvent, loadList, setLoadListParams, setKeyword } = useTable(

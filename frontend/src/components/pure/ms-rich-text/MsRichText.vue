@@ -12,8 +12,7 @@
    * import rehypeStringify from 'rehype-stringify';
    * return unified().use(rehypeParse).use(rehypeFormat).use(rehypeStringify).processSync(content.value);
    */
-  import { useDebounceFn, useLocalStorage } from '@vueuse/core';
-  import { useVModel } from '@vueuse/core';
+  import { useDebounceFn, useLocalStorage, useVModel } from '@vueuse/core';
 
   import type { MsFileItem } from '@/components/pure/ms-upload/types';
   import AttachmentSelectorModal from './attachmentSelectorModal.vue';
@@ -95,6 +94,7 @@
       maxHeight?: string;
       filedIds?: string[];
       commentIds?: string[];
+      wrapperClass?: string;
     }>(),
     {
       raw: '',
@@ -507,6 +507,9 @@
   .rich-wrapper {
     border: 1px solid var(--color-text-n8);
     border-radius: var(--border-radius-small);
+    &:hover {
+      border-color: rgb(var(--primary-5));
+    }
     @apply relative overflow-hidden;
     :deep(.halo-rich-text-editor .ProseMirror) {
       padding: 16px 24px !important;

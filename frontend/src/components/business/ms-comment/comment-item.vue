@@ -3,7 +3,7 @@
     <div class="p-1"> <MsAvatar avatar="word" /></div>
     <div class="flex w-full flex-col">
       <div class="font-medium text-[var(--color-text-1)]">{{ props.element.createUser }}</div>
-      <div v-if="!isEdit" v-dompurify-html="props.element.content" class="mt-[4px] text-[var(--color-text-2)]"></div>
+      <div v-dompurify-html="props.element.content" class="mt-[4px] text-[var(--color-text-2)]"></div>
 
       <div class="mb-4 mt-[16px] flex flex-row items-center">
         <div class="text-[var(--color-text-4)]">{{
@@ -19,15 +19,28 @@
             <span>{{ !expendComment ? t('ms.comment.expendComment') : t('ms.comment.collapseComment') }}</span>
             <span class="text-[var(--color-text-4)]">({{ element.childComments?.length }})</span>
           </div>
-          <div class="comment-btn hover:bg-[rgb(var(--color-bg-3))]" @click="replyClick">
+          <div
+            class="comment-btn hover:bg-[var(--color-bg-3)]"
+            :class="{ 'bg-[var(--color-text-n8)]': status === 'reply' }"
+            @click="replyClick"
+          >
             <MsIconfont type="icon-icon_reply" />
             <span>{{ t('ms.comment.reply') }}</span>
           </div>
-          <div v-if="hasEditAuth" class="comment-btn hover:bg-[rgb(var(--color-bg-3))]" @click="editClick">
+          <div
+            v-if="hasEditAuth"
+            class="comment-btn hover:bg-[var(--color-bg-3)]"
+            :class="{ 'bg-[var(--color-text-n8)]': status === 'edit' }"
+            @click="editClick"
+          >
             <MsIconfont type="icon-icon_edit_outlined" />
             <span>{{ t('ms.comment.edit') }}</span>
           </div>
-          <div class="comment-btn hover:bg-[rgb(var(--danger-1))]" @click="deleteClick">
+          <div
+            class="comment-btn hover:bg-[rgb(var(--danger-1))]"
+            :class="{ 'bg-[rgb(var(--danger-2))]': status === 'delete' }"
+            @click="deleteClick"
+          >
             <MsIconfont type="icon-icon_delete-trash_outlined" />
             <span>{{ t('ms.comment.delete') }}</span>
           </div>
@@ -38,7 +51,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
+  import { defineModel, ref } from 'vue';
   import dayjs from 'dayjs';
 
   import MsAvatar from '@/components/pure/ms-avatar/index.vue';
@@ -67,6 +80,8 @@
     return props.element.createUser === userStore.id;
   });
 
+  const status = defineModel<'normal' | 'edit' | 'reply' | 'delete'>('status', { default: 'normal' });
+
   const emit = defineEmits<{
     (event: 'reply'): void;
     (event: 'edit'): void;
@@ -74,22 +89,23 @@
   }>();
 
   const expendComment = ref(false);
-  const isEdit = ref(false);
 
   const expendChange = () => {
     expendComment.value = !expendComment.value;
   };
   const replyClick = () => {
     emit('reply');
+    status.value = 'reply';
   };
 
   const editClick = () => {
-    isEdit.value = true;
     emit('edit');
+    status.value = 'edit';
   };
 
   const deleteClick = () => {
     emit('delete');
+    status.value = 'delete';
   };
 </script>
 

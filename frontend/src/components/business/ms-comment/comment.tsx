@@ -5,7 +5,7 @@ import CommentInput from './input.vue';
 
 import { useI18n } from '@/hooks/useI18n';
 
-import { CommentItem, CommentParams } from './types';
+import { CommentItem, CommentParams, CommentType } from './types';
 import message from '@arco-design/web-vue/es/message';
 
 export default defineComponent({
@@ -27,25 +27,45 @@ export default defineComponent({
   },
   setup(props, { emit }) {
     const { commentList, disabled } = toRefs(props);
-    const currentItem = reactive<{ id: string; parentId: string; status: string }>({
+    const currentItem = reactive<{ id: string; commentType: CommentType; commentStatus: string }>({
       id: '',
-      parentId: '',
-      status: 'add',
+      commentType: 'ADD',
+      // 控制回复编辑删除按钮的状态
+      commentStatus: 'normal',
     });
+    // 被@的用户id
+    const noticeUserIds = ref<string[]>([]);
     const { t } = useI18n();
 
     const resetCurrentItem = () => {
       currentItem.id = '';
-      currentItem.parentId = '';
+      currentItem.commentType = 'ADD';
+      currentItem.commentStatus = 'normal';
+      noticeUserIds.value = [];
     };
 
     const handlePublish = (content: string, item: CommentItem) => {
+      // 这个组件里的都是回复和编辑不涉及新增，所以是 COMMENT 或 REPLAY
+      let parentId = '';
+      if (currentItem.commentType === 'REPLY') {
+        parentId = item.id;
+      } else if (currentItem.commentType === 'EDIT') {
+        parentId = item.parentId || '';
+      }
       const params: CommentParams = {
-        ...item,
+        id: currentItem.id,
+        bugId: item.bugId,
         content,
-        event: 'REPLAY',
-        status: currentItem.status,
+        event: noticeUserIds.value.length > 0 ? 'REPLAY' : 'COMMENT',
+        commentType: currentItem.commentType,
+        fetchType: currentItem.commentType === 'EDIT' ? 'UPDATE' : 'ADD',
+        notifier: noticeUserIds.value.join(';'),
+        replyUser: item.createUser,
+        parentId,
       };
+      if (currentItem.commentType === 'EDIT') {
+        params.id = item.id;
+      }
       emit('updateOrAdd', params, (result: boolean) => {
         if (result) {
           message.success(t('common.publishSuccessfully'));
@@ -62,24 +82,19 @@ export default defineComponent({
 
     const handleReply = (item: CommentItem) => {
       if (item.childComments && Array.isArray(item.childComments)) {
-        // 父级评论
+        // 点击的是父级评论的回复
         currentItem.id = item.id;
-        currentItem.parentId = '';
       } else {
         // 子级评论
         currentItem.id = item.parentId || '';
-        currentItem.parentId = item.id;
       }
-      currentItem.status = 'replay';
+      currentItem.commentType = 'REPLY';
     };
 
     const handelEdit = (item: CommentItem) => {
       currentItem.id = item.id;
-      currentItem.parentId = item.parentId || '';
-      currentItem.status = 'edit';
+      currentItem.commentType = 'EDIT';
     };
-
-    const noticeUserIds = ref<string[]>([]);
 
     const renderInput = (item: CommentItem) => {
       return (
@@ -87,7 +102,11 @@ export default defineComponent({
           isShowAvatar={false}
           isUseBottom={false}
           onPublish={(content: string) => handlePublish(content, item)}
-          defaultValue={item.content || ''}
+          defaultValue={currentItem.commentType === 'EDIT' ? item.content : ''}
+          noticeUserIds={noticeUserIds.value}
+          onUpdate:noticeUserIds={(ids: string[]) => {
+            noticeUserIds.value = ids;
+          }}
           onCancel={() => resetCurrentItem()}
           {...item}
         />
@@ -102,10 +121,14 @@ export default defineComponent({
         return (
           <div class="flex flex-col">
             <Item
+              mode={'child'}
               onReply={() => handleReply(item)}
               onEdit={() => handelEdit(item)}
               onDelete={() => handleDelete(item)}
-              mode={'child'}
+              status={item.id === currentItem.id ? currentItem.commentStatus : 'normal'}
+              onUpdate:status={(v: string) => {
+                currentItem.commentStatus = v;
+              }}
               element={item}
             />
             {item.id === currentItem.id && renderInput(item)}
@@ -123,9 +146,15 @@ export default defineComponent({
               onReply={() => handleReply(item)}
               onEdit={() => handelEdit(item)}
               onDelete={() => handleDelete(item)}
+              status={item.id === currentItem.id ? currentItem.commentStatus : 'normal'}
+              onUpdate:status={(v: string) => {
+                currentItem.commentStatus = v;
+              }}
               element={item}
             >
-              <div class="rounded border border-[var(--color-text-7)] p-[16px]"></div>
+              <div class="rounded border border-[var(--color-text-7)] p-[16px]">
+                {renderChildrenList(item.childComments)}
+              </div>
             </Item>
             {item.id === currentItem.id && renderInput(item)}
           </>

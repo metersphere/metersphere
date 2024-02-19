@@ -26,6 +26,7 @@
           :rules="[{ required: true, message: t('login.form.userName.errMsg') }]"
           :validate-trigger="['change', 'blur']"
           hide-label
+          maxlength="64"
         >
           <a-input v-model="userInfo.username" :max-length="255" :placeholder="t('login.form.userName.placeholder')" />
         </a-form-item>
@@ -40,6 +41,7 @@
             v-model="userInfo.password"
             :placeholder="t('login.form.password.placeholder')"
             allow-clear
+            maxlength="64"
           />
         </a-form-item>
         <div class="mb-6 mt-[12px]">
