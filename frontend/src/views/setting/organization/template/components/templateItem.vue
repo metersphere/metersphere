@@ -17,15 +17,21 @@
             </span>
             <span class="operation hover:text-[rgb(var(--primary-5))]">
               <span @click="templateManagement">{{ t('system.orgTemplate.TemplateManagement') }}</span>
-              <a-divider v-if="isEnableProject || props.cardItem.key === 'BUG'" direction="vertical" />
+              <a-divider
+                v-if="(hasEnablePermission && isEnableProject) || props.cardItem.key === 'BUG'"
+                direction="vertical"
+              />
             </span>
             <span v-if="props.cardItem.key === 'BUG'" class="operation hover:text-[rgb(var(--primary-5))]">
               <span @click="workflowSetup">{{ t('system.orgTemplate.workflowSetup') }}</span>
-              <a-divider v-if="isEnableProject && props.cardItem.key === 'BUG'" direction="vertical" />
+              <a-divider
+                v-if="isEnableProject && props.cardItem.key === 'BUG'"
+                v-permission="['ORGANIZATION_TEMPLATE:READ+ENABLE']"
+                direction="vertical"
+              />
             </span>
             <span
-              v-if="isEnableProject"
-              v-permission="['ORGANIZATION_TEMPLATE:READ+ENABLE']"
+              v-if="isEnableProject && hasEnablePermission"
               class="rounded p-[2px] hover:bg-[rgb(var(--primary-9))]"
             >
               <MsTableMoreAction :list="moreActions" @select="handleMoreActionSelect"
@@ -97,6 +103,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
   import useTemplateStore from '@/store/modules/setting/template';
+  import { hasAnyPermission } from '@/utils/permission';
 
   const { t } = useI18n();
   const appStore = useAppStore();
@@ -195,6 +202,8 @@
     },
     { deep: true }
   );
+
+  const hasEnablePermission = computed(() => hasAnyPermission(['ORGANIZATION_TEMPLATE:READ+ENABLE']));
 
   function cancelHandler() {
     showEnableVisible.value = false;

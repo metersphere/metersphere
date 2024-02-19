@@ -172,7 +172,7 @@
       slotName: 'operation',
       fixed: 'right',
       dataIndex: 'operation',
-      width: hasOperationPermission.value ? 100 : 50,
+      width: hasOperationPermission.value ? 120 : 50,
       showDrag: false,
     },
   ];
@@ -182,12 +182,12 @@
       {
         label: 'project.member.batchActionAddUserGroup',
         eventTag: 'batchAddUserGroup',
-        permission: ['PROJECT_USER:READ+ADD'],
+        permission: ['PROJECT_USER:READ+UPDATE'],
       },
       {
         label: 'project.member.batchActionRemove',
         eventTag: 'batchActionRemove',
-        permission: ['PROJECT_USER:READ+ADD'],
+        permission: ['PROJECT_USER:READ+DELETE'],
       },
     ],
   };
@@ -202,7 +202,7 @@
     getProjectMemberList,
     {
       tableKey: TableKeyEnum.PROJECT_MEMBER,
-      selectable: true,
+      selectable: !!hasAnyPermission(['PROJECT_USER:READ+DELETE', 'ORGANIZATION_MEMBER:READ+UPDATE']),
       showSetting: true,
       heightUsed: 288,
       columns,

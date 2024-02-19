@@ -18,7 +18,9 @@
               allow-clear
             />
             <span class="absolute right-0 top-1 flex items-center">
-              <span class="float-left text-[rgb(var(--primary-5))]">{{ t('system.plugin.getPlugin') }}</span>
+              <span class="text-[rgb(var(--primary-5))]b float-left cursor-pointer" @click="openGithub">{{
+                t('system.plugin.getPlugin')
+              }}</span>
               <a-tooltip position="bottom">
                 <span class="float-right ml-1 mt-[2px]">
                   <IconQuestionCircle

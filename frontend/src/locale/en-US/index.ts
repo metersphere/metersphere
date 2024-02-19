@@ -37,7 +37,7 @@ export default {
     'menu.caseManagement.featureCaseRecycle': 'Recycle',
     'menu.caseManagement.featureCaseList': 'Case list',
     'menu.caseManagement.featureCaseDetail': 'Create Case',
-    'menu.caseManagement.featureCaseEdit': 'Edit Case',
+    'menu.caseManagement.featureCaseEdit': 'Update Case',
     'menu.caseManagement.featureCaseCreateSuccess': 'Create Success',
     'menu.caseManagement.caseManagementReview': 'Feature Case Review',
     'menu.caseManagement.caseManagementReviewCreate': 'Create Review',

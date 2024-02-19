@@ -43,7 +43,7 @@ export default {
     'menu.caseManagement.featureCaseRecycle': '回收站',
     'menu.caseManagement.featureCaseList': '用例列表',
     'menu.caseManagement.featureCaseDetail': '创建用例',
-    'menu.caseManagement.featureCaseEdit': '编辑用例',
+    'menu.caseManagement.featureCaseEdit': '更新用例',
     'menu.caseManagement.featureCaseCreateSuccess': '创建用例成功',
     'menu.caseManagement.caseManagementReview': '用例评审',
     'menu.caseManagement.caseManagementReviewCreate': '创建评审',

@@ -146,7 +146,7 @@
   const sceneType = computed(() => route.query.type);
 
   const hasOperationPermission = computed(() =>
-    hasAnyPermission(['PROJECT_TEMPLATE:READ+UPDATE', 'PROJECT_TEMPLATE:READ+DELETE'])
+    hasAnyPermission(['PROJECT_TEMPLATE:READ+ADD', 'PROJECT_TEMPLATE:READ+UPDATE', 'PROJECT_TEMPLATE:READ+DELETE'])
   );
 
   const fieldColumns: MsTableColumn = [

@@ -233,12 +233,12 @@
       title.value = t('system.orgTemplate.copyTemplate');
       getClassifyField();
     } else if (isEdit.value) {
-      title.value = t('system.orgTemplate.createTemplateType', {
+      title.value = t('system.orgTemplate.editTemplateType', {
         type: getTemplateName('organization', route.query.type as string),
       });
       getClassifyField();
     } else {
-      title.value = t('menu.settings.organization.editTemplateType', {
+      title.value = t('system.orgTemplate.createTemplateType', {
         type: getTemplateName('organization', route.query.type as string),
       });
     }

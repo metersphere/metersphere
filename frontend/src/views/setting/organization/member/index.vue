@@ -239,7 +239,7 @@
     {
       tableKey: TableKeyEnum.ORGANIZATION_MEMBER,
       scroll: { x: 1800 },
-      selectable: true,
+      selectable: !!hasAnyPermission(['ORGANIZATION_MEMBER:READ+ADD', 'ORGANIZATION_MEMBER:READ+ADD']),
       heightUsed: 288,
       showSetting: true,
       size: 'default',
