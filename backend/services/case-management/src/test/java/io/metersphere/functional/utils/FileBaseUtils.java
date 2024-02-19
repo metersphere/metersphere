@@ -7,7 +7,7 @@ import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.utils.Pager;
 import org.apache.commons.collections4.CollectionUtils;
 import org.junit.jupiter.api.Assertions;
-import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;

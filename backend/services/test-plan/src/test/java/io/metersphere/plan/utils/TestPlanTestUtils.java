@@ -2,7 +2,7 @@ package io.metersphere.plan.utils;
 
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import org.apache.commons.collections4.CollectionUtils;
-import org.testcontainers.shaded.org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
