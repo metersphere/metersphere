@@ -54,4 +54,8 @@ public class LocalRepositoryDir {
     public static String getSystemCacheDir() {
         return SYSTEM_CACHE_DIR;
     }
+
+    public static String getFuncJarDir() {
+        return ROOT_DIR + "/api/func-jar";
+    }
 }

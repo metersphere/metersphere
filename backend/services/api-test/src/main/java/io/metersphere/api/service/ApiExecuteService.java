@@ -10,6 +10,7 @@ import io.metersphere.api.parser.TestElementParser;
 import io.metersphere.api.parser.TestElementParserFactory;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionRunRequest;
 import io.metersphere.project.service.FileAssociationService;
@@ -299,6 +300,27 @@ public class ApiExecuteService {
         }
 
         taskRequest.setRefFiles(refFiles);
+        // 获取函数jar包
+        List<FileMetadata> fileMetadataList = fileManagementService.findJarByProjectId(List.of(taskRequest.getProjectId()));
+        taskRequest.setFuncJars(fileMetadataList.stream()
+                .map(file -> {
+                    String fileName = file.getName() + "." + file.getType();
+                    ApiExecuteFileInfo tempFileInfo = getApiExecuteFileInfo(file.getId(), fileName, file.getProjectId(), file.getStorage());
+                    if (StorageType.isGit(file.getStorage())) {
+                        // 设置Git信息
+                        tempFileInfo.setFileMetadataRepositoryDTO(fileManagementService.getFileMetadataRepositoryDTO(file.getId()));
+                        tempFileInfo.setFileModuleRepositoryDTO(fileManagementService.getFileModuleRepositoryDTO(file.getModuleId()));
+                    }
+                    return tempFileInfo;
+                }).toList());
+
+        // TODO 当前项目没有包分两种情况，1 之前存在被删除，2 一直不存在
+        //  为了兼容1 这种情况需要初始化一条空的数据，由执行机去做卸载
+        if (CollectionUtils.isEmpty(taskRequest.getFuncJars())) {
+            ApiExecuteFileInfo tempFileInfo = new ApiExecuteFileInfo();
+            tempFileInfo.setProjectId(request.getProjectId());
+            taskRequest.setFuncJars(List.of(tempFileInfo));
+        }
     }
 
     private static ApiExecuteFileInfo getApiExecuteFileInfo(String fileId, String fileName, String projectId) {

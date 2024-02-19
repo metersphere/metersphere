@@ -231,4 +231,13 @@ public class FileManagementService {
         byte[] fileBytes = this.getFile(fileMetadata);
         return TempFileUtils.compressPic(fileBytes);
     }
+
+    public List<FileMetadata> findJarByProjectId(List<String> projectIds) {
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andProjectIdIn(projectIds)
+                .andEnableEqualTo(true)
+                .andTypeEqualTo("jar")
+                .andLatestEqualTo(true);
+        return fileMetadataMapper.selectByExample(example);
+    }
 }
