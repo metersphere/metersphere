@@ -4,7 +4,9 @@ import io.metersphere.api.domain.ApiReport;
 import io.metersphere.api.dto.definition.ApiReportBatchRequest;
 import io.metersphere.api.dto.definition.ApiReportPageRequest;
 import io.metersphere.api.dto.definition.ApiReportStepDTO;
+import io.metersphere.api.dto.report.ReportDTO;
 import io.metersphere.system.dto.taskcenter.TaskCenterDTO;
+import io.metersphere.system.dto.taskcenter.request.TaskCenterBatchRequest;
 import io.metersphere.system.dto.taskcenter.request.TaskCenterPageRequest;
 import org.apache.ibatis.annotations.Param;
 
@@ -25,6 +27,13 @@ public interface ExtApiReportMapper {
 
     int selectApiReportByTime(@Param("time") long time, @Param("projectId") String projectId);
 
-    List<TaskCenterDTO> taskCenterlist(@Param("request") TaskCenterPageRequest request,@Param("projectIds") List<String> projectIds);
+    List<TaskCenterDTO> taskCenterlist(@Param("request") TaskCenterPageRequest request, @Param("projectIds") List<String> projectIds,
+                                       @Param("startTime") long startTime, @Param("endTime") long endTime);
 
+    List<ReportDTO> getReports(@Param("request") TaskCenterBatchRequest request, @Param("projectIds") List<String> projectIds,
+                               @Param("ids") List<String> ids, @Param("startTime") long startTime, @Param("endTime") long endTime);
+
+    void updateReportStatus(@Param("ids") List<String> ids, @Param("time") long time, @Param("userId") String userId);
+
+    List<ReportDTO> selectByIds(@Param("ids") List<String> ids);
 }

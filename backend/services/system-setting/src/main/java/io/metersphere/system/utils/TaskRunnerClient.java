@@ -14,6 +14,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -22,6 +23,7 @@ public class TaskRunnerClient {
 
     private static final String API_DEBUG = "/api/debug";
     private static final String HTTP_BATH = "http://%s:%s";
+    private static final String API_STOP = "/api/stop";
 
     private static final RestTemplate restTemplateWithTimeOut = new RestTemplate();
     private static final int retryCount = 3;
@@ -37,11 +39,15 @@ public class TaskRunnerClient {
         post(endpoint + API_DEBUG, taskRequest);
     }
 
+    public static void stopApi(String endpoint, List<String> reportIds) throws Exception {
+        post(endpoint + API_STOP, reportIds);
+    }
+
     public static String getEndpoint(String ip, String port) {
         return String.format(HTTP_BATH, ip, port);
     }
 
-    public static ResultHolder get(String url,  Object... uriVariables) throws Exception {
+    public static ResultHolder get(String url, Object... uriVariables) throws Exception {
         // 定义action
         Action action = (u, body) -> {
             String token = totpGenerator.now();
