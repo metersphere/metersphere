@@ -745,7 +745,7 @@
           saveLoading.value = true;
           if (requestVModel.value.isNew) {
             // 若是新建的调试，走添加
-            await props.createApi({
+            const res = await props.createApi({
               ...makeRequestParams(),
               ...saveModalForm.value,
               protocol: requestVModel.value.protocol,
@@ -753,6 +753,8 @@
               uploadFileIds: [],
               linkFileIds: [],
             });
+            requestVModel.value.id = res.id;
+            requestVModel.value.isNew = false;
           } else {
             await props.updateApi({
               ...makeRequestParams(),

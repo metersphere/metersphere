@@ -82,6 +82,7 @@
   import { mapTree } from '@/utils/index';
 
   import type { MsTreeFieldNames, MsTreeNodeData, MsTreeSelectedData } from './types';
+  import { VirtualListProps } from '@arco-design/web-vue/es/_components/virtual-list-v2/interface';
 
   const props = withDefaults(
     defineProps<{
@@ -102,7 +103,7 @@
       checkable?: boolean; // 是否可选中
       checkedStrategy?: 'all' | 'parent' | 'child'; // 选中节点时的策略
       checkedKeys?: Array<string | number>; // 选中的节点 key
-      virtualListProps?: Record<string, unknown>; // 虚拟滚动列表的属性
+      virtualListProps?: VirtualListProps; // 虚拟滚动列表的属性
       titleTooltipPosition?:
         | 'top'
         | 'tl'
