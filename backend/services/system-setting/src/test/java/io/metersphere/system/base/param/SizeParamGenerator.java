@@ -1,7 +1,7 @@
 package io.metersphere.system.base.param;
 
 import jakarta.validation.constraints.Size;
-import org.testcontainers.shaded.org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -22,7 +22,7 @@ public class SizeParamGenerator extends ParamGenerator {
             return max + 1;
         } else {
             // todo 做缓存优化
-            return RandomStringUtils.random(max + 1);
+            return RandomStringUtils.randomAlphanumeric(max + 1);
         }
     }
 }
