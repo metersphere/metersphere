@@ -56,7 +56,7 @@
               @success="okHandler"
             />
             <div>
-              <a-button class="mt-1 px-0" type="text" :disabled="totalData.length > 20" @click="createField">
+              <a-button class="mt-1 px-0" type="text" :disabled="totalData.length >= 20" @click="createField">
                 <template #icon>
                   <icon-plus class="text-[14px]" />
                 </template>

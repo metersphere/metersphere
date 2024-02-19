@@ -25,7 +25,15 @@
       @update="updateDemand"
       @create="addDemand"
     ></AssociatedDemandTable>
-    <AddDemandModal v-model:visible="showAddModel" :case-id="props.caseId" :form="modelForm" @success="searchList()" />
+    <AddDemandModal
+      ref="demandModalRef"
+      v-model:visible="showAddModel"
+      :case-id="props.caseId"
+      :form="modelForm"
+      :loading="confirmLoading"
+      @save="saveHandler"
+      @success="searchList()"
+    />
     <MsDrawer
       v-model:visible="linkDemandDrawer"
       :ok-disabled="tableSelected.length < 1"
@@ -81,12 +89,12 @@
   import AddDemandModal from './addDemandModal.vue';
   import AssociatedDemandTable from './associatedDemandTable.vue';
 
-  import { addDemandRequest, getThirdDemandList } from '@/api/modules/case-management/featureCase';
+  import { addDemandRequest, getThirdDemandList, updateDemandReq } from '@/api/modules/case-management/featureCase';
   import { getCaseRelatedInfo } from '@/api/modules/project-management/menuManagement';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
 
-  import type { DemandItem } from '@/models/caseManagement/featureCase';
+  import type { CreateOrUpdateDemand, DemandItem } from '@/models/caseManagement/featureCase';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const { t } = useI18n();
@@ -284,6 +292,31 @@
       immediate: true,
     }
   );
+
+  const confirmLoading = ref<boolean>(false);
+  const demandModalRef = ref();
+
+  async function saveHandler(param: CreateOrUpdateDemand, isContinue: boolean) {
+    try {
+      confirmLoading.value = true;
+      if (param.id) {
+        await updateDemandReq(param);
+        Message.success(t('common.updateSuccess'));
+      } else {
+        await addDemandRequest(param);
+        Message.success(t('common.addSuccess'));
+      }
+      if (!isContinue) {
+        showAddModel.value = false;
+      }
+      demandModalRef.value.resetForm();
+      demandRef.value.initData();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      confirmLoading.value = false;
+    }
+  }
 
   onBeforeMount(async () => {
     try {

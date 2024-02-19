@@ -96,7 +96,7 @@ export function enableOrOffTemplate(organizationId: string, scene: SeneType) {
  */
 // 获取自定义字段列表(组织)
 export function getFieldList(params: TableQueryParams) {
-  return MSR.get({ url: `${GetDefinedFieldListUrl}${params.scopedId}/${params.scene}` });
+  return MSR.get({ url: `${GetDefinedFieldListUrl}/${params.scopedId}/${params.scene}` });
 }
 
 // 创建自定义字段(组织)
@@ -154,7 +154,7 @@ export function updateOrdWorkStateFlow(data: UpdateWorkFlowSetting) {
  */
 // 获取自定义字段列表(组织)
 export function getProjectFieldList(params: TableQueryParams) {
-  return MSR.get({ url: `${GetDefinedProjectFieldListUrl}${params.scopedId}/${params.scene}` });
+  return MSR.get({ url: `${GetDefinedProjectFieldListUrl}/${params.scopedId}/${params.scene}` });
 }
 
 // 创建自定义字段(组织)

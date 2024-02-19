@@ -238,10 +238,11 @@
     getMemberList,
     {
       tableKey: TableKeyEnum.ORGANIZATION_MEMBER,
-      scroll: { x: 1800 },
+      scroll: { x: 1600 },
       selectable: !!hasAnyPermission(['ORGANIZATION_MEMBER:READ+ADD', 'ORGANIZATION_MEMBER:READ+ADD']),
       heightUsed: 288,
       showSetting: true,
+      showJumpMethod: true,
       size: 'default',
     },
     (record) => {

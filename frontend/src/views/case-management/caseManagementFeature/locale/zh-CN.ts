@@ -247,5 +247,5 @@ export default {
   'caseManagement.featureCase.defectSource': '缺陷来源',
   'caseManagement.featureCase.sortSuccess': '排序成功',
   'caseManagement.featureCase.zentao': '禅道',
-  'caseManagement.featureCase.searchPlaceholder': '通过id或名称搜索',
+  'caseManagement.featureCase.searchPlaceholder': '通过ID或名称搜索',
 };

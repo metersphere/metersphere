@@ -175,7 +175,12 @@
                 </a-checkbox-group>
               </a-form-item>
             </div>
-            <div class="delete-btn" :class="{ 'delete-btn:disabled': idx === 0 }" @click="handleDeleteItem(idx)">
+            <div
+              v-if="formModel.list.length > 1"
+              class="delete-btn"
+              :class="{ 'delete-btn:disabled': idx === 0 }"
+              @click="handleDeleteItem(idx)"
+            >
               <icon-minus-circle />
             </div>
           </section>
@@ -305,7 +310,10 @@
    * @description 删除条件
    */
   const handleDeleteItem = (index: number) => {
-    if (index === 0) {
+    // if (index === 0) {
+    //   return;
+    // }
+    if (formModel.list.length === 1) {
       return;
     }
     formModel.list.splice(index, 1);

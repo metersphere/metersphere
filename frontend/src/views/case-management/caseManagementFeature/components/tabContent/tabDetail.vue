@@ -66,9 +66,11 @@
           v-model:filed-ids="textDescriptionFileIds"
           :upload-image="handleUploadImage"
         />
-        <div v-if="detailForm.caseEditType === 'TEXT' && !isEditPreposition">{{
-          detailForm.textDescription || '-'
-        }}</div>
+        <div
+          v-if="detailForm.caseEditType === 'TEXT' && !isEditPreposition"
+          v-dompurify-html="detailForm.textDescription || '-'"
+          class="text-[var(--color-text-3)]"
+        ></div>
       </a-form-item>
       <a-form-item
         v-if="detailForm.caseEditType === 'TEXT'"
@@ -81,7 +83,7 @@
           v-model:filed-ids="expectedResultFileIds"
           :upload-image="handleUploadImage"
         />
-        <div v-else class="text-[var(--color-text-3)]" v-html="detailForm.description || '-'"></div>
+        <div v-else v-dompurify-html="detailForm.expectedResult || '-'" class="text-[var(--color-text-3)]"></div>
       </a-form-item>
       <a-form-item field="description" :label="t('caseManagement.featureCase.remark')">
         <MsRichText
@@ -601,10 +603,21 @@
     }
   );
 
-  async function startUpload() {
-    await sleep(300);
-    await fileListRef.value?.startUpload();
-    emit('updateSuccess');
+  async function startUpload(fileIds?: string[]) {
+    try {
+      const params = {
+        request: {
+          caseId: detailForm.value.id,
+          projectId: currentProjectId.value,
+          fileIds,
+        },
+        file: fileList.value.filter((item) => item.status === 'init').map((item) => item.file),
+      };
+      await uploadOrAssociationFile(params);
+      emit('updateSuccess');
+    } catch (error) {
+      console.log(error);
+    }
   }
   // 文件列表单个上传
   watch(
@@ -620,7 +633,9 @@
   // 处理关联文件
   function saveSelectAssociatedFile(fileData: AssociatedList[]) {
     const fileResultList = fileData.map((fileInfo) => convertToFile(fileInfo));
-    fileList.value.push(...fileResultList);
+    // fileList.value.push(...fileResultList);
+    const fileIds = fileResultList.map((item: any) => item.uid);
+    startUpload(fileIds);
   }
 
   // 更新文件

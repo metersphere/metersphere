@@ -205,6 +205,7 @@
       selectable: !!hasAnyPermission(['PROJECT_USER:READ+DELETE', 'ORGANIZATION_MEMBER:READ+UPDATE']),
       showSetting: true,
       heightUsed: 288,
+      showJumpMethod: true,
       columns,
       scroll: {
         x: 1200,

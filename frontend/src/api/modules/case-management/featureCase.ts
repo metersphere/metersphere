@@ -217,7 +217,7 @@ export function addDemandRequest(data: CreateOrUpdateDemand) {
 }
 
 // 更新需求
-export function updateDemand(data: CreateOrUpdateDemand) {
+export function updateDemandReq(data: CreateOrUpdateDemand) {
   return MSR.post({ url: UpdateDemandUrl, data });
 }
 // 批量关联需求
@@ -239,7 +239,8 @@ export function getThirdDemandList(data: TableQueryParams) {
 
 // 上传文件并关联用例
 export function uploadOrAssociationFile(data: Record<string, any>) {
-  return MSR.uploadFile({ url: UploadOrAssociationFileUrl }, { request: data.request, fileList: [data.file] });
+  debugger;
+  return MSR.uploadFile({ url: UploadOrAssociationFileUrl }, { request: data.request, fileList: data.file });
 }
 // 转存文件
 export function transferFileRequest(data: OperationFile) {

@@ -1,58 +1,36 @@
 <template>
-  <MsBaseTable v-bind="propsRes" ref="tableRef" v-on="propsEvent">
+  <MsBaseTable v-bind="propsRes" ref="tableRef" :hoverable="false" v-on="propsEvent" @change="changeHandler">
     <template #index="{ rowIndex }">
       <div class="circle text-xs font-medium"> {{ rowIndex + 1 }}</div>
     </template>
     <template #caseStep="{ record }">
+      <!--         v-if="record.showStep" -->
       <a-textarea
-        v-if="record.showStep"
         :ref="(el: refItem) => setStepRefMap(el, record)"
         v-model="record.step"
         size="mini"
         :auto-size="true"
-        class="w-max-[267px]"
+        class="w-max-[267px] param-input"
         :placeholder="t('system.orgTemplate.stepTip')"
         @blur="blurHandler(record, 'step')"
       />
-      <div v-else-if="record.step && !record.showStep" class="w-full cursor-pointer" @click="edit(record, 'step')">{{
-        record.step
-      }}</div>
-      <div
-        v-else-if="!record.caseStep && !record.showStep"
-        class="placeholder w-full cursor-pointer text-[var(--color-text-brand)]"
-        @click="edit(record, 'step')"
-        >{{ t('system.orgTemplate.stepTip') }}</div
-      >
     </template>
     <template #expectedResult="{ record }">
       <a-textarea
-        v-if="record.showExpected"
         :ref="(el: refItem) => setExpectedRefMap(el, record)"
         v-model="record.expected"
         :max-length="1000"
         size="mini"
         :auto-size="true"
-        class="w-max-[267px]"
+        class="w-max-[267px] param-input"
         :placeholder="t('system.orgTemplate.expectationTip')"
         @blur="blurHandler(record, 'expected')"
       />
-      <div
-        v-else-if="record.expected && !record.showExpected"
-        class="w-full cursor-pointer"
-        @click="edit(record, 'expected')"
-        >{{ record.expected }}</div
-      >
-      <div
-        v-else-if="!record.expected && !record.showExpected"
-        class="placeholder w-full cursor-pointer text-[var(--color-text-brand)]"
-        @click="edit(record, 'expected')"
-        >{{ t('system.orgTemplate.expectationTip') }}</div
-      >
     </template>
     <template #operation="{ record }">
       <MsTableMoreAction
         v-if="!record.internal"
-        :list="moreActions"
+        :list="moreActionList"
         @select="(item:ActionsItem) => handleMoreActionSelect(item,record)"
       />
     </template>
@@ -67,6 +45,7 @@
 
 <script setup lang="ts">
   import { ref } from 'vue';
+  import { TableChangeExtra, TableData } from '@arco-design/web-vue';
 
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import { MsTableColumn } from '@/components/pure/ms-table/type';
@@ -94,6 +73,17 @@
   );
 
   const emit = defineEmits(['update:stepList']);
+
+  // 步骤描述
+  const stepData = ref<StepList[]>([
+    {
+      id: getGenerateId(),
+      step: '',
+      expected: '',
+      showStep: false,
+      showExpected: false,
+    },
+  ]);
 
   const templateFieldColumns = ref<MsTableColumn>([
     {
@@ -151,6 +141,10 @@
     },
   ];
 
+  const moreActionList = computed(() => {
+    return stepData.value.length <= 1 ? moreActions.slice(0, moreActions.length - 2) : moreActions;
+  });
+
   const { propsRes, propsEvent, setProps } = useTable(undefined, {
     tableKey: TableKeyEnum.CASE_MANAGEMENT_DETAIL_TABLE,
     columns: templateFieldColumns.value,
@@ -162,17 +156,6 @@
     showPagination: false,
     enableDrag: true,
   });
-
-  // 步骤描述
-  const stepData = ref<StepList[]>([
-    {
-      id: getGenerateId(),
-      step: '',
-      expected: '',
-      showStep: false,
-      showExpected: false,
-    },
-  ]);
 
   // 复制步骤
   function copyStep(record: StepList) {
@@ -292,6 +275,13 @@
     }
   });
 
+  function changeHandler(data: TableData[], extra: TableChangeExtra, currentData: TableData[]) {
+    if (!currentData || currentData.length === 1) {
+      return false;
+    }
+    stepData.value = data as StepList[];
+  }
+
   watch(
     () => stepData.value,
     (val) => {
@@ -325,5 +315,19 @@
     text-align: center;
     color: var(--color-text-4);
     background: var(--color-text-n8);
+  }
+  :deep(.param-input:not(.arco-input-focus, .arco-select-view-focus)) {
+    &:not(:hover) {
+      border-color: transparent !important;
+      .arco-input::placeholder {
+        @apply invisible;
+      }
+      .arco-select-view-icon {
+        @apply invisible;
+      }
+      .arco-select-view-value {
+        color: var(--color-text-brand);
+      }
+    }
   }
 </style>

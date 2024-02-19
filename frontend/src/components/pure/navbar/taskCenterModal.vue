@@ -21,7 +21,7 @@
     <template #title> {{ t('settings.navbar.task') }}</template>
 
     <div class="divider h-full">
-      <TaskCenter group="system" mode="modal"></TaskCenter>
+      <TaskCenter group="project" mode="modal"></TaskCenter>
     </div>
   </a-modal>
 </template>

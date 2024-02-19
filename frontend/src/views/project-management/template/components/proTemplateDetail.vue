@@ -31,6 +31,7 @@
             :placeholder="t('system.orgTemplate.templateNamePlaceholder')"
             :max-length="255"
             class="max-w-[732px]"
+            :disabled="templateForm?.internal"
           ></a-input>
         </a-form-item>
         <a-form-item field="remark" :label="t('system.orgTemplate.description')" asterisk-position="end">

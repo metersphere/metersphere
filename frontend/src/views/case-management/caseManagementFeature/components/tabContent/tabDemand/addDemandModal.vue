@@ -43,7 +43,7 @@
     <template #footer>
       <a-button type="secondary" @click="handleCancel">{{ t('common.cancel') }}</a-button>
       <a-button v-if="!form.id" type="secondary" @click="handleOK(true)">{{ t('ms.dialog.saveContinue') }}</a-button>
-      <a-button class="ml-[12px]" type="primary" :loading="confirmLoading" @click="handleOK(false)">
+      <a-button class="ml-[12px]" type="primary" :loading="props.loading" @click="handleOK(false)">
         {{ updateName ? t('common.update') : t('common.create') }}
       </a-button>
     </template>
@@ -54,7 +54,6 @@
   import { ref } from 'vue';
   import { FormInstance, Message, ValidatedError } from '@arco-design/web-vue';
 
-  import { addDemandRequest, updateDemand } from '@/api/modules/case-management/featureCase';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
 
@@ -67,11 +66,13 @@
     caseId: string;
     visible: boolean;
     form: DemandItem;
+    loading: boolean;
   }>();
 
   const emit = defineEmits<{
     (e: 'update:visible', v: boolean): void;
     (e: 'success'): void;
+    (e: 'save', params: CreateOrUpdateDemand, isContinue: boolean): void;
   }>();
   const pageConfig = computed(() => appStore.pageConfig);
   const form = ref<CreateOrUpdateDemand>({
@@ -84,7 +85,7 @@
 
   const showModal = ref<boolean>(false);
 
-  const confirmLoading = ref<boolean>(false);
+  // const confirmLoading = ref<boolean>(false);
 
   const initModelForm: DemandFormList = {
     demandId: '',
@@ -112,30 +113,12 @@
   function handleOK(isContinue: boolean) {
     demandFormRef.value?.validate(async (errors: undefined | Record<string, ValidatedError>) => {
       if (!errors) {
-        try {
-          const { demandId, demandName, demandUrl } = modelForm.value;
-          confirmLoading.value = true;
-          const params: CreateOrUpdateDemand = {
-            ...form.value,
-            demandList: [{ demandId, demandName, demandUrl }],
-          };
-          if (form.value.id) {
-            await updateDemand(params);
-            Message.success(t('common.updateSuccess'));
-          } else {
-            await addDemandRequest(params);
-            Message.success(t('common.addSuccess'));
-          }
-          if (!isContinue) {
-            handleCancel();
-          }
-          resetForm();
-          emit('success');
-        } catch (error) {
-          console.log(error);
-        } finally {
-          confirmLoading.value = false;
-        }
+        const { demandId, demandName, demandUrl } = modelForm.value;
+        const params: CreateOrUpdateDemand = {
+          ...form.value,
+          demandList: [{ demandId, demandName, demandUrl }],
+        };
+        emit('save', params, isContinue);
       } else {
         return false;
       }
@@ -171,6 +154,10 @@
       updateName.value = val.demandName;
     }
   );
+
+  defineExpose({
+    resetForm,
+  });
 </script>
 
 <style scoped></style>

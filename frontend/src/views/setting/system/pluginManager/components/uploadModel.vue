@@ -87,6 +87,7 @@
         :auto-upload="false"
         :disabled="confirmLoading"
         :draggable="true"
+        :file-type-tip="t('system.plugin.supportFormatType')"
       ></MsUpload>
     </div>
     <template #footer>

@@ -47,18 +47,19 @@
       value: TaskCenterEnum.API_SCENARIO,
       label: t('project.taskCenter.apiScenario'),
     },
-    {
-      value: TaskCenterEnum.UI_TEST,
-      label: t('project.taskCenter.uiDefaultFile'),
-    },
-    {
-      value: TaskCenterEnum.LOAD_TEST,
-      label: t('project.taskCenter.performanceTest'),
-    },
-    {
-      value: TaskCenterEnum.TEST_PLAN,
-      label: t('project.taskCenter.testPlan'),
-    },
+    // TODO 第一个版本目前不上以下几类
+    // {
+    //   value: TaskCenterEnum.UI_TEST,
+    //   label: t('project.taskCenter.uiDefaultFile'),
+    // },
+    // {
+    //   value: TaskCenterEnum.LOAD_TEST,
+    //   label: t('project.taskCenter.performanceTest'),
+    // },
+    // {
+    //   value: TaskCenterEnum.TEST_PLAN,
+    //   label: t('project.taskCenter.testPlan'),
+    // },
   ]);
 
   const timingTabList = ref([

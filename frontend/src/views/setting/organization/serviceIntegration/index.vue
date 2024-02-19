@@ -12,12 +12,7 @@
             }}</span>
           </template>
           <div class="flex w-[100%] flex-row justify-between text-sm font-normal">
-            <div
-              v-for="(item, index) in cardContent"
-              :key="item.id"
-              class="item mt-4 p-[16px]"
-              :class="`ms-item-${index}`"
-            >
+            <div v-for="(item, index) in cardContent" :key="item.id" class="item mt-4" :class="`ms-item-${index}`">
               <span class="mr-3">
                 <svg-icon width="64px" height="46px" :name="item.icon" />
               </span>
@@ -163,6 +158,7 @@
     width: 100% !important;
   }
   .item {
+    padding: 16px;
     width: calc(50% - 10px);
     height: 78px;
     border: 1px solid #ffffff;
@@ -170,9 +166,11 @@
     @apply flex items-center rounded-md;
   }
   .ms-item-0 {
-    background: url('@/assets/images/ms_plugindownload.jpg') no-repeat center / auto;
+    background: url('@/assets/images/ms_plugindownload.jpg') no-repeat center;
+    background-size: cover;
   }
   .ms-item-1 {
-    background: url('@/assets/images/ms_configplugin.jpg') no-repeat center / auto;
+    background: url('@/assets/images/ms_configplugin.jpg') no-repeat center;
+    background-size: cover;
   }
 </style>

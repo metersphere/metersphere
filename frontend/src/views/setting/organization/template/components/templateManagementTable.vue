@@ -240,7 +240,7 @@
     (val) => {
       if (val) {
         selectList.value = val as DefinedFieldItem[];
-        setProps({ data: selectList.value });
+        setProps({ data: val });
       }
     },
     { immediate: true }

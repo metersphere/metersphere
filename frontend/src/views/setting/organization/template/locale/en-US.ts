@@ -69,7 +69,7 @@ export default {
   'system.orgTemplate.defaultValue': 'Default value',
   'system.orgTemplate.required': 'Required',
   'system.orgTemplate.enableTemplateTip': 'The project template is enabled. The organization template is unavailable',
-  'system.orgTemplate.templateList': 'Template list',
+  'system.orgTemplate.templateList': ' {type} list',
   'system.orgTemplate.createTemplate': 'Create',
   'system.orgTemplate.templatePreview': 'Template preview',
   'system.orgTemplate.templateName': 'Template name',
