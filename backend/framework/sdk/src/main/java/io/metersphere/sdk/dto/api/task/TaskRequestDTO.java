@@ -66,6 +66,12 @@ public class TaskRequestDTO implements Serializable {
      * id 为插件的 id + 更新时间戳
      */
     private List<ApiExecuteFileInfo> pluginFiles;
+
+    /**
+     * 接口测试函数包
+     */
+    private List<ApiExecuteFileInfo> funcJars;
+
     /**
      * 误报规则
      */
