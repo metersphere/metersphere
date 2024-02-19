@@ -43,6 +43,9 @@ public class CustomFieldSelectValidator extends AbstractCustomFieldValidator {
         prepareCache(customField);
         Set<String> idSet = optionValueSetCache.get(customField.getFieldId());
         Set<String> textSet = optionTextSetCache.get(customField.getFieldId());
+        if (customField.getFieldName().equals(Translator.get("custom_field.functional_priority"))) {
+            value = value.toUpperCase();
+        }
         if (!idSet.contains(value) && !textSet.contains(value)) {
             CustomFieldValidateException.throwException(String.format(Translator.get("custom_field_select_tip"), customField.getFieldName(), textSet));
         }
