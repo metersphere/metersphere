@@ -158,7 +158,12 @@
   import router from '@/router';
   import { useAppStore, useTableStore } from '@/store';
   import useLicenseStore from '@/store/modules/setting/license';
-  import { customFieldToColumns, downloadByteFile, tableParamsToRequestParams } from '@/utils';
+  import {
+    customFieldDataToTableData,
+    customFieldToColumns,
+    downloadByteFile,
+    tableParamsToRequestParams,
+  } from '@/utils';
 
   import { BugEditCustomField, BugListItem } from '@/models/bug-management';
   import { RouteEnum } from '@/enums/routeEnum';
@@ -294,7 +299,7 @@
     },
     {
       title: 'bugManagement.updateUser',
-      dataIndex: 'updateUser',
+      dataIndex: 'updateUserName',
       width: 112,
       showTooltip: true,
       showDrag: true,
@@ -329,11 +334,14 @@
         tableKey: TableKeyEnum.BUG_MANAGEMENT,
         selectable: true,
         noDisable: false,
-        showJumpMethod: true,
         showSetting: true,
-        scroll: { x: '1800px' },
+        debug: true,
       },
-      (record: TableData) => ({ ...record, handleUser: record.handleUserName })
+      (record: TableData) => ({
+        ...record,
+        handleUser: record.handleUserName,
+        ...customFieldDataToTableData(record.customFields),
+      })
     );
 
   const tableBatchActions = {
@@ -511,45 +519,6 @@
       handleSingleDelete(record);
     }
   }
-
-  const severityOption = [
-    {
-      label: t('bugManagement.severityO.fatal'),
-      value: 'High',
-    },
-    {
-      label: t('bugManagement.severityO.serious'),
-      value: 'Medium',
-    },
-    {
-      label: t('bugManagement.severityO.general'),
-      value: 'Low',
-    },
-    {
-      label: t('bugManagement.severityO.reminder'),
-      value: 'Info',
-    },
-  ];
-
-  const statusOption = [
-    {
-      label: t('bugManagement.statusO.create'),
-      value: 'Create',
-    },
-    {
-      label: t('bugManagement.statusO.processing'),
-      value: 'Processing',
-    },
-    {
-      label: t('bugManagement.statusO.resolved'),
-      value: 'Resolved',
-    },
-    {
-      label: t('bugManagement.statusO.closed'),
-      value: 'Closed',
-    },
-    { label: t('bugManagement.statusO.refused'), value: 'Refused' },
-  ];
 
   function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
     currentSelectParams.value = params;

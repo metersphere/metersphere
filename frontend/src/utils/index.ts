@@ -570,3 +570,14 @@ export function parseQueryParams(url: string): QueryParam[] {
   }
   return queryParams;
 }
+
+/**
+ * 将表格数据里的自定义字段转换为表格数据二维变一维
+ */
+export function customFieldDataToTableData(customFieldData: Record<string, any>[]) {
+  const tableData: Record<string, any> = {};
+  customFieldData.forEach((field) => {
+    tableData[field.id] = field.value;
+  });
+  return tableData;
+}
