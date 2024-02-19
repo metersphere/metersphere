@@ -161,7 +161,7 @@
         <a-form-item :label="t('system.config.email.password')" field="password" asterisk-position="end">
           <a-input-password
             v-model:model-value="emailConfigForm.password"
-            :max-length="255"
+            :max-length="64"
             :placeholder="t('system.config.email.passwordPlaceholder')"
             autocomplete="new-password"
             allow-clear
