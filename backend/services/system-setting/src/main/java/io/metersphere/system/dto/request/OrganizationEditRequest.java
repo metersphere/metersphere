@@ -24,7 +24,8 @@ public class OrganizationEditRequest implements Serializable {
     @Size(min = 1, max = 255, message = "{organization.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(description = "描述")
+    @Schema(description =  "描述")
+    @Size(max = 500, groups = {Created.class, Updated.class})
     private String description;
 
     @Schema(description = "成员ID集合")
