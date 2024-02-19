@@ -13,7 +13,6 @@ import io.metersphere.api.dto.scenario.ApiScenarioReportDetailDTO;
 import io.metersphere.api.dto.share.ShareInfoDTO;
 import io.metersphere.api.mapper.ApiScenarioReportDetailMapper;
 import io.metersphere.api.mapper.ApiScenarioReportMapper;
-import io.metersphere.api.mapper.ApiScenarioReportStepMapper;
 import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.project.domain.ProjectApplication;
@@ -54,8 +53,6 @@ public class ApiScenarioReportControllerTests extends BaseTest {
     private ApiScenarioReportService apiScenarioReportService;
     @Resource
     private ApiScenarioReportMapper apiScenarioReportMapper;
-    @Resource
-    private ApiScenarioReportStepMapper apiScenarioReportStepMapper;
     @Resource
     private ApiScenarioReportDetailMapper apiScenarioReportDetailMapper;
     @Resource

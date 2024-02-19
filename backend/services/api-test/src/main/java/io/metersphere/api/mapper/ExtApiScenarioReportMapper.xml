@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.api.mapper.ExtApiScenarioReportMapper">
+    <update id="updateReportStatus">
+        update api_scenario_report
+        set status = 'STOPPED',
+            update_time = #{time},
+            update_user = #{userId}
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
 
     <select id="list" resultType="io.metersphere.api.domain.ApiScenarioReport">
         select
@@ -75,9 +85,7 @@
             and api_scenario_report_detail.report_id = api_scenario_report_step.report_id
         where api_scenario_report_step.report_id = #{reportId}
     </select>
-    <select id="selectapiReportByProjectId" resultType="java.lang.String">
 
-    </select>
     <select id="selectApiScenarioReportByProjectId" resultType="java.lang.String">
         select
         api_scenario_report.id
@@ -109,7 +117,99 @@
           and api_scenario_report.start_time &lt;= #{time}
           and api_scenario_report.project_id = #{projectId} limit 500
     </select>
+    <select id="getReports" resultType="io.metersphere.api.dto.report.ReportDTO">
+        select id, pool_id from api_scenario_report where
+        api_scenario_report.deleted = false
+        and api_scenario_report.test_plan_id = 'NONE'
+        and api_scenario_report.start_time BETWEEN #{startTime} AND #{endTime}
+        and status in ('PENDING', 'RUNNING')
+        <if test="ids != null and ids.size() > 0">
+            and id in
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="projectIds != null and projectIds.size() > 0">
+            and project_id in
+            <foreach collection="projectIds" item="projectId" open="(" separator="," close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="request.condition.keyword != null">
+            and (
+            name like concat('%', #{request.condition.keyword},'%')
+            )
+        </if>
+        <include refid="filters">
+            <property name="filter" value="request.condition.filter"/>
+        </include>
 
+    </select>
+
+    <select id="taskCenterlist" resultType="io.metersphere.system.dto.taskcenter.TaskCenterDTO">
+        select
+        api_scenario_report.id,
+        api_scenario_report.project_id,
+        api_scenario_report.integrated,
+        api_scenario_report.status,
+        api_scenario_report.start_time as operationTime,
+        api_scenario_report.create_user as operationName,
+        api_scenario_report.trigger_mode,
+
+        CASE
+        WHEN api_scenario_report.integrated = 0 THEN
+        s.num ELSE api_scenario_report.id
+        END AS resourceId,
+
+        CASE
+        WHEN api_scenario_report.integrated = 0 THEN
+        s.NAME ELSE api_scenario_report.NAME
+        END AS resourceName,
+
+        t.name as poolName
+        from api_scenario_report
+        left JOIN api_scenario s on api_scenario_report.scenario_id = s.id
+        left JOIN test_resource_pool t on api_scenario_report.pool_id = t.id
+        where api_scenario_report.deleted = false
+        and api_scenario_report.test_plan_id = 'NONE'
+          and api_scenario_report.start_time BETWEEN #{startTime} AND #{endTime}
+          and api_scenario_report.project_id IN
+        <foreach collection="projectIds" item="projectId" separator="," open="(" close=")">
+            #{projectId}
+        </foreach>
+        <if test="request.keyword != null and request.keyword != ''">
+            and (
+            api_scenario_report.name like concat('%', #{request.keyword},'%')
+            or s.name like concat('%', #{request.keyword},'%')
+            )
+        </if>
+        <include refid="filters">
+            <property name="filter" value="request.filter"/>
+        </include>
+    </select>
+    <select id="selectByIds" resultType="io.metersphere.api.dto.report.ReportDTO">
+        select
+        api_scenario_report.id,
+        api_scenario_report.name,
+        api_scenario_report.project_id
+        from api_scenario_report where api_scenario_report.deleted = false
+                          and api_scenario_report.test_plan_id = 'NONE'
+        and api_scenario_report.id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+    <select id="getOrgListByProjectIds" resultType="io.metersphere.api.dto.report.ReportDTO">
+        select
+        p.id as projectId,
+        o.id as organizationId
+        from project p
+        inner join organization o on p.organization_id = o.id
+        where p.id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 
     <sql id="filters">
         <if test="${filter} != null and ${filter}.size() > 0">
