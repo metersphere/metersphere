@@ -79,5 +79,6 @@ export default {
   'ms.personal.zendaoTip': '该信息为通过禅道提交缺陷的的用户名、密码，若未填写，则使用组织配置的默认信息',
   'ms.personal.azureTip': '该信息为通过Azure Devops提交缺陷的用户令牌信息，若未填写，则使用组织配置的默认信息',
   'ms.personal.azurePlaceholder': '请输入 Personal Access Tokens',
-  'ms.personal.nodata': '暂无数据，请 ',
+  'ms.personal.noData': '暂无数据，请 ',
+  'ms.personal.empty': '暂无数据',
 };

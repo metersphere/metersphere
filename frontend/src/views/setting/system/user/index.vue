@@ -3,14 +3,19 @@
     <div class="mb-4 flex items-center justify-between">
       <div>
         <a-button
-          v-permission="['SYSTEM_USER:READ+ADD', 'SYSTEM_USER_ROLE:READ']"
+          v-permission.all="['SYSTEM_USER:READ+ADD', 'SYSTEM_USER_ROLE:READ']"
           class="mr-3"
           type="primary"
           @click="showUserModal('create')"
         >
           {{ t('system.user.createUser') }}
         </a-button>
-        <a-button v-permission="['SYSTEM_USER_INVITE']" class="mr-3" type="outline" @click="showEmailInviteModal">
+        <a-button
+          v-permission.all="['SYSTEM_USER:READ+INVITE', 'SYSTEM_USER_ROLE:READ']"
+          class="mr-3"
+          type="outline"
+          @click="showEmailInviteModal"
+        >
           {{ t('system.user.emailInvite') }}
         </a-button>
         <a-button v-permission="['SYSTEM_USER:READ+IMPORT']" class="mr-3" type="outline" @click="showImportModal">
@@ -586,7 +591,12 @@
       {
         label: 'system.user.batchActionAddProject',
         eventTag: 'batchAddProject',
-        permission: ['SYSTEM_USER:READ+UPDATE', 'SYSTEM_ORGANIZATION_PROJECT:READ'],
+        permission: [
+          'SYSTEM_USER:READ+UPDATE',
+          'SYSTEM_USER_ROLE:READ',
+          'SYSTEM_ORGANIZATION_PROJECT:READ',
+          'SYSTEM_ORGANIZATION_PROJECT_MEMBER:ADD',
+        ],
       },
       {
         label: 'system.user.batchActionAddUserGroup',
@@ -596,7 +606,12 @@
       {
         label: 'system.user.batchActionAddOrganization',
         eventTag: 'batchAddOrganization',
-        permission: ['SYSTEM_USER:READ+UPDATE', 'SYSTEM_ORGANIZATION_PROJECT:READ'],
+        permission: [
+          'SYSTEM_USER:READ+UPDATE',
+          'SYSTEM_USER_ROLE:READ',
+          'SYSTEM_ORGANIZATION_PROJECT:READ',
+          'SYSTEM_ORGANIZATION_PROJECT_MEMBER:ADD',
+        ],
       },
     ],
     moreAction: [

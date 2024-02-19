@@ -1,6 +1,6 @@
 <template>
   <div>
-    <MsCard class="mb-[16px]" :loading="baseloading" simple auto-height>
+    <MsCard class="mb-[16px]" :loading="baseLoading" simple auto-height>
       <div class="mb-[16px] flex justify-between">
         <div class="text-[var(--color-text-000)]">{{ t('system.config.baseInfo') }}</div>
         <a-button
@@ -12,7 +12,7 @@
           {{ t('system.config.update') }}
         </a-button>
       </div>
-      <MsDescription :descriptions="baseInfoDescs" class="no-bottom" :column="2" />
+      <MsDescription :descriptions="baseInfoDesc" class="no-bottom" :column="2" />
     </MsCard>
     <MsCard class="mb-[16px]" :loading="emailLoading" simple auto-height>
       <div class="mb-[16px] flex justify-between">
@@ -26,7 +26,7 @@
           {{ t('system.config.update') }}
         </a-button>
       </div>
-      <MsDescription :descriptions="emailInfoDescs" :column="2">
+      <MsDescription :descriptions="emailInfoDesc" :column="2">
         <template #value="{ item }">
           <template v-if="item.key && ['ssl', 'tsl'].includes(item.key)">
             <div v-if="item.value === 'true'" class="flex items-center">
@@ -230,7 +230,7 @@
 
   const { t } = useI18n();
 
-  const baseloading = ref(false);
+  const baseLoading = ref(false);
   const baseDrawerLoading = ref(false);
   const baseInfoDrawerVisible = ref(false);
   const baseFormRef = ref<FormInstance>();
@@ -239,7 +239,7 @@
     prometheusHost: 'http://prometheus:9090',
   });
   const baseInfoForm = ref({ ...baseInfo.value });
-  const baseInfoDescs = ref<Description[]>([]);
+  const baseInfoDesc = ref<Description[]>([]);
   // 默认示例
   const defaultUrl = 'https://metersphere.com';
   const defaultPrometheus = 'http://prometheus:9090';
@@ -259,12 +259,12 @@
   const licenseStore = useLicenseStore();
   async function initBaseInfo() {
     try {
-      baseloading.value = true;
+      baseLoading.value = true;
       const res = await getBaseInfo();
       baseInfo.value = { ...res };
       baseInfoForm.value = { ...res };
       if (licenseStore.hasLicense()) {
-        baseInfoDescs.value = [
+        baseInfoDesc.value = [
           {
             label: t('system.config.pageUrl'),
             value: res.url,
@@ -275,7 +275,7 @@
           },
         ];
       } else {
-        baseInfoDescs.value = [
+        baseInfoDesc.value = [
           {
             label: t('system.config.pageUrl'),
             value: res.url,
@@ -283,9 +283,10 @@
         ];
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
-      baseloading.value = false;
+      baseLoading.value = false;
     }
   }
 
@@ -313,6 +314,7 @@
           baseInfoDrawerVisible.value = false;
           initBaseInfo();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         } finally {
           baseDrawerLoading.value = false;
@@ -343,7 +345,7 @@
   });
   const emailConfigForm = ref({ ...emailConfig.value });
   const emailFormRef = ref<FormInstance>();
-  const emailInfoDescs = ref<Description[]>([]);
+  const emailInfoDesc = ref<Description[]>([]);
 
   const pswInVisible = ref(false); // 是否展示未脱敏密码
 
@@ -366,12 +368,12 @@
     try {
       emailLoading.value = true;
       const res = await getEmailInfo();
-      const _ssl = Boolean(res.ssl);
-      const _tsl = Boolean(res.tsl);
-      emailConfig.value = { ...res, ssl: _ssl, tsl: _tsl };
-      emailConfigForm.value = { ...res, ssl: _ssl, tsl: _tsl };
-      const { host, port, account, password, from, recipient, ssl, tsl } = res;
-      emailInfoDescs.value = [
+      const ssl = res.ssl === 'true';
+      const tsl = res.tsl === 'true';
+      emailConfig.value = { ...res, ssl, tsl };
+      emailConfigForm.value = { ...res, ssl, tsl };
+      const { host, port, account, password, from, recipient } = res;
+      emailInfoDesc.value = [
         {
           label: t('system.config.email.host'),
           value: host,
@@ -399,16 +401,17 @@
         },
         {
           label: t('system.config.email.ssl'),
-          value: ssl,
+          value: ssl.toString(),
           key: 'ssl',
         },
         {
           label: t('system.config.email.tsl'),
-          value: tsl,
+          value: tsl.toString(),
           key: 'tsl',
         },
       ];
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       emailLoading.value = false;
@@ -445,6 +448,7 @@
           emailConfigDrawerVisible.value = false;
           initEmailInfo();
         } catch (error) {
+          // eslint-disable-next-line no-console
           console.log(error);
         } finally {
           emailDrawerLoading.value = false;
@@ -509,6 +513,7 @@
       await testEmail(params);
       Message.success(t('system.config.email.testSuccess'));
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.log(error);
     } finally {
       testLoading.value = false;

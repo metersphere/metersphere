@@ -14,7 +14,7 @@
       <div v-for="config of dynamicForm" :key="config.key" class="platform-card">
         <div class="mb-[16px] flex items-center">
           <a-image :src="`/plugin/image/${config.key}?imagePath=static/${config.key}.jpg`" width="24"></a-image>
-          <div class="ml-[8px] mr-[4px] font-medium text-[var(--color-text-1)]">{{ config.key }}</div>
+          <div class="ml-[8px] mr-[4px] font-medium text-[var(--color-text-1)]">{{ config.name }}</div>
           <a-tooltip v-if="config.tooltip" :content="config.tooltip" position="right">
             <icon-exclamation-circle
               class="mr-[8px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
@@ -122,6 +122,7 @@
       Object.keys(res).forEach((key) => {
         dynamicForm.value[key] = {
           key,
+          name: res[key].name,
           status: 0,
           formModel: {},
           formRules: res[key].formItems,

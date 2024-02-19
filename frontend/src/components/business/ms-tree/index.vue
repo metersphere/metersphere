@@ -355,8 +355,10 @@
 <style lang="less">
   .ms-tree-container {
     .ms-container--shadow-y();
+    @apply h-full;
     .ms-tree {
       .ms-scroll-bar();
+      @apply h-full;
       .arco-tree-node {
         border-radius: var(--border-radius-small);
         &:hover {

@@ -276,6 +276,7 @@
   const innerVisible = ref(false);
   const fileDescriptions = ref<Description[]>([]);
   const detailDrawerRef = ref<InstanceType<typeof MsDetailDrawer>>();
+  const innerFileId = ref(props.fileId);
 
   watch(
     () => props.visible,
@@ -293,7 +294,7 @@
 
   async function handleEnableIntercept(newValue: string | number | boolean) {
     try {
-      await toggleJarFileStatus(props.fileId, newValue as boolean);
+      await toggleJarFileStatus(innerFileId.value, newValue as boolean);
       return true;
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -332,7 +333,7 @@
           fileLoading.value = true;
           await reuploadFile({
             request: {
-              fileId: props.fileId,
+              fileId: innerFileId.value,
               enable: false,
             },
             file: data,
@@ -362,7 +363,7 @@
 
   async function addFileTag(val: string, item: Description) {
     await updateFile({
-      id: props.fileId,
+      id: innerFileId.value,
       tags: Array.isArray(item.value) ? [...item.value, val] : [item.value, val],
     });
   }
@@ -371,7 +372,7 @@
     try {
       const lastTags = Array.isArray(item.value) ? item.value.filter((e) => e !== tag) : [];
       await updateFile({
-        id: props.fileId,
+        id: innerFileId.value,
         tags: lastTags,
       });
       item.value = [...lastTags];
@@ -387,7 +388,7 @@
   async function upgradeRepositoryFile() {
     try {
       fileLoading.value = true;
-      await updateRepositoryFile(props.fileId);
+      await updateRepositoryFile(innerFileId.value);
       Message.success(t('common.updateSuccess'));
       detailDrawerRef.value?.initDetail();
     } catch (error) {
@@ -534,18 +535,19 @@
   function loadTable() {
     if (activeTab.value === 'case') {
       setLoadListParams({
-        id: props.fileId,
+        id: innerFileId.value,
       });
       loadCaseList();
     } else {
       setVersionLoadListParams({
-        id: props.fileId,
+        id: innerFileId.value,
       });
       loadVersionList();
     }
   }
 
   function loadedFile(detail: FileDetail) {
+    innerFileId.value = detail.id;
     fileType.value = detail.fileType;
     renameTitle.value = detail.name;
     fileDescriptions.value = [

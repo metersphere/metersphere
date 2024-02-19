@@ -548,3 +548,25 @@ export function tableParamsToRequestParams(params: BatchActionQueryParams) {
     condition,
   };
 }
+
+/**
+ * 解析 URL 查询参数
+ * @param url URL 地址
+ */
+interface QueryParam {
+  key: string;
+  value: string;
+}
+export function parseQueryParams(url: string): QueryParam[] {
+  const queryParams: QueryParam[] = [];
+  // 从 URL 中提取查询参数部分
+  const queryString = url.split('?')[1];
+  if (queryString) {
+    const params = new URLSearchParams(queryString);
+    // 遍历查询参数，将每个参数添加到数组中
+    params.forEach((value, key) => {
+      queryParams.push({ key, value });
+    });
+  }
+  return queryParams;
+}

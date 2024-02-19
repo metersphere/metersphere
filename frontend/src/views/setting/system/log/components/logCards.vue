@@ -105,11 +105,21 @@
     </div>
     <ms-base-table v-bind="propsRes" no-disable sticky-header v-on="propsEvent">
       <template #range="{ record }">
-        {{
-          record.organizationId === 'SYSTEM'
-            ? t('system.log.system')
-            : `${record.organizationName}${record.projectName ? `/${record.projectName}` : ''}`
-        }}
+        <a-tooltip
+          :content="
+            record.organizationId === 'SYSTEM'
+              ? t('system.log.system')
+              : `${record.organizationName}${record.projectName ? `/${record.projectName}` : ''}`
+          "
+        >
+          <div class="one-line-text">
+            {{
+              record.organizationId === 'SYSTEM'
+                ? t('system.log.system')
+                : `${record.organizationName}${record.projectName ? `/${record.projectName}` : ''}`
+            }}
+          </div>
+        </a-tooltip>
       </template>
       <template #module="{ record }">
         {{ getModuleLocale(record.module) }}
@@ -447,22 +457,26 @@
     {
       title: 'system.log.operator',
       dataIndex: 'userName',
+      width: 100,
+      showTooltip: true,
     },
     {
       title: 'system.log.operateRange',
       dataIndex: 'operateRange',
       slotName: 'range',
+      width: 100,
     },
     {
       title: 'system.log.operateTarget',
       dataIndex: 'module',
       slotName: 'module',
+      width: 100,
     },
     {
       title: 'system.log.operateType',
       dataIndex: 'type',
       slotName: 'type',
-      width: 120,
+      width: 80,
     },
     {
       title: 'system.log.operateName',
@@ -475,7 +489,7 @@
       title: 'system.log.time',
       dataIndex: 'createTime',
       fixed: 'right',
-      width: 180,
+      width: 100,
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
@@ -487,6 +501,7 @@
   const { propsRes, propsEvent, loadList, setLoadListParams, resetPagination } = useTable(
     requestFuncMap[props.mode].listFunc,
     {
+      scroll: { x: 1100 },
       tableKey: TableKeyEnum.SYSTEM_LOG,
       columns,
       selectable: false,

@@ -8,7 +8,12 @@
       </slot>
       <template #content>
         <template v-for="item of props.list">
-          <a-divider v-if="item.isDivider" :key="`${item.label}-divider`" margin="4px" />
+          <a-divider
+            v-if="item.isDivider"
+            :key="`${item.label}-divider`"
+            :class="beforeDividerHasAction && afterDividerHasAction ? '' : 'hidden'"
+            margin="4px"
+          />
           <a-doption
             v-else
             :key="item.label"
@@ -31,6 +36,7 @@
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { ActionsItem, SelectedValue } from './types';
 
@@ -41,6 +47,38 @@
   }>();
 
   const emit = defineEmits(['select', 'close']);
+
+  // 检测在横线之前是否有action
+  const beforeDividerHasAction = computed(() => {
+    let result = false;
+    for (let i = 0; i < props.list.length; i++) {
+      const item = props.list[i];
+      if (!item.isDivider) {
+        result = hasAnyPermission(item.permission || []);
+        if (result) {
+          return true;
+        }
+      } else {
+        return false;
+      }
+    }
+  });
+
+  // 检测在横线之后是否有action
+  const afterDividerHasAction = computed(() => {
+    let result = false;
+    for (let i = props.list.length - 1; i > 0; i--) {
+      const item = props.list[i];
+      if (!item.isDivider) {
+        result = hasAnyPermission(item.permission || []);
+        if (result) {
+          return true;
+        }
+      } else {
+        return false;
+      }
+    }
+  });
 
   function selectHandler(value: SelectedValue) {
     const item = props.list.find((e: ActionsItem) => e.eventTag === value);
