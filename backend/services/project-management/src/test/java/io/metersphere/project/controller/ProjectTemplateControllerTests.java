@@ -8,14 +8,14 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.constants.TemplateScene;
 import io.metersphere.sdk.constants.TemplateScopeType;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.base.BasePluginTestService;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.OrganizationTemplateControllerTests;
 import io.metersphere.system.controller.param.TemplateUpdateRequestDefinition;
-import io.metersphere.system.domain.CustomField;
-import io.metersphere.system.domain.OrganizationParameter;
-import io.metersphere.system.domain.Template;
+import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.sdk.TemplateDTO;
+import io.metersphere.system.dto.sdk.request.CustomFieldUpdateRequest;
 import io.metersphere.system.dto.sdk.request.TemplateCustomFieldRequest;
 import io.metersphere.system.dto.sdk.request.TemplateUpdateRequest;
 import io.metersphere.system.log.constants.OperationLogType;
@@ -35,6 +35,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -207,6 +208,15 @@ public class ProjectTemplateControllerTests extends BaseTest {
         this.requestPostWithOk(DEFAULT_UPDATE, request);
         OrganizationTemplateControllerTests.assertTemplateCustomFields(request, template);
 
+        TemplateExample example = new TemplateExample();
+        example.createCriteria().andScopeIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("functional_default");
+        TemplateUpdateRequest internalRequest = BeanUtils.copyBean(new TemplateUpdateRequest(), templateMapper.selectByExample(example).get(0));
+        internalRequest.setName("aaaa");
+        this.requestPostWithOk(DEFAULT_UPDATE, internalRequest);
+        Assertions.assertEquals(templateMapper.selectByExample(example).get(0).getInternal(), true);
+        // 内置字段名称不能修改
+        Assertions.assertEquals(templateMapper.selectByExample(example).get(0).getName(), "functional_default");
+
         // 不更新字段
         request.setCustomFields(null);
         this.requestPostWithOk(DEFAULT_UPDATE, request);
@@ -332,11 +342,16 @@ public class ProjectTemplateControllerTests extends BaseTest {
     @Order(4)
     public void get() throws Exception {
         // @@请求成功
-        MvcResult mvcResult = this.requestGetWithOk(DEFAULT_GET, addTemplate.getId())
-                .andReturn();
+        MvcResult mvcResult = this.requestGetWithOkAndReturn(DEFAULT_GET, addTemplate.getId());
         // 校验数据是否正确
         TemplateDTO templateDTO = getResultData(mvcResult, TemplateDTO.class);
         OrganizationTemplateControllerTests.assertGetTemplateDTO(templateDTO);
+
+        TemplateExample example = new TemplateExample();
+        example.createCriteria().andScopeIdEqualTo(DEFAULT_PROJECT_ID).andNameEqualTo("functional_default");
+        mvcResult = this.requestGetWithOkAndReturn(DEFAULT_GET, templateMapper.selectByExample(example).get(0).getId());
+        templateDTO = getResultData(mvcResult, TemplateDTO.class);
+        Assertions.assertEquals(templateDTO.getName(), Translator.get("template.default"));
 
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_TEMPLATE_READ, DEFAULT_GET, templateDTO.getId());
