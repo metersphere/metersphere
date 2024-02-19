@@ -45,6 +45,9 @@
         :empty-text="t('apiTestDebug.noMatchModule')"
         :virtual-list-props="{
           height: '100%',
+          threshold: 200,
+          fixedSize: true,
+          buffer: 15, // 缓冲区默认 10 的时候，虚拟滚动的底部 padding 计算有问题
         }"
         :field-names="{
           title: 'name',
