@@ -154,7 +154,7 @@
   const { propsRes, propsEvent, setProps } = useTable(undefined, {
     tableKey: TableKeyEnum.CASE_MANAGEMENT_DETAIL_TABLE,
     columns: templateFieldColumns.value,
-    scroll: { x: '100%' },
+    scroll: { x: '100%', y: 400 },
     selectable: false,
     noDisable: true,
     size: 'default',

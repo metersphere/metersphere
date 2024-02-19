@@ -27,7 +27,7 @@ export default {
   'system.plugin.defaultJarNameTip': '默认为包名',
   'system.plugin.appOrganize': '应用组织',
   'system.plugin.description': '描述',
-  'system.plugin.tableColumnsJar': 'jar',
+  'system.plugin.tableColumnsJar': 'jar包',
   'system.plugin.tableNoData': '暂无数据，请',
   'system.plugin.pluginDescription': '请对该插件进行描述',
   'system.plugin.supportFormat': '只支持JAR格式文件，文件大小不超过50M',

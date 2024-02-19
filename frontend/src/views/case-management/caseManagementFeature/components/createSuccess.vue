@@ -106,6 +106,7 @@
   // 返回用例列表
   function backCaseList() {
     clearInterval(timer.value);
+    timer.value = null;
     router.push({
       name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE,
     });
@@ -114,6 +115,7 @@
   // 继续创建
   function continueCreate() {
     clearInterval(timer.value);
+    timer.value = null;
     router.push({
       name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE_DETAIL,
     });
@@ -136,6 +138,12 @@
 
   onMounted(() => {
     setCountdown();
+  });
+
+  onBeforeUnmount(() => {
+    clearInterval(timer.value);
+    timer.value = null;
+    countDown.value = 0;
   });
 </script>
 

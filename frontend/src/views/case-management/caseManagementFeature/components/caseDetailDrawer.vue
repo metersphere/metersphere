@@ -28,7 +28,7 @@
           :loading="editLoading"
           @click="updateHandler('edit')"
         >
-          <MsIcon type="icon-icon_edit_outlined" class="mr-1 font-[16px]" />
+          <MsIcon type="icon-icon_edit_outlined" class="mr-2 font-[16px]" />
           {{ t('common.edit') }}
         </MsButton>
         <MsButton
@@ -39,7 +39,7 @@
           :loading="shareLoading"
           @click="shareHandler"
         >
-          <MsIcon type="icon-icon_share1" class="mr-1 font-[16px]" />
+          <MsIcon type="icon-icon_share1" class="mr-2 font-[16px]" />
           {{ t('caseManagement.featureCase.share') }}
         </MsButton>
         <MsButton
@@ -52,22 +52,23 @@
         >
           <MsIcon
             :type="detailInfo.followFlag ? 'icon-icon_collect_filled' : 'icon-icon_collection_outlined'"
-            class="mr-1 font-[16px]"
+            class="mr-2 font-[16px]"
             :class="[detailInfo.followFlag ? 'text-[rgb(var(--warning-6))]' : '']"
           />
           {{ t('caseManagement.featureCase.follow') }}
         </MsButton>
         <MsButton type="icon" status="secondary" class="!rounded-[var(--border-radius-small)]">
           <a-dropdown position="br" :hide-on-select="false">
-            <div>
-              <icon-more class="mr-1" />
+            <div class="flex items-center">
+              <icon-more class="mr-2" />
               <span> {{ t('caseManagement.featureCase.more') }}</span>
             </div>
 
             <template #content>
-              <a-doption>
+              <!-- TOTO公共用例先不上 -->
+              <!-- <a-doption>
                 <a-switch class="mr-1" size="small" type="line" />{{ t('caseManagement.featureCase.addToPublic') }}
-              </a-doption>
+              </a-doption> -->
               <a-doption @click="updateHandler('copy')">
                 <MsIcon type="icon-icon_copy_filled" class="font-[16px]" />{{ t('common.copy') }}</a-doption
               >
@@ -84,13 +85,13 @@
           class="!rounded-[var(--border-radius-small)]"
           @click="toggleFullScreen"
         >
-          <MsIcon :type="isFullScreen ? 'icon-icon_off_screen' : 'icon-icon_full_screen_one'" class="mr-1" size="16" />
+          <MsIcon :type="isFullScreen ? 'icon-icon_off_screen' : 'icon-icon_full_screen_one'" class="mr-2" size="16" />
           {{ t('caseManagement.featureCase.fullScreen') }}
         </MsButton>
       </div>
     </template>
     <template #default>
-      <div ref="wrapperRef" class="wrapperRef bg-white">
+      <div ref="wrapperRef" class="wrapperRef h-full bg-white">
         <MsSplitBox
           ref="wrapperRef"
           :class="isFullScreen ? 'h-[100%]' : 'h-[calc(100% - 78px)]'"
@@ -358,7 +359,7 @@
     getCaseTree();
     detailInfo.value = { ...detail };
     setCount(detail);
-    customFields.value = detailInfo.value.customFields;
+    customFields.value = detailInfo.value?.customFields as CustomAttributes[];
     caseLevels.value = getCaseLevels(customFields.value) as CaseLevel;
   }
 

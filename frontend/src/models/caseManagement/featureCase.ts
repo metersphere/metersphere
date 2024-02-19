@@ -171,7 +171,7 @@ export interface CreateOrUpdateCase {
   moduleId: string;
   versionId: string;
   tags: string[];
-  customFields: Record<string, any>; // 自定义字段集合
+  customFields?: Record<string, any>; // 自定义字段集合
   relateFileMetaIds?: string[]; // 关联文件ID集合
   deleteFileMetaIds?: string[]; //  删除本地上传的文件id
   unLinkFilesIds?: string[]; //  	取消关联的文件id
@@ -209,7 +209,7 @@ export interface DetailCase {
   expectedResult: string;
   prerequisite: string;
   description: string;
-  customFields: CustomAttributes[];
+  customFields?: Record<string, any>[];
   attachments?: AttachFileInfo[];
   followFlag?: boolean;
   functionalPriority: string;

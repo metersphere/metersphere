@@ -298,7 +298,7 @@ const Setting: AppRouteRecordRaw = {
           component: () => import('@/views/setting/organization/template/components/workFlowTableIndex.vue'),
           meta: {
             locale: 'menu.settings.organization.templateManagementWorkFlow',
-            roles: ['ORGANIZATION_TEMPLATE:READ+UPDATE'],
+            roles: ['ORGANIZATION_TEMPLATE:READ'],
             breadcrumbs: [
               {
                 name: SettingRouteEnum.SETTING_ORGANIZATION_TEMPLATE,

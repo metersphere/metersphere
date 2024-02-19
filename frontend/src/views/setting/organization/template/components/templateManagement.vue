@@ -100,7 +100,11 @@
   const currentOrd = computed(() => appStore.currentOrgId);
 
   const hasOperationPermission = computed(() =>
-    hasAnyPermission(['ORGANIZATION_TEMPLATE:READ+UPDATE', 'ORGANIZATION_TEMPLATE:READ+DELETE'])
+    hasAnyPermission([
+      'ORGANIZATION_TEMPLATE:READ+ADD',
+      'ORGANIZATION_TEMPLATE:READ+UPDATE',
+      'ORGANIZATION_TEMPLATE:READ+DELETE',
+    ])
   );
 
   const fieldColumns: MsTableColumn = [

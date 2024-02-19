@@ -108,7 +108,7 @@ export default {
   'system.orgTemplate.apiFieldId': 'API 字段',
   'system.orgTemplate.copyTemplate': '复制{type}模板',
   'system.orgTemplate.createTemplateType': '创建{type}',
-  'system.orgTemplate.editTemplateType': '编辑{type}',
+  'system.orgTemplate.editTemplateType': '更新{type}',
   'system.orgTemplate.workFlowTip': '更改事项的属性或工作流配置，会在相关项目立即生效，请谨慎操作',
   'system.orgTemplate.workFlowToolTip': '列为缺陷所在状态，在列内“点击+”，可添加流转状态',
   'system.orgTemplate.workFlowToolTipHover': 'hover 可更换初始状态，操作列可选择结束状态',

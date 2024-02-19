@@ -508,7 +508,7 @@
       name: route.params.mode === 'copy' ? `${detailResult.name}_copy` : detailResult.name,
     };
     // 处理自定义字段
-    formRules.value = customFields.map((item: any) => {
+    formRules.value = (customFields || []).map((item: any) => {
       const multipleType = ['MULTIPLE_SELECT', 'CHECKBOX', 'MULTIPLE_MEMBER', 'MULTIPLE_INPUT'];
       const currentDefaultValue = multipleType.includes(item.type) ? JSON.parse(item.defaultValue) : item.defaultValue;
 
@@ -750,6 +750,12 @@
 
   function resetForm() {
     form.value = { ...initForm, templateId: form.value.templateId };
+    form.value.customFields = formItem.value.map((item: any) => {
+      return {
+        fieldId: item.field,
+        value: Array.isArray(item.value) ? JSON.stringify(item.value) : item.value,
+      };
+    });
     fileList.value = [];
     caseFormRef.value?.resetFields();
   }

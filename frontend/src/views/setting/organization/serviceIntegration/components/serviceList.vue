@@ -91,7 +91,7 @@
 
                   <a-button
                     v-if="item.config"
-                    v-permission="['SYSTEM_SERVICE_INTEGRATION:READ+RESET']"
+                    v-permission="['SYSTEM_SERVICE_INTEGRATION:READ+DELETE']"
                     type="outline"
                     class="arco-btn-outline--secondary"
                     size="mini"
@@ -145,7 +145,6 @@
   import { hasAnyPermission } from '@/utils/permission';
 
   import type { ServiceItem, ServiceList } from '@/models/setting/serviceIntegration';
-  import { SettingRouteEnum } from '@/enums/routeEnum';
 
   import Message from '@arco-design/web-vue/es/message';
 
@@ -277,9 +276,10 @@
           border: 1px solid var(--color-text-n9);
         }
         .ms-enable {
+          font-size: 12px;
           border-radius: var(--border-radius-small);
           background: var(--color-text-n9);
-          @apply px-2 py-1 text-xs;
+          @apply px-2 py-1;
         }
       }
     }

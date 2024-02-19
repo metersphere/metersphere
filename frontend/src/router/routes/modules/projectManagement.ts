@@ -182,7 +182,7 @@ const ProjectManagement: AppRouteRecordRaw = {
       component: () => import('@/views/project-management/template/components/proTemplateDetail.vue'),
       meta: {
         locale: 'menu.settings.organization.templateManagementDetail',
-        roles: ['PROJECT_TEMPLATE:READ+ADD'],
+        roles: ['PROJECT_TEMPLATE:READ+UPDATE', 'PROJECT_TEMPLATE:READ+ADD'],
         breadcrumbs: [
           {
             name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE,
@@ -209,7 +209,7 @@ const ProjectManagement: AppRouteRecordRaw = {
       component: () => import('@/views/project-management/template/components/workFlowTableIndex.vue'),
       meta: {
         locale: 'menu.settings.organization.templateManagementWorkFlow',
-        roles: ['PROJECT_TEMPLATE:READ+ADD'],
+        roles: ['PROJECT_TEMPLATE:READ'],
         breadcrumbs: [
           {
             name: ProjectManagementRouteEnum.PROJECT_MANAGEMENT_TEMPLATE,

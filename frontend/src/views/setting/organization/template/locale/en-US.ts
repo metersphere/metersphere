@@ -108,7 +108,7 @@ export default {
   'system.orgTemplate.apiFieldId': 'API field',
   'system.orgTemplate.copyTemplate': 'copy{type}template',
   'system.orgTemplate.createTemplateType': 'create{type}',
-  'system.orgTemplate.editTemplateType': 'edit{type}',
+  'system.orgTemplate.editTemplateType': 'update{type}',
   'system.orgTemplate.workFlowTip':
     'Change the properties or workflow configuration of the event will take effect immediately on the related project. Exercise caution when performing this operation',
   'system.orgTemplate.workFlowToolTip':

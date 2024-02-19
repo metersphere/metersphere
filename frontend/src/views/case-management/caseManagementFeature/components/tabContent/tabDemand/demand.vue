@@ -81,10 +81,7 @@
   import AddDemandModal from './addDemandModal.vue';
   import AssociatedDemandTable from './associatedDemandTable.vue';
 
-  import {
-    addDemandRequest,
-    getThirdDemandList
-  } from '@/api/modules/case-management/featureCase';
+  import { addDemandRequest, getThirdDemandList } from '@/api/modules/case-management/featureCase';
   import { getCaseRelatedInfo } from '@/api/modules/project-management/menuManagement';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
@@ -220,6 +217,7 @@
       fullColumns.value = [...columns, ...customFields.value];
       tableRef.value.initColumn(fullColumns.value);
     } catch (error) {
+      tableRef.value.initColumn(columns);
       console.log(error);
     }
   }
