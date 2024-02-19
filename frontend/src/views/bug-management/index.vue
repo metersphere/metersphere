@@ -410,6 +410,9 @@
   const handleCreate = () => {
     router.push({
       name: RouteEnum.BUG_MANAGEMENT_DETAIL,
+      params: {
+        mode: 'add',
+      },
     });
   };
   const handleSync = () => {

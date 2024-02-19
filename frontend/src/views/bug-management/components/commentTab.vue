@@ -58,8 +58,8 @@
   const handleUpdate = async (item: CommentParams, cb: (result: boolean) => void) => {
     try {
       await createOrUpdateComment(item);
-      if (item.bugId) {
-        initData(item.bugId);
+      if (props.bugId) {
+        initData(props.bugId);
       }
       cb(true);
     } catch (error) {

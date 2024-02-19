@@ -8,7 +8,7 @@
   >
     <div v-if="props.isShowAvatar" class="mr-3 inline-block"> <MsAvatar avatar="word"></MsAvatar></div>
     <div class="w-full items-center">
-      <a-input v-if="!isActive" class="w-full" @click="isActive = true"></a-input>
+      <a-input v-if="!isActive" class="w-full hover:border-[rgb(var(--primary-5))]" @click="isActive = true"></a-input>
       <div v-else class="flex flex-col justify-between">
         <MsRichText v-model:raw="currentContent" v-model:commentIds="commentIds" class="w-full" />
         <div class="mt-4 flex flex-row justify-end gap-[12px]">
@@ -21,8 +21,7 @@
 </template>
 
 <script lang="ts" setup>
-  import { ref } from 'vue';
-  import { useVModel } from '@vueuse/core';
+  import { defineModel, ref } from 'vue';
 
   import MsAvatar from '@/components/pure/ms-avatar/index.vue';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
@@ -33,25 +32,20 @@
 
   const { t } = useI18n();
 
-  // const currentContent = defineModel<string>('content', { required: true });
-
   const props = defineProps<{
     isShowAvatar: boolean; // 是否显示评论人头像
     isUseBottom: boolean; // 是否被用于底部
-    defaultValue?: string; // 默认值
-    noticeUserIds?: string[]; // 评论人id列表
   }>();
 
-  const currentContent = ref(props.defaultValue || '');
+  const currentContent = defineModel<string>('defaultValue', { default: '' });
+
+  const commentIds = defineModel<string[]>('noticeUserIds', { default: [] });
 
   const emit = defineEmits<{
     (event: 'publish', value: string): void;
     (event: 'cancel'): void;
   }>();
-
   const isActive = ref(false);
-  const commentIds = useVModel(props, 'noticeUserIds', emit);
-
   const publish = () => {
     emit('publish', currentContent.value);
     isActive.value = false;
