@@ -96,6 +96,8 @@ export default {
   'apiTestDebug.deleteFolderTipTitle': 'Remove the `{name}` module?',
   'apiTestDebug.deleteFolderTipContent':
     'This operation will delete the module and all resources under it, please operate with caution!',
+  'apiTestDebug.deleteDebugTipTitle': 'Remove the {name}?',
+  'apiTestDebug.deleteDebugTipContent': 'Deletion cannot be restored, please proceed with caution!',
   'apiTestDebug.deleteConfirm': 'Confirm delete',
   'apiTestDebug.deleteSuccess': 'Successfully deleted',
   'apiTestDebug.moduleMoveSuccess': 'Module moved successfully',

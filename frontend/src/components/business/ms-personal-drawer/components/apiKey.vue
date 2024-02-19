@@ -65,7 +65,7 @@
         <div class="flex items-center justify-between px-[16px]">
           <MsTableMoreAction :list="actions" trigger="click" @select="handleMoreActionSelect($event, item)">
             <a-button
-              v-permission="['SYSTEM_PERSONAL_API_KEY:READ+UPDATE']"
+              v-permission="['SYSTEM_PERSONAL_API_KEY:READ+UPDATE', 'SYSTEM_PERSONAL_API_KEY:READ+DELETE']"
               size="mini"
               type="outline"
               class="arco-btn-outline--secondary"
@@ -83,10 +83,10 @@
         </div>
       </div>
       <div v-if="apiKeyList.length === 0" class="col-span-2 flex w-full items-center justify-center p-[44px]">
-        {{ t('ms.personal.nodata') }}
-        <MsButton v-permission="['SYSTEM_PERSONAL_API_KEY:READ+ADD']" type="text" class="ml-[8px]" @click="newApiKey">{{
-          t('common.new')
-        }}</MsButton>
+        {{ hasCratePermission ? t('ms.personal.noData') : t('ms.personal.empty') }}
+        <MsButton v-permission="['SYSTEM_PERSONAL_API_KEY:READ+ADD']" type="text" class="ml-[8px]" @click="newApiKey">
+          {{ t('common.new') }}
+        </MsButton>
       </div>
     </a-spin>
   </div>
@@ -156,6 +156,7 @@
   } from '@/api/modules/user/index';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import { APIKEY } from '@/models/user';
 
@@ -169,6 +170,7 @@
     desensitization: boolean;
   }
   const apiKeyList = ref<APIKEYItem[]>([]);
+  const hasCratePermission = hasAnyPermission(['SYSTEM_PERSONAL_API_KEY:READ+ADD']);
 
   async function initApiKeys() {
     try {
@@ -210,6 +212,7 @@
     {
       label: t('ms.personal.validTime'),
       eventTag: 'time',
+      permission: ['SYSTEM_PERSONAL_API_KEY:READ+UPDATE'],
     },
     {
       isDivider: true,
@@ -218,6 +221,7 @@
       label: t('common.delete'),
       danger: true,
       eventTag: 'delete',
+      permission: ['SYSTEM_PERSONAL_API_KEY:READ+DELETE'],
     },
   ];
 

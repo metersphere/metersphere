@@ -21,7 +21,7 @@
               v-model:model-value="requestVModel.url"
               :max-length="255"
               :placeholder="t('apiTestDebug.urlPlaceholder')"
-              @change="handleActiveDebugChange"
+              @change="handleUrlChange"
             />
           </a-input-group>
         </div>
@@ -230,14 +230,14 @@
   import { getLocalConfig } from '@/api/modules/user/index';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
-  import { filterTree, getGenerateId } from '@/utils';
+  import { filterTree, getGenerateId, parseQueryParams } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
   import { registerCatchSaveShortcut, removeCatchSaveShortcut } from '@/utils/event';
 
   import { PluginConfig } from '@/models/apiTest/common';
   import { ExecuteHTTPRequestFullParams } from '@/models/apiTest/debug';
   import { ModuleTreeNode } from '@/models/common';
-  import { RequestComposition, RequestMethods } from '@/enums/apiEnum';
+  import { RequestComposition, RequestMethods, RequestParamsType } from '@/enums/apiEnum';
 
   import { Api } from '@form-create/arco-design';
 
@@ -250,6 +250,7 @@
   export interface RequestCustomAttr {
     isNew: boolean;
     protocol: string;
+    activeTab: RequestComposition;
   }
   export type RequestParam = ExecuteHTTPRequestFullParams & RequestCustomAttr & TabItem;
 
@@ -478,6 +479,32 @@
       immediate: true,
     }
   );
+
+  /**
+   *  处理url输入框变化，解析成参数表格
+   */
+  function handleUrlChange(val: string) {
+    const params = parseQueryParams(val.trim());
+    if (params.length > 0) {
+      requestVModel.value.query.splice(
+        0,
+        requestVModel.value.query.length - 2,
+        ...params.map((e, i) => ({
+          id: (new Date().getTime() + i).toString(),
+          paramType: RequestParamsType.STRING,
+          description: '',
+          required: false,
+          maxLength: undefined,
+          minLength: undefined,
+          encode: false,
+          enable: true,
+          ...e,
+        }))
+      );
+      requestVModel.value.activeTab = RequestComposition.QUERY;
+    }
+    handleActiveDebugChange();
+  }
 
   const splitBoxSize = ref<string | number>(0.6);
   const activeLayout = ref<'horizontal' | 'vertical'>('vertical');

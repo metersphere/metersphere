@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="flex h-full flex-col p-[24px]">
     <div class="mb-[8px] flex items-center gap-[8px]">
       <a-input v-model:model-value="moduleKeyword" :placeholder="t('apiTestDebug.searchTip')" allow-clear />
       <a-dropdown @select="handleSelect">
@@ -34,7 +34,7 @@
       </div>
     </div>
     <a-divider class="my-[8px]" />
-    <a-spin class="min-h-[400px] w-full" :loading="loading">
+    <a-spin class="h-[calc(100%-98px)] w-full" :loading="loading">
       <MsTree
         v-model:focus-node-key="focusNodeKey"
         :data="folderTree"
@@ -43,8 +43,9 @@
         :default-expand-all="isExpandAll"
         :expand-all="isExpandAll"
         :empty-text="t('apiTestDebug.noMatchModule')"
-        :draggable="true"
-        :virtual-list-props="virtualListProps"
+        :virtual-list-props="{
+          height: '100%',
+        }"
         :field-names="{
           title: 'name',
           key: 'id',
@@ -93,8 +94,9 @@
             :node-id="nodeData.id"
             :field-config="{ field: renameFolderTitle }"
             :all-names="(nodeData.children || []).map((e: ModuleTreeNode) => e.name || '')"
+            :node-type="nodeData.type"
             @close="resetFocusNodeKey"
-            @rename-finish="initModules"
+            @rename-finish="handleRenameFinish"
           >
             <span :id="`renameSpan${nodeData.id}`" class="relative"></span>
           </popConfirm>
@@ -117,6 +119,7 @@
   import popConfirm from '@/views/api-test/components/popConfirm.vue';
 
   import {
+    deleteDebug,
     deleteDebugModule,
     getDebugModuleCount,
     getDebugModules,
@@ -131,7 +134,7 @@
   const props = defineProps<{
     isExpandAll?: boolean; // 是否展开所有节点
   }>();
-  const emit = defineEmits(['init', 'clickApiNode', 'newApi', 'import']);
+  const emit = defineEmits(['init', 'clickApiNode', 'newApi', 'import', 'renameFinish']);
 
   const { t } = useI18n();
   const { openModal } = useModal();
@@ -149,12 +152,6 @@
         break;
     }
   }
-
-  const virtualListProps = computed(() => {
-    return {
-      height: 'calc(100% - 180px)',
-    };
-  });
 
   const isExpandAll = ref(props.isExpandAll);
   const rootModulesName = ref<string[]>([]); // 根模块名称列表
@@ -204,9 +201,9 @@
         return {
           ...e,
           hideMoreAction: e.id === 'root',
-          draggable: e.id !== 'root',
         };
       });
+      rootModulesName.value = folderTree.value.map((e) => e.name || '');
       emit('init', folderTree.value);
     } catch (error) {
       // eslint-disable-next-line no-console
@@ -228,7 +225,6 @@
         return {
           ...node,
           count: res[node.id] || 0,
-          draggable: node.id !== 'root',
         };
       });
     } catch (error) {
@@ -274,13 +270,45 @@
   }
 
   /**
+   * 删除接口调试
+   * @param node 节点信息
+   */
+  function deleteApiDebug(node: MsTreeNodeData) {
+    openModal({
+      type: 'error',
+      title: t('apiTestDebug.deleteDebugTipTitle', { name: node.name }),
+      content: t('apiTestDebug.deleteDebugTipContent'),
+      okText: t('apiTestDebug.deleteConfirm'),
+      okButtonProps: {
+        status: 'danger',
+      },
+      maskClosable: false,
+      onBeforeOk: async () => {
+        try {
+          await deleteDebug(node.id);
+          Message.success(t('apiTestDebug.deleteSuccess'));
+          initModules();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
+      },
+      hideCancel: false,
+    });
+  }
+
+  /**
    * 处理树节点更多按钮事件
    * @param item
    */
   function handleFolderMoreSelect(item: ActionsItem, node: MsTreeNodeData) {
     switch (item.eventTag) {
       case 'delete':
-        deleteFolder(node);
+        if (node.type === 'MODULE') {
+          deleteFolder(node);
+        } else {
+          deleteApiDebug(node);
+        }
         resetFocusNodeKey();
         break;
       case 'rename':
@@ -319,7 +347,7 @@
       console.log(error);
     } finally {
       loading.value = false;
-      initModules();
+      await initModules();
       initModuleCount();
     }
   }
@@ -331,8 +359,13 @@
     }
   }
 
-  onBeforeMount(() => {
+  function handleRenameFinish(newName: string, id: string) {
     initModules();
+    emit('renameFinish', newName, id);
+  }
+
+  onBeforeMount(async () => {
+    await initModules();
     initModuleCount();
   });
 

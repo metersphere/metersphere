@@ -388,7 +388,7 @@
 
       let mouseEnterTimer;
       // 渲染菜单项
-      const renderMenuItem = (element, icon) =>
+      const renderMenuItem = (element: RouteRecordRaw | null, icon) =>
         element?.name === SettingRouteEnum.SETTING_ORGANIZATION ? (
           <a-menu-item key={element?.name} v-slots={{ icon }} onClick={() => goto(element)}>
             <div class="inline-flex w-[calc(100%-34px)] items-center justify-between !bg-transparent">

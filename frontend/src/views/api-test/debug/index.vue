@@ -3,15 +3,14 @@
   <MsCard :loading="loading" simple no-content-padding>
     <MsSplitBox :size="0.25" :max="0.5">
       <template #first>
-        <div class="p-[24px]">
-          <moduleTree
-            ref="moduleTreeRef"
-            @init="(val) => (folderTree = val)"
-            @new-api="addDebugTab"
-            @click-api-node="openApiTab"
-            @import="importDrawerVisible = true"
-          />
-        </div>
+        <moduleTree
+          ref="moduleTreeRef"
+          @init="(val) => (folderTree = val)"
+          @new-api="addDebugTab"
+          @click-api-node="openApiTab"
+          @import="importDrawerVisible = true"
+          @rename-finish="handleRenameFinish"
+        />
       </template>
       <template #second>
         <div class="flex h-full flex-col">
@@ -113,8 +112,8 @@
   const curlCode = ref('');
   const loading = ref(false);
 
-  function handleDebugAddDone() {
-    moduleTreeRef.value?.initModules();
+  async function handleDebugAddDone() {
+    await moduleTreeRef.value?.initModules();
     moduleTreeRef.value?.initModuleCount();
   }
 
@@ -287,6 +286,16 @@
     importDrawerVisible.value = false;
     nextTick(() => {
       handleActiveDebugChange();
+    });
+  }
+
+  function handleRenameFinish(name: string, id: string) {
+    debugTabs.value = debugTabs.value.map((tab) => {
+      if (tab.id === id) {
+        tab.label = name;
+        tab.name = name;
+      }
+      return tab;
     });
   }
 </script>

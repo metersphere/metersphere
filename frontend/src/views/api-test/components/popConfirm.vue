@@ -11,10 +11,7 @@
   >
     <template #content>
       <div class="mb-[8px] font-medium">
-        {{
-          props.title ||
-          (props.mode === 'add' ? t('project.fileManagement.addSubModule') : t('project.fileManagement.rename'))
-        }}
+        {{ props.title || (props.mode === 'add' ? t('project.fileManagement.addSubModule') : t('common.rename')) }}
       </div>
       <a-form ref="formRef" :model="form" layout="vertical">
         <a-form-item
@@ -51,7 +48,7 @@
   import { ref, watch } from 'vue';
   import { Message } from '@arco-design/web-vue';
 
-  import { addDebugModule, updateDebugModule } from '@/api/modules/api-test/debug';
+  import { addDebugModule, updateDebug, updateDebugModule } from '@/api/modules/api-test/debug';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
@@ -67,6 +64,7 @@
 
   const props = defineProps<{
     mode: 'add' | 'rename';
+    nodeType?: 'MODULE' | 'API';
     visible?: boolean;
     title?: string;
     allNames: string[];
@@ -128,16 +126,24 @@
               parentId: props.parentId || '',
               name: form.value.field,
             });
-            Message.success(t('project.fileManagement.addSubModuleSuccess'));
+            Message.success(t('common.addSuccess'));
             emit('addFinish', form.value.field);
+          } else if (props.mode === 'rename' && props.nodeType === 'API') {
+            // 接口节点重命名
+            await updateDebug({
+              id: props.nodeId || '',
+              name: form.value.field,
+            });
+            Message.success(t('common.updateSuccess'));
+            emit('renameFinish', form.value.field, props.nodeId);
           } else if (props.mode === 'rename') {
             // 模块重命名
             await updateDebugModule({
               id: props.nodeId || '',
               name: form.value.field,
             });
-            Message.success(t('project.fileManagement.renameSuccess'));
-            emit('renameFinish', form.value.field);
+            Message.success(t('common.updateSuccess'));
+            emit('renameFinish', form.value.field, props.nodeId);
           }
           if (done) {
             done(true);

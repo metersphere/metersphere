@@ -3,6 +3,7 @@ import {
   AddApiDebugUrl,
   AddDebugModuleUrl,
   DeleteDebugModuleUrl,
+  DeleteDebugUrl,
   ExecuteApiDebugUrl,
   GetApiDebugDetailUrl,
   GetDebugModuleCountUrl,
@@ -70,4 +71,9 @@ export function updateDebug(data: UpdateDebugParams) {
 // 获取接口调试详情
 export function getDebugDetail(id: string) {
   return MSR.get<DebugDetail>({ url: GetApiDebugDetailUrl, params: id });
+}
+
+// 删除接口调试
+export function deleteDebug(id: string) {
+  return MSR.get({ url: DeleteDebugUrl, params: id });
 }

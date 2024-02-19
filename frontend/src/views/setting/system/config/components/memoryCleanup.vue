@@ -21,7 +21,7 @@
         <a-input-number
           v-model:model-value="timeCount"
           class="w-[130px]"
-          :disabled="saveLoading || !isHasAdminPermission"
+          :disabled="saveLoading || !hasPermission"
           :min="0"
           @blur="() => saveConfig()"
         >
@@ -30,6 +30,7 @@
               v-model:model-value="activeTime"
               :options="timeOptions"
               class="select-input-append"
+              :disabled="!hasPermission"
               :loading="saveLoading"
               @change="() => saveConfig()"
             />
@@ -49,7 +50,7 @@
         <a-input-number
           v-model:model-value="historyCount"
           class="w-[130px]"
-          :disabled="saveLoading || !isHasAdminPermission"
+          :disabled="saveLoading || !hasPermission"
           :min="0"
           @blur="() => saveConfig()"
         />
@@ -65,9 +66,8 @@
 
   import { getCleanupConfig, saveCleanupConfig } from '@/api/modules/setting/config';
   import { useI18n } from '@/hooks/useI18n';
-  import { useUserStore } from '@/store';
+  import { hasAnyPermission } from '@/utils/permission';
 
-  const userStore = useUserStore();
   const { t } = useI18n();
   const loading = ref(false);
 
@@ -114,14 +114,14 @@
     }
   });
 
-  const isHasAdminPermission = computed(() => {
-    return userStore.isAdmin;
+  const hasPermission = computed(() => {
+    return hasAnyPermission(['SYSTEM_PARAMETER_SETTING_MEMORY_CLEAN:READ+UPDATE']);
   });
 
   const saveLoading = ref(false);
 
   async function saveConfig() {
-    if (!isHasAdminPermission) {
+    if (!hasPermission) {
       return;
     }
     saveLoading.value = true;

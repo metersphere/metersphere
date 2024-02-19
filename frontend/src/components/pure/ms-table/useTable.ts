@@ -256,7 +256,8 @@ export default function useTableProps<T>(
           const data = await loadListFunc({ keyword: keyword.value, ...loadListParams.value });
           if (data.length === 0) {
             setTableErrorStatus('empty');
-            return;
+            propsRes.value.data = [];
+            return data;
           }
           setTableErrorStatus(false);
           propsRes.value.data = data.map((item: MsTableDataItem<T>) => {

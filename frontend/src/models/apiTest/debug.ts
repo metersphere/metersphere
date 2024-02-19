@@ -313,10 +313,10 @@ export interface SaveDebugParams {
   linkFileIds: string[];
 }
 // 更新接口调试入参
-export interface UpdateDebugParams extends SaveDebugParams {
+export interface UpdateDebugParams extends Partial<SaveDebugParams> {
   id: string;
-  deleteFileIds: string[];
-  unLinkRefIds: string[];
+  deleteFileIds?: string[];
+  unLinkRefIds?: string[];
 }
 // 更新模块入参
 export interface UpdateDebugModule {
