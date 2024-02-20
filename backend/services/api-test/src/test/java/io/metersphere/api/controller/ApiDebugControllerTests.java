@@ -7,6 +7,7 @@ import io.metersphere.api.domain.ApiDebugBlob;
 import io.metersphere.api.domain.ApiFileResource;
 import io.metersphere.api.dto.assertion.MsAssertionConfig;
 import io.metersphere.api.dto.debug.*;
+import io.metersphere.api.dto.request.ApiEditPosRequest;
 import io.metersphere.api.dto.request.MsCommonElement;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.RestParam;
@@ -53,6 +54,7 @@ import java.util.List;
 
 import static io.metersphere.api.controller.result.ApiResultCode.API_DEBUG_EXIST;
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * @author jianxing
@@ -359,6 +361,29 @@ public class ApiDebugControllerTests extends BaseTest {
 
     @Test
     @Order(6)
+    public void move() throws Exception {
+        ApiEditPosRequest request = new ApiEditPosRequest();
+        request.setTargetId(addApiDebug.getId());
+        request.setMoveId(addApiDebug.getId());
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setModuleId("root");
+        request.setMoveMode("AFTER");
+        requestPost("edit/pos", request).andExpect(status().isOk());
+        // @@请求成功
+        request.setMoveId(anotherAddApiDebug.getId());
+        this.requestPostWithOk("edit/pos", request);
+        // 校验请求成功数据
+        ApiDebug apiDebug = apiDebugMapper.selectByPrimaryKey(addApiDebug.getId());
+        Assertions.assertEquals(apiDebug.getModuleId(), "root");
+        request.setModuleId("def");
+        requestPost("edit/pos", request).andExpect(status().is5xxServerError());
+        request.setModuleId("root");
+        // @@校验权限
+        requestPostPermissionTest(PermissionConstants.PROJECT_API_DEBUG_UPDATE, "edit/pos", request);
+    }
+
+    @Test
+    @Order(7)
     public void debug() throws Exception {
         ApiDebugRunRequest request = new ApiDebugRunRequest();
         request.setId(addApiDebug.getId());
@@ -506,7 +531,7 @@ public class ApiDebugControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(7)
+    @Order(8)
     public void delete() throws Exception {
         // @@请求成功
         this.requestGetWithOk(DEFAULT_DELETE, addApiDebug.getId());

@@ -8,6 +8,7 @@ import io.metersphere.api.dto.ApiResourceModuleInfo;
 import io.metersphere.api.dto.converter.ApiDefinitionImport;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.request.ApiEditPosRequest;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.parser.ImportParser;
@@ -29,7 +30,6 @@ import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.request.OperationHistoryVersionRequest;
 import io.metersphere.system.dto.sdk.SessionUser;
-import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.dto.table.TableBatchProcessDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.service.OperationHistoryService;
@@ -1004,12 +1004,22 @@ public class ApiDefinitionService {
         return apiDefinitionBlobMapper.selectByExampleWithBLOBs(apiDefinitionBlobExample);
     }
 
-    public void editPos(PosRequest request) {
+    public void editPos(ApiEditPosRequest request, String userId) {
+        ApiDefinition apiDefinition = checkApiDefinition(request.getTargetId());
+        checkModuleExist(request.getModuleId());
+        apiDefinition.setModuleId(request.getModuleId());
+        checkUpdateExist(apiDefinition);
+        apiDefinition.setUpdateTime(System.currentTimeMillis());
+        apiDefinition.setUpdateUser(userId);
+        apiDefinitionMapper.updateByPrimaryKeySelective(apiDefinition);
+        if (StringUtils.equals(request.getTargetId(), request.getMoveId())) {
+            return;
+        }
         ServiceUtils.updatePosField(request,
                 ApiDefinition.class,
                 apiDefinitionMapper::selectByPrimaryKey,
                 extApiDefinitionMapper::getPrePos,
-                extApiTestCaseMapper::getLastPos,
+                extApiDefinitionMapper::getLastPos,
                 apiDefinitionMapper::updateByPrimaryKeySelective);
     }
 
@@ -1028,5 +1038,15 @@ public class ApiDefinitionService {
 
     public List<ApiResourceModuleInfo> getModuleInfoByIds(List<String> apiIds) {
         return extApiDefinitionMapper.getModuleInfoByIds(apiIds);
+    }
+
+    public void checkModuleExist(String moduleId) {
+        if (StringUtils.equals(moduleId, "root")) {
+            return;
+        }
+        ApiDefinitionModule apiDefinitionModule = apiDefinitionModuleMapper.selectByPrimaryKey(moduleId);
+        if (apiDefinitionModule == null) {
+            throw new MSException("module.not.exist");
+        }
     }
 }
