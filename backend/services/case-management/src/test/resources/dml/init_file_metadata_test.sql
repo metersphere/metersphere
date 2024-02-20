@@ -65,6 +65,7 @@ VALUES ('WX_TEST_FUNCTIONAL_CASE_ID', 6, 'TEST_MODULE_ID_GYQ', 'WX_PROJECT_ID', 
 INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('WX_TEST_FUNCTIONAL_CASE_ID', 'STEP', '1111', '', '', 'TEST');
 
 INSERT INTO project_application(project_id, type, type_value) VALUES ('WX_PROJECT_ID', 'CASE_RE_REVIEW', 'true');
+INSERT INTO project_application(project_id, type, type_value) VALUES ('100001100001', 'CASE_RE_REVIEW', 'true');
 
 INSERT INTO case_review_functional_case(id, review_id, case_id, status, create_time, update_time, create_user, pos) VALUES ('wx_case_review_id', 'wx_review_id', 'WX_TEST_FUNCTIONAL_CASE_ID', 'PASS', 1700816738199, 1700816738199, 'admin', 0);
 
@@ -83,3 +84,6 @@ INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, r
 VALUES ('wx_test_root', 13, 'root', '100001100001', '100001', '测试默认模块', 'UN_REVIEWED', NULL, 'STEP', 0, 'v3.0.0', 'wx_ref_id', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL);
 
 INSERT INTO functional_case_blob(id, steps, text_description, expected_result, prerequisite, description) VALUES ('wx_test_root', 'STEP', '1111', '', '', 'TEST');
+
+INSERT INTO case_review_functional_case(id, review_id, case_id, status, create_time, create_user, update_time, pos)
+VALUES ('TEST_ID', 'TEST_IMPORT_REVIEW', 'TEST_IMPORT', 'UN_REVIEWED', 1707209476947, 'admin', 1707219070000, 10000);

@@ -42,6 +42,7 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionUtils;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -756,5 +757,34 @@ public class CaseReviewFunctionalCaseService {
             optionDTOS.add(optionDTO);
         });
         return optionDTOS;
+    }
+
+
+    @Async
+    public void batchHandleStatusAndHistory(List<String> caseIds, String userId) {
+        CaseReviewFunctionalCaseExample example = new CaseReviewFunctionalCaseExample();
+        example.createCriteria().andCaseIdIn(caseIds);
+        List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(example);
+        Map<String, List<CaseReviewFunctionalCase>> reviews = caseReviewFunctionalCases.stream().collect(Collectors.groupingBy(CaseReviewFunctionalCase::getReviewId));
+        reviews.forEach((k, v) -> {
+            Map<String, Integer> countMap = new HashMap<>();
+            Map<String, String> statusMap = new HashMap<>();
+            v.forEach(c -> {
+                extCaseReviewHistoryMapper.updateAbandoned(c.getCaseId());
+                updateReviewCaseAndCaseStatus(c);
+                insertHistory(c);
+                statusMap.put(c.getCaseId(), c.getStatus());
+            });
+            //更新用例触发重新提审-需要重新计算评审的整体状态
+            countMap.put(FunctionalCaseReviewStatus.RE_REVIEWED.name(), v.size());
+            Map<String, Object> param = new HashMap<>();
+            param.put(CaseEvent.Param.REVIEW_ID, k);
+            param.put(CaseEvent.Param.USER_ID, userId);
+            param.put(CaseEvent.Param.CASE_IDS, v.stream().map(CaseReviewFunctionalCase::getCaseId).collect(Collectors.toList()));
+            param.put(CaseEvent.Param.COUNT_MAP, countMap);
+            param.put(CaseEvent.Param.STATUS_MAP, statusMap);
+            param.put(CaseEvent.Param.EVENT_NAME, CaseEvent.Event.REVIEW_FUNCTIONAL_CASE);
+            provider.updateCaseReview(param);
+        });
     }
 }

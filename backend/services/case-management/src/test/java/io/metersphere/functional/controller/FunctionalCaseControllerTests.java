@@ -621,6 +621,12 @@ public class FunctionalCaseControllerTests extends BaseTest {
         FunctionalCaseImportResponse functionalCaseImportResponse = JSON.parseObject(JSON.toJSONString(functionalCaseResultHolder.getData()), FunctionalCaseImportResponse.class);
         Assertions.assertNotNull(functionalCaseImportResponse);
 
+        String filePath5 = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/5.xlsx")).getPath();
+        MockMultipartFile file5 = new MockMultipartFile("file", "15.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileBaseUtils.getFileBytes(filePath5));
+        paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("request", JSON.toJSONString(request));
+        paramMap.add("file", file5);
+        this.requestMultipart(IMPORT_EXCEL_URL, paramMap);
 
         String filePath1 = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/4.xlsx")).getPath();
         MockMultipartFile file1 = new MockMultipartFile("file", "14.xlsx", MediaType.APPLICATION_OCTET_STREAM_VALUE, FileBaseUtils.getFileBytes(filePath1));
