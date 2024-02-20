@@ -36,7 +36,7 @@
         </template>
         <template #operation="{ record }">
           <MsRemoveButton
-            v-permission="['ORGANIZATION_PROJECT:READ+DELETE+MEMBER']"
+            v-permission="['ORGANIZATION_PROJECT:READ+DELETE_MEMBER']"
             :title="t('system.project.removeName', { name: record.name })"
             :sub-title-tip="t('system.project.removeTip')"
             @ok="handleRemove(record)"
@@ -87,7 +87,7 @@
 
   const keyword = ref('');
 
-  const hasOperationPermission = computed(() => hasAnyPermission(['ORGANIZATION_PROJECT:READ+DELETE+MEMBER']));
+  const hasOperationPermission = computed(() => hasAnyPermission(['ORGANIZATION_PROJECT:READ+DELETE_MEMBER']));
 
   const projectColumn: MsTableColumn = [
     {
