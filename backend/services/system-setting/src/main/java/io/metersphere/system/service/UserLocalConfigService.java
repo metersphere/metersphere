@@ -75,12 +75,18 @@ public class UserLocalConfigService {
 
     public boolean validate(String id) {
         UserLocalConfig userLocalConfig = checkResourceById(id);
+        HttpURLConnection connection = null;
         try {
             URI url = new URI(userLocalConfig.getUserUrl());
-            HttpURLConnection connection = (HttpURLConnection) url.toURL().openConnection();
+            connection = (HttpURLConnection) url.toURL().openConnection();
+            connection.setConnectTimeout(3000);
             return connection.getResponseCode() == HttpURLConnection.HTTP_OK;
         } catch (Exception e) {
             return false;
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
 
     }
