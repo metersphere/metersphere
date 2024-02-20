@@ -171,6 +171,7 @@
     recoverRecycleCase,
     restoreCaseList,
   } from '@/api/modules/case-management/featureCase';
+  import { getProjectMemberOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
@@ -684,6 +685,8 @@
 
   async function initFilter() {
     const result = await getCustomFieldsTable(currentProjectId.value);
+    let memberOptions = await getProjectMemberOptions(appStore.currentProjectId, keyword.value);
+    memberOptions = memberOptions.map((e) => ({ label: e.name, value: e.id }));
     filterConfigList.value = [
       {
         title: 'caseManagement.featureCase.tableColumnID',
@@ -715,11 +718,11 @@
       },
       {
         title: 'caseManagement.featureCase.tableColumnCreateUser',
-        dataIndex: 'createUser',
+        dataIndex: 'createUserName',
         type: FilterType.SELECT,
         selectProps: {
           mode: 'static',
-          options: [],
+          options: memberOptions,
         },
       },
       {
@@ -733,7 +736,7 @@
         type: FilterType.SELECT,
         selectProps: {
           mode: 'static',
-          options: [],
+          options: memberOptions,
         },
       },
       {

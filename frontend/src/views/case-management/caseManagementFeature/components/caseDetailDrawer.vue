@@ -481,6 +481,12 @@
       let currentDefaultValue;
       if (numberType.includes(item.type)) {
         currentDefaultValue = item.defaultValue * 1;
+      } else if (
+        multipleType.includes(item.type) &&
+        Array.isArray(item.defaultValue) &&
+        item.defaultValue.length === 0
+      ) {
+        currentDefaultValue = item.defaultValue;
       } else if (multipleType.includes(item.type)) {
         currentDefaultValue = JSON.parse(item.defaultValue);
       } else {

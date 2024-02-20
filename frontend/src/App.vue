@@ -122,7 +122,6 @@
     }
     const { height } = useWindowSize();
     appStore.innerHeight = height.value;
-    userStore.getAuthentication();
   });
   /** 屏幕大小改变时重新赋值innerHeight */
   useEventListener(window, 'resize', () => {

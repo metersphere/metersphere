@@ -10,7 +10,7 @@ import { StatusType } from '@/enums/caseEnum';
 const { t } = useI18n();
 
 // 获取列表对应的状态图标
-const statusIconMap = [
+export const statusIconMap = [
   {
     key: 'UN_REVIEWED',
     icon: StatusType.UN_REVIEWED,
