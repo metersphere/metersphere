@@ -34,7 +34,7 @@ const CaseManagement: AppRouteRecordRaw = {
       component: () => import('@/views/case-management/caseManagementFeature/components/caseDetail.vue'),
       meta: {
         locale: 'menu.caseManagement.featureCaseDetail',
-        roles: ['FUNCTIONAL_CASE:READ+ADD'],
+        roles: ['FUNCTIONAL_CASE:READ+ADD', 'FUNCTIONAL_CASE:READ+UPDATE'],
         breadcrumbs: [
           {
             name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE,
@@ -66,7 +66,7 @@ const CaseManagement: AppRouteRecordRaw = {
       component: () => import('@/views/case-management/caseManagementFeature/components/recycleCaseTable.vue'),
       meta: {
         locale: 'menu.caseManagement.featureCaseRecycle',
-        roles: ['FUNCTIONAL_CASE:READ+ADD'],
+        roles: ['FUNCTIONAL_CASE:READ'],
         breadcrumbs: [
           {
             name: CaseManagementRouteEnum.CASE_MANAGEMENT_CASE,

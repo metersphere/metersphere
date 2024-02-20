@@ -192,8 +192,10 @@
 
   watch(
     () => showType.value,
-    () => {
-      initData();
+    (val) => {
+      if (val) {
+        initData();
+      }
     }
   );
 

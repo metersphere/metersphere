@@ -1060,7 +1060,6 @@
       ...columns.slice(columns.length - 1, columns.length),
     ];
     await tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_TABLE, fullColumns, 'drawer');
-    tableRef.value?.initColumn(fullColumns);
   }
 
   // 如果是用例等级

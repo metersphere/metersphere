@@ -104,17 +104,14 @@
   // let testPlanTab: TabItemType[] = [];
 
   function getTabList() {
-    if (licenseStore.hasLicense()) {
-      return [
-        {
-          key: 'changeHistory',
-          title: 'caseManagement.featureCase.changeHistory',
-          enable: true,
-          total: 0,
-        },
-      ];
-    }
-    return [];
+    return [
+      {
+        key: 'changeHistory',
+        title: 'caseManagement.featureCase.changeHistory',
+        enable: true,
+        total: 0,
+      },
+    ];
   }
 
   const tabDefaultSettingList = ref<TabItemType[]>([
