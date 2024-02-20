@@ -20,6 +20,7 @@ public class TaskRequestDTO implements Serializable {
     private String kafkaConfig;
     private String minioConfig;
     private String queueId;
+    private int poolSize;
     /**
      * 是否需要实时接收单个步骤的结果
      */
