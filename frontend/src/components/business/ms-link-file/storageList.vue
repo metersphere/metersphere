@@ -112,7 +112,7 @@
     () => props.showType,
     (val) => {
       if (val === 'Storage') {
-        initRepositories(true);
+        initRepositories();
       }
     }
   );

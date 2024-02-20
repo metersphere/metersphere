@@ -10,7 +10,7 @@
       @confirm="handleOk"
       @cancel="handleCancel"
     >
-      <MsButton @click="showPopover">{{ t(props.removeText) }}</MsButton>
+      <MsButton :disabled="props.disabled" @click="showPopover">{{ t(props.removeText) }}</MsButton>
     </MsPopconfirm>
   </span>
 </template>
@@ -30,9 +30,11 @@
       loading?: boolean;
       removeText?: string;
       okText?: string;
+      disabled?: boolean;
     }>(),
     {
       removeText: 'common.remove',
+      disabled: false,
     }
   );
 

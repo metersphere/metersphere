@@ -9,6 +9,7 @@
         :ref="(el: refItem) => setStepRefMap(el, record)"
         v-model="record.step"
         size="mini"
+        :max-length="1000"
         :auto-size="true"
         class="w-max-[267px] param-input"
         :placeholder="t('system.orgTemplate.stepTip')"

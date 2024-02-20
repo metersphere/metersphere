@@ -152,7 +152,7 @@
       };
     }
   );
-
+  const storageItemCount = ref<number>(0);
   function emitTableParams() {
     emit('init', {
       keyword: keyword.value,
@@ -162,6 +162,7 @@
       current: propsRes.value.msPagination?.current,
       pageSize: propsRes.value.msPagination?.pageSize,
       combine: combine.value,
+      storageItemCount: storageItemCount.value,
     });
   }
 
@@ -252,12 +253,25 @@
 
   const moduleInfo = computed(() => {
     if (props.showType === 'Module') {
+      if (props.activeFolder === 'all') {
+        return {
+          name: t('ms.file.allFileModule'),
+          count: props.modulesCount[props.activeFolder],
+        };
+      }
       return {
         name: findNodeByKey<Record<string, any>>(props.folderTree, props.activeFolder, 'id')?.name,
         count: props.modulesCount[props.activeFolder],
       };
     }
     const storageItem = props.storageList.find((item) => item.id === props.activeFolder);
+    storageItemCount.value = props.storageList.reduce((prev, item) => prev + item.count, 0);
+    if (props.activeFolder === 'all') {
+      return {
+        name: t('ms.file.allRepositoryFileModule'),
+        count: storageItemCount.value,
+      };
+    }
     return {
       name: storageItem?.name,
       count: storageItem?.count,
@@ -285,6 +299,15 @@
   onMounted(() => {
     resetSelector();
   });
+
+  watch(
+    () => props.showType,
+    (val) => {
+      if (val) {
+        searchList();
+      }
+    }
+  );
 
   onUnmounted(() => {
     resetSelector();

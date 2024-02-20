@@ -7,6 +7,7 @@
       <MsRemoveButton
         :title="t('system.userGroup.removeName', { name: characterLimit(record.name) })"
         :sub-title-tip="t('system.userGroup.removeTip')"
+        :disabled="record.userId === 'admin'"
         @ok="handleRemove(record)"
       />
     </template>
@@ -32,6 +33,7 @@
   } from '@/api/modules/setting/usergroup';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
+  import useUserStore from '@/store/modules/user/index';
   import { characterLimit, formatPhoneNumber } from '@/utils';
   import { hasAnyPermission } from '@/utils/permission';
 
@@ -44,6 +46,7 @@
   const systemType = inject<AuthScopeEnum>('systemType');
   const { t } = useI18n();
   const appStore = useAppStore();
+  const userStore = useUserStore();
   const currentOrgId = computed(() => appStore.currentOrgId);
   const okLoading = ref(false);
   const props = defineProps<{

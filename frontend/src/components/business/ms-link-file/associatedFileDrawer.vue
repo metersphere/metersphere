@@ -15,8 +15,8 @@
     <MsSplitBox>
       <template #first>
         <div class="p-[16px] pt-0">
-          <div class="folder">
-            <div class="folder-text">
+          <div class="folder" @click="setActiveFolder('all')">
+            <div class="folder-text" :class="getFolderClass('all')">
               <MsIcon type="icon-icon_folder_filled1" class="folder-icon" />
               <div class="folder-name">{{ t('project.fileManagement.allFile') }}</div>
               <div class="folder-count">({{ allFileCount }})</div>
@@ -119,10 +119,13 @@
   });
 
   const drawerLoading = ref<boolean>(false);
+  const activeFolder = ref<string>('all');
+  function getFolderClass(id: string) {
+    return activeFolder.value === id ? 'folder-text folder-text--active' : 'folder-text';
+  }
 
   const activeFolderType = ref<'folder' | 'module' | 'storage'>('module');
 
-  const activeFolder = ref<string>('root');
   const selectedKeys = computed({
     get: () => [activeFolder.value],
     set: (val) => val,
@@ -166,11 +169,16 @@
   /*
    * 初始化模块文件数量
    */
+  const storageCount = ref<number>(0);
   async function initModulesCount(params: FileListQueryParams) {
     try {
       modulesCount.value = await props.getCountRequest(params);
       myFileCount.value = modulesCount.value.my || 0;
-      allFileCount.value = modulesCount.value.all || 0;
+      if (showType.value === 'Storage') {
+        allFileCount.value = storageCount.value;
+      } else {
+        allFileCount.value = modulesCount.value.all || 0;
+      }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -185,6 +193,7 @@
 
   function changeShowType(val: string | number | boolean) {
     showType.value = val as FileShowType;
+    activeFolder.value = 'all';
     if (val === 'Storage') {
       initModulesCount({
         ...tableFilterParams.value,
@@ -205,6 +214,7 @@
   function handleModuleTableInit(params: FileListQueryParams) {
     initModulesCount(params);
     tableFilterParams.value = { ...params };
+    storageCount.value = params.storageItemCount || 0;
   }
 
   const storageDrawerVisible = ref(false);
@@ -217,6 +227,15 @@
     storageList.value = storages;
     activeFolder.value = key;
     activeFolderType.value = 'storage';
+  }
+
+  function setActiveFolder(id: string) {
+    activeFolder.value = id;
+    if (['my', 'all'].includes(id)) {
+      activeFolderType.value = 'folder';
+    } else {
+      activeFolderType.value = 'storage';
+    }
   }
 
   const selectFile = ref<AssociatedList[]>([]);

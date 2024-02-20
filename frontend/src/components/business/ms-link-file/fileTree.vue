@@ -132,7 +132,7 @@
     () => props.showType,
     (val) => {
       if (val === 'Module') {
-        initModules(true);
+        initModules();
       }
     },
     {
