@@ -113,9 +113,38 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
             deleteCaseReviewFunctionalCaseUser(paramMap);
             //将评审历史状态置为true
             extCaseReviewHistoryMapper.updateDelete(caseIdList, reviewId, true);
+            //检查更新用例的评审状态。如果用例没有任何评审关联，就置为未评审, 否则置为更新建时间最晚的那个
+            updateCaseStatus(caseIdList);
         } catch (Exception e) {
             LogUtils.error(CaseEvent.Event.DISASSOCIATE + "事件更新失败", e.getMessage());
         }
+    }
+
+    private void updateCaseStatus(List<String> caseIdList) {
+        CaseReviewFunctionalCaseExample caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
+        caseReviewFunctionalCaseExample.createCriteria().andCaseIdIn(caseIdList);
+        caseReviewFunctionalCaseExample.setOrderByClause("update_time DESC");
+        List<CaseReviewFunctionalCase> otherReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        FunctionalCaseMapper mapper = sqlSession.getMapper(FunctionalCaseMapper.class);
+        if (CollectionUtils.isEmpty(otherReviewFunctionalCases)) {
+            for (String id : caseIdList) {
+                FunctionalCase functionalCase = new FunctionalCase();
+                functionalCase.setId(id);
+                functionalCase.setReviewStatus(FunctionalCaseReviewStatus.UN_REVIEWED.toString());
+                mapper.updateByPrimaryKeySelective(functionalCase);
+            }
+        } else  {
+            Map<String, List<CaseReviewFunctionalCase>> collect = otherReviewFunctionalCases.stream().collect(Collectors.groupingBy(CaseReviewFunctionalCase::getCaseId));
+            collect.forEach((caseId,caseList)->{
+                FunctionalCase functionalCase = new FunctionalCase();
+                functionalCase.setId(caseId);
+                functionalCase.setReviewStatus(caseList.get(0).getStatus());
+                mapper.updateByPrimaryKeySelective(functionalCase);
+            });
+        }
+        sqlSession.flushStatements();
+        SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
     }
 
     /**
