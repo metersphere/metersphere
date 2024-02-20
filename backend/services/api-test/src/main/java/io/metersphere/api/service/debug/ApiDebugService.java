@@ -13,8 +13,6 @@ import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
-import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
-import io.metersphere.project.service.EnvironmentService;
 import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.exception.MSException;
@@ -55,8 +53,6 @@ public class ApiDebugService {
     private ApiExecuteService apiExecuteService;
     @Resource
     private ApiPluginService apiPluginService;
-    @Resource
-    private EnvironmentService environmentService;
 
     public static final Long ORDER_STEP = 5000L;
 
@@ -203,19 +199,13 @@ public class ApiDebugService {
         runRequest.setTestId(id);
         runRequest.setReportId(reportId);
         runRequest.setResourceType(ApiResourceType.API_DEBUG.name());
-        runRequest.setEnvironmentId(request.getEnvironmentId());
         runRequest.setTestElement(ApiDataUtils.parseObject(JSON.toJSONString(request.getRequest()), AbstractMsTestElement.class));
 
         ApiParamConfig paramConfig = new ApiParamConfig();
         paramConfig.setTestElementClassPluginIdMap(apiPluginService.getTestElementPluginMap());
         paramConfig.setTestElementClassProtocalMap(apiPluginService.getTestElementProtocolMap());
         paramConfig.setReportId(reportId);
-        EnvironmentInfoDTO environmentInfoDTO = environmentService.get(request.getEnvironmentId());
-        // 设置环境
-        paramConfig.setEnvConfig(environmentInfoDTO);
-
         apiExecuteService.debug(runRequest, paramConfig);
-
         return runRequest.getReportId();
     }
 

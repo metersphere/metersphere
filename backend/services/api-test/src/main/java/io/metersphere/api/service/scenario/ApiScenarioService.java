@@ -4,12 +4,14 @@ import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.constants.ApiScenarioStepRefType;
 import io.metersphere.api.constants.ApiScenarioStepType;
 import io.metersphere.api.domain.*;
+import io.metersphere.api.dto.ApiResourceModuleInfo;
 import io.metersphere.api.dto.ApiScenarioParamConfig;
 import io.metersphere.api.dto.ApiScenarioParseEnvInfo;
 import io.metersphere.api.dto.EnvironmentModeDTO;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.request.MsScenario;
+import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.response.ApiScenarioBatchOperationResponse;
 import io.metersphere.api.dto.scenario.*;
 import io.metersphere.api.job.ApiScenarioScheduleJob;
@@ -18,6 +20,7 @@ import io.metersphere.api.parser.step.StepParser;
 import io.metersphere.api.parser.step.StepParserFactory;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.ApiFileResourceService;
+import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.utils.ApiScenarioBatchOperationUtils;
@@ -26,10 +29,16 @@ import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
 import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
+import io.metersphere.project.dto.environment.http.HttpConfig;
+import io.metersphere.project.dto.environment.http.HttpConfigModuleMatchRule;
+import io.metersphere.project.dto.environment.http.SelectModule;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.project.service.*;
-import io.metersphere.sdk.constants.*;
+import io.metersphere.sdk.constants.ApplicationNumScope;
+import io.metersphere.sdk.constants.DefaultRepositoryDir;
+import io.metersphere.sdk.constants.ModuleConstants;
+import io.metersphere.sdk.constants.ScheduleResourceType;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
 import io.metersphere.sdk.domain.EnvironmentGroup;
@@ -157,6 +166,8 @@ public class ApiScenarioService {
     private ApiTestCaseMapper apiTestCaseMapper;
     @Resource
     private ExtApiTestCaseMapper extApiTestCaseMapper;
+    @Resource
+    private ApiDefinitionModuleService apiDefinitionModuleService;
 
     public static final String PRIORITY = "Priority";
     public static final String STATUS = "Status";
@@ -1046,7 +1057,10 @@ public class ApiScenarioService {
 
         // 获取场景环境相关配置
         ApiScenarioParseEnvInfo scenarioParseEnvInfo = getScenarioParseEnvInfo(refResourceMap, request.getEnvironmentId(), request.getGrouped());
-        parseStep2MsElement(msScenario, steps, resourceBlobMap, detailMap, scenarioParseEnvInfo);
+        Map<String, List<MsHTTPElement>> stepTypeHttpElementMap = new HashMap<>();
+        parseStep2MsElement(msScenario, steps, resourceBlobMap, detailMap, stepTypeHttpElementMap, scenarioParseEnvInfo);
+        // 设置 HttpElement 的模块信息
+        setHttpElementModuleId(stepTypeHttpElementMap);
 
         ApiResourceRunRequest runRequest = BeanUtils.copyBean(new ApiResourceRunRequest(), request);
         runRequest.setProjectId(request.getProjectId());
@@ -1063,7 +1077,6 @@ public class ApiScenarioService {
         parseConfig.setTestElementClassProtocalMap(apiPluginService.getTestElementProtocolMap());
         parseConfig.setGrouped(request.getGrouped());
         parseConfig.setReportId(request.getReportId());
-        scenarioParseEnvInfo.getPluginClassEnvConfigMap();
         if (BooleanUtils.isTrue(request.getGrouped())) {
             // 设置环境组 map
             parseConfig.setProjectEnvMap(getProjectEnvMap(scenarioParseEnvInfo, request.getEnvironmentId()));
@@ -1073,8 +1086,31 @@ public class ApiScenarioService {
         }
 
         apiExecuteService.debug(runRequest, parseConfig);
-
         return request.getReportId();
+    }
+
+    /**
+     * 设置 HttpElement 的模块信息
+     * 用户环境中的模块过滤
+     * @param stepTypeHttpElementMap
+     */
+    private void setHttpElementModuleId(Map<String, List<MsHTTPElement>> stepTypeHttpElementMap) {
+        setHttpElementModuleId(stepTypeHttpElementMap.get(ApiScenarioStepType.API.name()), apiDefinitionService::getModuleInfoByIds);
+        setHttpElementModuleId(stepTypeHttpElementMap.get(ApiScenarioStepType.API_CASE.name()), apiTestCaseService::getModuleInfoByIds);
+    }
+
+    private void setHttpElementModuleId(List<MsHTTPElement> httpElements, Function<List<String>, List<ApiResourceModuleInfo>> getModuleInfoFunc) {
+        if (CollectionUtils.isNotEmpty(httpElements)) {
+            List<String> apiIds = httpElements.stream().map(MsHTTPElement::getResourceId).collect(Collectors.toList());
+            // 获取接口模块信息
+            Map<String, String> resourceModuleMap = getModuleInfoFunc.apply(apiIds)
+                    .stream()
+                    .collect(Collectors.toMap(ApiResourceModuleInfo::getResourceId, ApiResourceModuleInfo::getModuleId));
+            httpElements.forEach(httpElement -> {
+                // httpElement 设置模块信息
+                httpElement.setModuleId(resourceModuleMap.get(httpElement.getResourceId()));
+            });
+        }
     }
 
     /**
@@ -1128,7 +1164,46 @@ public class ApiScenarioService {
 
         envInfo.setEnvGroupMap(envGroupMap);
         envInfo.setEnvMap(envMap);
+
+        envMap.forEach((envId, envInfoDTO) -> handleHttpModuleMatchRule(envInfoDTO));
+
         return envInfo;
+    }
+
+    /**
+     * 处理环境的 HTTP 配置模块匹配规则
+     * 查询新增子模块
+     * @param envInfoDTO
+     */
+    private void handleHttpModuleMatchRule(EnvironmentInfoDTO envInfoDTO) {
+        List<HttpConfig> httpConfigs = envInfoDTO.getConfig().getHttpConfig();
+        for (HttpConfig httpConfig : httpConfigs) {
+            if (!httpConfig.isModuleMatchRule()) {
+               continue;
+            }
+            // 获取勾选了包含子模块的模块ID
+            HttpConfigModuleMatchRule moduleMatchRule = httpConfig.getModuleMatchRule();
+            List<SelectModule> selectModules = moduleMatchRule.getModules();
+            List<String> containChildModuleIds = selectModules.stream()
+                    .filter(SelectModule::getContainChildModule)
+                    .map(SelectModule::getModuleId)
+                    .toList();
+
+            // 查询子模块ID, 并去重
+            Set<String> moduleIds = apiDefinitionModuleService.getModuleIdsByParentIds(containChildModuleIds)
+                    .stream()
+                    .collect(Collectors.toSet());
+            selectModules.forEach(selectModule -> moduleIds.add(selectModule.getModuleId()));
+
+            // 重新设置选中的模块ID
+            moduleMatchRule.setModules(null);
+            List<SelectModule> allSelectModules = moduleIds.stream().map(moduleId -> {
+                SelectModule module = new SelectModule();
+                module.setModuleId(moduleId);
+                return module;
+            }).collect(Collectors.toList());
+            moduleMatchRule.setModules(allSelectModules);
+        }
     }
 
     private List<ApiScenario> getApiScenarioByIds(List<String> apiScenarioIds) {
@@ -1144,6 +1219,7 @@ public class ApiScenarioService {
                                      List<? extends ApiScenarioStepCommonDTO> steps,
                                      Map<String, String> resourceBlobMap,
                                      Map<String, String> stepDetailMap,
+                                     Map<String, List<MsHTTPElement>> stepTypeHttpElementMap,
                                      ApiScenarioParseEnvInfo scenarioParseEnvInfo) {
         if (CollectionUtils.isNotEmpty(steps)) {
             parentElement.setChildren(new LinkedList<>());
@@ -1158,12 +1234,19 @@ public class ApiScenarioService {
             // 将步骤详情解析生成对应的MsTestElement
             AbstractMsTestElement msTestElement = stepParser.parseTestElement(step, resourceBlobMap.get(step.getResourceId()), stepDetailMap.get(step.getId()));
             if (msTestElement != null) {
+                if (msTestElement instanceof MsHTTPElement msHTTPElement) {
+                    // 暂存http类型的步骤
+                    stepTypeHttpElementMap.putIfAbsent(step.getStepType(), new LinkedList<>());
+                    stepTypeHttpElementMap.get(step.getStepType()).add(msHTTPElement);
+                }
                 msTestElement.setProjectId(step.getProjectId());
+                msTestElement.setResourceId(step.getResourceId());
                 setMsScenarioParam(scenarioParseEnvInfo, step, msTestElement);
                 parentElement.getChildren().add(msTestElement);
             }
             if (CollectionUtils.isNotEmpty(step.getChildren())) {
-                parseStep2MsElement(msTestElement, step.getChildren(), resourceBlobMap, stepDetailMap, scenarioParseEnvInfo);
+                parseStep2MsElement(msTestElement, step.getChildren(), resourceBlobMap,
+                        stepDetailMap, stepTypeHttpElementMap, scenarioParseEnvInfo);
             }
         }
     }

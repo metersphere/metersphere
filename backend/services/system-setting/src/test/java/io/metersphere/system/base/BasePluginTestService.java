@@ -56,7 +56,7 @@ public class BasePluginTestService {
      * @return
      * @throws Exception
      */
-    public Plugin addJiraPlugin() throws Exception {
+    public synchronized Plugin addJiraPlugin() throws Exception {
         if (hasJiraPlugin()) {
             return jiraPlugin;
         }
@@ -92,7 +92,7 @@ public class BasePluginTestService {
         return serviceIntegration;
     }
 
-    public Plugin getJiraPlugin() throws Exception {
+    public synchronized Plugin getJiraPlugin() throws Exception {
         if (!hasJiraPlugin()) {
             return this.addJiraPlugin();
         }
@@ -107,7 +107,7 @@ public class BasePluginTestService {
         return jiraPlugin != null;
     }
 
-    public void deleteJiraPlugin() {
+    public synchronized void deleteJiraPlugin() {
         if (jiraPlugin != null) {
             pluginService.delete(jiraPlugin.getId());
             jiraPlugin = null;

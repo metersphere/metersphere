@@ -541,4 +541,12 @@
         </if>
         order by `pos` desc limit 1;
     </select>
+    <select id="getModuleInfoByIds" resultType="io.metersphere.api.dto.ApiResourceModuleInfo">
+        select id as resource_id, module_id
+        from api_definition
+        where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

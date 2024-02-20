@@ -3,9 +3,12 @@ package io.metersphere.api.controller;
 import io.metersphere.api.constants.*;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.assertion.MsAssertionConfig;
+import io.metersphere.api.dto.debug.ModuleCreateRequest;
 import io.metersphere.api.dto.definition.ApiDefinitionAddRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseAddRequest;
+import io.metersphere.api.dto.request.http.Header;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
+import io.metersphere.api.dto.request.http.QueryParam;
 import io.metersphere.api.dto.response.ApiScenarioBatchOperationResponse;
 import io.metersphere.api.dto.response.OperationDataInfo;
 import io.metersphere.api.dto.scenario.*;
@@ -13,10 +16,12 @@ import io.metersphere.api.job.ApiScenarioScheduleJob;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.service.ApiScenarioBatchOperationTestService;
 import io.metersphere.api.service.BaseResourcePoolTestService;
+import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.project.api.KeyValueEnableParam;
 import io.metersphere.project.api.assertion.MsResponseCodeAssertion;
 import io.metersphere.project.api.assertion.MsScriptAssertion;
 import io.metersphere.project.api.processor.MsProcessor;
@@ -25,6 +30,9 @@ import io.metersphere.project.dto.environment.EnvironmentConfig;
 import io.metersphere.project.dto.environment.EnvironmentGroupProjectDTO;
 import io.metersphere.project.dto.environment.EnvironmentGroupRequest;
 import io.metersphere.project.dto.environment.EnvironmentRequest;
+import io.metersphere.project.dto.environment.http.HttpConfig;
+import io.metersphere.project.dto.environment.http.HttpConfigPathMatchRule;
+import io.metersphere.project.dto.environment.http.SelectModule;
 import io.metersphere.project.dto.environment.processors.EnvProcessorConfig;
 import io.metersphere.project.dto.environment.processors.EnvRequestScriptProcessor;
 import io.metersphere.project.dto.environment.processors.EnvScenarioScriptProcessor;
@@ -49,10 +57,10 @@ import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.dto.request.PluginUpdateRequest;
+import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.ScheduleMapper;
-import io.metersphere.system.service.PluginLoadService;
 import io.metersphere.system.service.PluginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
@@ -144,11 +152,11 @@ public class ApiScenarioControllerTests extends BaseTest {
     @Resource
     private PluginService pluginService;
     @Resource
-    private PluginLoadService pluginLoadService;
-    @Resource
     private ApiDefinitionMapper apiDefinitionMapper;
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
+    @Resource
+    private ApiDefinitionModuleService apiDefinitionModuleService;
     private static String fileMetadataId;
     private static String localFileId;
     private static ApiScenario addApiScenario;
@@ -159,6 +167,7 @@ public class ApiScenarioControllerTests extends BaseTest {
     private static ApiTestCase apiTestCase;
     private static String envId;
     private static String envGroupId;
+    private static String moduleId;
 
     private static final List<CheckLogModel> LOG_CHECK_LIST = new ArrayList<>();
 
@@ -284,6 +293,7 @@ public class ApiScenarioControllerTests extends BaseTest {
     @Test
     @Order(1)
     public void add() throws Exception {
+        initModule();
         initEnv();
         initTestData();
 
@@ -482,6 +492,18 @@ public class ApiScenarioControllerTests extends BaseTest {
     }
 
     private void initTestData() {
+        Header header1 = new Header();
+        header1.setKey("a");
+        header1.setValue("aaa");
+
+        Header header2 = new Header();
+        header2.setKey("c");
+        header2.setValue("cc");
+
+        Header header3 = new Header();
+        header3.setKey("Cookie");
+        header3.setValue("b=c");
+
         ApiDefinitionAddRequest apiDefinitionAddRequest = new ApiDefinitionAddRequest();
         apiDefinitionAddRequest.setName("test scenario");
         apiDefinitionAddRequest.setProtocol(ApiConstants.HTTP_PROTOCOL);
@@ -489,11 +511,22 @@ public class ApiScenarioControllerTests extends BaseTest {
         apiDefinitionAddRequest.setMethod("POST");
         apiDefinitionAddRequest.setPath("/api/admin/posts");
         apiDefinitionAddRequest.setStatus(ApiDefinitionStatus.PREPARE.getValue());
-        apiDefinitionAddRequest.setModuleId("default");
+        apiDefinitionAddRequest.setModuleId(moduleId);
         apiDefinitionAddRequest.setVersionId(extBaseProjectVersionMapper.getDefaultVersion(DEFAULT_PROJECT_ID));
         apiDefinitionAddRequest.setDescription("描述内容");
         apiDefinitionAddRequest.setName("test scenario");
         MsHTTPElement msHttpElement = MsHTTPElementTest.getAddProcessorHttpElement();
+        msHttpElement.setHeaders(List.of(header1, header2, header3));
+        msHttpElement.setPath(apiDefinitionAddRequest.getPath());
+        QueryParam queryParam1 = new QueryParam();
+        queryParam1.setEncode(true);
+        queryParam1.setKey("aa");
+        queryParam1.setValue("bbb");
+        QueryParam queryParam2 = new QueryParam();
+        queryParam2.setEncode(false);
+        queryParam2.setKey("aa2");
+        queryParam2.setValue("bbb2");
+        msHttpElement.setQuery(List.of(queryParam1, queryParam2));
         apiDefinitionAddRequest.setRequest(getMsElementParam(msHttpElement));
         apiDefinitionAddRequest.setResponse("{}");
         apiDefinition = apiDefinitionService.create(apiDefinitionAddRequest, "admin");
@@ -654,6 +687,8 @@ public class ApiScenarioControllerTests extends BaseTest {
         pluginStepDetail.put("port", "port");
         pluginStepDetail.put("projectId", DEFAULT_PROJECT_ID);
         request.getStepDetails().put(pluginStep.getId(), pluginStepDetail);
+        request.getScenarioConfig().getOtherConfig().setEnableCookieShare(true);
+        request.getScenarioConfig().getOtherConfig().setEnableGlobalCookie(false);
 
         Plugin plugin = addEnvTestPlugin();
         this.requestPostWithOk(DEBUG, request);
@@ -676,6 +711,14 @@ public class ApiScenarioControllerTests extends BaseTest {
         request.setEnable(true);
         request.setCreateUser(ADMIN.name());
         return pluginService.add(request, mockMultipartFile);
+    }
+
+    private void initModule() {
+        ModuleCreateRequest request = new ModuleCreateRequest();
+        request.setName("test");
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setParentId(ModuleConstants.ROOT_NODE_PARENT_ID);
+        moduleId = apiDefinitionModuleService.add(request, "admin");
     }
 
     private void initEnv() {
@@ -729,6 +772,41 @@ public class ApiScenarioControllerTests extends BaseTest {
         responseCodeAssertion.setCondition(MsAssertionCondition.EMPTY.name());
         responseCodeAssertion.setName("test");
         environmentConfig.getAssertionConfig().getAssertions().add(responseCodeAssertion);
+
+        KeyValueEnableParam header1 = new KeyValueEnableParam();
+        header1.setKey("a");
+        header1.setValue("aa");
+
+        KeyValueEnableParam header2 = new KeyValueEnableParam();
+        header2.setKey("b");
+        header2.setValue("bb");
+
+        KeyValueEnableParam header3 = new KeyValueEnableParam();
+        header3.setKey("Cookie");
+        header3.setValue("a=b");
+
+        HttpConfig httpNoneConfig = new HttpConfig();
+        httpNoneConfig.setUrl("localhost:8081");
+        httpNoneConfig.setType(HttpConfig.HttpConfigMatchType.NONE.name());
+        httpNoneConfig.setHeaders(List.of(header1, header2, header3));
+
+        HttpConfig httpModuleConfig = new HttpConfig();
+        httpModuleConfig.setUrl("localhost:8081");
+        httpModuleConfig.setType(HttpConfig.HttpConfigMatchType.MODULE.name());
+        SelectModule selectModule = new SelectModule();
+        selectModule.setModuleId(moduleId);
+        selectModule.setContainChildModule(true);
+        httpModuleConfig.getModuleMatchRule().setModules(List.of(selectModule));
+        httpModuleConfig.setHeaders(List.of(header1, header2, header3));
+
+        HttpConfig httpPathConfig = new HttpConfig();
+        httpPathConfig.setUrl("localhost:8081");
+        httpPathConfig.setType(HttpConfig.HttpConfigMatchType.PATH.name());
+        httpPathConfig.getPathMatchRule().setPath("/test");
+        httpPathConfig.getPathMatchRule().setCondition(HttpConfigPathMatchRule.MatchRuleCondition.CONTAINS.name());
+        httpPathConfig.setHeaders(List.of(header1, header2, header3));
+
+        environmentConfig.setHttpConfig(List.of(httpNoneConfig, httpModuleConfig, httpPathConfig));
 
         environmentConfig.setPluginConfigMap(pluginConfigMap);
         envRequest.setConfig(environmentConfig);

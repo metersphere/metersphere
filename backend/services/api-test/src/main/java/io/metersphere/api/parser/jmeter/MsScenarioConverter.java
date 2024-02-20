@@ -21,11 +21,16 @@ import io.metersphere.sdk.util.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jmeter.protocol.http.control.CookieManager;
+import org.apache.jmeter.save.SaveService;
+import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+
+import static io.metersphere.api.parser.jmeter.constants.JmeterAlias.COOKIE_PANEL;
 
 /**
  * @Author: jianxing
@@ -40,11 +45,17 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
         ApiScenarioParamConfig config = (ApiScenarioParamConfig) msParameter;
         EnvironmentInfoDTO envInfo = config.getEnvConfig(msScenario.getProjectId());
 
+        if (isRootScenario(msScenario.getRefType()) && msScenario.getScenarioConfig().getOtherConfig().getEnableGlobalCookie()) {
+            // 根场景，设置共享cookie
+            tree.add(getCookieManager());
+        }
+
         // 添加环境的前置
         addEnvScenarioProcessor(tree, msScenario, config, envInfo, true);
         // 添加场景前置
         addScenarioProcessor(tree, msScenario, config, true);
 
+        // 解析子步骤
         ApiScenarioParamConfig chileConfig = getChileConfig(msScenario, config);
         parseChild(tree, msScenario, chileConfig);
 
@@ -165,6 +176,10 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
         return StringUtils.equalsAny(refType, ApiScenarioStepRefType.REF.name(), ApiScenarioStepRefType.PARTIAL_REF.name());
     }
 
+    private boolean isRootScenario(String refType) {
+        return StringUtils.equals(refType, ApiScenarioStepRefType.DIRECT.name());
+    }
+
     private boolean isCopy(String refType) {
         return StringUtils.equals(refType, ApiScenarioStepRefType.COPY.name());
     }
@@ -178,29 +193,47 @@ public class MsScenarioConverter extends AbstractJmeterElementConverter<MsScenar
      * @return
      */
     private ApiScenarioParamConfig getChileConfig(MsScenario msScenario, ApiScenarioParamConfig config) {
+        ApiScenarioParamConfig childConfig = config;
         if (!isRef(msScenario.getRefType())) {
             // 非引用的场景，使用当前环境参数
-            return config;
+            return childConfig;
         }
         ScenarioStepConfig scenarioStepConfig = msScenario.getScenarioStepConfig();
         if (scenarioStepConfig != null && BooleanUtils.isTrue(scenarioStepConfig.getEnableScenarioEnv())) {
             // 使用源场景环境
-            ApiScenarioParamConfig chileConfig = BeanUtils.copyBean(new ApiScenarioParamConfig(), config);
-            chileConfig.setGrouped(msScenario.getGrouped());
+            childConfig = BeanUtils.copyBean(new ApiScenarioParamConfig(), config);
+            childConfig.setGrouped(msScenario.getGrouped());
             // 清空环境信息
-            chileConfig.setEnvConfig(null);
-            chileConfig.setProjectEnvMap(null);
+            childConfig.setEnvConfig(null);
+            childConfig.setProjectEnvMap(null);
             if (BooleanUtils.isTrue(msScenario.getGrouped())) {
                 // 环境组设置环境Map
                 Map<String, EnvironmentInfoDTO> projectEnvMap = msScenario.getProjectEnvMap();
-                chileConfig.setProjectEnvMap(projectEnvMap);
+                childConfig.setProjectEnvMap(projectEnvMap);
             } else {
                 // 设置环境信息
                 EnvironmentInfoDTO environmentInfo = msScenario.getEnvironmentInfo();
-                chileConfig.setEnvConfig(environmentInfo);
+                childConfig.setEnvConfig(environmentInfo);
             }
-            return chileConfig;
         }
-        return config;
+
+        ScenarioConfig scenarioConfig = msScenario.getScenarioConfig();
+        if (scenarioConfig != null) {
+            // 设置是否使用全局cookie
+            childConfig.setEnableGlobalCookie(scenarioConfig.getOtherConfig().getEnableCookieShare());
+        }
+
+        return childConfig;
+    }
+
+    private CookieManager getCookieManager() {
+        CookieManager cookieManager = new CookieManager();
+        cookieManager.setProperty(TestElement.TEST_CLASS, CookieManager.class.getName());
+        cookieManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(COOKIE_PANEL));
+        cookieManager.setEnabled(true);
+        cookieManager.setName("CookieManager");
+        cookieManager.setClearEachIteration(false);
+        cookieManager.setControlledByThread(false);
+        return cookieManager;
     }
 }

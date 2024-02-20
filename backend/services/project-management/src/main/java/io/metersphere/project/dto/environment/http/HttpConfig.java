@@ -1,10 +1,12 @@
 package io.metersphere.project.dto.environment.http;
 
 import io.metersphere.project.api.KeyValueEnableParam;
+import io.metersphere.sdk.constants.ValueEnum;
 import io.metersphere.system.valid.EnumValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -15,7 +17,9 @@ import java.util.List;
 public class HttpConfig implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
-
+    @Schema(description = "http协议类型(http/https)")
+    @EnumValue(enumClass = HttpProtocolType.class)
+    private String protocol = HttpProtocolType.HTTP.name();
     @Schema(description = "环境域名")
     private String url;
     /**
@@ -34,6 +38,24 @@ public class HttpConfig implements Serializable {
     @Schema(description = "请求头")
     private List<@Valid KeyValueEnableParam> headers = new ArrayList<>(0);
 
+
+    public boolean isModuleMatchRule() {
+        return StringUtils.equals(HttpConfigMatchType.MODULE.name(), type);
+    }
+
+    public boolean isPathMatchRule() {
+        return StringUtils.equals(HttpConfigMatchType.PATH.name(), type);
+    }
+
+    public int getModuleMatchRuleOrder() {
+        if (isPathMatchRule()) {
+            return 0;
+        } else if (isModuleMatchRule()) {
+            return 1;
+        }
+        return 2;
+    }
+
     /**
      * 启用条件匹配类型
      */
@@ -50,5 +72,24 @@ public class HttpConfig implements Serializable {
          * 无条件
          */
         NONE
+    }
+
+    /**
+     * 启用条件匹配类型
+     */
+    public enum HttpProtocolType implements ValueEnum {
+        HTTP("http"),
+        HTTPS("https");
+
+        private String value;
+
+        HttpProtocolType(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String getValue() {
+            return this.value;
+        }
     }
 }

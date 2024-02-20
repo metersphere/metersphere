@@ -72,4 +72,9 @@ public class MsHTTPElement extends AbstractMsTestElement {
      */
     @Valid
     private HTTPAuth authConfig;
+    /**
+     * 模块ID
+     * 运行时参数，接口无需设置
+     */
+    private String moduleId;
 }

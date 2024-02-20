@@ -115,6 +115,14 @@
         </foreach>
         ORDER BY pos
     </select>
+    <select id="getModuleIdsByParentIds" resultType="java.lang.String">
+        SELECT id
+        FROM api_definition_module
+        WHERE parent_id IN
+        <foreach collection="parentIds" item="parentId" open="(" separator="," close=")">
+            #{parentId}
+        </foreach>
+    </select>
 
     <sql id="api_request">
         <where>

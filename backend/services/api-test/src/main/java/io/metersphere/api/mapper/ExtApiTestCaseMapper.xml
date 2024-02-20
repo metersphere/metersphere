@@ -274,6 +274,14 @@
             and api_test_case.version_id = #{request.versionId}
         </if>
     </select>
+    <select id="getApiCaseDefinitionInfo" resultType="io.metersphere.api.domain.ApiTestCase">
+        select api_definition_id, id
+        from api_test_case
+        where id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
     <sql id="report_filters">
         <if test="${filter} != null and ${filter}.size() > 0">
             <foreach collection="${filter}.entrySet()" index="key" item="values">

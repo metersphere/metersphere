@@ -2,6 +2,7 @@ package io.metersphere.api.service.definition;
 
 import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.domain.*;
+import io.metersphere.api.dto.ApiResourceModuleInfo;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
@@ -81,6 +82,8 @@ public class ApiTestCaseService {
     private ApiDefinitionModuleMapper apiDefinitionModuleMapper;
     @Resource
     private OperationHistoryService operationHistoryService;
+    @Resource
+    private ExtApiDefinitionMapper extApiDefinitionMapper;
     private static final String CASE_TABLE = "api_test_case";
 
     private void checkProjectExist(String projectId) {
@@ -580,5 +583,19 @@ public class ApiTestCaseService {
         update.setUpdateUser(userId);
         update.setUpdateTime(System.currentTimeMillis());
         apiTestCaseMapper.updateByPrimaryKeySelective(update);
+    }
+
+    public List<ApiResourceModuleInfo> getModuleInfoByIds(List<String> ids) {
+        // 获取接口定义ID和用例ID的映射
+        Map<String, String> apiCaseDefinitionMap = extApiTestCaseMapper.getApiCaseDefinitionInfo(ids)
+                .stream()
+                .collect(Collectors.toMap(ApiTestCase::getApiDefinitionId, ApiTestCase::getId));
+
+        List<String> definitionIds = apiCaseDefinitionMap.keySet().stream().collect(Collectors.toList());
+        List<ApiResourceModuleInfo> moduleInfos = extApiDefinitionMapper.getModuleInfoByIds(definitionIds);
+        // 将 resourceId 从定义ID替换成用例ID
+        moduleInfos.forEach(moduleInfo ->
+                moduleInfo.setResourceId(apiCaseDefinitionMap.get(moduleInfo.getResourceId())));
+        return moduleInfos;
     }
 }

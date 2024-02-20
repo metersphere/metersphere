@@ -15,8 +15,6 @@ public class ApiDebugRunRequest {
     @Schema(description = "报告ID")
     @NotNull
     private String reportId;
-    @Schema(description = "环境ID")
-    private String environmentId;
     @Schema(description = "点击调试时尚未保存的文件ID列表")
     private List<String> tempFileIds;
     @NotNull

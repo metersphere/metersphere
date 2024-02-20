@@ -3,9 +3,11 @@ package io.metersphere.project.dto.environment.http;
 import io.metersphere.system.valid.EnumValue;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.function.BiFunction;
 
 /**
  * @Author: jianxing
@@ -30,10 +32,20 @@ public class HttpConfigPathMatchRule  implements Serializable {
         /**
          * 包含
          */
-        CONTAINS,
+        CONTAINS((envPath, path) -> StringUtils.contains(path, envPath)),
         /**
          * 等于
          */
-        EQUALS
+        EQUALS((envPath, path) -> StringUtils.equals(path, envPath));
+
+        MatchRuleCondition(BiFunction<String, String, Boolean> matchFunc) {
+            this.matchFunc = matchFunc;
+        }
+
+        private BiFunction<String, String, Boolean> matchFunc;
+
+        public boolean match(String value, String expect) {
+            return matchFunc.apply(value, expect);
+        }
     }
 }
