@@ -78,7 +78,7 @@ public class BugAttachmentController {
     @Operation(summary = "缺陷管理-附件-预览")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
-    public ResponseEntity<byte[]> preview(@Validated @RequestBody BugFileSourceRequest request) throws Exception {
+    public ResponseEntity<byte[]> preview(@Validated @RequestBody BugFileSourceRequest request) {
         if (request.getAssociated()) {
             // 文件库
             return fileMetadataService.downloadPreviewImgById(request.getFileId());
@@ -92,7 +92,7 @@ public class BugAttachmentController {
     @Operation(summary = "缺陷管理-附件-下载")
     @RequiresPermissions(PermissionConstants.PROJECT_BUG_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
-    public ResponseEntity<byte[]> download(@Validated @RequestBody BugFileSourceRequest request) throws Exception {
+    public ResponseEntity<byte[]> download(@Validated @RequestBody BugFileSourceRequest request) {
         if (request.getAssociated()) {
             // 文件库
             return fileMetadataService.downloadById(request.getFileId());
