@@ -189,7 +189,7 @@ public class CaseReviewFunctionalCaseService {
     }
 
     /**
-     * 批量删除
+     * 批量取消
      *
      * @param request request
      */
@@ -198,10 +198,12 @@ public class CaseReviewFunctionalCaseService {
         if (CollectionUtils.isNotEmpty(ids)) {
             CaseReviewFunctionalCaseExample example = new CaseReviewFunctionalCaseExample();
             example.createCriteria().andIdIn(ids);
+            List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(example);
+            List<String> caseIds = caseReviewFunctionalCases.stream().map(CaseReviewFunctionalCase::getCaseId).distinct().toList();
             caseReviewFunctionalCaseMapper.deleteByExample(example);
             Map<String, Object> param = new HashMap<>();
             param.put(CaseEvent.Param.REVIEW_ID, request.getReviewId());
-            param.put(CaseEvent.Param.CASE_IDS, ids);
+            param.put(CaseEvent.Param.CASE_IDS, caseIds);
             param.put(CaseEvent.Param.USER_ID, userId);
             param.put(CaseEvent.Param.EVENT_NAME, CaseEvent.Event.DISASSOCIATE);
             provider.updateCaseReview(param);
