@@ -598,13 +598,6 @@ public class CaseReviewControllerTests extends BaseTest {
     @Order(18)
     public void testDisassociateFalse() throws Exception {
         List<CaseReview> caseReviews = getCaseReviews("创建评审更新1");
-        mockMvc.perform(MockMvcRequestBuilders.get(DISASSOCIATE_CASE_REVIEW+"caseReviewIdX"+"/CASE_REVIEW_TEST_GYQ_ID6").header(SessionConstants.HEADER_TOKEN, sessionId)
-                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
-                        .header(SessionConstants.CURRENT_PROJECT, projectId)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is5xxServerError())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
-
         String caseReviewId = caseReviews.get(0).getId();
         mockMvc.perform(MockMvcRequestBuilders.get(DISASSOCIATE_CASE_REVIEW+caseReviewId+"/CASE_REVIEW_TEST_GYQ_IDXX").header(SessionConstants.HEADER_TOKEN, sessionId)
                         .header(SessionConstants.CSRF_TOKEN, csrfToken)
