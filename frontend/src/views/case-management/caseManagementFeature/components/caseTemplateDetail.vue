@@ -510,7 +510,22 @@
     // 处理自定义字段
     formRules.value = (customFields || []).map((item: any) => {
       const multipleType = ['MULTIPLE_SELECT', 'CHECKBOX', 'MULTIPLE_MEMBER', 'MULTIPLE_INPUT'];
-      const currentDefaultValue = multipleType.includes(item.type) ? JSON.parse(item.defaultValue) : item.defaultValue;
+      const numberType = ['INT', 'FLOAT'];
+
+      let currentDefaultValue;
+      if (numberType.includes(item.type)) {
+        currentDefaultValue = item.defaultValue * 1;
+      } else if (
+        multipleType.includes(item.type) &&
+        Array.isArray(item.defaultValue) &&
+        item.defaultValue.length === 0
+      ) {
+        currentDefaultValue = item.defaultValue;
+      } else if (multipleType.includes(item.type)) {
+        currentDefaultValue = JSON.parse(item.defaultValue);
+      } else {
+        currentDefaultValue = item.defaultValue;
+      }
 
       return {
         ...item,

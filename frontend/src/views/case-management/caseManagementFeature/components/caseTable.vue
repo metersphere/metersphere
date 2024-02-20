@@ -252,6 +252,7 @@
     getCustomFieldsTable,
     updateCaseRequest,
   } from '@/api/modules/case-management/featureCase';
+  import { getProjectMemberOptions } from '@/api/modules/project-management/projectMember';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore, useTableStore } from '@/store';
@@ -412,6 +413,8 @@
       title: 'caseManagement.featureCase.tableColumnReviewResult',
       dataIndex: 'reviewStatus',
       slotName: 'reviewStatus',
+      // TODO 待补充
+      // titleSlotName: 'reviewStatusFilter',
       showInTable: true,
       width: 200,
       showDrag: true,
@@ -566,6 +569,8 @@
   const scrollWidth = ref<number>(3400);
   async function initFilter() {
     const result = await getCustomFieldsTable(currentProjectId.value);
+    let memberOptions = await getProjectMemberOptions(appStore.currentProjectId, keyword.value);
+    memberOptions = memberOptions.map((e) => ({ label: e.name, value: e.id }));
     filterConfigList.value = [
       {
         title: 'caseManagement.featureCase.tableColumnID',
@@ -597,11 +602,11 @@
       },
       {
         title: 'caseManagement.featureCase.tableColumnCreateUser',
-        dataIndex: 'createUser',
+        dataIndex: 'createUserName',
         type: FilterType.SELECT,
         selectProps: {
           mode: 'static',
-          options: [],
+          options: memberOptions,
         },
       },
       {
@@ -611,11 +616,11 @@
       },
       {
         title: 'caseManagement.featureCase.tableColumnUpdateUser',
-        dataIndex: 'updateUser',
+        dataIndex: 'updateUserName',
         type: FilterType.SELECT,
         selectProps: {
           mode: 'static',
-          options: [],
+          options: memberOptions,
         },
       },
       {

@@ -280,26 +280,26 @@
         Extension.create({
           addOptions() {
             return {
-              getToolboxItems({ editors }: { editors: Editor }) {
-                return [
-                  {
-                    priority: 0,
-                    component: markRaw(ToolboxItem),
-                    props: {
-                      editor,
-                      icon: markRaw(
-                        defineComponent({
-                          template: "<MsIcon type='icon-icon_link-copy_outlined' size='16' />",
-                        })
-                      ),
-                      title: t('editor.attachment'),
-                      action: () => {
-                        attachmentSelectorModal.value = true;
-                      },
-                    },
-                  },
-                ];
-              },
+              // getToolboxItems({ editors }: { editors: Editor }) {
+              //   return [
+              //     {
+              //       priority: 0,
+              //       component: markRaw(ToolboxItem),
+              //       props: {
+              //         editor,
+              //         icon: markRaw(
+              //           defineComponent({
+              //             template: "<MsIcon type='icon-icon_link-copy_outlined' size='16' />",
+              //           })
+              //         ),
+              //         title: t('editor.attachment'),
+              //         action: () => {
+              //           attachmentSelectorModal.value = true;
+              //         },
+              //       },
+              //     },
+              //   ];
+              // },
               getToolbarItems({ editors }: { editors: Editor }) {
                 return {
                   priority: 1000,

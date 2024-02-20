@@ -153,11 +153,7 @@
                   }"
                   :max-length="1000"
                 />
-                <a-radio-group
-                  v-else-if="item.type === FilterType.RADIO"
-                  v-model:model-value="item.value"
-                  v-bind="(item.radioProps as any)"
-                >
+                <a-radio-group v-else-if="item.type === FilterType.RADIO" v-model:model-value="item.value">
                   <a-radio
                     v-for="it of item.radioProps?.options || []"
                     :key="it[item.radioProps?.valueKey || 'value']"

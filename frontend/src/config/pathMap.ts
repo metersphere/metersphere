@@ -258,6 +258,13 @@ export const pathMap: PathMapItem[] = [
             level: MENU_LEVEL[0],
           },
           {
+            key: 'SETTING_SYSTEM_TASK_CENTER', // 系统设置-系统-任务中心
+            locale: 'menu.projectManagement.taskCenter',
+            route: RouteEnum.SETTING_SYSTEM_TASK_CENTER,
+            permission: [],
+            level: MENU_LEVEL[0],
+          },
+          {
             key: 'SETTING_SYSTEM_PLUGIN_MANAGEMENT', // 系统设置-系统-插件管理
             locale: 'menu.settings.system.pluginManager',
             route: RouteEnum.SETTING_SYSTEM_PLUGIN_MANAGEMENT,
@@ -298,6 +305,13 @@ export const pathMap: PathMapItem[] = [
             key: 'SETTING_ORGANIZATION_SERVICE', // 系统设置-组织-服务集成
             locale: 'menu.settings.organization.serviceIntegration',
             route: RouteEnum.SETTING_ORGANIZATION_SERVICE,
+            permission: [],
+            level: MENU_LEVEL[1],
+          },
+          {
+            key: 'SETTING_ORGANIZATION_TASK_CENTER', // 系统设置-组织-任务中心
+            locale: 'menu.projectManagement.taskCenter',
+            route: RouteEnum.SETTING_ORGANIZATION_TASK_CENTER,
             permission: [],
             level: MENU_LEVEL[1],
           },
@@ -505,6 +519,13 @@ export const pathMap: PathMapItem[] = [
         key: 'PROJECT_MANAGEMENT_ENVIRONMENT', // 项目管理-环境管理
         locale: 'menu.projectManagement.environmentManagement',
         route: RouteEnum.PROJECT_MANAGEMENT_ENVIRONMENT_MANAGEMENT,
+        permission: [],
+        level: MENU_LEVEL[2],
+      },
+      {
+        key: 'PROJECT_MANAGEMENT_TASK_CENTER', // 项目管理-任务中心
+        locale: 'menu.projectManagement.taskCenter',
+        route: '',
         permission: [],
         level: MENU_LEVEL[2],
       },
