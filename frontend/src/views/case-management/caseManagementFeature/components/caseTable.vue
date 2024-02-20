@@ -47,19 +47,45 @@
     </template>
     <template #reviewStatus="{ record }">
       <MsIcon
-        :type="getStatusText(record.reviewStatus)?.iconType || ''"
+        :type="statusIconMap[record.reviewStatus]?.icon || ''"
         class="mr-1"
-        :class="[getReviewStatusClass(record.reviewStatus)]"
+        :class="[statusIconMap[record.reviewStatus].color]"
       ></MsIcon>
-      <span>{{ getStatusText(record.reviewStatus)?.statusType || '' }} </span>
+      <span>{{ statusIconMap[record.reviewStatus]?.statusText || '' }} </span>
+    </template>
+    <template #reviewStatusFilter="{ columnConfig }">
+      <a-trigger v-model:popup-visible="statusFilterVisible" trigger="click" @popup-visible-change="handleFilterHidden">
+        <a-button type="text" class="arco-btn-text--secondary p-[8px_4px]" @click="statusFilterVisible = true">
+          <div class="font-medium">
+            {{ t(columnConfig.title as string) }}
+          </div>
+          <icon-down :class="statusFilterVisible ? 'text-[rgb(var(--primary-5))]' : ''" />
+        </a-button>
+        <template #content>
+          <div class="arco-table-filters-content">
+            <div class="flex items-center justify-center px-[6px] py-[2px]">
+              <a-checkbox-group v-model:model-value="statusFilters" direction="vertical" size="small">
+                <a-checkbox v-for="key of Object.keys(statusIconMap)" :key="key" :value="key">
+                  <MsIcon
+                    :type="statusIconMap[key]?.icon || ''"
+                    class="mr-1"
+                    :class="[statusIconMap[key].color]"
+                  ></MsIcon>
+                  <span>{{ statusIconMap[key]?.statusText || '' }} </span>
+                </a-checkbox>
+              </a-checkbox-group>
+            </div>
+          </div>
+        </template>
+      </a-trigger>
     </template>
     <template #lastExecuteResult="{ record }">
       <MsIcon
-        :type="getStatusText(record.lastExecuteResult)?.iconType || ''"
+        :type="executionResultMap[record.lastExecuteResult]?.icon || ''"
         class="mr-1"
-        :class="[getReviewStatusClass(record.lastExecuteResult)]"
+        :class="[executionResultMap[record.lastExecuteResult].color]"
       ></MsIcon>
-      <span>{{ getStatusText(record.lastExecuteResult)?.statusType || '' }}</span>
+      <span>{{ executionResultMap[record.lastExecuteResult]?.statusText || '' }}</span>
     </template>
     <template #moduleId="{ record }">
       <a-tree-select
@@ -269,10 +295,11 @@
     DragCase,
   } from '@/models/caseManagement/featureCase';
   import type { TableQueryParams } from '@/models/common';
+  import { StatusType } from '@/enums/caseEnum';
   import { CaseManagementRouteEnum } from '@/enums/routeEnum';
   import { ColumnEditTypeEnum, TableKeyEnum } from '@/enums/tableEnum';
 
-  import { getCaseLevels, getReviewStatusClass, getStatusText, getTableFields } from './utils';
+  import { executionResultMap, getCaseLevels, getTableFields, statusIconMap } from './utils';
   import { LabelValue } from '@arco-design/web-vue/es/tree-select/interface';
 
   const { openModal } = useModal();
@@ -413,8 +440,7 @@
       title: 'caseManagement.featureCase.tableColumnReviewResult',
       dataIndex: 'reviewStatus',
       slotName: 'reviewStatus',
-      // TODO 待补充
-      // titleSlotName: 'reviewStatusFilter',
+      titleSlotName: 'reviewStatusFilter',
       showInTable: true,
       width: 200,
       showDrag: true,
@@ -747,7 +773,7 @@
     projectId: currentProjectId.value,
     moduleIds: [],
   });
-
+  const statusFilters = ref<string[]>(Object.keys(statusIconMap));
   function getLoadListParams() {
     if (props.activeFolder === 'all') {
       searchParams.value.moduleIds = [];
@@ -757,6 +783,7 @@
     setLoadListParams({
       ...searchParams.value,
       keyword: keyword.value,
+      filter: { reviewStatus: statusFilters.value },
     });
   }
 
@@ -1275,6 +1302,14 @@
       console.log(error);
     } finally {
       drawerLoading.value = false;
+    }
+  }
+
+  const statusFilterVisible = ref(false);
+
+  function handleFilterHidden(val: boolean) {
+    if (!val) {
+      initData();
     }
   }
 

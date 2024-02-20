@@ -13,6 +13,7 @@
     :table-data="props.tableData"
     :page-change="props.pageChange"
     :mask-closable="true"
+    :edit-name="true"
     @loaded="loadedCase"
   >
     <template #titleLeft>

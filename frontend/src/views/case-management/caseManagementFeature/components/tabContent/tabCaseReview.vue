@@ -20,11 +20,11 @@
       </template>
       <template #status="{ record }">
         <MsIcon
-          :type="getStatusText(record.status)?.iconType || ''"
+          :type="statusIconMap[record.status]?.icon || ''"
           class="mr-1"
-          :class="[getReviewStatusClass(record.status)]"
+          :class="[statusIconMap[record.status].color] || ''"
         ></MsIcon>
-        <span>{{ getStatusText(record.status)?.statusType || '' }} </span>
+        <span>{{ statusIconMap[record.status]?.statusText || '' }} </span>
       </template>
     </ms-base-table>
   </div>
@@ -44,7 +44,7 @@
 
   import { TableKeyEnum } from '@/enums/tableEnum';
 
-  import { getReviewStatusClass, getStatusText } from '../utils';
+  import { statusIconMap } from '../utils';
   import debounce from 'lodash-es/debounce';
 
   const featureCaseStore = useFeatureCaseStore();

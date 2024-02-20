@@ -228,6 +228,21 @@
         </template>
       </MsFileList>
     </div>
+    <div>
+      <MsUpload
+        v-model:file-list="fileList"
+        accept="none"
+        :auto-upload="false"
+        :sub-text="acceptType === 'jar' ? '' : t('project.fileManagement.normalFileSubText', { size: 50 })"
+        multiple
+        draggable
+        size-unit="MB"
+        :max-size="50"
+        :is-all-screen="true"
+        class="mb-[16px]"
+        @change="handleChange"
+      />
+    </div>
     <LinkFileDrawer
       v-model:visible="showDrawer"
       :get-tree-request="getModules"
@@ -248,6 +263,7 @@
   import type { FormRuleItem } from '@/components/pure/ms-form-create/types';
   import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
   import MsFileList from '@/components/pure/ms-upload/fileList.vue';
+  import MsUpload from '@/components/pure/ms-upload/index.vue';
   import type { MsFileItem } from '@/components/pure/ms-upload/types';
   import LinkFileDrawer from '@/components/business/ms-link-file/associatedFileDrawer.vue';
   import AddStep from '../addStep.vue';
@@ -268,7 +284,7 @@
   import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
-  import { downloadByteFile, encrypted, getGenerateId, sleep } from '@/utils';
+  import { downloadByteFile, getGenerateId } from '@/utils';
   import { scrollIntoView } from '@/utils/dom';
 
   import type { AssociatedList, DetailCase, StepList } from '@/models/caseManagement/featureCase';
@@ -653,6 +669,16 @@
       fileList: [file],
     });
     return data;
+  }
+
+  function handleChange(_fileList: MsFileItem[], fileItem: MsFileItem) {
+    fileList.value = _fileList.map((e) => {
+      return {
+        ...e,
+        enable: true, // 是否启用
+        local: true, // 是否本地文件
+      };
+    });
   }
 
   onMounted(() => {
