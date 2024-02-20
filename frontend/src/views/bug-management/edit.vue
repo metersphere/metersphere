@@ -472,7 +472,7 @@
                     id: item.field as string,
                     name: item.title as string,
                     type: item.sourceType as string,
-                    value: item.value as string,
+                    value: Array.isArray(item.value) ? JSON.stringify(item.value) : (item.value as string),
                   });
                 });
               }

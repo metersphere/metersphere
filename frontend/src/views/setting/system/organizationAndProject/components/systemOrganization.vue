@@ -23,7 +23,7 @@
     </template>
     <template #memberCount="{ record }">
       <span
-        v-if="hasAnyPermission(['SYSTEM_ORGANIZATION_PROJECT:READ+UPDATE'])"
+        v-if="hasAnyPermission(['SYSTEM_ORGANIZATION_PROJECT:READ+ADD_MEMBER'])"
         class="primary-color"
         @click="showUserDrawer(record)"
         >{{ record.memberCount }}</span
@@ -46,27 +46,29 @@
         }}</MsButton>
       </template>
       <template v-else-if="!record.enable">
-        <MsButton v-permission="['SYSTEM_ORGANIZATIN_PROJECT:READ+UPDATE']" @click="handleEnableOrDisableOrg(record)">{{
-          t('common.enable')
-        }}</MsButton>
-        <MsButton v-permission="['SYSTEM_ORGANIZATIN_PROJECT:READ+DELETE']" @click="handleDelete(record)">{{
+        <MsButton
+          v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+UPDATE']"
+          @click="handleEnableOrDisableOrg(record)"
+          >{{ t('common.enable') }}</MsButton
+        >
+        <MsButton v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+DELETE']" @click="handleDelete(record)">{{
           t('common.delete')
         }}</MsButton>
       </template>
       <template v-else>
-        <MsButton v-permission="['SYSTEM_ORGANIZATIN_PROJECT:READ+UPDATE']" @click="showOrganizationModal(record)">{{
+        <MsButton v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+UPDATE']" @click="showOrganizationModal(record)">{{
           t('common.edit')
         }}</MsButton>
-        <MsButton v-permission="['SYSTEM_ORGANIZATIN_PROJECT:READ+UPDATE']" @click="showAddUserModal(record)">{{
+        <MsButton v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+UPDATE']" @click="showAddUserModal(record)">{{
           t('system.organization.addMember')
         }}</MsButton>
         <MsButton
-          v-permission="['SYSTEM_ORGANIZATIN_PROJECT:READ+UPDATE']"
+          v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+UPDATE']"
           @click="handleEnableOrDisableOrg(record, false)"
           >{{ t('common.end') }}</MsButton
         >
         <MsTableMoreAction
-          v-permission="['SYSTEM_ORGANIZATIN_PROJECT:READ+DELETE']"
+          v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+DELETE']"
           :list="tableActions"
           @select="handleMoreAction($event, record)"
         ></MsTableMoreAction>
@@ -154,7 +156,7 @@
       dataIndex: 'name',
       width: 300,
       revokeDeletedSlot: 'revokeDelete',
-      editType: hasAnyPermission(['SYSTEM_ORGANIZATIN_PROJECT:READ+UPDATE']) ? ColumnEditTypeEnum.INPUT : undefined,
+      editType: hasAnyPermission(['SYSTEM_ORGANIZATION_PROJECT:READ+UPDATE']) ? ColumnEditTypeEnum.INPUT : undefined,
       showTooltip: true,
     },
     {
