@@ -115,7 +115,7 @@ public class CaseReviewController {
         caseReviewService.associateCase(request, SessionUtils.getUserId());
     }
 
-    @GetMapping("disassociate/{reviewId}/{caseId}")
+    @GetMapping("/disassociate/{reviewId}/{caseId}")
     @Operation(summary = "用例管理-用例评审-取消关联用例")
     @Log(type = OperationLogType.DISASSOCIATE, expression = "#msClass.disAssociateCaseLog(#reviewId, #caseId)", msClass = CaseReviewLogService.class)
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_RELEVANCE)
@@ -140,7 +140,7 @@ public class CaseReviewController {
         return caseReviewService.getCaseReviewDetail(id, SessionUtils.getUserId());
     }
 
-    @PostMapping("batch/move")
+    @PostMapping("/batch/move")
     @Operation(summary = "用例管理-用例评审-批量移动用例评审")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_UPDATE)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
