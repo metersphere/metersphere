@@ -339,5 +339,20 @@ public class ApiDefinitionLogService {
         return dto.getId();
     }
 
+    public LogDTO moveLog(String id) {
+        ApiDefinitionDTO apiDefinitionDTO = getOriginalValue(id);
+        Project project = projectMapper.selectByPrimaryKey(apiDefinitionDTO.getProjectId());
+        LogDTO dto = new LogDTO(
+                apiDefinitionDTO.getProjectId(),
+                project.getOrganizationId(),
+                apiDefinitionDTO.getId(),
+                null,
+                OperationLogType.UPDATE.name(),
+                OperationLogModule.API_DEFINITION,
+                apiDefinitionDTO.getName());
+        dto.setOriginalValue(JSON.toJSONBytes(apiDefinitionDTO));
+        return dto;
+    }
+
 
 }

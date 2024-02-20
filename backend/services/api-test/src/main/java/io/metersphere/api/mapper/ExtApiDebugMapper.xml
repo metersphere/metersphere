@@ -17,4 +17,20 @@
         ORDER BY pos DESC
         LIMIT 1;
     </select>
+    <select id="getPrePos" resultType="java.lang.Long">
+        select `pos` from api_debug where project_id = #{projectId}
+        <if test="basePos != null">
+            and `pos` &lt; #{basePos}
+        </if>
+        order by `pos` desc limit 1;
+    </select>
+
+
+    <select id="getLastPos" resultType="java.lang.Long">
+        select `pos` from api_debug where project_id = #{projectId}
+        <if test="basePos != null">
+            and `pos` &gt; #{basePos}
+        </if>
+        order by `pos` desc limit 1;
+    </select>
 </mapper>

@@ -2,11 +2,13 @@ package io.metersphere.api.controller.debug;
 
 import io.metersphere.api.domain.ApiDebug;
 import io.metersphere.api.dto.debug.*;
+import io.metersphere.api.dto.request.ApiEditPosRequest;
 import io.metersphere.api.service.debug.ApiDebugLogService;
 import io.metersphere.api.service.debug.ApiDebugService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.SessionUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -81,5 +83,14 @@ public class ApiDebugController {
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_EXECUTE)
     public String debug(@Validated @RequestBody ApiDebugRunRequest request) {
         return apiDebugService.debug(request);
+    }
+
+    @PostMapping("/edit/pos")
+    @Operation(summary = "接口调试-拖拽排序")
+    @RequiresPermissions(PermissionConstants.PROJECT_API_DEBUG_UPDATE)
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.moveLog(#request.getTargetId())", msClass = ApiDebugLogService.class)
+    @CheckOwner(resourceId = "#request.getTargetId()", resourceType = "api_debug")
+    public void editPos(@Validated @RequestBody ApiEditPosRequest request) {
+        apiDebugService.editPos(request, SessionUtils.getUserId());
     }
 }

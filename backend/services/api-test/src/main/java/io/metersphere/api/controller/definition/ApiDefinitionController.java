@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.request.ApiEditPosRequest;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.service.definition.ApiDefinitionLogService;
 import io.metersphere.api.service.definition.ApiDefinitionNoticeService;
@@ -12,7 +13,6 @@ import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.dto.OperationHistoryDTO;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.request.OperationHistoryVersionRequest;
-import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.notice.annotation.SendNotice;
@@ -239,9 +239,9 @@ public class ApiDefinitionController {
     @PostMapping("/edit/pos")
     @Operation(summary = "接口测试-接口管理-接口-拖拽排序")
     @RequiresPermissions(PermissionConstants.PROJECT_API_DEFINITION_UPDATE)
-    public void editPos(@Validated @RequestBody PosRequest request) {
-        apiDefinitionService.editPos(request);
+    @Log(type = OperationLogType.UPDATE, expression = "#msClass.moveLog(#request.getTargetId())", msClass = ApiDefinitionLogService.class)
+    @CheckOwner(resourceId = "#request.getTargetId()", resourceType = "api_definition")
+    public void editPos(@Validated @RequestBody ApiEditPosRequest request) {
+        apiDefinitionService.editPos(request, SessionUtils.getUserId());
     }
-
-
 }

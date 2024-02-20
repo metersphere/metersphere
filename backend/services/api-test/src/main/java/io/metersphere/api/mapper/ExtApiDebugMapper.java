@@ -17,4 +17,8 @@ public interface ExtApiDebugMapper {
 
     Long getPos(@Param("userId") String userId);
 
+    Long getPrePos(@Param("projectId") String projectId, @Param("basePos") Long basePos);
+
+    Long getLastPos(@Param("projectId") String projectId, @Param("basePos") Long basePos);
+
 }
