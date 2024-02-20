@@ -22,13 +22,17 @@
       </div>
     </template>
     <template #memberCount="{ record }">
-      <span class="cursor-pointer text-[rgb(var(--primary-5))]" @click="showUserDrawer(record)">{{
-        record.memberCount
-      }}</span>
+      <span
+        v-if="hasAnyPermission(['PROJECT_GROUP:READ+UPDATE'])"
+        class="cursor-pointer text-[rgb(var(--primary-5))]"
+        @click="showUserDrawer(record)"
+        >{{ record.memberCount }}</span
+      >
+      <span v-else>{{ record.memberCount }}</span>
     </template>
     <template #operation="{ record }">
       <div class="flex flex-row flex-nowrap">
-        <span v-permission="['PROJECT_GROUP:READ+UPDATE']" class="flex flex-row">
+        <span v-permission="['PROJECT_GROUP:READ']" class="flex flex-row">
           <MsButton class="!mr-0" @click="showAuthDrawer(record)">{{ t('project.userGroup.viewAuth') }}</MsButton>
           <a-divider v-if="!record.internal" direction="vertical" />
         </span>

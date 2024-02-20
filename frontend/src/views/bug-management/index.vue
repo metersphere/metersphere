@@ -292,7 +292,7 @@
     },
     {
       title: 'bugManagement.creator',
-      dataIndex: 'createUser',
+      dataIndex: 'createUserName',
       width: 112,
       showTooltip: true,
       showDrag: true,

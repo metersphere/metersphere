@@ -10,7 +10,11 @@
   >
     <div>
       <div class="flex flex-row justify-between">
-        <a-button type="primary" @click="handleAddMember">
+        <a-button
+          v-if="hasAnyPermission(['ORGANIZATION_PROJECT:READ+ADD+MEMBER'])"
+          type="primary"
+          @click="handleAddMember"
+        >
           {{ t('system.organization.addMember') }}
         </a-button>
         <a-input-search
@@ -32,6 +36,7 @@
         </template>
         <template #operation="{ record }">
           <MsRemoveButton
+            v-permission="['ORGANIZATION_PROJECT:READ+DELETE+MEMBER']"
             :title="t('system.project.removeName', { name: record.name })"
             :sub-title-tip="t('system.project.removeTip')"
             @ok="handleRemove(record)"
@@ -62,6 +67,7 @@
   import { deleteProjectMemberByOrg, postProjectMemberByProjectId } from '@/api/modules/setting/organizationAndProject';
   import { useI18n } from '@/hooks/useI18n';
   import { formatPhoneNumber } from '@/utils';
+  import { hasAnyPermission } from '@/utils/permission';
 
   export interface projectDrawerProps {
     visible: boolean;
@@ -80,6 +86,8 @@
   const userVisible = ref(false);
 
   const keyword = ref('');
+
+  const hasOperationPermission = computed(() => hasAnyPermission(['ORGANIZATION_PROJECT:READ+DELETE+MEMBER']));
 
   const projectColumn: MsTableColumn = [
     {
@@ -100,9 +108,9 @@
       dataIndex: 'phone',
     },
     {
-      title: 'system.organization.operation',
+      title: hasOperationPermission.value ? 'system.organization.operation' : '',
       slotName: 'operation',
-      width: 60,
+      width: hasOperationPermission.value ? 60 : 20,
     },
   ];
 

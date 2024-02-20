@@ -11,7 +11,11 @@
   >
     <div>
       <div class="flex flex-row justify-between">
-        <a-button v-permission="['SYSTEM_ORGANIZATIN_PROJECT:READ+UPDATE']" type="primary" @click="handleAddMember">
+        <a-button
+          v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+ADD_MEMBER']"
+          type="primary"
+          @click="handleAddMember"
+        >
           {{ t('system.organization.addMember') }}
         </a-button>
         <a-input-search
@@ -33,7 +37,7 @@
         </template>
         <template #operation="{ record }">
           <MsRemoveButton
-            v-permission="['SYSTEM_ORGANIZATIN_PROJECT:READ+DELETE']"
+            v-permission="['SYSTEM_ORGANIZATION_PROJECT:READ+DELETE_MEMBER']"
             :title="t('system.organization.removeName', { name: characterLimit(record.name) })"
             :sub-title-tip="props.organizationId ? t('system.organization.removeTip') : t('system.project.removeTip')"
             @ok="handleRemove(record)"
