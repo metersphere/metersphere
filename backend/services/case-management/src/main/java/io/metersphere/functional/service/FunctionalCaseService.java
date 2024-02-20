@@ -14,18 +14,14 @@ import io.metersphere.functional.request.*;
 import io.metersphere.functional.result.CaseManagementResultCode;
 import io.metersphere.plan.domain.TestPlanFunctionalCaseExample;
 import io.metersphere.plan.mapper.TestPlanFunctionalCaseMapper;
-import io.metersphere.project.domain.FileAssociation;
-import io.metersphere.project.domain.FileAssociationExample;
-import io.metersphere.project.domain.ProjectVersion;
+import io.metersphere.project.domain.*;
 import io.metersphere.project.dto.ModuleCountDTO;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.mapper.FileAssociationMapper;
+import io.metersphere.project.mapper.ProjectApplicationMapper;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.provider.BaseCaseProvider;
-import io.metersphere.sdk.constants.ApplicationNumScope;
-import io.metersphere.sdk.constants.FunctionalCaseExecuteResult;
-import io.metersphere.sdk.constants.HttpMethodConstants;
-import io.metersphere.sdk.constants.TemplateScene;
+import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
@@ -157,6 +153,10 @@ public class FunctionalCaseService {
     private OperationHistoryService operationHistoryService;
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private ProjectApplicationMapper projectApplicationMapper;
+    @Resource
+    private ExtCaseReviewHistoryMapper extCaseReviewHistoryMapper;
 
 
     public FunctionalCase addFunctionalCase(FunctionalCaseAddRequest request, List<MultipartFile> files, String userId, String organizationId) {
@@ -1024,8 +1024,9 @@ public class FunctionalCaseService {
         FunctionalCaseBlobMapper caseBlobMapper = sqlSession.getMapper(FunctionalCaseBlobMapper.class);
         FunctionalCaseCustomFieldMapper customFieldMapper = sqlSession.getMapper(FunctionalCaseCustomFieldMapper.class);
         List<FunctionalCaseDTO> noticeList = new ArrayList<>();
+        List<String> caseIds = new ArrayList<>();
         for (int i = 0; i < updateList.size(); i++) {
-            parseUpdateDataToModule(updateList.get(i), request, user.getId(), caseModulePathMap, defaultTemplateDTO, caseMapper, caseBlobMapper, customFieldMapper, customFieldsMap, user.getLastOrganizationId());
+            parseUpdateDataToModule(updateList.get(i), request, user.getId(), caseModulePathMap, defaultTemplateDTO, caseMapper, caseBlobMapper, customFieldMapper, customFieldsMap, user.getLastOrganizationId(), caseIds);
             //通知
             noticeModule(noticeList, updateList.get(i), request, user.getId(), customFieldsMap);
         }
@@ -1033,14 +1034,24 @@ public class FunctionalCaseService {
         sqlSession.flushStatements();
         SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
 
+        //更新用例评审状态
+        if (CollectionUtils.isNotEmpty(caseIds)) {
+            caseReviewFunctionalCaseService.batchHandleStatusAndHistory(caseIds, user.getId());
+        }
+
         List<Map> resources = new ArrayList<>();
         resources.addAll(JSON.parseArray(JSON.toJSONString(noticeList), Map.class));
         afterReturningNoticeSendService.sendNotice(NoticeConstants.TaskType.FUNCTIONAL_CASE_TASK, NoticeConstants.Event.UPDATE, resources, user, request.getProjectId());
     }
 
-    private void parseUpdateDataToModule(FunctionalCaseExcelData functionalCaseExcelData, FunctionalCaseImportRequest request, String userId, Map<String, String> caseModulePathMap, TemplateDTO defaultTemplateDTO, FunctionalCaseMapper caseMapper, FunctionalCaseBlobMapper caseBlobMapper, FunctionalCaseCustomFieldMapper customFieldMapper, Map<String, TemplateCustomFieldDTO> customFieldsMap, String organizationId) {
+
+    private void parseUpdateDataToModule(FunctionalCaseExcelData functionalCaseExcelData, FunctionalCaseImportRequest request, String userId, Map<String, String> caseModulePathMap, TemplateDTO defaultTemplateDTO, FunctionalCaseMapper caseMapper, FunctionalCaseBlobMapper caseBlobMapper, FunctionalCaseCustomFieldMapper customFieldMapper, Map<String, TemplateCustomFieldDTO> customFieldsMap, String organizationId, List<String> caseIds) {
         //用例表
         FunctionalCase functionalCase = caseMapper.selectByPrimaryKey(functionalCaseExcelData.getNum());
+
+        //触发重新提审id
+        addStatusIds(caseIds, functionalCase, functionalCaseExcelData);
+
         //记录原值
         FunctionalCaseHistoryLogDTO originalValue = getImportLogModule(functionalCase);
 
@@ -1072,6 +1083,21 @@ public class FunctionalCaseService {
         FunctionalCaseHistoryLogDTO modifiedLogDTO = getImportLogModule(functionalCase);
         //记录日志
         saveImportDataLog(functionalCase, originalValue, modifiedLogDTO, userId, organizationId, OperationLogType.IMPORT.name(), OperationLogModule.CASE_MANAGEMENT_CASE_UPDATE);
+    }
+
+    private void addStatusIds(List<String> caseIds, FunctionalCase functionalCase, FunctionalCaseExcelData functionalCaseExcelData) {
+        ProjectApplicationExample example = new ProjectApplicationExample();
+        example.createCriteria().andProjectIdEqualTo(functionalCase.getProjectId()).andTypeEqualTo(ProjectApplicationType.CASE.CASE_RE_REVIEW.name());
+        List<ProjectApplication> projectApplications = projectApplicationMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(projectApplications) && Boolean.valueOf(projectApplications.get(0).getTypeValue())) {
+            FunctionalCaseBlob blob = functionalCaseBlobMapper.selectByPrimaryKey(functionalCase.getId());
+            if (!StringUtils.equals(functionalCase.getName(), functionalCaseExcelData.getName())
+                    || !StringUtils.equals(new String(blob.getSteps(), StandardCharsets.UTF_8), StringUtils.defaultIfBlank(functionalCaseExcelData.getSteps(), StringUtils.EMPTY))
+                    || !StringUtils.equals(new String(blob.getTextDescription(), StandardCharsets.UTF_8), StringUtils.defaultIfBlank(functionalCaseExcelData.getTextDescription(), StringUtils.EMPTY))
+                    || !StringUtils.equals(new String(blob.getExpectedResult(), StandardCharsets.UTF_8), StringUtils.defaultIfBlank(functionalCaseExcelData.getExpectedResult(), StringUtils.EMPTY))) {
+                caseIds.add(functionalCase.getId());
+            }
+        }
     }
 
     private void handleUpdateCustomField(FunctionalCaseExcelData functionalCaseExcelData, String caseId, FunctionalCaseCustomFieldMapper customFieldMapper, Map<String, TemplateCustomFieldDTO> customFieldsMap) {
