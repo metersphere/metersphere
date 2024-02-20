@@ -49,11 +49,11 @@
             "id": "SYSTEM_ORGANIZATION_PROJECT:READ+RECOVER"
           },
           {
-            "id": "SYSTEM_ORGANIZATION_PROJECT_MEMBER:ADD",
+            "id": "SYSTEM_ORGANIZATION_PROJECT:READ+ADD_MEMBER",
             "name": "permission.system_organization_project_member.add"
           },
           {
-            "id": "SYSTEM_ORGANIZATION_PROJECT_MEMBER:DELETE",
+            "id": "SYSTEM_ORGANIZATION_PROJECT:READ+DELETE_MEMBER",
             "name": "permission.system_organization_project_member.delete"
           }
         ]
@@ -273,11 +273,11 @@
             "name": "permission.organization_project.recover"
           },
           {
-            "id": "ORGANIZATION_PROJECT_MEMBER:ADD",
+            "id": "ORGANIZATION_PROJECT:READ+ADD_MEMBER",
             "name": "permission.system_organization_project_member.add"
           },
           {
-            "id": "ORGANIZATION_PROJECT_MEMBER:DELETE",
+            "id": "ORGANIZATION_PROJECT:READ+DELETE_MEMBER",
             "name": "permission.system_organization_project_member.delete"
           }
         ]
