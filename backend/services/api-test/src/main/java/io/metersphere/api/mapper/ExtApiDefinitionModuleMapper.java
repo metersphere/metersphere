@@ -34,4 +34,6 @@ public interface ExtApiDefinitionModuleMapper {
     List<BaseTreeNode> selectNodeByIds(@Param("ids") List<String> ids);
 
     List<BaseTreeNode> selectBaseByIds(@Param("ids") List<String> ids);
+
+    List<String> getModuleIdsByParentIds(@Param("parentIds") List<String> parentIds);
 }

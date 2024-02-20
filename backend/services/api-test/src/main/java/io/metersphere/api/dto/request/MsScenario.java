@@ -43,6 +43,7 @@ public class MsScenario extends AbstractMsTestElement {
     private Boolean grouped;
     /**
      * {@link io.metersphere.api.constants.ApiScenarioStepRefType}
+     * DIRECT 表示当前根场景
      */
     private String refType;
 }

@@ -2,6 +2,7 @@ package io.metersphere.api.mapper;
 
 import io.metersphere.api.domain.ApiDefinition;
 import io.metersphere.api.domain.ApiDefinitionCustomField;
+import io.metersphere.api.dto.ApiResourceModuleInfo;
 import io.metersphere.api.dto.converter.ApiDefinitionImportDetail;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.scenario.ScenarioSystemRequest;
@@ -61,4 +62,6 @@ public interface ExtApiDefinitionMapper {
     Long getPrePos(@Param("projectId") String projectId, @Param("basePos") Long basePos);
 
     Long getLastPos(@Param("projectId") String projectId, @Param("basePos") Long basePos);
+
+    List<ApiResourceModuleInfo> getModuleInfoByIds(@Param("ids") List<String> ids);
 }

@@ -17,4 +17,6 @@ public class JmeterAlias {
     public static final String XPATH_ASSERTION_GUI = "XPathAssertionGui";
     public static final String X_PATH_2_ASSERTION_GUI = "XPath2AssertionGui";
     public static final String USER_PARAMETERS_GUI = "UserParametersGui";
+    public static final String COOKIE_PANEL = "CookiePanel";
+    public static final String HEADER_PANEL = "HeaderPanel";
 }

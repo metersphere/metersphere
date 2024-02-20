@@ -10,10 +10,12 @@ import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.OptionDTO;
+import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author jianxing
@@ -62,4 +64,6 @@ public interface ExtApiTestCaseMapper {
     List<OptionDTO> selectVersionOptionByIds(@Param("ids") List<String> ids);
 
     List<String> getIdsByModules(@Param("request") ScenarioSystemRequest caseRequest);
+
+    List<ApiTestCase> getApiCaseDefinitionInfo(@Param("ids") List<String> ids);
 }

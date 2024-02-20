@@ -13,10 +13,9 @@ import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionRunRequest;
-import io.metersphere.project.service.FileAssociationService;
-import io.metersphere.project.service.FileManagementService;
-import io.metersphere.project.service.FileMetadataService;
-import io.metersphere.project.service.ProjectApplicationService;
+import io.metersphere.project.dto.environment.GlobalParams;
+import io.metersphere.project.dto.environment.GlobalParamsDTO;
+import io.metersphere.project.service.*;
 import io.metersphere.sdk.constants.ApiExecuteResourceType;
 import io.metersphere.sdk.constants.ApiExecuteRunMode;
 import io.metersphere.sdk.constants.ProjectApplicationType;
@@ -82,6 +81,8 @@ public class ApiExecuteService {
     private FileManagementService fileManagementService;
     @Resource
     private ApiPluginService apiPluginService;
+    @Resource
+    private GlobalParamsService globalParamsService;
 
     @PostConstruct
     private void init() {
@@ -128,12 +129,22 @@ public class ApiExecuteService {
             taskRequest.setMsRegexList(projectApplicationService.get(Collections.singletonList(request.getProjectId())));
         }
 
+        parameterConfig.setGlobalParams(getGlobalParam(request));
+
         // todo 获取接口插件和jar包
         // todo 处理公共脚本
         // todo 接口用例 method 获取定义中的数据库字段
         String executeScript = parseExecuteScript(request.getTestElement(), parameterConfig);
 
         doDebug(reportId, testId, taskRequest, executeScript, request.getProjectId());
+    }
+
+    private GlobalParams getGlobalParam(ApiResourceRunRequest request) {
+        GlobalParamsDTO globalParamsDTO = globalParamsService.get(request.getProjectId());
+        if (globalParamsDTO != null) {
+            return globalParamsDTO.getGlobalParams();
+        }
+        return null;
     }
 
     /**

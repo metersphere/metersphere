@@ -3,6 +3,7 @@ package io.metersphere.api.dto;
 import io.metersphere.plugin.api.dto.ParameterConfig;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.dto.environment.EnvironmentInfoDTO;
+import io.metersphere.project.dto.environment.GlobalParams;
 import lombok.Data;
 
 import java.util.HashMap;
@@ -19,9 +20,17 @@ public class ApiParamConfig extends ParameterConfig {
      */
     private String reportId;
     /**
+     * 使用全局cookie
+     */
+    private Boolean enableGlobalCookie = true;
+    /**
      * 环境配置信息
      */
     private EnvironmentInfoDTO envConfig;
+    /**
+     * 全局参数
+     */
+    private GlobalParams globalParams;
     /**
      * AbstractMsTestElement 实现类与插件 ID 的映射
      * key 为 AbstractMsTestElement 实现类对象

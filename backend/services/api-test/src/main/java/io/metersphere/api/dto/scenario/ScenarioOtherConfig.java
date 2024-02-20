@@ -15,7 +15,7 @@ public class ScenarioOtherConfig {
     /**
      * 是否共享cookie
      */
-    private Boolean enableCookieShare;
+    private Boolean enableCookieShare = false;
     /**
      * 场景步骤等待时间
      * 每一个步骤执行后都会等待相应的时间

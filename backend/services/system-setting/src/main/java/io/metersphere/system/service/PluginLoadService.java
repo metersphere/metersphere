@@ -60,7 +60,7 @@ public class PluginLoadService {
      * @param fileName
      * @return
      */
-    public String loadPlugin(String fileName) {
+    public synchronized String loadPlugin(String fileName) {
         MsFileUtils.validateFileName(fileName);
         String filePath = LocalRepositoryDir.getPluginDir() + "/" + fileName;
         File file = new File(filePath);

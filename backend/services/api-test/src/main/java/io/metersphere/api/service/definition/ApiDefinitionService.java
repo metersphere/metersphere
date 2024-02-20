@@ -4,6 +4,7 @@ import io.metersphere.api.constants.ApiDefinitionDocType;
 import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
+import io.metersphere.api.dto.ApiResourceModuleInfo;
 import io.metersphere.api.dto.converter.ApiDefinitionImport;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.definition.*;
@@ -1023,5 +1024,9 @@ public class ApiDefinitionService {
                 throw new MSException(ApiResultCode.API_RESPONSE_NAME_CODE_UNIQUE);
             }
         }
+    }
+
+    public List<ApiResourceModuleInfo> getModuleInfoByIds(List<String> apiIds) {
+        return extApiDefinitionMapper.getModuleInfoByIds(apiIds);
     }
 }
