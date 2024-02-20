@@ -132,3 +132,9 @@ export const CustomTypeMaps: Record<string, any> = {
     type: 'TAGS_INPUT',
   },
 };
+
+export const MULTIPLE_OPERATOR_LIST = ['in', 'not_in', 'between'];
+
+export function isMutipleOperator(operator: string) {
+  return MULTIPLE_OPERATOR_LIST.includes(operator);
+}

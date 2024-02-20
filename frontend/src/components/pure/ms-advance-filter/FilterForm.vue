@@ -76,7 +76,7 @@
                 class="hidden-item"
               >
                 <a-input
-                  v-if="item.type === FilterType.INPUT"
+                  v-if="item.type === FilterType.INPUT && !isMutipleOperator(item.operator as string)"
                   v-model:model-value="item.value"
                   class="w-full"
                   allow-clear
@@ -84,7 +84,7 @@
                   :max-length="255"
                 />
                 <MsTagsInput
-                  v-else-if="item.type === FilterType.TAGS_INPUT"
+                  v-else-if="isMutipleOperator(item.operator as string)"
                   v-model:model-value="item.value"
                   :disabled="!item.dataIndex"
                   allow-clear
@@ -214,7 +214,7 @@
 
   import { SelectValue } from '@/models/projectManagement/menuManagement';
 
-  import { OPERATOR_MAP } from './index';
+  import { isMutipleOperator, OPERATOR_MAP } from './index';
   import { AccordBelowType, BackEndEnum, CombineItem, FilterFormItem, FilterResult, FilterType } from './type';
 
   const { t } = useI18n();
@@ -334,7 +334,7 @@
           combine[item.dataIndex as string] = {
             operator: item.operator,
             value: item.value,
-            backendType: item.backendType,
+            backendType: Array.isArray(item.value) ? BackEndEnum.ARRAY : item.backendType,
           };
         });
         tmpObj.accordBelow = accordBelow.value;
@@ -366,7 +366,7 @@
   };
 
   const operationChange = (v: SelectValue, dataIndex: string, idx: number) => {
-    if (v === 'between') {
+    if (isMutipleOperator(v as string)) {
       formModel.list[idx].value = [];
     } else {
       formModel.list[idx].value = isMultipleSelect(dataIndex) ? [] : '';
