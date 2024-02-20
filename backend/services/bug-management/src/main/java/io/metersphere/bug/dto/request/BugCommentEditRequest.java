@@ -30,7 +30,7 @@ public class BugCommentEditRequest implements Serializable {
     @Schema(description = "评论内容", requiredMode = Schema.RequiredMode.REQUIRED)
     private String content;
 
-    @Schema(description =  "任务事件(仅评论: ’COMMENT‘; 评论并@: ’AT‘; 回复评论/回复并@: ’REPLAY‘;)", requiredMode = Schema.RequiredMode.REQUIRED)
+    @Schema(description =  "任务事件(仅评论: ’COMMENT‘; 评论并@: ’AT‘; 回复评论/回复并@: ’REPLY‘;)", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{bug_comment.event.not_blank}", groups = {Created.class})
     private String event;
 }
