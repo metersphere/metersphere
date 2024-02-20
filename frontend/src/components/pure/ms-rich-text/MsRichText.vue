@@ -245,21 +245,21 @@
           types: ['heading', 'paragraph'],
         }),
         ExtensionUnderline,
-        ExtensionTable.configure({
-          resizable: true,
-        }),
+        // ExtensionTable.configure({
+        //   resizable: true,
+        // }),
         ExtensionSubscript,
         ExtensionSuperscript,
         ExtensionPlaceholder.configure({
           placeholder: '输入 / 以选择输入类型',
         }),
         ExtensionHighlight,
-        ExtensionVideo,
-        ExtensionAudio,
+        // ExtensionVideo,
+        // ExtensionAudio,
         ExtensionCodeBlock.configure({
           lowlight,
         }),
-        ExtensionIframe,
+        // ExtensionIframe,
         ExtensionColor,
         ExtensionFontSize,
         ExtensionIndent,
@@ -300,26 +300,26 @@
               //     },
               //   ];
               // },
-              getToolbarItems({ editors }: { editors: Editor }) {
-                return {
-                  priority: 1000,
-                  component: markRaw(ToolbarItem),
-                  props: {
-                    editor,
-                    isActive: showSidebar.value,
-                    title: t(''),
-                    action: () => {
-                      showSidebar.value = !showSidebar.value;
-                    },
-                  },
-                };
-              },
+              // getToolbarItems({ editors }: { editors: Editor }) {
+              //   return {
+              //     priority: 1000,
+              //     component: markRaw(ToolbarItem),
+              //     props: {
+              //       editor,
+              //       isActive: showSidebar.value,
+              //       title: t(''),
+              //       action: () => {
+              //         showSidebar.value = !showSidebar.value;
+              //       },
+              //     },
+              //   };
+              // },
             };
           },
         }),
         ExtensionDraggable,
-        ExtensionColumns,
-        ExtensionColumn,
+        // ExtensionColumns,
+        // ExtensionColumn,
         ExtensionNodeSelected,
         ExtensionTrailingNode,
         Mention.configure({
