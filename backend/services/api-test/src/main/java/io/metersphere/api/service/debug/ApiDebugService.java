@@ -4,10 +4,13 @@ import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.domain.ApiDebug;
 import io.metersphere.api.domain.ApiDebugBlob;
 import io.metersphere.api.domain.ApiDebugExample;
+import io.metersphere.api.domain.ApiDebugModule;
 import io.metersphere.api.dto.ApiParamConfig;
 import io.metersphere.api.dto.debug.*;
+import io.metersphere.api.dto.request.ApiEditPosRequest;
 import io.metersphere.api.mapper.ApiDebugBlobMapper;
 import io.metersphere.api.mapper.ApiDebugMapper;
+import io.metersphere.api.mapper.ApiDebugModuleMapper;
 import io.metersphere.api.mapper.ExtApiDebugMapper;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.ApiFileResourceService;
@@ -53,6 +56,8 @@ public class ApiDebugService {
     private ApiExecuteService apiExecuteService;
     @Resource
     private ApiPluginService apiPluginService;
+    @Resource
+    private ApiDebugModuleMapper apiDebugModuleMapper;
 
     public static final Long ORDER_STEP = 5000L;
 
@@ -209,4 +214,32 @@ public class ApiDebugService {
         return runRequest.getReportId();
     }
 
+    public void checkModuleExist(String moduleId) {
+        if (StringUtils.equals(moduleId, "root")) {
+            return;
+        }
+        ApiDebugModule apiDebugModule = apiDebugModuleMapper.selectByPrimaryKey(moduleId);
+        if (apiDebugModule == null) {
+            throw new MSException("module.not.exist");
+        }
+    }
+
+    public void editPos(ApiEditPosRequest request, String userId) {
+        ApiDebug apiDebug = checkResourceExist(request.getTargetId());
+        checkModuleExist(request.getModuleId());
+        apiDebug.setModuleId(request.getModuleId());
+        checkUpdateExist(apiDebug, apiDebug);
+        apiDebug.setUpdateUser(userId);
+        apiDebug.setUpdateTime(System.currentTimeMillis());
+        apiDebugMapper.updateByPrimaryKeySelective(apiDebug);
+        if (StringUtils.equals(request.getTargetId(), request.getMoveId())) {
+            return;
+        }
+        ServiceUtils.updatePosField(request,
+                ApiDebug.class,
+                apiDebugMapper::selectByPrimaryKey,
+                extApiDebugMapper::getPrePos,
+                extApiDebugMapper::getLastPos,
+                apiDebugMapper::updateByPrimaryKeySelective);
+    }
 }

@@ -6,6 +6,7 @@ import io.metersphere.api.constants.ApiDefinitionStatus;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.request.ApiEditPosRequest;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.mapper.*;
@@ -33,7 +34,6 @@ import io.metersphere.system.domain.OperationHistoryExample;
 import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.request.OperationHistoryVersionRequest;
 import io.metersphere.system.dto.sdk.BaseCondition;
-import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.OperationHistoryMapper;
 import io.metersphere.system.utils.Pager;
@@ -1065,17 +1065,22 @@ public class ApiDefinitionControllerTests extends BaseTest {
     @Order(9)
     public void testPos() throws Exception {
 
-        apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1001");
-        ApiDefinition apiDefinition1 = apiDefinitionMapper.selectByPrimaryKey("1002");
-        PosRequest posRequest = new PosRequest();
-        posRequest.setProjectId(DEFAULT_PROJECT_ID);
-        posRequest.setTargetId(apiDefinition.getId());
-        posRequest.setMoveId(apiDefinition1.getId());
-        posRequest.setMoveMode("AFTER");
-        this.requestPostWithOkAndReturn(BASE_PATH + "edit/pos", posRequest);
+        ApiEditPosRequest request = new ApiEditPosRequest();
+        apiDefinition = apiDefinitionMapper.selectByPrimaryKey("1005");
+        ApiDefinition apiDefinition1 = apiDefinitionMapper.selectByPrimaryKey("1004");
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setTargetId(apiDefinition.getId());
+        request.setMoveId(apiDefinition.getId());
+        request.setModuleId("root");
+        request.setMoveMode("AFTER");
+        this.requestPostWithOkAndReturn(BASE_PATH + "edit/pos", request);
+        request.setMoveId(apiDefinition1.getId());
+        this.requestPostWithOkAndReturn(BASE_PATH + "edit/pos", request);
+        request.setMoveMode("BEFORE");
+        this.requestPostWithOkAndReturn(BASE_PATH + "edit/pos", request);
 
-        posRequest.setMoveMode("BEFORE");
-        this.requestPostWithOkAndReturn(BASE_PATH + "edit/pos", posRequest);
+        request.setModuleId("module-st-6");
+        requestPost(BASE_PATH + "edit/pos", request).andExpect(status().is5xxServerError());
 
     }
 
