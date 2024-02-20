@@ -401,15 +401,14 @@ public class CaseReviewFunctionalCaseService {
         List<UserRoleRelation> userRoleRelations = userRoleRelationMapper.selectByExample(userRoleRelationExample);
         List<String> systemUsers = userRoleRelations.stream().map(UserRoleRelation::getUserId).distinct().toList();
 
+        Map<String, String> statusMap = new HashMap<>();
+        //重新提审，作废之前的记录
+        if (StringUtils.equalsIgnoreCase(request.getStatus(), FunctionalCaseReviewStatus.RE_REVIEWED.toString())) {
+            extCaseReviewHistoryMapper.batchUpdateAbandoned(reviewId, caseIds);
+        }
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         CaseReviewHistoryMapper caseReviewHistoryMapper = sqlSession.getMapper(CaseReviewHistoryMapper.class);
         CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper = sqlSession.getMapper(CaseReviewFunctionalCaseMapper.class);
-
-        Map<String, String> statusMap = new HashMap<>();
-
-        //重新提审，作废之前的记录
-        extCaseReviewHistoryMapper.batchUpdateAbandoned(reviewId, caseIds);
-
         for (CaseReviewFunctionalCase caseReviewFunctionalCase : caseReviewFunctionalCaseList) {
             //校验当前操作人是否是该用例的评审人或者是系统管理员，是增加评审历史，不是过滤掉
             String caseId = caseReviewFunctionalCase.getCaseId();

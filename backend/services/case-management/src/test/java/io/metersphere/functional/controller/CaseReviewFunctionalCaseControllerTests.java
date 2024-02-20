@@ -4,8 +4,11 @@ import io.metersphere.functional.constants.CaseReviewPassRule;
 import io.metersphere.functional.constants.FunctionalCaseReviewStatus;
 import io.metersphere.functional.domain.CaseReviewFunctionalCase;
 import io.metersphere.functional.domain.CaseReviewFunctionalCaseExample;
+import io.metersphere.functional.domain.CaseReviewHistory;
+import io.metersphere.functional.domain.CaseReviewHistoryExample;
 import io.metersphere.functional.dto.ReviewFunctionalCaseDTO;
 import io.metersphere.functional.mapper.CaseReviewFunctionalCaseMapper;
+import io.metersphere.functional.mapper.CaseReviewHistoryMapper;
 import io.metersphere.functional.request.*;
 import io.metersphere.functional.service.CaseReviewFunctionalCaseService;
 import io.metersphere.sdk.constants.SessionConstants;
@@ -63,6 +66,8 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
     private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
     @Resource
     private CaseReviewFunctionalCaseService caseReviewFunctionalCaseService;
+    @Resource
+    private CaseReviewHistoryMapper caseReviewHistoryMapper;
 
 
     @Test
@@ -409,6 +414,39 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         caseReviewFunctionalCaseService.batchReview(request, "multiple_review_admin");
         CaseReviewFunctionalCase caseReviewFunctionalCase1 = caseReviewFunctionalCaseMapper.selectByPrimaryKey("gyq_test_5");
         Assertions.assertTrue(StringUtils.equalsIgnoreCase(caseReviewFunctionalCase.getStatus(), caseReviewFunctionalCase1.getStatus()));
+
+
+        request = new BatchReviewFunctionalCaseRequest();
+        request.setReviewId("wx_review_id_4");
+        request.setReviewPassRule(CaseReviewPassRule.MULTIPLE.toString());
+        request.setStatus(FunctionalCaseReviewStatus.PASS.toString());
+        request.setSelectAll(false);
+        request.setSelectIds(List.of("wx_test_10"));
+        caseReviewFunctionalCaseService.batchReview(request, "admin");
+        CaseReviewHistoryExample caseReviewHistoryExample = new CaseReviewHistoryExample();
+        caseReviewHistoryExample.createCriteria().andCaseIdEqualTo("wx_case_id_2").andReviewIdEqualTo("wx_review_id_4").andAbandonedEqualTo(false).andDeletedEqualTo(false);
+        List<CaseReviewHistory> caseReviewHistories = caseReviewHistoryMapper.selectByExample(caseReviewHistoryExample);
+        Assertions.assertEquals(3,caseReviewHistories.size());
+
+        request = new BatchReviewFunctionalCaseRequest();
+        request.setReviewId("wx_review_id_4");
+        request.setReviewPassRule(CaseReviewPassRule.MULTIPLE.toString());
+        request.setStatus(FunctionalCaseReviewStatus.PASS.toString());
+        request.setSelectAll(false);
+        request.setSelectIds(List.of("wx_test_10"));
+        caseReviewFunctionalCaseService.batchReview(request, "123");
+        caseReviewHistories = caseReviewHistoryMapper.selectByExample(caseReviewHistoryExample);
+        Assertions.assertEquals(4,caseReviewHistories.size());
+
+        request = new BatchReviewFunctionalCaseRequest();
+        request.setReviewId("wx_review_id_4");
+        request.setReviewPassRule(CaseReviewPassRule.MULTIPLE.toString());
+        request.setStatus(FunctionalCaseReviewStatus.PASS.toString());
+        request.setSelectAll(false);
+        request.setSelectIds(List.of("wx_test_10"));
+        caseReviewFunctionalCaseService.batchReview(request, "123");
+        caseReviewHistories = caseReviewHistoryMapper.selectByExample(caseReviewHistoryExample);
+        Assertions.assertEquals(5,caseReviewHistories.size());
 
     }
 
