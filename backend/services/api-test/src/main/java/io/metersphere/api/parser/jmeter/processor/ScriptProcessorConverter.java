@@ -34,7 +34,7 @@ public abstract class ScriptProcessorConverter extends MsProcessorConverter<Scri
 //        }
 
         // python 和 js cache 打开
-        boolean cacheKey = StringUtils.equalsAny(scriptProcessor.getScriptLanguage(), ScriptLanguageType.PYTHON.getValue(), ScriptLanguageType.JAVASCRIPT.getValue());
+        boolean cacheKey = StringUtils.equalsAny(scriptProcessor.getScriptLanguage(), ScriptLanguageType.PYTHON.name(), ScriptLanguageType.JAVASCRIPT.name());
         testElement.setProperty(JmeterProperty.CACHE_KEY, cacheKey);
         testElement.setProperty(TestElement.TEST_CLASS, testElement.getClass().getSimpleName());
         testElement.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(JmeterAlias.TEST_BEAN_GUI));
@@ -44,6 +44,6 @@ public abstract class ScriptProcessorConverter extends MsProcessorConverter<Scri
     }
 
     public static boolean isJSR233(ScriptProcessor scriptProcessor) {
-        return !StringUtils.equals(scriptProcessor.getScriptLanguage(), ScriptLanguageType.BEANSHELL.getValue());
+        return !StringUtils.equals(scriptProcessor.getScriptLanguage(), ScriptLanguageType.BEANSHELL.name());
     }
 }

@@ -57,7 +57,7 @@ public class ScriptFilter {
     public static void verify(String language, String label, String script) {
         // 默认 groovy
         ScriptLanguageType scriptLanguageType = Arrays.stream(ScriptLanguageType.values())
-                .filter(item -> StringUtils.equals(item.getValue(), language))
+                .filter(item -> StringUtils.equals(item.name(), language))
                 .findFirst()
                 .orElse(ScriptLanguageType.GROOVY);
 

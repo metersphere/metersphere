@@ -25,4 +25,8 @@ public class KeyValueParam {
     public boolean isValid() {
         return StringUtils.isNotBlank(key);
     }
+
+    public boolean isNotBlankValue() {
+        return StringUtils.isNotBlank(value);
+    }
 }

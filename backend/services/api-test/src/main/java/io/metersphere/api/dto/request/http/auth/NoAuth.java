@@ -9,5 +9,5 @@ import lombok.Data;
  */
 @Data
 @JsonTypeName("NONE")
-public class NoAuth extends HTTPAuth {
+public class NoAuth extends HTTPAuthConfig {
 }

@@ -9,6 +9,10 @@ import io.metersphere.api.dto.assertion.MsAssertionConfig;
 import io.metersphere.api.dto.debug.*;
 import io.metersphere.api.dto.request.MsCommonElement;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
+import io.metersphere.api.dto.request.http.RestParam;
+import io.metersphere.api.dto.request.http.auth.BasicAuth;
+import io.metersphere.api.dto.request.http.auth.DigestAuth;
+import io.metersphere.api.dto.request.http.auth.HTTPAuthConfig;
 import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.api.mapper.ApiDebugBlobMapper;
 import io.metersphere.api.mapper.ApiDebugMapper;
@@ -36,6 +40,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -377,6 +382,17 @@ public class ApiDebugControllerTests extends BaseTest {
         assertErrorCode(this.requestPost(DEBUG, request), ApiResultCode.RESOURCE_POOL_EXECUTE_ERROR);
 
         mockPost("/api/debug", "");
+        msHTTPElement.setPath("/test/{rest1}/aa");
+        msHTTPElement.setRest(getRestParams());
+        msHTTPElement.getOtherConfig().setAutoRedirects(true);
+        msHTTPElement.getOtherConfig().setFollowRedirects(false);
+        msHTTPElement.getOtherConfig().setResponseTimeout(7000L);
+        DigestAuth digestAuth = new DigestAuth();
+        digestAuth.setUserName("aa");
+        digestAuth.setPassword("bb");
+        msHTTPElement.getAuthConfig().setAuthType(HTTPAuthConfig.HTTPAuthType.DIGEST.name());
+        msHTTPElement.getAuthConfig().setDigestAuth(digestAuth);
+        request.setRequest(getMsElementParam(msHTTPElement));
         // @@请求成功
         this.requestPostWithOk(DEBUG, request);
 
@@ -391,6 +407,11 @@ public class ApiDebugControllerTests extends BaseTest {
         msHTTPElement = MsHTTPElementTest.getMsHttpElement();
         msHTTPElement.setChildren(linkedList);
         msHTTPElement.setEnable(true);
+        BasicAuth basicAuth = new BasicAuth();
+        basicAuth.setUserName("a");
+        basicAuth.setPassword("b");
+        msHTTPElement.getAuthConfig().setAuthType(HTTPAuthConfig.HTTPAuthType.BASIC.name());
+        msHTTPElement.getAuthConfig().setBasicAuth(basicAuth);
         request.setRequest(getMsElementParam(msHTTPElement));
         this.requestPostWithOk(DEBUG, request);
 
@@ -432,6 +453,20 @@ public class ApiDebugControllerTests extends BaseTest {
 
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEBUG_EXECUTE, DEBUG, request);
+    }
+
+    private List<RestParam> getRestParams() {
+        RestParam restParam1 = new RestParam();
+        restParam1.setKey("rest1");
+        restParam1.setValue("value");
+        RestParam restParam2 = new RestParam();
+        restParam2.setKey("rest2");
+        restParam2.setValue("value2");
+        restParam2.setEncode(true);
+        RestParam restParam3 = new RestParam();
+        restParam3.setKey("rest3");
+        restParam3.setEnable(false);
+        return List.of(restParam1, restParam2, restParam3);
     }
 
     private void testBodyParse(ApiDebugRunRequest request, MsHTTPElement msHTTPElement, Body generalBody) throws Exception {

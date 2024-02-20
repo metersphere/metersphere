@@ -19,4 +19,5 @@ public class JmeterAlias {
     public static final String USER_PARAMETERS_GUI = "UserParametersGui";
     public static final String COOKIE_PANEL = "CookiePanel";
     public static final String HEADER_PANEL = "HeaderPanel";
+    public static final String AUTH_PANEL = "AuthPanel";
 }

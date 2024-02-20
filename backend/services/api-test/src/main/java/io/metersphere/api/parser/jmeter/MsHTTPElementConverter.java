@@ -2,8 +2,13 @@ package io.metersphere.api.parser.jmeter;
 
 
 import io.metersphere.api.dto.ApiParamConfig;
+import io.metersphere.api.dto.request.http.MsHTTPConfig;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.QueryParam;
+import io.metersphere.api.dto.request.http.RestParam;
+import io.metersphere.api.dto.request.http.auth.BasicAuth;
+import io.metersphere.api.dto.request.http.auth.DigestAuth;
+import io.metersphere.api.dto.request.http.auth.HTTPAuthConfig;
 import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.api.parser.jmeter.body.MsBodyConverter;
 import io.metersphere.api.parser.jmeter.body.MsBodyConverterFactory;
@@ -25,6 +30,8 @@ import io.metersphere.sdk.util.LogUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jmeter.protocol.http.control.AuthManager;
+import org.apache.jmeter.protocol.http.control.Authorization;
 import org.apache.jmeter.protocol.http.control.Header;
 import org.apache.jmeter.protocol.http.control.HeaderManager;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
@@ -34,10 +41,12 @@ import org.apache.jorphan.collections.HashTree;
 import org.springframework.http.HttpMethod;
 
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static io.metersphere.api.parser.jmeter.constants.JmeterAlias.HEADER_PANEL;
-import static io.metersphere.api.parser.jmeter.constants.JmeterAlias.HTTP_TEST_SAMPLE_GUI;
+import static io.metersphere.api.parser.jmeter.constants.JmeterAlias.*;
 
 /**
  * @Author: jianxing
@@ -71,22 +80,89 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
         // path 设置完整的url
         sampler.setPath(getPath(msHTTPElement, httpConfig));
 
+        setHttpOtherConfig(msHTTPElement.getOtherConfig(), sampler);
+
         // 处理请求体
         handleBody(sampler, msHTTPElement, config);
 
         HashTree httpTree = tree.add(sampler);
+
         // 处理请求头
         HeaderManager httpHeader = getHttpHeader(msHTTPElement, apiParamConfig, httpConfig);
         if (httpHeader != null) {
             httpTree.add(httpHeader);
         }
 
+        HTTPAuthConfig authConfig = msHTTPElement.getAuthConfig();
+
+        // 处理认证信息
+        AuthManager authManager = getAuthManager(sampler, authConfig);
+        if (authManager != null) {
+            httpTree.add(authManager);
+        }
+
         parseChild(httpTree, msHTTPElement, config);
+    }
+
+    /**
+     * 设置超时时间等配置
+     * @param msHTTPConfig
+     * @param sampler
+     */
+    private void setHttpOtherConfig(MsHTTPConfig msHTTPConfig, HTTPSamplerProxy sampler) {
+        sampler.setConnectTimeout(msHTTPConfig.getConnectTimeout().toString());
+        sampler.setResponseTimeout(msHTTPConfig.getResponseTimeout().toString());
+        sampler.setFollowRedirects(msHTTPConfig.getFollowRedirects());
+        sampler.setAutoRedirects(msHTTPConfig.getAutoRedirects());
+    }
+
+    private static final Map<String, AuthManager.Mechanism> mechanismMap = HashMap.newHashMap(2);
+    private static final Map<String, BiConsumer<Authorization, HTTPAuthConfig>> authHanlerMap = HashMap.newHashMap(2);
+
+    static {
+        mechanismMap.put(HTTPAuthConfig.HTTPAuthType.BASIC.name(), AuthManager.Mechanism.BASIC);
+        mechanismMap.put(HTTPAuthConfig.HTTPAuthType.DIGEST.name(), AuthManager.Mechanism.DIGEST);
+        authHanlerMap.put(HTTPAuthConfig.HTTPAuthType.BASIC.name(), (authorization, httpAuth) -> {
+            BasicAuth basicAuth = httpAuth.getBasicAuth();
+            authorization.setUser(basicAuth.getUserName());
+            authorization.setPass(basicAuth.getPassword());
+        });
+        authHanlerMap.put(HTTPAuthConfig.HTTPAuthType.DIGEST.name(), (authorization, httpAuth) -> {
+            DigestAuth digestAuth = httpAuth.getDigestAuth() ;
+            authorization.setUser(digestAuth.getUserName());
+            authorization.setPass(digestAuth.getPassword());
+        });
+    }
+
+    /**
+     * 获取认证配置
+     * @param sampler
+     * @param authConfig
+     * @return
+     */
+    private AuthManager getAuthManager(HTTPSamplerProxy sampler, HTTPAuthConfig authConfig) {
+        if (authConfig == null || !authConfig.isHTTPAuthValid()) {
+            return null;
+        }
+
+        Authorization auth = new Authorization();
+        auth.setURL(sampler.getPath());
+        auth.setMechanism(mechanismMap.get(authConfig.getAuthType()));
+        authHanlerMap.get(authConfig.getAuthType()).accept(auth, authConfig);
+
+        AuthManager authManager = new AuthManager();
+        authManager.setEnabled(true);
+        authManager.setName("AuthManager");
+        authManager.setProperty(TestElement.TEST_CLASS, AuthManager.class.getName());
+        authManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass(AUTH_PANEL));
+        authManager.addAuth(auth);
+        return authManager;
     }
 
     /**
      * 设置步骤标识
      * 当前步骤唯一标识，结果和步骤匹配的关键
+     *
      * @param msHTTPElement
      * @param config
      * @param sampler
@@ -105,7 +181,69 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
             String protocol = httpConfig.getProtocol().toLowerCase();
             url = protocol + "://" + (httpConfig.getUrl() + "/" + url).replace("//", "/");
         }
+        url = getPathWithQueryRest(msHTTPElement, url);
         return getPathWithQuery(url, msHTTPElement.getQuery());
+    }
+
+    /**
+     * 替换 rest 参数
+     * @param msHTTPElement
+     * @param path
+     * @return
+     */
+    private String getPathWithQueryRest(MsHTTPElement msHTTPElement, String path) {
+        List<RestParam> rest = msHTTPElement.getRest();
+        if (CollectionUtils.isEmpty(rest)) {
+            return path;
+        }
+
+        rest = rest.stream()
+                .filter(RestParam::getEnable)
+                .filter(RestParam::isValid)
+                .filter(RestParam::isNotBlankValue)
+                .toList();
+
+        if (CollectionUtils.isEmpty(rest)) {
+            return path;
+        }
+
+        Map<String, String> keyValueMap = new HashMap<>();
+        for (RestParam restParam : rest) {
+            try {
+                String value = restParam.getValue();
+                value = Mock.buildFunctionCallString(value);
+                value = BooleanUtils.isTrue(restParam.getEncode()) ? String.format(URL_ENCODE, value.replace(",", "\\,")) : value;
+                keyValueMap.put(restParam.getKey(), value);
+            } catch (Exception e) {
+                LogUtils.error(e);
+            }
+        }
+
+        try {
+            Pattern p = Pattern.compile("(\\{)([\\w]+)(\\})");
+            Matcher m = p.matcher(path);
+            while (m.find()) {
+                String group = m.group(2);
+                if (!isRestVariable(path, group) && keyValueMap.containsKey(group)) {
+                    path = path.replace("{" + group + "}", keyValueMap.get(group));
+                }
+            }
+        } catch (Exception e) {
+            LogUtils.error(e);
+        }
+        return path;
+    }
+
+    private boolean isRestVariable(String path, String value) {
+        Pattern p = Pattern.compile("(\\$\\{)([\\w]+)(\\})");
+        Matcher m = p.matcher(path);
+        while (m.find()) {
+            String group = m.group(2);
+            if (group.equals(value)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private HeaderManager getHttpHeader(MsHTTPElement msHTTPElement, ApiParamConfig apiParamConfig, HttpConfig httpConfig) {
@@ -260,7 +398,7 @@ public class MsHTTPElementConverter extends AbstractJmeterElementConverter<MsHTT
                     stringBuffer.append(queryParam.getEncode() ? String.format(URL_ENCODE, queryParam.getKey()) : queryParam.getKey());
                     if (queryParam.getValue() != null) {
                         try {
-                            String value = queryParam.getValue().startsWith("@") ? Mock.buildFunctionCallString(queryParam.getValue()) : queryParam.getValue();
+                            String value = Mock.buildFunctionCallString(queryParam.getValue());
                             value = queryParam.getEncode() ? String.format(URL_ENCODE, value.replace(",", "\\,")) : value;
                             if (StringUtils.isNotEmpty(value) && value.contains(StringUtils.CR)) {
                                 value = value.replaceAll(StringUtils.CR, StringUtils.EMPTY);
