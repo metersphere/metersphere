@@ -5,7 +5,7 @@
         <div class="flex justify-center"><svg-icon :width="'60px'" :height="'60px'" :name="'success'" /></div>
         <div class="mb-2 mt-6 text-[20px] font-medium"> {{ t('common.addSuccess') }} </div>
         <div
-          ><span class="mr-1 text-[rgb(var(--primary-5))]">{{ countDown }}</span
+          ><span class="mr-1 text-[rgb(var(--primary-5))]">{{ timer }}</span
           ><span class="text-[var(--color-text-4)]">{{ t('bugManagement.success.countDownTip') }}</span></div
         >
         <div class="my-6">
@@ -56,6 +56,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { useRoute, useRouter } from 'vue-router';
+  import { useIntervalFn } from '@vueuse/core';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsCardList from '@/components/business/ms-card-list/index.vue';
@@ -80,21 +81,21 @@
   ]);
 
   const isNextTip = ref<boolean>(false);
-  const countDown = ref<number>(15);
-  const timer = ref<any>(null);
-  function setCountdown() {
-    timer.value = setInterval(() => {
-      if (countDown.value > 1) {
-        --countDown.value;
-      } else {
-        clearInterval(timer.value);
-        router.push({
-          name: BugManagementRouteEnum.BUG_MANAGEMENT_INDEX,
-        });
-      }
-    }, 1000);
-    timer.value = 15;
-  }
+  const timer = ref(15); // 存储倒计时
+  const { pause, resume } = useIntervalFn(() => {
+    timer.value--;
+  }, 1000);
+  // 初始化组件时关闭
+  pause();
+  // timer 为0时关闭
+  watch(timer, () => {
+    if (timer.value === 0) {
+      pause();
+      router.push({
+        name: BugManagementRouteEnum.BUG_MANAGEMENT_INDEX,
+      });
+    }
+  });
 
   function isDoNotShowAgainChecked() {
     if (isNextTip.value) {
@@ -104,7 +105,6 @@
 
   // 返回用例列表
   function backCaseList() {
-    clearInterval(timer.value);
     router.push({
       name: BugManagementRouteEnum.BUG_MANAGEMENT_INDEX,
     });
@@ -112,14 +112,12 @@
 
   // 继续创建
   function continueCreate() {
-    clearInterval(timer.value);
     router.push({
       name: BugManagementRouteEnum.BUG_MANAGEMENT_DETAIL,
     });
   }
 
   function goDetail() {
-    clearInterval(timer.value);
     router.push({
       name: BugManagementRouteEnum.BUG_MANAGEMENT_INDEX,
       query: route.query,
@@ -142,7 +140,7 @@
   );
 
   onMounted(() => {
-    setCountdown();
+    resume();
   });
 </script>
 
