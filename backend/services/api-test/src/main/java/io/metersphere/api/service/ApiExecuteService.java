@@ -174,6 +174,7 @@ public class ApiExecuteService {
             // 如果资源池配置了当前站点，则使用资源池的
             taskRequest.setMsUrl(testResourcePoolDTO.getServerUrl());
         }
+        taskRequest.setPoolSize(testResourceNodeDTO.getConcurrentNumber());
 
         // 将测试脚本缓存到 redis
         String scriptRedisKey = getScriptRedisKey(reportId, testId);
