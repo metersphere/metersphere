@@ -6,10 +6,6 @@ import io.metersphere.api.dto.assertion.MsAssertionConfig;
 import io.metersphere.api.dto.definition.HttpResponse;
 import io.metersphere.api.dto.request.MsCommonElement;
 import io.metersphere.api.dto.request.http.*;
-import io.metersphere.api.dto.request.http.auth.BasicAuth;
-import io.metersphere.api.dto.request.http.auth.DigestAuth;
-import io.metersphere.api.dto.request.http.auth.HTTPAuth;
-import io.metersphere.api.dto.request.http.auth.NoAuth;
 import io.metersphere.api.dto.request.http.body.*;
 import io.metersphere.api.dto.request.processors.MsProcessorConfig;
 import io.metersphere.api.dto.schema.JsonSchemaItem;
@@ -106,33 +102,6 @@ public class MsHTTPElementTest {
     }
 
     @Test
-    public void authConfigTest() {
-
-        MsHTTPElement msHTTPElement = getMsHttpElement();
-
-        List authConfigs = new ArrayList<>();
-
-        authConfigs.add(new NoAuth());
-
-        BasicAuth basicAuth = new BasicAuth();
-        basicAuth.setUserName("test");
-        basicAuth.setPassword("passwd");
-        authConfigs.add(basicAuth);
-
-        DigestAuth digestAuth = new DigestAuth();
-        digestAuth.setUserName("test");
-        digestAuth.setPassword("passwd");
-        authConfigs.add(digestAuth);
-
-        for (Object authConfig : authConfigs) {
-            msHTTPElement.setAuthConfig((HTTPAuth) authConfig);
-            String json = ApiDataUtils.toJSONString(msHTTPElement);
-            Assertions.assertNotNull(json);
-            Assertions.assertEquals(ApiDataUtils.parseObject(json, AbstractMsTestElement.class), msHTTPElement);
-        }
-    }
-
-    @Test
     public void processorParseTest() {
 
         MsHTTPElement msHTTPElement = getAddProcessorHttpElement();
@@ -157,13 +126,13 @@ public class MsHTTPElementTest {
         ScriptProcessor scriptProcessor = new ScriptProcessor();
         scriptProcessor.setEnable(true);
         scriptProcessor.setScript("script");
-        scriptProcessor.setScriptLanguage(ScriptLanguageType.JAVASCRIPT.getValue());
+        scriptProcessor.setScriptLanguage(ScriptLanguageType.JAVASCRIPT.name());
         processors.add(scriptProcessor);
 
         ScriptProcessor beanShellScriptProcessor = new ScriptProcessor();
         beanShellScriptProcessor.setEnable(true);
         beanShellScriptProcessor.setScript("script");
-        beanShellScriptProcessor.setScriptLanguage(ScriptLanguageType.BEANSHELL.getValue());
+        beanShellScriptProcessor.setScriptLanguage(ScriptLanguageType.BEANSHELL.name());
         processors.add(beanShellScriptProcessor);
 
         SQLProcessor sqlProcessor = new SQLProcessor();

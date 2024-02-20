@@ -55,7 +55,7 @@ public class VariableAssertionConverter extends AssertionConverter<MsVariableAss
         String name = String.format("Variable '%s' expect %s %s", variableName, condition.toLowerCase().replace("_", ""), expectedValue);
         scriptProcessor.setName(name);
 
-        scriptProcessor.setScriptLanguage(ScriptLanguageType.BEANSHELL_JSR233.getValue());
+        scriptProcessor.setScriptLanguage(ScriptLanguageType.BEANSHELL_JSR233.name());
         JSR223Assertion jsr223Assertion = new JSR223Assertion();
         ScriptProcessorConverter.parse(jsr223Assertion, scriptProcessor);
         return jsr223Assertion;

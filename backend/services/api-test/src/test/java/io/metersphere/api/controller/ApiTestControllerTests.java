@@ -3,9 +3,9 @@ package io.metersphere.api.controller;
 import io.metersphere.api.dto.ApiTestPluginOptionRequest;
 import io.metersphere.api.service.BaseResourcePoolTestService;
 import io.metersphere.plugin.api.dto.ApiPluginSelectOption;
+import io.metersphere.project.api.KeyValueParam;
 import io.metersphere.project.constants.ScriptLanguageType;
 import io.metersphere.project.dto.customfunction.request.CustomFunctionRunRequest;
-import io.metersphere.project.api.KeyValueParam;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.system.base.BasePluginTestService;
 import io.metersphere.system.base.BaseTest;
@@ -25,7 +25,6 @@ import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
@@ -78,7 +77,7 @@ public class ApiTestControllerTests extends BaseTest {
         CustomFunctionRunRequest request = new CustomFunctionRunRequest();
         request.setReportId(IDGenerator.nextStr());
         request.setProjectId(DEFAULT_PROJECT_ID);
-        request.setType(ScriptLanguageType.BEANSHELL.getValue());
+        request.setType(ScriptLanguageType.BEANSHELL.name());
         request.setScript("""
                     log.info("========");
                     log.info("${test}");

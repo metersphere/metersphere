@@ -1,5 +1,7 @@
 package io.metersphere.project.dto.customfunction.request;
 
+import io.metersphere.project.constants.ScriptLanguageType;
+import io.metersphere.system.valid.EnumValue;
 import io.metersphere.validation.groups.Created;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
@@ -33,6 +35,7 @@ public class CustomFunctionRequest implements Serializable {
     private String name;
 
     @Schema(description = "脚本语言类型")
+    @EnumValue(enumClass = ScriptLanguageType.class)
     private String type;
 
     @Schema(description = "脚本状态（草稿/测试通过）")

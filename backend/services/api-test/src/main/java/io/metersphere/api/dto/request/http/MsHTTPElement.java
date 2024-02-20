@@ -1,6 +1,6 @@
 package io.metersphere.api.dto.request.http;
 
-import io.metersphere.api.dto.request.http.auth.HTTPAuth;
+import io.metersphere.api.dto.request.http.auth.HTTPAuthConfig;
 import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.sdk.constants.HttpMethodConstants;
@@ -66,12 +66,12 @@ public class MsHTTPElement extends AbstractMsTestElement {
      * 其他配置
      */
     @Valid
-    private MsHTTPConfig otherConfig;
+    private MsHTTPConfig otherConfig = new MsHTTPConfig();
     /**
      * 认证配置
      */
     @Valid
-    private HTTPAuth authConfig;
+    private HTTPAuthConfig authConfig = new HTTPAuthConfig();
     /**
      * 模块ID
      * 运行时参数，接口无需设置
