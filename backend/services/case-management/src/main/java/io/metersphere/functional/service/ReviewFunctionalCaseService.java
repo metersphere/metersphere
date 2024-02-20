@@ -76,6 +76,7 @@ public class ReviewFunctionalCaseService {
         if (!users.contains(userId)) {
             throw new MSException(Translator.get("case_review_user"));
         }
+
         CaseReviewHistory caseReviewHistory = buildReviewHistory(request, userId);
         CaseReviewHistoryExample caseReviewHistoryExample = new CaseReviewHistoryExample();
         caseReviewHistoryExample.createCriteria().andCaseIdEqualTo(request.getCaseId()).andReviewIdEqualTo(request.getReviewId()).andDeletedEqualTo(false).andAbandonedEqualTo(false);
@@ -85,6 +86,8 @@ public class ReviewFunctionalCaseService {
             List<CaseReviewHistory> caseReviewHistoryList = new ArrayList<>();
             caseReviewHistoryList.add(caseReviewHistory);
             hasReviewedUserMap.put(userId, caseReviewHistoryList);
+        } else {
+            hasReviewedUserMap.get(caseId).add(caseReviewHistory);
         }
         //根据评审规则更新用例评审和功能用例关系表中的状态 1.单人评审直接更新评审结果 2.多人评审需要计算
         String functionalCaseStatus = getFunctionalCaseStatus(request, hasReviewedUserMap, isAdmin, caseReviewFunctionalCaseUsers.size());
