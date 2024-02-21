@@ -184,7 +184,7 @@ public class ApiDefinitionMockService {
         ApiFileResourceUpdateRequest resourceUpdateRequest = getApiFileResourceRequest(apiDefinitionMock.getId(), apiDefinitionMock.getProjectId(), userId);
         resourceUpdateRequest.setUploadFileIds(request.getUploadFileIds());
         resourceUpdateRequest.setLinkFileIds(request.getLinkFileIds());
-        resourceUpdateRequest.setUnLinkRefIds(request.getUnLinkRefIds());
+        resourceUpdateRequest.setUnLinkFileIds(request.getUnLinkFileIds());
         resourceUpdateRequest.setDeleteFileIds(request.getDeleteFileIds());
         apiFileResourceService.updateFileResource(resourceUpdateRequest);
 

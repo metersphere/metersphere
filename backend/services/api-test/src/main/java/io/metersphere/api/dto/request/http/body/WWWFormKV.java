@@ -2,7 +2,6 @@ package io.metersphere.api.dto.request.http.body;
 
 import io.metersphere.project.api.KeyValueEnableParam;
 import io.metersphere.system.valid.EnumValue;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -17,10 +16,9 @@ public class WWWFormKV extends KeyValueEnableParam {
      * 参数类型
      * 取值参考 {@link BodyParamType} 中的 value 属性
      */
-    @NotBlank
     @Size(max = 20)
     @EnumValue(enumClass = BodyParamType.class)
-    private String paramType;
+    private String paramType = BodyParamType.STRING.getValue();
     /**
      * 是否必填
      * 默认为 false

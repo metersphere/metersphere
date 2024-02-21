@@ -5,6 +5,7 @@ import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.ApiDebug;
 import io.metersphere.api.domain.ApiDebugBlob;
 import io.metersphere.api.domain.ApiFileResource;
+import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.assertion.MsAssertionConfig;
 import io.metersphere.api.dto.debug.*;
 import io.metersphere.api.dto.request.ApiEditPosRequest;
@@ -14,19 +15,19 @@ import io.metersphere.api.dto.request.http.RestParam;
 import io.metersphere.api.dto.request.http.auth.BasicAuth;
 import io.metersphere.api.dto.request.http.auth.DigestAuth;
 import io.metersphere.api.dto.request.http.auth.HTTPAuthConfig;
-import io.metersphere.api.dto.request.http.body.Body;
+import io.metersphere.api.dto.request.http.body.*;
 import io.metersphere.api.mapper.ApiDebugBlobMapper;
 import io.metersphere.api.mapper.ApiDebugMapper;
 import io.metersphere.api.parser.ImportParserFactory;
 import io.metersphere.api.parser.TestElementParserFactory;
+import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.BaseResourcePoolTestService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.dto.filemanagement.FileInfo;
-import io.metersphere.project.dto.filemanagement.request.FileUploadRequest;
+import io.metersphere.api.service.BaseFileManagementTestService;
 import io.metersphere.project.service.FileAssociationService;
-import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.file.FileCenter;
@@ -41,7 +42,6 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -49,6 +49,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -76,9 +77,11 @@ public class ApiDebugControllerTests extends BaseTest {
     @Resource
     private ApiFileResourceService apiFileResourceService;
     @Resource
-    private FileMetadataService fileMetadataService;
-    @Resource
     private BaseResourcePoolTestService baseResourcePoolTestService;
+    @Resource
+    private BaseFileManagementTestService baseFileManagementTestService;
+    @Resource
+    private ApiCommonService apiCommonService;
     private static ApiDebug addApiDebug;
     private static ApiDebug anotherAddApiDebug;
     private static String fileMetadataId;
@@ -95,7 +98,8 @@ public class ApiDebugControllerTests extends BaseTest {
         // @@校验没有数据的情况
         this.requestGetWithOk(DEFAULT_LIST, ApiConstants.HTTP_PROTOCOL);
         // 准备数据，上传文件管理文件
-        uploadFileMetadata();
+        MockMultipartFile file = new MockMultipartFile("file", "file_upload.JPG", MediaType.APPLICATION_OCTET_STREAM_VALUE, "aa".getBytes());
+        fileMetadataId = baseFileManagementTestService.upload(file);
     }
 
     @Test
@@ -144,6 +148,7 @@ public class ApiDebugControllerTests extends BaseTest {
         request.setModuleId("default");
         request.setProjectId(DEFAULT_PROJECT_ID);
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
+        msHttpElement.setBody(addBodyLinkFile(msHttpElement.getBody(), fileMetadataId));
         request.setRequest(getMsElementParam(msHttpElement));
 
         uploadFileId = doUploadTempFile(getMockMultipartFile());
@@ -169,6 +174,9 @@ public class ApiDebugControllerTests extends BaseTest {
         assertUploadFile(resultData.getId(), List.of());
         assertLinkFile(resultData.getId(), List.of());
 
+        // 测试关联的文件更新
+        testHandleFileAssociationUpgrade();
+
         // @@重名校验异常
         assertErrorCode(this.requestPost(DEFAULT_ADD, request), API_DEBUG_EXIST);
         // 校验项目是否存在
@@ -181,18 +189,6 @@ public class ApiDebugControllerTests extends BaseTest {
         request.setProjectId(DEFAULT_PROJECT_ID);
 
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEBUG_ADD, DEFAULT_ADD, request);
-    }
-
-    /**
-     * 文件管理插入一条数据
-     * 便于测试关联文件
-     */
-    private void uploadFileMetadata() throws Exception {
-        FileUploadRequest fileUploadRequest = new FileUploadRequest();
-        fileUploadRequest.setProjectId(DEFAULT_PROJECT_ID);
-        //导入正常文件
-        MockMultipartFile file = new MockMultipartFile("file", "file_upload.JPG", MediaType.APPLICATION_OCTET_STREAM_VALUE, "aa".getBytes());
-        fileMetadataId = fileMetadataService.upload(fileUploadRequest, "admin", file);
     }
 
     @Test
@@ -210,7 +206,7 @@ public class ApiDebugControllerTests extends BaseTest {
         request.setRequest(getMsElementParam(msHttpElement));
 
         // 不带文件的更新
-        request.setUnLinkRefIds(List.of(fileMetadataId));
+        request.setUnLinkFileIds(List.of(fileMetadataId));
         request.setDeleteFileIds(List.of(uploadFileId));
         this.requestPostWithOk(DEFAULT_UPDATE, request);
         // 校验请求成功数据
@@ -223,7 +219,7 @@ public class ApiDebugControllerTests extends BaseTest {
         request.setUploadFileIds(List.of(fileId));
         request.setLinkFileIds(List.of(fileMetadataId));
         request.setDeleteFileIds(null);
-        request.setUnLinkRefIds(null);
+        request.setUnLinkFileIds(null);
         this.requestPostWithOk(DEFAULT_UPDATE, request);
         // 校验请求成功数据
         assertUpdateApiDebug(request, msHttpElement, request.getId());
@@ -234,7 +230,7 @@ public class ApiDebugControllerTests extends BaseTest {
         request.setDeleteFileIds(List.of(fileId));
         String newFileId1 = doUploadTempFile(getMockMultipartFile());
         request.setUploadFileIds(List.of(newFileId1));
-        request.setUnLinkRefIds(List.of(fileMetadataId));
+        request.setUnLinkFileIds(List.of(fileMetadataId));
         request.setLinkFileIds(List.of(fileMetadataId));
         this.requestPostWithOk(DEFAULT_UPDATE, request);
         assertUpdateApiDebug(request, msHttpElement, request.getId());
@@ -244,6 +240,8 @@ public class ApiDebugControllerTests extends BaseTest {
         // 已有一个文件，再上传一个文件
         String newFileId2 = doUploadTempFile(getMockMultipartFile());
         request.setUploadFileIds(List.of(newFileId2));
+        msHttpElement.setBody(addBodyLinkFile(msHttpElement.getBody(), fileMetadataId));
+        request.setRequest(getMsElementParam(msHttpElement));
         this.requestPostWithOk(DEFAULT_UPDATE, request);
         // 校验请求成功数据
         assertUpdateApiDebug(request, msHttpElement, request.getId());
@@ -353,8 +351,15 @@ public class ApiDebugControllerTests extends BaseTest {
         // 校验数据是否正确
         ApiDebugDTO copyApiDebugDTO = BeanUtils.copyBean(new ApiDebugDTO(), apiDebugMapper.selectByPrimaryKey(addApiDebug.getId()));
         ApiDebugBlob apiDebugBlob = apiDebugBlobMapper.selectByPrimaryKey(addApiDebug.getId());
-        copyApiDebugDTO.setRequest(ApiDataUtils.parseObject(new String(apiDebugBlob.getRequest()), AbstractMsTestElement.class));
+        AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(apiDebugBlob.getRequest()), AbstractMsTestElement.class);
+        apiCommonService.updateLinkFileInfo(addApiDebug.getId(), msTestElement);
+        copyApiDebugDTO.setRequest(msTestElement);
         Assertions.assertEquals(apiDebugDTO, copyApiDebugDTO);
+
+        // 删除关联文件
+        baseFileManagementTestService.deleteFile(fileMetadataId);
+        this.requestGetWithOk(DEFAULT_GET, addApiDebug.getId());
+
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_API_DEBUG_READ, DEFAULT_GET, apiDebugDTO.getId());
     }
@@ -457,7 +462,7 @@ public class ApiDebugControllerTests extends BaseTest {
         // 测试请求体
         MockMultipartFile file = getMockMultipartFile();
         String fileId = doUploadTempFile(file);
-        request.setTempFileIds(List.of(fileId, fileMetadataId));
+        request.setUploadFileIds(List.of(fileId, fileMetadataId));
         Body generalBody = MsHTTPElementTest.getGeneralBody();
         msHTTPElement = MsHTTPElementTest.getMsHttpElement();
         msHTTPElement.setBody(generalBody);
@@ -478,6 +483,28 @@ public class ApiDebugControllerTests extends BaseTest {
 
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEBUG_EXECUTE, DEBUG, request);
+    }
+
+    /**
+     * 测试关联的文件更新
+     * @throws Exception
+     */
+    public void testHandleFileAssociationUpgrade() throws Exception {
+        List<ApiFile> originApiFiles = getApiFiles(fileMetadataId);
+        MockMultipartFile file = new MockMultipartFile("file", "file_upload.JPG", MediaType.APPLICATION_OCTET_STREAM_VALUE, "aa".getBytes());
+        // 重新上传新文件
+        String newFileId = baseFileManagementTestService.reUpload(fileMetadataId, file);
+        // 更新关联的文件到最新文件
+        baseFileManagementTestService.upgrade(fileMetadataId, addApiDebug.getId());
+        // 校验文件是否替换
+        Assertions.assertEquals(originApiFiles.size(), getApiFiles(newFileId).size());
+        fileMetadataId = newFileId;
+    }
+
+    private List<ApiFile> getApiFiles(String fileId) {
+        ApiDebugBlob apiDebugBlob = apiDebugBlobMapper.selectByPrimaryKey(addApiDebug.getId());
+        AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(apiDebugBlob.getRequest()), AbstractMsTestElement.class);
+        return apiCommonService.getApiFilesByFileId(fileId, msTestElement);
     }
 
     private List<RestParam> getRestParams() {
@@ -530,8 +557,33 @@ public class ApiDebugControllerTests extends BaseTest {
         return JSON.parseObject(ApiDataUtils.toJSONString(msHTTPElement));
     }
 
+    public static Body addBodyLinkFile(Body body, String fileMetadataId) {
+        if (body == null) {
+            body = MsHTTPElementTest.getGeneralBody();
+        }
+        if (body.getFormDataBody() == null) {
+            body.setFormDataBody(new FormDataBody());
+            body.getFormDataBody().setFormValues(new ArrayList<>(1));
+        }
+        List<FormDataKV> formValues = body.getFormDataBody().getFormValues();
+        FormDataKV formDataKV = new FormDataKV();
+        formDataKV.setKey("a");
+        formDataKV.setParamType(BodyParamType.FILE.getValue());
+        ApiFile apiFile = new ApiFile();
+        apiFile.setLocal(false);
+        apiFile.setFileId(fileMetadataId);
+        apiFile.setFileName("test");
+        formDataKV.setFiles(List.of(apiFile));
+        formValues.add(formDataKV);
+        if (body.getBinaryBody() == null) {
+            body.setBinaryBody(new BinaryBody());
+        }
+        body.getBinaryBody().setFile(apiFile);
+        return body;
+    }
+
     @Test
-    @Order(8)
+    @Order(17)
     public void delete() throws Exception {
         // @@请求成功
         this.requestGetWithOk(DEFAULT_DELETE, addApiDebug.getId());

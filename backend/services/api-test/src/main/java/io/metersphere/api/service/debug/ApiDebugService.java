@@ -5,6 +5,7 @@ import io.metersphere.api.domain.ApiDebug;
 import io.metersphere.api.domain.ApiDebugBlob;
 import io.metersphere.api.domain.ApiDebugExample;
 import io.metersphere.api.domain.ApiDebugModule;
+import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.ApiParamConfig;
 import io.metersphere.api.dto.debug.*;
 import io.metersphere.api.dto.request.ApiEditPosRequest;
@@ -12,10 +13,13 @@ import io.metersphere.api.mapper.ApiDebugBlobMapper;
 import io.metersphere.api.mapper.ApiDebugMapper;
 import io.metersphere.api.mapper.ApiDebugModuleMapper;
 import io.metersphere.api.mapper.ExtApiDebugMapper;
+import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.project.domain.FileAssociation;
+import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.exception.MSException;
@@ -58,6 +62,8 @@ public class ApiDebugService {
     private ApiPluginService apiPluginService;
     @Resource
     private ApiDebugModuleMapper apiDebugModuleMapper;
+    @Resource
+    private ApiCommonService apiCommonService;
 
     public static final Long ORDER_STEP = 5000L;
 
@@ -71,7 +77,9 @@ public class ApiDebugService {
         ApiDebugBlob apiDebugBlob = apiDebugBlobMapper.selectByPrimaryKey(id);
         ApiDebugDTO apiDebugDTO = new ApiDebugDTO();
         BeanUtils.copyBean(apiDebugDTO, apiDebug);
-        apiDebugDTO.setRequest(ApiDataUtils.parseObject(new String(apiDebugBlob.getRequest()), AbstractMsTestElement.class));
+        AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(apiDebugBlob.getRequest()), AbstractMsTestElement.class);
+        apiCommonService.updateLinkFileInfo(id, msTestElement);
+        apiDebugDTO.setRequest(msTestElement);
         apiDebugDTO.setResponse(apiDebugDTO.getResponse());
         return apiDebugDTO;
     }
@@ -140,7 +148,7 @@ public class ApiDebugService {
         ApiFileResourceUpdateRequest resourceUpdateRequest = getApiFileResourceUpdateRequest(originApiDebug.getId(), originApiDebug.getProjectId(), updateUser);
         resourceUpdateRequest.setUploadFileIds(request.getUploadFileIds());
         resourceUpdateRequest.setLinkFileIds(request.getLinkFileIds());
-        resourceUpdateRequest.setUnLinkRefIds(request.getUnLinkRefIds());
+        resourceUpdateRequest.setUnLinkFileIds(request.getUnLinkFileIds());
         resourceUpdateRequest.setDeleteFileIds(request.getDeleteFileIds());
         apiFileResourceService.updateFileResource(resourceUpdateRequest);
         return apiDebug;
@@ -244,5 +252,29 @@ public class ApiDebugService {
                 extApiDebugMapper::getPrePos,
                 extApiDebugMapper::getLastPos,
                 apiDebugMapper::updateByPrimaryKeySelective);
+    }
+
+    /**
+     * 处理关联的文件被更新
+     * @param originFileAssociation
+     * @param newFileMetadata
+     */
+    public void handleFileAssociationUpgrade(FileAssociation originFileAssociation, FileMetadata newFileMetadata) {
+        ApiDebugBlob apiDebugBlob = apiDebugBlobMapper.selectByPrimaryKey(originFileAssociation.getSourceId());
+        if (apiDebugBlob == null) {
+            return;
+        }
+        AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(apiDebugBlob.getRequest()), AbstractMsTestElement.class);
+        // 获取接口中需要更新的文件
+        List<ApiFile> updateFiles = apiCommonService.getApiFilesByFileId(originFileAssociation.getFileId(), msTestElement);
+        // 替换文件的Id和name
+        apiCommonService.replaceApiFileInfo(updateFiles, newFileMetadata);
+
+        // 如果有需要更新的文件，则更新 request 字段
+        if (CollectionUtils.isNotEmpty(updateFiles)) {
+            apiDebugBlob.setRequest(ApiDataUtils.toJSONString(msTestElement).getBytes());
+            apiDebugBlob.setResponse(null);
+            apiDebugBlobMapper.updateByPrimaryKeySelective(apiDebugBlob);
+        }
     }
 }

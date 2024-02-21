@@ -19,4 +19,13 @@ public interface ExtApiScenarioStepMapper {
     List<CsvVariable> getCsvVariableByScenarioId(@Param("id") String id);
 
     List<ApiScenarioCsvStep> getCsvStepByStepIds(@Param("ids") List<String> stepIds);
+
+    /**
+     * 查询有步骤详情的请求类型的步骤
+     * 包括 接口定义，接口用例，自定义请求
+     * 类型是  COPY 或者 DIRECT
+     * @param scenarioId
+     * @return
+     */
+    List<String> getHasBlobRequestStepIds(@Param("scenarioId")  String scenarioId);
 }

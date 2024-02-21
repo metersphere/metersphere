@@ -72,7 +72,7 @@ public class ApiTestCaseUpdateRequest implements Serializable {
      * 删除关联的文件ID
      */
     @Schema(description = "取消关联文件ID")
-    private List<String> unLinkRefIds;
+    private List<String> unLinkFileIds;
 
     public List<String> getTags() {
         if (tags == null) {

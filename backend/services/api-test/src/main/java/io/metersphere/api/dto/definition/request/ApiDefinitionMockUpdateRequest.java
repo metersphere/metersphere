@@ -34,6 +34,6 @@ public class ApiDefinitionMockUpdateRequest extends ApiDefinitionMockAddRequest 
      * 删除关联的文件ID
      */
     @Schema(description = "取消关联文件ID")
-    private List<String> unLinkRefIds;
+    private List<String> unLinkFileIds;
 
 }

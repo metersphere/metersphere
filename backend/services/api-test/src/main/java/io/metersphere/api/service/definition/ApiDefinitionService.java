@@ -4,6 +4,7 @@ import io.metersphere.api.constants.ApiDefinitionDocType;
 import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
+import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.ApiResourceModuleInfo;
 import io.metersphere.api.dto.converter.ApiDefinitionImport;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
@@ -13,9 +14,12 @@ import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.parser.ImportParser;
 import io.metersphere.api.parser.ImportParserFactory;
+import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.project.domain.FileAssociation;
+import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
 import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.ApiReportStatus;
@@ -80,6 +84,9 @@ public class ApiDefinitionService {
 
     @Resource
     private ApiDefinitionBlobMapper apiDefinitionBlobMapper;
+
+    @Resource
+    private ApiCommonService apiCommonService;
 
     @Resource
     private ExtApiTestCaseMapper extApiTestCaseMapper;
@@ -269,7 +276,7 @@ public class ApiDefinitionService {
         ApiFileResourceUpdateRequest resourceUpdateRequest = getApiFileResourceUpdateRequest(originApiDefinition.getId(), originApiDefinition.getProjectId(), userId);
         resourceUpdateRequest.setUploadFileIds(request.getUploadFileIds());
         resourceUpdateRequest.setLinkFileIds(request.getLinkFileIds());
-        resourceUpdateRequest.setUnLinkRefIds(request.getUnLinkRefIds());
+        resourceUpdateRequest.setUnLinkFileIds(request.getUnLinkFileIds());
         resourceUpdateRequest.setDeleteFileIds(request.getDeleteFileIds());
         apiFileResourceService.updateFileResource(resourceUpdateRequest);
 
@@ -846,7 +853,7 @@ public class ApiDefinitionService {
     public ApiDefinitionDTO getApiDefinitionInfo(String id, String userId, ApiDefinition apiDefinition) {
         ApiDefinitionDTO apiDefinitionDTO = new ApiDefinitionDTO();
         // 2. 使用Optional避免空指针异常
-        apiDefinitionLogService.handleBlob(id, apiDefinitionDTO);
+        handleBlob(id, apiDefinitionDTO);
         // 3. 查询自定义字段
         handleCustomFields(id, apiDefinition.getProjectId(), apiDefinitionDTO);
         // 3. 使用Stream简化集合操作
@@ -855,6 +862,23 @@ public class ApiDefinitionService {
         apiDefinitionDTO.setFollow(apiDefinitionFollowerMapper.countByExample(example) > 0);
         BeanUtils.copyBean(apiDefinitionDTO, apiDefinition);
         return apiDefinitionDTO;
+    }
+
+    public void handleBlob(String id, ApiDefinitionDTO apiDefinitionDTO) {
+        Optional<ApiDefinitionBlob> apiDefinitionBlobOptional = Optional.ofNullable(apiDefinitionBlobMapper.selectByPrimaryKey(id));
+        apiDefinitionBlobOptional.ifPresent(blob -> {
+            AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(blob.getRequest()), AbstractMsTestElement.class);
+            apiCommonService.updateLinkFileInfo(id, msTestElement);
+            apiDefinitionDTO.setRequest(msTestElement);
+            // blob.getResponse() 为 null 时不进行转换
+            if (blob.getResponse() != null) {
+                List<HttpResponse> httpResponses = ApiDataUtils.parseArray(new String(blob.getResponse()), HttpResponse.class);
+                for (HttpResponse httpResponse : httpResponses) {
+                    apiCommonService.updateLinkFileInfo(id, httpResponse.getBody());
+                }
+                apiDefinitionDTO.setResponse(httpResponses);
+            }
+        });
     }
 
     public void handleCustomFields(String id, String projectId, ApiDefinitionDTO apiDefinitionDTO) {
@@ -871,7 +895,7 @@ public class ApiDefinitionService {
             List<ApiDefinitionDTO> list = extApiDefinitionMapper.listDoc(request);
             if (!list.isEmpty()) {
                 ApiDefinitionDTO first = list.get(0);
-                apiDefinitionLogService.handleBlob(first.getId(), first);
+                handleBlob(first.getId(), first);
                 String docTitle;
                 if (ApiDefinitionDocType.ALL.name().equals(request.getType())) {
                     docTitle = Translator.get(ALL_API);
@@ -886,7 +910,7 @@ public class ApiDefinitionService {
             ApiDefinition apiDefinition = checkApiDefinition(request.getApiId());
             ApiDefinitionDTO apiDefinitionDTO = new ApiDefinitionDTO();
             BeanUtils.copyBean(apiDefinitionDTO, apiDefinition);
-            apiDefinitionLogService.handleBlob(apiDefinition.getId(), apiDefinitionDTO);
+            handleBlob(apiDefinition.getId(), apiDefinitionDTO);
             apiDefinitionDocDTO.setDocTitle(apiDefinitionDTO.getName());
             apiDefinitionDocDTO.setDocInfo(apiDefinitionDTO);
         }
@@ -1049,6 +1073,42 @@ public class ApiDefinitionService {
         ApiDefinitionModule apiDefinitionModule = apiDefinitionModuleMapper.selectByPrimaryKey(moduleId);
         if (apiDefinitionModule == null) {
             throw new MSException("module.not.exist");
+        }
+    }
+
+    public void handleFileAssociationUpgrade(FileAssociation originFileAssociation, FileMetadata newFileMetadata) {
+        ApiDefinitionBlob apiDefinitionBlob = apiDefinitionBlobMapper.selectByPrimaryKey(originFileAssociation.getSourceId());
+        if (apiDefinitionBlob == null) {
+            return;
+        }
+        AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(apiDefinitionBlob.getRequest()), AbstractMsTestElement.class);
+        // 获取接口中需要更新的文件
+        List<ApiFile> updateFiles = apiCommonService.getApiFilesByFileId(originFileAssociation.getFileId(), msTestElement);
+        // 如果有需要更新的文件，则更新 request 字段
+        if (CollectionUtils.isNotEmpty(updateFiles)) {
+            // 替换文件的Id和name
+            apiCommonService.replaceApiFileInfo(updateFiles, newFileMetadata);
+            apiDefinitionBlob.setRequest(ApiDataUtils.toJSONString(msTestElement).getBytes());
+            apiDefinitionBlobMapper.updateByPrimaryKeySelective(apiDefinitionBlob);
+        }
+
+        // 处理响应的文件
+        if (apiDefinitionBlob.getResponse() != null) {
+            List<HttpResponse> httpResponses = ApiDataUtils.parseArray(new String(apiDefinitionBlob.getResponse()), HttpResponse.class);
+            List<ApiFile> responseUpdateFiles = new ArrayList<>(0);
+            for (HttpResponse httpResponse : httpResponses) {
+                responseUpdateFiles.addAll(apiCommonService.getApiBodyFiles(httpResponse.getBody())
+                        .stream()
+                        .filter(file -> StringUtils.equals(originFileAssociation.getFileId(), file.getFileId()))
+                        .toList());
+
+            }
+            if (CollectionUtils.isNotEmpty(responseUpdateFiles)) {
+                // 替换文件的Id和name
+                apiCommonService.replaceApiFileInfo(responseUpdateFiles, newFileMetadata);
+                apiDefinitionBlob.setResponse(JSON.toJSONString(httpResponses).getBytes());
+                apiDefinitionBlobMapper.updateByPrimaryKeySelective(apiDefinitionBlob);
+            }
         }
     }
 }

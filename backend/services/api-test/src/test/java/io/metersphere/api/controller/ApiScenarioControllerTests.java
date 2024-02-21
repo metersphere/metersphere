@@ -2,6 +2,7 @@ package io.metersphere.api.controller;
 
 import io.metersphere.api.constants.*;
 import io.metersphere.api.domain.*;
+import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.assertion.MsAssertionConfig;
 import io.metersphere.api.dto.debug.ModuleCreateRequest;
 import io.metersphere.api.dto.definition.ApiDefinitionAddRequest;
@@ -14,13 +15,16 @@ import io.metersphere.api.dto.response.OperationDataInfo;
 import io.metersphere.api.dto.scenario.*;
 import io.metersphere.api.job.ApiScenarioScheduleJob;
 import io.metersphere.api.mapper.*;
+import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiScenarioBatchOperationTestService;
+import io.metersphere.api.service.BaseFileManagementTestService;
 import io.metersphere.api.service.BaseResourcePoolTestService;
 import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
 import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.api.utils.ApiDataUtils;
+import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.api.KeyValueEnableParam;
 import io.metersphere.project.api.assertion.MsResponseCodeAssertion;
 import io.metersphere.project.api.assertion.MsScriptAssertion;
@@ -66,6 +70,7 @@ import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.CheckLogModel;
 import io.metersphere.system.utils.Pager;
+import io.swagger.annotations.Api;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.junit.jupiter.api.*;
@@ -157,6 +162,10 @@ public class ApiScenarioControllerTests extends BaseTest {
     private ApiTestCaseMapper apiTestCaseMapper;
     @Resource
     private ApiDefinitionModuleService apiDefinitionModuleService;
+    @Resource
+    private BaseFileManagementTestService baseFileManagementTestService;
+    @Resource
+    private ApiCommonService apiCommonService;
     private static String fileMetadataId;
     private static String localFileId;
     private static ApiScenario addApiScenario;
@@ -256,6 +265,8 @@ public class ApiScenarioControllerTests extends BaseTest {
         MockMultipartFile file = getMockMultipartFile();
         localFileId = doUploadTempFile(file);
 
+        // 准备数据，上传文件管理文件
+        fileMetadataId = baseFileManagementTestService.upload(file);
     }
 
     public void initApiScenarioTrash() {
@@ -359,7 +370,11 @@ public class ApiScenarioControllerTests extends BaseTest {
     }
 
     private Object getMsHttpElementParam() {
-        return JSON.parseObject(ApiDataUtils.toJSONString(MsHTTPElementTest.getMsHttpElement()));
+        return getMsHttpElementStr(MsHTTPElementTest.getMsHttpElement());
+    }
+
+    private Object getMsHttpElementStr(MsHTTPElement msHTTPElement) {
+        return JSON.parseObject(ApiDataUtils.toJSONString(msHTTPElement));
     }
 
     /**
@@ -575,8 +590,11 @@ public class ApiScenarioControllerTests extends BaseTest {
         // 验证添加步骤
         this.requestPostWithOk(DEFAULT_UPDATE, request);
         Map<String, Object> steptDetailMap = new HashMap<>();
-        steptDetailMap.put(steps.get(0).getId(), getMsHttpElementParam());
-        steptDetailMap.put(steps.get(1).getId(), getMsHttpElementParam());
+        MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
+        msHttpElement.setBody(ApiDebugControllerTests.addBodyLinkFile(msHttpElement.getBody(), fileMetadataId));
+        steptDetailMap.put(steps.get(0).getId(), getMsHttpElementStr(msHttpElement));
+        steptDetailMap.put(steps.get(1).getId(), getMsHttpElementStr(msHttpElement));
+
         request.setSteps(steps);
         request.setStepDetails(steptDetailMap);
         request.setScenarioConfig(getScenarioConfig());
@@ -597,6 +615,9 @@ public class ApiScenarioControllerTests extends BaseTest {
         assertUpdateSteps(steps, steptDetailMap);
         addApiScenarioSteps = steps;
 
+        // 测试关联的文件更新
+        testHandleFileAssociationUpgrade();
+
         // @@重名校验异常
         request.setName(anOtherAddApiScenario.getName());
         assertErrorCode(this.requestPost(DEFAULT_UPDATE, request), API_SCENARIO_EXIST);
@@ -604,6 +625,36 @@ public class ApiScenarioControllerTests extends BaseTest {
         checkLog(request.getId(), OperationLogType.UPDATE);
         // @@校验权限
         requestPostPermissionTest(PermissionConstants.PROJECT_API_SCENARIO_UPDATE, DEFAULT_UPDATE, request);
+    }
+
+    /**
+     * 测试关联的文件更新
+     * @throws Exception
+     */
+    public void testHandleFileAssociationUpgrade() throws Exception {
+        List<ApiFile> originApiFiles = getApiFiles(fileMetadataId);
+        MockMultipartFile file = new MockMultipartFile("file", "file_upload.JPG", MediaType.APPLICATION_OCTET_STREAM_VALUE, "aa".getBytes());
+        // 重新上传新文件
+        String newFileId = baseFileManagementTestService.reUpload(fileMetadataId, file);
+        // 更新关联的文件到最新文件
+        baseFileManagementTestService.upgrade(fileMetadataId, addApiScenario.getId());
+        // 校验文件是否替换
+        Assertions.assertEquals(originApiFiles.size(), getApiFiles(newFileId).size());
+        fileMetadataId = newFileId;
+    }
+
+    private List<ApiFile> getApiFiles(String fileId) {
+        ApiScenarioStepBlobExample example = new ApiScenarioStepBlobExample();
+        example.createCriteria().andScenarioIdEqualTo(addApiScenario.getId());
+        List<ApiScenarioStepBlob> apiScenarioStepBlobs = apiScenarioStepBlobMapper.selectByExampleWithBLOBs(example);
+        List<ApiFile> apiFiles = new ArrayList<>();
+        for (ApiScenarioStepBlob apiScenarioStepBlob : apiScenarioStepBlobs) {
+            try {
+                AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(apiScenarioStepBlob.getContent()), AbstractMsTestElement.class);
+                apiFiles.addAll(apiCommonService.getApiFilesByFileId(fileId, msTestElement));
+            } catch (Exception e) {}
+        }
+        return apiFiles;
     }
 
     @Test
