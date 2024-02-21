@@ -85,7 +85,7 @@
         </div>
       </template>
     </ms-base-table>
-    <AddDefectDrawer v-model:visible="showDrawer" @success="getFetch()" />
+    <AddDefectDrawer v-model:visible="showDrawer" :case-id="props.caseId" @success="getFetch()" />
     <LinkDefectDrawer
       v-model:visible="showLinkDrawer"
       :case-id="props.caseId"
