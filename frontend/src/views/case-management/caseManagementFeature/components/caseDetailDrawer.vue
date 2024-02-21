@@ -537,7 +537,6 @@
     (val) => {
       if (val) {
         showDrawerVisible.value = val;
-        activeTab.value = 'detail';
       }
     }
   );
