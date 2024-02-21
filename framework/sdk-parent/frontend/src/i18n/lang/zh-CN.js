@@ -1167,7 +1167,7 @@ const message = {
     file_id: "文件ID",
     avg_response_time: "平均响应时间",
     tps: "每秒传输的事物处理个数",
-    plan_share_url: "链接跳转是否登陆",
+    plan_share_url: "免登录链接地址",
     rename_report: "重命名报告",
     run_model: "运行模式",
   },

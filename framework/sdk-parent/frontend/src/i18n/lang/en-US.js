@@ -1205,7 +1205,7 @@ const message = {
     file_id: "Report File ID",
     avg_response_time: "Average Response Time",
     tps: "Transactions Per Second",
-    plan_share_url: "Whether the link jump is logged in",
+    plan_share_url: "Login-free link address",
     rename_report: "Rename report",
     run_model: "Run model",
   },
