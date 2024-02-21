@@ -12,7 +12,6 @@ import io.metersphere.sdk.util.LogUtils;
 import io.metersphere.system.service.BaseStatusFlowSettingService;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,8 +40,7 @@ public class BugStatusService {
             // Local状态流
             return getAllLocalStatusOptions(projectId);
         } else {
-            // 第三方平台(Local状态流 && 第三方平台状态流)
-            List<SelectOption> localStatusOption = getAllLocalStatusOptions(projectId);
+            // 第三方平台状态流
             Platform platform = projectApplicationService.getPlatform(projectId, true);
             String projectConfig = projectApplicationService.getProjectBugThirdPartConfig(projectId);
             // 获取一条最新的Jira默认模板缺陷Key
@@ -52,7 +50,7 @@ public class BugStatusService {
             } catch (Exception e) {
                 LogUtils.error("获取平台状态选项有误: " + e.getMessage());
             }
-            return ListUtils.union(localStatusOption, platformStatusOption);
+            return platformStatusOption;
         }
     }
 
