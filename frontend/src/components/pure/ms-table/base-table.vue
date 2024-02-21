@@ -145,7 +145,7 @@
                 <a-tooltip
                   v-else
                   placement="top"
-                  content-class="max-w-[600px]"
+                  content-class="max-w-[400px]"
                   :content="String(record[item.dataIndex as string])"
                 >
                   <div class="one-line-text">
@@ -716,6 +716,11 @@
   :deep(.arco-table-cell-with-sorter) {
     &:hover {
       @apply bg-white;
+    }
+    .arco-table-sorter-icon:not(.arco-table-sorter-icon-active) {
+      .arco-icon-caret-up {
+        color: var(--color-neutral-5);
+      }
     }
   }
 </style>

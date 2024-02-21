@@ -1,7 +1,7 @@
 import { BatchApiParams, TableQueryParams } from '@/models/common';
 
-// 评审状态, PREPARED: 待开始, UNDERWAY: 进行中, COMPLETED: 已完成, ARCHIVED: 已归档
-export type ReviewStatus = 'PREPARED' | 'UNDERWAY' | 'COMPLETED' | 'ARCHIVED';
+// 评审状态, PREPARED: 待开始, UNDERWAY: 进行中, COMPLETED: 已完成, ARCHIVED: 已归档(暂时没有)
+export type ReviewStatus = 'PREPARED' | 'UNDERWAY' | 'COMPLETED';
 // 评审结果，UN_REVIEWED：未评审，UNDER_REVIEWED：评审中，PASS：通过，UN_PASS：未通过，RE_REVIEWED：重新提审
 export type ReviewResult = 'UN_REVIEWED' | 'UNDER_REVIEWED' | 'PASS' | 'UN_PASS' | 'RE_REVIEWED';
 // 评审模块

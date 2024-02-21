@@ -85,7 +85,7 @@ export const executionResultMap = {
 /** *
  *
  * @description 将文件信息转换为文件格式
- * @param {stafileInfotus} 文件file
+ * @param fileInfo 文件file
  */
 
 export function convertToFile(fileInfo: AssociatedList): MsFileItem {
@@ -156,5 +156,3 @@ export function getTableFields(customFields: CustomAttributes[], itemDataIndex: 
     return currentColumnData.defaultValue || '-';
   }
 }
-
-export default {};

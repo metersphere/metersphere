@@ -10,10 +10,10 @@
     }"
     :target-input-search-props="props.targetInputSearchProps"
   >
-    <template #source-title="{ countSelected, checked, indeterminate, onSelectAllChange }">
+    <template #source-title="{ countTotal, checked, indeterminate, onSelectAllChange }">
       <div class="flex items-center gap-[8px]">
         <a-checkbox :model-value="checked" :indeterminate="indeterminate" @change="onSelectAllChange" />
-        {{ t('ms.transfer.optional', { count: countSelected }) }}
+        {{ t('ms.transfer.optional', { count: countTotal }) }}
       </div>
     </template>
     <template #target-title="{ countTotal, checked, indeterminate, onSelectAllChange, onClear }">
@@ -22,7 +22,7 @@
           <a-checkbox :model-value="checked" :indeterminate="indeterminate" @change="onSelectAllChange" />
           {{ t('ms.transfer.selected', { count: countTotal }) }}
         </div>
-        <MsButton type="text" @click="onClear">{{ t('ms.transfer.clear') }}</MsButton>
+        <MsButton type="text" :disabled="countTotal === 0" @click="onClear">{{ t('ms.transfer.clear') }}</MsButton>
       </div>
     </template>
     <template #source="{ selectedKeys, onSelect }">

@@ -22,19 +22,23 @@
         <slot name="item-value" :item="item">
           <template v-if="item.isTag">
             <slot name="tag" :item="item">
-              <MsTag
+              <a-tooltip
                 v-for="tag of Array.isArray(item.value) ? item.value : [item.value]"
                 :key="`${tag}`"
-                :theme="item.tagTheme || 'outline'"
-                :type="item.tagType || 'primary'"
-                :max-width="item.tagMaxWidth"
-                color="var(--color-text-n8)"
-                :class="`mb-[8px] mr-[8px] font-normal !text-[var(--color-text-1)] ${item.tagClass || ''}`"
-                :closable="item.closable"
-                @close="emit('tagClose', tag, item)"
+                :content="(tag as string)"
               >
-                {{ tag }}
-              </MsTag>
+                <MsTag
+                  :theme="item.tagTheme || 'outline'"
+                  :type="item.tagType || 'primary'"
+                  :max-width="item.tagMaxWidth"
+                  color="var(--color-text-n8)"
+                  :class="`mb-[8px] mr-[8px] font-normal !text-[var(--color-text-1)] ${item.tagClass || ''}`"
+                  :closable="item.closable"
+                  @close="emit('tagClose', tag, item)"
+                >
+                  {{ tag }}
+                </MsTag>
+              </a-tooltip>
               <span v-if="!item.showTagAdd" v-show="Array.isArray(item.value) && item.value.length === 0">-</span>
               <div v-else>
                 <template v-if="showTagInput">
@@ -42,7 +46,7 @@
                     ref="inputRef"
                     v-model.trim="addTagInput"
                     size="mini"
-                    :max-length="255"
+                    :max-length="64"
                     :error="!!tagInputError"
                     @keyup.enter="handleAddTag(item)"
                     @blur="handleAddTag(item)"
@@ -227,7 +231,8 @@
 
 <style lang="less" scoped>
   .ms-description {
-    @apply flex flex-wrap;
+    @apply flex max-h-full flex-wrap overflow-auto;
+    .ms-scroll-bar();
     .ms-description-item {
       @apply flex;
 

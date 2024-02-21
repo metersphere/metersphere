@@ -61,11 +61,12 @@ export const reviewStatusMap: ReviewStatusMap = {
     color: 'rgb(var(--success-2))',
     class: '!text-[rgb(var(--success-6))]',
   },
-  ARCHIVED: {
-    label: 'caseManagement.caseReview.archived',
-    color: 'var(--color-text-n8)',
-    class: '!text-[var(--color-text-4)]',
-  },
+  // TODO: 第一版不上归档
+  // ARCHIVED: {
+  //   label: 'caseManagement.caseReview.archived',
+  //   color: 'var(--color-text-n8)',
+  //   class: '!text-[var(--color-text-4)]',
+  // },
 };
 // 评审详情
 export const reviewDefaultDetail: ReviewItem = {

@@ -2,7 +2,7 @@
   <a-drawer
     v-bind="props"
     v-model:visible="visible"
-    :width="drawerWidth"
+    :width="fullScreen?.isFullScreen ? '100%' : drawerWidth"
     :footer="props.footer"
     :mask="props.mask"
     :popup-container="props.popupContainer"
@@ -16,23 +16,45 @@
     @close="handleClose"
   >
     <template #title>
-      <slot name="title">
-        <div class="flex w-full items-center justify-between">
-          <div class="flex items-center">
-            <a-tooltip :content="props.title">
-              <span> {{ props.title }}</span>
-            </a-tooltip>
+      <div class="flex items-center justify-between gap-[4px]">
+        <slot name="title">
+          <div class="flex flex-1 items-center justify-between">
+            <div class="flex items-center">
+              <a-tooltip :content="props.title">
+                <span> {{ props.title }}</span>
+              </a-tooltip>
 
-            <slot name="headerLeft"></slot>
-            <a-tag v-if="titleTag" :color="props.titleTagColor" class="ml-[8px] mr-auto">
-              {{ props.titleTag }}
-            </a-tag>
+              <slot name="headerLeft"></slot>
+              <a-tag v-if="titleTag" :color="props.titleTagColor" class="ml-[8px] mr-auto">
+                {{ props.titleTag }}
+              </a-tag>
+            </div>
+            <slot name="tbutton"></slot>
           </div>
-          <slot name="tbutton"></slot>
+        </slot>
+        <div>
+          <MsButton
+            v-if="props.showFullScreen"
+            type="icon"
+            status="secondary"
+            class="ms-drawer-fullscreen-btn"
+            @click="fullScreen?.toggleFullScreen"
+          >
+            <MsIcon
+              :type="fullScreen?.isFullScreen ? 'icon-icon_off_screen' : 'icon-icon_full_screen_one'"
+              class="ms-drawer-fullscreen-btn-icon"
+              size="14"
+            />
+            {{ fullScreen?.isFullScreen ? t('common.offFullScreen') : t('common.fullScreen') }}
+          </MsButton>
         </div>
-      </slot>
+      </div>
     </template>
-    <div v-if="!props.disabledWidthDrag && typeof drawerWidth === 'number'" class="handle" @mousedown="startResize">
+    <div
+      v-if="!props.disabledWidthDrag && typeof drawerWidth === 'number' && !fullScreen?.isFullScreen"
+      class="handle"
+      @mousedown="startResize"
+    >
       <icon-drag-dot-vertical class="absolute left-[-3px] top-[50%] w-[14px]" size="14" />
     </div>
     <a-scrollbar class="h-full overflow-y-auto">
@@ -91,9 +113,13 @@
 <script setup lang="ts">
   import { defineAsyncComponent, ref, watch } from 'vue';
 
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import type { Description } from '@/components/pure/ms-description/index.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
 
+  import useFullScreen from '@/hooks/useFullScreen';
   import { useI18n } from '@/hooks/useI18n';
+  import { getMaxZIndexLayer } from '@/utils/dom';
 
   // 懒加载描述组件
   const MsDescription = defineAsyncComponent(() => import('@/components/pure/ms-description/index.vue'));
@@ -121,6 +147,7 @@
     closable?: boolean; // 是否显示右上角的关闭按钮
     noTitle?: boolean; // 是否不显示标题栏
     drawerStyle?: Record<string, string>; // 抽屉样式
+    showFullScreen?: boolean; // 是否显示全屏按钮
   }
 
   const props = withDefaults(defineProps<DrawerProps>(), {
@@ -131,6 +158,7 @@
     showContinue: false,
     popupContainer: 'body',
     disabledWidthDrag: false,
+    showFullScreen: false,
     okPermission: () => [], // 确认按钮权限
   });
   const emit = defineEmits(['update:visible', 'confirm', 'cancel', 'continue']);
@@ -202,6 +230,19 @@
       window.addEventListener('mouseup', handleMouseUp);
     }
   };
+
+  const fullScreen = ref();
+  watch(
+    () => visible.value,
+    (val) => {
+      if (val) {
+        nextTick(() => {
+          const topDrawer = getMaxZIndexLayer('.ms-drawer');
+          fullScreen.value = useFullScreen(topDrawer?.querySelector('.arco-drawer'));
+        });
+      }
+    }
+  );
 </script>
 
 <style lang="less" scoped>
@@ -222,6 +263,20 @@
         @apply w-full;
 
         line-height: 24px;
+        .ms-drawer-fullscreen-btn {
+          border-radius: var(--border-radius-small);
+          color: var(--color-text-1);
+          .ms-drawer-fullscreen-btn-icon {
+            margin-right: 8px;
+            color: var(--color-text-1);
+          }
+          &:hover {
+            color: rgb(var(--primary-5));
+            .ms-drawer-fullscreen-btn-icon {
+              color: rgb(var(--primary-5));
+            }
+          }
+        }
       }
       .arco-drawer-close-btn {
         @apply flex items-center;

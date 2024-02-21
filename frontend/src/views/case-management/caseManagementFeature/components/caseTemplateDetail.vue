@@ -659,7 +659,7 @@
     showDrawer.value = true;
   }
 
-  function handleChange(_fileList: MsFileItem[], fileItem: MsFileItem) {
+  function handleChange(_fileList: MsFileItem[]) {
     fileList.value = _fileList.map((e) => {
       return {
         ...e,

@@ -323,9 +323,9 @@
     if (reviewDetail.value.status === 'COMPLETED') {
       return [...fullActions];
     }
-    if (reviewDetail.value.status === 'ARCHIVED') {
-      return fullActions.filter((e) => e.eventTag === 'delete');
-    }
+    // if (reviewDetail.value.status === 'ARCHIVED') {
+    //   return fullActions.filter((e) => e.eventTag === 'delete');
+    // }
     return fullActions.filter((e) => e.eventTag !== 'archive');
   });
 

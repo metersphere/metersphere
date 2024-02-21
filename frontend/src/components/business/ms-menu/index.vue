@@ -393,24 +393,23 @@
           <a-menu-item key={element?.name} v-slots={{ icon }} onClick={() => goto(element)}>
             <div class="inline-flex w-[calc(100%-34px)] items-center justify-between !bg-transparent">
               {t(element?.meta?.locale || '')}
-              {orgTrigger(element, menuSwitchOrgVisible, () => (
-                <div
-                  class={collapsed.value ? 'hidden' : '!bg-transparent'} // 菜单折叠时隐藏切换组织按钮
-                  onMouseenter={() => {
-                    if (xPack.value) {
-                      // 有xpack权限才显示
-                      mouseEnterTimer = setTimeout(() => {
-                        menuSwitchOrgVisible.value = true;
-                      }, 500);
-                    }
-                  }}
-                  onMouseleave={() => {
-                    clearTimeout(mouseEnterTimer);
-                  }}
-                >
-                  <MsIcon type="icon-icon_switch_outlined1" class="text-[var(--color-text-4)]" />
-                </div>
-              ))}
+              {xPack.value
+                ? orgTrigger(element, menuSwitchOrgVisible, () => (
+                    <div
+                      class={collapsed.value ? 'hidden' : '!bg-transparent'} // 菜单折叠时隐藏切换组织按钮
+                      onMouseenter={() => {
+                        mouseEnterTimer = setTimeout(() => {
+                          menuSwitchOrgVisible.value = true;
+                        }, 500);
+                      }}
+                      onMouseleave={() => {
+                        clearTimeout(mouseEnterTimer);
+                      }}
+                    >
+                      <MsIcon type="icon-icon_switch_outlined1" class="text-[var(--color-text-4)]" />
+                    </div>
+                  ))
+                : ''}
             </div>
           </a-menu-item>
         ) : (

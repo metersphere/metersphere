@@ -11,6 +11,7 @@
     :pagination="props.pagination"
     :table-data="props.tableData"
     :page-change="props.pageChange"
+    show-full-screen
     @loaded="loadedBug"
   >
     <template #titleRight="{ loading }">
@@ -65,15 +66,6 @@
               </a-doption>
             </template>
           </a-dropdown>
-        </MsButton>
-        <MsButton
-          type="icon"
-          status="secondary"
-          class="!rounded-[var(--border-radius-small)]"
-          @click="toggleFullScreen"
-        >
-          <MsIcon :type="isFullScreen ? 'icon-icon_off_screen' : 'icon-icon_full_screen_one'" class="mr-1" size="16" />
-          {{ t('caseManagement.featureCase.fullScreen') }}
         </MsButton>
       </div>
     </template>
@@ -183,7 +175,6 @@
     getBugDetail,
     getTemplateById,
   } from '@/api/modules/bug-management/index';
-  import useFullScreen from '@/hooks/useFullScreen';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore } from '@/store';
@@ -197,7 +188,7 @@
   const route = useRoute();
   const detailDrawerRef = ref<InstanceType<typeof MsDetailDrawer>>();
   const wrapperRef = ref();
-  const { isFullScreen, toggleFullScreen } = useFullScreen(wrapperRef);
+
   const { t } = useI18n();
   const { openDeleteModal } = useModal();
 
