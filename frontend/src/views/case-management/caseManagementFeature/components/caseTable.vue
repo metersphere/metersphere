@@ -42,6 +42,9 @@
     <template #name="{ record, rowIndex }">
       <span type="text" class="px-0" @click="showCaseDetail(record.id, rowIndex)">{{ record.name }}</span>
     </template>
+    <template #updateUser="{ record }">
+      <span type="text" class="px-0" >{{ record.updateUserName }}</span>
+    </template>
     <template #caseLevel="{ record }">
       <caseLevel :case-level="getCaseLevels(record.customFields)" />
     </template>
@@ -480,8 +483,8 @@
     },
     {
       title: 'caseManagement.featureCase.tableColumnUpdateUser',
-      slotName: 'updateUserName',
-      dataIndex: 'updateUserName',
+      slotName: 'updateUser',
+      dataIndex: 'updateUser',
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
