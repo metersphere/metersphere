@@ -103,6 +103,7 @@
 
   // 添加或者更新评论
   async function handleUpdateOrAdd(item: CommentParams, cb: (result: boolean) => void) {
+    debugger;
     try {
       if (item.id) {
         await updateCommentList(item);

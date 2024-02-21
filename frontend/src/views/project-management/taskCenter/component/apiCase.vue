@@ -71,13 +71,21 @@
   import ExecutionStatus from './executionStatus.vue';
 
   import {
+    batchStopRealOrdApi,
+    batchStopRealProjectApi,
+    batchStopRealSystemApi,
     getRealOrdApiCaseList,
     getRealProApiCaseList,
     getRealSysApiCaseList,
+    stopRealOrdApi,
+    stopRealProjectApi,
+    stopRealSysApi,
   } from '@/api/modules/project-management/taskCenter';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
+  import { characterLimit } from '@/utils';
 
+  import { BatchApiParams } from '@/models/common';
   import { ExecutionMethodsLabel, TaskCenterEnum } from '@/enums/taskCenter';
 
   import { TaskStatus } from './utils';
@@ -90,7 +98,6 @@
     moduleType: keyof typeof TaskCenterEnum;
     name: string;
   }>();
-
   const keyword = ref<string>('');
   const statusFilterVisible = ref(false);
   const statusListFilters = ref<string[]>(Object.keys(TaskStatus[props.moduleType]));
@@ -105,9 +112,21 @@
   });
 
   const loadRealMap = ref({
-    system: getRealSysApiCaseList,
-    organization: getRealOrdApiCaseList,
-    project: getRealProApiCaseList,
+    system: {
+      list: getRealSysApiCaseList,
+      stop: stopRealSysApi,
+      batchStop: batchStopRealSystemApi,
+    },
+    organization: {
+      list: getRealOrdApiCaseList,
+      stop: stopRealOrdApi,
+      batchStop: batchStopRealOrdApi,
+    },
+    project: {
+      list: getRealProApiCaseList,
+      stop: stopRealProjectApi,
+      batchStop: batchStopRealProjectApi,
+    },
   });
 
   const columns: MsTableColumn = [
@@ -181,7 +200,7 @@
   ];
 
   const { propsRes, propsEvent, loadList, setLoadListParams, resetSelector, setProps } = useTable(
-    loadRealMap.value[props.group],
+    loadRealMap.value[props.group].list,
     {
       columns,
       scroll: {
@@ -215,7 +234,47 @@
       },
     ],
   };
-  function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {}
+  const batchParams = ref<BatchApiParams>({
+    selectIds: [],
+    selectAll: false,
+    excludeIds: [] as string[],
+    condition: {},
+  });
+  function batchStopRealTask() {
+    openModal({
+      type: 'warning',
+      title: t('project.taskCenter.batchStopTask', { num: batchParams.value.selectIds.length }),
+      content: t('project.taskCenter.stopTaskContent'),
+      okText: t('project.taskCenter.confirmStop'),
+      cancelText: t('common.cancel'),
+      okButtonProps: {
+        status: 'danger',
+      },
+      onBeforeOk: async () => {
+        try {
+          const { selectIds, selectAll } = batchParams.value;
+          await loadRealMap.value[props.group].batchStop({
+            selectIds: selectAll ? [] : selectIds,
+            selectAll,
+          });
+          resetSelector();
+          Message.success(t('project.taskCenter.stopSuccess'));
+          initData();
+        } catch (error) {
+          // eslint-disable-next-line no-console
+          console.log(error);
+        }
+      },
+      hideCancel: false,
+    });
+  }
+
+  function handleTableBatch(event: BatchActionParams, params: BatchActionQueryParams) {
+    batchParams.value = { ...params, selectIds: params?.selectedIds || [], condition: {} };
+    if (event.eventTag === 'batchStop') {
+      batchStopRealTask();
+    }
+  }
 
   function searchList() {
     resetSelector();
@@ -225,7 +284,7 @@
   function stop(record: any) {
     openModal({
       type: 'warning',
-      title: t('project.taskCenter.batchStopTask', { num: 3 }),
+      title: t('project.taskCenter.stopTask', { name: characterLimit(record.name) }),
       content: t('project.taskCenter.stopTaskContent'),
       okText: t('project.taskCenter.confirmStop'),
       cancelText: t('common.cancel'),
@@ -234,8 +293,10 @@
       },
       onBeforeOk: async () => {
         try {
+          await loadRealMap.value[props.group].stop(record.id);
           resetSelector();
           Message.success(t('project.taskCenter.stopSuccess'));
+          initData();
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -244,6 +305,7 @@
       hideCancel: false,
     });
   }
+
   function execution(record: any) {}
 
   onBeforeMount(() => {

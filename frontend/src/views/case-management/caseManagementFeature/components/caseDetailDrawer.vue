@@ -362,6 +362,7 @@
     };
     featureCaseStore.initCountMap(countMap);
   }
+
   function loadedCase(detail: DetailCase) {
     getCaseTree();
     detailInfo.value = { ...detail };
@@ -398,7 +399,7 @@
     followLoading.value = true;
     try {
       if (detailInfo.value.id) {
-        await followerCaseRequest({ userId: userStore.userInfo.id as string, functionalCaseId: detailInfo.value.id });
+        await followerCaseRequest({ userId: userStore.id as string, functionalCaseId: detailInfo.value.id });
         updateSuccess();
         Message.success(
           detailInfo.value.followFlag
@@ -547,7 +548,6 @@
       if (val) {
         showDrawerVisible.value = val;
         activeTab.value = 'detail';
-        settingDrawerRef.value.getTabModule();
       }
     }
   );
@@ -609,6 +609,10 @@
       }
     }
   );
+
+  onMounted(() => {
+    settingDrawerRef.value.getTabModule();
+  });
 </script>
 
 <style scoped lang="less">

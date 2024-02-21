@@ -1,9 +1,15 @@
 import MSR from '@/api/http';
 import {
+  batchStopRealOrdApiUrl,
+  batchStopRealProjectApiUrl,
+  batchStopRealSystemApiUrl,
   deleteScheduleSysTaskUrl,
   scheduleOrgCenterListUrl,
   scheduleProCenterListUrl,
   scheduleSysCenterListUrl,
+  stopRealOrdApiUrl,
+  stopRealProjectApiUrl,
+  stopRealSysApiUrl,
   taskOrgRealCenterListUrl,
   taskProRealCenterListUrl,
   taskSysRealCenterListUrl,
@@ -17,16 +23,37 @@ export function getRealSysApiCaseList(data: TableQueryParams) {
   return MSR.post<CommonList<RealTaskCenterApiCaseItem>>({ url: taskSysRealCenterListUrl, data });
 }
 
+export function batchStopRealSystemApi(data: TableQueryParams) {
+  return MSR.post<CommonList<RealTaskCenterApiCaseItem>>({ url: batchStopRealSystemApiUrl, data });
+}
+
 export function getRealOrdApiCaseList(data: TableQueryParams) {
   return MSR.post<CommonList<RealTaskCenterApiCaseItem>>({ url: taskOrgRealCenterListUrl, data });
+}
+
+export function batchStopRealOrdApi(data: TableQueryParams) {
+  return MSR.post<CommonList<RealTaskCenterApiCaseItem>>({ url: batchStopRealOrdApiUrl, data });
 }
 
 export function getRealProApiCaseList(data: TableQueryParams) {
   return MSR.post<CommonList<RealTaskCenterApiCaseItem>>({ url: taskProRealCenterListUrl, data });
 }
 
-// 定时任务
+export function batchStopRealProjectApi(data: TableQueryParams) {
+  return MSR.post<CommonList<RealTaskCenterApiCaseItem>>({ url: batchStopRealProjectApiUrl, data });
+}
 
+export function stopRealSysApi(id: string) {
+  return MSR.get({ url: `${stopRealSysApiUrl}/${id}` });
+}
+export function stopRealOrdApi(id: string) {
+  return MSR.get({ url: `${stopRealOrdApiUrl}/${id}` });
+}
+export function stopRealProjectApi(id: string) {
+  return MSR.get({ url: `${stopRealProjectApiUrl}/${id}` });
+}
+
+// 定时任务
 export function getScheduleSysApiCaseList(data: TableQueryParams) {
   return MSR.post<CommonList<TimingTaskCenterApiCaseItem>>({ url: scheduleSysCenterListUrl, data });
 }
