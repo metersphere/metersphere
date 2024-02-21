@@ -542,7 +542,7 @@ public class FunctionalCaseAttachmentService {
         try {
             previewImg = fileService.download(previewRequest);
         } catch (Exception e) {
-            LogUtils.error("获取预览图失败", e);
+            LogUtils.error("获取预览图失败：{}", e);
         }
 
         if (previewImg == null || previewImg.length == 0) {
@@ -554,7 +554,7 @@ public class FunctionalCaseAttachmentService {
                 }
                 return previewImg;
             } catch (Exception e) {
-                LogUtils.error("获取预览图失败", e);
+                LogUtils.error("获取预览图失败：{}", e);
             }
         }
         return previewImg;
