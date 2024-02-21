@@ -10,6 +10,8 @@
       'min-width': props.width && `${props.width}ch`,
       'max-width': props.maxWidth || '144px',
     }"
+    :closable="props.closable"
+    @close="emit('close')"
   >
     <slot name="icon"></slot>
     <div class="one-line-text">
@@ -35,6 +37,7 @@
       width?: number; // tag宽度,不传入时绑定max-width
       maxWidth?: string;
       noMargin?: boolean; // tag之间是否有间距
+      closable?: boolean; // 是否可关闭
     }>(),
     {
       type: 'default',
@@ -43,6 +46,9 @@
       noMargin: false,
     }
   );
+  const emit = defineEmits<{
+    (e: 'close'): void;
+  }>();
 
   // 标签之间的间距
   const tagMargin = computed(() => {

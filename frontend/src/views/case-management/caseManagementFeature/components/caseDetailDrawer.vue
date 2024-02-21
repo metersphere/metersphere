@@ -14,6 +14,7 @@
     :page-change="props.pageChange"
     :mask-closable="true"
     :edit-name="true"
+    show-full-screen
     @loaded="loadedCase"
   >
     <template #titleLeft>
@@ -80,15 +81,6 @@
             </template>
           </a-dropdown>
         </MsButton>
-        <MsButton
-          type="icon"
-          status="secondary"
-          class="!rounded-[var(--border-radius-small)]"
-          @click="toggleFullScreen"
-        >
-          <MsIcon :type="isFullScreen ? 'icon-icon_off_screen' : 'icon-icon_full_screen_one'" class="mr-2" size="16" />
-          {{ t('caseManagement.featureCase.fullScreen') }}
-        </MsButton>
       </div>
     </template>
     <template #default>
@@ -96,12 +88,12 @@
         ref="wrapperRef"
         class="wrapperRef bg-white"
         :style="{
-          height: isFullScreen ? '100%' : 'calc(100% - 86px)',
+          height: 'calc(100% - 86px)',
         }"
       >
         <MsSplitBox
           ref="wrapperRef"
-          :class="isFullScreen ? 'h-[100%]' : 'h-[calc(100% - 78px)]'"
+          class="h-[calc(100% - 78px)]"
           expand-direction="right"
           :max="0.7"
           :min="0.7"
@@ -246,7 +238,6 @@
     getCaseDetail,
     getCaseModuleTree,
   } from '@/api/modules/case-management/featureCase';
-  import useFullScreen from '@/hooks/useFullScreen';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
   import { useAppStore } from '@/store';
@@ -266,7 +257,6 @@
   const router = useRouter();
   const detailDrawerRef = ref<InstanceType<typeof MsDetailDrawer>>();
   const wrapperRef = ref();
-  const { isFullScreen, toggleFullScreen } = useFullScreen(wrapperRef);
   const featureCaseStore = useFeatureCaseStore();
   const userStore = useUserStore();
   const { t } = useI18n();

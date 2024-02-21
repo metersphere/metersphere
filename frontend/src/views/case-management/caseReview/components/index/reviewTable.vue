@@ -184,7 +184,7 @@
   import deleteReviewModal from './deleteReviewModal.vue';
   import ModuleTree from './moduleTree.vue';
 
-  import { getReviewList, getReviewUsers } from '@/api/modules/case-management/caseReview';
+  import { getReviewList, getReviewUsers, moveReview } from '@/api/modules/case-management/caseReview';
   import { getProjectMemberCommentOptions } from '@/api/modules/project-management/projectMember';
   import { reviewStatusMap } from '@/config/caseManagement';
   import { useI18n } from '@/hooks/useI18n';
@@ -244,7 +244,7 @@
       filterConfigList.value = [
         {
           title: 'ID',
-          dataIndex: 'ID',
+          dataIndex: 'id',
           type: FilterType.INPUT,
         },
         {
@@ -276,10 +276,10 @@
                 label: t(reviewStatusMap.COMPLETED.label),
                 value: 'COMPLETED',
               },
-              {
-                label: t(reviewStatusMap.ARCHIVED.label),
-                value: 'ARCHIVED',
-              },
+              // {
+              //   label: t(reviewStatusMap.ARCHIVED.label),
+              //   value: 'ARCHIVED',
+              // },
             ],
           },
         },
@@ -628,26 +628,26 @@
   }
 
   const moveModalVisible = ref(false);
-  const selectedModuleKeys = ref<(string | number)[]>([]);
+  const selectedModuleKeys = ref<string[]>([]);
   const batchMoveFileLoading = ref(false);
 
   async function handleReviewMove() {
     try {
       batchMoveFileLoading.value = true;
-      // await batchMoveFile({
-      //   selectIds: isBatchMove.value ? batchParams.value?.selectedIds || [] : [activeFile.value?.id || ''],
-      //   selectAll: !!batchParams.value?.selectAll,
-      //   excludeIds: batchParams.value?.excludeIds || [],
-      //   condition: { keyword: keyword.value, combine: combine.value },
-      //   projectId: appStore.currentProjectId,
-      //   fileType: tableFileType.value,
-      //   moduleIds: isMyOrAllFolder.value ? [] : [props.activeFolder],
-      //   moveModuleId: selectedModuleKeys.value[0],
-      // });
+      await moveReview({
+        selectIds: batchParams.value?.selectedIds || [],
+        selectAll: !!batchParams.value?.selectAll,
+        excludeIds: batchParams.value?.excludeIds || [],
+        condition: { keyword: keyword.value },
+        projectId: appStore.currentProjectId,
+        moduleIds: props.activeFolder === 'all' ? [] : [props.activeFolder],
+        moveModuleId: selectedModuleKeys.value[0],
+      });
       Message.success(t('caseManagement.caseReview.batchMoveSuccess'));
       tableSelected.value = [];
       loadList();
       resetSelector();
+      emit('init', { ...tableQueryParams.value });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -664,7 +664,7 @@
   /**
    * 处理文件夹树节点选中事件
    */
-  function folderNodeSelect(keys: (string | number)[]) {
+  function folderNodeSelect(keys: string[]) {
     selectedModuleKeys.value = keys;
   }
 

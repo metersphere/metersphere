@@ -1,77 +1,82 @@
 <template>
-  <div class="mb-[16px] flex items-center justify-between">
-    <div class="font-medium text-[var(--color-text-1)]">{{ t('ms.personal.baseInfo') }}</div>
-    <a-button v-if="!isEdit" type="outline" size="mini" class="p-[2px_8px]" @click="isEdit = true">
-      {{ t('common.update') }}
-    </a-button>
-  </div>
-  <div class="mb-[16px] flex items-center">
-    <MsAvatar :avatar="userStore.avatar || 'default'" :size="58" class="mb-[4px]" />
-    <a-button
-      type="outline"
-      class="arco-btn-outline--secondary ml-[8px] p-[2px_8px]"
-      size="mini"
-      @click="avatarModalVisible = true"
-    >
-      {{ t('ms.personal.changeAvatar') }}
-    </a-button>
-  </div>
-  <a-form v-if="isEdit" ref="baseInfoFormRef" :model="baseInfoForm" layout="vertical">
-    <a-form-item
-      field="name"
-      :label="t('ms.personal.name')"
-      :rules="[{ required: true, message: t('ms.personal.nameRequired') }]"
-      asterisk-position="end"
-    >
-      <a-input
-        v-model:modelValue="baseInfoForm.name"
-        :placeholder="t('ms.personal.namePlaceholder')"
-        :max-length="255"
-      />
-    </a-form-item>
-    <a-form-item
-      field="email"
-      :label="t('ms.personal.email')"
-      :rules="[{ required: true, message: t('ms.personal.emailRequired') }, { validator: checkUerEmail }]"
-      asterisk-position="end"
-    >
-      <a-input v-model:modelValue="baseInfoForm.email" :placeholder="t('ms.personal.emailPlaceholder')" />
-      <MsFormItemSub :text="t('ms.personal.emailTip')" :show-fill-icon="false" />
-    </a-form-item>
-    <a-form-item
-      field="phone"
-      :label="t('ms.personal.phone')"
-      :rules="[{ required: true, message: t('ms.personal.phoneRequired') }, { validator: checkUerPhone }]"
-      asterisk-position="end"
-    >
-      <a-input
-        v-model:modelValue="baseInfoForm.phone"
-        :placeholder="t('ms.personal.phonePlaceholder')"
-        :max-length="11"
-      />
-    </a-form-item>
-    <a-form-item>
-      <a-button type="primary" class="mr-[14px]" :loading="updateLoading" @click="editBaseInfo">
+  <div class="flex h-full flex-col overflow-hidden">
+    <div class="mb-[16px] flex items-center justify-between">
+      <div class="font-medium text-[var(--color-text-1)]">{{ t('ms.personal.baseInfo') }}</div>
+      <a-button v-if="!isEdit" type="outline" size="mini" class="p-[2px_8px]" @click="isEdit = true">
         {{ t('common.update') }}
       </a-button>
-      <a-button type="secondary" :disabled="updateLoading" @click="cancelEdit">{{ t('common.cancel') }}</a-button>
-    </a-form-item>
-  </a-form>
-  <MsDescription v-else :descriptions="descriptions">
-    <template #tag>
-      <div v-for="org of orgList" :key="org.orgId" class="mb-[16px]">
-        <MsTag class="h-[26px]"> {{ org.orgName }} </MsTag>
-        <br />
-        <MsTag
-          v-for="project of org.projectList"
-          :key="project.projectId"
-          class="!mr-[8px] mt-[8px] !bg-[rgb(var(--primary-1))] !text-[rgb(var(--primary-5))]"
-        >
-          {{ project.projectName }}
-        </MsTag>
-      </div>
-    </template>
-  </MsDescription>
+    </div>
+    <div class="mb-[16px] flex items-center">
+      <MsAvatar :avatar="userStore.avatar || 'default'" :size="58" class="mb-[4px]" />
+      <a-button
+        type="outline"
+        class="arco-btn-outline--secondary ml-[8px] p-[2px_8px]"
+        size="mini"
+        @click="avatarModalVisible = true"
+      >
+        {{ t('ms.personal.changeAvatar') }}
+      </a-button>
+    </div>
+    <a-form v-if="isEdit" ref="baseInfoFormRef" :model="baseInfoForm" layout="vertical">
+      <a-form-item
+        field="name"
+        :label="t('ms.personal.name')"
+        :rules="[{ required: true, message: t('ms.personal.nameRequired') }]"
+        asterisk-position="end"
+      >
+        <a-input
+          v-model:modelValue="baseInfoForm.name"
+          :placeholder="t('ms.personal.namePlaceholder')"
+          :max-length="255"
+        />
+      </a-form-item>
+      <a-form-item
+        field="email"
+        :label="t('ms.personal.email')"
+        :rules="[{ required: true, message: t('ms.personal.emailRequired') }, { validator: checkUerEmail }]"
+        asterisk-position="end"
+      >
+        <a-input v-model:modelValue="baseInfoForm.email" :placeholder="t('ms.personal.emailPlaceholder')" />
+        <MsFormItemSub :text="t('ms.personal.emailTip')" :show-fill-icon="false" />
+      </a-form-item>
+      <a-form-item
+        field="phone"
+        :label="t('ms.personal.phone')"
+        :rules="[{ required: true, message: t('ms.personal.phoneRequired') }, { validator: checkUerPhone }]"
+        asterisk-position="end"
+      >
+        <a-input
+          v-model:modelValue="baseInfoForm.phone"
+          :placeholder="t('ms.personal.phonePlaceholder')"
+          :max-length="11"
+        />
+      </a-form-item>
+      <a-form-item>
+        <a-button type="primary" class="mr-[14px]" :loading="updateLoading" @click="editBaseInfo">
+          {{ t('common.update') }}
+        </a-button>
+        <a-button type="secondary" :disabled="updateLoading" @click="cancelEdit">{{ t('common.cancel') }}</a-button>
+      </a-form-item>
+    </a-form>
+    <div v-else class="h-[calc(100%-118px)]">
+      <MsDescription :descriptions="descriptions">
+        <template #tag>
+          <div v-for="org of orgList" :key="org.orgId" class="mb-[16px]">
+            <MsTag class="h-[26px]" max-width="100%"> {{ org.orgName }} </MsTag>
+            <br />
+            <MsTag
+              v-for="project of org.projectList"
+              :key="project.projectId"
+              class="!mr-[8px] mt-[8px] !bg-[rgb(var(--primary-1))] !text-[rgb(var(--primary-5))]"
+              max-width="100%"
+            >
+              {{ project.projectName }}
+            </MsTag>
+          </div>
+        </template>
+      </MsDescription>
+    </div>
+  </div>
   <a-modal
     v-model:visible="avatarModalVisible"
     :title="t('ms.personal.changeAvatar')"

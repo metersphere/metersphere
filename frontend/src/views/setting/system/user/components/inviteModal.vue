@@ -6,7 +6,7 @@
     class="ms-modal-form ms-modal-medium"
     @close="cancelInvite"
   >
-    <a-form ref="inviteFormRef" class="rounded-[4px]" :model="emailForm" layout="vertical">
+    <a-form ref="inviteFormRef" class="overflow-hidden rounded-[4px]" :model="emailForm" layout="vertical">
       <a-form-item
         field="emails"
         :label="t('system.user.inviteEmail')"

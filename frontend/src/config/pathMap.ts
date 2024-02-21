@@ -108,13 +108,6 @@ export const pathMap: PathMapItem[] = [
             permission: [],
             level: MENU_LEVEL[2],
           },
-          {
-            key: 'CASE_MANAGEMENT_CASE_RECYCLE', // 功能测试-功能用例-回收站
-            locale: 'menu.caseManagement.featureCaseRecycle',
-            route: RouteEnum.CASE_MANAGEMENT_CASE_RECYCLE,
-            permission: [],
-            level: MENU_LEVEL[2],
-          },
         ],
       },
       {

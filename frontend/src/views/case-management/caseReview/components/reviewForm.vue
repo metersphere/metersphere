@@ -51,7 +51,7 @@
     class="mt-[12px]"
     :disabled="submitDisabled"
     :loading="submitReviewLoading"
-    @click="submitReview"
+    @click="() => submitReview()"
   >
     {{ t('caseManagement.caseReview.submitReview') }}
   </a-button>
@@ -125,7 +125,7 @@
   }
 
   // 提交评审
-  function submitReview() {
+  function submitReview(done?: (close: boolean) => void) {
     dialogFormRef.value?.validate(async (errors) => {
       if (!errors) {
         try {
@@ -148,6 +148,9 @@
             fileList: [] as MsFileItem[],
             commentIds: [] as string[],
           };
+          if (typeof done === 'function') {
+            done(true);
+          }
           emit('done');
         } catch (error) {
           // eslint-disable-next-line no-console

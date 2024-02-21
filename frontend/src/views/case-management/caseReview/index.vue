@@ -1,9 +1,9 @@
 <template>
   <MsCard simple no-content-padding>
     <div class="flex items-center justify-between border-b border-[var(--color-text-n8)] p-[24px_24px_16px_24px]">
-      <a-button v-permission="['CASE_REVIEW:READ+ADD']" type="primary" @click="goCreateReview">{{
-        t('caseManagement.caseReview.create')
-      }}</a-button>
+      <a-button v-permission="['CASE_REVIEW:READ+ADD']" type="primary" @click="goCreateReview">
+        {{ t('caseManagement.caseReview.create') }}
+      </a-button>
       <a-radio-group v-model:model-value="showType" type="button" class="file-show-type">
         <a-radio value="all">{{ t('common.all') }}</a-radio>
         <a-radio value="reviewByMe">{{ t('caseManagement.caseReview.waitMyReview') }}</a-radio>

@@ -208,7 +208,7 @@
           {{ t('system.user.importResultContent', { successNum: importSuccessCount }) }}
           <div class="mx-[4px] text-[rgb(var(--danger-6))]">{{ importFailCount }}</div>
           {{ t('system.user.importResultContentEnd') }}
-          <a-popover content-class="w-[400px] p-0" position="right">
+          <a-popover v-if="Object.keys(importErrorMessages).length > 0" content-class="w-[400px] p-0" position="bottom">
             <MsButton type="text">
               {{ t('system.user.importErrorDetail') }}
             </MsButton>
@@ -231,7 +231,7 @@
                   </div>
                 </div>
               </div>
-              <div class="import-error-message-footer">
+              <div v-if="Object.keys(importErrorMessages).length > 8" class="import-error-message-footer">
                 <MsButton type="text" @click="importErrorMessageDrawerVisible = true">
                   {{ t('system.user.seeMore') }}
                 </MsButton>
@@ -1037,10 +1037,10 @@
         loadList();
         break;
       case 'allFail':
-        importResultTitle.value = t('system.user.importAllFailTitle');
+        importResultTitle.value = t('system.user.importModalTitle');
         break;
       case 'fail':
-        importResultTitle.value = t('system.user.importFailTitle');
+        importResultTitle.value = t('system.user.importModalTitle');
         loadList();
         break;
       default:

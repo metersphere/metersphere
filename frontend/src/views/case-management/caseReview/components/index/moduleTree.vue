@@ -19,7 +19,7 @@
             <MsIcon :type="isExpandAll ? 'icon-icon_folder_collapse1' : 'icon-icon_folder_expansion1'" />
           </MsButton>
         </a-tooltip>
-        <popConfirm mode="add" :all-names="rootModulesName" parent-id="NONE" @add-finish="initModules">
+        <popConfirm mode="add" :all-names="rootModulesName" parent-id="NONE" @add-finish="() => initModules()">
           <MsButton type="icon" class="!mr-0 p-[2px]">
             <MsIcon
               type="icon-icon_create_planarity"

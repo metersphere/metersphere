@@ -9,45 +9,44 @@
       :retain-input-value="props.retainInputValue"
       :unique-value="props.uniqueValue"
       :max-tag-count="props.maxTagCount"
+      :readonly="props.readonly"
       @press-enter="tagInputEnter"
       @blur="tagInputBlur"
     >
-      <template v-if="props.customPrefix" #prefix>
+      <template v-if="$slots.prefix" #prefix>
         <slot name="prefix"></slot>
       </template>
-      <template v-if="props.customTag" #tag="{ data }">
+      <template v-if="$slots.tag" #tag="{ data }">
         <slot name="tag" :data="data"></slot>
       </template>
-      <template v-if="props.customSuffix" #suffix>
+      <template v-if="$slots.suffix" #suffix>
         <slot name="suffix"></slot>
       </template>
     </a-input-tag>
-    <span v-if="isError" class="ml-[1px] text-[12px] text-[rgb(var(--danger-6))]">{{
-      t('common.tagInputMaxLength', { number: props.maxLength })
-    }}</span>
+    <span v-if="isError" class="ml-[1px] text-[12px] text-[rgb(var(--danger-6))]">
+      {{ t('common.tagInputMaxLength', { number: props.maxLength }) }}
+    </span>
   </div>
 </template>
 
 <script setup lang="ts">
   import { ref, watch } from 'vue';
-  import { Message } from '@arco-design/web-vue';
+  import { Message, TagData } from '@arco-design/web-vue';
 
   import { useI18n } from '@/hooks/useI18n';
 
   const props = withDefaults(
     defineProps<{
-      modelValue: string[]; // arco组件 BUG：回车添加第一个标签时，会触发表单的校验且状态为空数据错误，所以需要在a-form-item上设置 :validate-trigger="['blur', 'input']" 避免这种错误情况。
+      modelValue: (string | number | TagData)[]; // arco组件 BUG：回车添加第一个标签时，会触发表单的校验且状态为空数据错误，所以需要在a-form-item上设置 :validate-trigger="['blur', 'input']" 避免这种错误情况。
       inputValue?: string;
       placeholder?: string;
       retainInputValue?: boolean;
       uniqueValue?: boolean;
       allowClear?: boolean;
       tagsDuplicateText?: string;
-      customPrefix?: boolean;
-      customTag?: boolean;
-      customSuffix?: boolean;
       maxTagCount?: number;
       maxLength?: number;
+      readonly?: boolean;
     }>(),
     {
       retainInputValue: true,
@@ -67,7 +66,7 @@
   const isError = computed(
     () =>
       (innerInputValue.value || '').length > props.maxLength ||
-      innerModelValue.value.some((item) => item.length > props.maxLength)
+      innerModelValue.value.some((item) => item.toString().length > props.maxLength)
   );
   watch(
     () => props.modelValue,
