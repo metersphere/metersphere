@@ -26,4 +26,11 @@
             #{id}
         </foreach>
     </select>
+    <select id="getHasBlobRequestStepIds" resultType="java.lang.String">
+        select id
+        from api_scenario_step
+        where scenario_id = #{scenarioId}
+          and step_type in ('API', 'API_CASE', 'CUSTOM_REQUEST')
+          and ref_type in ('COPY', 'DIRECT')
+    </select>
 </mapper>

@@ -2572,5 +2572,8 @@ public class FileManagementControllerTests extends BaseTest {
                 this.checkLog(checkLogModel.getResourceId(), checkLogModel.getOperationType(), checkLogModel.getUrl());
             }
         }
+
+        // 接口模块单测调过了，这里增加项目模块通过率
+        fileAssociationService.getByFileIdAndSourceId("a", "b");
     }
 }

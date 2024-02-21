@@ -91,5 +91,5 @@ public class ApiScenarioUpdateRequest {
     /**
      * 删除关联的文件ID
      */
-    private List<String> unLinkRefIds;
+    private List<String> unLinkFileIds;
 }

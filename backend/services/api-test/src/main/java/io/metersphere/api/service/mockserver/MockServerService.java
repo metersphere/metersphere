@@ -164,8 +164,8 @@ public class MockServerService {
             } else if (StringUtils.equalsIgnoreCase(responseBody.getBodyType(), Body.BodyType.RAW.name())) {
                 return responseBody.getRawBody().getValue();
             } else {
-                String fileId = responseBody.getBinaryBody().getFileId();
-                String fileName = responseBody.getBinaryBody().getFileName();
+                String fileId = responseBody.getBinaryBody().getFile().getFileId();
+                String fileName = responseBody.getBinaryBody().getFile().getFileName();
                 String fileType = StringUtils.substring(fileName, fileName.lastIndexOf(".") + 1);
                 MediaType mediaType = MediaType.parseMediaType("application/octet-stream");
                 if (responseBody.getBinaryBody().isSendAsBody()) {

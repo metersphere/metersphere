@@ -3,19 +3,20 @@ package io.metersphere.api.controller;
 import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.controller.param.ApiTestCaseAddRequestDefinition;
 import io.metersphere.api.domain.*;
+import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.mapper.*;
+import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiFileResourceService;
+import io.metersphere.api.service.BaseFileManagementTestService;
 import io.metersphere.api.service.definition.ApiReportService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.ProjectVersion;
 import io.metersphere.project.dto.filemanagement.FileInfo;
-import io.metersphere.project.dto.filemanagement.request.FileUploadRequest;
 import io.metersphere.project.mapper.ProjectVersionMapper;
 import io.metersphere.project.service.FileAssociationService;
-import io.metersphere.project.service.FileMetadataService;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.sdk.domain.Environment;
 import io.metersphere.sdk.domain.EnvironmentExample;
@@ -112,8 +113,6 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private ExtApiTestCaseMapper extApiTestCaseMapper;
     private static String uploadFileId;
     @Resource
-    private FileMetadataService fileMetadataService;
-    @Resource
     private ApiReportService apiReportService;
     @Resource
     private ProjectVersionMapper projectVersionMapper;
@@ -121,6 +120,10 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private OperationHistoryService operationHistoryService;
     @Resource
     private ApiTestCaseRecordMapper apiTestCaseRecordMapper;
+    @Resource
+    private BaseFileManagementTestService baseFileManagementTestService;
+    @Resource
+    private ApiCommonService apiCommonService;
 
     public static <T> T parseObjectFromMvcResult(MvcResult mvcResult, Class<T> parseClass) {
         try {
@@ -209,7 +212,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private static MockMultipartFile getMockMultipartFile() {
         MockMultipartFile file = new MockMultipartFile(
                 "file",
-                "file_upload.JPG",
+                IDGenerator.nextStr() + "_file_upload.JPG",
                 MediaType.APPLICATION_OCTET_STREAM_VALUE,
                 "Hello, World!".getBytes()
         );
@@ -262,20 +265,6 @@ public class ApiTestCaseControllerTests extends BaseTest {
     }
 
     @Test
-    @Order(0)
-    /**
-     * 文件管理插入一条数据
-     * 便于测试关联文件
-     */
-    public void uploadFileMetadata() throws Exception {
-        FileUploadRequest fileUploadRequest = new FileUploadRequest();
-        fileUploadRequest.setProjectId(DEFAULT_PROJECT_ID);
-        //导入正常文件
-        MockMultipartFile file = new MockMultipartFile("file", "case_file_upload.JPG", MediaType.APPLICATION_OCTET_STREAM_VALUE, "aa".getBytes());
-        fileMetadataId = fileMetadataService.upload(fileUploadRequest, "admin", file);
-    }
-
-    @Test
     @Order(1)
     public void uploadTempFile() throws Exception {
         // @@请求成功
@@ -290,6 +279,9 @@ public class ApiTestCaseControllerTests extends BaseTest {
 
         requestUploadPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD, UPLOAD_TEMP_FILE, file);
         requestUploadPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_UPDATE, UPLOAD_TEMP_FILE, file);
+
+        // 准备数据，上传文件管理文件
+        fileMetadataId = baseFileManagementTestService.upload(file);
     }
 
     private ApiTestCase assertUpdateApiDebug(Object request, MsHTTPElement msHttpElement, String id) {
@@ -326,6 +318,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setTags(new LinkedHashSet<>(List.of("tag1", "tag2")));
         request.setEnvironmentId(environments.get(0).getId());
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
+        msHttpElement.setBody(ApiDebugControllerTests.addBodyLinkFile(msHttpElement.getBody(), fileMetadataId));
         request.setRequest(getMsElementParam(msHttpElement));
 
         uploadFileId = doUploadTempFile(getMockMultipartFile());
@@ -351,6 +344,9 @@ public class ApiTestCaseControllerTests extends BaseTest {
         assertUploadFile(resultData.getId(), List.of());
         assertLinkFile(resultData.getId(), List.of());
 
+        // 测试关联的文件更新
+        testHandleFileAssociationUpgrade();
+
         // @@重名校验异常
         this.requestPost(ADD, request).andExpect(ERROR_REQUEST_MATCHER);
         // 校验接口是否存在
@@ -372,6 +368,28 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setName("permission");
         requestPostPermissionTest(PermissionConstants.PROJECT_API_DEFINITION_CASE_ADD, ADD, request);
 
+    }
+
+    /**
+     * 测试关联的文件更新
+     * @throws Exception
+     */
+    public void testHandleFileAssociationUpgrade() throws Exception {
+        List<ApiFile> originApiFiles = getApiFiles(fileMetadataId);
+        MockMultipartFile file = new MockMultipartFile("file", "file_upload.JPG", MediaType.APPLICATION_OCTET_STREAM_VALUE, "aa".getBytes());
+        // 重新上传新文件
+        String newFileId = baseFileManagementTestService.reUpload(fileMetadataId, file);
+        // 更新关联的文件到最新文件
+        baseFileManagementTestService.upgrade(fileMetadataId, apiTestCase.getId());
+        // 校验文件是否替换
+        Assertions.assertEquals(originApiFiles.size(), getApiFiles(newFileId).size());
+        fileMetadataId = newFileId;
+    }
+
+    private List<ApiFile> getApiFiles(String fileId) {
+        ApiTestCaseBlob apiTestCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(apiTestCase.getId());
+        AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(apiTestCaseBlob.getRequest()), AbstractMsTestElement.class);
+        return apiCommonService.getApiFilesByFileId(fileId, msTestElement);
     }
 
     private Object getMsElementParam(MsHTTPElement msHTTPElement) {
@@ -499,7 +517,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         MsHTTPElement msHttpElement = MsHTTPElementTest.getMsHttpElement();
         request.setRequest(getMsElementParam(msHttpElement));
         // 不带文件的更新
-        request.setUnLinkRefIds(List.of(fileMetadataId));
+        request.setUnLinkFileIds(List.of(fileMetadataId));
         request.setDeleteFileIds(List.of(uploadFileId));
         this.requestPostWithOk(UPDATE, request);
         // 校验请求成功数据
@@ -517,7 +535,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setUploadFileIds(List.of(fileId));
         request.setLinkFileIds(List.of(fileMetadataId));
         request.setDeleteFileIds(null);
-        request.setUnLinkRefIds(null);
+        request.setUnLinkFileIds(null);
         this.requestPostWithOk(UPDATE, request);
         // 校验请求成功数据
         assertUpdateApiDebug(request, msHttpElement, request.getId());
@@ -528,7 +546,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setDeleteFileIds(List.of(fileId));
         String newFileId1 = doUploadTempFile(getMockMultipartFile());
         request.setUploadFileIds(List.of(newFileId1));
-        request.setUnLinkRefIds(List.of(fileMetadataId));
+        request.setUnLinkFileIds(List.of(fileMetadataId));
         request.setLinkFileIds(List.of(fileMetadataId));
         this.requestPostWithOk(UPDATE, request);
         assertUpdateApiDebug(request, msHttpElement, request.getId());

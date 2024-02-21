@@ -276,11 +276,23 @@ public class ApiExecuteService {
                     return refFileInfo;
                 }).collect(Collectors.toList());
 
-        // 处理没有保存的临时文件
-        List<String> tempFileIds = request.getTempFileIds();
-        if (CollectionUtils.isNotEmpty(tempFileIds)) {
-            // 查询这些文件有哪些是关联文件管理的文件
-            List<ApiExecuteFileInfo> refTempFiles = fileMetadataService.getByFileIds(tempFileIds)
+        // 没有保存的本地临时文件
+        List<String> uploadFileIds = request.getUploadFileIds();
+        if (CollectionUtils.isNotEmpty(uploadFileIds)) {
+            // 去掉文件管理的文件，即通过本地上传的临时文件
+            List<ApiExecuteFileInfo> localTempFiles = uploadFileIds.stream()
+                    .map(tempFileId -> {
+                        String fileName = apiFileResourceService.getTempFileNameByFileId(tempFileId);
+                        return getApiExecuteFileInfo(tempFileId, fileName, request.getProjectId());
+                    })
+                    .collect(Collectors.toList());
+            taskRequest.setLocalTempFiles(localTempFiles);
+        }
+
+        List<String> linkFileIds = request.getLinkFileIds();
+        // 没有保存的文件管理临时文件
+        if (CollectionUtils.isNotEmpty(linkFileIds)) {
+            List<ApiExecuteFileInfo> refTempFiles = fileMetadataService.getByFileIds(linkFileIds)
                     .stream()
                     .map(file -> {
                         String fileName = file.getName();
@@ -298,17 +310,6 @@ public class ApiExecuteService {
                     }).toList();
             // 添加临时的文件管理的文件
             refFiles.addAll(refTempFiles);
-
-            Set<String> refTempFileIds = refTempFiles.stream().map(ApiExecuteFileInfo::getFileId).collect(Collectors.toSet());
-            // 去掉文件管理的文件，即通过本地上传的临时文件
-            List<ApiExecuteFileInfo> localTempFiles = tempFileIds.stream()
-                    .filter(tempFileId -> !refTempFileIds.contains(tempFileId))
-                    .map(tempFileId -> {
-                        String fileName = apiFileResourceService.getTempFileNameByFileId(tempFileId);
-                        return getApiExecuteFileInfo(tempFileId, fileName, request.getProjectId());
-                    })
-                    .collect(Collectors.toList());
-            taskRequest.setLocalTempFiles(localTempFiles);
         }
 
         taskRequest.setRefFiles(refFiles);

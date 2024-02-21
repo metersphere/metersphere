@@ -23,19 +23,19 @@ public class ApiDebugUpdateRequest implements Serializable {
     private String id;
 
     @Schema(description = "接口名称", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Size(max = 255, message = "{api_debug.name.length_range}")
+    @Size(min = 1, max = 255, message = "{api_debug.name.length_range}")
     private String name;
 
     @Schema(description = "http协议类型post/get/其它协议则是协议名(mqtt)")
-    @Size(max = 20, message = "{api_debug.method.length_range}")
+    @Size(min = 1, max = 20, message = "{api_debug.method.length_range}")
     private String method;
 
     @Schema(description = "http协议路径/其它协议则为空")
-    @Size(max = 500, message = "{api_debug.protocol.length_range}")
+    @Size(min = 1, max = 500, message = "{api_debug.protocol.length_range}")
     private String path;
 
     @Schema(description = "模块fk", requiredMode = Schema.RequiredMode.REQUIRED)
-    @Size(max = 50, message = "{api_debug.module_id.length_range}")
+    @Size(min = 1, max = 50, message = "{api_debug.module_id.length_range}")
     private String moduleId;
 
     @Schema(description = "请求内容")
@@ -64,5 +64,5 @@ public class ApiDebugUpdateRequest implements Serializable {
      * 删除关联的文件ID
      */
     @Schema(description = "取消关联文件ID")
-    private List<String> unLinkRefIds;
+    private List<String> unLinkFileIds;
 }

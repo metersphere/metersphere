@@ -62,7 +62,6 @@ public class MsHTTPElementTest {
         formDataKV.setEncode(true);
         formDataKV.setMaxLength(10);
         formDataKV.setMinLength(8);
-        formDataKV.setParamType("text");
         formDataKV.setDescription("test");
         formDataKV.setRequired(true);
         formDataKV.setValue("@email");
@@ -73,7 +72,9 @@ public class MsHTTPElementTest {
         bodyFile.setFileName("aaa");
         formDataFileKV.setFiles(List.of(bodyFile));
         formDataFileKV.setKey("fileKey");
-        formDataBody.setFormValues(List.of(formDataKV));
+        List<FormDataKV> formDataKVS = new ArrayList<>();
+        formDataKVS.add(formDataFileKV);
+        formDataBody.setFormValues(formDataKVS);
         body.setFormDataBody(formDataBody);
 
         WWWFormKV wwwFormKV = BeanUtils.copyBean(new WWWFormKV(), formDataKV);
@@ -82,7 +83,9 @@ public class MsHTTPElementTest {
         body.setWwwFormBody(wwwFormBody);
 
         JsonBody jsonBody = new JsonBody();
-        jsonBody.setJsonSchema(new JsonSchemaItem());
+        JsonSchemaItem jsonSchemaItem = new JsonSchemaItem();
+        jsonSchemaItem.setId("11");
+        jsonBody.setJsonSchema(jsonSchemaItem);
         jsonBody.setEnableJsonSchema(false);
         body.setJsonBody(jsonBody);
 
