@@ -206,6 +206,14 @@
       <a-checkbox v-model:model-value="record[columnConfig.dataIndex as string]" @change="(val) => addTableLine(val)" />
     </template>
     <template #operation="{ record, rowIndex, columnConfig }">
+      <a-switch
+        v-if="columnConfig.hasDisable"
+        v-model:model-value="record.disable"
+        size="small"
+        type="line"
+        class="mr-[8px]"
+        @change="(val) => addTableLine(val, 'disable')"
+      />
       <slot name="operationPre" :record="record" :row-index="rowIndex" :column-config="columnConfig"></slot>
       <MsTableMoreAction
         v-if="columnConfig.moreAction"
@@ -226,19 +234,14 @@
           </div>
         </template>
       </a-trigger>
-      <a-switch
-        v-if="columnConfig.hasDisable"
-        v-model:model-value="record.disable"
-        size="small"
-        type="line"
-        @change="(val) => addTableLine(val, 'disable')"
-      />
-      <icon-minus-circle
-        v-if="paramsLength > 1 && rowIndex !== paramsLength - 1"
-        class="cursor-pointer text-[var(--color-text-4)]"
-        size="20"
-        @click="deleteParam(rowIndex)"
-      />
+      <div>
+        <icon-minus-circle
+          v-if="paramsLength > 1 && rowIndex !== paramsLength - 1"
+          class="ml-[8px] cursor-pointer text-[var(--color-text-4)]"
+          size="20"
+          @click="deleteParam(rowIndex)"
+        />
+      </div>
     </template>
     <template #responseHeader="{ record, columnConfig }">
       <a-select v-model="record.responseHeader" class="param-input" @change="(val) => addTableLine(val as string)">

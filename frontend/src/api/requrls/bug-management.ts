@@ -64,3 +64,6 @@ export const getUnrelatedDemandListUrl = '/bug/case/un-relate/page';
 export const getUnrelatedModuleTreeUrl = '/bug/case/un-relate/module/tree';
 // 未关联的模块树 数量
 export const getUnrelatedModuleTreeCountUrl = '/bug/case/un-relate/module/count';
+
+// 缺陷管理-变更历史-列表
+export const getChangeHistoryListUrl = '/bug/history/page';

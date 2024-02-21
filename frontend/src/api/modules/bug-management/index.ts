@@ -211,3 +211,8 @@ export function batchAssociation(data: TableQueryParams) {
 export function cancelAssociation(id: string) {
   return MSR.get({ url: `${bugURL.getCancelDemandUrl}/${id}` });
 }
+
+// 缺陷管理-变更历史-列表
+export function getChangeHistoryList(data: TableQueryParams) {
+  return MSR.post({ url: bugURL.getChangeHistoryListUrl, data });
+}

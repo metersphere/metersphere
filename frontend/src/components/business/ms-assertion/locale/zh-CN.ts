@@ -14,4 +14,6 @@ export default {
   'ms.assertion.document': '文档',
   'ms.assertion.regular': '正则',
   'ms.assertion.script': '脚本',
+  'ms.assertion.expression': '表达式',
+  'ms.assertion.responseContentType': '响应内容类型',
 };

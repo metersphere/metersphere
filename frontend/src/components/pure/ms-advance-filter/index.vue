@@ -12,7 +12,7 @@
         @search="emit('keywordSearch', innerKeyword, filterResult)"
         @clear="handleClear"
       ></a-input-search>
-      <MsTag
+      <!-- <MsTag
         :type="visible ? 'primary' : 'default'"
         :theme="visible ? 'lightOutLine' : 'outline'"
         size="large"
@@ -27,7 +27,7 @@
             {{ t('common.filter') }}
           </span>
         </span>
-      </MsTag>
+      </MsTag> -->
       <MsTag no-margin size="large" class="cursor-pointer" theme="outline" @click="handleRefresh">
         <MsIcon class="text-[var(color-text-4)]" :size="16" type="icon-icon_reset_outlined" />
       </MsTag>
