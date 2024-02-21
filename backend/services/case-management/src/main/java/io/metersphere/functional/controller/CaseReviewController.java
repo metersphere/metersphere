@@ -66,7 +66,7 @@ public class CaseReviewController {
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ_ADD)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public CaseReview addCaseReview(@Validated @RequestBody CaseReviewRequest request) {
-       return caseReviewService.addCaseReview(request, SessionUtils.getUserId());
+        return caseReviewService.addCaseReview(request, SessionUtils.getUserId());
     }
 
     @PostMapping("/copy")
@@ -91,7 +91,7 @@ public class CaseReviewController {
 
     @GetMapping("/user-option/{projectId}")
     @Operation(summary = "用例管理-用例评审-获取具有评审权限的用户")
-    @RequiresPermissions(value = {PermissionConstants.CASE_REVIEW_READ_ADD,PermissionConstants.CASE_REVIEW_READ_UPDATE}, logical = Logical.OR)
+    @RequiresPermissions(value = {PermissionConstants.CASE_REVIEW_READ, PermissionConstants.CASE_REVIEW_READ_ADD, PermissionConstants.CASE_REVIEW_READ_UPDATE}, logical = Logical.OR)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public List<UserDTO> getReviewUserList(@PathVariable String projectId, @Schema(description = "查询关键字，根据邮箱和用户名查询")
     @RequestParam(value = "keyword", required = false) String keyword) {
