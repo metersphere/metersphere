@@ -72,7 +72,7 @@ public class DeleteFunctionalCaseService {
                 request.setFolder(DefaultRepositoryDir.getFunctionalCasePreviewDir(projectId, id));
                 FileCenter.getDefaultRepository().deleteFolder(request);
             } catch (Exception e) {
-                LogUtils.error("彻底删除功能用例，文件删除失败",e);
+                LogUtils.error("彻底删除功能用例，文件删除失败：{}",e);
             }
         }
         //10.自定义字段

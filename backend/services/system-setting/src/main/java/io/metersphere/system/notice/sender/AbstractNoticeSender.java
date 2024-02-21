@@ -125,7 +125,7 @@ public abstract class AbstractNoticeSender implements NoticeSender {
                         List<Receiver> follows = handleFollows(messageDetail, noticeModel);
                         toUsers.addAll(follows);
                     } catch (Exception e) {
-                        LogUtils.error("查询关注人失败: ", e);
+                        LogUtils.error("查询关注人失败：{}", e);
                     }
                 }
                 default -> toUsers.add(new Receiver(userId, NotificationConstants.Type.MENTIONED_ME.name()));

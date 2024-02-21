@@ -86,7 +86,7 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
             mapCount.put(UN_REVIEWED_COUNT,i+caseIdList.size());
             updateCaseReview(reviewId, caseCount, mapCount, paramMap.get(CaseEvent.Param.USER_ID).toString());
         } catch (Exception e) {
-            LogUtils.error(CaseEvent.Event.ASSOCIATE + "事件更新失败", e.getMessage());
+            LogUtils.error(CaseEvent.Event.ASSOCIATE + "事件更新失败：{}", e.getMessage());
         }
     }
 
@@ -116,7 +116,7 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
             //检查更新用例的评审状态。如果用例没有任何评审关联，就置为未评审, 否则置为更新建时间最晚的那个
             updateCaseStatus(caseIdList);
         } catch (Exception e) {
-            LogUtils.error(CaseEvent.Event.DISASSOCIATE + "事件更新失败", e.getMessage());
+            LogUtils.error(CaseEvent.Event.DISASSOCIATE + "事件更新失败：{}", e.getMessage());
         }
     }
 
@@ -159,7 +159,7 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
             }
             startUpdateCaseReview(paramMap, caseIdList);
         } catch (Exception e) {
-            LogUtils.error(CaseEvent.Event.DELETE_FUNCTIONAL_CASE + "事件更新失败", e.getMessage());
+            LogUtils.error(CaseEvent.Event.DELETE_FUNCTIONAL_CASE + "事件更新失败：{}", e.getMessage());
         }
     }
 
@@ -184,7 +184,7 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
             caseReviewFunctionalCaseExample.createCriteria().andCaseIdIn(caseIdList);
             caseReviewFunctionalCaseMapper.deleteByExample(caseReviewFunctionalCaseExample);
         } catch (Exception e) {
-            LogUtils.error(CaseEvent.Event.DELETE_TRASH_FUNCTIONAL_CASE + "事件更新失败", e.getMessage());
+            LogUtils.error(CaseEvent.Event.DELETE_TRASH_FUNCTIONAL_CASE + "事件更新失败：{}", e.getMessage());
         }
     }
 
@@ -225,7 +225,7 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
                 updateCaseReview(reviewId, caseReviewFunctionalCaseList.size(), caseCountMap, paramMap.get(CaseEvent.Param.USER_ID).toString());
             });
         } catch (Exception e) {
-            LogUtils.error(CaseEvent.Event.RECOVER_FUNCTIONAL_CASE + "事件更新失败", e.getMessage());
+            LogUtils.error(CaseEvent.Event.RECOVER_FUNCTIONAL_CASE + "事件更新失败：{}", e.getMessage());
         }
 
     }
@@ -256,7 +256,7 @@ public class CaseReviewCaseProvider implements BaseCaseProvider {
             updateCaseReview(reviewId, caseReviewFunctionalCases.size()+caseIdList.size(), caseCountMap, paramMap.get(CaseEvent.Param.USER_ID).toString());
 
         } catch (Exception e) {
-            LogUtils.error(CaseEvent.Event.REVIEW_FUNCTIONAL_CASE + "事件更新失败", e.getMessage());
+            LogUtils.error(CaseEvent.Event.REVIEW_FUNCTIONAL_CASE + "事件更新失败：{}", e.getMessage());
         }
     }
 
