@@ -573,7 +573,7 @@ public class CaseReviewService {
     }
 
     public void deleteCaseReview(String reviewId, String projectId) {
-        deleteCaseReviewService.deleteCaseReviewResource(List.of(reviewId), projectId, false);
+        deleteCaseReviewService.deleteCaseReviewResource(List.of(reviewId), projectId, true);
         //将评审历史状态置为true
         extCaseReviewHistoryMapper.updateDelete(new ArrayList<>(), reviewId, true);
     }
