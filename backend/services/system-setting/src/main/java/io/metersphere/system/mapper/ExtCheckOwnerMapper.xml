@@ -2,22 +2,26 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.system.mapper.ExtCheckOwnerMapper">
     <select id="checkoutOwner" resultType="boolean">
-        SELECT count(id) = ${ids.size()}
-        FROM ${table}
-        WHERE project_id = #{projectId} and (select 1 from project where id = #{projectId} and enable = TRUE)
-        and id in
+        SELECT count(1) > 0
+        FROM user_role_relation
+        WHERE source_id IN (SELECT project_id
+        FROM ${table} JOIN project ON ${table}.project_id = project.id AND project.enable = TRUE
+        WHERE ${table}.id IN
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
-        </foreach>
+        </foreach>)
+        AND user_id = #{userId}
     </select>
 
     <select id="checkoutOrganizationOwner" resultType="boolean">
-        SELECT count(id) = ${ids.size()}
-        FROM ${table}
-        WHERE organization_id = #{organizationId} and (select 1 from organization where id = #{organizationId} and enable = TRUE)
-        and id in
+        SELECT count(1) > 0
+        FROM user_role_relation
+        WHERE source_id IN (SELECT organization_id
+        FROM ${table} JOIN organization ON ${table}.organization_id = organization.id AND organization.enable = TRUE
+        WHERE ${table}.id IN
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
-        </foreach>
+        </foreach>)
+        AND user_id = #{userId}
     </select>
 </mapper>

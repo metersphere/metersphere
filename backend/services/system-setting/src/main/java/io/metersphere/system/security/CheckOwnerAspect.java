@@ -78,12 +78,12 @@ public class CheckOwnerAspect {
 
     private void handleProjectResource(Object v, String resourceType) {
         if (v instanceof String id) {
-            if (!extCheckOwnerMapper.checkoutOwner(resourceType, SessionUtils.getCurrentProjectId(), List.of(id))) {
+            if (!extCheckOwnerMapper.checkoutOwner(resourceType, SessionUtils.getUserId(), List.of(id))) {
                 throw new MSException(Translator.get("check_owner_case"));
             }
         }
         if (v instanceof List ids) {
-            if (!extCheckOwnerMapper.checkoutOwner(resourceType, SessionUtils.getCurrentProjectId(), ids)) {
+            if (!extCheckOwnerMapper.checkoutOwner(resourceType, SessionUtils.getUserId(), ids)) {
                 throw new MSException(Translator.get("check_owner_case"));
             }
         }
@@ -91,12 +91,12 @@ public class CheckOwnerAspect {
 
     private void handleOrganizationResource(Object v, String resourceType) {
         if (v instanceof String id) {
-            if (!extCheckOwnerMapper.checkoutOrganizationOwner(resourceType, SessionUtils.getCurrentOrganizationId(), List.of(id))) {
+            if (!extCheckOwnerMapper.checkoutOrganizationOwner(resourceType, SessionUtils.getUserId(), List.of(id))) {
                 throw new MSException(Translator.get("check_owner_case"));
             }
         }
         if (v instanceof List ids) {
-            if (!extCheckOwnerMapper.checkoutOrganizationOwner(resourceType, SessionUtils.getCurrentOrganizationId(), ids)) {
+            if (!extCheckOwnerMapper.checkoutOrganizationOwner(resourceType, SessionUtils.getUserId(), ids)) {
                 throw new MSException(Translator.get("check_owner_case"));
             }
         }
