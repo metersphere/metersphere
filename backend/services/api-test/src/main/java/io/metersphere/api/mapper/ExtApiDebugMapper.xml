@@ -18,7 +18,7 @@
         LIMIT 1;
     </select>
     <select id="getPrePos" resultType="java.lang.Long">
-        select `pos` from api_debug where project_id = #{projectId}
+        select `pos` from api_debug where create_user = #{userId}
         <if test="basePos != null">
             and `pos` &lt; #{basePos}
         </if>
@@ -27,7 +27,7 @@
 
 
     <select id="getLastPos" resultType="java.lang.Long">
-        select `pos` from api_debug where project_id = #{projectId}
+        select `pos` from api_debug where create_user = #{userId}
         <if test="basePos != null">
             and `pos` &gt; #{basePos}
         </if>
