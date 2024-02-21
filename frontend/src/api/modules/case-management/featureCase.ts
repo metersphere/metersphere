@@ -160,7 +160,7 @@ export function batchDeleteCase(data: BatchDeleteType) {
   return MSR.post({ url: `${BatchDeleteCaseUrl}`, data });
 }
 // 批量编辑属性
-export function batchEditAttrs(data: BatchEditCaseType) {
+export function batchEditAttrs(data: TableQueryParams) {
   return MSR.post({ url: `${BatchEditCaseUrl}`, data });
 }
 // 批量移动到模块
