@@ -187,7 +187,11 @@ public class ApiDefinitionService {
         ApiDefinitionBlob apiDefinitionBlob = new ApiDefinitionBlob();
         apiDefinitionBlob.setId(apiDefinition.getId());
         apiDefinitionBlob.setRequest(getMsTestElementStr(request.getRequest()).getBytes());
-        apiDefinitionBlob.setResponse(JSON.toJSONString(request.getResponse()).getBytes());
+        if (request.getResponse() != null) {
+            List<HttpResponse> msHttpResponse = JSON.parseArray(JSON.toJSONString(request.getResponse()), HttpResponse.class);
+            msHttpResponse.forEach(item -> item.setId(IDGenerator.nextStr()));
+            apiDefinitionBlob.setResponse(JSON.toJSONString(msHttpResponse).getBytes());
+        }
         apiDefinitionBlobMapper.insertSelective(apiDefinitionBlob);
 
         // 处理文件

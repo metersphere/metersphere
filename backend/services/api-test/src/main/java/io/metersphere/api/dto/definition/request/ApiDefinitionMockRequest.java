@@ -26,10 +26,4 @@ public class ApiDefinitionMockRequest implements Serializable {
     @NotBlank(message = "{api_definition_mock.project_id.not_blank}")
     @Size(min = 1, max = 50, message = "{api_definition_mock.project_id.length_range}")
     private String projectId;
-
-    @Schema(description = "接口fk", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_definition_mock.api_definition_id.not_blank}")
-    @Size(min = 1, max = 50, message = "{api_definition_mock.api_definition_id.length_range}")
-    private String apiDefinitionId;
-
 }

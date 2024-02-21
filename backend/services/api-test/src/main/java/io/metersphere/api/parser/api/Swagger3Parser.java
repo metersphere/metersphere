@@ -1,9 +1,10 @@
 package io.metersphere.api.parser.api;
 
 import io.metersphere.api.constants.ApiConstants;
-import io.metersphere.api.dto.definition.HttpResponse;
 import io.metersphere.api.dto.converter.ApiDefinitionImport;
 import io.metersphere.api.dto.converter.ApiDefinitionImportDetail;
+import io.metersphere.api.dto.definition.HttpResponse;
+import io.metersphere.api.dto.definition.ResponseBody;
 import io.metersphere.api.dto.request.ImportRequest;
 import io.metersphere.api.dto.request.http.*;
 import io.metersphere.api.dto.request.http.auth.NoAuth;
@@ -184,14 +185,13 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
         body.setWwwFormBody(wwwFormBody);
     }
 
-
     private void parseResponse(ApiResponses responseBody, List<HttpResponse> response) {
         if (responseBody != null) {
             responseBody.forEach((key, value) -> {
                 HttpResponse httpResponse = new HttpResponse();
                 //TODO headers
                 httpResponse.setStatusCode(key);
-                Body body = new Body();
+                ResponseBody body = new ResponseBody();
                 Map<String, io.swagger.v3.oas.models.headers.Header> headers = value.getHeaders();
                 if (MapUtils.isNotEmpty(headers)) {
                     List<Header> headerList = new ArrayList<>();
@@ -216,6 +216,49 @@ public class Swagger3Parser<T> implements ImportParser<ApiDefinitionImport> {
             });
         }
 
+    }
+
+    private void setBodyData(String k, io.swagger.v3.oas.models.media.MediaType value, ResponseBody body) {
+        //TODO body  默认如果json格式
+        JsonSchemaItem jsonSchemaItem = parseSchema(value.getSchema());
+        switch (k) {
+            case MediaType.APPLICATION_JSON_VALUE, MediaType.ALL_VALUE -> {
+                body.setBodyType(Body.BodyType.JSON.name());
+                JsonBody jsonBody = new JsonBody();
+                jsonBody.setJsonSchema(jsonSchemaItem);
+                jsonBody.setEnableJsonSchema(true);
+                if (ObjectUtils.isNotEmpty(value.getExample())) {
+                    jsonBody.setJsonValue(ApiDataUtils.toJSONString(value.getExample()));
+                }
+                body.setJsonBody(jsonBody);
+            }
+            case MediaType.APPLICATION_XML_VALUE -> {
+                if (StringUtils.isBlank(body.getBodyType())) {
+                    body.setBodyType(Body.BodyType.XML.name());
+                }
+                XmlBody xml = new XmlBody();
+                //xml.setValue(XMLUtils.jsonToXmlStr(jsonValue));
+                body.setXmlBody(xml);
+            }
+            case MediaType.MULTIPART_FORM_DATA_VALUE -> {
+                if (StringUtils.isBlank(body.getBodyType())) {
+                    body.setBodyType(Body.BodyType.FORM_DATA.name());
+                }
+            }
+            case MediaType.APPLICATION_OCTET_STREAM_VALUE -> {
+                if (StringUtils.isBlank(body.getBodyType())) {
+                    body.setBodyType(Body.BodyType.BINARY.name());
+                }
+            }
+            case MediaType.TEXT_PLAIN_VALUE -> {
+                if (StringUtils.isBlank(body.getBodyType())) {
+                    body.setBodyType(Body.BodyType.RAW.name());
+                }
+                RawBody rawBody = new RawBody();
+                body.setRawBody(rawBody);
+            }
+            default -> body.setBodyType(Body.BodyType.NONE.name());
+        }
     }
 
     private void setBodyData(String k, io.swagger.v3.oas.models.media.MediaType value, Body body) {

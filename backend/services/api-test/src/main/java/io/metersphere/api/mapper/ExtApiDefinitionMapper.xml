@@ -550,4 +550,14 @@
             #{id}
         </foreach>
     </select>
+    <select id="selectByProjectNumAndApiNum" resultType="io.metersphere.api.domain.ApiDefinition">
+        select *
+        from api_definition
+        where api_definition.num = #{apiNum}
+          AND project_id IN (SELECT id
+                             FROM project
+                             WHERE num = #{projectNum})
+          AND latest = true
+        limit 1
+    </select>
 </mapper>

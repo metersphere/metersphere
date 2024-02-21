@@ -4,6 +4,7 @@ import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.ApiParamConfig;
 import io.metersphere.api.dto.assertion.MsAssertionConfig;
 import io.metersphere.api.dto.definition.HttpResponse;
+import io.metersphere.api.dto.definition.ResponseBody;
 import io.metersphere.api.dto.request.MsCommonElement;
 import io.metersphere.api.dto.request.http.*;
 import io.metersphere.api.dto.request.http.body.*;
@@ -475,24 +476,68 @@ public class MsHTTPElementTest {
         header.setDescription("desc");
         httpResponse.setHeaders(List.of(header));
 
-        FormDataBody formDataBody = new FormDataBody();
-        FormDataKV formDataKV = new FormDataKV();
-        formDataKV.setEnable(false);
-        formDataKV.setContentType("text/plain");
-        formDataKV.setEncode(true);
-        formDataKV.setMaxLength(10);
-        formDataKV.setMinLength(8);
-        formDataKV.setParamType("text");
-        formDataKV.setDescription("test");
-        formDataKV.setRequired(true);
-        formDataKV.setValue("value");
-        formDataKV.setKey("key");
-        formDataBody.setFormValues(List.of(formDataKV));
-        Body body = new Body();
-        body.setBodyType(Body.BodyType.FORM_DATA.name());
+        ResponseBody body = new ResponseBody();
+        body.setBodyType(Body.BodyType.RAW.name());
         httpResponse.setBody(body);
 
         httpResponses.add(httpResponse);
+        return httpResponses;
+    }
+
+    public static List<HttpResponse> get2MsHttpResponse(String returnPrefix) {
+        List<HttpResponse> httpResponses = new ArrayList<>();
+        HttpResponse http1Response = new HttpResponse();
+        http1Response.setName("Response1");
+        http1Response.setStatusCode("222");
+        http1Response.setDefaultFlag(true);
+        http1Response.setHeaders(new ArrayList<>() {{
+            this.add(new Header() {{
+                this.setEnable(false);
+                this.setValue("valueA1");
+                this.setKey("keyA1");
+                this.setDescription("descA1");
+            }});
+            this.add(new Header() {{
+                this.setEnable(true);
+                this.setValue("headerDefaultValue");
+                this.setKey("headerDefault");
+                this.setDescription("headerDefaultDescA2");
+            }});
+        }});
+        ResponseBody body1 = new ResponseBody();
+        body1.setBodyType(Body.BodyType.RAW.name());
+        body1.setRawBody(new RawBody() {{
+            this.setValue(returnPrefix + "___responseDefault");
+        }});
+        http1Response.setBody(body1);
+        httpResponses.add(http1Response);
+
+        HttpResponse http2Response = new HttpResponse();
+        http2Response.setName("Response2");
+        http2Response.setStatusCode("222");
+        http2Response.setDefaultFlag(false);
+        http2Response.setHeaders(new ArrayList<>() {{
+            this.add(new Header() {{
+                this.setEnable(false);
+                this.setValue("valueB1");
+                this.setKey("keyB1");
+                this.setDescription("descB1");
+            }});
+            this.add(new Header() {{
+                this.setEnable(true);
+                this.setValue("valueB2");
+                this.setKey("keyB2");
+                this.setDescription("descB2");
+            }});
+        }});
+        ResponseBody body2 = new ResponseBody();
+        body2.setBodyType(Body.BodyType.RAW.name());
+        body2.setRawBody(new RawBody() {{
+            this.setValue(returnPrefix + "___response2");
+        }});
+        http2Response.setBody(body2);
+
+        httpResponses.add(http2Response);
         return httpResponses;
     }
 }

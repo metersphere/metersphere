@@ -5,24 +5,25 @@ import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.definition.ApiDefinitionMockDTO;
-import io.metersphere.api.dto.definition.HttpResponse;
 import io.metersphere.api.dto.definition.request.ApiDefinitionMockAddRequest;
 import io.metersphere.api.dto.definition.request.ApiDefinitionMockPageRequest;
 import io.metersphere.api.dto.definition.request.ApiDefinitionMockRequest;
 import io.metersphere.api.dto.definition.request.ApiDefinitionMockUpdateRequest;
+import io.metersphere.api.dto.mockserver.MockMatchRule;
+import io.metersphere.api.dto.mockserver.MockResponse;
 import io.metersphere.api.mapper.ApiDefinitionMapper;
 import io.metersphere.api.mapper.ApiDefinitionMockConfigMapper;
 import io.metersphere.api.mapper.ApiDefinitionMockMapper;
 import io.metersphere.api.mapper.ExtApiDefinitionMockMapper;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.utils.ApiDataUtils;
-import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.service.ProjectService;
 import io.metersphere.sdk.constants.ApplicationNumScope;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.exception.MSException;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.FileAssociationSourceUtil;
+import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
@@ -31,7 +32,6 @@ import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -68,7 +68,7 @@ public class ApiDefinitionMockService {
         ApiDefinitionMock apiDefinitionMock = checkApiDefinitionMock(request.getId());
         ApiDefinitionMockDTO apiDefinitionMockDTO = new ApiDefinitionMockDTO();
         handleMockConfig(request.getId(), apiDefinitionMockDTO);
-        handleApiDefinition(request.getApiDefinitionId(), apiDefinitionMockDTO);
+        handleApiDefinition(apiDefinitionMock.getApiDefinitionId(), apiDefinitionMockDTO);
         BeanUtils.copyBean(apiDefinitionMockDTO, apiDefinitionMock);
         return apiDefinitionMockDTO;
     }
@@ -76,8 +76,8 @@ public class ApiDefinitionMockService {
     public void handleMockConfig(String id, ApiDefinitionMockDTO apiDefinitionMockDTO) {
         Optional<ApiDefinitionMockConfig> apiDefinitionMockConfigOptional = Optional.ofNullable(apiDefinitionMockConfigMapper.selectByPrimaryKey(id));
         apiDefinitionMockConfigOptional.ifPresent(config -> {
-            apiDefinitionMockDTO.setMatching(ApiDataUtils.parseObject(new String(config.getMatching()), AbstractMsTestElement.class));
-            apiDefinitionMockDTO.setResponse(ApiDataUtils.parseArray(new String(config.getResponse()), HttpResponse.class));
+            apiDefinitionMockDTO.setMatching(ApiDataUtils.parseObject(new String(config.getMatching()), MockMatchRule.class));
+            apiDefinitionMockDTO.setResponse(ApiDataUtils.parseObject(new String(config.getResponse()), MockResponse.class));
         });
     }
 
@@ -102,6 +102,13 @@ public class ApiDefinitionMockService {
     public ApiDefinitionMock create(ApiDefinitionMockAddRequest request, String userId) {
         ProjectService.checkResourceExist(request.getProjectId());
 
+        if (request.getMockMatchRule() == null) {
+            request.setMockMatchRule(new MockMatchRule());
+        }
+        if (request.getResponse() == null) {
+            request.setResponse(new MockResponse());
+        }
+
         ApiDefinitionMock apiDefinitionMock = new ApiDefinitionMock();
         BeanUtils.copyBean(apiDefinitionMock, request);
         checkAddExist(apiDefinitionMock);
@@ -119,8 +126,8 @@ public class ApiDefinitionMockService {
         apiDefinitionMockMapper.insertSelective(apiDefinitionMock);
         ApiDefinitionMockConfig apiDefinitionMockConfig = new ApiDefinitionMockConfig();
         apiDefinitionMockConfig.setId(apiDefinitionMock.getId());
-        apiDefinitionMockConfig.setMatching(request.getMatching().getBytes());
-        apiDefinitionMockConfig.setResponse(request.getResponse().getBytes());
+        apiDefinitionMockConfig.setMatching(JSON.toJSONString(request.getMockMatchRule()).getBytes());
+        apiDefinitionMockConfig.setResponse(JSON.toJSONString(request.getResponse()).getBytes());
         apiDefinitionMockConfigMapper.insertSelective(apiDefinitionMockConfig);
 
         // 处理文件
@@ -176,8 +183,12 @@ public class ApiDefinitionMockService {
         apiDefinitionMockMapper.updateByPrimaryKeySelective(apiDefinitionMock);
         ApiDefinitionMockConfig apiDefinitionMockConfig = new ApiDefinitionMockConfig();
         apiDefinitionMockConfig.setId(apiDefinitionMock.getId());
-        apiDefinitionMockConfig.setMatching(request.getMatching().getBytes());
-        apiDefinitionMockConfig.setResponse(request.getResponse().getBytes());
+        if (request.getMockMatchRule() != null) {
+            apiDefinitionMockConfig.setMatching(JSON.toJSONString(request.getMockMatchRule()).getBytes());
+        }
+        if (request.getResponse() != null) {
+            apiDefinitionMockConfig.setResponse(JSON.toJSONString(request.getResponse()).getBytes());
+        }
         apiDefinitionMockConfigMapper.updateByPrimaryKeySelective(apiDefinitionMockConfig);
 
         // 处理文件
@@ -242,10 +253,6 @@ public class ApiDefinitionMockService {
         update.setEnable(!apiDefinitionMock.getEnable());
         update.setUpdateTime(System.currentTimeMillis());
         apiDefinitionMockMapper.updateByPrimaryKeySelective(update);
-    }
-
-    public String uploadTempFile(MultipartFile file) {
-        return apiFileResourceService.uploadTempFile(file);
     }
 
     public void deleteByApiIds(List<String> apiIds, String userId) {

@@ -1,12 +1,11 @@
 package io.metersphere.api.dto.definition;
 
 import io.metersphere.api.domain.ApiDefinitionMock;
-import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.api.dto.mockserver.MockMatchRule;
+import io.metersphere.api.dto.mockserver.MockResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
-import java.util.List;
 
 /**
  * @author lan
@@ -16,10 +15,10 @@ import java.util.List;
 public class ApiDefinitionMockDTO extends ApiDefinitionMock {
 
     @Schema(description = "请求内容")
-    private AbstractMsTestElement matching;
+    private MockMatchRule matching;
 
     @Schema(description = "响应内容")
-    private List<HttpResponse> response;
+    private MockResponse response;
 
     @Schema(description = "创建人名称")
     private String createUserName;
