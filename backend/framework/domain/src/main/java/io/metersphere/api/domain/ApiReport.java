@@ -152,7 +152,6 @@ public class ApiReport implements Serializable {
     public enum Column {
         id("id", "id", "VARCHAR", false),
         name("name", "name", "VARCHAR", true),
-        resourceId("resource_id", "resourceId", "VARCHAR", false),
         testPlanId("test_plan_id", "testPlanId", "VARCHAR", false),
         createUser("create_user", "createUser", "VARCHAR", false),
         deleteTime("delete_time", "deleteTime", "BIGINT", false),

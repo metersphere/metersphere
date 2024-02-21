@@ -147,7 +147,6 @@ public class ApiReportSendNoticeTests extends BaseTest {
             scenarioReport.setProjectId(DEFAULT_PROJECT_ID);
             scenarioReport.setName("scenario-report-name" + i);
             scenarioReport.setStartTime(System.currentTimeMillis());
-            scenarioReport.setScenarioId("send-scenario-id");
             scenarioReport.setCreateUser("admin");
             scenarioReport.setUpdateUser("admin");
             if (i == 0) {

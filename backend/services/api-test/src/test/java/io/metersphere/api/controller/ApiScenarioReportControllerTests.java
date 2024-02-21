@@ -77,7 +77,6 @@ public class ApiScenarioReportControllerTests extends BaseTest {
             scenarioReport.setProjectId(DEFAULT_PROJECT_ID);
             scenarioReport.setName("scenario-report-name" + i);
             scenarioReport.setStartTime(System.currentTimeMillis());
-            scenarioReport.setScenarioId("scenario-scenario-id" + i);
             scenarioReport.setCreateUser("admin");
             scenarioReport.setUpdateUser("admin");
             if (i % 50 == 0) {
@@ -231,7 +230,6 @@ public class ApiScenarioReportControllerTests extends BaseTest {
         scenarioReport.setProjectId(DEFAULT_PROJECT_ID);
         scenarioReport.setName("test-scenario-report-name");
         scenarioReport.setStartTime(System.currentTimeMillis());
-        scenarioReport.setScenarioId("test-scenario-scenario-id");
         scenarioReport.setCreateUser("admin");
         scenarioReport.setUpdateUser("admin");
         scenarioReport.setUpdateTime(System.currentTimeMillis());

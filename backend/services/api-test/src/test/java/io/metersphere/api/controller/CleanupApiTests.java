@@ -276,7 +276,6 @@ public class CleanupApiTests {
             scenarioReport.setProjectId(projectId);
             scenarioReport.setName("clean--scenario-report-name" + i);
             scenarioReport.setStartTime(1703174400000L);
-            scenarioReport.setScenarioId("scenario-scenario-id" + i);
             scenarioReport.setCreateUser("admin");
             scenarioReport.setUpdateUser("admin");
             if (i % 50 == 0) {
