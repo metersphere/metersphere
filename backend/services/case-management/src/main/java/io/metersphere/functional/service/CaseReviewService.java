@@ -208,11 +208,11 @@ public class CaseReviewService {
         BaseAssociateCaseRequest baseAssociateCaseRequest = request.getBaseAssociateCaseRequest();
         List<String> caseIds = doSelectIds(baseAssociateCaseRequest, baseAssociateCaseRequest.getProjectId());
         CaseReview caseReview = addCaseReview(request, userId, caseReviewId, caseIds);
-        addAssociate(request, userId, caseReviewId, caseIds);
+        addAssociate(request, userId, caseReviewId, caseIds, request.getReviewers());
         return caseReview;
     }
 
-    private void addAssociate(CaseReviewRequest request, String userId, String caseReviewId, List<String> caseIds) {
+    private void addAssociate(CaseReviewRequest request, String userId, String caseReviewId, List<String> caseIds, List<String> reviewers) {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         CaseReviewUserMapper mapper = sqlSession.getMapper(CaseReviewUserMapper.class);
         CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper = sqlSession.getMapper(CaseReviewFunctionalCaseMapper.class);
@@ -223,7 +223,7 @@ public class CaseReviewService {
             //保存和用例的关系
             addCaseReviewFunctionalCase(caseIds, userId, caseReviewId, caseReviewFunctionalCaseMapper);
             //保存用例和用例评审人的关系
-            addCaseReviewFunctionalCaseUser(caseIds, request.getReviewers(), caseReviewId, caseReviewFunctionalCaseUserMapper);
+            addCaseReviewFunctionalCaseUser(caseIds, reviewers, caseReviewId, caseReviewFunctionalCaseUserMapper);
             sqlSession.flushStatements();
         } finally {
             SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
@@ -237,7 +237,8 @@ public class CaseReviewService {
         List<CaseReviewFunctionalCase> caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
         List<String> caseIds = caseReviewFunctionalCases.stream().map(CaseReviewFunctionalCase::getCaseId).distinct().toList();
         CaseReview caseReview = addCaseReview(request, userId, caseReviewId, caseIds);
-        addAssociate(request, userId, caseReviewId, caseIds);
+        BaseAssociateCaseRequest baseAssociateCaseRequest = request.getBaseAssociateCaseRequest();
+        addAssociate(request, userId, caseReviewId, caseIds, baseAssociateCaseRequest.getReviewers());
         return caseReview;
     }
 
