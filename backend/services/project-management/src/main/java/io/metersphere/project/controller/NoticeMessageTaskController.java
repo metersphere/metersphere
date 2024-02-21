@@ -39,7 +39,7 @@ public class NoticeMessageTaskController {
     @Operation(summary = "项目管理-消息管理-消息设置-保存消息设置")
     @RequiresPermissions(value = {PermissionConstants.PROJECT_MESSAGE_READ_ADD, PermissionConstants.PROJECT_MESSAGE_READ_UPDATE}, logical = Logical.OR)
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.addLog(#messageTaskRequest)", msClass = MessageTaskLogService.class)
-    @CheckOwner(resourceId = "#request.projectId", resourceType = "project")
+    @CheckOwner(resourceId = "#messageTaskRequest.projectId", resourceType = "project")
     public ResultHolder saveMessage(@Validated({Created.class, Updated.class}) @RequestBody MessageTaskRequest messageTaskRequest) {
         return noticeMessageTaskService.saveMessageTask(messageTaskRequest, SessionUtils.getUserId());
     }
