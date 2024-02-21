@@ -40,7 +40,7 @@ public class ApiPluginChangeService implements PluginChangeService {
                         .forEach(item -> JmeterElementConverterRegister.register((Class<? extends AbstractJmeterElementConverter<? extends MsTestElement>>) item));
             }
         } catch (Exception e) {
-            LogUtils.error("注册接口插件实现类失败：", e);
+            LogUtils.error("注册接口插件实现类失败：{}", e);
         }
     }
 }

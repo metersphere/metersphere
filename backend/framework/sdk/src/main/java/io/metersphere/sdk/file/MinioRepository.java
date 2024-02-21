@@ -50,7 +50,7 @@ public class MinioRepository implements FileRepository {
         try {
             Object serverUrl = minioConfig.get(ENDPOINT).toString();
             if (ObjectUtils.isNotEmpty(serverUrl)) {
-                LogUtils.info("开始初始化MinIO插件。配置：", PluginUtils.toJSONString(minioConfig));
+                LogUtils.info("开始初始化MinIO插件。配置：{}", PluginUtils.toJSONString(minioConfig));
                 // 创建 MinioClient 客户端
                 client = MinioClient.builder()
                         .endpoint(minioConfig.get(ENDPOINT).toString())
