@@ -691,7 +691,7 @@ public class CaseReviewModuleControllerTests extends BaseTest {
         this.requestGetWithOk(URL_MODULE_TREE_DELETE+a1a1Node.getId());
         this.checkModuleIsEmpty(a1a1Node.getId());
         CaseReview caseReviewDel = caseReviewMapper.selectByPrimaryKey(name.getId());
-        Assertions.assertNotNull(caseReviewDel);
+        Assertions.assertNull(caseReviewDel);
 
         //删除不存在的节点
         this.requestGetWithOk(URL_MODULE_TREE_DELETE+IDGenerator.nextNum());
