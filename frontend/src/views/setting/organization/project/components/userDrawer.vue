@@ -11,7 +11,7 @@
     <div>
       <div class="flex flex-row justify-between">
         <a-button
-          v-if="hasAnyPermission(['ORGANIZATION_PROJECT:READ+ADD+MEMBER'])"
+          v-if="hasAnyPermission(['ORGANIZATION_PROJECT:READ+ADD_MEMBER'])"
           type="primary"
           @click="handleAddMember"
         >

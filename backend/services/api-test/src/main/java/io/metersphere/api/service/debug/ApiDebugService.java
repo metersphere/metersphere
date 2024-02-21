@@ -226,12 +226,14 @@ public class ApiDebugService {
 
     public void editPos(ApiEditPosRequest request, String userId) {
         ApiDebug apiDebug = checkResourceExist(request.getTargetId());
-        checkModuleExist(request.getModuleId());
-        apiDebug.setModuleId(request.getModuleId());
-        checkUpdateExist(apiDebug, apiDebug);
-        apiDebug.setUpdateUser(userId);
-        apiDebug.setUpdateTime(System.currentTimeMillis());
-        apiDebugMapper.updateByPrimaryKeySelective(apiDebug);
+        if (!StringUtils.equals(request.getModuleId(), apiDebug.getModuleId())) {
+            checkModuleExist(request.getModuleId());
+            apiDebug.setModuleId(request.getModuleId());
+            checkUpdateExist(apiDebug, apiDebug);
+            apiDebug.setUpdateUser(userId);
+            apiDebug.setUpdateTime(System.currentTimeMillis());
+            apiDebugMapper.updateByPrimaryKeySelective(apiDebug);
+        }
         if (StringUtils.equals(request.getTargetId(), request.getMoveId())) {
             return;
         }

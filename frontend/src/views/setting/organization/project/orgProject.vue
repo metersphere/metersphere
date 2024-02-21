@@ -36,7 +36,7 @@
       </template>
       <template #memberCount="{ record }">
         <span
-          v-if="hasAnyPermission(['ORGANIZATION_PROJECT:READ+ADD+MEMBER'])"
+          v-if="hasAnyPermission(['ORGANIZATION_PROJECT:READ+ADD_MEMBER'])"
           class="cursor-pointer text-[rgb(var(--primary-5))]"
           @click="showUserDrawer(record)"
           >{{ record.memberCount }}</span
@@ -61,7 +61,7 @@
           <MsButton v-permission="['ORGANIZATION_PROJECT:READ+UPDATE']" @click="showAddProjectModal(record)">{{
             t('common.edit')
           }}</MsButton>
-          <MsButton v-permission="['ORGANIZATION_PROJECT:READ+ADD+MEMBER']" @click="showAddUserModal(record)">{{
+          <MsButton v-permission="['ORGANIZATION_PROJECT:READ+ADD_MEMBER']" @click="showAddUserModal(record)">{{
             t('system.organization.addMember')
           }}</MsButton>
           <MsButton

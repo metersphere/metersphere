@@ -1006,12 +1006,14 @@ public class ApiDefinitionService {
 
     public void editPos(ApiEditPosRequest request, String userId) {
         ApiDefinition apiDefinition = checkApiDefinition(request.getTargetId());
-        checkModuleExist(request.getModuleId());
-        apiDefinition.setModuleId(request.getModuleId());
-        checkUpdateExist(apiDefinition);
-        apiDefinition.setUpdateTime(System.currentTimeMillis());
-        apiDefinition.setUpdateUser(userId);
-        apiDefinitionMapper.updateByPrimaryKeySelective(apiDefinition);
+        if (!StringUtils.equals(request.getModuleId(), apiDefinition.getModuleId())) {
+            checkModuleExist(request.getModuleId());
+            apiDefinition.setModuleId(request.getModuleId());
+            checkUpdateExist(apiDefinition);
+            apiDefinition.setUpdateTime(System.currentTimeMillis());
+            apiDefinition.setUpdateUser(userId);
+            apiDefinitionMapper.updateByPrimaryKeySelective(apiDefinition);
+        }
         if (StringUtils.equals(request.getTargetId(), request.getMoveId())) {
             return;
         }
