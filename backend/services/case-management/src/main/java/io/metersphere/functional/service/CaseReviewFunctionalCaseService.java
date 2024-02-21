@@ -122,12 +122,12 @@ public class CaseReviewFunctionalCaseService {
      * @param deleted deleted
      * @return ReviewFunctionalCaseDTO
      */
-    public List<ReviewFunctionalCaseDTO> page(ReviewFunctionalCasePageRequest request, boolean deleted, String userId) {
+    public List<ReviewFunctionalCaseDTO> page(ReviewFunctionalCasePageRequest request, boolean deleted, String userId, String viewStatusUserId) {
         List<ReviewFunctionalCaseDTO> list = extCaseReviewFunctionalCaseMapper.page(request, deleted, userId, request.getSortString());
-        return doHandleDTO(list, request, userId);
+        return doHandleDTO(list, request, viewStatusUserId);
     }
 
-    private List<ReviewFunctionalCaseDTO> doHandleDTO(List<ReviewFunctionalCaseDTO> list, ReviewFunctionalCasePageRequest request, String userId) {
+    private List<ReviewFunctionalCaseDTO> doHandleDTO(List<ReviewFunctionalCaseDTO> list, ReviewFunctionalCasePageRequest request, String viewStatusUserId) {
         if (CollectionUtils.isNotEmpty(list)) {
             List<String> moduleIds = list.stream().map(ReviewFunctionalCaseDTO::getModuleId).toList();
             List<BaseTreeNode> modules = extFunctionalCaseModuleMapper.selectBaseByIds(moduleIds);
@@ -143,18 +143,12 @@ public class CaseReviewFunctionalCaseService {
             Map<String, String> userNameMap = reviewers.stream().collect(Collectors.toMap(ReviewsDTO::getCaseId, ReviewsDTO::getUserNames));
 
             LinkedHashMap<String, List<CaseReviewHistory>> caseStatusMap;
-            LinkedHashMap<String, List<CaseReviewHistory>> caseUserMap;
             if (request.isViewStatusFlag()) {
                 List<CaseReviewHistory> histories = extCaseReviewHistoryMapper.getReviewHistoryStatus(caseIds, request.getReviewId());
                 caseStatusMap = histories.stream().collect(Collectors.groupingBy(CaseReviewHistory::getCaseId, LinkedHashMap::new, Collectors.toList()));
-                caseUserMap = histories.stream().collect(Collectors.groupingBy(CaseReviewHistory::getCreateUser, LinkedHashMap::new, Collectors.toList()));
             } else {
                 caseStatusMap = new LinkedHashMap<>();
-                caseUserMap = new LinkedHashMap<>();
-
             }
-            //当前用户的评审历史
-            List<CaseReviewHistory> userHistory = caseUserMap.get(userId);
 
             list.forEach(item -> {
                 item.setModuleName(moduleMap.get(item.getModuleId()));
@@ -165,7 +159,7 @@ public class CaseReviewFunctionalCaseService {
                 if (request.isViewStatusFlag()) {
                     List<CaseReviewHistory> histories = caseStatusMap.get(item.getCaseId());
                     if (CollectionUtils.isNotEmpty(histories)) {
-                        item.setMyStatus(getMyStatus(histories, userHistory));
+                        item.setMyStatus(getMyStatus(histories, viewStatusUserId));
                     } else {
                         //不存在评审历史
                         item.setMyStatus(FunctionalCaseReviewStatus.UNDER_REVIEWED.name());
@@ -176,11 +170,12 @@ public class CaseReviewFunctionalCaseService {
         return list;
     }
 
-    private String getMyStatus(List<CaseReviewHistory> histories, List<CaseReviewHistory> userHistory) {
-        if (CollectionUtils.isNotEmpty(userHistory)) {
-            //当前用户存在评审记录
-            return userHistory.get(0).getStatus();
+    private String getMyStatus(List<CaseReviewHistory> histories, String viewStatusUserId) {
+        List<CaseReviewHistory> list = histories.stream().filter(history -> StringUtils.equalsIgnoreCase(history.getCreateUser(), viewStatusUserId)).toList();
+        if (CollectionUtils.isNotEmpty(list)) {
+            return list.get(0).getStatus();
         }
+
         //重新提审记录
         List<CaseReviewHistory> reReviewed = histories.stream().filter(history -> StringUtils.equalsIgnoreCase(history.getStatus(), FunctionalCaseReviewStatus.RE_REVIEWED.name())).toList();
         if (CollectionUtils.isNotEmpty(reReviewed)) {
