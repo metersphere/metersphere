@@ -2216,6 +2216,7 @@ export default {
           if (typeArray.indexOf(stepArray[i].type) !== -1) {
             stepArray[i].originalDataSourceId = stepArray[i].dataSourceId;
             stepArray[i].originalEnvironmentId = stepArray[i].environmentId;
+            console.log(stepArray[i].originalDataSourceId);
           }
           if (!stepArray[i].hashTree) {
             stepArray[i].hashTree = [];
@@ -2408,7 +2409,7 @@ export default {
       let currentEnvironment = {};
       this.environments.forEach((environment) => {
         // 找到原始环境和数据源名称
-        if (environment.id === request.environmentId && environment.id === envId) {
+        if (environment.id === request.originalEnvironmentId !== envId) {
           parseEnvironment(environment);
           if (environment.config && environment.config.databaseConfigs) {
             environment.config.databaseConfigs.forEach((item) => {
@@ -2436,6 +2437,7 @@ export default {
           }
         }
       }
+      parseEnvironment(currentEnvironment);
       let flag = false;
       if (currentEnvironment && currentEnvironment.config && currentEnvironment.config.databaseConfigs) {
         currentEnvironment.config.databaseConfigs.forEach((item) => {
