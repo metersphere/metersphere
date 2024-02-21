@@ -2,14 +2,18 @@ package io.metersphere.api.service.definition;
 
 import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.domain.*;
+import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.ApiResourceModuleInfo;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.mapper.*;
+import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.project.domain.FileAssociation;
+import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.ApplicationNumScope;
@@ -84,6 +88,9 @@ public class ApiTestCaseService {
     private OperationHistoryService operationHistoryService;
     @Resource
     private ExtApiDefinitionMapper extApiDefinitionMapper;
+    @Resource
+    private ApiCommonService apiCommonService;
+
     private static final String CASE_TABLE = "api_test_case";
 
     private void checkProjectExist(String projectId) {
@@ -257,7 +264,7 @@ public class ApiTestCaseService {
         ApiFileResourceUpdateRequest resourceUpdateRequest = getApiFileResourceUpdateRequest(testCase.getId(), testCase.getProjectId(), userId);
         resourceUpdateRequest.setUploadFileIds(request.getUploadFileIds());
         resourceUpdateRequest.setLinkFileIds(request.getLinkFileIds());
-        resourceUpdateRequest.setUnLinkRefIds(request.getUnLinkRefIds());
+        resourceUpdateRequest.setUnLinkFileIds(request.getUnLinkFileIds());
         resourceUpdateRequest.setDeleteFileIds(request.getDeleteFileIds());
         apiFileResourceService.updateFileResource(resourceUpdateRequest);
         return testCase;
@@ -597,5 +604,23 @@ public class ApiTestCaseService {
         moduleInfos.forEach(moduleInfo ->
                 moduleInfo.setResourceId(apiCaseDefinitionMap.get(moduleInfo.getResourceId())));
         return moduleInfos;
+    }
+
+    public void handleFileAssociationUpgrade(FileAssociation originFileAssociation, FileMetadata newFileMetadata) {
+        ApiTestCaseBlob apiTestCaseBlob = apiTestCaseBlobMapper.selectByPrimaryKey(originFileAssociation.getSourceId());
+        if (apiTestCaseBlob == null) {
+            return;
+        }
+        AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(apiTestCaseBlob.getRequest()), AbstractMsTestElement.class);
+        // 获取接口中需要更新的文件
+        List<ApiFile> updateFiles = apiCommonService.getApiFilesByFileId(originFileAssociation.getFileId(), msTestElement);
+        // 替换文件的Id和name
+        apiCommonService.replaceApiFileInfo(updateFiles, newFileMetadata);
+
+        // 如果有需要更新的文件，则更新 request 字段
+        if (CollectionUtils.isNotEmpty(updateFiles)) {
+            apiTestCaseBlob.setRequest(ApiDataUtils.toJSONString(msTestElement).getBytes());
+            apiTestCaseBlobMapper.updateByPrimaryKeySelective(apiTestCaseBlob);
+        }
     }
 }

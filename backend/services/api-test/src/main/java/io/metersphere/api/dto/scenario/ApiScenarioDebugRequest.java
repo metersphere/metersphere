@@ -51,6 +51,15 @@ public class ApiScenarioDebugRequest {
     @Schema(description = "项目ID", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank
     private String projectId;
-    @Schema(description = "点击调试时尚未保存的文件ID列表")
-    private List<String> tempFileIds;
+    /**
+     * 新上传的文件ID
+     * 创建时先按ID创建目录，再把文件放入目录
+     */
+    @Schema(description = "新上传的文件ID")
+    private List<String> uploadFileIds;
+    /**
+     * 新关联的文件ID
+     */
+    @Schema(description = "关联文件ID")
+    private List<String> linkFileIds;
 }

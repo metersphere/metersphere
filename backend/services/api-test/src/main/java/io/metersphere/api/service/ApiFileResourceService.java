@@ -180,9 +180,9 @@ public class ApiFileResourceService {
         }
 
         // 处理关联文件
-        List<String> unLinkRefIds = resourceUpdateRequest.getUnLinkRefIds();
-        if (CollectionUtils.isNotEmpty(unLinkRefIds)) {
-            fileAssociationService.deleteBySourceIdAndFileIds(resourceUpdateRequest.getResourceId(), unLinkRefIds,
+        List<String> unLinkFileIds = resourceUpdateRequest.getUnLinkFileIds();
+        if (CollectionUtils.isNotEmpty(unLinkFileIds)) {
+            fileAssociationService.deleteBySourceIdAndFileIds(resourceUpdateRequest.getResourceId(), unLinkFileIds,
                     createFileLogRecord(resourceUpdateRequest.getOperator(), resourceUpdateRequest.getProjectId(), resourceUpdateRequest.getLogModule()));
         }
     }

@@ -9,6 +9,7 @@ import io.metersphere.project.dto.filemanagement.FileInfo;
 import io.metersphere.project.dto.filemanagement.FileLogRecord;
 import io.metersphere.project.dto.filemanagement.response.FileAssociationResponse;
 import io.metersphere.project.dto.filemanagement.response.FileInformationResponse;
+import io.metersphere.project.invoker.FileAssociationUpdateServiceInvoker;
 import io.metersphere.project.mapper.ExtFileAssociationMapper;
 import io.metersphere.project.mapper.FileAssociationMapper;
 import io.metersphere.sdk.exception.MSException;
@@ -19,7 +20,6 @@ import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -41,7 +41,7 @@ public class FileAssociationService {
     @Resource
     private FileAssociationLogService fileAssociationLogService;
     @Resource
-    private SqlSessionFactory sqlSessionFactory;
+    private FileAssociationUpdateServiceInvoker fileAssociationUpdateServiceInvoker;
     @Resource
     private ExtFileAssociationMapper extFileAssociationMapper;
 
@@ -199,6 +199,8 @@ public class FileAssociationService {
         }
 
         FileMetadata newFileMetadata = this.getNewVersionFileMetadata(fileAssociation.getFileId());
+        // 通知其他服务更新引用的文件
+        fileAssociationUpdateServiceInvoker.handleUpgrade(fileAssociation, newFileMetadata);
         if(StringUtils.equals(newFileMetadata.getId(),fileAssociation.getFileId())){
             return fileAssociation.getFileId();
         }else {
@@ -347,5 +349,13 @@ public class FileAssociationService {
 
     public List<FileAssociation> getFileAssociations(List<String> sourceIds, String sourceType) {
         return extFileAssociationMapper.selectFileIdsBySourceId(sourceIds, sourceType);
+    }
+
+    public List<FileAssociation> getByFileIdAndSourceId(String sourceId, String fileId) {
+        FileAssociationExample example = new FileAssociationExample();
+        example.createCriteria()
+                .andSourceIdEqualTo(sourceId)
+                .andFileIdEqualTo(fileId);
+        return fileAssociationMapper.selectByExample(example);
     }
 }

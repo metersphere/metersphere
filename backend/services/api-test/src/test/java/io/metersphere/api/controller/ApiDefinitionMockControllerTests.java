@@ -4,6 +4,7 @@ import io.metersphere.api.constants.ApiConstants;
 import io.metersphere.api.constants.ApiDefinitionStatus;
 import io.metersphere.api.controller.result.ApiResultCode;
 import io.metersphere.api.domain.*;
+import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.request.ApiDefinitionMockAddRequest;
 import io.metersphere.api.dto.definition.request.ApiDefinitionMockPageRequest;
@@ -212,8 +213,9 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         MockResponse mockResponse = new MockResponse();
         mockResponse.setBody(new ResponseBody() {{
             this.setBinaryBody(new ResponseBinaryBody() {{
-                this.setFileId(uploadFileId);
-                this.setFileName("file_upload.JPG");
+                this.setFile(new ApiFile());
+                this.getFile().setFileId(uploadFileId);
+                this.getFile().setFileName("file_upload.JPG");
             }});
         }});
         request.setResponse(mockResponse);
@@ -303,7 +305,7 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         request.setResponse(new MockResponse());
 
         // 清除文件的更新
-        request.setUnLinkRefIds(List.of(fileMetadataId));
+        request.setUnLinkFileIds(List.of(fileMetadataId));
         request.setDeleteFileIds(List.of(uploadFileId));
 
         this.requestPostWithOk(UPDATE, request);
@@ -317,7 +319,7 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         request.setUploadFileIds(List.of(fileId));
         request.setLinkFileIds(List.of(fileMetadataId));
         request.setDeleteFileIds(null);
-        request.setUnLinkRefIds(null);
+        request.setUnLinkFileIds(null);
         this.requestPostWithOk(UPDATE, request);
         // 校验请求成功数据
         apiDefinitionMock = mockServerTestService.assertAddApiDefinitionMock(request, mockMatchRule, request.getId());
@@ -328,7 +330,7 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         request.setDeleteFileIds(List.of(fileId));
         String newFileId1 = doUploadTempFile(mockServerTestService.getMockMultipartFile("file_upload.JPG"));
         request.setUploadFileIds(List.of(newFileId1));
-        request.setUnLinkRefIds(List.of(fileMetadataId));
+        request.setUnLinkFileIds(List.of(fileMetadataId));
         request.setLinkFileIds(List.of(fileMetadataId));
         this.requestPostWithOk(UPDATE, request);
         apiDefinitionMock = mockServerTestService.assertAddApiDefinitionMock(request, mockMatchRule, request.getId());
@@ -338,7 +340,7 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         // 已有一个文件，再上传一个文件
         String newFileId2 = doUploadTempFile(mockServerTestService.getMockMultipartFile("file_update_upload.JPG"));
         request.setUploadFileIds(List.of(newFileId2));
-        request.setUnLinkRefIds(null);
+        request.setUnLinkFileIds(null);
         request.setDeleteFileIds(null);
         request.setLinkFileIds(null);
         this.requestPostWithOk(UPDATE, request);
@@ -347,7 +349,7 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
         mockServerTestService.assertLinkFile(apiDefinitionMock.getId(), List.of(fileMetadataId));
         // 修改 tags
         request.setUploadFileIds(null);
-        request.setUnLinkRefIds(null);
+        request.setUnLinkFileIds(null);
         request.setDeleteFileIds(null);
         request.setLinkFileIds(null);
         request.setTags(new LinkedHashSet<>(List.of("tag1", "tag2-update")));
@@ -654,7 +656,7 @@ public class ApiDefinitionMockControllerTests extends BaseTest {
                 //判断响应体
                 if (StringUtils.equals(responseBody.getBodyType(), Body.BodyType.BINARY.name())) {
                     byte[] returnFileBytes = mockServerResponse.getContentAsByteArray();
-                    String fileId = responseBody.getBinaryBody().getFileId();
+                    String fileId = responseBody.getBinaryBody().getFile().getFileId();
                     byte[] bytes = new byte[0];
                     FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(fileId);
                     if (fileMetadata != null) {

@@ -20,6 +20,21 @@ public class ApiFile {
      * 文件名
      */
     @NotBlank
-    @Size(max = 200)
+    @Size(max = 255)
     private String fileName;
+    /**
+     * 是否是本地上传的文件
+     */
+    private Boolean local = true;
+    /**
+     * 文件别名，引用的文件需要展示别名，
+     * 查询时，获取最新的
+     */
+    @Size(max = 255)
+    private String fileAlias;
+    /**
+     * 文件是否别删除
+     * 引用的文件被删除，需要标识
+     */
+    private Boolean delete = false;
 }

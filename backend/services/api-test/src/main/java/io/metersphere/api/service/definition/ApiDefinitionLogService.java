@@ -1,17 +1,14 @@
 package io.metersphere.api.service.definition;
 
 import io.metersphere.api.domain.ApiDefinition;
-import io.metersphere.api.domain.ApiDefinitionBlob;
 import io.metersphere.api.domain.ApiDefinitionExample;
 import io.metersphere.api.dto.definition.*;
-import io.metersphere.api.mapper.ApiDefinitionBlobMapper;
 import io.metersphere.api.mapper.ApiDefinitionMapper;
-import io.metersphere.api.utils.ApiDataUtils;
-import io.metersphere.plugin.api.spi.AbstractMsTestElement;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.mapper.ProjectMapper;
 import io.metersphere.sdk.constants.HttpMethodConstants;
 import io.metersphere.sdk.util.BeanUtils;
+import io.metersphere.sdk.util.CommonBeanFactory;
 import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.log.constants.OperationLogModule;
@@ -25,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -33,9 +29,6 @@ public class ApiDefinitionLogService {
 
     @Resource
     private ApiDefinitionMapper apiDefinitionMapper;
-
-    @Resource
-    private ApiDefinitionBlobMapper apiDefinitionBlobMapper;
 
     @Resource
     private ProjectMapper projectMapper;
@@ -256,22 +249,13 @@ public class ApiDefinitionLogService {
         ApiDefinition apiDefinition = apiDefinitionMapper.selectByPrimaryKey(id);
         if (null != apiDefinition) {
             // 2. 使用Optional避免空指针异常
-            handleBlob(id, apiDefinitionDTO);
+            CommonBeanFactory.getBean(ApiDefinitionService.class).handleBlob(id, apiDefinitionDTO);
             BeanUtils.copyBean(apiDefinitionDTO, apiDefinition);
         }
         return apiDefinitionDTO;
     }
 
-    public void handleBlob(String id, ApiDefinitionDTO apiDefinitionDTO) {
-        Optional<ApiDefinitionBlob> apiDefinitionBlobOptional = Optional.ofNullable(apiDefinitionBlobMapper.selectByPrimaryKey(id));
-        apiDefinitionBlobOptional.ifPresent(blob -> {
-            apiDefinitionDTO.setRequest(ApiDataUtils.parseObject(new String(blob.getRequest()), AbstractMsTestElement.class));
-            // blob.getResponse() 为 null 时不进行转换
-            if (blob.getResponse() != null) {
-                apiDefinitionDTO.setResponse(ApiDataUtils.parseArray(new String(blob.getResponse()), HttpResponse.class));
-            }
-        });
-    }
+
 
     private void saveBatchLog(String projectId, List<String> ids, String path, String userId, String operationType, boolean isHistory) {
         List<LogDTO> dtoList = new ArrayList<>();
@@ -282,7 +266,7 @@ public class ApiDefinitionLogService {
             List<ApiDefinition> apiDefinitions = apiDefinitionMapper.selectByExample(example);
             apiDefinitions.forEach(item -> {
                 ApiDefinitionDTO apiDefinitionDTO = new ApiDefinitionDTO();
-                handleBlob(item.getId(), apiDefinitionDTO);
+                CommonBeanFactory.getBean(ApiDefinitionService.class).handleBlob(item.getId(), apiDefinitionDTO);
                 BeanUtils.copyBean(apiDefinitionDTO, item);
                 LogDTO dto = new LogDTO(
                         project.getId(),

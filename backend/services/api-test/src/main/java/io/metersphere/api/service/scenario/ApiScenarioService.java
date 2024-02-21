@@ -4,10 +4,7 @@ import io.metersphere.api.constants.ApiResourceType;
 import io.metersphere.api.constants.ApiScenarioStepRefType;
 import io.metersphere.api.constants.ApiScenarioStepType;
 import io.metersphere.api.domain.*;
-import io.metersphere.api.dto.ApiResourceModuleInfo;
-import io.metersphere.api.dto.ApiScenarioParamConfig;
-import io.metersphere.api.dto.ApiScenarioParseEnvInfo;
-import io.metersphere.api.dto.EnvironmentModeDTO;
+import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.debug.ApiResourceRunRequest;
 import io.metersphere.api.dto.request.MsScenario;
@@ -18,13 +15,16 @@ import io.metersphere.api.job.ApiScenarioScheduleJob;
 import io.metersphere.api.mapper.*;
 import io.metersphere.api.parser.step.StepParser;
 import io.metersphere.api.parser.step.StepParserFactory;
+import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiExecuteService;
 import io.metersphere.api.service.ApiFileResourceService;
 import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
+import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.api.utils.ApiScenarioBatchOperationUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.domain.FileMetadata;
 import io.metersphere.project.domain.Project;
 import io.metersphere.project.domain.ProjectExample;
@@ -168,6 +168,8 @@ public class ApiScenarioService {
     private ExtApiTestCaseMapper extApiTestCaseMapper;
     @Resource
     private ApiDefinitionModuleService apiDefinitionModuleService;
+    @Resource
+    private ApiCommonService apiCommonService;
 
     public static final String PRIORITY = "Priority";
     public static final String STATUS = "Status";
@@ -474,7 +476,7 @@ public class ApiScenarioService {
         List<String> deleteRefs = ListUtils.subtract(dbRefFileIds, intersectionRef);
         List<String> addRef = ListUtils.subtract(refFileIds, intersectionRef);
         resourceUpdateRequest.setLinkFileIds(addRef);
-        resourceUpdateRequest.setUnLinkRefIds(deleteRefs);
+        resourceUpdateRequest.setUnLinkFileIds(deleteRefs);
         //删除不存在的数据
         deleteCsvResource(resourceUpdateRequest);
 
@@ -569,15 +571,15 @@ public class ApiScenarioService {
             apiScenarioCsvStepMapper.deleteByExample(stepExample);
 
         }
-        List<String> unLinkRefIds = resourceUpdateRequest.getUnLinkRefIds();
+        List<String> unLinkFileIds = resourceUpdateRequest.getUnLinkFileIds();
         // 处理关联文件
-        if (CollectionUtils.isNotEmpty(unLinkRefIds)) {
-            fileAssociationService.deleteBySourceIdAndFileIds(resourceUpdateRequest.getResourceId(), unLinkRefIds,
+        if (CollectionUtils.isNotEmpty(unLinkFileIds)) {
+            fileAssociationService.deleteBySourceIdAndFileIds(resourceUpdateRequest.getResourceId(), unLinkFileIds,
                     apiFileResourceService.createFileLogRecord(resourceUpdateRequest.getOperator(), resourceUpdateRequest.getProjectId(), resourceUpdateRequest.getLogModule()));
             example.clear();
             example.createCriteria()
                     .andScenarioIdEqualTo(resourceUpdateRequest.getResourceId())
-                    .andFileIdIn(unLinkRefIds);
+                    .andFileIdIn(unLinkFileIds);
             apiScenarioCsvMapper.deleteByExample(example);
             stepExample.clear();
             stepExample.createCriteria().andFileIdIn(deleteFileIds);
@@ -630,7 +632,7 @@ public class ApiScenarioService {
         ApiFileResourceUpdateRequest resourceUpdateRequest = getApiFileResourceUpdateRequest(scenario.getId(), originScenario.getProjectId(), updater);
         resourceUpdateRequest.setUploadFileIds(request.getUploadFileIds());
         resourceUpdateRequest.setLinkFileIds(request.getLinkFileIds());
-        resourceUpdateRequest.setUnLinkRefIds(request.getUnLinkRefIds());
+        resourceUpdateRequest.setUnLinkFileIds(request.getUnLinkFileIds());
         resourceUpdateRequest.setDeleteFileIds(request.getDeleteFileIds());
         apiFileResourceService.updateFileResource(resourceUpdateRequest);
 
@@ -1067,7 +1069,7 @@ public class ApiScenarioService {
         runRequest.setTestId(request.getId());
         runRequest.setReportId(request.getReportId());
         runRequest.setResourceType(ApiResourceType.API_SCENARIO.name());
-        runRequest.setTempFileIds(request.getTempFileIds());
+        runRequest.setUploadFileIds(request.getUploadFileIds());
         runRequest.setGrouped(request.getGrouped());
         runRequest.setEnvironmentId(request.getEnvironmentId());
         runRequest.setTestElement(msScenario);
@@ -1092,6 +1094,7 @@ public class ApiScenarioService {
     /**
      * 设置 HttpElement 的模块信息
      * 用户环境中的模块过滤
+     *
      * @param stepTypeHttpElementMap
      */
     private void setHttpElementModuleId(Map<String, List<MsHTTPElement>> stepTypeHttpElementMap) {
@@ -1173,13 +1176,14 @@ public class ApiScenarioService {
     /**
      * 处理环境的 HTTP 配置模块匹配规则
      * 查询新增子模块
+     *
      * @param envInfoDTO
      */
     private void handleHttpModuleMatchRule(EnvironmentInfoDTO envInfoDTO) {
         List<HttpConfig> httpConfigs = envInfoDTO.getConfig().getHttpConfig();
         for (HttpConfig httpConfig : httpConfigs) {
             if (!httpConfig.isModuleMatchRule()) {
-               continue;
+                continue;
             }
             // 获取勾选了包含子模块的模块ID
             HttpConfigModuleMatchRule moduleMatchRule = httpConfig.getModuleMatchRule();
@@ -1631,7 +1635,16 @@ public class ApiScenarioService {
             step.setRefType(ApiScenarioStepRefType.REF.name());
         }
         StepParser stepParser = StepParserFactory.getStepParser(step.getStepType());
-        return stepParser.parseDetail(step);
+        Object stepDetail = stepParser.parseDetail(step);
+        if (stepDetail instanceof MsHTTPElement msHTTPElement) {
+            // 设置关联的文件的最新信息
+            if (isRef(step.getRefType())) {
+                apiCommonService.updateLinkFileInfo(step.getResourceId(), msHTTPElement);
+            } else {
+                apiCommonService.updateLinkFileInfo(step.getScenarioId(), msHTTPElement);
+            }
+        }
+        return stepDetail;
     }
 
     private void checkTargetModule(String targetModuleId, String projectId) {
@@ -2042,5 +2055,34 @@ public class ApiScenarioService {
                 extApiScenarioMapper::getPrePos,
                 extApiScenarioMapper::getLastPosEdit,
                 apiScenarioMapper::updateByPrimaryKeySelective);
+    }
+
+    public void handleFileAssociationUpgrade(FileAssociation originFileAssociation, FileMetadata newFileMetadata) {
+        // 查询有步骤详情的请求类型的步骤
+        List<String> stepIds = extApiScenarioStepMapper.getHasBlobRequestStepIds(originFileAssociation.getSourceId());
+        // 查询步骤详情
+        ApiScenarioStepBlobExample blobExample = new ApiScenarioStepBlobExample();
+        blobExample.createCriteria().andIdIn(stepIds);
+        List<ApiScenarioStepBlob> apiScenarioStepBlobs = apiScenarioStepBlobMapper.selectByExampleWithBLOBs(blobExample);
+
+        for (ApiScenarioStepBlob apiScenarioStepBlob : apiScenarioStepBlobs) {
+            AbstractMsTestElement msTestElement = null;
+            try {
+                msTestElement = ApiDataUtils.parseObject(new String(apiScenarioStepBlob.getContent()), AbstractMsTestElement.class);
+                // 如果插件删除，会转换异常
+            } catch (Exception e) {
+                LogUtils.error(e);
+            }
+            if (msTestElement != null && msTestElement instanceof MsHTTPElement msHTTPElement) {
+                List<ApiFile> updateFiles = apiCommonService.getApiFilesByFileId(originFileAssociation.getFileId(), msHTTPElement);
+                // 替换文件的Id和name
+                apiCommonService.replaceApiFileInfo(updateFiles, newFileMetadata);
+                // 如果有需要更新的文件，则更新步骤详情
+                if (CollectionUtils.isNotEmpty(updateFiles)) {
+                    apiScenarioStepBlob.setContent(ApiDataUtils.toJSONString(msTestElement).getBytes());
+                    apiScenarioStepBlobMapper.updateByPrimaryKeySelective(apiScenarioStepBlob);
+                }
+            }
+        }
     }
 }

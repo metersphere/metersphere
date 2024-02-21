@@ -49,7 +49,7 @@ public class ApiFileResourceUpdateRequest implements Serializable {
     /**
      * 删除关联的文件ID
      */
-    private List<String> unLinkRefIds;
+    private List<String> unLinkFileIds;
     /**
      * 文件关联的sourceType
      * @see io.metersphere.sdk.util.FileAssociationSourceUtil

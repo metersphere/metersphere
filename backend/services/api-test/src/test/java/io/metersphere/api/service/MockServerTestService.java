@@ -4,6 +4,7 @@ import io.metersphere.api.domain.ApiDefinitionBlob;
 import io.metersphere.api.domain.ApiDefinitionMock;
 import io.metersphere.api.domain.ApiDefinitionMockConfig;
 import io.metersphere.api.domain.ApiFileResource;
+import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.definition.HttpResponse;
 import io.metersphere.api.dto.definition.ResponseBinaryBody;
 import io.metersphere.api.dto.definition.ResponseBody;
@@ -248,16 +249,18 @@ public class MockServerTestService {
                     body.setBodyType(Body.BodyType.BINARY.name());
                     body.setBinaryBody(new ResponseBinaryBody() {{
                         this.setSendAsBody(false);
-                        this.setFileId(fileId);
-                        this.setFileName(fileName);
+                        this.setFile(new ApiFile());
+                        this.getFile().setFileId(fileId);
+                        this.getFile().setFileName(fileName);
                     }});
                     break;
                 case "file-body":
                     body.setBodyType(Body.BodyType.BINARY.name());
                     body.setBinaryBody(new ResponseBinaryBody() {{
                         this.setSendAsBody(false);
-                        this.setFileId(fileId);
-                        this.setFileName(fileName);
+                        this.setFile(new ApiFile());
+                        this.getFile().setFileId(fileId);
+                        this.getFile().setFileName(fileName);
                     }});
                     break;
                 case "json":

@@ -15,6 +15,10 @@ public enum ApiScenarioStepType {
      */
     API_CASE,
     /**
+     * 自定义请求
+     */
+    CUSTOM_REQUEST,
+    /**
      * 场景
      */
     API_SCENARIO

@@ -1,6 +1,7 @@
 package io.metersphere.api.dto.debug;
 
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.List;
@@ -38,7 +39,14 @@ public class ApiResourceRunRequest {
      */
     private AbstractMsTestElement testElement;
     /**
-     * 点击调试时尚未保存的文件列表
+     * 新上传的文件ID
+     * 创建时先按ID创建目录，再把文件放入目录
      */
-    private List<String> tempFileIds;
+    @Schema(description = "新上传的文件ID")
+    private List<String> uploadFileIds;
+    /**
+     * 新关联的文件ID
+     */
+    @Schema(description = "关联文件ID")
+    private List<String> linkFileIds;
 }
