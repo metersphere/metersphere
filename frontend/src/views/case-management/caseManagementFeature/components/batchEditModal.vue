@@ -38,7 +38,13 @@
           <MsTagsInput v-model:modelValue="form.tags" allow-clear></MsTagsInput>
         </a-form-item>
 
-        <MsFormCreate ref="formCreateRef" v-model:api="fApi" v-model:form-item="formItem" :form-rule="formRules" />
+        <MsFormCreate
+          v-else
+          ref="formCreateRef"
+          v-model:api="fApi"
+          v-model:form-item="formItem"
+          :form-rule="formRules"
+        />
       </a-form>
     </div>
   </MsDialog>
@@ -59,6 +65,7 @@
   import useAppStore from '@/store/modules/app';
 
   import type { BatchEditCaseType, CustomAttributes } from '@/models/caseManagement/featureCase';
+  import { TableQueryParams } from '@/models/common';
 
   import Message from '@arco-design/web-vue/es/message';
 
@@ -165,8 +172,10 @@
             customField.fieldId = item.field;
             customField.value = Array.isArray(item.value) ? JSON.stringify(item.value) : item.value;
           });
-          const params: BatchEditCaseType = {
-            selectIds: props.batchParams.selectedIds as string[],
+          const { selectedIds, selectAll } = props.batchParams;
+          const params: TableQueryParams = {
+            selectedIds,
+            selectAll,
             projectId: currentProjectId.value,
             append: enable as boolean,
             tags: form.value.tags,

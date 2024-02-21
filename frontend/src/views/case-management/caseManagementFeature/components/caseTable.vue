@@ -1038,7 +1038,7 @@
   };
 
   function successHandler() {
-    loadList();
+    initData();
     emitTableParams();
     resetSelector();
   }
