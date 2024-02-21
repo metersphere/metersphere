@@ -157,7 +157,8 @@ public class CaseReviewModuleService extends ModuleTreeService {
         if (CollectionUtils.isNotEmpty(caseReviewList)) {
             caseReviews.addAll(caseReviewList);
         }
-        deleteCaseReviewService.deleteCaseReviewResource(deleteIds, projectId, false);
+        List<String> caseIds = caseReviewList.stream().map(CaseReview::getId).toList();
+        deleteCaseReviewService.deleteCaseReviewResource(caseIds, projectId);
         List<String> childrenIds = extCaseReviewModuleMapper.selectChildrenIdsByParentIds(deleteIds);
         if (CollectionUtils.isNotEmpty(childrenIds)) {
             deleteModuleByIds(childrenIds, caseReviews, projectId);
