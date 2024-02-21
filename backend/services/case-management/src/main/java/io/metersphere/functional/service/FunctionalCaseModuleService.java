@@ -7,10 +7,7 @@
 package io.metersphere.functional.service;
 
 
-import io.metersphere.functional.domain.FunctionalCase;
-import io.metersphere.functional.domain.FunctionalCaseExample;
-import io.metersphere.functional.domain.FunctionalCaseModule;
-import io.metersphere.functional.domain.FunctionalCaseModuleExample;
+import io.metersphere.functional.domain.*;
 import io.metersphere.functional.mapper.ExtFunctionalCaseMapper;
 import io.metersphere.functional.mapper.ExtFunctionalCaseModuleMapper;
 import io.metersphere.functional.mapper.FunctionalCaseMapper;
@@ -106,6 +103,10 @@ public class FunctionalCaseModuleService extends ModuleTreeService {
         example.createCriteria().andParentIdEqualTo(nodeSortDTO.getParent().getId()).andIdEqualTo(request.getDragNodeId());
         //节点换到了别的节点下,要先更新parent节点再计算sort
         if (functionalCaseModuleMapper.countByExample(example) == 0) {
+            FunctionalCaseModule moveModule = functionalCaseModuleMapper.selectByPrimaryKey(request.getDragNodeId());
+            moveModule.setParentId(nodeSortDTO.getParent().getId());
+            this.checkDataValidity(moveModule);
+
             FunctionalCaseModule functionalCaseModule = new FunctionalCaseModule();
             functionalCaseModule.setId(request.getDragNodeId());
             functionalCaseModule.setParentId(nodeSortDTO.getParent().getId());

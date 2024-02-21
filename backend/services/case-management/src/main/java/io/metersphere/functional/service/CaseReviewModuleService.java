@@ -106,8 +106,12 @@ public class CaseReviewModuleService extends ModuleTreeService {
 
         CaseReviewModuleExample example = new CaseReviewModuleExample();
         example.createCriteria().andParentIdEqualTo(nodeSortDTO.getParent().getId()).andIdEqualTo(request.getDragNodeId());
-        //节点换到了别的节点下,要先更新parent节点再计算sort
+        //节点换到了别的节点下,要先更新parent节点再计算sort （同步进行名称的校验）
         if (caseReviewModuleMapper.countByExample(example) == 0) {
+            CaseReviewModule moveModule = caseReviewModuleMapper.selectByPrimaryKey(request.getDragNodeId());
+            moveModule.setParentId(nodeSortDTO.getParent().getId());
+            this.checkDataValidity(moveModule);
+
             CaseReviewModule caseReviewModule = new CaseReviewModule();
             caseReviewModule.setId(request.getDragNodeId());
             caseReviewModule.setParentId(nodeSortDTO.getParent().getId());
