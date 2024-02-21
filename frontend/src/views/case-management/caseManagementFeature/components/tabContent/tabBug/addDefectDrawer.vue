@@ -111,19 +111,32 @@
     });
   }
 
-  onBeforeMount(async () => {
-    templateOptions.value = await getTemplateOption(appStore.currentProjectId);
-    form.value.templateId = templateOptions.value.find((item) => item.enableDefault)?.id as string;
-    const result = await getTemplateDetailInfo({ id: form.value.templateId, projectId: appStore.currentProjectId });
-    templateCustomFields.value = result.customFields.map((item: any) => {
-      return {
-        id: item.fieldId,
-        name: item.fieldName,
-        type: item.type,
-        value: item.defaultValue || '',
-      };
-    });
-  });
+  async function initBugTemplate() {
+    try {
+      templateOptions.value = await getTemplateOption(appStore.currentProjectId);
+      form.value.templateId = templateOptions.value.find((item) => item.enableDefault)?.id as string;
+      const result = await getTemplateDetailInfo({ id: form.value.templateId, projectId: appStore.currentProjectId });
+      templateCustomFields.value = result.customFields.map((item: any) => {
+        return {
+          id: item.fieldId,
+          name: item.fieldName,
+          type: item.type,
+          value: item.defaultValue || '',
+        };
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  watch(
+    () => showDrawer.value,
+    (val) => {
+      if (val) {
+        initBugTemplate();
+      }
+    }
+  );
 </script>
 
 <style scoped></style>

@@ -181,11 +181,13 @@
 
   const showDrawer = ref<boolean>(false);
   const drawerRef = ref();
+
   // 添加前后置用例
   function addCase() {
     showDrawer.value = true;
     drawerRef.value.initModules();
   }
+
   function successHandler() {
     initData();
   }
@@ -199,7 +201,7 @@
     }
   );
 
-  onBeforeMount(() => {
+  onMounted(() => {
     initData();
   });
 </script>
