@@ -7,9 +7,7 @@
 package io.metersphere.functional.service;
 
 
-import io.metersphere.functional.domain.CaseReview;
-import io.metersphere.functional.domain.CaseReviewModule;
-import io.metersphere.functional.domain.CaseReviewModuleExample;
+import io.metersphere.functional.domain.*;
 import io.metersphere.functional.mapper.CaseReviewModuleMapper;
 import io.metersphere.functional.mapper.ExtCaseReviewMapper;
 import io.metersphere.functional.mapper.ExtCaseReviewModuleMapper;
@@ -215,7 +213,7 @@ public class CaseReviewModuleService extends ModuleTreeService {
             }
             example.clear();
         }
-        example.createCriteria().andParentIdEqualTo(caseReviewModule.getParentId()).andNameEqualTo(caseReviewModule.getName()).andIdNotEqualTo(caseReviewModule.getId());
+        example.createCriteria().andParentIdEqualTo(caseReviewModule.getParentId()).andNameEqualTo(caseReviewModule.getName()).andIdNotEqualTo(caseReviewModule.getId()).andProjectIdEqualTo(caseReviewModule.getProjectId());
         if (caseReviewModuleMapper.countByExample(example) > 0) {
             throw new MSException(Translator.get("node.name.repeat"));
         }
