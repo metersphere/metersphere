@@ -1,11 +1,10 @@
 <template>
   <el-card style="margin-top: 5px" @click.native="selectTestCase(apiCase, $event)" v-loading="saveLoading">
     <el-container>
-      <el-header style="margin-bottom: 20px; height: 65px">
+      <el-header style="margin-bottom: 20px; height: 70px">
         <div @click="active(apiCase)" v-if="type !== 'detail'" ref="elementHeader" class="case-header">
           <div v-loading="loading && !(apiCase.active || type === 'detail')">
             <span @click.stop>
-              <i class="icon el-icon-arrow-right" :class="{ 'is-active': apiCase.active }" @click="active(apiCase)" />
               <el-input
                 v-if="!apiCase.id || isShowInput"
                 size="small"
@@ -13,7 +12,6 @@
                 :name="index"
                 :key="index"
                 class="ms-api-header-select"
-                style="width: 180px"
                 :readonly="
                   !hasPermissions(
                     'PROJECT_API_DEFINITION:READ+EDIT_CASE',
@@ -32,7 +30,7 @@
               </span>
             </span>
             <div v-if="apiCase.id" style="color: #999999; font-size: 12px; margin-top: 8px">
-              <span style="margin-left: 10px">
+              <span>
                 {{ apiCase.updateTime | datetimeFormat }}
                 {{ apiCase.updateUser }}
                 {{ $t('api_test.definition.request.update_info') }}
@@ -40,25 +38,23 @@
             </div>
           </div>
           <div class="flex-item">
-            <el-select
-              size="mini"
-              v-model="apiCase.priority"
-              class="ms-api-select"
-              @change="changePriority(apiCase)"
-              :disabled="readonly">
-              <el-option v-for="grd in priorities" :key="grd.id" :label="grd.name" :value="grd.id" />
-            </el-select>
-            <el-select
-              size="mini"
-              v-model="apiCase.caseStatus"
-              style="margin: 0 12px; width: 100px"
-              @change="saveTestCase(apiCase, true)"
-              :disabled="readonly">
-              <el-option v-for="item in options" :key="item.id" :label="$t(item.label)" :value="item.id" />
-            </el-select>
-          </div>
-          <div class="flex-item">
             <div @click.stop>
+              <el-select
+                size="mini"
+                v-model="apiCase.priority"
+                class="ms-api-select"
+                @change="changePriority(apiCase)"
+                :disabled="readonly">
+                <el-option v-for="grd in priorities" :key="grd.id" :label="grd.name" :value="grd.id" />
+              </el-select>
+              <el-select
+                size="mini"
+                v-model="apiCase.caseStatus"
+                style="margin: 0 12px; width: 100px"
+                @change="saveTestCase(apiCase, true)"
+                :disabled="readonly">
+                <el-option v-for="item in options" :key="item.id" :label="$t(item.label)" :value="item.id" />
+              </el-select>
               <el-tooltip
                 :content="$t('commons.follow')"
                 placement="bottom"
@@ -150,7 +146,6 @@
         <!-- 请求参数-->
         <el-collapse-transition>
           <div v-if="apiCase.active || type === 'detail'" v-loading="loading">
-            <el-divider></el-divider>
             <p class="tip">{{ $t('api_test.definition.request.req_param') }}</p>
             <ms-api-request-form
               :isShowEnable="true"
@@ -280,8 +275,8 @@ export default {
       if (!value) {
         return '';
       }
-      if (value.length > 20) {
-        return value.slice(0, 20) + '...';
+      if (value.length > 28) {
+        return value.slice(0, 28) + '...';
       }
       return value;
     },
@@ -842,7 +837,7 @@ export default {
       });
     },
     active(item) {
-      item.active = !item.active;
+      item.active = true;
     },
     validate(row) {
       if (!row.name) {
@@ -1004,8 +999,7 @@ export default {
 }
 
 .ms-api-header-select {
-  margin-left: 20px;
-  min-width: 100px;
+  min-width: 350px;
 }
 
 .is-selected {
