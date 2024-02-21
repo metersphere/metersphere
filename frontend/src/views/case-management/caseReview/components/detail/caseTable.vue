@@ -36,12 +36,6 @@
       <template #resultTitle>
         <div class="flex items-center text-[var(--color-text-3)]">
           {{ t('caseManagement.caseReview.reviewResult') }}
-          <a-tooltip :content="t('caseManagement.caseReview.reviewResultTip')" position="right">
-            <icon-question-circle
-              class="ml-[4px] text-[var(--color-text-4)] hover:text-[rgb(var(--primary-5))]"
-              size="16"
-            />
-          </a-tooltip>
         </div>
       </template>
       <template #num="{ record }">
