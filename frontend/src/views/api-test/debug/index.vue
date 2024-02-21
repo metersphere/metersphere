@@ -36,6 +36,7 @@
               :create-api="addDebug"
               :update-api="updateDebug"
               :execute-api="executeDebug"
+              :upload-temp-file-api="uploadTempFile"
               @add-done="handleDebugAddDone"
             />
           </div>
@@ -88,7 +89,7 @@
   import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import debug, { RequestParam } from '@/views/api-test/components/requestComposition/index.vue';
 
-  import { addDebug, executeDebug, getDebugDetail, updateDebug } from '@/api/modules/api-test/debug';
+  import { addDebug, executeDebug, getDebugDetail, updateDebug, uploadTempFile } from '@/api/modules/api-test/debug';
   import { useI18n } from '@/hooks/useI18n';
   import { parseCurlScript } from '@/utils';
 

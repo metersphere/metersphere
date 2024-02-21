@@ -52,7 +52,7 @@
               </template>
               <a-input
                 v-if="model.type === 'input'"
-                v-model="element[model.filed]"
+                v-model:model-value="element[model.filed]"
                 class="flex-1"
                 :placeholder="t(model.placeholder || '')"
                 :max-length="model.maxLength || 255"
@@ -61,11 +61,12 @@
               />
               <a-input-number
                 v-if="model.type === 'inputNumber'"
-                v-model="element[model.filed]"
+                v-model:model-value="element[model.filed]"
                 class="flex-1"
                 :placeholder="t(model.placeholder || '')"
                 :min="model.min"
                 :max="model.max || 9999999"
+                model-event="input"
                 allow-clear
                 @change="emit('change')"
               />

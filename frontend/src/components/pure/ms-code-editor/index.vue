@@ -94,6 +94,9 @@
             top: 12,
             bottom: 12,
           },
+          minimap: {
+            enabled: false, // 将代码块预览隐藏
+          },
           ...props,
         });
 

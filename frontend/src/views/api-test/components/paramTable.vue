@@ -124,6 +124,18 @@
           @input="(val) => addTableLine(val, 'value')"
         />
       </a-popover>
+      <MsAddAttachment
+        v-else-if="record.paramType === RequestParamsType.FILE"
+        v-model:file-list="record.files"
+        mode="input"
+        :multiple="true"
+        :fields="{
+          id: 'fileId',
+          name: 'fileName',
+        }"
+        input-class="param-input"
+        @change="(files) => handleFileChange(files, record)"
+      />
       <MsParamsInput
         v-else
         v-model:value="record.value"
@@ -141,7 +153,7 @@
           class="param-input param-input-number"
           @change="(val) => addTableLine(val, 'minLength')"
         />
-        <div class="mx-[4px]">～</div>
+        <div class="mx-[4px]">{{ t('common.to') }}</div>
         <a-input-number
           v-model:model-value="record.maxLength"
           :placeholder="t('apiTestDebug.paramMax')"
@@ -317,7 +329,7 @@
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
   import MsTagsGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
-  import MsParamsInput from '@/components/business/ms-params-input/index.vue';
+  import { MsFileItem } from '@/components/pure/ms-upload/types';
   import paramDescInput from './paramDescInput.vue';
 
   import { useI18n } from '@/hooks/useI18n';
@@ -325,6 +337,9 @@
 
   import { RequestBodyFormat, RequestContentTypeEnum, RequestParamsType } from '@/enums/apiEnum';
   import { SelectAllEnum, TableKeyEnum } from '@/enums/tableEnum';
+  // 异步加载组件
+  const MsAddAttachment = defineAsyncComponent(() => import('@/components/business/ms-add-attachment/index.vue'));
+  const MsParamsInput = defineAsyncComponent(() => import('@/components/business/ms-params-input/index.vue'));
 
   export type ParamTableColumn = MsTableColumnData & {
     isNormal?: boolean; // 用于 value 列区分是普通输入框还是 MsParamsInput
@@ -356,6 +371,7 @@
       showSelectorAll?: boolean; // 是否显示全选
       isSimpleSetting?: boolean; // 是否简单Column设置
       response?: string; // 响应内容
+      uploadTempFileApi?: (...args) => Promise<any>; // 上传临时文件接口
     }>(),
     {
       params: () => [],
@@ -511,6 +527,34 @@
   function toggleRequired(record: Record<string, any>) {
     record.required = !record.required;
     emit('change', propsRes.value.data);
+  }
+
+  async function handleFileChange(files: MsFileItem[], record: Record<string, any>) {
+    try {
+      if (props.uploadTempFileApi && files.length === 1) {
+        // 本地上传单次只能选一个文件
+        const fileItem = files[0];
+        const res = await props.uploadTempFileApi(fileItem.file);
+        record.files = [
+          {
+            ...fileItem,
+            fileId: res.data,
+            fileName: fileItem.name || '',
+            local: true,
+          },
+        ];
+      } else {
+        record.files = files.map((e) => ({
+          ...e,
+          fileId: e.uid || e.fileId || '',
+          fileName: e.name || e.fileName || '',
+        }));
+      }
+      emit('change', propsRes.value.data);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    }
   }
 
   const showQuickInputParam = ref(false);

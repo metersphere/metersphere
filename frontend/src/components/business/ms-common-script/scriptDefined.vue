@@ -14,9 +14,9 @@
           {{ t('project.commonScript.clear') }}</MsTag
         >
       </div>
-      <MsTag class="cursor-pointer" theme="outline" @click="formatCoding">{{
-        t('project.commonScript.formatting')
-      }}</MsTag>
+      <MsTag class="cursor-pointer" theme="outline" @click="formatCoding">
+        {{ t('project.commonScript.formatting') }}
+      </MsTag>
     </div>
   </div>
   <div v-if="props.showType === 'commonScript'" class="flex bg-[var(--color-bg-3)]">
@@ -179,6 +179,13 @@ ${item.script}
   function clearCode() {
     innerCodeValue.value = '';
   }
+
+  defineExpose({
+    formatCoding,
+    insertHandler,
+    undoHandler,
+    clearCode,
+  });
 </script>
 
 <style scoped lang="less"></style>

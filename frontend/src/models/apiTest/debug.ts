@@ -38,7 +38,7 @@ export interface ResponseTiming {
 }
 // key-value参数信息
 export interface KeyValueParam {
-  id: string; // id用于前端渲染，后台无此字段
+  id?: string; // id用于前端渲染，后台无此字段
   key: string;
   value: string;
   [key: string]: any; // 用于前端渲染时填充的自定义信息，后台无此字段
@@ -63,6 +63,8 @@ export type ExecuteRequestFormBodyFormValue = ExecuteRequestCommonParam & {
   files?: {
     fileId: string;
     fileName: string;
+    local: boolean; // 是否是本地上传的文件
+    [key: string]: any; // 用于前端渲染时填充的自定义信息，后台无此字段
   }[];
   contentType?: RequestContentTypeEnum & string;
 };
@@ -75,6 +77,8 @@ export interface ExecuteBinaryBody {
   file?: {
     fileId: string;
     fileName: string;
+    local: boolean; // 是否是本地上传的文件
+    [key: string]: any; // 用于前端渲染时填充的自定义信息，后台无此字段
   };
 }
 // 接口请求json-body参数集合信息
@@ -296,7 +300,8 @@ export interface ExecuteRequestParams {
   id?: string;
   reportId: string;
   environmentId: string;
-  tempFileIds: string[];
+  uploadFileIds: string[];
+  linkFileIds: string[];
   request: ExecuteHTTPRequestFullParams | ExecutePluginRequestParams;
   projectId: string;
 }

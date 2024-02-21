@@ -4,6 +4,7 @@ import {
   AddDebugModuleUrl,
   DeleteDebugModuleUrl,
   DeleteDebugUrl,
+  DragDebugUrl,
   ExecuteApiDebugUrl,
   GetApiDebugDetailUrl,
   GetDebugModuleCountUrl,
@@ -11,6 +12,7 @@ import {
   MoveDebugModuleUrl,
   UpdateApiDebugUrl,
   UpdateDebugModuleUrl,
+  UploadTempFileUrl,
 } from '@/api/requrls/api-test/debug';
 
 import {
@@ -21,7 +23,7 @@ import {
   UpdateDebugModule,
   UpdateDebugParams,
 } from '@/models/apiTest/debug';
-import { ModuleTreeNode, MoveModules } from '@/models/common';
+import { DragSortParams, ModuleTreeNode, MoveModules } from '@/models/common';
 
 // 获取模块树
 export function getDebugModules() {
@@ -53,6 +55,11 @@ export function getDebugModuleCount(data: { keyword: string }) {
   return MSR.post({ url: GetDebugModuleCountUrl, data });
 }
 
+// 拖拽调试节点
+export function dragDebug(data: DragSortParams) {
+  return MSR.post({ url: DragDebugUrl, data });
+}
+
 // 执行调试
 export function executeDebug(data: ExecuteRequestParams) {
   return MSR.post<ExecuteRequestParams>({ url: ExecuteApiDebugUrl, data });
@@ -76,4 +83,9 @@ export function getDebugDetail(id: string) {
 // 删除接口调试
 export function deleteDebug(id: string) {
   return MSR.get({ url: DeleteDebugUrl, params: id });
+}
+
+// 上传文件
+export function uploadTempFile(file: File) {
+  return MSR.uploadFile({ url: UploadTempFileUrl }, { fileList: [file] }, 'file');
 }

@@ -31,7 +31,7 @@
                 <MsIcon type="icon-icon_edit_outlined" class="edit-script-name-icon" @click="showEditScriptNameInput" />
               </div>
             </a-tooltip>
-            <a-popover class="h-auto" position="top">
+            <a-popover class="h-auto" position="right">
               <div class="text-[rgb(var(--primary-5))]">{{ t('apiTestDebug.scriptEx') }}</div>
               <template #content>
                 <div class="mb-[8px] flex items-center justify-between">
@@ -64,7 +64,7 @@
             </a-popover>
           </div>
           <div class="flex items-center gap-[8px]">
-            <a-button type="outline" class="arco-btn-outline--secondary p-[0_8px]" size="mini">
+            <a-button type="outline" class="arco-btn-outline--secondary p-[0_8px]" size="mini" @click="undoScript">
               <template #icon>
                 <MsIcon type="icon-icon_undo_outlined" class="text-var(--color-text-4)" size="12" />
               </template>
@@ -87,6 +87,7 @@
         <div class="h-[calc(100%-24px)] min-h-[300px]">
           <MsScriptDefined
             v-if="condition.script !== undefined && condition.scriptLanguage !== undefined"
+            ref="scriptDefinedRef"
             v-model:code="condition.script"
             v-model:language="condition.scriptLanguage"
             show-type="commonScript"
@@ -402,8 +403,14 @@ org.apache.http.client.method . . . '' at line number 2
     }
   }
 
+  const scriptDefinedRef = ref<InstanceType<typeof MsScriptDefined>>();
+
+  function undoScript() {
+    scriptDefinedRef.value?.undoHandler();
+  }
+
   function clearScript() {
-    condition.value.enable = false;
+    condition.value.script = '';
   }
 
   /**

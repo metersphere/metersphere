@@ -55,9 +55,11 @@
           children: 'children',
           count: 'count',
         }"
+        :draggable="true"
         :selectable="false"
         block-node
         title-tooltip-position="left"
+        :allow-drop="allowDrop"
         @more-action-select="handleFolderMoreSelect"
         @more-actions-close="moreActionsClose"
         @drop="handleDrop"
@@ -124,12 +126,15 @@
   import {
     deleteDebug,
     deleteDebugModule,
+    dragDebug,
     getDebugModuleCount,
     getDebugModules,
     moveDebugModule,
   } from '@/api/modules/api-test/debug';
+  import { dropPositionMap } from '@/config/common';
   import { useI18n } from '@/hooks/useI18n';
   import useModal from '@/hooks/useModal';
+  import useAppStore from '@/store/modules/app';
   import { mapTree } from '@/utils';
 
   import { ModuleTreeNode } from '@/models/common';
@@ -139,6 +144,7 @@
   }>();
   const emit = defineEmits(['init', 'clickApiNode', 'newApi', 'import', 'renameFinish']);
 
+  const appStore = useAppStore();
   const { t } = useI18n();
   const { openModal } = useModal();
 
@@ -204,6 +210,7 @@
         return {
           ...e,
           hideMoreAction: e.id === 'root',
+          draggable: e.id !== 'root',
         };
       });
       rootModulesName.value = folderTree.value.map((e) => e.name || '');
@@ -324,6 +331,18 @@
     }
   }
 
+  function allowDrop(dropNode: MsTreeNodeData, dropPosition: number, dragNode?: MsTreeNodeData | null) {
+    if (dropNode.type === 'API' && dropPosition === 0) {
+      // API节点不可添加子节点
+      return false;
+    }
+    if (dropNode.type === 'MODULE' && dragNode?.type === 'API' && dropPosition !== 0) {
+      // API节点不移动到模块的前后位置
+      return false;
+    }
+    return true;
+  }
+
   /**
    * 处理文件夹树节点拖拽事件
    * @param tree 树数据
@@ -339,11 +358,21 @@
   ) {
     try {
       loading.value = true;
-      await moveDebugModule({
-        dragNodeId: dragNode.id as string,
-        dropNodeId: dropNode.id || '',
-        dropPosition,
-      });
+      if (dragNode.type === 'MODULE') {
+        await moveDebugModule({
+          dragNodeId: dragNode.id as string,
+          dropNodeId: dropNode.id || '',
+          dropPosition,
+        });
+      } else {
+        await dragDebug({
+          projectId: appStore.currentProjectId,
+          moveMode: dropPositionMap[dropPosition],
+          moveId: dropNode.id,
+          targetId: dragNode.id,
+          moduleId: dropNode.type === 'API' ? dropNode.parentId : dropNode.id, // 释放节点是 API，则传入它所属模块id；模块的话直接是模块id
+        });
+      }
       Message.success(t('apiTestDebug.moduleMoveSuccess'));
     } catch (error) {
       // eslint-disable-next-line no-console

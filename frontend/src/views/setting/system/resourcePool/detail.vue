@@ -79,7 +79,8 @@
           :show-fill-icon="false"
         />
       </a-form-item>
-      <template v-if="isCheckedPerformance">
+      <!--TODO:暂无性能测试-->
+      <!-- <template v-if="isCheckedPerformance">
         <a-form-item :label="t('system.resourcePool.mirror')" field="testResourceDTO.loadTestImage" class="form-item">
           <a-input
             v-model:model-value="form.testResourceDTO.loadTestImage"
@@ -98,9 +99,9 @@
             @fill="fillHeapByDefault"
           />
         </a-form-item>
-      </template>
-
-      <template v-if="isCheckedUI">
+      </template> -->
+      <!--TODO:暂无UI测试-->
+      <!-- <template v-if="isCheckedUI">
         <a-form-item
           :label="t('system.resourcePool.uiGrid')"
           field="testResourceDTO.uiGrid"
@@ -131,7 +132,7 @@
             class="w-[160px]"
           ></a-input-number>
         </a-form-item>
-      </template>
+      </template> -->
 
       <a-form-item v-if="isShowTypeItem" :label="t('system.resourcePool.type')" field="type" class="form-item">
         <a-radio-group v-model:model-value="form.type" type="button" @change="changeResourceType">

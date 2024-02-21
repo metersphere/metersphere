@@ -1,7 +1,6 @@
 <template>
   <MsDrawer
     v-model:visible="showDrawer"
-    :mask="false"
     :title="t('caseManagement.featureCase.associatedFile')"
     :ok-text="t('caseManagement.featureCase.associated')"
     :ok-loading="drawerLoading"
@@ -72,6 +71,7 @@
           :show-type="showType"
           :get-list-request="props.getListRequest"
           :get-list-fun-params="props.getListFunParams"
+          :selector-type="props.selectorType"
           @init="handleModuleTableInit"
         />
       </template>
@@ -103,6 +103,7 @@
     getCountRequest: (params: any) => Promise<Record<string, any>>; // 获取左侧树模块数量请求
     getListRequest: (params: TableQueryParams) => Promise<CommonList<AssociatedList>>; // 获取表格请求
     getListFunParams: TableQueryParams; // 关联表去重id
+    selectorType?: 'none' | 'checkbox' | 'radio';
   }>();
 
   const emit = defineEmits<{

@@ -8,6 +8,9 @@
       v-model:selected-keys="innerSelectedKeys"
       :data="treeData"
       class="ms-tree"
+      :allow-drop="handleAllowDrop"
+      @drag-start="onDragStart"
+      @drag-end="onDragEnd"
       @drop="onDrop"
       @select="select"
       @check="checked"
@@ -117,6 +120,7 @@
         | 'right'
         | 'rt'
         | 'rb'; // 标题 tooltip 的位置
+      allowDrop?: (dropNode: MsTreeNodeData, dropPosition: -1 | 0 | 1, dragNode?: MsTreeNodeData | null) => boolean; // 是否允许放置
       filterMoreActionFunc?: (items: ActionsItem[], node: MsTreeNodeData) => ActionsItem[]; // 过滤更多操作按钮
     }>(),
     {
@@ -263,6 +267,23 @@
       }
       return false;
     });
+  }
+
+  const tempDragNode = ref<MsTreeNodeData | null>(null);
+
+  function handleAllowDrop({ dropNode, dropPosition }: { dropNode: MsTreeNodeData; dropPosition: -1 | 0 | 1 }) {
+    if (props.allowDrop) {
+      return props.allowDrop(dropNode, dropPosition, tempDragNode.value);
+    }
+    return true;
+  }
+
+  function onDragStart(e, node: MsTreeNodeData) {
+    tempDragNode.value = node;
+  }
+
+  function onDragEnd() {
+    tempDragNode.value = null;
   }
 
   /**
