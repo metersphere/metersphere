@@ -155,7 +155,8 @@
         t.NAME AS poolName
         FROM
         api_report
-        LEFT JOIN api_test_case c ON api_report.resource_id = c.id
+        LEFT JOIN api_test_case_record a ON api_report.id = a.api_report_id
+        LEFT JOIN api_test_case c ON a.api_test_case_id = c.id
         LEFT JOIN test_resource_pool t ON api_report.pool_id = t.id
         where  api_report.deleted = false
         and api_report.test_plan_id = 'NONE'

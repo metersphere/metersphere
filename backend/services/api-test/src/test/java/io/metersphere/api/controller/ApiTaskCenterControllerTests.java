@@ -232,7 +232,6 @@ public class ApiTaskCenterControllerTests extends BaseTest {
             apiReport.setProjectId(DEFAULT_PROJECT_ID);
             apiReport.setName("task-report-name" + i);
             apiReport.setStartTime(System.currentTimeMillis());
-            apiReport.setResourceId("api-resource-id" + i);
             apiReport.setCreateUser("admin");
             apiReport.setUpdateUser("admin");
             apiReport.setUpdateTime(System.currentTimeMillis());
@@ -257,7 +256,6 @@ public class ApiTaskCenterControllerTests extends BaseTest {
             scenarioReport.setProjectId(DEFAULT_PROJECT_ID);
             scenarioReport.setName("task-report-name" + i);
             scenarioReport.setStartTime(System.currentTimeMillis());
-            scenarioReport.setScenarioId("scenario-scenario-id" + i);
             scenarioReport.setCreateUser("admin");
             scenarioReport.setUpdateUser("admin");
             if (i % 2 == 0) {

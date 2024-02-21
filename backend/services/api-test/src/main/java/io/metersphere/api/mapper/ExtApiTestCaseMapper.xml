@@ -110,7 +110,7 @@
 
     <select id="findPassRateByIds" resultType="io.metersphere.api.dto.definition.CasePassDTO">
         SELECT
-        t2.resource_id as id,
+        t1.api_scenario_id as id,
         CONCAT(
         FORMAT(
         SUM(
@@ -122,13 +122,14 @@
         ) value
         FROM
         api_report t2
+        left join api_scenario_record t1 on t1.api_scenario_report_id = t2.id
         WHERE
-        t2.resource_id IN
+        t1.api_scenario_id IN
         <foreach collection="ids" item="id" separator="," open="(" close=")">
             #{id}
         </foreach>
         GROUP BY
-        t2.resource_id
+        t1.api_scenario_id
     </select>
     <select id="selectIdsByCaseIds" resultType="java.lang.String">
         SELECT
@@ -237,9 +238,11 @@
         api_report.create_user,
         api_report.trigger_mode,
         api_report.test_plan_id
-        from api_report where
+        from api_report
+        left join api_test_case_record t1 on t1.api_report_id = api_report.id
+        where
         <if test="request.id != null and request.id != ''">
-            api_report.resource_id = #{request.id}
+            t1.api_test_case_id = #{request.id}
         </if>
         <include refid="report_filters">
             <property name="filter" value="request.filter"/>

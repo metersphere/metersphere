@@ -20,11 +20,6 @@ public class ApiScenarioReport implements Serializable {
     @Size(min = 1, max = 255, message = "{api_scenario_report.name.length_range}", groups = {Created.class, Updated.class})
     private String name;
 
-    @Schema(description = "场景fk", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank(message = "{api_scenario_report.scenario_id.not_blank}", groups = {Created.class})
-    @Size(min = 1, max = 50, message = "{api_scenario_report.scenario_id.length_range}", groups = {Created.class, Updated.class})
-    private String scenarioId;
-
     @Schema(description = "测试计划id", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_scenario_report.test_plan_id.not_blank}", groups = {Created.class})
     @Size(min = 1, max = 50, message = "{api_scenario_report.test_plan_id.length_range}", groups = {Created.class, Updated.class})
@@ -152,7 +147,6 @@ public class ApiScenarioReport implements Serializable {
     public enum Column {
         id("id", "id", "VARCHAR", false),
         name("name", "name", "VARCHAR", true),
-        scenarioId("scenario_id", "scenarioId", "VARCHAR", false),
         testPlanId("test_plan_id", "testPlanId", "VARCHAR", false),
         createUser("create_user", "createUser", "VARCHAR", false),
         deleteTime("delete_time", "deleteTime", "BIGINT", false),

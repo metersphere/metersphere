@@ -160,7 +160,8 @@ public class ApiScenarioReportService {
         }
         //将scenarioReportSteps按照parentId进行分组 值为list 然后根据sort进行排序
         Map<String, List<ApiScenarioReportStepDTO>> scenarioReportStepMap = scenarioReportSteps.stream().collect(Collectors.groupingBy(ApiScenarioReportStepDTO::getParentId));
-        List<ApiScenarioReportStepDTO> steps = scenarioReportStepMap.get(scenarioReport.getScenarioId());
+        // TODO 查询修改
+        List<ApiScenarioReportStepDTO> steps = scenarioReportStepMap.get("NONE");
         steps.sort(Comparator.comparingLong(ApiScenarioReportStepDTO::getSort));
         getStepTree(steps, scenarioReportStepMap);
         scenarioReportDTO.setStepTotal(steps.size());
