@@ -142,6 +142,7 @@ public class CaseReviewControllerTests extends BaseTest {
             tags.add("11");
             caseReviewRequest.setTags(tags);
         }
+        baseAssociateCaseRequest.setReviewers(reviewers);
         caseReviewRequest.setBaseAssociateCaseRequest(baseAssociateCaseRequest);
         return caseReviewRequest;
     }
