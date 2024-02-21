@@ -27,6 +27,9 @@ public class FilterChainUtils {
         filterChainDefinitionMap.put("/authsource/list/allenable", "anon");
         filterChainDefinitionMap.put("/sso/callback/**", "anon");
         filterChainDefinitionMap.put("/license/validate", "anon");
+        //mock-server
+        filterChainDefinitionMap.put("/mock-server/**", "anon");
+
         //功能用例副文本访问
         filterChainDefinitionMap.put("/attachment/download/file/**", "anon");
         //用例评审副文本访问

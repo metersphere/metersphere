@@ -1,5 +1,7 @@
 package io.metersphere.api.dto.definition.request;
 
+import io.metersphere.api.dto.mockserver.MockMatchRule;
+import io.metersphere.api.dto.mockserver.MockResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -32,17 +34,14 @@ public class ApiDefinitionMockAddRequest implements Serializable {
 
     @Schema(description = "标签")
     private LinkedHashSet<
-            @NotBlank
             @Size(min = 1, max = 64, message = "{api_test_case.tag.length_range}")
                     String> tags;
 
     @Schema(description = "请求内容")
-    @NotBlank
-    private String matching;
+    private MockMatchRule mockMatchRule;
 
     @Schema(description = "请求内容")
-    @NotBlank
-    private String response;
+    private MockResponse response;
 
     @Schema(description = "接口fk", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank(message = "{api_definition_mock.api_definition_id.not_blank}")

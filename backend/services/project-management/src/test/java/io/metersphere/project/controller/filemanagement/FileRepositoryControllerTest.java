@@ -26,13 +26,13 @@ import io.metersphere.system.utils.CheckLogModel;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
-import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -203,40 +203,6 @@ public class FileRepositoryControllerTest extends BaseTest {
         Assertions.assertEquals(response.getToken(), GITEA_TOKEN);
         Assertions.assertEquals(response.getUrl(), GITEA_URL);
 
-        //测试创建gitee的
-        String giteeUrl = "https://gitee.com/testformeterspere/gitee-test.git";
-        String giteeUserName = "testformetersphere";
-        String giteeToken = "4548d369bb595738d726512742e4478f";
-        createRequest = new FileRepositoryCreateRequest();
-        createRequest.setProjectId(project.getId());
-        createRequest.setPlatform(ModuleConstants.NODE_TYPE_GITEE);
-        createRequest.setUrl(giteeUrl);
-        createRequest.setUserName(giteeUserName);
-        createRequest.setToken(giteeToken);
-        createRequest.setName("GITEE存储库");
-
-        int tryCount = 0;
-        while (true) {
-            //github连接gitee有时会连不到，这里重试10次。
-            result = this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE, createRequest).andReturn();
-            if (result.getResponse().getStatus() == 200) {
-                break;
-            } else {
-                tryCount++;
-                if (tryCount > 10) {
-                    throw new Exception("无法创建gitee存储库");
-                } else {
-                    Thread.sleep(1000);
-                }
-            }
-        }
-
-        returnStr = result.getResponse().getContentAsString();
-        rh = JSON.parseObject(returnStr, ResultHolder.class);
-        this.checkFileRepository(rh.getData().toString(), createRequest.getProjectId(), createRequest.getName(), createRequest.getPlatform(), createRequest.getUrl(), createRequest.getToken(), createRequest.getUserName());
-        LOG_CHECK_LIST.add(
-                new CheckLogModel(rh.getData().toString(), OperationLogType.ADD, FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE)
-        );
 
         //参数测试： 没有url
         createRequest = new FileRepositoryCreateRequest();
@@ -283,12 +249,13 @@ public class FileRepositoryControllerTest extends BaseTest {
         createRequest.setToken(GITEA_TOKEN);
         createRequest.setName("GITEA存储库");
         this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE, createRequest).andExpect(status().is5xxServerError());
+
         //报错测试： gitee仓库，不填写用户名
         createRequest = new FileRepositoryCreateRequest();
         createRequest.setProjectId(project.getId());
         createRequest.setPlatform(ModuleConstants.NODE_TYPE_GITEE);
-        createRequest.setUrl(giteeUrl);
-        createRequest.setToken(giteeToken);
+        createRequest.setUrl("gitee/test/url");
+        createRequest.setToken("gitee-token");
         createRequest.setName("Gitee无用户名存储库");
         this.requestPost(FileManagementRequestUtils.URL_FILE_REPOSITORY_CREATE, createRequest).andExpect(status().is5xxServerError());
 

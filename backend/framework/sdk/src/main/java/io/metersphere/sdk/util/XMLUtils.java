@@ -4,6 +4,7 @@ package io.metersphere.sdk.util;
 import org.apache.commons.lang3.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
+import org.dom4j.Element;
 import org.dom4j.Node;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.SAXReader;
@@ -11,10 +12,15 @@ import org.dom4j.io.XMLWriter;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.XMLFilterImpl;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class XMLUtils {
     public static final boolean IS_TRANS = false;
@@ -26,7 +32,7 @@ public class XMLUtils {
             reader.setFeature("http://xml.org/sax/features/external-general-entities", false);
             reader.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
             reader.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-        }catch (Exception e){
+        } catch (Exception e) {
             LogUtils.error(e);
         }
         if (!IS_TRANS) {
@@ -99,5 +105,41 @@ public class XMLUtils {
                 super.characters(ch, start, length);
             }
         };
+    }
+
+    public static Document stringToDocument(String xml) throws Exception {
+        return getDocument(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8.name())));
+    }
+
+    public static Map<String, Object> xmlStringToJson(String xml) {
+        try {
+            return elementToMap(stringToDocument(xml).getRootElement());
+        } catch (Exception e) {
+            LogUtils.error(e);
+        }
+        return new LinkedHashMap<>();
+    }
+
+    private static Map<String, Object> elementToMap(Element node) {
+        LinkedHashMap<String, Object> result = new LinkedHashMap<>();
+
+        List<Element> listElement = node.elements();// 所有一级子节点的list
+        if (!listElement.isEmpty()) {
+            List<Map<String, Object>> list = new ArrayList<>();
+            for (Element e : listElement) {// 遍历所有一级子节点
+                Map<String, Object> jsonObject = elementToMap(e);
+                list.add(jsonObject);
+            }
+            if (list.size() == 1) {
+                result.put(node.getName(), list.get(0));
+            } else {
+                result.put(node.getName(), list);
+            }
+        } else {
+            if (!StringUtils.isAllBlank(node.getName(), node.getText())) {
+                result.put(node.getName(), node.getText());
+            }
+        }
+        return result;
     }
 }

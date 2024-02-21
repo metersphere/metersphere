@@ -64,4 +64,6 @@ public interface ExtApiDefinitionMapper {
     Long getLastPos(@Param("projectId") String projectId, @Param("basePos") Long basePos);
 
     List<ApiResourceModuleInfo> getModuleInfoByIds(@Param("ids") List<String> ids);
+
+    ApiDefinition selectByProjectNumAndApiNum(@Param("projectNum") String projectNum, @Param("apiNum") String apiNum);
 }
