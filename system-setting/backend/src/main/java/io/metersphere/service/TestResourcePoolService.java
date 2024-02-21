@@ -94,7 +94,10 @@ public class TestResourcePoolService {
         if (testResourcePoolMapper.countByExample(example) > 0) {
             MSException.throwException(Translator.get("test_resource_pool_name_already_exists"));
         }
-
+        // 去除镜像前后空格
+        if (StringUtils.isNotBlank(testResourcePoolDTO.getImage())) {
+            testResourcePoolDTO.setImage(testResourcePoolDTO.getImage().trim());
+        }
     }
 
     public void updateTestResourcePoolStatus(String poolId, String status) {
