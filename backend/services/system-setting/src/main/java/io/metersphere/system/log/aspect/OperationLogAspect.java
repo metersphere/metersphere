@@ -270,7 +270,7 @@ public class OperationLogAspect {
                 save(result);
             }
         } catch (Exception e) {
-            LogUtils.error("操作日志写入异常：", e);
+            LogUtils.error("操作日志写入异常：{}", e);
         } finally {
             localUser.remove();
             beforeValues.remove();

@@ -51,7 +51,7 @@ public class WebSocketUtils {
                 WebSocketUtils.ONLINE_USER_SESSIONS.remove(reportId);
             }
         } catch (Exception e) {
-            LogUtils.error("关闭socket失败：", e);
+            LogUtils.error("关闭socket失败：{}", e);
         }
     }
 }

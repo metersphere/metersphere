@@ -32,7 +32,7 @@ public class MessageListener {
     @KafkaListener(id = MESSAGE_CONSUME_ID, topics = KafkaTopicConstants.API_REPORT_TASK_TOPIC, groupId = MESSAGE_CONSUME_ID)
     public void messageConsume(ConsumerRecord<?, String> record) {
         try {
-            LogUtils.info("接收到发送通知信息：", record.key());
+            LogUtils.info("接收到发送通知信息：{}", record.key());
             if (ObjectUtils.isNotEmpty(record.value())) {
                 ApiNoticeDTO dto = JSON.parseObject(record.value(), ApiNoticeDTO.class);
 
@@ -40,7 +40,7 @@ public class MessageListener {
                 if (!StringUtils.equalsIgnoreCase(dto.getReportType(), ApiReportType.INTEGRATED.name())) {
                     apiReportSendNoticeService.sendNotice(dto);
                     // TODO 通知测试计划处理后续
-                    LogUtils.info("发送通知给测试计划：", record.key());
+                    LogUtils.info("发送通知给测试计划：{}", record.key());
                     apiEventSource.fireEvent(ApplicationScope.API_TEST, record.value());
 
                 }
@@ -50,7 +50,7 @@ public class MessageListener {
 
             }
         } catch (Exception e) {
-            LogUtils.error("接收到发送通知信息：", e);
+            LogUtils.error("接收到发送通知信息：{}", e);
         }
     }
 }
