@@ -1118,17 +1118,21 @@ public class BugService {
         List<String> ids = bugs.stream().map(BugDTO::getId).toList();
         List<BugCustomFieldDTO> customFields = extBugCustomFieldMapper.getBugAllCustomFields(ids, projectId);
         Map<String, List<BugCustomFieldDTO>> customFieldMap = customFields.stream().collect(Collectors.groupingBy(BugCustomFieldDTO::getBugId));
-        // 处理人选项
+        // 表头处理人选项
         List<SelectOption> handleUserOption = bugCommonService.getHeaderHandlerOption(projectId);
         Map<String, String> handleMap = handleUserOption.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
-        // 状态选项
+        List<SelectOption> localHandlerOption = bugCommonService.getLocalHandlerOption(projectId);
+        Map<String, String> localHandleMap = localHandlerOption.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
+        // 表头状态选项
         List<SelectOption> statusOption = bugStatusService.getHeaderStatusOption(projectId);
         Map<String, String> statusMap = statusOption.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
+        List<SelectOption> localStatusOptions = bugStatusService.getAllLocalStatusOptions(projectId);
+        Map<String, String> localStatusMap = localStatusOptions.stream().collect(Collectors.toMap(SelectOption::getValue, SelectOption::getText));
         bugs.forEach(bug -> {
             bug.setCustomFields(customFieldMap.get(bug.getId()));
-            // 解析处理人, 状态, 严重程度
-            bug.setHandleUserName(handleMap.get(bug.getHandleUser()));
-            bug.setStatusName(statusMap.get(bug.getStatus()));
+            // 解析处理人, 状态
+            bug.setHandleUserName(StringUtils.isBlank(handleMap.get(bug.getHandleUser())) ? localHandleMap.get(bug.getHandleUser()) : handleMap.get(bug.getHandleUser()));
+            bug.setStatusName(StringUtils.isBlank(statusMap.get(bug.getStatus())) ? localStatusMap.get(bug.getStatus()) : statusMap.get(bug.getStatus()));
         });
         return bugs;
     }

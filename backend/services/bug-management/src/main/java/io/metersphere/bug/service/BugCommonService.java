@@ -16,7 +16,6 @@ import io.metersphere.system.domain.ServiceIntegration;
 import io.metersphere.system.service.PlatformPluginService;
 import io.metersphere.system.service.PluginLoadService;
 import jakarta.annotation.Resource;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,8 +50,7 @@ public class BugCommonService {
 			// Local处理人
 			return getLocalHandlerOption(projectId);
 		} else {
-			// 第三方平台(Local处理人 && 平台处理人)
-			List<SelectOption> localHandlerOption = getLocalHandlerOption(projectId);
+			// 第三方平台处理人
 			// 获取插件中自定义的注入字段(处理人)
 			Platform platform = platformPluginService.getPlatform(serviceIntegration.getPluginId(), serviceIntegration.getOrganizationId(),
 					new String(serviceIntegration.getConfiguration()));
@@ -66,7 +64,7 @@ public class BugCommonService {
 					platformHandlerOption = platform.getFormOptions(request);
 				}
 			}
-			return ListUtils.union(localHandlerOption, platformHandlerOption);
+			return platformHandlerOption;
 		}
 	}
 
