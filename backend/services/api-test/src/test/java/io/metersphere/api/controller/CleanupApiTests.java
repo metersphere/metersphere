@@ -241,7 +241,6 @@ public class CleanupApiTests {
             apiReport.setProjectId(projectId);
             apiReport.setName("clean-report-name" + i);
             apiReport.setStartTime(1703174400000L);
-            apiReport.setResourceId("clean-resource-id" + i);
             apiReport.setCreateUser("admin");
             apiReport.setUpdateUser("admin");
             apiReport.setUpdateTime(System.currentTimeMillis());
@@ -276,7 +275,6 @@ public class CleanupApiTests {
             scenarioReport.setProjectId(projectId);
             scenarioReport.setName("clean--scenario-report-name" + i);
             scenarioReport.setStartTime(1703174400000L);
-            scenarioReport.setScenarioId("scenario-scenario-id" + i);
             scenarioReport.setCreateUser("admin");
             scenarioReport.setUpdateUser("admin");
             if (i % 50 == 0) {

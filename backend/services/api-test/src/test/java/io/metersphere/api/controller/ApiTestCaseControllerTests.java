@@ -38,6 +38,7 @@ import io.metersphere.system.uid.NumGenerator;
 import io.metersphere.system.utils.Pager;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpHeaders;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -52,7 +53,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.apache.commons.lang3.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -119,6 +119,8 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private ProjectVersionMapper projectVersionMapper;
     @Resource
     private OperationHistoryService operationHistoryService;
+    @Resource
+    private ApiTestCaseRecordMapper apiTestCaseRecordMapper;
 
     public static <T> T parseObjectFromMvcResult(MvcResult mvcResult, Class<T> parseClass) {
         try {
@@ -578,13 +580,13 @@ public class ApiTestCaseControllerTests extends BaseTest {
     public void testExecuteList() throws Exception {
         ApiTestCase first = apiTestCaseMapper.selectByExample(new ApiTestCaseExample()).getFirst();
         List<ApiReport> reports = new ArrayList<>();
+        List<ApiTestCaseRecord> records = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             ApiReport apiReport = new ApiReport();
             apiReport.setId(IDGenerator.nextStr());
             apiReport.setProjectId(DEFAULT_PROJECT_ID);
             apiReport.setName("api-case-name" + i);
             apiReport.setStartTime(System.currentTimeMillis());
-            apiReport.setResourceId(first.getId());
             apiReport.setCreateUser("admin");
             apiReport.setUpdateUser("admin");
             apiReport.setUpdateTime(System.currentTimeMillis());
@@ -599,7 +601,12 @@ public class ApiTestCaseControllerTests extends BaseTest {
             apiReport.setTriggerMode("api-trigger-mode" + i);
             apiReport.setVersionId("api-version-id" + i);
             reports.add(apiReport);
+            ApiTestCaseRecord record = new ApiTestCaseRecord();
+            record.setApiTestCaseId(first.getId());
+            record.setApiReportId(apiReport.getId());
+            records.add(record);
         }
+        apiTestCaseRecordMapper.batchInsert(records);
         apiReportService.insertApiReport(reports);
         ApiCaseExecutePageRequest request = new ApiCaseExecutePageRequest();
         request.setId(first.getId());

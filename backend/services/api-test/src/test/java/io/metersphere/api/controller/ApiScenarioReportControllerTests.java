@@ -77,7 +77,6 @@ public class ApiScenarioReportControllerTests extends BaseTest {
             scenarioReport.setProjectId(DEFAULT_PROJECT_ID);
             scenarioReport.setName("scenario-report-name" + i);
             scenarioReport.setStartTime(System.currentTimeMillis());
-            scenarioReport.setScenarioId("scenario-scenario-id" + i);
             scenarioReport.setCreateUser("admin");
             scenarioReport.setUpdateUser("admin");
             if (i % 50 == 0) {
@@ -231,7 +230,6 @@ public class ApiScenarioReportControllerTests extends BaseTest {
         scenarioReport.setProjectId(DEFAULT_PROJECT_ID);
         scenarioReport.setName("test-scenario-report-name");
         scenarioReport.setStartTime(System.currentTimeMillis());
-        scenarioReport.setScenarioId("test-scenario-scenario-id");
         scenarioReport.setCreateUser("admin");
         scenarioReport.setUpdateUser("admin");
         scenarioReport.setUpdateTime(System.currentTimeMillis());
@@ -250,7 +248,7 @@ public class ApiScenarioReportControllerTests extends BaseTest {
             apiScenarioReportStep.setSort((long) i);
             apiScenarioReportStep.setStepType("case");
             if (i % 2 == 0) {
-                apiScenarioReportStep.setParentId("test-scenario-scenario-id");
+                apiScenarioReportStep.setParentId("NONE");
             } else if (i % 3 == 0) {
                 apiScenarioReportStep.setParentId("test-scenario-report-step-id" + (i - 1));
             } else {
@@ -270,7 +268,7 @@ public class ApiScenarioReportControllerTests extends BaseTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
 
-        mockMvc.perform(getRequestBuilder(GET + "scenario-report-id10"))
+        mockMvc.perform(getRequestBuilder(GET + "scenario-report-id2000"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
 

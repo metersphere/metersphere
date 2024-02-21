@@ -100,7 +100,6 @@
         <table tableName="api_scenario_report_detail"/>
         <table tableName="api_scenario_report_log"/>
         <table tableName="api_scenario_report_step"/>
-        <table tableName="api_sync_config"/>
         <table tableName="api_test_case_blob"/>
         <table tableName="api_test_case_follower"/>
         <table tableName="api_definition_mock_config"/>
@@ -114,6 +113,9 @@
         <table tableName="api_test_case">
             <columnOverride column="tags" javaType="java.util.List&lt;String&gt;" jdbcType="VARCHAR" typeHandler="io.metersphere.handler.ListTypeHandler" />
         </table>
+
+        <table tableName="api_scenario_record"/>
+        <table tableName="api_test_case_record"/>
 
     </context>
 </generatorConfiguration>

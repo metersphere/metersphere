@@ -15,13 +15,13 @@ import io.metersphere.sdk.dto.api.notice.ApiNoticeDTO;
 import io.metersphere.sdk.mapper.EnvironmentMapper;
 import io.metersphere.system.base.BaseTest;
 import jakarta.annotation.Resource;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,7 +84,6 @@ public class ApiReportSendNoticeTests extends BaseTest {
             apiReport.setProjectId(DEFAULT_PROJECT_ID);
             apiReport.setName("api-report-name" + i);
             apiReport.setStartTime(System.currentTimeMillis());
-            apiReport.setResourceId("send-api-resource-id" + i);
             apiReport.setCreateUser("admin");
             apiReport.setUpdateUser("admin");
             apiReport.setUpdateTime(System.currentTimeMillis());
@@ -147,7 +146,6 @@ public class ApiReportSendNoticeTests extends BaseTest {
             scenarioReport.setProjectId(DEFAULT_PROJECT_ID);
             scenarioReport.setName("scenario-report-name" + i);
             scenarioReport.setStartTime(System.currentTimeMillis());
-            scenarioReport.setScenarioId("send-scenario-id");
             scenarioReport.setCreateUser("admin");
             scenarioReport.setUpdateUser("admin");
             if (i == 0) {

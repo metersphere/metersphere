@@ -87,7 +87,6 @@ public class ApiTaskCenterService {
     private final static String PROJECT_STOP = "/task/center/api/project/stop";
     private final static String ORG_STOP = "/task/center/api/org/stop";
     private final static String SYSTEM_STOP = "/task/center/api/system/stop";
-    private final static String PROJECT_STOP_ID = "/task/center/api/project/stop";
 
     /**
      * 任务中心实时任务列表-项目级

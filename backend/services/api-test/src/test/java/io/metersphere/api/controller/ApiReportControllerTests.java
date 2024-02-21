@@ -78,7 +78,6 @@ public class ApiReportControllerTests extends BaseTest {
             apiReport.setProjectId(DEFAULT_PROJECT_ID);
             apiReport.setName("api-report-name" + i);
             apiReport.setStartTime(System.currentTimeMillis());
-            apiReport.setResourceId("api-resource-id" + i);
             apiReport.setCreateUser("admin");
             apiReport.setUpdateUser("admin");
             apiReport.setUpdateTime(System.currentTimeMillis());
@@ -231,7 +230,6 @@ public class ApiReportControllerTests extends BaseTest {
         apiReport.setProjectId(DEFAULT_PROJECT_ID);
         apiReport.setName("test-report-name");
         apiReport.setStartTime(System.currentTimeMillis());
-        apiReport.setResourceId("test-resource-id");
         apiReport.setCreateUser("admin");
         apiReport.setUpdateUser("admin");
         apiReport.setUpdateTime(System.currentTimeMillis());

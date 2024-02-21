@@ -101,7 +101,6 @@ CREATE INDEX idx_name ON api_definition(name);
 CREATE TABLE IF NOT EXISTS api_report(
     `id` VARCHAR(50) NOT NULL   COMMENT '接口报告pk' ,
     `name` VARCHAR(255) NOT NULL   COMMENT '接口报告名称' ,
-    `resource_id` VARCHAR(50) NOT NULL   COMMENT '用例id' ,
     `test_plan_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '测试计划id' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
     `delete_time` BIGINT    COMMENT '删除时间' ,
@@ -139,7 +138,6 @@ CREATE TABLE IF NOT EXISTS api_report(
   COLLATE = utf8mb4_general_ci  COMMENT = 'API/CASE执行结果';
 
 CREATE INDEX idx_project_id ON api_report(project_id);
-CREATE INDEX idx_resource_id ON api_report(resource_id);
 CREATE INDEX idx_trigger_mode ON api_report(trigger_mode);
 CREATE INDEX idx_run_mode ON api_report(run_mode);
 CREATE INDEX idx_status ON api_report(status);
@@ -150,7 +148,6 @@ CREATE INDEX idx_pool_id ON api_report(pool_id);
 CREATE INDEX idx_start_time ON api_report(start_time);
 CREATE INDEX idx_integrated ON api_report(integrated);
 CREATE INDEX idx_test_plan_id ON api_report(test_plan_id);
-DROP TABLE IF EXISTS api_scenario_report;
 
 CREATE TABLE IF NOT EXISTS api_report_step(
     `step_id` VARCHAR(50) NOT NULL   COMMENT '步骤id' ,
@@ -342,7 +339,6 @@ CREATE UNIQUE INDEX uq_name_project_parent_type ON api_scenario_module (project_
 CREATE TABLE IF NOT EXISTS  api_scenario_report(
     `id` VARCHAR(50) NOT NULL   COMMENT '场景报告pk' ,
     `name` VARCHAR(255) NOT NULL   COMMENT '报告名称' ,
-    `scenario_id` VARCHAR(50) NOT NULL   COMMENT '场景fk' ,
     `test_plan_id` VARCHAR(50) NOT NULL  DEFAULT 'NONE' COMMENT '测试计划id' ,
     `create_user` VARCHAR(50) NOT NULL   COMMENT '创建人' ,
     `delete_time` BIGINT    COMMENT '删除时间' ,
@@ -379,7 +375,6 @@ CREATE TABLE IF NOT EXISTS  api_scenario_report(
     COLLATE = utf8mb4_general_ci COMMENT = '场景报告';
 
 CREATE INDEX idx_project_id ON api_scenario_report(project_id);
-CREATE INDEX idx_scenario_id ON api_scenario_report(scenario_id);
 CREATE INDEX idx_trigger_mode ON api_scenario_report(trigger_mode);
 CREATE INDEX idx_run_mode ON api_scenario_report(run_mode);
 CREATE INDEX idx_status ON api_scenario_report(status);
@@ -625,6 +620,23 @@ CREATE TABLE api_scenario_csv_step
 
 CREATE INDEX idx_file_id ON api_scenario_csv_step(file_id);
 CREATE INDEX idx_step_id ON api_scenario_csv_step(step_id);
+
+CREATE TABLE  IF NOT EXISTS api_scenario_record(
+    `api_scenario_report_id` VARCHAR(50) NOT NULL   COMMENT '报告id' ,
+    `api_scenario_id` VARCHAR(50) NOT NULL   COMMENT '场景id' ,
+    PRIMARY KEY (api_scenario_report_id,api_scenario_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '场景执行记录';
+
+
+CREATE TABLE  IF NOT EXISTS api_test_case_record(
+    `api_report_id` VARCHAR(50) NOT NULL   COMMENT '报告id' ,
+    `api_test_case_id` VARCHAR(50) NOT NULL   COMMENT '用例id' ,
+    PRIMARY KEY (api_report_id,api_test_case_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_general_ci COMMENT = '用例执行记录';
 
 -- set innodb lock wait timeout to default
 SET SESSION innodb_lock_wait_timeout = DEFAULT;

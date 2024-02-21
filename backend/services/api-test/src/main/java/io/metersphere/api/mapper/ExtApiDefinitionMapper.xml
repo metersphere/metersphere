@@ -57,7 +57,8 @@
         CONCAT( FORMAT( SUM( IF ( t2.`status` = 'SUCCESS', 1, 0 ))/ COUNT( t1.id )* 100, 2 ), '%' ) casePassRate
         FROM
         api_test_case t1
-        LEFT JOIN api_report t2 ON t1.id = t2.resource_id
+        LEFT JOIN api_test_case_record t3 on t1.id = t3.api_test_case_id
+        LEFT JOIN api_report t2 ON t2.id = t3.api_report_id
         WHERE
         t1.project_id = #{projectId} and t1.deleted = 0
 

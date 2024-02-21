@@ -168,7 +168,8 @@
 
         t.name as poolName
         from api_scenario_report
-        left JOIN api_scenario s on api_scenario_report.scenario_id = s.id
+        left join api_scenario_record a on api_scenario_report.id = a.api_scenario_report_id
+        left JOIN api_scenario s on a.api_scenario_id = s.id
         left JOIN test_resource_pool t on api_scenario_report.pool_id = t.id
         where api_scenario_report.deleted = false
         and api_scenario_report.test_plan_id = 'NONE'
