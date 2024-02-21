@@ -86,7 +86,7 @@ public class ApiDebugService {
         apiDebug.setCreateTime(System.currentTimeMillis());
         apiDebug.setUpdateTime(System.currentTimeMillis());
         apiDebug.setUpdateUser(apiDebug.getCreateUser());
-        apiDebug.setPos(getNextOrder(request.getProjectId()));
+        apiDebug.setPos(getNextOrder(createUser));
 
         apiDebugMapper.insert(apiDebug);
         ApiDebugBlob apiDebugBlob = new ApiDebugBlob();
@@ -103,8 +103,8 @@ public class ApiDebugService {
     }
 
 
-    private Long getNextOrder(String projectId) {
-        Long pos = extApiDebugMapper.getPos(projectId);
+    private Long getNextOrder(String userId) {
+        Long pos = extApiDebugMapper.getPos(userId);
         return (pos == null ? 0 : pos) + ORDER_STEP;
     }
 
@@ -237,6 +237,7 @@ public class ApiDebugService {
         if (StringUtils.equals(request.getTargetId(), request.getMoveId())) {
             return;
         }
+        request.setProjectId(userId);
         ServiceUtils.updatePosField(request,
                 ApiDebug.class,
                 apiDebugMapper::selectByPrimaryKey,
