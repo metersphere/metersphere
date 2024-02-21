@@ -100,6 +100,12 @@
                     </template>
                     <CommentTab ref="commentRef" :bug-id="detailInfo.id" />
                   </a-tab-pane>
+                  <a-tab-pane key="history">
+                    <template #title>
+                      {{ t('bugManagement.detail.changeHistory') }}
+                    </template>
+                    <BugHistoryTab :bug-id="detailInfo.id" />
+                  </a-tab-pane>
                 </a-tabs>
               </div>
             </div>
@@ -166,6 +172,7 @@
   import MsDetailDrawer from '@/components/business/ms-detail-drawer/index.vue';
   import BugCaseTab from './bugCaseTab.vue';
   import BugDetailTab from './bugDetailTab.vue';
+  import BugHistoryTab from './bugHistoryTab.vue';
   import CommentTab from './commentTab.vue';
 
   import {

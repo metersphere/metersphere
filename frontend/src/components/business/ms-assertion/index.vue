@@ -61,6 +61,7 @@
           v-model:statusCode="codeTabState.statusCode"
         />
         <ResponseHeaderTab v-if="valueKey === 'responseHeader'" />
+        <ResponseBodyTab v-if="valueKey === 'responseBody'" />
         <ResponseTimeTab v-if="valueKey === 'responseTime'" />
         <VariableTab v-if="valueKey === 'variable'" />
         <ScriptTab v-if="valueKey === 'script'" />
@@ -76,6 +77,7 @@
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import ResponseBodyTab from './comp/ResponseBodyTab.vue';
   import ResponseHeaderTab from './comp/ResponseHeaderTab.vue';
   import ResponseTimeTab from './comp/ResponseTimeTab.vue';
   import ScriptTab from './comp/ScriptTab.vue';

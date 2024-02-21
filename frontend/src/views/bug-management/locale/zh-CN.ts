@@ -67,6 +67,7 @@ export default {
       tag: '标签',
       detail: '详情',
       case: '用例',
+      changeHistory: '变更历史',
       comment: '评论',
       shareTip: '分享链接已复制到剪贴板',
       deleteTitle: '确认删除 {name} 吗？',
@@ -106,18 +107,12 @@ export default {
       deleteTime: '删除时间',
       deleteMan: '删除人',
     },
-    severityO: {
-      fatal: '致命',
-      serious: '严重',
-      general: '一般',
-      reminder: '提醒',
-    },
-    statusO: {
-      create: '新建',
-      processing: '处理中',
-      resolved: '已解决',
-      closed: '已关闭',
-      refused: '已拒绝',
+    history: {
+      changeNumber: '变更序号',
+      operationMan: '操作人',
+      updateTime: '更新时间',
+      restore: '恢复',
+      current: '当前',
     },
   },
 };

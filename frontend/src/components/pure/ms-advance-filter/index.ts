@@ -1,8 +1,8 @@
 export { default as FilterForm } from './FilterForm.vue';
 export { default as MsAdvanceFilter } from './index.vue';
 
-const IN = { label: 'advanceFilter.operator.in', value: 'in' };
-const NOT_IN = { label: 'advanceFilter.operator.not_in', value: 'not_in' };
+// const IN = { label: 'advanceFilter.operator.in', value: 'in' };
+// const NOT_IN = { label: 'advanceFilter.operator.not_in', value: 'not_in' };
 const LIKE = { label: 'advanceFilter.operator.like', value: 'like' };
 const NOT_LIKE = { label: 'advanceFilter.operator.not_like', value: 'not_like' };
 const GT = { label: 'advanceFilter.operator.gt', value: 'gt' };
@@ -14,18 +14,16 @@ const NOT_EQUAL = { label: 'advanceFilter.operator.notEqual', value: 'not_equal'
 const BETWEEN = { label: 'advanceFilter.operator.between', value: 'between' };
 
 export const OPERATOR_MAP = {
-  string: [LIKE, NOT_LIKE, IN, NOT_IN, EQUAL, NOT_EQUAL],
+  string: [LIKE, NOT_LIKE, EQUAL, NOT_EQUAL],
   number: [GT, GE, LT, LE, EQUAL, NOT_EQUAL, BETWEEN],
   date: [GT, GE, LT, LE, EQUAL, NOT_EQUAL, BETWEEN],
-  array: [IN, NOT_IN],
+  array: [BETWEEN],
 };
 
 export const timeSelectOptions = [GE, LE];
 
 export const statusCodeOptions = [
   { label: 'ms.assertion.noValidation', value: 'none' },
-  IN,
-  NOT_IN,
   EQUAL,
   NOT_EQUAL,
   GT,
@@ -133,7 +131,7 @@ export const CustomTypeMaps: Record<string, any> = {
   },
 };
 
-export const MULTIPLE_OPERATOR_LIST = ['in', 'not_in', 'between'];
+export const MULTIPLE_OPERATOR_LIST = ['between'];
 
 export function isMutipleOperator(operator: string) {
   return MULTIPLE_OPERATOR_LIST.includes(operator);
