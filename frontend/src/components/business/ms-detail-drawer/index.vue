@@ -4,11 +4,12 @@
     :width="props.width"
     :footer="false"
     class="ms-drawer"
+    :show-full-screen="props.showFullScreen"
     no-content-padding
     unmount-on-close
   >
     <template #title>
-      <div class="flex w-full items-center">
+      <div class="flex flex-1 items-center">
         <a-tooltip :content="props.title" position="bottom">
           <div class="one-line-text max-w-[300px]">
             {{ props.title }}
@@ -51,6 +52,7 @@
     detailIndex: number; // 详情 下标
     tableData: any[]; // 表格数据
     pagination: MsPaginationI; // 分页器对象
+    showFullScreen?: boolean; // 是否显示全屏按钮
     pageChange: (page: number) => Promise<void>; // 分页变更函数
     getDetailFunc: (id: string) => Promise<any>; // 获取详情的请求函数
   }>();

@@ -4,12 +4,17 @@
       <div class="mb-[8px] flex items-center justify-between">
         <div class="flex flex-1">
           <a-select
+            v-if="requestVModel.isNew"
             v-model:model-value="requestVModel.protocol"
             :options="protocolOptions"
             :loading="protocolLoading"
-            :disabled="!requestVModel.isNew"
             class="mr-[4px] w-[90px]"
             @change="(val) => handleActiveDebugProtocolChange(val as string)"
+          />
+          <apiMethodName
+            v-else
+            :method="(requestVModel.protocol as RequestMethods)"
+            class="mr-[16px] flex h-[30px] items-center"
           />
           <a-input-group v-if="isHttpProtocol" class="flex-1">
             <apiMethodSelect
@@ -50,7 +55,7 @@
               <a-doption value="saveAsCase">{{ t('apiTestManagement.saveAsCase') }}</a-doption>
             </template>
           </a-dropdown>
-          <a-button v-else type="secondary" @click="handleSaveShortcut">
+          <a-button v-else type="secondary" :loading="saveLoading" @click="handleSaveShortcut">
             <div class="flex items-center">
               {{ t('common.save') }}
               <div class="text-[var(--color-text-4)]">(<icon-command size="14" />+S)</div>
@@ -115,6 +120,7 @@
                 v-model:params="requestVModel.body"
                 :layout="activeLayout"
                 :second-box-height="secondBoxHeight"
+                :upload-temp-file-api="props.uploadTempFileApi"
                 @change="handleActiveDebugChange"
               />
               <debugQuery
@@ -223,6 +229,7 @@
   import precondition from './precondition.vue';
   import response from './response.vue';
   import debugSetting from './setting.vue';
+  import apiMethodName from '@/views/api-test/components/apiMethodName.vue';
   import apiMethodSelect from '@/views/api-test/components/apiMethodSelect.vue';
 
   import { getPluginScript, getProtocolList } from '@/api/modules/api-test/management';
@@ -263,6 +270,7 @@
     executeApi: (...args) => Promise<any>; // 执行接口
     createApi: (...args) => Promise<any>; // 创建接口
     updateApi: (...args) => Promise<any>; // 更新接口
+    uploadTempFileApi?: (...args) => Promise<any>; // 上传临时文件接口
   }>();
   const emit = defineEmits(['addDone']);
 
@@ -573,107 +581,6 @@
     });
   }
 
-  function makeRequestParams() {
-    const polymorphicName = protocolOptions.value.find(
-      (e) => e.value === requestVModel.value.protocol
-    )?.polymorphicName; // 协议多态名称
-    let requestParams;
-    if (isHttpProtocol.value) {
-      requestParams = {
-        authConfig: requestVModel.value.authConfig,
-        body: {
-          ...requestVModel.value.body,
-          binaryBody: undefined,
-          formDataBody: {
-            formValues: requestVModel.value.body.formDataBody.formValues.filter(
-              (e, i) => i !== requestVModel.value.body.formDataBody.formValues.length - 1
-            ), // 去掉最后一行空行
-          },
-          wwwFormBody: {
-            formValues: requestVModel.value.body.wwwFormBody.formValues.filter(
-              (e, i) => i !== requestVModel.value.body.wwwFormBody.formValues.length - 1
-            ), // 去掉最后一行空行
-          },
-        }, // TODO:binaryBody还没对接
-        headers: requestVModel.value.headers.filter((e, i) => i !== requestVModel.value.headers.length - 1), // 去掉最后一行空行
-        method: requestVModel.value.method,
-        otherConfig: requestVModel.value.otherConfig,
-        path: requestVModel.value.url,
-        query: requestVModel.value.query.filter((e, i) => i !== requestVModel.value.query.length - 1), // 去掉最后一行空行
-        rest: requestVModel.value.rest.filter((e, i) => i !== requestVModel.value.rest.length - 1), // 去掉最后一行空行
-        url: requestVModel.value.url,
-        polymorphicName,
-      };
-    } else {
-      requestParams = {
-        ...fApi.value?.formData(),
-        polymorphicName,
-      };
-    }
-    reportId.value = getGenerateId();
-    requestVModel.value.reportId = reportId.value; // 存储报告ID
-    debugSocket(); // 开启websocket
-    return {
-      id: requestVModel.value.id.toString(),
-      reportId: reportId.value,
-      environmentId: '',
-      tempFileIds: [],
-      request: {
-        ...requestParams,
-        children: [
-          {
-            polymorphicName: 'MsCommonElement', // 协议多态名称，写死MsCommonElement
-            assertionConfig: {
-              // TODO:暂时不做断言
-              enableGlobal: false,
-              assertions: [],
-            },
-            postProcessorConfig: requestVModel.value.children[0].postProcessorConfig,
-            preProcessorConfig: requestVModel.value.children[0].preProcessorConfig,
-          },
-        ],
-      },
-      projectId: appStore.currentProjectId,
-    };
-  }
-
-  /**
-   * 执行调试
-   * @param val 执行类型
-   */
-  async function execute(execuetType?: 'localExec' | 'serverExec') {
-    // TODO:本地&服务端执行判断
-    if (isHttpProtocol.value) {
-      try {
-        requestVModel.value.executeLoading = true;
-        await props.executeApi(makeRequestParams());
-      } catch (error) {
-        // eslint-disable-next-line no-console
-        console.log(error);
-        requestVModel.value.executeLoading = false;
-      }
-    } else {
-      // 插件需要校验动态表单
-      fApi.value?.validate(async (valid) => {
-        if (valid === true) {
-          try {
-            requestVModel.value.executeLoading = true;
-            await props.executeApi(makeRequestParams());
-          } catch (error) {
-            // eslint-disable-next-line no-console
-            console.log(error);
-            requestVModel.value.executeLoading = false;
-          }
-        } else {
-          requestVModel.value.activeTab = RequestComposition.PLUGIN;
-          nextTick(() => {
-            scrollIntoView(document.querySelector('.arco-form-item-message'), { block: 'center' });
-          });
-        }
-      });
-    }
-  }
-
   const saveModalVisible = ref(false);
   const saveModalForm = ref({
     name: '',
@@ -698,7 +605,200 @@
     }
   );
 
+  function makeRequestParams() {
+    const { formDataBody, wwwFormBody, binaryBody } = requestVModel.value.body;
+    const polymorphicName = protocolOptions.value.find(
+      (e) => e.value === requestVModel.value.protocol
+    )?.polymorphicName; // 协议多态名称
+    const realFormDataBodyValues = formDataBody.formValues.filter((e, i) => i !== formDataBody.formValues.length - 1); // 去掉最后一行空行
+    const realWwwFormBodyValues = wwwFormBody.formValues.filter((e, i) => i !== wwwFormBody.formValues.length - 1); // 去掉最后一行空行
+    const uploadFileIds: string[] = [];
+    const linkFileIds: string[] = [];
+    // 获取上传文件和关联文件
+    for (let i = 0; i < formDataBody.formValues.length; i++) {
+      const item = formDataBody.formValues[i];
+      if (item.paramType === RequestParamsType.FILE) {
+        if (item.files) {
+          for (let j = 0; j < item.files.length; j++) {
+            const file = item.files[j];
+            if (file.isLocal) {
+              uploadFileIds.push(file.fileId);
+            } else {
+              linkFileIds.push(file.fileId);
+            }
+          }
+        }
+      }
+    }
+    if (binaryBody) {
+      if (binaryBody.file?.isLocal) {
+        uploadFileIds.push(binaryBody.file.fileId);
+      } else if (binaryBody.file?.fileId) {
+        linkFileIds.push(binaryBody.file.fileId);
+      }
+    }
+    let requestParams;
+    if (isHttpProtocol.value) {
+      requestParams = {
+        authConfig: requestVModel.value.authConfig,
+        body: {
+          ...requestVModel.value.body,
+          formDataBody: {
+            formValues: realFormDataBodyValues,
+          },
+          wwwFormBody: {
+            formValues: realWwwFormBodyValues,
+          },
+        }, // TODO:binaryBody还没对接
+        headers: requestVModel.value.headers.filter((e, i) => i !== requestVModel.value.headers.length - 1), // 去掉最后一行空行
+        method: requestVModel.value.method,
+        otherConfig: requestVModel.value.otherConfig,
+        path: requestVModel.value.url,
+        query: requestVModel.value.query.filter((e, i) => i !== requestVModel.value.query.length - 1), // 去掉最后一行空行
+        rest: requestVModel.value.rest.filter((e, i) => i !== requestVModel.value.rest.length - 1), // 去掉最后一行空行
+        url: requestVModel.value.url,
+        polymorphicName,
+      };
+    } else {
+      requestParams = {
+        ...fApi.value?.formData(),
+        polymorphicName,
+      };
+    }
+    reportId.value = getGenerateId();
+    requestVModel.value.reportId = reportId.value; // 存储报告ID
+    debugSocket(); // 开启websocket
+    return {
+      id: requestVModel.value.id.toString(),
+      reportId: reportId.value,
+      environmentId: '',
+      name: saveModalForm.value.name || requestVModel.value.name,
+      request: {
+        ...requestParams,
+        name: saveModalForm.value.name || requestVModel.value.name,
+        children: [
+          {
+            polymorphicName: 'MsCommonElement', // 协议多态名称，写死MsCommonElement
+            assertionConfig: {
+              // TODO:暂时不做断言
+              enableGlobal: false,
+              assertions: [],
+            },
+            postProcessorConfig: requestVModel.value.children[0].postProcessorConfig,
+            preProcessorConfig: requestVModel.value.children[0].preProcessorConfig,
+          },
+        ],
+      },
+      uploadFileIds,
+      linkFileIds,
+      projectId: appStore.currentProjectId,
+    };
+  }
+
+  /**
+   * 执行调试
+   * @param val 执行类型
+   */
+  async function execute(execuetType?: 'localExec' | 'serverExec') {
+    // TODO:本地&服务端执行判断
+    if (isHttpProtocol.value) {
+      try {
+        requestVModel.value.executeLoading = true;
+        await props.executeApi(makeRequestParams());
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+        requestVModel.value.executeLoading = false;
+      } finally {
+        websocket.value?.close();
+      }
+    } else {
+      // 插件需要校验动态表单
+      fApi.value?.validate(async (valid) => {
+        if (valid === true) {
+          try {
+            requestVModel.value.executeLoading = true;
+            await props.executeApi(makeRequestParams());
+          } catch (error) {
+            // eslint-disable-next-line no-console
+            console.log(error);
+            requestVModel.value.executeLoading = false;
+          } finally {
+            websocket.value?.close();
+          }
+        } else {
+          requestVModel.value.activeTab = RequestComposition.PLUGIN;
+          nextTick(() => {
+            scrollIntoView(document.querySelector('.arco-form-item-message'), { block: 'center' });
+          });
+        }
+      });
+    }
+  }
+
+  async function updateDebug() {
+    try {
+      saveLoading.value = true;
+      await props.updateApi({
+        ...makeRequestParams(),
+        ...saveModalForm.value,
+        protocol: requestVModel.value.protocol,
+        method: isHttpProtocol.value ? requestVModel.value.method : requestVModel.value.protocol,
+        deleteFileIds: [], // TODO:删除文件集合
+        unLinkRefIds: [], // TODO:取消关联文件集合
+      });
+      Message.success(t('common.updateSuccess'));
+      requestVModel.value.unSaved = false;
+      requestVModel.value.name = saveModalForm.value.name;
+      requestVModel.value.label = saveModalForm.value.name;
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    } finally {
+      saveLoading.value = false;
+    }
+  }
+
+  async function handleSave(done: (closed: boolean) => void) {
+    saveModalFormRef.value?.validate(async (errors) => {
+      if (!errors) {
+        try {
+          saveLoading.value = true;
+          if (requestVModel.value.isNew) {
+            // 若是新建的调试，走添加
+            const res = await props.createApi({
+              ...makeRequestParams(),
+              ...saveModalForm.value,
+              protocol: requestVModel.value.protocol,
+              method: isHttpProtocol.value ? requestVModel.value.method : requestVModel.value.protocol,
+            });
+            requestVModel.value.id = res.id;
+            requestVModel.value.isNew = false;
+            Message.success(t('common.saveSuccess'));
+            requestVModel.value.unSaved = false;
+            requestVModel.value.name = saveModalForm.value.name;
+            requestVModel.value.label = saveModalForm.value.name;
+          } else {
+            updateDebug();
+          }
+          saveLoading.value = false;
+          saveModalVisible.value = false;
+          done(true);
+          emit('addDone');
+        } catch (error) {
+          saveLoading.value = false;
+        }
+      }
+    });
+    done(false);
+  }
+
   async function handleSaveShortcut() {
+    if (!requestVModel.value.isNew) {
+      // 更新接口不需要弹窗，直接更新保存
+      updateDebug();
+      return;
+    }
     try {
       if (!isHttpProtocol.value) {
         // 插件需要校验动态表单
@@ -736,51 +836,6 @@
 
   function handleCancel() {
     saveModalFormRef.value?.resetFields();
-  }
-
-  async function handleSave(done: (closed: boolean) => void) {
-    saveModalFormRef.value?.validate(async (errors) => {
-      if (!errors) {
-        try {
-          saveLoading.value = true;
-          if (requestVModel.value.isNew) {
-            // 若是新建的调试，走添加
-            const res = await props.createApi({
-              ...makeRequestParams(),
-              ...saveModalForm.value,
-              protocol: requestVModel.value.protocol,
-              method: isHttpProtocol.value ? requestVModel.value.method : requestVModel.value.protocol,
-              uploadFileIds: [],
-              linkFileIds: [],
-            });
-            requestVModel.value.id = res.id;
-            requestVModel.value.isNew = false;
-          } else {
-            await props.updateApi({
-              ...makeRequestParams(),
-              ...saveModalForm.value,
-              protocol: requestVModel.value.protocol,
-              method: isHttpProtocol.value ? requestVModel.value.method : requestVModel.value.protocol,
-              uploadFileIds: [],
-              linkFileIds: [],
-              deleteFileIds: [], // TODO:删除文件集合
-              unLinkRefIds: [], // TODO:取消关联文件集合
-            });
-          }
-          saveLoading.value = false;
-          saveModalVisible.value = false;
-          done(true);
-          requestVModel.value.unSaved = false;
-          requestVModel.value.name = saveModalForm.value.name;
-          requestVModel.value.label = saveModalForm.value.name;
-          emit('addDone');
-          Message.success(requestVModel.value.isNew ? t('common.saveSuccess') : t('common.updateSuccess'));
-        } catch (error) {
-          saveLoading.value = false;
-        }
-      }
-    });
-    done(false);
   }
 
   onBeforeMount(() => {

@@ -65,3 +65,12 @@ export interface ModuleTreeNode {
   parentId: string;
   path: string;
 }
+// 拖拽排序
+export type MoveMode = 'BEFORE' | 'AFTER' | 'APPEND';
+export interface DragSortParams {
+  projectId: string;
+  targetId: string;
+  moveMode: MoveMode; // 拖拽类型
+  moveId: string;
+  moduleId?: string;
+}

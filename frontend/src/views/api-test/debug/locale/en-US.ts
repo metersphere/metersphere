@@ -100,7 +100,7 @@ export default {
   'apiTestDebug.deleteDebugTipContent': 'Deletion cannot be restored, please proceed with caution!',
   'apiTestDebug.deleteConfirm': 'Confirm delete',
   'apiTestDebug.deleteSuccess': 'Successfully deleted',
-  'apiTestDebug.moduleMoveSuccess': 'Module moved successfully',
+  'apiTestDebug.moduleMoveSuccess': 'Moved successfully',
   'apiTestDebug.sqlSourceName': 'Data source name',
   'apiTestDebug.driver': 'Drive',
   'apiTestDebug.username': 'Username',

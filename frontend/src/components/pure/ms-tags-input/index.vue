@@ -10,8 +10,10 @@
       :unique-value="props.uniqueValue"
       :max-tag-count="props.maxTagCount"
       :readonly="props.readonly"
+      :class="props.class"
       @press-enter="tagInputEnter"
       @blur="tagInputBlur"
+      @clear="emit('clear')"
     >
       <template v-if="$slots.prefix" #prefix>
         <slot name="prefix"></slot>
@@ -47,15 +49,17 @@
       maxTagCount?: number;
       maxLength?: number;
       readonly?: boolean;
+      class?: string;
     }>(),
     {
       retainInputValue: true,
       uniqueValue: true,
       allowClear: true,
       maxLength: 64,
+      class: '',
     }
   );
-  const emit = defineEmits(['update:modelValue', 'update:inputValue', 'change']);
+  const emit = defineEmits(['update:modelValue', 'update:inputValue', 'change', 'clear']);
 
   const { t } = useI18n();
 

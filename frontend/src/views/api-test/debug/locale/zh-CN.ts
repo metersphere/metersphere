@@ -94,7 +94,7 @@ export default {
   'apiTestDebug.deleteDebugTipContent': '删除后无法恢复，请谨慎操作！',
   'apiTestDebug.deleteConfirm': '确认删除',
   'apiTestDebug.deleteSuccess': '删除成功',
-  'apiTestDebug.moduleMoveSuccess': '模块移动成功',
+  'apiTestDebug.moduleMoveSuccess': '移动成功',
   'apiTestDebug.sqlSourceName': '数据源名称',
   'apiTestDebug.driver': '驱动',
   'apiTestDebug.username': '用户名',

@@ -17,7 +17,7 @@
         :placeholder="t('project.commonScript.pleaseSelected')"
         @change="changeHandler"
       >
-        <a-option v-for="item of languages" :key="item.value">
+        <a-option v-for="item of languages" :key="item.value" :value="item.value">
           <a-tooltip :content="item.text">
             {{ item.text }}
           </a-tooltip>
@@ -64,8 +64,8 @@
     (e: 'update:languagesType', value: Language): void;
     (e: 'insert', code: string): void;
     (e: 'formApiImport'): void; // 从api 定义导入
-    (e: 'insertCommonScript'): void; // 从api 定义导入
-    (e: 'updateLanguages', value: Language): void; // 从api 定义导入
+    (e: 'insertCommonScript'): void; // 插入公共脚本
+    (e: 'updateLanguages', value: Language): void; // 更新语言类型
   }>();
 
   const innerExpand = useVModel(props, 'expand', emit);
@@ -73,11 +73,11 @@
   const innerLanguageType = useVModel(props, 'languagesType', emit);
 
   const languages = [
-    { text: 'beanshellJSR223', value: 'beanshell-jsr233' },
-    { text: 'beanshell', value: 'beanshell' },
-    { text: 'python', value: 'python' },
-    { text: 'groovy', value: 'groovy' },
-    { text: 'javascript', value: 'javascript' },
+    { text: 'beanshellJSR223', value: RequestConditionScriptLanguage.BEANSHELL_JSR233 },
+    { text: 'beanshell', value: RequestConditionScriptLanguage.BEANSHELL },
+    { text: 'python', value: RequestConditionScriptLanguage.PYTHON },
+    { text: 'groovy', value: RequestConditionScriptLanguage.GROOVY },
+    { text: 'javascript', value: RequestConditionScriptLanguage.JAVASCRIPT },
   ];
 
   function expandedHandler() {

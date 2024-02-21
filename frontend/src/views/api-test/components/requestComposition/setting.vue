@@ -33,14 +33,14 @@
           />
         </a-form-item>
       </div>
-      <a-form-item :label="t('apiTestDebug.certificateAlias')">
+      <!-- <a-form-item :label="t('apiTestDebug.certificateAlias')">
         <a-input
           v-model:model-value="settingForm.certificateAlias"
           :max-length="255"
           :placeholder="t('apiTestDebug.commonPlaceholder')"
           class="w-[450px]"
         />
-      </a-form-item>
+      </a-form-item> -->
       <a-form-item :label="t('apiTestDebug.redirect')">
         <a-radio
           v-model:model-value="settingForm.followRedirects"

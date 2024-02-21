@@ -9,3 +9,5 @@ export const GetDebugModuleCountUrl = '/api/debug/module/count'; // 模块统计
 export const AddDebugModuleUrl = '/api/debug/module/add'; // 添加模块
 export const GetDebugModulesUrl = '/api/debug/module/tree'; // 查询模块树
 export const DeleteDebugModuleUrl = '/api/debug/module/delete'; // 删除模块
+export const DragDebugUrl = '/api/debug/edit/pos'; // 拖拽调试节点
+export const UploadTempFileUrl = '/api/debug/upload/temp/file'; // 上传文件

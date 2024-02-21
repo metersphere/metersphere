@@ -21,7 +21,7 @@
           @press-enter="searchList"
       /></div>
     </div>
-    <ms-base-table v-bind="propsRes" ref="tableRef" no-disable v-on="propsEvent">
+    <ms-base-table v-bind="propsRes" ref="tableRef" v-model:selected-key="selectedKey" no-disable v-on="propsEvent">
       <template #name="{ record }">
         <MsTag
           v-if="record.fileType.toLowerCase() === 'jar'"
@@ -83,6 +83,7 @@
     showType: 'Module' | 'Storage'; // 展示类型
     storageList: Repository[]; // 存储库列表
     getListFunParams: TableQueryParams; // 表格额外去重参数
+    selectorType?: 'none' | 'checkbox' | 'radio';
   }>();
   const emit = defineEmits<{
     (e: 'init', params: FileListQueryParams): void;
@@ -144,6 +145,7 @@
       selectable: true,
       showSelectAll: true,
       heightUsed: 300,
+      selectorType: props.selectorType || 'checkbox',
     },
     (item) => {
       return {
@@ -278,8 +280,6 @@
     };
   });
 
-  const tableSelected = ref<AssociatedList[]>([]);
-
   const selectedIds = computed(() => {
     return [...propsRes.value.selectedKeys];
   });
@@ -287,8 +287,21 @@
   watch(
     () => selectedIds.value,
     () => {
-      tableSelected.value = propsRes.value.data.filter((item: any) => selectedIds.value.indexOf(item.id) > -1);
-      emit('update:selectFile', tableSelected.value);
+      emit(
+        'update:selectFile',
+        propsRes.value.data.filter((item: any) => selectedIds.value.indexOf(item.id) > -1)
+      );
+    }
+  );
+
+  const selectedKey = ref('');
+  watch(
+    () => selectedKey.value,
+    (key) => {
+      emit(
+        'update:selectFile',
+        propsRes.value.data.filter((item: any) => key === item.id)
+      );
     }
   );
 
