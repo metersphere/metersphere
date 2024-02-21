@@ -64,7 +64,7 @@ public class FunctionalCaseController {
 
     @GetMapping("/default/template/field/{projectId}")
     @Operation(summary = "用例管理-功能用例-获取默认模板自定义字段")
-    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ_ADD)
+    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
     public TemplateDTO getDefaultTemplateField(@PathVariable String projectId) {
         TemplateDTO defaultTemplateDTO = projectTemplateService.getDefaultTemplateDTO(projectId, TemplateScene.FUNCTIONAL.name());
