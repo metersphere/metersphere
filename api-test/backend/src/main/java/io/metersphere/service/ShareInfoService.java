@@ -218,7 +218,7 @@ public class ShareInfoService extends BaseShareInfoService {
                     if (apiModel.getRequest() != null) {
                         ObjectNode requestObj = this.genJSONObject(apiModel.getRequest());
                         if (requestObj != null) {
-                            if (requestObj.has("headers")) {
+                            if (requestObj.has("headers") && requestObj.get("headers").isArray()) {
                                 List<JsonNode> requestHeadDataArr = new LinkedList<>();
                                 //head赋值
                                 ArrayNode headArr = requestObj.withArray("headers");
@@ -232,7 +232,7 @@ public class ShareInfoService extends BaseShareInfoService {
                             }
                             //url参数赋值
                             ArrayNode urlParamArr = JSONUtil.createArray();
-                            if (requestObj.has("arguments")) {
+                            if (requestObj.has("arguments") && requestObj.get("arguments").isArray()) {
                                 try {
                                     ArrayNode headArr = requestObj.withArray("arguments");
                                     for (int index = 0; index < headArr.size(); index++) {
@@ -247,7 +247,7 @@ public class ShareInfoService extends BaseShareInfoService {
                             }
                             //rest参数设置
                             ArrayNode restParamArr = JSONUtil.createArray();
-                            if (requestObj.has("rest")) {
+                            if (requestObj.has("rest") && requestObj.get("rest").isArray()) {
                                 try {
                                     //urlParam -- rest赋值
                                     ArrayNode headArr = requestObj.withArray("rest");
