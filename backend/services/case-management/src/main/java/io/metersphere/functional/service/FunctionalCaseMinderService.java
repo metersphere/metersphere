@@ -43,6 +43,7 @@ public class FunctionalCaseMinderService {
 
     /**
      * 功能用例-脑图用例列表查询
+     *
      * @param request FunctionalCasePageRequest
      * @param deleted 用例是否删除
      * @return FunctionalMinderTreeDTO
@@ -91,7 +92,7 @@ public class FunctionalCaseMinderService {
             //如果当前节点有用例，则用例是他的子节点
             buildCaseChild(moduleCaseMap, t, children);
             //查询当前节点下的子模块节点
-            buildModuleChild(moduleCaseMap,t, children);
+            buildModuleChild(moduleCaseMap, t, children);
             functionalMinderTreeDTO.setChildren(children);
             functionalMinderTreeNodeDTOs.add(functionalMinderTreeDTO);
         });
@@ -130,7 +131,7 @@ public class FunctionalCaseMinderService {
 
     private static void buildModuleChild(Map<String, List<FunctionalCasePageDTO>> moduleCaseMap, BaseTreeNode t, List<FunctionalMinderTreeDTO> children) {
         if (CollectionUtils.isNotEmpty(t.getChildren())) {
-            t.getChildren().forEach(child->{
+            t.getChildren().forEach(child -> {
                 FunctionalMinderTreeDTO functionalMinderTreeDTOChild = new FunctionalMinderTreeDTO();
                 FunctionalMinderTreeNodeDTO functionalMinderTreeNodeDTOChild = getFunctionalMinderTreeNodeDTO(child);
                 functionalMinderTreeDTOChild.setData(functionalMinderTreeNodeDTOChild);
@@ -139,7 +140,7 @@ public class FunctionalCaseMinderService {
                 buildCaseChild(moduleCaseMap, child, childChildren);
                 functionalMinderTreeDTOChild.setChildren(childChildren);
                 children.add(functionalMinderTreeDTOChild);
-                buildModuleChild(moduleCaseMap,child, childChildren);
+                buildModuleChild(moduleCaseMap, child, childChildren);
             });
         }
 
@@ -147,14 +148,15 @@ public class FunctionalCaseMinderService {
 
     /**
      * 用例评审-脑图用例列表查询
+     *
      * @param request MinderReviewFunctionalCasePageRequest
      * @param deleted 用例是否删除
-     * @param userId userId 只看我的
+     * @param userId  userId 只看我的
      * @return FunctionalMinderTreeDTO
      */
     public FunctionalMinderTreeDTO getReviewFunctionalCasePage(MinderReviewFunctionalCasePageRequest request, boolean deleted, String userId) {
         CaseReview caseReview = caseReviewMapper.selectByPrimaryKey(request.getReviewId());
-        List<ReviewFunctionalCaseDTO> page = caseReviewFunctionalCaseService.page(request, deleted, userId);
+        List<ReviewFunctionalCaseDTO> page = caseReviewFunctionalCaseService.page(request, deleted, userId, null);
         List<String> caseIds = page.stream().map(ReviewFunctionalCaseDTO::getCaseId).toList();
         List<String> moduleIds = page.stream().map(ReviewFunctionalCaseDTO::getModuleId).toList();
         List<BaseTreeNode> baseTreeNodes = getBaseTreeNodes(moduleIds);
@@ -178,7 +180,7 @@ public class FunctionalCaseMinderService {
 
     }
 
-    private List<FunctionalMinderTreeDTO>  buildReviewCaseTree(MinderSearchDTO minderSearchDTO) {
+    private List<FunctionalMinderTreeDTO> buildReviewCaseTree(MinderSearchDTO minderSearchDTO) {
         List<FunctionalMinderTreeDTO> functionalMinderTreeNodeDTOs = new ArrayList<>();
         minderSearchDTO.getBaseTreeNodes().forEach(t -> {
             //构建根节点
@@ -201,7 +203,7 @@ public class FunctionalCaseMinderService {
     private void buildReviewModuleChild(MinderSearchDTO minderSearchDTO, List<FunctionalMinderTreeDTO> children) {
         List<BaseTreeNode> baseTreeNodes = minderSearchDTO.getBaseTreeNode().getChildren();
         if (CollectionUtils.isNotEmpty(baseTreeNodes)) {
-            baseTreeNodes.forEach(child->{
+            baseTreeNodes.forEach(child -> {
                 FunctionalMinderTreeDTO functionalMinderTreeDTOChild = new FunctionalMinderTreeDTO();
                 FunctionalMinderTreeNodeDTO functionalMinderTreeNodeDTOChild = getFunctionalMinderTreeNodeDTO(child);
                 functionalMinderTreeDTOChild.setData(functionalMinderTreeNodeDTOChild);
@@ -234,7 +236,7 @@ public class FunctionalCaseMinderService {
                         functionalMinderTreeNodeChild.setPriority(list.get(0).getDefaultValue());
                     }
                 }
-                if (minderSearchDTO.isViewFlag()&& minderSearchDTO.isViewResult() && StringUtils.equalsIgnoreCase(minderSearchDTO.getReviewPassRule(), CaseReviewPassRule.MULTIPLE.toString())  ) {
+                if (minderSearchDTO.isViewFlag() && minderSearchDTO.isViewResult() && StringUtils.equalsIgnoreCase(minderSearchDTO.getReviewPassRule(), CaseReviewPassRule.MULTIPLE.toString())) {
                     functionalMinderTreeNodeChild.setStatus(reviewFunctionalCaseDTO.getStatus());
                 }
                 functionalMinderTreeNodeChild.setResource(List.of(MinderLabel.CASE.toString()));

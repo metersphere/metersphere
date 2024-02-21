@@ -57,8 +57,13 @@ public class CaseReviewFunctionalCaseController {
         if (request.isViewFlag()) {
             userId = SessionUtils.getUserId();
         }
+        String viewStatusUserId = StringUtils.EMPTY;
+        if (request.isViewStatusFlag()) {
+            viewStatusUserId = SessionUtils.getUserId();
+        }
+
         Page<Object> page = PageHelper.startPage(request.getCurrent(), request.getPageSize());
-        return PageUtils.setPageInfo(page, caseReviewFunctionalCaseService.page(request, false, userId));
+        return PageUtils.setPageInfo(page, caseReviewFunctionalCaseService.page(request, false, userId, viewStatusUserId));
     }
 
 
@@ -122,9 +127,9 @@ public class CaseReviewFunctionalCaseController {
     @Operation(summary = "用例管理-用例评审-评审列表-评审详情-评审结果的气泡数据")
     @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ)
     @CheckOwner(resourceId = "#projectId", resourceType = "project")
-    public List<OptionDTO> getUserStatus(@Schema(description =  "评审id", requiredMode = Schema.RequiredMode.REQUIRED)
-                                       @PathVariable("reviewId") String reviewId, @Schema(description =  "用例id", requiredMode = Schema.RequiredMode.REQUIRED)
-    @PathVariable("caseId") String caseId) {
+    public List<OptionDTO> getUserStatus(@Schema(description = "评审id", requiredMode = Schema.RequiredMode.REQUIRED)
+                                         @PathVariable("reviewId") String reviewId, @Schema(description = "用例id", requiredMode = Schema.RequiredMode.REQUIRED)
+                                         @PathVariable("caseId") String caseId) {
         return caseReviewFunctionalCaseService.getUserStatus(reviewId, caseId);
     }
 
