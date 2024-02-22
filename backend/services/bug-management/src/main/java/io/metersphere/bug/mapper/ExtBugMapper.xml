@@ -14,7 +14,7 @@
     </resultMap>
 
     <select id="list" resultMap="BugDTO">
-        select b.id, b.num, b.title, b.handle_user, b.create_user, b.create_time, b.update_time, b.delete_time, b.delete_user,
+        select b.id, b.num, b.title, b.handle_user, b.create_user, b.create_time, b.update_user, b.update_time, b.delete_user, b.delete_time,
                b.project_id, b.template_id, b.platform, b.status, b.tags from bug b
         <include refid="queryWhereCondition"/>
     </select>

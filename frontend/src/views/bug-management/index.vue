@@ -126,52 +126,47 @@
 </template>
 
 <script lang="ts" async setup>
-  import { useRoute } from 'vue-router';
-  import { Message, TableData } from '@arco-design/web-vue';
+import {useRoute} from 'vue-router';
+import {Message, TableData} from '@arco-design/web-vue';
 
-  import { MsAdvanceFilter, timeSelectOptions } from '@/components/pure/ms-advance-filter';
-  import { BackEndEnum, FilterFormItem, FilterResult, FilterType } from '@/components/pure/ms-advance-filter/type';
-  import MsButton from '@/components/pure/ms-button/index.vue';
-  import MsCard from '@/components/pure/ms-card/index.vue';
-  import MsExportDrawer from '@/components/pure/ms-export-drawer/index.vue';
-  import { MsExportDrawerMap, MsExportDrawerOption } from '@/components/pure/ms-export-drawer/types';
-  import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
-  import { BatchActionParams, BatchActionQueryParams, MsTableColumn } from '@/components/pure/ms-table/type';
-  import useTable from '@/components/pure/ms-table/useTable';
-  import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
-  import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
-  import BatchEditModal from './components/batchEditModal.vue';
-  import BugDetailDrawer from './components/bug-detail-drawer.vue';
-  import DeleteModal from './components/deleteModal.vue';
+import {MsAdvanceFilter, timeSelectOptions} from '@/components/pure/ms-advance-filter';
+import {BackEndEnum, FilterFormItem, FilterResult, FilterType} from '@/components/pure/ms-advance-filter/type';
+import MsButton from '@/components/pure/ms-button/index.vue';
+import MsCard from '@/components/pure/ms-card/index.vue';
+import MsExportDrawer from '@/components/pure/ms-export-drawer/index.vue';
+import {MsExportDrawerMap, MsExportDrawerOption} from '@/components/pure/ms-export-drawer/types';
+import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
+import {BatchActionParams, BatchActionQueryParams, MsTableColumn} from '@/components/pure/ms-table/type';
+import useTable from '@/components/pure/ms-table/useTable';
+import MsTableMoreAction from '@/components/pure/ms-table-more-action/index.vue';
+import {ActionsItem} from '@/components/pure/ms-table-more-action/types';
+import BatchEditModal from './components/batchEditModal.vue';
+import BugDetailDrawer from './components/bug-detail-drawer.vue';
+import DeleteModal from './components/deleteModal.vue';
 
-  import {
-    deleteBatchBug,
-    deleteSingleBug,
-    exportBug,
-    getBugList,
-    getCustomFieldHeader,
-    getExportConfig,
-    syncBugOpenSource,
-  } from '@/api/modules/bug-management';
-  import { useI18n } from '@/hooks/useI18n';
-  import useModal from '@/hooks/useModal';
-  import router from '@/router';
-  import { useAppStore, useTableStore } from '@/store';
-  import useLicenseStore from '@/store/modules/setting/license';
-  import {
-    customFieldDataToTableData,
-    customFieldToColumns,
-    downloadByteFile,
-    tableParamsToRequestParams,
-  } from '@/utils';
+import {
+  deleteBatchBug,
+  deleteSingleBug,
+  exportBug,
+  getBugList,
+  getCustomFieldHeader,
+  getExportConfig,
+  syncBugOpenSource,
+} from '@/api/modules/bug-management';
+import {useI18n} from '@/hooks/useI18n';
+import useModal from '@/hooks/useModal';
+import router from '@/router';
+import {useAppStore, useTableStore} from '@/store';
+import useLicenseStore from '@/store/modules/setting/license';
+import {customFieldDataToTableData, customFieldToColumns, downloadByteFile, tableParamsToRequestParams,} from '@/utils';
 
-  import { BugEditCustomField, BugListItem } from '@/models/bug-management';
-  import { RouteEnum } from '@/enums/routeEnum';
-  import { TableKeyEnum } from '@/enums/tableEnum';
+import {BugEditCustomField, BugListItem} from '@/models/bug-management';
+import {RouteEnum} from '@/enums/routeEnum';
+import {TableKeyEnum} from '@/enums/tableEnum';
 
-  import { useRequest } from 'ahooks-vue';
+import {useRequest} from 'ahooks-vue';
 
-  const { t } = useI18n();
+const { t } = useI18n();
 
   const tableStore = useTableStore();
   const appStore = useAppStore();
@@ -249,12 +244,20 @@
       dataIndex: 'num',
       slotName: 'num',
       width: 80,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      }
     },
     {
       title: 'bugManagement.bugName',
       dataIndex: 'title',
       width: 200,
       showTooltip: true,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      }
     },
     {
       title: 'bugManagement.status',
@@ -296,6 +299,10 @@
       width: 112,
       showTooltip: true,
       showDrag: true,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      }
     },
     {
       title: 'bugManagement.updateUser',
@@ -303,18 +310,30 @@
       width: 112,
       showTooltip: true,
       showDrag: true,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      }
     },
     {
       title: 'bugManagement.createTime',
       dataIndex: 'createTime',
       showDrag: true,
       width: 199,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      }
     },
     {
       title: 'bugManagement.updateTime',
       dataIndex: 'updateTime',
       showDrag: true,
       width: 199,
+      sortable: {
+        sortDirections: ['ascend', 'descend'],
+        sorter: true,
+      }
     },
     {
       title: 'common.operation',
