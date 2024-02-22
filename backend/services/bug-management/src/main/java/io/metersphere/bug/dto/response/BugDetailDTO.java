@@ -47,5 +47,12 @@ public class BugDetailDTO {
     private Boolean followFlag;
 
     @Schema(description = "附件集合")
-    List<BugFileDTO> attachments;
+    private List<BugFileDTO> attachments;
+
+    @Schema(description = "第三方平台缺陷ID")
+    private String platformBugId;
+
+    @Schema(description = "缺陷状态")
+    private String status;
+
 }

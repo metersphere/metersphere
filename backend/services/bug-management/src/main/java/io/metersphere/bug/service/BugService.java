@@ -254,6 +254,8 @@ public class BugService {
         detail.setProjectId(bug.getProjectId());
         detail.setTemplateId(template.getId());
         detail.setPlatformDefault(template.getPlatformDefault());
+        detail.setStatus(bug.getStatus());
+        detail.setPlatformBugId(bug.getPlatformBugId());
         if (!detail.getPlatformDefault()) {
             // 非平台默认模板 {标题, 内容, 标签, 自定义字段: 处理人, 状态}
             detail.setTitle(bug.getTitle());

@@ -188,52 +188,56 @@
 </template>
 
 <script setup lang="ts">
-  import { useRoute } from 'vue-router';
-  import { Message } from '@arco-design/web-vue';
+import {useRoute} from 'vue-router';
+import {Message} from '@arco-design/web-vue';
 
-  import MsButton from '@/components/pure/ms-button/index.vue';
-  import MsCard from '@/components/pure/ms-card/index.vue';
-  import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
-  import { FormItem, FormRuleItem } from '@/components/pure/ms-form-create/types';
-  import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
-  import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
-  import FileList from '@/components/pure/ms-upload/fileList.vue';
-  import MsUpload from '@/components/pure/ms-upload/index.vue';
-  import { MsFileItem } from '@/components/pure/ms-upload/types';
-  import RelateFileDrawer from '@/components/business/ms-link-file/associatedFileDrawer.vue';
-  import TransferModal from '@/views/case-management/caseManagementFeature/components/tabContent/transferModal.vue';
+import MsButton from '@/components/pure/ms-button/index.vue';
+import MsCard from '@/components/pure/ms-card/index.vue';
+import MsFormCreate from '@/components/pure/ms-form-create/ms-form-create.vue';
+import {FormItem, FormRuleItem} from '@/components/pure/ms-form-create/types';
+import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
+import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
+import MsUpload from '@/components/pure/ms-upload/index.vue';
+import {MsFileItem} from '@/components/pure/ms-upload/types';
+import RelateFileDrawer from '@/components/business/ms-link-file/associatedFileDrawer.vue';
+import TransferModal from '@/views/case-management/caseManagementFeature/components/tabContent/transferModal.vue';
 
-  import {
-    checkFileIsUpdateRequest,
-    createOrUpdateBug,
-    downloadFileRequest,
-    editorUploadFile,
-    getAssociatedFileList,
-    getBugDetail,
-    getTemplateById,
-    getTemplateOption,
-    previewFile,
-    transferFileRequest,
-    updateFile,
-  } from '@/api/modules/bug-management';
-  import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
-  import { useI18n } from '@/hooks/useI18n';
-  import useVisit from '@/hooks/useVisit';
-  import router from '@/router';
-  import { useAppStore } from '@/store';
-  import { downloadByteFile } from '@/utils';
-  import { scrollIntoView } from '@/utils/dom';
+import {
+  checkFileIsUpdateRequest,
+  createOrUpdateBug,
+  downloadFileRequest,
+  editorUploadFile,
+  getAssociatedFileList,
+  getBugDetail,
+  getTemplateById,
+  getTemplateOption,
+  previewFile,
+  transferFileRequest,
+  updateFile,
+} from '@/api/modules/bug-management';
+import {getModules, getModulesCount} from '@/api/modules/project-management/fileManagement';
+import {useI18n} from '@/hooks/useI18n';
+import useVisit from '@/hooks/useVisit';
+import router from '@/router';
+import {useAppStore} from '@/store';
+import {downloadByteFile} from '@/utils';
+import {scrollIntoView} from '@/utils/dom';
 
-  import { BugEditCustomField, BugEditCustomFieldItem, BugEditFormObject } from '@/models/bug-management';
-  import { AssociatedList, AttachFileInfo } from '@/models/caseManagement/featureCase';
-  import { TableQueryParams } from '@/models/common';
-  import { SelectValue } from '@/models/projectManagement/menuManagement';
-  import { BugManagementRouteEnum } from '@/enums/routeEnum';
+import {
+  BugEditCustomField,
+  BugEditCustomFieldItem,
+  BugEditFormObject,
+  BugTemplateRequest
+} from '@/models/bug-management';
+import {AssociatedList, AttachFileInfo} from '@/models/caseManagement/featureCase';
+import {TableQueryParams} from '@/models/common';
+import {SelectValue} from '@/models/projectManagement/menuManagement';
+import {BugManagementRouteEnum} from '@/enums/routeEnum';
 
-  import { convertToFile } from '../case-management/caseManagementFeature/components/utils';
-  import { convertToFileByBug } from './utils';
+import {convertToFile} from '../case-management/caseManagementFeature/components/utils';
+import {convertToFileByBug} from './utils';
 
-  defineOptions({ name: 'BugEditPage' });
+defineOptions({ name: 'BugEditPage' });
 
   const { t } = useI18n();
 
@@ -348,10 +352,14 @@
     }
   };
 
-  const templateChange = async (v: SelectValue) => {
+  const templateChange = async (v: SelectValue, request?: BugTemplateRequest) => {
     if (v) {
       try {
-        const res = await getTemplateById({ projectId: appStore.currentProjectId, id: v });
+        let param = {projectId: appStore.currentProjectId, id: v}
+        if (request) {
+          param = {...param, ...request}
+        }
+        const res = await getTemplateById(param);
         getFormRules(res.customFields);
       } catch (error) {
         // eslint-disable-next-line no-console
@@ -542,7 +550,12 @@
     const res = await getBugDetail(id);
     const { customFields, templateId, attachments } = res;
     // 根据模板ID 初始化自定义字段
-    await templateChange(templateId);
+    if (isCopy.value) {
+      // 复制, 只需返回初始状态
+      await templateChange(templateId);
+    } else {
+      await templateChange(templateId, {fromStatusId: res.status, platformBugKey: res.platformBugId})
+    }
     if (attachments && attachments.length) {
       attachmentsList.value = attachments;
       // 检查文件是否有更新
@@ -564,7 +577,12 @@
     const tmpObj = {};
     if (customFields && Array.isArray(customFields)) {
       customFields.forEach((item) => {
-        tmpObj[item.id] = item.value;
+        if (item.id === 'status' && isCopy.value) {
+          // 复制时, 状态赋值为空
+          tmpObj[item.id] = '';
+        } else {
+          tmpObj[item.id] = item.value;
+        }
       });
     }
     // 自定义字段赋值

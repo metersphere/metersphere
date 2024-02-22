@@ -20,6 +20,7 @@ import io.metersphere.system.mapper.StatusDefinitionMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -296,11 +297,13 @@ public class BaseStatusFlowSettingService {
         } else {
             //修改时, 获取当前状态的流转选项值即可
             List<StatusFlow> nextStatusFlows = baseStatusFlowService.getNextStatusFlows(targetStatusId);
+            List<String> toIds = new ArrayList<>();
             if (CollectionUtils.isEmpty(nextStatusFlows)) {
-                // 当前状态选项值没有下一步流转选项值, 返回空集合
-                return List.of();
+                // 当前状态选项值没有下一步流转选项值, 返回当前状态即可
+                toIds = List.of(targetStatusId);
+            } else {
+                toIds = ListUtils.union(nextStatusFlows.stream().map(StatusFlow::getToId).collect(Collectors.toList()), List.of(targetStatusId));
             }
-            List<String> toIds = nextStatusFlows.stream().map(StatusFlow::getToId).toList();
             List<StatusItem> statusItems = baseStatusItemService.getToStatusItemByScopeIdAndScene(scopeId, scene, toIds);
             statusItems = baseStatusItemService.translateInternalStatusItem(statusItems);
             return statusItems.stream().map(item -> new SelectOption(item.getName(), item.getId())).toList();
