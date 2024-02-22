@@ -166,6 +166,7 @@
           ...fileList.value[0],
           fileId: res.data,
           fileName: fileList.value[0]?.name || '',
+          fileAlias: fileList.value[0]?.name || '',
           local: true,
         };
         appStore.hideLoading();
@@ -173,7 +174,8 @@
         innerParams.value.binaryBody.file = {
           ...fileList.value[0],
           fileId: fileList.value[0].uid,
-          fileName: fileList.value[0]?.name || '',
+          fileName: fileList.value[0]?.originalName || '',
+          fileAlias: fileList.value[0]?.name || '',
           local: false,
         };
       }

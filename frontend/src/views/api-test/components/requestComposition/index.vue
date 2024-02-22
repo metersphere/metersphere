@@ -645,8 +645,8 @@
       const realWwwFormBodyValues = wwwFormBody.formValues.filter((e, i) => i !== wwwFormBody.formValues.length - 1); // 去掉最后一行空行
       parseRequestBodyResult = parseRequestBodyFiles(
         requestVModel.value.body,
-        requestVModel.value.uploadFileIds,
-        requestVModel.value.linkFileIds
+        requestVModel.value.uploadFileIds, // 外面解析详情的时候传入
+        requestVModel.value.linkFileIds // 外面解析详情的时候传入
       );
       requestParams = {
         authConfig: requestVModel.value.authConfig,
@@ -658,7 +658,7 @@
           wwwFormBody: {
             formValues: realWwwFormBodyValues,
           },
-        }, // TODO:binaryBody还没对接
+        },
         headers: requestVModel.value.headers.filter((e, i) => i !== requestVModel.value.headers.length - 1), // 去掉最后一行空行
         method: requestVModel.value.method,
         otherConfig: requestVModel.value.otherConfig,
@@ -748,8 +748,6 @@
         ...makeRequestParams(),
         protocol: requestVModel.value.protocol,
         method: isHttpProtocol.value ? requestVModel.value.method : requestVModel.value.protocol,
-        deleteFileIds: [], // TODO:删除文件集合
-        unLinkRefIds: [], // TODO:取消关联文件集合
       });
       Message.success(t('common.updateSuccess'));
       requestVModel.value.unSaved = false;

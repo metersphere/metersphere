@@ -37,25 +37,67 @@
   <template v-else>
     <div v-if="props.multiple" class="flex w-full items-center gap-[4px]">
       <dropdownMenu v-model:file-list="innerFileList" @link-file="associatedFile" @change="handleChange" />
-      <MsTagsInput
-        v-model:model-value="inputFiles"
-        :input-class="props.inputClass"
-        placeholder=" "
-        :max-tag-count="1"
-        :size="props.inputSize"
-        readonly
-        class="!w-[calc(100%-28px)]"
+      <a-popover
+        v-model:popup-visible="inputFilesPopoverVisible"
+        trigger="click"
+        position="bottom"
+        :disabled="inputFiles.length === 0"
       >
-        <template #tag="{ data }">
-          <MsTag
-            :size="props.tagSize"
-            class="m-0 border-none p-0"
-            :self-style="{ backgroundColor: 'transparent !important' }"
-          >
-            {{ data.label }}
-          </MsTag>
+        <MsTagsInput
+          v-model:model-value="inputFiles"
+          :input-class="props.inputClass"
+          placeholder=" "
+          :max-tag-count="1"
+          :size="props.inputSize"
+          readonly
+          class="!w-[calc(100%-28px)]"
+        >
+          <template v-if="alreadyDeleteFiles.length > 0" #prefix>
+            <icon-exclamation-circle-fill class="!text-[rgb(var(--warning-6))]" :size="18" />
+          </template>
+          <template #tag="{ data }">
+            <MsTag
+              :size="props.tagSize"
+              class="m-0 border-none p-0"
+              :self-style="{ backgroundColor: 'transparent !important' }"
+              :closable="data.value !== '__arco__more'"
+              @close="handleClose(data)"
+            >
+              {{ data.value === '__arco__more' ? data.label.replace('...', '') : data.label }}
+            </MsTag>
+          </template>
+        </MsTagsInput>
+        <template #content>
+          <div class="flex w-[200px] flex-col gap-[8px]">
+            <template v-if="alreadyDeleteFiles.length > 0">
+              <div class="flex items-center gap-[4px]">
+                <icon-exclamation-circle-fill class="!text-[rgb(var(--warning-6))]" :size="18" />
+                <div class="text-[var(--color-text-4)]">{{ t('ms.add.attachment.alreadyDelete') }}</div>
+                <MsButton type="text" @click="clearDeletedFiles">{{ t('ms.add.attachment.quickClear') }}</MsButton>
+              </div>
+              <div class="file-list">
+                <div v-for="file of alreadyDeleteFiles" :key="file.value">
+                  <MsTag size="small" max-width="100%" closable @close="handleClose(file)">
+                    {{ file.label }}
+                  </MsTag>
+                </div>
+              </div>
+            </template>
+            <template v-if="otherFiles.length > 0">
+              <div v-if="alreadyDeleteFiles.length > 0" class="mt-[4px] text-[var(--color-text-4)]">
+                {{ t('ms.add.attachment.other') }}
+              </div>
+              <div class="file-list">
+                <div v-for="file of otherFiles" :key="file.value">
+                  <MsTag size="small" max-width="100%" closable @close="handleClose(file)">
+                    {{ file.label }}
+                  </MsTag>
+                </div>
+              </div>
+            </template>
+          </div>
         </template>
-      </MsTagsInput>
+      </a-popover>
     </div>
     <div v-else class="flex w-full items-center gap-[4px]">
       <dropdownMenu v-model:file-list="innerFileList" @link-file="associatedFile" @change="handleChange" />
@@ -85,6 +127,7 @@
   import { useVModel } from '@vueuse/core';
   import { TagData } from '@arco-design/web-vue';
 
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsTag, { Size } from '@/components/pure/ms-tag/ms-tag.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import type { MsFileItem } from '@/components/pure/ms-upload/types';
@@ -148,6 +191,7 @@
     if (defaultFiles.length > 0) {
       if (props.multiple) {
         inputFiles.value = defaultFiles.map((item) => ({
+          ...item,
           // 这里取自定义的字段名，因为存在查看的场景时不会与刚选择的文件信息一样
           value: item?.[props.fields.id] || '',
           label: item?.[props.fields.name] || '',
@@ -220,9 +264,24 @@
     emit('change', innerFileList.value);
   }
 
+  const inputFilesPopoverVisible = ref(false);
+  const alreadyDeleteFiles = computed(() => {
+    return inputFiles.value.filter((item) => item.delete);
+  });
+  const otherFiles = computed(() => {
+    return inputFiles.value.filter((item) => !item.delete);
+  });
+
+  function clearDeletedFiles() {
+    inputFiles.value = inputFiles.value.filter((item) => !item.delete);
+  }
+
   function handleClose(data: TagData) {
     inputFiles.value = inputFiles.value.filter((item) => item.value !== data.value);
     innerFileList.value = innerFileList.value.filter((item) => item[props.fields.id] !== data.value);
+    if (innerFileList.value.length === 0) {
+      inputFilesPopoverVisible.value = false;
+    }
     emit('deleteFile', data.value);
   }
 
@@ -235,6 +294,19 @@
 </script>
 
 <style lang="less" scoped>
+  .file-list {
+    @apply flex flex-col overflow-y-auto overflow-x-hidden;
+    .ms-scroll-bar();
+
+    gap: 8px;
+    max-height: 100px;
+  }
+  :deep(.arco-input-tag-has-prefix) {
+    padding-left: 4px;
+  }
+  :deep(.arco-input-tag-prefix) {
+    padding-right: 4px;
+  }
   :deep(.arco-input-tag-inner) {
     @apply flex w-full items-center;
     .arco-input-tag-tag {

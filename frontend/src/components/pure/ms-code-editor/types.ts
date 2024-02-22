@@ -20,7 +20,7 @@ export const LanguageEnum = {
   YAML: 'yaml' as const,
   SHELL: 'shell' as const,
   BEANSHELL: 'beanshell' as const,
-  BEANSHELLJSR233: 'beanshell-jsr233' as const,
+  BEANSHELL_JSR233: 'beanshell-jsr233' as const,
   GROOVY: 'groovy' as const,
   NASHORNSCRIPT: 'nashornScript' as const,
   RHINOSCRIPT: 'rhinoScript' as const,

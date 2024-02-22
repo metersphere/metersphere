@@ -148,9 +148,10 @@
                     <div
                       :class="`flex ${data.isLeaf ? 'mr-[-26px] w-[270px]' : 'w-[120px]'} items-center justify-between`"
                     >
-                      <a-tooltip :content="t(data.label)">
+                      <!-- {symbol: '|'}是为了解决vue-i18n中｜是特殊功能符号，会被转换掉 -->
+                      <a-tooltip :content="t(data.label, { symbol: '|' })">
                         <div :class="`one-line-text ${data.isLeaf ? 'max-w-[50%]' : ''}`" title="">
-                          {{ t(data.label) }}
+                          {{ t(data.label, { symbol: '|' }) }}
                         </div>
                       </a-tooltip>
                       <a-tooltip v-if="data.isLeaf" :content="data.value">
@@ -164,9 +165,15 @@
               </a-form-item>
             </template>
           </a-form>
-          <div class="mb-[16px] flex items-center gap-[16px] bg-[var(--color-text-n9)] p-[5px_8px]">
+          <div
+            v-if="paramForm.type === 'mock'"
+            class="mb-[16px] flex items-center gap-[16px] bg-[var(--color-text-n9)] p-[5px_8px]"
+          >
             <div class="text-[var(--color-text-3)]">{{ t('ms.paramsInput.preview') }}</div>
-            <div class="text-[var(--color-text-1)]">{{ paramPreview }}</div>
+            <a-spin :loading="previewLoading" class="flex gap-[8px]">
+              <div class="text-[var(--color-text-1)]">{{ paramPreview }}</div>
+              <MsButton type="text" @click="getMockValue">{{ t('ms.paramsInput.previewClick') }}</MsButton>
+            </a-spin>
           </div>
         </div>
         <div class="flex items-center justify-end gap-[8px]">
@@ -192,12 +199,14 @@
       <div class="ms-params-popover-value mb-[8px]">
         {{ innerValue }}
       </div>
-      <div class="ms-params-popover-subtitle">
-        {{ t('ms.paramsInput.preview') }}
-      </div>
-      <div class="ms-params-popover-value">
-        {{ innerValue }}
-      </div>
+      <template v-if="/^@/.test(innerValue)">
+        <div class="ms-params-popover-subtitle">
+          {{ t('ms.paramsInput.preview') }}
+        </div>
+        <div class="ms-params-popover-value">
+          {{ paramPreview }}
+        </div>
+      </template>
     </template>
     <a-auto-complete
       ref="autoCompleteRef"
@@ -230,12 +239,14 @@
 
 <script setup lang="ts">
   import { useEventListener, useStorage, useVModel } from '@vueuse/core';
-  import { cloneDeep, includes } from 'lodash-es';
+  import { cloneDeep } from 'lodash-es';
 
+  import MsButton from '@/components/pure/ms-button/index.vue';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsCascader from '@/components/business/ms-cascader/index.vue';
   import paramsInputGroup from './paramsInputGroup.vue';
 
+  import { testMock } from '@/api/modules/api-test/debug';
   import { useI18n } from '@/hooks/useI18n';
 
   import {
@@ -322,11 +333,6 @@
     }
   }
 
-  function selectAutoComplete(val: string) {
-    innerValue.value = val;
-    setLastTenParams(val);
-  }
-
   const autoCompleteRef = ref<InstanceType<typeof AutoComplete>>();
 
   onMounted(() => {
@@ -365,7 +371,6 @@
   const paramFormRef = ref<FormInstance>();
   const paramTypeOptions: CascaderOption[] = cloneDeep(mockAllGroup);
   const paramFuncOptions: MockParamItem[] = cloneDeep(mockFunctions);
-  const paramPreview = ref('xsxsxsxs');
   const currentParamsInputGroup = ref<MockParamInputGroupItem[]>([]);
 
   /**
@@ -539,6 +544,35 @@
       }
     }
     return resultStr;
+  }
+
+  const paramPreview = ref('');
+  const previewLoading = ref(false);
+  async function getMockValue(val?: string) {
+    try {
+      previewLoading.value = true;
+      paramPreview.value = await testMock(val || applyMock());
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.log(error);
+      paramPreview.value = '';
+    } finally {
+      previewLoading.value = false;
+    }
+  }
+
+  watch(
+    () => popoverVisible.value,
+    (val) => {
+      if (val && /^@/.test(innerValue.value)) {
+        getMockValue(innerValue.value);
+      }
+    }
+  );
+
+  function selectAutoComplete(val: string) {
+    innerValue.value = val;
+    setLastTenParams(val);
   }
 
   function apply() {

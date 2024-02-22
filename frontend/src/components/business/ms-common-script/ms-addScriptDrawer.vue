@@ -75,6 +75,7 @@
   import { FormInstance } from '@arco-design/web-vue';
   import { cloneDeep } from 'lodash-es';
 
+  import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
@@ -84,7 +85,7 @@
   import { getCommonScriptDetail, getSocket, testCommonScript } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
-  import { getGenerateId, sleep } from '@/utils';
+  import { getGenerateId } from '@/utils';
 
   import type { AddOrUpdateCommonScript, ParamsRequestType } from '@/models/projectManagement/commonScript';
 
@@ -127,7 +128,7 @@
     projectId: '',
     params: '',
     script: '',
-    type: 'beanshell-jsr233',
+    type: LanguageEnum.BEANSHELL_JSR233,
     result: '',
   };
 
