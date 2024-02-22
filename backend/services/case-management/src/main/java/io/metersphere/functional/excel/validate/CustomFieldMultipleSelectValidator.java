@@ -7,6 +7,7 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,7 +36,7 @@ public class CustomFieldMultipleSelectValidator extends CustomFieldSelectValidat
     @Override
     public Object parse2Key(String keyOrValuesStr, TemplateCustomFieldDTO customField) {
         if (StringUtils.isBlank(keyOrValuesStr)) {
-            return StringUtils.EMPTY;
+            return JSON.toJSONString(new ArrayList<>());
         }
         List<String> keyOrValues = parse2Array(keyOrValuesStr);
         Map<String, String> nameMap = optionTextMapCache.get(customField.getFieldId());
