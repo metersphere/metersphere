@@ -83,9 +83,7 @@ public class TestResourcePoolService {
             return true;
         }
         boolean validate = checkNodeOrK8s(testResourceDTO, type, false);
-        if (!validate) {
-            testResourcePool.setEnable(false);
-        }
+        testResourcePool.setEnable(validate);
         return validate;
     }
 
@@ -122,9 +120,7 @@ public class TestResourcePoolService {
             return true;
         }
         boolean validate = checkNodeOrK8s(testResourceDTO, type, true);
-        if (!validate) {
-            testResourcePool.setEnable(false);
-        }
+        testResourcePool.setEnable(validate);
         return validate;
     }
 
