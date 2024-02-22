@@ -7,6 +7,7 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.dto.sdk.TemplateCustomFieldDTO;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,7 +33,7 @@ public class CustomFieldMultipleMemberValidator extends CustomFieldMemberValidat
     @Override
     public Object parse2Key(String keyOrValuesStr, TemplateCustomFieldDTO customField) {
         if (StringUtils.isBlank(keyOrValuesStr)) {
-            return StringUtils.EMPTY;
+            return JSON.toJSONString(new ArrayList<>());
         }
         List<String> keyOrValues = parse2Array(keyOrValuesStr);
 
