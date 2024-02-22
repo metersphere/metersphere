@@ -1,6 +1,6 @@
-import { FormItemType } from '@/components/pure/ms-form-create/types';
+import {FormItemType} from '@/components/pure/ms-form-create/types';
 
-import { BatchApiParams } from './common';
+import {BatchApiParams} from './common';
 
 export interface BugListItem {
   id: string; // 缺陷id
@@ -85,4 +85,9 @@ export interface OperationFile {
   fileId?: string; // 文件id
   associated: boolean; // 是否是本地 还是关联
   moduleId?: string; // 文件转存模块id
+}
+
+export interface BugTemplateRequest {
+  fromStatusId: string;    // 缺陷当前状态
+  platformBugKey: string;  // 缺陷第三方平台Key
 }

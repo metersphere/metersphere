@@ -159,41 +159,41 @@
 </template>
 
 <script setup lang="ts">
-  import { Message } from '@arco-design/web-vue';
+import {Message} from '@arco-design/web-vue';
 
-  import MsButton from '@/components/pure/ms-button/index.vue';
-  import { FormRuleItem } from '@/components/pure/ms-form-create/types';
-  import MsIconfont from '@/components/pure/ms-icon-font/index.vue';
-  import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
-  import MsFileList from '@/components/pure/ms-upload/fileList.vue';
-  import { MsFileItem } from '@/components/pure/ms-upload/types';
-  import RelateFileDrawer from '@/components/business/ms-link-file/associatedFileDrawer.vue';
-  import TransferModal from '@/views/case-management/caseManagementFeature/components/tabContent/transferModal.vue';
+import MsButton from '@/components/pure/ms-button/index.vue';
+import {FormRuleItem} from '@/components/pure/ms-form-create/types';
+import MsIconfont from '@/components/pure/ms-icon-font/index.vue';
+import MsRichText from '@/components/pure/ms-rich-text/MsRichText.vue';
+import MsFileList from '@/components/pure/ms-upload/fileList.vue';
+import {MsFileItem} from '@/components/pure/ms-upload/types';
+import RelateFileDrawer from '@/components/business/ms-link-file/associatedFileDrawer.vue';
+import TransferModal from '@/views/case-management/caseManagementFeature/components/tabContent/transferModal.vue';
 
-  import {
-    checkFileIsUpdateRequest,
-    createOrUpdateBug,
-    deleteFileOrCancelAssociation,
-    downloadFileRequest,
-    editorUploadFile,
-    getAssociatedFileList,
-    previewFile,
-    transferFileRequest,
-    updateFile,
-    uploadOrAssociationFile,
-  } from '@/api/modules/bug-management';
-  import { getModules, getModulesCount } from '@/api/modules/project-management/fileManagement';
-  import { useI18n } from '@/hooks/useI18n';
-  import { useAppStore } from '@/store';
-  import { downloadByteFile, sleep } from '@/utils';
+import {
+  checkFileIsUpdateRequest,
+  createOrUpdateBug,
+  deleteFileOrCancelAssociation,
+  downloadFileRequest,
+  editorUploadFile,
+  getAssociatedFileList,
+  previewFile,
+  transferFileRequest,
+  updateFile,
+  uploadOrAssociationFile,
+} from '@/api/modules/bug-management';
+import {getModules, getModulesCount} from '@/api/modules/project-management/fileManagement';
+import {useI18n} from '@/hooks/useI18n';
+import {useAppStore} from '@/store';
+import {downloadByteFile, sleep} from '@/utils';
 
-  import { BugEditCustomFieldItem, BugEditFormObject } from '@/models/bug-management';
-  import { AssociatedList, AttachFileInfo } from '@/models/caseManagement/featureCase';
-  import { TableQueryParams } from '@/models/common';
+import {BugEditCustomFieldItem, BugEditFormObject} from '@/models/bug-management';
+import {AssociatedList, AttachFileInfo} from '@/models/caseManagement/featureCase';
+import {TableQueryParams} from '@/models/common';
 
-  import { convertToFileByBug, convertToFileByDetail } from '@/views/bug-management/utils';
+import {convertToFileByBug, convertToFileByDetail} from '@/views/bug-management/utils';
 
-  defineOptions({
+defineOptions({
     name: 'BugDetailTab',
   });
 
@@ -231,6 +231,7 @@
     },
   });
   const form = ref({
+    title: '',
     description: '',
     deleteLocalFileIds: [] as string[],
     unLinkRefIds: [] as string[],
@@ -261,7 +262,8 @@
   const confirmLoading = ref<boolean>(false);
 
   const initCurrentDetail = async (detail: BugEditFormObject) => {
-    const { attachments, description } = detail;
+    const { attachments, title, description } = detail;
+    form.value.title = title;
     form.value.description = description;
     handleFileFunc(attachments);
   };
@@ -430,6 +432,7 @@
         templateId: props.detailInfo.templateId,
         customFields,
       };
+      console.log(tmpObj)
       // 执行保存操作
       const res = await createOrUpdateBug({ request: tmpObj, fileList: fileList.value as unknown as File[] });
       if (res) {
