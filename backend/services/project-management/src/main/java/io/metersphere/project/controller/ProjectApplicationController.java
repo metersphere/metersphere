@@ -20,6 +20,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -213,7 +214,7 @@ public class ProjectApplicationController {
 
     @GetMapping("/case/related/info/{projectId}")
     @Operation(summary = "用例管理-获取关联需求信息")
-    @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_CASE_READ)
+    @RequiresPermissions(logical = Logical.OR, value = {PermissionConstants.FUNCTIONAL_CASE_READ, PermissionConstants.PROJECT_APPLICATION_CASE_READ})
     public Map<String, String> getRelatedConfigInfo(@PathVariable("projectId") String projectId) {
         return projectApplicationService.getRelatedConfigInfo(projectId);
     }
