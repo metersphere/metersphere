@@ -51,8 +51,13 @@
         <span>{{ t(ExecutionMethodsLabel[record.triggerMode]) }}</span>
       </template>
       <template #operation="{ record }">
-        <MsButton class="!mr-0" @click="stop(record)">{{ t('project.taskCenter.stop') }}</MsButton>
-        <a-divider direction="vertical" />
+        <MsButton
+          v-if="['PENDING', 'RUNNING', 'RERUNNING'].includes(record.status)"
+          class="!mr-0"
+          @click="stop(record)"
+          >{{ t('project.taskCenter.stop') }}</MsButton
+        >
+        <a-divider v-if="['PENDING', 'RUNNING', 'RERUNNING'].includes(record.status)" direction="vertical" />
         <MsButton class="!mr-0" @click="execution(record)">{{ t('project.taskCenter.execution') }}</MsButton>
         <MsButton class="!mr-0">{{ t('project.taskCenter.viewReport') }}</MsButton>
       </template>
@@ -149,11 +154,6 @@
       dataIndex: 'status',
       slotName: 'status',
       titleSlotName: 'statusFilter',
-      // filterConfig: {
-      //   filterSlotName: 'status', // 筛选组件的slotName
-      //   multiple: true, // 是否多选
-      //   options: filterOptions.value,
-      // },
       showInTable: true,
       width: 150,
       showDrag: true,
@@ -163,7 +163,6 @@
       dataIndex: 'triggerMode',
       slotName: 'triggerMode',
       showInTable: true,
-      isTag: true,
       width: 150,
       showDrag: true,
     },
@@ -194,7 +193,7 @@
       title: 'common.operation',
       slotName: 'operation',
       dataIndex: 'operation',
-      width: 120,
+      width: 200,
       fixed: 'right',
     },
   ];
@@ -209,7 +208,6 @@
       showSetting: false,
       selectable: true,
       heightUsed: 300,
-      enableDrag: true,
       showSelectAll: true,
     }
   );
@@ -218,6 +216,7 @@
     setLoadListParams({
       keyword: keyword.value,
       moduleType: props.moduleType,
+      filter: { status: statusListFilters.value },
     });
     loadList();
   }

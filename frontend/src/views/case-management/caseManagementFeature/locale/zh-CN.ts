@@ -13,7 +13,7 @@ export default {
   'caseManagement.featureCase.rename': '重命名',
   'caseManagement.featureCase.recycle': '回收站',
   'caseManagement.featureCase.versionPlaceholder': '默认为最新版本',
-  'caseManagement.featureCase.searchByNameAndId': '通过 ID 或名称搜索',
+  'caseManagement.featureCase.searchByNameAndId': '通过ID、名称或标签搜索',
   'caseManagement.featureCase.filter': '筛选',
   'caseManagement.featureCase.setFilterCondition': '设置筛选条件',
   'caseManagement.featureCase.followingCondition': '符合以下',
@@ -247,5 +247,5 @@ export default {
   'caseManagement.featureCase.defectSource': '缺陷来源',
   'caseManagement.featureCase.sortSuccess': '排序成功',
   'caseManagement.featureCase.zentao': '禅道',
-  'caseManagement.featureCase.searchPlaceholder': '通过ID或名称搜索',
+  'caseManagement.featureCase.searchPlaceholder': '通过ID、名称或标签搜索',
 };

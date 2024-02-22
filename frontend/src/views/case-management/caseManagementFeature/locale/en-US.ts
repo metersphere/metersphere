@@ -13,7 +13,7 @@ export default {
   'caseManagement.featureCase.rename': 'rename',
   'caseManagement.featureCase.recycle': 'Recycle',
   'caseManagement.featureCase.versionPlaceholder': 'The default is the latest version',
-  'caseManagement.featureCase.searchByNameAndId': 'Search by ID or name',
+  'caseManagement.featureCase.searchByNameAndId': 'Search by ID, name, or tag',
   'caseManagement.featureCase.filter': 'filter',
   'caseManagement.featureCase.setFilterCondition': 'Set filters',
   'caseManagement.featureCase.followingCondition': 'Conform to the following',
@@ -252,5 +252,5 @@ export default {
   'caseManagement.featureCase.defectSource': 'defect Source',
   'caseManagement.featureCase.sortSuccess': 'Sort successfully',
   'caseManagement.featureCase.zentao': 'zentao',
-  'caseManagement.featureCase.searchPlaceholder': 'Search by ID or name',
+  'caseManagement.featureCase.searchPlaceholder': 'Search by ID, name, or tag',
 };
