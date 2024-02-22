@@ -159,7 +159,7 @@
       // 隐藏底部
       return props.noContentPadding ? 140 + _specialHeight : 180 + _specialHeight;
     }
-    return 234 + _specialHeight;
+    return 264 + _specialHeight;
   });
 
   const getComputedContentStyle = computed(() => {

@@ -39,11 +39,12 @@
       <dropdownMenu v-model:file-list="innerFileList" @link-file="associatedFile" @change="handleChange" />
       <MsTagsInput
         v-model:model-value="inputFiles"
-        :class="props.inputClass"
+        :input-class="props.inputClass"
         placeholder=" "
         :max-tag-count="1"
         :size="props.inputSize"
         readonly
+        class="!w-[calc(100%-28px)]"
       >
         <template #tag="{ data }">
           <MsTag
@@ -235,11 +236,14 @@
 
 <style lang="less" scoped>
   :deep(.arco-input-tag-inner) {
-    @apply flex items-center;
+    @apply flex w-full items-center;
     .arco-input-tag-tag {
       @apply !my-0 !bg-transparent;
 
-      max-width: calc(100% - 50px);
+      max-width: calc(100% - 56px);
+    }
+    .arco-input-tag-input {
+      @apply hidden;
     }
   }
 </style>
