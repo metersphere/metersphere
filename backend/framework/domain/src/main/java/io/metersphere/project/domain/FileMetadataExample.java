@@ -1347,6 +1347,76 @@ public class FileMetadataExample {
             addCriterion("file_version not between", value1, value2, "fileVersion");
             return (Criteria) this;
         }
+
+        public Criteria andOriginalNameIsNull() {
+            addCriterion("original_name is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalNameIsNotNull() {
+            addCriterion("original_name is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalNameEqualTo(String value) {
+            addCriterion("original_name =", value, "originalName");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalNameNotEqualTo(String value) {
+            addCriterion("original_name <>", value, "originalName");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalNameGreaterThan(String value) {
+            addCriterion("original_name >", value, "originalName");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalNameGreaterThanOrEqualTo(String value) {
+            addCriterion("original_name >=", value, "originalName");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalNameLessThan(String value) {
+            addCriterion("original_name <", value, "originalName");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalNameLessThanOrEqualTo(String value) {
+            addCriterion("original_name <=", value, "originalName");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalNameLike(String value) {
+            addCriterion("original_name like", value, "originalName");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalNameNotLike(String value) {
+            addCriterion("original_name not like", value, "originalName");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalNameIn(List<String> values) {
+            addCriterion("original_name in", values, "originalName");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalNameNotIn(List<String> values) {
+            addCriterion("original_name not in", values, "originalName");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalNameBetween(String value1, String value2) {
+            addCriterion("original_name between", value1, value2, "originalName");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalNameNotBetween(String value1, String value2) {
+            addCriterion("original_name not between", value1, value2, "originalName");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

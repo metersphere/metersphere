@@ -19,6 +19,9 @@ public class FileInformationResponse {
     @Schema(description = "文件名称")
     private String name;
 
+    @Schema(description = "原始文件名")
+    private String originalName;
+
     @Schema(description = "文件类型")
     private String fileType;
 
@@ -83,6 +86,7 @@ public class FileInformationResponse {
             this.name = fileMetadata.getName();
             this.fileType = fileMetadata.getType();
             this.description = fileMetadata.getDescription();
+            this.originalName = fileMetadata.getOriginalName();
             this.moduleId = fileMetadata.getModuleId();
             this.size = fileMetadata.getSize();
             if (CollectionUtils.isNotEmpty(fileMetadata.getTags())) {
