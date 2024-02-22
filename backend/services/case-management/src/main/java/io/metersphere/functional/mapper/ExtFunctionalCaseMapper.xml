@@ -357,15 +357,17 @@
     </sql>
 
     <sql id="queryVersionCondition">
-        <if test="request.versionId != null">
-            and ${versionTable}.version_id = #{request.versionId}
-        </if>
-        <if test="request.refId != null">
-            and ${versionTable}.ref_id = #{request.refId}
-        </if>
-        <if test="request.versionId == null and request.refId == null">
-            and ${versionTable}.latest = 1
-        </if>
+        <choose>
+            <when test="request.versionId != null and request.versionId != ''">
+                and ${versionTable}.version_id = #{request.versionId}
+            </when>
+            <when test="request.refId != null and request.refId != ''">
+                and ${versionTable}.ref_id = #{request.refId}
+            </when>
+            <otherwise>
+                and ${versionTable}.latest = 1
+            </otherwise>
+        </choose>
     </sql>
 
     <sql id="queryAssociationCase">
