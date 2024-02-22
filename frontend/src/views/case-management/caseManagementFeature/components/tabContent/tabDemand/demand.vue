@@ -24,6 +24,7 @@
       :fun-params="{ caseId: props.caseId, keyword, projectId: currentProjectId }"
       @update="updateDemand"
       @create="addDemand"
+      @cancel="cancelLink"
     ></AssociatedDemandTable>
     <AddDemandModal
       ref="demandModalRef"
@@ -89,7 +90,12 @@
   import AddDemandModal from './addDemandModal.vue';
   import AssociatedDemandTable from './associatedDemandTable.vue';
 
-  import { addDemandRequest, getThirdDemandList, updateDemandReq } from '@/api/modules/case-management/featureCase';
+  import {
+    addDemandRequest,
+    cancelAssociationDemand,
+    getThirdDemandList,
+    updateDemandReq,
+  } from '@/api/modules/case-management/featureCase';
   import { getCaseRelatedInfo } from '@/api/modules/project-management/menuManagement';
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
@@ -182,8 +188,22 @@
   const drawerLoading = ref<boolean>(false);
 
   const tableSelected = computed(() => {
-    const selectIds = [...propsRes.value.selectedKeys];
-    return propsRes.value.data.filter((item: any) => selectIds.indexOf(item.demandId) > -1);
+    const selectedIds = [...propsRes.value.selectedKeys];
+    const filteredData: DemandItem[] = [];
+
+    function filterData(data: DemandItem[]) {
+      for (let i = 0; i < data.length; i++) {
+        const item: DemandItem = data[i];
+        if (selectedIds.includes(item.demandId)) {
+          filteredData.push(item);
+        }
+        if (item.children) {
+          filterData(item.children);
+        }
+      }
+    }
+    filterData(propsRes.value.data);
+    return filteredData;
   });
 
   // 关联需求
@@ -277,6 +297,16 @@
 
   function handleDrawerCancel() {
     linkDemandDrawer.value = false;
+  }
+  // 取消关联
+  async function cancelLink(record: DemandItem) {
+    try {
+      await cancelAssociationDemand(record.id);
+      Message.success(t('caseManagement.featureCase.cancelLinkSuccess'));
+      demandRef.value.initData();
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   watch(

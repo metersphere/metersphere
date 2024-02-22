@@ -99,7 +99,7 @@ export default {
   'system.orgTemplate.addAttachment': 'Add attachment',
   'system.orgTemplate.addAttachmentTip': 'Support any type of file, the file size does not exceed 500MB',
   'system.orgTemplate.enabledSuccessfully': 'Enabled successfully',
-  'system.orgTemplate.thirdPartyPlatforms': 'Used to map field values for third-party platforms such as JARA',
+  'system.orgTemplate.thirdPartyPlatforms': 'Used to map field values for third-party platforms such as JIRA',
   'system.orgTemplate.optionsIdNoRepeat': 'The option ID must be unique',
   'system.orgTemplate.optionsContentNoRepeat': 'The options cannot be repeated',
   'system.orgTemplate.thirdParty': 'Connect to third-party platforms',
@@ -181,4 +181,7 @@ export default {
   'system.orgTemplate.enableWarningTip': 'Enabled, irreversible for organization template, please careful operation.',
   'system.orgTemplate.typeEmptyTip': 'The type cannot be empty',
   'system.orgTemplate.searchOrgPlaceholder': 'Please enter the organization name :{name}',
+  'system.orgTemplate.associatedField': 'Associated field ',
+  'system.orgTemplate.associatedHasField': 'Associate an added field',
+  'system.orgTemplate.addFieldDesc': 'Adds a new field',
 };
