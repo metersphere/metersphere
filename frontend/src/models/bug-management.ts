@@ -63,6 +63,11 @@ export interface CreateOrUpdateComment {
   content: string;
   event: string; // 任务事件(仅评论: ’COMMENT‘; 评论并@: ’AT‘; 回复评论/回复并@: ’REPLAY‘;)
 }
+export interface CustomFieldItemOptionItem {
+  fieldId: string;
+  value: string;
+  text: string;
+}
 export interface CustomFieldItem {
   fieldId: string;
   fieldName: string;
@@ -71,7 +76,7 @@ export interface CustomFieldItem {
   apiFieldId: string;
   defaultValue: string;
   type: string;
-  options: string;
+  options: CustomFieldItemOptionItem[];
   platformOptionJson: string;
   supportSearch: boolean;
   optionMethod: string;

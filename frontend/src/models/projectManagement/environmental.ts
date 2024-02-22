@@ -36,7 +36,7 @@ export interface EnvConfig {
   commmonVariables?: EnvConfigItem[];
   httpConfig?: EnvConfigItem[];
   dataSource?: DataSourceItem[];
-  hostConfig?: EnvConfigItem;
+  hostConfig?: EnvConfigItem[];
   authConfig?: EnvConfigItem;
   preScript?: EnvConfigItem[];
   postScript?: EnvConfigItem[];

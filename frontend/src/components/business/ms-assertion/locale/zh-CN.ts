@@ -16,4 +16,9 @@ export default {
   'ms.assertion.script': '脚本',
   'ms.assertion.expression': '表达式',
   'ms.assertion.responseContentType': '响应内容类型',
+  'ms.assertion.paramsName': '参数名',
+  'ms.assertion.mustInclude': '必含',
+  'ms.assertion.typeChecking': '类型校验',
+  'ms.assertion.addChild': '添加子字段',
+  'ms.assertion.validateChild': '添加子校验',
 };

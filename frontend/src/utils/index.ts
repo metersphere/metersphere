@@ -2,9 +2,10 @@ import JSEncrypt from 'jsencrypt';
 
 import { BatchActionQueryParams, MsTableColumnData } from '@/components/pure/ms-table/type';
 
-import { CustomFieldItem } from '@/models/bug-management';
+import { BugEditCustomField, CustomFieldItem } from '@/models/bug-management';
 
 import { isObject } from './is';
+import { json } from 'stream/consumers';
 
 type TargetContext = '_self' | '_parent' | '_blank' | '_top';
 
@@ -574,10 +575,31 @@ export function parseQueryParams(url: string): QueryParam[] {
 /**
  * 将表格数据里的自定义字段转换为表格数据二维变一维
  */
-export function customFieldDataToTableData(customFieldData: Record<string, any>[]) {
+export function customFieldDataToTableData(customFieldData: Record<string, any>[], customFields: BugEditCustomField[]) {
+  if (!customFieldData || !customFields) return {};
   const tableData: Record<string, any> = {};
   customFieldData.forEach((field) => {
-    tableData[field.id] = field.value;
+    const customField = customFields.find((item) => item.fieldId === field.id);
+    if (!customField) return;
+    if (customField.platformOptionJson) {
+      // 对jira模板字段做特殊处理
+      field.options = JSON.parse(customField.platformOptionJson);
+    } else if (customField.options && customField.options.length > 0) {
+      field.options = customField.options;
+    }
+    // 后端返回来的数据这个字段没值
+    field.type = customField.type;
+    if (['SELECT', 'RADIO'].includes(field.type) && Array.isArray(field.options)) {
+      tableData[field.id] = field.options.find((option) => option.value === field.value)?.text;
+    } else if (['MUTIPLE_SELECT', 'CHECKBOX'].includes(field.type) && Array.isArray(field.options)) {
+      // 多值的类型后端返回的是json字符串
+      field.value = JSON.parse(field.value);
+      tableData[field.id] = field.value
+        .map((val: string) => field.options.find((option: { value: string }) => option.value === val)?.text)
+        .join(',');
+    } else {
+      tableData[field.id] = field.value;
+    }
   });
   return tableData;
 }

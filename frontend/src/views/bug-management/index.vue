@@ -359,7 +359,7 @@ const { t } = useI18n();
       (record: TableData) => ({
         ...record,
         handleUser: record.handleUserName,
-        ...customFieldDataToTableData(record.customFields),
+        ...customFieldDataToTableData(record.customFields, customFields.value),
       })
     );
 
