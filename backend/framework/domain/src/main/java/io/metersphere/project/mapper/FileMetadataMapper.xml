@@ -20,6 +20,7 @@
     <result column="enable" jdbcType="BIT" property="enable" />
     <result column="ref_id" jdbcType="VARCHAR" property="refId" />
     <result column="file_version" jdbcType="VARCHAR" property="fileVersion" />
+    <result column="original_name" jdbcType="VARCHAR" property="originalName" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -119,7 +120,8 @@
   </sql>
   <sql id="Base_Column_List">
     id, `name`, `type`, `size`, create_time, update_time, project_id, `storage`, create_user, 
-    update_user, tags, description, module_id, `path`, latest, `enable`, ref_id, file_version
+    update_user, tags, description, module_id, `path`, latest, `enable`, ref_id, file_version, 
+    original_name
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.project.domain.FileMetadataExample" resultMap="BaseResultMap">
     select
@@ -157,15 +159,15 @@
       project_id, `storage`, create_user, 
       update_user, tags, 
       description, module_id, `path`, 
-      latest, `enable`, ref_id, file_version
-      )
+      latest, `enable`, ref_id, file_version, 
+      original_name)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
       #{size,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{projectId,jdbcType=VARCHAR}, #{storage,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, 
       #{updateUser,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
       #{description,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, 
-      #{latest,jdbcType=BIT}, #{enable,jdbcType=BIT}, #{refId,jdbcType=VARCHAR}, #{fileVersion,jdbcType=VARCHAR}
-      )
+      #{latest,jdbcType=BIT}, #{enable,jdbcType=BIT}, #{refId,jdbcType=VARCHAR}, #{fileVersion,jdbcType=VARCHAR}, 
+      #{originalName,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.project.domain.FileMetadata">
     insert into file_metadata
@@ -224,6 +226,9 @@
       <if test="fileVersion != null">
         file_version,
       </if>
+      <if test="originalName != null">
+        original_name,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -279,6 +284,9 @@
       </if>
       <if test="fileVersion != null">
         #{fileVersion,jdbcType=VARCHAR},
+      </if>
+      <if test="originalName != null">
+        #{originalName,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -345,6 +353,9 @@
       <if test="record.fileVersion != null">
         file_version = #{record.fileVersion,jdbcType=VARCHAR},
       </if>
+      <if test="record.originalName != null">
+        original_name = #{record.originalName,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -369,7 +380,8 @@
       latest = #{record.latest,jdbcType=BIT},
       `enable` = #{record.enable,jdbcType=BIT},
       ref_id = #{record.refId,jdbcType=VARCHAR},
-      file_version = #{record.fileVersion,jdbcType=VARCHAR}
+      file_version = #{record.fileVersion,jdbcType=VARCHAR},
+      original_name = #{record.originalName,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -428,6 +440,9 @@
       <if test="fileVersion != null">
         file_version = #{fileVersion,jdbcType=VARCHAR},
       </if>
+      <if test="originalName != null">
+        original_name = #{originalName,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -449,14 +464,15 @@
       latest = #{latest,jdbcType=BIT},
       `enable` = #{enable,jdbcType=BIT},
       ref_id = #{refId,jdbcType=VARCHAR},
-      file_version = #{fileVersion,jdbcType=VARCHAR}
+      file_version = #{fileVersion,jdbcType=VARCHAR},
+      original_name = #{originalName,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <insert id="batchInsert" parameterType="map">
     insert into file_metadata
     (id, `name`, `type`, `size`, create_time, update_time, project_id, `storage`, create_user, 
-      update_user, tags, description, module_id, `path`, latest, `enable`, ref_id, file_version
-      )
+      update_user, tags, description, module_id, `path`, latest, `enable`, ref_id, file_version, 
+      original_name)
     values
     <foreach collection="list" item="item" separator=",">
       (#{item.id,jdbcType=VARCHAR}, #{item.name,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR}, 
@@ -465,7 +481,7 @@
         #{item.updateUser,jdbcType=VARCHAR}, #{item.tags,jdbcType=VARCHAR,typeHandler=io.metersphere.handler.ListTypeHandler}, 
         #{item.description,jdbcType=VARCHAR}, #{item.moduleId,jdbcType=VARCHAR}, #{item.path,jdbcType=VARCHAR}, 
         #{item.latest,jdbcType=BIT}, #{item.enable,jdbcType=BIT}, #{item.refId,jdbcType=VARCHAR}, 
-        #{item.fileVersion,jdbcType=VARCHAR})
+        #{item.fileVersion,jdbcType=VARCHAR}, #{item.originalName,jdbcType=VARCHAR})
     </foreach>
   </insert>
   <insert id="batchInsertSelective" parameterType="map">
@@ -531,6 +547,9 @@
         </if>
         <if test="'file_version'.toString() == column.value">
           #{item.fileVersion,jdbcType=VARCHAR}
+        </if>
+        <if test="'original_name'.toString() == column.value">
+          #{item.originalName,jdbcType=VARCHAR}
         </if>
       </foreach>
       )

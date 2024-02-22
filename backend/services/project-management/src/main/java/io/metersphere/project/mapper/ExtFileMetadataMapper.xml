@@ -5,6 +5,7 @@
     <resultMap id="BaseResultMap" type="io.metersphere.project.domain.FileMetadata">
         <id column="id" jdbcType="VARCHAR" property="id"/>
         <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="original_name" jdbcType="VARCHAR" property="originalName"/>
         <result column="type" jdbcType="VARCHAR" property="type"/>
         <result column="size" jdbcType="BIGINT" property="size"/>
         <result column="create_time" jdbcType="BIGINT" property="createTime"/>

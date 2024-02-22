@@ -95,6 +95,7 @@ CREATE TABLE IF NOT EXISTS file_metadata
 (
     `id`           VARCHAR(50)  NOT NULL COMMENT '文件ID',
     `name`         VARCHAR(255) NOT NULL COMMENT '文件名',
+    `original_name` VARCHAR(255)    COMMENT '原始名（含后缀）' ,
     `type`         VARCHAR(64) COMMENT '文件类型',
     `size`         BIGINT       NOT NULL COMMENT '文件大小',
     `create_time`  BIGINT       NOT NULL COMMENT '创建时间',

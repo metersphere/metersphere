@@ -140,10 +140,12 @@ public class FileMetadataService {
     private void parseAndSetFileNameType(String filePath, @NotNull FileMetadata fileMetadata) {
         String fileName = TempFileUtils.getFileNameByPath(filePath);
         if (FileMetadataUtils.isUnknownFile(fileName)) {
+            fileMetadata.setOriginalName(fileName);
             fileMetadata.setName(fileName);
             fileMetadata.setType(StringUtils.EMPTY);
         } else {
             //采用这种判断方式，可以避免将隐藏文件的后缀名作为文件类型
+            fileMetadata.setOriginalName(fileName);
             fileMetadata.setName(StringUtils.substring(fileName, 0, fileName.lastIndexOf(".")));
             fileMetadata.setType(StringUtils.substring(fileName, fileName.lastIndexOf(".") + 1));
         }

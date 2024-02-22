@@ -77,6 +77,9 @@ public class FileMetadata implements Serializable {
     @Schema(description = "文件版本号")
     private String fileVersion;
 
+    @Schema(description = "原始名（含后缀）")
+    private String originalName;
+
     private static final long serialVersionUID = 1L;
 
     public enum Column {
@@ -97,7 +100,8 @@ public class FileMetadata implements Serializable {
         latest("latest", "latest", "BIT", false),
         enable("enable", "enable", "BIT", true),
         refId("ref_id", "refId", "VARCHAR", false),
-        fileVersion("file_version", "fileVersion", "VARCHAR", false);
+        fileVersion("file_version", "fileVersion", "VARCHAR", false),
+        originalName("original_name", "originalName", "VARCHAR", false);
 
         private static final String BEGINNING_DELIMITER = "`";
 
