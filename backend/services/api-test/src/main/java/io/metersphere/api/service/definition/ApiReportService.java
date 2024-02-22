@@ -2,10 +2,7 @@ package io.metersphere.api.service.definition;
 
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.definition.*;
-import io.metersphere.api.mapper.ApiReportDetailMapper;
-import io.metersphere.api.mapper.ApiReportMapper;
-import io.metersphere.api.mapper.ApiReportStepMapper;
-import io.metersphere.api.mapper.ExtApiReportMapper;
+import io.metersphere.api.mapper.*;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.sdk.dto.api.result.RequestResult;
 import io.metersphere.sdk.exception.MSException;
@@ -47,17 +44,23 @@ public class ApiReportService {
 
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
-    public void insertApiReport(List<ApiReport> reports) {
+    public void insertApiReport(List<ApiReport> reports, List<ApiTestCaseRecord> records) {
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         if (CollectionUtils.isNotEmpty(reports)) {
-            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
             ApiReportMapper reportMapper = sqlSession.getMapper(ApiReportMapper.class);
             SubListUtils.dealForSubList(reports, 1000, subList -> {
                 subList.forEach(reportMapper::insertSelective);
             });
-            sqlSession.flushStatements();
-            if (sqlSessionFactory != null) {
-                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-            }
+        }
+        if (CollectionUtils.isNotEmpty(records)) {
+            ApiTestCaseRecordMapper detailMapper = sqlSession.getMapper(ApiTestCaseRecordMapper.class);
+            SubListUtils.dealForSubList(records, 1000, subList -> {
+                subList.forEach(detailMapper::insertSelective);
+            });
+        }
+        sqlSession.flushStatements();
+        if (sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
     }
 

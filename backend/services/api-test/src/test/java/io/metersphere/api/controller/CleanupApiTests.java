@@ -235,6 +235,7 @@ public class CleanupApiTests {
 
     private void initReportData(String projectId) {
         List<ApiReport> reports = new ArrayList<>();
+        List<ApiTestCaseRecord> records = new ArrayList<>();
         for (int i = 0; i < 2515; i++) {
             ApiReport apiReport = new ApiReport();
             apiReport.setId("clean-report-id" + projectId + i);
@@ -255,8 +256,12 @@ public class CleanupApiTests {
             apiReport.setTriggerMode("api-trigger-mode" + i);
             apiReport.setVersionId("api-version-id" + i);
             reports.add(apiReport);
+            ApiTestCaseRecord record = new ApiTestCaseRecord();
+            record.setApiTestCaseId("clean-resource-id" + i);
+            record.setApiReportId(apiReport.getId());
+            records.add(record);
         }
-        apiReportService.insertApiReport(reports);
+        apiReportService.insertApiReport(reports, records);
         List<ApiReportStep> steps = new ArrayList<>();
         for (int i = 0; i < 1515; i++) {
             ApiReportStep apiReportStep = new ApiReportStep();
@@ -269,6 +274,7 @@ public class CleanupApiTests {
         apiReportService.insertApiReportStep(steps);
 
         List<ApiScenarioReport> scenarioReports = new ArrayList<>();
+        List<ApiScenarioRecord> scenarioRecords = new ArrayList<>();
         for (int i = 0; i < 2515; i++) {
             ApiScenarioReport scenarioReport = new ApiScenarioReport();
             scenarioReport.setId("clean-scenario-report-id" + projectId + i);
@@ -289,8 +295,12 @@ public class CleanupApiTests {
             scenarioReport.setTriggerMode("api-trigger-mode" + i);
             scenarioReport.setVersionId("api-version-id" + i);
             scenarioReports.add(scenarioReport);
+            ApiScenarioRecord record = new ApiScenarioRecord();
+            record.setApiScenarioId("clean-scenario-id" + i);
+            record.setApiScenarioReportId(scenarioReport.getId());
+            scenarioRecords.add(record);
         }
-        apiScenarioReportService.insertApiScenarioReport(scenarioReports);
+        apiScenarioReportService.insertApiScenarioReport(scenarioReports, scenarioRecords);
 
         List<ApiScenarioReportStep> scenarioReportSteps = new ArrayList<>();
         for (int i = 0; i < 1515; i++) {

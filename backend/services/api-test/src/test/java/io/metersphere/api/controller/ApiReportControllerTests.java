@@ -4,6 +4,7 @@ import io.metersphere.api.constants.ShareInfoType;
 import io.metersphere.api.domain.ApiReport;
 import io.metersphere.api.domain.ApiReportDetail;
 import io.metersphere.api.domain.ApiReportStep;
+import io.metersphere.api.domain.ApiTestCaseRecord;
 import io.metersphere.api.dto.definition.ApiReportBatchRequest;
 import io.metersphere.api.dto.definition.ApiReportDTO;
 import io.metersphere.api.dto.definition.ApiReportDetailDTO;
@@ -72,6 +73,7 @@ public class ApiReportControllerTests extends BaseTest {
     @Order(1)
     public void testInsert() {
         List<ApiReport> reports = new ArrayList<>();
+        List<ApiTestCaseRecord> records = new ArrayList<>();
         for (int i = 0; i < 2515; i++) {
             ApiReport apiReport = new ApiReport();
             apiReport.setId("api-report-id" + i);
@@ -92,8 +94,12 @@ public class ApiReportControllerTests extends BaseTest {
             apiReport.setTriggerMode("api-trigger-mode" + i);
             apiReport.setVersionId("api-version-id" + i);
             reports.add(apiReport);
+            ApiTestCaseRecord record = new ApiTestCaseRecord();
+            record.setApiTestCaseId("api-resource-id" + i);
+            record.setApiReportId(apiReport.getId());
+            records.add(record);
         }
-        apiReportService.insertApiReport(reports);
+        apiReportService.insertApiReport(reports, records);
 
         List<ApiReportStep> steps = new ArrayList<>();
         for (int i = 0; i < 1515; i++) {
@@ -240,7 +246,10 @@ public class ApiReportControllerTests extends BaseTest {
         apiReport.setTriggerMode("api-trigger-mode");
         apiReport.setVersionId("api-version-id");
         reports.add(apiReport);
-        apiReportService.insertApiReport(reports);
+        ApiTestCaseRecord record = new ApiTestCaseRecord();
+        record.setApiTestCaseId("api-resource-id");
+        record.setApiReportId(apiReport.getId());
+        apiReportService.insertApiReport(reports, List.of(record));
         List<ApiReportStep> steps = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             ApiReportStep apiReportStep = new ApiReportStep();
@@ -294,7 +303,7 @@ public class ApiReportControllerTests extends BaseTest {
         List<ApiReportDetailDTO> data = ApiDataUtils.parseArray(JSON.toJSONString(parseResponse(mvcResult).get("data")), ApiReportDetailDTO.class);
         Assertions.assertNotNull(data);
 
-        mockMvc.perform(getRequestBuilder(DETAIL + "test"))
+        mockMvc.perform(getRequestBuilder(DETAIL + "test" + "/test"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().is5xxServerError());
 

@@ -12,12 +12,12 @@ import java.io.Serializable;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class ApiCaseExecutePageRequest extends BasePageRequest implements Serializable {
+public class ExecutePageRequest extends BasePageRequest implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Schema(description = "用例pk")
+    @Schema(description = "用例id/场景id")
     @NotBlank(message = "{api_test_case.id.not_blank}")
     @Size(min = 1, max = 50, message = "{api_test_case.id.length_range}")
     private String id;
