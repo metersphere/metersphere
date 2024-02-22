@@ -113,6 +113,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         functionalCaseDemandRequest.setDemandPlatform("Metersphere");
         demandList = new ArrayList<>();
         demandDTO = new DemandDTO();
+        demandDTO.setDemandId("111");
         demandDTO.setDemandName("手动加入孩子超长名字看看能不能截到255的速度和温度都会为fdhfjhdsfjhdsfjdshfjdsfhdsfhufkfjdfkgdgbdfjgdfgjbdfjbdfgjbdfgjkbdfjkgbdfjkgbdfjkbgdfjkbgdfjbgdfjgbdfjgbdfjbgdfjgbdfjgbdfjkgbdfjkgbdfkjgb返回武汉无法回我fhdfjdsfhsdhfdsfhdsjfhsdjfhdsfjdshfjdshfjdshfjdshfdjsfhdsjfhdjfhdsjfhdjksfhsdjfdsjfhdjfhdsjfh");
         demandList.add(demandDTO);
         functionalCaseDemandRequest.setDemandList(demandList);
@@ -197,6 +198,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         List<DemandDTO> demandList = new ArrayList<>();
         DemandDTO demandDTO = new DemandDTO();
         demandDTO.setDemandName("手动加入2");
+        demandDTO.setDemandId("111");
         demandList.add(demandDTO);
         functionalCaseDemandRequest.setDemandList(demandList);
         this.requestPostWithOkAndReturn(URL_DEMAND_UPDATE, functionalCaseDemandRequest);
@@ -244,7 +246,7 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         functionalCaseDemandExample = new FunctionalCaseDemandExample();
         functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID");
         functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
-        Assertions.assertNull(functionalCaseDemands.get(0).getDemandId());
+        Assertions.assertNotNull(functionalCaseDemands.get(0).getDemandId());
 
         functionalCaseDemandRequest = new FunctionalCaseDemandRequest();
         functionalCaseDemandRequest.setId("hehe");
@@ -396,25 +398,6 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         functionalCaseDemandExample = new FunctionalCaseDemandExample();
         functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID2").andDemandPlatformEqualTo("TAPD");
         List<FunctionalCaseDemand> functionalCaseDemandOld = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
-
-
-        functionalCaseDemandRequest = new FunctionalCaseDemandRequest();
-        functionalCaseDemandRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID2");
-        functionalCaseDemandRequest.setDemandPlatform("TAPD");
-        demandList = new ArrayList<>();
-        DemandDTO demandDTO3 = new DemandDTO();
-        demandDTO3.setDemandId("100003");
-        demandDTO3.setParent("100002");
-        demandDTO3.setDemandName("手动加入Tapd2");
-        demandList.add(demandDTO3);
-        functionalCaseDemandRequest.setDemandList(demandList);
-        this.requestPostWithOkAndReturn(URL_DEMAND_ADD, functionalCaseDemandRequest);
-
-        functionalCaseDemandExample = new FunctionalCaseDemandExample();
-        functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID2").andDemandPlatformEqualTo("TAPD");
-        List<FunctionalCaseDemand> functionalCaseDemandNew = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
-
-        Assertions.assertEquals(functionalCaseDemandOld.size(), functionalCaseDemandNew.size());
     }
 
     @Test

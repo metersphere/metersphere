@@ -68,7 +68,7 @@ public class FunctionalCaseDemandService {
         if (CollectionUtils.isEmpty(parentDemands)) {
             return new ArrayList<>();
         }
-        Map<String, FunctionalDemandDTO> functionalCaseDemandMap = parentDemands.stream().filter(t -> StringUtils.isNotBlank(t.getDemandId())).collect(Collectors.toMap(FunctionalCaseDemand::getDemandId, t -> t));
+        Map<String, List<FunctionalDemandDTO>> functionalCaseDemandMap = parentDemands.stream().filter(t -> StringUtils.isNotBlank(t.getDemandId())).collect(Collectors.groupingBy(FunctionalCaseDemand::getDemandId));
         List<String> ids = parentDemands.stream().map(FunctionalCaseDemand::getId).toList();
         FunctionalCaseDemandExample functionalCaseDemandExample = new FunctionalCaseDemandExample();
         functionalCaseDemandExample.createCriteria().andIdNotIn(ids);
@@ -81,8 +81,7 @@ public class FunctionalCaseDemandService {
                 if (functionalCaseDemandMap.containsKey(demand.getParent())) {
                     FunctionalDemandDTO functionalDemandDTO = new FunctionalDemandDTO();
                     BeanUtils.copyBean(functionalDemandDTO, demand);
-                    functionalCaseDemandMap.get(demand.getParent()).addChild(functionalDemandDTO);
-                    functionalCaseDemandMap.put(demand.getDemandId(), functionalDemandDTO);
+                    functionalCaseDemandMap.get(demand.getParent()).get(0).addChild(functionalDemandDTO);
                 } else {
                     notMatchedList.add(demand);
                 }
@@ -102,14 +101,7 @@ public class FunctionalCaseDemandService {
         if (checkDemandList(request.getDemandList())) return;
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         FunctionalCaseDemandMapper functionalCaseDemandMapper = sqlSession.getMapper(FunctionalCaseDemandMapper.class);
-        FunctionalCaseDemandExample functionalCaseDemandExample = new FunctionalCaseDemandExample();
-        functionalCaseDemandExample.createCriteria().andCaseIdEqualTo(request.getCaseId()).andDemandPlatformEqualTo(request.getDemandPlatform());
-        List<FunctionalCaseDemand> existDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
-        List<String> existDemandIds = existDemands.stream().map(FunctionalCaseDemand::getDemandId).toList();
         for (DemandDTO demandDTO : request.getDemandList()) {
-            if (StringUtils.isNotBlank(demandDTO.getDemandId()) && existDemandIds.contains(demandDTO.getDemandId())) {
-                continue;
-            }
             FunctionalCaseDemand functionalCaseDemand = buildFunctionalCaseDemand(request.getCaseId(), request.getDemandPlatform(), userId, demandDTO);
             functionalCaseDemandMapper.insert(functionalCaseDemand);
         }
