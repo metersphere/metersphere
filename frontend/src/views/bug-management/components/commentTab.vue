@@ -3,16 +3,16 @@
 </template>
 
 <script lang="ts" setup>
-  import MsComment from '@/components/business/ms-comment';
-  import { CommentItem, CommentParams } from '@/components/business/ms-comment/types';
+import MsComment from '@/components/business/ms-comment';
+import {CommentItem, CommentParams} from '@/components/business/ms-comment/types';
 
-  import { createOrUpdateComment, deleteComment, getCommentList } from '@/api/modules/bug-management/index';
-  import { useI18n } from '@/hooks/useI18n';
-  import useModal from '@/hooks/useModal';
+import {createOrUpdateComment, deleteComment, getCommentList} from '@/api/modules/bug-management/index';
+import {useI18n} from '@/hooks/useI18n';
+import useModal from '@/hooks/useModal';
 
-  import message from '@arco-design/web-vue/es/message';
+import message from '@arco-design/web-vue/es/message';
 
-  const { openModal } = useModal();
+const { openModal } = useModal();
 
   const props = defineProps<{
     bugId: string;
@@ -30,7 +30,7 @@
     }
   };
 
-  const handleDelete = async (bugid: string) => {
+  const handleDelete = async (commentId: string) => {
     openModal({
       type: 'error',
       title: t('ms.comment.deleteConfirm'),
@@ -42,9 +42,9 @@
       },
       onBeforeOk: async () => {
         try {
-          await deleteComment(bugid);
+          await deleteComment(commentId);
           message.success(t('common.deleteSuccess'));
-          initData(bugid);
+          initData(props.bugId);
         } catch (error) {
           message.error(t('common.deleteFail'));
           // eslint-disable-next-line no-console
