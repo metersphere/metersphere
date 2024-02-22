@@ -75,6 +75,9 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -1388,10 +1391,12 @@ public class BugService {
      * @return 自定义字段集合
      */
     public List<TemplateCustomFieldDTO> getHeaderCustomFields(String projectId) {
-        List<TemplateCustomFieldDTO> headerCustomFields = new ArrayList<>();
+        List<TemplateCustomFieldDTO> allCustomFields = new ArrayList<>();
         // 本地模板
         List<Template> templates = projectTemplateService.getTemplates(projectId, TemplateScene.BUG.name());
-        templates.forEach(template -> headerCustomFields.addAll(baseTemplateService.getTemplateDTO(template).getCustomFields()));
+        templates.forEach(template -> allCustomFields.addAll(baseTemplateService.getTemplateDTO(template).getCustomFields()));
+        // 本地模板自定义字段去重
+        List<TemplateCustomFieldDTO> headerCustomFields = allCustomFields.stream().filter(distinctByKey(TemplateCustomFieldDTO::getFieldId)).collect(Collectors.toList());
         // 填充自定义字段成员类型的选项值
         List<SelectOption> memberOption = bugCommonService.getHeaderHandlerOption(projectId);
         List<CustomFieldOption> memberCustomOption = memberOption.stream().map(option -> {
@@ -1401,7 +1406,7 @@ public class BugService {
             return customFieldOption;
         }).toList();
         headerCustomFields.forEach(field -> {
-            if (StringUtils.equalsAny(field.getType(), CustomFieldType.MEMBER.getType(), CustomFieldType.MULTIPLE_MEMBER.getType())) {
+            if (StringUtils.equalsAny(field.getType(), CustomFieldType.MEMBER.name(), CustomFieldType.MULTIPLE_MEMBER.name())) {
                 field.setOptions(memberCustomOption);
             }
         });
@@ -1410,8 +1415,7 @@ public class BugService {
         if (pluginDefaultTemplate != null) {
             headerCustomFields.addAll(pluginDefaultTemplate.getCustomFields());
         }
-        // 重复的自定义字段去重
-        return headerCustomFields.stream().distinct().toList();
+        return headerCustomFields;
     }
 
     /**
@@ -1466,5 +1470,15 @@ public class BugService {
     private Long getNextPos(String projectId) {
         Long pos = extBugMapper.getMaxPos(projectId);
         return (pos == null ? 0 : pos) + INTERVAL_POS;
+    }
+
+    /**
+     * distinct by key
+     * @param function distinct function
+     * @return predicate
+     */
+    private static <T> Predicate<T> distinctByKey(Function<? super T, ?> function) {
+        Set<Object> keySet = ConcurrentHashMap.newKeySet();
+        return t -> keySet.add(function.apply(t));
     }
 }
