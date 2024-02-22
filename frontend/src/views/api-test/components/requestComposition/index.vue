@@ -602,8 +602,10 @@
           // 不是则需要把报告缓存起来，等切换到对应的tab再赋值
           temporaryResponseMap[data.reportId] = data.taskResult;
         }
+      } else if (data.msgType === 'EXEC_END') {
+        // 执行结束，关闭websocket
+        websocket.value?.close();
       }
-      websocket.value?.close();
     });
   }
 

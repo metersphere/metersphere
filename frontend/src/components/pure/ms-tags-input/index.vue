@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full">
+  <div :class="`w-full ${props.class}`">
     <a-input-tag
       v-model:model-value="innerModelValue"
       v-model:input-value="innerInputValue"
@@ -10,7 +10,7 @@
       :unique-value="props.uniqueValue"
       :max-tag-count="props.maxTagCount"
       :readonly="props.readonly"
-      :class="props.class"
+      :class="props.inputClass"
       :size="props.size"
       @press-enter="tagInputEnter"
       @blur="tagInputBlur"
@@ -51,6 +51,7 @@
       maxLength?: number;
       readonly?: boolean;
       class?: string;
+      inputClass?: string;
       size?: 'small' | 'large' | 'medium' | 'mini';
     }>(),
     {
@@ -59,6 +60,7 @@
       allowClear: true,
       maxLength: 64,
       class: '',
+      inputClass: '',
       size: 'medium',
     }
   );

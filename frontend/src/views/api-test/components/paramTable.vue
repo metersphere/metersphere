@@ -182,7 +182,7 @@
         <MsTagsInput
           v-model:model-value="record[columnConfig.dataIndex as string]"
           :max-tag-count="1"
-          class="param-input"
+          input-class="param-input"
           @change="(val) => addTableLine(val, 'tag')"
         />
       </a-popover>
