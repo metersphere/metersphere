@@ -3,9 +3,9 @@
 import Item from './comment-item.vue';
 import CommentInput from './input.vue';
 
-import { useI18n } from '@/hooks/useI18n';
+import {useI18n} from '@/hooks/useI18n';
 
-import { CommentItem, CommentParams, CommentType } from './types';
+import {CommentEvent, CommentItem, CommentParams, CommentType} from './types';
 import message from '@arco-design/web-vue/es/message';
 
 export default defineComponent({
@@ -45,18 +45,22 @@ export default defineComponent({
     };
 
     const handlePublish = (content: string, item: CommentItem) => {
-      // 这个组件里的都是回复和编辑不涉及新增，所以是 COMMENT 或 REPLAY
+      // 这个组件里的都是回复和编辑不涉及新增，所以是 COMMENT 或 REPLY
       let parentId = '';
+      let event: CommentEvent = 'COMMENT';
       if (currentItem.commentType === 'REPLY') {
         parentId = item.id;
+        event = 'REPLY';
       } else if (currentItem.commentType === 'EDIT') {
         parentId = item.parentId || '';
+        if (noticeUserIds.value.length > 0) {
+          event = 'AT';
+        }
       }
       const params: CommentParams = {
-        id: currentItem.id,
         bugId: item.bugId,
         content,
-        event: noticeUserIds.value.length > 0 ? 'REPLAY' : 'COMMENT',
+        event,
         commentType: currentItem.commentType,
         fetchType: currentItem.commentType === 'EDIT' ? 'UPDATE' : 'ADD',
         notifier: noticeUserIds.value.join(';'),

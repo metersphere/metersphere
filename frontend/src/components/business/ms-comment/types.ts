@@ -20,7 +20,7 @@ export interface CommentItem {
 }
 
 // 仅评论: ’COMMENT‘; 评论并@: ’AT‘; 回复评论/回复并@: ’REPLAY‘;)
-export type CommentEvent = 'COMMENT' | 'AT' | 'REPLAY';
+export type CommentEvent = 'COMMENT' | 'AT' | 'REPLY';
 // 评论请求的时候是编辑还是新增
 export type FetchType = 'ADD' | 'UPDATE';
 export type CommentType = 'REPLY' | 'EDIT' | 'ADD';
