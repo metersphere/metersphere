@@ -35,6 +35,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotBlank;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -86,7 +87,7 @@ public class FunctionalCaseController {
 
     @GetMapping("/detail/{id}")
     @Operation(summary = "用例管理-功能用例-查看用例详情")
-    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    @RequiresPermissions(value = {PermissionConstants.FUNCTIONAL_CASE_READ, PermissionConstants.CASE_REVIEW_READ}, logical = Logical.OR)
     @CheckOwner(resourceId = "#id", resourceType = "functional_case")
     public FunctionalCaseDetailDTO getFunctionalCaseDetail(@PathVariable String id) {
         String userId = SessionUtils.getUserId();

@@ -40,7 +40,7 @@ public class ReviewFunctionalCaseController {
 
     @GetMapping("/get/list/{reviewId}/{caseId}")
     @Operation(summary = "用例管理-用例评审-评审功能用例-获取用例评审历史")
-    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ)
     public List<CaseReviewHistoryDTO> getCaseReviewHistoryList(@PathVariable String reviewId, @PathVariable String caseId) {
         return reviewFunctionalCaseService.getCaseReviewHistoryList(reviewId,  caseId);
     }
