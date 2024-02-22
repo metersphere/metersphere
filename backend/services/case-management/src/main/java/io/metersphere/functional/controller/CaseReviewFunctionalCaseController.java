@@ -52,6 +52,7 @@ public class CaseReviewFunctionalCaseController {
 
     @PostMapping("/page")
     @Operation(summary = "用例管理-用例评审-评审列表-评审详情-已关联用例列表")
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ)
     public Pager<List<ReviewFunctionalCaseDTO>> page(@Validated @RequestBody ReviewFunctionalCasePageRequest request) {
         String userId = StringUtils.EMPTY;
         if (request.isViewFlag()) {
@@ -78,7 +79,7 @@ public class CaseReviewFunctionalCaseController {
 
     @PostMapping("/module/count")
     @Operation(summary = "用例管理-用例评审-评审列表-评审详情-已关联用例统计模块数量")
-    @RequiresPermissions(PermissionConstants.FUNCTIONAL_CASE_READ)
+    @RequiresPermissions(PermissionConstants.CASE_REVIEW_READ)
     @CheckOwner(resourceId = "#request.getProjectId()", resourceType = "project")
     public Map<String, Long> moduleCount(@Validated @RequestBody ReviewFunctionalCasePageRequest request) {
         String userId = StringUtils.EMPTY;
