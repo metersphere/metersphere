@@ -1,7 +1,9 @@
 package io.metersphere.api.controller;
 
 import io.metersphere.api.domain.ApiReport;
+import io.metersphere.api.domain.ApiScenarioRecord;
 import io.metersphere.api.domain.ApiScenarioReport;
+import io.metersphere.api.domain.ApiTestCaseRecord;
 import io.metersphere.api.service.BaseResourcePoolTestService;
 import io.metersphere.api.service.definition.ApiReportService;
 import io.metersphere.api.service.scenario.ApiScenarioReportService;
@@ -226,6 +228,7 @@ public class ApiTaskCenterControllerTests extends BaseTest {
 
     public void testInsertData() {
         List<ApiReport> reports = new ArrayList<>();
+        List<ApiTestCaseRecord> records = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             ApiReport apiReport = new ApiReport();
             apiReport.setId("task-report-id" + i);
@@ -246,10 +249,15 @@ public class ApiTaskCenterControllerTests extends BaseTest {
             apiReport.setTriggerMode("task-MANUAL");
             apiReport.setVersionId("api-version-id" + i);
             reports.add(apiReport);
+            ApiTestCaseRecord record = new ApiTestCaseRecord();
+            record.setApiTestCaseId("task-api-resource-id" + i);
+            record.setApiReportId(apiReport.getId());
+            records.add(record);
         }
-        apiReportService.insertApiReport(reports);
+        apiReportService.insertApiReport(reports, records);
 
         List<ApiScenarioReport> scenarioReports = new ArrayList<>();
+        List<ApiScenarioRecord> scenarioRecords = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
             ApiScenarioReport scenarioReport = new ApiScenarioReport();
             scenarioReport.setId("task-report-id" + i);
@@ -270,8 +278,12 @@ public class ApiTaskCenterControllerTests extends BaseTest {
             scenarioReport.setTriggerMode("task-MANUAL");
             scenarioReport.setVersionId("api-version-id" + i);
             scenarioReports.add(scenarioReport);
+            ApiScenarioRecord scenarioRecord = new ApiScenarioRecord();
+            scenarioRecord.setApiScenarioId("task-api-resource-id" + i);
+            scenarioRecord.setApiScenarioReportId(scenarioReport.getId());
+            scenarioRecords.add(scenarioRecord);
         }
-        apiScenarioReportService.insertApiScenarioReport(scenarioReports);
+        apiScenarioReportService.insertApiScenarioReport(scenarioReports, scenarioRecords);
 
         TestResourcePoolDTO testResourcePool = new TestResourcePoolDTO();
         testResourcePool.setId("api-pool-id");

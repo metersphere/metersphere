@@ -6,7 +6,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class ApiCaseReportDTO implements Serializable {
+public class ExecuteReportDTO implements Serializable {
     @Schema(description = "接口报告pk")
     private String id;
 

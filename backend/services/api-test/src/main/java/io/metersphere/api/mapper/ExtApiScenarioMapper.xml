@@ -444,4 +444,47 @@
         </if>
         order by `pos` desc limit 1;
     </select>
+
+    <select id="getExecuteList" resultType="io.metersphere.api.dto.definition.ExecuteReportDTO">
+        select
+        api_scenario_report.id,
+        api_scenario_report.name,
+        api_scenario_report.status,
+        api_scenario_report.start_time,
+        api_scenario_report.create_user,
+        api_scenario_report.trigger_mode,
+        api_scenario_report.test_plan_id
+        from api_scenario_report
+        left join api_scenario_record t1 on t1.api_scenario_report_id = api_scenario_report.id
+        where
+        <if test="request.id != null and request.id != ''">
+            t1.api_scenario_id = #{request.id}
+        </if>
+        <include refid="report_filters">
+            <property name="filter" value="request.filter"/>
+        </include>
+    </select>
+
+    <sql id="report_filters">
+        <if test="${filter} != null and ${filter}.size() > 0">
+            <foreach collection="${filter}.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key=='integrated'">
+                            and api_scenario_report.integrated in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='status'">
+                            and api_scenario_report.status in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                        <when test="key=='triggerMode'">
+                            and api_scenario_report.trigger_mode in
+                            <include refid="io.metersphere.system.mapper.BaseMapper.filterInWrapper"/>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+    </sql>
 </mapper>

@@ -10,12 +10,10 @@ import io.metersphere.request.AssociateOtherCaseRequest;
 import io.metersphere.request.TestCasePageProviderRequest;
 import io.metersphere.system.dto.sdk.BaseTreeNode;
 import io.metersphere.system.dto.sdk.OptionDTO;
-import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author jianxing
@@ -59,7 +57,7 @@ public interface ExtApiTestCaseMapper {
 
     List<ApiTestCase> getTagsByIds(@Param("ids") List<String> ids, @Param("deleted") boolean deleted);
 
-    List<ApiCaseReportDTO> getExecuteList(@Param("request") ApiCaseExecutePageRequest request);
+    List<ExecuteReportDTO> getExecuteList(@Param("request") ExecutePageRequest request);
 
     List<OptionDTO> selectVersionOptionByIds(@Param("ids") List<String> ids);
 
