@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Data
@@ -56,10 +55,7 @@ public class KeyValueInfo {
             }
         } else if (StringUtils.equals(this.condition, ParamConditionEnums.REGULAR_MATCH.name())) {
             try {
-                Pattern pattern = Pattern.compile(value);
-                Matcher matcher = pattern.matcher(this.value);
-                boolean isMatch = matcher.matches();
-                return isMatch;
+                return this.value.matches(Pattern.quote(value));
             } catch (Exception e) {
                 return false;
             }
