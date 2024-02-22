@@ -1,5 +1,5 @@
 <template>
-  <div :class="`w-full ${props.class}`">
+  <div :class="`flex w-full items-center ${props.class}`">
     <a-input-tag
       v-model:model-value="innerModelValue"
       v-model:input-value="innerInputValue"

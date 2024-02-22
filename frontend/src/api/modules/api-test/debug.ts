@@ -10,6 +10,7 @@ import {
   GetDebugModuleCountUrl,
   GetDebugModulesUrl,
   MoveDebugModuleUrl,
+  TestMockUrl,
   UpdateApiDebugUrl,
   UpdateDebugModuleUrl,
   UploadTempFileUrl,
@@ -83,6 +84,11 @@ export function getDebugDetail(id: string) {
 // 删除接口调试
 export function deleteDebug(id: string) {
   return MSR.get({ url: DeleteDebugUrl, params: id });
+}
+
+// 测试mock
+export function testMock(key: string) {
+  return MSR.get({ url: TestMockUrl, params: key });
 }
 
 // 上传文件

@@ -99,6 +99,7 @@ export interface AssociatedList {
   tags: any;
   description: string;
   moduleName: string; // 模块名称
+  originalName: string; // 文件原始名称
   moduleId: string;
   createUser: string;
   createTime: number | string;
