@@ -133,7 +133,16 @@ public class FunctionalCaseCustomFieldService {
         FunctionalCaseCustomField functionalCaseCustomField = new FunctionalCaseCustomField();
         functionalCaseCustomField.setFieldId(customField.getFieldId());
         functionalCaseCustomField.setValue(customField.getValue());
-        extFunctionalCaseCustomFieldMapper.batchUpdate(functionalCaseCustomField, ids);
+        extFunctionalCaseCustomFieldMapper.batchDelete(functionalCaseCustomField, ids);
+        List<FunctionalCaseCustomField> list = new ArrayList<>();
+        ids.forEach(id -> {
+            FunctionalCaseCustomField field = new FunctionalCaseCustomField();
+            field.setCaseId(id);
+            field.setFieldId(customField.getFieldId());
+            field.setValue(customField.getValue());
+            list.add(field);
+        });
+        functionalCaseCustomFieldMapper.batchInsert(list);
     }
 
     public List<FunctionalCaseCustomFieldDTO> getCustomFieldsByCaseIds(List<String> ids) {
