@@ -7,6 +7,8 @@ import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.debug.ApiFileResourceUpdateRequest;
 import io.metersphere.api.dto.debug.ApiResourceRunRequest;
+import io.metersphere.api.dto.definition.ExecutePageRequest;
+import io.metersphere.api.dto.definition.ExecuteReportDTO;
 import io.metersphere.api.dto.request.MsScenario;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.response.ApiScenarioBatchOperationResponse;
@@ -54,6 +56,8 @@ import io.metersphere.sdk.util.*;
 import io.metersphere.system.domain.Schedule;
 import io.metersphere.system.domain.ScheduleExample;
 import io.metersphere.system.dto.LogInsertModule;
+import io.metersphere.system.dto.OperationHistoryDTO;
+import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.request.ScheduleConfig;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
@@ -61,6 +65,7 @@ import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.ScheduleMapper;
 import io.metersphere.system.schedule.ScheduleService;
 import io.metersphere.system.service.ApiPluginService;
+import io.metersphere.system.service.OperationHistoryService;
 import io.metersphere.system.service.UserLoginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
@@ -86,11 +91,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import static io.metersphere.api.controller.result.ApiResultCode.API_SCENARIO_EXIST;
 
 @Service
@@ -169,12 +174,16 @@ public class ApiScenarioService {
     @Resource
     private ApiDefinitionModuleService apiDefinitionModuleService;
     @Resource
+    private OperationHistoryService operationHistoryService;
+    @Resource
     private ApiCommonService apiCommonService;
-
+    
+    
     public static final String PRIORITY = "Priority";
     public static final String STATUS = "Status";
     public static final String TAGS = "Tags";
     public static final String ENVIRONMENT = "Environment";
+    private static final String SCENARIO_TABLE = "api_scenario";
 
 
     public List<ApiScenarioDTO> getScenarioPage(ApiScenarioPageRequest request) {
@@ -2055,6 +2064,28 @@ public class ApiScenarioService {
                 extApiScenarioMapper::getPrePos,
                 extApiScenarioMapper::getLastPosEdit,
                 apiScenarioMapper::updateByPrimaryKeySelective);
+    }
+
+    public List<ExecuteReportDTO> getExecuteList(ExecutePageRequest request) {
+        List<ExecuteReportDTO> executeList = extApiScenarioMapper.getExecuteList(request);
+        if (CollectionUtils.isEmpty(executeList)) {
+            return new ArrayList<>();
+        }
+        Set<String> userSet = executeList.stream()
+                .flatMap(apiReport -> Stream.of(apiReport.getCreateUser()))
+                .collect(Collectors.toSet());
+        Map<String, String> userMap = userLoginService.getUserNameMap(new ArrayList<>(userSet));
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        executeList.forEach(apiReport -> {
+            apiReport.setOperationUser(userMap.get(apiReport.getCreateUser()));
+            Date date = new Date(apiReport.getStartTime());
+            apiReport.setNum(sdf.format(date));
+        });
+        return executeList;
+    }
+
+    public List<OperationHistoryDTO> operationHistoryList(OperationHistoryRequest request) {
+        return operationHistoryService.listWidthTable(request, SCENARIO_TABLE);
     }
 
     public void handleFileAssociationUpgrade(FileAssociation originFileAssociation, FileMetadata newFileMetadata) {

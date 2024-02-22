@@ -229,7 +229,7 @@
             #{id}
         </foreach>
     </select>
-    <select id="getExecuteList" resultType="io.metersphere.api.dto.definition.ApiCaseReportDTO">
+    <select id="getExecuteList" resultType="io.metersphere.api.dto.definition.ExecuteReportDTO">
         select
         api_report.id,
         api_report.name,

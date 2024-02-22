@@ -23,10 +23,12 @@ public class DebugListener {
             LogUtils.info("接收到执行结果：{}", record.key());
             if (ObjectUtils.isNotEmpty(record.value()) && WebSocketUtils.has(record.key().toString())) {
                 SocketMsgDTO dto = JSON.parseObject(record.value(), SocketMsgDTO.class);
+
+                LogUtils.info("{} 推送执行结果类型【 {} 】", record.key(), dto.getMsgType());
                 WebSocketUtils.sendMessageSingle(dto);
             }
         } catch (Exception e) {
-            LogUtils.error("调试消息推送失败：{}", e);
+            LogUtils.error("{} 调试消息推送失败：{}", record.key(), e);
         }
     }
 }

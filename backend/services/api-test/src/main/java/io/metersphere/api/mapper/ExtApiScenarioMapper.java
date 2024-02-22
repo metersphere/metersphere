@@ -1,6 +1,8 @@
 package io.metersphere.api.mapper;
 
 import io.metersphere.api.domain.ApiScenario;
+import io.metersphere.api.dto.definition.ExecutePageRequest;
+import io.metersphere.api.dto.definition.ExecuteReportDTO;
 import io.metersphere.api.dto.scenario.*;
 import io.metersphere.dto.TestCaseProviderDTO;
 import io.metersphere.project.dto.ModuleCountDTO;
@@ -40,4 +42,5 @@ public interface ExtApiScenarioMapper {
 
     Long getLastPosEdit(@Param("projectId") String projectId, @Param("basePos") Long basePos);
 
+    List<ExecuteReportDTO> getExecuteList(@Param("request") ExecutePageRequest request);
 }
