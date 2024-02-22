@@ -119,8 +119,6 @@ public class ApiTestCaseControllerTests extends BaseTest {
     private ProjectVersionMapper projectVersionMapper;
     @Resource
     private OperationHistoryService operationHistoryService;
-    @Resource
-    private ApiTestCaseRecordMapper apiTestCaseRecordMapper;
 
     public static <T> T parseObjectFromMvcResult(MvcResult mvcResult, Class<T> parseClass) {
         try {
@@ -606,9 +604,8 @@ public class ApiTestCaseControllerTests extends BaseTest {
             record.setApiReportId(apiReport.getId());
             records.add(record);
         }
-        apiTestCaseRecordMapper.batchInsert(records);
-        apiReportService.insertApiReport(reports);
-        ApiCaseExecutePageRequest request = new ApiCaseExecutePageRequest();
+        apiReportService.insertApiReport(reports, records);
+        ExecutePageRequest request = new ExecutePageRequest();
         request.setId(first.getId());
         request.setPageSize(10);
         request.setCurrent(1);
@@ -624,7 +621,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         //返回值不为空
         Assertions.assertNotNull(returnPager);
         Assertions.assertTrue(((List<ApiReport>) returnPager.getList()).size() <= request.getPageSize());
-        List<ApiCaseReportDTO> reportDTOS = JSON.parseArray(JSON.toJSONString(returnPager.getList()), ApiCaseReportDTO.class);
+        List<ExecuteReportDTO> reportDTOS = JSON.parseArray(JSON.toJSONString(returnPager.getList()), ExecuteReportDTO.class);
         reportDTOS.forEach(apiReport -> {
             Assertions.assertEquals(apiReport.getStatus(), ApiReportStatus.SUCCESS.name());
         });
@@ -831,6 +828,7 @@ public class ApiTestCaseControllerTests extends BaseTest {
         request.setSourceId(first.getId());
         request.setPageSize(10);
         request.setCurrent(1);
+        projectVersionMapper.deleteByPrimaryKey("1.0");
         ProjectVersion version = new ProjectVersion();
         version.setId("1.0");
         version.setName("1.0");

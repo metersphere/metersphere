@@ -6,10 +6,7 @@ import io.metersphere.api.dto.definition.ApiReportPageRequest;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportDetailDTO;
 import io.metersphere.api.dto.scenario.ApiScenarioReportStepDTO;
-import io.metersphere.api.mapper.ApiScenarioReportDetailMapper;
-import io.metersphere.api.mapper.ApiScenarioReportMapper;
-import io.metersphere.api.mapper.ApiScenarioReportStepMapper;
-import io.metersphere.api.mapper.ExtApiScenarioReportMapper;
+import io.metersphere.api.mapper.*;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.sdk.dto.api.result.RequestResult;
 import io.metersphere.sdk.exception.MSException;
@@ -50,17 +47,23 @@ public class ApiScenarioReportService {
     private ApiScenarioReportDetailMapper apiScenarioReportDetailMapper;
 
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
-    public void insertApiScenarioReport(List<ApiScenarioReport> reports) {
+    public void insertApiScenarioReport(List<ApiScenarioReport> reports, List<ApiScenarioRecord> records) {
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         if (CollectionUtils.isNotEmpty(reports)) {
-            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
             ApiScenarioReportMapper reportMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
             SubListUtils.dealForSubList(reports, 1000, subList -> {
                 subList.forEach(reportMapper::insertSelective);
             });
-            sqlSession.flushStatements();
-            if (sqlSessionFactory != null) {
-                SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
-            }
+        }
+        if (CollectionUtils.isNotEmpty(records)) {
+            ApiScenarioRecordMapper detailMapper = sqlSession.getMapper(ApiScenarioRecordMapper.class);
+            SubListUtils.dealForSubList(records, 1000, subList -> {
+                subList.forEach(detailMapper::insertSelective);
+            });
+        }
+        sqlSession.flushStatements();
+        if (sqlSessionFactory != null) {
+            SqlSessionUtils.closeSqlSession(sqlSession, sqlSessionFactory);
         }
     }
 

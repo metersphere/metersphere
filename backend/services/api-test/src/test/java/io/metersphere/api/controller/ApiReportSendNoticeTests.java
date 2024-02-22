@@ -1,9 +1,6 @@
 package io.metersphere.api.controller;
 
-import io.metersphere.api.domain.ApiReport;
-import io.metersphere.api.domain.ApiScenario;
-import io.metersphere.api.domain.ApiScenarioReport;
-import io.metersphere.api.domain.ApiTestCase;
+import io.metersphere.api.domain.*;
 import io.metersphere.api.mapper.ApiScenarioMapper;
 import io.metersphere.api.mapper.ApiTestCaseMapper;
 import io.metersphere.api.service.ApiReportSendNoticeService;
@@ -78,6 +75,7 @@ public class ApiReportSendNoticeTests extends BaseTest {
         apiTestCaseMapper.insert(apiTestCase);
 
         List<ApiReport> reports = new ArrayList<>();
+        List<ApiTestCaseRecord> records = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             ApiReport apiReport = new ApiReport();
             apiReport.setId("send-api-case-report-id" + i);
@@ -100,8 +98,12 @@ public class ApiReportSendNoticeTests extends BaseTest {
             apiReport.setTriggerMode("api-trigger-mode" + i);
             apiReport.setVersionId("api-version-id" + i);
             reports.add(apiReport);
+            ApiTestCaseRecord record = new ApiTestCaseRecord();
+            record.setApiTestCaseId("send-api-resource-id" + i);
+            record.setApiReportId(apiReport.getId());
+            records.add(record);
         }
-        apiReportService.insertApiReport(reports);
+        apiReportService.insertApiReport(reports, records);
         ApiNoticeDTO noticeDTO = new ApiNoticeDTO();
         noticeDTO.setReportId("send-api-case-report-id0");
         noticeDTO.setReportStatus(ApiReportStatus.SUCCESS.name());
@@ -140,6 +142,7 @@ public class ApiReportSendNoticeTests extends BaseTest {
         apiScenarioMapper.insertSelective(apiScenario);
 
         List<ApiScenarioReport> scenarioReports = new ArrayList<>();
+        List<ApiScenarioRecord> scenarioRecords = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             ApiScenarioReport scenarioReport = new ApiScenarioReport();
             scenarioReport.setId("send-scenario-report-id" + i);
@@ -162,8 +165,12 @@ public class ApiReportSendNoticeTests extends BaseTest {
             scenarioReport.setTriggerMode("api-trigger-mode" + i);
             scenarioReport.setVersionId("api-version-id" + i);
             scenarioReports.add(scenarioReport);
+            ApiScenarioRecord record = new ApiScenarioRecord();
+            record.setApiScenarioId("send-scenario-id" + i);
+            record.setApiScenarioReportId(scenarioReport.getId());
+            scenarioRecords.add(record);
         }
-        apiScenarioReportService.insertApiScenarioReport(scenarioReports);
+        apiScenarioReportService.insertApiScenarioReport(scenarioReports, scenarioRecords);
 
 
         noticeDTO = new ApiNoticeDTO();

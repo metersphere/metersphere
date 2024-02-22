@@ -553,8 +553,8 @@ public class ApiTestCaseService {
         return apiTestCaseBlobMapper.selectByExampleWithBLOBs(example);
     }
 
-    public List<ApiCaseReportDTO> getExecuteList(ApiCaseExecutePageRequest request) {
-        List<ApiCaseReportDTO> executeList = extApiTestCaseMapper.getExecuteList(request);
+    public List<ExecuteReportDTO> getExecuteList(ExecutePageRequest request) {
+        List<ExecuteReportDTO> executeList = extApiTestCaseMapper.getExecuteList(request);
         if (CollectionUtils.isEmpty(executeList)) {
             return new ArrayList<>();
         }

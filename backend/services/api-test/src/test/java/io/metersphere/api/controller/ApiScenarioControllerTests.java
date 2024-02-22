@@ -4,9 +4,7 @@ import io.metersphere.api.constants.*;
 import io.metersphere.api.domain.*;
 import io.metersphere.api.dto.assertion.MsAssertionConfig;
 import io.metersphere.api.dto.debug.ModuleCreateRequest;
-import io.metersphere.api.dto.definition.ApiDefinitionAddRequest;
-import io.metersphere.api.dto.definition.ApiTestCaseAddRequest;
-import io.metersphere.api.dto.definition.HttpResponse;
+import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.request.http.Header;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.QueryParam;
@@ -20,6 +18,7 @@ import io.metersphere.api.service.BaseResourcePoolTestService;
 import io.metersphere.api.service.definition.ApiDefinitionModuleService;
 import io.metersphere.api.service.definition.ApiDefinitionService;
 import io.metersphere.api.service.definition.ApiTestCaseService;
+import io.metersphere.api.service.scenario.ApiScenarioReportService;
 import io.metersphere.api.service.scenario.ApiScenarioService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.project.api.KeyValueEnableParam;
@@ -27,6 +26,7 @@ import io.metersphere.project.api.assertion.MsResponseCodeAssertion;
 import io.metersphere.project.api.assertion.MsScriptAssertion;
 import io.metersphere.project.api.processor.MsProcessor;
 import io.metersphere.project.api.processor.SQLProcessor;
+import io.metersphere.project.domain.ProjectVersion;
 import io.metersphere.project.dto.environment.EnvironmentConfig;
 import io.metersphere.project.dto.environment.EnvironmentGroupProjectDTO;
 import io.metersphere.project.dto.environment.EnvironmentGroupRequest;
@@ -39,6 +39,7 @@ import io.metersphere.project.dto.environment.processors.EnvRequestScriptProcess
 import io.metersphere.project.dto.environment.processors.EnvScenarioScriptProcessor;
 import io.metersphere.project.dto.filemanagement.request.FileUploadRequest;
 import io.metersphere.project.mapper.ExtBaseProjectVersionMapper;
+import io.metersphere.project.mapper.ProjectVersionMapper;
 import io.metersphere.project.service.EnvironmentGroupService;
 import io.metersphere.project.service.EnvironmentService;
 import io.metersphere.project.service.FileMetadataService;
@@ -57,10 +58,13 @@ import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.domain.Schedule;
+import io.metersphere.system.dto.OperationHistoryDTO;
+import io.metersphere.system.dto.request.OperationHistoryRequest;
 import io.metersphere.system.dto.request.PluginUpdateRequest;
 import io.metersphere.system.dto.sdk.request.PosRequest;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.ScheduleMapper;
+import io.metersphere.system.service.OperationHistoryService;
 import io.metersphere.system.service.PluginService;
 import io.metersphere.system.uid.IDGenerator;
 import io.metersphere.system.uid.NumGenerator;
@@ -76,6 +80,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -86,6 +91,7 @@ import java.util.stream.Collectors;
 import static io.metersphere.api.controller.result.ApiResultCode.API_SCENARIO_EXIST;
 import static io.metersphere.sdk.constants.InternalUserRole.ADMIN;
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -157,6 +163,12 @@ public class ApiScenarioControllerTests extends BaseTest {
     private ApiTestCaseMapper apiTestCaseMapper;
     @Resource
     private ApiDefinitionModuleService apiDefinitionModuleService;
+    @Resource
+    private ApiScenarioReportService apiScenarioReportService;
+    @Resource
+    private ProjectVersionMapper projectVersionMapper;
+    @Resource
+    private OperationHistoryService operationHistoryService;
     private static String fileMetadataId;
     private static String localFileId;
     private static ApiScenario addApiScenario;
@@ -2142,6 +2154,117 @@ public class ApiScenarioControllerTests extends BaseTest {
         posRequest.setMoveMode("BEFORE");
         this.requestPostWithOkAndReturn("/edit/pos", posRequest);
 
+    }
+
+    @Test
+    @Order(10)
+    public void testExecuteList() throws Exception {
+        ApiScenario first = apiScenarioMapper.selectByExample(new ApiScenarioExample()).getFirst();
+        List<ApiScenarioReport> reports = new ArrayList<>();
+        List<ApiScenarioRecord> records = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            ApiScenarioReport apiReport = new ApiScenarioReport();
+            apiReport.setId(IDGenerator.nextStr());
+            apiReport.setProjectId(DEFAULT_PROJECT_ID);
+            apiReport.setName("api-scenario-name" + i);
+            apiReport.setStartTime(System.currentTimeMillis());
+            apiReport.setCreateUser("admin");
+            apiReport.setUpdateUser("admin");
+            apiReport.setUpdateTime(System.currentTimeMillis());
+            apiReport.setPoolId("api-pool-id" + i);
+            apiReport.setEnvironmentId("api-environment-id" + i);
+            apiReport.setRunMode("api-run-mode" + i);
+            if (i % 2 == 0) {
+                apiReport.setStatus(ApiReportStatus.SUCCESS.name());
+            } else {
+                apiReport.setStatus(ApiReportStatus.ERROR.name());
+            }
+            apiReport.setTriggerMode("api-trigger-mode" + i);
+            apiReport.setVersionId("api-version-id" + i);
+            reports.add(apiReport);
+            ApiScenarioRecord record = new ApiScenarioRecord();
+            record.setApiScenarioId(first.getId());
+            record.setApiScenarioReportId(apiReport.getId());
+            records.add(record);
+        }
+        apiScenarioReportService.insertApiScenarioReport(reports, records);
+        ExecutePageRequest request = new ExecutePageRequest();
+        request.setId(first.getId());
+        request.setPageSize(10);
+        request.setCurrent(1);
+        MvcResult mvcResult = responsePost(BASE_PATH + "execute/page", request);
+        Pager<?> returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
+        //返回值不为空
+        Assertions.assertNotNull(returnPager);
+        request.setFilter(new HashMap<>() {{
+            put("status", List.of(ApiReportStatus.SUCCESS.name()));
+        }});
+        mvcResult = responsePost(BASE_PATH + "execute/page", request);
+        returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
+        //返回值不为空
+        Assertions.assertNotNull(returnPager);
+        Assertions.assertTrue(((List<ApiReport>) returnPager.getList()).size() <= request.getPageSize());
+        List<ExecuteReportDTO> reportDTOS = JSON.parseArray(JSON.toJSONString(returnPager.getList()), ExecuteReportDTO.class);
+        reportDTOS.forEach(apiReport -> {
+            Assertions.assertEquals(apiReport.getStatus(), ApiReportStatus.SUCCESS.name());
+        });
+    }
+
+    public static <T> T parseObjectFromMvcResult(MvcResult mvcResult, Class<T> parseClass) {
+        try {
+            String returnData = mvcResult.getResponse().getContentAsString(StandardCharsets.UTF_8);
+            ResultHolder resultHolder = JSON.parseObject(returnData, ResultHolder.class);
+            //返回请求正常
+            Assertions.assertNotNull(resultHolder);
+            return JSON.parseObject(JSON.toJSONString(resultHolder.getData()), parseClass);
+        } catch (Exception ignore) {
+        }
+        return null;
+    }
+
+    private MvcResult responsePost(String url, Object param) throws Exception {
+        return mockMvc.perform(MockMvcRequestBuilders.post(url)
+                        .header(SessionConstants.HEADER_TOKEN, sessionId)
+                        .header(SessionConstants.CSRF_TOKEN, csrfToken)
+                        .content(JSON.toJSONString(param))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
+    }
+
+    @Test
+    @Order(11)
+    public void testGetHistory() throws Exception {
+        ApiScenario first = apiScenarioMapper.selectByExample(new ApiScenarioExample()).getFirst();
+        OperationHistoryRequest request = new OperationHistoryRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setSourceId(first.getId());
+        request.setPageSize(10);
+        request.setCurrent(1);
+
+        projectVersionMapper.deleteByPrimaryKey("1.0");
+        ProjectVersion version = new ProjectVersion();
+        version.setId("1.0");
+        version.setName("1.0");
+        version.setProjectId(DEFAULT_PROJECT_ID);
+        version.setCreateTime(System.currentTimeMillis());
+        version.setLatest(true);
+        version.setCreateUser("admin");
+        projectVersionMapper.insertSelective(version);
+
+        MvcResult mvcResult = responsePost(BASE_PATH + "operation-history/page", request);
+        Pager<?> returnPager = parseObjectFromMvcResult(mvcResult, Pager.class);
+        //返回值不为空
+        Assertions.assertNotNull(returnPager);
+        List<OperationHistoryDTO> reportDTOS = JSON.parseArray(JSON.toJSONString(returnPager.getList()), OperationHistoryDTO.class);
+        reportDTOS.forEach(reportDTO -> Assertions.assertEquals(reportDTO.getSourceId(), first.getId()));
+
+        request = new OperationHistoryRequest();
+        request.setProjectId(DEFAULT_PROJECT_ID);
+        request.setSourceId("111");
+        request.setPageSize(10);
+        request.setCurrent(1);
+        responsePost(BASE_PATH + "operation-history/page", request);
     }
 
     @Test
