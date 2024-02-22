@@ -188,7 +188,7 @@ CREATE TABLE IF NOT EXISTS functional_case_demand
     `case_id`         VARCHAR(50) NOT NULL COMMENT '功能用例ID',
     `parent`          VARCHAR(50) NOT NULL DEFAULT 'NONE' COMMENT '父需求id',
     `demand_id`       VARCHAR(50) COMMENT '需求ID',
-    `demand_name`     VARCHAR(64) NOT NULL DEFAULT 'NONE' COMMENT '需求标题',
+    `demand_name`     VARCHAR(255) NOT NULL DEFAULT 'NONE' COMMENT '需求标题',
     `demand_url`      VARCHAR(255) COMMENT '需求地址',
     `demand_platform` VARCHAR(64) NOT NULL DEFAULT 'LOCAL' COMMENT '需求所属平台',
     `create_time`     BIGINT      NOT NULL COMMENT '创建时间',
