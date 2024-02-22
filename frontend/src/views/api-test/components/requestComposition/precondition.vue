@@ -4,8 +4,9 @@
     :condition-types="[RequestConditionProcessor.SCRIPT, RequestConditionProcessor.TIME_WAITING]"
     add-text="apiTestDebug.precondition"
     @change="emit('change')"
-  >
-    <!-- <template #titleRight>
+  />
+
+  <!-- <template #titleRight>
       <a-switch v-model:model-value="innerConfig.enableGlobal" size="small" type="line"></a-switch>
       <div class="ml-[8px] text-[var(--color-text-1)]">{{ t('apiTestDebug.openGlobalPrecondition') }}</div>
       <a-tooltip :content="t('apiTestDebug.openGlobalPreconditionTip')" position="left">
@@ -15,7 +16,6 @@
         />
       </a-tooltip>
     </template> -->
-  </condition>
 </template>
 
 <script setup lang="ts">

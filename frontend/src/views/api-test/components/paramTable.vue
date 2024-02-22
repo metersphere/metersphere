@@ -27,6 +27,26 @@
         </a-tooltip>
       </div>
     </template>
+    <template #documentMustIncludeTitle>
+      <div class="flex flex-row items-center gap-[4px]">
+        <a-checkbox
+          :model-value="mustIncludeAllChecked"
+          :indeterminate="mustIncludeIndeterminate"
+          @change="(v) => handleMustIncludeChange(v as boolean)"
+        />
+        <div class="ml-[4px] text-[var(--color-text-3)]">{{ t('ms.assertion.mustInclude') }}</div>
+      </div>
+    </template>
+    <template #documentTypeCheckingTitle>
+      <div class="flex flex-row items-center gap-[4px]">
+        <a-checkbox
+          :model-value="typeCheckingAllChecked"
+          :indeterminate="typeCheckingIndeterminate"
+          @change="(v) => handleTypeCheckingChange(v as boolean)"
+        />
+        <div class="ml-[4px] text-[var(--color-text-3)]">{{ t('ms.assertion.typeChecking') }}</div>
+      </div>
+    </template>
     <!-- 表格列 slot -->
     <template #key="{ record, columnConfig }">
       <a-popover
@@ -409,6 +429,7 @@
   const { t } = useI18n();
 
   const tableStore = useTableStore();
+
   async function initColumns() {
     if (props.showSetting && props.tableKey) {
       await tableStore.initColumn(props.tableKey, props.columns);
@@ -672,6 +693,30 @@
     emit('projectChange', projectId);
     addTableLine(val as string, 'projectId');
   }
+
+  /** 断言-文档-Begin */
+  // 断言-文档-必须包含-全选
+  const mustIncludeList = ref([]);
+  const mustIncludeAllChecked = ref(false);
+  const mustIncludeIndeterminate = ref(false);
+  const handleMustIncludeChange = (val: boolean) => {
+    mustIncludeAllChecked.value = val;
+    mustIncludeIndeterminate.value = false;
+    const data = propsRes.value;
+    mustIncludeList.value = val ? data.map((e: any) => e.id) : [];
+  };
+
+  // 断言-文档-类型校验-存储用户勾选的id
+  const typeCheckingList = ref([]);
+  const typeCheckingAllChecked = ref(false);
+  const typeCheckingIndeterminate = ref(false);
+  const handleTypeCheckingChange = (val: boolean) => {
+    typeCheckingAllChecked.value = val;
+    typeCheckingIndeterminate.value = false;
+    const data = propsRes.value;
+    typeCheckingList.value = val ? data.map((e: any) => e.id) : [];
+  };
+  /** 断言-文档-end */
 
   defineExpose({
     addTableLine,

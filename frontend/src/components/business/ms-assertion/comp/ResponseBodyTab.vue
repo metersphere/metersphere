@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col">
+  <div class="flex w-full flex-col">
     <div>
       <a-radio-group v-model:model-value="activeTab" type="button" size="small">
         <a-radio v-for="item of responseRadios" :key="item.value" :value="item.value">
@@ -14,7 +14,7 @@
         :columns="jsonPathColumns"
         :scroll="{ minWidth: '700px' }"
         :default-param-item="jsonPathDefaultParamItem"
-        @change="handleJsonPathChange"
+        @change="handleChange"
         @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
       >
         <template #expression="{ record }">
@@ -86,7 +86,7 @@
       <div class="text-[var(--color-text-1)]">{{ t('ms.assertion.responseContentType') }}</div>
       <a-radio-group
         v-model:model-value="innerParams.xPath.responseFormat"
-        class="mt-[16px]"
+        class="mb-[16px] mt-[16px]"
         type="button"
         size="small"
       >
@@ -95,12 +95,11 @@
       </a-radio-group>
       <paramsTable
         v-model:params="innerParams.xPath.data"
-        class="mt-[16px]"
         :selectable="false"
         :columns="xPathColumns"
         :scroll="{ minWidth: '700px' }"
         :default-param-item="xPathDefaultParamItem"
-        @change="handleXPathChange"
+        @change="handleChange"
         @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
       >
         <template #expression="{ record }">
@@ -168,15 +167,130 @@
         </template>
       </paramsTable>
     </div>
+    <div v-if="activeTab === 'document'">
+      <paramsTable
+        v-model:params="innerParams.document.data"
+        :selectable="false"
+        :columns="documentColumns"
+        :scroll="{
+          minWidth: '700px',
+        }"
+        :default-param-item="documentDefaultParamItem"
+        @change="handleChange"
+        @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
+      >
+        <template #operationPre="{ record }">
+          <a-tooltip v-if="['object', 'array'].includes(record.paramType)" :content="t('ms.assertion.addChild')">
+            <div
+              class="flex h-[24px] w-[24px] cursor-pointer items-center justify-center rounded text-[rgb(var(--primary-5))] hover:bg-[rgb(var(--primary-1))]"
+              @click="addChild"
+            >
+              <icon-plus size="14" />
+            </div>
+          </a-tooltip>
+          <a-tooltip v-else :content="t('ms.assertion.validateChild')">
+            <div
+              class="flex h-[24px] w-[24px] cursor-pointer items-center justify-center rounded text-[rgb(var(--primary-5))] hover:bg-[rgb(var(--primary-1))]"
+              @click="addValidateChild"
+            >
+              <icon-bookmark size="14" />
+            </div>
+          </a-tooltip>
+        </template>
+      </paramsTable>
+    </div>
+    <div v-if="activeTab === 'regular'" class="mt-[16px]">
+      <paramsTable
+        v-model:params="innerParams.regular"
+        :selectable="false"
+        :columns="xPathColumns"
+        :scroll="{ minWidth: '700px' }"
+        :default-param-item="xPathDefaultParamItem"
+        @change="handleChange"
+        @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
+      >
+        <template #expression="{ record }">
+          <a-popover
+            position="tl"
+            :disabled="!record.expression || record.expression.trim() === ''"
+            class="ms-params-input-popover"
+          >
+            <template #content>
+              <div class="param-popover-title">
+                {{ t('apiTestDebug.expression') }}
+              </div>
+              <div class="param-popover-value">
+                {{ record.expression }}
+              </div>
+            </template>
+            <a-input
+              v-model:model-value="record.expression"
+              class="ms-params-input"
+              :max-length="255"
+              @input="handleExpressionChange"
+              @change="handleExpressionChange"
+            >
+              <template #suffix>
+                <a-tooltip :disabled="!disabledExpressionSuffix">
+                  <template #content>
+                    <div>{{ t('apiTestDebug.expressionTip1') }}</div>
+                    <div>{{ t('apiTestDebug.expressionTip2') }}</div>
+                    <div>{{ t('apiTestDebug.expressionTip3') }}</div>
+                  </template>
+                  <MsIcon
+                    type="icon-icon_flashlamp"
+                    :size="15"
+                    :class="
+                      disabledExpressionSuffix ? 'ms-params-input-suffix-icon--disabled' : 'ms-params-input-suffix-icon'
+                    "
+                    @click.stop="() => showFastExtraction(record, RequestExtractExpressionEnum.JSON_PATH)"
+                  />
+                </a-tooltip>
+              </template>
+            </a-input>
+          </a-popover>
+        </template>
+        <template #operationPre="{ record }">
+          <a-popover
+            v-model:popupVisible="record.moreSettingPopoverVisible"
+            position="tl"
+            trigger="click"
+            :title="t('common.setting')"
+            :content-style="{ width: '480px' }"
+          >
+            <template #content>
+              <moreSetting v-model:config="activeRecord" is-popover class="mt-[12px]" />
+              <div class="flex items-center justify-end gap-[8px]">
+                <a-button type="secondary" size="mini" @click="record.moreSettingPopoverVisible = false">
+                  {{ t('common.cancel') }}
+                </a-button>
+                <a-button type="primary" size="mini" @click="() => applyMoreSetting(record)">
+                  {{ t('common.confirm') }}
+                </a-button>
+              </div>
+            </template>
+            <span class="invisible relative"></span>
+          </a-popover>
+        </template>
+      </paramsTable>
+    </div>
+    <div v-if="activeTab === 'script'" class="mt-[16px]">
+      <conditionContent
+        :data="innerParams.script"
+        class="mt-[16px]"
+        @copy="copyListItem"
+        @delete="deleteListItem"
+        @change="emit('change')"
+      />
+    </div>
   </div>
   <fastExtraction v-model:visible="fastExtractionVisible" :config="activeRecord" @apply="handleFastExtractionApply" />
 </template>
 
 <script setup lang="ts">
-  import { defineModel } from 'vue';
-
   import { statusCodeOptions } from '@/components/pure/ms-advance-filter';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import conditionContent from '@/views/api-test/components/condition/content.vue';
   import fastExtraction from '@/views/api-test/components/fastExtraction/index.vue';
   import moreSetting from '@/views/api-test/components/fastExtraction/moreSetting.vue';
   import paramsTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
@@ -191,6 +305,8 @@
     XPathExtract,
   } from '@/models/apiTest/debug';
   import {
+    RequestConditionProcessor,
+    RequestConditionScriptLanguage,
     RequestExtractEnvType,
     RequestExtractExpressionEnum,
     RequestExtractExpressionRuleType,
@@ -209,9 +325,39 @@
     (e: 'delete', id: number): void;
     (e: 'change'): void;
   }>();
+  const { t } = useI18n();
 
-  const innerParams = defineModel<Param>('modelValue', {
-    default: { jsonPath: [], xPath: { responseFormat: 'XML', data: [] } },
+  // const innerParams = defineModel<Param>('modelValue', {
+  //   default: {
+  //     jsonPath: [],
+  //     xPath: { responseFormat: 'XML', data: [] },
+  //     script: {
+  //       id: new Date().getTime(),
+  //       processorType: RequestConditionProcessor.SCRIPT,
+  //       scriptName: '断言脚本名称',
+  //       enableCommonScript: false,
+  //       params: [],
+  //     },
+  //   },
+  // });
+  const innerParams = ref<Param>({
+    jsonPath: [],
+    xPath: { responseFormat: 'XML', data: [] },
+    document: {
+      data: [],
+      responseFormat: 'JSON',
+      followApi: false,
+    },
+    script: {
+      id: new Date().getTime(),
+      processorType: RequestConditionProcessor.SCRIPT,
+      scriptName: '断言脚本名称',
+      enableCommonScript: false,
+      params: [],
+      scriptId: '',
+      scriptLanguage: RequestConditionScriptLanguage.JAVASCRIPT,
+      script: new Date().getTime().toString(),
+    },
   });
   const activeTab = ref('jsonPath');
   const extractParamsTableRef = ref<InstanceType<typeof paramsTable>>();
@@ -285,8 +431,8 @@
     matchValue: '',
     enable: true,
   };
-  const handleJsonPathChange = () => {
-    console.log('jsonPath change');
+  const handleChange = () => {
+    emit('change');
   };
   function handleExpressionChange(val: string) {
     extractParamsTableRef.value?.addTableLine(val, 'expression');
@@ -319,12 +465,74 @@
 
   const xPathDefaultParamItem = {
     expression: '',
-    matchCondition: '',
-    matchValue: '',
     enable: true,
   };
-  const handleXPathChange = () => {
-    console.log('jsonPath change');
+
+  const documentColumns: ParamTableColumn[] = [
+    {
+      title: 'ms.assertion.paramsName',
+      dataIndex: 'paramsName',
+      slotName: 'key',
+    },
+    {
+      title: 'ms.assertion.mustInclude',
+      dataIndex: 'mustInclude',
+      slotName: 'mustContain',
+      titleSlotName: 'documentMustIncludeTitle',
+      align: 'left',
+    },
+    {
+      title: 'ms.assertion.typeChecking',
+      dataIndex: 'typeChecking',
+      slotName: 'typeChecking',
+      titleSlotName: 'documentTypeCheckingTitle',
+      align: 'left',
+    },
+    {
+      title: 'project.environmental.paramType',
+      dataIndex: 'paramType',
+      slotName: 'paramType',
+      showInTable: true,
+      showDrag: true,
+      columnSelectorDisabled: true,
+      typeOptions: [
+        { label: 'object', value: 'object' },
+        { label: 'array', value: 'array' },
+        { label: 'string', value: 'string' },
+        { label: 'integer', value: 'integer' },
+        { label: 'number', value: 'number' },
+        { label: 'boolean', value: 'boolean' },
+      ],
+      titleSlotName: 'typeTitle',
+      typeTitleTooltip: t('project.environmental.paramTypeTooltip'),
+    },
+    {
+      title: 'ms.assertion.matchCondition',
+      dataIndex: 'matchCondition',
+      slotName: 'matchCondition',
+      options: statusCodeOptions,
+    },
+    {
+      title: 'ms.assertion.matchValue',
+      dataIndex: 'matchValue',
+      slotName: 'matchValue',
+      hasRequired: true,
+    },
+    {
+      title: '',
+      slotName: 'operation',
+      fixed: 'right',
+      width: 130,
+    },
+  ];
+  const documentDefaultParamItem = {
+    id: new Date().getTime(),
+    paramsName: '',
+    mustInclude: false,
+    typeChecking: false,
+    paramType: '',
+    matchCondition: '',
+    matchValue: '',
   };
 
   /**
@@ -376,10 +584,39 @@
     }
   }
 
+  /**
+   * 复制列表项
+   */
+  function copyListItem() {}
+
+  /**
+   * 删除列表项
+   */
+  function deleteListItem(id: string | number) {}
+
   function showFastExtraction(record: ExpressionConfig, type: ExpressionType) {
     activeRecord.value = { ...record, extractType: type };
     fastExtractionVisible.value = true;
   }
+  // 新增子项
+  const addChild = (record: Record<string, any>) => {
+    const children = record.children || [];
+    const newRecord = {
+      id: new Date().getTime(),
+      parentId: record.id,
+      rowIndex: children.length,
+    };
+    record.children = [...children, newRecord];
+  };
 
-  const { t } = useI18n();
+  // 添加验证子项
+  const addValidateChild = (record: Record<string, any>) => {
+    const children = record.children || [];
+    const newRecord = {
+      id: new Date().getTime(),
+      parentId: record.id,
+      rowIndex: children.length,
+    };
+    record.children = [...children, newRecord];
+  };
 </script>

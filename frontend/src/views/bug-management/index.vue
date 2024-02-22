@@ -340,7 +340,7 @@
       (record: TableData) => ({
         ...record,
         handleUser: record.handleUserName,
-        ...customFieldDataToTableData(record.customFields),
+        ...customFieldDataToTableData(record.customFields, customFields.value),
       })
     );
 
