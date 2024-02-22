@@ -436,4 +436,17 @@ public class ProjectControllerTests extends BaseTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON)).andReturn();
     }
+
+    @Test
+    @Order(12)
+    public void testGetProjectMember() throws Exception {
+        // 成员列表
+        MvcResult mvcResult = this.responseGet(prefix + "/get-member/option/" + DEFAULT_PROJECT_ID);
+        List list = parseObjectFromMvcResult(mvcResult, List.class);
+        Assertions.assertNotNull(list);
+
+        this.requestGet(prefix + "/get-member/option/" + "123");
+
+        requestGetPermissionTest(PermissionConstants.PROJECT_BASE_INFO_READ, prefix + "/get-member/option/" + DEFAULT_PROJECT_ID);
+    }
 }

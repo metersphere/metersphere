@@ -196,4 +196,17 @@
     </select>
 
 
+    <select id="getMemberByProjectId" resultType="io.metersphere.system.dto.user.UserExtendDTO">
+        select distinct u.* from user_role_relation urr join `user` u on urr.user_id = u.id
+        where
+        u.deleted = 0 and u.enable = 1
+        <if test="projectId != null and projectId != ''">
+            and urr.source_id = #{projectId}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            and (u.name like concat('%', #{keyword}, '%') or u.email like concat('%', #{keyword}, '%'))
+        </if>
+        order by u.name
+        limit 100
+    </select>
 </mapper>

@@ -9,12 +9,14 @@ import io.metersphere.system.dto.ProjectDTO;
 import io.metersphere.system.dto.UpdateProjectRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.user.UserDTO;
+import io.metersphere.system.dto.user.UserExtendDTO;
 import io.metersphere.system.log.annotation.Log;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.security.CheckOwner;
 import io.metersphere.system.utils.SessionUtils;
 import io.metersphere.validation.groups.Updated;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -73,6 +75,15 @@ public class ProjectController {
     @CheckOwner(resourceId = "#id", resourceType = "project")
     public boolean hasPermission(@PathVariable String id) {
         return projectService.hasPermission(id, SessionUtils.getUserId());
+    }
+
+    @GetMapping("/get-member/option/{projectId}")
+    @Operation(summary = "项目管理-获取成员下拉选项")
+    @RequiresPermissions(PermissionConstants.PROJECT_BASE_INFO_READ)
+    public List<UserExtendDTO> getMemberOption(@PathVariable String projectId,
+                                               @Schema(description = "查询关键字，根据邮箱和用户名查询")
+                                               @RequestParam(value = "keyword", required = false) String keyword) {
+        return projectService.getMemberOption(projectId, keyword);
     }
 
 }

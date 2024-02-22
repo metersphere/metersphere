@@ -21,9 +21,10 @@ import io.metersphere.system.dto.UpdateProjectRequest;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.dto.sdk.SessionUser;
 import io.metersphere.system.dto.user.UserDTO;
+import io.metersphere.system.dto.user.UserExtendDTO;
+import io.metersphere.system.mapper.ExtSystemProjectMapper;
 import io.metersphere.system.mapper.OrganizationMapper;
 import io.metersphere.system.mapper.TestResourcePoolMapper;
-import io.metersphere.system.mapper.TestResourcePoolOrganizationMapper;
 import io.metersphere.system.mapper.UserRoleRelationMapper;
 import io.metersphere.system.service.CommonProjectService;
 import io.metersphere.system.service.UserLoginService;
@@ -62,7 +63,7 @@ public class ProjectService {
     @Resource
     private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
     @Resource
-    private TestResourcePoolOrganizationMapper testResourcePoolOrganizationMapper;
+    private ExtSystemProjectMapper extSystemProjectMapper;
 
     public static final Long ORDER_STEP = 5000L;
 
@@ -219,4 +220,13 @@ public class ProjectService {
         }
         return hasPermission;
     }
+
+    public List<UserExtendDTO> getMemberOption(String projectId, String keyword) {
+        Project project = projectMapper.selectByPrimaryKey(projectId);
+        if (project == null) {
+            return new ArrayList<>();
+        }
+        return extSystemProjectMapper.getMemberByProjectId(projectId, keyword);
+    }
 }
+
