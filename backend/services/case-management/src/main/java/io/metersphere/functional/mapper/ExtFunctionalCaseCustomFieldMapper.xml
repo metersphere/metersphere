@@ -36,4 +36,13 @@
         </foreach>
     </select>
 
+    <delete id="batchDelete">
+        delete from functional_case_custom_field
+        where field_id = #{functionalCaseCustomField.fieldId}
+        and case_id in
+        <foreach collection="ids" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </delete>
+
 </mapper>

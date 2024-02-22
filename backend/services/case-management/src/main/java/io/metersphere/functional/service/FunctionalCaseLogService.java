@@ -304,7 +304,7 @@ public class FunctionalCaseLogService {
                         null,
                         functionalCase.getId(),
                         null,
-                        OperationLogType.DELETE.name(),
+                        OperationLogType.UPDATE.name(),
                         OperationLogModule.FUNCTIONAL_CASE,
                         functionalCase.getName());
                 dto.setHistory(true);
