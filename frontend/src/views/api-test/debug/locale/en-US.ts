@@ -184,4 +184,8 @@ export default {
   'apiTestDebug.importByCURL': 'Import cURL',
   'apiTestDebug.importByCURLTip':
     'Supports quick import of packet capture data from tools such as Chrome, Charles or Fiddler',
+  'apiTestDebug.noPluginTip': 'The plug-in has been uninstalled and plug-in details cannot be viewed.',
+  'apiTestDebug.noPlugin': 'Plugin has been uninstalled',
+  'apiTestDebug.unsavedLeave':
+    'The content of some tabs has not been saved. The unsaved content will be lost after leaving. Are you sure you want to leave?',
 };

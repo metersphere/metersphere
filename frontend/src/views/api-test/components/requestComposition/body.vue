@@ -57,7 +57,10 @@
         v-model:file-list="fileList"
         mode="input"
         :multiple="false"
-        :default-file-list="[innerParams.binaryBody.file]"
+        :fields="{
+          id: 'fileId',
+          name: 'fileName',
+        }"
         @change="handleFileChange"
       />
     </div>
@@ -111,6 +114,7 @@
 
   import { requestBodyTypeMap } from '@/config/apiTest';
   import { useI18n } from '@/hooks/useI18n';
+  import useAppStore from '@/store/modules/app';
 
   import { ExecuteBody, ExecuteRequestFormBodyFormValue } from '@/models/apiTest/debug';
   import { RequestBodyFormat, RequestContentTypeEnum, RequestParamsType } from '@/enums/apiEnum';
@@ -127,6 +131,7 @@
     (e: 'change'): void;
   }>();
 
+  const appStore = useAppStore();
   const { t } = useI18n();
 
   const innerParams = useVModel(props, 'params', emit);
@@ -155,6 +160,7 @@
     if (!props.uploadTempFileApi) return;
     try {
       if (fileList.value[0]?.local) {
+        appStore.showLoading();
         const res = await props.uploadTempFileApi(fileList.value[0].file);
         innerParams.value.binaryBody.file = {
           ...fileList.value[0],
@@ -162,6 +168,7 @@
           fileName: fileList.value[0]?.name || '',
           local: true,
         };
+        appStore.hideLoading();
       } else {
         innerParams.value.binaryBody.file = {
           ...fileList.value[0],

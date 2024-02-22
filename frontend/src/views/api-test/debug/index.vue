@@ -5,11 +5,13 @@
       <template #first>
         <moduleTree
           ref="moduleTreeRef"
+          :active-node-id="activeDebug.id"
           @init="(val) => (folderTree = val)"
           @new-api="addDebugTab"
           @click-api-node="openApiTab"
           @import="importDrawerVisible = true"
           @rename-finish="handleRenameFinish"
+          @delete-finish="handleDeleteFinish"
         />
       </template>
       <template #second>
@@ -77,6 +79,7 @@
 </template>
 
 <script lang="ts" setup>
+  import { onBeforeRouteLeave } from 'vue-router';
   import { cloneDeep } from 'lodash-es';
 
   import MsCard from '@/components/pure/ms-card/index.vue';
@@ -91,6 +94,7 @@
 
   import { addDebug, executeDebug, getDebugDetail, updateDebug, uploadTempFile } from '@/api/modules/api-test/debug';
   import { useI18n } from '@/hooks/useI18n';
+  import useModal from '@/hooks/useModal';
   import { parseCurlScript } from '@/utils';
 
   import { ExecuteBody } from '@/models/apiTest/debug';
@@ -105,7 +109,10 @@
     ResponseComposition,
   } from '@/enums/apiEnum';
 
+  import { parseRequestBodyFiles } from '../components/utils';
+
   const { t } = useI18n();
+  const { openModal } = useModal();
 
   const moduleTreeRef = ref<InstanceType<typeof moduleTree>>();
   const folderTree = ref<ModuleTreeNode[]>([]);
@@ -181,8 +188,14 @@
     linkFileIds: [],
     authConfig: {
       authType: RequestAuthType.NONE,
-      userName: '',
-      password: '',
+      basicAuth: {
+        userName: '',
+        password: '',
+      },
+      digestAuth: {
+        userName: '',
+        password: '',
+      },
     },
     children: [
       {
@@ -243,6 +256,10 @@
     try {
       loading.value = true;
       const res = await getDebugDetail(apiInfo.id);
+      let parseRequestBodyResult;
+      if (res.protocol === 'HTTP') {
+        parseRequestBodyResult = parseRequestBodyFiles(res.request.body);
+      }
       addDebugTab({
         label: apiInfo.name,
         ...res,
@@ -250,6 +267,7 @@
         ...res.request,
         url: res.path,
         name: res.name, // request里面还有个name但是是null
+        ...parseRequestBodyResult,
       });
       nextTick(() => {
         // 等待内容渲染出来再隐藏loading
@@ -299,6 +317,53 @@
       return tab;
     });
   }
+
+  function handleDeleteFinish(node: ModuleTreeNode) {
+    let index;
+    if (node.type === 'API') {
+      // 如果是接口
+      index = debugTabs.value.findIndex((tab) => tab.id === node.id);
+    } else {
+      // 如果是文件夹
+      index = debugTabs.value.findIndex((tab) => tab.moduleId === node.id);
+    }
+    if (index > -1) {
+      debugTabs.value.splice(index, 1);
+      if (activeDebug.value.id === node.id) {
+        // 如果查看的tab被删除了，则切换到第一个tab
+        if (debugTabs.value.length > 0) {
+          [activeDebug.value] = debugTabs.value;
+        } else {
+          addDebugTab();
+        }
+      }
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  let isLeaving = false;
+  onBeforeRouteLeave((to, from, next) => {
+    if (!isLeaving && debugTabs.value.some((tab) => tab.unSaved)) {
+      isLeaving = true;
+      // 如果有未保存的调试则提示用户
+      openModal({
+        type: 'warning',
+        title: t('common.tip'),
+        content: t('apiTestDebug.unsavedLeave'),
+        hideCancel: false,
+        cancelText: t('common.stay'),
+        okText: t('common.leave'),
+        onBeforeOk: async () => {
+          next();
+        },
+        onCancel: () => {
+          isLeaving = false;
+        },
+      });
+    } else {
+      next();
+    }
+  });
 </script>
 
 <style lang="less" scoped></style>

@@ -133,7 +133,9 @@
           id: 'fileId',
           name: 'fileName',
         }"
-        input-class="param-input"
+        input-class="param-input h-[24px]"
+        input-size="small"
+        tag-size="small"
         @change="(files) => handleFileChange(files, record)"
       />
       <MsParamsInput

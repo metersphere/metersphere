@@ -117,4 +117,5 @@ export default {
   'common.validateSuccess': 'Validate success',
   'common.to': 'To',
   'common.tip': 'Tips',
+  'common.stay': 'Stay',
 };

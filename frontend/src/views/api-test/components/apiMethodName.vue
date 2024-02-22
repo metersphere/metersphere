@@ -1,7 +1,12 @@
 <template>
   <MsTag
     v-if="props.isTag"
-    :self-style="{ border: `1px solid ${methodColor}`, color: methodColor, backgroundColor: 'white' }"
+    :self-style="{
+      border: `1px solid ${props.tagBackgroundColor || methodColor}`,
+      color: props.tagTextColor || methodColor,
+      backgroundColor: props.tagBackgroundColor || 'white',
+    }"
+    :size="props.tagSize"
   >
     {{ props.method }}
   </MsTag>
@@ -9,14 +14,23 @@
 </template>
 
 <script setup lang="ts">
-  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
+  import MsTag, { Size } from '@/components/pure/ms-tag/ms-tag.vue';
 
   import { RequestMethods } from '@/enums/apiEnum';
 
-  const props = defineProps<{
-    method: RequestMethods;
-    isTag?: boolean; // 是否展示为标签
-  }>();
+  const props = withDefaults(
+    defineProps<{
+      method: RequestMethods;
+      isTag?: boolean;
+      tagSize?: Size;
+      tagBackgroundColor?: string;
+      tagTextColor?: string;
+    }>(),
+    {
+      isTag: false,
+      tagSize: 'medium',
+    }
+  );
 
   const colorMaps = [
     {

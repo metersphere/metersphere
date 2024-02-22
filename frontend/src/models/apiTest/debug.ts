@@ -64,6 +64,8 @@ export type ExecuteRequestFormBodyFormValue = ExecuteRequestCommonParam & {
     fileId: string;
     fileName: string;
     local: boolean; // 是否是本地上传的文件
+    fileAlias: string; // 文件别名
+    delete: boolean; // 是否删除
     [key: string]: any; // 用于前端渲染时填充的自定义信息，后台无此字段
   }[];
   contentType?: RequestContentTypeEnum & string;
@@ -258,8 +260,14 @@ export interface ExecuteCommonChild {
 // 执行请求-认证配置
 export interface ExecuteAuthConfig {
   authType: RequestAuthType;
-  password: string;
-  userName: string;
+  basicAuth: {
+    password: string;
+    userName: string;
+  };
+  digestAuth: {
+    password: string;
+    userName: string;
+  };
 }
 // 执行请求- body 配置-文本格式的 body
 export interface ExecuteValueBody {
@@ -321,7 +329,7 @@ export interface SaveDebugParams {
 export interface UpdateDebugParams extends Partial<SaveDebugParams> {
   id: string;
   deleteFileIds?: string[];
-  unLinkRefIds?: string[];
+  unLinkFileIds?: string[];
 }
 // 更新模块入参
 export interface UpdateDebugModule {

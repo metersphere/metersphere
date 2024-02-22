@@ -1,8 +1,17 @@
 <template>
-  <div class="flex h-full flex-col">
+  <a-empty
+    v-if="pluginError && !isHttpProtocol"
+    :description="t('apiTestDebug.noPlugin')"
+    class="h-[200px] items-center justify-center"
+  >
+    <template #image>
+      <MsIcon type="icon-icon_plugin_outlined" size="48" />
+    </template>
+  </a-empty>
+  <div v-show="!pluginError || isHttpProtocol" class="flex h-full flex-col">
     <div class="px-[24px] pt-[16px]">
       <div class="mb-[8px] flex items-center justify-between">
-        <div class="flex flex-1">
+        <div class="flex flex-1 items-center gap-[16px]">
           <a-select
             v-if="requestVModel.isNew"
             v-model:model-value="requestVModel.protocol"
@@ -11,11 +20,18 @@
             class="mr-[4px] w-[90px]"
             @change="(val) => handleActiveDebugProtocolChange(val as string)"
           />
-          <apiMethodName
-            v-else
-            :method="(requestVModel.protocol as RequestMethods)"
-            class="mr-[16px] flex h-[30px] items-center"
-          />
+          <div v-else class="flex items-center gap-[4px]">
+            <apiMethodName
+              :method="(requestVModel.protocol as RequestMethods)"
+              tag-background-color="rgb(var(--link-7))"
+              tag-text-color="white"
+              is-tag
+              class="flex items-center"
+            />
+            <div v-if="!isHttpProtocol">
+              {{ requestVModel.label }}
+            </div>
+          </div>
           <a-input-group v-if="isHttpProtocol" class="flex-1">
             <apiMethodSelect
               v-model:model-value="requestVModel.method"
@@ -223,6 +239,7 @@
 
   import { TabItem } from '@/components/pure/ms-editable-tab/types';
   import MsFormCreate from '@/components/pure/ms-form-create/formCreate.vue';
+  import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import MsSplitBox from '@/components/pure/ms-split-box/index.vue';
   import debugAuth from './auth.vue';
   import postcondition from './postcondition.vue';
@@ -246,6 +263,7 @@
   import { ModuleTreeNode } from '@/models/common';
   import { RequestComposition, RequestMethods, RequestParamsType } from '@/enums/apiEnum';
 
+  import { parseRequestBodyFiles } from '../utils';
   import { Api } from '@form-create/arco-design';
 
   // 懒加载Http协议组件
@@ -440,7 +458,16 @@
     }
   }
 
+  const pluginError = ref(false);
+
   async function initPluginScript() {
+    const pluginId = protocolOptions.value.find((e) => e.value === requestVModel.value.protocol)?.pluginId;
+    if (!pluginId) {
+      Message.warning(t('apiTestDebug.noPluginTip'));
+      pluginError.value = true;
+      return;
+    }
+    pluginError.value = false;
     if (pluginScriptMap.value[requestVModel.value.protocol] !== undefined) {
       setPluginFormData();
       // 已经初始化过
@@ -448,9 +475,7 @@
     }
     try {
       pluginLoading.value = true;
-      const res = await getPluginScript(
-        protocolOptions.value.find((e) => e.value === requestVModel.value.protocol)?.pluginId || ''
-      );
+      const res = await getPluginScript(pluginId);
       pluginScriptMap.value[requestVModel.value.protocol] = res;
       setPluginFormData();
     } catch (error) {
@@ -578,6 +603,7 @@
           temporaryResponseMap[data.reportId] = data.taskResult;
         }
       }
+      websocket.value?.close();
     });
   }
 
@@ -606,39 +632,20 @@
   );
 
   function makeRequestParams() {
-    const { formDataBody, wwwFormBody, binaryBody } = requestVModel.value.body;
+    const { formDataBody, wwwFormBody } = requestVModel.value.body;
     const polymorphicName = protocolOptions.value.find(
       (e) => e.value === requestVModel.value.protocol
     )?.polymorphicName; // 协议多态名称
-    const realFormDataBodyValues = formDataBody.formValues.filter((e, i) => i !== formDataBody.formValues.length - 1); // 去掉最后一行空行
-    const realWwwFormBodyValues = wwwFormBody.formValues.filter((e, i) => i !== wwwFormBody.formValues.length - 1); // 去掉最后一行空行
-    const uploadFileIds: string[] = [];
-    const linkFileIds: string[] = [];
-    // 获取上传文件和关联文件
-    for (let i = 0; i < formDataBody.formValues.length; i++) {
-      const item = formDataBody.formValues[i];
-      if (item.paramType === RequestParamsType.FILE) {
-        if (item.files) {
-          for (let j = 0; j < item.files.length; j++) {
-            const file = item.files[j];
-            if (file.isLocal) {
-              uploadFileIds.push(file.fileId);
-            } else {
-              linkFileIds.push(file.fileId);
-            }
-          }
-        }
-      }
-    }
-    if (binaryBody) {
-      if (binaryBody.file?.isLocal) {
-        uploadFileIds.push(binaryBody.file.fileId);
-      } else if (binaryBody.file?.fileId) {
-        linkFileIds.push(binaryBody.file.fileId);
-      }
-    }
+    let parseRequestBodyResult;
     let requestParams;
     if (isHttpProtocol.value) {
+      const realFormDataBodyValues = formDataBody.formValues.filter((e, i) => i !== formDataBody.formValues.length - 1); // 去掉最后一行空行
+      const realWwwFormBodyValues = wwwFormBody.formValues.filter((e, i) => i !== wwwFormBody.formValues.length - 1); // 去掉最后一行空行
+      parseRequestBodyResult = parseRequestBodyFiles(
+        requestVModel.value.body,
+        requestVModel.value.uploadFileIds,
+        requestVModel.value.linkFileIds
+      );
       requestParams = {
         authConfig: requestVModel.value.authConfig,
         body: {
@@ -672,10 +679,11 @@
       id: requestVModel.value.id.toString(),
       reportId: reportId.value,
       environmentId: '',
-      name: saveModalForm.value.name || requestVModel.value.name,
+      name: requestVModel.value.isNew ? saveModalForm.value.name : requestVModel.value.name,
+      moduleId: requestVModel.value.isNew ? saveModalForm.value.moduleId : requestVModel.value.moduleId,
       request: {
         ...requestParams,
-        name: saveModalForm.value.name || requestVModel.value.name,
+        name: requestVModel.value.isNew ? saveModalForm.value.name : requestVModel.value.name,
         children: [
           {
             polymorphicName: 'MsCommonElement', // 协议多态名称，写死MsCommonElement
@@ -689,8 +697,7 @@
           },
         ],
       },
-      uploadFileIds,
-      linkFileIds,
+      ...parseRequestBodyResult,
       projectId: appStore.currentProjectId,
     };
   }
@@ -709,8 +716,6 @@
         // eslint-disable-next-line no-console
         console.log(error);
         requestVModel.value.executeLoading = false;
-      } finally {
-        websocket.value?.close();
       }
     } else {
       // 插件需要校验动态表单
@@ -723,8 +728,6 @@
             // eslint-disable-next-line no-console
             console.log(error);
             requestVModel.value.executeLoading = false;
-          } finally {
-            websocket.value?.close();
           }
         } else {
           requestVModel.value.activeTab = RequestComposition.PLUGIN;
@@ -741,7 +744,6 @@
       saveLoading.value = true;
       await props.updateApi({
         ...makeRequestParams(),
-        ...saveModalForm.value,
         protocol: requestVModel.value.protocol,
         method: isHttpProtocol.value ? requestVModel.value.method : requestVModel.value.protocol,
         deleteFileIds: [], // TODO:删除文件集合
@@ -749,8 +751,7 @@
       });
       Message.success(t('common.updateSuccess'));
       requestVModel.value.unSaved = false;
-      requestVModel.value.name = saveModalForm.value.name;
-      requestVModel.value.label = saveModalForm.value.name;
+      emit('addDone');
     } catch (error) {
       // eslint-disable-next-line no-console
       console.log(error);
@@ -778,13 +779,13 @@
             requestVModel.value.unSaved = false;
             requestVModel.value.name = saveModalForm.value.name;
             requestVModel.value.label = saveModalForm.value.name;
+            saveLoading.value = false;
+            saveModalVisible.value = false;
+            done(true);
+            emit('addDone');
           } else {
             updateDebug();
           }
-          saveLoading.value = false;
-          saveModalVisible.value = false;
-          done(true);
-          emit('addDone');
         } catch (error) {
           saveLoading.value = false;
         }

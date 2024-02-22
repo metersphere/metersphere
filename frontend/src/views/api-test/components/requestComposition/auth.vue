@@ -1,15 +1,15 @@
 <template>
   <div class="h-full rounded-[var(--border-radius-small)] border border-[var(--color-text-n8)] p-[16px]">
     <div class="mb-[8px]">{{ t('apiTestDebug.authType') }}</div>
-    <a-radio-group v-model:model-value="authForm.authType" class="mb-[16px]" @change="authTypeChange">
+    <a-radio-group v-model:model-value="authForm.authType" class="mb-[16px]">
       <a-radio :value="RequestAuthType.NONE">No Auth</a-radio>
       <a-radio :value="RequestAuthType.BASIC">Basic Auth</a-radio>
       <a-radio :value="RequestAuthType.DIGEST">Digest Auth</a-radio>
     </a-radio-group>
-    <a-form v-if="authForm.authType !== 'NONE'" ref="authFormRef" :model="authForm" layout="vertical">
+    <a-form v-if="authForm.authType === 'BASIC'" ref="authFormRef" :model="authForm" layout="vertical">
       <a-form-item :label="t('apiTestDebug.username')">
         <a-input
-          v-model:model-value="authForm.userName"
+          v-model:model-value="authForm.basicAuth.userName"
           :placeholder="t('apiTestDebug.commonPlaceholder')"
           class="w-[450px]"
           :max-length="255"
@@ -17,7 +17,25 @@
       </a-form-item>
       <a-form-item :label="t('apiTestDebug.password')">
         <a-input-password
-          v-model:model-value="authForm.password"
+          v-model:model-value="authForm.basicAuth.password"
+          autocomplete="new-password"
+          :placeholder="t('apiTestDebug.commonPlaceholder')"
+          class="w-[450px]"
+        />
+      </a-form-item>
+    </a-form>
+    <a-form v-else-if="authForm.authType == 'DIGEST'" ref="authFormRef" :model="authForm" layout="vertical">
+      <a-form-item :label="t('apiTestDebug.username')">
+        <a-input
+          v-model:model-value="authForm.digestAuth.userName"
+          :placeholder="t('apiTestDebug.commonPlaceholder')"
+          class="w-[450px]"
+          :max-length="255"
+        />
+      </a-form-item>
+      <a-form-item :label="t('apiTestDebug.password')">
+        <a-input-password
+          v-model:model-value="authForm.digestAuth.password"
           autocomplete="new-password"
           :placeholder="t('apiTestDebug.commonPlaceholder')"
           class="w-[450px]"
@@ -55,13 +73,6 @@
     },
     { deep: true }
   );
-
-  function authTypeChange(val: string | number | boolean) {
-    if (val === 'none') {
-      authForm.value.userName = '';
-      authForm.value.password = '';
-    }
-  }
 </script>
 
 <style lang="less" scoped></style>
