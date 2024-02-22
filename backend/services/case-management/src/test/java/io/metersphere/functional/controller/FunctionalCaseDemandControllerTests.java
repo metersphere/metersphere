@@ -107,6 +107,20 @@ public class FunctionalCaseDemandControllerTests extends BaseTest {
         functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID");
         functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
         Assertions.assertFalse(functionalCaseDemands.isEmpty());
+
+        functionalCaseDemandRequest = new FunctionalCaseDemandRequest();
+        functionalCaseDemandRequest.setCaseId("DEMAND_TEST_FUNCTIONAL_CASE_ID");
+        functionalCaseDemandRequest.setDemandPlatform("Metersphere");
+        demandList = new ArrayList<>();
+        demandDTO = new DemandDTO();
+        demandDTO.setDemandName("手动加入孩子超长名字看看能不能截到255的速度和温度都会为fdhfjhdsfjhdsfjdshfjdsfhdsfhufkfjdfkgdgbdfjgdfgjbdfjbdfgjbdfgjkbdfjkgbdfjkgbdfjkbgdfjkbgdfjbgdfjgbdfjgbdfjbgdfjgbdfjgbdfjkgbdfjkgbdfkjgb返回武汉无法回我fhdfjdsfhsdhfdsfhdsjfhsdjfhdsfjdshfjdshfjdshfjdshfdjsfhdsjfhdjfhdsjfhdjksfhsdjfdsjfhdjfhdsjfh");
+        demandList.add(demandDTO);
+        functionalCaseDemandRequest.setDemandList(demandList);
+        this.requestPostWithOkAndReturn(URL_DEMAND_ADD, functionalCaseDemandRequest);
+        functionalCaseDemandExample = new FunctionalCaseDemandExample();
+        functionalCaseDemandExample.createCriteria().andCaseIdEqualTo("DEMAND_TEST_FUNCTIONAL_CASE_ID").andDemandNameLike("%手动加入孩子超长名字%");
+        functionalCaseDemands = functionalCaseDemandMapper.selectByExample(functionalCaseDemandExample);
+        Assertions.assertFalse(functionalCaseDemands.isEmpty());
     }
 
     @Test
