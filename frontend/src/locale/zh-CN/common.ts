@@ -120,4 +120,5 @@ export default {
   'common.validateSuccess': '验证成功',
   'common.to': '至',
   'common.tip': '温馨提示',
+  'common.stay': '留下',
 };

@@ -173,4 +173,7 @@ export default {
   'apiTestDebug.closeOther': '关闭其他请求',
   'apiTestDebug.importByCURL': '导入 cURL',
   'apiTestDebug.importByCURLTip': '支持快速导入 Chrome、Charles 或 Fiddler 等工具中的抓包数据',
+  'apiTestDebug.noPluginTip': '该插件已卸载，无法查看插件详情',
+  'apiTestDebug.noPlugin': '插件已卸载',
+  'apiTestDebug.unsavedLeave': '有标签页的内容未保存，离开后后未保存的内容将丢失，确定要离开吗？',
 };

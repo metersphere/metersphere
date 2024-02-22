@@ -96,7 +96,7 @@
       blockNode?: boolean; // 是否块级节点
       showLine?: boolean; // 是否展示连接线
       defaultExpandAll?: boolean; // 是否默认展开所有节点
-      selectable?: boolean; // 是否可选中
+      selectable?: boolean | ((node: MsTreeNodeData, info: { level: number; isLeaf: boolean }) => boolean); // 是否可选中
       fieldNames?: MsTreeFieldNames; // 自定义字段名
       focusNodeKey?: string | number; // 聚焦的节点 key
       selectedKeys?: Array<string | number>; // 选中的节点 key

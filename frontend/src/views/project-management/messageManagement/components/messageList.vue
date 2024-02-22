@@ -48,7 +48,7 @@
       </template>
       <template #receiver="{ record, dataIndex }">
         <MsSelect
-          v-if="!record.children"
+          v-if="!record.children && hasAnyPermission(['PROJECT_MESSAGE:READ+ADD'])"
           v-model:model-value="record.receivers"
           v-model:loading="record.loading"
           class="w-full"
@@ -73,6 +73,12 @@
           :object-value="true"
           @remove="changeMessageReceivers(false, record, dataIndex as string)"
           @popup-visible-change="changeMessageReceivers($event, record, dataIndex as string)"
+        />
+        <MsTagGroup
+          v-else-if="!record.children && hasAnyPermission(['PROJECT_MESSAGE:READ'])"
+          is-string-tag
+          :tag-list="record.receivers?.map((e) => e.name) || []"
+          theme="outline"
         />
         <span v-else></span>
       </template>
@@ -122,6 +128,7 @@
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
   import useTable from '@/components/pure/ms-table/useTable';
+  import MsTagGroup from '@/components/pure/ms-tag/ms-tag-group.vue';
   import MsSelect from '@/components/business/ms-select';
   import MessagePreview from './messagePreview.vue';
 
@@ -133,6 +140,7 @@
   } from '@/api/modules/project-management/messageManagement';
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
+  import { hasAnyPermission } from '@/utils/permission';
 
   import type { MessageItem, ProjectRobotConfig, Receiver, RobotItem } from '@/models/projectManagement/message';
   import { ProjectManagementRouteEnum } from '@/enums/routeEnum';

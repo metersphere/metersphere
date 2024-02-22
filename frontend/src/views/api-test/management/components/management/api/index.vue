@@ -192,8 +192,14 @@
     linkFileIds: [],
     authConfig: {
       authType: RequestAuthType.NONE,
-      userName: '',
-      password: '',
+      basicAuth: {
+        userName: '',
+        password: '',
+      },
+      digestAuth: {
+        userName: '',
+        password: '',
+      },
     },
     children: [
       {

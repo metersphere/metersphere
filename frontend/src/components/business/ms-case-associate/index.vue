@@ -619,7 +619,6 @@
     () => {
       if (innerVisible.value) {
         searchCase();
-        resetSelector();
         initModules();
       }
     }

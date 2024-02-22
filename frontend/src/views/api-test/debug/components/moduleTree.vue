@@ -36,6 +36,7 @@
     <a-divider class="my-[8px]" />
     <a-spin class="h-[calc(100%-98px)] w-full" :loading="loading">
       <MsTree
+        v-model:selected-keys="selectedKeys"
         v-model:focus-node-key="focusNodeKey"
         :data="folderTree"
         :keyword="moduleKeyword"
@@ -56,7 +57,7 @@
           count: 'count',
         }"
         :draggable="true"
-        :selectable="false"
+        :selectable="nodeSelectable"
         block-node
         title-tooltip-position="left"
         :allow-drop="allowDrop"
@@ -141,8 +142,9 @@
 
   const props = defineProps<{
     isExpandAll?: boolean; // 是否展开所有节点
+    activeNodeId?: string | number; // 当前选中节点 id
   }>();
-  const emit = defineEmits(['init', 'clickApiNode', 'newApi', 'import', 'renameFinish']);
+  const emit = defineEmits(['init', 'clickApiNode', 'newApi', 'import', 'renameFinish', 'deleteFinish']);
 
   const appStore = useAppStore();
   const { t } = useI18n();
@@ -178,8 +180,23 @@
 
   const moduleKeyword = ref('');
   const folderTree = ref<ModuleTreeNode[]>([]);
+  const selectedKeys = ref<(string | number)[]>([]);
   const focusNodeKey = ref<string | number>('');
   const loading = ref(false);
+
+  watch(
+    () => props.activeNodeId,
+    (val) => {
+      if (val) {
+        selectedKeys.value = [val];
+      }
+    }
+  );
+
+  function nodeSelectable(node: MsTreeNodeData) {
+    // 只有 api 节点可选中
+    return node.type === 'API';
+  }
 
   function setFocusNodeKey(node: MsTreeNodeData) {
     focusNodeKey.value = node.id || '';
@@ -261,7 +278,9 @@
         try {
           await deleteDebugModule(node.id);
           Message.success(t('apiTestDebug.deleteSuccess'));
-          initModules();
+          emit('deleteFinish', node);
+          await initModules();
+          initModuleCount();
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);
@@ -297,7 +316,9 @@
         try {
           await deleteDebug(node.id);
           Message.success(t('apiTestDebug.deleteSuccess'));
-          initModules();
+          emit('deleteFinish', node);
+          await initModules();
+          initModuleCount();
         } catch (error) {
           // eslint-disable-next-line no-console
           console.log(error);

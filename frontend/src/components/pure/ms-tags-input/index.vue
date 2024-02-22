@@ -11,6 +11,7 @@
       :max-tag-count="props.maxTagCount"
       :readonly="props.readonly"
       :class="props.class"
+      :size="props.size"
       @press-enter="tagInputEnter"
       @blur="tagInputBlur"
       @clear="emit('clear')"
@@ -50,6 +51,7 @@
       maxLength?: number;
       readonly?: boolean;
       class?: string;
+      size?: 'small' | 'large' | 'medium' | 'mini';
     }>(),
     {
       retainInputValue: true,
@@ -57,6 +59,7 @@
       allowClear: true,
       maxLength: 64,
       class: '',
+      size: 'medium',
     }
   );
   const emit = defineEmits(['update:modelValue', 'update:inputValue', 'change', 'clear']);

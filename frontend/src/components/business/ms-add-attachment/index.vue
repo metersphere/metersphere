@@ -42,10 +42,15 @@
         :class="props.inputClass"
         placeholder=" "
         :max-tag-count="1"
+        :size="props.inputSize"
         readonly
       >
         <template #tag="{ data }">
-          <MsTag :closable="!data.label.includes('+')" class="m-0 p-0" @close="() => handleClose(data)">
+          <MsTag
+            :size="props.tagSize"
+            class="m-0 border-none p-0"
+            :self-style="{ backgroundColor: 'transparent !important' }"
+          >
             {{ data.label }}
           </MsTag>
         </template>
@@ -56,6 +61,7 @@
       <a-input
         v-model:model-value="inputFileName"
         :class="props.inputClass"
+        :size="props.inputSize"
         allow-clear
         readonly
         @clear="handleFileClear"
@@ -78,7 +84,7 @@
   import { useVModel } from '@vueuse/core';
   import { TagData } from '@arco-design/web-vue';
 
-  import MsTag from '@/components/pure/ms-tag/ms-tag.vue';
+  import MsTag, { Size } from '@/components/pure/ms-tag/ms-tag.vue';
   import MsTagsInput from '@/components/pure/ms-tags-input/index.vue';
   import type { MsFileItem } from '@/components/pure/ms-upload/types';
   import LinkFileDrawer from '@/components/business/ms-link-file/associatedFileDrawer.vue';
@@ -99,7 +105,9 @@
       fileList: MsFileItem[];
       multiple?: boolean;
       inputClass?: string;
-      fields: {
+      inputSize?: 'small' | 'medium' | 'large' | 'mini';
+      tagSize?: Size;
+      fields?: {
         id: string;
         name: string;
       };
@@ -225,4 +233,13 @@
   }
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+  :deep(.arco-input-tag-inner) {
+    @apply flex items-center;
+    .arco-input-tag-tag {
+      @apply !my-0 !bg-transparent;
+
+      max-width: calc(100% - 50px);
+    }
+  }
+</style>
