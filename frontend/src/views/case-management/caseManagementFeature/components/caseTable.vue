@@ -42,11 +42,66 @@
     <template #name="{ record, rowIndex }">
       <span type="text" class="px-0" @click="showCaseDetail(record.id, rowIndex)">{{ record.name }}</span>
     </template>
-    <template #updateUser="{ record }">
-      <span type="text" class="px-0" >{{ record.updateUserName }}</span>
+    <template #updateUserName="{ record }">
+      <span type="text" class="px-0">{{ record.updateUserName || '-' }}</span>
     </template>
     <template #caseLevel="{ record }">
       <caseLevel :case-level="getCaseLevels(record.customFields)" />
+    </template>
+    <template #caseLevelFilter="{ columnConfig }">
+      <TableFilter
+        v-model:visible="caseFilterVisible"
+        v-model:status-filters="caseFilters"
+        :title="(columnConfig.title as string)"
+        :list="caseLevelList"
+        value-key="value"
+        @search="initData()"
+      >
+        <template #item="{ item }">
+          <div class="flex"> <caseLevel :case-level="item.text" /></div>
+        </template>
+      </TableFilter>
+    </template>
+    <template #executeResultFilter="{ columnConfig }">
+      <TableFilter
+        v-model:visible="executeResultFilterVisible"
+        v-model:status-filters="executeResultFilters"
+        :title="(columnConfig.title as string)"
+        :list="executeResultFilterList"
+        value-key="key"
+        @search="initData()"
+      >
+        <template #item="{ item }">
+          <MsIcon :type="item.icon || ''" class="mr-1" :class="[item.color]"></MsIcon>
+          <span>{{ item.statusText || '' }}</span>
+        </template>
+      </TableFilter>
+    </template>
+    <template #updateUserFilter="{ columnConfig }">
+      <TableFilter
+        v-model:visible="updateUserFilterVisible"
+        v-model:status-filters="updateUserFilters"
+        :title="(columnConfig.title as string)"
+        :list="memberOptions"
+        @search="initData()"
+      >
+        <template #item="{ item }">
+          {{ item.label }}
+        </template>
+      </TableFilter>
+    </template>
+    <template #createUserFilter="{ columnConfig }">
+      <TableFilter
+        v-model:visible="createUserFilterVisible"
+        v-model:status-filters="updateUserFilters"
+        :title="(columnConfig.title as string)"
+        :list="memberOptions"
+        @search="initData()"
+      >
+        <template #item="{ item }">
+          {{ item.label }}
+        </template>
+      </TableFilter>
     </template>
     <template #reviewStatus="{ record }">
       <MsIcon
@@ -266,6 +321,7 @@
   import ExportExcelDrawer from './exportExcelDrawer.vue';
   import AddDemandModal from './tabContent/tabDemand/addDemandModal.vue';
   import ThirdDemandDrawer from './tabContent/tabDemand/thirdDemandDrawer.vue';
+  import TableFilter from './tableFilter.vue';
   import TableFormChange from './tableFormChange.vue';
 
   import {
@@ -435,6 +491,7 @@
     {
       title: 'caseManagement.featureCase.tableColumnLevel',
       slotName: 'caseLevel',
+      titleSlotName: 'caseLevelFilter',
       showInTable: true,
       width: 200,
       showDrag: true,
@@ -452,6 +509,7 @@
       title: 'caseManagement.featureCase.tableColumnExecutionResult',
       dataIndex: 'lastExecuteResult',
       slotName: 'lastExecuteResult',
+      titleSlotName: 'executeResultFilter',
       showInTable: true,
       width: 200,
       showDrag: true,
@@ -483,8 +541,9 @@
     },
     {
       title: 'caseManagement.featureCase.tableColumnUpdateUser',
-      slotName: 'updateUser',
-      dataIndex: 'updateUser',
+      slotName: 'updateUserName',
+      dataIndex: 'updateUserName',
+      titleSlotName: 'updateUserFilter',
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
@@ -509,6 +568,7 @@
       title: 'caseManagement.featureCase.tableColumnCreateUser',
       slotName: 'createUserName',
       dataIndex: 'createUserName',
+      titleSlotName: 'createUserFilter',
       showInTable: true,
       width: 200,
       showDrag: true,
@@ -596,10 +656,11 @@
   const filterConfigList = ref<FilterFormItem[]>([]);
   const searchCustomFields = ref<FilterFormItem[]>([]);
   const scrollWidth = ref<number>(3400);
+  const memberOptions = ref<{ label: string; value: string }[]>([]);
   async function initFilter() {
     const result = await getCustomFieldsTable(currentProjectId.value);
-    let memberOptions = await getProjectMemberOptions(appStore.currentProjectId, keyword.value);
-    memberOptions = memberOptions.map((e) => ({ label: e.name, value: e.id }));
+    memberOptions.value = await getProjectMemberOptions(appStore.currentProjectId, keyword.value);
+    memberOptions.value = memberOptions.value.map((e: any) => ({ label: e.name, value: e.id }));
     filterConfigList.value = [
       {
         title: 'caseManagement.featureCase.tableColumnID',
@@ -635,7 +696,7 @@
         type: FilterType.SELECT,
         selectProps: {
           mode: 'static',
-          options: memberOptions,
+          options: memberOptions.value,
         },
       },
       {
@@ -649,7 +710,7 @@
         type: FilterType.SELECT,
         selectProps: {
           mode: 'static',
-          options: memberOptions,
+          options: memberOptions.value,
         },
       },
       {
@@ -777,6 +838,29 @@
     moduleIds: [],
   });
   const statusFilters = ref<string[]>(Object.keys(statusIconMap));
+  const caseLevelFields = ref<Record<string, any>>({});
+  // 用例等级表头检索
+  const caseFilterVisible = ref(false);
+
+  const caseLevelList = computed(() => {
+    return caseLevelFields.value?.options || [];
+  });
+
+  const executeResultFilters = ref(Object.keys(executionResultMap));
+  const updateUserFilters = ref(memberOptions.value.map((item) => item.value));
+
+  function getExecuteResultList() {
+    const list: any = [];
+    Object.keys(executionResultMap).forEach((key) => {
+      list.push({
+        ...executionResultMap[key],
+      });
+    });
+    return list;
+  }
+  const executeResultFilterList = ref(getExecuteResultList());
+  const caseFilters = ref<string[]>([]);
+
   function getLoadListParams() {
     if (props.activeFolder === 'all') {
       searchParams.value.moduleIds = [];
@@ -786,9 +870,19 @@
     setLoadListParams({
       ...searchParams.value,
       keyword: keyword.value,
-      filter: { reviewStatus: statusFilters.value },
+      filter: {
+        reviewStatus: statusFilters.value,
+        [caseLevelFields.value.fieldId]: caseFilters.value,
+        lastExecuteResult: executeResultFilters.value,
+        updateUserName: updateUserFilters.value,
+      },
     });
   }
+
+  // 执行结果表头检索
+  const executeResultFilterVisible = ref(false);
+  const updateUserFilterVisible = ref(false);
+  const createUserFilterVisible = ref(false);
 
   // 初始化列表
   async function initData() {
@@ -1084,6 +1178,8 @@
         };
       });
 
+    caseLevelFields.value = result.customFields.find((item: any) => item.internal);
+    caseFilters.value = caseLevelFields.value.options.map((item: any) => item.value);
     fullColumns = [
       ...columns.slice(0, columns.length - 1),
       ...customFieldsColumns,
@@ -1316,11 +1412,11 @@
     }
   }
 
-  onMounted(() => {
+  onMounted(async () => {
     if (route.query.id) {
       showCaseDetail(route.query.id as string, 0);
     }
-    getDefaultFields();
+    await getDefaultFields();
     initFilter();
     initData();
   });

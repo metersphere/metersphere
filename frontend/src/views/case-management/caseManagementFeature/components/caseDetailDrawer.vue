@@ -536,8 +536,8 @@
     () => props.visible,
     (val) => {
       if (val) {
-        activeTab.value = 'detail';
         showDrawerVisible.value = val;
+        activeTab.value = 'detail';
       }
     }
   );
@@ -601,11 +601,8 @@
   );
 
   onMounted(() => {
-    if (activeTab.value) {
-      settingDrawerRef.value.getTabModule();
-    }
+    settingDrawerRef.value.getTabModule();
   });
-  provide('activeTab', activeTab.value);
 </script>
 
 <style scoped lang="less">

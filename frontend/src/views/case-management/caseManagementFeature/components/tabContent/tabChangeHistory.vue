@@ -229,11 +229,9 @@
     featureCaseStore.setListCount(featureCaseStore.activeTab, msPagination?.total || 0);
   }
 
-  onBeforeMount(() => {
+  onMounted(() => {
     doCheckIsTip();
-    if (props.caseId) {
-      initData();
-    }
+    initData();
   });
 </script>
 

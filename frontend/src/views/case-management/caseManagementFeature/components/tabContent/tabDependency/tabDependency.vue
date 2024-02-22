@@ -201,9 +201,7 @@
   );
 
   onMounted(() => {
-    if (props.caseId) {
-      initData();
-    }
+    initData();
   });
 </script>
 

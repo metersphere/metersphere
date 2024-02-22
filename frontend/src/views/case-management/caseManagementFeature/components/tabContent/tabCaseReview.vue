@@ -114,10 +114,8 @@
     initData();
   }, 100);
 
-  onBeforeMount(() => {
-    if (props.caseId) {
-      initData();
-    }
+  onMounted(() => {
+    initData();
   });
 </script>
 

@@ -151,7 +151,7 @@
     }
   );
 
-  onBeforeMount(() => {
+  onMounted(() => {
     getAllCommentList();
   });
 

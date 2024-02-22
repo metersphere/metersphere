@@ -50,6 +50,9 @@
       <template #triggerMode="{ record }">
         <span>{{ t(ExecutionMethodsLabel[record.triggerMode]) }}</span>
       </template>
+      <template #operationTime="{ record }">
+        <span>{{ dayjs(record.operationTime).format('YYYY-MM-DD HH:mm:ss') }}</span>
+      </template>
       <template #operation="{ record }">
         <MsButton
           v-if="['PENDING', 'RUNNING', 'RERUNNING'].includes(record.status)"
@@ -59,6 +62,7 @@
         >
         <a-divider v-if="['PENDING', 'RUNNING', 'RERUNNING'].includes(record.status)" direction="vertical" />
         <MsButton class="!mr-0" @click="execution(record)">{{ t('project.taskCenter.execution') }}</MsButton>
+        <a-divider direction="vertical" />
         <MsButton class="!mr-0">{{ t('project.taskCenter.viewReport') }}</MsButton>
       </template>
     </ms-base-table>
@@ -68,6 +72,7 @@
 <script setup lang="ts">
   import { ref } from 'vue';
   import { Message } from '@arco-design/web-vue';
+  import dayjs from 'dayjs';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -193,7 +198,7 @@
       title: 'common.operation',
       slotName: 'operation',
       dataIndex: 'operation',
-      width: 200,
+      width: 220,
       fixed: 'right',
     },
   ];
@@ -207,7 +212,7 @@
       },
       showSetting: false,
       selectable: true,
-      heightUsed: 300,
+      heightUsed: 330,
       showSelectAll: true,
     }
   );
