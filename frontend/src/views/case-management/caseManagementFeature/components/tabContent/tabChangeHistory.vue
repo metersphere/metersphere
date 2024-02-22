@@ -14,7 +14,8 @@
       </template>
       <template #type> </template>
       <template #operation="{ record }">
-        <MsRemoveButton
+        <!-- TODO 这一版本不上 -->
+        <!-- <MsRemoveButton
           position="br"
           :title="
             t('caseManagement.featureCase.confirmRecoverChangeHistoryTitle', { name: characterLimit(record.name) })
@@ -24,7 +25,7 @@
           "
           :loading="recoverLoading"
           @ok="recoverHandler(record)"
-        />
+        /> -->
         <MsButton @click="saveAsHandler(record)">{{ t('caseManagement.featureCase.saveAsVersion') }}</MsButton>
       </template>
     </ms-base-table>
@@ -230,7 +231,9 @@
 
   onBeforeMount(() => {
     doCheckIsTip();
-    initData();
+    if (props.caseId) {
+      initData();
+    }
   });
 </script>
 

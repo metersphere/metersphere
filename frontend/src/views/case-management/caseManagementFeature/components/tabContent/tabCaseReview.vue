@@ -115,7 +115,9 @@
   }, 100);
 
   onBeforeMount(() => {
-    initData();
+    if (props.caseId) {
+      initData();
+    }
   });
 </script>
 

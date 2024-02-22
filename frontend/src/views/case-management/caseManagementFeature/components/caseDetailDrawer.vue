@@ -15,6 +15,7 @@
     :mask-closable="true"
     :edit-name="true"
     show-full-screen
+    unmount-on-close
     @loaded="loadedCase"
   >
     <template #titleLeft>
@@ -102,7 +103,7 @@
           <template #first>
             <div class="leftWrapper">
               <div class="header h-[50px]">
-                <a-menu mode="horizontal" :default-selected-keys="[activeTab]" @menu-item-click="clickMenu">
+                <a-menu mode="horizontal" :default-selected-keys="[activeTab || 'detail']" @menu-item-click="clickMenu">
                   <a-menu-item key="detail">{{ t('caseManagement.featureCase.detail') }} </a-menu-item>
                   <a-menu-item v-for="tab of tabSetting" :key="tab.key">
                     <div class="flex items-center">
@@ -274,7 +275,6 @@
 
   const userId = computed(() => userStore.userInfo.id);
   const appStore = useAppStore();
-  provide('caseId', props.detailId);
 
   const currentProjectId = computed(() => appStore.currentProjectId);
 
@@ -536,6 +536,7 @@
     () => props.visible,
     (val) => {
       if (val) {
+        activeTab.value = 'detail';
         showDrawerVisible.value = val;
       }
     }
@@ -600,8 +601,11 @@
   );
 
   onMounted(() => {
-    settingDrawerRef.value.getTabModule();
+    if (activeTab.value) {
+      settingDrawerRef.value.getTabModule();
+    }
   });
+  provide('activeTab', activeTab.value);
 </script>
 
 <style scoped lang="less">

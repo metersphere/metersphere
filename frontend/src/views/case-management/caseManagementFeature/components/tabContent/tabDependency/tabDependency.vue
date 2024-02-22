@@ -84,7 +84,6 @@
 
   export type types = 'preposition' | 'postPosition';
   const currentProjectId = computed(() => appStore.currentProjectId);
-
   const showType = ref<types>('preposition');
   const { t } = useI18n();
   const keyword = ref<string>('');
@@ -202,7 +201,9 @@
   );
 
   onMounted(() => {
-    initData();
+    if (props.caseId) {
+      initData();
+    }
   });
 </script>
 
