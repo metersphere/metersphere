@@ -94,6 +94,7 @@
             <foreach collection="caseIds" item="caseId" separator="," open="(" close=")">
                 #{caseId}
             </foreach>
+          AND deleted = FALSE
           AND abandoned = FALSE
           AND status != 'UNDER_REVIEWED'
         order by create_time desc

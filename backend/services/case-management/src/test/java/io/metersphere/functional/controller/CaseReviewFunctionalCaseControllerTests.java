@@ -506,6 +506,21 @@ public class CaseReviewFunctionalCaseControllerTests extends BaseTest {
         request.setSelectIds(List.of("wx_test_8", "wx_test_9", "wx_test_10"));
         this.requestPostWithOkAndReturn(BATCH_EDIT_REVIEWERS, request);
 
+        request.setReviewId("wx_review_id_6");
+        request.setReviewerId(List.of("wx11"));
+        request.setSelectIds(List.of("wx_test_12"));
+        this.requestPostWithOkAndReturn(BATCH_EDIT_REVIEWERS, request);
+
+        request.setReviewId("wx_review_id_8");
+        request.setReviewerId(List.of("admin"));
+        request.setSelectIds(List.of("wx_test_13"));
+        this.requestPostWithOkAndReturn(BATCH_EDIT_REVIEWERS, request);
+
+        request.setReviewId("wx_review_id_9");
+        request.setReviewerId(List.of("admin"));
+        request.setSelectIds(List.of("wx_test_14"));
+        this.requestPostWithOkAndReturn(BATCH_EDIT_REVIEWERS, request);
+
         //追加评审人
         request.setAppend(true);
         request.setReviewId("wx_review_id_4");
