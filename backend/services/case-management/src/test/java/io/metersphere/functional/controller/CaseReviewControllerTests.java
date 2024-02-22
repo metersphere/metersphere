@@ -74,6 +74,8 @@ public class CaseReviewControllerTests extends BaseTest {
     private CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper;
     @Resource
     private CaseReviewFunctionalCaseUserMapper caseReviewFunctionalCaseUserMapper;
+    @Resource
+    private FunctionalCaseMapper functionalCaseMapper;
 
     @Test
     @Order(1)
@@ -105,6 +107,25 @@ public class CaseReviewControllerTests extends BaseTest {
         Assertions.assertEquals(2, caseReviews.size());
         List<String> list = caseReviews.stream().map(CaseReview::getId).distinct().toList();
         Assertions.assertEquals(2, list.size());
+
+        caseReviewRequest = getCaseReviewAddRequest("创建评审X", CaseReviewPassRule.SINGLE.toString(), "CASE_REVIEW_TEST_GYQ_ID", false, true, null);
+        BaseAssociateCaseRequest baseAssociateCaseRequest = caseReviewRequest.getBaseAssociateCaseRequest();
+        baseAssociateCaseRequest.setSelectAll(true);
+        caseReviewRequest.setBaseAssociateCaseRequest(baseAssociateCaseRequest);
+        mvcResult1 = this.requestPostWithOkAndReturn(ADD_CASE_REVIEW, caseReviewRequest);
+        caseReview1 = getResultData(mvcResult1, CaseReview.class);
+        checkLog(caseReview1.getId(), OperationLogType.ADD);
+        caseReviews = getCaseReviews("创建评审X");
+        Assertions.assertEquals(1, caseReviews.size());
+         list = caseReviews.stream().map(CaseReview::getId).distinct().toList();
+        Assertions.assertEquals(1, list.size());
+        caseReviewFunctionalCaseExample = new CaseReviewFunctionalCaseExample();
+        caseReviewFunctionalCaseExample.createCriteria().andReviewIdEqualTo(caseReviews.get(0).getId());
+        caseReviewFunctionalCases = caseReviewFunctionalCaseMapper.selectByExample(caseReviewFunctionalCaseExample);
+        FunctionalCaseExample functionalCaseExample = new FunctionalCaseExample();
+        functionalCaseExample.createCriteria().andProjectIdEqualTo(baseAssociateCaseRequest.getProjectId());
+        List<FunctionalCase> functionalCases = functionalCaseMapper.selectByExample(functionalCaseExample);
+        Assertions.assertEquals(functionalCases.size(), caseReviewFunctionalCases.size());
 
     }
 
