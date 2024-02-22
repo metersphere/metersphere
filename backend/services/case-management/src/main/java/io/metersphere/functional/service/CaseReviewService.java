@@ -208,7 +208,7 @@ public class CaseReviewService {
         BaseAssociateCaseRequest baseAssociateCaseRequest = request.getBaseAssociateCaseRequest();
         List<String> caseIds = doSelectIds(baseAssociateCaseRequest, baseAssociateCaseRequest.getProjectId());
         CaseReview caseReview = addCaseReview(request, userId, caseReviewId, caseIds);
-        addAssociate(request, userId, caseReviewId, caseIds, request.getReviewers());
+        addAssociate(request, userId, caseReviewId, caseIds, baseAssociateCaseRequest.getReviewers());
         return caseReview;
     }
 

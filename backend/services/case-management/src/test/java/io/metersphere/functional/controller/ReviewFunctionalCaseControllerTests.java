@@ -421,6 +421,7 @@ public class ReviewFunctionalCaseControllerTests extends BaseTest {
         baseAssociateCaseRequest.setSelectAll(false);
         baseAssociateCaseRequest.setProjectId(projectId);
         baseAssociateCaseRequest.setSelectIds(caseIds);
+        baseAssociateCaseRequest.setReviewers(reviewers);
         caseReviewRequest.setBaseAssociateCaseRequest(baseAssociateCaseRequest);
         List<String> tags = new ArrayList<>();
         tags.add("11");
