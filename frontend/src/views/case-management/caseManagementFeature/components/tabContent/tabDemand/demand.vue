@@ -348,7 +348,7 @@
     }
   }
 
-  onBeforeMount(async () => {
+  onMounted(async () => {
     try {
       const result = await getCaseRelatedInfo(currentProjectId.value);
       if (result && result.platform_key) {

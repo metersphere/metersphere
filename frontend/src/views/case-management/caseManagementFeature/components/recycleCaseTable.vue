@@ -90,6 +90,61 @@
             <template #caseLevel="{ record }">
               <caseLevel :case-level="(getCaseLevels(record.customFields) as CaseLevel)" />
             </template>
+            <template #caseLevelFilter="{ columnConfig }">
+              <TableFilter
+                v-model:visible="caseFilterVisible"
+                v-model:status-filters="caseFilters"
+                :title="(columnConfig.title as string)"
+                :list="caseLevelList"
+                value-key="value"
+                @search="initRecycleList()"
+              >
+                <template #item="{ item }">
+                  <div class="flex"> <caseLevel :case-level="item.text" /></div>
+                </template>
+              </TableFilter>
+            </template>
+            <template #executeResultFilter="{ columnConfig }">
+              <TableFilter
+                v-model:visible="executeResultFilterVisible"
+                v-model:status-filters="executeResultFilters"
+                :title="(columnConfig.title as string)"
+                :list="executeResultFilterList"
+                value-key="key"
+                @search="initRecycleList()"
+              >
+                <template #item="{ item }">
+                  <MsIcon :type="item.icon || ''" class="mr-1" :class="[item.color]"></MsIcon>
+                  <span>{{ item.statusText || '' }}</span>
+                </template>
+              </TableFilter>
+            </template>
+            <template #updateUserFilter="{ columnConfig }">
+              <TableFilter
+                v-model:visible="updateUserFilterVisible"
+                v-model:status-filters="updateUserFilters"
+                :title="(columnConfig.title as string)"
+                :list="memberOptions"
+                @search="initRecycleList()"
+              >
+                <template #item="{ item }">
+                  {{ item.label }}
+                </template>
+              </TableFilter>
+            </template>
+            <template #createUserFilter="{ columnConfig }">
+              <TableFilter
+                v-model:visible="createUserFilterVisible"
+                v-model:status-filters="updateUserFilters"
+                :title="(columnConfig.title as string)"
+                :list="memberOptions"
+                @search="initRecycleList()"
+              >
+                <template #item="{ item }">
+                  {{ item.label }}
+                </template>
+              </TableFilter>
+            </template>
             <template #reviewStatus="{ record }">
               <MsIcon
                 :type="statusIconMap[record.reviewStatus]?.icon || ''"
@@ -141,6 +196,9 @@
                 <span class="one-line-text inline-block">{{ getModules(record.moduleId) }}</span>
               </a-tooltip>
             </template>
+            <template #updateUserName="{ record }">
+              <span type="text" class="px-0">{{ record.updateUserName || '-' }}</span>
+            </template>
             <!-- 回收站自定义字段 -->
             <template v-for="item in customFieldsColumns" :key="item.slotName" #[item.slotName]="{ record }">
               <a-tooltip
@@ -190,6 +248,7 @@
   import type { CaseLevel } from '@/components/business/ms-case-associate/types';
   import MsTree from '@/components/business/ms-tree/index.vue';
   import type { MsTreeNodeData } from '@/components/business/ms-tree/types';
+  import TableFilter from './tableFilter.vue';
 
   import {
     batchDeleteRecycleCase,
@@ -286,6 +345,7 @@
     {
       title: 'caseManagement.featureCase.tableColumnLevel',
       slotName: 'caseLevel',
+      titleSlotName: 'caseLevelFilter',
       showInTable: true,
       width: 200,
       showDrag: true,
@@ -303,6 +363,7 @@
       title: 'caseManagement.featureCase.tableColumnExecutionResult',
       dataIndex: 'lastExecuteResult',
       slotName: 'lastExecuteResult',
+      titleSlotName: 'executeResultFilter',
       showInTable: true,
       width: 200,
       showDrag: true,
@@ -336,6 +397,7 @@
       title: 'caseManagement.featureCase.tableColumnUpdateUser',
       slotName: 'updateUserName',
       dataIndex: 'updateUserName',
+      titleSlotName: 'updateUserFilter',
       sortable: {
         sortDirections: ['ascend', 'descend'],
         sorter: true,
@@ -499,11 +561,34 @@
       ? t('caseManagement.featureCase.allCase')
       : findNodeByKey<Record<string, any>>(caseTree.value, featureCaseStore.moduleId[0], 'id')?.name;
   });
-
+  const memberOptions = ref<{ label: string; value: string }[]>([]);
   const searchParams = ref<TableQueryParams>({
     projectId: currentProjectId.value,
     moduleIds: [],
   });
+
+  const statusFilters = ref<string[]>(Object.keys(statusIconMap));
+  const caseLevelFields = ref<Record<string, any>>({});
+  // 用例等级表头检索
+  const caseFilterVisible = ref(false);
+  const caseLevelList = computed(() => {
+    return caseLevelFields.value?.options || [];
+  });
+  const caseFilters = ref<string[]>([]);
+  const executeResultFilters = ref(Object.keys(executionResultMap));
+
+  const updateUserFilters = ref(memberOptions.value.map((item) => item.value));
+
+  function getExecuteResultList() {
+    const list: any = [];
+    Object.keys(executionResultMap).forEach((key) => {
+      list.push({
+        ...executionResultMap[key],
+      });
+    });
+    return list;
+  }
+  const executeResultFilterList = ref(getExecuteResultList());
 
   // 回收站模块树count参数
   const emitTableParams: CaseModuleQueryParams = {
@@ -540,12 +625,42 @@
     };
   }
 
+  // 获取用例参数
+  function getLoadListParams() {
+    if (activeFolder.value === 'all') {
+      searchParams.value.moduleIds = [];
+    } else {
+      searchParams.value.moduleIds = [activeFolder.value, ...offspringIds.value];
+    }
+    setLoadListParams({
+      ...searchParams.value,
+      keyword: keyword.value,
+      filter: {
+        reviewStatus: statusFilters.value,
+        [caseLevelFields.value.fieldId]: caseFilters.value,
+        lastExecuteResult: executeResultFilters.value,
+        updateUserName: updateUserFilters.value,
+      },
+    });
+  }
+
+  // 执行结果表头检索
+  const executeResultFilterVisible = ref(false);
+  const updateUserFilterVisible = ref(false);
+  const createUserFilterVisible = ref(false);
+
+  // 初始化回收站列表
+  function initRecycleList() {
+    getLoadListParams();
+    loadList();
+  }
+
   // 批量恢复
   async function handleBatchRecover() {
     try {
       await restoreCaseList(getBatchParams());
       Message.success(t('caseManagement.featureCase.recoveredSuccessfully'));
-      loadList();
+      initRecycleList();
       resetSelector();
       initRecycleModulesCount();
     } catch (error) {
@@ -599,26 +714,6 @@
       }
       return `/${moduleName.join('/')}`;
     }
-  }
-  const statusFilters = ref<string[]>(Object.keys(statusIconMap));
-  // 获取用例参数
-  function getLoadListParams() {
-    if (activeFolder.value === 'all') {
-      searchParams.value.moduleIds = [];
-    } else {
-      searchParams.value.moduleIds = [activeFolder.value, ...offspringIds.value];
-    }
-    setLoadListParams({
-      ...searchParams.value,
-      keyword: keyword.value,
-      filter: { reviewStatus: statusFilters.value },
-    });
-  }
-
-  // 初始化回收站列表
-  function initRecycleList() {
-    getLoadListParams();
-    loadList();
   }
 
   // 恢复用例
@@ -706,19 +801,20 @@
         width: 300,
       };
     });
-
+    caseLevelFields.value = result.customFields.find((item: any) => item.internal);
+    caseFilters.value = caseLevelFields.value.options.map((item: any) => item.value);
     fullColumns = [
       ...columns.slice(0, columns.length - 1),
       ...customFieldsColumns,
       ...columns.slice(columns.length - 1, columns.length),
     ];
-    tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_RECYCLE_TABLE, fullColumns, 'drawer');
+    await tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_RECYCLE_TABLE, fullColumns, 'drawer');
   }
 
   async function initFilter() {
     const result = await getCustomFieldsTable(currentProjectId.value);
-    let memberOptions = await getProjectMemberOptions(appStore.currentProjectId, keyword.value);
-    memberOptions = memberOptions.map((e) => ({ label: e.name, value: e.id }));
+    memberOptions.value = await getProjectMemberOptions(appStore.currentProjectId, keyword.value);
+    memberOptions.value = memberOptions.value.map((e: any) => ({ label: e.name, value: e.id }));
     filterConfigList.value = [
       {
         title: 'caseManagement.featureCase.tableColumnID',
@@ -754,7 +850,7 @@
         type: FilterType.SELECT,
         selectProps: {
           mode: 'static',
-          options: memberOptions,
+          options: memberOptions.value,
         },
       },
       {
@@ -768,7 +864,7 @@
         type: FilterType.SELECT,
         selectProps: {
           mode: 'static',
-          options: memberOptions,
+          options: memberOptions.value,
         },
       },
       {
@@ -854,14 +950,13 @@
     }
   }
 
-  onMounted(() => {
-    getDefaultFields();
+  onMounted(async () => {
+    await getDefaultFields();
     initFilter();
     initRecycleList();
     getRecycleModules();
     initRecycleModulesCount();
   });
-  tableStore.initColumn(TableKeyEnum.CASE_MANAGEMENT_RECYCLE_TABLE, columns, 'drawer');
 </script>
 
 <style scoped lang="less">

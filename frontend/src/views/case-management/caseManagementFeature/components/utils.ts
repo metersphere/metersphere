@@ -126,7 +126,7 @@ export function getTableFields(customFields: CustomAttributes[], itemDataIndex: 
   const multipleExcludes = ['MULTIPLE_SELECT', 'CHECKBOX', 'MULTIPLE_MEMBER'];
   const selectExcludes = ['MEMBER', 'RADIO', 'SELECT'];
 
-  const currentColumnData: CustomAttributes | undefined = customFields.find(
+  const currentColumnData: CustomAttributes | undefined = (customFields || []).find(
     (item: any) => itemDataIndex.dataIndex === item.fieldId
   );
 

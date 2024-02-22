@@ -1,12 +1,14 @@
 <template>
-  <div
-    class="mr-[4px] h-[8px] w-[8px] rounded-full"
-    :style="{
-      backgroundColor: caseLevel.bgColor,
-      border: `1px solid ${caseLevel.borderColor}`,
-    }"
-  ></div>
-  {{ caseLevel.label }}
+  <div class="flex items-center">
+    <div
+      class="mr-[4px] h-[8px] w-[8px] rounded-full"
+      :style="{
+        backgroundColor: caseLevel.bgColor,
+        border: `1px solid ${caseLevel.borderColor}`,
+      }"
+    ></div>
+    {{ caseLevel.label }}
+  </div>
 </template>
 
 <script setup lang="ts">
