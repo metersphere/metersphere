@@ -320,6 +320,17 @@ export default function useTableProps<T>(
       // }
     }
   };
+  const collectIds = (data, rowKey: string, selectedKeys: Set<string>) => {
+    data.forEach((item: any) => {
+      if (item[rowKey] && !selectedKeys.has(item[rowKey])) {
+        selectedKeys.add(item[rowKey]);
+      }
+      if (item.children) {
+        collectIds(item.children, rowKey, selectedKeys);
+      }
+    });
+    return selectedKeys;
+  };
 
   // 获取表格请求参数
   const getTableQueryParams = () => {
@@ -398,12 +409,7 @@ export default function useTableProps<T>(
         resetSelector();
       } else {
         resetSelector(false);
-        data.forEach((item: Record<string, any>) => {
-          if (item[rowKey] && !selectedKeys.has(item[rowKey])) {
-            selectedKeys.add(item[rowKey]);
-          }
-        });
-        propsRes.value.selectedKeys = selectedKeys;
+        propsRes.value.selectedKeys = collectIds(data, rowKey, selectedKeys);
       }
     },
 

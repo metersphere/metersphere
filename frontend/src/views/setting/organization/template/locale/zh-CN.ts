@@ -99,7 +99,7 @@ export default {
   'system.orgTemplate.addAttachment': '添加附件',
   'system.orgTemplate.addAttachmentTip': '支持任意类型文件，文件大小不超过 500MB',
   'system.orgTemplate.enabledSuccessfully': '启用成功',
-  'system.orgTemplate.thirdPartyPlatforms': '用于映射 JARA 等第三方平台字段值',
+  'system.orgTemplate.thirdPartyPlatforms': '用于映射 JIRA 等第三方平台字段值',
   'system.orgTemplate.optionsIdNoRepeat': '选项 ID 不可以重复',
   'system.orgTemplate.optionsContentNoRepeat': '选项内容不可以重复',
   'system.orgTemplate.thirdParty': '对接第三方平台',
@@ -170,4 +170,9 @@ export default {
   'system.orgTemplate.enableWarningTip': '启用后，不可恢复为组织模版，请谨慎操作！',
   'system.orgTemplate.typeEmptyTip': '类型不能为空',
   'system.orgTemplate.searchOrgPlaceholder': '请输入组织名称: {name} ',
+  'system.orgTemplate.associatedField': '关联字段 ',
+  'system.orgTemplate.associatedHasField': '关联已添加的字段',
+  'system.orgTemplate.addFieldDesc': '新增一个新的字段',
+  'system.orgTemplate.toTop': '上移',
+  'system.orgTemplate.toBottom': '下移',
 };

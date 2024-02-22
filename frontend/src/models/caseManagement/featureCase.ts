@@ -242,6 +242,7 @@ export interface DemandItem {
   createUser: string;
   updateUser: string;
   children: DemandItem[]; // 平台下对应的需求
+  [key: string]: any;
 }
 
 // 平台需求列表

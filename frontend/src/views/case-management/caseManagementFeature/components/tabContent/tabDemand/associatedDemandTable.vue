@@ -7,7 +7,7 @@
       >
     </template>
     <template #operation="{ record }">
-      <MsButton v-if="record.demandPlatform !== pageConfig.platformName" @click="emit('update', record)">
+      <MsButton v-if="record.demandPlatform !== pageConfig.platformName" @click="emit('cancel', record)">
         {{ t('caseManagement.featureCase.cancelAssociation') }}
       </MsButton>
       <MsButton v-if="record.demandPlatform === pageConfig.platformName" @click="emit('update', record)">
@@ -65,6 +65,7 @@
   const emit = defineEmits<{
     (e: 'update', record: DemandItem): void;
     (e: 'create'): void;
+    (e: 'cancel', record: DemandItem): void;
   }>();
 
   const columns: MsTableColumn = [
@@ -94,7 +95,7 @@
       slotName: 'operation',
       dataIndex: 'operation',
       fixed: 'right',
-      width: 300,
+      width: 100,
       showInTable: true,
       showDrag: false,
     },

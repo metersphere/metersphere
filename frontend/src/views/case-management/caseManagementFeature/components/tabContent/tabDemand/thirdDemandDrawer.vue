@@ -56,7 +56,7 @@
   import { useI18n } from '@/hooks/useI18n';
   import { useAppStore } from '@/store';
 
-  import type { CreateOrUpdateDemand } from '@/models/caseManagement/featureCase';
+  import type { CreateOrUpdateDemand, DemandItem } from '@/models/caseManagement/featureCase';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const { t } = useI18n();
@@ -120,8 +120,22 @@
   });
 
   const tableSelected = computed(() => {
-    const selectIds = [...propsRes.value.selectedKeys];
-    return propsRes.value.data.filter((item: any) => selectIds.indexOf(item.demandId) > -1);
+    const selectedIds = [...propsRes.value.selectedKeys];
+    const filteredData: DemandItem[] = [];
+
+    function filterData(data: DemandItem[]) {
+      for (let i = 0; i < data.length; i++) {
+        const item: DemandItem = data[i];
+        if (selectedIds.includes(item.demandId)) {
+          filteredData.push(item);
+        }
+        if (item.children) {
+          filterData(item.children);
+        }
+      }
+    }
+    filterData(propsRes.value.data);
+    return filteredData;
   });
 
   const platformInfo = ref<Record<string, any>>({});
