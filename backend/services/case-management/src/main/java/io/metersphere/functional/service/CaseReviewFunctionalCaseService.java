@@ -555,16 +555,14 @@ public class CaseReviewFunctionalCaseService {
             List<CaseReviewFunctionalCaseUser> newReviewers = caseReviewFunctionalCaseUserMapper.selectByExample(example);
             Map<String, List<CaseReviewFunctionalCaseUser>> newReviewersMap = newReviewers.stream().collect(Collectors.groupingBy(CaseReviewFunctionalCaseUser::getCaseId));
 
-            CaseReviewHistoryExample caseReviewHistoryExample = new CaseReviewHistoryExample();
-            caseReviewHistoryExample.createCriteria().andCaseIdIn(caseIds).andReviewIdEqualTo(request.getReviewId()).andDeletedEqualTo(false).andAbandonedEqualTo(false);
-            List<CaseReviewHistory> caseReviewHistories = caseReviewHistoryMapper.selectByExample(caseReviewHistoryExample);
+            List<CaseReviewHistory> caseReviewHistories = extCaseReviewHistoryMapper.getReviewHistoryStatus(caseIds, request.getReviewId());
             Map<String, List<CaseReviewHistory>> caseHistoryMap = caseReviewHistories.stream().collect(Collectors.groupingBy(CaseReviewHistory::getCaseId, Collectors.toList()));
 
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
             Map<String, String> statusMap = new HashMap<>();
             CaseReviewFunctionalCaseMapper caseReviewFunctionalCaseMapper = sqlSession.getMapper(CaseReviewFunctionalCaseMapper.class);
             cases.forEach(caseReview -> {
-                String status = multipleReview(caseReview, caseHistoryMap.get(caseReview.getCaseId()), newReviewersMap.get(caseReview.getCaseId()), oldReviewUserMap.get(caseReview.getCaseId()));
+                String status = multipleReview(caseHistoryMap.get(caseReview.getCaseId()), newReviewersMap.get(caseReview.getCaseId()));
                 caseReview.setStatus(status);
                 caseReviewFunctionalCaseMapper.updateByPrimaryKeySelective(caseReview);
                 statusMap.put(caseReview.getCaseId(), caseReview.getStatus());
@@ -588,38 +586,50 @@ public class CaseReviewFunctionalCaseService {
 
     }
 
-    private String multipleReview(CaseReviewFunctionalCase caseReviewFunctionalCase, List<CaseReviewHistory> reviewHistories, List<CaseReviewFunctionalCaseUser> newReviewers, List<CaseReviewFunctionalCaseUser> oldReviewers) {
+    private String multipleReview(List<CaseReviewHistory> reviewHistories, List<CaseReviewFunctionalCaseUser> newReviewers) {
         if (CollectionUtils.isNotEmpty(reviewHistories)) {
-            List<String> historyUsers = reviewHistories.stream().map(CaseReviewHistory::getCreateUser).toList();
-            List<String> newUsers = newReviewers.stream().map(CaseReviewFunctionalCaseUser::getUserId).toList();
-            if (CollectionUtils.isEmpty(oldReviewers)) {
-                oldReviewers = new ArrayList<>();
-            }
-            List<String> oldUsers = oldReviewers.stream().map(CaseReviewFunctionalCaseUser::getUserId).toList();
-
-            if (CollectionUtils.isEqualCollection(newUsers, oldUsers)) {
-                return caseReviewFunctionalCase.getStatus();
-            }
-
-            Collection intersection = CollectionUtils.intersection(historyUsers, newUsers);
-            if (CollectionUtils.isNotEmpty(intersection)) {
-                //存在已经评审的人 状态列表
-                List<String> statusList = reviewHistories.stream().filter(item -> intersection.contains(item.getCreateUser())).map(CaseReviewHistory::getStatus).toList();
-                if (statusList.contains(FunctionalCaseReviewStatus.UN_PASS.name())) {
-                    return FunctionalCaseReviewStatus.UN_PASS.name();
-                }
-                long count = statusList.stream().filter(item -> StringUtils.equalsIgnoreCase(FunctionalCaseReviewStatus.PASS.name(), item)).count();
-                if (count == statusList.size() && newUsers.size() <= oldUsers.size()) {
-                    return FunctionalCaseReviewStatus.PASS.name();
-                } else {
-                    return FunctionalCaseReviewStatus.UNDER_REVIEWED.name();
-                }
-            } else {
-                return FunctionalCaseReviewStatus.UN_REVIEWED.name();
-            }
+            //历史的评审人
+            List<String> historyUsers = reviewHistories.stream().map(CaseReviewHistory::getCreateUser).collect(Collectors.toList());
+            //最新的评审人
+            List<String> newUsers = newReviewers.stream().map(CaseReviewFunctionalCaseUser::getUserId).collect(Collectors.toList());
+            return newReviewStatus(historyUsers, newUsers, reviewHistories, newReviewers);
         } else {
             return FunctionalCaseReviewStatus.UN_REVIEWED.name();
         }
+    }
+
+    private String newReviewStatus(List<String> historyUsers, List<String> newUsers, List<CaseReviewHistory> reviewHistories, List<CaseReviewFunctionalCaseUser> newReviewers) {
+        CaseReviewHistory caseReviewHistory = reviewHistories.get(0);
+        if (newUsers.contains(caseReviewHistory.getCreateUser()) && FunctionalCaseReviewStatus.RE_REVIEWED.name().equals(caseReviewHistory.getStatus())) {
+            return FunctionalCaseReviewStatus.RE_REVIEWED.name();
+        }
+        if (historyUsers.containsAll(newUsers)) {
+            //新的评审人都存在过评审记录
+            return getReviewStatus(newUsers, reviewHistories, FunctionalCaseReviewStatus.PASS.name());
+        } else {
+            //新的评审人有评审历史中不存在的用户
+            newUsers.retainAll(historyUsers);
+            return getReviewStatus(newUsers, reviewHistories, FunctionalCaseReviewStatus.UNDER_REVIEWED.name());
+        }
+    }
+
+    private String getReviewStatus(List<String> newUsers, List<CaseReviewHistory> reviewHistories, String reviewStatus) {
+        List<String> statusList = new ArrayList<>();
+        //拿到这个人评审的最后一条状态
+        newUsers.forEach(item -> {
+            String status = reviewHistories.stream().filter(history -> StringUtils.equalsIgnoreCase(item, history.getCreateUser())).findFirst().get().getStatus();
+            statusList.add(status);
+        });
+
+        if (CollectionUtils.isEmpty(statusList)) {
+            return FunctionalCaseReviewStatus.UN_REVIEWED.name();
+        }
+
+        if (statusList.stream().anyMatch(item -> FunctionalCaseReviewStatus.UN_PASS.name().equals(item))) {
+            return FunctionalCaseReviewStatus.UN_PASS.name();
+        }
+
+        return reviewStatus;
     }
 
 

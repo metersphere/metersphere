@@ -18,7 +18,10 @@ VALUES ('gyq_case_id_5', 102, 'TEST_MODULE_ID', 'wx_test_project', '100001', '�
        ('gyq_case_id_a', 105, 'TEST_MODULE_ID_COUNT_five', 'wx_test_project_review_two', '100001', '测试模块2-2', 'UN_REVIEWED', '["测试标签_1"]', 'STEP', 0, 'v1.0.0', 'gyq_case_id_a', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL),
        ('gyq_case_id_b', 105, 'TEST_MODULE_ID_COUNT_six', 'wx_test_project_review_one', '100001', '测试模块2-2', 'UN_REVIEWED', '["测试标签_1"]', 'STEP', 0, 'v1.0.0', 'gyq_case_id_a', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL),
       ('gyq_case_id_c', 105, 'TEST_MODULE_ID_COUNT_seven', 'wx_test_project_review_one', '100001', '测试模块2-2', 'UN_REVIEWED', '["测试标签_1"]', 'STEP', 0, 'v1.0.0', 'gyq_case_id_a', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL),
-       ('gyq_case_id_d', 105, 'root', 'wx_test_project_review_one', '100001', '测试默认模块', 'UN_REVIEWED', '["测试标签_1"]', 'STEP', 0, 'v1.0.0', 'gyq_case_id_d', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL);
+       ('gyq_case_id_d', 105, 'root', 'wx_test_project_review_one', '100001', '测试默认模块', 'UN_REVIEWED', '["测试标签_1"]', 'STEP', 0, 'v1.0.0', 'gyq_case_id_d', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL),
+       ('wx_test_id_7', 105, 'root', 'wx_test_project', '100001', '测试默认模块', 'UN_REVIEWED', '["测试标签_1"]', 'STEP', 0, 'v1.0.0', 'wx_test_id_7', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL),
+       ('wx_test_id_8', 105, 'root', 'wx_test_project', '100001', '测试默认模块', 'UN_REVIEWED', '["测试标签_1"]', 'STEP', 0, 'v1.0.0', 'wx_test_id_7', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL),
+       ('wx_test_id_9', 105, 'root', 'wx_test_project', '100001', '测试默认模块', 'UN_REVIEWED', '["测试标签_1"]', 'STEP', 0, 'v1.0.0', 'wx_test_id_7', 'UN_EXECUTED', b'0', b'0', b'1', 'admin', 'admin', '', 1698058347559, 1698058347559, NULL);
 
 
 INSERT INTO functional_case(id, num, module_id, project_id, template_id, name, review_status, tags, case_edit_type, pos, version_id, ref_id, last_execute_result, deleted, public_case, latest, create_user, update_user, delete_user, create_time, update_time, delete_time)
@@ -49,7 +52,10 @@ VALUES ('wx_review_id_1',10001,'wx1', 'wx_module_1', 'wx_test_project', 'COMPLET
        ('wx_review_id_2',10002,'wx2', 'wx_module_2', 'wx_test_project', 'COMPLETED', 'SINGLE', 001, null, null, 1,100.00,null,null,1698058347559,'admin',1698058347559,'admin'),
        ('wx_review_id_3',10003,'wx3', 'wx_module_3', 'wx_test_project', 'COMPLETED', 'MULTIPLE', 003, null, null, 1,100.00,null,null,1698058347559,'admin',1698058347559,'admin'),
        ('wx_review_id_4',10004,'wx3', 'wx_module_3', 'wx_test_project', 'COMPLETED', 'MULTIPLE', 003, null, null, 1,100.00,null,null,1698058347559,'admin',1698058347559,'admin'),
-       ('wx_review_id_5',10004,'gyq5', 'wx_module_3', 'wx_test_project', 'COMPLETED', 'MULTIPLE', 003, null, null, 1,100.00,null,null,1698058347559,'admin',1698058347559,'admin');
+       ('wx_review_id_5',10004,'gyq5', 'wx_module_3', 'wx_test_project', 'COMPLETED', 'MULTIPLE', 003, null, null, 1,100.00,null,null,1698058347559,'admin',1698058347559,'admin'),
+       ('wx_review_id_6',10005,'wx6', 'wx_module_3', 'wx_test_project', 'COMPLETED', 'MULTIPLE', 003, null, null, 1,100.00,null,null,1698058347559,'admin',1698058347559,'admin'),
+       ('wx_review_id_8',10007,'wx8', 'wx_module_3', 'wx_test_project', 'COMPLETED', 'MULTIPLE', 003, null, null, 1,100.00,null,null,1698058347559,'admin',1698058347559,'admin'),
+       ('wx_review_id_9',10007,'wx8', 'wx_module_3', 'wx_test_project', 'COMPLETED', 'MULTIPLE', 003, null, null, 1,100.00,null,null,1698058347559,'admin',1698058347559,'admin');
 
     ;
 
@@ -73,7 +79,10 @@ VALUES ('wx_test_1', 'wx_review_id_1', 'wx_case_id_1', 'PASS', 1698058347559,'ad
        ('wx_test_8', 'wx_review_id_4', 'wx_case_id_4', 'PASS', 1698058347559,'admin',1698058347559, 3000),
        ('wx_test_9', 'wx_review_id_4', 'wx_case_id_1', 'PASS', 1698058347559,'admin',1698058347559, 3000),
        ('wx_test_10', 'wx_review_id_4', 'wx_case_id_2', 'PASS', 1698058347559,'admin',1698058347559, 3000),
-       ('wx_test_11', 'wx_review_id_5', 'gyq_case_id_d', 'PASS', 1698058347559,'admin',1698058347559, 3000);
+       ('wx_test_11', 'wx_review_id_5', 'gyq_case_id_d', 'PASS', 1698058347559,'admin',1698058347559, 3000),
+       ('wx_test_12', 'wx_review_id_6', 'wx_test_id_7', 'PASS', 1698058347559,'admin',1698058347559, 3000),
+       ('wx_test_13', 'wx_review_id_8', 'wx_test_id_8', 'PASS', 1698058347559,'admin',1698058347559, 3000),
+       ('wx_test_14', 'wx_review_id_9', 'wx_test_id_9', 'PASS', 1698058347559,'admin',1698058347559, 3000);
 
 INSERT INTO case_review_functional_case_user(case_id, review_id, user_id)
 VALUES ('wx_case_id_1', 'wx_review_id_1', 'admin'),
@@ -89,7 +98,9 @@ VALUES ('wx_case_id_1', 'wx_review_id_1', 'admin'),
        ('wx_case_id_1', 'wx_review_id_4', 'admin'),
        ('wx_case_id_2', 'wx_review_id_4', '123'),
        ('wx_case_id_2', 'wx_review_id_4', 'admin'),
-       ('gyq_case_id_d', 'wx_review_id_5', 'admin');
+       ('gyq_case_id_d', 'wx_review_id_5', 'admin'),
+       ('wx_test_id_8', 'wx_review_id_8', 'admin'),
+       ('wx_test_id_9', 'wx_review_id_9', 'admin');
 
 
 
@@ -134,7 +145,9 @@ VALUES ('wx_history', 'wx_review_id_3', 'wx_case_id_1', NULL, 'PASS', b'0', b'0'
        ('wx_history_6', 'wx_review_id_1', 'gyq_case_id_5', NULL, 'PASS', b'0', b'0', NULL, 'gyq_case_review', 1669174143999),
        ('wx_history_7', 'wx_review_id_1', 'gyq_case_id_5', NULL, 'UN_PASS', b'0', b'0', NULL, 'GGG', 1669174143999),
        ('wx_history_8', 'wx_review_id_1', 'wx_case_id_1', NULL, 'UN_PASS', b'0', b'0', NULL, 'admin', 1669174143999),
-       ('wx_history_9', 'wx_review_id_5', 'gyq_case_id_d', NULL, 'RE_REVIEWED', b'0', b'0', NULL, 'GGG', 1669174143999);
+       ('wx_history_9', 'wx_review_id_5', 'gyq_case_id_d', NULL, 'RE_REVIEWED', b'0', b'0', NULL, 'GGG', 1669174143999),
+       ('wx_history_19', 'wx_review_id_8', 'wx_test_id_8', NULL, 'RE_REVIEWED', b'0', b'0', NULL, 'admin', 1669174143999),
+       ('wx_history_20', 'wx_review_id_9', 'wx_test_id_9', NULL, 'UN_PASS', b'0', b'0', NULL, 'admin', 1669174143999);
 
 INSERT INTO case_review_user(review_id, user_id)
 VALUES ('wx_review_id_4', 'admin')
