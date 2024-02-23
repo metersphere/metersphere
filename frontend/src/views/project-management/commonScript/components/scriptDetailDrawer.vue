@@ -77,6 +77,7 @@
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
+  import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
   import type { MsTableColumn } from '@/components/pure/ms-table/type';
@@ -86,7 +87,7 @@
   import { getCommonScriptDetail } from '@/api/modules/project-management/commonScript';
   import { useI18n } from '@/hooks/useI18n';
 
-  import type { AddOrUpdateCommonScript, ParamsRequestType } from '@/models/projectManagement/commonScript';
+  import type { AddOrUpdateCommonScript } from '@/models/projectManagement/commonScript';
   import { TableKeyEnum } from '@/enums/tableEnum';
 
   const { t } = useI18n();
@@ -223,7 +224,7 @@
     projectId: '',
     params: '',
     script: '',
-    type: 'beanshell',
+    type: LanguageEnum.BEANSHELL,
     result: '',
   };
 

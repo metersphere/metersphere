@@ -88,7 +88,7 @@
       :show-full-screen="false"
       :language="currentCodeLanguage"
     >
-      <template #title>
+      <template #rightTitle>
         <div class="flex flex-col">
           <div class="text-[12px] leading-[16px] text-[var(--color-text-4)]">
             {{ t('apiTestDebug.batchAddParamsTip') }}

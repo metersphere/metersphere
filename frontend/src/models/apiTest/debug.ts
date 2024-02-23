@@ -1,9 +1,10 @@
+import { Language } from '@/components/pure/ms-code-editor/types';
+
 import {
   RequestAssertionCondition,
   RequestAuthType,
   RequestBodyFormat,
   RequestConditionProcessor,
-  RequestConditionScriptLanguage,
   RequestContentTypeEnum,
   RequestExtractEnvType,
   RequestExtractExpressionEnum,
@@ -23,8 +24,6 @@ import {
 export type ConditionType = RequestConditionProcessor;
 // 断言-匹配条件规则
 export type RequestAssertionConditionType = RequestAssertionCondition;
-// 前后置条件-脚本语言类型
-export type RequestConditionScriptLanguageType = RequestConditionScriptLanguage;
 // 响应时间信息
 export interface ResponseTiming {
   dnsLookupTime: number;
@@ -157,7 +156,7 @@ export interface ScriptCommonConfig {
   script: string; // 脚本内容
   scriptId: string; // 脚本id
   scriptName: string; // 脚本名称
-  scriptLanguage: RequestConditionScriptLanguageType; // 脚本语言
+  scriptLanguage: Language; // 脚本语言
   params: KeyValueParam[]; // 公共脚本参数
 }
 // 断言-响应体断言

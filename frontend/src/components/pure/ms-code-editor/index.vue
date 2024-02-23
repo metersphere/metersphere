@@ -75,7 +75,7 @@
     name: 'MonacoEditor',
     props: editorProps,
     emits: ['update:modelValue', 'change'],
-    setup(props, { emit }) {
+    setup(props, { emit, slots }) {
       const { t } = useI18n();
       // 编辑器实例，每次调用组件都会创建独立的实例
       let editor: monaco.editor.IStandaloneCodeEditor;
@@ -138,14 +138,14 @@
             // 如果传入了语言种类数组，则过滤选项
             if (props.languages.includes(e)) {
               return {
-                label: e,
+                label: e.toLowerCase(),
                 value: e,
               };
             }
             return false;
           }
           return {
-            label: e,
+            label: e.toLowerCase(),
             value: e,
           };
         })
@@ -172,7 +172,9 @@
           props.showThemeChange ||
           props.showLanguageChange ||
           props.showCharsetChange ||
-          props.showFullScreen
+          props.showFullScreen ||
+          slots.leftTitle ||
+          slots.rightTitle
       );
 
       watch(
@@ -259,7 +261,7 @@
       watch(
         () => props.language,
         (newValue) => {
-          monaco.editor.setModelLanguage(editor.getModel()!, newValue);
+          monaco.editor.setModelLanguage(editor.getModel()!, newValue.toLowerCase()); // 设置语言，语言 ENUM 是大写的，但是 monaco 需要小写
         }
       );
 

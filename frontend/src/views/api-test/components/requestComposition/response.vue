@@ -109,7 +109,7 @@
           :language="responseLanguage"
           theme="vs"
           height="100%"
-          :languages="['json', 'html', 'xml', 'plaintext']"
+          :languages="[LanguageEnum.JSON, LanguageEnum.HTML, LanguageEnum.XML, LanguageEnum.PLAINTEXT]"
           :show-full-screen="false"
           :show-theme-change="false"
           show-language-change
@@ -150,6 +150,7 @@
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
+  import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
   import MsIcon from '@/components/pure/ms-icon-font/index.vue';
   import type { Direction } from '@/components/pure/ms-split-box/index.vue';
   import MsBaseTable from '@/components/pure/ms-table/base-table.vue';
@@ -246,15 +247,15 @@
   const responseLanguage = computed(() => {
     const { contentType } = props.response.requestResults[0].responseResult;
     if (contentType.includes('json')) {
-      return 'json';
+      return LanguageEnum.JSON;
     }
     if (contentType.includes('html')) {
-      return 'html';
+      return LanguageEnum.HTML;
     }
     if (contentType.includes('xml')) {
-      return 'xml';
+      return LanguageEnum.XML;
     }
-    return 'plaintext';
+    return LanguageEnum.PLAINTEXT;
   });
   const responseEditorRef = ref<InstanceType<typeof MsCodeEditor>>();
 

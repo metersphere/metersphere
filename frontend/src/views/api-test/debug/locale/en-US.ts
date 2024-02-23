@@ -33,8 +33,9 @@ export default {
   'apiTestDebug.encodeTip1': 'On: Use encoding',
   'apiTestDebug.encodeTip2': 'Off: No encoding is used',
   'apiTestDebug.apply': 'Apply',
-  'apiTestDebug.batchAddParamsTip': 'Writing format: parameter name: parameter value; such as nama: natural',
-  'apiTestDebug.batchAddParamsTip2': 'Multiple records are separated by newlines.',
+  'apiTestDebug.batchAddParamsTip1':
+    'Writing format: parameter name: parameter value; such as nama:natural, multiple records separated by newline',
+  'apiTestDebug.batchAddParamsTip2': 'Added as string type by default; file type parameters cannot be edited here',
   'apiTestDebug.batchAddParamsTip3':
     'Parameter names in batch addition are repeated. By default, the last data is the latest data.',
   'apiTestDebug.quickInputParamsTip': 'Support Mock/JMeter/Json/Text/String, etc.',

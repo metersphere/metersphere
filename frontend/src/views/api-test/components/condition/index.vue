@@ -40,6 +40,7 @@
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
 
+  import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
   import conditionContent from './content.vue';
   import conditionList from './list.vue';
 
@@ -47,7 +48,7 @@
   import { useI18n } from '@/hooks/useI18n';
 
   import { ConditionType, ExecuteConditionProcessor } from '@/models/apiTest/debug';
-  import { RequestConditionProcessor, RequestConditionScriptLanguage } from '@/enums/apiEnum';
+  import { RequestConditionProcessor } from '@/enums/apiEnum';
 
   const props = defineProps<{
     list: ExecuteConditionProcessor[];
@@ -94,19 +95,6 @@
     emit('change');
   }
 
-  const scriptEx = ref(`2023-12-04 11:19:28 INFO 9026fd6a 1-1 Thread started: 9026fd6a 1-1
-2023-12-04 11:19:28 ERROR 9026fd6a 1-1 Problem in JSR223 script JSR223Sampler, message: {}
-In file: inline evaluation of: prev.getResponseCode() import java.net.URI; import org.apache.http.client.method . . . '' Encountered "import" at line 2, column 1.
-in inline evaluation of: prev.getResponseCode() import java.net.URI; import org.apache.http.client.method . . . '' at line number 2
-javax.script.ScriptException '' at line number 2
-javax.script.ScriptException '' at line number 2
-javax.script.ScriptException '' at line number 2
-javax.script.ScriptException '' at line number 2
-javax.script.ScriptException '' at line number 2
-javax.script.ScriptException
-org.apache.http.client.method . . . '' at line number 2
-`);
-
   /**
    * 添加条件
    */
@@ -120,9 +108,9 @@ org.apache.http.client.method . . . '' at line number 2
           scriptName: t('apiTestDebug.preconditionScriptName'),
           enableCommonScript: false,
           enable: true,
-          script: scriptEx.value,
+          script: '',
           scriptId: '',
-          scriptLanguage: RequestConditionScriptLanguage.BEANSHELL,
+          scriptLanguage: LanguageEnum.BEANSHELL,
           params: [],
         });
         break;
@@ -134,7 +122,7 @@ org.apache.http.client.method . . . '' at line number 2
       //     enable: true,
       //     sqlSource: {
       //       scriptName: '',
-      //       script: scriptEx,
+      //       script: '',
       //       storageType: 'column',
       //       params: [],
       //     },

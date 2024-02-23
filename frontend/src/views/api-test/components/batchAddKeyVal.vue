@@ -10,32 +10,31 @@
     @confirm="applyBatchParams"
   >
     <template #title>
-      {{ t('common.batchAdd') }}
-      <a-tooltip position="right">
-        <icon-exclamation-circle
-          class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
-          size="16"
-        />
-        <template #content>
-          <div>{{ t('apiTestDebug.batchAddParamsTip2') }} </div>
-          <div>{{ t('apiTestDebug.batchAddParamsTip3') }} </div>
-        </template>
-      </a-tooltip>
+      <div>
+        {{ t('common.batchAdd') }}
+        <a-tooltip position="right">
+          <icon-exclamation-circle
+            class="ml-[4px] text-[var(--color-text-brand)] hover:text-[rgb(var(--primary-5))]"
+            size="16"
+          />
+          <template #content>
+            <div>{{ t('apiTestDebug.batchAddParamsTip1') }}</div>
+            <div>{{ t('apiTestDebug.batchAddParamsTip2') }}</div>
+            <div>{{ t('apiTestDebug.batchAddParamsTip3') }}</div>
+          </template>
+        </a-tooltip>
+      </div>
     </template>
     <div class="flex h-full">
       <MsCodeEditor
         v-if="showBatchAddParamDrawer"
         v-model:model-value="batchParamsCode"
         class="flex-1"
-        theme="MS-text"
+        theme="vs"
         height="100%"
         :show-full-screen="false"
+        :show-theme-change="false"
       >
-        <template #title>
-          <div class="text-[12px] leading-[16px] text-[var(--color-text-4)]">
-            {{ t('apiTestDebug.batchAddParamsTip') }}
-          </div>
-        </template>
       </MsCodeEditor>
     </div>
   </MsDrawer>
@@ -85,7 +84,7 @@
     const tempObj: Record<string, any> = {}; // 同名参数去重，保留最新的
     for (let i = 0; i < arr.length; i++) {
       const [key, value] = arr[i].split(':');
-      if (key) {
+      if (key || value) {
         tempObj[key.trim()] = {
           id: new Date().getTime() + i,
           ...props.defaultParamItem,

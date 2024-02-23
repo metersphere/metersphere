@@ -43,11 +43,9 @@
   import { useVModel } from '@vueuse/core';
   import { Message } from '@arco-design/web-vue';
 
-  import { Language } from '@/components/pure/ms-code-editor/types';
+  import { Language, LanguageEnum } from '@/components/pure/ms-code-editor/types';
 
   import { useI18n } from '@/hooks/useI18n';
-
-  import { RequestConditionScriptLanguage } from '@/enums/apiEnum';
 
   import type { CommonScriptMenu } from './types';
   import { getCodeTemplate, SCRIPT_MENU } from './utils';
@@ -56,7 +54,7 @@
 
   const props = defineProps<{
     expand: boolean;
-    languagesType: Language | RequestConditionScriptLanguage;
+    languagesType: Language;
   }>();
 
   const emit = defineEmits<{
@@ -73,11 +71,11 @@
   const innerLanguageType = useVModel(props, 'languagesType', emit);
 
   const languages = [
-    { text: 'beanshellJSR223', value: RequestConditionScriptLanguage.BEANSHELL_JSR233 },
-    { text: 'beanshell', value: RequestConditionScriptLanguage.BEANSHELL },
-    { text: 'python', value: RequestConditionScriptLanguage.PYTHON },
-    { text: 'groovy', value: RequestConditionScriptLanguage.GROOVY },
-    { text: 'javascript', value: RequestConditionScriptLanguage.JAVASCRIPT },
+    { text: 'beanshellJSR223', value: LanguageEnum.BEANSHELL_JSR233 },
+    { text: 'beanshell', value: LanguageEnum.BEANSHELL },
+    { text: 'python', value: LanguageEnum.PYTHON },
+    { text: 'groovy', value: LanguageEnum.GROOVY },
+    { text: 'javascript', value: LanguageEnum.JAVASCRIPT },
   ];
 
   function expandedHandler() {
@@ -127,7 +125,7 @@
         return;
       }
     } else {
-      if (innerLanguageType.value !== 'beanshell' && innerLanguageType.value !== 'groovy') {
+      if (innerLanguageType.value !== LanguageEnum.BEANSHELL && innerLanguageType.value !== LanguageEnum.GROOVY) {
         if (
           obj.title === t('api_test.request.processor.code_add_report_length') ||
           obj.title === t('api_test.request.processor.code_hide_report_length')

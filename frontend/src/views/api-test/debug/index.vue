@@ -69,7 +69,7 @@
         v-model:model-value="curlCode"
         theme="MS-text"
         height="100%"
-        language="plaintext"
+        :language="LanguageEnum.PLAINTEXT"
         :show-theme-change="false"
         :show-full-screen="false"
       >
@@ -84,6 +84,7 @@
 
   import MsCard from '@/components/pure/ms-card/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
+  import { LanguageEnum } from '@/components/pure/ms-code-editor/types';
   import MsDrawer from '@/components/pure/ms-drawer/index.vue';
   import MsEditableTab from '@/components/pure/ms-editable-tab/index.vue';
   import { TabItem } from '@/components/pure/ms-editable-tab/types';

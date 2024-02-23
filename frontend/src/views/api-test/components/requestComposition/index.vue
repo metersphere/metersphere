@@ -42,6 +42,7 @@
               v-model:model-value="requestVModel.url"
               :max-length="255"
               :placeholder="t('apiTestDebug.urlPlaceholder')"
+              allow-clear
               @change="handleUrlChange"
             />
           </a-input-group>
@@ -49,7 +50,7 @@
         <div class="ml-[16px]">
           <a-dropdown-button
             :button-props="{ loading: requestVModel.executeLoading }"
-            :disabled="requestVModel.executeLoading"
+            :disabled="requestVModel.executeLoading || (isHttpProtocol && !requestVModel.url)"
             class="exec-btn"
             @click="execute"
             @select="execute"
@@ -64,14 +65,26 @@
               </a-doption>
             </template>
           </a-dropdown-button>
-          <a-dropdown v-if="props.isDefinition" @select="handleSelect">
-            <a-button type="secondary">{{ t('common.save') }}</a-button>
+          <a-dropdown
+            v-if="props.isDefinition"
+            :loading="saveLoading || (isHttpProtocol && !requestVModel.url)"
+            @select="handleSelect"
+          >
+            <a-button type="secondary">
+              {{ t('common.save') }}
+            </a-button>
             <template #content>
               <a-doption value="save">{{ t('common.save') }}</a-doption>
               <a-doption value="saveAsCase">{{ t('apiTestManagement.saveAsCase') }}</a-doption>
             </template>
           </a-dropdown>
-          <a-button v-else type="secondary" :loading="saveLoading" @click="handleSaveShortcut">
+          <a-button
+            v-else
+            type="secondary"
+            :disabled="isHttpProtocol && !requestVModel.url"
+            :loading="saveLoading"
+            @click="handleSaveShortcut"
+          >
             <div class="flex items-center">
               {{ t('common.save') }}
               <div class="text-[var(--color-text-4)]">(<icon-command size="14" />+S)</div>
@@ -84,6 +97,7 @@
         v-model:model-value="requestVModel.name"
         :max-length="255"
         :placeholder="t('apiTestManagement.apiNamePlaceholder')"
+        allow-clear
         @change="handleActiveDebugChange"
       />
     </div>
@@ -612,7 +626,7 @@
   const saveModalVisible = ref(false);
   const saveModalForm = ref({
     name: '',
-    path: requestVModel.value.url || '',
+    path: requestVModel.value.url,
     moduleId: 'root',
   });
   const saveModalFormRef = ref<FormInstance>();
@@ -772,6 +786,7 @@
               ...saveModalForm.value,
               protocol: requestVModel.value.protocol,
               method: isHttpProtocol.value ? requestVModel.value.method : requestVModel.value.protocol,
+              path: requestVModel.value.url || undefined,
             });
             requestVModel.value.id = res.id;
             requestVModel.value.isNew = false;
@@ -779,6 +794,7 @@
             requestVModel.value.unSaved = false;
             requestVModel.value.name = saveModalForm.value.name;
             requestVModel.value.label = saveModalForm.value.name;
+            requestVModel.value.url = saveModalForm.value.path;
             saveLoading.value = false;
             saveModalVisible.value = false;
             done(true);

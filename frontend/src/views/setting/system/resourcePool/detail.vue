@@ -195,7 +195,7 @@
         <!-- TODO:代码编辑器懒加载 -->
         <div v-show="form.addType === 'multiple'">
           <MsCodeEditor v-model:model-value="editorContent" width="100%" height="400px" theme="MS-text">
-            <template #title>
+            <template #rightTitle>
               <a-form-item
                 :label="t('system.resourcePool.batchAddResource')"
                 asterisk-position="end"
