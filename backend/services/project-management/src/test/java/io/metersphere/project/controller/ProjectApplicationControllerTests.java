@@ -5,6 +5,7 @@ import io.metersphere.project.controller.param.ProjectApplicationRequestDefiniti
 import io.metersphere.project.domain.ProjectApplication;
 import io.metersphere.project.domain.ProjectApplicationExample;
 import io.metersphere.project.mapper.ProjectApplicationMapper;
+import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
 import io.metersphere.project.request.ProjectApplicationRequest;
 import io.metersphere.project.service.ProjectApplicationService;
 import io.metersphere.sdk.constants.ProjectApplicationType;
@@ -13,11 +14,11 @@ import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.base.BasePluginTestService;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
-import io.metersphere.system.domain.Plugin;
-import io.metersphere.system.domain.ServiceIntegration;
-import io.metersphere.system.domain.ServiceIntegrationExample;
+import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.request.ServiceIntegrationUpdateRequest;
 import io.metersphere.system.mapper.ServiceIntegrationMapper;
+import io.metersphere.system.mapper.TestResourcePoolMapper;
+import io.metersphere.system.mapper.TestResourcePoolOrganizationMapper;
 import jakarta.annotation.Resource;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,6 +34,7 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static io.metersphere.system.controller.handler.result.MsHttpResultCode.NOT_FOUND;
@@ -54,6 +56,12 @@ public class ProjectApplicationControllerTests extends BaseTest {
     private ProjectApplicationService projectApplicationService;
     @Resource
     private ProjectApplicationMapper projectApplicationMapper;
+    @Resource
+    private TestResourcePoolMapper testResourcePoolMapper;
+    @Resource
+    private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
+    @Resource
+    private TestResourcePoolOrganizationMapper testResourcePoolOrganizationMapper;
 
     public static final String PROJECT_ID = "project_application_test_id";
     public static final String TIME_TYPE_VALUE = "3M";
@@ -771,5 +779,29 @@ public class ProjectApplicationControllerTests extends BaseTest {
         // 获取同步机制
         Assertions.assertTrue(projectApplicationService.isPlatformSyncMethodByIncrement("default-project-for-application"));
         Assertions.assertFalse(projectApplicationService.isPlatformSyncMethodByIncrement("default-project-for-application-not-exist"));
+    }
+
+    @Test
+    @Order(100)
+    public void testResourcePool() {
+        // 校验资源池  默认资源池
+        String projectId = DEFAULT_PROJECT_ID;
+        Map<String, Object> configMap = new HashMap<>();
+        projectApplicationService.putResourcePool(projectId, configMap, "apiTest");
+        projectApplicationService.putResourcePool(projectId, configMap, "uiTest");
+        projectApplicationService.putResourcePool(projectId, configMap, "loadTest");
+        //项目与资源池有关系
+        TestResourcePoolExample example = new TestResourcePoolExample();
+        example.createCriteria().andNameEqualTo("默认资源池");
+        List<TestResourcePool> testResourcePools = testResourcePoolMapper.selectByExample(example);
+        Assertions.assertFalse(testResourcePools.isEmpty());
+        configMap.put(ProjectApplicationType.API.API_RESOURCE_POOL_ID.name(), testResourcePools.getFirst().getId());
+        projectApplicationService.putResourcePool(projectId, configMap, "apiTest");
+        TestResourcePool testResourcePool = testResourcePoolMapper.selectByPrimaryKey(testResourcePools.getFirst().getId());
+        testResourcePool.setAllOrg(false);
+        testResourcePoolMapper.updateByPrimaryKeySelective(testResourcePool);
+        projectApplicationService.putResourcePool(projectId, configMap, "apiTest");
+
+
     }
 }

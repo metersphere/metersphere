@@ -34,6 +34,7 @@ public class ProjectApplicationType {
         LOAD_TEST_SHARE_REPORT,
         LOAD_TEST_SCRIPT_REVIEWER_ENABLE,
         LOAD_TEST_SCRIPT_REVIEWER_ID,
+        LOAD_TEST_RESOURCE_POOL_ID
     }
 
 
@@ -62,7 +63,7 @@ public class ProjectApplicationType {
         CASE_ENABLE,
     }
 
-    public enum PLATFORM_DEMAND_CONFIG{
+    public enum PLATFORM_DEMAND_CONFIG {
         DEMAND_PLATFORM_CONFIG
     }
 
@@ -71,7 +72,7 @@ public class ProjectApplicationType {
         BUG_SYNC
     }
 
-    public enum PLATFORM_BUG_CONFIG{
+    public enum PLATFORM_BUG_CONFIG {
         BUG_PLATFORM_CONFIG
     }
 

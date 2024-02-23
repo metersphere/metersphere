@@ -80,7 +80,7 @@ public class ProjectApplicationController {
     @Operation(summary = "UI测试-获取配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_UI_READ)
     public Map<String, Object> getUI(@Validated @RequestBody ProjectApplicationRequest request) {
-        List<String> types = Arrays.asList(ProjectApplicationType.UI.values()).stream().map(ProjectApplicationType.UI::name).collect(Collectors.toList());
+        List<String> types = Arrays.stream(ProjectApplicationType.UI.values()).map(ProjectApplicationType.UI::name).collect(Collectors.toList());
         return projectApplicationService.get(request, types);
     }
 
@@ -108,7 +108,7 @@ public class ProjectApplicationController {
     @Operation(summary = "性能测试-获取配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_PERFORMANCE_TEST_READ)
     public Map<String, Object> getPerformanceTest(@Validated @RequestBody ProjectApplicationRequest request) {
-        List<String> types = Arrays.asList(ProjectApplicationType.LOAD_TEST.values()).stream().map(ProjectApplicationType.LOAD_TEST::name).collect(Collectors.toList());
+        List<String> types = Arrays.stream(ProjectApplicationType.LOAD_TEST.values()).map(ProjectApplicationType.LOAD_TEST::name).collect(Collectors.toList());
         return projectApplicationService.get(request, types);
     }
 
@@ -136,7 +136,7 @@ public class ProjectApplicationController {
     @Operation(summary = "接口测试-获取配置")
     @RequiresPermissions(PermissionConstants.PROJECT_APPLICATION_API_READ)
     public Map<String, Object> getApi(@Validated @RequestBody ProjectApplicationRequest request) {
-        List<String> types = Arrays.asList(ProjectApplicationType.API.values()).stream().map(ProjectApplicationType.API::name).collect(Collectors.toList());
+        List<String> types = Arrays.stream(ProjectApplicationType.API.values()).map(ProjectApplicationType.API::name).collect(Collectors.toList());
         Map<String, Object> configMap = projectApplicationService.get(request, types);
         int errorNum = projectApplicationService.getFakeErrorList(request.getProjectId());
         configMap.put("FAKE_ERROR_NUM", errorNum);

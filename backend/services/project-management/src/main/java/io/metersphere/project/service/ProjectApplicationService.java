@@ -3,11 +3,7 @@ package io.metersphere.project.service;
 import io.metersphere.plugin.platform.spi.AbstractPlatformPlugin;
 import io.metersphere.plugin.platform.spi.Platform;
 import io.metersphere.plugin.sdk.spi.MsPlugin;
-import io.metersphere.project.domain.FakeError;
-import io.metersphere.project.domain.FakeErrorExample;
-import io.metersphere.project.domain.Project;
-import io.metersphere.project.domain.ProjectApplication;
-import io.metersphere.project.domain.ProjectApplicationExample;
+import io.metersphere.project.domain.*;
 import io.metersphere.project.dto.ModuleDTO;
 import io.metersphere.project.mapper.*;
 import io.metersphere.project.request.ProjectApplicationRequest;
@@ -22,13 +18,14 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.sdk.util.Translator;
 import io.metersphere.system.domain.Plugin;
 import io.metersphere.system.domain.ServiceIntegration;
+import io.metersphere.system.domain.TestResourcePoolExample;
 import io.metersphere.system.domain.User;
 import io.metersphere.system.dto.sdk.OptionDTO;
 import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.mapper.PluginMapper;
-import io.metersphere.system.mapper.ServiceIntegrationMapper;
+import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.service.BaseBugScheduleService;
 import io.metersphere.system.service.PlatformPluginService;
 import io.metersphere.system.service.PluginLoadService;
@@ -56,7 +53,7 @@ public class ProjectApplicationService {
     private ExtProjectUserRoleMapper extProjectUserRoleMapper;
 
     @Resource
-    private ServiceIntegrationMapper serviceIntegrationMapper;
+    private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
 
     @Resource
     private PluginMapper pluginMapper;
@@ -77,6 +74,8 @@ public class ProjectApplicationService {
     private ServiceIntegrationService serviceIntegrationService;
     @Resource
     private ProjectMapper projectMapper;
+    @Resource
+    private TestResourcePoolMapper testResourcePoolMapper;
 
     /**
      * 更新配置信息
@@ -126,9 +125,61 @@ public class ProjectApplicationService {
         List<ProjectApplication> applicationList = projectApplicationMapper.selectByExample(projectApplicationExample);
         if (CollectionUtils.isNotEmpty(applicationList)) {
             configMap = applicationList.stream().collect(Collectors.toMap(ProjectApplication::getType, ProjectApplication::getTypeValue));
+            putResourcePool(request.getProjectId(), configMap, request.getType());
             return configMap;
         }
+        putResourcePool(request.getProjectId(), configMap, request.getType());
         return configMap;
+    }
+
+    public void putResourcePool(String projectId, Map<String, Object> configMap, String type) {
+        //如果存在  需要判断  如果不存在  需要判断资源池在不在  是否还在关系表中 如果不存在  需要删除  并重新处理数据
+        String poolType = null;
+        String moduleType = null;
+        if (StringUtils.isBlank(type)) {
+            return;
+        }
+        switch (type) {
+            case "apiTest" -> {
+                poolType = ProjectApplicationType.API.API_RESOURCE_POOL_ID.name();
+                moduleType = "api_test";
+            }
+            case "uiTest" -> {
+                poolType = ProjectApplicationType.UI.UI_RESOURCE_POOL_ID.name();
+                moduleType = "ui_test";
+            }
+            case "loadTest" -> {
+                poolType = ProjectApplicationType.LOAD_TEST.LOAD_TEST_RESOURCE_POOL_ID.name();
+                moduleType = "load_test";
+            }
+            default -> {
+            }
+        }
+        if (StringUtils.isNotBlank(poolType) && StringUtils.isNotBlank(moduleType)) {
+            if (configMap.containsKey(poolType)) {
+                //如果是适用于所有的组织
+                int count = 0;
+                TestResourcePoolExample example = new TestResourcePoolExample();
+                example.createCriteria().andIdEqualTo(configMap.get(poolType).toString()).andAllOrgEqualTo(true);
+                if (testResourcePoolMapper.countByExample(example) > 0) {
+                    count = extProjectMapper.resourcePoolIsExist(configMap.get(poolType).toString(), projectId, moduleType);
+                } else {
+                    //指定组织  则需要关联组织-资源池的关系表  看看是否再全部存在
+                    count = extProjectMapper.resourcePoolIsExistByOrg(configMap.get(poolType).toString(), projectId, moduleType);
+                }
+                if (count == 0) {
+                    configMap.remove(poolType);
+                }
+            }
+            if (!configMap.containsKey(poolType)) {
+                List<ProjectTestResourcePool> projectTestResourcePools = extProjectMapper.getResourcePool(projectId, moduleType);
+                if (CollectionUtils.isNotEmpty(projectTestResourcePools)) {
+                    projectTestResourcePools.sort(Comparator.comparing(ProjectTestResourcePool::getTestResourcePoolId));
+                    configMap.put(poolType, projectTestResourcePools.getFirst().getTestResourcePoolId());
+                }
+            }
+        }
+
     }
 
 

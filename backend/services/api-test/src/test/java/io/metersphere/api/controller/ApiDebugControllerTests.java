@@ -24,11 +24,14 @@ import io.metersphere.api.parser.ImportParserFactory;
 import io.metersphere.api.parser.TestElementParserFactory;
 import io.metersphere.api.service.ApiCommonService;
 import io.metersphere.api.service.ApiFileResourceService;
+import io.metersphere.api.service.BaseFileManagementTestService;
 import io.metersphere.api.service.BaseResourcePoolTestService;
 import io.metersphere.api.utils.ApiDataUtils;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.project.domain.ProjectTestResourcePool;
+import io.metersphere.project.domain.ProjectTestResourcePoolExample;
 import io.metersphere.project.dto.filemanagement.FileInfo;
-import io.metersphere.api.service.BaseFileManagementTestService;
+import io.metersphere.project.mapper.ProjectTestResourcePoolMapper;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.sdk.constants.DefaultRepositoryDir;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -40,7 +43,9 @@ import io.metersphere.sdk.util.JSON;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.handler.ResultHolder;
 import io.metersphere.system.domain.TestResourcePool;
+import io.metersphere.system.domain.TestResourcePoolExample;
 import io.metersphere.system.log.constants.OperationLogType;
+import io.metersphere.system.mapper.TestResourcePoolMapper;
 import io.metersphere.system.uid.IDGenerator;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
@@ -84,6 +89,10 @@ public class ApiDebugControllerTests extends BaseTest {
     private BaseFileManagementTestService baseFileManagementTestService;
     @Resource
     private ApiCommonService apiCommonService;
+    @Resource
+    private ProjectTestResourcePoolMapper projectTestResourcePoolMapper;
+    @Resource
+    private TestResourcePoolMapper testResourcePoolMapper;
     private static ApiDebug addApiDebug;
     private static ApiDebug anotherAddApiDebug;
     private static String fileMetadataId;
@@ -403,12 +412,26 @@ public class ApiDebugControllerTests extends BaseTest {
         request.setReportId(IDGenerator.nextStr());
         request.setProjectId(DEFAULT_PROJECT_ID);
 
+        ProjectTestResourcePoolExample projectTestResourcePoolExample = new ProjectTestResourcePoolExample();
+        projectTestResourcePoolExample.createCriteria().andProjectIdEqualTo(DEFAULT_PROJECT_ID);
+        projectTestResourcePoolMapper.deleteByExample(projectTestResourcePoolExample);
         // @校验组织没有资源池权限异常
         assertErrorCode(this.requestPost(DEBUG, request), ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);
         TestResourcePool resourcePool = baseResourcePoolTestService.insertResourcePool();
         baseResourcePoolTestService.insertResourcePoolOrg(resourcePool);
         // @校验项目没有资源池权限异常
         assertErrorCode(this.requestPost(DEBUG, request), ApiResultCode.EXECUTE_RESOURCE_POOL_NOT_CONFIG);
+
+        TestResourcePoolExample example = new TestResourcePoolExample();
+        example.createCriteria().andNameEqualTo("默认资源池");
+        List<TestResourcePool> testResourcePools = testResourcePoolMapper.selectByExample(example);
+        Assertions.assertFalse(testResourcePools.isEmpty());
+        ProjectTestResourcePool projectTestResourcePool = new ProjectTestResourcePool();
+        projectTestResourcePool.setProjectId(DEFAULT_PROJECT_ID);
+        projectTestResourcePool.setTestResourcePoolId(testResourcePools.get(0).getId());
+        projectTestResourcePoolMapper.insert(projectTestResourcePool);
+        this.requestPost(DEBUG, request);
+        projectTestResourcePoolMapper.deleteByExample(projectTestResourcePoolExample);
 
         baseResourcePoolTestService.insertResourcePoolProject(resourcePool);
         baseResourcePoolTestService.insertProjectApplication(resourcePool);
@@ -492,6 +515,7 @@ public class ApiDebugControllerTests extends BaseTest {
 
     /**
      * 测试关联的文件更新
+     *
      * @throws Exception
      */
     public void testHandleFileAssociationUpgrade() throws Exception {
