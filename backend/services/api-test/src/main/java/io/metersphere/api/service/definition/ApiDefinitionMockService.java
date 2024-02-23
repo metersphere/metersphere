@@ -147,7 +147,7 @@ public class ApiDefinitionMockService {
         resourceUpdateRequest.setResourceId(sourceId);
         resourceUpdateRequest.setApiResourceType(ApiResourceType.API_MOCK);
         resourceUpdateRequest.setOperator(operator);
-        resourceUpdateRequest.setLogModule(OperationLogModule.API_DEFINITION_MOCK);
+        resourceUpdateRequest.setLogModule(OperationLogModule.API_TEST_MANAGEMENT_MOCK);
         resourceUpdateRequest.setFileAssociationSourceType(FileAssociationSourceUtil.SOURCE_TYPE_API_DEFINITION_MOCK);
         return resourceUpdateRequest;
     }
@@ -205,7 +205,7 @@ public class ApiDefinitionMockService {
     public void delete(ApiDefinitionMockRequest request, String userId) {
         checkApiDefinitionMock(request.getId());
         String apiDefinitionMockDir = DefaultRepositoryDir.getApiDefinitionDir(request.getProjectId(), request.getId());
-        apiFileResourceService.deleteByResourceId(apiDefinitionMockDir, request.getId(), request.getProjectId(), userId, OperationLogModule.API_DEFINITION_MOCK);
+        apiFileResourceService.deleteByResourceId(apiDefinitionMockDir, request.getId(), request.getProjectId(), userId, OperationLogModule.API_TEST_MANAGEMENT_MOCK);
         apiDefinitionMockConfigMapper.deleteByPrimaryKey(request.getId());
         apiDefinitionMockMapper.deleteByPrimaryKey(request.getId());
     }
@@ -264,7 +264,7 @@ public class ApiDefinitionMockService {
         if (!apiDefinitionMocks.isEmpty()) {
             apiDefinitionMocks.forEach(item -> {
                 String apiDefinitionMockDir = DefaultRepositoryDir.getApiDefinitionDir(item.getProjectId(), item.getId());
-                apiFileResourceService.deleteByResourceId(apiDefinitionMockDir, item.getId(), item.getProjectId(), userId, OperationLogModule.API_DEFINITION_MOCK);
+                apiFileResourceService.deleteByResourceId(apiDefinitionMockDir, item.getId(), item.getProjectId(), userId, OperationLogModule.API_TEST_MANAGEMENT_MOCK);
             });
 
             List<String> mockIds = apiDefinitionMocks.stream().map(ApiDefinitionMock::getId).toList();

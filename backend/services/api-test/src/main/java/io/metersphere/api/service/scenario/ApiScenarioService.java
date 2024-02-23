@@ -507,7 +507,7 @@ public class ApiScenarioService {
                 refFilesMap = fileList.stream().collect(Collectors.toMap(FileMetadata::getId, f -> f.getName() + "." + f.getType()));
             }
             fileAssociationService.association(resourceUpdateRequest.getResourceId(), FileAssociationSourceUtil.SOURCE_TYPE_API_SCENARIO, linkFileIds,
-                    apiFileResourceService.createFileLogRecord(resourceUpdateRequest.getOperator(), resourceUpdateRequest.getProjectId(), OperationLogModule.API_SCENARIO));
+                    apiFileResourceService.createFileLogRecord(resourceUpdateRequest.getOperator(), resourceUpdateRequest.getProjectId(), OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO));
         }
         Map<String, String> finalRefFilesMap = refFilesMap;
         // 添加文件与接口的关联关系
@@ -872,7 +872,7 @@ public class ApiScenarioService {
         resourceUpdateRequest.setResourceId(sourceId);
         resourceUpdateRequest.setApiResourceType(ApiResourceType.API_SCENARIO);
         resourceUpdateRequest.setOperator(operator);
-        resourceUpdateRequest.setLogModule(OperationLogModule.API_SCENARIO);
+        resourceUpdateRequest.setLogModule(OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO);
         resourceUpdateRequest.setFileAssociationSourceType(FileAssociationSourceUtil.SOURCE_TYPE_API_DEBUG);
         return resourceUpdateRequest;
     }
@@ -923,7 +923,7 @@ public class ApiScenarioService {
         //删除文件
         String scenarioDir = DefaultRepositoryDir.getApiDebugDir(scenario.getProjectId(), scenario.getId());
         try {
-            apiFileResourceService.deleteByResourceId(scenarioDir, scenario.getId(), scenario.getProjectId(), operator, OperationLogModule.API_DEBUG);
+            apiFileResourceService.deleteByResourceId(scenarioDir, scenario.getId(), scenario.getProjectId(), operator, OperationLogModule.API_TEST_DEBUG_MANAGEMENT_DEBUG);
         } catch (Exception ignore) {
         }
 
@@ -969,7 +969,7 @@ public class ApiScenarioService {
             //删除文件
             String scenarioDir = DefaultRepositoryDir.getApiDebugDir(scenario.getProjectId(), scenario.getId());
             try {
-                apiFileResourceService.deleteByResourceId(scenarioDir, scenario.getId(), scenario.getProjectId(), operator, OperationLogModule.API_DEBUG);
+                apiFileResourceService.deleteByResourceId(scenarioDir, scenario.getId(), scenario.getProjectId(), operator, OperationLogModule.API_TEST_DEBUG_MANAGEMENT_DEBUG);
                 //删除定时任务
                 scheduleService.deleteByResourceId(scenario.getId(), ApiScenarioScheduleJob.class.getName());
             } catch (Exception ignore) {

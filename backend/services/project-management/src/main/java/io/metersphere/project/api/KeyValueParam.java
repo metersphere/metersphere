@@ -14,12 +14,12 @@ public class KeyValueParam {
     /**
      * 键
      */
-    @Size(max = 100)
+    @Size(max = 255)
     private String key;
     /**
      * 值
      */
-    @Size(max = 100)
+    @Size(max = 255)
     private String value;
 
     public boolean isValid() {

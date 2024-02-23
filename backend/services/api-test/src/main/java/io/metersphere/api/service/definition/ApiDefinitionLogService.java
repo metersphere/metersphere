@@ -50,7 +50,7 @@ public class ApiDefinitionLogService {
                 null,
                 null,
                 OperationLogType.ADD.name(),
-                OperationLogModule.API_DEFINITION,
+                OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
                 request.getName());
         dto.setHistory(false);
         dto.setPath("/api/definition/add");
@@ -74,7 +74,7 @@ public class ApiDefinitionLogService {
                     request.getId(),
                     null,
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.API_DEFINITION,
+                    OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
                     request.getName());
             dto.setHistory(true);
             dto.setPath("/api/definition/update");
@@ -100,7 +100,7 @@ public class ApiDefinitionLogService {
                     request.getId(),
                     null,
                     OperationLogType.DELETE.name(),
-                    OperationLogModule.API_DEFINITION,
+                    OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
                     apiDefinition.getName());
             dto.setHistory(false);
             dto.setPath("/api/definition/delete");
@@ -139,7 +139,7 @@ public class ApiDefinitionLogService {
                     null,
                     null,
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.API_DEFINITION,
+                    OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
                     apiDefinition.getName());
             dto.setHistory(false);
             dto.setPath("/api/definition/copy");
@@ -164,7 +164,7 @@ public class ApiDefinitionLogService {
                     id,
                     null,
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.API_DEFINITION,
+                    OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
                     Translator.get("follow") + apiDefinition.getName());
 
             dto.setPath("/api/definition/follow/" + id);
@@ -190,7 +190,7 @@ public class ApiDefinitionLogService {
                     request.getId(),
                     null,
                     OperationLogType.RECOVER.name(),
-                    OperationLogModule.API_DEFINITION,
+                    OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
                     apiDefinition.getName());
             dto.setHistory(false);
             dto.setPath("/api/definition/recover");
@@ -225,7 +225,7 @@ public class ApiDefinitionLogService {
                     request.getId(),
                     null,
                     OperationLogType.DELETE.name(),
-                    OperationLogModule.API_DEFINITION,
+                    OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
                     apiDefinition.getName());
 
             dto.setPath("/api/definition/trash-del");
@@ -274,7 +274,7 @@ public class ApiDefinitionLogService {
                         item.getId(),
                         userId,
                         operationType,
-                        OperationLogModule.API_DEFINITION,
+                        OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
                         item.getName());
 
                 dto.setHistory(isHistory);
@@ -295,7 +295,7 @@ public class ApiDefinitionLogService {
                 apiDefinitionDTO.getId(),
                 userId,
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.API_DEFINITION,
+                OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
                 apiDefinitionDTO.getName());
         dto.setHistory(true);
         dto.setPath("/api/definition/operation-history/save");
@@ -313,7 +313,7 @@ public class ApiDefinitionLogService {
                 apiDefinitionDTO.getId(),
                 userId,
                 OperationLogType.RECOVER.name(),
-                OperationLogModule.API_DEFINITION,
+                OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
                 apiDefinitionDTO.getName());
         dto.setHistory(true);
         dto.setPath("/api/definition/operation-history/recover");
@@ -332,7 +332,7 @@ public class ApiDefinitionLogService {
                 apiDefinitionDTO.getId(),
                 null,
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.API_DEFINITION,
+                OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
                 apiDefinitionDTO.getName());
         dto.setOriginalValue(JSON.toJSONBytes(apiDefinitionDTO));
         return dto;

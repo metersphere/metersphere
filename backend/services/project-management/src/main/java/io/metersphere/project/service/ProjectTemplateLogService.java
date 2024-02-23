@@ -1,5 +1,7 @@
 package io.metersphere.project.service;
 
+import io.metersphere.sdk.constants.TemplateScene;
+import io.metersphere.sdk.util.EnumValidator;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.dto.sdk.request.TemplateUpdateRequest;
 import io.metersphere.sdk.util.JSON;
@@ -29,10 +31,28 @@ public class ProjectTemplateLogService {
                 null,
                 null,
                 OperationLogType.ADD.name(),
-                OperationLogModule.PROJECT_TEMPLATE,
+                getOperationLogModule(request.getScene()),
                 request.getName());
         dto.setOriginalValue(JSON.toJSONBytes(request));
         return dto;
+    }
+
+    public String getOperationLogModule(String scene) {
+        TemplateScene templateScene = EnumValidator.validateEnum(TemplateScene.class, scene);
+        switch (templateScene) {
+            case API:
+                return OperationLogModule.PROJECT_MANAGEMENT_TEMPLATE_API_TEMPLATE;
+            case FUNCTIONAL:
+                return OperationLogModule.PROJECT_MANAGEMENT_TEMPLATE_FUNCTIONAL_TEMPLATE;
+            case UI:
+                return OperationLogModule.PROJECT_MANAGEMENT_TEMPLATE_UI_TEMPLATE;
+            case BUG:
+                return OperationLogModule.PROJECT_MANAGEMENT_TEMPLATE_BUG_TEMPLATE;
+            case TEST_PLAN:
+                return OperationLogModule.PROJECT_MANAGEMENT_TEMPLATE_TEST_PLAN_TEMPLATE;
+            default:
+                return null;
+        }
     }
 
     public LogDTO updateLog(TemplateUpdateRequest request) {
@@ -45,7 +65,7 @@ public class ProjectTemplateLogService {
                     template.getId(),
                     null,
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.PROJECT_TEMPLATE,
+                    getOperationLogModule(template.getScene()),
                     template.getName());
             dto.setOriginalValue(JSON.toJSONBytes(template));
         }
@@ -62,7 +82,7 @@ public class ProjectTemplateLogService {
                     template.getId(),
                     null,
                     String.join(Translator.get("set_default_template"), ":", OperationLogType.UPDATE.name()),
-                    OperationLogModule.PROJECT_TEMPLATE,
+                    getOperationLogModule(template.getScene()),
                     template.getName());
             dto.setOriginalValue(JSON.toJSONBytes(template));
         }
@@ -77,7 +97,7 @@ public class ProjectTemplateLogService {
                 template.getId(),
                 null,
                 OperationLogType.DELETE.name(),
-                OperationLogModule.PROJECT_TEMPLATE,
+                getOperationLogModule(template.getScene()),
                 template.getName());
         dto.setOriginalValue(JSON.toJSONBytes(template));
         return dto;

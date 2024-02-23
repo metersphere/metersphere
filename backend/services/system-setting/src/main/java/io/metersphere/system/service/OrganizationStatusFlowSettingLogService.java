@@ -1,6 +1,8 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.OperationLogConstants;
+import io.metersphere.sdk.constants.TemplateScene;
+import io.metersphere.sdk.util.EnumValidator;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.dto.sdk.request.StatusDefinitionUpdateRequest;
 import io.metersphere.system.dto.sdk.request.StatusFlowUpdateRequest;
@@ -65,9 +67,19 @@ public class OrganizationStatusFlowSettingLogService {
                 scopeId,
                 null,
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.SETTING_SYSTEM_ORGANIZATION_STATUS_FLOW_SETTING,
+                getOperationLogModule(scene),
                 Translator.get("status_flow.name"));
         dto.setOriginalValue(JSON.toJSONBytes(statusFlowSetting));
         return dto;
+    }
+
+    public String getOperationLogModule(String scene) {
+        TemplateScene templateScene = EnumValidator.validateEnum(TemplateScene.class, scene);
+        switch (templateScene) {
+            case BUG:
+                return OperationLogModule.SETTING_ORGANIZATION_TEMPLATE_BUG_WORKFLOW;
+            default:
+                return null;
+        }
     }
 }

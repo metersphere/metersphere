@@ -321,7 +321,7 @@ public class ApiDefinitionImportUtilService {
                         v.getId(),
                         request.getUserId(),
                         OperationLogType.IMPORT.name(),
-                        OperationLogModule.API_DEFINITION,
+                        OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
                         v.getName());
                 dto.setHistory(true);
                 dto.setPath("/api/definition/import");
@@ -363,7 +363,7 @@ public class ApiDefinitionImportUtilService {
                     t.getId(),
                     request.getUserId(),
                     OperationLogType.IMPORT.name(),
-                    OperationLogModule.API_DEFINITION,
+                    OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
                     t.getName());
             dto.setHistory(true);
             dto.setPath("/api/definition/import");

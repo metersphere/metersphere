@@ -1,5 +1,7 @@
 package io.metersphere.project.service;
 
+import io.metersphere.sdk.constants.TemplateScene;
+import io.metersphere.sdk.util.EnumValidator;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.dto.sdk.request.StatusDefinitionUpdateRequest;
 import io.metersphere.system.dto.sdk.request.StatusFlowUpdateRequest;
@@ -65,9 +67,19 @@ public class ProjectStatusFlowSettingLogService {
                 scopeId,
                 null,
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.SETTING_SYSTEM_ORGANIZATION_STATUS_FLOW_SETTING,
+                getOperationLogModule(scene),
                 Translator.get("status_flow.name"));
         dto.setOriginalValue(JSON.toJSONBytes(statusItemDTOS));
         return dto;
+    }
+
+    public String getOperationLogModule(String scene) {
+        TemplateScene templateScene = EnumValidator.validateEnum(TemplateScene.class, scene);
+        switch (templateScene) {
+            case BUG:
+                return OperationLogModule.PROJECT_MANAGEMENT_TEMPLATE_BUG_WORKFLOW;
+            default:
+                return null;
+        }
     }
 }

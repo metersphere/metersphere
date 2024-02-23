@@ -125,7 +125,7 @@ public class ApiDebugService {
         resourceUpdateRequest.setResourceId(sourceId);
         resourceUpdateRequest.setApiResourceType(ApiResourceType.API_DEBUG);
         resourceUpdateRequest.setOperator(operator);
-        resourceUpdateRequest.setLogModule(OperationLogModule.API_DEBUG);
+        resourceUpdateRequest.setLogModule(OperationLogModule.API_TEST_DEBUG_MANAGEMENT_DEBUG);
         resourceUpdateRequest.setFileAssociationSourceType(FileAssociationSourceUtil.SOURCE_TYPE_API_DEBUG);
         return resourceUpdateRequest;
     }
@@ -167,7 +167,7 @@ public class ApiDebugService {
         ApiDebug apiDebug = apiDebugMapper.selectByPrimaryKey(id);
         checkResourceExist(id);
         String apiDebugDir = DefaultRepositoryDir.getApiDebugDir(apiDebug.getProjectId(), apiDebug.getId());
-        apiFileResourceService.deleteByResourceId(apiDebugDir, id, apiDebug.getProjectId(), operator, OperationLogModule.API_DEBUG);
+        apiFileResourceService.deleteByResourceId(apiDebugDir, id, apiDebug.getProjectId(), operator, OperationLogModule.API_TEST_DEBUG_MANAGEMENT_DEBUG);
         apiDebugMapper.deleteByPrimaryKey(id);
         apiDebugBlobMapper.deleteByPrimaryKey(id);
     }

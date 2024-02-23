@@ -156,7 +156,7 @@ public class CleanupApiResourceServiceImpl implements CleanupProjectResourceServ
             //删除文件
             String scenarioDir = DefaultRepositoryDir.getApiDebugDir(scenario.getProjectId(), scenario.getId());
             try {
-                apiFileResourceService.deleteByResourceId(scenarioDir, scenario.getId(), scenario.getProjectId(), operator, OperationLogModule.API_DEBUG);
+                apiFileResourceService.deleteByResourceId(scenarioDir, scenario.getId(), scenario.getProjectId(), operator, OperationLogModule.API_TEST_DEBUG_MANAGEMENT_DEBUG);
             } catch (Exception ignore) {
             }
 
@@ -233,7 +233,7 @@ public class CleanupApiResourceServiceImpl implements CleanupProjectResourceServ
         deleteCaseFollows(ids);
         ids.forEach(id -> {
             String apiCaseDir = DefaultRepositoryDir.getApiCaseDir(projectId, id);
-            apiFileResourceService.deleteByResourceId(apiCaseDir, id, projectId, OperationLogConstants.SYSTEM, OperationLogModule.API_DEFINITION_CASE);
+            apiFileResourceService.deleteByResourceId(apiCaseDir, id, projectId, OperationLogConstants.SYSTEM, OperationLogModule.API_TEST_MANAGEMENT_CASE);
         });
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andIdIn(ids);
@@ -246,7 +246,7 @@ public class CleanupApiResourceServiceImpl implements CleanupProjectResourceServ
     private void deleteMock(List<String> ids, String projectId) {
         ids.forEach(id -> {
             String apiCaseDir = DefaultRepositoryDir.getApiDefinitionDir(projectId, id);
-            apiFileResourceService.deleteByResourceId(apiCaseDir, id, projectId, OperationLogConstants.SYSTEM, OperationLogModule.API_DEFINITION_CASE);
+            apiFileResourceService.deleteByResourceId(apiCaseDir, id, projectId, OperationLogConstants.SYSTEM, OperationLogModule.API_TEST_MANAGEMENT_CASE);
         });
         ApiDefinitionMockConfigExample configExample = new ApiDefinitionMockConfigExample();
         configExample.createCriteria().andIdIn(ids);
@@ -260,7 +260,7 @@ public class CleanupApiResourceServiceImpl implements CleanupProjectResourceServ
         deleteApiFollows(ids);
         ids.forEach(id -> {
             String apiDefinitionDir = DefaultRepositoryDir.getApiDefinitionDir(projectId, id);
-            apiFileResourceService.deleteByResourceId(apiDefinitionDir, id, projectId, OperationLogConstants.SYSTEM, OperationLogModule.API_DEFINITION);
+            apiFileResourceService.deleteByResourceId(apiDefinitionDir, id, projectId, OperationLogConstants.SYSTEM, OperationLogModule.API_TEST_MANAGEMENT_DEFINITION);
         });
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andIdIn(ids);

@@ -233,7 +233,7 @@ public class ApiDefinitionService {
         resourceUpdateRequest.setResourceId(sourceId);
         resourceUpdateRequest.setApiResourceType(ApiResourceType.API);
         resourceUpdateRequest.setOperator(operator);
-        resourceUpdateRequest.setLogModule(OperationLogModule.API_DEFINITION);
+        resourceUpdateRequest.setLogModule(OperationLogModule.API_TEST_MANAGEMENT_DEFINITION);
         resourceUpdateRequest.setFileAssociationSourceType(FileAssociationSourceUtil.SOURCE_TYPE_API_DEFINITION);
         return resourceUpdateRequest;
     }
@@ -799,7 +799,7 @@ public class ApiDefinitionService {
             // 删除上传的文件
             ids.forEach(id -> {
                 String apiDefinitionDir = DefaultRepositoryDir.getApiDefinitionDir(projectId, id);
-                apiFileResourceService.deleteByResourceId(apiDefinitionDir, id, projectId, userId, OperationLogModule.API_DEFINITION);
+                apiFileResourceService.deleteByResourceId(apiDefinitionDir, id, projectId, userId, OperationLogModule.API_TEST_MANAGEMENT_DEFINITION);
             });
             // 删除接口关注人
             ApiDefinitionFollowerExample apiDefinitionFollowerExample = new ApiDefinitionFollowerExample();

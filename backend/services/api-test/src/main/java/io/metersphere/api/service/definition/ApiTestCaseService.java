@@ -135,7 +135,7 @@ public class ApiTestCaseService {
         resourceUpdateRequest.setResourceId(sourceId);
         resourceUpdateRequest.setApiResourceType(ApiResourceType.API_CASE);
         resourceUpdateRequest.setOperator(operator);
-        resourceUpdateRequest.setLogModule(OperationLogModule.API_DEFINITION_CASE);
+        resourceUpdateRequest.setLogModule(OperationLogModule.API_TEST_MANAGEMENT_CASE);
         resourceUpdateRequest.setFileAssociationSourceType(FileAssociationSourceUtil.SOURCE_TYPE_API_TEST_CASE);
         return resourceUpdateRequest;
     }
@@ -365,7 +365,7 @@ public class ApiTestCaseService {
         //删除文件关联关系
         ids.forEach(id -> {
             String apiCaseDir = DefaultRepositoryDir.getApiCaseDir(projectId, id);
-            apiFileResourceService.deleteByResourceId(apiCaseDir, id, projectId, userId, OperationLogModule.API_DEFINITION_CASE);
+            apiFileResourceService.deleteByResourceId(apiCaseDir, id, projectId, userId, OperationLogModule.API_TEST_MANAGEMENT_CASE);
         });
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andIdIn(ids);

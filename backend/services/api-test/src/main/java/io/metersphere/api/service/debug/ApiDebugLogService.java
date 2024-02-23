@@ -30,7 +30,7 @@ public class ApiDebugLogService {
                 null,
                 null,
                 OperationLogType.ADD.name(),
-                OperationLogModule.API_DEBUG,
+                OperationLogModule.API_TEST_DEBUG_MANAGEMENT_DEBUG,
                 request.getName());
         dto.setOriginalValue(JSON.toJSONBytes(request));
         return dto;
@@ -46,7 +46,7 @@ public class ApiDebugLogService {
                     apiDebug.getId(),
                     null,
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.API_DEBUG,
+                    OperationLogModule.API_TEST_DEBUG_MANAGEMENT_DEBUG,
                     apiDebug.getName());
             dto.setOriginalValue(JSON.toJSONBytes(apiDebug));
         }
@@ -61,7 +61,7 @@ public class ApiDebugLogService {
                 apiDebug.getId(),
                 null,
                 OperationLogType.DELETE.name(),
-                OperationLogModule.API_DEBUG,
+                OperationLogModule.API_TEST_DEBUG_MANAGEMENT_DEBUG,
                 apiDebug.getName());
         dto.setOriginalValue(JSON.toJSONBytes(apiDebug));
         return dto;
@@ -75,7 +75,7 @@ public class ApiDebugLogService {
                 apiDebug.getId(),
                 null,
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.API_DEBUG,
+                OperationLogModule.API_TEST_DEBUG_MANAGEMENT_DEBUG,
                 apiDebug.getName());
         dto.setOriginalValue(JSON.toJSONBytes(apiDebug));
         return dto;
