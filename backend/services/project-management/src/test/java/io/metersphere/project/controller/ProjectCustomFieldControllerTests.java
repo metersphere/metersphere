@@ -1,5 +1,6 @@
 package io.metersphere.project.controller;
 
+import io.metersphere.project.service.ProjectCustomFieldLogService;
 import io.metersphere.sdk.constants.*;
 import io.metersphere.system.domain.*;
 import io.metersphere.system.dto.sdk.CustomFieldDTO;
@@ -8,6 +9,7 @@ import io.metersphere.system.dto.sdk.request.CustomFieldUpdateRequest;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.param.CustomFieldUpdateRequestDefinition;
+import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.CustomFieldMapper;
 import io.metersphere.system.mapper.OrganizationParameterMapper;
@@ -57,6 +59,8 @@ public class ProjectCustomFieldControllerTests extends BaseTest {
     private OrganizationParameterMapper organizationParameterMapper;
     @Resource
     private TemplateCustomFieldMapper templateCustomFieldMapper;
+    @Resource
+    private ProjectCustomFieldLogService projectCustomFieldLogService;
     private static CustomField addCustomField;
     private static CustomField anotherAddCustomField;
 
@@ -313,5 +317,15 @@ public class ProjectCustomFieldControllerTests extends BaseTest {
         example.createCriteria()
                 .andFieldIdEqualTo(id);
         return templateCustomFieldMapper.selectByExample(example);
+    }
+
+    @Test
+    @Order(10)
+    public void testLog() {
+        Assertions.assertEquals(projectCustomFieldLogService.getOperationLogModule(TemplateScene.API.name()), OperationLogModule.PROJECT_MANAGEMENT_TEMPLATE_API_FIELD);
+        Assertions.assertEquals(projectCustomFieldLogService.getOperationLogModule(TemplateScene.FUNCTIONAL.name()), OperationLogModule.PROJECT_MANAGEMENT_TEMPLATE_FUNCTIONAL_FIELD);
+        Assertions.assertEquals(projectCustomFieldLogService.getOperationLogModule(TemplateScene.BUG.name()), OperationLogModule.PROJECT_MANAGEMENT_TEMPLATE_BUG_FIELD);
+        Assertions.assertEquals(projectCustomFieldLogService.getOperationLogModule(TemplateScene.TEST_PLAN.name()), OperationLogModule.PROJECT_MANAGEMENT_TEMPLATE_TEST_PLAN_FIELD);
+        Assertions.assertEquals(projectCustomFieldLogService.getOperationLogModule(TemplateScene.UI.name()), OperationLogModule.PROJECT_MANAGEMENT_TEMPLATE_UI_FIELD);
     }
 }
