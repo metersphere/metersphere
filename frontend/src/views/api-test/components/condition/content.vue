@@ -51,7 +51,8 @@
                   <MsCodeEditor
                     v-model:model-value="scriptEx"
                     class="flex-1"
-                    theme="MS-text"
+                    theme="vs"
+                    :language="LanguageEnum.BEANSHELL"
                     width="500px"
                     height="388px"
                     :show-full-screen="false"
@@ -127,7 +128,7 @@
         <div v-show="commonScriptShowType === 'scriptContent'" class="h-[calc(100%-76px)]">
           <MsCodeEditor
             v-model:model-value="condition.script"
-            theme="MS-text"
+            theme="vs"
             height="100%"
             :show-full-screen="false"
             :show-theme-change="false"
@@ -380,18 +381,14 @@
     });
   }
 
-  const scriptEx = ref(`2023-12-04 11:19:28 INFO 9026fd6a 1-1 Thread started: 9026fd6a 1-1
-2023-12-04 11:19:28 ERROR 9026fd6a 1-1 Problem in JSR223 script JSR223Sampler, message: {}
-In file: inline evaluation of: prev.getResponseCode() import java.net.URI; import org.apache.http.client.method . . . '' Encountered "import" at line 2, column 1.
-in inline evaluation of: prev.getResponseCode() import java.net.URI; import org.apache.http.client.method . . . '' at line number 2
-javax.script.ScriptException '' at line number 2
-javax.script.ScriptException '' at line number 2
-javax.script.ScriptException '' at line number 2
-javax.script.ScriptException '' at line number 2
-javax.script.ScriptException '' at line number 2
-javax.script.ScriptException
-org.apache.http.client.method . . . '' at line number 2
-`);
+  const scriptEx = ref(`// 这里可以输入脚本注释
+value = vars.get("variable_name");
+result = "variable_name".equals(value);
+if (!result){
+  msg = "assertion [" + value + " == 'variable_name']: false;";
+  AssertionResult.setFailureMessage(msg);
+  AssertionResult.setFailure(true);
+}`);
   const { copy, isSupported } = useClipboard();
 
   function copyScriptEx() {

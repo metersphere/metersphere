@@ -459,14 +459,14 @@ export const mockFunctions: MockParamItem[] = [
     ],
   },
   {
-    label: 'concatconcat',
-    value: 'concatconcat',
-    desc: 'ms.paramsInput.concatconcatDesc',
+    label: 'concat',
+    value: 'concat',
+    desc: 'ms.paramsInput.concatDesc',
     inputGroup: [
       {
         type: 'input',
         value: '',
-        label: 'ms.paramsInput.concatconcat',
+        label: 'ms.paramsInput.concat',
         placeholder: 'ms.paramsInput.commonPlaceholder',
       },
     ],

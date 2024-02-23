@@ -312,7 +312,7 @@
       height="300px"
       :show-full-screen="false"
     >
-      <template #title>
+      <template #rightTitle>
         <div class="flex justify-between">
           <div class="text-[var(--color-text-1)]">
             {{ t('apiTestDebug.quickInputParamsTip') }}

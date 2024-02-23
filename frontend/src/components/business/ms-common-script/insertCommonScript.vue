@@ -76,8 +76,6 @@
   import { useI18n } from '@/hooks/useI18n';
   import useAppStore from '@/store/modules/app';
 
-  import { RequestConditionScriptLanguage } from '@/enums/apiEnum';
-
   import debounce from 'lodash-es/debounce';
 
   const appStore = useAppStore();
@@ -86,7 +84,7 @@
   const props = withDefaults(
     defineProps<{
       visible: boolean;
-      scriptLanguage?: Language | RequestConditionScriptLanguage;
+      scriptLanguage?: Language;
       enableRadioSelected?: boolean; // 是否单选开启
       okText?: string;
       checkedId?: string; // 单选时默认选中的id

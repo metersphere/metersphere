@@ -1,4 +1,4 @@
-import { Language } from '@/components/pure/ms-code-editor/types';
+import { Language, LanguageEnum } from '@/components/pure/ms-code-editor/types';
 
 import { useI18n } from '@/hooks/useI18n';
 
@@ -500,19 +500,19 @@ function jsCode(requestObj) {
 
 export function getCodeTemplate(language: Language | RequestConditionScriptLanguage, requestObj: any) {
   switch (language) {
-    case 'groovy':
+    case LanguageEnum.GROOVY:
       return groovyCode(requestObj);
-    case 'python':
+    case LanguageEnum.PYTHON:
       return pythonCode(requestObj);
-    case 'beanshell':
+    case LanguageEnum.BEANSHELL:
       return javaCode(requestObj);
-    case 'nashornScript':
+    case LanguageEnum.NASHORNSCRIPT:
       return jsCode(requestObj);
-    case 'rhinoScript':
+    case LanguageEnum.RHINOSCRIPT:
       return jsCode(requestObj);
-    case 'javascript':
+    case LanguageEnum.JAVASCRIPT:
       return jsCode(requestObj);
-    case 'beanshell-jsr233':
+    case LanguageEnum.BEANSHELL_JSR233:
       return javaCode(requestObj);
     default:
       return '';

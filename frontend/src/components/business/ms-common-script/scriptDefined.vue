@@ -28,7 +28,7 @@
         :width="expandMenu ? '100%' : '68%'"
         height="460px"
         theme="vs"
-        :language="(innerLanguagesType as Language)"
+        :language="innerLanguagesType"
         :read-only="false"
         :show-full-screen="false"
         :show-theme-change="false"
@@ -86,14 +86,13 @@
   import useAppStore from '@/store/modules/app';
 
   import type { CommonScriptItem } from '@/models/projectManagement/commonScript';
-  import { RequestConditionScriptLanguage } from '@/enums/apiEnum';
 
   const appStore = useAppStore();
 
   const props = withDefaults(
     defineProps<{
       showType: 'commonScript' | 'executionResult'; // 执行类型
-      language: Language | RequestConditionScriptLanguage;
+      language: Language;
       code: string;
       enableRadioSelected?: boolean;
       executionResult?: string; // 执行结果
@@ -104,7 +103,7 @@
     }
   );
   const emit = defineEmits<{
-    (e: 'update:language', value: Language | RequestConditionScriptLanguage): void;
+    (e: 'update:language', value: Language): void;
     (e: 'update:code', value: string): void;
   }>();
 
