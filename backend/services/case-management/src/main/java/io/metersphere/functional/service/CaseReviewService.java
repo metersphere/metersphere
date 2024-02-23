@@ -238,7 +238,11 @@ public class CaseReviewService {
         List<String> caseIds = caseReviewFunctionalCases.stream().map(CaseReviewFunctionalCase::getCaseId).distinct().toList();
         CaseReview caseReview = addCaseReview(request, userId, caseReviewId, caseIds);
         BaseAssociateCaseRequest baseAssociateCaseRequest = request.getBaseAssociateCaseRequest();
-        addAssociate(request, userId, caseReviewId, caseIds, baseAssociateCaseRequest.getReviewers());
+        if (baseAssociateCaseRequest != null) {
+            addAssociate(request, userId, caseReviewId, caseIds, baseAssociateCaseRequest.getReviewers());
+        } else {
+            addAssociate(request, userId, caseReviewId, caseIds, request.getReviewers());
+        }
         return caseReview;
     }
 
