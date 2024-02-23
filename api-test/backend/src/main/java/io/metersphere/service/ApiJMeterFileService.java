@@ -112,9 +112,12 @@ public class ApiJMeterFileService {
 
     private Map<String, String> extractScenarioEnv(String envType, String envJson, String envGroupId) {
         Map<String, String> scenarioEnv = new LinkedHashMap<>();
-        if (envType.equals(EnvironmentType.JSON.name()) && StringUtils.isNotBlank(envJson)) {
+        // 获取场景用例单独的执行环境
+        if (StringUtils.equals(envType, EnvironmentType.JSON.name()) && StringUtils.isNotBlank(envJson)) {
             scenarioEnv = JSON.parseObject(envJson, Map.class);
-        } else if (envType.equals(EnvironmentType.GROUP.name()) && StringUtils.isNotBlank(envGroupId)) {
+        }
+        // 获取场景用例的执行环境组
+        else if (StringUtils.equals(envType, EnvironmentType.GROUP.name()) && StringUtils.isNotBlank(envGroupId)) {
             scenarioEnv = environmentGroupProjectService.getEnvMap(envGroupId);
         }
         return scenarioEnv;
