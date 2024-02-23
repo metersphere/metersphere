@@ -166,6 +166,14 @@
       loadColumn(props.tableKey);
     }
   });
+  watch(
+    () => props.visible,
+    (value) => {
+      if (value) {
+        hasChange.value = false;
+      }
+    }
+  );
 </script>
 
 <style lang="less" scoped>

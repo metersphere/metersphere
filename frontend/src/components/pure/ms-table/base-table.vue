@@ -194,9 +194,11 @@
           </slot>
         </div>
       </template>
-      <template #expand-icon="{ expanded }">
-        <MsIcon v-if="!expanded" :size="8" type="icon-icon_right_outlined" class="text-[var(--color-text-4)]" />
-        <MsIcon v-else :size="8" class="text-[rgb(var(--primary-6))]" type="icon-icon_down_outlined" />
+      <template #expand-icon="{ expanded, record }">
+        <slot name="expand-icon" v-bind="{ expanded, record }">
+          <MsIcon v-if="!expanded" :size="8" type="icon-icon_right_outlined" class="text-[var(--color-text-4)]" />
+          <MsIcon v-else :size="8" class="text-[rgb(var(--primary-6))]" type="icon-icon_down_outlined" />
+        </slot>
       </template>
     </a-table>
     <div
@@ -700,7 +702,7 @@
     height: 16px;
     border: none;
     border-radius: 50%;
-    background: var(--color-text-n8) !important;
+    background: var(--color-text-n8);
   }
   :deep(.arco-table .arco-table-expand-btn:hover) {
     border-color: transparent;

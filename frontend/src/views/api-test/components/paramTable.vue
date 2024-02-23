@@ -1,5 +1,19 @@
 <template>
-  <MsBaseTable v-bind="propsRes" :hoverable="false" no-disable is-simple-setting v-on="propsEvent">
+  <MsBaseTable
+    v-bind="propsRes"
+    :hoverable="false"
+    no-disable
+    is-simple-setting
+    :span-method="props.spanMethod"
+    v-on="propsEvent"
+  >
+    <!-- 展开行-->
+    <template #expand-icon="{ record }">
+      <div class="flex flex-row items-center gap-[2px] text-[var(--color-text-4)]">
+        <icon-branch class="scale-y-[-1]" />
+        <span v-if="record.children">{{ record.children.length }}</span>
+      </div>
+    </template>
     <!-- 表格头 slot -->
     <template #encodeTitle>
       <div class="flex items-center text-[var(--color-text-3)]">
@@ -224,42 +238,49 @@
         @change="() => addTableLine(rowIndex)"
       />
     </template>
-    <template #mustContain="{ record, columnConfig, rowIndex }">
+    <template #mustContain="{ record, columnConfig }">
       <a-checkbox
         v-model:model-value="record[columnConfig.dataIndex as string]"
-        @change="() => addTableLine(rowIndex)"
+        @change="handleMustContainColChange(false)"
+      />
+    </template>
+    <template #typeChecking="{ record, columnConfig }">
+      <a-checkbox
+        v-model:model-value="record[columnConfig.dataIndex as string]"
+        @change="handleTypeCheckingColChange(false)"
       />
     </template>
     <template #operation="{ record, rowIndex, columnConfig }">
-      <a-switch
-        v-if="columnConfig.hasDisable"
-        v-model:model-value="record.disable"
-        size="small"
-        type="line"
-        class="mr-[8px]"
-        @change="() => addTableLine(rowIndex)"
-      />
-      <slot name="operationPre" :record="record" :row-index="rowIndex" :column-config="columnConfig"></slot>
-      <MsTableMoreAction
-        v-if="columnConfig.moreAction"
-        :list="getMoreActionList(columnConfig.moreAction, record)"
-        @select="(e) => handleMoreActionSelect(e, record)"
-      />
-      <a-trigger v-if="columnConfig.format === RequestBodyFormat.FORM_DATA" trigger="click" position="br">
-        <MsButton type="icon" class="mr-[8px]"><icon-more /></MsButton>
-        <template #content>
-          <div class="content-type-trigger-content">
-            <div class="mb-[8px] text-[var(--color-text-1)]">Content-Type</div>
-            <a-select
-              v-model:model-value="record.contentType"
-              :options="Object.values(RequestContentTypeEnum).map((e) => ({ label: e, value: e }))"
-              allow-create
-              @change="() => addTableLine(rowIndex)"
-            />
-          </div>
-        </template>
-      </a-trigger>
-      <div>
+      <div class="flex flex-row items-center">
+        <a-switch
+          v-if="columnConfig.hasDisable"
+          v-model:model-value="record.disable"
+          size="small"
+          type="line"
+          class="mr-[8px]"
+          @change="(val) => addTableLine(val as number)"
+        />
+        <slot name="operationPre" :record="record" :row-index="rowIndex" :column-config="columnConfig"></slot>
+        <MsTableMoreAction
+          v-if="columnConfig.moreAction"
+          :list="getMoreActionList(columnConfig.moreAction, record)"
+          @select="(e) => handleMoreActionSelect(e, record)"
+        />
+        <a-trigger v-if="columnConfig.format === RequestBodyFormat.FORM_DATA" trigger="click" position="br">
+          <MsButton type="icon" class="mr-[8px]"><icon-more /></MsButton>
+          <template #content>
+            <div class="content-type-trigger-content">
+              <div class="mb-[8px] text-[var(--color-text-1)]">Content-Type</div>
+              <a-select
+                v-model:model-value="record.contentType"
+                :options="Object.values(RequestContentTypeEnum).map((e) => ({ label: e, value: e }))"
+                allow-create
+                @change="(val) => addTableLine(val as number)"
+              />
+            </div>
+          </template>
+        </a-trigger>
+
         <icon-minus-circle
           v-if="paramsLength > 1 && rowIndex !== paramsLength - 1"
           class="ml-[8px] cursor-pointer text-[var(--color-text-4)]"
@@ -273,13 +294,28 @@
         <a-option v-for="item in columnConfig.options" :key="item.value">{{ t(item.label) }}</a-option>
       </a-select>
     </template>
-    <template #matchCondition="{ record, columnConfig, rowIndex }">
-      <a-select v-model="record.condition" class="param-input" @change="() => addTableLine(rowIndex)">
+    <template #matchCondition="{ record, columnConfig }">
+      <a-select v-model="record.condition" class="param-input">
         <a-option v-for="item in columnConfig.options" :key="item.value">{{ t(item.label) }}</a-option>
       </a-select>
     </template>
-    <template #matchValue="{ record, rowIndex }">
-      <a-input v-model="record.matchValue" class="param-input" @change="() => addTableLine(rowIndex)" />
+    <template #matchValue="{ record, rowIndex, columnConfig }">
+      <a-tooltip
+        v-if="columnConfig.hasRequired"
+        :content="t(record.required ? 'apiTestDebug.paramRequired' : 'apiTestDebug.paramNotRequired')"
+      >
+        <MsButton
+          type="icon"
+          :class="[
+            record.required ? '!text-[rgb(var(--danger-5))]' : '!text-[var(--color-text-brand)]',
+            '!mr-[4px] !p-[4px]',
+          ]"
+          @click="toggleRequired(record, rowIndex)"
+        >
+          <div>*</div>
+        </MsButton>
+      </a-tooltip>
+      <a-input v-model="record.matchValue" class="param-input" />
     </template>
     <template #project="{ record, columnConfig, rowIndex }">
       <a-select
@@ -346,7 +382,8 @@
 </template>
 
 <script async setup lang="ts">
-  import { cloneDeep } from 'lodash-es';
+  import { TableColumnData, TableData } from '@arco-design/web-vue';
+  import { cloneDeep, isEqual } from 'lodash-es';
 
   import MsButton from '@/components/pure/ms-button/index.vue';
   import MsCodeEditor from '@/components/pure/ms-code-editor/index.vue';
@@ -366,6 +403,8 @@
 
   import { RequestBodyFormat, RequestContentTypeEnum, RequestParamsType } from '@/enums/apiEnum';
   import { SelectAllEnum, TableKeyEnum } from '@/enums/tableEnum';
+
+  import { TableOperationColumn } from '@arco-design/web-vue/es/table/interface';
   // 异步加载组件
   const MsAddAttachment = defineAsyncComponent(() => import('@/components/business/ms-add-attachment/index.vue'));
   const MsParamsInput = defineAsyncComponent(() => import('@/components/business/ms-params-input/index.vue'));
@@ -400,6 +439,12 @@
       showSelectorAll?: boolean; // 是否显示全选
       isSimpleSetting?: boolean; // 是否简单Column设置
       response?: string; // 响应内容
+      spanMethod?: (data: {
+        record: TableData;
+        column: TableColumnData | TableOperationColumn;
+        rowIndex: number;
+        columnIndex: number;
+      }) => { rowspan?: number; colspan?: number } | void;
       uploadTempFileApi?: (...args) => Promise<any>; // 上传临时文件接口
     }>(),
     {
@@ -496,6 +541,69 @@
     emit('change', propsRes.value.data);
   }
 
+  /** 断言-文档-Begin */
+  // 断言-文档-必须包含-全选
+  const mustIncludeAllChecked = ref(false);
+  const mustIncludeIndeterminate = ref(false);
+  const handleMustIncludeChange = (val: boolean) => {
+    mustIncludeAllChecked.value = val;
+    mustIncludeIndeterminate.value = false;
+    const { data } = propsRes.value;
+    data.forEach((e: any) => {
+      e.mustInclude = val;
+    });
+    propsRes.value.data = data;
+    emit('change', propsRes.value.data);
+  };
+  const handleMustContainColChange = (notEmit?: boolean) => {
+    const { data } = propsRes.value;
+    const checkedList = data.filter((e: any) => e.mustInclude).map((e: any) => e.id);
+    if (checkedList.length === data.length) {
+      mustIncludeAllChecked.value = true;
+      mustIncludeIndeterminate.value = false;
+    } else if (checkedList.length === 0) {
+      mustIncludeAllChecked.value = false;
+      mustIncludeIndeterminate.value = false;
+    } else {
+      mustIncludeAllChecked.value = false;
+      mustIncludeIndeterminate.value = true;
+    }
+    if (!notEmit) {
+      emit('change', propsRes.value.data);
+    }
+  };
+
+  const typeCheckingAllChecked = ref(false);
+  const typeCheckingIndeterminate = ref(false);
+  const handleTypeCheckingChange = (val: boolean) => {
+    typeCheckingAllChecked.value = val;
+    typeCheckingIndeterminate.value = false;
+    const { data } = propsRes.value;
+    data.forEach((e: any) => {
+      e.typeChecking = val;
+    });
+    propsRes.value.data = data;
+    emit('change', propsRes.value.data);
+  };
+  const handleTypeCheckingColChange = (notEmit?: boolean) => {
+    const { data } = propsRes.value;
+    const checkedList = data.filter((e: any) => e.typeChecking).map((e: any) => e.id);
+    if (checkedList.length === data.length) {
+      typeCheckingAllChecked.value = true;
+      typeCheckingIndeterminate.value = false;
+    } else if (checkedList.length === 0) {
+      typeCheckingAllChecked.value = false;
+      typeCheckingIndeterminate.value = false;
+    } else {
+      typeCheckingAllChecked.value = false;
+      typeCheckingIndeterminate.value = true;
+    }
+    if (!notEmit) {
+      emit('change', propsRes.value.data);
+    }
+  };
+  /** 断言-文档-end */
+
   /**
    * 当表格输入框变化时，给参数表格添加一行数据行
    * @param val 输入值
@@ -513,6 +621,8 @@
       } as any);
       emit('change', propsRes.value.data);
     }
+    handleMustContainColChange(true);
+    handleTypeCheckingColChange(true);
   }
 
   watch(
@@ -667,30 +777,6 @@
     addTableLine(rowIndex);
   }
 
-  /** 断言-文档-Begin */
-  // 断言-文档-必须包含-全选
-  const mustIncludeList = ref([]);
-  const mustIncludeAllChecked = ref(false);
-  const mustIncludeIndeterminate = ref(false);
-  const handleMustIncludeChange = (val: boolean) => {
-    mustIncludeAllChecked.value = val;
-    mustIncludeIndeterminate.value = false;
-    const data = propsRes.value;
-    mustIncludeList.value = val ? data.map((e: any) => e.id) : [];
-  };
-
-  // 断言-文档-类型校验-存储用户勾选的id
-  const typeCheckingList = ref([]);
-  const typeCheckingAllChecked = ref(false);
-  const typeCheckingIndeterminate = ref(false);
-  const handleTypeCheckingChange = (val: boolean) => {
-    typeCheckingAllChecked.value = val;
-    typeCheckingIndeterminate.value = false;
-    const data = propsRes.value;
-    typeCheckingList.value = val ? data.map((e: any) => e.id) : [];
-  };
-  /** 断言-文档-end */
-
   defineExpose({
     addTableLine,
   });
@@ -773,5 +859,8 @@
     font-size: 12px;
     line-height: 16px;
     color: var(--color-text-1);
+  }
+  :deep(.arco-table-expand-btn) {
+    background: transparent;
   }
 </style>
