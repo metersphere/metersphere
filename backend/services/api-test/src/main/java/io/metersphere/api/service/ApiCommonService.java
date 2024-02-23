@@ -3,16 +3,25 @@ package io.metersphere.api.service;
 import io.metersphere.api.dto.ApiFile;
 import io.metersphere.api.dto.definition.ResponseBinaryBody;
 import io.metersphere.api.dto.definition.ResponseBody;
+import io.metersphere.api.dto.request.MsCommonElement;
 import io.metersphere.api.dto.request.http.MsHTTPElement;
 import io.metersphere.api.dto.request.http.body.BinaryBody;
 import io.metersphere.api.dto.request.http.body.Body;
 import io.metersphere.api.dto.request.http.body.FormDataBody;
 import io.metersphere.api.dto.request.http.body.FormDataKV;
 import io.metersphere.plugin.api.spi.AbstractMsTestElement;
+import io.metersphere.project.api.KeyValueParam;
+import io.metersphere.project.api.processor.MsProcessor;
+import io.metersphere.project.api.processor.ScriptProcessor;
+import io.metersphere.project.domain.CustomFunction;
+import io.metersphere.project.domain.CustomFunctionBlob;
 import io.metersphere.project.domain.FileAssociation;
 import io.metersphere.project.domain.FileMetadata;
+import io.metersphere.project.dto.CommonScriptInfo;
+import io.metersphere.project.service.CustomFunctionService;
 import io.metersphere.project.service.FileAssociationService;
 import io.metersphere.project.service.FileMetadataService;
+import io.metersphere.sdk.util.JSON;
 import jakarta.annotation.Resource;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -22,6 +31,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -35,8 +46,12 @@ public class ApiCommonService {
     private FileAssociationService fileAssociationService;
     @Resource
     private FileMetadataService fileMetadataService;
+    @Resource
+    private CustomFunctionService customFunctionService;
+
     /**
      * 根据 fileId 查找 MsHTTPElement 中的 ApiFile
+     *
      * @param fileId
      * @param msTestElement
      * @return
@@ -63,24 +78,26 @@ public class ApiCommonService {
     /**
      * 设置关联的文件的最新信息
      * 包括文件别名和是否被删除
+     *
      * @param resourceId
      * @param msTestElement
      */
-    public void updateLinkFileInfo(String resourceId, AbstractMsTestElement msTestElement) {
-        updateLinkFileInfo(resourceId, getApiFiles(msTestElement));
+    public void setLinkFileInfo(String resourceId, AbstractMsTestElement msTestElement) {
+        setLinkFileInfo(resourceId, getApiFiles(msTestElement));
     }
 
     /**
      * 设置关联的文件的最新信息
      * 包括文件别名和是否被删除
+     *
      * @param resourceId
      * @param responseBody
      */
-    public void updateLinkFileInfo(String resourceId, ResponseBody responseBody) {
-        updateLinkFileInfo(resourceId, getApiBodyFiles(responseBody));
+    public void setLinkFileInfo(String resourceId, ResponseBody responseBody) {
+        setLinkFileInfo(resourceId, getApiBodyFiles(responseBody));
     }
 
-    private void updateLinkFileInfo(String resourceId, List<ApiFile> apiFiles) {
+    private void setLinkFileInfo(String resourceId, List<ApiFile> apiFiles) {
         List<ApiFile> linkFiles = apiFiles.stream()
                 .filter(file -> !file.getLocal() && !file.getDelete())
                 .toList();
@@ -114,7 +131,6 @@ public class ApiCommonService {
 
 
     /**
-     *
      * @param body
      * @return
      */
@@ -155,8 +171,96 @@ public class ApiCommonService {
     public void replaceApiFileInfo(List<ApiFile> updateFiles, FileMetadata newFileMetadata) {
         for (ApiFile updateFile : updateFiles) {
             updateFile.setFileId(newFileMetadata.getId());
-            // todo 重新设置文件名
-            // updateFile.setFileName();
+            updateFile.setFileName(newFileMetadata.getOriginalName());
         }
+    }
+
+    /**
+     * 设置使用脚本前后置的公共脚本信息
+     * @param msTestElement
+     */
+    public void setEnableCommonScriptProcessorInfo(AbstractMsTestElement msTestElement) {
+        MsCommonElement msCommonElement = getMsCommonElement(msTestElement);
+        Optional.ofNullable(msCommonElement).ifPresent(item -> setEnableCommonScriptProcessorInfo(List.of(item)));
+    }
+
+    /**
+     * 设置使用脚本前后置的公共脚本信息
+     *
+     * @param commonElements
+     */
+    public void setEnableCommonScriptProcessorInfo(List<MsCommonElement> commonElements) {
+        List<ScriptProcessor> scriptsProcessors = getEnableCommonScriptProcessors(commonElements);
+
+        List<String> commonScriptIds = scriptsProcessors.stream()
+                .map(processor -> processor.getCommonScriptInfo().getId())
+                .toList();
+
+        Map<String, CustomFunctionBlob> customFunctionBlobMap = customFunctionService.getBlobByIds(commonScriptIds).stream()
+                .collect(Collectors.toMap(CustomFunctionBlob::getId, Function.identity()));
+
+        Map<String, CustomFunction> customFunctionMap = customFunctionService.getByIds(commonScriptIds).stream()
+                .collect(Collectors.toMap(CustomFunction::getId, Function.identity()));
+
+        for (ScriptProcessor processor : scriptsProcessors) {
+            CommonScriptInfo commonScriptInfo = processor.getCommonScriptInfo();
+            CustomFunctionBlob customFunctionBlob = customFunctionBlobMap.get(commonScriptInfo.getId());
+            CustomFunction customFunction = customFunctionMap.get(commonScriptInfo.getId());
+
+            // 设置公共脚本信息
+            Optional.ofNullable(customFunctionBlob.getParams()).ifPresent(paramsBlob -> {
+                List<KeyValueParam> commonParams = JSON.parseArray(new String(paramsBlob), KeyValueParam.class);
+                // 替换用户输入值
+                commonParams.forEach(commonParam ->
+                        Optional.ofNullable(commonScriptInfo.getParams()).ifPresent(params ->
+                            params.stream()
+                                    .filter(param -> StringUtils.equals(commonParam.getKey(), param.getKey()))
+                                    .findFirst()
+                                    .ifPresent(param -> commonParam.setValue(param.getValue()))
+                        )
+                );
+                commonScriptInfo.setParams(commonParams);
+            });
+            Optional.ofNullable(customFunctionBlob.getScript()).ifPresent(script ->
+                    commonScriptInfo.setScript(new String(script)));
+            commonScriptInfo.setScriptLanguage(customFunction.getType());
+            commonScriptInfo.setName(customFunction.getName());
+        }
+    }
+
+    /**
+     * 获取使用公共脚本的前后置
+     *
+     * @param commonElements
+     * @return
+     */
+    private List<ScriptProcessor> getEnableCommonScriptProcessors(List<MsCommonElement> commonElements) {
+        List<MsProcessor> processors = new ArrayList<>();
+
+        for (MsCommonElement commonElement : commonElements) {
+            processors.addAll(commonElement.getPreProcessorConfig().getProcessors());
+            processors.addAll(commonElement.getPostProcessorConfig().getProcessors());
+        }
+
+        // 获取使用公共脚本的前后置
+        List<ScriptProcessor> scriptsProcessors = processors.stream()
+                .filter(processor -> processor instanceof ScriptProcessor)
+                .map(processor -> (ScriptProcessor) processor)
+                .filter(ScriptProcessor::getEnable)
+                .filter(ScriptProcessor::isEnableCommonScript)
+                .filter(ScriptProcessor::isValid)
+                .collect(Collectors.toList());
+        return scriptsProcessors;
+    }
+
+    public MsCommonElement getMsCommonElement(AbstractMsTestElement msTestElement) {
+        if (CollectionUtils.isNotEmpty(msTestElement.getChildren())) {
+            for (AbstractMsTestElement child : msTestElement.getChildren()) {
+                if (child instanceof MsCommonElement msCommonElement) {
+                    return msCommonElement;
+                }
+            }
+        }
+        return null;
     }
 }

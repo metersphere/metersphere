@@ -8,6 +8,8 @@ import org.apache.jmeter.protocol.java.sampler.JSR223Sampler;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
+import java.util.Optional;
+
 /**
  * 环境场景级前置处理器处理
  *
@@ -31,6 +33,11 @@ public class ScenarioScriptProcessorConverter extends ScriptProcessorConverter {
         }
 
         parse(processor, scriptProcessor);
+
+        // 添加公共脚本的参数
+        Optional.ofNullable(getScriptArguments(scriptProcessor))
+                .ifPresent(hashTree::add);
+
         // 标记当前处理器是否关联场景结果
         processor.setName("ASSOCIATE_RESULT_PROCESSOR_" + associateScenarioResult);
         hashTree.add(processor);

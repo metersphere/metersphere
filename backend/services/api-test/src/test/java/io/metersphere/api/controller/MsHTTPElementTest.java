@@ -27,6 +27,7 @@ import io.metersphere.project.api.processor.extract.RegexExtract;
 import io.metersphere.project.api.processor.extract.ResultMatchingExtract;
 import io.metersphere.project.api.processor.extract.XPathExtract;
 import io.metersphere.project.constants.ScriptLanguageType;
+import io.metersphere.project.dto.CommonScriptInfo;
 import io.metersphere.sdk.constants.MsAssertionCondition;
 import io.metersphere.sdk.util.BeanUtils;
 import org.junit.jupiter.api.Assertions;
@@ -363,7 +364,8 @@ public class MsHTTPElementTest {
         assertions.add(responseTimeAssertion);
 
         MsScriptAssertion scriptAssertion = new MsScriptAssertion();
-        scriptAssertion.setScriptId("1111");
+        scriptAssertion.setCommonScriptInfo(new CommonScriptInfo());
+        scriptAssertion.getCommonScriptInfo().setId("1111");
         scriptAssertion.setScript("1111");
         scriptAssertion.setName("1111");
         assertions.add(scriptAssertion);

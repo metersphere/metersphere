@@ -1,11 +1,12 @@
 package io.metersphere.project.api.assertion;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import io.metersphere.project.api.KeyValueParam;
 import io.metersphere.project.constants.ScriptLanguageType;
+import io.metersphere.project.dto.CommonScriptInfo;
+import jakarta.validation.Valid;
 import lombok.Data;
-
-import java.util.List;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 变量断言
@@ -27,13 +28,23 @@ public class MsScriptAssertion extends MsAssertion {
     /**
      * 是否启用公共脚本
      */
-    private Boolean enableCommonScript;
+    private Boolean enableCommonScript = false;
     /**
-     * 脚本ID
+     * 公共脚本信息
+     * {@link CommonScriptInfo}
      */
-    private String scriptId;
-    /**
-     * 公共脚本入参
-     */
-    private List<KeyValueParam> params;
+    @Valid
+    private CommonScriptInfo commonScriptInfo;
+
+    public boolean isValid() {
+        if (isEnableCommonScript()) {
+            return commonScriptInfo != null && StringUtils.isNotBlank(commonScriptInfo.getId());
+        } else {
+            return StringUtils.isNotBlank(script);
+        }
+    }
+
+    public boolean isEnableCommonScript() {
+        return BooleanUtils.isTrue(enableCommonScript);
+    }
 }

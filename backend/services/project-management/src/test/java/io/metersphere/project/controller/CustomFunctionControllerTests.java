@@ -9,6 +9,7 @@ import io.metersphere.project.dto.customfunction.request.CustomFunctionUpdateReq
 import io.metersphere.project.enums.result.ProjectResultCode;
 import io.metersphere.project.mapper.CustomFunctionBlobMapper;
 import io.metersphere.project.mapper.CustomFunctionMapper;
+import io.metersphere.project.service.CustomFunctionService;
 import io.metersphere.sdk.constants.PermissionConstants;
 import io.metersphere.sdk.util.BeanUtils;
 import io.metersphere.sdk.util.JSON;
@@ -29,6 +30,8 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author: LAN
@@ -54,7 +57,8 @@ public class CustomFunctionControllerTests extends BaseTest {
 
     @Resource
     private CustomFunctionBlobMapper customFunctionBlobMapper;
-
+    @Resource
+    private CustomFunctionService customFunctionService;
 
     @Test
     @Order(1)
@@ -329,6 +333,16 @@ public class CustomFunctionControllerTests extends BaseTest {
     }
 
     @Test
+    @Order(11)
+    public void testUncoveredFunc() {
+        // 在项目管理模块没有调用，手动调用
+        customFunctionService.getBlobByIds(List.of());
+        customFunctionService.getByIds(List.of());
+        Assertions.assertEquals(customFunctionService.getBlobByIds(List.of(customFunction.getId())).size(), 1);
+        Assertions.assertEquals(customFunctionService.getByIds(List.of(customFunction.getId())).size(), 1);
+    }
+
+    @Test
     @Order(12)
     public void testDel() throws Exception {
         LogUtils.info("delete custom function test");
@@ -347,6 +361,5 @@ public class CustomFunctionControllerTests extends BaseTest {
         // @@校验权限
         requestGetPermissionTest(PermissionConstants.PROJECT_CUSTOM_FUNCTION_DELETE, DELETE + "222");
     }
-
 
 }

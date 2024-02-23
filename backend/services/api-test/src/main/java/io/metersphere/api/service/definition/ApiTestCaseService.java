@@ -210,7 +210,10 @@ public class ApiTestCaseService {
         example.createCriteria().andCaseIdEqualTo(id).andUserIdEqualTo(userId);
         List<ApiTestCaseFollower> followers = apiTestCaseFollowerMapper.selectByExample(example);
         apiTestCaseDTO.setFollow(CollectionUtils.isNotEmpty(followers));
-        apiTestCaseDTO.setRequest(ApiDataUtils.parseObject(new String(testCaseBlob.getRequest()), AbstractMsTestElement.class));
+        AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(testCaseBlob.getRequest()), AbstractMsTestElement.class);
+        apiCommonService.setLinkFileInfo(id, msTestElement);
+        apiCommonService.setEnableCommonScriptProcessorInfo(msTestElement);
+        apiTestCaseDTO.setRequest(msTestElement);
         return apiTestCaseDTO;
     }
 

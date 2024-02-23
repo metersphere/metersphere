@@ -348,11 +348,11 @@ public class ApiDefinitionControllerTests extends BaseTest {
         }
         if (apiDefinitionBlob != null) {
             AbstractMsTestElement msTestElement = ApiDataUtils.parseObject(new String(apiDefinitionBlob.getRequest()), AbstractMsTestElement.class);
-            apiCommonService.updateLinkFileInfo(apiDefinition.getId(), msTestElement);
+            apiCommonService.setLinkFileInfo(apiDefinition.getId(), msTestElement);
             copyApiDefinitionDTO.setRequest(msTestElement);
             List<HttpResponse> httpResponses = ApiDataUtils.parseArray(new String(apiDefinitionBlob.getResponse()), HttpResponse.class);
             for (HttpResponse httpResponse : httpResponses) {
-                apiCommonService.updateLinkFileInfo(apiDefinition.getId(), httpResponse.getBody());
+                apiCommonService.setLinkFileInfo(apiDefinition.getId(), httpResponse.getBody());
             }
             copyApiDefinitionDTO.setResponse(httpResponses);
         }
