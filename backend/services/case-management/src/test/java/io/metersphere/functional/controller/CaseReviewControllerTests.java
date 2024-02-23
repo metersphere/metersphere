@@ -108,6 +108,17 @@ public class CaseReviewControllerTests extends BaseTest {
         List<String> list = caseReviews.stream().map(CaseReview::getId).distinct().toList();
         Assertions.assertEquals(2, list.size());
 
+        caseReviewCopyRequest = getCaseReviewAddRequest("创建评审1", CaseReviewPassRule.SINGLE.toString(), "CASE_REVIEW_TEST_GYQ_ID", false, true, null);
+        caseReviewCopyRequest.setCopyId(caseReviewId);
+        caseReviewCopyRequest.setBaseAssociateCaseRequest(null);
+        mvcResult1 = this.requestPostWithOkAndReturn(COPY_CASE_REVIEW, caseReviewCopyRequest);
+        caseReview1 = getResultData(mvcResult1, CaseReview.class);
+        checkLog(caseReview1.getId(), OperationLogType.COPY);
+        caseReviews = getCaseReviews("创建评审1");
+        Assertions.assertEquals(3, caseReviews.size());
+        list = caseReviews.stream().map(CaseReview::getId).distinct().toList();
+        Assertions.assertEquals(3, list.size());
+
         caseReviewRequest = getCaseReviewAddRequest("创建评审X", CaseReviewPassRule.SINGLE.toString(), "CASE_REVIEW_TEST_GYQ_ID", false, true, null);
         BaseAssociateCaseRequest baseAssociateCaseRequest = caseReviewRequest.getBaseAssociateCaseRequest();
         baseAssociateCaseRequest.setSelectAll(true);
