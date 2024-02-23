@@ -56,22 +56,6 @@ public class OrganizationTemplateLogService {
         }
     }
 
-    public LogDTO setDefaultTemplateLog(TemplateUpdateRequest request) {
-        Template template = organizationTemplateService.getWithCheck(request.getId());
-        LogDTO dto = null;
-        if (template != null) {
-            dto = new LogDTO(
-                    OperationLogConstants.ORGANIZATION,
-                    null,
-                    template.getId(),
-                    null,
-                    OperationLogType.UPDATE.name(),
-                    getOperationLogModule(template.getScene()),
-                    String.join(Translator.get("set_default_template"), ":", template.getName()));
-            dto.setOriginalValue(JSON.toJSONBytes(template));
-        }
-        return dto;
-    }
 
     public LogDTO disableOrganizationTemplateLog(String organizationId, String scene) {
         return new LogDTO(
@@ -80,8 +64,31 @@ public class OrganizationTemplateLogService {
                 scene,
                 null,
                 OperationLogType.UPDATE.name(),
-                getOperationLogModule(scene),
+                getDisableOrganizationTemplateModule(scene),
                 Translator.get("project_template_enable"));
+    }
+
+    /**
+     * 获取启用项目模板的操作对象
+     * @param scene
+     * @return
+     */
+    public String getDisableOrganizationTemplateModule(String scene) {
+        TemplateScene templateScene = EnumValidator.validateEnum(TemplateScene.class, scene);
+        switch (templateScene) {
+            case API:
+                return OperationLogModule.SETTING_ORGANIZATION_TEMPLATE_API;
+            case FUNCTIONAL:
+                return OperationLogModule.SETTING_ORGANIZATION_TEMPLATE_FUNCTIONAL;
+            case UI:
+                return OperationLogModule.SETTING_ORGANIZATION_TEMPLATE_UI;
+            case BUG:
+                return OperationLogModule.SETTING_ORGANIZATION_TEMPLATE_BUG;
+            case TEST_PLAN:
+                return OperationLogModule.SETTING_ORGANIZATION_TEMPLATE_TEST_PLAN;
+            default:
+                return null;
+        }
     }
 
     public LogDTO updateLog(TemplateUpdateRequest request) {

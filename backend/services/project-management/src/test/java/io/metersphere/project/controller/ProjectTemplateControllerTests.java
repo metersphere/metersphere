@@ -2,6 +2,7 @@ package io.metersphere.project.controller;
 
 import io.metersphere.project.dto.ProjectTemplateDTO;
 import io.metersphere.project.dto.ProjectTemplateOptionDTO;
+import io.metersphere.project.service.ProjectTemplateLogService;
 import io.metersphere.project.service.ProjectTemplateService;
 import io.metersphere.sdk.constants.OrganizationParameterConstants;
 import io.metersphere.sdk.constants.PermissionConstants;
@@ -13,11 +14,14 @@ import io.metersphere.system.base.BasePluginTestService;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.OrganizationTemplateControllerTests;
 import io.metersphere.system.controller.param.TemplateUpdateRequestDefinition;
-import io.metersphere.system.domain.*;
+import io.metersphere.system.domain.CustomField;
+import io.metersphere.system.domain.OrganizationParameter;
+import io.metersphere.system.domain.Template;
+import io.metersphere.system.domain.TemplateExample;
 import io.metersphere.system.dto.sdk.TemplateDTO;
-import io.metersphere.system.dto.sdk.request.CustomFieldUpdateRequest;
 import io.metersphere.system.dto.sdk.request.TemplateCustomFieldRequest;
 import io.metersphere.system.dto.sdk.request.TemplateUpdateRequest;
+import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.OrganizationParameterMapper;
 import io.metersphere.system.mapper.TemplateMapper;
@@ -35,7 +39,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -75,6 +78,8 @@ public class ProjectTemplateControllerTests extends BaseTest {
     private OrganizationParameterMapper organizationParameterMapper;
     @Resource
     private ProjectTemplateService projectTemplateService;
+    @Resource
+    private ProjectTemplateLogService projectTemplateLogService;
     @Resource
     private BasePluginTestService basePluginTestService;
 
@@ -472,5 +477,15 @@ public class ProjectTemplateControllerTests extends BaseTest {
         projectTemplateService.getTableCustomField("DEFAULT_PROJECT_ID", TemplateScene.FUNCTIONAL.name());
         projectTemplateService.getTableCustomField(DEFAULT_PROJECT_ID, TemplateScene.FUNCTIONAL.name());
         projectTemplateService.getTableCustomField("test_project_id_2", TemplateScene.FUNCTIONAL.name());
+    }
+
+    @Test
+    @Order(10)
+    public void testLog() {
+        Assertions.assertEquals(projectTemplateLogService.getOperationLogModule(TemplateScene.API.name()), OperationLogModule.PROJECT_MANAGEMENT_TEMPLATE_API_TEMPLATE);
+        Assertions.assertEquals(projectTemplateLogService.getOperationLogModule(TemplateScene.FUNCTIONAL.name()), OperationLogModule.PROJECT_MANAGEMENT_TEMPLATE_FUNCTIONAL_TEMPLATE);
+        Assertions.assertEquals(projectTemplateLogService.getOperationLogModule(TemplateScene.BUG.name()), OperationLogModule.PROJECT_MANAGEMENT_TEMPLATE_BUG_TEMPLATE);
+        Assertions.assertEquals(projectTemplateLogService.getOperationLogModule(TemplateScene.TEST_PLAN.name()), OperationLogModule.PROJECT_MANAGEMENT_TEMPLATE_TEST_PLAN_TEMPLATE);
+        Assertions.assertEquals(projectTemplateLogService.getOperationLogModule(TemplateScene.UI.name()), OperationLogModule.PROJECT_MANAGEMENT_TEMPLATE_UI_TEMPLATE);
     }
 }

@@ -15,6 +15,7 @@ import io.metersphere.system.base.BaseCustomFieldTestService;
 import io.metersphere.system.base.BaseTest;
 import io.metersphere.system.controller.param.TemplateUpdateRequestDefinition;
 import io.metersphere.system.domain.*;
+import io.metersphere.system.log.constants.OperationLogModule;
 import io.metersphere.system.log.constants.OperationLogType;
 import io.metersphere.system.mapper.OrganizationParameterMapper;
 import io.metersphere.system.mapper.TemplateMapper;
@@ -67,6 +68,8 @@ public class OrganizationTemplateControllerTests extends BaseTest {
     private OrganizationTemplateService organizationTemplateService;
     @Resource
     private BaseCustomFieldTestService baseCustomFieldTestService;
+    @Resource
+    private OrganizationTemplateLogService organizationTemplateLogService;
 
     private static Template addTemplate;
     private static Template anotherTemplateField;
@@ -467,5 +470,21 @@ public class OrganizationTemplateControllerTests extends BaseTest {
         baseCustomFieldTestService.testResolverEmptyValidate();
         baseCustomFieldTestService.testResolverErrorValidate();
         baseCustomFieldTestService.testResolverParse();
+    }
+
+    @Test
+    @Order(10)
+    public void testLog() {
+        Assertions.assertEquals(organizationTemplateLogService.getOperationLogModule(TemplateScene.API.name()), OperationLogModule.SETTING_ORGANIZATION_TEMPLATE_API_TEMPLATE);
+        Assertions.assertEquals(organizationTemplateLogService.getOperationLogModule(TemplateScene.FUNCTIONAL.name()), OperationLogModule.SETTING_ORGANIZATION_TEMPLATE_FUNCTIONAL_TEMPLATE);
+        Assertions.assertEquals(organizationTemplateLogService.getOperationLogModule(TemplateScene.BUG.name()), OperationLogModule.SETTING_ORGANIZATION_TEMPLATE_BUG_TEMPLATE);
+        Assertions.assertEquals(organizationTemplateLogService.getOperationLogModule(TemplateScene.TEST_PLAN.name()), OperationLogModule.SETTING_ORGANIZATION_TEMPLATE_TEST_PLAN_TEMPLATE);
+        Assertions.assertEquals(organizationTemplateLogService.getOperationLogModule(TemplateScene.UI.name()), OperationLogModule.SETTING_ORGANIZATION_TEMPLATE_UI_TEMPLATE);
+
+        Assertions.assertEquals(organizationTemplateLogService.getDisableOrganizationTemplateModule(TemplateScene.API.name()), OperationLogModule.SETTING_ORGANIZATION_TEMPLATE_API);
+        Assertions.assertEquals(organizationTemplateLogService.getDisableOrganizationTemplateModule(TemplateScene.FUNCTIONAL.name()), OperationLogModule.SETTING_ORGANIZATION_TEMPLATE_FUNCTIONAL);
+        Assertions.assertEquals(organizationTemplateLogService.getDisableOrganizationTemplateModule(TemplateScene.BUG.name()), OperationLogModule.SETTING_ORGANIZATION_TEMPLATE_BUG);
+        Assertions.assertEquals(organizationTemplateLogService.getDisableOrganizationTemplateModule(TemplateScene.TEST_PLAN.name()), OperationLogModule.SETTING_ORGANIZATION_TEMPLATE_TEST_PLAN);
+        Assertions.assertEquals(organizationTemplateLogService.getDisableOrganizationTemplateModule(TemplateScene.UI.name()), OperationLogModule.SETTING_ORGANIZATION_TEMPLATE_UI);
     }
 }
