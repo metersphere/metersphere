@@ -276,7 +276,7 @@ defineOptions({
   async function deleteFileHandler(item: MsFileItem) {
     try {
       const params = {
-        refId: item.uid,
+        refId: item.associateId,
         associated: !item.local,
         bugId: bugId.value,
         projectId: currentProjectId.value,

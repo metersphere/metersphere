@@ -236,7 +236,7 @@ public class BugControllerTests extends BaseTest {
         request.setDescription(null);
         String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/test.xlsx")).getPath();
         File file = new File(filePath);
-        MultiValueMap<String, Object> paramMap = getDefaultMultiPartParam(request, file);
+        MultiValueMap<String, Object> paramMap = getMultiPartParam(request, file);
         this.requestMultipartWithOkAndReturn(BUG_ADD, paramMap);
 
         request.setCaseId("test");
@@ -253,24 +253,24 @@ public class BugControllerTests extends BaseTest {
         File file = new File(filePath);
         // 项目ID为空
         request.setProjectId(null);
-        MultiValueMap<String, Object> paramMap = getDefaultMultiPartParam(request, file);
+        MultiValueMap<String, Object> paramMap = getMultiPartParam(request, file);
         this.requestMultipart(BUG_ADD, paramMap).andExpect(status().isBadRequest());
         request.setProjectId("default-project-for-bug");
         // 处理人为空
         request.setTitle("default-bug-title");
         List<BugCustomFieldDTO> noHandleUser = request.getCustomFields().stream().filter(field -> !StringUtils.equals(field.getId(), "handleUser")).toList();
         request.setCustomFields(noHandleUser);
-        paramMap = getDefaultMultiPartParam(request, file);
+        paramMap = getMultiPartParam(request, file);
         this.requestMultipart(BUG_ADD, paramMap).andExpect(status().is5xxServerError());
         // 模板为空
         request.setTemplateId(null);
-        paramMap = getDefaultMultiPartParam(request, file);
+        paramMap = getMultiPartParam(request, file);
         this.requestMultipart(BUG_ADD, paramMap).andExpect(status().isBadRequest());
         // 状态为空
         request.setTemplateId("default-bug-template");
         List<BugCustomFieldDTO> noStatus = request.getCustomFields().stream().filter(field -> !StringUtils.equals(field.getId(), "status")).toList();
         request.setCustomFields(noStatus);
-        paramMap = getDefaultMultiPartParam(request, file);
+        paramMap = getMultiPartParam(request, file);
         this.requestMultipart(BUG_ADD, paramMap).andExpect(status().is5xxServerError());
     }
 
@@ -280,7 +280,7 @@ public class BugControllerTests extends BaseTest {
         BugEditRequest request = buildRequest(true);
         String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/test.xlsx")).getPath();
         File file = new File(filePath);
-        MultiValueMap<String, Object> paramMap = getDefaultMultiPartParam(request, file);
+        MultiValueMap<String, Object> paramMap = getMultiPartParam(request, file);
         this.requestMultipartWithOkAndReturn(BUG_UPDATE, paramMap);
         // 第二次更新, no-file
         MultiValueMap<String, Object> noFileParamMap = new LinkedMultiValueMap<>();
@@ -300,7 +300,7 @@ public class BugControllerTests extends BaseTest {
         request.setId("default-bug-id-not-exist");
         String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/test.xlsx")).getPath();
         File file = new File(filePath);
-        MultiValueMap<String, Object> paramMap = getDefaultMultiPartParam(request, file);
+        MultiValueMap<String, Object> paramMap = getMultiPartParam(request, file);
         this.requestMultipart(BUG_UPDATE, paramMap).andExpect(status().is5xxServerError());
     }
 
@@ -315,7 +315,7 @@ public class BugControllerTests extends BaseTest {
         request.setLinkFileIds(null);
         request.setUnLinkRefIds(null);
         request.setDeleteLocalFileIds(null);
-        MultiValueMap<String, Object> paramMap = getDefaultMultiPartParam(request, file);
+        MultiValueMap<String, Object> paramMap = getMultiPartParam(request, file);
         this.requestMultipartWithOkAndReturn(BUG_UPDATE, paramMap);
     }
 
@@ -562,14 +562,14 @@ public class BugControllerTests extends BaseTest {
         BugEditRequest addRequest = buildJiraBugRequest(false);
         String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/test.xlsx")).getPath();
         File file = new File(filePath);
-        MultiValueMap<String, Object> addParam = getDefaultMultiPartParam(addRequest, file);
+        MultiValueMap<String, Object> addParam = getMultiPartParam(addRequest, file);
         this.requestMultipartWithOkAndReturn(BUG_ADD, addParam);
 
         // 更新Jira缺陷
         BugEditRequest updateRequest = buildJiraBugRequest(true);
         updateRequest.setUnLinkRefIds(List.of(getAddJiraAssociateFile().getId()));
         updateRequest.setDeleteLocalFileIds(List.of(getAddJiraLocalFile().getFileId()));
-        MultiValueMap<String, Object> updateParma = getDefaultMultiPartParam(updateRequest, null);
+        MultiValueMap<String, Object> updateParma = getMultiPartParam(updateRequest, null);
         this.requestMultipartWithOkAndReturn(BUG_UPDATE, updateParma);
         // 删除Jira缺陷
         this.requestGet(BUG_DELETE + "/" + updateRequest.getId(), status().isOk());
@@ -582,7 +582,7 @@ public class BugControllerTests extends BaseTest {
         summary.setType("input");
         summary.setValue("这是一个系统Jira模板创建的缺陷");
         addRequest.getCustomFields().add(summary);
-        MultiValueMap<String, Object> addParam3 = getDefaultMultiPartParam(addRequest, null);
+        MultiValueMap<String, Object> addParam3 = getMultiPartParam(addRequest, null);
         this.requestMultipart(BUG_ADD, addParam3).andExpect(status().is5xxServerError());
 
         // 同步Jira存量缺陷(存量数据为空)
@@ -591,7 +591,7 @@ public class BugControllerTests extends BaseTest {
         // 添加没有附件的Jira缺陷
         addRequest.setLinkFileIds(null);
         addRequest.setTemplateId("default-bug-template-id");
-        MultiValueMap<String, Object> addParam2 = getDefaultMultiPartParam(addRequest, null);
+        MultiValueMap<String, Object> addParam2 = getMultiPartParam(addRequest, null);
         this.requestMultipartWithOkAndReturn(BUG_ADD, addParam2);
         this.requestGetWithOk(BUG_SYNC + "/default-project-for-bug");
         // 覆盖Redis-Key还未删除的情况
@@ -601,7 +601,7 @@ public class BugControllerTests extends BaseTest {
         // 更新没有附件的缺陷
         BugEditRequest updateRequest2 = buildJiraBugRequest(true);
         updateRequest2.setLinkFileIds(List.of("default-bug-file-id-1"));
-        MultiValueMap<String, Object> updateParam2 = getDefaultMultiPartParam(updateRequest2, file);
+        MultiValueMap<String, Object> updateParam2 = getMultiPartParam(updateRequest2, file);
         this.requestMultipartWithOkAndReturn(BUG_UPDATE, updateParam2);
         // 同步方法为异步, 所以换成手动调用
         BugExample example = new BugExample();
@@ -625,7 +625,7 @@ public class BugControllerTests extends BaseTest {
 
         // 集成配置为空
         addRequest.setProjectId("default-project-for-not-integration");
-        MultiValueMap<String, Object> notIntegrationParam = getDefaultMultiPartParam(addRequest, file);
+        MultiValueMap<String, Object> notIntegrationParam = getMultiPartParam(addRequest, file);
         this.requestMultipart(BUG_ADD, notIntegrationParam).andExpect(status().is5xxServerError());
 
         // 执行同步全部
@@ -681,7 +681,7 @@ public class BugControllerTests extends BaseTest {
         BugEditRequest addRequest = buildRequest(false);
         String filePath = Objects.requireNonNull(this.getClass().getClassLoader().getResource("file/test.xlsx")).getPath();
         File file = new File(filePath);
-        MultiValueMap<String, Object> addParam = getDefaultMultiPartParam(addRequest, file);
+        MultiValueMap<String, Object> addParam = getMultiPartParam(addRequest, file);
         this.requestMultipart(BUG_ADD, addParam).andExpect(status().is5xxServerError());
         // 获取禅道模板(删除默认项目模板)
         bugService.attachTemplateStatusField(null, null, null, null);
@@ -965,5 +965,19 @@ public class BugControllerTests extends BaseTest {
         FileAssociationExample example = new FileAssociationExample();
         example.createCriteria().andSourceIdEqualTo(bugId).andSourceTypeEqualTo(FileAssociationSourceUtil.SOURCE_TYPE_BUG);
         fileAssociationMapper.deleteByExample(example);
+    }
+
+    /**
+     * 获取默认的 MultiValue 参数
+     *
+     * @param param 参数
+     * @param file 文件
+     * @return 文件参数
+     */
+    protected MultiValueMap<String, Object> getMultiPartParam(Object param, File file) {
+        MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
+        paramMap.add("files", file);
+        paramMap.add("request", JSON.toJSONString(param));
+        return paramMap;
     }
 }

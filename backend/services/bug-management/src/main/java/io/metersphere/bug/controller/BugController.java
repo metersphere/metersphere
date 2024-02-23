@@ -100,7 +100,7 @@ public class BugController {
     @Log(type = OperationLogType.ADD, expression = "#msClass.addLog(#request, #files)", msClass = BugLogService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.BUG_TASK, event = NoticeConstants.Event.CREATE, target = "#targetClass.getNoticeByRequest(#request)", targetClass = BugNoticeService.class)
     public Bug add(@Validated({Created.class}) @RequestPart(value = "request") BugEditRequest request,
-                   @RequestPart(value = "file", required = false) List<MultipartFile> files) {
+                   @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         return bugService.addOrUpdate(request, files, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), false);
     }
 
@@ -111,7 +111,7 @@ public class BugController {
     @Log(type = OperationLogType.UPDATE, expression = "#msClass.updateLog(#request, #files)", msClass = BugLogService.class)
     @SendNotice(taskType = NoticeConstants.TaskType.BUG_TASK, event = NoticeConstants.Event.UPDATE, target = "#targetClass.getNoticeByRequest(#request)", targetClass = BugNoticeService.class)
     public Bug update(@Validated({Updated.class}) @RequestPart(value = "request") BugEditRequest request,
-                       @RequestPart(value = "file", required = false) List<MultipartFile> files) {
+                       @RequestPart(value = "files", required = false) List<MultipartFile> files) {
         return bugService.addOrUpdate(request, files, SessionUtils.getUserId(), SessionUtils.getCurrentOrganizationId(), true);
     }
 
