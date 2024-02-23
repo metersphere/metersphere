@@ -61,6 +61,8 @@ pipeline {
                         export CLASSPATH=$JAVA_HOME/lib:$CLASSPATH
                         export PATH=$JAVA_HOME/bin:/opt/apache-maven-3.8.3/bin:$PATH
                         java -version
+                        LOCAL_REPOSITORY=$(./mvnw help:evaluate -Dexpression=settings.localRepository --settings ./settings.xml -q -DforceStdout)
+                        rm -rf $LOCAL_REPOSITORY/io/metersphere/*
                         mvn clean install -Drevision=${REVISION} -DskipTests --settings ./settings.xml
                         mkdir -p backend/app/target/dependency && (cd backend/app/target/dependency && jar -xf ../*.jar);
                     '''
