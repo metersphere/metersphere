@@ -135,7 +135,7 @@
             <template #createUserFilter="{ columnConfig }">
               <TableFilter
                 v-model:visible="createUserFilterVisible"
-                v-model:status-filters="updateUserFilters"
+                v-model:status-filters="createUserFilters"
                 :title="(columnConfig.title as string)"
                 :list="memberOptions"
                 @search="initRecycleList()"
@@ -196,7 +196,7 @@
                 <span class="one-line-text inline-block">{{ getModules(record.moduleId) }}</span>
               </a-tooltip>
             </template>
-            <template #updateUserName="{ record }">
+            <template #updateUser="{ record }">
               <span type="text" class="px-0">{{ record.updateUserName || '-' }}</span>
             </template>
             <!-- 回收站自定义字段 -->
@@ -395,8 +395,8 @@
     },
     {
       title: 'caseManagement.featureCase.tableColumnUpdateUser',
-      slotName: 'updateUserName',
-      dataIndex: 'updateUserName',
+      slotName: 'updateUser',
+      dataIndex: 'updateUser',
       titleSlotName: 'updateUserFilter',
       sortable: {
         sortDirections: ['ascend', 'descend'],
@@ -578,6 +578,7 @@
   const executeResultFilters = ref(Object.keys(executionResultMap));
 
   const updateUserFilters = ref(memberOptions.value.map((item) => item.value));
+  const createUserFilters = ref(memberOptions.value.map((item) => item.value));
 
   function getExecuteResultList() {
     const list: any = [];
@@ -637,9 +638,10 @@
       keyword: keyword.value,
       filter: {
         reviewStatus: statusFilters.value,
-        [caseLevelFields.value.fieldId]: caseFilters.value,
+        caseLevel: caseFilters.value,
         lastExecuteResult: executeResultFilters.value,
         updateUserName: updateUserFilters.value,
+        createUserName: createUserFilters.value,
       },
     });
   }

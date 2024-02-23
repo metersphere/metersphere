@@ -93,7 +93,7 @@
     <template #createUserFilter="{ columnConfig }">
       <TableFilter
         v-model:visible="createUserFilterVisible"
-        v-model:status-filters="updateUserFilters"
+        v-model:status-filters="createUserFilters"
         :title="(columnConfig.title as string)"
         :list="memberOptions"
         @search="initData()"
@@ -848,6 +848,7 @@
 
   const executeResultFilters = ref(Object.keys(executionResultMap));
   const updateUserFilters = ref(memberOptions.value.map((item) => item.value));
+  const createUserFilters = ref(memberOptions.value.map((item) => item.value));
 
   function getExecuteResultList() {
     const list: any = [];
@@ -872,9 +873,10 @@
       keyword: keyword.value,
       filter: {
         reviewStatus: statusFilters.value,
-        [caseLevelFields.value.fieldId]: caseFilters.value,
+        caseLevel: caseFilters.value,
         lastExecuteResult: executeResultFilters.value,
         updateUserName: updateUserFilters.value,
+        createUserName: createUserFilters.value,
       },
     });
   }
