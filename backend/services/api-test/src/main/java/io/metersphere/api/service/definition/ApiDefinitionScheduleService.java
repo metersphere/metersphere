@@ -80,7 +80,7 @@ public class ApiDefinitionScheduleService {
                 request.getId(),
                 userId,
                 OperationLogType.ADD.name(),
-                OperationLogModule.API_DEFINITION,
+                OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
                 Translator.get("api_import_schedule") + ": " + request.getName());
         dto.setHistory(false);
         dto.setPath("/api/definition/schedule/add");
@@ -138,7 +138,7 @@ public class ApiDefinitionScheduleService {
                 request.getId(),
                 userId,
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.API_DEFINITION,
+                OperationLogModule.API_TEST_MANAGEMENT_DEFINITION,
                 Translator.get("api_import_schedule") + ": " + request.getName());
         dto.setHistory(false);
         dto.setPath("/api/definition/schedule/update");

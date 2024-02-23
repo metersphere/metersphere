@@ -1,6 +1,8 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.OperationLogConstants;
+import io.metersphere.sdk.constants.TemplateScene;
+import io.metersphere.sdk.util.EnumValidator;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.dto.sdk.request.CustomFieldUpdateRequest;
 import io.metersphere.system.log.constants.OperationLogModule;
@@ -29,10 +31,28 @@ public class OrganizationCustomFieldLogService {
                 null,
                 null,
                 OperationLogType.ADD.name(),
-                OperationLogModule.SETTING_SYSTEM_ORGANIZATION_CUSTOM_FIELD,
+                getOperationLogModule(request.getScene()),
                 request.getName());
         dto.setOriginalValue(JSON.toJSONBytes(request));
         return dto;
+    }
+
+    public String getOperationLogModule(String scene) {
+        TemplateScene templateScene = EnumValidator.validateEnum(TemplateScene.class, scene);
+        switch (templateScene) {
+            case API:
+                return OperationLogModule.SETTING_ORGANIZATION_TEMPLATE_API_FIELD;
+            case FUNCTIONAL:
+                return OperationLogModule.SETTING_ORGANIZATION_TEMPLATE_FUNCTIONAL_FIELD;
+            case UI:
+                return OperationLogModule.SETTING_ORGANIZATION_TEMPLATE_UI_FIELD;
+            case BUG:
+                return OperationLogModule.SETTING_ORGANIZATION_TEMPLATE_BUG_FIELD;
+            case TEST_PLAN:
+                return OperationLogModule.SETTING_ORGANIZATION_TEMPLATE_TEST_PLAN_FIELD;
+            default:
+                return null;
+        }
     }
 
     public LogDTO updateLog(CustomFieldUpdateRequest request) {
@@ -43,7 +63,7 @@ public class OrganizationCustomFieldLogService {
                 customField.getId(),
                 null,
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.SETTING_SYSTEM_ORGANIZATION_CUSTOM_FIELD,
+                getOperationLogModule(customField.getScene()),
                 customField.getName());
         dto.setOriginalValue(JSON.toJSONBytes(customField));
         return dto;
@@ -57,7 +77,7 @@ public class OrganizationCustomFieldLogService {
                 customField.getId(),
                 null,
                 OperationLogType.DELETE.name(),
-                OperationLogModule.SETTING_SYSTEM_ORGANIZATION_CUSTOM_FIELD,
+                getOperationLogModule(customField.getScene()),
                 customField.getName());
         dto.setOriginalValue(JSON.toJSONBytes(customField));
         return dto;

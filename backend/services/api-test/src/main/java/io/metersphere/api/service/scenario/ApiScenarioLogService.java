@@ -51,7 +51,7 @@ public class ApiScenarioLogService {
                             .projectId(project.getId())
                             .organizationId(project.getOrganizationId())
                             .type(operationType)
-                            .module(OperationLogModule.API_SCENARIO)
+                            .module(OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO)
                             .method(HttpMethodConstants.POST.name())
                             .path(path)
                             .sourceId(item.getId())
@@ -75,7 +75,7 @@ public class ApiScenarioLogService {
                 id,
                 operator,
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.API_SCENARIO,
+                OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO,
                 Translator.get("follow") + scenario.getName());
 
         dto.setPath("/api/scenario/follow/" + id);
@@ -93,7 +93,7 @@ public class ApiScenarioLogService {
                 id,
                 operator,
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.API_SCENARIO,
+                OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO,
                 Translator.get("unfollow") + apiTestCase.getName());
 
         dto.setPath("/api/scenario/follow/" + id);
@@ -110,7 +110,7 @@ public class ApiScenarioLogService {
                 null,
                 null,
                 OperationLogType.ADD.name(),
-                OperationLogModule.API_SCENARIO,
+                OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO,
                 request.getName());
         dto.setHistory(true);
         dto.setOriginalValue(JSON.toJSONBytes(request));
@@ -126,7 +126,7 @@ public class ApiScenarioLogService {
                 apiScenario.getId(),
                 null,
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.API_SCENARIO,
+                OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO,
                 apiScenario.getName());
         dto.setHistory(true);
         dto.setOriginalValue(JSON.toJSONBytes(request));
@@ -140,7 +140,7 @@ public class ApiScenarioLogService {
                 .projectId(project.getId())
                 .organizationId(project.getOrganizationId())
                 .type(OperationLogType.UPDATE.name())
-                .module(OperationLogModule.API_SCENARIO)
+                .module(OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO)
                 .sourceId(apiScenario.getId())
                 .content(Translator.get("api_automation_schedule") + ":" + apiScenario.getName())
                 .build().getLogDTO();
@@ -156,7 +156,7 @@ public class ApiScenarioLogService {
                 apiScenario.getId(),
                 null,
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.API_SCENARIO,
+                OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO,
                 apiScenario.getName());
         dto.setHistory(true);
         dto.setOriginalValue(JSON.toJSONBytes(apiScenario));
@@ -171,7 +171,7 @@ public class ApiScenarioLogService {
                 apiScenario.getId(),
                 null,
                 OperationLogType.DELETE.name(),
-                OperationLogModule.API_SCENARIO,
+                OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO,
                 apiScenario.getName());
         dto.setOriginalValue(JSON.toJSONBytes(apiScenario));
         return dto;
@@ -185,7 +185,7 @@ public class ApiScenarioLogService {
                 apiScenario.getId(),
                 null,
                 OperationLogType.RESTORE.name(),
-                OperationLogModule.API_SCENARIO,
+                OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO,
                 apiScenario.getName());
         dto.setOriginalValue(JSON.toJSONBytes(apiScenario));
         return dto;
@@ -201,7 +201,7 @@ public class ApiScenarioLogService {
                             .projectId(project.getId())
                             .organizationId(project.getOrganizationId())
                             .type(operationType)
-                            .module(OperationLogModule.API_SCENARIO)
+                            .module(OperationLogModule.API_SCENARIO_MANAGEMENT_SCENARIO)
                             .method(logInsertModule.getRequestMethod())
                             .path(logInsertModule.getRequestUrl())
                             .sourceId(item.getId())

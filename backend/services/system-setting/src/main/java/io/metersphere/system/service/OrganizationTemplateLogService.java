@@ -1,6 +1,8 @@
 package io.metersphere.system.service;
 
 import io.metersphere.sdk.constants.OperationLogConstants;
+import io.metersphere.sdk.constants.TemplateScene;
+import io.metersphere.sdk.util.EnumValidator;
 import io.metersphere.system.log.dto.LogDTO;
 import io.metersphere.system.dto.sdk.request.TemplateUpdateRequest;
 import io.metersphere.sdk.util.Translator;
@@ -30,10 +32,28 @@ public class OrganizationTemplateLogService {
                 null,
                 null,
                 OperationLogType.ADD.name(),
-                OperationLogModule.SETTING_SYSTEM_ORGANIZATION_TEMPLATE,
+                getOperationLogModule(request.getScene()),
                 request.getName());
         dto.setOriginalValue(JSON.toJSONBytes(request));
         return dto;
+    }
+
+    public String getOperationLogModule(String scene) {
+        TemplateScene templateScene = EnumValidator.validateEnum(TemplateScene.class, scene);
+        switch (templateScene) {
+            case API:
+                return OperationLogModule.SETTING_ORGANIZATION_TEMPLATE_API_TEMPLATE;
+            case FUNCTIONAL:
+                return OperationLogModule.SETTING_ORGANIZATION_TEMPLATE_FUNCTIONAL_TEMPLATE;
+            case UI:
+                return OperationLogModule.SETTING_ORGANIZATION_TEMPLATE_UI_TEMPLATE;
+            case BUG:
+                return OperationLogModule.SETTING_ORGANIZATION_TEMPLATE_BUG_TEMPLATE;
+            case TEST_PLAN:
+                return OperationLogModule.SETTING_ORGANIZATION_TEMPLATE_TEST_PLAN_TEMPLATE;
+            default:
+                return null;
+        }
     }
 
     public LogDTO setDefaultTemplateLog(TemplateUpdateRequest request) {
@@ -46,7 +66,7 @@ public class OrganizationTemplateLogService {
                     template.getId(),
                     null,
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.SETTING_SYSTEM_ORGANIZATION_TEMPLATE,
+                    getOperationLogModule(template.getScene()),
                     String.join(Translator.get("set_default_template"), ":", template.getName()));
             dto.setOriginalValue(JSON.toJSONBytes(template));
         }
@@ -60,7 +80,7 @@ public class OrganizationTemplateLogService {
                 scene,
                 null,
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.SETTING_SYSTEM_ORGANIZATION_TEMPLATE,
+                getOperationLogModule(scene),
                 Translator.get("project_template_enable"));
     }
 
@@ -74,7 +94,7 @@ public class OrganizationTemplateLogService {
                     template.getId(),
                     null,
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.SETTING_SYSTEM_ORGANIZATION_TEMPLATE,
+                    getOperationLogModule(template.getScene()),
                     template.getName());
             dto.setOriginalValue(JSON.toJSONBytes(template));
         }
@@ -89,7 +109,7 @@ public class OrganizationTemplateLogService {
                 template.getId(),
                 null,
                 OperationLogType.DELETE.name(),
-                OperationLogModule.SETTING_SYSTEM_ORGANIZATION_TEMPLATE,
+                getOperationLogModule(template.getScene()),
                 template.getName());
         dto.setOriginalValue(JSON.toJSONBytes(template));
         return dto;

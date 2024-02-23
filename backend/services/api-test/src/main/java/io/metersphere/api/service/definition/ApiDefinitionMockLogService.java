@@ -44,7 +44,7 @@ public class ApiDefinitionMockLogService {
                 null,
                 null,
                 OperationLogType.ADD.name(),
-                OperationLogModule.API_DEFINITION_MOCK,
+                OperationLogModule.API_TEST_MANAGEMENT_MOCK,
                 request.getName());
         dto.setHistory(true);
         dto.setPath("/api/definition/mock/add");
@@ -68,7 +68,7 @@ public class ApiDefinitionMockLogService {
                     request.getId(),
                     null,
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.API_DEFINITION_MOCK,
+                    OperationLogModule.API_TEST_MANAGEMENT_MOCK,
                     request.getName());
             dto.setHistory(true);
             dto.setPath("/api/definition/mock/update");
@@ -88,7 +88,7 @@ public class ApiDefinitionMockLogService {
                     apiDefinitionMock.getId(),
                     null,
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.API_DEFINITION_MOCK,
+                    OperationLogModule.API_TEST_MANAGEMENT_MOCK,
                     apiDefinitionMock.getName());
             dto.setHistory(true);
             dto.setPath("/api/definition/mock/enable/" + id);
@@ -114,7 +114,7 @@ public class ApiDefinitionMockLogService {
                     request.getId(),
                     null,
                     OperationLogType.DELETE.name(),
-                    OperationLogModule.API_DEFINITION_MOCK,
+                    OperationLogModule.API_TEST_MANAGEMENT_MOCK,
                     apiDefinitionMock.getName());
             dto.setHistory(true);
             dto.setPath("/api/definition/mock/delete");
@@ -135,7 +135,7 @@ public class ApiDefinitionMockLogService {
                     null,
                     null,
                     OperationLogType.UPDATE.name(),
-                    OperationLogModule.API_DEFINITION_MOCK,
+                    OperationLogModule.API_TEST_MANAGEMENT_MOCK,
                     apiDefinitionMock.getName());
             dto.setHistory(true);
             dto.setPath("/api/definition/mock/copy");

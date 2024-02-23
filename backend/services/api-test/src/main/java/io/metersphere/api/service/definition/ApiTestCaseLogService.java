@@ -56,7 +56,7 @@ public class ApiTestCaseLogService {
                 null,
                 null,
                 OperationLogType.ADD.name(),
-                OperationLogModule.API_DEFINITION_CASE,
+                OperationLogModule.API_TEST_MANAGEMENT_CASE,
                 request.getName());
 
         dto.setPath("/api/case/add");
@@ -74,7 +74,7 @@ public class ApiTestCaseLogService {
                 id,
                 null,
                 OperationLogType.DELETE.name(),
-                OperationLogModule.API_DEFINITION_CASE,
+                OperationLogModule.API_TEST_MANAGEMENT_CASE,
                 apiTestCase.getName());
 
         dto.setPath("/api/case/delete/" + id);
@@ -93,7 +93,7 @@ public class ApiTestCaseLogService {
                 id,
                 null,
                 OperationLogType.DELETE.name(),
-                OperationLogModule.API_DEFINITION_CASE,
+                OperationLogModule.API_TEST_MANAGEMENT_CASE,
                 apiTestCase.getName());
 
         dto.setPath("/api/case/move-gc/" + id);
@@ -111,7 +111,7 @@ public class ApiTestCaseLogService {
                 id,
                 null,
                 OperationLogType.RECOVER.name(),
-                OperationLogModule.API_DEFINITION_CASE,
+                OperationLogModule.API_TEST_MANAGEMENT_CASE,
                 apiTestCase.getName());
         dto.setHistory(false);
         dto.setPath("/api/case/recover/" + id);
@@ -129,7 +129,7 @@ public class ApiTestCaseLogService {
                 id,
                 null,
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.API_DEFINITION_CASE,
+                OperationLogModule.API_TEST_MANAGEMENT_CASE,
                 Translator.get("follow") + apiTestCase.getName());
 
         dto.setPath("/api/case/follow/" + id);
@@ -147,7 +147,7 @@ public class ApiTestCaseLogService {
                 id,
                 null,
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.API_DEFINITION_CASE,
+                OperationLogModule.API_TEST_MANAGEMENT_CASE,
                 Translator.get("unfollow") + apiTestCase.getName());
 
         dto.setPath("/api/case/unfollow/" + id);
@@ -166,7 +166,7 @@ public class ApiTestCaseLogService {
                 request.getId(),
                 null,
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.API_DEFINITION_CASE,
+                OperationLogModule.API_TEST_MANAGEMENT_CASE,
                 request.getName());
 
         dto.setPath("/api/case/update");
@@ -189,7 +189,7 @@ public class ApiTestCaseLogService {
                 id,
                 null,
                 OperationLogType.UPDATE.name(),
-                OperationLogModule.API_DEFINITION_CASE,
+                OperationLogModule.API_TEST_MANAGEMENT_CASE,
                 apiTestCase.getName());
 
         dto.setPath("/api/case/update");
@@ -210,7 +210,7 @@ public class ApiTestCaseLogService {
                             .projectId(project.getId())
                             .organizationId(project.getOrganizationId())
                             .type(OperationLogType.DELETE.name())
-                            .module(OperationLogModule.API_DEFINITION_CASE)
+                            .module(OperationLogModule.API_TEST_MANAGEMENT_CASE)
                             .method(HttpMethodConstants.POST.name())
                             .path("/api/case/batch/delete")
                             .sourceId(item.getId())
@@ -261,7 +261,7 @@ public class ApiTestCaseLogService {
                             .projectId(project.getId())
                             .organizationId(project.getOrganizationId())
                             .type(operationType)
-                            .module(OperationLogModule.API_DEFINITION_CASE)
+                            .module(OperationLogModule.API_TEST_MANAGEMENT_CASE)
                             .method(HttpMethodConstants.POST.name())
                             .path(path)
                             .sourceId(item.getId())
