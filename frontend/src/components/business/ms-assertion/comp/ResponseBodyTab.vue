@@ -167,7 +167,7 @@
         </template>
       </paramsTable>
     </div>
-    <div v-if="activeTab === 'document'">
+    <div v-if="activeTab === 'document'" class="relative mt-[16px]">
       <paramsTable
         v-model:params="innerParams.document.data"
         :selectable="false"
@@ -175,7 +175,9 @@
         :scroll="{
           minWidth: '700px',
         }"
+        :height-used="580"
         :default-param-item="documentDefaultParamItem"
+        :span-method="documentSpanMethod"
         @change="handleChange"
         @more-action-select="(e,r)=> handleExtractParamMoreActionSelect(e,r as ExpressionConfig)"
       >
@@ -183,17 +185,17 @@
           <a-tooltip v-if="['object', 'array'].includes(record.paramType)" :content="t('ms.assertion.addChild')">
             <div
               class="flex h-[24px] w-[24px] cursor-pointer items-center justify-center rounded text-[rgb(var(--primary-5))] hover:bg-[rgb(var(--primary-1))]"
-              @click="addChild"
+              @click="addChild(record)"
             >
-              <icon-plus size="14" />
+              <icon-plus size="16" />
             </div>
           </a-tooltip>
           <a-tooltip v-else :content="t('ms.assertion.validateChild')">
             <div
               class="flex h-[24px] w-[24px] cursor-pointer items-center justify-center rounded text-[rgb(var(--primary-5))] hover:bg-[rgb(var(--primary-1))]"
-              @click="addValidateChild"
+              @click="addValidateChild(record)"
             >
-              <icon-bookmark size="14" />
+              <icon-bookmark size="16" />
             </div>
           </a-tooltip>
         </template>
@@ -288,14 +290,18 @@
 </template>
 
 <script setup lang="ts">
+  import { TableColumnData, TableData } from '@arco-design/web-vue';
+
   import { statusCodeOptions } from '@/components/pure/ms-advance-filter';
   import { ActionsItem } from '@/components/pure/ms-table-more-action/types';
+  import { TableOperationColumn } from '../../ms-user-group-comp/authTable.vue';
   import conditionContent from '@/views/api-test/components/condition/content.vue';
   import fastExtraction from '@/views/api-test/components/fastExtraction/index.vue';
   import moreSetting from '@/views/api-test/components/fastExtraction/moreSetting.vue';
   import paramsTable, { type ParamTableColumn } from '@/views/api-test/components/paramTable.vue';
 
   import { useI18n } from '@/hooks/useI18n';
+  import { findFirstByGroupId, insertTreeByCurrentId, insertTreeByGroupId } from '@/utils/tree';
 
   import {
     ExecuteConditionProcessor,
@@ -359,7 +365,7 @@
       script: new Date().getTime().toString(),
     },
   });
-  const activeTab = ref('jsonPath');
+  const activeTab = ref('document');
   const extractParamsTableRef = ref<InstanceType<typeof paramsTable>>();
   const fastExtractionVisible = ref(false);
   const disabledExpressionSuffix = ref(false);
@@ -394,12 +400,14 @@
       title: 'ms.assertion.expression',
       dataIndex: 'expression',
       slotName: 'expression',
+      width: 300,
     },
     {
       title: 'ms.assertion.matchCondition',
       dataIndex: 'matchCondition',
       slotName: 'matchCondition',
       options: statusCodeOptions,
+      width: 120,
     },
     {
       title: 'ms.assertion.matchValue',
@@ -473,6 +481,7 @@
       title: 'ms.assertion.paramsName',
       dataIndex: 'paramsName',
       slotName: 'key',
+      width: 300,
     },
     {
       title: 'ms.assertion.mustInclude',
@@ -480,6 +489,7 @@
       slotName: 'mustContain',
       titleSlotName: 'documentMustIncludeTitle',
       align: 'left',
+      width: 80,
     },
     {
       title: 'ms.assertion.typeChecking',
@@ -487,6 +497,7 @@
       slotName: 'typeChecking',
       titleSlotName: 'documentTypeCheckingTitle',
       align: 'left',
+      width: 100,
     },
     {
       title: 'project.environmental.paramType',
@@ -522,7 +533,8 @@
       title: '',
       slotName: 'operation',
       fixed: 'right',
-      width: 130,
+      width: 60,
+      align: 'right',
     },
   ];
   const documentDefaultParamItem = {
@@ -602,21 +614,71 @@
   const addChild = (record: Record<string, any>) => {
     const children = record.children || [];
     const newRecord = {
+      ...documentDefaultParamItem,
       id: new Date().getTime(),
       parentId: record.id,
-      rowIndex: children.length,
     };
     record.children = [...children, newRecord];
   };
 
   // 添加验证子项
   const addValidateChild = (record: Record<string, any>) => {
-    const children = record.children || [];
-    const newRecord = {
-      id: new Date().getTime(),
-      parentId: record.id,
-      rowIndex: children.length,
-    };
-    record.children = [...children, newRecord];
+    if (record.groupId) {
+      // 子项点击，找到父级
+      const parent = innerParams.value.document.data.find((item: any) => item.id === record.groupId);
+      insertTreeByCurrentId(innerParams.value.document.data, record.id, {
+        ...documentDefaultParamItem,
+        id: new Date().getTime(),
+        groupId: parent ? parent.id : record.groupId,
+      });
+      if (parent) {
+        parent.rowSpan = parent.rowSpan ? parent.rowSpan + 1 : 2;
+      } else {
+        // 找到第一个子节点
+        const fisrtChildNode = findFirstByGroupId(innerParams.value.document.data, record.groupId);
+        if (fisrtChildNode) {
+          fisrtChildNode.rowSpan = fisrtChildNode.rowSpan ? fisrtChildNode.rowSpan + 1 : 2;
+        }
+      }
+    } else {
+      // 父级点击，直接添加到末尾
+      insertTreeByCurrentId(innerParams.value.document.data, record.id, {
+        ...documentDefaultParamItem,
+        id: new Date().getTime(),
+        groupId: record.id,
+      });
+    }
+  };
+  const documentSpanMethod = (data: {
+    record: TableData;
+    column: TableColumnData | TableOperationColumn;
+    rowIndex: number;
+    columnIndex: number;
+  }): { rowspan?: number; colspan?: number } | void => {
+    // groupId 是后端传过来的id，然后根据这个id去找到对应的子项
+    // 前端根据groupId 去过滤出rowspan的数量,然后返回
+    const { record, column } = data;
+    const currentColumn = column as TableColumnData;
+    if (record.rowSpan > 1) {
+      if (currentColumn.slotName === 'key') {
+        return {
+          rowspan: record.rowSpan,
+          colspan: 1,
+        };
+      }
+      if (currentColumn.slotName === 'operation') {
+        return {
+          rowspan: record.rowSpan,
+          colspan: 1,
+        };
+      }
+      if (currentColumn.slotName === 'mustContain') {
+        return {
+          rowspan: record.rowSpan,
+          colspan: 3,
+        };
+      }
+    }
+    return { rowspan: record.rowSpan, colspan: 1 };
   };
 </script>

@@ -192,6 +192,7 @@
 <style lang="less" scoped>
   .page {
     transform: scale3d(1, 1, 1);
+    padding-bottom: 180px;
     .header {
       padding: 24px 24px 0;
     }
