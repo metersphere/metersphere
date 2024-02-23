@@ -141,9 +141,7 @@ public class FunctionalCaseDemandService {
             paramValue = systemParameter.getParamValue();
         }
         if (StringUtils.equalsIgnoreCase(functionalCaseDemand.getDemandPlatform(), paramValue)) {
-            if (StringUtils.isNotBlank(demandDTO.getDemandId())) {
-                functionalCaseDemand.setDemandId(demandDTO.getDemandId());
-            }
+            functionalCaseDemand.setDemandId(demandDTO.getDemandId());
             functionalCaseDemand.setParent("NONE");
         } else {
             if (StringUtils.isBlank(demandDTO.getDemandId())) {
@@ -163,9 +161,7 @@ public class FunctionalCaseDemandService {
             demandDTO.setDemandName(demandDTO.getDemandName().substring(0,255));
         }
         functionalCaseDemand.setDemandName(demandDTO.getDemandName());
-        if (StringUtils.isNotBlank(demandDTO.getDemandUrl())) {
-            functionalCaseDemand.setDemandUrl(demandDTO.getDemandUrl());
-        }
+        functionalCaseDemand.setDemandUrl(demandDTO.getDemandUrl());
     }
 
     /**
