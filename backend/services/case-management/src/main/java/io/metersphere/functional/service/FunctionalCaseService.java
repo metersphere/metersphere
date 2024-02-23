@@ -765,20 +765,21 @@ public class FunctionalCaseService {
             handleTags(request, userId, ids);
             //自定义字段处理
             handleCustomFields(request, userId, ids);
-        }
-
-    }
-
-    private void handleCustomFields(FunctionalCaseBatchEditRequest request, String userId, List<String> ids) {
-        Optional.ofNullable(request.getCustomField()).ifPresent(customField -> {
-            functionalCaseCustomFieldService.batchUpdate(customField, ids);
-
+            //基本信息
             FunctionalCase functionalCase = new FunctionalCase();
             functionalCase.setProjectId(request.getProjectId());
             functionalCase.setUpdateTime(System.currentTimeMillis());
             functionalCase.setUpdateUser(userId);
             extFunctionalCaseMapper.batchUpdate(functionalCase, ids);
-        });
+        }
+
+    }
+
+    private void handleCustomFields(FunctionalCaseBatchEditRequest request, String userId, List<String> ids) {
+        boolean customField = Optional.ofNullable(request.getCustomField()).map(o -> o.getFieldId()).isPresent();
+        if(customField){
+            functionalCaseCustomFieldService.batchUpdate(request.getCustomField(), ids);
+        }
     }
 
     private void handleTags(FunctionalCaseBatchEditRequest request, String userId, List<String> ids) {
